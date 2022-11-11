@@ -19,8 +19,15 @@ protocol ExchangeManager {
 }
 
 extension ExchangeManager {
-    func createTransaction(amount: Amount, fee: Amount, destinationAddress: String,
-                           sourceAddress: String? = nil, changeAddress: String? = nil) throws -> Transaction {
-        try self.createTransaction(amount: amount, fee: fee, destinationAddress: destinationAddress, sourceAddress: sourceAddress, changeAddress: changeAddress)
+    func createTransaction(amount: Amount,
+                           fee: Amount,
+                           destinationAddress: String,
+                           sourceAddress: String? = nil,
+                           changeAddress: String? = nil) throws -> Transaction {
+        try self.createTransaction(amount: amount,
+                                   fee: fee,
+                                   destinationAddress: destinationAddress,
+                                   sourceAddress: sourceAddress,
+                                   changeAddress: changeAddress)
     }
 }
