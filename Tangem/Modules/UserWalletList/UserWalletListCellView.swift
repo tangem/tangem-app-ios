@@ -81,12 +81,9 @@ class UserWalletListCellViewModel: ObservableObject {
 
         if isMultiWallet {
             userWalletModel.subscribeToWalletModels()
-                .sink { models in
-                    let allTokenItemViewModels = models.reduce(into: []) { partialResult, walletModel in
-                        partialResult = partialResult + walletModel.allTokenItemViewModels()
-                    }
-
-                    let numberOfTokens = allTokenItemViewModels.count
+                .print("subscribeToWalletModels")
+                .map { $0.reduce(0, { $0 + $1.tokensCount() }) }
+                .sink { numberOfTokens in
                     if numberOfTokens == 0 {
                         self.numberOfTokens = nil
                     } else {
