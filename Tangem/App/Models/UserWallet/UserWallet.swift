@@ -37,7 +37,7 @@ extension UserWallet {
 
         let keyHash = firstWalletPublicKey.getSha256()
         let key = SymmetricKey(data: keyHash)
-        let message = "TokensSymmetricKey".data(using: .utf8)!
+        let message = Constants.messageForTokensKey.data(using: .utf8)!
         let tokensSymmetricKey = HMAC<SHA256>.authenticationCode(for: message, using: key)
         let tokensSymmetricKeyData = Data(tokensSymmetricKey)
 
