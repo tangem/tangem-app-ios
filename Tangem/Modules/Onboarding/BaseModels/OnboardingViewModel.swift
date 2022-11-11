@@ -339,9 +339,8 @@ class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable>
             return
         }
 
-        if userWalletListService.save(userWallet) {
-            userWalletListService.selectedUserWalletId = userWallet.userWalletId
-        }
+        userWalletListService.save(userWallet)
+        userWalletListService.selectedUserWalletId = userWallet.userWalletId
 
         completion(.success(()))
     }
