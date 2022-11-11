@@ -25,7 +25,7 @@ class ExchangeViewModelFactory {
             exchangeCurrency = tokensFactory.createCoin(for: blockchainNetwork)
         case .token:
             let contractAddress = amountType.token!.contractAddress
-            exchangeCurrency = ExchangeCurrency(type: .token(blockchainNetwork: blockchainNetwork, contractAddress: contractAddress),
+            exchangeCurrency = ExchangeCurrency(type: .token(blockchainNetwork, contractAddress: contractAddress),
                                                 name: amountType.token!.name,
                                                 symbol: amountType.token!.symbol,
                                                 decimalCount: Decimal(amountType.token!.decimalCount))
@@ -36,7 +36,7 @@ class ExchangeViewModelFactory {
         case .coin:
             destinationCurrency = ExchangeCurrency.daiToken(blockchainNetwork: blockchainNetwork)
         case .token:
-            destinationCurrency = ExchangeCurrency(type: .coin(blockchainNetwork: blockchainNetwork))
+            destinationCurrency = ExchangeCurrency(type: .coin(blockchainNetwork))
         }
 
         let exchangeFacade = exchangeFacadeFactory.createFacade(for: exchangeRouter,
@@ -44,8 +44,8 @@ class ExchangeViewModelFactory {
                                                                 signer: signer,
                                                                 blockchainNetwork: blockchainNetwork)
 
-        return ExchangeViewModel(sourceCurrency: exchangeCurrency,
-                                 destinationCurrency: destinationCurrency,
-                                 exchangeFacade: exchangeFacade)
+        return ExchangeViewModel(exchangeFacade: exchangeFacade,
+                                 sourceCurrency: exchangeCurrency,
+                                 destinationCurrency: destinationCurrency)
     }
 }
