@@ -90,7 +90,7 @@ class CommonCardsRepository: CardsRepository {
         models = []
     }
 
-    func didSwitchToModel(_ cardModel: CardViewModel) {
+    func didSwitch(to cardModel: CardViewModel) {
         let cardInfo = cardModel.cardInfo
         startInitializingServices(for: cardInfo)
         finishInitializingServices(for: cardModel, cardInfo: cardInfo)
