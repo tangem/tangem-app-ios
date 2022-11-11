@@ -118,8 +118,7 @@ struct UserWalletListCellView: View {
                     .style(Fonts.Bold.subheadline, color: viewModel.isSelected ? Colors.Text.accent : Colors.Text.primary1)
 
                 Text(viewModel.subtitle)
-                    .font(Font.footnote)
-                    .foregroundColor(Colors.Text.tertiary)
+                    .style(Font.footnote, color: Colors.Text.tertiary)
             }
 
             Spacer()
@@ -127,13 +126,11 @@ struct UserWalletListCellView: View {
             if !viewModel.isUserWalletLocked {
                 VStack(alignment: .trailing, spacing: 2) {
                     Text(viewModel.balance)
-                        .font(Font.subheadline)
-                        .foregroundColor(Colors.Text.primary1)
+                        .style(Font.subheadline, color: Colors.Text.primary1)
                         .skeletonable(isShown: viewModel.isBalanceLoading, radius: 6)
 
                     Text(viewModel.numberOfTokens ?? "")
-                        .font(Font.footnote)
-                        .foregroundColor(Colors.Text.tertiary)
+                        .style(Font.footnote, color: Colors.Text.tertiary)
                 }
             } else {
                 lockIcon
