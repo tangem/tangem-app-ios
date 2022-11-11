@@ -80,7 +80,7 @@ class CommonCardsRepository: CardsRepository {
         models.append(contentsOf: cardModels)
     }
 
-    func removeModel(withUserWalletId userWalletId: Data) {
+    func removeModel(with userWalletId: Data) {
         models.removeAll {
             $0.userWalletId == userWalletId
         }
