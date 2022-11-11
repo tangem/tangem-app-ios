@@ -76,10 +76,6 @@ class CommonCardsRepository: CardsRepository {
         .eraseToAnyPublisher()
     }
 
-    func add(_ cardModel: CardViewModel) {
-        add([cardModel])
-    }
-
     func add(_ cardModels: [CardViewModel]) {
         models.append(contentsOf: cardModels)
     }
