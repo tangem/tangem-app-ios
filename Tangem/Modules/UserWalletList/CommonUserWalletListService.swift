@@ -12,6 +12,8 @@ import LocalAuthentication
 import TangemSdk
 
 class CommonUserWalletListService: UserWalletListService {
+    @Injected(\.cardsRepository) private var cardsRepository: CardsRepository
+
     var models: [CardViewModel] {
         cardsRepository.models
     }
@@ -52,12 +54,6 @@ class CommonUserWalletListService: UserWalletListService {
     }
 
     private var bag: Set<AnyCancellable> = []
-
-    @Injected(\.cardsRepository) private var cardsRepository: CardsRepository
-
-    init() {
-
-    }
 
     func initialize() {
 
