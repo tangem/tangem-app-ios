@@ -246,7 +246,7 @@ extension MainCoordinator: UserWalletListRoutable {
         }
 
         let coordinator = OnboardingCoordinator(dismissAction: dismissAction, popToRootAction: popToRootAction)
-        let options = OnboardingCoordinator.Options(input: input, destination: .dismiss, saveUserWalletOnFinish: true)
+        let options = OnboardingCoordinator.Options(input: input, destination: .main, saveUserWalletOnFinish: true)
         coordinator.start(with: options)
         pushedOnboardingCoordinator = coordinator
     }
