@@ -90,7 +90,14 @@ class UserWalletListCellViewModel: ObservableObject {
     }
 
     private func loadImage() {
-        cardImageProvider.loadImage(cardId: userWallet.card.cardId, cardPublicKey: userWallet.card.cardPublicKey)
+        let artwork: CardArtwork
+        if let artworkInfo = userWallet.artwork {
+            artwork = .artwork(artworkInfo)
+        } else {
+            artwork = .notLoaded
+        }
+
+        cardImageProvider.loadImage(cardId: userWallet.card.cardId, cardPublicKey: userWallet.card.cardPublicKey, artwork: artwork)
             .sink { [unowned self] image in
                 self.image = image
             }
