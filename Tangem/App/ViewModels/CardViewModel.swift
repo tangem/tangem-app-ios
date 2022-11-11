@@ -468,7 +468,7 @@ class CardViewModel: Identifiable, ObservableObject {
 
     func didScan() {
         Analytics.logScan(card: cardInfo.card, config: config)
-        onAppear()
+        updateSdkConfig()
     }
 
     func onAppear() {
