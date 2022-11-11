@@ -66,8 +66,8 @@ extension ExchangeCurrency {
 
 extension ExchangeCurrency {
     enum Currency {
-        case coin(blockchainNetwork: BlockchainNetwork)
-        case token(blockchainNetwork: BlockchainNetwork, contractAddress: String)
+        case coin(_ blockchainNetwork: BlockchainNetwork)
+        case token(_ blockchainNetwork: BlockchainNetwork, contractAddress: String)
 
         var contractAddress: String {
             switch self {
