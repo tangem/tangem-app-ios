@@ -159,7 +159,7 @@ class CommonUserWalletListService: UserWalletListService {
         let userWalletId = userWallet.userWalletId
         encryptionKeyByUserWalletId[userWalletId] = nil
         userWallets.removeAll { $0.userWalletId == userWalletId }
-        cardsRepository.removeModel(withUserWalletId: userWalletId)
+        cardsRepository.removeModel(with: userWalletId)
 
         encryptionKeyStorage.delete(userWallet)
         saveUserWallets(userWallets)
