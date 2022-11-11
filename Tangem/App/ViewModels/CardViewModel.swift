@@ -627,7 +627,7 @@ class CardViewModel: Identifiable, ObservableObject {
         userWalletModel?.updateUserWallet(userWallet)
 
         if userWalletListService.contains(userWallet) {
-            let _ = userWalletListService.save(userWallet)
+            userWalletListService.save(userWallet)
         }
     }
 
