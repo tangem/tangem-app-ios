@@ -419,6 +419,9 @@ class CardViewModel: Identifiable, ObservableObject {
             cardInfo.card.wallets[updatedWallet.publicKey]?.remainingSignatures = updatedWallet.remainingSignatures
         }
 
+        let cardDto = CardDTO(card: card)
+        userWalletListService.didScan(card: cardDto)
+
         onUpdate()
     }
 
@@ -616,7 +619,6 @@ class CardViewModel: Identifiable, ObservableObject {
     private func bind() {
         signer.signPublisher.sink { [unowned self] card in
             self.onSigned(card)
-            self.updateUserWallet()
         }
         .store(in: &bag)
     }
