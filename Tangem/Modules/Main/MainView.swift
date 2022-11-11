@@ -72,7 +72,7 @@ struct MainView: View {
 
     @ViewBuilder
     var leadingNavigationButtons: some View {
-        if AppSettings.shared.saveUserWallets {
+        if viewModel.saveUserWallets {
             userWalletListNavigationButton
         } else {
             scanNavigationButton

@@ -22,7 +22,7 @@ class CardViewModel: Identifiable, ObservableObject {
 
     @Published private(set) var currentSecurityOption: SecurityModeOption = .longTap
 
-    var signer: TangemSigner { config.tangemSigner }
+    lazy var signer: TangemSigner = config.tangemSigner
 
     var cardId: String { cardInfo.card.cardId }
 
@@ -248,7 +248,7 @@ class CardViewModel: Identifiable, ObservableObject {
         let cardInfo = userWallet.cardInfo()
         let config = UserWalletConfigFactory(cardInfo).makeConfig()
 
-        self.init(cardInfo: userWallet.cardInfo(), config: config, userWallet: userWallet)
+        self.init(cardInfo: cardInfo, config: config, userWallet: userWallet)
     }
 
     init(
@@ -419,6 +419,9 @@ class CardViewModel: Identifiable, ObservableObject {
             cardInfo.card.wallets[updatedWallet.publicKey]?.remainingSignatures = updatedWallet.remainingSignatures
         }
 
+        let cardDto = CardDTO(card: card)
+        userWalletListService.didScan(card: cardDto)
+
         onUpdate()
     }
 
@@ -468,7 +471,7 @@ class CardViewModel: Identifiable, ObservableObject {
 
     func didScan() {
         Analytics.logScan(card: cardInfo.card, config: config)
-        onAppear()
+        updateSdkConfig()
     }
 
     func onAppear() {
@@ -616,7 +619,6 @@ class CardViewModel: Identifiable, ObservableObject {
     private func bind() {
         signer.signPublisher.sink { [unowned self] card in
             self.onSigned(card)
-            self.updateUserWallet()
         }
         .store(in: &bag)
     }
