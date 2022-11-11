@@ -161,6 +161,10 @@ class MainViewModel: ObservableObject {
         cardModel.canShowSend
     }
 
+    var saveUserWallets: Bool {
+        AppSettings.shared.saveUserWallets
+    }
+
     init(
         cardModel: CardViewModel,
         userWalletModel: UserWalletModel,
