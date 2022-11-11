@@ -260,7 +260,7 @@ final class AppScanTask: CardSessionRunnable {
 
         let card = CardDTO(card: plainCard)
         migrate(card: card)
-        let config = GenericConfig(card: card)
+        let config = config(for: card)
         var derivations: [EllipticCurve: [DerivationPath]] = [:]
 
         if let seed = config.userWalletIdSeed {
@@ -319,8 +319,13 @@ final class AppScanTask: CardSessionRunnable {
                                                 primaryCard: primaryCard)))
     }
 
+    private func config(for card: CardDTO) -> UserWalletConfig {
+        let cardInfo = CardInfo(card: card, walletData: walletData, name: "")
+        return UserWalletConfigFactory(cardInfo).makeConfig()
+    }
+
     private func migrate(card: CardDTO) {
-        let config = UserWalletConfigFactory(CardInfo(card: card, walletData: walletData, name: "")).makeConfig()
+        let config = config(for: card)
         if let legacyCardMigrator = LegacyCardMigrator(cardId: card.cardId, config: config) {
             legacyCardMigrator.migrateIfNeeded()
         }
