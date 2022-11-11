@@ -20,7 +20,7 @@ protocol CardsRepository {
     func add(_ cardModels: [CardViewModel])
     func removeModel(withUserWalletId userWalletId: Data)
     func clear()
-    func didSwitchToModel(_ cardModel: CardViewModel)
+    func didSwitch(to cardModel: CardViewModel)
 }
 
 protocol CardsRepositoryDelegate: AnyObject {
