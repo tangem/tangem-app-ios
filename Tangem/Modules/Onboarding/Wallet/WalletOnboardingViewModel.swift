@@ -852,7 +852,7 @@ class WalletOnboardingViewModel: OnboardingTopupViewModel<WalletOnboardingStep, 
                                                                     body: "initial_message_create_wallet_body".localized)) { [weak self] result in
                     switch result {
                     case .success(let result):
-                        self?.addDefaultTokens(for: CardDTO(card: result.card))
+                        self?.addDefaultTokens(for: result.card)
 
                         if let cardModel = self?.input.cardInput.cardModel {
                             cardModel.onWalletCreated(result.card)
@@ -942,7 +942,7 @@ class WalletOnboardingViewModel: OnboardingTopupViewModel<WalletOnboardingStep, 
                             if updatedCard.cardId == self.backupService.primaryCard?.cardId {
                                 self.input.cardInput.cardModel?.onBackupCreated(updatedCard)
                             } else { // add tokens for backup cards
-                                self.addDefaultTokens(for: CardDTO(card: updatedCard))
+                                self.addDefaultTokens(for: updatedCard)
                             }
 
                             promise(.success(()))
@@ -978,8 +978,8 @@ class WalletOnboardingViewModel: OnboardingTopupViewModel<WalletOnboardingStep, 
         }
     }
 
-    private func addDefaultTokens(for card: CardDTO) {
-        let config = GenericConfig(card: card)
+    private func addDefaultTokens(for card: Card) {
+        let config = UserWalletConfigFactory(CardInfo(card: CardDTO(card: card), walletData: .none, name: "")).makeConfig()
 
         guard let seed = config.userWalletIdSeed else { return }
 
