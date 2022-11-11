@@ -11,6 +11,9 @@ import SwiftUI
 import TangemSdk
 
 class AppSettingsViewModel: ObservableObject {
+    @Injected(\.userWalletListService) private var userWalletListService: UserWalletListService
+    @Injected(\.tangemSdkProvider) private var sdkProvider: TangemSdkProviding
+
     // MARK: ViewState
 
     @Published var isSavingWallet: Bool
@@ -21,9 +24,6 @@ class AppSettingsViewModel: ObservableObject {
     // MARK: Dependencies
 
     private unowned let coordinator: AppSettingsRoutable
-
-    @Injected(\.userWalletListService) private var userWalletListService: UserWalletListService
-    @Injected(\.tangemSdkProvider) private var sdkProvider: TangemSdkProviding
 
     // MARK: Properties
 
