@@ -64,7 +64,7 @@ private extension AppSettingsViewModel {
                 if saveWallet {
                     self.userWalletListService.unlockWithBiometry { result in
                         if case .success = result {
-                            let _ = self.userWalletListService.save(userWallet)
+                            self.userWalletListService.save(userWallet)
                             self.setSaveWallets(true)
                         } else {
                             self.setSaveWallets(false)
