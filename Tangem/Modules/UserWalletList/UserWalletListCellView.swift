@@ -17,16 +17,16 @@ class UserWalletListCellViewModel: ObservableObject {
     @Published var isBalanceLoading = true
 
     let userWalletModel: UserWalletModel
-    var userWallet: UserWallet { userWalletModel.userWallet }
     let subtitle: String
     let isMultiWallet: Bool
     let didTapUserWallet: () -> Void
+    let totalBalanceProvider: TotalBalanceProviding
 
+    var userWallet: UserWallet { userWalletModel.userWallet }
     var userWalletId: Data { userWallet.userWalletId }
     var name: String { userWallet.name }
     var isUserWalletLocked: Bool { userWallet.isLocked }
 
-    let totalBalanceProvider: TotalBalanceProviding
     private let cardImageProvider: CardImageProviding
 
     private var bag: Set<AnyCancellable> = []
