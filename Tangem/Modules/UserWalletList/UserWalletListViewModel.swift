@@ -10,6 +10,10 @@ import Combine
 import SwiftUI
 
 final class UserWalletListViewModel: ObservableObject, Identifiable {
+    @Injected(\.cardsRepository) private var cardsRepository: CardsRepository
+    @Injected(\.userWalletListService) private var userWalletListService: UserWalletListService
+    @Injected(\.failedScanTracker) var failedCardScanTracker: FailedScanTrackable
+
     // MARK: - ViewState
     @Published var selectedUserWalletId: Data?
     @Published var multiCurrencyModels: [UserWalletListCellViewModel] = []
@@ -20,10 +24,6 @@ final class UserWalletListViewModel: ObservableObject, Identifiable {
     @Published var showingDeleteConfirmation: Bool = false
 
     // MARK: - Dependencies
-
-    @Injected(\.cardsRepository) private var cardsRepository: CardsRepository
-    @Injected(\.userWalletListService) private var userWalletListService: UserWalletListService
-    @Injected(\.failedScanTracker) var failedCardScanTracker: FailedScanTrackable
 
     var unlockAllButtonLocalizationKey: LocalizedStringKey {
         switch BiometricAuthorizationUtils.biometryType {
