@@ -41,6 +41,7 @@ class CommonCardsRepository: CardsRepository {
     func scan(with batch: String? = nil, requestBiometrics: Bool, _ completion: @escaping (Result<CardViewModel, Error>) -> Void) {
         Analytics.reset()
         Analytics.log(.readyToScan)
+        walletConnectServiceProvider.reset()
 
         var config = TangemSdkConfigFactory().makeDefaultConfig()
         if requestBiometrics {
