@@ -244,9 +244,7 @@ final class UserWalletListViewModel: ObservableObject, Identifiable {
                 return
             }
 
-            guard userWalletListService.save(userWallet) else {
-                return
-            }
+            userWalletListService.save(userWallet)
 
             if newModel.isMultiWallet {
                 multiCurrencyModels.append(cellModel)
