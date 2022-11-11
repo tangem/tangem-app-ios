@@ -18,9 +18,9 @@ protocol CardsRepository {
     func scanPublisher(with batch: String?, requestBiometrics: Bool) ->  AnyPublisher<CardViewModel, Error>
 
     func add(_ cardModels: [CardViewModel])
-    func removeModel(withUserWalletId userWalletId: Data)
+    func removeModel(with userWalletId: Data)
     func clear()
-    func didSwitchToModel(_ cardModel: CardViewModel)
+    func didSwitch(to cardModel: CardViewModel)
 }
 
 protocol CardsRepositoryDelegate: AnyObject {
