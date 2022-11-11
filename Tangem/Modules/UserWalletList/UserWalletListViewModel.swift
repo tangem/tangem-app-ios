@@ -136,7 +136,7 @@ final class UserWalletListViewModel: ObservableObject, Identifiable {
             var newUserWallet = viewModel.userWallet
             newUserWallet.name = newName
 
-            let _ = self?.userWalletListService.save(newUserWallet)
+            self?.userWalletListService.save(newUserWallet)
             self?.updateModels()
         }
         alert.addAction(acceptButton)
