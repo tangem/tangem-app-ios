@@ -82,7 +82,7 @@ class UserWalletListCellViewModel: ObservableObject {
     }
 
     private func update() {
-        self.isBalanceLoading = true
+        isBalanceLoading = true
 
         userWalletModel.updateAndReloadWalletModels { [weak self] in
             self?.totalBalanceProvider.updateTotalBalance()
