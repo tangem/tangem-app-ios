@@ -22,7 +22,7 @@ class CardViewModel: Identifiable, ObservableObject {
 
     @Published private(set) var currentSecurityOption: SecurityModeOption = .longTap
 
-    var signer: TangemSigner { config.tangemSigner }
+    lazy var signer: TangemSigner = config.tangemSigner
 
     var cardId: String { cardInfo.card.cardId }
 
