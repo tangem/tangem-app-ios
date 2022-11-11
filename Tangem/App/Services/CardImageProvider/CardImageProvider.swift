@@ -36,6 +36,10 @@ struct CardImageProvider {
 
 extension CardImageProvider: CardImageProviding {
     func loadImage(cardId: String, cardPublicKey: Data) -> AnyPublisher<UIImage, Never> {
+        loadImage(cardId: cardId, cardPublicKey: cardPublicKey, artwork: nil)
+    }
+
+    func loadImage(cardId: String, cardPublicKey: Data, artwork: CardArtwork?) -> AnyPublisher<UIImage, Never> {
         if SaltPayUtil().isPrimaryCard(batchId: String(cardId.prefix(4))) {
             return Just(UIImage(named: "saltpay")!).eraseToAnyPublisher()
         }
@@ -44,7 +48,9 @@ extension CardImageProvider: CardImageProviding {
             return Just(defaultImage).eraseToAnyPublisher()
         }
 
-        return loadImage(cardId: cardId, cardPublicKey: cardPublicKey, cardArtwork: CardImageProvider.cardArtworkCache[cardId] ?? .notLoaded)
+        let cardArtwork = artwork ?? CardImageProvider.cardArtworkCache[cardId] ?? .notLoaded
+
+        return loadImage(cardId: cardId, cardPublicKey: cardPublicKey, cardArtwork: cardArtwork)
             .replaceError(with: defaultImage)
             .receive(on: DispatchQueue.main)
             .eraseToAnyPublisher()
