@@ -267,7 +267,7 @@ final class UserWalletListViewModel: ObservableObject, Identifiable {
             self?.cardsRepository.didSwitch(to: cardModel)
             self?.selectedUserWalletId = userWallet.userWalletId
             self?.userWalletListService.selectedUserWalletId = userWallet.userWalletId
-            self?.coordinator.didTapCardModel(cardModel: cardModel)
+            self?.coordinator.didTap(cardModel)
             self?.updateSelectedWalletModel()
         }
 
