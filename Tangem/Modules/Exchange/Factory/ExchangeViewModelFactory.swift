@@ -11,41 +11,28 @@ import BlockchainSdk
 
 class ExchangeViewModelFactory {
     func createExchangeViewModel(exchangeManager: ExchangeManager,
-                                 amountType: Amount.AmountType,
                                  signer: TangemSigner,
-                                 blockchainNetwork: BlockchainNetwork,
+                                 sourceCurrency: Currency,
+                                 coinModel: CoinModel,
                                  exchangeRouter: ExchangeFacadeFactory.Router) -> ExchangeViewModel {
 
         let exchangeFacadeFactory = ExchangeFacadeFactory()
-        let tokensFactory = ExchangeTokensFactory()
+        let tokensFactory = ExchangeTokensFactory(coinModel: coinModel, blockchainNetwork: sourceCurrency.blockchainNetwork)
 
-        let exchangeCurrency: ExchangeCurrency
-        switch amountType {
-        case .coin, .reserve:
-            exchangeCurrency = tokensFactory.createCoin(for: blockchainNetwork)
-        case .token:
-            let contractAddress = amountType.token!.contractAddress
-            exchangeCurrency = ExchangeCurrency(type: .token(blockchainNetwork, contractAddress: contractAddress),
-                                                name: amountType.token!.name,
-                                                symbol: amountType.token!.symbol,
-                                                decimalCount: Decimal(amountType.token!.decimalCount))
-        }
-
-        let destinationCurrency: ExchangeCurrency
-        switch exchangeCurrency.type {
-        case .coin:
-            destinationCurrency = ExchangeCurrency.daiToken(blockchainNetwork: blockchainNetwork)
-        case .token:
-            destinationCurrency = ExchangeCurrency(type: .coin(blockchainNetwork))
+        var destinationCurrency: Currency!
+        if sourceCurrency.isToken {
+            destinationCurrency = tokensFactory.createCoin()
+        } else {
+            destinationCurrency = tokensFactory.createToken(token: .dai)
         }
 
         let exchangeFacade = exchangeFacadeFactory.createFacade(for: exchangeRouter,
                                                                 exchangeManager: exchangeManager,
                                                                 signer: signer,
-                                                                blockchainNetwork: blockchainNetwork)
+                                                                blockchainNetwork: sourceCurrency.blockchainNetwork)
 
         return ExchangeViewModel(exchangeFacade: exchangeFacade,
-                                 sourceCurrency: exchangeCurrency,
+                                 sourceCurrency: sourceCurrency,
                                  destinationCurrency: destinationCurrency)
     }
 }
