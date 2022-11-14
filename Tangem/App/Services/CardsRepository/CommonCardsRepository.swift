@@ -75,7 +75,7 @@ class CommonCardsRepository: CardsRepository {
             }
         }
     }
-    
+
     func add(_ cardModels: [CardViewModel]) {
         models.append(contentsOf: cardModels)
     }
