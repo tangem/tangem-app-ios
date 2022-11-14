@@ -132,7 +132,7 @@ struct MainView: View {
         if viewModel.canSellCrypto {
             MainButton(
                 text: "wallet_button_trade".localized,
-                icon: .leading(Image(systemName: "arrow.up.arrow.down")),
+                icon: .leading(Assets.exchangeMini),
                 action: viewModel.tradeCryptoAction
             )
             .actionSheet(isPresented: $viewModel.showTradeSheet, content: {
