@@ -262,13 +262,13 @@ extension MainCoordinator: UserWalletListRoutable {
 }
 
 extension MainCoordinator: UserWalletStorageAgreementRoutable {
-    func didAgree() {
+    func didAgreeToSaveUserWallets() {
         logSaveUserWalletStep(agreed: true)
         userWalletStorageAgreementViewModel = nil
         mainViewModel?.didAgreeToSaveUserWallets()
     }
 
-    func didDecline() {
+    func didDeclineToSaveUserWallets() {
         logSaveUserWalletStep(agreed: false)
         userWalletStorageAgreementViewModel = nil
         mainViewModel?.didDeclineToSaveUserWallets()
