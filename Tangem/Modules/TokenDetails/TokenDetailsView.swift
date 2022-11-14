@@ -31,7 +31,7 @@ struct TokenDetailsView: View {
         if viewModel.canSellCrypto && viewModel.canBuyCrypto {
             MainButton(
                 text: "wallet_button_trade".localized,
-                icon: .leading(Image(systemName: "arrow.up.arrow.down")),
+                icon: .leading(Assets.exchangeMini),
                 isDisabled: !(viewModel.canBuyCrypto || viewModel.canSellCrypto),
                 action: viewModel.tradeCryptoAction
             )
