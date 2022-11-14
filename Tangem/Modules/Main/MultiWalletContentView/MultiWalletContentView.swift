@@ -25,7 +25,10 @@ struct MultiWalletContentView: View {
 
             tokenList
 
-            AddTokensView(action: viewModel.openTokensList)
+            MainButton(
+                text: "main_manage_tokens".localized,
+                action: viewModel.openTokensList
+            )
                 .padding(.horizontal, 16)
                 .padding(.bottom, 8)
                 .padding(.top, 6)
