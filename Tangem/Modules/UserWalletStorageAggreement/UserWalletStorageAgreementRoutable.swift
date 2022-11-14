@@ -9,6 +9,6 @@
 import Foundation
 
 protocol UserWalletStorageAgreementRoutable: AnyObject {
-    func didAgree()
-    func didDecline()
+    func didAgreeToSaveUserWallets()
+    func didDeclineToSaveUserWallets()
 }
