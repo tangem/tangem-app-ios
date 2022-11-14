@@ -77,8 +77,8 @@ class UserWalletListCellViewModel: ObservableObject {
     }
 
     private func updateNumberOfTokens() {
-        let blockchains = userWalletModel.getSavedEntries().count
-        let numberOfTokens = blockchains + userWalletModel.getSavedEntries().reduce(0, { $0 + $1.tokens.count })
+        let blockchainsCount = userWalletModel.getSavedEntries().count
+        let numberOfTokens = blockchainsCount + userWalletModel.getSavedEntries().reduce(0, { $0 + $1.tokens.count })
 
         if numberOfTokens == 0 {
             self.numberOfTokens = nil
