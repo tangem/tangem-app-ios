@@ -515,11 +515,6 @@ extension WalletModel {
 
         return [blockchainTokenItemViewModel()] + tokenViewModels
     }
-
-    func tokensCount() -> Int {
-        /// Blockchain + tokens
-        return 1 + walletManager.cardTokens.count
-    }
 }
 
 extension WalletModel {
