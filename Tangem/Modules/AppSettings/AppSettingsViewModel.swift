@@ -35,11 +35,11 @@ class AppSettingsViewModel: ObservableObject {
     private var isBiometryAvailable: Bool = true
 
     private var isSavingWallet: Bool = true {
-        didSet { isSavingWalletDidChange() }
+        didSet { savingWalletViewModel?.update(isOn: isSavingWalletBinding()) }
     }
 
     private var isSavingAccessCodes: Bool = true {
-        didSet { isSavingAccessCodesDidChange() }
+        didSet { savingAccessCodesViewModel?.update(isOn: isSavingAccessCodesBinding()) }
     }
 
     init(coordinator: AppSettingsRoutable, userWallet: UserWallet) {
@@ -58,24 +58,22 @@ class AppSettingsViewModel: ObservableObject {
 // MARK: - Private
 
 private extension AppSettingsViewModel {
-    func isSavingWalletDidChange() {
-        self.savingWalletViewModel?.update(isOn: isSavingWalletBinding())
-
+    func isSavingWalletRequestChange(saveWallet: Bool) {
         if self.ignoreSaveWalletChanges {
             return
         }
 
         Analytics.log(.saveUserWalletSwitcherChanged,
-                      params: [.state: Analytics.ParameterValue.state(for: isSavingWallet).rawValue])
+                      params: [.state: Analytics.ParameterValue.state(for: saveWallet).rawValue])
 
-        if isSavingWallet {
+        if saveWallet {
             self.userWalletListService.unlockWithBiometry { [weak self] result in
                 guard let self else { return }
+
                 if case .success = result {
-                    self.userWalletListService.save(self.userWallet)
+                    let _ = self.userWalletListService.save(self.userWallet)
                     self.setSaveWallets(true)
                 } else {
-                    self.updateBiometricWarning()
                     self.setSaveWallets(false)
                 }
             }
@@ -84,17 +82,15 @@ private extension AppSettingsViewModel {
         }
     }
 
-    func isSavingAccessCodesDidChange() {
-        self.savingAccessCodesViewModel?.update(isOn: isSavingAccessCodesBinding())
-
+    func isSavingAccessCodesRequestChange(saveAccessCodes: Bool) {
         if self.ignoreSaveAccessCodeChanges {
             return
         }
 
         Analytics.log(.saveAccessCodeSwitcherChanged,
-                      params: [.state: Analytics.ParameterValue.state(for: isSavingAccessCodes).rawValue])
+                      params: [.state: Analytics.ParameterValue.state(for: saveAccessCodes).rawValue])
 
-        if isSavingAccessCodes {
+        if saveAccessCodes {
             self.setSaveAccessCodes(true)
         } else {
             self.presentSavingAccessCodesDeleteAlert()
@@ -130,11 +126,8 @@ private extension AppSettingsViewModel {
             default: false,
             get: { $0.isSavingWallet },
             set: { root, newValue in
-                if newValue {
-                    root.isSavingWallet = newValue
-                } else {
-                    root.presentSavingWalletDeleteAlert()
-                }
+                root.isSavingWallet = newValue
+                root.isSavingWalletRequestChange(saveWallet: newValue)
             }
         )
     }
@@ -145,11 +138,8 @@ private extension AppSettingsViewModel {
             default: false,
             get: { $0.isSavingAccessCodes },
             set: { root, newValue in
-                if newValue {
-                    root.isSavingAccessCodes = newValue
-                } else {
-                    root.presentSavingAccessCodesDeleteAlert()
-                }
+                root.isSavingAccessCodes = newValue
+                root.isSavingAccessCodesRequestChange(saveAccessCodes: newValue)
             }
         )
     }
