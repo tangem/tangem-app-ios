@@ -46,7 +46,7 @@ struct TokenDetailsView: View {
         } else if viewModel.canSellCrypto {
             MainButton(
                 text: "wallet_button_sell_crypto".localized,
-                icon: .leading(Image(systemName: "arrow.down")),
+                icon: .leading(Assets.arrowDownMini),
                 isDisabled: !viewModel.canSellCrypto,
                 action: viewModel.openSellCrypto
             )
@@ -54,7 +54,7 @@ struct TokenDetailsView: View {
             // Keep the BUY button last so that it will appear when everything is disabled
             MainButton(
                 text: "wallet_button_topup".localized,
-                icon: .leading(Image(systemName: "arrow.up")),
+                icon: .leading(Assets.arrowUpMini),
                 isDisabled: !viewModel.canBuyCrypto,
                 action: viewModel.openBuyCryptoIfPossible
             )
@@ -68,7 +68,7 @@ struct TokenDetailsView: View {
 
             MainButton(
                 text: "wallet_button_send".localized,
-                icon: .leading(Image(systemName: "arrow.right")),
+                icon: .leading(Assets.arrowRightMini),
                 isDisabled: !viewModel.canSend,
                 action: viewModel.openSend
             )
