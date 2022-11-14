@@ -95,14 +95,12 @@ struct AttentionView: View {
     }
 
     private var actionButton: some View {
-        TangemButton(title: viewModel.buttonTitle, image: "tangemIcon", iconPosition: .trailing) {
-            viewModel.mainButtonAction()
-        }
-        .buttonStyle(TangemButtonStyle(
-            colorStyle: .black,
-            layout: .flexibleWidth,
-            isDisabled: !viewModel.isWarningChecked
-        ))
+        MainButton(
+            text: viewModel.buttonTitle,
+            icon: .trailing(Assets.tangemIcon),
+            isDisabled: !viewModel.isWarningChecked,
+            action: viewModel.mainButtonAction
+        )
         .padding(.horizontal, 16)
     }
 }
