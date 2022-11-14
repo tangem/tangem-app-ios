@@ -54,22 +54,9 @@ struct DetailsView: View {
     }
 
     private var settingsSection: some View {
-        Section(content: {
-            if !viewModel.isMultiWallet {
-                DefaultRowView(title: "details_row_title_currency".localized,
-                               detailsType: .text(selectedCurrencyCode)) {
-                    viewModel.openCurrencySelection()
-                }
-            }
-
-            DefaultRowView(title: "details_row_title_card_settings".localized) {
-                viewModel.openCardSettings()
-            }
-
-            DefaultRowView(title: "details_row_title_app_settings".localized) {
-                viewModel.openAppSettings()
-            }
-
+        GroupedSection(viewModel.settingsSectionViewModels) {
+            DefaultRowView(viewModel: $0)
+        } footer: {
             if viewModel.canCreateBackup {
                 DefaultFooterView("details_row_title_create_backup_footer".localized)
             }
