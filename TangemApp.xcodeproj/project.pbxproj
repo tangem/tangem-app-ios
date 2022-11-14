@@ -347,6 +347,7 @@
 		DA5FAD8627B2791C00EE53AE /* ApplePayButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA5FAD8527B2791C00EE53AE /* ApplePayButton.swift */; };
 		DA5FAD8A27B27F7F00EE53AE /* SheetDragHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA5FAD8927B27F7F00EE53AE /* SheetDragHandler.swift */; };
 		DA64C36D27CCAD7E005B5E9A /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = DA64C36F27CCAD7E005B5E9A /* InfoPlist.strings */; };
+		DA6C7522292224E00070EEFD /* UserWalletEncryptionKey.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA6C7521292224E00070EEFD /* UserWalletEncryptionKey.swift */; };
 		DAA0559928744E2400E4F7B9 /* MercuryoService.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAA0559828744E2400E4F7B9 /* MercuryoService.swift */; };
 		DAA153BC2876CBFC002254D1 /* GeoResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAA153BB2876CBFC002254D1 /* GeoResponse.swift */; };
 		DAA5E30028D21369003C0E80 /* UserWalletStorageAgreementRoutable.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAA5E2FC28D21368003C0E80 /* UserWalletStorageAgreementRoutable.swift */; };
@@ -362,8 +363,6 @@
 		DAA5E31328D2137C003C0E80 /* CommonUserWalletListService.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAA5E30B28D2137C003C0E80 /* CommonUserWalletListService.swift */; };
 		DAA5E31428D2137C003C0E80 /* UserWalletListService.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAA5E30C28D2137C003C0E80 /* UserWalletListService.swift */; };
 		DAA5E31628D213A4003C0E80 /* CardDTO.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAA5E31528D213A4003C0E80 /* CardDTO.swift */; };
-		DAA5E31728D213D3003C0E80 /* CardDTO.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAA5E31528D213A4003C0E80 /* CardDTO.swift */; };
-		DAA5E31828D21449003C0E80 /* XCAssets+Generated.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF50A5A32881CEE30081C5BB /* XCAssets+Generated.swift */; };
 		DAA5E31A28D214BF003C0E80 /* UserWalletFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAA5E31928D214BF003C0E80 /* UserWalletFactory.swift */; };
 		DAA8F88A2888397700F14B9A /* ShopWebHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAA8F8892888397700F14B9A /* ShopWebHelper.swift */; };
 		DAADD5B427EB5A180046DEC3 /* SafariView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAADD5B327EB5A180046DEC3 /* SafariView.swift */; };
@@ -1010,6 +1009,7 @@
 		DA5FAD8927B27F7F00EE53AE /* SheetDragHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SheetDragHandler.swift; sourceTree = "<group>"; };
 		DA64C36E27CCAD7E005B5E9A /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		DA64C37027CCAD7F005B5E9A /* ru */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ru; path = ru.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		DA6C7521292224E00070EEFD /* UserWalletEncryptionKey.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserWalletEncryptionKey.swift; sourceTree = "<group>"; };
 		DAA0559828744E2400E4F7B9 /* MercuryoService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MercuryoService.swift; sourceTree = "<group>"; };
 		DAA153BB2876CBFC002254D1 /* GeoResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GeoResponse.swift; sourceTree = "<group>"; };
 		DAA5E2FC28D21368003C0E80 /* UserWalletStorageAgreementRoutable.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UserWalletStorageAgreementRoutable.swift; sourceTree = "<group>"; };
@@ -2633,6 +2633,7 @@
 				DC7127A92897EC5300F60F71 /* Implementations */,
 				DC3B49F32893E50700C207EA /* UserWallet.swift */,
 				DC3B49F52893E51B00C207EA /* UserWalletConfig.swift */,
+				DA6C7521292224E00070EEFD /* UserWalletEncryptionKey.swift */,
 				DC22535A28A4FDE90094F30C /* WarningEventsFactory.swift */,
 				DC3B49F92893EEA600C207EA /* UserWalletConfigFeatures.swift */,
 				DC22535828A4FD9C0094F30C /* UserWalletConfigFactory.swift */,
@@ -3409,6 +3410,7 @@
 				B0F16D7126EF5ED800687C47 /* ProgressBar.swift in Sources */,
 				DC295B542861F104006CB7B6 /* OnboardingRoutable.swift in Sources */,
 				EF5A5AD528D86094002544AC /* CardImageProvider.swift in Sources */,
+				DA6C7522292224E00070EEFD /* UserWalletEncryptionKey.swift in Sources */,
 				DC66BC00285B3FD900CDF765 /* OnboardingTopupRoutable.swift in Sources */,
 				B04BA23426F0837C0036784C /* OnboardingTopupLayoutCalculator.swift in Sources */,
 				DC5DBBC9289B951600C21E35 /* DemoUtil.swift in Sources */,
@@ -3877,75 +3879,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				5D3F77E824BF56DC00E8695B /* TangemUITests.swift in Sources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		B0D35FFD25F26C7400929564 /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				DA23788D27B248CD009795A8 /* ShopifyShop.swift in Sources */,
-				DAA5E31828D21449003C0E80 /* XCAssets+Generated.swift in Sources */,
-				DC0A57F22822B89F0031BECC /* InjectedValues.swift in Sources */,
-				5DE7DD152695BF8D00472205 /* Logger.swift in Sources */,
-				5D3FA5AC27E8E8BB00A80221 /* TapSwitchTogglColoredToggleStyleeStyle.swift in Sources */,
-				5D549FCB2698A5DD00CE763A /* Card+Preview.swift in Sources */,
-				B06917E127044A640000E6C1 /* Constants.swift in Sources */,
-				DC0A57F12822AF040031BECC /* LoggerProvider.swift in Sources */,
-				B0869078260A2DFF005976CD /* View+PreviewDevice.swift in Sources */,
-				B0F7361325F7AFFB00DD348F /* TwinData.swift in Sources */,
-				B01416AC2632A92B00D82A9C /* ImageLoader.swift in Sources */,
-				DCE5C67128899C42000C7F67 /* AppStorageCompat.swift in Sources */,
-				5DE7DD4C269627EF00472205 /* MainView.swift in Sources */,
-				DC0A57F82822C14A0031BECC /* CardImageLoaderProtocol.swift in Sources */,
-				B01416A72632A92300D82A9C /* WebImage.swift in Sources */,
-				DC0A57F02822AF030031BECC /* LoggerProviding.swift in Sources */,
-				B0869073260A2D7B005976CD /* TangemButton.swift in Sources */,
-				5D4B8BBC27EDD253002CE87C /* Color+.swift in Sources */,
-				B0D3600425F26C7400929564 /* AppDelegate.swift in Sources */,
-				B0F735B825F7943A00DD348F /* StorageType.swift in Sources */,
-				B0F7361D25F7B03900DD348F /* TwinCardsUtils.swift in Sources */,
-				DC0A57F42822B8A40031BECC /* InjectionKey.swift in Sources */,
-				5D44AB8A27F75C1A00464FD9 /* Card+.swift in Sources */,
-				5DA2473C2799B0AC00DB4E4F /* AddressFormatter.swift in Sources */,
-				B01416B12632A93800D82A9C /* ImageCache.swift in Sources */,
-				DC7127A82897CECC00F60F71 /* AppCardIdFormatter.swift in Sources */,
-				B0CA5AC225F785FA0078F42F /* VerticalAlignment+.swift in Sources */,
-				DC5118662860AD38004FB954 /* CardView.swift in Sources */,
-				DC0A57EE2822AEF70031BECC /* TangemSdkProviding.swift in Sources */,
-				B00BC589260B179200F0647D /* CircleActionButton.swift in Sources */,
-				5D49035027BE8AAE0072C642 /* ExploreButton.swift in Sources */,
-				DC0A57ED2822AEF30031BECC /* PersistentStorageKey.swift in Sources */,
-				B0D3600625F26C7400929564 /* SceneDelegate.swift in Sources */,
-				5DE7DD2B2695CFF800472205 /* CreateMultiWalletTask.swift in Sources */,
-				DC0A57F92822C14C0031BECC /* CardImageLoader.swift in Sources */,
-				5DE7DD122695BEE900472205 /* UrlHandler.swift in Sources */,
-				65339CE5289919CA006429EA /* ChangeObserver.swift in Sources */,
-				5D4B8BBD27EDD2EA002CE87C /* MainViewModel.swift in Sources */,
-				DAA5E31728D213D3003C0E80 /* CardDTO.swift in Sources */,
-				B07FE4D12616F686000F0EF9 /* MessageView.swift in Sources */,
-				B0CA5A8625F7797B0078F42F /* RefreshableScrollView.swift in Sources */,
-				5DE7DD332696236500472205 /* CardViewModel.swift in Sources */,
-				DC0A57EF2822AEFA0031BECC /* TangemSdkProvider.swift in Sources */,
-				B0869069260A2D55005976CD /* ButtonStyles.swift in Sources */,
-				B00BC58E260B19D100F0647D /* CircleImageTextView.swift in Sources */,
-				B082944A260C6D3800014A18 /* Decimal+.swift in Sources */,
-				5DE7DD162695BF9700472205 /* FileEncryptionUtility.swift in Sources */,
-				B086906E260A2D73005976CD /* ActivityIndicatorView.swift in Sources */,
-				EF5A5AD828D860FE002544AC /* CardArtwork.swift in Sources */,
-				B0CA5A8B25F779C60078F42F /* View+.swift in Sources */,
-				DC0A57EC2822AEF10031BECC /* PersistentStorageProtocol.swift in Sources */,
-				5DE7DD4A269625F800472205 /* AppScanTask.swift in Sources */,
-				B0C34953267B19B90027CC9D /* RoundedCorner.swift in Sources */,
-				EF6691D2287ED86900773AA6 /* AppEnvironment.swift in Sources */,
-				5DE7DD232695C27E00472205 /* AppSettings.swift in Sources */,
-				DC0A57EB2822AEEB0031BECC /* PersistentStorage.swift in Sources */,
-				DC0A5853282E3AB60031BECC /* CardInfo.swift in Sources */,
-				B00BC5B8260B210300F0647D /* JsonUtils.swift in Sources */,
-				B00BC584260B178000F0647D /* PickerView.swift in Sources */,
-				DC0A57F32822B8A10031BECC /* InjectedWrapper.swift in Sources */,
-				5D17EC7526946F48002782DE /* String+.swift in Sources */,
-				5DE7DD2C2695CFFE00472205 /* SignerUtils.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
