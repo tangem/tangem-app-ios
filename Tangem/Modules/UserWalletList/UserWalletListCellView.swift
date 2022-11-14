@@ -62,20 +62,6 @@ class UserWalletListCellViewModel: ObservableObject {
                 self.isBalanceLoading = false
             }
             .store(in: &bag)
-
-        if isMultiWallet {
-            userWalletModel.subscribeToWalletModels()
-                .print("subscribeToWalletModels")
-                .map { $0.reduce(0, { $0 + $1.tokensCount() }) }
-                .sink { numberOfTokens in
-                    if numberOfTokens == 0 {
-                        self.numberOfTokens = nil
-                    } else {
-                        self.numberOfTokens = String.localizedStringWithFormat("token_count".localized, numberOfTokens)
-                    }
-                }
-                .store(in: &bag)
-        }
     }
 
     private func update() {
@@ -83,6 +69,21 @@ class UserWalletListCellViewModel: ObservableObject {
 
         userWalletModel.updateAndReloadWalletModels { [weak self] in
             self?.totalBalanceProvider.updateTotalBalance()
+        }
+
+        if isMultiWallet {
+            updateNumberOfTokens()
+        }
+    }
+
+    private func updateNumberOfTokens() {
+        let blockchains = userWalletModel.getSavedEntries().count
+        let numberOfTokens = blockchains + userWalletModel.getSavedEntries().reduce(0, { $0 + $1.tokens.count })
+
+        if numberOfTokens == 0 {
+            self.numberOfTokens = nil
+        } else {
+            self.numberOfTokens = String.localizedStringWithFormat("token_count".localized, numberOfTokens)
         }
     }
 
