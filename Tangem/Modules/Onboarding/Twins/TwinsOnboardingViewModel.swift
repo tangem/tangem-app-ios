@@ -73,10 +73,6 @@ class TwinsOnboardingViewModel: OnboardingTopupViewModel<TwinsOnboardingStep, On
         return super.mainButtonTitle
     }
 
-    override var isSkipButtonVisible: Bool {
-        currentStep == .saveUserWallet
-    }
-
     override var isOnboardingFinished: Bool {
         if case .intro = currentStep, steps.count == 1 {
             return true
@@ -236,15 +232,6 @@ class TwinsOnboardingViewModel: OnboardingTopupViewModel<TwinsOnboardingStep, On
                 refreshButtonState = .doneCheckmark
                 fireConfetti()
             }
-        default:
-            break
-        }
-    }
-
-    override func skipCurrentStep() {
-        switch currentStep {
-        case .saveUserWallet:
-            skipSaveUserWallet()
         default:
             break
         }
