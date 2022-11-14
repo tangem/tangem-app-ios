@@ -59,6 +59,13 @@ class CommonUserWalletListService: UserWalletListService {
 
     }
 
+    func lock() {
+        isUnlocked = false
+        encryptionKeyByUserWalletId = [:]
+        userWallets = []
+        cardsRepository.clear()
+    }
+
     func unlockWithBiometry(completion: @escaping (Result<Void, Error>) -> Void) {
         encryptionKeyStorage.fetch { [weak self] result in
             DispatchQueue.main.async {
