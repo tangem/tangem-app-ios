@@ -127,7 +127,7 @@ class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable>
 
     var isSupplementButtonVisible: Bool { currentStep.isSupplementButtonVisible }
 
-    lazy var userWalletStorageAgreementViewModel = UserWalletStorageAgreementViewModel(isStandalone: false, coordinator: nil)
+    lazy var userWalletStorageAgreementViewModel = UserWalletStorageAgreementViewModel(isStandalone: false, coordinator: self)
 
     let input: OnboardingInput
 
@@ -385,5 +385,15 @@ extension OnboardingViewModel {
 
         coordinator.openSupportChat(cardId: cardModel.cardId,
                                     dataCollector: dataCollector)
+    }
+}
+
+extension OnboardingViewModel: UserWalletStorageAgreementRoutable {
+    func didAgreeToSaveUserWallets() {
+        saveUserWallet()
+    }
+
+    func didDeclineToSaveUserWallets() {
+        skipSaveUserWallet()
     }
 }
