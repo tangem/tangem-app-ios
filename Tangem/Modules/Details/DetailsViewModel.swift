@@ -212,7 +212,6 @@ extension DetailsViewModel {
             action: openAppSettings
         ))
 
-
         if canCreateBackup {
             viewModels.append(DefaultRowViewModel(
                 title: "details_row_title_create_backup".localized,
