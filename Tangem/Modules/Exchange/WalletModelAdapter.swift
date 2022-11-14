@@ -13,7 +13,7 @@ class WalletModelAdapter: ExchangeManager {
     var walletAddress: String {
         walletManager.wallet.address
     }
-    
+
     private let walletManager: WalletManager
 
     init(walletManager: WalletManager) {
@@ -24,21 +24,46 @@ class WalletModelAdapter: ExchangeManager {
         try await walletManager.send(tx, signer: signer).async()
     }
 
-    func getFee(amount: Amount, destination: String) async throws -> [Amount] {
-        try await walletManager
+    func getFee(currency: Currency, destination: String) async throws -> [Currency] {
+        if currency.isToken {
+            let amount = amount = Amount(with: .init(name: "",
+                                        symbol: "",
+                                        contractAddress: currency.contractAddress,
+                                        decimalCount: currency.decimalCount ?? 0),
+                            value: currency.amount)
+        } else {
+            amount = Amount(with: currency.blockchainNetwork.blockchain, value: 0)
+        }
+        return try await walletManager
             .getFee(amount: amount, destination: destination)
+            .map({ amounts in
+                return [
+                    Currency(amount: amounts[0].value, blockchainNetwork: currency.blockchainNetwork),
+                    Currency(amount: amounts[1].value, blockchainNetwork: currency.blockchainNetwork),
+                    Currency(amount: amounts[2].value, blockchainNetwork: currency.blockchainNetwork),
+                ]
+            })
+            .eraseToAnyPublisher()
             .async()
     }
 
-    func createTransaction(amount: Amount,
-                           fee: Amount,
+    func createTransaction(for currency: Currency,
+                           fee: Decimal,
                            destinationAddress: String,
-                           sourceAddress: String? = nil,
-                           changeAddress: String? = nil) throws -> Transaction {
-        try walletManager.createTransaction(amount: amount,
-                                            fee: fee,
-                                            destinationAddress: destinationAddress,
-                                            sourceAddress: sourceAddress,
-                                            changeAddress: changeAddress)
+                           sourceAddress: String?,
+                           changeAddress: String?) throws -> Transaction {
+        let txAmount = Amount(with: .init(name: currency.name ?? "",
+                                          symbol: currency.symbol ?? "",
+                                          contractAddress: currency.contractAddress,
+                                          decimalCount: currency.decimalCount ?? 0),
+                              value: currency.amount)
+
+        let txFee = Amount(with: currency.blockchainNetwork.blockchain, value: fee)
+
+        return try walletManager.createTransaction(amount: txAmount,
+                                                   fee: txFee,
+                                                   destinationAddress: destinationAddress,
+                                                   sourceAddress: sourceAddress,
+                                                   changeAddress: changeAddress)
     }
 }
