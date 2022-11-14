@@ -27,6 +27,7 @@ class CommonCardsRepository: CardsRepository {
     @Injected(\.walletConnectServiceProvider) private var walletConnectServiceProvider: WalletConnectServiceProviding
     @Injected(\.saletPayRegistratorProvider) private var saltPayRegistratorProvider: SaltPayRegistratorProviding
     @Injected(\.supportChatService) private var supportChatService: SupportChatServiceProtocol
+    @Injected(\.userWalletListService) private var userWalletListService: UserWalletListService
 
     weak var delegate: CardsRepositoryDelegate? = nil
 
@@ -71,6 +72,7 @@ class CommonCardsRepository: CardsRepository {
                 Analytics.logCardSdkError(error, for: .scan)
                 completion(.failure(error))
             case .success(let response):
+                userWalletListService.didScan(card: CardDTO(card: response.card))
                 self.acceptTOSIfNeeded(response.getCardInfo(), completion)
             }
         }
