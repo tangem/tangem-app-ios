@@ -269,11 +269,7 @@ class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable>
             return
         }
 
-        withAnimation {
-            currentStepIndex = newIndex
-
-            setupCardsSettings(animated: true, isContainerSetup: false)
-        }
+        goToStep(with: newIndex)
     }
 
     func mainButtonAction() {
