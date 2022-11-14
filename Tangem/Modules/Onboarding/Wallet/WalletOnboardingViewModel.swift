@@ -712,39 +712,24 @@ class WalletOnboardingViewModel: OnboardingTopupViewModel<WalletOnboardingStep, 
         }
     }
 
-    override func saveUserWalletIfNeeded(completion: @escaping (Result<Void, TangemSdkError>) -> Void) {
+    override func saveUserWalletIfNeeded() throws {
         var config = TangemSdkConfigFactory().makeDefaultConfig()
         config.accessCodeRequestPolicy = .alwaysWithBiometrics
         tangemSdkProvider.setup(with: config)
 
-        super.saveUserWalletIfNeeded { [weak self] result in
-            guard let self = self else {
-                completion(.failure(TangemSdkError.biometricsUnavailable))
-                return
-            }
+        try super.saveUserWalletIfNeeded()
 
-            if case .failure = result {
-                completion(result)
-                return
-            }
+        guard AppSettings.shared.saveAccessCodes,
+              let accessCode = self.accessCode,
+              let cardIds = self.cardIds
+        else {
 
-            guard AppSettings.shared.saveAccessCodes,
-                  let accessCode = self.accessCode,
-                  let cardIds = self.cardIds
-            else {
-                completion(.success(()))
-                return
-            }
-
-            do {
-                let accessCodeData: Data = accessCode.sha256()
-                let accessCodeRepository = AccessCodeRepository()
-                try accessCodeRepository.save(accessCodeData, for: cardIds)
-                completion(.success(()))
-            } catch {
-                completion(.failure(error.toTangemSdkError()))
-            }
+            return
         }
+
+        let accessCodeData: Data = accessCode.sha256()
+        let accessCodeRepository = AccessCodeRepository()
+        try accessCodeRepository.save(accessCodeData, for: cardIds)
     }
 
     private func fireConfettiIfNeeded() {
