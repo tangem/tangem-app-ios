@@ -35,12 +35,11 @@ class ExchangeOneInchFacade: ExchangeFacade {
                              txData: Data,
                              sourceItem: ExchangeItem) async throws {
         let decimal = Decimal(string: amount) ?? 0
-        let amount = sourceItem.currency.createAmount(with: decimal)
 
         let gasPrice = Decimal(string: gasPrice) ?? 0
         let gasValue = Decimal(string: gas) ?? 0 * gasPrice / blockchainNetwork.blockchain.decimalValue
 
-        let tx = try buildTransaction(gas: gasValue, destinationAddress: destinationAddress, txData: txData, amount: amount)
+        let tx = try buildTransaction(currency: sourceItem.currency, gas: gasValue, destinationAddress: destinationAddress, txData: txData)
         return try await exchangeManager.send(tx, signer: signer)
     }
 
@@ -48,18 +47,16 @@ class ExchangeOneInchFacade: ExchangeFacade {
                                   gasPrice: String,
                                   txData: Data,
                                   for item: ExchangeItem) async throws {
-        let amount = item.currency.createAmount(with: 0)
-
         let blockchain = blockchainNetwork.blockchain
-        let fees = try await exchangeManager.getFee(amount: amount, destination: destinationAddress)
-        let fee: Amount = fees[1]
+        let fees = try await exchangeManager.getFee(currency: item.currency, destination: destinationAddress)
+        let fee: Currency = fees[1]
         let decimalGasPrice = Decimal(string: gasPrice) ?? 0
-        let gasValue = fee.value * decimalGasPrice / blockchain.decimalValue
+        let gasValue = fee.amount * decimalGasPrice / blockchain.decimalValue
 
-        let tx = try buildTransaction(gas: gasValue,
+        let tx = try buildTransaction(currency: item.currency,
+                                      gas: gasValue,
                                       destinationAddress: destinationAddress,
-                                      txData: txData,
-                                      amount: amount)
+                                      txData: txData)
 
         return try await exchangeManager.send(tx, signer: signer)
     }
@@ -70,8 +67,8 @@ class ExchangeOneInchFacade: ExchangeFacade {
                             slippage: Int,
                             items: ExchangeItems) async throws -> ExchangeSwapDataModel {
 
-        let parameters = SwapParameters(fromTokenAddress: items.sourceItem.tokenAddress,
-                                        toTokenAddress: items.destinationItem.tokenAddress,
+        let parameters = SwapParameters(fromTokenAddress: items.sourceItem.currency.contractAddress,
+                                        toTokenAddress: items.destinationItem.currency.contractAddress,
                                         amount: amount,
                                         fromAddress: exchangeManager.walletAddress,
                                         slippage: 1)
@@ -91,9 +88,9 @@ class ExchangeOneInchFacade: ExchangeFacade {
     // MARK: - Approve API
 
     func fetchExchangeAmountLimit(for item: ExchangeItem) async throws {
-        guard case .token = item.currency.type else { return }
+        guard item.currency.isToken else { return }
 
-        let contractAddress: String = item.tokenAddress
+        let contractAddress: String = item.currency.contractAddress
         let parameters = ApproveAllowanceParameters(tokenAddress: contractAddress, walletAddress: exchangeManager.walletAddress)
 
         let allowanceResult = await exchangeService.allowance(blockchain: ExchangeBlockchain.convert(from: blockchainNetwork),
@@ -108,7 +105,7 @@ class ExchangeOneInchFacade: ExchangeFacade {
     }
 
     func approveTxData(for item: ExchangeItem) async throws -> ExchangeApprovedDataModel {
-        let parameters = ApproveTransactionParameters(tokenAddress: item.tokenAddress, amount: .infinite)
+        let parameters = ApproveTransactionParameters(tokenAddress: item.currency.contractAddress, amount: .infinite)
         let txResponse = await exchangeService.approveTransaction(blockchain: ExchangeBlockchain.convert(from: blockchainNetwork),
                                                                   approveTransactionParameters: parameters)
 
@@ -138,12 +135,12 @@ class ExchangeOneInchFacade: ExchangeFacade {
 // MARK: - Private
 
 extension ExchangeOneInchFacade {
-    private func buildTransaction(gas: Decimal, destinationAddress: String, txData: Data, amount: Amount) throws -> Transaction {
+    private func buildTransaction(currency: Currency, gas: Decimal, destinationAddress: String, txData: Data) throws -> Transaction {
         let blockchain = blockchainNetwork.blockchain
         let gasAmount = Amount(with: blockchain, type: .coin, value: gas)
 
-        var tx = try exchangeManager.createTransaction(amount: amount,
-                                                       fee: gasAmount,
+        var tx = try exchangeManager.createTransaction(for: currency,
+                                                       fee: gas,
                                                        destinationAddress: destinationAddress)
         tx.params = EthereumTransactionParams(data: txData)
 
