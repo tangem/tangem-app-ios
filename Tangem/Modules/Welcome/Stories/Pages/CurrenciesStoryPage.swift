@@ -71,7 +71,7 @@ struct CurrenciesStoryPage: View {
 
                 MainButton(
                     text: "home_button_search_tokens".localized,
-                    icon: .leading(Image(systemName: "magnifyingglass")),
+                    icon: .leading(Assets.search),
                     style: .secondary,
                     action: searchTokens
                 )
