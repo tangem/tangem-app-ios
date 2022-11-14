@@ -54,8 +54,6 @@ final class AppScanTask: CardSessionRunnable {
     private var primaryCard: PrimaryCard? = nil
     private var linkingCommand: StartPrimaryCardLinkingTask? = nil
 
-    @Injected(\.userWalletListService) private var userWalletListService: UserWalletListService
-
     init(targetBatch: String? = nil) {
         self.targetBatch = targetBatch
     }
@@ -311,7 +309,6 @@ final class AppScanTask: CardSessionRunnable {
         }
 
         let cardDto = CardDTO(card: card)
-        userWalletListService.didScan(card: cardDto)
         migrate(card: cardDto)
 
         completion(.success(AppScanTaskResponse(card: card,
