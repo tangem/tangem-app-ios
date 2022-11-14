@@ -42,11 +42,6 @@ class SingleCardOnboardingViewModel: OnboardingTopupViewModel<SingleCardOnboardi
         return super.mainButtonTitle
     }
 
-
-    override var isSkipButtonVisible: Bool {
-        currentStep == .saveUserWallet
-    }
-
     override var isSupplementButtonVisible: Bool {
         switch currentStep {
         case .topup:
@@ -113,15 +108,6 @@ class SingleCardOnboardingViewModel: OnboardingTopupViewModel<SingleCardOnboardi
     override func goToNextStep() {
         super.goToNextStep()
         stepUpdate()
-    }
-
-    override func skipCurrentStep() {
-        switch currentStep {
-        case .saveUserWallet:
-            skipSaveUserWallet()
-        default:
-            break
-        }
     }
 
     override func mainButtonAction() {
