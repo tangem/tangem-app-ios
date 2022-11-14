@@ -56,7 +56,6 @@ Tangem — единственный аппаратный кошелек, пре�
 "common_success" = "Успешно";
 "common_warning" = "Предупреждение";
 "common_delete" = "Удалить";
-"common_skip" = "Пропустить";
 "custom_token_contract_address_input_title" = "Адрес контракта";
 "custom_token_creation_error_network_not_selected" = "Пожалуйста, выберите сеть";
 "custom_token_creation_error_empty_fields" = "Пожалуйста, заполните все поля";
@@ -472,6 +471,7 @@ URL: %@";
 "save_user_wallet_agreement_notice" = "Обратите внимание, что для совершения транзакции с вашими средствами по-прежнему потребуется ваша карта";
 "save_user_wallet_agreement_allow_face_id" = "Использовать Face ID";
 "save_user_wallet_agreement_allow_touch_id" = "Использовать Touch ID";
+"save_user_wallet_agreement_dont_allow" = "Не использовать";
 "save_user_wallet_agreement_new_feature" = "Новый функционал";
 "user_wallet_list_title" = "Мои кошельки";
 "user_wallet_list_multi_header" = "Мультивалютные";
