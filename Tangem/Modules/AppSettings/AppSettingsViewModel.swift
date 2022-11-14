@@ -60,14 +60,14 @@ class AppSettingsViewModel: ObservableObject {
 private extension AppSettingsViewModel {
     func isSavingWalletDidChange() {
         self.savingWalletViewModel?.update(isOn: isSavingWalletBinding())
-        
+
         if self.ignoreSaveWalletChanges {
             return
         }
-        
+
         Analytics.log(.saveUserWalletSwitcherChanged,
                       params: [.state: Analytics.ParameterValue.state(for: isSavingWallet).rawValue])
-        
+
         if isSavingWallet {
             self.userWalletListService.unlockWithBiometry { [weak self] result in
                 guard let self else { return }
@@ -83,24 +83,24 @@ private extension AppSettingsViewModel {
             self.presentSavingWalletDeleteAlert()
         }
     }
-    
+
     func isSavingAccessCodesDidChange() {
         self.savingAccessCodesViewModel?.update(isOn: isSavingAccessCodesBinding())
-        
+
         if self.ignoreSaveAccessCodeChanges {
             return
         }
-        
+
         Analytics.log(.saveAccessCodeSwitcherChanged,
                       params: [.state: Analytics.ParameterValue.state(for: isSavingAccessCodes).rawValue])
-        
+
         if isSavingAccessCodes {
             self.setSaveAccessCodes(true)
         } else {
             self.presentSavingAccessCodesDeleteAlert()
         }
     }
-    
+
     func setupView() {
         if !isBiometryAvailable {
             warningViewModel = DefaultWarningRowViewModel(
