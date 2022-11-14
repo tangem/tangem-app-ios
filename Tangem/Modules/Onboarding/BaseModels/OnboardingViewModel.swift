@@ -125,13 +125,9 @@ class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable>
         true
     }
 
-    var isSkipButtonVisible: Bool {
-        false
-    }
-
     var isSupplementButtonVisible: Bool { currentStep.isSupplementButtonVisible }
 
-    lazy var userWalletStorageAgreementViewModel = UserWalletStorageAgreementViewModel(isStandalone: false, coordinator: nil)
+    lazy var userWalletStorageAgreementViewModel = UserWalletStorageAgreementViewModel(isStandalone: false, coordinator: self)
 
     let input: OnboardingInput
 
@@ -207,8 +203,6 @@ class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable>
     }
 
     func backButtonAction() {}
-
-    func skipCurrentStep() { }
 
     func fireConfetti() {
         if !confettiFired {
@@ -391,5 +385,15 @@ extension OnboardingViewModel {
 
         coordinator.openSupportChat(cardId: cardModel.cardId,
                                     dataCollector: dataCollector)
+    }
+}
+
+extension OnboardingViewModel: UserWalletStorageAgreementRoutable {
+    func didAgreeToSaveUserWallets() {
+        saveUserWallet()
+    }
+
+    func didDeclineToSaveUserWallets() {
+        skipSaveUserWallet()
     }
 }
