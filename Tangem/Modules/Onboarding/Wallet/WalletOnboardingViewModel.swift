@@ -184,10 +184,6 @@ class WalletOnboardingViewModel: OnboardingTopupViewModel<WalletOnboardingStep, 
         }
     }
 
-    override var isSkipButtonVisible: Bool {
-        currentStep == .saveUserWallet
-    }
-
     override var isSupplementButtonVisible: Bool {
         if currentStep == .backupIntro {
             if input.isStandalone {
@@ -513,8 +509,6 @@ class WalletOnboardingViewModel: OnboardingTopupViewModel<WalletOnboardingStep, 
             addBackupCard()
         case .backupCards:
             backupCard()
-        case .saveUserWallet:
-            saveUserWallet()
         case .success:
             goToNextStep()
         case .kycWaiting:
@@ -701,15 +695,6 @@ class WalletOnboardingViewModel: OnboardingTopupViewModel<WalletOnboardingStep, 
         }
 
         backupService.discardIncompletedBackup()
-    }
-
-    override func skipCurrentStep() {
-        switch currentStep {
-        case .saveUserWallet:
-            skipSaveUserWallet()
-        default:
-            break
-        }
     }
 
     override func saveUserWalletIfNeeded() throws {
