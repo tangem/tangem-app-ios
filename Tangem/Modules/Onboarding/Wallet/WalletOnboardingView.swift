@@ -96,10 +96,6 @@ struct WalletOnboardingView: View {
                                           }
                                       },
                                       rightItems: {
-                                          SkipButton(isVisible: viewModel.isSkipButtonVisible) {
-                                              viewModel.skipCurrentStep()
-                                          }
-
                                           ChatButton(height: viewModel.navbarSize.height,
                                                      isVisible: true,
                                                      isEnabled: true) {
