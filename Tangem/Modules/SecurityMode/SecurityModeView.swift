@@ -44,13 +44,13 @@ struct SecurityModeView: View {
     }
 
     private var actionButton: some View {
-        TangemButton(title: "common_save_changes", image: "tangemIcon", iconPosition: .trailing) { [weak viewModel] in
-            viewModel?.actionButtonDidTap()
-        }
-        .buttonStyle(TangemButtonStyle(colorStyle: .black,
-                                       layout: .flexibleWidth,
-                                       isDisabled: !viewModel.isActionButtonEnabled,
-                                       isLoading: viewModel.isLoading))
+        MainButton(
+            text: "common_save_changes".localized,
+            icon: .trailing(Assets.tangemIcon),
+            isLoading: viewModel.isLoading,
+            isDisabled: !viewModel.isActionButtonEnabled,
+            action: viewModel.actionButtonDidTap
+        )
         .padding(16)
     }
 }
