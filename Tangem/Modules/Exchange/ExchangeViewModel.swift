@@ -25,28 +25,22 @@ class ExchangeViewModel: ObservableObject {
     private var refreshTxDataTimerPublisher = Timer.publish(every: 10, on: .main, in: .common).autoconnect()
 
     private var blockchainNetwork: BlockchainNetwork {
-        items.sourceItem.currency.type.blockchainNetwork
+        items.sourceItem.currency.blockchainNetwork
     }
 
-    init(exchangeFacade: ExchangeFacade, sourceCurrency: ExchangeCurrency, destinationCurrency: ExchangeCurrency) {
+    init(exchangeFacade: ExchangeFacade, sourceCurrency: Currency, destinationCurrency: Currency) {
         self.exchangeFacade = exchangeFacade
 
-        let sourceItem = ExchangeItem(isLockedForChange: true,
+        let sourceItem = ExchangeItem(isLocked: true,
                                       currency: sourceCurrency)
 
-        let destinationItem = ExchangeItem(isLockedForChange: false,
+        let destinationItem = ExchangeItem(isLocked: false,
                                            currency: destinationCurrency)
 
 
         items = ExchangeItems(sourceItem: sourceItem, destinationItem: destinationItem)
         preloadAvailableTokens()
         bind()
-    }
-
-    convenience init(exchangeFacade: ExchangeFacade, blockchainNetwork: BlockchainNetwork) {
-        let sourceCurrency = ExchangeCurrency(type: .coin(blockchainNetwork))
-        let destinationCurrency = ExchangeCurrency.daiToken(blockchainNetwork: blockchainNetwork)
-        self.init(exchangeFacade: exchangeFacade, sourceCurrency: sourceCurrency, destinationCurrency: destinationCurrency)
     }
 }
 
@@ -115,7 +109,9 @@ extension ExchangeViewModel {
         $inputAmountText
             .sink { [unowned self] value in
                 let decimals = Decimal(string: value.replacingOccurrences(of: ",", with: ".")) ?? 0
-                let newAmount = self.items.sourceItem.currency.createAmount(with: decimals).value
+                self.items.sourceItem.currency.updateAmount(decimals)
+
+                let newAmount = self.items.sourceItem.currency.amount
                 let formatter = NumberFormatter()
                 formatter.numberStyle = .none
 
