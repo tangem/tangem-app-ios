@@ -27,10 +27,10 @@ final class UserWalletStorageAgreementViewModel: ObservableObject, Identifiable 
     }
 
     func accept() {
-        coordinator?.didAgree()
+        coordinator?.didAgreeToSaveUserWallets()
     }
 
     func decline() {
-        coordinator?.didDecline()
+        coordinator?.didDeclineToSaveUserWallets()
     }
 }
