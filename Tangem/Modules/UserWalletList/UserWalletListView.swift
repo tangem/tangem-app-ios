@@ -45,10 +45,6 @@ struct UserWalletListView: View {
                 }
                 .padding(.horizontal, listHorizontalPadding)
             }
-
-            ScanTroubleshootingView(isPresented: $viewModel.showTroubleshootingView,
-                                    tryAgainAction: viewModel.tryAgain,
-                                    requestSupportAction: viewModel.requestSupport)
         }
         .padding(.vertical, 16)
         .alert(item: $viewModel.error) {
@@ -62,6 +58,11 @@ struct UserWalletListView: View {
                         ])
         }
         .background(Self.sheetBackground.edgesIgnoringSafeArea(.all))
+        .background(
+            ScanTroubleshootingView(isPresented: $viewModel.showTroubleshootingView,
+                                    tryAgainAction: viewModel.tryAgain,
+                                    requestSupportAction: viewModel.requestSupport)
+        )
     }
 }
 
