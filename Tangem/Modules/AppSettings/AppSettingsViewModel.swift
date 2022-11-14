@@ -58,7 +58,7 @@ private extension AppSettingsViewModel {
                     return
                 }
 
-                Analytics.log(.faceIDSwitcherChanged,
+                Analytics.log(.saveUserWalletSwitcherChanged,
                               params: [.state: Analytics.ParameterValue.state(for: saveWallet).rawValue])
 
                 if saveWallet {
