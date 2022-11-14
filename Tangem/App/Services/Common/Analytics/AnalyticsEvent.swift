@@ -128,7 +128,7 @@ extension Analytics {
         case userCodeChanged = "[Settings / Card Settings] User Code Changed"
         case buttonChangeSecurityMode = "[Settings / Card Settings] Button - Change Security Mode"
         case securityModeChanged = "[Settings / Card Settings] Security Mode Changed"
-        case faceIDSwitcherChanged = "[Settings / App Settings] Face ID Switcher Changed"
+        case saveUserWalletSwitcherChanged = "[Settings / App Settings] Save Wallet Switcher Changed"
         case saveAccessCodeSwitcherChanged = "[Settings / App Settings] Save Access Code Switcher Changed"
         case buttonEnableBiometricAuthentication = "[Settings / App Settings] Button - Enable Biometric Authentication"
         case newSessionEstablished = "[Wallet Connect] New Session Established"
