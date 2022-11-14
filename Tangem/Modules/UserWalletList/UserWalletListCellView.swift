@@ -78,12 +78,12 @@ class UserWalletListCellViewModel: ObservableObject {
 
     private func updateNumberOfTokens() {
         let blockchainsCount = userWalletModel.getSavedEntries().count
-        let numberOfTokens = blockchainsCount + userWalletModel.getSavedEntries().reduce(0, { $0 + $1.tokens.count })
+        let allTokensCount = blockchainsCount + userWalletModel.getSavedEntries().reduce(0, { $0 + $1.tokens.count })
 
-        if numberOfTokens == 0 {
-            self.numberOfTokens = nil
+        if allTokensCount == 0 {
+            numberOfTokens = nil
         } else {
-            self.numberOfTokens = String.localizedStringWithFormat("token_count".localized, numberOfTokens)
+            numberOfTokens = String.localizedStringWithFormat("token_count".localized, allTokensCount)
         }
     }
 
