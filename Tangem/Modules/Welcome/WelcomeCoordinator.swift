@@ -85,6 +85,10 @@ extension WelcomeCoordinator {
 }
 
 extension WelcomeCoordinator: WelcomeRoutable {
+    func openUnlockScreen() {
+        mainCoordinator = nil
+    }
+
     func openOnboardingModal(with input: OnboardingInput) {
         let dismissAction: Action = { [weak self] in
             self?.modalOnboardingCoordinator = nil
