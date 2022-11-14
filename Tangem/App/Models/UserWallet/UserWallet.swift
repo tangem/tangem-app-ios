@@ -35,13 +35,7 @@ extension UserWallet {
     var encryptionKey: SymmetricKey? {
         guard let firstWalletPublicKey = card.wallets.first?.publicKey else { return nil }
 
-        let keyHash = firstWalletPublicKey.getSha256()
-        let key = SymmetricKey(data: keyHash)
-        let message = Constants.messageForTokensKey.data(using: .utf8)!
-        let tokensSymmetricKey = HMAC<SHA256>.authenticationCode(for: message, using: key)
-        let tokensSymmetricKeyData = Data(tokensSymmetricKey)
-
-        return SymmetricKey(data: tokensSymmetricKeyData)
+        return UserWalletEncryptionKey(publicKey: firstWalletPublicKey).key
     }
 
     func cardInfo() -> CardInfo {
