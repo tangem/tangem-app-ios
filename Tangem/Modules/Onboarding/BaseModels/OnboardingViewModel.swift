@@ -11,6 +11,9 @@ import Combine
 import TangemSdk
 
 class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable> {
+    @Injected(\.userWalletListService) private var userWalletListService: UserWalletListService
+    @Injected(\.tangemSdkProvider) private var tangemSdkProvider: TangemSdkProviding
+
     let navbarSize: CGSize = .init(width: UIScreen.main.bounds.width, height: 44)
     let resetAnimDuration: Double = 0.3
 
@@ -136,9 +139,6 @@ class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable>
     private(set) var containerSize: CGSize = .zero
     unowned let coordinator: Coordinator
     private let saveUserWalletOnFinish: Bool
-
-    @Injected(\.userWalletListService) private var userWalletListService: UserWalletListService
-    @Injected(\.tangemSdkProvider) private var tangemSdkProvider: TangemSdkProviding
 
     init(input: OnboardingInput, coordinator: Coordinator, saveUserWalletOnFinish: Bool) {
         self.input = input
