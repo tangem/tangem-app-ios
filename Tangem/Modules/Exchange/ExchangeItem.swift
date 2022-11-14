@@ -11,36 +11,19 @@ import BlockchainSdk
 import Combine
 
 class ExchangeItem: Identifiable {
-    let isLockedForChange: Bool
-    var currency: ExchangeCurrency
+    let isLocked: Bool
+    var currency: Currency
     var allowance: Decimal = 0
 
-    var name: String? {
-        currency.name
-    }
-
-    var symbol: String? {
-        currency.symbol
-    }
-
-    var decimalCount: Decimal? {
-        currency.decimalCount
-    }
-
-    var tokenAddress: String {
-        currency.contractAddress
-    }
-
-    init(isLockedForChange: Bool, currency: ExchangeCurrency) {
-        self.isLockedForChange = isLockedForChange
+    init(isLocked: Bool, currency: Currency) {
+        self.isLocked = isLocked
         self.currency = currency
     }
 
     func isAvailableForExchange(for amountValue: Decimal) -> Bool {
-        switch currency.type {
-        case .coin:
+        if !currency.isToken {
             return true
-        case .token:
+        } else {
             if amountValue <= allowance {
                 return true
             }
