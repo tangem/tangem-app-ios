@@ -14,7 +14,6 @@ final class ScanCardSettingsViewModel: ObservableObject, Identifiable {
 
     let id = UUID()
 
-    @Published var isLoading: Bool = false
     @Published var alert: AlertBinder?
 
     private let expectedUserWalletId: Data
