@@ -77,17 +77,6 @@ struct ChatButton: View {
     }
 }
 
-struct SkipButton: View {
-    let isVisible: Bool
-    let action: () -> Void
-
-    var body: some View {
-        Button("common_skip", action: action)
-            .opacity(isVisible ? 1.0 : 0.0)
-            .foregroundColor(DefaultNavigationBarSettings.color)
-            .padding(.horizontal, DefaultNavigationBarSettings.padding)
-    }
-}
 
 struct NavigationBar<LeftButtons: View, RightButtons: View>: View {
 
