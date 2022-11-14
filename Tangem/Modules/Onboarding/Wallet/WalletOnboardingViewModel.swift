@@ -262,7 +262,7 @@ class WalletOnboardingViewModel: OnboardingTopupViewModel<WalletOnboardingStep, 
 
     var isButtonsVisible: Bool {
         switch currentStep {
-        case .kycProgress: return false
+        case .saveUserWallet, .kycProgress: return false
         default: return true
         }
     }
