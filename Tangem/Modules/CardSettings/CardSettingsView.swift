@@ -20,67 +20,28 @@ struct CardSettingsView: View {
     }
 
     var body: some View {
-        List {
-            cardInfoSection
+        ZStack {
+            Colors.Background.secondary.edgesIgnoringSafeArea(.all)
 
-            securityModeSection
+            GroupedScrollView {
+                GroupedSection(viewModel.cardInfoSection) {
+                    DefaultRowView(viewModel: $0)
+                }
 
-            if viewModel.isResetToFactoryAvailable {
-                resetToFactorySection
+                GroupedSection(viewModel.securityModeSection) {
+                    DefaultRowView(viewModel: $0)
+                } footer: {
+                    DefaultFooterView(firstSectionFooterTitle)
+                }
+
+                GroupedSection(viewModel.resetToFactoryViewModel) {
+                    DefaultRowView(viewModel: $0)
+                } footer: {
+                    DefaultFooterView("card_settings_reset_card_to_factory_footer".localized)
+                }
             }
         }
-        .groupedListStyleCompatibility(background: Colors.Background.secondary)
         .alert(item: $viewModel.alert) { $0.alert }
         .navigationBarTitle("card_settings_title", displayMode: .inline)
-    }
-
-    private var cardInfoSection: some View {
-        Section(content: {
-            DefaultRowView(
-                title: "details_row_title_cid".localized,
-                detailsType: .text(viewModel.cardId)
-            )
-
-            DefaultRowView(
-                title: "details_row_title_issuer".localized,
-                detailsType: .text(viewModel.cardIssuer)
-            )
-
-            DefaultRowView(
-                title: "details_row_title_signed_hashes".localized,
-                detailsType: .text("details_row_subtitle_signed_hashes_format".localized(viewModel.cardSignedHashes))
-            )
-        })
-    }
-
-    private var securityModeSection: some View {
-        Section(content: {
-            DefaultRowView(
-                title: "card_settings_security_mode".localized,
-                detailsType: .text(viewModel.securityModeTitle),
-                action: viewModel.hasSingleSecurityMode ? nil : viewModel.openSecurityMode
-            )
-
-            if viewModel.isChangeAccessCodeVisible {
-                DefaultRowView(
-                    title: "card_settings_change_access_code".localized,
-                    detailsType: viewModel.isChangeAccessCodeLoading ? .loader : .none,
-                    action: viewModel.openChangeAccessCodeWarningView
-                )
-            }
-        }, footer: {
-            DefaultFooterView(title: firstSectionFooterTitle)
-        })
-    }
-
-    private var resetToFactorySection: some View {
-        Section(content: {
-            DefaultRowView(
-                title: "card_settings_reset_card_to_factory".localized,
-                action: viewModel.openResetCard
-            )
-        }, footer: {
-            DefaultFooterView(title: "card_settings_reset_card_to_factory_footer".localized)
-        })
     }
 }
