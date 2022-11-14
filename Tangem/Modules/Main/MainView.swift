@@ -103,7 +103,7 @@ struct MainView: View {
     var sendButton: some View {
         MainButton(
             text: "wallet_button_send".localized,
-            icon: .leading(Image(systemName: "arrow.right")),
+            icon: .leading(Assets.arrowRightMini),
             isDisabled: !viewModel.canSend,
             action: viewModel.sendTapped
         )
@@ -146,7 +146,7 @@ struct MainView: View {
         } else {
             MainButton(
                 text: "wallet_button_topup".localized,
-                icon: .leading(Image(systemName: "arrow.up")),
+                icon: .leading(Assets.arrowUpMini),
                 action: viewModel.openBuyCryptoIfPossible
             )
         }
