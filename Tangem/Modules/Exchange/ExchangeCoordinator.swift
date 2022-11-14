@@ -24,9 +24,9 @@ class ExchangeCoordinator: CoordinatorObject {
         let exchangeViewModelFactory = ExchangeViewModelFactory()
         let walletModelAdapter = WalletModelAdapter(walletManager: options.walletManager)
         exchangeViewModel = exchangeViewModelFactory.createExchangeViewModel(exchangeManager: walletModelAdapter,
-                                                                             amountType: options.amount,
                                                                              signer: options.signer,
-                                                                             blockchainNetwork: options.blockchainNetwork,
+                                                                             sourceCurrency: options.sourceCurrency,
+                                                                             coinModel: options.coinModel,
                                                                              exchangeRouter: .oneInch)
     }
 }
@@ -42,8 +42,8 @@ extension ExchangeCoordinator {
 extension ExchangeCoordinator {
     struct Options {
         let signer: TangemSigner
+        let sourceCurrency: Currency
         let walletManager: WalletManager
-        let blockchainNetwork: BlockchainNetwork
-        let amount: Amount.AmountType
+        let coinModel: CoinModel
     }
 }
