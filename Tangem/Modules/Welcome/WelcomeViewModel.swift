@@ -47,6 +47,7 @@ class WelcomeViewModel: ObservableObject {
     private var storiesModelSubscription: AnyCancellable? = nil
     private var bag: Set<AnyCancellable> = []
     private var backupService: BackupService { backupServiceProvider.backupService }
+    private let minimizedAppTimer = MinimizedAppTimer(interval: 60)
 
     private unowned let coordinator: WelcomeRoutable
 
@@ -68,6 +69,18 @@ class WelcomeViewModel: ObservableObject {
             .sink(receiveValue: { [weak self] in
                 self?.objectWillChange.send()
             })
+
+        bind()
+    }
+
+    func bind() {
+        minimizedAppTimer
+            .timer
+            .receive(on: RunLoop.main)
+            .sink { [weak self] in
+                self?.lock()
+            }
+            .store(in: &bag)
     }
 
     func scanCard() {
@@ -247,6 +260,12 @@ class WelcomeViewModel: ObservableObject {
         DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
             self.showingAuthentication = false
         }
+    }
+
+    private func lock() {
+        userWalletListService.lock()
+        showingAuthentication = true
+        coordinator.openUnlockScreen()
     }
 }
 
