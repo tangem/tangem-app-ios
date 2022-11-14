@@ -29,9 +29,9 @@ struct MultiWalletContentView: View {
                 text: "main_manage_tokens".localized,
                 action: viewModel.openTokensList
             )
-                .padding(.horizontal, 16)
-                .padding(.bottom, 8)
-                .padding(.top, 6)
+            .padding(.horizontal, 16)
+            .padding(.bottom, 8)
+            .padding(.top, 6)
         }
     }
 
