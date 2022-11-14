@@ -12,6 +12,7 @@ struct MainButton: View {
     private let text: String
     private let icon: Icon?
     private let style: Style
+    private let isLoading: Bool
     private let isDisabled: Bool
     private let action: () -> Void
 
@@ -19,14 +20,27 @@ struct MainButton: View {
         text: String,
         icon: Icon? = nil,
         style: Style = .primary,
+        isLoading: Bool = false,
         isDisabled: Bool = false,
         action: @escaping (() -> Void)
     ) {
         self.text = text
         self.icon = icon
         self.style = style
+        self.isLoading = isLoading
         self.isDisabled = isDisabled
         self.action = action
+    }
+
+    init(settings: Settings) {
+        self.init(
+            text: settings.text,
+            icon: settings.icon,
+            style: settings.style,
+            isLoading: settings.isLoading,
+            isDisabled: settings.isDisabled,
+            action: settings.action
+        )
     }
 
     var body: some View {
@@ -43,22 +57,36 @@ struct MainButton: View {
 
     @ViewBuilder
     private var content: some View {
-        switch icon {
-        case .none:
-            textView
-
-        case let .leading(icon):
-            HStack(alignment: .center, spacing: 10) {
-                iconView(icon: icon)
-
-                textView
-            }
-        case let .trailing(icon):
-            HStack(alignment: .center, spacing: 10) {
+        if isLoading {
+            loader
+        } else {
+            switch icon {
+            case .none:
                 textView
 
-                iconView(icon: icon)
+            case let .leading(icon):
+                HStack(alignment: .center, spacing: 10) {
+                    iconView(icon: icon)
+
+                    textView
+                }
+            case let .trailing(icon):
+                HStack(alignment: .center, spacing: 10) {
+                    textView
+
+                    iconView(icon: icon)
+                }
             }
+        }
+    }
+
+    @ViewBuilder
+    private var loader: some View {
+        if #available(iOS 14.0, *) {
+            ProgressView()
+                .progressViewStyle(CircularProgressViewStyle(tint: style.loaderColor()))
+        } else {
+            ActivityIndicatorView(color: style.loaderColor().uiColor())
         }
     }
 
@@ -115,6 +143,15 @@ extension MainButton {
             }
         }
 
+        func loaderColor() -> Color {
+            switch self {
+            case .primary:
+                return Colors.Text.primary2
+            case .secondary:
+                return Colors.Text.primary1
+            }
+        }
+
         func background(isDisabled: Bool) -> Color {
             if isDisabled {
                 return Colors.Button.disabled
@@ -126,6 +163,31 @@ extension MainButton {
             case .secondary:
                 return Colors.Button.secondary
             }
+        }
+    }
+
+    struct Settings {
+        let text: String
+        let icon: Icon?
+        let style: Style
+        let isLoading: Bool
+        let isDisabled: Bool
+        let action: () -> Void
+
+        init(
+            text: String,
+            icon: Icon? = nil,
+            style: Style = .primary,
+            isLoading: Bool = false,
+            isDisabled: Bool = false,
+            action: @escaping (() -> Void)
+        ) {
+            self.text = text
+            self.icon = icon
+            self.style = style
+            self.isLoading = isLoading
+            self.isDisabled = isDisabled
+            self.action = action
         }
     }
 }
@@ -161,6 +223,11 @@ struct MainButton_Previews: PreviewProvider {
                        icon: .trailing(Assets.tangemIcon),
                        style: style,
                        isDisabled: true) {}
+
+            MainButton(text: "Order card",
+                       icon: .trailing(Assets.tangemIcon),
+                       style: style,
+                       isLoading: true) {}
         }
         .padding(.horizontal, 16)
     }
