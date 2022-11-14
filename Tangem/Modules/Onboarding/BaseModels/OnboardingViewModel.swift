@@ -247,7 +247,12 @@ class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable>
             }
 
             if saveUserWalletOnFinish {
-                saveUserWalletIfNeeded(completion: completion)
+                do {
+                    try saveUserWalletIfNeeded()
+                    completion(.success(()))
+                } catch {
+                    completion(.failure(error.toTangemSdkError()))
+                }
             } else {
                 completion(.success(()))
             }
@@ -309,13 +314,11 @@ class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable>
             case .success:
                 AppSettings.shared.saveUserWallets = true
                 AppSettings.shared.saveAccessCodes = true
-                self?.saveUserWalletIfNeeded { result in
-                    switch result {
-                    case .failure(let error):
-                        print("Failed to save user wallet", error)
-                    case .success:
-                        self?.goToNextStep()
-                    }
+                do {
+                    try self?.saveUserWalletIfNeeded()
+                    self?.goToNextStep()
+                } catch {
+                    print("Failed to save user wallet", error)
                 }
             }
         }
@@ -325,20 +328,17 @@ class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable>
         AppSettings.shared.askedToSaveUserWallets = true
     }
 
-    func saveUserWalletIfNeeded(completion: @escaping (Result<Void, TangemSdkError>) -> Void) {
+    func saveUserWalletIfNeeded() throws {
         guard
             AppSettings.shared.saveUserWallets,
             let userWallet = input.cardInput.cardModel?.userWallet,
             !userWalletListService.contains(userWallet)
         else {
-            completion(.success(()))
             return
         }
 
         userWalletListService.save(userWallet)
         userWalletListService.selectedUserWalletId = userWallet.userWalletId
-
-        completion(.success(()))
     }
 
     private func bindAnalytics() {
