@@ -37,7 +37,7 @@ struct AddCustomTokenView: View {
 
                 MainButton(
                     text: "custom_token_add_token".localized,
-                    icon: .leading(Assets.plus),
+                    icon: .leading(Assets.plusMini),
                     isLoading: viewModel.isLoading,
                     isDisabled: viewModel.addButtonDisabled,
                     action: viewModel.createToken
