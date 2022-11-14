@@ -145,7 +145,7 @@ struct PushTxView: View {
                     HStack(alignment: .center, spacing: 8.0) {
                         Spacer()
                         MainButton(text: "wallet_button_send",
-                                   icon: .leading(Image(systemName: "arrow.right")),
+                                   icon: .leading(Assets.arrowRightMini),
                                    isDisabled: !viewModel.isSendEnabled,
                                    action: viewModel.onSend)
                             .alert(item: $viewModel.sendError) { binder in
