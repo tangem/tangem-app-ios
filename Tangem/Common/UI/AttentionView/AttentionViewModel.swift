@@ -16,7 +16,7 @@ class AttentionViewModel: ObservableObject {
     let message: String
 
     let warningText: String?
-    let buttonTitle: LocalizedStringKey
+    let buttonTitle: String
     let mainButtonAction: () -> Void
 
     init(
@@ -25,7 +25,7 @@ class AttentionViewModel: ObservableObject {
         title: String,
         message: String,
         warningText: String? = nil,
-        buttonTitle: LocalizedStringKey,
+        buttonTitle: String,
         mainButtonAction: @escaping () -> Void
     ) {
         self.isWarningChecked = isWarningChecked
