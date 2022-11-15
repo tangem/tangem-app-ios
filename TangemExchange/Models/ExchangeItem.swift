@@ -7,8 +7,6 @@
 //
 
 import Foundation
-import BlockchainSdk
-import Combine
 
 class ExchangeItem: Identifiable {
     let isLocked: Bool
