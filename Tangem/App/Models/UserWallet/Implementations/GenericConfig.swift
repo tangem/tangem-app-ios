@@ -171,7 +171,7 @@ extension GenericConfig: UserWalletConfig {
                 return .available
             }
 
-            return .disabled()
+            return .hidden
         case .twinning:
             return .hidden
         case .exchange:
