@@ -1,5 +1,5 @@
 //
-//  CardsRepository.swift
+//  UserWalletRepository.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -20,7 +20,7 @@ import enum TangemSdk.TangemSdkError
 
 import Intents
 
-class CommonCardsRepository: CardsRepository {
+class CommonUserWalletRepository: UserWalletRepository {
     @Injected(\.tangemSdkProvider) private var sdkProvider: TangemSdkProviding
     @Injected(\.tangemApiService) private var tangemApiService: TangemApiService
     @Injected(\.backupServiceProvider) private var backupServiceProvider: BackupServiceProviding
@@ -29,14 +29,14 @@ class CommonCardsRepository: CardsRepository {
     @Injected(\.supportChatService) private var supportChatService: SupportChatServiceProtocol
     @Injected(\.userWalletListService) private var userWalletListService: UserWalletListService
 
-    weak var delegate: CardsRepositoryDelegate? = nil
+    weak var delegate: UserWalletRepositoryDelegate? = nil
 
     private(set) var models = [CardViewModel]()
 
     private var bag: Set<AnyCancellable> = .init()
 
     deinit {
-        print("CardsRepository deinit")
+        print("UserWalletRepository deinit")
     }
 
     func scanPublisher(with batch: String? = nil, requestBiometrics: Bool = false) -> AnyPublisher<CardViewModel, Error>  {
