@@ -25,8 +25,9 @@ class WalletModelAdapter: ExchangeManager {
     }
 
     func getFee(currency: Currency, destination: String) async throws -> [Currency] {
+        let amount: Amount
         if currency.isToken {
-            let amount = amount = Amount(with: .init(name: "",
+            amount = Amount(with: .init(name: "",
                                         symbol: "",
                                         contractAddress: currency.contractAddress,
                                         decimalCount: currency.decimalCount ?? 0),
