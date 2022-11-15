@@ -204,6 +204,15 @@ class CommonUserWalletRepository: UserWalletRepository {
         clear()
     }
 
+    func unlock(with method: UserWalletRepositoryUnlockMethod, completion: @escaping (Result<Void, Error>) -> Void) {
+        switch method {
+        case .biometry:
+            unlockWithBiometry(completion: completion)
+        case .card(let userWallet):
+            unlockWithCard(userWallet, completion: completion)
+        }
+    }
+
     func unlockWithBiometry(completion: @escaping (Result<Void, Error>) -> Void) {
         encryptionKeyStorage.fetch { [weak self] result in
             DispatchQueue.main.async {
