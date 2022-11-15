@@ -9,11 +9,9 @@
 import Foundation
 import Combine
 import class UIKit.UIPasteboard
-import struct SwiftUI.LocalizedStringKey
-import struct SwiftUI.EdgeInsets
 
 class ReferralViewModel: ObservableObject {
-    @Published var isLoading: Bool = false
+    @Published var isProcessingRequest: Bool = false
     @Published var referralProgramInfo: ReferralProgramInfo?
 
     var award: String {
@@ -26,7 +24,7 @@ class ReferralViewModel: ObservableObject {
 
         return String(format: "referral_point_discount_description_value".localized, "\(info.conditions.award) \(awardToken.symbol)")
     }
-    
+
     var awardDescriptionSuffix: String {
         let format = "referral_point_currencies_description_suffix".localized
         var addressContent = ""
@@ -34,7 +32,7 @@ class ReferralViewModel: ObservableObject {
             let addressFormatter = AddressFormatter(address: address)
             addressContent = addressFormatter.truncated()
         }
-        
+
         return " " + String(format: format, addressContent)
     }
 
@@ -80,7 +78,7 @@ class ReferralViewModel: ObservableObject {
 
     private let coordinator: ReferralRoutable
 
-    private init(coordinator: ReferralRoutable, json: String = "") {
+    init(coordinator: ReferralRoutable, json: String = "") {
         self.coordinator = coordinator
         let jsonDecoder = JSONDecoder()
         referralProgramInfo = try? jsonDecoder.decode(ReferralProgramInfo.self, from: json.data(using: .utf8)!)
