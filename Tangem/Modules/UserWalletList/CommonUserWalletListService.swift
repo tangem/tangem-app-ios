@@ -12,7 +12,7 @@ import LocalAuthentication
 import TangemSdk
 
 class CommonUserWalletListService: UserWalletListService {
-    @Injected(\.cardsRepository) private var cardsRepository: CardsRepository
+    @Injected(\.cardsRepository) private var cardsRepository: UserWalletRepository
 
     var models: [CardViewModel] {
         cardsRepository.models
