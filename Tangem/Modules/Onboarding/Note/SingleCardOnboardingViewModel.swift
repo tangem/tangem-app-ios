@@ -60,6 +60,13 @@ class SingleCardOnboardingViewModel: OnboardingTopupViewModel<SingleCardOnboardi
         }
     }
 
+    var isButtonsVisible: Bool {
+        switch currentStep {
+        case .saveUserWallet: return false
+        default: return true
+        }
+    }
+
     var infoText: LocalizedStringKey? {
         currentStep.infoText
     }
