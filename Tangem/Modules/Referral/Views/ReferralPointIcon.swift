@@ -9,7 +9,6 @@
 import SwiftUI
 
 struct ReferralPointIcon: View {
-
     private let icon: Image
 
     init(icon: Image) {
@@ -18,9 +17,9 @@ struct ReferralPointIcon: View {
 
     var body: some View {
         icon
-            .padding(14)
-            .background(Colors.Button.secondary)
-            .cornerRadius(16)
+            .roundedBackground(with: Colors.Button.secondary,
+                               padding: 14,
+                               radius: 16)
     }
 }
 
