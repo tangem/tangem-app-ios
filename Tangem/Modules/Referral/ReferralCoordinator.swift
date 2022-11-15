@@ -20,7 +20,7 @@ class ReferralCoordinator: CoordinatorObject {
     }
 
     func start(with options: Options) {
-        referralViewModel = .mock(.referral, with: ReferralCoordinator())
+        referralViewModel = .mock(.notReferral, with: ReferralCoordinator())
     }
 }
 
