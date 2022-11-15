@@ -21,7 +21,7 @@ struct ReferralView: View {
                         .padding(.horizontal, 40)
 
                     Text("referral_title".localized)
-                        .font(Fonts.Bold.title1)
+                        .style(Fonts.Bold.title1, color: Colors.Text.primary1)
                         .multilineTextAlignment(.center)
                         .lineLimit(2)
                         .padding(.horizontal, 57)
@@ -117,10 +117,12 @@ struct ReferralView: View {
 
             HStack {
                 Text("referral_friends_bought_title")
+                    .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
 
                 Spacer()
 
                 Text(viewModel.numberOfWalletsBought)
+                    .style(Fonts.Regular.subheadline, color: Colors.Text.primary1)
             }
             .roundedBackground(with: Colors.Background.primary,
                                padding: 16,
