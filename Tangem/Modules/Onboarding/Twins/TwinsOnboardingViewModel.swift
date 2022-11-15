@@ -226,7 +226,7 @@ class TwinsOnboardingViewModel: OnboardingTopupViewModel<TwinsOnboardingStep, On
                 supplementButtonAction()
             }
         case .saveUserWallet:
-            saveUserWallet()
+            break
         }
     }
 
