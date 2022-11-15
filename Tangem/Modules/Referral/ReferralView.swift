@@ -29,7 +29,7 @@ struct ReferralView: View {
                         .padding(.bottom, 32)
 
                     content
-                        .padding(.bottom, max(geometry.safeAreaInsets.bottom, 10) )
+                        .padding(.bottom, max(geometry.safeAreaInsets.bottom, 10))
 
                 }
                 .frame(width: geometry.size.width)
@@ -60,8 +60,8 @@ struct ReferralView: View {
                 header: { Text("referral_point_currencies_title") },
                 description: {
                     Text("referral_point_currencies_description_prefix".localized + " ") +
-                    Text(viewModel.award).foregroundColor(Colors.Text.primary1) +
-                    Text(viewModel.awardDescriptionSuffix)
+                        Text(viewModel.award).foregroundColor(Colors.Text.primary1) +
+                        Text(viewModel.awardDescriptionSuffix)
                 }
             )
 
@@ -70,8 +70,8 @@ struct ReferralView: View {
                 header: { Text("referral_point_discount_title") },
                 description: {
                     Text("referral_point_discount_description_prefix".localized + " ") +
-                    Text(viewModel.discount).foregroundColor(Colors.Text.primary1) +
-                    Text(" " + "referral_point_discount_description_suffix".localized)
+                        Text(viewModel.discount).foregroundColor(Colors.Text.primary1) +
+                        Text(" " + "referral_point_discount_description_suffix".localized)
                 })
                 .padding(.top, viewModel.isAlreadyReferral ? 20 : 38)
 
@@ -100,8 +100,8 @@ struct ReferralView: View {
     private var touButton: some View {
         Button(action: viewModel.openTou) {
             Text(viewModel.touButtonPrefix) +
-            Text("common_terms_and_conditions").foregroundColor(Colors.Text.accent) +
-            Text(" " + "referral_tou_suffix".localized)
+                Text("common_terms_and_conditions").foregroundColor(Colors.Text.accent) +
+                Text(" " + "referral_tou_suffix".localized)
         }
         .multilineTextAlignment(.center)
         .fixedSize(horizontal: false, vertical: true)
@@ -180,7 +180,7 @@ struct ReferralView: View {
             .buttonStyle(
                 TangemButtonStyle(colorStyle: .black,
                                   layout: .flexibleWidth,
-                                  isLoading: viewModel.isLoading)
+                                  isLoading: viewModel.isProcessingRequest)
             )
         }
     }
@@ -193,13 +193,13 @@ struct ReferralView_Previews: PreviewProvider {
                 viewModel: ReferralViewModel.mock(.notReferral, with: ReferralCoordinator())
             )
         }
-        .previewGroup(devices: [.iPhone12Mini], withZoomed: false)
+        .previewGroup(devices: [.iPhone8], withZoomed: false)
 
         NavigationView {
             ReferralView(
                 viewModel: ReferralViewModel.mock(.referral, with: ReferralCoordinator())
             )
         }
-        .previewGroup(devices: [.iPhone12Mini], withZoomed: false)
+        .previewGroup(devices: [.iPhone8], withZoomed: false)
     }
 }
