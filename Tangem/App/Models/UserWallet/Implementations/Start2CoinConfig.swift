@@ -100,7 +100,7 @@ extension Start2CoinConfig: UserWalletConfig {
 
     var onboardingSteps: OnboardingSteps {
         if card.wallets.isEmpty {
-            return .singleWallet([.createWallet, .success])
+            return .singleWallet([.createWallet] + userWalletSavingSteps + [.success])
         }
 
         return .singleWallet([])
@@ -108,6 +108,11 @@ extension Start2CoinConfig: UserWalletConfig {
 
     var backupSteps: OnboardingSteps? {
         return nil
+    }
+
+    var userWalletSavingSteps: [SingleCardOnboardingStep] {
+        guard needUserWalletSavingSteps else { return [] }
+        return [.saveUserWallet]
     }
 
     var supportedBlockchains: Set<Blockchain> {
