@@ -41,6 +41,11 @@ struct GenericDemoConfig {
         return steps
     }
 
+    var userWalletSavingSteps: [WalletOnboardingStep] {
+        guard needUserWalletSavingSteps else { return [] }
+        return [.saveUserWallet]
+    }
+
     init(card: CardDTO) {
         self.card = card
     }
@@ -69,13 +74,13 @@ extension GenericDemoConfig: UserWalletConfig {
 
     var onboardingSteps: OnboardingSteps {
         if card.wallets.isEmpty {
-            return .wallet([.createWallet] + _backupSteps)
+            return .wallet([.createWallet] + _backupSteps + userWalletSavingSteps + [.success])
         } else {
             if !AppSettings.shared.cardsStartedActivation.contains(card.cardId) {
                 return .wallet([])
             }
 
-            return .wallet(_backupSteps)
+            return .wallet(_backupSteps + userWalletSavingSteps + [.success])
         }
     }
 
