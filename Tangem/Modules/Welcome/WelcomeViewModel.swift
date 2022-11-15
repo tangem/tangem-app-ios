@@ -14,7 +14,6 @@ class WelcomeViewModel: ObservableObject {
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
     @Injected(\.backupServiceProvider) private var backupServiceProvider: BackupServiceProviding
     @Injected(\.failedScanTracker) var failedCardScanTracker: FailedScanTrackable
-    @Injected(\.userWalletListService) private var userWalletListService: UserWalletListService
     @Injected(\.saletPayRegistratorProvider) private var saltPayRegistratorProvider: SaltPayRegistratorProviding
 
     @Published var showTroubleshootingView: Bool = false
@@ -28,7 +27,7 @@ class WelcomeViewModel: ObservableObject {
     @Published var showingAuthentication = false
 
     var shouldShowAuthenticationView: Bool {
-        AppSettings.shared.saveUserWallets && !userWalletListService.isEmpty && BiometricsUtil.isAvailable
+        AppSettings.shared.saveUserWallets && !userWalletRepository.isEmpty && BiometricsUtil.isAvailable
     }
 
     var unlockWithBiometryLocalizationKey: LocalizedStringKey {
@@ -155,7 +154,7 @@ class WelcomeViewModel: ObservableObject {
         Analytics.log(.buttonBiometricSignIn)
 
         showingAuthentication = true
-        userWalletListService.unlockWithBiometry(completion: self.didFinishUnlocking)
+        userWalletRepository.unlockWithBiometry(completion: self.didFinishUnlocking)
     }
 
     func unlockWithCard() {
@@ -169,7 +168,7 @@ class WelcomeViewModel: ObservableObject {
                 return
             }
 
-            self.userWalletListService.unlockWithCard(userWallet, completion: self.didFinishUnlocking)
+            self.userWalletRepository.unlockWithCard(userWallet, completion: self.didFinishUnlocking)
         }
     }
 
@@ -253,7 +252,7 @@ class WelcomeViewModel: ObservableObject {
             return
         }
 
-        guard let model = userWalletListService.selectedModel else { return }
+        guard let model = userWalletRepository.selectedModel else { return }
         userWalletRepository.didSwitch(to: model)
         coordinator.openMain(with: model)
 
@@ -263,7 +262,7 @@ class WelcomeViewModel: ObservableObject {
     }
 
     private func lock() {
-        userWalletListService.lock()
+        userWalletRepository.lock()
         showingAuthentication = true
         coordinator.openUnlockScreen()
     }
