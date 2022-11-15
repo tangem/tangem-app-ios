@@ -225,31 +225,20 @@ class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable>
 
     func goToNextStep() {
         if isOnboardingFinished {
-            let completion: (Result<Void, TangemSdkError>) -> Void = { [weak self] result in
-                guard let self = self else { return }
-
-                switch result {
-                case .failure(let error):
-                    print("Failed to complete onboarding", error)
-                case .success:
-                    DispatchQueue.main.async {
-                        self.onboardingDidFinish()
-                    }
-
-                    self.onOnboardingFinished(for: self.input.cardInput.cardId)
-                }
-            }
-
             if saveUserWalletOnFinish {
                 do {
                     try saveUserWalletIfNeeded()
-                    completion(.success(()))
                 } catch {
-                    completion(.failure(error.toTangemSdkError()))
+                    print("Failed to complete onboarding", error)
+                    return
                 }
-            } else {
-                completion(.success(()))
             }
+
+            DispatchQueue.main.async {
+                self.onboardingDidFinish()
+            }
+
+            self.onOnboardingFinished(for: self.input.cardInput.cardId)
 
             return
         }
