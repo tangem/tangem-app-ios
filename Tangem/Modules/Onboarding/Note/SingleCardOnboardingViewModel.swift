@@ -140,7 +140,7 @@ class SingleCardOnboardingViewModel: OnboardingTopupViewModel<SingleCardOnboardi
         case .successTopup:
             goToNextStep()
         case .saveUserWallet:
-            saveUserWallet()
+            break
         case .success:
             goToNextStep()
         }
