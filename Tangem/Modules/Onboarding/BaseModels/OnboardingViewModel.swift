@@ -295,7 +295,7 @@ class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable>
 
         didAskToSaveUserWallets()
 
-        userWalletRepository.unlockWithBiometry { [weak self] result in
+        userWalletRepository.unlock(with: .biometry) { [weak self] result in
             switch result {
             case .failure(let error):
                 if let tangemSdkError = error as? TangemSdkError,
