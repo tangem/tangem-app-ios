@@ -11,7 +11,7 @@ import SwiftUI
 import TangemSdk
 
 class WelcomeViewModel: ObservableObject {
-    @Injected(\.cardsRepository) private var cardsRepository: CardsRepository
+    @Injected(\.cardsRepository) private var cardsRepository: UserWalletRepository
     @Injected(\.backupServiceProvider) private var backupServiceProvider: BackupServiceProviding
     @Injected(\.failedScanTracker) var failedCardScanTracker: FailedScanTrackable
     @Injected(\.userWalletListService) private var userWalletListService: UserWalletListService
@@ -340,7 +340,7 @@ private extension WelcomeViewModel {
     }
 }
 
-extension WelcomeViewModel: CardsRepositoryDelegate {
+extension WelcomeViewModel: UserWalletRepositoryDelegate {
     func showTOS(at url: URL, _ completion: @escaping (Bool) -> Void) {
         coordinator.openDisclaimer(at: url, completion)
     }
