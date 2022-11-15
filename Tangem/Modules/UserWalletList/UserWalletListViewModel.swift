@@ -11,7 +11,6 @@ import SwiftUI
 
 final class UserWalletListViewModel: ObservableObject, Identifiable {
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
-    @Injected(\.userWalletListService) private var userWalletListService: UserWalletListService
     @Injected(\.failedScanTracker) var failedCardScanTracker: FailedScanTrackable
 
     // MARK: - ViewState
@@ -39,7 +38,7 @@ final class UserWalletListViewModel: ObservableObject, Identifiable {
     }
 
     var isUnlocked: Bool {
-        userWalletListService.isUnlocked
+        userWalletRepository.isUnlocked
     }
 
     private unowned let coordinator: UserWalletListRoutable
@@ -52,7 +51,7 @@ final class UserWalletListViewModel: ObservableObject, Identifiable {
         self.coordinator = coordinator
 
         Analytics.log(.myWalletsScreenOpened)
-        selectedUserWalletId = userWalletListService.selectedUserWalletId
+        selectedUserWalletId = userWalletRepository.selectedUserWalletId
         updateModels()
     }
 
@@ -64,14 +63,14 @@ final class UserWalletListViewModel: ObservableObject, Identifiable {
             v1
         })
 
-        multiCurrencyModels = userWalletListService.models
+        multiCurrencyModels = userWalletRepository.models
             .filter { $0.isMultiWallet }
             .compactMap { $0.userWalletModel }
             .map {
                 mapToUserWalletListCellViewModel(userWalletModel: $0, totalBalanceProvider: totalBalanceProviders[$0.userWallet.userWalletId])
             }
 
-        singleCurrencyModels = userWalletListService.models
+        singleCurrencyModels = userWalletRepository.models
             .filter { !$0.isMultiWallet }
             .compactMap { $0.userWalletModel }
             .map {
@@ -82,7 +81,7 @@ final class UserWalletListViewModel: ObservableObject, Identifiable {
     func unlockAllWallets() {
         Analytics.log(.buttonUnlockAllWithFaceID)
 
-        userWalletListService.unlockWithBiometry { [weak self] result in
+        userWalletRepository.unlockWithBiometry { [weak self] result in
             guard case .success = result else { return }
 
             self?.updateModels()
@@ -137,7 +136,7 @@ final class UserWalletListViewModel: ObservableObject, Identifiable {
             var newUserWallet = viewModel.userWallet
             newUserWallet.name = newName
 
-            self?.userWalletListService.save(newUserWallet)
+            self?.userWalletRepository.save(newUserWallet)
             self?.updateModels()
         }
         alert.addAction(acceptButton)
@@ -157,7 +156,7 @@ final class UserWalletListViewModel: ObservableObject, Identifiable {
     }
 
     func didConfirmWalletDeletion() {
-        let models = userWalletListService.models
+        let models = userWalletRepository.models
 
         let viewModels = (multiCurrencyModels + singleCurrencyModels)
         guard let viewModel = viewModels.first(where: { $0.userWalletId == userWalletIdToBeDeleted }) else {
@@ -180,7 +179,7 @@ final class UserWalletListViewModel: ObservableObject, Identifiable {
             newSelectedUserWallet = nil
         }
 
-        userWalletListService.delete(viewModel.userWallet)
+        userWalletRepository.delete(viewModel.userWallet)
         multiCurrencyModels.removeAll { $0.userWalletId == viewModel.userWalletId }
         singleCurrencyModels.removeAll { $0.userWalletId == viewModel.userWalletId }
 
@@ -188,7 +187,7 @@ final class UserWalletListViewModel: ObservableObject, Identifiable {
             setSelectedWallet(newSelectedUserWallet)
         }
 
-        if userWalletListService.isEmpty {
+        if userWalletRepository.isEmpty {
             AppSettings.shared.saveUserWallets = false
             coordinator.dismissUserWalletList()
             coordinator.popToRoot()
@@ -237,7 +236,7 @@ final class UserWalletListViewModel: ObservableObject, Identifiable {
 
         guard let userWallet = cardModel.userWallet else { return }
 
-        if !userWalletListService.contains(userWallet) {
+        if !userWalletRepository.contains(userWallet) {
             let newModel = CardViewModel(userWallet: userWallet)
             guard
                 let cellModel = newModel.userWalletModel.map({ mapToUserWalletListCellViewModel(userWalletModel: $0) })
@@ -245,7 +244,7 @@ final class UserWalletListViewModel: ObservableObject, Identifiable {
                 return
             }
 
-            userWalletListService.save(userWallet)
+            userWalletRepository.save(userWallet)
 
             if newModel.isMultiWallet {
                 multiCurrencyModels.append(cellModel)
@@ -266,7 +265,7 @@ final class UserWalletListViewModel: ObservableObject, Identifiable {
             let cardModel = CardViewModel(userWallet: userWallet)
             self?.userWalletRepository.didSwitch(to: cardModel)
             self?.selectedUserWalletId = userWallet.userWalletId
-            self?.userWalletListService.selectedUserWalletId = userWallet.userWalletId
+            self?.userWalletRepository.selectedUserWalletId = userWallet.userWalletId
             self?.coordinator.didTap(cardModel)
             self?.updateSelectedWalletModel()
         }
@@ -281,13 +280,13 @@ final class UserWalletListViewModel: ObservableObject, Identifiable {
         scanCardInternal { [weak self] cardModel in
             guard let userWallet = cardModel.userWallet else { return }
 
-            self?.userWalletListService.unlockWithCard(userWallet) { result in
+            self?.userWalletRepository.unlockWithCard(userWallet) { result in
                 guard case .success = result else {
                     return
                 }
 
                 guard
-                    let selectedModel = self?.userWalletListService.models.first(where: { $0.userWallet?.userWalletId == userWallet.userWalletId }),
+                    let selectedModel = self?.userWalletRepository.models.first(where: { $0.userWallet?.userWalletId == userWallet.userWalletId }),
                     let userWallet = selectedModel.userWallet
                 else {
                     return
