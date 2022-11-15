@@ -216,10 +216,6 @@ class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable>
         withAnimation {
             currentStepIndex = index
             setupCardsSettings(animated: true, isContainerSetup: false)
-
-            if index == (steps.count - 1) {
-                fireConfetti()
-            }
         }
     }
 
