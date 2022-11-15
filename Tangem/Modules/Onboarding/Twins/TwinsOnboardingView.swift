@@ -132,23 +132,25 @@ struct TwinsOnboardingView: View {
                         .layoutPriority(1)
                 }
 
-                OnboardingTextButtonView(
-                    title: viewModel.title,
-                    subtitle: viewModel.subtitle,
-                    buttonsSettings: .init(main: viewModel.mainButtonSettings,
-                                           supplement: viewModel.supplementButtonSettings),
-                    infoText: viewModel.infoText,
-                    titleAction: {
-//                        guard viewModel.assembly.isPreview else { return }
-
-//                        withAnimation { //reset for testing
-//                            viewModel.reset()
-//                        }
-                    },
-                    checkmarkText: currentStep.checkmarkText,
-                    isCheckmarkChecked: $viewModel.alertAccepted
-                )
-                .padding(.horizontal, 40)
+                if viewModel.isButtonsVisible {
+                    OnboardingTextButtonView(
+                        title: viewModel.title,
+                        subtitle: viewModel.subtitle,
+                        buttonsSettings: .init(main: viewModel.mainButtonSettings,
+                                               supplement: viewModel.supplementButtonSettings),
+                        infoText: viewModel.infoText,
+                        titleAction: {
+//                                                    guard viewModel.assembly.isPreview else { return }
+//
+//                                                    withAnimation { //reset for testing
+//                                                        viewModel.reset()
+//                                                    }
+                        },
+                        checkmarkText: currentStep.checkmarkText,
+                        isCheckmarkChecked: $viewModel.alertAccepted
+                    )
+                    .padding(.horizontal, 40)
+                }
             }
         }
         .background(
