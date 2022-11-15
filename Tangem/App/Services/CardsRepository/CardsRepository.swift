@@ -32,7 +32,7 @@ private struct UserWalletRepositoryKey: InjectionKey {
 }
 
 extension InjectedValues {
-    var cardsRepository: UserWalletRepository {
+    var userWalletRepository: UserWalletRepository {
         get { Self[UserWalletRepositoryKey.self] }
         set { Self[UserWalletRepositoryKey.self] = newValue }
     }
@@ -52,6 +52,6 @@ protocol ScanListener {
     func onScan(cardInfo: CardInfo)
 }
 
-enum CardsRepositoryError: Error {
+enum UserWalletRepositoryError: Error {
     case noCard
 }

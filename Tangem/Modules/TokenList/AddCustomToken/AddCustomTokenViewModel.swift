@@ -13,7 +13,7 @@ import struct TangemSdk.DerivationPath
 import enum TangemSdk.TangemSdkError
 
 class AddCustomTokenViewModel: ObservableObject {
-    @Injected(\.cardsRepository) private var cardsRepository: UserWalletRepository
+    @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
     @Injected(\.tangemApiService) var tangemApiService: TangemApiService
 
     weak var cardModel: CardViewModel!
