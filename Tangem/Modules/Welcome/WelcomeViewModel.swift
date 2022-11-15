@@ -154,7 +154,7 @@ class WelcomeViewModel: ObservableObject {
         Analytics.log(.buttonBiometricSignIn)
 
         showingAuthentication = true
-        userWalletRepository.unlockWithBiometry(completion: self.didFinishUnlocking)
+        userWalletRepository.unlock(with: .biometry, completion: self.didFinishUnlocking)
     }
 
     func unlockWithCard() {
@@ -168,7 +168,7 @@ class WelcomeViewModel: ObservableObject {
                 return
             }
 
-            self.userWalletRepository.unlockWithCard(userWallet, completion: self.didFinishUnlocking)
+            self.userWalletRepository.unlock(with: .card(userWallet: userWallet), completion: self.didFinishUnlocking)
         }
     }
 
