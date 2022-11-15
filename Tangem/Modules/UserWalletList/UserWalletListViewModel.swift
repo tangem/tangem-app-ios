@@ -10,7 +10,7 @@ import Combine
 import SwiftUI
 
 final class UserWalletListViewModel: ObservableObject, Identifiable {
-    @Injected(\.cardsRepository) private var cardsRepository: UserWalletRepository
+    @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
     @Injected(\.userWalletListService) private var userWalletListService: UserWalletListService
     @Injected(\.failedScanTracker) var failedCardScanTracker: FailedScanTrackable
 
@@ -198,7 +198,7 @@ final class UserWalletListViewModel: ObservableObject, Identifiable {
     private func scanCardInternal(_ completion: @escaping (CardViewModel) -> Void) {
         isScanningCard = true
 
-        cardsRepository.scanPublisher(requestBiometrics: true)
+        userWalletRepository.scanPublisher(requestBiometrics: true)
             .receive(on: DispatchQueue.main)
             .sink { [weak self] completion in
                 if case let .failure(error) = completion {
@@ -264,7 +264,7 @@ final class UserWalletListViewModel: ObservableObject, Identifiable {
 
         let completion: (UserWallet) -> Void = { [weak self] userWallet in
             let cardModel = CardViewModel(userWallet: userWallet)
-            self?.cardsRepository.didSwitch(to: cardModel)
+            self?.userWalletRepository.didSwitch(to: cardModel)
             self?.selectedUserWalletId = userWallet.userWalletId
             self?.userWalletListService.selectedUserWalletId = userWallet.userWalletId
             self?.coordinator.didTap(cardModel)
