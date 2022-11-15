@@ -361,8 +361,6 @@
 		DAA5E31028D2137C003C0E80 /* UserWalletListCellView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAA5E30828D2137C003C0E80 /* UserWalletListCellView.swift */; };
 		DAA5E31128D2137C003C0E80 /* UserWalletListViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAA5E30928D2137C003C0E80 /* UserWalletListViewModel.swift */; };
 		DAA5E31228D2137C003C0E80 /* UserWalletEncryptionKeyStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAA5E30A28D2137C003C0E80 /* UserWalletEncryptionKeyStorage.swift */; };
-		DAA5E31328D2137C003C0E80 /* CommonUserWalletListService.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAA5E30B28D2137C003C0E80 /* CommonUserWalletListService.swift */; };
-		DAA5E31428D2137C003C0E80 /* UserWalletListService.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAA5E30C28D2137C003C0E80 /* UserWalletListService.swift */; };
 		DAA5E31628D213A4003C0E80 /* CardDTO.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAA5E31528D213A4003C0E80 /* CardDTO.swift */; };
 		DAA5E31A28D214BF003C0E80 /* UserWalletFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAA5E31928D214BF003C0E80 /* UserWalletFactory.swift */; };
 		DAA8F88A2888397700F14B9A /* ShopWebHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAA8F8892888397700F14B9A /* ShopWebHelper.swift */; };
@@ -1030,8 +1028,6 @@
 		DAA5E30828D2137C003C0E80 /* UserWalletListCellView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UserWalletListCellView.swift; sourceTree = "<group>"; };
 		DAA5E30928D2137C003C0E80 /* UserWalletListViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UserWalletListViewModel.swift; sourceTree = "<group>"; };
 		DAA5E30A28D2137C003C0E80 /* UserWalletEncryptionKeyStorage.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UserWalletEncryptionKeyStorage.swift; sourceTree = "<group>"; };
-		DAA5E30B28D2137C003C0E80 /* CommonUserWalletListService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CommonUserWalletListService.swift; sourceTree = "<group>"; };
-		DAA5E30C28D2137C003C0E80 /* UserWalletListService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UserWalletListService.swift; sourceTree = "<group>"; };
 		DAA5E31528D213A4003C0E80 /* CardDTO.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CardDTO.swift; sourceTree = "<group>"; };
 		DAA5E31928D214BF003C0E80 /* UserWalletFactory.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UserWalletFactory.swift; sourceTree = "<group>"; };
 		DAA8F8892888397700F14B9A /* ShopWebHelper.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ShopWebHelper.swift; sourceTree = "<group>"; };
@@ -2397,8 +2393,6 @@
 				DAA5E30828D2137C003C0E80 /* UserWalletListCellView.swift */,
 				DAA5E30928D2137C003C0E80 /* UserWalletListViewModel.swift */,
 				DAA5E30A28D2137C003C0E80 /* UserWalletEncryptionKeyStorage.swift */,
-				DAA5E30B28D2137C003C0E80 /* CommonUserWalletListService.swift */,
-				DAA5E30C28D2137C003C0E80 /* UserWalletListService.swift */,
 			);
 			path = UserWalletList;
 			sourceTree = "<group>";
@@ -3555,7 +3549,6 @@
 				65B4DECB2881ABA4001524CF /* BottomSheetDismissalTransition.swift in Sources */,
 				DC66BC04285B6C5F00CDF765 /* SendCoordinator.swift in Sources */,
 				5D00FCCC2617389E004626DE /* SignTransactionHandler.swift in Sources */,
-				DAA5E31328D2137C003C0E80 /* CommonUserWalletListService.swift in Sources */,
 				5DDFC1FD2812A622005976FE /* Coin.swift in Sources */,
 				5D51036B27C534CB0025EA55 /* EIP712TypedData.swift in Sources */,
 				5DDE22EA2608DC94008657C6 /* UrlHandler.swift in Sources */,
@@ -3814,7 +3807,6 @@
 				EF0F99AD289028F8008B01DF /* AppSettingsView.swift in Sources */,
 				B046FC3626BC1DB600A7EECE /* OnboardingProgressIndicator.swift in Sources */,
 				B053759126CA3EFA0090FCFC /* CheckmarkSwitch.swift in Sources */,
-				DAA5E31428D2137C003C0E80 /* UserWalletListService.swift in Sources */,
 				5DF2522924F93C2A0015B429 /* QRCodeView.swift in Sources */,
 				DC936B6B28F3F8140023C75D /* SaltPayRegistratorError.swift in Sources */,
 				EFFC860D28BCE87700F863CE /* TokenItemsRepositoryMigrator.swift in Sources */,
