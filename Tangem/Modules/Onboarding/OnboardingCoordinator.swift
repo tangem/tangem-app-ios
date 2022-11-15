@@ -41,18 +41,17 @@ class OnboardingCoordinator: CoordinatorObject {
     func start(with options: OnboardingCoordinator.Options) {
         self.options = options
         let input = options.input
-        let saveUserWalletOnFinish = options.saveUserWalletOnFinish
         switch input.steps {
         case .singleWallet:
-            let model = SingleCardOnboardingViewModel(input: input, saveUserWalletOnFinish: saveUserWalletOnFinish, coordinator: self)
+            let model = SingleCardOnboardingViewModel(input: input, coordinator: self)
             onDismissalAttempt = model.backButtonAction
             singleCardViewModel = model
         case .twins:
-            let model = TwinsOnboardingViewModel(input: input, saveUserWalletOnFinish: saveUserWalletOnFinish, coordinator: self)
+            let model = TwinsOnboardingViewModel(input: input, coordinator: self)
             onDismissalAttempt = model.backButtonAction
             twinsViewModel = model
         case .wallet:
-            let model = WalletOnboardingViewModel(input: input, saveUserWalletOnFinish: saveUserWalletOnFinish, coordinator: self)
+            let model = WalletOnboardingViewModel(input: input, coordinator: self)
             onDismissalAttempt = model.backButtonAction
             walletViewModel = model
         }
@@ -68,7 +67,6 @@ extension OnboardingCoordinator {
     struct Options {
         let input: OnboardingInput
         let destination: DestinationOnFinish
-        let saveUserWalletOnFinish: Bool
     }
 }
 
