@@ -67,7 +67,7 @@ private extension AppSettingsViewModel {
                       params: [.state: Analytics.ParameterValue.state(for: saveWallet).rawValue])
 
         if saveWallet {
-            self.userWalletRepository.unlockWithBiometry { [weak self] result in
+            self.userWalletRepository.unlock(with: .biometry) { [weak self] result in
                 guard let self else { return }
 
                 if case .success = result {
