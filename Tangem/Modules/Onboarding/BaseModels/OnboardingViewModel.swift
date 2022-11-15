@@ -11,7 +11,7 @@ import Combine
 import TangemSdk
 
 class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable> {
-    @Injected(\.userWalletListService) private var userWalletListService: UserWalletListService
+    @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
     @Injected(\.tangemSdkProvider) private var tangemSdkProvider: TangemSdkProviding
 
     let navbarSize: CGSize = .init(width: UIScreen.main.bounds.width, height: 44)
@@ -295,7 +295,7 @@ class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable>
 
         didAskToSaveUserWallets()
 
-        userWalletListService.unlockWithBiometry { [weak self] result in
+        userWalletRepository.unlockWithBiometry { [weak self] result in
             switch result {
             case .failure(let error):
                 if let tangemSdkError = error as? TangemSdkError,
@@ -326,13 +326,13 @@ class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable>
         guard
             AppSettings.shared.saveUserWallets,
             let userWallet = input.cardInput.cardModel?.userWallet,
-            !userWalletListService.contains(userWallet)
+            !userWalletRepository.contains(userWallet)
         else {
             return
         }
 
-        userWalletListService.save(userWallet)
-        userWalletListService.selectedUserWalletId = userWallet.userWalletId
+        userWalletRepository.save(userWallet)
+        userWalletRepository.selectedUserWalletId = userWallet.userWalletId
     }
 
     private func bindAnalytics() {
