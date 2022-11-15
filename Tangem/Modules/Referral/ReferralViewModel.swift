@@ -26,6 +26,17 @@ class ReferralViewModel: ObservableObject {
 
         return String(format: "referral_point_discount_description_value".localized, "\(info.conditions.award) \(awardToken.symbol)")
     }
+    
+    var awardDescriptionSuffix: String {
+        let format = "referral_point_currencies_description_suffix".localized
+        var addressContent = ""
+        if let address = referralProgramInfo?.referral?.address {
+            let addressFormatter = AddressFormatter(address: address)
+            addressContent = addressFormatter.truncated()
+        }
+        
+        return " " + String(format: format, addressContent)
+    }
 
     var discount: String {
         guard let info = referralProgramInfo else {
@@ -36,7 +47,7 @@ class ReferralViewModel: ObservableObject {
     }
 
     var numberOfWalletsBought: String {
-        let stringFormat = "referral_wallets_bought_count".localized
+        let stringFormat = "referral_wallets_purchased_count".localized
         guard let info = referralProgramInfo?.referral else {
             return String.localizedStringWithFormat(stringFormat, 0)
         }
@@ -52,18 +63,18 @@ class ReferralViewModel: ObservableObject {
         return info.promoCode
     }
 
-    var touButtonPrefix: LocalizedStringKey {
+    var touButtonPrefix: String {
         if referralProgramInfo?.referral == nil {
-            return "referral_tou_not_enroled_prefix"
+            return "referral_tou_not_enroled_prefix".localized + " "
         }
 
-        return "referral_tou_enroled_prefix"
+        return "referral_tou_enroled_prefix".localized + " "
     }
 
     var isProgramInfoLoaded: Bool { referralProgramInfo != nil }
     var isAlreadyReferral: Bool { referralProgramInfo?.referral != nil }
 
-    var referralInfo: ReferralInfo? {
+    var referralInfo: ReferralProgramInfo.Referral? {
         referralProgramInfo?.referral
     }
 
@@ -72,7 +83,7 @@ class ReferralViewModel: ObservableObject {
     private init(coordinator: ReferralRoutable, json: String = "") {
         self.coordinator = coordinator
         let jsonDecoder = JSONDecoder()
-        referralProgramInfo = try! jsonDecoder.decode(ReferralProgramInfo.self, from: json.data(using: .utf8)!)
+        referralProgramInfo = try? jsonDecoder.decode(ReferralProgramInfo.self, from: json.data(using: .utf8)!)
     }
 
     // Temp solution. Will be updated in [REDACTED_INFO]
