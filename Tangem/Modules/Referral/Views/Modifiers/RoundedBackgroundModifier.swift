@@ -15,9 +15,9 @@ struct RoundedBackgroundModifier: ViewModifier {
 
     func body(content: Content) -> some View {
         content
-            .padding(14)
-            .background(Colors.Button.secondary)
-            .cornerRadius(16)
+            .padding(padding)
+            .background(backgroundColor)
+            .cornerRadius(cornerRadius)
     }
 }
 
