@@ -135,12 +135,10 @@ class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable>
     private(set) var containerSize: CGSize = .zero
     private var agreedToSaveUserWallet: Bool? = nil
     unowned let coordinator: Coordinator
-    private let saveUserWalletOnFinish: Bool
 
-    init(input: OnboardingInput, coordinator: Coordinator, saveUserWalletOnFinish: Bool) {
+    init(input: OnboardingInput, coordinator: Coordinator) {
         self.input = input
         self.coordinator = coordinator
-        self.saveUserWalletOnFinish = saveUserWalletOnFinish
         isFromMain = input.isStandalone
         isNavBarVisible = input.isStandalone
 
@@ -222,13 +220,11 @@ class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable>
 
     func goToNextStep() {
         if isOnboardingFinished {
-            if saveUserWalletOnFinish {
-                do {
-                    try saveUserWalletIfNeeded()
-                } catch {
-                    print("Failed to complete onboarding", error)
-                    return
-                }
+            do {
+                try saveUserWalletIfNeeded()
+            } catch {
+                print("Failed to complete onboarding", error)
+                return
             }
 
             DispatchQueue.main.async {
