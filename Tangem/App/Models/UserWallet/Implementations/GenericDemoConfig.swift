@@ -37,7 +37,6 @@ struct GenericDemoConfig {
         }
 
         steps.append(.backupCards)
-        steps.append(.success)
 
         return steps
     }
