@@ -49,12 +49,12 @@ class OnboardingTopupViewModel<Step: OnboardingStep, Coordinator: OnboardingTopu
 
     private var refreshButtonDispatchWork: DispatchWorkItem?
 
-    required init(input: OnboardingInput, saveUserWalletOnFinish: Bool, coordinator: Coordinator) {
+    override init(input: OnboardingInput, coordinator: Coordinator) {
         if let cardModel = input.cardInput.cardModel {
             self.cardModel = cardModel
         }
 
-        super.init(input: input, coordinator: coordinator, saveUserWalletOnFinish: saveUserWalletOnFinish)
+        super.init(input: input, coordinator: coordinator)
 
         if let walletModel = self.cardModel?.walletModels.first {
             updateCardBalanceText(for: walletModel)
