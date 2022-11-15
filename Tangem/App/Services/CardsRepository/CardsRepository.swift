@@ -1,5 +1,5 @@
 //
-//  CardsRepository.swift
+//  UserWalletRepository.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -9,8 +9,8 @@
 import Foundation
 import Combine
 
-protocol CardsRepository {
-    var delegate: CardsRepositoryDelegate? { get set }
+protocol UserWalletRepository {
+    var delegate: UserWalletRepositoryDelegate? { get set }
 
     var models: [CardViewModel] { get }
 
@@ -23,22 +23,22 @@ protocol CardsRepository {
     func didSwitch(to cardModel: CardViewModel)
 }
 
-protocol CardsRepositoryDelegate: AnyObject {
+protocol UserWalletRepositoryDelegate: AnyObject {
     func showTOS(at url: URL, _ completion: @escaping (Bool) -> Void)
 }
 
-private struct CardsRepositoryKey: InjectionKey {
-    static var currentValue: CardsRepository = CommonCardsRepository()
+private struct UserWalletRepositoryKey: InjectionKey {
+    static var currentValue: UserWalletRepository = CommonUserWalletRepository()
 }
 
 extension InjectedValues {
-    var cardsRepository: CardsRepository {
-        get { Self[CardsRepositoryKey.self] }
-        set { Self[CardsRepositoryKey.self] = newValue }
+    var cardsRepository: UserWalletRepository {
+        get { Self[UserWalletRepositoryKey.self] }
+        set { Self[UserWalletRepositoryKey.self] = newValue }
     }
 }
 
-extension CardsRepository {
+extension UserWalletRepository {
     func scanPublisher(with batch: String? = nil, requestBiometrics: Bool = false) ->  AnyPublisher<CardViewModel, Error> {
         scanPublisher(with: batch, requestBiometrics: requestBiometrics)
     }
