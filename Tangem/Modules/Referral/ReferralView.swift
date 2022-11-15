@@ -29,22 +29,23 @@ struct ReferralView: View {
                         .padding(.bottom, 32)
 
                     content
-                        .padding(.bottom, geometry.safeAreaInsets.bottom == 0 ? 10 : geometry.safeAreaInsets.bottom)
-                    
+                        .padding(.bottom, max(geometry.safeAreaInsets.bottom, 10) )
+
                 }
-                .frame(minWidth: geometry.size.width, maxWidth: geometry.size.width, minHeight: geometry.size.height + geometry.safeAreaInsets.bottom)
-                
+                .frame(width: geometry.size.width)
+                .frame(minHeight: geometry.size.height + geometry.safeAreaInsets.bottom)
+
             }
             .edgesIgnoringSafeArea(.bottom)
-            
+
         }
         .navigationBarTitle("details_referral_title", displayMode: .inline)
         .background(Colors.Background.secondary.edgesIgnoringSafeArea(.all))
     }
 
     @ViewBuilder
-    var content: some View {
-        if !viewModel.isLoading, viewModel.isProgramInfoLoaded {
+    private var content: some View {
+        if viewModel.isProgramInfoLoaded {
             referralContent
         } else {
             loaderContent
@@ -52,26 +53,25 @@ struct ReferralView: View {
     }
 
     @ViewBuilder
-    var referralContent: some View {
+    private var referralContent: some View {
         VStack(spacing: 0) {
             ReferralPointView(
                 Assets.cryptoCurrencies,
                 header: { Text("referral_point_currencies_title") },
-                body: {
-                    Text("referral_point_currencies_description_prefix") +
-                        Text(viewModel.award).foregroundColor(Colors.Text.primary1) +
-                        Text("referral_point_currencies_description_suffix") +
-                        Text(viewModel.referralInfo?.address ?? "")
+                description: {
+                    Text("referral_point_currencies_description_prefix".localized + " ") +
+                    Text(viewModel.award).foregroundColor(Colors.Text.primary1) +
+                    Text(viewModel.awardDescriptionSuffix)
                 }
             )
 
             ReferralPointView(
                 Assets.discount,
                 header: { Text("referral_point_discount_title") },
-                body: {
-                    Text("referral_point_discount_description_prefix") +
-                        Text(viewModel.discount).foregroundColor(Colors.Text.primary1) +
-                        Text("referral_point_discount_description_suffix")
+                description: {
+                    Text("referral_point_discount_description_prefix".localized + " ") +
+                    Text(viewModel.discount).foregroundColor(Colors.Text.primary1) +
+                    Text(" " + "referral_point_discount_description_suffix".localized)
                 })
                 .padding(.top, viewModel.isAlreadyReferral ? 20 : 38)
 
@@ -87,7 +87,7 @@ struct ReferralView: View {
     }
 
     @ViewBuilder
-    var loaderContent: some View {
+    private var loaderContent: some View {
         VStack(alignment: .leading, spacing: 38) {
             ReferralPlaceholderPointView(icon: Assets.cryptoCurrencies)
 
@@ -97,11 +97,11 @@ struct ReferralView: View {
     }
 
     @ViewBuilder
-    var touButton: some View {
+    private var touButton: some View {
         Button(action: viewModel.openTou) {
             Text(viewModel.touButtonPrefix) +
-                Text("common_terms_and_conditions").foregroundColor(Colors.Text.accent) +
-                Text("referral_tou_suffix")
+            Text("common_terms_and_conditions").foregroundColor(Colors.Text.accent) +
+            Text(" " + "referral_tou_suffix".localized)
         }
         .multilineTextAlignment(.center)
         .fixedSize(horizontal: false, vertical: true)
@@ -111,7 +111,7 @@ struct ReferralView: View {
     }
 
     @ViewBuilder
-    var alreadyReferralBottomView: some View {
+    private var alreadyReferralBottomView: some View {
         VStack(spacing: 14) {
             Spacer()
 
@@ -122,19 +122,19 @@ struct ReferralView: View {
 
                 Text(viewModel.numberOfWalletsBought)
             }
-            .padding(16)
-            .background(Colors.Background.primary)
-            .cornerRadius(14)
+            .roundedBackground(with: Colors.Background.primary,
+                               padding: 16,
+                               radius: 14)
             .padding(.top, 24)
 
             VStack(spacing: 8) {
                 Text("referral_promo_code_title")
-                    .font(Fonts.Bold.footnote)
-                    .foregroundColor(Colors.Text.tertiary)
+                    .style(Fonts.Bold.footnote,
+                           color: Colors.Text.tertiary)
 
                 Text(viewModel.promoCode)
-                    .font(Fonts.Regular.title1)
-                    .foregroundColor(Colors.Text.primary1)
+                    .style(Fonts.Regular.title1,
+                           color: Colors.Text.primary1)
                     .fixedSize(horizontal: false, vertical: true)
             }
             .frame(maxWidth: .infinity)
@@ -166,10 +166,9 @@ struct ReferralView: View {
     }
 
     @ViewBuilder
-    var notReferralView: some View {
-        VStack(spacing: 0) {
+    private var notReferralView: some View {
+        VStack(spacing: 12) {
             touButton
-                .padding(.bottom, 12)
 
             TangemButton(
                 title: "referral_button_participate",
@@ -194,13 +193,13 @@ struct ReferralView_Previews: PreviewProvider {
                 viewModel: ReferralViewModel.mock(.notReferral, with: ReferralCoordinator())
             )
         }
-        .previewGroup(devices: [.iPhone8Plus], withZoomed: false)
+        .previewGroup(devices: [.iPhone12Mini], withZoomed: false)
 
         NavigationView {
             ReferralView(
                 viewModel: ReferralViewModel.mock(.referral, with: ReferralCoordinator())
             )
         }
-        .previewGroup(devices: [.iPhone8Plus], withZoomed: false)
+        .previewGroup(devices: [.iPhone12Mini], withZoomed: false)
     }
 }
