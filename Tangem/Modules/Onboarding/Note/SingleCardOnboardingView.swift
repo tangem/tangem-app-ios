@@ -114,17 +114,19 @@ struct SingleCardOnboardingView: View {
                         .layoutPriority(1)
                 }
 
-                OnboardingTextButtonView(
-                    title: viewModel.title,
-                    subtitle: viewModel.subtitle,
-                    textOffset: currentStep.messagesOffset,
-                    buttonsSettings: .init(main: viewModel.mainButtonSettings,
-                                           supplement: viewModel.supplementButtonSettings),
-                    infoText: viewModel.infoText
-                ) {
-                    viewModel.closeOnboarding()
+                if viewModel.isButtonsVisible {
+                    OnboardingTextButtonView(
+                        title: viewModel.title,
+                        subtitle: viewModel.subtitle,
+                        textOffset: currentStep.messagesOffset,
+                        buttonsSettings: .init(main: viewModel.mainButtonSettings,
+                                               supplement: viewModel.supplementButtonSettings),
+                        infoText: viewModel.infoText
+                    ) {
+                        viewModel.closeOnboarding()
+                    }
+                    .padding(.horizontal, 40)
                 }
-                .padding(.horizontal, 40)
             }
         }
         .alert(item: $viewModel.alert, content: { $0.alert })
