@@ -18,7 +18,7 @@ class CardViewModel: Identifiable, ObservableObject {
     @Injected(\.appWarningsService) private var warningsService: AppWarningsProviding
     @Injected(\.tangemSdkProvider) private var tangemSdkProvider: TangemSdkProviding
     @Injected(\.tangemApiService) var tangemApiService: TangemApiService
-    @Injected(\.userWalletListService) private var userWalletListService: UserWalletListService
+    @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
 
     @Published private(set) var currentSecurityOption: SecurityModeOption = .longTap
 
@@ -420,7 +420,7 @@ class CardViewModel: Identifiable, ObservableObject {
         }
 
         let cardDto = CardDTO(card: card)
-        userWalletListService.didScan(card: cardDto)
+        userWalletRepository.didScan(card: cardDto)
 
         onUpdate()
     }
@@ -628,8 +628,8 @@ class CardViewModel: Identifiable, ObservableObject {
 
         userWalletModel?.updateUserWallet(userWallet)
 
-        if userWalletListService.contains(userWallet) {
-            userWalletListService.save(userWallet)
+        if userWalletRepository.contains(userWallet) {
+            userWalletRepository.save(userWallet)
         }
     }
 
