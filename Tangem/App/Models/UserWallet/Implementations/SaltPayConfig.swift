@@ -118,7 +118,7 @@ extension SaltPayConfig: UserWalletConfig {
     }
 
     var cardName: String {
-        "Salt Pay"
+        "SaltPay"
     }
 
     var defaultCurve: EllipticCurve? {
