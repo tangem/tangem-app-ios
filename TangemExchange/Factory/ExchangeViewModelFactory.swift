@@ -14,9 +14,9 @@ class ExchangeViewModelFactory {
                                  signer: TangemSigner,
                                  sourceCurrency: Currency,
                                  coinModel: CoinModel,
-                                 exchangeRouter: ExchangeFacadeFactory.Router) -> ExchangeViewModel {
+                                 exchangeRouter: ExchangeProviderFactory.Router) -> ExchangeViewModel {
 
-        let exchangeFacadeFactory = ExchangeFacadeFactory()
+        let exchangeFacadeFactory = ExchangeProviderFactory()
         let tokensFactory = ExchangeTokensFactory(coinModel: coinModel, blockchainNetwork: sourceCurrency.blockchainNetwork)
 
         var destinationCurrency: Currency!
