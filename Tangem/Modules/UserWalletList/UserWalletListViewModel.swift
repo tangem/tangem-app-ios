@@ -10,7 +10,7 @@ import Combine
 import SwiftUI
 
 final class UserWalletListViewModel: ObservableObject, Identifiable {
-    @Injected(\.cardsRepository) private var cardsRepository: CardsRepository
+    @Injected(\.cardsRepository) private var cardsRepository: UserWalletRepository
     @Injected(\.userWalletListService) private var userWalletListService: UserWalletListService
     @Injected(\.failedScanTracker) var failedCardScanTracker: FailedScanTrackable
 
