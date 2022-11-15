@@ -11,7 +11,7 @@ import SwiftUI
 import TangemSdk
 
 class WelcomeViewModel: ObservableObject {
-    @Injected(\.cardsRepository) private var cardsRepository: UserWalletRepository
+    @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
     @Injected(\.backupServiceProvider) private var backupServiceProvider: BackupServiceProviding
     @Injected(\.failedScanTracker) var failedCardScanTracker: FailedScanTrackable
     @Injected(\.userWalletListService) private var userWalletListService: UserWalletListService
@@ -63,7 +63,7 @@ class WelcomeViewModel: ObservableObject {
 
     init(coordinator: WelcomeRoutable) {
         self.coordinator = coordinator
-        cardsRepository.delegate = self
+        userWalletRepository.delegate = self
         self.storiesModelSubscription = storiesModel.objectWillChange
             .receive(on: DispatchQueue.main)
             .sink(receiveValue: { [weak self] in
@@ -88,7 +88,7 @@ class WelcomeViewModel: ObservableObject {
         Analytics.log(.buttonScanCard)
         var subscription: AnyCancellable? = nil
 
-        subscription = cardsRepository.scanPublisher()
+        subscription = userWalletRepository.scanPublisher()
             .flatMap { [weak self] response -> AnyPublisher<CardViewModel, Error> in
                 let saltPayUtil = SaltPayUtil()
                 let hasSaltPayBackup = self?.hasInterruptedSaltPayBackup ?? false
@@ -203,7 +203,7 @@ class WelcomeViewModel: ObservableObject {
         isScanningCard = true
         var subscription: AnyCancellable? = nil
 
-        subscription = cardsRepository.scanPublisher()
+        subscription = userWalletRepository.scanPublisher()
             .receive(on: DispatchQueue.main)
             .sink { [weak self] completion in
                 if case let .failure(error) = completion {
@@ -254,7 +254,7 @@ class WelcomeViewModel: ObservableObject {
         }
 
         guard let model = userWalletListService.selectedModel else { return }
-        cardsRepository.didSwitch(to: model)
+        userWalletRepository.didSwitch(to: model)
         coordinator.openMain(with: model)
 
         DispatchQueue.main.asyncAfter(deadline: .now() + 1) {

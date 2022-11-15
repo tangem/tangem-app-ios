@@ -12,10 +12,10 @@ import LocalAuthentication
 import TangemSdk
 
 class CommonUserWalletListService: UserWalletListService {
-    @Injected(\.cardsRepository) private var cardsRepository: UserWalletRepository
+    @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
 
     var models: [CardViewModel] {
-        cardsRepository.models
+        userWalletRepository.models
     }
 
     var selectedModel: CardViewModel? {
@@ -63,7 +63,7 @@ class CommonUserWalletListService: UserWalletListService {
         isUnlocked = false
         encryptionKeyByUserWalletId = [:]
         userWallets = []
-        cardsRepository.clear()
+        userWalletRepository.clear()
     }
 
     func unlockWithBiometry(completion: @escaping (Result<Void, Error>) -> Void) {
@@ -98,7 +98,7 @@ class CommonUserWalletListService: UserWalletListService {
             loadModels()
         } else if let userWalletIndex = userWallets.firstIndex(where: { $0.userWalletId == userWallet.userWalletId }) {
             userWallets[userWalletIndex] = userWallet
-            cardsRepository.add(CardViewModel(userWallet: userWallet))
+            userWalletRepository.add(CardViewModel(userWallet: userWallet))
         } else {
             completion(.failure(TangemSdkError.cardError))
             return
@@ -132,7 +132,7 @@ class CommonUserWalletListService: UserWalletListService {
         let models = userWallets.map {
             CardViewModel(userWallet: $0)
         }
-        cardsRepository.add(models)
+        userWalletRepository.add(models)
     }
 
     func contains(_ userWallet: UserWallet) -> Bool {
@@ -158,7 +158,7 @@ class CommonUserWalletListService: UserWalletListService {
             models[index].setUserWallet(userWallet)
         } else {
             let newModel = CardViewModel(userWallet: userWallet)
-            cardsRepository.add(newModel)
+            userWalletRepository.add(newModel)
         }
     }
 
@@ -166,7 +166,7 @@ class CommonUserWalletListService: UserWalletListService {
         let userWalletId = userWallet.userWalletId
         encryptionKeyByUserWalletId[userWalletId] = nil
         userWallets.removeAll { $0.userWalletId == userWalletId }
-        cardsRepository.removeModel(with: userWalletId)
+        userWalletRepository.removeModel(with: userWalletId)
 
         encryptionKeyStorage.delete(userWallet)
         saveUserWallets(userWallets)
@@ -176,7 +176,7 @@ class CommonUserWalletListService: UserWalletListService {
         saveUserWallets([])
         encryptionKeyByUserWalletId = [:]
         userWallets = []
-        cardsRepository.clear()
+        userWalletRepository.clear()
         selectedUserWalletId = nil
         encryptionKeyStorage.clear()
     }
