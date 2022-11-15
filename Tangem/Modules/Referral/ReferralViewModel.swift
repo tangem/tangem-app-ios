@@ -12,7 +12,7 @@ import class UIKit.UIPasteboard
 
 class ReferralViewModel: ObservableObject {
     @Published var isProcessingRequest: Bool = false
-    @Published var referralProgramInfo: ReferralProgramInfo?
+    @Published private(set) var referralProgramInfo: ReferralProgramInfo?
 
     var award: String {
         guard
