@@ -81,7 +81,7 @@ final class UserWalletListViewModel: ObservableObject, Identifiable {
     func unlockAllWallets() {
         Analytics.log(.buttonUnlockAllWithFaceID)
 
-        userWalletRepository.unlockWithBiometry { [weak self] result in
+        userWalletRepository.unlock(with: .biometry) { [weak self] result in
             guard case .success = result else { return }
 
             self?.updateModels()
@@ -280,7 +280,7 @@ final class UserWalletListViewModel: ObservableObject, Identifiable {
         scanCardInternal { [weak self] cardModel in
             guard let userWallet = cardModel.userWallet else { return }
 
-            self?.userWalletRepository.unlockWithCard(userWallet) { result in
+            self?.userWalletRepository.unlock(with: .card(userWallet: userWallet)) { result in
                 guard case .success = result else {
                     return
                 }
