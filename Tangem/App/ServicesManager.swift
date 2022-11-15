@@ -10,7 +10,7 @@ import Foundation
 import Combine
 
 class ServicesManager {
-    @Injected(\.cardsRepository) private var cardsRepository: CardsRepository
+    @Injected(\.cardsRepository) private var cardsRepository: UserWalletRepository
     @Injected(\.exchangeService) private var exchangeService: ExchangeService
     @Injected(\.tangemApiService) private var tangemApiService: TangemApiService
 
