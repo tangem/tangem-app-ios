@@ -84,8 +84,8 @@ class SingleCardOnboardingViewModel: OnboardingTopupViewModel<SingleCardOnboardi
         return false
     }
 
-    required init(input: OnboardingInput, saveUserWalletOnFinish: Bool, coordinator: OnboardingCoordinator) {
-        super.init(input: input, saveUserWalletOnFinish: saveUserWalletOnFinish, coordinator: coordinator)
+    override init(input: OnboardingInput, coordinator: OnboardingCoordinator) {
+        super.init(input: input, coordinator: coordinator)
 
         if case let .singleWallet(steps) = input.steps {
             self.steps = steps
