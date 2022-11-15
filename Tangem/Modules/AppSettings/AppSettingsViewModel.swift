@@ -11,7 +11,7 @@ import SwiftUI
 import TangemSdk
 
 class AppSettingsViewModel: ObservableObject {
-    @Injected(\.userWalletListService) private var userWalletListService: UserWalletListService
+    @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
     @Injected(\.tangemSdkProvider) private var sdkProvider: TangemSdkProviding
 
     // MARK: ViewState
@@ -67,11 +67,11 @@ private extension AppSettingsViewModel {
                       params: [.state: Analytics.ParameterValue.state(for: saveWallet).rawValue])
 
         if saveWallet {
-            self.userWalletListService.unlockWithBiometry { [weak self] result in
+            self.userWalletRepository.unlockWithBiometry { [weak self] result in
                 guard let self else { return }
 
                 if case .success = result {
-                    let _ = self.userWalletListService.save(self.userWallet)
+                    let _ = self.userWalletRepository.save(self.userWallet)
                     self.setSaveWallets(true)
                 } else {
                     self.setSaveWallets(false)
@@ -204,7 +204,7 @@ private extension AppSettingsViewModel {
             }
 
             setSaveAccessCodes(false)
-            userWalletListService.clear()
+            userWalletRepository.clear()
         }
     }
 
