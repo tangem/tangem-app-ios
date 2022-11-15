@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		542E11307176E79BCD02CA72 /* Pods_TangemTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1FD2A40CDCE4FC2158D5C55C /* Pods_TangemTests.framework */; };
+		5BB3F34785FE5B90BBB6473C /* Pods_TangemExchange.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F179269785ADBDB3655E8500 /* Pods_TangemExchange.framework */; };
 		5D00FCC72617387E004626DE /* PersonalSignHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D00FCC62617387E004626DE /* PersonalSignHandler.swift */; };
 		5D00FCCC2617389E004626DE /* SignTransactionHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D00FCCB2617389E004626DE /* SignTransactionHandler.swift */; };
 		5D00FCD1261738C5004626DE /* WalletConnectEthTransaction.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D00FCD0261738C5004626DE /* WalletConnectEthTransaction.swift */; };
@@ -490,21 +491,7 @@
 		E94667C52901F8690043AD0A /* ExchangeCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = E94667C42901F8690043AD0A /* ExchangeCoordinator.swift */; };
 		E94667C72901FA9A0043AD0A /* ExchangeCoordinatorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E94667C62901FA9A0043AD0A /* ExchangeCoordinatorView.swift */; };
 		E94667C92901FADB0043AD0A /* ExchangeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E94667C82901FADB0043AD0A /* ExchangeView.swift */; };
-		E94667CC2902BC260043AD0A /* ExchangeItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = E94667CB2902BC260043AD0A /* ExchangeItem.swift */; };
-		E94808B3291ABF6700A80F6A /* ExchangeFacadeFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = E94808B2291ABF6700A80F6A /* ExchangeFacadeFactory.swift */; };
-		E966EFB0291C112000504AD8 /* ExchangeViewModelFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = E966EFAF291C112000504AD8 /* ExchangeViewModelFactory.swift */; };
-		E966EFB2291C4A5900504AD8 /* WalletModelAdapter.swift in Sources */ = {isa = PBXBuildFile; fileRef = E966EFB1291C4A5900504AD8 /* WalletModelAdapter.swift */; };
-		E9C17C5B29170FCD00FDE4BC /* Currency.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9C17C5A29170FCD00FDE4BC /* Currency.swift */; };
-		E9C17C5D2919507D00FDE4BC /* ExchangeManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9C17C5C2919507D00FDE4BC /* ExchangeManager.swift */; };
 		E9C17C5F291951BF00FDE4BC /* AnyPublisher+.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9C17C5E291951BF00FDE4BC /* AnyPublisher+.swift */; };
-		E9C17C61291A580200FDE4BC /* ExchangeTokensFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9C17C60291A580200FDE4BC /* ExchangeTokensFactory.swift */; };
-		E9C17C6B291AACFD00FDE4BC /* ExchangeFacade.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9C17C6A291AACFD00FDE4BC /* ExchangeFacade.swift */; };
-		E9C17C6E291AB48D00FDE4BC /* ExchangeSwapDataModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9C17C6D291AB48D00FDE4BC /* ExchangeSwapDataModel.swift */; };
-		E9C17C70291ABA8000FDE4BC /* ExchangeApprovedDataModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9C17C6F291ABA8000FDE4BC /* ExchangeApprovedDataModel.swift */; };
-		E9C17C72291ABB9000FDE4BC /* ExchangeOneInchFacade.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9C17C71291ABB9000FDE4BC /* ExchangeOneInchFacade.swift */; };
-		E9C362B729132359001302E5 /* ExchangeOneInchService.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9C362B629132359001302E5 /* ExchangeOneInchService.swift */; };
-		E9E416722902D6E00028F40E /* Exchange+Utils.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9E416712902D6E00028F40E /* Exchange+Utils.swift */; };
-		E9E4167429033F300028F40E /* ExchangeItems.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9E4167329033F300028F40E /* ExchangeItems.swift */; };
 		EF07F3AD289D43580065549C /* List+.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF07F3AC289D43580065549C /* List+.swift */; };
 		EF08A0EF283D1914008BD923 /* Moya+.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF08A0EE283D1914008BD923 /* Moya+.swift */; };
 		EF08A0F1283D2382008BD923 /* CoinsListRequestModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF08A0F0283D2382008BD923 /* CoinsListRequestModel.swift */; };
@@ -527,6 +514,25 @@
 		EF130EBC28E1D34500D37EFC /* MultiWalletContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF130EBB28E1D34500D37EFC /* MultiWalletContentView.swift */; };
 		EF3B581F28F81B0300C93810 /* SaltPayConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCE3379828F2A4580029A6F5 /* SaltPayConfiguration.swift */; };
 		EF3EC523289AB2DE0071BA7F /* TangemProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF3EC522289AB2DE0071BA7F /* TangemProvider.swift */; };
+		EF4661962923AFC400346B6C /* TExchange.docc in Sources */ = {isa = PBXBuildFile; fileRef = EF4661952923AFC400346B6C /* TExchange.docc */; };
+		EF46619C2923AFC500346B6C /* TangemExchange.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EF4661922923AFC400346B6C /* TangemExchange.framework */; };
+		EF4661A32923AFC500346B6C /* TExchangeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF4661A22923AFC500346B6C /* TExchangeTests.swift */; };
+		EF4661A42923AFC500346B6C /* TExchange.h in Headers */ = {isa = PBXBuildFile; fileRef = EF4661942923AFC400346B6C /* TExchange.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EF4661A72923AFC500346B6C /* TangemExchange.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EF4661922923AFC400346B6C /* TangemExchange.framework */; };
+		EF4661A82923AFC500346B6C /* TangemExchange.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = EF4661922923AFC400346B6C /* TangemExchange.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		EF4661BD2923B0CE00346B6C /* ExchangeViewRouter.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF4661BC2923B0CE00346B6C /* ExchangeViewRouter.swift */; };
+		EF4661BF2923B41F00346B6C /* ExchangeManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9C17C5C2919507D00FDE4BC /* ExchangeManager.swift */; };
+		EF4661C02923B42A00346B6C /* ExchangeOneInchProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9C17C71291ABB9000FDE4BC /* ExchangeOneInchProvider.swift */; };
+		EF4661C42923B42A00346B6C /* Currency.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9C17C5A29170FCD00FDE4BC /* Currency.swift */; };
+		EF4661C52923B42A00346B6C /* ExchangeApprovedDataModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9C17C6F291ABA8000FDE4BC /* ExchangeApprovedDataModel.swift */; };
+		EF4661C62923B42A00346B6C /* ExchangeProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9C17C6A291AACFD00FDE4BC /* ExchangeProvider.swift */; };
+		EF4661C72923B42A00346B6C /* Exchange+Utils.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9E416712902D6E00028F40E /* Exchange+Utils.swift */; };
+		EF4661C82923B42A00346B6C /* ExchangeSwapDataModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9C17C6D291AB48D00FDE4BC /* ExchangeSwapDataModel.swift */; };
+		EF4661C92923B42A00346B6C /* ExchangeOneInchService.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9C362B629132359001302E5 /* ExchangeOneInchService.swift */; };
+		EF4661CB2923B42A00346B6C /* ExchangeFacadeFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = E94808B2291ABF6700A80F6A /* ExchangeFacadeFactory.swift */; };
+		EF4661CF2923B9CD00346B6C /* TangemExchangeFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF4661CE2923B9CD00346B6C /* TangemExchangeFactory.swift */; };
+		EF4661D02923CD4C00346B6C /* BlockchainProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF46618B2923AFA200346B6C /* BlockchainProvider.swift */; };
+		EF4661D12923CD5000346B6C /* WalletManager+BlockchainProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = E966EFB1291C4A5900504AD8 /* WalletManager+BlockchainProvider.swift */; };
 		EF48288F28D1C99D002809C6 /* Localizable.stringsdict in Resources */ = {isa = PBXBuildFile; fileRef = EF48288D28D1C99D002809C6 /* Localizable.stringsdict */; };
 		EF48289528D1CD1F002809C6 /* Collection+.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF48289428D1CD1F002809C6 /* Collection+.swift */; };
 		EF4B41BB2864491B003911F6 /* TangemSkeletonModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF4B41BA2864491B003911F6 /* TangemSkeletonModifier.swift */; };
@@ -598,6 +604,27 @@
 			remoteGlobalIDString = 5D3F77C124BF56D800E8695B;
 			remoteInfo = "Tangem Tap";
 		};
+		EF46619D2923AFC500346B6C /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 5D3F77BA24BF56D800E8695B /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = EF4661912923AFC400346B6C;
+			remoteInfo = TExchange;
+		};
+		EF46619F2923AFC500346B6C /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 5D3F77BA24BF56D800E8695B /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 5D3F77C124BF56D800E8695B;
+			remoteInfo = Tangem;
+		};
+		EF4661A52923AFC500346B6C /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 5D3F77BA24BF56D800E8695B /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = EF4661912923AFC400346B6C;
+			remoteInfo = TExchange;
+		};
 		EFCC66C128AA2FDC00EC7757 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 5D3F77BA24BF56D800E8695B /* Project object */;
@@ -618,6 +645,17 @@
 			name = "Embed App Extensions";
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		EF4661B02923AFC500346B6C /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				EF4661A82923AFC500346B6C /* TangemExchange.framework in Embed Frameworks */,
+			);
+			name = "Embed Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
@@ -630,6 +668,7 @@
 		1574BCBC39F7A3037EC17A05 /* Pods-TangemTests.debug(production).xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TangemTests.debug(production).xcconfig"; path = "Target Support Files/Pods-TangemTests/Pods-TangemTests.debug(production).xcconfig"; sourceTree = "<group>"; };
 		1AF3B0938CE1AB579007CC3D /* Pods-TangemTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TangemTests.release.xcconfig"; path = "Target Support Files/Pods-TangemTests/Pods-TangemTests.release.xcconfig"; sourceTree = "<group>"; };
 		1FD2A40CDCE4FC2158D5C55C /* Pods_TangemTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_TangemTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		21F6E0A74DC753722BCD6541 /* Pods-TangemExchange.debug(alpha).xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TangemExchange.debug(alpha).xcconfig"; path = "Target Support Files/Pods-TangemExchange/Pods-TangemExchange.debug(alpha).xcconfig"; sourceTree = "<group>"; };
 		2459667052667F113C3CBF58 /* Pods-Tangem TapTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Tangem TapTests.release.xcconfig"; path = "Target Support Files/Pods-Tangem TapTests/Pods-Tangem TapTests.release.xcconfig"; sourceTree = "<group>"; };
 		246371DC3ED398110D419A25 /* Pods-TangemClip.release(production).xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TangemClip.release(production).xcconfig"; path = "Target Support Files/Pods-TangemClip/Pods-TangemClip.release(production).xcconfig"; sourceTree = "<group>"; };
 		283A90AE90026B31E4488611 /* Pods-TangemClip.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TangemClip.debug.xcconfig"; path = "Target Support Files/Pods-TangemClip/Pods-TangemClip.debug.xcconfig"; sourceTree = "<group>"; };
@@ -645,6 +684,7 @@
 		453C6E5BE6FDD4AA1524167D /* Pods-Tangem Tap-Tangem TapUITests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Tangem Tap-Tangem TapUITests.debug.xcconfig"; path = "Target Support Files/Pods-Tangem Tap-Tangem TapUITests/Pods-Tangem Tap-Tangem TapUITests.debug.xcconfig"; sourceTree = "<group>"; };
 		465C616D666D5650173F66FD /* Pods-Tangem.firebase.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Tangem.firebase.xcconfig"; path = "Target Support Files/Pods-Tangem/Pods-Tangem.firebase.xcconfig"; sourceTree = "<group>"; };
 		4C06680AAB0A8EC61A7C01EA /* Pods-Tangem.release(alpha).xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Tangem.release(alpha).xcconfig"; path = "Target Support Files/Pods-Tangem/Pods-Tangem.release(alpha).xcconfig"; sourceTree = "<group>"; };
+		5049AC9699BFE5D8AB22677B /* Pods-TangemExchange.debug(production).xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TangemExchange.debug(production).xcconfig"; path = "Target Support Files/Pods-TangemExchange/Pods-TangemExchange.debug(production).xcconfig"; sourceTree = "<group>"; };
 		53B942339EFD27C7397E9C3A /* Pods_TangemClip.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_TangemClip.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		5734FA7164BED2A10B626828 /* Pods-Tangem Tap.firebase.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Tangem Tap.firebase.xcconfig"; path = "Target Support Files/Pods-Tangem Tap/Pods-Tangem Tap.firebase.xcconfig"; sourceTree = "<group>"; };
 		5D00FCC62617387E004626DE /* PersonalSignHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PersonalSignHandler.swift; sourceTree = "<group>"; };
@@ -977,12 +1017,14 @@
 		B0FAD00F26BAF19E00F45E88 /* OnboardingStepIconView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingStepIconView.swift; sourceTree = "<group>"; };
 		B0FAD01126BAF35C00F45E88 /* FrameSizeModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FrameSizeModifier.swift; sourceTree = "<group>"; };
 		B0FB98A42598D24300B769A3 /* Card+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Card+.swift"; sourceTree = "<group>"; };
+		B3F53346C515AF5645F8768F /* Pods-TangemExchange.release(production).xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TangemExchange.release(production).xcconfig"; path = "Target Support Files/Pods-TangemExchange/Pods-TangemExchange.release(production).xcconfig"; sourceTree = "<group>"; };
 		B9F1CD10D9C48557C2894B61 /* Pods-Tangem Tap.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Tangem Tap.debug.xcconfig"; path = "Target Support Files/Pods-Tangem Tap/Pods-Tangem Tap.debug.xcconfig"; sourceTree = "<group>"; };
 		BAADF83E0235DE56F5C37A2D /* Pods-TangemClip.debug(beta).xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TangemClip.debug(beta).xcconfig"; path = "Target Support Files/Pods-TangemClip/Pods-TangemClip.debug(beta).xcconfig"; sourceTree = "<group>"; };
 		BD6C9959F53AF1BAC643BEDD /* Pods-Tangem Tap-Tangem TapUITests.firebase.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Tangem Tap-Tangem TapUITests.firebase.xcconfig"; path = "Target Support Files/Pods-Tangem Tap-Tangem TapUITests/Pods-Tangem Tap-Tangem TapUITests.firebase.xcconfig"; sourceTree = "<group>"; };
 		C0DBBB23BD5BFF3ACE6F33E3 /* Pods-TangemClip.debug(alpha).xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TangemClip.debug(alpha).xcconfig"; path = "Target Support Files/Pods-TangemClip/Pods-TangemClip.debug(alpha).xcconfig"; sourceTree = "<group>"; };
 		C28F25047393622649695D2B /* Pods-Tangem.firebase(production).xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Tangem.firebase(production).xcconfig"; path = "Target Support Files/Pods-Tangem/Pods-Tangem.firebase(production).xcconfig"; sourceTree = "<group>"; };
 		C5D03D24752F694FFF665B51 /* Pods-Tangem-TangemUITests.release(beta).xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Tangem-TangemUITests.release(beta).xcconfig"; path = "Target Support Files/Pods-Tangem-TangemUITests/Pods-Tangem-TangemUITests.release(beta).xcconfig"; sourceTree = "<group>"; };
+		D014AAB36920176F390753A7 /* Pods-TangemExchange.release(beta).xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TangemExchange.release(beta).xcconfig"; path = "Target Support Files/Pods-TangemExchange/Pods-TangemExchange.release(beta).xcconfig"; sourceTree = "<group>"; };
 		D27187271F218A264E23C520 /* Pods-TangemTests.firebase(production).xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TangemTests.firebase(production).xcconfig"; path = "Target Support Files/Pods-TangemTests/Pods-TangemTests.firebase(production).xcconfig"; sourceTree = "<group>"; };
 		D4A25DE2562F5431EFD71FAC /* Pods-Tangem.release(beta).xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Tangem.release(beta).xcconfig"; path = "Target Support Files/Pods-Tangem/Pods-Tangem.release(beta).xcconfig"; sourceTree = "<group>"; };
 		D513FF545D1945A2BACAA25F /* Pods_Tangem_TangemUITests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Tangem_TangemUITests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -1150,6 +1192,7 @@
 		DCF838BB2903101C00162A32 /* registration_mock.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = registration_mock.json; sourceTree = "<group>"; };
 		DCF8972C28ACF8CA002A85F6 /* TangemSdkConfigFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TangemSdkConfigFactory.swift; sourceTree = "<group>"; };
 		DCFCA17428F4232F0037586C /* Array+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Array+.swift"; sourceTree = "<group>"; };
+		DF441655FB8D39A145736442 /* Pods-TangemExchange.debug(beta).xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TangemExchange.debug(beta).xcconfig"; path = "Target Support Files/Pods-TangemExchange/Pods-TangemExchange.debug(beta).xcconfig"; sourceTree = "<group>"; };
 		DFEC35A94293DE7EB96CEBC1 /* Pods-Tangem.debug(production).xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Tangem.debug(production).xcconfig"; path = "Target Support Files/Pods-Tangem/Pods-Tangem.debug(production).xcconfig"; sourceTree = "<group>"; };
 		E53081CA3060D2785F9D22F0 /* Pods-Tangem-TangemUITests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Tangem-TangemUITests.release.xcconfig"; path = "Target Support Files/Pods-Tangem-TangemUITests/Pods-Tangem-TangemUITests.release.xcconfig"; sourceTree = "<group>"; };
 		E90FAB5928EE418000C6DCBE /* TotalBalanceAnalyticsService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TotalBalanceAnalyticsService.swift; sourceTree = "<group>"; };
@@ -1160,18 +1203,17 @@
 		E94667CB2902BC260043AD0A /* ExchangeItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExchangeItem.swift; sourceTree = "<group>"; };
 		E94808B2291ABF6700A80F6A /* ExchangeFacadeFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExchangeFacadeFactory.swift; sourceTree = "<group>"; };
 		E966EFAF291C112000504AD8 /* ExchangeViewModelFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExchangeViewModelFactory.swift; sourceTree = "<group>"; };
-		E966EFB1291C4A5900504AD8 /* WalletModelAdapter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletModelAdapter.swift; sourceTree = "<group>"; };
+		E966EFB1291C4A5900504AD8 /* WalletManager+BlockchainProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "WalletManager+BlockchainProvider.swift"; sourceTree = "<group>"; };
 		E9C17C5A29170FCD00FDE4BC /* Currency.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Currency.swift; sourceTree = "<group>"; };
 		E9C17C5C2919507D00FDE4BC /* ExchangeManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExchangeManager.swift; sourceTree = "<group>"; };
 		E9C17C5E291951BF00FDE4BC /* AnyPublisher+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AnyPublisher+.swift"; sourceTree = "<group>"; };
 		E9C17C60291A580200FDE4BC /* ExchangeTokensFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExchangeTokensFactory.swift; sourceTree = "<group>"; };
-		E9C17C6A291AACFD00FDE4BC /* ExchangeFacade.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExchangeFacade.swift; sourceTree = "<group>"; };
+		E9C17C6A291AACFD00FDE4BC /* ExchangeProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExchangeProvider.swift; sourceTree = "<group>"; };
 		E9C17C6D291AB48D00FDE4BC /* ExchangeSwapDataModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExchangeSwapDataModel.swift; sourceTree = "<group>"; };
 		E9C17C6F291ABA8000FDE4BC /* ExchangeApprovedDataModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExchangeApprovedDataModel.swift; sourceTree = "<group>"; };
-		E9C17C71291ABB9000FDE4BC /* ExchangeOneInchFacade.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExchangeOneInchFacade.swift; sourceTree = "<group>"; };
+		E9C17C71291ABB9000FDE4BC /* ExchangeOneInchProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExchangeOneInchProvider.swift; sourceTree = "<group>"; };
 		E9C362B629132359001302E5 /* ExchangeOneInchService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExchangeOneInchService.swift; sourceTree = "<group>"; };
 		E9E416712902D6E00028F40E /* Exchange+Utils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Exchange+Utils.swift"; sourceTree = "<group>"; };
-		E9E4167329033F300028F40E /* ExchangeItems.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExchangeItems.swift; sourceTree = "<group>"; };
 		EF07F3AC289D43580065549C /* List+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "List+.swift"; sourceTree = "<group>"; };
 		EF08A0EE283D1914008BD923 /* Moya+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Moya+.swift"; sourceTree = "<group>"; };
 		EF08A0F0283D2382008BD923 /* CoinsListRequestModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoinsListRequestModel.swift; sourceTree = "<group>"; };
@@ -1195,6 +1237,14 @@
 		EF2EFDE12865C05D00798051 /* Production.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Production.xcconfig; sourceTree = "<group>"; };
 		EF2EFDE22865C07100798051 /* Beta.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Beta.xcconfig; sourceTree = "<group>"; };
 		EF3EC522289AB2DE0071BA7F /* TangemProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TangemProvider.swift; sourceTree = "<group>"; };
+		EF46618B2923AFA200346B6C /* BlockchainProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlockchainProvider.swift; sourceTree = "<group>"; };
+		EF4661922923AFC400346B6C /* TangemExchange.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = TangemExchange.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		EF4661942923AFC400346B6C /* TExchange.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TExchange.h; sourceTree = "<group>"; };
+		EF4661952923AFC400346B6C /* TExchange.docc */ = {isa = PBXFileReference; lastKnownFileType = folder.documentationcatalog; path = TExchange.docc; sourceTree = "<group>"; };
+		EF46619B2923AFC400346B6C /* TangemExchangeTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = TangemExchangeTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		EF4661A22923AFC500346B6C /* TExchangeTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TExchangeTests.swift; sourceTree = "<group>"; };
+		EF4661BC2923B0CE00346B6C /* ExchangeViewRouter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExchangeViewRouter.swift; sourceTree = "<group>"; };
+		EF4661CE2923B9CD00346B6C /* TangemExchangeFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TangemExchangeFactory.swift; sourceTree = "<group>"; };
 		EF48288E28D1C99D002809C6 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.stringsdict; name = en; path = en.lproj/Localizable.stringsdict; sourceTree = "<group>"; };
 		EF48289028D1C9A1002809C6 /* fr */ = {isa = PBXFileReference; lastKnownFileType = text.plist.stringsdict; name = fr; path = fr.lproj/Localizable.stringsdict; sourceTree = "<group>"; };
 		EF48289128D1C9A3002809C6 /* de */ = {isa = PBXFileReference; lastKnownFileType = text.plist.stringsdict; name = de; path = de.lproj/Localizable.stringsdict; sourceTree = "<group>"; };
@@ -1258,9 +1308,11 @@
 		EFFC861228BCF6C500F863CE /* StorageEntry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StorageEntry.swift; sourceTree = "<group>"; };
 		EFFE2CE828B8E0B300B9F279 /* UserWalletModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserWalletModel.swift; sourceTree = "<group>"; };
 		EFFE2CEB28B8E1B000B9F279 /* DerivationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DerivationManager.swift; sourceTree = "<group>"; };
+		F179269785ADBDB3655E8500 /* Pods_TangemExchange.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_TangemExchange.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		F3B96D298A039D2A8811CEF0 /* Pods-Tangem Tap.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Tangem Tap.release.xcconfig"; path = "Target Support Files/Pods-Tangem Tap/Pods-Tangem Tap.release.xcconfig"; sourceTree = "<group>"; };
 		F53CBE3ACFB9A989F5FE398D /* Pods-TangemClip.debug(production).xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TangemClip.debug(production).xcconfig"; path = "Target Support Files/Pods-TangemClip/Pods-TangemClip.debug(production).xcconfig"; sourceTree = "<group>"; };
 		F60138EF52D91E1A088F9C27 /* Pods-TangemTests.debug(beta).xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TangemTests.debug(beta).xcconfig"; path = "Target Support Files/Pods-TangemTests/Pods-TangemTests.debug(beta).xcconfig"; sourceTree = "<group>"; };
+		F92E1EE7F76B839B2ED56526 /* Pods-TangemExchange.release(alpha).xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TangemExchange.release(alpha).xcconfig"; path = "Target Support Files/Pods-TangemExchange/Pods-TangemExchange.release(alpha).xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -1269,6 +1321,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				5DAC0888251391D900B73E8B /* CoreNFC.framework in Frameworks */,
+				EF4661A72923AFC500346B6C /* TangemExchange.framework in Frameworks */,
 				F06BBA2FE022C3EF1F3B6513 /* Pods_Tangem.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1289,6 +1342,22 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		EF46618F2923AFC400346B6C /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				5BB3F34785FE5B90BBB6473C /* Pods_TangemExchange.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		EF4661982923AFC400346B6C /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				EF46619C2923AFC500346B6C /* TangemExchange.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -1302,6 +1371,7 @@
 				10F3AA1BEE46AF490A6F95DA /* Pods_Tangem.framework */,
 				D513FF545D1945A2BACAA25F /* Pods_Tangem_TangemUITests.framework */,
 				1FD2A40CDCE4FC2158D5C55C /* Pods_TangemTests.framework */,
+				F179269785ADBDB3655E8500 /* Pods_TangemExchange.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -1384,6 +1454,7 @@
 		5D39515725597D89002CC452 /* Models */ = {
 			isa = PBXGroup;
 			children = (
+				EF4661892923AE2700346B6C /* Exchange */,
 				DC3B49F22893E4F300C207EA /* UserWallet */,
 				5DBAFD1627E085330008B882 /* Coins */,
 				5DDFC1F728129E0C005976FE /* Currencies */,
@@ -1425,6 +1496,8 @@
 				5D3F77DB24BF56DC00E8695B /* TangemTests */,
 				5D3F77E624BF56DC00E8695B /* TangemUITests */,
 				EF661E2628BF41D6005769E5 /* TangemIntent */,
+				EF4661932923AFC400346B6C /* TangemExchange */,
+				EF4661A12923AFC500346B6C /* TangemExchangeTests */,
 				5D3F77C324BF56D800E8695B /* Products */,
 				BBA154748909F0AB4121528D /* Pods */,
 				2E5061A84512B23CCB5F2E17 /* Frameworks */,
@@ -1437,6 +1510,8 @@
 				5D3F77C224BF56D800E8695B /* Tangem.app */,
 				5D3F77D824BF56DC00E8695B /* TangemTests.xctest */,
 				5D3F77E324BF56DC00E8695B /* TangemUITests.xctest */,
+				EF4661922923AFC400346B6C /* TangemExchange.framework */,
+				EF46619B2923AFC400346B6C /* TangemExchangeTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -2308,6 +2383,12 @@
 				2B61DB66AA58CED76DC49A13 /* Pods-TangemClip.release(alpha).xcconfig */,
 				DA4839122E820A95F4D57EBE /* Pods-TangemTests.debug(alpha).xcconfig */,
 				8E4F592E2883B5CAB245D5EE /* Pods-TangemTests.release(alpha).xcconfig */,
+				5049AC9699BFE5D8AB22677B /* Pods-TangemExchange.debug(production).xcconfig */,
+				DF441655FB8D39A145736442 /* Pods-TangemExchange.debug(beta).xcconfig */,
+				21F6E0A74DC753722BCD6541 /* Pods-TangemExchange.debug(alpha).xcconfig */,
+				B3F53346C515AF5645F8768F /* Pods-TangemExchange.release(production).xcconfig */,
+				D014AAB36920176F390753A7 /* Pods-TangemExchange.release(beta).xcconfig */,
+				F92E1EE7F76B839B2ED56526 /* Pods-TangemExchange.release(alpha).xcconfig */,
 			);
 			path = Pods;
 			sourceTree = "<group>";
@@ -2405,7 +2486,7 @@
 		DC0A57DA2822A4DC0031BECC /* Services */ = {
 			isa = PBXGroup;
 			children = (
-				E9C362B52913232B001302E5 /* ExchangeOneInchService */,
+				EF4661BE2923B35800346B6C /* Exchange */,
 				EF5903A02909283A00C527C9 /* EnvironmentProvider */,
 				DC194D2428EC6A4B007FBC99 /* SaltPay */,
 				EF5A5ACC28D86089002544AC /* TotalBalanceProvider */,
@@ -2777,19 +2858,12 @@
 		E94667C12901F5C90043AD0A /* Exchange */ = {
 			isa = PBXGroup;
 			children = (
-				E9C17C6C291AB45C00FDE4BC /* Models */,
-				E9C17C69291AACEB00FDE4BC /* Facade */,
-				E9C17C62291A687D00FDE4BC /* Factory */,
-				E94667CD2902D6A80043AD0A /* Utils */,
 				E94667C22901F60A0043AD0A /* ExchangeViewModel.swift */,
 				E94667C42901F8690043AD0A /* ExchangeCoordinator.swift */,
 				E94667C62901FA9A0043AD0A /* ExchangeCoordinatorView.swift */,
 				E94667C82901FADB0043AD0A /* ExchangeView.swift */,
-				E94667CB2902BC260043AD0A /* ExchangeItem.swift */,
-				E9E4167329033F300028F40E /* ExchangeItems.swift */,
-				E9C17C5A29170FCD00FDE4BC /* Currency.swift */,
-				E9C17C5C2919507D00FDE4BC /* ExchangeManager.swift */,
-				E966EFB1291C4A5900504AD8 /* WalletModelAdapter.swift */,
+				EF4661BC2923B0CE00346B6C /* ExchangeViewRouter.swift */,
+				EF4661BB2923B05200346B6C /* Components */,
 			);
 			path = Exchange;
 			sourceTree = "<group>";
@@ -2805,6 +2879,7 @@
 		E9C17C62291A687D00FDE4BC /* Factory */ = {
 			isa = PBXGroup;
 			children = (
+				EF4661CE2923B9CD00346B6C /* TangemExchangeFactory.swift */,
 				E94808B2291ABF6700A80F6A /* ExchangeFacadeFactory.swift */,
 				E9C17C60291A580200FDE4BC /* ExchangeTokensFactory.swift */,
 				E966EFAF291C112000504AD8 /* ExchangeViewModelFactory.swift */,
@@ -2812,22 +2887,13 @@
 			path = Factory;
 			sourceTree = "<group>";
 		};
-		E9C17C69291AACEB00FDE4BC /* Facade */ = {
+		E9C17C69291AACEB00FDE4BC /* ExchangeProviders */ = {
 			isa = PBXGroup;
 			children = (
-				E9C17C6A291AACFD00FDE4BC /* ExchangeFacade.swift */,
-				E9C17C71291ABB9000FDE4BC /* ExchangeOneInchFacade.swift */,
+				E9C17C6A291AACFD00FDE4BC /* ExchangeProvider.swift */,
+				E9C17C71291ABB9000FDE4BC /* ExchangeOneInchProvider.swift */,
 			);
-			path = Facade;
-			sourceTree = "<group>";
-		};
-		E9C17C6C291AB45C00FDE4BC /* Models */ = {
-			isa = PBXGroup;
-			children = (
-				E9C17C6D291AB48D00FDE4BC /* ExchangeSwapDataModel.swift */,
-				E9C17C6F291ABA8000FDE4BC /* ExchangeApprovedDataModel.swift */,
-			);
-			path = Models;
+			path = ExchangeProviders;
 			sourceTree = "<group>";
 		};
 		E9C362B52913232B001302E5 /* ExchangeOneInchService */ = {
@@ -2885,6 +2951,87 @@
 				EF74F50C289BF5AE001034D2 /* Text+.swift */,
 			);
 			path = Appearance;
+			sourceTree = "<group>";
+		};
+		EF4661892923AE2700346B6C /* Exchange */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = Exchange;
+			sourceTree = "<group>";
+		};
+		EF46618A2923AF6900346B6C /* BlockchainProvider */ = {
+			isa = PBXGroup;
+			children = (
+				EF46618B2923AFA200346B6C /* BlockchainProvider.swift */,
+			);
+			path = BlockchainProvider;
+			sourceTree = "<group>";
+		};
+		EF4661932923AFC400346B6C /* TangemExchange */ = {
+			isa = PBXGroup;
+			children = (
+				E9C17C62291A687D00FDE4BC /* Factory */,
+				EF4661BA2923B02C00346B6C /* Models */,
+				EF4661B92923B00800346B6C /* Interfaces */,
+				EF4661B82923B00100346B6C /* Services */,
+				EF4661942923AFC400346B6C /* TExchange.h */,
+				EF4661952923AFC400346B6C /* TExchange.docc */,
+			);
+			path = TangemExchange;
+			sourceTree = "<group>";
+		};
+		EF4661A12923AFC500346B6C /* TangemExchangeTests */ = {
+			isa = PBXGroup;
+			children = (
+				EF4661A22923AFC500346B6C /* TExchangeTests.swift */,
+			);
+			path = TangemExchangeTests;
+			sourceTree = "<group>";
+		};
+		EF4661B82923B00100346B6C /* Services */ = {
+			isa = PBXGroup;
+			children = (
+				E9C17C5C2919507D00FDE4BC /* ExchangeManager.swift */,
+			);
+			path = Services;
+			sourceTree = "<group>";
+		};
+		EF4661B92923B00800346B6C /* Interfaces */ = {
+			isa = PBXGroup;
+			children = (
+				EF46618A2923AF6900346B6C /* BlockchainProvider */,
+				E9C17C69291AACEB00FDE4BC /* ExchangeProviders */,
+				E9C362B52913232B001302E5 /* ExchangeOneInchService */,
+				E94667CD2902D6A80043AD0A /* Utils */,
+			);
+			path = Interfaces;
+			sourceTree = "<group>";
+		};
+		EF4661BA2923B02C00346B6C /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				E9C17C5A29170FCD00FDE4BC /* Currency.swift */,
+				E94667CB2902BC260043AD0A /* ExchangeItem.swift */,
+				E9C17C6D291AB48D00FDE4BC /* ExchangeSwapDataModel.swift */,
+				E9C17C6F291ABA8000FDE4BC /* ExchangeApprovedDataModel.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		EF4661BB2923B05200346B6C /* Components */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = Components;
+			sourceTree = "<group>";
+		};
+		EF4661BE2923B35800346B6C /* Exchange */ = {
+			isa = PBXGroup;
+			children = (
+				E966EFB1291C4A5900504AD8 /* WalletManager+BlockchainProvider.swift */,
+			);
+			path = Exchange;
 			sourceTree = "<group>";
 		};
 		EF4BEF8428ACF0FD00C5D1BE /* UserTokenListManager */ = {
@@ -3080,6 +3227,17 @@
 		};
 /* End PBXGroup section */
 
+/* Begin PBXHeadersBuildPhase section */
+		EF46618D2923AFC400346B6C /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				EF4661A42923AFC500346B6C /* TExchange.h in Headers */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXHeadersBuildPhase section */
+
 /* Begin PBXNativeTarget section */
 		5D3F77C124BF56D800E8695B /* Tangem */ = {
 			isa = PBXNativeTarget;
@@ -3092,11 +3250,13 @@
 				78515DF22ED176E83FF382BF /* [CP] Embed Pods Frameworks */,
 				B066823E26564ADB00CB86CF /* Embed App Extensions */,
 				EFA18E73290FBA1B00CF1AE4 /* Run SwiftFormat */,
+				EF4661B02923AFC500346B6C /* Embed Frameworks */,
 			);
 			buildRules = (
 			);
 			dependencies = (
 				EFCC66C228AA2FDC00EC7757 /* PBXTargetDependency */,
+				EF4661A62923AFC500346B6C /* PBXTargetDependency */,
 			);
 			name = Tangem;
 			productName = "Tangem Tap";
@@ -3142,13 +3302,51 @@
 			productReference = 5D3F77E324BF56DC00E8695B /* TangemUITests.xctest */;
 			productType = "com.apple.product-type.bundle.ui-testing";
 		};
+		EF4661912923AFC400346B6C /* TangemExchange */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = EF4661A92923AFC500346B6C /* Build configuration list for PBXNativeTarget "TangemExchange" */;
+			buildPhases = (
+				AAA811F8D7AC33F5D05DE146 /* [CP] Check Pods Manifest.lock */,
+				EF46618D2923AFC400346B6C /* Headers */,
+				EF46618E2923AFC400346B6C /* Sources */,
+				EF46618F2923AFC400346B6C /* Frameworks */,
+				EF4661902923AFC400346B6C /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = TangemExchange;
+			productName = TExchange;
+			productReference = EF4661922923AFC400346B6C /* TangemExchange.framework */;
+			productType = "com.apple.product-type.framework";
+		};
+		EF46619A2923AFC400346B6C /* TangemExchangeTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = EF4661B12923AFC500346B6C /* Build configuration list for PBXNativeTarget "TangemExchangeTests" */;
+			buildPhases = (
+				EF4661972923AFC400346B6C /* Sources */,
+				EF4661982923AFC400346B6C /* Frameworks */,
+				EF4661992923AFC400346B6C /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				EF46619E2923AFC500346B6C /* PBXTargetDependency */,
+				EF4661A02923AFC500346B6C /* PBXTargetDependency */,
+			);
+			name = TangemExchangeTests;
+			productName = TExchangeTests;
+			productReference = EF46619B2923AFC400346B6C /* TangemExchangeTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
 		5D3F77BA24BF56D800E8695B /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastSwiftUpdateCheck = 1400;
+				LastSwiftUpdateCheck = 1410;
 				LastUpgradeCheck = 1310;
 				ORGANIZATIONNAME = "Tangem AG";
 				TargetAttributes = {
@@ -3161,6 +3359,13 @@
 					};
 					5D3F77E224BF56DC00E8695B = {
 						CreatedOnToolsVersion = 11.5;
+						TestTargetID = 5D3F77C124BF56D800E8695B;
+					};
+					EF4661912923AFC400346B6C = {
+						CreatedOnToolsVersion = 14.1;
+					};
+					EF46619A2923AFC400346B6C = {
+						CreatedOnToolsVersion = 14.1;
 						TestTargetID = 5D3F77C124BF56D800E8695B;
 					};
 				};
@@ -3185,6 +3390,8 @@
 				5D3F77C124BF56D800E8695B /* Tangem */,
 				5D3F77D724BF56DC00E8695B /* TangemTests */,
 				5D3F77E224BF56DC00E8695B /* TangemUITests */,
+				EF4661912923AFC400346B6C /* TangemExchange */,
+				EF46619A2923AFC400346B6C /* TangemExchangeTests */,
 			);
 		};
 /* End PBXProject section */
@@ -3233,6 +3440,20 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		5D3F77E124BF56DC00E8695B /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		EF4661902923AFC400346B6C /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		EF4661992923AFC400346B6C /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -3342,6 +3563,28 @@
 			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
 			showEnvVarsInLog = 0;
 		};
+		AAA811F8D7AC33F5D05DE146 /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-TangemExchange-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
 		EFA18E73290FBA1B00CF1AE4 /* Run SwiftFormat */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
@@ -3419,7 +3662,6 @@
 				EFB4C1322837C51700E991C1 /* TextHint.swift in Sources */,
 				DC66BC12285C433800CDF765 /* AddCustomTokenRoutable.swift in Sources */,
 				DC22535528A4F5730094F30C /* NoteDemoConfig.swift in Sources */,
-				E966EFB2291C4A5900504AD8 /* WalletModelAdapter.swift in Sources */,
 				DAC53CFD27BE63830027147D /* BackupStoryPage.swift in Sources */,
 				B069F36F2631AD3C00ACFD19 /* ImageLoader.swift in Sources */,
 				EF5A5AD628D86094002544AC /* CardImageProviding.swift in Sources */,
@@ -3527,7 +3769,6 @@
 				DC3B49FA2893EEA600C207EA /* UserWalletConfigFeatures.swift in Sources */,
 				DAFD691627CDEB7F00B36C71 /* CombinedExchangeService.swift in Sources */,
 				DC295B3A28615D03006CB7B6 /* NavHolder.swift in Sources */,
-				E9E4167429033F300028F40E /* ExchangeItems.swift in Sources */,
 				EFFC861328BCF6C500F863CE /* StorageEntry.swift in Sources */,
 				B0E9E2FF2679DA8000269C7A /* AmountView.swift in Sources */,
 				DC51185C2860925A004FB954 /* WalletConnectRoutable.swift in Sources */,
@@ -3541,7 +3782,6 @@
 				E9C17C5F291951BF00FDE4BC /* AnyPublisher+.swift in Sources */,
 				5DDE22EA2608DC94008657C6 /* UrlHandler.swift in Sources */,
 				DA23788B27B2488D009795A8 /* ShopifyShop.swift in Sources */,
-				E9C17C61291A580200FDE4BC /* ExchangeTokensFactory.swift in Sources */,
 				DC0A57DD2822A5020031BECC /* LoggerProviding.swift in Sources */,
 				5D39515925597DA5002CC452 /* WalletModel.swift in Sources */,
 				65C9FCB22864507600FDE63E /* MainView.swift in Sources */,
@@ -3577,7 +3817,6 @@
 				EF9CFC14288FECE100329BE0 /* ScanCardSettingsRoutable.swift in Sources */,
 				B0C807232620549F00F7DADE /* WalletConnectSessionItemView.swift in Sources */,
 				EFA580632893E6AA00110DB0 /* BiometricAuthorizationUtils.swift in Sources */,
-				E9C17C70291ABA8000FDE4BC /* ExchangeApprovedDataModel.swift in Sources */,
 				DC22535D28A514030094F30C /* WalletModelFactory.swift in Sources */,
 				B069B6DB268AFEBA004E7928 /* BnbSignHandler.swift in Sources */,
 				EF7B9CF5286C7023004C33A9 /* CardSettingsCoordinator.swift in Sources */,
@@ -3600,6 +3839,7 @@
 				B06997D02692EC5E0014A676 /* ExchangeService.swift in Sources */,
 				DC3F54B128EB3D5D00BC9A6D /* KYCView.swift in Sources */,
 				EF08A0F1283D2382008BD923 /* CoinsListRequestModel.swift in Sources */,
+				EF4661BD2923B0CE00346B6C /* ExchangeViewRouter.swift in Sources */,
 				EF130EBC28E1D34500D37EFC /* MultiWalletContentView.swift in Sources */,
 				EF0F99B6289125C7008B01DF /* DefaultWarningRow.swift in Sources */,
 				DC295B5D2862E6DE006CB7B6 /* BackUpWarningView.swift in Sources */,
@@ -3645,7 +3885,6 @@
 				5D4B8BC327EDD601002CE87C /* CardInfo.swift in Sources */,
 				5D9DCB06255193C30059799C /* AppSettings.swift in Sources */,
 				DC66BBF32859B79600CDF765 /* TokenListCoordinatorView.swift in Sources */,
-				E9C17C5B29170FCD00FDE4BC /* Currency.swift in Sources */,
 				B0541DC026FB300F0043893E /* WalletOnboardingStep.swift in Sources */,
 				B0C4F76D26F089850086D815 /* SingleCardOnboardingStep.swift in Sources */,
 				DC5118692860B3E1004FB954 /* PreviewCard.swift in Sources */,
@@ -3686,7 +3925,6 @@
 				EF0F99B428902902008B01DF /* DefaultRowView.swift in Sources */,
 				5D49034F27BE84B20072C642 /* ExploreButton.swift in Sources */,
 				DA4C84CD27DA2D6D00B76F91 /* AnimatableModifiers.swift in Sources */,
-				E94667CC2902BC260043AD0A /* ExchangeItem.swift in Sources */,
 				65B435FE2844BF7200DEAE1B /* AttributedTextView.swift in Sources */,
 				5D6C128725E144DF0010A0C5 /* AddTokensView.swift in Sources */,
 				5D49035227BE9D550072C642 /* Data+.swift in Sources */,
@@ -3703,7 +3941,6 @@
 				DA23787B27B24222009795A8 /* ProductVariant.swift in Sources */,
 				B046EE182578D38E00EA38A5 /* SceneDelegate.swift in Sources */,
 				5D341CC827E340770028D8FC /* CoinItemView.swift in Sources */,
-				E9C17C5D2919507D00FDE4BC /* ExchangeManager.swift in Sources */,
 				DC51186128609F71004FB954 /* CardOperationRoutable.swift in Sources */,
 				B0B8670626DF60E7008DAA67 /* CardStackAnimator.swift in Sources */,
 				EF08A0EF283D1914008BD923 /* Moya+.swift in Sources */,
@@ -3734,7 +3971,6 @@
 				B0E1565226B97F8C005B33E4 /* OnboardingCardView.swift in Sources */,
 				EF4BEF8328ACF0E700C5D1BE /* UserTokenListManager.swift in Sources */,
 				EF130EBA28E1D33000D37EFC /* SingleWalletContentView.swift in Sources */,
-				E9C362B729132359001302E5 /* ExchangeOneInchService.swift in Sources */,
 				B08B8CEB26D6276000D4BB7B /* PreviewData.swift in Sources */,
 				DC66BC14285C44AD00CDF765 /* TokenListRoutable.swift in Sources */,
 				B0A9E93F25921D21007B6D36 /* WarningView.swift in Sources */,
@@ -3743,7 +3979,6 @@
 				5D78D118261DFEBA00F98B18 /* PurgeWalletsAndReadResponse.swift in Sources */,
 				EF0F99E128917003008B01DF /* SocialNetwork.swift in Sources */,
 				B0AA865226DC90E600287F80 /* WelcomeView.swift in Sources */,
-				E9C17C6E291AB48D00FDE4BC /* ExchangeSwapDataModel.swift in Sources */,
 				5D225CB92524B721001564A3 /* Analytics.swift in Sources */,
 				DC66BC16285C529600CDF765 /* SendRoutable.swift in Sources */,
 				5DDFC2022812B716005976FE /* CurrenciesResponse.swift in Sources */,
@@ -3772,7 +4007,6 @@
 				EF0FF8712866021B00B7CEAF /* AppEnvironment.swift in Sources */,
 				B01EB9C426E9F18A0060E2FB /* StackCalculator.swift in Sources */,
 				EFF034AF28B6522500F70FF7 /* WalletListManager.swift in Sources */,
-				E94808B3291ABF6700A80F6A /* ExchangeFacadeFactory.swift in Sources */,
 				5D9004E424FA79F700E90939 /* ViewStateHandler.swift in Sources */,
 				EF59039B29091CFB00C527C9 /* EnvironmentSetupViewModel.swift in Sources */,
 				6596AD4B28738F0100508D0A /* WarningBankCardViewModel.swift in Sources */,
@@ -3830,7 +4064,6 @@
 				DC51185F28609F67004FB954 /* CardOperationViewModel.swift in Sources */,
 				5DDFC1FF2812A63B005976FE /* Network.swift in Sources */,
 				5DFB499824E54A340037E76F /* BalanceView.swift in Sources */,
-				E966EFB0291C112000504AD8 /* ExchangeViewModelFactory.swift in Sources */,
 				65B4DEE02885334F001524CF /* View+BottomSheet.swift in Sources */,
 				DC66BBF8285A211F00CDF765 /* MainRoutable.swift in Sources */,
 				EF5903A829092BC600C527C9 /* FeatureProvider.swift in Sources */,
@@ -3843,7 +4076,6 @@
 				DC66BBF5285A14CB00CDF765 /* WelcomeViewLifecycleListener.swift in Sources */,
 				B08ACD8225D2BC3D007387BD /* TokenListView.swift in Sources */,
 				B0C4F77526F08CDE0086D815 /* OnboardingProgressStateIndicatable.swift in Sources */,
-				E9E416722902D6E00028F40E /* Exchange+Utils.swift in Sources */,
 				B0E1564B26B941A4005B33E4 /* SingleCardOnboardingView.swift in Sources */,
 				EF130EB428E1C47C00D37EFC /* SingleWalletContentViewModel.swift in Sources */,
 				B04BA23626F083C30036784C /* OnboardingTopupBalanceView.swift in Sources */,
@@ -3888,8 +4120,6 @@
 				EF07F3AD289D43580065549C /* List+.swift in Sources */,
 				DC66BC0A285B755800CDF765 /* PushTxRoutable.swift in Sources */,
 				EF0F99AC289028F8008B01DF /* AppSettingsViewModel.swift in Sources */,
-				E9C17C6B291AACFD00FDE4BC /* ExchangeFacade.swift in Sources */,
-				E9C17C72291ABB9000FDE4BC /* ExchangeOneInchFacade.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -3926,6 +4156,34 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		EF46618E2923AFC400346B6C /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				EF4661C52923B42A00346B6C /* ExchangeApprovedDataModel.swift in Sources */,
+				EF4661D12923CD5000346B6C /* WalletManager+BlockchainProvider.swift in Sources */,
+				EF4661CF2923B9CD00346B6C /* TangemExchangeFactory.swift in Sources */,
+				EF4661C62923B42A00346B6C /* ExchangeProvider.swift in Sources */,
+				EF4661C92923B42A00346B6C /* ExchangeOneInchService.swift in Sources */,
+				EF4661BF2923B41F00346B6C /* ExchangeManager.swift in Sources */,
+				EF4661C02923B42A00346B6C /* ExchangeOneInchProvider.swift in Sources */,
+				EF4661CB2923B42A00346B6C /* ExchangeFacadeFactory.swift in Sources */,
+				EF4661C42923B42A00346B6C /* Currency.swift in Sources */,
+				EF4661D02923CD4C00346B6C /* BlockchainProvider.swift in Sources */,
+				EF4661C72923B42A00346B6C /* Exchange+Utils.swift in Sources */,
+				EF4661962923AFC400346B6C /* TExchange.docc in Sources */,
+				EF4661C82923B42A00346B6C /* ExchangeSwapDataModel.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		EF4661972923AFC400346B6C /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				EF4661A32923AFC500346B6C /* TExchangeTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
@@ -3938,6 +4196,21 @@
 			isa = PBXTargetDependency;
 			target = 5D3F77C124BF56D800E8695B /* Tangem */;
 			targetProxy = 5D3F77E424BF56DC00E8695B /* PBXContainerItemProxy */;
+		};
+		EF46619E2923AFC500346B6C /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = EF4661912923AFC400346B6C /* TangemExchange */;
+			targetProxy = EF46619D2923AFC500346B6C /* PBXContainerItemProxy */;
+		};
+		EF4661A02923AFC500346B6C /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 5D3F77C124BF56D800E8695B /* Tangem */;
+			targetProxy = EF46619F2923AFC500346B6C /* PBXContainerItemProxy */;
+		};
+		EF4661A62923AFC500346B6C /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = EF4661912923AFC400346B6C /* TangemExchange */;
+			targetProxy = EF4661A52923AFC500346B6C /* PBXContainerItemProxy */;
 		};
 		EFCC66C228AA2FDC00EC7757 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
@@ -4557,6 +4830,909 @@
 			};
 			name = "Release(beta)";
 		};
+		EF4661AA2923AFC500346B6C /* Debug(production) */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 5049AC9699BFE5D8AB22677B /* Pods-TangemExchange.debug(production).xcconfig */;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_STYLE = Automatic;
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEFINES_MODULE = YES;
+				DEVELOPMENT_TEAM = 4897UJ6D8C;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright © 2022 Tangem AG. All rights reserved.";
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = com.tangem.TExchange;
+				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VERSIONING_SYSTEM = "apple-generic";
+				VERSION_INFO_PREFIX = "";
+			};
+			name = "Debug(production)";
+		};
+		EF4661AB2923AFC500346B6C /* Debug(beta) */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = DF441655FB8D39A145736442 /* Pods-TangemExchange.debug(beta).xcconfig */;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_STYLE = Automatic;
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEFINES_MODULE = YES;
+				DEVELOPMENT_TEAM = 4897UJ6D8C;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright © 2022 Tangem AG. All rights reserved.";
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = com.tangem.TExchange;
+				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VERSIONING_SYSTEM = "apple-generic";
+				VERSION_INFO_PREFIX = "";
+			};
+			name = "Debug(beta)";
+		};
+		EF4661AC2923AFC500346B6C /* Debug(alpha) */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 21F6E0A74DC753722BCD6541 /* Pods-TangemExchange.debug(alpha).xcconfig */;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_STYLE = Automatic;
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEFINES_MODULE = YES;
+				DEVELOPMENT_TEAM = 4897UJ6D8C;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright © 2022 Tangem AG. All rights reserved.";
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = com.tangem.TExchange;
+				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VERSIONING_SYSTEM = "apple-generic";
+				VERSION_INFO_PREFIX = "";
+			};
+			name = "Debug(alpha)";
+		};
+		EF4661AD2923AFC500346B6C /* Release(production) */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = B3F53346C515AF5645F8768F /* Pods-TangemExchange.release(production).xcconfig */;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEFINES_MODULE = YES;
+				DEVELOPMENT_TEAM = 4897UJ6D8C;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright © 2022 Tangem AG. All rights reserved.";
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = com.tangem.TExchange;
+				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VALIDATE_PRODUCT = YES;
+				VERSIONING_SYSTEM = "apple-generic";
+				VERSION_INFO_PREFIX = "";
+			};
+			name = "Release(production)";
+		};
+		EF4661AE2923AFC500346B6C /* Release(beta) */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = D014AAB36920176F390753A7 /* Pods-TangemExchange.release(beta).xcconfig */;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEFINES_MODULE = YES;
+				DEVELOPMENT_TEAM = 4897UJ6D8C;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright © 2022 Tangem AG. All rights reserved.";
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = com.tangem.TExchange;
+				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VALIDATE_PRODUCT = YES;
+				VERSIONING_SYSTEM = "apple-generic";
+				VERSION_INFO_PREFIX = "";
+			};
+			name = "Release(beta)";
+		};
+		EF4661AF2923AFC500346B6C /* Release(alpha) */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = F92E1EE7F76B839B2ED56526 /* Pods-TangemExchange.release(alpha).xcconfig */;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEFINES_MODULE = YES;
+				DEVELOPMENT_TEAM = 4897UJ6D8C;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright © 2022 Tangem AG. All rights reserved.";
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = com.tangem.TExchange;
+				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VALIDATE_PRODUCT = YES;
+				VERSIONING_SYSTEM = "apple-generic";
+				VERSION_INFO_PREFIX = "";
+			};
+			name = "Release(alpha)";
+		};
+		EF4661B22923AFC500346B6C /* Debug(production) */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_STYLE = Automatic;
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEVELOPMENT_TEAM = 4897UJ6D8C;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.1;
+				MARKETING_VERSION = 1.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = com.tangem.TExchangeTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Tangem.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Tangem";
+			};
+			name = "Debug(production)";
+		};
+		EF4661B32923AFC500346B6C /* Debug(beta) */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_STYLE = Automatic;
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEVELOPMENT_TEAM = 4897UJ6D8C;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.1;
+				MARKETING_VERSION = 1.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = com.tangem.TExchangeTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Tangem.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Tangem";
+			};
+			name = "Debug(beta)";
+		};
+		EF4661B42923AFC500346B6C /* Debug(alpha) */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_STYLE = Automatic;
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEVELOPMENT_TEAM = 4897UJ6D8C;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.1;
+				MARKETING_VERSION = 1.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = com.tangem.TExchangeTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Tangem.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Tangem";
+			};
+			name = "Debug(alpha)";
+		};
+		EF4661B52923AFC500346B6C /* Release(production) */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_STYLE = Automatic;
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = 4897UJ6D8C;
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.1;
+				MARKETING_VERSION = 1.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = com.tangem.TExchangeTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Tangem.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Tangem";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = "Release(production)";
+		};
+		EF4661B62923AFC500346B6C /* Release(beta) */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_STYLE = Automatic;
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = 4897UJ6D8C;
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.1;
+				MARKETING_VERSION = 1.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = com.tangem.TExchangeTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Tangem.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Tangem";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = "Release(beta)";
+		};
+		EF4661B72923AFC500346B6C /* Release(alpha) */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_STYLE = Automatic;
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = 4897UJ6D8C;
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.1;
+				MARKETING_VERSION = 1.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = com.tangem.TExchangeTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Tangem.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Tangem";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = "Release(alpha)";
+		};
 		EFF5CF0F28C795FA000EE8DB /* Debug(alpha) */ = {
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = EFF5CF1928C796B1000EE8DB /* Alpha.xcconfig */;
@@ -4882,6 +6058,32 @@
 				5D3F77F424BF56DC00E8695B /* Release(production) */,
 				EF2EFDD92865BC3400798051 /* Release(beta) */,
 				EFF5CF1828C7960C000EE8DB /* Release(alpha) */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = "Release(production)";
+		};
+		EF4661A92923AFC500346B6C /* Build configuration list for PBXNativeTarget "TangemExchange" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				EF4661AA2923AFC500346B6C /* Debug(production) */,
+				EF4661AB2923AFC500346B6C /* Debug(beta) */,
+				EF4661AC2923AFC500346B6C /* Debug(alpha) */,
+				EF4661AD2923AFC500346B6C /* Release(production) */,
+				EF4661AE2923AFC500346B6C /* Release(beta) */,
+				EF4661AF2923AFC500346B6C /* Release(alpha) */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = "Release(production)";
+		};
+		EF4661B12923AFC500346B6C /* Build configuration list for PBXNativeTarget "TangemExchangeTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				EF4661B22923AFC500346B6C /* Debug(production) */,
+				EF4661B32923AFC500346B6C /* Debug(beta) */,
+				EF4661B42923AFC500346B6C /* Debug(alpha) */,
+				EF4661B52923AFC500346B6C /* Release(production) */,
+				EF4661B62923AFC500346B6C /* Release(beta) */,
+				EF4661B72923AFC500346B6C /* Release(alpha) */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = "Release(production)";
