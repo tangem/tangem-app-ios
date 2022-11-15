@@ -278,7 +278,7 @@ struct ExtractView_Previews: PreviewProvider {
                                       blockchainNetwork: PreviewCard.ethereum.blockchainNetwork!,
                                       cardViewModel: PreviewCard.ethereum.cardModel,
                                       coordinator: SendCoordinator()))
-                .previewLayout(.iphone7Zoomed)
+                .previewLayout(.iphone8Zoomed)
 
             SendView(viewModel: .init(amountToSend: Amount(with: PreviewCard.ethereum.blockchain!,
                                                            type: .token(value: Token(name: "DAI", symbol: "DAI", contractAddress: "0xdwekdn32jfne", decimalCount: 18)),
@@ -286,7 +286,7 @@ struct ExtractView_Previews: PreviewProvider {
                                       blockchainNetwork: PreviewCard.ethereum.blockchainNetwork!,
                                       cardViewModel: PreviewCard.ethereum.cardModel,
                                       coordinator: SendCoordinator()))
-                .previewLayout(.iphone7Zoomed)
+                .previewLayout(.iphone8Zoomed)
         }
     }
 }
