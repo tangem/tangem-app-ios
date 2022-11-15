@@ -15,19 +15,19 @@ struct ReferralProgramInfo: Decodable {
         let promoCode: String
         let walletPurchase: Int
     }
-    
+
     let conditions: Conditions
     let referral: Referral?
-    
+
     struct Conditions: Decodable {
         enum DiscountType: String, Decodable {
             case percentage
-            
+
             var symbol: String {
                 "%"
             }
         }
-        
+
         struct Token: Decodable {
             let id: String
             let name: String
@@ -36,7 +36,7 @@ struct ReferralProgramInfo: Decodable {
             let contractAddress: String
             let decimalCount: Int
         }
-        
+
         let award: Decimal
         let discount: Int
         let discountType: DiscountType
