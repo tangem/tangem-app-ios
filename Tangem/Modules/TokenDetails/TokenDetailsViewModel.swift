@@ -12,7 +12,7 @@ import TangemSdk
 
 class TokenDetailsViewModel: ObservableObject {
     @Injected(\.exchangeService) private var exchangeService: ExchangeService
-    @Injected(\.cardsRepository) private var cardsRepository: UserWalletRepository
+    @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
     @Injected(\.tangemApiService) private var tangemApiService: TangemApiService
 
     @Published var alert: AlertBinder? = nil
