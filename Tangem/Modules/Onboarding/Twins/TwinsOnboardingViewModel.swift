@@ -99,6 +99,13 @@ class TwinsOnboardingViewModel: OnboardingTopupViewModel<TwinsOnboardingStep, On
         }
     }
 
+    var isButtonsVisible: Bool {
+        switch currentStep {
+        case .saveUserWallet: return false
+        default: return true
+        }
+    }
+
     var infoText: LocalizedStringKey? {
         currentStep.infoText
     }
