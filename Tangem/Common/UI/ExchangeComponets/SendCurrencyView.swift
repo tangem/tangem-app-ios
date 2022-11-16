@@ -12,41 +12,36 @@ struct SendCurrencyViewModel: Identifiable {
     var id: Int { hashValue }
 
     let balance: String
-    var fiatValue: String
+    private(set) var fiatValue: String
     let tokenItem: TokenItem
-
-//    [REDACTED_USERNAME] var valueTextField: String
 
     init(
         balance: String,
         fiatValue: String,
-        tokenItem: TokenItem // ,
-//        valueTextField: Binding<String>
+        tokenItem: TokenItem
     ) {
         self.balance = balance
         self.fiatValue = fiatValue
         self.tokenItem = tokenItem
-//        _valueTextField = valueTextField
+    }
+
+    mutating func update(fiatValue: String) {
+        self.fiatValue = fiatValue
     }
 }
 
 extension SendCurrencyViewModel: Hashable {
-    static func == (lhs: SendCurrencyViewModel, rhs: SendCurrencyViewModel) -> Bool {
-        lhs.hashValue == rhs.hashValue
-    }
-
     func hash(into hasher: inout Hasher) {
         hasher.combine(balance)
         hasher.combine(fiatValue)
         hasher.combine(tokenItem)
-//        hasher.combine(valueTextField)
     }
 }
 
 struct SendCurrencyView: View {
     private var viewModel: SendCurrencyViewModel
     @Binding private var textFieldText: String
-    
+
     init(
         viewModel: SendCurrencyViewModel,
         textFieldText: Binding<String>
@@ -69,7 +64,7 @@ struct SendCurrencyView: View {
 
     private var headerLabels: some View {
         HStack(spacing: 0) {
-            Text("You Send")
+            Text("exchange_send_view_header".localized)
                 .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
 
             Spacer()
@@ -109,7 +104,7 @@ struct SendCurrencyView_Preview: PreviewProvider {
         tokenItem: .blockchain(.bitcoin(testnet: false)) // ,
 //        valueTextField: .constant("")
     )
-    
+
     @State private static var text = ""
 
     static var previews: some View {

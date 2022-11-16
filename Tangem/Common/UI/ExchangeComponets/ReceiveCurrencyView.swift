@@ -11,10 +11,10 @@ import SwiftUI
 struct ReceiveCurrencyViewModel: Identifiable {
     var id: Int { hashValue }
 
-    var state: State
+    private(set) var state: State
     let tokenItem: TokenItem
     let didTapTokenView: () -> Void
-    
+
     init(
         state: State,
         tokenItem: TokenItem,
@@ -24,7 +24,7 @@ struct ReceiveCurrencyViewModel: Identifiable {
         self.tokenItem = tokenItem
         self.didTapTokenView = didTapTokenView
     }
-    
+
     mutating func updateState(_ state: State) {
         self.state = state
     }
@@ -34,7 +34,7 @@ extension ReceiveCurrencyViewModel {
     enum State: Hashable {
         case loading
         case loaded(_ value: String, fiatValue: String)
-        
+
         var value: String? {
             switch self {
             case .loaded(let value, _):
@@ -43,7 +43,7 @@ extension ReceiveCurrencyViewModel {
                 return nil
             }
         }
-        
+
         var fiatValue: String? {
             switch self {
             case .loaded(_, let fiatValue):
@@ -87,10 +87,10 @@ struct ReceiveCurrencyView: View {
     }
 
     private var headerLabel: some View {
-        Text("You Receive")
+        Text("exchange_receive_view_header".localized)
             .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
     }
-    
+
     @ViewBuilder
     private var mainContent: some View {
         HStack(spacing: 0) {
@@ -100,19 +100,19 @@ struct ReceiveCurrencyView: View {
             case let .loaded(value, fiatValue):
                 currencyContent(value: value, fiatValue: fiatValue)
             }
-            
+
             Spacer()
 
             tokenView
         }
     }
-    
+
     private var loadingContent: some View {
         VStack(alignment: .leading, spacing: 18) {
             SkeletonView()
                 .frame(width: 102, height: 21)
                 .cornerRadius(6)
-            
+
             SkeletonView()
                 .frame(width: 40, height: 11)
                 .cornerRadius(6)
