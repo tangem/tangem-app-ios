@@ -15,9 +15,6 @@ end
 
 target 'TangemExchange' do 
   common_pods
-  
-  pod 'ExchangeSdk', :git => 'https://github.com/tangem/exchange-sdk-swift', :tag => '1.0.2'
-  #  pod 'ExchangeSdk', :git => '../exchange-sdk-swift'
 end
 
 target 'Tangem' do
