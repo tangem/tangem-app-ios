@@ -20,7 +20,7 @@ class ExchangeViewModel: ObservableObject {
 //    private var exchangeFacade: ExchangeProvider
     private let exchangeManager: ExchangeManager
 //    private var swapDataModel: ExchangeSwapDataModel?
-    
+
     // [REDACTED_TODO_COMMENT]
     private var prefetchedAvailableCoins = [CoinModel]()
     private var bag = Set<AnyCancellable>()
@@ -53,12 +53,12 @@ class ExchangeViewModel: ObservableObject {
 // MARK: - Methods
 
 extension ExchangeViewModel {
-    
+
 }
 // MARK: - Private
 
 extension ExchangeViewModel {
-    
+
     // [REDACTED_TODO_COMMENT]
 //    private func bind() {
 //        $inputAmountText
@@ -88,7 +88,7 @@ extension ExchangeViewModel {
 
     private func preloadAvailableTokens() {
         tangemApiService
-            .loadCoins(requestModel: .init(networkIds: [exchangeManager.getExchangeNetworkId()], exchangeable: true))
+            .loadCoins(requestModel: .init(networkIds: [exchangeManager.getExchangeItems().source.networkId], exchangeable: true))
             .sink {
                 if case .failure(let error) = $0 {
                     print(error.localizedDescription)
