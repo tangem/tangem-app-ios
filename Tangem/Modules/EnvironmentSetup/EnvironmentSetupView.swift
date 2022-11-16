@@ -43,6 +43,7 @@ struct EnvironmentSetupView: View {
 
     private var exitButton: some View {
         Button("Exit", action: viewModel.showExitAlert)
+            .animation(nil)
     }
 }
 
