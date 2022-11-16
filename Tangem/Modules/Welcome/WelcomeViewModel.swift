@@ -159,17 +159,7 @@ class WelcomeViewModel: ObservableObject {
 
     func unlockWithCard() {
         Analytics.log(.buttonCardSignIn)
-
-        scanCardInternal { [weak self] cardModel in
-            guard
-                let self = self,
-                let userWallet = cardModel.userWallet
-            else {
-                return
-            }
-
-            self.userWalletRepository.unlock(with: .card(userWallet: userWallet), completion: self.didFinishUnlocking)
-        }
+        userWalletRepository.unlock(with: .card(userWallet: nil), completion: self.didFinishUnlocking)
     }
 
     func tryAgain() {
