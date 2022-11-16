@@ -174,7 +174,7 @@ extension SingleCardOnboardingStep: OnboardingButtonsInfoProvider {
 extension SingleCardOnboardingStep: OnboardingProgressStepIndicatable {
     var isOnboardingFinished: Bool {
         switch self {
-        case .success: return true
+        case .success, .successTopup: return true
         default: return false
         }
     }
