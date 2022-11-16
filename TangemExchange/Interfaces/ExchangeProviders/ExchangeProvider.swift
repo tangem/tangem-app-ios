@@ -15,12 +15,12 @@ protocol ExchangeProvider {
         amount: String,
         slippage: Int
     ) async throws -> ExchangeSwapDataModel
-    
+
     func sendSwapTransaction(_ info: SwapTransactionInfo, gasValue: Decimal, gasPrice: Decimal) async throws
     func submitPermissionForToken(_ info: SwapTransactionInfo, gasPrice: Decimal) async throws
-    
-    func approveTxData(for item: Currency) async throws -> ExchangeApprovedDataModel
-    func getSpenderAddress() async throws -> String
+
+    func approveTxData(for currency: Currency) async throws -> ExchangeApprovedDataModel
+    func getSpenderAddress(for currency: Currency) async throws -> String
 }
 
 struct SwapTransactionInfo {

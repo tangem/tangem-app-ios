@@ -7,7 +7,6 @@
 //
 
 import Foundation
-import ExchangeSdk
 
 struct ExchangeApprovedDataModel {
     let data: Data

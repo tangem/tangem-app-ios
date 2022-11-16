@@ -8,7 +8,7 @@
 
 import Foundation
 
-public enum ExchangeBlockchain {
+public enum ExchangeBlockchain: CaseIterable {
     case ethereum
     case bsc
     case polygon
@@ -19,7 +19,7 @@ public enum ExchangeBlockchain {
     case fantom
     case klayth
     case aurora
-    
+
     var id: String {
         switch self {
         case .ethereum:
@@ -43,5 +43,17 @@ public enum ExchangeBlockchain {
         case .aurora:
             return "1313161554"
         }
+    }
+}
+
+extension ExchangeBlockchain {
+    static func convert(from chainId: Int?) -> ExchangeBlockchain? {
+        guard let chainId = chainId,
+              let blockchain = ExchangeBlockchain.allCases.first(where: { $0.id == String(chainId) }) else {
+            assertionFailure("not support blockchain")
+            return nil
+        }
+
+        return blockchain
     }
 }
