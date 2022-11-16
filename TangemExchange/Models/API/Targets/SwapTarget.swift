@@ -21,7 +21,7 @@ extension SwapTarget: TargetType {
     var baseURL: URL {
         Constants.exchangeAPIBaseURL
     }
-    
+
     var path: String {
         switch self {
         case let .quote(blockchain, _):
@@ -30,9 +30,9 @@ extension SwapTarget: TargetType {
             return "/\(blockchain.id)/swap"
         }
     }
-    
+
     var method: Moya.Method { return .get }
-    
+
     var task: Task {
         switch self {
         case let .quote(_, parameters):
@@ -41,8 +41,8 @@ extension SwapTarget: TargetType {
             return .requestParameters(parameters: parameters.parameters(), encoding: URLEncoding())
         }
     }
-    
-    var headers: [String : String]? {
+
+    var headers: [String: String]? {
         nil
     }
 }
