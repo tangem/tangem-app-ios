@@ -91,8 +91,53 @@ final class UserWalletListViewModel: ObservableObject, Identifiable {
     func addUserWallet() {
         Analytics.log(.buttonScanNewCard)
 
-        scanCardInternal { [weak self] cardModel in
-            self?.processScannedCard(cardModel)
+        isScanningCard = true
+
+        userWalletRepository.add { [weak self] result in
+            guard let self else { return }
+
+            self.isScanningCard = false
+
+            switch result {
+            case .failure(let error):
+                self.failedCardScanTracker.recordFailure()
+
+                if self.failedCardScanTracker.shouldDisplayAlert {
+                    self.showTroubleshootingView = true
+                } else {
+                    switch error.toTangemSdkError() {
+                    case .unknownError, .cardVerificationFailed:
+                        self.error = error.alertBinder
+                    default:
+                        break
+                    }
+                }
+            case .success(let cardModel):
+                self.failedCardScanTracker.resetCounter()
+                Analytics.log(.myWalletsCardWasScanned)
+
+                let onboardingInput = cardModel.onboardingInput
+                if onboardingInput.steps.needOnboarding {
+                    cardModel.userWalletModel?.updateAndReloadWalletModels()
+                    self.openOnboarding(with: onboardingInput)
+                    return
+                }
+
+                guard
+                    let cellModel = cardModel.userWalletModel.map({ self.mapToUserWalletListCellViewModel(userWalletModel: $0) }),
+                    let userWallet = cardModel.userWallet
+                else {
+                    return
+                }
+
+                if cardModel.isMultiWallet {
+                    self.multiCurrencyModels.append(cellModel)
+                } else {
+                    self.singleCurrencyModels.append(cellModel)
+                }
+
+                self.setSelectedWallet(userWallet)
+            }
         }
     }
 
@@ -194,74 +239,12 @@ final class UserWalletListViewModel: ObservableObject, Identifiable {
         }
     }
 
-    private func scanCardInternal(_ completion: @escaping (CardViewModel) -> Void) {
-        isScanningCard = true
-
-        userWalletRepository.scanPublisher(requestBiometrics: true)
-            .receive(on: DispatchQueue.main)
-            .sink { [weak self] completion in
-                if case let .failure(error) = completion {
-                    print("Failed to scan card: \(error)")
-                    self?.isScanningCard = false
-                    self?.failedCardScanTracker.recordFailure()
-
-                    if self?.failedCardScanTracker.shouldDisplayAlert ?? false {
-                        self?.showTroubleshootingView = true
-                    } else {
-                        switch error.toTangemSdkError() {
-                        case .unknownError, .cardVerificationFailed:
-                            self?.error = error.alertBinder
-                        default:
-                            break
-                        }
-                    }
-                }
-            } receiveValue: { [weak self] cardModel in
-                self?.isScanningCard = false
-                self?.failedCardScanTracker.resetCounter()
-
-                let onboardingInput = cardModel.onboardingInput
-                if onboardingInput.steps.needOnboarding {
-                    cardModel.userWalletModel?.updateAndReloadWalletModels()
-                    self?.openOnboarding(with: onboardingInput)
-                } else {
-                    completion(cardModel)
-                }
-            }
-            .store(in: &bag)
-    }
-
-    private func processScannedCard(_ cardModel: CardViewModel) {
-        Analytics.log(.myWalletsCardWasScanned)
-
-        guard let userWallet = cardModel.userWallet else { return }
-
-        if !userWalletRepository.contains(userWallet) {
-            let newModel = CardViewModel(userWallet: userWallet)
-            guard
-                let cellModel = newModel.userWalletModel.map({ mapToUserWalletListCellViewModel(userWalletModel: $0) })
-            else {
-                return
-            }
-
-            userWalletRepository.save(userWallet)
-
-            if newModel.isMultiWallet {
-                multiCurrencyModels.append(cellModel)
-            } else {
-                singleCurrencyModels.append(cellModel)
-            }
-        }
-
-        setSelectedWallet(userWallet)
-    }
-
     private func setSelectedWallet(_ userWallet: UserWallet) {
         guard selectedUserWalletId != nil && selectedUserWalletId != userWallet.userWalletId else {
             return
         }
 
-        let completion: (UserWallet) -> Void = { [weak self] userWallet in
+        let updateSelection: (UserWallet) -> Void = { [weak self] userWallet in
             let cardModel = CardViewModel(userWallet: userWallet)
             self?.userWalletRepository.didSwitch(to: cardModel)
             self?.selectedUserWalletId = userWallet.userWalletId
@@ -271,35 +254,25 @@ final class UserWalletListViewModel: ObservableObject, Identifiable {
         }
 
         if !userWallet.isLocked {
-            completion(userWallet)
+            updateSelection(userWallet)
             return
         }
 
         Analytics.log(.walletUnlockTapped)
 
-        scanCardInternal { [weak self] cardModel in
-            guard let userWallet = cardModel.userWallet else { return }
-
-            self?.userWalletRepository.unlock(with: .card(userWallet: userWallet)) { result in
-                guard case .success = result else {
-                    return
-                }
-
-                guard
-                    let selectedModel = self?.userWalletRepository.models.first(where: { $0.userWallet?.userWalletId == userWallet.userWalletId }),
-                    let userWallet = selectedModel.userWallet
-                else {
-                    return
-                }
-
-                // [REDACTED_TODO_COMMENT]
-//                selectedModel.getCardInfo()
-//                selectedModel.userWalletModel?.updateAndReloadWalletModels(showProgressLoading: true)
-
-                self?.updateModels()
-
-                completion(userWallet)
+        userWalletRepository.unlock(with: .card(userWallet: userWallet)) { [weak self] result in
+            guard
+                let self,
+                case .success = result,
+                let selectedModel = self.userWalletRepository.models.first(where: { $0.userWallet?.userWalletId == userWallet.userWalletId }),
+                let userWallet = selectedModel.userWallet
+            else {
+                return
             }
+
+            self.updateModels()
+
+            updateSelection(userWallet)
         }
     }
 
