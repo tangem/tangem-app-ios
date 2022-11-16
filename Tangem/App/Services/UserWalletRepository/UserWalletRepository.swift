@@ -17,7 +17,6 @@ protocol UserWalletRepository {
     var isEmpty: Bool { get }
     var isUnlocked: Bool { get }
 
-    func scan(with batch: String?, requestBiometrics: Bool, _ completion: @escaping (Result<CardViewModel, Error>) -> Void)
     func scanPublisher(with batch: String?, requestBiometrics: Bool) ->  AnyPublisher<UserWalletRepositoryResult?, Never>
 
     func add(_ completion: @escaping (UserWalletRepositoryResult?) -> Void)
