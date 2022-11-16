@@ -528,7 +528,7 @@
 		EF4661C62923B42A00346B6C /* ExchangeProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9C17C6A291AACFD00FDE4BC /* ExchangeProvider.swift */; };
 		EF4661C82923B42A00346B6C /* ExchangeSwapDataModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9C17C6D291AB48D00FDE4BC /* ExchangeSwapDataModel.swift */; };
 		EF4661CF2923B9CD00346B6C /* TangemExchangeFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF4661CE2923B9CD00346B6C /* TangemExchangeFactory.swift */; };
-		EF4661D02923CD4C00346B6C /* BlockchainProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF46618B2923AFA200346B6C /* BlockchainProvider.swift */; };
+		EF4661D02923CD4C00346B6C /* BlockchainNetworkProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF46618B2923AFA200346B6C /* BlockchainNetworkProvider.swift */; };
 		EF4661D22923E4C000346B6C /* WalletManager+BlockchainProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = E966EFB1291C4A5900504AD8 /* WalletManager+BlockchainProvider.swift */; };
 		EF4661D42923E5BB00346B6C /* ExchangeItems.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF4661D32923E5BB00346B6C /* ExchangeItems.swift */; };
 		EF4661F12924CC6E00346B6C /* InfoTarget.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF4661EA2924CC6B00346B6C /* InfoTarget.swift */; };
@@ -1255,7 +1255,7 @@
 		EF2EFDE12865C05D00798051 /* Production.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Production.xcconfig; sourceTree = "<group>"; };
 		EF2EFDE22865C07100798051 /* Beta.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Beta.xcconfig; sourceTree = "<group>"; };
 		EF3EC522289AB2DE0071BA7F /* TangemProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TangemProvider.swift; sourceTree = "<group>"; };
-		EF46618B2923AFA200346B6C /* BlockchainProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlockchainProvider.swift; sourceTree = "<group>"; };
+		EF46618B2923AFA200346B6C /* BlockchainNetworkProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlockchainNetworkProvider.swift; sourceTree = "<group>"; };
 		EF4661922923AFC400346B6C /* TangemExchange.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = TangemExchange.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		EF4661942923AFC400346B6C /* TExchange.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TExchange.h; sourceTree = "<group>"; };
 		EF4661952923AFC400346B6C /* TExchange.docc */ = {isa = PBXFileReference; lastKnownFileType = folder.documentationcatalog; path = TExchange.docc; sourceTree = "<group>"; };
@@ -2992,12 +2992,12 @@
 			path = Exchange;
 			sourceTree = "<group>";
 		};
-		EF46618A2923AF6900346B6C /* BlockchainProvider */ = {
+		EF46618A2923AF6900346B6C /* BlockchainNetworkProvider */ = {
 			isa = PBXGroup;
 			children = (
-				EF46618B2923AFA200346B6C /* BlockchainProvider.swift */,
+				EF46618B2923AFA200346B6C /* BlockchainNetworkProvider.swift */,
 			);
-			path = BlockchainProvider;
+			path = BlockchainNetworkProvider;
 			sourceTree = "<group>";
 		};
 		EF4661932923AFC400346B6C /* TangemExchange */ = {
@@ -3035,7 +3035,7 @@
 		EF4661B92923B00800346B6C /* Interfaces */ = {
 			isa = PBXGroup;
 			children = (
-				EF46618A2923AF6900346B6C /* BlockchainProvider */,
+				EF46618A2923AF6900346B6C /* BlockchainNetworkProvider */,
 				E9C17C69291AACEB00FDE4BC /* ExchangeProviders */,
 				E94667CD2902D6A80043AD0A /* Utils */,
 			);
@@ -4277,7 +4277,7 @@
 				EF4661F22924CC6E00346B6C /* LiquiditySourcesList.swift in Sources */,
 				EF4661C02923B42A00346B6C /* ExchangeOneInchProvider.swift in Sources */,
 				EF4661C42923B42A00346B6C /* Currency.swift in Sources */,
-				EF4661D02923CD4C00346B6C /* BlockchainProvider.swift in Sources */,
+				EF4661D02923CD4C00346B6C /* BlockchainNetworkProvider.swift in Sources */,
 				EF4661962923AFC400346B6C /* TExchange.docc in Sources */,
 				EF4662032924CC6E00346B6C /* BaseTarget.swift in Sources */,
 				EF4662062924CC6E00346B6C /* ApproveTarget.swift in Sources */,
