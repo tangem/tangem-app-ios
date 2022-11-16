@@ -8,6 +8,7 @@
 
 import Foundation
 import BlockchainSdk
+import TangemExchange
 
 class ExchangeCoordinator: CoordinatorObject {
     var dismissAction: Action
@@ -21,29 +22,31 @@ class ExchangeCoordinator: CoordinatorObject {
     }
 
     func start(with options: ExchangeCoordinator.Options) {
-        let exchangeViewModelFactory = ExchangeViewModelFactory()
-        let walletModelAdapter = WalletModelAdapter(walletManager: options.walletManager)
-        exchangeViewModel = exchangeViewModelFactory.createExchangeViewModel(exchangeManager: walletModelAdapter,
-                                                                             signer: options.signer,
-                                                                             sourceCurrency: options.sourceCurrency,
-                                                                             coinModel: options.coinModel,
-                                                                             exchangeRouter: .oneInch)
+        let manager = TangemExchangeFactory.createExchangeManager(
+            source: options.sourceCurrency,
+            destination: nil,
+            blockchainProvider: options.blockchainProvider
+        )
+        exchangeViewModel = ExchangeViewModel(router: self, exchangeManager: manager)
     }
 }
 
-extension ExchangeCoordinator {
-    func openTokenList() { } // [REDACTED_TODO_COMMENT]
-
-    func openApproveView() { } // [REDACTED_TODO_COMMENT]
-
-    func openSuccessView() { } // [REDACTED_TODO_COMMENT]
-}
+// MARK: - Options
 
 extension ExchangeCoordinator {
     struct Options {
         let signer: TangemSigner
         let sourceCurrency: Currency
-        let walletManager: WalletManager
-        let coinModel: CoinModel
+        let blockchainProvider: BlockchainProvider
     }
+}
+
+// MARK: - ExchangeRoutable
+
+extension ExchangeCoordinator: ExchangeRoutable {
+    func openTokenList() { } // [REDACTED_TODO_COMMENT]
+
+    func openApproveView() { } // [REDACTED_TODO_COMMENT]
+
+    func openSuccessView() { } // [REDACTED_TODO_COMMENT]
 }
