@@ -32,13 +32,6 @@ extension ExchangeBlockchainProvider: BlockchainProvider {
 
         return try await walletManager.getFee(amount: amount, destination: destination)
             .map { $0.map { $0.value } }
-//            .map{ amounts in
-//                return [
-//                    Currency(amount: amounts[0].value, blockchainNetwork: currency.blockchainNetwork),
-//                    Currency(amount: amounts[1].value, blockchainNetwork: currency.blockchainNetwork),
-//                    Currency(amount: amounts[2].value, blockchainNetwork: currency.blockchainNetwork),
-//                ]
-//            }
             .eraseToAnyPublisher()
             .async()
     }
