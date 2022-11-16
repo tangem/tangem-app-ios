@@ -9,5 +9,7 @@
 import Foundation
 
 protocol ExchangeRoutable {
-    
+    func openTokenList()
+    func openApproveView()
+    func openSuccessView()
 }
