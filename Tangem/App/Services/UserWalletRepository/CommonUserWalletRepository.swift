@@ -203,8 +203,6 @@ class CommonUserWalletRepository: UserWalletRepository {
                 {
                     if !self.contains(userWallet) {
                         self.save(userWallet)
-
-                        completion(.success(cardModel))
                     }
 
                     self.selectedUserWalletId = userWallet.userWalletId
