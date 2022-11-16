@@ -1,6 +1,6 @@
 //
 //  QuoteParameters.swift
-//  
+//
 //
 //  Created by [REDACTED_AUTHOR]
 //
@@ -18,7 +18,7 @@ public struct QuoteParameters {
     public var mainRouteParts: String?
     public var parts: String?
     public var gasPrice: String?
-    
+
     public init(
         fromTokenAddress: String,
         toTokenAddress: String,
@@ -42,42 +42,42 @@ public struct QuoteParameters {
         self.parts = parts
         self.gasPrice = gasPrice
     }
-    
+
     func parameters() -> [String: Any] {
         var params: [String: Any] = [
             "fromTokenAddress": fromTokenAddress,
             "toTokenAddress": toTokenAddress,
             "amount": amount,
         ]
-        
+
         if let gasLimit = gasLimit {
             params["gasLimit"] = gasLimit
         }
-        
+
         if let gasPrice = gasPrice {
             params["gasPrice"] = gasPrice
         }
-        
+
         if let fee = fee {
             params["fee"] = fee
         }
-        
+
         if let complexityLevel = complexityLevel {
             params["complexityLevel"] = complexityLevel
         }
-        
+
         if let mainRouteParts = mainRouteParts {
             params["mainRouteParts"] = mainRouteParts
         }
-        
+
         if let parts = parts {
             params["parts"] = parts
         }
-        
+
         if let protocols = protocols {
             params["protocols"] = protocols
         }
-        
+
         return params
     }
 }

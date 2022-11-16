@@ -13,15 +13,15 @@ public struct ApproveTransactionParameters {
         case infinite
         case specified(value: Int)
     }
-    
+
     public let tokenAddress: String
     public let amount: Amount
-    
+
     public init(tokenAddress: String, amount: Amount) {
         self.tokenAddress = tokenAddress
         self.amount = amount
     }
-    
+
     func parameters() -> [String: Any] {
         var params: [String: Any] = [:]
         switch amount {
@@ -38,12 +38,12 @@ public struct ApproveTransactionParameters {
 public struct ApproveAllowanceParameters {
     public let tokenAddress: String
     public let walletAddress: String
-    
+
     public init(tokenAddress: String, walletAddress: String) {
         self.tokenAddress = tokenAddress
         self.walletAddress = walletAddress
     }
-    
+
     func parameters() -> [String: Any] {
         var params: [String: Any] = [:]
         params["tokenAddress"] = tokenAddress
