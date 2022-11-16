@@ -9,7 +9,7 @@
 import SwiftUI
 
 extension View {
-    func previewGroup(devices: [PreviewDeviceType] = [.iPhone7, .iPhone8Plus, .iPhoneX, .iPhone12Pro, .iPhone12ProMax], withZoomed: Bool = true) -> some View {
+    func previewGroup(devices: [PreviewDeviceType] = [.iPhone8, .iPhone8Plus, .iPhoneX, .iPhone12Pro, .iPhone12ProMax], withZoomed: Bool = true) -> some View {
         Group {
             ForEach(devices) {
                 deviceForPreview($0)
@@ -24,7 +24,7 @@ extension View {
 enum PreviewDeviceType: String, Identifiable, CaseIterable {
     var id: UUID { UUID() }
 
-    case iPhone7 = "iPhone 7"
+    case iPhone8 = "iPhone 8"
     case iPhone8Plus = "iPhone 8 Plus"
     case iPhoneX = "iPhone X"
     case iPhone12Mini = "iPhone 12 mini"
@@ -35,7 +35,7 @@ enum PreviewDeviceType: String, Identifiable, CaseIterable {
 
     var zoomedLayout: PreviewLayout {
         switch self {
-        case .iPhone7: return .iphone7Zoomed
+        case .iPhone8: return .iphone8Zoomed
         case .iPhone11Pro: return .iphone11Pro
         case .iPhone11ProMax: return .iphone11ProMax
         case .iPhone12Mini: return .iphone11Pro
@@ -64,7 +64,7 @@ extension View {
 }
 
 extension PreviewLayout {
-    static var iphone7Zoomed: PreviewLayout {
+    static var iphone8Zoomed: PreviewLayout {
         .fixed(width: 320, height: 568)
     }
 
