@@ -192,32 +192,25 @@ class CommonUserWalletRepository: UserWalletRepository {
         }
     }
 
-    func add(_ completion: @escaping (Result<CardViewModel, Error>) -> Void) {
+    func add(_ completion: @escaping (UserWalletRepositoryResult) -> Void) {
         scanPublisher(requestBiometrics: true)
             .receive(on: DispatchQueue.main)
-            .sink { result in
-                if case let .failure(error) = result {
-                    print("Failed to scan card: \(error)")
-                    completion(.failure(error))
-                }
-            } receiveValue: { [weak self] cardModel in
+            .sink { [weak self] result in
                 guard let self else { return }
 
-                let onboardingInput = cardModel.onboardingInput
-                if onboardingInput.steps.needOnboarding {
-                    completion(.success(cardModel))
-                    return
+                if case let .success(cardModel) = result,
+                   let userWallet = cardModel.userWallet
+                {
+                    if !self.contains(userWallet) {
+                        self.save(userWallet)
+
+                        completion(.success(cardModel))
+                    }
+
+                    self.selectedUserWalletId = userWallet.userWalletId
                 }
 
-                guard let userWallet = cardModel.userWallet else { return }
-
-                if !self.contains(userWallet) {
-                    self.save(userWallet)
-
-                    completion(.success(cardModel))
-                }
-
-                self.selectedUserWalletId = userWallet.userWalletId
+                completion(result)
             }
             .store(in: &bag)
     }
