@@ -13,7 +13,7 @@ import TangemExchange
 struct ExchangeBlockchainProvider {
     private let walletManager: WalletManager
     private let signer: TangemSigner
-    
+
     init(walletManager: WalletManager, signer: TangemSigner) {
         self.walletManager = walletManager
         self.signer = signer
@@ -26,10 +26,10 @@ extension ExchangeBlockchainProvider: BlockchainProvider {
     func signAndSend(_ transaction: Transaction) async throws {
         try await walletManager.send(transaction, signer: signer).async()
     }
-    
+
     func getFee(currency: Currency, amount: Decimal, destination: String) async throws -> [Decimal] {
         let amount = createAmount(from: currency, amount: amount)
-        
+
         return try await walletManager.getFee(amount: amount, destination: destination)
             .map { $0.map { $0.value } }
 //            .map{ amounts in
@@ -42,7 +42,7 @@ extension ExchangeBlockchainProvider: BlockchainProvider {
             .eraseToAnyPublisher()
             .async()
     }
-    
+
     func createTransaction(for info: TransactionInfo) throws -> Transaction {
         let amount = createAmount(from: info.currency, amount: info.amount)
         let fee = createAmount(from: info.currency, amount: info.fee)
@@ -75,9 +75,9 @@ private extension ExchangeBlockchainProvider {
 private extension Currency {
     func asToken() -> Token? {
         guard let contractAddress = contractAddress else {
-             return nil
+            return nil
         }
-        
+
         return Token(name: name, symbol: symbol, contractAddress: contractAddress, decimalCount: decimalCount)
     }
 }
