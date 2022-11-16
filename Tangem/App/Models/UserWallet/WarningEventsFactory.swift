@@ -26,6 +26,10 @@ struct WarningEventsFactory {
             }
         }
 
+        if card.firmwareVersion.type == .sdk && !DemoUtil().isDemoCard(cardId: card.cardId) {
+            warnings.append(.devCard)
+        }
+
         return warnings
     }
 }
