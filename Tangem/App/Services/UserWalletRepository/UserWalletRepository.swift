@@ -20,7 +20,7 @@ protocol UserWalletRepository {
     func scan(with batch: String?, requestBiometrics: Bool, _ completion: @escaping (Result<CardViewModel, Error>) -> Void)
     func scanPublisher(with batch: String?, requestBiometrics: Bool) ->  AnyPublisher<UserWalletRepositoryResult, Never>
 
-    func add(_ completion: @escaping (Result<CardViewModel, Error>) -> Void)
+    func add(_ completion: @escaping (UserWalletRepositoryResult) -> Void)
 
     func didSwitch(to cardModel: CardViewModel)
 
