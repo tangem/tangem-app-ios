@@ -50,16 +50,6 @@ class WelcomeViewModel: ObservableObject {
 
     private unowned let coordinator: WelcomeRoutable
 
-    private var hasInterruptedSaltPayBackup: Bool {
-        guard backupService.hasIncompletedBackup,
-              let primaryCard = backupService.primaryCard,
-              let batchId = primaryCard.batchId else {
-            return false
-        }
-
-        return SaltPayUtil().isSaltPayCard(batchId: batchId, cardId: primaryCard.cardId)
-    }
-
     init(coordinator: WelcomeRoutable) {
         self.coordinator = coordinator
         userWalletRepository.delegate = self
@@ -88,33 +78,6 @@ class WelcomeViewModel: ObservableObject {
         var subscription: AnyCancellable? = nil
 
         subscription = userWalletRepository.scanPublisher()
-            .flatMap { [weak self] response -> AnyPublisher<CardViewModel, Error> in
-                let saltPayUtil = SaltPayUtil()
-                let hasSaltPayBackup = self?.hasInterruptedSaltPayBackup ?? false
-                let primaryCardId = self?.backupService.primaryCard?.cardId ?? ""
-
-                if hasSaltPayBackup && response.cardId != primaryCardId  {
-                    return .anyFail(error: SaltPayRegistratorError.emptyBackupCardScanned)
-                }
-
-                if saltPayUtil.isBackupCard(cardId: response.cardId) {
-                    if let backupInput = response.backupInput, backupInput.steps.stepsCount > 0 {
-                        return .anyFail(error: SaltPayRegistratorError.emptyBackupCardScanned)
-                    } else {
-                        return .justWithError(output: response)
-                    }
-                }
-
-                guard let saltPayRegistrator = self?.saltPayRegistratorProvider.registrator else {
-                    return .justWithError(output: response)
-                }
-
-                return saltPayRegistrator.updatePublisher()
-                    .map { _ in
-                        return response
-                    }
-                    .eraseToAnyPublisher()
-            }
             .receive(on: DispatchQueue.main)
             .sink { [weak self] completion in
                 if case let .failure(error) = completion {
@@ -291,7 +254,7 @@ extension WelcomeViewModel {
 // MARK: - Resume interrupted backup
 private extension WelcomeViewModel {
     func showInteruptedBackupAlertIfNeeded() {
-        guard backupService.hasIncompletedBackup, !hasInterruptedSaltPayBackup else { return }
+        guard backupService.hasIncompletedBackup, !backupService.hasInterruptedSaltPayBackup else { return }
 
         let alert = Alert(title: Text("common_warning"),
                           message: Text("welcome_interrupted_backup_alert_message"),
