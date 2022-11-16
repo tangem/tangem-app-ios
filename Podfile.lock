@@ -225,7 +225,7 @@ DEPENDENCIES:
   - AppsFlyerFramework
   - BinanceChain (from `https://github.com/tangem/swiftbinancechain.git`, tag `0.0.9`)
   - BitcoinCore.swift (from `https://github.com/tangem/bitcoincore.git`, tag `0.0.16`)
-  - BlockchainSdk (from `https://github.com/tangem/blockchain-sdk-swift.git`, tag `develop-174`)
+  - BlockchainSdk (from `https://github.com/tangem/blockchain-sdk-swift.git`, tag `develop-177`)
   - DeviceGuru (= 8.0.0)
   - ExchangeSdk (from `https://github.com/tangem/exchange-sdk-swift`, tag `1.0.2`)
   - Firebase/Analytics
@@ -306,7 +306,7 @@ EXTERNAL SOURCES:
     :tag: 0.0.16
   BlockchainSdk:
     :git: https://github.com/tangem/blockchain-sdk-swift.git
-    :tag: develop-174
+    :tag: develop-177
   ExchangeSdk:
     :git: https://github.com/tangem/exchange-sdk-swift
     :tag: 1.0.2
@@ -341,7 +341,7 @@ CHECKOUT OPTIONS:
     :tag: 0.0.16
   BlockchainSdk:
     :git: https://github.com/tangem/blockchain-sdk-swift.git
-    :tag: develop-174
+    :tag: develop-177
   ExchangeSdk:
     :git: https://github.com/tangem/exchange-sdk-swift
     :tag: 1.0.2
@@ -423,6 +423,6 @@ SPEC CHECKSUMS:
   ZendeskSupportProvidersSDK: 77a62fe6bacc05bb10ff20edce75612fa109fd61
   ZendeskSupportSDK: ba72e90e327635b5fde3d023a3de33242a6ee8ab
 
-PODFILE CHECKSUM: 40b5df6438575efa912b5fb1f5033269ecded6b7
+PODFILE CHECKSUM: 4e12043634861483b3dfd9064acf453aef68bca1
 
 COCOAPODS: 1.11.3
