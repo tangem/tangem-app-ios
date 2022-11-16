@@ -55,10 +55,6 @@ class OnboardingTopupViewModel<Step: OnboardingStep, Coordinator: OnboardingTopu
         }
 
         super.init(input: input, coordinator: coordinator)
-
-        if let walletModel = self.cardModel?.walletModels.first {
-            updateCardBalanceText(for: walletModel)
-        }
     }
 
     func updateCardBalance(for type: Amount.AmountType = .coin, shouldGoToNextStep: Bool = true) {
