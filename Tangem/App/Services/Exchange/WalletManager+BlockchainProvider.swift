@@ -22,7 +22,7 @@ struct ExchangeBlockchainProvider {
 
 // MARK: - BlockchainProvider
 
-extension ExchangeBlockchainProvider: BlockchainProvider {
+extension ExchangeBlockchainProvider: BlockchainNetworkProvider {
     func signAndSend(_ transaction: Transaction) async throws {
         try await walletManager.send(transaction, signer: signer).async()
     }
