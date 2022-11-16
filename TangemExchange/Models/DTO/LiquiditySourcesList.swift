@@ -1,6 +1,6 @@
 //
 //  LiquiditySourcesList.swift
-//  
+//
 //
 //  Created by [REDACTED_AUTHOR]
 //
@@ -16,7 +16,7 @@ public struct LiquidityProtocol: Decodable {
     public let title: String
     public let image: String
     public let imageColor: String?
-    
+
     enum CodingKeys: String, CodingKey {
         case imageColor = "img_color"
         case image = "img"
