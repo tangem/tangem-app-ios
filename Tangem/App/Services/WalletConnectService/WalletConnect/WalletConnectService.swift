@@ -21,8 +21,8 @@ protocol WalletConnectChecker: AnyObject {
 }
 
 protocol WalletConnectSessionController: WalletConnectChecker {
-    var sessionsPublisher: Published<[WalletConnectSession]>.Publisher { get }
-    func disconnectSession(at index: Int)
+    var sessionsPublisher: AnyPublisher<[WalletConnectSession], Never> { get }
+    func disconnectSession(_ session: WalletConnectSession)
     func canHandle(url: String) -> Bool
     func handle(url: String) -> Bool
 }
@@ -72,7 +72,15 @@ class WalletConnectService: ObservableObject {
     var cardModel: CardViewModel
 
     @Published private(set) var sessions: [WalletConnectSession] = .init()
-    var sessionsPublisher: Published<[WalletConnectSession]>.Publisher { $sessions }
+    var sessionsPublisher: AnyPublisher<[WalletConnectSession], Never> {
+        $sessions
+            .map { [weak self] wcSessions in
+                guard let self = self else { return [] }
+
+                return wcSessions.filter { $0.wallet.walletPublicKey == self.cardModel.secp256k1SeedKey }
+            }
+            .eraseToAnyPublisher()
+    }
 
     private(set) var server: Server!
 
@@ -119,7 +127,7 @@ class WalletConnectService: ObservableObject {
                 }
 
                 DispatchQueue.main.async {
-                    self.sessions = filteredSessions
+                    self.sessions = decodedSessions
                 }
             }
         }
@@ -249,18 +257,16 @@ extension WalletConnectService: WalletConnectChecker {
 }
 
 extension WalletConnectService: WalletConnectSessionController {
-    func disconnectSession(at index: Int) {
+    func disconnectSession(_ session: WalletConnectSession) {
         updateQueue.async { [weak self] in
             guard let self = self else { return }
 
-            guard index < self.sessions.count else { return }
-
-            let session = self.sessions[index]
+            guard let index = self.sessions.firstIndex(where: { $0.session == session.session }) else { return }
 
             do {
                 try self.server.disconnect(from: session.session)
             } catch {
-                print(error)
+                print("Failed to disconnect WC session: \(error.localizedDescription)")
             }
 
             self.sessions.remove(at: index)
