@@ -341,8 +341,8 @@ class WalletOnboardingViewModel: OnboardingTopupViewModel<WalletOnboardingStep, 
         .token(value: GnosisRegistrator.Settings.main.token)
     }
 
-    required init(input: OnboardingInput, saveUserWalletOnFinish: Bool, coordinator: OnboardingCoordinator) {
-        super.init(input: input, saveUserWalletOnFinish: saveUserWalletOnFinish, coordinator: coordinator)
+    override init(input: OnboardingInput, coordinator: OnboardingCoordinator) {
+        super.init(input: input, coordinator: coordinator)
 
         if case let .wallet(steps) = input.steps {
             self.steps = steps

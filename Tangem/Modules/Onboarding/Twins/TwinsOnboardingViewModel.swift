@@ -99,6 +99,13 @@ class TwinsOnboardingViewModel: OnboardingTopupViewModel<TwinsOnboardingStep, On
         }
     }
 
+    var isButtonsVisible: Bool {
+        switch currentStep {
+        case .saveUserWallet: return false
+        default: return true
+        }
+    }
+
     var infoText: LocalizedStringKey? {
         currentStep.infoText
     }
@@ -122,7 +129,7 @@ class TwinsOnboardingViewModel: OnboardingTopupViewModel<TwinsOnboardingStep, On
 
     private var canBuy: Bool { exchangeService.canBuy("BTC", amountType: .coin, blockchain: .bitcoin(testnet: false)) }
 
-    required init(input: OnboardingInput, saveUserWalletOnFinish: Bool, coordinator: OnboardingCoordinator) {
+    override init(input: OnboardingInput, coordinator: OnboardingCoordinator) {
         let cardModel = input.cardInput.cardModel!
         let twinData = input.twinData!
 
@@ -130,7 +137,7 @@ class TwinsOnboardingViewModel: OnboardingTopupViewModel<TwinsOnboardingStep, On
         self.twinData = twinData
         self.twinsService = .init(card: cardModel, twinData: twinData)
 
-        super.init(input: input, saveUserWalletOnFinish: saveUserWalletOnFinish, coordinator: coordinator)
+        super.init(input: input, coordinator: coordinator)
 
         if let walletModel = self.cardModel?.walletModels.first {
             updateCardBalanceText(for: walletModel)
@@ -219,7 +226,7 @@ class TwinsOnboardingViewModel: OnboardingTopupViewModel<TwinsOnboardingStep, On
                 supplementButtonAction()
             }
         case .saveUserWallet:
-            saveUserWallet()
+            break
         }
     }
 
