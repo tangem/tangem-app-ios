@@ -37,7 +37,7 @@ extension ExchangeCoordinator {
     struct Options {
         let signer: TangemSigner
         let sourceCurrency: Currency
-        let blockchainProvider: BlockchainProvider
+        let blockchainProvider: BlockchainNetworkProvider
     }
 }
 
