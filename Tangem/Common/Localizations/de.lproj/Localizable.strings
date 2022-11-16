@@ -503,3 +503,4 @@ URL: %@";
 "onboarding_subtitle_kyc_retry" = "Please check you email for further instructions";
 "onboarding_exit_alert_title" = "Do you want to exit the activation process?";
 "onboarding_exit_alert_message" = "In this case, you will need to start from the beginning.";
+"wallet_connect_need_to_scan_card" = "Please scan the card and repeat your request";
