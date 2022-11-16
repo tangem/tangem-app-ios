@@ -11,7 +11,7 @@ public enum TangemExchangeFactory {
     public static func createExchangeManager(
         source: Currency,
         destination: Currency?,
-        blockchainProvider: BlockchainProvider,
+        blockchainProvider: BlockchainNetworkProvider,
         isDebug: Bool = false
     ) -> ExchangeManager {
         let exchangeItems = ExchangeItems(source: source, destination: destination)
