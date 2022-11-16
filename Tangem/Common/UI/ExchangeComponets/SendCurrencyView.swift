@@ -98,14 +98,12 @@ struct SendCurrencyView: View {
 }
 
 struct SendCurrencyView_Preview: PreviewProvider {
+    @State private static var text = ""
     static let viewModel = SendCurrencyViewModel(
         balance: "Balance: 3 043,75",
         fiatValue: "1 000,71 $",
-        tokenItem: .blockchain(.bitcoin(testnet: false)) // ,
-//        valueTextField: .constant("")
+        tokenItem: .blockchain(.bitcoin(testnet: false))
     )
-
-    @State private static var text = ""
 
     static var previews: some View {
         ZStack {
