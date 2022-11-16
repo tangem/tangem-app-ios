@@ -23,7 +23,7 @@ extension InfoTarget: TargetType {
     var baseURL: URL {
         Constants.exchangeAPIBaseURL
     }
-    
+
     var path: String {
         switch self {
         case .liquiditySources(let blockchain):
@@ -34,14 +34,14 @@ extension InfoTarget: TargetType {
             return "/\(blockchain.id)/presets"
         }
     }
-    
+
     var method: Moya.Method { return .get }
-    
+
     var task: Task {
         .requestPlain
     }
-    
-    var headers: [String : String]? {
+
+    var headers: [String: String]? {
         nil
     }
 }
