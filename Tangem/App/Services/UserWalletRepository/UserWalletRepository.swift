@@ -18,7 +18,7 @@ protocol UserWalletRepository {
     var isUnlocked: Bool { get }
 
     func scan(with batch: String?, requestBiometrics: Bool, _ completion: @escaping (Result<CardViewModel, Error>) -> Void)
-    func scanPublisher(with batch: String?, requestBiometrics: Bool) ->  AnyPublisher<CardViewModel, Error>
+    func scanPublisher(with batch: String?, requestBiometrics: Bool) ->  AnyPublisher<UserWalletRepositoryResult, Never>
 
     func add(_ completion: @escaping (Result<CardViewModel, Error>) -> Void)
 
@@ -51,13 +51,21 @@ extension InjectedValues {
 }
 
 extension UserWalletRepository {
-    func scanPublisher(with batch: String? = nil, requestBiometrics: Bool = false) ->  AnyPublisher<CardViewModel, Error> {
+    func scanPublisher(with batch: String? = nil, requestBiometrics: Bool = false) ->  AnyPublisher<UserWalletRepositoryResult, Never> {
         scanPublisher(with: batch, requestBiometrics: requestBiometrics)
     }
 }
 
 protocol ScanListener {
     func onScan(cardInfo: CardInfo)
+}
+
+enum UserWalletRepositoryResult {
+    case success(CardViewModel)
+    case error(AlertBinder)
+    case onboarding(OnboardingInput)
+    case troubleshooting
+    case none
 }
 
 enum UserWalletRepositoryError: Error {
