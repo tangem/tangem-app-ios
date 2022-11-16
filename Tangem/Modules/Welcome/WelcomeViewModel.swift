@@ -80,7 +80,12 @@ class WelcomeViewModel: ObservableObject {
         subscription = userWalletRepository.scanPublisher()
             .receive(on: DispatchQueue.main)
             .sink { [weak self] result in
-                guard let self else { return }
+                guard
+                    let self,
+                    let result
+                else {
+                    return
+                }
 
                 subscription.map { _ = self.bag.remove($0) }
                 self.isScanningCard = false
@@ -94,8 +99,6 @@ class WelcomeViewModel: ObservableObject {
                     self.error = alertBinder
                 case .success(let cardModel):
                     self.openMain(with: cardModel)
-                case .none:
-                    break
                 }
             }
 
