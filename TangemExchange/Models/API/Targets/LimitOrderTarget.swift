@@ -25,7 +25,7 @@ extension LimitOrderTarget: TargetType {
     var baseURL: URL {
         Constants.limitAPIBaseURL
     }
-    
+
     var path: String {
         switch self {
         case .append(let blockchain, _):
@@ -44,7 +44,7 @@ extension LimitOrderTarget: TargetType {
             return "/\(blockchain.id)/limit-order/has-active-orders-with-permit/\(walletAddress)/\(tokenAddress)"
         }
     }
-    
+
     var method: Moya.Method {
         switch self {
         case .append:
@@ -53,7 +53,7 @@ extension LimitOrderTarget: TargetType {
             return .get
         }
     }
-    
+
     var task: Task {
         switch self {
         case .append(_, let order):
@@ -71,6 +71,6 @@ extension LimitOrderTarget: TargetType {
             return .requestPlain
         }
     }
-    
-    var headers: [String : String]? { return nil }
+
+    var headers: [String: String]? { return nil }
 }
