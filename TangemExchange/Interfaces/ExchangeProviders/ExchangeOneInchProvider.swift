@@ -11,6 +11,10 @@ import Combine
 import BlockchainSdk
 import ExchangeSdk
 
+enum ExchangeOneInchProviderError: Error {
+    case noData
+}
+
 class ExchangeOneInchProvider {
     /// OneInch use this contractAddress for coins
     private let oneInchCoinContractAddress = "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"
@@ -32,7 +36,7 @@ extension ExchangeOneInchProvider: ExchangeProvider {
     func fetchExchangeAmountLimit(for currency: Currency) async throws -> Decimal {
         guard currency.isToken,
               let contractAddress = currency.contractAddress,
-              let chainId = currency.chainId else { return }
+              let chainId = currency.chainId else { return 0 }
 
         let parameters = ApproveAllowanceParameters(
             tokenAddress: contractAddress,
@@ -53,10 +57,14 @@ extension ExchangeOneInchProvider: ExchangeProvider {
     }
     
     func fetchTxDataForSwap(items: ExchangeItems, amount: String, slippage: Int) async throws -> ExchangeSwapDataModel {
+        guard let destination = items.destination else {
+            throw ExchangeOneInchProviderError.noData
+        }
+        
         let parameters = SwapParameters(fromTokenAddress: items.source.contractAddress ?? oneInchCoinContractAddress,
-                                        toTokenAddress: items.destination.contractAddress ?? oneInchCoinContractAddress,
+                                        toTokenAddress: destination.contractAddress ?? oneInchCoinContractAddress,
                                         amount: amount,
-                                        fromAddress: exchangeManager.walletAddress,
+                                        fromAddress: items.walletAddress,
                                         slippage: slippage)
 
         let result = await exchangeService.swap(blockchain: .exchangeBlockchain(from: items.source.chainId),
@@ -71,40 +79,40 @@ extension ExchangeOneInchProvider: ExchangeProvider {
     }
     
     // MARK: - Sending API
-    
+        
     func sendSwapTransaction(_ info: SwapTransactionInfo, gasValue: Decimal, gasPrice: Decimal) async throws {
-        let gas = gas(from: gasValue, price: gasPrice, decimalCount: info.currency.decimalValue)
+        let gas = gas(from: gasValue, price: gasPrice, decimalCount: info.currency.decimalCount)
 
-        let tx = buildTransaction(for: info.currency, fee: gas)
+        let tx = try buildTransaction(for: info, fee: gas)
         return try await blockchainProvider.signAndSend(tx)
     }
 
     func submitPermissionForToken(_ info: SwapTransactionInfo, gasPrice: Decimal) async throws {
-        let fees = try await blockchainProvider.getFee(currency: currency, amount: amount, destination: destination)
+        let fees = try await blockchainProvider.getFee(currency: info.currency, amount: info.amount, destination: info.destination)
         let gasValue: Decimal = fees[1]
         
-        let gas = gas(from: gasValue, price: gasPrice, decimalCount: currency.decimalValue)
-        let tx = buildTransaction(for: info.currency, fee: gas)
+        let gas = gas(from: gasValue, price: gasPrice, decimalCount: info.currency.decimalCount)
+        let tx = try buildTransaction(for: info, fee: gas)
         
         return try await blockchainProvider.signAndSend(tx)
     }
 
     // MARK: - Approve API
     
-    func approveTxData(for item: Currency) async throws -> ExchangeApprovedDataModel {
-        let parameters = ApproveTransactionParameters(tokenAddress: currency.contractAddress, amount: .infinite)
-        let txResponse = await exchangeService.approveTransaction(blockchain: ExchangeBlockchain.convert(from: blockchainNetwork),
-                                                                  approveTransactionParameters: parameters)
-    }
-
-    func approveTxData(for item: ExchangeItem) async throws -> ExchangeApprovedDataModel {
-        let parameters = ApproveTransactionParameters(tokenAddress: item.currency.contractAddress, amount: .infinite)
+    func approveTxData(for currency: Currency) async throws -> ExchangeApprovedDataModel {
+        guard let contractAddress = currency.contractAddress else {
+            throw ExchangeOneInchProviderError.noData
+        }
         
-
+        let parameters = ApproveTransactionParameters(tokenAddress: contractAddress, amount: .infinite)
+        let txResponse = await exchangeService.approveTransaction(
+            blockchain: ExchangeBlockchain.convert(from: blockchainNetwork),
+            approveTransactionParameters: parameters
+        )
+        
         switch txResponse {
         case .success(let approveTxData):
-            let model = ExchangeApprovedDataModel(approveTxData: approveTxData)
-            return model
+            return ExchangeApprovedDataModel(approveTxData: approveTxData)
         case .failure(let error):
             throw error
         }
@@ -112,7 +120,6 @@ extension ExchangeOneInchProvider: ExchangeProvider {
 
     func getSpenderAddress() async throws -> String {
         let blockchain = ExchangeBlockchain.convert(from: blockchainNetwork)
-
         let spender = await exchangeService.spender(blockchain: blockchain)
 
         switch spender {
@@ -127,14 +134,14 @@ extension ExchangeOneInchProvider: ExchangeProvider {
 // MARK: - Private
 
 private extension ExchangeOneInchProvider {
-    func gas(from value: Decimal, price: Decimal, decimalCount: Decimal) -> Decimal {
-        value * price / decimalValue
+    func gas(from value: Decimal, price: Decimal, decimalCount: Int) -> Decimal {
+        value * price / Decimal(decimalCount)
     }
     
     func buildTransaction(for info: SwapTransactionInfo, fee: Decimal) throws -> Transaction {
-        let info = TransactionInfo(currency: info.currency, amount: info.amount, fee: fee, destination: info.destination)
-        let tx = try blockchainProvider.createTransaction(for: info)
-        tx.params = EthereumTransactionParams(data: oneInchTxData)
+        let transactionInfo = TransactionInfo(currency: info.currency, amount: info.amount, fee: fee, destination: info.destination)
+        var tx = try blockchainProvider.createTransaction(for: transactionInfo)
+        tx.params = EthereumTransactionParams(data: info.oneInchTxData)
 
         return tx
         
