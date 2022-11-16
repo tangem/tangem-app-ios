@@ -51,7 +51,7 @@ class CommonUserWalletRepository: UserWalletRepository {
     }
 
     var isEmpty: Bool {
-        savedUserWallets(withSensitiveData: false).isEmpty
+        userWallets.isEmpty
     }
 
     private(set) var isUnlocked: Bool = false
@@ -70,6 +70,10 @@ class CommonUserWalletRepository: UserWalletRepository {
     }
 
     private var bag: Set<AnyCancellable> = .init()
+
+    init() {
+        userWallets = savedUserWallets(withSensitiveData: false)
+    }
 
     deinit {
         print("UserWalletRepository deinit")
@@ -114,21 +118,41 @@ class CommonUserWalletRepository: UserWalletRepository {
         }
     }
 
-    func add(_ cardModels: [CardViewModel]) {
-        models.append(contentsOf: cardModels)
-    }
+    func add(_ completion: @escaping (Result<CardViewModel, Error>) -> Void) {
+        scanPublisher(requestBiometrics: true)
+            .receive(on: DispatchQueue.main)
+            .sink { result in
+                if case let .failure(error) = result {
+                    print("Failed to scan card: \(error)")
+                    completion(.failure(error))
+                }
+            } receiveValue: { [weak self] cardModel in
+                guard let self else { return }
 
-    func removeModel(with userWalletId: Data) {
-        models.removeAll {
-            $0.userWalletId == userWalletId
-        }
+                let onboardingInput = cardModel.onboardingInput
+                if onboardingInput.steps.needOnboarding {
+                    completion(.success(cardModel))
+                    return
+                }
+
+                guard let userWallet = cardModel.userWallet else { return }
+
+                if !self.contains(userWallet) {
+                    self.save(userWallet)
+
+                    completion(.success(cardModel))
+                }
+
+                self.selectedUserWalletId = userWallet.userWalletId
+            }
+            .store(in: &bag)
     }
 
     func clear() {
         models = []
         saveUserWallets([])
         encryptionKeyByUserWalletId = [:]
-        userWallets = []
+        userWallets = savedUserWallets(withSensitiveData: false)
         selectedUserWalletId = nil
         encryptionKeyStorage.clear()
     }
@@ -191,16 +215,13 @@ class CommonUserWalletRepository: UserWalletRepository {
         finishInitializingServices(for: cardModel, cardInfo: cardInfo)
 
         cardModel.didScan()
-        if cardInfo.card.hasWallets && !models.contains(where: { $0.userWalletId == cardInfo.card.userWalletId }) {
-            models.append(cardModel)
-        }
         return cardModel
     }
 
     func lock() {
         isUnlocked = false
         encryptionKeyByUserWalletId = [:]
-        userWallets = []
+        userWallets = savedUserWallets(withSensitiveData: false)
         clear()
     }
 
@@ -216,46 +237,58 @@ class CommonUserWalletRepository: UserWalletRepository {
     func unlockWithBiometry(completion: @escaping (Result<Void, Error>) -> Void) {
         encryptionKeyStorage.fetch { [weak self] result in
             DispatchQueue.main.async {
+                guard let self else { return }
+
                 switch result {
                 case .failure(let error):
                     completion(.failure(error))
                 case .success(let keys):
-                    self?.encryptionKeyByUserWalletId = keys
-                    self?.loadModels()
-                    self?.isUnlocked = true
+                    self.encryptionKeyByUserWalletId = keys
+                    self.userWallets = self.savedUserWallets(withSensitiveData: true)
+                    self.loadModels()
+                    self.isUnlocked = true
                     completion(.success(()))
                 }
             }
         }
     }
 
-    func unlockWithCard(_ userWallet: UserWallet, completion: @escaping (Result<Void, Error>) -> Void) {
-        guard
-            let encryptionKey = userWallet.encryptionKey
-        else {
-            completion(.failure(TangemSdkError.cardError))
-            return
-        }
+    func unlockWithCard(_ requiredUserWallet: UserWallet?, completion: @escaping (Result<Void, Error>) -> Void) {
+        scanPublisher(requestBiometrics: true)
+            .receive(on: DispatchQueue.main)
+            .sink { result in
+                if case let .failure(error) = result {
+                    print("Failed to scan card: \(error)")
+                    completion(.failure(error))
+                }
+            } receiveValue: { [weak self] cardModel in
+                guard
+                    let self,
+                    let scannedUserWallet = cardModel.userWallet,
+                    let encryptionKey = scannedUserWallet.encryptionKey,
+                    self.contains(scannedUserWallet)
+                else {
+                    completion(.failure(TangemSdkError.cardError))
+                    return
+                }
 
-        encryptionKeyByUserWalletId[userWallet.userWalletId] = encryptionKey
+                if let requiredUserWallet,
+                   scannedUserWallet.userWalletId != requiredUserWallet.userWalletId {
+                    completion(.failure(TangemSdkError.cardError))
+                    return
+                }
 
-        selectedUserWalletId = userWallet.userWalletId
+                self.encryptionKeyByUserWalletId[scannedUserWallet.userWalletId] = encryptionKey
+                self.selectedUserWalletId = scannedUserWallet.userWalletId
+                self.loadModel(for: scannedUserWallet)
 
-        if userWallets.isEmpty {
-            loadModels()
-        } else if let userWalletIndex = userWallets.firstIndex(where: { $0.userWalletId == userWallet.userWalletId }) {
-            userWallets[userWalletIndex] = userWallet
-            add(CardViewModel(userWallet: userWallet)) // ??????
-        } else {
-            completion(.failure(TangemSdkError.cardError))
-            return
-        }
+                if self.models.count == 1 {
+                    self.isUnlocked = true
+                }
 
-        if models.count == 1 {
-            isUnlocked = true
-        }
-
-        completion(.success(()))
+                completion(.success(()))
+            }
+            .store(in: &bag)
     }
 
     func didScan(card: CardDTO) {
@@ -273,13 +306,25 @@ class CommonUserWalletRepository: UserWalletRepository {
         save(userWallet)
     }
 
-    func loadModels() {
-        userWallets = savedUserWallets(withSensitiveData: true)
 
+    private func loadModels() {
         let models = userWallets.map {
             CardViewModel(userWallet: $0)
         }
-        add(models) // ???
+        self.models = models
+    }
+
+    private func loadModel(for userWallet: UserWallet) {
+        guard let index = userWallets.firstIndex(where: { $0.userWalletId == userWallet.userWalletId }) else { return }
+
+        userWallets[index] = userWallet
+
+        if models.isEmpty {
+            loadModels()
+        } else {
+            let model = CardViewModel(userWallet: userWallet)
+            models[index] = model
+        }
     }
 
     func contains(_ userWallet: UserWallet) -> Bool {
@@ -305,7 +350,7 @@ class CommonUserWalletRepository: UserWalletRepository {
             models[index].setUserWallet(userWallet)
         } else {
             let newModel = CardViewModel(userWallet: userWallet)
-            add(newModel) // ??????????
+            models.append(newModel)
         }
     }
 
@@ -313,7 +358,7 @@ class CommonUserWalletRepository: UserWalletRepository {
         let userWalletId = userWallet.userWalletId
         encryptionKeyByUserWalletId[userWalletId] = nil
         userWallets.removeAll { $0.userWalletId == userWalletId }
-        removeModel(with: userWalletId) // ?????????
+        models.removeAll { $0.userWalletId == userWalletId }
 
         encryptionKeyStorage.delete(userWallet)
         saveUserWallets(userWallets)
