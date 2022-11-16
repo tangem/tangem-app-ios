@@ -70,7 +70,7 @@ struct DefaultWarningRow_Preview: PreviewProvider {
         icon: Assets.attention,
         title: "Enable biometric authentication",
         subtitle: "Not enough funds for fee on your Polygon wallet to create a transaction. Top up your Polygon wallet first.",
-        detailsType: .none,
+        detailsType: .icon(Assets.refreshWarningIcon),
         action: {}
     )
 
