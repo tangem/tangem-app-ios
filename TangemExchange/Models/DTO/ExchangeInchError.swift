@@ -20,7 +20,7 @@ public struct InchError: Decodable, Error {
     public let error: String
     public let description: String
     public let requestId: String
-    
+
     internal init(
         statusCode: Int,
         error: String = "",
