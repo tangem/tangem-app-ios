@@ -318,8 +318,11 @@ class CommonUserWalletRepository: UserWalletRepository {
         encryptionKeyStorage.delete(userWallet)
         saveUserWallets(userWallets)
     }
+}
 
+// MARK: - Saving user wallets
 
+extension CommonUserWalletRepository {
     private func savedUserWallets(withSensitiveData loadSensitiveData: Bool) -> [UserWallet] {
         do {
             guard fileManager.fileExists(atPath: userWalletListPath().path) else {
