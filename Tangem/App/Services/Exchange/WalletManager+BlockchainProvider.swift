@@ -43,21 +43,15 @@ extension ExchangeBlockchainProvider: BlockchainProvider {
             .async()
     }
     
-
-    func createTransaction(for currency: Currency,
-                           amount: Decimal,
-                           fee: Decimal,
-                           destinationAddress: String,
-                           sourceAddress: String?,
-                           changeAddress: String?) throws -> Transaction {
-        let amount = createAmount(from: currency, amount: amount)
-        let fee = createAmount(from: currency, amount: fee)
+    func createTransaction(for info: TransactionInfo) throws -> Transaction {
+        let amount = createAmount(from: info.currency, amount: info.amount)
+        let fee = createAmount(from: info.currency, amount: info.fee)
 
         return try walletManager.createTransaction(amount: amount,
                                                    fee: fee,
-                                                   destinationAddress: destinationAddress,
-                                                   sourceAddress: sourceAddress,
-                                                   changeAddress: changeAddress)
+                                                   destinationAddress: info.destination,
+                                                   sourceAddress: info.sourceAddress,
+                                                   changeAddress: info.changeAddress)
     }
 }
 
@@ -78,7 +72,7 @@ private extension ExchangeBlockchainProvider {
     }
 }
 
-extension Currency {
+private extension Currency {
     func asToken() -> Token? {
         guard let contractAddress = contractAddress else {
              return nil
@@ -87,17 +81,3 @@ extension Currency {
         return Token(name: name, symbol: symbol, contractAddress: contractAddress, decimalCount: decimalCount)
     }
 }
-
-//extension Amount {
-//    public init(
-//        type: AmountType,
-//        currencySymbol: String,
-//        value: Decimal,
-//        decimals: Int
-//    ) {
-//        self.type = type
-//        self.currencySymbol = currencySymbol
-//        self.value = value
-//        self.decimals = decimals
-//    }
-//}
