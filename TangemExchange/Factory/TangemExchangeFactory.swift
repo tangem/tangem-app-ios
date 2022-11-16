@@ -6,20 +6,23 @@
 //  Copyright © 2022 Tangem AG. All rights reserved.
 //
 
-import ExchangeSdk
-
 /// Public factory for work with exchange
-enum TangemExchangeFactory {
-    static func createExchangeManager(
+public enum TangemExchangeFactory {
+    public static func createExchangeManager(
         source: Currency,
         destination: Currency?,
         blockchainProvider: BlockchainProvider,
         isDebug: Bool = false
     ) -> ExchangeManager {
         let exchangeItems = ExchangeItems(source: source, destination: destination)
-        let exchangeService = ExchangeSdk.buildOneInchExchangeService(isDebug: isDebug)
-        
+        let exchangeService = OneInchApiService(isDebug: isDebug)
+
         let provider = ExchangeOneInchProvider(blockchainProvider: blockchainProvider, exchangeService: exchangeService)
         return CommonExchangeManager(provider: provider, exchangeItems: exchangeItems)
+    }
+
+    // [REDACTED_TODO_COMMENT]
+    private static func buildOneInchLimitService(isDebug: Bool) -> LimitOrderServiceProtocol {
+        return LimitOrderService(isDebug: isDebug)
     }
 }
