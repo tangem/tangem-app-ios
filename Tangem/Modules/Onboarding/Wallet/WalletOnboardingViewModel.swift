@@ -523,8 +523,12 @@ class WalletOnboardingViewModel: OnboardingTopupViewModel<WalletOnboardingStep, 
         case .createWallet:
             break
         case .backupIntro:
-            goToStep(steps.contains(.saveUserWallet) ?.saveUserWallet : .success)
             Analytics.log(.backupSkipped)
+            if steps.contains(.saveUserWallet) {
+                goToStep(.saveUserWallet)
+            } else {
+                jumpToLatestStep()
+            }
         case .selectBackupCards:
             if canAddBackupCards {
                 let controller = UIAlertController(title: "common_warning".localized, message: "onboarding_alert_message_not_max_backup_cards_added".localized, preferredStyle: .alert)
