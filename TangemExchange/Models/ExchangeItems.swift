@@ -9,7 +9,7 @@
 import Foundation
 
 public struct ExchangeItems {
-    public let walletAddress: String
+//    public let walletAddress: String
     public let source: Currency
     public let destination: Currency?
 }
