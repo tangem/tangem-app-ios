@@ -323,14 +323,10 @@ class CommonUserWalletRepository: UserWalletRepository {
     func unlockWithCard(_ requiredUserWallet: UserWallet?, completion: @escaping (Result<Void, Error>) -> Void) {
         scanPublisher(requestBiometrics: true)
             .receive(on: DispatchQueue.main)
-            .sink { result in
-                if case let .failure(error) = result {
-                    print("Failed to scan card: \(error)")
-                    completion(.failure(error))
-                }
-            } receiveValue: { [weak self] cardModel in
+            .sink { [weak self] result in
                 guard
                     let self,
+                    case let .success(cardModel) = result,
                     let scannedUserWallet = cardModel.userWallet,
                     let encryptionKey = scannedUserWallet.encryptionKey,
                     self.contains(scannedUserWallet)
