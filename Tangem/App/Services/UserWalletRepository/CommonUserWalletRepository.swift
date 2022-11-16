@@ -84,7 +84,7 @@ class CommonUserWalletRepository: UserWalletRepository {
         print("UserWalletRepository deinit")
     }
 
-    func scanPublisher(with batch: String? = nil, requestBiometrics: Bool = false) -> AnyPublisher<UserWalletRepositoryResult, Never>  {
+    func scanPublisher(with batch: String? = nil, requestBiometrics: Bool = false) -> AnyPublisher<UserWalletRepositoryResult?, Never>  {
         Deferred {
             Future { [weak self] promise in
                 self?.scan(with: batch, requestBiometrics: requestBiometrics) { result in
@@ -124,7 +124,7 @@ class CommonUserWalletRepository: UserWalletRepository {
                 }
                 .eraseToAnyPublisher()
         }
-        .flatMap { [weak self] cardModel -> AnyPublisher<UserWalletRepositoryResult, Error> in
+        .flatMap { [weak self] cardModel -> AnyPublisher<UserWalletRepositoryResult?, Error> in
             self?.failedCardScanTracker.resetCounter()
 
             Analytics.log(.cardWasScanned)
@@ -142,9 +142,9 @@ class CommonUserWalletRepository: UserWalletRepository {
                 .setFailureType(to: Error.self)
                 .eraseToAnyPublisher()
         }
-        .catch { [weak self] (error: Error) -> Just<UserWalletRepositoryResult> in
+        .catch { [weak self] (error: Error) -> Just<UserWalletRepositoryResult?> in
             guard let self else {
-                return Just(UserWalletRepositoryResult.none)
+                return Just(nil)
             }
 
             print("Failed to scan card: \(error)")
@@ -163,7 +163,7 @@ class CommonUserWalletRepository: UserWalletRepository {
             case .unknownError, .cardVerificationFailed:
                 return Just(UserWalletRepositoryResult.error(error.alertBinder))
             default:
-                return Just(UserWalletRepositoryResult.none)
+                return Just(nil)
             }
         }
         .eraseToAnyPublisher()
@@ -192,7 +192,7 @@ class CommonUserWalletRepository: UserWalletRepository {
         }
     }
 
-    func add(_ completion: @escaping (UserWalletRepositoryResult) -> Void) {
+    func add(_ completion: @escaping (UserWalletRepositoryResult?) -> Void) {
         scanPublisher(requestBiometrics: true)
             .receive(on: DispatchQueue.main)
             .sink { [weak self] result in
