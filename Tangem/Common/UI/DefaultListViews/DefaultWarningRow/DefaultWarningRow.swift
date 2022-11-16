@@ -42,7 +42,7 @@ struct DefaultWarningRow: View {
         }
         .buttonStyle(PlainButtonStyle())
     }
-    
+
     @ViewBuilder
     private var detailsView: some View {
         Group {
@@ -77,7 +77,7 @@ struct DefaultWarningRow_Preview: PreviewProvider {
     static var previews: some View {
         ZStack {
             Colors.Background.secondary
-            
+
             DefaultWarningRow(viewModel: viewModel)
                 .padding(.horizontal, 16)
         }
