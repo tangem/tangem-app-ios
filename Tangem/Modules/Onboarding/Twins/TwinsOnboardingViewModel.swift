@@ -234,7 +234,7 @@ class TwinsOnboardingViewModel: OnboardingTopupViewModel<TwinsOnboardingStep, On
         super.goToNextStep()
 
         switch currentStep {
-        case .success:
+        case .done, .success:
             withAnimation {
                 refreshButtonState = .doneCheckmark
                 fireConfetti()
