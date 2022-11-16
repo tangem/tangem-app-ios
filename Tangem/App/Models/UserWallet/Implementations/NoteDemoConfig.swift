@@ -45,13 +45,13 @@ extension NoteDemoConfig: UserWalletConfig {
 
     var onboardingSteps: OnboardingSteps {
         if card.wallets.isEmpty {
-            return .singleWallet([.createWallet, .topup, .successTopup] + userWalletSavingSteps + [.success])
+            return .singleWallet([.createWallet] + userWalletSavingSteps + [.topup, .successTopup])
         } else {
             if !AppSettings.shared.cardsStartedActivation.contains(card.cardId) {
                 return .singleWallet([])
             }
 
-            return .singleWallet([.topup, .successTopup] + userWalletSavingSteps + [.success])
+            return .singleWallet(userWalletSavingSteps + [.topup, .successTopup])
         }
     }
 
