@@ -79,6 +79,6 @@ struct Web3StoryPage: View {
 struct Web3StoryPage_Previews: PreviewProvider {
     static var previews: some View {
         Web3StoryPage(progress: .constant(1), isScanning: false) { } orderCard: { }
-            .previewGroup(devices: [.iPhone7, .iPhone12ProMax], withZoomed: false)
+            .previewGroup(devices: [.iPhone8, .iPhone12ProMax], withZoomed: false)
     }
 }
