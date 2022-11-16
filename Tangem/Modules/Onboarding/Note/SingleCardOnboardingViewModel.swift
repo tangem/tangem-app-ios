@@ -242,6 +242,7 @@ class SingleCardOnboardingViewModel: OnboardingTopupViewModel<SingleCardOnboardi
             withAnimation {
                 refreshButtonState = .doneCheckmark
             }
+            fallthrough
         case .success:
             fireConfetti()
         default:
