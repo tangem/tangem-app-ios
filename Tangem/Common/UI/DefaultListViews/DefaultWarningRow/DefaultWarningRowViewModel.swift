@@ -15,7 +15,7 @@ struct DefaultWarningRowViewModel {
     let detailsType: DetailsType?
 
     let action: () -> ()
-    
+
     init(
         icon: Image,
         title: String,
