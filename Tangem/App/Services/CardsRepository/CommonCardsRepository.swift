@@ -55,6 +55,7 @@ class CommonCardsRepository: CardsRepository {
     private func scan(with batch: String? = nil, _ completion: @escaping (Result<CardViewModel, Error>) -> Void) {
         Analytics.reset()
         Analytics.log(.readyToScan)
+        walletConnectServiceProvider.reset()
         sdkProvider.setup(with: TangemSdkConfigFactory().makeDefaultConfig())
         sdkProvider.sdk.startSession(with: AppScanTask(targetBatch: batch)) { [unowned self] result in
             switch result {
