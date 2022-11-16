@@ -22,14 +22,14 @@ public struct TransactionInfo {
     public let destination: String
     public let sourceAddress: String?
     public let changeAddress: String?
-    
+
     public init(
         currency: Currency,
-         amount: Decimal,
-         fee: Decimal,
-         destination: String,
-         sourceAddress: String? = nil,
-         changeAddress: String? = nil
+        amount: Decimal,
+        fee: Decimal,
+        destination: String,
+        sourceAddress: String? = nil,
+        changeAddress: String? = nil
     ) {
         self.currency = currency
         self.amount = amount
