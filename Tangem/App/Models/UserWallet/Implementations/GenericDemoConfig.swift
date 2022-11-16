@@ -85,7 +85,7 @@ extension GenericDemoConfig: UserWalletConfig {
     }
 
     var backupSteps: OnboardingSteps? {
-        .wallet(_backupSteps)
+        .wallet(_backupSteps + [.success])
     }
 
     var supportedBlockchains: Set<Blockchain> {
