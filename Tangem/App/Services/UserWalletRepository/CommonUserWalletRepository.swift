@@ -87,7 +87,7 @@ class CommonUserWalletRepository: UserWalletRepository {
     func scanPublisher(with batch: String? = nil, requestBiometrics: Bool = false) -> AnyPublisher<UserWalletRepositoryResult?, Never>  {
         Deferred {
             Future { [weak self] promise in
-                self?.scan(with: batch, requestBiometrics: requestBiometrics) { result in
+                self?.scanInternal(with: batch, requestBiometrics: requestBiometrics) { result in
                     switch result {
                     case .success(let scanResult):
                         promise(.success(scanResult))
@@ -169,7 +169,7 @@ class CommonUserWalletRepository: UserWalletRepository {
         .eraseToAnyPublisher()
     }
 
-    func scan(with batch: String? = nil, requestBiometrics: Bool, _ completion: @escaping (Result<CardViewModel, Error>) -> Void) {
+    func scanInternal(with batch: String? = nil, requestBiometrics: Bool, _ completion: @escaping (Result<CardViewModel, Error>) -> Void) {
         Analytics.reset()
         Analytics.log(.readyToScan)
         walletConnectServiceProvider.reset()
