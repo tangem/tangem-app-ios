@@ -21,7 +21,7 @@ public struct OrdersForAddressParameters {
     public var statuses: [ExchangeOrderStatus]
     public var makerAsset: String?
     public var takerAsset: String?
-    
+
     public init(
         address: String,
         page: Int = 1,
@@ -37,7 +37,7 @@ public struct OrdersForAddressParameters {
         self.takerAsset = takerAsset
         self.makerAsset = makerAsset
     }
-    
+
     func parameters() -> [String: Any] {
         var params: [String: Any] = [:]
         params["page"] = page
@@ -53,13 +53,13 @@ public struct OrdersForAddressParameters {
     }
 }
 
-public struct AllOrdersParameters {    
+public struct AllOrdersParameters {
     public var page: Int
     public var limit: Int
     public var statuses: [ExchangeOrderStatus]
     public var makerAsset: String?
     public var takerAsset: String?
-    
+
     public init(
         page: Int = 1,
         limit: Int = 100,
@@ -73,7 +73,7 @@ public struct AllOrdersParameters {
         self.takerAsset = takerAsset
         self.makerAsset = makerAsset
     }
-    
+
     func parameters() -> [String: Any] {
         var params: [String: Any] = [:]
         params["page"] = page
@@ -90,4 +90,4 @@ public struct AllOrdersParameters {
         return params
     }
 }
-    
+
