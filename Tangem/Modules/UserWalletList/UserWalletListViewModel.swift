@@ -94,7 +94,12 @@ final class UserWalletListViewModel: ObservableObject, Identifiable {
         isScanningCard = true
 
         userWalletRepository.add { [weak self] result in
-            guard let self else { return }
+            guard
+                let self,
+                let result
+            else {
+                return
+            }
 
             self.isScanningCard = false
 
@@ -107,8 +112,6 @@ final class UserWalletListViewModel: ObservableObject, Identifiable {
                 self.error = alertBinder
             case .success(let cardModel):
                 self.add(cardModel: cardModel)
-            case .none:
-                break
             }
         }
     }
