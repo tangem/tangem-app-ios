@@ -1,6 +1,6 @@
 //
 //  PresetsConfiguration.swift
-//  
+//
 //
 //  Created by [REDACTED_AUTHOR]
 //
