@@ -60,6 +60,13 @@ class SingleCardOnboardingViewModel: OnboardingTopupViewModel<SingleCardOnboardi
         }
     }
 
+    var isButtonsVisible: Bool {
+        switch currentStep {
+        case .saveUserWallet: return false
+        default: return true
+        }
+    }
+
     var infoText: LocalizedStringKey? {
         currentStep.infoText
     }
@@ -77,8 +84,8 @@ class SingleCardOnboardingViewModel: OnboardingTopupViewModel<SingleCardOnboardi
         return false
     }
 
-    required init(input: OnboardingInput, saveUserWalletOnFinish: Bool, coordinator: OnboardingCoordinator) {
-        super.init(input: input, saveUserWalletOnFinish: saveUserWalletOnFinish, coordinator: coordinator)
+    override init(input: OnboardingInput, coordinator: OnboardingCoordinator) {
+        super.init(input: input, coordinator: coordinator)
 
         if case let .singleWallet(steps) = input.steps {
             self.steps = steps
@@ -133,7 +140,7 @@ class SingleCardOnboardingViewModel: OnboardingTopupViewModel<SingleCardOnboardi
         case .successTopup:
             goToNextStep()
         case .saveUserWallet:
-            saveUserWallet()
+            break
         case .success:
             goToNextStep()
         }
