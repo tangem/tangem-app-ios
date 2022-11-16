@@ -6,13 +6,20 @@
 //  Copyright © 2022 Tangem AG. All rights reserved.
 //
 
-import Foundation
+import ExchangeSdk
 
 /// Public factory for work with exchange
 enum TangemExchangeFactory {
-    static func createExchangeManager(source: Currency, destination: Currency?) -> ExchangeManager {
-        let exchangeItems = CommonExchangeManager.ExchangeItems(source: source, destination: destination)
-        let provider = ExchangeOneInchProvider(exchangeManager: <#T##ExchangeManager#>, signer: <#T##<<error type>>#>, blockchainNetwork: <#T##<<error type>>#>)
-        return CommonExchangeManager(provider: ExchangeProvider, exchangeItems: exchangeItems)
+    static func createExchangeManager(
+        source: Currency,
+        destination: Currency?,
+        blockchainProvider: BlockchainProvider,
+        isDebug: Bool = false
+    ) -> ExchangeManager {
+        let exchangeItems = ExchangeItems(source: source, destination: destination)
+        let exchangeService = ExchangeSdk.buildOneInchExchangeService(isDebug: isDebug)
+        
+        let provider = ExchangeOneInchProvider(blockchainProvider: blockchainProvider, exchangeService: exchangeService)
+        return CommonExchangeManager(provider: provider, exchangeItems: exchangeItems)
     }
 }
