@@ -18,6 +18,7 @@ import struct TangemSdk.PrimaryCard
 import struct TangemSdk.DerivationPath
 import struct TangemSdk.SecureStorage
 import class TangemSdk.TangemSdk
+import class TangemSdk.BackupService
 import enum TangemSdk.TangemSdkError
 
 import Intents
@@ -65,6 +66,9 @@ class CommonUserWalletRepository: UserWalletRepository {
     private var fileManager: FileManager {
         FileManager.default
     }
+    private var backupService: BackupService {
+        backupServiceProvider.backupService
+    }
     private var userWalletDirectoryUrl: URL {
         fileManager.urls(for: .documentDirectory, in: .userDomainMask)[0].appendingPathComponent("user_wallets", isDirectory: true)
     }
@@ -91,6 +95,33 @@ class CommonUserWalletRepository: UserWalletRepository {
                     }
                 }
             }
+        }
+        .flatMap { [weak self] (response: CardViewModel) -> AnyPublisher<CardViewModel, Error> in
+            let saltPayUtil = SaltPayUtil()
+            let hasSaltPayBackup = self?.backupService.hasInterruptedSaltPayBackup ?? false
+            let primaryCardId = self?.backupService.primaryCard?.cardId ?? ""
+
+            if hasSaltPayBackup && response.cardId != primaryCardId  {
+                return .anyFail(error: SaltPayRegistratorError.emptyBackupCardScanned)
+            }
+
+            if saltPayUtil.isBackupCard(cardId: response.cardId) {
+                if let backupInput = response.backupInput, backupInput.steps.stepsCount > 0 {
+                    return .anyFail(error: SaltPayRegistratorError.emptyBackupCardScanned)
+                } else {
+                    return .justWithError(output: response)
+                }
+            }
+
+            guard let saltPayRegistrator = self?.saltPayRegistratorProvider.registrator else {
+                return .justWithError(output: response)
+            }
+
+            return saltPayRegistrator.updatePublisher()
+                .map { _ in
+                    return response
+                }
+                .eraseToAnyPublisher()
         }
         .eraseToAnyPublisher()
     }
