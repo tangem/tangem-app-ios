@@ -20,7 +20,7 @@ extension ApproveTarget: TargetType {
     var baseURL: URL {
         Constants.exchangeAPIBaseURL
     }
-    
+
     var path: String {
         switch self {
         case .spender(let blockchain):
@@ -31,9 +31,9 @@ extension ApproveTarget: TargetType {
             return "/\(blockchain.id)/approve/allowance"
         }
     }
-    
+
     var method: Moya.Method { return .get }
-    
+
     var task: Task {
         switch self {
         case .spender:
@@ -44,8 +44,8 @@ extension ApproveTarget: TargetType {
             return .requestParameters(parameters: params.parameters(), encoding: URLEncoding())
         }
     }
-    
-    var headers: [String : String]? {
+
+    var headers: [String: String]? {
         nil
     }
 }
