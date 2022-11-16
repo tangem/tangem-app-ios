@@ -40,35 +40,6 @@ public struct Currency {
         self.contractAddress = contractAddress
     }
 
-//    private(set) var amount: Decimal = 0
-
-
-    
-    public init(
-        blockchain: Blockchain,
-        contractAddress: String?,
-        decimalCount: Int
-    ) {
-        self.contractAddress = contractAddress
-        self.blockchainNetwork = blockchain
-    }
-
-//    init(contractAddress: String,
-//         blockchainNetwork: BlockchainNetwork,
-//         name: String? = nil,
-//         symbol: String? = nil,
-//         decimalCount: Int? = nil,
-//         imageURL: URL? = nil,
-//         amount: Decimal = 0) {
-//        self.contractAddress = contractAddress
-//        self.blockchainNetwork = blockchainNetwork
-//        self.name = name
-//        self.symbol = symbol
-//        self.decimalCount = decimalCount
-//        self.imageURL = imageURL
-//        self.amount = amount
-//    }
-//
 //    init(amount: Decimal, blockchainNetwork: BlockchainNetwork) {
 //        self.contractAddress = ""
 //        self.blockchainNetwork = blockchainNetwork

@@ -7,10 +7,11 @@
 //
 
 import Foundation
+import Combine
 
 public protocol ExchangeManager {
-    func getExchangeNetworkId() -> String
-    func update(exchangeItems: ExchangeItems)
+//    func getExchangeNetworkId() -> String
+//    func update(exchangeItems: ExchangeItems)
     
     func stopTimer()
     func refreshTimer()
@@ -24,7 +25,9 @@ class CommonExchangeManager {
     private lazy var refreshTxDataTimerPublisher = Timer.publish(every: 10, on: .main, in: .common).autoconnect()
     private var exchangeItems: ExchangeItems
     
-    init(provider: ExchangeProvider, exchangeItems: CommonExchangeManager.ExchangeItems) {
+    private var bag: Set<AnyCancellable> = []
+    
+    init(provider: ExchangeProvider, exchangeItems: ExchangeItems) {
         self.provider = provider
         self.exchangeItems = exchangeItems
     }
@@ -33,6 +36,12 @@ class CommonExchangeManager {
 // MARK: - Private
 
 private extension CommonExchangeManager {
+
+}
+
+// MARK: - ExchangeManager
+
+extension CommonExchangeManager: ExchangeManager {
     func refreshTimer() {
         refreshTxDataTimerPublisher
             .sink { [weak self] _ in
@@ -42,78 +51,67 @@ private extension CommonExchangeManager {
             .store(in: &bag)
     }
 
-    func cancelRefreshTimer() {
+    func stopTimer() {
         refreshTxDataTimerPublisher
             .upstream
             .connect()
             .cancel()
     }
-}
 
-// MARK: - ExchangeManager
-
-extension CommonExchangeManager: ExchangeManager {
-    func getExchangeNetworkId() -> String {
-        exchangeItems.to.blockchainNetwork.id
-    }
-    
-    func update(exchangeItems: ExchangeItems) {
-        self.exchangeItems = exchangeItems
-        // [REDACTED_TODO_COMMENT]
-    }
-    
-    /// Change token places
-    func onSwapItems() {
-        Task {
-            items = ExchangeItems(sourceItem: items.destinationItem, destinationItem: items.sourceItem)
-            do {
-                try await exchangeFacade.fetchExchangeAmountLimit(for: items.sourceItem)
-            } catch {
-                print(error.localizedDescription)
-            }
-            
-            resetItemsInput()
-        }
-    }
-    
-    /// Sign and send swap transaction
-    func onSwap() {
-        guard let swapDataModel else { return }
-        
-        Task {
-            do {
-                try await exchangeFacade.sendSwapTransaction(destinationAddress: swapDataModel.destinationAddress,
-                                                             amount: inputAmountText,
-                                                             gas: "\(swapDataModel.gas)",
-                                                             gasPrice: swapDataModel.gasPrice,
-                                                             txData: swapDataModel.txData,
-                                                             sourceItem: items.sourceItem)
-                openSuccessView()
-            } catch {
-                print(error.localizedDescription)
-            }
-        }
-    }
-    
-    func onApprove() {
-        Task {
-            do {
-                let approveData = try await exchangeFacade.approveTxData(for: items.sourceItem)
-                try await exchangeFacade.submitPermissionForToken(destinationAddress: approveData.tokenAddress,
-                                                                  gasPrice: approveData.gasPrice,
-                                                                  txData: approveData.data,
-                                                                  for: items.sourceItem)
-                // [REDACTED_TODO_COMMENT]
-            } catch {
-                print(error.localizedDescription)
-            }
-        }
-    }
-}
-
-extension CommonExchangeManager {
-    struct ExchangeItems {
-        let source: Currency
-        let destination: Currency
-    }
+//    func getExchangeNetworkId() -> String {
+//        exchangeItems.to.blockchainNetwork.id
+//    }
+//
+//    func update(exchangeItems: ExchangeItems) {
+//        self.exchangeItems = exchangeItems
+//        // [REDACTED_TODO_COMMENT]
+//    }
+//
+//    /// Change token places
+//    func onSwapItems() {
+//        Task {
+//            items = ExchangeItems(sourceItem: items.destinationItem, destinationItem: items.sourceItem)
+//            do {
+//                try await exchangeFacade.fetchExchangeAmountLimit(for: items.sourceItem)
+//            } catch {
+//                print(error.localizedDescription)
+//            }
+//
+//            resetItemsInput()
+//        }
+//    }
+//
+//    /// Sign and send swap transaction
+//    func onSwap() {
+//        guard let swapDataModel else { return }
+//
+//        Task {
+//            do {
+//                try await exchangeFacade.sendSwapTransaction(destinationAddress: swapDataModel.destinationAddress,
+//                                                             amount: inputAmountText,
+//                                                             gas: "\(swapDataModel.gas)",
+//                                                             gasPrice: swapDataModel.gasPrice,
+//                                                             txData: swapDataModel.txData,
+//                                                             sourceItem: items.sourceItem)
+//                openSuccessView()
+//            } catch {
+//                print(error.localizedDescription)
+//            }
+//        }
+//    }
+//
+//    func onApprove() {
+//        Task {
+//            do {
+//                let approveData = try await exchangeFacade.approveTxData(for: items.sourceItem)
+//                try await exchangeFacade.submitPermissionForToken(destinationAddress: approveData.tokenAddress,
+//                                                                  gasPrice: approveData.gasPrice,
+//                                                                  txData: approveData.data,
+//                                                                  for: items.sourceItem)
+//                // [REDACTED_TODO_COMMENT]
+//            } catch {
+//                print(error.localizedDescription)
+//            }
+//        }
+//    }
 }
