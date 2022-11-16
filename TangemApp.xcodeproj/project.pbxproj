@@ -512,6 +512,8 @@
 		EF130EBC28E1D34500D37EFC /* MultiWalletContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF130EBB28E1D34500D37EFC /* MultiWalletContentView.swift */; };
 		EF3B581F28F81B0300C93810 /* SaltPayConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCE3379828F2A4580029A6F5 /* SaltPayConfiguration.swift */; };
 		EF3EC523289AB2DE0071BA7F /* TangemProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF3EC522289AB2DE0071BA7F /* TangemProvider.swift */; };
+		EF46623E2924F21600346B6C /* SendCurrencyView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF46623D2924F21600346B6C /* SendCurrencyView.swift */; };
+		EF46624029250F6000346B6C /* ReceiveCurrencyView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF46623F29250F6000346B6C /* ReceiveCurrencyView.swift */; };
 		EF48288F28D1C99D002809C6 /* Localizable.stringsdict in Resources */ = {isa = PBXBuildFile; fileRef = EF48288D28D1C99D002809C6 /* Localizable.stringsdict */; };
 		EF48289528D1CD1F002809C6 /* Collection+.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF48289428D1CD1F002809C6 /* Collection+.swift */; };
 		EF48289828D1FC7A002809C6 /* GroupedScrollView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF48289728D1FC7A002809C6 /* GroupedScrollView.swift */; };
@@ -1168,6 +1170,8 @@
 		EF2EFDE12865C05D00798051 /* Production.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Production.xcconfig; sourceTree = "<group>"; };
 		EF2EFDE22865C07100798051 /* Beta.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Beta.xcconfig; sourceTree = "<group>"; };
 		EF3EC522289AB2DE0071BA7F /* TangemProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TangemProvider.swift; sourceTree = "<group>"; };
+		EF46623D2924F21600346B6C /* SendCurrencyView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendCurrencyView.swift; sourceTree = "<group>"; };
+		EF46623F29250F6000346B6C /* ReceiveCurrencyView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReceiveCurrencyView.swift; sourceTree = "<group>"; };
 		EF48288E28D1C99D002809C6 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.stringsdict; name = en; path = en.lproj/Localizable.stringsdict; sourceTree = "<group>"; };
 		EF48289028D1C9A1002809C6 /* fr */ = {isa = PBXFileReference; lastKnownFileType = text.plist.stringsdict; name = fr; path = fr.lproj/Localizable.stringsdict; sourceTree = "<group>"; };
 		EF48289128D1C9A3002809C6 /* de */ = {isa = PBXFileReference; lastKnownFileType = text.plist.stringsdict; name = de; path = de.lproj/Localizable.stringsdict; sourceTree = "<group>"; };
@@ -1504,6 +1508,7 @@
 		5D958E1224F513C1006BD932 /* UI */ = {
 			isa = PBXGroup;
 			children = (
+				EF46623C2924F1F700346B6C /* ExchangeComponets */,
 				EF48289628D1FC5B002809C6 /* GroupedScrollView */,
 				EF661E3028C0ACD0005769E5 /* ScanCardWarningView */,
 				EFA580642893F89000110DB0 /* AttentionView */,
@@ -2817,6 +2822,15 @@
 			path = Appearance;
 			sourceTree = "<group>";
 		};
+		EF46623C2924F1F700346B6C /* ExchangeComponets */ = {
+			isa = PBXGroup;
+			children = (
+				EF46623D2924F21600346B6C /* SendCurrencyView.swift */,
+				EF46623F29250F6000346B6C /* ReceiveCurrencyView.swift */,
+			);
+			path = ExchangeComponets;
+			sourceTree = "<group>";
+		};
 		EF48289628D1FC5B002809C6 /* GroupedScrollView */ = {
 			isa = PBXGroup;
 			children = (
@@ -3520,6 +3534,7 @@
 				5D69E0E325016A10005CFFF4 /* TapSwitchTogglColoredToggleStyleeStyle.swift in Sources */,
 				DC7127AD2897ECA100F60F71 /* TwinConfig.swift in Sources */,
 				B0FB98A52598D24300B769A3 /* Card+.swift in Sources */,
+				EF46624029250F6000346B6C /* ReceiveCurrencyView.swift in Sources */,
 				DAA153BC2876CBFC002254D1 /* GeoResponse.swift in Sources */,
 				EF9CFC14288FECE100329BE0 /* ScanCardSettingsRoutable.swift in Sources */,
 				B0C807232620549F00F7DADE /* WalletConnectSessionItemView.swift in Sources */,
@@ -3672,6 +3687,7 @@
 				DC5E32CD28EDD94300D6096A /* Responses.swift in Sources */,
 				DA23787F27B24222009795A8 /* CheckoutPayload.swift in Sources */,
 				EF0B01D9290E84C10029CCA6 /* MainButton.swift in Sources */,
+				EF46623E2924F21600346B6C /* SendCurrencyView.swift in Sources */,
 				65C9FCBA2869CC3E00FDE63E /* SupportChatViewModel.swift in Sources */,
 				DC5E32C628EDC7FC00D6096A /* PaymentologyApiTarget.swift in Sources */,
 				DA5FAD8A27B27F7F00EE53AE /* SheetDragHandler.swift in Sources */,
