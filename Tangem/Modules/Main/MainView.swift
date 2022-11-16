@@ -82,14 +82,14 @@ struct MainView: View {
     }
 
     var settingsNavigationButton: some View {
-        Button(action: viewModel.openSettings,
-               label: { Image("verticalDots")
-                   .foregroundColor(Color.tangemGrayDark6)
-                   .frame(width: 44.0, height: 44.0, alignment: .center)
-                   .offset(x: 11, y: 0)
-               })
-               .accessibility(label: Text("voice_over_open_card_details"))
-               .padding(0.0)
+        Button(action: viewModel.openSettings) {
+            Image("verticalDots")
+                .foregroundColor(Color.tangemGrayDark6)
+                .frame(width: 44, height: 44)
+                .offset(x: 11)
+        }
+        .buttonStyle(PlainButtonStyle())
+        .accessibility(label: Text("voice_over_open_card_details"))
     }
 
     var backupWarningView: some View {
