@@ -12,34 +12,32 @@ import BlockchainSdk
 
 // [REDACTED_TODO_COMMENT]
 extension ExchangeBlockchain: CaseIterable {
-    static func exchangeBlockchain(from chainId: Int) -> ExchangeBlockchain {
-        guard let blockchain = ExchangeBlockchain.allCases.first { $0.id == chainId } else {
-            fatalError("OneInch not support this blockchain")
-        }
-        
-        return blockchain
+    public static var allCases: [ExchangeBlockchain] {
+    [
+        .ethereum,
+        .bsc,
+        .polygon,
+        .optimism,
+        .arbitrum,
+        .gnosis,
+        .avalanche,
+        .fantom,
+        .klayth,
+        .aurora
+    ]
     }
-    
-    static func convert(from blockchainNetwork: BlockchainNetwork) -> ExchangeBlockchain {
-        switch blockchainNetwork.blockchain {
-        case .ethereum:
-            return .ethereum
-        case .bsc:
-            return .bsc
-        case .polygon:
-            return .polygon
-        case .avalanche:
-            return .avalanche
-        case .fantom:
-            return .fantom
-        case .arbitrum:
-            return .arbitrum
-        case .optimism:
-            return .optimism
-        case .gnosis:
-            return .gnosis
-        default:
-            fatalError("Unknown blockchain")
-        }
+}
+
+extension ExchangeBlockchain {
+    static func exchangeBlockchain(from chainId: Int?) -> ExchangeBlockchain {
+        return .gnosis
+        // [REDACTED_TODO_COMMENT]
+//        
+//        guard let chainId = chainId,
+//              let blockchain = ExchangeBlockchain.allCases.first(where: { $0.id == String(chainId) }) else {
+//            fatalError("OneInch not support this blockchain")
+//        }
+//        
+//        return blockchain
     }
 }
