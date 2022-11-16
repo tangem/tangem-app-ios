@@ -1,5 +1,5 @@
 //
-//  BlockchainProvider.swift
+//  BlockchainNetworkProvider.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -9,7 +9,7 @@
 import Foundation
 import struct BlockchainSdk.Transaction
 
-public protocol BlockchainProvider {
+public protocol BlockchainNetworkProvider {
     func signAndSend(_ transaction: Transaction) async throws
     func getFee(currency: Currency, amount: Decimal, destination: String) async throws -> [Decimal]
     func createTransaction(for info: TransactionInfo) throws -> Transaction

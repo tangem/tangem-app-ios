@@ -19,11 +19,11 @@ class ExchangeOneInchProvider {
     private let oneInchCoinContractAddress = "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"
 
     private let exchangeService: OneInchApiServiceProtocol
-    private let blockchainProvider: BlockchainProvider
+    private let blockchainProvider: BlockchainNetworkProvider
 
     private var bag = Set<AnyCancellable>()
 
-    init(blockchainProvider: BlockchainProvider, exchangeService: OneInchApiServiceProtocol) {
+    init(blockchainProvider: BlockchainNetworkProvider, exchangeService: OneInchApiServiceProtocol) {
         self.blockchainProvider = blockchainProvider
         self.exchangeService = exchangeService
     }
