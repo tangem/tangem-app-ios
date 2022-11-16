@@ -10,7 +10,7 @@ import SwiftUI
 
 struct ProgressViewCompat: View {
     let color: Color
-    
+
     var body: some View {
         if #available(iOS 14.0, *) {
             ProgressView()
