@@ -30,6 +30,7 @@ class CommonUserWalletRepository: UserWalletRepository {
     @Injected(\.walletConnectServiceProvider) private var walletConnectServiceProvider: WalletConnectServiceProviding
     @Injected(\.saletPayRegistratorProvider) private var saltPayRegistratorProvider: SaltPayRegistratorProviding
     @Injected(\.supportChatService) private var supportChatService: SupportChatServiceProtocol
+    @Injected(\.failedScanTracker) var failedCardScanTracker: FailedScanTrackable
 
     weak var delegate: UserWalletRepositoryDelegate? = nil
 
@@ -83,7 +84,7 @@ class CommonUserWalletRepository: UserWalletRepository {
         print("UserWalletRepository deinit")
     }
 
-    func scanPublisher(with batch: String? = nil, requestBiometrics: Bool = false) -> AnyPublisher<CardViewModel, Error>  {
+    func scanPublisher(with batch: String? = nil, requestBiometrics: Bool = false) -> AnyPublisher<UserWalletRepositoryResult, Never>  {
         Deferred {
             Future { [weak self] promise in
                 self?.scan(with: batch, requestBiometrics: requestBiometrics) { result in
@@ -122,6 +123,48 @@ class CommonUserWalletRepository: UserWalletRepository {
                     return response
                 }
                 .eraseToAnyPublisher()
+        }
+        .flatMap { [weak self] cardModel -> AnyPublisher<UserWalletRepositoryResult, Error> in
+            self?.failedCardScanTracker.resetCounter()
+
+            Analytics.log(.cardWasScanned)
+
+            let onboardingInput = cardModel.onboardingInput
+            if onboardingInput.steps.needOnboarding {
+                cardModel.userWalletModel?.updateAndReloadWalletModels()
+
+                return Just(UserWalletRepositoryResult.onboarding(onboardingInput))
+                    .setFailureType(to: Error.self)
+                    .eraseToAnyPublisher()
+            }
+
+            return Just(.success(cardModel))
+                .setFailureType(to: Error.self)
+                .eraseToAnyPublisher()
+        }
+        .catch { [weak self] (error: Error) -> Just<UserWalletRepositoryResult> in
+            guard let self else {
+                return Just(UserWalletRepositoryResult.none)
+            }
+
+            print("Failed to scan card: \(error)")
+
+            self.failedCardScanTracker.recordFailure()
+
+            if let saltpayError = error as? SaltPayRegistratorError {
+                return Just(UserWalletRepositoryResult.error(saltpayError.alertBinder))
+            }
+
+            if self.failedCardScanTracker.shouldDisplayAlert {
+                return Just(UserWalletRepositoryResult.troubleshooting)
+            }
+
+            switch error.toTangemSdkError() {
+            case .unknownError, .cardVerificationFailed:
+                return Just(UserWalletRepositoryResult.error(error.alertBinder))
+            default:
+                return Just(UserWalletRepositoryResult.none)
+            }
         }
         .eraseToAnyPublisher()
     }
