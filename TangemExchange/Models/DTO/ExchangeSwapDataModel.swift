@@ -7,7 +7,6 @@
 //
 
 import Foundation
-import ExchangeSdk
 
 struct ExchangeSwapDataModel {
     let gas: Int
