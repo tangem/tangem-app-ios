@@ -20,8 +20,8 @@ protocol UserWalletRepository {
     func scan(with batch: String?, requestBiometrics: Bool, _ completion: @escaping (Result<CardViewModel, Error>) -> Void)
     func scanPublisher(with batch: String?, requestBiometrics: Bool) ->  AnyPublisher<CardViewModel, Error>
 
-    func add(_ cardModels: [CardViewModel])
-    func removeModel(with userWalletId: Data)
+    func add(_ completion: @escaping (Result<CardViewModel, Error>) -> Void)
+
     func didSwitch(to cardModel: CardViewModel)
 
     func lock()
@@ -54,10 +54,6 @@ extension UserWalletRepository {
     func scanPublisher(with batch: String? = nil, requestBiometrics: Bool = false) ->  AnyPublisher<CardViewModel, Error> {
         scanPublisher(with: batch, requestBiometrics: requestBiometrics)
     }
-
-    func add(_ cardModel: CardViewModel) {
-        add([cardModel])
-    }
 }
 
 protocol ScanListener {
@@ -70,5 +66,5 @@ enum UserWalletRepositoryError: Error {
 
 enum UserWalletRepositoryUnlockMethod {
     case biometry
-    case card(userWallet: UserWallet)
+    case card(userWallet: UserWallet?)
 }
