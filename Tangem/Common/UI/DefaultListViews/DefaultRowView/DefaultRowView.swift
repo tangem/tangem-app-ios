@@ -73,7 +73,7 @@ struct DefaultRowView_Preview: PreviewProvider {
     static var previews: some View {
         ZStack {
             Colors.Background.secondary
-            
+
             DefaultRowView(viewModel: viewModel)
                 .padding(.horizontal, 16)
         }
