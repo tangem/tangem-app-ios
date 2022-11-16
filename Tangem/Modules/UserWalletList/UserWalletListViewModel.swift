@@ -99,44 +99,16 @@ final class UserWalletListViewModel: ObservableObject, Identifiable {
             self.isScanningCard = false
 
             switch result {
-            case .failure(let error):
-                self.failedCardScanTracker.recordFailure()
-
-                if self.failedCardScanTracker.shouldDisplayAlert {
-                    self.showTroubleshootingView = true
-                } else {
-                    switch error.toTangemSdkError() {
-                    case .unknownError, .cardVerificationFailed:
-                        self.error = error.alertBinder
-                    default:
-                        break
-                    }
-                }
+            case .troubleshooting:
+                self.showTroubleshootingView = true
+            case .onboarding(let input):
+                self.openOnboarding(with: input)
+            case .error(let alertBinder):
+                self.error = alertBinder
             case .success(let cardModel):
-                self.failedCardScanTracker.resetCounter()
-                Analytics.log(.myWalletsCardWasScanned)
-
-                let onboardingInput = cardModel.onboardingInput
-                if onboardingInput.steps.needOnboarding {
-                    cardModel.userWalletModel?.updateAndReloadWalletModels()
-                    self.openOnboarding(with: onboardingInput)
-                    return
-                }
-
-                guard
-                    let cellModel = cardModel.userWalletModel.map({ self.mapToUserWalletListCellViewModel(userWalletModel: $0) }),
-                    let userWallet = cardModel.userWallet
-                else {
-                    return
-                }
-
-                if cardModel.isMultiWallet {
-                    self.multiCurrencyModels.append(cellModel)
-                } else {
-                    self.singleCurrencyModels.append(cellModel)
-                }
-
-                self.setSelectedWallet(userWallet)
+                self.add(cardModel: cardModel)
+            case .none:
+                break
             }
         }
     }
@@ -287,6 +259,23 @@ final class UserWalletListViewModel: ObservableObject, Identifiable {
         DispatchQueue.main.async {
             self.coordinator.openOnboarding(with: input)
         }
+    }
+
+    func add(cardModel: CardViewModel) {
+        guard
+            let cellModel = cardModel.userWalletModel.map({ mapToUserWalletListCellViewModel(userWalletModel: $0) }),
+            let userWallet = cardModel.userWallet
+        else {
+            return
+        }
+
+        if cardModel.isMultiWallet {
+            multiCurrencyModels.append(cellModel)
+        } else {
+            singleCurrencyModels.append(cellModel)
+        }
+
+        setSelectedWallet(userWallet)
     }
 
     private func mapToUserWalletListCellViewModel(userWalletModel: UserWalletModel, totalBalanceProvider: TotalBalanceProviding? = nil) -> UserWalletListCellViewModel {
