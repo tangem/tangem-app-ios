@@ -131,14 +131,19 @@ extension SaltPayConfig: UserWalletConfig {
         }
 
         if card.wallets.isEmpty {
-            return .wallet([.createWallet] + _backupSteps + registrationSteps)
+            return .wallet([.createWallet] + _backupSteps + userWalletSavingSteps + registrationSteps)
         } else {
-            return .wallet(_backupSteps + registrationSteps)
+            return .wallet(_backupSteps + userWalletSavingSteps + registrationSteps)
         }
     }
 
     var backupSteps: OnboardingSteps? {
         return .wallet(_backupSteps)
+    }
+
+    var userWalletSavingSteps: [WalletOnboardingStep] {
+        guard needUserWalletSavingSteps else { return [] }
+        return [.saveUserWallet]
     }
 
     var supportedBlockchains: Set<Blockchain> {
