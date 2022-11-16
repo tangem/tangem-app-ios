@@ -59,7 +59,7 @@ extension LegacyConfig: UserWalletConfig {
 
     var onboardingSteps: OnboardingSteps {
         if card.wallets.isEmpty {
-            return .singleWallet([.createWallet, .success])
+            return .singleWallet([.createWallet] + userWalletSavingSteps + [.success])
         }
 
         return .singleWallet([])
@@ -67,6 +67,11 @@ extension LegacyConfig: UserWalletConfig {
 
     var backupSteps: OnboardingSteps? {
         nil
+    }
+
+    var userWalletSavingSteps: [SingleCardOnboardingStep] {
+        guard needUserWalletSavingSteps else { return [] }
+        return [.saveUserWallet]
     }
 
     var supportedBlockchains: Set<Blockchain> {
