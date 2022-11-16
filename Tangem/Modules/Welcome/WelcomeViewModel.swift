@@ -79,34 +79,23 @@ class WelcomeViewModel: ObservableObject {
 
         subscription = userWalletRepository.scanPublisher()
             .receive(on: DispatchQueue.main)
-            .sink { [weak self] completion in
-                if case let .failure(error) = completion {
-                    print("Failed to scan card: \(error)")
-                    self?.isScanningCard = false
-                    self?.failedCardScanTracker.recordFailure()
+            .sink { [weak self] result in
+                guard let self else { return }
 
-                    if let salpayError = error as? SaltPayRegistratorError {
-                        self?.error = salpayError.alertBinder
-                        return
-                    }
+                subscription.map { _ = self.bag.remove($0) }
+                self.isScanningCard = false
 
-                    if self?.failedCardScanTracker.shouldDisplayAlert ?? false {
-                        self?.showTroubleshootingView = true
-                    } else {
-                        switch error.toTangemSdkError() {
-                        case .unknownError, .cardVerificationFailed:
-                            self?.error = error.alertBinder
-                        default:
-                            break
-                        }
-                    }
-                }
-                subscription.map { _ = self?.bag.remove($0) }
-            } receiveValue: { [weak self] cardModel in
-                self?.failedCardScanTracker.resetCounter()
-                Analytics.log(.cardWasScanned)
-                DispatchQueue.main.async {
-                    self?.processScannedCard(cardModel, isWithAnimation: true)
+                switch result {
+                case .troubleshooting:
+                    self.showTroubleshootingView = true
+                case .onboarding(let input):
+                    self.openOnboarding(with: input)
+                case .error(let alertBinder):
+                    self.error = alertBinder
+                case .success(let cardModel):
+                    self.openMain(with: cardModel)
+                case .none:
+                    break
                 }
             }
 
@@ -149,54 +138,6 @@ class WelcomeViewModel: ObservableObject {
 
     func onDissappear() {
         navigationBarHidden = false
-    }
-
-    private func scanCardInternal(_ completion: @escaping (CardViewModel) -> Void) {
-        isScanningCard = true
-        var subscription: AnyCancellable? = nil
-
-        subscription = userWalletRepository.scanPublisher()
-            .receive(on: DispatchQueue.main)
-            .sink { [weak self] completion in
-                if case let .failure(error) = completion {
-                    print("Failed to scan card: \(error)")
-                    self?.isScanningCard = false
-                    self?.failedCardScanTracker.recordFailure()
-
-                    if self?.failedCardScanTracker.shouldDisplayAlert ?? false {
-                        self?.showTroubleshootingView = true
-                    } else {
-                        switch error.toTangemSdkError() {
-                        case .unknownError, .cardVerificationFailed:
-                            self?.error = error.alertBinder
-                        default:
-                            break
-                        }
-                    }
-                }
-                subscription.map { _ = self?.bag.remove($0) }
-            } receiveValue: { [weak self] cardModel in
-                guard let self = self else { return }
-
-                self.failedCardScanTracker.resetCounter()
-                Analytics.log(.cardWasScanned)
-
-                completion(cardModel)
-            }
-
-        subscription?.store(in: &bag)
-    }
-
-    private func processScannedCard(_ cardModel: CardViewModel, isWithAnimation: Bool) {
-        let input = cardModel.onboardingInput
-        self.isScanningCard = false
-
-        if input.steps.needOnboarding {
-            cardModel.userWalletModel?.updateAndReloadWalletModels()
-            openOnboarding(with: input)
-        } else {
-            openMain(with: input)
-        }
     }
 
     private func didFinishUnlocking(_ result: Result<Void, Error>) {
@@ -244,10 +185,8 @@ extension WelcomeViewModel {
         coordinator.openOnboarding(with: input)
     }
 
-    func openMain(with input: OnboardingInput) {
-        if let card = input.cardInput.cardModel {
-            coordinator.openMain(with: card)
-        }
+    func openMain(with cardModel: CardViewModel) {
+        coordinator.openMain(with: cardModel)
     }
 }
 
