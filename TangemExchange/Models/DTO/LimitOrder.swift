@@ -17,11 +17,11 @@ public struct LimitOrder: Codable {
     public let remainingMakerAmount: String
     public let makerAllowance: String
     public let takerRate: String
-    public let makerBalance : String
+    public let makerBalance: String
     public let data: MetaData
     public let makerRate: String
     public let isMakerContract: Bool
-    
+
     public struct MetaData: Codable {
         /// maker asset -> "you sell"
         /// taker asset -> "you buy"
