@@ -10,9 +10,9 @@ import Foundation
 import Combine
 
 public protocol ExchangeManager {
-//    func getExchangeNetworkId() -> String
+    func getExchangeItems() -> ExchangeItems
 //    func update(exchangeItems: ExchangeItems)
-    
+
     func stopTimer()
     func refreshTimer()
 }
@@ -20,13 +20,13 @@ public protocol ExchangeManager {
 class CommonExchangeManager {
     // MARK: - Dependencies
     private let provider: ExchangeProvider
-    
+
     // MARK: - Internal
     private lazy var refreshTxDataTimerPublisher = Timer.publish(every: 10, on: .main, in: .common).autoconnect()
     private var exchangeItems: ExchangeItems
-    
+
     private var bag: Set<AnyCancellable> = []
-    
+
     init(provider: ExchangeProvider, exchangeItems: ExchangeItems) {
         self.provider = provider
         self.exchangeItems = exchangeItems
@@ -42,6 +42,10 @@ private extension CommonExchangeManager {
 // MARK: - ExchangeManager
 
 extension CommonExchangeManager: ExchangeManager {
+    func getExchangeItems() -> ExchangeItems {
+        return exchangeItems
+    }
+
     func refreshTimer() {
         refreshTxDataTimerPublisher
             .sink { [weak self] _ in

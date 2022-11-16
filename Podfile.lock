@@ -48,8 +48,6 @@ PODS:
   - DeviceGuru/DeviceGuru (8.0.0):
     - DeviceGuru/Resources
   - DeviceGuru/Resources (8.0.0)
-  - ExchangeSdk (1.0.2):
-    - Moya (~> 15.0.0)
   - Firebase/Analytics (10.0.0):
     - Firebase/Core
   - Firebase/Core (10.0.0):
@@ -227,7 +225,6 @@ DEPENDENCIES:
   - BitcoinCore.swift (from `https://github.com/tangem/bitcoincore.git`, tag `0.0.16`)
   - BlockchainSdk (from `https://github.com/tangem/blockchain-sdk-swift.git`, tag `develop-177`)
   - DeviceGuru (= 8.0.0)
-  - ExchangeSdk (from `https://github.com/tangem/exchange-sdk-swift`, tag `1.0.2`)
   - Firebase/Analytics
   - Firebase/Crashlytics
   - HDWalletKit (from `https://github.com/tangem/hdwallet.git`, tag `0.3.12`)
@@ -307,9 +304,6 @@ EXTERNAL SOURCES:
   BlockchainSdk:
     :git: https://github.com/tangem/blockchain-sdk-swift.git
     :tag: develop-177
-  ExchangeSdk:
-    :git: https://github.com/tangem/exchange-sdk-swift
-    :tag: 1.0.2
   HDWalletKit:
     :git: https://github.com/tangem/hdwallet.git
     :tag: 0.3.12
@@ -342,9 +336,6 @@ CHECKOUT OPTIONS:
   BlockchainSdk:
     :git: https://github.com/tangem/blockchain-sdk-swift.git
     :tag: develop-177
-  ExchangeSdk:
-    :git: https://github.com/tangem/exchange-sdk-swift
-    :tag: 1.0.2
   HDWalletKit:
     :git: https://github.com/tangem/hdwallet.git
     :tag: 0.3.12
@@ -377,7 +368,6 @@ SPEC CHECKSUMS:
   BlockchainSdk: dc61afa84bef366f16c0649baf9db50934e25bca
   CryptoSwift: c4f2debceb38bf44c80659afe009f71e23e4a082
   DeviceGuru: 0362f13097207ca1fe246e92df2ba1d3978b2293
-  ExchangeSdk: ba97603abad86dc0bc2136e2272187aab6d91bf3
   Firebase: 1b810f3d0c0532e27a48f1961f8c0400a668a2cf
   FirebaseAnalytics: 9921a52739f4ab66099da31b6e0243db78a3ac0a
   FirebaseCore: 97f48a3a567a72b8d4daa0f03c3aadb78df4e995
@@ -423,6 +413,6 @@ SPEC CHECKSUMS:
   ZendeskSupportProvidersSDK: 77a62fe6bacc05bb10ff20edce75612fa109fd61
   ZendeskSupportSDK: ba72e90e327635b5fde3d023a3de33242a6ee8ab
 
-PODFILE CHECKSUM: 4e12043634861483b3dfd9064acf453aef68bca1
+PODFILE CHECKSUM: 370e35ee183fd1013b15faef61cffebc0e5a71c9
 
 COCOAPODS: 1.11.3
