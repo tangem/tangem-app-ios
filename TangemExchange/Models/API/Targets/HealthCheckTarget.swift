@@ -18,23 +18,23 @@ extension HealthCheckTarget: TargetType {
     var baseURL: URL {
         Constants.exchangeAPIBaseURL
     }
-    
+
     var path: String {
         switch self {
         case .healthCheck(let exchangeBlockchain):
             return "/\(exchangeBlockchain.id)/healthcheck"
         }
     }
-    
+
     var method: Moya.Method {
         return .get
     }
-    
+
     var task: Task {
         return .requestPlain
     }
-    
-    var headers: [String : String]? {
+
+    var headers: [String: String]? {
         return nil
     }
 }
