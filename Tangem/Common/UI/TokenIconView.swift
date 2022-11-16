@@ -75,3 +75,12 @@ extension TokenItem {
         return nil
     }
 }
+
+struct TokenIconView_Preview: PreviewProvider {
+    static var previews: some View {
+        TokenIconView(
+            tokenItem: .blockchain(.polygon(testnet: false)),
+            size: CGSize(width: 40, height: 40)
+        )
+    }
+}
