@@ -83,7 +83,7 @@ private extension AppSettingsViewModel {
                 let _ = self.userWalletListService.save(self.userWallet)
                 completion(true)
             } else {
-                completion(true)
+                completion(false)
             }
         }
     }
