@@ -46,13 +46,13 @@ class WelcomeViewModel: ObservableObject {
     private var storiesModelSubscription: AnyCancellable? = nil
     private var bag: Set<AnyCancellable> = []
     private var backupService: BackupService { backupServiceProvider.backupService }
-    private let minimizedAppTimer = MinimizedAppTimer(interval: 60)
 
     private unowned let coordinator: WelcomeRoutable
 
     init(coordinator: WelcomeRoutable) {
         self.coordinator = coordinator
         userWalletRepository.delegate = self
+        showingAuthentication = shouldShowAuthenticationView
         self.storiesModelSubscription = storiesModel.objectWillChange
             .receive(on: DispatchQueue.main)
             .sink(receiveValue: { [weak self] in
@@ -63,11 +63,13 @@ class WelcomeViewModel: ObservableObject {
     }
 
     func bind() {
-        minimizedAppTimer
-            .timer
-            .receive(on: RunLoop.main)
-            .sink { [weak self] in
-                self?.lock()
+        userWalletRepository
+            .eventProvider
+            .sink { [weak self] event in
+                switch event {
+                case .locked:
+                    self?.lock()
+                }
             }
             .store(in: &bag)
     }
@@ -107,8 +109,6 @@ class WelcomeViewModel: ObservableObject {
 
     func unlockWithBiometry() {
         Analytics.log(.buttonBiometricSignIn)
-
-        showingAuthentication = true
         userWalletRepository.unlock(with: .biometry, completion: self.didFinishUnlocking)
     }
 
@@ -158,8 +158,7 @@ class WelcomeViewModel: ObservableObject {
     }
 
     private func lock() {
-        userWalletRepository.lock()
-        showingAuthentication = true
+        showingAuthentication = shouldShowAuthenticationView
         coordinator.openUnlockScreen()
     }
 }
