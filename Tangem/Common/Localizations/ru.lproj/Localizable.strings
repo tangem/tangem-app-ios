@@ -504,5 +504,6 @@ URL: %@";
 "onboarding_exit_alert_title" = "Вы хотите выйти из процесса активации?";
 "onboarding_exit_alert_message" = "В этом случае вам будет необходимо начать процесс заново.";
 "wallet_connect_need_to_scan_card" = "Пожалуйста, отсканируйте карту и повторите ваш запрос";
+"exchange_send_view_balance" = "Баланс: %@";
 "exchange_send_view_header" = "Вы отправляете";
 "exchange_receive_view_header" = "Вы получаете";
