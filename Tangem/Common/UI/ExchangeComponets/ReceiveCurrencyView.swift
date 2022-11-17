@@ -10,10 +10,22 @@ import SwiftUI
 
 struct ReceiveCurrencyViewModel: Identifiable {
     var id: Int { hashValue }
-
+    
     private(set) var state: State
     let tokenIcon: TokenIconViewModel
     let didTapTokenView: () -> Void
+
+    var value: String {
+        guard let value = state.value as? NSDecimalNumber else {
+            return "0"
+        }
+
+        return NumberFormatter.grouped.string(from: value) ?? "0"
+    }
+
+    var fiatValue: String {
+        state.fiatValue?.currencyFormatted(code: AppSettings.shared.selectedCurrencyCode) ?? "0"
+    }
 
     init(
         state: State,
@@ -33,9 +45,9 @@ struct ReceiveCurrencyViewModel: Identifiable {
 extension ReceiveCurrencyViewModel {
     enum State: Hashable {
         case loading
-        case loaded(_ value: String, fiatValue: String)
+        case loaded(_ value: Decimal, fiatValue: Decimal)
 
-        var value: String? {
+        var value: Decimal? {
             switch self {
             case .loaded(let value, _):
                 return value
@@ -44,7 +56,7 @@ extension ReceiveCurrencyViewModel {
             }
         }
 
-        var fiatValue: String? {
+        var fiatValue: Decimal? {
             switch self {
             case .loaded(_, let fiatValue):
                 return fiatValue
@@ -63,7 +75,7 @@ extension ReceiveCurrencyViewModel: Hashable {
 
     func hash(into hasher: inout Hasher) {
         hasher.combine(state)
-        hasher.combine(tokenItem)
+        hasher.combine(tokenIcon)
     }
 }
 
@@ -97,8 +109,8 @@ struct ReceiveCurrencyView: View {
             switch viewModel.state {
             case .loading:
                 loadingContent
-            case let .loaded(value, fiatValue):
-                currencyContent(value: value, fiatValue: fiatValue)
+            case .loaded:
+                currencyContent
             }
 
             Spacer()
@@ -120,13 +132,17 @@ struct ReceiveCurrencyView: View {
         .padding(.vertical, 4)
     }
 
-    private func currencyContent(value: String, fiatValue: String) -> some View {
+    private var currencyContent: some View {
         VStack(alignment: .leading, spacing: 8) {
-            Text(value)
+            Text(viewModel.value)
                 .style(Fonts.Regular.title1, color: Colors.Text.primary1)
+                .minimumScaleFactor(0.5)
+                .lineLimit(1)
 
-            Text(fiatValue)
+            Text(viewModel.fiatValue)
                 .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
+                .minimumScaleFactor(0.5)
+                .lineLimit(1)
         }
     }
 
@@ -145,7 +161,7 @@ struct ReceiveCurrencyView: View {
 
 struct ReceiveCurrencyView_Preview: PreviewProvider {
     static let viewModel = ReceiveCurrencyViewModel(
-        state: .loaded("1 131,46", fiatValue: "1 000,71 $"),
+        state: .loaded(1141241312122431.46, fiatValue: 1000.71),
         tokenIcon: .init(tokenItem: .blockchain(.bitcoin(testnet: false)))
     ) {}
 
