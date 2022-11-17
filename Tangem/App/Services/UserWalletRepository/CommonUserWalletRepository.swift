@@ -40,16 +40,7 @@ class CommonUserWalletRepository: UserWalletRepository {
         }
     }
 
-    var selectedUserWalletId: Data? {
-        get {
-            let id = AppSettings.shared.selectedUserWalletId
-            return id.isEmpty ? nil : id
-        }
-        set {
-            AppSettings.shared.selectedUserWalletId = newValue ?? Data()
-            initializeServicesForSelectedModel()
-        }
-    }
+    var selectedUserWalletId: Data?
 
     var isEmpty: Bool {
         userWallets.isEmpty
@@ -86,6 +77,9 @@ class CommonUserWalletRepository: UserWalletRepository {
     private var bag: Set<AnyCancellable> = .init()
 
     init() {
+        let savedSelectedUserWalletId = AppSettings.shared.selectedUserWalletId
+        self.selectedUserWalletId = savedSelectedUserWalletId.isEmpty ? nil : savedSelectedUserWalletId
+
         userWallets = savedUserWallets(withSensitiveData: false)
         bind()
     }
@@ -253,7 +247,7 @@ class CommonUserWalletRepository: UserWalletRepository {
                         self.save(userWallet)
                     }
 
-                    self.selectedUserWalletId = userWallet.userWalletId
+                    self.setSelectedUserWalletId(userWallet.userWalletId)
                 }
 
                 completion(result)
@@ -262,10 +256,6 @@ class CommonUserWalletRepository: UserWalletRepository {
     }
 
     func save(_ userWallet: UserWallet) {
-        if userWallets.isEmpty {
-            selectedUserWalletId = userWallet.userWalletId
-        }
-
         if let index = userWallets.firstIndex(where: { $0.userWalletId == userWallet.userWalletId }) {
             userWallets[index] = userWallet
         } else {
@@ -282,6 +272,52 @@ class CommonUserWalletRepository: UserWalletRepository {
             let newModel = CardViewModel(userWallet: userWallet)
             models.append(newModel)
         }
+
+        if userWallets.isEmpty || selectedUserWalletId == nil {
+            setSelectedUserWalletId(userWallet.userWalletId)
+        }
+    }
+
+    func setSelectedUserWalletId(_ userWalletId: Data?) {
+        guard selectedUserWalletId != userWalletId else { return }
+
+        if userWalletId == nil {
+            selectedUserWalletId = nil
+            AppSettings.shared.selectedUserWalletId = Data()
+            return
+        }
+
+        guard let userWallet = userWallets.first(where: {
+            $0.userWalletId == userWalletId
+        }) else {
+            return
+        }
+
+        let updateSelection: (UserWallet) -> Void = { [weak self] userWallet in
+            self?.selectedUserWalletId = userWallet.userWalletId
+            AppSettings.shared.selectedUserWalletId = userWallet.userWalletId
+            self?.initializeServicesForSelectedModel()
+
+            self?.eventSubject.send(.selected(userWallet: userWallet))
+        }
+
+        if !userWallet.isLocked {
+            updateSelection(userWallet)
+            return
+        }
+
+        unlock(with: .card(userWallet: userWallet)) { [weak self] result in
+            guard
+                let self,
+                case .success = result,
+                let selectedModel = self.models.first(where: { $0.userWallet?.userWalletId == userWallet.userWalletId }),
+                let userWallet = selectedModel.userWallet
+            else {
+                return
+            }
+
+            updateSelection(userWallet)
+        }
     }
 
     func delete(_ userWallet: UserWallet) {
@@ -292,6 +328,12 @@ class CommonUserWalletRepository: UserWalletRepository {
 
         encryptionKeyStorage.delete(userWallet)
         saveUserWallets(userWallets)
+
+        if selectedUserWalletId == userWalletId {
+            setSelectedUserWalletId(userWallets.first?.userWalletId)
+        }
+
+        eventSubject.send(.deleted(userWalletId: userWalletId))
     }
 
     func lock() {
@@ -307,7 +349,7 @@ class CommonUserWalletRepository: UserWalletRepository {
         lock()
 
         saveUserWallets([])
-        selectedUserWalletId = nil
+        setSelectedUserWalletId(nil)
         encryptionKeyStorage.clear()
     }
 
@@ -408,8 +450,8 @@ class CommonUserWalletRepository: UserWalletRepository {
                 }
 
                 self.encryptionKeyByUserWalletId[scannedUserWallet.userWalletId] = encryptionKey
-                self.selectedUserWalletId = scannedUserWallet.userWalletId
                 self.loadModel(for: scannedUserWallet)
+                self.setSelectedUserWalletId(scannedUserWallet.userWalletId)
                 self.initializeServicesForSelectedModel()
 
                 self.isUnlocked = self.userWallets.allSatisfy { !$0.isLocked }
