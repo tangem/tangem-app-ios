@@ -84,7 +84,7 @@ extension GenericDemoConfig: UserWalletConfig {
         let allBlockchains = AppEnvironment.current.isTestnet ? Blockchain.supportedTestnetBlockchains
             : Blockchain.supportedBlockchains
 
-        return allBlockchains.filter { card.supportedCurves.contains($0.curve) }
+        return allBlockchains.filter { card.walletCurves.contains($0.curve) }
     }
 
     var defaultBlockchains: [StorageEntry] {
