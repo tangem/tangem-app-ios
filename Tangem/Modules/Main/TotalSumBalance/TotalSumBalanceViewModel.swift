@@ -81,7 +81,6 @@ class TotalSumBalanceViewModel: ObservableObject {
 
         // Skeleton subscription
         totalBalanceManager.totalBalancePublisher()
-            .print()
             .map { $0.isLoading }
             .weakAssignAnimated(to: \.isLoading, on: self)
             .store(in: &bag)
