@@ -85,10 +85,10 @@ class CommonUserWalletRepository: UserWalletRepository {
         print("UserWalletRepository deinit")
     }
 
-    func scanPublisher(with batch: String? = nil, requestBiometrics: Bool = false) -> AnyPublisher<UserWalletRepositoryResult?, Never>  {
+    func scanPublisher(with batch: String? = nil) -> AnyPublisher<UserWalletRepositoryResult?, Never>  {
         Deferred {
             Future { [weak self] promise in
-                self?.scanInternal(with: batch, requestBiometrics: requestBiometrics) { result in
+                self?.scanInternal(with: batch) { result in
                     switch result {
                     case .success(let scanResult):
                         promise(.success(scanResult))
@@ -170,13 +170,13 @@ class CommonUserWalletRepository: UserWalletRepository {
         .eraseToAnyPublisher()
     }
 
-    private func scanInternal(with batch: String? = nil, requestBiometrics: Bool, _ completion: @escaping (Result<CardViewModel, Error>) -> Void) {
+    private func scanInternal(with batch: String? = nil, _ completion: @escaping (Result<CardViewModel, Error>) -> Void) {
         Analytics.reset()
         Analytics.log(.readyToScan)
         walletConnectServiceProvider.reset()
 
         var config = TangemSdkConfigFactory().makeDefaultConfig()
-        if requestBiometrics {
+        if AppSettings.shared.saveUserWallets {
             config.accessCodeRequestPolicy = .alwaysWithBiometrics
         }
         sdkProvider.setup(with: config)
@@ -194,7 +194,7 @@ class CommonUserWalletRepository: UserWalletRepository {
     }
 
     func add(_ completion: @escaping (UserWalletRepositoryResult?) -> Void) {
-        scanPublisher(requestBiometrics: true)
+        scanPublisher()
             .receive(on: DispatchQueue.main)
             .sink { [weak self] result in
                 guard let self else { return }
@@ -367,7 +367,7 @@ class CommonUserWalletRepository: UserWalletRepository {
     }
 
     private func unlockWithCard(_ requiredUserWallet: UserWallet?, completion: @escaping (Result<Void, Error>) -> Void) {
-        scanPublisher(requestBiometrics: true)
+        scanPublisher()
             .receive(on: DispatchQueue.main)
             .sink { [weak self] result in
                 guard
