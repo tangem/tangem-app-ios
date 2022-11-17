@@ -29,17 +29,21 @@ class AppSettingsViewModel: ObservableObject {
     // MARK: Properties
 
     private var bag: Set<AnyCancellable> = []
-    private var ignoreSaveWalletChanges = false
-    private var ignoreSaveAccessCodeChanges: Bool = false
     private let userWallet: UserWallet
     private var isBiometryAvailable: Bool = true
 
-    private var isSavingWallet: Bool = true {
-        didSet { savingWalletViewModel?.update(isOn: isSavingWalletBinding()) }
+    private var isSavingWallet: Bool {
+        didSet {
+            savingWalletViewModel?.update(isOn: isSavingWalletBinding())
+            AppSettings.shared.saveUserWallets = isSavingWallet
+        }
     }
 
-    private var isSavingAccessCodes: Bool = true {
-        didSet { savingAccessCodesViewModel?.update(isOn: isSavingAccessCodesBinding()) }
+    private var isSavingAccessCodes: Bool {
+        didSet {
+            savingAccessCodesViewModel?.update(isOn: isSavingAccessCodesBinding())
+            AppSettings.shared.saveAccessCodes = isSavingAccessCodes
+        }
     }
 
     init(coordinator: AppSettingsRoutable, userWallet: UserWallet) {
@@ -59,34 +63,32 @@ class AppSettingsViewModel: ObservableObject {
 
 private extension AppSettingsViewModel {
     func isSavingWalletRequestChange(saveWallet: Bool) {
-        if self.ignoreSaveWalletChanges {
-            return
-        }
-
         Analytics.log(.saveUserWalletSwitcherChanged,
                       params: [.state: Analytics.ParameterValue.state(for: saveWallet).rawValue])
 
         if saveWallet {
-            self.userWalletListService.unlockWithBiometry { [weak self] result in
-                guard let self else { return }
-
-                if case .success = result {
-                    let _ = self.userWalletListService.save(self.userWallet)
-                    self.setSaveWallets(true)
-                } else {
-                    self.setSaveWallets(false)
-                }
+            unlockWithBiometry { [weak self] in
+                self?.setSaveWallets($0)
             }
         } else {
-            self.presentSavingWalletDeleteAlert()
+            presentSavingWalletDeleteAlert()
+        }
+    }
+
+    func unlockWithBiometry(completion: @escaping (_ success: Bool) -> Void) {
+        userWalletListService.unlockWithBiometry { [weak self] result in
+            guard let self else { return }
+
+            if case .success = result {
+                let _ = self.userWalletListService.save(self.userWallet)
+                completion(true)
+            } else {
+                completion(true)
+            }
         }
     }
 
     func isSavingAccessCodesRequestChange(saveAccessCodes: Bool) {
-        if self.ignoreSaveAccessCodeChanges {
-            return
-        }
-
         Analytics.log(.saveAccessCodeSwitcherChanged,
                       params: [.state: Analytics.ParameterValue.state(for: saveAccessCodes).rawValue])
 
@@ -146,18 +148,10 @@ private extension AppSettingsViewModel {
 
     func presentSavingWalletDeleteAlert() {
         let okButton = Alert.Button.destructive(Text("common_delete")) { [weak self] in
-            withAnimation {
-                self?.setSaveWallets(false)
-            }
+            self?.setSaveWallets(false)
         }
         let cancelButton = Alert.Button.cancel(Text("common_cancel")) { [weak self] in
-            withAnimation {
-                self?.setSaveWallets(true)
-
-                self?.ignoreSaveWalletChanges = true
-                self?.isSavingWallet = true
-                self?.ignoreSaveWalletChanges = false
-            }
+            self?.setSaveWallets(true)
         }
 
         let alert = Alert(
@@ -172,15 +166,11 @@ private extension AppSettingsViewModel {
 
     func presentSavingAccessCodesDeleteAlert() {
         let okButton = Alert.Button.destructive(Text("common_delete")) { [weak self] in
-            withAnimation {
-                self?.setSaveAccessCodes(false)
-            }
+            self?.setSaveAccessCodes(false)
         }
+
         let cancelButton = Alert.Button.cancel(Text("common_cancel")) { [weak self] in
-            withAnimation {
-                self?.setSaveAccessCodes(true)
-                self?.isSavingAccessCodes = true
-            }
+            self?.setSaveAccessCodes(true)
         }
 
         let alert = Alert(
@@ -194,36 +184,32 @@ private extension AppSettingsViewModel {
     }
 
     func setSaveWallets(_ saveWallets: Bool) {
-        AppSettings.shared.saveUserWallets = saveWallets
+        isSavingWallet = saveWallets
 
+        // If saved wallets is turn off we should delete access codes too
         if !saveWallets {
-            withAnimation {
-                ignoreSaveWalletChanges = true
-                isSavingWallet = false
-                ignoreSaveWalletChanges = false
-            }
-
             setSaveAccessCodes(false)
             userWalletListService.clear()
         }
     }
 
     func setSaveAccessCodes(_ saveAccessCodes: Bool) {
-        AppSettings.shared.saveAccessCodes = saveAccessCodes
-
-        withAnimation {
-            if saveAccessCodes {
-                if !isSavingWallet {
-                    isSavingWallet = true
-                }
+        if saveAccessCodes {
+            // If savingWallets already on, just update settings
+            if isSavingWallet {
+                isSavingAccessCodes = true
             } else {
-                ignoreSaveAccessCodeChanges = true
-                isSavingAccessCodes = false
-                ignoreSaveAccessCodeChanges = false
-
-                let accessCodeRepository = AccessCodeRepository()
-                accessCodeRepository.clear()
+                // Otherwise saving access codes should be on after biometry authorization
+                unlockWithBiometry { [weak self] success in
+                    self?.setSaveWallets(success)
+                    self?.isSavingAccessCodes = success
+                }
             }
+        } else {
+            let accessCodeRepository = AccessCodeRepository()
+            accessCodeRepository.clear()
+
+            isSavingAccessCodes = false
         }
     }
 
