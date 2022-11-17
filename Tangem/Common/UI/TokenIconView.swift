@@ -11,15 +11,70 @@ import Kingfisher
 import BlockchainSdk
 import SwiftUI
 
+struct TokenIconViewModel: Hashable, Identifiable {
+    let id: String?
+
+    fileprivate let name: String
+    fileprivate let style: Style
+
+    fileprivate var imageURL: URL? {
+        guard let id else { return nil }
+
+        return CoinsResponse.baseURL
+            .appendingPathComponent("coins")
+            .appendingPathComponent("large")
+            .appendingPathComponent("\(id).png")
+    }
+
+    init(
+        id: String?,
+        name: String,
+        style: TokenIconViewModel.Style
+    ) {
+        self.id = id
+        self.name = name
+        self.style = style
+    }
+
+    init(tokenItem: TokenItem) {
+        switch tokenItem {
+        case let .blockchain(blockchain):
+            self.init(id: blockchain.id, name: blockchain.displayName, style: .blockchain)
+        case let .token(token, blockchain):
+            self.init(id: token.id, name: token.name, style: .token(blockchainIconNameFilled: blockchain.iconNameFilled))
+        }
+    }
+
+    init(with type: Amount.AmountType, blockchain: Blockchain) {
+        switch type {
+        case .coin, .reserve:
+            self.init(id: blockchain.id, name: blockchain.displayName, style: .blockchain)
+        case .token(let token):
+            self.init(id: token.id, name: token.name, style: .token(blockchainIconNameFilled: blockchain.iconNameFilled))
+        }
+    }
+}
+
+extension TokenIconViewModel {
+    enum Style: Hashable {
+        case token(blockchainIconNameFilled: String)
+        case blockchain
+    }
+}
+
 struct TokenIconView: View {
-    let tokenItem: TokenItem
-    var size: CGSize = .init(width: 40, height: 40)
+    private let viewModel: TokenIconViewModel
+    private let size = CGSize(width: 40, height: 40)
 
     private let networkIconSize = CGSize(width: 16, height: 16)
     private let networkIconBorderWidth: Double = 2
 
+    init(viewModel: TokenIconViewModel) {
+        self.viewModel = viewModel
+    }
+
     var body: some View {
-        KFImage(tokenItem.imageURL)
+        KFImage(viewModel.imageURL)
             .setProcessor(DownsamplingImageProcessor(size: size))
             .placeholder { placeholder }
             .fade(duration: 0.3)
@@ -34,8 +89,8 @@ struct TokenIconView: View {
 
     @ViewBuilder
     private var networkIcon: some View {
-        if case let .token(_, blockchain) = tokenItem {
-            NetworkIcon(imageName: blockchain.iconNameFilled,
+        if case let .token(blockchainIconNameFilled) = viewModel.style {
+            NetworkIcon(imageName: blockchainIconNameFilled,
                         isMainIndicatorVisible: false,
                         size: networkIconSize)
                 .background(
@@ -48,30 +103,13 @@ struct TokenIconView: View {
 
     @ViewBuilder
     private var placeholder: some View {
-        CircleImageTextView(name: tokenItem.name, color: .tangemGrayLight4)
+        CircleImageTextView(name: viewModel.name, color: .tangemGrayLight4)
     }
 }
 
-extension TokenIconView {
-    init(with type: Amount.AmountType, blockchain: Blockchain) {
-        if case let .token(token) = type {
-            self.tokenItem = .token(token, blockchain)
-            return
-        }
-
-        self.tokenItem = .blockchain(blockchain)
-    }
-}
-
-extension TokenItem {
-    fileprivate var imageURL: URL? {
-        if let id = self.id {
-            return CoinsResponse.baseURL
-                .appendingPathComponent("coins")
-                .appendingPathComponent("large")
-                .appendingPathComponent("\(id).png")
-        }
-
-        return nil
+struct TokenIconView_Preview: PreviewProvider {
+    static let viewModel = TokenIconViewModel(tokenItem: .blockchain(.gnosis))
+    static var previews: some View {
+        TokenIconView(viewModel: viewModel)
     }
 }
