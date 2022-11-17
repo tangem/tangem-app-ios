@@ -420,7 +420,8 @@ class CardViewModel: Identifiable, ObservableObject {
         }
 
         let cardDto = CardDTO(card: card)
-        userWalletRepository.didScan(card: cardDto)
+        let walletData = cardInfo.walletData
+        userWalletRepository.didScan(card: cardDto, walletData: walletData)
 
         onUpdate()
     }
@@ -624,7 +625,7 @@ class CardViewModel: Identifiable, ObservableObject {
     }
 
     private func updateUserWallet() {
-        let userWallet = UserWalletFactory().userWallet(from: self)
+        guard let userWallet = UserWalletFactory().userWallet(from: self) else { return }
 
         userWalletModel?.updateUserWallet(userWallet)
 
@@ -642,12 +643,14 @@ class CardViewModel: Identifiable, ObservableObject {
         } else {
             guard
                 userWalletModel == nil,
-                cardInfo.card.hasWallets
+                cardInfo.card.hasWallets,
+                let newUserWallet = UserWalletFactory().userWallet(from: cardInfo, config: config)
             else {
                 return
             }
-            userWallet = UserWalletFactory().userWallet(from: cardInfo, config: config)
-            userWalletId = cardInfo.card.userWalletId
+
+            userWallet = newUserWallet
+            userWalletId = userWallet.userWalletId
         }
 
         // [REDACTED_TODO_COMMENT]
