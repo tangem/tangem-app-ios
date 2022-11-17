@@ -21,8 +21,6 @@ protocol UserWalletRepository {
 
     func add(_ completion: @escaping (UserWalletRepositoryResult?) -> Void)
 
-    func didSwitch(to cardModel: CardViewModel)
-
     func lock()
     func unlock(with method: UserWalletRepositoryUnlockMethod, completion: @escaping (Result<Void, Error>) -> Void)
 
