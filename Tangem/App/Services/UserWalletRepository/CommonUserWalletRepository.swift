@@ -193,36 +193,6 @@ class CommonUserWalletRepository: UserWalletRepository {
         }
     }
 
-    func add(_ completion: @escaping (UserWalletRepositoryResult?) -> Void) {
-        scanPublisher()
-            .receive(on: DispatchQueue.main)
-            .sink { [weak self] result in
-                guard let self else { return }
-
-                if case let .success(cardModel) = result,
-                   let userWallet = cardModel.userWallet
-                {
-                    if !self.contains(userWallet) {
-                        self.save(userWallet)
-                    }
-
-                    self.selectedUserWalletId = userWallet.userWalletId
-                }
-
-                completion(result)
-            }
-            .store(in: &bag)
-    }
-
-    func clear() {
-        models = []
-        saveUserWallets([])
-        encryptionKeyByUserWalletId = [:]
-        userWallets = savedUserWallets(withSensitiveData: false)
-        selectedUserWalletId = nil
-        encryptionKeyStorage.clear()
-    }
-
     func lock() {
         isUnlocked = false
         encryptionKeyByUserWalletId = [:]
@@ -258,6 +228,27 @@ class CommonUserWalletRepository: UserWalletRepository {
         userWallets.contains { $0.userWalletId == userWallet.userWalletId }
     }
 
+    func add(_ completion: @escaping (UserWalletRepositoryResult?) -> Void) {
+        scanPublisher()
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] result in
+                guard let self else { return }
+
+                if case let .success(cardModel) = result,
+                   let userWallet = cardModel.userWallet
+                {
+                    if !self.contains(userWallet) {
+                        self.save(userWallet)
+                    }
+
+                    self.selectedUserWalletId = userWallet.userWalletId
+                }
+
+                completion(result)
+            }
+            .store(in: &bag)
+    }
+
     func save(_ userWallet: UserWallet) {
         if userWallets.isEmpty {
             selectedUserWalletId = userWallet.userWalletId
@@ -289,6 +280,15 @@ class CommonUserWalletRepository: UserWalletRepository {
 
         encryptionKeyStorage.delete(userWallet)
         saveUserWallets(userWallets)
+    }
+
+    func clear() {
+        models = []
+        saveUserWallets([])
+        encryptionKeyByUserWalletId = [:]
+        userWallets = savedUserWallets(withSensitiveData: false)
+        selectedUserWalletId = nil
+        encryptionKeyStorage.clear()
     }
 
     private func acceptTOSIfNeeded(_ cardInfo: CardInfo, _ completion: @escaping (Result<CardViewModel, Error>) -> Void) {
