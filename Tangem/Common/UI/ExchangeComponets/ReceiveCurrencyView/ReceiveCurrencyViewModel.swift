@@ -10,7 +10,7 @@ import Foundation
 
 struct ReceiveCurrencyViewModel: Identifiable {
     var id: Int { hashValue }
-    
+
     private(set) var state: State
     let tokenIcon: TokenIconViewModel
     let didTapTokenView: () -> Void
