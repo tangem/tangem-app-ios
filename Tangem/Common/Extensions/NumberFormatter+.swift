@@ -18,7 +18,6 @@ extension NumberFormatter {
         formatter.numberStyle = .decimal
         formatter.groupingSeparator = " "
         formatter.decimalSeparator = ","
-        
         return formatter
     }()
 }
