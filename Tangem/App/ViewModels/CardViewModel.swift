@@ -213,7 +213,7 @@ class CardViewModel: Identifiable, ObservableObject {
         config.warningEvents.contains(where: { $0 == .legacyDerivation })
     }
 
-    var canExchangeCrypto: Bool { config.hasFeature(.exchange) }
+    var canExchangeCrypto: Bool { !config.getFeatureAvailability(.exchange).isHidden }
 
     private var searchBlockchainsCancellable: AnyCancellable? = nil
     private var bag = Set<AnyCancellable>()
