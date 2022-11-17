@@ -88,6 +88,7 @@ struct MainView: View {
                        .offset(x: -11, y: 0)
                })
                .buttonStyle(PlainButtonStyle())
+               .animation(nil)
     }
 
     var scanNavigationButton: some View {
@@ -109,6 +110,7 @@ struct MainView: View {
                 .offset(x: 11)
         }
         .buttonStyle(PlainButtonStyle())
+        .animation(nil)
         .accessibility(label: Text("voice_over_open_card_details"))
     }
 
