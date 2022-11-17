@@ -55,6 +55,10 @@ class CommonUserWalletRepository: UserWalletRepository {
         userWallets.isEmpty
     }
 
+    var eventProvider: AnyPublisher<UserWalletRepositoryEvent, Never> {
+        eventSubject.eraseToAnyPublisher()
+    }
+
     private(set) var models = [CardViewModel]()
 
     private(set) var isUnlocked: Bool = false
@@ -75,14 +79,29 @@ class CommonUserWalletRepository: UserWalletRepository {
         fileManager.urls(for: .documentDirectory, in: .userDomainMask)[0].appendingPathComponent("user_wallets", isDirectory: true)
     }
 
+    private let eventSubject = PassthroughSubject<UserWalletRepositoryEvent, Never>()
+
+    private let minimizedAppTimer = MinimizedAppTimer(interval: 2 * 60)
+
     private var bag: Set<AnyCancellable> = .init()
 
     init() {
         userWallets = savedUserWallets(withSensitiveData: false)
+        bind()
     }
 
     deinit {
         print("UserWalletRepository deinit")
+    }
+
+    func bind() {
+        minimizedAppTimer
+            .timer
+            .receive(on: RunLoop.main)
+            .sink { [weak self] in
+                self?.lock()
+            }
+            .store(in: &bag)
     }
 
     func scanPublisher(with batch: String? = nil) -> AnyPublisher<UserWalletRepositoryResult?, Never>  {
@@ -193,13 +212,6 @@ class CommonUserWalletRepository: UserWalletRepository {
         }
     }
 
-    func lock() {
-        isUnlocked = false
-        encryptionKeyByUserWalletId = [:]
-        userWallets = savedUserWallets(withSensitiveData: false)
-        clear()
-    }
-
     func unlock(with method: UserWalletRepositoryUnlockMethod, completion: @escaping (Result<Void, Error>) -> Void) {
         switch method {
         case .biometry:
@@ -282,11 +294,19 @@ class CommonUserWalletRepository: UserWalletRepository {
         saveUserWallets(userWallets)
     }
 
-    func clear() {
-        models = []
-        saveUserWallets([])
+    func lock() {
+        isUnlocked = false
         encryptionKeyByUserWalletId = [:]
+        models = []
         userWallets = savedUserWallets(withSensitiveData: false)
+
+        eventSubject.send(.locked)
+    }
+
+    func clear() {
+        lock()
+
+        saveUserWallets([])
         selectedUserWalletId = nil
         encryptionKeyStorage.clear()
     }
