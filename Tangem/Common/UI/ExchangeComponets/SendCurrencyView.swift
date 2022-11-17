@@ -10,14 +10,22 @@ import SwiftUI
 
 struct SendCurrencyViewModel: Identifiable {
     var id: Int { hashValue }
-
-    let balance: String
-    private(set) var fiatValue: String
     let tokenIcon: TokenIconViewModel
+    
+    var balanceString: String {
+        "Balance: \(balance.groupedFormatted())"
+    }
+    
+    var fiatValueString: String {
+        fiatValue.currencyFormatted(code: AppSettings.shared.selectedCurrencyCode)
+    }
+    
+    private let balance: Decimal
+    private var fiatValue: Decimal
 
     init(
-        balance: String,
-        fiatValue: String,
+        balance: Decimal,
+        fiatValue: Decimal,
         tokenIcon: TokenIconViewModel
     ) {
         self.balance = balance
@@ -25,7 +33,7 @@ struct SendCurrencyViewModel: Identifiable {
         self.tokenIcon = tokenIcon
     }
 
-    mutating func update(fiatValue: String) {
+    mutating func update(fiatValue: Decimal) {
         self.fiatValue = fiatValue
     }
 }
@@ -40,11 +48,11 @@ extension SendCurrencyViewModel: Hashable {
 
 struct SendCurrencyView: View {
     private var viewModel: SendCurrencyViewModel
-    @Binding private var textFieldText: String
+    @Binding private var textFieldText: Decimal?
 
     init(
         viewModel: SendCurrencyViewModel,
-        textFieldText: Binding<String>
+        textFieldText: Binding<Decimal?>
     ) {
         self.viewModel = viewModel
         _textFieldText = textFieldText
@@ -69,18 +77,18 @@ struct SendCurrencyView: View {
 
             Spacer()
 
-            Text(viewModel.balance)
+            Text(viewModel.balanceString)
                 .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
         }
     }
 
     private var currencyContent: some View {
         VStack(alignment: .leading, spacing: 8) {
-            TextField("0", text: $textFieldText)
+            TextField("0", value: $textFieldText, formatter: NumberFormatter.grouped)
                 .style(Fonts.Regular.title1, color: Colors.Text.primary1)
                 .keyboardType(.numberPad)
 
-            Text(viewModel.fiatValue)
+            Text(viewModel.fiatValueString)
                 .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
         }
     }
@@ -98,10 +106,10 @@ struct SendCurrencyView: View {
 }
 
 struct SendCurrencyView_Preview: PreviewProvider {
-    @State private static var text = ""
+    @State private static var text: Decimal? = nil
     static let viewModel = SendCurrencyViewModel(
-        balance: "Balance: 3 043,75",
-        fiatValue: "1 000,71 $",
+        balance: 3043.75,
+        fiatValue: 1000.71,
         tokenIcon: TokenIconViewModel(tokenItem: .blockchain(.bitcoin(testnet: false)))
     )
 
