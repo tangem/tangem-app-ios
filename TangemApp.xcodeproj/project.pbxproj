@@ -560,6 +560,7 @@
 		EFB4C1322837C51700E991C1 /* TextHint.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFB4C1312837C51700E991C1 /* TextHint.swift */; };
 		EFC98EA22897CB3F00261D33 /* AttentionViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFC98EA02897CB3F00261D33 /* AttentionViewModel.swift */; };
 		EFC98EA32897CB3F00261D33 /* AttentionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFC98EA12897CB3F00261D33 /* AttentionView.swift */; };
+		EFEBCE2B29265CF300B0C886 /* TokenIconViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFEBCE2A29265CF300B0C886 /* TokenIconViewModel.swift */; };
 		EFF034AC28B4B6ED00F70FF7 /* Publisher+TangemAPIError.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFF034AB28B4B6ED00F70FF7 /* Publisher+TangemAPIError.swift */; };
 		EFF034AF28B6522500F70FF7 /* WalletListManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFF034AE28B6522500F70FF7 /* WalletListManager.swift */; };
 		EFF034B128B6523F00F70FF7 /* CommonWalletListManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFF034B028B6523F00F70FF7 /* CommonWalletListManager.swift */; };
@@ -1225,6 +1226,7 @@
 		EFC98EA02897CB3F00261D33 /* AttentionViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AttentionViewModel.swift; sourceTree = "<group>"; };
 		EFC98EA12897CB3F00261D33 /* AttentionView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AttentionView.swift; sourceTree = "<group>"; };
 		EFCC66E028AA6FC500EC7757 /* UserTokenList.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserTokenList.swift; sourceTree = "<group>"; };
+		EFEBCE2A29265CF300B0C886 /* TokenIconViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenIconViewModel.swift; sourceTree = "<group>"; };
 		EFF034AB28B4B6ED00F70FF7 /* Publisher+TangemAPIError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Publisher+TangemAPIError.swift"; sourceTree = "<group>"; };
 		EFF034AE28B6522500F70FF7 /* WalletListManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletListManager.swift; sourceTree = "<group>"; };
 		EFF034B028B6523F00F70FF7 /* CommonWalletListManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonWalletListManager.swift; sourceTree = "<group>"; };
@@ -1504,6 +1506,7 @@
 		5D958E1224F513C1006BD932 /* UI */ = {
 			isa = PBXGroup;
 			children = (
+				EFEBCE2929265CEA00B0C886 /* TokenIconView */,
 				EF48289628D1FC5B002809C6 /* GroupedScrollView */,
 				EF661E3028C0ACD0005769E5 /* ScanCardWarningView */,
 				EFA580642893F89000110DB0 /* AttentionView */,
@@ -1542,7 +1545,6 @@
 				5D0A2CDE27E9D47900396399 /* StatefulPreviewWrapper.swift */,
 				5D4B8BB827EDB327002CE87C /* ArrowView.swift */,
 				5D4B8BBA27EDB354002CE87C /* NetworkIcon.swift */,
-				5D96BD2927F60B0D000AA797 /* TokenIconView.swift */,
 				5D219F8A27FF1CF9005015AA /* PerfList.swift */,
 				DAE6F76C2800011400411F45 /* AppError.swift */,
 				65B435FD2844BF7100DEAE1B /* AttributedTextView.swift */,
@@ -3000,6 +3002,15 @@
 			path = Types;
 			sourceTree = "<group>";
 		};
+		EFEBCE2929265CEA00B0C886 /* TokenIconView */ = {
+			isa = PBXGroup;
+			children = (
+				5D96BD2927F60B0D000AA797 /* TokenIconView.swift */,
+				EFEBCE2A29265CF300B0C886 /* TokenIconViewModel.swift */,
+			);
+			path = TokenIconView;
+			sourceTree = "<group>";
+		};
 		EFF034AD28B6521900F70FF7 /* WalletListManager */ = {
 			isa = PBXGroup;
 			children = (
@@ -3782,6 +3793,7 @@
 				B037A9C92652AEF000A2D394 /* WalletConnectTransactionHandler.swift in Sources */,
 				EF59038E290186DC00C527C9 /* LazyVStackCompat.swift in Sources */,
 				B0B4556925E0E63000D7572F /* FailedCardScanTracker.swift in Sources */,
+				EFEBCE2B29265CF300B0C886 /* TokenIconViewModel.swift in Sources */,
 				DC66BBF5285A14CB00CDF765 /* WelcomeViewLifecycleListener.swift in Sources */,
 				B08ACD8225D2BC3D007387BD /* TokenListView.swift in Sources */,
 				B0C4F77526F08CDE0086D815 /* OnboardingProgressStateIndicatable.swift in Sources */,
