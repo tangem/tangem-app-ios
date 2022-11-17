@@ -87,7 +87,7 @@ struct DetailsView: View {
         }
         .frame(maxWidth: .infinity)
         .padding(.top, 16)
-        .padding(.bottom, UIApplication.safeAreaInsets.bottom)
+        .padding(.bottom, max(16, UIApplication.safeAreaInsets.bottom))
         .background(Colors.Background.secondary)
     }
 
