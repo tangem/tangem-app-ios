@@ -320,6 +320,15 @@ class WalletModel: ObservableObject, Identifiable {
             })
             .eraseToAnyPublisher()
     }
+
+    func getFee(amount: Amount, destination: String) -> AnyPublisher<[Amount], Error> {
+        if isDemo {
+            let demoFees = DemoUtil().getDemoFee(for: walletManager.wallet.blockchain)
+            return .justWithError(output: demoFees)
+        }
+
+        return walletManager.getFee(amount: amount, destination: destination)
+    }
 }
 
 // MARK: - Helpers
