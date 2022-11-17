@@ -14,11 +14,7 @@ class TotalBalanceProvider {
     @Injected(\.tangemApiService) private var tangemApiService: TangemApiService
 
     var isLoaded: Bool {
-        if case let .loaded = totalBalanceSubject.value {
-            return true
-        } else {
-            return false
-        }
+        !totalBalanceSubject.value.isLoading
     }
 
     private let userWalletModel: UserWalletModel
