@@ -235,7 +235,7 @@ class CardViewModel: Identifiable, ObservableObject {
         config.warningEvents.contains(where: { $0 == .legacyDerivation })
     }
 
-    var canExchangeCrypto: Bool { config.hasFeature(.exchange) }
+    var canExchangeCrypto: Bool { !config.getFeatureAvailability(.exchange).isHidden }
 
     var userWallet: UserWallet? {
         userWalletModel?.userWallet
