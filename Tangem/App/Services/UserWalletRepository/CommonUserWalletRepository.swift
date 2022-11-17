@@ -49,6 +49,7 @@ class CommonUserWalletRepository: UserWalletRepository {
         }
         set {
             AppSettings.shared.selectedUserWalletId = newValue ?? Data()
+            initializeServicesForSelectedModel()
         }
     }
 
@@ -222,12 +223,6 @@ class CommonUserWalletRepository: UserWalletRepository {
         encryptionKeyStorage.clear()
     }
 
-    func didSwitch(to cardModel: CardViewModel) {
-        let cardInfo = cardModel.cardInfo
-        startInitializingServices(for: cardInfo)
-        finishInitializingServices(for: cardModel, cardInfo: cardInfo)
-    }
-
     private func acceptTOSIfNeeded(_ cardInfo: CardInfo, _ completion: @escaping (Result<CardViewModel, Error>) -> Void) {
         let touURL = UserWalletConfigFactory(cardInfo).makeConfig().touURL
 
@@ -311,6 +306,7 @@ class CommonUserWalletRepository: UserWalletRepository {
                     self.encryptionKeyByUserWalletId = keys
                     self.userWallets = self.savedUserWallets(withSensitiveData: true)
                     self.loadModels()
+                    self.initializeServicesForSelectedModel()
                     self.isUnlocked = true
                     completion(.success(()))
                 }
@@ -342,10 +338,9 @@ class CommonUserWalletRepository: UserWalletRepository {
                 self.encryptionKeyByUserWalletId[scannedUserWallet.userWalletId] = encryptionKey
                 self.selectedUserWalletId = scannedUserWallet.userWalletId
                 self.loadModel(for: scannedUserWallet)
+                self.initializeServicesForSelectedModel()
 
-                if self.models.count == 1 {
-                    self.isUnlocked = true
-                }
+                self.isUnlocked = self.userWallets.allSatisfy { !$0.isLocked }
 
                 completion(.success(()))
             }
@@ -386,6 +381,14 @@ class CommonUserWalletRepository: UserWalletRepository {
             let model = CardViewModel(userWallet: userWallet)
             models[index] = model
         }
+    }
+
+    private func initializeServicesForSelectedModel() {
+        guard let selectedModel else { return }
+
+        let cardInfo = selectedModel.cardInfo
+        startInitializingServices(for: cardInfo)
+        finishInitializingServices(for: selectedModel, cardInfo: cardInfo)
     }
 
     func contains(_ userWallet: UserWallet) -> Bool {
