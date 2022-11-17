@@ -273,6 +273,8 @@ class CommonUserWalletRepository: UserWalletRepository {
             models.append(newModel)
         }
 
+        eventSubject.send(.updated(userWalletId: userWallet.userWalletId))
+
         if userWallets.isEmpty || selectedUserWalletId == nil {
             setSelectedUserWalletId(userWallet.userWalletId)
         }
