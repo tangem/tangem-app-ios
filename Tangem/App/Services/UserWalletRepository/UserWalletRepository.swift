@@ -17,7 +17,7 @@ protocol UserWalletRepository {
     var isEmpty: Bool { get }
     var isUnlocked: Bool { get }
 
-    func scanPublisher(with batch: String?, requestBiometrics: Bool) ->  AnyPublisher<UserWalletRepositoryResult?, Never>
+    func scanPublisher(with batch: String?) ->  AnyPublisher<UserWalletRepositoryResult?, Never>
 
     func add(_ completion: @escaping (UserWalletRepositoryResult?) -> Void)
 
@@ -48,8 +48,8 @@ extension InjectedValues {
 }
 
 extension UserWalletRepository {
-    func scanPublisher(with batch: String? = nil, requestBiometrics: Bool = false) ->  AnyPublisher<UserWalletRepositoryResult?, Never> {
-        scanPublisher(with: batch, requestBiometrics: requestBiometrics)
+    func scanPublisher(with batch: String? = nil) ->  AnyPublisher<UserWalletRepositoryResult?, Never> {
+        scanPublisher(with: batch)
     }
 }
 
