@@ -19,13 +19,12 @@ protocol UserWalletRepository {
 
     func scanPublisher(with batch: String?) ->  AnyPublisher<UserWalletRepositoryResult?, Never>
 
-    func add(_ completion: @escaping (UserWalletRepositoryResult?) -> Void)
-
     func lock()
     func unlock(with method: UserWalletRepositoryUnlockMethod, completion: @escaping (Result<Void, Error>) -> Void)
 
     func didScan(card: CardDTO)
 
+    func add(_ completion: @escaping (UserWalletRepositoryResult?) -> Void)
     func contains(_ userWallet: UserWallet) -> Bool
     func save(_ userWallet: UserWallet)
     func delete(_ userWallet: UserWallet)
