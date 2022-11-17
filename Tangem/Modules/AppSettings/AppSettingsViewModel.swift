@@ -83,6 +83,7 @@ private extension AppSettingsViewModel {
                 let _ = self.userWalletListService.save(self.userWallet)
                 completion(true)
             } else {
+                self.updateBiometricWarning()
                 completion(false)
             }
         }
@@ -215,6 +216,7 @@ private extension AppSettingsViewModel {
 
     func updateBiometricWarning() {
         isBiometryAvailable = BiometricAuthorizationUtils.getBiometricState() == .available
+        setupView()
     }
 }
 
