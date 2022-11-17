@@ -13,16 +13,16 @@ struct SendCurrencyViewModel: Identifiable {
 
     let balance: String
     private(set) var fiatValue: String
-    let tokenItem: TokenItem
+    let tokenIcon: TokenIconViewModel
 
     init(
         balance: String,
         fiatValue: String,
-        tokenItem: TokenItem
+        tokenIcon: TokenIconViewModel
     ) {
         self.balance = balance
         self.fiatValue = fiatValue
-        self.tokenItem = tokenItem
+        self.tokenIcon = tokenIcon
     }
 
     mutating func update(fiatValue: String) {
@@ -34,7 +34,7 @@ extension SendCurrencyViewModel: Hashable {
     func hash(into hasher: inout Hasher) {
         hasher.combine(balance)
         hasher.combine(fiatValue)
-        hasher.combine(tokenItem)
+        hasher.combine(tokenIcon)
     }
 }
 
@@ -91,7 +91,7 @@ struct SendCurrencyView: View {
 
             Spacer()
 
-            TokenIconView(tokenItem: viewModel.tokenItem)
+            TokenIconView(viewModel: viewModel.tokenIcon)
                 .padding(.trailing, 16)
         }
     }
@@ -102,7 +102,7 @@ struct SendCurrencyView_Preview: PreviewProvider {
     static let viewModel = SendCurrencyViewModel(
         balance: "Balance: 3 043,75",
         fiatValue: "1 000,71 $",
-        tokenItem: .blockchain(.bitcoin(testnet: false))
+        tokenIcon: TokenIconViewModel(tokenItem: .blockchain(.bitcoin(testnet: false)))
     )
 
     static var previews: some View {
