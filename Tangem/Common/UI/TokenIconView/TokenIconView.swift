@@ -8,59 +8,7 @@
 
 import Foundation
 import Kingfisher
-import BlockchainSdk
 import SwiftUI
-
-struct TokenIconViewModel: Hashable, Identifiable {
-    let id: String?
-
-    fileprivate let name: String
-    fileprivate let style: Style
-
-    fileprivate var imageURL: URL? {
-        guard let id else { return nil }
-
-        return CoinsResponse.baseURL
-            .appendingPathComponent("coins")
-            .appendingPathComponent("large")
-            .appendingPathComponent("\(id).png")
-    }
-
-    init(
-        id: String?,
-        name: String,
-        style: TokenIconViewModel.Style
-    ) {
-        self.id = id
-        self.name = name
-        self.style = style
-    }
-
-    init(tokenItem: TokenItem) {
-        switch tokenItem {
-        case let .blockchain(blockchain):
-            self.init(id: blockchain.id, name: blockchain.displayName, style: .blockchain)
-        case let .token(token, blockchain):
-            self.init(id: token.id, name: token.name, style: .token(blockchainIconNameFilled: blockchain.iconNameFilled))
-        }
-    }
-
-    init(with type: Amount.AmountType, blockchain: Blockchain) {
-        switch type {
-        case .coin, .reserve:
-            self.init(id: blockchain.id, name: blockchain.displayName, style: .blockchain)
-        case .token(let token):
-            self.init(id: token.id, name: token.name, style: .token(blockchainIconNameFilled: blockchain.iconNameFilled))
-        }
-    }
-}
-
-extension TokenIconViewModel {
-    enum Style: Hashable {
-        case token(blockchainIconNameFilled: String)
-        case blockchain
-    }
-}
 
 struct TokenIconView: View {
     private let viewModel: TokenIconViewModel
@@ -89,8 +37,8 @@ struct TokenIconView: View {
 
     @ViewBuilder
     private var networkIcon: some View {
-        if case let .token(blockchainIconNameFilled) = viewModel.style {
-            NetworkIcon(imageName: blockchainIconNameFilled,
+        if let iconName = viewModel.blockchainIconName {
+            NetworkIcon(imageName: iconName,
                         isMainIndicatorVisible: false,
                         size: networkIconSize)
                 .background(
