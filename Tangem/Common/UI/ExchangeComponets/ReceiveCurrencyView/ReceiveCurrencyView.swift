@@ -90,7 +90,7 @@ struct ReceiveCurrencyView: View {
 
 struct ReceiveCurrencyView_Preview: PreviewProvider {
     static let viewModel = ReceiveCurrencyViewModel(
-        state: .loaded(1141241312122431.46, fiatValue: 1000.71),
+        state: .loaded(11412413131.46, fiatValue: 1000.71),
         tokenIcon: .init(tokenItem: .blockchain(.bitcoin(testnet: false)))
     ) {}
 

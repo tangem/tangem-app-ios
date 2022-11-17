@@ -11,15 +11,15 @@ import Foundation
 struct SendCurrencyViewModel: Identifiable {
     var id: Int { hashValue }
     let tokenIcon: TokenIconViewModel
-    
+
     var balanceString: String {
         "exchange_send_view_balance".localized(balance.groupedFormatted())
     }
-    
+
     var fiatValueString: String {
         fiatValue.currencyFormatted(code: AppSettings.shared.selectedCurrencyCode)
     }
-    
+
     private let balance: Decimal
     private var fiatValue: Decimal
 
