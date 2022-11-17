@@ -61,6 +61,7 @@ struct WebViewContainer: View {
                             Button("common_close") {
                                 presentationMode.wrappedValue.dismiss()
                             }
+                            .animation(nil)
                         )
                 }
             } else {
