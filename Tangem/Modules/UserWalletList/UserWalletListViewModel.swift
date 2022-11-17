@@ -64,6 +64,8 @@ final class UserWalletListViewModel: ObservableObject, Identifiable {
                 switch event {
                 case .locked:
                     break
+                case .updated(let userWalletId):
+                    self?.update(userWalletId: userWalletId)
                 case .deleted(let userWalletId):
                     self?.delete(userWalletId: userWalletId)
                 case .selected(let userWallet):
@@ -71,29 +73,6 @@ final class UserWalletListViewModel: ObservableObject, Identifiable {
                 }
             }
             .store(in: &bag)
-    }
-
-    func updateModels() {
-        let oldModels = multiCurrencyModels + singleCurrencyModels
-        let totalBalanceProviders = Dictionary(oldModels.map {
-            ($0.userWalletId, $0.totalBalanceProvider)
-        }, uniquingKeysWith: { v1, _ in
-            v1
-        })
-
-        multiCurrencyModels = userWalletRepository.models
-            .filter { $0.isMultiWallet }
-            .compactMap { $0.userWalletModel }
-            .map {
-                mapToUserWalletListCellViewModel(userWalletModel: $0, totalBalanceProvider: totalBalanceProviders[$0.userWallet.userWalletId])
-            }
-
-        singleCurrencyModels = userWalletRepository.models
-            .filter { !$0.isMultiWallet }
-            .compactMap { $0.userWalletModel }
-            .map {
-                mapToUserWalletListCellViewModel(userWalletModel: $0, totalBalanceProvider: totalBalanceProviders[$0.userWallet.userWalletId])
-            }
     }
 
     func unlockAllWallets() {
@@ -175,7 +154,6 @@ final class UserWalletListViewModel: ObservableObject, Identifiable {
             newUserWallet.name = newName
 
             self?.userWalletRepository.save(newUserWallet)
-            self?.updateModels()
         }
         alert.addAction(acceptButton)
 
@@ -213,6 +191,50 @@ final class UserWalletListViewModel: ObservableObject, Identifiable {
 
         coordinator.didTap(model)
         updateSelectedWalletModel()
+    }
+
+    private func updateModels() {
+        let oldModels = multiCurrencyModels + singleCurrencyModels
+        let totalBalanceProviders = Dictionary(oldModels.map {
+            ($0.userWalletId, $0.totalBalanceProvider)
+        }, uniquingKeysWith: { v1, _ in
+            v1
+        })
+
+        multiCurrencyModels = userWalletRepository.models
+            .filter { $0.isMultiWallet }
+            .compactMap { $0.userWalletModel }
+            .map {
+                mapToUserWalletListCellViewModel(userWalletModel: $0, totalBalanceProvider: totalBalanceProviders[$0.userWallet.userWalletId])
+            }
+
+        singleCurrencyModels = userWalletRepository.models
+            .filter { !$0.isMultiWallet }
+            .compactMap { $0.userWalletModel }
+            .map {
+                mapToUserWalletListCellViewModel(userWalletModel: $0, totalBalanceProvider: totalBalanceProviders[$0.userWallet.userWalletId])
+            }
+    }
+
+    private func update(userWalletId: Data) {
+        guard
+            let model = userWalletRepository.models.first(where: { $0.userWalletId == userWalletId }),
+            let userWalletModel = model.userWalletModel
+        else {
+            return
+        }
+
+        if let index = multiCurrencyModels.firstIndex(where: { $0.userWalletId == userWalletId }) {
+            multiCurrencyModels[index] = mapToUserWalletListCellViewModel(
+                userWalletModel: userWalletModel,
+                totalBalanceProvider: multiCurrencyModels[index].totalBalanceProvider
+            )
+        } else if let index = singleCurrencyModels.firstIndex(where: { $0.userWalletId == userWalletId }) {
+            singleCurrencyModels[index] = mapToUserWalletListCellViewModel(
+                userWalletModel: userWalletModel,
+                totalBalanceProvider: singleCurrencyModels[index].totalBalanceProvider
+            )
+        }
     }
 
     private func delete(userWalletId: Data) {
