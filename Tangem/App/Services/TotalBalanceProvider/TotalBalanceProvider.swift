@@ -12,6 +12,7 @@ import BlockchainSdk
 
 class TotalBalanceProvider {
     @Injected(\.tangemApiService) private var tangemApiService: TangemApiService
+
     private let userWalletModel: UserWalletModel
     private let totalBalanceAnalyticsService: TotalBalanceAnalyticsService?
     private let totalBalanceSubject = CurrentValueSubject<LoadingValue<TotalBalance>, Never>(.loading)
@@ -29,6 +30,10 @@ class TotalBalanceProvider {
 // MARK: - TotalBalanceProviding
 
 extension TotalBalanceProvider: TotalBalanceProviding {
+    var isLoaded: Bool {
+        !totalBalanceSubject.value.isLoading
+    }
+
     func totalBalancePublisher() -> AnyPublisher<LoadingValue<TotalBalance>, Never> {
         totalBalanceSubject.eraseToAnyPublisher()
     }
