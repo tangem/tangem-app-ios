@@ -13,7 +13,7 @@ struct SendCurrencyViewModel: Identifiable {
     let tokenIcon: TokenIconViewModel
     
     var balanceString: String {
-        "Balance: \(balance.groupedFormatted())"
+        "exchange_send_view_balance".localized(balance.groupedFormatted())
     }
     
     var fiatValueString: String {
