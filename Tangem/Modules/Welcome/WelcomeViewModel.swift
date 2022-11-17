@@ -150,7 +150,6 @@ class WelcomeViewModel: ObservableObject {
         }
 
         guard let model = userWalletRepository.selectedModel else { return }
-        userWalletRepository.didSwitch(to: model)
         coordinator.openMain(with: model)
 
         DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
