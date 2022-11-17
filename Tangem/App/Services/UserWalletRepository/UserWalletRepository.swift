@@ -16,6 +16,7 @@ protocol UserWalletRepository {
     var selectedUserWalletId: Data? { get set }
     var isEmpty: Bool { get }
     var isUnlocked: Bool { get }
+    var eventProvider: AnyPublisher<UserWalletRepositoryEvent, Never> { get }
 
     func scanPublisher(with batch: String?) ->  AnyPublisher<UserWalletRepositoryResult?, Never>
 
@@ -61,6 +62,10 @@ enum UserWalletRepositoryResult {
     case onboarding(OnboardingInput)
     case troubleshooting
     case error(AlertBinder)
+}
+
+enum UserWalletRepositoryEvent {
+    case locked
 }
 
 enum UserWalletRepositoryError: Error {
