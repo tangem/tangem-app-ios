@@ -39,6 +39,8 @@ class CommonUserWalletModel {
         self.userTokenListManager = userTokenListManager
         self.walletListManager = walletListManager
         self.userWallet = userWallet
+
+        updateAndReloadWalletModels()
     }
 }
 
