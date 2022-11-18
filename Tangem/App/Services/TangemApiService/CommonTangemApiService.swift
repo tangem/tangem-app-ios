@@ -113,6 +113,18 @@ extension CommonTangemApiService: TangemApiService {
             .eraseToAnyPublisher()
     }
 
+    func loadReferralProgramInfo(for userWalletId: String) async throws -> ReferralProgramInfo {
+        try await provider
+            .asyncRequest(for: TangemApiTarget(type: .loadReferralProgramInfo(userWalletId: userWalletId),
+                                               authData: authData))
+    }
+
+    func participateInReferralProgram(with userData: ReferralParticipationRequestBody) async throws -> ReferralProgramInfo {
+        try await provider
+            .asyncRequest(for: TangemApiTarget(type: .participateInReferralProgram(userInfo: userData),
+                                               authData: authData))
+    }
+
     func initialize() {
         provider
             .requestPublisher(TangemApiTarget(type: .geo, authData: authData))
