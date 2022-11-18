@@ -14,6 +14,8 @@ class ReferralCoordinator: CoordinatorObject {
 
     @Published var referralViewModel: ReferralViewModel?
 
+    @Published var tosViewModel: WebViewContainerViewModel?
+
     required init(dismissAction: @escaping Action, popToRootAction: @escaping ParamsAction<PopToRootOptions>) {
         self.dismissAction = dismissAction
         self.popToRootAction = popToRootAction
@@ -34,4 +36,8 @@ extension ReferralCoordinator {
 }
 
 extension ReferralCoordinator: ReferralRoutable {
+    func openTos(with url: URL) {
+        tosViewModel = WebViewContainerViewModel(url: url,
+                                                 title: "details_referral_title".localized)
+    }
 }

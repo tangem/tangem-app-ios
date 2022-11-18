@@ -58,7 +58,7 @@ class ReferralViewModel: ObservableObject {
 
         isProcessingRequest = false
     }
-
+    
     func copyPromoCode() {
         UIPasteboard.general.string = referralProgramInfo?.referral?.promoCode
     }
@@ -148,6 +148,14 @@ extension ReferralViewModel {
 // MARK: - Navigation
 extension ReferralViewModel {
     func openTou() {
-        // [REDACTED_TODO_COMMENT]
+        guard
+            let link = referralProgramInfo?.conditions.tosLink,
+            let url = URL(string: link)
+        else {
+            print("Failed to create link")
+            return
+        }
+        
+        coordinator.openTos(with: url)
     }
 }
