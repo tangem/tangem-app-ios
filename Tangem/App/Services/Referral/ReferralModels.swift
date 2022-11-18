@@ -9,23 +9,23 @@
 import Foundation
 
 struct ReferralProgramInfo: Decodable {
-    struct Referral: Decodable {
-        let shareLink: String
-        let address: String
-        let promoCode: String
-        let walletPurchase: Int
-    }
-
-    let conditions: Conditions
-    let referral: Referral?
-
     struct Conditions: Decodable {
-        enum DiscountType: String, Decodable {
-            case percentage
+        struct Discount: Decodable {
+            enum DiscountType: String, Decodable {
+                case percentage
 
-            var symbol: String {
-                "%"
+                var symbol: String {
+                    "%"
+                }
             }
+
+            let amount: Int
+            let type: DiscountType
+        }
+
+        struct Award: Decodable {
+            let amount: Decimal
+            let token: Token
         }
 
         struct Token: Decodable {
@@ -33,14 +33,23 @@ struct ReferralProgramInfo: Decodable {
             let name: String
             let symbol: String
             let networkId: String
-            let contractAddress: String
-            let decimalCount: Int
+            let contractAddress: String?
+            let decimalCount: Int?
         }
 
-        let award: Decimal
-        let discount: Int
-        let discountType: DiscountType
-        let touLink: String
-        let tokens: [Token]
+        let discount: Discount
+        let tosLink: String
+        let awards: [Award]
     }
+
+    struct Referral: Decodable {
+        let shareLink: String
+        let address: String
+        let promoCode: String
+        let walletsPurchased: Int
+    }
+
+    let conditions: Conditions
+    let referral: Referral?
+
 }
