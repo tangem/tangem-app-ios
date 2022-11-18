@@ -9,6 +9,8 @@
 import Foundation
 
 class CardSettingsCoordinator: CoordinatorObject {
+    @Injected(\.userWalletListService) private var userWalletListService: UserWalletListService
+
     let dismissAction: Action
     let popToRootAction: ParamsAction<PopToRootOptions>
 
@@ -51,10 +53,16 @@ extension CardSettingsCoordinator {
 // MARK: - CardSettingsRoutable
 
 extension CardSettingsCoordinator: CardSettingsRoutable {
-    func openOnboarding(with input: OnboardingInput, completion: @escaping () -> Void) {
+    func openOnboarding(with input: OnboardingInput) {
+        let isSavingCards = !userWalletListService.isEmpty
+
         let popToRootAction: ParamsAction<PopToRootOptions> = { [weak self] options in
             self?.modalOnboardingCoordinator = nil
-            completion()
+            if isSavingCards {
+                self?.dismiss()
+            } else {
+                self?.popToRoot()
+            }
         }
 
         let dismissAction: Action = { [weak self] in
