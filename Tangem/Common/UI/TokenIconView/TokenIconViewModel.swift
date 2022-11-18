@@ -22,7 +22,7 @@ struct TokenIconViewModel: Hashable, Identifiable {
             .appendingPathComponent("large")
             .appendingPathComponent("\(id).png")
     }
-    
+
     var blockchainIconName: String? {
         if case let .token(iconName) = style {
             return iconName
