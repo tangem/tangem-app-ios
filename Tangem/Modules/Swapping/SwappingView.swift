@@ -16,27 +16,44 @@ struct SwappingView: View {
     }
 
     var body: some View {
+        ZStack {
+            Colors.Background.secondary.edgesIgnoringSafeArea(.all)
+
+            GroupedScrollView {
+                swappingViews
+
+                MainButton(text: "Swap", icon: .trailing(Assets.tangemIcon)) {}
+            }
+        }
+    }
+
+    @ViewBuilder
+    private var swappingViews: some View {
         ZStack(alignment: .center) {
             VStack(spacing: 14) {
                 SendCurrencyView(
                     viewModel: viewModel.sendCurrencyViewModel,
-                    textFieldText: $viewModel.sendCurrencyValueText
+                    decimalValue: $viewModel.sendDecimalValue
                 )
 
                 ReceiveCurrencyView(viewModel: viewModel.receiveCurrencyViewModel)
             }
 
-            swapContent
+            swappingButton
         }
     }
 
     @ViewBuilder
-    private var swapContent: some View {
+    private var swappingButton: some View {
         Group {
             if viewModel.isLoading {
                 ActivityIndicatorView(color: .gray)
             } else {
-                swapButton
+                Button(action: viewModel.swapButtonDidTap) {
+                    Assets.swappingIcon
+                        .resizable()
+                        .frame(width: 20, height: 20)
+                }
             }
         }
         .frame(width: 44, height: 44)
@@ -47,33 +64,17 @@ struct SwappingView: View {
                 .stroke(Colors.Stroke.primary, lineWidth: 1)
         )
     }
-
-    @ViewBuilder
-    private var swapButton: some View {
-        Button(action: viewModel.swapButtonDidTap) {
-            Assets.swappingIcon
-                .resizable()
-                .frame(width: 20, height: 20)
-        }
-    }
 }
 
 struct SwappingView_Preview: PreviewProvider {
-    static let viewModel = SwappingViewModel(
-        coordinator: SwappingCoordinator(),
-        sendCurrencyViewModel: SendCurrencyViewModel(
-            balance: 3043.75,
-            fiatValue: 0,
-            tokenIcon: .init(tokenItem: .blockchain(.bitcoin(testnet: false)))
-        ),
-        receiveCurrencyViewModel: ReceiveCurrencyViewModel(
-            state: .loaded(0, fiatValue: 0),
-            tokenIcon: .init(tokenItem: .blockchain(.polygon(testnet: false))),
-            didTapTokenView: {}
-        )
-    )
+    static let viewModel = SwappingViewModel(coordinator: SwappingCoordinator())
 
     static var previews: some View {
-        SwappingView(viewModel: viewModel)
+        ZStack {
+            Colors.Background.secondary
+
+            SwappingView(viewModel: viewModel)
+                .padding()
+        }
     }
 }
