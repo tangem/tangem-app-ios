@@ -9,7 +9,5 @@
 import Combine
 
 protocol TotalBalanceProviding {
-    var isLoaded: Bool { get }
-
     func totalBalancePublisher() -> AnyPublisher<LoadingValue<TotalBalanceProvider.TotalBalance>, Never>
 }
