@@ -14,8 +14,9 @@ struct GroupedSection<Model: Identifiable, Content: View, Footer: View, Header: 
     private let header: () -> Header
     private let footer: () -> Footer
 
-    private let horizontalPadding: CGFloat = 16
-    private let separatorStyle: SeparatorStyle = .single
+    private var verticalPadding: CGFloat = 12
+    private var horizontalPadding: CGFloat = 16
+    private var separatorStyle: SeparatorStyle = .single
 
     init(
         _ models: [Model],
@@ -65,7 +66,7 @@ struct GroupedSection<Model: Identifiable, Content: View, Footer: View, Header: 
                 footer()
                     .padding(.horizontal, horizontalPadding)
             }
-            .padding(.vertical, 12)
+            .padding(.vertical, verticalPadding)
         }
     }
 
@@ -86,5 +87,19 @@ extension GroupedSection {
     enum SeparatorStyle: Int, Hashable {
         case none
         case single
+    }
+}
+
+extension GroupedSection: Buildable {
+    func verticalPadding(_ padding: CGFloat) -> Self {
+        map { $0.verticalPadding = padding }
+    }
+
+    func horizontalPadding(_ padding: CGFloat) -> Self {
+        map { $0.horizontalPadding = padding }
+    }
+
+    func separatorStyle(_ style: SeparatorStyle) -> Self {
+        map { $0.separatorStyle = style }
     }
 }
