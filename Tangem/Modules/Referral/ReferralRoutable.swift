@@ -9,4 +9,5 @@
 import Foundation
 
 protocol ReferralRoutable: AnyObject {
+    func openTos(with url: URL)
 }
