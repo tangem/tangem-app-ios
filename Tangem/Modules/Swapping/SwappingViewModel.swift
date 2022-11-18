@@ -16,7 +16,7 @@ final class SwappingViewModel: ObservableObject {
     @Published var receiveCurrencyViewModel: ReceiveCurrencyViewModel
     @Published var isLoading: Bool = false
 
-    @Published var sendCurrencyValueText: Decimal?
+    @Published var sendDecimalValue: Decimal?
 
     // MARK: - Dependencies
 
@@ -26,39 +26,47 @@ final class SwappingViewModel: ObservableObject {
 
     private var bag: Set<AnyCancellable> = []
 
-    // Temp solution, will be changed on Currency input
     init(
-        coordinator: SwappingRoutable,
-        sendCurrencyViewModel: SendCurrencyViewModel,
-        receiveCurrencyViewModel: ReceiveCurrencyViewModel
+        coordinator: SwappingRoutable
     ) {
         self.coordinator = coordinator
-        self.sendCurrencyViewModel = sendCurrencyViewModel
-        self.receiveCurrencyViewModel = receiveCurrencyViewModel
+
+        // Temp solution, will be changed on Currency input
+        sendCurrencyViewModel = SendCurrencyViewModel(
+            balance: 3043.75,
+            fiatValue: 0,
+            tokenIcon: .init(tokenItem: .blockchain(.bitcoin(testnet: false)))
+        )
+        receiveCurrencyViewModel = ReceiveCurrencyViewModel(
+            state: .loaded(0, fiatValue: 0),
+            tokenIcon: .init(tokenItem: .blockchain(.polygon(testnet: false))),
+            didTapTokenView: {}
+        )
 
         bind()
     }
 
     func bind() {
-        $sendCurrencyValueText
+        $sendDecimalValue
+//            .print()
             .compactMap { $0 }
             .sink {
                 self.sendCurrencyViewModel.update(fiatValue: $0 * 2)
             }
             .store(in: &bag)
 
-        $sendCurrencyValueText
-            .dropFirst()
-            .removeDuplicates()
-            .debounce(for: 0.5, scheduler: DispatchQueue.main)
-            .sink { _ in
-                self.receiveCurrencyViewModel.updateState(.loading)
-            }
-            .store(in: &bag)
+//        $sendCurrencyValueText
+//            .dropFirst()
+//            .removeDuplicates()
+//            .debounce(for: 0.5, scheduler: DispatchQueue.main)
+//            .sink { _ in
+//                self.receiveCurrencyViewModel.updateState(.loading)
+//            }
+//            .store(in: &bag)
 
-        $sendCurrencyValueText
+        $sendDecimalValue
             .compactMap { $0 }
-            .debounce(for: 2, scheduler: DispatchQueue.main)
+//            .delay(for: 1, scheduler: DispatchQueue.main)
             .sink {
                 self.receiveCurrencyViewModel.updateState(.loaded($0 * 0.5, fiatValue: $0 * 2))
             }
@@ -72,7 +80,9 @@ final class SwappingViewModel: ObservableObject {
     }
 
     func swapCurrencies() {
-        sendCurrencyValueText = receiveCurrencyViewModel.state.value
+        if receiveCurrencyViewModel.state.value != 0 {
+            sendDecimalValue = receiveCurrencyViewModel.state.value
+        }
 
         let sendTokenItem = sendCurrencyViewModel.tokenIcon
 
