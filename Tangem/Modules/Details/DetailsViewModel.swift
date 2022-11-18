@@ -155,7 +155,13 @@ extension DetailsViewModel {
     }
 
     func openReferral() {
-        coordinator.openReferral(with: cardModel)
+        guard let userWalletId = cardModel.userWalletId else {
+            // This shouldn't be the case, because currently user can't reach this screen
+            // with card that doesn't have a wallet.
+            return
+        }
+
+        coordinator.openReferral(with: cardModel, userWalletId: userWalletId)
     }
 }
 
