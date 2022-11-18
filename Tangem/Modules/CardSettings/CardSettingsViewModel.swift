@@ -113,6 +113,20 @@ private extension CardSettingsViewModel {
             self.coordinator.dismiss()
         }
     }
+
+    private func presentDeleteWalletAlert(for userWallet: UserWallet) {
+        self.alert = AlertBinder(
+            alert: Alert(
+                title: Text("Do you want to delete the wallet?"),
+                primaryButton: .destructive(Text("common_yes")) {
+                    self.deleteWallet(userWallet)
+                    self.navigateAwayAfterReset()
+                }, secondaryButton: .default(Text("common_no")) {
+                    self.navigateAwayAfterReset()
+                }
+            )
+        )
+    }
 }
 
 // MARK: - Navigation
@@ -155,17 +169,7 @@ extension CardSettingsViewModel {
                             self.deleteWallet(userWallet)
                             self.navigateAwayAfterReset()
                         } else {
-                            self.alert = AlertBinder(
-                                alert: Alert(
-                                    title: Text("Do you want to delete the wallet?"),
-                                    primaryButton: .destructive(Text("common_yes")) {
-                                        self.deleteWallet(userWallet)
-                                        self.navigateAwayAfterReset()
-                                    }, secondaryButton: .default(Text("common_no")) {
-                                        self.navigateAwayAfterReset()
-                                    }
-                                )
-                            )
+                            self.presentDeleteWalletAlert(for: userWallet)
                         }
                     case let .failure(error):
                         if !error.isUserCancelled {
