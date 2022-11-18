@@ -39,7 +39,7 @@ struct SendCurrencyViewModel: Identifiable {
     mutating func update(fiatValue: Decimal) {
         self.fiatValue = fiatValue
     }
-    
+
     mutating func update(maximumFractionDigits: Int) {
         self.maximumFractionDigits = maximumFractionDigits
     }
