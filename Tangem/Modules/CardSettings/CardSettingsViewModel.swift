@@ -65,12 +65,8 @@ private extension CardSettingsViewModel {
     }
 
     func prepareTwinOnboarding() {
-        if let twinInput = cardModel.twinInput,
-           let userWallet = cardModel.userWallet {
-            coordinator.openOnboarding(with: twinInput) { [weak self] in
-                self?.deleteWallet(userWallet)
-                self?.navigateAwayAfterReset()
-            }
+        if let twinInput = cardModel.twinInput {
+            coordinator.openOnboarding(with: twinInput)
         }
     }
 
