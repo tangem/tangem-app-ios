@@ -10,6 +10,8 @@ import SwiftUI
 import Combine
 
 class CardSettingsViewModel: ObservableObject {
+    @Injected(\.userWalletListService) private var userWalletListService: UserWalletListService
+
     // MARK: ViewState
 
     @Published var hasSingleSecurityMode: Bool = false
@@ -63,8 +65,12 @@ private extension CardSettingsViewModel {
     }
 
     func prepareTwinOnboarding() {
-        if let twinInput = cardModel.twinInput {
-            coordinator.openOnboarding(with: twinInput)
+        if let twinInput = cardModel.twinInput,
+           let userWallet = cardModel.userWallet {
+            coordinator.openOnboarding(with: twinInput) { [weak self] in
+                self?.deleteWallet(userWallet)
+                self?.navigateAwayAfterReset()
+            }
         }
     }
 
@@ -99,6 +105,18 @@ private extension CardSettingsViewModel {
             )
         }
     }
+
+    private func deleteWallet(_ userWallet: UserWallet) {
+        self.userWalletListService.delete(userWallet)
+    }
+
+    private func navigateAwayAfterReset() {
+        if self.userWalletListService.isEmpty {
+            self.coordinator.popToRoot()
+        } else {
+            self.coordinator.dismiss()
+        }
+    }
 }
 
 // MARK: - Navigation
@@ -125,17 +143,42 @@ extension CardSettingsViewModel {
             return
         }
 
+        let askToDeleteWallet = cardModel.cardsCount > 1 && !userWalletListService.isEmpty
+        let userWallet = cardModel.userWallet
+
         if cardModel.canTwin {
             prepareTwinOnboarding()
         } else {
-            coordinator.openResetCardToFactoryWarning { [weak self] in
+            coordinator.openResetCardToFactoryWarning { [weak self, userWallet] in
                 self?.cardModel.resetToFactory { [weak self] result in
+                    guard
+                        let self,
+                        let userWallet
+                    else {
+                        return
+                    }
+
                     switch result {
                     case .success:
-                        self?.coordinator.resetCardDidFinish()
+                        if !askToDeleteWallet {
+                            self.deleteWallet(userWallet)
+                            self.navigateAwayAfterReset()
+                        } else {
+                            self.alert = AlertBinder(
+                                alert: Alert(
+                                    title: Text("Do you want to delete the wallet?"),
+                                    primaryButton: .destructive(Text("common_yes")) {
+                                        self.deleteWallet(userWallet)
+                                        self.navigateAwayAfterReset()
+                                    }, secondaryButton: .default(Text("common_no")) {
+                                        self.navigateAwayAfterReset()
+                                    }
+                                )
+                            )
+                        }
                     case let .failure(error):
                         if !error.isUserCancelled {
-                            self?.alert = error.alertBinder
+                            self.alert = error.alertBinder
                         }
                     }
                 }
