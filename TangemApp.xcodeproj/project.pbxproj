@@ -569,6 +569,8 @@
 		EFA580632893E6AA00110DB0 /* BiometricAuthorizationUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFA580622893E6AA00110DB0 /* BiometricAuthorizationUtils.swift */; };
 		EFAF63E92927CA63004B3227 /* Setupable.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFAF63E82927CA63004B3227 /* Setupable.swift */; };
 		EFB4C1322837C51700E991C1 /* TextHint.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFB4C1312837C51700E991C1 /* TextHint.swift */; };
+		EFBAABAE2927CCBA0065C6D4 /* GroupedNumberTextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFBAABAC2927CCBA0065C6D4 /* GroupedNumberTextField.swift */; };
+		EFBAABAF2927CCBA0065C6D4 /* GroupedNumberFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFBAABAD2927CCBA0065C6D4 /* GroupedNumberFormatter.swift */; };
 		EFC46EFE29266982003928E3 /* SendCurrencyViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFC46EFD29266982003928E3 /* SendCurrencyViewModel.swift */; };
 		EFC46F01292669A0003928E3 /* ReceiveCurrencyViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFC46F00292669A0003928E3 /* ReceiveCurrencyViewModel.swift */; };
 		EFC98EA22897CB3F00261D33 /* AttentionViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFC98EA02897CB3F00261D33 /* AttentionViewModel.swift */; };
@@ -1248,6 +1250,8 @@
 		EFA7173D72D1E6FAD54D308A /* Pods-TangemClip.release(beta).xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TangemClip.release(beta).xcconfig"; path = "Target Support Files/Pods-TangemClip/Pods-TangemClip.release(beta).xcconfig"; sourceTree = "<group>"; };
 		EFAF63E82927CA63004B3227 /* Setupable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Setupable.swift; sourceTree = "<group>"; };
 		EFB4C1312837C51700E991C1 /* TextHint.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextHint.swift; sourceTree = "<group>"; };
+		EFBAABAC2927CCBA0065C6D4 /* GroupedNumberTextField.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GroupedNumberTextField.swift; sourceTree = "<group>"; };
+		EFBAABAD2927CCBA0065C6D4 /* GroupedNumberFormatter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GroupedNumberFormatter.swift; sourceTree = "<group>"; };
 		EFC46EFD29266982003928E3 /* SendCurrencyViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendCurrencyViewModel.swift; sourceTree = "<group>"; };
 		EFC46F00292669A0003928E3 /* ReceiveCurrencyViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReceiveCurrencyViewModel.swift; sourceTree = "<group>"; };
 		EFC98EA02897CB3F00261D33 /* AttentionViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AttentionViewModel.swift; sourceTree = "<group>"; };
@@ -1435,6 +1439,7 @@
 				5D3F77C324BF56D800E8695B /* Products */,
 				BBA154748909F0AB4121528D /* Pods */,
 				2E5061A84512B23CCB5F2E17 /* Frameworks */,
+				EFBAABAA2927CC9E0065C6D4 /* Recovered References */,
 			);
 			sourceTree = "<group>";
 		};
@@ -1535,8 +1540,8 @@
 		5D958E1224F513C1006BD932 /* UI */ = {
 			isa = PBXGroup;
 			children = (
+				EFBAABAB2927CCBA0065C6D4 /* GroupedNumberTextField */,
 				EF46623C2924F1F700346B6C /* ExchangeComponets */,
-				EF5267FA2927C62700FC25A8 /* GroupedNumberTextField */,
 				EFEBCE2929265CEA00B0C886 /* TokenIconView */,
 				EF48289628D1FC5B002809C6 /* GroupedScrollView */,
 				EF661E3028C0ACD0005769E5 /* ScanCardWarningView */,
@@ -3059,6 +3064,24 @@
 			path = Types;
 			sourceTree = "<group>";
 		};
+		EFBAABAA2927CC9E0065C6D4 /* Recovered References */ = {
+			isa = PBXGroup;
+			children = (
+				EF5268002927C66100FC25A8 /* GroupedNumberTextField.swift */,
+				EF5267FF2927C66100FC25A8 /* GroupedNumberFormatter.swift */,
+			);
+			name = "Recovered References";
+			sourceTree = "<group>";
+		};
+		EFBAABAB2927CCBA0065C6D4 /* GroupedNumberTextField */ = {
+			isa = PBXGroup;
+			children = (
+				EFBAABAC2927CCBA0065C6D4 /* GroupedNumberTextField.swift */,
+				EFBAABAD2927CCBA0065C6D4 /* GroupedNumberFormatter.swift */,
+			);
+			path = GroupedNumberTextField;
+			sourceTree = "<group>";
+		};
 		EFC46EFC29266978003928E3 /* SendCurrencyView */ = {
 			isa = PBXGroup;
 			children = (
@@ -3572,6 +3595,7 @@
 				EF5903A42909285E00C527C9 /* EnvironmentProvider.swift in Sources */,
 				B0CCA7222568FD0F009325E3 /* TwinsCreateWalletTask.swift in Sources */,
 				B0323F27258BFCF4005C7CD5 /* WriteIssuerDataTask.swift in Sources */,
+				EFBAABAE2927CCBA0065C6D4 /* GroupedNumberTextField.swift in Sources */,
 				5D80ED422550172A0008DEF0 /* UIApplication+.swift in Sources */,
 				5D6784CE25EB92F300149995 /* TestnetTokensRepository.swift in Sources */,
 				EFC46EFE29266982003928E3 /* SendCurrencyViewModel.swift in Sources */,
@@ -3818,6 +3842,7 @@
 				B031AAB526C16A1B00015003 /* UIColor+.swift in Sources */,
 				DA5FAD8627B2791C00EE53AE /* ApplePayButton.swift in Sources */,
 				DC295B3C2861C19C006CB7B6 /* MainCoordinator.swift in Sources */,
+				EFBAABAF2927CCBA0065C6D4 /* GroupedNumberFormatter.swift in Sources */,
 				EF0FF8712866021B00B7CEAF /* AppEnvironment.swift in Sources */,
 				B01EB9C426E9F18A0060E2FB /* StackCalculator.swift in Sources */,
 				EFF034AF28B6522500F70FF7 /* WalletListManager.swift in Sources */,
