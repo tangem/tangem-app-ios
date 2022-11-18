@@ -114,6 +114,17 @@ private extension CardSettingsViewModel {
         }
     }
 
+    private func didResetCard(with userWallet: UserWallet, cardsCount: Int) {
+        let askToDeleteWallet = cardsCount > 1 && !userWalletListService.isEmpty
+
+        if askToDeleteWallet {
+            presentDeleteWalletAlert(for: userWallet)
+        } else {
+            deleteWallet(userWallet)
+            navigateAwayAfterReset()
+        }
+    }
+
     private func presentDeleteWalletAlert(for userWallet: UserWallet) {
         self.alert = AlertBinder(
             alert: Alert(
@@ -153,7 +164,7 @@ extension CardSettingsViewModel {
             return
         }
 
-        let askToDeleteWallet = cardModel.cardsCount > 1 && !userWalletListService.isEmpty
+        let cardsCount = cardModel.cardsCount
         let userWallet = cardModel.userWallet
 
         if cardModel.canTwin {
@@ -165,12 +176,7 @@ extension CardSettingsViewModel {
 
                     switch result {
                     case .success:
-                        if !askToDeleteWallet {
-                            self.deleteWallet(userWallet)
-                            self.navigateAwayAfterReset()
-                        } else {
-                            self.presentDeleteWalletAlert(for: userWallet)
-                        }
+                        self.didResetCard(with: userWallet, cardsCount: cardsCount)
                     case let .failure(error):
                         if !error.isUserCancelled {
                             self.alert = error.alertBinder
