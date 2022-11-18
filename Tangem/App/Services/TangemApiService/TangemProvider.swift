@@ -27,3 +27,24 @@ extension URLSessionConfiguration {
         return configuration
     }()
 }
+
+extension TangemProvider {
+    func asyncRequest<T: Decodable>(for target: Target, failsOnEmptyData: Bool = true) async throws -> T {
+        try await withCheckedThrowingContinuation { [weak self] continuation in
+            guard let self = self else { return }
+
+            self.request(target) { result in
+                switch result {
+                case .success(let responseValue):
+                    do {
+                        continuation.resume(returning: try responseValue.map(T.self, failsOnEmptyData: failsOnEmptyData))
+                    } catch {
+                        continuation.resume(throwing: error)
+                    }
+                case .failure(let error):
+                    continuation.resume(throwing: error)
+                }
+            }
+        }
+    }
+}
