@@ -170,7 +170,7 @@ extension CardSettingsViewModel {
         if cardModel.canTwin {
             prepareTwinOnboarding()
         } else {
-            coordinator.openResetCardToFactoryWarning { [weak self, userWallet] in
+            coordinator.openResetCardToFactoryWarning { [weak self] in
                 self?.cardModel.resetToFactory { [weak self] result in
                     guard let self, let userWallet else { return }
 
