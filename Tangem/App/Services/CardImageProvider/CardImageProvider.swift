@@ -48,7 +48,7 @@ extension CardImageProvider: CardImageProviding {
             return Just(defaultImage).eraseToAnyPublisher()
         }
 
-        let cardArtwork = artwork ?? CardImageProvider.cardArtworkCache[cardId] ?? .notLoaded
+        let cardArtwork = CardImageProvider.cardArtworkCache[cardId] ?? artwork ?? .notLoaded
 
         return loadImage(cardId: cardId, cardPublicKey: cardPublicKey, cardArtwork: cardArtwork)
             .replaceError(with: defaultImage)
