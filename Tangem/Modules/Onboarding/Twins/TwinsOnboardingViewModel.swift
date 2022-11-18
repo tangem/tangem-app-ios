@@ -10,6 +10,8 @@ import SwiftUI
 import Combine
 
 class TwinsOnboardingViewModel: OnboardingTopupViewModel<TwinsOnboardingStep, OnboardingCoordinator>, ObservableObject {
+    @Injected(\.userWalletListService) private var userWalletListService: UserWalletListService
+
     @Published var firstTwinImage: Image?
     @Published var secondTwinImage: Image?
     @Published var pairNumber: String
@@ -126,6 +128,7 @@ class TwinsOnboardingViewModel: OnboardingTopupViewModel<TwinsOnboardingStep, On
     private var twinData: TwinData
     private var stepUpdatesSubscription: AnyCancellable?
     private let twinsService: TwinsWalletCreationUtil
+    private let originalUserWallet: UserWallet?
 
     private var canBuy: Bool { exchangeService.canBuy("BTC", amountType: .coin, blockchain: .bitcoin(testnet: false)) }
 
@@ -136,6 +139,7 @@ class TwinsOnboardingViewModel: OnboardingTopupViewModel<TwinsOnboardingStep, On
         self.pairNumber = "\(twinData.series.pair.number)"
         self.twinData = twinData
         self.twinsService = .init(card: cardModel, twinData: twinData)
+        self.originalUserWallet = cardModel.userWallet
 
         super.init(input: input, coordinator: coordinator)
 
@@ -278,6 +282,15 @@ class TwinsOnboardingViewModel: OnboardingTopupViewModel<TwinsOnboardingStep, On
                     self.closeOnboarding()
                 }
             }
+        }
+    }
+
+    override func saveUserWalletIfNeeded() throws {
+        try super.saveUserWalletIfNeeded()
+
+        if let originalUserWallet,
+           AppSettings.shared.saveUserWallets {
+            userWalletListService.delete(originalUserWallet)
         }
     }
 
