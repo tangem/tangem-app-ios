@@ -124,7 +124,9 @@ struct TwinsOnboardingView: View {
                     .frame(size: geom.size)
                 }
                 .readSize { size in
-                    viewModel.setupContainer(with: size)
+                    if !viewModel.isCustomContentVisible {
+                        viewModel.setupContainer(with: size)
+                    }
                 }
 
                 if viewModel.isCustomContentVisible {
