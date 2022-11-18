@@ -65,7 +65,7 @@ class UserWalletListCellViewModel: ObservableObject {
         totalBalanceProvider.totalBalancePublisher()
             .compactMap { $0.value }
             .sink { [unowned self] balance in
-                self.balance = balance.balance.currencyFormatted(code: balance.currency.code)
+                self.balance = balance.balance.currencyFormatted(code: balance.currencyCode)
                 self.isBalanceLoading = false
             }
             .store(in: &bag)
@@ -74,9 +74,7 @@ class UserWalletListCellViewModel: ObservableObject {
     private func updateBalance() {
         isBalanceLoading = true
 
-        userWalletModel.updateAndReloadWalletModels { [weak self] in
-            self?.totalBalanceProvider.updateTotalBalance()
-        }
+        userWalletModel.updateAndReloadWalletModels { }
     }
 
     private func updateNumberOfTokens() {
