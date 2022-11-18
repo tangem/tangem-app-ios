@@ -52,10 +52,6 @@ class UserWalletListCellViewModel: ObservableObject {
         bind()
         loadImage()
 
-        if !totalBalanceProvider.isLoaded {
-            updateBalance()
-        }
-
         if isMultiWallet {
             updateNumberOfTokens()
         }
@@ -69,12 +65,6 @@ class UserWalletListCellViewModel: ObservableObject {
                 self.isBalanceLoading = false
             }
             .store(in: &bag)
-    }
-
-    private func updateBalance() {
-        isBalanceLoading = true
-
-        userWalletModel.updateAndReloadWalletModels { }
     }
 
     private func updateNumberOfTokens() {
