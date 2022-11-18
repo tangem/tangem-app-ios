@@ -70,11 +70,6 @@ struct SwappingView_Preview: PreviewProvider {
     static let viewModel = SwappingViewModel(coordinator: SwappingCoordinator())
 
     static var previews: some View {
-        ZStack {
-            Colors.Background.secondary
-
-            SwappingView(viewModel: viewModel)
-                .padding()
-        }
+        SwappingView(viewModel: viewModel)
     }
 }
