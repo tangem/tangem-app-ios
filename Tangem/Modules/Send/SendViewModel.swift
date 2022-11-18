@@ -316,7 +316,7 @@ class SendViewModel: ObservableObject {
             .combineLatest($validatedDestination.compactMap { $0 }, feeRetrySubject)
             .flatMap { [unowned self] amount, dest, _ -> AnyPublisher<[Amount], Never> in
                 self.isFeeLoading = true
-                return self.walletModel.walletManager.getFee(amount: amount, destination: dest)
+                return self.walletModel.getFee(amount: amount, destination: dest)
                     .catch { [unowned self] error -> Just<[Amount]> in
                         print(error)
                         Analytics.log(error: error)
