@@ -19,6 +19,9 @@ protocol TangemApiService: AnyObject, Initializable {
     func loadTokens(for key: String) -> AnyPublisher<UserTokenList, TangemAPIError>
     func saveTokens(list: UserTokenList, for key: String) -> AnyPublisher<Void, TangemAPIError>
 
+    func loadReferralProgramInfo(for userWalletId: String) async throws -> ReferralProgramInfo
+    func participateInReferralProgram(with userData: ReferralParticipationRequestBody) async throws -> ReferralProgramInfo
+
     func setAuthData(_ authData: TangemApiTarget.AuthData)
 }
 
