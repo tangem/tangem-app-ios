@@ -220,11 +220,12 @@ final class UserWalletListViewModel: ObservableObject, Identifiable {
         }
 
         let updateSelection: (UserWallet) -> Void = { [weak self] userWallet in
-            let cardModel = CardViewModel(userWallet: userWallet)
             self?.selectedUserWalletId = userWallet.userWalletId
             self?.userWalletRepository.selectedUserWalletId = userWallet.userWalletId
-            self?.coordinator.didTap(cardModel)
             self?.updateSelectedWalletModel()
+            if let selectedCardModel = self?.userWalletRepository.selectedModel {
+                self?.coordinator.didTap(selectedCardModel)
+            }
         }
 
         if !userWallet.isLocked {
