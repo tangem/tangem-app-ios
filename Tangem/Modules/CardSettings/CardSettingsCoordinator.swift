@@ -53,9 +53,7 @@ extension CardSettingsCoordinator {
 // MARK: - CardSettingsRoutable
 
 extension CardSettingsCoordinator: CardSettingsRoutable {
-    func openOnboarding(with input: OnboardingInput) {
-        let isSavingCards = !userWalletListService.isEmpty
-
+    func openOnboarding(with input: OnboardingInput, isSavingCards: Bool) {
         let popToRootAction: ParamsAction<PopToRootOptions> = { [weak self] options in
             self?.modalOnboardingCoordinator = nil
             if isSavingCards {
