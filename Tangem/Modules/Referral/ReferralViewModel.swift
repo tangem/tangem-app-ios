@@ -16,10 +16,6 @@ class ReferralViewModel: ObservableObject {
     @Published private(set) var referralProgramInfo: ReferralProgramInfo?
     @Published var errorAlert: AlertBinder?
 
-    var referralInfo: ReferralProgramInfo.Referral? {
-        referralProgramInfo?.referral
-    }
-
     private unowned let coordinator: ReferralRoutable
     private let referralService: ReferralService
     private let cardModel: CardViewModel
