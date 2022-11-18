@@ -50,30 +50,31 @@ class UserWalletListCellViewModel: ObservableObject {
         self.didTapUserWallet = didTapUserWallet
 
         bind()
-        update()
         loadImage()
+
+        if !totalBalanceProvider.isLoaded {
+            updateBalance()
+        }
+
+        if isMultiWallet {
+            updateNumberOfTokens()
+        }
     }
 
     func bind() {
         totalBalanceProvider.totalBalancePublisher()
             .compactMap { $0.value }
             .sink { [unowned self] balance in
-                self.balance = balance.balance.currencyFormatted(code: balance.currency.code)
+                self.balance = balance.balance.currencyFormatted(code: balance.currencyCode)
                 self.isBalanceLoading = false
             }
             .store(in: &bag)
     }
 
-    private func update() {
+    private func updateBalance() {
         isBalanceLoading = true
 
-        userWalletModel.updateAndReloadWalletModels { [weak self] in
-            self?.totalBalanceProvider.updateTotalBalance()
-        }
-
-        if isMultiWallet {
-            updateNumberOfTokens()
-        }
+        userWalletModel.updateAndReloadWalletModels { }
     }
 
     private func updateNumberOfTokens() {

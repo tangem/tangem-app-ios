@@ -11,7 +11,7 @@ import SwiftUI
 
 enum BiometricAuthorizationUtils {
     static func getBiometricState() -> BiometricState {
-        let context = LAContext()
+        let context = LAContext.default
         var error: NSError?
         let canEvaluatePolicy = context.canEvaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, error: &error)
 
@@ -27,7 +27,7 @@ enum BiometricAuthorizationUtils {
     }
 
     static var biometryType: LABiometryType {
-        let context = LAContext()
+        let context = LAContext.default
         var error: NSError?
         let _ = context.canEvaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, error: &error)
         return context.biometryType
