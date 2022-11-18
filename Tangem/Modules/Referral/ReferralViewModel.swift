@@ -8,21 +8,103 @@
 
 import Foundation
 import Combine
-import class UIKit.UIPasteboard
+import UIKit
+import BlockchainSdk
 
 class ReferralViewModel: ObservableObject {
     @Published var isProcessingRequest: Bool = false
     @Published private(set) var referralProgramInfo: ReferralProgramInfo?
+    @Published var errorAlert: AlertBinder?
 
+    var referralInfo: ReferralProgramInfo.Referral? {
+        referralProgramInfo?.referral
+    }
+
+    private unowned let coordinator: ReferralRoutable
+    private let referralService: ReferralService
+    private let cardModel: CardViewModel
+
+    init(coordinator: ReferralRoutable, referralService: ReferralService, cardModel: CardViewModel) {
+        self.coordinator = coordinator
+        self.referralService = referralService
+        self.cardModel = cardModel
+
+        loadReferralInfo()
+    }
+
+    @MainActor
+    func participateInReferralProgram() async {
+        guard
+            let award = referralProgramInfo?.conditions.awards.first,
+            let blockchain = Blockchain(from: award.token.networkId)
+        else {
+            errorAlert = AlertBuilder.makeOkErrorAlert(message: "Failed to load")
+            return
+        }
+
+        // [REDACTED_TODO_COMMENT]
+        guard let address = cardModel.wallets.first(where: { $0.blockchain == blockchain })?.address else {
+            requestDerivation()
+            return
+        }
+
+        isProcessingRequest = true
+        do {
+            let referralProgramInfo = try await runInTask {
+                let prog = try await self.referralService.participateInReferralProgram(using: award.token, with: address)
+                return prog
+            }
+            self.referralProgramInfo = referralProgramInfo
+        } catch {
+            errorAlert = error.alertBinder
+        }
+
+        isProcessingRequest = false
+    }
+
+    func openTou() {
+        // [REDACTED_TODO_COMMENT]
+    }
+
+    func copyPromoCode() {
+        UIPasteboard.general.string = referralProgramInfo?.referral?.promoCode
+    }
+
+    func sharePromoCode() {
+
+    }
+
+    private func loadReferralInfo() {
+        Task {
+            do {
+                let referralProgramInfo = try await self.referralService.loadReferralProgramInfo()
+                await runOnMain {
+                    self.referralProgramInfo = referralProgramInfo
+                }
+            } catch {
+                await runOnMain {
+                    errorAlert = error.alertBinder
+                }
+            }
+        }
+    }
+
+    private func requestDerivation() {
+        // [REDACTED_TODO_COMMENT]
+    }
+}
+
+// MARK: UI stuff
+extension ReferralViewModel {
     var award: String {
         guard
             let info = referralProgramInfo,
-            let awardToken = info.conditions.tokens.first
+            let award = info.conditions.awards.first
         else {
             return ""
         }
 
-        return String(format: "referral_point_discount_description_value".localized, "\(info.conditions.award) \(awardToken.symbol)")
+        return "\(award.amount) \(award.token.symbol)"
     }
 
     var awardDescriptionSuffix: String {
@@ -41,7 +123,7 @@ class ReferralViewModel: ObservableObject {
             return ""
         }
 
-        return String(format: "referral_point_discount_description_value".localized, "\(info.conditions.discount)\(info.conditions.discountType.symbol)")
+        return String(format: "referral_point_discount_description_value".localized, "\(info.conditions.discount.amount)\(info.conditions.discount.type.symbol)")
     }
 
     var numberOfWalletsBought: String {
@@ -50,7 +132,7 @@ class ReferralViewModel: ObservableObject {
             return String.localizedStringWithFormat(stringFormat, 0)
         }
 
-        return String.localizedStringWithFormat(stringFormat, info.walletPurchase)
+        return String.localizedStringWithFormat(stringFormat, info.walletsPurchased)
     }
 
     var promoCode: String {
@@ -71,37 +153,4 @@ class ReferralViewModel: ObservableObject {
 
     var isProgramInfoLoaded: Bool { referralProgramInfo != nil }
     var isAlreadyReferral: Bool { referralProgramInfo?.referral != nil }
-
-    var referralInfo: ReferralProgramInfo.Referral? {
-        referralProgramInfo?.referral
-    }
-
-    private let coordinator: ReferralRoutable
-
-    init(coordinator: ReferralRoutable, json: String = "") {
-        self.coordinator = coordinator
-        let jsonDecoder = JSONDecoder()
-        referralProgramInfo = try? jsonDecoder.decode(ReferralProgramInfo.self, from: json.data(using: .utf8)!)
-    }
-
-    // Temp solution. Will be updated in [REDACTED_INFO]
-    static func mock(_ mock: ReferralMock, with coordinator: ReferralRoutable) -> ReferralViewModel {
-        .init(coordinator: coordinator, json: mock.json)
-    }
-
-    func openTou() {
-        // [REDACTED_TODO_COMMENT]
-    }
-
-    func participateInReferralProgram() {
-        // [REDACTED_TODO_COMMENT]
-    }
-
-    func copyPromoCode() {
-        UIPasteboard.general.string = referralProgramInfo?.referral?.promoCode
-    }
-
-    func sharePromoCode() {
-
-    }
 }
