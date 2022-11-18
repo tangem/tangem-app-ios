@@ -62,3 +62,20 @@ struct DefaultRowView: View {
         }
     }
 }
+
+struct DefaultRowView_Preview: PreviewProvider {
+    static let viewModel = DefaultRowViewModel(
+        title: "App settings",
+        detailsType: .loader,
+        action: nil
+    )
+
+    static var previews: some View {
+        ZStack {
+            Colors.Background.secondary
+
+            DefaultRowView(viewModel: viewModel)
+                .padding(.horizontal, 16)
+        }
+    }
+}
