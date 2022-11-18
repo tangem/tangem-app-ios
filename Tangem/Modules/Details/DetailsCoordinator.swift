@@ -118,7 +118,7 @@ extension DetailsCoordinator: ScanCardSettingsRoutable {
     func openCardSettings(cardModel: CardViewModel) {
         scanCardSettingsViewModel = nil
 
-        let coordinator = CardSettingsCoordinator(popToRootAction: popToRootAction)
+        let coordinator = CardSettingsCoordinator(dismissAction: dismissAction, popToRootAction: popToRootAction)
         coordinator.start(with: .init(cardModel: cardModel))
         cardSettingsCoordinator = coordinator
     }
