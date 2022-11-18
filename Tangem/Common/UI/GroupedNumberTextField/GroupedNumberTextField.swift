@@ -12,6 +12,7 @@ struct GroupedNumberTextField: View {
     @Binding private var decimalValue: Decimal?
     @State private var textFieldText: String = ""
 
+    private var placeholder: String = "0"
     private var maximumFractionDigits: Int = 8
     private let numberFormatter: NumberFormatter = .grouped
     private let groupedNumberFormatter: GroupedNumberFormatter
@@ -60,9 +61,15 @@ struct GroupedNumberTextField: View {
     }
 
     var body: some View {
-        TextField("0", text: textFieldProxyBinding)
+        TextField(placeholder, text: textFieldProxyBinding)
             .style(Fonts.Regular.title1, color: Colors.Text.primary1)
             .keyboardType(.decimalPad)
+    }
+}
+
+extension GroupedNumberTextField: Buildable {
+    func maximumFractionDigits(_ digits: Int) -> Self {
+        map { $0.maximumFractionDigits = digits }
     }
 }
 
