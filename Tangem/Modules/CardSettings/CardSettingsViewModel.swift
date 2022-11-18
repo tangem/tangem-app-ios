@@ -147,12 +147,7 @@ extension CardSettingsViewModel {
         } else {
             coordinator.openResetCardToFactoryWarning { [weak self, userWallet] in
                 self?.cardModel.resetToFactory { [weak self] result in
-                    guard
-                        let self,
-                        let userWallet
-                    else {
-                        return
-                    }
+                    guard let self, let userWallet else { return }
 
                     switch result {
                     case .success:
