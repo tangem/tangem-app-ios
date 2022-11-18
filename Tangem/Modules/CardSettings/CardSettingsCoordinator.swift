@@ -9,8 +9,6 @@
 import Foundation
 
 class CardSettingsCoordinator: CoordinatorObject {
-    @Injected(\.userWalletListService) private var userWalletListService: UserWalletListService
-
     let dismissAction: Action
     let popToRootAction: ParamsAction<PopToRootOptions>
 
