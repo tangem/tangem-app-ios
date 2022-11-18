@@ -19,12 +19,19 @@ struct SwappingView: View {
         ZStack {
             Colors.Background.secondary.edgesIgnoringSafeArea(.all)
 
-            GroupedScrollView {
+            GroupedScrollView(spacing: 14) {
                 swappingViews
 
-                MainButton(text: "Swap", icon: .trailing(Assets.tangemIcon)) {}
+                refreshWarningSection
+
+                informationSection
+
+                mainButton
             }
+            .keyboardAdaptive()
+            .scrollDismissesKeyboardCompat()
         }
+        .navigationBarTitle(Text("Swap"), displayMode: .inline)
     }
 
     @ViewBuilder
@@ -41,13 +48,14 @@ struct SwappingView: View {
 
             swappingButton
         }
+        .padding(.top, 16)
     }
 
     @ViewBuilder
     private var swappingButton: some View {
         Group {
             if viewModel.isLoading {
-                ActivityIndicatorView(color: .gray)
+                ProgressViewCompat(color: Colors.Icon.informative)
             } else {
                 Button(action: viewModel.swapButtonDidTap) {
                     Assets.swappingIcon
@@ -64,12 +72,44 @@ struct SwappingView: View {
                 .stroke(Colors.Stroke.primary, lineWidth: 1)
         )
     }
+
+    @ViewBuilder
+    private var refreshWarningSection: some View {
+        GroupedSection(viewModel.refreshWarningRowViewModel) {
+            DefaultWarningRow(viewModel: $0)
+        }
+        .verticalPadding(0)
+    }
+
+    @ViewBuilder
+    private var informationSection: some View {
+        GroupedSection(viewModel.informationSectionViewModels) { item in
+            switch item {
+            case let .fee(viewModel):
+                DefaultRowView(viewModel: viewModel)
+            case let .warning(viewModel):
+                DefaultWarningRow(viewModel: viewModel)
+            }
+        }
+        .verticalPadding(0)
+    }
+
+    @ViewBuilder
+    private var mainButton: some View {
+        MainButton(
+            text: "Swap",
+            icon: .trailing(Assets.tangemIcon),
+            isDisabled: !viewModel.mainButtonIsEnabled
+        ) {}
+    }
 }
 
 struct SwappingView_Preview: PreviewProvider {
     static let viewModel = SwappingViewModel(coordinator: SwappingCoordinator())
 
     static var previews: some View {
-        SwappingView(viewModel: viewModel)
+        NavigationView {
+            SwappingView(viewModel: viewModel)
+        }
     }
 }
