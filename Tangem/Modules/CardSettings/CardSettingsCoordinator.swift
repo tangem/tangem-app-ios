@@ -51,10 +51,10 @@ extension CardSettingsCoordinator {
 // MARK: - CardSettingsRoutable
 
 extension CardSettingsCoordinator: CardSettingsRoutable {
-    func openOnboarding(with input: OnboardingInput) {
+    func openOnboarding(with input: OnboardingInput, completion: @escaping () -> Void) {
         let popToRootAction: ParamsAction<PopToRootOptions> = { [weak self] options in
             self?.modalOnboardingCoordinator = nil
-            self?.resetCardDidFinish()
+            completion()
         }
 
         let dismissAction: Action = { [weak self] in
@@ -85,9 +85,5 @@ extension CardSettingsCoordinator: CardSettingsRoutable {
             buttonTitle: "reset_card_to_factory_button_title",
             mainButtonAction: mainButtonAction
         )
-    }
-
-    func resetCardDidFinish() {
-        popToRoot()
     }
 }
