@@ -66,7 +66,7 @@ private extension CardSettingsViewModel {
 
     func prepareTwinOnboarding() {
         if let twinInput = cardModel.twinInput {
-            coordinator.openOnboarding(with: twinInput)
+            coordinator.openOnboarding(with: twinInput, isSavingCards: !userWalletListService.isEmpty)
         }
     }
 
