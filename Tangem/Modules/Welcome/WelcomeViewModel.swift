@@ -66,8 +66,7 @@ class WelcomeViewModel: ObservableObject {
         userWalletRepository
             .eventProvider
             .sink { [weak self] event in
-                switch event {
-                case .locked:
+                if case .locked = event {
                     self?.lock()
                 }
             }
