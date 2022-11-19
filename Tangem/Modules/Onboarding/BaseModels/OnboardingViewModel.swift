@@ -286,7 +286,7 @@ class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable>
         }
 
         userWalletRepository.save(userWallet)
-        userWalletRepository.selectedUserWalletId = userWallet.userWalletId
+        userWalletRepository.setSelectedUserWalletId(userWallet.userWalletId)
     }
 
     private func bindAnalytics() {
