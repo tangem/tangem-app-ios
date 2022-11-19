@@ -128,7 +128,7 @@ private extension CardSettingsViewModel {
     private func presentDeleteWalletAlert(for userWallet: UserWallet) {
         self.alert = AlertBinder(
             alert: Alert(
-                title: Text("Do you want to delete the wallet?"),
+                title: Text("card_settings_reset_card_delete_wallet_warning"),
                 primaryButton: .destructive(Text("common_yes")) {
                     self.deleteWallet(userWallet)
                     self.navigateAwayAfterReset()
