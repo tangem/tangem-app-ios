@@ -64,6 +64,8 @@ final class UserWalletListViewModel: ObservableObject, Identifiable {
                 switch event {
                 case .locked:
                     break
+                case .scan(let isScanning):
+                    self?.isScanningCard = isScanning
                 case .updated(let userWalletId):
                     self?.update(userWalletId: userWalletId)
                 case .deleted(let userWalletId):
@@ -88,8 +90,6 @@ final class UserWalletListViewModel: ObservableObject, Identifiable {
     func addUserWallet() {
         Analytics.log(.buttonScanNewCard)
 
-        isScanningCard = true
-
         userWalletRepository.add { [weak self] result in
             guard
                 let self,
@@ -97,8 +97,6 @@ final class UserWalletListViewModel: ObservableObject, Identifiable {
             else {
                 return
             }
-
-            self.isScanningCard = false
 
             switch result {
             case .troubleshooting:
