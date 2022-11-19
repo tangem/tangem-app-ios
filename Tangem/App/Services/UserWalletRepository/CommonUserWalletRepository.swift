@@ -274,14 +274,19 @@ class CommonUserWalletRepository: UserWalletRepository {
 
         saveUserWallets(userWallets)
 
+        let userWalletModel: UserWalletModel?
         if let index = models.firstIndex(where: { $0.userWallet?.userWalletId == userWallet.userWalletId }) {
             models[index].setUserWallet(userWallet)
+            userWalletModel = models[index].userWalletModel
         } else {
             let newModel = CardViewModel(userWallet: userWallet)
             models.append(newModel)
+            userWalletModel = newModel.userWalletModel
         }
 
-        sendEvent(.updated(userWalletId: userWallet.userWalletId))
+        guard let userWalletModel else { return }
+
+        sendEvent(.updated(userWalletModel: userWalletModel))
 
         if userWallets.isEmpty || selectedUserWalletId == nil {
             setSelectedUserWalletId(userWallet.userWalletId)
@@ -470,12 +475,20 @@ class CommonUserWalletRepository: UserWalletRepository {
 
                 self.encryptionKeyByUserWalletId[scannedUserWallet.userWalletId] = encryptionKey
                 self.loadModel(for: scannedUserWallet)
+
+                guard
+                    let cardModel = self.models.first(where: { $0.userWalletId == scannedUserWallet.userWalletId }),
+                    let userWalletModel = cardModel.userWalletModel
+                else {
+                    return
+                }
+
                 self.setSelectedUserWalletId(scannedUserWallet.userWalletId)
                 self.initializeServicesForSelectedModel()
 
                 self.isUnlocked = self.userWallets.allSatisfy { !$0.isLocked }
 
-                self.sendEvent(.updated(userWalletId: scannedUserWallet.userWalletId))
+                self.sendEvent(.updated(userWalletModel: userWalletModel))
 
                 completion(.success(()))
             }
