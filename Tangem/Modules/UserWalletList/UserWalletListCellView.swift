@@ -21,6 +21,7 @@ class UserWalletListCellViewModel: ObservableObject {
     let isMultiWallet: Bool
     let didTapUserWallet: () -> Void
     let totalBalanceProvider: TotalBalanceProviding
+    let imageHeight = 30.0
 
     var userWallet: UserWallet { userWalletModel.userWallet }
     var userWalletId: Data { userWallet.userWalletId }
@@ -98,9 +99,21 @@ class UserWalletListCellViewModel: ObservableObject {
 
         cardImageProvider.loadImage(cardId: userWallet.card.cardId, cardPublicKey: userWallet.card.cardPublicKey, artwork: artwork)
             .sink { [unowned self] image in
-                self.image = image
+                self.image = self.scaleImage(image, newHeight: self.imageHeight * UIScreen.main.scale)
             }
             .store(in: &bag)
+    }
+
+    private func scaleImage(_ image: UIImage, newHeight: CGFloat) -> UIImage {
+        let scale = newHeight / image.size.height
+        let newWidth = image.size.width * scale
+
+        UIGraphicsBeginImageContext(CGSizeMake(newWidth, newHeight))
+        image.draw(in: CGRectMake(0, 0, newWidth, newHeight))
+        let newImage = UIGraphicsGetImageFromCurrentImageContext()
+        UIGraphicsEndImageContext()
+
+        return newImage ?? image
     }
 }
 
@@ -157,13 +170,13 @@ struct UserWalletListCellView: View {
             Image(uiImage: image)
                 .resizable()
                 .aspectRatio(contentMode: .fit)
-                .frame(maxWidth: 50, minHeight: 30, maxHeight: 30)
+                .frame(maxWidth: 50, minHeight: viewModel.imageHeight, maxHeight: viewModel.imageHeight)
         } else {
             Color.tangemGrayLight4
                 .transition(.opacity)
                 .opacity(0.5)
                 .cornerRadius(3)
-                .frame(width: 50, height: 30)
+                .frame(width: 50, height: viewModel.imageHeight)
         }
     }
 
