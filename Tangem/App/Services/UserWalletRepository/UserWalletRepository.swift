@@ -13,7 +13,7 @@ protocol UserWalletRepository {
     var delegate: UserWalletRepositoryDelegate? { get set }
     var models: [CardViewModel] { get }
     var selectedModel: CardViewModel? { get }
-    var selectedUserWalletId: Data? { get set }
+    var selectedUserWalletId: Data? { get }
     var isEmpty: Bool { get }
     var isUnlocked: Bool { get }
     var eventProvider: AnyPublisher<UserWalletRepositoryEvent, Never> { get }
@@ -22,6 +22,7 @@ protocol UserWalletRepository {
 
     func lock()
     func unlock(with method: UserWalletRepositoryUnlockMethod, completion: @escaping (Result<Void, Error>) -> Void)
+    func setSelectedUserWalletId(_ userWalletId: Data?)
 
     func didScan(card: CardDTO)
 
@@ -66,6 +67,9 @@ enum UserWalletRepositoryResult {
 
 enum UserWalletRepositoryEvent {
     case locked
+    case updated(userWalletId: Data)
+    case deleted(userWalletId: Data)
+    case selected(userWallet: UserWallet)
 }
 
 enum UserWalletRepositoryError: Error {
