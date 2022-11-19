@@ -335,7 +335,16 @@ class CommonUserWalletRepository: UserWalletRepository {
         saveUserWallets(userWallets)
 
         if selectedUserWalletId == userWalletId {
-            setSelectedUserWalletId(userWallets.first?.userWalletId)
+            let newSelectedUserWalletId: Data?
+            if let firstMultiModel = models.first(where: { $0.isMultiWallet }) {
+                newSelectedUserWalletId = firstMultiModel.userWalletId
+            } else if let firstSingleModel = models.first(where: { !$0.isMultiWallet }) {
+                newSelectedUserWalletId = firstSingleModel.userWalletId
+            } else {
+                newSelectedUserWalletId = nil
+            }
+
+            setSelectedUserWalletId(newSelectedUserWalletId)
         }
 
         eventSubject.send(.deleted(userWalletId: userWalletId))
