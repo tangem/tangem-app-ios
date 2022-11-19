@@ -23,15 +23,6 @@ extension CardDTO {
         !wallets.isEmpty
     }
 
-    var userWalletId: Data {
-        if !hasWallets {
-            assertionFailure("Wallet not found, use CardViewModel for create wallet")
-        }
-
-        let publicKeyData = wallets.first?.publicKey ?? cardPublicKey
-        return UserWalletId(with: publicKeyData).value
-    }
-
     var derivationStyle: DerivationStyle? {
         CardDTO.getDerivationStyle(for: batchId, isHdWalletAllowed: settings.isHDWalletAllowed)
     }
