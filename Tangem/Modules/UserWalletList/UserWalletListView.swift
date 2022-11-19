@@ -161,7 +161,6 @@ extension UserWalletListView {
         if #available(iOS 15, *) {
             cellInternal(for: viewModel)
                 .listRowInsets(EdgeInsets())
-                .listRowBackground(Color.blue)
                 .swipeActions {
                     Button("common_delete") {
                         self.viewModel.showDeletionConfirmation(viewModel)
