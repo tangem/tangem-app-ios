@@ -53,29 +53,26 @@ final class UserWalletListViewModel: ObservableObject, Identifiable {
         Analytics.log(.myWalletsScreenOpened)
         selectedUserWalletId = userWalletRepository.selectedUserWalletId
         updateModels()
+
+        bind()
     }
 
-    func updateModels() {
-        let oldModels = multiCurrencyModels + singleCurrencyModels
-        let totalBalanceProviders = Dictionary(oldModels.map {
-            ($0.userWalletId, $0.totalBalanceProvider)
-        }, uniquingKeysWith: { v1, _ in
-            v1
-        })
-
-        multiCurrencyModels = userWalletRepository.models
-            .filter { $0.isMultiWallet }
-            .compactMap { $0.userWalletModel }
-            .map {
-                mapToUserWalletListCellViewModel(userWalletModel: $0, totalBalanceProvider: totalBalanceProviders[$0.userWallet.userWalletId])
+    func bind() {
+        userWalletRepository
+            .eventProvider
+            .sink { [weak self] event in
+                switch event {
+                case .locked:
+                    break
+                case .updated(let userWalletId):
+                    self?.update(userWalletId: userWalletId)
+                case .deleted(let userWalletId):
+                    self?.delete(userWalletId: userWalletId)
+                case .selected(let userWallet):
+                    self?.setSelectedWallet(userWallet)
+                }
             }
-
-        singleCurrencyModels = userWalletRepository.models
-            .filter { !$0.isMultiWallet }
-            .compactMap { $0.userWalletModel }
-            .map {
-                mapToUserWalletListCellViewModel(userWalletModel: $0, totalBalanceProvider: totalBalanceProviders[$0.userWallet.userWalletId])
-            }
+            .store(in: &bag)
     }
 
     func unlockAllWallets() {
@@ -157,7 +154,6 @@ final class UserWalletListViewModel: ObservableObject, Identifiable {
             newUserWallet.name = newName
 
             self?.userWalletRepository.save(newUserWallet)
-            self?.updateModels()
         }
         alert.addAction(acceptButton)
 
@@ -176,77 +172,81 @@ final class UserWalletListViewModel: ObservableObject, Identifiable {
     }
 
     func didConfirmWalletDeletion() {
-        let models = userWalletRepository.models
-
         let viewModels = (multiCurrencyModels + singleCurrencyModels)
         guard let viewModel = viewModels.first(where: { $0.userWalletId == userWalletIdToBeDeleted }) else {
             return
         }
 
-        let newSelectedUserWallet: UserWallet?
-
-        if viewModel.userWalletId == selectedUserWalletId,
-           let deletedUserWalletIndex = models.firstIndex(where: { $0.userWallet?.userWalletId == viewModel.userWalletId })
-        {
-            if deletedUserWalletIndex != (models.count - 1) {
-                newSelectedUserWallet = models[deletedUserWalletIndex + 1].userWallet
-            } else if deletedUserWalletIndex != 0 {
-                newSelectedUserWallet = models[deletedUserWalletIndex - 1].userWallet
-            } else {
-                newSelectedUserWallet = nil
-            }
-        } else {
-            newSelectedUserWallet = nil
-        }
-
         userWalletRepository.delete(viewModel.userWallet)
-        multiCurrencyModels.removeAll { $0.userWalletId == viewModel.userWalletId }
-        singleCurrencyModels.removeAll { $0.userWalletId == viewModel.userWalletId }
+    }
 
-        if let newSelectedUserWallet = newSelectedUserWallet {
-            setSelectedWallet(newSelectedUserWallet)
+    private func setSelectedWallet(_ userWallet: UserWallet) {
+        guard let model = userWalletRepository.models.first(where: {
+            $0.userWallet?.userWalletId == userWallet.userWalletId
+        }) else {
+            return
         }
+
+        self.selectedUserWalletId = userWallet.userWalletId
+
+        coordinator.didTap(model)
+        updateSelectedWalletModel()
+    }
+
+    private func updateModels() {
+        let oldModels = multiCurrencyModels + singleCurrencyModels
+        let totalBalanceProviders = Dictionary(oldModels.map {
+            ($0.userWalletId, $0.totalBalanceProvider)
+        }, uniquingKeysWith: { v1, _ in
+            v1
+        })
+
+        multiCurrencyModels = userWalletRepository.models
+            .filter { $0.isMultiWallet }
+            .compactMap { $0.userWalletModel }
+            .map {
+                mapToUserWalletListCellViewModel(userWalletModel: $0, totalBalanceProvider: totalBalanceProviders[$0.userWallet.userWalletId])
+            }
+
+        singleCurrencyModels = userWalletRepository.models
+            .filter { !$0.isMultiWallet }
+            .compactMap { $0.userWalletModel }
+            .map {
+                mapToUserWalletListCellViewModel(userWalletModel: $0, totalBalanceProvider: totalBalanceProviders[$0.userWallet.userWalletId])
+            }
+    }
+
+    private func update(userWalletId: Data) {
+        guard
+            let model = userWalletRepository.models.first(where: { $0.userWalletId == userWalletId }),
+            let userWalletModel = model.userWalletModel
+        else {
+            return
+        }
+
+        if let index = multiCurrencyModels.firstIndex(where: { $0.userWalletId == userWalletId }) {
+            multiCurrencyModels[index] = mapToUserWalletListCellViewModel(
+                userWalletModel: userWalletModel,
+                totalBalanceProvider: multiCurrencyModels[index].totalBalanceProvider
+            )
+        } else if let index = singleCurrencyModels.firstIndex(where: { $0.userWalletId == userWalletId }) {
+            singleCurrencyModels[index] = mapToUserWalletListCellViewModel(
+                userWalletModel: userWalletModel,
+                totalBalanceProvider: singleCurrencyModels[index].totalBalanceProvider
+            )
+        }
+    }
+
+    private func delete(userWalletId: Data) {
+        userWalletIdToBeDeleted = nil
+
+        multiCurrencyModels.removeAll { $0.userWalletId == userWalletId }
+        singleCurrencyModels.removeAll { $0.userWalletId == userWalletId }
 
         if userWalletRepository.isEmpty {
             AppSettings.shared.saveUserWallets = false
             coordinator.dismissUserWalletList()
             coordinator.popToRoot()
-        }
-    }
-
-    private func setSelectedWallet(_ userWallet: UserWallet) {
-        guard selectedUserWalletId != nil && selectedUserWalletId != userWallet.userWalletId else {
-            return
-        }
-
-        let updateSelection: (UserWallet) -> Void = { [weak self] userWallet in
-            let cardModel = CardViewModel(userWallet: userWallet)
-            self?.selectedUserWalletId = userWallet.userWalletId
-            self?.userWalletRepository.selectedUserWalletId = userWallet.userWalletId
-            self?.coordinator.didTap(cardModel)
-            self?.updateSelectedWalletModel()
-        }
-
-        if !userWallet.isLocked {
-            updateSelection(userWallet)
-            return
-        }
-
-        Analytics.log(.walletUnlockTapped)
-
-        userWalletRepository.unlock(with: .card(userWallet: userWallet)) { [weak self] result in
-            guard
-                let self,
-                case .success = result,
-                let selectedModel = self.userWalletRepository.models.first(where: { $0.userWallet?.userWalletId == userWallet.userWalletId }),
-                let userWallet = selectedModel.userWallet
-            else {
-                return
-            }
-
-            self.updateModels()
-
-            updateSelection(userWallet)
         }
     }
 
@@ -300,7 +300,10 @@ final class UserWalletListViewModel: ObservableObject, Identifiable {
             totalBalanceProvider: totalBalanceProvider ?? TotalBalanceProvider(userWalletModel: userWalletModel, userWalletAmountType: nil, totalBalanceAnalyticsService: nil),
             cardImageProvider: CardImageProvider()
         ) { [weak self] in
-            self?.setSelectedWallet(userWallet)
+            if userWallet.isLocked {
+                Analytics.log(.walletUnlockTapped)
+            }
+            self?.userWalletRepository.setSelectedUserWalletId(userWallet.userWalletId)
         }
     }
 }
