@@ -200,7 +200,7 @@ class CommonUserWalletRepository: UserWalletRepository {
                 Analytics.logCardSdkError(error, for: .scan)
                 completion(.failure(error))
             case .success(let response):
-                didScan(card: CardDTO(card: response.card))
+                didScan(card: CardDTO(card: response.card), walletData: response.walletData)
                 self.acceptTOSIfNeeded(response.getCardInfo(), completion)
             }
         }
@@ -215,12 +215,15 @@ class CommonUserWalletRepository: UserWalletRepository {
         }
     }
 
-    func didScan(card: CardDTO) {
+    func didScan(card: CardDTO, walletData: DefaultWalletData) {
         let cardId = card.cardId
 
+        let cardInfo = CardInfo(card: card, walletData: walletData, name: "")
+
         guard
+            let userWalletId = UserWalletIdFactory().userWalletId(from: cardInfo)?.value,
             card.hasWallets,
-            var userWallet = userWallets.first(where: { $0.userWalletId == card.userWalletId }),
+            var userWallet = userWallets.first(where: { $0.userWalletId == userWalletId }),
             !userWallet.associatedCardIds.contains(cardId)
         else {
             return
