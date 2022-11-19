@@ -129,10 +129,10 @@ private extension CardSettingsViewModel {
         self.alert = AlertBinder(
             alert: Alert(
                 title: Text("card_settings_reset_card_delete_wallet_warning"),
-                primaryButton: .destructive(Text("common_yes")) {
-                    self.deleteWallet(userWallet)
+                primaryButton: .default(Text("common_no")) {
                     self.navigateAwayAfterReset()
-                }, secondaryButton: .default(Text("common_no")) {
+                }, secondaryButton: .destructive(Text("common_yes")) {
+                    self.deleteWallet(userWallet)
                     self.navigateAwayAfterReset()
                 }
             )
