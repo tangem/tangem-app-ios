@@ -66,8 +66,8 @@ final class UserWalletListViewModel: ObservableObject, Identifiable {
                     break
                 case .scan(let isScanning):
                     self?.isScanningCard = isScanning
-                case .updated(let userWalletId):
-                    self?.update(userWalletId: userWalletId)
+                case .updated(let userWalletModel):
+                    self?.update(userWalletModel: userWalletModel)
                 case .deleted(let userWalletId):
                     self?.delete(userWalletId: userWalletId)
                 case .selected(let userWallet):
@@ -214,13 +214,8 @@ final class UserWalletListViewModel: ObservableObject, Identifiable {
             }
     }
 
-    private func update(userWalletId: Data) {
-        guard
-            let model = userWalletRepository.models.first(where: { $0.userWalletId == userWalletId }),
-            let userWalletModel = model.userWalletModel
-        else {
-            return
-        }
+    private func update(userWalletModel: UserWalletModel) {
+        let userWalletId = userWalletModel.userWallet.userWalletId
 
         if let index = multiCurrencyModels.firstIndex(where: { $0.userWalletId == userWalletId }) {
             multiCurrencyModels[index] = mapToUserWalletListCellViewModel(
