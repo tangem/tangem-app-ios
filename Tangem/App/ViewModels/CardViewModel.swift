@@ -491,7 +491,7 @@ class CardViewModel: Identifiable, ObservableObject {
     }
 
     private func accessCodeRequestPolicy() -> AccessCodeRequestPolicy {
-        let hasCode = card.isAccessCodeSet || (card.isPasscodeSet ?? false)
+        let hasCode = card.isAccessCodeSet
 
         if !AppSettings.shared.saveUserWallets {
             return hasCode ? .always : .default
