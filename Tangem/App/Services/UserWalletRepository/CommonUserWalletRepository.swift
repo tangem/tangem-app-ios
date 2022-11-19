@@ -276,7 +276,7 @@ class CommonUserWalletRepository: UserWalletRepository {
             models.append(newModel)
         }
 
-        eventSubject.send(.updated(userWalletId: userWallet.userWalletId))
+        sendEvent(.updated(userWalletId: userWallet.userWalletId))
 
         if userWallets.isEmpty || selectedUserWalletId == nil {
             setSelectedUserWalletId(userWallet.userWalletId)
@@ -303,7 +303,7 @@ class CommonUserWalletRepository: UserWalletRepository {
             AppSettings.shared.selectedUserWalletId = userWallet.userWalletId
             self?.initializeServicesForSelectedModel()
 
-            self?.eventSubject.send(.selected(userWallet: userWallet))
+            self?.sendEvent(.selected(userWallet: userWallet))
         }
 
         if !userWallet.isLocked {
@@ -347,7 +347,7 @@ class CommonUserWalletRepository: UserWalletRepository {
             setSelectedUserWalletId(newSelectedUserWalletId)
         }
 
-        eventSubject.send(.deleted(userWalletId: userWalletId))
+        sendEvent(.deleted(userWalletId: userWalletId))
     }
 
     func lock() {
@@ -356,7 +356,7 @@ class CommonUserWalletRepository: UserWalletRepository {
         models = []
         userWallets = savedUserWallets(withSensitiveData: false)
 
-        eventSubject.send(.locked)
+        sendEvent(.locked)
     }
 
     func clear() {
@@ -470,6 +470,8 @@ class CommonUserWalletRepository: UserWalletRepository {
 
                 self.isUnlocked = self.userWallets.allSatisfy { !$0.isLocked }
 
+                self.sendEvent(.updated(userWalletId: scannedUserWallet.userWalletId))
+
                 completion(.success(()))
             }
             .store(in: &bag)
@@ -503,6 +505,9 @@ class CommonUserWalletRepository: UserWalletRepository {
         finishInitializingServices(for: selectedModel, cardInfo: cardInfo)
     }
 
+    private func sendEvent(_ event: UserWalletRepositoryEvent) {
+        eventSubject.send(event)
+    }
 }
 
 // MARK: - Saving user wallets
