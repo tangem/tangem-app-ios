@@ -194,7 +194,10 @@ class CommonUserWalletRepository: UserWalletRepository {
         }
         sdkProvider.setup(with: config)
 
+        sendEvent(.scan(isScanning: true))
         sdkProvider.sdk.startSession(with: AppScanTask(targetBatch: batch)) { [unowned self] result in
+            self.sendEvent(.scan(isScanning: false))
+
             switch result {
             case .failure(let error):
                 Analytics.logCardSdkError(error, for: .scan)
@@ -243,17 +246,19 @@ class CommonUserWalletRepository: UserWalletRepository {
             .sink { [weak self] result in
                 guard let self else { return }
 
-                if case let .success(cardModel) = result,
-                   let userWallet = cardModel.userWallet
-                {
+                switch result {
+                case .success(let cardModel):
+                    guard let userWallet = cardModel.userWallet else { return }
+
                     if !self.contains(userWallet) {
                         self.save(userWallet)
+                        completion(result)
                     }
 
                     self.setSelectedUserWalletId(userWallet.userWalletId)
+                default:
+                    completion(result)
                 }
-
-                completion(result)
             }
             .store(in: &bag)
     }
