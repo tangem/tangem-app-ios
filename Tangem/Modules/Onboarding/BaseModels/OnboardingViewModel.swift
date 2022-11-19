@@ -179,8 +179,7 @@ class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable>
     func setupContainer(with size: CGSize) {
         let isInitialSetup = containerSize == .zero
         containerSize = size
-        if isFromMain,
-           isInitialAnimPlayed {
+        if (isFromMain && isInitialAnimPlayed) || isInitialSetup {
             setupCardsSettings(animated: !isInitialSetup, isContainerSetup: true)
         }
     }
