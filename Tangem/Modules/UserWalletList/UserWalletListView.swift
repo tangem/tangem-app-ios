@@ -32,7 +32,7 @@ struct UserWalletListView: View {
                 Text("user_wallet_list_title".localized)
                     .style(Fonts.Bold.body, color: Colors.Text.primary1)
 
-                list()
+                userWalletsView()
 
                 Group {
                     if !viewModel.isUnlocked {
@@ -70,12 +70,12 @@ extension UserWalletListView {
     // MARK: - List
 
     @ViewBuilder
-    private func list() -> some View {
-        if #available(iOS 15, *) {
-            List() {
-                sections()
-            }
-            .listStyle(.insetGrouped)
+    private func userWalletsView() -> some View {
+        if #available(iOS 16, *) {
+            userWalletsList()
+                .scrollContentBackground(.hidden)
+        } else if #available(iOS 14, *) {
+            userWalletsList()
         } else {
             // Using ScrollView because we can't hide default separators in List on prior OS versions.
             // And since we don't use List we can't use onDelete for the swipe action either.
@@ -88,6 +88,29 @@ extension UserWalletListView {
             .cornerRadius(14)
             .padding(.horizontal, listHorizontalPadding)
         }
+    }
+
+    @ViewBuilder
+    @available(iOS 14.0, *)
+    private func userWalletsList() -> some View {
+        List() {
+            sections()
+        }
+        .listStyle(.insetGrouped)
+    }
+
+    @ViewBuilder
+    private func userWalletsScrollView() -> some View {
+        // Using ScrollView because we can't hide default separators in List on prior OS versions.
+        // And since we don't use List we can't use onDelete for the swipe action either.
+        ScrollView(.vertical) {
+            VStack(spacing: 0) {
+                sections()
+            }
+        }
+        .background(Colors.Background.primary)
+        .cornerRadius(14)
+        .padding(.horizontal, listHorizontalPadding)
     }
 
     // MARK: - Sections
