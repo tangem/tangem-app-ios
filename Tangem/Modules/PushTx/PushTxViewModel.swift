@@ -32,7 +32,7 @@ class PushTxViewModel: ObservableObject {
     var walletTotalBalanceFormatted: String {
         let amount = walletModel.wallet.amounts[self.amountToSend.type]
         let value = getDescription(for: amount, isFiat: isFiatCalculation)
-        return String(format: "send_balance_subtitle_format".localized, value)
+        return String(format: "common_balance".localized, value)
     }
 
     var walletModel: WalletModel {
