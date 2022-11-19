@@ -473,7 +473,7 @@ URL: %@";
 "save_user_wallet_agreement_allow_touch_id" = "Allow to use Touch ID";
 "save_user_wallet_agreement_dont_allow" = "Don't allow";
 "save_user_wallet_agreement_new_feature" = "New feature";
-"user_wallet_list_title" = "My wallets";
+"user_wallet_list_title" = "My Wallets";
 "user_wallet_list_multi_header" = "Multi-currency";
 "user_wallet_list_single_header" = "Single-currency";
 "user_wallet_list_add_button" = "Add new wallet";
