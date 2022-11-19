@@ -68,7 +68,7 @@ enum UserWalletRepositoryResult {
 enum UserWalletRepositoryEvent {
     case locked
     case scan(isScanning: Bool)
-    case updated(userWalletId: Data)
+    case updated(userWalletModel: UserWalletModel)
     case deleted(userWalletId: Data)
     case selected(userWallet: UserWallet)
 }
