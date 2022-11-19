@@ -115,9 +115,9 @@ private extension CardSettingsViewModel {
     }
 
     private func didResetCard(with userWallet: UserWallet, cardsCount: Int) {
-        let askToDeleteWallet = cardsCount > 1 && !userWalletListService.isEmpty
+        let shouldAskToDeleteWallet = cardsCount > 1 && !userWalletListService.isEmpty
 
-        if askToDeleteWallet {
+        if shouldAskToDeleteWallet {
             presentDeleteWalletAlert(for: userWallet)
         } else {
             deleteWallet(userWallet)
