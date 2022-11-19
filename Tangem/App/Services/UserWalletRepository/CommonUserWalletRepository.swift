@@ -474,16 +474,23 @@ class CommonUserWalletRepository: UserWalletRepository {
                 }
 
                 self.encryptionKeyByUserWalletId[scannedUserWallet.userWalletId] = encryptionKey
-                self.loadModel(for: scannedUserWallet)
 
                 guard
-                    let cardModel = self.models.first(where: { $0.userWalletId == scannedUserWallet.userWalletId }),
+                    let savedUserWallet = self.savedUserWallets(withSensitiveData: true).first(where: { $0.userWalletId == scannedUserWallet.userWalletId })
+                else {
+                    return
+                }
+
+                self.loadModel(for: savedUserWallet)
+
+                guard
+                    let cardModel = self.models.first(where: { $0.userWalletId == savedUserWallet.userWalletId }),
                     let userWalletModel = cardModel.userWalletModel
                 else {
                     return
                 }
 
-                self.setSelectedUserWalletId(scannedUserWallet.userWalletId)
+                self.setSelectedUserWalletId(savedUserWallet.userWalletId)
                 self.initializeServicesForSelectedModel()
 
                 self.isUnlocked = self.userWallets.allSatisfy { !$0.isLocked }
