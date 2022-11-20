@@ -13,7 +13,6 @@ import Combine
 import BlockchainSdk
 
 class SingleCardOnboardingViewModel: OnboardingTopupViewModel<SingleCardOnboardingStep, OnboardingCoordinator>, ObservableObject {
-    @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
 
     @Published var isCardScanned: Bool = true
 
