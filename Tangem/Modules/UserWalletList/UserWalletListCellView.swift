@@ -125,6 +125,7 @@ struct UserWalletListCellView: View {
             VStack(alignment: .leading, spacing: 2) {
                 Text(viewModel.name)
                     .style(Fonts.Bold.subheadline, color: viewModel.isSelected ? Colors.Text.accent : Colors.Text.primary1)
+                    .lineLimit(1)
 
                 Text(viewModel.subtitle)
                     .style(Font.footnote, color: Colors.Text.tertiary)
