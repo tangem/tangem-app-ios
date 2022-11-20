@@ -531,7 +531,8 @@ class CommonUserWalletRepository: UserWalletRepository {
 
     private func savedUserWallet(with userWalletId: Data) -> UserWallet? {
         let keys = encryptionKeyByUserWalletId.filter { $0.key == userWalletId }
-        return UserWalletRepositoryUtil().savedUserWallets(encryptionKeyByUserWalletId: keys).first
+        let userWallets = UserWalletRepositoryUtil().savedUserWallets(encryptionKeyByUserWalletId: keys)
+        return userWallets.first { $0.userWalletId == userWalletId }
     }
 
     private func saveUserWallets(_ userWallets: [UserWallet]) {
