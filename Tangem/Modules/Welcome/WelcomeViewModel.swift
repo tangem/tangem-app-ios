@@ -81,6 +81,8 @@ class WelcomeViewModel: ObservableObject {
         subscription = userWalletRepository.scanPublisher()
             .receive(on: DispatchQueue.main)
             .sink { [weak self] result in
+                self?.isScanningCard = false
+
                 guard
                     let self,
                     let result
@@ -89,7 +91,6 @@ class WelcomeViewModel: ObservableObject {
                 }
 
                 subscription.map { _ = self.bag.remove($0) }
-                self.isScanningCard = false
 
                 switch result {
                 case .troubleshooting:
