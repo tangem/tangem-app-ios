@@ -123,26 +123,36 @@ struct UserWalletListCellView: View {
                 .overlay(selectionIcon.offset(x: 4, y: -4), alignment: .topTrailing)
 
             VStack(alignment: .leading, spacing: 2) {
-                Text(viewModel.name)
-                    .style(Fonts.Bold.subheadline, color: viewModel.isSelected ? Colors.Text.accent : Colors.Text.primary1)
-                    .lineLimit(1)
+                HStack(spacing: 0) {
+                    Text(viewModel.name)
+                        .style(Fonts.Bold.subheadline, color: viewModel.isSelected ? Colors.Text.accent : Colors.Text.primary1)
+                        .lineLimit(1)
 
-                Text(viewModel.subtitle)
-                    .style(Font.footnote, color: Colors.Text.tertiary)
+                    Spacer(minLength: 12)
+
+                    if !viewModel.isUserWalletLocked {
+                        Text(viewModel.balance)
+                            .style(Font.subheadline, color: Colors.Text.primary1)
+                            .lineLimit(1)
+                            .layoutPriority(1)
+                            .skeletonable(isShown: viewModel.isBalanceLoading, radius: 6)
+                    }
+                }
+
+                HStack(spacing: 0) {
+                    Text(viewModel.subtitle)
+                        .style(Font.footnote, color: Colors.Text.tertiary)
+
+                    Spacer(minLength: 12)
+
+                    if !viewModel.isUserWalletLocked {
+                        Text(viewModel.numberOfTokens ?? "")
+                            .style(Font.footnote, color: Colors.Text.tertiary)
+                    }
+                }
             }
 
-            Spacer()
-
-            if !viewModel.isUserWalletLocked {
-                VStack(alignment: .trailing, spacing: 2) {
-                    Text(viewModel.balance)
-                        .style(Font.subheadline, color: Colors.Text.primary1)
-                        .skeletonable(isShown: viewModel.isBalanceLoading, radius: 6)
-
-                    Text(viewModel.numberOfTokens ?? "")
-                        .style(Font.footnote, color: Colors.Text.tertiary)
-                }
-            } else {
+            if viewModel.isUserWalletLocked {
                 lockIcon
             }
         }
