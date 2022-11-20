@@ -13,6 +13,7 @@ class CommonUserWalletModel {
     /// Public until managers factory
     let userTokenListManager: UserTokenListManager
     private(set) var userWallet: UserWallet
+    private(set) var didPerformInitialUpdate = false
     private let walletListManager: WalletListManager
 
     private var reloadAllWalletModelsBag: AnyCancellable?
@@ -82,6 +83,8 @@ extension CommonUserWalletModel: UserWalletModel {
     }
 
     func updateAndReloadWalletModels(silent: Bool, completion: @escaping () -> Void) {
+        didPerformInitialUpdate = true
+
         updateWalletModels()
 
         reloadAllWalletModelsBag = walletListManager
