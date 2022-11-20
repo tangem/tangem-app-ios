@@ -355,20 +355,24 @@ class CommonUserWalletRepository: UserWalletRepository {
     }
 
     func lock() {
-        isUnlocked = false
-        encryptionKeyByUserWalletId = [:]
-        models = []
-        userWallets = savedUserWallets(withSensitiveData: false)
+        clearUnlockedData()
 
         sendEvent(.locked)
     }
 
     func clear() {
-        lock()
+        clearUnlockedData()
 
         saveUserWallets([])
         setSelectedUserWalletId(nil)
         encryptionKeyStorage.clear()
+    }
+
+    private func clearUnlockedData() {
+        isUnlocked = false
+        encryptionKeyByUserWalletId = [:]
+        models = []
+        userWallets = savedUserWallets(withSensitiveData: false)
     }
 
     private func acceptTOSIfNeeded(_ cardInfo: CardInfo, _ completion: @escaping (Result<CardViewModel, Error>) -> Void) {
