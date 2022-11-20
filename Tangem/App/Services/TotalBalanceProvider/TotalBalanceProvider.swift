@@ -32,10 +32,6 @@ class TotalBalanceProvider {
 // MARK: - TotalBalanceProviding
 
 extension TotalBalanceProvider: TotalBalanceProviding {
-    var isLoaded: Bool {
-        !totalBalanceSubject.value.isLoading
-    }
-
     func totalBalancePublisher() -> AnyPublisher<LoadingValue<TotalBalance>, Never> {
         totalBalanceSubject.eraseToAnyPublisher()
     }
