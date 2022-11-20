@@ -9,18 +9,7 @@
 import Foundation
 import Combine
 import CryptoKit
-import enum TangemSdk.EllipticCurve
-import struct TangemSdk.Card
-import struct TangemSdk.ExtendedPublicKey
-import struct TangemSdk.WalletData
-import struct TangemSdk.ArtworkInfo
-import struct TangemSdk.PrimaryCard
-import struct TangemSdk.DerivationPath
-import struct TangemSdk.SecureStorage
-import class TangemSdk.TangemSdk
-import class TangemSdk.BackupService
-import enum TangemSdk.TangemSdkError
-
+import TangemSdk
 import Intents
 
 class CommonUserWalletRepository: UserWalletRepository {
