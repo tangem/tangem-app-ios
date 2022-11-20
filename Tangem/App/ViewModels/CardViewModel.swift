@@ -56,6 +56,10 @@ class CardViewModel: Identifiable, ObservableObject {
         config.emailConfig
     }
 
+    var cardsCount: Int {
+        config.cardsCount
+    }
+
     var cardIdFormatted: String {
         cardInfo.cardIdFormatted
     }
