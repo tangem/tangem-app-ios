@@ -72,11 +72,7 @@ class UserWalletListCellViewModel: ObservableObject {
         let blockchainsCount = userWalletModel.getSavedEntries().count
         let allTokensCount = blockchainsCount + userWalletModel.getSavedEntries().reduce(0, { $0 + $1.tokens.count })
 
-        if allTokensCount == 0 {
-            numberOfTokens = nil
-        } else {
-            numberOfTokens = String.localizedStringWithFormat("token_count".localized, allTokensCount)
-        }
+        numberOfTokens = String.localizedStringWithFormat("token_count".localized, allTokensCount)
     }
 
     private func loadImage() {
