@@ -10,7 +10,7 @@ import SwiftUI
 import Combine
 
 class TwinsOnboardingViewModel: OnboardingTopupViewModel<TwinsOnboardingStep, OnboardingCoordinator>, ObservableObject {
-    @Injected(\.userWalletListService) private var userWalletListService: UserWalletListService
+    @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
 
     @Published var firstTwinImage: Image?
     @Published var secondTwinImage: Image?
@@ -290,7 +290,7 @@ class TwinsOnboardingViewModel: OnboardingTopupViewModel<TwinsOnboardingStep, On
 
         if let originalUserWallet,
            AppSettings.shared.saveUserWallets {
-            userWalletListService.delete(originalUserWallet)
+            userWalletRepository.delete(originalUserWallet)
         }
     }
 
