@@ -77,6 +77,14 @@ final class UserWalletListViewModel: ObservableObject, Identifiable {
             .store(in: &bag)
     }
 
+    func onAppear() {
+        for userWalletModel in userWalletRepository.models.compactMap({ $0.userWalletModel }) {
+            if !userWalletModel.didPerformInitialUpdate {
+                userWalletModel.updateAndReloadWalletModels()
+            }
+        }
+    }
+
     func unlockAllWallets() {
         Analytics.log(.buttonUnlockAllWithFaceID)
 
