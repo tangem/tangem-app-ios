@@ -236,7 +236,7 @@ final class UserWalletListViewModel: ObservableObject, Identifiable {
         multiCurrencyModels.removeAll { $0.userWalletId == userWalletId }
         singleCurrencyModels.removeAll { $0.userWalletId == userWalletId }
 
-        if userWalletRepository.isEmpty {
+        if userWalletRepository.isEmpty && AppSettings.shared.saveUserWallets {
             AppSettings.shared.saveUserWallets = false
             coordinator.dismissUserWalletList()
             coordinator.popToRoot()
