@@ -498,9 +498,7 @@ class CommonUserWalletRepository: UserWalletRepository {
 
     private func loadModels() {
         let models = userWallets.map {
-            let model = CardViewModel(userWallet: $0)
-            model.userWalletModel?.updateAndReloadWalletModels()
-            return model
+            CardViewModel(userWallet: $0)
         }
         self.models = models
     }
