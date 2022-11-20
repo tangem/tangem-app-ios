@@ -10,7 +10,7 @@ import SwiftUI
 import Combine
 
 class CardSettingsViewModel: ObservableObject {
-    @Injected(\.userWalletListService) private var userWalletListService: UserWalletListService
+    @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
 
     // MARK: ViewState
 
@@ -66,7 +66,7 @@ private extension CardSettingsViewModel {
 
     func prepareTwinOnboarding() {
         if let twinInput = cardModel.twinInput {
-            coordinator.openOnboarding(with: twinInput, isSavingCards: !userWalletListService.isEmpty)
+            coordinator.openOnboarding(with: twinInput, isSavingCards: !userWalletRepository.isEmpty)
         }
     }
 
@@ -103,11 +103,11 @@ private extension CardSettingsViewModel {
     }
 
     private func deleteWallet(_ userWallet: UserWallet) {
-        self.userWalletListService.delete(userWallet)
+        self.userWalletRepository.delete(userWallet)
     }
 
     private func navigateAwayAfterReset() {
-        if self.userWalletListService.isEmpty {
+        if self.userWalletRepository.isEmpty {
             self.coordinator.popToRoot()
         } else {
             self.coordinator.dismiss()
@@ -115,7 +115,7 @@ private extension CardSettingsViewModel {
     }
 
     private func didResetCard(with userWallet: UserWallet, cardsCount: Int) {
-        let shouldAskToDeleteWallet = cardsCount > 1 && !userWalletListService.isEmpty
+        let shouldAskToDeleteWallet = cardsCount > 1 && !userWalletRepository.isEmpty
 
         if shouldAskToDeleteWallet {
             presentDeleteWalletAlert(for: userWallet)
