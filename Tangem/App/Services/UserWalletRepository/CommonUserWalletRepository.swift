@@ -355,20 +355,20 @@ class CommonUserWalletRepository: UserWalletRepository {
     }
 
     func lock() {
-        clearUnlockedData()
+        discardSensitiveData()
 
         sendEvent(.locked)
     }
 
     func clear() {
-        clearUnlockedData()
+        discardSensitiveData()
 
         saveUserWallets([])
         setSelectedUserWalletId(nil)
         encryptionKeyStorage.clear()
     }
 
-    private func clearUnlockedData() {
+    private func discardSensitiveData() {
         isUnlocked = false
         encryptionKeyByUserWalletId = [:]
         models = []
