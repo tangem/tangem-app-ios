@@ -95,4 +95,17 @@ enum AlertBuilder {
                            primaryButton: .default(Text("common_no"), action: {}),
                            secondaryButton: .destructive(Text("common_yes"), action: okAction)))
     }
+
+    static func makeCardSettingsDeleteUserWalletAlert(
+        rejectAction: @escaping (() -> Void),
+        acceptAction: @escaping (() -> Void)
+    ) -> AlertBinder {
+        AlertBinder(
+            alert: Alert(
+                title: Text("card_settings_reset_card_delete_wallet_warning"),
+                primaryButton: .default(Text("common_no"), action: rejectAction),
+                secondaryButton: .destructive(Text("common_yes"), action: acceptAction)
+            )
+        )
+    }
 }
