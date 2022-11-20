@@ -37,6 +37,7 @@ struct DetailsView: View {
             socialNetworks
                 .readSize { socialNetworksViewSize = $0 }
         }
+        .ignoresBottomArea()
         .background(Colors.Background.secondary.edgesIgnoringSafeArea(.all))
         .navigationBarBackButtonHidden(false)
         .navigationBarHidden(false)
@@ -85,7 +86,8 @@ struct DetailsView: View {
             }
         }
         .frame(maxWidth: .infinity)
-        .padding(.vertical, 16)
+        .padding(.top, 16)
+        .padding(.bottom, max(16, UIApplication.safeAreaInsets.bottom))
         .background(Colors.Background.secondary)
     }
 
