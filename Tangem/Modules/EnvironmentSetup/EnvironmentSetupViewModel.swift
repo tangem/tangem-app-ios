@@ -13,6 +13,7 @@ final class EnvironmentSetupViewModel: ObservableObject {
     // MARK: - ViewState
 
     @Published var isTestnet: Bool
+    @Published var useDevApi: Bool
     @Published var toggles: [FeatureToggleViewModel]
 
     @Published var alert: AlertBinder?
@@ -37,6 +38,7 @@ final class EnvironmentSetupViewModel: ObservableObject {
                 }
             )
         }
+        useDevApi = EnvironmentProvider.shared.useDevApi
 
         bind()
     }
@@ -55,6 +57,10 @@ private extension EnvironmentSetupViewModel {
     func bind() {
         $isTestnet
             .sink { EnvironmentProvider.shared.isTestnet = $0 }
+            .store(in: &bag)
+        
+        $useDevApi
+            .sink { EnvironmentProvider.shared.useDevApi = $0 }
             .store(in: &bag)
     }
 }
