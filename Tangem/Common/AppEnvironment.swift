@@ -40,6 +40,15 @@ extension AppEnvironment {
         return identifier
     }
 
+    var apiBaseUrl: String {
+        guard let link = infoDictionary["BASE_URL"] as? String else {
+            assertionFailure("BASE_URL not found")
+            return ""
+        }
+
+        return link
+    }
+
     var isTestnet: Bool  {
         EnvironmentProvider.shared.isTestnet
     }
