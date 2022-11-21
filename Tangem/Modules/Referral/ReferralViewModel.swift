@@ -12,27 +12,30 @@ import UIKit
 import BlockchainSdk
 
 class ReferralViewModel: ObservableObject {
+    @Injected(\.tangemApiService) private var tangemApiService: TangemApiService
+
     @Published var isProcessingRequest: Bool = false
     @Published private(set) var referralProgramInfo: ReferralProgramInfo?
     @Published var errorAlert: AlertBinder?
 
     private unowned let coordinator: ReferralRoutable
-    private let referralService: ReferralService
     private let cardModel: CardViewModel
+    private let userWalletId: Data
 
-    init(coordinator: ReferralRoutable, referralService: ReferralService, cardModel: CardViewModel) {
+    init(coordinator: ReferralRoutable, cardModel: CardViewModel, userWalletId: Data) {
         self.coordinator = coordinator
-        self.referralService = referralService
         self.cardModel = cardModel
+        self.userWalletId = userWalletId
 
-        loadReferralInfo()
+        runTask(loadReferralInfo)
     }
 
     @MainActor
     func participateInReferralProgram() async {
         guard
             let award = referralProgramInfo?.conditions.awards.first,
-            let blockchain = Blockchain(from: award.token.networkId)
+            let blockchain = Blockchain(from: award.token.networkId),
+            let userWalletId = cardModel.userWalletId
         else {
             errorAlert = AlertBuilder.makeOkErrorAlert(message: "Failed to load")
             return
@@ -47,8 +50,7 @@ class ReferralViewModel: ObservableObject {
         isProcessingRequest = true
         do {
             let referralProgramInfo = try await runInTask {
-                let prog = try await self.referralService.participateInReferralProgram(using: award.token, with: address)
-                return prog
+                try await self.tangemApiService.participateInReferralProgram(using: award.token, for: address, with: userWalletId.hexString)
             }
             self.referralProgramInfo = referralProgramInfo
         } catch {
@@ -56,10 +58,6 @@ class ReferralViewModel: ObservableObject {
         }
 
         isProcessingRequest = false
-    }
-
-    func openTou() {
-        // [REDACTED_TODO_COMMENT]
     }
 
     func copyPromoCode() {
@@ -70,18 +68,15 @@ class ReferralViewModel: ObservableObject {
 
     }
 
-    private func loadReferralInfo() {
-        Task {
-            do {
-                let referralProgramInfo = try await self.referralService.loadReferralProgramInfo()
-                await runOnMain {
-                    self.referralProgramInfo = referralProgramInfo
-                }
-            } catch {
-                await runOnMain {
-                    errorAlert = error.alertBinder
-                }
+    @MainActor
+    private func loadReferralInfo() async {
+        do {
+            let referralProgramInfo = try await runInTask {
+                try await self.tangemApiService.loadReferralProgramInfo(for: self.userWalletId.hexString)
             }
+            self.referralProgramInfo = referralProgramInfo
+        } catch {
+            self.errorAlert = error.alertBinder
         }
     }
 
@@ -149,4 +144,11 @@ extension ReferralViewModel {
 
     var isProgramInfoLoaded: Bool { referralProgramInfo != nil }
     var isAlreadyReferral: Bool { referralProgramInfo?.referral != nil }
+}
+
+// MARK: - Navigation
+extension ReferralViewModel {
+    func openTou() {
+        // [REDACTED_TODO_COMMENT]
+    }
 }

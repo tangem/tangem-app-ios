@@ -19,5 +19,5 @@ protocol DetailsRoutable: AnyObject {
     func openSupportChat(cardId: String, dataCollector: EmailDataCollector)
     func openInSafari(url: URL)
     func openEnvironmentSetup()
-    func openReferral(with cardModel: CardViewModel, userWalletId: Data)
+    func openReferral(with cardModel: CardViewModel)
 }
