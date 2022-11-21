@@ -100,6 +100,7 @@ struct MainView: View {
                        .offset(x: -14, y: 0)
                })
                .buttonStyle(PlainButtonStyle())
+               .animation(nil)
     }
 
     var settingsNavigationButton: some View {
