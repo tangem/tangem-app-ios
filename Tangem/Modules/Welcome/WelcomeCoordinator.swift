@@ -31,8 +31,6 @@ class WelcomeCoordinator: CoordinatorObject {
     // MARK: - Helpers
     @Published var modalOnboardingCoordinatorKeeper: Bool = false
 
-    @Injected(\.userWalletListService) private var userWalletListService: UserWalletListService
-
     // MARK: - Private
     private var welcomeLifecycleSubscription: AnyCancellable? = nil
 

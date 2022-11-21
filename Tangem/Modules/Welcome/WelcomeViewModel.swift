@@ -11,10 +11,9 @@ import SwiftUI
 import TangemSdk
 
 class WelcomeViewModel: ObservableObject {
-    @Injected(\.cardsRepository) private var cardsRepository: CardsRepository
+    @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
     @Injected(\.backupServiceProvider) private var backupServiceProvider: BackupServiceProviding
     @Injected(\.failedScanTracker) var failedCardScanTracker: FailedScanTrackable
-    @Injected(\.userWalletListService) private var userWalletListService: UserWalletListService
     @Injected(\.saletPayRegistratorProvider) private var saltPayRegistratorProvider: SaltPayRegistratorProviding
 
     @Published var showTroubleshootingView: Bool = false
@@ -28,7 +27,7 @@ class WelcomeViewModel: ObservableObject {
     @Published var showingAuthentication = false
 
     var shouldShowAuthenticationView: Bool {
-        AppSettings.shared.saveUserWallets && !userWalletListService.isEmpty && BiometricsUtil.isAvailable
+        AppSettings.shared.saveUserWallets && !userWalletRepository.isEmpty && BiometricsUtil.isAvailable
     }
 
     var unlockWithBiometryLocalizationKey: LocalizedStringKey {
@@ -47,23 +46,13 @@ class WelcomeViewModel: ObservableObject {
     private var storiesModelSubscription: AnyCancellable? = nil
     private var bag: Set<AnyCancellable> = []
     private var backupService: BackupService { backupServiceProvider.backupService }
-    private let minimizedAppTimer = MinimizedAppTimer(interval: 60)
 
     private unowned let coordinator: WelcomeRoutable
 
-    private var hasInterruptedSaltPayBackup: Bool {
-        guard backupService.hasIncompletedBackup,
-              let primaryCard = backupService.primaryCard,
-              let batchId = primaryCard.batchId else {
-            return false
-        }
-
-        return SaltPayUtil().isSaltPayCard(batchId: batchId, cardId: primaryCard.cardId)
-    }
-
     init(coordinator: WelcomeRoutable) {
         self.coordinator = coordinator
-        cardsRepository.delegate = self
+        userWalletRepository.delegate = self
+        showingAuthentication = shouldShowAuthenticationView
         self.storiesModelSubscription = storiesModel.objectWillChange
             .receive(on: DispatchQueue.main)
             .sink(receiveValue: { [weak self] in
@@ -74,11 +63,12 @@ class WelcomeViewModel: ObservableObject {
     }
 
     func bind() {
-        minimizedAppTimer
-            .timer
-            .receive(on: RunLoop.main)
-            .sink { [weak self] in
-                self?.lock()
+        userWalletRepository
+            .eventProvider
+            .sink { [weak self] event in
+                if case .locked = event {
+                    self?.lock()
+                }
             }
             .store(in: &bag)
     }
@@ -86,91 +76,42 @@ class WelcomeViewModel: ObservableObject {
     func scanCard() {
         isScanningCard = true
         Analytics.log(.buttonScanCard)
-        var subscription: AnyCancellable? = nil
 
-        subscription = cardsRepository.scanPublisher()
-            .flatMap { [weak self] response -> AnyPublisher<CardViewModel, Error> in
-                let saltPayUtil = SaltPayUtil()
-                let hasSaltPayBackup = self?.hasInterruptedSaltPayBackup ?? false
-                let primaryCardId = self?.backupService.primaryCard?.cardId ?? ""
+        userWalletRepository.unlock(with: .card(userWallet: nil)) { [weak self] result in
+            self?.isScanningCard = false
 
-                if hasSaltPayBackup && response.cardId != primaryCardId  {
-                    return .anyFail(error: SaltPayRegistratorError.emptyBackupCardScanned)
-                }
-
-                if saltPayUtil.isBackupCard(cardId: response.cardId) {
-                    if let backupInput = response.backupInput, backupInput.steps.stepsCount > 0 {
-                        return .anyFail(error: SaltPayRegistratorError.emptyBackupCardScanned)
-                    } else {
-                        return .justWithError(output: response)
-                    }
-                }
-
-                guard let saltPayRegistrator = self?.saltPayRegistratorProvider.registrator else {
-                    return .justWithError(output: response)
-                }
-
-                return saltPayRegistrator.updatePublisher()
-                    .map { _ in
-                        return response
-                    }
-                    .eraseToAnyPublisher()
-            }
-            .receive(on: DispatchQueue.main)
-            .sink { [weak self] completion in
-                if case let .failure(error) = completion {
-                    print("Failed to scan card: \(error)")
-                    self?.isScanningCard = false
-                    self?.failedCardScanTracker.recordFailure()
-
-                    if let salpayError = error as? SaltPayRegistratorError {
-                        self?.error = salpayError.alertBinder
-                        return
-                    }
-
-                    if self?.failedCardScanTracker.shouldDisplayAlert ?? false {
-                        self?.showTroubleshootingView = true
-                    } else {
-                        switch error.toTangemSdkError() {
-                        case .unknownError, .cardVerificationFailed:
-                            self?.error = error.alertBinder
-                        default:
-                            break
-                        }
-                    }
-                }
-                subscription.map { _ = self?.bag.remove($0) }
-            } receiveValue: { [weak self] cardModel in
-                self?.failedCardScanTracker.resetCounter()
-                Analytics.log(.cardWasScanned)
-                DispatchQueue.main.async {
-                    self?.processScannedCard(cardModel, isWithAnimation: true)
-                }
-            }
-
-        subscription?.store(in: &bag)
-    }
-
-    func unlockWithBiometry() {
-        Analytics.log(.buttonBiometricSignIn)
-
-        showingAuthentication = true
-        userWalletListService.unlockWithBiometry(completion: self.didFinishUnlocking)
-    }
-
-    func unlockWithCard() {
-        Analytics.log(.buttonCardSignIn)
-
-        scanCardInternal { [weak self] cardModel in
             guard
-                let self = self,
-                let userWallet = cardModel.userWallet
+                let self,
+                let result
             else {
                 return
             }
 
-            self.userWalletListService.unlockWithCard(userWallet, completion: self.didFinishUnlocking)
+            switch result {
+            case .troubleshooting:
+                self.showTroubleshootingView = true
+            case .onboarding(let input):
+                self.openOnboarding(with: input)
+            case .error(let error):
+                if let saltPayError = error as? SaltPayRegistratorError {
+                    self.error = saltPayError.alertBinder
+                } else {
+                    self.error = error.alertBinder
+                }
+            case .success(let cardModel):
+                self.openMain(with: cardModel)
+            }
         }
+    }
+
+    func unlockWithBiometry() {
+        Analytics.log(.buttonBiometricSignIn)
+        userWalletRepository.unlock(with: .biometry, completion: self.didFinishUnlocking)
+    }
+
+    func unlockWithCard() {
+        Analytics.log(.buttonCardSignIn)
+        userWalletRepository.unlock(with: .card(userWallet: nil), completion: self.didFinishUnlocking)
     }
 
     func tryAgain() {
@@ -199,62 +140,13 @@ class WelcomeViewModel: ObservableObject {
         navigationBarHidden = false
     }
 
-    private func scanCardInternal(_ completion: @escaping (CardViewModel) -> Void) {
-        isScanningCard = true
-        var subscription: AnyCancellable? = nil
-
-        subscription = cardsRepository.scanPublisher()
-            .receive(on: DispatchQueue.main)
-            .sink { [weak self] completion in
-                if case let .failure(error) = completion {
-                    print("Failed to scan card: \(error)")
-                    self?.isScanningCard = false
-                    self?.failedCardScanTracker.recordFailure()
-
-                    if self?.failedCardScanTracker.shouldDisplayAlert ?? false {
-                        self?.showTroubleshootingView = true
-                    } else {
-                        switch error.toTangemSdkError() {
-                        case .unknownError, .cardVerificationFailed:
-                            self?.error = error.alertBinder
-                        default:
-                            break
-                        }
-                    }
-                }
-                subscription.map { _ = self?.bag.remove($0) }
-            } receiveValue: { [weak self] cardModel in
-                guard let self = self else { return }
-
-                self.failedCardScanTracker.resetCounter()
-                Analytics.log(.cardWasScanned)
-
-                completion(cardModel)
-            }
-
-        subscription?.store(in: &bag)
-    }
-
-    private func processScannedCard(_ cardModel: CardViewModel, isWithAnimation: Bool) {
-        let input = cardModel.onboardingInput
-        self.isScanningCard = false
-
-        if input.steps.needOnboarding {
-            cardModel.userWalletModel?.updateAndReloadWalletModels()
-            openOnboarding(with: input)
-        } else {
-            openMain(with: input)
-        }
-    }
-
-    private func didFinishUnlocking(_ result: Result<Void, Error>) {
-        if case .failure(let error) = result {
+    private func didFinishUnlocking(_ result: UserWalletRepositoryResult?) {
+        if case .error(let error) = result {
             print("Failed to unlock user wallets: \(error)")
             return
         }
 
-        guard let model = userWalletListService.selectedModel else { return }
-        cardsRepository.didSwitch(to: model)
+        guard let model = userWalletRepository.selectedModel else { return }
         coordinator.openMain(with: model)
 
         DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
@@ -263,8 +155,7 @@ class WelcomeViewModel: ObservableObject {
     }
 
     private func lock() {
-        userWalletListService.lock()
-        showingAuthentication = true
+        showingAuthentication = shouldShowAuthenticationView
         coordinator.openUnlockScreen()
     }
 }
@@ -292,17 +183,15 @@ extension WelcomeViewModel {
         coordinator.openOnboarding(with: input)
     }
 
-    func openMain(with input: OnboardingInput) {
-        if let card = input.cardInput.cardModel {
-            coordinator.openMain(with: card)
-        }
+    func openMain(with cardModel: CardViewModel) {
+        coordinator.openMain(with: cardModel)
     }
 }
 
 // MARK: - Resume interrupted backup
 private extension WelcomeViewModel {
     func showInteruptedBackupAlertIfNeeded() {
-        guard backupService.hasIncompletedBackup, !hasInterruptedSaltPayBackup else { return }
+        guard backupService.hasIncompletedBackup, !backupService.hasInterruptedSaltPayBackup else { return }
 
         let alert = Alert(title: Text("common_warning"),
                           message: Text("welcome_interrupted_backup_alert_message"),
@@ -340,7 +229,7 @@ private extension WelcomeViewModel {
     }
 }
 
-extension WelcomeViewModel: CardsRepositoryDelegate {
+extension WelcomeViewModel: UserWalletRepositoryDelegate {
     func showTOS(at url: URL, _ completion: @escaping (Bool) -> Void) {
         coordinator.openDisclaimer(at: url, completion)
     }
