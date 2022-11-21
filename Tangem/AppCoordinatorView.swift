@@ -13,6 +13,10 @@ struct AppCoordinatorView: CoordinatorView {
     @ObservedObject var coordinator: AppCoordinator
 
     var body: some View {
-        WelcomeCoordinatorView(coordinator: coordinator.welcomeCoordinator)
+        NavigationView {
+            SwappingView(viewModel: SwappingViewModel(coordinator: SwappingCoordinator()))
+        }
+
+//        WelcomeCoordinatorView(coordinator: coordinator.welcomeCoordinator)
     }
 }
