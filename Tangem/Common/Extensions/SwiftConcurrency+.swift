@@ -7,7 +7,14 @@
 //
 
 @discardableResult
-func runInTask(_ code: @escaping () -> Void) -> Task<Void, Never> {
+func runTask(_ code: @escaping () async -> Void) -> Task<Void, Never> {
+    Task {
+        await code()
+    }
+}
+
+@discardableResult
+func runTask(_ code: @escaping () -> Void) -> Task<Void, Never> {
     Task {
         code()
     }
