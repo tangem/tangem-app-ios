@@ -19,7 +19,7 @@ class EnvironmentProvider {
 
     @AppStorageCompat(EnvironmentProviderKeys.availableFeatures)
     var availableFeatures: Set<FeatureToggle> = []
-    
+
     @AppStorageCompat(EnvironmentProviderKeys.useDevApi)
     var useDevApi = false
 }
