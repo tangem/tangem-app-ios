@@ -18,7 +18,7 @@ class CardViewModel: Identifiable, ObservableObject {
     @Injected(\.appWarningsService) private var warningsService: AppWarningsProviding
     @Injected(\.tangemSdkProvider) private var tangemSdkProvider: TangemSdkProviding
     @Injected(\.tangemApiService) var tangemApiService: TangemApiService
-    @Injected(\.userWalletListService) private var userWalletListService: UserWalletListService
+    @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
 
     @Published private(set) var currentSecurityOption: SecurityModeOption = .longTap
 
@@ -424,7 +424,8 @@ class CardViewModel: Identifiable, ObservableObject {
         }
 
         let cardDto = CardDTO(card: card)
-        userWalletListService.didScan(card: cardDto)
+        let walletData = cardInfo.walletData
+        userWalletRepository.didScan(card: cardDto, walletData: walletData)
 
         onUpdate()
     }
@@ -494,7 +495,7 @@ class CardViewModel: Identifiable, ObservableObject {
     }
 
     private func accessCodeRequestPolicy() -> AccessCodeRequestPolicy {
-        let hasCode = card.isAccessCodeSet || (card.isPasscodeSet ?? false)
+        let hasCode = card.isAccessCodeSet
 
         if !AppSettings.shared.saveUserWallets {
             return hasCode ? .always : .default
@@ -628,12 +629,12 @@ class CardViewModel: Identifiable, ObservableObject {
     }
 
     private func updateUserWallet() {
-        let userWallet = UserWalletFactory().userWallet(from: self)
+        guard let userWallet = UserWalletFactory().userWallet(from: self) else { return }
 
         userWalletModel?.updateUserWallet(userWallet)
 
-        if userWalletListService.contains(userWallet) {
-            userWalletListService.save(userWallet)
+        if userWalletRepository.contains(userWallet) {
+            userWalletRepository.save(userWallet)
         }
     }
 
@@ -646,12 +647,14 @@ class CardViewModel: Identifiable, ObservableObject {
         } else {
             guard
                 userWalletModel == nil,
-                cardInfo.card.hasWallets
+                cardInfo.card.hasWallets,
+                let newUserWallet = UserWalletFactory().userWallet(from: cardInfo, config: config)
             else {
                 return
             }
-            userWallet = UserWalletFactory().userWallet(from: cardInfo, config: config)
-            userWalletId = cardInfo.card.userWalletId
+
+            userWallet = newUserWallet
+            userWalletId = userWallet.userWalletId
         }
 
         // [REDACTED_TODO_COMMENT]
