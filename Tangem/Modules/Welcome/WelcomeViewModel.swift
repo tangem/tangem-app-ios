@@ -76,35 +76,30 @@ class WelcomeViewModel: ObservableObject {
     func scanCard() {
         isScanningCard = true
         Analytics.log(.buttonScanCard)
-        var subscription: AnyCancellable? = nil
 
-        subscription = userWalletRepository.scanPublisher()
-            .receive(on: DispatchQueue.main)
-            .sink { [weak self] result in
-                self?.isScanningCard = false
+        userWalletRepository.unlock(with: .card(userWallet: nil)) { [weak self] r in
+            self?.isScanningCard = false
 
-                guard
-                    let self,
-                    let result
-                else {
-                    return
-                }
+            guard case let .success(result) = r else { return }
 
-                subscription.map { _ = self.bag.remove($0) }
-
-                switch result {
-                case .troubleshooting:
-                    self.showTroubleshootingView = true
-                case .onboarding(let input):
-                    self.openOnboarding(with: input)
-                case .error(let alertBinder):
-                    self.error = alertBinder
-                case .success(let cardModel):
-                    self.openMain(with: cardModel)
-                }
+            guard
+                let self,
+                let result
+            else {
+                return
             }
 
-        subscription?.store(in: &bag)
+            switch result {
+            case .troubleshooting:
+                self.showTroubleshootingView = true
+            case .onboarding(let input):
+                self.openOnboarding(with: input)
+            case .error(let alertBinder):
+                self.error = alertBinder
+            case .success(let cardModel):
+                self.openMain(with: cardModel)
+            }
+        }
     }
 
     func unlockWithBiometry() {
@@ -143,7 +138,7 @@ class WelcomeViewModel: ObservableObject {
         navigationBarHidden = false
     }
 
-    private func didFinishUnlocking(_ result: Result<Void, Error>) {
+    private func didFinishUnlocking(_ result: Result<UserWalletRepositoryResult?, Error>) {
         if case .failure(let error) = result {
             print("Failed to unlock user wallets: \(error)")
             return
