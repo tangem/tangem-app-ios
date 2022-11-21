@@ -32,12 +32,6 @@ extension UserWallet {
         card.wallets.isEmpty
     }
 
-    var encryptionKey: SymmetricKey? {
-        guard let firstWalletPublicKey = card.wallets.first?.publicKey else { return nil }
-
-        return UserWalletEncryptionKey(publicKey: firstWalletPublicKey).key
-    }
-
     func cardInfo() -> CardInfo {
         let cardArtwork: CardArtwork
         if let artwork = artwork {
