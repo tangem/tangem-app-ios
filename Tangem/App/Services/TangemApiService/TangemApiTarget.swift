@@ -14,13 +14,7 @@ struct TangemApiTarget: TargetType {
     let authData: AuthData?
 
     var baseURL: URL {
-        switch type {
-        case .loadReferralProgramInfo, .participateInReferralProgram:
-            // [REDACTED_TODO_COMMENT]
-            return URL(string: "https://devapi.tangem-tech.com/v1")!
-        default:
-            return URL(string: "https://api.tangem-tech.com/v1")!
-        }
+        URL(string: AppEnvironment.current.apiBaseUrl)!
     }
 
     var path: String {
