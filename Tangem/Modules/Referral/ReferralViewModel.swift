@@ -34,8 +34,7 @@ class ReferralViewModel: ObservableObject {
     func participateInReferralProgram() async {
         guard
             let award = referralProgramInfo?.conditions.awards.first,
-            let blockchain = Blockchain(from: award.token.networkId),
-            let userWalletId = cardModel.userWalletId
+            let blockchain = Blockchain(from: award.token.networkId)
         else {
             errorAlert = AlertBuilder.makeOkErrorAlert(message: "Failed to load")
             return
@@ -50,7 +49,7 @@ class ReferralViewModel: ObservableObject {
         isProcessingRequest = true
         do {
             let referralProgramInfo = try await runInTask {
-                try await self.tangemApiService.participateInReferralProgram(using: award.token, for: address, with: userWalletId.hexString)
+                try await self.tangemApiService.participateInReferralProgram(using: award.token, for: address, with: self.userWalletId.hexString)
             }
             self.referralProgramInfo = referralProgramInfo
         } catch {
