@@ -81,13 +81,16 @@ class UserWalletRepositoryUtil {
             try excludeFromBackup(url: userWalletListPath())
 
             for userWallet in userWallets {
-                guard let userWalletEncryptionKey = userWallet.encryptionKey else {
+                let cardInfo = userWallet.cardInfo()
+                let userWalletEncryptionKey = UserWalletEncryptionKeyFactory().encryptionKey(from: cardInfo)
+
+                guard let encryptionKey = userWalletEncryptionKey else {
                     print("User wallet \(userWallet.card.cardId) failed to generate encryption key")
                     continue
                 }
 
                 let sensitiveInformation = UserWallet.SensitiveInformation(wallets: userWallet.card.wallets)
-                let sensitiveDataEncoded = try encrypt(encoder.encode(sensitiveInformation), with: userWalletEncryptionKey)
+                let sensitiveDataEncoded = try encrypt(encoder.encode(sensitiveInformation), with: encryptionKey.symmetricKey)
                 let sensitiveDataPath = userWalletPath(for: userWallet)
                 try sensitiveDataEncoded.write(to: sensitiveDataPath, options: .atomic)
                 try excludeFromBackup(url: sensitiveDataPath)
