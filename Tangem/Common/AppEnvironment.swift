@@ -40,13 +40,10 @@ extension AppEnvironment {
         return identifier
     }
 
-    var apiBaseUrl: String {
-        guard let link = infoDictionary["BASE_URL"] as? String else {
-            assertionFailure("BASE_URL not found")
-            return ""
-        }
-
-        return link
+    var apiBaseUrl: URL {
+        EnvironmentProvider.shared.useDevApi ?
+            URL(string: "https://devapi.tangem-tech.com/v1")! :
+            URL(string: "https://api.tangem-tech.com/v1")!
     }
 
     var isTestnet: Bool  {
