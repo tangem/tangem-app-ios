@@ -374,7 +374,7 @@ class MainViewModel: ObservableObject {
 
     func didAgreeToSaveUserWallets() {
         userWalletRepository.unlock(with: .biometry) { [weak self, cardModel] result in
-            if case let .failure(error) = result {
+            if case let .error(error) = result {
                 print("Failed to enable biometry: \(error)")
                 return
             }
