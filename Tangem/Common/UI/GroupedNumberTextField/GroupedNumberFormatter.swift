@@ -26,6 +26,27 @@ struct GroupedNumberFormatter {
         numberFormatter.maximumFractionDigits = maximumFractionDigits
     }
 
+    func format(from string: String) -> String {
+        // Exclude unnecessary logic
+        guard !string.isEmpty else { return "" }
+
+        // If string contains decimalSeparator will format it separately
+        if string.contains(decimalSeparator) {
+            return formatIntegerAndFractionSeparately(string: string)
+        }
+
+        // Remove space separators for formatter correct work
+        let numberString = string.replacingOccurrences(of: " ", with: "")
+
+        // If textFieldText is correct number, return formatted number
+        if let value = numberFormatter.number(from: numberString) {
+            return value.decimalValue.groupedFormatted()
+        }
+
+        // Otherwise just return text
+        return string
+    }
+
     private func formatIntegerAndFractionSeparately(string: String) -> String {
         guard let commaIndex = string.firstIndex(of: decimalSeparator) else {
             return string
@@ -46,26 +67,5 @@ struct GroupedNumberFormatter {
         }
 
         return bodyNumber.decimalValue.groupedFormatted() + afterComma
-    }
-
-    func format(from string: String) -> String {
-        // Exclude unnecessary logic
-        guard !string.isEmpty else { return "" }
-
-        // If string contains decimalSeparator will format it separately
-        if string.contains(decimalSeparator) {
-            return formatIntegerAndFractionSeparately(string: string)
-        }
-
-        // Remove space separators for formatter correct work
-        let numberString = string.replacingOccurrences(of: " ", with: "")
-
-        // If textFieldText is correct number, return formatted number
-        if let value = numberFormatter.number(from: numberString) {
-            return value.decimalValue.groupedFormatted()
-        }
-
-        // Otherwise just return text
-        return string
     }
 }
