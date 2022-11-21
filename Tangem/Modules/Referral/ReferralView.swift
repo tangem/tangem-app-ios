@@ -198,18 +198,18 @@ struct ReferralView_Previews: PreviewProvider {
     static var previews: some View {
         NavigationView {
             ReferralView(
-                viewModel: ReferralViewModel(coordinator: ReferralCoordinator(),
-                                             cardModel: demoCard.cardModel,
-                                             userWalletId: Data())
+                viewModel: ReferralViewModel(cardModel: demoCard.cardModel,
+                                             userWalletId: Data(),
+                                             coordinator: ReferralCoordinator())
             )
         }
         .previewGroup(devices: [.iPhone8], withZoomed: false)
 
         NavigationView {
             ReferralView(
-                viewModel: ReferralViewModel(coordinator: ReferralCoordinator(),
-                                             cardModel: demoCard.cardModel,
-                                             userWalletId: Data(hexString: "6772C99F8B400E6F59FFCE0C4A66193BFD49DE2D9738868DE36F5E16569BB4F9")
+                viewModel: ReferralViewModel(cardModel: demoCard.cardModel,
+                                             userWalletId: Data(hexString: "6772C99F8B400E6F59FFCE0C4A66193BFD49DE2D9738868DE36F5E16569BB4F9"),
+                                             coordinator: ReferralCoordinator()
                 )
             )
         }

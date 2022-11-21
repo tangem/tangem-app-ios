@@ -48,6 +48,7 @@ extension ReferralProgramInfo {
 
     enum DiscountType: String, Decodable {
         case percentage
+        case value
 
         var symbol: String {
             "%"
