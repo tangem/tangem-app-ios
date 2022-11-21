@@ -67,7 +67,7 @@ struct GroupedNumberTextField: View {
     }
 }
 
-extension GroupedNumberTextField: Buildable {
+extension GroupedNumberTextField: Setupable {
     func maximumFractionDigits(_ digits: Int) -> Self {
         map { $0.maximumFractionDigits = digits }
     }
