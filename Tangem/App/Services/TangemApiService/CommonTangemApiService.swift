@@ -114,15 +114,17 @@ extension CommonTangemApiService: TangemApiService {
     }
 
     func loadReferralProgramInfo(for userWalletId: String) async throws -> ReferralProgramInfo {
-        try await provider
-            .asyncRequest(for: TangemApiTarget(type: .loadReferralProgramInfo(userWalletId: userWalletId),
-                                               authData: authData))
+        try await performAsyncRequest(for: .loadReferralProgramInfo(userWalletId: userWalletId))
     }
 
-    func participateInReferralProgram(with userData: ReferralParticipationRequestBody) async throws -> ReferralProgramInfo {
-        try await provider
-            .asyncRequest(for: TangemApiTarget(type: .participateInReferralProgram(userInfo: userData),
-                                               authData: authData))
+    func participateInReferralProgram(using token: ReferralProgramInfo.Token,
+                                      for address: String,
+                                      with userWalletId: String) async throws -> ReferralProgramInfo {
+        let userInfo = ReferralParticipationRequestBody(walletId: userWalletId,
+                                                        networkId: token.networkId,
+                                                        tokenId: token.id,
+                                                        address: address)
+        return try await performAsyncRequest(for: .participateInReferralProgram(userInfo: userInfo))
     }
 
     func initialize() {
@@ -139,5 +141,18 @@ extension CommonTangemApiService: TangemApiService {
 
     func setAuthData(_ authData: TangemApiTarget.AuthData) {
         self.authData = authData
+    }
+
+    private func performAsyncRequest<T: Decodable>(for type: TangemApiTarget.TargetType) async throws -> T {
+        let target = TangemApiTarget(type: type,
+                                     authData: authData)
+        let response = try await provider.asyncRequest(for: target)
+        let filteredResponse = try response.filterSuccessfulStatusAndRedirectCodes()
+        return try decodeResponse(filteredResponse.data)
+    }
+
+    private func decodeResponse<T: Decodable>(_ responseData: Data) throws -> T {
+        let decoder = JSONDecoder()
+        return try decoder.decode(T.self, from: responseData)
     }
 }
