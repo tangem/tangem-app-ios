@@ -90,7 +90,7 @@ extension GroupedSection {
     }
 }
 
-extension GroupedSection: Buildable {
+extension GroupedSection: Setupable {
     func verticalPadding(_ padding: CGFloat) -> Self {
         map { $0.verticalPadding = padding }
     }
