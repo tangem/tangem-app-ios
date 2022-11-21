@@ -81,7 +81,7 @@ class CommonUserWalletRepository: UserWalletRepository {
             .store(in: &bag)
     }
 
-    func scanPublisher(with batch: String? = nil) -> AnyPublisher<UserWalletRepositoryResult?, Never>  {
+    private func scanPublisher(with batch: String? = nil) -> AnyPublisher<UserWalletRepositoryResult?, Never>  {
         Deferred {
             Future { [weak self] promise in
                 self?.scanInternal(with: batch) { result in
@@ -149,7 +149,7 @@ class CommonUserWalletRepository: UserWalletRepository {
             self.failedCardScanTracker.recordFailure()
 
             if let saltpayError = error as? SaltPayRegistratorError {
-                return Just(UserWalletRepositoryResult.error(saltpayError.alertBinder))
+                return Just(UserWalletRepositoryResult.error(saltpayError))
             }
 
             if self.failedCardScanTracker.shouldDisplayAlert {
@@ -158,7 +158,7 @@ class CommonUserWalletRepository: UserWalletRepository {
 
             switch error.toTangemSdkError() {
             case .unknownError, .cardVerificationFailed:
-                return Just(UserWalletRepositoryResult.error(error.alertBinder))
+                return Just(UserWalletRepositoryResult.error(error))
             default:
                 return Just(nil)
             }
@@ -192,7 +192,7 @@ class CommonUserWalletRepository: UserWalletRepository {
         }
     }
 
-    func unlock(with method: UserWalletRepositoryUnlockMethod, completion: @escaping (Result<Void, Error>) -> Void) {
+    func unlock(with method: UserWalletRepositoryUnlockMethod, completion: @escaping (UserWalletRepositoryResult?) -> Void) {
         switch method {
         case .biometry:
             unlockWithBiometry(completion: completion)
@@ -419,30 +419,36 @@ class CommonUserWalletRepository: UserWalletRepository {
         return cardModel
     }
 
-    private func unlockWithBiometry(completion: @escaping (Result<Void, Error>) -> Void) {
+    private func unlockWithBiometry(completion: @escaping (UserWalletRepositoryResult?) -> Void) {
         encryptionKeyStorage.fetch { [weak self] result in
             DispatchQueue.main.async {
                 guard let self else { return }
 
                 switch result {
                 case .failure(let error):
-                    completion(.failure(error))
+                    completion(.error(error))
                 case .success(let keys):
                     self.encryptionKeyByUserWalletId = keys
                     self.userWallets = self.savedUserWallets(withSensitiveData: true)
                     self.loadModels()
                     self.initializeServicesForSelectedModel()
                     self.isUnlocked = true
-                    completion(.success(()))
+
+                    completion(nil)
                 }
             }
         }
     }
 
-    private func unlockWithCard(_ requiredUserWallet: UserWallet?, completion: @escaping (Result<Void, Error>) -> Void) {
+    private func unlockWithCard(_ requiredUserWallet: UserWallet?, completion: @escaping (UserWalletRepositoryResult?) -> Void) {
         scanPublisher()
             .receive(on: DispatchQueue.main)
             .sink { [weak self] result in
+                guard AppSettings.shared.saveUserWallets else {
+                    completion(result)
+                    return
+                }
+
                 guard
                     let self,
                     case let .success(cardModel) = result,
@@ -450,13 +456,13 @@ class CommonUserWalletRepository: UserWalletRepository {
                     let encryptionKey = scannedUserWallet.encryptionKey,
                     self.contains(scannedUserWallet)
                 else {
-                    completion(.failure(TangemSdkError.cardError))
+                    completion(.error(TangemSdkError.cardError))
                     return
                 }
 
                 if let requiredUserWallet,
                    scannedUserWallet.userWalletId != requiredUserWallet.userWalletId {
-                    completion(.failure(TangemSdkError.cardError))
+                    completion(.error(TangemSdkError.cardError))
                     return
                 }
 
@@ -480,7 +486,7 @@ class CommonUserWalletRepository: UserWalletRepository {
 
                 self.sendEvent(.updated(userWalletModel: userWalletModel))
 
-                completion(.success(()))
+                completion(.success(cardModel))
             }
             .store(in: &bag)
     }
