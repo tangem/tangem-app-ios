@@ -81,9 +81,9 @@ class UserWalletEncryptionKeyStorage {
         do {
             try deleteUserWalletId(userWallet)
 
-            if AppSettings.shared.saveAccessCodes {
-                try biometricsStorage.delete(encryptionKeyStorageKey(for: userWallet))
+            try biometricsStorage.delete(encryptionKeyStorageKey(for: userWallet))
 
+            if AppSettings.shared.saveAccessCodes {
                 let accessCodeRepository = AccessCodeRepository()
                 try accessCodeRepository.deleteAccessCode(for: Array(userWallet.associatedCardIds))
             }
