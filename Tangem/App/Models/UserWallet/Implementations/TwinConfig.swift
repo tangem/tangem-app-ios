@@ -19,10 +19,6 @@ struct TwinConfig {
         Blockchain.from(blockchainName: walletData.blockchain, curve: card.supportedCurves[0])!
     }
 
-    private var isTestnet: Bool {
-        defaultBlockchain.isTestnet
-    }
-
     init(card: Card, walletData: WalletData, twinData: TwinData) {
         self.card = card
         self.walletData = walletData
@@ -101,13 +97,7 @@ extension TwinConfig: UserWalletConfig {
     }
 
     var warningEvents: [WarningEvent] {
-        var warnings = WarningEventsFactory().makeWarningEvents(for: card)
-
-        if isTestnet {
-            warnings.append(.testnetCard)
-        }
-
-        return warnings
+        WarningEventsFactory().makeWarningEvents(for: card)
     }
 
     // [REDACTED_TODO_COMMENT]
@@ -179,7 +169,7 @@ extension TwinConfig: UserWalletConfig {
         let factory = WalletManagerFactoryProvider().factory
         let twinManager = try factory.makeTwinWalletManager(walletPublicKey: walletPublicKey,
                                                             pairKey: savedPairKey,
-                                                            isTestnet: isTestnet)
+                                                            isTestnet: AppEnvironment.current.isTestnet)
 
         return WalletModel(walletManager: twinManager, derivationStyle: card.derivationStyle)
     }
