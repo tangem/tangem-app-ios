@@ -7,7 +7,6 @@
 //
 
 import SwiftUI
-import Combine
 
 struct UserWalletListCellView: View {
     @ObservedObject private var viewModel: UserWalletListCellViewModel
