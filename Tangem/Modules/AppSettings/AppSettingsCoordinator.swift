@@ -29,7 +29,7 @@ class AppSettingsCoordinator: CoordinatorObject {
     func start(with options: Options) {
         switch options {
         case .default(let userWallet):
-            rootViewModel = AppSettingsViewModel(coordinator: self, userWallet: userWallet)
+            rootViewModel = AppSettingsViewModel(userWallet: userWallet, coordinator: self)
         }
     }
 }
