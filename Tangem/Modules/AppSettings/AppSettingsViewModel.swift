@@ -12,10 +12,11 @@ import SwiftUI
 class AppSettingsViewModel: ObservableObject {
     // MARK: ViewState
 
-    @Published var isSavingWallet: Bool = true
-    @Published var isSavingAccessCodes: Bool = true
+    @Published var warningViewModel: DefaultWarningRowViewModel?
+    @Published var savingWalletViewModel: DefaultToggleRowViewModel?
+    @Published var savingAccessCodesViewModel: DefaultToggleRowViewModel?
+
     @Published var alert: AlertBinder?
-    @Published var isBiometryAvailable: Bool = false
 
     // MARK: Dependencies
 
@@ -24,35 +25,78 @@ class AppSettingsViewModel: ObservableObject {
     // MARK: Properties
 
     private var bag: Set<AnyCancellable> = []
-    private var shouldShowAlertOnDisableSaveAccessCodes: Bool = true
+    private var isBiometryAvailable: Bool = true
+
+    private var isSavingWallet: Bool = true {
+        didSet { self.savingWalletViewModel?.update(isOn: isSavingWalletBinding()) }
+    }
+
+    private var isSavingAccessCodes: Bool = true {
+        didSet { self.savingAccessCodesViewModel?.update(isOn: isSavingAccessCodesBinding()) }
+    }
 
     init(coordinator: AppSettingsRoutable) {
         self.coordinator = coordinator
 
-        bind()
         updateBiometricWarning()
+        setupView()
     }
 }
 
 // MARK: - Private
 
 private extension AppSettingsViewModel {
-    func bind() {
-        $isSavingWallet
-            .dropFirst()
-            .filter { !$0 }
-            .sink(receiveValue: { [weak self] _ in
-                self?.presentSavingWalletDeleteAlert()
-            })
-            .store(in: &bag)
+    func setupView() {
+        if !isBiometryAvailable {
+            warningViewModel = DefaultWarningRowViewModel(
+                icon: Assets.attention,
+                title: "app_settings_warning_title".localized,
+                subtitle: "app_settings_warning_subtitle".localized,
+                action: openSettings
+            )
+        }
 
-        $isSavingAccessCodes
-            .dropFirst()
-            .filter { !$0 }
-            .sink(receiveValue: { [weak self] _ in
-                self?.presentSavingAccessCodesDeleteAlert()
-            })
-            .store(in: &bag)
+        savingWalletViewModel = DefaultToggleRowViewModel(
+            title: "app_settings_saved_wallet".localized,
+            isDisabled: !isBiometryAvailable,
+            isOn: isSavingWalletBinding()
+        )
+
+        savingAccessCodesViewModel = DefaultToggleRowViewModel(
+            title: "app_settings_saved_access_codes".localized,
+            isDisabled: !isBiometryAvailable,
+            isOn: isSavingAccessCodesBinding()
+        )
+    }
+
+    func isSavingWalletBinding() -> Binding<Bool> {
+        Binding<Bool>(
+            root: self,
+            default: false,
+            get: { $0.isSavingWallet },
+            set: { root, newValue in
+                if newValue {
+                    root.isSavingWallet = newValue
+                } else {
+                    root.presentSavingWalletDeleteAlert()
+                }
+            }
+        )
+    }
+
+    func isSavingAccessCodesBinding() -> Binding<Bool> {
+        Binding<Bool>(
+            root: self,
+            default: false,
+            get: { $0.isSavingAccessCodes },
+            set: { root, newValue in
+                if newValue {
+                    root.isSavingAccessCodes = newValue
+                } else {
+                    root.presentSavingAccessCodesDeleteAlert()
+                }
+            }
+        )
     }
 
     func presentSavingWalletDeleteAlert() {
@@ -74,8 +118,6 @@ private extension AppSettingsViewModel {
     }
 
     func presentSavingAccessCodesDeleteAlert() {
-        guard shouldShowAlertOnDisableSaveAccessCodes else { return }
-
         let okButton = Alert.Button.destructive(Text("common_delete"), action: { [weak self] in
             self?.disableSaveAccessCodes()
         })
@@ -96,6 +138,7 @@ private extension AppSettingsViewModel {
 
     func disableSaveWallet() {
         // [REDACTED_TODO_COMMENT]
+        isSavingWallet = false
         disableSaveAccessCodes()
     }
 
@@ -103,9 +146,7 @@ private extension AppSettingsViewModel {
         // [REDACTED_TODO_COMMENT]
 
         if isSavingAccessCodes {
-            shouldShowAlertOnDisableSaveAccessCodes = false
             isSavingAccessCodes = false
-            shouldShowAlertOnDisableSaveAccessCodes = true
         }
     }
 
