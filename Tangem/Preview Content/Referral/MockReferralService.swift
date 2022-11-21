@@ -8,8 +8,8 @@
 
 import Foundation
 
-class MockReferralService: ReferralService {
-    let decoder = JSONDecoder()
+class MockReferralService: ReferralApiService {
+    private let decoder = JSONDecoder()
 
     private let isAlreadyReferralResourceName = "referralMock"
     private let isNotReferralResourceName = "notReferralMock"
@@ -20,7 +20,7 @@ class MockReferralService: ReferralService {
         self.isReferral = isReferral
     }
 
-    func loadReferralProgramInfo() async throws -> ReferralProgramInfo {
+    func loadReferralProgramInfo(for userWalletId: String) async throws -> ReferralProgramInfo {
         try await Task.sleep(seconds: 3)
         guard let url = Bundle.main.url(forResource: isReferral ? isAlreadyReferralResourceName : isNotReferralResourceName, withExtension: "json") else {
             throw "Everything is corrupted!!!!!"
@@ -29,7 +29,7 @@ class MockReferralService: ReferralService {
         return try decoder.decode(ReferralProgramInfo.self, from: data)
     }
 
-    func participateInReferralProgram(using token: ReferralProgramInfo.Conditions.Token, with address: String) async throws -> ReferralProgramInfo {
+    func participateInReferralProgram(using token: ReferralProgramInfo.Token, with address: String) async throws -> ReferralProgramInfo {
         try await Task.sleep(seconds: 5)
         guard let url = Bundle.main.url(forResource: isAlreadyReferralResourceName, withExtension: "json") else {
             throw "Everything is corrupted!!!!!"
