@@ -50,8 +50,6 @@ class DetailsViewModel: ObservableObject {
     private var bag = Set<AnyCancellable>()
     private unowned let coordinator: DetailsRoutable
 
-    @Injected(\.cardsRepository) private var cardsRepository: CardsRepository
-
     /// Change to @AppStorage and move to model with IOS 14.5 minimum deployment target
     @AppStorageCompat(StorageType.selectedCurrencyCode)
     private var selectedCurrencyCode: String = "USD"
