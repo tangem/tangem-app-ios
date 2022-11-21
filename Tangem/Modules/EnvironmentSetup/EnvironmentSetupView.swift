@@ -20,7 +20,7 @@ struct EnvironmentSetupView: View {
             Colors.Background.secondary.edgesIgnoringSafeArea(.all)
 
             GroupedScrollView {
-                GroupedSection(viewModel.testnetToggleViewModel) {
+                GroupedSection(viewModel.appSettingsTogglesViewModels) {
                     DefaultToggleRowView(viewModel: $0)
                 } header: {
                     DefaultHeaderView("App settings")
