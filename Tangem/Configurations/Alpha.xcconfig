@@ -26,6 +26,3 @@ SUITE_NAME = group.$(APP_BUNDLE_IDENTIFIER)
 PRODUCT_NAME = Tangem $(ENVIRONMENT_NAME)
 // app icon
 ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon_$(ENVIRONMENT_NAME)
-
-// API base url
-BASE_URL = https://devapi.tangem-tech.com/v1
