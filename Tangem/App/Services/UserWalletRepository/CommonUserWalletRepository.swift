@@ -81,7 +81,7 @@ class CommonUserWalletRepository: UserWalletRepository {
             .store(in: &bag)
     }
 
-    func scanPublisher(with batch: String? = nil) -> AnyPublisher<UserWalletRepositoryResult?, Never>  {
+    private func scanPublisher(with batch: String? = nil) -> AnyPublisher<UserWalletRepositoryResult?, Never>  {
         Deferred {
             Future { [weak self] promise in
                 self?.scanInternal(with: batch) { result in
@@ -192,7 +192,7 @@ class CommonUserWalletRepository: UserWalletRepository {
         }
     }
 
-    func unlock(with method: UserWalletRepositoryUnlockMethod, completion: @escaping (Result<Void, Error>) -> Void) {
+    func unlock(with method: UserWalletRepositoryUnlockMethod, completion: @escaping (Result<UserWalletRepositoryResult?, Error>) -> Void) {
         switch method {
         case .biometry:
             unlockWithBiometry(completion: completion)
@@ -419,7 +419,7 @@ class CommonUserWalletRepository: UserWalletRepository {
         return cardModel
     }
 
-    private func unlockWithBiometry(completion: @escaping (Result<Void, Error>) -> Void) {
+    private func unlockWithBiometry(completion: @escaping (Result<UserWalletRepositoryResult?, Error>) -> Void) {
         encryptionKeyStorage.fetch { [weak self] result in
             DispatchQueue.main.async {
                 guard let self else { return }
@@ -433,16 +433,22 @@ class CommonUserWalletRepository: UserWalletRepository {
                     self.loadModels()
                     self.initializeServicesForSelectedModel()
                     self.isUnlocked = true
-                    completion(.success(()))
+
+                    completion(.success(nil))
                 }
             }
         }
     }
 
-    private func unlockWithCard(_ requiredUserWallet: UserWallet?, completion: @escaping (Result<Void, Error>) -> Void) {
+    private func unlockWithCard(_ requiredUserWallet: UserWallet?, completion: @escaping (Result<UserWalletRepositoryResult?, Error>) -> Void) {
         scanPublisher()
             .receive(on: DispatchQueue.main)
             .sink { [weak self] result in
+                guard AppSettings.shared.saveUserWallets else {
+                    completion(.success(result))
+                    return
+                }
+
                 guard
                     let self,
                     case let .success(cardModel) = result,
@@ -480,7 +486,7 @@ class CommonUserWalletRepository: UserWalletRepository {
 
                 self.sendEvent(.updated(userWalletModel: userWalletModel))
 
-                completion(.success(()))
+                completion(.success(.success(cardModel)))
             }
             .store(in: &bag)
     }
