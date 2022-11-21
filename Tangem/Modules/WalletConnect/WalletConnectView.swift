@@ -18,6 +18,7 @@ struct WalletConnectView: View {
                              systemImageName: "plus",
                              action: viewModel.openSession)
             .accessibility(label: Text("voice_over_open_new_wallet_connect_session"))
+            .animation(nil)
     }
 
     var body: some View {
@@ -35,7 +36,7 @@ struct WalletConnectView: View {
                     List {
                         ForEach(Array(viewModel.sessions.enumerated()), id: \.element) { (i, item) -> WalletConnectSessionItemView in
                             WalletConnectSessionItemView(dAppName: item.session.dAppInfo.peerMeta.name) {
-                                viewModel.disconnectSession(at: i)
+                                viewModel.disconnectSession(item)
                             }
                         }
                         .listRowInsets(.none)
