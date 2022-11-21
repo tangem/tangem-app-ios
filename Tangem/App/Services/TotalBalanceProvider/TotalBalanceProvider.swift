@@ -18,11 +18,13 @@ class TotalBalanceProvider {
     private var refreshSubscription: AnyCancellable?
     private let userWalletAmountType: Amount.AmountType?
     private var isFirstLoadForCardInSession: Bool = true
+    private var bag: Set<AnyCancellable> = .init()
 
     init(userWalletModel: UserWalletModel, userWalletAmountType: Amount.AmountType?, totalBalanceAnalyticsService: TotalBalanceAnalyticsService) {
         self.userWalletModel = userWalletModel
         self.userWalletAmountType = userWalletAmountType
         self.totalBalanceAnalyticsService = totalBalanceAnalyticsService
+        bind()
     }
 }
 
@@ -32,32 +34,52 @@ extension TotalBalanceProvider: TotalBalanceProviding {
     func totalBalancePublisher() -> AnyPublisher<LoadingValue<TotalBalance>, Never> {
         totalBalanceSubject.eraseToAnyPublisher()
     }
-
-    func updateTotalBalance() {
-        totalBalanceSubject.send(.loading)
-        loadCurrenciesAndUpdateBalance()
-    }
 }
 
 private extension TotalBalanceProvider {
-    func loadCurrenciesAndUpdateBalance() {
-        refreshSubscription = tangemApiService.loadCurrencies()
-            .receive(on: DispatchQueue.global())
-            .tryMap { [weak self] currencies -> TotalBalance in
-                guard let self = self,
-                      let currency = currencies.first(where: { $0.code == AppSettings.shared.selectedCurrencyCode }) else {
-                    throw CommonError.noData
+    func bind() {
+        // Subscription to handle token changes
+        userWalletModel.subscribeToWalletModels()
+            .combineLatest(AppSettings.shared.$selectedCurrencyCode)
+            .receive(on: DispatchQueue.main)
+            .sink { [unowned self] walletModels, currencyCode  in
+                let hasLoading = !walletModels.filter { $0.state.isLoading }.isEmpty
+
+                // We should wait for balance loading to complete
+                if hasLoading {
+                    self.totalBalanceSubject.send(.loading)
+                    return
                 }
 
-                return self.mapToTotalBalance(currency: currency)
+                self.updateTotalBalance(with: currencyCode)
             }
+            .store(in: &bag)
+
+        // Subscription to handle balance loading completion
+        userWalletModel.subscribeToWalletModels()
+            .filter { !$0.isEmpty }
             .receive(on: DispatchQueue.main)
-            .receiveValue { [weak self] balance in
-                self?.totalBalanceSubject.send(.loaded(balance))
+            .map { walletModels -> AnyPublisher<Void, Never> in
+                walletModels.map { $0.walletDidChange }
+                    .combineLatest()
+                    .filter { $0.allConforms { !$0.isLoading } }
+                    .mapVoid()
+                    .eraseToAnyPublisher()
             }
+            .switchToLatest()
+            .delay(for: 0.2, scheduler: DispatchQueue.main) // Hide skeleton with delay
+            .sink { [unowned self] walletModels in
+                self.updateTotalBalance(with: AppSettings.shared.selectedCurrencyCode)
+            }
+            .store(in: &bag)
     }
 
-    func mapToTotalBalance(currency: CurrenciesResponse.Currency) -> TotalBalance {
+    func updateTotalBalance(with currencyCode: String) {
+        let totalBalance = self.mapToTotalBalance(currencyCode: currencyCode)
+        self.totalBalanceSubject.send(.loaded(totalBalance))
+    }
+
+    func mapToTotalBalance(currencyCode: String) -> TotalBalance {
         let tokenItemViewModels = getTokenItemViewModels()
 
         var hasError: Bool = false
@@ -86,7 +108,7 @@ private extension TotalBalanceProvider {
             isFirstLoadForCardInSession = false
         }
 
-        return TotalBalance(balance: balance, currency: currency, hasError: hasError)
+        return TotalBalance(balance: balance, currencyCode: currencyCode, hasError: hasError)
     }
 
     func getTokenItemViewModels() -> [TokenItemViewModel] {
@@ -103,7 +125,7 @@ private extension TotalBalanceProvider {
 extension TotalBalanceProvider {
     struct TotalBalance {
         let balance: Decimal
-        let currency: CurrenciesResponse.Currency
+        let currencyCode: String
         let hasError: Bool
     }
 }
