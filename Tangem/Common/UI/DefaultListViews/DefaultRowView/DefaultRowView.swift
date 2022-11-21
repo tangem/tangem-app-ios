@@ -59,10 +59,6 @@ struct DefaultRowView: View {
         case .text(let string):
             Text(string)
                 .style(Fonts.Regular.body, color: Colors.Text.tertiary)
-        case .icon(let icon):
-            icon
-                .resizable()
-                .frame(width: 20, height: 20)
         }
     }
 }
