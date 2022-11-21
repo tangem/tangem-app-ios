@@ -506,4 +506,7 @@ URL: %@";
 "wallet_connect_need_to_scan_card" = "Please scan the card and repeat your request";
 "exchange_send_view_header" = "You Send";
 "exchange_receive_view_header" = "You Receive";
+"swapping_success" = "Success!";
+"swapping_swap_of_to" = "Swap of %@ to";
+"swapping_swap" = "Swap";
 
