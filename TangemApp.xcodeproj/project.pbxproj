@@ -315,6 +315,7 @@
 		B0FAD01026BAF19E00F45E88 /* OnboardingStepIconView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0FAD00F26BAF19E00F45E88 /* OnboardingStepIconView.swift */; };
 		B0FAD01226BAF35C00F45E88 /* FrameSizeModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0FAD01126BAF35C00F45E88 /* FrameSizeModifier.swift */; };
 		B0FB98A52598D24300B769A3 /* Card+.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0FB98A42598D24300B769A3 /* Card+.swift */; };
+		DA129DD3292B4A3D004291EC /* UserWalletListCellViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA129DD2292B4A3D004291EC /* UserWalletListCellViewModel.swift */; };
 		DA1D80802885300300722E56 /* UIViewController+.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DDE22EE2608EFDB008657C6 /* UIViewController+.swift */; };
 		DA1D80812885308600722E56 /* AlertBinder.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0B9E0B52629779500408726 /* AlertBinder.swift */; };
 		DA1D80822885337200722E56 /* CommonKeysManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0E1D174257DE75D00A3AB98 /* CommonKeysManager.swift */; };
@@ -999,6 +1000,7 @@
 		D4A25DE2562F5431EFD71FAC /* Pods-Tangem.release(beta).xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Tangem.release(beta).xcconfig"; path = "Target Support Files/Pods-Tangem/Pods-Tangem.release(beta).xcconfig"; sourceTree = "<group>"; };
 		D513FF545D1945A2BACAA25F /* Pods_Tangem_TangemUITests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Tangem_TangemUITests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		D9B0B0F1869C2BD108CE901A /* Pods-Tangem-TangemUITests.firebase.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Tangem-TangemUITests.firebase.xcconfig"; path = "Target Support Files/Pods-Tangem-TangemUITests/Pods-Tangem-TangemUITests.firebase.xcconfig"; sourceTree = "<group>"; };
+		DA129DD2292B4A3D004291EC /* UserWalletListCellViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserWalletListCellViewModel.swift; sourceTree = "<group>"; };
 		DA23786B27B24221009795A8 /* Address.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Address.swift; sourceTree = "<group>"; };
 		DA23786C27B24221009795A8 /* ProductVariant.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ProductVariant.swift; sourceTree = "<group>"; };
 		DA23786D27B24221009795A8 /* ShopifyService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ShopifyService.swift; sourceTree = "<group>"; };
@@ -2413,8 +2415,9 @@
 				DAA5E30528D2137C003C0E80 /* UserWalletListRoutable.swift */,
 				DAA5E30628D2137C003C0E80 /* UserWalletListHeaderView.swift */,
 				DAA5E30728D2137C003C0E80 /* UserWalletListView.swift */,
-				DAA5E30828D2137C003C0E80 /* UserWalletListCellView.swift */,
 				DAA5E30928D2137C003C0E80 /* UserWalletListViewModel.swift */,
+				DAA5E30828D2137C003C0E80 /* UserWalletListCellView.swift */,
+				DA129DD2292B4A3D004291EC /* UserWalletListCellViewModel.swift */,
 				DAA5E30A28D2137C003C0E80 /* UserWalletEncryptionKeyStorage.swift */,
 			);
 			path = UserWalletList;
@@ -3905,6 +3908,7 @@
 				EF50A5A42881CEE30081C5BB /* XCAssets+Generated.swift in Sources */,
 				5D84DBEF270EEADA0013A813 /* TwinIntroBackgroundView.swift in Sources */,
 				5D80ED472550186A0008DEF0 /* View+.swift in Sources */,
+				DA129DD3292B4A3D004291EC /* UserWalletListCellViewModel.swift in Sources */,
 				6563B8B92858B92A009A8A7D /* SupportChatView.swift in Sources */,
 				5D51036927C534A60025EA55 /* JSON.swift in Sources */,
 				DC66BBEF2859B6C700CDF765 /* ShopCoordinatorView.swift in Sources */,
