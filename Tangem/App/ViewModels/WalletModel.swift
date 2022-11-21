@@ -154,7 +154,7 @@ class WalletModel: ObservableObject, Identifiable {
                 updateRatesIfNeeded(rates)
 
                 // Don't update noAccount state
-                if !silent, !state.isNoAccount {
+                if !state.isNoAccount {
                     updateState(.idle)
                 }
 
@@ -236,6 +236,9 @@ class WalletModel: ObservableObject, Identifiable {
 
         return tangemApiService
             .loadRates(for: currenciesToExchange)
+            .replaceError(with: [:])
+            /// Hack that use `switchToLatest()` which is available in iOS 14.0. Remove it after update target version
+            .setFailureType(to: Error.self)
             .eraseToAnyPublisher()
     }
 
@@ -316,6 +319,15 @@ class WalletModel: ObservableObject, Identifiable {
                 self?.startUpdatingTimer()
             })
             .eraseToAnyPublisher()
+    }
+
+    func getFee(amount: Amount, destination: String) -> AnyPublisher<[Amount], Error> {
+        if isDemo {
+            let demoFees = DemoUtil().getDemoFee(for: walletManager.wallet.blockchain)
+            return .justWithError(output: demoFees)
+        }
+
+        return walletManager.getFee(amount: amount, destination: destination)
     }
 }
 
@@ -420,7 +432,7 @@ extension WalletModel {
 
     func getFiatBalance(for type: Amount.AmountType) -> String {
         let amount = wallet.amounts[type] ?? Amount(with: wallet.blockchain, type: type, value: .zero)
-        return getFiatFormatted(for: amount) ?? "–"
+        return getFiatFormatted(for: amount, roundingMode: .plain) ?? "–"
     }
 
     func isCustom(_ amountType: Amount.AmountType) -> Bool {
