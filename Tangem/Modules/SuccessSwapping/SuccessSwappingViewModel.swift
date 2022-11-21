@@ -19,6 +19,7 @@ final class SuccessSwappingViewModel: ObservableObject, Identifiable {
 
     // MARK: - Dependencies
 
+    // Optional will remove after merge main swapping module
     private unowned let coordinator: SuccessSwappingRoutable?
 
     init(
