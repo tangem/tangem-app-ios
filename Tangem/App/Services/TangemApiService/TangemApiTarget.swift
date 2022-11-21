@@ -14,7 +14,7 @@ struct TangemApiTarget: TargetType {
     let authData: AuthData?
 
     var baseURL: URL {
-        URL(string: AppEnvironment.current.apiBaseUrl)!
+        AppEnvironment.current.apiBaseUrl
     }
 
     var path: String {
