@@ -11,7 +11,7 @@ import Combine
 import TangemSdk
 
 class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable> {
-    @Injected(\.userWalletListService) private var userWalletListService: UserWalletListService
+    @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
     @Injected(\.tangemSdkProvider) private var tangemSdkProvider: TangemSdkProviding
 
     let navbarSize: CGSize = .init(width: UIScreen.main.bounds.width, height: 44)
@@ -280,13 +280,13 @@ class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable>
         guard
             AppSettings.shared.saveUserWallets,
             let userWallet = input.cardInput.cardModel?.userWallet,
-            !userWalletListService.contains(userWallet)
+            !userWalletRepository.contains(userWallet)
         else {
             return
         }
 
-        userWalletListService.save(userWallet)
-        userWalletListService.selectedUserWalletId = userWallet.userWalletId
+        userWalletRepository.save(userWallet)
+        userWalletRepository.setSelectedUserWalletId(userWallet.userWalletId)
     }
 
     private func bindAnalytics() {
@@ -340,9 +340,9 @@ extension OnboardingViewModel {
 
 extension OnboardingViewModel: UserWalletStorageAgreementRoutable {
     func didAgreeToSaveUserWallets() {
-        userWalletListService.unlockWithBiometry { [weak self] result in
+        userWalletRepository.unlock(with: .biometry) { [weak self] result in
             switch result {
-            case .failure(let error):
+            case .error(let error):
                 if let tangemSdkError = error as? TangemSdkError,
                    case .userCancelled = tangemSdkError
                 {
@@ -351,7 +351,7 @@ extension OnboardingViewModel: UserWalletStorageAgreementRoutable {
                 print("Failed to get access to biometry", error)
 
                 self?.didAskToSaveUserWallets(agreed: false)
-            case .success:
+            default:
                 self?.didAskToSaveUserWallets(agreed: true)
             }
 

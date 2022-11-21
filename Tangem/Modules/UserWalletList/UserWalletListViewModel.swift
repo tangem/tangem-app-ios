@@ -10,8 +10,7 @@ import Combine
 import SwiftUI
 
 final class UserWalletListViewModel: ObservableObject, Identifiable {
-    @Injected(\.cardsRepository) private var cardsRepository: CardsRepository
-    @Injected(\.userWalletListService) private var userWalletListService: UserWalletListService
+    @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
     @Injected(\.failedScanTracker) var failedCardScanTracker: FailedScanTrackable
 
     // MARK: - ViewState
@@ -39,7 +38,7 @@ final class UserWalletListViewModel: ObservableObject, Identifiable {
     }
 
     var isUnlocked: Bool {
-        userWalletListService.isUnlocked
+        userWalletRepository.isUnlocked
     }
 
     private unowned let coordinator: UserWalletListRoutable
@@ -52,38 +51,47 @@ final class UserWalletListViewModel: ObservableObject, Identifiable {
         self.coordinator = coordinator
 
         Analytics.log(.myWalletsScreenOpened)
-        selectedUserWalletId = userWalletListService.selectedUserWalletId
+        selectedUserWalletId = userWalletRepository.selectedUserWalletId
         updateModels()
+
+        bind()
     }
 
-    func updateModels() {
-        let oldModels = multiCurrencyModels + singleCurrencyModels
-        let totalBalanceProviders = Dictionary(oldModels.map {
-            ($0.userWalletId, $0.totalBalanceProvider)
-        }, uniquingKeysWith: { v1, _ in
-            v1
-        })
-
-        multiCurrencyModels = userWalletListService.models
-            .filter { $0.isMultiWallet }
-            .compactMap { $0.userWalletModel }
-            .map {
-                mapToUserWalletListCellViewModel(userWalletModel: $0, totalBalanceProvider: totalBalanceProviders[$0.userWallet.userWalletId])
+    func bind() {
+        userWalletRepository
+            .eventProvider
+            .sink { [weak self] event in
+                switch event {
+                case .locked:
+                    break
+                case .scan(let isScanning):
+                    self?.isScanningCard = isScanning
+                case .updated(let userWalletModel):
+                    self?.update(userWalletModel: userWalletModel)
+                case .deleted(let userWalletId):
+                    self?.delete(userWalletId: userWalletId)
+                case .selected(let userWallet):
+                    self?.setSelectedWallet(userWallet)
+                }
             }
+            .store(in: &bag)
+    }
 
-        singleCurrencyModels = userWalletListService.models
-            .filter { !$0.isMultiWallet }
-            .compactMap { $0.userWalletModel }
-            .map {
-                mapToUserWalletListCellViewModel(userWalletModel: $0, totalBalanceProvider: totalBalanceProviders[$0.userWallet.userWalletId])
+    func onAppear() {
+        for userWalletModel in userWalletRepository.models.compactMap({ $0.userWalletModel }) {
+            if !userWalletModel.didPerformInitialUpdate {
+                userWalletModel.updateAndReloadWalletModels()
             }
+        }
     }
 
     func unlockAllWallets() {
         Analytics.log(.buttonUnlockAllWithFaceID)
 
-        userWalletListService.unlockWithBiometry { [weak self] result in
-            guard case .success = result else { return }
+        userWalletRepository.unlock(with: .biometry) { [weak self] result in
+            if case .error = result {
+                return
+            }
 
             self?.updateModels()
         }
@@ -92,8 +100,24 @@ final class UserWalletListViewModel: ObservableObject, Identifiable {
     func addUserWallet() {
         Analytics.log(.buttonScanNewCard)
 
-        scanCardInternal { [weak self] cardModel in
-            self?.processScannedCard(cardModel)
+        userWalletRepository.add { [weak self] result in
+            guard
+                let self,
+                let result
+            else {
+                return
+            }
+
+            switch result {
+            case .troubleshooting:
+                self.showTroubleshootingView = true
+            case .onboarding(let input):
+                self.openOnboarding(with: input)
+            case .error(let error):
+                self.error = error.alertBinder
+            case .success(let cardModel):
+                self.add(cardModel: cardModel)
+            }
         }
     }
 
@@ -137,8 +161,7 @@ final class UserWalletListViewModel: ObservableObject, Identifiable {
             var newUserWallet = viewModel.userWallet
             newUserWallet.name = newName
 
-            self?.userWalletListService.save(newUserWallet)
-            self?.updateModels()
+            self?.userWalletRepository.save(newUserWallet)
         }
         alert.addAction(acceptButton)
 
@@ -157,150 +180,76 @@ final class UserWalletListViewModel: ObservableObject, Identifiable {
     }
 
     func didConfirmWalletDeletion() {
-        let models = userWalletListService.models
-
         let viewModels = (multiCurrencyModels + singleCurrencyModels)
         guard let viewModel = viewModels.first(where: { $0.userWalletId == userWalletIdToBeDeleted }) else {
             return
         }
 
-        let newSelectedUserWallet: UserWallet?
-
-        if viewModel.userWalletId == selectedUserWalletId,
-           let deletedUserWalletIndex = models.firstIndex(where: { $0.userWallet?.userWalletId == viewModel.userWalletId })
-        {
-            if deletedUserWalletIndex != (models.count - 1) {
-                newSelectedUserWallet = models[deletedUserWalletIndex + 1].userWallet
-            } else if deletedUserWalletIndex != 0 {
-                newSelectedUserWallet = models[deletedUserWalletIndex - 1].userWallet
-            } else {
-                newSelectedUserWallet = nil
-            }
-        } else {
-            newSelectedUserWallet = nil
-        }
-
-        userWalletListService.delete(viewModel.userWallet)
-        multiCurrencyModels.removeAll { $0.userWalletId == viewModel.userWalletId }
-        singleCurrencyModels.removeAll { $0.userWalletId == viewModel.userWalletId }
-
-        if let newSelectedUserWallet = newSelectedUserWallet {
-            setSelectedWallet(newSelectedUserWallet)
-        }
-
-        if userWalletListService.isEmpty {
-            AppSettings.shared.saveUserWallets = false
-            coordinator.dismissUserWalletList()
-            coordinator.popToRoot()
-        }
-    }
-
-    private func scanCardInternal(_ completion: @escaping (CardViewModel) -> Void) {
-        isScanningCard = true
-
-        cardsRepository.scanPublisher(requestBiometrics: true)
-            .receive(on: DispatchQueue.main)
-            .sink { [weak self] completion in
-                if case let .failure(error) = completion {
-                    print("Failed to scan card: \(error)")
-                    self?.isScanningCard = false
-                    self?.failedCardScanTracker.recordFailure()
-
-                    if self?.failedCardScanTracker.shouldDisplayAlert ?? false {
-                        self?.showTroubleshootingView = true
-                    } else {
-                        switch error.toTangemSdkError() {
-                        case .unknownError, .cardVerificationFailed:
-                            self?.error = error.alertBinder
-                        default:
-                            break
-                        }
-                    }
-                }
-            } receiveValue: { [weak self] cardModel in
-                self?.isScanningCard = false
-                self?.failedCardScanTracker.resetCounter()
-
-                let onboardingInput = cardModel.onboardingInput
-                if onboardingInput.steps.needOnboarding {
-                    cardModel.userWalletModel?.updateAndReloadWalletModels()
-                    self?.openOnboarding(with: onboardingInput)
-                } else {
-                    completion(cardModel)
-                }
-            }
-            .store(in: &bag)
-    }
-
-    private func processScannedCard(_ cardModel: CardViewModel) {
-        Analytics.log(.myWalletsCardWasScanned)
-
-        guard let userWallet = cardModel.userWallet else { return }
-
-        if !userWalletListService.contains(userWallet) {
-            let newModel = CardViewModel(userWallet: userWallet)
-            guard
-                let cellModel = newModel.userWalletModel.map({ mapToUserWalletListCellViewModel(userWalletModel: $0) })
-            else {
-                return
-            }
-
-            userWalletListService.save(userWallet)
-
-            if newModel.isMultiWallet {
-                multiCurrencyModels.append(cellModel)
-            } else {
-                singleCurrencyModels.append(cellModel)
-            }
-        }
-
-        setSelectedWallet(userWallet)
+        userWalletRepository.delete(viewModel.userWallet)
     }
 
     private func setSelectedWallet(_ userWallet: UserWallet) {
-        guard selectedUserWalletId != nil && selectedUserWalletId != userWallet.userWalletId else {
+        guard let model = userWalletRepository.models.first(where: {
+            $0.userWallet?.userWalletId == userWallet.userWalletId
+        }) else {
             return
         }
 
-        let completion: (UserWallet) -> Void = { [weak self] userWallet in
-            let cardModel = CardViewModel(userWallet: userWallet)
-            self?.cardsRepository.didSwitch(to: cardModel)
-            self?.selectedUserWalletId = userWallet.userWalletId
-            self?.userWalletListService.selectedUserWalletId = userWallet.userWalletId
-            self?.coordinator.didTap(cardModel)
-            self?.updateSelectedWalletModel()
-        }
+        self.selectedUserWalletId = userWallet.userWalletId
 
-        if !userWallet.isLocked {
-            completion(userWallet)
-            return
-        }
+        coordinator.didTap(model)
+        updateSelectedWalletModel()
+    }
 
-        Analytics.log(.walletUnlockTapped)
+    private func updateModels() {
+        let oldModels = multiCurrencyModels + singleCurrencyModels
+        let totalBalanceProviders = Dictionary(oldModels.map {
+            ($0.userWalletId, $0.totalBalanceProvider)
+        }, uniquingKeysWith: { v1, _ in
+            v1
+        })
 
-        scanCardInternal { [weak self] cardModel in
-            guard let userWallet = cardModel.userWallet else { return }
-
-            self?.userWalletListService.unlockWithCard(userWallet) { result in
-                guard case .success = result else {
-                    return
-                }
-
-                guard
-                    let selectedModel = self?.userWalletListService.models.first(where: { $0.userWallet?.userWalletId == userWallet.userWalletId }),
-                    let userWallet = selectedModel.userWallet
-                else {
-                    return
-                }
-
-                // [REDACTED_TODO_COMMENT]
-//                selectedModel.getCardInfo()
-//                selectedModel.userWalletModel?.updateAndReloadWalletModels(showProgressLoading: true)
-
-                self?.updateModels()
-
-                completion(userWallet)
+        multiCurrencyModels = userWalletRepository.models
+            .filter { $0.isMultiWallet }
+            .compactMap { $0.userWalletModel }
+            .map {
+                mapToUserWalletListCellViewModel(userWalletModel: $0, totalBalanceProvider: totalBalanceProviders[$0.userWallet.userWalletId])
             }
+
+        singleCurrencyModels = userWalletRepository.models
+            .filter { !$0.isMultiWallet }
+            .compactMap { $0.userWalletModel }
+            .map {
+                mapToUserWalletListCellViewModel(userWalletModel: $0, totalBalanceProvider: totalBalanceProviders[$0.userWallet.userWalletId])
+            }
+    }
+
+    private func update(userWalletModel: UserWalletModel) {
+        let userWalletId = userWalletModel.userWallet.userWalletId
+
+        if let index = multiCurrencyModels.firstIndex(where: { $0.userWalletId == userWalletId }) {
+            multiCurrencyModels[index] = mapToUserWalletListCellViewModel(
+                userWalletModel: userWalletModel,
+                totalBalanceProvider: multiCurrencyModels[index].totalBalanceProvider
+            )
+        } else if let index = singleCurrencyModels.firstIndex(where: { $0.userWalletId == userWalletId }) {
+            singleCurrencyModels[index] = mapToUserWalletListCellViewModel(
+                userWalletModel: userWalletModel,
+                totalBalanceProvider: singleCurrencyModels[index].totalBalanceProvider
+            )
+        }
+    }
+
+    private func delete(userWalletId: Data) {
+        userWalletIdToBeDeleted = nil
+
+        multiCurrencyModels.removeAll { $0.userWalletId == userWalletId }
+        singleCurrencyModels.removeAll { $0.userWalletId == userWalletId }
+
+        if userWalletRepository.isEmpty && AppSettings.shared.saveUserWallets {
+            AppSettings.shared.saveUserWallets = false
+            coordinator.dismissUserWalletList()
+            coordinator.popToRoot()
         }
     }
 
@@ -315,6 +264,23 @@ final class UserWalletListViewModel: ObservableObject, Identifiable {
         DispatchQueue.main.async {
             self.coordinator.openOnboarding(with: input)
         }
+    }
+
+    func add(cardModel: CardViewModel) {
+        guard
+            let cellModel = cardModel.userWalletModel.map({ mapToUserWalletListCellViewModel(userWalletModel: $0) }),
+            let userWallet = cardModel.userWallet
+        else {
+            return
+        }
+
+        if cardModel.isMultiWallet {
+            multiCurrencyModels.append(cellModel)
+        } else {
+            singleCurrencyModels.append(cellModel)
+        }
+
+        setSelectedWallet(userWallet)
     }
 
     private func mapToUserWalletListCellViewModel(userWalletModel: UserWalletModel, totalBalanceProvider: TotalBalanceProviding? = nil) -> UserWalletListCellViewModel {
@@ -337,7 +303,10 @@ final class UserWalletListViewModel: ObservableObject, Identifiable {
             totalBalanceProvider: totalBalanceProvider ?? TotalBalanceProvider(userWalletModel: userWalletModel, userWalletAmountType: nil, totalBalanceAnalyticsService: nil),
             cardImageProvider: CardImageProvider()
         ) { [weak self] in
-            self?.setSelectedWallet(userWallet)
+            if userWallet.isLocked {
+                Analytics.log(.walletUnlockTapped)
+            }
+            self?.userWalletRepository.setSelectedUserWalletId(userWallet.userWalletId)
         }
     }
 }
