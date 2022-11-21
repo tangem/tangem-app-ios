@@ -82,10 +82,10 @@ extension GenericConfig: UserWalletConfig {
     }
 
     var supportedBlockchains: Set<Blockchain> {
-        let allBlockchains = card.isTestnet ? Blockchain.supportedTestnetBlockchains
+        let allBlockchains = AppEnvironment.current.isTestnet ? Blockchain.supportedTestnetBlockchains
             : Blockchain.supportedBlockchains
 
-        return allBlockchains.filter { card.supportedCurves.contains($0.curve) }
+        return allBlockchains.filter { card.walletCurves.contains($0.curve) }
     }
 
     var defaultBlockchains: [StorageEntry] {
@@ -93,7 +93,8 @@ extension GenericConfig: UserWalletConfig {
             return persistentBlockchains
         }
 
-        let blockchains: [Blockchain] = [.ethereum(testnet: card.isTestnet), .bitcoin(testnet: card.isTestnet)]
+        let isTestnet = AppEnvironment.current.isTestnet
+        let blockchains: [Blockchain] = [.ethereum(testnet: isTestnet), .bitcoin(testnet: isTestnet)]
 
         let entries: [StorageEntry] = blockchains.map {
             if let derivationStyle = card.derivationStyle {
@@ -119,10 +120,6 @@ extension GenericConfig: UserWalletConfig {
 
     var warningEvents: [WarningEvent] {
         var warnings = WarningEventsFactory().makeWarningEvents(for: card)
-
-        if card.isTestnet {
-            warnings.append(.testnetCard)
-        }
 
         if hasFeature(.hdWallets) && card.derivationStyle == .legacy {
             warnings.append(.legacyDerivation)
@@ -174,7 +171,7 @@ extension GenericConfig: UserWalletConfig {
                 return .available
             }
 
-            return .disabled()
+            return .hidden
         case .twinning:
             return .hidden
         case .exchange:
@@ -237,11 +234,5 @@ fileprivate extension Card.BackupStatus {
         }
 
         return nil
-    }
-}
-
-fileprivate extension Card {
-    var isTestnet: Bool {
-        AppEnvironment.current.isTestnet
     }
 }
