@@ -110,7 +110,7 @@ struct BalanceAddressView: View {
                     }
                 }
                 Spacer()
-                TokenIconView(with: amountType, blockchain: walletModel.wallet.blockchain)
+                TokenIconView(viewModel: .init(with: amountType, blockchain: walletModel.wallet.blockchain))
                     .saturation(walletModel.isTestnet ? 0 : 1)
             }
 
