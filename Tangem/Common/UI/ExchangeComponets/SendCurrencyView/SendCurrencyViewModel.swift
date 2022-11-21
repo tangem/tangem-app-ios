@@ -21,20 +21,27 @@ struct SendCurrencyViewModel: Identifiable {
     }
 
     private let balance: Decimal
+    private(set) var maximumFractionDigits: Int
     private var fiatValue: Decimal
 
     init(
         balance: Decimal,
+        maximumFractionDigits: Int,
         fiatValue: Decimal,
         tokenIcon: TokenIconViewModel
     ) {
         self.balance = balance
+        self.maximumFractionDigits = maximumFractionDigits
         self.fiatValue = fiatValue
         self.tokenIcon = tokenIcon
     }
 
     mutating func update(fiatValue: Decimal) {
         self.fiatValue = fiatValue
+    }
+
+    mutating func update(maximumFractionDigits: Int) {
+        self.maximumFractionDigits = maximumFractionDigits
     }
 }
 
