@@ -114,7 +114,11 @@ extension CommonTangemApiService: TangemApiService {
     }
 
     func loadReferralProgramInfo(for userWalletId: String) async throws -> ReferralProgramInfo {
-        try await performAsyncRequest(for: .loadReferralProgramInfo(userWalletId: userWalletId))
+        let target = TangemApiTarget(type: .loadReferralProgramInfo(userWalletId: userWalletId),
+                                     authData: authData)
+        let response = try await provider.asyncRequest(for: target)
+        let filteredResponse = try response.filterSuccessfulStatusAndRedirectCodes()
+        return try JSONDecoder().decode(ReferralProgramInfo.self, from: filteredResponse.data)
     }
 
     func participateInReferralProgram(using token: ReferralProgramInfo.Token,
@@ -124,7 +128,11 @@ extension CommonTangemApiService: TangemApiService {
                                                         networkId: token.networkId,
                                                         tokenId: token.id,
                                                         address: address)
-        return try await performAsyncRequest(for: .participateInReferralProgram(userInfo: userInfo))
+        let target = TangemApiTarget(type: .participateInReferralProgram(userInfo: userInfo),
+                                     authData: authData)
+        let response = try await provider.asyncRequest(for: target)
+        let filteredResponse = try response.filterSuccessfulStatusAndRedirectCodes()
+        return try JSONDecoder().decode(ReferralProgramInfo.self, from: filteredResponse.data)
     }
 
     func initialize() {
@@ -141,18 +149,5 @@ extension CommonTangemApiService: TangemApiService {
 
     func setAuthData(_ authData: TangemApiTarget.AuthData) {
         self.authData = authData
-    }
-
-    private func performAsyncRequest<T: Decodable>(for type: TangemApiTarget.TargetType) async throws -> T {
-        let target = TangemApiTarget(type: type,
-                                     authData: authData)
-        let response = try await provider.asyncRequest(for: target)
-        let filteredResponse = try response.filterSuccessfulStatusAndRedirectCodes()
-        return try decodeResponse(filteredResponse.data)
-    }
-
-    private func decodeResponse<T: Decodable>(_ responseData: Data) throws -> T {
-        let decoder = JSONDecoder()
-        return try decoder.decode(T.self, from: responseData)
     }
 }
