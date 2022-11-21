@@ -19,7 +19,7 @@ protocol UserWalletRepository {
     var eventProvider: AnyPublisher<UserWalletRepositoryEvent, Never> { get }
 
     func lock()
-    func unlock(with method: UserWalletRepositoryUnlockMethod, completion: @escaping (Result<UserWalletRepositoryResult?, Error>) -> Void)
+    func unlock(with method: UserWalletRepositoryUnlockMethod, completion: @escaping (UserWalletRepositoryResult?) -> Void)
     func setSelectedUserWalletId(_ userWalletId: Data?)
 
     func didScan(card: CardDTO, walletData: DefaultWalletData)
@@ -54,7 +54,7 @@ enum UserWalletRepositoryResult {
     case success(CardViewModel)
     case onboarding(OnboardingInput)
     case troubleshooting
-    case error(AlertBinder)
+    case error(Error)
 }
 
 enum UserWalletRepositoryEvent {
