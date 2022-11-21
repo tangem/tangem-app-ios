@@ -453,7 +453,7 @@ class CommonUserWalletRepository: UserWalletRepository {
                     let self,
                     case let .success(cardModel) = result,
                     let scannedUserWallet = cardModel.userWallet,
-                    let encryptionKey = scannedUserWallet.encryptionKey,
+                    let encryptionKey = UserWalletEncryptionKeyFactory().encryptionKey(from: cardModel.cardInfo),
                     self.contains(scannedUserWallet)
                 else {
                     completion(.error(TangemSdkError.cardError))
@@ -466,7 +466,7 @@ class CommonUserWalletRepository: UserWalletRepository {
                     return
                 }
 
-                self.encryptionKeyByUserWalletId[scannedUserWallet.userWalletId] = encryptionKey
+                self.encryptionKeyByUserWalletId[scannedUserWallet.userWalletId] = encryptionKey.symmetricKey
 
                 guard let savedUserWallet = self.savedUserWallet(with: scannedUserWallet.userWalletId) else { return }
 
