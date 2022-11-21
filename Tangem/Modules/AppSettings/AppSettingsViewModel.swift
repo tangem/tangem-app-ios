@@ -11,7 +11,7 @@ import SwiftUI
 import TangemSdk
 
 class AppSettingsViewModel: ObservableObject {
-    @Injected(\.userWalletListService) private var userWalletListService: UserWalletListService
+    @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
     @Injected(\.tangemSdkProvider) private var sdkProvider: TangemSdkProviding
 
     // MARK: ViewState
@@ -76,15 +76,15 @@ private extension AppSettingsViewModel {
     }
 
     func unlockWithBiometry(completion: @escaping (_ success: Bool) -> Void) {
-        userWalletListService.unlockWithBiometry { [weak self] result in
+        userWalletRepository.unlock(with: .biometry) { [weak self] result in
             guard let self else { return }
 
-            if case .success = result {
-                let _ = self.userWalletListService.save(self.userWallet)
-                completion(true)
-            } else {
+            if case .error = result {
                 self.updateBiometricWarning()
                 completion(false)
+            } else {
+                let _ = self.userWalletRepository.save(self.userWallet)
+                completion(true)
             }
         }
     }
@@ -190,7 +190,7 @@ private extension AppSettingsViewModel {
         // If saved wallets is turn off we should delete access codes too
         if !saveWallets {
             setSaveAccessCodes(false)
-            userWalletListService.clear()
+            userWalletRepository.clear()
         }
     }
 

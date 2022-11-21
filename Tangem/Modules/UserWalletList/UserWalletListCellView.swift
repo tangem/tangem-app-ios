@@ -7,102 +7,6 @@
 //
 
 import SwiftUI
-import Combine
-
-class UserWalletListCellViewModel: ObservableObject {
-    @Published var balance: String = "$0,000.00"
-    @Published var numberOfTokens: String? = nil
-    @Published var image: UIImage?
-    @Published var isSelected = false
-    @Published var isBalanceLoading = true
-
-    let userWalletModel: UserWalletModel
-    let subtitle: String
-    let isMultiWallet: Bool
-    let didTapUserWallet: () -> Void
-    let totalBalanceProvider: TotalBalanceProviding
-
-    var userWallet: UserWallet { userWalletModel.userWallet }
-    var userWalletId: Data { userWallet.userWalletId }
-    var name: String { userWallet.name }
-    var isUserWalletLocked: Bool { userWallet.isLocked }
-
-    private let cardImageProvider: CardImageProviding
-
-    private var bag: Set<AnyCancellable> = []
-
-    init(
-        userWalletModel: UserWalletModel,
-        subtitle: String,
-        isMultiWallet: Bool,
-        isUserWalletLocked: Bool,
-        isSelected: Bool,
-        totalBalanceProvider: TotalBalanceProviding,
-        cardImageProvider: CardImageProviding,
-        didTapUserWallet: @escaping () -> Void
-    ) {
-        self.userWalletModel = userWalletModel
-        self.subtitle = subtitle
-        self.isMultiWallet = isMultiWallet
-        self.isSelected = isSelected
-        self.totalBalanceProvider = totalBalanceProvider
-        self.cardImageProvider = cardImageProvider
-        self.didTapUserWallet = didTapUserWallet
-
-        bind()
-        loadImage()
-
-        if !totalBalanceProvider.isLoaded {
-            updateBalance()
-        }
-
-        if isMultiWallet {
-            updateNumberOfTokens()
-        }
-    }
-
-    func bind() {
-        totalBalanceProvider.totalBalancePublisher()
-            .compactMap { $0.value }
-            .sink { [unowned self] balance in
-                self.balance = balance.balance.currencyFormatted(code: balance.currencyCode)
-                self.isBalanceLoading = false
-            }
-            .store(in: &bag)
-    }
-
-    private func updateBalance() {
-        isBalanceLoading = true
-
-        userWalletModel.updateAndReloadWalletModels { }
-    }
-
-    private func updateNumberOfTokens() {
-        let blockchainsCount = userWalletModel.getSavedEntries().count
-        let allTokensCount = blockchainsCount + userWalletModel.getSavedEntries().reduce(0, { $0 + $1.tokens.count })
-
-        if allTokensCount == 0 {
-            numberOfTokens = nil
-        } else {
-            numberOfTokens = String.localizedStringWithFormat("token_count".localized, allTokensCount)
-        }
-    }
-
-    private func loadImage() {
-        let artwork: CardArtwork
-        if let artworkInfo = userWallet.artwork {
-            artwork = .artwork(artworkInfo)
-        } else {
-            artwork = .notLoaded
-        }
-
-        cardImageProvider.loadImage(cardId: userWallet.card.cardId, cardPublicKey: userWallet.card.cardPublicKey, artwork: artwork)
-            .sink { [unowned self] image in
-                self.image = image
-            }
-            .store(in: &bag)
-    }
-}
 
 struct UserWalletListCellView: View {
     @ObservedObject private var viewModel: UserWalletListCellViewModel
@@ -120,25 +24,36 @@ struct UserWalletListCellView: View {
                 .overlay(selectionIcon.offset(x: 4, y: -4), alignment: .topTrailing)
 
             VStack(alignment: .leading, spacing: 2) {
-                Text(viewModel.name)
-                    .style(Fonts.Bold.subheadline, color: viewModel.isSelected ? Colors.Text.accent : Colors.Text.primary1)
+                HStack(spacing: 0) {
+                    Text(viewModel.name)
+                        .style(Fonts.Bold.subheadline, color: viewModel.isSelected ? Colors.Text.accent : Colors.Text.primary1)
+                        .lineLimit(1)
 
-                Text(viewModel.subtitle)
-                    .style(Font.footnote, color: Colors.Text.tertiary)
+                    Spacer(minLength: 12)
+
+                    if !viewModel.isUserWalletLocked {
+                        Text(viewModel.balance)
+                            .style(Font.subheadline, color: Colors.Text.primary1)
+                            .lineLimit(1)
+                            .layoutPriority(1)
+                            .skeletonable(isShown: viewModel.isBalanceLoading, radius: 6)
+                    }
+                }
+
+                HStack(spacing: 0) {
+                    Text(viewModel.subtitle)
+                        .style(Font.footnote, color: Colors.Text.tertiary)
+
+                    Spacer(minLength: 12)
+
+                    if !viewModel.isUserWalletLocked {
+                        Text(viewModel.numberOfTokens ?? "")
+                            .style(Font.footnote, color: Colors.Text.tertiary)
+                    }
+                }
             }
 
-            Spacer()
-
-            if !viewModel.isUserWalletLocked {
-                VStack(alignment: .trailing, spacing: 2) {
-                    Text(viewModel.balance)
-                        .style(Font.subheadline, color: Colors.Text.primary1)
-                        .skeletonable(isShown: viewModel.isBalanceLoading, radius: 6)
-
-                    Text(viewModel.numberOfTokens ?? "")
-                        .style(Font.footnote, color: Colors.Text.tertiary)
-                }
-            } else {
+            if viewModel.isUserWalletLocked {
                 lockIcon
             }
         }
@@ -157,13 +72,13 @@ struct UserWalletListCellView: View {
             Image(uiImage: image)
                 .resizable()
                 .aspectRatio(contentMode: .fit)
-                .frame(maxWidth: 50, minHeight: 30, maxHeight: 30)
+                .frame(maxWidth: 50, minHeight: viewModel.imageHeight, maxHeight: viewModel.imageHeight)
         } else {
             Color.tangemGrayLight4
                 .transition(.opacity)
                 .opacity(0.5)
                 .cornerRadius(3)
-                .frame(width: 50, height: 30)
+                .frame(width: 50, height: viewModel.imageHeight)
         }
     }
 
