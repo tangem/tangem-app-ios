@@ -22,10 +22,10 @@ class ReferralViewModel: ObservableObject {
     private let cardModel: CardViewModel
     private let userWalletId: Data
 
-    init(coordinator: ReferralRoutable, cardModel: CardViewModel, userWalletId: Data) {
-        self.coordinator = coordinator
+    init(cardModel: CardViewModel, userWalletId: Data, coordinator: ReferralRoutable) {
         self.cardModel = cardModel
         self.userWalletId = userWalletId
+        self.coordinator = coordinator
 
         runTask(loadReferralInfo)
     }
