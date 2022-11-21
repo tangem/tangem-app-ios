@@ -31,7 +31,6 @@ class UserWalletListCellViewModel: ObservableObject {
 
     private let cardImageProvider: CardImageProviding
     private var bag: Set<AnyCancellable> = []
-    static private let defaultBalanceValue = "$0,000.00"
 
     init(
         userWalletModel: UserWalletModel,
@@ -107,4 +106,8 @@ class UserWalletListCellViewModel: ObservableObject {
 
         return newImage ?? image
     }
+}
+
+extension UserWalletListCellViewModel {
+    static private let defaultBalanceValue = "$0,000.00"
 }
