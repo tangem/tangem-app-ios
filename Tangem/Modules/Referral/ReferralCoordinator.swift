@@ -21,13 +21,15 @@ class ReferralCoordinator: CoordinatorObject {
 
     func start(with options: Options) {
         referralViewModel = .init(coordinator: self,
-                                  cardModel: options.cardModel)
+                                  cardModel: options.cardModel,
+                                  userWalletId: options.userWalletId)
     }
 }
 
 extension ReferralCoordinator {
     struct Options {
         let cardModel: CardViewModel
+        let userWalletId: Data
     }
 }
 
