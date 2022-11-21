@@ -20,7 +20,7 @@ class MainViewModel: ObservableObject {
     @Injected(\.failedScanTracker) var failedCardScanTracker: FailedScanTrackable
     @Injected(\.rateAppService) private var rateAppService: RateAppService
     @Injected(\.tangemApiService) private var tangemApiService: TangemApiService
-    @Injected(\.userWalletListService) private var userWalletListService: UserWalletListService
+    @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
 
     // MARK: - Published variables
 
@@ -373,8 +373,8 @@ class MainViewModel: ObservableObject {
     }
 
     func didAgreeToSaveUserWallets() {
-        userWalletListService.unlockWithBiometry { [weak self, cardModel] result in
-            if case let .failure(error) = result {
+        userWalletRepository.unlock(with: .biometry) { [weak self, cardModel] result in
+            if case let .error(error) = result {
                 print("Failed to enable biometry: \(error)")
                 return
             }
@@ -384,7 +384,7 @@ class MainViewModel: ObservableObject {
             DispatchQueue.main.asyncAfter(deadline: .now() + delay) {
                 guard let userWallet = cardModel.userWallet else { return }
 
-                self?.userWalletListService.save(userWallet)
+                self?.userWalletRepository.save(userWallet)
                 self?.coordinator.openUserWalletList()
                 AppSettings.shared.saveUserWallets = true
                 AppSettings.shared.saveAccessCodes = true
