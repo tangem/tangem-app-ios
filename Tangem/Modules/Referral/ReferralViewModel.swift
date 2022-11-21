@@ -36,7 +36,8 @@ class ReferralViewModel: ObservableObject {
             let award = referralProgramInfo?.conditions.awards.first,
             let blockchain = Blockchain(from: award.token.networkId)
         else {
-            errorAlert = AlertBuilder.makeOkErrorAlert(message: "Failed to load")
+            errorAlert = AlertBuilder.makeOkErrorAlert(message: "referral_error_failed_to_load_info".localized,
+                                                       okAction: coordinator.dismiss)
             return
         }
 
@@ -53,7 +54,8 @@ class ReferralViewModel: ObservableObject {
             }
             self.referralProgramInfo = referralProgramInfo
         } catch {
-            errorAlert = error.alertBinder
+            let format = "referral_error_failed_to_participate".localized
+            errorAlert = AlertBuilder.makeOkErrorAlert(message: String(format: format, error.localizedDescription))
         }
 
         isProcessingRequest = false
@@ -75,7 +77,9 @@ class ReferralViewModel: ObservableObject {
             }
             self.referralProgramInfo = referralProgramInfo
         } catch {
-            self.errorAlert = error.alertBinder
+            let format = "referral_error_failed_to_load_info_with_reason".localized
+            self.errorAlert = AlertBuilder.makeOkErrorAlert(message: String(format: format, error.localizedDescription),
+                                                            okAction: self.coordinator.dismiss)
         }
     }
 
