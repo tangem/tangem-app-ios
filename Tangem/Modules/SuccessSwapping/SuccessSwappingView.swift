@@ -30,20 +30,20 @@ struct SuccessSwappingView: View {
 
                 buttonView
             }
-            .navigationBarTitle(Text("Swap"), displayMode: .inline)
+            .navigationBarTitle(Text("swapping_swap".localized), displayMode: .inline)
         }
     }
 
     private var infoView: some View {
         VStack(spacing: 14) {
-            Text("onboarding_success".localized)
+            Text("swapping_success".localized)
                 .style(Fonts.Bold.title1, color: Colors.Text.primary1)
 
             VStack(spacing: 0) {
-                Text("Swap of 1 000 DAI to")
+                Text("swapping_swap_of_to".localized(viewModel.fromCurrency))
                     .style(Fonts.Regular.callout, color: Colors.Text.secondary)
 
-                Text("1 131,46 MATIC")
+                Text(viewModel.toCurrency)
                     .style(Fonts.Bold.callout, color: Colors.Text.accent)
             }
         }
@@ -53,7 +53,7 @@ struct SuccessSwappingView: View {
         VStack(spacing: 0) {
             Spacer()
 
-            MainButton(text: "Done", action: viewModel.didTapDone)
+            MainButton(text: "common_done".localized, action: viewModel.doneDidTapped)
         }
         .padding(.horizontal, 16)
         .padding(.bottom, 8)
@@ -61,7 +61,11 @@ struct SuccessSwappingView: View {
 }
 
 struct SuccessSwappingView_Preview: PreviewProvider {
-    static let viewModel = SuccessSwappingViewModel(coordinator: nil)
+    static let viewModel = SuccessSwappingViewModel(
+        fromCurrency: "1 000 DAI",
+        toCurrency: "1 000,36 MATIC",
+        coordinator: nil
+    )
 
     static var previews: some View {
         NavHolder()
