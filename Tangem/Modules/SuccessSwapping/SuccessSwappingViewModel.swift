@@ -14,17 +14,24 @@ final class SuccessSwappingViewModel: ObservableObject, Identifiable {
 
     // MARK: - ViewState
 
+    let fromCurrency: String
+    let toCurrency: String
+
     // MARK: - Dependencies
 
     private unowned let coordinator: SuccessSwappingRoutable?
 
     init(
+        fromCurrency: String,
+        toCurrency: String,
         coordinator: SuccessSwappingRoutable?
     ) {
+        self.fromCurrency = fromCurrency
+        self.toCurrency = toCurrency
         self.coordinator = coordinator
     }
-    
-    func didTapDone() {
-        
+
+    func doneDidTapped() {
+
     }
 }
