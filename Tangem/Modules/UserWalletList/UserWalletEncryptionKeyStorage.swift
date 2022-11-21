@@ -56,7 +56,9 @@ class UserWalletEncryptionKeyStorage {
     }
 
     func add(_ userWallet: UserWallet) {
-        guard let userWalletEncryptionKey = userWallet.encryptionKey else {
+        let cardInfo = userWallet.cardInfo()
+
+        guard let encryptionKey = UserWalletEncryptionKeyFactory().encryptionKey(from: cardInfo) else {
             print("Failed to get encryption key for UserWallet")
             return
         }
@@ -69,7 +71,7 @@ class UserWalletEncryptionKeyStorage {
 
             try addUserWalletId(userWallet)
 
-            let encryptionKeyData = userWalletEncryptionKey.dataRepresentationWithHexConversion
+            let encryptionKeyData = encryptionKey.symmetricKey.dataRepresentationWithHexConversion
             try biometricsStorage.store(encryptionKeyData, forKey: encryptionKeyStorageKey(for: userWallet))
         } catch {
             print("Failed to add UserWallet ID to the list: \(error)")
