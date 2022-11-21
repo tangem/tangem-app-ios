@@ -181,11 +181,8 @@ struct ReferralView: View {
                 iconPosition: .trailing,
                 iconPadding: 10,
                 action: {
-                    Task {
-                        await viewModel.participateInReferralProgram()
-                    }
+                    runTask(viewModel.participateInReferralProgram)
                 }
-
             )
             .buttonStyle(
                 TangemButtonStyle(colorStyle: .black,
@@ -202,7 +199,6 @@ struct ReferralView_Previews: PreviewProvider {
         NavigationView {
             ReferralView(
                 viewModel: ReferralViewModel(coordinator: ReferralCoordinator(),
-                                             referralService: MockReferralService(isReferral: false),
                                              cardModel: demoCard.cardModel)
             )
         }
@@ -211,7 +207,6 @@ struct ReferralView_Previews: PreviewProvider {
         NavigationView {
             ReferralView(
                 viewModel: ReferralViewModel(coordinator: ReferralCoordinator(),
-                                             referralService: MockReferralService(isReferral: true),
                                              cardModel: demoCard.cardModel)
             )
         }
