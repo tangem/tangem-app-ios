@@ -34,7 +34,6 @@ struct DefaultRowView: View {
         HStack {
             Text(viewModel.title)
                 .style(Fonts.Regular.body, color: Colors.Text.primary1)
-                .layoutPriority(1)
 
             Spacer()
 
