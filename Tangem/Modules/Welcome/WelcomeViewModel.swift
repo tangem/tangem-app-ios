@@ -76,35 +76,32 @@ class WelcomeViewModel: ObservableObject {
     func scanCard() {
         isScanningCard = true
         Analytics.log(.buttonScanCard)
-        var subscription: AnyCancellable? = nil
 
-        subscription = userWalletRepository.scanPublisher()
-            .receive(on: DispatchQueue.main)
-            .sink { [weak self] result in
-                self?.isScanningCard = false
+        userWalletRepository.unlock(with: .card(userWallet: nil)) { [weak self] result in
+            self?.isScanningCard = false
 
-                guard
-                    let self,
-                    let result
-                else {
-                    return
-                }
-
-                subscription.map { _ = self.bag.remove($0) }
-
-                switch result {
-                case .troubleshooting:
-                    self.showTroubleshootingView = true
-                case .onboarding(let input):
-                    self.openOnboarding(with: input)
-                case .error(let alertBinder):
-                    self.error = alertBinder
-                case .success(let cardModel):
-                    self.openMain(with: cardModel)
-                }
+            guard
+                let self,
+                let result
+            else {
+                return
             }
 
-        subscription?.store(in: &bag)
+            switch result {
+            case .troubleshooting:
+                self.showTroubleshootingView = true
+            case .onboarding(let input):
+                self.openOnboarding(with: input)
+            case .error(let error):
+                if let saltPayError = error as? SaltPayRegistratorError {
+                    self.error = saltPayError.alertBinder
+                } else {
+                    self.error = error.alertBinder
+                }
+            case .success(let cardModel):
+                self.openMain(with: cardModel)
+            }
+        }
     }
 
     func unlockWithBiometry() {
@@ -143,8 +140,8 @@ class WelcomeViewModel: ObservableObject {
         navigationBarHidden = false
     }
 
-    private func didFinishUnlocking(_ result: Result<Void, Error>) {
-        if case .failure(let error) = result {
+    private func didFinishUnlocking(_ result: UserWalletRepositoryResult?) {
+        if case .error(let error) = result {
             print("Failed to unlock user wallets: \(error)")
             return
         }
