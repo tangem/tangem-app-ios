@@ -46,10 +46,6 @@ extension InjectedValues {
     }
 }
 
-protocol ScanListener {
-    func onScan(cardInfo: CardInfo)
-}
-
 enum UserWalletRepositoryResult {
     case success(CardViewModel)
     case onboarding(OnboardingInput)
@@ -63,10 +59,6 @@ enum UserWalletRepositoryEvent {
     case updated(userWalletModel: UserWalletModel)
     case deleted(userWalletId: Data)
     case selected(userWallet: UserWallet)
-}
-
-enum UserWalletRepositoryError: Error {
-    case noCard
 }
 
 enum UserWalletRepositoryUnlockMethod {
