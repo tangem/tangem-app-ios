@@ -46,7 +46,7 @@ class AppSettingsViewModel: ObservableObject {
         }
     }
 
-    init(coordinator: AppSettingsRoutable, userWallet: UserWallet) {
+    init(userWallet: UserWallet, coordinator: AppSettingsRoutable) {
         self.coordinator = coordinator
 
         let isSavingWallet = AppSettings.shared.saveUserWallets
