@@ -85,7 +85,6 @@ extension ButtonLayout {
 }
 
 enum ButtonColorStyle {
-    case green
     case black
     case gray
     case transparentWhite
@@ -94,7 +93,6 @@ enum ButtonColorStyle {
 
     var bgColor: Color {
         switch self {
-        case .green: return .tangemGreen
         case .black: return .tangemGrayDark6
         case .gray: return .tangemGrayLight4
         case .transparentWhite: return .clear
@@ -105,7 +103,6 @@ enum ButtonColorStyle {
 
     var bgPressedColor: Color {
         switch self {
-        case .green: return .tangemGreen1
         case .black: return .tangemGrayDark5
         case .gray, .grayAlt, .grayAlt2: return .tangemGrayDark
         case .transparentWhite: return .clear
@@ -137,7 +134,7 @@ enum ButtonColorStyle {
 }
 
 struct TangemButtonStyle: ButtonStyle {
-    var colorStyle: ButtonColorStyle = .green
+    var colorStyle: ButtonColorStyle = .black
     var layout: ButtonLayout = .small
     var font: Font = .system(size: 17, weight: .semibold, design: .default)
     var paddings: CGFloat = 8
@@ -226,7 +223,7 @@ struct ButtonStyles_Previews: PreviewProvider {
                 .buttonStyle(TangemButtonStyle(colorStyle: .black))
 
             Button(action: {}) { Text("No. Go to shop") }
-                .buttonStyle(TangemButtonStyle(colorStyle: .green,
+                .buttonStyle(TangemButtonStyle(colorStyle: .black,
                                                layout: .big,
                                                isDisabled: true))
 
