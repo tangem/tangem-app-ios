@@ -342,7 +342,7 @@ extension OnboardingViewModel: UserWalletStorageAgreementRoutable {
     func didAgreeToSaveUserWallets() {
         userWalletRepository.unlock(with: .biometry) { [weak self] result in
             switch result {
-            case .failure(let error):
+            case .error(let error):
                 if let tangemSdkError = error as? TangemSdkError,
                    case .userCancelled = tangemSdkError
                 {
@@ -351,7 +351,7 @@ extension OnboardingViewModel: UserWalletStorageAgreementRoutable {
                 print("Failed to get access to biometry", error)
 
                 self?.didAskToSaveUserWallets(agreed: false)
-            case .success:
+            default:
                 self?.didAskToSaveUserWallets(agreed: true)
             }
 
