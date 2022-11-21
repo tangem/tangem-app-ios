@@ -77,10 +77,8 @@ class WelcomeViewModel: ObservableObject {
         isScanningCard = true
         Analytics.log(.buttonScanCard)
 
-        userWalletRepository.unlock(with: .card(userWallet: nil)) { [weak self] r in
+        userWalletRepository.unlock(with: .card(userWallet: nil)) { [weak self] result in
             self?.isScanningCard = false
-
-            guard case let .success(result) = r else { return }
 
             guard
                 let self,
@@ -94,8 +92,12 @@ class WelcomeViewModel: ObservableObject {
                 self.showTroubleshootingView = true
             case .onboarding(let input):
                 self.openOnboarding(with: input)
-            case .error(let alertBinder):
-                self.error = alertBinder
+            case .error(let error):
+                if let saltPayError = error as? SaltPayRegistratorError {
+                    self.error = saltPayError.alertBinder
+                } else {
+                    self.error = error.alertBinder
+                }
             case .success(let cardModel):
                 self.openMain(with: cardModel)
             }
@@ -138,8 +140,8 @@ class WelcomeViewModel: ObservableObject {
         navigationBarHidden = false
     }
 
-    private func didFinishUnlocking(_ result: Result<UserWalletRepositoryResult?, Error>) {
-        if case .failure(let error) = result {
+    private func didFinishUnlocking(_ result: UserWalletRepositoryResult?) {
+        if case .error(let error) = result {
             print("Failed to unlock user wallets: \(error)")
             return
         }
