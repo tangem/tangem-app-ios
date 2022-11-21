@@ -10,7 +10,7 @@ import SwiftUI
 import Combine
 
 class UserWalletListCellViewModel: ObservableObject {
-    @Published var balance: String = "$0,000.00"
+    @Published var balance: String = UserWalletListCellViewModel.defaultBalanceValue
     @Published var numberOfTokens: String? = nil
     @Published var image: UIImage?
     @Published var isSelected = false
@@ -29,8 +29,8 @@ class UserWalletListCellViewModel: ObservableObject {
     var isUserWalletLocked: Bool { userWallet.isLocked }
 
     private let cardImageProvider: CardImageProviding
-
     private var bag: Set<AnyCancellable> = []
+    static private let defaultBalanceValue = "$0,000.00"
 
     init(
         userWalletModel: UserWalletModel,
@@ -60,10 +60,15 @@ class UserWalletListCellViewModel: ObservableObject {
 
     func bind() {
         totalBalanceProvider.totalBalancePublisher()
-            .compactMap { $0.value }
-            .sink { [unowned self] balance in
-                self.balance = balance.balance.currencyFormatted(code: balance.currencyCode)
-                self.isBalanceLoading = false
+            .sink { [unowned self] loadingValue in
+                switch loadingValue {
+                case .loading:
+                    self.isBalanceLoading = true
+                    self.balance = Self.defaultBalanceValue
+                case .loaded(let value):
+                    self.isBalanceLoading = false
+                    self.balance = value.balance.currencyFormatted(code: value.currencyCode)
+                }
             }
             .store(in: &bag)
     }
