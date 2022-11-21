@@ -62,7 +62,11 @@ extension LegacyConfig: UserWalletConfig {
             return .singleWallet([.createWallet] + userWalletSavingSteps + [.success])
         }
 
-        return .singleWallet([])
+        if !AppSettings.shared.cardsStartedActivation.contains(card.cardId) {
+            return .singleWallet([])
+        }
+
+        return .singleWallet(userWalletSavingSteps + [.success])
     }
 
     var backupSteps: OnboardingSteps? {
