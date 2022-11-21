@@ -47,15 +47,16 @@ enum AppScanTaskError: String, Error, LocalizedError {
 }
 
 final class AppScanTask: CardSessionRunnable {
-    let allowsAccessCodeFromRepository = false
+    let allowsAccessCodeFromRepository: Bool
 
     private let targetBatch: String?
     private var walletData: DefaultWalletData = .none
     private var primaryCard: PrimaryCard? = nil
     private var linkingCommand: StartPrimaryCardLinkingTask? = nil
 
-    init(targetBatch: String? = nil) {
+    init(targetBatch: String? = nil, allowsAccessCodeFromRepository: Bool = false) {
         self.targetBatch = targetBatch
+        self.allowsAccessCodeFromRepository = allowsAccessCodeFromRepository
     }
 
     deinit {

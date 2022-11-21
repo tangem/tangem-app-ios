@@ -15,6 +15,8 @@ protocol UserWalletModel {
 
     var userWallet: UserWallet { get }
 
+    var didPerformInitialUpdate: Bool { get }
+
     func updateUserWalletModel(with config: UserWalletConfig)
     func updateUserWallet(_ userWallet: UserWallet)
 
