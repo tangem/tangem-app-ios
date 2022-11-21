@@ -22,9 +22,9 @@ class ReferralCoordinator: CoordinatorObject {
     }
 
     func start(with options: Options) {
-        referralViewModel = .init(coordinator: self,
-                                  cardModel: options.cardModel,
-                                  userWalletId: options.userWalletId)
+        referralViewModel = .init(cardModel: options.cardModel,
+                                  userWalletId: options.userWalletId,
+                                  coordinator: self)
     }
 }
 
