@@ -506,4 +506,10 @@ URL: %@";
 "wallet_connect_need_to_scan_card" = "Please scan the card and repeat your request";
 "exchange_send_view_header" = "You Send";
 "exchange_receive_view_header" = "You Receive";
-
+"swapping_permission_header" = "Give Permission";
+"swapping_permission_subheader" = "To continue you need to allow 1inch smart contracts to use your %@";
+"swapping_permission_rows_amount" = "Amount %@";
+"swapping_permission_rows_your_wallet" = "Your Wallet";
+"swapping_permission_rows_spender" = "Spender";
+"swapping_permission_rows_fee" = "Fee";
+"swapping_permission_buttons_approve" = "Approve";
