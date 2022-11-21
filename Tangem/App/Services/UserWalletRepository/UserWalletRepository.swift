@@ -18,10 +18,8 @@ protocol UserWalletRepository {
     var isUnlocked: Bool { get }
     var eventProvider: AnyPublisher<UserWalletRepositoryEvent, Never> { get }
 
-    func scanPublisher(with batch: String?) ->  AnyPublisher<UserWalletRepositoryResult?, Never>
-
     func lock()
-    func unlock(with method: UserWalletRepositoryUnlockMethod, completion: @escaping (Result<Void, Error>) -> Void)
+    func unlock(with method: UserWalletRepositoryUnlockMethod, completion: @escaping (UserWalletRepositoryResult?) -> Void)
     func setSelectedUserWalletId(_ userWalletId: Data?)
 
     func didScan(card: CardDTO, walletData: DefaultWalletData)
@@ -48,21 +46,11 @@ extension InjectedValues {
     }
 }
 
-extension UserWalletRepository {
-    func scanPublisher(with batch: String? = nil) ->  AnyPublisher<UserWalletRepositoryResult?, Never> {
-        scanPublisher(with: batch)
-    }
-}
-
-protocol ScanListener {
-    func onScan(cardInfo: CardInfo)
-}
-
 enum UserWalletRepositoryResult {
     case success(CardViewModel)
     case onboarding(OnboardingInput)
     case troubleshooting
-    case error(AlertBinder)
+    case error(Error)
 }
 
 enum UserWalletRepositoryEvent {
@@ -71,10 +59,6 @@ enum UserWalletRepositoryEvent {
     case updated(userWalletModel: UserWalletModel)
     case deleted(userWalletId: Data)
     case selected(userWallet: UserWallet)
-}
-
-enum UserWalletRepositoryError: Error {
-    case noCard
 }
 
 enum UserWalletRepositoryUnlockMethod {
