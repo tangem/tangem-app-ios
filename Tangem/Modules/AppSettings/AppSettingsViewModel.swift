@@ -79,12 +79,12 @@ private extension AppSettingsViewModel {
         userWalletRepository.unlock(with: .biometry) { [weak self] result in
             guard let self else { return }
 
-            if case .success = result {
-                let _ = self.userWalletRepository.save(self.userWallet)
-                completion(true)
-            } else {
+            if case .error = result {
                 self.updateBiometricWarning()
                 completion(false)
+            } else {
+                let _ = self.userWalletRepository.save(self.userWallet)
+                completion(true)
             }
         }
     }
