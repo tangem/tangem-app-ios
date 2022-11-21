@@ -89,7 +89,9 @@ final class UserWalletListViewModel: ObservableObject, Identifiable {
         Analytics.log(.buttonUnlockAllWithFaceID)
 
         userWalletRepository.unlock(with: .biometry) { [weak self] result in
-            guard case .success = result else { return }
+            if case .error = result {
+                return
+            }
 
             self?.updateModels()
         }
@@ -111,8 +113,8 @@ final class UserWalletListViewModel: ObservableObject, Identifiable {
                 self.showTroubleshootingView = true
             case .onboarding(let input):
                 self.openOnboarding(with: input)
-            case .error(let alertBinder):
-                self.error = alertBinder
+            case .error(let error):
+                self.error = error.alertBinder
             case .success(let cardModel):
                 self.add(cardModel: cardModel)
             }
