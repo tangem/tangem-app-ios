@@ -19,6 +19,7 @@ struct EnvironmentSetupView: View {
         List {
             Section {
                 DefaultToggleRowView(title: "isTestnet", isOn: $viewModel.isTestnet)
+                DefaultToggleRowView(title: "Use dev api", isOn: $viewModel.useDevApi)
             } header: {
                 Text("App settings")
             }
