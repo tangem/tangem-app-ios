@@ -1,5 +1,5 @@
 //
-//  Buildable.swift
+//  Setupable.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -8,11 +8,14 @@
 
 import Foundation
 
-public protocol Buildable {
+/// Protocol for customizing UI components
+/// Extend your view this protocol and use `map` function for update some property
+/// Example: `GroupedNumberTextField`
+public protocol Setupable {
     func map(_ closure: (inout Self) -> Void) -> Self
 }
 
-public extension Buildable {
+public extension Setupable {
     func map(_ closure: (inout Self) -> Void) -> Self {
         var copy = self
         closure(&copy)
