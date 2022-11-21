@@ -18,10 +18,8 @@ protocol UserWalletRepository {
     var isUnlocked: Bool { get }
     var eventProvider: AnyPublisher<UserWalletRepositoryEvent, Never> { get }
 
-    func scanPublisher(with batch: String?) ->  AnyPublisher<UserWalletRepositoryResult?, Never>
-
     func lock()
-    func unlock(with method: UserWalletRepositoryUnlockMethod, completion: @escaping (Result<Void, Error>) -> Void)
+    func unlock(with method: UserWalletRepositoryUnlockMethod, completion: @escaping (Result<UserWalletRepositoryResult?, Error>) -> Void)
     func setSelectedUserWalletId(_ userWalletId: Data?)
 
     func didScan(card: CardDTO, walletData: DefaultWalletData)
@@ -45,12 +43,6 @@ extension InjectedValues {
     var userWalletRepository: UserWalletRepository {
         get { Self[UserWalletRepositoryKey.self] }
         set { Self[UserWalletRepositoryKey.self] = newValue }
-    }
-}
-
-extension UserWalletRepository {
-    func scanPublisher(with batch: String? = nil) ->  AnyPublisher<UserWalletRepositoryResult?, Never> {
-        scanPublisher(with: batch)
     }
 }
 
