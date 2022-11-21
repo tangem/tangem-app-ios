@@ -33,7 +33,7 @@ struct TokenItemView: View {
 
     var body: some View {
         HStack(alignment: .center, spacing: 12) {
-            TokenIconView(with: item.amountType, blockchain: item.blockchainNetwork.blockchain)
+            TokenIconView(viewModel: .init(with: item.amountType, blockchain: item.blockchainNetwork.blockchain))
                 .saturation(item.isTestnet ? 0.0 : 1.0)
                 .overlay(
                     customTokenMark
