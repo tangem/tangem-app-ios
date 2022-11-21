@@ -8,52 +8,6 @@
 
 import SwiftUI
 
-struct BottomSheetContainerView<Content: View>: View {
-    private let content: () -> Content
-    
-    @Binding private var isPresented: Bool
-    
-    @State private var contentSize: CGSize = .zero
-    @State private var opacity: CGFloat = 0
-    @State private var offset: CGFloat = UIScreen.main.bounds.height
-    
-    init(isPresented: Binding<Bool>, content: @escaping () -> Content) {
-        _isPresented = isPresented
-        self.content = content
-    }
-
-    var body: some View {
-        Group {
-            if isPresented {
-                GeometryReader { geometry in
-                    ZStack(alignment: .bottom) {
-                        Color.black.opacity(opacity)
-                        
-                        VStack {
-                            Assets.bottomSheetHandIndicator
-                                .padding(.vertical, 8)
-                            
-                            content()
-                        }
-                        .padding(.bottom, geometry.safeAreaInsets.bottom)
-                        .readSize(onChange: { contentSize = $0 })
-                        .background(Colors.Background.secondary)
-                        .cornerRadius(16, corners: [.topLeft, .topRight])
-                        .offset(y: offset)
-                    }
-                    .edgesIgnoringSafeArea(.all)
-                }
-            }
-        }
-        .onAppear {
-            withAnimation(.linear(duration: 3)) {
-                offset = .zero // contentSize.height
-                opacity = 0.3
-            }
-        }
-    }
-}
-
 struct SwappingPermissionView: View {
     @ObservedObject private var viewModel: SwappingPermissionViewModel
 
@@ -75,10 +29,10 @@ struct SwappingPermissionView: View {
 
     private var headerView: some View {
         VStack(spacing: 16) {
-            Text("Give Permission")
+            Text("swapping_permission_header".localized)
                 .style(Fonts.Bold.callout, color: Colors.Text.primary1)
 
-            Text("To continue you need to allow 1inch smart contracts to use your Dai")
+            Text("swapping_permission_subheader".localized(viewModel.smartContractNetworkName))
                 .style(Fonts.Regular.subheadline, color: Colors.Text.secondary)
                 .padding(.horizontal, 50)
                 .multilineTextAlignment(.center)
@@ -86,29 +40,39 @@ struct SwappingPermissionView: View {
     }
 
     private var content: some View {
-        GroupedSection([
-            DefaultRowViewModel(title: "Amount DAI", detailsType: .text("􀯠")),
-            DefaultRowViewModel(title: "Your Wallet", detailsType: .text("0x19388...097d")),
-            DefaultRowViewModel(title: "Spender", detailsType: .text("0x19388...097d")),
-            DefaultRowViewModel(title: "Fee", detailsType: .text("2,14 $")),
-        ]) {
+        GroupedSection(viewModel.contentRowViewModels) {
             DefaultRowView(viewModel: $0)
+                .truncationMode(.middle)
         }
         .padding(.horizontal, 16)
     }
     
     private var buttons: some View {
         VStack(spacing: 10) {
-            MainButton(text: "Approve", icon: .trailing(Assets.tangemIcon), action: {})
+            MainButton(
+                text: "swapping_permission_buttons_approve".localized,
+                icon: .trailing(Assets.tangemIcon),
+                action: viewModel.approveDidTapped)
             
-            MainButton(text: "Cancel", style: .secondary, action: {})
+            MainButton(
+                text: "common_cancel".localized,
+                style: .secondary,
+                action: viewModel.cancelDidTapped
+            )
         }
         .padding(.horizontal, 16)
     }
 }
 
 struct SwappingPermissionView_Preview: PreviewProvider {
-    static let viewModel = SwappingPermissionViewModel(coordinator: nil)
+    static let viewModel = SwappingPermissionViewModel(
+        smartContractNetworkName: "DAI",
+        amount: 1000,
+        yourWalletAddress: "0x6B175474E89094C44Da98b954EedeAC495271d0F",
+        spenderWalletAddress: "0x6B175474E89094C44Da98b954EedeAC495271d0F",
+        fee: 2.14,
+        coordinator: nil
+    )
 
     static var previews: some View {
             SwappingPermissionView(viewModel: viewModel)
