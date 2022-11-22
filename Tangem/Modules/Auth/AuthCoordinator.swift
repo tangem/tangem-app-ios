@@ -53,10 +53,6 @@ extension AuthCoordinator: AuthRoutable {
             self?.pushedOnboardingCoordinator = nil
         }
 
-        let popToRootAction: ParamsAction<PopToRootOptions> = { [weak self] options in
-            self?.pushedOnboardingCoordinator = nil
-        }
-
         let coordinator = OnboardingCoordinator(dismissAction: dismissAction, popToRootAction: popToRootAction)
         let options = OnboardingCoordinator.Options(input: input, destination: .main)
         coordinator.start(with: options)
@@ -64,10 +60,6 @@ extension AuthCoordinator: AuthRoutable {
     }
 
     func openMain(with cardModel: CardViewModel) {
-        let popToRootAction: ParamsAction<PopToRootOptions> = { [weak self] options in
-            self?.mainCoordinator = nil
-        }
-
         Analytics.log(.screenOpened)
         let coordinator = MainCoordinator(popToRootAction: popToRootAction)
         let options = MainCoordinator.Options(cardModel: cardModel, shouldRefresh: false)
