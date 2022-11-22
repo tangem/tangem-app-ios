@@ -35,6 +35,8 @@ final class AuthViewModel: ObservableObject {
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
 
     private unowned let coordinator: AuthRoutable
+    // OnAppear called on popToRoot
+    private var biometricsRequestedOnAppear: Bool = false
 
     init(
         coordinator: AuthRoutable
@@ -66,7 +68,9 @@ final class AuthViewModel: ObservableObject {
 
     func onAppear() {
         navigationBarHidden = true
-        unlockWithBiometry()
+        if !biometricsRequestedOnAppear {
+            unlockWithBiometry()
+        }
     }
 
     func onDissappear() {
