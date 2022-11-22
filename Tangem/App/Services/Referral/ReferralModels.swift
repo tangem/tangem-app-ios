@@ -9,38 +9,49 @@
 import Foundation
 
 struct ReferralProgramInfo: Decodable {
+    let conditions: Conditions
+    let referral: Referral?
+}
+
+extension ReferralProgramInfo {
+    struct Conditions: Decodable {
+        let discount: Discount
+        let tosLink: String
+        let awards: [Award]
+    }
+
     struct Referral: Decodable {
         let shareLink: String
         let address: String
         let promoCode: String
-        let walletPurchase: Int
+        let walletsPurchased: Int
     }
 
-    let conditions: Conditions
-    let referral: Referral?
+    struct Award: Decodable {
+        let amount: Decimal
+        let token: Token
+    }
 
-    struct Conditions: Decodable {
-        enum DiscountType: String, Decodable {
-            case percentage
+    struct Token: Decodable {
+        let id: String
+        let name: String
+        let symbol: String
+        let networkId: String
+        let contractAddress: String?
+        let decimalCount: Int?
+    }
 
-            var symbol: String {
-                "%"
-            }
+    struct Discount: Decodable {
+        let amount: Int
+        let type: DiscountType
+    }
+
+    enum DiscountType: String, Decodable {
+        case percentage
+        case value
+
+        var symbol: String {
+            "%"
         }
-
-        struct Token: Decodable {
-            let id: String
-            let name: String
-            let symbol: String
-            let networkId: String
-            let contractAddress: String
-            let decimalCount: Int
-        }
-
-        let award: Decimal
-        let discount: Int
-        let discountType: DiscountType
-        let touLink: String
-        let tokens: [Token]
     }
 }
