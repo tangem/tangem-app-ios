@@ -479,10 +479,6 @@ class CardViewModel: Identifiable, ObservableObject {
         updateSdkConfig()
     }
 
-    func onAppear() {
-        updateSdkConfig()
-    }
-
     func getDisabledLocalizedReason(for feature: UserWalletFeature) -> String? {
         config.getFeatureAvailability(feature).disabledLocalizedReason
     }
@@ -673,7 +669,9 @@ class CardViewModel: Identifiable, ObservableObject {
 
     private func appendDefaultBlockchainIfNeeded() {
         // For single wallet only
-        guard !isMultiWallet, walletModels.isEmpty else { return }
+        guard !isMultiWallet,
+              let userWalletModel = userWalletModel,
+              userWalletModel.getSavedEntries().isEmpty else { return }
 
         appendDefaultBlockchains()
     }
