@@ -26,7 +26,7 @@ struct AddTokensView: View {
             }
             .buttonStyle(PlainButtonStyle())
             .cornerRadius(14)
-
+            .animation(nil)
         }
     }
 }

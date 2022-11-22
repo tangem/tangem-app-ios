@@ -8,10 +8,14 @@
 
 import Foundation
 
-struct WalletConnectServiceProvider: WalletConnectServiceProviding {
-    private(set) var service: WalletConnectService = .init(cardScanner: WalletConnectCardScanner())
+class WalletConnectServiceProvider: WalletConnectServiceProviding {
+    private(set) var service: WalletConnectService? = nil
 
-    func initialize() {
-        service.restore()
+    func initialize(with cardModel: CardViewModel) {
+        service = .init(with: cardModel)
+    }
+
+    func reset() {
+        service = nil
     }
 }
