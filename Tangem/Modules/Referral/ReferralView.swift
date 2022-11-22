@@ -100,11 +100,11 @@ struct ReferralView: View {
     }
 
     @ViewBuilder
-    private var touButton: some View {
-        Button(action: viewModel.openTou) {
-            Text(viewModel.touButtonPrefix) +
+    private var tosButton: some View {
+        Button(action: viewModel.openTOS) {
+            Text(viewModel.tosButtonPrefix) +
                 Text("common_terms_and_conditions").foregroundColor(Colors.Text.accent) +
-                Text(" " + "referral_tou_suffix".localized)
+                Text(" " + "referral_tos_suffix".localized)
         }
         .multilineTextAlignment(.center)
         .fixedSize(horizontal: false, vertical: true)
@@ -166,14 +166,14 @@ struct ReferralView: View {
                                                    layout: .flexibleWidth))
             }
 
-            touButton
+            tosButton
         }
     }
 
     @ViewBuilder
     private var notReferralView: some View {
         VStack(spacing: 12) {
-            touButton
+            tosButton
 
             TangemButton(
                 title: "referral_button_participate",
