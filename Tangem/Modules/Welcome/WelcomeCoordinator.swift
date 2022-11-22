@@ -20,16 +20,12 @@ class WelcomeCoordinator: CoordinatorObject {
     // MARK: - Child coordinators
     @Published var mainCoordinator: MainCoordinator? = nil
     @Published var pushedOnboardingCoordinator: OnboardingCoordinator? = nil
-    @Published var modalOnboardingCoordinator: OnboardingCoordinator? = nil
     @Published var shopCoordinator: ShopCoordinator? = nil
     @Published var tokenListCoordinator: TokenListCoordinator? = nil
 
     // MARK: - Child view models
     @Published var mailViewModel: MailViewModel? = nil
     @Published var disclaimerViewModel: DisclaimerViewModel? = nil
-
-    // MARK: - Helpers
-    @Published var modalOnboardingCoordinatorKeeper: Bool = false
 
     // MARK: - Private
     private var welcomeLifecycleSubscription: AnyCancellable? = nil
@@ -39,7 +35,6 @@ class WelcomeCoordinator: CoordinatorObject {
         var publishers: [AnyPublisher<Bool, Never>] = []
         publishers.append($mailViewModel.dropFirst().map { $0 == nil }.eraseToAnyPublisher())
         publishers.append($shopCoordinator.dropFirst().map { $0 == nil }.eraseToAnyPublisher())
-        publishers.append($modalOnboardingCoordinator.dropFirst().map { $0 == nil }.eraseToAnyPublisher())
         publishers.append($tokenListCoordinator.dropFirst().map { $0 == nil }.eraseToAnyPublisher())
         publishers.append($disclaimerViewModel.dropFirst().map { $0 == nil }.eraseToAnyPublisher())
 
@@ -59,8 +54,6 @@ class WelcomeCoordinator: CoordinatorObject {
 
         if options.shouldScan {
             welcomeViewModel.scanCard()
-        } else if welcomeViewModel.shouldShowAuthenticationView {
-            welcomeViewModel.unlockWithBiometry()
         }
     }
 
@@ -83,21 +76,6 @@ extension WelcomeCoordinator {
 }
 
 extension WelcomeCoordinator: WelcomeRoutable {
-    func openUnlockScreen() {
-        mainCoordinator = nil
-    }
-
-    func openOnboardingModal(with input: OnboardingInput) {
-        let dismissAction: Action = { [weak self] in
-            self?.modalOnboardingCoordinator = nil
-        }
-
-        let coordinator = OnboardingCoordinator(dismissAction: dismissAction)
-        let options = OnboardingCoordinator.Options(input: input, destination: .dismiss)
-        coordinator.start(with: options)
-        modalOnboardingCoordinator = coordinator
-    }
-
     func openOnboarding(with input: OnboardingInput) {
         let dismissAction: Action = { [weak self] in
             self?.pushedOnboardingCoordinator = nil
