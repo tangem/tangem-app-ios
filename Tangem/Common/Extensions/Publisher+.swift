@@ -54,3 +54,44 @@ extension Publisher where Failure == Never {
         }
     }
 }
+
+public extension Publisher {
+    /// Subscribes to current publisher without handling events
+    func sink() -> AnyCancellable {
+        return sink(receiveCompletion: { _ in }, receiveValue: { _ in })
+    }
+
+    /// `receiveValue` clouser from default `sink` method
+    func receiveValue(_ receiveValue: @escaping ((Self.Output) -> Void)) -> AnyCancellable {
+        sink(receiveCompletion: { _ in }, receiveValue: receiveValue)
+    }
+
+    /// `receiveCompletion` clouser from default `sink` method
+    func receiveCompletion(_ receiveCompletion: @escaping ((Subscribers.Completion<Self.Failure>) -> Void)) -> AnyCancellable {
+        sink(receiveCompletion: receiveCompletion, receiveValue: { _ in })
+    }
+
+    /// Transforms any received value to Void
+    func mapVoid() -> Publishers.Map<Self, Void> {
+        map { _ in }
+    }
+
+    func eraseError() -> AnyPublisher<Output, Error> {
+        return self.mapError { error -> Error in
+            return error as Error
+        }
+        .eraseToAnyPublisher()
+    }
+}
+
+extension Publisher where Output == Void, Failure == Error {
+    static var just: AnyPublisher<Output, Failure> {
+        Just(()).setFailureType(to: Failure.self).eraseToAnyPublisher()
+    }
+}
+
+extension Publisher where Output == Void, Failure == Never {
+    static var just: AnyPublisher<Output, Failure> {
+        Just(()).eraseToAnyPublisher()
+    }
+}

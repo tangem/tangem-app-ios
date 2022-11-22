@@ -12,8 +12,6 @@ import Combine
 import WalletConnectSwift
 
 class WalletConnectTransactionHandler: TangemWalletConnectRequestHandler {
-    @Injected(\.scannedCardsRepository) private var scannedCardsRepo: ScannedCardsRepository
-
     unowned var delegate: WalletConnectHandlerDelegate?
     unowned var dataSource: WalletConnectHandlerDataSource?
 
@@ -54,15 +52,12 @@ class WalletConnectTransactionHandler: TangemWalletConnectRequestHandler {
     func buildTx(in session: WalletConnectSession, _ transaction: WalletConnectEthTransaction) -> AnyPublisher<(WalletModel, Transaction), Error> {
         let wallet = session.wallet
         let blockchain = wallet.blockchain
+        let walletModel = dataSource?.cardModel.walletModels.first(where: {
+            $0.wallet.blockchain == wallet.blockchain &&
+                $0.wallet.address.lowercased() == transaction.from.lowercased()
+        })
 
-        guard let card = scannedCardsRepo.cards[wallet.cid] else {
-            return .anyFail(error: WalletConnectServiceError.cardNotFound)
-        }
-
-        let blockchainNetwork = BlockchainNetwork(blockchain, derivationPath: wallet.derivationPath)
-        let walletModels = WalletManagerAssembly.makeWalletModels(from: card, blockchainNetworks: [blockchainNetwork])
-
-        guard let walletModel = walletModels.first(where: { $0.wallet.address.lowercased() == transaction.from.lowercased() }) else {
+        guard let walletModel else {
             let error = WalletConnectServiceError.failedToBuildTx(code: .wrongAddress)
             Analytics.log(error: error)
             return .anyFail(error: error)
@@ -101,7 +96,7 @@ class WalletConnectTransactionHandler: TangemWalletConnectRequestHandler {
             }
             .filter { $0 == .idle }
 
-        walletModel.update()
+        walletModel.update(silent: false)
 
 
         // This zip attempting to load gas price and update wallet balance.
@@ -119,7 +114,6 @@ class WalletConnectTransactionHandler: TangemWalletConnectRequestHandler {
 
                         var m = ""
                         m += String(format: "wallet_connect_create_tx_message".localized,
-                                    AppCardIdFormatter(cid: wallet.cid).formatted(),
                                     dApp.peerMeta.name,
                                     dApp.peerMeta.url.absoluteString,
                                     valueAmount.description,
