@@ -44,7 +44,6 @@ final class UserWalletListViewModel: ObservableObject, Identifiable {
     private unowned let coordinator: UserWalletListRoutable
     private var bag: Set<AnyCancellable> = []
     private var userWalletIdToBeDeleted: Data?
-    private var initialSelectedUserWalletId: Data?
 
     init(
         coordinator: UserWalletListRoutable
@@ -85,10 +84,6 @@ final class UserWalletListViewModel: ObservableObject, Identifiable {
                 userWalletModel.updateAndReloadWalletModels()
             }
         }
-    }
-    
-    func onDisappear() {
-        
     }
 
     func unlockAllWallets() {
