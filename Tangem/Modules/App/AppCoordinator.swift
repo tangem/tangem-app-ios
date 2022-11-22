@@ -50,7 +50,7 @@ class AppCoordinator: NSObject, CoordinatorObject {
             }
 
             let coordinator = WelcomeCoordinator(dismissAction: dismissAction, popToRootAction: popToRootAction)
-            coordinator.start(with: .init(shouldScan: false))
+            coordinator.start(with: .init(shouldScan: options.newScan))
             self.welcomeCoordinator = coordinator
 
         case .auth:
