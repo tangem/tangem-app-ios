@@ -44,7 +44,12 @@ class AppCoordinator: NSObject, CoordinatorObject {
                 self?.start()
             }
 
-            let coordinator = WelcomeCoordinator(dismissAction: dismissAction)
+            let popToRootAction: ParamsAction<PopToRootOptions> = { [weak self] options in
+                self?.welcomeCoordinator = nil
+                self?.start(with: .init(connectionOptions: nil, newScan: options.newScan))
+            }
+
+            let coordinator = WelcomeCoordinator(dismissAction: dismissAction, popToRootAction: popToRootAction)
             coordinator.start(with: .init(shouldScan: false))
             self.welcomeCoordinator = coordinator
 
@@ -54,9 +59,15 @@ class AppCoordinator: NSObject, CoordinatorObject {
                 self?.start()
             }
 
-            let coordinator = AuthCoordinator(dismissAction: dismissAction)
+            let popToRootAction: ParamsAction<PopToRootOptions> = { [weak self] options in
+                self?.authCoordinator = nil
+                self?.start(with: .init(connectionOptions: nil, newScan: options.newScan))
+            }
+
+            let coordinator = AuthCoordinator(dismissAction: dismissAction, popToRootAction: popToRootAction)
             coordinator.start()
             self.authCoordinator = coordinator
+
         case .uncompletedBackup:
             let dismissAction = { [weak self] in
                 self?.uncompletedBackupCoordinator = nil
@@ -95,8 +106,9 @@ class AppCoordinator: NSObject, CoordinatorObject {
 extension AppCoordinator {
     struct Options {
         let connectionOptions: UIScene.ConnectionOptions?
+        let newScan: Bool
 
-        static let `default`: Options = .init(connectionOptions: nil)
+        static let `default`: Options = .init(connectionOptions: nil, newScan: false)
     }
 }
 
