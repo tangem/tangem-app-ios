@@ -8,21 +8,97 @@
 
 import Foundation
 import Combine
-import class UIKit.UIPasteboard
+import UIKit
+import BlockchainSdk
 
 class ReferralViewModel: ObservableObject {
+    @Injected(\.tangemApiService) private var tangemApiService: TangemApiService
+
     @Published var isProcessingRequest: Bool = false
     @Published private(set) var referralProgramInfo: ReferralProgramInfo?
+    @Published var errorAlert: AlertBinder?
 
+    private unowned let coordinator: ReferralRoutable
+    private let cardModel: CardViewModel
+    private let userWalletId: Data
+
+    init(cardModel: CardViewModel, userWalletId: Data, coordinator: ReferralRoutable) {
+        self.cardModel = cardModel
+        self.userWalletId = userWalletId
+        self.coordinator = coordinator
+
+        runTask(loadReferralInfo)
+    }
+
+    @MainActor
+    func participateInReferralProgram() async {
+        guard
+            let award = referralProgramInfo?.conditions.awards.first,
+            let blockchain = Blockchain(from: award.token.networkId)
+        else {
+            errorAlert = AlertBuilder.makeOkErrorAlert(message: "referral_error_failed_to_load_info".localized,
+                                                       okAction: coordinator.dismiss)
+            return
+        }
+
+        // [REDACTED_TODO_COMMENT]
+        guard let address = cardModel.wallets.first(where: { $0.blockchain == blockchain })?.address else {
+            requestDerivation()
+            return
+        }
+
+        isProcessingRequest = true
+        do {
+            let referralProgramInfo = try await runInTask {
+                try await self.tangemApiService.participateInReferralProgram(using: award.token, for: address, with: self.userWalletId.hexString)
+            }
+            self.referralProgramInfo = referralProgramInfo
+        } catch {
+            let format = "referral_error_failed_to_participate".localized
+            errorAlert = AlertBuilder.makeOkErrorAlert(message: String(format: format, error.localizedDescription))
+        }
+
+        isProcessingRequest = false
+    }
+
+    func copyPromoCode() {
+        UIPasteboard.general.string = referralProgramInfo?.referral?.promoCode
+    }
+
+    func sharePromoCode() {
+
+    }
+
+    @MainActor
+    private func loadReferralInfo() async {
+        do {
+            let referralProgramInfo = try await runInTask {
+                try await self.tangemApiService.loadReferralProgramInfo(for: self.userWalletId.hexString)
+            }
+            self.referralProgramInfo = referralProgramInfo
+        } catch {
+            let format = "referral_error_failed_to_load_info_with_reason".localized
+            self.errorAlert = AlertBuilder.makeOkErrorAlert(message: String(format: format, error.localizedDescription),
+                                                            okAction: self.coordinator.dismiss)
+        }
+    }
+
+    private func requestDerivation() {
+        // [REDACTED_TODO_COMMENT]
+    }
+}
+
+// MARK: UI stuff
+extension ReferralViewModel {
     var award: String {
         guard
             let info = referralProgramInfo,
-            let awardToken = info.conditions.tokens.first
+            let award = info.conditions.awards.first
         else {
             return ""
         }
 
-        return String(format: "referral_point_discount_description_value".localized, "\(info.conditions.award) \(awardToken.symbol)")
+        return "\(award.amount) \(award.token.symbol)"
     }
 
     var awardDescriptionSuffix: String {
@@ -41,7 +117,7 @@ class ReferralViewModel: ObservableObject {
             return ""
         }
 
-        return String(format: "referral_point_discount_description_value".localized, "\(info.conditions.discount)\(info.conditions.discountType.symbol)")
+        return String(format: "referral_point_discount_description_value".localized, "\(info.conditions.discount.amount)\(info.conditions.discount.type.symbol)")
     }
 
     var numberOfWalletsBought: String {
@@ -50,7 +126,7 @@ class ReferralViewModel: ObservableObject {
             return String.localizedStringWithFormat(stringFormat, 0)
         }
 
-        return String.localizedStringWithFormat(stringFormat, info.walletPurchase)
+        return String.localizedStringWithFormat(stringFormat, info.walletsPurchased)
     }
 
     var promoCode: String {
@@ -71,37 +147,11 @@ class ReferralViewModel: ObservableObject {
 
     var isProgramInfoLoaded: Bool { referralProgramInfo != nil }
     var isAlreadyReferral: Bool { referralProgramInfo?.referral != nil }
+}
 
-    var referralInfo: ReferralProgramInfo.Referral? {
-        referralProgramInfo?.referral
-    }
-
-    private let coordinator: ReferralRoutable
-
-    init(coordinator: ReferralRoutable, json: String = "") {
-        self.coordinator = coordinator
-        let jsonDecoder = JSONDecoder()
-        referralProgramInfo = try? jsonDecoder.decode(ReferralProgramInfo.self, from: json.data(using: .utf8)!)
-    }
-
-    // Temp solution. Will be updated in [REDACTED_INFO]
-    static func mock(_ mock: ReferralMock, with coordinator: ReferralRoutable) -> ReferralViewModel {
-        .init(coordinator: coordinator, json: mock.json)
-    }
-
+// MARK: - Navigation
+extension ReferralViewModel {
     func openTou() {
         // [REDACTED_TODO_COMMENT]
-    }
-
-    func participateInReferralProgram() {
-        // [REDACTED_TODO_COMMENT]
-    }
-
-    func copyPromoCode() {
-        UIPasteboard.general.string = referralProgramInfo?.referral?.promoCode
-    }
-
-    func sharePromoCode() {
-
     }
 }
