@@ -55,12 +55,12 @@ final class UncompletedBackupViewModel: ObservableObject {
     }
 
     private func continueBackup() {
-//        guard let primaryCardId = backupService.primaryCard?.cardId else {
-//            return
-//        }
+        guard let primaryCardId = backupService.primaryCard?.cardId else {
+            return
+        }
 
         let input = OnboardingInput(steps: .wallet(WalletOnboardingStep.resumeBackupSteps),
-                                    cardInput: .cardId("0000000000000000"),
+                                    cardInput: .cardId(primaryCardId),
                                     welcomeStep: nil,
                                     twinData: nil,
                                     currentStepIndex: 0,
