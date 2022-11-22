@@ -148,7 +148,7 @@ extension OnboardingCoordinator: OnboardingRoutable {
     private func openMain(with cardModel: CardViewModel) {
         Analytics.log(.screenOpened)
         let coordinator = MainCoordinator(popToRootAction: popToRootAction)
-        let options = MainCoordinator.Options(cardModel: cardModel, shouldRefresh: false)
+        let options = MainCoordinator.Options(cardModel: cardModel)
         coordinator.start(with: options)
         mainCoordinator = coordinator
     }
