@@ -1,22 +1,25 @@
 //
-//  WelcomeCoordinatorView.swift
+//  AuthCoordinatorView.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
 //  Copyright © 2022 Tangem AG. All rights reserved.
 //
 
-import Foundation
 import SwiftUI
 
-struct WelcomeCoordinatorView: CoordinatorView {
-    @ObservedObject var coordinator: WelcomeCoordinator
+struct AuthCoordinatorView: CoordinatorView {
+    @ObservedObject var coordinator: AuthCoordinator
+
+    init(coordinator: AuthCoordinator) {
+        self.coordinator = coordinator
+    }
 
     var body: some View {
         NavigationView {
             ZStack {
-                if let welcomeModel = coordinator.welcomeViewModel {
-                    WelcomeView(viewModel: welcomeModel)
+                if let rootViewModel = coordinator.rootViewModel {
+                    AuthView(viewModel: rootViewModel)
                         .navigationLinks(links)
                 }
 
@@ -41,23 +44,13 @@ struct WelcomeCoordinatorView: CoordinatorView {
     @ViewBuilder
     private var sheets: some View {
         NavHolder()
-            .sheet(item: $coordinator.shopCoordinator) {
-                ShopCoordinatorView(coordinator: $0)
-            }
-
-        NavHolder()
-            .sheet(item: $coordinator.tokenListCoordinator) {
-                TokenListCoordinatorView(coordinator: $0)
+            .sheet(item: $coordinator.mailViewModel) {
+                MailView(viewModel: $0)
             }
 
         NavHolder()
             .sheet(item: $coordinator.disclaimerViewModel) {
                 DisclaimerView(viewModel: $0)
-            }
-
-        NavHolder()
-            .sheet(item: $coordinator.mailViewModel) {
-                MailView(viewModel: $0)
             }
     }
 }
