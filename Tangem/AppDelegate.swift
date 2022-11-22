@@ -11,6 +11,7 @@ import Firebase
 import AppsFlyerLib
 import Amplitude
 
+
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
     var loadingView: UIView? = nil
@@ -41,19 +42,31 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         UIScrollView.appearance().keyboardDismissMode = .onDrag
 
         if #available(iOS 14.0, *) {
+            UINavigationBar.appearance().tintColor = UIColor(Colors.Text.primary1)
+            UINavigationBar.appearance().titleTextAttributes = [
+                .foregroundColor: UIColor(Colors.Text.primary1),
+            ]
             // iOS 14 doesn't have extra separators below the list by default.
         } else {
             // To remove only extra separators below the list:
             UITableView.appearance().tableFooterView = UIView()
+            UINavigationBar.appearance().tintColor = UIColor(named: "TextPrimary1")
+            UINavigationBar.appearance().titleTextAttributes = [
+                .foregroundColor: UIColor(named: "TextPrimary1") ?? UIColor.black,
+            ]
         }
 
-        configureFirebase()
-        configureAppsFlyer()
-        configureAmplitude()
+        if !AppEnvironment.current.isDebug {
+            configureFirebase()
+            configureAppsFlyer()
+            configureAmplitude()
+        }
 
         AppSettings.shared.numberOfLaunches += 1
+        migrateTOS()
         return true
     }
+
 
     func application(_ application: UIApplication, continue userActivity: NSUserActivity, restorationHandler: @escaping ([UIUserActivityRestoring]?) -> Void) -> Bool {
 
@@ -84,9 +97,17 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     }
 
     func applicationDidBecomeActive(_ application: UIApplication) {
-        guard AppEnvironment.current == .production else { return }
+        guard AppEnvironment.current.isProduction else { return }
 
         AppsFlyerLib.shared().start()
+    }
+
+    private func migrateTOS() {
+        guard AppSettings.shared.isTermsOfServiceAccepted else { return }
+
+        let defaultUrl = DummyConfig().touURL.absoluteString
+        AppSettings.shared.termsOfServicesAccepted.insert(defaultUrl)
+        AppSettings.shared.isTermsOfServiceAccepted = false
     }
 }
 
@@ -104,19 +125,14 @@ private extension AppDelegate {
     }
 
     func configureAppsFlyer() {
-        guard AppEnvironment.current == .production else { return }
+        guard AppEnvironment.current.isProduction else { return }
 
         AppsFlyerLib.shared().appsFlyerDevKey = try! CommonKeysManager().appsFlyerDevKey
         AppsFlyerLib.shared().appleAppID = "1354868448"
-        #if DEBUG
-        AppsFlyerLib.shared().isDebug = true
-        #else
-        AppsFlyerLib.shared().isDebug = false
-        #endif
     }
 
     func configureAmplitude() {
-        guard AppEnvironment.current == .production else { return }
+        guard AppEnvironment.current.isProduction else { return }
 
         Amplitude.instance().trackingSessionEvents = true
         Amplitude.instance().initializeApiKey(try! CommonKeysManager().amplitudeApiKey)
