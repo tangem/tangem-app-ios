@@ -17,9 +17,11 @@ import DeviceGuru
 class SupportChatViewModel: Identifiable {
     let id: UUID = .init()
     let cardId: String?
+    let dataCollector: EmailDataCollector?
 
-    init(cardId: String? = nil) {
+    init(cardId: String? = nil, dataCollector: EmailDataCollector? = nil) {
         self.cardId = cardId
+        self.dataCollector = dataCollector
     }
 
     private let chatBotName: String = "Tangem"
@@ -39,11 +41,13 @@ class SupportChatViewModel: Identifiable {
 
     func buildUI() throws -> UIViewController {
         let device = DeviceGuru().hardwareDescription() ?? ""
+        let userWalletData = dataCollector?.dataForEmail ?? ""
+
         Chat
             .instance?
             .providers
             .profileProvider
-            .setNote("\(device) \(cardId ?? "")")
+            .setNote("\(device) \(cardId ?? "") \(userWalletData)")
         let chatEngine = try! ChatEngine.engine()
         let viewController = try! Messaging.instance.buildUI(engines: [chatEngine], configs: [chatConfiguration, messagingConfiguration])
         return viewController

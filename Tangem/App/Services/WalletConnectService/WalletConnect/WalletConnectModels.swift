@@ -12,7 +12,6 @@ import WalletConnectSwift
 import TangemSdk
 
 struct WalletInfo: Codable, Hashable {
-    let cid: String
     let walletPublicKey: Data
     let derivedPublicKey: Data?
     let derivationPath: DerivationPath?
