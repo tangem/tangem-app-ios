@@ -55,7 +55,7 @@ class WalletConnectSignHandler: TangemWalletConnectRequestHandler {
             }
         }
 
-        let alertMessage =  String(format: "wallet_connect_alert_sign_message".localized, AppCardIdFormatter(cid: session.wallet.cid).formatted(), message)
+        let alertMessage =  String(format: "wallet_connect_alert_sign_message".localized, message)
         DispatchQueue.main.async {
             UIApplication.modalFromTop(
                 WalletConnectUIBuilder.makeAlert(for: .sign,
@@ -69,11 +69,17 @@ class WalletConnectSignHandler: TangemWalletConnectRequestHandler {
     }
 
     func sign(with wallet: WalletInfo, data: Data, completion: @escaping (Result<String, Error>) -> Void) {
+        guard let cardModel = dataSource?.cardModel else {
+            completion(.failure(WalletConnectServiceError.deallocated))
+            return
+        }
+
+        Analytics.log(.requestSigned)
         signerSubscription = sign(data: data,
                                   walletPublicKey: Wallet.PublicKey(seedKey: wallet.walletPublicKey,
                                                                     derivedKey: wallet.derivedPublicKey,
                                                                     derivationPath: wallet.derivationPath),
-                                  signer: TangemSigner(with: wallet.cid))
+                                  signer: cardModel.signer)
             .sink(receiveCompletion: { [weak self] subsCompletion in
                 if case let .failure(error) = subsCompletion {
                     completion(.failure(error))

@@ -10,10 +10,13 @@ import Foundation
 import Combine
 
 protocol CardsRepository {
-    var didScanPublisher: PassthroughSubject<CardInfo, Never> { get }
+    var delegate: CardsRepositoryDelegate? { get set }
 
-    func scan(with batch: String?, _ completion: @escaping (Result<CardViewModel, Error>) -> Void)
-    func scanPublisher(with batch: String?) ->  AnyPublisher<CardViewModel, Error>
+    func scanPublisher(with batch: String?) -> AnyPublisher<CardViewModel, Error>
+}
+
+protocol CardsRepositoryDelegate: AnyObject {
+    func showTOS(at url: URL, _ completion: @escaping (Bool) -> Void)
 }
 
 private struct CardsRepositoryKey: InjectionKey {
