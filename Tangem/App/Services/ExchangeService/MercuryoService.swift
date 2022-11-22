@@ -71,7 +71,7 @@ extension MercuryoService: ExchangeService {
         }
 
         switch blockchain {
-        case .binance, .arbitrum:
+        case .binance, .arbitrum, .optimism:
             return false
         default:
             break
