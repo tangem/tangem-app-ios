@@ -126,6 +126,28 @@
             ]
         },
         {
+            "id": "polkadot",
+            "symbol": "DOT",
+            "name": "Polkadot",
+            "networks":
+            [
+                {
+                    "networkId": "polkadot/test"
+                }
+            ]
+        },
+        {
+            "id": "optimistic-ethereum",
+            "symbol": "ETH",
+            "name": "Optimistic Ethereum",
+            "networks":
+            [
+                {
+                    "networkId": "optimistic-ethereum/test"
+                }
+            ]
+        },
+        {
             "id": "tether",
             "symbol": "USDT",
             "name": "Tether USD",
@@ -466,7 +488,7 @@
                     "decimalCount": 18
                 }
             ]
-        }
+        },
     ],
     "total": 0,
     "imageHost": "https://s3.eu-central-1.amazonaws.com/tangem.api/coins/"
