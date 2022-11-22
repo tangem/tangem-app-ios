@@ -101,7 +101,7 @@ struct ReferralView: View {
 
     @ViewBuilder
     private var tosButton: some View {
-        Button(action: viewModel.openTos) {
+        Button(action: viewModel.openTOS) {
             Text(viewModel.tosButtonPrefix) +
                 Text("common_terms_and_conditions").foregroundColor(Colors.Text.accent) +
                 Text(" " + "referral_tos_suffix".localized)
