@@ -24,6 +24,8 @@ class WelcomeViewModel: ObservableObject {
 
     private var storiesModelSubscription: AnyCancellable? = nil
     private var shouldScanOnAppear: Bool = false
+    // OnAppear called on popToRoot
+    private var scannedOnAppear: Bool = false
 
     private unowned let coordinator: WelcomeRoutable
 
@@ -86,10 +88,11 @@ class WelcomeViewModel: ObservableObject {
     }
 
     func onAppear() {
+        print("!!! onAPPEAR")
         navigationBarHidden = true
         Analytics.log(.introductionProcessOpened)
 
-        if shouldScanOnAppear {
+        if shouldScanOnAppear && !scannedOnAppear {
             scanCard()
         }
     }
