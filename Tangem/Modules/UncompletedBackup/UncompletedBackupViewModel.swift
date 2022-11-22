@@ -6,7 +6,6 @@
 //  Copyright © 2022 Tangem AG. All rights reserved.
 //
 
-import Combine
 import SwiftUI
 import TangemSdk
 
@@ -73,6 +72,7 @@ final class UncompletedBackupViewModel: ObservableObject {
         backupService.discardIncompletedBackup()
         dismiss()
     }
+
 }
 
 // MARK: - Navigation
