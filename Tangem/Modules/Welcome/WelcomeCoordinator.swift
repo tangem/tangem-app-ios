@@ -48,13 +48,8 @@ class WelcomeCoordinator: CoordinatorObject {
     }
 
     func start(with options: WelcomeCoordinator.Options) {
-        let welcomeViewModel = WelcomeViewModel(coordinator: self)
-        self.welcomeViewModel = welcomeViewModel
+        self.welcomeViewModel = .init(shouldScanOnAppear: options.shouldScan, coordinator: self)
         subscribeToWelcomeLifecycle()
-
-        if options.shouldScan {
-            welcomeViewModel.scanCard()
-        }
     }
 
     private func subscribeToWelcomeLifecycle() {
@@ -81,14 +76,6 @@ extension WelcomeCoordinator: WelcomeRoutable {
             self?.pushedOnboardingCoordinator = nil
         }
 
-        let popToRootAction: ParamsAction<PopToRootOptions> = { [weak self] options in
-            self?.pushedOnboardingCoordinator = nil
-
-            if options.newScan {
-                self?.welcomeViewModel?.scanCard()
-            }
-        }
-
         let coordinator = OnboardingCoordinator(dismissAction: dismissAction, popToRootAction: popToRootAction)
         let options = OnboardingCoordinator.Options(input: input, destination: .main)
         coordinator.start(with: options)
@@ -96,14 +83,6 @@ extension WelcomeCoordinator: WelcomeRoutable {
     }
 
     func openMain(with cardModel: CardViewModel) {
-        let popToRootAction: ParamsAction<PopToRootOptions> = { [weak self] options in
-            self?.mainCoordinator = nil
-
-            if options.newScan {
-                self?.welcomeViewModel?.scanCard()
-            }
-        }
-
         Analytics.log(.screenOpened)
         let coordinator = MainCoordinator(popToRootAction: popToRootAction)
         let options = MainCoordinator.Options(cardModel: cardModel, shouldRefresh: false)
