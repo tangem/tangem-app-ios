@@ -60,7 +60,7 @@ class ReferralViewModel: ObservableObject {
 
         isProcessingRequest = false
     }
-    
+
     func copyPromoCode() {
         UIPasteboard.general.string = referralProgramInfo?.referral?.promoCode
     }
