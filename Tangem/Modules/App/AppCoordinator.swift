@@ -28,6 +28,7 @@ class AppCoordinator: NSObject, CoordinatorObject {
     private var bag: Set<AnyCancellable> = []
 
     override init() {
+        super.init()
         servicesManager.initialize()
         bind()
     }
