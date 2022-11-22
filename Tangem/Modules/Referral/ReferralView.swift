@@ -39,6 +39,7 @@ struct ReferralView: View {
             .edgesIgnoringSafeArea(.bottom)
 
         }
+        .alert(item: $viewModel.errorAlert, content: { $0.alert })
         .navigationBarTitle("details_referral_title", displayMode: .inline)
         .background(Colors.Background.secondary.edgesIgnoringSafeArea(.all))
     }
@@ -92,6 +93,8 @@ struct ReferralView: View {
             ReferralPlaceholderPointView(icon: Assets.cryptoCurrencies)
 
             ReferralPlaceholderPointView(icon: Assets.discount)
+
+            Spacer()
         }
         .padding(.horizontal, 16)
     }
@@ -177,7 +180,9 @@ struct ReferralView: View {
                 image: "tangemIcon",
                 iconPosition: .trailing,
                 iconPadding: 10,
-                action: viewModel.participateInReferralProgram
+                action: {
+                    runTask(viewModel.participateInReferralProgram)
+                }
             )
             .buttonStyle(
                 TangemButtonStyle(colorStyle: .black,
@@ -189,17 +194,23 @@ struct ReferralView: View {
 }
 
 struct ReferralView_Previews: PreviewProvider {
+    private static let demoCard = PreviewCard.tangemWalletBackuped
     static var previews: some View {
         NavigationView {
             ReferralView(
-                viewModel: ReferralViewModel.mock(.notReferral, with: ReferralCoordinator())
+                viewModel: ReferralViewModel(cardModel: demoCard.cardModel,
+                                             userWalletId: Data(),
+                                             coordinator: ReferralCoordinator())
             )
         }
         .previewGroup(devices: [.iPhone8], withZoomed: false)
 
         NavigationView {
             ReferralView(
-                viewModel: ReferralViewModel.mock(.referral, with: ReferralCoordinator())
+                viewModel: ReferralViewModel(cardModel: demoCard.cardModel,
+                                             userWalletId: Data(hexString: "6772C99F8B400E6F59FFCE0C4A66193BFD49DE2D9738868DE36F5E16569BB4F9"),
+                                             coordinator: ReferralCoordinator()
+                )
             )
         }
         .previewGroup(devices: [.iPhone8], withZoomed: false)
