@@ -29,9 +29,8 @@ struct CardSettingsView: View {
                 resetToFactorySection
             }
         }
-        .groupedListStyleCompatibility()
+        .groupedListStyleCompatibility(background: Colors.Background.secondary)
         .alert(item: $viewModel.alert) { $0.alert }
-        .background(Colors.Background.secondary.edgesIgnoringSafeArea(.all))
         .navigationBarTitle("card_settings_title", displayMode: .inline)
     }
 
@@ -47,12 +46,10 @@ struct CardSettingsView: View {
                 detailsType: .text(viewModel.cardIssuer)
             )
 
-            if let cardSignedHashes = viewModel.cardSignedHashes {
-                DefaultRowView(
-                    title: "details_row_title_signed_hashes".localized,
-                    detailsType: .text("details_row_subtitle_signed_hashes_format".localized(cardSignedHashes))
-                )
-            }
+            DefaultRowView(
+                title: "details_row_title_signed_hashes".localized,
+                detailsType: .text("details_row_subtitle_signed_hashes_format".localized(viewModel.cardSignedHashes))
+            )
         })
     }
 

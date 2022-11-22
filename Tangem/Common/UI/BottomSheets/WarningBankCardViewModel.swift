@@ -16,4 +16,8 @@ class WarningBankCardViewModel: Identifiable {
         self.confirmCallback = confirmCallback
         self.declineCallback = declineCallback
     }
+
+    func onAppear() {
+        Analytics.log(.p2PScreenOpened)
+    }
 }
