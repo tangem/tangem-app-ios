@@ -26,8 +26,7 @@ It’s perfectly safe in all other respects.
 Tangem is the only hardware wallet to offer signature count protection.";
 "alert_troubleshooting_scan_card_message" = "Please try to tap the card exactly as shown in the animation or request support.";
 "alert_troubleshooting_scan_card_title" = "Are you having difficulty scanning your card?";
-"card_label_number_format" = "Card %d of %d";
-"card_operation_button_title_reset" = "Reset the card";
+"card_operation_button_title_reset" = "Reset the Card";
 "common_accept" = "J'accepte";
 "common_back" = "Back";
 "common_camera_alert_button_settings" = "Paramètres";
@@ -81,13 +80,12 @@ Tangem is the only hardware wallet to offer signature count protection.";
 "details_manage_security_access_code" = "Code d’accès";
 "details_manage_security_access_code_description" = "Vous devrez entrer le mot de passe correct avant de scanner la carte";
 "details_manage_security_long_tap" = "Tenez la carte fermement";
+"details_manage_security_long_tap_shorter" = "Tenez la carte fermement";
 "details_manage_security_long_tap_description" = "Ce mécanisme protège contre les attaques sans contact sur la carte. Il y a un délai entre la réception et l'exécution de la commande. Après la première transaction signée, ce téléphone sera associé à la carte et les transactions seront signées immédiatement.";
 "details_manage_security_passcode" = "Mot de passe";
 "details_manage_security_passcode_description" = "Avant d'exécuter une commande qui modifie l'état de la carte, vous devrez entrer un mot de passe.";
 "details_manage_security_title" = "Security Mode";
-"details_notification_erase_wallet_not_possible" = "Your balance on this wallet is not zero, or you have unconfirmed transactions. Reset to factory settings not possible.";
 "details_row_subtitle_signed_hashes_format" = "%@ hashes";
-"details_row_title_card_tou" = "Card terms of use";
 "details_row_title_cid" = "ID de la carte";
 "details_row_title_create_backup" = "Link More Cards";
 "details_row_title_create_backup_footer" = "You can synchronize up to three cards into one wallet. It can only be done once.";
@@ -97,13 +95,13 @@ Tangem is the only hardware wallet to offer signature count protection.";
 "details_row_title_app_settings" = "App Settings";
 "details_row_title_reset_factory_settings" = "Reset to factory settings";
 "details_row_title_reset_factory_settings_warning" = "This action is irreversible. If, after resetting the card, someone sends funds to it, then you will not be able to withdraw them.";
-"details_row_title_send_feedback" = "Send feedback";
+"details_row_title_send_feedback" = "Send Feedback";
 "details_row_title_signed_hashes" = "Signé";
 "details_row_title_twins_create" = "Create wallet";
 "details_row_title_twins_recreate" = "Re-create twin wallet";
 "details_section_title_app" = "App";
 "details_section_title_card" = "Carte";
-"details_security_management_warning" = "If you forget the code you will lose access to your funds. Сode recovery is not possible.";
+"details_security_management_warning" = "If you forget the code you will lose access to your funds. Code recovery is not possible.";
 "details_title" = "Référénces";
 "details_twins_create_warning" = "The wallet creation procedure consists of three steps. You must complete it to the end, otherwise the cards will not be paired and you will have to start from the beginning.";
 "details_twins_recreate_button_format" = "Tap the card #%d";
@@ -113,62 +111,6 @@ Tangem is the only hardware wallet to offer signature count protection.";
 "details_twins_recreate_toolbar" = "Re-create wallet";
 "details_twins_recreate_warning" = "This action is irreversible. You will not have access to the old wallet.
 The wallet re-creation procedure consists of three steps. You must complete it to the end, otherwise you will have to start from the beginning.";
-"disclaimer_text" = "Avertissement
- 
-1. Application Tangem (Logiciel)
- 
-Le logiciel est destiné à l’utilisation exclusivement avec les e-portefeuilles Tangem (Cartes) à l’aide de l’interface NFC. Le logiciel NE réalise pas ce qui suit :
- 
-a) Génération, stockage, transmission ou octroi d’accès aux clés privées (confidentiels) de chiffrement des blockchain-portefeuilles, qui contiennent les avoirs numériques, y compris la crypto-monnaie.
-
-b) Génération, stockage, transmission ou octroi d’accès aux clés confidentielles, aux mots de passe, phrases secrètes, phrases de restitution, qui pourront être utilisées pour la restitution ou pour le clonage des clés privées (confidentiels) de chiffrement des blockchain-portefeuilles, contenant les avoirs numériques, y compris la crypto-monnaie.
-
-c) Prestation des services de bourse, de commerce, d’investissement du nom de Tangem AG.
- 
- 
-2. Risques, liés avec l’utilisation du logiciel
- 
-Tangem n’assume aucune responsabilité pour tous les dommages, préjudice ou prétentions, qui peuvent survenir comme résultat des évènements, se rapportant à une de cinq catégories suivantes :
- 
-a) Les erreurs, commises par l’utilisateur de tout logiciel ou service liés avec la crypto-monnaie, par exemple, les mots de passe oubliés, les paiements envoyés aux adresses incorrectes, et élimination occasionnelle des blockchain-portefeuilles sur les Cartes.
-
-b) Les problèmes du Logiciel et/ou de tout progiciel ou service liés avec blockchain ou avec la crypto-monnaie, par exemple, les fichiers endommagés, les transaction créées d’une manière incorrecte, les bibliothèques cryptographiques non sécurisées, les logiciels malveillants.
-
-c) Les défaillances techniques du hardware de l’utilisateur, y compris les Cartes, de tout logiciel ou service liés avec la crypto-monnaie, par exemple, la perte des données à cause des périphériques défectives ou endommagées de stockage.
-
-d) Les problèmes de la sécurité, subis par l’utilisateur de tout logiciel ou service liés avec la crypto-monnaie, par exemple, l’accès non autorisé aux portefeuilles et/ou comptes des utilisateurs.
-
-e) Les actions ou l’inaction des tierces personnes et/ou les évènements subis par les tierces personnes, par exemple, la faillite du prestataire de services, les attaques sur la sécurité informatique des prestataires de services et la fraude commise par des tierces personnes.
-
-
-3. Risques commerciales et d’investissement
- 
-Toute échange de crypto-monnaie ou d’autres avoirs numériques implique les risques importants. Toute transaction liée avec la monnaie implique les risques, qui incluent, entre autres, la possibilité de modification des conditions économiques, qui peuvent influencer d’une manière significative le prix ou la disponibilité de la monnaie. Les investissements dans les spéculations boursières avec les crypto-monnaies peuvent aussi être exposés aux montées et chutes en flèche lors des fluctuations des valeurs marchandes correspondants. C'est pour cette raison, que lors de la spéculation sur tels marchés, il est conseillé d’utiliser seulement le capital-risque.
- 
-
-4. Risques de commerce électronique
- 
-Avant de passer aux transactions en utilisant le système électronique, Vous devez prendre connaissance, d’une manière bien attentive, des règles et des dispositions stipulées par les bourses qui offrent ce système, et/ou les listes des titres de placement que vous voulez négocier. Le commerce en ligne possède le risque inaliénable lié avec la vitesse de réponse du système et avec le temps d’accès qui peuvent varier en fonction des conditions de marché, du rendement du système et d’autres facteurs. Avant de commencer les négoces, vous devez comprendre ces risques aussi que les risques supplémentaires.
-
-
-5. Respect des obligations fiscales
- 
-Les utilisateurs du Logiciel assument toute la responsabilité pour définir, quels impôts sont appliqués à leurs transactions avec la crypto-monnaie, au cas où il y a de tels impôts. Les propriétaires et les participants à l’élaboration du Logiciel n’assument pas la responsabilité pour la définition des impôts qui sont appliqués aux transactions avec la crypto-monnaie.
-
-
-6. Absence de garanties
-
-Le logiciel est concédé sous les conditions « tel quel », sans aucune garantie à l’égard du Logiciel et/ou de tout le contenu, données, matériaux et/ou services, présentes dans ce Logiciel.
- 
-
-7. Restriction de la responsabilité
- 
-Sauf disposition contraire prévue par la législation, les propriétaires et les participants à l’élaboration du Logiciel n’assument pas la responsabilité pour aucun dommage, y compris l’indisponibilité, la perte de profit ou la perte des données, qui surviennent comme résultat de l’utilisation ou bien qui sont liés d’une certaine manière avec l’utilisation du Logiciel. Les propriétaires et les participants à l’élaboration du Logiciel n’assument pas la responsabilité pour les actions, les résolutions ou pour une autre conduite que vous manifestez ou pas par l’intermédiaire du Logiciel.
- 
- 
-8. Dernière modification
- 
-Cette avertissement a été modifié, pour la dernière fois, le 1 octobre 2020.";
 "disclaimer_title" = "Conditions d'utilisation";
 "home_button_scan" = "Scannez la carte";
 "initial_message_change_access_code_body" = "To change the access code, connect your phone and the card exactly as it shown above";
@@ -224,7 +166,7 @@ Cette avertissement a été modifié, pour la dernière fois, le 1 octobre 2020.
 "onboarding_read_subtitle" = "The safest way to buy, use and store cryptocurrency";
 "onboarding_read_title" = "Welcome to Tangem";
 "onboarding_subtitle_backup_card" = "You can backup your keys up to two other blank wallet cards.";
-"onboarding_subtitle_intro" = "This one that you are holding in your hands and the other one with number %@.";
+"onboarding_subtitle_intro" = "This one that you are holding in your hands and the other one with number #%@";
 "onboarding_subtitle_no_backup_cards" = "To start the backup process add up to two backup cards.";
 "onboarding_subtitle_one_backup_card" = "You can add one more card or finalize the backup process.";
 "onboarding_subtitle_reset_twin_warning" = "If the process of creating the wallet gets interrupted in any way, you’ll have to start over.";
@@ -233,7 +175,7 @@ Cette avertissement a été modifié, pour la dernière fois, le 1 octobre 2020.
 "onboarding_subtitle_scan_primary" = "Scan the primary card to start the backup process.";
 "onboarding_subtitle_success_backup" = "You have created 2 backup cards, and now these cards are ready for use.";
 "onboarding_subtitle_success_backup_one_card" = "You have created 1 backup card, nd now this card are ready for use.";
-"onboarding_subtitle_success_tangem_wallet_onboarding" = "Your Tangem Wallet card is configured and ready for use.";
+"onboarding_subtitle_success_tangem_wallet_onboarding" = "Your wallet card is configured and ready for use.";
 "onboarding_subtitle_two_backup_cards" = "Max number of cards added. Finalize the backup process.";
 "onboarding_success" = "Success!";
 "onboarding_success_subtitle" = "Your crypto card is activated and ready to be used";
@@ -258,19 +200,16 @@ Cette avertissement a été modifié, pour la dernière fois, le 1 octobre 2020.
 "onboarding_wallet_info_title_fourth" = "Access code restore";
 "onboarding_wallet_info_title_second" = "Identical cards";
 "onboarding_wallet_info_title_third" = "Access code";
-"payid_service_error_loading" = "Invalid PayString";
 "push_additional_fee" = "Additional fee";
 "push_previous_fee" = "Previous fee";
 "push_tx_address_hint" = "Previous transaction total including fee";
 "send_amount_label" = "Somme";
 "send_balance_subtitle_format" = "Solde : %@";
-"send_destination_hint" = "Adresse ou PayString";
 "send_destination_hint_address" = "Adresse";
-"send_error_invalid_destination_tag" = "Invalid Destination Tag. It won't be added to transaction";
-"send_error_invalid_memo_id" = "Invalid Memo Id. It won't be added to transaction";
-"send_extras_hint_destination_tag" = "Destination Tag";
+"send_extras_error_invalid_destination_tag" = "Invalid Tag. It won't be added to the transaction.";
+"send_extras_error_invalid_memo" = "Invalid Memo. It won't be added to the transaction.";
+"send_extras_hint_destination_tag" = "Tag";
 "send_extras_hint_memo" = "Memo";
-"send_extras_hint_memo_id" = "Memo Id";
 "send_fee_include_description" = "Inclure les commissions";
 "send_fee_label" = "Commissions";
 "send_fee_picker_low" = "Bas";
@@ -313,13 +252,11 @@ Both cards can be used to extract funds from this wallet.";
 "voice_over_scan_qr_with_address" = "Scan, QR, code with address";
 "voice_over_share_address" = "Share address";
 "voice_over_show_address_qr" = "Show address, QR, code";
-"wallet_address_button_create_payid" = "Créer PayString";
 "wallet_address_button_explore" = "Explorer l'adresse";
 "wallet_balance_blockchain_unreachable" = "Blockchain est inaccessible";
 "wallet_balance_loading" = "Solde est en cours de téléchargement…";
 "wallet_balance_tx_in_progress" = "Transaction en cours...";
 "wallet_balance_verified" = "Solde confirmé";
-"wallet_button_create_twin_wallet" = "Create twin wallet";
 "wallet_button_create_wallet" = "Créer un portefeuille";
 "wallet_button_scan" = "Scanner";
 "wallet_button_sell_crypto" = "Sell";
@@ -327,13 +264,11 @@ Both cards can be used to extract funds from this wallet.";
 "wallet_button_topup" = "Acheter";
 "wallet_button_trade" = "Exchange";
 "wallet_choice_wallet_option_title" = "Choisir une variante de portefeuille";
-"wallet_connect_alert_sign_message" = "Requesting to sign a message
-with card %@
+"wallet_connect_alert_sign_message" = "Requesting to sign a message.
 
 %@";
 "wallet_connect_bnb_sign_message" = "Dapp %@, requesting to
-sign BNB transaction with
-Card: %@
+sign BNB transaction.
 
 %@";
 "wallet_connect_bnb_trade_order_message" = "Trade order for %@
@@ -345,11 +280,8 @@ From: %@
 To: %@
 Amount: %@";
 "wallet_connect_bnb_transaction_signed" = "The BNB transaction has been successfully signed and sent to the Dapp";
-"wallet_connect_card_not_found" = "Failed to find target card";
-"wallet_connect_card_number" = "Card: %@";
 "wallet_connect_clipboard_alert" = "Clipboard contain WalletConnect code. Use copied value or scan QR-code";
-"wallet_connect_create_tx_message" = "Card: %@
-Request to create transaction for %@
+"wallet_connect_create_tx_message" = "Request to create transaction for %@
 %@
 
 Amount: %@
@@ -369,8 +301,7 @@ Please, try again later.";
 "wallet_connect_no_sessions_title" = "Ooops. No Sessions.";
 "wallet_connect_paste_from_clipboard" = "Paste from clipboard";
 "wallet_connect_personal_sign_message" = "Message for %@:\n";
-"wallet_connect_request_session_start" = "Request to start a session for card with ID %@
-for
+"wallet_connect_request_session_start" = "Request to start a session for
 %@
 
 NETWORK: %@
@@ -386,20 +317,11 @@ URL: %@";
 "wallet_connect_transaction_signed" = "The transaction has been successfully signed and sent to the Dapp";
 "wallet_connect_transaction_signed_and_send" = "The transaction has been succesfully signed and sent to the blockchain";
 "wallet_connect_tx_not_found" = "Failed to find transaction hash";
-"wallet_create_payid" = "Créer PayString";
-"wallet_create_payid_button_title" = "Créer";
-"wallet_create_payid_card_format" = "Carte: %@";
-"wallet_create_payid_domain" = "$payid.tangem.com";
-"wallet_create_payid_error_already_created" = "Ce PayString existe déjà. Essayez une autre variante.";
-"wallet_create_payid_error_message" = "Mauvaise réponse lors de la création de PayString";
-"wallet_create_payid_hint" = "Dénomination PayString";
-"wallet_create_payid_info" = "Votre PayString est une information qui vous est propre, comme un numéro de téléphone, une adresse du courrier électronique ou un ABN.";
-"wallet_create_payid_success_message" = "PayString a été créé avec succès et copié dans le presse-papiers";
 "wallet_error_no_account" = "Compte n’est pas créé";
 "wallet_pending_tx_receiving" = "Réception";
-"wallet_pending_tx_receiving_address_format" = "de %с";
+"wallet_pending_tx_receiving_address_format" = "de %@";
 "wallet_pending_tx_sending" = "Envoi";
-"wallet_pending_tx_sending_address_format" = "jusqu’à %с";
+"wallet_pending_tx_sending_address_format" = "jusqu’à %@";
 "wallet_hide_token" = "Hide token";
 "wallet_title" = "Tangem";
 "warning_button_can_be_better" = "Can be better";
@@ -482,6 +404,9 @@ URL: %@";
 "main_processing_full_amount" = "The amount does not include some of your funds";
 "main_tokens" = "Tokens";
 
+// MARK: Errors
+"error_wrong_wallet_tapped" = "You have used a card from another wallet. Tap the card associated with this wallet";
+
 // MARK: Token details
 
 "token_details_hide_alert_title" = "Hide %@";
@@ -503,7 +428,7 @@ URL: %@";
 "card_settings_title" = "Card Settings";
 "card_settings_security_mode" = "Security Mode";
 "card_settings_security_mode_footer" = "Selected application protection method";
-"card_settings_change_access_code" = "Change access code";
+"card_settings_change_access_code" = "Change Access Code";
 "card_settings_change_access_code_footer" = "Access code will be changed on this card only";
 "card_settings_reset_card_to_factory" = "Reset to Factory Settings";
 "card_settings_reset_card_to_factory_footer" = "Factory Reset will completely delete the wallet from the selected card. You will not be able to restore the current wallet or use the card to recover the access code.";
@@ -522,8 +447,60 @@ URL: %@";
 "reset_card_to_factory_navigation_title" = "Reset to factory settings";
 "reset_card_to_factory_message" = "This action will completely remove the wallet from the selected card. You will not be able to restore the current wallet or use the card to recover the access code.";
 "reset_card_to_factory_warning_message" = "I understand that after performing this action, I will no longer have access to the current wallet";
-"reset_card_to_factory_button_title" = "Reset the card";
+"reset_card_to_factory_button_title" = "Reset the Card";
 "wallet_connect_title" = "WalletConnect";
-"wallet_connect_subtitle" = "Сonnect to Dapps";
+"wallet_connect_subtitle" = "Connect to Dapps";
 "wallet_connect_select_network" = "Select network";
 "wallet_connect_error_unsupported_dapp" = "Connection with this Dapp cannot be established due to its technical implementation.";
+"main_scan_card_warning_view_title" = "Scan your card";
+"main_scan_card_warning_view_subtitle" = "To access all the networks you need to scan the card";
+"warning_existential_deposit_message" = "%@ network has a concept of Existential Deposit. If your account drops below %@ it will be deactivated and any remaining funds will be destroyed.";
+"token_details_transaction_length_warning" = "iPhone 7/7+ cannot sign a transaction on this network due to system restrictions. Please use a different phone to complete this operation.";
+
+"saltpay_error_empty_backup_title" = "Attention";
+"saltpay_error_empty_backup_message" = "Tap the card with the visa logo";
+
+"saltpay_error_no_gas_title" = "No funds for activation";
+"saltpay_error_no_gas_message" = "Please contact support";
+
+"saltpay_error_pin_weak_title" = "Four identical digits isn’t safe";
+"saltpay_error_pin_weak_message" = "Such a PIN can be brute-forced easily";
+
+"onboarding_navbar_pin" = "Pin code";
+"onboarding_navbar_register_wallet" = "Connect";
+"onboarding_navbar_kyc_progress" = "Verify your identity";
+"onboarding_button_pin" = "Set PIN code";
+"onboarding_button_register_wallet" = "Register";
+"onboarding_button_kyc_start" = "Verify via Utorg";
+"onboarding_button_kyc_waiting" = "Refresh";
+"onboarding_title_register_wallet" = "Connect your card";
+"onboarding_title_kyc_start" = "Verify your identity";
+"onboarding_title_kyc_waiting" = "KYC is in progress";
+"onboarding_subtitle_register_wallet" = "Connect your card to the decentralized payment system";
+"onboarding_subtitle_kyc_start" = "To start using your card you have to pass the KYC process";
+"onboarding_subtitle_kyc_waiting" = "Please wait until the verification is completed. You'll be notified via email. Usually it takes up to 1 hour. You can close the app and come back later.";
+"onboarding_title_pin" = "PIN Code";
+"onboarding_subtitle_pin" = "Set PIN code for your SaltPay card";
+"onboarding_supplement_button_kyc_waiting" = "Chat with support";
+"error_saltpay_wrong_backup_card" = "This card is not designed to SaltPay backup";
+"registration_task_alert_message" = "Please hold the card until the operation complete";
+"onboarding_saltpay_subtitle_no_backup_cards" = "To start the backup process you have to add Tangem card as your backup";
+"onboarding_saltpay_title_no_backup_card" = "No backup card";
+"onboarding_saltpay_title_one_backup_card" = "Backup card ready";
+"onboarding_saltpay_subtitle_one_backup_card" = "Finalize the backup process by creating an access code";
+"onboarding_saltpay_title_prepare_origin" = "Prepare the SaltPay card";
+"onboarding_saltpay_button_backup_origin" = "Tap the SaltPay card";
+"onboarding_saltpay_title_backup_card" = "Tap the Tangem card";
+"onboarding_chat_button_title" = "Support";
+"onboarding_navbar_claim" = "Getting started";
+"onboarding_title_claim" = "Claim %@";
+"onboarding_subtitle_claim" = "To get started, simply claim wxDAI to your wallet";
+"onboarding_button_claim" = "Claim";
+"onboarding_subtitle_success_claim" = "Congratulations! Your first payment crypto card has been activated!";
+"onboarding_title_claim_progress" = "Claiming";
+"onboarding_subtitle_claim_progress" = "It will take a few seconds";
+"onboarding_title_kyc_retry" = "Something went wrong";
+"onboarding_subtitle_kyc_retry" = "Please check you email for further instructions";
+"onboarding_exit_alert_title" = "Do you want to exit the activation process?";
+"onboarding_exit_alert_message" = "In this case, you will need to start from the beginning.";
+"wallet_connect_need_to_scan_card" = "Please scan the card and repeat your request";
