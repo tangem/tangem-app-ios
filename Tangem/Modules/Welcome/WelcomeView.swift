@@ -43,6 +43,6 @@ struct WelcomeView: View {
 
 struct WelcomeOnboardingView_Previews: PreviewProvider {
     static var previews: some View {
-        WelcomeView(viewModel: WelcomeViewModel(coordinator: WelcomeCoordinator()))
+        WelcomeView(viewModel: WelcomeViewModel(shouldScanOnAppear: false, coordinator: WelcomeCoordinator()))
     }
 }
