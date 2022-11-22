@@ -31,11 +31,16 @@ struct BottomSheetModifier<ContentView: View>: ViewModifier {
     }
 
     private func updatePresentation(_ isPresented: Bool) {
-        guard let windowScene = UIApplication.shared.connectedScenes.first(where: {
+        let windowScene = UIApplication.shared.connectedScenes.first(where: {
             $0.activationState == .foregroundActive
-        }) as? UIWindowScene else { return }
+        })
 
-        guard let rootWindow = (windowScene.delegate as? UIWindowSceneDelegate)?.window, let root = rootWindow?.rootViewController else { return }
+        guard let windowScene = windowScene as? UIWindowScene,
+              let rootWindow = (windowScene.delegate as? UIWindowSceneDelegate)?.window,
+              let root = rootWindow?.rootViewController else {
+            return
+        }
+
         var controllerToPresentFrom = root
         while let presented = controllerToPresentFrom.presentedViewController {
             controllerToPresentFrom = presented

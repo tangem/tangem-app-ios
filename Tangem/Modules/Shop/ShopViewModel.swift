@@ -12,6 +12,10 @@ import MobileBuySDK
 import SwiftUI
 
 class ShopViewModel: ObservableObject {
+    private enum ShopError: Error {
+        case empty
+    }
+
     @Injected(\.shopifyService) private var shopifyService: ShopifyProtocol
 
     var bag = Set<AnyCancellable>()
@@ -43,7 +47,13 @@ class ShopViewModel: ObservableObject {
         self.coordinator = coordinator
     }
 
+    deinit {
+        shopifyService.cancelTasks()
+    }
+
     func didAppear() {
+        Analytics.log(.shopScreenOpened)
+
         closeWebCheckout()
 
         fetchProduct()
@@ -57,8 +67,8 @@ class ShopViewModel: ObservableObject {
         canUseApplePay = shopifyService.canUseApplePay()
 
         $selectedBundle
-            .sink { [unowned self] newBundle in
-                self.didSelectBundle(newBundle)
+            .sink { [weak self] newBundle in
+                self?.didSelectBundle(newBundle)
             }
             .store(in: &bag)
     }
@@ -76,17 +86,19 @@ class ShopViewModel: ObservableObject {
 
         shopifyService
             .startApplePaySession(checkoutID: checkoutID)
-            .flatMap { [unowned self] _ -> AnyPublisher<Checkout, Error> in
+            .flatMap { [weak self] _ -> AnyPublisher<Checkout, Error> in
+                guard let self = self else { return .anyFail(error: ShopError.empty) }
+
                 self.pollingForOrder = true
                 return self.shopifyService.checkout(pollUntilOrder: true, checkoutID: checkoutID)
             }
             .sink { completion in
                 print("Finished Apple Pay session", completion)
                 self.pollingForOrder = false
-            } receiveValue: { [unowned self] checkout in
+            } receiveValue: { [weak self] checkout in
                 print("Checkout after Apple Pay session", checkout)
                 if let order = checkout.order {
-                    self.didPlaceOrder(order)
+                    self?.didPlaceOrder(order)
                 }
             }
             .store(in: &bag)
@@ -103,7 +115,9 @@ class ShopViewModel: ObservableObject {
             .products(collectionTitleFilter: nil)
             .sink { completion in
 
-            } receiveValue: { [unowned self] collections in
+            } receiveValue: { [weak self] collections in
+                guard let self = self else { return }
+
                 self.loadingProducts = false
 
                 // There can be multiple variants with the same SKU and the same ID along multiple products.
@@ -188,8 +202,8 @@ class ShopViewModel: ObservableObject {
             .createCheckout(checkoutID: checkoutID, lineItems: lineItems)
             .sink { _ in
 
-            } receiveValue: { [unowned self] checkout in
-                self.checkoutByVariantID[variantID] = checkout
+            } receiveValue: { [weak self] checkout in
+                self?.checkoutByVariantID[variantID] = checkout
             }
             .store(in: &bag)
     }
@@ -213,7 +227,9 @@ class ShopViewModel: ObservableObject {
         shopifyService.applyDiscount(discountCode, checkoutID: checkoutID)
             .sink { _ in
 
-            } receiveValue: { [unowned self] checkout in
+            } receiveValue: { [weak self] checkout in
+                guard let self = self else { return }
+
                 if checkout.discount == nil {
                     self.discountCode = ""
                 }
@@ -286,16 +302,22 @@ extension ShopViewModel {
             return
         }
 
+        Analytics.log(.redirected)
+
         // Checking order ID
         shopifyService.checkout(pollUntilOrder: false, checkoutID: checkoutID)
-            .flatMap { [unowned self] checkout -> AnyPublisher<Checkout, Error> in
-                coordinator.openWebCheckout(at: checkout.webUrl)
+            .flatMap { [weak self] checkout -> AnyPublisher<Checkout, Error> in
+                guard let self = self else { return .anyFail(error: ShopError.empty) }
+
+                self.coordinator.openWebCheckout(at: checkout.webUrl)
 
                 return self.shopifyService.checkout(pollUntilOrder: true, checkoutID: checkoutID)
             }
             .sink { _ in
 
-            } receiveValue: { [unowned self] checkout in
+            } receiveValue: { [weak self] checkout in
+                guard let self = self else { return }
+
                 if let order = checkout.order {
                     self.didPlaceOrder(order)
                 }
