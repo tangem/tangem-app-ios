@@ -52,7 +52,7 @@ extension CommonWalletListManager: WalletListManager {
     }
 
     func updateWalletModels() {
-        print("*** 🔄 Updating Wallet models", name)
+        print("🔄 Updating Wallet models", name)
 
         var walletModels = getWalletModels()
         let entries = userTokenListManager.getEntriesFromRepository()
@@ -159,6 +159,7 @@ private extension CommonWalletListManager {
     }
 
     func updateWalletModelsPublisher(silent: Bool) -> AnyPublisher<Void, Never> {
+        print("*** updating wallet models", name)
         let publishers = getWalletModels().map {
             $0.update(silent: silent).replaceError(with: (()))
         }
