@@ -23,9 +23,12 @@ class WelcomeViewModel: ObservableObject {
     @Published var navigationBarHidden: Bool = false
 
     private var storiesModelSubscription: AnyCancellable? = nil
+    private var shouldScanOnAppear: Bool = false
+
     private unowned let coordinator: WelcomeRoutable
 
-    init(coordinator: WelcomeRoutable) {
+    init(shouldScanOnAppear: Bool, coordinator: WelcomeRoutable) {
+        self.shouldScanOnAppear = shouldScanOnAppear
         self.coordinator = coordinator
         userWalletRepository.delegate = self
         self.storiesModelSubscription = storiesModel.objectWillChange
@@ -86,6 +89,9 @@ class WelcomeViewModel: ObservableObject {
         navigationBarHidden = true
         Analytics.log(.introductionProcessOpened)
 
+        if shouldScanOnAppear {
+            scanCard()
+        }
     }
 
     func onDissappear() {
