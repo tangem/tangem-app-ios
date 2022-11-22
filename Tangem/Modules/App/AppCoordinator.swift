@@ -29,6 +29,7 @@ class AppCoordinator: NSObject, CoordinatorObject {
 
     override init() {
         servicesManager.initialize()
+        bind()
     }
 
     func start(with options: AppCoordinator.Options = .default) {
