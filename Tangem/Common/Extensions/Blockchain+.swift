@@ -10,7 +10,7 @@ import Foundation
 import BlockchainSdk
 
 extension Blockchain {
-    private static var testnetId = "/test"
+    static var testnetId = "/test"
 
     // Init blockchain from id with default params
     init?(from stringId: String) {
@@ -44,6 +44,7 @@ extension Blockchain {
         case "optimistic-ethereum": self = .optimism(testnet: isTestnet)
         case "ethereum-pow-iou": self = .ethereumPoW(testnet: isTestnet)
         case "ethereumfair": self = .ethereumFair
+        case "sxdai": self = .saltPay(testnet: isTestnet) // [REDACTED_TODO_COMMENT]
         default:
             print("⚠️⚠️⚠️ Failed to map network ID \"\(stringId)\"")
             return nil
@@ -79,10 +80,24 @@ extension Blockchain {
         case .optimism: return "optimistic-ethereum"
         case .ethereumPoW: return "ethereum-pow-iou"
         case .ethereumFair: return "ethereumfair"
+        case .saltPay: return "sxdai"
         }
     }
 
     var networkId: String {
+        isTestnet ? "\(rawNetworkId)\(Blockchain.testnetId)" : rawNetworkId
+    }
+
+    var currencyId: String {
+        switch self {
+        case .arbitrum(let testnet), .optimism(let testnet):
+            return Blockchain.ethereum(testnet: testnet).id
+        default:
+            return id
+        }
+    }
+
+    var rawNetworkId: String {
         switch self {
         case .binance: return "binancecoin"
         case .bitcoin: return "bitcoin"
@@ -111,15 +126,7 @@ extension Blockchain {
         case .optimism: return "optimistic-ethereum"
         case .ethereumPoW: return "ethereum-pow-iou"
         case .ethereumFair: return "ethereumfair"
-        }
-    }
-
-    var currencyId: String {
-        switch self {
-        case .arbitrum(let testnet):
-            return Blockchain.ethereum(testnet: testnet).id
-        default:
-            return id
+        case .saltPay: return "sxdai"
         }
     }
 
@@ -133,11 +140,6 @@ extension Blockchain {
         return name
     }
 
-    var stringId: String {
-        let name = rawStringId
-        return isTestnet ? "\(name)\(Blockchain.testnetId)" : name
-    }
-
     var iconName: String {
         let rawId = rawStringId
 
@@ -149,4 +151,58 @@ extension Blockchain {
     }
 
     var iconNameFilled: String { "\(iconName).fill" }
+}
+
+
+extension Blockchain {
+    static var supportedBlockchains: Set<Blockchain> = {
+        [
+            .ethereum(testnet: false),
+            .ethereumClassic(testnet: false),
+            .ethereumPoW(testnet: false),
+            .ethereumFair,
+            .litecoin,
+            .bitcoin(testnet: false),
+            .bitcoinCash(testnet: false),
+            .xrp(curve: .secp256k1),
+            .rsk,
+            .binance(testnet: false),
+            .tezos(curve: .secp256k1),
+            .stellar(testnet: false),
+            .cardano(shelley: true),
+            .dogecoin,
+            .bsc(testnet: false),
+            .polygon(testnet: false),
+            .avalanche(testnet: false),
+            .solana(testnet: false),
+            .polkadot(testnet: false),
+            .kusama,
+            .fantom(testnet: false),
+            .tron(testnet: false),
+            .arbitrum(testnet: false),
+            .gnosis,
+            .dash(testnet: false),
+            .optimism(testnet: false),
+        ]
+    }()
+
+    static var supportedTestnetBlockchains: Set<Blockchain> = {
+        [
+            .bitcoin(testnet: true),
+            .ethereum(testnet: true),
+            .ethereumClassic(testnet: true),
+            .ethereumPoW(testnet: true),
+            .binance(testnet: true),
+            .stellar(testnet: true),
+            .bsc(testnet: true),
+            .polygon(testnet: true),
+            .avalanche(testnet: true),
+            .solana(testnet: true),
+            .fantom(testnet: true),
+            .polkadot(testnet: true),
+            .tron(testnet: true),
+            .arbitrum(testnet: true),
+            .optimism(testnet: true),
+        ]
+    }()
 }

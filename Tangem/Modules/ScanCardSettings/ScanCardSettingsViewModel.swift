@@ -17,9 +17,11 @@ final class ScanCardSettingsViewModel: ObservableObject, Identifiable {
     @Published var isLoading: Bool = false
     @Published var alert: AlertBinder?
 
+    private let expectedUserWalletId: Data
     private unowned let coordinator: ScanCardSettingsRoutable
 
-    init(coordinator: ScanCardSettingsRoutable) {
+    init(expectedUserWalletId: Data, coordinator: ScanCardSettingsRoutable) {
+        self.expectedUserWalletId = expectedUserWalletId
         self.coordinator = coordinator
     }
 }
@@ -29,15 +31,29 @@ final class ScanCardSettingsViewModel: ObservableObject, Identifiable {
 extension ScanCardSettingsViewModel {
     func scanCard() {
         scan { [weak self] result in
+            guard let self = self else { return }
+
             switch result {
             case let .success(cardInfo):
-                let cardModel = CardViewModel(cardInfo: cardInfo)
-                cardModel.updateState()
-                self?.coordinator.openCardSettings(cardModel: cardModel)
+                self.processSuccessScan(for: cardInfo)
             case let .failure(error):
-                self?.showErrorAlert(error: error)
+                self.showErrorAlert(error: error)
             }
         }
+    }
+
+    private func processSuccessScan(for cardInfo: CardInfo) {
+        let cardModel = CardViewModel(cardInfo: cardInfo)
+        guard
+            let userWalletId = cardModel.userWalletId,
+            userWalletId == expectedUserWalletId
+        else {
+            showErrorAlert(error: AppError.wrongCardWasTapped)
+            return
+        }
+
+        cardModel.didScan() // [REDACTED_TODO_COMMENT]
+        self.coordinator.openCardSettings(cardModel: cardModel)
     }
 }
 
@@ -45,7 +61,7 @@ extension ScanCardSettingsViewModel {
 
 extension ScanCardSettingsViewModel {
     func scan(completion: @escaping (Result<CardInfo, Error>) -> Void) {
-        sdkProvider.prepareScan()
+        sdkProvider.setup(with: TangemSdkConfigFactory().makeDefaultConfig())
         sdkProvider.sdk.startSession(with: AppScanTask(targetBatch: nil)) { result in
             switch result {
             case let .failure(error):
@@ -62,12 +78,6 @@ extension ScanCardSettingsViewModel {
     }
 
     func showErrorAlert(error: Error) {
-        let alert = Alert(
-            title: Text("common_error"),
-            message: Text(error.localizedDescription),
-            dismissButton: .default(Text("common_ok"))
-        )
-
-        self.alert = AlertBinder(alert: alert)
+        self.alert = AlertBuilder.makeOkErrorAlert(message: error.localizedDescription)
     }
 }
