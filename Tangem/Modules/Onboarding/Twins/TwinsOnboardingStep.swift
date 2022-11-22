@@ -45,6 +45,14 @@ enum TwinsOnboardingStep {
         [.topup, .done]
     }
 
+    static var twinningSteps: [TwinsOnboardingStep] {
+        var steps: [TwinsOnboardingStep] = []
+        steps.append(.alert)
+        steps.append(contentsOf: TwinsOnboardingStep.twinningProcessSteps)
+        steps.append(.success)
+        return steps
+    }
+
     var topTwinCardIndex: Int {
         switch self {
         case .second: return 1
@@ -127,7 +135,7 @@ extension TwinsOnboardingStep: OnboardingTopupBalanceLayoutCalculator {}
 extension TwinsOnboardingStep: SuccessStep {}
 
 extension TwinsOnboardingStep: OnboardingMessagesProvider {
-    var title: LocalizedStringKey {
+    var title: LocalizedStringKey? {
         switch self {
         case .welcome: return WelcomeStep.welcome.title
         case .intro: return "twins_onboarding_subtitle"
@@ -141,7 +149,7 @@ extension TwinsOnboardingStep: OnboardingMessagesProvider {
         }
     }
 
-    var subtitle: LocalizedStringKey {
+    var subtitle: LocalizedStringKey? {
         switch self {
         case .welcome: return WelcomeStep.welcome.subtitle
         case .intro(let pairNumber): return LocalizedStringKey(stringLiteral: "onboarding_subtitle_intro".localized(pairNumber))
