@@ -20,13 +20,16 @@ class ReferralCoordinator: CoordinatorObject {
     }
 
     func start(with options: Options) {
-        referralViewModel = .mock(.notReferral, with: ReferralCoordinator())
+        referralViewModel = .init(cardModel: options.cardModel,
+                                  userWalletId: options.userWalletId,
+                                  coordinator: self)
     }
 }
 
 extension ReferralCoordinator {
     struct Options {
         let cardModel: CardViewModel
+        let userWalletId: Data
     }
 }
 
