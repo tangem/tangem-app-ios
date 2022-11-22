@@ -45,9 +45,13 @@ enum TokenItem: Hashable {
         }
     }
 
-    func getDefaultBlockchainNetwork(for style: DerivationStyle) -> BlockchainNetwork {
-        let path = blockchain.derivationPath(for: style)
-        return .init(blockchain, derivationPath: path)
+    var currencySymbol: String {
+        switch self {
+        case .token(let token, _):
+            return token.symbol
+        case .blockchain(let blockchain):
+            return blockchain.currencySymbol
+        }
     }
 
     var token: Token? {
