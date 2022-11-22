@@ -10,11 +10,10 @@ import Foundation
 import BlockchainSdk
 
 class CommonKeysManager {
-    private let keysFileName = "config"
     private let keys: Keys
 
     init() throws {
-        let keys = try JsonUtils.readBundleFile(with: keysFileName, type: CommonKeysManager.Keys.self)
+        let keys = try JsonUtils.readBundleFile(with: AppEnvironment.current.configFileName, type: CommonKeysManager.Keys.self)
 
         if keys.blockchairApiKey.isEmpty ||
             keys.blockcypherTokens.isEmpty ||

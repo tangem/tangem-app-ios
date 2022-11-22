@@ -10,14 +10,11 @@ import SwiftUI
 
 struct SendCurrencyView: View {
     private var viewModel: SendCurrencyViewModel
-    @Binding private var textFieldText: Decimal?
+    @Binding private var decimalValue: Decimal?
 
-    init(
-        viewModel: SendCurrencyViewModel,
-        textFieldText: Binding<Decimal?>
-    ) {
+    init(viewModel: SendCurrencyViewModel, decimalValue: Binding<Decimal?>) {
         self.viewModel = viewModel
-        _textFieldText = textFieldText
+        _decimalValue = decimalValue
     }
 
     var body: some View {
@@ -46,9 +43,8 @@ struct SendCurrencyView: View {
 
     private var currencyContent: some View {
         VStack(alignment: .leading, spacing: 8) {
-            TextField("0", value: $textFieldText, formatter: NumberFormatter.grouped)
-                .style(Fonts.Regular.title1, color: Colors.Text.primary1)
-                .keyboardType(.numberPad)
+            GroupedNumberTextField(decimalValue: $decimalValue)
+                .maximumFractionDigits(viewModel.maximumFractionDigits)
 
             Text(viewModel.fiatValueString)
                 .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
@@ -68,9 +64,11 @@ struct SendCurrencyView: View {
 }
 
 struct SendCurrencyView_Preview: PreviewProvider {
-    @State private static var text: Decimal? = nil
+    @State private static var decimalValue: Decimal? = nil
+
     static let viewModel = SendCurrencyViewModel(
         balance: 3043.75,
+        maximumFractionDigits: 8,
         fiatValue: 1000.71,
         tokenIcon: TokenIconViewModel(tokenItem: .blockchain(.bitcoin(testnet: false)))
     )
@@ -79,7 +77,7 @@ struct SendCurrencyView_Preview: PreviewProvider {
         ZStack {
             Colors.Background.secondary
 
-            SendCurrencyView(viewModel: viewModel, textFieldText: $text)
+            SendCurrencyView(viewModel: viewModel, decimalValue: $decimalValue)
                 .padding(.horizontal, 16)
         }
     }
