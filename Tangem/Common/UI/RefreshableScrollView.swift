@@ -24,10 +24,26 @@ struct RefreshableScrollView<Content: View>: View {
     }
 
     var body: some View {
-        if #available(iOS 15.0, *) {
+        if #available(iOS 16.0, *) {
+            refreshableScrollView
+        } else if #available(iOS 15.0, *) {
             refreshableList
         } else {
             scrollViewWithHacks
+        }
+    }
+
+    @available(iOS 16.0, *)
+    private var refreshableScrollView: some View {
+        ScrollView(.vertical) {
+            self.content
+        }
+        .refreshable {
+            await withCheckedContinuation { continuation in
+                onRefresh {
+                    continuation.resume()
+                }
+            }
         }
     }
 

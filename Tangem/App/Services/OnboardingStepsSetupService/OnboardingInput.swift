@@ -9,10 +9,11 @@
 import UIKit
 import TangemSdk
 
-struct OnboardingInput {
+struct OnboardingInput { // [REDACTED_TODO_COMMENT]
     let steps: OnboardingSteps
     let cardInput: CardInput
     let welcomeStep: WelcomeStep?
+    let twinData: TwinData?
     var currentStepIndex: Int
     var isStandalone = false
 }
@@ -34,7 +35,7 @@ extension OnboardingInput {
         var cardId: String {
             switch self {
             case .cardModel(let cardModel):
-                return cardModel.cardInfo.card.cardId
+                return cardModel.cardId
             case .cardId(let cardId):
                 return cardId
             }
