@@ -17,7 +17,7 @@
 	<key>CFBundlePackageType</key>
 	<string>$(PRODUCT_BUNDLE_PACKAGE_TYPE)</string>
 	<key>CFBundleShortVersionString</key>
-	<string>$(MARKETING_VERSION)</string>
+	<string>1.0</string>
 	<key>CFBundleURLTypes</key>
 	<array>
 		<dict>
@@ -32,9 +32,7 @@
 		</dict>
 	</array>
 	<key>CFBundleVersion</key>
-	<string>$(CURRENT_PROJECT_VERSION)</string>
-	<key>CLIP_BUNDLE_IDENTIFIER</key>
-	<string>$(CLIP_BUNDLE_IDENTIFIER)</string>
+	<string>1</string>
 	<key>ENVIRONMENT_NAME</key>
 	<string>$(ENVIRONMENT_NAME)</string>
 	<key>ITSAppUsesNonExemptEncryption</key>
@@ -63,8 +61,6 @@
 	<array>
 		<string>ScanTangemCardIntent</string>
 	</array>
-	<key>PARENT_IDENTIFIER</key>
-	<string>$(PARENT_IDENTIFIER)</string>
 	<key>SUITE_NAME</key>
 	<string>$(SUITE_NAME)</string>
 	<key>UIApplicationSceneManifest</key>
