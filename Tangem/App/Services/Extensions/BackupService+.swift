@@ -10,7 +10,7 @@ import Foundation
 import TangemSdk
 
 extension BackupService {
-    var hasInterruptedSaltPayBackup: Bool {
+    var hasUncompletedSaltPayBackup: Bool {
         guard hasIncompletedBackup,
               let primaryCard = primaryCard,
               let batchId = primaryCard.batchId else {
