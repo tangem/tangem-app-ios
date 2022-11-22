@@ -151,7 +151,7 @@ extension ReferralViewModel {
 
 // MARK: - Navigation
 extension ReferralViewModel {
-    func openTos() {
+    func openTOS() {
         guard
             let link = referralProgramInfo?.conditions.tosLink,
             let url = URL(string: link)
@@ -160,6 +160,6 @@ extension ReferralViewModel {
             return
         }
 
-        coordinator.openTos(with: url)
+        coordinator.openTOS(with: url)
     }
 }
