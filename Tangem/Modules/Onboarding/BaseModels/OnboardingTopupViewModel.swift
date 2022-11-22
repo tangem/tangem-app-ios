@@ -10,7 +10,7 @@ import SwiftUI
 import Combine
 import BlockchainSdk
 
-class OnboardingTopupViewModel<Step: OnboardingStep>: OnboardingViewModel<Step> {
+class OnboardingTopupViewModel<Step: OnboardingStep, Coordinator: OnboardingTopupRoutable>: OnboardingViewModel<Step, Coordinator> {
     @Injected(\.exchangeService) var exchangeService: ExchangeService
 
     @Published var refreshButtonState: OnboardingCircleButton.State = .refreshButton
@@ -22,7 +22,7 @@ class OnboardingTopupViewModel<Step: OnboardingStep>: OnboardingViewModel<Step> 
     var cardModel: CardViewModel?
 
     var buyCryptoURL: URL? {
-        if let wallet = cardModel?.wallets?.first {
+        if let wallet = cardModel?.wallets.first {
             return exchangeService.getBuyUrl(currencySymbol: wallet.blockchain.currencySymbol,
                                              amountType: .coin,
                                              blockchain: wallet.blockchain,
@@ -35,37 +35,32 @@ class OnboardingTopupViewModel<Step: OnboardingStep>: OnboardingViewModel<Step> 
     var buyCryptoCloseUrl: String { exchangeService.successCloseUrl.removeLatestSlash() }
 
     private var shareAddress: String {
-        cardModel?.walletModels?.first?.shareAddressString(for: 0) ?? ""
+        cardModel?.walletModels.first?.shareAddressString(for: 0) ?? ""
     }
 
     private var walletAddress: String {
-        cardModel?.walletModels?.first?.displayAddress(for: 0) ?? ""
+        cardModel?.walletModels.first?.displayAddress(for: 0) ?? ""
     }
 
     private var qrNoticeMessage: String {
-        cardModel?.walletModels?.first?.getQRReceiveMessage() ?? ""
+        cardModel?.walletModels.first?.getQRReceiveMessage() ?? ""
     }
 
     private var refreshButtonDispatchWork: DispatchWorkItem?
-    private unowned var coordinator: OnboardingTopupRoutable!
 
-    required init(input: OnboardingInput, coordinator: OnboardingTopupRoutable) {
-        self.cardModel = input.cardInput.cardModel
-        self.coordinator = coordinator
-        super.init(input: input, onboardingCoordinator: coordinator)
-
-        if let walletModel = self.cardModel?.walletModels?.first {
-            updateCardBalanceText(for: walletModel)
+    override init(input: OnboardingInput, coordinator: Coordinator) {
+        if let cardModel = input.cardInput.cardModel {
+            self.cardModel = cardModel
         }
+
+        super.init(input: input, coordinator: coordinator)
     }
 
-    func updateCardBalance() {
+    func updateCardBalance(for type: Amount.AmountType = .coin, shouldGoToNextStep: Bool = true) {
         guard
-            let walletModel = cardModel?.walletModels?.first,
+            let walletModel = cardModel?.walletModels.first,
             walletModelUpdateCancellable == nil
         else { return }
-
-        if cardModel!.isNotPairedTwin { return }
 
         refreshButtonState = .activityIndicator
         walletModelUpdateCancellable = walletModel.$state
@@ -74,22 +69,25 @@ class OnboardingTopupViewModel<Step: OnboardingStep>: OnboardingViewModel<Step> 
             .sink { [weak self] walletModelState in
                 guard let self = self else { return }
 
-                self.updateCardBalanceText(for: walletModel)
+                self.updateCardBalanceText(for: walletModel, type: type)
                 switch walletModelState {
                 case .noAccount(let message):
                     print(message)
                     fallthrough
                 case .idle:
-                    if !walletModel.isEmptyIncludingPendingIncomingTxs {
+                    if shouldGoToNextStep,
+                       !walletModel.isEmptyIncludingPendingIncomingTxs,
+                       !(walletModel.wallet.amounts[type]?.isZero ?? true) {
                         self.goToNextStep()
                         self.walletModelUpdateCancellable = nil
                         return
                     }
+
                     self.resetRefreshButtonState()
                 case .failed(let error):
                     self.alert = error.alertBinder
                     self.resetRefreshButtonState()
-                case .loading, .created:
+                case .loading, .created, .noDerivation:
                     return
                 }
                 self.walletModelUpdateCancellable = nil
@@ -97,30 +95,26 @@ class OnboardingTopupViewModel<Step: OnboardingStep>: OnboardingViewModel<Step> 
         walletModel.update(silent: false)
     }
 
-    func updateCardBalanceText(for model: WalletModel) {
+    func updateCardBalanceText(for model: WalletModel, type: Amount.AmountType = .coin) {
         if case .failed = model.state {
             cardBalance = "–"
             return
         }
 
         if model.wallet.amounts.isEmpty {
-            cardBalance = Amount(with: model.wallet.blockchain, type: .coin, value: 0).string(with: 8)
+            let zeroAmount = type.token.map { Amount(with: $0, value: 0) } ??
+                Amount(with: model.wallet.blockchain, type: type, value: 0)
+
+            cardBalance = zeroAmount.string(with: 8)
         } else {
-            cardBalance = model.getBalance(for: .coin)
+            cardBalance = model.getBalance(for: type)
         }
     }
 
-    private func resetRefreshButtonState() {
-//        guard refreshButtonDispatchWork == nil else { return }
-//
-//        refreshButtonDispatchWork = DispatchWorkItem(block: {
+    func resetRefreshButtonState() {
         withAnimation {
             self.refreshButtonState = .refreshButton
         }
-//            self.refreshButtonDispatchWork = nil
-//        })
-//
-//        DispatchQueue.main.asyncAfter(deadline: .now() + 5, execute: refreshButtonDispatchWork!)
     }
 
 }
