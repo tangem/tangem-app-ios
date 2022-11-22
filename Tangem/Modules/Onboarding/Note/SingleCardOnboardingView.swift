@@ -33,12 +33,18 @@ struct SingleCardOnboardingView: View {
 
                         NavigationBar(title: "onboarding_navbar_activating_card",
                                       settings: .init(titleFont: .system(size: 17, weight: .semibold), backgroundColor: .clear),
-                                      leftButtons: {
+                                      leftItems: {
                                           BackButton(height: viewModel.navbarSize.height,
                                                      isVisible: viewModel.isBackButtonVisible,
                                                      isEnabled: viewModel.isBackButtonEnabled,
                                                      hPadding: horizontalPadding) {
-                                              viewModel.closeOnboarding()
+                                              viewModel.backButtonAction()
+                                          }
+                                      }, rightItems: {
+                                          ChatButton(height: viewModel.navbarSize.height,
+                                                     isVisible: true,
+                                                     isEnabled: true) {
+                                              viewModel.openSupportChat()
                                           }
                                       })
                                       .frame(size: viewModel.navbarSize)
