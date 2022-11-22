@@ -20,39 +20,53 @@ struct AttentionView: View {
             VStack(alignment: .center, spacing: 0) {
                 ZStack {
                     Assets.attentionBg
+                        .resizable()
+                        .fixedSize(horizontal: false, vertical: true)
 
                     Assets.attentionRed
                         .offset(y: 30)
                 }
-                .padding(.bottom, 40)
+                .frame(
+                    minWidth: geometry.size.width,
+                    maxHeight: geometry.size.height * 0.5,
+                    alignment: .bottom
+                )
 
-                mainInformationView
-
-                Spacer(minLength: 0)
-
-                VStack(spacing: 22) {
-                    agreeView
-
-                    actionButton
-                }
+                informationViews
             }
-            .edgesIgnoringSafeArea(.top)
-            .padding(.bottom, 16)
         }
+        .edgesIgnoringSafeArea(.top)
+        .padding(.bottom, 16)
         .navigationBarTitle(Text(viewModel.navigationTitle), displayMode: .inline)
+    }
+
+    private var informationViews: some View {
+        VStack {
+            Spacer()
+
+            mainInformationView
+                .layoutPriority(1)
+
+            Spacer()
+
+            VStack(spacing: 22) {
+                agreeView
+
+                actionButton
+            }
+            .layoutPriority(1)
+        }
     }
 
     private var mainInformationView: some View {
         VStack(alignment: .center, spacing: 14) {
             Text(viewModel.title)
-                .font(.title1.bold)
-                .foregroundColor(Colors.Text.primary1)
+                .style(Fonts.Bold.title1, color: Colors.Text.primary1)
 
             Text(viewModel.message)
+                .style(Fonts.Regular.callout, color: Colors.Text.secondary)
                 .multilineTextAlignment(.center)
-                .font(.callout)
-                .foregroundColor(Colors.Text.secondary)
-                .padding(.horizontal, 46)
+                .padding(.horizontal, 16)
         }
     }
 
@@ -68,9 +82,8 @@ struct AttentionView: View {
                         .frame(width: 22, height: 22)
 
                     Text(warningText)
+                        .style(Fonts.Regular.caption1, color: Colors.Text.secondary)
                         .multilineTextAlignment(.leading)
-                        .font(.caption1)
-                        .foregroundColor(Colors.Text.secondary)
                 }
             }
             .padding(.horizontal, 16)
@@ -109,6 +122,6 @@ struct AttentionView_Previews: PreviewProvider {
         NavigationView {
             AttentionView(viewModel: viewModel)
         }
-        .deviceForPreview(.iPhone12Pro)
+        .previewGroup(withZoomed: false)
     }
 }

@@ -9,6 +9,7 @@
 import Foundation
 
 class AppSettings {
+    @available(*, deprecated, message: "Use termsOfServicesAccepted instead")
     @AppStorageCompat(StorageType.termsOfServiceAccepted)
     var isTermsOfServiceAccepted = false
 
@@ -49,11 +50,14 @@ class AppSettings {
     @AppStorageCompat(StorageType.migratedCardsWithDefaultTokens)
     var migratedCardsWithDefaultTokens: [String] = []
 
-    @AppStorageCompat(.validatedSignedHashesCards)
+    @AppStorageCompat(StorageType.validatedSignedHashesCards)
     var validatedSignedHashesCards: [String] = []
 
     @AppStorageCompat(StorageType.selectedCurrencyCode)
     var selectedCurrencyCode: String = "USD"
+
+    @AppStorageCompat(StorageType.termsOfServiceAccepted)
+    var termsOfServicesAccepted: [String] = []
 
     static let shared: AppSettings = { .init() }()
 

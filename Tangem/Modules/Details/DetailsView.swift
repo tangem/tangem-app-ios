@@ -26,10 +26,13 @@ struct DetailsView: View {
             settingsSection
 
             legalSection
+
+            if !AppEnvironment.current.isProduction {
+                setupEnvironmentSection
+            }
         }
-        .groupedListStyleCompatibility()
+        .groupedListStyleCompatibility(background: Colors.Background.secondary)
         .alert(item: $viewModel.error) { $0.alert }
-        .background(Colors.Background.secondary.edgesIgnoringSafeArea(.all))
         .navigationBarTitle("details_title", displayMode: .inline)
         .navigationBarBackButtonHidden(false)
         .navigationBarHidden(false)
@@ -49,12 +52,10 @@ struct DetailsView: View {
 
                     VStack(alignment: .leading, spacing: 4) {
                         Text("wallet_connect_title")
-                            .font(.body)
-                            .foregroundColor(Colors.Text.primary1)
+                            .style(Fonts.Regular.body, color: Colors.Text.primary1)
 
                         Text("wallet_connect_subtitle")
-                            .font(.footnote)
-                            .foregroundColor(Colors.Text.tertiary)
+                            .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
                     }
                     .lineLimit(1)
 
@@ -75,8 +76,10 @@ struct DetailsView: View {
                 viewModel.openSupportChat()
             }
 
-            DefaultRowView(title: "details_row_title_send_feedback".localized) {
-                viewModel.openMail()
+            if viewModel.canSendMail {
+                DefaultRowView(title: "details_row_title_send_feedback".localized) {
+                    viewModel.openMail()
+                }
             }
         }
     }
@@ -119,13 +122,6 @@ struct DetailsView: View {
             DefaultRowView(title: "disclaimer_title".localized) {
                 viewModel.openDisclaimer()
             }
-
-            if let url = viewModel.cardTOUURL {
-                DefaultRowView(title: "details_row_title_card_tou".localized) {
-                    viewModel.openCardTOU(url: url)
-                }
-            }
-
         }, footer: {
             HStack {
                 Spacer()
@@ -139,8 +135,7 @@ struct DetailsView: View {
 
                     if let applicationInfoFooter = viewModel.applicationInfoFooter {
                         Text(applicationInfoFooter)
-                            .font(.footnote)
-                            .foregroundColor(Colors.Text.tertiary)
+                            .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
                     }
                 }
 
@@ -148,6 +143,14 @@ struct DetailsView: View {
             }
             .padding(.top, 40)
         })
+    }
+
+    private var setupEnvironmentSection: some View {
+        Section {
+            DefaultRowView(title: "Environment setup") {
+                viewModel.openEnvironmentSetup()
+            }
+        }
     }
 
     private func socialNetworkView(network: SocialNetwork) -> some View {
