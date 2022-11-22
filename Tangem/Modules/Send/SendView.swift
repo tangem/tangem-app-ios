@@ -16,9 +16,7 @@ struct SendView: View {
     @ObservedObject var viewModel: SendViewModel
 
     private var addressHint: String {
-        viewModel.isPayIdSupported ?
-            "send_destination_hint".localized :
-            "send_destination_hint_address".localized
+        "send_destination_hint_address".localized
     }
 
     var body: some View {
@@ -61,9 +59,8 @@ struct SendView: View {
 
                     if viewModel.isAdditionalInputEnabled {
                         if case .memo = viewModel.additionalInputFields {
-                            TextInputField(placeholder: self.viewModel.memoPlaceholder,
+                            TextInputField(placeholder: "send_extras_hint_memo".localized,
                                            text: self.$viewModel.memo,
-                                           keyboardType: .numberPad,
                                            clearButtonMode: .whileEditing,
                                            message: self.viewModel.memoHint?.message ?? "",
                                            isErrorMessage: self.viewModel.memoHint?.isError ?? false)
