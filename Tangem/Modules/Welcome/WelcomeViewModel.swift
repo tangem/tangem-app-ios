@@ -23,8 +23,6 @@ class WelcomeViewModel: ObservableObject {
     @Published var navigationBarHidden: Bool = false
 
     private var storiesModelSubscription: AnyCancellable? = nil
-    private var bag: Set<AnyCancellable> = []
-
     private unowned let coordinator: WelcomeRoutable
 
     init(coordinator: WelcomeRoutable) {
@@ -35,8 +33,6 @@ class WelcomeViewModel: ObservableObject {
             .sink(receiveValue: { [weak self] in
                 self?.objectWillChange.send()
             })
-
-        bind()
     }
 
     func scanCard() {
@@ -95,17 +91,6 @@ class WelcomeViewModel: ObservableObject {
     func onDissappear() {
         navigationBarHidden = false
     }
-
-    private func bind() {
-        userWalletRepository
-            .eventProvider
-            .sink { [weak self] event in
-                if case .locked = event {
-                    self?.dismiss()
-                }
-            }
-            .store(in: &bag)
-    }
 }
 
 // MARK: - Navigation
@@ -129,10 +114,6 @@ extension WelcomeViewModel {
 
     func openMain(with cardModel: CardViewModel) {
         coordinator.openMain(with: cardModel)
-    }
-
-    func dismiss() {
-        coordinator.dismiss()
     }
 }
 
