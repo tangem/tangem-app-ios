@@ -17,7 +17,7 @@ struct CoinView: View {
     var body: some View {
         VStack(spacing: 10) {
             HStack(spacing: 0) {
-                Icon(model.imageURL, name: model.name)
+                IconView(url: model.imageURL, name: model.name)
                     .padding(.trailing, 14)
 
                 VStack(alignment: .leading, spacing: 6) {
@@ -76,31 +76,6 @@ struct CoinView: View {
             .rotationEffect(isExpanded ? Angle(degrees: 180) : .zero)
             .foregroundColor(Color(hex: "#CCCCCC")!)
             .padding(.vertical, 4)
-    }
-}
-
-fileprivate struct Icon: View {
-    let url: URL?
-    let name: String
-    var size: CGSize = .init(width: 46, height: 46)
-
-    var body: some View {
-        KFImage(url)
-            .setProcessor(DownsamplingImageProcessor(size: size))
-            .placeholder { CircleImageTextView(name: name, color: .tangemGrayLight4) }
-            .fade(duration: 0.3)
-            .forceTransition()
-            .cacheOriginalImage()
-            .scaleFactor(UIScreen.main.scale)
-            .resizable()
-            .scaledToFit()
-            .cornerRadius(5)
-            .frame(size: size)
-    }
-
-    init(_ url: URL?, name: String) {
-        self.url = url
-        self.name = name
     }
 }
 
