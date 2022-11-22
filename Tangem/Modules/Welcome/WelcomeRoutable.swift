@@ -9,12 +9,11 @@
 import Foundation
 
 protocol WelcomeRoutable: AnyObject {
-    func openUnlockScreen()
     func openTokensList()
-    func openOnboardingModal(with input: OnboardingInput)
     func openMail(with dataCollector: EmailDataCollector, recipient: String)
     func openDisclaimer(at url: URL, _ handler: @escaping (Bool) -> Void)
     func openShop()
     func openOnboarding(with input: OnboardingInput)
     func openMain(with cardModel: CardViewModel)
+    func dismiss()
 }
