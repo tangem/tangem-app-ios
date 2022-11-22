@@ -56,27 +56,12 @@ class SendViewModel: ObservableObject {
         shoudShowFeeSelector || shoudShowFeeIncludeSelector
     }
 
-    var isPayIdSupported: Bool {
-        featuresService.canSendToPayId && payIDService != nil
-    }
-
     var hasAdditionalInputFields: Bool {
         additionalInputFields != .none
     }
 
     var additionalInputFields: SendAdditionalFields {
         .fields(for: blockchainNetwork.blockchain)
-    }
-
-    var memoPlaceholder: String {
-        switch blockchainNetwork.blockchain {
-        case .xrp, .stellar:
-            return "send_extras_hint_memo_id".localized
-        case .binance:
-            return "send_extras_hint_memo".localized
-        default:
-            return ""
-        }
     }
 
     var inputDecimalsCount: Int? {
@@ -123,7 +108,7 @@ class SendViewModel: ObservableObject {
     let cardViewModel: CardViewModel
 
     var walletModel: WalletModel {
-        return cardViewModel.walletModels!.first(where: { $0.blockchainNetwork == blockchainNetwork })!
+        return cardViewModel.walletModels.first(where: { $0.blockchainNetwork == blockchainNetwork })!
     }
 
     var bag = Set<AnyCancellable>()
@@ -151,7 +136,7 @@ class SendViewModel: ObservableObject {
     let amountToSend: Amount
 
     private(set) var isSellingCrypto: Bool
-    lazy var emailDataCollector: SendScreenDataCollector = .init(sendViewModel: self)
+    private var lastError: Error? = nil
     private var scannedQRCode: CurrentValueSubject<String?, Never> = .init(nil)
 
     @Published private var validatedXrpDestinationTag: UInt32? = nil
@@ -161,16 +146,6 @@ class SendViewModel: ObservableObject {
     private var blockchainNetwork: BlockchainNetwork
 
     private var lastClipboardChangeCount: Int?
-
-    private lazy var payIDService: PayIDService? = {
-        if featuresService.isPayIdEnabled, let payIdService = PayIDService.make(from: blockchainNetwork.blockchain) {
-            return payIdService
-        }
-
-        return nil
-    }()
-
-    private var featuresService: AppFeaturesService { .init(with: cardViewModel.cardInfo.card) } // Temp
 
     private unowned let coordinator: SendRoutable
 
@@ -269,6 +244,13 @@ class SendViewModel: ObservableObject {
             }
             .store(in: &bag)
 
+        $isFiatCalculation
+            .receive(on: DispatchQueue.global())
+            .dropFirst()
+            .sink { _ in
+                Analytics.log(.buttonSwapCurrency)
+            }.store(in: &bag)
+
         $isFiatCalculation // handle conversion
             .uiPublisher
             .filter { [unowned self] _ in self.amountText != "0" }
@@ -334,7 +316,7 @@ class SendViewModel: ObservableObject {
             .combineLatest($validatedDestination.compactMap { $0 }, feeRetrySubject)
             .flatMap { [unowned self] amount, dest, _ -> AnyPublisher<[Amount], Never> in
                 self.isFeeLoading = true
-                return self.walletModel.walletManager.getFee(amount: amount, destination: dest)
+                return self.walletModel.getFee(amount: amount, destination: dest)
                     .catch { [unowned self] error -> Just<[Amount]> in
                         print(error)
                         Analytics.log(error: error)
@@ -365,6 +347,9 @@ class SendViewModel: ObservableObject {
                            $isFeeIncluded)
             .sink { [unowned self] (amount, destination, fee, isFeeIncluded) in
                 guard let amount = amount, let destination = destination, let fee = fee else {
+                    if (destination?.isEmpty == false) || destination == nil {
+                        self.transaction = nil
+                    }
                     return
                 }
 
@@ -427,25 +412,28 @@ class SendViewModel: ObservableObject {
 
                 let tag = UInt32(destTagStr)
                 self.validatedXrpDestinationTag = tag
-                self.destinationTagHint = tag == nil ? TextHint(isError: true, message: "send_error_invalid_destination_tag".localized) : nil
+                self.destinationTagHint = tag == nil ? TextHint(isError: true, message: "send_extras_error_invalid_destination_tag".localized) : nil
             })
             .store(in: &bag)
 
         $memo
             .uiPublisher
             .sink(receiveValue: { [unowned self] memo in
+                self.validatedMemoId = nil
+                self.memoHint = nil
+                self.validatedMemo = nil
+
+                if memo.isEmpty { return }
+
                 switch blockchainNetwork.blockchain {
                 case .binance:
                     self.validatedMemo = memo
-                case .xrp, .stellar:
-                    self.validatedMemoId = nil
-                    self.memoHint = nil
-
-                    if memo.isEmpty { return }
-
-                    let memoId = UInt64(memo)
-                    self.validatedMemoId = memoId
-                    self.memoHint = memoId == nil  ? TextHint(isError: true, message: "send_error_invalid_memo_id".localized) : nil
+                case .stellar:
+                    if let memoId = UInt64(memo) {
+                        self.validatedMemoId = memoId
+                    } else {
+                        self.validatedMemo = memo
+                    }
                 default:
                     break
                 }
@@ -494,7 +482,7 @@ class SendViewModel: ObservableObject {
             return
         }
 
-        if payIDService?.validate(input) ?? false || validateAddress(input) {
+        if validateAddress(input) {
             validatedClipboard = input
         }
     }
@@ -514,42 +502,13 @@ class SendViewModel: ObservableObject {
             return
         }
 
-        if isPayIdSupported,
-           let payIdService = self.payIDService,
-           payIdService.validate(destination) {
-            payIdService.resolve(destination) { [weak self] result in
-                switch result {
-                case .success(let resolvedDetails):
-                    if let address = resolvedDetails.address,
-                       self?.validateAddress(address) ?? false {
-                        self?.validatedDestination = resolvedDetails.address
-                        self?.destinationTagStr = resolvedDetails.tag ?? ""
-                        self?.destinationHint = TextHint(isError: false,
-                                                         message: address)
-                        self?.setAdditionalInputVisibility(for: address)
-                    } else {
-                        self?.destinationHint = TextHint(isError: true,
-                                                         message: "send_validation_invalid_address".localized)
-                        self?.setAdditionalInputVisibility(for: nil)
-
-                    }
-                case .failure(let error):
-                    self?.destinationHint = TextHint(isError: true,
-                                                     message: error.localizedDescription)
-                    self?.setAdditionalInputVisibility(for: nil)
-                }
-
-            }
-
+        if validateAddress(destination) {
+            validatedDestination = destination
+            setAdditionalInputVisibility(for: destination)
         } else {
-            if validateAddress(destination) {
-                validatedDestination = destination
-                setAdditionalInputVisibility(for: destination)
-            } else {
-                destinationHint = TextHint(isError: true,
-                                           message: "send_validation_invalid_address".localized)
-                setAdditionalInputVisibility(for: nil)
-            }
+            destinationHint = TextHint(isError: true,
+                                       message: "send_validation_invalid_address".localized)
+            setAdditionalInputVisibility(for: nil)
         }
     }
 
@@ -578,6 +537,7 @@ class SendViewModel: ObservableObject {
     // MARK: Validation end -
 
     func pasteClipboardTapped() {
+        Analytics.log(.buttonPaste)
         if let validatedClipboard = self.validatedClipboard {
             destination = validatedClipboard
         }
@@ -614,21 +574,31 @@ class SendViewModel: ObservableObject {
             return
         }
 
-        if let destinationTag = self.validatedXrpDestinationTag {
-            tx.params = XRPTransactionParams(destinationTag: destinationTag)
-        }
-
-        if let memoId = self.validatedMemoId, isAdditionalInputEnabled {
-            tx.params = StellarTransactionParams(memo: .id(memoId))
-        }
-
-        if let memo = self.validatedMemo, isAdditionalInputEnabled {
-            tx.params = BinanceTransactionParams(memo: memo)
+        if isAdditionalInputEnabled {
+            switch blockchainNetwork.blockchain {
+            case .binance:
+                if let memo = self.validatedMemo {
+                    tx.params = BinanceTransactionParams(memo: memo)
+                }
+            case .xrp:
+                if let destinationTag = self.validatedXrpDestinationTag {
+                    tx.params = XRPTransactionParams(destinationTag: destinationTag)
+                }
+            case .stellar:
+                if let memoId = self.validatedMemoId {
+                    tx.params = StellarTransactionParams(memo: .id(memoId))
+                } else if let memoText = self.validatedMemo {
+                    tx.params = StellarTransactionParams(memo: .text(memoText))
+                }
+            default:
+                break
+            }
         }
 
         let appDelegate = UIApplication.shared.delegate as! AppDelegate
         appDelegate.addLoadingView()
 
+        let isDemo = walletModel.isDemo
         walletModel.send(tx, signer: cardViewModel.signer)
             .sink(receiveCompletion: { [weak self] completion in
                 guard let self = self else { return }
@@ -640,25 +610,25 @@ class SendViewModel: ObservableObject {
                         return
                     }
 
-                    Analytics.logCardSdkError(error.toTangemSdkError(),
-                                              for: .sendTx,
-                                              card: self.cardViewModel.cardInfo.card,
-                                              parameters: [.blockchain: self.walletModel.wallet.blockchain.displayName])
+                    self.cardViewModel.logSdkError(error,
+                                                   action: .sendTx,
+                                                   parameters: [.blockchain: self.walletModel.wallet.blockchain.displayName])
 
-                    self.emailDataCollector.lastError = error
+                    self.lastError = error
                     self.error = error.alertBinder
                 } else {
-                    if !self.cardViewModel.cardInfo.card.isDemoCard {
+                    if !isDemo {
                         if self.isSellingCrypto {
                             Analytics.log(.transactionIsSent)
-                            Analytics.log(event: .userSoldCrypto, with: [.currencyCode: self.blockchainNetwork.blockchain.currencySymbol])
+                            Analytics.log(.transactionSent, params: [.token: "\(tx.amount.currencySymbol)"])
+                            Analytics.log(.userSoldCrypto, params: [.currencyCode: self.blockchainNetwork.blockchain.currencySymbol])
                         } else {
                             Analytics.logTx(blockchainName: self.blockchainNetwork.blockchain.displayName)
                         }
                     }
 
                     DispatchQueue.main.async {
-                        let alert = AlertBuilder.makeSuccessAlert(message: self.cardViewModel.cardInfo.card.isDemoCard ? "alert_demo_feature_disabled".localized
+                        let alert = AlertBuilder.makeSuccessAlert(message: isDemo ? "alert_demo_feature_disabled".localized
                             : "send_transaction_success".localized,
                             okAction: self.close)
                         self.error = alert
@@ -709,9 +679,13 @@ private extension SendViewModel {
             sendAmount = transaction.amount.description
             sendTotal = (transaction.amount + transaction.fee).description
 
-            sendTotalSubtitle = "send_total_subtitle_fiat_format".localized(
-                [totalInFiatFormatted.total, totalInFiatFormatted.fee]
-            )
+            if totalInFiatFormatted.total.isEmpty {
+                sendTotalSubtitle = "–"
+            } else {
+                sendTotalSubtitle = "send_total_subtitle_fiat_format".localized(
+                    [totalInFiatFormatted.total, totalInFiatFormatted.fee]
+                )
+            }
         }
 
         updateFee(amount: transaction.fee)
@@ -755,7 +729,16 @@ private extension SendViewModel {
 // MARK: - Navigation
 extension SendViewModel {
     func openMail() {
-        coordinator.openMail(with: emailDataCollector)
+        let emailDataCollector = SendScreenDataCollector(userWalletEmailData: cardViewModel.emailData,
+                                                         walletModel: walletModel,
+                                                         amountToSend: amountToSend,
+                                                         feeText: sendFee,
+                                                         destination: destination,
+                                                         amountText: amountText,
+                                                         lastError: lastError)
+
+        let recipient = cardViewModel.emailConfig?.recipient ?? EmailConfig.default.recipient
+        coordinator.openMail(with: emailDataCollector, recipient: recipient)
     }
 
     func close() {
@@ -763,6 +746,7 @@ extension SendViewModel {
     }
 
     func openQRScanner() {
+        Analytics.log(.buttonQRCode)
         if case .denied = AVCaptureDevice.authorizationStatus(for: .video) {
             self.showCameraDeniedAlert = true
         } else {
