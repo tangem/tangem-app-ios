@@ -96,6 +96,7 @@ class SingleWalletContentViewModel: ObservableObject {
     }
 
     private func bind() {
+        /// Initial set to `singleWalletModel`
         userWalletModel.subscribeToWalletModels()
             .receive(on: DispatchQueue.main)
             .sink { [unowned self] walletModels in
@@ -103,6 +104,7 @@ class SingleWalletContentViewModel: ObservableObject {
             }
             .store(in: &bag)
 
+        /// Subscribe for update `singleWalletModel` for each changes in `WalletModel`
         userWalletModel.subscribeToWalletModels()
             .map { walletModels in
                 walletModels
