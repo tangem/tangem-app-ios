@@ -8,6 +8,7 @@
 
 import Foundation
 import UIKit
+import Combine
 
 class AppCoordinator: NSObject, CoordinatorObject {
     var dismissAction: () -> Void = {}
@@ -15,6 +16,7 @@ class AppCoordinator: NSObject, CoordinatorObject {
 
     // MARK: - Injected
     @Injected(\.walletConnectServiceProvider) private var walletConnectServiceProvider: WalletConnectServiceProviding
+    @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
 
     // MARK: - Child coordinators
     @Published var welcomeCoordinator: WelcomeCoordinator?
@@ -23,6 +25,7 @@ class AppCoordinator: NSObject, CoordinatorObject {
 
     // MARK: - Private
     private let servicesManager: ServicesManager = .init()
+    private var bag: Set<AnyCancellable> = []
 
     override init() {
         servicesManager.initialize()
@@ -67,6 +70,23 @@ class AppCoordinator: NSObject, CoordinatorObject {
             handle(contexts: options.urlContexts)
             handle(activities: options.userActivities)
         }
+    }
+
+    private func bind() {
+        userWalletRepository
+            .eventProvider
+            .sink { [weak self] event in
+                if case .locked = event {
+                    self?.handleLock()
+                }
+            }
+            .store(in: &bag)
+    }
+
+    private func handleLock() {
+        welcomeCoordinator = nil
+        authCoordinator = nil
+        start()
     }
 }
 

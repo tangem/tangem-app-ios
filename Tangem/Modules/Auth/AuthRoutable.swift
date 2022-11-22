@@ -13,5 +13,4 @@ protocol AuthRoutable: AnyObject {
     func openMain(with cardModel: CardViewModel)
     func openMail(with dataCollector: EmailDataCollector, recipient: String)
     func openDisclaimer(at url: URL, _ handler: @escaping (Bool) -> Void)
-    func dismiss()
 }
