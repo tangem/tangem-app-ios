@@ -19,6 +19,7 @@ struct WelcomeView: View {
         .navigationBarTitle("", displayMode: .inline)
         .alert(item: $viewModel.error, content: { $0.alert })
         .onAppear(perform: viewModel.onAppear)
+        .onDidAppear(viewModel.onDidAppear)
         .onDisappear(perform: viewModel.onDissappear)
         .background(
             ScanTroubleshootingView(isPresented: $viewModel.showTroubleshootingView,
