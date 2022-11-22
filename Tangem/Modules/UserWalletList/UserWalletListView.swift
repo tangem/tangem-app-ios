@@ -64,6 +64,9 @@ struct UserWalletListView: View {
                                     requestSupportAction: viewModel.requestSupport)
         )
         .onAppear(perform: viewModel.onAppear)
+        .onDisappear {
+            print("onDisappear")
+        }
     }
 }
 
