@@ -453,8 +453,7 @@ class CommonUserWalletRepository: UserWalletRepository {
                     let self,
                     case let .success(cardModel) = result,
                     let scannedUserWallet = cardModel.userWallet,
-                    let encryptionKey = UserWalletEncryptionKeyFactory().encryptionKey(from: cardModel.cardInfo),
-                    self.contains(scannedUserWallet)
+                    let encryptionKey = UserWalletEncryptionKeyFactory().encryptionKey(from: cardModel.cardInfo)
                 else {
                     completion(.error(TangemSdkError.cardError))
                     return
@@ -468,9 +467,20 @@ class CommonUserWalletRepository: UserWalletRepository {
 
                 self.encryptionKeyByUserWalletId[scannedUserWallet.userWalletId] = encryptionKey.symmetricKey
 
-                guard let savedUserWallet = self.savedUserWallet(with: scannedUserWallet.userWalletId) else { return }
+                if self.models.isEmpty {
+                    self.loadModels()
+                }
 
-                self.loadModel(for: savedUserWallet)
+                let savedUserWallet: UserWallet
+                if self.contains(scannedUserWallet) {
+                    guard let userWallet = self.savedUserWallet(with: scannedUserWallet.userWalletId) else { return }
+
+                    self.loadModel(for: userWallet)
+                    savedUserWallet = userWallet
+                } else {
+                    self.save(scannedUserWallet)
+                    savedUserWallet = scannedUserWallet
+                }
 
                 guard
                     let cardModel = self.models.first(where: { $0.userWalletId == savedUserWallet.userWalletId }),
@@ -503,12 +513,9 @@ class CommonUserWalletRepository: UserWalletRepository {
 
         userWallets[index] = userWallet
 
-        if models.isEmpty {
-            loadModels()
-        } else {
-            let model = CardViewModel(userWallet: userWallet)
-            models[index] = model
-        }
+        guard index < models.count else { return }
+
+        models[index] = CardViewModel(userWallet: userWallet)
     }
 
     private func initializeServicesForSelectedModel() {
