@@ -52,7 +52,6 @@ final class UserWalletListViewModel: ObservableObject, Identifiable {
 
         Analytics.log(.myWalletsScreenOpened)
         selectedUserWalletId = userWalletRepository.selectedUserWalletId
-        initialSelectedUserWalletId = userWalletRepository.selectedUserWalletId
         updateModels()
 
         bind()
