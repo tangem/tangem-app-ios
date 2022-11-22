@@ -24,48 +24,41 @@ enum PreviewCard {
 
     var cardModel: CardViewModel {
         let card = Card.card
-        let ci = CardInfo(card: card,
-                          walletData: walletData,
-                          //                              artworkInfo: nil,
-                          twinCardInfo: twinInfo,
-                          isTangemNote: isNote,
-                          isTangemWallet: true)
+        let ci = CardInfo(card: card, walletData: walletData)
         let vm = CardViewModel(cardInfo: ci)
-        #if !CLIP
         let walletModels: [WalletModel]
         if let blockchain = blockchain {
-            let factory = WalletManagerFactory(config: .init(blockchairApiKey: "", blockcypherTokens: [], infuraProjectId: "", tronGridApiKey: ""))
+            let factory = WalletManagerFactory(config: .init(blockchairApiKey: "", blockcypherTokens: [], infuraProjectId: "", tronGridApiKey: "", quiknodeApiKey: "", quiknodeSubdomain: ""))
             let walletManager = try! factory.makeWalletManager(blockchain: blockchain, walletPublicKey: publicKey)
             walletModels = [WalletModel(walletManager: walletManager, derivationStyle: .legacy)]
         } else {
             walletModels = []
         }
 
-        walletModels.forEach { $0.initialize() }
-
-        vm.state = .loaded(walletModel: walletModels)
-        #endif
+        // [REDACTED_TODO_COMMENT]
+//        vm.state = .loaded(walletModel: walletModels)
         return vm
     }
 
-    var walletData: WalletData? {
+    var walletData: DefaultWalletData {
         switch self {
         case .ethereum:
-            return WalletData(blockchain: "ETH", token: nil)
+            return .legacy(WalletData(blockchain: "ETH", token: nil))
         case .stellar:
-            return WalletData(blockchain: "XLM", token: nil)
+            return .legacy(WalletData(blockchain: "XLM", token: nil))
         case .cardanoNote:
-            return WalletData(blockchain: "ADA", token: nil)
+            return .note(WalletData(blockchain: "ADA", token: nil))
         case .ethEmptyNote:
-            return WalletData(blockchain: "ETH", token: nil)
+            return .note(WalletData(blockchain: "ETH", token: nil))
         case .cardanoNoteEmptyWallet:
-            return WalletData(blockchain: "ADA", token: nil)
+            return .note(WalletData(blockchain: "ADA", token: nil))
+        case .twin:
+            return .twin(WalletData(blockchain: "BTC", token: nil), TwinData(series: .cb64, pairPublicKey: nil))
         default:
-            return nil
+            return .none
         }
     }
 
-    #if !CLIP
     var blockchain: Blockchain? {
         switch self {
         case .ethereum:
@@ -82,7 +75,6 @@ enum PreviewCard {
     var blockchainNetwork: BlockchainNetwork? {
         blockchain.map { BlockchainNetwork($0) }
     }
-    #endif
 
     var publicKey: Data {
         // [REDACTED_TODO_COMMENT]
@@ -98,13 +90,6 @@ enum PreviewCard {
             return true
         default:
             return false
-        }
-    }
-
-    private var twinInfo: TwinCardInfo? {
-        switch self {
-        case .twin: return TwinCardInfo(cid: "CB64000000006522", series: .cb64, pairPublicKey: nil)
-        default: return nil
         }
     }
 }
