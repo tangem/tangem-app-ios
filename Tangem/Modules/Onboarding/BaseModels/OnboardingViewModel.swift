@@ -10,20 +10,22 @@ import SwiftUI
 import Combine
 import TangemSdk
 
-class OnboardingViewModel<Step: OnboardingStep> {
+class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable> {
     let navbarSize: CGSize = .init(width: UIScreen.main.bounds.width, height: 44)
     let resetAnimDuration: Double = 0.3
 
     @Published var steps: [Step] = []
     @Published var currentStepIndex: Int = 0
     @Published var isMainButtonBusy: Bool = false
+    @Published var isSupplementButtonBusy: Bool = false
     @Published var shouldFireConfetti: Bool = false
     @Published var isInitialAnimPlayed = false
     @Published var mainCardSettings: AnimatedViewSettings = .zero
     @Published var supplementCardSettings: AnimatedViewSettings = .zero
     @Published var isNavBarVisible: Bool = false
     @Published var alert: AlertBinder?
-    @Published var cardImage: UIImage?
+    @Published var cardImage: Image?
+    @Published var secondImage: Image?
 
     private var confettiFired: Bool = false
     var bag: Set<AnyCancellable> = []
@@ -44,7 +46,7 @@ class OnboardingViewModel<Step: OnboardingStep> {
         "onboarding_getting_started"
     }
 
-    var title: LocalizedStringKey {
+    var title: LocalizedStringKey? {
         if !isInitialAnimPlayed, let welcomeStep = input.welcomeStep {
             return welcomeStep.title
         }
@@ -52,7 +54,7 @@ class OnboardingViewModel<Step: OnboardingStep> {
         return currentStep.title
     }
 
-    var subtitle: LocalizedStringKey {
+    var subtitle: LocalizedStringKey? {
         if !isInitialAnimPlayed, let welcomteStep = input.welcomeStep {
             return welcomteStep.subtitle
         }
@@ -60,7 +62,7 @@ class OnboardingViewModel<Step: OnboardingStep> {
         return currentStep.subtitle
     }
 
-    var mainButtonSettings: TangemButtonSettings {
+    var mainButtonSettings: TangemButtonSettings? {
         .init(
             title: mainButtonTitle,
             size: .wide,
@@ -68,7 +70,7 @@ class OnboardingViewModel<Step: OnboardingStep> {
             isBusy: isMainButtonBusy,
             isEnabled: true,
             isVisible: true,
-            color: .green
+            color: .black
         )
     }
 
@@ -89,7 +91,7 @@ class OnboardingViewModel<Step: OnboardingStep> {
             title: supplementButtonTitle,
             size: .wide,
             action: supplementButtonAction,
-            isBusy: false,
+            isBusy: isSupplementButtonBusy,
             isEnabled: true,
             isVisible: isSupplementButtonVisible,
             color: .transparentWhite
@@ -126,20 +128,31 @@ class OnboardingViewModel<Step: OnboardingStep> {
 
     var isFromMain: Bool = false
     private(set) var containerSize: CGSize = .zero
-    unowned let onboardingCoordinator: OnboardingRoutable
+    unowned let coordinator: Coordinator
 
-    init(input: OnboardingInput, onboardingCoordinator: OnboardingRoutable) {
+    init(input: OnboardingInput, coordinator: Coordinator) {
         self.input = input
-        self.onboardingCoordinator = onboardingCoordinator
+        self.coordinator = coordinator
         isFromMain = input.isStandalone
         isNavBarVisible = input.isStandalone
 
-        input.cardInput.cardModel.map { loadImage(for: $0) }
+        loadImage(
+            supportsOnlineImage: input.cardInput.cardModel?.supportsOnlineImage ?? false,
+            cardId: input.cardInput.cardModel?.cardId,
+            cardPublicKey: input.cardInput.cardModel?.cardPublicKey
+        )
+
+        bindAnalytics()
     }
 
-    private func loadImage(for cardModel: CardViewModel) {
-        cardModel
-            .imageLoaderPublisher
+    func loadImage(supportsOnlineImage: Bool, cardId: String?, cardPublicKey: Data?) {
+        guard let cardId = cardId, let cardPublicKey = cardPublicKey else {
+            return
+        }
+
+        CardImageProvider(supportsOnlineImage: supportsOnlineImage)
+            .loadImage(cardId: cardId, cardPublicKey: cardPublicKey)
+            .map { Image(uiImage: $0) }
             .sink { [weak self] image in
                 withAnimation {
                     self?.cardImage = image
@@ -170,9 +183,7 @@ class OnboardingViewModel<Step: OnboardingStep> {
     }
 
     func onOnboardingFinished(for cardId: String) {
-        if let existingIndex = AppSettings.shared.cardsStartedActivation.firstIndex(where: { $0 == cardId }) {
-            AppSettings.shared.cardsStartedActivation.remove(at: existingIndex)
-        }
+        AppSettings.shared.cardsStartedActivation.remove(cardId)
     }
 
     func backButtonAction() {}
@@ -181,6 +192,14 @@ class OnboardingViewModel<Step: OnboardingStep> {
         if !confettiFired {
             shouldFireConfetti = true
             confettiFired = true
+            Analytics.log(.walletCreatedSuccessfully)
+        }
+    }
+
+    func goToStep(with index: Int) {
+        withAnimation {
+            currentStepIndex = index
+            setupCardsSettings(animated: true, isContainerSetup: false)
         }
     }
 
@@ -199,11 +218,7 @@ class OnboardingViewModel<Step: OnboardingStep> {
             newIndex = steps.count - 1
         }
 
-        withAnimation {
-            currentStepIndex = newIndex
-
-            setupCardsSettings(animated: true, isContainerSetup: false)
-        }
+        goToStep(with: newIndex)
     }
 
     func mainButtonAction() {
@@ -217,15 +232,52 @@ class OnboardingViewModel<Step: OnboardingStep> {
     func setupCardsSettings(animated: Bool, isContainerSetup: Bool) {
         fatalError("Not implemented")
     }
+
+    private func bindAnalytics() {
+        $currentStepIndex
+            .dropFirst()
+            .removeDuplicates()
+            .receiveValue { [weak self] index in
+                guard let self else { return }
+
+                let currentStep = self.currentStep
+
+                if let walletStep = currentStep as? WalletOnboardingStep {
+                    switch walletStep {
+                    case .kycProgress:
+                        Analytics.log(.kycProgressScreenOpened)
+                    case .kycRetry:
+                        Analytics.log(.kycRetryScreenOpened)
+                    case .kycWaiting:
+                        Analytics.log(.kycWaitingScreenOpened)
+                    case .claim:
+                        Analytics.log(.claimScreenOpened)
+                    default:
+                        break
+                    }
+                }
+            }
+            .store(in: &bag)
+    }
 }
 
 // MARK: - Navigation
 extension OnboardingViewModel {
     func onboardingDidFinish() {
-        onboardingCoordinator.onboardingDidFinish()
+        coordinator.onboardingDidFinish()
     }
 
     func closeOnboarding() {
-        onboardingCoordinator.closeOnboarding()
+        coordinator.closeOnboarding()
+    }
+
+    func openSupportChat() {
+        guard let cardModel = input.cardInput.cardModel else { return }
+
+        let dataCollector = DetailsFeedbackDataCollector(cardModel: cardModel,
+                                                         userWalletEmailData: cardModel.emailData)
+
+        coordinator.openSupportChat(cardId: cardModel.cardId,
+                                    dataCollector: dataCollector)
     }
 }
