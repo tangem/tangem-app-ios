@@ -113,19 +113,21 @@ struct OnboardingAccessCodeView: View {
                         return
                     }
 
+                    Analytics.log(.accessCodeEntered)
                     nextState = .repeatCode
                 case .repeatCode:
                     guard isAccessCodeValid() else {
                         return
                     }
 
+                    Analytics.log(.accessCodeReEntered)
                     viewModel.successHandler(secondEnteredCode)
                     return
                 }
 
                 state = nextState
             }
-            .buttonStyle(TangemButtonStyle(layout: .wide))
+            .buttonStyle(TangemButtonStyle(colorStyle: .black, layout: .wide))
             .padding(.bottom, 16)
         }
         .padding(.horizontal, 40)
@@ -165,18 +167,36 @@ struct CustomPasswordTextField: View {
 
     var onEditingChanged: (Bool) -> Void = { _ in }
     var onCommit: () -> Void = { }
+    /// iOS15+
+    var shouldBecomeFirstResponder: Bool = true
 
     @State var isSecured: Bool = true
 
     @ViewBuilder
     var input: some View {
-        if isSecured {
-            SecureField(placeholder, text: password, onCommit: onCommit)
-                .transition(.opacity)
+        if #available(iOS 15.0, *) {
+            FocusableTextField(isSecured: isSecured,
+                               shouldBecomeFirstResponder: shouldBecomeFirstResponder,
+                               placeholder: placeholder,
+                               text: password,
+                               onEditingChanged: onEditingChanged,
+                               onCommit: onCommit)
         } else {
-            TextField(placeholder, text: password, onEditingChanged: onEditingChanged, onCommit: onCommit)
-                .autocapitalization(.none)
-                .transition(.opacity)
+            legacyInput
+        }
+    }
+
+    @ViewBuilder
+    private var legacyInput: some View {
+        if isSecured {
+            SecureField(placeholder,
+                        text: password,
+                        onCommit: onCommit)
+        } else {
+            TextField(placeholder,
+                      text: password,
+                      onEditingChanged: onEditingChanged,
+                      onCommit: onCommit)
         }
     }
 
@@ -184,7 +204,11 @@ struct CustomPasswordTextField: View {
         GeometryReader { geom in
             HStack(spacing: 8) {
                 input
+                    .autocapitalization(.none)
+                    .transition(.opacity)
                     .foregroundColor(color)
+                    .keyboardType(.default)
+                    .disableAutocorrection(true)
                 Button(action: {
                     withAnimation {
                         isSecured.toggle()
@@ -198,6 +222,60 @@ struct CustomPasswordTextField: View {
             .padding(.leading, 16)
             .background(Color.tangemBgGray2)
             .cornerRadius(10)
+        }
+    }
+}
+
+@available(iOS 15.0, *)
+private extension CustomPasswordTextField {
+    enum Field: Hashable {
+        case secure
+        case plain
+    }
+
+    struct FocusableTextField: View {
+        let isSecured: Bool
+        let shouldBecomeFirstResponder: Bool
+        let placeholder: LocalizedStringKey
+        let text: Binding<String>
+        var onEditingChanged: (Bool) -> Void = { _ in }
+        var onCommit: () -> Void = {}
+
+        @FocusState private var focusedField: Field?
+
+        var body: some View {
+            ZStack {
+                if isSecured {
+                    SecureField(placeholder,
+                                text: text,
+                                onCommit: onCommit)
+                        .focused($focusedField, equals: .secure)
+                } else {
+                    TextField(placeholder,
+                              text: text,
+                              onEditingChanged: onEditingChanged,
+                              onCommit: onCommit)
+                        .focused($focusedField, equals: .plain)
+                }
+            }
+            .keyboardType(.default)
+            .onAppear(perform: onAppear)
+            .onChange(of: isSecured) { newValue in
+                setFocus(for: newValue)
+            }
+        }
+
+        private func setFocus(for value: Bool) {
+            focusedField = value ? .secure : .plain
+        }
+
+        private func onAppear() {
+            if shouldBecomeFirstResponder {
+                // Works only with huge delay
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                    setFocus(for: isSecured)
+                }
+            }
         }
     }
 }
