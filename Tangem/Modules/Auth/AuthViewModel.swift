@@ -35,8 +35,6 @@ final class AuthViewModel: ObservableObject {
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
 
     private unowned let coordinator: AuthRoutable
-    // OnAppear called on popToRoot
-    private var biometricsRequestedOnAppear: Bool = false
 
     init(
         coordinator: AuthRoutable
@@ -57,19 +55,26 @@ final class AuthViewModel: ObservableObject {
 
     func unlockWithBiometry() {
         Analytics.log(.buttonBiometricSignIn)
-        userWalletRepository.unlock(with: .biometry, completion: self.didFinishUnlocking)
+        userWalletRepository.unlock(with: .biometry) { [weak self] result in
+            self?.didFinishUnlocking(result)
+        }
     }
 
     func unlockWithCard() {
         isScanningCard = true
         Analytics.log(.buttonCardSignIn)
-        userWalletRepository.unlock(with: .card(userWallet: nil), completion: self.didFinishUnlocking)
+        userWalletRepository.unlock(with: .card(userWallet: nil)) { [weak self] result in
+            self?.didFinishUnlocking(result)
+        }
     }
 
     func onAppear() {
         navigationBarHidden = true
-        if !biometricsRequestedOnAppear {
-            unlockWithBiometry()
+    }
+
+    func onDidAppear() {
+        DispatchQueue.main.async {
+            self.unlockWithBiometry()
         }
     }
 
