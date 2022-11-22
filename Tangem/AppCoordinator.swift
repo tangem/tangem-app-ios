@@ -111,8 +111,20 @@ extension AppCoordinator: UIWindowSceneDelegate {
     }
 
     private func process(_ url: URL) {
-        handle(url: url)
-        walletConnectServiceProvider.service.handle(url: url)
+        if let wcService = walletConnectServiceProvider.service {
+            wcService.handle(url: url)
+            return
+        }
+
+        guard url.lastPathComponent == "wc" else {
+            return
+        }
+
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5, execute: {
+            UIApplication.modalFromTop(
+                AlertBuilder.makeOkGotItAlertController(message: "wallet_connect_need_to_scan_card".localized)
+            )
+        })
     }
 }
 
@@ -120,10 +132,8 @@ extension AppCoordinator: UIWindowSceneDelegate {
 extension AppCoordinator: URLHandler {
     @discardableResult func handle(url: String) -> Bool {
         guard url.starts(with: "https://app.tangem.com")
-            || url.starts(with: Constants.tangemDomain + "/ndef")
-            || url.starts(with: Constants.tangemDomain + "/wc") else { return false }
+            || url.starts(with: Constants.tangemDomain + "/ndef") else { return false }
 
-        popToRoot()
         return true
     }
 
