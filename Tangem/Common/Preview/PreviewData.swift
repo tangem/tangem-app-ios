@@ -13,8 +13,9 @@ import BlockchainSdk
 struct PreviewData {
     static var previewNoteCardOnboardingInput: OnboardingInput {
         OnboardingInput(steps: .singleWallet([.createWallet, .success]),
-                        cardInput: .cardModel(PreviewCard.cardanoNote.cardModel),
+                        cardInput: .cardModel(PreviewCard.ethEmptyNote.cardModel),
                         welcomeStep: nil,
+                        twinData: nil,
                         currentStepIndex: 0)
     }
 
@@ -24,6 +25,7 @@ struct PreviewData {
                              .topup, .done]),
         cardInput: .cardModel(PreviewCard.twin.cardModel),
         welcomeStep: nil,
+        twinData: .init(series: TwinCardSeries.cb61),
         currentStepIndex: 0)
     }
 
@@ -31,6 +33,7 @@ struct PreviewData {
         .init(steps: .wallet([.createWallet, .backupIntro, .selectBackupCards, .backupCards, .success]),
               cardInput: .cardModel(PreviewCard.tangemWalletEmpty.cardModel),
               welcomeStep: nil,
+              twinData: nil,
               currentStepIndex: 0)
     }
 }
