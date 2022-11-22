@@ -96,7 +96,7 @@ class CommonUserWalletRepository: UserWalletRepository {
         }
         .flatMap { [weak self] (response: CardViewModel) -> AnyPublisher<CardViewModel, Error> in
             let saltPayUtil = SaltPayUtil()
-            let hasSaltPayBackup = self?.backupService.hasIncompletedBackup ?? false
+            let hasSaltPayBackup = self?.backupService.hasUncompletedSaltPayBackup ?? false
             let primaryCardId = self?.backupService.primaryCard?.cardId ?? ""
 
             if hasSaltPayBackup && response.cardId != primaryCardId  {
