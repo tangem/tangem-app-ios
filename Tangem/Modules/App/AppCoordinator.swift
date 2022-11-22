@@ -17,30 +17,56 @@ class AppCoordinator: NSObject, CoordinatorObject {
     @Injected(\.walletConnectServiceProvider) private var walletConnectServiceProvider: WalletConnectServiceProviding
 
     // MARK: - Child coordinators
-    @Published var welcomeCoordinator: WelcomeCoordinator = .init()
+    @Published var welcomeCoordinator: WelcomeCoordinator?
+    @Published var uncompletedBackupCoordinator: UncompletedBackupCoordinator?
+    @Published var authCoordinator: AuthCoordinator?
 
     // MARK: - Private
     private let servicesManager: ServicesManager = .init()
-    private var deferredIntents: [NSUserActivity] = []
-    private var deferredIntentWork: DispatchWorkItem?
 
     override init() {
         servicesManager.initialize()
     }
 
     func start(with options: AppCoordinator.Options = .default) {
-        welcomeCoordinator.dismissAction = { [weak self] in self?.popToRoot() }
-        welcomeCoordinator.start(with: .init(shouldScan: false))
+        let startupProcessor = StartupProcessor()
+        let startupOption = startupProcessor.getStartupOption()
 
-        if let options = options.connectionOptions {
+        switch startupOption {
+        case .welcome:
+            let dismissAction = { [weak self] in
+                self?.welcomeCoordinator = nil
+                self?.start()
+            }
+
+            let coordinator = WelcomeCoordinator(dismissAction: dismissAction)
+            coordinator.start(with: .init(shouldScan: false))
+            self.welcomeCoordinator = coordinator
+
+        case .auth:
+            let dismissAction = { [weak self] in
+                self?.authCoordinator = nil
+                self?.start()
+            }
+
+            let coordinator = AuthCoordinator(dismissAction: dismissAction)
+            coordinator.start()
+            self.authCoordinator = coordinator
+        case .uncompletedBackup:
+            let dismissAction = { [weak self] in
+                self?.uncompletedBackupCoordinator = nil
+                self?.start()
+            }
+
+            let coordinator = UncompletedBackupCoordinator(dismissAction: dismissAction)
+            coordinator.start()
+            self.uncompletedBackupCoordinator = coordinator
+        }
+
+        if let options = options.connectionOptions, startupOption != .uncompletedBackup {
             handle(contexts: options.urlContexts)
             handle(activities: options.userActivities)
         }
-    }
-
-    func popToRoot() {
-        welcomeCoordinator = .init()
-        welcomeCoordinator.start(with: .init(shouldScan: false))
     }
 }
 
@@ -58,33 +84,6 @@ extension AppCoordinator: UIWindowSceneDelegate {
         handle(activities: [userActivity])
     }
 
-    func sceneDidBecomeActive(_ scene: UIScene) {
-        // Called when the scene has moved from an inactive state to an active state.
-        // Use this method to restart any tasks that were paused (or not yet started) when the scene was inactive.
-
-        deferredIntentWork = DispatchWorkItem { [weak self] in
-            self?.deferredIntents.forEach {
-                switch $0.activityType {
-                case String(describing: ScanTangemCardIntent.self):
-                    // [REDACTED_TODO_COMMENT]
-                    self?.welcomeCoordinator = .init()
-                    self?.welcomeCoordinator.start(with: .init(shouldScan: true))
-                default:
-                    break
-                }
-            }
-            self?.deferredIntents.removeAll()
-        }
-
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5, execute: deferredIntentWork!)
-    }
-
-    func sceneWillResignActive(_ scene: UIScene) {
-        // Called when the scene will move from an active state to an inactive state.
-        // This may occur due to temporary interruptions (ex. an incoming phone call).
-        deferredIntentWork?.cancel()
-    }
-
     func scene(_ scene: UIScene, openURLContexts URLContexts: Set<UIOpenURLContext>) {
         handle(contexts: URLContexts)
     }
@@ -96,9 +95,6 @@ extension AppCoordinator: UIWindowSceneDelegate {
                 guard let url = $0.webpageURL else { return }
 
                 process(url)
-            case String(describing: ScanTangemCardIntent.self):
-                popToRoot()
-                deferredIntents.append($0)
             default: return
             }
         }
