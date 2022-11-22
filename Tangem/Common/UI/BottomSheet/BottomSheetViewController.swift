@@ -8,11 +8,14 @@
 
 import Foundation
 import SwiftUI
+import Combine
 
 class BottomSheetViewController<Content: View>: BottomSheetBaseController {
     @Binding private var isPresented: Bool
 
     private let contentView: UIHostingController<Content>
+    private var keyboardSubscription: AnyCancellable?
+    private var bottomConstraint: NSLayoutConstraint!
 
     init(isPresented: Binding<Bool>,
          content: Content) {
@@ -34,13 +37,25 @@ class BottomSheetViewController<Content: View>: BottomSheetBaseController {
 
         contentView.view.translatesAutoresizingMaskIntoConstraints = false
         contentView.view.backgroundColor = contentBackgroundColor
+        view.backgroundColor = contentBackgroundColor
+
+        bottomConstraint = contentView.view.bottomAnchor.constraint(equalTo: view.bottomAnchor)
 
         NSLayoutConstraint.activate([
-            contentView.view.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+            bottomConstraint,
             contentView.view.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             contentView.view.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             contentView.view.topAnchor.constraint(equalTo: view.topAnchor),
         ])
+
+        keyboardSubscription = Publishers
+            .keyboardInfo
+            .receive(on: RunLoop.main)
+            .sink(receiveValue: { [weak self] info in
+                guard let self = self else { return }
+                self.bottomConstraint.constant = -info.0
+                self.view.superview?.layoutIfNeeded()
+            })
     }
 
     override func viewDidDisappear(_ animated: Bool) {
