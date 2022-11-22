@@ -16,9 +16,6 @@ class DetailsViewModel: ObservableObject {
     // MARK: - Dependencies
 
     @Injected(\.cardsRepository) private var cardsRepository: CardsRepository
-    @Injected(\.onboardingStepsSetupService) private var onboardingStepsSetupService: OnboardingStepsSetupService
-    private let dataCollector: DetailsFeedbackDataCollector
-
 
     // MARK: - View State
 
@@ -26,45 +23,23 @@ class DetailsViewModel: ObservableObject {
     @Published var error: AlertBinder?
 
     var canCreateBackup: Bool {
-        if !cardModel.cardInfo.isTangemWallet {
-            return false
-        }
+        cardModel.canCreateBackup
+    }
 
-        if !cardModel.cardInfo.card.settings.isBackupAllowed {
-            return false
-        }
-
-        // todo: respect involved cards
-
-        return cardModel.cardInfo.card.backupStatus == .noBackup
+    var canTwin: Bool {
+        cardModel.canTwin
     }
 
     var shouldShowWC: Bool {
-        if cardModel.cardInfo.isTangemNote {
-            return false
-        }
-
-        if cardModel.cardInfo.card.isStart2Coin {
-            return false
-        }
-
-        if cardModel.cardInfo.card.isTwinCard {
-            return false
-        }
-
-        if !cardModel.cardInfo.card.supportedCurves.contains(.secp256k1) {
-            return false
-        }
-
-        return true
+        cardModel.shouldShowWC
     }
 
-    var cardTOUURL: URL? {
-        guard cardModel.isStart2CoinCard else { // is this card is S2C
-            return nil
-        }
+    var cardTouURL: URL {
+        cardModel.cardTouURL
+    }
 
-        return buildCardTOUURL()
+    var canSendMail: Bool {
+        cardModel.emailConfig != nil
     }
 
     var applicationInfoFooter: String? {
@@ -80,8 +55,12 @@ class DetailsViewModel: ObservableObject {
         )
     }
 
+    deinit {
+        print("DetailsViewModel deinit")
+    }
+
     var isMultiWallet: Bool {
-        cardModel.cardInfo.isMultiWallet
+        cardModel.isMultiWallet
     }
 
     // MARK: - Private
@@ -92,35 +71,15 @@ class DetailsViewModel: ObservableObject {
     init(cardModel: CardViewModel, coordinator: DetailsRoutable) {
         self.cardModel = cardModel
         self.coordinator = coordinator
-        dataCollector = DetailsFeedbackDataCollector(cardModel: cardModel)
 
         bind()
     }
 
     func prepareBackup() {
-        Analytics.log(.backupTapped)
-        onboardingStepsSetupService.backupSteps(cardModel.cardInfo)
-            .sink { completion in
-                switch completion {
-                case .failure(let error):
-                    Analytics.log(error: error)
-                    print("Failed to load image for new card")
-                    self.error = error.alertBinder
-                case .finished:
-                    break
-                }
-            } receiveValue: { [weak self] steps in
-                guard let self = self else { return }
-
-                let input = OnboardingInput(steps: steps,
-                                            cardInput: .cardModel(self.cardModel),
-                                            welcomeStep: nil,
-                                            currentStepIndex: 0,
-                                            isStandalone: true)
-
-                self.openOnboarding(with: input)
-            }
-            .store(in: &bag)
+        Analytics.log(.buttonCreateBackup)
+        if let input = cardModel.backupInput {
+            self.openOnboarding(with: input)
+        }
     }
 }
 
@@ -128,13 +87,21 @@ class DetailsViewModel: ObservableObject {
 
 extension DetailsViewModel {
     func openOnboarding(with input: OnboardingInput) {
+        Analytics.log(.backupScreenOpened)
         coordinator.openOnboardingModal(with: input)
     }
 
     func openMail() {
+        Analytics.log(.buttonSendFeedback)
+
+        guard let emailConfig = cardModel.emailConfig else { return }
+
+        let dataCollector = DetailsFeedbackDataCollector(cardModel: cardModel,
+                                                         userWalletEmailData: cardModel.emailData)
+
         coordinator.openMail(with: dataCollector,
-                             support: cardModel.emailSupport,
-                             emailType: .appFeedback(support: cardModel.isStart2CoinCard ? .start2coin : .tangem))
+                             recipient: emailConfig.recipient,
+                             emailType: .appFeedback(subject: emailConfig.subject))
     }
 
     func openWalletConnect() {
@@ -146,25 +113,32 @@ extension DetailsViewModel {
     }
 
     func openDisclaimer() {
-        coordinator.openDisclaimer()
-    }
-
-    func openCardTOU(url: URL) {
-        coordinator.openCardTOU(url: url)
+        coordinator.openDisclaimer(at: cardModel.cardTouURL)
     }
 
     func openCardSettings() {
-        Analytics.log(.cardSettingsTapped)
-        coordinator.openScanCardSettings()
+        guard let userWalletId = cardModel.userWalletId else {
+            // This shouldn't be the case, because currently user can't reach this screen
+            // with card that doesn't have a wallet.
+            return
+        }
+
+        Analytics.log(.buttonCardSettings)
+        coordinator.openScanCardSettings(with: userWalletId)
     }
 
     func openAppSettings() {
-        Analytics.log(.appSettingsTapped)
+        Analytics.log(.buttonAppSettings)
         coordinator.openAppSettings()
     }
 
     func openSupportChat() {
-        coordinator.openSupportChat(cardId: cardModel.cardInfo.card.cardId)
+        Analytics.log(.buttonChat)
+        let dataCollector = DetailsFeedbackDataCollector(cardModel: cardModel,
+                                                         userWalletEmailData: cardModel.emailData)
+
+        coordinator.openSupportChat(cardId: cardModel.cardId,
+                                    dataCollector: dataCollector)
     }
 
     func openSocialNetwork(network: SocialNetwork) {
@@ -172,7 +146,12 @@ extension DetailsViewModel {
             return
         }
 
+        Analytics.log(.buttonSocialNetwork)
         coordinator.openInSafari(url: url)
+    }
+
+    func openEnvironmentSetup() {
+        coordinator.openEnvironmentSetup()
     }
 }
 
@@ -188,51 +167,4 @@ private extension DetailsViewModel {
             .store(in: &bag)
     }
 
-    func buildCardTOUURL() -> URL? {
-        let baseurl = "https://app.tangem.com/tou/"
-        let regionCode = regionCode(for: cardModel.cardInfo.card.cardId) ?? "fr"
-        let languageCode = Locale.current.languageCode ?? "fr"
-        let filename = filename(languageCode: languageCode, regionCode: regionCode)
-        let url = URL(string: baseurl + filename)
-        return url
-    }
-
-    func filename(languageCode: String, regionCode: String) -> String {
-        switch (languageCode, regionCode) {
-        case ("fr", "ch"):
-            return "Start2Coin-fr-ch-tangem.pdf"
-        case ("de", "ch"):
-            return "Start2Coin-de-ch-tangem.pdf"
-        case ("en", "ch"):
-            return "Start2Coin-en-ch-tangem.pdf"
-        case ("it", "ch"):
-            return "Start2Coin-it-ch-tangem.pdf"
-        case ("fr", "fr"):
-            return "Start2Coin-fr-fr-atangem.pdf"
-        case ("de", "at"):
-            return "Start2Coin-de-at-tangem.pdf"
-        case (_, "fr"):
-            return "Start2Coin-fr-fr-atangem.pdf"
-        case (_, "ch"):
-            return "Start2Coin-en-ch-tangem.pdf"
-        case (_, "at"):
-            return "Start2Coin-de-at-tangem.pdf"
-        default:
-            return "Start2Coin-fr-fr-atangem.pdf"
-        }
-    }
-
-    func regionCode(for cid: String) -> String? {
-        let cidPrefix = cid[cid.index(cid.startIndex, offsetBy: 1)]
-        switch cidPrefix {
-        case "0":
-            return "fr"
-        case "1":
-            return "ch"
-        case "2":
-            return "at"
-        default:
-            return nil
-        }
-    }
 }
