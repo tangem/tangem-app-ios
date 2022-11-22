@@ -58,6 +58,5 @@ extension UncompletedBackupCoordinator: UncompletedBackupRoutable {
         let options = OnboardingCoordinator.Options(input: input, destination: .dismiss)
         coordinator.start(with: options)
         modalOnboardingCoordinator = coordinator
-        modalOnboardingCoordinatorKeeper = true
     }
 }
