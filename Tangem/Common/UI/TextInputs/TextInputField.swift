@@ -80,7 +80,7 @@ extension TextInputField where SupplementView == EmptyView {
 struct TextInputField_Previews: PreviewProvider {
     @State static var text = ""
     static var previews: some View {
-        TextInputField(placeholder: "Address or PayString",
+        TextInputField(placeholder: "Address",
                        text: $text,
                        suplementView: {},
                        message: nil,

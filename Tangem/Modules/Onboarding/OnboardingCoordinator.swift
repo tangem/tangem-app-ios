@@ -24,6 +24,7 @@ class OnboardingCoordinator: CoordinatorObject {
     @Published var buyCryptoModel: WebViewContainerViewModel? = nil
     @Published var accessCodeModel: OnboardingAccessCodeViewModel? = nil
     @Published var addressQrBottomSheetContentViewVodel: AddressQrBottomSheetContentViewVodel? = nil
+    @Published var supportChatViewModel: SupportChatViewModel? = nil
 
     // For non-dismissable presentation
     var onDismissalAttempt: () -> Void = {}
@@ -56,9 +57,14 @@ class OnboardingCoordinator: CoordinatorObject {
 }
 
 extension OnboardingCoordinator {
+    enum DestinationOnFinish {
+        case main
+        case root
+        case dismiss
+    }
     struct Options {
         let input: OnboardingInput
-        let shouldOpenMainOnFinish: Bool
+        let destination: DestinationOnFinish
     }
 }
 
@@ -87,14 +93,25 @@ extension OnboardingCoordinator: WalletOnboardingRoutable {
             callback(code)
         })
     }
+
+    func openSupportChat(cardId: String, dataCollector: EmailDataCollector) {
+        supportChatViewModel = SupportChatViewModel(cardId: cardId, dataCollector: dataCollector)
+    }
 }
 
 extension OnboardingCoordinator: OnboardingRoutable {
     func onboardingDidFinish() {
-        if let card = options.input.cardInput.cardModel,
-           options.shouldOpenMainOnFinish {
+        switch options.destination {
+        case .main:
+            guard let card = options.input.cardInput.cardModel else {
+                closeOnboarding()
+                return
+            }
+
             openMain(with: card)
-        } else {
+        case .root:
+            popToRoot()
+        case .dismiss:
             closeOnboarding()
         }
     }
@@ -104,7 +121,7 @@ extension OnboardingCoordinator: OnboardingRoutable {
     }
 
     private func openMain(with cardModel: CardViewModel) {
-        Analytics.log(.mainPageEnter)
+        Analytics.log(.screenOpened)
         let coordinator = MainCoordinator(popToRootAction: popToRootAction)
         let options = MainCoordinator.Options(cardModel: cardModel)
         coordinator.start(with: options)

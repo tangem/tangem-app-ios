@@ -1,19 +1,8 @@
 {
   "images" : [
     {
-      "filename" : "Feature Icon.png",
-      "idiom" : "universal",
-      "scale" : "1x"
-    },
-    {
-      "filename" : "Feature Icon@2x.png",
-      "idiom" : "universal",
-      "scale" : "2x"
-    },
-    {
-      "filename" : "Feature Icon@3x.png",
-      "idiom" : "universal",
-      "scale" : "3x"
+      "filename" : "access_code_feature_2.pdf",
+      "idiom" : "universal"
     }
   ],
   "info" : {
