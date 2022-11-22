@@ -27,11 +27,11 @@ class DetailsCoordinator: CoordinatorObject {
     // MARK: - Child view models
 
     @Published var currencySelectViewModel: CurrencySelectViewModel? = nil
-    @Published var pushedWebViewModel: WebViewContainerViewModel? = nil
     @Published var mailViewModel: MailViewModel? = nil
     @Published var disclaimerViewModel: DisclaimerViewModel? = nil
     @Published var supportChatViewModel: SupportChatViewModel? = nil
     @Published var scanCardSettingsViewModel: ScanCardSettingsViewModel?
+    @Published var setupEnvironmentViewModel: EnvironmentSetupViewModel?
 
     // MARK: - Helpers
 
@@ -67,34 +67,29 @@ extension DetailsCoordinator: DetailsRoutable {
         }
 
         let coordinator = OnboardingCoordinator(dismissAction: dismissAction)
-        let options = OnboardingCoordinator.Options(input: input, shouldOpenMainOnFinish: false)
+        let options = OnboardingCoordinator.Options(input: input, destination: .dismiss)
         coordinator.start(with: options)
         modalOnboardingCoordinator = coordinator
     }
 
-    func openMail(with dataCollector: EmailDataCollector, support: EmailSupport, emailType: EmailType) {
-        Analytics.log(.makeCommentTapped)
-        mailViewModel = MailViewModel(dataCollector: dataCollector, support: support, emailType: emailType)
+    func openMail(with dataCollector: EmailDataCollector, recipient: String, emailType: EmailType) {
+        mailViewModel = MailViewModel(dataCollector: dataCollector, recipient: recipient, emailType: emailType)
     }
 
     func openWalletConnect(with cardModel: CardViewModel) {
-        Analytics.log(.wcTapped)
+        Analytics.log(.myWalletsScreenOpened)
         let coordinator = WalletConnectCoordinator()
         let options = WalletConnectCoordinator.Options(cardModel: cardModel)
         coordinator.start(with: options)
         walletConnectCoordinator = coordinator
     }
 
-    func openDisclaimer() {
-        disclaimerViewModel = .init(style: .navbar, showAccept: false, coordinator: nil)
+    func openDisclaimer(at url: URL) {
+        disclaimerViewModel = .init(url: url, style: .navbar, coordinator: nil)
     }
 
-    func openCardTOU(url: URL) {
-        pushedWebViewModel = WebViewContainerViewModel(url: url, title: "details_row_title_card_tou".localized)
-    }
-
-    func openScanCardSettings() {
-        scanCardSettingsViewModel = ScanCardSettingsViewModel(coordinator: self)
+    func openScanCardSettings(with userWalletId: Data) {
+        scanCardSettingsViewModel = ScanCardSettingsViewModel(expectedUserWalletId: userWalletId, coordinator: self)
     }
 
     func openAppSettings() {
@@ -103,13 +98,17 @@ extension DetailsCoordinator: DetailsRoutable {
         appSettingsCoordinator = coordinator
     }
 
-    func openSupportChat(cardId: String) {
-        Analytics.log(.chatTapped)
-        supportChatViewModel = SupportChatViewModel(cardId: cardId)
+    func openSupportChat(cardId: String, dataCollector: EmailDataCollector) {
+        Analytics.log(.chatScreenOpened)
+        supportChatViewModel = SupportChatViewModel(cardId: cardId, dataCollector: dataCollector)
     }
 
     func openInSafari(url: URL) {
         UIApplication.shared.open(url)
+    }
+
+    func openEnvironmentSetup() {
+        setupEnvironmentViewModel = EnvironmentSetupViewModel()
     }
 }
 
