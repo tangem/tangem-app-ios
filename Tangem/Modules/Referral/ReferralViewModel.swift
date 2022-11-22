@@ -137,12 +137,12 @@ extension ReferralViewModel {
         return info.promoCode
     }
 
-    var touButtonPrefix: String {
+    var tosButtonPrefix: String {
         if referralProgramInfo?.referral == nil {
-            return "referral_tou_not_enroled_prefix".localized + " "
+            return "referral_tos_not_enroled_prefix".localized + " "
         }
 
-        return "referral_tou_enroled_prefix".localized + " "
+        return "referral_tos_enroled_prefix".localized + " "
     }
 
     var isProgramInfoLoaded: Bool { referralProgramInfo != nil }
@@ -151,7 +151,15 @@ extension ReferralViewModel {
 
 // MARK: - Navigation
 extension ReferralViewModel {
-    func openTou() {
-        // [REDACTED_TODO_COMMENT]
+    func openTOS() {
+        guard
+            let link = referralProgramInfo?.conditions.tosLink,
+            let url = URL(string: link)
+        else {
+            print("Failed to create link")
+            return
+        }
+
+        coordinator.openTOS(with: url)
     }
 }
