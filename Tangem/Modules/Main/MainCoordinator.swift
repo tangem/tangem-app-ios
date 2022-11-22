@@ -8,6 +8,7 @@
 
 import Foundation
 import BlockchainSdk
+import Combine
 
 class MainCoordinator: CoordinatorObject {
     var dismissAction: Action
@@ -37,6 +38,7 @@ class MainCoordinator: CoordinatorObject {
 
     // MARK: - Helpers
     @Published var modalOnboardingCoordinatorKeeper: Bool = false
+    private var userWalletListViewModelBag: AnyCancellable?
 
     required init(dismissAction: @escaping Action, popToRootAction: @escaping ParamsAction<PopToRootOptions>) {
         self.dismissAction = dismissAction
@@ -56,9 +58,9 @@ class MainCoordinator: CoordinatorObject {
             coordinator: self
         )
 
-        if options.shouldRefresh {
-            mainViewModel?.onRefresh {}
-        }
+//        if options.shouldRefresh {
+//            mainViewModel?.onRefresh {}
+//        }
     }
 }
 
@@ -231,6 +233,11 @@ extension MainCoordinator: MainRoutable {
 
     func openUserWalletList() {
         userWalletListViewModel = UserWalletListViewModel(coordinator: self)
+
+        userWalletListViewModelBag = $userWalletListViewModel
+            .print()
+            .filter { $0 == nil }
+            .sink { _ in self.mainViewModel?.onAppear() }
     }
 }
 
