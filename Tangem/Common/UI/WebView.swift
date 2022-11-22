@@ -16,7 +16,9 @@ struct WebViewContainerViewModel: Identifiable {
     var title: String
     var addLoadingIndicator = false
     var withCloseButton = false
+    var withNavigationBar: Bool = true
     var urlActions: [String: ((String) -> Void)] = [:]
+    var contentInset: UIEdgeInsets? = nil
 }
 
 struct WebViewContainer: View {
@@ -26,11 +28,24 @@ struct WebViewContainer: View {
     @Environment(\.presentationMode) private var presentationMode
     @State private var isLoading: Bool = true
 
+    private var webViewContent: some View {
+        WebView(url: viewModel.url,
+                popupUrl: $popupUrl,
+                urlActions: viewModel.urlActions,
+                isLoading: $isLoading,
+                contentInset: viewModel.contentInset)
+    }
+
     private var content: some View {
         ZStack {
-            WebView(url: viewModel.url, popupUrl: $popupUrl, urlActions: viewModel.urlActions, isLoading: $isLoading)
-                .navigationBarTitle(Text(viewModel.title), displayMode: .inline)
-                .background(Color.tangemBg.edgesIgnoringSafeArea(.all))
+            if viewModel.withNavigationBar {
+                webViewContent
+                    .navigationBarTitle(Text(viewModel.title), displayMode: .inline)
+                    .background(Color.tangemBg.edgesIgnoringSafeArea(.all))
+            } else {
+                webViewContent
+            }
+
             if isLoading && viewModel.addLoadingIndicator {
                 ActivityIndicatorView(color: .tangemGrayDark)
             }
@@ -46,6 +61,7 @@ struct WebViewContainer: View {
                             Button("common_close") {
                                 presentationMode.wrappedValue.dismiss()
                             }
+                            .animation(nil)
                         )
                 }
             } else {
@@ -67,6 +83,7 @@ struct WebView: UIViewRepresentable {
     var popupUrl: Binding<URL?>
     var urlActions: [String: ((String) -> Void)] = [:]
     var isLoading:  Binding<Bool>
+    var contentInset: UIEdgeInsets?
 
     func makeUIView(context: Context) -> WKWebView {
         let preferences = WKPreferences()
@@ -77,14 +94,16 @@ struct WebView: UIViewRepresentable {
         configuration.allowsInlineMediaPlayback = true
         configuration.mediaTypesRequiringUserActionForPlayback = []
 
-        let view =  WKWebView(frame: CGRect(x: 0, y: 0, width: 100, height: 100), configuration: configuration)
+        let view = WKWebView(frame: CGRect(x: 0, y: 0, width: 100, height: 100), configuration: configuration)
         if let url = url {
             print("Loading request with url: \(url)")
             view.load(URLRequest(url: url))
         }
         view.navigationDelegate = context.coordinator
         view.uiDelegate = context.coordinator
-
+        if let contentInset {
+            view.scrollView.contentInset = contentInset
+        }
         return view
     }
 
@@ -102,6 +121,7 @@ struct WebView: UIViewRepresentable {
         }
 
         func webView(_ webView: WKWebView, decidePolicyFor navigationAction: WKNavigationAction, decisionHandler: @escaping (WKNavigationActionPolicy) -> Void) {
+            print("decide for url \(String(describing: navigationAction.request.url?.absoluteString))")
             if let url = navigationAction.request.url?.absoluteString.split(separator: "?").first,
                let actionForURL = urlActions[String(url).removeLatestSlash()] {
                 decisionHandler(.cancel)
