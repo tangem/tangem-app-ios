@@ -24,6 +24,7 @@ struct WelcomeCoordinatorView: CoordinatorView {
             }
         }
         .navigationViewStyle(.stack)
+        .accentColor(Colors.Text.primary1)
     }
 
     @ViewBuilder
