@@ -10,6 +10,7 @@ import Foundation
 import TangemSdk
 import Combine
 import BlockchainSdk
+import SwiftUI
 
 class WarningsService {
     @Injected(\.rateAppService) var rateAppChecker: RateAppService
@@ -18,113 +19,27 @@ class WarningsService {
 
     private var mainWarnings: WarningsContainer = .init()
     private var sendWarnings: WarningsContainer = .init()
-
-    private var currentCardId: String = ""
+    private var bag: Set<AnyCancellable> = []
 
     init() {}
 
     deinit {
         print("WarningsService deinit")
     }
-
-    private func warningsForMain(for cardInfo: CardInfo) -> WarningsContainer {
-        let container = WarningsContainer()
-
-        addTestnetCardWarningIfNeeded(in: container, for: cardInfo)
-        addDevCardWarningIfNeeded(in: container, for: cardInfo)
-        addLowRemainingSignaturesWarningIfNeeded(in: container, for: cardInfo.card)
-        addOldCardWarning(in: container, for: cardInfo.card)
-        addOldDeviceOldCardWarningIfNeeded(in: container, for: cardInfo.card)
-        addDemoWarningIfNeeded(in: container, for: cardInfo)
-        addAuthFailedIfNeeded(in: container, for: cardInfo)
-
-
-        if rateAppChecker.shouldShowRateAppWarning {
-            Analytics.log(event: .displayRateAppWarning)
-            container.add(WarningEvent.rateApp.warning)
-        }
-
-        return container
-    }
-
-    private func warningsForSend(for cardInfo: CardInfo) -> WarningsContainer {
-        let container = WarningsContainer()
-
-        addTestnetCardWarningIfNeeded(in: container, for: cardInfo)
-        addOldDeviceOldCardWarningIfNeeded(in: container, for: cardInfo.card)
-
-        return container
-    }
-
-    private func addAuthFailedIfNeeded(in container: WarningsContainer, for cardInfo: CardInfo) {
-        if cardInfo.card.firmwareVersion.type != .sdk &&
-            cardInfo.card.attestation.status == .failed {
-            container.add(WarningEvent.failedToValidateCard.warning)
-        }
-    }
-
-    private func addDevCardWarningIfNeeded(in container: WarningsContainer, for cardInfo: CardInfo) {
-        guard cardInfo.card.firmwareVersion.type == .sdk, !cardInfo.isTestnet, !cardInfo.card.isDemoCard else {
-            return
-        }
-
-        container.add(WarningsList.devCard)
-    }
-
-    private func addOldCardWarning(in container: WarningsContainer, for card: Card) {
-        if card.canSign { return }
-
-        container.add(WarningsList.oldCard)
-    }
-
-    private func addOldDeviceOldCardWarningIfNeeded(in container: WarningsContainer, for card: Card) {
-        guard  card.firmwareVersion.doubleValue < 2.28 else { // old cards
-            return
-        }
-
-        guard NFCUtils.isPoorNfcQualityDevice else { // old phone
-            return
-        }
-
-        container.add(WarningsList.oldDeviceOldCard)
-    }
-
-    private func addLowRemainingSignaturesWarningIfNeeded(in container: WarningsContainer, for card: Card) {
-        if let remainingSignatures = card.wallets.first?.remainingSignatures,
-           remainingSignatures <= 10 {
-            container.add(WarningsList.lowSignatures(count: remainingSignatures))
-        }
-    }
-
-    private func addTestnetCardWarningIfNeeded(in container: WarningsContainer, for cardInfo: CardInfo) {
-        guard cardInfo.isTestnet, !cardInfo.card.isDemoCard else {
-            return
-        }
-
-        container.add(WarningEvent.testnetCard.warning)
-    }
-
-    private func addDemoWarningIfNeeded(in container: WarningsContainer, for cardInfo: CardInfo) {
-        if cardInfo.card.isDemoCard {
-            container.add(WarningsList.demoCard)
-        }
-    }
 }
 
 extension WarningsService: AppWarningsProviding {
-    func setupWarnings(for cardInfo: CardInfo) {
-        currentCardId = cardInfo.card.cardId
+    func setupWarnings(
+        for config: UserWalletConfig,
+        card: Card,
+        validator: SignatureCountValidator?
+    ) {
+        setupWarnings(for: config)
 
-        mainWarnings = warningsForMain(for: cardInfo)
-        sendWarnings = warningsForSend(for: cardInfo)
-        warningsUpdatePublisher.send(())
-    }
-
-    func didSign(with card: Card) {
-        guard currentCardId == card.cardId else { return }
-
-        addLowRemainingSignaturesWarningIfNeeded(in: mainWarnings, for: card)
-        warningsUpdatePublisher.send(())
+        // The testnet card shouldn't count hashes
+        if !AppEnvironment.current.isTestnet {
+            validateHashesCount(config: config, card: card, validator: validator)
+        }
     }
 
     func warnings(for location: WarningsLocation) -> WarningsContainer {
@@ -133,6 +48,8 @@ extension WarningsService: AppWarningsProviding {
             return mainWarnings
         case .send:
             return sendWarnings
+        case .manageTokens:
+            fatalError("not implemented")
         }
     }
 
@@ -144,6 +61,8 @@ extension WarningsService: AppWarningsProviding {
         if event.locationsToDisplay.contains(.send) {
             sendWarnings.add(warning)
         }
+
+        warningsUpdatePublisher.send(())
     }
 
     func hideWarning(_ warning: AppWarning) {
@@ -154,5 +73,98 @@ extension WarningsService: AppWarningsProviding {
     func hideWarning(for event: WarningEvent) {
         mainWarnings.removeWarning(for: event)
         sendWarnings.removeWarning(for: event)
+    }
+}
+
+private extension WarningsService {
+    func setupWarnings(for config: UserWalletConfig) {
+        let main = WarningsContainer()
+        let send = WarningsContainer()
+
+        for warningEvent in config.warningEvents  {
+            if warningEvent.locationsToDisplay.contains(WarningsLocation.main) {
+                main.add(warningEvent.warning)
+            }
+
+            if warningEvent.locationsToDisplay.contains(WarningsLocation.send) {
+                send.add(warningEvent.warning)
+            }
+        }
+
+        if rateAppChecker.shouldShowRateAppWarning {
+            Analytics.log(.displayRateAppWarning)
+            main.add(WarningEvent.rateApp.warning)
+        }
+
+        mainWarnings = main
+        sendWarnings = send
+        warningsUpdatePublisher.send(())
+    }
+
+    func validateHashesCount(
+        config: UserWalletConfig,
+        card: Card,
+        validator: SignatureCountValidator?
+    ) {
+        let cardId = card.cardId
+        let cardSignedHashes = card.walletSignedHashes
+        let isMultiWallet = config.hasFeature(.multiCurrency)
+        let canCountHashes = config.hasFeature(.signedHashesCounter)
+
+        func didFinishCountingHashes() {
+            print("⚠️ Hashes counted")
+        }
+
+        guard !AppSettings.shared.validatedSignedHashesCards.contains(cardId) else {
+            didFinishCountingHashes()
+            return
+        }
+
+        guard cardSignedHashes > 0 else {
+            AppSettings.shared.validatedSignedHashesCards.append(cardId)
+            didFinishCountingHashes()
+            return
+        }
+
+        guard !isMultiWallet else {
+            showAlertAnimated(.multiWalletSignedHashes)
+            didFinishCountingHashes()
+            return
+        }
+
+        guard canCountHashes else {
+            AppSettings.shared.validatedSignedHashesCards.append(cardId)
+            didFinishCountingHashes()
+            return
+        }
+
+        guard let validator = validator else {
+            showAlertAnimated(.numberOfSignedHashesIncorrect)
+            didFinishCountingHashes()
+            return
+        }
+
+        validator.validateSignatureCount(signedHashes: cardSignedHashes)
+            .subscribe(on: DispatchQueue.global())
+            .receive(on: RunLoop.main)
+            .handleEvents(receiveCancel: {
+                print("⚠️ Hash counter subscription cancelled")
+            })
+            .receiveCompletion { [weak self] completion in
+                switch completion {
+                case .finished:
+                    break
+                case .failure:
+                    self?.showAlertAnimated(.numberOfSignedHashesIncorrect)
+                }
+                didFinishCountingHashes()
+            }
+            .store(in: &bag)
+    }
+
+    func showAlertAnimated(_ event: WarningEvent) {
+        withAnimation {
+            appendWarning(for: event)
+        }
     }
 }
