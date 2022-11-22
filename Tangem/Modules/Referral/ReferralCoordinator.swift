@@ -12,9 +12,8 @@ class ReferralCoordinator: CoordinatorObject {
     var dismissAction: Action
     var popToRootAction: ParamsAction<PopToRootOptions>
 
-    @Published var referralViewModel: ReferralViewModel?
-
-    @Published var tosViewModel: WebViewContainerViewModel?
+    @Published var referralViewModel: ReferralViewModel? = nil
+    @Published var tosViewModel: WebViewContainerViewModel? = nil
 
     required init(dismissAction: @escaping Action, popToRootAction: @escaping ParamsAction<PopToRootOptions>) {
         self.dismissAction = dismissAction
