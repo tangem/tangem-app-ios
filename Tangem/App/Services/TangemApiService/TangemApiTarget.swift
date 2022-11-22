@@ -25,10 +25,19 @@ struct TangemApiTarget: TargetType {
             return "/coins"
         case .geo:
             return "/geo"
+        case let .getUserWalletTokens(key), let .saveUserWalletTokens(key, _):
+            return "/user-tokens/\(key)"
         }
     }
 
-    var method: Moya.Method { .get }
+    var method: Moya.Method {
+        switch type {
+        case .rates, .currencies, .coins, .geo, .getUserWalletTokens:
+            return .get
+        case .saveUserWalletTokens:
+            return .put
+        }
+    }
 
     var task: Task {
         switch type {
@@ -38,8 +47,10 @@ struct TangemApiTarget: TargetType {
                                       encoding: URLEncoding.default)
         case let .coins(pageModel):
             return .requestURLEncodable(pageModel)
-        case .currencies, .geo:
+        case .currencies, .geo, .getUserWalletTokens:
             return .requestPlain
+        case let .saveUserWalletTokens(_, list):
+            return .requestJSONEncodable(list)
         }
     }
 
@@ -54,6 +65,8 @@ extension TangemApiTarget {
         case currencies
         case coins(_ requestModel: CoinsListRequestModel)
         case geo
+        case getUserWalletTokens(key: String)
+        case saveUserWalletTokens(key: String, list: UserTokenList)
     }
 
     struct AuthData {
@@ -65,6 +78,17 @@ extension TangemApiTarget {
                 "card_id": cardId,
                 "card_public_key": cardPublicKey.hexString,
             ]
+        }
+    }
+}
+
+extension TangemApiTarget: CachePolicyProvider {
+    var cachePolicy: URLRequest.CachePolicy {
+        switch type {
+        case .geo:
+            return .reloadIgnoringLocalAndRemoteCacheData
+        default:
+            return .useProtocolCachePolicy
         }
     }
 }
