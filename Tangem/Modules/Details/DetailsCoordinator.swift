@@ -23,7 +23,7 @@ class DetailsCoordinator: CoordinatorObject {
     @Published var walletConnectCoordinator: WalletConnectCoordinator? = nil
     @Published var cardSettingsCoordinator: CardSettingsCoordinator? = nil
     @Published var appSettingsCoordinator: AppSettingsCoordinator? = nil
-    @Published var referralCoordinator: ReferralCoordinator?
+    @Published var referralCoordinator: ReferralCoordinator? = nil
 
     // MARK: - Child view models
 
@@ -31,8 +31,8 @@ class DetailsCoordinator: CoordinatorObject {
     @Published var mailViewModel: MailViewModel? = nil
     @Published var disclaimerViewModel: DisclaimerViewModel? = nil
     @Published var supportChatViewModel: SupportChatViewModel? = nil
-    @Published var scanCardSettingsViewModel: ScanCardSettingsViewModel?
-    @Published var setupEnvironmentViewModel: EnvironmentSetupViewModel?
+    @Published var scanCardSettingsViewModel: ScanCardSettingsViewModel? = nil
+    @Published var setupEnvironmentViewModel: EnvironmentSetupViewModel? = nil
 
     // MARK: - Helpers
 
