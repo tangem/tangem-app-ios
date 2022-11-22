@@ -15,17 +15,11 @@ ENVIRONMENT_NAME = Beta
 // Prefix from developer.apple.com, TEAM_ID in this case
 APP_ID_PREFIX = 4897UJ6D8C
 
-// Storage container name
-SUITE_NAME = group.com.tangem.TangemBeta
-
 // Will use in TangemApp as BUNDLE_IDENTIFIER
 APP_BUNDLE_IDENTIFIER = com.tangem.TangemBeta
 
-// Will use in TangemClip as BUNDLE_IDENTIFIER
-CLIP_BUNDLE_IDENTIFIER = $(APP_BUNDLE_IDENTIFIER).Clip
-
-// Will use in TangemClip as parent identifier
-PARENT_IDENTIFIER = $(APP_ID_PREFIX).$(APP_BUNDLE_IDENTIFIER)
+// Storage container name
+SUITE_NAME = group.$(APP_BUNDLE_IDENTIFIER)
 
 // Overriding (do NOT change key name)
 // app name
