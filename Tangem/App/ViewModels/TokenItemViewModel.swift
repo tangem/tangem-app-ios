@@ -11,10 +11,10 @@ import BlockchainSdk
 import TangemSdk
 import SwiftUI
 
-struct TokenItemViewModel: Identifiable, Equatable, Comparable {
-    let id = UUID()
+struct TokenItemViewModel: Identifiable, Hashable, Equatable, Comparable {
+    var id: Int { hashValue }
+
     let state: WalletModel.State
-    let displayState: WalletModel.DisplayState
     let hasTransactionInProgress: Bool
     let name: String
     let fiatBalance: String
@@ -24,6 +24,30 @@ struct TokenItemViewModel: Identifiable, Equatable, Comparable {
     let blockchainNetwork: BlockchainNetwork
     let fiatValue: Decimal
     let isCustom: Bool
+
+    init(
+        state: WalletModel.State,
+        name: String = "",
+        balance: String = "",
+        fiatBalance: String = "",
+        rate: String = "",
+        fiatValue: Decimal = 0,
+        blockchainNetwork: BlockchainNetwork,
+        amountType: Amount.AmountType,
+        hasTransactionInProgress: Bool = false,
+        isCustom: Bool
+    ) {
+        self.state = state
+        self.name = name
+        self.balance = balance
+        self.fiatBalance = fiatBalance
+        self.rate = rate
+        self.fiatValue = fiatValue
+        self.blockchainNetwork = blockchainNetwork
+        self.amountType = amountType
+        self.hasTransactionInProgress = hasTransactionInProgress
+        self.isCustom = isCustom
+    }
 
     var currencySymbol: String {
         if amountType == .coin {
@@ -58,23 +82,20 @@ struct TokenItemViewModel: Identifiable, Equatable, Comparable {
     }
 
     var displayRateText: String {
-        if state.isBlockchainUnreachable {
+        if state.isBlockchainUnreachable || state == .noDerivation {
             return "wallet_balance_blockchain_unreachable".localized
         }
 
         if hasTransactionInProgress {
-            return  "wallet_balance_tx_in_progress".localized
+            return "wallet_balance_tx_in_progress".localized
         }
 
         return rate.isEmpty ? "token_item_no_rate".localized : rate
     }
 
-//    [REDACTED_TODO_COMMENT]
     var isLoading: Bool {
-        return (displayState == .busy || balance.isEmpty) && !state.isBlockchainUnreachable && !state.isNoAccount
+        state.isLoading
     }
-
-    static let `default` = TokenItemViewModel(state: .created, displayState: .busy, hasTransactionInProgress: false, name: "", fiatBalance: "", balance: "", rate: "", amountType: .coin, blockchainNetwork: .init(.bitcoin(testnet: false)), fiatValue: 0, isCustom: false)
 
     static func < (lhs: TokenItemViewModel, rhs: TokenItemViewModel) -> Bool {
         if lhs.fiatValue == 0 && rhs.fiatValue == 0 {
@@ -90,43 +111,11 @@ struct TokenItemViewModel: Identifiable, Equatable, Comparable {
 }
 
 extension TokenItemViewModel {
-    init(from balanceViewModel: BalanceViewModel, rate: String, fiatValue: Decimal, blockchainNetwork: BlockchainNetwork,
-         hasTransactionInProgress: Bool, isCustom: Bool, displayState: WalletModel.DisplayState) {
-        self.hasTransactionInProgress = hasTransactionInProgress
-        state = balanceViewModel.state
-        self.displayState = displayState
-        name = balanceViewModel.name
-        if name == "" {
-
-        }
-        balance = balanceViewModel.balance
-        fiatBalance = balanceViewModel.fiatBalance
-        self.rate = rate
-        self.blockchainNetwork = blockchainNetwork
-        self.amountType = .coin
-        self.fiatValue = fiatValue
-        self.isCustom = isCustom
-    }
-
-    init(from balanceViewModel: BalanceViewModel,
-         tokenBalanceViewModel: TokenBalanceViewModel,
-         rate: String,
-         fiatValue: Decimal,
-         blockchainNetwork: BlockchainNetwork,
-         hasTransactionInProgress: Bool,
-         isCustom: Bool,
-         displayState: WalletModel.DisplayState) {
-        self.hasTransactionInProgress = hasTransactionInProgress
-        state = balanceViewModel.state
-        self.displayState = displayState
-        name = tokenBalanceViewModel.name
-        balance = tokenBalanceViewModel.balance
-        fiatBalance = tokenBalanceViewModel.fiatBalance
-        self.rate = rate
-        self.blockchainNetwork = blockchainNetwork
-        self.amountType = .token(value: tokenBalanceViewModel.token)
-        self.fiatValue = fiatValue
-        self.isCustom = isCustom
-    }
+    static let `default` = TokenItemViewModel(
+        state: .created,
+        blockchainNetwork: .init(.bitcoin(testnet: false)),
+        amountType: .coin,
+        isCustom: false
+    )
 }
 

@@ -8,36 +8,51 @@
 
 import Foundation
 
-enum WarningEvent: String, Decodable {
+enum WarningEvent: Equatable {
     case numberOfSignedHashesIncorrect
     case multiWalletSignedHashes
     case rateApp
     case failedToValidateCard
     case testnetCard
+    case demoCard
+    case oldDeviceOldCard
+    case oldCard
+    case devCard
+    case lowSignatures(count: Int)
+    case legacyDerivation
 
     var locationsToDisplay: Set<WarningsLocation> {
         switch self {
-        case .numberOfSignedHashesIncorrect, .rateApp, .failedToValidateCard, .multiWalletSignedHashes: return [.main]
-        case .testnetCard: return [.main, .send]
+        case .legacyDerivation:
+            return [.manageTokens]
+        case .testnetCard, .oldDeviceOldCard:
+            return [.main, .send]
+        default:
+            return [.main]
         }
     }
 
     var canBeDismissed: Bool {
         switch self {
-        case .numberOfSignedHashesIncorrect, .failedToValidateCard, .multiWalletSignedHashes, .testnetCard: return false
-        case .rateApp: return true
+        case .rateApp:
+            return true
+        default:
+            return false
         }
     }
 
     var buttons: [WarningButton] {
         switch self {
-        case .numberOfSignedHashesIncorrect: return [.okGotIt]
-        case .multiWalletSignedHashes: return [.learnMore]
-        case .rateApp: return [.reportProblem, .rateApp]
-        case .failedToValidateCard, .testnetCard: return []
+        case .numberOfSignedHashesIncorrect:
+            return [.okGotIt]
+        case .multiWalletSignedHashes:
+            return [.learnMore]
+        case .rateApp:
+            return [.reportProblem, .rateApp]
+        default:
+            return []
         }
     }
-
 }
 
 enum WarningButton: String, Identifiable {
