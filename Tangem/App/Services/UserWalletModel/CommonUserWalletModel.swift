@@ -22,6 +22,7 @@ class CommonUserWalletModel {
         let userTokenListManager = CommonUserTokenListManager(config: config, userWalletId: userWallet.userWalletId)
         let walletListManager = CommonWalletListManager(
             config: config,
+            name: userWallet.name,
             userTokenListManager: userTokenListManager
         )
 
