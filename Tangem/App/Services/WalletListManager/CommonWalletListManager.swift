@@ -19,9 +19,10 @@ class CommonWalletListManager {
     private var migrated = false
     private var walletModels = CurrentValueSubject<[WalletModel], Never>([])
     private var entriesWithoutDerivation = CurrentValueSubject<[StorageEntry], Never>([])
-
-    init(config: UserWalletConfig, userTokenListManager: UserTokenListManager) {
+    private let name: String
+    init(config: UserWalletConfig, name: String, userTokenListManager: UserTokenListManager) {
         self.config = config
+        self.name = name
         self.userTokenListManager = userTokenListManager
     }
 }
@@ -51,7 +52,7 @@ extension CommonWalletListManager: WalletListManager {
     }
 
     func updateWalletModels() {
-        print("🔄 Updating Wallet models")
+        print("*** 🔄 Updating Wallet models", name)
 
         var walletModels = getWalletModels()
         let entries = userTokenListManager.getEntriesFromRepository()
