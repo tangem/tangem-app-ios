@@ -20,14 +20,11 @@ class TwinsWalletCreationUtil {
 
     /// Determines is user start twin wallet creation from Twin card with first number
     var isStartedFromFirstNumber: Bool {
-        guard let twin = twinInfo else { return true }
-        return twin.series.number == 1
+        twinData.series.number == 1
     }
 
     var stepCardNumber: Int {
-        guard let twin = twinInfo else { return 1 }
-
-        let series = twin.series
+        let series = twinData.series
 
         switch step.value {
         case .first, .third, .done:
@@ -42,7 +39,7 @@ class TwinsWalletCreationUtil {
     private let twinFileEncoder: TwinCardFileEncoder = TwinCardTlvFileEncoder()
     private var firstTwinCid: String = ""
     // private var secondTwinCid: String = ""
-    private var twinInfo: TwinCardInfo?
+    private var twinData: TwinData
     private let card: CardViewModel
 
     private var firstTwinPublicKey: Data?
@@ -52,8 +49,10 @@ class TwinsWalletCreationUtil {
     private(set) var occuredError = PassthroughSubject<Error, Never>()
     private(set) var isServiceBusy = CurrentValueSubject<Bool, Never>(false)
 
-    init(card: CardViewModel) {
+    init(card: CardViewModel, twinData: TwinData) {
         self.card = card
+        self.twinData = twinData
+        firstTwinCid = card.cardId
     }
 
     func executeCurrentStep() {
@@ -70,13 +69,6 @@ class TwinsWalletCreationUtil {
         }
     }
 
-    func setupTwins(for twin: TwinCardInfo) {
-        if twin.cid == firstTwinCid /* , twin.pairCid == secondTwinCid */ { return }
-
-        twinInfo = twin
-        firstTwinCid = twin.cid
-    }
-
     func resetSteps() {
         step = CurrentValueSubject<CreationStep, Never>(.first)
         isServiceBusy.send(false)
@@ -88,8 +80,9 @@ class TwinsWalletCreationUtil {
             switch result {
             case .success(let response):
                 self.card.clearTwinPairKey()
-                self.card.update(with: response.card)
                 self.firstTwinPublicKey = response.createWalletResponse.wallet.publicKey
+                self.card.onWalletCreated(response.card)
+                self.card.appendDefaultBlockchains()
                 self.step.send(.second)
             case .failure(let error):
                 self.occuredError.send(error)
@@ -143,8 +136,11 @@ class TwinsWalletCreationUtil {
 
             switch result {
             case .success(let response):
-                self.card.update(with: response.getCardInfo())
-                self.step.send(.done)
+                self.card.onTwinWalletCreated(response.walletData)
+                self.card.appendDefaultBlockchains()
+                self.card.userWalletModel?.updateAndReloadWalletModels { [weak self] in
+                    self?.step.send(.done)
+                }
             case .failure(let error):
                 self.occuredError.send(error)
             }
@@ -168,9 +164,7 @@ class TwinsWalletCreationUtil {
     private func initialMessage(for cardId: String) -> Message {
         Message(header: String(format: scanMessageKey.localized, AppTwinCardIdFormatter.format(cid: cardId, cardNumber: stepCardNumber)))
     }
-
 }
-
 
 extension TwinsWalletCreationUtil {
     enum CreationStep {

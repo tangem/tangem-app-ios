@@ -9,11 +9,9 @@
 import SwiftUI
 import Combine
 
-class TwinsOnboardingViewModel: OnboardingTopupViewModel<TwinsOnboardingStep>, ObservableObject {
-    @Injected(\.cardImageLoader) var imageLoader: CardImageLoaderProtocol
-
-    @Published var firstTwinImage: UIImage?
-    @Published var secondTwinImage: UIImage?
+class TwinsOnboardingViewModel: OnboardingTopupViewModel<TwinsOnboardingStep, OnboardingCoordinator>, ObservableObject {
+    @Published var firstTwinImage: Image?
+    @Published var secondTwinImage: Image?
     @Published var pairNumber: String
     @Published var currentCardIndex: Int = 0
     @Published var displayTwinImages: Bool = false
@@ -33,12 +31,12 @@ class TwinsOnboardingViewModel: OnboardingTopupViewModel<TwinsOnboardingStep>, O
         return steps[currentStepIndex]
     }
 
-    override var title: LocalizedStringKey {
+    override var title: LocalizedStringKey? {
         if !isInitialAnimPlayed {
             return super.title
         }
 
-        if twinInfo.series.number != 1 {
+        if twinData.series.number != 1 {
             switch currentStep {
             case .first, .third:
                 return TwinsOnboardingStep.second.title
@@ -57,7 +55,7 @@ class TwinsOnboardingViewModel: OnboardingTopupViewModel<TwinsOnboardingStep>, O
             return super.mainButtonTitle
         }
 
-        if twinInfo.series.number != 1 {
+        if twinData.series.number != 1 {
             switch currentStep {
             case .first, .third:
                 return TwinsOnboardingStep.second.mainButtonTitle
@@ -92,12 +90,12 @@ class TwinsOnboardingViewModel: OnboardingTopupViewModel<TwinsOnboardingStep>, O
         }
     }
 
-    override var mainButtonSettings: TangemButtonSettings {
+    override var mainButtonSettings: TangemButtonSettings? {
         var settings = super.mainButtonSettings
 
         switch currentStep {
         case .alert:
-            settings.isEnabled = alertAccepted
+            settings?.isEnabled = alertAccepted
         default: break
         }
 
@@ -105,23 +103,26 @@ class TwinsOnboardingViewModel: OnboardingTopupViewModel<TwinsOnboardingStep>, O
     }
 
     private var stackCalculator: StackCalculator = .init()
-    private var twinInfo: TwinCardInfo
+    private var twinData: TwinData
     private var stepUpdatesSubscription: AnyCancellable?
     private let twinsService: TwinsWalletCreationUtil
 
     private var canBuy: Bool { exchangeService.canBuy("BTC", amountType: .coin, blockchain: .bitcoin(testnet: false)) }
 
-    required init(input: OnboardingInput, coordinator: OnboardingTopupRoutable) {
-        if let card = input.cardInput.cardModel,
-           let twinInfo = card.cardInfo.twinCardInfo {
-            self.pairNumber = "\(twinInfo.series.pair.number)"
-            self.twinInfo = twinInfo
-            self.twinsService = .init(card: card)
-        } else {
-            fatalError("Wrong card model passed to Twins onboarding view model")
-        }
+    override init(input: OnboardingInput, coordinator: OnboardingCoordinator) {
+        let cardModel = input.cardInput.cardModel!
+        let twinData = input.twinData!
+
+        self.pairNumber = "\(twinData.series.pair.number)"
+        self.twinData = twinData
+        self.twinsService = .init(card: cardModel, twinData: twinData)
 
         super.init(input: input, coordinator: coordinator)
+
+        if let walletModel = self.cardModel?.walletModels.first {
+            updateCardBalanceText(for: walletModel)
+        }
+
         if case let .twins(steps) = input.steps {
             self.steps = steps
 
@@ -139,11 +140,8 @@ class TwinsOnboardingViewModel: OnboardingTopupViewModel<TwinsOnboardingStep>, O
             retwinMode = true // [REDACTED_TODO_COMMENT]
         }
 
-        twinsService.setupTwins(for: twinInfo)
         bind()
         loadSecondTwinImage()
-
-
     }
 
     override func setupContainer(with size: CGSize) {
@@ -158,12 +156,14 @@ class TwinsOnboardingViewModel: OnboardingTopupViewModel<TwinsOnboardingStep>, O
     }
 
     override func playInitialAnim(includeInInitialAnim: (() -> Void)? = nil) {
+        Analytics.log(.twinningScreenOpened)
         super.playInitialAnim {
             self.displayTwinImages = true
         }
     }
 
     override func onOnboardingFinished(for cardId: String) {
+        Analytics.log(.twinSetupFinished)
         super.onOnboardingFinished(for: cardId)
 
         // remove pair cid
@@ -181,8 +181,11 @@ class TwinsOnboardingViewModel: OnboardingTopupViewModel<TwinsOnboardingStep>, O
         case .done, .success, .alert:
             goToNextStep()
         case .first:
-            if !retwinMode, !(AppSettings.shared.cardsStartedActivation.contains(twinInfo.cid)) {
-                AppSettings.shared.cardsStartedActivation.append(twinInfo.cid)
+            if !retwinMode {
+                if let cardId = cardModel?.cardId {
+                    AppSettings.shared.cardsStartedActivation.insert(cardId)
+                }
+                Analytics.log(.onboardingStarted)
             }
 
             if twinsService.step.value != .first {
@@ -241,19 +244,23 @@ class TwinsOnboardingViewModel: OnboardingTopupViewModel<TwinsOnboardingStep>, O
         case .second, .third:
             alert = AlertBuilder.makeOkGotItAlert(message: "onboarding_twin_exit_warning".localized)
         default:
-            back()
-        }
-    }
+            alert = AlertBuilder.makeExitAlert() { [weak self] in
+                guard let self else { return }
 
-    private func back() {
-        if isFromMain {
-            onboardingDidFinish()
-        } else {
-            closeOnboarding()
+                // This part is related only to the twin cards, because for other card types
+                // reset to factory settings goes not through onboarding screens. If back button
+                // appearance logic will change in future - recheck also this code and update it accordingly
+                if self.currentStep.isOnboardingFinished {
+                    self.onboardingDidFinish()
+                } else {
+                    self.closeOnboarding()
+                }
+            }
         }
     }
 
     private func bind() {
+        Analytics.log(.twinSetupStarted)
         twinsService
             .isServiceBusy
             .receive(on: DispatchQueue.main)
@@ -290,15 +297,16 @@ class TwinsOnboardingViewModel: OnboardingTopupViewModel<TwinsOnboardingStep>, O
                 }
 
                 if let pairCardId = twinsService.twinPairCardId,
-                   !retwinMode,
-                   !AppSettings.shared.cardsStartedActivation.contains(pairCardId) {
-                    AppSettings.shared.cardsStartedActivation.append(pairCardId)
+                   !retwinMode {
+                    AppSettings.shared.cardsStartedActivation.insert(pairCardId)
                 }
             })
     }
 
     private func loadSecondTwinImage() {
-        imageLoader.loadTwinImage(for: twinInfo.series.pair.number)
+        CardImageProvider()
+            .loadTwinImage(for: twinData.series.pair.number)
+            .map { Image(uiImage: $0) }
             .zip($cardImage.compactMap { $0 })
             .receive(on: DispatchQueue.main)
             .sink { [weak self] (paired, main) in

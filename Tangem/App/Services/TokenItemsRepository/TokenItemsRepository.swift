@@ -10,28 +10,24 @@ import Foundation
 import BlockchainSdk
 
 protocol TokenItemsRepository {
-    func append(_ blockchains: [Blockchain], for cardId: String, style: DerivationStyle)
-    func append(_ entries: [StorageEntry], for cardId: String)
-    func append(_ blockchainNetworks: [BlockchainNetwork], for cardId: String)
-    func append(_ tokens: [Token], blockchainNetwork: BlockchainNetwork, for cardId: String)
+    func update(_ entries: [StorageEntry])
+    func append(_ entries: [StorageEntry])
 
-    func remove(_ blockchainNetwork: BlockchainNetwork, for cardId: String)
-    func remove(_ blockchainNetworks: [BlockchainNetwork], for cardId: String)
-    func remove(_ token: Token, blockchainNetwork: BlockchainNetwork, for cardId: String)
-    func remove(_ tokens: [Token], blockchainNetwork: BlockchainNetwork, for cardId: String)
-    func removeAll(for cardId: String)
+    func remove(_ blockchainNetworks: [BlockchainNetwork])
+    func remove(_ tokens: [Token], blockchainNetwork: BlockchainNetwork)
+    func removeAll()
 
-    func getItems(for cardId: String) -> [StorageEntry]
+    func getItems() -> [StorageEntry]
 }
 
-private struct TokenItemsRepositoryKey: InjectionKey {
-    static var currentValue: TokenItemsRepository = CommonTokenItemsRepository()
-}
+extension TokenItemsRepository {
+    func append(_ blockchainNetworks: [BlockchainNetwork]) {
+        let entries = blockchainNetworks.map { StorageEntry(blockchainNetwork: $0, tokens: []) }
+        append(entries)
+    }
 
-extension InjectedValues {
-    var tokenItemsRepository: TokenItemsRepository {
-        get { Self[TokenItemsRepositoryKey.self] }
-        set { Self[TokenItemsRepositoryKey.self] = newValue }
+    func append(_ tokens: [Token], blockchainNetwork: BlockchainNetwork) {
+        let entry = StorageEntry(blockchainNetwork: blockchainNetwork, tokens: tokens)
+        append([entry])
     }
 }
-

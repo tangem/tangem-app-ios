@@ -7,9 +7,9 @@
 //
 
 import Foundation
+import TangemSdk
 
-struct TwinCardsUtils {
-
+enum TwinCardsUtils {
     static func isCidValid(_ cid: String) -> Bool {
         calculateLuhnRemainder(cid) == 0
     }
@@ -25,6 +25,17 @@ struct TwinCardsUtils {
         let pairCidWithoutValidation = pairSeries.rawValue + cardNumber
         let validationNumber = calculateTwinPairValidationNumber(for: pairCidWithoutValidation + "\(0)")
         return pairCidWithoutValidation + "\(validationNumber)"
+    }
+
+    static func makeCombinedWalletKey(for card: Card, pairData: TwinData?) -> Data? {
+        guard
+            let walletPubKey = card.wallets.first?.publicKey,
+            let pairWalletPubKey = pairData?.pairPublicKey
+        else {
+            return nil
+        }
+
+        return try? Secp256k1Utils().sum(compressedPubKey1: walletPubKey, compressedPubKey2: pairWalletPubKey)
     }
 
     private static func calculateLuhn(for cid: String) -> Int {
