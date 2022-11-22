@@ -6,7 +6,6 @@
 //  Copyright © 2022 Tangem AG. All rights reserved.
 //
 
-import Combine
 import SwiftUI
 
 final class AuthViewModel: ObservableObject {
@@ -36,14 +35,12 @@ final class AuthViewModel: ObservableObject {
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
 
     private unowned let coordinator: AuthRoutable
-    private var bag: Set<AnyCancellable> = []
 
     init(
         coordinator: AuthRoutable
     ) {
         self.coordinator = coordinator
         userWalletRepository.delegate = self
-        bind()
     }
 
     func tryAgain() {
@@ -74,17 +71,6 @@ final class AuthViewModel: ObservableObject {
 
     func onDissappear() {
         navigationBarHidden = false
-    }
-
-    private func bind() {
-        userWalletRepository
-            .eventProvider
-            .sink { [weak self] event in
-                if case .locked = event {
-                    self?.dismiss()
-                }
-            }
-            .store(in: &bag)
     }
 
     private func didFinishUnlocking(_ result: UserWalletRepositoryResult?) {
@@ -121,10 +107,6 @@ extension AuthViewModel {
 
     func openMain(with cardModel: CardViewModel) {
         coordinator.openMain(with: cardModel)
-    }
-
-    func dismiss() {
-        coordinator.dismiss()
     }
 }
 
