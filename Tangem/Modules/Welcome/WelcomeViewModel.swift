@@ -12,9 +12,9 @@ import TangemSdk
 
 class WelcomeViewModel: ObservableObject {
     @Injected(\.cardsRepository) private var cardsRepository: CardsRepository
-    @Injected(\.onboardingStepsSetupService) private var stepsSetupService: OnboardingStepsSetupService
     @Injected(\.backupServiceProvider) private var backupServiceProvider: BackupServiceProviding
     @Injected(\.failedScanTracker) var failedCardScanTracker: FailedScanTrackable
+    @Injected(\.saletPayRegistratorProvider) private var saltPayRegistratorProvider: SaltPayRegistratorProviding
 
     @Published var showTroubleshootingView: Bool = false
     @Published var isScanningCard: Bool = false
@@ -31,32 +31,70 @@ class WelcomeViewModel: ObservableObject {
 
     private unowned let coordinator: WelcomeRoutable
 
+    private var hasInterruptedSaltPayBackup: Bool {
+        guard backupService.hasIncompletedBackup,
+              let primaryCard = backupService.primaryCard,
+              let batchId = primaryCard.batchId else {
+            return false
+        }
+
+        return SaltPayUtil().isSaltPayCard(batchId: batchId, cardId: primaryCard.cardId)
+    }
+
     init(coordinator: WelcomeRoutable) {
         self.coordinator = coordinator
+        cardsRepository.delegate = self
         self.storiesModelSubscription = storiesModel.objectWillChange
             .receive(on: DispatchQueue.main)
-            .sink(receiveValue: { [unowned self] in
-                self.objectWillChange.send()
+            .sink(receiveValue: { [weak self] in
+                self?.objectWillChange.send()
             })
     }
 
     func scanCard() {
-        guard AppSettings.shared.isTermsOfServiceAccepted else {
-            openDisclaimer()
-            return
-        }
-
         isScanningCard = true
-        Analytics.log(.scanCardTapped)
+        Analytics.log(.buttonScanCard)
         var subscription: AnyCancellable? = nil
 
         subscription = cardsRepository.scanPublisher()
+            .flatMap { [weak self] response -> AnyPublisher<CardViewModel, Error> in
+                let saltPayUtil = SaltPayUtil()
+                let hasSaltPayBackup = self?.hasInterruptedSaltPayBackup ?? false
+                let primaryCardId = self?.backupService.primaryCard?.cardId ?? ""
+
+                if hasSaltPayBackup && response.cardId != primaryCardId  {
+                    return .anyFail(error: SaltPayRegistratorError.emptyBackupCardScanned)
+                }
+
+                if saltPayUtil.isBackupCard(cardId: response.cardId) {
+                    if let backupInput = response.backupInput, backupInput.steps.stepsCount > 0 {
+                        return .anyFail(error: SaltPayRegistratorError.emptyBackupCardScanned)
+                    } else {
+                        return .justWithError(output: response)
+                    }
+                }
+
+                guard let saltPayRegistrator = self?.saltPayRegistratorProvider.registrator else {
+                    return .justWithError(output: response)
+                }
+
+                return saltPayRegistrator.updatePublisher()
+                    .map { _ in
+                        return response
+                    }
+                    .eraseToAnyPublisher()
+            }
             .receive(on: DispatchQueue.main)
             .sink { [weak self] completion in
                 if case let .failure(error) = completion {
                     print("Failed to scan card: \(error)")
                     self?.isScanningCard = false
                     self?.failedCardScanTracker.recordFailure()
+
+                    if let salpayError = error as? SaltPayRegistratorError {
+                        self?.error = salpayError.alertBinder
+                        return
+                    }
 
                     if self?.failedCardScanTracker.shouldDisplayAlert ?? false {
                         self?.showTroubleshootingView = true
@@ -71,22 +109,22 @@ class WelcomeViewModel: ObservableObject {
                 }
                 subscription.map { _ = self?.bag.remove($0) }
             } receiveValue: { [weak self] cardModel in
-                let numberOfFailedAttempts = self?.failedCardScanTracker.numberOfFailedAttempts ?? 0
                 self?.failedCardScanTracker.resetCounter()
-                Analytics.log(numberOfFailedAttempts == 0 ? .firstScan : .secondScan)
-                self?.processScannedCard(cardModel, isWithAnimation: true)
+                Analytics.log(.cardWasScanned)
+                DispatchQueue.main.async {
+                    self?.processScannedCard(cardModel, isWithAnimation: true)
+                }
             }
 
         subscription?.store(in: &bag)
     }
 
     func tryAgain() {
-        Analytics.log(.tryAgainTapped)
         scanCard()
     }
 
     func requestSupport() {
-        Analytics.log(.supportTapped)
+        Analytics.log(.buttonRequestSupport)
         failedCardScanTracker.resetCounter()
         openMail()
     }
@@ -94,10 +132,12 @@ class WelcomeViewModel: ObservableObject {
     func orderCard() {
         openShop()
         Analytics.log(.getACard, params: [.source: Analytics.ParameterValue.welcome.rawValue])
+        Analytics.log(.buttonBuyCards)
     }
 
     func onAppear() {
         navigationBarHidden = true
+        Analytics.log(.introductionProcessOpened)
         showInteruptedBackupAlertIfNeeded()
     }
 
@@ -106,31 +146,15 @@ class WelcomeViewModel: ObservableObject {
     }
 
     private func processScannedCard(_ cardModel: CardViewModel, isWithAnimation: Bool) {
-        cardModel.cardInfo.primaryCard.map { backupService.setPrimaryCard($0) }
+        let input = cardModel.onboardingInput
+        self.isScanningCard = false
 
-        stepsSetupService.steps(for: cardModel.cardInfo)
-            .sink { [weak self] completion in
-                if case let .failure(error) = completion {
-                    self?.error = error.alertBinder
-                }
-                self?.isScanningCard = false
-            } receiveValue: { [unowned self] steps in
-                let input = OnboardingInput(steps: steps,
-                                            cardInput: .cardModel(cardModel),
-                                            welcomeStep: nil,
-                                            currentStepIndex: 0)
-
-                self.isScanningCard = false
-                if input.steps.needOnboarding {
-                    cardModel.updateState()
-                    openOnboarding(with: input)
-                } else {
-                    openMain(with: input)
-                }
-
-                self.bag.removeAll()
-            }
-            .store(in: &bag)
+        if input.steps.needOnboarding {
+            cardModel.userWalletModel?.updateAndReloadWalletModels()
+            openOnboarding(with: input)
+        } else {
+            openMain(with: input)
+        }
     }
 }
 
@@ -141,20 +165,15 @@ extension WelcomeViewModel {
     }
 
     func openMail() {
-        coordinator.openMail(with: failedCardScanTracker)
-    }
-
-    func openDisclaimer() {
-        coordinator.openDisclaimer()
+        coordinator.openMail(with: failedCardScanTracker, recipient: EmailConfig.default.recipient)
     }
 
     func openTokensList() {
-        Analytics.log(.tokenListTapped)
+        Analytics.log(.buttonTokensList)
         coordinator.openTokensList()
     }
 
     func openShop() {
-        Analytics.log(.buyBottomTapped)
         coordinator.openShop()
     }
 
@@ -172,14 +191,14 @@ extension WelcomeViewModel {
 // MARK: - Resume interrupted backup
 private extension WelcomeViewModel {
     func showInteruptedBackupAlertIfNeeded() {
-        if backupService.hasIncompletedBackup {
-            let alert = Alert(title: Text("common_warning"),
-                              message: Text("welcome_interrupted_backup_alert_message"),
-                              primaryButton: .default(Text("welcome_interrupted_backup_alert_resume"), action: continueIncompletedBackup),
-                              secondaryButton: .destructive(Text("welcome_interrupted_backup_alert_discard"), action: showExtraDiscardAlert))
+        guard backupService.hasIncompletedBackup, !hasInterruptedSaltPayBackup else { return }
 
-            self.error = AlertBinder(alert: alert)
-        }
+        let alert = Alert(title: Text("common_warning"),
+                          message: Text("welcome_interrupted_backup_alert_message"),
+                          primaryButton: .default(Text("welcome_interrupted_backup_alert_resume"), action: continueIncompletedBackup),
+                          secondaryButton: .destructive(Text("welcome_interrupted_backup_alert_discard"), action: showExtraDiscardAlert))
+
+        self.error = AlertBinder(alert: alert)
     }
 
     func showExtraDiscardAlert() {
@@ -195,35 +214,26 @@ private extension WelcomeViewModel {
     }
 
     func continueIncompletedBackup() {
-        guard let primaryCardId = backupService.primaryCardId else {
+        guard let primaryCardId = backupService.primaryCard?.cardId else {
             return
         }
 
-        stepsSetupService.stepsForBackupResume()
-            .sink { completion in
-                switch completion {
-                case .failure(let error):
-                    Analytics.log(error: error)
-                    print("Failed to load image for new card")
-                    self.error = error.alertBinder
-                case .finished:
-                    break
-                }
-            } receiveValue: { [weak self] steps in
-                guard let self = self else { return }
+        let input = OnboardingInput(steps: .wallet(WalletOnboardingStep.resumeBackupSteps),
+                                    cardInput: .cardId(primaryCardId),
+                                    welcomeStep: nil,
+                                    twinData: nil,
+                                    currentStepIndex: 0,
+                                    isStandalone: true)
 
-                let input = OnboardingInput(steps: steps,
-                                            cardInput: .cardId(primaryCardId),
-                                            welcomeStep: nil,
-                                            currentStepIndex: 0,
-                                            isStandalone: true)
-
-                self.openInterruptedBackup(with: input)
-            }
-            .store(in: &bag)
+        self.openInterruptedBackup(with: input)
     }
 }
 
+extension WelcomeViewModel: CardsRepositoryDelegate {
+    func showTOS(at url: URL, _ completion: @escaping (Bool) -> Void) {
+        coordinator.openDisclaimer(at: url, completion)
+    }
+}
 
 extension WelcomeViewModel: WelcomeViewLifecycleListener {
     func resignActve() {
