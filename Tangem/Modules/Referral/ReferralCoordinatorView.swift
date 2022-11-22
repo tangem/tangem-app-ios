@@ -26,5 +26,6 @@ struct ReferralCoordinatorView: CoordinatorView {
             .navigation(item: $coordinator.tosViewModel) {
                 WebViewContainer(viewModel: $0)
             }
+            .emptyNavigationLink()
     }
 }
