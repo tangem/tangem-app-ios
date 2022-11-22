@@ -21,9 +21,9 @@ enum PreviewCard {
     case cardanoNoteEmptyWallet
     case ethEmptyNote
     case tangemWalletEmpty
+    case tangemWalletBackuped
 
     var cardModel: CardViewModel {
-        let card = Card.card
         let ci = CardInfo(card: card, walletData: walletData)
         let vm = CardViewModel(cardInfo: ci)
         let walletModels: [WalletModel]
@@ -90,6 +90,15 @@ enum PreviewCard {
             return true
         default:
             return false
+        }
+    }
+
+    private var card: Card {
+        switch self {
+        case .tangemWalletBackuped:
+            return .walletWithBackup
+        default:
+            return .card
         }
     }
 }
