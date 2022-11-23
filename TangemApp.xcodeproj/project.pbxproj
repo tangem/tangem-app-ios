@@ -576,6 +576,9 @@
 		EFC46F01292669A0003928E3 /* ReceiveCurrencyViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFC46F00292669A0003928E3 /* ReceiveCurrencyViewModel.swift */; };
 		EFC98EA22897CB3F00261D33 /* AttentionViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFC98EA02897CB3F00261D33 /* AttentionViewModel.swift */; };
 		EFC98EA32897CB3F00261D33 /* AttentionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFC98EA12897CB3F00261D33 /* AttentionView.swift */; };
+		EFE23AB9292B8D1800A3C554 /* SwappingPermissionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFE23AB4292B8D1800A3C554 /* SwappingPermissionView.swift */; };
+		EFE23ABA292B8D1800A3C554 /* SwappingPermissionViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFE23AB5292B8D1800A3C554 /* SwappingPermissionViewModel.swift */; };
+		EFE23ABB292B8D1800A3C554 /* SwappingPermissionRoutable.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFE23AB6292B8D1800A3C554 /* SwappingPermissionRoutable.swift */; };
 		EFEBCE2829263FC400B0C886 /* NumberFormatter+.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFEBCE2729263FC300B0C886 /* NumberFormatter+.swift */; };
 		EFEBCE2B29265CF300B0C886 /* TokenIconViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFEBCE2A29265CF300B0C886 /* TokenIconViewModel.swift */; };
 		EFF034AC28B4B6ED00F70FF7 /* Publisher+TangemAPIError.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFF034AB28B4B6ED00F70FF7 /* Publisher+TangemAPIError.swift */; };
@@ -1259,6 +1262,9 @@
 		EFC98EA02897CB3F00261D33 /* AttentionViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AttentionViewModel.swift; sourceTree = "<group>"; };
 		EFC98EA12897CB3F00261D33 /* AttentionView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AttentionView.swift; sourceTree = "<group>"; };
 		EFCC66E028AA6FC500EC7757 /* UserTokenList.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserTokenList.swift; sourceTree = "<group>"; };
+		EFE23AB4292B8D1800A3C554 /* SwappingPermissionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwappingPermissionView.swift; sourceTree = "<group>"; };
+		EFE23AB5292B8D1800A3C554 /* SwappingPermissionViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwappingPermissionViewModel.swift; sourceTree = "<group>"; };
+		EFE23AB6292B8D1800A3C554 /* SwappingPermissionRoutable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwappingPermissionRoutable.swift; sourceTree = "<group>"; };
 		EFEBCE2729263FC300B0C886 /* NumberFormatter+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NumberFormatter+.swift"; sourceTree = "<group>"; };
 		EFEBCE2A29265CF300B0C886 /* TokenIconViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenIconViewModel.swift; sourceTree = "<group>"; };
 		EFF034AB28B4B6ED00F70FF7 /* Publisher+TangemAPIError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Publisher+TangemAPIError.swift"; sourceTree = "<group>"; };
@@ -2763,6 +2769,7 @@
 			isa = PBXGroup;
 			children = (
 				EF5267DF2927805B00FC25A8 /* Swapping */,
+				EFE23AB1292B8D0800A3C554 /* SwappingPermission */,
 				EF59039229091CCE00C527C9 /* EnvironmentSetup */,
 				DC66BBF6285A20FE00CDF765 /* Main */,
 				DA23788E27B250D3009795A8 /* Shop */,
@@ -3112,6 +3119,16 @@
 			path = Types;
 			sourceTree = "<group>";
 		};
+		EFE23AB1292B8D0800A3C554 /* SwappingPermission */ = {
+			isa = PBXGroup;
+			children = (
+				EFE23AB4292B8D1800A3C554 /* SwappingPermissionView.swift */,
+				EFE23AB5292B8D1800A3C554 /* SwappingPermissionViewModel.swift */,
+				EFE23AB6292B8D1800A3C554 /* SwappingPermissionRoutable.swift */,
+			);
+			path = SwappingPermission;
+			sourceTree = "<group>";
+		};
 		EFEBCE2929265CEA00B0C886 /* TokenIconView */ = {
 			isa = PBXGroup;
 			children = (
@@ -3438,6 +3455,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				EF9CFC12288FECE100329BE0 /* ScanCardSettingsView.swift in Sources */,
+				EFE23ABB292B8D1800A3C554 /* SwappingPermissionRoutable.swift in Sources */,
 				DCE5C66C28898B7F000C7F67 /* TangemApiService.swift in Sources */,
 				5DDFC2042812B72C005976FE /* Currency.swift in Sources */,
 				5D09382825E7A2D80049B8F0 /* TokenDetailsView.swift in Sources */,
@@ -3675,6 +3693,7 @@
 				B06997D02692EC5E0014A676 /* ExchangeService.swift in Sources */,
 				DC3F54B128EB3D5D00BC9A6D /* KYCView.swift in Sources */,
 				EF5267F42927809300FC25A8 /* SwappingRoutable.swift in Sources */,
+				EFE23ABA292B8D1800A3C554 /* SwappingPermissionViewModel.swift in Sources */,
 				EF08A0F1283D2382008BD923 /* CoinsListRequestModel.swift in Sources */,
 				EF130EBC28E1D34500D37EFC /* MultiWalletContentView.swift in Sources */,
 				EF0F99B6289125C7008B01DF /* DefaultWarningRow.swift in Sources */,
@@ -3847,6 +3866,7 @@
 				DC295B3C2861C19C006CB7B6 /* MainCoordinator.swift in Sources */,
 				EFBAABAF2927CCBA0065C6D4 /* GroupedNumberFormatter.swift in Sources */,
 				EF0FF8712866021B00B7CEAF /* AppEnvironment.swift in Sources */,
+				EFE23AB9292B8D1800A3C554 /* SwappingPermissionView.swift in Sources */,
 				B01EB9C426E9F18A0060E2FB /* StackCalculator.swift in Sources */,
 				EFF034AF28B6522500F70FF7 /* WalletListManager.swift in Sources */,
 				5D9004E424FA79F700E90939 /* ViewStateHandler.swift in Sources */,
