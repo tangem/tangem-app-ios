@@ -14,7 +14,7 @@ enum Fonts {
         static let largeTitle: Font = .system(size: 34, weight: .regular)
 
         /// weight: regular, size: 28
-        static let title1: Font = .system(size: 28, weight: .semibold)
+        static let title1: Font = .system(size: 28, weight: .regular)
 
         /// weight: regular, size: 22
         static let title2: Font = .system(size: 22, weight: .regular)
