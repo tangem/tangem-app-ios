@@ -12,8 +12,8 @@ import SwiftUI
 final class SwappingViewModel: ObservableObject {
     // MARK: - ViewState
     
-    @Published var sendCurrencyViewModel: SendCurrencyViewModel
-    @Published var receiveCurrencyViewModel: ReceiveCurrencyViewModel
+    @Published var sendCurrencyViewModel: SendCurrencyViewModel?
+    @Published var receiveCurrencyViewModel: ReceiveCurrencyViewModel?
     @Published var isLoading: Bool = false
     
     @Published var sendDecimalValue: Decimal?
@@ -34,6 +34,54 @@ final class SwappingViewModel: ObservableObject {
     ) {
         self.coordinator = coordinator
         
+        setupView()
+        bind()
+    }
+    
+    func userDidTapSwapButton() {
+        withAnimation(.easeInOut(duration: 0.3)) {
+            swapCurrencies()
+        }
+    }
+    
+    func userDidTapChangeDestinationButton() {
+        openTokenListView()
+    }
+    
+    func userDidTapMainButton() {
+        if Bool.random() {
+            openSuccessView()
+        } else {
+            openPermissionView()
+        }
+    }
+}
+
+// MARK: - Navigation
+
+private extension SwappingViewModel {
+    func openTokenListView() {
+        coordinator.presentExchangeableTokenListView(networkIds: ["etherium"])
+    }
+    
+    func openSuccessView() {
+        coordinator.presentSuccessView(fromCurrency: "ETH", toCurrency: "USDT")
+    }
+    
+    func openPermissionView() {
+        let inputModel = SwappingPermissionViewModel.InputModel(
+            smartContractNetworkName: "DAI",
+            amount: 1000,
+            yourWalletAddress: "0x6B175474E89094C44Da98b954EedeAC495271d0F",
+            spenderWalletAddress: "0x6B175474E89094C44Da98b954EedeAC495271d0F",
+            fee: 2.14
+        )
+        coordinator.presentPermissionView(inputModel: inputModel)
+    }
+}
+
+private extension SwappingViewModel {
+    func setupView() {
         // Temp solution, will be changed on Currency input
         sendCurrencyViewModel = SendCurrencyViewModel(
             balance: 3043.75,
@@ -68,33 +116,14 @@ final class SwappingViewModel: ObservableObject {
                 action: {}
             )),
         ]
-        
-        bind()
     }
     
-    func userDidTapSwapButton() {
-        withAnimation(.easeInOut(duration: 0.3)) {
-            swapCurrencies()
-        }
-    }
-    
-    func userDidTapChangeDestinationButton() {
-        coordinator.presentExchangeableTokenListView()
-    }
-    
-    func userDidTapMainButton() {
-        coordinator.presentSuccessView(fromCurrency: "ETH", toCurrency: "USDT")
-    }
-}
-
-private extension SwappingViewModel {
-
     func bind() {
         $sendDecimalValue
             .print()
             .compactMap { $0 }
             .sink { [weak self] in
-                self?.sendCurrencyViewModel.update(fiatValue: $0 * 2)
+                self?.sendCurrencyViewModel?.update(fiatValue: $0 * 2)
             }
             .store(in: &bag)
 
@@ -118,26 +147,28 @@ private extension SwappingViewModel {
             .compactMap { $0 }
 //            .delay(for: 1, scheduler: DispatchQueue.main)
             .sink { [weak self] in
-                self?.receiveCurrencyViewModel.updateState(.loaded($0 * 0.5, fiatValue: $0 * 2))
+                self?.receiveCurrencyViewModel?.updateState(.loaded($0 * 0.5, fiatValue: $0 * 2))
             }
             .store(in: &bag)
     }
 
     func swapCurrencies() {
+        guard let receiveCurrencyViewModel, let sendCurrencyViewModel else { return }
+
         if receiveCurrencyViewModel.state.value != 0 {
             sendDecimalValue = receiveCurrencyViewModel.state.value
         }
 
         let sendTokenItem = sendCurrencyViewModel.tokenIcon
 
-        sendCurrencyViewModel = SendCurrencyViewModel(
+        self.sendCurrencyViewModel = SendCurrencyViewModel(
             balance: Decimal(Int.random(in: 0 ... 100)),
             maximumFractionDigits: 8,
             fiatValue: receiveCurrencyViewModel.state.fiatValue ?? 0,
             tokenIcon: receiveCurrencyViewModel.tokenIcon
         )
 
-        receiveCurrencyViewModel = ReceiveCurrencyViewModel(
+        self.receiveCurrencyViewModel = ReceiveCurrencyViewModel(
             state: .loading,
             tokenIcon: sendTokenItem
         ) {}
