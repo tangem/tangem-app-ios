@@ -3122,8 +3122,8 @@
 			isa = PBXGroup;
 			children = (
 				EFE23AAB292B810300A3C554 /* SuccessSwappingView.swift */,
-				EFE23AAC292B810300A3C554 /* SuccessSwappingRoutable.swift */,
 				EFE23AAD292B810300A3C554 /* SuccessSwappingViewModel.swift */,
+				EFE23AAC292B810300A3C554 /* SuccessSwappingRoutable.swift */,
 			);
 			path = SuccessSwapping;
 			sourceTree = "<group>";
