@@ -64,7 +64,7 @@ struct SuccessSwappingView_Preview: PreviewProvider {
     static let viewModel = SuccessSwappingViewModel(
         fromCurrency: "1 000 DAI",
         toCurrency: "1 000,36 MATIC",
-        coordinator: nil
+        coordinator: SwappingCoordinator()
     )
 
     static var previews: some View {
