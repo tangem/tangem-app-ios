@@ -656,7 +656,6 @@ class CardViewModel: Identifiable, ObservableObject {
         let userTokenListManager = CommonUserTokenListManager(config: config, userWalletId: userWalletId)
         let walletListManager = CommonWalletListManager(
             config: config,
-            name: userWallet.name,
             userTokenListManager: userTokenListManager
         )
 
