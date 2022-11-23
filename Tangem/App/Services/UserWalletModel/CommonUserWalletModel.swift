@@ -22,7 +22,6 @@ class CommonUserWalletModel {
         let userTokenListManager = CommonUserTokenListManager(config: config, userWalletId: userWallet.userWalletId)
         let walletListManager = CommonWalletListManager(
             config: config,
-            name: userWallet.name,
             userTokenListManager: userTokenListManager
         )
 
@@ -87,8 +86,6 @@ extension CommonUserWalletModel: UserWalletModel {
         didPerformInitialUpdate = true
 
         updateWalletModels()
-
-        print("*** updateAndReloadWalletModels", userWallet.userWalletId.hexString)
 
         reloadAllWalletModelsBag = walletListManager
             .reloadWalletModels(silent: silent)
