@@ -194,8 +194,11 @@ extension DetailsViewModel {
         supportSectionModels = [
             DefaultRowViewModel(title: "details_chat".localized, action: openSupportChat),
             DefaultRowViewModel(title: "details_row_title_send_feedback".localized, action: openMail),
-            DefaultRowViewModel(title: "details_referral_title".localized, action: openReferral),
         ]
+
+        if cardModel.canParticipateInReferralProgram && FeatureProvider.isAvailable(.referralProgram) {
+            supportSectionModels.append(DefaultRowViewModel(title: "details_referral_title".localized, action: openReferral))
+        }
     }
 
     func setupSettingsSectionViewModels() {
