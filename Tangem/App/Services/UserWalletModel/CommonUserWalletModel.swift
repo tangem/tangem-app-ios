@@ -88,6 +88,8 @@ extension CommonUserWalletModel: UserWalletModel {
 
         updateWalletModels()
 
+        print("*** updateAndReloadWalletModels", userWallet.userWalletId.hexString)
+
         reloadAllWalletModelsBag = walletListManager
             .reloadWalletModels(silent: silent)
             .receive(on: RunLoop.main)
