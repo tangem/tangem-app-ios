@@ -39,7 +39,14 @@ class CardViewModel: Identifiable, ObservableObject {
     }
 
     var emailData: [EmailCollectedData] {
-        config.emailData
+        var data = config.emailData
+
+        if let userWalletId {
+            let userWalletIdItem = EmailCollectedData(type: .card(.userWalletId), data: userWalletId.hexString)
+            data.append(userWalletIdItem)
+        }
+
+        return data
     }
 
     var emailConfig: EmailConfig? {
