@@ -510,7 +510,7 @@ URL: %@";
 "referral_title" = "Refer your friends to Tangem";
 "referral_point_currencies_title" = "You";
 "referral_point_currencies_description_prefix" = "Will get";
-"referral_point_currencies_description_suffix" = "for each wallet bought by your friend on your Tron network address %@";
+"referral_point_currencies_description_suffix" = "for each wallet bought by your friend on your %@ network address%@";
 "referral_point_discount_title" = "Your friend";
 "referral_point_discount_description_prefix" = "Will get a";
 "referral_point_discount_description_value" = "%@ discount";
