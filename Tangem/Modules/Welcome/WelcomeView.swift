@@ -13,17 +13,17 @@ struct WelcomeView: View {
 
     var body: some View {
         storiesView
-        .navigationBarHidden(viewModel.navigationBarHidden)
-        .navigationBarTitle("", displayMode: .inline)
-        .alert(item: $viewModel.error, content: { $0.alert })
-        .onAppear(perform: viewModel.onAppear)
-        .onDidAppear(viewModel.onDidAppear)
-        .onDisappear(perform: viewModel.onDisappear)
-        .background(
-            ScanTroubleshootingView(isPresented: $viewModel.showTroubleshootingView,
-                                    tryAgainAction: viewModel.tryAgain,
-                                    requestSupportAction: viewModel.requestSupport)
-        )
+            .navigationBarHidden(viewModel.navigationBarHidden)
+            .navigationBarTitle("", displayMode: .inline)
+            .alert(item: $viewModel.error, content: { $0.alert })
+            .onAppear(perform: viewModel.onAppear)
+            .onDidAppear(viewModel.onDidAppear)
+            .onDisappear(perform: viewModel.onDisappear)
+            .background(
+                ScanTroubleshootingView(isPresented: $viewModel.showTroubleshootingView,
+                                        tryAgainAction: viewModel.tryAgain,
+                                        requestSupportAction: viewModel.requestSupport)
+            )
     }
 
     var storiesView: some View {
