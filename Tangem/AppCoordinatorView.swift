@@ -14,7 +14,7 @@ struct AppCoordinatorView: CoordinatorView {
 
     var body: some View {
         NavigationView {
-            SwappingView(viewModel: SwappingViewModel(coordinator: SwappingCoordinator()))
+            SwappingCoordinatorView(coordinator: SwappingCoordinator(dismissAction: {}, popToRootAction: { _ in }))
         }
 
 //        WelcomeCoordinatorView(coordinator: coordinator.welcomeCoordinator)
