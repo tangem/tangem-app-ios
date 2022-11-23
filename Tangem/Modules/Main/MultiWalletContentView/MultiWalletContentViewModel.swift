@@ -36,7 +36,6 @@ class MultiWalletContentViewModel: ObservableObject {
     private let userTokenListManager: UserTokenListManager
 
     private var bag = Set<AnyCancellable>()
-    private var isFirstTimeOnAppear: Bool = true
 
     private lazy var totalBalanceManager = TotalBalanceProvider(
         userWalletModel: userWalletModel,
@@ -76,10 +75,7 @@ class MultiWalletContentViewModel: ObservableObject {
     }
 
     func onAppear() {
-        if isFirstTimeOnAppear {
-            onRefresh(silent: false) {}
-            isFirstTimeOnAppear = false
-        }
+        onRefresh(silent: false) {}
     }
 
     func openTokensList() {
