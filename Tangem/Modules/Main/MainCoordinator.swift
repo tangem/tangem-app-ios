@@ -251,7 +251,7 @@ extension MainCoordinator: UserWalletListRoutable {
         pushedOnboardingCoordinator = coordinator
     }
 
-    func didTap(_ cardModel: CardViewModel) {
+    func updateMain(with cardModel: CardViewModel) {
         guard let userWalletModel = cardModel.userWalletModel else {
             assertionFailure("UserWalletModel not created")
             return
