@@ -59,6 +59,9 @@ class SingleWalletContentViewModel: ObservableObject {
         self.userWalletModel = userWalletModel
         self.output = output
 
+        /// Initial set to `singleWalletModel`
+        singleWalletModel = userWalletModel.getWalletModels().first
+
         bind()
     }
 
@@ -96,6 +99,7 @@ class SingleWalletContentViewModel: ObservableObject {
     }
 
     private func bind() {
+        /// Subscribe for update `singleWalletModel` for each changes in `WalletModel`
         userWalletModel.subscribeToWalletModels()
             .map { walletModels in
                 walletModels
