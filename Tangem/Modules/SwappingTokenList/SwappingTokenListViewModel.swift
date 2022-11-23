@@ -9,7 +9,9 @@
 import Combine
 import SwiftUI
 
-final class SwappingTokenListViewModel: ObservableObject {
+final class SwappingTokenListViewModel: ObservableObject, Identifiable {
+    let id = UUID()
+
     @Injected(\.tangemApiService) private var tangemApiService: TangemApiService
 
     // MARK: - ViewState
@@ -88,6 +90,6 @@ private extension SwappingTokenListViewModel {
     }
 
     func userDidTap(coinModel: CoinModel) {
-        // [REDACTED_TODO_COMMENT]
+        coordinator?.userDidTap(coinModel: coinModel)
     }
 }
