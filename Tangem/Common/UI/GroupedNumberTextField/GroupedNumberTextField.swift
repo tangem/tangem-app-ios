@@ -30,6 +30,8 @@ struct GroupedNumberTextField: View {
         Binding<String>(
             get: { groupedNumberFormatter.format(from: textFieldText) },
             set: { newValue in
+                guard Decimal(string: newValue) != nil else { return }
+
                 // Remove space separators for formatter correct work
                 var numberString = newValue.replacingOccurrences(of: " ", with: "")
 
