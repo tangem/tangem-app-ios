@@ -8,6 +8,7 @@
 
 import SwiftUI
 import TangemSdk
+import Combine
 
 final class AuthViewModel: ObservableObject {
     // MARK: - ViewState
@@ -37,11 +38,23 @@ final class AuthViewModel: ObservableObject {
 
     private unowned let coordinator: AuthRoutable
 
+    private var bag: Set<AnyCancellable> = []
+
     init(
         coordinator: AuthRoutable
     ) {
         self.coordinator = coordinator
         userWalletRepository.delegate = self
+
+        userWalletRepository
+            .eventProvider
+            .sink { [weak self] event in
+                if case .selected = event,
+                   let selectedModel = self?.userWalletRepository.selectedModel {
+                    self?.updateMain(with: selectedModel)
+                }
+            }
+            .store(in: &bag)
     }
 
     func tryAgain() {
@@ -104,6 +117,10 @@ final class AuthViewModel: ObservableObject {
         case .success(let cardModel):
             openMain(with: cardModel)
         }
+    }
+
+    private func updateMain(with cardModel: CardViewModel) {
+        coordinator.updateMain(with: cardModel)
     }
 }
 
