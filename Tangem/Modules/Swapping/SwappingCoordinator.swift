@@ -19,6 +19,7 @@ class SwappingCoordinator: CoordinatorObject {
 
     // MARK: - Child coordinators
 
+    @Published var swappingTokenListViewModel: SwappingTokenListViewModel?
     @Published var swappingPermissionViewModel: SwappingPermissionViewModel?
     @Published var successSwappingViewModel: SuccessSwappingViewModel?
 
@@ -30,6 +31,8 @@ class SwappingCoordinator: CoordinatorObject {
     ) {
         self.dismissAction = dismissAction
         self.popToRootAction = popToRootAction
+        
+        start(with: .default)
     }
 
     func start(with options: Options) {
@@ -41,7 +44,7 @@ class SwappingCoordinator: CoordinatorObject {
 
 extension SwappingCoordinator {
     enum Options {
-
+case `default`
     }
 }
 
@@ -49,7 +52,7 @@ extension SwappingCoordinator {
 
 extension SwappingCoordinator: SwappingRoutable {
     func presentExchangeableTokenListView(networkIds: [String]) {
-        <#code#>
+        swappingTokenListViewModel = SwappingTokenListViewModel(networkIds: networkIds, coordinator: self)
     }
     
     func presentPermissionView(inputModel: SwappingPermissionViewModel.InputModel) {
@@ -62,6 +65,14 @@ extension SwappingCoordinator: SwappingRoutable {
             toCurrency: toCurrency,
             coordinator: self
         )
+    }
+}
+
+// MARK: - SwappingTokenListRoutable
+
+extension SwappingCoordinator: SwappingTokenListRoutable {
+    func userDidTap(coinModel: CoinModel) {
+        swappingTokenListViewModel = nil
     }
 }
 
