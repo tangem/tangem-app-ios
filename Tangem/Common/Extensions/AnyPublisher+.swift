@@ -13,7 +13,7 @@ extension AnyPublisher {
     func async() async throws -> Output {
         try await withCheckedThrowingContinuation { continuation in
             var cancellable: AnyCancellable?
-            
+
             cancellable = first()
                 .sink { completion in
                     if case let .failure(error) = completion {
