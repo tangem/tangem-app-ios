@@ -10,23 +10,10 @@ import Foundation
 import BlockchainSdk
 
 class CommonKeysManager {
-    private let keysFileName = "config"
     private let keys: Keys
 
     init() throws {
-        let keys = try JsonUtils.readBundleFile(with: keysFileName, type: CommonKeysManager.Keys.self)
-
-        if keys.blockchairApiKey.isEmpty ||
-            keys.blockcypherTokens.isEmpty ||
-            keys.infuraProjectId.isEmpty {
-            throw NSError(domain: "Empty keys in config file", code: -9998, userInfo: nil)
-        }
-
-        if keys.blockcypherTokens.first(where: { $0.isEmpty }) != nil {
-            throw NSError(domain: "One of blockcypher tokens is empty", code: -10001, userInfo: nil)
-        }
-
-        self.keys = keys
+        self.keys = try JsonUtils.readBundleFile(with: AppEnvironment.current.configFileName, type: CommonKeysManager.Keys.self)
     }
 }
 
