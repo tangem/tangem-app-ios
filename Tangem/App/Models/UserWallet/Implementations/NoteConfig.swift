@@ -75,7 +75,7 @@ extension NoteConfig: UserWalletConfig {
     }
 
     var persistentBlockchains: [StorageEntry]? {
-        return nil
+        return defaultBlockchains
     }
 
     var embeddedBlockchain: StorageEntry? {
