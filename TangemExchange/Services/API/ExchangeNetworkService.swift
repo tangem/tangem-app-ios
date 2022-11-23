@@ -69,13 +69,13 @@ class NetworkService {
             }
         }
 
-        return await withTaskCancellationHandler(handler: {
-            asyncRequestWrapper.cancel()
-        }, operation: {
-            await withCheckedContinuation({ continuation in
+        return await withTaskCancellationHandler {
+            await withCheckedContinuation { continuation in
                 asyncRequestWrapper.perform(continuation: continuation)
-            })
-        })
+            }
+        } onCancel: {
+            asyncRequestWrapper.cancel()
+        }
     }
 
     // MARK: - Private
