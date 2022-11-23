@@ -1,5 +1,5 @@
 //
-//  WalletManager+BlockchainProvider.swift
+//  BlockchainNetworkService.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -10,7 +10,7 @@ import Foundation
 import BlockchainSdk
 import TangemExchange
 
-struct ExchangeBlockchainProvider {
+struct BlockchainNetworkService {
     private let walletManager: WalletManager
     private let signer: TangemSigner
 
@@ -22,7 +22,7 @@ struct ExchangeBlockchainProvider {
 
 // MARK: - BlockchainProvider
 
-extension ExchangeBlockchainProvider: BlockchainNetworkProvider {
+extension BlockchainNetworkService: BlockchainNetworkProvider {
     func signAndSend(_ transaction: Transaction) async throws {
         try await walletManager.send(transaction, signer: signer).async()
     }
@@ -36,7 +36,7 @@ extension ExchangeBlockchainProvider: BlockchainNetworkProvider {
             .async()
     }
 
-    func createTransaction(for info: TransactionInfo) throws -> Transaction {
+    func createTransaction(for info: ExchangeTransactionInfo) throws -> Transaction {
         let amount = createAmount(from: info.currency, amount: info.amount)
         let fee = createAmount(from: info.currency, amount: info.fee)
 
@@ -50,7 +50,7 @@ extension ExchangeBlockchainProvider: BlockchainNetworkProvider {
 
 // MARK: - Private
 
-private extension ExchangeBlockchainProvider {
+private extension BlockchainNetworkService {
     func createAmount(from currency: Currency, amount: Decimal) -> Amount {
         if let token = currency.asToken() {
             return Amount(with: token, value: amount)
