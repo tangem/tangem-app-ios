@@ -18,6 +18,7 @@ struct WalletConnectView: View {
                              systemImageName: "plus",
                              action: viewModel.openSession)
             .accessibility(label: Text("voice_over_open_new_wallet_connect_session"))
+            .animation(nil)
     }
 
     var body: some View {

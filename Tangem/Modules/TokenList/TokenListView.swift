@@ -84,6 +84,7 @@ struct TokenListView: View {
                 }
                 .frame(width: 26, height: 26)
             }
+            .animation(nil)
         } else {
             EmptyView()
         }
