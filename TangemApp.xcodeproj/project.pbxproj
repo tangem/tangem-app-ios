@@ -530,16 +530,14 @@
 		EF4BEFE128AD423C00C5D1BE /* TangemAPIError.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF4BEFE028AD423C00C5D1BE /* TangemAPIError.swift */; };
 		EF50A5A42881CEE30081C5BB /* XCAssets+Generated.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF50A5A32881CEE30081C5BB /* XCAssets+Generated.swift */; };
 		EF50A5B1288976140081C5BB /* View+ConditionalModifiers.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF50A5B0288976140081C5BB /* View+ConditionalModifiers.swift */; };
-		EF5268012927C66100FC25A8 /* GroupedNumberFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF5267FF2927C66100FC25A8 /* GroupedNumberFormatter.swift */; };
-		EF5268022927C66100FC25A8 /* GroupedNumberTextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF5268002927C66100FC25A8 /* GroupedNumberTextField.swift */; };
 		EF5267F02927809300FC25A8 /* SwappingCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF5267EB2927809300FC25A8 /* SwappingCoordinator.swift */; };
 		EF5267F12927809300FC25A8 /* SwappingCoordinatorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF5267EC2927809300FC25A8 /* SwappingCoordinatorView.swift */; };
-		EF5267F22927809300FC25A8 /* SwappingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF5267ED2927809300FC25A8 /* SwappingView.swift */; };
+		EF5267F22927809300FC25A8 /* (null) in Sources */ = {isa = PBXBuildFile; };
 		EF5267F32927809300FC25A8 /* SwappingViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF5267EE2927809300FC25A8 /* SwappingViewModel.swift */; };
 		EF5267F42927809300FC25A8 /* SwappingRoutable.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF5267EF2927809300FC25A8 /* SwappingRoutable.swift */; };
 		EF59038E290186DC00C527C9 /* LazyVStackCompat.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF59038D290186DC00C527C9 /* LazyVStackCompat.swift */; };
 		EF59039A29091CFB00C527C9 /* EnvironmentSetupView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF59039529091CFB00C527C9 /* EnvironmentSetupView.swift */; };
-		EF59039B29091CFB00C527C9 /* EnvironmentSetupViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF59039629091CFB00C527C9 /* EnvironmentSetupViewModel.swift */; };
+		EF59039B29091CFB00C527C9 /* (null) in Sources */ = {isa = PBXBuildFile; };
 		EF5903A42909285E00C527C9 /* EnvironmentProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF5903A32909285E00C527C9 /* EnvironmentProvider.swift */; };
 		EF5903A829092BC600C527C9 /* FeatureProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF5903A729092BC600C527C9 /* FeatureProvider.swift */; };
 		EF5A5ACF28D86089002544AC /* TotalBalanceProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF5A5ACD28D86089002544AC /* TotalBalanceProvider.swift */; };
@@ -552,6 +550,7 @@
 		EF661E2F28BF41D6005769E5 /* Intents.intentdefinition in Sources */ = {isa = PBXBuildFile; fileRef = EF661E2928BF41D6005769E5 /* Intents.intentdefinition */; };
 		EF661E3228C0ACD1005769E5 /* ScanCardWarningView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF661E3128C0ACD0005769E5 /* ScanCardWarningView.swift */; };
 		EF661E3528C0ADC6005769E5 /* CommonError.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF661E3428C0ADC6005769E5 /* CommonError.swift */; };
+		EF6CB17C292E1080001335EA /* SwappingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF6CB17B292E1080001335EA /* SwappingView.swift */; };
 		EF74F50D289BF5AE001034D2 /* Fonts.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF74F50B289BF5AE001034D2 /* Fonts.swift */; };
 		EF74F50E289BF5AE001034D2 /* Text+.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF74F50C289BF5AE001034D2 /* Text+.swift */; };
 		EF7B9CEF286C6BD7004C33A9 /* CardSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF7B9CEE286C6BD7004C33A9 /* CardSettingsView.swift */; };
@@ -1212,12 +1211,12 @@
 		EF4BEFE028AD423C00C5D1BE /* TangemAPIError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TangemAPIError.swift; sourceTree = "<group>"; };
 		EF50A5A32881CEE30081C5BB /* XCAssets+Generated.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "XCAssets+Generated.swift"; sourceTree = "<group>"; };
 		EF50A5B0288976140081C5BB /* View+ConditionalModifiers.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "View+ConditionalModifiers.swift"; sourceTree = "<group>"; };
-		EF5267FF2927C66100FC25A8 /* GroupedNumberFormatter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GroupedNumberFormatter.swift; sourceTree = "<group>"; };
-		EF5268002927C66100FC25A8 /* GroupedNumberTextField.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GroupedNumberTextField.swift; sourceTree = "<group>"; };
 		EF5267EB2927809300FC25A8 /* SwappingCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwappingCoordinator.swift; sourceTree = "<group>"; };
 		EF5267EC2927809300FC25A8 /* SwappingCoordinatorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwappingCoordinatorView.swift; sourceTree = "<group>"; };
 		EF5267EE2927809300FC25A8 /* SwappingViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwappingViewModel.swift; sourceTree = "<group>"; };
 		EF5267EF2927809300FC25A8 /* SwappingRoutable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwappingRoutable.swift; sourceTree = "<group>"; };
+		EF5267FF2927C66100FC25A8 /* GroupedNumberFormatter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GroupedNumberFormatter.swift; sourceTree = "<group>"; };
+		EF5268002927C66100FC25A8 /* GroupedNumberTextField.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GroupedNumberTextField.swift; sourceTree = "<group>"; };
 		EF59038D290186DC00C527C9 /* LazyVStackCompat.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LazyVStackCompat.swift; sourceTree = "<group>"; };
 		EF59039529091CFB00C527C9 /* EnvironmentSetupView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EnvironmentSetupView.swift; sourceTree = "<group>"; };
 		EF5903A32909285E00C527C9 /* EnvironmentProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EnvironmentProvider.swift; sourceTree = "<group>"; };
@@ -1235,6 +1234,7 @@
 		EF661E2D28BF41D6005769E5 /* fr */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = fr; path = fr.lproj/Intents.strings; sourceTree = "<group>"; };
 		EF661E3128C0ACD0005769E5 /* ScanCardWarningView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ScanCardWarningView.swift; sourceTree = "<group>"; };
 		EF661E3428C0ADC6005769E5 /* CommonError.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CommonError.swift; sourceTree = "<group>"; };
+		EF6CB17B292E1080001335EA /* SwappingView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SwappingView.swift; sourceTree = "<group>"; };
 		EF74F50B289BF5AE001034D2 /* Fonts.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Fonts.swift; sourceTree = "<group>"; };
 		EF74F50C289BF5AE001034D2 /* Text+.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Text+.swift"; sourceTree = "<group>"; };
 		EF7B9CEE286C6BD7004C33A9 /* CardSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardSettingsView.swift; sourceTree = "<group>"; };
@@ -2913,21 +2913,12 @@
 			path = UserTokenListManager;
 			sourceTree = "<group>";
 		};
-		EF5267FA2927C62700FC25A8 /* GroupedNumberTextField */ = {
-			isa = PBXGroup;
-			children = (
-				EF5267FF2927C66100FC25A8 /* GroupedNumberFormatter.swift */,
-				EF5268002927C66100FC25A8 /* GroupedNumberTextField.swift */,
-			);
-			path = GroupedNumberTextField;
-			sourceTree = "<group>";
-		};
 		EF5267DF2927805B00FC25A8 /* Swapping */ = {
 			isa = PBXGroup;
 			children = (
 				EF5267EB2927809300FC25A8 /* SwappingCoordinator.swift */,
 				EF5267EC2927809300FC25A8 /* SwappingCoordinatorView.swift */,
-				EF5267ED2927809300FC25A8 /* SwappingView.swift */,
+				EF6CB17B292E1080001335EA /* SwappingView.swift */,
 				EF5267EE2927809300FC25A8 /* SwappingViewModel.swift */,
 				EF5267EF2927809300FC25A8 /* SwappingRoutable.swift */,
 			);
@@ -2938,7 +2929,6 @@
 			isa = PBXGroup;
 			children = (
 				EF59039529091CFB00C527C9 /* EnvironmentSetupView.swift */,
-				EF59039629091CFB00C527C9 /* EnvironmentSetupViewModel.swift */,
 			);
 			path = EnvironmentSetup;
 			sourceTree = "<group>";
@@ -3669,7 +3659,7 @@
 				DAA153BC2876CBFC002254D1 /* GeoResponse.swift in Sources */,
 				EF9CFC14288FECE100329BE0 /* ScanCardSettingsRoutable.swift in Sources */,
 				B0C807232620549F00F7DADE /* WalletConnectSessionItemView.swift in Sources */,
-				EF5267F22927809300FC25A8 /* SwappingView.swift in Sources */,
+				EF5267F22927809300FC25A8 /* (null) in Sources */,
 				EFA580632893E6AA00110DB0 /* BiometricAuthorizationUtils.swift in Sources */,
 				DC22535D28A514030094F30C /* WalletModelFactory.swift in Sources */,
 				B069B6DB268AFEBA004E7928 /* BnbSignHandler.swift in Sources */,
@@ -3684,6 +3674,7 @@
 				EF661E3528C0ADC6005769E5 /* CommonError.swift in Sources */,
 				EF48289528D1CD1F002809C6 /* Collection+.swift in Sources */,
 				DAC53D0027BE63830027147D /* Web3StoryPage.swift in Sources */,
+				EF6CB17C292E1080001335EA /* SwappingView.swift in Sources */,
 				B0541DC226FB301A0043893E /* WalletOnboardingCardLayout.swift in Sources */,
 				5D958E1424F513D9006BD932 /* RefreshableScrollView.swift in Sources */,
 				DC0A57FE2822C57C0031BECC /* BackupServiceProvider.swift in Sources */,
@@ -3870,7 +3861,7 @@
 				B01EB9C426E9F18A0060E2FB /* StackCalculator.swift in Sources */,
 				EFF034AF28B6522500F70FF7 /* WalletListManager.swift in Sources */,
 				5D9004E424FA79F700E90939 /* ViewStateHandler.swift in Sources */,
-				EF59039B29091CFB00C527C9 /* EnvironmentSetupViewModel.swift in Sources */,
+				EF59039B29091CFB00C527C9 /* (null) in Sources */,
 				6596AD4B28738F0100508D0A /* WarningBankCardViewModel.swift in Sources */,
 				DC0A57D72822A3C80031BECC /* InjectionKey.swift in Sources */,
 				EFF034AC28B4B6ED00F70FF7 /* Publisher+TangemAPIError.swift in Sources */,
