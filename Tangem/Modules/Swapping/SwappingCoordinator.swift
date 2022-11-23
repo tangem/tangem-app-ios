@@ -18,6 +18,9 @@ class SwappingCoordinator: CoordinatorObject {
     @Published private(set) var rootViewModel: SwappingViewModel?
 
     // MARK: - Child coordinators
+    
+    @Published var swappingPermissionViewModel: SwappingPermissionViewModel?
+    @Published var successSwappingViewModel: SuccessSwappingViewModel?
 
     // MARK: - Child view models
 
@@ -30,7 +33,7 @@ class SwappingCoordinator: CoordinatorObject {
     }
 
     func start(with options: Options) {
-
+        rootViewModel = SwappingViewModel(coordinator: self)
     }
 }
 
