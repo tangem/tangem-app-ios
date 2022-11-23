@@ -172,7 +172,7 @@ extension AppCoordinator: UIWindowSceneDelegate {
 extension AppCoordinator: URLHandler {
     @discardableResult func handle(url: String) -> Bool {
         guard url.starts(with: "https://app.tangem.com")
-                || url.starts(with: Constants.tangemDomain + "/ndef") else { return false }
+            || url.starts(with: Constants.tangemDomain + "/ndef") else { return false }
 
         return true
     }
