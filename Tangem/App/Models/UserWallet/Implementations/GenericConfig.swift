@@ -198,6 +198,8 @@ extension GenericConfig: UserWalletConfig {
             return .available
         case .tokenSynchronization:
             return .available
+        case .referralProgram:
+            return .available
         }
     }
 
