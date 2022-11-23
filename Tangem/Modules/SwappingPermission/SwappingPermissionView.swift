@@ -23,8 +23,8 @@ struct SwappingPermissionView: View {
 
             buttons
         }
-        .padding(.top, 8)
-        .padding(.bottom, 10)
+        .padding(.top, 16)
+        .padding(.bottom, 4)
         .background(Colors.Background.secondary)
     }
 
