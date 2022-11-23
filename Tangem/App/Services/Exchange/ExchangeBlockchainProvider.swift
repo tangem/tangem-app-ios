@@ -12,9 +12,9 @@ import TangemExchange
 
 struct BlockchainNetworkService {
     private let walletManager: WalletManager
-    private let signer: TangemSigner
+    private let signer: TransactionSigner
 
-    init(walletManager: WalletManager, signer: TangemSigner) {
+    init(walletManager: WalletManager, signer: TransactionSigner) {
         self.walletManager = walletManager
         self.signer = signer
     }
