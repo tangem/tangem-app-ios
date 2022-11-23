@@ -11,29 +11,29 @@ import SwiftUI
 
 final class SwappingViewModel: ObservableObject {
     // MARK: - ViewState
-
+    
     @Published var sendCurrencyViewModel: SendCurrencyViewModel
     @Published var receiveCurrencyViewModel: ReceiveCurrencyViewModel
     @Published var isLoading: Bool = false
-
+    
     @Published var sendDecimalValue: Decimal?
     @Published var refreshWarningRowViewModel: DefaultWarningRowViewModel?
     @Published var informationSectionViewModels: [InformationSectionViewModel] = []
     @Published var mainButtonIsEnabled: Bool = false
-
+    
     // MARK: - Dependencies
-
+    
     private unowned let coordinator: SwappingRoutable
-
+    
     // MARK: - Private
-
+    
     private var bag: Set<AnyCancellable> = []
-
+    
     init(
         coordinator: SwappingRoutable
     ) {
         self.coordinator = coordinator
-
+        
         // Temp solution, will be changed on Currency input
         sendCurrencyViewModel = SendCurrencyViewModel(
             balance: 3043.75,
@@ -41,13 +41,13 @@ final class SwappingViewModel: ObservableObject {
             fiatValue: 0,
             tokenIcon: .init(tokenItem: .blockchain(.bitcoin(testnet: false)))
         )
-
+        
         receiveCurrencyViewModel = ReceiveCurrencyViewModel(
             state: .loaded(0, fiatValue: 0),
             tokenIcon: .init(tokenItem: .blockchain(.polygon(testnet: false))),
-            didTapTokenView: {}
+            didTapTokenView: { [weak self] in self?.userDidTapChangeDestinationButton() }
         )
-
+        
         refreshWarningRowViewModel = DefaultWarningRowViewModel(
             icon: Assets.attention,
             title: "Exchange rate has expired",
@@ -55,7 +55,7 @@ final class SwappingViewModel: ObservableObject {
             detailsType: .icon(Assets.refreshWarningIcon),
             action: {}
         )
-
+        
         informationSectionViewModels = [
             .fee(DefaultRowViewModel(
                 title: "Fee",
@@ -68,23 +68,40 @@ final class SwappingViewModel: ObservableObject {
                 action: {}
             )),
         ]
-
+        
         bind()
     }
+    
+    func userDidTapSwapButton() {
+        withAnimation(.easeInOut(duration: 0.3)) {
+            swapCurrencies()
+        }
+    }
+    
+    func userDidTapChangeDestinationButton() {
+        coordinator.presentExchangeableTokenListView()
+    }
+    
+    func userDidTapMainButton() {
+        coordinator.presentSuccessView(fromCurrency: "ETH", toCurrency: "USDT")
+    }
+}
+
+private extension SwappingViewModel {
 
     func bind() {
         $sendDecimalValue
             .print()
             .compactMap { $0 }
-            .sink {
-                self.sendCurrencyViewModel.update(fiatValue: $0 * 2)
+            .sink { [weak self] in
+                self?.sendCurrencyViewModel.update(fiatValue: $0 * 2)
             }
             .store(in: &bag)
 
         $sendDecimalValue
             .map { ($0 ?? 0) > 0 }
-            .sink {
-                self.mainButtonIsEnabled = $0
+            .sink { [weak self] in
+                self?.mainButtonIsEnabled = $0
             }
             .store(in: &bag)
 
@@ -100,16 +117,10 @@ final class SwappingViewModel: ObservableObject {
         $sendDecimalValue
             .compactMap { $0 }
 //            .delay(for: 1, scheduler: DispatchQueue.main)
-            .sink {
-                self.receiveCurrencyViewModel.updateState(.loaded($0 * 0.5, fiatValue: $0 * 2))
+            .sink { [weak self] in
+                self?.receiveCurrencyViewModel.updateState(.loaded($0 * 0.5, fiatValue: $0 * 2))
             }
             .store(in: &bag)
-    }
-
-    func swapButtonDidTap() {
-        withAnimation(.easeInOut(duration: 0.3)) {
-            swapCurrencies()
-        }
     }
 
     func swapCurrencies() {
