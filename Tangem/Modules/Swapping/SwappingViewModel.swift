@@ -11,43 +11,43 @@ import SwiftUI
 
 final class SwappingViewModel: ObservableObject {
     // MARK: - ViewState
-    
+
     @Published var sendCurrencyViewModel: SendCurrencyViewModel?
     @Published var receiveCurrencyViewModel: ReceiveCurrencyViewModel?
     @Published var isLoading: Bool = false
-    
+
     @Published var sendDecimalValue: Decimal?
     @Published var refreshWarningRowViewModel: DefaultWarningRowViewModel?
     @Published var informationSectionViewModels: [InformationSectionViewModel] = []
     @Published var mainButtonIsEnabled: Bool = false
-    
+
     // MARK: - Dependencies
-    
+
     private unowned let coordinator: SwappingRoutable
-    
+
     // MARK: - Private
-    
+
     private var bag: Set<AnyCancellable> = []
-    
+
     init(
         coordinator: SwappingRoutable
     ) {
         self.coordinator = coordinator
-        
+
         setupView()
         bind()
     }
-    
+
     func userDidTapSwapButton() {
         withAnimation(.easeInOut(duration: 0.3)) {
             swapCurrencies()
         }
     }
-    
+
     func userDidTapChangeDestinationButton() {
         openTokenListView()
     }
-    
+
     func userDidTapMainButton() {
         if Bool.random() {
             openSuccessView()
@@ -61,13 +61,13 @@ final class SwappingViewModel: ObservableObject {
 
 private extension SwappingViewModel {
     func openTokenListView() {
-        coordinator.presentExchangeableTokenListView(networkIds: ["etherium"])
+        coordinator.presentExchangeableTokenListView(networkIds: ["ethereum"])
     }
-    
+
     func openSuccessView() {
         coordinator.presentSuccessView(fromCurrency: "ETH", toCurrency: "USDT")
     }
-    
+
     func openPermissionView() {
         let inputModel = SwappingPermissionViewModel.InputModel(
             smartContractNetworkName: "DAI",
@@ -87,15 +87,17 @@ private extension SwappingViewModel {
             balance: 3043.75,
             maximumFractionDigits: 8,
             fiatValue: 0,
-            tokenIcon: .init(tokenItem: .blockchain(.bitcoin(testnet: false)))
+            tokenIcon: .init(tokenItem: .blockchain(.bitcoin(testnet: false))),
+            tokenName: "BTC"
         )
-        
+
         receiveCurrencyViewModel = ReceiveCurrencyViewModel(
             state: .loaded(0, fiatValue: 0),
             tokenIcon: .init(tokenItem: .blockchain(.polygon(testnet: false))),
-            didTapTokenView: { [weak self] in self?.userDidTapChangeDestinationButton() }
+            didTapTokenView: { [weak self] in self?.userDidTapChangeDestinationButton() },
+            tokenName: "POLYGON"
         )
-        
+
         refreshWarningRowViewModel = DefaultWarningRowViewModel(
             icon: Assets.attention,
             title: "Exchange rate has expired",
@@ -103,7 +105,7 @@ private extension SwappingViewModel {
             detailsType: .icon(Assets.refreshWarningIcon),
             action: {}
         )
-        
+
         informationSectionViewModels = [
             .fee(DefaultRowViewModel(
                 title: "Fee",
@@ -117,10 +119,9 @@ private extension SwappingViewModel {
             )),
         ]
     }
-    
+
     func bind() {
         $sendDecimalValue
-            .print()
             .compactMap { $0 }
             .sink { [weak self] in
                 self?.sendCurrencyViewModel?.update(fiatValue: $0 * 2)

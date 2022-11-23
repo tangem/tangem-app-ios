@@ -11,6 +11,7 @@ import Foundation
 struct SendCurrencyViewModel: Identifiable {
     var id: Int { hashValue }
     let tokenIcon: TokenIconViewModel
+    let tokenName: String
 
     var balanceString: String {
         "common_balance".localized(balance.groupedFormatted())
@@ -28,12 +29,14 @@ struct SendCurrencyViewModel: Identifiable {
         balance: Decimal,
         maximumFractionDigits: Int,
         fiatValue: Decimal,
-        tokenIcon: TokenIconViewModel
+        tokenIcon: TokenIconViewModel,
+        tokenName: String
     ) {
         self.balance = balance
         self.maximumFractionDigits = maximumFractionDigits
         self.fiatValue = fiatValue
         self.tokenIcon = tokenIcon
+        self.tokenName = tokenName
     }
 
     mutating func update(fiatValue: Decimal) {
