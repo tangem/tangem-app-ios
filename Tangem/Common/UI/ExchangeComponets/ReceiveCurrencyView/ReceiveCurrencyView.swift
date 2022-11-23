@@ -10,6 +10,7 @@ import SwiftUI
 
 struct ReceiveCurrencyView: View {
     private let viewModel: ReceiveCurrencyViewModel
+    private let tokenIconSize = CGSize(width: 36, height: 36)
 
     init(viewModel: ReceiveCurrencyViewModel) {
         self.viewModel = viewModel
@@ -77,17 +78,24 @@ struct ReceiveCurrencyView: View {
 
     private var tokenView: some View {
         Button(action: viewModel.didTapTokenView) {
-            HStack(spacing: 8) {
-                VStack(spacing: 2) {
-                    TokenIconView(viewModel: viewModel.tokenIcon)
+            ZStack(alignment: .topLeading) {
+                HStack(spacing: 4) {
+                    TokenIconView(
+                        viewModel: viewModel.tokenIcon,
+                        size: tokenIconSize
+                    )
 
-                    Text(viewModel.tokenName)
-                        .style(Fonts.Bold.footnote, color: Colors.Text.primary1)
+                    Assets.chevronDownMini
+                        .resizable()
+                        .frame(width: 8, height: 8)
                 }
 
-                Assets.chevronDownMini
-                    .resizable()
-                    .frame(width: 9, height: 9)
+                VStack(spacing: 4) {
+                    Color.clear.frame(size: tokenIconSize)
+
+                    Text(viewModel.tokenSymbol)
+                        .style(Fonts.Bold.footnote, color: Colors.Text.primary1)
+                }
             }
         }
     }
@@ -95,13 +103,15 @@ struct ReceiveCurrencyView: View {
 
 struct ReceiveCurrencyView_Preview: PreviewProvider {
     static let viewModel = ReceiveCurrencyViewModel(
-        state: .loaded(11412413131.46, fiatValue: 1000.71),
-        tokenIcon: .init(tokenItem: .blockchain(.bitcoin(testnet: false)))
+        state: .loaded(1100.46, fiatValue: 1000.71),
+        tokenIcon: .init(tokenItem: .blockchain(.polygon(testnet: false))),
+        tokenSymbol: "MATIC"
     ) {}
 
     static let loadingViewModel = ReceiveCurrencyViewModel(
         state: .loading,
-        tokenIcon: .init(tokenItem: .blockchain(.bitcoin(testnet: false)))
+        tokenIcon: .init(tokenItem: .blockchain(.bitcoin(testnet: false))),
+        tokenSymbol: "BTC"
     ) {}
 
     static var previews: some View {
