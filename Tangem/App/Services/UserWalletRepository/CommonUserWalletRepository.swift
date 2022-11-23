@@ -448,14 +448,16 @@ class CommonUserWalletRepository: UserWalletRepository {
         scanPublisher()
             .receive(on: DispatchQueue.main)
             .sink { [weak self] result in
-                guard AppSettings.shared.saveUserWallets else {
+                guard
+                    let self,
+                    case let .success(cardModel) = result,
+                    AppSettings.shared.saveUserWallets
+                else {
                     completion(result)
                     return
                 }
 
                 guard
-                    let self,
-                    case let .success(cardModel) = result,
                     let scannedUserWallet = cardModel.userWallet,
                     let encryptionKey = UserWalletEncryptionKeyFactory().encryptionKey(from: cardModel.cardInfo)
                 else {
