@@ -9,5 +9,5 @@
 import Foundation
 
 protocol SuccessSwappingRoutable: AnyObject {
-func userDidTapMainButton()
+    func userDidTapMainButton()
 }
