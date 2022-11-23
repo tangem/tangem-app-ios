@@ -38,12 +38,16 @@ struct SwappingView: View {
     private var swappingViews: some View {
         ZStack(alignment: .center) {
             VStack(spacing: 14) {
-                SendCurrencyView(
-                    viewModel: viewModel.sendCurrencyViewModel,
-                    decimalValue: $viewModel.sendDecimalValue
-                )
+                if let sendCurrencyViewModel = viewModel.sendCurrencyViewModel {
+                    SendCurrencyView(
+                        viewModel: sendCurrencyViewModel,
+                        decimalValue: $viewModel.sendDecimalValue
+                    )
+                }
 
-                ReceiveCurrencyView(viewModel: viewModel.receiveCurrencyViewModel)
+                if let receiveCurrencyViewModel = viewModel.receiveCurrencyViewModel {
+                    ReceiveCurrencyView(viewModel: receiveCurrencyViewModel)
+                }
             }
 
             swappingButton
