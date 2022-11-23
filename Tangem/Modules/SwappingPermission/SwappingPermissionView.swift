@@ -20,7 +20,7 @@ struct SwappingPermissionView: View {
             headerView
 
             content
-            
+
             buttons
         }
         .padding(.bottom, 10)
@@ -46,14 +46,14 @@ struct SwappingPermissionView: View {
         }
         .padding(.horizontal, 16)
     }
-    
+
     private var buttons: some View {
         VStack(spacing: 10) {
             MainButton(
                 text: "swapping_permission_buttons_approve".localized,
                 icon: .trailing(Assets.tangemIcon),
                 action: viewModel.approveDidTapped)
-            
+
             MainButton(
                 text: "common_cancel".localized,
                 style: .secondary,
@@ -75,6 +75,6 @@ struct SwappingPermissionView_Preview: PreviewProvider {
     )
 
     static var previews: some View {
-            SwappingPermissionView(viewModel: viewModel)
+        SwappingPermissionView(viewModel: viewModel)
     }
 }
