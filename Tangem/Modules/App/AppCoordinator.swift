@@ -39,50 +39,60 @@ class AppCoordinator: NSObject, CoordinatorObject {
 
         switch startupOption {
         case .welcome:
-            let dismissAction = { [weak self] in
-                self?.welcomeCoordinator = nil
-                self?.start()
-            }
-
-            let popToRootAction: ParamsAction<PopToRootOptions> = { [weak self] options in
-                self?.welcomeCoordinator = nil
-                self?.start(with: .init(connectionOptions: nil, newScan: options.newScan))
-            }
-
-            let coordinator = WelcomeCoordinator(dismissAction: dismissAction, popToRootAction: popToRootAction)
-            coordinator.start(with: .init(shouldScan: options.newScan))
-            self.welcomeCoordinator = coordinator
-
+            setupWelcome(with: options)
         case .auth:
-            let dismissAction = { [weak self] in
-                self?.authCoordinator = nil
-                self?.start()
-            }
-
-            let popToRootAction: ParamsAction<PopToRootOptions> = { [weak self] options in
-                self?.authCoordinator = nil
-                self?.start(with: .init(connectionOptions: nil, newScan: options.newScan))
-            }
-
-            let coordinator = AuthCoordinator(dismissAction: dismissAction, popToRootAction: popToRootAction)
-            coordinator.start()
-            self.authCoordinator = coordinator
-
+            setupAuth(with: options)
         case .uncompletedBackup:
-            let dismissAction = { [weak self] in
-                self?.uncompletedBackupCoordinator = nil
-                self?.start()
-            }
-
-            let coordinator = UncompletedBackupCoordinator(dismissAction: dismissAction)
-            coordinator.start()
-            self.uncompletedBackupCoordinator = coordinator
+            setupUncompletedBackup()
         }
 
         if let options = options.connectionOptions, startupOption != .uncompletedBackup {
             handle(contexts: options.urlContexts)
             handle(activities: options.userActivities)
         }
+    }
+
+    private func setupWelcome(with options: AppCoordinator.Options) {
+        let dismissAction = { [weak self] in
+            self?.welcomeCoordinator = nil
+            self?.start()
+        }
+
+        let popToRootAction: ParamsAction<PopToRootOptions> = { [weak self] options in
+            self?.welcomeCoordinator = nil
+            self?.start(with: .init(connectionOptions: nil, newScan: options.newScan))
+        }
+
+        let coordinator = WelcomeCoordinator(dismissAction: dismissAction, popToRootAction: popToRootAction)
+        coordinator.start(with: .init(shouldScan: options.newScan))
+        self.welcomeCoordinator = coordinator
+    }
+
+    private func setupAuth(with options: AppCoordinator.Options) {
+        let dismissAction = { [weak self] in
+            self?.authCoordinator = nil
+            self?.start()
+        }
+
+        let popToRootAction: ParamsAction<PopToRootOptions> = { [weak self] options in
+            self?.authCoordinator = nil
+            self?.start(with: .init(connectionOptions: nil, newScan: options.newScan))
+        }
+
+        let coordinator = AuthCoordinator(dismissAction: dismissAction, popToRootAction: popToRootAction)
+        coordinator.start()
+        self.authCoordinator = coordinator
+    }
+
+    private func setupUncompletedBackup() {
+        let dismissAction = { [weak self] in
+            self?.uncompletedBackupCoordinator = nil
+            self?.start()
+        }
+
+        let coordinator = UncompletedBackupCoordinator(dismissAction: dismissAction)
+        coordinator.start()
+        self.uncompletedBackupCoordinator = coordinator
     }
 
     private func bind() {
@@ -162,7 +172,7 @@ extension AppCoordinator: UIWindowSceneDelegate {
 extension AppCoordinator: URLHandler {
     @discardableResult func handle(url: String) -> Bool {
         guard url.starts(with: "https://app.tangem.com")
-            || url.starts(with: Constants.tangemDomain + "/ndef") else { return false }
+                || url.starts(with: Constants.tangemDomain + "/ndef") else { return false }
 
         return true
     }
