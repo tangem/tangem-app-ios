@@ -58,6 +58,9 @@ class SingleWalletContentViewModel: ObservableObject {
         self.cardModel = cardModel
         self.userWalletModel = userWalletModel
         self.output = output
+        
+        /// Initial set to `singleWalletModel`
+        singleWalletModel = userWalletModel.getWalletModels().first
 
         bind()
     }
@@ -96,14 +99,6 @@ class SingleWalletContentViewModel: ObservableObject {
     }
 
     private func bind() {
-        /// Initial set to `singleWalletModel`
-        userWalletModel.subscribeToWalletModels()
-            .receive(on: DispatchQueue.main)
-            .sink { [unowned self] walletModels in
-                singleWalletModel = walletModels.first
-            }
-            .store(in: &bag)
-
         /// Subscribe for update `singleWalletModel` for each changes in `WalletModel`
         userWalletModel.subscribeToWalletModels()
             .map { walletModels in
