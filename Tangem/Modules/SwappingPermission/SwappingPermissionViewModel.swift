@@ -9,7 +9,9 @@
 import Combine
 import SwiftUI
 
-final class SwappingPermissionViewModel: ObservableObject {
+final class SwappingPermissionViewModel: ObservableObject, Identifiable {
+    let id: UUID = UUID()
+    
     // MARK: - ViewState
 
     @Published var contentRowViewModels: [DefaultRowViewModel] = []
