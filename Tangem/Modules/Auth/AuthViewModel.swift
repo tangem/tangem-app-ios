@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemSdk
 
 final class AuthViewModel: ObservableObject {
     // MARK: - ViewState
@@ -95,6 +96,8 @@ final class AuthViewModel: ObservableObject {
         case .error(let error):
             if let saltPayError = error as? SaltPayRegistratorError {
                 self.error = saltPayError.alertBinder
+            } else if case .userCancelled = error as? TangemSdkError {
+                break
             } else {
                 self.error = error.alertBinder
             }
