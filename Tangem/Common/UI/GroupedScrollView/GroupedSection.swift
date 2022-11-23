@@ -99,7 +99,7 @@ extension GroupedSection: Setupable {
     func horizontalPadding(_ padding: CGFloat) -> Self {
         map { $0.horizontalPadding = padding }
     }
-    
+
     func separatorPadding(_ padding: CGFloat) -> Self {
         map { $0.separatorPadding = padding }
     }

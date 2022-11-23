@@ -34,14 +34,18 @@ struct SwappingCoordinatorView: CoordinatorView {
     @ViewBuilder
     private var sheets: some View {
         NavHolder()
+            .sheet(item: $coordinator.swappingTokenListViewModel) {
+                SwappingTokenListView(viewModel: $0)
+            }
+
+        NavHolder()
             .bottomSheet(item: $coordinator.swappingPermissionViewModel,
-                         viewModelSettings: .default) {
+                         viewModelSettings: .swappingPermission) {
                 SwappingPermissionView(viewModel: $0)
             }
 
         NavHolder()
-            .bottomSheet(item: $coordinator.successSwappingViewModel,
-                         viewModelSettings: .default) {
+            .sheet(item: $coordinator.successSwappingViewModel) {
                 SuccessSwappingView(viewModel: $0)
             }
     }
