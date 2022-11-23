@@ -12,6 +12,8 @@ struct SendCurrencyView: View {
     private var viewModel: SendCurrencyViewModel
     @Binding private var decimalValue: Decimal?
 
+    private let tokenIconSize = CGSize(width: 36, height: 36)
+
     init(viewModel: SendCurrencyViewModel, decimalValue: Binding<Decimal?>) {
         self.viewModel = viewModel
         _decimalValue = decimalValue
@@ -57,25 +59,29 @@ struct SendCurrencyView: View {
 
             Spacer()
 
-            VStack(spacing: 2) {
-                TokenIconView(viewModel: viewModel.tokenIcon)
-                    .padding(.trailing, 16)
+            VStack(spacing: 4) {
+                TokenIconView(
+                    viewModel: viewModel.tokenIcon,
+                    size: tokenIconSize
+                )
 
-                Text(viewModel.tokenName)
+                Text(viewModel.tokenSymbol)
                     .style(Fonts.Bold.footnote, color: Colors.Text.primary1)
             }
+            .padding(.trailing, 12)
         }
     }
 }
 
 struct SendCurrencyView_Preview: PreviewProvider {
-    @State private static var decimalValue: Decimal? = nil
+    @State private static var decimalValue: Decimal? = 1000
 
     static let viewModel = SendCurrencyViewModel(
         balance: 3043.75,
         maximumFractionDigits: 8,
         fiatValue: 1000.71,
-        tokenIcon: TokenIconViewModel(tokenItem: .blockchain(.bitcoin(testnet: false)))
+        tokenIcon: TokenIconViewModel(tokenItem: .blockchain(.bitcoin(testnet: false))),
+        tokenSymbol: "BTC"
     )
 
     static var previews: some View {
