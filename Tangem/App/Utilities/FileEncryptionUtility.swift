@@ -8,42 +8,37 @@
 
 import Foundation
 import CryptoKit
-import KeychainSwift
+import TangemSdk
 
 class FileEncryptionUtility {
-    private lazy var keychain: KeychainSwift = {
-        let keychain = KeychainSwift()
-        keychain.synchronizable = true
-        return keychain
-    }()
+    private let keychain: SecureStorage = .init()
 
     init() {}
 
     private var keychainKey: String { "tangem_files_symmetric_key" }
 
     func encryptData(_ data: Data) throws -> Data {
-        let sealedBox = try ChaChaPoly.seal(data, using: storedSymmetricKey())
+        let sealedBox = try ChaChaPoly.seal(data, using: try storedSymmetricKey())
         let sealedData = sealedBox.combined
         return sealedData
     }
 
     func decryptData(_ data: Data) throws -> Data {
         let sealedBox = try ChaChaPoly.SealedBox(combined: data)
-        let decryptedData = try ChaChaPoly.open(sealedBox, using: storedSymmetricKey())
+        let decryptedData = try ChaChaPoly.open(sealedBox, using: try storedSymmetricKey())
         return decryptedData
     }
 
-    private func storedSymmetricKey() -> SymmetricKey {
-        if let key = keychain.getData(keychainKey) {
+    private func storedSymmetricKey() throws -> SymmetricKey {
+        if let key = try keychain.get(keychainKey) {
             let symmetricKey: SymmetricKey = .init(data: key)
             return symmetricKey
         }
 
         let key = SymmetricKey(size: .bits256)
-        keychain.set(key.dataRepresentation, forKey: keychainKey)
+        try keychain.store(key.dataRepresentation, forKey: keychainKey)
         return key
     }
-
 }
 
 extension ContiguousBytes {
