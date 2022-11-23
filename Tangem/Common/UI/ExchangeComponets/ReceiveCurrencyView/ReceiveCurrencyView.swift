@@ -78,7 +78,12 @@ struct ReceiveCurrencyView: View {
     private var tokenView: some View {
         Button(action: viewModel.didTapTokenView) {
             HStack(spacing: 8) {
-                TokenIconView(viewModel: viewModel.tokenIcon)
+                VStack(spacing: 2) {
+                    TokenIconView(viewModel: viewModel.tokenIcon)
+                    
+                    Text(viewModel.tokenName)
+                        .style(Fonts.Bold.footnote, color: Colors.Text.primary1)
+                }
 
                 Assets.chevronDownMini
                     .resizable()
@@ -91,12 +96,14 @@ struct ReceiveCurrencyView: View {
 struct ReceiveCurrencyView_Preview: PreviewProvider {
     static let viewModel = ReceiveCurrencyViewModel(
         state: .loaded(11412413131.46, fiatValue: 1000.71),
-        tokenIcon: .init(tokenItem: .blockchain(.bitcoin(testnet: false)))
+        tokenIcon: .init(tokenItem: .blockchain(.bitcoin(testnet: false))),
+        tokenName: "BTC"
     ) {}
 
     static let loadingViewModel = ReceiveCurrencyViewModel(
         state: .loading,
-        tokenIcon: .init(tokenItem: .blockchain(.bitcoin(testnet: false)))
+        tokenIcon: .init(tokenItem: .blockchain(.bitcoin(testnet: false))),
+        tokenName: "BTC"
     ) {}
 
     static var previews: some View {
