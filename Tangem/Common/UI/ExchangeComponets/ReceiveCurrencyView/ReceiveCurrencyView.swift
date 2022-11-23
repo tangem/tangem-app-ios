@@ -80,7 +80,7 @@ struct ReceiveCurrencyView: View {
             HStack(spacing: 8) {
                 VStack(spacing: 2) {
                     TokenIconView(viewModel: viewModel.tokenIcon)
-                    
+
                     Text(viewModel.tokenName)
                         .style(Fonts.Bold.footnote, color: Colors.Text.primary1)
                 }
@@ -96,14 +96,12 @@ struct ReceiveCurrencyView: View {
 struct ReceiveCurrencyView_Preview: PreviewProvider {
     static let viewModel = ReceiveCurrencyViewModel(
         state: .loaded(11412413131.46, fiatValue: 1000.71),
-        tokenIcon: .init(tokenItem: .blockchain(.bitcoin(testnet: false))),
-        tokenName: "BTC"
+        tokenIcon: .init(tokenItem: .blockchain(.bitcoin(testnet: false)))
     ) {}
 
     static let loadingViewModel = ReceiveCurrencyViewModel(
         state: .loading,
-        tokenIcon: .init(tokenItem: .blockchain(.bitcoin(testnet: false))),
-        tokenName: "BTC"
+        tokenIcon: .init(tokenItem: .blockchain(.bitcoin(testnet: false)))
     ) {}
 
     static var previews: some View {
