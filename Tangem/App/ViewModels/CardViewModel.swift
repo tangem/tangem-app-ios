@@ -273,7 +273,6 @@ class CardViewModel: Identifiable, ObservableObject {
         createUserWalletModelIfNeeded(with: userWallet)
         updateCurrentSecurityOption()
         bind()
-        appendDefaultBlockchainIfNeeded()
     }
 
     func setupWarnings() {
@@ -486,10 +485,6 @@ class CardViewModel: Identifiable, ObservableObject {
         updateSdkConfig()
     }
 
-    func onAppear() {
-        updateSdkConfig()
-    }
-
     func getDisabledLocalizedReason(for feature: UserWalletFeature) -> String? {
         config.getFeatureAvailability(feature).disabledLocalizedReason
     }
@@ -676,13 +671,6 @@ class CardViewModel: Identifiable, ObservableObject {
             walletListManager: walletListManager,
             userWallet: userWallet
         )
-    }
-
-    private func appendDefaultBlockchainIfNeeded() {
-        // For single wallet only
-        guard !isMultiWallet, walletModels.isEmpty else { return }
-
-        appendDefaultBlockchains()
     }
 }
 
