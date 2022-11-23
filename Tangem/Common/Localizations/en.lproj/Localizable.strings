@@ -513,3 +513,6 @@ URL: %@";
 "swapping_permission_rows_spender" = "Spender";
 "swapping_permission_rows_fee" = "Fee";
 "swapping_permission_buttons_approve" = "Approve";
+"swapping_success" = "Success!";
+"swapping_swap_of_to" = "Swap of %@ to";
+"swapping_swap" = "Swap";
