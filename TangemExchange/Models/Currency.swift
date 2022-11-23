@@ -43,18 +43,4 @@ public struct Currency {
         self.imageURL = imageURL
         self.contractAddress = contractAddress
     }
-
-//    init(amount: Decimal, blockchainNetwork: BlockchainNetwork) {
-//        self.contractAddress = ""
-//        self.blockchainNetwork = blockchainNetwork
-//        self.amount = amount
-//    }
-//
-//    mutating func updateImageURL(_ imageURL: URL) {
-//        self.imageURL = imageURL
-//    }
-//
-//    mutating func updateAmount(_ amount: Decimal) {
-//        self.amount = amount
-//    }
 }
