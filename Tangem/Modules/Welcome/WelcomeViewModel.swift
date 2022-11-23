@@ -98,7 +98,7 @@ class WelcomeViewModel: ObservableObject {
         }
     }
 
-    func onDissappear() {
+    func onDisappear() {
         navigationBarHidden = false
     }
 }
