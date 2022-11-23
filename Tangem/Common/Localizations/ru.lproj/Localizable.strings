@@ -510,7 +510,7 @@ URL: %@";
 "referral_title" = "Приведи друга в Tangem";
 "referral_point_currencies_title" = "Вы";
 "referral_point_currencies_description_prefix" = "Получите";
-"referral_point_currencies_description_suffix" = "за каждый кошелек, который купит ваш друг на ваш адрес в сети Tron %@";
+"referral_point_currencies_description_suffix" = "на ваш адрес в сети %@%@ за каждый кошелек, который купит ваш друг";
 "referral_point_discount_title" = "Ваш друг";
 "referral_point_discount_description_prefix" = "Получит";
 "referral_point_discount_description_value" = "%@ скидку";
