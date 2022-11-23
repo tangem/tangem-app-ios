@@ -173,6 +173,8 @@ extension LegacyConfig: UserWalletConfig {
             } else {
                 return .hidden
             }
+        case .referralProgram:
+            return .hidden
         }
     }
 
