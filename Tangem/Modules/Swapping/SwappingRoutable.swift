@@ -9,5 +9,6 @@
 import Foundation
 
 protocol SwappingRoutable: AnyObject {
-
+    func presentSuccessView(fromCurrency: String, toCurrency: String)
+    func presentExchangeableTokenListView(inputModel: SwappingPermissionViewModel.InputModel)
 }
