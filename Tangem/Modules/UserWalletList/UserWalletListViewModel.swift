@@ -196,8 +196,6 @@ final class UserWalletListViewModel: ObservableObject, Identifiable {
         }
 
         self.selectedUserWalletId = userWallet.userWalletId
-
-        coordinator.didTap(model)
         updateSelectedWalletModel()
     }
 
