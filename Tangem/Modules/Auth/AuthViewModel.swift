@@ -91,7 +91,7 @@ final class AuthViewModel: ObservableObject {
         case .troubleshooting:
             showTroubleshootingView = true
         case .onboarding(let input):
-            self.openOnboarding(with: input)
+            openOnboarding(with: input)
         case .error(let error):
             if let saltPayError = error as? SaltPayRegistratorError {
                 self.error = saltPayError.alertBinder
