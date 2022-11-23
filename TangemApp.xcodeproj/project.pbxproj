@@ -415,6 +415,17 @@
 		DC261C9F292CD3B800875E64 /* GoogleService-Info-Beta.plist in Resources */ = {isa = PBXBuildFile; fileRef = DC261C9C292CD3B800875E64 /* GoogleService-Info-Beta.plist */; };
 		DC261CA0292CD3B800875E64 /* GoogleService-Info-Alpha.plist in Resources */ = {isa = PBXBuildFile; fileRef = DC261C9D292CD3B800875E64 /* GoogleService-Info-Alpha.plist */; };
 		DC261CA1292CD3B800875E64 /* GoogleService-Info-Production.plist in Resources */ = {isa = PBXBuildFile; fileRef = DC261C9E292CD3B800875E64 /* GoogleService-Info-Production.plist */; };
+		DC261CA8292CF56600875E64 /* AuthCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC261CA3292CF56600875E64 /* AuthCoordinator.swift */; };
+		DC261CA9292CF56600875E64 /* AuthCoordinatorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC261CA4292CF56600875E64 /* AuthCoordinatorView.swift */; };
+		DC261CAA292CF56600875E64 /* AuthView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC261CA5292CF56600875E64 /* AuthView.swift */; };
+		DC261CAB292CF56600875E64 /* AuthViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC261CA6292CF56600875E64 /* AuthViewModel.swift */; };
+		DC261CAC292CF56600875E64 /* AuthRoutable.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC261CA7292CF56600875E64 /* AuthRoutable.swift */; };
+		DC261CB3292CF6B700875E64 /* UncompletedBackupCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC261CAE292CF6B700875E64 /* UncompletedBackupCoordinator.swift */; };
+		DC261CB4292CF6B700875E64 /* UncompletedBackupCoordinatorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC261CAF292CF6B700875E64 /* UncompletedBackupCoordinatorView.swift */; };
+		DC261CB5292CF6B700875E64 /* UncompletedBackupView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC261CB0292CF6B700875E64 /* UncompletedBackupView.swift */; };
+		DC261CB6292CF6B700875E64 /* UncompletedBackupViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC261CB1292CF6B700875E64 /* UncompletedBackupViewModel.swift */; };
+		DC261CB7292CF6B700875E64 /* UncompletedBackupRoutable.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC261CB2292CF6B700875E64 /* UncompletedBackupRoutable.swift */; };
+		DC261CBB292CFBB500875E64 /* StartupProcessor.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC261CBA292CFBB500875E64 /* StartupProcessor.swift */; };
 		DC295B3A28615D03006CB7B6 /* NavHolder.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC295B3928615D03006CB7B6 /* NavHolder.swift */; };
 		DC295B3C2861C19C006CB7B6 /* MainCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC295B3B2861C19C006CB7B6 /* MainCoordinator.swift */; };
 		DC295B3E2861C1AD006CB7B6 /* MainCoordinatorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC295B3D2861C1AD006CB7B6 /* MainCoordinatorView.swift */; };
@@ -1100,6 +1111,17 @@
 		DC261C9C292CD3B800875E64 /* GoogleService-Info-Beta.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; name = "GoogleService-Info-Beta.plist"; path = "tangem-app-config/ios/GoogleService-Info-Beta.plist"; sourceTree = SOURCE_ROOT; };
 		DC261C9D292CD3B800875E64 /* GoogleService-Info-Alpha.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; name = "GoogleService-Info-Alpha.plist"; path = "tangem-app-config/ios/GoogleService-Info-Alpha.plist"; sourceTree = SOURCE_ROOT; };
 		DC261C9E292CD3B800875E64 /* GoogleService-Info-Production.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; name = "GoogleService-Info-Production.plist"; path = "tangem-app-config/ios/GoogleService-Info-Production.plist"; sourceTree = SOURCE_ROOT; };
+		DC261CA3292CF56600875E64 /* AuthCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthCoordinator.swift; sourceTree = "<group>"; };
+		DC261CA4292CF56600875E64 /* AuthCoordinatorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthCoordinatorView.swift; sourceTree = "<group>"; };
+		DC261CA5292CF56600875E64 /* AuthView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthView.swift; sourceTree = "<group>"; };
+		DC261CA6292CF56600875E64 /* AuthViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthViewModel.swift; sourceTree = "<group>"; };
+		DC261CA7292CF56600875E64 /* AuthRoutable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthRoutable.swift; sourceTree = "<group>"; };
+		DC261CAE292CF6B700875E64 /* UncompletedBackupCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UncompletedBackupCoordinator.swift; sourceTree = "<group>"; };
+		DC261CAF292CF6B700875E64 /* UncompletedBackupCoordinatorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UncompletedBackupCoordinatorView.swift; sourceTree = "<group>"; };
+		DC261CB0292CF6B700875E64 /* UncompletedBackupView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UncompletedBackupView.swift; sourceTree = "<group>"; };
+		DC261CB1292CF6B700875E64 /* UncompletedBackupViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UncompletedBackupViewModel.swift; sourceTree = "<group>"; };
+		DC261CB2292CF6B700875E64 /* UncompletedBackupRoutable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UncompletedBackupRoutable.swift; sourceTree = "<group>"; };
+		DC261CBA292CFBB500875E64 /* StartupProcessor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StartupProcessor.swift; sourceTree = "<group>"; };
 		DC295B3928615D03006CB7B6 /* NavHolder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NavHolder.swift; sourceTree = "<group>"; };
 		DC295B3B2861C19C006CB7B6 /* MainCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainCoordinator.swift; sourceTree = "<group>"; };
 		DC295B3D2861C1AD006CB7B6 /* MainCoordinatorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainCoordinatorView.swift; sourceTree = "<group>"; };
@@ -1491,8 +1513,6 @@
 				EF2EFDE02865BFE800798051 /* Configurations */,
 				5D3F77C524BF56D800E8695B /* AppDelegate.swift */,
 				B046EE172578D38E00EA38A5 /* SceneDelegate.swift */,
-				DC5118792860B704004FB954 /* AppCoordinator.swift */,
-				DC51187B2860B728004FB954 /* AppCoordinatorView.swift */,
 				5DBFEA4D24DD642C0080D3DC /* Tangem.entitlements */,
 				5D3F77D024BF56DC00E8695B /* LaunchScreen.storyboard */,
 				DA64C36F27CCAD7E005B5E9A /* InfoPlist.strings */,
@@ -2678,6 +2698,40 @@
 			path = SaltPay;
 			sourceTree = "<group>";
 		};
+		DC261CA2292CF53E00875E64 /* Auth */ = {
+			isa = PBXGroup;
+			children = (
+				DC261CA3292CF56600875E64 /* AuthCoordinator.swift */,
+				DC261CA4292CF56600875E64 /* AuthCoordinatorView.swift */,
+				DC261CA5292CF56600875E64 /* AuthView.swift */,
+				DC261CA6292CF56600875E64 /* AuthViewModel.swift */,
+				DC261CA7292CF56600875E64 /* AuthRoutable.swift */,
+			);
+			path = Auth;
+			sourceTree = "<group>";
+		};
+		DC261CAD292CF68C00875E64 /* UncompletedBackup */ = {
+			isa = PBXGroup;
+			children = (
+				DC261CAE292CF6B700875E64 /* UncompletedBackupCoordinator.swift */,
+				DC261CAF292CF6B700875E64 /* UncompletedBackupCoordinatorView.swift */,
+				DC261CB0292CF6B700875E64 /* UncompletedBackupView.swift */,
+				DC261CB1292CF6B700875E64 /* UncompletedBackupViewModel.swift */,
+				DC261CB2292CF6B700875E64 /* UncompletedBackupRoutable.swift */,
+			);
+			path = UncompletedBackup;
+			sourceTree = "<group>";
+		};
+		DC261CB9292CFB3100875E64 /* App */ = {
+			isa = PBXGroup;
+			children = (
+				DC5118792860B704004FB954 /* AppCoordinator.swift */,
+				DC51187B2860B728004FB954 /* AppCoordinatorView.swift */,
+				DC261CBA292CFBB500875E64 /* StartupProcessor.swift */,
+			);
+			path = App;
+			sourceTree = "<group>";
+		};
 		DC3B49F22893E4F300C207EA /* UserWallet */ = {
 			isa = PBXGroup;
 			children = (
@@ -2816,6 +2870,10 @@
 		DC7DA81A2844EED800AD6DBD /* Modules */ = {
 			isa = PBXGroup;
 			children = (
+				DC261CB9292CFB3100875E64 /* App */,
+				DC261CAD292CF68C00875E64 /* UncompletedBackup */,
+				DC66BBE12858DB1900CDF765 /* Welcome */,
+				DC261CA2292CF53E00875E64 /* Auth */,
 				EF59039229091CCE00C527C9 /* EnvironmentSetup */,
 				DC66BBF6285A20FE00CDF765 /* Main */,
 				DA23788E27B250D3009795A8 /* Shop */,
@@ -2826,7 +2884,6 @@
 				B08ACD8025D2BC2A007387BD /* TokenList */,
 				5D011A222530776A00758010 /* Disclaimer */,
 				B0E1564926B9417E005B33E4 /* Onboarding */,
-				DC66BBE12858DB1900CDF765 /* Welcome */,
 				EF9CFC1B2890223F00329BE0 /* AppSettings */,
 				EF9CFC00288FEB4A00329BE0 /* ScanCardSettings */,
 				EF7B9CED286C6B95004C33A9 /* CardSettings */,
@@ -3583,7 +3640,9 @@
 				EF04ACE4290992CF00837308 /* DefaultHeaderView.swift in Sources */,
 				B00D7150258A1B6C00A9442C /* JsonUtils.swift in Sources */,
 				5DFE855724EF051400194106 /* Error+.swift in Sources */,
+				DC261CB6292CF6B700875E64 /* UncompletedBackupViewModel.swift in Sources */,
 				DC66BC02285B537A00CDF765 /* WalletOnboardingRoutable.swift in Sources */,
+				DC261CAA292CF56600875E64 /* AuthView.swift in Sources */,
 				B09BB860259A075600B92000 /* ButtonStyles.swift in Sources */,
 				DC0A57E42822A5D00031BECC /* TangemSdkProvider.swift in Sources */,
 				B09BB863259A075600B92000 /* NavigationConfigurator.swift in Sources */,
@@ -3668,6 +3727,7 @@
 				65B4DED6288357DC001524CF /* BottomSheetBaseController.swift in Sources */,
 				DAA5E31028D2137C003C0E80 /* UserWalletListCellView.swift in Sources */,
 				EF9CFC13288FECE100329BE0 /* ScanCardSettingsViewModel.swift in Sources */,
+				DC261CAB292CF56600875E64 /* AuthViewModel.swift in Sources */,
 				5D39514D2556CDDF002CC452 /* MoonPayService.swift in Sources */,
 				EF0F99AA289028F8008B01DF /* AppSettingsCoordinator.swift in Sources */,
 				5D5332B125F9091900D32CA5 /* TokenItem.swift in Sources */,
@@ -3725,6 +3785,7 @@
 				DC66BC06285B6C7300CDF765 /* SendCoordinatorView.swift in Sources */,
 				B0C87B432566461600F861DE /* TwinCardsFileCoder.swift in Sources */,
 				DC66BC0E285B75C900CDF765 /* PushTxCoordinatorView.swift in Sources */,
+				DC261CBB292CFBB500875E64 /* StartupProcessor.swift in Sources */,
 				5D09383C25EAE7FD0049B8F0 /* PersistentStorage.swift in Sources */,
 				B018F2FD2591FE8600D8F89A /* AppWarning.swift in Sources */,
 				DC0A57F72822BE300031BECC /* CardImageLoaderProtocol.swift in Sources */,
@@ -3752,6 +3813,7 @@
 				5D09383225E7A9820049B8F0 /* Wallet+.swift in Sources */,
 				5D39516125597DB1002CC452 /* BalanceViewModel.swift in Sources */,
 				5D4B8BC327EDD601002CE87C /* CardInfo.swift in Sources */,
+				DC261CB7292CF6B700875E64 /* UncompletedBackupRoutable.swift in Sources */,
 				5D9DCB06255193C30059799C /* AppSettings.swift in Sources */,
 				DC66BBF32859B79600CDF765 /* TokenListCoordinatorView.swift in Sources */,
 				B0541DC026FB300F0043893E /* WalletOnboardingStep.swift in Sources */,
@@ -3765,11 +3827,13 @@
 				5DDE22EF2608EFDB008657C6 /* UIViewController+.swift in Sources */,
 				65339CE4289918E7006429EA /* ChangeObserver.swift in Sources */,
 				5D00FCD1261738C5004626DE /* WalletConnectEthTransaction.swift in Sources */,
+				DC261CAC292CF56600875E64 /* AuthRoutable.swift in Sources */,
 				5DD4CB5424FAEE8B008F23CC /* AppCardIdFormatter.swift in Sources */,
 				EF0F99AE289028F8008B01DF /* AppSettingsRoutable.swift in Sources */,
 				DC0A57E82822AC410031BECC /* PersistentStorageProtocol.swift in Sources */,
 				5D62446127A7CAB60069DEC2 /* Bool+.swift in Sources */,
 				EF7B9CF7286C702E004C33A9 /* CardSettingsCoordinatorView.swift in Sources */,
+				DC261CA8292CF56600875E64 /* AuthCoordinator.swift in Sources */,
 				B0D34E772626DF2F00625AC5 /* WalletConnectRequestHandler.swift in Sources */,
 				DC66BBE92859A8CC00CDF765 /* MailViewModel.swift in Sources */,
 				DAA5E30128D21369003C0E80 /* UserWalletStorageAgreementViewModel.swift in Sources */,
@@ -3787,6 +3851,7 @@
 				DC22535928A4FD9C0094F30C /* UserWalletConfigFactory.swift in Sources */,
 				B0606E122684A946004004ED /* BlinkingModifier.swift in Sources */,
 				EFFC860E28BCE87700F863CE /* LegacyCardMigrator.swift in Sources */,
+				DC261CA9292CF56600875E64 /* AuthCoordinatorView.swift in Sources */,
 				DAA5E30328D21369003C0E80 /* BiometryLogoImage.swift in Sources */,
 				5D119E85256BF1E50046CAD2 /* Option.swift in Sources */,
 				5DF2522D24F95E390015B429 /* UIScreen+.swift in Sources */,
@@ -3839,6 +3904,7 @@
 				DA23787F27B24222009795A8 /* CheckoutPayload.swift in Sources */,
 				EF0B01D9290E84C10029CCA6 /* MainButton.swift in Sources */,
 				EF46623E2924F21600346B6C /* SendCurrencyView.swift in Sources */,
+				DC261CB3292CF6B700875E64 /* UncompletedBackupCoordinator.swift in Sources */,
 				65C9FCBA2869CC3E00FDE63E /* SupportChatViewModel.swift in Sources */,
 				DC5E32C628EDC7FC00D6096A /* PaymentologyApiTarget.swift in Sources */,
 				DA5FAD8A27B27F7F00EE53AE /* SheetDragHandler.swift in Sources */,
@@ -3930,6 +3996,7 @@
 				65B4DEDA28835C82001524CF /* BottomSheetModifier.swift in Sources */,
 				DC0A5856282E3E220031BECC /* ServicesManager.swift in Sources */,
 				5D52A75127C3CA32002783F7 /* SignTypedDataHandler.swift in Sources */,
+				DC261CB5292CF6B700875E64 /* UncompletedBackupView.swift in Sources */,
 				B0B2DF6026E1FD5400BC0934 /* AnimatedView.swift in Sources */,
 				DCF838BA2902A00D00162A32 /* WXDAIFactory.swift in Sources */,
 				65C9FCAE28644F9D00FDE63E /* DetailsView.swift in Sources */,
@@ -3978,6 +4045,7 @@
 				B0541DBE26FB30060043893E /* WalletOnboardingViewModel.swift in Sources */,
 				EFEBCE2829263FC400B0C886 /* NumberFormatter+.swift in Sources */,
 				5DFCCB7824C389740014A293 /* CardViewModel.swift in Sources */,
+				DC261CB4292CF6B700875E64 /* UncompletedBackupCoordinatorView.swift in Sources */,
 				EF4B41BD28644982003911F6 /* SkeletonView.swift in Sources */,
 				EF7B9CEF286C6BD7004C33A9 /* CardSettingsView.swift in Sources */,
 				DC7127B12897ECDF00F60F71 /* LegacyConfig.swift in Sources */,
