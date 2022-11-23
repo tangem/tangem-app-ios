@@ -66,11 +66,13 @@ struct SwappingPermissionView: View {
 
 struct SwappingPermissionView_Preview: PreviewProvider {
     static let viewModel = SwappingPermissionViewModel(
-        smartContractNetworkName: "DAI",
-        amount: 1000,
-        yourWalletAddress: "0x6B175474E89094C44Da98b954EedeAC495271d0F",
-        spenderWalletAddress: "0x6B175474E89094C44Da98b954EedeAC495271d0F",
-        fee: 2.14,
+        inputModel: SwappingPermissionViewModel.InputModel(
+            smartContractNetworkName: "DAI",
+            amount: 1000,
+            yourWalletAddress: "0x6B175474E89094C44Da98b954EedeAC495271d0F",
+            spenderWalletAddress: "0x6B175474E89094C44Da98b954EedeAC495271d0F",
+            fee: 2.14
+        ),
         coordinator: SwappingCoordinator()
     )
 
