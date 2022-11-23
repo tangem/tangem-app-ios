@@ -96,7 +96,7 @@ class CommonUserWalletRepository: UserWalletRepository {
         }
         .flatMap { [weak self] (response: CardViewModel) -> AnyPublisher<CardViewModel, Error> in
             let saltPayUtil = SaltPayUtil()
-            let hasSaltPayBackup = self?.backupService.hasInterruptedSaltPayBackup ?? false
+            let hasSaltPayBackup = self?.backupService.hasUncompletedSaltPayBackup ?? false
             let primaryCardId = self?.backupService.primaryCard?.cardId ?? ""
 
             if hasSaltPayBackup && response.cardId != primaryCardId  {
@@ -434,7 +434,11 @@ class CommonUserWalletRepository: UserWalletRepository {
                     self.initializeServicesForSelectedModel()
                     self.isUnlocked = true
 
-                    completion(nil)
+                    if let selectedModel = self.selectedModel {
+                        completion(.success(selectedModel))
+                    } else {
+                        completion(nil) // [REDACTED_TODO_COMMENT]
+                    }
                 }
             }
         }
