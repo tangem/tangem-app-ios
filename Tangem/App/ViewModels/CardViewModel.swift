@@ -39,7 +39,14 @@ class CardViewModel: Identifiable, ObservableObject {
     }
 
     var emailData: [EmailCollectedData] {
-        config.emailData
+        var data = config.emailData
+
+        if let userWalletId {
+            let userWalletIdItem = EmailCollectedData(type: .card(.userWalletId), data: userWalletId.hexString)
+            data.append(userWalletIdItem)
+        }
+
+        return data
     }
 
     var emailConfig: EmailConfig? {
@@ -213,7 +220,7 @@ class CardViewModel: Identifiable, ObservableObject {
         config.warningEvents.contains(where: { $0 == .legacyDerivation })
     }
 
-    var canExchangeCrypto: Bool { config.hasFeature(.exchange) }
+    var canExchangeCrypto: Bool { !config.getFeatureAvailability(.exchange).isHidden }
 
     private var searchBlockchainsCancellable: AnyCancellable? = nil
     private var bag = Set<AnyCancellable>()
