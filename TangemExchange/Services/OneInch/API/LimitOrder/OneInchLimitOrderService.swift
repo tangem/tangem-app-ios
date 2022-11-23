@@ -1,5 +1,5 @@
 //
-//  LimitOrderService.swift
+//  OneInchLimitOrderService.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -8,15 +8,7 @@
 
 import Foundation
 
-public protocol LimitOrderServiceProtocol: AnyObject {
-    func ordersForAddress(blockchain: ExchangeBlockchain, parameters: OrdersForAddressParameters) async -> Result<[LimitOrder], ExchangeInchError>
-    func allOrders(blockchain: ExchangeBlockchain, parameters: AllOrdersParameters) async -> Result<[LimitOrder], ExchangeInchError>
-    func countOrders(blockchain: ExchangeBlockchain, statuses: [ExchangeOrderStatus]) async -> Result<CountLimitOrders, ExchangeInchError>
-    func events(blockchain: ExchangeBlockchain, limit: Int) async -> Result<[EventsLimitOrder], ExchangeInchError>
-    func hasActiveOrdersWithPermit(blockchain: ExchangeBlockchain, walletAddress: String, tokenAddress: String) async -> Result<Bool, ExchangeInchError>
-}
-
-class LimitOrderService: LimitOrderServiceProtocol {
+class OneInchLimitOrderService: OneInchLimitOrderProvider {
     let isDebug: Bool
     private lazy var networkService: NetworkService = NetworkService(isDebug: isDebug)
 
