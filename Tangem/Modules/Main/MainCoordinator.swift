@@ -55,17 +55,12 @@ class MainCoordinator: CoordinatorObject {
             cardImageProvider: CardImageProvider(supportsOnlineImage: options.cardModel.supportsOnlineImage),
             coordinator: self
         )
-
-        if options.shouldRefresh {
-            mainViewModel?.onRefresh {}
-        }
     }
 }
 
 extension MainCoordinator {
     struct Options {
         let cardModel: CardViewModel
-        let shouldRefresh: Bool
     }
 }
 
@@ -257,7 +252,12 @@ extension MainCoordinator: UserWalletListRoutable {
     }
 
     func didTap(_ cardModel: CardViewModel) {
-        start(with: .init(cardModel: cardModel, shouldRefresh: true))
+        guard let userWalletModel = cardModel.userWalletModel else {
+            assertionFailure("UserWalletModel not created")
+            return
+        }
+
+        mainViewModel?.userWalletDidChange(cardModel: cardModel, userWalletModel: userWalletModel)
     }
 }
 
