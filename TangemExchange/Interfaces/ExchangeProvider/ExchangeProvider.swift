@@ -23,9 +23,4 @@ protocol ExchangeProvider {
     func getSpenderAddress(for currency: Currency) async throws -> String
 }
 
-struct SwapTransactionInfo {
-    let currency: Currency
-    let destination: String
-    let amount: Decimal
-    let oneInchTxData: Data
-}
+
