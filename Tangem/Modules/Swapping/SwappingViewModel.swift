@@ -87,15 +87,13 @@ private extension SwappingViewModel {
             balance: 3043.75,
             maximumFractionDigits: 8,
             fiatValue: 0,
-            tokenIcon: .init(tokenItem: .blockchain(.bitcoin(testnet: false))),
-            tokenName: "BTC"
+            tokenIcon: .init(tokenItem: .blockchain(.bitcoin(testnet: false)))
         )
 
         receiveCurrencyViewModel = ReceiveCurrencyViewModel(
             state: .loaded(0, fiatValue: 0),
             tokenIcon: .init(tokenItem: .blockchain(.polygon(testnet: false))),
-            didTapTokenView: { [weak self] in self?.userDidTapChangeDestinationButton() },
-            tokenName: "POLYGON"
+            didTapTokenView: { [weak self] in self?.userDidTapChangeDestinationButton() }
         )
 
         refreshWarningRowViewModel = DefaultWarningRowViewModel(
