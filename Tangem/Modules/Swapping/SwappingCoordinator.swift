@@ -18,7 +18,7 @@ class SwappingCoordinator: CoordinatorObject {
     @Published private(set) var rootViewModel: SwappingViewModel?
 
     // MARK: - Child coordinators
-    
+
     @Published var swappingPermissionViewModel: SwappingPermissionViewModel?
     @Published var successSwappingViewModel: SuccessSwappingViewModel?
 
@@ -47,4 +47,32 @@ extension SwappingCoordinator {
 
 // MARK: - SwappingRoutable
 
-extension SwappingCoordinator: SwappingRoutable {}
+extension SwappingCoordinator: SwappingRoutable {
+    func presentSuccessView(fromCurrency: String, toCurrency: String) {
+        successSwappingViewModel = SuccessSwappingViewModel(
+            fromCurrency: fromCurrency,
+            toCurrency: toCurrency,
+            coordinator: self
+        )
+    }
+    
+    func presentExchangeableTokenListView(inputModel: SwappingPermissionViewModel.InputModel) {
+        swappingPermissionViewModel = SwappingPermissionViewModel(inputModel: inputModel, coordinator: self)
+    }
+}
+
+// MARK: - SuccessSwappingRoutable
+
+extension SwappingCoordinator: SuccessSwappingRoutable {}
+
+// MARK: - SwappingPermissionRoutable
+
+extension SwappingCoordinator: SwappingPermissionRoutable {
+    func userDidApprove() {
+        swappingPermissionViewModel = nil
+    }
+    
+    func userDidCancel() {
+        swappingPermissionViewModel = nil
+    }
+}
