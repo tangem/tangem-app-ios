@@ -41,16 +41,19 @@ class ReferralViewModel: ObservableObject {
             return
         }
 
-        // [REDACTED_TODO_COMMENT]
+        let token = award.token
+
         guard let address = cardModel.wallets.first(where: { $0.blockchain == blockchain })?.address else {
-            requestDerivation()
+            await requestDerivation(for: blockchain, with: token)
             return
         }
+
+        saveToStorageIfNeeded(token, for: blockchain)
 
         isProcessingRequest = true
         do {
             let referralProgramInfo = try await runInTask {
-                try await self.tangemApiService.participateInReferralProgram(using: award.token, for: address, with: self.userWalletId.hexString)
+                try await self.tangemApiService.participateInReferralProgram(using: token, for: address, with: self.userWalletId.hexString)
             }
             self.referralProgramInfo = referralProgramInfo
         } catch {
@@ -83,8 +86,65 @@ class ReferralViewModel: ObservableObject {
         }
     }
 
-    private func requestDerivation() {
-        // [REDACTED_TODO_COMMENT]
+    @MainActor
+    private func requestDerivation(for blockchain: Blockchain, with referralToken: ReferralProgramInfo.Token) async {
+        let network = cardModel.getBlockchainNetwork(for: blockchain, derivationPath: nil)
+        let token = convertToStorageToken(from: referralToken)
+
+        let storageEntry = StorageEntry(blockchainNetwork: network, token: token)
+        if let model = cardModel.walletModels.first(where: { $0.blockchainNetwork == network }),
+           let token {
+            model.addTokens([token])
+        }
+
+        cardModel.add(entries: [storageEntry]) { [weak self] result in
+            guard let self else { return }
+
+            switch result {
+            case .success:
+                runTask(self.participateInReferralProgram)
+            case .failure(let error):
+                if case .userCancelled = error.toTangemSdkError() {
+                    return
+                }
+
+                self.errorAlert = error.alertBinder
+            }
+        }
+    }
+
+    private func saveToStorageIfNeeded(_ referralToken: ReferralProgramInfo.Token, for blockchain: Blockchain) {
+        let network = cardModel.getBlockchainNetwork(for: blockchain, derivationPath: nil)
+        guard
+            let storageToken = convertToStorageToken(from: referralToken),
+            let userWalletModel = cardModel.userWalletModel
+        else {
+            return
+        }
+
+        var savedEntries = userWalletModel.getSavedEntries()
+
+        if let savedNetworkIndex = savedEntries.firstIndex(where: { $0.blockchainNetwork == network }),
+           !savedEntries[savedNetworkIndex].tokens.contains(where: { $0 == storageToken }) {
+
+            savedEntries[savedNetworkIndex].tokens.append(storageToken)
+            cardModel.userWalletModel?.update(entries: savedEntries)
+        }
+    }
+
+    private func convertToStorageToken(from token: ReferralProgramInfo.Token) -> Token? {
+        guard
+            let contractAddress = token.contractAddress,
+            let decimalCount = token.decimalCount
+        else {
+            return nil
+        }
+
+        return Token(name: token.name,
+                     symbol: token.symbol,
+                     contractAddress: contractAddress,
+                     decimalCount: decimalCount,
+                     id: token.id)
     }
 }
 
@@ -104,12 +164,18 @@ extension ReferralViewModel {
     var awardDescriptionSuffix: String {
         let format = "referral_point_currencies_description_suffix".localized
         var addressContent = ""
+        var tokenName = ""
         if let address = referralProgramInfo?.referral?.address {
             let addressFormatter = AddressFormatter(address: address)
-            addressContent = addressFormatter.truncated()
+            addressContent = " \(addressFormatter.truncated())"
         }
 
-        return " " + String(format: format, addressContent)
+        if let token = referralProgramInfo?.conditions.awards.first?.token,
+           let blockchain = Blockchain(from: token.networkId) {
+            tokenName = blockchain.displayName
+        }
+
+        return " " + String(format: format, tokenName, addressContent)
     }
 
     var discount: String {

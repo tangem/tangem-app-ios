@@ -133,6 +133,8 @@ extension NoteConfig: UserWalletConfig {
             return .available
         case .tokenSynchronization:
             return .hidden
+        case .referralProgram:
+            return .hidden
         }
     }
 
