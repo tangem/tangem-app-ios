@@ -85,9 +85,9 @@ class MainViewModel: ObservableObject {
         }
     }
 
-    private let userWalletModel: UserWalletModel
+    private var userWalletModel: UserWalletModel
     private let cardImageProvider: CardImageProviding
-
+    private var isFirstTimeOnAppear: Bool = true
     private var bag = Set<AnyCancellable>()
     private var isProcessingNewCard = false
 
@@ -216,6 +216,7 @@ class MainViewModel: ObservableObject {
 
     func updateContent() {
         if cardModel.isMultiWallet {
+            singleWalletContentViewModel = nil
             multiWalletContentViewModel = MultiWalletContentViewModel(
                 cardModel: cardModel,
                 userWalletModel: userWalletModel,
@@ -223,6 +224,7 @@ class MainViewModel: ObservableObject {
                 output: self
             )
         } else {
+            multiWalletContentViewModel = nil
             singleWalletContentViewModel = SingleWalletContentViewModel(
                 cardModel: cardModel,
                 userWalletModel: userWalletModel,
@@ -287,12 +289,31 @@ class MainViewModel: ObservableObject {
         }
     }
 
+    func userWalletDidChange(cardModel: CardViewModel, userWalletModel: UserWalletModel) {
+        bag.removeAll()
+        self.cardModel = cardModel
+        self.userWalletModel = userWalletModel
+
+        bind()
+
+        cardModel.updateSdkConfig()
+        cardModel.setupWarnings()
+
+        loadImage()
+        updateContent()
+        updateIsBackupAllowed()
+        userWalletModel.updateWalletModels()
+    }
+
     func onAppear() {
         updateIsBackupAllowed()
-        singleWalletContentViewModel?.onAppear()
-        multiWalletContentViewModel?.onAppear()
         loadImage()
-        cardModel.onAppear()
+
+        if isFirstTimeOnAppear {
+            singleWalletContentViewModel?.onAppear()
+            multiWalletContentViewModel?.onAppear()
+            isFirstTimeOnAppear = false
+        }
     }
 
     func deriveEntriesWithoutDerivation() {
