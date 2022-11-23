@@ -11,7 +11,7 @@ import SwiftUI
 
 final class SwappingPermissionViewModel: ObservableObject, Identifiable {
     let id: UUID = UUID()
-    
+
     // MARK: - ViewState
 
     @Published var contentRowViewModels: [DefaultRowViewModel] = []
@@ -24,34 +24,28 @@ final class SwappingPermissionViewModel: ObservableObject, Identifiable {
     private let yourWalletAddress: String
     private let spenderWalletAddress: String
     private let fee: Decimal
-
-    // Optional will be removed after integration
-    private unowned let coordinator: SwappingPermissionRoutable?
+    private unowned let coordinator: SwappingPermissionRoutable
 
     init(
-        smartContractNetworkName: String,
-        amount: Decimal,
-        yourWalletAddress: String,
-        spenderWalletAddress: String,
-        fee: Decimal,
-        coordinator: SwappingPermissionRoutable?
+        inputModel: InputModel,
+        coordinator: SwappingPermissionRoutable
     ) {
-        self.smartContractNetworkName = smartContractNetworkName
-        self.amount = amount
-        self.yourWalletAddress = yourWalletAddress
-        self.spenderWalletAddress = spenderWalletAddress
-        self.fee = fee
+        self.smartContractNetworkName = inputModel.smartContractNetworkName
+        self.amount = inputModel.amount
+        self.yourWalletAddress = inputModel.yourWalletAddress
+        self.spenderWalletAddress = inputModel.spenderWalletAddress
+        self.fee = inputModel.fee
         self.coordinator = coordinator
 
         setupView()
     }
 
     func approveDidTapped() {
-
+        coordinator.userDidApprove()
     }
 
     func cancelDidTapped() {
-
+        coordinator.userDidCancel()
     }
 }
 
@@ -67,5 +61,15 @@ private extension SwappingPermissionViewModel {
             DefaultRowViewModel(title: "swapping_permission_rows_fee".localized,
                                 detailsType: .text(fee.currencyFormatted(code: AppSettings.shared.selectedCurrencyCode))),
         ]
+    }
+}
+
+extension SwappingPermissionViewModel {
+    struct InputModel {
+        let smartContractNetworkName: String
+        let amount: Decimal
+        let yourWalletAddress: String
+        let spenderWalletAddress: String
+        let fee: Decimal
     }
 }
