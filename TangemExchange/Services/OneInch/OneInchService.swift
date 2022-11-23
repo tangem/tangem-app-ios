@@ -1,5 +1,5 @@
 //
-//  ExchangeOneInchProvider.swift
+//  OneInchService.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -10,33 +10,29 @@ import Foundation
 import Combine
 import BlockchainSdk
 
-enum ExchangeOneInchProviderError: Error {
-    case noData
-}
-
-class ExchangeOneInchProvider {
+class OneInchService {
     /// OneInch use this contractAddress for coins
     private let oneInchCoinContractAddress = "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"
 
-    private let exchangeService: OneInchApiServiceProtocol
+    private let exchangeService: OneInchAPIProvider
     private let blockchainProvider: BlockchainNetworkProvider
 
     private var bag = Set<AnyCancellable>()
 
-    init(blockchainProvider: BlockchainNetworkProvider, exchangeService: OneInchApiServiceProtocol) {
+    init(blockchainProvider: BlockchainNetworkProvider, exchangeService: OneInchAPIProvider) {
         self.blockchainProvider = blockchainProvider
         self.exchangeService = exchangeService
     }
 }
 
-extension ExchangeOneInchProvider: ExchangeProvider {
+extension OneInchService: ExchangeProvider {
     // MARK: - Fetch data
 
     func fetchExchangeAmountLimit(for currency: Currency) async throws -> Decimal {
         guard currency.isToken,
               let contractAddress = currency.contractAddress,
               let blockchain = ExchangeBlockchain.convert(from: currency.chainId) else {
-            throw ExchangeOneInchProviderError.noData
+            throw OneInchServiceError.noData
         }
 
         let parameters = ApproveAllowanceParameters(
@@ -60,7 +56,7 @@ extension ExchangeOneInchProvider: ExchangeProvider {
     func fetchTxDataForSwap(items: ExchangeItems, amount: String, slippage: Int) async throws -> ExchangeSwapDataModel {
         guard let destination = items.destination,
               let blockchain = ExchangeBlockchain.convert(from: items.source.chainId) else {
-            throw ExchangeOneInchProviderError.noData
+            throw OneInchServiceError.noData
         }
 
         let parameters = SwapParameters(fromTokenAddress: items.source.contractAddress ?? oneInchCoinContractAddress,
@@ -103,7 +99,7 @@ extension ExchangeOneInchProvider: ExchangeProvider {
     func approveTxData(for currency: Currency) async throws -> ExchangeApprovedDataModel {
         guard let contractAddress = currency.contractAddress,
               let blockchain = ExchangeBlockchain.convert(from: currency.chainId) else {
-            throw ExchangeOneInchProviderError.noData
+            throw OneInchServiceError.noData
         }
 
         let parameters = ApproveTransactionParameters(tokenAddress: contractAddress, amount: .infinite)
@@ -122,7 +118,7 @@ extension ExchangeOneInchProvider: ExchangeProvider {
 
     func getSpenderAddress(for currency: Currency) async throws -> String {
         guard let blockchain = ExchangeBlockchain.convert(from: currency.chainId) else {
-            throw ExchangeOneInchProviderError.noData
+            throw OneInchServiceError.noData
         }
 
         let spender = await exchangeService.spender(blockchain: blockchain)
@@ -138,27 +134,16 @@ extension ExchangeOneInchProvider: ExchangeProvider {
 
 // MARK: - Private
 
-private extension ExchangeOneInchProvider {
+private extension OneInchService {
     func gas(from value: Decimal, price: Decimal, decimalCount: Int) -> Decimal {
         value * price / Decimal(decimalCount)
     }
 
     func buildTransaction(for info: SwapTransactionInfo, fee: Decimal) throws -> Transaction {
-        let transactionInfo = TransactionInfo(currency: info.currency, amount: info.amount, fee: fee, destination: info.destination)
+        let transactionInfo = ExchangeTransactionInfo(currency: info.currency, amount: info.amount, fee: fee, destination: info.destination)
         var tx = try blockchainProvider.createTransaction(for: transactionInfo)
         tx.params = EthereumTransactionParams(data: info.oneInchTxData)
 
         return tx
-
-
-//        let blockchain = blockchainNetwork.blockchain
-//        let gasAmount = Amount(with: blockchain, type: .coin, value: gas)
-//
-//        var tx = try exchangeManager.createTransaction(for: currency,
-//                                                       fee: gas,
-//                                                       destinationAddress: destinationAddress)
-//        tx.params = EthereumTransactionParams(data: txData) // For what?
-
-//        return tx
     }
 }
