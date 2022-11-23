@@ -37,6 +37,14 @@ struct DemoUtil {
             return Decimal(Double.random(in: 0.5 ... 1))
         }
     }
+
+    func getDemoFee(for blockchain: Blockchain) -> [Amount] {
+        [
+            Amount(with: blockchain, value: 0.00001),
+            Amount(with: blockchain, value: 0.00002),
+            Amount(with: blockchain, value: 0.00003),
+        ]
+    }
 }
 
 extension DemoUtil {
