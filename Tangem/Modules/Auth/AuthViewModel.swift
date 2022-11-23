@@ -78,7 +78,7 @@ final class AuthViewModel: ObservableObject {
         }
     }
 
-    func onDissappear() {
+    func onDisappear() {
         navigationBarHidden = false
     }
 
