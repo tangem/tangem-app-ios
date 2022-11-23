@@ -87,12 +87,14 @@ private extension SwappingViewModel {
             balance: 3043.75,
             maximumFractionDigits: 8,
             fiatValue: 0,
-            tokenIcon: .init(tokenItem: .blockchain(.bitcoin(testnet: false)))
+            tokenIcon: .init(tokenItem: .blockchain(.bitcoin(testnet: false))),
+            tokenSymbol: "BTC"
         )
 
         receiveCurrencyViewModel = ReceiveCurrencyViewModel(
             state: .loaded(0, fiatValue: 0),
             tokenIcon: .init(tokenItem: .blockchain(.polygon(testnet: false))),
+            tokenSymbol: "MATIC",
             didTapTokenView: { [weak self] in self?.userDidTapChangeDestinationButton() }
         )
 
@@ -159,17 +161,20 @@ private extension SwappingViewModel {
         }
 
         let sendTokenItem = sendCurrencyViewModel.tokenIcon
+        let sendTokenSymbol = sendCurrencyViewModel.tokenSymbol
 
         self.sendCurrencyViewModel = SendCurrencyViewModel(
             balance: Decimal(Int.random(in: 0 ... 100)),
             maximumFractionDigits: 8,
             fiatValue: receiveCurrencyViewModel.state.fiatValue ?? 0,
-            tokenIcon: receiveCurrencyViewModel.tokenIcon
+            tokenIcon: receiveCurrencyViewModel.tokenIcon,
+            tokenSymbol: receiveCurrencyViewModel.tokenSymbol
         )
 
         self.receiveCurrencyViewModel = ReceiveCurrencyViewModel(
             state: .loading,
-            tokenIcon: sendTokenItem
+            tokenIcon: sendTokenItem,
+            tokenSymbol: sendTokenSymbol
         ) {}
 
         isLoading.toggle()
