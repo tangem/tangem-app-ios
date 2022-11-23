@@ -58,7 +58,7 @@ class SingleWalletContentViewModel: ObservableObject {
         self.cardModel = cardModel
         self.userWalletModel = userWalletModel
         self.output = output
-        
+
         /// Initial set to `singleWalletModel`
         singleWalletModel = userWalletModel.getWalletModels().first
 
