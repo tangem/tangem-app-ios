@@ -15,14 +15,14 @@ public enum TangemExchangeFactory {
         isDebug: Bool = false
     ) -> ExchangeManager {
         let exchangeItems = ExchangeItems(source: source, destination: destination)
-        let exchangeService = OneInchApiService(isDebug: isDebug)
+        let exchangeService = OneInchAPIService(isDebug: isDebug)
 
-        let provider = ExchangeOneInchProvider(blockchainProvider: blockchainProvider, exchangeService: exchangeService)
+        let provider = OneInchService(blockchainProvider: blockchainProvider, exchangeService: exchangeService)
         return CommonExchangeManager(provider: provider, exchangeItems: exchangeItems)
     }
 
     // [REDACTED_TODO_COMMENT]
-    private static func buildOneInchLimitService(isDebug: Bool) -> LimitOrderServiceProtocol {
-        return LimitOrderService(isDebug: isDebug)
+    private static func buildOneInchLimitService(isDebug: Bool) -> OneInchLimitOrderProvider {
+        return OneInchLimitOrderService(isDebug: isDebug)
     }
 }
