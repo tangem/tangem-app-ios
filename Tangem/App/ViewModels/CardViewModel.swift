@@ -266,7 +266,6 @@ class CardViewModel: Identifiable, ObservableObject {
         createUserWalletModelIfNeeded(with: userWallet)
         updateCurrentSecurityOption()
         bind()
-        appendDefaultBlockchainIfNeeded()
     }
 
     func setupWarnings() {
@@ -666,15 +665,6 @@ class CardViewModel: Identifiable, ObservableObject {
             walletListManager: walletListManager,
             userWallet: userWallet
         )
-    }
-
-    private func appendDefaultBlockchainIfNeeded() {
-        // For single wallet only
-        guard !isMultiWallet,
-              let userWalletModel = userWalletModel,
-              userWalletModel.getSavedEntries().isEmpty else { return }
-
-        appendDefaultBlockchains()
     }
 }
 
