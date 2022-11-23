@@ -32,6 +32,6 @@ final class SuccessSwappingViewModel: ObservableObject, Identifiable {
     }
 
     func doneDidTapped() {
-
+        coordinator.userDidTapMainButton()
     }
 }
