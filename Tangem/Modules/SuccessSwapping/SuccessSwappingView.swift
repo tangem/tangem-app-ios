@@ -19,9 +19,9 @@ struct SuccessSwappingView: View {
         NavigationView {
             GeometryReader { geometry in
                 VStack(spacing: 0) {
-                    Color.clear.frame(height: geometry.size.height * 0.13)
+                    Color.clear.frame(height: geometry.size.height * 0.1)
 
-                    VStack(spacing: geometry.size.height * 0.25) {
+                    VStack(spacing: geometry.size.height * 0.2) {
                         Assets.successBigIcon
 
                         infoView
