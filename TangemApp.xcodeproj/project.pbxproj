@@ -487,10 +487,6 @@
 		DCF8972D28ACF8CA002A85F6 /* TangemSdkConfigFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCF8972C28ACF8CA002A85F6 /* TangemSdkConfigFactory.swift */; };
 		DCFCA17528F4232F0037586C /* Array+.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCFCA17428F4232F0037586C /* Array+.swift */; };
 		E90FAB5A28EE418000C6DCBE /* TotalBalanceAnalyticsService.swift in Sources */ = {isa = PBXBuildFile; fileRef = E90FAB5928EE418000C6DCBE /* TotalBalanceAnalyticsService.swift */; };
-		E94667C32901F60A0043AD0A /* ExchangeViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = E94667C22901F60A0043AD0A /* ExchangeViewModel.swift */; };
-		E94667C52901F8690043AD0A /* ExchangeCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = E94667C42901F8690043AD0A /* ExchangeCoordinator.swift */; };
-		E94667C72901FA9A0043AD0A /* ExchangeCoordinatorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E94667C62901FA9A0043AD0A /* ExchangeCoordinatorView.swift */; };
-		E94667C92901FADB0043AD0A /* ExchangeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E94667C82901FADB0043AD0A /* ExchangeView.swift */; };
 		E9C17C5F291951BF00FDE4BC /* AnyPublisher+.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9C17C5E291951BF00FDE4BC /* AnyPublisher+.swift */; };
 		EF08A0EF283D1914008BD923 /* Moya+.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF08A0EE283D1914008BD923 /* Moya+.swift */; };
 		EF08A0F1283D2382008BD923 /* CoinsListRequestModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF08A0F0283D2382008BD923 /* CoinsListRequestModel.swift */; };
@@ -516,7 +512,6 @@
 		EF4661A42923AFC500346B6C /* TExchange.h in Headers */ = {isa = PBXBuildFile; fileRef = EF4661942923AFC400346B6C /* TExchange.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		EF4661A72923AFC500346B6C /* TangemExchange.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EF4661922923AFC400346B6C /* TangemExchange.framework */; };
 		EF4661A82923AFC500346B6C /* TangemExchange.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = EF4661922923AFC400346B6C /* TangemExchange.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
-		EF4661BD2923B0CE00346B6C /* ExchangeViewRouter.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF4661BC2923B0CE00346B6C /* ExchangeViewRouter.swift */; };
 		EF4661BF2923B41F00346B6C /* ExchangeManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9C17C5C2919507D00FDE4BC /* ExchangeManager.swift */; };
 		EF4661C02923B42A00346B6C /* ExchangeOneInchProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9C17C71291ABB9000FDE4BC /* ExchangeOneInchProvider.swift */; };
 		EF4661C42923B42A00346B6C /* Currency.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9C17C5A29170FCD00FDE4BC /* Currency.swift */; };
@@ -1232,10 +1227,6 @@
 		DFEC35A94293DE7EB96CEBC1 /* Pods-Tangem.debug(production).xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Tangem.debug(production).xcconfig"; path = "Target Support Files/Pods-Tangem/Pods-Tangem.debug(production).xcconfig"; sourceTree = "<group>"; };
 		E53081CA3060D2785F9D22F0 /* Pods-Tangem-TangemUITests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Tangem-TangemUITests.release.xcconfig"; path = "Target Support Files/Pods-Tangem-TangemUITests/Pods-Tangem-TangemUITests.release.xcconfig"; sourceTree = "<group>"; };
 		E90FAB5928EE418000C6DCBE /* TotalBalanceAnalyticsService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TotalBalanceAnalyticsService.swift; sourceTree = "<group>"; };
-		E94667C22901F60A0043AD0A /* ExchangeViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExchangeViewModel.swift; sourceTree = "<group>"; };
-		E94667C42901F8690043AD0A /* ExchangeCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExchangeCoordinator.swift; sourceTree = "<group>"; };
-		E94667C62901FA9A0043AD0A /* ExchangeCoordinatorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExchangeCoordinatorView.swift; sourceTree = "<group>"; };
-		E94667C82901FADB0043AD0A /* ExchangeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExchangeView.swift; sourceTree = "<group>"; };
 		E94667CB2902BC260043AD0A /* ExchangeItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExchangeItem.swift; sourceTree = "<group>"; };
 		E966EFB1291C4A5900504AD8 /* WalletManager+BlockchainProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "WalletManager+BlockchainProvider.swift"; sourceTree = "<group>"; };
 		E9C17C5A29170FCD00FDE4BC /* Currency.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Currency.swift; sourceTree = "<group>"; };
@@ -1270,7 +1261,6 @@
 		EF4661952923AFC400346B6C /* TExchange.docc */ = {isa = PBXFileReference; lastKnownFileType = folder.documentationcatalog; path = TExchange.docc; sourceTree = "<group>"; };
 		EF46619B2923AFC400346B6C /* TangemExchangeTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = TangemExchangeTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		EF4661A22923AFC500346B6C /* TExchangeTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TExchangeTests.swift; sourceTree = "<group>"; };
-		EF4661BC2923B0CE00346B6C /* ExchangeViewRouter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExchangeViewRouter.swift; sourceTree = "<group>"; };
 		EF4661CE2923B9CD00346B6C /* TangemExchangeFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TangemExchangeFactory.swift; sourceTree = "<group>"; };
 		EF4661D32923E5BB00346B6C /* ExchangeItems.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExchangeItems.swift; sourceTree = "<group>"; };
 		EF4661D72924CC6300346B6C /* LiquiditySourcesList.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiquiditySourcesList.swift; sourceTree = "<group>"; };
@@ -2896,7 +2886,6 @@
 			isa = PBXGroup;
 			children = (
 				EF59039229091CCE00C527C9 /* EnvironmentSetup */,
-				E94667C12901F5C90043AD0A /* Exchange */,
 				DC66BBF6285A20FE00CDF765 /* Main */,
 				DA23788E27B250D3009795A8 /* Shop */,
 				B074BABF26779B14005D641B /* PushTx */,
@@ -2926,19 +2915,6 @@
 				EF3EC522289AB2DE0071BA7F /* TangemProvider.swift */,
 			);
 			path = TangemApiService;
-			sourceTree = "<group>";
-		};
-		E94667C12901F5C90043AD0A /* Exchange */ = {
-			isa = PBXGroup;
-			children = (
-				E94667C22901F60A0043AD0A /* ExchangeViewModel.swift */,
-				E94667C42901F8690043AD0A /* ExchangeCoordinator.swift */,
-				E94667C62901FA9A0043AD0A /* ExchangeCoordinatorView.swift */,
-				E94667C82901FADB0043AD0A /* ExchangeView.swift */,
-				EF4661BC2923B0CE00346B6C /* ExchangeViewRouter.swift */,
-				EF4661BB2923B05200346B6C /* Components */,
-			);
-			path = Exchange;
 			sourceTree = "<group>";
 		};
 		E94667CD2902D6A80043AD0A /* Utils */ = {
@@ -3081,13 +3057,6 @@
 				E94667CB2902BC260043AD0A /* ExchangeItem.swift */,
 			);
 			path = Models;
-			sourceTree = "<group>";
-		};
-		EF4661BB2923B05200346B6C /* Components */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			path = Components;
 			sourceTree = "<group>";
 		};
 		EF4661BE2923B35800346B6C /* Exchange */ = {
@@ -3876,7 +3845,6 @@
 				DC7127AB2897EC6B00F60F71 /* Start2CoinConfig.swift in Sources */,
 				B05209C3261F2B4E000DD204 /* WalletConnectUIBuilder.swift in Sources */,
 				B074BAC326779BC8005D641B /* PushTxViewModel.swift in Sources */,
-				E94667C32901F60A0043AD0A /* ExchangeViewModel.swift in Sources */,
 				EF46621C2924DEEE00346B6C /* DefaultFooterView.swift in Sources */,
 				5D79D3152555ABE700650DD7 /* CardImageLoader.swift in Sources */,
 				DC0A57FC2822C5710031BECC /* BackupServiceProviding.swift in Sources */,
@@ -3902,7 +3870,6 @@
 				DA23788327B24222009795A8 /* ShippingRate.swift in Sources */,
 				5D6784E425EBC94B00149995 /* Blockchain+.swift in Sources */,
 				5DD95B8C24FA959C00E6B9D0 /* VerticalAlignment+.swift in Sources */,
-				E94667C52901F8690043AD0A /* ExchangeCoordinator.swift in Sources */,
 				DC194D2628EC6A76007FBC99 /* SaltPayRegistratorProvider.swift in Sources */,
 				EF5A5ACF28D86089002544AC /* TotalBalanceProvider.swift in Sources */,
 				5D6784D925EBA1D800149995 /* TokenItems+Array.swift in Sources */,
@@ -3980,7 +3947,6 @@
 				B0E9E2FF2679DA8000269C7A /* AmountView.swift in Sources */,
 				DC51185C2860925A004FB954 /* WalletConnectRoutable.swift in Sources */,
 				DC295B522861D9BC006CB7B6 /* SecurityModeCoordinator.swift in Sources */,
-				E94667C92901FADB0043AD0A /* ExchangeView.swift in Sources */,
 				65B4DECB2881ABA4001524CF /* BottomSheetDismissalTransition.swift in Sources */,
 				DC66BC04285B6C5F00CDF765 /* SendCoordinator.swift in Sources */,
 				5D00FCCC2617389E004626DE /* SignTransactionHandler.swift in Sources */,
@@ -4006,7 +3972,6 @@
 				EF4662302924DF0300346B6C /* DefaultWarningRow.swift in Sources */,
 				65B4DED828835BE4001524CF /* BottomSheetViewController.swift in Sources */,
 				B018F304259204A200D8F89A /* WarningEvent.swift in Sources */,
-				E94667C72901FA9A0043AD0A /* ExchangeCoordinatorView.swift in Sources */,
 				DC6244F428A0CA6300AD3EA8 /* SaltPayConfig.swift in Sources */,
 				65B4DED6288357DC001524CF /* BottomSheetBaseController.swift in Sources */,
 				EF46621F2924DEEE00346B6C /* DefaultWarningRow.swift in Sources */,
@@ -4049,7 +4014,6 @@
 				B06997D02692EC5E0014A676 /* ExchangeService.swift in Sources */,
 				DC3F54B128EB3D5D00BC9A6D /* KYCView.swift in Sources */,
 				EF08A0F1283D2382008BD923 /* CoinsListRequestModel.swift in Sources */,
-				EF4661BD2923B0CE00346B6C /* ExchangeViewRouter.swift in Sources */,
 				EF130EBC28E1D34500D37EFC /* MultiWalletContentView.swift in Sources */,
 				DC295B5D2862E6DE006CB7B6 /* BackUpWarningView.swift in Sources */,
 				DC66BC10285C405C00CDF765 /* CoordinatorObject.swift in Sources */,
