@@ -19,13 +19,12 @@ final class SuccessSwappingViewModel: ObservableObject, Identifiable {
 
     // MARK: - Dependencies
 
-    // Optional will remove after merge main swapping module
-    private unowned let coordinator: SuccessSwappingRoutable?
+    private unowned let coordinator: SuccessSwappingRoutable
 
     init(
         fromCurrency: String,
         toCurrency: String,
-        coordinator: SuccessSwappingRoutable?
+        coordinator: SuccessSwappingRoutable
     ) {
         self.fromCurrency = fromCurrency
         self.toCurrency = toCurrency
