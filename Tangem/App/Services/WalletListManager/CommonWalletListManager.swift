@@ -51,6 +51,8 @@ extension CommonWalletListManager: WalletListManager {
     }
 
     func updateWalletModels() {
+        print("🔄 Updating Wallet models")
+
         var walletModels = getWalletModels()
         let entries = userTokenListManager.getEntriesFromRepository()
         log(entires: entries)
