@@ -38,21 +38,9 @@ struct ReferralView: View {
 
             }
             .edgesIgnoringSafeArea(.bottom)
-            .toast(
-                isPresenting: $viewModel.showCodeCopiedToast,
-                offsetY: geometry.safeAreaInsets.top / 2,
-                alert: {
-                    AlertToast(
-                        displayMode: .hud,
-                        type: .regular,
-                        title: "referral_promo_code_copied".localized,
-                        style: .style(
-                            backgroundColor: Colors.Background.action.opacity(0.6),
-                            titleColor: Colors.Text.primary2,
-                            titleFont: Fonts.Regular.footnote
-                        )
-                    )
-                }
+            .toast(isPresenting: $viewModel.showCodeCopiedToast, alert: {
+                AlertToast(type: .complete(Color.tangemGreen), title: "referral_promo_code_copied".localized)
+            }
             )
         }
         .alert(item: $viewModel.errorAlert, content: { $0.alert })
