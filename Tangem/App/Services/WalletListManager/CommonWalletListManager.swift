@@ -87,7 +87,7 @@ extension CommonWalletListManager: WalletListManager {
         let walletModelsToAdd = entriesToAdd
             .compactMap { entry in
                 let displayName = entry.blockchainNetwork.blockchain.displayName
-                
+
                 do {
                     let walletModel = try config.makeWalletModel(for: entry)
                     print("✅ Make WalletModel for \(displayName) success")
@@ -98,7 +98,7 @@ extension CommonWalletListManager: WalletListManager {
                 } catch {
                     print("‼️ Make WalletModel for \(displayName) catch error: \(error)")
                 }
-                
+
                 return nil
             }
 
