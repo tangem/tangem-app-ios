@@ -8,6 +8,8 @@
 
 import Foundation
 
-enum OneInchServiceError: Error {
-    case noData
+extension OneInchExchangeProvider {
+    enum Errors: Error {
+        case noData
+    }
 }
