@@ -8,7 +8,8 @@
 
 import Foundation
 
-public protocol OneInchAPIProvider: AnyObject {
+public protocol OneInchAPIProvider {
+
     // Check status of service
     func healthCheck(blockchain: ExchangeBlockchain) async -> Result<HealthCheck, ExchangeInchError>
     func tokens(blockchain: ExchangeBlockchain) async -> Result<TokensList, ExchangeInchError>
