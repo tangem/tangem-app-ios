@@ -17,7 +17,7 @@ public enum SwappingAvailabilityState {
     case loading
     case available
     case requiredPermission
-    case requiredRefreshRates
+    case requiredRefresh(occuredError: Error)
 }
 
 public protocol ExchangeManager {
@@ -30,6 +30,8 @@ public protocol ExchangeManager {
     /// Update swapping items and reload rates
     func update(exchangeItems: ExchangeItems)
     
+    func isAvailableForExchange(amount: Decimal)
+    
     /// Approve swapping items
     func approveSwapItems()
     
@@ -39,21 +41,27 @@ public protocol ExchangeManager {
 
 class DefaultExchangeManager {
     // MARK: - Dependencies
-    private let provider: ExchangeProvider
+
+    private let exchangeProvider: ExchangeProvider
     private let blockchainProvider: BlockchainNetworkProvider
+    private weak var delegate: ExchangeManagerDelegate?
 
     // MARK: - Internal
-    private lazy var refreshTxDataTimerPublisher = Timer.publish(every: 10, on: .main, in: .common).autoconnect()
-    private var exchangeItems: ExchangeItems
 
+    private lazy var refreshTxDataTimerPublisher = Timer.publish(every: 10, on: .main, in: .common).autoconnect()
+
+    private var availabilityState: SwappingAvailabilityState = .available
+    private var exchangeItems: ExchangeItems
+    private var tokenExchangeAllowanceLimit: Decimal?
+    private var swappingData: ExchangeSwapDataModel?
     private var bag: Set<AnyCancellable> = []
 
     init(
-        provider: ExchangeProvider,
+        exchangeProvider: ExchangeProvider,
         blockchainProvider: BlockchainNetworkProvider,
         exchangeItems: ExchangeItems
     ) {
-        self.provider = provider
+        self.exchangeProvider = exchangeProvider
         self.blockchainProvider = blockchainProvider
         self.exchangeItems = exchangeItems
     }
@@ -61,6 +69,47 @@ class DefaultExchangeManager {
 
 // MARK: - Private
 
-private extension CommonExchangeManager {
+public extension DefaultExchangeManager: ExchangeManager {
+    func isAvailableForExchange(amount: Decimal) -> Bool {
+        guard exchangeItems.source.isToken else {
+            print("Unnecessary request available for exchange for coin")
+            return true
+        }
+        
+        guard let tokenExchangeAllowanceLimit else {
+            assertionFailure("TokenExchangeAllowanceLimit hasn't been updated")
+            return false
+        }
+
+        return amount <= tokenExchangeAllowanceLimit
+    }
+}
+
+private extension DefaultExchangeManager {
+    func updateExchangeAmountAllowance() {
+        guard exchangeItems.source.isToken else {
+            print("Unnecessary request fetchExchangeAmountAllowance for coin")
+            return
+        }
+        
+        do {
+            tokenExchangeAllowanceLimit = try await exchangeProvider.fetchExchangeAmountAllowance(for: exchangeItems.source)
+        } catch {
+            tokenExchangeAllowanceLimit = nil
+            availabilityState = .requiredRefresh(occuredError: error)
+        }
+    }
     
+    func updateSwappingInformation(amount: Decimal) {
+        do {
+            swappingData = try await exchangeProvider.fetchTxDataForSwap(
+                items: exchangeItems,
+                amount: amount.description,
+                slippage: 1 // Default value
+            )
+        } catch {
+            swappingData = nil
+            availabilityState = .requiredRefresh(occuredError: error)
+        }
+    }
 }

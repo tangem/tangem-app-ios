@@ -25,7 +25,7 @@ class OneInchExchangeProvider {
 extension OneInchExchangeProvider: ExchangeProvider {
     // MARK: - Fetch data
 
-    func fetchExchangeAmountLimit(for currency: Currency) async throws -> Decimal {
+    func fetchExchangeAmountAllowance(for currency: Currency) async throws -> Decimal {
         guard currency.isToken,
               let contractAddress = currency.contractAddress,
               let blockchain = ExchangeBlockchain.convert(from: currency.chainId) else {
