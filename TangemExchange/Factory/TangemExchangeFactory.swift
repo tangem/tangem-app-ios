@@ -17,7 +17,7 @@ public enum TangemExchangeFactory {
         let exchangeItems = ExchangeItems(source: source, destination: destination)
         let exchangeService = OneInchAPIService(isDebug: isDebug)
 
-        let provider = OneInchService(blockchainProvider: blockchainProvider, exchangeService: exchangeService)
+        let provider = OneInchExchangeProvider(blockchainProvider: blockchainProvider, exchangeService: exchangeService)
         return CommonExchangeManager(provider: provider, exchangeItems: exchangeItems)
     }
 
