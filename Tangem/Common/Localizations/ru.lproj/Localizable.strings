@@ -26,7 +26,6 @@
 Tangem — единственный аппаратный кошелек, предлагающий защиту методом подсчета подписей.";
 "alert_troubleshooting_scan_card_message" = "Пожалуйста, попробуйте приложить карту в точности, как показано на анимации, или запросите поддержку.";
 "alert_troubleshooting_scan_card_title" = "У вас возникли трудности со сканированием карты?";
-"card_operation_button_title_reset" = "Сбросить карту";
 "common_accept" = "Принять";
 "common_back" = "Назад";
 "common_camera_alert_button_settings" = "Настройки";
