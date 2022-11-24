@@ -58,7 +58,11 @@ class UserWalletListCellViewModel: ObservableObject {
         }
     }
 
-    func bind() {
+    func onAppear() {
+        userWalletModel.initialUpdate()
+    }
+
+    private func bind() {
         totalBalanceProvider.totalBalancePublisher()
             .sink { [unowned self] loadingValue in
                 switch loadingValue {
