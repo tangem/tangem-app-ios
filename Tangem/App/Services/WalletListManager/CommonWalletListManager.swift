@@ -92,7 +92,7 @@ extension CommonWalletListManager: WalletListManager {
                     let walletModel = try config.makeWalletModel(for: entry)
                     print("✅ Make WalletModel for \(displayName) success")
                     return walletModel
-                } catch WalletModelFactory.Errors.notDerivation {
+                } catch WalletModelFactory.Errors.noDerivation {
                     print("‼️ Make WalletModel for \(displayName) not derivation")
                     nonDeriveEntries.append(entry)
                 } catch {
