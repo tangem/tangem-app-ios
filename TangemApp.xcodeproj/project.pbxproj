@@ -518,7 +518,7 @@
 		EF4661A72923AFC500346B6C /* TangemExchange.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EF4661922923AFC400346B6C /* TangemExchange.framework */; };
 		EF4661A82923AFC500346B6C /* TangemExchange.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = EF4661922923AFC400346B6C /* TangemExchange.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		EF4661BF2923B41F00346B6C /* ExchangeManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9C17C5C2919507D00FDE4BC /* ExchangeManager.swift */; };
-		EF4661C02923B42A00346B6C /* OneInchService.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9C17C71291ABB9000FDE4BC /* OneInchService.swift */; };
+		EF4661C02923B42A00346B6C /* OneInchExchangeProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9C17C71291ABB9000FDE4BC /* OneInchExchangeProvider.swift */; };
 		EF4661C42923B42A00346B6C /* Currency.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9C17C5A29170FCD00FDE4BC /* Currency.swift */; };
 		EF4661C52923B42A00346B6C /* ExchangeApprovedDataModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9C17C6F291ABA8000FDE4BC /* ExchangeApprovedDataModel.swift */; };
 		EF4661C62923B42A00346B6C /* ExchangeProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9C17C6A291AACFD00FDE4BC /* ExchangeProvider.swift */; };
@@ -1254,7 +1254,7 @@
 		E9C17C6A291AACFD00FDE4BC /* ExchangeProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExchangeProvider.swift; sourceTree = "<group>"; };
 		E9C17C6D291AB48D00FDE4BC /* ExchangeSwapDataModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExchangeSwapDataModel.swift; sourceTree = "<group>"; };
 		E9C17C6F291ABA8000FDE4BC /* ExchangeApprovedDataModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExchangeApprovedDataModel.swift; sourceTree = "<group>"; };
-		E9C17C71291ABB9000FDE4BC /* OneInchService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OneInchService.swift; sourceTree = "<group>"; };
+		E9C17C71291ABB9000FDE4BC /* OneInchExchangeProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OneInchExchangeProvider.swift; sourceTree = "<group>"; };
 		EF08A0EE283D1914008BD923 /* Moya+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Moya+.swift"; sourceTree = "<group>"; };
 		EF08A0F0283D2382008BD923 /* CoinsListRequestModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoinsListRequestModel.swift; sourceTree = "<group>"; };
 		EF0F99A5289028F8008B01DF /* AppSettingsCoordinator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AppSettingsCoordinator.swift; sourceTree = "<group>"; };
@@ -3002,7 +3002,7 @@
 		EF29BEDB292E5CF900D7C782 /* OneInch */ = {
 			isa = PBXGroup;
 			children = (
-				E9C17C71291ABB9000FDE4BC /* OneInchService.swift */,
+				E9C17C71291ABB9000FDE4BC /* OneInchExchangeProvider.swift */,
 				EF29BEE3292E5DC400D7C782 /* OneInchServiceError.swift */,
 				EF29BEDF292E5D7400D7C782 /* API */,
 			);
@@ -4478,7 +4478,7 @@
 				EF29BEDA292E5CAE00D7C782 /* OneInchAPIService.swift in Sources */,
 				EF29BEE7292E65C400D7C782 /* Logger.swift in Sources */,
 				EF4661F22924CC6E00346B6C /* LiquiditySourcesList.swift in Sources */,
-				EF4661C02923B42A00346B6C /* OneInchService.swift in Sources */,
+				EF4661C02923B42A00346B6C /* OneInchExchangeProvider.swift in Sources */,
 				EF4661C42923B42A00346B6C /* Currency.swift in Sources */,
 				EF4661D02923CD4C00346B6C /* BlockchainNetworkProvider.swift in Sources */,
 				EF4661962923AFC400346B6C /* TExchange.docc in Sources */,
