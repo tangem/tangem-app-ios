@@ -212,13 +212,6 @@ class MainViewModel: ObservableObject {
                 self.objectWillChange.send()
             }
             .store(in: &bag)
-
-        AppSettings.shared.$saveUserWallets
-            .combineLatest(AppSettings.shared.$saveAccessCodes)
-            .sink { [weak self] _ in
-                self?.cardModel.updateSdkConfig()
-            }
-            .store(in: &bag)
     }
 
     func updateContent() {
