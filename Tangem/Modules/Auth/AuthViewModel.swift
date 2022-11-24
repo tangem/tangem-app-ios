@@ -8,7 +8,6 @@
 
 import SwiftUI
 import TangemSdk
-import Combine
 
 final class AuthViewModel: ObservableObject {
     // MARK: - ViewState
