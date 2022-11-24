@@ -72,17 +72,11 @@ final class UserWalletListViewModel: ObservableObject, Identifiable {
                     self?.delete(userWalletId: userWalletId)
                 case .selected(let userWallet):
                     self?.setSelectedWallet(userWallet)
+                case .inserted:
+                    break
                 }
             }
             .store(in: &bag)
-    }
-
-    func onAppear() {
-        for userWalletModel in userWalletRepository.models.compactMap({ $0.userWalletModel }) {
-            if !userWalletModel.didPerformInitialUpdate {
-                userWalletModel.updateAndReloadWalletModels()
-            }
-        }
     }
 
     func unlockAllWallets() {
