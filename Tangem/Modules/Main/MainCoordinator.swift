@@ -41,6 +41,7 @@ class MainCoordinator: CoordinatorObject {
     // MARK: - Helpers
     @Published var modalOnboardingCoordinatorKeeper: Bool = false
 
+    private var lastInsertedUserWalletId: Data?
     private var bag: Set<AnyCancellable> = []
 
     required init(dismissAction: @escaping Action, popToRootAction: @escaping ParamsAction<PopToRootOptions>) {
@@ -50,9 +51,24 @@ class MainCoordinator: CoordinatorObject {
         userWalletRepository
             .eventProvider
             .sink { [weak self] event in
-                if case .selected = event,
-                   let selectedModel = self?.userWalletRepository.selectedModel {
-                    self?.updateMain(with: selectedModel)
+                guard let self else { return }
+
+                switch event {
+                case .selected:
+                    if let selectedModel = self.userWalletRepository.selectedModel {
+                        self.updateMain(with: selectedModel)
+                    }
+
+                    /// Sergey B:
+                    /// Crunch for refresh main only when new wallet is added
+                    /// Unfortunately is provokes duplicate `update` requests
+                    if self.userWalletRepository.selectedUserWalletId == self.lastInsertedUserWalletId {
+                        self.refreshMainWalletModels()
+                    }
+                case .inserted(let userWallet):
+                    self.lastInsertedUserWalletId = userWallet.userWalletId
+                default:
+                    break
                 }
             }
             .store(in: &bag)
@@ -68,6 +84,7 @@ class MainCoordinator: CoordinatorObject {
             cardModel: options.cardModel,
             userWalletModel: userWalletModel,
             cardImageProvider: CardImageProvider(supportsOnlineImage: options.cardModel.supportsOnlineImage),
+            shouldRefreshWhenAppear: true,
             coordinator: self
         )
     }
@@ -272,7 +289,18 @@ extension MainCoordinator: UserWalletListRoutable {
             return
         }
 
-        mainViewModel?.userWalletDidChange(cardModel: cardModel, userWalletModel: userWalletModel)
+        mainViewModel = MainViewModel(
+            cardModel: cardModel,
+            userWalletModel: userWalletModel,
+            cardImageProvider: CardImageProvider(supportsOnlineImage: cardModel.supportsOnlineImage),
+            shouldRefreshWhenAppear: false,
+            coordinator: self
+        )
+    }
+
+    // [REDACTED_TODO_COMMENT]
+    private func refreshMainWalletModels() {
+        mainViewModel?.refreshContent()
     }
 }
 
