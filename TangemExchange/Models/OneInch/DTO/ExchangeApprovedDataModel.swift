@@ -8,7 +8,7 @@
 
 import Foundation
 
-struct ExchangeApprovedDataModel {
+public struct ExchangeApprovedDataModel {
     let data: Data
     let gasPrice: String
     let tokenAddress: String
