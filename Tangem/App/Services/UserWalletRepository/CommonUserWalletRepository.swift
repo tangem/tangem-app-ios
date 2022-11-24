@@ -239,8 +239,6 @@ class CommonUserWalletRepository: UserWalletRepository {
                     }
 
                     self.setSelectedUserWalletId(userWallet.userWalletId)
-
-                    self.sendEvent(.inserted)
                 default:
                     completion(result)
                 }
@@ -267,6 +265,8 @@ class CommonUserWalletRepository: UserWalletRepository {
             let newModel = CardViewModel(userWallet: userWallet)
             models.append(newModel)
             userWalletModel = newModel.userWalletModel
+
+            self.sendEvent(.inserted(userWallet: userWallet))
         }
 
         guard let userWalletModel else { return }
