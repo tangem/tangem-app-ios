@@ -9,17 +9,38 @@
 import Foundation
 import Combine
 
-public protocol ExchangeManager {
-    func getExchangeItems() -> ExchangeItems
-//    func update(exchangeItems: ExchangeItems)
-
-    func stopTimer()
-    func refreshTimer()
+public protocol ExchangeManagerDelegate {
+    func exchangeManagerDidRequestUpdate(_ availabilityState: SwappingAvailabilityState)
 }
 
-class CommonExchangeManager {
+public enum SwappingAvailabilityState {
+    case loading
+    case available
+    case requiredPermission
+    case requiredRefreshRates
+}
+
+public protocol ExchangeManager {
+    /// Available network for selected as target to swap
+    func getNetworksAvailableToSwap() -> [String]
+    
+    /// Items which currently to swapping
+    func getExchangeItems() -> ExchangeItems
+    
+    /// Update swapping items and reload rates
+    func update(exchangeItems: ExchangeItems)
+    
+    /// Approve swapping items
+    func approveSwapItems()
+    
+    /// User request swap items
+    func swapItems()
+}
+
+class DefaultExchangeManager {
     // MARK: - Dependencies
     private let provider: ExchangeProvider
+    private let blockchainProvider: BlockchainNetworkProvider
 
     // MARK: - Internal
     private lazy var refreshTxDataTimerPublisher = Timer.publish(every: 10, on: .main, in: .common).autoconnect()
@@ -27,8 +48,13 @@ class CommonExchangeManager {
 
     private var bag: Set<AnyCancellable> = []
 
-    init(provider: ExchangeProvider, exchangeItems: ExchangeItems) {
+    init(
+        provider: ExchangeProvider,
+        blockchainProvider: BlockchainNetworkProvider,
+        exchangeItems: ExchangeItems
+    ) {
         self.provider = provider
+        self.blockchainProvider = blockchainProvider
         self.exchangeItems = exchangeItems
     }
 }
@@ -36,86 +62,5 @@ class CommonExchangeManager {
 // MARK: - Private
 
 private extension CommonExchangeManager {
-
-}
-
-// MARK: - ExchangeManager
-
-extension CommonExchangeManager: ExchangeManager {
-    func getExchangeItems() -> ExchangeItems {
-        return exchangeItems
-    }
-
-    func refreshTimer() {
-        refreshTxDataTimerPublisher
-            .sink { [weak self] _ in
-//                self?.onChangeInputAmount()
-                // [REDACTED_TODO_COMMENT]
-            }
-            .store(in: &bag)
-    }
-
-    func stopTimer() {
-        refreshTxDataTimerPublisher
-            .upstream
-            .connect()
-            .cancel()
-    }
-
-//    func getExchangeNetworkId() -> String {
-//        exchangeItems.to.blockchainNetwork.id
-//    }
-//
-//    func update(exchangeItems: ExchangeItems) {
-//        self.exchangeItems = exchangeItems
-//        // [REDACTED_TODO_COMMENT]
-//    }
-//
-//    /// Change token places
-//    func onSwapItems() {
-//        Task {
-//            items = ExchangeItems(sourceItem: items.destinationItem, destinationItem: items.sourceItem)
-//            do {
-//                try await exchangeFacade.fetchExchangeAmountLimit(for: items.sourceItem)
-//            } catch {
-//                print(error.localizedDescription)
-//            }
-//
-//            resetItemsInput()
-//        }
-//    }
-//
-//    /// Sign and send swap transaction
-//    func onSwap() {
-//        guard let swapDataModel else { return }
-//
-//        Task {
-//            do {
-//                try await exchangeFacade.sendSwapTransaction(destinationAddress: swapDataModel.destinationAddress,
-//                                                             amount: inputAmountText,
-//                                                             gas: "\(swapDataModel.gas)",
-//                                                             gasPrice: swapDataModel.gasPrice,
-//                                                             txData: swapDataModel.txData,
-//                                                             sourceItem: items.sourceItem)
-//                openSuccessView()
-//            } catch {
-//                print(error.localizedDescription)
-//            }
-//        }
-//    }
-//
-//    func onApprove() {
-//        Task {
-//            do {
-//                let approveData = try await exchangeFacade.approveTxData(for: items.sourceItem)
-//                try await exchangeFacade.submitPermissionForToken(destinationAddress: approveData.tokenAddress,
-//                                                                  gasPrice: approveData.gasPrice,
-//                                                                  txData: approveData.data,
-//                                                                  for: items.sourceItem)
-//                // [REDACTED_TODO_COMMENT]
-//            } catch {
-//                print(error.localizedDescription)
-//            }
-//        }
-//    }
+    
 }
