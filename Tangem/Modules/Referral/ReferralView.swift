@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import AlertToast
 
 struct ReferralView: View {
     @ObservedObject var viewModel: ReferralViewModel
@@ -37,7 +38,10 @@ struct ReferralView: View {
 
             }
             .edgesIgnoringSafeArea(.bottom)
-
+            .toast(isPresenting: $viewModel.showCodeCopiedToast, alert: {
+                AlertToast(type: .complete(Color.tangemGreen), title: "referral_promo_code_copied".localized)
+            }
+            )
         }
         .alert(item: $viewModel.errorAlert, content: { $0.alert })
         .navigationBarTitle("details_referral_title", displayMode: .inline)
@@ -161,7 +165,7 @@ struct ReferralView: View {
                              systemImage: "arrowshape.turn.up.forward",
                              iconPosition: .leading,
                              iconPadding: 10,
-                             action: viewModel.sharePromoCode)
+                             action: showShareSheet)
                     .buttonStyle(TangemButtonStyle(colorStyle: .black,
                                                    layout: .flexibleWidth))
             }
@@ -190,6 +194,11 @@ struct ReferralView: View {
                                   isLoading: viewModel.isProcessingRequest)
             )
         }
+    }
+
+    private func showShareSheet() {
+        let av = UIActivityViewController(activityItems: [viewModel.shareLink], applicationActivities: nil)
+        UIApplication.topViewController?.present(av, animated: true, completion: nil)
     }
 }
 
