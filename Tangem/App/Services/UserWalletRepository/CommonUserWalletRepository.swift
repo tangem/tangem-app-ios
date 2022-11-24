@@ -171,6 +171,7 @@ class CommonUserWalletRepository: UserWalletRepository {
         Analytics.log(.readyToScan)
         walletConnectServiceProvider.reset()
 
+        let oldConfig = sdkProvider.sdk.config
         var config = TangemSdkConfigFactory().makeDefaultConfig()
         if AppSettings.shared.saveUserWallets {
             config.accessCodeRequestPolicy = .alwaysWithBiometrics
@@ -180,6 +181,8 @@ class CommonUserWalletRepository: UserWalletRepository {
         sendEvent(.scan(isScanning: true))
         sdkProvider.sdk.startSession(with: AppScanTask(targetBatch: batch)) { [unowned self] result in
             self.sendEvent(.scan(isScanning: false))
+
+            sdkProvider.setup(with: oldConfig)
 
             switch result {
             case .failure(let error):
