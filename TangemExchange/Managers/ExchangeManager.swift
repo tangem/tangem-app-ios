@@ -91,25 +91,29 @@ private extension DefaultExchangeManager {
             print("Unnecessary request fetchExchangeAmountAllowance for coin")
             return
         }
-        
-        do {
-            tokenExchangeAllowanceLimit = try await exchangeProvider.fetchExchangeAmountAllowance(for: exchangeItems.source)
-        } catch {
-            tokenExchangeAllowanceLimit = nil
-            availabilityState = .requiredRefresh(occuredError: error)
+
+        Task {
+            do {
+                tokenExchangeAllowanceLimit = try await exchangeProvider.fetchExchangeAmountAllowance(for: exchangeItems.source)
+            } catch {
+                tokenExchangeAllowanceLimit = nil
+                availabilityState = .requiredRefresh(occuredError: error)
+            }
         }
     }
     
     func updateSwappingInformation(amount: Decimal) {
-        do {
-            swappingData = try await exchangeProvider.fetchTxDataForSwap(
-                items: exchangeItems,
-                amount: amount.description,
-                slippage: 1 // Default value
-            )
-        } catch {
-            swappingData = nil
-            availabilityState = .requiredRefresh(occuredError: error)
+        Task {
+            do {
+                swappingData = try await exchangeProvider.fetchTxDataForSwap(
+                    items: exchangeItems,
+                    amount: amount.description,
+                    slippage: 1 // Default value
+                )
+            } catch {
+                swappingData = nil
+                availabilityState = .requiredRefresh(occuredError: error)
+            }
         }
     }
 }
