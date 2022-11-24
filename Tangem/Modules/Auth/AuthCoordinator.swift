@@ -67,10 +67,6 @@ extension AuthCoordinator: AuthRoutable {
         mainCoordinator = coordinator
     }
 
-    func updateMain(with cardModel: CardViewModel) {
-        mainCoordinator?.updateMain(with: cardModel)
-    }
-
     func openMail(with dataCollector: EmailDataCollector, recipient: String) {
         mailViewModel = MailViewModel(dataCollector: dataCollector, recipient: recipient, emailType: .failedToScanCard)
     }
