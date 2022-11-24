@@ -47,13 +47,13 @@ class WalletModelFactory {
         let curve = entry.blockchainNetwork.blockchain.curve
         
         guard let derivationPath = entry.blockchainNetwork.derivationPath else {
-            throw CommonError.noData
+            throw Errors.entryHasNotDerivationPath
         }
 
         guard let seedKey = seedKeys[curve],
               let derivedWalletKeys = derivedKeys[curve],
               let derivedKey = derivedWalletKeys[derivationPath] else {
-            throw Errors.notDerivation
+            throw Errors.noDerivation
         }
 
         let factory = WalletManagerFactoryProvider().factory
@@ -68,6 +68,7 @@ class WalletModelFactory {
 
 extension WalletModelFactory {
     enum Errors: Error {
-        case notDerivation
+        case entryHasNotDerivationPath
+        case noDerivation
     }
 }
