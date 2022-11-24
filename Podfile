@@ -51,7 +51,6 @@ target 'Tangem' do
   pod 'ZendeskSupportProvidersSDK', '~> 5.5.0'
   pod 'ZendeskChatSDK', '~> 2.12.0'
   pod 'ZendeskAnswerBotSDK', '~> 2.2.0'
-  pod 'KeychainSwift', '~> 19.0'
   
   # Analytics
   pod 'Amplitude', '~> 8.8.0'
