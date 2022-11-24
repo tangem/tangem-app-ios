@@ -201,6 +201,7 @@ struct MainView_Previews: PreviewProvider {
             MainView(viewModel: .init(cardModel: PreviewCard.stellar.cardModel,
                                       userWalletModel: PreviewCard.stellar.cardModel.userWalletModel!,
                                       cardImageProvider: CardImageProvider(),
+                                      shouldRefreshWhenAppear: true,
                                       coordinator: MainCoordinator()))
         }
         .previewGroup(devices: [.iPhone12ProMax])
