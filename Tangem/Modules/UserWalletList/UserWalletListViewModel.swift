@@ -72,6 +72,8 @@ final class UserWalletListViewModel: ObservableObject, Identifiable {
                     self?.delete(userWalletId: userWalletId)
                 case .selected(let userWallet):
                     self?.setSelectedWallet(userWallet)
+                case .inserted:
+                    break
                 }
             }
             .store(in: &bag)
@@ -271,10 +273,6 @@ final class UserWalletListViewModel: ObservableObject, Identifiable {
         }
 
         setSelectedWallet(userWallet)
-
-        /// Crunch for refresh main only when new wallet is added
-        /// Unfortunately is provokes duplicate `update` requests
-        coordinator.refreshMainWalletModels()
     }
 
     private func mapToUserWalletListCellViewModel(userWalletModel: UserWalletModel, totalBalanceProvider: TotalBalanceProviding? = nil) -> UserWalletListCellViewModel {
