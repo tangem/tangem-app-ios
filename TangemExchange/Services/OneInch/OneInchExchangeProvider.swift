@@ -72,25 +72,6 @@ extension OneInchExchangeProvider: ExchangeProvider {
         }
     }
 
-    // MARK: - Sending API
-
-    func sendSwapTransaction(_ info: SwapTransactionInfo, gasValue: Decimal, gasPrice: Decimal) async throws {
-        let gas = gas(from: gasValue, price: gasPrice, decimalCount: info.currency.decimalCount)
-
-        let tx = try buildTransaction(for: info, fee: gas)
-        return try await blockchainProvider.signAndSend(tx)
-    }
-
-    func submitPermissionForToken(_ info: SwapTransactionInfo, gasPrice: Decimal) async throws {
-        let fees = try await blockchainProvider.getFee(currency: info.currency, amount: info.amount, destination: info.destination)
-        let gasValue: Decimal = fees[1]
-
-        let gas = gas(from: gasValue, price: gasPrice, decimalCount: info.currency.decimalCount)
-        let tx = try buildTransaction(for: info, fee: gas)
-
-        return try await blockchainProvider.signAndSend(tx)
-    }
-
     // MARK: - Approve API
 
     func approveTxData(for currency: Currency) async throws -> ExchangeApprovedDataModel {
@@ -126,21 +107,5 @@ extension OneInchExchangeProvider: ExchangeProvider {
         case .failure(let error):
             throw error
         }
-    }
-}
-
-// MARK: - Private
-
-private extension OneInchExchangeProvider {
-    func gas(from value: Decimal, price: Decimal, decimalCount: Int) -> Decimal {
-        value * price / Decimal(decimalCount)
-    }
-
-    func buildTransaction(for info: SwapTransactionInfo, fee: Decimal) throws -> Transaction {
-        let transactionInfo = ExchangeTransactionInfo(currency: info.currency, amount: info.amount, fee: fee, destination: info.destination)
-        var tx = try blockchainProvider.createTransaction(for: transactionInfo)
-        tx.params = EthereumTransactionParams(data: info.oneInchTxData)
-
-        return tx
     }
 }
