@@ -280,6 +280,7 @@ class CardViewModel: Identifiable, ObservableObject {
 
         createUserWalletModelIfNeeded(with: userWallet)
         updateCurrentSecurityOption()
+        appendPersistentBlockchains()
         bind()
     }
 
@@ -289,6 +290,14 @@ class CardViewModel: Identifiable, ObservableObject {
             card: cardInfo.card,
             validator: walletModels.first?.walletManager as? SignatureCountValidator
         )
+    }
+
+    func appendPersistentBlockchains() {
+        guard let persistentBlockchains = config.persistentBlockchains else {
+            return
+        }
+
+        userWalletModel?.append(entries: persistentBlockchains)
     }
 
     func appendDefaultBlockchains() {
@@ -661,35 +670,18 @@ class CardViewModel: Identifiable, ObservableObject {
 
     private func createUserWalletModelIfNeeded(with savedUserWallet: UserWallet? = nil) {
         let userWallet: UserWallet
-        let userWalletId: Data
+
         if let savedUserWallet = savedUserWallet {
             userWallet = savedUserWallet
-            userWalletId = savedUserWallet.userWalletId
-        } else {
-            guard
-                userWalletModel == nil,
-                cardInfo.card.hasWallets,
-                let newUserWallet = UserWalletFactory().userWallet(from: cardInfo, config: config)
-            else {
-                return
-            }
-
+        } else if userWalletModel == nil,
+                  cardInfo.card.hasWallets,
+                  let newUserWallet = UserWalletFactory().userWallet(from: cardInfo, config: config) {
             userWallet = newUserWallet
-            userWalletId = userWallet.userWalletId
+        } else {
+            return
         }
 
-        // [REDACTED_TODO_COMMENT]
-        let userTokenListManager = CommonUserTokenListManager(config: config, userWalletId: userWalletId)
-        let walletListManager = CommonWalletListManager(
-            config: config,
-            userTokenListManager: userTokenListManager
-        )
-
-        userWalletModel = CommonUserWalletModel(
-            userTokenListManager: userTokenListManager,
-            walletListManager: walletListManager,
-            userWallet: userWallet
-        )
+        userWalletModel = CommonUserWalletModel(config: config, userWallet: userWallet)
     }
 }
 
@@ -722,6 +714,7 @@ extension CardViewModel {
             switch result {
             case .success:
                 self?.userWalletModel?.update(entries: entries)
+                self?.userWalletModel?.updateAndReloadWalletModels()
                 completion(.success(()))
             case let .failure(error):
                 completion(.failure(error))
