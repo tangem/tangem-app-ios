@@ -9,6 +9,58 @@
 import Foundation
 import Moya
 
+extension MoyaProvider {
+    func asyncRequest(_ target: Target) async -> Result<Response, Error> {
+        let asyncRequestWrapper = AsyncMoyaRequestWrapper<T> { [weak self] continuation in
+            guard let self = self else { return nil }
+
+            return self.provider.request(target) { result in
+                switch result {
+                case .success(let response):
+                    if self.isDebug {
+                        print("URL REQUEST -> \(response.request?.url?.absoluteString ?? "")")
+                    }
+
+                    if let response = try? response.filterSuccessfulStatusCodes() {
+                        self.logIfNeeded(data: response.data)
+
+                        do {
+                            let object = try self.jsonDecoder.decode(T.self, from: response.data)
+                            continuation.resume(returning: .success(object))
+                        } catch {
+                            continuation.resume(returning: .failure(.decodeError(error: error)))
+                        }
+                    } else {
+                        do {
+                            let errorObject = try self.jsonDecoder.decode(InchError.self, from: response.data)
+                            self.logIfNeeded(data: response.data)
+                            continuation.resume(returning: .failure(.parsedError(withInfo: errorObject)))
+                        } catch {
+                            if self.isDebug {
+                                print("Error -> \(error.localizedDescription)")
+                            }
+                            continuation.resume(returning: .failure(.unknownError(statusCode: response.statusCode)))
+                        }
+                    }
+                case .failure(let error):
+                    if self.isDebug {
+                        print("Error -> \(error.localizedDescription)")
+                    }
+                    continuation.resume(returning: .failure(.serverError(withError: error)))
+                }
+            }
+        }
+
+        return await withTaskCancellationHandler {
+            await withCheckedContinuation { continuation in
+                asyncRequestWrapper.perform(continuation: continuation)
+            }
+        } onCancel: {
+            asyncRequestWrapper.cancel()
+        }
+    }
+}
+
 class NetworkService {
     let isDebug: Bool
 
