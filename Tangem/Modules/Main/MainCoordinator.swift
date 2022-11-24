@@ -41,6 +41,7 @@ class MainCoordinator: CoordinatorObject {
     // MARK: - Helpers
     @Published var modalOnboardingCoordinatorKeeper: Bool = false
 
+    private var lastInsertedUserWalletId: Data?
     private var bag: Set<AnyCancellable> = []
 
     required init(dismissAction: @escaping Action, popToRootAction: @escaping ParamsAction<PopToRootOptions>) {
@@ -50,16 +51,22 @@ class MainCoordinator: CoordinatorObject {
         userWalletRepository
             .eventProvider
             .sink { [weak self] event in
+                guard let self else { return }
+
                 switch event {
                 case .selected:
-                    if let selectedModel = self?.userWalletRepository.selectedModel {
-                        self?.updateMain(with: selectedModel)
+                    if let selectedModel = self.userWalletRepository.selectedModel {
+                        self.updateMain(with: selectedModel)
                     }
-                case .inserted:
+
                     /// Sergey B:
                     /// Crunch for refresh main only when new wallet is added
                     /// Unfortunately is provokes duplicate `update` requests
-                    self?.refreshMainWalletModels()
+                    if self.userWalletRepository.selectedUserWalletId == self.lastInsertedUserWalletId {
+                        self.refreshMainWalletModels()
+                    }
+                case .inserted(let userWallet):
+                    self.lastInsertedUserWalletId = userWallet.userWalletId
                 default:
                     break
                 }
