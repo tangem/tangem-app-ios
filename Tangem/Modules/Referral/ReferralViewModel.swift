@@ -17,6 +17,7 @@ class ReferralViewModel: ObservableObject {
     @Published var isProcessingRequest: Bool = false
     @Published private(set) var referralProgramInfo: ReferralProgramInfo?
     @Published var errorAlert: AlertBinder?
+    @Published var showCodeCopiedToast: Bool = false
 
     private unowned let coordinator: ReferralRoutable
     private let cardModel: CardViewModel
@@ -66,10 +67,7 @@ class ReferralViewModel: ObservableObject {
 
     func copyPromoCode() {
         UIPasteboard.general.string = referralProgramInfo?.referral?.promoCode
-    }
-
-    func sharePromoCode() {
-
+        showCodeCopiedToast = true
     }
 
     @MainActor
@@ -209,6 +207,14 @@ extension ReferralViewModel {
         }
 
         return "referral_tos_enroled_prefix".localized + " "
+    }
+
+    var shareLink: String {
+        guard let referralInfo = referralProgramInfo?.referral else {
+            return ""
+        }
+
+        return String(format: "referral_share_link".localized, referralInfo.shareLink)
     }
 
     var isProgramInfoLoaded: Bool { referralProgramInfo != nil }
