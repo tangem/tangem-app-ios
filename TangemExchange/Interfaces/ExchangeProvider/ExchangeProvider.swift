@@ -9,7 +9,7 @@
 import Foundation
 
 protocol ExchangeProvider {
-    func fetchExchangeAmountLimit(for currency: Currency) async throws -> Decimal
+    func fetchExchangeAmountAllowance(for currency: Currency) async throws -> Decimal
     func fetchTxDataForSwap(
         items: ExchangeItems,
         amount: String,
