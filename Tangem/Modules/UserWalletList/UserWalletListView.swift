@@ -63,7 +63,6 @@ struct UserWalletListView: View {
                                     tryAgainAction: viewModel.tryAgain,
                                     requestSupportAction: viewModel.requestSupport)
         )
-        .onAppear(perform: viewModel.onAppear)
     }
 }
 
