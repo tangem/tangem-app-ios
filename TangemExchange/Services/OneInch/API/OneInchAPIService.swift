@@ -11,6 +11,7 @@ import Foundation
 class OneInchAPIService: OneInchAPIProvider {
     let isDebug: Bool
     private lazy var networkService: NetworkService = NetworkService(isDebug: isDebug)
+    private lazy var moyaProvider: MoyaProvider
 
     init(isDebug: Bool = false) {
         self.isDebug = isDebug
