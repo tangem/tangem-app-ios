@@ -12,9 +12,9 @@ import Combine
 protocol UserWalletModel {
     /// Public until managers factory
     var userTokenListManager: UserTokenListManager { get }
+    var needToUpdateLocalRepositoryFromAPI: Bool { get }
 
     var userWallet: UserWallet { get }
-
     var didPerformInitialUpdate: Bool { get }
 
     func updateUserWalletModel(with config: UserWalletConfig)
