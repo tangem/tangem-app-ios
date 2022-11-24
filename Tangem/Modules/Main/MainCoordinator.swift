@@ -266,7 +266,7 @@ extension MainCoordinator: UserWalletListRoutable {
         pushedOnboardingCoordinator = coordinator
     }
 
-    func updateMain(with cardModel: CardViewModel) {
+    private func updateMain(with cardModel: CardViewModel) {
         guard let userWalletModel = cardModel.userWalletModel else {
             assertionFailure("UserWalletModel not created")
             return
