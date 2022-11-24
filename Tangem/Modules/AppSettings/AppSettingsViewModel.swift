@@ -54,8 +54,7 @@ class AppSettingsViewModel: ObservableObject {
         self.isSavingAccessCodes = isSavingWallet && AppSettings.shared.saveAccessCodes
         self.userWallet = userWallet
 
-        updateBiometricWarning()
-        setupView()
+        updateView()
     }
 }
 
@@ -80,7 +79,7 @@ private extension AppSettingsViewModel {
             guard let self else { return }
 
             if case .error = result {
-                self.updateBiometricWarning()
+                self.updateView()
                 completion(false)
             } else {
                 let _ = self.userWalletRepository.save(self.userWallet)
@@ -214,7 +213,7 @@ private extension AppSettingsViewModel {
         }
     }
 
-    func updateBiometricWarning() {
+    func updateView() {
         isBiometryAvailable = BiometricAuthorizationUtils.getBiometricState() == .available
         setupView()
     }
