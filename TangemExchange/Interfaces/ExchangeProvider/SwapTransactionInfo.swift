@@ -8,9 +8,9 @@
 
 import Foundation
 
-struct SwapTransactionInfo {
-    let currency: Currency
-    let destination: String
-    let amount: Decimal
-    let oneInchTxData: Data
+public struct SwapTransactionInfo {
+    public let currency: Currency
+    public let destination: String
+    public let amount: Decimal
+    public let oneInchTxData: Data
 }
