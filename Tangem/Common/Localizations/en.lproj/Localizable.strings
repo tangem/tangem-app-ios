@@ -299,7 +299,6 @@ Please, try again later.";
 NETWORK: %@
 
 URL: %@";
-"wallet_connect_scan_card_message" = "Tap card to bind to wallet connect";
 "wallet_connect_scan_new_code" = "Scan new code";
 "wallet_connect_scanner_error_not_valid_card" = "This card can’t be used to establish WalletConnect session";
 "wallet_connect_scanner_error_unsupported_network" = "This network is not supported. Please select another network.";
