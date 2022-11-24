@@ -177,7 +177,6 @@ class MainViewModel: ObservableObject {
         self.coordinator = coordinator
 
         bind()
-        cardModel.updateSdkConfig()
         updateContent()
         updateIsBackupAllowed()
         cardModel.setupWarnings()
