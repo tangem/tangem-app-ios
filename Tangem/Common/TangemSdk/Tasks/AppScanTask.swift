@@ -154,8 +154,6 @@ final class AppScanTask: CardSessionRunnable {
                     self.walletData = .file(walletData)
                 }
 
-                self.appendPersistentBlockchains(for: CardDTO(card: card))
-
                 exit()
             case .failure(let error):
                 switch error {
@@ -183,8 +181,6 @@ final class AppScanTask: CardSessionRunnable {
                     completion(.failure(.missingPreflightRead))
                     return
                 }
-
-                self.appendPersistentBlockchains(for: CardDTO(card: card))
 
                 self.runScanTask(session, completion)
             case .failure(let error):
@@ -270,7 +266,9 @@ final class AppScanTask: CardSessionRunnable {
             let tokenItemsRepository = CommonTokenItemsRepository(key: UserWalletId(with: seed).stringValue)
 
             // Force add blockchains for demo cards
-            self.appendPersistentBlockchains(for: card)
+            if let persistentBlockchains = config.persistentBlockchains {
+                tokenItemsRepository.append(persistentBlockchains)
+            }
 
             let savedItems = tokenItemsRepository.getItems()
 
@@ -317,20 +315,6 @@ final class AppScanTask: CardSessionRunnable {
         completion(.success(AppScanTaskResponse(card: card,
                                                 walletData: walletData,
                                                 primaryCard: primaryCard)))
-    }
-
-    private func appendPersistentBlockchains(for card: CardDTO) {
-        let config = self.config(for: card)
-
-        guard let seed = config.userWalletIdSeed,
-              let persistentBlockchains = config.persistentBlockchains else {
-            return
-        }
-
-        let repository = CommonTokenItemsRepository(key: UserWalletId(with: seed).stringValue)
-        if repository.getItems().isEmpty {
-            repository.append(persistentBlockchains)
-        }
     }
 
     private func config(for card: CardDTO) -> UserWalletConfig {

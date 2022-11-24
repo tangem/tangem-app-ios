@@ -116,13 +116,14 @@ private extension MultiWalletContentViewModel {
             entriesWithoutDerivation.mapVoid()
         )
         .receive(on: DispatchQueue.global())
-        .map { [unowned self] _ -> [TokenItemViewModel] in
-            collectTokenItemViewModels()
+        .map { [weak self] _ -> [TokenItemViewModel] in
+            /// `unowned` will be crashed when the wallet which currently open is deleted from the list of saved wallet
+            self?.collectTokenItemViewModels() ?? []
         }
         .removeDuplicates()
         .receive(on: RunLoop.main)
-        .sink { [unowned self] viewModels in
-            updateView(viewModels: viewModels)
+        .sink { [weak self] viewModels in
+            self?.updateView(viewModels: viewModels)
         }
         .store(in: &bag)
     }
