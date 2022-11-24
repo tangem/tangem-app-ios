@@ -239,6 +239,8 @@ class CommonUserWalletRepository: UserWalletRepository {
                     }
 
                     self.setSelectedUserWalletId(userWallet.userWalletId)
+
+                    self.sendEvent(.inserted)
                 default:
                     completion(result)
                 }
