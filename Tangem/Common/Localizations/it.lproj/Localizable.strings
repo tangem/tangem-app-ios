@@ -26,7 +26,6 @@ It’s perfectly safe in all other respects.
 Tangem is the only hardware wallet to offer signature count protection.";
 "alert_troubleshooting_scan_card_message" = "Please try to tap the card exactly as shown in the animation or request support.";
 "alert_troubleshooting_scan_card_title" = "Are you having difficulty scanning your card?";
-"card_operation_button_title_reset" = "Reset the Card";
 "common_accept" = "Accetta";
 "common_back" = "Back";
 "common_camera_alert_button_settings" = "Impostazioni";
