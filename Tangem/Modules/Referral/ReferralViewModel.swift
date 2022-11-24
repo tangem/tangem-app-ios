@@ -214,7 +214,7 @@ extension ReferralViewModel {
             return ""
         }
 
-        return referralInfo.shareLink
+        return String(format: "referral_share_link".localized, referralInfo.shareLink)
     }
 
     var isProgramInfoLoaded: Bool { referralProgramInfo != nil }
