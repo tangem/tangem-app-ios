@@ -387,7 +387,6 @@ URL: %@";
 "token_details_send_blocked_fee_format" = "Недостаточно средств для комиссии на вашем %@ кошельке для отправки транзакции. Сначала пополните свой %@ кошелек.";
 "currency_subtitle_expanded" = "Доступные сети";
 "wallet_connect_network_not_found_format" = "Сеть %@ не найдена. Пожалуйста, добавьте её и попробуйте заново.";
-"common_notice" = "Уведомление";
 "common_attention" = "Внимание";
 "alert_manage_tokens_addresses_message" = "Внимание! Валюты на разных сетях имеют разные адреса. Убедитесь, что адрес соответствует сети, в которой вы отправляете средства.";
 "alert_manage_tokens_unsupported_message" = "Токены в сети Solana не поддерживаются этой картой из-за ограничений прошивки.";
