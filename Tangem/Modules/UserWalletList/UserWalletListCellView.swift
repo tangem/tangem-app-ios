@@ -64,6 +64,7 @@ struct UserWalletListCellView: View {
         .onTapGesture {
             viewModel.didTapUserWallet()
         }
+        .onAppear(perform: viewModel.onAppear)
     }
 
     @ViewBuilder
