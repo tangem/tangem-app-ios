@@ -38,7 +38,7 @@ extension CommonUserWalletModel: UserWalletModel {
     /// It's used to check if the storage needs to be updated when the user adds a new wallet to saved wallets.
     var needToUpdateLocalRepositoryFromAPI: Bool {
         config.hasFeature(.tokenSynchronization) &&
-            userTokenListManager.getEntriesFromRepository().isEmpty // Think about it
+            !userTokenListManager.didPerformInitialLoading
     }
 
     func updateUserWallet(_ userWallet: UserWallet) {
