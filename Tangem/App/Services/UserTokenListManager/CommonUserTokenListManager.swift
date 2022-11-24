@@ -16,7 +16,7 @@ import struct TangemSdk.DerivationPath
 class CommonUserTokenListManager {
     @Injected(\.tangemApiService) private var tangemApiService: TangemApiService
 
-    var didPerformInitialLoading: Bool = false
+    private(set) var didPerformInitialLoading: Bool = false
 
     private var userWalletId: Data
     private var tokenItemsRepository: TokenItemsRepository
