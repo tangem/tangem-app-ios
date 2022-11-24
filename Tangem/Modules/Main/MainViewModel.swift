@@ -215,8 +215,8 @@ class MainViewModel: ObservableObject {
 
         AppSettings.shared.$saveUserWallets
             .combineLatest(AppSettings.shared.$saveAccessCodes)
-            .sink { v in
-                self.cardModel.updateSdkConfig()
+            .sink { [weak self] v in
+                self?.cardModel.updateSdkConfig()
             }
             .store(in: &bag)
     }
