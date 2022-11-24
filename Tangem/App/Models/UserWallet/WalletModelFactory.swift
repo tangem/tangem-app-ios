@@ -45,7 +45,7 @@ class WalletModelFactory {
                             derivedKeys: [EllipticCurve: [DerivationPath: ExtendedPublicKey]],
                             derivationStyle: DerivationStyle?) throws -> WalletModel {
         let curve = entry.blockchainNetwork.blockchain.curve
-        
+
         guard let derivationPath = entry.blockchainNetwork.derivationPath else {
             throw Errors.entryHasNotDerivationPath
         }
