@@ -11,7 +11,6 @@ import Foundation
 protocol UserWalletListRoutable: AnyObject {
     func popToRoot()
     func dismissUserWalletList()
-    func didTap(_ cardModel: CardViewModel)
     func openMail(with dataCollector: EmailDataCollector, emailType: EmailType, recipient: String)
     func openOnboarding(with input: OnboardingInput)
     func refreshMainWalletModels() // [REDACTED_TODO_COMMENT]
