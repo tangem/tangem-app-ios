@@ -50,9 +50,18 @@ class MainCoordinator: CoordinatorObject {
         userWalletRepository
             .eventProvider
             .sink { [weak self] event in
-                if case .selected = event,
-                   let selectedModel = self?.userWalletRepository.selectedModel {
-                    self?.updateMain(with: selectedModel)
+                switch event {
+                case .selected:
+                    if let selectedModel = self?.userWalletRepository.selectedModel {
+                        self?.updateMain(with: selectedModel)
+                    }
+                case .inserted:
+                    /// Sergey B:
+                    /// Crunch for refresh main only when new wallet is added
+                    /// Unfortunately is provokes duplicate `update` requests
+                    self?.refreshMainWalletModels()
+                default:
+                    break
                 }
             }
             .store(in: &bag)
@@ -282,7 +291,8 @@ extension MainCoordinator: UserWalletListRoutable {
         )
     }
 
-    func refreshMainWalletModels() {
+    // [REDACTED_TODO_COMMENT]
+    private func refreshMainWalletModels() {
         mainViewModel?.refreshContent()
     }
 }
