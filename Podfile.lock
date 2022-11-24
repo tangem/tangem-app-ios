@@ -140,7 +140,6 @@ PODS:
   - HDWalletKit (0.3.6):
     - CryptoSwift
     - secp256k1.swift
-  - KeychainSwift (19.0.0)
   - Kingfisher (6.3.1)
   - Mobile-Buy-SDK (7.1.0)
   - Moya (15.0.0):
@@ -228,7 +227,6 @@ DEPENDENCIES:
   - Firebase/Analytics
   - Firebase/Crashlytics
   - HDWalletKit (from `https://github.com/tangem/hdwallet.git`, tag `0.3.12`)
-  - KeychainSwift (~> 19.0)
   - Kingfisher (from `https://github.com/onevcat/Kingfisher.git`, branch `version6-xcode13`)
   - Mobile-Buy-SDK
   - Moya
@@ -262,7 +260,6 @@ SPEC REPOS:
     - GoogleAppMeasurement
     - GoogleDataTransport
     - GoogleUtilities
-    - KeychainSwift
     - Mobile-Buy-SDK
     - Moya
     - nanopb
@@ -378,7 +375,6 @@ SPEC CHECKSUMS:
   GoogleDataTransport: 1c8145da7117bd68bbbed00cf304edb6a24de00f
   GoogleUtilities: 1d20a6ad97ef46f67bbdec158ce00563a671ebb7
   HDWalletKit: 602ec664633cc6bae1c697e4e17af42efb69bfad
-  KeychainSwift: a06190cf933ad46b1e0abc3d77d29c06331715c7
   Kingfisher: 8b783c3d7be73a99b2172a743a5bc0a4dd331d79
   Mobile-Buy-SDK: 29812838f06cbf78fd80728d9f84e9eaf49c7843
   Moya: 138f0573e53411fb3dc17016add0b748dfbd78ee
