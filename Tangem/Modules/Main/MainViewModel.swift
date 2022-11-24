@@ -87,7 +87,7 @@ class MainViewModel: ObservableObject {
 
     private var userWalletModel: UserWalletModel
     private let cardImageProvider: CardImageProviding
-    private var isFirstTimeOnAppear: Bool = true
+    private var shouldRefreshWhenAppear: Bool
     private var bag = Set<AnyCancellable>()
     private var isProcessingNewCard = false
 
@@ -169,18 +169,20 @@ class MainViewModel: ObservableObject {
         cardModel: CardViewModel,
         userWalletModel: UserWalletModel,
         cardImageProvider: CardImageProviding,
+        shouldRefreshWhenAppear: Bool,
         coordinator: MainRoutable
     ) {
         self.cardModel = cardModel
         self.userWalletModel = userWalletModel
         self.cardImageProvider = cardImageProvider
+        self.shouldRefreshWhenAppear = shouldRefreshWhenAppear
         self.coordinator = coordinator
 
         bind()
         cardModel.updateSdkConfig()
-        updateContent()
-        updateIsBackupAllowed()
         cardModel.setupWarnings()
+
+        updateContent()
         showUserWalletSaveIfNeeded()
     }
 
@@ -215,6 +217,9 @@ class MainViewModel: ObservableObject {
     }
 
     func updateContent() {
+        updateIsBackupAllowed()
+        loadImage()
+
         if cardModel.isMultiWallet {
             singleWalletContentViewModel = nil
             multiWalletContentViewModel = MultiWalletContentViewModel(
@@ -289,31 +294,16 @@ class MainViewModel: ObservableObject {
         }
     }
 
-    func userWalletDidChange(cardModel: CardViewModel, userWalletModel: UserWalletModel) {
-        bag.removeAll()
-        self.cardModel = cardModel
-        self.userWalletModel = userWalletModel
-
-        bind()
-
-        cardModel.updateSdkConfig()
-        cardModel.setupWarnings()
-
-        loadImage()
-        updateContent()
-        updateIsBackupAllowed()
-        userWalletModel.updateWalletModels()
-    }
-
     func onAppear() {
-        updateIsBackupAllowed()
-        loadImage()
-
-        if isFirstTimeOnAppear {
+        if shouldRefreshWhenAppear {
             singleWalletContentViewModel?.onAppear()
             multiWalletContentViewModel?.onAppear()
-            isFirstTimeOnAppear = false
         }
+    }
+
+    func refreshContent() {
+        singleWalletContentViewModel?.onRefresh {}
+        multiWalletContentViewModel?.onRefresh {}
     }
 
     func deriveEntriesWithoutDerivation() {

@@ -77,14 +77,6 @@ final class UserWalletListViewModel: ObservableObject, Identifiable {
             .store(in: &bag)
     }
 
-    func onAppear() {
-        for userWalletModel in userWalletRepository.models.compactMap({ $0.userWalletModel }) {
-            if !userWalletModel.didPerformInitialUpdate {
-                userWalletModel.updateAndReloadWalletModels()
-            }
-        }
-    }
-
     func unlockAllWallets() {
         Analytics.log(.buttonUnlockAllWithFaceID)
 
@@ -281,6 +273,10 @@ final class UserWalletListViewModel: ObservableObject, Identifiable {
         }
 
         setSelectedWallet(userWallet)
+
+        /// Crunch for refresh main only when new wallet is added
+        /// Unfortunately is provokes duplicate `update` requests
+        coordinator.refreshMainWalletModels()
     }
 
     private func mapToUserWalletListCellViewModel(userWalletModel: UserWalletModel, totalBalanceProvider: TotalBalanceProviding? = nil) -> UserWalletListCellViewModel {
