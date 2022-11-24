@@ -233,7 +233,7 @@ DEPENDENCIES:
   - ScaleCodec
   - Solana.Swift (from `https://github.com/tangem/Solana.Swift`, tag `add-external-signer-6`)
   - stellar-ios-mac-sdk
-  - TangemSdk (from `https://github.com/Tangem/tangem-sdk-ios.git`, tag `develop-186`)
+  - TangemSdk (from `https://github.com/Tangem/tangem-sdk-ios.git`, tag `develop-187`)
   - WalletConnectSwift (from `https://github.com/WalletConnect/WalletConnectSwift`, tag `1.7.0`)
   - web3swift (from `https://github.com/tangem/web3swift.git`, tag `2.2.11`)
   - ZendeskAnswerBotSDK (~> 2.2.0)
@@ -312,7 +312,7 @@ EXTERNAL SOURCES:
     :tag: add-external-signer-6
   TangemSdk:
     :git: https://github.com/Tangem/tangem-sdk-ios.git
-    :tag: develop-186
+    :tag: develop-187
   WalletConnectSwift:
     :git: https://github.com/WalletConnect/WalletConnectSwift
     :tag: 1.7.0
@@ -344,7 +344,7 @@ CHECKOUT OPTIONS:
     :tag: add-external-signer-6
   TangemSdk:
     :git: https://github.com/Tangem/tangem-sdk-ios.git
-    :tag: develop-186
+    :tag: develop-187
   WalletConnectSwift:
     :git: https://github.com/WalletConnect/WalletConnectSwift
     :tag: 1.7.0
@@ -409,6 +409,6 @@ SPEC CHECKSUMS:
   ZendeskSupportProvidersSDK: 77a62fe6bacc05bb10ff20edce75612fa109fd61
   ZendeskSupportSDK: ba72e90e327635b5fde3d023a3de33242a6ee8ab
 
-PODFILE CHECKSUM: 8bcf7edde332ddbe398ff0ddf5b83fe8e8b5ed78
+PODFILE CHECKSUM: 1894f1f05be44ba73b055cd7f77b4bdc905bac87
 
 COCOAPODS: 1.11.3
