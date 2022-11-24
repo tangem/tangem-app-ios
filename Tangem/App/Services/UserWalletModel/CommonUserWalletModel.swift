@@ -17,7 +17,7 @@ class CommonUserWalletModel {
     let userTokenListManager: UserTokenListManager
     private let walletListManager: WalletListManager
 
-    private(set) var didPerformInitialUpdate = false
+    private var didPerformInitialUpdate = false
     private var reloadAllWalletModelsBag: AnyCancellable?
 
     init(config: UserWalletConfig, userWallet: UserWallet) {
@@ -35,12 +35,6 @@ class CommonUserWalletModel {
 // MARK: - UserWalletModel
 
 extension CommonUserWalletModel: UserWalletModel {
-    /// It's used to check if the storage needs to be updated when the user adds a new wallet to saved wallets.
-    var needToUpdateLocalRepositoryFromAPI: Bool {
-        config.hasFeature(.tokenSynchronization) &&
-            !userTokenListManager.didPerformInitialLoading
-    }
-
     func updateUserWallet(_ userWallet: UserWallet) {
         print("🔄 Updating UserWalletModel with new userWalletId")
         self.userWallet = userWallet
@@ -71,6 +65,20 @@ extension CommonUserWalletModel: UserWalletModel {
 
     func subscribeToEntriesWithoutDerivation() -> AnyPublisher<[StorageEntry], Never> {
         walletListManager.subscribeToEntriesWithoutDerivation()
+    }
+
+    func initialUpdate() {
+        /// It's used to check if the storage needs to be updated when the user adds a new wallet to saved wallets.
+        if config.hasFeature(.tokenSynchronization),
+           !userTokenListManager.didPerformInitialLoading {
+            userTokenListManager.updateLocalRepositoryFromServer { [weak self] _ in
+                self?.updateAndReloadWalletModels()
+            }
+        } else if !didPerformInitialUpdate {
+            updateAndReloadWalletModels()
+        } else {
+            print("Initial update has been performed")
+        }
     }
 
     func updateWalletModels() {
