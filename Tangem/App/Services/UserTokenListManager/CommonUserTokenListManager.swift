@@ -16,6 +16,8 @@ import struct TangemSdk.DerivationPath
 class CommonUserTokenListManager {
     @Injected(\.tangemApiService) private var tangemApiService: TangemApiService
 
+    private(set) var didPerformInitialLoading: Bool = false
+
     private var userWalletId: Data
     private var tokenItemsRepository: TokenItemsRepository
 
@@ -87,6 +89,7 @@ private extension CommonUserTokenListManager {
             return
         }
 
+        didPerformInitialLoading = true
         self.loadTokensCancellable = tangemApiService
             .loadTokens(for: userWalletId.hexString)
             .sink { [unowned self] completion in
