@@ -252,6 +252,14 @@ class CardViewModel: Identifiable, ObservableObject {
         userWalletModel?.userWallet
     }
 
+    private var isActive: Bool {
+        if let selectedRepositoryModel = userWalletRepository.selectedModel {
+            return selectedRepositoryModel === self
+        } else {
+            return true
+        }
+    }
+
     private var searchBlockchainsCancellable: AnyCancellable? = nil
     private var bag = Set<AnyCancellable>()
 
@@ -637,6 +645,17 @@ class CardViewModel: Identifiable, ObservableObject {
             self.onSigned(card)
         }
         .store(in: &bag)
+
+        AppSettings.shared.$saveUserWallets
+            .combineLatest(AppSettings.shared.$saveAccessCodes)
+            .sink { [weak self] _ in
+                guard let self else { return }
+
+                if self.isActive {
+                    self.updateSdkConfig()
+                }
+            }
+            .store(in: &bag)
     }
 
     private func updateUserWallet() {
