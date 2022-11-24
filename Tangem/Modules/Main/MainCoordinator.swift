@@ -8,8 +8,11 @@
 
 import Foundation
 import BlockchainSdk
+import Combine
 
 class MainCoordinator: CoordinatorObject {
+    @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
+
     var dismissAction: Action
     var popToRootAction: ParamsAction<PopToRootOptions>
 
@@ -38,9 +41,21 @@ class MainCoordinator: CoordinatorObject {
     // MARK: - Helpers
     @Published var modalOnboardingCoordinatorKeeper: Bool = false
 
+    private var bag: Set<AnyCancellable> = []
+
     required init(dismissAction: @escaping Action, popToRootAction: @escaping ParamsAction<PopToRootOptions>) {
         self.dismissAction = dismissAction
         self.popToRootAction = popToRootAction
+
+        userWalletRepository
+            .eventProvider
+            .sink { [weak self] event in
+                if case .selected = event,
+                   let selectedModel = self?.userWalletRepository.selectedModel {
+                    self?.updateMain(with: selectedModel)
+                }
+            }
+            .store(in: &bag)
     }
 
     func start(with options: MainCoordinator.Options) {
@@ -251,7 +266,7 @@ extension MainCoordinator: UserWalletListRoutable {
         pushedOnboardingCoordinator = coordinator
     }
 
-    func didTap(_ cardModel: CardViewModel) {
+    private func updateMain(with cardModel: CardViewModel) {
         guard let userWalletModel = cardModel.userWalletModel else {
             assertionFailure("UserWalletModel not created")
             return
