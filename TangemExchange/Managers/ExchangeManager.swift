@@ -10,6 +10,7 @@ import Foundation
 import Combine
 
 public protocol ExchangeManager {
+    func availableNetworks() -> [String]
     func getExchangeItems() -> ExchangeItems
 //    func update(exchangeItems: ExchangeItems)
 
