@@ -58,7 +58,17 @@ class UserWalletListCellViewModel: ObservableObject {
         }
     }
 
-    func bind() {
+    func onAppear() {
+        if userWalletModel.needToUpdateLocalRepositoryFromAPI {
+            userWalletModel.userTokenListManager.updateLocalRepositoryFromServer { [weak self] _ in
+                self?.userWalletModel.updateAndReloadWalletModels()
+            }
+        } else if !userWalletModel.didPerformInitialUpdate {
+            userWalletModel.updateAndReloadWalletModels()
+        }
+    }
+
+    private func bind() {
         totalBalanceProvider.totalBalancePublisher()
             .sink { [unowned self] loadingValue in
                 switch loadingValue {

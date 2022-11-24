@@ -53,6 +53,7 @@ class MainCoordinator: CoordinatorObject {
             cardModel: options.cardModel,
             userWalletModel: userWalletModel,
             cardImageProvider: CardImageProvider(supportsOnlineImage: options.cardModel.supportsOnlineImage),
+            shouldRefreshWhenAppear: true,
             coordinator: self
         )
     }
@@ -257,7 +258,17 @@ extension MainCoordinator: UserWalletListRoutable {
             return
         }
 
-        mainViewModel?.userWalletDidChange(cardModel: cardModel, userWalletModel: userWalletModel)
+        mainViewModel = MainViewModel(
+            cardModel: cardModel,
+            userWalletModel: userWalletModel,
+            cardImageProvider: CardImageProvider(supportsOnlineImage: cardModel.supportsOnlineImage),
+            shouldRefreshWhenAppear: false,
+            coordinator: self
+        )
+    }
+
+    func refreshMainWalletModels() {
+        mainViewModel?.refreshContent()
     }
 }
 
