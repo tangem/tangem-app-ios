@@ -11,31 +11,70 @@ import BlockchainSdk
 import TangemExchange
 
 struct BlockchainNetworkService {
-    private let walletManager: WalletManager
+    private let walletModel: WalletModel
     private let signer: TransactionSigner
 
-    init(walletManager: WalletManager, signer: TransactionSigner) {
-        self.walletManager = walletManager
+    private var walletManager: WalletManager { walletModel.walletManager }
+
+    init(walletModel: WalletModel, signer: TransactionSigner) {
+        self.walletModel = walletModel
         self.signer = signer
     }
 }
 
-// MARK: - BlockchainProvider
+// MARK: - BlockchainInfoProvider
 
-extension BlockchainNetworkService: BlockchainNetworkProvider {
-    func signAndSend(_ transaction: Transaction) async throws {
-        try await walletManager.send(transaction, signer: signer).async()
+extension BlockchainNetworkService: BlockchainInfoProvider {
+    func getBalance(currency: Currency) async throws -> Decimal {
+        return 0
+        // [REDACTED_TODO_COMMENT]
+//        walletModel.getBalance(for: .coin)
     }
 
     func getFee(currency: Currency, amount: Decimal, destination: String) async throws -> [Decimal] {
         let amount = createAmount(from: currency, amount: amount)
 
-        return try await walletManager.getFee(amount: amount, destination: destination)
+        return try await walletManager
+            .getFee(amount: amount, destination: destination)
             .map { $0.map { $0.value } }
             .eraseToAnyPublisher()
             .async()
     }
+}
 
+// MARK: - TransactionBuilder
+
+extension BlockchainNetworkService: TransactionBuilder {
+    typealias Transaction = BlockchainSdk.Transaction
+
+    func buildTransaction(for info: SwapTransactionInfo, fee: Decimal) throws -> Transaction {
+        let transactionInfo = ExchangeTransactionInfo(
+            currency: info.currency,
+            amount: info.amount,
+            fee: fee,
+            destination: info.destination
+        )
+
+        var tx = try createTransaction(for: transactionInfo)
+        tx.params = EthereumTransactionParams(data: info.oneInchTxData)
+
+        return tx
+    }
+
+    /// We don't have special method for sing transaction
+    /// Transaction will be signed when it will be sended
+    func sign(_ transaction: Transaction) async throws -> Transaction {
+        return transaction
+    }
+
+    func send(_ transaction: Transaction) async throws {
+        try await walletManager.send(transaction, signer: signer).async()
+    }
+}
+
+// MARK: - Private
+
+private extension BlockchainNetworkService {
     func createTransaction(for info: ExchangeTransactionInfo) throws -> Transaction {
         let amount = createAmount(from: info.currency, amount: info.amount)
         let fee = createAmount(from: info.currency, amount: info.fee)
@@ -46,11 +85,7 @@ extension BlockchainNetworkService: BlockchainNetworkProvider {
                                                    sourceAddress: info.sourceAddress,
                                                    changeAddress: info.changeAddress)
     }
-}
 
-// MARK: - Private
-
-private extension BlockchainNetworkService {
     func createAmount(from currency: Currency, amount: Decimal) -> Amount {
         if let token = currency.asToken() {
             return Amount(with: token, value: amount)
