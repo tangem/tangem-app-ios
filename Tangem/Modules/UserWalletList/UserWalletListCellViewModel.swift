@@ -59,13 +59,7 @@ class UserWalletListCellViewModel: ObservableObject {
     }
 
     func onAppear() {
-        if userWalletModel.needToUpdateLocalRepositoryFromAPI {
-            userWalletModel.userTokenListManager.updateLocalRepositoryFromServer { [weak self] _ in
-                self?.userWalletModel.updateAndReloadWalletModels()
-            }
-        } else if !userWalletModel.didPerformInitialUpdate {
-            userWalletModel.updateAndReloadWalletModels()
-        }
+        userWalletModel.initialUpdate()
     }
 
     private func bind() {
