@@ -506,8 +506,12 @@
 		EF29BEDA292E5CAE00D7C782 /* OneInchAPIService.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF29BED9292E5CAE00D7C782 /* OneInchAPIService.swift */; };
 		EF29BEDD292E5D2100D7C782 /* OneInchLimitOrderProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF29BEDC292E5D2100D7C782 /* OneInchLimitOrderProvider.swift */; };
 		EF29BEE2292E5DB400D7C782 /* SwapTransactionInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF29BEE1292E5DB400D7C782 /* SwapTransactionInfo.swift */; };
-		EF29BEE4292E5DC400D7C782 /* OneInchServiceError.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF29BEE3292E5DC400D7C782 /* OneInchServiceError.swift */; };
+		EF29BEE4292E5DC400D7C782 /* OneInchExchangeProviderErrors.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF29BEE3292E5DC400D7C782 /* OneInchExchangeProviderErrors.swift */; };
 		EF29BEE7292E65C400D7C782 /* Logger.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF29BEE6292E65C400D7C782 /* Logger.swift */; };
+		EF29BEE9292FBCE400D7C782 /* DefaultExchangeManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF29BEE8292FBCE400D7C782 /* DefaultExchangeManager.swift */; };
+		EF29BEEB292FBCFB00D7C782 /* SwappingAvailabilityState.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF29BEEA292FBCFB00D7C782 /* SwappingAvailabilityState.swift */; };
+		EF29BEED292FBD0800D7C782 /* ExchangeManagerDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF29BEEC292FBD0800D7C782 /* ExchangeManagerDelegate.swift */; };
+		EF29BEEF292FC8C100D7C782 /* MoyaProvider+AsyncRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF29BEEE292FC8C100D7C782 /* MoyaProvider+AsyncRequest.swift */; };
 		EF3B581F28F81B0300C93810 /* SaltPayConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCE3379828F2A4580029A6F5 /* SaltPayConfiguration.swift */; };
 		EF3EC523289AB2DE0071BA7F /* TangemProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF3EC522289AB2DE0071BA7F /* TangemProvider.swift */; };
 		EF46618829237C9F00346B6C /* ProgressViewCompat.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF46618729237C9F00346B6C /* ProgressViewCompat.swift */; };
@@ -534,11 +538,9 @@
 		EF4661F62924CC6E00346B6C /* LimitOrderParameters.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF4661E52924CC6900346B6C /* LimitOrderParameters.swift */; };
 		EF4661F72924CC6E00346B6C /* QuoteData.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF4661D82924CC6400346B6C /* QuoteData.swift */; };
 		EF4661F82924CC6E00346B6C /* QuoteParameters.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF4661EB2924CC6B00346B6C /* QuoteParameters.swift */; };
-		EF4661F92924CC6E00346B6C /* ExchangeNetworkService.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF4661E22924CC6800346B6C /* ExchangeNetworkService.swift */; };
 		EF4661FA2924CC6E00346B6C /* LimitOrder.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF4661E32924CC6800346B6C /* LimitOrder.swift */; };
 		EF4661FB2924CC6E00346B6C /* ApproveDTO.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF4661ED2924CC6C00346B6C /* ApproveDTO.swift */; };
 		EF4661FC2924CC6E00346B6C /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF4661DC2924CC6600346B6C /* Constants.swift */; };
-		EF4661FD2924CC6E00346B6C /* AsyncMoyaRequestWrapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF4661E82924CC6A00346B6C /* AsyncMoyaRequestWrapper.swift */; };
 		EF4661FE2924CC6E00346B6C /* ExchangeInchError.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF4661DD2924CC6600346B6C /* ExchangeInchError.swift */; };
 		EF4661FF2924CC6E00346B6C /* ExchangeBlockchain.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF4661E62924CC6900346B6C /* ExchangeBlockchain.swift */; };
 		EF4662002924CC6E00346B6C /* ApproveParameters.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF4661DB2924CC6500346B6C /* ApproveParameters.swift */; };
@@ -1274,8 +1276,12 @@
 		EF29BED9292E5CAE00D7C782 /* OneInchAPIService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OneInchAPIService.swift; sourceTree = "<group>"; };
 		EF29BEDC292E5D2100D7C782 /* OneInchLimitOrderProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OneInchLimitOrderProvider.swift; sourceTree = "<group>"; };
 		EF29BEE1292E5DB400D7C782 /* SwapTransactionInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwapTransactionInfo.swift; sourceTree = "<group>"; };
-		EF29BEE3292E5DC400D7C782 /* OneInchServiceError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OneInchServiceError.swift; sourceTree = "<group>"; };
+		EF29BEE3292E5DC400D7C782 /* OneInchExchangeProviderErrors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OneInchExchangeProviderErrors.swift; sourceTree = "<group>"; };
 		EF29BEE6292E65C400D7C782 /* Logger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Logger.swift; sourceTree = "<group>"; };
+		EF29BEE8292FBCE400D7C782 /* DefaultExchangeManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DefaultExchangeManager.swift; sourceTree = "<group>"; };
+		EF29BEEA292FBCFB00D7C782 /* SwappingAvailabilityState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwappingAvailabilityState.swift; sourceTree = "<group>"; };
+		EF29BEEC292FBD0800D7C782 /* ExchangeManagerDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExchangeManagerDelegate.swift; sourceTree = "<group>"; };
+		EF29BEEE292FC8C100D7C782 /* MoyaProvider+AsyncRequest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MoyaProvider+AsyncRequest.swift"; sourceTree = "<group>"; };
 		EF2EFDE12865C05D00798051 /* Production.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Production.xcconfig; sourceTree = "<group>"; };
 		EF2EFDE22865C07100798051 /* Beta.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Beta.xcconfig; sourceTree = "<group>"; };
 		EF3EC522289AB2DE0071BA7F /* TangemProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TangemProvider.swift; sourceTree = "<group>"; };
@@ -1298,13 +1304,11 @@
 		EF4661DF2924CC6700346B6C /* SwapParameters.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwapParameters.swift; sourceTree = "<group>"; };
 		EF4661E02924CC6700346B6C /* SwapData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwapData.swift; sourceTree = "<group>"; };
 		EF4661E12924CC6700346B6C /* OneInchAPIProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OneInchAPIProvider.swift; sourceTree = "<group>"; };
-		EF4661E22924CC6800346B6C /* ExchangeNetworkService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExchangeNetworkService.swift; sourceTree = "<group>"; };
 		EF4661E32924CC6800346B6C /* LimitOrder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LimitOrder.swift; sourceTree = "<group>"; };
 		EF4661E42924CC6900346B6C /* BaseTarget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BaseTarget.swift; sourceTree = "<group>"; };
 		EF4661E52924CC6900346B6C /* LimitOrderParameters.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LimitOrderParameters.swift; sourceTree = "<group>"; };
 		EF4661E62924CC6900346B6C /* ExchangeBlockchain.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExchangeBlockchain.swift; sourceTree = "<group>"; };
 		EF4661E72924CC6A00346B6C /* TokensList.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokensList.swift; sourceTree = "<group>"; };
-		EF4661E82924CC6A00346B6C /* AsyncMoyaRequestWrapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AsyncMoyaRequestWrapper.swift; sourceTree = "<group>"; };
 		EF4661E92924CC6A00346B6C /* PresetsConfiguration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PresetsConfiguration.swift; sourceTree = "<group>"; };
 		EF4661EA2924CC6B00346B6C /* InfoTarget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InfoTarget.swift; sourceTree = "<group>"; };
 		EF4661EB2924CC6B00346B6C /* QuoteParameters.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuoteParameters.swift; sourceTree = "<group>"; };
@@ -3003,7 +3007,7 @@
 			isa = PBXGroup;
 			children = (
 				E9C17C71291ABB9000FDE4BC /* OneInchExchangeProvider.swift */,
-				EF29BEE3292E5DC400D7C782 /* OneInchServiceError.swift */,
+				EF29BEE3292E5DC400D7C782 /* OneInchExchangeProviderErrors.swift */,
 				EF29BEDF292E5D7400D7C782 /* API */,
 			);
 			path = OneInch;
@@ -3041,6 +3045,7 @@
 			isa = PBXGroup;
 			children = (
 				EF29BEE6292E65C400D7C782 /* Logger.swift */,
+				EF29BEEE292FC8C100D7C782 /* MoyaProvider+AsyncRequest.swift */,
 			);
 			path = Utils;
 			sourceTree = "<group>";
@@ -3106,7 +3111,6 @@
 			isa = PBXGroup;
 			children = (
 				EF29BEDB292E5CF900D7C782 /* OneInch */,
-				EF46620D2924CE0100346B6C /* API */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -3174,19 +3178,13 @@
 			path = Targets;
 			sourceTree = "<group>";
 		};
-		EF46620D2924CE0100346B6C /* API */ = {
-			isa = PBXGroup;
-			children = (
-				EF4661E82924CC6A00346B6C /* AsyncMoyaRequestWrapper.swift */,
-				EF4661E22924CC6800346B6C /* ExchangeNetworkService.swift */,
-			);
-			path = API;
-			sourceTree = "<group>";
-		};
 		EF46620E2924CE2A00346B6C /* Managers */ = {
 			isa = PBXGroup;
 			children = (
 				E9C17C5C2919507D00FDE4BC /* ExchangeManager.swift */,
+				EF29BEEC292FBD0800D7C782 /* ExchangeManagerDelegate.swift */,
+				EF29BEE8292FBCE400D7C782 /* DefaultExchangeManager.swift */,
+				EF29BEEA292FBCFB00D7C782 /* SwappingAvailabilityState.swift */,
 			);
 			path = Managers;
 			sourceTree = "<group>";
@@ -4457,17 +4455,18 @@
 			buildActionMask = 2147483647;
 			files = (
 				EF4661C52923B42A00346B6C /* ExchangeApprovedDataModel.swift in Sources */,
-				EF4661F92924CC6E00346B6C /* ExchangeNetworkService.swift in Sources */,
+				EF29BEED292FBD0800D7C782 /* ExchangeManagerDelegate.swift in Sources */,
 				EF29BED8292E5C6400D7C782 /* TransactionInfo.swift in Sources */,
 				EF4662002924CC6E00346B6C /* ApproveParameters.swift in Sources */,
 				EF29BEDD292E5D2100D7C782 /* OneInchLimitOrderProvider.swift in Sources */,
+				EF29BEEB292FBCFB00D7C782 /* SwappingAvailabilityState.swift in Sources */,
 				EF4662012924CC6E00346B6C /* LimitOrderTarget.swift in Sources */,
 				EF4661CF2923B9CD00346B6C /* TangemExchangeFactory.swift in Sources */,
 				EF4661C62923B42A00346B6C /* ExchangeProvider.swift in Sources */,
 				EF4661F42924CC6E00346B6C /* SwapTarget.swift in Sources */,
 				EF4661FB2924CC6E00346B6C /* ApproveDTO.swift in Sources */,
 				EF4662022924CC6E00346B6C /* HealthCheck.swift in Sources */,
-				EF29BEE4292E5DC400D7C782 /* OneInchServiceError.swift in Sources */,
+				EF29BEE4292E5DC400D7C782 /* OneInchExchangeProviderErrors.swift in Sources */,
 				EF4661FC2924CC6E00346B6C /* Constants.swift in Sources */,
 				EF4661D42923E5BB00346B6C /* ExchangeItems.swift in Sources */,
 				EF4661F82924CC6E00346B6C /* QuoteParameters.swift in Sources */,
@@ -4476,6 +4475,7 @@
 				EF4662082924CC6E00346B6C /* SwapParameters.swift in Sources */,
 				EF4661F72924CC6E00346B6C /* QuoteData.swift in Sources */,
 				EF29BEDA292E5CAE00D7C782 /* OneInchAPIService.swift in Sources */,
+				EF29BEEF292FC8C100D7C782 /* MoyaProvider+AsyncRequest.swift in Sources */,
 				EF29BEE7292E65C400D7C782 /* Logger.swift in Sources */,
 				EF4661F22924CC6E00346B6C /* LiquiditySourcesList.swift in Sources */,
 				EF4661C02923B42A00346B6C /* OneInchExchangeProvider.swift in Sources */,
@@ -4486,6 +4486,7 @@
 				EF4662062924CC6E00346B6C /* ApproveTarget.swift in Sources */,
 				EF4661FF2924CC6E00346B6C /* ExchangeBlockchain.swift in Sources */,
 				EF4661F62924CC6E00346B6C /* LimitOrderParameters.swift in Sources */,
+				EF29BEE9292FBCE400D7C782 /* DefaultExchangeManager.swift in Sources */,
 				EF4662092924CC6E00346B6C /* TokensList.swift in Sources */,
 				EF4662072924CC6E00346B6C /* OneInchAPIProvider.swift in Sources */,
 				EF4661F12924CC6E00346B6C /* InfoTarget.swift in Sources */,
@@ -4495,7 +4496,6 @@
 				EF46620A2924CC6E00346B6C /* OneInchLimitOrderService.swift in Sources */,
 				EF4661FA2924CC6E00346B6C /* LimitOrder.swift in Sources */,
 				EF4661F52924CC6E00346B6C /* SwapData.swift in Sources */,
-				EF4661FD2924CC6E00346B6C /* AsyncMoyaRequestWrapper.swift in Sources */,
 				EF4661C82923B42A00346B6C /* ExchangeSwapDataModel.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
