@@ -58,6 +58,17 @@ class AppSettings {
 
     @AppStorageCompat(StorageType.termsOfServiceAccepted)
     var termsOfServicesAccepted: [String] = []
+    @AppStorageCompat(StorageType.askedToSaveUserWallets)
+    var askedToSaveUserWallets: Bool = false
+
+    @AppStorageCompat(StorageType.saveUserWallets)
+    var saveUserWallets: Bool = false
+
+    @AppStorageCompat(StorageType.selectedUserWalletId)
+    var selectedUserWalletId: Data = Data()
+
+    @AppStorageCompat(StorageType.saveAccessCodes)
+    var saveAccessCodes: Bool = false
 
     static let shared: AppSettings = { .init() }()
 
