@@ -68,16 +68,21 @@ extension CommonUserWalletModel: UserWalletModel {
     }
 
     func initialUpdate() {
+        guard !didPerformInitialUpdate else {
+            print("Initial update has been performed")
+            return
+        }
+
         /// It's used to check if the storage needs to be updated when the user adds a new wallet to saved wallets.
         if config.hasFeature(.tokenSynchronization),
            !userTokenListManager.didPerformInitialLoading {
+            didPerformInitialUpdate = true
+
             userTokenListManager.updateLocalRepositoryFromServer { [weak self] _ in
                 self?.updateAndReloadWalletModels()
             }
-        } else if !didPerformInitialUpdate {
-            updateAndReloadWalletModels()
         } else {
-            print("Initial update has been performed")
+            updateAndReloadWalletModels()
         }
     }
 
