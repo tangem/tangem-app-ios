@@ -182,7 +182,7 @@ private extension CommonUserTokenListManager {
             let entry = StorageEntry(
                 blockchainNetwork: network,
                 tokens: list.tokens
-                    .filter { $0.contractAddress != nil && $0.networkId == network.blockchain.networkId }
+                    .filter { $0.contractAddress != nil && $0.networkId == network.blockchain.networkId && $0.derivationPath == network.derivationPath }
                     .map { token in
                         Token(
                             name: token.name,
