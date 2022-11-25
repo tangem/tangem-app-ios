@@ -116,7 +116,7 @@ Tangem is the only hardware wallet to offer signature count protection.";
 "alert_button_i_understand" = "I understand";
 "onboarding_alert_message_not_max_backup_cards_added" = "You’ve added one backup card. When backup process is finished you can’t add more backup cards. If you have one more card, add it in backup. Do you like to continue backup process?";
 "onboarding_alert_message_old_device" = "iPhone 7/7+ is not able to create a backup for Tangem Wallet due to some system limitations. Please use another phone to perform this operation. All other functions work stably.";
-"onboarding_alert_twins_recreate_subtitle" = "This action is irreversible. You will not have access to the old wallet.";
+"twins_recreate_warning" = "This action is irreversible. You will not have access to the old wallet.";
 "onboarding_backup_exit_warning" = "The backup process is partly complete. You can’t exit it now.";
 "onboarding_balance" = "BALANCE";
 "main_page_balance" = "Total balance";
