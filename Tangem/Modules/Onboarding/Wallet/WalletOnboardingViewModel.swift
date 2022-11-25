@@ -22,6 +22,8 @@ class WalletOnboardingViewModel: OnboardingTopupViewModel<WalletOnboardingStep, 
 
     private var stackCalculator: StackCalculator = .init()
     private var fanStackCalculator: FanStackCalculator = .init()
+    private var accessCode: String? = nil
+    private var cardIds: [String]? = nil
     private var stepPublisher: AnyCancellable?
     private var prepareTask: PreparePrimaryCardTask? = nil
     private var claimed: Bool = false
@@ -193,6 +195,10 @@ class WalletOnboardingViewModel: OnboardingTopupViewModel<WalletOnboardingStep, 
             }
         }
 
+        if currentStep == .saveUserWallet {
+            return false
+        }
+
         return super.isSupplementButtonVisible
     }
 
@@ -224,6 +230,10 @@ class WalletOnboardingViewModel: OnboardingTopupViewModel<WalletOnboardingStep, 
         }
     }
 
+    var infoText: LocalizedStringKey? {
+        currentStep.infoText
+    }
+
     var backupCardsAddedCount: Int {
         return backupService.addedBackupCardsCount
     }
@@ -244,7 +254,7 @@ class WalletOnboardingViewModel: OnboardingTopupViewModel<WalletOnboardingStep, 
 
     var isCustomContentVisible: Bool {
         switch currentStep {
-        case .enterPin, .registerWallet, .kycStart, .kycRetry, .kycProgress, .kycWaiting:
+        case .saveUserWallet, .enterPin, .registerWallet, .kycStart, .kycRetry, .kycProgress, .kycWaiting:
             return true
         default: return false
         }
@@ -252,7 +262,7 @@ class WalletOnboardingViewModel: OnboardingTopupViewModel<WalletOnboardingStep, 
 
     var isButtonsVisible: Bool {
         switch currentStep {
-        case .kycProgress: return false
+        case .saveUserWallet, .kycProgress: return false
         default: return true
         }
     }
@@ -514,7 +524,11 @@ class WalletOnboardingViewModel: OnboardingTopupViewModel<WalletOnboardingStep, 
             break
         case .backupIntro:
             Analytics.log(.backupSkipped)
-            jumpToLatestStep()
+            if steps.contains(.saveUserWallet) {
+                goToStep(.saveUserWallet)
+            } else {
+                jumpToLatestStep()
+            }
         case .selectBackupCards:
             if canAddBackupCards {
                 let controller = UIAlertController(title: "common_warning".localized, message: "onboarding_alert_message_not_max_backup_cards_added".localized, preferredStyle: .alert)
@@ -601,6 +615,10 @@ class WalletOnboardingViewModel: OnboardingTopupViewModel<WalletOnboardingStep, 
             settings.opacity = backupCardsAddedCount > 1 ? settings.opacity : 0.0
             thirdCardSettings = .init(targetSettings: settings,
                                       intermediateSettings: ((backupCardsAddedCount > 1 && secondBackupCardStackIndex == backupCardsAddedCount && animated) ? prehideSettings : nil))
+        case .saveUserWallet:
+            mainCardSettings = .zero
+            supplementCardSettings = .zero
+            thirdCardSettings = .zero
         default:
             mainCardSettings = WalletOnboardingCardLayout.origin.animSettings(at: currentStep, in: containerSize, fanStackCalculator: fanStackCalculator, animated: animated)
             supplementCardSettings = WalletOnboardingCardLayout.firstBackup.animSettings(at: currentStep, in: containerSize, fanStackCalculator: fanStackCalculator, animated: animated)
@@ -683,6 +701,26 @@ class WalletOnboardingViewModel: OnboardingTopupViewModel<WalletOnboardingStep, 
         backupService.discardIncompletedBackup()
     }
 
+    override func saveUserWalletIfNeeded() throws {
+        var config = TangemSdkConfigFactory().makeDefaultConfig()
+        config.accessCodeRequestPolicy = .alwaysWithBiometrics
+        tangemSdkProvider.setup(with: config)
+
+        try super.saveUserWalletIfNeeded()
+
+        guard AppSettings.shared.saveAccessCodes,
+              let accessCode = self.accessCode,
+              let cardIds = self.cardIds
+        else {
+
+            return
+        }
+
+        let accessCodeData: Data = accessCode.sha256()
+        let accessCodeRepository = AccessCodeRepository()
+        try accessCodeRepository.save(accessCodeData, for: cardIds)
+    }
+
     private func fireConfettiIfNeeded() {
         if currentStep.isOnboardingFinished {
             fireConfetti()
@@ -692,7 +730,12 @@ class WalletOnboardingViewModel: OnboardingTopupViewModel<WalletOnboardingStep, 
     private func saveAccessCode(_ code: String) {
         do {
             try backupService.setAccessCode(code)
+
+            self.accessCode = code
+            self.cardIds = backupService.allCardIds
+
             saltPayRegistratorProvider.registrator?.setAccessCode(code)
+
             Analytics.log(.settingAccessCodeStarted)
             stackCalculator.setupNumberOfCards(1 + backupCardsAddedCount)
 
@@ -910,7 +953,7 @@ class WalletOnboardingViewModel: OnboardingTopupViewModel<WalletOnboardingStep, 
     }
 
     private func addDefaultTokens(for card: Card) {
-        let config = UserWalletConfigFactory(CardInfo(card: card, walletData: .none)).makeConfig()
+        let config = UserWalletConfigFactory(CardInfo(card: CardDTO(card: card), walletData: .none, name: "")).makeConfig()
 
         guard let seed = config.userWalletIdSeed else { return }
 
@@ -932,4 +975,8 @@ extension NotificationCenter {
             .setFailureType(to: Error.self)
             .eraseToAnyPublisher()
     }
+}
+
+fileprivate extension BackupService {
+    var allCardIds: [String] { [primaryCard?.cardId].compactMap { $0 } + backupCardIds }
 }
