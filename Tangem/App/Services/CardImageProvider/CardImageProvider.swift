@@ -21,8 +21,14 @@ struct CardImageProvider {
     private let defaultImage = UIImage(named: "dark_card")!
     private let cacheQueue = DispatchQueue(label: "card_image_cache_queue")
 
+    private let cardVerifier = OnlineCardVerifier()
+
     init(supportsOnlineImage: Bool = true) {
         self.supportsOnlineImage = supportsOnlineImage
+    }
+
+    func cardArtwork(for cardId: String) -> CardArtwork? {
+        Self.cardArtworkCache[cardId]
     }
 }
 
@@ -30,6 +36,10 @@ struct CardImageProvider {
 
 extension CardImageProvider: CardImageProviding {
     func loadImage(cardId: String, cardPublicKey: Data) -> AnyPublisher<UIImage, Never> {
+        loadImage(cardId: cardId, cardPublicKey: cardPublicKey, artwork: nil)
+    }
+
+    func loadImage(cardId: String, cardPublicKey: Data, artwork: CardArtwork?) -> AnyPublisher<UIImage, Never> {
         if SaltPayUtil().isPrimaryCard(batchId: String(cardId.prefix(4))) {
             return Just(UIImage(named: "saltpay")!).eraseToAnyPublisher()
         }
@@ -38,7 +48,9 @@ extension CardImageProvider: CardImageProviding {
             return Just(defaultImage).eraseToAnyPublisher()
         }
 
-        return loadImage(cardId: cardId, cardPublicKey: cardPublicKey, cardArtwork: CardImageProvider.cardArtworkCache[cardId] ?? .notLoaded)
+        let cardArtwork = CardImageProvider.cardArtworkCache[cardId] ?? artwork ?? .notLoaded
+
+        return loadImage(cardId: cardId, cardPublicKey: cardPublicKey, cardArtwork: cardArtwork)
             .replaceError(with: defaultImage)
             .receive(on: DispatchQueue.main)
             .eraseToAnyPublisher()
@@ -93,17 +105,17 @@ private extension CardImageProvider {
     }
 
     func loadArtworkInfo(cardId: String, cardPublicKey: Data) -> AnyPublisher<CardArtwork, Never> {
-        return Future { promise in
-            tangemSdkProvider.sdk.loadCardInfo(cardPublicKey: cardPublicKey, cardId: cardId) { result in
-                switch result {
-                case .success(let info):
-                    promise(.success(info.artwork.map { .artwork($0) } ?? .noArtwork))
-                case .failure:
-                    promise(.success(.noArtwork))
+        cardVerifier.getCardInfo(cardId: cardId, cardPublicKey: cardPublicKey)
+            .map { info in
+                if let artwork = info.artwork {
+                    return .artwork(artwork)
+                } else {
+                    return .noArtwork
                 }
             }
-        }
-        .eraseToAnyPublisher()
+            .replaceError(with: CardArtwork.noArtwork)
+            .receive(on: DispatchQueue.main)
+            .eraseToAnyPublisher()
     }
 
     func loadImage(cardId: String, cardPublicKey: Data, artworkInfo: ArtworkInfo) -> AnyPublisher<UIImage, Error> {
