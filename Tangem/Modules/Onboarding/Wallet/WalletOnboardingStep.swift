@@ -94,7 +94,7 @@ extension WalletOnboardingStep: OnboardingMessagesProvider, SuccessStep {
     var title: LocalizedStringKey? {
         switch self {
         case .welcome: return WelcomeStep.welcome.title
-        case .createWallet: return "onboarding_button_create_wallet"
+        case .createWallet: return "onboarding_create_wallet_button_create_wallet"
         case .scanPrimaryCard: return "onboarding_title_scan_origin_card"
         case .backupIntro: return "onboarding_title_backup_card"
         case .selectBackupCards: return "onboarding_title_no_backup_cards"
