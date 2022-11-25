@@ -544,7 +544,7 @@ enum WalletConnectServiceError: LocalizedError {
         case .other(let error): return error.localizedDescription
         case .noChainId: return "wallet_connect_service_no_chain_id".localized
         case .unsupportedNetwork: return "wallet_connect_scanner_error_unsupported_network".localized
-        case .notValidCard: return "wallet_connect_scanner_error_not_valid_card".localized
+        case .notValidCard: return "wallet_connect_scanner_error_no_ethereum_wallet".localized
         case .networkNotFound(let name): return "wallet_connect_network_not_found_format".localized(name)
         case .unsupportedDApp: return "wallet_connect_error_unsupported_dapp".localized
         default: return ""
