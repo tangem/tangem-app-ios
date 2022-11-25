@@ -8,6 +8,7 @@
 
 import Foundation
 import Combine
+import TangemSdk
 
 class WelcomeCoordinator: CoordinatorObject {
     var dismissAction: Action
@@ -19,16 +20,12 @@ class WelcomeCoordinator: CoordinatorObject {
     // MARK: - Child coordinators
     @Published var mainCoordinator: MainCoordinator? = nil
     @Published var pushedOnboardingCoordinator: OnboardingCoordinator? = nil
-    @Published var modalOnboardingCoordinator: OnboardingCoordinator? = nil
     @Published var shopCoordinator: ShopCoordinator? = nil
     @Published var tokenListCoordinator: TokenListCoordinator? = nil
 
     // MARK: - Child view models
     @Published var mailViewModel: MailViewModel? = nil
     @Published var disclaimerViewModel: DisclaimerViewModel? = nil
-
-    // MARK: - Helpers
-    @Published var modalOnboardingCoordinatorKeeper: Bool = false
 
     // MARK: - Private
     private var welcomeLifecycleSubscription: AnyCancellable? = nil
@@ -38,7 +35,6 @@ class WelcomeCoordinator: CoordinatorObject {
         var publishers: [AnyPublisher<Bool, Never>] = []
         publishers.append($mailViewModel.dropFirst().map { $0 == nil }.eraseToAnyPublisher())
         publishers.append($shopCoordinator.dropFirst().map { $0 == nil }.eraseToAnyPublisher())
-        publishers.append($modalOnboardingCoordinator.dropFirst().map { $0 == nil }.eraseToAnyPublisher())
         publishers.append($tokenListCoordinator.dropFirst().map { $0 == nil }.eraseToAnyPublisher())
         publishers.append($disclaimerViewModel.dropFirst().map { $0 == nil }.eraseToAnyPublisher())
 
@@ -52,12 +48,8 @@ class WelcomeCoordinator: CoordinatorObject {
     }
 
     func start(with options: WelcomeCoordinator.Options) {
-        welcomeViewModel = .init(coordinator: self)
+        self.welcomeViewModel = .init(shouldScanOnAppear: options.shouldScan, coordinator: self)
         subscribeToWelcomeLifecycle()
-
-        if options.shouldScan {
-            welcomeViewModel?.scanCard()
-        }
     }
 
     private func subscribeToWelcomeLifecycle() {
@@ -79,28 +71,9 @@ extension WelcomeCoordinator {
 }
 
 extension WelcomeCoordinator: WelcomeRoutable {
-    func openOnboardingModal(with input: OnboardingInput) {
-        let dismissAction: Action = { [weak self] in
-            self?.modalOnboardingCoordinator = nil
-        }
-
-        let coordinator = OnboardingCoordinator(dismissAction: dismissAction)
-        let options = OnboardingCoordinator.Options(input: input, destination: .dismiss)
-        coordinator.start(with: options)
-        modalOnboardingCoordinator = coordinator
-    }
-
     func openOnboarding(with input: OnboardingInput) {
         let dismissAction: Action = { [weak self] in
             self?.pushedOnboardingCoordinator = nil
-        }
-
-        let popToRootAction: ParamsAction<PopToRootOptions> = { [weak self] options in
-            self?.pushedOnboardingCoordinator = nil
-
-            if options.newScan {
-                self?.welcomeViewModel?.scanCard()
-            }
         }
 
         let coordinator = OnboardingCoordinator(dismissAction: dismissAction, popToRootAction: popToRootAction)
@@ -110,14 +83,6 @@ extension WelcomeCoordinator: WelcomeRoutable {
     }
 
     func openMain(with cardModel: CardViewModel) {
-        let popToRootAction: ParamsAction<PopToRootOptions> = { [weak self] options in
-            self?.mainCoordinator = nil
-
-            if options.newScan {
-                self?.welcomeViewModel?.scanCard()
-            }
-        }
-
         Analytics.log(.screenOpened)
         let coordinator = MainCoordinator(popToRootAction: popToRootAction)
         let options = MainCoordinator.Options(cardModel: cardModel)
