@@ -12,7 +12,7 @@ import BlockchainSdk
 
 /// V3 Config
 struct LegacyConfig {
-    private let card: Card
+    private let card: CardDTO
     private let walletData: WalletData?
 
     private var defaultBlockchain: Blockchain? {
@@ -34,7 +34,7 @@ struct LegacyConfig {
                      decimalCount: token.decimals)
     }
 
-    init(card: Card, walletData: WalletData?) {
+    init(card: CardDTO, walletData: WalletData?) {
         self.card = card
         self.walletData = walletData
     }
@@ -49,20 +49,33 @@ extension LegacyConfig: UserWalletConfig {
         1
     }
 
+    var cardName: String {
+        "Tangem Card"
+    }
+
     var defaultCurve: EllipticCurve? {
         defaultBlockchain?.curve
     }
 
     var onboardingSteps: OnboardingSteps {
         if card.wallets.isEmpty {
-            return .singleWallet([.createWallet, .success])
+            return .singleWallet([.createWallet] + userWalletSavingSteps + [.success])
         }
 
-        return .singleWallet([])
+        if !AppSettings.shared.cardsStartedActivation.contains(card.cardId) {
+            return .singleWallet([])
+        }
+
+        return .singleWallet(userWalletSavingSteps + [.success])
     }
 
     var backupSteps: OnboardingSteps? {
         nil
+    }
+
+    var userWalletSavingSteps: [SingleCardOnboardingStep] {
+        guard needUserWalletSavingSteps else { return [] }
+        return [.saveUserWallet]
     }
 
     var supportedBlockchains: Set<Blockchain> {
@@ -70,7 +83,7 @@ extension LegacyConfig: UserWalletConfig {
             let allBlockchains = AppEnvironment.current.isTestnet ? Blockchain.supportedTestnetBlockchains
                 : Blockchain.supportedBlockchains
 
-            return allBlockchains.filter { card.supportedCurves.contains($0.curve) }
+            return allBlockchains.filter { card.walletCurves.contains($0.curve) }
         } else {
             return [defaultBlockchain!]
         }
@@ -86,7 +99,11 @@ extension LegacyConfig: UserWalletConfig {
     }
 
     var persistentBlockchains: [StorageEntry]? {
-        return nil
+        if isMultiwallet {
+            return nil
+        }
+
+        return defaultBlockchains
     }
 
     var embeddedBlockchain: StorageEntry? {
