@@ -14,7 +14,7 @@ struct TokenItemsRepositoryMigrator {
     private let userWalletId: Data
     private let isHDWalletAllowed: Bool
 
-    init(card: Card, userWalletId: Data) {
+    init(card: CardDTO, userWalletId: Data) {
         self.cardId = card.cardId
         self.userWalletId = userWalletId
         self.isHDWalletAllowed = card.settings.isHDWalletAllowed
