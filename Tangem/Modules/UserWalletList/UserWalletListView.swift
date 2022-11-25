@@ -40,8 +40,10 @@ struct UserWalletListView: View {
                             .buttonStyle(TangemButtonStyle(colorStyle: .black, layout: .flexibleWidth, isLoading: viewModel.isScanningCard))
                     }
 
-                    TangemButton(title: "user_wallet_list_add_button", image: "tangemIconBlack", iconPosition: .trailing, action: viewModel.addUserWallet)
-                        .buttonStyle(TangemButtonStyle(colorStyle: .grayAlt3, layout: .flexibleWidth, isLoading: viewModel.isScanningCard))
+                    MainButton(text: "user_wallet_list_add_button".localized,
+                               icon: .trailing(Assets.tangemIcon),
+                               isLoading: viewModel.isScanningCard,
+                               action: viewModel.addUserWallet)
                 }
                 .padding(.horizontal, listHorizontalPadding)
             }
