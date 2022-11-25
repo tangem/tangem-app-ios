@@ -112,8 +112,8 @@ extension SingleCardOnboardingStep: OnboardingMessagesProvider {
     var subtitle: LocalizedStringKey? {
         switch self {
         case .welcome: return WelcomeStep.welcome.subtitle
-        case .createWallet: return "onboarding_create_subtitle"
-        case .topup: return "onboarding_topup_subtitle"
+        case .createWallet: return "onboarding_create_wallet_body"
+        case .topup: return "onboarding_top_up_body"
         case .saveUserWallet: return nil
         case .successTopup: return "onboarding_confetti_subtitle"
         case .success: return "onboarding_confetti_subtitle"
@@ -152,7 +152,7 @@ extension SingleCardOnboardingStep: OnboardingButtonsInfoProvider {
         switch self {
         case .welcome: return WelcomeStep.welcome.supplementButtonTitle
         case .createWallet: return "onboarding_button_what_does_it_mean"
-        case .topup: return "onboarding_button_show_address_qr"
+        case .topup: return "onboarding_top_up_button_show_wallet_address"
         case .successTopup, .saveUserWallet, .success: return ""
         }
     }

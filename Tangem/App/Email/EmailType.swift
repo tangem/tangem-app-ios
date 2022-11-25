@@ -32,7 +32,7 @@ enum EmailType {
         case .failedToScanCard: return "feedback_preface_scan_failed".localized
         case .failedToSendTx: return "feedback_preface_tx_failed".localized
         case .appFeedback: return "feedback_preface_support".localized
-        case .failedToPushTx: return "feedback_preface_tx_push_failed".localized
+        case .failedToPushTx: return "feedback_preface_tx_failed".localized
         }
     }
 
