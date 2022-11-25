@@ -177,7 +177,7 @@ extension TwinsOnboardingStep: OnboardingButtonsInfoProvider {
         case .intro: return "common_continue"
         case .first, .third: return "onboarding_button_tap_first_card"
         case .second: return "onboarding_button_tap_second_card"
-        case .topup: return "onboarding_button_buy_crypto"
+        case .topup: return "onboarding_top_up_button_but_crypto"
         case .done: return "common_continue"
         case .saveUserWallet: return BiometricAuthorizationUtils.allowButtonLocalizationKey
         case .success: return successButtonTitle
