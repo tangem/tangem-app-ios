@@ -38,6 +38,9 @@ struct MainCoordinatorView: CoordinatorView {
             .navigation(item: $coordinator.detailsCoordinator) {
                 DetailsCoordinatorView(coordinator: $0)
             }
+            .navigation(item: $coordinator.pushedOnboardingCoordinator) {
+                OnboardingCoordinatorView(coordinator: $0)
+            }
     }
 
     @ViewBuilder
@@ -86,6 +89,16 @@ struct MainCoordinatorView: CoordinatorView {
             .bottomSheet(item: $coordinator.warningBankCardViewModel,
                          viewModelSettings: .warning) {
                 WarningBankCardView(viewModel: $0)
+            }
+
+        NavHolder()
+            .sheet(item: $coordinator.userWalletStorageAgreementViewModel) {
+                UserWalletStorageAgreementView(viewModel: $0)
+            }
+
+        NavHolder()
+            .sheet(item: $coordinator.userWalletListViewModel) {
+                UserWalletListView(viewModel: $0)
             }
     }
 }
