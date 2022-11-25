@@ -10,6 +10,8 @@ import Combine
 import BlockchainSdk
 
 protocol UserTokenListManager {
+    var didPerformInitialLoading: Bool { get }
+
     func update(userWalletId: Data)
     func update(_ type: CommonUserTokenListManager.UpdateType)
 
