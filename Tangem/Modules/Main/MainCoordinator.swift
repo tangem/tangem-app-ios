@@ -59,12 +59,6 @@ class MainCoordinator: CoordinatorObject {
                         self.updateMain(with: selectedModel)
                     }
 
-                    /// Sergey B:
-                    /// Crunch for refresh main only when new wallet is added
-                    /// Unfortunately is provokes duplicate `update` requests
-                    if self.userWalletRepository.selectedUserWalletId == self.lastInsertedUserWalletId {
-                        self.refreshMainWalletModels()
-                    }
                 case .inserted(let userWallet):
                     self.lastInsertedUserWalletId = userWallet.userWalletId
                 default:
@@ -296,11 +290,6 @@ extension MainCoordinator: UserWalletListRoutable {
             shouldRefreshWhenAppear: false,
             coordinator: self
         )
-    }
-
-    // [REDACTED_TODO_COMMENT]
-    private func refreshMainWalletModels() {
-        mainViewModel?.refreshContent()
     }
 }
 
