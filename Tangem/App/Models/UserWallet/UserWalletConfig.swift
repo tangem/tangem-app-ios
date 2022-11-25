@@ -21,6 +21,8 @@ protocol UserWalletConfig {
 
     var cardSetLabel: String? { get }
 
+    var cardName: String { get }
+
     var defaultCurve: EllipticCurve? { get }
 
     var tangemSigner: TangemSigner { get }
@@ -59,6 +61,10 @@ protocol UserWalletConfig {
 extension UserWalletConfig {
     var sdkConfig: Config {
         TangemSdkConfigFactory().makeDefaultConfig()
+    }
+
+    var needUserWalletSavingSteps: Bool {
+        return BiometricsUtil.isAvailable && !AppSettings.shared.saveUserWallets && !AppSettings.shared.askedToSaveUserWallets
     }
 
     func hasFeature(_ feature: UserWalletFeature) -> Bool {
