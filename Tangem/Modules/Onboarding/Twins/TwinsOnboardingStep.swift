@@ -15,7 +15,7 @@ protocol SuccessStep {
 }
 
 extension SuccessStep {
-    var successTitle: LocalizedStringKey { "onboarding_success" }
+    var successTitle: LocalizedStringKey { "onboarding_done_header" }
     var successButtonTitle: LocalizedStringKey { "common_continue" }
     var successMessagesOffset: CGSize {
         .init(width: 0, height: -UIScreen.main.bounds.size.height * 0.115)
@@ -155,10 +155,10 @@ extension TwinsOnboardingStep: OnboardingMessagesProvider {
         switch self {
         case .welcome: return WelcomeStep.welcome.subtitle
         case .intro(let pairNumber): return LocalizedStringKey(stringLiteral: "onboarding_subtitle_intro".localized(pairNumber))
-        case .first, .second, .third: return "onboarding_subtitle_reset_twin_warning"
-        case .topup: return "onboarding_topup_subtitle"
+        case .first, .second, .third: return "onboarding_twins_interrupt_warning"
+        case .topup: return "onboarding_top_up_body"
         case .saveUserWallet: return nil
-        case .done, .success: return "onboarding_success_subtitle"
+        case .done, .success: return "onboarding_done_body"
         case .alert: return "twins_recreate_warning"
         }
     }
@@ -188,7 +188,7 @@ extension TwinsOnboardingStep: OnboardingButtonsInfoProvider {
     var supplementButtonTitle: LocalizedStringKey {
         switch self {
         case .welcome: return WelcomeStep.welcome.supplementButtonTitle
-        case .topup: return "onboarding_button_show_address_qr"
+        case .topup: return "onboarding_top_up_button_show_wallet_address"
         default: return ""
         }
     }
