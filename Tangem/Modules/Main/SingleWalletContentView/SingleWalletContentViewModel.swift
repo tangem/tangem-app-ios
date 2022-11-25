@@ -19,7 +19,25 @@ protocol SingleWalletContentViewModelOutput: OpenCurrencySelectionDelegate {
 class SingleWalletContentViewModel: ObservableObject {
     @Published var selectedAddressIndex: Int = 0
     @Published var singleWalletModel: WalletModel?
-    @Published var pendingTransactionViews: [PendingTxView] = []
+
+    var pendingTransactionViews: [PendingTxView] {
+        guard let singleWalletModel else { return [] }
+
+        let incTxViews = singleWalletModel.incomingPendingTransactions
+            .map { PendingTxView(pendingTx: $0) }
+
+        let outgTxViews = singleWalletModel.outgoingPendingTransactions
+            .enumerated()
+            .map { index, pendingTx -> PendingTxView in
+                PendingTxView(pendingTx: pendingTx) { [weak self] in
+                    if let singleWalletModel = self?.singleWalletModel {
+                        self?.output.openPushTx(for: index, walletModel: singleWalletModel)
+                    }
+                }
+            }
+
+        return incTxViews + outgTxViews
+    }
 
     var canShowAddress: Bool {
         cardModel.canShowAddress
@@ -114,27 +132,18 @@ class SingleWalletContentViewModel: ObservableObject {
             }
             .store(in: &bag)
 
-        $singleWalletModel
-            .compactMap { $0 }
-            .map { walletModel -> [PendingTxView] in
-                let incTxViews = walletModel.incomingPendingTransactions
-                    .map { PendingTxView(pendingTx: $0) }
-
-                let outgTxViews = walletModel.outgoingPendingTransactions
-                    .enumerated()
-                    .map { index, pendingTx -> PendingTxView in
-                        PendingTxView(pendingTx: pendingTx) { [weak self] in
-                            if let singleWalletModel = self?.singleWalletModel {
-                                self?.output.openPushTx(for: index, walletModel: singleWalletModel)
-                            }
-                        }
-                    }
-
-                return incTxViews + outgTxViews
+        /// Subscription to handle transaction updates, such as new transactions from send screen.
+        userWalletModel.subscribeToWalletModels()
+            .map { walletModels in
+                walletModels
+                    .map { $0.walletManager.walletPublisher }
+                    .combineLatest()
             }
-            .sink { [unowned self] views in
-                self.pendingTransactionViews = views
-            }
+            .switchToLatest()
+            .receive(on: DispatchQueue.main)
+            .sink(receiveValue: { [weak self] publish in
+                self?.objectWillChange.send()
+            })
             .store(in: &bag)
     }
 }
