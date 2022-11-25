@@ -33,6 +33,19 @@ enum BiometricAuthorizationUtils {
         return context.biometryType
     }
 
+    static var allowButtonTitle: String {
+        switch biometryType {
+        case .faceID:
+            return "save_user_wallet_agreement_allow_face_id".localized
+        case .touchID:
+            return "save_user_wallet_agreement_allow_touch_id".localized
+        case .none:
+            return ""
+        @unknown default:
+            return ""
+        }
+    }
+
     static var allowButtonLocalizationKey: LocalizedStringKey {
         switch biometryType {
         case .faceID:
