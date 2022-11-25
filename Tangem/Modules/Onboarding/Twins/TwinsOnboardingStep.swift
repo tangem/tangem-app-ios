@@ -205,7 +205,7 @@ extension TwinsOnboardingStep: OnboardingButtonsInfoProvider {
     var checkmarkText: LocalizedStringKey? {
         switch self {
         case .alert:
-            return "onboarding_alert_i_understand"
+            return "alert_button_i_understand"
         default:
             return nil
         }
