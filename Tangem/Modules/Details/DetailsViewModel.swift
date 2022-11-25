@@ -50,8 +50,6 @@ class DetailsViewModel: ObservableObject {
     private var bag = Set<AnyCancellable>()
     private unowned let coordinator: DetailsRoutable
 
-    @Injected(\.cardsRepository) private var cardsRepository: CardsRepository
-
     /// Change to @AppStorage and move to model with IOS 14.5 minimum deployment target
     @AppStorageCompat(StorageType.selectedCurrencyCode)
     private var selectedCurrencyCode: String = "USD"
@@ -109,8 +107,10 @@ extension DetailsViewModel {
     }
 
     func openAppSettings() {
+        guard let userWallet = cardModel.userWallet else { return }
+
         Analytics.log(.buttonAppSettings)
-        coordinator.openAppSettings()
+        coordinator.openAppSettings(userWallet: userWallet)
     }
 
     func openSupportChat() {
@@ -209,7 +209,6 @@ extension DetailsViewModel {
             title: "details_row_title_app_settings".localized,
             action: openAppSettings
         ))
-
 
         if canCreateBackup {
             viewModels.append(DefaultRowViewModel(
