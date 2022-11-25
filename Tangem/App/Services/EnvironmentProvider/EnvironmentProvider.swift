@@ -19,6 +19,9 @@ class EnvironmentProvider {
 
     @AppStorageCompat(EnvironmentProviderKeys.availableFeatures)
     var availableFeatures: Set<FeatureToggle> = []
+
+    @AppStorageCompat(EnvironmentProviderKeys.useDevApi)
+    var useDevApi = false
 }
 
 // MARK: - Keys
@@ -26,4 +29,5 @@ class EnvironmentProvider {
 enum EnvironmentProviderKeys: String {
     case testnet = "testnet"
     case availableFeatures = "integrated_features"
+    case useDevApi = "use_dev_api"
 }
