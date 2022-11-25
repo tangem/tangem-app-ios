@@ -9,7 +9,11 @@
 import SwiftUI
 
 struct DefaultFooterView: View {
-    let title: String
+    private let title: String
+
+    init(_ title: String) {
+        self.title = title
+    }
 
     var body: some View {
         Text(title)
