@@ -10,7 +10,7 @@ import Foundation
 import TangemSdk
 
 struct CardEmailDataFactory {
-    func makeEmailData(for card: Card, walletData: WalletData?) -> [EmailCollectedData] {
+    func makeEmailData(for card: CardDTO, walletData: WalletData?) -> [EmailCollectedData] {
         var data: [EmailCollectedData] = [
             .init(type: .card(.cardId), data: card.cardId),
             .init(type: .card(.firmwareVersion), data: card.firmwareVersion.stringValue),
