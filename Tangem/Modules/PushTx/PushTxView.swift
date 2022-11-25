@@ -156,7 +156,7 @@ struct PushTxView: View {
 
                                 let errorDescription = String(binder.error?.localizedDescription.dropTrailingPeriod ?? "Unknown error")
 
-                                return Alert(title: Text("alert_failed_to_send_transaction_title"),
+                                return Alert(title: Text("feedback_subject_tx_failed"),
                                              message: Text(String(format: "alert_failed_to_send_email_message".localized, errorDescription)),
                                              primaryButton: .default(Text("alert_button_send_feedback"), action: viewModel.openMail),
                                              secondaryButton: .default(Text("common_no")))
