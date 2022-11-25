@@ -159,7 +159,7 @@ extension TwinsOnboardingStep: OnboardingMessagesProvider {
         case .topup: return "onboarding_topup_subtitle"
         case .saveUserWallet: return nil
         case .done, .success: return "onboarding_success_subtitle"
-        case .alert: return "onboarding_alert_twins_recreate_subtitle"
+        case .alert: return "twins_recreate_warning"
         }
     }
 
