@@ -170,7 +170,7 @@ extension WalletOnboardingStep: OnboardingButtonsInfoProvider {
     var supplementButtonTitle: LocalizedStringKey {
         switch self {
         case .welcome: return WelcomeStep.welcome.supplementButtonTitle
-        case .createWallet: return "onboarding_button_how_it_works"
+        case .createWallet: return "onboarding_button_what_does_it_mean"
         case .backupIntro: return "onboarding_button_skip_backup"
         case .selectBackupCards: return "onboarding_button_finalize_backup"
         case .kycWaiting: return  "onboarding_button_kyc_waiting"
