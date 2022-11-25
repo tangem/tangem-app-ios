@@ -46,11 +46,14 @@ class WalletModelFactory {
                             derivationStyle: DerivationStyle?) throws -> WalletModel {
         let curve = entry.blockchainNetwork.blockchain.curve
 
+        guard let derivationPath = entry.blockchainNetwork.derivationPath else {
+            throw Errors.entryHasNotDerivationPath
+        }
+
         guard let seedKey = seedKeys[curve],
-              let derivationPath = entry.blockchainNetwork.derivationPath,
               let derivedWalletKeys = derivedKeys[curve],
               let derivedKey = derivedWalletKeys[derivationPath] else {
-            throw CommonError.noData
+            throw Errors.noDerivation
         }
 
         let factory = WalletManagerFactoryProvider().factory
@@ -60,5 +63,12 @@ class WalletModelFactory {
                                                           derivation: .custom(derivationPath))
         walletManager.addTokens(entry.tokens)
         return WalletModel(walletManager: walletManager, derivationStyle: derivationStyle)
+    }
+}
+
+extension WalletModelFactory {
+    enum Errors: Error {
+        case entryHasNotDerivationPath
+        case noDerivation
     }
 }
