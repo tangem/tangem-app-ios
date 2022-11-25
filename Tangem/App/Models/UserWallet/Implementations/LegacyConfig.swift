@@ -99,7 +99,11 @@ extension LegacyConfig: UserWalletConfig {
     }
 
     var persistentBlockchains: [StorageEntry]? {
-        return nil
+        if isMultiwallet {
+            return nil
+        }
+
+        return defaultBlockchains
     }
 
     var embeddedBlockchain: StorageEntry? {
