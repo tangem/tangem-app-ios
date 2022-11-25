@@ -156,6 +156,7 @@ struct TokenDetailsView: View {
                 .foregroundColor(.tangemGrayDark6)
                 .font(.system(size: 17))
         }
+        .animation(nil)
     }
 }
 

@@ -3,8 +3,8 @@ platform :ios, '13.0'
 project 'TangemApp.xcodeproj'
 
 def common_pods
-   pod 'TangemSdk', :git => 'https://github.com/Tangem/tangem-sdk-ios.git', :tag => 'develop-181'
-   #pod 'TangemSdk', :path => '../tangem-sdk-ios'
+   pod 'TangemSdk', :git => 'https://github.com/Tangem/tangem-sdk-ios.git', :tag => 'develop-187'
+#   pod 'TangemSdk', :path => '../tangem-sdk-ios'
 end
 
 
@@ -24,7 +24,7 @@ target 'Tangem' do
   pod 'HDWalletKit', :git => 'https://github.com/tangem/hdwallet.git', :tag => '0.3.12'
   #pod 'HDWalletKit', :path => '../HDWallet'
   
-  pod 'BlockchainSdk', :git => 'https://github.com/tangem/blockchain-sdk-swift.git', :tag => 'develop-175'
+  pod 'BlockchainSdk', :git => 'https://github.com/tangem/blockchain-sdk-swift.git', :tag => 'develop-177'
 #  pod 'BlockchainSdk', :path => '../blockchain-sdk-swift'
   
   pod 'web3swift', :git => 'https://github.com/tangem/web3swift.git', :tag => '2.2.11'
@@ -51,7 +51,6 @@ target 'Tangem' do
   pod 'ZendeskSupportProvidersSDK', '~> 5.5.0'
   pod 'ZendeskChatSDK', '~> 2.12.0'
   pod 'ZendeskAnswerBotSDK', '~> 2.2.0'
-  pod 'KeychainSwift', '~> 19.0'
   
   # Analytics
   pod 'Amplitude', '~> 8.8.0'
