@@ -120,13 +120,7 @@ class CardViewModel: Identifiable, ObservableObject {
         cardInfo.card.wallets.first(where: { $0.curve == .secp256k1 })?.publicKey
     }
 
-    var userWalletId: Data? {
-        guard let seed = config.userWalletIdSeed else {
-            return nil
-        }
-
-        return UserWalletId(with: seed).value
-    }
+    private(set) var userWalletId: Data?
 
     // Separate UserWalletModel and CardViewModel
     var userWalletModel: UserWalletModel?
@@ -681,6 +675,7 @@ class CardViewModel: Identifiable, ObservableObject {
             return
         }
 
+        self.userWalletId = userWallet.userWalletId
         userWalletModel = CommonUserWalletModel(config: config, userWallet: userWallet)
     }
 }
