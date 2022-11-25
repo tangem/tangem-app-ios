@@ -697,6 +697,7 @@ extension CardViewModel {
             switch result {
             case .success:
                 self?.userWalletModel?.append(entries: entries)
+                self?.userWalletModel?.updateAndReloadWalletModels()
                 completion(.success(()))
             case let .failure(error):
                 completion(.failure(error))
