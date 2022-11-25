@@ -56,11 +56,11 @@ struct UserWalletStorageAgreementView: View {
             Spacer()
 
             VStack(spacing: 10) {
-                TangemButton(title: BiometricAuthorizationUtils.allowButtonLocalizationKey, action: viewModel.accept)
-                    .buttonStyle(TangemButtonStyle(colorStyle: .black, layout: .flexibleWidth))
+                MainButton(text: BiometricAuthorizationUtils.allowButtonTitle, action: viewModel.accept)
 
-                TangemButton(title: "save_user_wallet_agreement_dont_allow", action: viewModel.decline)
-                    .buttonStyle(TangemButtonStyle(colorStyle: .grayAlt3, layout: .flexibleWidth))
+                MainButton(text: "save_user_wallet_agreement_dont_allow".localized,
+                           style: .secondary,
+                           action: viewModel.decline)
 
                 Text("save_user_wallet_agreement_notice".localized)
                     .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
