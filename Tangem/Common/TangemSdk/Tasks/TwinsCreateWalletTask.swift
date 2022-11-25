@@ -17,7 +17,7 @@ struct TwinsCreateWalletTaskResponse: JSONStringConvertible {
 class TwinsCreateWalletTask: CardSessionRunnable {
     typealias CommandResponse = TwinsCreateWalletTaskResponse
 
-    var message: Message? { Message(header: "twin_process_preparing_card".localized) }
+    var message: Message? { Message(header: "twins_recreate_title_preparing".localized) }
 
     var requiresPin2: Bool { true }
 
@@ -36,7 +36,7 @@ class TwinsCreateWalletTask: CardSessionRunnable {
     }
 
     func run(in session: CardSession, completion: @escaping CompletionResult<CommandResponse>) {
-        session.viewDelegate.showAlertMessage("twin_process_preparing_card".localized)
+        session.viewDelegate.showAlertMessage("twins_recreate_title_preparing".localized)
         guard let card = session.environment.card else {
             completion(.failure(.missingPreflightRead))
             return
@@ -117,7 +117,7 @@ class TwinsCreateWalletTask: CardSessionRunnable {
         }
 
         let task = WriteIssuerDataTask(pairPubKey: fileToWrite, keys: issuerKeys)
-        session.viewDelegate.showAlertMessage("twin_process_creating_wallet".localized)
+        session.viewDelegate.showAlertMessage("twins_recreate_title_creating_wallet".localized)
         task.run(in: session) { (response) in
             switch response {
             case .success:
