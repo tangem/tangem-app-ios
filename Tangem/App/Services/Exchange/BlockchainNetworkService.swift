@@ -26,9 +26,11 @@ struct BlockchainNetworkService {
 
 extension BlockchainNetworkService: BlockchainInfoProvider {
     func getBalance(currency: Currency) async throws -> Decimal {
-        return 0
-        // [REDACTED_TODO_COMMENT]
-//        walletModel.getBalance(for: .coin)
+        if currency.isToken, let token = currency.asToken() {
+            return walletModel.getDecimalBalance(for: .token(value: token))
+        }
+        
+        return walletModel.getDecimalBalance(for: .coin)
     }
 
     func getFee(currency: Currency, amount: Decimal, destination: String) async throws -> [Decimal] {
