@@ -127,13 +127,12 @@ private extension DefaultExchangeManager {
         }
     }
 
-    func getExchangeApprovedDataModel() -> ExchangeApprovedDataModel {
-        Task {
-            do {
-                return try await exchangeProvider.approveTxData(for: exchangeItems.source)
-            } catch {
-                availabilityState = .requiredRefresh(occuredError: error)
-            }
+    func getExchangeApprovedDataModel() async -> ExchangeApprovedDataModel? {
+        do {
+            return try await exchangeProvider.approveTxData(for: exchangeItems.source)
+        } catch {
+            availabilityState = .requiredRefresh(occuredError: error)
+            return nil
         }
     }
     
