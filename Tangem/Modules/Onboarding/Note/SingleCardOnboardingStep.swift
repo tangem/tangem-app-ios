@@ -101,7 +101,7 @@ extension SingleCardOnboardingStep: OnboardingMessagesProvider {
     var title: LocalizedStringKey? {
         switch self {
         case .welcome: return WelcomeStep.welcome.title
-        case .createWallet: return "onboarding_create_title"
+        case .createWallet: return "onboarding_create_wallet_button_create_wallet"
         case .topup: return "onboarding_topup_title"
         case .saveUserWallet: return nil
         case .successTopup: return "onboarding_confetti_title"
