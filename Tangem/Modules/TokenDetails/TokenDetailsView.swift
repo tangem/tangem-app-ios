@@ -37,20 +37,20 @@ struct TokenDetailsView: View {
                 .actionSheet(isPresented: $viewModel.showTradeSheet, content: {
                     ActionSheet(title: Text("wallet_dialog_choose_trade_action"),
                                 buttons: [
-                                    .default(Text("wallet_button_topup"), action: viewModel.openBuyCryptoIfPossible),
-                                    .default(Text("wallet_button_sell_crypto"), action: viewModel.openSellCrypto),
+                                    .default(Text("wallet_button_buy"), action: viewModel.openBuyCryptoIfPossible),
+                                    .default(Text("wallet_button_sell"), action: viewModel.openSellCrypto),
                                     .cancel(),
                                 ])
                 })
         } else if viewModel.canSellCrypto {
-            TangemButton.vertical(title: "wallet_button_sell_crypto",
+            TangemButton.vertical(title: "wallet_button_sell",
                                   systemImage: "arrow.down",
                                   action: viewModel.openSellCrypto)
                 .buttonStyle(TangemButtonStyle(layout: .flexibleWidth,
                                                isDisabled: !viewModel.canSellCrypto))
         } else {
             // Keep the BUY button last so that it will appear when everything is disabled
-            TangemButton.vertical(title: "wallet_button_topup",
+            TangemButton.vertical(title: "wallet_button_buy",
                                   systemImage: "arrow.up",
                                   action: viewModel.openBuyCryptoIfPossible)
                 .buttonStyle(TangemButtonStyle(layout: .flexibleWidth,
