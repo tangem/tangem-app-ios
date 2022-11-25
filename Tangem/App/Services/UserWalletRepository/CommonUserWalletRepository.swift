@@ -282,6 +282,10 @@ class CommonUserWalletRepository: UserWalletRepository {
     }
 
     func setSelectedUserWalletId(_ userWalletId: Data?) {
+        setSelectedUserWalletId(userWalletId, unlockIfNeeded: true)
+    }
+
+    func setSelectedUserWalletId(_ userWalletId: Data?, unlockIfNeeded: Bool) {
         guard selectedUserWalletId != userWalletId else { return }
 
         if userWalletId == nil {
@@ -304,7 +308,7 @@ class CommonUserWalletRepository: UserWalletRepository {
             self?.sendEvent(.selected(userWallet: userWallet))
         }
 
-        if !userWallet.isLocked {
+        if !userWallet.isLocked || !unlockIfNeeded {
             updateSelection(userWallet)
             return
         }
@@ -333,16 +337,21 @@ class CommonUserWalletRepository: UserWalletRepository {
         saveUserWallets(userWallets)
 
         if selectedUserWalletId == userWalletId {
-            let newSelectedUserWalletId: Data?
-            if let firstMultiModel = models.first(where: { $0.isMultiWallet }) {
-                newSelectedUserWalletId = firstMultiModel.userWalletId
-            } else if let firstSingleModel = models.first(where: { !$0.isMultiWallet }) {
-                newSelectedUserWalletId = firstSingleModel.userWalletId
-            } else {
-                newSelectedUserWalletId = nil
+            let sortedModels = models.sorted { $0.isMultiWallet && !$1.isMultiWallet }
+            let unlockedModels = sortedModels.filter { model in
+                guard let userWallet = userWallets.first(where: { $0.userWalletId == model.userWalletId }) else { return false }
+
+                return !userWallet.isLocked
             }
 
-            setSelectedUserWalletId(newSelectedUserWalletId)
+            if let firstUnlockedModel = unlockedModels.first {
+                setSelectedUserWalletId(firstUnlockedModel.userWalletId)
+            } else if let firstModel = sortedModels.first {
+                setSelectedUserWalletId(firstModel.userWalletId, unlockIfNeeded: false)
+                sendEvent(.locked)
+            } else {
+                setSelectedUserWalletId(nil)
+            }
         }
 
         sendEvent(.deleted(userWalletId: userWalletId))
