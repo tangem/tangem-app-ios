@@ -157,7 +157,7 @@ struct MainView: View {
                                   action: viewModel.tradeCryptoAction)
                 .buttonStyle(TangemButtonStyle(layout: .flexibleWidth))
                 .actionSheet(isPresented: $viewModel.showTradeSheet, content: {
-                    ActionSheet(title: Text("action_sheet_trade_hint"),
+                    ActionSheet(title: Text("wallet_dialog_choose_trade_action"),
                                 buttons: [
                                     .default(Text("wallet_button_topup"), action: viewModel.openBuyCryptoIfPossible),
                                     .default(Text("wallet_button_sell_crypto"), action: viewModel.openSellCrypto),
