@@ -295,6 +295,8 @@ class MainViewModel: ObservableObject {
             singleWalletContentViewModel?.onAppear()
             multiWalletContentViewModel?.onAppear()
         }
+
+        updateIsBackupAllowed()
     }
 
     func deriveEntriesWithoutDerivation() {
