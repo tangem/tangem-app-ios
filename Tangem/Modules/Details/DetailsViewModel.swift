@@ -13,33 +13,19 @@ import TangemSdk
 import BlockchainSdk
 
 class DetailsViewModel: ObservableObject {
-    // MARK: - Dependencies
-
-    @Injected(\.cardsRepository) private var cardsRepository: CardsRepository
-
     // MARK: - View State
+
+    @Published var walletConnectRowViewModel: WalletConnectRowViewModel?
+    @Published var supportSectionModels: [DefaultRowViewModel] = []
+    @Published var settingsSectionViewModels: [DefaultRowViewModel] = []
+    @Published var legalSectionViewModel: DefaultRowViewModel?
+    @Published var environmentSetupViewModel: DefaultRowViewModel?
 
     @Published var cardModel: CardViewModel
     @Published var error: AlertBinder?
 
     var canCreateBackup: Bool {
         cardModel.canCreateBackup
-    }
-
-    var canTwin: Bool {
-        cardModel.canTwin
-    }
-
-    var shouldShowWC: Bool {
-        cardModel.shouldShowWC
-    }
-
-    var cardTouURL: URL {
-        cardModel.cardTouURL
-    }
-
-    var canSendMail: Bool {
-        cardModel.emailConfig != nil
     }
 
     var applicationInfoFooter: String? {
@@ -59,20 +45,21 @@ class DetailsViewModel: ObservableObject {
         print("DetailsViewModel deinit")
     }
 
-    var isMultiWallet: Bool {
-        cardModel.isMultiWallet
-    }
-
     // MARK: - Private
 
     private var bag = Set<AnyCancellable>()
     private unowned let coordinator: DetailsRoutable
+
+    /// Change to @AppStorage and move to model with IOS 14.5 minimum deployment target
+    @AppStorageCompat(StorageType.selectedCurrencyCode)
+    private var selectedCurrencyCode: String = "USD"
 
     init(cardModel: CardViewModel, coordinator: DetailsRoutable) {
         self.cardModel = cardModel
         self.coordinator = coordinator
 
         bind()
+        setupView()
     }
 
     func prepareBackup() {
@@ -108,14 +95,6 @@ extension DetailsViewModel {
         coordinator.openWalletConnect(with: cardModel)
     }
 
-    func openCurrencySelection() {
-        coordinator.openCurrencySelection()
-    }
-
-    func openDisclaimer() {
-        coordinator.openDisclaimer(at: cardModel.cardTouURL)
-    }
-
     func openCardSettings() {
         guard let userWalletId = cardModel.userWalletId else {
             // This shouldn't be the case, because currently user can't reach this screen
@@ -128,8 +107,10 @@ extension DetailsViewModel {
     }
 
     func openAppSettings() {
+        guard let userWallet = cardModel.userWallet else { return }
+
         Analytics.log(.buttonAppSettings)
-        coordinator.openAppSettings()
+        coordinator.openAppSettings(userWallet: userWallet)
     }
 
     func openSupportChat() {
@@ -139,6 +120,10 @@ extension DetailsViewModel {
 
         coordinator.openSupportChat(cardId: cardModel.cardId,
                                     dataCollector: dataCollector)
+    }
+
+    func openDisclaimer() {
+        coordinator.openDisclaimer(at: cardModel.cardTouURL)
     }
 
     func openSocialNetwork(network: SocialNetwork) {
@@ -157,7 +142,15 @@ extension DetailsViewModel {
 
 // MARK: - Private
 
-private extension DetailsViewModel {
+extension DetailsViewModel {
+    func setupView() {
+        setupWalletConnectRowViewModel()
+        setupSupportSectionModels()
+        setupSettingsSectionViewModels()
+        setupLegalSectionViewModels()
+        setupEnvironmentSetupSection()
+    }
+
     func bind() {
         cardModel.objectWillChange
             .receive(on: RunLoop.main)
@@ -165,6 +158,78 @@ private extension DetailsViewModel {
                 self?.objectWillChange.send()
             }
             .store(in: &bag)
+
+        $selectedCurrencyCode
+            .dropFirst()
+            .sink { [weak self] _ in
+                self?.setupSettingsSectionViewModels()
+            }
+            .store(in: &bag)
     }
 
+    func setupWalletConnectRowViewModel() {
+        guard cardModel.shouldShowWC else {
+            walletConnectRowViewModel = nil
+            return
+        }
+
+        walletConnectRowViewModel = WalletConnectRowViewModel(
+            title: "wallet_connect_title".localized,
+            subtitle: "wallet_connect_subtitle".localized,
+            action: openWalletConnect
+        )
+    }
+
+    func setupSupportSectionModels() {
+        supportSectionModels = [
+            DefaultRowViewModel(title: "details_chat".localized, action: openSupportChat),
+            DefaultRowViewModel(title: "details_row_title_send_feedback".localized, action: openMail),
+        ]
+    }
+
+    func setupSettingsSectionViewModels() {
+        var viewModels: [DefaultRowViewModel] = []
+
+        if !cardModel.isMultiWallet {
+            viewModels.append(DefaultRowViewModel(
+                title: "details_row_title_currency".localized,
+                detailsType: .text(selectedCurrencyCode),
+                action: coordinator.openCurrencySelection
+            ))
+        }
+
+        viewModels.append(DefaultRowViewModel(
+            title: "details_row_title_card_settings".localized,
+            action: openCardSettings
+        ))
+
+        // [REDACTED_TODO_COMMENT]
+
+        viewModels.append(DefaultRowViewModel(
+            title: "details_row_title_app_settings".localized,
+            action: openAppSettings
+        ))
+
+        if canCreateBackup {
+            viewModels.append(DefaultRowViewModel(
+                title: "details_row_title_create_backup".localized,
+                action: prepareBackup
+            ))
+        }
+
+        settingsSectionViewModels = viewModels
+    }
+
+    func setupLegalSectionViewModels() {
+        legalSectionViewModel = DefaultRowViewModel(
+            title: "disclaimer_title".localized,
+            action: openDisclaimer
+        )
+    }
+
+    func setupEnvironmentSetupSection() {
+        if !AppEnvironment.current.isProduction {
+            environmentSetupViewModel = DefaultRowViewModel(title: "Environment setup", action: openEnvironmentSetup)
+        }
+    }
 }

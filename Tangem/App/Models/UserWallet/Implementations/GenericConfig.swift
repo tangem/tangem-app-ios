@@ -13,7 +13,7 @@ import BlockchainSdk
 struct GenericConfig {
     @Injected(\.backupServiceProvider) private var backupServiceProvider: BackupServiceProviding
 
-    private let card: Card
+    private let card: CardDTO
 
     private var _backupSteps: [WalletOnboardingStep] {
         if card.backupStatus?.isActive == true {
@@ -37,12 +37,16 @@ struct GenericConfig {
         }
 
         steps.append(.backupCards)
-        steps.append(.success)
 
         return steps
     }
 
-    init(card: Card) {
+    var userWalletSavingSteps: [WalletOnboardingStep] {
+        guard needUserWalletSavingSteps else { return [] }
+        return [.saveUserWallet]
+    }
+
+    init(card: CardDTO) {
         self.card = card
         backupServiceProvider.backupService.skipCompatibilityChecks = false
     }
@@ -58,7 +62,15 @@ extension GenericConfig: UserWalletConfig {
     }
 
     var cardsCount: Int {
-        card.backupStatus?.backupCardsCount ?? 1
+        if let backupCardsCount = card.backupStatus?.backupCardsCount {
+            return backupCardsCount + 1
+        } else {
+            return 1
+        }
+    }
+
+    var cardName: String {
+        "Wallet"
     }
 
     var defaultCurve: EllipticCurve? {
@@ -67,22 +79,22 @@ extension GenericConfig: UserWalletConfig {
 
     var onboardingSteps: OnboardingSteps {
         if card.wallets.isEmpty {
-            return .wallet([.createWallet] + _backupSteps)
+            return .wallet([.createWallet] + _backupSteps + userWalletSavingSteps + [.success])
         } else {
             if !AppSettings.shared.cardsStartedActivation.contains(card.cardId) {
                 return .wallet([])
             }
 
-            return .wallet(_backupSteps)
+            return .wallet(_backupSteps + userWalletSavingSteps + [.success])
         }
     }
 
     var backupSteps: OnboardingSteps? {
-        .wallet(_backupSteps)
+        .wallet(_backupSteps + [.success])
     }
 
     var supportedBlockchains: Set<Blockchain> {
-        let allBlockchains = card.isTestnet ? Blockchain.supportedTestnetBlockchains
+        let allBlockchains = AppEnvironment.current.isTestnet ? Blockchain.supportedTestnetBlockchains
             : Blockchain.supportedBlockchains
 
         return allBlockchains.filter { card.walletCurves.contains($0.curve) }
@@ -93,7 +105,8 @@ extension GenericConfig: UserWalletConfig {
             return persistentBlockchains
         }
 
-        let blockchains: [Blockchain] = [.ethereum(testnet: card.isTestnet), .bitcoin(testnet: card.isTestnet)]
+        let isTestnet = AppEnvironment.current.isTestnet
+        let blockchains: [Blockchain] = [.ethereum(testnet: isTestnet), .bitcoin(testnet: isTestnet)]
 
         let entries: [StorageEntry] = blockchains.map {
             if let derivationStyle = card.derivationStyle {
@@ -119,10 +132,6 @@ extension GenericConfig: UserWalletConfig {
 
     var warningEvents: [WarningEvent] {
         var warnings = WarningEventsFactory().makeWarningEvents(for: card)
-
-        if card.isTestnet {
-            warnings.append(.testnetCard)
-        }
 
         if hasFeature(.hdWallets) && card.derivationStyle == .legacy {
             warnings.append(.legacyDerivation)
@@ -237,11 +246,5 @@ fileprivate extension Card.BackupStatus {
         }
 
         return nil
-    }
-}
-
-fileprivate extension Card {
-    var isTestnet: Bool {
-        AppEnvironment.current.isTestnet
     }
 }

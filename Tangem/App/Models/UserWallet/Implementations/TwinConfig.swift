@@ -11,7 +11,7 @@ import TangemSdk
 import BlockchainSdk
 
 struct TwinConfig {
-    private let card: Card
+    private let card: CardDTO
     private let walletData: WalletData
     private let twinData: TwinData
 
@@ -19,11 +19,7 @@ struct TwinConfig {
         Blockchain.from(blockchainName: walletData.blockchain, curve: card.supportedCurves[0])!
     }
 
-    private var isTestnet: Bool {
-        defaultBlockchain.isTestnet
-    }
-
-    init(card: Card, walletData: WalletData, twinData: TwinData) {
+    init(card: CardDTO, walletData: WalletData, twinData: TwinData) {
         self.card = card
         self.walletData = walletData
         self.twinData = twinData
@@ -45,6 +41,10 @@ extension TwinConfig: UserWalletConfig {
         2
     }
 
+    var cardName: String {
+        "Twin"
+    }
+
     var defaultCurve: EllipticCurve? {
         defaultBlockchain.curve
     }
@@ -60,15 +60,18 @@ extension TwinConfig: UserWalletConfig {
 
         if card.wallets.isEmpty { // twin without created wallet. Start onboarding
             steps.append(contentsOf: TwinsOnboardingStep.twinningProcessSteps)
+            steps.append(contentsOf: userWalletSavingSteps)
             steps.append(contentsOf: TwinsOnboardingStep.topupSteps)
             return .twins(steps)
         } else { // twin with created wallet
             if twinData.pairPublicKey == nil { // is not twinned
                 steps.append(contentsOf: TwinsOnboardingStep.twinningProcessSteps)
+                steps.append(contentsOf: userWalletSavingSteps)
                 steps.append(contentsOf: TwinsOnboardingStep.topupSteps)
                 return .twins(steps)
             } else { // is twinned
                 if AppSettings.shared.cardsStartedActivation.contains(card.cardId) { // card is in onboarding process, go to topup
+                    steps.append(contentsOf: userWalletSavingSteps)
                     steps.append(contentsOf: TwinsOnboardingStep.topupSteps)
                     return .twins(steps)
                 } else { // unknown twin, ready to use, go to main
@@ -76,6 +79,11 @@ extension TwinConfig: UserWalletConfig {
                 }
             }
         }
+    }
+
+    var userWalletSavingSteps: [TwinsOnboardingStep] {
+        guard needUserWalletSavingSteps else { return [] }
+        return [.saveUserWallet]
     }
 
     var backupSteps: OnboardingSteps? {
@@ -93,7 +101,7 @@ extension TwinConfig: UserWalletConfig {
     }
 
     var persistentBlockchains: [StorageEntry]? {
-        return nil
+        return defaultBlockchains
     }
 
     var embeddedBlockchain: StorageEntry? {
@@ -101,13 +109,7 @@ extension TwinConfig: UserWalletConfig {
     }
 
     var warningEvents: [WarningEvent] {
-        var warnings = WarningEventsFactory().makeWarningEvents(for: card)
-
-        if isTestnet {
-            warnings.append(.testnetCard)
-        }
-
-        return warnings
+        WarningEventsFactory().makeWarningEvents(for: card)
     }
 
     // [REDACTED_TODO_COMMENT]
@@ -179,7 +181,7 @@ extension TwinConfig: UserWalletConfig {
         let factory = WalletManagerFactoryProvider().factory
         let twinManager = try factory.makeTwinWalletManager(walletPublicKey: walletPublicKey,
                                                             pairKey: savedPairKey,
-                                                            isTestnet: isTestnet)
+                                                            isTestnet: AppEnvironment.current.isTestnet)
 
         return WalletModel(walletManager: twinManager, derivationStyle: card.derivationStyle)
     }
