@@ -13,7 +13,7 @@ import BlockchainSdk
 struct GenericDemoConfig {
     @Injected(\.backupServiceProvider) private var backupServiceProvider: BackupServiceProviding
 
-    private let card: Card
+    private let card: CardDTO
 
     private var _backupSteps: [WalletOnboardingStep] {
         if card.backupStatus?.isActive == true {
@@ -37,12 +37,16 @@ struct GenericDemoConfig {
         }
 
         steps.append(.backupCards)
-        steps.append(.success)
 
         return steps
     }
 
-    init(card: Card) {
+    var userWalletSavingSteps: [WalletOnboardingStep] {
+        guard needUserWalletSavingSteps else { return [] }
+        return [.saveUserWallet]
+    }
+
+    init(card: CardDTO) {
         self.card = card
     }
 }
@@ -64,27 +68,31 @@ extension GenericDemoConfig: UserWalletConfig {
         return nil
     }
 
+    var cardName: String {
+        "Wallet"
+    }
+
     var onboardingSteps: OnboardingSteps {
         if card.wallets.isEmpty {
-            return .wallet([.createWallet] + _backupSteps)
+            return .wallet([.createWallet] + _backupSteps + userWalletSavingSteps + [.success])
         } else {
             if !AppSettings.shared.cardsStartedActivation.contains(card.cardId) {
                 return .wallet([])
             }
 
-            return .wallet(_backupSteps)
+            return .wallet(_backupSteps + userWalletSavingSteps + [.success])
         }
     }
 
     var backupSteps: OnboardingSteps? {
-        .wallet(_backupSteps)
+        .wallet(_backupSteps + [.success])
     }
 
     var supportedBlockchains: Set<Blockchain> {
         let allBlockchains = AppEnvironment.current.isTestnet ? Blockchain.supportedTestnetBlockchains
             : Blockchain.supportedBlockchains
 
-        return allBlockchains.filter { card.supportedCurves.contains($0.curve) }
+        return allBlockchains.filter { card.walletCurves.contains($0.curve) }
     }
 
     var defaultBlockchains: [StorageEntry] {
