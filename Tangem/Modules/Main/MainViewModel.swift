@@ -20,6 +20,7 @@ class MainViewModel: ObservableObject {
     @Injected(\.failedScanTracker) var failedCardScanTracker: FailedScanTrackable
     @Injected(\.rateAppService) private var rateAppService: RateAppService
     @Injected(\.tangemApiService) private var tangemApiService: TangemApiService
+    @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
 
     // MARK: - Published variables
 
@@ -84,9 +85,9 @@ class MainViewModel: ObservableObject {
         }
     }
 
-    private let userWalletModel: UserWalletModel
+    private var userWalletModel: UserWalletModel
     private let cardImageProvider: CardImageProviding
-
+    private var shouldRefreshWhenAppear: Bool
     private var bag = Set<AnyCancellable>()
     private var isProcessingNewCard = false
 
@@ -160,21 +161,27 @@ class MainViewModel: ObservableObject {
         cardModel.canShowSend
     }
 
+    var saveUserWallets: Bool {
+        AppSettings.shared.saveUserWallets
+    }
+
     init(
         cardModel: CardViewModel,
         userWalletModel: UserWalletModel,
         cardImageProvider: CardImageProviding,
+        shouldRefreshWhenAppear: Bool,
         coordinator: MainRoutable
     ) {
         self.cardModel = cardModel
         self.userWalletModel = userWalletModel
         self.cardImageProvider = cardImageProvider
+        self.shouldRefreshWhenAppear = shouldRefreshWhenAppear
         self.coordinator = coordinator
 
         bind()
-        updateContent()
-        updateIsBackupAllowed()
         cardModel.setupWarnings()
+        updateContent()
+        showUserWalletSaveIfNeeded()
     }
 
     deinit {
@@ -198,9 +205,19 @@ class MainViewModel: ObservableObject {
                 self.updateLackDerivationWarningView(entries: entries)
             }
             .store(in: &bag)
+
+        AppSettings.shared.$saveUserWallets
+            .dropFirst()
+            .sink { _ in
+                self.objectWillChange.send()
+            }
+            .store(in: &bag)
     }
 
     func updateContent() {
+        updateIsBackupAllowed()
+        loadImage()
+
         if cardModel.isMultiWallet {
             multiWalletContentViewModel = MultiWalletContentViewModel(
                 cardModel: cardModel,
@@ -245,6 +262,8 @@ class MainViewModel: ObservableObject {
                 withAnimation { done() }
             }
         }
+
+        loadImage()
     }
 
     func onScan() {
@@ -252,6 +271,11 @@ class MainViewModel: ObservableObject {
             Analytics.log(.buttonScanCard)
             self.coordinator.close(newScan: true)
         }
+    }
+
+    func didTapUserWalletListButton() {
+        Analytics.log(.buttonMyWallets)
+        self.coordinator.openUserWalletList()
     }
 
     func sendTapped() {
@@ -267,14 +291,12 @@ class MainViewModel: ObservableObject {
     }
 
     func onAppear() {
-        updateIsBackupAllowed()
-        singleWalletContentViewModel?.onAppear()
-        multiWalletContentViewModel?.onAppear()
+        if shouldRefreshWhenAppear {
+            singleWalletContentViewModel?.onAppear()
+            multiWalletContentViewModel?.onAppear()
+        }
 
-        cardImageProvider
-            .loadImage(cardId: cardModel.cardId, cardPublicKey: cardModel.cardPublicKey)
-            .weakAssignAnimated(to: \.image, on: self)
-            .store(in: &bag)
+        updateIsBackupAllowed()
     }
 
     func deriveEntriesWithoutDerivation() {
@@ -350,6 +372,32 @@ class MainViewModel: ObservableObject {
         }
     }
 
+    func didDeclineToSaveUserWallets() {
+        AppSettings.shared.saveUserWallets = false
+    }
+
+    func didAgreeToSaveUserWallets() {
+        userWalletRepository.unlock(with: .biometry) { [weak self, cardModel] result in
+            if case let .error(error) = result {
+                print("Failed to enable biometry: \(error)")
+                return
+            }
+
+            // Doesn't seem to work without the delay
+            let delay = 1.0
+            DispatchQueue.main.asyncAfter(deadline: .now() + delay) {
+                guard let userWallet = cardModel.userWallet else { return }
+
+                AppSettings.shared.saveUserWallets = true
+                AppSettings.shared.saveAccessCodes = true
+
+                self?.userWalletRepository.save(userWallet)
+                self?.coordinator.openUserWalletList()
+                self?.cardModel.updateSdkConfig()
+            }
+        }
+    }
+
     // MARK: - Private functions
 
     private func setError(_ error: AlertBinder?) {
@@ -362,6 +410,26 @@ class MainViewModel: ObservableObject {
 
     private func updateLackDerivationWarningView(entries: [StorageEntry]) {
         isLackDerivationWarningViewVisible = !entries.isEmpty
+    }
+
+    private func showUserWalletSaveIfNeeded() {
+        if AppSettings.shared.askedToSaveUserWallets || !BiometricsUtil.isAvailable {
+            return
+        }
+
+        AppSettings.shared.askedToSaveUserWallets = true
+
+        let delay = 1.0
+        DispatchQueue.main.asyncAfter(deadline: .now() + delay) { [weak self] in
+            self?.coordinator.openUserWalletSaveAcceptanceSheet()
+        }
+    }
+
+    private func loadImage() {
+        cardImageProvider
+            .loadImage(cardId: cardModel.cardId, cardPublicKey: cardModel.cardPublicKey)
+            .weakAssignAnimated(to: \.image, on: self)
+            .store(in: &bag)
     }
 }
 
