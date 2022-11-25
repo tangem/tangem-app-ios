@@ -425,6 +425,10 @@ extension WalletModel {
 
         return wallet.getExploreURL(for: wallet.addresses[index].value)
     }
+    
+    func getDecimalBalance(for type: Amount.AmountType) -> Decimal {
+        return wallet.amounts[type]?.value ?? .zero
+    }
 
     func getBalance(for type: Amount.AmountType) -> String {
         return wallet.amounts[type].map { $0.string(with: 8) } ?? ""
