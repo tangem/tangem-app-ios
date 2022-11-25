@@ -31,7 +31,7 @@ class WarningsService {
 extension WarningsService: AppWarningsProviding {
     func setupWarnings(
         for config: UserWalletConfig,
-        card: Card,
+        card: CardDTO,
         validator: SignatureCountValidator?
     ) {
         setupWarnings(for: config)
@@ -103,7 +103,7 @@ private extension WarningsService {
 
     func validateHashesCount(
         config: UserWalletConfig,
-        card: Card,
+        card: CardDTO,
         validator: SignatureCountValidator?
     ) {
         let cardId = card.cardId
