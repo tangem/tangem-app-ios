@@ -45,8 +45,8 @@ enum TwinOnboardingCardLayout: OnboardingCardFrameCalculator {
 
     func cardFrameMinHorizontalPadding(at step: TwinsOnboardingStep) -> CGFloat {
         switch (step, self) {
-        case (.welcome, _), (.success, _): return 0
-        case (.intro, _): return 75
+        case (.welcome, _), (.saveUserWallet, _), (.success, _): return 0
+        case (.intro, _), (.alert, _): return 75
         case (.first, .first), (.second, .second), (.third, .first): return 80
         case (.first, .second), (.second, .first), (.third, .second), (.alert, _): return 120
         case (.done, _), (.topup, _):
@@ -56,8 +56,8 @@ enum TwinOnboardingCardLayout: OnboardingCardFrameCalculator {
 
     func cardHeightToContainerHeightRatio(for step: TwinsOnboardingStep) -> CGFloat {
         switch (step, self) {
-        case (.welcome, _), (.success, _): return 0
-        case (.intro, _): return 0.431
+        case (.welcome, _), (.saveUserWallet, _), (.success, _): return 0
+        case (.intro, _), (.alert, _): return 0.431
         case (.first, .first), (.second, .second), (.third, .first):
             return 0.454
         case (.first, .second), (.second, .first), (.third, .second), (.alert, _):
@@ -70,7 +70,7 @@ enum TwinOnboardingCardLayout: OnboardingCardFrameCalculator {
     private func offset(at step: TwinsOnboardingStep, in container: CGSize) -> CGSize {
         let containerHeight = container.height
         switch (step, self) {
-        case (.welcome, _), (.success, _): return .zero
+        case (.welcome, _), (.saveUserWallet, _), (.success, _): return .zero
         case (.intro, .first), (.alert, .first):
             let heightOffset = containerHeight * 0.08
             let widthOffset = container.width * 0.131
