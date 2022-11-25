@@ -12,7 +12,7 @@ import SwiftUI
 final class EnvironmentSetupViewModel: ObservableObject {
     // MARK: - ViewState
 
-    @Published var testnetToggleViewModel: DefaultToggleRowViewModel
+    @Published var appSettingsTogglesViewModels: [DefaultToggleRowViewModel]
     @Published var togglesViewModels: [DefaultToggleRowViewModel]
 
     @Published var alert: AlertBinder?
@@ -22,11 +22,18 @@ final class EnvironmentSetupViewModel: ObservableObject {
     private var bag: Set<AnyCancellable> = []
 
     init() {
-        testnetToggleViewModel = DefaultToggleRowViewModel(
-            title: "Use testnet",
-            isOn: Binding<Bool>(get: { EnvironmentProvider.shared.isTestnet },
-                                set: { EnvironmentProvider.shared.isTestnet = $0 })
-        )
+        appSettingsTogglesViewModels = [
+            DefaultToggleRowViewModel(
+                title: "Use testnet",
+                isOn: Binding<Bool>(get: { EnvironmentProvider.shared.isTestnet },
+                                    set: { EnvironmentProvider.shared.isTestnet = $0 })
+            ),
+            DefaultToggleRowViewModel(
+                title: "Use dev API",
+                isOn: Binding<Bool>(get: { EnvironmentProvider.shared.useDevApi },
+                                    set: { EnvironmentProvider.shared.useDevApi = $0 })
+            ),
+        ]
 
         togglesViewModels = FeatureToggle.allCases.map { toggle in
             DefaultToggleRowViewModel(
