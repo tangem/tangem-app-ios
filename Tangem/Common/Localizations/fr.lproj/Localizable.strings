@@ -26,7 +26,6 @@ It’s perfectly safe in all other respects.
 Tangem is the only hardware wallet to offer signature count protection.";
 "alert_troubleshooting_scan_card_message" = "Please try to tap the card exactly as shown in the animation or request support.";
 "alert_troubleshooting_scan_card_title" = "Are you having difficulty scanning your card?";
-"card_operation_button_title_reset" = "Reset the Card";
 "common_accept" = "J'accepte";
 "common_back" = "Back";
 "common_camera_alert_button_settings" = "Paramètres";
@@ -75,9 +74,6 @@ Tangem is the only hardware wallet to offer signature count protection.";
 "custom_token_derivation_path_input_title" = "BIP44 coin type";
 "custom_token_derivation_path_default" = "Default";
 "custom_token_add_token" = "Add token";
-"details_backup_status_format_active" = "Active. Backup cards count: %d";
-"details_backup_status_format_linked" = "Linked. Backup cards count: %d";
-"details_backup_status_no_backup" = "No backup";
 "details_manage_security_access_code" = "Code d’accès";
 "details_manage_security_access_code_description" = "Vous devrez entrer le mot de passe correct avant de scanner la carte";
 "details_manage_security_long_tap" = "Tenez la carte fermement";
@@ -94,24 +90,10 @@ Tangem is the only hardware wallet to offer signature count protection.";
 "details_row_title_issuer" = "Emetteur";
 "details_row_title_card_settings" = "Card Settings";
 "details_row_title_app_settings" = "App Settings";
-"details_row_title_reset_factory_settings" = "Reset to factory settings";
-"details_row_title_reset_factory_settings_warning" = "This action is irreversible. If, after resetting the card, someone sends funds to it, then you will not be able to withdraw them.";
 "details_row_title_send_feedback" = "Send Feedback";
 "details_row_title_signed_hashes" = "Signé";
-"details_row_title_twins_create" = "Create wallet";
-"details_row_title_twins_recreate" = "Re-create twin wallet";
-"details_section_title_app" = "App";
-"details_section_title_card" = "Carte";
 "details_security_management_warning" = "If you forget the code you will lose access to your funds. Code recovery is not possible.";
 "details_title" = "Référénces";
-"details_twins_create_warning" = "The wallet creation procedure consists of three steps. You must complete it to the end, otherwise the cards will not be paired and you will have to start from the beginning.";
-"details_twins_recreate_button_format" = "Tap the card #%d";
-"details_twins_recreate_step_format" = "Step %d";
-"details_twins_recreate_subtitle" = "If the process of re-creating the wallet gets interrupted in any way, you’ll have to start over.";
-"details_twins_recreate_title_format" = "Tap the #%d twin card";
-"details_twins_recreate_toolbar" = "Re-create wallet";
-"details_twins_recreate_warning" = "This action is irreversible. You will not have access to the old wallet.
-The wallet re-creation procedure consists of three steps. You must complete it to the end, otherwise you will have to start from the beginning.";
 "disclaimer_title" = "Conditions d'utilisation";
 "home_button_scan" = "Scannez la carte";
 "initial_message_change_access_code_body" = "To change the access code, connect your phone and the card exactly as it shown above";
@@ -121,8 +103,6 @@ The wallet re-creation procedure consists of three steps. You must complete it t
 "initial_message_sign_body" = "To sign, connect your phone and the card exactly as it shown above";
 "mail_error_no_accounts_body" = "Please, set up an account to send email";
 "mail_error_no_accounts_title" = "No Mail accounts";
-"manage_security_access_code_disclaimer" = "Access code is available only for cards with a backup.";
-"notification_twins_recreate_success" = "The twin address was successfully created";
 "onboarding_access_code_feature_1_description" = "You have to setup a single access code to protect all yor wallets.";
 "onboarding_access_code_feature_1_title" = "Protect";
 "onboarding_access_code_feature_2_description" = "You can set an individual access code on each card later.";
@@ -135,7 +115,7 @@ The wallet re-creation procedure consists of three steps. You must complete it t
 "onboarding_access_code_too_short" = "Access code must be at least 4 characters long";
 "onboarding_access_codes_doesnt_match" = "Entered access code didn't match initial access code";
 "onboarding_alert_i_understand" = "I understand";
-"onboarding_alert_message_not_max_backup_cards_added" = "You’ve added one backup card. When backup process is finished you can’t add more backup cards. If you have one more card, add it in backup, otherwise you can buy it in shop. Do you like to continue backup process?";
+"onboarding_alert_message_not_max_backup_cards_added" = "You’ve added one backup card. When backup process is finished you can’t add more backup cards. If you have one more card, add it in backup. Do you like to continue backup process?";
 "onboarding_alert_message_old_device" = "iPhone 7/7+ is not able to create a backup for Tangem Wallet due to some system limitations. Please use another phone to perform this operation. All other functions work stably.";
 "onboarding_alert_twins_recreate_subtitle" = "This action is irreversible. You will not have access to the old wallet.";
 "onboarding_backup_exit_warning" = "The backup process is partly complete. You can’t exit it now.";
@@ -207,7 +187,6 @@ The wallet re-creation procedure consists of three steps. You must complete it t
 "send_amount_label" = "Somme";
 "send_destination_hint_address" = "Adresse";
 "send_extras_error_invalid_destination_tag" = "Invalid Tag. It won't be added to the transaction.";
-"send_extras_error_invalid_memo" = "Invalid Memo. It won't be added to the transaction.";
 "send_extras_hint_destination_tag" = "Tag";
 "send_extras_hint_memo" = "Memo";
 "send_fee_include_description" = "Inclure les commissions";
@@ -234,11 +213,6 @@ The wallet re-creation procedure consists of three steps. You must complete it t
 "twin_error_wrong_twin" = "You've scanned wrong twin card. Please try another one";
 "twin_process_creating_wallet" = "Creating wallet";
 "twin_process_preparing_card" = "Preparing card";
-"twins_creation_warning_message" = "You have already started the process of recreating twin wallet. If you interrupt it, you won't be able to use your twin cards until you start it again and complete recreating the wallet.";
-"twins_creation_warning_title" = "Cancel Twin Card creation?";
-"twins_onboarding_description_format" = "This one that you are holding in your hands and the other one with number %@.
-
-Both cards can be used to extract funds from this wallet.";
 "twins_onboarding_subtitle" = "One wallet. Two cards.";
 "twins_onboarding_title" = "Tangem Twin";
 "twins_scan_twin_with_number" = "Hold your iPhone near the twin card with number %@";
@@ -307,7 +281,6 @@ Please, try again later.";
 NETWORK: %@
 
 URL: %@";
-"wallet_connect_scan_card_message" = "Tap card to bind to wallet connect";
 "wallet_connect_scan_new_code" = "Scan new code";
 "wallet_connect_scanner_error_not_valid_card" = "This card can’t be used to establish WalletConnect session";
 "wallet_connect_scanner_error_unsupported_network" = "This network is not supported. Please select another network.";
@@ -395,7 +368,6 @@ URL: %@";
 "token_details_send_blocked_fee_format" = "Not enough funds for fee on your %@ wallet to send a transaction. Top up your %@ wallet first.";
 "currency_subtitle_expanded" = "Available networks";
 "wallet_connect_network_not_found_format" = "%@ network not found. Please, add it first and try again.";
-"common_notice" = "Notice";
 "common_attention" = "Attention";
 "alert_manage_tokens_addresses_message" = "Note that tokens on different networks have different addresses. Double check that your address matches the network when you transfer funds.";
 "alert_manage_tokens_unsupported_message" = "Tokens in Solana network are not supported by this card due to firmware limitation.";
