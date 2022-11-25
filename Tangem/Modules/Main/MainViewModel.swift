@@ -219,7 +219,6 @@ class MainViewModel: ObservableObject {
         loadImage()
 
         if cardModel.isMultiWallet {
-            singleWalletContentViewModel = nil
             multiWalletContentViewModel = MultiWalletContentViewModel(
                 cardModel: cardModel,
                 userWalletModel: userWalletModel,
@@ -227,7 +226,6 @@ class MainViewModel: ObservableObject {
                 output: self
             )
         } else {
-            multiWalletContentViewModel = nil
             singleWalletContentViewModel = SingleWalletContentViewModel(
                 cardModel: cardModel,
                 userWalletModel: userWalletModel,
@@ -297,11 +295,8 @@ class MainViewModel: ObservableObject {
             singleWalletContentViewModel?.onAppear()
             multiWalletContentViewModel?.onAppear()
         }
-    }
 
-    func refreshContent() {
-        singleWalletContentViewModel?.onRefresh {}
-        multiWalletContentViewModel?.onRefresh {}
+        updateIsBackupAllowed()
     }
 
     func deriveEntriesWithoutDerivation() {
