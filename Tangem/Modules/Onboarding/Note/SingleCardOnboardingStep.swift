@@ -133,7 +133,7 @@ extension SingleCardOnboardingStep: OnboardingButtonsInfoProvider {
     var mainButtonTitle: LocalizedStringKey {
         switch self {
         case .createWallet: return "onboarding_button_create_wallet"
-        case .topup: return "onboarding_button_buy_crypto"
+        case .topup: return "onboarding_top_up_button_but_crypto"
         case .successTopup: return "common_continue"
         case .welcome: return WelcomeStep.welcome.mainButtonTitle
         case .saveUserWallet: return BiometricAuthorizationUtils.allowButtonLocalizationKey
