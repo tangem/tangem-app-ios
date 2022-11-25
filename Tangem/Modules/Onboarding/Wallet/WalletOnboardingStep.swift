@@ -119,7 +119,7 @@ extension WalletOnboardingStep: OnboardingMessagesProvider, SuccessStep {
     var subtitle: LocalizedStringKey? {
         switch self {
         case .welcome: return WelcomeStep.welcome.subtitle
-        case .createWallet: return "onboarding_create_subtitle"
+        case .createWallet: return "onboarding_create_wallet_body"
         case .scanPrimaryCard: return "onboarding_subtitle_scan_primary"
         case .backupIntro: return "onboarding_subtitle_backup_card"
         case .selectBackupCards: return "onboarding_subtitle_no_backup_cards"
