@@ -59,7 +59,7 @@ class WalletOnboardingViewModel: OnboardingTopupViewModel<WalletOnboardingStep, 
         case .backupCards:
             switch backupServiceState {
             case .finalizingPrimaryCard: return isSaltPayOnboarding ? "onboarding_saltpay_title_prepare_origin" : "onboarding_title_prepare_origin"
-            case .finalizingBackupCard(let index): return isSaltPayOnboarding ? "onboarding_saltpay_title_backup_card" : LocalizedStringKey(stringLiteral: "onboarding_title_backup_card_number".localized(index))
+            case .finalizingBackupCard(let index): return isSaltPayOnboarding ? "onboarding_saltpay_title_backup_card" : LocalizedStringKey(stringLiteral: "onboarding_title_backup_card_format".localized(index))
             default: break
             }
 
@@ -93,7 +93,7 @@ class WalletOnboardingViewModel: OnboardingTopupViewModel<WalletOnboardingStep, 
             switch backupServiceState {
             case .finalizingPrimaryCard:
                 if isSaltPayOnboarding {
-                    return "onboarding_subtitle_reset_twin_warning"
+                    return "onboarding_twins_interrupt_warning"
                 }
 
                 guard let primaryCardId = backupService.primaryCard?.cardId,
@@ -101,10 +101,10 @@ class WalletOnboardingViewModel: OnboardingTopupViewModel<WalletOnboardingStep, 
                     return super.subtitle
                 }
 
-                return LocalizedStringKey(stringLiteral: "onboarding_subtitle_scan_origin_card".localized(cardIdFormatted))
+                return LocalizedStringKey(stringLiteral: "onboarding_subtitle_scan_primary_card_format".localized(cardIdFormatted))
             case .finalizingBackupCard(let index):
                 if isSaltPayOnboarding {
-                    return "onboarding_subtitle_reset_twin_warning"
+                    return "onboarding_twins_interrupt_warning"
                 }
 
                 let cardId = backupService.backupCardIds[index - 1]
@@ -112,7 +112,7 @@ class WalletOnboardingViewModel: OnboardingTopupViewModel<WalletOnboardingStep, 
                     return super.subtitle
                 }
 
-                return LocalizedStringKey(stringLiteral: "onboarding_subtitle_scan_backup_card".localized(cardIdFormatted))
+                return LocalizedStringKey(stringLiteral: "onboarding_subtitle_scan_backup_card_format".localized(cardIdFormatted))
             default: return super.subtitle
             }
         case .registerWallet, .kycStart, .kycRetry, .enterPin, .kycWaiting:
