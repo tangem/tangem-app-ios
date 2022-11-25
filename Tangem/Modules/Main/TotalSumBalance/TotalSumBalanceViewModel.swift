@@ -43,10 +43,6 @@ class TotalSumBalanceViewModel: ObservableObject {
         bind()
     }
 
-    func updateBalance() {
-        totalBalanceManager.updateTotalBalance()
-    }
-
     func updateForSingleCoinCard() {
         guard let cardAmountType = self.cardAmountType else { return }
         let walletModels = userWalletModel.getWalletModels()
@@ -58,51 +54,14 @@ class TotalSumBalanceViewModel: ObservableObject {
         tapOnCurrencySymbol.openCurrencySelection()
     }
 
-    func beginUpdates() {
-        tapOnCurrencySymbol.openCurrencySelection()
-    }
-
     private func bind() {
-        Publishers.Merge(
-            userWalletModel.subscribeToWalletModels().filter { $0.isEmpty }.mapVoid(),
-            AppSettings.shared.$selectedCurrencyCode.mapVoid()
-        )
-        .map { [unowned self] _ in
-            addAttributeForBalance(0, withCurrencyCode: AppSettings.shared.selectedCurrencyCode)
-        }
-        .receive(on: DispatchQueue.main)
-        .sink { [unowned self] balance in
-            isLoading = false
-            totalFiatValueString = balance
-        }
-        .store(in: &bag)
-
-        userWalletModel.subscribeToWalletModels()
-            .filter { !$0.isEmpty }
-            .receive(on: DispatchQueue.main)
-            .map { [unowned self] walletModels -> AnyPublisher<Void, Never> in
-                isLoading = true
-
-                return walletModels.map { $0.walletDidChange }
-                    .combineLatest()
-                    .filter { $0.allConforms { !$0.isLoading } }
-                    .mapVoid()
-                    .eraseToAnyPublisher()
-            }
-            .switchToLatest()
-            // Hide skeleton with delay
-            .delay(for: 0.2, scheduler: DispatchQueue.main)
-            .sink { [unowned self] walletModels in
-                updateForSingleCoinCard()
-                updateBalance()
-            }
-            .store(in: &bag)
-
+        // Total balance main subscription
         totalBalanceManager.totalBalancePublisher()
             .compactMap { $0.value }
             .map { [unowned self] balance in
                 checkPositiveBalance()
-                return addAttributeForBalance(balance.balance, withCurrencyCode: balance.currency.code)
+                updateForSingleCoinCard()
+                return addAttributeForBalance(balance.balance, withCurrencyCode: balance.currencyCode)
             }
             .weakAssign(to: \.totalFiatValueString, on: self)
             .store(in: &bag)
@@ -120,10 +79,9 @@ class TotalSumBalanceViewModel: ObservableObject {
             .weakAssign(to: \.hasError, on: self)
             .store(in: &bag)
 
+        // Skeleton subscription
         totalBalanceManager.totalBalancePublisher()
             .map { $0.isLoading }
-            .filter { !$0 }
-            .debounce(for: 0.5, scheduler: DispatchQueue.main)
             .weakAssignAnimated(to: \.isLoading, on: self)
             .store(in: &bag)
     }
