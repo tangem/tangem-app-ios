@@ -289,7 +289,10 @@ class TwinsOnboardingViewModel: OnboardingTopupViewModel<TwinsOnboardingStep, On
         try super.saveUserWalletIfNeeded()
 
         if let originalUserWallet,
-           AppSettings.shared.saveUserWallets {
+           let currentUserWalletId = input.cardInput.cardModel?.userWalletId,
+           originalUserWallet.userWalletId != currentUserWalletId,
+           AppSettings.shared.saveUserWallets
+        {
             userWalletRepository.delete(originalUserWallet)
         }
     }
