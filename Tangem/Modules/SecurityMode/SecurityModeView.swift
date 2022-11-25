@@ -46,7 +46,7 @@ struct SecurityModeView: View {
     private var actionButton: some View {
         MainButton(
             text: "common_save_changes".localized,
-            icon: .trailing(Assets.tangemIconWhite),
+            icon: .trailing(Assets.tangemIcon),
             isLoading: viewModel.isLoading,
             isDisabled: !viewModel.isActionButtonEnabled,
             action: viewModel.actionButtonDidTap
