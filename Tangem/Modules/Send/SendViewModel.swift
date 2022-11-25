@@ -126,7 +126,7 @@ class SendViewModel: ObservableObject {
     var walletTotalBalanceFormatted: String {
         let amount = walletModel.wallet.amounts[self.amountToSend.type]
         let value = getDescription(for: amount)
-        return String(format: "send_balance_subtitle_format".localized, value)
+        return String(format: "common_balance".localized, value)
     }
 
     // MARK: Private
@@ -316,7 +316,7 @@ class SendViewModel: ObservableObject {
             .combineLatest($validatedDestination.compactMap { $0 }, feeRetrySubject)
             .flatMap { [unowned self] amount, dest, _ -> AnyPublisher<[Amount], Never> in
                 self.isFeeLoading = true
-                return self.walletModel.walletManager.getFee(amount: amount, destination: dest)
+                return self.walletModel.getFee(amount: amount, destination: dest)
                     .catch { [unowned self] error -> Just<[Amount]> in
                         print(error)
                         Analytics.log(error: error)
