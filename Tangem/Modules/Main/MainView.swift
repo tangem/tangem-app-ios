@@ -159,13 +159,13 @@ struct MainView: View {
                 .actionSheet(isPresented: $viewModel.showTradeSheet, content: {
                     ActionSheet(title: Text("wallet_dialog_choose_trade_action"),
                                 buttons: [
-                                    .default(Text("wallet_button_topup"), action: viewModel.openBuyCryptoIfPossible),
-                                    .default(Text("wallet_button_sell_crypto"), action: viewModel.openSellCrypto),
+                                    .default(Text("wallet_button_buy"), action: viewModel.openBuyCryptoIfPossible),
+                                    .default(Text("wallet_button_sell"), action: viewModel.openSellCrypto),
                                     .cancel(),
                                 ])
                 })
         } else {
-            TangemButton.vertical(title: "wallet_button_topup",
+            TangemButton.vertical(title: "wallet_button_buy",
                                   systemImage: "arrow.up",
                                   action: viewModel.openBuyCryptoIfPossible)
                 .buttonStyle(TangemButtonStyle(layout: .flexibleWidth))

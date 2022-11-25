@@ -103,7 +103,7 @@ struct TangemButton_Previews: PreviewProvider {
                     .buttonStyle(TangemButtonStyle(layout: .smallVertical,
                                                    isLoading: true))
 
-                TangemButton.vertical(title: "wallet_button_topup",
+                TangemButton.vertical(title: "wallet_button_buy",
                                       systemImage: "arrow.up") {}
                     .buttonStyle(TangemButtonStyle(layout: .smallVertical))
 
