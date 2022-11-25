@@ -128,7 +128,7 @@ Tangem — единственный аппаратный кошелек, пре�
 "onboarding_button_continue_wallet" = "Перейти к моему кошельку";
 "onboarding_button_create_wallet" = "Создать кошелек";
 "onboarding_button_finalize_backup" = "Завершите процесс резервного копирования";
-"onboarding_button_how_it_works" = "Как это работает?";
+"onboarding_button_what_does_it_mean" = "Как это работает?";
 "onboarding_button_receive_crypto" = "Получить криптовалюту";
 "onboarding_button_scan_origin_card" = "Сканировать основную карту";
 "onboarding_button_shop" = "Получить новую карту";
