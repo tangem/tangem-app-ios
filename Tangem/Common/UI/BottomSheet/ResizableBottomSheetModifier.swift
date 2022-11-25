@@ -49,10 +49,6 @@ struct ResizableBottomSheetModifier<ContentView: ResizableSheetView>: ViewModifi
         if isPresented {
             let view = contentView()
 
-            view.setResizeCallback { action in
-                self.bottomSheetViewController?.resize(withAction: action)
-            }
-
             let wrappedView = BottomSheetWrappedView(content: view,
                                                      settings: viewModelSettings) {
                 bottomSheetViewController?.dismiss(animated: true)
