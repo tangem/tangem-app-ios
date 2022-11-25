@@ -11,8 +11,10 @@ import TangemSdk
 import BlockchainSdk
 
 struct CardInfo {
-    var card: Card
+    var card: CardDTO
     var walletData: DefaultWalletData
+    var name: String
+    var artwork: CardArtwork = .notLoaded
     var primaryCard: PrimaryCard? = nil
 
     var cardIdFormatted: String {
