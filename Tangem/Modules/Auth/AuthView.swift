@@ -52,12 +52,21 @@ struct AuthView: View {
 
             Spacer()
 
-            TangemButton(title: viewModel.unlockWithBiometryLocalizationKey, action: viewModel.unlockWithBiometry)
-                .buttonStyle(TangemButtonStyle(colorStyle: .grayAlt3, layout: .flexibleWidth, isLoading: viewModel.isScanningCard))
-                .padding(.bottom, 11)
+            MainButton(
+                text: viewModel.unlockWithBiometryButtonTitle,
+                style: .secondary,
+                isLoading: viewModel.isScanningCard,
+                action: viewModel.unlockWithBiometry
+            )
+            .padding(.bottom, 11)
 
-            TangemButton(title: "welcome_unlock_card", image: "tangemIconWhite", iconPosition: .trailing, action: viewModel.unlockWithCard)
-                .buttonStyle(TangemButtonStyle(colorStyle: .black, layout: .flexibleWidth, isLoading: viewModel.isScanningCard))
+            MainButton(
+                text: "welcome_unlock_card".localized,
+                icon: .trailing(Assets.tangemIcon),
+                style: .primary,
+                isLoading: viewModel.isScanningCard,
+                action: viewModel.unlockWithCard
+            )
         }
         .padding()
     }
