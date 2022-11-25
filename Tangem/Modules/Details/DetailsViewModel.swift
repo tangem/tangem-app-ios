@@ -68,6 +68,10 @@ class DetailsViewModel: ObservableObject {
             self.openOnboarding(with: input)
         }
     }
+
+    func didFinishOnboarding() {
+        setupView()
+    }
 }
 
 // MARK: - Navigation
