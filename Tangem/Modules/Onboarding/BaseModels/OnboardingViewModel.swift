@@ -279,8 +279,7 @@ class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable>
 
         guard
             AppSettings.shared.saveUserWallets,
-            let userWallet = input.cardInput.cardModel?.userWallet,
-            !userWalletRepository.contains(userWallet)
+            let userWallet = input.cardInput.cardModel?.userWallet
         else {
             return
         }
