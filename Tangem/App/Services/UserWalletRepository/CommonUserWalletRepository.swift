@@ -266,6 +266,8 @@ class CommonUserWalletRepository: UserWalletRepository {
             userWalletModel = models[index].userWalletModel
         } else {
             let newModel = CardViewModel(userWallet: userWallet)
+            newModel.userWalletModel?.initialUpdate()
+
             models.append(newModel)
             userWalletModel = newModel.userWalletModel
 
@@ -535,7 +537,9 @@ class CommonUserWalletRepository: UserWalletRepository {
 
         guard index < models.count else { return }
 
-        models[index] = CardViewModel(userWallet: userWallet)
+        let cardModel = CardViewModel(userWallet: userWallet)
+        cardModel.userWalletModel?.initialUpdate()
+        models[index] = cardModel
     }
 
     private func initializeServicesForSelectedModel() {
