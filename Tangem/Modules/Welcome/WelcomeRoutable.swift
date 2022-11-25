@@ -10,7 +10,6 @@ import Foundation
 
 protocol WelcomeRoutable: AnyObject {
     func openTokensList()
-    func openOnboardingModal(with input: OnboardingInput)
     func openMail(with dataCollector: EmailDataCollector, recipient: String)
     func openDisclaimer(at url: URL, _ handler: @escaping (Bool) -> Void)
     func openShop()
