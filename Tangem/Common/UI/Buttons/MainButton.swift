@@ -207,20 +207,20 @@ struct MainButton_Previews: PreviewProvider {
     static func buttons(style: MainButton.Style) -> some View {
         VStack(spacing: 16) {
             MainButton(text: "Order card",
-                       icon: .leading(Assets.tangemIcon),
+                       icon: .leading(Assets.tangemIconBlack),
                        style: style) {}
 
             MainButton(text: "Order card",
-                       icon: .leading(Assets.tangemIcon),
+                       icon: .leading(Assets.tangemIconBlack),
                        style: style,
                        isDisabled: true) {}
 
             MainButton(text: "Order card",
-                       icon: .trailing(Assets.tangemIcon),
+                       icon: .trailing(Assets.tangemIconBlack),
                        style: style) {}
 
             MainButton(text: "Order card",
-                       icon: .trailing(Assets.tangemIcon),
+                       icon: .trailing(Assets.tangemIconBlack),
                        style: style,
                        isDisabled: true) {}
 
