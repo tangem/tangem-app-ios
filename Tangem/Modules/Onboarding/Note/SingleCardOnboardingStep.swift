@@ -151,7 +151,7 @@ extension SingleCardOnboardingStep: OnboardingButtonsInfoProvider {
     var supplementButtonTitle: LocalizedStringKey {
         switch self {
         case .welcome: return WelcomeStep.welcome.supplementButtonTitle
-        case .createWallet: return "onboarding_button_how_it_works"
+        case .createWallet: return "onboarding_button_what_does_it_mean"
         case .topup: return "onboarding_button_show_address_qr"
         case .successTopup, .saveUserWallet, .success: return ""
         }
