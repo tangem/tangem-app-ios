@@ -6,7 +6,6 @@
 "address_qr_code_message_token_format" = "Send only %@ (%@) from %@ network to this address. Using other tokens and networks may result in loss of funds.";
 "alert_app_feedback_sent_message" = "Thank you for your feedback";
 "alert_app_feedback_sent_title" = "Sent successfully";
-"alert_button_i_understand" = "I understand";
 "alert_button_request_support" = "Request support";
 "alert_button_send_feedback" = "Send feedback";
 "alert_button_try_again" = "Try again";
@@ -113,7 +112,6 @@ Tangem is the only hardware wallet to offer signature count protection.";
 "onboarding_access_code_repeat_code_title" = "Re-enter your Access Code";
 "onboarding_access_code_too_short" = "Access code must be at least 4 characters long";
 "onboarding_access_codes_doesnt_match" = "Entered access code didn't match initial access code";
-"alert_button_i_understand" = "I understand";
 "onboarding_alert_message_not_max_backup_cards_added" = "You’ve added one backup card. When backup process is finished you can’t add more backup cards. If you have one more card, add it in backup. Do you like to continue backup process?";
 "onboarding_alert_message_old_device" = "iPhone 7/7+ is not able to create a backup for Tangem Wallet due to some system limitations. Please use another phone to perform this operation. All other functions work stably.";
 "twins_recreate_warning" = "This action is irreversible. You will not have access to the old wallet.";
