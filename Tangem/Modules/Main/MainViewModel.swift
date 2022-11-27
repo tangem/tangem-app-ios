@@ -333,7 +333,7 @@ class MainViewModel: ObservableObject {
                 error = AlertBinder(alert: Alert(title: Text(warning.title),
                                                  message: Text("alert_signed_hashes_message"),
                                                  primaryButton: .cancel(),
-                                                 secondaryButton: .default(Text("alert_button_i_understand")) { [weak self] in
+                                                 secondaryButton: .default(Text("common_understand")) { [weak self] in
                                                      withAnimation {
                                                          registerValidatedSignedHashesCard()
                                                          self?.warningsService.hideWarning(warning)
