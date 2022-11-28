@@ -19,13 +19,14 @@ class DefaultExchangeManager<TxBuilder: TransactionBuilder> {
 
     // MARK: - Internal
 
-    private lazy var refreshTxDataTimerPublisher = Timer.publish(every: 10, on: .main, in: .common).autoconnect()
+    private lazy var refreshDataTimer = Timer.publish(every: 10, on: .main, in: .common).autoconnect()
 
     private var availabilityState: SwappingAvailabilityState = .available
     private var exchangeItems: ExchangeItems
     private var amount: Decimal?
     private var tokenExchangeAllowanceLimit: Decimal?
     private var swappingData: ExchangeSwapDataModel?
+    private var refreshDataTimerBag: AnyCancellable?
     private var bag: Set<AnyCancellable> = []
 
     init(
@@ -60,6 +61,7 @@ extension DefaultExchangeManager: ExchangeManager {
             updateExchangeAmountAllowance()
         }
 
+        restartTimer()
         updateSwappingInformation()
     }
 
@@ -161,6 +163,27 @@ private extension DefaultExchangeManager {
                 availabilityState = .requiredRefresh(occuredError: error)
             }
         }
+    }
+
+    func restartTimer() {
+        stopTimer()
+        startTimer()
+    }
+
+    func startTimer() {
+        refreshDataTimerBag = refreshDataTimer
+            .upstream
+            .sink { [weak self] _ in
+                self?.updateSwappingInformation()
+            }
+    }
+
+    func stopTimer() {
+        refreshDataTimerBag?.cancel()
+        refreshDataTimer
+            .upstream
+            .connect()
+            .cancel()
     }
 }
 
