@@ -14,11 +14,11 @@ struct SwappingTokenIconViewModel {
     let networkURL: URL?
     let tokenSymbol: String
     let action: (() -> Void)?
-    
+
     var isTappable: Bool {
         action != nil
     }
-    
+
     init(
         imageURL: URL,
         networkURL: URL? = nil,
@@ -38,39 +38,39 @@ struct SwappingTokenIconView: View {
     init(viewModel: SwappingTokenIconViewModel) {
         self.viewModel = viewModel
     }
-    
+
     private let imageSize = CGSize(width: 36, height: 36)
     private let networkIconSize = CGSize(width: 16, height: 16)
     private let chevronIconSize = CGSize(width: 8, height: 8)
     private var chevronYOffset: CGFloat {
         imageSize.height / 2 - chevronIconSize.height / 2
     }
-    
+
     var body: some View {
         Button(action: { viewModel.action?() }) {
             HStack(alignment: .top, spacing: 4) {
                 VStack(spacing: 4) {
                     image
-                    
+
                     Text(viewModel.tokenSymbol)
                         .style(Fonts.Bold.footnote, color: Colors.Text.primary1)
                 }
-                
+
                 Assets.chevronDownMini
                     .resizable()
                     .frame(size: chevronIconSize)
                     .offset(y: chevronYOffset)
-                /// We have to keep size of the view same for both cases
+                    /// We have to keep size of the view same for both cases
                     .opacity(viewModel.isTappable ? 1 : 0)
             }
         }
         .disabled(!viewModel.isTappable)
     }
-    
+
     private var image: some View {
         ZStack(alignment: .topTrailing) {
             icon(url: viewModel.imageURL, size: imageSize)
-            
+
             if let networkIcon = viewModel.networkURL {
                 icon(url: networkIcon, size: networkIconSize)
                     .frame(size: networkIconSize)
@@ -81,7 +81,7 @@ struct SwappingTokenIconView: View {
             }
         }
     }
-    
+
     private func icon(url: URL, size: CGSize) -> some View {
         KFImage(url)
             .setProcessor(DownsamplingImageProcessor(size: size))
@@ -105,7 +105,7 @@ struct SwappingTokenIcon_Previews: PreviewProvider {
                     action: {}
                 )
             )
-            
+
             SwappingTokenIconView(
                 viewModel: SwappingTokenIconViewModel(
                     imageURL: TokenIconURLBuilder().iconURL(id: "dai"),
