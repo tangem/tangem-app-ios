@@ -9,6 +9,9 @@
 import Foundation
 
 public protocol ExchangeManager {
+    /// Delegate for view updates
+    func setDelegate(_ delegate: ExchangeManagerDelegate)
+
     /// Available network for selected as target to swap
     func getNetworksAvailableToSwap() -> [String]
 
@@ -17,6 +20,9 @@ public protocol ExchangeManager {
 
     /// Update swapping items and reload rates
     func update(exchangeItems: ExchangeItems)
+
+    /// Update amount for swap
+    func update(amount: Decimal)
 
     /// Checking that decimal value available for exchange without approved
     /// Only for tokens
