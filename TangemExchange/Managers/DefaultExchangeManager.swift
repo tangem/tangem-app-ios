@@ -21,11 +21,15 @@ class DefaultExchangeManager<TxBuilder: TransactionBuilder> {
 
     private lazy var refreshDataTimer = Timer.publish(every: 10, on: .main, in: .common).autoconnect()
 
-    private var availabilityState: SwappingAvailabilityState = .available
-    private var exchangeItems: ExchangeItems
+    private var availabilityState: SwappingAvailabilityState = .idle {
+        didSet { delegate?.exchangeManagerDidUpdate(availabilityState: availabilityState) }
+    }
+    private var exchangeItems: ExchangeItems {
+        didSet { delegate?.exchangeManagerDidUpdate(exchangeItems: exchangeItems) }
+    }
     private var amount: Decimal?
     private var tokenExchangeAllowanceLimit: Decimal?
-    private var swappingData: ExchangeSwapDataModel?
+//    private var swappingData: ExchangeSwapDataModel?
     private var refreshDataTimerBag: AnyCancellable?
     private var bag: Set<AnyCancellable> = []
 
@@ -47,6 +51,10 @@ class DefaultExchangeManager<TxBuilder: TransactionBuilder> {
 // MARK: - Private
 
 extension DefaultExchangeManager: ExchangeManager {
+    func setDelegate(_ delegate: ExchangeManagerDelegate) {
+        self.delegate = delegate
+    }
+
     func getNetworksAvailableToSwap() -> [String] {
         return [exchangeItems.source.networkId]
     }
@@ -57,12 +65,16 @@ extension DefaultExchangeManager: ExchangeManager {
 
     func update(exchangeItems: ExchangeItems) {
         self.exchangeItems = exchangeItems
-        if exchangeItems.source.isToken {
+        exchangeItemsDidUpdate()
+    }
+
+    func update(amount: Decimal) {
+        self.amount = amount
+        updateSwappingInformation()
+
+        if tokenExchangeAllowanceLimit == nil {
             updateExchangeAmountAllowance()
         }
-
-        restartTimer()
-        updateSwappingInformation()
     }
 
     func isAvailableForExchange(amount: Decimal) -> Bool {
@@ -93,6 +105,15 @@ extension DefaultExchangeManager: ExchangeManager {
 }
 
 private extension DefaultExchangeManager {
+    func exchangeItemsDidUpdate() {
+        if exchangeItems.source.isToken {
+            updateExchangeAmountAllowance()
+        }
+
+        restartTimer()
+        updateSwappingInformation()
+    }
+
     func updateExchangeAmountAllowance() {
         guard exchangeItems.source.isToken else {
             print("Unnecessary request fetchExchangeAmountAllowance for coin")
@@ -117,13 +138,15 @@ private extension DefaultExchangeManager {
 
         Task {
             do {
-                swappingData = try await exchangeProvider.fetchTxDataForSwap(
+                let swappingData = try await exchangeProvider.fetchTxDataForSwap(
                     items: exchangeItems,
                     amount: amount.description,
                     slippage: 1 // Default value
                 )
+
+                availabilityState = .available(swappingData: swappingData)
             } catch {
-                swappingData = nil
+                print("error", error)
                 availabilityState = .requiredRefresh(occuredError: error)
             }
         }
@@ -140,8 +163,7 @@ private extension DefaultExchangeManager {
 
     func sendTransactionForSwapItems() {
         guard let amount = amount,
-              let destination = exchangeItems.destination,
-              let swappingData = swappingData,
+              case let .available(swappingData) = availabilityState,
               let gasPrice = Decimal(string: swappingData.gasPrice) else {
             assertionFailure("Not enough data")
             return
@@ -149,7 +171,7 @@ private extension DefaultExchangeManager {
 
         let info = SwapTransactionInfo(
             currency: exchangeItems.source,
-            destination: destination.walletAddress,
+            destination: exchangeItems.destination.walletAddress,
             amount: amount,
             oneInchTxData: swappingData.txData
         )
@@ -172,7 +194,9 @@ private extension DefaultExchangeManager {
 
     func startTimer() {
         refreshDataTimerBag = refreshDataTimer
+            .print("timer")
             .upstream
+            .print("timer upstream")
             .sink { [weak self] _ in
                 self?.updateSwappingInformation()
             }
