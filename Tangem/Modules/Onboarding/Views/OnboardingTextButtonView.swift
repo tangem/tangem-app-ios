@@ -16,7 +16,7 @@ struct TangemButtonSettings {
     var isEnabled: Bool
     let isVisible: Bool
 
-    var color: ButtonColorStyle = .transparentWhite
+    var color: ButtonColorStyle = .black
     var customIconName: String = ""
     var systemIconName: String = ""
     var iconPosition: TangemButton.IconPosition = .trailing
@@ -55,10 +55,6 @@ struct OnboardingTextButtonView: View {
                         mainSettings.action()
                     }
                 }
-//                .buttonStyle(TangemButtonStyle(colorStyle: mainSettings.color,
-//                                               layout: mainSettings.size,
-//                                               isDisabled: !mainSettings.isEnabled,
-//                                               isLoading: mainSettings.isBusy))
             }
 
             if let settings = buttonsSettings.supplement {
@@ -144,7 +140,7 @@ struct OnboardingTextButtonView_Previews: PreviewProvider {
                 isBusy: false,
                 isEnabled: false,
                 isVisible: true,
-                color: .transparentWhite,
+                color: .grayAlt,
                 systemIconName: "plus",
                 iconPosition: .leading
             )
