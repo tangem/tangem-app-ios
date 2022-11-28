@@ -32,7 +32,7 @@ struct CardOperationView: View {
                 .padding(.horizontal, 36.0)
             Spacer()
             MainButton(
-                text: viewModel.buttonTitle,
+                title: .string(viewModel.buttonTitle),
                 isLoading: viewModel.isLoading,
                 action: viewModel.onTap
             )

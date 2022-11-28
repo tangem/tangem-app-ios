@@ -36,7 +36,7 @@ struct AddCustomTokenView: View {
                 WarningListView(warnings: viewModel.warningContainer, warningButtonAction: { _, _, _ in })
 
                 MainButton(
-                    text: "custom_token_add_token".localized,
+                    title: .string("custom_token_add_token".localized),
                     icon: .leading(Assets.plusMini),
                     isLoading: viewModel.isLoading,
                     isDisabled: viewModel.addButtonDisabled,
