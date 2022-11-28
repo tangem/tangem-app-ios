@@ -8,6 +8,7 @@
 
 import Foundation
 import Combine
+import TangemExchange
 
 class SwappingCoordinator: CoordinatorObject {
     let dismissAction: Action
@@ -31,20 +32,18 @@ class SwappingCoordinator: CoordinatorObject {
     ) {
         self.dismissAction = dismissAction
         self.popToRootAction = popToRootAction
-
-        start(with: .default)
     }
 
     func start(with options: Options) {
-        rootViewModel = SwappingViewModel(coordinator: self)
+        rootViewModel = SwappingConfigurator().createModule(input: options.input, coordinator: self)
     }
 }
 
 // MARK: - Options
 
 extension SwappingCoordinator {
-    enum Options {
-        case `default`
+    struct Options {
+        let input: SwappingConfigurator.InputModel
     }
 }
 
