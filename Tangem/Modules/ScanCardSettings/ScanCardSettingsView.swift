@@ -38,7 +38,7 @@ struct ScanCardSettingsView: View {
             Spacer()
 
             MainButton(
-                text: "scan_card_settings_button".localized,
+                title: .string("scan_card_settings_button".localized),
                 icon: .trailing(Assets.tangemIcon),
                 action: viewModel.scanCard
             )
