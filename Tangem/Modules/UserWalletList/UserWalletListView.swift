@@ -36,11 +36,13 @@ struct UserWalletListView: View {
 
                 Group {
                     if !viewModel.isUnlocked {
-                        TangemButton(title: viewModel.unlockAllButtonLocalizationKey, action: viewModel.unlockAllWallets)
-                            .buttonStyle(TangemButtonStyle(colorStyle: .black, layout: .flexibleWidth, isLoading: viewModel.isScanningCard))
+                        MainButton(title: .string(viewModel.unlockAllButtonTitle),
+                                   style: .secondary,
+                                   isLoading: viewModel.isScanningCard,
+                                   action: viewModel.unlockAllWallets)
                     }
 
-                    MainButton(text: "user_wallet_list_add_button".localized,
+                    MainButton(title: .string("user_wallet_list_add_button".localized),
                                icon: .trailing(Assets.tangemIcon),
                                isLoading: viewModel.isScanningCard,
                                action: viewModel.addUserWallet)
