@@ -192,6 +192,7 @@ final class UserWalletListViewModel: ObservableObject, Identifiable {
 
         self.selectedUserWalletId = userWallet.userWalletId
         updateSelectedWalletModel()
+        coordinator.dismissUserWalletList()
     }
 
     private func updateModels() {
