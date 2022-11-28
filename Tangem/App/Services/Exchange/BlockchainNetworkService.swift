@@ -29,7 +29,7 @@ extension BlockchainNetworkService: BlockchainInfoProvider {
         if currency.isToken, let token = currency.asToken() {
             return walletModel.getDecimalBalance(for: .token(value: token))
         }
-        
+
         return walletModel.getDecimalBalance(for: .coin)
     }
 

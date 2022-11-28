@@ -8,7 +8,6 @@
 
 import Foundation
 import Combine
-import BlockchainSdk
 
 class OneInchExchangeProvider {
     /// OneInch use this contractAddress for coins
