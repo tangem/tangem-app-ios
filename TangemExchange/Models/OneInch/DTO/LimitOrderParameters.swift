@@ -14,7 +14,7 @@ public enum ExchangeOrderStatus: Int {
     case invalid = 3
 }
 
-public struct OrdersForAddressParameters {
+public struct OrdersForAddressParameters: Encodable {
     public var address: String
     public var page: Int
     public var limit: Int
@@ -38,22 +38,30 @@ public struct OrdersForAddressParameters {
         self.makerAsset = makerAsset
     }
 
-    func parameters() -> [String: Any] {
-        var params: [String: Any] = [:]
-        params["page"] = page
-        params["limit"] = limit
-        params["statuses"] = "\(statuses.map({ $0.rawValue }).sorted())"
-        if let takerAsset = takerAsset {
-            params["takerAsset"] = takerAsset
-        }
-        if let makerAsset = makerAsset {
-            params["makerAsset"] = makerAsset
-        }
-        return params
+    enum CodingKeys: CodingKey {
+        case address
+        case page
+        case limit
+        case statuses
+        case makerAsset
+        case takerAsset
+    }
+
+    public func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(address, forKey: .address)
+        try container.encode(page, forKey: .page)
+        try container.encode(limit, forKey: .limit)
+
+        let statuses = "\(statuses.map({ $0.rawValue }).sorted())"
+        try container.encode(statuses, forKey: .statuses)
+
+        try container.encodeIfPresent(makerAsset, forKey: .makerAsset)
+        try container.encodeIfPresent(takerAsset, forKey: .takerAsset)
     }
 }
 
-public struct AllOrdersParameters {
+public struct AllOrdersParameters: Encodable {
     public var page: Int
     public var limit: Int
     public var statuses: [ExchangeOrderStatus]
@@ -74,20 +82,26 @@ public struct AllOrdersParameters {
         self.makerAsset = makerAsset
     }
 
-    func parameters() -> [String: Any] {
-        var params: [String: Any] = [:]
-        params["page"] = page
-        params["limit"] = limit
+    enum CodingKeys: CodingKey {
+        case page
+        case limit
+        case statuses
+        case makerAsset
+        case takerAsset
+    }
+
+    public func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(page, forKey: .page)
+        try container.encode(limit, forKey: .limit)
+
         if !statuses.isEmpty {
-            params["statuses"] = "\(statuses.map({ $0.rawValue }).sorted())"
+            let statuses = "\(statuses.map({ $0.rawValue }).sorted())"
+            try container.encode(statuses, forKey: .statuses)
         }
-        if let takerAsset = takerAsset {
-            params["takerAsset"] = takerAsset
-        }
-        if let makerAsset = makerAsset {
-            params["makerAsset"] = makerAsset
-        }
-        return params
+
+        try container.encodeIfPresent(makerAsset, forKey: .makerAsset)
+        try container.encodeIfPresent(takerAsset, forKey: .takerAsset)
     }
 }
 
