@@ -36,9 +36,9 @@ extension SwapTarget: TargetType {
     var task: Task {
         switch self {
         case let .quote(_, parameters):
-            return .requestParameters(parameters: parameters.parameters(), encoding: URLEncoding())
+            return .requestParameters(parameters)
         case let .swap(_, parameters):
-            return .requestParameters(parameters: parameters.parameters(), encoding: URLEncoding())
+            return .requestParameters(parameters)
         }
     }
 
