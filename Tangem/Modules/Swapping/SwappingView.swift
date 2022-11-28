@@ -109,12 +109,12 @@ struct SwappingView: View {
     }
 }
 
-struct SwappingView_Preview: PreviewProvider {
-    static let viewModel = SwappingViewModel(coordinator: SwappingCoordinator())
-
-    static var previews: some View {
-        NavigationView {
-            SwappingView(viewModel: viewModel)
-        }
-    }
-}
+// struct SwappingView_Preview: PreviewProvider {
+//    static let viewModel = SwappingViewModel(exchangeManager: <#ExchangeManager#>, coordinator: SwappingCoordinator())
+//
+//    static var previews: some View {
+//        NavigationView {
+//            SwappingView(viewModel: viewModel)
+//        }
+//    }
+// }
