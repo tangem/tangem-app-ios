@@ -11,10 +11,10 @@ import TangemSdk
 import BlockchainSdk
 
 struct NoteConfig {
-    private let card: Card
+    private let card: CardDTO
     private let noteData: WalletData
 
-    init(card: Card, noteData: WalletData) {
+    init(card: CardDTO, noteData: WalletData) {
         self.card = card
         self.noteData = noteData
     }
@@ -35,24 +35,33 @@ extension NoteConfig: UserWalletConfig {
         1
     }
 
+    var cardName: String {
+        "Note"
+    }
+
     var defaultCurve: EllipticCurve? {
         defaultBlockchain.curve
     }
 
     var onboardingSteps: OnboardingSteps {
         if card.wallets.isEmpty {
-            return .singleWallet([.createWallet, .topup, .successTopup])
+            return .singleWallet([.createWallet] + userWalletSavingSteps + [.topup, .successTopup])
         } else {
             if !AppSettings.shared.cardsStartedActivation.contains(card.cardId) {
                 return .singleWallet([])
             }
 
-            return .singleWallet([.topup, .successTopup])
+            return .singleWallet(userWalletSavingSteps + [.topup, .successTopup])
         }
     }
 
     var backupSteps: OnboardingSteps? {
         nil
+    }
+
+    var userWalletSavingSteps: [SingleCardOnboardingStep] {
+        guard needUserWalletSavingSteps else { return [] }
+        return [.saveUserWallet]
     }
 
     var supportedBlockchains: Set<Blockchain> {
@@ -66,7 +75,7 @@ extension NoteConfig: UserWalletConfig {
     }
 
     var persistentBlockchains: [StorageEntry]? {
-        return nil
+        return defaultBlockchains
     }
 
     var embeddedBlockchain: StorageEntry? {
