@@ -253,6 +253,8 @@ extension MainCoordinator: MainRoutable {
     func openUserWalletList() {
         userWalletListViewModel = UserWalletListViewModel(coordinator: self)
     }
+
+    func openSwapping(input: SwappingConfigurator.InputModel) {}
 }
 
 extension MainCoordinator: UserWalletListRoutable {
