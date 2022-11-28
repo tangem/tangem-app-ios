@@ -60,7 +60,7 @@ private extension OneInchAPIService {
         } catch {
             return .failure(.serverError(withError: error))
         }
-        
+
         let decoder = JSONDecoder()
         decoder.keyDecodingStrategy = .convertFromSnakeCase
 
