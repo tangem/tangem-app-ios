@@ -7,7 +7,7 @@
 //
 
 import XCTest
-@testable import TExchange
+@testable import TangemExchange
 
 final class TExchangeTests: XCTestCase {
 
