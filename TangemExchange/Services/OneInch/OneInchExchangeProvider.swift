@@ -12,11 +12,11 @@ import Combine
 class OneInchExchangeProvider {
     /// OneInch use this contractAddress for coins
     private let oneInchCoinContractAddress = "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"
-    private let oneInchAPIProvider: OneInchAPIProvider
+    private let oneInchAPIProvider: OneInchAPIServicing
 
     private var bag = Set<AnyCancellable>()
 
-    init(exchangeService: OneInchAPIProvider) {
+    init(exchangeService: OneInchAPIServicing) {
         self.oneInchAPIProvider = exchangeService
     }
 }
