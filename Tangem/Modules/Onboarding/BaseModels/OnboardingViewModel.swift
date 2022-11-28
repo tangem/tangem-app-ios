@@ -65,15 +65,13 @@ class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable>
         return currentStep.subtitle
     }
 
-    var mainButtonSettings: TangemButtonSettings? {
-        .init(
-            title: mainButtonTitle,
-            size: .wide,
-            action: mainButtonAction,
-            isBusy: isMainButtonBusy,
-            isEnabled: true,
-            isVisible: true,
-            color: .black
+    var mainButtonSettings: MainButton.Settings? {
+        MainButton.Settings(
+            title: .key(mainButtonTitle),
+            style: .primary,
+            isLoading: isMainButtonBusy,
+            isDisabled: false,
+            action: mainButtonAction
         )
     }
 
