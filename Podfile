@@ -14,7 +14,7 @@ def common_pods
 end
 
 target 'TangemExchange' do 
-  common_pods
+  pod 'Moya'
 end
 
 target 'Tangem' do
