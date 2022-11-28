@@ -123,7 +123,7 @@ class WalletOnboardingViewModel: OnboardingTopupViewModel<WalletOnboardingStep, 
         }
     }
 
-    override var mainButtonSettings: TangemButtonSettings? {
+    override var mainButtonSettings: MainButton.Settings? {
         switch currentStep {
         case .enterPin, .registerWallet, .kycStart, .kycRetry, .kycProgress, .claim, .successClaim:
             return nil
@@ -131,16 +131,19 @@ class WalletOnboardingViewModel: OnboardingTopupViewModel<WalletOnboardingStep, 
             break
         }
 
-        return .init(
-            title: mainButtonTitle,
-            size: .wide,
-            action: mainButtonAction,
-            isBusy: isMainButtonBusy,
-            isEnabled: isMainButtonEnabled,
-            isVisible: true,
-            color: mainButtonColor,
-            systemIconName: mainButtonIconName,
-            iconPosition: .leading
+        var icon: MainButton.Icon?
+
+        if currentStep == .selectBackupCards {
+            icon = .leading(Assets.plusMini)
+        }
+
+        return MainButton.Settings(
+            title: .key(mainButtonTitle),
+            icon: icon,
+            style: mainButtonStyle,
+            isLoading: isMainButtonBusy,
+            isDisabled: !isMainButtonEnabled,
+            action: mainButtonAction
         )
     }
 
@@ -161,18 +164,10 @@ class WalletOnboardingViewModel: OnboardingTopupViewModel<WalletOnboardingStep, 
         return super.mainButtonTitle
     }
 
-    var mainButtonColor: ButtonColorStyle {
+    var mainButtonStyle: MainButton.Style {
         switch currentStep {
-        case .selectBackupCards, .kycWaiting: return .grayAlt
-        default: return .black
-        }
-    }
-
-    var mainButtonIconName: String {
-        switch currentStep {
-        case .selectBackupCards:
-            return "plus"
-        default: return ""
+        case .selectBackupCards, .kycWaiting: return .secondary
+        default: return .primary
         }
     }
 
