@@ -58,7 +58,7 @@ struct MainButton: View {
     @ViewBuilder
     private var content: some View {
         if isLoading {
-            loader
+            ProgressViewCompat(color: style.loaderColor())
         } else {
             switch icon {
             case .none:
@@ -77,16 +77,6 @@ struct MainButton: View {
                     iconView(icon: icon)
                 }
             }
-        }
-    }
-
-    @ViewBuilder
-    private var loader: some View {
-        if #available(iOS 14.0, *) {
-            ProgressView()
-                .progressViewStyle(CircularProgressViewStyle(tint: style.loaderColor()))
-        } else {
-            ActivityIndicatorView(color: style.loaderColor().uiColor())
         }
     }
 
