@@ -66,3 +66,14 @@ enum UserWalletRepositoryUnlockMethod {
     case biometry
     case card(userWallet: UserWallet?)
 }
+
+enum UserWalletRepositoryError: Error, LocalizedError {
+    case duplicateWalletAdded
+
+    var errorDescription: String? {
+        switch self {
+        case .duplicateWalletAdded:
+            return "user_wallet_list_error_wallet_already_saved".localized
+        }
+    }
+}
