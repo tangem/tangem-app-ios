@@ -96,7 +96,7 @@ struct AttentionView: View {
 
     private var actionButton: some View {
         MainButton(
-            text: viewModel.buttonTitle,
+            title: .string(viewModel.buttonTitle),
             icon: .trailing(Assets.tangemIcon),
             isDisabled: !viewModel.isWarningChecked,
             action: viewModel.mainButtonAction
