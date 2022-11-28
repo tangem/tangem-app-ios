@@ -1,5 +1,5 @@
 //
-//  OneInchServiceError.swift
+//  OneInchExchangeProviderErrors.swift
 //  TangemExchange
 //
 //  Created by [REDACTED_AUTHOR]

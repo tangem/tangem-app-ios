@@ -9,13 +9,7 @@
 import Foundation
 import Moya
 
-struct OneInchAPIService: OneInchAPIProvider {
-    private var jsonDecoder: JSONDecoder = {
-        let decoder = JSONDecoder()
-        decoder.keyDecodingStrategy = .convertFromSnakeCase
-        return decoder
-    }()
-
+struct OneInchAPIService: OneInchAPIServicing {
     private let provider = MoyaProvider<BaseTarget>()
     init() {}
 
@@ -66,9 +60,12 @@ private extension OneInchAPIService {
         } catch {
             return .failure(.serverError(withError: error))
         }
+        
+        let decoder = JSONDecoder()
+        decoder.keyDecodingStrategy = .convertFromSnakeCase
 
         do {
-            return .success(try jsonDecoder.decode(T.self, from: response.data))
+            return .success(try decoder.decode(T.self, from: response.data))
         } catch {
             return .failure(.decodeError(error: error))
         }
