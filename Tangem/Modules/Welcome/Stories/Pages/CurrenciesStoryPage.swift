@@ -70,7 +70,7 @@ struct CurrenciesStoryPage: View {
                     )
 
                 MainButton(
-                    text: "home_button_search_tokens".localized,
+                    title: .string("home_button_search_tokens".localized),
                     icon: .leading(Assets.search),
                     style: .secondary,
                     action: searchTokens
