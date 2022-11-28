@@ -40,6 +40,7 @@ struct ScanCardSettingsView: View {
             MainButton(
                 title: .string("scan_card_settings_button".localized),
                 icon: .trailing(Assets.tangemIcon),
+                isLoading: viewModel.isLoading,
                 action: viewModel.scanCard
             )
             .padding(.horizontal, 16)
