@@ -59,9 +59,9 @@ extension LimitOrderTarget: TargetType {
         case .append(_, let order):
             return .requestJSONEncodable(order)
         case .ordersForAddress(_, let parameters):
-            return .requestParameters(parameters: parameters.parameters(), encoding: URLEncoding())
+            return .requestParameters(parameters)
         case .allOrders(_, let parameters):
-            return .requestParameters(parameters: parameters.parameters(), encoding: URLEncoding())
+            return .requestParameters(parameters)
         case .countOrders(_, let parameters):
             let statuses = "\(parameters.map({ $0.rawValue }).sorted())"
             return .requestParameters(parameters: ["statuses": statuses], encoding: URLEncoding())

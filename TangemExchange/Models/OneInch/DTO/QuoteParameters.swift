@@ -7,7 +7,7 @@
 
 import Foundation
 
-public struct QuoteParameters {
+public struct QuoteParameters: Encodable {
     public var fromTokenAddress: String
     public var toTokenAddress: String
     public var amount: String
@@ -41,43 +41,5 @@ public struct QuoteParameters {
         self.mainRouteParts = mainRouteParts
         self.parts = parts
         self.gasPrice = gasPrice
-    }
-
-    func parameters() -> [String: Any] {
-        var params: [String: Any] = [
-            "fromTokenAddress": fromTokenAddress,
-            "toTokenAddress": toTokenAddress,
-            "amount": amount,
-        ]
-
-        if let gasLimit = gasLimit {
-            params["gasLimit"] = gasLimit
-        }
-
-        if let gasPrice = gasPrice {
-            params["gasPrice"] = gasPrice
-        }
-
-        if let fee = fee {
-            params["fee"] = fee
-        }
-
-        if let complexityLevel = complexityLevel {
-            params["complexityLevel"] = complexityLevel
-        }
-
-        if let mainRouteParts = mainRouteParts {
-            params["mainRouteParts"] = mainRouteParts
-        }
-
-        if let parts = parts {
-            params["parts"] = parts
-        }
-
-        if let protocols = protocols {
-            params["protocols"] = protocols
-        }
-
-        return params
     }
 }
