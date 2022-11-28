@@ -513,13 +513,14 @@
 		EF29BEED292FBD0800D7C782 /* ExchangeManagerDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF29BEEC292FBD0800D7C782 /* ExchangeManagerDelegate.swift */; };
 		EF29BEEF292FC8C100D7C782 /* MoyaProvider+AsyncRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF29BEEE292FC8C100D7C782 /* MoyaProvider+AsyncRequest.swift */; };
 		EF29BEF229349C2900D7C782 /* Data+.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF29BEF129349C2900D7C782 /* Data+.swift */; };
+		EF29BEF429349F4200D7C782 /* Moya.Task+.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF29BEF329349F4200D7C782 /* Moya.Task+.swift */; };
 		EF3B581F28F81B0300C93810 /* SaltPayConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCE3379828F2A4580029A6F5 /* SaltPayConfiguration.swift */; };
 		EF3EC523289AB2DE0071BA7F /* TangemProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF3EC522289AB2DE0071BA7F /* TangemProvider.swift */; };
 		EF46618829237C9F00346B6C /* ProgressViewCompat.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF46618729237C9F00346B6C /* ProgressViewCompat.swift */; };
-		EF4661962923AFC400346B6C /* TExchange.docc in Sources */ = {isa = PBXBuildFile; fileRef = EF4661952923AFC400346B6C /* TExchange.docc */; };
+		EF4661962923AFC400346B6C /* TangemExchange.docc in Sources */ = {isa = PBXBuildFile; fileRef = EF4661952923AFC400346B6C /* TangemExchange.docc */; };
 		EF46619C2923AFC500346B6C /* TangemExchange.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EF4661922923AFC400346B6C /* TangemExchange.framework */; };
 		EF4661A32923AFC500346B6C /* TExchangeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF4661A22923AFC500346B6C /* TExchangeTests.swift */; };
-		EF4661A42923AFC500346B6C /* TExchange.h in Headers */ = {isa = PBXBuildFile; fileRef = EF4661942923AFC400346B6C /* TExchange.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EF4661A42923AFC500346B6C /* TangemExchange.h in Headers */ = {isa = PBXBuildFile; fileRef = EF4661942923AFC400346B6C /* TangemExchange.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		EF4661A72923AFC500346B6C /* TangemExchange.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EF4661922923AFC400346B6C /* TangemExchange.framework */; };
 		EF4661A82923AFC500346B6C /* TangemExchange.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = EF4661922923AFC400346B6C /* TangemExchange.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		EF4661BF2923B41F00346B6C /* ExchangeManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9C17C5C2919507D00FDE4BC /* ExchangeManager.swift */; };
@@ -1285,14 +1286,15 @@
 		EF29BEEC292FBD0800D7C782 /* ExchangeManagerDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExchangeManagerDelegate.swift; sourceTree = "<group>"; };
 		EF29BEEE292FC8C100D7C782 /* MoyaProvider+AsyncRequest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MoyaProvider+AsyncRequest.swift"; sourceTree = "<group>"; };
 		EF29BEF129349C2900D7C782 /* Data+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Data+.swift"; sourceTree = "<group>"; };
+		EF29BEF329349F4200D7C782 /* Moya.Task+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Moya.Task+.swift"; sourceTree = "<group>"; };
 		EF2EFDE12865C05D00798051 /* Production.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Production.xcconfig; sourceTree = "<group>"; };
 		EF2EFDE22865C07100798051 /* Beta.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Beta.xcconfig; sourceTree = "<group>"; };
 		EF3EC522289AB2DE0071BA7F /* TangemProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TangemProvider.swift; sourceTree = "<group>"; };
 		EF46618729237C9F00346B6C /* ProgressViewCompat.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProgressViewCompat.swift; sourceTree = "<group>"; };
 		EF46618B2923AFA200346B6C /* BlockchainNetworkProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlockchainNetworkProvider.swift; sourceTree = "<group>"; };
 		EF4661922923AFC400346B6C /* TangemExchange.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = TangemExchange.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		EF4661942923AFC400346B6C /* TExchange.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TExchange.h; sourceTree = "<group>"; };
-		EF4661952923AFC400346B6C /* TExchange.docc */ = {isa = PBXFileReference; lastKnownFileType = folder.documentationcatalog; path = TExchange.docc; sourceTree = "<group>"; };
+		EF4661942923AFC400346B6C /* TangemExchange.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TangemExchange.h; sourceTree = "<group>"; };
+		EF4661952923AFC400346B6C /* TangemExchange.docc */ = {isa = PBXFileReference; lastKnownFileType = folder.documentationcatalog; path = TangemExchange.docc; sourceTree = "<group>"; };
 		EF46619B2923AFC400346B6C /* TangemExchangeTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = TangemExchangeTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		EF4661A22923AFC500346B6C /* TExchangeTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TExchangeTests.swift; sourceTree = "<group>"; };
 		EF4661CE2923B9CD00346B6C /* TangemExchangeFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TangemExchangeFactory.swift; sourceTree = "<group>"; };
@@ -3056,6 +3058,7 @@
 			isa = PBXGroup;
 			children = (
 				EF29BEF129349C2900D7C782 /* Data+.swift */,
+				EF29BEF329349F4200D7C782 /* Moya.Task+.swift */,
 			);
 			path = Extensions;
 			sourceTree = "<group>";
@@ -3104,8 +3107,8 @@
 				EF4661BA2923B02C00346B6C /* Models */,
 				EF4661B92923B00800346B6C /* Interfaces */,
 				EF4661B82923B00100346B6C /* Services */,
-				EF4661942923AFC400346B6C /* TExchange.h */,
-				EF4661952923AFC400346B6C /* TExchange.docc */,
+				EF4661942923AFC400346B6C /* TangemExchange.h */,
+				EF4661952923AFC400346B6C /* TangemExchange.docc */,
 			);
 			path = TangemExchange;
 			sourceTree = "<group>";
@@ -3518,7 +3521,7 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				EF4661A42923AFC500346B6C /* TExchange.h in Headers */,
+				EF4661A42923AFC500346B6C /* TangemExchange.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -4469,6 +4472,7 @@
 				EF29BEED292FBD0800D7C782 /* ExchangeManagerDelegate.swift in Sources */,
 				EF29BED8292E5C6400D7C782 /* TransactionInfo.swift in Sources */,
 				EF4662002924CC6E00346B6C /* ApproveParameters.swift in Sources */,
+				EF29BEF429349F4200D7C782 /* Moya.Task+.swift in Sources */,
 				EF29BEDD292E5D2100D7C782 /* OneInchLimitOrderProvider.swift in Sources */,
 				EF29BEEB292FBCFB00D7C782 /* SwappingAvailabilityState.swift in Sources */,
 				EF4662012924CC6E00346B6C /* LimitOrderTarget.swift in Sources */,
@@ -4492,7 +4496,7 @@
 				EF4661C02923B42A00346B6C /* OneInchExchangeProvider.swift in Sources */,
 				EF4661C42923B42A00346B6C /* Currency.swift in Sources */,
 				EF4661D02923CD4C00346B6C /* BlockchainNetworkProvider.swift in Sources */,
-				EF4661962923AFC400346B6C /* TExchange.docc in Sources */,
+				EF4661962923AFC400346B6C /* TangemExchange.docc in Sources */,
 				EF4662032924CC6E00346B6C /* BaseTarget.swift in Sources */,
 				EF4662062924CC6E00346B6C /* ApproveTarget.swift in Sources */,
 				EF4661FF2924CC6E00346B6C /* ExchangeBlockchain.swift in Sources */,
