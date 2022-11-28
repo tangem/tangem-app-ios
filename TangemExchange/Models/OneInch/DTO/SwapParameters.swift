@@ -8,7 +8,7 @@
 
 import Foundation
 
-public struct SwapParameters {
+public struct SwapParameters: Encodable {
     public var fromTokenAddress: String
     public var toTokenAddress: String
     public var amount: String
@@ -66,63 +66,5 @@ public struct SwapParameters {
         self.complexityLevel = complexityLevel
         self.gasLimit = gasLimit
         self.gasPrice = gasPrice
-    }
-
-    func parameters() -> [String: Any] {
-        var params: [String: Any] = [
-            "fromTokenAddress": fromTokenAddress,
-            "toTokenAddress": toTokenAddress,
-            "amount": amount,
-            "fromAddress": fromAddress,
-            "slippage": "\(slippage)",
-        ]
-        if let disableEstimate = disableEstimate {
-            params["disableEstimate"] = disableEstimate
-        }
-
-        if let referrerAddress = referrerAddress {
-            params["referrerAddress"] = referrerAddress
-        }
-
-        if let allowPartialFill = allowPartialFill {
-            params["allowPartialFill"] = allowPartialFill
-        }
-
-        if let gasLimit = gasLimit {
-            params["gasLimit"] = gasLimit
-        }
-
-        if let gasPrice = gasPrice {
-            params["gasPrice"] = gasPrice
-        }
-
-        if let protocols = protocols {
-            params["protocols"] = protocols
-        }
-
-        if let destReceiver = destReceiver {
-            params["destReceiver"] = destReceiver
-        }
-
-        if let fee = fee {
-            params["fee"] = fee
-        }
-
-        if let burnChi = burnChi {
-            params["burnChi"] = burnChi
-        }
-
-        if let parts = parts {
-            params["parts"] = parts
-        }
-
-        if let mainRouteParts = mainRouteParts {
-            params["mainRouteParts"] = mainRouteParts
-        }
-
-        if let complexityLevel = complexityLevel {
-            params["complexityLevel"] = complexityLevel
-        }
-        return params
     }
 }
