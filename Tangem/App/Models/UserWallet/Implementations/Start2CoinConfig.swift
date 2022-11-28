@@ -11,7 +11,7 @@ import TangemSdk
 import BlockchainSdk
 
 struct Start2CoinConfig {
-    private let card: Card
+    private let card: CardDTO
     private let walletData: WalletData
 
     private var defaultBlockchain: Blockchain {
@@ -66,7 +66,7 @@ struct Start2CoinConfig {
         }
     }
 
-    init(card: Card, walletData: WalletData) {
+    init(card: CardDTO, walletData: WalletData) {
         self.card = card
         self.walletData = walletData
     }
@@ -90,13 +90,17 @@ extension Start2CoinConfig: UserWalletConfig {
         nil
     }
 
+    var cardName: String {
+        "Start2Coin"
+    }
+
     var defaultCurve: EllipticCurve? {
         defaultBlockchain.curve
     }
 
     var onboardingSteps: OnboardingSteps {
         if card.wallets.isEmpty {
-            return .singleWallet([.createWallet, .success])
+            return .singleWallet([.createWallet] + userWalletSavingSteps + [.success])
         }
 
         return .singleWallet([])
@@ -104,6 +108,11 @@ extension Start2CoinConfig: UserWalletConfig {
 
     var backupSteps: OnboardingSteps? {
         return nil
+    }
+
+    var userWalletSavingSteps: [SingleCardOnboardingStep] {
+        guard needUserWalletSavingSteps else { return [] }
+        return [.saveUserWallet]
     }
 
     var supportedBlockchains: Set<Blockchain> {
