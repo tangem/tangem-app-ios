@@ -15,22 +15,23 @@ public struct Currency {
     public let name: String
     public let symbol: String
     public let decimalCount: Int
-    public let imageURL: URL
+    public let imageURL: URL?
+    public let blockchainIconURL: URL?
     public let contractAddress: String?
-
 
     public var isToken: Bool {
         contractAddress != nil
     }
 
-    init(
+    public init(
         networkId: String,
         chainId: Int?,
         walletAddress: String,
         name: String,
         symbol: String,
         decimalCount: Int,
-        imageURL: URL,
+        imageURL: URL?,
+        blockchainIconURL: URL?,
         contractAddress: String? = nil
     ) {
         self.networkId = networkId
@@ -40,6 +41,7 @@ public struct Currency {
         self.symbol = symbol
         self.decimalCount = decimalCount
         self.imageURL = imageURL
+        self.blockchainIconURL = blockchainIconURL
         self.contractAddress = contractAddress
     }
 }
