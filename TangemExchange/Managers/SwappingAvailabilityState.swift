@@ -9,8 +9,9 @@
 import Foundation
 
 public enum SwappingAvailabilityState {
+    case idle
     case loading
-    case available
+    case available(swappingData: ExchangeSwapDataModel)
     case requiredPermission
     case requiredRefresh(occuredError: Error)
 }
