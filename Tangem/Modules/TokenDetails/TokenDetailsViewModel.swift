@@ -9,6 +9,7 @@ import SwiftUI
 import BlockchainSdk
 import Combine
 import TangemSdk
+import TangemExchange
 
 class TokenDetailsViewModel: ObservableObject {
     @Injected(\.exchangeService) private var exchangeService: ExchangeService
@@ -350,6 +351,49 @@ class TokenDetailsViewModel: ObservableObject {
 
         return AlertBinder(alert: alert)
     }
+
+    private func createCurrency() -> Currency? {
+        guard let walletModel else { return nil }
+
+        let blockchain = blockchainNetwork.blockchain
+        let iconURL: URL
+
+        if case .token(let token) = amountType, let id = token.id {
+            iconURL = TokenIconURLBuilder().iconURL(id: id)
+        } else {
+            iconURL = TokenIconURLBuilder().iconURL(id: blockchain.id)
+        }
+
+        return Currency(
+            networkId: amountType.token?.id ?? blockchain.networkId,
+            chainId: blockchain.chainId,
+            walletAddress: walletModel.wallet.address,
+            name: title,
+            symbol: currencySymbol,
+            decimalCount: amountType.token?.decimalCount ?? blockchain.decimalCount,
+            imageURL: iconURL,
+            blockchainIconURL: TokenIconURLBuilder().iconURL(id: blockchain.id),
+            contractAddress: amountType.token?.contractAddress
+        )
+    }
+
+    private func createDestinationCurrency() -> Currency? {
+        guard let walletModel else { return nil }
+
+        let blockchain = blockchainNetwork.blockchain
+
+        return Currency(
+            networkId: blockchain.networkId,
+            chainId: blockchain.chainId,
+            walletAddress: walletModel.wallet.address,
+            name: blockchain.displayName,
+            symbol: blockchain.currencySymbol,
+            decimalCount: blockchain.decimalCount,
+            imageURL: TokenIconURLBuilder().iconURL(id: blockchain.id),
+            blockchainIconURL: TokenIconURLBuilder().iconURL(id: blockchain.id),
+            contractAddress: nil
+        )
+    }
 }
 
 extension Int: Identifiable {
@@ -433,6 +477,25 @@ extension TokenDetailsViewModel {
     func openExplorer(at url: URL) {
         Analytics.log(.buttonExplore)
         coordinator.openExplorer(at: url, blockchainDisplayName: blockchainNetwork.blockchain.displayName)
+    }
+
+    func openSwapping() {
+        guard FeatureProvider.isAvailable(.exchange),
+              let walletModel = walletModel,
+              let source = createCurrency(),
+              let destination = createDestinationCurrency()
+        else {
+            return
+        }
+
+        let input = SwappingConfigurator.InputModel(
+            walletModel: walletModel,
+            signer: card.signer,
+            source: source,
+            destination: destination
+        )
+
+        coordinator.openSwapping(input: input)
     }
 
     func dismiss() {
