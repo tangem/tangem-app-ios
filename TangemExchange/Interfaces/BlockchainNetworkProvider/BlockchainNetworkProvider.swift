@@ -7,7 +7,6 @@
 //
 
 import Foundation
-import struct BlockchainSdk.Transaction
 
 public protocol TransactionBuilder {
     associatedtype Transaction
