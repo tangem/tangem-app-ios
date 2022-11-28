@@ -8,7 +8,7 @@
 
 import Foundation
 
-public struct ApproveTransactionParameters {
+public struct ApproveTransactionParameters: Encodable {
     public enum Amount {
         case infinite
         case specified(value: Int)
@@ -22,32 +22,30 @@ public struct ApproveTransactionParameters {
         self.amount = amount
     }
 
-    func parameters() -> [String: Any] {
-        var params: [String: Any] = [:]
+    enum CodingKeys: CodingKey {
+        case tokenAddress
+        case amount
+    }
+
+    public func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(self.tokenAddress, forKey: .tokenAddress)
+
         switch amount {
         case .infinite:
             break
         case .specified(let value):
-            params["amount"] = value
+            try container.encode(value, forKey: .amount)
         }
-        params["tokenAddress"] = tokenAddress
-        return params
     }
 }
 
-public struct ApproveAllowanceParameters {
+public struct ApproveAllowanceParameters: Encodable {
     public let tokenAddress: String
     public let walletAddress: String
 
     public init(tokenAddress: String, walletAddress: String) {
         self.tokenAddress = tokenAddress
         self.walletAddress = walletAddress
-    }
-
-    func parameters() -> [String: Any] {
-        var params: [String: Any] = [:]
-        params["tokenAddress"] = tokenAddress
-        params["walletAddress"] = walletAddress
-        return params
     }
 }

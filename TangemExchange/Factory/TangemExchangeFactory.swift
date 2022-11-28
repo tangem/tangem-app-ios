@@ -9,8 +9,8 @@
 import Foundation
 
 /// Public factory for work with exchange
-public enum TangemExchangeFactory {
-    public static func createExchangeManager<TxBuilder: TransactionBuilder>(
+public struct TangemExchangeFactory {
+    public func createExchangeManager<TxBuilder: TransactionBuilder>(
         transactionBuilder: TxBuilder,
         blockchainInfoProvider: BlockchainInfoProvider,
         source: Currency,
