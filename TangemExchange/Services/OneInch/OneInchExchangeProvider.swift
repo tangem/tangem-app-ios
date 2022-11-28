@@ -50,11 +50,11 @@ extension OneInchExchangeProvider: ExchangeProvider {
     }
 
     func fetchTxDataForSwap(items: ExchangeItems, amount: String, slippage: Int) async throws -> ExchangeSwapDataModel {
-        guard let destination = items.destination,
-              let blockchain = ExchangeBlockchain.convert(from: items.source.chainId) else {
+        guard let blockchain = ExchangeBlockchain.convert(from: items.source.chainId) else {
             throw Errors.noData
         }
 
+        let destination = items.destination
         let parameters = SwapParameters(fromTokenAddress: items.source.contractAddress ?? oneInchCoinContractAddress,
                                         toTokenAddress: destination.contractAddress ?? oneInchCoinContractAddress,
                                         amount: amount,

@@ -7,7 +7,7 @@
 //
 
 import Combine
-import SwiftUI
+import TangemExchange
 
 final class SwappingViewModel: ObservableObject {
     // MARK: - ViewState
@@ -20,9 +20,11 @@ final class SwappingViewModel: ObservableObject {
     @Published var refreshWarningRowViewModel: DefaultWarningRowViewModel?
     @Published var informationSectionViewModels: [InformationSectionViewModel] = []
     @Published var mainButtonIsEnabled: Bool = false
+    @Published var mainButtonTitle: String = "Swap"
 
     // MARK: - Dependencies
 
+    private let exchangeManager: ExchangeManager
     private unowned let coordinator: SwappingRoutable
 
     // MARK: - Private
@@ -30,18 +32,22 @@ final class SwappingViewModel: ObservableObject {
     private var bag: Set<AnyCancellable> = []
 
     init(
+        exchangeManager: ExchangeManager,
         coordinator: SwappingRoutable
     ) {
+        self.exchangeManager = exchangeManager
         self.coordinator = coordinator
 
         setupView()
         bind()
+        exchangeManager.setDelegate(self)
+        exchangeManager.update(amount: 0.5)
     }
 
     func userDidTapSwapButton() {
-        withAnimation(.easeInOut(duration: 0.3)) {
-            swapCurrencies()
-        }
+//        withAnimation(.easeInOut(duration: 0.3)) {
+        swapCurrencies()
+//        }
     }
 
     func userDidTapChangeDestinationButton() {
@@ -80,77 +86,133 @@ private extension SwappingViewModel {
     }
 }
 
+extension SwappingViewModel: ExchangeManagerDelegate {
+    func exchangeManagerDidUpdate(availabilityState: TangemExchange.SwappingAvailabilityState) {
+        DispatchQueue.main.async {
+            self.updateState(state: availabilityState)
+        }
+    }
+
+    func exchangeManagerDidUpdate(swappingModel: TangemExchange.ExchangeSwapDataModel) {
+
+    }
+
+    func exchangeManagerDidUpdate(exchangeItems: TangemExchange.ExchangeItems) {
+        updateView(exchangeItems: exchangeItems)
+    }
+}
+
 private extension SwappingViewModel {
-    func setupView() {
-        // Temp solution, will be changed on Currency input
+    func updateView(exchangeItems: TangemExchange.ExchangeItems) {
+        let source = exchangeItems.source
+        let destination = exchangeItems.destination
+
         sendCurrencyViewModel = SendCurrencyViewModel(
-            balance: 3043.75,
-            maximumFractionDigits: 8,
-            fiatValue: 0,
-            tokenIcon: .init(tokenItem: .blockchain(.bitcoin(testnet: false))),
-            tokenSymbol: "BTC"
+            balance: exchangeItems.sourceBalance.balance,
+            maximumFractionDigits: source.decimalCount,
+            fiatValue: exchangeItems.sourceBalance.fiatBalance,
+            tokenIcon: source.asTokenIconViewModel(),
+            tokenSymbol: source.symbol
         )
+
+        var state: ReceiveCurrencyViewModel.State = .loaded(0, fiatValue: 0)
+        if let destinationBalance = exchangeItems.destinationBalance {
+            state = .loaded(destinationBalance.balance, fiatValue: destinationBalance.fiatBalance)
+        }
 
         receiveCurrencyViewModel = ReceiveCurrencyViewModel(
-            state: .loaded(0, fiatValue: 0),
-            tokenIcon: .init(tokenItem: .blockchain(.polygon(testnet: false))),
-            tokenSymbol: "MATIC",
-            didTapTokenView: { [weak self] in self?.userDidTapChangeDestinationButton() }
-        )
+            state: state,
+            tokenIcon: destination.asTokenIconViewModel(),
+            tokenSymbol: destination.symbol) { [weak self] in
+                self?.userDidTapChangeDestinationButton()
+            }
+    }
 
-        refreshWarningRowViewModel = DefaultWarningRowViewModel(
-            icon: Assets.attention,
-            title: "Exchange rate has expired",
-            subtitle: "Recalculate route",
-            detailsType: .icon(Assets.refreshWarningIcon),
-            action: {}
-        )
+    func updateState(state: TangemExchange.SwappingAvailabilityState) {
+        switch state {
+        case .idle:
+            refreshWarningRowViewModel = nil
+            informationSectionViewModels = [
+                .fee(DefaultRowViewModel(title: "Fee", detailsType: .text("0"))),
+            ]
 
-        informationSectionViewModels = [
-            .fee(DefaultRowViewModel(
-                title: "Fee",
-                detailsType: .text("0.155 MATIC (0.14 $)")
-            )),
-            .warning(DefaultWarningRowViewModel(
+        case .loading:
+            refreshWarningRowViewModel?.update(detailsType: .loader)
+            informationSectionViewModels = [
+                .fee(DefaultRowViewModel(title: "Fee", detailsType: .loader)),
+            ]
+        case .available(let swappingData):
+            refreshWarningRowViewModel = nil
+            let fee = swappingData.gas.description + swappingData.gasPrice
+
+            informationSectionViewModels = [
+                .fee(DefaultRowViewModel(title: "Fee", detailsType: .text(fee))),
+            ]
+
+        case .requiredPermission:
+            refreshWarningRowViewModel = nil
+
+        case .requiredRefresh:
+            refreshWarningRowViewModel = DefaultWarningRowViewModel(
                 icon: Assets.attention,
-                title: nil,
-                subtitle: "Not enough funds for fee on your Polygon wallet to create a transaction. Top up your Polygon wallet first.",
+                title: "Exchange rate has expired",
+                subtitle: "Recalculate route",
+                detailsType: .icon(Assets.refreshWarningIcon),
                 action: {}
-            )),
-        ]
+            )
+        }
+    }
+
+    func setupView() {
+        updateView(exchangeItems: exchangeManager.getExchangeItems())
+        updateState(state: .loading)
+
+//        informationSectionViewModels = [
+//            .fee(DefaultRowViewModel(
+//                title: "Fee",
+//                detailsType: .text("0.155 MATIC (0.14 $)")
+//            )),
+//            .warning(DefaultWarningRowViewModel(
+//                icon: Assets.attention,
+//                title: nil,
+//                subtitle: "Not enough funds for fee on your Polygon wallet to create a transaction. Top up your Polygon wallet first.",
+//                action: {}
+//            )),
+//        ]
     }
 
     func bind() {
-        $sendDecimalValue
-            .compactMap { $0 }
-            .sink { [weak self] in
-                self?.sendCurrencyViewModel?.update(fiatValue: $0 * 2)
-            }
-            .store(in: &bag)
+//        $sendDecimalValue
+//            .compactMap { $0 }
+//            .sink { [weak self] in
+//                self?.sendCurrencyViewModel?.update(fiatValue: $0 * 2)
+//            }
+//            .store(in: &bag)
 
-        $sendDecimalValue
-            .map { ($0 ?? 0) > 0 }
-            .sink { [weak self] in
-                self?.mainButtonIsEnabled = $0
-            }
-            .store(in: &bag)
-
-//        $sendCurrencyValueText
-//            .dropFirst()
-//            .removeDuplicates()
-//            .debounce(for: 0.5, scheduler: DispatchQueue.main)
-//            .sink { _ in
-//                self.receiveCurrencyViewModel.updateState(.loading)
+//        $sendDecimalValue
+//            .map { ($0 ?? 0) > 0 }
+//            .sink { [weak self] in
+//                self?.mainButtonIsEnabled = $0
 //            }
 //            .store(in: &bag)
 
         $sendDecimalValue
+            .dropFirst()
             .compactMap { $0 }
-//            .delay(for: 1, scheduler: DispatchQueue.main)
-            .sink { [weak self] in
-                self?.receiveCurrencyViewModel?.updateState(.loaded($0 * 0.5, fiatValue: $0 * 2))
+            .removeDuplicates()
+            .debounce(for: 0.5, scheduler: DispatchQueue.global())
+            .sink { [unowned self] amount in
+                self.exchangeManager.update(amount: amount)
             }
             .store(in: &bag)
+
+//        $sendDecimalValue
+//            .compactMap { $0 }
+//            .delay(for: 1, scheduler: DispatchQueue.main)
+//            .sink { [weak self] in
+//                self?.receiveCurrencyViewModel?.updateState(.loaded($0 * 0.5, fiatValue: $0 * 2))
+//            }
+//            .store(in: &bag)
     }
 
     func swapCurrencies() {
@@ -191,5 +253,19 @@ extension SwappingViewModel {
 
         case fee(DefaultRowViewModel)
         case warning(DefaultWarningRowViewModel)
+    }
+}
+
+private extension Currency {
+    func asTokenIconViewModel() -> TokenIconViewModel {
+        let style: TokenIconViewModel.Style
+
+        if isToken, let blockchainIconURL {
+            style = .tokenCoinIconURL(blockchainIconURL)
+        } else {
+            style = .blockchain
+        }
+
+        return TokenIconViewModel(id: networkId, name: name, style: style)
     }
 }

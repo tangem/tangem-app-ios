@@ -12,7 +12,7 @@ struct DefaultWarningRowViewModel {
     let icon: Image
     let title: String?
     let subtitle: String
-    let detailsType: DetailsType?
+    private(set) var detailsType: DetailsType?
 
     let action: () -> ()
 
@@ -28,6 +28,10 @@ struct DefaultWarningRowViewModel {
         self.subtitle = subtitle
         self.detailsType = detailsType
         self.action = action
+    }
+
+    mutating func update(detailsType: DetailsType?) {
+        self.detailsType = detailsType
     }
 }
 
