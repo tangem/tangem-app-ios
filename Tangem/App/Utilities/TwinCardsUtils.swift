@@ -27,7 +27,7 @@ enum TwinCardsUtils {
         return pairCidWithoutValidation + "\(validationNumber)"
     }
 
-    static func makeCombinedWalletKey(for card: Card, pairData: TwinData?) -> Data? {
+    static func makeCombinedWalletKey(for card: CardDTO, pairData: TwinData?) -> Data? {
         guard
             let walletPubKey = card.wallets.first?.publicKey,
             let pairWalletPubKey = pairData?.pairPublicKey
