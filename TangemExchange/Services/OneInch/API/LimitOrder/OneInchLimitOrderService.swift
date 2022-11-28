@@ -9,13 +9,7 @@
 import Foundation
 import Moya
 
-struct OneInchLimitOrderService: OneInchLimitOrderProvider {
-    private var jsonDecoder: JSONDecoder = {
-        let decoder = JSONDecoder()
-        decoder.keyDecodingStrategy = .convertFromSnakeCase
-        return decoder
-    }()
-
+struct OneInchLimitOrderService: OneInchLimitOrderServicing {
     private let provider = MoyaProvider<BaseTarget>()
 
     func ordersForAddress(blockchain: ExchangeBlockchain, parameters: OrdersForAddressParameters) async -> Result<[LimitOrder], ExchangeInchError> {
@@ -61,9 +55,12 @@ private extension OneInchLimitOrderService {
         } catch {
             return .failure(.serverError(withError: error))
         }
+        
+        let decoder = JSONDecoder()
+        decoder.keyDecodingStrategy = .convertFromSnakeCase
 
         do {
-            return .success(try jsonDecoder.decode(T.self, from: response.data))
+            return .success(try decoder.decode(T.self, from: response.data))
         } catch {
             return .failure(.decodeError(error: error))
         }
