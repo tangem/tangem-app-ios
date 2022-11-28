@@ -12,15 +12,16 @@ import BlockchainSdk
 
 class TotalBalanceProvider {
     @Injected(\.tangemApiService) private var tangemApiService: TangemApiService
+
     private let userWalletModel: UserWalletModel
-    private let totalBalanceAnalyticsService: TotalBalanceAnalyticsService
+    private let totalBalanceAnalyticsService: TotalBalanceAnalyticsService?
     private let totalBalanceSubject = CurrentValueSubject<LoadingValue<TotalBalance>, Never>(.loading)
     private var refreshSubscription: AnyCancellable?
     private let userWalletAmountType: Amount.AmountType?
     private var isFirstLoadForCardInSession: Bool = true
     private var bag: Set<AnyCancellable> = .init()
 
-    init(userWalletModel: UserWalletModel, userWalletAmountType: Amount.AmountType?, totalBalanceAnalyticsService: TotalBalanceAnalyticsService) {
+    init(userWalletModel: UserWalletModel, userWalletAmountType: Amount.AmountType?, totalBalanceAnalyticsService: TotalBalanceAnalyticsService?) {
         self.userWalletModel = userWalletModel
         self.userWalletAmountType = userWalletAmountType
         self.totalBalanceAnalyticsService = totalBalanceAnalyticsService
@@ -95,13 +96,13 @@ private extension TotalBalanceProvider {
             }
         }
 
-        totalBalanceAnalyticsService.sendToppedUpEventIfNeeded(
+        totalBalanceAnalyticsService?.sendToppedUpEventIfNeeded(
             tokenItemViewModels: tokenItemViewModels,
             balance: balance
         )
 
         if isFirstLoadForCardInSession {
-            totalBalanceAnalyticsService.sendFirstLoadBalanceEventForCard(
+            totalBalanceAnalyticsService?.sendFirstLoadBalanceEventForCard(
                 tokenItemViewModels: tokenItemViewModels,
                 balance: balance
             )
