@@ -44,7 +44,7 @@ struct SecurityModeView: View {
     }
 
     private var actionButton: some View {
-        TangemButton(title: "common_save_changes", image: "tangemIcon", iconPosition: .trailing) { [weak viewModel] in
+        TangemButton(title: "common_save_changes", image: "tangemIconWhite", iconPosition: .trailing) { [weak viewModel] in
             viewModel?.actionButtonDidTap()
         }
         .buttonStyle(TangemButtonStyle(colorStyle: .black,

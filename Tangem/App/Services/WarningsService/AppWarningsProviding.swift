@@ -16,7 +16,7 @@ protocol AppWarningsProviding: AnyObject {
 
     func setupWarnings(
         for config: UserWalletConfig,
-        card: Card,
+        card: CardDTO,
         validator: SignatureCountValidator?
     )
     func appendWarning(for event: WarningEvent)

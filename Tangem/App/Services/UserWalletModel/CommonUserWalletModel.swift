@@ -10,31 +10,40 @@ import Combine
 import BlockchainSdk
 
 class CommonUserWalletModel {
+    private(set) var userWallet: UserWallet
+    private var config: UserWalletConfig
+
     /// Public until managers factory
     let userTokenListManager: UserTokenListManager
     private let walletListManager: WalletListManager
 
+    private var didPerformInitialUpdate = false
     private var reloadAllWalletModelsBag: AnyCancellable?
 
-    init(
-        userTokenListManager: UserTokenListManager,
-        walletListManager: WalletListManager
-    ) {
-        self.userTokenListManager = userTokenListManager
-        self.walletListManager = walletListManager
+    init(config: UserWalletConfig, userWallet: UserWallet) {
+        self.config = config
+        self.userWallet = userWallet
+
+        userTokenListManager = CommonUserTokenListManager(config: config, userWalletId: userWallet.userWalletId)
+        walletListManager = CommonWalletListManager(
+            config: config,
+            userTokenListManager: userTokenListManager
+        )
     }
 }
 
 // MARK: - UserWalletModel
 
 extension CommonUserWalletModel: UserWalletModel {
-    func update(userWalletId: Data) {
+    func updateUserWallet(_ userWallet: UserWallet) {
         print("🔄 Updating UserWalletModel with new userWalletId")
-        userTokenListManager.update(userWalletId: userWalletId)
+        self.userWallet = userWallet
+        userTokenListManager.update(userWalletId: userWallet.userWalletId)
     }
 
     func updateUserWalletModel(with config: UserWalletConfig) {
         print("🔄 Updating UserWalletModel with new config")
+        self.config = config
         walletListManager.update(config: config)
     }
 
@@ -58,12 +67,33 @@ extension CommonUserWalletModel: UserWalletModel {
         walletListManager.subscribeToEntriesWithoutDerivation()
     }
 
+    func initialUpdate() {
+        guard !didPerformInitialUpdate else {
+            print("Initial update has been performed")
+            return
+        }
+
+        /// It's used to check if the storage needs to be updated when the user adds a new wallet to saved wallets.
+        if config.hasFeature(.tokenSynchronization),
+           !userTokenListManager.didPerformInitialLoading {
+            didPerformInitialUpdate = true
+
+            userTokenListManager.updateLocalRepositoryFromServer { [weak self] _ in
+                self?.updateAndReloadWalletModels()
+            }
+        } else {
+            updateAndReloadWalletModels()
+        }
+    }
+
     func updateWalletModels() {
         // Update walletModel list for current storage state
         walletListManager.updateWalletModels()
     }
 
     func updateAndReloadWalletModels(silent: Bool, completion: @escaping () -> Void) {
+        didPerformInitialUpdate = true
+
         updateWalletModels()
 
         reloadAllWalletModelsBag = walletListManager
@@ -80,14 +110,10 @@ extension CommonUserWalletModel: UserWalletModel {
 
     func update(entries: [StorageEntry]) {
         userTokenListManager.update(.rewrite(entries))
-
-        updateAndReloadWalletModels()
     }
 
     func append(entries: [StorageEntry]) {
         userTokenListManager.update(.append(entries))
-
-        updateAndReloadWalletModels()
     }
 
     func remove(item: RemoveItem) {
