@@ -14,6 +14,5 @@ extension CoinsResponse {
         public let name: String
         public let symbol: String
         public let networks: [CoinsResponse.Network]
-        public let isExchangeable: Bool
     }
 }
