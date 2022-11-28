@@ -76,15 +76,15 @@ extension DefaultExchangeManager: ExchangeManager {
 
         return amount <= tokenExchangeAllowanceLimit
     }
-    
-    func getApprovedDataModel() -> ExchangeApprovedDataModel {
-        getExchangeApprovedDataModel()
+
+    func getApprovedDataModel() async -> ExchangeApprovedDataModel? {
+        await getExchangeApprovedDataModel()
     }
-    
+
     func approveAndSwapItems() {
         sendTransactionForSwapItems()
     }
-    
+
     func swapItems() {
         sendTransactionForSwapItems()
     }
@@ -135,7 +135,7 @@ private extension DefaultExchangeManager {
             return nil
         }
     }
-    
+
     func sendTransactionForSwapItems() {
         guard let amount = amount,
               let destination = exchangeItems.destination,
@@ -144,14 +144,14 @@ private extension DefaultExchangeManager {
             assertionFailure("Not enough data")
             return
         }
-        
+
         let info = SwapTransactionInfo(
             currency: exchangeItems.source,
             destination: destination.walletAddress,
             amount: amount,
             oneInchTxData: swappingData.txData
         )
-        
+
         let gasValue = Decimal(swappingData.gas)
 
         Task {
