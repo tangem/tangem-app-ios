@@ -16,7 +16,7 @@ struct TangemButtonSettings {
     var isEnabled: Bool
     let isVisible: Bool
 
-    var color: ButtonColorStyle = .black
+    var color: ButtonColorStyle = .transparentWhite
     var customIconName: String = ""
     var systemIconName: String = ""
     var iconPosition: TangemButton.IconPosition = .trailing
@@ -24,26 +24,9 @@ struct TangemButtonSettings {
 }
 
 struct OnboardingBottomButtonsSettings {
-    let main: TangemButtonSettings?
+    let main: MainButton.Settings?
 
     var supplement: TangemButtonSettings? = nil
-}
-
-struct ButtonsSettings {
-    let mainTitle: LocalizedStringKey
-    let mainSize: ButtonLayout
-    let mainAction: (() -> Void)?
-    let mainIsBusy: Bool
-    var mainColor: ButtonColorStyle = .black
-    var mainButtonSystemIconName: String = ""
-    let isMainEnabled: Bool
-
-    let supplementTitle: LocalizedStringKey
-    let supplementSize: ButtonLayout
-    let supplementAction: (() -> Void)?
-    var supplementColor: ButtonColorStyle = .transparentWhite
-    let isVisible: Bool
-    let containSupplementButton: Bool
 }
 
 struct OnboardingTextButtonView: View {
@@ -51,7 +34,6 @@ struct OnboardingTextButtonView: View {
     let title: LocalizedStringKey?
     let subtitle: LocalizedStringKey?
     var textOffset: CGSize = .zero
-    //    let buttonsSettings: ButtonsSettings
     let buttonsSettings: OnboardingBottomButtonsSettings
     let infoText: LocalizedStringKey?
     let titleAction: (() -> Void)?
@@ -62,17 +44,21 @@ struct OnboardingTextButtonView: View {
     var buttons: some View {
         VStack(spacing: 10) {
             if let mainSettings = buttonsSettings.main {
-                TangemButton(title: mainSettings.title,
-                             systemImage: mainSettings.systemIconName,
-                             iconPosition: mainSettings.iconPosition) {
+                MainButton(
+                    title: mainSettings.title,
+                    icon: mainSettings.icon,
+                    style: mainSettings.style,
+                    isLoading: mainSettings.isLoading,
+                    isDisabled: mainSettings.isDisabled
+                ) {
                     withAnimation {
-                        mainSettings.action?()
+                        mainSettings.action()
                     }
                 }
-                .buttonStyle(TangemButtonStyle(colorStyle: mainSettings.color,
-                                               layout: mainSettings.size,
-                                               isDisabled: !mainSettings.isEnabled,
-                                               isLoading: mainSettings.isBusy))
+//                .buttonStyle(TangemButtonStyle(colorStyle: mainSettings.color,
+//                                               layout: mainSettings.size,
+//                                               isDisabled: !mainSettings.isEnabled,
+//                                               isLoading: mainSettings.isBusy))
             }
 
             if let settings = buttonsSettings.supplement {
@@ -146,13 +132,11 @@ struct OnboardingTextButtonView_Previews: PreviewProvider {
             subtitle: "Let’s generate all the keys on your card and create a secure wallet",
             textOffset: .init(width: 0, height: -100),
             buttonsSettings:
-            .init(main: TangemButtonSettings(
-                title: "Create wallet",
-                size: .wide,
-                action: {},
-                isBusy: false,
-                isEnabled: true,
-                isVisible: true),
+            .init(main: MainButton.Settings(
+                title: .string("Create wallet"),
+                isLoading: false,
+                isDisabled: false,
+                action: {}),
             supplement: TangemButtonSettings(
                 title: "What does it mean?",
                 size: .wide,
@@ -160,7 +144,7 @@ struct OnboardingTextButtonView_Previews: PreviewProvider {
                 isBusy: false,
                 isEnabled: false,
                 isVisible: true,
-                color: .grayAlt,
+                color: .transparentWhite,
                 systemIconName: "plus",
                 iconPosition: .leading
             )
