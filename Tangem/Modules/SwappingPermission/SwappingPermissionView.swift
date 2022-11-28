@@ -52,8 +52,9 @@ struct SwappingPermissionView: View {
         VStack(spacing: 10) {
             MainButton(
                 text: "swapping_permission_buttons_approve".localized,
-                icon: .trailing(Assets.tangemIcon),
-                action: viewModel.approveDidTapped)
+                icon: .trailing(Assets.tangemIconWhite),
+                action: viewModel.approveDidTapped
+            )
 
             MainButton(
                 text: "common_cancel".localized,
