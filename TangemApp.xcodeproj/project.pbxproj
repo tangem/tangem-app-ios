@@ -507,7 +507,6 @@
 		EF29BEDD292E5D2100D7C782 /* OneInchLimitOrderServicing.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF29BEDC292E5D2100D7C782 /* OneInchLimitOrderServicing.swift */; };
 		EF29BEE2292E5DB400D7C782 /* SwapTransactionInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF29BEE1292E5DB400D7C782 /* SwapTransactionInfo.swift */; };
 		EF29BEE4292E5DC400D7C782 /* OneInchExchangeProviderErrors.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF29BEE3292E5DC400D7C782 /* OneInchExchangeProviderErrors.swift */; };
-		EF29BEE7292E65C400D7C782 /* Logger.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF29BEE6292E65C400D7C782 /* Logger.swift */; };
 		EF29BEE9292FBCE400D7C782 /* DefaultExchangeManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF29BEE8292FBCE400D7C782 /* DefaultExchangeManager.swift */; };
 		EF29BEEB292FBCFB00D7C782 /* SwappingAvailabilityState.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF29BEEA292FBCFB00D7C782 /* SwappingAvailabilityState.swift */; };
 		EF29BEED292FBD0800D7C782 /* ExchangeManagerDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF29BEEC292FBD0800D7C782 /* ExchangeManagerDelegate.swift */; };
@@ -1281,7 +1280,6 @@
 		EF29BEDC292E5D2100D7C782 /* OneInchLimitOrderServicing.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OneInchLimitOrderServicing.swift; sourceTree = "<group>"; };
 		EF29BEE1292E5DB400D7C782 /* SwapTransactionInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwapTransactionInfo.swift; sourceTree = "<group>"; };
 		EF29BEE3292E5DC400D7C782 /* OneInchExchangeProviderErrors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OneInchExchangeProviderErrors.swift; sourceTree = "<group>"; };
-		EF29BEE6292E65C400D7C782 /* Logger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Logger.swift; sourceTree = "<group>"; };
 		EF29BEE8292FBCE400D7C782 /* DefaultExchangeManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DefaultExchangeManager.swift; sourceTree = "<group>"; };
 		EF29BEEA292FBCFB00D7C782 /* SwappingAvailabilityState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwappingAvailabilityState.swift; sourceTree = "<group>"; };
 		EF29BEEC292FBD0800D7C782 /* ExchangeManagerDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExchangeManagerDelegate.swift; sourceTree = "<group>"; };
@@ -3038,19 +3036,11 @@
 			path = OneInch;
 			sourceTree = "<group>";
 		};
-		EF29BEE5292E65BB00D7C782 /* Utils */ = {
-			isa = PBXGroup;
-			children = (
-				EF29BEE6292E65C400D7C782 /* Logger.swift */,
-				EF29BEEE292FC8C100D7C782 /* MoyaProvider+AsyncRequest.swift */,
-			);
-			path = Utils;
-			sourceTree = "<group>";
-		};
 		EF29BEF029349C1A00D7C782 /* Extensions */ = {
 			isa = PBXGroup;
 			children = (
 				EF29BEF129349C2900D7C782 /* Data+.swift */,
+				EF29BEEE292FC8C100D7C782 /* MoyaProvider+AsyncRequest.swift */,
 				EF29BEF329349F4200D7C782 /* Moya.Task+.swift */,
 			);
 			path = Extensions;
@@ -3087,7 +3077,6 @@
 				EF46620E2924CE2A00346B6C /* Managers */,
 				EF4661B82923B00100346B6C /* Services */,
 				EF4661BA2923B02C00346B6C /* Types */,
-				EF29BEE5292E65BB00D7C782 /* Utils */,
 				EF29BEF029349C1A00D7C782 /* Extensions */,
 				EF4661942923AFC400346B6C /* TangemExchange.h */,
 				EF4661952923AFC400346B6C /* TangemExchange.docc */,
@@ -4478,7 +4467,6 @@
 				EF4661F72924CC6E00346B6C /* QuoteData.swift in Sources */,
 				EF29BEDA292E5CAE00D7C782 /* OneInchAPIService.swift in Sources */,
 				EF29BEEF292FC8C100D7C782 /* MoyaProvider+AsyncRequest.swift in Sources */,
-				EF29BEE7292E65C400D7C782 /* Logger.swift in Sources */,
 				EF4661F22924CC6E00346B6C /* LiquiditySourcesList.swift in Sources */,
 				EF4661C02923B42A00346B6C /* OneInchExchangeProvider.swift in Sources */,
 				EF4661C42923B42A00346B6C /* Currency.swift in Sources */,
