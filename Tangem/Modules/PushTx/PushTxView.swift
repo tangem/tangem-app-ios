@@ -144,7 +144,7 @@ struct PushTxView: View {
                     //                    .padding(.bottom, 16)
                     HStack(alignment: .center, spacing: 8.0) {
                         Spacer()
-                        MainButton(text: "wallet_button_send",
+                        MainButton(title: .string("wallet_button_send"),
                                    icon: .leading(Assets.arrowRightMini),
                                    isDisabled: !viewModel.isSendEnabled,
                                    action: viewModel.onSend)
