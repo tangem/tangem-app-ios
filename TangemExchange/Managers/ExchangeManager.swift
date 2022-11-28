@@ -18,7 +18,7 @@ public protocol ExchangeManager {
     /// Update swapping items and reload rates
     func update(exchangeItems: ExchangeItems)
 
-    /// Checking that decimal value available for exchange withour approved
+    /// Checking that decimal value available for exchange without approved
     /// Only for tokens
     func isAvailableForExchange(amount: Decimal) -> Bool
 
