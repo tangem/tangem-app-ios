@@ -22,7 +22,7 @@ class PreparePrimaryCardTask: CardSessionRunnable {
             return
         }
 
-        let config = UserWalletConfigFactory(CardInfo(card: card, walletData: .none)).makeConfig()
+        let config = UserWalletConfigFactory(CardInfo(card: CardDTO(card: card), walletData: .none, name: "")).makeConfig()
         let blockchainNetworks = config.defaultBlockchains.map { $0.blockchainNetwork }
 
         let derivations: [EllipticCurve: [DerivationPath]] = blockchainNetworks.reduce(into: [:]) { result, network in
