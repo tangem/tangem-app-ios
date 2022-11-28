@@ -9,7 +9,7 @@
 import SwiftUI
 
 struct MainButton: View {
-    private let text: String
+    private let title: Title
     private let icon: Icon?
     private let style: Style
     private let isLoading: Bool
@@ -17,14 +17,14 @@ struct MainButton: View {
     private let action: () -> Void
 
     init(
-        text: String,
+        title: Title,
         icon: Icon? = nil,
         style: Style = .primary,
         isLoading: Bool = false,
         isDisabled: Bool = false,
         action: @escaping (() -> Void)
     ) {
-        self.text = text
+        self.title = title
         self.icon = icon
         self.style = style
         self.isLoading = isLoading
@@ -34,7 +34,7 @@ struct MainButton: View {
 
     init(settings: Settings) {
         self.init(
-            text: settings.text,
+            title: settings.title,
             icon: settings.icon,
             style: settings.style,
             isLoading: settings.isLoading,
@@ -92,9 +92,16 @@ struct MainButton: View {
 
     @ViewBuilder
     private var textView: some View {
-        Text(text)
-            .style(Fonts.Bold.callout,
-                   color: style.textColor(isDisabled: isDisabled))
+        switch title {
+        case .key(let key):
+            Text(key)
+                .style(Fonts.Bold.callout,
+                       color: style.textColor(isDisabled: isDisabled))
+        case .string(let string):
+            Text(string)
+                .style(Fonts.Bold.callout,
+                       color: style.textColor(isDisabled: isDisabled))
+        }
     }
 
     @ViewBuilder
@@ -108,6 +115,12 @@ struct MainButton: View {
 }
 
 extension MainButton {
+    enum Title {
+        case string(String)
+        /// Better don't use it because it forces `import SwiftUI` in `viewModel` or services
+        case key(LocalizedStringKey)
+    }
+
     enum Icon {
         case leading(_ icon: Image)
         case trailing(_ icon: Image)
@@ -167,22 +180,22 @@ extension MainButton {
     }
 
     struct Settings {
-        let text: String
+        let title: Title
         let icon: Icon?
         let style: Style
         let isLoading: Bool
-        let isDisabled: Bool
+        var isDisabled: Bool
         let action: () -> Void
 
         init(
-            text: String,
+            title: Title,
             icon: Icon? = nil,
             style: Style = .primary,
             isLoading: Bool = false,
             isDisabled: Bool = false,
             action: @escaping (() -> Void)
         ) {
-            self.text = text
+            self.title = title
             self.icon = icon
             self.style = style
             self.isLoading = isLoading
@@ -206,25 +219,25 @@ struct MainButton_Previews: PreviewProvider {
     @ViewBuilder
     static func buttons(style: MainButton.Style) -> some View {
         VStack(spacing: 16) {
-            MainButton(text: "Order card",
+            MainButton(title: .string("Order card"),
                        icon: .leading(Assets.tangemIcon),
                        style: style) {}
 
-            MainButton(text: "Order card",
+            MainButton(title: .string("Order card"),
                        icon: .leading(Assets.tangemIcon),
                        style: style,
                        isDisabled: true) {}
 
-            MainButton(text: "Order card",
+            MainButton(title: .string("Order card"),
                        icon: .trailing(Assets.tangemIcon),
                        style: style) {}
 
-            MainButton(text: "Order card",
+            MainButton(title: .string("Order card"),
                        icon: .trailing(Assets.tangemIcon),
                        style: style,
                        isDisabled: true) {}
 
-            MainButton(text: "Order card",
+            MainButton(title: .string("Order card"),
                        icon: .trailing(Assets.tangemIcon),
                        style: style,
                        isLoading: true) {}
