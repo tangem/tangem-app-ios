@@ -108,11 +108,11 @@ class MainViewModel: ObservableObject {
     }
 
     var canBuyCrypto: Bool {
-        true // cardModel.canExchangeCrypto && buyCryptoURL != nil
+        cardModel.canExchangeCrypto && buyCryptoURL != nil
     }
 
     var canSellCrypto: Bool {
-        true // cardModel.canExchangeCrypto && sellCryptoURL != nil
+        cardModel.canExchangeCrypto && sellCryptoURL != nil
     }
 
     var cardsCountLabel: String? {
