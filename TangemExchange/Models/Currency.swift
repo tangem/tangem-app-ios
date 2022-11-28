@@ -7,7 +7,6 @@
 //
 
 import Foundation
-import enum BlockchainSdk.Blockchain
 
 public struct Currency {
     public let networkId: String
