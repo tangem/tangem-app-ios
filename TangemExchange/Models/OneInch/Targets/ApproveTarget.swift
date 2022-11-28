@@ -39,9 +39,9 @@ extension ApproveTarget: TargetType {
         case .spender:
             return .requestPlain
         case .transaction(_, let params):
-            return .requestParameters(parameters: params.parameters(), encoding: URLEncoding())
+            return .requestParameters(params)
         case .allowance(_, let params):
-            return .requestParameters(parameters: params.parameters(), encoding: URLEncoding())
+            return .requestParameters(params)
         }
     }
 
