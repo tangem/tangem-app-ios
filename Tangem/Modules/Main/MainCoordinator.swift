@@ -90,7 +90,12 @@ class MainCoordinator: CoordinatorObject {
 extension MainCoordinator {
     struct Options {
         let cardModel: CardViewModel
-        var shouldRefreshOnAppear: Bool = true
+        let shouldRefreshOnAppear: Bool
+
+        init(cardModel: CardViewModel, shouldRefreshOnAppear: Bool = true) {
+            self.cardModel = cardModel
+            self.shouldRefreshOnAppear = shouldRefreshOnAppear
+        }
     }
 }
 
