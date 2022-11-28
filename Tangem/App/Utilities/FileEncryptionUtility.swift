@@ -49,4 +49,10 @@ extension ContiguousBytes {
             return ((cfdata as NSData?) as Data?) ?? Data()
         }
     }
+
+    // For some reason when working with CryptoKit.SymmetricKey the data returned through `dataRepresentation` can
+    // sometimes be rubbish with a bunch of random zeros. This is a hack to stop that from happening.
+    var dataRepresentationWithHexConversion: Data {
+        Data(hexString: dataRepresentation.hexString)
+    }
 }
