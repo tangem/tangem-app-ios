@@ -14,7 +14,6 @@ final class UserWalletListViewModel: ObservableObject, Identifiable {
     @Injected(\.failedScanTracker) var failedCardScanTracker: FailedScanTrackable
 
     // MARK: - ViewState
-    @Published var selectedUserWalletId: Data?
     @Published var multiCurrencyModels: [UserWalletListCellViewModel] = []
     @Published var singleCurrencyModels: [UserWalletListCellViewModel] = []
     @Published var isScanningCard = false
@@ -44,6 +43,7 @@ final class UserWalletListViewModel: ObservableObject, Identifiable {
     private unowned let coordinator: UserWalletListRoutable
     private var bag: Set<AnyCancellable> = []
     private var userWalletIdToBeDeleted: Data?
+    private var selectedUserWalletId: Data?
 
     init(
         coordinator: UserWalletListRoutable
