@@ -1,5 +1,5 @@
 //
-//  OneInchLimitOrderProvider.swift
+//  OneInchLimitOrderServicing.swift
 //  TangemExchange
 //
 //  Created by [REDACTED_AUTHOR]
@@ -8,7 +8,7 @@
 
 import Foundation
 
-protocol OneInchLimitOrderProvider {
+protocol OneInchLimitOrderServicing {
     func ordersForAddress(blockchain: ExchangeBlockchain, parameters: OrdersForAddressParameters) async -> Result<[LimitOrder], ExchangeInchError>
     func allOrders(blockchain: ExchangeBlockchain, parameters: AllOrdersParameters) async -> Result<[LimitOrder], ExchangeInchError>
     func countOrders(blockchain: ExchangeBlockchain, statuses: [ExchangeOrderStatus]) async -> Result<CountLimitOrders, ExchangeInchError>
