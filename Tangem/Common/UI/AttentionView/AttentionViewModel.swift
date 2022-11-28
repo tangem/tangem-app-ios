@@ -6,7 +6,7 @@
 //  Copyright © 2022 Tangem AG. All rights reserved.
 //
 
-import SwiftUI
+import Foundation
 
 class AttentionViewModel: ObservableObject {
     @Published var isWarningChecked: Bool
