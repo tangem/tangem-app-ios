@@ -373,13 +373,19 @@ class MainViewModel: ObservableObject {
     }
 
     func didDeclineToSaveUserWallets() {
+        AppSettings.shared.askedToSaveUserWallets = true
         AppSettings.shared.saveUserWallets = false
+
+        coordinator.closeUserWalletSaveAcceptanceSheet()
     }
 
     func didAgreeToSaveUserWallets() {
+        AppSettings.shared.askedToSaveUserWallets = true
+
         userWalletRepository.unlock(with: .biometry) { [weak self, cardModel] result in
             if case let .error(error) = result {
                 print("Failed to enable biometry: \(error)")
+                self?.coordinator.closeUserWalletSaveAcceptanceSheet()
                 return
             }
 
@@ -394,6 +400,7 @@ class MainViewModel: ObservableObject {
                 self?.userWalletRepository.save(userWallet)
                 self?.coordinator.openUserWalletList()
                 self?.cardModel.updateSdkConfig()
+                self?.coordinator.closeUserWalletSaveAcceptanceSheet()
             }
         }
     }
@@ -416,8 +423,6 @@ class MainViewModel: ObservableObject {
         if AppSettings.shared.askedToSaveUserWallets || !BiometricsUtil.isAvailable {
             return
         }
-
-        AppSettings.shared.askedToSaveUserWallets = true
 
         let delay = 1.0
         DispatchQueue.main.asyncAfter(deadline: .now() + delay) { [weak self] in
