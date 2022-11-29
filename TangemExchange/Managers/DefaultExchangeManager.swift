@@ -27,10 +27,16 @@ class DefaultExchangeManager<TxBuilder: TransactionBuilder> {
     private var exchangeItems: ExchangeItems {
         didSet { delegate?.exchangeManagerDidUpdate(exchangeItems: exchangeItems) }
     }
+    private var tokenExchangeAllowanceLimit: Decimal? {
+        didSet {
+            delegate?.exchangeManagerDidUpdate(
+                availabilityForExchange: isAvailableForExchange(),
+                limit: tokenExchangeAllowanceLimit
+            )
+        }
+    }
 
     private var amount: Decimal?
-    private var tokenExchangeAllowanceLimit: Decimal?
-//    private var swappingData: ExchangeSwapDataModel?
     private var refreshDataTimerBag: AnyCancellable?
     private var bag: Set<AnyCancellable> = []
 
@@ -48,6 +54,7 @@ class DefaultExchangeManager<TxBuilder: TransactionBuilder> {
         self.amount = amount
 
         updateSourceBalances()
+        updateExchangeAmountAllowance()
     }
 }
 
@@ -70,6 +77,20 @@ extension DefaultExchangeManager: ExchangeManager {
         return exchangeItems
     }
 
+    func isAvailableForExchange() -> Bool {
+        guard exchangeItems.source.isToken else {
+            print("Unnecessary request available for exchange for coin")
+            return true
+        }
+
+        /// If we don't have values, `return true` for move view to default state
+        guard let tokenExchangeAllowanceLimit, let amount else {
+            return true
+        }
+
+        return amount <= tokenExchangeAllowanceLimit
+    }
+
     func update(exchangeItems: ExchangeItems) {
         self.exchangeItems = exchangeItems
         exchangeItemsDidUpdate()
@@ -77,30 +98,7 @@ extension DefaultExchangeManager: ExchangeManager {
 
     func update(amount: Decimal?) {
         self.amount = amount
-        updateSourceBalances()
-        updateSwappingInformation()
-
-        if tokenExchangeAllowanceLimit == nil {
-            updateExchangeAmountAllowance()
-        }
-    }
-
-    func isAvailableForExchange(amount: Decimal) -> Bool {
-        guard exchangeItems.source.isToken else {
-            print("Unnecessary request available for exchange for coin")
-            return true
-        }
-
-        guard let tokenExchangeAllowanceLimit else {
-            assertionFailure("TokenExchangeAllowanceLimit hasn't been updated")
-            return false
-        }
-
-        return amount <= tokenExchangeAllowanceLimit
-    }
-
-    func getApprovedDataModel() async -> ExchangeApprovedDataModel? {
-        await getExchangeApprovedDataModel()
+        amountDidChange()
     }
 
     func approveAndSwapItems() {
@@ -139,10 +137,9 @@ private extension DefaultExchangeManager {
                     for: exchangeItems.source,
                     walletAddress: walletAddress
                 )
-                print("tokenExchangeAllowanceLimit", tokenExchangeAllowanceLimit)
             } catch {
                 tokenExchangeAllowanceLimit = nil
-                availabilityState = .requiredRefresh(occuredError: error)
+                availabilityState = .requiredRefresh(occurredError: error)
             }
         }
     }
@@ -172,17 +169,19 @@ private extension DefaultExchangeManager {
                 availabilityState = .available(swappingData: swappingData)
             } catch {
                 print("error", error)
-                availabilityState = .requiredRefresh(occuredError: error)
+                availabilityState = .requiredRefresh(occurredError: error)
             }
         }
     }
 
-    func getExchangeApprovedDataModel() async -> ExchangeApprovedDataModel? {
-        do {
-            return try await exchangeProvider.approveTxData(for: exchangeItems.source)
-        } catch {
-            availabilityState = .requiredRefresh(occuredError: error)
-            return nil
+    func updateExchangeApprovedDataModel() {
+        Task {
+            do {
+                let approvedData = try await exchangeProvider.approveTxData(for: exchangeItems.source)
+                availabilityState = .requiredPermission(approvedData: approvedData)
+            } catch {
+                availabilityState = .requiredRefresh(occurredError: error)
+            }
         }
     }
 
@@ -209,9 +208,28 @@ private extension DefaultExchangeManager {
             do {
                 try await sendSwapTransaction(info, gasValue: gasValue, gasPrice: gasPrice)
             } catch {
-                availabilityState = .requiredRefresh(occuredError: error)
+                availabilityState = .requiredRefresh(occurredError: error)
             }
         }
+    }
+
+    func amountDidChange() {
+        updateSourceBalances()
+
+        guard let tokenExchangeAllowanceLimit else {
+            return
+        }
+
+        if isAvailableForExchange() {
+            updateSwappingInformation()
+        } else {
+            updateExchangeApprovedDataModel()
+        }
+
+        delegate?.exchangeManagerDidUpdate(
+            availabilityForExchange: isAvailableForExchange(),
+            limit: tokenExchangeAllowanceLimit
+        )
     }
 
     func updateSourceBalances() {
