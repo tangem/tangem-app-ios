@@ -239,6 +239,9 @@ class CommonUserWalletRepository: UserWalletRepository {
                     if !self.contains(userWallet) {
                         self.save(userWallet)
                         completion(result)
+                    } else {
+                        completion(.error(UserWalletRepositoryError.duplicateWalletAdded))
+                        return
                     }
 
                     self.setSelectedUserWalletId(userWallet.userWalletId)
