@@ -465,7 +465,7 @@ extension TokenDetailsViewModel {
     }
 }
 
-// MARK: Swapping preparing
+// MARK: - Swapping preparing
 
 private extension TokenDetailsViewModel {
     func sourceCurrency() -> Currency? {
