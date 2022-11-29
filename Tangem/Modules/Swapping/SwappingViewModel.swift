@@ -92,8 +92,11 @@ extension SwappingViewModel: ExchangeManagerDelegate {
         }
     }
 
-    func exchangeManagerDidUpdate(swappingModel: TangemExchange.ExchangeSwapDataModel) {
-
+    func exchangeManagerDidUpdate(availabilityForExchange isAvailable: Bool, limit: Decimal?) {
+        DispatchQueue.main.async {
+            self.mainButtonTitle = isAvailable ? .swap : .givePermission
+            self.sendCurrencyViewModel?.update(isLockedVisible: !isAvailable)
+        }
     }
 
     func exchangeManagerDidUpdate(exchangeItems: TangemExchange.ExchangeItems) {
@@ -102,6 +105,8 @@ extension SwappingViewModel: ExchangeManagerDelegate {
         }
     }
 }
+
+// MARK: - View updates
 
 private extension SwappingViewModel {
     func updateView(exchangeItems: TangemExchange.ExchangeItems) {
@@ -112,6 +117,7 @@ private extension SwappingViewModel {
             balance: exchangeItems.sourceBalance.balance,
             maximumFractionDigits: source.decimalCount,
             fiatValue: exchangeItems.sourceBalance.fiatBalance,
+            isLockedVisible: !exchangeManager.isAvailableForExchange(),
             tokenIcon: source.asSwappingTokenIconViewModel()
         )
 
@@ -137,12 +143,14 @@ private extension SwappingViewModel {
     func updateState(state: TangemExchange.SwappingAvailabilityState) {
         switch state {
         case .idle:
+            mainButtonIsEnabled = false
             refreshWarningRowViewModel = nil
             informationSectionViewModels = [
-                .fee(DefaultRowViewModel(title: "Fee", detailsType: .text("0"))),
+                .fee(DefaultRowViewModel(title: "Fee", detailsType: .text(""))),
             ]
 
         case .loading:
+            mainButtonIsEnabled = false
             receiveCurrencyViewModel?.updateState(.loading)
             refreshWarningRowViewModel?.update(detailsType: .loader)
             informationSectionViewModels = [
@@ -150,6 +158,7 @@ private extension SwappingViewModel {
             ]
 
         case .available(let swappingData):
+            mainButtonIsEnabled = true
             refreshWarningRowViewModel = nil
             let fee = swappingData.gas.description + swappingData.gasPrice
 
@@ -157,15 +166,19 @@ private extension SwappingViewModel {
                 .fee(DefaultRowViewModel(title: "Fee", detailsType: .text(fee))),
             ]
 
-        case .requiredPermission:
+        case .requiredPermission(let approveData):
+            mainButtonIsEnabled = true
             refreshWarningRowViewModel = nil
+            informationSectionViewModels = [
+                .fee(DefaultRowViewModel(title: "Fee", detailsType: .text(approveData.gasPrice))),
+            ]
 
         case .requiredRefresh:
+            mainButtonIsEnabled = false
             receiveCurrencyViewModel?.updateState(.loaded(0, fiatValue: 0))
             informationSectionViewModels = [
                 .fee(DefaultRowViewModel(title: "Fee", detailsType: .text("-"))),
             ]
-
             refreshWarningRowViewModel = DefaultWarningRowViewModel(
                 icon: Assets.attention,
                 title: "Exchange rate has expired",
@@ -195,35 +208,14 @@ private extension SwappingViewModel {
     }
 
     func bind() {
-//        $sendDecimalValue
-//            .sink { [weak self] in
-//                self?.sendCurrencyViewModel?.update(fiatValue: $0 * 2)
-//            }
-//            .store(in: &bag)
-
-//        $sendDecimalValue
-//            .map { ($0 ?? 0) > 0 }
-//            .sink { [weak self] in
-//                self?.mainButtonIsEnabled = $0
-//            }
-//            .store(in: &bag)
-
         $sendDecimalValue
-            .dropFirst()
             .removeDuplicates()
-            .debounce(for: 0.5, scheduler: DispatchQueue.global())
+            .dropFirst()
+            .debounce(for: 1, scheduler: DispatchQueue.global())
             .sink { [unowned self] amount in
                 self.exchangeManager.update(amount: amount)
             }
             .store(in: &bag)
-
-//        $sendDecimalValue
-//            .compactMap { $0 }
-//            .delay(for: 1, scheduler: DispatchQueue.main)
-//            .sink { [weak self] in
-//                self?.receiveCurrencyViewModel?.updateState(.loaded($0 * 0.5, fiatValue: $0 * 2))
-//            }
-//            .store(in: &bag)
     }
 
     /*
