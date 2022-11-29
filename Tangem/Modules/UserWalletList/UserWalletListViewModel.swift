@@ -70,8 +70,8 @@ final class UserWalletListViewModel: ObservableObject, Identifiable {
                     self?.update(userWalletModel: userWalletModel)
                 case .deleted(let userWalletId):
                     self?.delete(userWalletId: userWalletId)
-                case .selected(let userWallet):
-                    self?.setSelectedWallet(userWallet)
+                case .selected(let userWallet, let reason):
+                    self?.setSelectedWallet(userWallet, reason: reason)
                 case .inserted:
                     break
                 }
@@ -182,15 +182,14 @@ final class UserWalletListViewModel: ObservableObject, Identifiable {
         userWalletRepository.delete(viewModel.userWallet)
     }
 
-    private func setSelectedWallet(_ userWallet: UserWallet) {
-        guard let model = userWalletRepository.models.first(where: {
-            $0.userWallet?.userWalletId == userWallet.userWalletId
-        }) else {
+    private func setSelectedWallet(_ userWallet: UserWallet, reason: UserWalletRepositorySelectionChangeReason) {
+        self.selectedUserWalletId = userWallet.userWalletId
+        updateSelectedWalletModel()
+
+        if case .deleted = reason {
             return
         }
 
-        self.selectedUserWalletId = userWallet.userWalletId
-        updateSelectedWalletModel()
         coordinator.dismissUserWalletList()
     }
 
@@ -273,7 +272,7 @@ final class UserWalletListViewModel: ObservableObject, Identifiable {
             singleCurrencyModels.append(cellModel)
         }
 
-        setSelectedWallet(userWallet)
+        setSelectedWallet(userWallet, reason: .inserted)
     }
 
     private func mapToUserWalletListCellViewModel(userWalletModel: UserWalletModel, totalBalanceProvider: TotalBalanceProviding? = nil) -> UserWalletListCellViewModel {
@@ -299,7 +298,7 @@ final class UserWalletListViewModel: ObservableObject, Identifiable {
             if userWallet.isLocked {
                 Analytics.log(.walletUnlockTapped)
             }
-            self?.userWalletRepository.setSelectedUserWalletId(userWallet.userWalletId)
+            self?.userWalletRepository.setSelectedUserWalletId(userWallet.userWalletId, reason: .userSelected)
         }
     }
 }
