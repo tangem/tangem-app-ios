@@ -112,7 +112,11 @@ final class UserWalletListViewModel: ObservableObject, Identifiable {
                 case UserWalletRepositoryError.duplicateWalletAdded:
                     self.error = AlertBinder(title: "", message: error.localizedDescription, error: error)
                 default:
-                    self.error = error.alertBinder
+                    if let saltPayError = error as? SaltPayRegistratorError {
+                        self.error = saltPayError.alertBinder
+                    } else {
+                        self.error = error.alertBinder
+                    }
                 }
             case .success(let cardModel):
                 self.add(cardModel: cardModel)
