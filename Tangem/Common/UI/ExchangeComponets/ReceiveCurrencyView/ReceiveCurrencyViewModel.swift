@@ -16,11 +16,7 @@ struct ReceiveCurrencyViewModel: Identifiable {
     let tokenIcon: SwappingTokenIconViewModel
 
     var value: String {
-        guard let value = state.value as? NSDecimalNumber else {
-            return "0"
-        }
-
-        return NumberFormatter.grouped.string(from: value) ?? "0"
+        state.value?.groupedFormatted() ?? "0"
     }
 
     var fiatValue: String {
@@ -64,7 +60,6 @@ extension ReceiveCurrencyViewModel {
         }
     }
 }
-
 
 extension ReceiveCurrencyViewModel: Hashable {
     static func == (lhs: ReceiveCurrencyViewModel, rhs: ReceiveCurrencyViewModel) -> Bool {
