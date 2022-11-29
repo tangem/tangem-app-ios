@@ -29,19 +29,19 @@ extension LimitOrderTarget: TargetType {
     var path: String {
         switch self {
         case .append(let blockchain, _):
-            return "/\(blockchain.id)/limit-order"
+            return "/\(blockchain.chainId)/limit-order"
         case .ordersForAddress(let blockchain, let parameters):
-            return "/\(blockchain.id)/limit-order/address/\(parameters.address)"
+            return "/\(blockchain.chainId)/limit-order/address/\(parameters.address)"
         case .allOrders(let blockchain, _):
-            return "/\(blockchain.id)/limit-order/all"
+            return "/\(blockchain.chainId)/limit-order/all"
         case .countOrders(let blockchain, _):
-            return "/\(blockchain.id)/limit-order/count"
+            return "/\(blockchain.chainId)/limit-order/count"
         case .events(let blockchain, _):
-            return "/\(blockchain.id)/limit-order/events"
+            return "/\(blockchain.chainId)/limit-order/events"
         case .eventsForOrder(let blockchain, let orderHash):
-            return "/\(blockchain.id)/limit-order/events/\(orderHash)"
+            return "/\(blockchain.chainId)/limit-order/events/\(orderHash)"
         case .hasActiveOrdersWithPermit(let blockchain, let walletAddress, let tokenAddress):
-            return "/\(blockchain.id)/limit-order/has-active-orders-with-permit/\(walletAddress)/\(tokenAddress)"
+            return "/\(blockchain.chainId)/limit-order/has-active-orders-with-permit/\(walletAddress)/\(tokenAddress)"
         }
     }
 
