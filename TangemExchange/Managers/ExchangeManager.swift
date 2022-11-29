@@ -29,10 +29,7 @@ public protocol ExchangeManager {
 
     /// Checking that decimal value available for exchange without approved
     /// Only for tokens
-    func isAvailableForExchange(amount: Decimal) -> Bool
-
-    /// Get data model with data which should be viewed to user for approve
-    func getApprovedDataModel() async -> ExchangeApprovedDataModel?
+    func isAvailableForExchange() -> Bool
 
     /// Approve and swap items
     func approveAndSwapItems()
