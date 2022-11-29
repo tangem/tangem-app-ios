@@ -42,6 +42,7 @@ struct SwappingTokenIconView: View {
     private let imageSize = CGSize(width: 36, height: 36)
     private let networkIconSize = CGSize(width: 16, height: 16)
     private let chevronIconSize = CGSize(width: 8, height: 8)
+
     private var chevronYOffset: CGFloat {
         imageSize.height / 2 - chevronIconSize.height / 2
     }
@@ -60,7 +61,7 @@ struct SwappingTokenIconView: View {
                     .resizable()
                     .frame(size: chevronIconSize)
                     .offset(y: chevronYOffset)
-                    /// We have to keep size of the view same for both cases
+                    /// View have to keep size of the view same for both cases
                     .opacity(viewModel.isTappable ? 1 : 0)
             }
         }
