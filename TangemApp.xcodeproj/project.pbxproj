@@ -645,7 +645,8 @@
 		EF9241322934C25400C28551 /* DependenciesFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF9241312934C25400C28551 /* DependenciesFactory.swift */; };
 		EF9241342934C8F200C28551 /* SwappingConfigurator.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF9241332934C8F200C28551 /* SwappingConfigurator.swift */; };
 		EF9241362934E25900C28551 /* TokenIconUtil.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF9241352934E25900C28551 /* TokenIconUtil.swift */; };
-		EF92413929354C7C00C28551 /* SwappingTokenIcon.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF92413829354C7C00C28551 /* SwappingTokenIcon.swift */; };
+		EF92413929354C7C00C28551 /* SwappingTokenIconView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF92413829354C7C00C28551 /* SwappingTokenIconView.swift */; };
+		EF92413B2935F24A00C28551 /* SwappingTokenIconViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF92413A2935F24A00C28551 /* SwappingTokenIconViewModel.swift */; };
 		EF9C52B3287C77A10015D540 /* CardSettingsRoutable.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF7B9CF2286C6C7A004C33A9 /* CardSettingsRoutable.swift */; };
 		EF9CFC12288FECE100329BE0 /* ScanCardSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF9CFC0D288FECE100329BE0 /* ScanCardSettingsView.swift */; };
 		EF9CFC13288FECE100329BE0 /* ScanCardSettingsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF9CFC0E288FECE100329BE0 /* ScanCardSettingsViewModel.swift */; };
@@ -1477,7 +1478,8 @@
 		EF9241312934C25400C28551 /* DependenciesFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DependenciesFactory.swift; sourceTree = "<group>"; };
 		EF9241332934C8F200C28551 /* SwappingConfigurator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwappingConfigurator.swift; sourceTree = "<group>"; };
 		EF9241352934E25900C28551 /* TokenIconUtil.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenIconUtil.swift; sourceTree = "<group>"; };
-		EF92413829354C7C00C28551 /* SwappingTokenIcon.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwappingTokenIcon.swift; sourceTree = "<group>"; };
+		EF92413829354C7C00C28551 /* SwappingTokenIconView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwappingTokenIconView.swift; sourceTree = "<group>"; };
+		EF92413A2935F24A00C28551 /* SwappingTokenIconViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwappingTokenIconViewModel.swift; sourceTree = "<group>"; };
 		EF98BDF028CF89AF00D51719 /* Collection+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Collection+.swift"; sourceTree = "<group>"; };
 		EF9CFC0D288FECE100329BE0 /* ScanCardSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScanCardSettingsView.swift; sourceTree = "<group>"; };
 		EF9CFC0E288FECE100329BE0 /* ScanCardSettingsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScanCardSettingsViewModel.swift; sourceTree = "<group>"; };
@@ -3449,7 +3451,7 @@
 		EF46623C2924F1F700346B6C /* ExchangeComponets */ = {
 			isa = PBXGroup;
 			children = (
-				EF92413729354C6500C28551 /* SwappingTokenIcon */,
+				EF92413729354C6500C28551 /* SwappingTokenIconView */,
 				EFC46EFF29266996003928E3 /* ReceiveCurrencyView */,
 				EFC46EFC29266978003928E3 /* SendCurrencyView */,
 			);
@@ -3576,12 +3578,13 @@
 			path = Factories;
 			sourceTree = "<group>";
 		};
-		EF92413729354C6500C28551 /* SwappingTokenIcon */ = {
+		EF92413729354C6500C28551 /* SwappingTokenIconView */ = {
 			isa = PBXGroup;
 			children = (
-				EF92413829354C7C00C28551 /* SwappingTokenIcon.swift */,
+				EF92413829354C7C00C28551 /* SwappingTokenIconView.swift */,
+				EF92413A2935F24A00C28551 /* SwappingTokenIconViewModel.swift */,
 			);
-			path = SwappingTokenIcon;
+			path = SwappingTokenIconView;
 			sourceTree = "<group>";
 		};
 		EF9CFC00288FEB4A00329BE0 /* ScanCardSettings */ = {
@@ -4292,6 +4295,7 @@
 				EF4662202924DEEE00346B6C /* DefaultWarningRowViewModel.swift in Sources */,
 				DC261CAA292CF56600875E64 /* AuthView.swift in Sources */,
 				B09BB860259A075600B92000 /* ButtonStyles.swift in Sources */,
+				EF92413B2935F24A00C28551 /* SwappingTokenIconViewModel.swift in Sources */,
 				DC0A57E42822A5D00031BECC /* TangemSdkProvider.swift in Sources */,
 				B09BB863259A075600B92000 /* NavigationConfigurator.swift in Sources */,
 				EF50A5B1288976140081C5BB /* View+ConditionalModifiers.swift in Sources */,
@@ -4600,7 +4604,7 @@
 				EF4662312924DF0300346B6C /* DefaultWarningRowViewModel.swift in Sources */,
 				B0F62C5525DE4F6B005C8BA0 /* DeviceInfoProvider.swift in Sources */,
 				B020A51426F1DBE700D38596 /* OnboardingInput.swift in Sources */,
-				EF92413929354C7C00C28551 /* SwappingTokenIcon.swift in Sources */,
+				EF92413929354C7C00C28551 /* SwappingTokenIconView.swift in Sources */,
 				B0A0911026D3636F00F46DF5 /* AnimationCompletionObserverModifier.swift in Sources */,
 				B0D76D4D25D4E4610073FA98 /* AddCustomTokenViewModel.swift in Sources */,
 				EF59039A29091CFB00C527C9 /* EnvironmentSetupView.swift in Sources */,
