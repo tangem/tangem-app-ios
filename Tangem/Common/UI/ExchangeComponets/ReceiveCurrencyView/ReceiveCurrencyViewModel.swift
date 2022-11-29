@@ -13,9 +13,7 @@ struct ReceiveCurrencyViewModel: Identifiable {
 
     private(set) var state: State
 
-    let tokenIcon: TokenIconViewModel
-    let tokenSymbol: String
-    let didTapTokenView: () -> Void
+    let tokenIcon: SwappingTokenIconViewModel
 
     var value: String {
         guard let value = state.value as? NSDecimalNumber else {
@@ -31,14 +29,10 @@ struct ReceiveCurrencyViewModel: Identifiable {
 
     init(
         state: State,
-        tokenIcon: TokenIconViewModel,
-        tokenSymbol: String,
-        didTapTokenView: @escaping () -> Void
+        tokenIcon: SwappingTokenIconViewModel
     ) {
         self.state = state
         self.tokenIcon = tokenIcon
-        self.tokenSymbol = tokenSymbol
-        self.didTapTokenView = didTapTokenView
     }
 
     mutating func updateState(_ state: State) {
