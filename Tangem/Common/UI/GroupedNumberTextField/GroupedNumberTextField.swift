@@ -30,7 +30,7 @@ struct GroupedNumberTextField: View {
         Binding<String>(
             get: { groupedNumberFormatter.format(from: textFieldText) },
             set: { newValue in
-                guard Decimal(string: newValue) != nil else { return }
+                guard newValue.isEmpty || Decimal(string: newValue) != nil else { return }
 
                 // Remove space separators for formatter correct work
                 var numberString = newValue.replacingOccurrences(of: " ", with: "")
@@ -57,6 +57,8 @@ struct GroupedNumberTextField: View {
                 // If string is correct number, update binding for work external updates
                 if let value = numberFormatter.number(from: numberString) {
                     decimalValue = value.decimalValue
+                } else if numberString.isEmpty {
+                    decimalValue = nil
                 }
             }
         )

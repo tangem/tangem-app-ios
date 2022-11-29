@@ -18,11 +18,14 @@ public protocol ExchangeManager {
     /// Items which currently to swapping
     func getExchangeItems() -> ExchangeItems
 
+    /// Current manager state
+    func getAvailabilityState() -> SwappingAvailabilityState
+
     /// Update swapping items and reload rates
     func update(exchangeItems: ExchangeItems)
 
     /// Update amount for swap
-    func update(amount: Decimal)
+    func update(amount: Decimal?)
 
     /// Checking that decimal value available for exchange without approved
     /// Only for tokens
