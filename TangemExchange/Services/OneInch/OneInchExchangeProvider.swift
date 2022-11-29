@@ -70,6 +70,25 @@ extension OneInchExchangeProvider: ExchangeProvider {
         }
     }
 
+    func fetchQuote(items: ExchangeItems, amount: String) async throws -> QuoteData {
+        let blockchain = items.source.blockchain
+
+        let parameters = QuoteParameters(
+            fromTokenAddress: items.source.contractAddress ?? oneInchCoinContractAddress,
+            toTokenAddress: items.destination.contractAddress ?? oneInchCoinContractAddress,
+            amount: amount
+        )
+
+        let result = await oneInchAPIProvider.quote(blockchain: blockchain, parameters: parameters)
+
+        switch result {
+        case .success(let quoteData):
+            return quoteData
+        case .failure(let error):
+            throw error
+        }
+    }
+
     // MARK: - Approve API
 
     func approveTxData(for currency: Currency) async throws -> ExchangeApprovedDataModel {
