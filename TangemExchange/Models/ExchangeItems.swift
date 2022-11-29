@@ -12,8 +12,8 @@ public struct ExchangeItems {
     public let source: Currency
     public let destination: Currency
 
-    public let sourceBalance: CurrencyBalance
-    public let destinationBalance: CurrencyBalance?
+    public var sourceBalance: CurrencyBalance
+    public var destinationBalance: CurrencyBalance?
 
     init(
         source: Currency,
