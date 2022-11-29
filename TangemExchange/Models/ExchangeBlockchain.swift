@@ -10,7 +10,7 @@ import Foundation
 
 public enum ExchangeBlockchain: String, CaseIterable {
     case ethereum
-    case bsc
+    case bsc = "binancecoin"
     case polygon
     case optimism
     case arbitrum
