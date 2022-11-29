@@ -11,6 +11,7 @@ import SwiftUI
 struct ReceiveCurrencyView: View {
     private let viewModel: ReceiveCurrencyViewModel
     private let tokenIconSize = CGSize(width: 36, height: 36)
+    private var didTapTokenView: () -> Void = {}
 
     init(viewModel: ReceiveCurrencyViewModel) {
         self.viewModel = viewModel
@@ -45,7 +46,8 @@ struct ReceiveCurrencyView: View {
 
             Spacer()
 
-            tokenView
+            SwappingTokenIconView(viewModel: viewModel.tokenIcon)
+                .onTap(didTapTokenView)
         }
     }
 
@@ -75,44 +77,32 @@ struct ReceiveCurrencyView: View {
                 .lineLimit(1)
         }
     }
+}
 
-    private var tokenView: some View {
-        Button(action: viewModel.didTapTokenView) {
-            ZStack(alignment: .topLeading) {
-                HStack(spacing: 4) {
-                    TokenIconView(
-                        viewModel: viewModel.tokenIcon,
-                        size: tokenIconSize
-                    )
+// MARK: - Setupable
 
-                    Assets.chevronDownMini
-                        .resizable()
-                        .frame(width: 8, height: 8)
-                }
-
-                VStack(spacing: 4) {
-                    Color.clear.frame(size: tokenIconSize)
-
-                    Text(viewModel.tokenSymbol)
-                        .style(Fonts.Bold.footnote, color: Colors.Text.primary1)
-                }
-            }
-        }
+extension ReceiveCurrencyView: Setupable {
+    func didTapTokenView(_ block: @escaping () -> Void) -> Self {
+        map { $0.didTapTokenView = block }
     }
 }
 
 struct ReceiveCurrencyView_Preview: PreviewProvider {
     static let viewModel = ReceiveCurrencyViewModel(
         state: .loaded(1100.46, fiatValue: 1000.71),
-        tokenIcon: .init(tokenItem: .blockchain(.polygon(testnet: false))),
-        tokenSymbol: "MATIC"
-    ) {}
+        tokenIcon: SwappingTokenIconViewModel(
+            imageURL: TokenIconURLBuilder().iconURL(id: "polygon"),
+            tokenSymbol: "MATIC"
+        )
+    )
 
     static let loadingViewModel = ReceiveCurrencyViewModel(
         state: .loading,
-        tokenIcon: .init(tokenItem: .blockchain(.bitcoin(testnet: false))),
-        tokenSymbol: "BTC"
-    ) {}
+        tokenIcon: SwappingTokenIconViewModel(
+            imageURL: TokenIconURLBuilder().iconURL(id: "polygon"),
+            tokenSymbol: "MATIC"
+        )
+    )
 
     static var previews: some View {
         ZStack {

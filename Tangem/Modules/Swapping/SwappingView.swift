@@ -47,6 +47,9 @@ struct SwappingView: View {
 
                 if let receiveCurrencyViewModel = viewModel.receiveCurrencyViewModel {
                     ReceiveCurrencyView(viewModel: receiveCurrencyViewModel)
+                        .didTapTokenView {
+                            viewModel.userDidTapChangeDestinationButton()
+                        }
                 }
             }
 
