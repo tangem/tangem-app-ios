@@ -12,6 +12,6 @@ public enum SwappingAvailabilityState {
     case idle
     case loading
     case available(swappingData: ExchangeSwapDataModel)
-    case requiredPermission
-    case requiredRefresh(occuredError: Error)
+    case requiredPermission(approvedData: ExchangeApprovedDataModel)
+    case requiredRefresh(occurredError: Error)
 }
