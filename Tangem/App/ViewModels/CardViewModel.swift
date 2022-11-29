@@ -247,8 +247,8 @@ class CardViewModel: Identifiable, ObservableObject {
     }
 
     private var isActive: Bool {
-        if let selectedRepositoryModel = userWalletRepository.selectedModel {
-            return selectedRepositoryModel === self
+        if let selectedUserWalletId = userWalletRepository.selectedUserWalletId {
+            return selectedUserWalletId == userWalletId
         } else {
             return true
         }
