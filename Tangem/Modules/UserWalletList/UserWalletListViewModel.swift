@@ -108,7 +108,7 @@ final class UserWalletListViewModel: ObservableObject, Identifiable {
             case .onboarding(let input):
                 self.openOnboarding(with: input)
             case .error(let error):
-                self.error = error.alertBinder
+                self.error = AlertBinder(title: "", message: error.localizedDescription, error: error)
             case .success(let cardModel):
                 self.add(cardModel: cardModel)
             }
