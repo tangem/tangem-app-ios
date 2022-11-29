@@ -9,7 +9,7 @@
 import Foundation
 
 extension Data {
-    public init(hexString: String) {
+    init(hexString: String) {
         self = Data()
         reserveCapacity(hexString.unicodeScalars.lazy.underestimatedCount)
 
