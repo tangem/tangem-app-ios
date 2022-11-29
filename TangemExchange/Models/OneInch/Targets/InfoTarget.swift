@@ -27,11 +27,11 @@ extension InfoTarget: TargetType {
     var path: String {
         switch self {
         case .liquiditySources(let blockchain):
-            return "/\(blockchain.id)/liquidity-sources"
+            return "/\(blockchain.chainId)/liquidity-sources"
         case .tokens(let blockchain):
-            return "/\(blockchain.id)/tokens"
+            return "/\(blockchain.chainId)/tokens"
         case .presets(let blockchain):
-            return "/\(blockchain.id)/presets"
+            return "/\(blockchain.chainId)/presets"
         }
     }
 
