@@ -27,6 +27,7 @@ class DefaultExchangeManager<TxBuilder: TransactionBuilder> {
     private var exchangeItems: ExchangeItems {
         didSet { delegate?.exchangeManagerDidUpdate(exchangeItems: exchangeItems) }
     }
+
     private var amount: Decimal?
     private var tokenExchangeAllowanceLimit: Decimal?
 //    private var swappingData: ExchangeSwapDataModel?
@@ -45,6 +46,8 @@ class DefaultExchangeManager<TxBuilder: TransactionBuilder> {
         self.blockchainInfoProvider = blockchainInfoProvider
         self.exchangeItems = exchangeItems
         self.amount = amount
+
+        updateSourceBalances()
     }
 }
 
@@ -59,6 +62,10 @@ extension DefaultExchangeManager: ExchangeManager {
         return ["\(exchangeItems.source.blockchain.chainId)"]
     }
 
+    func getAvailabilityState() -> SwappingAvailabilityState {
+        return availabilityState
+    }
+
     func getExchangeItems() -> ExchangeItems {
         return exchangeItems
     }
@@ -68,8 +75,9 @@ extension DefaultExchangeManager: ExchangeManager {
         exchangeItemsDidUpdate()
     }
 
-    func update(amount: Decimal) {
+    func update(amount: Decimal?) {
         self.amount = amount
+        updateSourceBalances()
         updateSwappingInformation()
 
         if tokenExchangeAllowanceLimit == nil {
@@ -131,6 +139,7 @@ private extension DefaultExchangeManager {
                     for: exchangeItems.source,
                     walletAddress: walletAddress
                 )
+                print("tokenExchangeAllowanceLimit", tokenExchangeAllowanceLimit)
             } catch {
                 tokenExchangeAllowanceLimit = nil
                 availabilityState = .requiredRefresh(occuredError: error)
@@ -148,6 +157,8 @@ private extension DefaultExchangeManager {
             print("walletAddress not found")
             return
         }
+
+        availabilityState = .loading
 
         Task {
             do {
@@ -201,6 +212,17 @@ private extension DefaultExchangeManager {
                 availabilityState = .requiredRefresh(occuredError: error)
             }
         }
+    }
+
+    func updateSourceBalances() {
+        let source = exchangeItems.source
+        let balance = blockchainInfoProvider.getBalance(currency: source)
+        var fiatBalance: Decimal = 0
+        if let amount {
+            fiatBalance = blockchainInfoProvider.getFiatBalance(currency: source, amount: amount)
+        }
+
+        exchangeItems.sourceBalance = CurrencyBalance(balance: balance, fiatBalance: fiatBalance)
     }
 
     func restartTimer() {
