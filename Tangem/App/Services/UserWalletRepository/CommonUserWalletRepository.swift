@@ -551,6 +551,7 @@ class CommonUserWalletRepository: UserWalletRepository {
         let cardInfo = selectedModel.cardInfo
         startInitializingServices(for: cardInfo)
         finishInitializingServices(for: selectedModel, cardInfo: cardInfo)
+        selectedModel.updateSdkConfig()
     }
 
     private func sendEvent(_ event: UserWalletRepositoryEvent) {
