@@ -20,7 +20,7 @@ final class SwappingViewModel: ObservableObject {
     @Published var refreshWarningRowViewModel: DefaultWarningRowViewModel?
     @Published var informationSectionViewModels: [InformationSectionViewModel] = []
     @Published var mainButtonIsEnabled: Bool = false
-    @Published var mainButtonTitle: String = "Swap"
+    @Published var mainButtonTitle: MainButtonAction = .swap
 
     // MARK: - Dependencies
 
@@ -41,7 +41,6 @@ final class SwappingViewModel: ObservableObject {
         setupView()
         bind()
         exchangeManager.setDelegate(self)
-        exchangeManager.update(amount: 0.5)
     }
 
     func userDidTapSwapButton() {
@@ -98,7 +97,9 @@ extension SwappingViewModel: ExchangeManagerDelegate {
     }
 
     func exchangeManagerDidUpdate(exchangeItems: TangemExchange.ExchangeItems) {
-        updateView(exchangeItems: exchangeItems)
+        DispatchQueue.main.async {
+            self.updateView(exchangeItems: exchangeItems)
+        }
     }
 }
 
@@ -114,9 +115,17 @@ private extension SwappingViewModel {
             tokenIcon: source.asSwappingTokenIconViewModel()
         )
 
-        var state: ReceiveCurrencyViewModel.State = .loaded(0, fiatValue: 0)
-        if let destinationBalance = exchangeItems.destinationBalance {
-            state = .loaded(destinationBalance.balance, fiatValue: destinationBalance.fiatBalance)
+        let state: ReceiveCurrencyViewModel.State
+
+        switch exchangeManager.getAvailabilityState() {
+        case .loading:
+            state = .loading
+        case .idle, .available, .requiredPermission, .requiredRefresh:
+            if let destinationBalance = exchangeItems.destinationBalance {
+                state = .loaded(destinationBalance.balance, fiatValue: destinationBalance.fiatBalance)
+            } else {
+                state = .loaded(0, fiatValue: 0)
+            }
         }
 
         receiveCurrencyViewModel = ReceiveCurrencyViewModel(
@@ -134,10 +143,12 @@ private extension SwappingViewModel {
             ]
 
         case .loading:
+            receiveCurrencyViewModel?.updateState(.loading)
             refreshWarningRowViewModel?.update(detailsType: .loader)
             informationSectionViewModels = [
                 .fee(DefaultRowViewModel(title: "Fee", detailsType: .loader)),
             ]
+
         case .available(let swappingData):
             refreshWarningRowViewModel = nil
             let fee = swappingData.gas.description + swappingData.gasPrice
@@ -150,6 +161,11 @@ private extension SwappingViewModel {
             refreshWarningRowViewModel = nil
 
         case .requiredRefresh:
+            receiveCurrencyViewModel?.updateState(.loaded(0, fiatValue: 0))
+            informationSectionViewModels = [
+                .fee(DefaultRowViewModel(title: "Fee", detailsType: .text("-"))),
+            ]
+
             refreshWarningRowViewModel = DefaultWarningRowViewModel(
                 icon: Assets.attention,
                 title: "Exchange rate has expired",
@@ -161,8 +177,8 @@ private extension SwappingViewModel {
     }
 
     func setupView() {
+        updateState(state: .idle)
         updateView(exchangeItems: exchangeManager.getExchangeItems())
-        updateState(state: .loading)
 
 //        informationSectionViewModels = [
 //            .fee(DefaultRowViewModel(
@@ -180,7 +196,6 @@ private extension SwappingViewModel {
 
     func bind() {
 //        $sendDecimalValue
-//            .compactMap { $0 }
 //            .sink { [weak self] in
 //                self?.sendCurrencyViewModel?.update(fiatValue: $0 * 2)
 //            }
@@ -195,7 +210,6 @@ private extension SwappingViewModel {
 
         $sendDecimalValue
             .dropFirst()
-            .compactMap { $0 }
             .removeDuplicates()
             .debounce(for: 0.5, scheduler: DispatchQueue.global())
             .sink { [unowned self] amount in
@@ -250,6 +264,34 @@ extension SwappingViewModel {
 
         case fee(DefaultRowViewModel)
         case warning(DefaultWarningRowViewModel)
+    }
+
+    enum MainButtonAction: Hashable, Identifiable {
+        var id: Int { hashValue }
+
+        case swap
+        case givePermission
+        case permitAndSwap
+
+        var title: String {
+            switch self {
+            case .swap:
+                return "Swap"
+            case .givePermission:
+                return "Give permission"
+            case .permitAndSwap:
+                return "Permit and Swap"
+            }
+        }
+
+        var icon: MainButton.Icon? {
+            switch self {
+            case .swap, .permitAndSwap:
+                return .trailing(Assets.tangemIconWhite)
+            case .givePermission:
+                return .none
+            }
+        }
     }
 }
 
