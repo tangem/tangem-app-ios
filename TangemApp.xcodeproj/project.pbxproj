@@ -3206,7 +3206,7 @@
 				EF4661B92923B00800346B6C /* Interfaces */,
 				EF46620E2924CE2A00346B6C /* Managers */,
 				EF4661B82923B00100346B6C /* Services */,
-				EF4661BA2923B02C00346B6C /* Types */,
+				EF4661BA2923B02C00346B6C /* Models */,
 				EF29BEF029349C1A00D7C782 /* Extensions */,
 				EF4661942923AFC400346B6C /* TangemExchange.h */,
 				EF4661952923AFC400346B6C /* TangemExchange.docc */,
@@ -3240,7 +3240,7 @@
 			path = Interfaces;
 			sourceTree = "<group>";
 		};
-		EF4661BA2923B02C00346B6C /* Types */ = {
+		EF4661BA2923B02C00346B6C /* Models */ = {
 			isa = PBXGroup;
 			children = (
 				EF4661DC2924CC6600346B6C /* Constants.swift */,
@@ -3252,7 +3252,7 @@
 				E94667CB2902BC260043AD0A /* ExchangeItem.swift */,
 				EF29BEE0292E5D9B00D7C782 /* OneInch */,
 			);
-			path = Types;
+			path = Models;
 			sourceTree = "<group>";
 		};
 		EF4661BE2923B35800346B6C /* Exchange */ = {
@@ -4398,7 +4398,6 @@
 				DA23787F27B24222009795A8 /* CheckoutPayload.swift in Sources */,
 				EF46623E2924F21600346B6C /* SendCurrencyView.swift in Sources */,
 				DC261CB3292CF6B700875E64 /* UncompletedBackupCoordinator.swift in Sources */,
-				65C9FCBA2869CC3E00FDE63E /* SupportChatViewModel.swift in Sources */,
 				DC5E32C628EDC7FC00D6096A /* PaymentologyApiTarget.swift in Sources */,
 				DA5FAD8A27B27F7F00EE53AE /* SheetDragHandler.swift in Sources */,
 				EF4BEF8328ACF0E700C5D1BE /* UserTokenListManager.swift in Sources */,
