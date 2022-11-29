@@ -22,7 +22,7 @@ extension HealthCheckTarget: TargetType {
     var path: String {
         switch self {
         case .healthCheck(let exchangeBlockchain):
-            return "/\(exchangeBlockchain.id)/healthcheck"
+            return "/\(exchangeBlockchain.chainId)/healthcheck"
         }
     }
 

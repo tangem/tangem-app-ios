@@ -56,7 +56,7 @@ extension DefaultExchangeManager: ExchangeManager {
     }
 
     func getNetworksAvailableToSwap() -> [String] {
-        return [exchangeItems.source.networkId]
+        return ["\(exchangeItems.source.blockchain.chainId)"]
     }
 
     func getExchangeItems() -> ExchangeItems {
@@ -120,9 +120,17 @@ private extension DefaultExchangeManager {
             return
         }
 
+        guard let walletAddress = blockchainInfoProvider.getWalletAddress(currency: exchangeItems.source) else {
+            print("walletAddress not found")
+            return
+        }
+
         Task {
             do {
-                tokenExchangeAllowanceLimit = try await exchangeProvider.fetchExchangeAmountAllowance(for: exchangeItems.source)
+                tokenExchangeAllowanceLimit = try await exchangeProvider.fetchExchangeAmountAllowance(
+                    for: exchangeItems.source,
+                    walletAddress: walletAddress
+                )
             } catch {
                 tokenExchangeAllowanceLimit = nil
                 availabilityState = .requiredRefresh(occuredError: error)
@@ -136,10 +144,16 @@ private extension DefaultExchangeManager {
             return
         }
 
+        guard let walletAddress = blockchainInfoProvider.getWalletAddress(currency: exchangeItems.source) else {
+            print("walletAddress not found")
+            return
+        }
+
         Task {
             do {
                 let swappingData = try await exchangeProvider.fetchTxDataForSwap(
                     items: exchangeItems,
+                    walletAddress: walletAddress,
                     amount: amount.description,
                     slippage: 1 // Default value
                 )
@@ -164,14 +178,16 @@ private extension DefaultExchangeManager {
     func sendTransactionForSwapItems() {
         guard let amount = amount,
               case let .available(swappingData) = availabilityState,
-              let gasPrice = Decimal(string: swappingData.gasPrice) else {
+              let gasPrice = Decimal(string: swappingData.gasPrice),
+              let walletAddress = blockchainInfoProvider.getWalletAddress(currency: exchangeItems.destination)
+        else {
             assertionFailure("Not enough data")
             return
         }
 
         let info = SwapTransactionInfo(
             currency: exchangeItems.source,
-            destination: exchangeItems.destination.walletAddress,
+            destination: walletAddress,
             amount: amount,
             oneInchTxData: swappingData.txData
         )
