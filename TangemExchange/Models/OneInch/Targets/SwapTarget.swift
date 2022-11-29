@@ -25,9 +25,9 @@ extension SwapTarget: TargetType {
     var path: String {
         switch self {
         case let .quote(blockchain, _):
-            return "/\(blockchain.id)/quote"
+            return "/\(blockchain.chainId)/quote"
         case let .swap(blockchain, _):
-            return "/\(blockchain.id)/swap"
+            return "/\(blockchain.chainId)/swap"
         }
     }
 
