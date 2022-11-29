@@ -59,16 +59,7 @@ struct SendCurrencyView: View {
 
             Spacer()
 
-            VStack(spacing: 4) {
-                TokenIconView(
-                    viewModel: viewModel.tokenIcon,
-                    size: tokenIconSize
-                )
-
-                Text(viewModel.tokenSymbol)
-                    .style(Fonts.Bold.footnote, color: Colors.Text.primary1)
-            }
-            .padding(.trailing, 12)
+            SwappingTokenIconView(viewModel: viewModel.tokenIcon)
         }
     }
 }
@@ -80,8 +71,10 @@ struct SendCurrencyView_Preview: PreviewProvider {
         balance: 3043.75,
         maximumFractionDigits: 8,
         fiatValue: 1000.71,
-        tokenIcon: TokenIconViewModel(tokenItem: .blockchain(.bitcoin(testnet: false))),
-        tokenSymbol: "BTC"
+        tokenIcon: SwappingTokenIconViewModel(
+            imageURL: TokenIconURLBuilder().iconURL(id: "bitcoin"),
+            tokenSymbol: "BTC"
+        )
     )
 
     static var previews: some View {
