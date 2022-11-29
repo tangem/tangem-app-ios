@@ -43,16 +43,16 @@ private extension TotalBalanceProvider {
         userWalletModel.subscribeToWalletModels()
             .combineLatest(AppSettings.shared.$selectedCurrencyCode)
             .receive(on: DispatchQueue.main)
-            .sink { [unowned self] walletModels, currencyCode  in
+            .sink { [weak self] walletModels, currencyCode  in
                 let hasLoading = !walletModels.filter { $0.state.isLoading }.isEmpty
 
                 // We should wait for balance loading to complete
                 if hasLoading {
-                    self.totalBalanceSubject.send(.loading)
+                    self?.totalBalanceSubject.send(.loading)
                     return
                 }
 
-                self.updateTotalBalance(with: currencyCode)
+                self?.updateTotalBalance(with: currencyCode)
             }
             .store(in: &bag)
 
@@ -69,8 +69,8 @@ private extension TotalBalanceProvider {
             }
             .switchToLatest()
             .delay(for: 0.2, scheduler: DispatchQueue.main) // Hide skeleton with delay
-            .sink { [unowned self] walletModels in
-                self.updateTotalBalance(with: AppSettings.shared.selectedCurrencyCode)
+            .sink { [weak self] walletModels in
+                self?.updateTotalBalance(with: AppSettings.shared.selectedCurrencyCode)
             }
             .store(in: &bag)
     }
