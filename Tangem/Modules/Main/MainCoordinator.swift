@@ -56,7 +56,10 @@ class MainCoordinator: CoordinatorObject {
                 switch event {
                 case .selected:
                     if let selectedModel = self.userWalletRepository.selectedModel {
-                        self.updateMain(with: selectedModel)
+                        let options = Options(cardModel: selectedModel, shouldRefreshOnAppear: false)
+                        DispatchQueue.main.async { // fix ios13 freeze
+                            self.start(with: options)
+                        }
                     }
 
                 case .inserted(let userWallet):
@@ -78,7 +81,7 @@ class MainCoordinator: CoordinatorObject {
             cardModel: options.cardModel,
             userWalletModel: userWalletModel,
             cardImageProvider: CardImageProvider(supportsOnlineImage: options.cardModel.supportsOnlineImage),
-            shouldRefreshWhenAppear: true,
+            shouldRefreshWhenAppear: options.shouldRefreshOnAppear,
             coordinator: self
         )
     }
@@ -87,6 +90,12 @@ class MainCoordinator: CoordinatorObject {
 extension MainCoordinator {
     struct Options {
         let cardModel: CardViewModel
+        let shouldRefreshOnAppear: Bool
+
+        init(cardModel: CardViewModel, shouldRefreshOnAppear: Bool = true) {
+            self.cardModel = cardModel
+            self.shouldRefreshOnAppear = shouldRefreshOnAppear
+        }
     }
 }
 
@@ -277,21 +286,6 @@ extension MainCoordinator: UserWalletListRoutable {
         let options = OnboardingCoordinator.Options(input: input, destination: .main)
         coordinator.start(with: options)
         pushedOnboardingCoordinator = coordinator
-    }
-
-    private func updateMain(with cardModel: CardViewModel) {
-        guard let userWalletModel = cardModel.userWalletModel else {
-            assertionFailure("UserWalletModel not created")
-            return
-        }
-
-        mainViewModel = MainViewModel(
-            cardModel: cardModel,
-            userWalletModel: userWalletModel,
-            cardImageProvider: CardImageProvider(supportsOnlineImage: cardModel.supportsOnlineImage),
-            shouldRefreshWhenAppear: false,
-            coordinator: self
-        )
     }
 }
 
