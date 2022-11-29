@@ -11,5 +11,5 @@ import Foundation
 public protocol ExchangeManagerDelegate: AnyObject {
     func exchangeManagerDidUpdate(exchangeItems: ExchangeItems)
     func exchangeManagerDidUpdate(availabilityState: SwappingAvailabilityState)
-    func exchangeManagerDidUpdate(swappingModel: ExchangeSwapDataModel)
+    func exchangeManagerDidUpdate(availabilityForExchange: Bool, limit: Decimal?)
 }
