@@ -471,7 +471,7 @@ private extension TokenDetailsViewModel {
     func sourceCurrency() -> Currency? {
         let blockchain = blockchainNetwork.blockchain
 
-        guard let exchangeBlockchain = ExchangeBlockchain(rawValue: blockchain.id) else {
+        guard let exchangeBlockchain = ExchangeBlockchain(rawValue: blockchain.codingKey) else {
             assertionFailure("ExchangeBlockchain don't support")
             return nil
         }
@@ -506,7 +506,8 @@ private extension TokenDetailsViewModel {
     private func destinationCurrency() -> Currency? {
         let blockchain = blockchainNetwork.blockchain
 
-        guard let exchangeBlockchain = ExchangeBlockchain(rawValue: blockchain.id) else {
+        guard let exchangeBlockchain = ExchangeBlockchain(rawValue: blockchain.codingKey) else {
+            assertionFailure("ExchangeBlockchain don't support")
             return nil
         }
 
