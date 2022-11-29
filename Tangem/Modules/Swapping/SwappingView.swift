@@ -104,20 +104,10 @@ struct SwappingView: View {
     @ViewBuilder
     private var mainButton: some View {
         MainButton(
-            text: "Swap",
-            icon: .trailing(Assets.tangemIconWhite),
+            text: viewModel.mainButtonTitle.title,
+            icon: viewModel.mainButtonTitle.icon,
             isDisabled: !viewModel.mainButtonIsEnabled,
             action: viewModel.userDidTapMainButton
         )
     }
 }
-
-// struct SwappingView_Preview: PreviewProvider {
-//    static let viewModel = SwappingViewModel(exchangeManager: <#ExchangeManager#>, coordinator: SwappingCoordinator())
-//
-//    static var previews: some View {
-//        NavigationView {
-//            SwappingView(viewModel: viewModel)
-//        }
-//    }
-// }
