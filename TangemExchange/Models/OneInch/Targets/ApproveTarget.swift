@@ -24,11 +24,11 @@ extension ApproveTarget: TargetType {
     var path: String {
         switch self {
         case .spender(let blockchain):
-            return "/\(blockchain.id)/approve/spender"
+            return "/\(blockchain.chainId)/approve/spender"
         case .transaction(let blockchain, _):
-            return "/\(blockchain.id)/approve/transaction"
+            return "/\(blockchain.chainId)/approve/transaction"
         case .allowance(let blockchain, _):
-            return "/\(blockchain.id)/approve/allowance"
+            return "/\(blockchain.chainId)/approve/allowance"
         }
     }
 
