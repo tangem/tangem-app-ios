@@ -108,7 +108,13 @@ final class UserWalletListViewModel: ObservableObject, Identifiable {
             case .onboarding(let input):
                 self.openOnboarding(with: input)
             case .error(let error):
-                self.error = error.alertBinder
+                if let saltPayError = error as? SaltPayRegistratorError {
+                    self.error = saltPayError.alertBinder
+                } else if let userWalletRepositoryError = error as? UserWalletRepositoryError {
+                    self.error = userWalletRepositoryError.alertBinder
+                } else {
+                    self.error = error.alertBinder
+                }
             case .success(let cardModel):
                 self.add(cardModel: cardModel)
             }
