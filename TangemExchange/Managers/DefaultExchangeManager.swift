@@ -19,7 +19,6 @@ class DefaultExchangeManager<TxBuilder: TransactionBuilder> {
     private let exchangeProvider: ExchangeProvider
     private let transactionBuilder: TxBuilder
     private let blockchainInfoProvider: BlockchainInfoProvider
-    private weak var delegate: ExchangeManagerDelegate?
 
     // MARK: - Internal
 
@@ -40,6 +39,7 @@ class DefaultExchangeManager<TxBuilder: TransactionBuilder> {
         }
     }
 
+    private weak var delegate: ExchangeManagerDelegate?
     private var amount: Decimal?
     private var formattedAmount: String {
         guard var amount else {
@@ -79,7 +79,7 @@ extension DefaultExchangeManager: ExchangeManager {
     }
 
     func getNetworksAvailableToSwap() -> [String] {
-        return ["\(exchangeItems.source.blockchain.chainId)"]
+        return [exchangeItems.source.blockchain.id]
     }
 
     func getAvailabilityState() -> SwappingAvailabilityState {
@@ -129,7 +129,7 @@ private extension DefaultExchangeManager {
     func amountDidChange() {
         updateSourceBalances()
 
-        guard amount != nil else {
+        if amount == nil {
             updateState(.idle)
             return
         }
