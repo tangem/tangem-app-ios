@@ -98,12 +98,12 @@ class WalletModel: ObservableObject, Identifiable {
             .$selectedCurrencyCode
             .dropFirst()
             .receive(on: updateQueue)
-            .map { [unowned self] _ in
-                self.loadRates().replaceError(with: [:])
+            .setFailureType(to: Error.self)
+            .flatMap { [weak self] _ in
+                self?.loadRates() ?? .justWithError(output: [:])
             }
-            .switchToLatest()
             .receive(on: updateQueue)
-            .receiveValue { [unowned self] in updateRatesIfNeeded($0) }
+            .receiveValue { [weak self] in self?.updateRatesIfNeeded($0) }
             .store(in: &bag)
     }
 
@@ -135,31 +135,34 @@ class WalletModel: ObservableObject, Identifiable {
 
         updateWalletModelBag = updateWalletManager()
             .receive(on: updateQueue)
-            .map { [unowned self] in loadRates() }
-            .switchToLatest()
+            .flatMap { [weak self] in self?.loadRates() ?? .justWithError(output: [:]) }
             .receive(on: updateQueue)
-            .sink { [unowned self] completion in
+            .sink { [weak self] completion in
+                guard let self else { return }
+
                 switch completion {
                 case .finished:
                     break
                 case let .failure(error):
                     Analytics.log(error: error)
-                    updateRatesIfNeeded([:])
-                    updateState(.failed(error: error.localizedDescription))
-                    updatePublisher?.send(completion: .failure(error))
-                    updatePublisher = nil
+                    self.updateRatesIfNeeded([:])
+                    self.updateState(.failed(error: error.localizedDescription))
+                    self.updatePublisher?.send(completion: .failure(error))
+                    self.updatePublisher = nil
                 }
 
-            } receiveValue: { [unowned self] rates in
-                updateRatesIfNeeded(rates)
+            } receiveValue: { [weak self] rates in
+                guard let self else { return }
+
+                self.updateRatesIfNeeded(rates)
 
                 // Don't update noAccount state
-                if !state.isNoAccount {
-                    updateState(.idle)
+                if !self.state.isNoAccount {
+                    self.updateState(.idle)
                 }
 
-                updatePublisher?.send(completion: .finished)
-                updatePublisher = nil
+                self.updatePublisher?.send(completion: .finished)
+                self.updatePublisher = nil
             }
 
         return newUpdatePublisher.eraseToAnyPublisher()
@@ -236,9 +239,6 @@ class WalletModel: ObservableObject, Identifiable {
 
         return tangemApiService
             .loadRates(for: currenciesToExchange)
-            .replaceError(with: [:])
-            /// Hack that use `switchToLatest()` which is available in iOS 14.0. Remove it after update target version
-            .setFailureType(to: Error.self)
             .eraseToAnyPublisher()
     }
 
