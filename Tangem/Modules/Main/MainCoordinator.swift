@@ -259,6 +259,10 @@ extension MainCoordinator: MainRoutable {
         userWalletStorageAgreementViewModel = UserWalletStorageAgreementViewModel(isStandalone: true, coordinator: self)
     }
 
+    func closeUserWalletSaveAcceptanceSheet() {
+        userWalletStorageAgreementViewModel = nil
+    }
+
     func openUserWalletList() {
         userWalletListViewModel = UserWalletListViewModel(coordinator: self)
     }
@@ -290,13 +294,11 @@ extension MainCoordinator: UserWalletListRoutable {
 extension MainCoordinator: UserWalletStorageAgreementRoutable {
     func didAgreeToSaveUserWallets() {
         logSaveUserWalletStep(agreed: true)
-        userWalletStorageAgreementViewModel = nil
         mainViewModel?.didAgreeToSaveUserWallets()
     }
 
     func didDeclineToSaveUserWallets() {
         logSaveUserWalletStep(agreed: false)
-        userWalletStorageAgreementViewModel = nil
         mainViewModel?.didDeclineToSaveUserWallets()
     }
 
