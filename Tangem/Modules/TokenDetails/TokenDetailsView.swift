@@ -148,7 +148,7 @@ struct TokenDetailsView: View {
     @ViewBuilder
     private var trailingButton: some View {
         HStack {
-            if FeatureProvider.isAvailable(.exchange) {
+            if viewModel.swappingIsAvailable {
                 Button(action: viewModel.openSwapping) {
                     Text("Swap")
                 }
