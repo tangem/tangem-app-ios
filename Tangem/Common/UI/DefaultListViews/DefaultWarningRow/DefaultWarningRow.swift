@@ -32,6 +32,7 @@ struct DefaultWarningRow: View {
                     Text(viewModel.subtitle)
                         .style(Fonts.Regular.footnote, color: Colors.Text.secondary)
                 }
+                .frame(maxWidth: .infinity, alignment: .leading)
 
                 detailsView
             }
