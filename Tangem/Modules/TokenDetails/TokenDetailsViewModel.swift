@@ -153,6 +153,10 @@ class TokenDetailsViewModel: ObservableObject {
         return "wallet_currency_subtitle".localized(blockchainNetwork.blockchain.displayName)
     }
 
+    var swappingIsAvailable: Bool {
+        FeatureProvider.isAvailable(.exchange) && amountType.isToken
+    }
+
     @Published var solanaRentWarning: String? = nil
     let amountType: Amount.AmountType
     let blockchainNetwork: BlockchainNetwork
@@ -351,49 +355,6 @@ class TokenDetailsViewModel: ObservableObject {
 
         return AlertBinder(alert: alert)
     }
-
-    private func createCurrency() -> Currency? {
-        guard let walletModel else { return nil }
-
-        let blockchain = blockchainNetwork.blockchain
-        let iconURL: URL
-
-        if case .token(let token) = amountType, let id = token.id {
-            iconURL = TokenIconURLBuilder().iconURL(id: id)
-        } else {
-            iconURL = TokenIconURLBuilder().iconURL(id: blockchain.id)
-        }
-
-        return Currency(
-            networkId: amountType.token?.id ?? blockchain.networkId,
-            chainId: blockchain.chainId,
-            walletAddress: walletModel.wallet.address,
-            name: title,
-            symbol: currencySymbol,
-            decimalCount: amountType.token?.decimalCount ?? blockchain.decimalCount,
-            imageURL: iconURL,
-            blockchainIconURL: TokenIconURLBuilder().iconURL(id: blockchain.id),
-            contractAddress: amountType.token?.contractAddress
-        )
-    }
-
-    private func createDestinationCurrency() -> Currency? {
-        guard let walletModel else { return nil }
-
-        let blockchain = blockchainNetwork.blockchain
-
-        return Currency(
-            networkId: blockchain.networkId,
-            chainId: blockchain.chainId,
-            walletAddress: walletModel.wallet.address,
-            name: blockchain.displayName,
-            symbol: blockchain.currencySymbol,
-            decimalCount: blockchain.decimalCount,
-            imageURL: TokenIconURLBuilder().iconURL(id: blockchain.id),
-            blockchainIconURL: TokenIconURLBuilder().iconURL(id: blockchain.id),
-            contractAddress: nil
-        )
-    }
 }
 
 extension Int: Identifiable {
@@ -401,6 +362,7 @@ extension Int: Identifiable {
 }
 
 // MARK: - Navigation
+
 extension TokenDetailsViewModel {
     func openSend() {
         guard let amountToSend = self.wallet?.amounts[amountType] else { return }
@@ -482,8 +444,8 @@ extension TokenDetailsViewModel {
     func openSwapping() {
         guard FeatureProvider.isAvailable(.exchange),
               let walletModel = walletModel,
-              let source = createCurrency(),
-              let destination = createDestinationCurrency()
+              let source = sourceCurrency(),
+              let destination = destinationCurrency()
         else {
             return
         }
@@ -500,5 +462,68 @@ extension TokenDetailsViewModel {
 
     func dismiss() {
         coordinator.dismiss()
+    }
+}
+
+// MARK: Swapping preparing
+
+private extension TokenDetailsViewModel {
+    func sourceCurrency() -> Currency? {
+        let blockchain = blockchainNetwork.blockchain
+
+        guard let exchangeBlockchain = ExchangeBlockchain(rawValue: blockchain.id) else {
+            assertionFailure("ExchangeBlockchain don't support")
+            return nil
+        }
+
+        switch amountType {
+        case .coin, .reserve:
+            return Currency(
+                id: blockchain.id,
+                blockchain: exchangeBlockchain,
+                name: blockchain.displayName,
+                symbol: blockchain.currencySymbol,
+                decimalCount: blockchain.decimalCount,
+                currencyType: .coin
+            )
+        case .token(let token):
+            guard let id = token.id else {
+                assertionFailure("Token don't have id")
+                return nil
+            }
+
+            return Currency(
+                id: id,
+                blockchain: exchangeBlockchain,
+                name: token.name,
+                symbol: token.symbol,
+                decimalCount: token.decimalCount,
+                currencyType: .token(contractAddress: token.contractAddress)
+            )
+        }
+    }
+
+    private func destinationCurrency() -> Currency? {
+        let blockchain = blockchainNetwork.blockchain
+
+        guard let exchangeBlockchain = ExchangeBlockchain(rawValue: blockchain.id) else {
+            return nil
+        }
+
+        switch amountType {
+        case .coin, .reserve:
+            assertionFailure("[REDACTED_TODO_COMMENT]")
+            return nil
+
+        case .token:
+            return Currency(
+                id: blockchain.id,
+                blockchain: exchangeBlockchain,
+                name: blockchain.displayName,
+                symbol: blockchain.currencySymbol,
+                decimalCount: blockchain.decimalCount,
+                currencyType: .coin
+            )
+        }
     }
 }
