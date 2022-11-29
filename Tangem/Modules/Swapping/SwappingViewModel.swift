@@ -157,20 +157,24 @@ private extension SwappingViewModel {
                 .fee(DefaultRowViewModel(title: "Fee", detailsType: .loader)),
             ]
 
-        case .available(let swappingData):
+        case .available(let result):
             mainButtonIsEnabled = true
             refreshWarningRowViewModel = nil
-            let fee = swappingData.gas.description + swappingData.gasPrice
 
             informationSectionViewModels = [
-                .fee(DefaultRowViewModel(title: "Fee", detailsType: .text(fee))),
+                .fee(DefaultRowViewModel(title: "Fee", detailsType: .text(result.fee.groupedFormatted()))),
             ]
 
-        case .requiredPermission(let approveData):
+        case .requiredPermission(let result):
             mainButtonIsEnabled = true
             refreshWarningRowViewModel = nil
+            receiveCurrencyViewModel?.updateState(
+                .loaded(result.expectAmount, fiatValue: result.expectFiatAmount)
+            )
+
+            let fee = result.fee.groupedFormatted(maximumFractionDigits: result.decimalCount)
             informationSectionViewModels = [
-                .fee(DefaultRowViewModel(title: "Fee", detailsType: .text(approveData.gasPrice))),
+                .fee(DefaultRowViewModel(title: "Fee", detailsType: .text(fee))),
             ]
 
         case .requiredRefresh:
@@ -292,13 +296,13 @@ private extension Currency {
         switch currencyType {
         case .coin:
             return SwappingTokenIconViewModel(
-                imageURL: TokenIconURLBuilder().iconURL(id: id),
+                imageURL: TokenIconURLBuilder().iconURL(id: blockchain.id),
                 tokenSymbol: symbol
             )
         case .token:
             return SwappingTokenIconViewModel(
                 imageURL: TokenIconURLBuilder().iconURL(id: id),
-                networkURL: TokenIconURLBuilder().iconURL(id: blockchain.networkId, size: .small),
+                networkURL: TokenIconURLBuilder().iconURL(id: blockchain.id, size: .small),
                 tokenSymbol: symbol
             )
         }
