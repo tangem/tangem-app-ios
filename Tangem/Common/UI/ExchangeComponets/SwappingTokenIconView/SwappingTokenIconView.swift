@@ -9,31 +9,9 @@
 import SwiftUI
 import Kingfisher
 
-struct SwappingTokenIconViewModel {
-    let imageURL: URL
-    let networkURL: URL?
-    let tokenSymbol: String
-    let action: (() -> Void)?
-
-    var isTappable: Bool {
-        action != nil
-    }
-
-    init(
-        imageURL: URL,
-        networkURL: URL? = nil,
-        tokenSymbol: String,
-        action: (() -> Void)?
-    ) {
-        self.imageURL = imageURL
-        self.networkURL = networkURL
-        self.tokenSymbol = tokenSymbol
-        self.action = action
-    }
-}
-
 struct SwappingTokenIconView: View {
     private let viewModel: SwappingTokenIconViewModel
+    private var action: (() -> Void)?
 
     init(viewModel: SwappingTokenIconViewModel) {
         self.viewModel = viewModel
@@ -47,8 +25,12 @@ struct SwappingTokenIconView: View {
         imageSize.height / 2 - chevronIconSize.height / 2
     }
 
+    private var isTappable: Bool {
+        action != nil
+    }
+
     var body: some View {
-        Button(action: { viewModel.action?() }) {
+        Button(action: { action?() }) {
             HStack(alignment: .top, spacing: 4) {
                 VStack(spacing: 4) {
                     image
@@ -62,10 +44,10 @@ struct SwappingTokenIconView: View {
                     .frame(size: chevronIconSize)
                     .offset(y: chevronYOffset)
                     /// View have to keep size of the view same for both cases
-                    .opacity(viewModel.isTappable ? 1 : 0)
+                    .opacity(isTappable ? 1 : 0)
             }
         }
-        .disabled(!viewModel.isTappable)
+        .disabled(!isTappable)
     }
 
     private var image: some View {
@@ -95,6 +77,14 @@ struct SwappingTokenIconView: View {
     }
 }
 
+// MARK: - Setupable
+
+extension SwappingTokenIconView: Setupable {
+    func onTap(_ action: (() -> Void)?) -> Self {
+        map { $0.action = action }
+    }
+}
+
 struct SwappingTokenIcon_Previews: PreviewProvider {
     static var previews: some View {
         VStack {
@@ -102,17 +92,16 @@ struct SwappingTokenIcon_Previews: PreviewProvider {
                 viewModel: SwappingTokenIconViewModel(
                     imageURL: TokenIconURLBuilder().iconURL(id: "dai"),
                     networkURL: TokenIconURLBuilder().iconURL(id: "ethereum"),
-                    tokenSymbol: "MATIC",
-                    action: {}
+                    tokenSymbol: "MATIC"
                 )
             )
+            .onTap { }
 
             SwappingTokenIconView(
                 viewModel: SwappingTokenIconViewModel(
                     imageURL: TokenIconURLBuilder().iconURL(id: "dai"),
                     networkURL: TokenIconURLBuilder().iconURL(id: "ethereum"),
-                    tokenSymbol: "MATIC",
-                    action: nil
+                    tokenSymbol: "MATIC"
                 )
             )
         }
