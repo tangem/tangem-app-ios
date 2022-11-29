@@ -21,10 +21,16 @@ struct CardImageProvider {
     private let defaultImage = UIImage(named: "dark_card")!
     private let cacheQueue = DispatchQueue(label: "card_image_cache_queue")
 
-    private let cardVerifier = OnlineCardVerifier()
+    private let cardVerifier: OnlineCardVerifier
 
     init(supportsOnlineImage: Bool = true) {
         self.supportsOnlineImage = supportsOnlineImage
+
+        let configuration = URLSessionConfiguration.default
+        configuration.timeoutIntervalForRequest = 20
+        configuration.timeoutIntervalForResource = 30
+        let networkService = NetworkService(configuration: configuration)
+        self.cardVerifier = OnlineCardVerifier(with: networkService)
     }
 
     func cardArtwork(for cardId: String) -> CardArtwork? {
