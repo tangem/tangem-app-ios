@@ -66,7 +66,9 @@ final class SwappingViewModel: ObservableObject {
 
 private extension SwappingViewModel {
     func openTokenListView() {
-        coordinator.presentExchangeableTokenListView(networkIds: ["ethereum"])
+        coordinator.presentExchangeableTokenListView(
+            networkIds: exchangeManager.getNetworksAvailableToSwap()
+        )
     }
 
     func openSuccessView() {
