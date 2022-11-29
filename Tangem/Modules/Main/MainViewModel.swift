@@ -392,7 +392,6 @@ class MainViewModel: ObservableObject {
                 AppSettings.shared.saveAccessCodes = true
 
                 self?.userWalletRepository.save(userWallet)
-                self?.coordinator.openUserWalletList()
                 self?.cardModel.updateSdkConfig()
             }
         }
