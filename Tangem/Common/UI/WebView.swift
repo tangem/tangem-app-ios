@@ -101,15 +101,15 @@ struct WebView: UIViewRepresentable {
             view.scrollView.contentInset = contentInset
         }
 
+        if let url = url {
+            print("Loading request with url: \(url)")
+            view.load(URLRequest(url: url))
+        }
+
         return view
     }
 
-    func updateUIView(_ uiView: WKWebView, context: Context) {
-        if let url = url { // ios13 load only from within updateUIView
-            print("Loading request with url: \(url)")
-            uiView.load(URLRequest(url: url))
-        }
-    }
+    func updateUIView(_ uiView: WKWebView, context: Context) {}
 
     class Coordinator: NSObject, WKNavigationDelegate, WKUIDelegate {
         let urlActions: [String: ((String) -> Void)]
