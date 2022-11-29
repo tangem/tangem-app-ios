@@ -46,7 +46,7 @@ final class SwappingViewModel: ObservableObject {
 
     func userDidTapSwapButton() {
 //        withAnimation(.easeInOut(duration: 0.3)) {
-        swapCurrencies()
+//        swapCurrencies()
 //        }
     }
 
@@ -111,8 +111,7 @@ private extension SwappingViewModel {
             balance: exchangeItems.sourceBalance.balance,
             maximumFractionDigits: source.decimalCount,
             fiatValue: exchangeItems.sourceBalance.fiatBalance,
-            tokenIcon: source.asTokenIconViewModel(),
-            tokenSymbol: source.symbol
+            tokenIcon: source.asSwappingTokenIconViewModel()
         )
 
         var state: ReceiveCurrencyViewModel.State = .loaded(0, fiatValue: 0)
@@ -122,10 +121,8 @@ private extension SwappingViewModel {
 
         receiveCurrencyViewModel = ReceiveCurrencyViewModel(
             state: state,
-            tokenIcon: destination.asTokenIconViewModel(),
-            tokenSymbol: destination.symbol) { [weak self] in
-                self?.userDidTapChangeDestinationButton()
-            }
+            tokenIcon: destination.asSwappingTokenIconViewModel()
+        )
     }
 
     func updateState(state: TangemExchange.SwappingAvailabilityState) {
@@ -215,36 +212,36 @@ private extension SwappingViewModel {
 //            .store(in: &bag)
     }
 
-    func swapCurrencies() {
-        guard let receiveCurrencyViewModel, let sendCurrencyViewModel else { return }
+    /*
+        func swapCurrencies() {
+            guard let receiveCurrencyViewModel, let sendCurrencyViewModel else { return }
 
-        if receiveCurrencyViewModel.state.value != 0 {
-            sendDecimalValue = receiveCurrencyViewModel.state.value
+            if receiveCurrencyViewModel.state.value != 0 {
+                sendDecimalValue = receiveCurrencyViewModel.state.value
+            }
+
+            let sendTokenItem = sendCurrencyViewModel.tokenIcon
+
+            self.sendCurrencyViewModel = SendCurrencyViewModel(
+                balance: Decimal(Int.random(in: 0 ... 100)),
+                maximumFractionDigits: 8,
+                fiatValue: receiveCurrencyViewModel.state.fiatValue ?? 0,
+                tokenIcon: receiveCurrencyViewModel.tokenIcon
+            )
+
+            self.receiveCurrencyViewModel = ReceiveCurrencyViewModel(
+                state: .loading,
+                tokenIcon: sendTokenItem,
+                tokenSymbol: sendTokenSymbol
+            ) {}
+
+            isLoading.toggle()
+
+            DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+                self.isLoading.toggle()
+            }
         }
-
-        let sendTokenItem = sendCurrencyViewModel.tokenIcon
-        let sendTokenSymbol = sendCurrencyViewModel.tokenSymbol
-
-        self.sendCurrencyViewModel = SendCurrencyViewModel(
-            balance: Decimal(Int.random(in: 0 ... 100)),
-            maximumFractionDigits: 8,
-            fiatValue: receiveCurrencyViewModel.state.fiatValue ?? 0,
-            tokenIcon: receiveCurrencyViewModel.tokenIcon,
-            tokenSymbol: receiveCurrencyViewModel.tokenSymbol
-        )
-
-        self.receiveCurrencyViewModel = ReceiveCurrencyViewModel(
-            state: .loading,
-            tokenIcon: sendTokenItem,
-            tokenSymbol: sendTokenSymbol
-        ) {}
-
-        isLoading.toggle()
-
-        DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
-            self.isLoading.toggle()
-        }
-    }
+     */
 }
 
 extension SwappingViewModel {
@@ -257,15 +254,19 @@ extension SwappingViewModel {
 }
 
 private extension Currency {
-    func asTokenIconViewModel() -> TokenIconViewModel {
-        let style: TokenIconViewModel.Style
-
-        if isToken, let blockchainIconURL {
-            style = .tokenCoinIconURL(blockchainIconURL)
-        } else {
-            style = .blockchain
+    func asSwappingTokenIconViewModel() -> SwappingTokenIconViewModel {
+        switch currencyType {
+        case .coin:
+            return SwappingTokenIconViewModel(
+                imageURL: TokenIconURLBuilder().iconURL(id: id),
+                tokenSymbol: symbol
+            )
+        case .token:
+            return SwappingTokenIconViewModel(
+                imageURL: TokenIconURLBuilder().iconURL(id: id),
+                networkURL: TokenIconURLBuilder().iconURL(id: blockchain.networkId, size: .small),
+                tokenSymbol: symbol
+            )
         }
-
-        return TokenIconViewModel(id: networkId, name: name, style: style)
     }
 }
