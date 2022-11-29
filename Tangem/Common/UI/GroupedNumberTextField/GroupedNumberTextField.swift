@@ -68,6 +68,7 @@ struct GroupedNumberTextField: View {
         TextField(placeholder, text: textFieldProxyBinding)
             .style(Fonts.Regular.title1, color: Colors.Text.primary1)
             .keyboardType(.decimalPad)
+            .tintCompat(Colors.Text.primary1)
     }
 }
 
