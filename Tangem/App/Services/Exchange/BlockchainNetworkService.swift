@@ -26,7 +26,7 @@ struct BlockchainNetworkService {
 
 extension BlockchainNetworkService: BlockchainInfoProvider {
     func getWalletAddress(currency: Currency) -> String? {
-        print("addressNames", walletModel.addressNames)
+        print("addressNames", walletModel.wallet.addresses)
 
         return walletModel.wallet.address
     }
@@ -130,6 +130,12 @@ private extension Currency {
             return nil
         }
 
-        return Token(name: name, symbol: symbol, contractAddress: contractAddress, decimalCount: decimalCount)
+        return Token(
+            name: name,
+            symbol: symbol,
+            contractAddress: contractAddress,
+            decimalCount: decimalCount,
+            id: id
+        )
     }
 }
