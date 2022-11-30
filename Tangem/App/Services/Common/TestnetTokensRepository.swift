@@ -27,8 +27,7 @@ class TestnetTokensRepository {
             .receive(on: DispatchQueue.global())
             .tryMap { testnet in
                 try JsonUtils.readBundleFile(with: Constants.testFilename,
-                                             type: CoinsResponse.self,
-                                             shouldAddCompilationCondition: false)
+                                             type: CoinsResponse.self)
             }
             .eraseToAnyPublisher()
     }
