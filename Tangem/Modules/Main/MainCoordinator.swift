@@ -283,7 +283,7 @@ extension MainCoordinator: UserWalletListCoordinatorOutput {
                 self?.modalOnboardingCoordinator = nil
             }
 
-            let coordinator = OnboardingCoordinator(dismissAction: dismissAction, popToRootAction: self.popToRoot)
+            let coordinator = OnboardingCoordinator(dismissAction: dismissAction, popToRootAction: popToRootAction)
             let options = OnboardingCoordinator.Options(input: input, destination: .dismiss)
             coordinator.start(with: options)
             self.modalOnboardingCoordinator = coordinator
