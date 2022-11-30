@@ -29,7 +29,7 @@ struct SwappingView: View {
                 mainButton
             }
             .keyboardAdaptive()
-            .scrollDismissesKeyboardCompat()
+            .scrollDismissesKeyboardCompat(true)
         }
         .navigationBarTitle(Text("Swap"), displayMode: .inline)
     }
