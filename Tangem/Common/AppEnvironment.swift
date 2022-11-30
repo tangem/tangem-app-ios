@@ -65,4 +65,16 @@ extension AppEnvironment {
     var isXcodePreview: Bool {
         ProcessInfo.processInfo.environment["XCODE_RUNNING_FOR_PREVIEWS"] == "1"
     }
+
+    var configFileName: String {
+        if isDebug {
+            return "config_dev"
+        }
+
+        if self == .alpha {
+            return "config_alpha"
+        }
+
+        return "config_prod"
+    }
 }

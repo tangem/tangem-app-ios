@@ -93,6 +93,7 @@ enum EmailCollectedDataType {
         case blockchain
         case derivationPath = "Derivation path"
         case token
+        case userWalletId
     }
 
     enum SendData: String {
