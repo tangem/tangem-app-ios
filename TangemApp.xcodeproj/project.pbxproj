@@ -687,6 +687,17 @@
 		EFE23AB9292B8D1800A3C554 /* SwappingPermissionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFE23AB4292B8D1800A3C554 /* SwappingPermissionView.swift */; };
 		EFE23ABA292B8D1800A3C554 /* SwappingPermissionViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFE23AB5292B8D1800A3C554 /* SwappingPermissionViewModel.swift */; };
 		EFE23ABB292B8D1800A3C554 /* SwappingPermissionRoutable.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFE23AB6292B8D1800A3C554 /* SwappingPermissionRoutable.swift */; };
+		EFE23AC6292CB6F700A3C554 /* SwappingTokenListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFE23AC1292CB6F700A3C554 /* SwappingTokenListView.swift */; };
+		EFE23AC7292CB6F700A3C554 /* SwappingTokenListViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFE23AC2292CB6F700A3C554 /* SwappingTokenListViewModel.swift */; };
+		EFE23AC8292CB6F700A3C554 /* SwappingTokenListRoutable.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFE23AC3292CB6F700A3C554 /* SwappingTokenListRoutable.swift */; };
+		EFE23ACB292CB88500A3C554 /* IconView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFE23ACA292CB88500A3C554 /* IconView.swift */; };
+		EFE23ACE292CBA0E00A3C554 /* SwappingTokenItemView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFE23ACD292CBA0E00A3C554 /* SwappingTokenItemView.swift */; };
+		EFE23AD1292CC57D00A3C554 /* SwappingTokenItemViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFE23AD0292CC57D00A3C554 /* SwappingTokenItemViewModel.swift */; };
+		EFE1812B292E30C00072D80C /* SupportChatViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65C9FCB92869CC3E00FDE63E /* SupportChatViewModel.swift */; };
+		EFE1812C292E30DF0072D80C /* OnboardingCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0E1565126B97F8C005B33E4 /* OnboardingCardView.swift */; };
+		EFE23AAE292B810300A3C554 /* SuccessSwappingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFE23AAB292B810300A3C554 /* SuccessSwappingView.swift */; };
+		EFE23AAF292B810300A3C554 /* SuccessSwappingRoutable.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFE23AAC292B810300A3C554 /* SuccessSwappingRoutable.swift */; };
+		EFE23AB0292B810300A3C554 /* SuccessSwappingViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFE23AAD292B810300A3C554 /* SuccessSwappingViewModel.swift */; };
 		EFEBCE2829263FC400B0C886 /* NumberFormatter+.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFEBCE2729263FC300B0C886 /* NumberFormatter+.swift */; };
 		EFEBCE2B29265CF300B0C886 /* TokenIconViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFEBCE2A29265CF300B0C886 /* TokenIconViewModel.swift */; };
 		EFEC653C292E1B9100AE8521 /* SwappingViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF5267EE2927809300FC25A8 /* SwappingViewModel.swift */; };
@@ -1534,6 +1545,15 @@
 		EFE23ACA292CB88500A3C554 /* IconView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IconView.swift; sourceTree = "<group>"; };
 		EFE23ACD292CBA0E00A3C554 /* SwappingTokenItemView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwappingTokenItemView.swift; sourceTree = "<group>"; };
 		EFE23AD0292CC57D00A3C554 /* SwappingTokenItemViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwappingTokenItemViewModel.swift; sourceTree = "<group>"; };
+		EFE23AC1292CB6F700A3C554 /* SwappingTokenListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwappingTokenListView.swift; sourceTree = "<group>"; };
+		EFE23AC2292CB6F700A3C554 /* SwappingTokenListViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwappingTokenListViewModel.swift; sourceTree = "<group>"; };
+		EFE23AC3292CB6F700A3C554 /* SwappingTokenListRoutable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwappingTokenListRoutable.swift; sourceTree = "<group>"; };
+		EFE23ACA292CB88500A3C554 /* IconView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IconView.swift; sourceTree = "<group>"; };
+		EFE23ACD292CBA0E00A3C554 /* SwappingTokenItemView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwappingTokenItemView.swift; sourceTree = "<group>"; };
+		EFE23AD0292CC57D00A3C554 /* SwappingTokenItemViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwappingTokenItemViewModel.swift; sourceTree = "<group>"; };
+		EFE23AAB292B810300A3C554 /* SuccessSwappingView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SuccessSwappingView.swift; sourceTree = "<group>"; };
+		EFE23AAC292B810300A3C554 /* SuccessSwappingRoutable.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SuccessSwappingRoutable.swift; sourceTree = "<group>"; };
+		EFE23AAD292B810300A3C554 /* SuccessSwappingViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SuccessSwappingViewModel.swift; sourceTree = "<group>"; };
 		EFEBCE2729263FC300B0C886 /* NumberFormatter+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NumberFormatter+.swift"; sourceTree = "<group>"; };
 		EFEBCE2A29265CF300B0C886 /* TokenIconViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenIconViewModel.swift; sourceTree = "<group>"; };
 		EFF034AB28B4B6ED00F70FF7 /* Publisher+TangemAPIError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Publisher+TangemAPIError.swift"; sourceTree = "<group>"; };
@@ -3199,6 +3219,7 @@
 				EF5267DF2927805B00FC25A8 /* Swapping */,
 				EF11DD9429378A6E0044B33C /* SwappingTokenList */,
 				EFE23AB1292B8D0800A3C554 /* SwappingPermission */,
+				EFE23ABE292CB6E800A3C554 /* SwappingTokenList */,
 				EFE23AAA292B810300A3C554 /* SuccessSwapping */,
 				DC261CB9292CFB3100875E64 /* App */,
 				DC261CAD292CF68C00875E64 /* UncompletedBackup */,
@@ -3791,6 +3812,42 @@
 			path = Types;
 			sourceTree = "<group>";
 		};
+		EFE23ABE292CB6E800A3C554 /* SwappingTokenList */ = {
+			isa = PBXGroup;
+			children = (
+				EFE23ACC292CB9F300A3C554 /* Components */,
+				EFE23AC1292CB6F700A3C554 /* SwappingTokenListView.swift */,
+				EFE23AC2292CB6F700A3C554 /* SwappingTokenListViewModel.swift */,
+				EFE23AC3292CB6F700A3C554 /* SwappingTokenListRoutable.swift */,
+			);
+			path = SwappingTokenList;
+			sourceTree = "<group>";
+		};
+		EFE23AC9292CB84600A3C554 /* IconView */ = {
+			isa = PBXGroup;
+			children = (
+				EFE23ACA292CB88500A3C554 /* IconView.swift */,
+			);
+			path = IconView;
+			sourceTree = "<group>";
+		};
+		EFE23ACC292CB9F300A3C554 /* Components */ = {
+			isa = PBXGroup;
+			children = (
+				EFE23ACF292CC57300A3C554 /* SwappingTokenItemView */,
+			);
+			path = Components;
+			sourceTree = "<group>";
+		};
+		EFE23ACF292CC57300A3C554 /* SwappingTokenItemView */ = {
+			isa = PBXGroup;
+			children = (
+				EFE23ACD292CBA0E00A3C554 /* SwappingTokenItemView.swift */,
+				EFE23AD0292CC57D00A3C554 /* SwappingTokenItemViewModel.swift */,
+			);
+			path = SwappingTokenItemView;
+			sourceTree = "<group>";
+		};
 		EFE23AAA292B810300A3C554 /* SuccessSwapping */ = {
 			isa = PBXGroup;
 			children = (
@@ -4277,6 +4334,7 @@
 				DAA0559928744E2400E4F7B9 /* MercuryoService.swift in Sources */,
 				B0C4F77F26F0C0BF0086D815 /* TransitionWithoutOpacity.swift in Sources */,
 				DC0A57D92822A3C80031BECC /* InjectedWrapper.swift in Sources */,
+				EFE23AC6292CB6F700A3C554 /* SwappingTokenListView.swift in Sources */,
 				DAA5E31A28D214BF003C0E80 /* UserWalletFactory.swift in Sources */,
 				DC7DA8192844EAFF00AD6DBD /* WelcomeCoordinator.swift in Sources */,
 				5D384B9124FD4E1800C2C92C /* String+.swift in Sources */,
@@ -4354,6 +4412,8 @@
 				DC66BBE32858E7A600CDF765 /* WelcomeRoutable.swift in Sources */,
 				EFFE2CEC28B8E1B000B9F279 /* DerivationManager.swift in Sources */,
 				DCE7E02C287BF92400063EEC /* SwitchChainHandler.swift in Sources */,
+				EFE23AC8292CB6F700A3C554 /* SwappingTokenListRoutable.swift in Sources */,
+				EFE23AAF292B810300A3C554 /* SuccessSwappingRoutable.swift in Sources */,
 				B09BB865259A075600B92000 /* TextInputField.swift in Sources */,
 				B037B1EE256E747F0022EFFF /* TwinsFinalizeWalletCreationTask.swift in Sources */,
 				EF4661D22923E4C000346B6C /* BlockchainNetworkService.swift in Sources */,
