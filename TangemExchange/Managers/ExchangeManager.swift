@@ -24,10 +24,4 @@ public protocol ExchangeManager {
 
     /// Get data model with data which should be viewed to user for approve
     func getApprovedDataModel() async -> ExchangeApprovedDataModel?
-
-    /// Approve and swap items
-    func approveAndSwapItems()
-
-    /// User request swap items
-    func swapItems()
 }
