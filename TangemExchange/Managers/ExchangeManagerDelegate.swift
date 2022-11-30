@@ -9,6 +9,6 @@
 import Foundation
 
 public protocol ExchangeManagerDelegate: AnyObject {
-    func exchangeManagerDidUpdate(availabilityState: SwappingAvailabilityState)
-    func exchangeManagerDidUpdate(swappingModel: ExchangeSwapDataModel)
+    func exchangeManagerDidUpdate(availabilityState: ExchangeAvailabilityState)
+    func exchangeManagerDidUpdate(swappingModel: ExchangeDataModel)
 }
