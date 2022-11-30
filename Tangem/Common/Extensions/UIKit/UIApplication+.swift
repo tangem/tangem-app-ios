@@ -40,6 +40,16 @@ extension UIApplication {
             }
         }
     }
+
+    static func performWithoutAnimations(_ block: () -> Void) {
+        UIView.setAnimationsEnabled(false) // withTransaction not working with iOS16, performWithoutAnimations block not working
+
+        block()
+
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+            UIView.setAnimationsEnabled(true)
+        }
+    }
 }
 
 extension UIApplication {
