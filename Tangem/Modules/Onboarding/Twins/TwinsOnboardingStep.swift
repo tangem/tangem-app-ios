@@ -22,7 +22,7 @@ extension SuccessStep {
     }
 }
 
-enum TwinsOnboardingStep {
+enum TwinsOnboardingStep: Equatable {
     case welcome
     case intro(pairNumber: String)
     case first
@@ -30,6 +30,7 @@ enum TwinsOnboardingStep {
     case third
     case topup
     case done
+    case saveUserWallet
     case success
     case alert
 
@@ -144,6 +145,7 @@ extension TwinsOnboardingStep: OnboardingMessagesProvider {
         case .third: return "onboarding_title_twin_first_card"
         case .topup: return "onboarding_topup_title"
         case .done: return "onboarding_confetti_title"
+        case .saveUserWallet: return nil
         case .success: return successTitle
         case .alert: return "common_warning"
         }
@@ -155,6 +157,7 @@ extension TwinsOnboardingStep: OnboardingMessagesProvider {
         case .intro(let pairNumber): return LocalizedStringKey(stringLiteral: "onboarding_subtitle_intro".localized(pairNumber))
         case .first, .second, .third: return "onboarding_subtitle_reset_twin_warning"
         case .topup: return "onboarding_topup_subtitle"
+        case .saveUserWallet: return nil
         case .done, .success: return "onboarding_success_subtitle"
         case .alert: return "onboarding_alert_twins_recreate_subtitle"
         }
@@ -176,6 +179,7 @@ extension TwinsOnboardingStep: OnboardingButtonsInfoProvider {
         case .second: return "onboarding_button_tap_second_card"
         case .topup: return "onboarding_button_buy_crypto"
         case .done: return "common_continue"
+        case .saveUserWallet: return BiometricAuthorizationUtils.allowButtonLocalizationKey
         case .success: return successButtonTitle
         case .alert: return "common_continue"
         }
@@ -202,6 +206,15 @@ extension TwinsOnboardingStep: OnboardingButtonsInfoProvider {
         switch self {
         case .alert:
             return "onboarding_alert_i_understand"
+        default:
+            return nil
+        }
+    }
+
+    var infoText: LocalizedStringKey? {
+        switch self {
+        case .saveUserWallet:
+            return "save_user_wallet_agreement_notice"
         default:
             return nil
         }
