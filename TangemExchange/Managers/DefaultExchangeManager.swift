@@ -147,7 +147,7 @@ private extension DefaultExchangeManager {
             return
         }
 
-        let info = SwapTransactionInfo(
+        let info = ExchangeTransactionInfo(
             currency: exchangeItems.source,
             destination: destination.walletAddress,
             amount: amount,
@@ -190,7 +190,7 @@ private extension DefaultExchangeManager {
 private extension DefaultExchangeManager {
     // MARK: - Sending API
 
-    func sendSwapTransaction(_ info: SwapTransactionInfo, gasValue: Decimal, gasPrice: Decimal) async throws {
+    func sendSwapTransaction(_ info: ExchangeTransactionInfo, gasValue: Decimal, gasPrice: Decimal) async throws {
         let gas = gas(from: gasValue, price: gasPrice, decimalCount: info.currency.decimalCount)
 
         let transaction = try transactionBuilder.buildTransaction(for: info, fee: gas)
@@ -199,7 +199,7 @@ private extension DefaultExchangeManager {
         return try await transactionBuilder.send(signedTransaction)
     }
 
-    func submitPermissionForToken(_ info: SwapTransactionInfo, gasPrice: Decimal) async throws {
+    func submitPermissionForToken(_ info: ExchangeTransactionInfo, gasPrice: Decimal) async throws {
         let fees = try await blockchainInfoProvider.getFee(currency: info.currency, amount: info.amount, destination: info.destination)
         let gasValue: Decimal = fees[1]
 
