@@ -447,10 +447,10 @@ class CardViewModel: Identifiable, ObservableObject {
         onUpdate()
     }
 
-    func onDerived(_ card: Card) {
-        for updatedWallet in card.wallets {
-            for derivedKey in updatedWallet.derivedKeys {
-                cardInfo.card.wallets[updatedWallet.publicKey]?.derivedKeys[derivedKey.key] = derivedKey.value
+    func onDerived(_ response: DerivationResult) {
+        for updatedWallet in response {
+            for derivedKey in updatedWallet.value {
+                cardInfo.card.wallets[updatedWallet.key]?.derivedKeys[derivedKey.key] = derivedKey.value
             }
         }
 
@@ -723,9 +723,9 @@ extension CardViewModel {
         let alreadySaved = userWalletModel?.getSavedEntries() ?? []
         derivationManager.deriveIfNeeded(entries: alreadySaved + entries, completion: { [weak self] result in
             switch result {
-            case let .success(card):
-                if let card = card {
-                    self?.onDerived(card)
+            case let .success(response):
+                if let response {
+                    self?.onDerived(response)
                 }
 
                 completion(.success(()))
