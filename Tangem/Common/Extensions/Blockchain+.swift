@@ -84,13 +84,6 @@ extension Blockchain {
         }
     }
 
-    var storageId: String {
-        switch self {
-        case .bsc: return "binanceSmartChain"
-        default: return id
-        }
-    }
-
     var networkId: String {
         isTestnet ? "\(rawNetworkId)\(Blockchain.testnetId)" : rawNetworkId
     }
