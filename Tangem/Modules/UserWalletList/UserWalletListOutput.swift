@@ -9,5 +9,5 @@
 import Foundation
 
 protocol UserWalletListCoordinatorOutput: AnyObject {
-    func openOnboarding(with input: OnboardingInput)
+    func dismissAndOpenOnboarding(with input: OnboardingInput)
 }
