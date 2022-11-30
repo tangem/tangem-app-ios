@@ -49,22 +49,22 @@ extension OneInchExchangeProvider: ExchangeProvider {
         }
     }
 
-    func fetchTxDataForSwap(items: ExchangeItems, walletAddress: String, amount: String, slippage: Int) async throws -> ExchangeSwapDataModel {
+    func fetchTxDataForExchange(items: ExchangeItems, walletAddress: String, amount: String) async throws -> ExchangeDataModel {
         let blockchain = items.source.blockchain
         let destination = items.destination
-        let parameters = SwapParameters(
+        let parameters = ExchangeParameters(
             fromTokenAddress: items.source.contractAddress ?? oneInchCoinContractAddress,
             toTokenAddress: destination.contractAddress ?? oneInchCoinContractAddress,
             amount: amount,
             fromAddress: walletAddress,
-            slippage: slippage
+            slippage: 1 // Default value
         )
 
         let result = await oneInchAPIProvider.swap(blockchain: blockchain, parameters: parameters)
 
         switch result {
-        case .success(let swapData):
-            return ExchangeSwapDataModel(swapData: swapData)
+        case .success(let exchangeData):
+            return ExchangeDataModel(exchangeData: exchangeData)
         case .failure(let error):
             throw error
         }
