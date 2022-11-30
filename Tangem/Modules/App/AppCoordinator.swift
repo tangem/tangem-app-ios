@@ -59,8 +59,10 @@ class AppCoordinator: NSObject, CoordinatorObject {
         }
 
         let popToRootAction: ParamsAction<PopToRootOptions> = { [weak self] options in
-            self?.welcomeCoordinator = nil
-            self?.start(with: .init(connectionOptions: nil, newScan: options.newScan))
+            self?.closeAllSheetsIfNeeded(animated: true) {
+                self?.welcomeCoordinator = nil
+                self?.start(with: .init(connectionOptions: nil, newScan: options.newScan))
+            }
         }
 
         let coordinator = WelcomeCoordinator(dismissAction: dismissAction, popToRootAction: popToRootAction)
@@ -75,8 +77,10 @@ class AppCoordinator: NSObject, CoordinatorObject {
         }
 
         let popToRootAction: ParamsAction<PopToRootOptions> = { [weak self] options in
-            self?.authCoordinator = nil
-            self?.start(with: .init(connectionOptions: nil, newScan: options.newScan))
+            self?.closeAllSheetsIfNeeded(animated: true) {
+                self?.authCoordinator = nil
+                self?.start(with: .init(connectionOptions: nil, newScan: options.newScan))
+            }
         }
 
         let coordinator = AuthCoordinator(dismissAction: dismissAction, popToRootAction: popToRootAction)
@@ -107,7 +111,7 @@ class AppCoordinator: NSObject, CoordinatorObject {
     }
 
     private func handleLock() {
-        closeAllSheetsIfNeeded()
+        closeAllSheetsIfNeeded(animated: false)
 
         UIApplication.performWithoutAnimations {
             welcomeCoordinator = nil
@@ -116,18 +120,17 @@ class AppCoordinator: NSObject, CoordinatorObject {
         }
     }
 
-    // iOS prior to 16 do not hide sheets automatically
-    private func closeAllSheetsIfNeeded() {
-        guard #unavailable(iOS 16),
-              let topViewController = UIApplication.topViewController,
+    private func closeAllSheetsIfNeeded(animated: Bool, completion: @escaping () -> Void = { }) {
+        guard let topViewController = UIApplication.topViewController,
               topViewController.presentingViewController != nil else {
+            DispatchQueue.main.async {
+                completion()
+            }
             return
         }
 
-        topViewController.dismiss(animated: false)
-
-        DispatchQueue.main.async {
-            self.closeAllSheetsIfNeeded()
+        topViewController.dismiss(animated: animated) {
+            self.closeAllSheetsIfNeeded(animated: animated, completion: completion)
         }
     }
 }

@@ -54,6 +54,8 @@ final class UserWalletListViewModel: ObservableObject, Identifiable {
         selectedUserWalletId = userWalletRepository.selectedUserWalletId
         updateModels()
 
+        userWalletRepository.delegate = self
+
         bind()
     }
 
@@ -129,12 +131,7 @@ final class UserWalletListViewModel: ObservableObject, Identifiable {
         Analytics.log(.buttonRequestSupport)
         failedCardScanTracker.resetCounter()
 
-        coordinator.dismissUserWalletList()
-
-        let dismissingDelay = 0.6
-        DispatchQueue.main.asyncAfter(deadline: .now() + dismissingDelay) {
-            self.coordinator.openMail(with: self.failedCardScanTracker, emailType: .failedToScanCard, recipient: EmailConfig.default.recipient)
-        }
+        coordinator.openMail(with: failedCardScanTracker, emailType: .failedToScanCard, recipient: EmailConfig.default.recipient)
     }
 
     func editUserWallet(_ viewModel: UserWalletListCellViewModel) {
@@ -194,7 +191,7 @@ final class UserWalletListViewModel: ObservableObject, Identifiable {
 
         switch reason {
         case .userSelected, .inserted:
-            coordinator.dismissUserWalletList()
+            coordinator.dismiss()
         case .deleted:
             break
         }
@@ -246,10 +243,7 @@ final class UserWalletListViewModel: ObservableObject, Identifiable {
         singleCurrencyModels.removeAll { $0.userWalletId == userWalletId }
 
         if userWalletRepository.isEmpty && AppSettings.shared.saveUserWallets {
-            coordinator.dismissUserWalletList()
-            DispatchQueue.main.async { // We need time to properly close sheet
-                self.coordinator.popToRoot()
-            }
+            coordinator.popToRoot()
         }
     }
 
@@ -308,5 +302,11 @@ final class UserWalletListViewModel: ObservableObject, Identifiable {
             }
             self?.userWalletRepository.setSelectedUserWalletId(userWallet.userWalletId, reason: .userSelected)
         }
+    }
+}
+
+extension UserWalletListViewModel: UserWalletRepositoryDelegate {
+    func showTOS(at url: URL, _ completion: @escaping (Bool) -> Void) {
+        coordinator.openDisclaimer(at: url, completion)
     }
 }
