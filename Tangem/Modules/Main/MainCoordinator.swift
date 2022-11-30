@@ -37,7 +37,6 @@ class MainCoordinator: CoordinatorObject {
     @Published var warningBankCardViewModel: WarningBankCardViewModel? = nil
     @Published var userWalletListCoordinator: UserWalletListCoordinator?
     @Published var userWalletStorageAgreementViewModel: UserWalletStorageAgreementViewModel?
-    @Published var disclaimerViewModel: DisclaimerViewModel? = nil
 
     // MARK: - Helpers
     @Published var modalOnboardingCoordinatorKeeper: Bool = false
@@ -294,12 +293,6 @@ extension MainCoordinator: UserWalletListOutput {
         let options = OnboardingCoordinator.Options(input: input, destination: .main)
         coordinator.start(with: options)
         pushedOnboardingCoordinator = coordinator
-    }
-}
-
-extension MainCoordinator: DisclaimerRoutable {
-    func dismissDisclaimer() {
-        disclaimerViewModel = nil
     }
 }
 
