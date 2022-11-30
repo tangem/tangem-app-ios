@@ -191,7 +191,7 @@ final class UserWalletListViewModel: ObservableObject, Identifiable {
 
         switch reason {
         case .userSelected, .inserted:
-            coordinator.dismissUserWalletList()
+            coordinator.dismiss()
         case .deleted:
             break
         }
@@ -243,7 +243,7 @@ final class UserWalletListViewModel: ObservableObject, Identifiable {
         singleCurrencyModels.removeAll { $0.userWalletId == userWalletId }
 
         if userWalletRepository.isEmpty && AppSettings.shared.saveUserWallets {
-            coordinator.dismissUserWalletList()
+            coordinator.dismiss()
             coordinator.popToRoot()
         }
     }
