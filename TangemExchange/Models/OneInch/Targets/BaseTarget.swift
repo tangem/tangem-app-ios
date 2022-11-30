@@ -11,13 +11,14 @@ import Moya
 
 struct BaseTarget: TargetType {
     let target: TargetType
+    let blockchain: ExchangeBlockchain
 
     var baseURL: URL {
         target.baseURL
     }
 
     var path: String {
-        target.path
+        blockchain.id + target.path
     }
 
     var method: Moya.Method {
