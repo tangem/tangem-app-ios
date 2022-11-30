@@ -59,9 +59,10 @@ class AppCoordinator: NSObject, CoordinatorObject {
         }
 
         let popToRootAction: ParamsAction<PopToRootOptions> = { [weak self] options in
-            self?.closeAllSheetsIfNeeded()
-            self?.welcomeCoordinator = nil
-            self?.start(with: .init(connectionOptions: nil, newScan: options.newScan))
+            self?.closeAllSheetsIfNeeded(animated: true) {
+                self?.welcomeCoordinator = nil
+                self?.start(with: .init(connectionOptions: nil, newScan: options.newScan))
+            }
         }
 
         let coordinator = WelcomeCoordinator(dismissAction: dismissAction, popToRootAction: popToRootAction)
@@ -76,9 +77,10 @@ class AppCoordinator: NSObject, CoordinatorObject {
         }
 
         let popToRootAction: ParamsAction<PopToRootOptions> = { [weak self] options in
-            self?.closeAllSheetsIfNeeded()
-            self?.authCoordinator = nil
-            self?.start(with: .init(connectionOptions: nil, newScan: options.newScan))
+            self?.closeAllSheetsIfNeeded(animated: true) {
+                self?.authCoordinator = nil
+                self?.start(with: .init(connectionOptions: nil, newScan: options.newScan))
+            }
         }
 
         let coordinator = AuthCoordinator(dismissAction: dismissAction, popToRootAction: popToRootAction)
@@ -109,7 +111,7 @@ class AppCoordinator: NSObject, CoordinatorObject {
     }
 
     private func handleLock() {
-        closeAllSheetsIfNeeded()
+        closeAllSheetsIfNeeded(animated: false)
 
         UIApplication.performWithoutAnimations {
             welcomeCoordinator = nil
@@ -118,14 +120,15 @@ class AppCoordinator: NSObject, CoordinatorObject {
         }
     }
 
-    private func closeAllSheetsIfNeeded() {
+    private func closeAllSheetsIfNeeded(animated: Bool, completion: @escaping () -> Void = { }) {
         guard let topViewController = UIApplication.topViewController,
               topViewController.presentingViewController != nil else {
+            completion()
             return
         }
 
-        topViewController.dismiss(animated: false) {
-            self.closeAllSheetsIfNeeded()
+        topViewController.dismiss(animated: animated) {
+            self.closeAllSheetsIfNeeded(animated: animated, completion: completion)
         }
     }
 }
