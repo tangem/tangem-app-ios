@@ -156,9 +156,9 @@ class WalletConnectService: ObservableObject {
     private func setupSessionConnectTimer() {
         isWaitingToConnect = true
         isServiceBusy.send(true)
-        timer = DispatchWorkItem(block: { [unowned self] in
-            self.isWaitingToConnect = false
-            self.handle(WalletConnectServiceError.timeout)
+        timer = DispatchWorkItem(block: { [weak self] in
+            self?.isWaitingToConnect = false
+            self?.handle(WalletConnectServiceError.timeout)
         })
         DispatchQueue.main.asyncAfter(deadline: .now() + 20, execute: timer!)
     }
