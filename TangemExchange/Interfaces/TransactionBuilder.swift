@@ -11,7 +11,7 @@ import Foundation
 public protocol TransactionBuilder {
     associatedtype Transaction
 
-    func buildTransaction(for info: SwapTransactionInfo, fee: Decimal) throws -> Transaction
+    func buildTransaction(for info: ExchangeTransactionInfo, fee: Decimal) throws -> Transaction
     func sign(_ transaction: Transaction) async throws -> Transaction
     func send(_ transaction: Transaction) async throws
 }

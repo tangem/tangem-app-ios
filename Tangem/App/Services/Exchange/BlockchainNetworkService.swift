@@ -46,8 +46,8 @@ extension BlockchainNetworkService: BlockchainInfoProvider {
 extension BlockchainNetworkService: TransactionBuilder {
     typealias Transaction = BlockchainSdk.Transaction
 
-    func buildTransaction(for info: SwapTransactionInfo, fee: Decimal) throws -> Transaction {
-        let transactionInfo = ExchangeTransactionInfo(
+    func buildTransaction(for info: ExchangeTransactionInfo, fee: Decimal) throws -> Transaction {
+        let transactionInfo = TransactionInfo(
             currency: info.currency,
             amount: info.amount,
             fee: fee,
@@ -74,7 +74,7 @@ extension BlockchainNetworkService: TransactionBuilder {
 // MARK: - Private
 
 private extension BlockchainNetworkService {
-    func createTransaction(for info: ExchangeTransactionInfo) throws -> Transaction {
+    func createTransaction(for info: TransactionInfo) throws -> Transaction {
         let amount = createAmount(from: info.currency, amount: info.amount)
         let fee = createAmount(from: info.currency, amount: info.fee)
 
@@ -96,6 +96,33 @@ private extension BlockchainNetworkService {
             value: amount,
             decimals: currency.decimalCount
         )
+    }
+}
+
+private extension BlockchainNetworkService {
+    struct TransactionInfo {
+        let currency: Currency
+        let amount: Decimal
+        let fee: Decimal
+        let destination: String
+        let sourceAddress: String?
+        let changeAddress: String?
+
+        init(
+            currency: Currency,
+            amount: Decimal,
+            fee: Decimal,
+            destination: String,
+            sourceAddress: String? = nil,
+            changeAddress: String? = nil
+        ) {
+            self.currency = currency
+            self.amount = amount
+            self.fee = fee
+            self.destination = destination
+            self.sourceAddress = sourceAddress
+            self.changeAddress = changeAddress
+        }
     }
 }
 
