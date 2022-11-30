@@ -26,7 +26,6 @@ class MainCoordinator: CoordinatorObject {
     @Published var detailsCoordinator: DetailsCoordinator? = nil
     @Published var tokenListCoordinator: TokenListCoordinator? = nil
     @Published var modalOnboardingCoordinator: OnboardingCoordinator? = nil
-    @Published var pushedOnboardingCoordinator: OnboardingCoordinator? = nil
 
     // MARK: - Child view models
     @Published var pushedWebViewModel: WebViewContainerViewModel? = nil
@@ -284,18 +283,21 @@ extension MainCoordinator: UserWalletListCoordinatorOutput {
     func dismissAndOpenOnboarding(with input: OnboardingInput) {
         userWalletListCoordinator = nil
 
-        let dismissAction: Action = { [weak self] in
-            self?.pushedOnboardingCoordinator = nil
-        }
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) {
+            let dismissAction: Action = { [weak self] in
+                self?.modalOnboardingCoordinator = nil
+            }
 
-        let popToRootAction: ParamsAction<PopToRootOptions> = { [weak self] options in
-            self?.pushedOnboardingCoordinator = nil
-        }
+            let popToRootAction: ParamsAction<PopToRootOptions> = { [weak self] options in
+                self?.modalOnboardingCoordinator = nil
+                self?.popToRoot()
+            }
 
-        let coordinator = OnboardingCoordinator(dismissAction: dismissAction, popToRootAction: popToRootAction)
-        let options = OnboardingCoordinator.Options(input: input, destination: .main)
-        coordinator.start(with: options)
-        pushedOnboardingCoordinator = coordinator
+            let coordinator = OnboardingCoordinator(dismissAction: dismissAction, popToRootAction: popToRootAction)
+            let options = OnboardingCoordinator.Options(input: input, destination: .dismiss)
+            coordinator.start(with: options)
+            self.modalOnboardingCoordinator = coordinator
+        }
     }
 }
 
