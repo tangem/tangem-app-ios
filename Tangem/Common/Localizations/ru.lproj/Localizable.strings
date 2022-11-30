@@ -516,3 +516,4 @@ URL: %@";
 "swapping_success" = "Успешно!";
 "swapping_swap_of_to" = "Обмен %@ на";
 "swapping_swap" = "Обмен";
+"user_wallet_list_error_wallet_already_saved" = "Этот кошелек уже был сохранен, вы можете добавить другой";
