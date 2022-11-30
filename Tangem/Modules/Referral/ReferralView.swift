@@ -212,7 +212,7 @@ struct ReferralView_Previews: PreviewProvider {
                                              coordinator: ReferralCoordinator())
             )
         }
-        .previewGroup(devices: [.iPhone8], withZoomed: false)
+        .previewGroup(devices: [.iPhone7], withZoomed: false)
 
         NavigationView {
             ReferralView(
@@ -222,6 +222,6 @@ struct ReferralView_Previews: PreviewProvider {
                 )
             )
         }
-        .previewGroup(devices: [.iPhone8], withZoomed: false)
+        .previewGroup(devices: [.iPhone7], withZoomed: false)
     }
 }
