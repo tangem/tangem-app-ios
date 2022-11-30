@@ -54,6 +54,8 @@ struct DetailsView: View {
         }
     }
 
+    // MARK: - Settings Section
+
     private var settingsSection: some View {
         GroupedSection(viewModel.settingsSectionViewModels) {
             DefaultRowView(viewModel: $0)
