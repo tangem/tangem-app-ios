@@ -55,7 +55,7 @@ class CommonUserWalletRepository: UserWalletRepository {
 
     private let eventSubject = PassthroughSubject<UserWalletRepositoryEvent, Never>()
 
-    private let minimizedAppTimer = MinimizedAppTimer(interval: 2 * 60)
+    private let minimizedAppTimer = MinimizedAppTimer(interval: 10 * 60)
 
     private var bag: Set<AnyCancellable> = .init()
 
