@@ -10,7 +10,7 @@ import SwiftUI
 
 struct DefaultWarningRowViewModel {
     let icon: Image
-    let title: String
+    let title: String?
     let subtitle: String
     let detailsType: DetailsType?
 
@@ -18,7 +18,7 @@ struct DefaultWarningRowViewModel {
 
     init(
         icon: Image,
-        title: String,
+        title: String?,
         subtitle: String,
         detailsType: DefaultWarningRowViewModel.DetailsType? = nil,
         action: @escaping () -> ()
