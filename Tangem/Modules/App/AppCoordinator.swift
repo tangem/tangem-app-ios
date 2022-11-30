@@ -107,6 +107,13 @@ class AppCoordinator: NSObject, CoordinatorObject {
     }
 
     private func handleLock() {
+        if #unavailable(iOS 16) { // iOS prior to 16 do not hide sheets automatically
+            if let topViewController = UIApplication.topViewController,
+               topViewController.presentingViewController != nil {
+                topViewController.dismiss(animated: false)
+            }
+        }
+
         welcomeCoordinator = nil
         authCoordinator = nil
         start()
