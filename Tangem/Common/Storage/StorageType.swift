@@ -30,6 +30,11 @@ enum StorageType: String {
     case cardsFinishedActivation = "tangem_cards_finished_activation"
     case didDisplayMainScreenStories = "tangem_tap_did_display_main_screen_stories"
     case termsOfServicesAccepted = "tangem_tap_terms_of_services_accepted"
+    case askedToSaveUserWallets = "tangem_asked_to_save_user_wallets"
+    case saveUserWallets = "tangem_save_user_wallets"
+    case selectedUserWalletId = "tangem_selected_user_wallet_id"
+    case saveAccessCodes = "tangem_save_access_codes"
+
     // Temp migrated cards storage. Remove with LegacyCardMigrator
     case migratedCardsWithDefaultTokens = "tangem_migrated_cards_default_tokens"
 }
