@@ -1,5 +1,5 @@
 //
-//  SwapTarget.swift
+//  ExchangeTarget.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -10,24 +10,24 @@ import Foundation
 import Moya
 
 /// Target for finding best quote to exchange and getting data for swap transaction
-enum SwapTarget {
+enum ExchangeTarget {
     /// find the best quote to exchange via 1inch router
-    case quote(blockchain: ExchangeBlockchain, parameters: QuoteParameters)
+    case quote(_ parameters: QuoteParameters)
     /// generate data for calling the 1inch router for exchange
-    case swap(blockchain: ExchangeBlockchain, parameters: SwapParameters)
+    case swap(_ parameters: ExchangeParameters)
 }
 
-extension SwapTarget: TargetType {
+extension ExchangeTarget: TargetType {
     var baseURL: URL {
         Constants.exchangeAPIBaseURL
     }
 
     var path: String {
         switch self {
-        case let .quote(blockchain, _):
-            return "/\(blockchain.chainId)/quote"
-        case let .swap(blockchain, _):
-            return "/\(blockchain.chainId)/swap"
+        case .quote:
+            return "/quote"
+        case .swap:
+            return "/swap"
         }
     }
 
@@ -35,9 +35,9 @@ extension SwapTarget: TargetType {
 
     var task: Task {
         switch self {
-        case let .quote(_, parameters):
+        case let .quote(parameters):
             return .requestParameters(parameters)
-        case let .swap(_, parameters):
+        case let .swap(parameters):
             return .requestParameters(parameters)
         }
     }
