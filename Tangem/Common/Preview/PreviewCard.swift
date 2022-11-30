@@ -23,9 +23,10 @@ enum PreviewCard {
     case tangemWalletEmpty
 
     var cardModel: CardViewModel {
-        let card = Card.card
-        let ci = CardInfo(card: card, walletData: walletData)
-        let vm = CardViewModel(cardInfo: ci)
+        let card = CardDTO(card: Card.card)
+        let ci = CardInfo(card: card, walletData: walletData, name: "Name")
+        let config = UserWalletConfigFactory(ci).makeConfig()
+        let vm = CardViewModel(cardInfo: ci, config: config)
         let walletModels: [WalletModel]
         if let blockchain = blockchain {
             let factory = WalletManagerFactory(config: .init(blockchairApiKey: "", blockcypherTokens: [], infuraProjectId: "", tronGridApiKey: "", quiknodeApiKey: "", quiknodeSubdomain: ""))
@@ -47,11 +48,11 @@ enum PreviewCard {
         case .stellar:
             return .legacy(WalletData(blockchain: "XLM", token: nil))
         case .cardanoNote:
-            return .note(WalletData(blockchain: "ADA", token: nil))
+            return .file(WalletData(blockchain: "ADA", token: nil))
         case .ethEmptyNote:
-            return .note(WalletData(blockchain: "ETH", token: nil))
+            return .file(WalletData(blockchain: "ETH", token: nil))
         case .cardanoNoteEmptyWallet:
-            return .note(WalletData(blockchain: "ADA", token: nil))
+            return .file(WalletData(blockchain: "ADA", token: nil))
         case .twin:
             return .twin(WalletData(blockchain: "BTC", token: nil), TwinData(series: .cb64, pairPublicKey: nil))
         default:
