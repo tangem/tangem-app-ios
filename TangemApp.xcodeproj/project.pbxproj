@@ -532,10 +532,9 @@
 		EF130EB628E1C6CB00D37EFC /* MultiWalletContentViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF130EB528E1C6CB00D37EFC /* MultiWalletContentViewModel.swift */; };
 		EF130EBA28E1D33000D37EFC /* SingleWalletContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF130EB928E1D33000D37EFC /* SingleWalletContentView.swift */; };
 		EF130EBC28E1D34500D37EFC /* MultiWalletContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF130EBB28E1D34500D37EFC /* MultiWalletContentView.swift */; };
-		EF29BED8292E5C6400D7C782 /* ExchangeTransactionInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF29BED7292E5C6400D7C782 /* ExchangeTransactionInfo.swift */; };
 		EF29BEDA292E5CAE00D7C782 /* OneInchAPIService.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF29BED9292E5CAE00D7C782 /* OneInchAPIService.swift */; };
 		EF29BEDD292E5D2100D7C782 /* OneInchLimitOrderServicing.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF29BEDC292E5D2100D7C782 /* OneInchLimitOrderServicing.swift */; };
-		EF29BEE2292E5DB400D7C782 /* SwapTransactionInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF29BEE1292E5DB400D7C782 /* SwapTransactionInfo.swift */; };
+		EF29BEE2292E5DB400D7C782 /* ExchangeTransactionInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF29BEE1292E5DB400D7C782 /* ExchangeTransactionInfo.swift */; };
 		EF29BEE4292E5DC400D7C782 /* OneInchExchangeProviderErrors.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF29BEE3292E5DC400D7C782 /* OneInchExchangeProviderErrors.swift */; };
 		EF29BEE9292FBCE400D7C782 /* DefaultExchangeManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF29BEE8292FBCE400D7C782 /* DefaultExchangeManager.swift */; };
 		EF29BEEB292FBCFB00D7C782 /* SwappingAvailabilityState.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF29BEEA292FBCFB00D7C782 /* SwappingAvailabilityState.swift */; };
@@ -1334,10 +1333,9 @@
 		EF130EB528E1C6CB00D37EFC /* MultiWalletContentViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MultiWalletContentViewModel.swift; sourceTree = "<group>"; };
 		EF130EB928E1D33000D37EFC /* SingleWalletContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SingleWalletContentView.swift; sourceTree = "<group>"; };
 		EF130EBB28E1D34500D37EFC /* MultiWalletContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MultiWalletContentView.swift; sourceTree = "<group>"; };
-		EF29BED7292E5C6400D7C782 /* ExchangeTransactionInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExchangeTransactionInfo.swift; sourceTree = "<group>"; };
 		EF29BED9292E5CAE00D7C782 /* OneInchAPIService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OneInchAPIService.swift; sourceTree = "<group>"; };
 		EF29BEDC292E5D2100D7C782 /* OneInchLimitOrderServicing.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OneInchLimitOrderServicing.swift; sourceTree = "<group>"; };
-		EF29BEE1292E5DB400D7C782 /* SwapTransactionInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwapTransactionInfo.swift; sourceTree = "<group>"; };
+		EF29BEE1292E5DB400D7C782 /* ExchangeTransactionInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExchangeTransactionInfo.swift; sourceTree = "<group>"; };
 		EF29BEE3292E5DC400D7C782 /* OneInchExchangeProviderErrors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OneInchExchangeProviderErrors.swift; sourceTree = "<group>"; };
 		EF29BEE8292FBCE400D7C782 /* DefaultExchangeManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DefaultExchangeManager.swift; sourceTree = "<group>"; };
 		EF29BEEA292FBCFB00D7C782 /* SwappingAvailabilityState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwappingAvailabilityState.swift; sourceTree = "<group>"; };
@@ -3245,8 +3243,7 @@
 				EF4661DC2924CC6600346B6C /* Constants.swift */,
 				EF4661E62924CC6900346B6C /* ExchangeBlockchain.swift */,
 				E9C17C5A29170FCD00FDE4BC /* Currency.swift */,
-				EF29BEE1292E5DB400D7C782 /* SwapTransactionInfo.swift */,
-				EF29BED7292E5C6400D7C782 /* ExchangeTransactionInfo.swift */,
+				EF29BEE1292E5DB400D7C782 /* ExchangeTransactionInfo.swift */,
 				EF4661D32923E5BB00346B6C /* ExchangeItems.swift */,
 				EF29BEE0292E5D9B00D7C782 /* OneInch */,
 			);
@@ -4604,7 +4601,6 @@
 			files = (
 				EF4661C52923B42A00346B6C /* ExchangeApprovedDataModel.swift in Sources */,
 				EF29BEED292FBD0800D7C782 /* ExchangeManagerDelegate.swift in Sources */,
-				EF29BED8292E5C6400D7C782 /* ExchangeTransactionInfo.swift in Sources */,
 				EF4662002924CC6E00346B6C /* ApproveParameters.swift in Sources */,
 				EF29BEF429349F4200D7C782 /* Moya.Task+.swift in Sources */,
 				EF29BEDD292E5D2100D7C782 /* OneInchLimitOrderServicing.swift in Sources */,
@@ -4642,7 +4638,7 @@
 				EF4661F12924CC6E00346B6C /* InfoTarget.swift in Sources */,
 				EF4661FE2924CC6E00346B6C /* ExchangeInchError.swift in Sources */,
 				EF4662042924CC6E00346B6C /* PresetsConfiguration.swift in Sources */,
-				EF29BEE2292E5DB400D7C782 /* SwapTransactionInfo.swift in Sources */,
+				EF29BEE2292E5DB400D7C782 /* ExchangeTransactionInfo.swift in Sources */,
 				EF46620A2924CC6E00346B6C /* OneInchLimitOrderService.swift in Sources */,
 				EF4661FA2924CC6E00346B6C /* LimitOrder.swift in Sources */,
 				EF4661F52924CC6E00346B6C /* SwapData.swift in Sources */,
