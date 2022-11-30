@@ -267,14 +267,6 @@ extension MainCoordinator: MainRoutable {
             self?.userWalletListCoordinator = nil
         }
 
-        let popToRootAction: ParamsAction<PopToRootOptions> = { [weak self] options in
-            self?.userWalletListCoordinator = nil
-
-            DispatchQueue.main.async { // We need time to properly close sheet
-                self?.popToRoot()
-            }
-        }
-
         let coordinator = UserWalletListCoordinator(output: self, dismissAction: dismissAction, popToRootAction: popToRootAction)
         coordinator.start()
 
