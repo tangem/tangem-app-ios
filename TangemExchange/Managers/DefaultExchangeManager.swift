@@ -24,7 +24,7 @@ class DefaultExchangeManager<TxBuilder: TransactionBuilder> {
 
     private lazy var refreshDataTimer = Timer.publish(every: 10, on: .main, in: .common).autoconnect()
 
-    private var availabilityState: SwappingAvailabilityState = .idle {
+    private var availabilityState: ExchangeAvailabilityState = .idle {
         didSet { delegate?.exchangeManagerDidUpdate(availabilityState: availabilityState) }
     }
     private var exchangeItems: ExchangeItems {
@@ -78,11 +78,11 @@ extension DefaultExchangeManager: ExchangeManager {
         self.delegate = delegate
     }
 
-    func getNetworksAvailableToSwap() -> [String] {
+    func getNetworksAvailableToExchange() -> [String] {
         return [exchangeItems.source.blockchain.id]
     }
 
-    func getAvailabilityState() -> SwappingAvailabilityState {
+    func getAvailabilityState() -> ExchangeAvailabilityState {
         return availabilityState
     }
 
@@ -159,7 +159,7 @@ private extension DefaultExchangeManager {
 // MARK: - State updates
 
 private extension DefaultExchangeManager {
-    func updateState(_ state: SwappingAvailabilityState) {
+    func updateState(_ state: ExchangeAvailabilityState) {
         self.availabilityState = state
     }
 
@@ -251,7 +251,8 @@ private extension DefaultExchangeManager {
 
 private extension DefaultExchangeManager {
     func mapExpectSwappingResult(from quoteData: QuoteData) throws -> ExpectSwappingResult {
-        guard let expectAmount = Decimal(string: quoteData.toTokenAmount) else {
+        guard let expectAmount = Decimal(string: quoteData.toTokenAmount),
+              let amount else {
             throw ExchangeManagerErrors.notCorrectData
         }
 
@@ -262,11 +263,14 @@ private extension DefaultExchangeManager {
         )
 
         let fee = Decimal(integerLiteral: quoteData.estimatedGas)
+        let isEnoughAmountForExchange = exchangeItems.sourceBalance.balance < amount
+
         return ExpectSwappingResult(
             expectAmount: expectAmount / decimalNumber,
             expectFiatAmount: expectFiatAmount,
             fee: fee / decimalNumber,
-            decimalCount: quoteData.toToken.decimals
+            decimalCount: quoteData.toToken.decimals,
+            isEnoughAmountForExchange: isEnoughAmountForExchange
         )
     }
 }
@@ -275,7 +279,7 @@ private extension DefaultExchangeManager {
 
 private extension DefaultExchangeManager {
 
-    func sendSwapTransaction(_ info: SwapTransactionInfo, gasValue: Decimal, gasPrice: Decimal) async throws {
+    func sendExchangeTransaction(_ info: ExchangeTransactionInfo, gasValue: Decimal, gasPrice: Decimal) async throws {
         let gas = gas(from: gasValue, price: gasPrice, decimalCount: info.currency.decimalCount)
 
         let transaction = try transactionBuilder.buildTransaction(for: info, fee: gas)
@@ -284,7 +288,7 @@ private extension DefaultExchangeManager {
         return try await transactionBuilder.send(signedTransaction)
     }
 
-    func submitPermissionForToken(_ info: SwapTransactionInfo, gasPrice: Decimal) async throws {
+    func submitPermissionForToken(_ info: ExchangeTransactionInfo, gasPrice: Decimal) async throws {
         let fees = try await blockchainInfoProvider.getFee(currency: info.currency, amount: info.amount, destination: info.destination)
         let gasValue: Decimal = fees[1]
 
