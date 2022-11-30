@@ -506,4 +506,7 @@ URL: %@";
 "wallet_connect_need_to_scan_card" = "Пожалуйста, отсканируйте карту и повторите ваш запрос";
 "exchange_send_view_header" = "Вы отправляете";
 "exchange_receive_view_header" = "Вы получаете";
+"swapping_success" = "Успешно!";
+"swapping_swap_of_to" = "Обмен %@ на";
+"swapping_swap" = "Обмен";
 "user_wallet_list_error_wallet_already_saved" = "Этот кошелек уже был сохранен, вы можете добавить другой";
