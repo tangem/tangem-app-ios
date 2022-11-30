@@ -19,10 +19,10 @@ class UserWalletListCoordinator: CoordinatorObject {
     @Published var disclaimerViewModel: DisclaimerViewModel? = nil
     @Published var mailViewModel: MailViewModel? = nil
 
-    private weak var output: UserWalletListOutput?
+    private weak var output: UserWalletListCoordinatorOutput?
 
     required init(
-        output: UserWalletListOutput,
+        output: UserWalletListCoordinatorOutput,
         dismissAction: @escaping Action,
         popToRootAction: @escaping ParamsAction<PopToRootOptions>
     ) {
