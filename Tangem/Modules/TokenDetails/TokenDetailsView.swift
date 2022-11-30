@@ -163,7 +163,7 @@ struct TokenDetailsView_Previews: PreviewProvider {
                                                               blockchainNetwork: PreviewCard.cardanoNote.blockchainNetwork!,
                                                               amountType: .coin,
                                                               coordinator: TokenDetailsCoordinator()))
-                .deviceForPreviewZoomed(.iPhone8)
+                .deviceForPreviewZoomed(.iPhone7)
         }
     }
 }
