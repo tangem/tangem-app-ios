@@ -24,7 +24,7 @@ class UserWalletRepositoryUtil {
                 return []
             }
 
-            let decoder = JSONDecoder()
+            let decoder = JSONDecoder.tangemSdkDecoder
 
             let userWalletsPublicDataEncrypted = try Data(contentsOf: userWalletListPath())
             let userWalletsPublicData = try decrypt(userWalletsPublicDataEncrypted, with: publicDataEncryptionKey())
@@ -54,7 +54,7 @@ class UserWalletRepositoryUtil {
     }
 
     func saveUserWallets(_ userWallets: [UserWallet]) {
-        let encoder = JSONEncoder()
+        let encoder = JSONEncoder.tangemSdkEncoder
 
         do {
             if userWallets.isEmpty {
