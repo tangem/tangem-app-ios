@@ -56,10 +56,10 @@ extension OneInchExchangeProvider: ExchangeProvider {
         }
 
         let parameters = ExchangeParameters(fromTokenAddress: items.source.contractAddress ?? oneInchCoinContractAddress,
-                                        toTokenAddress: destination.contractAddress ?? oneInchCoinContractAddress,
-                                        amount: amount,
-                                        fromAddress: items.source.walletAddress,
-                                        slippage: slippage)
+                                            toTokenAddress: destination.contractAddress ?? oneInchCoinContractAddress,
+                                            amount: amount,
+                                            fromAddress: items.source.walletAddress,
+                                            slippage: slippage)
 
         let result = await oneInchAPIProvider.swap(blockchain: blockchain, parameters: parameters)
 
