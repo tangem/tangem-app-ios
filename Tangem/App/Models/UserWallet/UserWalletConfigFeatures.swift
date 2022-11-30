@@ -31,6 +31,8 @@ enum UserWalletFeature: Int, CaseIterable { // [REDACTED_TODO_COMMENT]
     case resetToFactory
     case signedHashesCounter
     case onlineImage
+    /// Is wallet allowed to participate in referral program
+    case referralProgram
 
     /// Synchronize tokens between devices using`userWalletId`
     /// Only for issued cards with multiple wallets
