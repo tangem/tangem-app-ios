@@ -276,7 +276,9 @@ extension MainCoordinator: MainRoutable {
 }
 
 extension MainCoordinator: UserWalletListCoordinatorOutput {
-    func openOnboarding(with input: OnboardingInput) {
+    func dismissAndOpenOnboarding(with input: OnboardingInput) {
+        userWalletListCoordinator = nil
+
         let dismissAction: Action = { [weak self] in
             self?.pushedOnboardingCoordinator = nil
         }
