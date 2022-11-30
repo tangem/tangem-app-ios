@@ -1,5 +1,5 @@
 //
-//  UserWalletListOutput.swift
+//  UserWalletListCoordinatorOutput.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -8,6 +8,6 @@
 
 import Foundation
 
-protocol UserWalletListOutput: AnyObject {
+protocol UserWalletListCoordinatorOutput: AnyObject {
     func openOnboarding(with input: OnboardingInput)
 }
