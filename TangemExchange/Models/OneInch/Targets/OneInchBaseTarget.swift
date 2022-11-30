@@ -1,5 +1,5 @@
 //
-//  BaseTarget.swift
+//  OneInchBaseTarget.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -9,15 +9,16 @@
 import Foundation
 import Moya
 
-struct BaseTarget: TargetType {
+struct OneInchBaseTarget: TargetType {
     let target: TargetType
+    let blockchain: ExchangeBlockchain
 
     var baseURL: URL {
         target.baseURL
     }
 
     var path: String {
-        target.path
+        String(blockchain.chainId) + target.path
     }
 
     var method: Moya.Method {
