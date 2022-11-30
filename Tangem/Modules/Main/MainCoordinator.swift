@@ -35,7 +35,7 @@ class MainCoordinator: CoordinatorObject {
     @Published var mailViewModel: MailViewModel? = nil
     @Published var addressQrBottomSheetContentViewVodel: AddressQrBottomSheetContentViewVodel? = nil
     @Published var warningBankCardViewModel: WarningBankCardViewModel? = nil
-    @Published var userWalletListViewModel: UserWalletListViewModel?
+    @Published var userWalletListCoordinator: UserWalletListCoordinator?
     @Published var userWalletStorageAgreementViewModel: UserWalletStorageAgreementViewModel?
     @Published var disclaimerViewModel: DisclaimerViewModel? = nil
 
@@ -265,18 +265,23 @@ extension MainCoordinator: MainRoutable {
     }
 
     func openUserWalletList() {
-        userWalletListViewModel = UserWalletListViewModel(coordinator: self)
+        let dismissAction: Action = { [weak self] in
+            self?.userWalletListCoordinator = nil
+        }
+
+        let popToRootAction: ParamsAction<PopToRootOptions> = { [weak self] options in
+            self?.userWalletListCoordinator = nil
+        }
+
+        let coordinator = UserWalletListCoordinator(output: self, dismissAction: dismissAction, popToRootAction: popToRootAction)
+        coordinator.start()
+
+        userWalletListCoordinator = coordinator
     }
 }
 
-extension MainCoordinator: UserWalletListRoutable {
-    func dismissUserWalletList() {
-        self.userWalletListViewModel = nil
-    }
-
+extension MainCoordinator: UserWalletListOutput {
     func openOnboarding(with input: OnboardingInput) {
-        dismissUserWalletList()
-
         let dismissAction: Action = { [weak self] in
             self?.pushedOnboardingCoordinator = nil
         }
@@ -289,15 +294,6 @@ extension MainCoordinator: UserWalletListRoutable {
         let options = OnboardingCoordinator.Options(input: input, destination: .main)
         coordinator.start(with: options)
         pushedOnboardingCoordinator = coordinator
-    }
-
-    func openDisclaimer(at url: URL, _ handler: @escaping (Bool) -> Void) {
-        userWalletListViewModel = nil
-
-        // SwiftUI goes crazy when multiple sheets are coming and going at the same time
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) {
-            self.disclaimerViewModel = DisclaimerViewModel(url: url, style: .sheet, coordinator: self, acceptanceHandler: handler)
-        }
     }
 }
 
