@@ -10,6 +10,6 @@ import Foundation
 
 public protocol ExchangeManagerDelegate: AnyObject {
     func exchangeManagerDidUpdate(exchangeItems: ExchangeItems)
-    func exchangeManagerDidUpdate(availabilityState: SwappingAvailabilityState)
+    func exchangeManagerDidUpdate(availabilityState: ExchangeAvailabilityState)
     func exchangeManagerDidUpdate(availabilityForExchange: Bool, limit: Decimal?)
 }
