@@ -29,7 +29,7 @@ struct SwappingView: View {
                 mainButton
             }
             .keyboardAdaptive()
-            .scrollDismissesKeyboardCompat()
+            .scrollDismissesKeyboardCompat(true)
         }
         .navigationBarTitle(Text("Swap"), displayMode: .inline)
     }
@@ -102,7 +102,7 @@ struct SwappingView: View {
     private var mainButton: some View {
         MainButton(
             text: "Swap",
-            icon: .trailing(Assets.tangemIcon),
+            icon: .trailing(Assets.tangemIconWhite),
             isDisabled: !viewModel.mainButtonIsEnabled,
             action: viewModel.userDidTapMainButton
         )
