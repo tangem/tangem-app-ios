@@ -36,11 +36,8 @@ extension BlockchainNetworkService: BlockchainInfoProvider {
     func getFee(currency: Currency, amount: Decimal, destination: String) async throws -> [Decimal] {
         let amount = createAmount(from: currency, amount: amount)
 
-        return try await walletManager
-            .getFee(amount: amount, destination: destination)
-            .map { $0.map { $0.value } }
-            .eraseToAnyPublisher()
-            .async()
+        let fees = try await walletManager.getFee(amount: amount, destination: destination).async()
+        return fees.map { $0.value }
     }
 }
 
