@@ -95,15 +95,17 @@ struct WebView: UIViewRepresentable {
         configuration.mediaTypesRequiringUserActionForPlayback = []
 
         let view = WKWebView(frame: CGRect(x: 0, y: 0, width: 100, height: 100), configuration: configuration)
-        if let url = url {
-            print("Loading request with url: \(url)")
-            view.load(URLRequest(url: url))
-        }
         view.navigationDelegate = context.coordinator
         view.uiDelegate = context.coordinator
         if let contentInset {
             view.scrollView.contentInset = contentInset
         }
+
+        if let url = url {
+            print("Loading request with url: \(url)")
+            view.load(URLRequest(url: url))
+        }
+
         return view
     }
 
