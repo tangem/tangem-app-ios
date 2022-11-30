@@ -447,7 +447,7 @@ class CardViewModel: Identifiable, ObservableObject {
         onUpdate()
     }
 
-    func onDerived(_ response: [Data: [DerivationPath: ExtendedPublicKey]]) {
+    func onDerived(_ response: DerivationResult) {
         for updatedWallet in response {
             for derivedKey in updatedWallet.value {
                 cardInfo.card.wallets[updatedWallet.key]?.derivedKeys[derivedKey.key] = derivedKey.value
