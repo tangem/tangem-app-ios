@@ -11,7 +11,7 @@ import Foundation
 protocol UserWalletListRoutable: AnyObject {
     func popToRoot()
     func dismissUserWalletList()
-    func openMail(with dataCollector: EmailDataCollector, emailType: EmailType, recipient: String)
-    func openOnboarding(with input: OnboardingInput)
     func openDisclaimer(at url: URL, _ completion: @escaping (Bool) -> Void)
+    func openOnboarding(with input: OnboardingInput)
+    func openMail(with dataCollector: EmailDataCollector, emailType: EmailType, recipient: String)
 }
