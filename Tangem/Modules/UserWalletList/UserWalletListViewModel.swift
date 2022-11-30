@@ -247,7 +247,9 @@ final class UserWalletListViewModel: ObservableObject, Identifiable {
 
         if userWalletRepository.isEmpty && AppSettings.shared.saveUserWallets {
             coordinator.dismissUserWalletList()
-            coordinator.popToRoot()
+            DispatchQueue.main.async { // We need time to properly close sheet
+                self.coordinator.popToRoot()
+            }
         }
     }
 
