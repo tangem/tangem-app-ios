@@ -278,14 +278,15 @@ extension MainCoordinator: UserWalletListCoordinatorOutput {
     func dismissAndOpenOnboarding(with input: OnboardingInput) {
         userWalletListCoordinator = nil
 
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) {
-            let dismissAction: Action = { [weak self] in
-                self?.modalOnboardingCoordinator = nil
-            }
+        let dismissAction: Action = { [weak self] in
+            self?.modalOnboardingCoordinator = nil
+        }
 
-            let coordinator = OnboardingCoordinator(dismissAction: dismissAction, popToRootAction: popToRootAction)
-            let options = OnboardingCoordinator.Options(input: input, destination: .dismiss)
-            coordinator.start(with: options)
+        let coordinator = OnboardingCoordinator(dismissAction: dismissAction, popToRootAction: popToRootAction)
+        let options = OnboardingCoordinator.Options(input: input, destination: .dismiss)
+        coordinator.start(with: options)
+
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) {
             self.modalOnboardingCoordinator = coordinator
         }
     }
