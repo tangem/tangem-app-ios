@@ -186,11 +186,12 @@ final class UserWalletListViewModel: ObservableObject, Identifiable {
         self.selectedUserWalletId = userWallet.userWalletId
         updateSelectedWalletModel()
 
-        if case .deleted = reason {
-            return
+        switch reason {
+        case .userSelected, .inserted:
+            coordinator.dismissUserWalletList()
+        case .deleted:
+            break
         }
-
-        coordinator.dismissUserWalletList()
     }
 
     private func updateModels() {
