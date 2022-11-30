@@ -11,14 +11,14 @@ import Moya
 
 enum LimitOrderTarget {
     // POST
-    case append(blockchain: ExchangeBlockchain, order: LimitOrder)
+    case append(_ order: LimitOrder)
     // GET
-    case ordersForAddress(blockchain: ExchangeBlockchain, parameters: OrdersForAddressParameters)
-    case allOrders(blockchain: ExchangeBlockchain, parameters: AllOrdersParameters)
-    case countOrders(blockchain: ExchangeBlockchain, statuses: [ExchangeOrderStatus])
-    case events(blockchain: ExchangeBlockchain, limit: Int)
-    case eventsForOrder(blockchain: ExchangeBlockchain, orderHash: String)
-    case hasActiveOrdersWithPermit(blockchain: ExchangeBlockchain, walletAddress: String, tokenAddress: String)
+    case ordersForAddress(_ parameters: OrdersForAddressParameters)
+    case allOrders(_ parameters: AllOrdersParameters)
+    case countOrders(_ statuses: [ExchangeOrderStatus])
+    case events(_ limit: Int)
+    case eventsForOrder(_ orderHash: String)
+    case hasActiveOrdersWithPermit(walletAddress: String, tokenAddress: String)
 }
 
 extension LimitOrderTarget: TargetType {
@@ -28,20 +28,20 @@ extension LimitOrderTarget: TargetType {
 
     var path: String {
         switch self {
-        case .append(let blockchain, _):
-            return "/\(blockchain.id)/limit-order"
-        case .ordersForAddress(let blockchain, let parameters):
-            return "/\(blockchain.id)/limit-order/address/\(parameters.address)"
-        case .allOrders(let blockchain, _):
-            return "/\(blockchain.id)/limit-order/all"
-        case .countOrders(let blockchain, _):
-            return "/\(blockchain.id)/limit-order/count"
-        case .events(let blockchain, _):
-            return "/\(blockchain.id)/limit-order/events"
-        case .eventsForOrder(let blockchain, let orderHash):
-            return "/\(blockchain.id)/limit-order/events/\(orderHash)"
-        case .hasActiveOrdersWithPermit(let blockchain, let walletAddress, let tokenAddress):
-            return "/\(blockchain.id)/limit-order/has-active-orders-with-permit/\(walletAddress)/\(tokenAddress)"
+        case .append:
+            return "/limit-order"
+        case .ordersForAddress(let parameters):
+            return "/limit-order/address/\(parameters.address)"
+        case .allOrders:
+            return "/limit-order/all"
+        case .countOrders:
+            return "/limit-order/count"
+        case .events:
+            return "/limit-order/events"
+        case let .eventsForOrder(orderHash):
+            return "/limit-order/events/\(orderHash)"
+        case let .hasActiveOrdersWithPermit(walletAddress, tokenAddress):
+            return "/limit-order/has-active-orders-with-permit/\(walletAddress)/\(tokenAddress)"
         }
     }
 
@@ -56,16 +56,16 @@ extension LimitOrderTarget: TargetType {
 
     var task: Task {
         switch self {
-        case .append(_, let order):
+        case let .append(order):
             return .requestJSONEncodable(order)
-        case .ordersForAddress(_, let parameters):
+        case let .ordersForAddress(parameters):
             return .requestParameters(parameters)
-        case .allOrders(_, let parameters):
+        case let .allOrders(parameters):
             return .requestParameters(parameters)
-        case .countOrders(_, let parameters):
+        case let .countOrders(parameters):
             let statuses = "\(parameters.map({ $0.rawValue }).sorted())"
             return .requestParameters(parameters: ["statuses": statuses], encoding: URLEncoding())
-        case .events(_, let limit):
+        case let .events(limit):
             return .requestParameters(parameters: ["limit": limit], encoding: URLEncoding())
         case .eventsForOrder, .hasActiveOrdersWithPermit:
             return .requestPlain
