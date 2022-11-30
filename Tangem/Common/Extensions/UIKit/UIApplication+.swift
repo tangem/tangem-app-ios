@@ -41,8 +41,9 @@ extension UIApplication {
         }
     }
 
+    // withTransaction not working with iOS16, UIView.performWithoutAnimations block not working
     static func performWithoutAnimations(_ block: () -> Void) {
-        UIView.setAnimationsEnabled(false) // withTransaction not working with iOS16, performWithoutAnimations block not working
+        UIView.setAnimationsEnabled(false)
 
         block()
 
