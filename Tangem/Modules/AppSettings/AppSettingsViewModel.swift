@@ -8,8 +8,12 @@
 
 import Combine
 import SwiftUI
+import TangemSdk
 
 class AppSettingsViewModel: ObservableObject {
+    @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
+    @Injected(\.tangemSdkProvider) private var sdkProvider: TangemSdkProviding
+
     // MARK: ViewState
 
     @Published var warningViewModel: DefaultWarningRowViewModel?
@@ -25,34 +29,83 @@ class AppSettingsViewModel: ObservableObject {
     // MARK: Properties
 
     private var bag: Set<AnyCancellable> = []
+    private let userWallet: UserWallet
     private var isBiometryAvailable: Bool = true
 
-    private var isSavingWallet: Bool = true {
-        didSet { self.savingWalletViewModel?.update(isOn: isSavingWalletBinding()) }
+    private var isSavingWallet: Bool {
+        didSet {
+            savingWalletViewModel?.update(isOn: isSavingWalletBinding())
+            AppSettings.shared.saveUserWallets = isSavingWallet
+        }
     }
 
-    private var isSavingAccessCodes: Bool = true {
-        didSet { self.savingAccessCodesViewModel?.update(isOn: isSavingAccessCodesBinding()) }
+    private var isSavingAccessCodes: Bool {
+        didSet {
+            savingAccessCodesViewModel?.update(isOn: isSavingAccessCodesBinding())
+            AppSettings.shared.saveAccessCodes = isSavingAccessCodes
+        }
     }
 
-    init(coordinator: AppSettingsRoutable) {
+    init(userWallet: UserWallet, coordinator: AppSettingsRoutable) {
         self.coordinator = coordinator
 
-        updateBiometricWarning()
-        setupView()
+        let isSavingWallet = AppSettings.shared.saveUserWallets
+        self.isSavingWallet = isSavingWallet
+        self.isSavingAccessCodes = isSavingWallet && AppSettings.shared.saveAccessCodes
+        self.userWallet = userWallet
+
+        updateView()
     }
 }
 
 // MARK: - Private
 
 private extension AppSettingsViewModel {
+    func isSavingWalletRequestChange(saveWallet: Bool) {
+        Analytics.log(.saveUserWalletSwitcherChanged,
+                      params: [.state: Analytics.ParameterValue.state(for: saveWallet).rawValue])
+
+        if saveWallet {
+            unlockWithBiometry { [weak self] in
+                self?.setSaveWallets($0)
+            }
+        } else {
+            presentSavingWalletDeleteAlert()
+        }
+    }
+
+    func unlockWithBiometry(completion: @escaping (_ success: Bool) -> Void) {
+        userWalletRepository.unlock(with: .biometry) { [weak self] result in
+            guard let self else { return }
+
+            if case .error = result {
+                self.updateView()
+                completion(false)
+            } else {
+                let _ = self.userWalletRepository.save(self.userWallet)
+                completion(true)
+            }
+        }
+    }
+
+    func isSavingAccessCodesRequestChange(saveAccessCodes: Bool) {
+        Analytics.log(.saveAccessCodeSwitcherChanged,
+                      params: [.state: Analytics.ParameterValue.state(for: saveAccessCodes).rawValue])
+
+        if saveAccessCodes {
+            self.setSaveAccessCodes(true)
+        } else {
+            self.presentSavingAccessCodesDeleteAlert()
+        }
+    }
+
     func setupView() {
         if !isBiometryAvailable {
             warningViewModel = DefaultWarningRowViewModel(
                 icon: Assets.attention,
                 title: "app_settings_warning_title".localized,
                 subtitle: "app_settings_warning_subtitle".localized,
-                action: openSettings
+                action: openBiometrySettings
             )
         }
 
@@ -75,11 +128,8 @@ private extension AppSettingsViewModel {
             default: false,
             get: { $0.isSavingWallet },
             set: { root, newValue in
-                if newValue {
-                    root.isSavingWallet = newValue
-                } else {
-                    root.presentSavingWalletDeleteAlert()
-                }
+                root.isSavingWallet = newValue
+                root.isSavingWalletRequestChange(saveWallet: newValue)
             }
         )
     }
@@ -90,22 +140,19 @@ private extension AppSettingsViewModel {
             default: false,
             get: { $0.isSavingAccessCodes },
             set: { root, newValue in
-                if newValue {
-                    root.isSavingAccessCodes = newValue
-                } else {
-                    root.presentSavingAccessCodesDeleteAlert()
-                }
+                root.isSavingAccessCodes = newValue
+                root.isSavingAccessCodesRequestChange(saveAccessCodes: newValue)
             }
         )
     }
 
     func presentSavingWalletDeleteAlert() {
-        let okButton = Alert.Button.destructive(Text("common_delete"), action: { [weak self] in
-            self?.disableSaveWallet()
-        })
-        let cancelButton = Alert.Button.cancel(Text("common_cancel"), action: { [weak self] in
-            self?.isSavingWallet = true
-        })
+        let okButton = Alert.Button.destructive(Text("common_delete")) { [weak self] in
+            self?.setSaveWallets(false)
+        }
+        let cancelButton = Alert.Button.cancel(Text("common_cancel")) { [weak self] in
+            self?.setSaveWallets(true)
+        }
 
         let alert = Alert(
             title: Text("common_attention"),
@@ -118,13 +165,13 @@ private extension AppSettingsViewModel {
     }
 
     func presentSavingAccessCodesDeleteAlert() {
-        let okButton = Alert.Button.destructive(Text("common_delete"), action: { [weak self] in
-            self?.disableSaveAccessCodes()
-        })
+        let okButton = Alert.Button.destructive(Text("common_delete")) { [weak self] in
+            self?.setSaveAccessCodes(false)
+        }
 
-        let cancelButton = Alert.Button.cancel(Text("common_cancel"), action: { [weak self] in
-            self?.isSavingAccessCodes = true
-        })
+        let cancelButton = Alert.Button.cancel(Text("common_cancel")) { [weak self] in
+            self?.setSaveAccessCodes(true)
+        }
 
         let alert = Alert(
             title: Text("common_attention"),
@@ -136,27 +183,39 @@ private extension AppSettingsViewModel {
         self.alert = AlertBinder(alert: alert)
     }
 
-    func disableSaveWallet() {
-        // [REDACTED_TODO_COMMENT]
-        isSavingWallet = false
-        disableSaveAccessCodes()
+    func setSaveWallets(_ saveWallets: Bool) {
+        isSavingWallet = saveWallets
+
+        // If saved wallets is turn off we should delete access codes too
+        if !saveWallets {
+            setSaveAccessCodes(false)
+            userWalletRepository.clear()
+        }
     }
 
-    func disableSaveAccessCodes() {
-        // [REDACTED_TODO_COMMENT]
+    func setSaveAccessCodes(_ saveAccessCodes: Bool) {
+        if saveAccessCodes {
+            // If savingWallets already on, just update settings
+            if isSavingWallet {
+                isSavingAccessCodes = true
+            } else {
+                // Otherwise saving access codes should be on after biometry authorization
+                unlockWithBiometry { [weak self] success in
+                    self?.setSaveWallets(success)
+                    self?.isSavingAccessCodes = success
+                }
+            }
+        } else {
+            let accessCodeRepository = AccessCodeRepository()
+            accessCodeRepository.clear()
 
-        if isSavingAccessCodes {
             isSavingAccessCodes = false
         }
     }
 
-    func updateBiometricWarning() {
+    func updateView() {
         isBiometryAvailable = BiometricAuthorizationUtils.getBiometricState() == .available
-
-        if !isBiometryAvailable {
-            isSavingWallet = false
-            isSavingAccessCodes = false
-        }
+        setupView()
     }
 }
 
@@ -171,7 +230,8 @@ extension AppSettingsViewModel {
         coordinator.openResetSavedCards()
     }
 
-    func openSettings() {
+    func openBiometrySettings() {
+        Analytics.log(.buttonEnableBiometricAuthentication)
         coordinator.openAppSettings()
     }
 }
