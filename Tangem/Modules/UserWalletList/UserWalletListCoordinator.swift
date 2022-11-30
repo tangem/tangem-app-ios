@@ -45,16 +45,12 @@ extension UserWalletListCoordinator {
 }
 
 extension UserWalletListCoordinator: UserWalletListRoutable {
-    func dismissUserWalletList() {
-        dismissAction()
-    }
-
     func openDisclaimer(at url: URL, _ handler: @escaping (Bool) -> Void) {
         disclaimerViewModel = DisclaimerViewModel(url: url, style: .sheet, coordinator: self, acceptanceHandler: handler)
     }
 
     func openOnboarding(with input: OnboardingInput) {
-        dismissUserWalletList()
+        dismiss()
         output?.openOnboarding(with: input)
     }
 
