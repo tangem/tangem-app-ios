@@ -1,5 +1,5 @@
 //
-//  ExchangeSwapDataModel.swift
+//  ExchangeDataModel.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -8,7 +8,7 @@
 
 import Foundation
 
-public struct ExchangeSwapDataModel {
+public struct ExchangeDataModel {
     public let gas: Int
     public let gasPrice: String
     public let destinationAddress: String
@@ -41,15 +41,15 @@ public struct ExchangeSwapDataModel {
         self.toTokenAddress = toTokenAddress
     }
 
-    public init(swapData: SwapData) {
-        gas = swapData.tx.gas
-        gasPrice = swapData.tx.gasPrice
-        destinationAddress = swapData.tx.to
-        sourceAddress = swapData.tx.from
-        txData = Data(hexString: swapData.tx.data)
-        fromTokenAmount = swapData.fromTokenAmount
-        toTokenAmount = swapData.toTokenAmount
-        fromTokenAddress = swapData.fromToken.address
-        toTokenAddress = swapData.toToken.address
+    public init(exchangeData: ExchangeData) {
+        gas = exchangeData.tx.gas
+        gasPrice = exchangeData.tx.gasPrice
+        destinationAddress = exchangeData.tx.to
+        sourceAddress = exchangeData.tx.from
+        txData = Data(hexString: exchangeData.tx.data)
+        fromTokenAmount = exchangeData.fromTokenAmount
+        toTokenAmount = exchangeData.toTokenAmount
+        fromTokenAddress = exchangeData.fromToken.address
+        toTokenAddress = exchangeData.toToken.address
     }
 }
