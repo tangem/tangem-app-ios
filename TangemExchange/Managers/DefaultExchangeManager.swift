@@ -82,14 +82,6 @@ extension DefaultExchangeManager: ExchangeManager {
     func getApprovedDataModel() async -> ExchangeApprovedDataModel? {
         await getExchangeApprovedDataModel()
     }
-
-    func approveAndSwapItems() {
-        sendTransactionForSwapItems()
-    }
-
-    func swapItems() {
-        sendTransactionForSwapItems()
-    }
 }
 
 private extension DefaultExchangeManager {
