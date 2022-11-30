@@ -1,5 +1,5 @@
 //
-//  SwapParameters.swift
+//  ExchangeParameters.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -8,7 +8,7 @@
 
 import Foundation
 
-public struct SwapParameters: Encodable {
+public struct ExchangeParameters: Encodable {
     public var fromTokenAddress: String
     public var toTokenAddress: String
     public var amount: String
