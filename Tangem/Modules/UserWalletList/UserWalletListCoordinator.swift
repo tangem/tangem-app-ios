@@ -50,8 +50,7 @@ extension UserWalletListCoordinator: UserWalletListRoutable {
     }
 
     func openOnboarding(with input: OnboardingInput) {
-        dismiss()
-        output?.openOnboarding(with: input)
+        output?.dismissAndOpenOnboarding(with: input)
     }
 
     func openMail(with dataCollector: EmailDataCollector, emailType: EmailType, recipient: String) {
