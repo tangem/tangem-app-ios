@@ -391,9 +391,8 @@ private extension TokenListViewModel {
     }
 
     func sendAnalyticsOnChangeTokenState(tokenIsSelected: Bool, tokenItem: TokenItem) {
-        let state: Analytics.ParameterValue = tokenIsSelected ? .on : .off
         Analytics.log(.tokenSwitcherChanged, params: [
-            .state: state.rawValue,
+            .state: Analytics.ParameterValue.state(for: tokenIsSelected).rawValue,
         ])
     }
 
