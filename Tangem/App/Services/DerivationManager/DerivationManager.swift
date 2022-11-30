@@ -27,7 +27,7 @@ struct DerivationManager {
         self.cardInfo = cardInfo
     }
 
-    func deriveIfNeeded(entries: [StorageEntry], completion: @escaping (Result<[Data: [DerivationPath: ExtendedPublicKey]]?, TangemSdkError>) -> Void) {
+    func deriveIfNeeded(entries: [StorageEntry], completion: @escaping (Result<DerivationResult?, TangemSdkError>) -> Void) {
         guard config.hasFeature(.hdWallets) else {
             completion(.success(nil))
             return
@@ -51,7 +51,7 @@ struct DerivationManager {
         deriveKeys(entries: nonDeriveEntries, completion: completion)
     }
 
-    private func deriveKeys(entries: [StorageEntry], completion: @escaping (Result<[Data: [DerivationPath: ExtendedPublicKey]]?, TangemSdkError>) -> Void) {
+    private func deriveKeys(entries: [StorageEntry], completion: @escaping (Result<DerivationResult?, TangemSdkError>) -> Void) {
         let card = cardInfo.card
         var derivations: [Data: [DerivationPath]] = [:]
 
@@ -74,3 +74,6 @@ struct DerivationManager {
         }
     }
 }
+
+
+typealias DerivationResult = DeriveMultipleWalletPublicKeysTask.Response
