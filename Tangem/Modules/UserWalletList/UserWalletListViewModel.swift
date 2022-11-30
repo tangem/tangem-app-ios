@@ -131,12 +131,7 @@ final class UserWalletListViewModel: ObservableObject, Identifiable {
         Analytics.log(.buttonRequestSupport)
         failedCardScanTracker.resetCounter()
 
-        coordinator.dismissUserWalletList()
-
-        let dismissingDelay = 0.6
-        DispatchQueue.main.asyncAfter(deadline: .now() + dismissingDelay) {
-            self.coordinator.openMail(with: self.failedCardScanTracker, emailType: .failedToScanCard, recipient: EmailConfig.default.recipient)
-        }
+        coordinator.openMail(with: failedCardScanTracker, emailType: .failedToScanCard, recipient: EmailConfig.default.recipient)
     }
 
     func editUserWallet(_ viewModel: UserWalletListCellViewModel) {
