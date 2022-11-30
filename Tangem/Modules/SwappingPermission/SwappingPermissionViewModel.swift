@@ -11,9 +11,9 @@ import SwiftUI
 
 final class SwappingPermissionViewModel: ObservableObject {
     // MARK: - ViewState
-    
+
     @Published var contentRowViewModels: [DefaultRowViewModel] = []
-    
+
     let smartContractNetworkName: String
 
     // MARK: - Dependencies
@@ -22,7 +22,7 @@ final class SwappingPermissionViewModel: ObservableObject {
     private let yourWalletAddress: String
     private let spenderWalletAddress: String
     private let fee: Decimal
-    
+
     // Optional will be removed after integration
     private unowned let coordinator: SwappingPermissionRoutable?
 
@@ -40,30 +40,30 @@ final class SwappingPermissionViewModel: ObservableObject {
         self.spenderWalletAddress = spenderWalletAddress
         self.fee = fee
         self.coordinator = coordinator
-        
+
         setupView()
     }
 
     func approveDidTapped() {
-        
+
     }
-    
+
     func cancelDidTapped() {
-        
+
     }
 }
 
 private extension SwappingPermissionViewModel {
     func setupView() {
         contentRowViewModels = [
-        DefaultRowViewModel(title: "swapping_permission_rows_amount".localized(smartContractNetworkName),
-                            detailsType: .text(amount.groupedFormatted())),
-        DefaultRowViewModel(title: "swapping_permission_rows_your_wallet".localized,
-            detailsType: .text(yourWalletAddress)),
-        DefaultRowViewModel(title: "swapping_permission_rows_spender".localized,
-                            detailsType: .text(spenderWalletAddress)),
-        DefaultRowViewModel(title: "swapping_permission_rows_fee".localized,
-                            detailsType: .text(fee.currencyFormatted(code: AppSettings.shared.selectedCurrencyCode))),
+            DefaultRowViewModel(title: "swapping_permission_rows_amount".localized(smartContractNetworkName),
+                                detailsType: .text(amount.groupedFormatted())),
+            DefaultRowViewModel(title: "swapping_permission_rows_your_wallet".localized,
+                                detailsType: .text(yourWalletAddress)),
+            DefaultRowViewModel(title: "swapping_permission_rows_spender".localized,
+                                detailsType: .text(spenderWalletAddress)),
+            DefaultRowViewModel(title: "swapping_permission_rows_fee".localized,
+                                detailsType: .text(fee.currencyFormatted(code: AppSettings.shared.selectedCurrencyCode))),
         ]
     }
 }
