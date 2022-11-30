@@ -67,7 +67,7 @@ final class SwappingViewModel: ObservableObject {
 private extension SwappingViewModel {
     func openTokenListView() {
         coordinator.presentExchangeableTokenListView(
-            networkIds: exchangeManager.getNetworksAvailableToSwap()
+            networkIds: exchangeManager.getNetworksAvailableToExchange()
         )
     }
 
@@ -88,7 +88,7 @@ private extension SwappingViewModel {
 }
 
 extension SwappingViewModel: ExchangeManagerDelegate {
-    func exchangeManagerDidUpdate(availabilityState: TangemExchange.SwappingAvailabilityState) {
+    func exchangeManagerDidUpdate(availabilityState: TangemExchange.ExchangeAvailabilityState) {
         DispatchQueue.main.async {
             self.updateState(state: availabilityState)
         }
@@ -142,7 +142,7 @@ private extension SwappingViewModel {
         )
     }
 
-    func updateState(state: TangemExchange.SwappingAvailabilityState) {
+    func updateState(state: TangemExchange.ExchangeAvailabilityState) {
         switch state {
         case .idle:
             mainButtonIsEnabled = false
@@ -179,7 +179,7 @@ private extension SwappingViewModel {
                 .fee(DefaultRowViewModel(title: "Fee", detailsType: .text(fee))),
             ]
 
-        case .requiredRefresh:
+        case .requiredRefresh(let error):
             mainButtonIsEnabled = false
             receiveCurrencyViewModel?.updateState(.loaded(0, fiatValue: 0))
             informationSectionViewModels = [
@@ -188,10 +188,28 @@ private extension SwappingViewModel {
             refreshWarningRowViewModel = DefaultWarningRowViewModel(
                 icon: Assets.attention,
                 title: "Exchange rate has expired",
-                subtitle: "Recalculate route",
+                subtitle: error.localizedDescription, //  "Recalculate route"
                 detailsType: .icon(Assets.refreshWarningIcon),
                 action: {}
             )
+        }
+    }
+
+    func updateMainButton(state: ExchangeAvailabilityState) {
+        switch state {
+        case .idle, .loading, .requiredRefresh:
+            mainButtonIsEnabled = false
+
+        case .available(let result):
+            mainButtonIsEnabled = true
+
+        case .requiredPermission(let result):
+            mainButtonIsEnabled = result.isEnoughAmountForExchange
+            if result.isEnoughAmountForExchange {
+                mainButtonTitle = .givePermission
+            } else {
+                mainButtonTitle = .insufficientFunds
+            }
         }
     }
 
@@ -268,6 +286,7 @@ extension SwappingViewModel {
         var id: Int { hashValue }
 
         case swap
+        case insufficientFunds
         case givePermission
         case permitAndSwap
 
@@ -275,6 +294,8 @@ extension SwappingViewModel {
             switch self {
             case .swap:
                 return "Swap"
+            case .insufficientFunds:
+                return "Insufficient funds"
             case .givePermission:
                 return "Give permission"
             case .permitAndSwap:
@@ -286,7 +307,7 @@ extension SwappingViewModel {
             switch self {
             case .swap, .permitAndSwap:
                 return .trailing(Assets.tangemIconWhite)
-            case .givePermission:
+            case .givePermission, .insufficientFunds:
                 return .none
             }
         }

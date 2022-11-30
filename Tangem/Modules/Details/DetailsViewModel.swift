@@ -142,6 +142,16 @@ extension DetailsViewModel {
     func openEnvironmentSetup() {
         coordinator.openEnvironmentSetup()
     }
+
+    func openReferral() {
+        guard let userWalletId = cardModel.userWalletId else {
+            // This shouldn't be the case, because currently user can't reach this screen
+            // with card that doesn't have a wallet.
+            return
+        }
+
+        coordinator.openReferral(with: cardModel, userWalletId: userWalletId)
+    }
 }
 
 // MARK: - Private
@@ -189,6 +199,10 @@ extension DetailsViewModel {
             DefaultRowViewModel(title: "details_chat".localized, action: openSupportChat),
             DefaultRowViewModel(title: "details_row_title_send_feedback".localized, action: openMail),
         ]
+
+        if cardModel.canParticipateInReferralProgram && FeatureProvider.isAvailable(.referralProgram) {
+            supportSectionModels.append(DefaultRowViewModel(title: "details_referral_title".localized, action: openReferral))
+        }
     }
 
     func setupSettingsSectionViewModels() {
