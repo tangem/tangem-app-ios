@@ -13,7 +13,6 @@ import Combine
 import BlockchainSdk
 
 class SingleCardOnboardingViewModel: OnboardingTopupViewModel<SingleCardOnboardingStep, OnboardingCoordinator>, ObservableObject {
-    @Injected(\.cardsRepository) private var cardsRepository: CardsRepository
 
     @Published var isCardScanned: Bool = true
 
@@ -49,6 +48,26 @@ class SingleCardOnboardingViewModel: OnboardingTopupViewModel<SingleCardOnboardi
         default:
             return currentStep.isSupplementButtonVisible
         }
+    }
+
+    var isCustomContentVisible: Bool {
+        switch currentStep {
+        case .saveUserWallet:
+            return true
+        default:
+            return false
+        }
+    }
+
+    var isButtonsVisible: Bool {
+        switch currentStep {
+        case .saveUserWallet: return false
+        default: return true
+        }
+    }
+
+    var infoText: LocalizedStringKey? {
+        currentStep.infoText
     }
 
     private var previewUpdateCounter: Int = 0
@@ -118,7 +137,9 @@ class SingleCardOnboardingViewModel: OnboardingTopupViewModel<SingleCardOnboardi
                 supplementButtonAction()
             }
         case .successTopup:
-            fallthrough
+            goToNextStep()
+        case .saveUserWallet:
+            break
         case .success:
             goToNextStep()
         }
@@ -134,11 +155,17 @@ class SingleCardOnboardingViewModel: OnboardingTopupViewModel<SingleCardOnboardi
     }
 
     override func setupCardsSettings(animated: Bool, isContainerSetup: Bool) {
-        mainCardSettings = .init(targetSettings: SingleCardOnboardingCardsLayout.main.cardAnimSettings(for: currentStep,
-                                                                                                       containerSize: containerSize,
-                                                                                                       animated: animated),
-                                 intermediateSettings: nil)
-        supplementCardSettings = .init(targetSettings: SingleCardOnboardingCardsLayout.supplementary.cardAnimSettings(for: currentStep, containerSize: containerSize, animated: animated), intermediateSettings: nil)
+        switch currentStep {
+        case .saveUserWallet:
+            mainCardSettings = .zero
+            supplementCardSettings = .zero
+        default:
+            mainCardSettings = .init(targetSettings: SingleCardOnboardingCardsLayout.main.cardAnimSettings(for: currentStep,
+                                                                                                           containerSize: containerSize,
+                                                                                                           animated: animated),
+                                     intermediateSettings: nil)
+            supplementCardSettings = .init(targetSettings: SingleCardOnboardingCardsLayout.supplementary.cardAnimSettings(for: currentStep, containerSize: containerSize, animated: animated), intermediateSettings: nil)
+        }
     }
 
     private func createWallet() {
@@ -174,13 +201,11 @@ class SingleCardOnboardingViewModel: OnboardingTopupViewModel<SingleCardOnboardi
 
             self.cardModel?.appendDefaultBlockchains()
 
-            if case let .singleWallet(steps) = self.input.steps, steps.contains(.topup) {
-                if let cardId = self.cardModel?.cardId {
-                    AppSettings.shared.cardsStartedActivation.insert(cardId)
-                }
-
-                Analytics.log(.onboardingStarted)
+            if let cardId = self.cardModel?.cardId {
+                AppSettings.shared.cardsStartedActivation.insert(cardId)
             }
+
+            Analytics.log(.onboardingStarted)
 
             self.cardModel?.userWalletModel?.updateAndReloadWalletModels()
             self.walletCreatedWhileOnboarding = true
