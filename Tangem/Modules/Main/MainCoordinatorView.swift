@@ -38,9 +38,6 @@ struct MainCoordinatorView: CoordinatorView {
             .navigation(item: $coordinator.detailsCoordinator) {
                 DetailsCoordinatorView(coordinator: $0)
             }
-            .navigation(item: $coordinator.pushedOnboardingCoordinator) {
-                OnboardingCoordinatorView(coordinator: $0)
-            }
     }
 
     @ViewBuilder
@@ -98,8 +95,8 @@ struct MainCoordinatorView: CoordinatorView {
             }
 
         NavHolder()
-            .sheet(item: $coordinator.userWalletListViewModel) {
-                UserWalletListView(viewModel: $0)
+            .sheet(item: $coordinator.userWalletListCoordinator) {
+                UserWalletListCoordinatorView(coordinator: $0)
             }
     }
 }
