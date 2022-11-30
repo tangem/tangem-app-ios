@@ -12,11 +12,11 @@ import Moya
 /// Target for getting the list of sources for exchange, getting list of available tokens and getting gas presets
 enum InfoTarget {
     /// List of sources that are available for swap
-    case liquiditySources(blockchain: ExchangeBlockchain)
+    case liquiditySources
     /// List of tokens that are available for swap
-    case tokens(blockchain: ExchangeBlockchain)
+    case tokens
     /// List of presets configurations for the 1inch router
-    case presets(blockchain: ExchangeBlockchain)
+    case presets
 }
 
 extension InfoTarget: TargetType {
@@ -26,12 +26,12 @@ extension InfoTarget: TargetType {
 
     var path: String {
         switch self {
-        case .liquiditySources(let blockchain):
-            return "/\(blockchain.chainId)/liquidity-sources"
-        case .tokens(let blockchain):
-            return "/\(blockchain.chainId)/tokens"
-        case .presets(let blockchain):
-            return "/\(blockchain.chainId)/presets"
+        case .liquiditySources:
+            return "/liquidity-sources"
+        case .tokens:
+            return "/tokens"
+        case .presets:
+            return "/presets"
         }
     }
 
