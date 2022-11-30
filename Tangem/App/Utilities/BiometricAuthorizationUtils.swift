@@ -7,10 +7,11 @@
 //
 
 import LocalAuthentication
+import SwiftUI
 
 enum BiometricAuthorizationUtils {
     static func getBiometricState() -> BiometricState {
-        let context = LAContext()
+        let context = LAContext.default
         var error: NSError?
         let canEvaluatePolicy = context.canEvaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, error: &error)
 
@@ -23,6 +24,41 @@ enum BiometricAuthorizationUtils {
         }
 
         return .available
+    }
+
+    static var biometryType: LABiometryType {
+        let context = LAContext.default
+        var error: NSError?
+        let _ = context.canEvaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, error: &error)
+        return context.biometryType
+    }
+
+    static var allowButtonLocalizationKey: LocalizedStringKey {
+        switch biometryType {
+        case .faceID:
+            return "save_user_wallet_agreement_allow_face_id"
+        case .touchID:
+            return "save_user_wallet_agreement_allow_touch_id"
+        case .none:
+            return ""
+        @unknown default:
+            return ""
+        }
+    }
+}
+
+extension LABiometryType {
+    var name: String {
+        switch self {
+        case .faceID:
+            return "Face ID"
+        case .touchID:
+            return "Touch ID"
+        case .none:
+            return ""
+        @unknown default:
+            return ""
+        }
     }
 }
 
