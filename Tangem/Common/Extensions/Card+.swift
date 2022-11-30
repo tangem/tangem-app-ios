@@ -10,7 +10,7 @@ import TangemSdk
 import BlockchainSdk
 import CryptoKit
 
-extension Card {
+extension CardDTO {
     var walletSignedHashes: Int {
         wallets.compactMap { $0.totalSignedHashes }.reduce(0, +)
     }
@@ -24,7 +24,7 @@ extension Card {
     }
 
     var derivationStyle: DerivationStyle? {
-        Card.getDerivationStyle(for: batchId, isHdWalletAllowed: settings.isHDWalletAllowed)
+        CardDTO.getDerivationStyle(for: batchId, isHdWalletAllowed: settings.isHDWalletAllowed)
     }
 
     var tangemApiAuthData: TangemApiTarget.AuthData {
