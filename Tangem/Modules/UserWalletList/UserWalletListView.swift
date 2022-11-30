@@ -74,19 +74,8 @@ extension UserWalletListView {
         if #available(iOS 16, *) {
             userWalletsList()
                 .scrollContentBackground(.hidden)
-        } else if #available(iOS 14, *) {
-            userWalletsList()
         } else {
-            // Using ScrollView because we can't hide default separators in List on prior OS versions.
-            // And since we don't use List we can't use onDelete for the swipe action either.
-            ScrollView(.vertical) {
-                VStack(spacing: 0) {
-                    sections()
-                }
-            }
-            .background(Colors.Background.primary)
-            .cornerRadius(14)
-            .padding(.horizontal, listHorizontalPadding)
+            userWalletsScrollView()
         }
     }
 
@@ -107,10 +96,10 @@ extension UserWalletListView {
             VStack(spacing: 0) {
                 sections()
             }
+            .background(Colors.Background.primary)
+            .cornerRadius(14)
+            .padding(.horizontal, listHorizontalPadding)
         }
-        .background(Colors.Background.primary)
-        .cornerRadius(14)
-        .padding(.horizontal, listHorizontalPadding)
     }
 
     // MARK: - Sections
