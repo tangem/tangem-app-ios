@@ -18,7 +18,6 @@ public struct Currency {
     public let imageURL: URL
     public let contractAddress: String?
 
-
     public var isToken: Bool {
         contractAddress != nil
     }
