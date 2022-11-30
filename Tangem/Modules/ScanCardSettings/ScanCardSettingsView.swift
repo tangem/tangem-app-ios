@@ -55,6 +55,6 @@ struct ScanCardSettingsView_Preview: PreviewProvider {
 
     static var previews: some View {
         ScanCardSettingsView(viewModel: viewModel)
-            .deviceForPreview(.iPhone8)
+            .deviceForPreview(.iPhone7)
     }
 }
