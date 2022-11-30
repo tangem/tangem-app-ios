@@ -577,7 +577,7 @@
 		EF4662002924CC6E00346B6C /* ApproveParameters.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF4661DB2924CC6500346B6C /* ApproveParameters.swift */; };
 		EF4662012924CC6E00346B6C /* LimitOrderTarget.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF4661EF2924CC6D00346B6C /* LimitOrderTarget.swift */; };
 		EF4662022924CC6E00346B6C /* HealthCheck.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF4661EC2924CC6B00346B6C /* HealthCheck.swift */; };
-		EF4662032924CC6E00346B6C /* BaseTarget.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF4661E42924CC6900346B6C /* BaseTarget.swift */; };
+		EF4662032924CC6E00346B6C /* OneInchBaseTarget.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF4661E42924CC6900346B6C /* OneInchBaseTarget.swift */; };
 		EF4662042924CC6E00346B6C /* PresetsConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF4661E92924CC6A00346B6C /* PresetsConfiguration.swift */; };
 		EF4662052924CC6E00346B6C /* HealthCheckTarget.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF4661D92924CC6400346B6C /* HealthCheckTarget.swift */; };
 		EF4662062924CC6E00346B6C /* ApproveTarget.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF4661EE2924CC6C00346B6C /* ApproveTarget.swift */; };
@@ -1367,7 +1367,7 @@
 		EF4661E02924CC6700346B6C /* SwapData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwapData.swift; sourceTree = "<group>"; };
 		EF4661E12924CC6700346B6C /* OneInchAPIServicing.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OneInchAPIServicing.swift; sourceTree = "<group>"; };
 		EF4661E32924CC6800346B6C /* LimitOrder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LimitOrder.swift; sourceTree = "<group>"; };
-		EF4661E42924CC6900346B6C /* BaseTarget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BaseTarget.swift; sourceTree = "<group>"; };
+		EF4661E42924CC6900346B6C /* OneInchBaseTarget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OneInchBaseTarget.swift; sourceTree = "<group>"; };
 		EF4661E52924CC6900346B6C /* LimitOrderParameters.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LimitOrderParameters.swift; sourceTree = "<group>"; };
 		EF4661E62924CC6900346B6C /* ExchangeBlockchain.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExchangeBlockchain.swift; sourceTree = "<group>"; };
 		EF4661E72924CC6A00346B6C /* TokensList.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokensList.swift; sourceTree = "<group>"; };
@@ -3283,10 +3283,10 @@
 		EF46620C2924CDCD00346B6C /* Targets */ = {
 			isa = PBXGroup;
 			children = (
+				EF4661E42924CC6900346B6C /* OneInchBaseTarget.swift */,
 				EF4661D92924CC6400346B6C /* HealthCheckTarget.swift */,
 				EF4661EE2924CC6C00346B6C /* ApproveTarget.swift */,
 				EF4661EA2924CC6B00346B6C /* InfoTarget.swift */,
-				EF4661E42924CC6900346B6C /* BaseTarget.swift */,
 				EF4661EF2924CC6D00346B6C /* LimitOrderTarget.swift */,
 				EF4661F02924CC6D00346B6C /* SwapTarget.swift */,
 			);
@@ -4626,7 +4626,7 @@
 				EF4661C42923B42A00346B6C /* Currency.swift in Sources */,
 				EF4661D02923CD4C00346B6C /* BlockchainInfoProvider.swift in Sources */,
 				EF4661962923AFC400346B6C /* TangemExchange.docc in Sources */,
-				EF4662032924CC6E00346B6C /* BaseTarget.swift in Sources */,
+				EF4662032924CC6E00346B6C /* OneInchBaseTarget.swift in Sources */,
 				EF29BEF62934B1EE00D7C782 /* TransactionBuilder.swift in Sources */,
 				EF4662062924CC6E00346B6C /* ApproveTarget.swift in Sources */,
 				EF4661FF2924CC6E00346B6C /* ExchangeBlockchain.swift in Sources */,
