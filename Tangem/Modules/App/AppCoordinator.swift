@@ -59,6 +59,7 @@ class AppCoordinator: NSObject, CoordinatorObject {
         }
 
         let popToRootAction: ParamsAction<PopToRootOptions> = { [weak self] options in
+            self?.closeAllSheetsIfNeeded()
             self?.welcomeCoordinator = nil
             self?.start(with: .init(connectionOptions: nil, newScan: options.newScan))
         }
@@ -75,6 +76,7 @@ class AppCoordinator: NSObject, CoordinatorObject {
         }
 
         let popToRootAction: ParamsAction<PopToRootOptions> = { [weak self] options in
+            self?.closeAllSheetsIfNeeded()
             self?.authCoordinator = nil
             self?.start(with: .init(connectionOptions: nil, newScan: options.newScan))
         }
