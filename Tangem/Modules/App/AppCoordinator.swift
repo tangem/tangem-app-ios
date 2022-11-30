@@ -108,9 +108,12 @@ class AppCoordinator: NSObject, CoordinatorObject {
 
     private func handleLock() {
         closeAllSheetsIfNeeded()
-        welcomeCoordinator = nil
-        authCoordinator = nil
-        start()
+
+        UIApplication.performWithoutAnimations {
+            welcomeCoordinator = nil
+            authCoordinator = nil
+            start()
+        }
     }
 
     // iOS prior to 16 do not hide sheets automatically
