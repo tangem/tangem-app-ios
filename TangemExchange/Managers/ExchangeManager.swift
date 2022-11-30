@@ -13,13 +13,13 @@ public protocol ExchangeManager {
     func setDelegate(_ delegate: ExchangeManagerDelegate)
 
     /// Available network for selected as target to swap
-    func getNetworksAvailableToSwap() -> [String]
+    func getNetworksAvailableToExchange() -> [String]
 
     /// Items which currently to swapping
     func getExchangeItems() -> ExchangeItems
 
     /// Current manager state
-    func getAvailabilityState() -> SwappingAvailabilityState
+    func getAvailabilityState() -> ExchangeAvailabilityState
 
     /// Update swapping items and reload rates
     func update(exchangeItems: ExchangeItems)

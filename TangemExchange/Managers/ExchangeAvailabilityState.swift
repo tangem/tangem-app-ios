@@ -1,5 +1,5 @@
 //
-//  SwappingAvailabilityState.swift
+//  ExchangeAvailabilityState.swift
 //  TangemExchange
 //
 //  Created by [REDACTED_AUTHOR]
@@ -8,7 +8,7 @@
 
 import Foundation
 
-public enum SwappingAvailabilityState {
+public enum ExchangeAvailabilityState {
     case idle
     case loading
     case available(swappingResult: ExpectSwappingResult)
@@ -21,16 +21,19 @@ public struct ExpectSwappingResult {
     public let expectFiatAmount: Decimal
     public let fee: Decimal
     public let decimalCount: Int
+    public let isEnoughAmountForExchange: Bool
 
     init(
         expectAmount: Decimal,
         expectFiatAmount: Decimal,
         fee: Decimal,
-        decimalCount: Int
+        decimalCount: Int,
+        isEnoughAmountForExchange: Bool
     ) {
         self.expectAmount = expectAmount
         self.expectFiatAmount = expectFiatAmount
         self.fee = fee
         self.decimalCount = decimalCount
+        self.isEnoughAmountForExchange = isEnoughAmountForExchange
     }
 }
