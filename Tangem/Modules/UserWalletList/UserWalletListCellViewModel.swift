@@ -95,7 +95,9 @@ class UserWalletListCellViewModel: ObservableObject {
         }
 
         cardImageProvider.loadImage(cardId: userWallet.card.cardId, cardPublicKey: userWallet.card.cardPublicKey, artwork: artwork)
-            .sink { [unowned self] image in
+            .sink { [weak self] image in
+                guard let self else { return }
+
                 self.image = self.scaleImage(image, newHeight: self.imageHeight * UIScreen.main.scale)
             }
             .store(in: &bag)
