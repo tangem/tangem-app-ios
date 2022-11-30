@@ -10,8 +10,8 @@ import Foundation
 import TangemSdk
 import BlockchainSdk
 
-enum DefaultWalletData {
-    case note(WalletData)
+enum DefaultWalletData: Codable {
+    case file(WalletData)
     case legacy(WalletData)
     case twin(WalletData, TwinData)
     case none
@@ -31,8 +31,9 @@ struct AppScanTaskResponse {
     let primaryCard: PrimaryCard?
 
     func getCardInfo() -> CardInfo {
-        return CardInfo(card: card,
+        return CardInfo(card: CardDTO(card: card),
                         walletData: walletData,
+                        name: "",
                         primaryCard: primaryCard)
     }
 }
@@ -46,13 +47,16 @@ enum AppScanTaskError: String, Error, LocalizedError {
 }
 
 final class AppScanTask: CardSessionRunnable {
+    let allowsAccessCodeFromRepository: Bool
+
     private let targetBatch: String?
     private var walletData: DefaultWalletData = .none
     private var primaryCard: PrimaryCard? = nil
     private var linkingCommand: StartPrimaryCardLinkingTask? = nil
 
-    init(targetBatch: String? = nil) {
+    init(targetBatch: String? = nil, allowsAccessCodeFromRepository: Bool = false) {
         self.targetBatch = targetBatch
+        self.allowsAccessCodeFromRepository = allowsAccessCodeFromRepository
     }
 
     deinit {
@@ -147,7 +151,7 @@ final class AppScanTask: CardSessionRunnable {
                 }
 
                 if walletData.blockchain != "ANY" {
-                    self.walletData = .note(walletData)
+                    self.walletData = .file(walletData)
                 }
 
                 exit()
@@ -173,7 +177,7 @@ final class AppScanTask: CardSessionRunnable {
                     self.walletData = .twin(walletData, twinData)
                 }
 
-                guard session.environment.card != nil else {
+                guard let card = session.environment.card else {
                     completion(.failure(.missingPreflightRead))
                     return
                 }
@@ -243,16 +247,17 @@ final class AppScanTask: CardSessionRunnable {
     }
 
     private func deriveKeysIfNeeded(_ session: CardSession, _ completion: @escaping CompletionResult<AppScanTaskResponse>) {
-        guard let card = session.environment.card else {
+        guard let plainCard = session.environment.card else {
             completion(.failure(.missingPreflightRead))
             return
         }
 
-        guard !card.wallets.isEmpty, card.settings.isHDWalletAllowed else {
+        guard !plainCard.wallets.isEmpty, plainCard.settings.isHDWalletAllowed else {
             self.runScanTask(session, completion)
             return
         }
 
+        let card = CardDTO(card: plainCard)
         migrate(card: card)
         let config = config(for: card)
         var derivations: [EllipticCurve: [DerivationPath]] = [:]
@@ -304,19 +309,20 @@ final class AppScanTask: CardSessionRunnable {
             return
         }
 
-        migrate(card: card)
+        let cardDto = CardDTO(card: card)
+        migrate(card: cardDto)
 
         completion(.success(AppScanTaskResponse(card: card,
                                                 walletData: walletData,
                                                 primaryCard: primaryCard)))
     }
 
-    private func config(for card: Card) -> UserWalletConfig {
-        let cardInfo = CardInfo(card: card, walletData: walletData)
+    private func config(for card: CardDTO) -> UserWalletConfig {
+        let cardInfo = CardInfo(card: card, walletData: walletData, name: "")
         return UserWalletConfigFactory(cardInfo).makeConfig()
     }
 
-    private func migrate(card: Card) {
+    private func migrate(card: CardDTO) {
         let config = config(for: card)
         if let legacyCardMigrator = LegacyCardMigrator(cardId: card.cardId, config: config) {
             legacyCardMigrator.migrateIfNeeded()
