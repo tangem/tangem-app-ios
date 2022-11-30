@@ -196,6 +196,11 @@ class CardViewModel: Identifiable, ObservableObject {
         config.hasFeature(.withdrawal)
     }
 
+    var canParticipateInReferralProgram: Bool {
+        // [REDACTED_TODO_COMMENT]
+        config.hasFeature(.referralProgram)
+    }
+
     var supportedBlockchains: Set<Blockchain> {
         config.supportedBlockchains
     }
