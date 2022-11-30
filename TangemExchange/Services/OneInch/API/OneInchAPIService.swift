@@ -39,13 +39,13 @@ struct OneInchAPIService: OneInchAPIServicing {
 
     func quote(blockchain: ExchangeBlockchain, parameters: QuoteParameters) async -> Result<QuoteData, ExchangeInchError> {
         await request(
-            target: OneInchBaseTarget(target: SwapTarget.quote(parameters), blockchain: blockchain)
+            target: OneInchBaseTarget(target: ExchangeTarget.quote(parameters), blockchain: blockchain)
         )
     }
 
-    func swap(blockchain: ExchangeBlockchain, parameters: SwapParameters) async -> Result<SwapData, ExchangeInchError> {
+    func swap(blockchain: ExchangeBlockchain, parameters: ExchangeParameters) async -> Result<ExchangeData, ExchangeInchError> {
         await request(
-            target: OneInchBaseTarget(target: SwapTarget.swap(parameters), blockchain: blockchain)
+            target: OneInchBaseTarget(target: ExchangeTarget.swap(parameters), blockchain: blockchain)
         )
     }
 

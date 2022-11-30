@@ -1,5 +1,5 @@
 //
-//  SwappingAvailabilityState.swift
+//  ExchangeAvailabilityState.swift
 //  TangemExchange
 //
 //  Created by [REDACTED_AUTHOR]
@@ -8,7 +8,7 @@
 
 import Foundation
 
-public enum SwappingAvailabilityState {
+public enum ExchangeAvailabilityState {
     case loading
     case available
     case requiredPermission
