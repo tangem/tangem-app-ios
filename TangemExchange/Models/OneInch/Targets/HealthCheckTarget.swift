@@ -11,7 +11,7 @@ import Foundation
 
 /// Check 1inch service status
 enum HealthCheckTarget {
-    case healthCheck(blockchain: ExchangeBlockchain)
+    case healthCheck
 }
 
 extension HealthCheckTarget: TargetType {
@@ -21,8 +21,8 @@ extension HealthCheckTarget: TargetType {
 
     var path: String {
         switch self {
-        case .healthCheck(let exchangeBlockchain):
-            return "/\(exchangeBlockchain.id)/healthcheck"
+        case .healthCheck:
+            return "/healthcheck"
         }
     }
 
