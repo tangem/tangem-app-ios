@@ -244,7 +244,7 @@ class CommonUserWalletRepository: UserWalletRepository {
                         return
                     }
 
-                    self.setSelectedUserWalletId(userWallet.userWalletId)
+                    self.setSelectedUserWalletId(userWallet.userWalletId, reason: .inserted)
                 default:
                     completion(result)
                 }
@@ -282,15 +282,15 @@ class CommonUserWalletRepository: UserWalletRepository {
         sendEvent(.updated(userWalletModel: userWalletModel))
 
         if userWallets.isEmpty || selectedUserWalletId == nil {
-            setSelectedUserWalletId(userWallet.userWalletId)
+            setSelectedUserWalletId(userWallet.userWalletId, reason: .inserted)
         }
     }
 
-    func setSelectedUserWalletId(_ userWalletId: Data?) {
-        setSelectedUserWalletId(userWalletId, unlockIfNeeded: true)
+    func setSelectedUserWalletId(_ userWalletId: Data?, reason: UserWalletRepositorySelectionChangeReason) {
+        setSelectedUserWalletId(userWalletId, unlockIfNeeded: true, reason: reason)
     }
 
-    func setSelectedUserWalletId(_ userWalletId: Data?, unlockIfNeeded: Bool) {
+    func setSelectedUserWalletId(_ userWalletId: Data?, unlockIfNeeded: Bool, reason: UserWalletRepositorySelectionChangeReason) {
         guard selectedUserWalletId != userWalletId else { return }
 
         if userWalletId == nil {
@@ -310,7 +310,7 @@ class CommonUserWalletRepository: UserWalletRepository {
             AppSettings.shared.selectedUserWalletId = userWallet.userWalletId
             self?.initializeServicesForSelectedModel()
 
-            self?.sendEvent(.selected(userWallet: userWallet))
+            self?.sendEvent(.selected(userWallet: userWallet, reason: reason))
         }
 
         if !userWallet.isLocked || !unlockIfNeeded {
@@ -350,12 +350,12 @@ class CommonUserWalletRepository: UserWalletRepository {
             }
 
             if let firstUnlockedModel = unlockedModels.first {
-                setSelectedUserWalletId(firstUnlockedModel.userWalletId)
+                setSelectedUserWalletId(firstUnlockedModel.userWalletId, reason: .deleted)
             } else if let firstModel = sortedModels.first {
-                setSelectedUserWalletId(firstModel.userWalletId, unlockIfNeeded: false)
+                setSelectedUserWalletId(firstModel.userWalletId, unlockIfNeeded: false, reason: .deleted)
                 sendEvent(.locked)
             } else {
-                setSelectedUserWalletId(nil)
+                setSelectedUserWalletId(nil, reason: .deleted)
             }
         }
 
@@ -372,7 +372,7 @@ class CommonUserWalletRepository: UserWalletRepository {
         discardSensitiveData()
 
         saveUserWallets([])
-        setSelectedUserWalletId(nil)
+        setSelectedUserWalletId(nil, reason: .deleted)
         encryptionKeyStorage.clear()
     }
 
@@ -514,7 +514,7 @@ class CommonUserWalletRepository: UserWalletRepository {
                     return
                 }
 
-                self.setSelectedUserWalletId(savedUserWallet.userWalletId)
+                self.setSelectedUserWalletId(savedUserWallet.userWalletId, reason: .userSelected)
                 self.initializeServicesForSelectedModel()
 
                 self.isUnlocked = self.userWallets.allSatisfy { !$0.isLocked }
