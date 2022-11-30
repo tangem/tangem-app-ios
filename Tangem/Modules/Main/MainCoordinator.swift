@@ -268,11 +268,7 @@ extension MainCoordinator: MainRoutable {
             self?.userWalletListCoordinator = nil
         }
 
-        let popToRootAction: ParamsAction<PopToRootOptions> = { [weak self] options in
-            self?.userWalletListCoordinator = nil
-        }
-
-        let coordinator = UserWalletListCoordinator(output: self, dismissAction: dismissAction, popToRootAction: popToRootAction)
+        let coordinator = UserWalletListCoordinator(output: self, dismissAction: dismissAction, popToRootAction: self.popToRootAction)
         coordinator.start()
 
         userWalletListCoordinator = coordinator
