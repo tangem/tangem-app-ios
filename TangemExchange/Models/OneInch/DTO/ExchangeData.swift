@@ -1,5 +1,5 @@
 //
-//  SwapData.swift
+//  ExchangeData.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -8,16 +8,16 @@
 
 import Foundation
 
-public struct SwapData: Decodable {
-    public let fromToken: SwapTokenData
-    public let toToken: SwapTokenData
+public struct ExchangeData: Decodable {
+    public let fromToken: ExchangeTokenData
+    public let toToken: ExchangeTokenData
     public let toTokenAmount: String
     public let fromTokenAmount: String
     public let protocols: [[[ProtocolInfo]]]
     public let tx: TransactionData
 }
 
-public struct SwapTokenData: Decodable {
+public struct ExchangeTokenData: Decodable {
     public let symbol: String
     public let name: String
     public let decimals: Int
