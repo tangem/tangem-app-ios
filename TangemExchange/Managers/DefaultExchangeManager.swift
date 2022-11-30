@@ -62,7 +62,7 @@ extension DefaultExchangeManager: ExchangeManager {
         }
 
         restartTimer()
-        updateSwappingInformation()
+        updateExpectInformation()
     }
 
     func isAvailableForExchange(amount: Decimal) -> Bool {
@@ -101,7 +101,7 @@ private extension DefaultExchangeManager {
         }
     }
 
-    func updateSwappingInformation() {
+    func updateExpectInformation() {
         guard let amount = amount else {
             print("Amount hasn't been set")
             return
@@ -166,7 +166,7 @@ private extension DefaultExchangeManager {
         refreshDataTimerBag = refreshDataTimer
             .upstream
             .sink { [weak self] _ in
-                self?.updateSwappingInformation()
+                self?.updateExpectInformation()
             }
     }
 
