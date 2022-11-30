@@ -47,7 +47,7 @@ class DefaultExchangeManager<TxBuilder: TransactionBuilder> {
 // MARK: - Private
 
 extension DefaultExchangeManager: ExchangeManager {
-    func getNetworksAvailableToSwap() -> [String] {
+    func getNetworksAvailableToExchange() -> [String] {
         return [exchangeItems.source.networkId]
     }
 
