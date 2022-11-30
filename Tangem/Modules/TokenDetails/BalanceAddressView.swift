@@ -202,6 +202,6 @@ struct BalanceAddressView_Previews: PreviewProvider {
                     .padding()
             }
         }
-        .previewGroup(devices: [.iPhone8])
+        .previewGroup(devices: [.iPhone7])
     }
 }
