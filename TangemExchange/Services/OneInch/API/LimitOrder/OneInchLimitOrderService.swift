@@ -13,29 +13,39 @@ struct OneInchLimitOrderService: OneInchLimitOrderServicing {
     private let provider = MoyaProvider<BaseTarget>()
 
     func ordersForAddress(blockchain: ExchangeBlockchain, parameters: OrdersForAddressParameters) async -> Result<[LimitOrder], ExchangeInchError> {
-        await request(target: BaseTarget(target: LimitOrderTarget.ordersForAddress(blockchain: blockchain, parameters: parameters)))
+        await request(
+            target: BaseTarget(target: LimitOrderTarget.ordersForAddress(parameters), blockchain: blockchain)
+        )
     }
 
     func allOrders(blockchain: ExchangeBlockchain, parameters: AllOrdersParameters) async -> Result<[LimitOrder], ExchangeInchError> {
-        await request(target: BaseTarget(target: LimitOrderTarget.allOrders(blockchain: blockchain, parameters: parameters)))
+        await request(
+            target: BaseTarget(target: LimitOrderTarget.allOrders(parameters), blockchain: blockchain)
+        )
     }
 
     func countOrders(blockchain: ExchangeBlockchain, statuses: [ExchangeOrderStatus]) async -> Result<CountLimitOrders, ExchangeInchError> {
-        await request(target: BaseTarget(target: LimitOrderTarget.countOrders(blockchain: blockchain, statuses: statuses)))
+        await request(
+            target: BaseTarget(target: LimitOrderTarget.countOrders(statuses), blockchain: blockchain)
+        )
     }
 
     func events(blockchain: ExchangeBlockchain, limit: Int) async -> Result<[EventsLimitOrder], ExchangeInchError> {
-        await request(target: BaseTarget(target: LimitOrderTarget.events(blockchain: blockchain, limit: limit)))
+        await request(
+            target: BaseTarget(target: LimitOrderTarget.events(limit), blockchain: blockchain)
+        )
     }
 
     func hasActiveOrdersWithPermit(blockchain: ExchangeBlockchain,
                                    walletAddress: String,
                                    tokenAddress: String) async -> Result<Bool, ExchangeInchError> {
-        let target = LimitOrderTarget.hasActiveOrdersWithPermit(blockchain: blockchain,
-                                                                walletAddress: walletAddress,
+        let target = LimitOrderTarget.hasActiveOrdersWithPermit(walletAddress: walletAddress,
                                                                 tokenAddress: tokenAddress)
 
-        let response: Result<ActiveOrdersWithPermitDTO, ExchangeInchError> = await request(target: BaseTarget(target: target))
+        let response: Result<ActiveOrdersWithPermitDTO, ExchangeInchError> = await request(
+            target: BaseTarget(target: target, blockchain: blockchain)
+        )
+
         switch response {
         case .success(let dto):
             return .success(dto.result)
