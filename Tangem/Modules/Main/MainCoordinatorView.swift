@@ -38,9 +38,6 @@ struct MainCoordinatorView: CoordinatorView {
             .navigation(item: $coordinator.detailsCoordinator) {
                 DetailsCoordinatorView(coordinator: $0)
             }
-            .navigation(item: $coordinator.pushedOnboardingCoordinator) {
-                OnboardingCoordinatorView(coordinator: $0)
-            }
     }
 
     @ViewBuilder
