@@ -123,7 +123,9 @@ class AppCoordinator: NSObject, CoordinatorObject {
     private func closeAllSheetsIfNeeded(animated: Bool, completion: @escaping () -> Void = { }) {
         guard let topViewController = UIApplication.topViewController,
               topViewController.presentingViewController != nil else {
-            completion()
+            DispatchQueue.main.async {
+                completion()
+            }
             return
         }
 
