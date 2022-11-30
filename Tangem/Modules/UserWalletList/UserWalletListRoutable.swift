@@ -13,4 +13,5 @@ protocol UserWalletListRoutable: AnyObject {
     func dismissUserWalletList()
     func openMail(with dataCollector: EmailDataCollector, emailType: EmailType, recipient: String)
     func openOnboarding(with input: OnboardingInput)
+    func openDisclaimer(at url: URL, _ completion: @escaping (Bool) -> Void)
 }
