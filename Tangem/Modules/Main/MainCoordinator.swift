@@ -8,8 +8,11 @@
 
 import Foundation
 import BlockchainSdk
+import Combine
 
 class MainCoordinator: CoordinatorObject {
+    @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
+
     var dismissAction: Action
     var popToRootAction: ParamsAction<PopToRootOptions>
 
@@ -23,6 +26,7 @@ class MainCoordinator: CoordinatorObject {
     @Published var detailsCoordinator: DetailsCoordinator? = nil
     @Published var tokenListCoordinator: TokenListCoordinator? = nil
     @Published var modalOnboardingCoordinator: OnboardingCoordinator? = nil
+    @Published var pushedOnboardingCoordinator: OnboardingCoordinator? = nil
 
     // MARK: - Child view models
     @Published var pushedWebViewModel: WebViewContainerViewModel? = nil
@@ -31,13 +35,40 @@ class MainCoordinator: CoordinatorObject {
     @Published var mailViewModel: MailViewModel? = nil
     @Published var addressQrBottomSheetContentViewVodel: AddressQrBottomSheetContentViewVodel? = nil
     @Published var warningBankCardViewModel: WarningBankCardViewModel? = nil
+    @Published var userWalletListViewModel: UserWalletListViewModel?
+    @Published var userWalletStorageAgreementViewModel: UserWalletStorageAgreementViewModel?
 
     // MARK: - Helpers
     @Published var modalOnboardingCoordinatorKeeper: Bool = false
 
+    private var lastInsertedUserWalletId: Data?
+    private var bag: Set<AnyCancellable> = []
+
     required init(dismissAction: @escaping Action, popToRootAction: @escaping ParamsAction<PopToRootOptions>) {
         self.dismissAction = dismissAction
         self.popToRootAction = popToRootAction
+
+        userWalletRepository
+            .eventProvider
+            .sink { [weak self] event in
+                guard let self else { return }
+
+                switch event {
+                case .selected:
+                    if let selectedModel = self.userWalletRepository.selectedModel {
+                        let options = Options(cardModel: selectedModel, shouldRefreshOnAppear: false)
+                        DispatchQueue.main.async { // fix ios13 freeze
+                            self.start(with: options)
+                        }
+                    }
+
+                case .inserted(let userWallet):
+                    self.lastInsertedUserWalletId = userWallet.userWalletId
+                default:
+                    break
+                }
+            }
+            .store(in: &bag)
     }
 
     func start(with options: MainCoordinator.Options) {
@@ -50,6 +81,7 @@ class MainCoordinator: CoordinatorObject {
             cardModel: options.cardModel,
             userWalletModel: userWalletModel,
             cardImageProvider: CardImageProvider(supportsOnlineImage: options.cardModel.supportsOnlineImage),
+            shouldRefreshWhenAppear: options.shouldRefreshOnAppear,
             coordinator: self
         )
     }
@@ -58,6 +90,12 @@ class MainCoordinator: CoordinatorObject {
 extension MainCoordinator {
     struct Options {
         let cardModel: CardViewModel
+        let shouldRefreshOnAppear: Bool
+
+        init(cardModel: CardViewModel, shouldRefreshOnAppear: Bool = true) {
+            self.cardModel = cardModel
+            self.shouldRefreshOnAppear = shouldRefreshOnAppear
+        }
     }
 }
 
@@ -215,5 +253,54 @@ extension MainCoordinator: MainRoutable {
                                                       addLoadingIndicator: true,
                                                       withCloseButton: false,
                                                       urlActions: [:])
+    }
+
+    func openUserWalletSaveAcceptanceSheet() {
+        userWalletStorageAgreementViewModel = UserWalletStorageAgreementViewModel(isStandalone: true, coordinator: self)
+    }
+
+    func openUserWalletList() {
+        userWalletListViewModel = UserWalletListViewModel(coordinator: self)
+    }
+}
+
+extension MainCoordinator: UserWalletListRoutable {
+    func dismissUserWalletList() {
+        self.userWalletListViewModel = nil
+    }
+
+    func openOnboarding(with input: OnboardingInput) {
+        dismissUserWalletList()
+
+        let dismissAction: Action = { [weak self] in
+            self?.pushedOnboardingCoordinator = nil
+        }
+
+        let popToRootAction: ParamsAction<PopToRootOptions> = { [weak self] options in
+            self?.pushedOnboardingCoordinator = nil
+        }
+
+        let coordinator = OnboardingCoordinator(dismissAction: dismissAction, popToRootAction: popToRootAction)
+        let options = OnboardingCoordinator.Options(input: input, destination: .main)
+        coordinator.start(with: options)
+        pushedOnboardingCoordinator = coordinator
+    }
+}
+
+extension MainCoordinator: UserWalletStorageAgreementRoutable {
+    func didAgreeToSaveUserWallets() {
+        logSaveUserWalletStep(agreed: true)
+        userWalletStorageAgreementViewModel = nil
+        mainViewModel?.didAgreeToSaveUserWallets()
+    }
+
+    func didDeclineToSaveUserWallets() {
+        logSaveUserWalletStep(agreed: false)
+        userWalletStorageAgreementViewModel = nil
+        mainViewModel?.didDeclineToSaveUserWallets()
+    }
+
+    private func logSaveUserWalletStep(agreed: Bool) {
+        Analytics.log(.mainEnableBiometric, params: [.state: Analytics.ParameterValue.state(for: agreed).rawValue])
     }
 }
