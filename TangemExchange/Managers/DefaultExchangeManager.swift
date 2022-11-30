@@ -21,11 +21,11 @@ class DefaultExchangeManager<TxBuilder: TransactionBuilder> {
 
     private lazy var refreshDataTimer = Timer.publish(every: 10, on: .main, in: .common).autoconnect()
 
-    private var availabilityState: SwappingAvailabilityState = .available
+    private var availabilityState: ExchangeAvailabilityState = .available
     private var exchangeItems: ExchangeItems
     private var amount: Decimal?
     private var tokenExchangeAllowanceLimit: Decimal?
-    private var swappingData: ExchangeSwapDataModel?
+    private var swappingData: ExchangeDataModel?
     private var refreshDataTimerBag: AnyCancellable?
     private var bag: Set<AnyCancellable> = []
 
@@ -109,7 +109,7 @@ private extension DefaultExchangeManager {
 
         Task {
             do {
-                swappingData = try await exchangeProvider.fetchTxDataForSwap(
+                swappingData = try await exchangeProvider.fetchTxDataForExchange(
                     items: exchangeItems,
                     amount: amount.description,
                     slippage: 1 // Default value
@@ -130,7 +130,7 @@ private extension DefaultExchangeManager {
         }
     }
 
-    func sendTransactionForSwapItems() {
+    func sendTransactionForExchangeItems() {
         guard let amount = amount,
               let destination = exchangeItems.destination,
               let swappingData = swappingData,
@@ -150,7 +150,7 @@ private extension DefaultExchangeManager {
 
         Task {
             do {
-                try await sendSwapTransaction(info, gasValue: gasValue, gasPrice: gasPrice)
+                try await sendExchangeTransaction(info, gasValue: gasValue, gasPrice: gasPrice)
             } catch {
                 availabilityState = .requiredRefresh(occuredError: error)
             }
@@ -182,7 +182,7 @@ private extension DefaultExchangeManager {
 private extension DefaultExchangeManager {
     // MARK: - Sending API
 
-    func sendSwapTransaction(_ info: ExchangeTransactionInfo, gasValue: Decimal, gasPrice: Decimal) async throws {
+    func sendExchangeTransaction(_ info: ExchangeTransactionInfo, gasValue: Decimal, gasPrice: Decimal) async throws {
         let gas = gas(from: gasValue, price: gasPrice, decimalCount: info.currency.decimalCount)
 
         let transaction = try transactionBuilder.buildTransaction(for: info, fee: gas)
