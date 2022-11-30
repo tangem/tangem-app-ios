@@ -10,7 +10,7 @@ import Foundation
 
 public protocol ExchangeManager {
     /// Available network for selected as target to swap
-    func getNetworksAvailableToSwap() -> [String]
+    func getNetworksAvailableToExchange() -> [String]
 
     /// Items which currently to swapping
     func getExchangeItems() -> ExchangeItems
