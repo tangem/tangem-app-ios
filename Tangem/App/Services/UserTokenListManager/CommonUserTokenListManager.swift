@@ -16,6 +16,8 @@ import struct TangemSdk.DerivationPath
 class CommonUserTokenListManager {
     @Injected(\.tangemApiService) private var tangemApiService: TangemApiService
 
+    private(set) var didPerformInitialLoading: Bool = false
+
     private var userWalletId: Data
     private var tokenItemsRepository: TokenItemsRepository
 
@@ -87,6 +89,7 @@ private extension CommonUserTokenListManager {
             return
         }
 
+        didPerformInitialLoading = true
         self.loadTokensCancellable = tangemApiService
             .loadTokens(for: userWalletId.hexString)
             .sink { [unowned self] completion in
@@ -179,7 +182,7 @@ private extension CommonUserTokenListManager {
             let entry = StorageEntry(
                 blockchainNetwork: network,
                 tokens: list.tokens
-                    .filter { $0.contractAddress != nil && $0.networkId == network.blockchain.networkId }
+                    .filter { $0.contractAddress != nil && $0.networkId == network.blockchain.networkId && $0.derivationPath == network.derivationPath }
                     .map { token in
                         Token(
                             name: token.name,
