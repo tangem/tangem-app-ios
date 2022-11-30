@@ -54,6 +54,8 @@ final class UserWalletListViewModel: ObservableObject, Identifiable {
         selectedUserWalletId = userWalletRepository.selectedUserWalletId
         updateModels()
 
+        userWalletRepository.delegate = self
+
         bind()
     }
 
@@ -306,5 +308,11 @@ final class UserWalletListViewModel: ObservableObject, Identifiable {
             }
             self?.userWalletRepository.setSelectedUserWalletId(userWallet.userWalletId, reason: .userSelected)
         }
+    }
+}
+
+extension UserWalletListViewModel: UserWalletRepositoryDelegate {
+    func showTOS(at url: URL, _ completion: @escaping (Bool) -> Void) {
+        coordinator.openDisclaimer(at: url, completion)
     }
 }
