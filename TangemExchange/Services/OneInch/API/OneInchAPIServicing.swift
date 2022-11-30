@@ -23,7 +23,7 @@ public protocol OneInchAPIServicing {
 
     // Generating data for exchange
     func swap(blockchain: ExchangeBlockchain,
-              parameters: SwapParameters) async -> Result<SwapData, ExchangeInchError>
+              parameters: ExchangeParameters) async -> Result<ExchangeData, ExchangeInchError>
 
     // Address of the 1inch router that must be trusted to spend funds for the exchange
     func spender(blockchain: ExchangeBlockchain) async -> Result<ApproveSpender, ExchangeInchError>
