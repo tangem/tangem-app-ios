@@ -115,11 +115,11 @@ extension DefaultExchangeManager: ExchangeManager {
     }
 
     func approveAndSwapItems() {
-        //        sendTransactionForSwapItems()
+//        sendTransactionForSwapItems()
     }
 
     func swapItems() {
-        //        sendTransactionForSwapItems()
+//        sendTransactionForSwapItems()
     }
 }
 
@@ -215,6 +215,8 @@ private extension DefaultExchangeManager {
     }
 
     func updateExpectSwappingResult() {
+        guard (amount ?? 0) > 0 else { return }
+
         updateState(.loading)
 
         Task {
