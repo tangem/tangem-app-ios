@@ -10,29 +10,29 @@ import Foundation
 import Moya
 
 struct OneInchLimitOrderService: OneInchLimitOrderServicing {
-    private let provider = MoyaProvider<BaseTarget>()
+    private let provider = MoyaProvider<OneInchBaseTarget>()
 
     func ordersForAddress(blockchain: ExchangeBlockchain, parameters: OrdersForAddressParameters) async -> Result<[LimitOrder], ExchangeInchError> {
         await request(
-            target: BaseTarget(target: LimitOrderTarget.ordersForAddress(parameters), blockchain: blockchain)
+            target: OneInchBaseTarget(target: LimitOrderTarget.ordersForAddress(parameters), blockchain: blockchain)
         )
     }
 
     func allOrders(blockchain: ExchangeBlockchain, parameters: AllOrdersParameters) async -> Result<[LimitOrder], ExchangeInchError> {
         await request(
-            target: BaseTarget(target: LimitOrderTarget.allOrders(parameters), blockchain: blockchain)
+            target: OneInchBaseTarget(target: LimitOrderTarget.allOrders(parameters), blockchain: blockchain)
         )
     }
 
     func countOrders(blockchain: ExchangeBlockchain, statuses: [ExchangeOrderStatus]) async -> Result<CountLimitOrders, ExchangeInchError> {
         await request(
-            target: BaseTarget(target: LimitOrderTarget.countOrders(statuses), blockchain: blockchain)
+            target: OneInchBaseTarget(target: LimitOrderTarget.countOrders(statuses), blockchain: blockchain)
         )
     }
 
     func events(blockchain: ExchangeBlockchain, limit: Int) async -> Result<[EventsLimitOrder], ExchangeInchError> {
         await request(
-            target: BaseTarget(target: LimitOrderTarget.events(limit), blockchain: blockchain)
+            target: OneInchBaseTarget(target: LimitOrderTarget.events(limit), blockchain: blockchain)
         )
     }
 
@@ -43,7 +43,7 @@ struct OneInchLimitOrderService: OneInchLimitOrderServicing {
                                                                 tokenAddress: tokenAddress)
 
         let response: Result<ActiveOrdersWithPermitDTO, ExchangeInchError> = await request(
-            target: BaseTarget(target: target, blockchain: blockchain)
+            target: OneInchBaseTarget(target: target, blockchain: blockchain)
         )
 
         switch response {
@@ -56,7 +56,7 @@ struct OneInchLimitOrderService: OneInchLimitOrderServicing {
 }
 
 private extension OneInchLimitOrderService {
-    func request<T: Decodable>(target: BaseTarget) async -> Result<T, ExchangeInchError> {
+    func request<T: Decodable>(target: OneInchBaseTarget) async -> Result<T, ExchangeInchError> {
         var response: Response
 
         do {
@@ -65,7 +65,7 @@ private extension OneInchLimitOrderService {
         } catch {
             return .failure(.serverError(withError: error))
         }
-        
+
         let decoder = JSONDecoder()
         decoder.keyDecodingStrategy = .convertFromSnakeCase
 
