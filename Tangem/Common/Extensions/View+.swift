@@ -57,6 +57,14 @@ extension View {
         }
     }
 
+    @ViewBuilder func interactiveDismissDisabledCompat() -> some View {
+        if #available(iOS 15, *) {
+            self.interactiveDismissDisabled()
+        } else {
+            self
+        }
+    }
+
     @ViewBuilder func `if`<Content: View>(_ condition: Bool, transform: (Self) -> Content) -> some View {
         if condition {
             transform(self)
