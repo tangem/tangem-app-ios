@@ -26,12 +26,15 @@ struct DefaultWarningRow: View {
                     .cornerRadius(40)
 
                 VStack(alignment: .leading, spacing: 4) {
-                    Text(viewModel.title)
-                        .style(Fonts.Bold.subheadline, color: Colors.Text.primary1)
+                    if let title = viewModel.title {
+                        Text(title)
+                            .style(Fonts.Bold.subheadline, color: Colors.Text.primary1)
+                    }
 
                     Text(viewModel.subtitle)
                         .style(Fonts.Regular.footnote, color: Colors.Text.secondary)
                 }
+                .frame(maxWidth: .infinity, alignment: .leading)
 
                 detailsView
             }
