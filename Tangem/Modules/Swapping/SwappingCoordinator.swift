@@ -69,7 +69,7 @@ extension SwappingCoordinator: SwappingRoutable {
 
 // MARK: - SwappingTokenListRoutable
 
-extension SwappingCoordinator: SwappingTokenListRoutable {    
+extension SwappingCoordinator: SwappingTokenListRoutable {
     func userDidTap(currency: Currency) {
         swappingTokenListViewModel = nil
         rootViewModel?.userDidRequestChangeDestination(to: currency)
