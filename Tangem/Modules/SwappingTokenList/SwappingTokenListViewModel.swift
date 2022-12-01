@@ -46,7 +46,7 @@ final class SwappingTokenListViewModel: ObservableObject, Identifiable {
     }
 
     func onAppear() {
-        dataLoader.reset(searchText.value)
+        dataLoader.fetch(searchText.value)
     }
 
     func fetch() {
@@ -67,7 +67,7 @@ private extension SwappingTokenListViewModel {
     }
 
     func setupLoader() -> ListDataLoader {
-        let dataLoader = ListDataLoader(networkIds: [network.networkId], exchangeable: true)
+        let dataLoader = ListDataLoader(networkIds: [network.id], exchangeable: true)
         dataLoader.$items
             .receive(on: DispatchQueue.global())
             .map { coinModels in
@@ -95,23 +95,35 @@ private extension SwappingTokenListViewModel {
             assertionFailure("CoinModel is not a currency")
             return
         }
-        
+
         coordinator.userDidTap(currency: currency)
     }
-    
+
     func mapToCurrency(coinModel: CoinModel) -> Currency? {
-        guard let token = coinModel.items.compactMap({ $0.token }).first else {
-            assertionFailure("CoinModel is not a token")
+        let coinType = coinModel.items.first
+
+        switch coinType {
+        case let .blockchain(blockchain):
+            return Currency(
+                id: blockchain.id,
+                blockchain: network,
+                name: blockchain.displayName,
+                symbol: blockchain.currencySymbol,
+                decimalCount: blockchain.decimalCount,
+                currencyType: .coin
+            )
+        case let .token(token, _):
+            return Currency(
+                id: coinModel.id,
+                blockchain: network,
+                name: coinModel.name,
+                symbol: coinModel.symbol,
+                decimalCount: token.decimalCount,
+                currencyType: .token(contractAddress: token.contractAddress)
+            )
+        case .none:
+            assertionFailure("CoinModel haven't items")
             return nil
         }
-        
-        return Currency(
-            id: coinModel.id,
-            blockchain: network,
-            name: coinModel.name,
-            symbol: coinModel.symbol,
-            decimalCount: token.decimalCount,
-            currencyType: .token(contractAddress: token.contractAddress)
-        )
     }
 }
