@@ -42,21 +42,21 @@ final class SwappingViewModel: ObservableObject {
         bind()
         exchangeManager.setDelegate(self)
     }
-    
+
     func userDidRequestChangeDestination(to currency: Currency) {
         var items = exchangeManager.getExchangeItems()
         items.destination = currency
-        
+
         exchangeManager.update(exchangeItems: items)
     }
 
     func userDidTapSwapExchangeItemsButton() {
         var items = exchangeManager.getExchangeItems()
         let source = items.source
-        
+
         items.source = items.destination
         items.destination = source
-        
+
         exchangeManager.update(exchangeItems: items)
     }
 
@@ -74,7 +74,7 @@ final class SwappingViewModel: ObservableObject {
 private extension SwappingViewModel {
     func openTokenListView() {
         coordinator.presentExchangeableTokenListView(
-            networkIds: exchangeManager.getNetworksAvailableToExchange()
+            network: exchangeManager.getCurrentExchangeBlockchain()
         )
     }
 
