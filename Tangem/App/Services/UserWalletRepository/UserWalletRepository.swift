@@ -20,7 +20,7 @@ protocol UserWalletRepository {
 
     func lock()
     func unlock(with method: UserWalletRepositoryUnlockMethod, completion: @escaping (UserWalletRepositoryResult?) -> Void)
-    func setSelectedUserWalletId(_ userWalletId: Data?)
+    func setSelectedUserWalletId(_ userWalletId: Data?, reason: UserWalletRepositorySelectionChangeReason)
 
     func didScan(card: CardDTO, walletData: DefaultWalletData)
 
@@ -59,7 +59,13 @@ enum UserWalletRepositoryEvent {
     case inserted(userWallet: UserWallet)
     case updated(userWalletModel: UserWalletModel)
     case deleted(userWalletId: Data)
-    case selected(userWallet: UserWallet)
+    case selected(userWallet: UserWallet, reason: UserWalletRepositorySelectionChangeReason)
+}
+
+enum UserWalletRepositorySelectionChangeReason {
+    case userSelected
+    case inserted
+    case deleted
 }
 
 enum UserWalletRepositoryUnlockMethod {
@@ -67,13 +73,17 @@ enum UserWalletRepositoryUnlockMethod {
     case card(userWallet: UserWallet?)
 }
 
-enum UserWalletRepositoryError: Error, LocalizedError {
+enum UserWalletRepositoryError: String, Error, LocalizedError {
     case duplicateWalletAdded
 
     var errorDescription: String? {
+        self.rawValue
+    }
+
+    var alertBinder: AlertBinder {
         switch self {
         case .duplicateWalletAdded:
-            return "user_wallet_list_error_wallet_already_saved".localized
+            return .init(title: "", message: "user_wallet_list_error_wallet_already_saved".localized)
         }
     }
 }
