@@ -126,7 +126,6 @@ class AppCoordinator: NSObject, CoordinatorObject {
 
     private func handleLock(animated: Bool) {
         closeAllSheetsIfNeeded(animated: animated) {
-
             if animated {
                 self.restart()
             } else {
