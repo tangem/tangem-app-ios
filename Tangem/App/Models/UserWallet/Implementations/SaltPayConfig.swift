@@ -157,7 +157,7 @@ extension SaltPayConfig: UserWalletConfig {
     }
 
     var persistentBlockchains: [StorageEntry]? {
-        nil
+        defaultBlockchains
     }
 
     var embeddedBlockchain: StorageEntry? {
