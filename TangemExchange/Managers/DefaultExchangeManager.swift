@@ -22,7 +22,7 @@ class DefaultExchangeManager<TxBuilder: TransactionBuilder> {
 
     // MARK: - Internal
 
-    private lazy var refreshDataTimer = Timer.publish(every: 10, on: .main, in: .common).autoconnect()
+    private lazy var refreshDataTimer = Timer.publish(every: 30, on: .main, in: .common).autoconnect()
 
     private var availabilityState: ExchangeAvailabilityState = .idle {
         didSet { delegate?.exchangeManagerDidUpdate(availabilityState: availabilityState) }
@@ -78,8 +78,8 @@ extension DefaultExchangeManager: ExchangeManager {
         self.delegate = delegate
     }
 
-    func getNetworksAvailableToExchange() -> [String] {
-        return [exchangeItems.source.blockchain.id]
+    func getCurrentExchangeBlockchain() -> ExchangeBlockchain {
+        exchangeItems.source.blockchain
     }
 
     func getAvailabilityState() -> ExchangeAvailabilityState {
@@ -170,11 +170,9 @@ private extension DefaultExchangeManager {
 
     func startTimer() {
         refreshDataTimerBag = refreshDataTimer
-            .print("timer")
             .upstream
-            .print("timer upstream")
             .sink { [weak self] _ in
-                self?.updateExpectSwappingResult()
+                self?.updateExpectSwappingResult(silent: true)
             }
     }
 
@@ -214,10 +212,12 @@ private extension DefaultExchangeManager {
         }
     }
 
-    func updateExpectSwappingResult() {
+    func updateExpectSwappingResult(silent: Bool = false) {
         guard (amount ?? 0) > 0 else { return }
 
-        updateState(.loading)
+        if !silent {
+            updateState(.loading)
+        }
 
         Task {
             do {
@@ -226,7 +226,7 @@ private extension DefaultExchangeManager {
                     amount: formattedAmount
                 )
 
-                let swappingResult = try mapExpectSwappingResult(from: quoteData)
+                let swappingResult = try await mapExpectSwappingResult(from: quoteData)
                 updateState(.requiredPermission(swappingResult: swappingResult))
 
             } catch {
@@ -237,27 +237,29 @@ private extension DefaultExchangeManager {
 
     func updateSourceBalances() {
         let source = exchangeItems.source
-        let balance = blockchainInfoProvider.getBalance(currency: source)
-        var fiatBalance: Decimal = 0
-        if let amount {
-            fiatBalance = blockchainInfoProvider.getFiatBalance(currency: source, amount: amount)
-        }
+        Task {
+            let balance = try await blockchainInfoProvider.getBalance(currency: source)
+            var fiatBalance: Decimal = 0
+            if let amount {
+                fiatBalance = try await blockchainInfoProvider.getFiatBalance(currency: source, amount: amount)
+            }
 
-        exchangeItems.sourceBalance = CurrencyBalance(balance: balance, fiatBalance: fiatBalance)
+            exchangeItems.sourceBalance = CurrencyBalance(balance: balance, fiatBalance: fiatBalance)
+        }
     }
 }
 
 // MARK: - Mapping
 
 private extension DefaultExchangeManager {
-    func mapExpectSwappingResult(from quoteData: QuoteData) throws -> ExpectSwappingResult {
+    func mapExpectSwappingResult(from quoteData: QuoteData) async throws -> ExpectSwappingResult {
         guard let expectAmount = Decimal(string: quoteData.toTokenAmount),
               let amount else {
             throw ExchangeManagerErrors.notCorrectData
         }
 
         let decimalNumber = exchangeItems.destination.decimalCount.asLongNumber.decimal
-        let expectFiatAmount = blockchainInfoProvider.getFiatBalance(
+        let expectFiatAmount = try await blockchainInfoProvider.getFiatBalance(
             currency: exchangeItems.destination,
             amount: expectAmount / decimalNumber
         )
