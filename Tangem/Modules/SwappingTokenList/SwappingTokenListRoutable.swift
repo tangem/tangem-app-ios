@@ -9,5 +9,5 @@
 import Foundation
 
 protocol SwappingTokenListRoutable: AnyObject {
-
+    func userDidTap(coinModel: CoinModel)
 }
