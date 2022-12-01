@@ -42,11 +42,22 @@ final class SwappingViewModel: ObservableObject {
         bind()
         exchangeManager.setDelegate(self)
     }
+    
+    func userDidRequestChangeDestination(to currency: Currency) {
+        var items = exchangeManager.getExchangeItems()
+        items.destination = currency
+        
+        exchangeManager.update(exchangeItems: items)
+    }
 
-    func userDidTapSwapButton() {
-//        withAnimation(.easeInOut(duration: 0.3)) {
-//        swapCurrencies()
-//        }
+    func userDidTapSwapExchangeItemsButton() {
+        var items = exchangeManager.getExchangeItems()
+        let source = items.source
+        
+        items.source = items.destination
+        items.destination = source
+        
+        exchangeManager.update(exchangeItems: items)
     }
 
     func userDidTapChangeDestinationButton() {
@@ -54,12 +65,7 @@ final class SwappingViewModel: ObservableObject {
     }
 
     func userDidTapMainButton() {
-        // For test. Will remove
-        if Bool.random() {
-            openSuccessView()
-        } else {
-            openPermissionView()
-        }
+        // [REDACTED_TODO_COMMENT]
     }
 }
 
@@ -201,11 +207,9 @@ private extension SwappingViewModel {
         case .idle, .loading, .requiredRefresh:
             mainButtonIsEnabled = false
 
-        case .available(let result):
-            mainButtonIsEnabled = true
-
-        case .requiredPermission(let result):
+        case .available(let result), .requiredPermission(let result):
             mainButtonIsEnabled = result.isEnoughAmountForExchange
+
             if result.isEnoughAmountForExchange {
                 mainButtonTitle = .givePermission
             } else {
@@ -242,37 +246,6 @@ private extension SwappingViewModel {
             }
             .store(in: &bag)
     }
-
-    /*
-        func swapCurrencies() {
-            guard let receiveCurrencyViewModel, let sendCurrencyViewModel else { return }
-
-            if receiveCurrencyViewModel.state.value != 0 {
-                sendDecimalValue = receiveCurrencyViewModel.state.value
-            }
-
-            let sendTokenItem = sendCurrencyViewModel.tokenIcon
-
-            self.sendCurrencyViewModel = SendCurrencyViewModel(
-                balance: Decimal(Int.random(in: 0 ... 100)),
-                maximumFractionDigits: 8,
-                fiatValue: receiveCurrencyViewModel.state.fiatValue ?? 0,
-                tokenIcon: receiveCurrencyViewModel.tokenIcon
-            )
-
-            self.receiveCurrencyViewModel = ReceiveCurrencyViewModel(
-                state: .loading,
-                tokenIcon: sendTokenItem,
-                tokenSymbol: sendTokenSymbol
-            ) {}
-
-            isLoading.toggle()
-
-            DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
-                self.isLoading.toggle()
-            }
-        }
-     */
 }
 
 extension SwappingViewModel {
