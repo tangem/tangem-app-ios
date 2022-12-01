@@ -131,8 +131,8 @@ class SingleWalletContentViewModel: ObservableObject {
             }
             .switchToLatest()
             .receive(on: DispatchQueue.main)
-            .sink { [unowned self] walletModels in
-                singleWalletModel = walletModels.first
+            .sink { [weak self] walletModels in
+                self?.singleWalletModel = walletModels.first
             }
             .store(in: &bag)
 
