@@ -161,6 +161,7 @@ class WalletModel: ObservableObject, Identifiable {
                     self.updateState(.idle)
                 }
 
+                self.updatePublisher?.send(())
                 self.updatePublisher?.send(completion: .finished)
                 self.updatePublisher = nil
             }
@@ -212,6 +213,7 @@ class WalletModel: ObservableObject, Identifiable {
             self.state = .idle
         }
 
+        self.updatePublisher?.send(())
         self.updatePublisher?.send(completion: .finished)
         self.updatePublisher = nil
         return false
