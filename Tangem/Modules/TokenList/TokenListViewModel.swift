@@ -400,9 +400,9 @@ private extension TokenListViewModel {
         pendingRemove.forEach { tokenItem in
             switch tokenItem {
             case let .blockchain(blockchain):
-                entries.removeAll { $0.blockchainNetwork.blockchain.id == blockchain.id }
+                entries.removeAll { $0.blockchainNetwork.blockchain == blockchain }
             case let .token(token, blockchain):
-                if let index = entries.firstIndex(where: { $0.blockchainNetwork.blockchain.id == blockchain.id }) {
+                if let index = entries.firstIndex(where: { $0.blockchainNetwork.blockchain == blockchain }) {
                     entries[index].tokens.removeAll { $0.id == token.id }
                 }
             }

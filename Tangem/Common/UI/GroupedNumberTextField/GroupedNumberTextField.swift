@@ -29,6 +29,8 @@ struct GroupedNumberTextField: View {
         Binding<String>(
             get: { groupedNumberFormatter.format(from: textFieldText) },
             set: { newValue in
+                // If the field is empty
+                // The field supports only decimal values
                 guard newValue.isEmpty || Decimal(string: newValue) != nil else { return }
 
                 // Remove space separators for formatter correct work
