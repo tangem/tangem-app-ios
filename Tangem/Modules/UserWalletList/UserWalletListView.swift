@@ -74,6 +74,9 @@ extension UserWalletListView {
         if #available(iOS 16, *) {
             userWalletsList()
                 .scrollContentBackground(.hidden)
+        } else if #available(iOS 15, *) {
+            // List is available from 14 onwards but we've decided not to use it due to issues with Separators
+            userWalletsList()
         } else {
             userWalletsScrollView()
         }
