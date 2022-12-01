@@ -91,3 +91,7 @@ private extension SwappingTokenListViewModel {
         // [REDACTED_TODO_COMMENT]
     }
 }
+
+private extension Currency {
+    
+}
