@@ -24,16 +24,16 @@ class OneInchExchangeProvider {
 extension OneInchExchangeProvider: ExchangeProvider {
     // MARK: - Fetch data
 
-    func fetchExchangeAmountAllowance(for currency: Currency) async throws -> Decimal {
-        guard currency.isToken,
-              let contractAddress = currency.contractAddress,
-              let blockchain = ExchangeBlockchain.convert(from: currency.chainId) else {
+    func fetchExchangeAmountAllowance(for currency: Currency, walletAddress: String) async throws -> Decimal {
+        guard let contractAddress = currency.contractAddress else {
             throw Errors.noData
         }
 
+        let blockchain = currency.blockchain
+
         let parameters = ApproveAllowanceParameters(
             tokenAddress: contractAddress,
-            walletAddress: currency.walletAddress
+            walletAddress: walletAddress
         )
 
         let allowanceResult = await oneInchAPIProvider.allowance(
@@ -49,23 +49,41 @@ extension OneInchExchangeProvider: ExchangeProvider {
         }
     }
 
-    func fetchTxDataForExchange(items: ExchangeItems, amount: String, slippage: Int) async throws -> ExchangeDataModel {
-        guard let destination = items.destination,
-              let blockchain = ExchangeBlockchain.convert(from: items.source.chainId) else {
-            throw Errors.noData
-        }
-
-        let parameters = ExchangeParameters(fromTokenAddress: items.source.contractAddress ?? oneInchCoinContractAddress,
-                                            toTokenAddress: destination.contractAddress ?? oneInchCoinContractAddress,
-                                            amount: amount,
-                                            fromAddress: items.source.walletAddress,
-                                            slippage: slippage)
+    func fetchTxDataForExchange(items: ExchangeItems, walletAddress: String, amount: String) async throws -> ExchangeDataModel {
+        let blockchain = items.source.blockchain
+        let destination = items.destination
+        let parameters = ExchangeParameters(
+            fromTokenAddress: items.source.contractAddress ?? oneInchCoinContractAddress,
+            toTokenAddress: destination.contractAddress ?? oneInchCoinContractAddress,
+            amount: amount,
+            fromAddress: walletAddress,
+            slippage: 1 // Default value
+        )
 
         let result = await oneInchAPIProvider.swap(blockchain: blockchain, parameters: parameters)
 
         switch result {
-        case .success(let swapData):
-            return ExchangeDataModel(swapData: swapData)
+        case .success(let exchangeData):
+            return ExchangeDataModel(exchangeData: exchangeData)
+        case .failure(let error):
+            throw error
+        }
+    }
+
+    func fetchQuote(items: ExchangeItems, amount: String) async throws -> QuoteData {
+        let blockchain = items.source.blockchain
+
+        let parameters = QuoteParameters(
+            fromTokenAddress: items.source.contractAddress ?? oneInchCoinContractAddress,
+            toTokenAddress: items.destination.contractAddress ?? oneInchCoinContractAddress,
+            amount: amount
+        )
+
+        let result = await oneInchAPIProvider.quote(blockchain: blockchain, parameters: parameters)
+
+        switch result {
+        case .success(let quoteData):
+            return quoteData
         case .failure(let error):
             throw error
         }
@@ -74,11 +92,11 @@ extension OneInchExchangeProvider: ExchangeProvider {
     // MARK: - Approve API
 
     func approveTxData(for currency: Currency) async throws -> ExchangeApprovedDataModel {
-        guard let contractAddress = currency.contractAddress,
-              let blockchain = ExchangeBlockchain.convert(from: currency.chainId) else {
+        guard let contractAddress = currency.contractAddress else {
             throw Errors.noData
         }
 
+        let blockchain = currency.blockchain
         let parameters = ApproveTransactionParameters(tokenAddress: contractAddress, amount: .infinite)
         let txResponse = await oneInchAPIProvider.approveTransaction(
             blockchain: blockchain,
@@ -94,10 +112,7 @@ extension OneInchExchangeProvider: ExchangeProvider {
     }
 
     func getSpenderAddress(for currency: Currency) async throws -> String {
-        guard let blockchain = ExchangeBlockchain.convert(from: currency.chainId) else {
-            throw Errors.noData
-        }
-
+        let blockchain = currency.blockchain
         let spender = await oneInchAPIProvider.spender(blockchain: blockchain)
 
         switch spender {
