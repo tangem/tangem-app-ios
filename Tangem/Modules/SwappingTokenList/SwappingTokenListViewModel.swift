@@ -8,6 +8,7 @@
 
 import Combine
 import SwiftUI
+import TangemExchange
 
 final class SwappingTokenListViewModel: ObservableObject, Identifiable {
     /// For SwiftUI sheet logic
@@ -30,15 +31,15 @@ final class SwappingTokenListViewModel: ObservableObject, Identifiable {
 
     private unowned let coordinator: SwappingTokenListRoutable
 
-    private let networkIds: [String]
+    private let network: ExchangeBlockchain
     private var bag: Set<AnyCancellable> = []
     private lazy var dataLoader: ListDataLoader = setupLoader()
 
     init(
-        networkIds: [String],
+        network: ExchangeBlockchain,
         coordinator: SwappingTokenListRoutable
     ) {
-        self.networkIds = networkIds
+        self.network = network
         self.coordinator = coordinator
 
         bind()
@@ -66,7 +67,7 @@ private extension SwappingTokenListViewModel {
     }
 
     func setupLoader() -> ListDataLoader {
-        let dataLoader = ListDataLoader(networkIds: networkIds, exchangeable: true)
+        let dataLoader = ListDataLoader(networkIds: [network.networkId], exchangeable: true)
         dataLoader.$items
             .receive(on: DispatchQueue.global())
             .map { coinModels in
@@ -90,10 +91,27 @@ private extension SwappingTokenListViewModel {
     }
 
     func userDidTap(coinModel: CoinModel) {
-        coordinator.userDidTap(coinModel: coinModel)
+        guard let currency = mapToCurrency(coinModel: coinModel) else {
+            assertionFailure("CoinModel is not a currency")
+            return
+        }
+        
+        coordinator.userDidTap(currency: currency)
     }
-}
-
-private extension Currency {
     
+    func mapToCurrency(coinModel: CoinModel) -> Currency? {
+        guard let token = coinModel.items.compactMap({ $0.token }).first else {
+            assertionFailure("CoinModel is not a token")
+            return nil
+        }
+        
+        return Currency(
+            id: coinModel.id,
+            blockchain: network,
+            name: coinModel.name,
+            symbol: coinModel.symbol,
+            decimalCount: token.decimalCount,
+            currencyType: .token(contractAddress: token.contractAddress)
+        )
+    }
 }
