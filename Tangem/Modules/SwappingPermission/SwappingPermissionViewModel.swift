@@ -10,6 +10,7 @@ import Combine
 import SwiftUI
 
 final class SwappingPermissionViewModel: ObservableObject, Identifiable {
+    /// For SwiftUI sheet logic
     let id: UUID = UUID()
 
     // MARK: - ViewState
