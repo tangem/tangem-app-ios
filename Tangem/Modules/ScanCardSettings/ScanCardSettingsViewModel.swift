@@ -37,7 +37,6 @@ extension ScanCardSettingsViewModel {
             case let .success(cardInfo):
                 let config = UserWalletConfigFactory(cardInfo).makeConfig()
                 let cardModel = CardViewModel(cardInfo: cardInfo, config: config)
-                cardModel.didScan() // [REDACTED_TODO_COMMENT]
                 self.processSuccessScan(for: cardInfo)
             case let .failure(error):
                 self.showErrorAlert(error: error)
@@ -55,7 +54,6 @@ extension ScanCardSettingsViewModel {
             return
         }
 
-        cardModel.didScan() // [REDACTED_TODO_COMMENT]
         self.coordinator.openCardSettings(cardModel: cardModel)
     }
 }
