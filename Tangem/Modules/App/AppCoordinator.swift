@@ -111,6 +111,8 @@ class AppCoordinator: NSObject, CoordinatorObject {
     }
 
     private func handleLock() {
+        guard welcomeCoordinator == nil && authCoordinator == nil else { return } // already locked, prevent glitches
+
         closeAllSheetsIfNeeded(animated: false)
 
         UIApplication.performWithoutAnimations {
