@@ -542,6 +542,7 @@
 		EF053DE92938A18E006FD13A /* ReceiveCurrencyViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF053DE22938A18E006FD13A /* ReceiveCurrencyViewModel.swift */; };
 		EF053DEA2938A18E006FD13A /* SendCurrencyViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF053DE42938A18E006FD13A /* SendCurrencyViewModel.swift */; };
 		EF053DEB2938A18E006FD13A /* SendCurrencyView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF053DE52938A18E006FD13A /* SendCurrencyView.swift */; };
+		EF053DED2938A200006FD13A /* TokenIconURLBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF053DEC2938A200006FD13A /* TokenIconURLBuilder.swift */; };
 		EF08A0EF283D1914008BD923 /* Moya+.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF08A0EE283D1914008BD923 /* Moya+.swift */; };
 		EF08A0F1283D2382008BD923 /* CoinsListRequestModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF08A0F0283D2382008BD923 /* CoinsListRequestModel.swift */; };
 		EF0F99AA289028F8008B01DF /* AppSettingsCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF0F99A5289028F8008B01DF /* AppSettingsCoordinator.swift */; };
@@ -1385,6 +1386,7 @@
 		EF053DE22938A18E006FD13A /* ReceiveCurrencyViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ReceiveCurrencyViewModel.swift; sourceTree = "<group>"; };
 		EF053DE42938A18E006FD13A /* SendCurrencyViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SendCurrencyViewModel.swift; sourceTree = "<group>"; };
 		EF053DE52938A18E006FD13A /* SendCurrencyView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SendCurrencyView.swift; sourceTree = "<group>"; };
+		EF053DEC2938A200006FD13A /* TokenIconURLBuilder.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TokenIconURLBuilder.swift; sourceTree = "<group>"; };
 		EF08A0EE283D1914008BD923 /* Moya+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Moya+.swift"; sourceTree = "<group>"; };
 		EF08A0F0283D2382008BD923 /* CoinsListRequestModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoinsListRequestModel.swift; sourceTree = "<group>"; };
 		EF0F99A5289028F8008B01DF /* AppSettingsCoordinator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AppSettingsCoordinator.swift; sourceTree = "<group>"; };
@@ -2312,6 +2314,7 @@
 		B068A7E525678A6E00D28CD2 /* Utilities */ = {
 			isa = PBXGroup;
 			children = (
+				EF053DEC2938A200006FD13A /* TokenIconURLBuilder.swift */,
 				EFA580622893E6AA00110DB0 /* BiometricAuthorizationUtils.swift */,
 				B0F79C692689AC56008C9B30 /* FileEncryptionUtility.swift */,
 				B068A7E625678A8800D28CD2 /* TwinCardsUtils.swift */,
@@ -4334,6 +4337,7 @@
 				DC0A57D92822A3C80031BECC /* InjectedWrapper.swift in Sources */,
 				EFE23AC6292CB6F700A3C554 /* SwappingTokenListView.swift in Sources */,
 				DAA5E31A28D214BF003C0E80 /* UserWalletFactory.swift in Sources */,
+				EF053DED2938A200006FD13A /* TokenIconURLBuilder.swift in Sources */,
 				DC7DA8192844EAFF00AD6DBD /* WelcomeCoordinator.swift in Sources */,
 				5D384B9124FD4E1800C2C92C /* String+.swift in Sources */,
 				5DD4CB4E24FAAB1A008F23CC /* KeyboardAdaptive.swift in Sources */,
