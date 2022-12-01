@@ -20,15 +20,18 @@ struct TangemSigner: TransactionSigner {
     private var _signPublisher: PassthroughSubject<Card, Never> = .init()
     private var initialMessage: Message { .init(header: nil, body: "initial_message_sign_body".localized) }
     private let cardId: String?
-    private var twinKey: TwinKey?
+    private let twinKey: TwinKey?
 
     init(with cardId: String?) {
-        self.cardId = cardId
-        self._signPublisher = PassthroughSubject<Card, Never>()
+        self.init(cardId: cardId, twinKey: nil)
     }
 
     init(with twinKey: TwinKey) {
-        self.init(with: nil)
+        self.init(cardId: nil, twinKey: twinKey)
+    }
+
+    private init(cardId: String?, twinKey: TwinKey?) {
+        self.cardId = cardId
         self.twinKey = twinKey
     }
 
