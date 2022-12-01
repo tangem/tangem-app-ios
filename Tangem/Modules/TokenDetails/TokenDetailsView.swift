@@ -147,10 +147,18 @@ struct TokenDetailsView: View {
 
     @ViewBuilder
     private var trailingButton: some View {
-        Button(action: viewModel.onRemove) {
-            Text("wallet_hide_token")
-                .foregroundColor(.tangemGrayDark6)
-                .font(.system(size: 17))
+        HStack {
+            if viewModel.swappingIsAvailable {
+                Button(action: viewModel.openSwapping) {
+                    Text("Swap")
+                }
+            }
+
+            Button(action: viewModel.onRemove) {
+                Text("wallet_hide_token")
+                    .foregroundColor(.tangemGrayDark6)
+                    .font(.system(size: 17))
+            }
         }
         .animation(nil)
     }
