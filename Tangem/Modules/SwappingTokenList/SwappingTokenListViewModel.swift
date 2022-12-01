@@ -10,6 +10,7 @@ import Combine
 import SwiftUI
 
 final class SwappingTokenListViewModel: ObservableObject, Identifiable {
+    /// For SwiftUI sheet logic
     let id = UUID()
 
     @Injected(\.tangemApiService) private var tangemApiService: TangemApiService
@@ -27,8 +28,7 @@ final class SwappingTokenListViewModel: ObservableObject, Identifiable {
 
     // MARK: - Dependencies
 
-    // Optional will be removed after implement navigation
-    private unowned let coordinator: SwappingTokenListRoutable?
+    private unowned let coordinator: SwappingTokenListRoutable
 
     private let networkIds: [String]
     private var bag: Set<AnyCancellable> = []
@@ -36,7 +36,7 @@ final class SwappingTokenListViewModel: ObservableObject, Identifiable {
 
     init(
         networkIds: [String],
-        coordinator: SwappingTokenListRoutable?
+        coordinator: SwappingTokenListRoutable
     ) {
         self.networkIds = networkIds
         self.coordinator = coordinator
@@ -90,6 +90,6 @@ private extension SwappingTokenListViewModel {
     }
 
     func userDidTap(coinModel: CoinModel) {
-        coordinator?.userDidTap(coinModel: coinModel)
+        coordinator.userDidTap(coinModel: coinModel)
     }
 }
