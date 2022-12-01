@@ -58,7 +58,6 @@ struct DefaultRowView: View {
         case .text(let string):
             Text(string)
                 .style(Fonts.Regular.body, color: Colors.Text.tertiary)
-                .layoutPriority(1)
         }
     }
 }
@@ -66,7 +65,7 @@ struct DefaultRowView: View {
 struct DefaultRowView_Preview: PreviewProvider {
     static let viewModel = DefaultRowViewModel(
         title: "App settings",
-        detailsType: .loader,
+        detailsType: .text("A Long long long long long long long text"),
         action: nil
     )
 
