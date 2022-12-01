@@ -9,6 +9,7 @@ import SwiftUI
 import BlockchainSdk
 import Combine
 import TangemSdk
+import TangemExchange
 
 class TokenDetailsViewModel: ObservableObject {
     @Injected(\.exchangeService) private var exchangeService: ExchangeService
@@ -150,6 +151,10 @@ class TokenDetailsViewModel: ObservableObject {
         }
 
         return "wallet_currency_subtitle".localized(blockchainNetwork.blockchain.displayName)
+    }
+
+    var swappingIsAvailable: Bool {
+        FeatureProvider.isAvailable(.exchange) && amountType.isToken
     }
 
     @Published var solanaRentWarning: String? = nil
@@ -357,6 +362,7 @@ extension Int: Identifiable {
 }
 
 // MARK: - Navigation
+
 extension TokenDetailsViewModel {
     func openSend() {
         guard let amountToSend = self.wallet?.amounts[amountType] else { return }
@@ -435,7 +441,90 @@ extension TokenDetailsViewModel {
         coordinator.openExplorer(at: url, blockchainDisplayName: blockchainNetwork.blockchain.displayName)
     }
 
+    func openSwapping() {
+        guard FeatureProvider.isAvailable(.exchange),
+              let walletModel = walletModel,
+              let source = sourceCurrency(),
+              let destination = destinationCurrency()
+        else {
+            return
+        }
+
+        let input = SwappingConfigurator.InputModel(
+            walletModel: walletModel,
+            signer: card.signer,
+            source: source,
+            destination: destination
+        )
+
+        coordinator.openSwapping(input: input)
+    }
+
     func dismiss() {
         coordinator.dismiss()
+    }
+}
+
+// MARK: - Swapping preparing
+
+private extension TokenDetailsViewModel {
+    func sourceCurrency() -> Currency? {
+        let blockchain = blockchainNetwork.blockchain
+
+        guard let exchangeBlockchain = ExchangeBlockchain(rawValue: blockchain.codingKey) else {
+            assertionFailure("ExchangeBlockchain don't support")
+            return nil
+        }
+
+        switch amountType {
+        case .coin, .reserve:
+            return Currency(
+                id: blockchain.id,
+                blockchain: exchangeBlockchain,
+                name: blockchain.displayName,
+                symbol: blockchain.currencySymbol,
+                decimalCount: blockchain.decimalCount,
+                currencyType: .coin
+            )
+        case .token(let token):
+            guard let id = token.id else {
+                assertionFailure("Token don't have id")
+                return nil
+            }
+
+            return Currency(
+                id: id,
+                blockchain: exchangeBlockchain,
+                name: token.name,
+                symbol: token.symbol,
+                decimalCount: token.decimalCount,
+                currencyType: .token(contractAddress: token.contractAddress)
+            )
+        }
+    }
+
+    private func destinationCurrency() -> Currency? {
+        let blockchain = blockchainNetwork.blockchain
+
+        guard let exchangeBlockchain = ExchangeBlockchain(rawValue: blockchain.codingKey) else {
+            assertionFailure("ExchangeBlockchain don't support")
+            return nil
+        }
+
+        switch amountType {
+        case .coin, .reserve:
+            assertionFailure("[REDACTED_TODO_COMMENT]")
+            return nil
+
+        case .token:
+            return Currency(
+                id: blockchain.id,
+                blockchain: exchangeBlockchain,
+                name: blockchain.displayName,
+                symbol: blockchain.currencySymbol,
+                decimalCount: blockchain.decimalCount,
+                currencyType: .coin
+            )
+        }
     }
 }
