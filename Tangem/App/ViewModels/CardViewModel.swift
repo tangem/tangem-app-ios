@@ -22,7 +22,7 @@ class CardViewModel: Identifiable, ObservableObject {
 
     @Published private(set) var currentSecurityOption: SecurityModeOption = .longTap
 
-    lazy var signer: TangemSigner = config.tangemSigner
+    var signer: TangemSigner { _signer }
 
     var cardId: String { cardInfo.card.cardId }
 
@@ -252,8 +252,8 @@ class CardViewModel: Identifiable, ObservableObject {
     }
 
     private var isActive: Bool {
-        if let selectedRepositoryModel = userWalletRepository.selectedModel {
-            return selectedRepositoryModel === self
+        if let selectedUserWalletId = userWalletRepository.selectedUserWalletId {
+            return selectedUserWalletId == userWalletId
         } else {
             return true
         }
@@ -261,6 +261,16 @@ class CardViewModel: Identifiable, ObservableObject {
 
     private var searchBlockchainsCancellable: AnyCancellable? = nil
     private var bag = Set<AnyCancellable>()
+    private var signSubscription: AnyCancellable?
+
+    private var _signer: TangemSigner {
+        didSet {
+            signSubscription = _signer.signPublisher
+                .sink { [weak self] card in // [REDACTED_TODO_COMMENT]
+                    self?.onSigned(card)
+                }
+        }
+    }
 
     convenience init(userWallet: UserWallet) {
         let cardInfo = userWallet.cardInfo()
@@ -276,7 +286,7 @@ class CardViewModel: Identifiable, ObservableObject {
     ) {
         self.cardInfo = cardInfo
         self.config = config
-
+        self._signer = config.tangemSigner
         createUserWalletModelIfNeeded(with: userWallet)
         updateCurrentSecurityOption()
         appendPersistentBlockchains()
@@ -445,17 +455,13 @@ class CardViewModel: Identifiable, ObservableObject {
             cardInfo.card.wallets[updatedWallet.publicKey]?.remainingSignatures = updatedWallet.remainingSignatures
         }
 
-        let cardDto = CardDTO(card: card)
-        let walletData = cardInfo.walletData
-        userWalletRepository.didScan(card: cardDto, walletData: walletData)
-
         onUpdate()
     }
 
-    func onDerived(_ card: Card) {
-        for updatedWallet in card.wallets {
-            for derivedKey in updatedWallet.derivedKeys {
-                cardInfo.card.wallets[updatedWallet.publicKey]?.derivedKeys[derivedKey.key] = derivedKey.value
+    func onDerived(_ response: DerivationResult) {
+        for updatedWallet in response {
+            for derivedKey in updatedWallet.value {
+                cardInfo.card.wallets[updatedWallet.key]?.derivedKeys[derivedKey.key] = derivedKey.value
             }
         }
 
@@ -481,6 +487,7 @@ class CardViewModel: Identifiable, ObservableObject {
     private func onUpdate() {
         print("🔄 Updating CardViewModel with new Card")
         config = UserWalletConfigFactory(cardInfo).makeConfig()
+        _signer = config.tangemSigner
         updateModel()
         updateUserWallet()
     }
@@ -640,11 +647,6 @@ class CardViewModel: Identifiable, ObservableObject {
     }
 
     private func bind() {
-        signer.signPublisher.sink { [unowned self] card in
-            self.onSigned(card)
-        }
-        .store(in: &bag)
-
         AppSettings.shared.$saveUserWallets
             .combineLatest(AppSettings.shared.$saveAccessCodes)
             .sink { [weak self] _ in
@@ -728,9 +730,9 @@ extension CardViewModel {
         let alreadySaved = userWalletModel?.getSavedEntries() ?? []
         derivationManager.deriveIfNeeded(entries: alreadySaved + entries, completion: { [weak self] result in
             switch result {
-            case let .success(card):
-                if let card = card {
-                    self?.onDerived(card)
+            case let .success(response):
+                if let response {
+                    self?.onDerived(response)
                 }
 
                 completion(.success(()))
