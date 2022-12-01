@@ -72,15 +72,26 @@ private extension OneInchAPIService {
     func request<T: Decodable>(target: OneInchBaseTarget) async -> Result<T, ExchangeInchError> {
         var response: Response
 
+        let decoder = JSONDecoder()
+        decoder.keyDecodingStrategy = .convertFromSnakeCase
+
         do {
             response = try await provider.asyncRequest(target)
-            response = try response.filterSuccessfulStatusAndRedirectCodes()
         } catch {
             return .failure(.serverError(withError: error))
         }
 
-        let decoder = JSONDecoder()
-        decoder.keyDecodingStrategy = .convertFromSnakeCase
+        do {
+            response = try response.filterSuccessfulStatusAndRedirectCodes()
+        } catch {
+            do {
+                print("Request to target", target.path, "handle error with response", String(data: response.data, encoding: .utf8)!)
+                let inchError = try decoder.decode(InchError.self, from: response.data)
+                return .failure(.parsedError(withInfo: inchError))
+            } catch {
+                return .failure(.serverError(withError: error))
+            }
+        }
 
         do {
             return .success(try decoder.decode(T.self, from: response.data))
