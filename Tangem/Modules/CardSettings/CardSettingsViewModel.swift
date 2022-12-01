@@ -60,7 +60,10 @@ private extension CardSettingsViewModel {
     func bind() {
         cardModel.$currentSecurityOption
             .map { $0.titleForDetails }
-            .weakAssign(to: \.securityModeTitle, on: self)
+            .sink(receiveValue: { [weak self] newMode in
+                self?.securityModeTitle = newMode
+                self?.setupSecurityOptions()
+            })
             .store(in: &bag)
     }
 
@@ -78,11 +81,7 @@ private extension CardSettingsViewModel {
                                 detailsType: .text("details_row_subtitle_signed_hashes_format".localized("\(cardModel.cardSignedHashes)"))),
         ]
 
-        securityModeSection = [DefaultRowViewModel(
-            title: "card_settings_security_mode".localized,
-            detailsType: .text(securityModeTitle),
-            action: hasSingleSecurityMode ? nil : openSecurityMode
-        )]
+        setupSecurityOptions()
 
         if isChangeAccessCodeVisible {
             securityModeSection.append(
@@ -100,6 +99,14 @@ private extension CardSettingsViewModel {
                 action: openResetCard
             )
         }
+    }
+
+    private func setupSecurityOptions() {
+        securityModeSection = [DefaultRowViewModel(
+            title: "card_settings_security_mode".localized,
+            detailsType: .text(securityModeTitle),
+            action: hasSingleSecurityMode ? nil : openSecurityMode
+        )]
     }
 
     private func deleteWallet(_ userWallet: UserWallet) {
