@@ -18,7 +18,7 @@ struct SwappingTokenListView: View {
 
     var body: some View {
         PerfList {
-            if #available(iOS 15.0, *) {} else {
+            if #unavailable(iOS 15.0) {
                 let horizontalInset: CGFloat = UIDevice.isIOS13 ? 8 : 16
                 SearchBar(text: $viewModel.searchText.value, placeholder: "common_search".localized)
                     .padding(.horizontal, UIDevice.isIOS13 ? 0 : 8)
@@ -31,7 +31,7 @@ struct SwappingTokenListView: View {
                 Text("your tokens".uppercased())
                     .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
             }
-            .separatorPadding(68)
+            .separatorPadding(68) // IconSize + paddings
 
             GroupedSection(viewModel.otherItems) {
                 SwappingTokenItemView(viewModel: $0)
@@ -39,7 +39,7 @@ struct SwappingTokenListView: View {
                 Text("other tokens".uppercased())
                     .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
             }
-            .separatorPadding(68)
+            .separatorPadding(68) // IconSize + paddings
 
             if viewModel.hasNextPage {
                 ProgressViewCompat(color: Colors.Icon.informative)
