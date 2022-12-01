@@ -674,6 +674,9 @@
 		EFC46F01292669A0003928E3 /* ReceiveCurrencyViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFC46F00292669A0003928E3 /* ReceiveCurrencyViewModel.swift */; };
 		EFC98EA22897CB3F00261D33 /* AttentionViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFC98EA02897CB3F00261D33 /* AttentionViewModel.swift */; };
 		EFC98EA32897CB3F00261D33 /* AttentionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFC98EA12897CB3F00261D33 /* AttentionView.swift */; };
+		EFE23AB9292B8D1800A3C554 /* SwappingPermissionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFE23AB4292B8D1800A3C554 /* SwappingPermissionView.swift */; };
+		EFE23ABA292B8D1800A3C554 /* SwappingPermissionViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFE23AB5292B8D1800A3C554 /* SwappingPermissionViewModel.swift */; };
+		EFE23ABB292B8D1800A3C554 /* SwappingPermissionRoutable.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFE23AB6292B8D1800A3C554 /* SwappingPermissionRoutable.swift */; };
 		EFE1812B292E30C00072D80C /* SupportChatViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65C9FCB92869CC3E00FDE63E /* SupportChatViewModel.swift */; };
 		EFE1812C292E30DF0072D80C /* OnboardingCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0E1565126B97F8C005B33E4 /* OnboardingCardView.swift */; };
 		EFE23AAE292B810300A3C554 /* SuccessSwappingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFE23AAB292B810300A3C554 /* SuccessSwappingView.swift */; };
@@ -1502,6 +1505,9 @@
 		EFC98EA02897CB3F00261D33 /* AttentionViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AttentionViewModel.swift; sourceTree = "<group>"; };
 		EFC98EA12897CB3F00261D33 /* AttentionView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AttentionView.swift; sourceTree = "<group>"; };
 		EFCC66E028AA6FC500EC7757 /* UserTokenList.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserTokenList.swift; sourceTree = "<group>"; };
+		EFE23AB4292B8D1800A3C554 /* SwappingPermissionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwappingPermissionView.swift; sourceTree = "<group>"; };
+		EFE23AB5292B8D1800A3C554 /* SwappingPermissionViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwappingPermissionViewModel.swift; sourceTree = "<group>"; };
+		EFE23AB6292B8D1800A3C554 /* SwappingPermissionRoutable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwappingPermissionRoutable.swift; sourceTree = "<group>"; };
 		EFE23AAB292B810300A3C554 /* SuccessSwappingView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SuccessSwappingView.swift; sourceTree = "<group>"; };
 		EFE23AAC292B810300A3C554 /* SuccessSwappingRoutable.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SuccessSwappingRoutable.swift; sourceTree = "<group>"; };
 		EFE23AAD292B810300A3C554 /* SuccessSwappingViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SuccessSwappingViewModel.swift; sourceTree = "<group>"; };
@@ -3169,6 +3175,7 @@
 		DC7DA81A2844EED800AD6DBD /* Modules */ = {
 			isa = PBXGroup;
 			children = (
+				EFE23AB1292B8D0800A3C554 /* SwappingPermission */,
 				EFE23AAA292B810300A3C554 /* SuccessSwapping */,
 				DC261CB9292CFB3100875E64 /* App */,
 				DC261CAD292CF68C00875E64 /* UncompletedBackup */,
@@ -3707,6 +3714,16 @@
 			path = Types;
 			sourceTree = "<group>";
 		};
+		EFE23AB1292B8D0800A3C554 /* SwappingPermission */ = {
+			isa = PBXGroup;
+			children = (
+				EFE23AB4292B8D1800A3C554 /* SwappingPermissionView.swift */,
+				EFE23AB5292B8D1800A3C554 /* SwappingPermissionViewModel.swift */,
+				EFE23AB6292B8D1800A3C554 /* SwappingPermissionRoutable.swift */,
+			);
+			path = SwappingPermission;
+			sourceTree = "<group>";
+		};
 		EFE23AAA292B810300A3C554 /* SuccessSwapping */ = {
 			isa = PBXGroup;
 			children = (
@@ -4144,6 +4161,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				EF9CFC12288FECE100329BE0 /* ScanCardSettingsView.swift in Sources */,
+				EFE23ABB292B8D1800A3C554 /* SwappingPermissionRoutable.swift in Sources */,
 				DCE5C66C28898B7F000C7F67 /* TangemApiService.swift in Sources */,
 				5DDFC2042812B72C005976FE /* Currency.swift in Sources */,
 				5D09382825E7A2D80049B8F0 /* TokenDetailsView.swift in Sources */,
@@ -4404,6 +4422,7 @@
 				5D4B8BB927EDB327002CE87C /* ArrowView.swift in Sources */,
 				B06997D02692EC5E0014A676 /* ExchangeService.swift in Sources */,
 				DC3F54B128EB3D5D00BC9A6D /* KYCView.swift in Sources */,
+				EFE23ABA292B8D1800A3C554 /* SwappingPermissionViewModel.swift in Sources */,
 				EF08A0F1283D2382008BD923 /* CoinsListRequestModel.swift in Sources */,
 				EF130EBC28E1D34500D37EFC /* MultiWalletContentView.swift in Sources */,
 				DC295B5D2862E6DE006CB7B6 /* BackUpWarningView.swift in Sources */,
@@ -4591,6 +4610,7 @@
 				DC295B3C2861C19C006CB7B6 /* MainCoordinator.swift in Sources */,
 				EFBAABAF2927CCBA0065C6D4 /* GroupedNumberFormatter.swift in Sources */,
 				EF0FF8712866021B00B7CEAF /* AppEnvironment.swift in Sources */,
+				EFE23AB9292B8D1800A3C554 /* SwappingPermissionView.swift in Sources */,
 				B01EB9C426E9F18A0060E2FB /* StackCalculator.swift in Sources */,
 				EFF034AF28B6522500F70FF7 /* WalletListManager.swift in Sources */,
 				5D9004E424FA79F700E90939 /* ViewStateHandler.swift in Sources */,
