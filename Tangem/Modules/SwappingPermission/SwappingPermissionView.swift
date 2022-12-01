@@ -23,7 +23,8 @@ struct SwappingPermissionView: View {
 
             buttons
         }
-        .padding(.bottom, 10)
+        .padding(.top, 16)
+        .padding(.bottom, 4)
         .background(Colors.Background.secondary)
     }
 
@@ -52,7 +53,8 @@ struct SwappingPermissionView: View {
             MainButton(
                 text: "swapping_permission_buttons_approve".localized,
                 icon: .trailing(Assets.tangemIconWhite),
-                action: viewModel.approveDidTapped)
+                action: viewModel.approveDidTapped
+            )
 
             MainButton(
                 text: "common_cancel".localized,
@@ -66,12 +68,14 @@ struct SwappingPermissionView: View {
 
 struct SwappingPermissionView_Preview: PreviewProvider {
     static let viewModel = SwappingPermissionViewModel(
-        smartContractNetworkName: "DAI",
-        amount: 1000,
-        yourWalletAddress: "0x6B175474E89094C44Da98b954EedeAC495271d0F",
-        spenderWalletAddress: "0x6B175474E89094C44Da98b954EedeAC495271d0F",
-        fee: 2.14,
-        coordinator: nil
+        inputModel: SwappingPermissionViewModel.InputModel(
+            smartContractNetworkName: "DAI",
+            amount: 1000,
+            yourWalletAddress: "0x6B175474E89094C44Da98b954EedeAC495271d0F",
+            spenderWalletAddress: "0x6B175474E89094C44Da98b954EedeAC495271d0F",
+            fee: 2.14
+        ),
+        coordinator: SwappingCoordinator()
     )
 
     static var previews: some View {
