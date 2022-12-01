@@ -16,14 +16,18 @@ struct TokenIconViewModel: Hashable, Identifiable {
     let name: String
     let style: Style
 
-    init(
-        imageURL: URL?,
-        name: String,
-        style: TokenIconViewModel.Style
-    ) {
-        self.imageURL = imageURL
-        self.name = name
-        self.style = style
+    var imageURL: URL? {
+        guard let id else { return nil }
+
+        return TokenIconURLBuilder().iconURL(id: id, size: .large)
+    }
+
+    var blockchainIconName: String? {
+        if case let .token(iconName) = style {
+            return iconName
+        }
+
+        return nil
     }
 
     init(
