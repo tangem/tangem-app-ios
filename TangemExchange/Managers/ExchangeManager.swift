@@ -9,19 +9,31 @@
 import Foundation
 
 public protocol ExchangeManager {
+    /// Delegate for view updates
+    func setDelegate(_ delegate: ExchangeManagerDelegate)
+
     /// Available network for selected as target to swap
     func getNetworksAvailableToExchange() -> [String]
 
     /// Items which currently to swapping
     func getExchangeItems() -> ExchangeItems
 
+    /// Current manager state
+    func getAvailabilityState() -> ExchangeAvailabilityState
+
     /// Update swapping items and reload rates
     func update(exchangeItems: ExchangeItems)
 
+    /// Update amount for swap
+    func update(amount: Decimal?)
+
     /// Checking that decimal value available for exchange without approved
     /// Only for tokens
-    func isAvailableForExchange(amount: Decimal) -> Bool
+    func isAvailableForExchange() -> Bool
 
-    /// Get data model with data which should be viewed to user for approve
-    func getApprovedDataModel() async -> ExchangeApprovedDataModel?
+    /// Approve and swap items
+    func approveAndSwapItems()
+
+    /// User request swap items
+    func swapItems()
 }
