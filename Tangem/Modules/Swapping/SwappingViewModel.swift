@@ -54,6 +54,7 @@ final class SwappingViewModel: ObservableObject {
     }
 
     func userDidTapMainButton() {
+        // For test. Will remove
         if Bool.random() {
             openSuccessView()
         } else {
