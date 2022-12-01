@@ -82,7 +82,7 @@ struct SendCurrencyView: View {
 }
 
 struct SendCurrencyView_Preview: PreviewProvider {
-    @State private static var decimalValue: Decimal? = 1000
+    @State private static var decimalValue: Decimal? = nil
 
     static let viewModel = SendCurrencyViewModel(
         balance: 3043.75,
