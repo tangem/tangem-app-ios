@@ -530,4 +530,5 @@ URL: %@";
 "swapping_success" = "Success!";
 "swapping_swap_of_to" = "Swap of %@ to";
 "swapping_swap" = "Swap";
+"swapping_fee" = "Fee";
 "user_wallet_list_error_wallet_already_saved" = "This wallet has already been saved, you can add another one";
