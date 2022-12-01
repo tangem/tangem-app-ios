@@ -25,7 +25,7 @@ struct SwappingTokenListView: View {
                         .padding(.horizontal, UIDevice.isIOS13 ? 0 : 8)
                         .listRowInsets(.init(top: 8, leading: horizontalInset, bottom: 8, trailing: horizontalInset))
                 }
-                
+
                 GroupedSection(viewModel.yourItems) {
                     SwappingTokenItemView(viewModel: $0)
                 } header: {
@@ -33,7 +33,7 @@ struct SwappingTokenListView: View {
                         .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
                 }
                 .separatorPadding(68)
-                
+
                 GroupedSection(viewModel.otherItems) {
                     SwappingTokenItemView(viewModel: $0)
                 } header: {
@@ -41,7 +41,7 @@ struct SwappingTokenListView: View {
                         .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
                 }
                 .separatorPadding(68)
-                
+
                 if viewModel.hasNextPage {
                     ProgressViewCompat(color: Colors.Icon.informative)
                         .onAppear(perform: viewModel.fetch)
@@ -50,6 +50,7 @@ struct SwappingTokenListView: View {
             }
             .searchableCompat(text: $viewModel.searchText.value)
             .navigationBarTitle(Text("swapping_token_list_your_title".localized), displayMode: .inline)
+            .onAppear(perform: viewModel.onAppear)
         }
     }
 }
