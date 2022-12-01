@@ -13,7 +13,7 @@ public protocol ExchangeManager {
     func setDelegate(_ delegate: ExchangeManagerDelegate)
 
     /// Available network for selected as target to swap
-    func getNetworksAvailableToExchange() -> [String]
+    func getCurrentExchangeBlockchain() -> ExchangeBlockchain
 
     /// Items which currently to swapping
     func getExchangeItems() -> ExchangeItems
