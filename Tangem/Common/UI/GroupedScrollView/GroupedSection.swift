@@ -16,6 +16,7 @@ struct GroupedSection<Model: Identifiable, Content: View, Footer: View, Header: 
 
     private var verticalPadding: CGFloat = 12
     private var horizontalPadding: CGFloat = 16
+    private var separatorPadding: CGFloat = 16
     private var separatorStyle: SeparatorStyle = .single
 
     init(
@@ -78,7 +79,7 @@ struct GroupedSection<Model: Identifiable, Content: View, Footer: View, Header: 
             Colors.Stroke.primary
                 .frame(maxWidth: .infinity)
                 .frame(height: 1)
-                .padding(.leading, horizontalPadding)
+                .padding(.leading, separatorPadding)
         }
     }
 }
@@ -97,6 +98,10 @@ extension GroupedSection: Setupable {
 
     func horizontalPadding(_ padding: CGFloat) -> Self {
         map { $0.horizontalPadding = padding }
+    }
+
+    func separatorPadding(_ padding: CGFloat) -> Self {
+        map { $0.separatorPadding = padding }
     }
 
     func separatorStyle(_ style: SeparatorStyle) -> Self {
