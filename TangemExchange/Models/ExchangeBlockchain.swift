@@ -19,7 +19,7 @@ public enum ExchangeBlockchain: String, CaseIterable {
     case fantom
     case klayth
     case aurora
-    
+
     public init?(networkId: String) {
         self.init(rawValue: networkId)
     }
