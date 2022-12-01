@@ -7,7 +7,7 @@
 //
 
 import SwiftUI
-import BlockchainSdk
+import enum TangemExchange.ExchangeBlockchain
 
 struct SwappingTokenListView: View {
     @ObservedObject private var viewModel: SwappingTokenListViewModel
@@ -25,23 +25,23 @@ struct SwappingTokenListView: View {
                         .padding(.horizontal, UIDevice.isIOS13 ? 0 : 8)
                         .listRowInsets(.init(top: 8, leading: horizontalInset, bottom: 8, trailing: horizontalInset))
                 }
-
+                
                 GroupedSection(viewModel.yourItems) {
                     SwappingTokenItemView(viewModel: $0)
                 } header: {
-                    Text("your tokens".uppercased())
+                    Text("swapping_token_list_your_tokens".localized.uppercased())
                         .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
                 }
                 .separatorPadding(68)
-
+                
                 GroupedSection(viewModel.otherItems) {
                     SwappingTokenItemView(viewModel: $0)
                 } header: {
-                    Text("other tokens".uppercased())
+                    Text("swapping_token_list_other_tokens".localized.uppercased())
                         .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
                 }
                 .separatorPadding(68)
-
+                
                 if viewModel.hasNextPage {
                     ProgressViewCompat(color: Colors.Icon.informative)
                         .onAppear(perform: viewModel.fetch)
@@ -49,14 +49,14 @@ struct SwappingTokenListView: View {
                 }
             }
             .searchableCompat(text: $viewModel.searchText.value)
-            .navigationBarTitle(Text("Choose token"), displayMode: .inline)
+            .navigationBarTitle(Text("swapping_token_list_your_title".localized), displayMode: .inline)
         }
     }
 }
 
 struct SwappingTokenListView_Preview: PreviewProvider {
     static let viewModel = SwappingTokenListViewModel(
-        networkIds: Blockchain.supportedBlockchains.map { $0.networkId },
+        network: ExchangeBlockchain.polygon,
         coordinator: SwappingCoordinator()
     )
 
