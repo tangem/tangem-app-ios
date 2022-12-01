@@ -50,8 +50,8 @@ extension SwappingCoordinator {
 // MARK: - SwappingRoutable
 
 extension SwappingCoordinator: SwappingRoutable {
-    func presentExchangeableTokenListView(networkIds: [String]) {
-        swappingTokenListViewModel = SwappingTokenListViewModel(networkIds: networkIds, coordinator: self)
+    func presentExchangeableTokenListView(network: ExchangeBlockchain) {
+        swappingTokenListViewModel = SwappingTokenListViewModel(network: network, coordinator: self)
     }
 
     func presentPermissionView(inputModel: SwappingPermissionViewModel.InputModel) {
@@ -69,9 +69,10 @@ extension SwappingCoordinator: SwappingRoutable {
 
 // MARK: - SwappingTokenListRoutable
 
-extension SwappingCoordinator: SwappingTokenListRoutable {
-    func userDidTap(coinModel: CoinModel) {
+extension SwappingCoordinator: SwappingTokenListRoutable {    
+    func userDidTap(currency: Currency) {
         swappingTokenListViewModel = nil
+        rootViewModel?.userDidRequestChangeDestination(to: currency)
     }
 }
 
