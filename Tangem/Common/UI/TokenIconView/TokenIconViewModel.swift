@@ -17,10 +17,7 @@ struct TokenIconViewModel: Hashable, Identifiable {
     var imageURL: URL? {
         guard let id else { return nil }
 
-        return CoinsResponse.baseURL
-            .appendingPathComponent("coins")
-            .appendingPathComponent("large")
-            .appendingPathComponent("\(id).png")
+        return TokenIconURLBuilder().iconURL(id: id)
     }
 
     var blockchainIconName: String? {
