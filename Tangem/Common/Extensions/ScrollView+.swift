@@ -13,7 +13,9 @@ extension ScrollView {
     func scrollDismissesKeyboardCompat(_ dismissKeyboardOnScroll: Bool) -> some View {
         if #available(iOS 16.0, *) {
             self
-                .scrollDismissesKeyboard(dismissKeyboardOnScroll ? .immediately : .never)
+                .scrollDismissesKeyboard(
+                    dismissKeyboardOnScroll ? .immediately : .never
+                )
         } else {
             self
         }
