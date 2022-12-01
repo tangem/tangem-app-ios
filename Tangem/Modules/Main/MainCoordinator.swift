@@ -26,7 +26,6 @@ class MainCoordinator: CoordinatorObject {
     @Published var detailsCoordinator: DetailsCoordinator? = nil
     @Published var tokenListCoordinator: TokenListCoordinator? = nil
     @Published var modalOnboardingCoordinator: OnboardingCoordinator? = nil
-    @Published var pushedOnboardingCoordinator: OnboardingCoordinator? = nil
 
     // MARK: - Child view models
     @Published var pushedWebViewModel: WebViewContainerViewModel? = nil
@@ -35,7 +34,7 @@ class MainCoordinator: CoordinatorObject {
     @Published var mailViewModel: MailViewModel? = nil
     @Published var addressQrBottomSheetContentViewVodel: AddressQrBottomSheetContentViewVodel? = nil
     @Published var warningBankCardViewModel: WarningBankCardViewModel? = nil
-    @Published var userWalletListViewModel: UserWalletListViewModel?
+    @Published var userWalletListCoordinator: UserWalletListCoordinator?
     @Published var userWalletStorageAgreementViewModel: UserWalletStorageAgreementViewModel?
 
     // MARK: - Helpers
@@ -259,46 +258,50 @@ extension MainCoordinator: MainRoutable {
         userWalletStorageAgreementViewModel = UserWalletStorageAgreementViewModel(isStandalone: true, coordinator: self)
     }
 
+    func closeUserWalletSaveAcceptanceSheet() {
+        userWalletStorageAgreementViewModel = nil
+    }
+
     func openUserWalletList() {
-        userWalletListViewModel = UserWalletListViewModel(coordinator: self)
+        let dismissAction: Action = { [weak self] in
+            self?.userWalletListCoordinator = nil
+        }
+
+        let coordinator = UserWalletListCoordinator(output: self, dismissAction: dismissAction, popToRootAction: popToRootAction)
+        coordinator.start()
+
+        userWalletListCoordinator = coordinator
     }
 
     func openSwapping(input: SwappingConfigurator.InputModel) {}
 }
 
-extension MainCoordinator: UserWalletListRoutable {
-    func dismissUserWalletList() {
-        self.userWalletListViewModel = nil
-    }
-
-    func openOnboarding(with input: OnboardingInput) {
-        dismissUserWalletList()
+extension MainCoordinator: UserWalletListCoordinatorOutput {
+    func dismissAndOpenOnboarding(with input: OnboardingInput) {
+        userWalletListCoordinator = nil
 
         let dismissAction: Action = { [weak self] in
-            self?.pushedOnboardingCoordinator = nil
-        }
-
-        let popToRootAction: ParamsAction<PopToRootOptions> = { [weak self] options in
-            self?.pushedOnboardingCoordinator = nil
+            self?.modalOnboardingCoordinator = nil
         }
 
         let coordinator = OnboardingCoordinator(dismissAction: dismissAction, popToRootAction: popToRootAction)
-        let options = OnboardingCoordinator.Options(input: input, destination: .main)
+        let options = OnboardingCoordinator.Options(input: input, destination: .dismiss)
         coordinator.start(with: options)
-        pushedOnboardingCoordinator = coordinator
+
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) {
+            self.modalOnboardingCoordinator = coordinator
+        }
     }
 }
 
 extension MainCoordinator: UserWalletStorageAgreementRoutable {
     func didAgreeToSaveUserWallets() {
         logSaveUserWalletStep(agreed: true)
-        userWalletStorageAgreementViewModel = nil
         mainViewModel?.didAgreeToSaveUserWallets()
     }
 
     func didDeclineToSaveUserWallets() {
         logSaveUserWalletStep(agreed: false)
-        userWalletStorageAgreementViewModel = nil
         mainViewModel?.didDeclineToSaveUserWallets()
     }
 
