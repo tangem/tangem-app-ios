@@ -52,6 +52,12 @@ class AppCoordinator: NSObject, CoordinatorObject {
         }
     }
 
+    private func restart() {
+        welcomeCoordinator = nil
+        authCoordinator = nil
+        start()
+    }
+
     private func setupWelcome(with options: AppCoordinator.Options) {
         let dismissAction = { [weak self] in
             self?.welcomeCoordinator = nil
@@ -103,22 +109,31 @@ class AppCoordinator: NSObject, CoordinatorObject {
         userWalletRepository
             .eventProvider
             .sink { [weak self] event in
-                if case .locked = event {
-                    self?.handleLock()
+                if case .locked(let reason) = event {
+                    let animateLock: Bool
+                    switch reason {
+                    case .loggedOut:
+                        animateLock = false
+                    case .nothingToDisplay:
+                        animateLock = true
+                    }
+
+                    self?.handleLock(animated: animateLock)
                 }
             }
             .store(in: &bag)
     }
 
-    private func handleLock() {
-        guard welcomeCoordinator == nil && authCoordinator == nil else { return } // already locked, prevent glitches
+    private func handleLock(animated: Bool) {
+        closeAllSheetsIfNeeded(animated: animated) {
 
-        closeAllSheetsIfNeeded(animated: false)
-
-        UIApplication.performWithoutAnimations {
-            welcomeCoordinator = nil
-            authCoordinator = nil
-            start()
+            if animated {
+                self.restart()
+            } else {
+                UIApplication.performWithoutAnimations {
+                    self.restart()
+                }
+            }
         }
     }
 
