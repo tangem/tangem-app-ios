@@ -18,7 +18,6 @@ protocol UserWalletRepository {
     var isUnlocked: Bool { get }
     var eventProvider: AnyPublisher<UserWalletRepositoryEvent, Never> { get }
 
-    func lock()
     func unlock(with method: UserWalletRepositoryUnlockMethod, completion: @escaping (UserWalletRepositoryResult?) -> Void)
     func setSelectedUserWalletId(_ userWalletId: Data?, reason: UserWalletRepositorySelectionChangeReason)
 
@@ -54,7 +53,7 @@ enum UserWalletRepositoryResult {
 }
 
 enum UserWalletRepositoryEvent {
-    case locked
+    case locked(reason: UserWalletRepositoryLockReason)
     case scan(isScanning: Bool)
     case inserted(userWallet: UserWallet)
     case updated(userWalletModel: UserWalletModel)
@@ -66,6 +65,11 @@ enum UserWalletRepositorySelectionChangeReason {
     case userSelected
     case inserted
     case deleted
+}
+
+enum UserWalletRepositoryLockReason {
+    case loggedOut
+    case nothingToDisplay
 }
 
 enum UserWalletRepositoryUnlockMethod {
