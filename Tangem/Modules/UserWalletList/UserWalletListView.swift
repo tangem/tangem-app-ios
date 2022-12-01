@@ -115,11 +115,11 @@ extension UserWalletListView {
         if !viewModels.isEmpty {
             sectionHeader(name: headerName)
 
-            ForEach(viewModels, id: \.userWalletId) { viewModel in
-                cell(for: viewModel)
+            ForEach(viewModels, id: \.userWalletId) { cellViewModel in
+                UserWalletListCellView(viewModel: cellViewModel)
 
-                if viewModel.userWalletId != viewModels.last?.userWalletId {
-                    separator()
+                if cellViewModel.userWalletId != viewModels.last?.userWalletId {
+                    UserWalletListSeparatorView()
                 }
             }
         }
@@ -141,82 +141,5 @@ extension UserWalletListView {
     @ViewBuilder
     private func sectionHeaderInternal(name: String) -> some View {
         UserWalletListHeaderView(name: name)
-    }
-
-    // MARK: - Cells
-
-    @ViewBuilder
-    private func cell(for viewModel: UserWalletListCellViewModel) -> some View {
-        if #available(iOS 15, *) {
-            cellInternal(for: viewModel)
-                .listRowInsets(EdgeInsets())
-                .swipeActions {
-                    Button("common_delete") {
-                        self.viewModel.showDeletionConfirmation(viewModel)
-                    }
-                    .tint(.red)
-
-                    Button("user_wallet_list_rename") {
-                        self.viewModel.editUserWallet(viewModel)
-                    }
-                    .tint(Colors.Icon.informative)
-                }
-        } else {
-            cellInternal(for: viewModel)
-        }
-    }
-
-    @ViewBuilder
-    private func cellInternal(for viewModel: UserWalletListCellViewModel) -> some View {
-        UserWalletListCellView(viewModel: viewModel)
-            .contextMenu {
-                Button {
-                    self.viewModel.editUserWallet(viewModel)
-                } label: {
-                    HStack {
-                        Text("user_wallet_list_rename")
-                        Image(systemName: "pencil")
-                    }
-                }
-
-                if #available(iOS 15, *) {
-                    Button(role: .destructive) {
-                        self.viewModel.showDeletionConfirmation(viewModel)
-                    } label: {
-                        deleteButtonLabel()
-                    }
-                } else {
-                    Button {
-                        self.viewModel.showDeletionConfirmation(viewModel)
-                    } label: {
-                        deleteButtonLabel()
-                    }
-                }
-            }
-    }
-
-    @ViewBuilder
-    private func deleteButtonLabel() -> some View {
-        HStack {
-            Text("common_delete")
-            Image(systemName: "trash")
-        }
-    }
-
-    // MARK: - Separators
-
-    @ViewBuilder
-    private func separator() -> some View {
-        if #available(iOS 15, *) {
-            EmptyView()
-        } else {
-            separatorInternal()
-                .padding(.leading, 78)
-        }
-    }
-
-    @ViewBuilder
-    private func separatorInternal() -> some View {
-        Separator(height: 0.5, padding: 0, color: Colors.Stroke.primary)
     }
 }
