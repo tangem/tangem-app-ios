@@ -38,10 +38,7 @@ struct TokenIconView: View {
 
     @ViewBuilder
     private var networkIcon: some View {
-        switch viewModel.style {
-        case .blockchain:
-            EmptyView()
-        case .tokenCoinIconName(let name):
+        if let name = viewModel.blockchainIconName {
             NetworkIcon(imageName: name,
                         isMainIndicatorVisible: false,
                         size: networkIconSize)
@@ -50,16 +47,6 @@ struct TokenIconView: View {
                         .clipShape(Circle())
                         .frame(size: networkIconSize + CGSize(width: 2 * networkIconBorderWidth, height: 2 * networkIconBorderWidth))
                 )
-        case .tokenCoinIconURL(let url):
-            KFImage(url)
-                .setProcessor(DownsamplingImageProcessor(size: size))
-                .fade(duration: 0.3)
-                .cacheOriginalImage()
-                .scaleFactor(UIScreen.main.scale)
-                .resizable()
-                .scaledToFit()
-                .cornerRadius(5)
-                .frame(size: networkIconSize)
         }
     }
 
