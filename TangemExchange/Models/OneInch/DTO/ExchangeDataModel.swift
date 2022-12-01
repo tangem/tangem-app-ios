@@ -9,17 +9,17 @@
 import Foundation
 
 public struct ExchangeDataModel {
-    let gas: Int
-    let gasPrice: String
-    let destinationAddress: String
-    let sourceAddress: String
-    let txData: Data
-    let fromTokenAmount: String
-    let toTokenAmount: String
-    let fromTokenAddress: String?
-    let toTokenAddress: String?
+    public let gas: Int
+    public let gasPrice: String
+    public let destinationAddress: String
+    public let sourceAddress: String
+    public let txData: Data
+    public let fromTokenAmount: String
+    public let toTokenAmount: String
+    public let fromTokenAddress: String?
+    public let toTokenAddress: String?
 
-    init(
+    public init(
         gas: Int,
         gasPrice: String,
         destinationAddress: String,
@@ -41,15 +41,15 @@ public struct ExchangeDataModel {
         self.toTokenAddress = toTokenAddress
     }
 
-    init(swapData: ExchangeData) {
-        gas = swapData.tx.gas
-        gasPrice = swapData.tx.gasPrice
-        destinationAddress = swapData.tx.to
-        sourceAddress = swapData.tx.from
-        txData = Data(hexString: swapData.tx.data)
-        fromTokenAmount = swapData.fromTokenAmount
-        toTokenAmount = swapData.toTokenAmount
-        fromTokenAddress = swapData.fromToken.address
-        toTokenAddress = swapData.toToken.address
+    public init(exchangeData: ExchangeData) {
+        gas = exchangeData.tx.gas
+        gasPrice = exchangeData.tx.gasPrice
+        destinationAddress = exchangeData.tx.to
+        sourceAddress = exchangeData.tx.from
+        txData = Data(hexString: exchangeData.tx.data)
+        fromTokenAmount = exchangeData.fromTokenAmount
+        toTokenAmount = exchangeData.toTokenAmount
+        fromTokenAddress = exchangeData.fromToken.address
+        toTokenAddress = exchangeData.toToken.address
     }
 }
