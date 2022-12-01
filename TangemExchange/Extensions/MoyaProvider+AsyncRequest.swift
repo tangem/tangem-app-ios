@@ -14,7 +14,7 @@ extension MoyaProvider {
             return self?.request(target) { result in
                 switch result {
                 case .success(let response):
-                    continuation.resume(with: .success(response))
+                    continuation.resume(returning: response)
                 case .failure(let error):
                     continuation.resume(throwing: error)
                 }
