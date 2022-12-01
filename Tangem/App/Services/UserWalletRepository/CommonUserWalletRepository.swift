@@ -74,6 +74,9 @@ class CommonUserWalletRepository: UserWalletRepository {
     func bind() {
         minimizedAppTimer
             .timer
+            .filter { [weak self] in
+                self?.isUnlocked ?? false
+            }
             .receive(on: RunLoop.main)
             .sink { [weak self] in
                 self?.lock()
