@@ -355,18 +355,15 @@ class CommonUserWalletRepository: UserWalletRepository {
             if let firstUnlockedModel = unlockedModels.first {
                 setSelectedUserWalletId(firstUnlockedModel.userWalletId, reason: .deleted)
             } else if let firstModel = sortedModels.first {
+                lock(reason: .nothingToDisplay)
                 setSelectedUserWalletId(firstModel.userWalletId, unlockIfNeeded: false, reason: .deleted)
-                sendEvent(.locked(reason: .nothingToDisplay))
             } else {
+                lock(reason: .nothingToDisplay)
                 setSelectedUserWalletId(nil, reason: .deleted)
             }
         }
 
         sendEvent(.deleted(userWalletId: userWalletId))
-
-        if userWallets.isEmpty {
-            lock(reason: .nothingToDisplay)
-        }
     }
 
     func lock(reason: UserWalletRepositoryLockReason) {
