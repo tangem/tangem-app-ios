@@ -676,6 +676,15 @@
 		EFC46F01292669A0003928E3 /* ReceiveCurrencyViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFC46F00292669A0003928E3 /* ReceiveCurrencyViewModel.swift */; };
 		EFC98EA22897CB3F00261D33 /* AttentionViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFC98EA02897CB3F00261D33 /* AttentionViewModel.swift */; };
 		EFC98EA32897CB3F00261D33 /* AttentionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFC98EA12897CB3F00261D33 /* AttentionView.swift */; };
+		EFE23AC6292CB6F700A3C554 /* SwappingTokenListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFE23AC1292CB6F700A3C554 /* SwappingTokenListView.swift */; };
+		EFE23AC7292CB6F700A3C554 /* SwappingTokenListViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFE23AC2292CB6F700A3C554 /* SwappingTokenListViewModel.swift */; };
+		EFE23AC8292CB6F700A3C554 /* SwappingTokenListRoutable.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFE23AC3292CB6F700A3C554 /* SwappingTokenListRoutable.swift */; };
+		EFE23ACB292CB88500A3C554 /* IconView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFE23ACA292CB88500A3C554 /* IconView.swift */; };
+		EFE23ACE292CBA0E00A3C554 /* SwappingTokenItemView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFE23ACD292CBA0E00A3C554 /* SwappingTokenItemView.swift */; };
+		EFE23AD1292CC57D00A3C554 /* SwappingTokenItemViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFE23AD0292CC57D00A3C554 /* SwappingTokenItemViewModel.swift */; };
+		EFE23AB9292B8D1800A3C554 /* SwappingPermissionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFE23AB4292B8D1800A3C554 /* SwappingPermissionView.swift */; };
+		EFE23ABA292B8D1800A3C554 /* SwappingPermissionViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFE23AB5292B8D1800A3C554 /* SwappingPermissionViewModel.swift */; };
+		EFE23ABB292B8D1800A3C554 /* SwappingPermissionRoutable.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFE23AB6292B8D1800A3C554 /* SwappingPermissionRoutable.swift */; };
 		EFE1812B292E30C00072D80C /* SupportChatViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65C9FCB92869CC3E00FDE63E /* SupportChatViewModel.swift */; };
 		EFE1812C292E30DF0072D80C /* OnboardingCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0E1565126B97F8C005B33E4 /* OnboardingCardView.swift */; };
 		EFE23AAE292B810300A3C554 /* SuccessSwappingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFE23AAB292B810300A3C554 /* SuccessSwappingView.swift */; };
@@ -1506,6 +1515,15 @@
 		EFC98EA02897CB3F00261D33 /* AttentionViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AttentionViewModel.swift; sourceTree = "<group>"; };
 		EFC98EA12897CB3F00261D33 /* AttentionView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AttentionView.swift; sourceTree = "<group>"; };
 		EFCC66E028AA6FC500EC7757 /* UserTokenList.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserTokenList.swift; sourceTree = "<group>"; };
+		EFE23AC1292CB6F700A3C554 /* SwappingTokenListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwappingTokenListView.swift; sourceTree = "<group>"; };
+		EFE23AC2292CB6F700A3C554 /* SwappingTokenListViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwappingTokenListViewModel.swift; sourceTree = "<group>"; };
+		EFE23AC3292CB6F700A3C554 /* SwappingTokenListRoutable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwappingTokenListRoutable.swift; sourceTree = "<group>"; };
+		EFE23ACA292CB88500A3C554 /* IconView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IconView.swift; sourceTree = "<group>"; };
+		EFE23ACD292CBA0E00A3C554 /* SwappingTokenItemView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwappingTokenItemView.swift; sourceTree = "<group>"; };
+		EFE23AD0292CC57D00A3C554 /* SwappingTokenItemViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwappingTokenItemViewModel.swift; sourceTree = "<group>"; };
+		EFE23AB4292B8D1800A3C554 /* SwappingPermissionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwappingPermissionView.swift; sourceTree = "<group>"; };
+		EFE23AB5292B8D1800A3C554 /* SwappingPermissionViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwappingPermissionViewModel.swift; sourceTree = "<group>"; };
+		EFE23AB6292B8D1800A3C554 /* SwappingPermissionRoutable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwappingPermissionRoutable.swift; sourceTree = "<group>"; };
 		EFE23AAB292B810300A3C554 /* SuccessSwappingView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SuccessSwappingView.swift; sourceTree = "<group>"; };
 		EFE23AAC292B810300A3C554 /* SuccessSwappingRoutable.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SuccessSwappingRoutable.swift; sourceTree = "<group>"; };
 		EFE23AAD292B810300A3C554 /* SuccessSwappingViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SuccessSwappingViewModel.swift; sourceTree = "<group>"; };
@@ -1817,6 +1835,7 @@
 		5D958E1224F513C1006BD932 /* UI */ = {
 			isa = PBXGroup;
 			children = (
+				EFE23AC9292CB84600A3C554 /* IconView */,
 				EF4662322924DFAF00346B6C /* GroupedScrollView */,
 				EF46620F2924DEEE00346B6C /* DefaultListViews */,
 				EFBAABAB2927CCBA0065C6D4 /* GroupedNumberTextField */,
@@ -3173,6 +3192,8 @@
 		DC7DA81A2844EED800AD6DBD /* Modules */ = {
 			isa = PBXGroup;
 			children = (
+				EFE23ABE292CB6E800A3C554 /* SwappingTokenList */,
+				EFE23AB1292B8D0800A3C554 /* SwappingPermission */,
 				EFE23AAA292B810300A3C554 /* SuccessSwapping */,
 				DC261CB9292CFB3100875E64 /* App */,
 				DC261CAD292CF68C00875E64 /* UncompletedBackup */,
@@ -3721,6 +3742,52 @@
 			path = Types;
 			sourceTree = "<group>";
 		};
+		EFE23ABE292CB6E800A3C554 /* SwappingTokenList */ = {
+			isa = PBXGroup;
+			children = (
+				EFE23ACC292CB9F300A3C554 /* Components */,
+				EFE23AC1292CB6F700A3C554 /* SwappingTokenListView.swift */,
+				EFE23AC2292CB6F700A3C554 /* SwappingTokenListViewModel.swift */,
+				EFE23AC3292CB6F700A3C554 /* SwappingTokenListRoutable.swift */,
+			);
+			path = SwappingTokenList;
+			sourceTree = "<group>";
+		};
+		EFE23AC9292CB84600A3C554 /* IconView */ = {
+			isa = PBXGroup;
+			children = (
+				EFE23ACA292CB88500A3C554 /* IconView.swift */,
+			);
+			path = IconView;
+			sourceTree = "<group>";
+		};
+		EFE23ACC292CB9F300A3C554 /* Components */ = {
+			isa = PBXGroup;
+			children = (
+				EFE23ACF292CC57300A3C554 /* SwappingTokenItemView */,
+			);
+			path = Components;
+			sourceTree = "<group>";
+		};
+		EFE23ACF292CC57300A3C554 /* SwappingTokenItemView */ = {
+			isa = PBXGroup;
+			children = (
+				EFE23ACD292CBA0E00A3C554 /* SwappingTokenItemView.swift */,
+				EFE23AD0292CC57D00A3C554 /* SwappingTokenItemViewModel.swift */,
+			);
+			path = SwappingTokenItemView;
+			sourceTree = "<group>";
+		};
+		EFE23AB1292B8D0800A3C554 /* SwappingPermission */ = {
+			isa = PBXGroup;
+			children = (
+				EFE23AB4292B8D1800A3C554 /* SwappingPermissionView.swift */,
+				EFE23AB5292B8D1800A3C554 /* SwappingPermissionViewModel.swift */,
+				EFE23AB6292B8D1800A3C554 /* SwappingPermissionRoutable.swift */,
+			);
+			path = SwappingPermission;
+			sourceTree = "<group>";
+		};
 		EFE23AAA292B810300A3C554 /* SuccessSwapping */ = {
 			isa = PBXGroup;
 			children = (
@@ -4158,6 +4225,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				EF9CFC12288FECE100329BE0 /* ScanCardSettingsView.swift in Sources */,
+				EFE23ABB292B8D1800A3C554 /* SwappingPermissionRoutable.swift in Sources */,
 				DCE5C66C28898B7F000C7F67 /* TangemApiService.swift in Sources */,
 				5DDFC2042812B72C005976FE /* Currency.swift in Sources */,
 				5D09382825E7A2D80049B8F0 /* TokenDetailsView.swift in Sources */,
@@ -4175,6 +4243,7 @@
 				B0FAD01026BAF19E00F45E88 /* OnboardingStepIconView.swift in Sources */,
 				DC66BBF12859B77700CDF765 /* TokenListCoordinator.swift in Sources */,
 				EF46618829237C9F00346B6C /* ProgressViewCompat.swift in Sources */,
+				EFE23AD1292CC57D00A3C554 /* SwappingTokenItemViewModel.swift in Sources */,
 				5DB862B8252396CD00566AA0 /* TangemSigner.swift in Sources */,
 				DC0A5844282BFDFC0031BECC /* UserWalletRepository.swift in Sources */,
 				DC7127B32897ECEE00F60F71 /* GenericConfig.swift in Sources */,
@@ -4196,6 +4265,7 @@
 				EFE23AAE292B810300A3C554 /* SuccessSwappingView.swift in Sources */,
 				B0C4F77F26F0C0BF0086D815 /* TransitionWithoutOpacity.swift in Sources */,
 				DC0A57D92822A3C80031BECC /* InjectedWrapper.swift in Sources */,
+				EFE23AC6292CB6F700A3C554 /* SwappingTokenListView.swift in Sources */,
 				DAA5E31A28D214BF003C0E80 /* UserWalletFactory.swift in Sources */,
 				DC7DA8192844EAFF00AD6DBD /* WelcomeCoordinator.swift in Sources */,
 				5D384B9124FD4E1800C2C92C /* String+.swift in Sources */,
@@ -4271,6 +4341,7 @@
 				DC66BBE32858E7A600CDF765 /* WelcomeRoutable.swift in Sources */,
 				EFFE2CEC28B8E1B000B9F279 /* DerivationManager.swift in Sources */,
 				DCE7E02C287BF92400063EEC /* SwitchChainHandler.swift in Sources */,
+				EFE23AC8292CB6F700A3C554 /* SwappingTokenListRoutable.swift in Sources */,
 				EFE23AAF292B810300A3C554 /* SuccessSwappingRoutable.swift in Sources */,
 				B09BB865259A075600B92000 /* TextInputField.swift in Sources */,
 				B037B1EE256E747F0022EFFF /* TwinsFinalizeWalletCreationTask.swift in Sources */,
@@ -4384,6 +4455,7 @@
 				B085154F26D77C2400E1A836 /* TwinsOnboardingViewModel.swift in Sources */,
 				B0C4F77326F08CB50086D815 /* OnboardingCardFrameCalculator.swift in Sources */,
 				5DD24B41274FAC2400BF80BE /* WalletManagerFactoryProvider.swift in Sources */,
+				EFE23AC7292CB6F700A3C554 /* SwappingTokenListViewModel.swift in Sources */,
 				B0AA865426DC90FF00287F80 /* WelcomeViewModel.swift in Sources */,
 				DA6C752429225F9B0070EEFD /* MinimizedAppTimer.swift in Sources */,
 				DA28D57D290AAE2000F0C335 /* ScrollView+.swift in Sources */,
@@ -4419,6 +4491,7 @@
 				5D4B8BB927EDB327002CE87C /* ArrowView.swift in Sources */,
 				B06997D02692EC5E0014A676 /* ExchangeService.swift in Sources */,
 				DC3F54B128EB3D5D00BC9A6D /* KYCView.swift in Sources */,
+				EFE23ABA292B8D1800A3C554 /* SwappingPermissionViewModel.swift in Sources */,
 				EF08A0F1283D2382008BD923 /* CoinsListRequestModel.swift in Sources */,
 				EF130EBC28E1D34500D37EFC /* MultiWalletContentView.swift in Sources */,
 				DC295B5D2862E6DE006CB7B6 /* BackUpWarningView.swift in Sources */,
@@ -4448,6 +4521,7 @@
 				5D00FCC72617387E004626DE /* PersonalSignHandler.swift in Sources */,
 				B0FAD00E26BAC51F00F45E88 /* CircledCheckmarkView.swift in Sources */,
 				5D12D21325B60AA4006060A1 /* SearchBar.swift in Sources */,
+				EFE23ACE292CBA0E00A3C554 /* SwappingTokenItemView.swift in Sources */,
 				DAA8F88A2888397700F14B9A /* ShopWebHelper.swift in Sources */,
 				DABA435627BFC41700718AC6 /* StoriesBottomButtons.swift in Sources */,
 				B082E923255A8EF000A0CEA9 /* StorageType.swift in Sources */,
@@ -4606,6 +4680,7 @@
 				DC295B3C2861C19C006CB7B6 /* MainCoordinator.swift in Sources */,
 				EFBAABAF2927CCBA0065C6D4 /* GroupedNumberFormatter.swift in Sources */,
 				EF0FF8712866021B00B7CEAF /* AppEnvironment.swift in Sources */,
+				EFE23AB9292B8D1800A3C554 /* SwappingPermissionView.swift in Sources */,
 				B01EB9C426E9F18A0060E2FB /* StackCalculator.swift in Sources */,
 				EFF034AF28B6522500F70FF7 /* WalletListManager.swift in Sources */,
 				5D9004E424FA79F700E90939 /* ViewStateHandler.swift in Sources */,
@@ -4722,6 +4797,7 @@
 				5DF612A224E6E0ED001BF301 /* AddressFormatter.swift in Sources */,
 				5D384B9424FD51C000C2C92C /* DetailsViewModel.swift in Sources */,
 				DC295B502861D9B3006CB7B6 /* SecurityModeCoordinatorView.swift in Sources */,
+				EFE23ACB292CB88500A3C554 /* IconView.swift in Sources */,
 				DA23789227B250F6009795A8 /* ShopView.swift in Sources */,
 				DC194D2828EC6AA0007FBC99 /* SaltPayRegistratorProviding.swift in Sources */,
 				B031AAB326C169E900015003 /* ConfettiType.swift in Sources */,
