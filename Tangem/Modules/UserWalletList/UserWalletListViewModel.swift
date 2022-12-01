@@ -262,8 +262,7 @@ final class UserWalletListViewModel: ObservableObject, Identifiable {
 
     func add(cardModel: CardViewModel) {
         guard
-            let cellModel = cardModel.userWalletModel.map({ mapToUserWalletListCellViewModel(userWalletModel: $0) }),
-            let userWallet = cardModel.userWallet
+            let cellModel = cardModel.userWalletModel.map({ mapToUserWalletListCellViewModel(userWalletModel: $0) })
         else {
             return
         }
@@ -273,8 +272,6 @@ final class UserWalletListViewModel: ObservableObject, Identifiable {
         } else {
             singleCurrencyModels.append(cellModel)
         }
-
-        setSelectedWallet(userWallet, reason: .inserted)
     }
 
     private func mapToUserWalletListCellViewModel(userWalletModel: UserWalletModel, totalBalanceProvider: TotalBalanceProviding? = nil) -> UserWalletListCellViewModel {
