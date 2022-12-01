@@ -57,7 +57,7 @@ struct SwappingTokenListView: View {
 struct SwappingTokenListView_Preview: PreviewProvider {
     static let viewModel = SwappingTokenListViewModel(
         networkIds: Blockchain.supportedBlockchains.map { $0.networkId },
-        coordinator: nil
+        coordinator: SwappingCoordinator()
     )
 
     static var previews: some View {
