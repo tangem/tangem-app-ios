@@ -54,6 +54,8 @@ final class UserWalletListViewModel: ObservableObject, Identifiable {
         selectedUserWalletId = userWalletRepository.selectedUserWalletId
         updateModels()
 
+        userWalletRepository.delegate = self
+
         bind()
     }
 
@@ -70,8 +72,8 @@ final class UserWalletListViewModel: ObservableObject, Identifiable {
                     self?.update(userWalletModel: userWalletModel)
                 case .deleted(let userWalletId):
                     self?.delete(userWalletId: userWalletId)
-                case .selected(let userWallet):
-                    self?.setSelectedWallet(userWallet)
+                case .selected(let userWallet, let reason):
+                    self?.setSelectedWallet(userWallet, reason: reason)
                 case .inserted:
                     break
                 }
@@ -108,7 +110,13 @@ final class UserWalletListViewModel: ObservableObject, Identifiable {
             case .onboarding(let input):
                 self.openOnboarding(with: input)
             case .error(let error):
-                self.error = error.alertBinder
+                if let saltPayError = error as? SaltPayRegistratorError {
+                    self.error = saltPayError.alertBinder
+                } else if let userWalletRepositoryError = error as? UserWalletRepositoryError {
+                    self.error = userWalletRepositoryError.alertBinder
+                } else {
+                    self.error = error.alertBinder
+                }
             case .success(let cardModel):
                 self.add(cardModel: cardModel)
             }
@@ -123,12 +131,7 @@ final class UserWalletListViewModel: ObservableObject, Identifiable {
         Analytics.log(.buttonRequestSupport)
         failedCardScanTracker.resetCounter()
 
-        coordinator.dismissUserWalletList()
-
-        let dismissingDelay = 0.6
-        DispatchQueue.main.asyncAfter(deadline: .now() + dismissingDelay) {
-            self.coordinator.openMail(with: self.failedCardScanTracker, emailType: .failedToScanCard, recipient: EmailConfig.default.recipient)
-        }
+        coordinator.openMail(with: failedCardScanTracker, emailType: .failedToScanCard, recipient: EmailConfig.default.recipient)
     }
 
     func editUserWallet(_ viewModel: UserWalletListCellViewModel) {
@@ -182,16 +185,16 @@ final class UserWalletListViewModel: ObservableObject, Identifiable {
         userWalletRepository.delete(viewModel.userWallet)
     }
 
-    private func setSelectedWallet(_ userWallet: UserWallet) {
-        guard let model = userWalletRepository.models.first(where: {
-            $0.userWallet?.userWalletId == userWallet.userWalletId
-        }) else {
-            return
-        }
-
+    private func setSelectedWallet(_ userWallet: UserWallet, reason: UserWalletRepositorySelectionChangeReason) {
         self.selectedUserWalletId = userWallet.userWalletId
         updateSelectedWalletModel()
-        coordinator.dismissUserWalletList()
+
+        switch reason {
+        case .userSelected, .inserted:
+            coordinator.dismiss()
+        case .deleted:
+            break
+        }
     }
 
     private func updateModels() {
@@ -240,8 +243,6 @@ final class UserWalletListViewModel: ObservableObject, Identifiable {
         singleCurrencyModels.removeAll { $0.userWalletId == userWalletId }
 
         if userWalletRepository.isEmpty && AppSettings.shared.saveUserWallets {
-            AppSettings.shared.saveUserWallets = false
-            coordinator.dismissUserWalletList()
             coordinator.popToRoot()
         }
     }
@@ -273,7 +274,7 @@ final class UserWalletListViewModel: ObservableObject, Identifiable {
             singleCurrencyModels.append(cellModel)
         }
 
-        setSelectedWallet(userWallet)
+        setSelectedWallet(userWallet, reason: .inserted)
     }
 
     private func mapToUserWalletListCellViewModel(userWalletModel: UserWalletModel, totalBalanceProvider: TotalBalanceProviding? = nil) -> UserWalletListCellViewModel {
@@ -299,7 +300,13 @@ final class UserWalletListViewModel: ObservableObject, Identifiable {
             if userWallet.isLocked {
                 Analytics.log(.walletUnlockTapped)
             }
-            self?.userWalletRepository.setSelectedUserWalletId(userWallet.userWalletId)
+            self?.userWalletRepository.setSelectedUserWalletId(userWallet.userWalletId, reason: .userSelected)
         }
+    }
+}
+
+extension UserWalletListViewModel: UserWalletRepositoryDelegate {
+    func showTOS(at url: URL, _ completion: @escaping (Bool) -> Void) {
+        coordinator.openDisclaimer(at: url, completion)
     }
 }
