@@ -49,6 +49,7 @@ final class SwappingViewModel: ObservableObject {
     }
 
     func userDidTapMainButton() {
+        // For test. Will remove
         if Bool.random() {
             openSuccessView()
         } else {
@@ -87,15 +88,18 @@ private extension SwappingViewModel {
             balance: 3043.75,
             maximumFractionDigits: 8,
             fiatValue: 0,
-            tokenIcon: .init(tokenItem: .blockchain(.bitcoin(testnet: false))),
-            tokenSymbol: "BTC"
+            tokenIcon: SwappingTokenIconViewModel(
+                imageURL: TokenIconURLBuilder().iconURL(id: "bitcoin"),
+                tokenSymbol: "BTC"
+            )
         )
 
         receiveCurrencyViewModel = ReceiveCurrencyViewModel(
             state: .loaded(0, fiatValue: 0),
-            tokenIcon: .init(tokenItem: .blockchain(.polygon(testnet: false))),
-            tokenSymbol: "MATIC",
-            didTapTokenView: { [weak self] in self?.userDidTapChangeDestinationButton() }
+            tokenIcon: SwappingTokenIconViewModel(
+                imageURL: TokenIconURLBuilder().iconURL(id: "etherium"),
+                tokenSymbol: "ETH"
+            )
         )
 
         refreshWarningRowViewModel = DefaultWarningRowViewModel(
@@ -135,18 +139,8 @@ private extension SwappingViewModel {
             }
             .store(in: &bag)
 
-//        $sendCurrencyValueText
-//            .dropFirst()
-//            .removeDuplicates()
-//            .debounce(for: 0.5, scheduler: DispatchQueue.main)
-//            .sink { _ in
-//                self.receiveCurrencyViewModel.updateState(.loading)
-//            }
-//            .store(in: &bag)
-
         $sendDecimalValue
             .compactMap { $0 }
-//            .delay(for: 1, scheduler: DispatchQueue.main)
             .sink { [weak self] in
                 self?.receiveCurrencyViewModel?.updateState(.loaded($0 * 0.5, fiatValue: $0 * 2))
             }
@@ -161,21 +155,18 @@ private extension SwappingViewModel {
         }
 
         let sendTokenItem = sendCurrencyViewModel.tokenIcon
-        let sendTokenSymbol = sendCurrencyViewModel.tokenSymbol
 
         self.sendCurrencyViewModel = SendCurrencyViewModel(
             balance: Decimal(Int.random(in: 0 ... 100)),
             maximumFractionDigits: 8,
             fiatValue: receiveCurrencyViewModel.state.fiatValue ?? 0,
-            tokenIcon: receiveCurrencyViewModel.tokenIcon,
-            tokenSymbol: receiveCurrencyViewModel.tokenSymbol
+            tokenIcon: receiveCurrencyViewModel.tokenIcon
         )
 
         self.receiveCurrencyViewModel = ReceiveCurrencyViewModel(
             state: .loading,
-            tokenIcon: sendTokenItem,
-            tokenSymbol: sendTokenSymbol
-        ) {}
+            tokenIcon: sendTokenItem
+        )
 
         isLoading.toggle()
 
