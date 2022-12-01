@@ -35,7 +35,7 @@ struct GroupedNumberTextField: View {
                     decimalValue = nil
                     return
                 }
-                
+
                 // The field supports only decimal values
                 guard Decimal(string: newValue) != nil else { return }
 
