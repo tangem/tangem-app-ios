@@ -79,7 +79,7 @@ class CommonUserWalletRepository: UserWalletRepository {
             }
             .receive(on: RunLoop.main)
             .sink { [weak self] in
-                self?.lock()
+                self?.lock(reason: .loggedOut)
             }
             .store(in: &bag)
     }
@@ -356,19 +356,23 @@ class CommonUserWalletRepository: UserWalletRepository {
                 setSelectedUserWalletId(firstUnlockedModel.userWalletId, reason: .deleted)
             } else if let firstModel = sortedModels.first {
                 setSelectedUserWalletId(firstModel.userWalletId, unlockIfNeeded: false, reason: .deleted)
-                sendEvent(.locked)
+                sendEvent(.locked(reason: .nothingToDisplay))
             } else {
                 setSelectedUserWalletId(nil, reason: .deleted)
             }
         }
 
         sendEvent(.deleted(userWalletId: userWalletId))
+
+        if userWallets.isEmpty {
+            lock(reason: .nothingToDisplay)
+        }
     }
 
-    func lock() {
+    func lock(reason: UserWalletRepositoryLockReason) {
         discardSensitiveData()
 
-        sendEvent(.locked)
+        sendEvent(.locked(reason: reason))
     }
 
     func clear() {
