@@ -39,20 +39,12 @@ extension BlockchainNetworkService: BlockchainInfoProvider {
         return walletModel.getDecimalBalance(for: .coin)
     }
 
-    func getFiatBalance(currency: Currency, amount: Decimal) -> Decimal {
-        switch currency.currencyType {
-        case .coin:
-            let amount = Amount(type: .coin, currencySymbol: currency.symbol, value: amount, decimals: currency.decimalCount)
-            return walletModel.getFiat(for: amount, roundingMode: .plain) ?? 0
-        case .token:
-            guard let token = currency.asToken() else {
-                assertionFailure("Currency isn't token")
-                return 0
-            }
-
-            let amount = Amount(with: token, value: amount)
-            return walletModel.getFiat(for: amount, roundingMode: .plain) ?? 0
+    func getFiatBalance(currency: Currency, amount: Decimal) async throws -> Decimal {
+        if let fiat = getFiatBalanceFromWalletModel(currency: currency, amount: amount) {
+            return fiat
         }
+
+        return try await getFiatBalanceThroughAddToWalletModel(currency: currency, amount: amount)
     }
 
     func getFee(currency: Currency, amount: Decimal, destination: String) async throws -> [Decimal] {
@@ -118,6 +110,48 @@ private extension BlockchainNetworkService {
             value: amount,
             decimals: currency.decimalCount
         )
+    }
+
+    func getFiatBalanceFromWalletModel(currency: Currency, amount: Decimal) -> Decimal? {
+        switch currency.currencyType {
+        case .coin:
+            let amount = Amount(type: .coin, currencySymbol: currency.symbol, value: amount, decimals: currency.decimalCount)
+            if let fiat = walletModel.getFiat(for: amount, roundingMode: .plain) {
+                return fiat
+            }
+
+        case .token:
+            guard let token = currency.asToken() else {
+                assertionFailure("Currency isn't token")
+                return 0
+            }
+
+            let amount = Amount(with: token, value: amount)
+            if let fiat = walletModel.getFiat(for: amount, roundingMode: .plain) {
+                return fiat
+            }
+        }
+
+        return nil
+    }
+
+    func getFiatBalanceThroughAddToWalletModel(currency: Currency, amount: Decimal) async throws -> Decimal {
+        /// We can add to walletModel only token
+        guard let token = currency.asToken() else {
+            assertionFailure("Unimplement case")
+            throw CommonError.noData
+        }
+
+        walletModel.addTokens([token])
+        try await walletModel.update(silent: true).async()
+
+        guard let fiat = getFiatBalanceFromWalletModel(currency: currency, amount: amount) else {
+            throw CommonError.noData
+        }
+
+        walletModel.removeToken(token)
+
+        return fiat
     }
 }
 
