@@ -1,5 +1,5 @@
 //
-//  TokenIconUtil.swift
+//  TokenIconURLBuilder.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
