@@ -9,8 +9,8 @@
 import Foundation
 
 public struct ExchangeItems {
-    public let source: Currency
-    public let destination: Currency
+    public var source: Currency
+    public var destination: Currency
 
     public var sourceBalance: CurrencyBalance
     public var destinationBalance: CurrencyBalance?
