@@ -26,14 +26,12 @@ class StoriesViewModel: ObservableObject {
 
     func onAppear() {
         NotificationCenter.default.publisher(for: UIApplication.willResignActiveNotification)
-            .dropFirst()
             .sink { [weak self] _ in
                 self?.pauseTimer()
             }
             .store(in: &bag)
 
         NotificationCenter.default.publisher(for: UIApplication.didBecomeActiveNotification)
-            .dropFirst()
             .sink { [weak self] _ in
                 self?.resumeTimer()
             }
