@@ -31,7 +31,7 @@ struct SwappingView: View {
             .keyboardAdaptive()
             .scrollDismissesKeyboardCompat(true)
         }
-        .navigationBarTitle(Text("Swap"), displayMode: .inline)
+        .navigationBarTitle(Text("swapping_swap".localized), displayMode: .inline)
     }
 
     @ViewBuilder
@@ -102,7 +102,7 @@ struct SwappingView: View {
     @ViewBuilder
     private var mainButton: some View {
         MainButton(
-            text: "Swap",
+            text: "swapping_swap".localized,
             icon: .trailing(Assets.tangemIconWhite),
             isDisabled: !viewModel.mainButtonIsEnabled,
             action: viewModel.userDidTapMainButton
