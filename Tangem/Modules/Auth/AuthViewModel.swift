@@ -35,11 +35,14 @@ final class AuthViewModel: ObservableObject {
     @Injected(\.failedScanTracker) private var failedCardScanTracker: FailedScanTrackable
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
 
+    private var unlockOnStart: Bool
     private unowned let coordinator: AuthRoutable
 
     init(
+        unlockOnStart: Bool,
         coordinator: AuthRoutable
     ) {
+        self.unlockOnStart = unlockOnStart
         self.coordinator = coordinator
         userWalletRepository.delegate = self
     }
@@ -74,6 +77,10 @@ final class AuthViewModel: ObservableObject {
     }
 
     func onDidAppear() {
+        guard unlockOnStart else { return }
+
+        unlockOnStart = false
+
         DispatchQueue.main.async {
             self.unlockWithBiometry()
         }
