@@ -52,10 +52,10 @@ class AppCoordinator: NSObject, CoordinatorObject {
         }
     }
 
-    private func restart() {
+    private func restart(with options: AppCoordinator.Options = .default) {
         welcomeCoordinator = nil
         authCoordinator = nil
-        start()
+        start(with: options)
     }
 
     private func setupWelcome(with options: AppCoordinator.Options) {
@@ -67,7 +67,7 @@ class AppCoordinator: NSObject, CoordinatorObject {
         let popToRootAction: ParamsAction<PopToRootOptions> = { [weak self] options in
             self?.closeAllSheetsIfNeeded(animated: true) {
                 self?.welcomeCoordinator = nil
-                self?.start(with: .init(connectionOptions: nil, newScan: options.newScan))
+                self?.start(with: .init(connectionOptions: nil, newScan: options.newScan, unlockOnStart: false))
             }
         }
 
@@ -85,12 +85,12 @@ class AppCoordinator: NSObject, CoordinatorObject {
         let popToRootAction: ParamsAction<PopToRootOptions> = { [weak self] options in
             self?.closeAllSheetsIfNeeded(animated: true) {
                 self?.authCoordinator = nil
-                self?.start(with: .init(connectionOptions: nil, newScan: options.newScan))
+                self?.start(with: .init(connectionOptions: nil, newScan: options.newScan, unlockOnStart: false))
             }
         }
 
         let coordinator = AuthCoordinator(dismissAction: dismissAction, popToRootAction: popToRootAction)
-        coordinator.start()
+        coordinator.start(with: .init(unlockOnStart: options.unlockOnStart))
         self.authCoordinator = coordinator
     }
 
@@ -110,27 +110,33 @@ class AppCoordinator: NSObject, CoordinatorObject {
             .eventProvider
             .sink { [weak self] event in
                 if case .locked(let reason) = event {
-                    let animateLock: Bool
-                    switch reason {
-                    case .loggedOut:
-                        animateLock = false
-                    case .nothingToDisplay:
-                        animateLock = true
-                    }
-
-                    self?.handleLock(animated: animateLock)
+                    self?.handleLock(reason: reason)
                 }
             }
             .store(in: &bag)
     }
 
-    private func handleLock(animated: Bool) {
+    private func handleLock(reason: UserWalletRepositoryLockReason) {
+        let animated: Bool
+        let startingAfterLogout: Bool
+
+        switch reason {
+        case .loggedOut:
+            animated = false
+            startingAfterLogout = true
+        case .nothingToDisplay:
+            animated = true
+            startingAfterLogout = false
+        }
+
+        let options = AppCoordinator.Options(connectionOptions: nil, newScan: false, unlockOnStart: startingAfterLogout)
+
         closeAllSheetsIfNeeded(animated: animated) {
             if animated {
-                self.restart()
+                self.restart(with: options)
             } else {
                 UIApplication.performWithoutAnimations {
-                    self.restart()
+                    self.restart(with: options)
                 }
             }
         }
@@ -155,8 +161,9 @@ extension AppCoordinator {
     struct Options {
         let connectionOptions: UIScene.ConnectionOptions?
         let newScan: Bool
+        let unlockOnStart: Bool
 
-        static let `default`: Options = .init(connectionOptions: nil, newScan: false)
+        static let `default`: Options = .init(connectionOptions: nil, newScan: false, unlockOnStart: false)
     }
 }
 
