@@ -61,13 +61,13 @@ private extension TotalBalanceProvider {
             .filter { !$0.isEmpty }
             .receive(on: DispatchQueue.main)
             .map { walletModels -> AnyPublisher<Void, Never> in
-                let isNotLoadedWallets = walletModels.filter { $0.state.isLoading }
+                let pendingWalletModels = walletModels.filter { $0.state.isLoading }
 
-                if isNotLoadedWallets.isEmpty {
+                if pendingWalletModels.isEmpty {
                     return .just
                 }
 
-                return isNotLoadedWallets
+                return pendingWalletModels
                     .map { $0.walletDidChange }
                     .combineLatest()
                     .filter { $0.allConforms { !$0.isLoading } }
