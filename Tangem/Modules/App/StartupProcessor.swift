@@ -34,14 +34,3 @@ enum StartupOption {
     case auth
     case welcome
 }
-
-extension StartupOption {
-    var requiresScanOnStart: Bool {
-        switch self {
-        case .auth:
-            return true
-        case .welcome, .uncompletedBackup:
-            return false
-        }
-    }
-}
