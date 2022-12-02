@@ -172,13 +172,16 @@ class CommonUserWalletRepository: UserWalletRepository {
     private func scanInternal(with batch: String? = nil, _ completion: @escaping (Result<CardViewModel, Error>) -> Void) {
         Analytics.reset()
         Analytics.log(.readyToScan)
-        walletConnectServiceProvider.reset()
 
         let oldConfig = sdkProvider.sdk.config
         var config = TangemSdkConfigFactory().makeDefaultConfig()
+
         if AppSettings.shared.saveUserWallets {
             config.accessCodeRequestPolicy = .alwaysWithBiometrics
+        } else {
+            resetServices()
         }
+
         sdkProvider.setup(with: config)
 
         sendEvent(.scan(isScanning: true))
@@ -410,17 +413,16 @@ class CommonUserWalletRepository: UserWalletRepository {
     }
 
     // [REDACTED_TODO_COMMENT]
-    private func startInitializingServices(for cardInfo: CardInfo) {
-        let interaction = INInteraction(intent: ScanTangemCardIntent(), response: nil)
-        interaction.donate(completion: nil)
-
+    private func resetServices() {
+        walletConnectServiceProvider.reset()
         saltPayRegistratorProvider.reset()
+    }
+
+    private func initializeServices(for cardModel: CardViewModel, cardInfo: CardInfo) {
         if let primaryCard = cardInfo.primaryCard {
             backupServiceProvider.backupService.setPrimaryCard(primaryCard)
         }
-    }
 
-    private func finishInitializingServices(for cardModel: CardViewModel, cardInfo: CardInfo) {
         tangemApiService.setAuthData(cardInfo.card.tangemApiAuthData)
         supportChatService.initialize(with: cardModel.supportChatEnvironment)
         walletConnectServiceProvider.initialize(with: cardModel)
@@ -434,13 +436,13 @@ class CommonUserWalletRepository: UserWalletRepository {
     }
 
     private func processScan(_ cardInfo: CardInfo) -> CardViewModel {
-        startInitializingServices(for: cardInfo)
+        resetServices()
 
         // [REDACTED_TODO_COMMENT]
         let config = UserWalletConfigFactory(cardInfo).makeConfig()
         let cardModel = CardViewModel(cardInfo: cardInfo, config: config)
 
-        finishInitializingServices(for: cardModel, cardInfo: cardInfo)
+        initializeServices(for: cardModel, cardInfo: cardInfo)
 
         cardModel.didScan()
         return cardModel
@@ -557,8 +559,8 @@ class CommonUserWalletRepository: UserWalletRepository {
         guard let selectedModel else { return }
 
         let cardInfo = selectedModel.cardInfo
-        startInitializingServices(for: cardInfo)
-        finishInitializingServices(for: selectedModel, cardInfo: cardInfo)
+        resetServices()
+        initializeServices(for: selectedModel, cardInfo: cardInfo)
         selectedModel.updateSdkConfig()
     }
 
