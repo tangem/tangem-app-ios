@@ -10,10 +10,25 @@ import Foundation
 
 struct SwappingFeeRowViewModel: Identifiable, Hashable {
     var id: Int { hashValue }
+    
+    let isLoading: Bool
+    var formattedFee: String {
+        "\(fee) \(tokenSymbol) (\(fiatValue))"
+    }
 
-    let fee: String
+    private let fee: String
+    private let tokenSymbol: String
+    private let fiatValue: String
 
-    init(fee: String) {
+    init(
+        fee: String,
+        tokenSymbol: String,
+        fiatValue: String,
+        isLoading: Bool
+    ) {
         self.fee = fee
+        self.fiatValue = fiatValue
+        self.tokenSymbol = tokenSymbol
+        self.isLoading = isLoading
     }
 }
