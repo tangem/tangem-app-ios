@@ -172,13 +172,15 @@ class CommonUserWalletRepository: UserWalletRepository {
     private func scanInternal(with batch: String? = nil, _ completion: @escaping (Result<CardViewModel, Error>) -> Void) {
         Analytics.reset()
         Analytics.log(.readyToScan)
-        walletConnectServiceProvider.reset()
 
         let oldConfig = sdkProvider.sdk.config
         var config = TangemSdkConfigFactory().makeDefaultConfig()
         if AppSettings.shared.saveUserWallets {
             config.accessCodeRequestPolicy = .alwaysWithBiometrics
+        } else {
+            walletConnectServiceProvider.reset()
         }
+
         sdkProvider.setup(with: config)
 
         sendEvent(.scan(isScanning: true))
