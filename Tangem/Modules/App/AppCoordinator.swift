@@ -67,7 +67,7 @@ class AppCoordinator: NSObject, CoordinatorObject {
         let popToRootAction: ParamsAction<PopToRootOptions> = { [weak self] options in
             self?.closeAllSheetsIfNeeded(animated: true) {
                 self?.welcomeCoordinator = nil
-                self?.start(with: .init(connectionOptions: nil, newScan: options.newScan, unlockOnStart: false))
+                self?.start(with: .init(connectionOptions: nil, newScan: options.newScan))
             }
         }
 
@@ -85,12 +85,12 @@ class AppCoordinator: NSObject, CoordinatorObject {
         let popToRootAction: ParamsAction<PopToRootOptions> = { [weak self] options in
             self?.closeAllSheetsIfNeeded(animated: true) {
                 self?.authCoordinator = nil
-                self?.start(with: .init(connectionOptions: nil, newScan: options.newScan, unlockOnStart: false))
+                self?.start(with: .init(connectionOptions: nil, newScan: options.newScan))
             }
         }
 
         let coordinator = AuthCoordinator(dismissAction: dismissAction, popToRootAction: popToRootAction)
-        coordinator.start(with: .init(unlockOnStart: options.unlockOnStart))
+        coordinator.start(with: .init(unlockOnStart: options.newScan))
         self.authCoordinator = coordinator
     }
 
@@ -118,18 +118,18 @@ class AppCoordinator: NSObject, CoordinatorObject {
 
     private func handleLock(reason: UserWalletRepositoryLockReason) {
         let animated: Bool
-        let startingAfterLogout: Bool
+        let newScan: Bool
 
         switch reason {
         case .loggedOut:
             animated = false
-            startingAfterLogout = true
+            newScan = StartupProcessor().getStartupOption().requiresScanOnStart
         case .nothingToDisplay:
             animated = true
-            startingAfterLogout = false
+            newScan = false
         }
 
-        let options = AppCoordinator.Options(connectionOptions: nil, newScan: false, unlockOnStart: startingAfterLogout)
+        let options = AppCoordinator.Options(connectionOptions: nil, newScan: newScan)
 
         closeAllSheetsIfNeeded(animated: animated) {
             if animated {
@@ -161,9 +161,8 @@ extension AppCoordinator {
     struct Options {
         let connectionOptions: UIScene.ConnectionOptions?
         let newScan: Bool
-        let unlockOnStart: Bool
 
-        static let `default`: Options = .init(connectionOptions: nil, newScan: false, unlockOnStart: false)
+        static let `default`: Options = .init(connectionOptions: nil, newScan: false)
     }
 }
 
