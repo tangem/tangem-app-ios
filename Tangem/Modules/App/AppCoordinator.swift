@@ -71,8 +71,10 @@ class AppCoordinator: NSObject, CoordinatorObject {
             }
         }
 
+        let shouldScan = options.newScan ?? false
+
         let coordinator = WelcomeCoordinator(dismissAction: dismissAction, popToRootAction: popToRootAction)
-        coordinator.start(with: .init(shouldScan: options.newScan))
+        coordinator.start(with: .init(shouldScan: shouldScan))
         self.welcomeCoordinator = coordinator
     }
 
@@ -89,8 +91,10 @@ class AppCoordinator: NSObject, CoordinatorObject {
             }
         }
 
+        let unlockOnStart = options.newScan ?? true
+
         let coordinator = AuthCoordinator(dismissAction: dismissAction, popToRootAction: popToRootAction)
-        coordinator.start(with: .init(unlockOnStart: options.newScan))
+        coordinator.start(with: .init(unlockOnStart: unlockOnStart))
         self.authCoordinator = coordinator
     }
 
@@ -123,7 +127,7 @@ class AppCoordinator: NSObject, CoordinatorObject {
         switch reason {
         case .loggedOut:
             animated = false
-            newScan = StartupProcessor().getStartupOption().requiresScanOnStart
+            newScan = true
         case .nothingToDisplay:
             animated = true
             newScan = false
@@ -160,7 +164,7 @@ class AppCoordinator: NSObject, CoordinatorObject {
 extension AppCoordinator {
     struct Options {
         let connectionOptions: UIScene.ConnectionOptions?
-        let newScan: Bool
+        let newScan: Bool?
 
         static let `default`: Options = .init(connectionOptions: nil, newScan: false)
     }
