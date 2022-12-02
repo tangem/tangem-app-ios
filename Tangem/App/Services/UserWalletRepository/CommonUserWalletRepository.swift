@@ -78,7 +78,7 @@ class CommonUserWalletRepository: UserWalletRepository {
                 guard let self else { return false }
 
                 let allWalletsLocked = self.userWallets.allSatisfy { $0.isLocked }
-                return !(self.isLocked && allWalletsLocked)
+                return !self.isLocked || !allWalletsLocked
             }
             .receive(on: RunLoop.main)
             .sink { [weak self] in
