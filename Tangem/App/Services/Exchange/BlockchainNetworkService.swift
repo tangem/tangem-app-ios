@@ -10,12 +10,14 @@ import Foundation
 import BlockchainSdk
 import TangemExchange
 
-struct BlockchainNetworkService {
+class BlockchainNetworkService {
     @Injected(\.tangemApiService) private var tangemApiService: TangemApiService
 
     private let walletModel: WalletModel
     private let signer: TransactionSigner
 
+    /// Collect rates for calculate fiat balance
+    private var rates: [String: Decimal] = [:]
     private var walletManager: WalletManager { walletModel.walletManager }
 
     init(walletModel: WalletModel, signer: TransactionSigner) {
@@ -28,8 +30,6 @@ struct BlockchainNetworkService {
 
 extension BlockchainNetworkService: BlockchainInfoProvider {
     func getWalletAddress(currency: Currency) -> String? {
-        print("addressNames", walletModel.wallet.addresses)
-
         return walletModel.wallet.address
     }
 
@@ -138,23 +138,19 @@ private extension BlockchainNetworkService {
     }
 
     func getFiatBalanceThroughAddToWalletModel(currency: Currency, amount: Decimal) async throws -> Decimal {
-        let rates = try await tangemApiService.loadRates(for: [currency.id]).async()
-        let currencyRate: Decimal
+        let id: String = currency.isToken ? currency.blockchain.networkId : currency.id
+        var currencyRate: Decimal? = rates[id]
 
-        switch currency.currencyType {
-        case .coin:
-            guard let rate = rates[currency.blockchain.networkId] else {
-                throw CommonError.noData
-            }
-            currencyRate = rate
-        case .token:
-            guard let rate = rates[currency.id] else {
-                throw CommonError.noData
-            }
-
-            currencyRate = rate
+        if currencyRate == nil {
+            let loadedRates = try await tangemApiService.loadRates(for: [currency.id]).async()
+            currencyRate = loadedRates[id]
         }
 
+        guard let currencyRate else {
+            throw CommonError.noData
+        }
+
+        rates.updateValue(currencyRate, forKey: currency.id)
         let fiatValue = amount * currencyRate
         if fiatValue == 0 {
             return 0
