@@ -36,8 +36,8 @@ final class UserWalletListViewModel: ObservableObject, Identifiable {
         }
     }
 
-    var isUnlocked: Bool {
-        userWalletRepository.isUnlocked
+    var isLocked: Bool {
+        userWalletRepository.isLocked
     }
 
     private unowned let coordinator: UserWalletListRoutable
