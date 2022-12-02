@@ -41,7 +41,7 @@ class CommonUserWalletRepository: UserWalletRepository {
 
     private(set) var models = [CardViewModel]()
 
-    private(set) var isUnlocked: Bool = false
+    private(set) var isLocked: Bool = false
 
     private var userWallets: [UserWallet] = []
 
@@ -77,7 +77,8 @@ class CommonUserWalletRepository: UserWalletRepository {
             .filter { [weak self] in
                 guard let self else { return false }
 
-                return self.userWallets.contains { !$0.isLocked }
+                let allWalletsLocked = self.userWallets.allSatisfy { $0.isLocked }
+                return !(self.isLocked && allWalletsLocked)
             }
             .receive(on: RunLoop.main)
             .sink { [weak self] in
@@ -387,7 +388,7 @@ class CommonUserWalletRepository: UserWalletRepository {
     }
 
     private func discardSensitiveData() {
-        isUnlocked = false
+        isLocked = true
         encryptionKeyByUserWalletId = [:]
         models = []
         userWallets = savedUserWallets(withSensitiveData: false)
@@ -461,7 +462,7 @@ class CommonUserWalletRepository: UserWalletRepository {
                     self.userWallets = self.savedUserWallets(withSensitiveData: true)
                     self.loadModels()
                     self.initializeServicesForSelectedModel()
-                    self.isUnlocked = true
+                    self.isLocked = false
 
                     if let selectedModel = self.selectedModel {
                         completion(.success(selectedModel))
@@ -482,6 +483,7 @@ class CommonUserWalletRepository: UserWalletRepository {
                     case let .success(cardModel) = result,
                     AppSettings.shared.saveUserWallets
                 else {
+                    self?.isLocked = false
                     completion(result)
                     return
                 }
@@ -527,7 +529,7 @@ class CommonUserWalletRepository: UserWalletRepository {
                 self.setSelectedUserWalletId(savedUserWallet.userWalletId, reason: .userSelected)
                 self.initializeServicesForSelectedModel()
 
-                self.isUnlocked = self.userWallets.allSatisfy { !$0.isLocked }
+                self.isLocked = self.userWallets.contains { $0.isLocked }
 
                 self.sendEvent(.updated(userWalletModel: userWalletModel))
 
