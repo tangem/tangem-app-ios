@@ -99,9 +99,9 @@ struct SwappingTokenIcon_Previews: PreviewProvider {
 
             SwappingTokenIconView(
                 viewModel: SwappingTokenIconViewModel(
-                    imageURL: TokenIconURLBuilder().iconURL(id: "dai"),
+                    imageURL: TokenIconURLBuilder().iconURL(id: "staked-ether"),
                     networkURL: TokenIconURLBuilder().iconURL(id: "ethereum"),
-                    tokenSymbol: "MATIC"
+                    tokenSymbol: "STETH"
                 )
             )
         }
