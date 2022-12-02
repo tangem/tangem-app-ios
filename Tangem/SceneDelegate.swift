@@ -17,8 +17,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     private let appCoordinator: AppCoordinator = .init()
 
     func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
-        let newScan = StartupProcessor().getStartupOption().requiresScanOnStart
-        appCoordinator.start(with: .init(connectionOptions: connectionOptions, newScan: newScan))
+        appCoordinator.start(with: .init(connectionOptions: connectionOptions, newScan: nil))
 
         if let windowScene = scene as? UIWindowScene {
             let window = UIWindow(windowScene: windowScene)
