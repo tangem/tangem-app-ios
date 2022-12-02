@@ -111,10 +111,7 @@ private extension SwappingViewModel {
         )
 
         informationSectionViewModels = [
-            .fee(DefaultRowViewModel(
-                title: "Fee",
-                detailsType: .text("0.155 MATIC (0.14 $)")
-            )),
+            .fee(SwappingFeeRowViewModel(fee: "0.155 MATIC (0.14 $)")),
             .warning(DefaultWarningRowViewModel(
                 icon: Assets.attention,
                 title: nil,
@@ -180,7 +177,7 @@ extension SwappingViewModel {
     enum InformationSectionViewModel: Hashable, Identifiable {
         var id: Int { hashValue }
 
-        case fee(DefaultRowViewModel)
+        case fee(SwappingFeeRowViewModel)
         case warning(DefaultWarningRowViewModel)
     }
 }
