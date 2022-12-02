@@ -293,12 +293,12 @@ private extension Currency {
         switch currencyType {
         case .coin:
             return SwappingTokenIconViewModel(
-                imageURL: TokenIconURLBuilder().iconURL(id: blockchain.id),
+                imageURL: TokenIconURLBuilder().iconURL(id: blockchain.id, size: .large),
                 tokenSymbol: symbol
             )
         case .token:
             return SwappingTokenIconViewModel(
-                imageURL: TokenIconURLBuilder().iconURL(id: id),
+                imageURL: TokenIconURLBuilder().iconURL(id: id, size: .large),
                 networkURL: TokenIconURLBuilder().iconURL(id: blockchain.id, size: .small),
                 tokenSymbol: symbol
             )
