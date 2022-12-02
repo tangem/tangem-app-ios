@@ -43,7 +43,7 @@ private extension TotalBalanceProvider {
         userWalletModel.subscribeToWalletModels()
             .combineLatest(AppSettings.shared.$selectedCurrencyCode)
             .receive(on: DispatchQueue.main)
-            .sink { [weak self] walletModels, currencyCode  in
+            .sink { [weak self] walletModels, currencyCode in
                 let hasLoading = !walletModels.filter { $0.state.isLoading }.isEmpty
 
                 // We should wait for balance loading to complete
@@ -61,7 +61,14 @@ private extension TotalBalanceProvider {
             .filter { !$0.isEmpty }
             .receive(on: DispatchQueue.main)
             .map { walletModels -> AnyPublisher<Void, Never> in
-                walletModels.map { $0.walletDidChange }
+                let isNotLoadedWallets = walletModels.filter { $0.state.isLoading }
+
+                if isNotLoadedWallets.isEmpty {
+                    return .just
+                }
+
+                return isNotLoadedWallets
+                    .map { $0.walletDidChange }
                     .combineLatest()
                     .filter { $0.allConforms { !$0.isLoading } }
                     .mapVoid()
