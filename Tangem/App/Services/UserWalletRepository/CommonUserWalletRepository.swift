@@ -75,7 +75,9 @@ class CommonUserWalletRepository: UserWalletRepository {
         minimizedAppTimer
             .timer
             .filter { [weak self] in
-                self?.isUnlocked ?? false
+                guard let self else { return false }
+
+                return self.userWallets.contains { !$0.isLocked }
             }
             .receive(on: RunLoop.main)
             .sink { [weak self] in
