@@ -706,6 +706,8 @@
 		EFF034AC28B4B6ED00F70FF7 /* Publisher+TangemAPIError.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFF034AB28B4B6ED00F70FF7 /* Publisher+TangemAPIError.swift */; };
 		EFF034AF28B6522500F70FF7 /* WalletListManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFF034AE28B6522500F70FF7 /* WalletListManager.swift */; };
 		EFF034B128B6523F00F70FF7 /* CommonWalletListManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFF034B028B6523F00F70FF7 /* CommonWalletListManager.swift */; };
+		EFF253AE2939FB8A00AEF302 /* SwappingFeeRowViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFF253AC2939FB8A00AEF302 /* SwappingFeeRowViewModel.swift */; };
+		EFF253AF2939FB8A00AEF302 /* SwappingFeeRowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFF253AD2939FB8A00AEF302 /* SwappingFeeRowView.swift */; };
 		EFFC860D28BCE87700F863CE /* TokenItemsRepositoryMigrator.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFFC860B28BCE87700F863CE /* TokenItemsRepositoryMigrator.swift */; };
 		EFFC860E28BCE87700F863CE /* LegacyCardMigrator.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFFC860C28BCE87700F863CE /* LegacyCardMigrator.swift */; };
 		EFFC861328BCF6C500F863CE /* StorageEntry.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFFC861228BCF6C500F863CE /* StorageEntry.swift */; };
@@ -1560,6 +1562,8 @@
 		EFF034AB28B4B6ED00F70FF7 /* Publisher+TangemAPIError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Publisher+TangemAPIError.swift"; sourceTree = "<group>"; };
 		EFF034AE28B6522500F70FF7 /* WalletListManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletListManager.swift; sourceTree = "<group>"; };
 		EFF034B028B6523F00F70FF7 /* CommonWalletListManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonWalletListManager.swift; sourceTree = "<group>"; };
+		EFF253AC2939FB8A00AEF302 /* SwappingFeeRowViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SwappingFeeRowViewModel.swift; sourceTree = "<group>"; };
+		EFF253AD2939FB8A00AEF302 /* SwappingFeeRowView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SwappingFeeRowView.swift; sourceTree = "<group>"; };
 		EFF5CF1928C796B1000EE8DB /* Alpha.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Alpha.xcconfig; sourceTree = "<group>"; };
 		EFFC860B28BCE87700F863CE /* TokenItemsRepositoryMigrator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TokenItemsRepositoryMigrator.swift; sourceTree = "<group>"; };
 		EFFC860C28BCE87700F863CE /* LegacyCardMigrator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LegacyCardMigrator.swift; sourceTree = "<group>"; };
@@ -3275,6 +3279,7 @@
 		EF053DDC2938A18E006FD13A /* ExchangeComponets */ = {
 			isa = PBXGroup;
 			children = (
+				EFF253AB2939FB8A00AEF302 /* SwappingFeeRowView */,
 				EF053DDD2938A18E006FD13A /* SwappingTokenIconView */,
 				EF053DE02938A18E006FD13A /* ReceiveCurrencyView */,
 				EF053DE32938A18E006FD13A /* SendCurrencyView */,
@@ -3673,15 +3678,6 @@
 			path = EnvironmentProvider;
 			sourceTree = "<group>";
 		};
-		EF5A16732937E66E00BEC2F4 /* SwappingFeeRowView */ = {
-			isa = PBXGroup;
-			children = (
-				EF5A16742937E68400BEC2F4 /* SwappingFeeRowView.swift */,
-				EF5A16762937ECA800BEC2F4 /* SwappingFeeRowViewModel.swift */,
-			);
-			path = SwappingFeeRowView;
-			sourceTree = "<group>";
-		};
 		EF5A5ACC28D86089002544AC /* TotalBalanceProvider */ = {
 			isa = PBXGroup;
 			children = (
@@ -3814,6 +3810,8 @@
 				EFE23AAD292B810300A3C554 /* SuccessSwappingViewModel.swift */,
 				EFE23ACD292CBA0E00A3C554 /* SwappingTokenItemView.swift */,
 				EFE23ACA292CB88500A3C554 /* IconView.swift */,
+				EF5A16742937E68400BEC2F4 /* SwappingFeeRowView.swift */,
+				EF5A16762937ECA800BEC2F4 /* SwappingFeeRowViewModel.swift */,
 			);
 			name = "Recovered References";
 			sourceTree = "<group>";
@@ -3898,6 +3896,15 @@
 				EFF034B028B6523F00F70FF7 /* CommonWalletListManager.swift */,
 			);
 			path = WalletListManager;
+			sourceTree = "<group>";
+		};
+		EFF253AB2939FB8A00AEF302 /* SwappingFeeRowView */ = {
+			isa = PBXGroup;
+			children = (
+				EFF253AC2939FB8A00AEF302 /* SwappingFeeRowViewModel.swift */,
+				EFF253AD2939FB8A00AEF302 /* SwappingFeeRowView.swift */,
+			);
+			path = SwappingFeeRowView;
 			sourceTree = "<group>";
 		};
 		EFFC860A28BCE87700F863CE /* Migrators */ = {
@@ -4344,6 +4351,7 @@
 				5DF2522B24F9439D0015B429 /* UIImage+.swift in Sources */,
 				B0F62C4825DE4ABE005C8BA0 /* EmailType.swift in Sources */,
 				5D3D6D3D28088D0400778B67 /* ListDataLoader.swift in Sources */,
+				EFF253AF2939FB8A00AEF302 /* SwappingFeeRowView.swift in Sources */,
 				DCE3379928F2A4580029A6F5 /* SaltPayConfiguration.swift in Sources */,
 				DAA0559928744E2400E4F7B9 /* MercuryoService.swift in Sources */,
 				B0C4F77F26F0C0BF0086D815 /* TransitionWithoutOpacity.swift in Sources */,
@@ -4843,6 +4851,7 @@
 				EF661E3228C0ACD1005769E5 /* ScanCardWarningView.swift in Sources */,
 				5DDE22E32608C2E2008657C6 /* WalletConnectService.swift in Sources */,
 				DC51185F28609F67004FB954 /* CardOperationViewModel.swift in Sources */,
+				EFF253AE2939FB8A00AEF302 /* SwappingFeeRowViewModel.swift in Sources */,
 				EFA6824629376B5700C8F577 /* MainButton.swift in Sources */,
 				5DDFC1FF2812A63B005976FE /* Network.swift in Sources */,
 				5DFB499824E54A340037E76F /* BalanceView.swift in Sources */,
