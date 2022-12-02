@@ -640,6 +640,8 @@
 		EF59039B29091CFB00C527C9 /* EnvironmentSetupViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF59039629091CFB00C527C9 /* EnvironmentSetupViewModel.swift */; };
 		EF5903A42909285E00C527C9 /* EnvironmentProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF5903A32909285E00C527C9 /* EnvironmentProvider.swift */; };
 		EF5903A829092BC600C527C9 /* FeatureProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF5903A729092BC600C527C9 /* FeatureProvider.swift */; };
+		EF5A16752937E68400BEC2F4 /* SwappingFeeRowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF5A16742937E68400BEC2F4 /* SwappingFeeRowView.swift */; };
+		EF5A16772937ECA800BEC2F4 /* SwappingFeeRowViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF5A16762937ECA800BEC2F4 /* SwappingFeeRowViewModel.swift */; };
 		EF5A5ACF28D86089002544AC /* TotalBalanceProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF5A5ACD28D86089002544AC /* TotalBalanceProvider.swift */; };
 		EF5A5AD028D86089002544AC /* TotalBalanceProviding.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF5A5ACE28D86089002544AC /* TotalBalanceProviding.swift */; };
 		EF5A5AD528D86094002544AC /* CardImageProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF5A5AD228D86094002544AC /* CardImageProvider.swift */; };
@@ -1471,6 +1473,8 @@
 		EF59039629091CFB00C527C9 /* EnvironmentSetupViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EnvironmentSetupViewModel.swift; sourceTree = "<group>"; };
 		EF5903A32909285E00C527C9 /* EnvironmentProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EnvironmentProvider.swift; sourceTree = "<group>"; };
 		EF5903A729092BC600C527C9 /* FeatureProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeatureProvider.swift; sourceTree = "<group>"; };
+		EF5A16742937E68400BEC2F4 /* SwappingFeeRowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwappingFeeRowView.swift; sourceTree = "<group>"; };
+		EF5A16762937ECA800BEC2F4 /* SwappingFeeRowViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwappingFeeRowViewModel.swift; sourceTree = "<group>"; };
 		EF5A5ACD28D86089002544AC /* TotalBalanceProvider.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TotalBalanceProvider.swift; sourceTree = "<group>"; };
 		EF5A5ACE28D86089002544AC /* TotalBalanceProviding.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TotalBalanceProviding.swift; sourceTree = "<group>"; };
 		EF5A5AD228D86094002544AC /* CardImageProvider.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CardImageProvider.swift; sourceTree = "<group>"; };
@@ -3529,6 +3533,7 @@
 		EF46623C2924F1F700346B6C /* ExchangeComponets */ = {
 			isa = PBXGroup;
 			children = (
+				EF5A16732937E66E00BEC2F4 /* SwappingFeeRowView */,
 				EFC46EFF29266996003928E3 /* ReceiveCurrencyView */,
 				EFC46EFC29266978003928E3 /* SendCurrencyView */,
 			);
@@ -3560,6 +3565,15 @@
 				EF5903A729092BC600C527C9 /* FeatureProvider.swift */,
 			);
 			path = EnvironmentProvider;
+			sourceTree = "<group>";
+		};
+		EF5A16732937E66E00BEC2F4 /* SwappingFeeRowView */ = {
+			isa = PBXGroup;
+			children = (
+				EF5A16742937E68400BEC2F4 /* SwappingFeeRowView.swift */,
+				EF5A16762937ECA800BEC2F4 /* SwappingFeeRowViewModel.swift */,
+			);
+			path = SwappingFeeRowView;
 			sourceTree = "<group>";
 		};
 		EF5A5ACC28D86089002544AC /* TotalBalanceProvider */ = {
@@ -4361,6 +4375,7 @@
 				5D09380A25E6AEB10049B8F0 /* BalanceAddressView.swift in Sources */,
 				B09BB883259A09CE00B92000 /* WarningEvent+.swift in Sources */,
 				EF74F50E289BF5AE001034D2 /* Text+.swift in Sources */,
+				EF5A16752937E68400BEC2F4 /* SwappingFeeRowView.swift in Sources */,
 				DAC53CF827BE63830027147D /* StoriesTangemLogo.swift in Sources */,
 				DC5E32CF28EEAC3200D6096A /* SaltPayUtil.swift in Sources */,
 				DC295B4C2861D7CF006CB7B6 /* WalletConnectCoordinator.swift in Sources */,
@@ -4618,13 +4633,13 @@
 				DA23788427B24222009795A8 /* Checkout.swift in Sources */,
 				DC56EF81289CE06A00C0940A /* DummyConfig.swift in Sources */,
 				DC5E32CD28EDD94300D6096A /* Responses.swift in Sources */,
+				EF5A16772937ECA800BEC2F4 /* SwappingFeeRowViewModel.swift in Sources */,
 				DA23787F27B24222009795A8 /* CheckoutPayload.swift in Sources */,
 				EF46623E2924F21600346B6C /* SendCurrencyView.swift in Sources */,
 				DC261CB3292CF6B700875E64 /* UncompletedBackupCoordinator.swift in Sources */,
 				DC5E32C628EDC7FC00D6096A /* PaymentologyApiTarget.swift in Sources */,
 				DA5FAD8A27B27F7F00EE53AE /* SheetDragHandler.swift in Sources */,
 				B0431B442919F94400F84DEF /* ReferralModels.swift in Sources */,
-				B0E1565226B97F8C005B33E4 /* OnboardingCardView.swift in Sources */,
 				EF4BEF8328ACF0E700C5D1BE /* UserTokenListManager.swift in Sources */,
 				EF130EBA28E1D33000D37EFC /* SingleWalletContentView.swift in Sources */,
 				B08B8CEB26D6276000D4BB7B /* PreviewData.swift in Sources */,
