@@ -22,8 +22,9 @@ struct SwappingFeeRowView: View {
 
             Spacer()
 
-            Text(viewModel.fee)
+            Text(viewModel.formattedFee)
                 .style(Fonts.Regular.footnote, color: Colors.Text.primary1)
+                .skeletonable(isShown: viewModel.isLoading, size: CGSize(width: 100, height: 11))
         }
         .lineLimit(1)
         .padding(.vertical, 14)
@@ -32,12 +33,25 @@ struct SwappingFeeRowView: View {
 }
 
 struct SwappingFeeRowView_Previews: PreviewProvider {
-    static let viewModel = SwappingFeeRowViewModel(fee: "0.155 MATIC (0.14 $)")
+    static let viewModel = SwappingFeeRowViewModel(
+        fee: "0.0000000000155",
+        tokenSymbol: "MATIC",
+        fiatValue: "$0.14",
+        isLoading: false
+    )
+    
+    static let loadingViewModel = SwappingFeeRowViewModel(
+        fee: "0.0000000000155",
+        tokenSymbol: "MATIC",
+        fiatValue: "$0.14",
+        isLoading: true
+    )
+
     static var previews: some View {
         ZStack {
             Colors.Background.secondary
 
-            GroupedSection(viewModel) {
+            GroupedSection([viewModel, loadingViewModel]) {
                 SwappingFeeRowView(viewModel: $0)
             }
             .padding()
