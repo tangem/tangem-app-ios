@@ -516,6 +516,7 @@ URL: %@";
 "swapping_success" = "Успешно!";
 "swapping_swap_of_to" = "Обмен %@ на";
 "swapping_swap" = "Обмен";
+"swapping_fee" = "Комиссия";
 "details_referral_title" = "Реферальная программа";
 "referral_title" = "Приведи друга в Tangem";
 "referral_point_currencies_title" = "Вы";
