@@ -35,7 +35,7 @@ struct UserWalletListView: View {
                 userWalletsView()
 
                 Group {
-                    if !viewModel.isUnlocked {
+                    if viewModel.isLocked {
                         TangemButton(title: viewModel.unlockAllButtonLocalizationKey, action: viewModel.unlockAllWallets)
                             .buttonStyle(TangemButtonStyle(colorStyle: .black, layout: .flexibleWidth, isLoading: viewModel.isScanningCard))
                     }
