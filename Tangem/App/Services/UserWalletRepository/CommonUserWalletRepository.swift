@@ -256,6 +256,10 @@ class CommonUserWalletRepository: UserWalletRepository {
     }
 
     func save(_ userWallet: UserWallet) {
+        if models.isEmpty && !userWallets.isEmpty {
+            loadModels()
+        }
+
         if let index = userWallets.firstIndex(where: { $0.userWalletId == userWallet.userWalletId }) {
             userWallets[index] = userWallet
         } else {
