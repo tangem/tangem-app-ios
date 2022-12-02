@@ -206,6 +206,7 @@ private extension DefaultExchangeManager {
                     walletAddress: walletAddress
                 )
             } catch {
+                print("updateExchangeAmountAllowance", error)
                 tokenExchangeAllowanceLimit = nil
                 updateState(.requiredRefresh(occurredError: error))
             }
@@ -230,6 +231,7 @@ private extension DefaultExchangeManager {
                 updateState(.requiredPermission(swappingResult: swappingResult))
 
             } catch {
+                print("updateExpectSwappingResult", error)
                 updateState(.requiredRefresh(occurredError: error))
             }
         }
