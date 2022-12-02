@@ -11,6 +11,8 @@ import BlockchainSdk
 import TangemExchange
 
 struct BlockchainNetworkService {
+    @Injected(\.tangemApiService) private var tangemApiService: TangemApiService
+
     private let walletModel: WalletModel
     private let signer: TransactionSigner
 
@@ -136,22 +138,29 @@ private extension BlockchainNetworkService {
     }
 
     func getFiatBalanceThroughAddToWalletModel(currency: Currency, amount: Decimal) async throws -> Decimal {
-        /// We can add to walletModel only token
-        guard let token = currency.asToken() else {
-            assertionFailure("Unimplement case")
-            throw CommonError.noData
+        let rates = try await tangemApiService.loadRates(for: [currency.id]).async()
+        let currencyRate: Decimal
+
+        switch currency.currencyType {
+        case .coin:
+            guard let rate = rates[currency.blockchain.networkId] else {
+                throw CommonError.noData
+            }
+            currencyRate = rate
+        case .token:
+            guard let rate = rates[currency.id] else {
+                throw CommonError.noData
+            }
+
+            currencyRate = rate
         }
 
-        walletModel.addTokens([token])
-        try await walletModel.update(silent: true).async()
-
-        guard let fiat = getFiatBalanceFromWalletModel(currency: currency, amount: amount) else {
-            throw CommonError.noData
+        let fiatValue = amount * currencyRate
+        if fiatValue == 0 {
+            return 0
         }
 
-        walletModel.removeToken(token)
-
-        return fiat
+        return max(fiatValue, 0.01).rounded(scale: 2, roundingMode: .plain)
     }
 }
 
