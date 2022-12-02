@@ -166,7 +166,7 @@ private extension SwappingViewModel {
                 .fee(DefaultRowViewModel(title: "Fee", detailsType: .loader)),
             ]
 
-        case .available(let result):
+        case .available(let result, _):
             mainButtonIsEnabled = true
             refreshWarningRowViewModel = nil
 
@@ -207,7 +207,7 @@ private extension SwappingViewModel {
         case .idle, .loading, .requiredRefresh:
             mainButtonIsEnabled = false
 
-        case .available(let result), .requiredPermission(let result):
+        case .available(let result, _), .requiredPermission(let result):
             mainButtonIsEnabled = result.isEnoughAmountForExchange
 
             if result.isEnoughAmountForExchange {
