@@ -33,15 +33,17 @@ class AuthCoordinator: CoordinatorObject {
     }
 
     func start(with options: Options = .default) {
-        self.rootViewModel = .init(coordinator: self)
+        self.rootViewModel = .init(unlockOnStart: options.unlockOnStart, coordinator: self)
     }
 }
 
 // MARK: - Options
 
 extension AuthCoordinator {
-    enum Options {
-        case `default`
+    struct Options {
+        let unlockOnStart: Bool
+
+        static let `default` = Options(unlockOnStart: false)
     }
 }
 
