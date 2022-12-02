@@ -92,7 +92,6 @@ extension DefaultExchangeManager: ExchangeManager {
 
     func isAvailableForExchange() -> Bool {
         guard exchangeItems.source.isToken else {
-            print("Unnecessary request available for exchange for coin")
             return true
         }
 
@@ -134,16 +133,20 @@ private extension DefaultExchangeManager {
             return
         }
 
-        updateExpectSwappingResult()
+//        updateExpectSwappingResult()
 
-        guard let tokenExchangeAllowanceLimit else {
-            return
+        switch exchangeItems.source.currencyType {
+        case .coin:
+            updateDataForExchange()
+        case .token:
+            updateExpectSwappingResult()
+            guard let tokenExchangeAllowanceLimit else { return }
+
+            delegate?.exchangeManagerDidUpdate(
+                availabilityForExchange: isAvailableForExchange(),
+                limit: tokenExchangeAllowanceLimit
+            )
         }
-
-        delegate?.exchangeManagerDidUpdate(
-            availabilityForExchange: isAvailableForExchange(),
-            limit: tokenExchangeAllowanceLimit
-        )
     }
 
     func exchangeItemsDidUpdate() {
@@ -185,7 +188,7 @@ private extension DefaultExchangeManager {
     }
 }
 
-// MARK: - Request
+// MARK: - Requests
 
 private extension DefaultExchangeManager {
     func updateExchangeAmountAllowance() {
@@ -205,8 +208,9 @@ private extension DefaultExchangeManager {
                     for: exchangeItems.source,
                     walletAddress: walletAddress
                 )
+                print("updateExchangeAmountAllowance limit", tokenExchangeAllowanceLimit)
             } catch {
-                print("updateExchangeAmountAllowance", error)
+                print("updateExchangeAmountAllowance error", error)
                 tokenExchangeAllowanceLimit = nil
                 updateState(.requiredRefresh(occurredError: error))
             }
@@ -237,9 +241,38 @@ private extension DefaultExchangeManager {
         }
     }
 
-    func updateSourceBalances() {
-        let source = exchangeItems.source
+    func updateDataForExchange(silent: Bool = false) {
+        guard let walletAddress = blockchainInfoProvider.getWalletAddress(currency: exchangeItems.source) else {
+            print("walletAddress not found")
+            return
+        }
+
         Task {
+            do {
+                let quoteData = try await exchangeProvider.fetchQuote(
+                    items: exchangeItems,
+                    amount: formattedAmount
+                )
+
+                let exchangeData = try await exchangeProvider.fetchTxDataForExchange(
+                    items: exchangeItems,
+                    walletAddress: walletAddress,
+                    amount: formattedAmount
+                )
+
+                let swappingResult = try await mapExpectSwappingResult(from: quoteData)
+                updateState(.available(swappingResult: swappingResult, exchangeData: exchangeData))
+
+            } catch {
+                print("updateDataForExchange", error)
+                updateState(.requiredRefresh(occurredError: error))
+            }
+        }
+    }
+
+    func updateSourceBalances() {
+        Task {
+            let source = exchangeItems.source
             let balance = try await blockchainInfoProvider.getBalance(currency: source)
             var fiatBalance: Decimal = 0
             if let amount {
