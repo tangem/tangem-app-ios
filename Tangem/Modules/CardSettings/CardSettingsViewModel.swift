@@ -83,16 +83,6 @@ private extension CardSettingsViewModel {
 
         setupSecurityOptions()
 
-        if isChangeAccessCodeVisible {
-            securityModeSection.append(
-                DefaultRowViewModel(
-                    title: "card_settings_change_access_code".localized,
-                    detailsType: isChangeAccessCodeLoading ? .loader : .none,
-                    action: openChangeAccessCodeWarningView
-                )
-            )
-        }
-
         if isResetToFactoryAvailable {
             resetToFactoryViewModel = DefaultRowViewModel(
                 title: "card_settings_reset_card_to_factory".localized,
@@ -107,6 +97,16 @@ private extension CardSettingsViewModel {
             detailsType: .text(securityModeTitle),
             action: hasSingleSecurityMode ? nil : openSecurityMode
         )]
+
+        if isChangeAccessCodeVisible {
+            securityModeSection.append(
+                DefaultRowViewModel(
+                    title: "card_settings_change_access_code".localized,
+                    detailsType: isChangeAccessCodeLoading ? .loader : .none,
+                    action: openChangeAccessCodeWarningView
+                )
+            )
+        }
     }
 
     private func deleteWallet(_ userWallet: UserWallet) {
@@ -148,9 +148,11 @@ extension CardSettingsViewModel {
     func openChangeAccessCodeWarningView() {
         Analytics.log(.buttonChangeUserCode)
         isChangeAccessCodeLoading = true
+        setupSecurityOptions()
         cardModel.changeSecurityOption(.accessCode) { [weak self] result in
             DispatchQueue.main.async {
                 self?.isChangeAccessCodeLoading = false
+                self?.setupSecurityOptions()
             }
         }
     }
