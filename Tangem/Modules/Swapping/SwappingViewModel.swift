@@ -109,9 +109,11 @@ private extension SwappingViewModel {
             detailsType: .icon(Assets.refreshWarningIcon),
             action: {}
         )
+        
+        let swappingFeeRowViewModel = SwappingFeeRowViewModel(fee: "0.155", tokenSymbol: "MATIC", fiatValue: "0.14 $", isLoading: false)
 
         informationSectionViewModels = [
-            .fee(SwappingFeeRowViewModel(fee: "0.155 MATIC (0.14 $)")),
+            .fee(swappingFeeRowViewModel),
             .warning(DefaultWarningRowViewModel(
                 icon: Assets.attention,
                 title: nil,
