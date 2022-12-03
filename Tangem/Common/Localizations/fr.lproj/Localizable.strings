@@ -263,8 +263,7 @@ Balance: %@";
 Please, try again later.";
 "wallet_connect_error_sing_failed" = "Failed to sign message.
 Please, try again";
-"wallet_connect_error_timeout" = "Failed to establish WalletConnect session: timeout error.
-Please, try again later.";
+"wallet_connect_error_timeout" = "Failed to establish WalletConnect session: timeout error. Please, try again later.";
 "wallet_connect_failed_to_build_tx" = "Failed to create transaction from Dapp data. Code: %@";
 "wallet_connect_message_signed" = "The message has been successfully signed and sent to the Dapp";
 "wallet_connect_no_sessions_message" = "No opened WalletConnect sessions";
