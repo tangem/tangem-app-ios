@@ -283,7 +283,7 @@ URL: %@";
 "wallet_pending_tx_receiving_address_format" = "da %@";
 "wallet_pending_tx_sending" = "Inviau";
 "wallet_pending_tx_sending_address_format" = "su %@";
-"wallet_hide_token" = "Hide token";
+"token_details_hide_token" = "Hide token";
 "wallet_title" = "Tangem";
 "warning_button_can_be_better" = "Can be better";
 "warning_button_learn_more" = "Learn more";
