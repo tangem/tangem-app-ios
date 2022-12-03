@@ -15,12 +15,11 @@ protocol UserWalletRepository {
     var selectedModel: CardViewModel? { get }
     var selectedUserWalletId: Data? { get }
     var isEmpty: Bool { get }
-    var isUnlocked: Bool { get }
+    var isLocked: Bool { get }
     var eventProvider: AnyPublisher<UserWalletRepositoryEvent, Never> { get }
 
-    func lock()
     func unlock(with method: UserWalletRepositoryUnlockMethod, completion: @escaping (UserWalletRepositoryResult?) -> Void)
-    func setSelectedUserWalletId(_ userWalletId: Data?)
+    func setSelectedUserWalletId(_ userWalletId: Data?, reason: UserWalletRepositorySelectionChangeReason)
 
     func didScan(card: CardDTO, walletData: DefaultWalletData)
 
@@ -54,15 +53,41 @@ enum UserWalletRepositoryResult {
 }
 
 enum UserWalletRepositoryEvent {
-    case locked
+    case locked(reason: UserWalletRepositoryLockReason)
     case scan(isScanning: Bool)
     case inserted(userWallet: UserWallet)
     case updated(userWalletModel: UserWalletModel)
     case deleted(userWalletId: Data)
-    case selected(userWallet: UserWallet)
+    case selected(userWallet: UserWallet, reason: UserWalletRepositorySelectionChangeReason)
+}
+
+enum UserWalletRepositorySelectionChangeReason {
+    case userSelected
+    case inserted
+    case deleted
+}
+
+enum UserWalletRepositoryLockReason {
+    case loggedOut
+    case nothingToDisplay
 }
 
 enum UserWalletRepositoryUnlockMethod {
     case biometry
     case card(userWallet: UserWallet?)
+}
+
+enum UserWalletRepositoryError: String, Error, LocalizedError {
+    case duplicateWalletAdded
+
+    var errorDescription: String? {
+        self.rawValue
+    }
+
+    var alertBinder: AlertBinder {
+        switch self {
+        case .duplicateWalletAdded:
+            return .init(title: "", message: "user_wallet_list_error_wallet_already_saved".localized)
+        }
+    }
 }
