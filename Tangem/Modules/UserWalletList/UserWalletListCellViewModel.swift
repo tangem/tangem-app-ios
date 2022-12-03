@@ -21,6 +21,8 @@ class UserWalletListCellViewModel: ObservableObject {
     let subtitle: String
     let isMultiWallet: Bool
     let didTapUserWallet: () -> Void
+    let didEditUserWallet: () -> Void
+    let didDeleteUserWallet: () -> Void
     let totalBalanceProvider: TotalBalanceProviding
     let imageHeight = 30.0
 
@@ -40,7 +42,9 @@ class UserWalletListCellViewModel: ObservableObject {
         isSelected: Bool,
         totalBalanceProvider: TotalBalanceProviding,
         cardImageProvider: CardImageProviding,
-        didTapUserWallet: @escaping () -> Void
+        didTapUserWallet: @escaping () -> Void,
+        didEditUserWallet: @escaping () -> Void,
+        didDeleteUserWallet: @escaping () -> Void
     ) {
         self.userWalletModel = userWalletModel
         self.subtitle = subtitle
@@ -49,6 +53,8 @@ class UserWalletListCellViewModel: ObservableObject {
         self.totalBalanceProvider = totalBalanceProvider
         self.cardImageProvider = cardImageProvider
         self.didTapUserWallet = didTapUserWallet
+        self.didEditUserWallet = didEditUserWallet
+        self.didDeleteUserWallet = didDeleteUserWallet
 
         bind()
         loadImage()
@@ -62,6 +68,14 @@ class UserWalletListCellViewModel: ObservableObject {
         if !userWalletModel.userWallet.isLocked {
             userWalletModel.initialUpdate()
         }
+    }
+
+    func edit() {
+        didEditUserWallet()
+    }
+
+    func delete() {
+        didDeleteUserWallet()
     }
 
     private func bind() {
@@ -95,7 +109,9 @@ class UserWalletListCellViewModel: ObservableObject {
         }
 
         cardImageProvider.loadImage(cardId: userWallet.card.cardId, cardPublicKey: userWallet.card.cardPublicKey, artwork: artwork)
-            .sink { [unowned self] image in
+            .sink { [weak self] image in
+                guard let self else { return }
+
                 self.image = self.scaleImage(image, newHeight: self.imageHeight * UIScreen.main.scale)
             }
             .store(in: &bag)
