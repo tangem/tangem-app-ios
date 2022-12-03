@@ -112,8 +112,15 @@ extension TwinConfig: UserWalletConfig {
         WarningEventsFactory().makeWarningEvents(for: card)
     }
 
-    // [REDACTED_TODO_COMMENT]
-    var tangemSigner: TangemSigner { .init(with: card.cardId) }
+    var tangemSigner: TangemSigner {
+        guard let walletPublicKey = card.wallets.first?.publicKey,
+              let pairWalletPublicKey = twinData.pairPublicKey else {
+            return .init(with: card.cardId)
+        }
+
+        let twinKey = TwinKey(key1: walletPublicKey, key2: pairWalletPublicKey)
+        return .init(with: twinKey)
+    }
 
     var emailData: [EmailCollectedData] {
         CardEmailDataFactory().makeEmailData(for: card, walletData: walletData)
@@ -168,6 +175,8 @@ extension TwinConfig: UserWalletConfig {
         case .topup:
             return .available
         case .tokenSynchronization:
+            return .hidden
+        case .referralProgram:
             return .hidden
         }
     }

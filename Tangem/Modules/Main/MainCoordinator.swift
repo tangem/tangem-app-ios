@@ -26,7 +26,6 @@ class MainCoordinator: CoordinatorObject {
     @Published var detailsCoordinator: DetailsCoordinator? = nil
     @Published var tokenListCoordinator: TokenListCoordinator? = nil
     @Published var modalOnboardingCoordinator: OnboardingCoordinator? = nil
-    @Published var pushedOnboardingCoordinator: OnboardingCoordinator? = nil
 
     // MARK: - Child view models
     @Published var pushedWebViewModel: WebViewContainerViewModel? = nil
@@ -35,7 +34,7 @@ class MainCoordinator: CoordinatorObject {
     @Published var mailViewModel: MailViewModel? = nil
     @Published var addressQrBottomSheetContentViewVodel: AddressQrBottomSheetContentViewVodel? = nil
     @Published var warningBankCardViewModel: WarningBankCardViewModel? = nil
-    @Published var userWalletListViewModel: UserWalletListViewModel?
+    @Published var userWalletListCoordinator: UserWalletListCoordinator?
     @Published var userWalletStorageAgreementViewModel: UserWalletStorageAgreementViewModel?
 
     // MARK: - Helpers
@@ -54,11 +53,17 @@ class MainCoordinator: CoordinatorObject {
                 guard let self else { return }
 
                 switch event {
-                case .selected:
-                    if let selectedModel = self.userWalletRepository.selectedModel {
-                        self.updateMain(with: selectedModel)
+                case .selected(let userWallet, _):
+                    guard !userWallet.isLocked,
+                          let selectedModel = self.userWalletRepository.selectedModel
+                    else {
+                        return
                     }
 
+                    let options = Options(cardModel: selectedModel, shouldRefreshOnAppear: false)
+                    DispatchQueue.main.async { // fix ios13 freeze
+                        self.start(with: options)
+                    }
                 case .inserted(let userWallet):
                     self.lastInsertedUserWalletId = userWallet.userWalletId
                 default:
@@ -78,7 +83,7 @@ class MainCoordinator: CoordinatorObject {
             cardModel: options.cardModel,
             userWalletModel: userWalletModel,
             cardImageProvider: CardImageProvider(supportsOnlineImage: options.cardModel.supportsOnlineImage),
-            shouldRefreshWhenAppear: true,
+            shouldRefreshWhenAppear: options.shouldRefreshOnAppear,
             coordinator: self
         )
     }
@@ -87,6 +92,12 @@ class MainCoordinator: CoordinatorObject {
 extension MainCoordinator {
     struct Options {
         let cardModel: CardViewModel
+        let shouldRefreshOnAppear: Bool
+
+        init(cardModel: CardViewModel, shouldRefreshOnAppear: Bool = true) {
+            self.cardModel = cardModel
+            self.shouldRefreshOnAppear = shouldRefreshOnAppear
+        }
     }
 }
 
@@ -250,59 +261,48 @@ extension MainCoordinator: MainRoutable {
         userWalletStorageAgreementViewModel = UserWalletStorageAgreementViewModel(isStandalone: true, coordinator: self)
     }
 
+    func closeUserWalletSaveAcceptanceSheet() {
+        userWalletStorageAgreementViewModel = nil
+    }
+
     func openUserWalletList() {
-        userWalletListViewModel = UserWalletListViewModel(coordinator: self)
+        let dismissAction: Action = { [weak self] in
+            self?.userWalletListCoordinator = nil
+        }
+
+        let coordinator = UserWalletListCoordinator(output: self, dismissAction: dismissAction, popToRootAction: popToRootAction)
+        coordinator.start()
+
+        userWalletListCoordinator = coordinator
     }
 }
 
-extension MainCoordinator: UserWalletListRoutable {
-    func dismissUserWalletList() {
-        self.userWalletListViewModel = nil
-    }
-
-    func openOnboarding(with input: OnboardingInput) {
-        dismissUserWalletList()
+extension MainCoordinator: UserWalletListCoordinatorOutput {
+    func dismissAndOpenOnboarding(with input: OnboardingInput) {
+        userWalletListCoordinator = nil
 
         let dismissAction: Action = { [weak self] in
-            self?.pushedOnboardingCoordinator = nil
-        }
-
-        let popToRootAction: ParamsAction<PopToRootOptions> = { [weak self] options in
-            self?.pushedOnboardingCoordinator = nil
+            self?.modalOnboardingCoordinator = nil
         }
 
         let coordinator = OnboardingCoordinator(dismissAction: dismissAction, popToRootAction: popToRootAction)
-        let options = OnboardingCoordinator.Options(input: input, destination: .main)
+        let options = OnboardingCoordinator.Options(input: input, destination: .dismiss)
         coordinator.start(with: options)
-        pushedOnboardingCoordinator = coordinator
-    }
 
-    private func updateMain(with cardModel: CardViewModel) {
-        guard let userWalletModel = cardModel.userWalletModel else {
-            assertionFailure("UserWalletModel not created")
-            return
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) {
+            self.modalOnboardingCoordinator = coordinator
         }
-
-        mainViewModel = MainViewModel(
-            cardModel: cardModel,
-            userWalletModel: userWalletModel,
-            cardImageProvider: CardImageProvider(supportsOnlineImage: cardModel.supportsOnlineImage),
-            shouldRefreshWhenAppear: false,
-            coordinator: self
-        )
     }
 }
 
 extension MainCoordinator: UserWalletStorageAgreementRoutable {
     func didAgreeToSaveUserWallets() {
         logSaveUserWalletStep(agreed: true)
-        userWalletStorageAgreementViewModel = nil
         mainViewModel?.didAgreeToSaveUserWallets()
     }
 
     func didDeclineToSaveUserWallets() {
         logSaveUserWalletStep(agreed: false)
-        userWalletStorageAgreementViewModel = nil
         mainViewModel?.didDeclineToSaveUserWallets()
     }
 

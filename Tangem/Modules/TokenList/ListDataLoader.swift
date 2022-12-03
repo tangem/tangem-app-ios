@@ -23,6 +23,7 @@ class ListDataLoader {
 
     // MARK: Input
     private let networkIds: [String]
+    private let exchangeable: Bool
 
     // MARK: Private
 
@@ -38,8 +39,9 @@ class ListDataLoader {
     private var cachedSearch: [String: [CoinModel]] = [:]
     private var lastSearchText = ""
 
-    init(networkIds: [String]) {
+    init(networkIds: [String], exchangeable: Bool) {
         self.networkIds = networkIds
+        self.exchangeable = exchangeable
     }
 
     func reset(_ searchText: String) {
@@ -61,7 +63,7 @@ class ListDataLoader {
         }
 
         cancellable = loadItems(searchText)
-            .receive(on: DispatchQueue.main)
+            .receive(on: DispatchQueue.global())
             .sink { [weak self] items in
                 guard let self = self else { return }
 
@@ -83,6 +85,7 @@ private extension ListDataLoader {
         let requestModel = CoinsListRequestModel(
             networkIds: networkIds,
             searchText: searchText,
+            exchangeable: exchangeable,
             limit: perPage,
             offset: items.count,
             active: true
