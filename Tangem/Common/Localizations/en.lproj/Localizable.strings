@@ -11,7 +11,7 @@
 "alert_button_try_again" = "Try again";
 "alert_card_signed_transactions" = "This card has been already topped up and signed transactions in the past. Consider immediate withdrawal of all funds if you have received this card from an untrusted source. If it's your card, there is nothing to worry about.";
 "alert_developer_card" = "The card you scanned is a development card. Don't accept it as a payment.";
-"alert_failed_to_send_email_message" = "Reason: %@";
+"alert_failed_to_send_transaction_message" = "Reason: %@";
 "alert_failed_to_send_email_title" = "Failed to send email";
 "feedback_subject_tx_failed" = "Can't send a transaction";
 "alert_negative_app_rate_sent_message" = "Thank your for your feedback. We will response as soon as possible";
