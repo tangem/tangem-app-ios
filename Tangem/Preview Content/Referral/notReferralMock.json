@@ -1,0 +1,32 @@
+{
+    "conditions": {
+        "award": 10,
+        "discount": {
+            "amount": 10,
+            "type": "percentage"
+        },
+        "tosLink": "https://tangem.com/terms_of_service.html",
+        "awards": [
+            {
+                "amount": 10,
+                "token": {
+                    "id": "tron",
+                    "name": "TRON",
+                    "symbol": "TRX",
+                    "networkId": "tron"
+                }
+            },
+            {
+                "amount": 10,
+                "token": {
+                    "id": "tether",
+                    "name": "Tether",
+                    "symbol": "USDT",
+                    "networkId": "ethereum",
+                    "contractAddress": "0xdac17f958d2ee523a2206206994597c13d831ec7",
+                    "decimalCount": 6
+                }
+            }
+        ]
+    }
+}
