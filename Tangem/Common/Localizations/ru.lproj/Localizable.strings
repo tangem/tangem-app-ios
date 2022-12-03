@@ -268,7 +268,7 @@ Tangem — единственный аппаратный кошелек, пре�
 "wallet_connect_no_sessions_message" = "Нет открытых сессий WalletConnect";
 "wallet_connect_no_sessions_title" = "Упс. Нет сессий.";
 "wallet_connect_paste_from_clipboard" = "Вставить из буфера обмена";
-"wallet_connect_personal_sign_message" = "Сообщение для %@:\n";
+"wallet_connect_personal_sign_message" = "Сообщение для %@:\n%@";
 "wallet_connect_request_session_start" = "Запрос на открытие сессии для
 %@
 
