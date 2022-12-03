@@ -224,7 +224,7 @@ extension DetailsViewModel {
         // [REDACTED_TODO_COMMENT]
 
         viewModels.append(DefaultRowViewModel(
-            title: "details_row_title_app_settings".localized,
+            title: "app_settings_title".localized,
             action: openAppSettings
         ))
 
