@@ -225,7 +225,7 @@ Tangem — единственный аппаратный кошелек, пре�
 "wallet_address_button_explore" = "Проверить адрес";
 "wallet_balance_blockchain_unreachable" = "Сеть недоступна";
 "wallet_balance_loading" = "Баланс загружается…";
-"wallet_balance_tx_in_progress" = "Транзакция подтверждается...";
+"wallet_balance_tx_in_progress" = "Транзакция подтверждается…";
 "wallet_balance_verified" = "Подтвержденный баланс";
 "wallet_button_create_wallet" = "Создать кошелек";
 "wallet_button_scan" = "Сканировать";
