@@ -21,7 +21,7 @@ struct OnboardingTopupBalanceUpdater: View {
     var body: some View {
         Group {
             VStack(spacing: 0) {
-                Text("onboarding_balance".localized.uppercased())
+                Text("onboarding_balance_title".localized.uppercased())
                     .font(.system(size: 14, weight: .semibold))
                     .foregroundColor(.tangemGrayDark)
                     .padding(.bottom, 8)
