@@ -154,7 +154,7 @@ extension TwinsOnboardingStep: OnboardingMessagesProvider {
     var subtitle: LocalizedStringKey? {
         switch self {
         case .welcome: return WelcomeStep.welcome.subtitle
-        case .intro(let pairNumber): return LocalizedStringKey(stringLiteral: "onboarding_subtitle_intro".localized(pairNumber))
+        case .intro(let pairNumber): return LocalizedStringKey(stringLiteral: "twins_onboarding_description_format".localized(pairNumber))
         case .first, .second, .third: return "onboarding_twins_interrupt_warning"
         case .topup: return "onboarding_top_up_body"
         case .saveUserWallet: return nil
