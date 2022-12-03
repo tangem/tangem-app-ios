@@ -14,7 +14,6 @@ final class UserWalletListViewModel: ObservableObject, Identifiable {
     @Injected(\.failedScanTracker) var failedCardScanTracker: FailedScanTrackable
 
     // MARK: - ViewState
-    @Published var selectedUserWalletId: Data?
     @Published var multiCurrencyModels: [UserWalletListCellViewModel] = []
     @Published var singleCurrencyModels: [UserWalletListCellViewModel] = []
     @Published var isScanningCard = false
@@ -37,13 +36,14 @@ final class UserWalletListViewModel: ObservableObject, Identifiable {
         }
     }
 
-    var isUnlocked: Bool {
-        userWalletRepository.isUnlocked
+    var isLocked: Bool {
+        userWalletRepository.isLocked
     }
 
     private unowned let coordinator: UserWalletListRoutable
     private var bag: Set<AnyCancellable> = []
     private var userWalletIdToBeDeleted: Data?
+    private var selectedUserWalletId: Data?
 
     init(
         coordinator: UserWalletListRoutable
@@ -53,6 +53,8 @@ final class UserWalletListViewModel: ObservableObject, Identifiable {
         Analytics.log(.myWalletsScreenOpened)
         selectedUserWalletId = userWalletRepository.selectedUserWalletId
         updateModels()
+
+        userWalletRepository.delegate = self
 
         bind()
     }
@@ -70,8 +72,8 @@ final class UserWalletListViewModel: ObservableObject, Identifiable {
                     self?.update(userWalletModel: userWalletModel)
                 case .deleted(let userWalletId):
                     self?.delete(userWalletId: userWalletId)
-                case .selected(let userWallet):
-                    self?.setSelectedWallet(userWallet)
+                case .selected(let userWallet, let reason):
+                    self?.setSelectedWallet(userWallet, reason: reason)
                 case .inserted:
                     break
                 }
@@ -108,7 +110,13 @@ final class UserWalletListViewModel: ObservableObject, Identifiable {
             case .onboarding(let input):
                 self.openOnboarding(with: input)
             case .error(let error):
-                self.error = error.alertBinder
+                if let saltPayError = error as? SaltPayRegistratorError {
+                    self.error = saltPayError.alertBinder
+                } else if let userWalletRepositoryError = error as? UserWalletRepositoryError {
+                    self.error = userWalletRepositoryError.alertBinder
+                } else {
+                    self.error = error.alertBinder
+                }
             case .success(let cardModel):
                 self.add(cardModel: cardModel)
             }
@@ -123,15 +131,10 @@ final class UserWalletListViewModel: ObservableObject, Identifiable {
         Analytics.log(.buttonRequestSupport)
         failedCardScanTracker.resetCounter()
 
-        coordinator.dismissUserWalletList()
-
-        let dismissingDelay = 0.6
-        DispatchQueue.main.asyncAfter(deadline: .now() + dismissingDelay) {
-            self.coordinator.openMail(with: self.failedCardScanTracker, emailType: .failedToScanCard, recipient: EmailConfig.default.recipient)
-        }
+        coordinator.openMail(with: failedCardScanTracker, emailType: .failedToScanCard, recipient: EmailConfig.default.recipient)
     }
 
-    func editUserWallet(_ viewModel: UserWalletListCellViewModel) {
+    func edit(_ userWallet: UserWallet) {
         Analytics.log(.buttonEditWalletTapped)
 
         let alert = UIAlertController(title: "user_wallet_list_rename_popup_title".localized, message: nil, preferredStyle: .alert)
@@ -142,7 +145,7 @@ final class UserWalletListViewModel: ObservableObject, Identifiable {
         alert.addTextField { textField in
             nameTextField = textField
             nameTextField?.placeholder = "user_wallet_list_rename_popup_placeholder".localized
-            nameTextField?.text = viewModel.userWallet.name
+            nameTextField?.text = userWallet.name
             nameTextField?.clearButtonMode = .whileEditing
             nameTextField?.autocapitalizationType = .sentences
         }
@@ -150,9 +153,9 @@ final class UserWalletListViewModel: ObservableObject, Identifiable {
         let acceptButton = UIAlertAction(title: "common_ok".localized, style: .default) { [weak self, nameTextField] _ in
             let newName = nameTextField?.text ?? ""
 
-            guard viewModel.userWallet.name != newName else { return }
+            guard userWallet.name != newName else { return }
 
-            var newUserWallet = viewModel.userWallet
+            var newUserWallet = userWallet
             newUserWallet.name = newName
 
             self?.userWalletRepository.save(newUserWallet)
@@ -162,11 +165,11 @@ final class UserWalletListViewModel: ObservableObject, Identifiable {
         UIApplication.modalFromTop(alert)
     }
 
-    func showDeletionConfirmation(_ viewModel: UserWalletListCellViewModel) {
+    func showDeletionConfirmation(_ userWallet: UserWallet) {
         Analytics.log(.buttonDeleteWalletTapped)
 
         showingDeleteConfirmation = true
-        userWalletIdToBeDeleted = viewModel.userWalletId
+        userWalletIdToBeDeleted = userWallet.userWalletId
     }
 
     func didCancelWalletDeletion() {
@@ -182,15 +185,16 @@ final class UserWalletListViewModel: ObservableObject, Identifiable {
         userWalletRepository.delete(viewModel.userWallet)
     }
 
-    private func setSelectedWallet(_ userWallet: UserWallet) {
-        guard let model = userWalletRepository.models.first(where: {
-            $0.userWallet?.userWalletId == userWallet.userWalletId
-        }) else {
-            return
-        }
-
+    private func setSelectedWallet(_ userWallet: UserWallet, reason: UserWalletRepositorySelectionChangeReason) {
         self.selectedUserWalletId = userWallet.userWalletId
         updateSelectedWalletModel()
+
+        switch reason {
+        case .userSelected, .inserted:
+            coordinator.dismiss()
+        case .deleted:
+            break
+        }
     }
 
     private func updateModels() {
@@ -237,12 +241,6 @@ final class UserWalletListViewModel: ObservableObject, Identifiable {
 
         multiCurrencyModels.removeAll { $0.userWalletId == userWalletId }
         singleCurrencyModels.removeAll { $0.userWalletId == userWalletId }
-
-        if userWalletRepository.isEmpty && AppSettings.shared.saveUserWallets {
-            AppSettings.shared.saveUserWallets = false
-            coordinator.dismissUserWalletList()
-            coordinator.popToRoot()
-        }
     }
 
     private func updateSelectedWalletModel() {
@@ -260,8 +258,7 @@ final class UserWalletListViewModel: ObservableObject, Identifiable {
 
     func add(cardModel: CardViewModel) {
         guard
-            let cellModel = cardModel.userWalletModel.map({ mapToUserWalletListCellViewModel(userWalletModel: $0) }),
-            let userWallet = cardModel.userWallet
+            let cellModel = cardModel.userWalletModel.map({ mapToUserWalletListCellViewModel(userWalletModel: $0) })
         else {
             return
         }
@@ -271,8 +268,6 @@ final class UserWalletListViewModel: ObservableObject, Identifiable {
         } else {
             singleCurrencyModels.append(cellModel)
         }
-
-        setSelectedWallet(userWallet)
     }
 
     private func mapToUserWalletListCellViewModel(userWalletModel: UserWalletModel, totalBalanceProvider: TotalBalanceProviding? = nil) -> UserWalletListCellViewModel {
@@ -298,7 +293,17 @@ final class UserWalletListViewModel: ObservableObject, Identifiable {
             if userWallet.isLocked {
                 Analytics.log(.walletUnlockTapped)
             }
-            self?.userWalletRepository.setSelectedUserWalletId(userWallet.userWalletId)
+            self?.userWalletRepository.setSelectedUserWalletId(userWallet.userWalletId, reason: .userSelected)
+        } didEditUserWallet: { [weak self] in
+            self?.edit(userWallet)
+        } didDeleteUserWallet: { [weak self] in
+            self?.showDeletionConfirmation(userWallet)
         }
+    }
+}
+
+extension UserWalletListViewModel: UserWalletRepositoryDelegate {
+    func showTOS(at url: URL, _ completion: @escaping (Bool) -> Void) {
+        coordinator.openDisclaimer(at: url, completion)
     }
 }
