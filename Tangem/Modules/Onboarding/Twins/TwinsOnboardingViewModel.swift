@@ -14,7 +14,6 @@ class TwinsOnboardingViewModel: OnboardingTopupViewModel<TwinsOnboardingStep, On
 
     @Published var firstTwinImage: Image?
     @Published var secondTwinImage: Image?
-    @Published var pairNumber: String
     @Published var currentCardIndex: Int = 0
     @Published var displayTwinImages: Bool = false
     @Published var alertAccepted: Bool = false
@@ -136,7 +135,6 @@ class TwinsOnboardingViewModel: OnboardingTopupViewModel<TwinsOnboardingStep, On
         let cardModel = input.cardInput.cardModel!
         let twinData = input.twinData!
 
-        self.pairNumber = "\(twinData.series.pair.number)"
         self.twinData = twinData
         self.twinsService = .init(card: cardModel, twinData: twinData)
         self.originalUserWallet = cardModel.userWallet
