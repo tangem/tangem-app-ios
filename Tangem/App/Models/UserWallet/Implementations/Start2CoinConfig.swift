@@ -126,7 +126,7 @@ extension Start2CoinConfig: UserWalletConfig {
     }
 
     var persistentBlockchains: [StorageEntry]? {
-        return nil
+        return defaultBlockchains
     }
 
     var embeddedBlockchain: StorageEntry? {
@@ -192,6 +192,8 @@ extension Start2CoinConfig: UserWalletConfig {
         case .topup:
             return .available
         case .tokenSynchronization:
+            return .hidden
+        case .referralProgram:
             return .hidden
         }
     }
