@@ -63,7 +63,7 @@ enum EmailType {
     }
 
     func failedToSendAlertMessage(_ error: Error?) -> String {
-        String(format: "alert_failed_to_send_email_message".localized, error?.localizedDescription ?? "Unknown error")
+        String(format: "alert_failed_to_send_transaction_message".localized, error?.localizedDescription ?? "Unknown error")
     }
 
 }
