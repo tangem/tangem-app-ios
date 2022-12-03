@@ -60,7 +60,10 @@ private extension CardSettingsViewModel {
     func bind() {
         cardModel.$currentSecurityOption
             .map { $0.titleForDetails }
-            .weakAssign(to: \.securityModeTitle, on: self)
+            .sink(receiveValue: { [weak self] newMode in
+                self?.securityModeTitle = newMode
+                self?.setupSecurityOptions()
+            })
             .store(in: &bag)
     }
 
@@ -78,6 +81,17 @@ private extension CardSettingsViewModel {
                                 detailsType: .text("details_row_subtitle_signed_hashes_format".localized("\(cardModel.cardSignedHashes)"))),
         ]
 
+        setupSecurityOptions()
+
+        if isResetToFactoryAvailable {
+            resetToFactoryViewModel = DefaultRowViewModel(
+                title: "card_settings_reset_card_to_factory".localized,
+                action: openResetCard
+            )
+        }
+    }
+
+    private func setupSecurityOptions() {
         securityModeSection = [DefaultRowViewModel(
             title: "card_settings_security_mode".localized,
             detailsType: .text(securityModeTitle),
@@ -91,13 +105,6 @@ private extension CardSettingsViewModel {
                     detailsType: isChangeAccessCodeLoading ? .loader : .none,
                     action: openChangeAccessCodeWarningView
                 )
-            )
-        }
-
-        if isResetToFactoryAvailable {
-            resetToFactoryViewModel = DefaultRowViewModel(
-                title: "card_settings_reset_card_to_factory".localized,
-                action: openResetCard
             )
         }
     }
@@ -141,9 +148,11 @@ extension CardSettingsViewModel {
     func openChangeAccessCodeWarningView() {
         Analytics.log(.buttonChangeUserCode)
         isChangeAccessCodeLoading = true
+        setupSecurityOptions()
         cardModel.changeSecurityOption(.accessCode) { [weak self] result in
             DispatchQueue.main.async {
                 self?.isChangeAccessCodeLoading = false
+                self?.setupSecurityOptions()
             }
         }
     }
