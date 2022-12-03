@@ -27,6 +27,7 @@ struct UserWalletStorageAgreementView: View {
                 Text("save_user_wallet_agreement_header".localized(BiometricAuthorizationUtils.biometryType.name))
                     .style(Fonts.Bold.title1, color: Colors.Text.primary1)
                     .multilineTextAlignment(.center)
+                    .fixedSize(horizontal: false, vertical: true)
 
                 FlexibleSpacer(maxHeight: 28)
 
