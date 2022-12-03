@@ -259,8 +259,7 @@ Fee: %@
 Total: %@
 Balance: %@";
 "wallet_connect_create_tx_not_enough_funds" = "Can't send transaction. Not enough funds.";
-"wallet_connect_error_failed_to_connect" = "Failed to establish WalletConnect session.
-Please, try again later.";
+"wallet_connect_error_failed_to_connect" = "Failed to establish WalletConnect session. Please, try again later.";
 "wallet_connect_error_sing_failed" = "Failed to sign message.
 Please, try again";
 "wallet_connect_error_timeout" = "Failed to establish WalletConnect session: timeout error. Please, try again later.";
