@@ -11,7 +11,7 @@
 "alert_button_try_again" = "Try again";
 "alert_card_signed_transactions" = "Cette carte a déjà été rechargée et a signé des transactions avant. Envisagez la possibilité de retirer tous les fonds immédiatement si vous avez reçu cette carte d'une source non fiable.";
 "alert_developer_card" = "La carte que vous avez scannée est une carte de développement. Ne l'acceptez pas comme paiement.";
-"alert_failed_to_send_email_message" = "Reason: %@";
+"alert_failed_to_send_transaction_message" = "Reason: %@";
 "alert_failed_to_send_email_title" = "Failed to send email";
 "feedback_subject_tx_failed" = "Can't send a transaction";
 "alert_negative_app_rate_sent_message" = "Thank your for your feedback. We will response as soon as possible";
