@@ -268,7 +268,7 @@ Please, try again";
 "wallet_connect_no_sessions_message" = "No opened WalletConnect sessions";
 "wallet_connect_no_sessions_title" = "Ooops. No Sessions.";
 "wallet_connect_paste_from_clipboard" = "Paste from clipboard";
-"wallet_connect_personal_sign_message" = "Message for %@:\n";
+"wallet_connect_personal_sign_message" = "Message for %@:\n%@";
 "wallet_connect_request_session_start" = "Request to start a session for
 %@
 
