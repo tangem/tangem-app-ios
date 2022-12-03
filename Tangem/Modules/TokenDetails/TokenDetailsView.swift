@@ -148,7 +148,7 @@ struct TokenDetailsView: View {
     @ViewBuilder
     private var trailingButton: some View {
         Button(action: viewModel.onRemove) {
-            Text("wallet_hide_token")
+            Text("token_details_hide_token")
                 .foregroundColor(.tangemGrayDark6)
                 .font(.system(size: 17))
         }
