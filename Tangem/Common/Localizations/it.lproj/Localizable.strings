@@ -224,7 +224,6 @@ Tangem is the only hardware wallet to offer signature count protection.";
 "wallet_balance_tx_in_progress" = "Transazione in corso…";
 "wallet_balance_verified" = "Saldo verificato";
 "wallet_button_create_wallet" = "Crea portafoglio";
-"wallet_button_scan" = "Scansiona";
 "wallet_button_sell" = "Sell";
 "wallet_button_send" = "Invia";
 "wallet_button_buy" = "Compra";
