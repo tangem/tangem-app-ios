@@ -63,6 +63,7 @@ class SingleWalletContentViewModel: ObservableObject {
     private let cardModel: CardViewModel
     private let userWalletModel: UserWalletModel
     private unowned let output: SingleWalletContentViewModelOutput
+    private var refreshed: Bool = false
     private var bag = Set<AnyCancellable>()
     private var totalBalanceCardSupportInfo: TotalBalanceCardSupportInfo {
         TotalBalanceCardSupportInfo(cardBatchId: cardModel.batchId, cardNumber: cardModel.cardId)
@@ -88,8 +89,11 @@ class SingleWalletContentViewModel: ObservableObject {
     }
 
     func onAppear() {
-        userWalletModel.updateAndReloadWalletModels()
-        singleWalletModel = userWalletModel.getWalletModels().first
+        if !refreshed {
+            userWalletModel.updateAndReloadWalletModels()
+            singleWalletModel = userWalletModel.getWalletModels().first
+            refreshed = true
+        }
     }
 
     func openQR() {
@@ -127,8 +131,8 @@ class SingleWalletContentViewModel: ObservableObject {
             }
             .switchToLatest()
             .receive(on: DispatchQueue.main)
-            .sink { [unowned self] walletModels in
-                singleWalletModel = walletModels.first
+            .sink { [weak self] walletModels in
+                self?.singleWalletModel = walletModels.first
             }
             .store(in: &bag)
 
