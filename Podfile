@@ -6,11 +6,11 @@ use_frameworks!
 inhibit_all_warnings!
 
 def common_pods
-   pod 'TangemSdk', :git => 'https://github.com/Tangem/tangem-sdk-ios.git', :tag => 'develop-188'
-   #pod 'TangemSdk', :path => '../tangem-sdk-ios'
+#   pod 'TangemSdk', :git => 'https://github.com/Tangem/tangem-sdk-ios.git', :tag => 'develop-188'
+   pod 'TangemSdk', :path => '../tangem-sdk-ios'
 
-   pod 'BlockchainSdk', :git => 'https://github.com/tangem/blockchain-sdk-swift.git', :tag => 'develop-177'
-   #  pod 'BlockchainSdk', :path => '../blockchain-sdk-swift'
+#   pod 'BlockchainSdk', :git => 'https://github.com/tangem/blockchain-sdk-swift.git', :tag => 'develop-177'
+     pod 'BlockchainSdk', :path => '../blockchain-sdk-swift'
 end
 
 target 'TangemExchange' do 
