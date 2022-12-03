@@ -52,6 +52,12 @@ class AppCoordinator: NSObject, CoordinatorObject {
         }
     }
 
+    private func restart(with options: AppCoordinator.Options = .default) {
+        welcomeCoordinator = nil
+        authCoordinator = nil
+        start(with: options)
+    }
+
     private func setupWelcome(with options: AppCoordinator.Options) {
         let dismissAction = { [weak self] in
             self?.welcomeCoordinator = nil
@@ -59,12 +65,16 @@ class AppCoordinator: NSObject, CoordinatorObject {
         }
 
         let popToRootAction: ParamsAction<PopToRootOptions> = { [weak self] options in
-            self?.welcomeCoordinator = nil
-            self?.start(with: .init(connectionOptions: nil, newScan: options.newScan))
+            self?.closeAllSheetsIfNeeded(animated: true) {
+                self?.welcomeCoordinator = nil
+                self?.start(with: .init(connectionOptions: nil, newScan: options.newScan))
+            }
         }
 
+        let shouldScan = options.newScan ?? false
+
         let coordinator = WelcomeCoordinator(dismissAction: dismissAction, popToRootAction: popToRootAction)
-        coordinator.start(with: .init(shouldScan: options.newScan))
+        coordinator.start(with: .init(shouldScan: shouldScan))
         self.welcomeCoordinator = coordinator
     }
 
@@ -75,12 +85,16 @@ class AppCoordinator: NSObject, CoordinatorObject {
         }
 
         let popToRootAction: ParamsAction<PopToRootOptions> = { [weak self] options in
-            self?.authCoordinator = nil
-            self?.start(with: .init(connectionOptions: nil, newScan: options.newScan))
+            self?.closeAllSheetsIfNeeded(animated: true) {
+                self?.authCoordinator = nil
+                self?.start(with: .init(connectionOptions: nil, newScan: options.newScan))
+            }
         }
 
+        let unlockOnStart = options.newScan ?? true
+
         let coordinator = AuthCoordinator(dismissAction: dismissAction, popToRootAction: popToRootAction)
-        coordinator.start()
+        coordinator.start(with: .init(unlockOnStart: unlockOnStart))
         self.authCoordinator = coordinator
     }
 
@@ -99,24 +113,58 @@ class AppCoordinator: NSObject, CoordinatorObject {
         userWalletRepository
             .eventProvider
             .sink { [weak self] event in
-                if case .locked = event {
-                    self?.handleLock()
+                if case .locked(let reason) = event {
+                    self?.handleLock(reason: reason)
                 }
             }
             .store(in: &bag)
     }
 
-    private func handleLock() {
-        welcomeCoordinator = nil
-        authCoordinator = nil
-        start()
+    private func handleLock(reason: UserWalletRepositoryLockReason) {
+        let animated: Bool
+        let newScan: Bool
+
+        switch reason {
+        case .loggedOut:
+            animated = false
+            newScan = true
+        case .nothingToDisplay:
+            animated = true
+            newScan = false
+        }
+
+        let options = AppCoordinator.Options(connectionOptions: nil, newScan: newScan)
+
+        closeAllSheetsIfNeeded(animated: animated) {
+            if animated {
+                self.restart(with: options)
+            } else {
+                UIApplication.performWithoutAnimations {
+                    self.restart(with: options)
+                }
+            }
+        }
+    }
+
+    private func closeAllSheetsIfNeeded(animated: Bool, completion: @escaping () -> Void = { }) {
+        guard let topViewController = UIApplication.topViewController,
+              topViewController.presentingViewController != nil else {
+            DispatchQueue.main.async {
+                completion()
+            }
+            return
+        }
+
+        topViewController.dismiss(animated: animated) {
+            self.closeAllSheetsIfNeeded(animated: animated, completion: completion)
+        }
     }
 }
 
 extension AppCoordinator {
     struct Options {
         let connectionOptions: UIScene.ConnectionOptions?
-        let newScan: Bool
+        let newScan: Bool?
 
         static let `default`: Options = .init(connectionOptions: nil, newScan: false)
     }
