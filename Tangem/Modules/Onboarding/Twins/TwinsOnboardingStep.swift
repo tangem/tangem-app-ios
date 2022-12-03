@@ -140,9 +140,8 @@ extension TwinsOnboardingStep: OnboardingMessagesProvider {
         switch self {
         case .welcome: return WelcomeStep.welcome.title
         case .intro: return "twins_onboarding_subtitle"
-        case .first: return "onboarding_title_twin_first_card"
-        case .second: return "onboarding_title_twin_second_card"
-        case .third: return "onboarding_title_twin_first_card"
+        case .first, .third: return LocalizedStringKey(stringLiteral: "twins_recreate_title_format".localized("1"))
+        case .second: return LocalizedStringKey(stringLiteral: "twins_recreate_title_format".localized("2"))
         case .topup: return "onboarding_topup_title"
         case .done: return "onboarding_confetti_title"
         case .saveUserWallet: return nil
