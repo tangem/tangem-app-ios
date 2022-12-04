@@ -79,7 +79,6 @@ Tangem is the only hardware wallet to offer signature count protection.";
 "details_manage_security_long_tap_description" = "This mechanism protects against proximity attacks on a card. It will enforce a delay between reception and execution of a command. ";
 "details_manage_security_passcode" = "Passcode";
 "details_manage_security_passcode_description" = "Before execution any command entailing a change of the card state, you will have to enter the passcode.";
-"details_manage_security_title" = "Security Mode";
 "details_row_subtitle_signed_hashes_format" = "%@ hashes";
 "details_row_title_cid" = "Card ID";
 "details_row_title_create_backup" = "Link More Cards";
