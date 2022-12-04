@@ -36,7 +36,7 @@ struct SuccessSwappingView: View {
 
     private var infoView: some View {
         VStack(spacing: 14) {
-            Text("swapping_success".localized)
+            Text("common_success".localized)
                 .style(Fonts.Bold.title1, color: Colors.Text.primary1)
 
             VStack(spacing: 0) {
