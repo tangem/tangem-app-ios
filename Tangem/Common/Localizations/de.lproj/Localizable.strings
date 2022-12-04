@@ -389,7 +389,7 @@ URL: %@";
 "scan_card_settings_message" = "Scan the card to change its settings. The changes will impact only the card you've scanned and will not affect other cards tied to your wallet.";
 "card_settings_reset_card_delete_wallet_warning" = "Do you want to delete this card from the list of saved wallets?";
 "scan_card_settings_button" = "Scan Card";
-"app_settings_title" = "App settings";
+"app_settings_title" = "App Settings";
 "app_settings_warning_title" = "Enable biometric authentication";
 "app_settings_warning_subtitle" = "Go to settings to enable biometric authentication in the Tangem app";
 "app_settings_saved_wallet" = "Keep the wallet in the app";
