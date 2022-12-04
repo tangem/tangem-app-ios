@@ -17,7 +17,7 @@ struct SwappingFeeRowView: View {
 
     var body: some View {
         HStack {
-            Text("swapping_fee".localized)
+            Text("send_fee_label".localized)
                 .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
 
             Spacer()
