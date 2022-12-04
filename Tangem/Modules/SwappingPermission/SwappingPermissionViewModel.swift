@@ -62,7 +62,7 @@ private extension SwappingPermissionViewModel {
                                 detailsType: .text(yourWalletAddress)),
             DefaultRowViewModel(title: "swapping_permission_rows_spender".localized,
                                 detailsType: .text(spenderWalletAddress)),
-            DefaultRowViewModel(title: "swapping_permission_rows_fee".localized,
+            DefaultRowViewModel(title: "send_fee_label".localized,
                                 detailsType: .text(fee.currencyFormatted(code: AppSettings.shared.selectedCurrencyCode))),
         ]
     }
