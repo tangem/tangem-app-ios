@@ -58,7 +58,7 @@ class WalletOnboardingViewModel: OnboardingTopupViewModel<WalletOnboardingStep, 
             return ""
         case .backupCards:
             switch backupServiceState {
-            case .finalizingPrimaryCard: return isSaltPayOnboarding ? "onboarding_saltpay_title_prepare_origin" : "onboarding_title_prepare_origin"
+            case .finalizingPrimaryCard: return isSaltPayOnboarding ? "onboarding_saltpay_title_prepare_origin" : "common_origin_card"
             case .finalizingBackupCard(let index): return isSaltPayOnboarding ? "onboarding_saltpay_title_backup_card" : LocalizedStringKey(stringLiteral: "onboarding_title_backup_card_format".localized(index))
             default: break
             }
