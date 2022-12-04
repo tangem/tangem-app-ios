@@ -21,7 +21,7 @@ struct SecurityModeView: View {
             actionButton
         }
         .alert(item: $viewModel.error) { $0.alert }
-        .navigationBarTitle("details_manage_security_title", displayMode: .inline)
+        .navigationBarTitle("card_settings_security_mode", displayMode: .inline)
     }
 
     private var list: some View {
