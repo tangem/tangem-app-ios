@@ -43,7 +43,7 @@ enum WalletOnboardingStep: Equatable {
         case .kycStart, .kycProgress, .kycWaiting, .kycRetry:
             return "onboarding_navbar_kyc_progress"
         case .claim, .successClaim:
-            return "onboarding_navbar_claim"
+            return "onboarding_getting_started"
         }
     }
 
