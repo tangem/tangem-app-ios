@@ -472,7 +472,6 @@ URL: %@";
 "onboarding_saltpay_button_backup_origin" = "Приложите SaltPay карту";
 "onboarding_saltpay_title_backup_card" = "Приложите Tangem карту";
 "onboarding_chat_button_title" = "Чат";
-"onboarding_navbar_claim" = "Начало работы";
 "onboarding_title_claim" = "Запросить %@";
 "onboarding_subtitle_claim" = "Для начала работы просто запросите начисление xDai на свой кошелек";
 "onboarding_button_claim" = "Запросить";
