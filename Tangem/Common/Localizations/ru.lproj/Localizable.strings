@@ -151,7 +151,6 @@ Tangem — единственный аппаратный кошелек, пре�
 "onboarding_title_backup_card_format" = "Резервная карта #%d";
 "onboarding_title_no_backup_cards" = "Нет резервных карт";
 "onboarding_title_one_backup_card" = "Добавлена ​​одна резервная карта";
-"onboarding_title_prepare_origin" = "Основная карта";
 "onboarding_title_scan_origin_card" = "Подготовьте свою карту";
 "twins_recreate_title_format" = "Отсканируйте twin-карту #%@";
 "onboarding_title_two_backup_cards" = "Добавлены две резервные карты";
