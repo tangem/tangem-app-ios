@@ -19,6 +19,26 @@ struct UserWalletListCellView: View {
     private let selectionIconBorderWidth: Double = 2
 
     var body: some View {
+        if #available(iOS 15.0, *) {
+            content
+                .listRowInsets(EdgeInsets())
+                .swipeActions {
+                    Button("common_delete") { [weak viewModel] in
+                        viewModel?.delete()
+                    }
+                    .tint(.red)
+
+                    Button("user_wallet_list_rename") { [weak viewModel] in
+                        viewModel?.edit()
+                    }
+                    .tint(Colors.Icon.informative)
+                }
+        } else {
+            content
+        }
+    }
+
+    private var content: some View {
         HStack(spacing: 12) {
             cardImage
                 .overlay(selectionIcon.offset(x: 4, y: -4), alignment: .topTrailing)
@@ -65,6 +85,30 @@ struct UserWalletListCellView: View {
             viewModel.didTapUserWallet()
         }
         .onAppear(perform: viewModel.onAppear)
+        .contextMenu {
+            Button {
+                viewModel.edit()
+            } label: {
+                HStack {
+                    Text("user_wallet_list_rename")
+                    Image(systemName: "pencil")
+                }
+            }
+
+            if #available(iOS 15, *) {
+                Button(role: .destructive) {
+                    viewModel.delete()
+                } label: {
+                    deleteButtonLabel
+                }
+            } else {
+                Button {
+                    viewModel.delete()
+                } label: {
+                    deleteButtonLabel
+                }
+            }
+        }
     }
 
     @ViewBuilder
@@ -105,5 +149,13 @@ struct UserWalletListCellView: View {
             .padding(.vertical, 7)
             .background(Colors.Background.secondary)
             .cornerRadius(10)
+    }
+
+    @ViewBuilder
+    private var deleteButtonLabel: some View {
+        HStack {
+            Text("common_delete")
+            Image(systemName: "trash")
+        }
     }
 }
