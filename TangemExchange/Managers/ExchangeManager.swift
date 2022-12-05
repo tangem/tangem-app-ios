@@ -30,10 +30,4 @@ public protocol ExchangeManager {
     /// Checking that decimal value available for exchange without approved
     /// Only for tokens
     func isAvailableForExchange() -> Bool
-
-    /// Approve and swap items
-    func approveAndSwapItems()
-
-    /// User request swap items
-    func swapItems()
 }
