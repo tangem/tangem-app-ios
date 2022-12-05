@@ -38,8 +38,8 @@ struct TokenIconView: View {
 
     @ViewBuilder
     private var networkIcon: some View {
-        if let name = viewModel.blockchainIconName {
-            NetworkIcon(imageName: name,
+        if let iconName = viewModel.blockchainIconName {
+            NetworkIcon(imageName: iconName,
                         isMainIndicatorVisible: false,
                         size: networkIconSize)
                 .background(
