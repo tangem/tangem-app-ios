@@ -9,11 +9,6 @@
 import Foundation
 import Combine
 
-enum ExchangeManagerErrors: Error {
-    case notCorrectData
-    case walletAddressNotFound
-}
-
 class DefaultExchangeManager<TxBuilder: TransactionBuilder> {
     // MARK: - Dependencies
 
@@ -124,6 +119,10 @@ extension DefaultExchangeManager: ExchangeManager {
     func update(amount: Decimal?) {
         self.amount = amount
         amountDidChange()
+    }
+
+    func refresh() {
+        refreshValues(silent: true)
     }
 }
 
@@ -236,10 +235,11 @@ private extension DefaultExchangeManager {
         }
 
         do {
-            tokenExchangeAllowanceLimit = try await exchangeProvider.fetchExchangeAmountAllowance(
+            tokenExchangeAllowanceLimit = try await exchangeProvider.fetchAmountAllowance(
                 for: exchangeItems.source,
                 walletAddress: walletAddress
             )
+            tokenExchangeAllowanceLimit = nil
         } catch {
             tokenExchangeAllowanceLimit = nil
             updateState(.requiredRefresh(occurredError: error))
@@ -256,7 +256,7 @@ private extension DefaultExchangeManager {
     }
 
     func getExchangeApprovedDataModel() async throws -> ExchangeApprovedDataModel {
-        return try await exchangeProvider.approveTxData(for: exchangeItems.source)
+        return try await exchangeProvider.fetchApproveExchangeData(for: exchangeItems.source)
     }
 
     func getExchangeTxDataModel() async throws -> ExchangeDataModel {
@@ -265,7 +265,7 @@ private extension DefaultExchangeManager {
             throw ExchangeManagerErrors.walletAddressNotFound
         }
 
-        return try await exchangeProvider.fetchTxDataForExchange(
+        return try await exchangeProvider.fetchExchangeData(
             items: exchangeItems,
             walletAddress: walletAddress,
             amount: formattedAmount
@@ -351,15 +351,5 @@ private extension DefaultExchangeManager {
 
     func gas(from value: Decimal, price: Decimal, decimalCount: Int) -> Decimal {
         value * price / Decimal(decimalCount)
-    }
-}
-
-private extension Int {
-    var asLongNumber: Int {
-        (0 ..< self).reduce(1) { number, _ in number * 10 }
-    }
-
-    var decimal: Decimal {
-        Decimal(integerLiteral: self)
     }
 }
