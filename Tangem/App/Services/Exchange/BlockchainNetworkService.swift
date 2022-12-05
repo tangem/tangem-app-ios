@@ -138,7 +138,7 @@ private extension BlockchainNetworkService {
     }
 
     func getFiatBalanceThroughAddToWalletModel(currency: Currency, amount: Decimal) async throws -> Decimal {
-        let id: String = currency.isToken ? currency.blockchain.networkId : currency.id
+        let id: String = currency.isToken ? currency.id : currency.blockchain.networkId
         var currencyRate: Decimal? = rates[id]
 
         if currencyRate == nil {
