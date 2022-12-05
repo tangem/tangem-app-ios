@@ -34,17 +34,11 @@ struct SwappingFeeRowView: View {
 
 struct SwappingFeeRowView_Previews: PreviewProvider {
     static let viewModel = SwappingFeeRowViewModel(
-        fee: "0.0000000000155",
-        tokenSymbol: "MATIC",
-        fiatValue: "$0.14",
-        isLoading: false
+        state: .fee(fee: "0.0000000000155", symbol: "MATIC", fiat: "$0.14")
     )
 
     static let loadingViewModel = SwappingFeeRowViewModel(
-        fee: "0.0000000000155",
-        tokenSymbol: "MATIC",
-        fiatValue: "$0.14",
-        isLoading: true
+        state: .loading
     )
 
     static var previews: some View {
