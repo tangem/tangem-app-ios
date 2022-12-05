@@ -39,7 +39,7 @@ struct SwappingFeeRowView_Previews: PreviewProvider {
         fiatValue: "$0.14",
         isLoading: false
     )
-    
+
     static let loadingViewModel = SwappingFeeRowViewModel(
         fee: "0.0000000000155",
         tokenSymbol: "MATIC",
