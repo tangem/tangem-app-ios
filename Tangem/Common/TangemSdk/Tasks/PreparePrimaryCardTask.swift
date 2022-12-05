@@ -10,7 +10,7 @@ import TangemSdk
 import BlockchainSdk
 
 class PreparePrimaryCardTask: CardSessionRunnable {
-    let allowsAccessCodeFromRepository = false
+    var allowsAccessCodeFromRepository: Bool { false }
 
     private var linkingCommand: StartPrimaryCardLinkingTask? = nil
 
