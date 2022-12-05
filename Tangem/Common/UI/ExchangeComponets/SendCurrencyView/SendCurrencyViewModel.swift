@@ -10,7 +10,12 @@ import Foundation
 
 struct SendCurrencyViewModel: Identifiable {
     var id: Int { hashValue }
-    let tokenIcon: TokenIconViewModel
+
+    // ViewState
+    private(set) var isLockedVisible: Bool
+    private(set) var maximumFractionDigits: Int
+
+    let tokenIcon: SwappingTokenIconViewModel
 
     var balanceString: String {
         "common_balance".localized(balance.groupedFormatted())
@@ -20,19 +25,21 @@ struct SendCurrencyViewModel: Identifiable {
         fiatValue.currencyFormatted(code: AppSettings.shared.selectedCurrencyCode)
     }
 
+    // Private
     private let balance: Decimal
-    private(set) var maximumFractionDigits: Int
     private var fiatValue: Decimal
 
     init(
         balance: Decimal,
         maximumFractionDigits: Int,
         fiatValue: Decimal,
-        tokenIcon: TokenIconViewModel
+        isLockedVisible: Bool = false,
+        tokenIcon: SwappingTokenIconViewModel
     ) {
         self.balance = balance
         self.maximumFractionDigits = maximumFractionDigits
         self.fiatValue = fiatValue
+        self.isLockedVisible = isLockedVisible
         self.tokenIcon = tokenIcon
     }
 
@@ -42,6 +49,10 @@ struct SendCurrencyViewModel: Identifiable {
 
     mutating func update(maximumFractionDigits: Int) {
         self.maximumFractionDigits = maximumFractionDigits
+    }
+
+    mutating func update(isLockedVisible: Bool) {
+        self.isLockedVisible = isLockedVisible
     }
 }
 
