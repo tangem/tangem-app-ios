@@ -154,7 +154,7 @@ class TokenDetailsViewModel: ObservableObject {
     }
 
     var swappingIsAvailable: Bool {
-        FeatureProvider.isAvailable(.exchange) && amountType.isToken
+        FeatureProvider.isAvailable(.exchange) && isAvailableForSwapping()
     }
 
     @Published var solanaRentWarning: String? = nil
@@ -468,6 +468,12 @@ extension TokenDetailsViewModel {
 // MARK: - Swapping preparing
 
 private extension TokenDetailsViewModel {
+    func isAvailableForSwapping() -> Bool {
+        ExchangeManagerUtil().networkIsAvailableForExchange(
+            networkId: blockchainNetwork.blockchain.codingKey
+        )
+    }
+
     func sourceCurrency() -> Currency? {
         let blockchain = blockchainNetwork.blockchain
 
@@ -478,28 +484,10 @@ private extension TokenDetailsViewModel {
 
         switch amountType {
         case .coin, .reserve:
-            return Currency(
-                id: blockchain.id,
-                blockchain: exchangeBlockchain,
-                name: blockchain.displayName,
-                symbol: blockchain.currencySymbol,
-                decimalCount: blockchain.decimalCount,
-                currencyType: .coin
-            )
-        case .token(let token):
-            guard let id = token.id else {
-                assertionFailure("Token don't have id")
-                return nil
-            }
+            return coinCurrency(exchangeBlockchain: exchangeBlockchain)
 
-            return Currency(
-                id: id,
-                blockchain: exchangeBlockchain,
-                name: token.name,
-                symbol: token.symbol,
-                decimalCount: token.decimalCount,
-                currencyType: .token(contractAddress: token.contractAddress)
-            )
+        case .token(let token):
+            return tokenCurrency(token: token, exchangeBlockchain: exchangeBlockchain)
         }
     }
 
@@ -513,18 +501,44 @@ private extension TokenDetailsViewModel {
 
         switch amountType {
         case .coin, .reserve:
+            if let token = walletModel?.getTokens().first {
+                return tokenCurrency(token: token, exchangeBlockchain: exchangeBlockchain)
+            }
+
             assertionFailure("[REDACTED_TODO_COMMENT]")
             return nil
 
         case .token:
-            return Currency(
-                id: blockchain.id,
-                blockchain: exchangeBlockchain,
-                name: blockchain.displayName,
-                symbol: blockchain.currencySymbol,
-                decimalCount: blockchain.decimalCount,
-                currencyType: .coin
-            )
+            return coinCurrency(exchangeBlockchain: exchangeBlockchain)
         }
+    }
+
+    func coinCurrency(exchangeBlockchain: ExchangeBlockchain) -> Currency? {
+        let blockchain = blockchainNetwork.blockchain
+
+        return Currency(
+            id: blockchain.id,
+            blockchain: exchangeBlockchain,
+            name: blockchain.displayName,
+            symbol: blockchain.currencySymbol,
+            decimalCount: blockchain.decimalCount,
+            currencyType: .coin
+        )
+    }
+
+    func tokenCurrency(token: Token, exchangeBlockchain: ExchangeBlockchain) -> Currency? {
+        guard let id = token.id else {
+            assertionFailure("Token not have id")
+            return nil
+        }
+
+        return Currency(
+            id: id,
+            blockchain: exchangeBlockchain,
+            name: token.name,
+            symbol: token.symbol,
+            decimalCount: token.decimalCount,
+            currencyType: .token(contractAddress: token.contractAddress)
+        )
     }
 }
