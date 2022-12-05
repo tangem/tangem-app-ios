@@ -104,7 +104,7 @@ extension SingleCardOnboardingStep: OnboardingMessagesProvider {
         case .createWallet: return "onboarding_create_wallet_button_create_wallet"
         case .topup: return "onboarding_topup_title"
         case .saveUserWallet: return nil
-        case .successTopup: return "onboarding_confetti_title"
+        case .successTopup: return "onboarding_done_header"
         case .success: return successTitle
         }
     }
