@@ -143,7 +143,7 @@ extension TwinsOnboardingStep: OnboardingMessagesProvider {
         case .first, .third: return LocalizedStringKey(stringLiteral: "twins_recreate_title_format".localized("1"))
         case .second: return LocalizedStringKey(stringLiteral: "twins_recreate_title_format".localized("2"))
         case .topup: return "onboarding_topup_title"
-        case .done: return "onboarding_confetti_title"
+        case .done: return "onboarding_done_header"
         case .saveUserWallet: return nil
         case .success: return successTitle
         case .alert: return "common_warning"
