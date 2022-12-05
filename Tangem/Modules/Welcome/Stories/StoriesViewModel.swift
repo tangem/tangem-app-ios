@@ -26,14 +26,12 @@ class StoriesViewModel: ObservableObject {
 
     func onAppear() {
         NotificationCenter.default.publisher(for: UIApplication.willResignActiveNotification)
-            .dropFirst()
             .sink { [weak self] _ in
                 self?.pauseTimer()
             }
             .store(in: &bag)
 
         NotificationCenter.default.publisher(for: UIApplication.didBecomeActiveNotification)
-            .dropFirst()
             .sink { [weak self] _ in
                 self?.resumeTimer()
             }
@@ -92,10 +90,10 @@ class StoriesViewModel: ObservableObject {
 
         longTapTimerSubscription = Timer.publish(every: longTapDuration, on: RunLoop.main, in: .default)
             .autoconnect()
-            .sink { [unowned self] _ in
-                self.currentDragLocation = nil
-                self.longTapTimerSubscription = nil
-                self.longTapDetected = true
+            .sink { [weak self] _ in
+                self?.currentDragLocation = nil
+                self?.longTapTimerSubscription = nil
+                self?.longTapDetected = true
             }
     }
 
@@ -168,9 +166,9 @@ class StoriesViewModel: ObservableObject {
 
         timerSubscription = Timer.publish(every: remainingStoryDuration, on: .main, in: .default)
             .autoconnect()
-            .sink { [unowned self] _ in
-                self.timerSubscription = nil
-                self.move(forward: true)
+            .sink { [weak self] _ in
+                self?.timerSubscription = nil
+                self?.move(forward: true)
             }
     }
 }
