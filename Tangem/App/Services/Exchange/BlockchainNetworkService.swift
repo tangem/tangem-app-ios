@@ -150,7 +150,7 @@ private extension BlockchainNetworkService {
             throw CommonError.noData
         }
 
-        rates.updateValue(currencyRate, forKey: currency.id)
+        rates[currency.id] = currencyRate
         let fiatValue = amount * currencyRate
         if fiatValue == 0 {
             return 0
