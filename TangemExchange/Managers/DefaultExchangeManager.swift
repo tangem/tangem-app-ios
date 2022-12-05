@@ -139,6 +139,10 @@ private extension DefaultExchangeManager {
     func exchangeItemsDidChange() {
         /// Set nil for previous token
         tokenExchangeAllowanceLimit = nil
+        updateSourceBalances()
+
+        guard (amount ?? 0) > 0 else { return }
+
         restartTimer()
         refreshValues(silent: false)
     }
