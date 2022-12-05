@@ -53,14 +53,17 @@ class MainCoordinator: CoordinatorObject {
                 guard let self else { return }
 
                 switch event {
-                case .selected:
-                    if let selectedModel = self.userWalletRepository.selectedModel {
-                        let options = Options(cardModel: selectedModel, shouldRefreshOnAppear: false)
-                        DispatchQueue.main.async { // fix ios13 freeze
-                            self.start(with: options)
-                        }
+                case .selected(let userWallet, _):
+                    guard !userWallet.isLocked,
+                          let selectedModel = self.userWalletRepository.selectedModel
+                    else {
+                        return
                     }
 
+                    let options = Options(cardModel: selectedModel, shouldRefreshOnAppear: false)
+                    DispatchQueue.main.async { // fix ios13 freeze
+                        self.start(with: options)
+                    }
                 case .inserted(let userWallet):
                     self.lastInsertedUserWalletId = userWallet.userWalletId
                 default:
@@ -273,6 +276,7 @@ extension MainCoordinator: MainRoutable {
         userWalletListCoordinator = coordinator
     }
 
+    /// Because `MainRoutable` inherits `TokenDetailsRoutable`. Todo: Remove it dependency
     func openSwapping(input: SwappingConfigurator.InputModel) {}
 }
 
