@@ -13,18 +13,15 @@ public struct ExchangeItems {
     public let destination: Currency
 
     public var sourceBalance: CurrencyBalance
-    public var destinationBalance: CurrencyBalance?
 
     init(
         source: Currency,
         destination: Currency,
-        sourceBalance: CurrencyBalance = CurrencyBalance(balance: 0, fiatBalance: 0),
-        destinationBalance: CurrencyBalance? = nil
+        sourceBalance: CurrencyBalance = CurrencyBalance(balance: 0, fiatBalance: 0)
     ) {
         self.source = source
         self.destination = destination
         self.sourceBalance = sourceBalance
-        self.destinationBalance = destinationBalance
     }
 }
 

@@ -20,6 +20,10 @@ public enum ExchangeBlockchain: String, CaseIterable {
     case klayth
     case aurora
 
+    public init?(networkId: String) {
+        self.init(rawValue: networkId)
+    }
+
     public var networkId: String { rawValue }
 
     public var chainId: Int {
