@@ -15,6 +15,8 @@ struct TwinsCreateWalletTaskResponse: JSONStringConvertible {
 }
 
 class TwinsCreateWalletTask: CardSessionRunnable {
+    let allowsAccessCodeFromRepository = false
+
     typealias CommandResponse = TwinsCreateWalletTaskResponse
 
     var message: Message? { Message(header: "twin_process_preparing_card".localized) }
