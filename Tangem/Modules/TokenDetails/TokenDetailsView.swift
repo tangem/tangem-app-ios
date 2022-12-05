@@ -148,7 +148,7 @@ struct TokenDetailsView: View {
     @ViewBuilder
     private var trailingButton: some View {
         HStack {
-            if viewModel.swappingIsAvailable {
+            if viewModel.swappingIsAvailable { // [REDACTED_TODO_COMMENT]
                 Button(action: viewModel.openSwapping) {
                     Text("Swap")
                 }
