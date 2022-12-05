@@ -8,6 +8,7 @@
 
 import Foundation
 
+// [REDACTED_TODO_COMMENT]
 struct DefaultRowViewModel {
     let title: String
     let detailsType: DetailsType?
