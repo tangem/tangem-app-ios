@@ -668,6 +668,7 @@
 		EF7B9CF5286C7023004C33A9 /* CardSettingsCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF7B9CF4286C7023004C33A9 /* CardSettingsCoordinator.swift */; };
 		EF7B9CF7286C702E004C33A9 /* CardSettingsCoordinatorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF7B9CF6286C702E004C33A9 /* CardSettingsCoordinatorView.swift */; };
 		EF7BD11028B8B321001B2D59 /* CommonUserWalletModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF7BD10F28B8B321001B2D59 /* CommonUserWalletModel.swift */; };
+		EF80842E293DE3D9000D91EA /* ExchangeManagerUtil.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF80842D293DE3D9000D91EA /* ExchangeManagerUtil.swift */; };
 		EF92412F2934BB8000C28551 /* MainButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF92412E2934BB8000C28551 /* MainButton.swift */; };
 		EF9241322934C25400C28551 /* DependenciesFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF9241312934C25400C28551 /* DependenciesFactory.swift */; };
 		EF9241342934C8F200C28551 /* SwappingConfigurator.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF9241332934C8F200C28551 /* SwappingConfigurator.swift */; };
@@ -1525,6 +1526,7 @@
 		EF7B9CF4286C7023004C33A9 /* CardSettingsCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardSettingsCoordinator.swift; sourceTree = "<group>"; };
 		EF7B9CF6286C702E004C33A9 /* CardSettingsCoordinatorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardSettingsCoordinatorView.swift; sourceTree = "<group>"; };
 		EF7BD10F28B8B321001B2D59 /* CommonUserWalletModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonUserWalletModel.swift; sourceTree = "<group>"; };
+		EF80842D293DE3D9000D91EA /* ExchangeManagerUtil.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExchangeManagerUtil.swift; sourceTree = "<group>"; };
 		EF92412E2934BB8000C28551 /* MainButton.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MainButton.swift; sourceTree = "<group>"; };
 		EF9241312934C25400C28551 /* DependenciesFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DependenciesFactory.swift; sourceTree = "<group>"; };
 		EF9241332934C8F200C28551 /* SwappingConfigurator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwappingConfigurator.swift; sourceTree = "<group>"; };
@@ -3409,6 +3411,7 @@
 		EF4661932923AFC400346B6C /* TangemExchange */ = {
 			isa = PBXGroup;
 			children = (
+				EF80842C293DE3CB000D91EA /* Utils */,
 				E9C17C62291A687D00FDE4BC /* Factory */,
 				EF4661B92923B00800346B6C /* Interfaces */,
 				EF46620E2924CE2A00346B6C /* Managers */,
@@ -3713,6 +3716,14 @@
 				EFFE2CE828B8E0B300B9F279 /* UserWalletModel.swift */,
 			);
 			path = UserWalletModel;
+			sourceTree = "<group>";
+		};
+		EF80842C293DE3CB000D91EA /* Utils */ = {
+			isa = PBXGroup;
+			children = (
+				EF80842D293DE3D9000D91EA /* ExchangeManagerUtil.swift */,
+			);
+			path = Utils;
 			sourceTree = "<group>";
 		};
 		EF9241302934C22300C28551 /* Factories */ = {
@@ -5010,6 +5021,7 @@
 				EF29BEF62934B1EE00D7C782 /* TransactionBuilder.swift in Sources */,
 				EF4662062924CC6E00346B6C /* ApproveTarget.swift in Sources */,
 				EF4661FF2924CC6E00346B6C /* ExchangeBlockchain.swift in Sources */,
+				EF80842E293DE3D9000D91EA /* ExchangeManagerUtil.swift in Sources */,
 				EF29BEF229349C2900D7C782 /* Data+.swift in Sources */,
 				EF4661F62924CC6E00346B6C /* LimitOrderParameters.swift in Sources */,
 				EF29BEE9292FBCE400D7C782 /* DefaultExchangeManager.swift in Sources */,
