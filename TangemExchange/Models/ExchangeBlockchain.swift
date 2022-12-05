@@ -56,15 +56,3 @@ public enum ExchangeBlockchain: String, CaseIterable {
         }
     }
 }
-
-extension ExchangeBlockchain {
-    public static func convert(from chainId: Int?) -> ExchangeBlockchain? {
-        guard let chainId = chainId,
-              let blockchain = ExchangeBlockchain.allCases.first(where: { $0.chainId == chainId }) else {
-            assertionFailure("not support blockchain")
-            return nil
-        }
-
-        return blockchain
-    }
-}
