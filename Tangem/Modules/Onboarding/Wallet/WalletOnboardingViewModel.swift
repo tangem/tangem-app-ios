@@ -705,17 +705,9 @@ class WalletOnboardingViewModel: OnboardingTopupViewModel<WalletOnboardingStep, 
         if AppSettings.shared.saveAccessCodes,
            let accessCode = self.accessCode,
            let cardIds = self.cardIds {
-            let oldConfig = tangemSdkProvider.sdk.config
-
-            var config = oldConfig
-            config.accessCodeRequestPolicy = .alwaysWithBiometrics
-            tangemSdkProvider.setup(with: config)
-
             let accessCodeData: Data = accessCode.sha256()
             let accessCodeRepository = AccessCodeRepository()
             try accessCodeRepository.save(accessCodeData, for: cardIds)
-
-            tangemSdkProvider.setup(with: oldConfig)
         }
 
         try super.saveUserWalletIfNeeded()
