@@ -15,7 +15,7 @@ struct TwinsCreateWalletTaskResponse: JSONStringConvertible {
 }
 
 class TwinsCreateWalletTask: CardSessionRunnable {
-    let allowsAccessCodeFromRepository = false
+    var allowsAccessCodeFromRepository: Bool { false }
 
     typealias CommandResponse = TwinsCreateWalletTaskResponse
 
