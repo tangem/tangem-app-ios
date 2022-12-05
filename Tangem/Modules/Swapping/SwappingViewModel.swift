@@ -183,9 +183,8 @@ private extension SwappingViewModel {
         case .requiredRefresh(let error):
             mainButtonIsEnabled = false
             receiveCurrencyViewModel?.updateState(.loaded(0, fiatValue: 0))
-            informationSectionViewModels = [
-                .fee(DefaultRowViewModel(title: "Fee", detailsType: .text("-"))),
-            ]
+            let swappingFeeRowViewModel = SwappingFeeRowViewModel(fee: "_", tokenSymbol: "", fiatValue: "", isLoading: false)
+            informationSectionViewModels = [.fee(swappingFeeRowViewModel)]
             refreshWarningRowViewModel = DefaultWarningRowViewModel(
                 icon: Assets.attention,
                 title: "Exchange rate has expired",
@@ -279,7 +278,7 @@ extension SwappingViewModel {
     enum InformationSectionViewModel: Hashable, Identifiable {
         var id: Int { hashValue }
 
-        case fee(DefaultRowViewModel)
+        case fee(SwappingFeeRowViewModel)
         case warning(DefaultWarningRowViewModel)
     }
 
