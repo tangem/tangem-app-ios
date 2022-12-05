@@ -148,16 +148,7 @@ class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable>
             cardPublicKey: input.cardInput.cardModel?.cardPublicKey
         )
 
-        var config = TangemSdkConfigFactory().makeDefaultConfig()
-        config.accessCodeRequestPolicy = .default
-        tangemSdkProvider.setup(with: config)
-
         bindAnalytics()
-    }
-
-    deinit {
-        let config = TangemSdkConfigFactory().makeDefaultConfig()
-        tangemSdkProvider.setup(with: config)
     }
 
     func loadImage(supportsOnlineImage: Bool, cardId: String?, cardPublicKey: Data?) {
