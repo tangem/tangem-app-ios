@@ -702,23 +702,15 @@ class WalletOnboardingViewModel: OnboardingTopupViewModel<WalletOnboardingStep, 
     }
 
     override func saveUserWalletIfNeeded() throws {
-        var config = TangemSdkConfigFactory().makeDefaultConfig()
-        config.accessCodeRequestPolicy = .alwaysWithBiometrics
-        tangemSdkProvider.setup(with: config)
-
-        try super.saveUserWalletIfNeeded()
-
-        guard AppSettings.shared.saveAccessCodes,
-              let accessCode = self.accessCode,
-              let cardIds = self.cardIds
-        else {
-
-            return
+        if AppSettings.shared.saveAccessCodes,
+           let accessCode = self.accessCode,
+           let cardIds = self.cardIds {
+            let accessCodeData: Data = accessCode.sha256()
+            let accessCodeRepository = AccessCodeRepository()
+            try accessCodeRepository.save(accessCodeData, for: cardIds)
         }
 
-        let accessCodeData: Data = accessCode.sha256()
-        let accessCodeRepository = AccessCodeRepository()
-        try accessCodeRepository.save(accessCodeData, for: cardIds)
+        try super.saveUserWalletIfNeeded()
     }
 
     private func fireConfettiIfNeeded() {
