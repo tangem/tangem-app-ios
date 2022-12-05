@@ -73,7 +73,7 @@ struct AuthView: View {
 }
 
 struct AuthView_Preview: PreviewProvider {
-    static let viewModel = AuthViewModel(coordinator: AuthCoordinator())
+    static let viewModel = AuthViewModel(unlockOnStart: false, coordinator: AuthCoordinator())
 
     static var previews: some View {
         AuthView(viewModel: viewModel)
