@@ -20,6 +20,7 @@ public struct ExpectSwappingResult {
     public let expectAmount: Decimal
     public let expectFiatAmount: Decimal
     public let fee: Decimal
+    public let fiatFee: Decimal
     public let decimalCount: Int
     public let isEnoughAmountForExchange: Bool
 
@@ -27,12 +28,14 @@ public struct ExpectSwappingResult {
         expectAmount: Decimal,
         expectFiatAmount: Decimal,
         fee: Decimal,
+        fiatFee: Decimal,
         decimalCount: Int,
         isEnoughAmountForExchange: Bool
     ) {
         self.expectAmount = expectAmount
         self.expectFiatAmount = expectFiatAmount
         self.fee = fee
+        self.fiatFee = fiatFee
         self.decimalCount = decimalCount
         self.isEnoughAmountForExchange = isEnoughAmountForExchange
     }
