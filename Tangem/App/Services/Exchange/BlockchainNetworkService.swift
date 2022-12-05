@@ -26,8 +26,6 @@ struct BlockchainNetworkService {
 
 extension BlockchainNetworkService: BlockchainInfoProvider {
     func getWalletAddress(currency: Currency) -> String? {
-        print("addressNames", walletModel.wallet.addresses)
-
         return walletModel.wallet.address
     }
 
