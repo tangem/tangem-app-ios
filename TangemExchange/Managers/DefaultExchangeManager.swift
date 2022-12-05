@@ -263,12 +263,17 @@ private extension DefaultExchangeManager {
         )
 
         let fee = Decimal(integerLiteral: quoteData.estimatedGas)
+        let fiatFee = blockchainInfoProvider.getFiatBalance(
+            currency: exchangeItems.destination,
+            amount: fee / decimalNumber
+        )
         let isEnoughAmountForExchange = exchangeItems.sourceBalance.balance < amount
 
         return ExpectSwappingResult(
             expectAmount: expectAmount / decimalNumber,
             expectFiatAmount: expectFiatAmount,
             fee: fee / decimalNumber,
+            fiatFee: fiatFee,
             decimalCount: quoteData.toToken.decimals,
             isEnoughAmountForExchange: isEnoughAmountForExchange
         )
