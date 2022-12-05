@@ -19,9 +19,9 @@ struct SuccessSwappingView: View {
         NavigationView {
             GeometryReader { geometry in
                 VStack(spacing: 0) {
-                    Color.clear.frame(height: geometry.size.height * 0.13)
+                    Color.clear.frame(height: geometry.size.height * 0.1)
 
-                    VStack(spacing: geometry.size.height * 0.25) {
+                    VStack(spacing: geometry.size.height * 0.2) {
                         Assets.successBigIcon
 
                         infoView
@@ -67,7 +67,7 @@ struct SuccessSwappingView_Preview: PreviewProvider {
     static let viewModel = SuccessSwappingViewModel(
         fromCurrency: "1 000 DAI",
         toCurrency: "1 000,36 MATIC",
-        coordinator: nil
+        coordinator: SwappingCoordinator()
     )
 
     static var previews: some View {
