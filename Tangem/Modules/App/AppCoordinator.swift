@@ -52,6 +52,12 @@ class AppCoordinator: NSObject, CoordinatorObject {
         }
     }
 
+    private func restart(with options: AppCoordinator.Options = .default) {
+        welcomeCoordinator = nil
+        authCoordinator = nil
+        start(with: options)
+    }
+
     private func setupWelcome(with options: AppCoordinator.Options) {
         let dismissAction = { [weak self] in
             self?.welcomeCoordinator = nil
@@ -65,8 +71,10 @@ class AppCoordinator: NSObject, CoordinatorObject {
             }
         }
 
+        let shouldScan = options.newScan ?? false
+
         let coordinator = WelcomeCoordinator(dismissAction: dismissAction, popToRootAction: popToRootAction)
-        coordinator.start(with: .init(shouldScan: options.newScan))
+        coordinator.start(with: .init(shouldScan: shouldScan))
         self.welcomeCoordinator = coordinator
     }
 
@@ -83,8 +91,10 @@ class AppCoordinator: NSObject, CoordinatorObject {
             }
         }
 
+        let unlockOnStart = options.newScan ?? true
+
         let coordinator = AuthCoordinator(dismissAction: dismissAction, popToRootAction: popToRootAction)
-        coordinator.start()
+        coordinator.start(with: .init(unlockOnStart: unlockOnStart))
         self.authCoordinator = coordinator
     }
 
@@ -103,20 +113,36 @@ class AppCoordinator: NSObject, CoordinatorObject {
         userWalletRepository
             .eventProvider
             .sink { [weak self] event in
-                if case .locked = event {
-                    self?.handleLock()
+                if case .locked(let reason) = event {
+                    self?.handleLock(reason: reason)
                 }
             }
             .store(in: &bag)
     }
 
-    private func handleLock() {
-        closeAllSheetsIfNeeded(animated: false)
+    private func handleLock(reason: UserWalletRepositoryLockReason) {
+        let animated: Bool
+        let newScan: Bool
 
-        UIApplication.performWithoutAnimations {
-            welcomeCoordinator = nil
-            authCoordinator = nil
-            start()
+        switch reason {
+        case .loggedOut:
+            animated = false
+            newScan = true
+        case .nothingToDisplay:
+            animated = true
+            newScan = false
+        }
+
+        let options = AppCoordinator.Options(connectionOptions: nil, newScan: newScan)
+
+        closeAllSheetsIfNeeded(animated: animated) {
+            if animated {
+                self.restart(with: options)
+            } else {
+                UIApplication.performWithoutAnimations {
+                    self.restart(with: options)
+                }
+            }
         }
     }
 
@@ -138,7 +164,7 @@ class AppCoordinator: NSObject, CoordinatorObject {
 extension AppCoordinator {
     struct Options {
         let connectionOptions: UIScene.ConnectionOptions?
-        let newScan: Bool
+        let newScan: Bool?
 
         static let `default`: Options = .init(connectionOptions: nil, newScan: false)
     }
