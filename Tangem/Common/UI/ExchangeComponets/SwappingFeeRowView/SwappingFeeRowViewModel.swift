@@ -11,24 +11,46 @@ import Foundation
 struct SwappingFeeRowViewModel: Identifiable, Hashable {
     var id: Int { hashValue }
 
-    let isLoading: Bool
-    var formattedFee: String {
-        "\(fee) \(tokenSymbol) (\(fiatValue))"
+    var isLoading: Bool {
+        state.isLoading
     }
 
-    private let fee: String
-    private let tokenSymbol: String
-    private let fiatValue: String
+    var formattedFee: String {
+        state.formattedFee
+    }
 
-    init(
-        fee: String,
-        tokenSymbol: String,
-        fiatValue: String,
-        isLoading: Bool
-    ) {
-        self.fee = fee
-        self.fiatValue = fiatValue
-        self.tokenSymbol = tokenSymbol
-        self.isLoading = isLoading
+    private var state: State
+
+    init(state: State) {
+        self.state = state
+    }
+
+    mutating func update(state: State) {
+        self.state = state
+    }
+}
+
+extension SwappingFeeRowViewModel {
+    enum State: Hashable {
+        case idle
+        case loading
+        case fee(fee: String, symbol: String, fiat: String)
+
+        var isLoading: Bool {
+            if case .loading = self {
+                return true
+            }
+
+            return false
+        }
+
+        var formattedFee: String {
+            switch self {
+            case .idle, .loading:
+                return ""
+            case let .fee(fee, symbol, fiat):
+                return "\(fee) \(symbol) (\(fiat))"
+            }
+        }
     }
 }
