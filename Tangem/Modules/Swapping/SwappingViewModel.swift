@@ -128,14 +128,14 @@ private extension SwappingViewModel {
         let state: ReceiveCurrencyViewModel.State
 
         switch exchangeManager.getAvailabilityState() {
+        case .idle, .requiredRefresh:
+            state = .loaded(0, fiatValue: 0)
         case .loading:
             state = .loading
-        case .idle, .available, .requiredPermission, .requiredRefresh:
-            if let destinationBalance = exchangeItems.destinationBalance {
-                state = .loaded(destinationBalance.balance, fiatValue: destinationBalance.fiatBalance)
-            } else {
-                state = .loaded(0, fiatValue: 0)
-            }
+        case let .preview(result),
+             let .available(result, _),
+             let .requiredPermission(result, _):
+            state = .loaded(result.expectAmount, fiatValue: result.expectFiatAmount)
         }
 
         receiveCurrencyViewModel = ReceiveCurrencyViewModel(
@@ -159,7 +159,9 @@ private extension SwappingViewModel {
             refreshWarningRowViewModel?.update(detailsType: .loader)
             receiveCurrencyViewModel?.updateState(.loading)
 
-        case .available(let result), .requiredPermission(let result):
+        case let .preview(result),
+             let .available(result, _),
+             let .requiredPermission(result, _):
             refreshWarningRowViewModel = nil
             feeWarningRowViewModel = nil
             receiveCurrencyViewModel?.updateState(
@@ -184,7 +186,9 @@ private extension SwappingViewModel {
             swappingFeeRowViewModel.update(state: .idle)
         case .loading:
             swappingFeeRowViewModel.update(state: .loading)
-        case .requiredPermission(let result), .available(let result):
+        case let .preview(result),
+             let .available(result, _),
+             let .requiredPermission(result, _):
             swappingFeeRowViewModel.update(
                 state: .fee(
                     fee: result.fee.groupedFormatted(maximumFractionDigits: result.decimalCount),
@@ -199,7 +203,11 @@ private extension SwappingViewModel {
         switch state {
         case .idle, .loading, .requiredRefresh:
             mainButtonIsEnabled = false
-        case .requiredPermission(let result), .available(let result):
+            mainButtonTitle = .swap
+
+        case let .preview(result),
+             let .available(result, _),
+             let .requiredPermission(result, _):
             mainButtonIsEnabled = result.isEnoughAmountForExchange
             if result.isEnoughAmountForExchange {
                 mainButtonTitle = .givePermission
