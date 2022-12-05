@@ -448,6 +448,11 @@ class CommonUserWalletRepository: UserWalletRepository {
         initializeServices(for: cardModel, cardInfo: cardInfo)
 
         cardModel.didScan()
+
+        if !AppSettings.shared.saveUserWallets {
+            cardModel.updateSdkConfig()
+        }
+
         return cardModel
     }
 
