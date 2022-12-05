@@ -222,9 +222,11 @@ private extension SwappingViewModel {
 
     func updateMainButton(state: ExchangeAvailabilityState) {
         switch state {
-        case .idle, .loading, .requiredRefresh:
+        case .idle:
             mainButtonIsEnabled = false
             mainButtonTitle = .swap
+        case .loading, .requiredRefresh:
+            mainButtonIsEnabled = false
 
         case let .preview(result),
              let .available(result, _),
