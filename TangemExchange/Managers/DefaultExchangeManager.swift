@@ -94,13 +94,12 @@ extension DefaultExchangeManager: ExchangeManager {
     }
 
     func isAvailableForExchange() -> Bool {
-        guard exchangeItems.source.isToken else {
+        guard exchangeItems.source.isToken, let amount, amount > 0 else {
             return true
         }
 
-        /// If we don't have values, `return true` for move view to default state
-        guard let tokenExchangeAllowanceLimit, let amount else {
-            return true
+        guard let tokenExchangeAllowanceLimit else {
+            return false
         }
 
         return amount <= tokenExchangeAllowanceLimit
@@ -238,7 +237,6 @@ private extension DefaultExchangeManager {
                 for: exchangeItems.source,
                 walletAddress: walletAddress
             )
-            tokenExchangeAllowanceLimit = nil
         } catch {
             tokenExchangeAllowanceLimit = nil
             updateState(.requiredRefresh(occurredError: error))
