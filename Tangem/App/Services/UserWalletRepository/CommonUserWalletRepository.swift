@@ -449,6 +449,9 @@ class CommonUserWalletRepository: UserWalletRepository {
 
         cardModel.didScan()
 
+        // Updating the config file every time a card is scanned when wallets are NOT being saved.
+        // This is done to avoid unnecessary changes in SDK config when the user scans an empty card
+        // (that would open onboarding) and then immediately close it.
         if !AppSettings.shared.saveUserWallets {
             cardModel.updateSdkConfig()
         }
@@ -570,6 +573,8 @@ class CommonUserWalletRepository: UserWalletRepository {
         let cardInfo = selectedModel.cardInfo
         resetServices()
         initializeServices(for: selectedModel, cardInfo: cardInfo)
+
+        // Updating the config file every time selected UserWallet is changed WHEN wallets are being saved.
         selectedModel.updateSdkConfig()
     }
 
