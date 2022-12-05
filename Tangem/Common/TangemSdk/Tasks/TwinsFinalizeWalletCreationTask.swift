@@ -9,6 +9,7 @@
 import TangemSdk
 
 class TwinsFinalizeWalletCreationTask: CardSessionRunnable {
+    let allowsAccessCodeFromRepository = false
 
     private let fileToWrite: Data
     var requiresPin2: Bool { true }
