@@ -31,9 +31,6 @@ public protocol ExchangeManager {
     /// Only for tokens
     func isAvailableForExchange() -> Bool
 
-    /// Approve and swap items
-    func approveAndSwapItems()
-
-    /// User request swap items
-    func swapItems()
+    /// Refresh main values
+    func refresh()
 }
