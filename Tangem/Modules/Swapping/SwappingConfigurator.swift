@@ -11,6 +11,7 @@ import TangemExchange
 
 import protocol BlockchainSdk.TransactionSigner
 
+/// Helper for configure `SwappingViewModel`
 struct SwappingConfigurator {
     func createModule(input: InputModel, coordinator: SwappingRoutable) -> SwappingViewModel {
         let exchangeManager = DependenciesFactory().createExchangeManager(
