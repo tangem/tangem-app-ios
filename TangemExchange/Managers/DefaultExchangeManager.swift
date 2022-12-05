@@ -51,10 +51,6 @@ class DefaultExchangeManager<TxBuilder: TransactionBuilder> {
         blockchainInfoProvider.getWalletAddress(currency: exchangeItems.source)
     }
 
-    private var sourceBalance: Decimal {
-        blockchainInfoProvider.getBalance(currency: exchangeItems.source)
-    }
-
     private var refreshDataTimerBag: AnyCancellable?
     private var bag: Set<AnyCancellable> = []
 
@@ -193,7 +189,7 @@ private extension DefaultExchangeManager {
 
                     if result.isEnoughAmountForExchange {
                         let txData = try await getExchangeTxDataModel()
-                        updateState(.available(swappingResult: result, txData: txData))
+                        updateState(.available(swappingResult: result, exchangeData: txData))
                     } else {
                         updateState(.preview(swappingResult: result))
                     }
@@ -251,7 +247,7 @@ private extension DefaultExchangeManager {
             amount: formattedAmount
         )
 
-        return try mapExpectSwappingResult(from: quoteData)
+        return try await mapExpectSwappingResult(from: quoteData)
     }
 
     func getExchangeApprovedDataModel() async throws -> ExchangeApprovedDataModel {
@@ -283,14 +279,6 @@ private extension DefaultExchangeManager {
             exchangeItems.sourceBalance = CurrencyBalance(balance: balance, fiatBalance: fiatBalance)
         }
     }
-
-    func isEnoughBalance() -> Bool {
-        guard let amount else {
-            return false
-        }
-
-        return sourceBalance > amount
-    }
 }
 
 // MARK: - Mapping
@@ -309,7 +297,7 @@ private extension DefaultExchangeManager {
         )
 
         let fee = Decimal(integerLiteral: quoteData.estimatedGas)
-        let fiatFee = blockchainInfoProvider.getFiatBalance(
+        let fiatFee = try await blockchainInfoProvider.getFiatBalance(
             currency: exchangeItems.destination,
             amount: fee / decimalNumber
         )
