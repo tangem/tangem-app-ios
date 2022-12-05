@@ -133,7 +133,6 @@ class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable>
 
     var isFromMain: Bool = false
     private(set) var containerSize: CGSize = .zero
-    private var agreedToSaveUserWallet: Bool? = nil
     unowned let coordinator: Coordinator
 
     init(input: OnboardingInput, coordinator: Coordinator) {
@@ -256,18 +255,15 @@ class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable>
     }
 
     func didAskToSaveUserWallets(agreed: Bool) {
-        agreedToSaveUserWallet = agreed
         AppSettings.shared.askedToSaveUserWallets = true
+
+        AppSettings.shared.saveUserWallets = agreed
+        AppSettings.shared.saveAccessCodes = agreed
 
         Analytics.log(.onboardingEnableBiometric, params: [.state: Analytics.ParameterValue.state(for: agreed).rawValue])
     }
 
     func saveUserWalletIfNeeded() throws {
-        if let agreedToSaveUserWallet {
-            AppSettings.shared.saveUserWallets = agreedToSaveUserWallet
-            AppSettings.shared.saveAccessCodes = agreedToSaveUserWallet
-        }
-
         guard
             AppSettings.shared.saveUserWallets,
             let userWallet = input.cardInput.cardModel?.userWallet
