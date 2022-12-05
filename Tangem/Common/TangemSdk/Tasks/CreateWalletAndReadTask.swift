@@ -11,7 +11,7 @@ import TangemSdk
 import BlockchainSdk
 
 class CreateWalletAndReadTask: CardSessionRunnable {
-    let allowsAccessCodeFromRepository = false
+    var allowsAccessCodeFromRepository: Bool { false }
 
     private let curve: EllipticCurve?
 
