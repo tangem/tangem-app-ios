@@ -26,6 +26,12 @@ struct BlockchainNetworkService {
 
 extension BlockchainNetworkService: BlockchainInfoProvider {
     func getWalletAddress(currency: Currency) -> String? {
+        let blockchain = walletModel.blockchainNetwork.blockchain
+        guard blockchain.codingKey == currency.blockchain.networkId else {
+            assertionFailure("incorrect WalletModel")
+            return nil
+        }
+
         return walletModel.wallet.address
     }
 
