@@ -16,7 +16,7 @@ struct TokenIconURLBuilder {
         case large
     }
 
-    func iconURL(id: String, size: IconSize = .large) -> URL {
+    func iconURL(id: String, size: IconSize) -> URL {
         CoinsResponse.baseURL
             .appendingPathComponent("coins")
             .appendingPathComponent(size.rawValue)

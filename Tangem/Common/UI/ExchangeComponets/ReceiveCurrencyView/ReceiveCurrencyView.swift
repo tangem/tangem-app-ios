@@ -91,7 +91,7 @@ struct ReceiveCurrencyView_Preview: PreviewProvider {
     static let viewModel = ReceiveCurrencyViewModel(
         state: .loaded(1100.46, fiatValue: 1000.71),
         tokenIcon: SwappingTokenIconViewModel(
-            imageURL: TokenIconURLBuilder().iconURL(id: "polygon"),
+            imageURL: TokenIconURLBuilder().iconURL(id: "polygon", size: .large),
             tokenSymbol: "MATIC"
         )
     )
@@ -99,7 +99,7 @@ struct ReceiveCurrencyView_Preview: PreviewProvider {
     static let loadingViewModel = ReceiveCurrencyViewModel(
         state: .loading,
         tokenIcon: SwappingTokenIconViewModel(
-            imageURL: TokenIconURLBuilder().iconURL(id: "polygon"),
+            imageURL: TokenIconURLBuilder().iconURL(id: "polygon", size: .large),
             tokenSymbol: "MATIC"
         )
     )

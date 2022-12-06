@@ -45,8 +45,14 @@ public struct Currency {
     }
 }
 
+extension Currency: Hashable {
+    public static func == (lhs: Currency, rhs: Currency) -> Bool {
+        lhs.hashValue == rhs.hashValue
+    }
+}
+
 public extension Currency {
-    enum CurrencyType {
+    enum CurrencyType: Hashable {
         case coin
         case token(contractAddress: String)
 
