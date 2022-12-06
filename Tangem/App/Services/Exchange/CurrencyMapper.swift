@@ -11,7 +11,7 @@ import TangemExchange
 
 struct CurrencyMapper {
     func mapToCurrency(token: Token, blockchain: Blockchain) -> Currency? {
-        guard let exchangeBlockchain = ExchangeBlockchain(rawValue: blockchain.codingKey) else {
+        guard let exchangeBlockchain = ExchangeBlockchain(networkId: blockchain.networkId) else {
             assertionFailure("ExchangeBlockchain don't support")
             return nil
         }
@@ -32,7 +32,7 @@ struct CurrencyMapper {
     }
 
     func mapToCurrency(blockchain: Blockchain) -> Currency? {
-        guard let exchangeBlockchain = ExchangeBlockchain(rawValue: blockchain.codingKey) else {
+        guard let exchangeBlockchain = ExchangeBlockchain(networkId: blockchain.networkId) else {
             assertionFailure("ExchangeBlockchain don't support")
             return nil
         }

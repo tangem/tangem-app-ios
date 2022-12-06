@@ -21,10 +21,10 @@ extension UserWalletsListProvider: UserWalletsListProviding {
         // [REDACTED_TODO_COMMENT]
     }
 
-    func getUserCurrencies(blockchain: ExchangeBlockchain) -> [Currency] {
+    func getUserCurrencies(blockchain exchangeBlockchain: ExchangeBlockchain) -> [Currency] {
         let blockchain = walletModel.blockchainNetwork.blockchain
 
-        guard blockchain.codingKey == blockchain.networkId else {
+        guard blockchain.networkId == exchangeBlockchain.networkId else {
             assertionFailure("incorrect blockchain in WalletModel")
             return []
         }
