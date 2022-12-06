@@ -12,7 +12,7 @@ public struct ExchangeManagerUtil {
     public init() {}
 
     /// Use this method for checking that blockchain available for exchange
-    public func networkIsAvailableForExchange(networkId: String) -> Bool {
+    public func isNetworkAvailableForExchange(networkId: String) -> Bool {
         ExchangeBlockchain(networkId: networkId) != nil
     }
 }
