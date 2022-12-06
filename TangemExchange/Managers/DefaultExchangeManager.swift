@@ -51,10 +51,6 @@ class DefaultExchangeManager<TxBuilder: TransactionBuilder> {
         blockchainInfoProvider.getWalletAddress(currency: exchangeItems.source)
     }
 
-    private var sourceBalance: Decimal {
-        blockchainInfoProvider.getBalance(currency: exchangeItems.source)
-    }
-
     private var refreshDataTimerBag: AnyCancellable?
     private var bag: Set<AnyCancellable> = []
 
@@ -83,10 +79,6 @@ class DefaultExchangeManager<TxBuilder: TransactionBuilder> {
 extension DefaultExchangeManager: ExchangeManager {
     func setDelegate(_ delegate: ExchangeManagerDelegate) {
         self.delegate = delegate
-    }
-
-    func getNetworksAvailableToExchange() -> [String] {
-        return [exchangeItems.source.blockchain.id]
     }
 
     func getAvailabilityState() -> ExchangeAvailabilityState {
@@ -186,35 +178,27 @@ private extension DefaultExchangeManager {
             updateState(.loading)
         }
 
-        switch exchangeItems.source.currencyType {
-        case .coin:
-            Task {
-                do {
-                    let result = try await getExpectSwappingResult()
+        Task {
+            do {
+                let result = try await getExpectSwappingResult()
 
+                switch exchangeItems.source.currencyType {
+                case .coin:
                     if result.isEnoughAmountForExchange {
                         let txData = try await getExchangeTxDataModel()
-                        updateState(.available(swappingResult: result, txData: txData))
+                        updateState(.available(expect: result, txData: txData))
                     } else {
-                        updateState(.preview(swappingResult: result))
+                        updateState(.preview(expect: result))
                     }
-
-                } catch {
-                    updateState(.requiredRefresh(occurredError: error))
-                }
-            }
-        case .token:
-            Task {
-                do {
-                    let result = try await getExpectSwappingResult()
+                case .token:
                     await updateExchangeAmountAllowance()
                     let approvedDataModel = try await getExchangeApprovedDataModel()
                     updateState(
-                        .requiredPermission(swappingResult: result, approvedDataModel: approvedDataModel)
+                        .requiredPermission(expect: result, approvedDataModel: approvedDataModel)
                     )
-                } catch {
-                    updateState(.requiredRefresh(occurredError: error))
                 }
+            } catch {
+                updateState(.requiredRefresh(occurredError: error))
             }
         }
     }
@@ -276,19 +260,11 @@ private extension DefaultExchangeManager {
         let source = exchangeItems.source
         let balance = blockchainInfoProvider.getBalance(currency: source)
         var fiatBalance: Decimal = 0
-        if let amount {
+        if let amount = amount {
             fiatBalance = blockchainInfoProvider.getFiatBalance(currency: source, amount: amount)
         }
 
         exchangeItems.sourceBalance = CurrencyBalance(balance: balance, fiatBalance: fiatBalance)
-    }
-
-    func isEnoughBalance() -> Bool {
-        guard let amount else {
-            return false
-        }
-
-        return sourceBalance > amount
     }
 }
 
