@@ -20,7 +20,7 @@ final class SwappingTokenListViewModel: ObservableObject, Identifiable {
 
     // I can't use @Published here, because of swiftui redraw perfomance drop
     var searchText = CurrentValueSubject<String, Never>("")
-    @Published var yourItems: [SwappingTokenItemViewModel] = []
+    @Published var userItems: [SwappingTokenItemViewModel] = []
     @Published var otherItems: [SwappingTokenItemViewModel] = []
 
     var hasNextPage: Bool {
@@ -31,17 +31,21 @@ final class SwappingTokenListViewModel: ObservableObject, Identifiable {
 
     private unowned let coordinator: SwappingTokenListRoutable
 
-    private let network: ExchangeBlockchain
+    private let sourceCurrency: Currency
+    private let userCurrencies: [Currency]
     private var bag: Set<AnyCancellable> = []
     private lazy var dataLoader: ListDataLoader = setupLoader()
 
     init(
-        network: ExchangeBlockchain,
+        sourceCurrency: Currency,
+        userCurrencies: [Currency],
         coordinator: SwappingTokenListRoutable
     ) {
-        self.network = network
+        self.sourceCurrency = sourceCurrency
+        self.userCurrencies = userCurrencies
         self.coordinator = coordinator
 
+        setupUserItemsSection()
         bind()
     }
 
@@ -55,6 +59,12 @@ final class SwappingTokenListViewModel: ObservableObject, Identifiable {
 }
 
 private extension SwappingTokenListViewModel {
+    func setupUserItemsSection() {
+        userItems = userCurrencies
+            .filter { sourceCurrency != $0 }
+            .map { mapToSwappingTokenItemViewModel(currency: $0) }
+    }
+
     func bind() {
         searchText
             .dropFirst()
@@ -67,60 +77,51 @@ private extension SwappingTokenListViewModel {
     }
 
     func setupLoader() -> ListDataLoader {
-        let dataLoader = ListDataLoader(networkIds: [network.id], exchangeable: true)
+        let dataLoader = ListDataLoader(networkIds: [sourceCurrency.blockchain.id], exchangeable: true)
         dataLoader.$items
             .receive(on: DispatchQueue.global())
-            .map { coinModels in
-                coinModels.map { model in
-                    SwappingTokenItemViewModel(
-                        iconURL: model.imageURL,
-                        name: model.name,
-                        symbol: model.symbol,
-                        fiatBalance: nil,
-                        balance: nil
-                    ) { [weak self] in
-                        self?.userDidTap(coinModel: model)
-                    }
-                }
+            .map { [unowned self] coinModels in
+                coinModels.compactMap { mapToCurrency(coinModel: $0) }
+            }
+            .map { [unowned self] currencies in
+                currencies
+                    .filter { currency in !userCurrencies.contains(currency) }
+                    .map { mapToSwappingTokenItemViewModel(currency: $0) }
             }
             .receive(on: DispatchQueue.main)
-            .weakAssign(to: \.otherItems, on: self)
+            .receiveValue { [weak self] items in
+                self?.otherItems = items
+            }
             .store(in: &bag)
 
         return dataLoader
     }
 
-    func userDidTap(coinModel: CoinModel) {
-        guard let currency = mapToCurrency(coinModel: coinModel) else {
-            assertionFailure("CoinModel is not a currency")
-            return
-        }
-
+    func userDidTap(_ currency: Currency) {
         coordinator.userDidTap(currency: currency)
+    }
+
+    func mapToSwappingTokenItemViewModel(currency: Currency) -> SwappingTokenItemViewModel {
+        SwappingTokenItemViewModel(
+            iconURL: TokenIconURLBuilder().iconURL(id: currency.id, size: .large),
+            name: currency.name,
+            symbol: currency.symbol,
+            fiatBalance: nil,
+            balance: nil
+        ) { [weak self] in
+            self?.userDidTap(currency)
+        }
     }
 
     func mapToCurrency(coinModel: CoinModel) -> Currency? {
         let coinType = coinModel.items.first
+        let mapper = CurrencyMapper()
 
         switch coinType {
         case let .blockchain(blockchain):
-            return Currency(
-                id: blockchain.id,
-                blockchain: network,
-                name: blockchain.displayName,
-                symbol: blockchain.currencySymbol,
-                decimalCount: blockchain.decimalCount,
-                currencyType: .coin
-            )
-        case let .token(token, _):
-            return Currency(
-                id: coinModel.id,
-                blockchain: network,
-                name: coinModel.name,
-                symbol: coinModel.symbol,
-                decimalCount: token.decimalCount,
-                currencyType: .token(contractAddress: token.contractAddress)
-            )
+            return mapper.mapToCurrency(blockchain: blockchain)
+        case let .token(token, blockchain):
+            return mapper.mapToCurrency(token: token, blockchain: blockchain)
         case .none:
             assertionFailure("CoinModel haven't items")
             return nil
