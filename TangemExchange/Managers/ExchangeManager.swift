@@ -11,6 +11,9 @@ import Foundation
 public protocol ExchangeManager {
     /// Delegate for view updates
     func setDelegate(_ delegate: ExchangeManagerDelegate)
+    
+    /// Available network for selected as target to swap
+    func getNetworksAvailableToExchange() -> [String]
 
     /// Items which currently to swapping
     func getExchangeItems() -> ExchangeItems
