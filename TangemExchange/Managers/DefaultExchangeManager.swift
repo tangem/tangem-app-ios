@@ -89,6 +89,10 @@ extension DefaultExchangeManager: ExchangeManager {
         return exchangeItems
     }
 
+    func getNetworksAvailableToExchange() -> [String] {
+        [exchangeItems.source.blockchain.networkId]
+    }
+
     func isAvailableForExchange() -> Bool {
         guard exchangeItems.source.isToken else {
             print("Unnecessary request available for exchange for coin")
