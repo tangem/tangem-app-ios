@@ -498,7 +498,7 @@ private extension TokenDetailsViewModel {
                 assertionFailure("[REDACTED_TODO_COMMENT]")
                 return nil
             }
-            
+
             return mapper.mapToCurrency(token: token, blockchain: blockchain)
         case .token:
             return mapper.mapToCurrency(blockchain: blockchainNetwork.blockchain)
