@@ -671,6 +671,9 @@
 		EF80842E293DE3D9000D91EA /* ExchangeManagerUtil.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF80842D293DE3D9000D91EA /* ExchangeManagerUtil.swift */; };
 		EF808430293DF454000D91EA /* ExchangeManagerErrors.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF80842F293DF454000D91EA /* ExchangeManagerErrors.swift */; };
 		EF808432293DF472000D91EA /* Int+.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF808431293DF472000D91EA /* Int+.swift */; };
+		EF808434293F38CE000D91EA /* UserWalletsListProviding.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF808433293F38CE000D91EA /* UserWalletsListProviding.swift */; };
+		EF808436293F39D6000D91EA /* UserWalletsListProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF808435293F39D6000D91EA /* UserWalletsListProvider.swift */; };
+		EF808438293F3A6D000D91EA /* CurrencyMapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF808437293F3A6D000D91EA /* CurrencyMapper.swift */; };
 		EF92412F2934BB8000C28551 /* MainButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF92412E2934BB8000C28551 /* MainButton.swift */; };
 		EF9241322934C25400C28551 /* DependenciesFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF9241312934C25400C28551 /* DependenciesFactory.swift */; };
 		EF9241342934C8F200C28551 /* SwappingConfigurator.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF9241332934C8F200C28551 /* SwappingConfigurator.swift */; };
@@ -1531,6 +1534,9 @@
 		EF80842D293DE3D9000D91EA /* ExchangeManagerUtil.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExchangeManagerUtil.swift; sourceTree = "<group>"; };
 		EF80842F293DF454000D91EA /* ExchangeManagerErrors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExchangeManagerErrors.swift; sourceTree = "<group>"; };
 		EF808431293DF472000D91EA /* Int+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Int+.swift"; sourceTree = "<group>"; };
+		EF808433293F38CE000D91EA /* UserWalletsListProviding.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserWalletsListProviding.swift; sourceTree = "<group>"; };
+		EF808435293F39D6000D91EA /* UserWalletsListProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserWalletsListProvider.swift; sourceTree = "<group>"; };
+		EF808437293F3A6D000D91EA /* CurrencyMapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CurrencyMapper.swift; sourceTree = "<group>"; };
 		EF92412E2934BB8000C28551 /* MainButton.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MainButton.swift; sourceTree = "<group>"; };
 		EF9241312934C25400C28551 /* DependenciesFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DependenciesFactory.swift; sourceTree = "<group>"; };
 		EF9241332934C8F200C28551 /* SwappingConfigurator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwappingConfigurator.swift; sourceTree = "<group>"; };
@@ -3451,6 +3457,7 @@
 			children = (
 				EF46618B2923AFA200346B6C /* BlockchainInfoProvider.swift */,
 				EF29BEF52934B1EE00D7C782 /* TransactionBuilder.swift */,
+				EF808433293F38CE000D91EA /* UserWalletsListProviding.swift */,
 			);
 			path = Interfaces;
 			sourceTree = "<group>";
@@ -3472,6 +3479,8 @@
 			isa = PBXGroup;
 			children = (
 				E966EFB1291C4A5900504AD8 /* BlockchainNetworkService.swift */,
+				EF808435293F39D6000D91EA /* UserWalletsListProvider.swift */,
+				EF808437293F3A6D000D91EA /* CurrencyMapper.swift */,
 			);
 			path = Exchange;
 			sourceTree = "<group>";
@@ -4356,6 +4365,7 @@
 			files = (
 				EF9CFC12288FECE100329BE0 /* ScanCardSettingsView.swift in Sources */,
 				EFE23ABB292B8D1800A3C554 /* SwappingPermissionRoutable.swift in Sources */,
+				EF808436293F39D6000D91EA /* UserWalletsListProvider.swift in Sources */,
 				DCE5C66C28898B7F000C7F67 /* TangemApiService.swift in Sources */,
 				5DDFC2042812B72C005976FE /* Currency.swift in Sources */,
 				5D09382825E7A2D80049B8F0 /* TokenDetailsView.swift in Sources */,
@@ -4569,6 +4579,7 @@
 				5DFCE54C274BDEE200C1B1A0 /* ResetToFactorySettingsTask.swift in Sources */,
 				5DDFC2072812B7AB005976FE /* RatesResponse.swift in Sources */,
 				EF46622E2924DF0300346B6C /* DefaultRowView.swift in Sources */,
+				EF808438293F3A6D000D91EA /* CurrencyMapper.swift in Sources */,
 				B0D76D4525D4E4560073FA98 /* AddCustomTokenView.swift in Sources */,
 				5D6784C325EB8EF000149995 /* CommonTokenItemsRepository.swift in Sources */,
 				EFEC653D292E1B9400AE8521 /* SwappingRoutable.swift in Sources */,
@@ -5038,6 +5049,7 @@
 				EF808432293DF472000D91EA /* Int+.swift in Sources */,
 				EF808430293DF454000D91EA /* ExchangeManagerErrors.swift in Sources */,
 				EF4662042924CC6E00346B6C /* PresetsConfiguration.swift in Sources */,
+				EF808434293F38CE000D91EA /* UserWalletsListProviding.swift in Sources */,
 				EF29BEE2292E5DB400D7C782 /* ExchangeTransactionInfo.swift in Sources */,
 				EF46620A2924CC6E00346B6C /* OneInchLimitOrderService.swift in Sources */,
 				EF4661FA2924CC6E00346B6C /* LimitOrder.swift in Sources */,
