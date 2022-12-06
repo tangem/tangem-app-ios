@@ -77,7 +77,7 @@ private extension SwappingTokenListViewModel {
     }
 
     func setupLoader() -> ListDataLoader {
-        let dataLoader = ListDataLoader(networkIds: [sourceCurrency.blockchain.id], exchangeable: true)
+        let dataLoader = ListDataLoader(networkIds: [sourceCurrency.blockchain.networkId], exchangeable: true)
         dataLoader.$items
             .receive(on: DispatchQueue.global())
             .map { [unowned self] coinModels in
