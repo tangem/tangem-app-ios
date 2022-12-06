@@ -1,5 +1,5 @@
 //
-//  TokenIconURLBuilder.swift
+//  TokenIconURLBuilderMock.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -8,15 +8,8 @@
 
 import Foundation
 
-struct TokenIconURLBuilder {
-    enum IconSize: String {
-        /// 50x50
-        case small
-        /// 250x250
-        case large
-    }
-
-    func iconURL(id: String, size: IconSize) -> URL {
+struct TokenIconURLBuilderMock: TokenIconURLBuilding {
+    func iconURL(id: String, size: TokenURLIconSize = .large) -> URL {
         CoinsResponse.baseURL
             .appendingPathComponent("coins")
             .appendingPathComponent(size.rawValue)
