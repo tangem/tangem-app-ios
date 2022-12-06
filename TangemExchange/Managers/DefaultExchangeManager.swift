@@ -81,10 +81,6 @@ extension DefaultExchangeManager: ExchangeManager {
         self.delegate = delegate
     }
 
-    func getCurrentExchangeBlockchain() -> ExchangeBlockchain {
-        exchangeItems.source.blockchain
-    }
-
     func getAvailabilityState() -> ExchangeAvailabilityState {
         return availabilityState
     }
