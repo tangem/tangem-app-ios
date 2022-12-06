@@ -9,6 +9,8 @@
 import Foundation
 import Combine
 
+import struct TangemExchange.Currency
+
 class SwappingCoordinator: CoordinatorObject {
     let dismissAction: Action
     let popToRootAction: ParamsAction<PopToRootOptions>
