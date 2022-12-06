@@ -154,7 +154,7 @@ class TokenDetailsViewModel: ObservableObject {
     }
 
     var swappingIsAvailable: Bool {
-        FeatureProvider.isAvailable(.exchange) && isAvailableForSwapping()
+        FeatureProvider.isAvailable(.exchange) && isAvailableForSwapping
     }
 
     @Published var solanaRentWarning: String? = nil
@@ -444,8 +444,8 @@ extension TokenDetailsViewModel {
     func openSwapping() {
         guard FeatureProvider.isAvailable(.exchange),
               let walletModel = walletModel,
-              let source = sourceCurrency(),
-              let destination = destinationCurrency()
+              let source = sourceCurrency,
+              let destination = destinationCurrency
         else {
             return
         }
@@ -468,13 +468,13 @@ extension TokenDetailsViewModel {
 // MARK: - Swapping preparing
 
 private extension TokenDetailsViewModel {
-    func isAvailableForSwapping() -> Bool {
+    var isAvailableForSwapping: Bool {
         ExchangeManagerUtil().networkIsAvailableForExchange(
             networkId: blockchainNetwork.blockchain.networkId
         )
     }
 
-    func sourceCurrency() -> Currency? {
+    var sourceCurrency: Currency? {
         let blockchain = blockchainNetwork.blockchain
         let mapper = CurrencyMapper()
 
@@ -487,19 +487,19 @@ private extension TokenDetailsViewModel {
         }
     }
 
-    private func destinationCurrency() -> Currency? {
+    // [REDACTED_TODO_COMMENT]
+    var destinationCurrency: Currency? {
         let blockchain = blockchainNetwork.blockchain
         let mapper = CurrencyMapper()
 
         switch amountType {
         case .coin, .reserve:
-            if let token = walletModel?.getTokens().first {
-                return mapper.mapToCurrency(token: token, blockchain: blockchain)
+            guard let token = walletModel?.getTokens().first else {
+                assertionFailure("[REDACTED_TODO_COMMENT]")
+                return nil
             }
-
-            // [REDACTED_TODO_COMMENT]
-            return nil
-
+            
+            return mapper.mapToCurrency(token: token, blockchain: blockchain)
         case .token:
             return mapper.mapToCurrency(blockchain: blockchainNetwork.blockchain)
         }
