@@ -469,7 +469,7 @@ extension TokenDetailsViewModel {
 
 private extension TokenDetailsViewModel {
     var isAvailableForSwapping: Bool {
-        ExchangeManagerUtil().networkIsAvailableForExchange(
+        ExchangeManagerUtil().isNetworkAvailableForExchange(
             networkId: blockchainNetwork.blockchain.codingKey
         )
     }
