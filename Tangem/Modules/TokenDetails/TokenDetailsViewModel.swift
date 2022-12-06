@@ -492,7 +492,7 @@ private extension TokenDetailsViewModel {
     }
 
     // [REDACTED_TODO_COMMENT]
-    private var destinationCurrency: Currency? {
+    var destinationCurrency: Currency? {
         let blockchain = blockchainNetwork.blockchain
 
         guard let exchangeBlockchain = ExchangeBlockchain(rawValue: blockchain.codingKey) else {
