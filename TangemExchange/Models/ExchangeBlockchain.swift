@@ -8,7 +8,7 @@
 
 import Foundation
 
-public enum ExchangeBlockchain: String, CaseIterable {
+public enum ExchangeBlockchain: String, Hashable, CaseIterable {
     case ethereum
     case bsc
     case polygon
