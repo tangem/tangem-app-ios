@@ -671,6 +671,8 @@
 		EF80842E293DE3D9000D91EA /* ExchangeManagerUtil.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF80842D293DE3D9000D91EA /* ExchangeManagerUtil.swift */; };
 		EF808430293DF454000D91EA /* ExchangeManagerErrors.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF80842F293DF454000D91EA /* ExchangeManagerErrors.swift */; };
 		EF808432293DF472000D91EA /* Int+.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF808431293DF472000D91EA /* Int+.swift */; };
+		EF80843E293F698F000D91EA /* ExchangeManagerMock.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF80843D293F698F000D91EA /* ExchangeManagerMock.swift */; };
+		EF808440293F69C7000D91EA /* Currency+Mock.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF80843F293F69C7000D91EA /* Currency+Mock.swift */; };
 		EF92412F2934BB8000C28551 /* MainButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF92412E2934BB8000C28551 /* MainButton.swift */; };
 		EF9241322934C25400C28551 /* DependenciesFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF9241312934C25400C28551 /* DependenciesFactory.swift */; };
 		EF9241342934C8F200C28551 /* SwappingConfigurator.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF9241332934C8F200C28551 /* SwappingConfigurator.swift */; };
@@ -1531,6 +1533,8 @@
 		EF80842D293DE3D9000D91EA /* ExchangeManagerUtil.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExchangeManagerUtil.swift; sourceTree = "<group>"; };
 		EF80842F293DF454000D91EA /* ExchangeManagerErrors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExchangeManagerErrors.swift; sourceTree = "<group>"; };
 		EF808431293DF472000D91EA /* Int+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Int+.swift"; sourceTree = "<group>"; };
+		EF80843D293F698F000D91EA /* ExchangeManagerMock.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExchangeManagerMock.swift; sourceTree = "<group>"; };
+		EF80843F293F69C7000D91EA /* Currency+Mock.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Currency+Mock.swift"; sourceTree = "<group>"; };
 		EF92412E2934BB8000C28551 /* MainButton.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MainButton.swift; sourceTree = "<group>"; };
 		EF9241312934C25400C28551 /* DependenciesFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DependenciesFactory.swift; sourceTree = "<group>"; };
 		EF9241332934C8F200C28551 /* SwappingConfigurator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwappingConfigurator.swift; sourceTree = "<group>"; };
@@ -1815,8 +1819,8 @@
 		5D3F77CD24BF56DC00E8695B /* Preview Content */ = {
 			isa = PBXGroup;
 			children = (
+				EF80843B293F6967000D91EA /* Mocks */,
 				B0DC10CE292755BA00BBE854 /* Cards */,
-				B0332D2F292519D000553AD9 /* Referral */,
 				5D3F77CE24BF56DC00E8695B /* Preview Assets.xcassets */,
 			);
 			path = "Preview Content";
@@ -3732,6 +3736,24 @@
 			path = Utils;
 			sourceTree = "<group>";
 		};
+		EF80843B293F6967000D91EA /* Mocks */ = {
+			isa = PBXGroup;
+			children = (
+				EF80843C293F6976000D91EA /* Exchange */,
+				B0332D2F292519D000553AD9 /* Referral */,
+			);
+			path = Mocks;
+			sourceTree = "<group>";
+		};
+		EF80843C293F6976000D91EA /* Exchange */ = {
+			isa = PBXGroup;
+			children = (
+				EF80843D293F698F000D91EA /* ExchangeManagerMock.swift */,
+				EF80843F293F69C7000D91EA /* Currency+Mock.swift */,
+			);
+			path = Exchange;
+			sourceTree = "<group>";
+		};
 		EF9241302934C22300C28551 /* Factories */ = {
 			isa = PBXGroup;
 			children = (
@@ -4402,6 +4424,7 @@
 				5DD4CB4E24FAAB1A008F23CC /* KeyboardAdaptive.swift in Sources */,
 				DC66BBE72858EBE400CDF765 /* OnboardingCoordinatorView.swift in Sources */,
 				5DA5067D27A2FF57000A8901 /* URL+.swift in Sources */,
+				EF808440293F69C7000D91EA /* Currency+Mock.swift in Sources */,
 				DC5E32C928EDCCFA00D6096A /* Requests.swift in Sources */,
 				EF46622C2924DF0300346B6C /* DefaultToggleRowViewModel.swift in Sources */,
 				EF3EC523289AB2DE0071BA7F /* TangemProvider.swift in Sources */,
@@ -4686,6 +4709,7 @@
 				DA23788627B24222009795A8 /* Collection.swift in Sources */,
 				EF4662392924E00400346B6C /* WalletConnectRowView.swift in Sources */,
 				B0453672264D4B730005B23E /* Constants.swift in Sources */,
+				EF80843E293F698F000D91EA /* ExchangeManagerMock.swift in Sources */,
 				B0E9E2FD2679DA5B00269C7A /* Separator.swift in Sources */,
 				5DBAFD1E27E2471D0008B882 /* CoinModel.swift in Sources */,
 				5DDE22EF2608EFDB008657C6 /* UIViewController+.swift in Sources */,
