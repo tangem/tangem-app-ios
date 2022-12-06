@@ -3471,8 +3471,8 @@
 				EF4661DC2924CC6600346B6C /* Constants.swift */,
 				EF4661E62924CC6900346B6C /* ExchangeBlockchain.swift */,
 				E9C17C5A29170FCD00FDE4BC /* Currency.swift */,
-				EF29BEE1292E5DB400D7C782 /* ExchangeTransactionInfo.swift */,
 				EF4661D32923E5BB00346B6C /* ExchangeItems.swift */,
+				EF29BEE1292E5DB400D7C782 /* ExchangeTransactionInfo.swift */,
 				EF29BEE0292E5D9B00D7C782 /* OneInch */,
 			);
 			path = Models;
