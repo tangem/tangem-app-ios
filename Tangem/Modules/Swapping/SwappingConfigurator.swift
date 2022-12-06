@@ -23,11 +23,10 @@ struct SwappingConfigurator {
             destination: input.destination
         )
 
-        let userWalletsListProvider = factory.createUserWalletsListProvider(walletModel: input.walletModel)
-
         return SwappingViewModel(
             exchangeManager: exchangeManager,
-            userWalletsListProvider: userWalletsListProvider,
+            userWalletsListProvider: factory.createUserWalletsListProvider(walletModel: input.walletModel),
+            tokenIconURLBuilding: factory.createTokenIconURLBuilder(),
             coordinator: coordinator
         )
     }
