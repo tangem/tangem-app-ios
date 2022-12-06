@@ -8,7 +8,6 @@
 
 import Foundation
 import Combine
-import TangemExchange
 
 class SwappingCoordinator: CoordinatorObject {
     let dismissAction: Action
