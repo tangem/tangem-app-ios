@@ -508,7 +508,6 @@ private extension TokenDetailsViewModel {
 
             assertionFailure("[REDACTED_TODO_COMMENT]")
             return nil
-
         case .token:
             return coinCurrency(exchangeBlockchain: exchangeBlockchain)
         }
