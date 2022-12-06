@@ -68,6 +68,11 @@ struct SwappingTokenIconView: View {
     private func icon(url: URL, size: CGSize) -> some View {
         KFImage(url)
             .setProcessor(DownsamplingImageProcessor(size: size))
+            .placeholder {
+                SkeletonView()
+                    .frame(size: size)
+                    .cornerRadius(size.height / 2)
+            }
             .fade(duration: 0.3)
             .cacheOriginalImage()
             .scaleFactor(UIScreen.main.scale)
@@ -90,8 +95,8 @@ struct SwappingTokenIcon_Previews: PreviewProvider {
         VStack {
             SwappingTokenIconView(
                 viewModel: SwappingTokenIconViewModel(
-                    imageURL: TokenIconURLBuilder().iconURL(id: "dai"),
-                    networkURL: TokenIconURLBuilder().iconURL(id: "ethereum"),
+                    imageURL: TokenIconURLBuilder().iconURL(id: "dai", size: .large),
+                    networkURL: TokenIconURLBuilder().iconURL(id: "ethereum", size: .small),
                     tokenSymbol: "MATIC"
                 )
             )
@@ -99,8 +104,8 @@ struct SwappingTokenIcon_Previews: PreviewProvider {
 
             SwappingTokenIconView(
                 viewModel: SwappingTokenIconViewModel(
-                    imageURL: TokenIconURLBuilder().iconURL(id: "staked-ether"),
-                    networkURL: TokenIconURLBuilder().iconURL(id: "ethereum"),
+                    imageURL: TokenIconURLBuilder().iconURL(id: "staked-ether", size: .large),
+                    networkURL: TokenIconURLBuilder().iconURL(id: "ethereum", size: .small),
                     tokenSymbol: "STETH"
                 )
             )
