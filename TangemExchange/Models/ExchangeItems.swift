@@ -28,7 +28,7 @@ public struct ExchangeItems {
 public struct CurrencyBalance {
     public let balance: Decimal
     public let fiatBalance: Decimal
-    
+
     public init(balance: Decimal, fiatBalance: Decimal) {
         self.balance = balance
         self.fiatBalance = fiatBalance
