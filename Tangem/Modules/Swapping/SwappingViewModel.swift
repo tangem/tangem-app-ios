@@ -38,6 +38,7 @@ final class SwappingViewModel: ObservableObject {
 
     private let exchangeManager: ExchangeManager
     private let userWalletsListProvider: UserWalletsListProviding
+    private let tokenIconURLBuilding: TokenIconURLBuilding
     private unowned let coordinator: SwappingRoutable
 
     // MARK: - Private
@@ -47,10 +48,12 @@ final class SwappingViewModel: ObservableObject {
     init(
         exchangeManager: ExchangeManager,
         userWalletsListProvider: UserWalletsListProviding,
+        tokenIconURLBuilding: TokenIconURLBuilding,
         coordinator: SwappingRoutable
     ) {
         self.exchangeManager = exchangeManager
         self.userWalletsListProvider = userWalletsListProvider
+        self.tokenIconURLBuilding = tokenIconURLBuilding
         self.coordinator = coordinator
 
         setupView()
@@ -150,7 +153,7 @@ private extension SwappingViewModel {
             maximumFractionDigits: source.decimalCount,
             fiatValue: exchangeItems.sourceBalance.fiatBalance,
             isLockedVisible: !exchangeManager.isAvailableForExchange(),
-            tokenIcon: source.asSwappingTokenIconViewModel()
+            tokenIcon: mapToSwappingTokenIconViewModel(currency: source)
         )
 
         let state: ReceiveCurrencyViewModel.State
@@ -168,7 +171,7 @@ private extension SwappingViewModel {
 
         receiveCurrencyViewModel = ReceiveCurrencyViewModel(
             state: state,
-            tokenIcon: destination.asSwappingTokenIconViewModel()
+            tokenIcon: mapToSwappingTokenIconViewModel(currency: destination)
         )
     }
 
@@ -260,10 +263,26 @@ private extension SwappingViewModel {
             .removeDuplicates()
             .dropFirst()
             .debounce(for: 1, scheduler: DispatchQueue.global())
-            .sink { [unowned self] amount in
-                self.exchangeManager.update(amount: amount)
+            .sink { [weak self] amount in
+                self?.exchangeManager.update(amount: amount)
             }
             .store(in: &bag)
+    }
+
+    func mapToSwappingTokenIconViewModel(currency: Currency) -> SwappingTokenIconViewModel {
+        switch currency.currencyType {
+        case .coin:
+            return SwappingTokenIconViewModel(
+                imageURL: tokenIconURLBuilding.iconURL(id: currency.blockchain.id, size: .large),
+                tokenSymbol: currency.symbol
+            )
+        case .token:
+            return SwappingTokenIconViewModel(
+                imageURL: tokenIconURLBuilding.iconURL(id: currency.id, size: .large),
+                networkURL: tokenIconURLBuilding.iconURL(id: currency.blockchain.id, size: .small),
+                tokenSymbol: currency.symbol
+            )
+        }
     }
 }
 
@@ -303,24 +322,6 @@ extension SwappingViewModel {
             case .givePermission, .insufficientFunds:
                 return .none
             }
-        }
-    }
-}
-
-private extension Currency {
-    func asSwappingTokenIconViewModel() -> SwappingTokenIconViewModel {
-        switch currencyType {
-        case .coin:
-            return SwappingTokenIconViewModel(
-                imageURL: TokenIconURLBuilder().iconURL(id: blockchain.id, size: .large),
-                tokenSymbol: symbol
-            )
-        case .token:
-            return SwappingTokenIconViewModel(
-                imageURL: TokenIconURLBuilder().iconURL(id: id, size: .large),
-                networkURL: TokenIconURLBuilder().iconURL(id: blockchain.id, size: .small),
-                tokenSymbol: symbol
-            )
         }
     }
 }
