@@ -29,6 +29,7 @@ final class SwappingTokenListViewModel: ObservableObject, Identifiable {
 
     // MARK: - Dependencies
 
+    private let tokenIconURLBuilder: TokenIconURLBuilding
     private unowned let coordinator: SwappingTokenListRoutable
 
     private let sourceCurrency: Currency
@@ -39,10 +40,12 @@ final class SwappingTokenListViewModel: ObservableObject, Identifiable {
     init(
         sourceCurrency: Currency,
         userCurrencies: [Currency],
+        tokenIconURLBuilder: TokenIconURLBuilding,
         coordinator: SwappingTokenListRoutable
     ) {
         self.sourceCurrency = sourceCurrency
         self.userCurrencies = userCurrencies
+        self.tokenIconURLBuilder = tokenIconURLBuilder
         self.coordinator = coordinator
 
         setupUserItemsSection()
@@ -103,7 +106,7 @@ private extension SwappingTokenListViewModel {
 
     func mapToSwappingTokenItemViewModel(currency: Currency) -> SwappingTokenItemViewModel {
         SwappingTokenItemViewModel(
-            iconURL: TokenIconURLBuilder().iconURL(id: currency.id, size: .large),
+            iconURL: tokenIconURLBuilder.iconURL(id: currency.id, size: .large),
             name: currency.name,
             symbol: currency.symbol,
             fiatBalance: nil,
