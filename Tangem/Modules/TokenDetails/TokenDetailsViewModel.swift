@@ -506,7 +506,7 @@ private extension TokenDetailsViewModel {
                 assertionFailure("[REDACTED_TODO_COMMENT]")
                 return nil
             }
-            
+
             return tokenCurrency(token: token, exchangeBlockchain: exchangeBlockchain)
         case .token:
             return coinCurrency(exchangeBlockchain: exchangeBlockchain)
