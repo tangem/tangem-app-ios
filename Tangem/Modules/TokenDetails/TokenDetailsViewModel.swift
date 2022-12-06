@@ -154,7 +154,7 @@ class TokenDetailsViewModel: ObservableObject {
     }
 
     var swappingIsAvailable: Bool {
-        FeatureProvider.isAvailable(.exchange) && isAvailableForSwapping()
+        FeatureProvider.isAvailable(.exchange) && isAvailableForSwapping
     }
 
     @Published var solanaRentWarning: String? = nil
@@ -444,8 +444,8 @@ extension TokenDetailsViewModel {
     func openSwapping() {
         guard FeatureProvider.isAvailable(.exchange),
               let walletModel = walletModel,
-              let source = sourceCurrency(),
-              let destination = destinationCurrency()
+              let source = sourceCurrency,
+              let destination = destinationCurrency
         else {
             return
         }
@@ -468,13 +468,13 @@ extension TokenDetailsViewModel {
 // MARK: - Swapping preparing
 
 private extension TokenDetailsViewModel {
-    func isAvailableForSwapping() -> Bool {
+    var isAvailableForSwapping: Bool {
         ExchangeManagerUtil().networkIsAvailableForExchange(
             networkId: blockchainNetwork.blockchain.codingKey
         )
     }
 
-    func sourceCurrency() -> Currency? {
+    var sourceCurrency: Currency? {
         let blockchain = blockchainNetwork.blockchain
 
         guard let exchangeBlockchain = ExchangeBlockchain(rawValue: blockchain.codingKey) else {
@@ -491,7 +491,8 @@ private extension TokenDetailsViewModel {
         }
     }
 
-    private func destinationCurrency() -> Currency? {
+    // [REDACTED_TODO_COMMENT]
+    private var destinationCurrency: Currency? {
         let blockchain = blockchainNetwork.blockchain
 
         guard let exchangeBlockchain = ExchangeBlockchain(rawValue: blockchain.codingKey) else {
