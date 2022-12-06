@@ -268,7 +268,7 @@ private extension DefaultExchangeManager {
             fiatBalance = blockchainInfoProvider.getFiatBalance(currency: source, amount: amount)
         }
 
-        exchangeItems.sourceBalance = CurrencyBalance(balance: balance, fiatBalance: fiatBalance)
+        exchangeItems.sourceBalance = ExchangeItems.Balance(balance: balance, fiatBalance: fiatBalance)
     }
 }
 
