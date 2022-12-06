@@ -27,6 +27,10 @@ class SwappingCoordinator: CoordinatorObject {
 
     // MARK: - Child view models
 
+    // MARK: - Properties
+
+    private let factory = DependenciesFactory()
+
     required init(
         dismissAction: @escaping Action,
         popToRootAction: @escaping ParamsAction<PopToRootOptions>
@@ -36,7 +40,7 @@ class SwappingCoordinator: CoordinatorObject {
     }
 
     func start(with options: Options) {
-        rootViewModel = SwappingConfigurator().createModule(input: options.input, coordinator: self)
+        rootViewModel = SwappingConfigurator(factory: factory).createModule(input: options.input, coordinator: self)
     }
 }
 
@@ -58,6 +62,7 @@ extension SwappingCoordinator: SwappingRoutable {
         swappingTokenListViewModel = SwappingTokenListViewModel(
             sourceCurrency: sourceCurrency,
             userCurrencies: userCurrencies,
+            tokenIconURLBuilder: factory.createTokenIconURLBuilder(),
             coordinator: self
         )
     }
