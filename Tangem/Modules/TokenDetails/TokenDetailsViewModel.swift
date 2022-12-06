@@ -470,7 +470,7 @@ extension TokenDetailsViewModel {
 private extension TokenDetailsViewModel {
     func isAvailableForSwapping() -> Bool {
         ExchangeManagerUtil().networkIsAvailableForExchange(
-            networkId: blockchainNetwork.blockchain.codingKey
+            networkId: blockchainNetwork.blockchain.networkId
         )
     }
 
