@@ -11,6 +11,10 @@ import TangemExchange
 import BlockchainSdk
 
 struct DependenciesFactory {
+    func createTokenIconURLBuilder() -> TokenIconURLBuilding {
+        TokenIconURLBuilder(baseURL: CoinsResponse.baseURL)
+    }
+
     func createExchangeManager(
         walletModel: WalletModel,
         signer: TransactionSigner,
