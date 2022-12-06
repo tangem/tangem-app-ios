@@ -33,7 +33,7 @@ extension BlockchainNetworkService: BlockchainInfoProvider {
         let blockchain = walletModel.blockchainNetwork.blockchain
         guard blockchain.networkId == currency.blockchain.networkId else {
             assertionFailure("Incorrect WalletModel")
-            return nil   
+            return nil
         }
 
         return walletModel.wallet.address
