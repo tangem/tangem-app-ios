@@ -180,35 +180,27 @@ private extension DefaultExchangeManager {
             updateState(.loading)
         }
 
-        switch exchangeItems.source.currencyType {
-        case .coin:
-            Task {
-                do {
-                    let result = try await getExpectSwappingResult()
+        Task {
+            do {
+                let result = try await getExpectSwappingResult()
 
+                switch exchangeItems.source.currencyType {
+                case .coin:
                     if result.isEnoughAmountForExchange {
                         let txData = try await getExchangeTxDataModel()
-                        updateState(.available(swappingResult: result, exchangeData: txData))
+                        updateState(.available(expect: result, exchangeData: txData))
                     } else {
-                        updateState(.preview(swappingResult: result))
+                        updateState(.preview(expect: result))
                     }
-
-                } catch {
-                    updateState(.requiredRefresh(occurredError: error))
-                }
-            }
-        case .token:
-            Task {
-                do {
-                    let result = try await getExpectSwappingResult()
+                case .token:
                     await updateExchangeAmountAllowance()
                     let approvedDataModel = try await getExchangeApprovedDataModel()
                     updateState(
-                        .requiredPermission(swappingResult: result, approvedDataModel: approvedDataModel)
+                        .requiredPermission(expect: result, approvedDataModel: approvedDataModel)
                     )
-                } catch {
-                    updateState(.requiredRefresh(occurredError: error))
                 }
+            } catch {
+                updateState(.requiredRefresh(occurredError: error))
             }
         }
     }
@@ -270,7 +262,7 @@ private extension DefaultExchangeManager {
             let source = exchangeItems.source
             let balance = try await blockchainInfoProvider.getBalance(currency: source)
             var fiatBalance: Decimal = 0
-            if let amount {
+            if let amount = amount  {
                 fiatBalance = try await blockchainInfoProvider.getFiatBalance(currency: source, amount: amount)
             }
 
