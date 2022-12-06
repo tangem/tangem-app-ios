@@ -32,13 +32,28 @@ extension BlockchainNetworkService: BlockchainInfoProvider {
     func getWalletAddress(currency: Currency) -> String? {
         return walletModel.wallet.address
     }
+    
+    func getBalance(currency: Currency) async throws -> Decimal {
+        switch currency.currencyType {
+        case .token:
+            guard let token = currency.asToken() else {
+                assertionFailure("Currency isn't a token")
+                return 0
+            }
+            
+            if let balance = walletModel.getDecimalBalance(for: .token(value: token)) {
+                return balance
+            }
+            
+            return try await getBalanceThroughUpdateWalletModel(amountType: .token(value: token))
+            
+        case .coin:
+            if let balance = walletModel.getDecimalBalance(for: .coin) {
+                return balance
+            }
 
-    func getBalance(currency: Currency) -> Decimal {
-        if currency.isToken, let token = currency.asToken() {
-            return walletModel.getDecimalBalance(for: .token(value: token))
+            return try await getBalanceThroughUpdateWalletModel(amountType: .coin)
         }
-
-        return walletModel.getDecimalBalance(for: .coin)
     }
 
     func getFiatBalance(currency: Currency, amount: Decimal) async throws -> Decimal {
@@ -46,7 +61,7 @@ extension BlockchainNetworkService: BlockchainInfoProvider {
             return fiat
         }
 
-        return try await getFiatBalanceThroughAddToWalletModel(currency: currency, amount: amount)
+        return try await getFiatBalanceThroughLoadRates(currency: currency, amount: amount)
     }
 
     func getFee(currency: Currency, amount: Decimal, destination: String) async throws -> [Decimal] {
@@ -124,7 +139,7 @@ private extension BlockchainNetworkService {
 
         case .token:
             guard let token = currency.asToken() else {
-                assertionFailure("Currency isn't token")
+                assertionFailure("Currency isn't a token")
                 return 0
             }
 
@@ -136,8 +151,27 @@ private extension BlockchainNetworkService {
 
         return nil
     }
+    
+    func getBalanceThroughUpdateWalletModel(amountType: Amount.AmountType) async throws -> Decimal {
+        switch amountType {
+        case let .token(token):
+            walletModel.addTokens([token])
+        case .coin, .reserve:
+            break
+        }
+        
+        // Think about it, because we unnecessary updates all tokens in walletModel
+        try await walletModel.update(silent: true).async()
+        
+        if let balance = walletModel.getDecimalBalance(for: amountType) {
+            return balance
+        }
+        
+        assertionFailure("WalletModel haven't balance for coin")
+        return 0
+    }
 
-    func getFiatBalanceThroughAddToWalletModel(currency: Currency, amount: Decimal) async throws -> Decimal {
+    func getFiatBalanceThroughLoadRates(currency: Currency, amount: Decimal) async throws -> Decimal {
         let id: String = currency.isToken ? currency.id : currency.blockchain.networkId
         var currencyRate: Decimal? = rates[id]
 
