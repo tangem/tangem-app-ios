@@ -26,7 +26,7 @@ struct SwappingTokenListView: View {
                         .listRowInsets(.init(top: 8, leading: horizontalInset, bottom: 8, trailing: horizontalInset))
                 }
 
-                GroupedSection(viewModel.yourItems) {
+                GroupedSection(viewModel.userItems) {
                     SwappingTokenItemView(viewModel: $0)
                 } header: {
                     Text("swapping_token_list_your_tokens".localized.uppercased())
@@ -51,19 +51,6 @@ struct SwappingTokenListView: View {
             .searchableCompat(text: $viewModel.searchText.value)
             .navigationBarTitle(Text("swapping_token_list_your_title".localized), displayMode: .inline)
             .onAppear(perform: viewModel.onAppear)
-        }
-    }
-}
-
-struct SwappingTokenListView_Preview: PreviewProvider {
-    static let viewModel = SwappingTokenListViewModel(
-        network: ExchangeBlockchain.polygon,
-        coordinator: SwappingCoordinator()
-    )
-
-    static var previews: some View {
-        NavigationView {
-            SwappingTokenListView(viewModel: viewModel)
         }
     }
 }
