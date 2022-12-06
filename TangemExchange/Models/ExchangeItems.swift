@@ -12,12 +12,12 @@ public struct ExchangeItems {
     public let source: Currency
     public let destination: Currency
 
-    public var sourceBalance: CurrencyBalance
+    public var sourceBalance: Balance
 
     public init(
         source: Currency,
         destination: Currency,
-        sourceBalance: CurrencyBalance = .zero
+        sourceBalance: Balance = .zero
     ) {
         self.source = source
         self.destination = destination
@@ -25,16 +25,16 @@ public struct ExchangeItems {
     }
 }
 
-public struct CurrencyBalance {
-    public let balance: Decimal
-    public let fiatBalance: Decimal
+public extension ExchangeItems {
+    struct Balance {
+        public static let zero = Balance(balance: 0, fiatBalance: 0)
 
-    public init(balance: Decimal, fiatBalance: Decimal) {
-        self.balance = balance
-        self.fiatBalance = fiatBalance
+        public let balance: Decimal
+        public let fiatBalance: Decimal
+
+        public init(balance: Decimal, fiatBalance: Decimal) {
+            self.balance = balance
+            self.fiatBalance = fiatBalance
+        }
     }
-}
-
-public extension CurrencyBalance {
-    static let zero = CurrencyBalance(balance: 0, fiatBalance: 0)
 }
