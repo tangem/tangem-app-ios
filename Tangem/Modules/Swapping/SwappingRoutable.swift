@@ -10,7 +10,7 @@ import Foundation
 import TangemExchange
 
 protocol SwappingRoutable: AnyObject {
-    func presentExchangeableTokenListView(network: ExchangeBlockchain)
+    func presentExchangeableTokenListView(sourceCurrency: Currency, userCurrencies: [Currency])
     func presentSuccessView(fromCurrency: String, toCurrency: String)
     func presentPermissionView(inputModel: SwappingPermissionViewModel.InputModel)
 }
