@@ -11,9 +11,9 @@ import Foundation
 public enum ExchangeAvailabilityState {
     case idle
     case loading
-    case preview(swappingResult: ExpectSwappingResult)
-    case available(swappingResult: ExpectSwappingResult, txData: ExchangeDataModel)
-    case requiredPermission(swappingResult: ExpectSwappingResult, approvedDataModel: ExchangeApprovedDataModel)
+    case preview(expect: ExpectSwappingResult)
+    case available(expect: ExpectSwappingResult, txData: ExchangeDataModel)
+    case requiredPermission(expect: ExpectSwappingResult, approvedDataModel: ExchangeApprovedDataModel)
     case requiredRefresh(occurredError: Error)
 }
 
