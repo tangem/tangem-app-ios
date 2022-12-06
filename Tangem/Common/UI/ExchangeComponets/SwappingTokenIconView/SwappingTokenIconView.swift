@@ -90,8 +90,8 @@ struct SwappingTokenIcon_Previews: PreviewProvider {
         VStack {
             SwappingTokenIconView(
                 viewModel: SwappingTokenIconViewModel(
-                    imageURL: TokenIconURLBuilder().iconURL(id: "dai"),
-                    networkURL: TokenIconURLBuilder().iconURL(id: "ethereum"),
+                    imageURL: TokenIconURLBuilderMock().iconURL(id: "dai", size: .large),
+                    networkURL: TokenIconURLBuilderMock().iconURL(id: "ethereum", size: .small),
                     tokenSymbol: "MATIC"
                 )
             )
@@ -99,8 +99,8 @@ struct SwappingTokenIcon_Previews: PreviewProvider {
 
             SwappingTokenIconView(
                 viewModel: SwappingTokenIconViewModel(
-                    imageURL: TokenIconURLBuilder().iconURL(id: "dai"),
-                    networkURL: TokenIconURLBuilder().iconURL(id: "ethereum"),
+                    imageURL: TokenIconURLBuilderMock().iconURL(id: "dai", size: .large),
+                    networkURL: TokenIconURLBuilderMock().iconURL(id: "ethereum", size: .small),
                     tokenSymbol: "MATIC"
                 )
             )
