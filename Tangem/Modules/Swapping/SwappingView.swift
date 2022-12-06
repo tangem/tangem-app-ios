@@ -111,3 +111,16 @@ struct SwappingView: View {
         )
     }
 }
+
+struct SwappingView_Preview: PreviewProvider {
+    static let viewModel = SwappingViewModel(
+        exchangeManager: ExchangeManagerMock(),
+        coordinator: SwappingCoordinator()
+    )
+
+    static var previews: some View {
+        NavigationView {
+            SwappingView(viewModel: viewModel)
+        }
+    }
+}
