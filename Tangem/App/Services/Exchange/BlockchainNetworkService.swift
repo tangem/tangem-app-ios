@@ -32,7 +32,7 @@ extension BlockchainNetworkService: BlockchainInfoProvider {
     func getWalletAddress(currency: Currency) -> String? {
         return walletModel.wallet.address
     }
-    
+
     func getBalance(currency: Currency) async throws -> Decimal {
         switch currency.currencyType {
         case .token:
@@ -40,13 +40,13 @@ extension BlockchainNetworkService: BlockchainInfoProvider {
                 assertionFailure("Currency isn't a token")
                 return 0
             }
-            
+
             if let balance = walletModel.getDecimalBalance(for: .token(value: token)) {
                 return balance
             }
-            
+
             return try await getBalanceThroughUpdateWalletModel(amountType: .token(value: token))
-            
+
         case .coin:
             if let balance = walletModel.getDecimalBalance(for: .coin) {
                 return balance
@@ -151,7 +151,7 @@ private extension BlockchainNetworkService {
 
         return nil
     }
-    
+
     func getBalanceThroughUpdateWalletModel(amountType: Amount.AmountType) async throws -> Decimal {
         switch amountType {
         case let .token(token):
@@ -159,14 +159,14 @@ private extension BlockchainNetworkService {
         case .coin, .reserve:
             break
         }
-        
+
         // Think about it, because we unnecessary updates all tokens in walletModel
         try await walletModel.update(silent: true).async()
-        
+
         if let balance = walletModel.getDecimalBalance(for: amountType) {
             return balance
         }
-        
+
         assertionFailure("WalletModel haven't balance for coin")
         return 0
     }
