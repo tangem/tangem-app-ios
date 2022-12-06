@@ -234,8 +234,8 @@ private extension SwappingViewModel {
             .removeDuplicates()
             .dropFirst()
             .debounce(for: 1, scheduler: DispatchQueue.global())
-            .sink { [unowned self] amount in
-                self.exchangeManager.update(amount: amount)
+            .sink { [weak self] amount in
+                self?.exchangeManager.update(amount: amount)
             }
             .store(in: &bag)
     }
