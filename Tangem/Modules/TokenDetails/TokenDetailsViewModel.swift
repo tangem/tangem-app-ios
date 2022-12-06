@@ -502,12 +502,12 @@ private extension TokenDetailsViewModel {
 
         switch amountType {
         case .coin, .reserve:
-            if let token = walletModel?.getTokens().first {
-                return tokenCurrency(token: token, exchangeBlockchain: exchangeBlockchain)
+            guard let token = walletModel?.getTokens().first else {
+                assertionFailure("[REDACTED_TODO_COMMENT]")
+                return nil
             }
-
-            assertionFailure("[REDACTED_TODO_COMMENT]")
-            return nil
+            
+            return tokenCurrency(token: token, exchangeBlockchain: exchangeBlockchain)
         case .token:
             return coinCurrency(exchangeBlockchain: exchangeBlockchain)
         }
