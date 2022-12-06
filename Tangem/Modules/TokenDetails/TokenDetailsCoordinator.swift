@@ -19,7 +19,7 @@ class TokenDetailsCoordinator: CoordinatorObject {
     // MARK: - Child coordinators
     @Published var sendCoordinator: SendCoordinator? = nil
     @Published var pushTxCoordinator: PushTxCoordinator? = nil
-    @Published var swappingCoordinator: SwappingCoordinator?
+    @Published var swappingCoordinator: SwappingCoordinator? = nil
 
     // MARK: - Child view models
     @Published var pushedWebViewModel: WebViewContainerViewModel? = nil
