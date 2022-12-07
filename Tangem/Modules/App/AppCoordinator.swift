@@ -208,10 +208,10 @@ extension AppCoordinator: UIWindowSceneDelegate {
             return
         }
 
+        let message = "wallet_connect_need_to_scan_card".localized
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.5, execute: {
-            UIApplication.modalFromTop(
-                AlertBuilder.makeOkGotItAlertController(message: "wallet_connect_need_to_scan_card".localized)
-            )
+            self.welcomeCoordinator?.welcomeViewModel?.present(message)
+            self.authCoordinator?.rootViewModel?.presentIfLocked(message)
         })
     }
 }
