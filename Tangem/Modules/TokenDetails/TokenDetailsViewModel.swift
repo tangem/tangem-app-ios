@@ -468,8 +468,8 @@ extension TokenDetailsViewModel {
 // MARK: - Swapping preparing
 
 private extension TokenDetailsViewModel {
-    var isAvailableForSwapping: Bool {
-        ExchangeManagerUtil().networkIsAvailableForExchange(
+    var canSwap: Bool {
+        ExchangeManagerUtil().isNetworkAvailableForExchange(
             networkId: blockchainNetwork.blockchain.networkId
         )
     }
