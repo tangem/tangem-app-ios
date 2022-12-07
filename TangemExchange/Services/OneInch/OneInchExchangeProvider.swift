@@ -12,6 +12,7 @@ import Combine
 class OneInchExchangeProvider {
     /// OneInch use this contractAddress for coins
     private let oneInchCoinContractAddress = "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"
+    private let defaultSlippage = 1
     private let oneInchAPIProvider: OneInchAPIServicing
 
     private var bag = Set<AnyCancellable>()
@@ -54,7 +55,7 @@ extension OneInchExchangeProvider: ExchangeProvider {
             toTokenAddress: destination.contractAddress ?? oneInchCoinContractAddress,
             amount: amount,
             fromAddress: walletAddress,
-            slippage: 1 // Default value
+            slippage: defaultSlippage
         )
 
         let result = await oneInchAPIProvider.swap(blockchain: items.source.blockchain, parameters: parameters)
