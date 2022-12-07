@@ -444,8 +444,7 @@ extension TokenDetailsViewModel {
     func openSwapping() {
         guard FeatureProvider.isAvailable(.exchange),
               let walletModel = walletModel,
-              let source = sourceCurrency,
-              let destination = destinationCurrency
+              let source = sourceCurrency
         else {
             return
         }
@@ -453,8 +452,7 @@ extension TokenDetailsViewModel {
         let input = SwappingConfigurator.InputModel(
             walletModel: walletModel,
             signer: card.signer,
-            source: source,
-            destination: destination
+            source: source
         )
 
         coordinator.openSwapping(input: input)
@@ -469,7 +467,7 @@ extension TokenDetailsViewModel {
 
 private extension TokenDetailsViewModel {
     var isAvailableForSwapping: Bool {
-        ExchangeManagerUtil().networkIsAvailableForExchange(
+        ExchangeManagerUtil().isNetworkAvailableForExchange(
             networkId: blockchainNetwork.blockchain.networkId
         )
     }
@@ -484,24 +482,6 @@ private extension TokenDetailsViewModel {
 
         case .token(let token):
             return mapper.mapToCurrency(token: token, blockchain: blockchain)
-        }
-    }
-
-    // [REDACTED_TODO_COMMENT]
-    var destinationCurrency: Currency? {
-        let blockchain = blockchainNetwork.blockchain
-        let mapper = CurrencyMapper()
-
-        switch amountType {
-        case .coin, .reserve:
-            guard let token = walletModel?.getTokens().first else {
-                assertionFailure("[REDACTED_TODO_COMMENT]")
-                return nil
-            }
-
-            return mapper.mapToCurrency(token: token, blockchain: blockchain)
-        case .token:
-            return mapper.mapToCurrency(blockchain: blockchainNetwork.blockchain)
         }
     }
 }
