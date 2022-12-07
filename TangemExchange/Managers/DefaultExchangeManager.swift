@@ -21,17 +21,14 @@ class DefaultExchangeManager<TxBuilder: TransactionBuilder> {
     private lazy var refreshDataTimer = Timer.publish(every: 10, on: .main, in: .common).autoconnect()
 
     private var availabilityState: ExchangeAvailabilityState = .idle {
-        didSet { delegate?.exchangeManagerDidUpdate(availabilityState: availabilityState) }
+        didSet { delegate?.exchangeManager(self, didUpdate: availabilityState) }
     }
     private var exchangeItems: ExchangeItems {
-        didSet { delegate?.exchangeManagerDidUpdate(exchangeItems: exchangeItems) }
+        didSet { delegate?.exchangeManager(self, didUpdate: exchangeItems) }
     }
     private var tokenExchangeAllowanceLimit: Decimal? {
         didSet {
-            delegate?.exchangeManagerDidUpdate(
-                availabilityForExchange: isAvailableForExchange(),
-                limit: tokenExchangeAllowanceLimit
-            )
+            delegate?.exchangeManager(self, didUpdate: isAvailableForExchange())
         }
     }
 
@@ -209,16 +206,9 @@ private extension DefaultExchangeManager {
 
     func updateExchangeAmountAllowance() async {
         /// If allowance limit already loaded use it
-        if let tokenExchangeAllowanceLimit {
-            delegate?.exchangeManagerDidUpdate(
-                availabilityForExchange: isAvailableForExchange(),
-                limit: tokenExchangeAllowanceLimit
-            )
-            return
-        }
-
-        guard let walletAddress else {
-            print("walletAddress not found")
+        guard tokenExchangeAllowanceLimit == nil,
+              let walletAddress else {
+            delegate?.exchangeManager(self, didUpdate: isAvailableForExchange())
             return
         }
 
@@ -227,7 +217,6 @@ private extension DefaultExchangeManager {
                 for: exchangeItems.source,
                 walletAddress: walletAddress
             )
-            tokenExchangeAllowanceLimit = nil
         } catch {
             tokenExchangeAllowanceLimit = nil
             updateState(.requiredRefresh(occurredError: error))
@@ -278,7 +267,7 @@ private extension DefaultExchangeManager {
     func mapExpectSwappingResult(from quoteData: QuoteData) throws -> ExpectSwappingResult {
         guard let expectAmount = Decimal(string: quoteData.toTokenAmount),
               let amount else {
-            throw ExchangeManagerErrors.notCorrectData
+            throw ExchangeManagerErrors.incorrectData
         }
 
         let decimalNumber = exchangeItems.destination.decimalCount.asLongNumber.decimal
