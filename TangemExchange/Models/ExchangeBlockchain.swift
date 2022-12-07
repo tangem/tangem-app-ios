@@ -8,7 +8,7 @@
 
 import Foundation
 
-public enum ExchangeBlockchain: String, CaseIterable {
+public enum ExchangeBlockchain: Hashable, CaseIterable {
     case ethereum
     case bsc
     case polygon
@@ -21,10 +21,13 @@ public enum ExchangeBlockchain: String, CaseIterable {
     case aurora
 
     public init?(networkId: String) {
-        self.init(rawValue: networkId)
-    }
+        if let blockchain = ExchangeBlockchain.allCases.first(where: { $0.networkId == networkId }) {
+            self = blockchain
+            return
+        }
 
-    public var networkId: String { rawValue }
+        return nil
+    }
 
     public var chainId: Int {
         switch self {
@@ -41,12 +44,29 @@ public enum ExchangeBlockchain: String, CaseIterable {
         }
     }
 
+    /// Uses for build icon url
     public var id: String {
         switch self {
         case .ethereum: return "ethereum"
         case .bsc: return "binancecoin"
         case .polygon: return "matic-network"
         case .avalanche: return "avalanche-2"
+        case .fantom: return "fantom"
+        case .arbitrum: return "arbitrum-one"
+        case .gnosis: return "xdai"
+        case .optimism: return "optimistic-ethereum"
+        case .klayth: return ""
+        case .aurora: return ""
+        }
+    }
+
+    /// Uses for load tokens
+    public var networkId: String {
+        switch self {
+        case .ethereum: return "ethereum"
+        case .bsc: return "binance-smart-chain"
+        case .polygon: return "polygon-pos"
+        case .avalanche: return "avalanche"
         case .fantom: return "fantom"
         case .arbitrum: return "arbitrum-one"
         case .gnosis: return "xdai"
