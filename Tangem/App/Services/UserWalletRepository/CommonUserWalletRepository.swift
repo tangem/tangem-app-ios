@@ -41,7 +41,7 @@ class CommonUserWalletRepository: UserWalletRepository {
 
     private(set) var models = [CardViewModel]()
 
-    private(set) var isLocked: Bool = false
+    private(set) var isLocked: Bool = true
 
     private var userWallets: [UserWallet] = []
 
@@ -378,6 +378,8 @@ class CommonUserWalletRepository: UserWalletRepository {
 
     func lock(reason: UserWalletRepositoryLockReason) {
         discardSensitiveData()
+
+        resetServices()
 
         sendEvent(.locked(reason: reason))
     }
