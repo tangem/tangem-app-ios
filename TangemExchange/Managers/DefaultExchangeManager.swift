@@ -18,7 +18,7 @@ class DefaultExchangeManager<TxBuilder: TransactionBuilder> {
 
     // MARK: - Internal
 
-    private lazy var refreshDataTimer = Timer.publish(every: 10, on: .main, in: .common).autoconnect()
+    private lazy var refreshDataTimer = Timer.publish(every: 30, on: .main, in: .common).autoconnect()
 
     private var availabilityState: ExchangeAvailabilityState = .idle {
         didSet { delegate?.exchangeManagerDidUpdate(availabilityState: availabilityState) }
@@ -94,14 +94,12 @@ extension DefaultExchangeManager: ExchangeManager {
     }
 
     func isAvailableForExchange() -> Bool {
-        guard exchangeItems.source.isToken else {
-            print("Unnecessary request available for exchange for coin")
+        guard exchangeItems.source.isToken, let amount, amount > 0 else {
             return true
         }
 
-        /// If we don't have values, `return true` for move view to default state
-        guard let tokenExchangeAllowanceLimit, let amount else {
-            return true
+        guard let tokenExchangeAllowanceLimit else {
+            return false
         }
 
         return amount <= tokenExchangeAllowanceLimit
@@ -140,6 +138,10 @@ private extension DefaultExchangeManager {
     func exchangeItemsDidChange() {
         /// Set nil for previous token
         tokenExchangeAllowanceLimit = nil
+        updateSourceBalances()
+
+        guard (amount ?? 0) > 0 else { return }
+
         restartTimer()
         refreshValues(silent: false)
     }
@@ -174,7 +176,7 @@ private extension DefaultExchangeManager {
     }
 }
 
-// MARK: - Request
+// MARK: - Requests
 
 private extension DefaultExchangeManager {
     func refreshValues(silent: Bool) {
@@ -190,7 +192,7 @@ private extension DefaultExchangeManager {
                 case .coin:
                     if result.isEnoughAmountForExchange {
                         let txData = try await getExchangeTxDataModel()
-                        updateState(.available(expect: result, txData: txData))
+                        updateState(.available(expect: result, exchangeData: txData))
                     } else {
                         updateState(.preview(expect: result))
                     }
@@ -227,7 +229,6 @@ private extension DefaultExchangeManager {
                 for: exchangeItems.source,
                 walletAddress: walletAddress
             )
-            tokenExchangeAllowanceLimit = nil
         } catch {
             tokenExchangeAllowanceLimit = nil
             updateState(.requiredRefresh(occurredError: error))
@@ -240,7 +241,7 @@ private extension DefaultExchangeManager {
             amount: formattedAmount
         )
 
-        return try mapExpectSwappingResult(from: quoteData)
+        return try await mapExpectSwappingResult(from: quoteData)
     }
 
     func getExchangeApprovedDataModel() async throws -> ExchangeApprovedDataModel {
@@ -261,34 +262,36 @@ private extension DefaultExchangeManager {
     }
 
     func updateSourceBalances() {
-        let source = exchangeItems.source
-        let balance = blockchainInfoProvider.getBalance(currency: source)
-        var fiatBalance: Decimal = 0
-        if let amount = amount {
-            fiatBalance = blockchainInfoProvider.getFiatBalance(currency: source, amount: amount)
-        }
+        Task {
+            let source = exchangeItems.source
+            let balance = try await blockchainInfoProvider.getBalance(currency: source)
+            var fiatBalance: Decimal = 0
+            if let amount = amount  {
+                fiatBalance = try await blockchainInfoProvider.getFiatBalance(currency: source, amount: amount)
+            }
 
-        exchangeItems.sourceBalance = ExchangeItems.Balance(balance: balance, fiatBalance: fiatBalance)
+            exchangeItems.sourceBalance = ExchangeItems.Balance(balance: balance, fiatBalance: fiatBalance)
+        }
     }
 }
 
 // MARK: - Mapping
 
 private extension DefaultExchangeManager {
-    func mapExpectSwappingResult(from quoteData: QuoteData) throws -> ExpectSwappingResult {
+    func mapExpectSwappingResult(from quoteData: QuoteData) async throws -> ExpectSwappingResult {
         guard let expectAmount = Decimal(string: quoteData.toTokenAmount),
               let amount else {
             throw ExchangeManagerErrors.notCorrectData
         }
 
         let decimalNumber = exchangeItems.destination.decimalCount.asLongNumber.decimal
-        let expectFiatAmount = blockchainInfoProvider.getFiatBalance(
+        let expectFiatAmount = try await blockchainInfoProvider.getFiatBalance(
             currency: exchangeItems.destination,
             amount: expectAmount / decimalNumber
         )
 
         let fee = Decimal(integerLiteral: quoteData.estimatedGas)
-        let fiatFee = blockchainInfoProvider.getFiatBalance(
+        let fiatFee = try await blockchainInfoProvider.getFiatBalance(
             currency: exchangeItems.destination,
             amount: fee / decimalNumber
         )
