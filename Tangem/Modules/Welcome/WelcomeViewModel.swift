@@ -73,10 +73,6 @@ class WelcomeViewModel: ObservableObject {
         scanCard()
     }
 
-    func present(_ message: String) {
-        error = AlertBuilder.makeOkGotItAlert(message: message)
-    }
-
     func requestSupport() {
         Analytics.log(.buttonRequestSupport)
         failedCardScanTracker.resetCounter()
