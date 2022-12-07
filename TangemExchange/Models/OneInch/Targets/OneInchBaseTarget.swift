@@ -18,7 +18,7 @@ struct OneInchBaseTarget: TargetType {
     }
 
     var path: String {
-        blockchain.id + target.path
+        String(blockchain.chainId) + target.path
     }
 
     var method: Moya.Method {

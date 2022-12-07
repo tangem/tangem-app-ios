@@ -9,6 +9,7 @@
 import Foundation
 
 public protocol ExchangeManagerDelegate: AnyObject {
+    func exchangeManagerDidUpdate(exchangeItems: ExchangeItems)
     func exchangeManagerDidUpdate(availabilityState: ExchangeAvailabilityState)
-    func exchangeManagerDidUpdate(swappingModel: ExchangeDataModel)
+    func exchangeManagerDidUpdate(availabilityForExchange: Bool, limit: Decimal?)
 }
