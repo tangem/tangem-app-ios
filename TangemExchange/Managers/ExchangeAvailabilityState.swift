@@ -12,7 +12,7 @@ public enum ExchangeAvailabilityState {
     case idle
     case loading
     case preview(expect: ExpectSwappingResult)
-    case available(expect: ExpectSwappingResult, txData: ExchangeDataModel)
+    case available(expect: ExpectSwappingResult, exchangeData: ExchangeDataModel)
     case requiredPermission(expect: ExpectSwappingResult, approvedDataModel: ExchangeApprovedDataModel)
     case requiredRefresh(occurredError: Error)
 }
