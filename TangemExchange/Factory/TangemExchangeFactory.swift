@@ -10,11 +10,13 @@ import Foundation
 
 /// Public factory for work with exchange
 public struct TangemExchangeFactory {
+    public init() {}
+
     public func createExchangeManager<TxBuilder: TransactionBuilder>(
         transactionBuilder: TxBuilder,
         blockchainInfoProvider: BlockchainInfoProvider,
         source: Currency,
-        destination: Currency?,
+        destination: Currency,
         amount: Decimal? = nil
     ) -> ExchangeManager {
         let exchangeItems = ExchangeItems(source: source, destination: destination)
