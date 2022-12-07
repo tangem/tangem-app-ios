@@ -104,8 +104,8 @@ struct SwappingView: View {
     @ViewBuilder
     private var mainButton: some View {
         MainButton(
-            text: viewModel.mainButtonTitle.title,
-            icon: viewModel.mainButtonTitle.icon,
+            text: viewModel.mainButtonState.title,
+            icon: viewModel.mainButtonState.icon,
             isDisabled: !viewModel.mainButtonIsEnabled,
             action: viewModel.userDidTapMainButton
         )
@@ -116,7 +116,7 @@ struct SwappingView_Preview: PreviewProvider {
     static let viewModel = SwappingViewModel(
         exchangeManager: ExchangeManagerMock(),
         userWalletsListProvider: UserWalletsListProviderMock(),
-        tokenIconURLBuilding: TokenIconURLBuilderMock(),
+        tokenIconURLBuilder: TokenIconURLBuilderMock(),
         coordinator: SwappingCoordinator()
     )
 
