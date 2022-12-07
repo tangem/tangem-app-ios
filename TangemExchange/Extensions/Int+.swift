@@ -12,8 +12,4 @@ extension Int {
     var asLongNumber: Int {
         (0 ..< self).reduce(1) { number, _ in number * 10 }
     }
-
-    var decimal: Decimal {
-        Decimal(integerLiteral: self)
-    }
 }
