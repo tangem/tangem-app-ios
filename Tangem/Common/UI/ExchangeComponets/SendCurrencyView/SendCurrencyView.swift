@@ -89,8 +89,10 @@ struct SendCurrencyView_Preview: PreviewProvider {
         maximumFractionDigits: 8,
         fiatValue: 1000.71,
         tokenIcon: SwappingTokenIconViewModel(
-            imageURL: TokenIconURLBuilderMock().iconURL(id: "bitcoin", size: .large),
-            tokenSymbol: "BTC"
+            state: .loaded(
+                imageURL: TokenIconURLBuilderMock().iconURL(id: "bitcoin", size: .large),
+                symbol: "BTC"
+            )
         )
     )
 
@@ -100,8 +102,10 @@ struct SendCurrencyView_Preview: PreviewProvider {
         fiatValue: 0.02,
         isLockedVisible: true,
         tokenIcon: SwappingTokenIconViewModel(
-            imageURL: TokenIconURLBuilderMock().iconURL(id: "bitcoin", size: .large),
-            tokenSymbol: "BTC"
+            state: .loaded(
+                imageURL: TokenIconURLBuilderMock().iconURL(id: "bitcoin", size: .large),
+                symbol: "BTC"
+            )
         )
     )
 
