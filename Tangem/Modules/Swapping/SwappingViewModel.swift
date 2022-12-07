@@ -140,7 +140,7 @@ private extension SwappingViewModel {
         case let .preview(result),
              let .available(result, _),
              let .requiredPermission(result, _):
-            state = .loaded(result.expectAmount, fiatValue: result.expectFiatAmount)
+            state = .loaded(result.expectedAmount, fiatValue: result.expectedFiatAmount)
         }
 
         receiveCurrencyViewModel = ReceiveCurrencyViewModel(
@@ -170,7 +170,7 @@ private extension SwappingViewModel {
             refreshWarningRowViewModel = nil
             feeWarningRowViewModel = nil
             receiveCurrencyViewModel?.updateState(
-                .loaded(result.expectAmount, fiatValue: result.expectFiatAmount)
+                .loaded(result.expectedAmount, fiatValue: result.expectedFiatAmount)
             )
 
         case .requiredRefresh(let error):
