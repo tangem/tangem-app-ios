@@ -35,9 +35,7 @@ final class AuthViewModel: ObservableObject {
     @Injected(\.failedScanTracker) private var failedCardScanTracker: FailedScanTrackable
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
 
-    private var unlockingWithBiometry = false
     private var unlockOnStart: Bool
-    private var messageToPresentIfLocked: String?
     private unowned let coordinator: AuthRoutable
 
     init(
@@ -61,15 +59,8 @@ final class AuthViewModel: ObservableObject {
 
     func unlockWithBiometry() {
         Analytics.log(.buttonBiometricSignIn)
-
-        unlockingWithBiometry = true
         userWalletRepository.unlock(with: .biometry) { [weak self] result in
             self?.didFinishUnlocking(result)
-            self?.unlockingWithBiometry = false
-
-            if let message = self?.messageToPresentIfLocked {
-                self?.presentIfLocked(message)
-            }
         }
     }
 
@@ -79,19 +70,6 @@ final class AuthViewModel: ObservableObject {
         userWalletRepository.unlock(with: .card(userWallet: nil)) { [weak self] result in
             self?.didFinishUnlocking(result)
         }
-    }
-
-    func presentIfLocked(_ message: String) {
-        guard !unlockingWithBiometry else {
-            self.messageToPresentIfLocked = message
-            return
-        }
-
-        if userWalletRepository.isLocked {
-            error = AlertBuilder.makeOkGotItAlert(message: message)
-        }
-
-        self.messageToPresentIfLocked = nil
     }
 
     func onAppear() {
