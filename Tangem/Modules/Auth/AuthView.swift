@@ -53,7 +53,7 @@ struct AuthView: View {
             Spacer()
 
             TangemButton(title: viewModel.unlockWithBiometryLocalizationKey, action: viewModel.unlockWithBiometry)
-                .buttonStyle(TangemButtonStyle(colorStyle: .grayAlt3, layout: .flexibleWidth, isLoading: viewModel.isScanningCard))
+                .buttonStyle(TangemButtonStyle(colorStyle: .grayAlt3, layout: .flexibleWidth, isDisabled: viewModel.isScanningCard))
                 .padding(.bottom, 11)
 
             TangemButton(title: "welcome_unlock_card", image: "tangemIconWhite", iconPosition: .trailing, action: viewModel.unlockWithCard)
