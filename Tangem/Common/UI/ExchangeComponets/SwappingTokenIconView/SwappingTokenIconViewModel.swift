@@ -11,17 +11,20 @@ import Foundation
 struct SwappingTokenIconViewModel: Identifiable, Hashable {
     var id: Int { hashValue }
 
-    let imageURL: URL
-    let networkURL: URL?
-    let tokenSymbol: String
+    private(set) var state: State
 
-    init(
-        imageURL: URL,
-        networkURL: URL? = nil,
-        tokenSymbol: String
-    ) {
-        self.imageURL = imageURL
-        self.networkURL = networkURL
-        self.tokenSymbol = tokenSymbol
+    init(state: State = .loading) {
+        self.state = state
+    }
+
+    mutating func update(state: State) {
+        self.state = state
+    }
+}
+
+extension SwappingTokenIconViewModel {
+    enum State: Hashable {
+        case loading
+        case loaded(imageURL: URL, networkURL: URL? = nil, symbol: String)
     }
 }
