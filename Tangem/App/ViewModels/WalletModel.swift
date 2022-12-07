@@ -161,6 +161,7 @@ class WalletModel: ObservableObject, Identifiable {
                     self.updateState(.idle)
                 }
 
+                self.updatePublisher?.send(())
                 self.updatePublisher?.send(completion: .finished)
                 self.updatePublisher = nil
             }
@@ -212,6 +213,7 @@ class WalletModel: ObservableObject, Identifiable {
             self.state = .idle
         }
 
+        self.updatePublisher?.send(())
         self.updatePublisher?.send(completion: .finished)
         self.updatePublisher = nil
         return false
@@ -426,8 +428,8 @@ extension WalletModel {
         return wallet.getExploreURL(for: wallet.addresses[index].value)
     }
 
-    func getDecimalBalance(for type: Amount.AmountType) -> Decimal {
-        return wallet.amounts[type]?.value ?? .zero
+    func getDecimalBalance(for type: Amount.AmountType) -> Decimal? {
+        return wallet.amounts[type]?.value
     }
 
     func getBalance(for type: Amount.AmountType) -> String {
