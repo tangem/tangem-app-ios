@@ -3403,7 +3403,6 @@
 				EF29BEF129349C2900D7C782 /* Data+.swift */,
 				EF29BEEE292FC8C100D7C782 /* MoyaProvider+AsyncRequest.swift */,
 				EF29BEF329349F4200D7C782 /* Moya.Task+.swift */,
-				EF808431293DF472000D91EA /* Int+.swift */,
 			);
 			path = Extensions;
 			sourceTree = "<group>";
@@ -3480,8 +3479,8 @@
 				EF4661DC2924CC6600346B6C /* Constants.swift */,
 				EF4661E62924CC6900346B6C /* ExchangeBlockchain.swift */,
 				E9C17C5A29170FCD00FDE4BC /* Currency.swift */,
-				EF29BEE1292E5DB400D7C782 /* ExchangeTransactionInfo.swift */,
 				EF4661D32923E5BB00346B6C /* ExchangeItems.swift */,
+				EF29BEE1292E5DB400D7C782 /* ExchangeTransactionInfo.swift */,
 				EF29BEE0292E5D9B00D7C782 /* OneInch */,
 			);
 			path = Models;
@@ -5094,7 +5093,6 @@
 				EF4662072924CC6E00346B6C /* OneInchAPIServicing.swift in Sources */,
 				EF4661F12924CC6E00346B6C /* InfoTarget.swift in Sources */,
 				EF4661FE2924CC6E00346B6C /* ExchangeInchError.swift in Sources */,
-				EF808432293DF472000D91EA /* Int+.swift in Sources */,
 				EF808430293DF454000D91EA /* ExchangeManagerErrors.swift in Sources */,
 				EF4662042924CC6E00346B6C /* PresetsConfiguration.swift in Sources */,
 				EF808434293F38CE000D91EA /* UserWalletsListProviding.swift in Sources */,

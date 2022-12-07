@@ -154,7 +154,7 @@ class TokenDetailsViewModel: ObservableObject {
     }
 
     var swappingIsAvailable: Bool {
-        FeatureProvider.isAvailable(.exchange) && isAvailableForSwapping
+        FeatureProvider.isAvailable(.exchange) && canSwap
     }
 
     @Published var solanaRentWarning: String? = nil
