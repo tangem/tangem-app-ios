@@ -9,7 +9,13 @@
 import BlockchainSdk
 import TangemExchange
 
-struct CurrencyMapper {
+protocol CurrencyMapping {
+    func mapToCurrency(token: Token, blockchain: Blockchain) -> Currency?
+    func mapToCurrency(blockchain: Blockchain) -> Currency?
+    func mapToCurrency(coinModel: CoinModel) -> Currency?
+}
+
+struct CurrencyMapper: CurrencyMapping {
     func mapToCurrency(token: Token, blockchain: Blockchain) -> Currency? {
         guard let exchangeBlockchain = ExchangeBlockchain(networkId: blockchain.networkId) else {
             assertionFailure("ExchangeBlockchain don't support")
@@ -45,5 +51,19 @@ struct CurrencyMapper {
             decimalCount: blockchain.decimalCount,
             currencyType: .coin
         )
+    }
+
+    func mapToCurrency(coinModel: CoinModel) -> Currency? {
+        let coinType = coinModel.items.first
+
+        switch coinType {
+        case let .blockchain(blockchain):
+            return mapToCurrency(blockchain: blockchain)
+        case let .token(token, blockchain):
+            return mapToCurrency(token: token, blockchain: blockchain)
+        case .none:
+            assertionFailure("CoinModel haven't items")
+            return nil
+        }
     }
 }
