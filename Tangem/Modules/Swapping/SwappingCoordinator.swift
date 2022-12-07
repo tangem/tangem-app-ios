@@ -31,20 +31,18 @@ class SwappingCoordinator: CoordinatorObject {
     ) {
         self.dismissAction = dismissAction
         self.popToRootAction = popToRootAction
-
-        start(with: .default)
     }
 
     func start(with options: Options) {
-        rootViewModel = SwappingViewModel(coordinator: self)
+        rootViewModel = SwappingConfigurator().createModule(input: options.input, coordinator: self)
     }
 }
 
 // MARK: - Options
 
 extension SwappingCoordinator {
-    enum Options {
-        case `default`
+    struct Options {
+        let input: SwappingConfigurator.InputModel
     }
 }
 
