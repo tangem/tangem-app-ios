@@ -9,8 +9,35 @@
 import Foundation
 
 public enum ExchangeAvailabilityState {
+    case idle
     case loading
-    case available
-    case requiredPermission
-    case requiredRefresh(occuredError: Error)
+    case preview(expect: ExpectSwappingResult)
+    case available(expect: ExpectSwappingResult, txData: ExchangeDataModel)
+    case requiredPermission(expect: ExpectSwappingResult, approvedDataModel: ExchangeApprovedDataModel)
+    case requiredRefresh(occurredError: Error)
+}
+
+public struct ExpectSwappingResult {
+    public let expectAmount: Decimal
+    public let expectFiatAmount: Decimal
+    public let fee: Decimal
+    public let fiatFee: Decimal
+    public let decimalCount: Int
+    public let isEnoughAmountForExchange: Bool
+
+    init(
+        expectAmount: Decimal,
+        expectFiatAmount: Decimal,
+        fee: Decimal,
+        fiatFee: Decimal,
+        decimalCount: Int,
+        isEnoughAmountForExchange: Bool
+    ) {
+        self.expectAmount = expectAmount
+        self.expectFiatAmount = expectFiatAmount
+        self.fee = fee
+        self.fiatFee = fiatFee
+        self.decimalCount = decimalCount
+        self.isEnoughAmountForExchange = isEnoughAmountForExchange
+    }
 }
