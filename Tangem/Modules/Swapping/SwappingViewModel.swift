@@ -20,15 +20,15 @@ final class SwappingViewModel: ObservableObject {
     @Published var refreshWarningRowViewModel: DefaultWarningRowViewModel?
 
     @Published var mainButtonIsEnabled: Bool = false
-    @Published var mainButtonTitle: MainButtonAction = .swap
+    @Published var mainButtonState: MainButtonState = .swap
 
     var informationSectionViewModels: [InformationSectionViewModel] {
-        var section: [InformationSectionViewModel] = [.fee(swappingFeeRowViewModel)]
+        var viewModels: [InformationSectionViewModel] = [.fee(swappingFeeRowViewModel)]
         if let feeWarningRowViewModel {
-            section.append(.warning(feeWarningRowViewModel))
+            viewModels.append(.warning(feeWarningRowViewModel))
         }
 
-        return section
+        return viewModels
     }
 
     @Published private var swappingFeeRowViewModel = SwappingFeeRowViewModel(state: .idle)
@@ -37,7 +37,7 @@ final class SwappingViewModel: ObservableObject {
     // MARK: - Dependencies
 
     private let exchangeManager: ExchangeManager
-    private let tokenIconURLBuilding: TokenIconURLBuilding
+    private let tokenIconURLBuilder: TokenIconURLBuilding
     private unowned let coordinator: SwappingRoutable
 
     // MARK: - Private
@@ -46,11 +46,11 @@ final class SwappingViewModel: ObservableObject {
 
     init(
         exchangeManager: ExchangeManager,
-        tokenIconURLBuilding: TokenIconURLBuilding,
+        tokenIconURLBuilder: TokenIconURLBuilding,
         coordinator: SwappingRoutable
     ) {
         self.exchangeManager = exchangeManager
-        self.tokenIconURLBuilding = tokenIconURLBuilding
+        self.tokenIconURLBuilder = tokenIconURLBuilder
         self.coordinator = coordinator
 
         setupView()
@@ -109,7 +109,7 @@ extension SwappingViewModel: ExchangeManagerDelegate {
 
     func exchangeManager(_ manager: ExchangeManager, didUpdate availabilityForExchange: Bool) {
         DispatchQueue.main.async {
-            self.mainButtonTitle = availabilityForExchange ? .swap : .givePermission
+            self.mainButtonState = availabilityForExchange ? .swap : .givePermission
             self.sendCurrencyViewModel?.update(isLockedVisible: !availabilityForExchange)
         }
     }
@@ -210,16 +210,16 @@ private extension SwappingViewModel {
         switch state {
         case .idle, .loading, .requiredRefresh:
             mainButtonIsEnabled = false
-            mainButtonTitle = .swap
+            mainButtonState = .swap
 
         case let .preview(result),
              let .available(result, _),
              let .requiredPermission(result, _):
             mainButtonIsEnabled = result.isEnoughAmountForExchange
             if result.isEnoughAmountForExchange {
-                mainButtonTitle = .givePermission
+                mainButtonState = .givePermission
             } else {
-                mainButtonTitle = .insufficientFunds
+                mainButtonState = .insufficientFunds
             }
         }
     }
@@ -244,13 +244,13 @@ private extension SwappingViewModel {
         switch currency.currencyType {
         case .coin:
             return SwappingTokenIconViewModel(
-                imageURL: tokenIconURLBuilding.iconURL(id: currency.blockchain.id, size: .large),
+                imageURL: tokenIconURLBuilder.iconURL(id: currency.blockchain.id, size: .large),
                 tokenSymbol: currency.symbol
             )
         case .token:
             return SwappingTokenIconViewModel(
-                imageURL: tokenIconURLBuilding.iconURL(id: currency.id, size: .large),
-                networkURL: tokenIconURLBuilding.iconURL(id: currency.blockchain.id, size: .small),
+                imageURL: tokenIconURLBuilder.iconURL(id: currency.id, size: .large),
+                networkURL: tokenIconURLBuilder.iconURL(id: currency.blockchain.id, size: .small),
                 tokenSymbol: currency.symbol
             )
         }
@@ -265,7 +265,7 @@ extension SwappingViewModel {
         case warning(DefaultWarningRowViewModel)
     }
 
-    enum MainButtonAction: Hashable, Identifiable {
+    enum MainButtonState: Hashable, Identifiable {
         var id: Int { hashValue }
 
         case swap
