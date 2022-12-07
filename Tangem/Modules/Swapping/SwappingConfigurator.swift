@@ -25,7 +25,7 @@ struct SwappingConfigurator {
 
         return SwappingViewModel(
             exchangeManager: exchangeManager,
-            tokenIconURLBuilding: factory.createTokenIconURLBuilder(),
+            tokenIconURLBuilder: factory.createTokenIconURLBuilder(),
             coordinator: coordinator
         )
     }
