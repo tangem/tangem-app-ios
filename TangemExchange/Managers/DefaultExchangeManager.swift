@@ -231,7 +231,7 @@ private extension DefaultExchangeManager {
             amount: formattedAmount
         )
 
-        return try await mapExpectSwappingResult(from: quoteData)
+        return try await mapExpectedSwappingResult(from: quoteData)
     }
 
     func getExchangeApprovedDataModel() async throws -> ExchangeApprovedDataModel {
@@ -268,7 +268,7 @@ private extension DefaultExchangeManager {
 // MARK: - Mapping
 
 private extension DefaultExchangeManager {
-    func mapExpectedSwappingResult(from quoteData: QuoteData) throws -> ExpectedSwappingResult {
+    func mapExpectedSwappingResult(from quoteData: QuoteData) async throws -> ExpectedSwappingResult {
         guard let expectedAmount = Decimal(string: quoteData.toTokenAmount),
               let amount else {
             throw ExchangeManagerErrors.incorrectData
