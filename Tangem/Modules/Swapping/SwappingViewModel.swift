@@ -7,7 +7,7 @@
 //
 
 import Combine
-import SwiftUI
+import TangemExchange
 
 final class SwappingViewModel: ObservableObject {
     // MARK: - ViewState
@@ -18,11 +18,26 @@ final class SwappingViewModel: ObservableObject {
 
     @Published var sendDecimalValue: Decimal?
     @Published var refreshWarningRowViewModel: DefaultWarningRowViewModel?
-    @Published var informationSectionViewModels: [InformationSectionViewModel] = []
+
     @Published var mainButtonIsEnabled: Bool = false
+    @Published var mainButtonTitle: MainButtonAction = .swap
+
+    var informationSectionViewModels: [InformationSectionViewModel] {
+        var section: [InformationSectionViewModel] = [.fee(swappingFeeRowViewModel)]
+        if let feeWarningRowViewModel {
+            section.append(.warning(feeWarningRowViewModel))
+        }
+
+        return section
+    }
+
+    @Published private var swappingFeeRowViewModel = SwappingFeeRowViewModel(state: .idle)
+    @Published private var feeWarningRowViewModel: DefaultWarningRowViewModel?
 
     // MARK: - Dependencies
 
+    private let exchangeManager: ExchangeManager
+    private let tokenIconURLBuilding: TokenIconURLBuilding
     private unowned let coordinator: SwappingRoutable
 
     // MARK: - Private
@@ -30,39 +45,35 @@ final class SwappingViewModel: ObservableObject {
     private var bag: Set<AnyCancellable> = []
 
     init(
+        exchangeManager: ExchangeManager,
+        tokenIconURLBuilding: TokenIconURLBuilding,
         coordinator: SwappingRoutable
     ) {
+        self.exchangeManager = exchangeManager
+        self.tokenIconURLBuilding = tokenIconURLBuilding
         self.coordinator = coordinator
 
         setupView()
         bind()
+        exchangeManager.setDelegate(self)
     }
 
-    func userDidTapSwapButton() {
-        withAnimation(.easeInOut(duration: 0.3)) {
-            swapCurrencies()
-        }
-    }
+    func userDidTapSwapButton() {}
 
     func userDidTapChangeDestinationButton() {
         openTokenListView()
     }
 
-    func userDidTapMainButton() {
-        // For test. Will remove
-        if Bool.random() {
-            openSuccessView()
-        } else {
-            openPermissionView()
-        }
-    }
+    func userDidTapMainButton() {}
 }
 
 // MARK: - Navigation
 
 private extension SwappingViewModel {
     func openTokenListView() {
-        coordinator.presentExchangeableTokenListView(networkIds: ["ethereum"])
+        coordinator.presentExchangeableTokenListView(
+            networkIds: exchangeManager.getNetworksAvailableToExchange()
+        )
     }
 
     func openSuccessView() {
@@ -81,96 +92,167 @@ private extension SwappingViewModel {
     }
 }
 
+// MARK: - ExchangeManagerDelegate
+
+extension SwappingViewModel: ExchangeManagerDelegate {
+    func exchangeManagerDidUpdate(availabilityState: TangemExchange.ExchangeAvailabilityState) {
+        DispatchQueue.main.async {
+            self.updateState(state: availabilityState)
+        }
+    }
+
+    func exchangeManagerDidUpdate(availabilityForExchange isAvailable: Bool, limit: Decimal?) {
+        DispatchQueue.main.async {
+            self.mainButtonTitle = isAvailable ? .swap : .givePermission
+            self.sendCurrencyViewModel?.update(isLockedVisible: !isAvailable)
+        }
+    }
+
+    func exchangeManagerDidUpdate(exchangeItems: TangemExchange.ExchangeItems) {
+        DispatchQueue.main.async {
+            self.updateView(exchangeItems: exchangeItems)
+        }
+    }
+}
+
+// MARK: - View updates
+
 private extension SwappingViewModel {
-    func setupView() {
-        // Temp solution, will be changed on Currency input
+    func updateView(exchangeItems: TangemExchange.ExchangeItems) {
+        let source = exchangeItems.source
+        let destination = exchangeItems.destination
+
         sendCurrencyViewModel = SendCurrencyViewModel(
-            balance: 3043.75,
-            maximumFractionDigits: 8,
-            fiatValue: 0,
-            tokenIcon: SwappingTokenIconViewModel(
-                imageURL: TokenIconURLBuilder().iconURL(id: "bitcoin"),
-                tokenSymbol: "BTC"
-            )
+            balance: exchangeItems.sourceBalance.balance,
+            maximumFractionDigits: source.decimalCount,
+            fiatValue: exchangeItems.sourceBalance.fiatBalance,
+            isLockedVisible: !exchangeManager.isAvailableForExchange(),
+            tokenIcon: mapToSwappingTokenIconViewModel(currency: source)
         )
+
+        let state: ReceiveCurrencyViewModel.State
+
+        switch exchangeManager.getAvailabilityState() {
+        case .idle, .requiredRefresh:
+            state = .loaded(0, fiatValue: 0)
+        case .loading:
+            state = .loading
+        case let .preview(result),
+             let .available(result, _),
+             let .requiredPermission(result, _):
+            state = .loaded(result.expectAmount, fiatValue: result.expectFiatAmount)
+        }
 
         receiveCurrencyViewModel = ReceiveCurrencyViewModel(
-            state: .loaded(0, fiatValue: 0),
-            tokenIcon: SwappingTokenIconViewModel(
-                imageURL: TokenIconURLBuilder().iconURL(id: "etherium"),
-                tokenSymbol: "ETH"
+            state: state,
+            tokenIcon: mapToSwappingTokenIconViewModel(currency: destination)
+        )
+    }
+
+    func updateState(state: TangemExchange.ExchangeAvailabilityState) {
+        updateFeeValue(state: state)
+        updateMainButton(state: state)
+
+        switch state {
+        case .idle:
+            refreshWarningRowViewModel = nil
+            feeWarningRowViewModel = nil
+            receiveCurrencyViewModel?.updateState(.loaded(0, fiatValue: 0))
+
+        case .loading:
+            feeWarningRowViewModel = nil
+            refreshWarningRowViewModel?.update(detailsType: .loader)
+            receiveCurrencyViewModel?.updateState(.loading)
+
+        case let .preview(result),
+             let .available(result, _),
+             let .requiredPermission(result, _):
+            refreshWarningRowViewModel = nil
+            feeWarningRowViewModel = nil
+            receiveCurrencyViewModel?.updateState(
+                .loaded(result.expectAmount, fiatValue: result.expectFiatAmount)
             )
-        )
 
-        refreshWarningRowViewModel = DefaultWarningRowViewModel(
-            icon: Assets.attention,
-            title: "Exchange rate has expired",
-            subtitle: "Recalculate route",
-            detailsType: .icon(Assets.refreshWarningIcon),
-            action: {}
-        )
-
-        let swappingFeeRowViewModel = SwappingFeeRowViewModel(fee: "0.155", tokenSymbol: "MATIC", fiatValue: "0.14 $", isLoading: false)
-
-        informationSectionViewModels = [
-            .fee(swappingFeeRowViewModel),
-            .warning(DefaultWarningRowViewModel(
+        case .requiredRefresh(let error):
+            receiveCurrencyViewModel?.updateState(.loaded(0, fiatValue: 0))
+            refreshWarningRowViewModel = DefaultWarningRowViewModel(
                 icon: Assets.attention,
-                title: nil,
-                subtitle: "Not enough funds for fee on your Polygon wallet to create a transaction. Top up your Polygon wallet first.",
-                action: {}
-            )),
-        ]
+                title: "Exchange rate has expired", // [REDACTED_TODO_COMMENT]
+                subtitle: error.localizedDescription, // [REDACTED_TODO_COMMENT]
+                detailsType: .icon(Assets.refreshWarningIcon),
+                action: { [weak self] in
+                    self?.exchangeManager.refresh()
+                }
+            )
+        }
+    }
+
+    func updateFeeValue(state: ExchangeAvailabilityState) {
+        switch state {
+        case .idle, .requiredRefresh:
+            swappingFeeRowViewModel.update(state: .idle)
+        case .loading:
+            swappingFeeRowViewModel.update(state: .loading)
+        case let .preview(result),
+             let .available(result, _),
+             let .requiredPermission(result, _):
+            swappingFeeRowViewModel.update(
+                state: .fee(
+                    fee: result.fee.groupedFormatted(maximumFractionDigits: result.decimalCount),
+                    symbol: exchangeManager.getExchangeItems().source.symbol,
+                    fiat: result.fiatFee.currencyFormatted(code: AppSettings.shared.selectedCurrencyCode)
+                )
+            )
+        }
+    }
+
+    func updateMainButton(state: ExchangeAvailabilityState) {
+        switch state {
+        case .idle, .loading, .requiredRefresh:
+            mainButtonIsEnabled = false
+            mainButtonTitle = .swap
+
+        case let .preview(result),
+             let .available(result, _),
+             let .requiredPermission(result, _):
+            mainButtonIsEnabled = result.isEnoughAmountForExchange
+            if result.isEnoughAmountForExchange {
+                mainButtonTitle = .givePermission
+            } else {
+                mainButtonTitle = .insufficientFunds
+            }
+        }
+    }
+
+    func setupView() {
+        updateState(state: .idle)
+        updateView(exchangeItems: exchangeManager.getExchangeItems())
     }
 
     func bind() {
         $sendDecimalValue
-            .compactMap { $0 }
-            .sink { [weak self] in
-                self?.sendCurrencyViewModel?.update(fiatValue: $0 * 2)
-            }
-            .store(in: &bag)
-
-        $sendDecimalValue
-            .map { ($0 ?? 0) > 0 }
-            .sink { [weak self] in
-                self?.mainButtonIsEnabled = $0
-            }
-            .store(in: &bag)
-
-        $sendDecimalValue
-            .compactMap { $0 }
-            .sink { [weak self] in
-                self?.receiveCurrencyViewModel?.updateState(.loaded($0 * 0.5, fiatValue: $0 * 2))
+            .removeDuplicates()
+            .dropFirst()
+            .debounce(for: 1, scheduler: DispatchQueue.global())
+            .sink { [weak self] amount in
+                self?.exchangeManager.update(amount: amount)
             }
             .store(in: &bag)
     }
 
-    func swapCurrencies() {
-        guard let receiveCurrencyViewModel, let sendCurrencyViewModel else { return }
-
-        if receiveCurrencyViewModel.state.value != 0 {
-            sendDecimalValue = receiveCurrencyViewModel.state.value
-        }
-
-        let sendTokenItem = sendCurrencyViewModel.tokenIcon
-
-        self.sendCurrencyViewModel = SendCurrencyViewModel(
-            balance: Decimal(Int.random(in: 0 ... 100)),
-            maximumFractionDigits: 8,
-            fiatValue: receiveCurrencyViewModel.state.fiatValue ?? 0,
-            tokenIcon: receiveCurrencyViewModel.tokenIcon
-        )
-
-        self.receiveCurrencyViewModel = ReceiveCurrencyViewModel(
-            state: .loading,
-            tokenIcon: sendTokenItem
-        )
-
-        isLoading.toggle()
-
-        DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
-            self.isLoading.toggle()
+    func mapToSwappingTokenIconViewModel(currency: Currency) -> SwappingTokenIconViewModel {
+        switch currency.currencyType {
+        case .coin:
+            return SwappingTokenIconViewModel(
+                imageURL: tokenIconURLBuilding.iconURL(id: currency.blockchain.id, size: .large),
+                tokenSymbol: currency.symbol
+            )
+        case .token:
+            return SwappingTokenIconViewModel(
+                imageURL: tokenIconURLBuilding.iconURL(id: currency.id, size: .large),
+                networkURL: tokenIconURLBuilding.iconURL(id: currency.blockchain.id, size: .small),
+                tokenSymbol: currency.symbol
+            )
         }
     }
 }
@@ -181,5 +263,36 @@ extension SwappingViewModel {
 
         case fee(SwappingFeeRowViewModel)
         case warning(DefaultWarningRowViewModel)
+    }
+
+    enum MainButtonAction: Hashable, Identifiable {
+        var id: Int { hashValue }
+
+        case swap
+        case insufficientFunds
+        case givePermission
+        case permitAndSwap
+
+        var title: String {
+            switch self {
+            case .swap:
+                return "swapping_swap".localized
+            case .insufficientFunds:
+                return "swapping_insufficient_funds".localized
+            case .givePermission:
+                return "swapping_give_permission".localized
+            case .permitAndSwap:
+                return "swapping_permit_and_swap".localized
+            }
+        }
+
+        var icon: MainButton.Icon? {
+            switch self {
+            case .swap, .permitAndSwap:
+                return .trailing(Assets.tangemIconWhite)
+            case .givePermission, .insufficientFunds:
+                return .none
+            }
+        }
     }
 }
