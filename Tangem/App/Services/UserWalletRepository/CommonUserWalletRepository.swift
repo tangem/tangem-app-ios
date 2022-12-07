@@ -379,6 +379,8 @@ class CommonUserWalletRepository: UserWalletRepository {
     func lock(reason: UserWalletRepositoryLockReason) {
         discardSensitiveData()
 
+        resetServices()
+
         sendEvent(.locked(reason: reason))
     }
 
