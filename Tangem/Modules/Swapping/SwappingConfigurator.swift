@@ -13,7 +13,11 @@ import protocol BlockchainSdk.TransactionSigner
 
 /// Helper for configure `SwappingViewModel`
 struct SwappingConfigurator {
-    private let factory = DependenciesFactory()
+    private let factory: DependenciesFactory
+
+    init(factory: DependenciesFactory) {
+        self.factory = factory
+    }
 
     func createModule(input: InputModel, coordinator: SwappingRoutable) -> SwappingViewModel {
         let exchangeManager = factory.createExchangeManager(
@@ -25,6 +29,7 @@ struct SwappingConfigurator {
 
         return SwappingViewModel(
             exchangeManager: exchangeManager,
+            userWalletsListProvider: factory.createUserWalletsListProvider(walletModel: input.walletModel),
             tokenIconURLBuilding: factory.createTokenIconURLBuilder(),
             coordinator: coordinator
         )
