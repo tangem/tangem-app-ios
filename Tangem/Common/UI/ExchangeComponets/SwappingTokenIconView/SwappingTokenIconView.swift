@@ -32,12 +32,7 @@ struct SwappingTokenIconView: View {
     var body: some View {
         Button(action: { action?() }) {
             HStack(alignment: .top, spacing: 4) {
-                VStack(spacing: 4) {
-                    image
-
-                    Text(viewModel.tokenSymbol)
-                        .style(Fonts.Bold.footnote, color: Colors.Text.primary1)
-                }
+                mainContent
 
                 Assets.chevronDownMini
                     .resizable()
@@ -50,11 +45,42 @@ struct SwappingTokenIconView: View {
         .disabled(!isTappable)
     }
 
-    private var image: some View {
-        ZStack(alignment: .topTrailing) {
-            icon(url: viewModel.imageURL, size: imageSize)
+    @ViewBuilder
+    private var mainContent: some View {
+        switch viewModel.state {
+        case .loading:
+            skeleton
 
-            if let networkIcon = viewModel.networkURL {
+        case let .loaded(imageURL, networkURL, symbol):
+            content(imageURL: imageURL, networkURL: networkURL, symbol: symbol)
+        }
+    }
+
+    private var skeleton: some View {
+        VStack(spacing: 4) {
+            SkeletonView()
+                .frame(size: imageSize)
+                .cornerRadius(imageSize.height / 2)
+
+            SkeletonView()
+                .frame(width: 30, height: 14)
+        }
+    }
+
+    private func content(imageURL: URL, networkURL: URL?, symbol: String) -> some View {
+        VStack(spacing: 4) {
+            image(imageURL: imageURL, networkURL: networkURL)
+
+            Text(symbol)
+                .style(Fonts.Bold.footnote, color: Colors.Text.primary1)
+        }
+    }
+
+    private func image(imageURL: URL, networkURL: URL?) -> some View {
+        ZStack(alignment: .topTrailing) {
+            icon(url: imageURL, size: imageSize)
+
+            if let networkIcon = networkURL {
                 icon(url: networkIcon, size: networkIconSize)
                     .frame(size: networkIconSize)
                     .padding(.all, 1)
@@ -92,21 +118,30 @@ extension SwappingTokenIconView: Setupable {
 
 struct SwappingTokenIcon_Previews: PreviewProvider {
     static var previews: some View {
-        VStack {
-            SwappingTokenIconView(
-                viewModel: SwappingTokenIconViewModel(
-                    imageURL: TokenIconURLBuilderMock().iconURL(id: "dai", size: .large),
-                    networkURL: TokenIconURLBuilderMock().iconURL(id: "ethereum", size: .small),
-                    tokenSymbol: "MATIC"
-                )
-            )
-            .onTap { }
+        HStack {
+            SwappingTokenIconView(viewModel: SwappingTokenIconViewModel(state: .loading))
+
+            SwappingTokenIconView(viewModel: SwappingTokenIconViewModel(state: .loading))
+                .onTap {}
 
             SwappingTokenIconView(
                 viewModel: SwappingTokenIconViewModel(
-                    imageURL: TokenIconURLBuilderMock().iconURL(id: "dai", size: .large),
-                    networkURL: TokenIconURLBuilderMock().iconURL(id: "ethereum", size: .small),
-                    tokenSymbol: "MATIC"
+                    state: .loaded(
+                        imageURL: TokenIconURLBuilderMock().iconURL(id: "dai", size: .large),
+                        networkURL: TokenIconURLBuilderMock().iconURL(id: "ethereum", size: .small),
+                        symbol: "MATIC"
+                    )
+                )
+            )
+            .onTap {}
+
+            SwappingTokenIconView(
+                viewModel: SwappingTokenIconViewModel(
+                    state: .loaded(
+                        imageURL: TokenIconURLBuilderMock().iconURL(id: "dai", size: .large),
+                        networkURL: TokenIconURLBuilderMock().iconURL(id: "ethereum", size: .small),
+                        symbol: "MATIC"
+                    )
                 )
             )
         }
