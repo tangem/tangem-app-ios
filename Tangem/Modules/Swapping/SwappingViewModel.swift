@@ -95,22 +95,22 @@ private extension SwappingViewModel {
 // MARK: - ExchangeManagerDelegate
 
 extension SwappingViewModel: ExchangeManagerDelegate {
-    func exchangeManagerDidUpdate(availabilityState: TangemExchange.ExchangeAvailabilityState) {
+    func exchangeManager(_ manager: ExchangeManager, didUpdate exchangeItems: ExchangeItems) {
+        DispatchQueue.main.async {
+            self.updateView(exchangeItems: exchangeItems)
+        }
+    }
+
+    func exchangeManager(_ manager: ExchangeManager, didUpdate availabilityState: ExchangeAvailabilityState) {
         DispatchQueue.main.async {
             self.updateState(state: availabilityState)
         }
     }
 
-    func exchangeManagerDidUpdate(availabilityForExchange isAvailable: Bool, limit: Decimal?) {
+    func exchangeManager(_ manager: ExchangeManager, didUpdate availabilityForExchange: Bool) {
         DispatchQueue.main.async {
-            self.mainButtonTitle = isAvailable ? .swap : .givePermission
-            self.sendCurrencyViewModel?.update(isLockedVisible: !isAvailable)
-        }
-    }
-
-    func exchangeManagerDidUpdate(exchangeItems: TangemExchange.ExchangeItems) {
-        DispatchQueue.main.async {
-            self.updateView(exchangeItems: exchangeItems)
+            self.mainButtonTitle = availabilityForExchange ? .swap : .givePermission
+            self.sendCurrencyViewModel?.update(isLockedVisible: !availabilityForExchange)
         }
     }
 }
@@ -118,7 +118,7 @@ extension SwappingViewModel: ExchangeManagerDelegate {
 // MARK: - View updates
 
 private extension SwappingViewModel {
-    func updateView(exchangeItems: TangemExchange.ExchangeItems) {
+    func updateView(exchangeItems: ExchangeItems) {
         let source = exchangeItems.source
         let destination = exchangeItems.destination
 
@@ -149,7 +149,7 @@ private extension SwappingViewModel {
         )
     }
 
-    func updateState(state: TangemExchange.ExchangeAvailabilityState) {
+    func updateState(state: ExchangeAvailabilityState) {
         updateFeeValue(state: state)
         updateMainButton(state: state)
 
