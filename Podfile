@@ -6,10 +6,10 @@ use_frameworks!
 inhibit_all_warnings!
 
 def common_pods
-#   pod 'TangemSdk', :git => 'https://github.com/Tangem/tangem-sdk-ios.git', :tag => 'develop-188'
+#   pod 'TangemSdk', :git => 'https://github.com/Tangem/tangem-sdk-ios.git', :tag => 'develop-190'
    pod 'TangemSdk', :path => '../tangem-sdk-ios'
 
-#   pod 'BlockchainSdk', :git => 'https://github.com/tangem/blockchain-sdk-swift.git', :tag => 'develop-177'
+#   pod 'BlockchainSdk', :git => 'https://github.com/tangem/blockchain-sdk-swift.git', :tag => 'develop-180'
      pod 'BlockchainSdk', :path => '../blockchain-sdk-swift'
 end
 
@@ -28,7 +28,7 @@ target 'Tangem' do
   
   pod 'HDWalletKit', :git => 'https://github.com/tangem/hdwallet.git', :tag => '0.3.12'
   #pod 'HDWalletKit', :path => '../HDWallet'
-
+  
   pod 'web3swift', :git => 'https://github.com/tangem/web3swift.git', :tag => '2.2.11'
   #pod 'web3swift', :path => '../web3swift'
   
