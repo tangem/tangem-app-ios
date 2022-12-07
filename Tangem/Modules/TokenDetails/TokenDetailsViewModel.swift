@@ -469,36 +469,28 @@ extension TokenDetailsViewModel {
 
 private extension TokenDetailsViewModel {
     var isAvailableForSwapping: Bool {
-        ExchangeManagerUtil().isNetworkAvailableForExchange(
-            networkId: blockchainNetwork.blockchain.codingKey
+        ExchangeManagerUtil().networkIsAvailableForExchange(
+            networkId: blockchainNetwork.blockchain.networkId
         )
     }
 
     var sourceCurrency: Currency? {
         let blockchain = blockchainNetwork.blockchain
-
-        guard let exchangeBlockchain = ExchangeBlockchain(rawValue: blockchain.codingKey) else {
-            assertionFailure("ExchangeBlockchain don't support")
-            return nil
-        }
+        let mapper = CurrencyMapper()
 
         switch amountType {
         case .coin, .reserve:
-            return coinCurrency(exchangeBlockchain: exchangeBlockchain)
+            return mapper.mapToCurrency(blockchain: blockchain)
 
         case .token(let token):
-            return tokenCurrency(token: token, exchangeBlockchain: exchangeBlockchain)
+            return mapper.mapToCurrency(token: token, blockchain: blockchain)
         }
     }
 
     // [REDACTED_TODO_COMMENT]
     var destinationCurrency: Currency? {
         let blockchain = blockchainNetwork.blockchain
-
-        guard let exchangeBlockchain = ExchangeBlockchain(rawValue: blockchain.codingKey) else {
-            assertionFailure("ExchangeBlockchain don't support")
-            return nil
-        }
+        let mapper = CurrencyMapper()
 
         switch amountType {
         case .coin, .reserve:
@@ -507,38 +499,9 @@ private extension TokenDetailsViewModel {
                 return nil
             }
 
-            return tokenCurrency(token: token, exchangeBlockchain: exchangeBlockchain)
+            return mapper.mapToCurrency(token: token, blockchain: blockchain)
         case .token:
-            return coinCurrency(exchangeBlockchain: exchangeBlockchain)
+            return mapper.mapToCurrency(blockchain: blockchainNetwork.blockchain)
         }
-    }
-
-    func coinCurrency(exchangeBlockchain: ExchangeBlockchain) -> Currency? {
-        let blockchain = blockchainNetwork.blockchain
-
-        return Currency(
-            id: blockchain.id,
-            blockchain: exchangeBlockchain,
-            name: blockchain.displayName,
-            symbol: blockchain.currencySymbol,
-            decimalCount: blockchain.decimalCount,
-            currencyType: .coin
-        )
-    }
-
-    func tokenCurrency(token: Token, exchangeBlockchain: ExchangeBlockchain) -> Currency? {
-        guard let id = token.id else {
-            assertionFailure("Token not have id")
-            return nil
-        }
-
-        return Currency(
-            id: id,
-            blockchain: exchangeBlockchain,
-            name: token.name,
-            symbol: token.symbol,
-            decimalCount: token.decimalCount,
-            currencyType: .token(contractAddress: token.contractAddress)
-        )
     }
 }
