@@ -16,7 +16,7 @@ public struct TangemExchangeFactory {
         transactionBuilder: TxBuilder,
         blockchainInfoProvider: BlockchainInfoProvider,
         source: Currency,
-        destination: Currency,
+        destination: Currency?,
         amount: Decimal? = nil
     ) -> ExchangeManager {
         let exchangeItems = ExchangeItems(source: source, destination: destination)
