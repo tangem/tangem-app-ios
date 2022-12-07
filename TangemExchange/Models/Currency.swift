@@ -9,36 +9,61 @@
 import Foundation
 
 public struct Currency {
-    public let networkId: String
-    public let chainId: Int?
-    public let walletAddress: String
+    /// Currency ID, like `DAI` or `Ethereum`
+    public let id: String
+
+    /// Blockchain ID, only like `Ethereum`
+    public let blockchain: ExchangeBlockchain
+
     public let name: String
     public let symbol: String
     public let decimalCount: Int
-    public let imageURL: URL
-    public let contractAddress: String?
+    public let currencyType: CurrencyType
 
-    public var isToken: Bool {
-        contractAddress != nil
+    public var contractAddress: String? {
+        currencyType.contractAddress
     }
 
-    init(
-        networkId: String,
-        chainId: Int?,
-        walletAddress: String,
+    public var isToken: Bool {
+        currencyType.isToken
+    }
+
+    public init(
+        id: String,
+        blockchain: ExchangeBlockchain,
         name: String,
         symbol: String,
         decimalCount: Int,
-        imageURL: URL,
-        contractAddress: String? = nil
+        currencyType: Currency.CurrencyType
     ) {
-        self.networkId = networkId
-        self.chainId = chainId
-        self.walletAddress = walletAddress
+        self.id = id
+        self.blockchain = blockchain
         self.name = name
         self.symbol = symbol
         self.decimalCount = decimalCount
-        self.imageURL = imageURL
-        self.contractAddress = contractAddress
+        self.currencyType = currencyType
+    }
+}
+
+public extension Currency {
+    enum CurrencyType {
+        case coin
+        case token(contractAddress: String)
+
+        var isToken: Bool {
+            if case .token = self {
+                return true
+            }
+
+            return false
+        }
+
+        var contractAddress: String? {
+            if case let .token(address) = self {
+                return address
+            }
+
+            return nil
+        }
     }
 }
