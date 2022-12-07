@@ -21,8 +21,6 @@ protocol UserWalletRepository {
     func unlock(with method: UserWalletRepositoryUnlockMethod, completion: @escaping (UserWalletRepositoryResult?) -> Void)
     func setSelectedUserWalletId(_ userWalletId: Data?, reason: UserWalletRepositorySelectionChangeReason)
 
-    func didScan(card: CardDTO, walletData: DefaultWalletData)
-
     func add(_ completion: @escaping (UserWalletRepositoryResult?) -> Void)
     func contains(_ userWallet: UserWallet) -> Bool
     func save(_ userWallet: UserWallet)
