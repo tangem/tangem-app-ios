@@ -41,7 +41,8 @@ extension CommonKeysManager: KeysManager {
                             tronGridApiKey: keys.tronGridApiKey,
                             quiknodeApiKey: keys.quiknodeApiKey,
                             quiknodeSubdomain: keys.quiknodeSubdomain,
-                            networkProviderConfiguration: .init(logger: .verbose, urlSessionConfiguration: .standart))
+                            defaultNetworkProviderConfiguration: .init(logger: .verbose, urlSessionConfiguration: .standart),
+                            networkProviderConfigurations: [.saltPay: .init(logger: .verbose, credentials: keys.saltPay.credentials)])
     }
 
     var shopifyShop: ShopifyShop {
