@@ -1,4 +1,4 @@
-"wallet_dialog_choose_trade_action" = "Do you want to buy or sell crypto?";
+"wallet_choose_trade_action" = "Do you want to buy or sell crypto?";
 "add_custom_token_title" = "Add custom token";
 "add_tokens_title" = "Manage tokens";
 "main_manage_tokens" = "Manage tokens";
