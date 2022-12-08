@@ -138,7 +138,7 @@ class WalletOnboardingViewModel: OnboardingTopupViewModel<WalletOnboardingStep, 
         }
 
         return MainButton.Settings(
-            title: .key(mainButtonTitle),
+            title: mainButtonTitle,
             icon: icon,
             style: mainButtonStyle,
             isLoading: isMainButtonBusy,
