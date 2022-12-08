@@ -13,7 +13,7 @@
 "alert_developer_card" = "Die von Ihnen gescannte Karte ist eine Entwicklungskarte. Akzeptieren Sie sie nicht als Zahlungsmittel.";
 "alert_failed_to_send_transaction_message" = "Reason: %@";
 "alert_failed_to_send_email_title" = "Failed to send the email";
-"alert_negative_app_rate_sent_message" = "Thank your for your feedback. We will response as soon as possible";
+"alert_negative_app_rate_sent_message" = "Thank you for your feedback. We will respond as soon as possible";
 "alert_negative_app_rate_sent_title" = "Your suggestions were sent";
 "alert_old_card" = "Guthaben von Tangem-Karten, die vor September 2019 ausgegeben wurden, können aufgrund von iOS-Einschränkungen nicht mit einem iPhone abgerufen werden. Sie müssen ein Android-Telefon verwenden, um Guthaben abzurufen. Karten, die nach September 2019 herausgegeben wurden, funktionieren mit beiden Plattformen korrekt.";
 "alert_old_device_this_card" = "Sie können NFC-Probleme mit einigen iPhone 7/7+ während der Extraktion haben";
