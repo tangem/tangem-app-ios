@@ -55,7 +55,7 @@ struct AuthView: View {
             MainButton(
                 title: viewModel.unlockWithBiometryButtonTitle,
                 style: .secondary,
-                isLoading: viewModel.isScanningCard,
+                isDisabled: viewModel.isScanningCard,
                 action: viewModel.unlockWithBiometry
             )
             .padding(.bottom, 11)
