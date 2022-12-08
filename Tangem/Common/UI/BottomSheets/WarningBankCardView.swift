@@ -37,7 +37,7 @@ struct WarningBankCardView: View {
                 MainButton(
                     title: "common_no".localized,
                     style: .secondary,
-                    action: viewModel.confirmCallback
+                    action: viewModel.declineCallback
                 )
             }
             .padding(.horizontal, 16)
