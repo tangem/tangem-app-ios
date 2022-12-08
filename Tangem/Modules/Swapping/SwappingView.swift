@@ -102,8 +102,8 @@ struct SwappingView: View {
     @ViewBuilder
     private var mainButton: some View {
         MainButton(
-            text: "swapping_swap".localized,
-            icon: .trailing(Assets.tangemIconWhite),
+            title: "swapping_swap".localized,
+            icon: .trailing(Assets.tangemIcon),
             isDisabled: !viewModel.mainButtonIsEnabled,
             action: viewModel.userDidTapMainButton
         )
