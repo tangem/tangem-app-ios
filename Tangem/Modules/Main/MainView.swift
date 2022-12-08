@@ -125,7 +125,7 @@ struct MainView: View {
 
     var sendButton: some View {
         MainButton(
-            title: .string("wallet_button_send".localized),
+            title: "wallet_button_send".localized,
             icon: .leading(Assets.arrowRightMini),
             isDisabled: !viewModel.canSend,
             action: viewModel.sendTapped
@@ -154,7 +154,7 @@ struct MainView: View {
     var exchangeCryptoButton: some View {
         if viewModel.canSellCrypto {
             MainButton(
-                title: .string("wallet_button_trade".localized),
+                title: "wallet_button_trade".localized,
                 icon: .leading(Assets.exchangeMini),
                 action: viewModel.tradeCryptoAction
             )
@@ -168,7 +168,7 @@ struct MainView: View {
             })
         } else {
             MainButton(
-                title: .string("wallet_button_topup".localized),
+                title: "wallet_button_topup".localized,
                 icon: .leading(Assets.arrowUpMini),
                 action: viewModel.openBuyCryptoIfPossible
             )
