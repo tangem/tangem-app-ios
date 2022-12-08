@@ -110,9 +110,9 @@ private extension OneInchAPIService {
         }
 
         print(
-            "Request to target \(target.path)",
-            "handle error with info \(info)",
-            "error \(error.localizedDescription)"
+            "Error when request to target \(target.path)",
+            "with info \(info)",
+            "\(error.localizedDescription)"
         )
     }
 }
