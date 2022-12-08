@@ -171,6 +171,10 @@ extension LegacyConfig: UserWalletConfig {
                 return .hidden
             }
         case .resetToFactory:
+            if card.wallets.contains(where: { $0.settings.isPermanent }) {
+                return .hidden
+            }
+
             return .available
         case .receive:
             return .available
