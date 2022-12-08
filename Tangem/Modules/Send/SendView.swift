@@ -250,7 +250,7 @@ struct SendView: View {
 
     @ViewBuilder private var sendButton: some View {
         MainButton(
-            title: .string("wallet_button_send"),
+            title: "wallet_button_send",
             icon: .leading(Assets.arrowRightMini),
             isDisabled: !viewModel.isSendEnabled,
             action: viewModel.send
