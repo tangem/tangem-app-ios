@@ -159,11 +159,14 @@ private extension BlockchainNetworkService {
     }
 
     func getBalanceThroughUpdateWalletModel(amountType: Amount.AmountType) async throws -> Decimal {
-        switch amountType {
-        case let .token(token):
+        if let token = amountType.token {
             walletModel.addTokens([token])
-        case .coin, .reserve:
-            break
+        }
+
+        defer {
+            if let token = amountType.token {
+                walletModel.removeToken(token)
+            }
         }
 
         // Think about it, because we unnecessary updates all tokens in walletModel
