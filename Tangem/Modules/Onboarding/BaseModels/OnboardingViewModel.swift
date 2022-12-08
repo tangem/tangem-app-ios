@@ -67,7 +67,7 @@ class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable>
 
     var mainButtonSettings: MainButton.Settings? {
         MainButton.Settings(
-            title: .key(mainButtonTitle),
+            title: mainButtonTitle,
             style: .primary,
             isLoading: isMainButtonBusy,
             isDisabled: false,
