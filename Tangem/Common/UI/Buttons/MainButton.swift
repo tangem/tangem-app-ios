@@ -77,23 +77,26 @@ struct MainButton: View {
         if isLoading {
             ProgressViewCompat(color: style.loaderColor())
         } else {
-            switch icon {
-            case .none:
-                textView
-
-            case let .leading(icon):
-                HStack(alignment: .center, spacing: 10) {
-                    iconView(icon: icon)
-
+            Group {
+                switch icon {
+                case .none:
                     textView
-                }
-            case let .trailing(icon):
-                HStack(alignment: .center, spacing: 10) {
-                    textView
-
-                    iconView(icon: icon)
+                    
+                case let .leading(icon):
+                    HStack(alignment: .center, spacing: 10) {
+                        iconView(icon: icon)
+                        
+                        textView
+                    }
+                case let .trailing(icon):
+                    HStack(alignment: .center, spacing: 10) {
+                        textView
+                        
+                        iconView(icon: icon)
+                    }
                 }
             }
+            .padding(.horizontal, 16)
         }
     }
 
@@ -102,6 +105,8 @@ struct MainButton: View {
         Text(title)
             .style(Fonts.Bold.callout,
                    color: style.textColor(isDisabled: isDisabled))
+            .lineLimit(1)
+            .minimumScaleFactor(0.5)
     }
 
     @ViewBuilder
@@ -251,6 +256,11 @@ struct MainButton_Previews: PreviewProvider {
                        icon: .trailing(Assets.tangemIcon),
                        style: style,
                        isLoading: true) {}
+            
+            MainButton(title: "A long long long long long long long long long long text",
+                       icon: .trailing(Assets.tangemIcon),
+                       style: style,
+                       isLoading: false) {}
         }
         .padding(.horizontal, 16)
     }
