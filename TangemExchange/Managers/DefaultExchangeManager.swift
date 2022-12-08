@@ -270,24 +270,25 @@ private extension DefaultExchangeManager {
 private extension DefaultExchangeManager {
     func mapExpectedSwappingResult(from quoteData: QuoteData) async throws -> ExpectedSwappingResult {
         guard var paymentAmount = Decimal(string: quoteData.fromTokenAmount),
-              var expectedAmount = Decimal(string: quoteData.toTokenAmount) else {
+              var expectedAmount = Decimal(string: quoteData.toTokenAmount),
+              let destination = exchangeItems.destination else {
             throw ExchangeManagerErrors.incorrectData
         }
 
         var fee = Decimal(integerLiteral: quoteData.estimatedGas)
 
-        let decimalValue = exchangeItems.destination.decimalCount.decimalValue
+        let decimalValue = destination.decimalCount.decimalValue
         fee /= decimalValue
         paymentAmount /= decimalValue
         expectedAmount /= decimalValue
 
         let expectedFiatAmount = try await blockchainInfoProvider.getFiatBalance(
-            currency: exchangeItems.destination,
+            currency: destination,
             amount: expectedAmount
         )
 
         let fiatFee = try await blockchainInfoProvider.getFiatBalance(
-            currency: exchangeItems.destination,
+            currency: destination,
             amount: fee
         )
 

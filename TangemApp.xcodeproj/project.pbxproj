@@ -671,7 +671,6 @@
 		EF7BD11028B8B321001B2D59 /* CommonUserWalletModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF7BD10F28B8B321001B2D59 /* CommonUserWalletModel.swift */; };
 		EF80842E293DE3D9000D91EA /* ExchangeManagerUtil.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF80842D293DE3D9000D91EA /* ExchangeManagerUtil.swift */; };
 		EF808430293DF454000D91EA /* ExchangeManagerErrors.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF80842F293DF454000D91EA /* ExchangeManagerErrors.swift */; };
-		EF808432293DF472000D91EA /* Int+.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF808431293DF472000D91EA /* Int+.swift */; };
 		EF808434293F38CE000D91EA /* UserWalletsListProviding.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF808433293F38CE000D91EA /* UserWalletsListProviding.swift */; };
 		EF808436293F39D6000D91EA /* UserWalletsListProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF808435293F39D6000D91EA /* UserWalletsListProvider.swift */; };
 		EF808438293F3A6D000D91EA /* CurrencyMapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF808437293F3A6D000D91EA /* CurrencyMapper.swift */; };
@@ -722,6 +721,7 @@
 		EFF034B128B6523F00F70FF7 /* CommonWalletListManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFF034B028B6523F00F70FF7 /* CommonWalletListManager.swift */; };
 		EFF253B3293DCAA900AEF302 /* SwappingFeeRowViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFF253B1293DCAA900AEF302 /* SwappingFeeRowViewModel.swift */; };
 		EFF253B4293DCAAA00AEF302 /* SwappingFeeRowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFF253B2293DCAA900AEF302 /* SwappingFeeRowView.swift */; };
+		EFF70FE32941D4920000532E /* Int+.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFF70FE22941D4920000532E /* Int+.swift */; };
 		EFFC860D28BCE87700F863CE /* TokenItemsRepositoryMigrator.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFFC860B28BCE87700F863CE /* TokenItemsRepositoryMigrator.swift */; };
 		EFFC860E28BCE87700F863CE /* LegacyCardMigrator.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFFC860C28BCE87700F863CE /* LegacyCardMigrator.swift */; };
 		EFFC861328BCF6C500F863CE /* StorageEntry.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFFC861228BCF6C500F863CE /* StorageEntry.swift */; };
@@ -1542,7 +1542,6 @@
 		EF7BD10F28B8B321001B2D59 /* CommonUserWalletModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonUserWalletModel.swift; sourceTree = "<group>"; };
 		EF80842D293DE3D9000D91EA /* ExchangeManagerUtil.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExchangeManagerUtil.swift; sourceTree = "<group>"; };
 		EF80842F293DF454000D91EA /* ExchangeManagerErrors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExchangeManagerErrors.swift; sourceTree = "<group>"; };
-		EF808431293DF472000D91EA /* Int+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Int+.swift"; sourceTree = "<group>"; };
 		EF808433293F38CE000D91EA /* UserWalletsListProviding.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserWalletsListProviding.swift; sourceTree = "<group>"; };
 		EF808435293F39D6000D91EA /* UserWalletsListProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserWalletsListProvider.swift; sourceTree = "<group>"; };
 		EF808437293F3A6D000D91EA /* CurrencyMapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CurrencyMapper.swift; sourceTree = "<group>"; };
@@ -1600,6 +1599,7 @@
 		EFF253B1293DCAA900AEF302 /* SwappingFeeRowViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SwappingFeeRowViewModel.swift; sourceTree = "<group>"; };
 		EFF253B2293DCAA900AEF302 /* SwappingFeeRowView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SwappingFeeRowView.swift; sourceTree = "<group>"; };
 		EFF5CF1928C796B1000EE8DB /* Alpha.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Alpha.xcconfig; sourceTree = "<group>"; };
+		EFF70FE22941D4920000532E /* Int+.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Int+.swift"; sourceTree = "<group>"; };
 		EFFC860B28BCE87700F863CE /* TokenItemsRepositoryMigrator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TokenItemsRepositoryMigrator.swift; sourceTree = "<group>"; };
 		EFFC860C28BCE87700F863CE /* LegacyCardMigrator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LegacyCardMigrator.swift; sourceTree = "<group>"; };
 		EFFC861228BCF6C500F863CE /* StorageEntry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StorageEntry.swift; sourceTree = "<group>"; };
@@ -3404,10 +3404,10 @@
 		EF29BEF029349C1A00D7C782 /* Extensions */ = {
 			isa = PBXGroup;
 			children = (
+				EFF70FE22941D4920000532E /* Int+.swift */,
 				EF29BEF129349C2900D7C782 /* Data+.swift */,
 				EF29BEEE292FC8C100D7C782 /* MoyaProvider+AsyncRequest.swift */,
 				EF29BEF329349F4200D7C782 /* Moya.Task+.swift */,
-				EF8F23532941C2730046F4C0 /* Int+.swift */,
 			);
 			path = Extensions;
 			sourceTree = "<group>";
@@ -5074,6 +5074,7 @@
 				EF4661C62923B42A00346B6C /* ExchangeProvider.swift in Sources */,
 				EF4661F42924CC6E00346B6C /* ExchangeTarget.swift in Sources */,
 				EF4661FB2924CC6E00346B6C /* ApproveDTO.swift in Sources */,
+				EFF70FE32941D4920000532E /* Int+.swift in Sources */,
 				EF4662022924CC6E00346B6C /* HealthCheck.swift in Sources */,
 				EF29BEE4292E5DC400D7C782 /* OneInchExchangeProviderErrors.swift in Sources */,
 				EF4661FC2924CC6E00346B6C /* Constants.swift in Sources */,
@@ -5102,7 +5103,6 @@
 				EF4662072924CC6E00346B6C /* OneInchAPIServicing.swift in Sources */,
 				EF4661F12924CC6E00346B6C /* InfoTarget.swift in Sources */,
 				EF4661FE2924CC6E00346B6C /* ExchangeInchError.swift in Sources */,
-				EF8F23542941C2730046F4C0 /* Int+.swift in Sources */,
 				EF808430293DF454000D91EA /* ExchangeManagerErrors.swift in Sources */,
 				EF4662042924CC6E00346B6C /* PresetsConfiguration.swift in Sources */,
 				EF808434293F38CE000D91EA /* UserWalletsListProviding.swift in Sources */,
