@@ -13,7 +13,7 @@
 "alert_developer_card" = "La carta che hai scansionato è una carta di sviluppo. Non utilizzarla come strumento di pagamento";
 "alert_failed_to_send_transaction_message" = "Reason: %@";
 "alert_failed_to_send_email_title" = "Failed to send the email";
-"alert_negative_app_rate_sent_message" = "Thank your for your feedback. We will response as soon as possible";
+"alert_negative_app_rate_sent_message" = "Thank you for your feedback. We will respond as soon as possible";
 "alert_negative_app_rate_sent_title" = "Your suggestions were sent";
 "alert_old_card" = "I fondi delle carte Tangem emesse prima di settembre 2019 non possono essere recuperati utilizzando un iPhone a causa delle restrizioni di iOS. È necessario utilizzare un telefono Android per recuperare i fondi. Le carte rilasciate dopo settembre 2019 funzionano correttamente con entrambe le piattaforme.";
 "alert_old_device_this_card" = "Potresti riscontrare problemi con l'NFC su alcuni iPhone 7/7 + durante la rimozione";
