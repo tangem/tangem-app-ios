@@ -276,10 +276,10 @@ private extension DefaultExchangeManager {
 
         var fee = Decimal(integerLiteral: quoteData.estimatedGas)
 
-        let decimalNumber = exchangeItems.destination.decimalCount.decimalValue
-        fee /= decimalNumber
-        paymentAmount /= decimalNumber
-        expectedAmount /= decimalNumber
+        let decimalValue = exchangeItems.destination.decimalCount.decimalValue
+        fee /= decimalValue
+        paymentAmount /= decimalValue
+        expectedAmount /= decimalValue
 
         let expectedFiatAmount = try await blockchainInfoProvider.getFiatBalance(
             currency: exchangeItems.destination,
