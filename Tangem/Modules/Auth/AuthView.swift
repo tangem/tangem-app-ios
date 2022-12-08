@@ -53,7 +53,7 @@ struct AuthView: View {
             Spacer()
 
             MainButton(
-                title: .string(viewModel.unlockWithBiometryButtonTitle),
+                title: viewModel.unlockWithBiometryButtonTitle,
                 style: .secondary,
                 isLoading: viewModel.isScanningCard,
                 action: viewModel.unlockWithBiometry
@@ -61,7 +61,7 @@ struct AuthView: View {
             .padding(.bottom, 11)
 
             MainButton(
-                title: .string("welcome_unlock_card".localized),
+                title: "welcome_unlock_card".localized,
                 icon: .trailing(Assets.tangemIcon),
                 style: .primary,
                 isLoading: viewModel.isScanningCard,
