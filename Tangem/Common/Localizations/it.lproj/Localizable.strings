@@ -458,7 +458,7 @@ URL: %@";
 "onboarding_title_pin" = "PIN Code";
 "onboarding_subtitle_pin" = "Set PIN code for your SaltPay card";
 "onboarding_supplement_button_kyc_waiting" = "Chat with support";
-"error_saltpay_wrong_backup_card" = "This card is not designed to SaltPay backup";
+"error_saltpay_wrong_backup_card" = "This card is not designed for SaltPay backup";
 "registration_task_alert_message" = "Please hold the card until the operation complete";
 "onboarding_saltpay_subtitle_no_backup_cards" = "To start the backup process you have to add Tangem card as your backup";
 "onboarding_saltpay_title_no_backup_card" = "No backup card";
