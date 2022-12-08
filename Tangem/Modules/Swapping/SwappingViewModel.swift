@@ -20,15 +20,15 @@ final class SwappingViewModel: ObservableObject {
     @Published var refreshWarningRowViewModel: DefaultWarningRowViewModel?
 
     @Published var mainButtonIsEnabled: Bool = false
-    @Published var mainButtonTitle: MainButtonAction = .swap
+    @Published var mainButtonState: MainButtonState = .swap
 
     var informationSectionViewModels: [InformationSectionViewModel] {
-        var section: [InformationSectionViewModel] = [.fee(swappingFeeRowViewModel)]
+        var viewModels: [InformationSectionViewModel] = [.fee(swappingFeeRowViewModel)]
         if let feeWarningRowViewModel {
-            section.append(.warning(feeWarningRowViewModel))
+            viewModels.append(.warning(feeWarningRowViewModel))
         }
 
-        return section
+        return viewModels
     }
 
     @Published private var swappingFeeRowViewModel = SwappingFeeRowViewModel(state: .idle)
@@ -39,7 +39,7 @@ final class SwappingViewModel: ObservableObject {
     private let exchangeManager: ExchangeManager
     private let swappingDestinationService: SwappingDestinationServing
     private let userWalletsListProvider: UserWalletsListProviding
-    private let tokenIconURLBuilding: TokenIconURLBuilding
+    private let tokenIconURLBuilder: TokenIconURLBuilding
     private unowned let coordinator: SwappingRoutable
 
     // MARK: - Private
@@ -50,13 +50,13 @@ final class SwappingViewModel: ObservableObject {
         exchangeManager: ExchangeManager,
         swappingDestinationService: SwappingDestinationServing,
         userWalletsListProvider: UserWalletsListProviding,
-        tokenIconURLBuilding: TokenIconURLBuilding,
+        tokenIconURLBuilder: TokenIconURLBuilding,
         coordinator: SwappingRoutable
     ) {
         self.exchangeManager = exchangeManager
         self.swappingDestinationService = swappingDestinationService
         self.userWalletsListProvider = userWalletsListProvider
-        self.tokenIconURLBuilding = tokenIconURLBuilding
+        self.tokenIconURLBuilder = tokenIconURLBuilder
         self.coordinator = coordinator
 
         setupView()
@@ -149,22 +149,22 @@ private extension SwappingViewModel {
 // MARK: - ExchangeManagerDelegate
 
 extension SwappingViewModel: ExchangeManagerDelegate {
-    func exchangeManagerDidUpdate(availabilityState: TangemExchange.ExchangeAvailabilityState) {
+    func exchangeManager(_ manager: ExchangeManager, didUpdate exchangeItems: ExchangeItems) {
+        DispatchQueue.main.async {
+            self.updateView(exchangeItems: exchangeItems)
+        }
+    }
+
+    func exchangeManager(_ manager: ExchangeManager, didUpdate availabilityState: ExchangeAvailabilityState) {
         DispatchQueue.main.async {
             self.updateState(state: availabilityState)
         }
     }
 
-    func exchangeManagerDidUpdate(availabilityForExchange isAvailable: Bool, limit: Decimal?) {
+    func exchangeManager(_ manager: ExchangeManager, didUpdate availabilityForExchange: Bool) {
         DispatchQueue.main.async {
-            self.mainButtonTitle = isAvailable ? .swap : .givePermission
-            self.sendCurrencyViewModel?.update(isLockedVisible: !isAvailable)
-        }
-    }
-
-    func exchangeManagerDidUpdate(exchangeItems: TangemExchange.ExchangeItems) {
-        DispatchQueue.main.async {
-            self.updateView(exchangeItems: exchangeItems)
+            self.mainButtonState = availabilityForExchange ? .swap : .givePermission
+            self.sendCurrencyViewModel?.update(isLockedVisible: !availabilityForExchange)
         }
     }
 }
@@ -172,7 +172,7 @@ extension SwappingViewModel: ExchangeManagerDelegate {
 // MARK: - View updates
 
 private extension SwappingViewModel {
-    func updateView(exchangeItems: TangemExchange.ExchangeItems) {
+    func updateView(exchangeItems: ExchangeItems) {
         let source = exchangeItems.source
         let destination = exchangeItems.destination
 
@@ -194,7 +194,7 @@ private extension SwappingViewModel {
         case let .preview(result),
              let .available(result, _),
              let .requiredPermission(result, _):
-            state = .loaded(result.expectAmount, fiatValue: result.expectFiatAmount)
+            state = .loaded(result.expectedAmount, fiatValue: result.expectedFiatAmount)
         }
 
         receiveCurrencyViewModel = ReceiveCurrencyViewModel(
@@ -203,7 +203,7 @@ private extension SwappingViewModel {
         )
     }
 
-    func updateState(state: TangemExchange.ExchangeAvailabilityState) {
+    func updateState(state: ExchangeAvailabilityState) {
         updateFeeValue(state: state)
         updateMainButton(state: state)
 
@@ -224,7 +224,7 @@ private extension SwappingViewModel {
             refreshWarningRowViewModel = nil
             feeWarningRowViewModel = nil
             receiveCurrencyViewModel?.updateState(
-                .loaded(result.expectAmount, fiatValue: result.expectFiatAmount)
+                .loaded(result.expectedAmount, fiatValue: result.expectedFiatAmount)
             )
 
         case .requiredRefresh(let error):
@@ -264,7 +264,7 @@ private extension SwappingViewModel {
         switch state {
         case .idle:
             mainButtonIsEnabled = false
-            mainButtonTitle = .swap
+            mainButtonState = .swap
         case .loading, .requiredRefresh:
             mainButtonIsEnabled = false
 
@@ -274,9 +274,9 @@ private extension SwappingViewModel {
             mainButtonIsEnabled = result.isEnoughAmountForExchange
 
             if result.isEnoughAmountForExchange {
-                mainButtonTitle = .givePermission
+                mainButtonState = .givePermission
             } else {
-                mainButtonTitle = .insufficientFunds
+                mainButtonState = .insufficientFunds
             }
         }
     }
@@ -330,7 +330,7 @@ extension SwappingViewModel {
         case warning(DefaultWarningRowViewModel)
     }
 
-    enum MainButtonAction: Hashable, Identifiable {
+    enum MainButtonState: Hashable, Identifiable {
         var id: Int { hashValue }
 
         case swap
