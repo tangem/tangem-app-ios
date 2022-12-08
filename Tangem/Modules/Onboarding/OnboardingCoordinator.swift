@@ -25,7 +25,7 @@ class OnboardingCoordinator: CoordinatorObject {
     @Published var warningBankCardViewModel: WarningBankCardViewModel? = nil
     @Published var modalWebViewModel: WebViewContainerViewModel? = nil
     @Published var accessCodeModel: OnboardingAccessCodeViewModel? = nil
-    @Published var addressQrBottomSheetContentViewModel: AddressQrBottomSheetContentViewVodel? = nil
+    @Published var addressQrBottomSheetContentViewModel: AddressQrBottomSheetContentViewModel? = nil
     @Published var supportChatViewModel: SupportChatViewModel? = nil
 
     // For non-dismissable presentation
