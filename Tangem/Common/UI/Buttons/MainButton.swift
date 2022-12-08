@@ -9,15 +9,16 @@
 import SwiftUI
 
 struct MainButton: View {
-    private let title: Title
+    private let title: LocalizedStringKey
     private let icon: Icon?
     private let style: Style
     private let isLoading: Bool
     private let isDisabled: Bool
     private let action: () -> Void
 
+    /// Better don't use it because it forces `import SwiftUI` in `viewModel` or services
     init(
-        title: Title,
+        title: LocalizedStringKey,
         icon: Icon? = nil,
         style: Style = .primary,
         isLoading: Bool = false,
@@ -25,6 +26,22 @@ struct MainButton: View {
         action: @escaping (() -> Void)
     ) {
         self.title = title
+        self.icon = icon
+        self.style = style
+        self.isLoading = isLoading
+        self.isDisabled = isDisabled
+        self.action = action
+    }
+
+    init(
+        title: String,
+        icon: Icon? = nil,
+        style: Style = .primary,
+        isLoading: Bool = false,
+        isDisabled: Bool = false,
+        action: @escaping (() -> Void)
+    ) {
+        self.title = LocalizedStringKey(stringLiteral: title)
         self.icon = icon
         self.style = style
         self.isLoading = isLoading
@@ -82,16 +99,9 @@ struct MainButton: View {
 
     @ViewBuilder
     private var textView: some View {
-        switch title {
-        case .key(let key):
-            Text(key)
-                .style(Fonts.Bold.callout,
-                       color: style.textColor(isDisabled: isDisabled))
-        case .string(let string):
-            Text(string)
-                .style(Fonts.Bold.callout,
-                       color: style.textColor(isDisabled: isDisabled))
-        }
+        Text(title)
+            .style(Fonts.Bold.callout,
+                   color: style.textColor(isDisabled: isDisabled))
     }
 
     @ViewBuilder
@@ -105,12 +115,6 @@ struct MainButton: View {
 }
 
 extension MainButton {
-    enum Title {
-        case string(String)
-        /// Better don't use it because it forces `import SwiftUI` in `viewModel` or services
-        case key(LocalizedStringKey)
-    }
-
     enum Icon {
         case leading(_ icon: Image)
         case trailing(_ icon: Image)
@@ -170,7 +174,7 @@ extension MainButton {
     }
 
     struct Settings {
-        let title: Title
+        let title: LocalizedStringKey
         let icon: Icon?
         let style: Style
         let isLoading: Bool
@@ -178,7 +182,7 @@ extension MainButton {
         let action: () -> Void
 
         init(
-            title: Title,
+            title: LocalizedStringKey,
             icon: Icon? = nil,
             style: Style = .primary,
             isLoading: Bool = false,
@@ -186,6 +190,22 @@ extension MainButton {
             action: @escaping (() -> Void)
         ) {
             self.title = title
+            self.icon = icon
+            self.style = style
+            self.isLoading = isLoading
+            self.isDisabled = isDisabled
+            self.action = action
+        }
+
+        init(
+            title: String,
+            icon: Icon? = nil,
+            style: Style = .primary,
+            isLoading: Bool = false,
+            isDisabled: Bool = false,
+            action: @escaping (() -> Void)
+        ) {
+            self.title = LocalizedStringKey(stringLiteral: title)
             self.icon = icon
             self.style = style
             self.isLoading = isLoading
@@ -209,25 +229,25 @@ struct MainButton_Previews: PreviewProvider {
     @ViewBuilder
     static func buttons(style: MainButton.Style) -> some View {
         VStack(spacing: 16) {
-            MainButton(title: .string("Order card"),
+            MainButton(title: "Order card",
                        icon: .leading(Assets.tangemIcon),
                        style: style) {}
 
-            MainButton(title: .string("Order card"),
+            MainButton(title: "Order card",
                        icon: .leading(Assets.tangemIcon),
                        style: style,
                        isDisabled: true) {}
 
-            MainButton(title: .string("Order card"),
+            MainButton(title: "Order card",
                        icon: .trailing(Assets.tangemIcon),
                        style: style) {}
 
-            MainButton(title: .string("Order card"),
+            MainButton(title: "Order card",
                        icon: .trailing(Assets.tangemIcon),
                        style: style,
                        isDisabled: true) {}
 
-            MainButton(title: .string("Order card"),
+            MainButton(title: "Order card",
                        icon: .trailing(Assets.tangemIcon),
                        style: style,
                        isLoading: true) {}
