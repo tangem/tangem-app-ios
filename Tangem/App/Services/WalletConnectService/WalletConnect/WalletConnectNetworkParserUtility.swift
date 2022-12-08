@@ -12,9 +12,7 @@ import BlockchainSdk
 
 enum WalletConnectNetworkParserUtility {
     static func parse(dAppInfo: Session.DAppInfo, isTestnet: Bool) -> Blockchain? {
-        if dAppInfo.peerMeta.url.absoluteString.contains("pancakeswap.finance") {
-            return Blockchain.bsc(testnet: isTestnet)
-        } else if let id = dAppInfo.chainId {
+        if let id = dAppInfo.chainId {
             if let blockchain = makeBlockchain(from: id) {
                 return blockchain
             }
