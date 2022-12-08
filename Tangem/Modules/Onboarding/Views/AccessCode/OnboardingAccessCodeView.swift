@@ -103,7 +103,7 @@ struct OnboardingAccessCodeView: View {
                 .opacity(error.errorOpacity)
                 .foregroundColor(.tangemCritical)
             Spacer()
-            MainButton(title: .key(state.buttonTitle)) {
+            MainButton(title: state.buttonTitle) {
                 let nextState: ViewState
                 switch state {
                 case .intro:
