@@ -40,7 +40,7 @@ class DefaultExchangeManager<TxBuilder: TransactionBuilder> {
             return ""
         }
 
-        amount *= pow(10, exchangeItems.source.decimalCount)
+        amount *= exchangeItems.source.decimalCount.decimalNumber
         return String(describing: amount)
     }
 
@@ -270,7 +270,7 @@ private extension DefaultExchangeManager {
             throw ExchangeManagerErrors.incorrectData
         }
 
-        let decimalNumber = pow(10, exchangeItems.destination.decimalCount)
+        let decimalNumber = exchangeItems.destination.decimalCount.decimalNumber
         let expectedFiatAmount = blockchainInfoProvider.getFiatBalance(
             currency: exchangeItems.destination,
             amount: expectedAmount / decimalNumber

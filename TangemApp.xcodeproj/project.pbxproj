@@ -675,6 +675,7 @@
 		EF808443293F6B69000D91EA /* TokenIconURLBuilding.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF808442293F6B69000D91EA /* TokenIconURLBuilding.swift */; };
 		EF808445293F6B76000D91EA /* TokenURLIconSize.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF808444293F6B76000D91EA /* TokenURLIconSize.swift */; };
 		EF808447293F6C27000D91EA /* TokenIconURLBuilderMock.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF808446293F6C27000D91EA /* TokenIconURLBuilderMock.swift */; };
+		EF8F23542941C2730046F4C0 /* Int+.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF8F23532941C2730046F4C0 /* Int+.swift */; };
 		EF92412F2934BB8000C28551 /* MainButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF92412E2934BB8000C28551 /* MainButton.swift */; };
 		EF9241322934C25400C28551 /* DependenciesFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF9241312934C25400C28551 /* DependenciesFactory.swift */; };
 		EF9241342934C8F200C28551 /* SwappingConfigurator.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF9241332934C8F200C28551 /* SwappingConfigurator.swift */; };
@@ -1539,6 +1540,7 @@
 		EF808442293F6B69000D91EA /* TokenIconURLBuilding.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenIconURLBuilding.swift; sourceTree = "<group>"; };
 		EF808444293F6B76000D91EA /* TokenURLIconSize.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenURLIconSize.swift; sourceTree = "<group>"; };
 		EF808446293F6C27000D91EA /* TokenIconURLBuilderMock.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenIconURLBuilderMock.swift; sourceTree = "<group>"; };
+		EF8F23532941C2730046F4C0 /* Int+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Int+.swift"; sourceTree = "<group>"; };
 		EF92412E2934BB8000C28551 /* MainButton.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MainButton.swift; sourceTree = "<group>"; };
 		EF9241312934C25400C28551 /* DependenciesFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DependenciesFactory.swift; sourceTree = "<group>"; };
 		EF9241332934C8F200C28551 /* SwappingConfigurator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwappingConfigurator.swift; sourceTree = "<group>"; };
@@ -3393,6 +3395,7 @@
 				EF29BEF129349C2900D7C782 /* Data+.swift */,
 				EF29BEEE292FC8C100D7C782 /* MoyaProvider+AsyncRequest.swift */,
 				EF29BEF329349F4200D7C782 /* Moya.Task+.swift */,
+				EF8F23532941C2730046F4C0 /* Int+.swift */,
 			);
 			path = Extensions;
 			sourceTree = "<group>";
@@ -5076,6 +5079,7 @@
 				EF4662072924CC6E00346B6C /* OneInchAPIServicing.swift in Sources */,
 				EF4661F12924CC6E00346B6C /* InfoTarget.swift in Sources */,
 				EF4661FE2924CC6E00346B6C /* ExchangeInchError.swift in Sources */,
+				EF8F23542941C2730046F4C0 /* Int+.swift in Sources */,
 				EF808430293DF454000D91EA /* ExchangeManagerErrors.swift in Sources */,
 				EF4662042924CC6E00346B6C /* PresetsConfiguration.swift in Sources */,
 				EF29BEE2292E5DB400D7C782 /* ExchangeTransactionInfo.swift in Sources */,
