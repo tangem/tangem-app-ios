@@ -129,7 +129,7 @@ struct OnboardingTextButtonView_Previews: PreviewProvider {
             textOffset: .init(width: 0, height: -100),
             buttonsSettings:
             .init(main: MainButton.Settings(
-                title: .string("Create wallet"),
+                title: "Create wallet",
                 isLoading: false,
                 isDisabled: false,
                 action: {}),
