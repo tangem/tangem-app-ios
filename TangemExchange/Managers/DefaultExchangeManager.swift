@@ -269,30 +269,40 @@ private extension DefaultExchangeManager {
 
 private extension DefaultExchangeManager {
     func mapExpectedSwappingResult(from quoteData: QuoteData) async throws -> ExpectedSwappingResult {
-        guard let expectedAmount = Decimal(string: quoteData.toTokenAmount),
-              let amount else {
+        guard var paymentAmount = Decimal(string: quoteData.fromTokenAmount),
+              var expectedAmount = Decimal(string: quoteData.toTokenAmount) else {
             throw ExchangeManagerErrors.incorrectData
         }
 
+        var fee = Decimal(integerLiteral: quoteData.estimatedGas)
+
         let decimalNumber = pow(10, exchangeItems.destination.decimalCount)
+        fee /= decimalNumber
+        paymentAmount /= decimalNumber
+        expectedAmount /= decimalNumber
+
         let expectedFiatAmount = try await blockchainInfoProvider.getFiatBalance(
             currency: exchangeItems.destination,
-            amount: expectedAmount / decimalNumber
+            amount: expectedAmount
         )
 
-        var fee = Decimal(integerLiteral: quoteData.estimatedGas)
-        fee /= decimalNumber
         let fiatFee = try await blockchainInfoProvider.getFiatBalance(
             currency: exchangeItems.destination,
             amount: fee
         )
 
-        let isEnoughAmountForExchange = exchangeItems.sourceBalance.balance >= amount + fee
+        print(
+            "exchangeItems.sourceBalance.balance",
+            exchangeItems.sourceBalance.balance,
+            paymentAmount,
+            exchangeItems.sourceBalance.balance >= paymentAmount
+        )
+        let isEnoughAmountForExchange = exchangeItems.sourceBalance.balance >= paymentAmount
 
         return ExpectedSwappingResult(
-            expectedAmount: expectedAmount / decimalNumber,
+            expectedAmount: expectedAmount,
             expectedFiatAmount: expectedFiatAmount,
-            fee: fee / decimalNumber,
+            fee: fee,
             fiatFee: fiatFee,
             decimalCount: quoteData.toToken.decimals,
             isEnoughAmountForExchange: isEnoughAmountForExchange
