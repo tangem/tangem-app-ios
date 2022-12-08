@@ -154,7 +154,7 @@ class TokenDetailsViewModel: ObservableObject {
     }
 
     var swappingIsAvailable: Bool {
-        FeatureProvider.isAvailable(.exchange) && isAvailableForSwapping
+        FeatureProvider.isAvailable(.exchange) && canSwap
     }
 
     @Published var solanaRentWarning: String? = nil
@@ -466,7 +466,7 @@ extension TokenDetailsViewModel {
 // MARK: - Swapping preparing
 
 private extension TokenDetailsViewModel {
-    var isAvailableForSwapping: Bool {
+    var canSwap: Bool {
         ExchangeManagerUtil().isNetworkAvailableForExchange(
             networkId: blockchainNetwork.blockchain.networkId
         )
