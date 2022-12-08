@@ -40,7 +40,7 @@ class DefaultExchangeManager<TxBuilder: TransactionBuilder> {
             return ""
         }
 
-        amount *= pow(10, exchangeItems.source.decimalCount)
+        amount *= exchangeItems.source.decimalCount.decimalValue
         return String(describing: amount)
     }
 
@@ -276,7 +276,7 @@ private extension DefaultExchangeManager {
 
         var fee = Decimal(integerLiteral: quoteData.estimatedGas)
 
-        let decimalNumber = pow(10, exchangeItems.destination.decimalCount)
+        let decimalNumber = exchangeItems.destination.decimalCount.decimalValue
         fee /= decimalNumber
         paymentAmount /= decimalNumber
         expectedAmount /= decimalNumber
