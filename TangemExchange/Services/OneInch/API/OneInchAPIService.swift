@@ -78,6 +78,7 @@ private extension OneInchAPIService {
         do {
             response = try await provider.asyncRequest(target)
         } catch {
+            logError(target: target, error: error)
             return .failure(.serverError(withError: error))
         }
 
@@ -85,10 +86,11 @@ private extension OneInchAPIService {
             response = try response.filterSuccessfulStatusAndRedirectCodes()
         } catch {
             do {
-                print("Request to target", target.path, "handle error with response", String(data: response.data, encoding: .utf8)!)
                 let inchError = try decoder.decode(InchError.self, from: response.data)
+                logError(target: target, response: response, error: inchError)
                 return .failure(.parsedError(withInfo: inchError))
             } catch {
+                logError(target: target, response: response, error: error)
                 return .failure(.serverError(withError: error))
             }
         }
@@ -96,7 +98,21 @@ private extension OneInchAPIService {
         do {
             return .success(try decoder.decode(T.self, from: response.data))
         } catch {
+            logError(target: target, response: response, error: error)
             return .failure(.decodeError(error: error))
         }
+    }
+
+    func logError(target: OneInchBaseTarget, response: Response? = nil, error: Error) {
+        var info: String = ""
+        if let response {
+            info = String(data: response.data, encoding: .utf8)!
+        }
+
+        print(
+            "Error when request to target \(target.path)",
+            "with info \(info)",
+            "\(error.localizedDescription)"
+        )
     }
 }
