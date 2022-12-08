@@ -30,12 +30,12 @@ struct WarningBankCardView: View {
 
             HStack(spacing: 11) {
                 MainButton(
-                    title: .string("common_yes".localized),
+                    title: "common_yes".localized,
                     action: viewModel.confirmCallback
                 )
 
                 MainButton(
-                    title: .string("common_no".localized),
+                    title: "common_no".localized,
                     style: .secondary,
                     action: viewModel.confirmCallback
                 )
