@@ -9,7 +9,7 @@
 import Foundation
 
 extension Int {
-    var decimalNumber: Decimal {
+    var decimalValue: Decimal {
         pow(10, self)
     }
 }
