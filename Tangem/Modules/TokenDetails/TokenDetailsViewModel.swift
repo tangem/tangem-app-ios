@@ -19,6 +19,10 @@ class TokenDetailsViewModel: ObservableObject {
     @Published var showTradeSheet: Bool = false
     @Published var isRefreshing: Bool = false
 
+    @Published var exchangeButton: ExchangeType?
+    @Published var exchangeVariations: [ExchangeType]?
+    @Published var exchangeActionSheet: ActionSheetBinder?
+
     let card: CardViewModel
 
     var wallet: Wallet? {
@@ -191,6 +195,66 @@ class TokenDetailsViewModel: ObservableObject {
         walletModel = card.walletModels.first(where: { $0.blockchainNetwork == blockchainNetwork })
 
         bind()
+        updateExchangeButtons()
+    }
+
+    func updateExchangeButtons() {
+        guard FeatureProvider.isAvailable(.exchange) else { return }
+
+        var exchangeVariations: [ExchangeType] = [.buy]
+
+        if canSellCrypto {
+            exchangeVariations.append(.sell)
+        }
+
+        if canSwap {
+            exchangeVariations.append(.swap)
+        }
+
+        if exchangeVariations.count == 1 {
+            exchangeButton = exchangeVariations.first
+        } else {
+            self.exchangeVariations = exchangeVariations
+        }
+    }
+
+    func openExchangeActionSheet() {
+        var buttons: [ActionSheet.Button] = exchangeVariations?.map { action in
+            .default(Text(action.title)) { [weak self] in
+                self?.didTapExchangeButtonAction(type: action)
+            }
+        } ?? []
+
+        buttons.append(.cancel())
+
+        let sheet = ActionSheet(
+            title: Text("action_sheet_trade_hint".localized),
+            buttons: buttons
+        )
+
+        exchangeActionSheet = ActionSheetBinder(sheet: sheet)
+    }
+
+    func didTapExchangeButtonAction(type: ExchangeType) {
+        switch type {
+        case .swap:
+            openSwapping()
+        case .buy:
+            openBuyCryptoIfPossible()
+        case .sell:
+            openSellCrypto()
+        }
+    }
+
+    func isAvailable(type: ExchangeType) -> Bool {
+        switch type {
+        case .buy:
+            return canBuyCrypto
+        case .swap:
+            return canSwap
+        case .sell:
+            return canSellCrypto
+        }
     }
 
     func onAppear() {
@@ -431,7 +495,7 @@ extension TokenDetailsViewModel {
     }
 
     func openPushTx(for index: Int) {
-        guard let tx =  wallet?.pendingOutgoingTransactions[index] else { return }
+        guard let tx = wallet?.pendingOutgoingTransactions[index] else { return }
 
         coordinator.openPushTx(for: tx, blockchainNetwork: blockchainNetwork, card: card)
     }
@@ -482,6 +546,36 @@ private extension TokenDetailsViewModel {
 
         case .token(let token):
             return mapper.mapToCurrency(token: token, blockchain: blockchain)
+        }
+    }
+}
+
+extension TokenDetailsViewModel {
+    enum ExchangeType: Hashable {
+        case buy
+        case sell
+        case swap
+
+        var title: String {
+            switch self {
+            case .sell:
+                return "wallet_button_sell_crypto".localized
+            case .buy:
+                return "wallet_button_topup".localized
+            case .swap:
+                return "swapping_swap".localized
+            }
+        }
+
+        var icon: Image {
+            switch self {
+            case .sell:
+                return Assets.exchangeIcon
+            case .buy:
+                return Assets.exchangeIcon
+            case .swap:
+                return Assets.exchangeIcon
+            }
         }
     }
 }
