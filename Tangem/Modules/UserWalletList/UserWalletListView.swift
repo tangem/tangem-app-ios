@@ -38,7 +38,7 @@ struct UserWalletListView: View {
                     if viewModel.isLocked {
                         MainButton(title: viewModel.unlockAllButtonTitle,
                                    style: .secondary,
-                                   isLoading: viewModel.isScanningCard,
+                                   isDisabled: viewModel.isScanningCard,
                                    action: viewModel.unlockAllWallets)
                     }
 
