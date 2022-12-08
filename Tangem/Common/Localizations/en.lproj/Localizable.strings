@@ -193,7 +193,7 @@ Tangem is the only hardware wallet to offer signature count protection.";
 "testnet_error_not_enough_ether_message" = "Not enough funds on ETH wallet balance. You need to topup ETH wallet first";
 "token_details_send_blocked_tx_format" = "Please wait for %@ transaction to complete to be able to send funds";
 "twin_error_not_a_twin_card" = "You've scanned not a twin card. To create twin wallet you need to scan a Tangem Twin card";
-"twin_error_same_card" = "You've scanned same card. To create twin wallet you need to scan card with number %d";
+"twin_error_same_card" = "You've scanned the same card. To create a twin wallet you need to scan the card with number %d";
 "twin_error_wrong_twin" = "You've scanned wrong twin card. Please try another one";
 "twins_recreate_title_creating_wallet" = "Creating wallet";
 "twins_recreate_title_preparing" = "Preparing card";
