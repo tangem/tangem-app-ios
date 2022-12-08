@@ -40,7 +40,7 @@ class DefaultExchangeManager<TxBuilder: TransactionBuilder> {
             return ""
         }
 
-        amount *= exchangeItems.source.decimalCount.decimalNumber
+        amount *= exchangeItems.source.decimalCount.decimalValue
         return String(describing: amount)
     }
 
@@ -270,13 +270,13 @@ private extension DefaultExchangeManager {
             throw ExchangeManagerErrors.incorrectData
         }
 
-        let decimalNumber = exchangeItems.destination.decimalCount.decimalNumber
+        let decimalValue = exchangeItems.destination.decimalCount.decimalValue
         let expectedFiatAmount = blockchainInfoProvider.getFiatBalance(
             currency: exchangeItems.destination,
-            amount: expectedAmount / decimalNumber
+            amount: expectedAmount / decimalValue
         )
 
-        let fee = Decimal(integerLiteral: quoteData.estimatedGas) / decimalNumber
+        let fee = Decimal(integerLiteral: quoteData.estimatedGas) / decimalValue
         let fiatFee = blockchainInfoProvider.getFiatBalance(
             currency: exchangeItems.destination,
             amount: fee
@@ -285,9 +285,9 @@ private extension DefaultExchangeManager {
         let isEnoughAmountForExchange = exchangeItems.sourceBalance.balance >= amount + fee
 
         return ExpectedSwappingResult(
-            expectedAmount: expectedAmount / decimalNumber,
+            expectedAmount: expectedAmount / decimalValue,
             expectedFiatAmount: expectedFiatAmount,
-            fee: fee / decimalNumber,
+            fee: fee / decimalValue,
             fiatFee: fiatFee,
             decimalCount: quoteData.toToken.decimals,
             isEnoughAmountForExchange: isEnoughAmountForExchange
