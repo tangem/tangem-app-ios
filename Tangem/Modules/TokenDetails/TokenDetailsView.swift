@@ -35,7 +35,7 @@ struct TokenDetailsView: View {
                 .buttonStyle(TangemButtonStyle(layout: .flexibleWidth,
                                                isDisabled: !(viewModel.canBuyCrypto || viewModel.canSellCrypto)))
                 .actionSheet(isPresented: $viewModel.showTradeSheet, content: {
-                    ActionSheet(title: Text("wallet_dialog_choose_trade_action"),
+                    ActionSheet(title: Text("wallet_choose_trade_action"),
                                 buttons: [
                                     .default(Text("wallet_button_buy"), action: viewModel.openBuyCryptoIfPossible),
                                     .default(Text("wallet_button_sell"), action: viewModel.openSellCrypto),
