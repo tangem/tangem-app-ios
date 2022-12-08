@@ -31,7 +31,7 @@ struct SwappingConfigurator {
             exchangeManager: exchangeManager,
             swappingDestinationService: factory.createSwappingDestinationService(walletModel: input.walletModel),
             userWalletsListProvider: factory.createUserWalletsListProvider(walletModel: input.walletModel),
-            tokenIconURLBuilding: factory.createTokenIconURLBuilder(),
+            tokenIconURLBuilder: factory.createTokenIconURLBuilder(),
             coordinator: coordinator
         )
     }
