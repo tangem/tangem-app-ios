@@ -70,7 +70,6 @@ class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable>
             title: mainButtonTitle,
             style: .primary,
             isLoading: isMainButtonBusy,
-            isDisabled: false,
             action: mainButtonAction
         )
     }
