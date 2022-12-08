@@ -101,7 +101,7 @@ Tangem is the only hardware wallet to offer signature count protection.";
 "onboarding_access_code_feature_1_title" = "Protect";
 "onboarding_access_code_feature_2_description" = "You can set an individual access code on each card later.";
 "onboarding_access_code_feature_2_title" = "Personalize";
-"onboarding_access_code_feature_3_description" = "The access code can be restored with a linked card, don't keep all cards at one place.";
+"onboarding_access_code_feature_3_description" = "The access code can be restored with a linked card, don't keep all cards in one place.";
 "onboarding_access_code_feature_3_title" = "Restore";
 "onboarding_access_code_hint" = "Choose any word, phrase, or number you want as your access code.";
 "onboarding_access_code_intro_title" = "Create Access Code";
