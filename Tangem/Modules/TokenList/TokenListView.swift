@@ -103,7 +103,7 @@ struct TokenListView: View {
 
                 MainButton(
 
-                    title: .string("common_save_changes".localized),
+                    title: "common_save_changes".localized,
                     isLoading: viewModel.isSaving,
                     isDisabled: viewModel.isSaveDisabled,
                     action: viewModel.saveChanges
