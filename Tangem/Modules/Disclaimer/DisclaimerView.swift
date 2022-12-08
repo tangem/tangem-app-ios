@@ -53,7 +53,7 @@ struct DisclaimerView: View {
                 height: viewModel.bottomOverlayHeight
             )
 
-            MainButton(title: .string("common_accept"), action: viewModel.onAccept)
+            MainButton(title: "common_accept", action: viewModel.onAccept)
                 .padding(.horizontal, 16)
         }
     }

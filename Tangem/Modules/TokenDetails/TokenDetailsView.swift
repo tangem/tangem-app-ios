@@ -30,7 +30,7 @@ struct TokenDetailsView: View {
     var exchangeCryptoButton: some View {
         if viewModel.canSellCrypto && viewModel.canBuyCrypto {
             MainButton(
-                title: .string("wallet_button_trade".localized),
+                title: "wallet_button_trade".localized,
                 icon: .leading(Assets.exchangeMini),
                 isDisabled: !(viewModel.canBuyCrypto || viewModel.canSellCrypto),
                 action: viewModel.tradeCryptoAction
@@ -45,7 +45,7 @@ struct TokenDetailsView: View {
             })
         } else if viewModel.canSellCrypto {
             MainButton(
-                title: .string("wallet_button_sell_crypto".localized),
+                title: "wallet_button_sell_crypto".localized,
                 icon: .leading(Assets.arrowDownMini),
                 isDisabled: !viewModel.canSellCrypto,
                 action: viewModel.openSellCrypto
@@ -53,7 +53,7 @@ struct TokenDetailsView: View {
         } else {
             // Keep the BUY button last so that it will appear when everything is disabled
             MainButton(
-                title: .string("wallet_button_topup".localized),
+                title: "wallet_button_topup".localized,
                 icon: .leading(Assets.arrowUpMini),
                 isDisabled: !viewModel.canBuyCrypto,
                 action: viewModel.openBuyCryptoIfPossible
@@ -67,7 +67,7 @@ struct TokenDetailsView: View {
             exchangeCryptoButton
 
             MainButton(
-                title: .string("wallet_button_send".localized),
+                title: "wallet_button_send".localized,
                 icon: .leading(Assets.arrowRightMini),
                 isDisabled: !viewModel.canSend,
                 action: viewModel.openSend
