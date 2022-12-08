@@ -306,15 +306,15 @@ private extension SwappingViewModel {
         case .coin:
             return SwappingTokenIconViewModel(
                 state: .loaded(
-                    imageURL: tokenIconURLBuilding.iconURL(id: currency.blockchain.id, size: .large),
+                    imageURL: tokenIconURLBuilder.iconURL(id: currency.blockchain.id, size: .large),
                     symbol: currency.symbol
                 )
             )
         case .token:
             return SwappingTokenIconViewModel(
                 state: .loaded(
-                    imageURL: tokenIconURLBuilding.iconURL(id: currency.id, size: .large),
-                    networkURL: tokenIconURLBuilding.iconURL(id: currency.blockchain.id, size: .small),
+                    imageURL: tokenIconURLBuilder.iconURL(id: currency.id, size: .large),
+                    networkURL: tokenIconURLBuilder.iconURL(id: currency.blockchain.id, size: .small),
                     symbol: currency.symbol
                 )
             )
