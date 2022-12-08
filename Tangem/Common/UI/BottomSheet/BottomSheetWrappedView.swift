@@ -29,7 +29,7 @@ struct BottomSheetWrappedView<Content: View>: View {
             }
             content
             if settings.showClosedButton {
-                MainButton(title: .string("common_close".localized), style: .secondary, action: hideCallback)
+                MainButton(title: "common_close".localized, style: .secondary, action: hideCallback)
                     .padding(.vertical, 16)
                     .padding(.horizontal, 40)
             }
