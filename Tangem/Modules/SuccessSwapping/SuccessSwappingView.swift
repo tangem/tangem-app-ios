@@ -54,7 +54,7 @@ struct SuccessSwappingView: View {
             Spacer()
 
             MainButton(
-                title: .string("common_done".localized),
+                title: "common_done".localized,
                 action: viewModel.doneDidTapped
             )
         }

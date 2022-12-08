@@ -36,13 +36,13 @@ struct UserWalletListView: View {
 
                 Group {
                     if viewModel.isLocked {
-                        MainButton(title: .string(viewModel.unlockAllButtonTitle),
+                        MainButton(title: viewModel.unlockAllButtonTitle,
                                    style: .secondary,
                                    isLoading: viewModel.isScanningCard,
                                    action: viewModel.unlockAllWallets)
                     }
 
-                    MainButton(title: .string("user_wallet_list_add_button".localized),
+                    MainButton(title: "user_wallet_list_add_button".localized,
                                icon: .trailing(Assets.tangemIcon),
                                isLoading: viewModel.isScanningCard,
                                action: viewModel.addUserWallet)
