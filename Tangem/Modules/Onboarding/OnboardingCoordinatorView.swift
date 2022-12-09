@@ -57,7 +57,7 @@ struct OnboardingCoordinatorView: CoordinatorView {
             }
 
         NavHolder()
-            .bottomSheet(item: $coordinator.addressQrBottomSheetContentViewVodel, viewModelSettings: .qr) {
+            .bottomSheet(item: $coordinator.addressQrBottomSheetContentViewModel, viewModelSettings: .qr) {
                 AddressQrBottomSheetContent(viewModel: $0)
             }
 
