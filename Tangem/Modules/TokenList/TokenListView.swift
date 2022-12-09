@@ -101,17 +101,18 @@ struct TokenListView: View {
             VStack {
                 Spacer()
 
-                TangemButton(title: "common_save_changes", action: viewModel.saveChanges)
-                    .buttonStyle(TangemButtonStyle(colorStyle: .black,
-                                                   layout: .flexibleWidth,
-                                                   isDisabled: viewModel.isSaveDisabled,
-                                                   isLoading: viewModel.isSaving))
-                    .padding(.horizontal, 16)
-                    .padding(.bottom, 8)
-                    .background(LinearGradient(colors: [.white, .white, .white.opacity(0)],
-                                               startPoint: .bottom,
-                                               endPoint: .top)
-                            .edgesIgnoringSafeArea(.bottom))
+                MainButton(
+                    title: "common_save_changes".localized,
+                    isLoading: viewModel.isSaving,
+                    isDisabled: viewModel.isSaveDisabled,
+                    action: viewModel.saveChanges
+                )
+                .padding(.horizontal, 16)
+                .padding(.bottom, 8)
+                .background(LinearGradient(colors: [.white, .white, .white.opacity(0)],
+                                           startPoint: .bottom,
+                                           endPoint: .top)
+                        .edgesIgnoringSafeArea(.bottom))
             }
         }
     }

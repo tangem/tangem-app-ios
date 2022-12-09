@@ -124,17 +124,18 @@ struct MainView: View {
     }
 
     var sendButton: some View {
-        TangemButton(title: "wallet_button_send",
-                     systemImage: "arrow.right",
-                     action: viewModel.sendTapped)
-            .buttonStyle(TangemButtonStyle(layout: .flexibleWidth,
-                                           isDisabled: !viewModel.canSend))
-            .actionSheet(isPresented: $viewModel.showSelectWalletSheet) {
-                ActionSheet(title: Text("wallet_choice_wallet_option_title"),
-                            message: nil,
-                            buttons: sendChoiceButtons + [ActionSheet.Button.cancel()])
+        MainButton(
+            title: "wallet_button_send".localized,
+            icon: .leading(Assets.arrowRightMini),
+            isDisabled: !viewModel.canSend,
+            action: viewModel.sendTapped
+        )
+        .actionSheet(isPresented: $viewModel.showSelectWalletSheet) {
+            ActionSheet(title: Text("wallet_choice_wallet_option_title"),
+                        message: nil,
+                        buttons: sendChoiceButtons + [ActionSheet.Button.cancel()])
 
-            }
+        }
     }
 
     var sendChoiceButtons: [ActionSheet.Button] {
@@ -152,26 +153,27 @@ struct MainView: View {
     @ViewBuilder
     var exchangeCryptoButton: some View {
         if viewModel.canSellCrypto {
-            TangemButton.vertical(title: "wallet_button_trade",
-                                  systemImage: "arrow.up.arrow.down",
-                                  action: viewModel.tradeCryptoAction)
-                .buttonStyle(TangemButtonStyle(layout: .flexibleWidth))
-                .actionSheet(isPresented: $viewModel.showTradeSheet, content: {
-                    ActionSheet(title: Text("action_sheet_trade_hint"),
-                                buttons: [
-                                    .default(Text("wallet_button_topup"), action: viewModel.openBuyCryptoIfPossible),
-                                    .default(Text("wallet_button_sell_crypto"), action: viewModel.openSellCrypto),
-                                    .cancel(),
-                                ])
-                })
+            MainButton(
+                title: "wallet_button_trade".localized,
+                icon: .leading(Assets.exchangeMini),
+                action: viewModel.tradeCryptoAction
+            )
+            .actionSheet(isPresented: $viewModel.showTradeSheet, content: {
+                ActionSheet(title: Text("action_sheet_trade_hint"),
+                            buttons: [
+                                .default(Text("wallet_button_topup"), action: viewModel.openBuyCryptoIfPossible),
+                                .default(Text("wallet_button_sell_crypto"), action: viewModel.openSellCrypto),
+                                .cancel(),
+                            ])
+            })
         } else {
-            TangemButton.vertical(title: "wallet_button_topup",
-                                  systemImage: "arrow.up",
-                                  action: viewModel.openBuyCryptoIfPossible)
-                .buttonStyle(TangemButtonStyle(layout: .flexibleWidth))
+            MainButton(
+                title: "wallet_button_topup".localized,
+                icon: .leading(Assets.arrowUpMini),
+                action: viewModel.openBuyCryptoIfPossible
+            )
         }
     }
-
 
     var bottomButtons: some View {
         VStack {
