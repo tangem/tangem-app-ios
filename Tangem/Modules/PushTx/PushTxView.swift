@@ -144,12 +144,11 @@ struct PushTxView: View {
                     //                    .padding(.bottom, 16)
                     HStack(alignment: .center, spacing: 8.0) {
                         Spacer()
-                        TangemButton(title: "wallet_button_send",
-                                     systemImage: "arrow.right",
-                                     action: viewModel.onSend)
-                            .buttonStyle(TangemButtonStyle(layout: .big,
-                                                           isDisabled: !viewModel.isSendEnabled))
-                            .alert(item: self.$viewModel.sendError) { binder in
+                        MainButton(title: "wallet_button_send",
+                                   icon: .leading(Assets.arrowRightMini),
+                                   isDisabled: !viewModel.isSendEnabled,
+                                   action: viewModel.onSend)
+                            .alert(item: $viewModel.sendError) { binder in
                                 if binder.error == nil {
                                     return binder.alert
                                 }
