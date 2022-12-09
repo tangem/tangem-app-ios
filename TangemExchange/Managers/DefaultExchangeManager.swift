@@ -40,7 +40,8 @@ class DefaultExchangeManager<TxBuilder: TransactionBuilder> {
             return ""
         }
 
-        amount *= exchangeItems.source.decimalCount.decimalValue
+        let decimalValue = pow(10, exchangeItems.source.decimalCount)
+        amount *= decimalValue
         return String(describing: amount)
     }
 
@@ -241,7 +242,7 @@ private extension DefaultExchangeManager {
     func getExchangeTxDataModel() async throws -> ExchangeDataModel {
         guard let walletAddress else {
             print("walletAddress not found")
-            throw ExchangeManagerErrors.walletAddressNotFound
+            throw ExchangeManagerError.walletAddressNotFound
         }
 
         return try await exchangeProvider.fetchExchangeData(
@@ -276,7 +277,7 @@ private extension DefaultExchangeManager {
 
         var fee = Decimal(integerLiteral: quoteData.estimatedGas)
 
-        let decimalValue = exchangeItems.destination.decimalCount.decimalValue
+        let decimalValue = pow(10, exchangeItems.destination.decimalCount)
         fee /= decimalValue
         paymentAmount /= decimalValue
         expectedAmount /= decimalValue
