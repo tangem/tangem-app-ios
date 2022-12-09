@@ -8,8 +8,7 @@
 
 import Foundation
 import Combine
-
-import struct TangemExchange.Currency
+import TangemExchange
 
 class SwappingCoordinator: CoordinatorObject {
     let dismissAction: Action
@@ -55,7 +54,7 @@ extension SwappingCoordinator {
 // MARK: - SwappingRoutable
 
 extension SwappingCoordinator: SwappingRoutable {
-    func presentExchangeableTokenListView(
+    func presentSwappingTokenList(
         sourceCurrency: Currency,
         userCurrencies: [Currency]
     ) {
