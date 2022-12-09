@@ -69,12 +69,16 @@ struct CurrenciesStoryPage: View {
                         }
                     )
 
-                TangemButton(title: "home_button_search_tokens", systemImage: "magnifyingglass", action: searchTokens)
-                    .buttonStyle(TangemButtonStyle(colorStyle: .grayAlt2, layout: .flexibleWidth))
-                    .padding(.horizontal)
+                MainButton(
+                    title: "home_button_search_tokens".localized,
+                    icon: .leading(Assets.search),
+                    style: .secondary,
+                    action: searchTokens
+                )
+                .padding(.horizontal, 16)
             }
 
-            StoriesBottomButtons(scanColorStyle: .grayAlt2, orderColorStyle: .black, isScanning: isScanning, scanCard: scanCard, orderCard: orderCard)
+            StoriesBottomButtons(scanColorStyle: .secondary, orderColorStyle: .primary, isScanning: isScanning, scanCard: scanCard, orderCard: orderCard)
                 .padding(.horizontal)
                 .padding(.bottom)
         }
