@@ -11,7 +11,7 @@ import Foundation
 public struct ApproveTransactionParameters: Encodable {
     public enum Amount {
         case infinite
-        case specified(value: Int)
+        case specified(value: Decimal)
     }
 
     public let tokenAddress: String
