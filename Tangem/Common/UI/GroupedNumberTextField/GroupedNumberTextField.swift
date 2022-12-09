@@ -13,15 +13,14 @@ struct GroupedNumberTextField: View {
     @State private var textFieldText: String = ""
 
     private var placeholder: String = "0"
-    private var maximumFractionDigits: Int = 8
+    private var groupedNumberFormatter: GroupedNumberFormatter
     private let numberFormatter: NumberFormatter = .grouped
-    private let groupedNumberFormatter: GroupedNumberFormatter
 
     init(decimalValue: Binding<Decimal?>) {
         _decimalValue = decimalValue
 
         groupedNumberFormatter = GroupedNumberFormatter(
-            maximumFractionDigits: maximumFractionDigits,
+            maximumFractionDigits: 8,
             numberFormatter: numberFormatter
         )
     }
@@ -30,14 +29,9 @@ struct GroupedNumberTextField: View {
         Binding<String>(
             get: { groupedNumberFormatter.format(from: textFieldText) },
             set: { newValue in
-                // If the field is empty we clear the decimal value also
-                if newValue.isEmpty {
-                    decimalValue = nil
-                    return
-                }
-
+                // If the field is empty
                 // The field supports only decimal values
-                guard Decimal(string: newValue) != nil else { return }
+                guard newValue.isEmpty || Decimal(string: newValue) != nil else { return }
 
                 // Remove space separators for formatter correct work
                 var numberString = newValue.replacingOccurrences(of: " ", with: "")
@@ -64,6 +58,8 @@ struct GroupedNumberTextField: View {
                 // If string is correct number, update binding for work external updates
                 if let value = numberFormatter.number(from: numberString) {
                     decimalValue = value.decimalValue
+                } else if numberString.isEmpty {
+                    decimalValue = nil
                 }
             }
         )
@@ -73,12 +69,13 @@ struct GroupedNumberTextField: View {
         TextField(placeholder, text: textFieldProxyBinding)
             .style(Fonts.Regular.title1, color: Colors.Text.primary1)
             .keyboardType(.decimalPad)
+            .tintCompat(Colors.Text.primary1)
     }
 }
 
 extension GroupedNumberTextField: Setupable {
     func maximumFractionDigits(_ digits: Int) -> Self {
-        map { $0.maximumFractionDigits = digits }
+        map { $0.groupedNumberFormatter.update(maximumFractionDigits: digits) }
     }
 }
 
