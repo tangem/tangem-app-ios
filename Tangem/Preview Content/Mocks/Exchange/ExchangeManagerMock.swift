@@ -12,29 +12,17 @@ import TangemExchange
 struct ExchangeManagerMock: ExchangeManager {
     func setDelegate(_ delegate: TangemExchange.ExchangeManagerDelegate) {}
 
-    func getNetworksAvailableToExchange() -> [String] { [] }
-
     func getExchangeItems() -> TangemExchange.ExchangeItems {
         ExchangeItems(source: .mock, destination: .mock)
     }
 
-    func getAvailabilityState() -> TangemExchange.ExchangeAvailabilityState {
-        .idle
-    }
+    func getAvailabilityState() -> ExchangeAvailabilityState { .idle }
 
-    func update(exchangeItems: TangemExchange.ExchangeItems) {
+    func update(exchangeItems: ExchangeItems) {}
 
-    }
+    func update(amount: Decimal?) {}
 
-    func update(amount: Decimal?) {
+    func isAvailableForExchange() -> Bool { true }
 
-    }
-
-    func isAvailableForExchange() -> Bool {
-        true
-    }
-
-    func refresh() {
-
-    }
+    func refresh() {}
 }
