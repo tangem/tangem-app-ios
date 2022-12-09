@@ -318,7 +318,7 @@ extension SwappingViewModel {
         var icon: MainButton.Icon? {
             switch self {
             case .swap, .permitAndSwap:
-                return .trailing(Assets.tangemIconWhite)
+                return .trailing(Assets.tangemIcon)
             case .givePermission, .insufficientFunds:
                 return .none
             }
