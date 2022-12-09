@@ -286,12 +286,6 @@ private extension DefaultExchangeManager {
             amount: fee
         )
 
-        print(
-            "exchangeItems.sourceBalance.balance",
-            exchangeItems.sourceBalance.balance,
-            paymentAmount,
-            exchangeItems.sourceBalance.balance >= paymentAmount
-        )
         let isEnoughAmountForExchange = exchangeItems.sourceBalance.balance >= paymentAmount
 
         return ExpectedSwappingResult(
