@@ -27,9 +27,7 @@ class DefaultExchangeManager<TxBuilder: TransactionBuilder> {
         didSet { delegate?.exchangeManager(self, didUpdate: exchangeItems) }
     }
     private var tokenExchangeAllowanceLimit: Decimal? {
-        didSet {
-            delegate?.exchangeManager(self, didUpdate: isAvailableForExchange())
-        }
+        didSet {  delegate?.exchangeManager(self, didUpdate: isAvailableForExchange()) }
     }
 
     private weak var delegate: ExchangeManagerDelegate?
@@ -40,7 +38,8 @@ class DefaultExchangeManager<TxBuilder: TransactionBuilder> {
             return ""
         }
 
-        amount *= exchangeItems.source.decimalCount.decimalValue
+        let decimalValue = pow(10, exchangeItems.source.decimalCount)
+        amount *= decimalValue
         return String(describing: amount)
     }
 
@@ -84,10 +83,6 @@ extension DefaultExchangeManager: ExchangeManager {
 
     func getExchangeItems() -> ExchangeItems {
         return exchangeItems
-    }
-
-    func getNetworksAvailableToExchange() -> [String] {
-        [exchangeItems.source.blockchain.networkId]
     }
 
     func isAvailableForExchange() -> Bool {
@@ -241,7 +236,7 @@ private extension DefaultExchangeManager {
     func getExchangeTxDataModel() async throws -> ExchangeDataModel {
         guard let walletAddress else {
             print("walletAddress not found")
-            throw ExchangeManagerErrors.walletAddressNotFound
+            throw ExchangeManagerError.walletAddressNotFound
         }
 
         return try await exchangeProvider.fetchExchangeData(
@@ -272,12 +267,12 @@ private extension DefaultExchangeManager {
         guard var paymentAmount = Decimal(string: quoteData.fromTokenAmount),
               var expectedAmount = Decimal(string: quoteData.toTokenAmount),
               let destination = exchangeItems.destination else {
-            throw ExchangeManagerErrors.incorrectData
+            throw ExchangeManagerError.incorrectData
         }
 
         var fee = Decimal(integerLiteral: quoteData.estimatedGas)
 
-        let decimalValue = destination.decimalCount.decimalValue
+        let decimalValue = pow(10, exchangeItems.destination.decimalCount)
         fee /= decimalValue
         paymentAmount /= decimalValue
         expectedAmount /= decimalValue
@@ -292,12 +287,6 @@ private extension DefaultExchangeManager {
             amount: fee
         )
 
-        print(
-            "exchangeItems.sourceBalance.balance",
-            exchangeItems.sourceBalance.balance,
-            paymentAmount,
-            exchangeItems.sourceBalance.balance >= paymentAmount
-        )
         let isEnoughAmountForExchange = exchangeItems.sourceBalance.balance >= paymentAmount
 
         return ExpectedSwappingResult(

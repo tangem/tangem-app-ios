@@ -53,9 +53,7 @@ struct DisclaimerView: View {
                 height: viewModel.bottomOverlayHeight
             )
 
-            TangemButton(title: "common_accept", action: viewModel.onAccept)
-                .buttonStyle(TangemButtonStyle(colorStyle: .black,
-                                               layout: .flexibleWidth))
+            MainButton(title: "common_accept", action: viewModel.onAccept)
                 .padding(.horizontal, 16)
         }
     }
