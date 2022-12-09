@@ -75,8 +75,12 @@ public enum ExchangeBlockchain: Hashable, CaseIterable {
         case .arbitrum: return "arbitrum-one"
         case .gnosis: return "xdai"
         case .optimism: return "optimistic-ethereum"
-        case .klayth: return ""
-        case .aurora: return ""
+        case .klayth:
+            assertionFailure("Unimplemented")
+            return ""
+        case .aurora:
+            assertionFailure("Unimplemented")
+            return ""
         }
     }
 }
