@@ -9,19 +9,19 @@
 import Foundation
 
 public struct ExchangeApprovedDataModel {
-    let data: Data
-    let gasPrice: String
-    let tokenAddress: String
-    let value: String
+    public let data: Data
+    public let gasPrice: String
+    public let tokenAddress: String
+    public let value: String
 
-    init(data: Data, gasPrice: String, tokenAddress: String, value: String) {
+    public init(data: Data, gasPrice: String, tokenAddress: String, value: String) {
         self.data = data
         self.gasPrice = gasPrice
         self.tokenAddress = tokenAddress
         self.value = value
     }
 
-    init(approveTxData: ApprovedTransactionData) {
+    public init(approveTxData: ApprovedTransactionData) {
         data = Data(hexString: approveTxData.data)
         gasPrice = approveTxData.gasPrice
         tokenAddress = approveTxData.to
