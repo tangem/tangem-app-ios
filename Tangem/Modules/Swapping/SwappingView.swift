@@ -104,7 +104,7 @@ struct SwappingView: View {
     @ViewBuilder
     private var mainButton: some View {
         MainButton(
-            text: viewModel.mainButtonState.title,
+            title: viewModel.mainButtonState.title,
             icon: viewModel.mainButtonState.icon,
             isDisabled: !viewModel.mainButtonIsEnabled,
             action: viewModel.userDidTapMainButton
