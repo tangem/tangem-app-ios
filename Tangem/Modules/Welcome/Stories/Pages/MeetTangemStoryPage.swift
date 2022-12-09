@@ -120,7 +120,7 @@ struct MeetTangemStoryPage: View {
             VStack {
                 Spacer()
 
-                StoriesBottomButtons(scanColorStyle: .black, orderColorStyle: .grayAlt, isScanning: isScanning, scanCard: scanCard, orderCard: orderCard)
+                StoriesBottomButtons(scanColorStyle: .primary, orderColorStyle: .secondary, isScanning: isScanning, scanCard: scanCard, orderCard: orderCard)
             }
             .padding(.horizontal)
             .padding(.bottom)
