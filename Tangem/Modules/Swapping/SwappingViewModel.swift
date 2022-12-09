@@ -96,7 +96,7 @@ private extension SwappingViewModel {
             blockchain: source.blockchain
         )
 
-        coordinator.presentExchangeableTokenListView(
+        coordinator.presentSwappingTokenList(
             sourceCurrency: source,
             userCurrencies: userCurrencies
         )

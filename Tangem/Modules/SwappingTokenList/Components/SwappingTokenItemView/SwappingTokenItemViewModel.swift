@@ -9,7 +9,7 @@
 import Foundation
 
 struct SwappingTokenItemViewModel: Identifiable {
-    var id: Int { UUID().hashValue }
+    var id: Int { hashValue }
 
     let iconURL: URL?
     let name: String
