@@ -16,6 +16,8 @@ struct UserWalletsListProvider {
     }
 }
 
+// MARK: - UserWalletsListProviding
+
 extension UserWalletsListProvider: UserWalletsListProviding {
     func saveCurrencyInUserList(currency: TangemExchange.Currency) {
         // [REDACTED_TODO_COMMENT]
