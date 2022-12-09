@@ -249,22 +249,25 @@ struct SendView: View {
     }
 
     @ViewBuilder private var sendButton: some View {
-        TangemButton(title: "wallet_button_send", systemImage: "arrow.right", action: viewModel.send)
-            .buttonStyle(TangemButtonStyle(layout: .flexibleWidth,
-                                           isDisabled: !self.viewModel.isSendEnabled))
-            .padding(.top, 16.0)
-            .alert(item: self.$viewModel.error) { binder in
-                if binder.error == nil {
-                    return binder.alert
-                }
-
-                let errorDescription = String(binder.error?.localizedDescription.dropTrailingPeriod ?? "Unknown error")
-
-                return Alert(title: Text("alert_failed_to_send_transaction_title"),
-                             message: Text(String(format: "alert_failed_to_send_transaction_message".localized, errorDescription)),
-                             primaryButton: .default(Text("alert_button_request_support"), action: viewModel.openMail),
-                             secondaryButton: .default(Text("common_cancel")))
+        MainButton(
+            title: "wallet_button_send",
+            icon: .leading(Assets.arrowRightMini),
+            isDisabled: !viewModel.isSendEnabled,
+            action: viewModel.send
+        )
+        .padding(.top, 16.0)
+        .alert(item: $viewModel.error) { binder in
+            if binder.error == nil {
+                return binder.alert
             }
+
+            let errorDescription = String(binder.error?.localizedDescription.dropTrailingPeriod ?? "Unknown error")
+
+            return Alert(title: Text("alert_failed_to_send_transaction_title"),
+                         message: Text(String(format: "alert_failed_to_send_transaction_message".localized, errorDescription)),
+                         primaryButton: .default(Text("alert_button_request_support"), action: viewModel.openMail),
+                         secondaryButton: .default(Text("common_cancel")))
+        }
     }
 }
 
