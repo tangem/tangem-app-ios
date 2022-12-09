@@ -41,11 +41,11 @@ final class SwappingPermissionViewModel: ObservableObject, Identifiable {
         setupView()
     }
 
-    func approveDidTapped() {
+    func didTapApprove() {
         coordinator.userDidApprove()
     }
 
-    func cancelDidTapped() {
+    func didTapCancel() {
         coordinator.userDidCancel()
     }
 }
