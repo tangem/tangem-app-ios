@@ -60,7 +60,7 @@ struct ReferralView: View {
     @ViewBuilder
     private var referralContent: some View {
         VStack(spacing: 0) {
-            ReferralPointView(
+            IconWithMessageView(
                 Assets.cryptoCurrencies,
                 header: { Text("referral_point_currencies_title") },
                 description: {
@@ -70,7 +70,7 @@ struct ReferralView: View {
                 }
             )
 
-            ReferralPointView(
+            IconWithMessageView(
                 Assets.discount,
                 header: { Text("referral_point_discount_title") },
                 description: {
@@ -94,9 +94,9 @@ struct ReferralView: View {
     @ViewBuilder
     private var loaderContent: some View {
         VStack(alignment: .leading, spacing: 38) {
-            ReferralPlaceholderPointView(icon: Assets.cryptoCurrencies)
+            IconWithMessagePlaceholderView(icon: Assets.cryptoCurrencies)
 
-            ReferralPlaceholderPointView(icon: Assets.discount)
+            IconWithMessagePlaceholderView(icon: Assets.discount)
 
             Spacer()
         }
