@@ -120,6 +120,12 @@ private extension WarningsService {
             return
         }
 
+        guard canCountHashes else {
+            AppSettings.shared.validatedSignedHashesCards.append(cardId)
+            didFinishCountingHashes()
+            return
+        }
+
         guard cardSignedHashes > 0 else {
             AppSettings.shared.validatedSignedHashesCards.append(cardId)
             didFinishCountingHashes()
@@ -128,12 +134,6 @@ private extension WarningsService {
 
         guard !isMultiWallet else {
             showAlertAnimated(.multiWalletSignedHashes)
-            didFinishCountingHashes()
-            return
-        }
-
-        guard canCountHashes else {
-            AppSettings.shared.validatedSignedHashesCards.append(cardId)
             didFinishCountingHashes()
             return
         }

@@ -44,7 +44,7 @@ extension Blockchain {
         case "optimistic-ethereum": self = .optimism(testnet: isTestnet)
         case "ethereum-pow-iou": self = .ethereumPoW(testnet: isTestnet)
         case "ethereumfair": self = .ethereumFair
-        case "sxdai": self = .saltPay(testnet: isTestnet) // [REDACTED_TODO_COMMENT]
+        case "sxdai": self = .saltPay // [REDACTED_TODO_COMMENT]
         default:
             print("⚠️⚠️⚠️ Failed to map network ID \"\(stringId)\"")
             return nil
