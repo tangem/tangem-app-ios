@@ -9,11 +9,6 @@
 import SwiftUI
 
 struct IconWithBackground: View {
-    struct Settings {
-        let backgroundColor: Color
-        let padding: CGFloat
-        let cornerRadius: CGFloat
-    }
     private let icon: Image
     private let settings: Settings
 
@@ -32,6 +27,14 @@ struct IconWithBackground: View {
             .roundedBackground(with: settings.backgroundColor,
                                padding: settings.padding,
                                radius: settings.cornerRadius)
+    }
+}
+
+extension IconWithBackground {
+    struct Settings {
+        let backgroundColor: Color
+        let padding: CGFloat
+        let cornerRadius: CGFloat
     }
 }
 
