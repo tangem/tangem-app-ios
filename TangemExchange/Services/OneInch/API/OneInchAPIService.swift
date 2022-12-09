@@ -72,20 +72,47 @@ private extension OneInchAPIService {
     func request<T: Decodable>(target: OneInchBaseTarget) async -> Result<T, ExchangeInchError> {
         var response: Response
 
-        do {
-            response = try await provider.asyncRequest(target)
-            response = try response.filterSuccessfulStatusAndRedirectCodes()
-        } catch {
-            return .failure(.serverError(withError: error))
-        }
-
         let decoder = JSONDecoder()
         decoder.keyDecodingStrategy = .convertFromSnakeCase
 
         do {
+            response = try await provider.asyncRequest(target)
+        } catch {
+            logError(target: target, error: error)
+            return .failure(.serverError(withError: error))
+        }
+
+        do {
+            response = try response.filterSuccessfulStatusAndRedirectCodes()
+        } catch {
+            do {
+                let inchError = try decoder.decode(InchError.self, from: response.data)
+                logError(target: target, response: response, error: inchError)
+                return .failure(.parsedError(withInfo: inchError))
+            } catch {
+                logError(target: target, response: response, error: error)
+                return .failure(.serverError(withError: error))
+            }
+        }
+
+        do {
             return .success(try decoder.decode(T.self, from: response.data))
         } catch {
+            logError(target: target, response: response, error: error)
             return .failure(.decodeError(error: error))
         }
+    }
+
+    func logError(target: OneInchBaseTarget, response: Response? = nil, error: Error) {
+        var info: String = ""
+        if let response {
+            info = String(data: response.data, encoding: .utf8)!
+        }
+
+        print(
+            "Error when request to target \(target.path)",
+            "with info \(info)",
+            "\(error.localizedDescription)"
+        )
     }
 }
