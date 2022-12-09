@@ -153,7 +153,7 @@ extension LegacyConfig: UserWalletConfig {
         case .longHashes:
             return .hidden
         case .signedHashesCounter:
-            if isMultiwallet || card.firmwareVersion.type != .release {
+            if card.firmwareVersion.type != .release {
                 return .hidden
             } else {
                 return .available
@@ -171,6 +171,10 @@ extension LegacyConfig: UserWalletConfig {
                 return .hidden
             }
         case .resetToFactory:
+            if card.wallets.contains(where: { $0.settings.isPermanent }) {
+                return .hidden
+            }
+
             return .available
         case .receive:
             return .available
