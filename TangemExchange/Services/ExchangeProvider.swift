@@ -9,9 +9,10 @@
 import Foundation
 
 protocol ExchangeProvider {
-    func fetchExchangeAmountAllowance(for currency: Currency) async throws -> Decimal
-    func fetchTxDataForExchange(items: ExchangeItems, amount: String, slippage: Int) async throws -> ExchangeDataModel
+    func fetchAmountAllowance(for currency: Currency, walletAddress: String) async throws -> Decimal
+    func fetchQuote(items: ExchangeItems, amount: String) async throws -> QuoteData
+    func fetchExchangeData(items: ExchangeItems, walletAddress: String, amount: String) async throws -> ExchangeDataModel
 
-    func approveTxData(for currency: Currency) async throws -> ExchangeApprovedDataModel
-    func getSpenderAddress(for currency: Currency) async throws -> String
+    func fetchApproveExchangeData(for currency: Currency) async throws -> ExchangeApprovedDataModel
+    func fetchSpenderAddress(for currency: Currency) async throws -> String
 }
