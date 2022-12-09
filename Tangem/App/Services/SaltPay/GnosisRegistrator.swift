@@ -37,15 +37,9 @@ class GnosisRegistrator {
     }
 
     func getClaimableAmount() -> AnyPublisher<Amount, Error> {
-        let wxDaiFactory = WXDAIFactory(blockchain: settings.blockchain, token: settings.token)
-
-        guard let wxDai = wxDaiFactory.wxDai else {
-            return .anyFail(error: SaltPayRegistratorError.failedToBuildContract)
-        }
-
-        let parameters = [settings.treasurySafeAddress, cardAddress] as! [AnyObject]
-
-        return wxDai.read(method: "allowance", parameters: parameters)
+        transactionProcessor.getAllowance(from: settings.treasurySafeAddress,
+                                          to: cardAddress,
+                                          contractAddress: settings.token.contractAddress)
             .tryMap { [settings] response -> Amount in
                 let stringResponse = "\(response)".stripHexPrefix()
 
@@ -151,6 +145,7 @@ class GnosisRegistrator {
     func makeApprovalTx(value: Decimal) -> AnyPublisher<CompiledEthereumTransaction, Error>  {
         let approveAmount = Amount(with: settings.token, value: value)
         let zeroApproveAmount = Amount(with: approveAmount, value: 0)
+
         do {
             let approveData = try makeTxData(sig: Signatures.approve, address: settings.otpProcessorContractAddress, amount: approveAmount)
 
@@ -234,7 +229,6 @@ extension GnosisRegistrator {
 extension GnosisRegistrator {
     enum Settings {
         case main
-        case testnet
 
         var token: Token {
             .init(sdkToken, id: "wrapped-xdai")
@@ -243,23 +237,19 @@ extension GnosisRegistrator {
         var otpProcessorContractAddress: String {
             switch self {
             case .main:
-                return "0x3B4397C817A26521Df8bD01a949AFDE2251d91C2"
-            case .testnet:
-                return "0x710BF23486b549836509a08c184cE0188830f197"
+                return "0xc659f4FEd7A84a188F54cBA4A7a49D77c1a20522"
             }
         }
 
         var blockchain: Blockchain {
             switch self {
             case .main:
-                return Blockchain.saltPay(testnet: false)
-            case .testnet:
-                return Blockchain.saltPay(testnet: true)
+                return .saltPay
             }
         }
 
         var treasurySafeAddress: String {
-            "0x8e9260a049d3Aa9ac60D0d4F27017320E0e2396B"
+            "0x24A3c2382497075b6D93258f5938f7B661c06318"
         }
 
         private var sdkToken: WalletData.Token {
@@ -267,13 +257,8 @@ extension GnosisRegistrator {
             case .main:
                 return .init(name: "WXDAI",
                              symbol: "WXDAI",
-                             contractAddress: "0x4346186e7461cB4DF06bCFCB4cD591423022e417",
+                             contractAddress: "0x4200000000000000000000000000000000000006",
                              decimals: 18)
-            case .testnet:
-                return .init(name: "WXDAI Test",
-                             symbol: "MyERC20",
-                             contractAddress: "0x69cca8D8295de046C7c14019D9029Ccc77987A48",
-                             decimals: 0)
             }
         }
     }
