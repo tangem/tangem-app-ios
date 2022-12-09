@@ -53,7 +53,10 @@ struct SuccessSwappingView: View {
         VStack(spacing: 0) {
             Spacer()
 
-            MainButton(text: "common_done".localized, action: viewModel.doneDidTapped)
+            MainButton(
+                title: "common_done".localized,
+                action: viewModel.doneDidTapped
+            )
         }
         .padding(.horizontal, 16)
         .padding(.bottom, 8)
