@@ -17,7 +17,7 @@ struct SwappingFeeRowView: View {
 
     var body: some View {
         HStack {
-            Text("swapping_fee".localized)
+            Text("send_fee_label".localized)
                 .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
 
             Spacer()
@@ -34,17 +34,11 @@ struct SwappingFeeRowView: View {
 
 struct SwappingFeeRowView_Previews: PreviewProvider {
     static let viewModel = SwappingFeeRowViewModel(
-        fee: "0.0000000000155",
-        tokenSymbol: "MATIC",
-        fiatValue: "$0.14",
-        isLoading: false
+        state: .fee(fee: "0.0000000000155", symbol: "MATIC", fiat: "$0.14")
     )
 
     static let loadingViewModel = SwappingFeeRowViewModel(
-        fee: "0.0000000000155",
-        tokenSymbol: "MATIC",
-        fiatValue: "$0.14",
-        isLoading: true
+        state: .loading
     )
 
     static var previews: some View {
