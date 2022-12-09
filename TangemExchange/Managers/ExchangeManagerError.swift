@@ -1,5 +1,5 @@
 //
-//  Int+.swift
+//  ExchangeManagerError.swift
 //  TangemExchange
 //
 //  Created by [REDACTED_AUTHOR]
@@ -8,8 +8,7 @@
 
 import Foundation
 
-extension Int {
-    var decimalValue: Decimal {
-        pow(10, self)
-    }
+public enum ExchangeManagerError: Error {
+    case incorrectData
+    case walletAddressNotFound
 }
