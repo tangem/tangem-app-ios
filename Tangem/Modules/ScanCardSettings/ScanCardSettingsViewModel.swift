@@ -62,7 +62,11 @@ extension ScanCardSettingsViewModel {
 
 extension ScanCardSettingsViewModel {
     func scan(completion: @escaping (Result<CardInfo, Error>) -> Void) {
-        sdkProvider.sdk.startSession(with: AppScanTask(targetBatch: nil, allowsAccessCodeFromRepository: true)) { result in
+        isLoading = true
+        let task = AppScanTask(targetBatch: nil, allowsAccessCodeFromRepository: true)
+        sdkProvider.sdk.startSession(with: task) { [weak self] result in
+            self?.isLoading = false
+
             switch result {
             case let .failure(error):
                 guard !error.isUserCancelled else {

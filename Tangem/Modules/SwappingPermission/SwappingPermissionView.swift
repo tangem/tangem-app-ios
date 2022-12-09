@@ -51,13 +51,13 @@ struct SwappingPermissionView: View {
     private var buttons: some View {
         VStack(spacing: 10) {
             MainButton(
-                text: "swapping_permission_buttons_approve".localized,
-                icon: .trailing(Assets.tangemIconWhite),
+                title: "swapping_permission_buttons_approve".localized,
+                icon: .trailing(Assets.tangemIcon),
                 action: viewModel.didTapApprove
             )
 
             MainButton(
-                text: "common_cancel".localized,
+                title: "common_cancel".localized,
                 style: .secondary,
                 action: viewModel.didTapCancel
             )
