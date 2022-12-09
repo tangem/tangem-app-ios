@@ -53,12 +53,13 @@ struct SwappingPermissionView: View {
             MainButton(
                 text: "swapping_permission_buttons_approve".localized,
                 icon: .trailing(Assets.tangemIconWhite),
-                action: viewModel.approveDidTapped)
+                action: viewModel.didTapApprove
+            )
 
             MainButton(
                 text: "common_cancel".localized,
                 style: .secondary,
-                action: viewModel.cancelDidTapped
+                action: viewModel.didTapCancel
             )
         }
         .padding(.horizontal, 16)
