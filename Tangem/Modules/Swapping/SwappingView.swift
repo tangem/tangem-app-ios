@@ -47,7 +47,9 @@ struct SwappingView: View {
 
                 if let receiveCurrencyViewModel = viewModel.receiveCurrencyViewModel {
                     ReceiveCurrencyView(viewModel: receiveCurrencyViewModel)
-                        .didTapTokenView { viewModel.userDidTapChangeDestinationButton() }
+                        .didTapTokenView {
+                            viewModel.userDidTapChangeDestinationButton()
+                        }
                 }
             }
 
@@ -102,8 +104,8 @@ struct SwappingView: View {
     @ViewBuilder
     private var mainButton: some View {
         MainButton(
-            text: "swapping_swap".localized,
-            icon: .trailing(Assets.tangemIconWhite),
+            text: viewModel.mainButtonState.title,
+            icon: viewModel.mainButtonState.icon,
             isDisabled: !viewModel.mainButtonIsEnabled,
             action: viewModel.userDidTapMainButton
         )
@@ -111,7 +113,11 @@ struct SwappingView: View {
 }
 
 struct SwappingView_Preview: PreviewProvider {
-    static let viewModel = SwappingViewModel(coordinator: SwappingCoordinator())
+    static let viewModel = SwappingViewModel(
+        exchangeManager: ExchangeManagerMock(),
+        tokenIconURLBuilder: TokenIconURLBuilderMock(),
+        coordinator: SwappingCoordinator()
+    )
 
     static var previews: some View {
         NavigationView {
