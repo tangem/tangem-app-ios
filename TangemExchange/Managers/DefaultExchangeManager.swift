@@ -27,9 +27,7 @@ class DefaultExchangeManager<TxBuilder: TransactionBuilder> {
         didSet { delegate?.exchangeManager(self, didUpdate: exchangeItems) }
     }
     private var tokenExchangeAllowanceLimit: Decimal? {
-        didSet {
-            delegate?.exchangeManager(self, didUpdate: isAvailableForExchange())
-        }
+        didSet {  delegate?.exchangeManager(self, didUpdate: isAvailableForExchange()) }
     }
 
     private weak var delegate: ExchangeManagerDelegate?
@@ -85,10 +83,6 @@ extension DefaultExchangeManager: ExchangeManager {
 
     func getExchangeItems() -> ExchangeItems {
         return exchangeItems
-    }
-
-    func getNetworksAvailableToExchange() -> [String] {
-        [exchangeItems.source.blockchain.networkId]
     }
 
     func isAvailableForExchange() -> Bool {
@@ -272,7 +266,7 @@ private extension DefaultExchangeManager {
     func mapExpectedSwappingResult(from quoteData: QuoteData) async throws -> ExpectedSwappingResult {
         guard var paymentAmount = Decimal(string: quoteData.fromTokenAmount),
               var expectedAmount = Decimal(string: quoteData.toTokenAmount) else {
-            throw ExchangeManagerErrors.incorrectData
+            throw ExchangeManagerError.incorrectData
         }
 
         var fee = Decimal(integerLiteral: quoteData.estimatedGas)
