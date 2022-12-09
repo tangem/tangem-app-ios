@@ -81,17 +81,17 @@ struct MainButton: View {
                 switch icon {
                 case .none:
                     textView
-                    
+
                 case let .leading(icon):
                     HStack(alignment: .center, spacing: 10) {
                         iconView(icon: icon)
-                        
+
                         textView
                     }
                 case let .trailing(icon):
                     HStack(alignment: .center, spacing: 10) {
                         textView
-                        
+
                         iconView(icon: icon)
                     }
                 }
@@ -256,7 +256,7 @@ struct MainButton_Previews: PreviewProvider {
                        icon: .trailing(Assets.tangemIcon),
                        style: style,
                        isLoading: true) {}
-            
+
             MainButton(title: "A long long long long long long long long long long text",
                        icon: .trailing(Assets.tangemIcon),
                        style: style,
