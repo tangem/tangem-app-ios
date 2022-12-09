@@ -505,7 +505,6 @@ class CardViewModel: Identifiable, ObservableObject {
 
     func didScan() {
         Analytics.logScan(card: cardInfo.card, config: config)
-        updateSdkConfig()
     }
 
     func getDisabledLocalizedReason(for feature: UserWalletFeature) -> String? {
