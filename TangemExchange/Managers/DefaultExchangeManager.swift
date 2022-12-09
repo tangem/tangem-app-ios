@@ -272,7 +272,7 @@ private extension DefaultExchangeManager {
 
         var fee = Decimal(integerLiteral: quoteData.estimatedGas)
 
-        let decimalValue = pow(10, exchangeItems.destination.decimalCount)
+        let decimalValue = pow(10, destination.decimalCount)
         fee /= decimalValue
         paymentAmount /= decimalValue
         expectedAmount /= decimalValue
