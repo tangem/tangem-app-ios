@@ -7,7 +7,6 @@
 //
 
 import SwiftUI
-import enum TangemExchange.ExchangeBlockchain
 
 struct SwappingTokenListView: View {
     @ObservedObject private var viewModel: SwappingTokenListViewModel
