@@ -165,14 +165,18 @@ struct TokenDetailsView: View {
     @ViewBuilder
     var exchangeButton: some View {
         if let exchangeButton = viewModel.exchangeButton {
-            MainButton(text: exchangeButton.title,
-                       icon: .trailing(exchangeButton.icon)) {
+            MainButton(
+                title: exchangeButton.title,
+                icon: .trailing(exchangeButton.icon),
+                isDisabled: !viewModel.isAvailable(type: exchangeButton)
+            ) {
                 viewModel.didTapExchangeButtonAction(type: exchangeButton)
             }
-            .disabled(!viewModel.isAvailable(type: exchangeButton))
         } else if viewModel.exchangeVariations != nil {
-            MainButton(text: "wallet_button_trade".localized,
-                       icon: .leading(Image(systemName: "arrow.up.arrow.down"))) {
+            MainButton(
+                title: "wallet_button_trade".localized,
+                icon: .leading(Image(systemName: "arrow.up.arrow.down"))
+            ) {
                 viewModel.openExchangeActionSheet()
             }
             .actionSheet(item: $viewModel.exchangeActionSheet, content: { $0.sheet })
