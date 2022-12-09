@@ -8,8 +8,7 @@
 
 import Foundation
 import TangemExchange
-
-import protocol BlockchainSdk.TransactionSigner
+import BlockchainSdk
 
 /// Helper for configure `SwappingViewModel`
 struct SwappingConfigurator {
