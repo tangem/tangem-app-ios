@@ -9,24 +9,55 @@
 import SwiftUI
 
 struct MainButton: View {
-    private let text: String
+    private let title: LocalizedStringKey
     private let icon: Icon?
     private let style: Style
+    private let isLoading: Bool
     private let isDisabled: Bool
     private let action: () -> Void
 
+    /// Better don't use it because it forces `import SwiftUI` in `viewModel` or services
     init(
-        text: String,
+        title: LocalizedStringKey,
         icon: Icon? = nil,
         style: Style = .primary,
+        isLoading: Bool = false,
         isDisabled: Bool = false,
         action: @escaping (() -> Void)
     ) {
-        self.text = text
+        self.title = title
         self.icon = icon
         self.style = style
+        self.isLoading = isLoading
         self.isDisabled = isDisabled
         self.action = action
+    }
+
+    init(
+        title: String,
+        icon: Icon? = nil,
+        style: Style = .primary,
+        isLoading: Bool = false,
+        isDisabled: Bool = false,
+        action: @escaping (() -> Void)
+    ) {
+        self.title = LocalizedStringKey(stringLiteral: title)
+        self.icon = icon
+        self.style = style
+        self.isLoading = isLoading
+        self.isDisabled = isDisabled
+        self.action = action
+    }
+
+    init(settings: Settings) {
+        self.init(
+            title: settings.title,
+            icon: settings.icon,
+            style: settings.style,
+            isLoading: settings.isLoading,
+            isDisabled: settings.isDisabled,
+            action: settings.action
+        )
     }
 
     var body: some View {
@@ -43,30 +74,39 @@ struct MainButton: View {
 
     @ViewBuilder
     private var content: some View {
-        switch icon {
-        case .none:
-            textView
+        if isLoading {
+            ProgressViewCompat(color: style.loaderColor())
+        } else {
+            Group {
+                switch icon {
+                case .none:
+                    textView
 
-        case let .leading(icon):
-            HStack(alignment: .center, spacing: 10) {
-                iconView(icon: icon)
+                case let .leading(icon):
+                    HStack(alignment: .center, spacing: 10) {
+                        iconView(icon: icon)
 
-                textView
+                        textView
+                    }
+                case let .trailing(icon):
+                    HStack(alignment: .center, spacing: 10) {
+                        textView
+
+                        iconView(icon: icon)
+                    }
+                }
             }
-        case let .trailing(icon):
-            HStack(alignment: .center, spacing: 10) {
-                textView
-
-                iconView(icon: icon)
-            }
+            .padding(.horizontal, 16)
         }
     }
 
     @ViewBuilder
     private var textView: some View {
-        Text(text)
+        Text(title)
             .style(Fonts.Bold.callout,
                    color: style.textColor(isDisabled: isDisabled))
+            .lineLimit(1)
+            .minimumScaleFactor(0.5)
     }
 
     @ViewBuilder
@@ -115,6 +155,15 @@ extension MainButton {
             }
         }
 
+        func loaderColor() -> Color {
+            switch self {
+            case .primary:
+                return Colors.Text.primary2
+            case .secondary:
+                return Colors.Text.primary1
+            }
+        }
+
         func background(isDisabled: Bool) -> Color {
             if isDisabled {
                 return Colors.Button.disabled
@@ -126,6 +175,47 @@ extension MainButton {
             case .secondary:
                 return Colors.Button.secondary
             }
+        }
+    }
+
+    struct Settings {
+        let title: LocalizedStringKey
+        let icon: Icon?
+        let style: Style
+        let isLoading: Bool
+        var isDisabled: Bool
+        let action: () -> Void
+
+        init(
+            title: LocalizedStringKey,
+            icon: Icon? = nil,
+            style: Style = .primary,
+            isLoading: Bool = false,
+            isDisabled: Bool = false,
+            action: @escaping (() -> Void)
+        ) {
+            self.title = title
+            self.icon = icon
+            self.style = style
+            self.isLoading = isLoading
+            self.isDisabled = isDisabled
+            self.action = action
+        }
+
+        init(
+            title: String,
+            icon: Icon? = nil,
+            style: Style = .primary,
+            isLoading: Bool = false,
+            isDisabled: Bool = false,
+            action: @escaping (() -> Void)
+        ) {
+            self.title = LocalizedStringKey(stringLiteral: title)
+            self.icon = icon
+            self.style = style
+            self.isLoading = isLoading
+            self.isDisabled = isDisabled
+            self.action = action
         }
     }
 }
@@ -144,23 +234,33 @@ struct MainButton_Previews: PreviewProvider {
     @ViewBuilder
     static func buttons(style: MainButton.Style) -> some View {
         VStack(spacing: 16) {
-            MainButton(text: "Order card",
-                       icon: .leading(Assets.tangemIconBlack),
+            MainButton(title: "Order card",
+                       icon: .leading(Assets.tangemIcon),
                        style: style) {}
 
-            MainButton(text: "Order card",
-                       icon: .leading(Assets.tangemIconBlack),
+            MainButton(title: "Order card",
+                       icon: .leading(Assets.tangemIcon),
                        style: style,
                        isDisabled: true) {}
 
-            MainButton(text: "Order card",
-                       icon: .trailing(Assets.tangemIconBlack),
+            MainButton(title: "Order card",
+                       icon: .trailing(Assets.tangemIcon),
                        style: style) {}
 
-            MainButton(text: "Order card",
-                       icon: .trailing(Assets.tangemIconBlack),
+            MainButton(title: "Order card",
+                       icon: .trailing(Assets.tangemIcon),
                        style: style,
                        isDisabled: true) {}
+
+            MainButton(title: "Order card",
+                       icon: .trailing(Assets.tangemIcon),
+                       style: style,
+                       isLoading: true) {}
+
+            MainButton(title: "A long long long long long long long long long long text",
+                       icon: .trailing(Assets.tangemIcon),
+                       style: style,
+                       isLoading: false) {}
         }
         .padding(.horizontal, 16)
     }
