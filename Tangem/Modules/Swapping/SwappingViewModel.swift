@@ -124,7 +124,7 @@ private extension SwappingViewModel {
             blockchain: source.blockchain
         )
 
-        coordinator.presentExchangeableTokenListView(
+        coordinator.presentSwappingTokenList(
             sourceCurrency: source,
             userCurrencies: userCurrencies
         )
@@ -354,7 +354,7 @@ extension SwappingViewModel {
         var icon: MainButton.Icon? {
             switch self {
             case .swap, .permitAndSwap:
-                return .trailing(Assets.tangemIconWhite)
+                return .trailing(Assets.tangemIcon)
             case .givePermission, .insufficientFunds:
                 return .none
             }
