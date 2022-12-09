@@ -1,5 +1,5 @@
 //
-//  ReferralPlaceholderPointView.swift
+//  IconWithMessagePlaceholderView.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -8,7 +8,7 @@
 
 import SwiftUI
 
-struct ReferralPlaceholderPointView: View {
+struct IconWithMessagePlaceholderView: View {
     private let icon: Image
 
     init(icon: Image) {
@@ -17,7 +17,7 @@ struct ReferralPlaceholderPointView: View {
 
     var body: some View {
         HStack(spacing: 14) {
-            ReferralPointIcon(icon: icon)
+            IconWithBackground(icon: icon)
 
             VStack(alignment: .leading) {
                 Color.white
@@ -32,8 +32,8 @@ struct ReferralPlaceholderPointView: View {
     }
 }
 
-struct ReferralLoaderView_Previews: PreviewProvider {
+struct IconWithMessagePlaceholderView_Previews: PreviewProvider {
     static var previews: some View {
-        ReferralPlaceholderPointView(icon: Assets.cryptoCurrencies)
+        IconWithMessagePlaceholderView(icon: Assets.cryptoCurrencies)
     }
 }
