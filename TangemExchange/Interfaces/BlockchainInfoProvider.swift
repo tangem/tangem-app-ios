@@ -9,6 +9,10 @@
 import Foundation
 
 public protocol BlockchainInfoProvider {
-    func getBalance(currency: Currency) async throws -> Decimal
+    func getWalletAddress(currency: Currency) -> String?
+
+    func getBalance(currency: Currency) -> Decimal
+    func getFiatBalance(currency: Currency, amount: Decimal) -> Decimal
+
     func getFee(currency: Currency, amount: Decimal, destination: String) async throws -> [Decimal]
 }
