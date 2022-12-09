@@ -9,7 +9,7 @@
 import SwiftUI
 import Combine
 
-struct AddressQrBottomSheetContentViewVodel: Identifiable {
+struct AddressQrBottomSheetContentViewModel: Identifiable {
     let id: UUID = .init()
     var shareAddress: String
     var address: String
@@ -25,7 +25,7 @@ struct AddressQrBottomSheetContentViewVodel: Identifiable {
 }
 
 struct AddressQrBottomSheetContent: View {
-    let viewModel: AddressQrBottomSheetContentViewVodel
+    let viewModel: AddressQrBottomSheetContentViewModel
 
     @State private var showCheckmark = false
 
