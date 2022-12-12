@@ -586,7 +586,7 @@
 		EF4661C62923B42A00346B6C /* ExchangeProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9C17C6A291AACFD00FDE4BC /* ExchangeProvider.swift */; };
 		EF4661C82923B42A00346B6C /* ExchangeDataModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9C17C6D291AB48D00FDE4BC /* ExchangeDataModel.swift */; };
 		EF4661CF2923B9CD00346B6C /* TangemExchangeFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF4661CE2923B9CD00346B6C /* TangemExchangeFactory.swift */; };
-		EF4661D02923CD4C00346B6C /* BlockchainInfoProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF46618B2923AFA200346B6C /* BlockchainInfoProvider.swift */; };
+		EF4661D02923CD4C00346B6C /* BlockchainDataProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF46618B2923AFA200346B6C /* BlockchainDataProvider.swift */; };
 		EF4661D22923E4C000346B6C /* BlockchainNetworkService.swift in Sources */ = {isa = PBXBuildFile; fileRef = E966EFB1291C4A5900504AD8 /* BlockchainNetworkService.swift */; };
 		EF4661D42923E5BB00346B6C /* ExchangeItems.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF4661D32923E5BB00346B6C /* ExchangeItems.swift */; };
 		EF4661F12924CC6E00346B6C /* InfoTarget.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF4661EA2924CC6B00346B6C /* InfoTarget.swift */; };
@@ -670,7 +670,7 @@
 		EF7BD11028B8B321001B2D59 /* CommonUserWalletModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF7BD10F28B8B321001B2D59 /* CommonUserWalletModel.swift */; };
 		EF80842E293DE3D9000D91EA /* ExchangeManagerUtil.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF80842D293DE3D9000D91EA /* ExchangeManagerUtil.swift */; };
 		EF808434293F38CE000D91EA /* UserWalletsListProviding.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF808433293F38CE000D91EA /* UserWalletsListProviding.swift */; };
-		EF808436293F39D6000D91EA /* UserWalletsListProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF808435293F39D6000D91EA /* UserWalletsListProvider.swift */; };
+		EF808436293F39D6000D91EA /* UserWalletListProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF808435293F39D6000D91EA /* UserWalletListProvider.swift */; };
 		EF808438293F3A6D000D91EA /* CurrencyMapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF808437293F3A6D000D91EA /* CurrencyMapper.swift */; };
 		EF80843E293F698F000D91EA /* ExchangeManagerMock.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF80843D293F698F000D91EA /* ExchangeManagerMock.swift */; };
 		EF808440293F69C7000D91EA /* Currency+Mock.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF80843F293F69C7000D91EA /* Currency+Mock.swift */; };
@@ -1432,7 +1432,7 @@
 		EF3EC522289AB2DE0071BA7F /* TangemProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TangemProvider.swift; sourceTree = "<group>"; };
 		EF45E044293F74EB00C7090F /* UserWalletsListProviderMock.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserWalletsListProviderMock.swift; sourceTree = "<group>"; };
 		EF46618729237C9F00346B6C /* ProgressViewCompat.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProgressViewCompat.swift; sourceTree = "<group>"; };
-		EF46618B2923AFA200346B6C /* BlockchainInfoProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlockchainInfoProvider.swift; sourceTree = "<group>"; };
+		EF46618B2923AFA200346B6C /* BlockchainDataProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlockchainDataProvider.swift; sourceTree = "<group>"; };
 		EF4661922923AFC400346B6C /* TangemExchange.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = TangemExchange.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		EF4661942923AFC400346B6C /* TangemExchange.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TangemExchange.h; sourceTree = "<group>"; };
 		EF4661952923AFC400346B6C /* TangemExchange.docc */ = {isa = PBXFileReference; lastKnownFileType = folder.documentationcatalog; path = TangemExchange.docc; sourceTree = "<group>"; };
@@ -1536,7 +1536,7 @@
 		EF7BD10F28B8B321001B2D59 /* CommonUserWalletModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonUserWalletModel.swift; sourceTree = "<group>"; };
 		EF80842D293DE3D9000D91EA /* ExchangeManagerUtil.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExchangeManagerUtil.swift; sourceTree = "<group>"; };
 		EF808433293F38CE000D91EA /* UserWalletsListProviding.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserWalletsListProviding.swift; sourceTree = "<group>"; };
-		EF808435293F39D6000D91EA /* UserWalletsListProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserWalletsListProvider.swift; sourceTree = "<group>"; };
+		EF808435293F39D6000D91EA /* UserWalletListProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserWalletListProvider.swift; sourceTree = "<group>"; };
 		EF808437293F3A6D000D91EA /* CurrencyMapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CurrencyMapper.swift; sourceTree = "<group>"; };
 		EF80843D293F698F000D91EA /* ExchangeManagerMock.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExchangeManagerMock.swift; sourceTree = "<group>"; };
 		EF80843F293F69C7000D91EA /* Currency+Mock.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Currency+Mock.swift"; sourceTree = "<group>"; };
@@ -3450,7 +3450,7 @@
 		EF4661B92923B00800346B6C /* Interfaces */ = {
 			isa = PBXGroup;
 			children = (
-				EF46618B2923AFA200346B6C /* BlockchainInfoProvider.swift */,
+				EF46618B2923AFA200346B6C /* BlockchainDataProvider.swift */,
 				EF29BEF52934B1EE00D7C782 /* TransactionBuilder.swift */,
 				EF808433293F38CE000D91EA /* UserWalletsListProviding.swift */,
 			);
@@ -3474,7 +3474,7 @@
 			isa = PBXGroup;
 			children = (
 				E966EFB1291C4A5900504AD8 /* BlockchainNetworkService.swift */,
-				EF808435293F39D6000D91EA /* UserWalletsListProvider.swift */,
+				EF808435293F39D6000D91EA /* UserWalletListProvider.swift */,
 				EF808437293F3A6D000D91EA /* CurrencyMapper.swift */,
 			);
 			path = Exchange;
@@ -4390,7 +4390,7 @@
 			files = (
 				EF9CFC12288FECE100329BE0 /* ScanCardSettingsView.swift in Sources */,
 				EFE23ABB292B8D1800A3C554 /* SwappingPermissionRoutable.swift in Sources */,
-				EF808436293F39D6000D91EA /* UserWalletsListProvider.swift in Sources */,
+				EF808436293F39D6000D91EA /* UserWalletListProvider.swift in Sources */,
 				DCE5C66C28898B7F000C7F67 /* TangemApiService.swift in Sources */,
 				5DDFC2042812B72C005976FE /* Currency.swift in Sources */,
 				5D09382825E7A2D80049B8F0 /* TokenDetailsView.swift in Sources */,
@@ -5062,7 +5062,7 @@
 				EF4661F22924CC6E00346B6C /* LiquiditySourcesList.swift in Sources */,
 				EF4661C02923B42A00346B6C /* OneInchExchangeProvider.swift in Sources */,
 				EF4661C42923B42A00346B6C /* Currency.swift in Sources */,
-				EF4661D02923CD4C00346B6C /* BlockchainInfoProvider.swift in Sources */,
+				EF4661D02923CD4C00346B6C /* BlockchainDataProvider.swift in Sources */,
 				EF4661962923AFC400346B6C /* TangemExchange.docc in Sources */,
 				EF4662032924CC6E00346B6C /* OneInchBaseTarget.swift in Sources */,
 				EF29BEF62934B1EE00D7C782 /* TransactionBuilder.swift in Sources */,
