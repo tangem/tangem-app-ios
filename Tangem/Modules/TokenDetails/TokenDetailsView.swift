@@ -167,7 +167,7 @@ struct TokenDetailsView: View {
         if let exchangeButton = viewModel.exchangeButton {
             MainButton(
                 title: exchangeButton.title,
-                icon: .trailing(exchangeButton.icon),
+                icon: .leading(exchangeButton.icon),
                 isDisabled: !viewModel.isAvailable(type: exchangeButton)
             ) {
                 viewModel.didTapExchangeButtonAction(type: exchangeButton)
@@ -175,7 +175,7 @@ struct TokenDetailsView: View {
         } else if viewModel.exchangeVariations != nil {
             MainButton(
                 title: "wallet_button_trade".localized,
-                icon: .leading(Image(systemName: "arrow.up.arrow.down"))
+                icon: .leading(Assets.exchangeIcon)
             ) {
                 viewModel.openExchangeActionSheet()
             }
