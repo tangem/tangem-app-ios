@@ -29,22 +29,16 @@ struct WarningBankCardView: View {
                 .padding([.horizontal, .bottom], 30)
 
             HStack(spacing: 11) {
-                Button(action: {
-                    viewModel.confirmCallback()
-                }, label: {
-                    Text("common_yes".localized)
-                        .font(.system(size: 15, weight: .medium))
-                })
-                .buttonStyle(TangemButtonStyle(colorStyle: .black, layout: .flexibleWidth))
+                MainButton(
+                    title: "common_yes".localized,
+                    action: viewModel.confirmCallback
+                )
 
-                Button(action: {
-                    viewModel.declineCallback()
-                }, label: {
-                    Text("common_no".localized)
-                        .foregroundColor(.black)
-                        .font(.system(size: 15, weight: .medium))
-                })
-                .buttonStyle(TangemButtonStyle(colorStyle: .gray, layout: .flexibleWidth))
+                MainButton(
+                    title: "common_no".localized,
+                    style: .secondary,
+                    action: viewModel.declineCallback
+                )
             }
             .padding(.horizontal, 16)
         }
