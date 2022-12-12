@@ -10,6 +10,8 @@ import Foundation
 import Combine
 import BlockchainSdk
 
+// [REDACTED_TODO_COMMENT]
+
 class WalletModel: ObservableObject, Identifiable {
     @Injected(\.tangemApiService) private var tangemApiService: TangemApiService
 
