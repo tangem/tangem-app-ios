@@ -28,8 +28,8 @@ class SignTypedDataHandler: WalletConnectSignHandler {
                 return
             }
 
-            let prefix = String(format: "wallet_connect_personal_sign_message".localized, session.session.dAppInfo.peerMeta.name)
-            askToSign(in: session, request: request, message: prefix + message, dataToSign: typedData.signHash)
+            let displayedMessage = String(format: "wallet_connect_personal_sign_message".localized, session.session.dAppInfo.peerMeta.name, message)
+            askToSign(in: session, request: request, message: displayedMessage, dataToSign: typedData.signHash)
         } catch {
             delegate?.sendInvalid(request)
         }
