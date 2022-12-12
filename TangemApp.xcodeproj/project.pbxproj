@@ -200,8 +200,8 @@
 		B037B1EE256E747F0022EFFF /* TwinsFinalizeWalletCreationTask.swift in Sources */ = {isa = PBXBuildFile; fileRef = B037B1ED256E747F0022EFFF /* TwinsFinalizeWalletCreationTask.swift */; };
 		B03A9339259877790061FB2D /* WarningsContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = B03A9338259877790061FB2D /* WarningsContainer.swift */; };
 		B03ACAC92567CFFF00F5D269 /* CardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B03ACAC82567CFFF00F5D269 /* CardView.swift */; };
-		B0431B3F291951C200F84DEF /* ReferralPointView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0431B3E291951C200F84DEF /* ReferralPointView.swift */; };
-		B0431B412919538700F84DEF /* ReferralPointIcon.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0431B402919538700F84DEF /* ReferralPointIcon.swift */; };
+		B0431B3F291951C200F84DEF /* IconWithMessageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0431B3E291951C200F84DEF /* IconWithMessageView.swift */; };
+		B0431B412919538700F84DEF /* IconWithBackground.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0431B402919538700F84DEF /* IconWithBackground.swift */; };
 		B0431B442919F94400F84DEF /* ReferralModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0431B432919F94400F84DEF /* ReferralModels.swift */; };
 		B0431B47291A905A00F84DEF /* RoundedBackgroundModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0431B46291A905A00F84DEF /* RoundedBackgroundModifier.swift */; };
 		B0453672264D4B730005B23E /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0453671264D4B730005B23E /* Constants.swift */; };
@@ -217,7 +217,7 @@
 		B04CD34029122C6E001EA84A /* ReferralCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = B04CD33F29122C6E001EA84A /* ReferralCoordinator.swift */; };
 		B04CD34229122C7D001EA84A /* ReferralRoutable.swift in Sources */ = {isa = PBXBuildFile; fileRef = B04CD34129122C7D001EA84A /* ReferralRoutable.swift */; };
 		B04CD34429122C8D001EA84A /* ReferralCoordinatorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B04CD34329122C8D001EA84A /* ReferralCoordinatorView.swift */; };
-		B04CD3482912AA61001EA84A /* ReferralPlaceholderPointView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B04CD3472912AA61001EA84A /* ReferralPlaceholderPointView.swift */; };
+		B04CD3482912AA61001EA84A /* IconWithMessagePlaceholderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B04CD3472912AA61001EA84A /* IconWithMessagePlaceholderView.swift */; };
 		B04FBC3A26CB98F000B397CE /* View+SizeReader.swift in Sources */ = {isa = PBXBuildFile; fileRef = B04FBC3926CB98F000B397CE /* View+SizeReader.swift */; };
 		B051A1B0262192A300809FD2 /* WalletConnectModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = B051A1AF262192A300809FD2 /* WalletConnectModels.swift */; };
 		B051A1B826219D0700809FD2 /* NavigationBusyButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = B051A1B726219D0700809FD2 /* NavigationBusyButton.swift */; };
@@ -1046,8 +1046,8 @@
 		B037B1ED256E747F0022EFFF /* TwinsFinalizeWalletCreationTask.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TwinsFinalizeWalletCreationTask.swift; sourceTree = "<group>"; };
 		B03A9338259877790061FB2D /* WarningsContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WarningsContainer.swift; sourceTree = "<group>"; };
 		B03ACAC82567CFFF00F5D269 /* CardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardView.swift; sourceTree = "<group>"; };
-		B0431B3E291951C200F84DEF /* ReferralPointView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReferralPointView.swift; sourceTree = "<group>"; };
-		B0431B402919538700F84DEF /* ReferralPointIcon.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReferralPointIcon.swift; sourceTree = "<group>"; };
+		B0431B3E291951C200F84DEF /* IconWithMessageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IconWithMessageView.swift; sourceTree = "<group>"; };
+		B0431B402919538700F84DEF /* IconWithBackground.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IconWithBackground.swift; sourceTree = "<group>"; };
 		B0431B432919F94400F84DEF /* ReferralModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReferralModels.swift; sourceTree = "<group>"; };
 		B0431B46291A905A00F84DEF /* RoundedBackgroundModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RoundedBackgroundModifier.swift; sourceTree = "<group>"; };
 		B0453671264D4B730005B23E /* Constants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Constants.swift; sourceTree = "<group>"; };
@@ -1061,7 +1061,7 @@
 		B04CD33F29122C6E001EA84A /* ReferralCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReferralCoordinator.swift; sourceTree = "<group>"; };
 		B04CD34129122C7D001EA84A /* ReferralRoutable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReferralRoutable.swift; sourceTree = "<group>"; };
 		B04CD34329122C8D001EA84A /* ReferralCoordinatorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReferralCoordinatorView.swift; sourceTree = "<group>"; };
-		B04CD3472912AA61001EA84A /* ReferralPlaceholderPointView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReferralPlaceholderPointView.swift; sourceTree = "<group>"; };
+		B04CD3472912AA61001EA84A /* IconWithMessagePlaceholderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IconWithMessagePlaceholderView.swift; sourceTree = "<group>"; };
 		B04FBC3926CB98F000B397CE /* View+SizeReader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "View+SizeReader.swift"; sourceTree = "<group>"; };
 		B051A1AF262192A300809FD2 /* WalletConnectModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletConnectModels.swift; sourceTree = "<group>"; };
 		B051A1B726219D0700809FD2 /* NavigationBusyButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NavigationBusyButton.swift; sourceTree = "<group>"; };
@@ -1907,6 +1907,7 @@
 				B09BB853259A075500B92000 /* Buttons */,
 				B09BB857259A075600B92000 /* Navigation */,
 				B09BB85B259A075600B92000 /* TextInputs */,
+				B04CD3462912AA47001EA84A /* IconWithMessageView */,
 				B0A9E93D25921D12007B6D36 /* Warnings */,
 				5DD4CB4324FAAAE0008F23CC /* KeyboardAvoidance */,
 				B0C171CC264C171D00E4BA5C /* Modifiers */,
@@ -2279,14 +2280,6 @@
 			path = Referral;
 			sourceTree = "<group>";
 		};
-		B0431B45291A904900F84DEF /* Modifiers */ = {
-			isa = PBXGroup;
-			children = (
-				B0431B46291A905A00F84DEF /* RoundedBackgroundModifier.swift */,
-			);
-			path = Modifiers;
-			sourceTree = "<group>";
-		};
 		B043FA1826B16B1D00D77729 /* Email */ = {
 			isa = PBXGroup;
 			children = (
@@ -2311,7 +2304,6 @@
 		B04CD33A29122C25001EA84A /* Referral */ = {
 			isa = PBXGroup;
 			children = (
-				B04CD3462912AA47001EA84A /* Views */,
 				B04CD33B29122C5C001EA84A /* ReferralView.swift */,
 				B04CD33D29122C64001EA84A /* ReferralViewModel.swift */,
 				B04CD34129122C7D001EA84A /* ReferralRoutable.swift */,
@@ -2321,15 +2313,14 @@
 			path = Referral;
 			sourceTree = "<group>";
 		};
-		B04CD3462912AA47001EA84A /* Views */ = {
+		B04CD3462912AA47001EA84A /* IconWithMessageView */ = {
 			isa = PBXGroup;
 			children = (
-				B0431B45291A904900F84DEF /* Modifiers */,
-				B0431B3E291951C200F84DEF /* ReferralPointView.swift */,
-				B04CD3472912AA61001EA84A /* ReferralPlaceholderPointView.swift */,
-				B0431B402919538700F84DEF /* ReferralPointIcon.swift */,
+				B0431B3E291951C200F84DEF /* IconWithMessageView.swift */,
+				B04CD3472912AA61001EA84A /* IconWithMessagePlaceholderView.swift */,
+				B0431B402919538700F84DEF /* IconWithBackground.swift */,
 			);
-			path = Views;
+			path = IconWithMessageView;
 			sourceTree = "<group>";
 		};
 		B0541DBA26FB2FCE0043893E /* Wallet */ = {
@@ -2536,6 +2527,7 @@
 				B0C171CD264C173400E4BA5C /* CameraAccessDeniedModifier.swift */,
 				B0606E112684A946004004ED /* BlinkingModifier.swift */,
 				B0FAD01126BAF35C00F45E88 /* FrameSizeModifier.swift */,
+				B0431B46291A905A00F84DEF /* RoundedBackgroundModifier.swift */,
 				B0A0910B26D3628200F46DF5 /* AnimatableGradient.swift */,
 				B0A0910F26D3636F00F46DF5 /* AnimationCompletionObserverModifier.swift */,
 			);
@@ -4659,7 +4651,7 @@
 				B020FFB425DE7F9300EF422C /* DataCollectors.swift in Sources */,
 				DA23787C27B24222009795A8 /* ShopifyService.swift in Sources */,
 				EF661E3528C0ADC6005769E5 /* CommonError.swift in Sources */,
-				B0431B412919538700F84DEF /* ReferralPointIcon.swift in Sources */,
+				B0431B412919538700F84DEF /* IconWithBackground.swift in Sources */,
 				EF48289528D1CD1F002809C6 /* Collection+.swift in Sources */,
 				DAC53D0027BE63830027147D /* Web3StoryPage.swift in Sources */,
 				EF6CB17C292E1080001335EA /* SwappingView.swift in Sources */,
@@ -4813,7 +4805,7 @@
 				B0CC818325CD63FB006D49B9 /* Token+.swift in Sources */,
 				DC22535B28A4FDE90094F30C /* WarningEventsFactory.swift in Sources */,
 				65B4DEE22885719C001524CF /* BottomSheetWrappedView.swift in Sources */,
-				B04CD3482912AA61001EA84A /* ReferralPlaceholderPointView.swift in Sources */,
+				B04CD3482912AA61001EA84A /* IconWithMessagePlaceholderView.swift in Sources */,
 				DA23788427B24222009795A8 /* Checkout.swift in Sources */,
 				DC56EF81289CE06A00C0940A /* DummyConfig.swift in Sources */,
 				DC5E32CD28EDD94300D6096A /* Responses.swift in Sources */,
@@ -4956,7 +4948,7 @@
 				B0C4F77526F08CDE0086D815 /* OnboardingProgressStateIndicatable.swift in Sources */,
 				B0E1564B26B941A4005B33E4 /* SingleCardOnboardingView.swift in Sources */,
 				EF130EB428E1C47C00D37EFC /* SingleWalletContentViewModel.swift in Sources */,
-				B0431B3F291951C200F84DEF /* ReferralPointView.swift in Sources */,
+				B0431B3F291951C200F84DEF /* IconWithMessageView.swift in Sources */,
 				B04BA23626F083C30036784C /* OnboardingTopupBalanceView.swift in Sources */,
 				5DEC50A525F160930022CE83 /* CircleImageTextView.swift in Sources */,
 				DA23788527B24222009795A8 /* CheckoutLineItem.swift in Sources */,
