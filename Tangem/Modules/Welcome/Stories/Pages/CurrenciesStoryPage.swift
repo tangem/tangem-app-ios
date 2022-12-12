@@ -70,7 +70,7 @@ struct CurrenciesStoryPage: View {
                     )
 
                 TangemButton(title: "home_button_search_tokens", systemImage: "magnifyingglass", action: searchTokens)
-                    .buttonStyle(TangemButtonStyle(colorStyle: .grayAlt2, layout: .flexibleWidth))
+                    .buttonStyle(TangemButtonStyle(colorStyle: .grayAlt2, layout: .flexibleWidth, isDisabled: isScanning))
                     .padding(.horizontal)
             }
 
