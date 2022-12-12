@@ -78,7 +78,7 @@ extension CardSettingsCoordinator: CardSettingsRoutable {
             title: "common_attention".localized,
             message: "reset_card_to_factory_message".localized,
             warningText: "reset_card_to_factory_warning_message".localized,
-            buttonTitle: "reset_card_to_factory_button_title",
+            buttonTitle: "reset_card_to_factory_button_title".localized,
             mainButtonAction: mainButtonAction
         )
     }
