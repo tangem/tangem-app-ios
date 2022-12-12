@@ -28,7 +28,7 @@ class BlockchainNetworkService {
 
 // MARK: - BlockchainDataProvider
 
-extension BlockchainNetworkService: BlockchainDataProvider {
+extension BlockchainNetworkService: TangemExchange.BlockchainDataProvider {
     func getWalletAddress(currency: Currency) -> String? {
         let blockchain = walletModel.blockchainNetwork.blockchain
         guard blockchain.networkId == currency.blockchain.networkId else {
