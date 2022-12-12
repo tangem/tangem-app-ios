@@ -28,7 +28,7 @@ struct SwappingConfigurator {
 
         return SwappingViewModel(
             exchangeManager: exchangeManager,
-            userWalletsListProvider: factory.createUserWalletsListProvider(walletModel: input.walletModel),
+            userCurrenciesProvider: factory.createUserWalletsListProvider(walletModel: input.walletModel),
             tokenIconURLBuilder: factory.createTokenIconURLBuilder(),
             coordinator: coordinator
         )
