@@ -37,7 +37,7 @@ final class SwappingViewModel: ObservableObject {
     // MARK: - Dependencies
 
     private let exchangeManager: ExchangeManager
-    private let userWalletsListProvider: UserCurrenciesProviding
+    private let userCurrenciesProvider: UserCurrenciesProviding
     private let tokenIconURLBuilder: TokenIconURLBuilding
     private unowned let coordinator: SwappingRoutable
 
@@ -47,12 +47,12 @@ final class SwappingViewModel: ObservableObject {
 
     init(
         exchangeManager: ExchangeManager,
-        userWalletsListProvider: UserCurrenciesProviding,
+        userCurrenciesProvider: UserCurrenciesProviding,
         tokenIconURLBuilder: TokenIconURLBuilding,
         coordinator: SwappingRoutable
     ) {
         self.exchangeManager = exchangeManager
-        self.userWalletsListProvider = userWalletsListProvider
+        self.userCurrenciesProvider = userCurrenciesProvider
         self.tokenIconURLBuilder = tokenIconURLBuilder
         self.coordinator = coordinator
 
@@ -92,7 +92,7 @@ final class SwappingViewModel: ObservableObject {
 private extension SwappingViewModel {
     func openTokenListView() {
         let source = exchangeManager.getExchangeItems().source
-        let userCurrencies = userWalletsListProvider.getCurrencies(
+        let userCurrencies = userCurrenciesProvider.getCurrencies(
             blockchain: source.blockchain
         )
 
