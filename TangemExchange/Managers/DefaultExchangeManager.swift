@@ -278,12 +278,12 @@ private extension DefaultExchangeManager {
         expectedAmount /= decimalValue
 
         let expectedFiatAmount = try await blockchainDataProvider.getFiatBalance(
-            currency: exchangeItems.destination,
+            currency: destination,
             amount: expectedAmount
         )
 
         let fiatFee = try await blockchainDataProvider.getFiatBalance(
-            currency: exchangeItems.destination,
+            currency: destination,
             amount: fee
         )
 
