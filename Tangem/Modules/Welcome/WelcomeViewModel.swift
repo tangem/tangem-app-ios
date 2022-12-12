@@ -80,6 +80,9 @@ class WelcomeViewModel: ObservableObject {
     }
 
     func orderCard() {
+        // For some reason the button can be tapped even after we've this flag to FALSE to disable it
+        guard !isScanningCard else { return }
+
         openShop()
         Analytics.log(.getACard, params: [.source: Analytics.ParameterValue.welcome.rawValue])
         Analytics.log(.buttonBuyCards)
@@ -110,6 +113,9 @@ extension WelcomeViewModel {
     }
 
     func openTokensList() {
+        // For some reason the button can be tapped even after we've this flag to FALSE to disable it
+        guard !isScanningCard else { return }
+
         Analytics.log(.buttonTokensList)
         coordinator.openTokensList()
     }
