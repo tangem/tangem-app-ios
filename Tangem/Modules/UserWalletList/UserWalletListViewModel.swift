@@ -7,7 +7,8 @@
 //
 
 import Combine
-import SwiftUI
+import Foundation
+import UIKit
 
 final class UserWalletListViewModel: ObservableObject, Identifiable {
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
@@ -23,8 +24,8 @@ final class UserWalletListViewModel: ObservableObject, Identifiable {
 
     // MARK: - Dependencies
 
-    var unlockAllButtonLocalizationKey: LocalizedStringKey {
-        LocalizedStringKey(stringLiteral: "user_wallet_list_unlock_all".localized(BiometricAuthorizationUtils.biometryType.name))
+    var unlockAllButtonTitle: String {
+        "user_wallet_list_unlock_all".localized(BiometricAuthorizationUtils.biometryType.name)
     }
 
     var isLocked: Bool {
