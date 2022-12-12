@@ -17,7 +17,7 @@ struct RoundedBackgroundModifier: ViewModifier {
         content
             .padding(padding)
             .background(backgroundColor)
-            .cornerRadius(cornerRadius)
+            .cornerRadiusContinuous(cornerRadius)
     }
 }
 
