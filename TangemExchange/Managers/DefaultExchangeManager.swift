@@ -14,7 +14,7 @@ class DefaultExchangeManager<TxBuilder: TransactionBuilder> {
 
     private let exchangeProvider: ExchangeProvider
     private let transactionBuilder: TxBuilder
-    private let blockchainInfoProvider: BlockchainInfoProvider
+    private let blockchainDataProvider: BlockchainDataProvider
 
     // MARK: - Internal
 
@@ -44,7 +44,7 @@ class DefaultExchangeManager<TxBuilder: TransactionBuilder> {
     }
 
     private var walletAddress: String? {
-        blockchainInfoProvider.getWalletAddress(currency: exchangeItems.source)
+        blockchainDataProvider.getWalletAddress(currency: exchangeItems.source)
     }
 
     private var refreshDataTimerBag: AnyCancellable?
@@ -53,13 +53,13 @@ class DefaultExchangeManager<TxBuilder: TransactionBuilder> {
     init(
         exchangeProvider: ExchangeProvider,
         transactionBuilder: TxBuilder,
-        blockchainInfoProvider: BlockchainInfoProvider,
+        blockchainInfoProvider: BlockchainDataProvider,
         exchangeItems: ExchangeItems,
         amount: Decimal? = nil
     ) {
         self.exchangeProvider = exchangeProvider
         self.transactionBuilder = transactionBuilder
-        self.blockchainInfoProvider = blockchainInfoProvider
+        self.blockchainDataProvider = blockchainInfoProvider
         self.exchangeItems = exchangeItems
         self.amount = amount
 
@@ -249,10 +249,10 @@ private extension DefaultExchangeManager {
     func updateSourceBalances() {
         Task {
             let source = exchangeItems.source
-            let balance = try await blockchainInfoProvider.getBalance(currency: source)
+            let balance = try await blockchainDataProvider.getBalance(currency: source)
             var fiatBalance: Decimal = 0
             if let amount = amount  {
-                fiatBalance = try await blockchainInfoProvider.getFiatBalance(currency: source, amount: amount)
+                fiatBalance = try await blockchainDataProvider.getFiatBalance(currency: source, amount: amount)
             }
 
             exchangeItems.sourceBalance = ExchangeItems.Balance(balance: balance, fiatBalance: fiatBalance)
@@ -276,12 +276,12 @@ private extension DefaultExchangeManager {
         paymentAmount /= decimalValue
         expectedAmount /= decimalValue
 
-        let expectedFiatAmount = try await blockchainInfoProvider.getFiatBalance(
+        let expectedFiatAmount = try await blockchainDataProvider.getFiatBalance(
             currency: exchangeItems.destination,
             amount: expectedAmount
         )
 
-        let fiatFee = try await blockchainInfoProvider.getFiatBalance(
+        let fiatFee = try await blockchainDataProvider.getFiatBalance(
             currency: exchangeItems.destination,
             amount: fee
         )
@@ -312,7 +312,7 @@ private extension DefaultExchangeManager {
     }
 
     func submitPermissionForToken(_ info: ExchangeTransactionInfo, gasPrice: Decimal) async throws {
-        let fees = try await blockchainInfoProvider.getFee(currency: info.currency, amount: info.amount, destination: info.destination)
+        let fees = try await blockchainDataProvider.getFee(currency: info.currency, amount: info.amount, destination: info.destination)
         let gasValue: Decimal = fees[1]
 
         let gas = gas(from: gasValue, price: gasPrice, decimalCount: info.currency.decimalCount)
