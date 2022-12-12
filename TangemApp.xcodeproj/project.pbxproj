@@ -4367,7 +4367,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "# check if directory exists then add it to path\nif [ -d ~/.mint/bin ]; then\n    echo \"Adding ~/.mint/bin to PATH\"\n    export PATH=~/.mint/bin:$PATH\nelse\n  echo \"~/.mint/bin folder is missing\"\nfi\n\n# check if swiftgen tool can be found.\nif [ $(command -v swiftformat) ]; then\n    if [ ${ENABLE_PREVIEWS} == \"NO\" ]; then \n        echo \"🚀 Running SwiftFormat\"\n        swiftformat . --config .swiftformat\n    fi\nelse\n  echo \"SwiftFormat tool is missing\"\n  exit 1\nfi\n";
+			shellScript = "PATH=$PATH:/opt/homebrew/bin\n\n# check if directory exists then add it to path\nif [ -d ~/.mint/bin ]; then\n    echo \"Adding ~/.mint/bin to PATH\"\n    export PATH=~/.mint/bin:$PATH\nelse\n  echo \"~/.mint/bin folder is missing\"\nfi\n\n# check if swiftgen tool can be found.\nif [ ${ENABLE_PREVIEWS} == \"NO\" ]; then \n    echo \"🚀 Running SwiftFormat\"\n    mint run swiftformat@0.49.11 . --config .swiftformat\nfi\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 
