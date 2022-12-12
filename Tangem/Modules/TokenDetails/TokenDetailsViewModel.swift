@@ -227,11 +227,7 @@ class TokenDetailsViewModel: ObservableObject {
 
         buttons.append(.cancel())
 
-        let sheet = ActionSheet(
-            title: Text("action_sheet_trade_hint".localized),
-            buttons: buttons
-        )
-
+        let sheet = ActionSheet(title: Text(""), buttons: buttons)
         exchangeActionSheet = ActionSheetBinder(sheet: sheet)
     }
 
@@ -570,9 +566,9 @@ extension TokenDetailsViewModel {
         var icon: Image {
             switch self {
             case .sell:
-                return Assets.exchangeIcon
+                return Assets.arrowDownMini
             case .buy:
-                return Assets.exchangeIcon
+                return Assets.arrowUpMini
             case .swap:
                 return Assets.exchangeIcon
             }
