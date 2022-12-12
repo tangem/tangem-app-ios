@@ -16,14 +16,14 @@ struct UserWalletListProvider {
     }
 }
 
-// MARK: - UserWalletsListProviding
+// MARK: - UserCurrenciesProviding
 
-extension UserWalletListProvider: UserWalletsListProviding {
-    func saveCurrencyInUserList(currency: TangemExchange.Currency) {
+extension UserWalletListProvider: UserCurrenciesProviding {
+    func addCurrencyInList(currency: Currency) {
         // [REDACTED_TODO_COMMENT]
     }
 
-    func getUserCurrencies(blockchain exchangeBlockchain: ExchangeBlockchain) -> [Currency] {
+    func getCurrencies(blockchain exchangeBlockchain: ExchangeBlockchain) -> [Currency] {
         let blockchain = walletModel.blockchainNetwork.blockchain
 
         guard blockchain.networkId == exchangeBlockchain.networkId else {
