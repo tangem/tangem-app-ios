@@ -103,7 +103,7 @@ struct OnboardingAccessCodeView: View {
                 .opacity(error.errorOpacity)
                 .foregroundColor(.tangemCritical)
             Spacer()
-            TangemButton(title: state.buttonTitle) {
+            MainButton(title: state.buttonTitle) {
                 let nextState: ViewState
                 switch state {
                 case .intro:
@@ -127,7 +127,6 @@ struct OnboardingAccessCodeView: View {
 
                 state = nextState
             }
-            .buttonStyle(TangemButtonStyle(colorStyle: .black, layout: .wide))
             .padding(.bottom, 16)
         }
         .padding(.horizontal, 40)
