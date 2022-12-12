@@ -1,5 +1,5 @@
 //
-//  ReferralPointView.swift
+//  IconWithMessageView.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -8,7 +8,7 @@
 
 import SwiftUI
 
-struct ReferralPointView: View {
+struct IconWithMessageView: View {
     private let icon: Image
     private let header: Text
     private let description: Text
@@ -25,7 +25,7 @@ struct ReferralPointView: View {
 
     var body: some View {
         HStack(alignment: .top, spacing: 14) {
-            ReferralPointIcon(icon: icon)
+            IconWithBackground(icon: icon)
                 .foregroundColor(Colors.Icon.primary1)
 
             VStack(alignment: .leading, spacing: 2) {
@@ -43,17 +43,17 @@ struct ReferralPointView: View {
     }
 }
 
-struct ReferralPointView_Previews: PreviewProvider {
+struct IconWithMessageView_Previews: PreviewProvider {
     static var previews: some View {
         VStack {
-            ReferralPointView(
+            IconWithMessageView(
                 Assets.cryptoCurrencies,
                 header: { Text("You") },
                 description: {
                     Text("Will get ") + Text("10 USDT").foregroundColor(Colors.Text.primary1) + Text(" for each wallet bought by your friend on your Tron network address 0x032980ca98fdfc67ab767b")
                 }
             )
-            ReferralPointView(
+            IconWithMessageView(
                 Assets.discount,
                 header: { Text("Your friend") },
                 description: {
