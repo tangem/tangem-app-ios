@@ -670,7 +670,7 @@
 		EF7BD11028B8B321001B2D59 /* CommonUserWalletModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF7BD10F28B8B321001B2D59 /* CommonUserWalletModel.swift */; };
 		EF80842E293DE3D9000D91EA /* ExchangeManagerUtil.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF80842D293DE3D9000D91EA /* ExchangeManagerUtil.swift */; };
 		EF808434293F38CE000D91EA /* UserCurrenciesProviding.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF808433293F38CE000D91EA /* UserCurrenciesProviding.swift */; };
-		EF808436293F39D6000D91EA /* UserWalletListProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF808435293F39D6000D91EA /* UserWalletListProvider.swift */; };
+		EF808436293F39D6000D91EA /* UserCurrenciesProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF808435293F39D6000D91EA /* UserCurrenciesProvider.swift */; };
 		EF808438293F3A6D000D91EA /* CurrencyMapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF808437293F3A6D000D91EA /* CurrencyMapper.swift */; };
 		EF80843E293F698F000D91EA /* ExchangeManagerMock.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF80843D293F698F000D91EA /* ExchangeManagerMock.swift */; };
 		EF808440293F69C7000D91EA /* Currency+Mock.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF80843F293F69C7000D91EA /* Currency+Mock.swift */; };
@@ -1536,7 +1536,7 @@
 		EF7BD10F28B8B321001B2D59 /* CommonUserWalletModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonUserWalletModel.swift; sourceTree = "<group>"; };
 		EF80842D293DE3D9000D91EA /* ExchangeManagerUtil.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExchangeManagerUtil.swift; sourceTree = "<group>"; };
 		EF808433293F38CE000D91EA /* UserCurrenciesProviding.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserCurrenciesProviding.swift; sourceTree = "<group>"; };
-		EF808435293F39D6000D91EA /* UserWalletListProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserWalletListProvider.swift; sourceTree = "<group>"; };
+		EF808435293F39D6000D91EA /* UserCurrenciesProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserCurrenciesProvider.swift; sourceTree = "<group>"; };
 		EF808437293F3A6D000D91EA /* CurrencyMapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CurrencyMapper.swift; sourceTree = "<group>"; };
 		EF80843D293F698F000D91EA /* ExchangeManagerMock.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExchangeManagerMock.swift; sourceTree = "<group>"; };
 		EF80843F293F69C7000D91EA /* Currency+Mock.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Currency+Mock.swift"; sourceTree = "<group>"; };
@@ -3474,7 +3474,7 @@
 			isa = PBXGroup;
 			children = (
 				E966EFB1291C4A5900504AD8 /* BlockchainNetworkService.swift */,
-				EF808435293F39D6000D91EA /* UserWalletListProvider.swift */,
+				EF808435293F39D6000D91EA /* UserCurrenciesProvider.swift */,
 				EF808437293F3A6D000D91EA /* CurrencyMapper.swift */,
 			);
 			path = Exchange;
@@ -4390,7 +4390,7 @@
 			files = (
 				EF9CFC12288FECE100329BE0 /* ScanCardSettingsView.swift in Sources */,
 				EFE23ABB292B8D1800A3C554 /* SwappingPermissionRoutable.swift in Sources */,
-				EF808436293F39D6000D91EA /* UserWalletListProvider.swift in Sources */,
+				EF808436293F39D6000D91EA /* UserCurrenciesProvider.swift in Sources */,
 				DCE5C66C28898B7F000C7F67 /* TangemApiService.swift in Sources */,
 				5DDFC2042812B72C005976FE /* Currency.swift in Sources */,
 				5D09382825E7A2D80049B8F0 /* TokenDetailsView.swift in Sources */,
