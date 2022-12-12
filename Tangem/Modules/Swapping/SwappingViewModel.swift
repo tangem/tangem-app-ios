@@ -55,7 +55,7 @@ final class SwappingViewModel: ObservableObject {
     ) {
         self.exchangeManager = exchangeManager
         self.swappingDestinationService = swappingDestinationService
-        self.userCurrenciesProvider = userWalletsListProvider
+        self.userCurrenciesProvider = userCurrenciesProvider
         self.tokenIconURLBuilder = tokenIconURLBuilder
         self.coordinator = coordinator
 
