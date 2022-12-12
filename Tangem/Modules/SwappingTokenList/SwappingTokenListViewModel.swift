@@ -83,13 +83,13 @@ private extension SwappingTokenListViewModel {
         let dataLoader = ListDataLoader(networkIds: [sourceCurrency.blockchain.networkId], exchangeable: true)
         dataLoader.$items
             .receive(on: DispatchQueue.global())
-            .map { [unowned self] coinModels in
-                coinModels.compactMap { mapToCurrency(coinModel: $0) }
+            .map { [weak self] coinModels in
+                coinModels.compactMap { self?.mapToCurrency(coinModel: $0) }
             }
-            .map { [unowned self] currencies in
+            .map { [weak self] currencies in
                 currencies
-                    .filter { currency in !userCurrencies.contains(currency) }
-                    .map { mapToSwappingTokenItemViewModel(currency: $0) }
+                    .filter { currency in self?.userCurrencies.contains(currency) == false }
+                    .compactMap { self?.mapToSwappingTokenItemViewModel(currency: $0) }
             }
             .receive(on: DispatchQueue.main)
             .receiveValue { [weak self] items in
