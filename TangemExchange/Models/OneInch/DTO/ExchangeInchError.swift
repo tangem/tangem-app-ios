@@ -13,6 +13,8 @@ public enum ExchangeInchError: Error {
     case serverError(withError: Error)
     case parsedError(withInfo: InchError)
     case decodeError(error: Error)
+
+    case incorrectData
 }
 
 public struct InchError: Decodable, Error {
