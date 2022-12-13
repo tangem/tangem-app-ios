@@ -43,10 +43,12 @@ extension SwappingConfigurator {
         let source: Currency
         let destination: Currency?
 
-        init(walletModel: WalletModel,
-             signer: TransactionSigner,
-             source: Currency,
-             destination: Currency? = nil) {
+        init(
+            walletModel: WalletModel,
+            signer: TransactionSigner,
+            source: Currency,
+            destination: Currency? = nil
+        ) {
             self.walletModel = walletModel
             self.signer = signer
             self.source = source

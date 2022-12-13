@@ -11,7 +11,7 @@ import TangemExchange
 import BlockchainSdk
 
 struct DependenciesFactory {
-    func createSwappingDestinationService(walletModel: WalletModel) -> SwappingDestinationServing {
+    func createSwappingDestinationService(walletModel: WalletModel) -> SwappingDestinationServicing {
         SwappingDestinationService(walletModel: walletModel, mapper: createCurrencyMapper())
     }
 
