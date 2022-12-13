@@ -87,7 +87,7 @@ struct TangemButton_Previews: PreviewProvider {
             TangemButton(title: "Recharge de portefeuille", image: "scan") {}
                 .buttonStyle(TangemButtonStyle(colorStyle: .black))
 
-            TangemButton(title: "wallet_button_scan", image: "scan") {}
+            TangemButton(title: "Scan", image: "scan") {}
                 .buttonStyle(TangemButtonStyle(colorStyle: .black,
                                                layout: .big))
 
@@ -103,12 +103,12 @@ struct TangemButton_Previews: PreviewProvider {
                     .buttonStyle(TangemButtonStyle(layout: .smallVertical,
                                                    isLoading: true))
 
-                TangemButton.vertical(title: "wallet_button_topup",
+                TangemButton.vertical(title: "wallet_button_buy",
                                       systemImage: "arrow.up") {}
                     .buttonStyle(TangemButtonStyle(layout: .smallVertical))
 
 
-                TangemButton.vertical(title: "wallet_button_scan",
+                TangemButton.vertical(title: "Scan",
                                       systemImage: "arrow.right") {}
                     .buttonStyle(TangemButtonStyle(layout: .smallVertical))
 
