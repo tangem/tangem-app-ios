@@ -10,7 +10,7 @@ import Foundation
 import TangemExchange
 import BlockchainSdk
 
-protocol SwappingDestinationServing {
+protocol SwappingDestinationServicing {
     func getDestination(source: Currency) async throws -> Currency
 }
 
@@ -28,7 +28,9 @@ struct SwappingDestinationService {
     }
 }
 
-extension SwappingDestinationService: SwappingDestinationServing {
+// MARK: - SwappingDestinationServicing
+
+extension SwappingDestinationService: SwappingDestinationServicing {
     func getDestination(source: Currency) async throws -> Currency {
         let blockchain = walletModel.blockchainNetwork.blockchain
 
@@ -68,22 +70,22 @@ extension SwappingDestinationService: SwappingDestinationServing {
 private extension SwappingDestinationService {
     func loadPreferCurrency(networkId: String) async throws -> Currency {
         // Try to load USDT
-        if let usdt = try? await loadPreferCurrencyFromAPI(networkId: networkId, tokenId: usdtTokenSymbol) {
+        if let usdt = try? await loadPreferCurrencyFromAPI(networkId: networkId, tokenSymbol: usdtTokenSymbol) {
             return usdt
         }
 
         // Try to load USDC
-        if let usdc = try? await loadPreferCurrencyFromAPI(networkId: networkId, tokenId: usdcTokenSymbol) {
+        if let usdc = try? await loadPreferCurrencyFromAPI(networkId: networkId, tokenSymbol: usdcTokenSymbol) {
             return usdc
         }
 
         return try await loadPreferCurrencyFromAPI(networkId: networkId)
     }
 
-    func loadPreferCurrencyFromAPI(networkId: String, tokenId: String? = nil) async throws -> Currency {
+    func loadPreferCurrencyFromAPI(networkId: String, tokenSymbol: String? = nil) async throws -> Currency {
         let model = CoinsListRequestModel(
             networkIds: [networkId],
-            searchText: tokenId,
+            searchText: tokenSymbol,
             exchangeable: true
         )
 
@@ -91,8 +93,8 @@ private extension SwappingDestinationService {
         let coin: CoinModel?
 
         /// If we are founding special token by name
-        if let tokenId = tokenId {
-            coin = coins.first(where: { $0.symbol == tokenId })
+        if let tokenSymbol = tokenSymbol {
+            coin = coins.first(where: { $0.symbol == tokenSymbol })
         } else {
             coin = coins.first
         }
