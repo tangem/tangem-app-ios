@@ -21,7 +21,6 @@ struct SwappingConfigurator {
     func createModule(input: InputModel, coordinator: SwappingRoutable) -> SwappingViewModel {
         let exchangeManager = factory.createExchangeManager(
             walletModel: input.walletModel,
-            signer: input.signer,
             source: input.source,
             destination: input.destination
         )
@@ -31,6 +30,7 @@ struct SwappingConfigurator {
             swappingDestinationService: factory.createSwappingDestinationService(walletModel: input.walletModel),
             userCurrenciesProvider: factory.createUserWalletsListProvider(walletModel: input.walletModel),
             tokenIconURLBuilder: factory.createTokenIconURLBuilder(),
+            transactionSender: factory.createTransactionSender(walletModel: input.walletModel, signer: input.signer),
             coordinator: coordinator
         )
     }
