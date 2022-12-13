@@ -11,24 +11,7 @@ import TangemExchange
 import BlockchainSdk
 
 struct DependenciesFactory {
-    func createExchangeManager(
-        walletModel: WalletModel,
-        source: Currency,
-        destination: Currency?
-    ) -> ExchangeManager {
-        let networkService = BlockchainNetworkService(
-            walletModel: walletModel,
-            currencyMapper: createCurrencyMapper()
-        )
-
-        return TangemExchangeFactory().createExchangeManager(
-            blockchainInfoProvider: networkService,
-            source: source,
-            destination: destination
-        )
-    }
-
-    func createSwappingDestinationService(walletModel: WalletModel) -> SwappingDestinationServing {
+    func createSwappingDestinationService(walletModel: WalletModel) -> SwappingDestinationServicing {
         SwappingDestinationService(walletModel: walletModel, mapper: createCurrencyMapper())
     }
 
@@ -40,8 +23,24 @@ struct DependenciesFactory {
         TokenIconURLBuilder(baseURL: CoinsResponse.baseURL)
     }
 
-    func createUserWalletsListProvider(walletModel: WalletModel) -> UserCurrenciesProviding {
-        UserWalletListProvider(walletModel: walletModel)
+    func createExchangeManager(
+        walletModel: WalletModel,
+        signer: TransactionSigner,
+        source: Currency,
+        destination: Currency?
+    ) -> ExchangeManager {
+        let networkService = BlockchainNetworkService(walletModel: walletModel, signer: signer)
+
+        return TangemExchangeFactory().createExchangeManager(
+            transactionBuilder: networkService,
+            blockchainInfoProvider: networkService,
+            source: source,
+            destination: destination
+        )
+    }
+
+    func createUserCurrenciesProvider(walletModel: WalletModel) -> UserCurrenciesProviding {
+        UserCurrenciesProvider(walletModel: walletModel)
     }
 
     func createTransactionSender(walletModel: WalletModel, signer: TransactionSigner) -> TransactionSenderProtocol {
