@@ -30,4 +30,8 @@ struct DependenciesFactory {
             destination: destination
         )
     }
+
+    func createUserCurrenciesProvider(walletModel: WalletModel) -> UserCurrenciesProviding {
+        UserCurrenciesProvider(walletModel: walletModel)
+    }
 }
