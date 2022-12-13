@@ -33,7 +33,7 @@ struct SwappingPermissionView: View {
             Text("swapping_permission_header".localized)
                 .style(Fonts.Bold.callout, color: Colors.Text.primary1)
 
-            Text("swapping_permission_subheader".localized(viewModel.smartContractNetworkName))
+            Text("swapping_permission_subheader".localized(viewModel.tokenSymbol))
                 .style(Fonts.Regular.subheadline, color: Colors.Text.secondary)
                 .padding(.horizontal, 50)
                 .multilineTextAlignment(.center)
@@ -68,13 +68,8 @@ struct SwappingPermissionView: View {
 
 struct SwappingPermissionView_Preview: PreviewProvider {
     static let viewModel = SwappingPermissionViewModel(
-        inputModel: SwappingPermissionViewModel.InputModel(
-            smartContractNetworkName: "DAI",
-            amount: 1000,
-            yourWalletAddress: "0x6B175474E89094C44Da98b954EedeAC495271d0F",
-            spenderWalletAddress: "0x6B175474E89094C44Da98b954EedeAC495271d0F",
-            fee: 2.14
-        ),
+        transactionInfo: .mock,
+        transactionSender: TransactionSenderMock(),
         coordinator: SwappingCoordinator()
     )
 
