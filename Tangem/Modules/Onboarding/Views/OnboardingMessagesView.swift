@@ -56,7 +56,7 @@ struct OnboardingMessagesView_Previews: PreviewProvider {
             }.background(Color.red)
 
             OnboardingMessagesView(title: "Create wallet",
-                                   subtitle: "All the backup cards can be used as full-functoinal wallets with the identical keys.") {
+                                   subtitle: "All the backup cards can be used as full-functional wallets with the identical keys.") {
             }.background(Color.green)
         }
         .padding(.horizontal, 80)

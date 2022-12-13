@@ -55,7 +55,7 @@ extension TwinConfig: UserWalletConfig {
         if !AppSettings.shared.isTwinCardOnboardingWasDisplayed { // show intro only once
             AppSettings.shared.isTwinCardOnboardingWasDisplayed = true
             let twinPairNumber = twinData.series.pair.number
-            steps.append(.intro(pairNumber: "\(twinPairNumber)"))
+            steps.append(.intro(pairNumber: "#\(twinPairNumber)"))
         }
 
         if card.wallets.isEmpty { // twin without created wallet. Start onboarding

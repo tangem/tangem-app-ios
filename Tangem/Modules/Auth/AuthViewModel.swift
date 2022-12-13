@@ -18,16 +18,7 @@ final class AuthViewModel: ObservableObject {
     @Published var navigationBarHidden: Bool = false
 
     var unlockWithBiometryButtonTitle: String {
-        switch BiometricAuthorizationUtils.biometryType {
-        case .faceID:
-            return "welcome_unlock_face_id".localized
-        case .touchID:
-            return "welcome_unlock_touch_id".localized
-        case .none:
-            return ""
-        @unknown default:
-            return ""
-        }
+        "welcome_unlock".localized(BiometricAuthorizationUtils.biometryType.name)
     }
 
     // MARK: - Dependencies
