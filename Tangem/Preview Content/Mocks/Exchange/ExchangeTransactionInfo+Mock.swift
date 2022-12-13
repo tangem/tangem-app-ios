@@ -1,5 +1,5 @@
 //
-//  ExchangeTransactionInfo+Mock.swift
+//  ExchangeTransactionDataModel+Mock.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -8,13 +8,15 @@
 
 import TangemExchange
 
-extension ExchangeTransactionInfo {
-    static let mock = ExchangeTransactionInfo(
-        currency: .mock,
-        source: "",
-        destination: "",
-        amount: 0,
-        fee: 0,
-        oneInchTxData: Data()
+extension ExchangeTransactionDataModel {
+    static let mock = ExchangeTransactionDataModel(
+        sourceCurrency: .mock,
+        destinationCurrency: .mock,
+        sourceAddress: "",
+        destinationAddress: "",
+        txData: Data(),
+        amount: 123_000_000_000_000,
+        gasValue: 21000,
+        gasPrice: 15_000_000_000
     )
 }
