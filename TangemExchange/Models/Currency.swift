@@ -73,3 +73,9 @@ public extension Currency {
         }
     }
 }
+
+public extension Currency {
+    var decimalValue: Decimal {
+        pow(10, decimalCount)
+    }
+}
