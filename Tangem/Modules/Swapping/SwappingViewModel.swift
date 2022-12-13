@@ -96,8 +96,10 @@ final class SwappingViewModel: ObservableObject {
 
     func userDidTapMainButton() {
         switch mainButtonState {
-        case .swap, .permitAndSwap:
+        case .permitAndSwap:
             break
+        case .swap:
+            swapItems()
         case .givePermission:
             openPermissionView()
         case .insufficientFunds:
@@ -141,28 +143,24 @@ private extension SwappingViewModel {
         )
     }
 
-    func openSuccessView() {
-        coordinator.presentSuccessView(fromCurrency: "ETH", toCurrency: "USDT")
+    func openSuccessView(
+        expectedModel: ExpectedSwappingResult,
+        transactionModel: ExchangeTransactionDataModel
+    ) {
+        coordinator.presentSuccessView(
+            fromCurrency: transactionModel.amount.description + " " + transactionModel.sourceCurrency.symbol,
+            toCurrency: expectedModel.expectedAmount.description + " " + transactionModel.destinationCurrency.symbol
+        )
     }
 
     func openPermissionView() {
         let state = exchangeManager.getAvailabilityState()
-        guard case let .requiredPermission(_, approvedData) = state,
-              let amount = sendDecimalValue else {
+        guard case let .requiredPermission(_, info) = state else {
             return
         }
 
-        let transactionInfo = ExchangeTransactionInfo(
-            currency: exchangeManager.getExchangeItems().source,
-            source: approvedData.tokenAddress,
-            destination: approvedData.spenderAddress,
-            amount: amount,
-            fee: approvedData.gasPrice,
-            oneInchTxData: approvedData.oneInchTxData
-        )
-
         coordinator.presentPermissionView(
-            transactionInfo: transactionInfo,
+            transactionInfo: info,
             transactionSender: transactionSender
         )
     }
@@ -265,18 +263,20 @@ private extension SwappingViewModel {
 
     func updateFeeValue(state: ExchangeAvailabilityState) {
         switch state {
-        case .idle, .requiredRefresh:
+        case .idle, .requiredRefresh, .preview:
             swappingFeeRowViewModel.update(state: .idle)
         case .loading:
             swappingFeeRowViewModel.update(state: .loading)
-        case let .preview(result),
-             let .available(result, _),
-             let .requiredPermission(result, _):
+        case let .available(result, info),
+             let .requiredPermission(result, info):
+
+            let fiatFee = info.fee * result.feeFiatRate
+
             swappingFeeRowViewModel.update(
                 state: .fee(
-                    fee: result.fee.groupedFormatted(maximumFractionDigits: result.decimalCount),
+                    fee: info.fee.groupedFormatted(maximumFractionDigits: result.decimalCount),
                     symbol: exchangeManager.getExchangeItems().source.symbol,
-                    fiat: result.fiatFee.currencyFormatted(code: AppSettings.shared.selectedCurrencyCode)
+                    fiat: fiatFee.currencyFormatted(code: AppSettings.shared.selectedCurrencyCode)
                 )
             )
         }
@@ -291,8 +291,16 @@ private extension SwappingViewModel {
             mainButtonIsEnabled = false
 
         case let .preview(result),
-             let .available(result, _),
-             let .requiredPermission(result, _):
+             let .available(result, _):
+            mainButtonIsEnabled = result.isEnoughAmountForExchange
+
+            if result.isEnoughAmountForExchange {
+                mainButtonState = .swap
+            } else {
+                mainButtonState = .insufficientFunds
+            }
+
+        case let .requiredPermission(result, _):
             mainButtonIsEnabled = result.isEnoughAmountForExchange
 
             if result.isEnoughAmountForExchange {
@@ -340,6 +348,27 @@ private extension SwappingViewModel {
                     symbol: currency.symbol
                 )
             )
+        }
+    }
+
+    // MARK: -
+
+    func swapItems() {
+        let state = exchangeManager.getAvailabilityState()
+        guard case let .available(result, info) = state else {
+            return
+        }
+
+        Task {
+            do {
+                try await transactionSender.sendExchangeTransaction(info)
+                openSuccessView(
+                    expectedModel: result,
+                    transactionModel: info
+                )
+            } catch {
+                assertionFailure(error.localizedDescription)
+            }
         }
     }
 }
