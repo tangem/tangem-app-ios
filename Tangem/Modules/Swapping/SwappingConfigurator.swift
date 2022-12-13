@@ -28,7 +28,7 @@ struct SwappingConfigurator {
         return SwappingViewModel(
             exchangeManager: exchangeManager,
             swappingDestinationService: factory.createSwappingDestinationService(walletModel: input.walletModel),
-            userCurrenciesProvider: factory.createUserWalletsListProvider(walletModel: input.walletModel),
+            userCurrenciesProvider: factory.createUserCurrenciesProvider(walletModel: input.walletModel),
             tokenIconURLBuilder: factory.createTokenIconURLBuilder(),
             transactionSender: factory.createTransactionSender(walletModel: input.walletModel, signer: input.signer),
             coordinator: coordinator
@@ -43,10 +43,12 @@ extension SwappingConfigurator {
         let source: Currency
         let destination: Currency?
 
-        init(walletModel: WalletModel,
-             signer: TransactionSigner,
-             source: Currency,
-             destination: Currency? = nil) {
+        init(
+            walletModel: WalletModel,
+            signer: TransactionSigner,
+            source: Currency,
+            destination: Currency? = nil
+        ) {
             self.walletModel = walletModel
             self.signer = signer
             self.source = source
