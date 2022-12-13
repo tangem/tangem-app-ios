@@ -39,7 +39,7 @@ struct DependenciesFactory {
         )
     }
 
-    func createUserWalletsListProvider(walletModel: WalletModel) -> UserCurrenciesProviding {
-        UserWalletListProvider(walletModel: walletModel)
+    func createUserCurrenciesProvider(walletModel: WalletModel) -> UserCurrenciesProviding {
+        UserCurrenciesProvider(walletModel: walletModel)
     }
 }
