@@ -62,13 +62,13 @@ extension OneInchExchangeProvider: ExchangeProvider {
 
         switch result {
         case .success(let exchangeData):
-            return ExchangeDataModel(exchangeData: exchangeData)
+            return try ExchangeDataModel(exchangeData: exchangeData)
         case .failure(let error):
             throw error
         }
     }
 
-    func fetchQuote(items: ExchangeItems, amount: String) async throws -> QuoteData {
+    func fetchQuote(items: ExchangeItems, amount: String) async throws -> QuoteDataModel {
         let parameters = QuoteParameters(
             fromTokenAddress: items.source.contractAddress ?? oneInchCoinContractAddress,
             toTokenAddress: items.destination?.contractAddress ?? oneInchCoinContractAddress,
@@ -79,7 +79,7 @@ extension OneInchExchangeProvider: ExchangeProvider {
 
         switch result {
         case .success(let quoteData):
-            return quoteData
+            return try QuoteDataModel(quoteData: quoteData)
         case .failure(let error):
             throw error
         }
@@ -100,7 +100,7 @@ extension OneInchExchangeProvider: ExchangeProvider {
 
         switch txResponse {
         case .success(let approveTxData):
-            return ExchangeApprovedDataModel(approveTxData: approveTxData)
+            return try ExchangeApprovedDataModel(approveTxData: approveTxData)
         case .failure(let error):
             throw error
         }
