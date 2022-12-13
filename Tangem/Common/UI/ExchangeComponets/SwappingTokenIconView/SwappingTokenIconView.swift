@@ -68,6 +68,11 @@ struct SwappingTokenIconView: View {
     private func icon(url: URL, size: CGSize) -> some View {
         KFImage(url)
             .setProcessor(DownsamplingImageProcessor(size: size))
+            .placeholder {
+                SkeletonView()
+                    .frame(size: size)
+                    .cornerRadius(size.height / 2)
+            }
             .fade(duration: 0.3)
             .cacheOriginalImage()
             .scaleFactor(UIScreen.main.scale)
