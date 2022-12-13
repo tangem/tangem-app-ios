@@ -40,6 +40,8 @@ extension BlockchainNetworkService: TangemExchange.BlockchainDataProvider {
     }
 
     func getBalance(currency: Currency) async throws -> Decimal {
+        let amountType: Amount.AmountType
+
         switch currency.currencyType {
         case .token:
             guard let token = currency.asToken() else {
@@ -47,21 +49,16 @@ extension BlockchainNetworkService: TangemExchange.BlockchainDataProvider {
                 return 0
             }
 
-            let amount = Amount.AmountType.token(value: token)
-            if let balance = walletModel.getDecimalBalance(for: amount) {
-                return balance
-            }
-
-            return try await getBalanceThroughUpdateWalletModel(amountType: amount)
-
+            amountType = Amount.AmountType.token(value: token)
         case .coin:
-            let amount = Amount.AmountType.coin
-            if let balance = walletModel.getDecimalBalance(for: amount) {
-                return balance
-            }
-
-            return try await getBalanceThroughUpdateWalletModel(amountType: amount)
+            amountType = Amount.AmountType.coin
         }
+
+        if let balance = walletModel.getDecimalBalance(for: amountType) {
+            return balance
+        }
+
+        return try await getBalanceThroughUpdateWalletModel(amountType: amountType)
     }
 
     func getFiatBalance(currency: Currency, amount: Decimal) async throws -> Decimal {
