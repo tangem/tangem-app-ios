@@ -12,8 +12,7 @@ import Foundation
 public struct TangemExchangeFactory {
     public init() {}
 
-    public func createExchangeManager<TxBuilder: TransactionBuilder>(
-        transactionBuilder: TxBuilder,
+    public func createExchangeManager(
         blockchainInfoProvider: BlockchainDataProvider,
         source: Currency,
         destination: Currency?,
@@ -25,7 +24,6 @@ public struct TangemExchangeFactory {
 
         return DefaultExchangeManager(
             exchangeProvider: provider,
-            transactionBuilder: transactionBuilder,
             blockchainInfoProvider: blockchainInfoProvider,
             exchangeItems: exchangeItems,
             amount: amount
