@@ -14,11 +14,11 @@ class DefaultExchangeManager<TxBuilder: TransactionBuilder> {
 
     private let exchangeProvider: ExchangeProvider
     private let transactionBuilder: TxBuilder
-    private let blockchainInfoProvider: BlockchainInfoProvider
+    private let blockchainDataProvider: BlockchainDataProvider
 
     // MARK: - Internal
 
-    private lazy var refreshDataTimer = Timer.publish(every: 10, on: .main, in: .common).autoconnect()
+    private lazy var refreshDataTimer = Timer.publish(every: 30, on: .main, in: .common).autoconnect()
 
     private var availabilityState: ExchangeAvailabilityState = .idle {
         didSet { delegate?.exchangeManager(self, didUpdate: availabilityState) }
@@ -27,9 +27,7 @@ class DefaultExchangeManager<TxBuilder: TransactionBuilder> {
         didSet { delegate?.exchangeManager(self, didUpdate: exchangeItems) }
     }
     private var tokenExchangeAllowanceLimit: Decimal? {
-        didSet {
-            delegate?.exchangeManager(self, didUpdate: isAvailableForExchange())
-        }
+        didSet {  delegate?.exchangeManager(self, didUpdate: isAvailableForExchange()) }
     }
 
     private weak var delegate: ExchangeManagerDelegate?
@@ -46,7 +44,7 @@ class DefaultExchangeManager<TxBuilder: TransactionBuilder> {
     }
 
     private var walletAddress: String? {
-        blockchainInfoProvider.getWalletAddress(currency: exchangeItems.source)
+        blockchainDataProvider.getWalletAddress(currency: exchangeItems.source)
     }
 
     private var refreshDataTimerBag: AnyCancellable?
@@ -55,13 +53,13 @@ class DefaultExchangeManager<TxBuilder: TransactionBuilder> {
     init(
         exchangeProvider: ExchangeProvider,
         transactionBuilder: TxBuilder,
-        blockchainInfoProvider: BlockchainInfoProvider,
+        blockchainInfoProvider: BlockchainDataProvider,
         exchangeItems: ExchangeItems,
         amount: Decimal? = nil
     ) {
         self.exchangeProvider = exchangeProvider
         self.transactionBuilder = transactionBuilder
-        self.blockchainInfoProvider = blockchainInfoProvider
+        self.blockchainDataProvider = blockchainInfoProvider
         self.exchangeItems = exchangeItems
         self.amount = amount
 
@@ -87,19 +85,13 @@ extension DefaultExchangeManager: ExchangeManager {
         return exchangeItems
     }
 
-    func getNetworksAvailableToExchange() -> [String] {
-        [exchangeItems.source.blockchain.networkId]
-    }
-
     func isAvailableForExchange() -> Bool {
-        guard exchangeItems.source.isToken else {
-            print("Unnecessary request available for exchange for coin")
+        guard exchangeItems.source.isToken, let amount, amount > 0 else {
             return true
         }
 
-        /// If we don't have values, `return true` for move view to default state
-        guard let tokenExchangeAllowanceLimit, let amount else {
-            return true
+        guard let tokenExchangeAllowanceLimit else {
+            return false
         }
 
         return amount <= tokenExchangeAllowanceLimit
@@ -138,6 +130,10 @@ private extension DefaultExchangeManager {
     func exchangeItemsDidChange() {
         /// Set nil for previous token
         tokenExchangeAllowanceLimit = nil
+        updateSourceBalances()
+
+        guard (amount ?? 0) > 0 else { return }
+
         restartTimer()
         refreshValues(silent: false)
     }
@@ -172,7 +168,7 @@ private extension DefaultExchangeManager {
     }
 }
 
-// MARK: - Request
+// MARK: - Requests
 
 private extension DefaultExchangeManager {
     func refreshValues(silent: Bool) {
@@ -187,8 +183,8 @@ private extension DefaultExchangeManager {
                 switch exchangeItems.source.currencyType {
                 case .coin:
                     if result.isEnoughAmountForExchange {
-                        let txData = try await getExchangeTxDataModel()
-                        updateState(.available(expected: result, txData: txData))
+                        let exchangeData = try await getExchangeTxDataModel()
+                        updateState(.available(expected: result, exchangeData: exchangeData))
                     } else {
                         updateState(.preview(expected: result))
                     }
@@ -230,7 +226,7 @@ private extension DefaultExchangeManager {
             amount: formattedAmount
         )
 
-        return try mapExpectedSwappingResult(from: quoteData)
+        return try await mapExpectedSwappingResult(from: quoteData)
     }
 
     func getExchangeApprovedDataModel() async throws -> ExchangeApprovedDataModel {
@@ -251,44 +247,51 @@ private extension DefaultExchangeManager {
     }
 
     func updateSourceBalances() {
-        let source = exchangeItems.source
-        let balance = blockchainInfoProvider.getBalance(currency: source)
-        var fiatBalance: Decimal = 0
-        if let amount = amount {
-            fiatBalance = blockchainInfoProvider.getFiatBalance(currency: source, amount: amount)
-        }
+        Task {
+            let source = exchangeItems.source
+            let balance = try await blockchainDataProvider.getBalance(currency: source)
+            var fiatBalance: Decimal = 0
+            if let amount = amount  {
+                fiatBalance = try await blockchainDataProvider.getFiatBalance(currency: source, amount: amount)
+            }
 
-        exchangeItems.sourceBalance = ExchangeItems.Balance(balance: balance, fiatBalance: fiatBalance)
+            exchangeItems.sourceBalance = ExchangeItems.Balance(balance: balance, fiatBalance: fiatBalance)
+        }
     }
 }
 
 // MARK: - Mapping
 
 private extension DefaultExchangeManager {
-    func mapExpectedSwappingResult(from quoteData: QuoteData) throws -> ExpectedSwappingResult {
-        guard let expectedAmount = Decimal(string: quoteData.toTokenAmount),
-              let amount else {
+    func mapExpectedSwappingResult(from quoteData: QuoteData) async throws -> ExpectedSwappingResult {
+        guard var paymentAmount = Decimal(string: quoteData.fromTokenAmount),
+              var expectedAmount = Decimal(string: quoteData.toTokenAmount) else {
             throw ExchangeManagerError.incorrectData
         }
 
+        var fee = Decimal(integerLiteral: quoteData.estimatedGas)
+
         let decimalValue = pow(10, exchangeItems.destination.decimalCount)
-        let expectedFiatAmount = blockchainInfoProvider.getFiatBalance(
+        fee /= decimalValue
+        paymentAmount /= decimalValue
+        expectedAmount /= decimalValue
+
+        let expectedFiatAmount = try await blockchainDataProvider.getFiatBalance(
             currency: exchangeItems.destination,
-            amount: expectedAmount / decimalValue
+            amount: expectedAmount
         )
 
-        let fee = Decimal(integerLiteral: quoteData.estimatedGas) / decimalValue
-        let fiatFee = blockchainInfoProvider.getFiatBalance(
+        let fiatFee = try await blockchainDataProvider.getFiatBalance(
             currency: exchangeItems.destination,
             amount: fee
         )
 
-        let isEnoughAmountForExchange = exchangeItems.sourceBalance.balance >= amount + fee
+        let isEnoughAmountForExchange = exchangeItems.sourceBalance.balance >= paymentAmount
 
         return ExpectedSwappingResult(
-            expectedAmount: expectedAmount / decimalValue,
+            expectedAmount: expectedAmount,
             expectedFiatAmount: expectedFiatAmount,
-            fee: fee / decimalValue,
+            fee: fee,
             fiatFee: fiatFee,
             decimalCount: quoteData.toToken.decimals,
             isEnoughAmountForExchange: isEnoughAmountForExchange
@@ -309,7 +312,7 @@ private extension DefaultExchangeManager {
     }
 
     func submitPermissionForToken(_ info: ExchangeTransactionInfo, gasPrice: Decimal) async throws {
-        let fees = try await blockchainInfoProvider.getFee(currency: info.currency, amount: info.amount, destination: info.destination)
+        let fees = try await blockchainDataProvider.getFee(currency: info.currency, amount: info.amount, destination: info.destination)
         let gasValue: Decimal = fees[1]
 
         let gas = gas(from: gasValue, price: gasPrice, decimalCount: info.currency.decimalCount)
