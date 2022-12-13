@@ -71,7 +71,7 @@ private extension SwappingPermissionViewModel {
                                 detailsType: .text(String(walletAddress))),
             DefaultRowViewModel(title: "swapping_permission_rows_spender".localized,
                                 detailsType: .text(String(spenderAddress))),
-            DefaultRowViewModel(title: "swapping_permission_rows_fee".localized,
+            DefaultRowViewModel(title: "send_fee_label".localized,
                                 detailsType: .text(fee)),
         ]
     }
