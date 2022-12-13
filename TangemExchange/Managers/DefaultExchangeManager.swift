@@ -9,11 +9,10 @@
 import Foundation
 import Combine
 
-class DefaultExchangeManager<TxBuilder: TransactionBuilder> {
+class DefaultExchangeManager {
     // MARK: - Dependencies
 
     private let exchangeProvider: ExchangeProvider
-    private let transactionBuilder: TxBuilder
     private let blockchainDataProvider: BlockchainDataProvider
 
     // MARK: - Internal
@@ -52,13 +51,11 @@ class DefaultExchangeManager<TxBuilder: TransactionBuilder> {
 
     init(
         exchangeProvider: ExchangeProvider,
-        transactionBuilder: TxBuilder,
         blockchainInfoProvider: BlockchainDataProvider,
         exchangeItems: ExchangeItems,
         amount: Decimal? = nil
     ) {
         self.exchangeProvider = exchangeProvider
-        self.transactionBuilder = transactionBuilder
         self.blockchainDataProvider = blockchainInfoProvider
         self.exchangeItems = exchangeItems
         self.amount = amount
@@ -191,9 +188,9 @@ private extension DefaultExchangeManager {
                 case .token:
                     await updateExchangeAmountAllowance()
                     let approvedDataModel = try await getExchangeApprovedDataModel()
-                    updateState(
-                        .requiredPermission(expected: result, approvedDataModel: approvedDataModel)
-                    )
+                    let spender = try await getApprovedSpenderAddress()
+                    let approvedData = try mapToApprovedData(approvedDataModel: approvedDataModel, spenderAddress: spender)
+                    updateState(.requiredPermission(expected: result, approvedData: approvedData))
                 }
             } catch {
                 updateState(.requiredRefresh(occurredError: error))
@@ -231,6 +228,10 @@ private extension DefaultExchangeManager {
 
     func getExchangeApprovedDataModel() async throws -> ExchangeApprovedDataModel {
         return try await exchangeProvider.fetchApproveExchangeData(for: exchangeItems.source)
+    }
+
+    func getApprovedSpenderAddress() async throws -> String {
+        return try await exchangeProvider.fetchSpenderAddress(for: exchangeItems.source)
     }
 
     func getExchangeTxDataModel() async throws -> ExchangeDataModel {
@@ -298,32 +299,25 @@ private extension DefaultExchangeManager {
             isEnoughAmountForExchange: isEnoughAmountForExchange
         )
     }
-}
 
-// MARK: - Sending API
+    func mapToApprovedData(approvedDataModel dataModel: ExchangeApprovedDataModel, spenderAddress: String) throws -> ApprovedData {
+        guard var gas = Decimal(string: dataModel.gasPrice),
+              let destination = exchangeItems.destination else {
+            throw ExchangeManagerError.incorrectData
+        }
 
-private extension DefaultExchangeManager {
-    func sendExchangeTransaction(_ info: ExchangeTransactionInfo, gasValue: Decimal, gasPrice: Decimal) async throws {
-        let gas = gas(from: gasValue, price: gasPrice, decimalCount: info.currency.decimalCount)
+        guard let walletAddress = walletAddress else {
+            throw ExchangeManagerError.walletAddressNotFound
+        }
 
-        let transaction = try transactionBuilder.buildTransaction(for: info, fee: gas)
-        let signedTransaction = try await transactionBuilder.sign(transaction)
+        let decimalValue = pow(10, destination.decimalCount)
+        gas /= decimalValue
 
-        return try await transactionBuilder.send(signedTransaction)
-    }
-
-    func submitPermissionForToken(_ info: ExchangeTransactionInfo, gasPrice: Decimal) async throws {
-        let fees = try await blockchainDataProvider.getFee(currency: info.currency, amount: info.amount, destination: info.destination)
-        let gasValue: Decimal = fees[1]
-
-        let gas = gas(from: gasValue, price: gasPrice, decimalCount: info.currency.decimalCount)
-        let transaction = try transactionBuilder.buildTransaction(for: info, fee: gas)
-        let signedTransaction = try await transactionBuilder.sign(transaction)
-
-        return try await transactionBuilder.send(signedTransaction)
-    }
-
-    func gas(from value: Decimal, price: Decimal, decimalCount: Int) -> Decimal {
-        value * price / Decimal(decimalCount)
+        return ApprovedData(
+            oneInchTxData: dataModel.data,
+            gasPrice: gas,
+            spenderAddress: spenderAddress,
+            tokenAddress: walletAddress
+        )
     }
 }

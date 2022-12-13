@@ -7,7 +7,7 @@
 //
 
 import Combine
-import SwiftUI
+import TangemExchange
 
 final class SwappingPermissionViewModel: ObservableObject, Identifiable {
     /// For SwiftUI sheet logic
@@ -17,32 +17,40 @@ final class SwappingPermissionViewModel: ObservableObject, Identifiable {
 
     @Published var contentRowViewModels: [DefaultRowViewModel] = []
 
-    let smartContractNetworkName: String
+    var tokenSymbol: String {
+        transactionInfo.currency.symbol
+    }
 
     // MARK: - Dependencies
 
-    private let amount: Decimal
-    private let yourWalletAddress: String
-    private let spenderWalletAddress: String
-    private let fee: Decimal
+    private let transactionInfo: ExchangeTransactionInfo
+    private let transactionSender: TransactionSenderProtocol
     private unowned let coordinator: SwappingPermissionRoutable
 
     init(
-        inputModel: InputModel,
+        transactionInfo: ExchangeTransactionInfo,
+        transactionSender: TransactionSenderProtocol,
         coordinator: SwappingPermissionRoutable
     ) {
-        self.smartContractNetworkName = inputModel.smartContractNetworkName
-        self.amount = inputModel.amount
-        self.yourWalletAddress = inputModel.yourWalletAddress
-        self.spenderWalletAddress = inputModel.spenderWalletAddress
-        self.fee = inputModel.fee
+        self.transactionInfo = transactionInfo
+        self.transactionSender = transactionSender
         self.coordinator = coordinator
 
         setupView()
     }
 
     func didTapApprove() {
-        coordinator.userDidApprove()
+        Task {
+            do {
+                try await transactionSender.sendPermissionTransaction(transactionInfo, gasPrice: transactionInfo.fee)
+                DispatchQueue.main.async {
+                    self.coordinator.userDidApprove()
+                }
+            } catch {
+                assertionFailure(error.localizedDescription)
+                // [REDACTED_TODO_COMMENT]
+            }
+        }
     }
 
     func didTapCancel() {
@@ -52,25 +60,19 @@ final class SwappingPermissionViewModel: ObservableObject, Identifiable {
 
 private extension SwappingPermissionViewModel {
     func setupView() {
-        contentRowViewModels = [
-            DefaultRowViewModel(title: "swapping_permission_rows_amount".localized(smartContractNetworkName),
-                                detailsType: .text(amount.groupedFormatted())),
-            DefaultRowViewModel(title: "swapping_permission_rows_your_wallet".localized,
-                                detailsType: .text(yourWalletAddress)),
-            DefaultRowViewModel(title: "swapping_permission_rows_spender".localized,
-                                detailsType: .text(spenderWalletAddress)),
-            DefaultRowViewModel(title: "swapping_permission_rows_fee".localized,
-                                detailsType: .text(fee.currencyFormatted(code: AppSettings.shared.selectedCurrencyCode))),
-        ]
-    }
-}
+        let walletAddress = transactionInfo.source.prefix(8) + "..." + transactionInfo.source.suffix(8)
+        let spenderAddress = transactionInfo.destination.prefix(8) + "..." + transactionInfo.destination.suffix(8)
 
-extension SwappingPermissionViewModel {
-    struct InputModel {
-        let smartContractNetworkName: String
-        let amount: Decimal
-        let yourWalletAddress: String
-        let spenderWalletAddress: String
-        let fee: Decimal
+        let fee = transactionInfo.fee.groupedFormatted(maximumFractionDigits: transactionInfo.currency.decimalCount)
+        contentRowViewModels = [
+            DefaultRowViewModel(title: "swapping_permission_rows_amount".localized(tokenSymbol),
+                                detailsType: .icon(Assets.infinityMini)),
+            DefaultRowViewModel(title: "swapping_permission_rows_your_wallet".localized,
+                                detailsType: .text(String(walletAddress))),
+            DefaultRowViewModel(title: "swapping_permission_rows_spender".localized,
+                                detailsType: .text(String(spenderAddress))),
+            DefaultRowViewModel(title: "swapping_permission_rows_fee".localized,
+                                detailsType: .text(fee)),
+        ]
     }
 }
