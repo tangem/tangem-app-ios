@@ -37,7 +37,7 @@ final class SwappingViewModel: ObservableObject {
     // MARK: - Dependencies
 
     private let exchangeManager: ExchangeManager
-    private let swappingDestinationService: SwappingDestinationServing
+    private let swappingDestinationService: SwappingDestinationServicing
     private let userCurrenciesProvider: UserCurrenciesProviding
     private let tokenIconURLBuilder: TokenIconURLBuilding
     private unowned let coordinator: SwappingRoutable
@@ -48,7 +48,7 @@ final class SwappingViewModel: ObservableObject {
 
     init(
         exchangeManager: ExchangeManager,
-        swappingDestinationService: SwappingDestinationServing,
+        swappingDestinationService: SwappingDestinationServicing,
         userCurrenciesProvider: UserCurrenciesProviding,
         tokenIconURLBuilder: TokenIconURLBuilding,
         coordinator: SwappingRoutable
