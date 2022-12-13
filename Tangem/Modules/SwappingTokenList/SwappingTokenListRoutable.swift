@@ -7,7 +7,8 @@
 //
 
 import Foundation
+import TangemExchange
 
 protocol SwappingTokenListRoutable: AnyObject {
-    func userDidTap(coinModel: CoinModel)
+    func userDidTap(currency: Currency)
 }
