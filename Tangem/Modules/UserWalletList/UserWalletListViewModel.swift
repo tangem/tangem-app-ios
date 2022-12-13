@@ -25,16 +25,7 @@ final class UserWalletListViewModel: ObservableObject, Identifiable {
     // MARK: - Dependencies
 
     var unlockAllButtonTitle: String {
-        switch BiometricAuthorizationUtils.biometryType {
-        case .faceID:
-            return "user_wallet_list_unlock_all_face_id".localized
-        case .touchID:
-            return "user_wallet_list_unlock_all_touch_id".localized
-        case .none:
-            return ""
-        @unknown default:
-            return ""
-        }
+        "user_wallet_list_unlock_all".localized(BiometricAuthorizationUtils.biometryType.name)
     }
 
     var isLocked: Bool {
