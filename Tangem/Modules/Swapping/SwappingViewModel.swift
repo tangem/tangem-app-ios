@@ -37,6 +37,7 @@ final class SwappingViewModel: ObservableObject {
     // MARK: - Dependencies
 
     private let exchangeManager: ExchangeManager
+    private let userCurrenciesProvider: UserCurrenciesProviding
     private let tokenIconURLBuilder: TokenIconURLBuilding
     private unowned let coordinator: SwappingRoutable
 
@@ -46,10 +47,12 @@ final class SwappingViewModel: ObservableObject {
 
     init(
         exchangeManager: ExchangeManager,
+        userCurrenciesProvider: UserCurrenciesProviding,
         tokenIconURLBuilder: TokenIconURLBuilding,
         coordinator: SwappingRoutable
     ) {
         self.exchangeManager = exchangeManager
+        self.userCurrenciesProvider = userCurrenciesProvider
         self.tokenIconURLBuilder = tokenIconURLBuilder
         self.coordinator = coordinator
 
@@ -58,21 +61,44 @@ final class SwappingViewModel: ObservableObject {
         exchangeManager.setDelegate(self)
     }
 
-    func userDidTapSwapButton() {}
+    func userDidRequestChangeDestination(to currency: Currency) {
+        var items = exchangeManager.getExchangeItems()
+        items.destination = currency
+
+        exchangeManager.update(exchangeItems: items)
+    }
+
+    func userDidTapSwapExchangeItemsButton() {
+        var items = exchangeManager.getExchangeItems()
+        let source = items.source
+
+        items.source = items.destination
+        items.destination = source
+
+        exchangeManager.update(exchangeItems: items)
+    }
 
     func userDidTapChangeDestinationButton() {
         openTokenListView()
     }
 
-    func userDidTapMainButton() {}
+    func userDidTapMainButton() {
+        // [REDACTED_TODO_COMMENT]
+    }
 }
 
 // MARK: - Navigation
 
 private extension SwappingViewModel {
     func openTokenListView() {
-        coordinator.presentExchangeableTokenListView(
-            networkIds: exchangeManager.getNetworksAvailableToExchange()
+        let source = exchangeManager.getExchangeItems().source
+        let userCurrencies = userCurrenciesProvider.getCurrencies(
+            blockchain: source.blockchain
+        )
+
+        coordinator.presentSwappingTokenList(
+            sourceCurrency: source,
+            userCurrencies: userCurrencies
         )
     }
 
@@ -208,14 +234,17 @@ private extension SwappingViewModel {
 
     func updateMainButton(state: ExchangeAvailabilityState) {
         switch state {
-        case .idle, .loading, .requiredRefresh:
+        case .idle:
             mainButtonIsEnabled = false
             mainButtonState = .swap
+        case .loading, .requiredRefresh:
+            mainButtonIsEnabled = false
 
         case let .preview(result),
              let .available(result, _),
              let .requiredPermission(result, _):
             mainButtonIsEnabled = result.isEnoughAmountForExchange
+
             if result.isEnoughAmountForExchange {
                 mainButtonState = .givePermission
             } else {
