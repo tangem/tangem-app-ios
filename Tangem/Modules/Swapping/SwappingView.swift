@@ -118,6 +118,7 @@ struct SwappingView_Preview: PreviewProvider {
         swappingDestinationService: SwappingDestinationServiceMock(),
         userCurrenciesProvider: UserCurrenciesProviderMock(),
         tokenIconURLBuilder: TokenIconURLBuilderMock(),
+        transactionSender: TransactionSenderMock(),
         coordinator: SwappingCoordinator()
     )
 
