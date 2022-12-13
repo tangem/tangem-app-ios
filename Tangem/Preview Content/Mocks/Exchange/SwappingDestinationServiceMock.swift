@@ -8,7 +8,7 @@
 
 import TangemExchange
 
-struct SwappingDestinationServiceMock: SwappingDestinationServing {
+struct SwappingDestinationServiceMock: SwappingDestinationServicing {
     func getDestination(source: Currency) async throws -> Currency {
         .mock
     }
