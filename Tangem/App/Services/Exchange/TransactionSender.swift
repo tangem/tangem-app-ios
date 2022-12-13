@@ -30,21 +30,13 @@ struct TransactionSender {
 // MARK: - TransactionSenderProtocol
 
 extension TransactionSender: TransactionSenderProtocol {
-    func sendExchangeTransaction(_ info: ExchangeTransactionInfo, gasValue: Decimal, gasPrice: Decimal) async throws {
-        let gas = gas(from: gasValue, price: gasPrice, decimalCount: info.currency.decimalCount)
-
-        let transaction = try buildTransaction(for: info, fee: gas)
-
+    func sendExchangeTransaction(_ info: ExchangeTransactionDataModel) async throws {
+        let transaction = try buildTransaction(for: info)
         return try await send(transaction)
     }
 
-    func sendPermissionTransaction(_ info: ExchangeTransactionInfo, gasPrice: Decimal) async throws {
-        let fees = try await getFee(currency: info.currency, amount: info.amount, destination: info.destination)
-        let gasValue: Decimal = fees[1]
-
-        let gas = gas(from: gasValue, price: gasPrice, decimalCount: info.currency.decimalCount)
-        let transaction = try buildTransaction(for: info, fee: info.fee)
-
+    func sendPermissionTransaction(_ info: ExchangeTransactionDataModel) async throws {
+        let transaction = try buildTransaction(for: info)
         return try await send(transaction)
     }
 }
@@ -52,40 +44,26 @@ extension TransactionSender: TransactionSenderProtocol {
 // MARK: - Private
 
 private extension TransactionSender {
-    func buildTransaction(for info: ExchangeTransactionInfo, fee: Decimal) throws -> Transaction {
-        let amount = createAmount(from: info.currency, amount: info.amount)
-        let fee = createAmount(from: info.currency, amount: fee)
+    func buildTransaction(for info: ExchangeTransactionDataModel) throws -> Transaction {
+        let amount = createAmount(from: info.sourceCurrency, amount: info.amount / info.sourceCurrency.decimalValue)
+        let fee = try createAmount(from: info.destinationCurrency.blockchain, amount: info.fee)
 
         var transaction = try walletManager.createTransaction(
             amount: amount,
             fee: fee,
-            destinationAddress: info.destination,
-            sourceAddress: info.source,
-            changeAddress: nil // For what?
+            destinationAddress: info.destinationAddress,
+            sourceAddress: info.sourceAddress
         )
 
-        transaction.params = EthereumTransactionParams(data: info.oneInchTxData)
+        transaction.params = EthereumTransactionParams(data: info.txData, gasLimit: info.gasValue)
 
         print("transaction", transaction)
-
 
         return transaction
     }
 
     func send(_ transaction: Transaction) async throws {
         try await walletManager.send(transaction, signer: signer).async()
-    }
-
-    func getFee(currency: Currency, amount: Decimal, destination: String) async throws -> [Decimal] {
-        let amount = createAmount(from: currency, amount: amount)
-
-        let fees = try await walletManager.getFee(amount: amount, destination: destination).async()
-        return fees.map { $0.value }
-    }
-
-    func gas(from value: Decimal, price: Decimal, decimalCount: Int) -> Decimal {
-        let decimalValue = pow(10, decimalCount)
-        return value * price / decimalValue
     }
 
     func createAmount(from currency: Currency, amount: Decimal) -> Amount {
@@ -99,5 +77,13 @@ private extension TransactionSender {
             value: amount,
             decimals: currency.decimalCount
         )
+    }
+
+    func createAmount(from exchangeBlockchain: ExchangeBlockchain, amount: Decimal) throws -> Amount {
+        guard let blockchain = Blockchain(from: exchangeBlockchain.networkId) else {
+            throw CommonError.noData
+        }
+
+        return Amount(with: blockchain, value: amount)
     }
 }

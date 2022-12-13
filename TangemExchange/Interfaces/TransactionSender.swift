@@ -9,6 +9,6 @@
 import Foundation
 
 public protocol TransactionSenderProtocol {
-    func sendExchangeTransaction(_ info: ExchangeTransactionInfo, gasValue: Decimal, gasPrice: Decimal) async throws
-    func sendPermissionTransaction(_ info: ExchangeTransactionInfo, gasPrice: Decimal) async throws
+    func sendExchangeTransaction(_ info: ExchangeTransactionDataModel) async throws
+    func sendPermissionTransaction(_ info: ExchangeTransactionDataModel) async throws
 }

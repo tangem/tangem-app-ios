@@ -18,17 +18,17 @@ final class SwappingPermissionViewModel: ObservableObject, Identifiable {
     @Published var contentRowViewModels: [DefaultRowViewModel] = []
 
     var tokenSymbol: String {
-        transactionInfo.currency.symbol
+        transactionInfo.sourceCurrency.symbol
     }
 
     // MARK: - Dependencies
 
-    private let transactionInfo: ExchangeTransactionInfo
+    private let transactionInfo: ExchangeTransactionDataModel
     private let transactionSender: TransactionSenderProtocol
     private unowned let coordinator: SwappingPermissionRoutable
 
     init(
-        transactionInfo: ExchangeTransactionInfo,
+        transactionInfo: ExchangeTransactionDataModel,
         transactionSender: TransactionSenderProtocol,
         coordinator: SwappingPermissionRoutable
     ) {
@@ -42,7 +42,7 @@ final class SwappingPermissionViewModel: ObservableObject, Identifiable {
     func didTapApprove() {
         Task {
             do {
-                try await transactionSender.sendPermissionTransaction(transactionInfo, gasPrice: transactionInfo.fee)
+                try await transactionSender.sendPermissionTransaction(transactionInfo)
                 DispatchQueue.main.async {
                     self.coordinator.userDidApprove()
                 }
@@ -60,10 +60,13 @@ final class SwappingPermissionViewModel: ObservableObject, Identifiable {
 
 private extension SwappingPermissionViewModel {
     func setupView() {
-        let walletAddress = transactionInfo.source.prefix(8) + "..." + transactionInfo.source.suffix(8)
-        let spenderAddress = transactionInfo.destination.prefix(8) + "..." + transactionInfo.destination.suffix(8)
+        let walletAddress = transactionInfo.sourceAddress.prefix(8) + "..." + transactionInfo.sourceAddress.suffix(8)
+        let spenderAddress = transactionInfo.destinationAddress.prefix(8) + "..." + transactionInfo.destinationAddress.suffix(8)
 
-        let fee = transactionInfo.fee.groupedFormatted(maximumFractionDigits: transactionInfo.currency.decimalCount)
+        let fee = transactionInfo.fee.groupedFormatted(
+            maximumFractionDigits: transactionInfo.sourceCurrency.decimalCount
+        )
+
         contentRowViewModels = [
             DefaultRowViewModel(title: "swapping_permission_rows_amount".localized(tokenSymbol),
                                 detailsType: .icon(Assets.infinityMini)),
