@@ -8,6 +8,7 @@
 
 import Foundation
 import Combine
+import TangemExchange
 
 class SwappingCoordinator: CoordinatorObject {
     let dismissAction: Action
@@ -25,6 +26,10 @@ class SwappingCoordinator: CoordinatorObject {
 
     // MARK: - Child view models
 
+    // MARK: - Properties
+
+    private let factory = DependenciesFactory()
+
     required init(
         dismissAction: @escaping Action,
         popToRootAction: @escaping ParamsAction<PopToRootOptions>
@@ -34,7 +39,7 @@ class SwappingCoordinator: CoordinatorObject {
     }
 
     func start(with options: Options) {
-        rootViewModel = SwappingConfigurator().createModule(input: options.input, coordinator: self)
+        rootViewModel = SwappingConfigurator(factory: factory).createModule(input: options.input, coordinator: self)
     }
 }
 
@@ -49,8 +54,16 @@ extension SwappingCoordinator {
 // MARK: - SwappingRoutable
 
 extension SwappingCoordinator: SwappingRoutable {
-    func presentExchangeableTokenListView(networkIds: [String]) {
-        swappingTokenListViewModel = SwappingTokenListViewModel(networkIds: networkIds, coordinator: self)
+    func presentSwappingTokenList(
+        sourceCurrency: Currency,
+        userCurrencies: [Currency]
+    ) {
+        swappingTokenListViewModel = SwappingTokenListViewModel(
+            sourceCurrency: sourceCurrency,
+            userCurrencies: userCurrencies,
+            tokenIconURLBuilder: factory.createTokenIconURLBuilder(),
+            coordinator: self
+        )
     }
 
     func presentPermissionView(inputModel: SwappingPermissionViewModel.InputModel) {
@@ -69,8 +82,9 @@ extension SwappingCoordinator: SwappingRoutable {
 // MARK: - SwappingTokenListRoutable
 
 extension SwappingCoordinator: SwappingTokenListRoutable {
-    func userDidTap(coinModel: CoinModel) {
+    func userDidTap(currency: Currency) {
         swappingTokenListViewModel = nil
+        rootViewModel?.userDidRequestChangeDestination(to: currency)
     }
 }
 
