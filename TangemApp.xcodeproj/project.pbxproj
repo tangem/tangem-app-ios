@@ -670,7 +670,7 @@
 		EF7BD11028B8B321001B2D59 /* CommonUserWalletModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF7BD10F28B8B321001B2D59 /* CommonUserWalletModel.swift */; };
 		EF80842E293DE3D9000D91EA /* ExchangeManagerUtil.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF80842D293DE3D9000D91EA /* ExchangeManagerUtil.swift */; };
 		EF808434293F38CE000D91EA /* UserCurrenciesProviding.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF808433293F38CE000D91EA /* UserCurrenciesProviding.swift */; };
-		EF808436293F39D6000D91EA /* UserWalletListProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF808435293F39D6000D91EA /* UserWalletListProvider.swift */; };
+		EF808436293F39D6000D91EA /* UserCurrenciesProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF808435293F39D6000D91EA /* UserCurrenciesProvider.swift */; };
 		EF808438293F3A6D000D91EA /* CurrencyMapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF808437293F3A6D000D91EA /* CurrencyMapper.swift */; };
 		EF80843A293F6708000D91EA /* SwappingDestinationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF808439293F6708000D91EA /* SwappingDestinationService.swift */; };
 		EF80843E293F698F000D91EA /* ExchangeManagerMock.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF80843D293F698F000D91EA /* ExchangeManagerMock.swift */; };
@@ -1538,7 +1538,7 @@
 		EF7BD10F28B8B321001B2D59 /* CommonUserWalletModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonUserWalletModel.swift; sourceTree = "<group>"; };
 		EF80842D293DE3D9000D91EA /* ExchangeManagerUtil.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExchangeManagerUtil.swift; sourceTree = "<group>"; };
 		EF808433293F38CE000D91EA /* UserCurrenciesProviding.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserCurrenciesProviding.swift; sourceTree = "<group>"; };
-		EF808435293F39D6000D91EA /* UserWalletListProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserWalletListProvider.swift; sourceTree = "<group>"; };
+		EF808435293F39D6000D91EA /* UserCurrenciesProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserCurrenciesProvider.swift; sourceTree = "<group>"; };
 		EF808437293F3A6D000D91EA /* CurrencyMapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CurrencyMapper.swift; sourceTree = "<group>"; };
 		EF808439293F6708000D91EA /* SwappingDestinationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwappingDestinationService.swift; sourceTree = "<group>"; };
 		EF80843D293F698F000D91EA /* ExchangeManagerMock.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExchangeManagerMock.swift; sourceTree = "<group>"; };
@@ -1594,7 +1594,6 @@
 		EFF253B1293DCAA900AEF302 /* SwappingFeeRowViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SwappingFeeRowViewModel.swift; sourceTree = "<group>"; };
 		EFF253B2293DCAA900AEF302 /* SwappingFeeRowView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SwappingFeeRowView.swift; sourceTree = "<group>"; };
 		EFF5CF1928C796B1000EE8DB /* Alpha.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Alpha.xcconfig; sourceTree = "<group>"; };
-		EFF70FE22941D4920000532E /* Int+.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Int+.swift"; sourceTree = "<group>"; };
 		EFFC860B28BCE87700F863CE /* TokenItemsRepositoryMigrator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TokenItemsRepositoryMigrator.swift; sourceTree = "<group>"; };
 		EFFC860C28BCE87700F863CE /* LegacyCardMigrator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LegacyCardMigrator.swift; sourceTree = "<group>"; };
 		EFFC861228BCF6C500F863CE /* StorageEntry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StorageEntry.swift; sourceTree = "<group>"; };
@@ -3389,7 +3388,6 @@
 		EF29BEF029349C1A00D7C782 /* Extensions */ = {
 			isa = PBXGroup;
 			children = (
-				EFF70FE22941D4920000532E /* Int+.swift */,
 				EF29BEF129349C2900D7C782 /* Data+.swift */,
 				EF29BEEE292FC8C100D7C782 /* MoyaProvider+AsyncRequest.swift */,
 				EF29BEF329349F4200D7C782 /* Moya.Task+.swift */,
@@ -3481,8 +3479,7 @@
 			children = (
 				E966EFB1291C4A5900504AD8 /* BlockchainNetworkService.swift */,
 				EF808439293F6708000D91EA /* SwappingDestinationService.swift */,
-				EF808435293F39D6000D91EA /* UserWalletsListProvider.swift */,
-				EF808435293F39D6000D91EA /* UserWalletListProvider.swift */,
+				EF808435293F39D6000D91EA /* UserCurrenciesProvider.swift */,
 				EF808437293F3A6D000D91EA /* CurrencyMapper.swift */,
 			);
 			path = Exchange;
@@ -3759,7 +3756,6 @@
 				EF808446293F6C27000D91EA /* TokenIconURLBuilderMock.swift */,
 				EF80843D293F698F000D91EA /* ExchangeManagerMock.swift */,
 				EF80843F293F69C7000D91EA /* Currency+Mock.swift */,
-				EF45E044293F74EB00C7090F /* UserWalletsListProviderMock.swift */,
 				EF8F2351294098C80046F4C0 /* SwappingDestinationServiceMock.swift */,
 				EF45E044293F74EB00C7090F /* UserCurrenciesProviderMock.swift */,
 			);
@@ -4389,7 +4385,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "# check if directory exists then add it to path\nif [ -d ~/.mint/bin ]; then\n    echo \"Adding ~/.mint/bin to PATH\"\n    export PATH=~/.mint/bin:$PATH\nelse\n  echo \"~/.mint/bin folder is missing\"\nfi\n\n# check if swiftgen tool can be found.\nif [ $(command -v swiftformat) ]; then\n    if [ ${ENABLE_PREVIEWS} == \"NO\" ]; then \n        echo \"🚀 Running SwiftFormat\"\n        swiftformat . --config .swiftformat\n    fi\nelse\n  echo \"SwiftFormat tool is missing\"\n  exit 1\nfi\n";
+			shellScript = "PATH=$PATH:/opt/homebrew/bin\n\n# check if directory exists then add it to path\nif [ -d ~/.mint/bin ]; then\n    echo \"Adding ~/.mint/bin to PATH\"\n    export PATH=~/.mint/bin:$PATH\nelse\n  echo \"~/.mint/bin folder is missing\"\nfi\n\n# check if swiftgen tool can be found.\nif [ ${ENABLE_PREVIEWS} == \"NO\" ]; then \n    echo \"🚀 Running SwiftFormat\"\n    mint run swiftformat@0.49.11 . --config .swiftformat\nfi\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 
@@ -4400,7 +4396,7 @@
 			files = (
 				EF9CFC12288FECE100329BE0 /* ScanCardSettingsView.swift in Sources */,
 				EFE23ABB292B8D1800A3C554 /* SwappingPermissionRoutable.swift in Sources */,
-				EF808436293F39D6000D91EA /* UserWalletListProvider.swift in Sources */,
+				EF808436293F39D6000D91EA /* UserCurrenciesProvider.swift in Sources */,
 				DCE5C66C28898B7F000C7F67 /* TangemApiService.swift in Sources */,
 				5DDFC2042812B72C005976FE /* Currency.swift in Sources */,
 				5D09382825E7A2D80049B8F0 /* TokenDetailsView.swift in Sources */,
