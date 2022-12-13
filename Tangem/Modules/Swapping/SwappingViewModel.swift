@@ -40,6 +40,7 @@ final class SwappingViewModel: ObservableObject {
     private let swappingDestinationService: SwappingDestinationServing
     private let userCurrenciesProvider: UserCurrenciesProviding
     private let tokenIconURLBuilder: TokenIconURLBuilding
+    private let transactionSender: TransactionSenderProtocol
     private unowned let coordinator: SwappingRoutable
 
     // MARK: - Private
@@ -51,12 +52,14 @@ final class SwappingViewModel: ObservableObject {
         swappingDestinationService: SwappingDestinationServing,
         userCurrenciesProvider: UserCurrenciesProviding,
         tokenIconURLBuilder: TokenIconURLBuilding,
+        transactionSender: TransactionSenderProtocol,
         coordinator: SwappingRoutable
     ) {
         self.exchangeManager = exchangeManager
         self.swappingDestinationService = swappingDestinationService
         self.userCurrenciesProvider = userCurrenciesProvider
         self.tokenIconURLBuilder = tokenIconURLBuilder
+        self.transactionSender = transactionSender
         self.coordinator = coordinator
 
         setupView()
@@ -92,7 +95,15 @@ final class SwappingViewModel: ObservableObject {
     }
 
     func userDidTapMainButton() {
-        // [REDACTED_TODO_COMMENT]
+        switch mainButtonState {
+        case .swap, .permitAndSwap:
+            break
+        case .givePermission:
+            openPermissionView()
+        case .insufficientFunds:
+            assertionFailure("Button should be disabled")
+            break
+        }
     }
 
     func loadDestinationIfNeeded() {
@@ -135,14 +146,25 @@ private extension SwappingViewModel {
     }
 
     func openPermissionView() {
-        let inputModel = SwappingPermissionViewModel.InputModel(
-            smartContractNetworkName: "DAI",
-            amount: 1000,
-            yourWalletAddress: "0x6B175474E89094C44Da98b954EedeAC495271d0F",
-            spenderWalletAddress: "0x6B175474E89094C44Da98b954EedeAC495271d0F",
-            fee: 2.14
+        let state = exchangeManager.getAvailabilityState()
+        guard case let .requiredPermission(_, approvedData) = state,
+              let amount = sendDecimalValue else {
+            return
+        }
+
+        let transactionInfo = ExchangeTransactionInfo(
+            currency: exchangeManager.getExchangeItems().source,
+            source: approvedData.tokenAddress,
+            destination: approvedData.spenderAddress,
+            amount: amount,
+            fee: approvedData.gasPrice,
+            oneInchTxData: approvedData.oneInchTxData
         )
-        coordinator.presentPermissionView(inputModel: inputModel)
+
+        coordinator.presentPermissionView(
+            transactionInfo: transactionInfo,
+            transactionSender: transactionSender
+        )
     }
 }
 
