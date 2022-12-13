@@ -49,30 +49,22 @@ struct SwappingTokenIconView: View {
     private var mainContent: some View {
         switch viewModel.state {
         case .loading:
-            skeleton
+            VStack(spacing: 4) {
+                SkeletonView()
+                    .frame(size: imageSize)
+                    .cornerRadius(imageSize.height / 2)
+
+                SkeletonView()
+                    .frame(width: 30, height: 14)
+            }
 
         case let .loaded(imageURL, networkURL, symbol):
-            content(imageURL: imageURL, networkURL: networkURL, symbol: symbol)
-        }
-    }
+            VStack(spacing: 4) {
+                image(imageURL: imageURL, networkURL: networkURL)
 
-    private var skeleton: some View {
-        VStack(spacing: 4) {
-            SkeletonView()
-                .frame(size: imageSize)
-                .cornerRadius(imageSize.height / 2)
-
-            SkeletonView()
-                .frame(width: 30, height: 14)
-        }
-    }
-
-    private func content(imageURL: URL, networkURL: URL?, symbol: String) -> some View {
-        VStack(spacing: 4) {
-            image(imageURL: imageURL, networkURL: networkURL)
-
-            Text(symbol)
-                .style(Fonts.Bold.footnote, color: Colors.Text.primary1)
+                Text(symbol)
+                    .style(Fonts.Bold.footnote, color: Colors.Text.primary1)
+            }
         }
     }
 
