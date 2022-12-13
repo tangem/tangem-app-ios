@@ -101,10 +101,10 @@ extension SingleCardOnboardingStep: OnboardingMessagesProvider {
     var title: LocalizedStringKey? {
         switch self {
         case .welcome: return WelcomeStep.welcome.title
-        case .createWallet: return "onboarding_create_title"
+        case .createWallet: return "onboarding_create_wallet_button_create_wallet"
         case .topup: return "onboarding_topup_title"
         case .saveUserWallet: return nil
-        case .successTopup: return "onboarding_confetti_title"
+        case .successTopup: return "onboarding_done_header"
         case .success: return successTitle
         }
     }
@@ -112,11 +112,11 @@ extension SingleCardOnboardingStep: OnboardingMessagesProvider {
     var subtitle: LocalizedStringKey? {
         switch self {
         case .welcome: return WelcomeStep.welcome.subtitle
-        case .createWallet: return "onboarding_create_subtitle"
-        case .topup: return "onboarding_topup_subtitle"
+        case .createWallet: return "onboarding_create_wallet_body"
+        case .topup: return "onboarding_top_up_body"
         case .saveUserWallet: return nil
-        case .successTopup: return "onboarding_confetti_subtitle"
-        case .success: return "onboarding_confetti_subtitle"
+        case .successTopup: return "onboarding_done_body"
+        case .success: return "onboarding_done_body"
         }
     }
 
@@ -132,8 +132,8 @@ extension SingleCardOnboardingStep: OnboardingMessagesProvider {
 extension SingleCardOnboardingStep: OnboardingButtonsInfoProvider {
     var mainButtonTitle: LocalizedStringKey {
         switch self {
-        case .createWallet: return "onboarding_button_create_wallet"
-        case .topup: return "onboarding_button_buy_crypto"
+        case .createWallet: return "onboarding_create_wallet_button_create_wallet"
+        case .topup: return "onboarding_top_up_button_but_crypto"
         case .successTopup: return "common_continue"
         case .welcome: return WelcomeStep.welcome.mainButtonTitle
         case .saveUserWallet: return BiometricAuthorizationUtils.allowButtonLocalizationKey
@@ -151,8 +151,8 @@ extension SingleCardOnboardingStep: OnboardingButtonsInfoProvider {
     var supplementButtonTitle: LocalizedStringKey {
         switch self {
         case .welcome: return WelcomeStep.welcome.supplementButtonTitle
-        case .createWallet: return "onboarding_button_how_it_works"
-        case .topup: return "onboarding_button_show_address_qr"
+        case .createWallet: return "onboarding_button_what_does_it_mean"
+        case .topup: return "onboarding_top_up_button_show_wallet_address"
         case .successTopup, .saveUserWallet, .success: return ""
         }
     }
