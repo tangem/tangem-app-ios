@@ -11,5 +11,5 @@ import TangemExchange
 
 struct UserCurrenciesProviderMock: UserCurrenciesProviding {
     func getCurrencies(blockchain: ExchangeBlockchain) -> [Currency] { [.mock] }
-    func addCurrencyInList(currency: Currency) {}
+    func add(currency: Currency) {}
 }
