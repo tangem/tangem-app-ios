@@ -7,7 +7,6 @@
 //
 
 import SwiftUI
-import BlockchainSdk
 
 struct SwappingTokenListView: View {
     @ObservedObject private var viewModel: SwappingTokenListViewModel
@@ -26,10 +25,10 @@ struct SwappingTokenListView: View {
                         .listRowInsets(.init(top: 8, leading: horizontalInset, bottom: 8, trailing: horizontalInset))
                 }
 
-                GroupedSection(viewModel.yourItems) {
+                GroupedSection(viewModel.userItems) {
                     SwappingTokenItemView(viewModel: $0)
                 } header: {
-                    Text("your tokens".uppercased())
+                    Text("swapping_token_list_your_tokens".localized.uppercased())
                         .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
                 }
                 .separatorPadding(68)
@@ -37,7 +36,7 @@ struct SwappingTokenListView: View {
                 GroupedSection(viewModel.otherItems) {
                     SwappingTokenItemView(viewModel: $0)
                 } header: {
-                    Text("other tokens".uppercased())
+                    Text("swapping_token_list_other_tokens".localized.uppercased())
                         .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
                 }
                 .separatorPadding(68)
@@ -49,20 +48,8 @@ struct SwappingTokenListView: View {
                 }
             }
             .searchableCompat(text: $viewModel.searchText.value)
-            .navigationBarTitle(Text("Choose token"), displayMode: .inline)
-        }
-    }
-}
-
-struct SwappingTokenListView_Preview: PreviewProvider {
-    static let viewModel = SwappingTokenListViewModel(
-        networkIds: Blockchain.supportedBlockchains.map { $0.networkId },
-        coordinator: SwappingCoordinator()
-    )
-
-    static var previews: some View {
-        NavigationView {
-            SwappingTokenListView(viewModel: viewModel)
+            .navigationBarTitle(Text("swapping_token_list_your_title".localized), displayMode: .inline)
+            .onAppear(perform: viewModel.onAppear)
         }
     }
 }
