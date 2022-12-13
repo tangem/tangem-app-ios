@@ -36,16 +36,16 @@ struct TokenDetailsView: View {
                 action: viewModel.tradeCryptoAction
             )
             .actionSheet(isPresented: $viewModel.showTradeSheet, content: {
-                ActionSheet(title: Text("action_sheet_trade_hint"),
+                ActionSheet(title: Text("wallet_choose_trade_action"),
                             buttons: [
-                                .default(Text("wallet_button_topup"), action: viewModel.openBuyCryptoIfPossible),
-                                .default(Text("wallet_button_sell_crypto"), action: viewModel.openSellCrypto),
+                                .default(Text("wallet_button_buy"), action: viewModel.openBuyCryptoIfPossible),
+                                .default(Text("wallet_button_sell"), action: viewModel.openSellCrypto),
                                 .cancel(),
                             ])
             })
         } else if viewModel.canSellCrypto {
             MainButton(
-                title: "wallet_button_sell_crypto".localized,
+                title: "wallet_button_sell".localized,
                 icon: .leading(Assets.arrowDownMini),
                 isDisabled: !viewModel.canSellCrypto,
                 action: viewModel.openSellCrypto
@@ -53,7 +53,7 @@ struct TokenDetailsView: View {
         } else {
             // Keep the BUY button last so that it will appear when everything is disabled
             MainButton(
-                title: "wallet_button_topup".localized,
+                title: "wallet_button_buy".localized,
                 icon: .leading(Assets.arrowUpMini),
                 isDisabled: !viewModel.canBuyCrypto,
                 action: viewModel.openBuyCryptoIfPossible
@@ -155,7 +155,7 @@ struct TokenDetailsView: View {
     @ViewBuilder
     private var trailingButton: some View {
         Button(action: viewModel.onRemove) {
-            Text("wallet_hide_token")
+            Text("token_details_hide_token")
                 .foregroundColor(.tangemGrayDark6)
                 .font(.system(size: 17))
         }
