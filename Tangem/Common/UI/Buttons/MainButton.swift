@@ -66,7 +66,7 @@ struct MainButton: View {
                 .frame(maxWidth: .infinity, alignment: .center)
                 .padding(.vertical, 14)
                 .background(style.background(isDisabled: isDisabled))
-                .cornerRadius(14)
+                .cornerRadiusContinuous(14)
                 .contentShape(Rectangle())
         }
         .disabled(isDisabled)
