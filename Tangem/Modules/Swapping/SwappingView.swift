@@ -64,7 +64,7 @@ struct SwappingView: View {
             if viewModel.isLoading {
                 ProgressViewCompat(color: Colors.Icon.informative)
             } else {
-                Button(action: viewModel.userDidTapSwapButton) {
+                Button(action: viewModel.userDidTapSwapExchangeItemsButton) {
                     Assets.swappingIcon
                         .resizable()
                         .frame(width: 20, height: 20)
@@ -115,6 +115,7 @@ struct SwappingView: View {
 struct SwappingView_Preview: PreviewProvider {
     static let viewModel = SwappingViewModel(
         exchangeManager: ExchangeManagerMock(),
+        userCurrenciesProvider: UserCurrenciesProviderMock(),
         tokenIconURLBuilder: TokenIconURLBuilderMock(),
         coordinator: SwappingCoordinator()
     )

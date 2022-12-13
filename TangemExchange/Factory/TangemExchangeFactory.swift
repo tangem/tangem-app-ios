@@ -14,7 +14,7 @@ public struct TangemExchangeFactory {
 
     public func createExchangeManager<TxBuilder: TransactionBuilder>(
         transactionBuilder: TxBuilder,
-        blockchainInfoProvider: BlockchainInfoProvider,
+        blockchainInfoProvider: BlockchainDataProvider,
         source: Currency,
         destination: Currency,
         amount: Decimal? = nil

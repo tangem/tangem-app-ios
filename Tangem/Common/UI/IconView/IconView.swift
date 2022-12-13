@@ -14,7 +14,7 @@ struct IconView: View {
     private let name: String
     private let size: CGSize
 
-    init(url: URL?, name: String, size: CGSize = CGSize(width: 46, height: 46)) {
+    init(url: URL?, name: String, size: CGSize = CGSize(width: 36, height: 36)) {
         self.url = url
         self.name = name
         self.size = size
