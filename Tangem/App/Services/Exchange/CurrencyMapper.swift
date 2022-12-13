@@ -13,6 +13,8 @@ protocol CurrencyMapping {
     func mapToCurrency(token: Token, blockchain: Blockchain) -> Currency?
     func mapToCurrency(blockchain: Blockchain) -> Currency?
     func mapToCurrency(coinModel: CoinModel) -> Currency?
+
+    func mapToToken(currency: Currency) -> Token?
 }
 
 struct CurrencyMapper: CurrencyMapping {
@@ -65,5 +67,19 @@ struct CurrencyMapper: CurrencyMapping {
             assertionFailure("CoinModel haven't items")
             return nil
         }
+    }
+
+    func mapToToken(currency: Currency) -> Token? {
+        guard let contractAddress = currency.contractAddress else {
+            return nil
+        }
+
+        return Token(
+            name: currency.name,
+            symbol: currency.symbol,
+            contractAddress: contractAddress,
+            decimalCount: currency.decimalCount,
+            id: currency.id
+        )
     }
 }
