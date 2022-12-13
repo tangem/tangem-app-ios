@@ -43,7 +43,7 @@ enum WalletOnboardingStep: Equatable {
         case .kycStart, .kycProgress, .kycWaiting, .kycRetry:
             return "onboarding_navbar_kyc_progress"
         case .claim, .successClaim:
-            return "onboarding_navbar_claim"
+            return "onboarding_getting_started"
         }
     }
 
@@ -94,7 +94,7 @@ extension WalletOnboardingStep: OnboardingMessagesProvider, SuccessStep {
     var title: LocalizedStringKey? {
         switch self {
         case .welcome: return WelcomeStep.welcome.title
-        case .createWallet: return "onboarding_button_create_wallet"
+        case .createWallet: return "onboarding_create_wallet_button_create_wallet"
         case .scanPrimaryCard: return "onboarding_title_scan_origin_card"
         case .backupIntro: return "onboarding_title_backup_card"
         case .selectBackupCards: return "onboarding_title_no_backup_cards"
@@ -119,7 +119,7 @@ extension WalletOnboardingStep: OnboardingMessagesProvider, SuccessStep {
     var subtitle: LocalizedStringKey? {
         switch self {
         case .welcome: return WelcomeStep.welcome.subtitle
-        case .createWallet: return "onboarding_create_subtitle"
+        case .createWallet: return "onboarding_create_wallet_body"
         case .scanPrimaryCard: return "onboarding_subtitle_scan_primary"
         case .backupIntro: return "onboarding_subtitle_backup_card"
         case .selectBackupCards: return "onboarding_subtitle_no_backup_cards"
@@ -170,7 +170,7 @@ extension WalletOnboardingStep: OnboardingButtonsInfoProvider {
     var supplementButtonTitle: LocalizedStringKey {
         switch self {
         case .welcome: return WelcomeStep.welcome.supplementButtonTitle
-        case .createWallet: return "onboarding_button_how_it_works"
+        case .createWallet: return "onboarding_button_what_does_it_mean"
         case .backupIntro: return "onboarding_button_skip_backup"
         case .selectBackupCards: return "onboarding_button_finalize_backup"
         case .kycWaiting: return  "onboarding_button_kyc_waiting"
