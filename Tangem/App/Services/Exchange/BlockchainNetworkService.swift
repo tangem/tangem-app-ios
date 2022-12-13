@@ -41,7 +41,7 @@ extension BlockchainNetworkService: TangemExchange.BlockchainDataProvider {
 
     func getBalance(currency: Currency) async throws -> Decimal {
         let amountType: Amount.AmountType
-        
+
         switch currency.currencyType {
         case .token:
             guard let token = currency.asToken() else {
@@ -53,7 +53,7 @@ extension BlockchainNetworkService: TangemExchange.BlockchainDataProvider {
         case .coin:
             amountType = Amount.AmountType.coin
         }
-        
+
         if let balance = walletModel.getDecimalBalance(for: amountType) {
             return balance
         }
