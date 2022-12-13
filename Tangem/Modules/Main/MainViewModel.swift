@@ -214,26 +214,6 @@ class MainViewModel: ObservableObject {
             .store(in: &bag)
     }
 
-    func updateContent() {
-        updateIsBackupAllowed()
-        loadImage()
-
-        if cardModel.isMultiWallet {
-            multiWalletContentViewModel = MultiWalletContentViewModel(
-                cardModel: cardModel,
-                userWalletModel: userWalletModel,
-                userTokenListManager: userWalletModel.userTokenListManager,
-                output: self
-            )
-        } else {
-            singleWalletContentViewModel = SingleWalletContentViewModel(
-                cardModel: cardModel,
-                userWalletModel: userWalletModel,
-                output: self
-            )
-        }
-    }
-
     func updateIsBackupAllowed() {
         if isBackupAllowed != cardModel.canCreateBackup {
             isBackupAllowed = cardModel.canCreateBackup
@@ -405,6 +385,26 @@ class MainViewModel: ObservableObject {
     }
 
     // MARK: - Private functions
+
+    private func updateContent() {
+        updateIsBackupAllowed()
+        loadImage()
+
+        if cardModel.isMultiWallet {
+            multiWalletContentViewModel = MultiWalletContentViewModel(
+                cardModel: cardModel,
+                userWalletModel: userWalletModel,
+                userTokenListManager: userWalletModel.userTokenListManager,
+                output: self
+            )
+        } else {
+            singleWalletContentViewModel = SingleWalletContentViewModel(
+                cardModel: cardModel,
+                userWalletModel: userWalletModel,
+                output: self
+            )
+        }
+    }
 
     private func setError(_ error: AlertBinder?) {
         if self.error != nil {
