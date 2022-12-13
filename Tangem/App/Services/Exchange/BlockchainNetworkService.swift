@@ -62,11 +62,15 @@ extension BlockchainNetworkService: TangemExchange.BlockchainDataProvider {
     }
 
     func getFiatBalance(currency: Currency, amount: Decimal) async throws -> Decimal {
-        if let fiat = getFiatBalanceFromWalletModel(currency: currency, amount: amount) {
-            return fiat
-        }
+//        if let fiat = getFiatBalanceFromWalletModel(currency: currency, amount: amount) {
+//            return fiat
+//        }
 
         return try await getFiatBalanceThroughLoadRates(currency: currency, amount: amount)
+    }
+
+    func getFiatRateForFee(currency: Currency) async throws -> Decimal {
+        try await getFiatRate(currency: currency)
     }
 }
 
@@ -118,11 +122,11 @@ private extension BlockchainNetworkService {
     }
 
     func getFiatBalanceThroughLoadRates(currency: Currency, amount: Decimal) async throws -> Decimal {
-        let id = currency.isToken ? currency.id : currency.blockchain.networkId
+        let id = currency.isToken ? currency.id : currency.blockchain.id
         var currencyRate = rates[id]
 
         if currencyRate == nil {
-            let loadedRates = try await tangemApiService.loadRates(for: [currency.id]).async()
+            let loadedRates = try await tangemApiService.loadRates(for: [id]).async()
             currencyRate = loadedRates[id]
         }
 
@@ -137,5 +141,21 @@ private extension BlockchainNetworkService {
         }
 
         return max(fiatValue, 0.01).rounded(scale: 2, roundingMode: .plain)
+    }
+
+    func getFiatRate(currency: Currency) async throws -> Decimal {
+        let id = currency.blockchain.id
+        var currencyRate = rates[id]
+
+        if currencyRate == nil {
+            let loadedRates = try await tangemApiService.loadRates(for: [id]).async()
+            currencyRate = loadedRates[id]
+        }
+
+        guard let currencyRate else {
+            throw CommonError.noData
+        }
+
+        return currencyRate
     }
 }
