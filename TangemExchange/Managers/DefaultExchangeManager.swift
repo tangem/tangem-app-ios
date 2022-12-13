@@ -26,7 +26,10 @@ class DefaultExchangeManager {
         didSet { delegate?.exchangeManager(self, didUpdate: exchangeItems) }
     }
     private var tokenExchangeAllowanceLimit: Decimal? {
-        didSet {  delegate?.exchangeManager(self, didUpdate: isAvailableForExchange()) }
+        didSet {
+            print("tokenExchangeAllowanceLimit", tokenExchangeAllowanceLimit)
+            delegate?.exchangeManager(self, didUpdate: isAvailableForExchange())
+        }
     }
 
     private weak var delegate: ExchangeManagerDelegate?
@@ -37,8 +40,7 @@ class DefaultExchangeManager {
             return ""
         }
 
-        let decimalValue = pow(10, exchangeItems.source.decimalCount)
-        amount *= decimalValue
+        amount *= exchangeItems.source.decimalValue
         return String(describing: amount)
     }
 
@@ -175,22 +177,32 @@ private extension DefaultExchangeManager {
 
         Task {
             do {
-                let result = try await getExpectedSwappingResult()
+                let quoteData = try await getQuoteDataModel()
+                let result = try await mapExpectedSwappingResult(from: quoteData)
 
                 switch exchangeItems.source.currencyType {
                 case .coin:
                     if result.isEnoughAmountForExchange {
                         let exchangeData = try await getExchangeTxDataModel()
-                        updateState(.available(expected: result, exchangeData: exchangeData))
+                        let info = try mapToExchangeTransactionInfo(exchangeData: exchangeData)
+                        updateState(.available(expected: result, info: info))
                     } else {
                         updateState(.preview(expected: result))
                     }
                 case .token:
                     await updateExchangeAmountAllowance()
-                    let approvedDataModel = try await getExchangeApprovedDataModel()
-                    let spender = try await getApprovedSpenderAddress()
-                    let approvedData = try mapToApprovedData(approvedDataModel: approvedDataModel, spenderAddress: spender)
-                    updateState(.requiredPermission(expected: result, approvedData: approvedData))
+                    if result.isEnoughAmountForExchange {
+                        let approvedDataModel = try await getExchangeApprovedDataModel()
+                        let spender = try await getApprovedSpenderAddress()
+                        let info = try mapToExchangeTransactionInfo(
+                            quoteData: quoteData,
+                            approvedData: approvedDataModel,
+                            spenderAddress: spender
+                        )
+                        updateState(.requiredPermission(expected: result, info: info))
+                    } else {
+                        updateState(.preview(expected: result))
+                    }
                 }
             } catch {
                 updateState(.requiredRefresh(occurredError: error))
@@ -217,13 +229,11 @@ private extension DefaultExchangeManager {
         }
     }
 
-    func getExpectedSwappingResult() async throws -> ExpectedSwappingResult {
-        let quoteData = try await exchangeProvider.fetchQuote(
+    func getQuoteDataModel() async throws -> QuoteDataModel {
+        try await exchangeProvider.fetchQuote(
             items: exchangeItems,
             amount: formattedAmount
         )
-
-        return try await mapExpectedSwappingResult(from: quoteData)
     }
 
     func getExchangeApprovedDataModel() async throws -> ExchangeApprovedDataModel {
@@ -236,7 +246,6 @@ private extension DefaultExchangeManager {
 
     func getExchangeTxDataModel() async throws -> ExchangeDataModel {
         guard let walletAddress else {
-            print("walletAddress not found")
             throw ExchangeManagerError.walletAddressNotFound
         }
 
@@ -264,60 +273,71 @@ private extension DefaultExchangeManager {
 // MARK: - Mapping
 
 private extension DefaultExchangeManager {
-    func mapExpectedSwappingResult(from quoteData: QuoteData) async throws -> ExpectedSwappingResult {
-        guard var paymentAmount = Decimal(string: quoteData.fromTokenAmount),
-              var expectedAmount = Decimal(string: quoteData.toTokenAmount),
-              let destination = exchangeItems.destination else {
-            throw ExchangeManagerError.incorrectData
+    func mapExpectedSwappingResult(from quoteData: QuoteDataModel) async throws -> ExpectedSwappingResult {
+        guard let destination = exchangeItems.destination else {
+            throw ExchangeManagerError.destinationNotFound
         }
 
-        var fee = Decimal(integerLiteral: quoteData.estimatedGas)
-
-        let decimalValue = pow(10, destination.decimalCount)
-        fee /= decimalValue
-        paymentAmount /= decimalValue
-        expectedAmount /= decimalValue
+        let paymentAmount = quoteData.fromTokenAmount / destination.decimalValue
+        let expectedAmount = quoteData.toTokenAmount / destination.decimalValue
 
         let expectedFiatAmount = try await blockchainDataProvider.getFiatBalance(
             currency: destination,
             amount: expectedAmount
         )
 
-        let fiatFee = try await blockchainDataProvider.getFiatBalance(
-            currency: destination,
-            amount: fee
-        )
+        let feeFiatRate = try await blockchainDataProvider.getFiatRateForFee(currency: destination)
 
         let isEnoughAmountForExchange = exchangeItems.sourceBalance.balance >= paymentAmount
 
         return ExpectedSwappingResult(
             expectedAmount: expectedAmount,
             expectedFiatAmount: expectedFiatAmount,
-            fee: fee,
-            fiatFee: fiatFee,
-            decimalCount: quoteData.toToken.decimals,
+            feeFiatRate: feeFiatRate,
+            decimalCount: exchangeItems.source.decimalCount,
             isEnoughAmountForExchange: isEnoughAmountForExchange
         )
     }
 
-    func mapToApprovedData(approvedDataModel dataModel: ExchangeApprovedDataModel, spenderAddress: String) throws -> ApprovedData {
-        guard var gas = Decimal(string: dataModel.gasPrice),
-              let destination = exchangeItems.destination else {
-            throw ExchangeManagerError.incorrectData
+    func mapToExchangeTransactionInfo(exchangeData: ExchangeDataModel) throws -> ExchangeTransactionDataModel {
+        guard let destination = exchangeItems.destination else {
+            throw ExchangeManagerError.destinationNotFound
+        }
+
+        return ExchangeTransactionDataModel(
+            sourceCurrency: exchangeItems.source,
+            destinationCurrency: destination,
+            sourceAddress: exchangeData.sourceAddress,
+            destinationAddress: exchangeData.destinationAddress,
+            txData: exchangeData.txData,
+            amount: exchangeData.fromTokenAmount,
+            gasValue: exchangeData.gas,
+            gasPrice: exchangeData.gasPrice
+        )
+    }
+
+    func mapToExchangeTransactionInfo(
+        quoteData: QuoteDataModel,
+        approvedData: ExchangeApprovedDataModel,
+        spenderAddress: String
+    ) throws -> ExchangeTransactionDataModel {
+        guard let destination = exchangeItems.destination else {
+            throw ExchangeManagerError.destinationNotFound
         }
 
         guard let walletAddress = walletAddress else {
             throw ExchangeManagerError.walletAddressNotFound
         }
 
-        let decimalValue = pow(10, destination.decimalCount)
-        gas /= decimalValue
-
-        return ApprovedData(
-            oneInchTxData: dataModel.data,
-            gasPrice: gas,
-            spenderAddress: spenderAddress,
-            tokenAddress: walletAddress
+        return ExchangeTransactionDataModel(
+            sourceCurrency: exchangeItems.source,
+            destinationCurrency: destination,
+            sourceAddress: walletAddress,
+            destinationAddress: spenderAddress,
+            txData: approvedData.data,
+            amount: approvedData.value,
+            gasValue: quoteData.estimatedGas,
+            gasPrice: approvedData.gasPrice
         )
     }
 }
