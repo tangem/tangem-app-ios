@@ -1,5 +1,5 @@
 //
-//  ExchangeAvailabilityState.swift
+//  ExpectedSwappingResult.swift
 //  TangemExchange
 //
 //  Created by [REDACTED_AUTHOR]
@@ -7,15 +7,6 @@
 //
 
 import Foundation
-
-public enum ExchangeAvailabilityState {
-    case idle
-    case loading
-    case preview(expected: ExpectedSwappingResult)
-    case available(expected: ExpectedSwappingResult, exchangeData: ExchangeDataModel)
-    case requiredPermission(expected: ExpectedSwappingResult, approvedDataModel: ExchangeApprovedDataModel)
-    case requiredRefresh(occurredError: Error)
-}
 
 public struct ExpectedSwappingResult {
     public let expectedAmount: Decimal
