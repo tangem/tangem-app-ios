@@ -13,6 +13,15 @@ import Combine
 import TangemSdk
 import BlockchainSdk
 
+/// Some dApps sending version of sign typed data. This data are supported by our default data handler.
+/// Soon we will need to migrate to WC 2.0 and we will need to update the WC pod to v2. I think WC protocols
+/// in new version of framework already changed, so I guess no need to spend much time on refactoring our current solution
+/// this small fix enough for now
+/// [REDACTED_TODO_COMMENT]
+class SignTypedDataHandlerV4: SignTypedDataHandler {
+    override var action: WalletConnectAction { .signTypedDataV4 }
+}
+
 class SignTypedDataHandler: WalletConnectSignHandler {
 
     override var action: WalletConnectAction { .signTypedData }
