@@ -29,6 +29,7 @@ struct StoriesBottomButtons: View {
             MainButton(
                 title: "home_button_order".localized,
                 style: orderColorStyle,
+                isDisabled: isScanning,
                 action: orderCard
             )
         }
