@@ -188,12 +188,8 @@ extension LegacyConfig: UserWalletConfig {
             return .available
         case .topup:
             return .available
-        case .tokenSynchronization:
-            if isMultiwallet {
-                return .available
-            } else {
-                return .hidden
-            }
+        case .tokenSynchronization, .swapping:
+            return isMultiwallet ? .available : .hidden
         case .referralProgram:
             return .hidden
         }
