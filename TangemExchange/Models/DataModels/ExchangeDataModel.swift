@@ -14,15 +14,18 @@ public struct ExchangeDataModel {
     public let gasPrice: Int
     public let txData: Data
 
-    public let destinationAddress: String
     public let sourceAddress: String
-    public let fromTokenAmount: Decimal
-    public let toTokenAmount: Decimal
+    public let destinationAddress: String
 
-    /// contract?
-    public let fromTokenAddress: String?
-    /// contract?
-    public let toTokenAddress: String?
+    /// GWEI
+    public let sourceTokenAmount: Decimal
+    /// GWEI
+    public let destinationTokenAmount: Decimal
+
+    /// Contract address
+    public let sourceTokenAddress: String?
+    /// Contract address
+    public let destinationTokenAddress: String?
 
     public init(exchangeData: ExchangeData) throws {
         guard let gasPrice = Int(exchangeData.tx.gasPrice),
@@ -33,13 +36,13 @@ public struct ExchangeDataModel {
 
         self.gas = exchangeData.tx.gas
         self.gasPrice = gasPrice
-        self.fromTokenAmount = fromTokenAmount
-        self.toTokenAmount = toTokenAmount
+        self.sourceTokenAmount = fromTokenAmount
+        self.destinationTokenAmount = toTokenAmount
 
         txData = Data(hexString: exchangeData.tx.data)
-        destinationAddress = exchangeData.tx.to
         sourceAddress = exchangeData.tx.from
-        fromTokenAddress = exchangeData.fromToken.address
-        toTokenAddress = exchangeData.toToken.address
+        destinationAddress = exchangeData.tx.to
+        sourceTokenAddress = exchangeData.fromToken.address
+        destinationTokenAddress = exchangeData.toToken.address
     }
 }

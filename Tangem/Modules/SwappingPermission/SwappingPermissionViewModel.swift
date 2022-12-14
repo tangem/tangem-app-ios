@@ -45,7 +45,7 @@ final class SwappingPermissionViewModel: ObservableObject, Identifiable {
             do {
                 try await transactionSender.sendTransaction(transactionInfo)
                 DispatchQueue.main.async {
-                    self.coordinator.approveTransactionHasSuccessfulSent()
+                    self.coordinator.didSendApproveTransaction()
                 }
             } catch TangemSdkError.userCancelled {
                 // Do nothing
@@ -64,8 +64,8 @@ final class SwappingPermissionViewModel: ObservableObject, Identifiable {
 private extension SwappingPermissionViewModel {
     func setupView() {
         /// Addresses have to the same width for both
-        let walletAddress = transactionInfo.sourceAddress.prefix(8) + "..." + transactionInfo.sourceAddress.suffix(8)
-        let spenderAddress = transactionInfo.destinationAddress.prefix(8) + "..." + transactionInfo.destinationAddress.suffix(8)
+        let walletAddress = AddressFormatter(address: transactionInfo.sourceAddress).truncated()
+        let spenderAddress = AddressFormatter(address: transactionInfo.destinationAddress).truncated()
 
         let fee = transactionInfo.fee.groupedFormatted(
             maximumFractionDigits: transactionInfo.sourceCurrency.decimalCount

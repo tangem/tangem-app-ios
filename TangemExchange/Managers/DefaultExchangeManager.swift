@@ -187,11 +187,10 @@ private extension DefaultExchangeManager {
                         let exchangeData = try await getExchangeTxDataModel()
                         let info = try mapToExchangeTransactionInfo(exchangeData: exchangeData)
                         updateState(.available(expected: result, info: info))
-                    } else {
-                        updateState(.preview(expected: result))
                     }
                 case .token:
                     await updateExchangeAmountAllowance()
+
                     if result.isEnoughAmountForExchange {
                         let approvedDataModel = try await getExchangeApprovedDataModel()
                         let spender = try await getApprovedSpenderAddress()
@@ -201,10 +200,10 @@ private extension DefaultExchangeManager {
                             spenderAddress: spender
                         )
                         updateState(.requiredPermission(expected: result, info: info))
-                    } else {
-                        updateState(.preview(expected: result))
                     }
                 }
+
+                updateState(.preview(expected: result))
             } catch {
                 updateState(.requiredRefresh(occurredError: error))
             }
@@ -311,7 +310,7 @@ private extension DefaultExchangeManager {
             sourceAddress: exchangeData.sourceAddress,
             destinationAddress: exchangeData.destinationAddress,
             txData: exchangeData.txData,
-            amount: exchangeData.fromTokenAmount,
+            amount: exchangeData.sourceTokenAmount,
             gasValue: exchangeData.gas,
             gasPrice: exchangeData.gasPrice
         )
