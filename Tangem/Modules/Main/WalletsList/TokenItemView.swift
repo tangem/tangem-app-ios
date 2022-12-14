@@ -55,7 +55,7 @@ struct TokenItemView: View {
                         .multilineTextAlignment(.trailing)
                         .truncationMode(.middle)
                         .fixedSize(horizontal: false, vertical: true)
-                        .skeletonable(isShown: item.isLoading, size: CGSize(width: 50, height: 11))
+                        .skeletonable(isShown: item.isLoading, size: CGSize(width: 50, height: 13))
                 }
                 .lineLimit(2)
                 .minimumScaleFactor(0.8)
