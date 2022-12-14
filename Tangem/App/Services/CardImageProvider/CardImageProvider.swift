@@ -13,13 +13,11 @@ import Kingfisher
 
 struct CardImageProvider {
     private static var cardArtworkCache: [String: CardArtwork] = [:]
-    private static var imageCache = NSCache<NSString, UIImage>()
 
     @Injected(\.cardImageLoader) private var imageLoader: CardImageLoaderProtocol
 
     private let supportsOnlineImage: Bool
     private let defaultImage = UIImage(named: "dark_card")!
-    private let cacheQueue = DispatchQueue(label: "card_image_cache_queue")
 
     private let cardVerifier: OnlineCardVerifier
     private let kingfisherCache = KingfisherManager.shared.cache
