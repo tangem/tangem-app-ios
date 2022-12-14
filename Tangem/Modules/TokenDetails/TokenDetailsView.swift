@@ -164,7 +164,7 @@ struct TokenDetailsView: View {
 
     @ViewBuilder
     var exchangeButton: some View {
-        if let exchangeButton = viewModel.exchangeButton {
+        if let exchangeButton = viewModel.exchangeVariations.single {
             MainButton(
                 title: exchangeButton.title,
                 icon: .leading(exchangeButton.icon),
@@ -172,7 +172,7 @@ struct TokenDetailsView: View {
             ) {
                 viewModel.didTapExchangeButtonAction(type: exchangeButton)
             }
-        } else if viewModel.exchangeVariations != nil {
+        } else {
             MainButton(
                 title: "wallet_button_trade".localized,
                 icon: .leading(Assets.exchangeIcon)
