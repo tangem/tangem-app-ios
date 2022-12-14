@@ -115,6 +115,7 @@ struct SwappingView: View {
 struct SwappingView_Preview: PreviewProvider {
     static let viewModel = SwappingViewModel(
         exchangeManager: ExchangeManagerMock(),
+        swappingDestinationService: SwappingDestinationServiceMock(),
         userCurrenciesProvider: UserCurrenciesProviderMock(),
         tokenIconURLBuilder: TokenIconURLBuilderMock(),
         coordinator: SwappingCoordinator()
