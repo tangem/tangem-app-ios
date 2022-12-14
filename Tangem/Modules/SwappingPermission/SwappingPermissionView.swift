@@ -62,6 +62,7 @@ struct SwappingPermissionView: View {
                 action: viewModel.didTapCancel
             )
         }
+        /// This fixed text font in the cancel button, it shrink with no reason
         .minimumScaleFactor(1)
         .padding(.horizontal, 16)
     }
