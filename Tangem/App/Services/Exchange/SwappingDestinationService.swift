@@ -40,7 +40,7 @@ extension SwappingDestinationService: SwappingDestinationServicing {
 
         case .coin:
             var preferredToken: Token?
-            
+
             for preferred in PreferredTokenSymbol.allCases {
                 if let token = walletModel.getTokens().first(where: { $0.symbol == preferred.rawValue }) {
                     preferredToken = token

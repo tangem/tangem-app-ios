@@ -552,7 +552,7 @@ extension TokenDetailsViewModel {
             case .buy:
                 return "wallet_button_buy".localized
             case .sell:
-                return "wallet_button_sell_crypto".localized
+                return "wallet_button_sell".localized
             case .swap:
                 return "swapping_swap".localized
             }
