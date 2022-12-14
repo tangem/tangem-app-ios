@@ -442,7 +442,7 @@ class WalletOnboardingViewModel: OnboardingTopupViewModel<WalletOnboardingStep, 
     private func loadImageForRestoredbackup(cardId: String, cardPublicKey: Data) {
         CardImageProvider()
             .loadImage(cardId: cardId, cardPublicKey: cardPublicKey)
-            .map { Image(uiImage: $0.image) }
+            .map { $0.image }
             .weakAssign(to: \.cardImage, on: self)
             .store(in: &bag)
     }
