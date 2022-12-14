@@ -144,6 +144,8 @@ extension NoteConfig: UserWalletConfig {
             return .hidden
         case .referralProgram:
             return .hidden
+        case .swapping:
+            return .hidden
         }
     }
 
