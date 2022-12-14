@@ -156,10 +156,6 @@ class TokenDetailsViewModel: ObservableObject {
         return "wallet_currency_subtitle".localized(blockchainNetwork.blockchain.displayName)
     }
 
-    var swappingIsAvailable: Bool {
-        FeatureProvider.isAvailable(.exchange) && canSwap
-    }
-
     @Published var solanaRentWarning: String? = nil
     let amountType: Amount.AmountType
     let blockchainNetwork: BlockchainNetwork
@@ -522,9 +518,11 @@ extension TokenDetailsViewModel {
 
 private extension TokenDetailsViewModel {
     var canSwap: Bool {
-        ExchangeManagerUtil().isNetworkAvailableForExchange(
-            networkId: blockchainNetwork.blockchain.networkId
-        )
+        FeatureProvider.isAvailable(.exchange) &&
+            card.supportsSwapping &&
+            ExchangeManagerUtil().isNetworkAvailableForExchange(
+                networkId: blockchainNetwork.blockchain.networkId
+            )
     }
 
     var sourceCurrency: Currency? {
