@@ -30,6 +30,7 @@ final class SwappingTokenListViewModel: ObservableObject, Identifiable {
     // MARK: - Dependencies
 
     private let tokenIconURLBuilder: TokenIconURLBuilding
+    private let currencyMapper: CurrencyMapping
     private unowned let coordinator: SwappingTokenListRoutable
 
     private let sourceCurrency: Currency
@@ -41,11 +42,13 @@ final class SwappingTokenListViewModel: ObservableObject, Identifiable {
         sourceCurrency: Currency,
         userCurrencies: [Currency],
         tokenIconURLBuilder: TokenIconURLBuilding,
+        currencyMapper: CurrencyMapping,
         coordinator: SwappingTokenListRoutable
     ) {
         self.sourceCurrency = sourceCurrency
         self.userCurrencies = userCurrencies
         self.tokenIconURLBuilder = tokenIconURLBuilder
+        self.currencyMapper = currencyMapper
         self.coordinator = coordinator
 
         setupUserItemsSection()
@@ -84,7 +87,7 @@ private extension SwappingTokenListViewModel {
         dataLoader.$items
             .receive(on: DispatchQueue.global())
             .map { [weak self] coinModels in
-                coinModels.compactMap { self?.mapToCurrency(coinModel: $0) }
+                coinModels.compactMap { self?.currencyMapper.mapToCurrency(coinModel: $0) }
             }
             .map { [weak self] currencies in
                 currencies
@@ -113,21 +116,6 @@ private extension SwappingTokenListViewModel {
             balance: nil
         ) { [weak self] in
             self?.userDidTap(currency)
-        }
-    }
-
-    func mapToCurrency(coinModel: CoinModel) -> Currency? {
-        let coinType = coinModel.items.first
-        let mapper = CurrencyMapper()
-
-        switch coinType {
-        case let .blockchain(blockchain):
-            return mapper.mapToCurrency(blockchain: blockchain)
-        case let .token(token, blockchain):
-            return mapper.mapToCurrency(token: token, blockchain: blockchain)
-        case .none:
-            assertionFailure("CoinModel haven't items")
-            return nil
         }
     }
 }
