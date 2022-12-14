@@ -1,5 +1,5 @@
 //
-//  TransactionSender.swift
+//  TransactionSenderProtocol.swift
 //  TangemExchange
 //
 //  Created by [REDACTED_AUTHOR]
