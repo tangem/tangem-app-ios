@@ -75,7 +75,7 @@ extension NoteDemoConfig: UserWalletConfig {
     }
 
     var persistentBlockchains: [StorageEntry]? {
-        return nil
+        return defaultBlockchains
     }
 
     var embeddedBlockchain: StorageEntry? {
@@ -145,6 +145,8 @@ extension NoteDemoConfig: UserWalletConfig {
         case .tokenSynchronization:
             return .hidden
         case .referralProgram:
+            return .hidden
+        case .swapping:
             return .hidden
         }
     }
