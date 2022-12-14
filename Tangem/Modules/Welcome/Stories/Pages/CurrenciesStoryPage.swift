@@ -73,6 +73,7 @@ struct CurrenciesStoryPage: View {
                     title: "home_button_search_tokens".localized,
                     icon: .leading(Assets.search),
                     style: .secondary,
+                    isDisabled: isScanning,
                     action: searchTokens
                 )
                 .padding(.horizontal, 16)
