@@ -30,12 +30,7 @@ struct TransactionSender {
 // MARK: - TransactionSenderProtocol
 
 extension TransactionSender: TransactionSenderProtocol {
-    func sendExchangeTransaction(_ info: ExchangeTransactionDataModel) async throws {
-        let transaction = try buildTransaction(for: info)
-        return try await send(transaction)
-    }
-
-    func sendPermissionTransaction(_ info: ExchangeTransactionDataModel) async throws {
+    func sendTransaction(_ info: ExchangeTransactionDataModel) async throws {
         let transaction = try buildTransaction(for: info)
         return try await send(transaction)
     }
