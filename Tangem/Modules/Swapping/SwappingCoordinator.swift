@@ -75,10 +75,10 @@ extension SwappingCoordinator: SwappingRoutable {
         )
     }
 
-    func presentSuccessView(fromCurrency: String, toCurrency: String) {
+    func presentSuccessView(source: CurrencyPrice, result: CurrencyPrice) {
         successSwappingViewModel = SuccessSwappingViewModel(
-            fromCurrency: fromCurrency,
-            toCurrency: toCurrency,
+            source: source,
+            result: result,
             coordinator: self
         )
     }
@@ -98,14 +98,16 @@ extension SwappingCoordinator: SwappingTokenListRoutable {
 extension SwappingCoordinator: SuccessSwappingRoutable {
     func userDidTapMainButton() {
         successSwappingViewModel = nil
+        dismiss()
     }
 }
 
 // MARK: - SwappingPermissionRoutable
 
 extension SwappingCoordinator: SwappingPermissionRoutable {
-    func userDidApprove() {
+    func approveTransactionHasSuccessfulSent() {
         swappingPermissionViewModel = nil
+        rootViewModel?.approveTransactionHasSuccessfulSent()
     }
 
     func userDidCancel() {
