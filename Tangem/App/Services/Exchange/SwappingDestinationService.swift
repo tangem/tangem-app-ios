@@ -40,11 +40,12 @@ extension SwappingDestinationService: SwappingDestinationServicing {
 
         case .coin:
             var preferredToken: Token?
-
-            if let firstPreferred = walletModel.getTokens().first(where: { $0.symbol == PreferredToken.first.tokenSymbol }) {
-                preferredToken = firstPreferred
-            } else if let secondPreferred = walletModel.getTokens().first(where: { $0.symbol == PreferredToken.second.tokenSymbol }) {
-                preferredToken = secondPreferred
+            
+            for preferred in PreferredTokenSymbol.allCases {
+                if let token = walletModel.getTokens().first(where: { $0.symbol == preferred.rawValue }) {
+                    preferredToken = token
+                    break
+                }
             }
 
             if let preferredToken,
@@ -61,12 +62,10 @@ extension SwappingDestinationService: SwappingDestinationServicing {
 
 private extension SwappingDestinationService {
     func loadPreferCurrency(networkId: String) async throws -> Currency {
-        if let firstPreferred = try? await loadPreferCurrencyFromAPI(networkId: networkId, tokenSymbol: PreferredToken.first.tokenSymbol) {
-            return firstPreferred
-        }
-
-        if let secondPreferred = try? await loadPreferCurrencyFromAPI(networkId: networkId, tokenSymbol: PreferredToken.second.tokenSymbol) {
-            return secondPreferred
+        for preferred in PreferredTokenSymbol.allCases {
+            if let currency = try? await loadPreferCurrencyFromAPI(networkId: networkId, tokenSymbol: preferred.rawValue) {
+                return currency
+            }
         }
 
         return try await loadPreferCurrencyFromAPI(networkId: networkId)
@@ -98,17 +97,8 @@ private extension SwappingDestinationService {
 }
 
 extension SwappingDestinationService {
-    enum PreferredToken {
-        case first
-        case second
-        
-        var tokenSymbol: String {
-            switch self {
-            case .first:
-                return "USDT"
-            case .second:
-                return "USDC"
-            }
-        }
+    enum PreferredTokenSymbol: String, CaseIterable {
+        case usdt = "USDT"
+        case usdc = "USDC"
     }
 }
