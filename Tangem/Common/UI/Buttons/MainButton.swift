@@ -106,6 +106,7 @@ struct MainButton: View {
             .style(Fonts.Bold.callout,
                    color: style.textColor(isDisabled: isDisabled))
             .lineLimit(1)
+            .minimumScaleFactor(0.5)
     }
 
     @ViewBuilder
