@@ -115,6 +115,10 @@ class CardViewModel: Identifiable, ObservableObject {
         config.hasFeature(.tokenSynchronization)
     }
 
+    var supportsSwapping: Bool {
+        config.hasFeature(.swapping)
+    }
+
     // Temp for WC. Migrate to userWalletId?
     var secp256k1SeedKey: Data? {
         cardInfo.card.wallets.first(where: { $0.curve == .secp256k1 })?.publicKey

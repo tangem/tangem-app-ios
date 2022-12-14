@@ -54,7 +54,9 @@ class WelcomeCoordinator: CoordinatorObject {
 
     private func subscribeToWelcomeLifecycle() {
         welcomeLifecycleSubscription = lifecyclePublisher
-            .sink { [unowned self] viewDismissed in
+            .sink { [weak self] viewDismissed in
+                guard let self else { return }
+
                 if viewDismissed {
                     self.welcomeViewModel?.becomeActive()
                 } else {
