@@ -212,6 +212,8 @@ extension GenericConfig: UserWalletConfig {
             return .available
         case .referralProgram:
             return .available
+        case .swapping:
+            return .available
         }
     }
 
