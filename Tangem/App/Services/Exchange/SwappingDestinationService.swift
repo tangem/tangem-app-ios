@@ -19,8 +19,6 @@ struct SwappingDestinationService {
 
     private let walletModel: WalletModel
     private let mapper: CurrencyMapping
-    private let usdtTokenSymbol = "USDT"
-    private let usdcTokenSymbol = "USDC"
 
     init(walletModel: WalletModel, mapper: CurrencyMapping) {
         self.walletModel = walletModel
@@ -41,22 +39,16 @@ extension SwappingDestinationService: SwappingDestinationServicing {
             }
 
         case .coin:
-            var preferToken: Token?
+            var preferredToken: Token?
 
-            for token in walletModel.getTokens() {
-                if token.symbol == usdtTokenSymbol {
-                    preferToken = token
-                    break
-                }
-
-                if token.symbol == usdcTokenSymbol, preferToken == nil {
-                    preferToken = token
-                    break
-                }
+            if let firstPreferred = walletModel.getTokens().first(where: { $0.symbol == PreferredToken.first.tokenSymbol }) {
+                preferredToken = firstPreferred
+            } else if let secondPreferred = walletModel.getTokens().first(where: { $0.symbol == PreferredToken.second.tokenSymbol }) {
+                preferredToken = secondPreferred
             }
 
-            if let preferToken,
-               let currency = mapper.mapToCurrency(token: preferToken, blockchain: blockchain) {
+            if let preferredToken,
+               let currency = mapper.mapToCurrency(token: preferredToken, blockchain: blockchain) {
                 return currency
             }
 
@@ -69,14 +61,12 @@ extension SwappingDestinationService: SwappingDestinationServicing {
 
 private extension SwappingDestinationService {
     func loadPreferCurrency(networkId: String) async throws -> Currency {
-        // Try to load USDT
-        if let usdt = try? await loadPreferCurrencyFromAPI(networkId: networkId, tokenSymbol: usdtTokenSymbol) {
-            return usdt
+        if let firstPreferred = try? await loadPreferCurrencyFromAPI(networkId: networkId, tokenSymbol: PreferredToken.first.tokenSymbol) {
+            return firstPreferred
         }
 
-        // Try to load USDC
-        if let usdc = try? await loadPreferCurrencyFromAPI(networkId: networkId, tokenSymbol: usdcTokenSymbol) {
-            return usdc
+        if let secondPreferred = try? await loadPreferCurrencyFromAPI(networkId: networkId, tokenSymbol: PreferredToken.second.tokenSymbol) {
+            return secondPreferred
         }
 
         return try await loadPreferCurrencyFromAPI(networkId: networkId)
@@ -89,20 +79,36 @@ private extension SwappingDestinationService {
             exchangeable: true
         )
 
-        let coins = try await tangemApiService.loadCoins(requestModel: model).async()
-        let coin: CoinModel?
+        let coinModels = try await tangemApiService.loadCoins(requestModel: model).async()
+        let coinModel: CoinModel?
 
         /// If we are founding special token by name
         if let tokenSymbol = tokenSymbol {
-            coin = coins.first(where: { $0.symbol == tokenSymbol })
+            coinModel = coinModels.first(where: { $0.symbol == tokenSymbol })
         } else {
-            coin = coins.first
+            coinModel = coinModels.first
         }
 
-        if let coin, let currency = mapper.mapToCurrency(coinModel: coin) {
+        if let coinModel, let currency = mapper.mapToCurrency(coinModel: coinModel) {
             return currency
         }
 
         throw CommonError.noData
+    }
+}
+
+extension SwappingDestinationService {
+    enum PreferredToken {
+        case first
+        case second
+        
+        var tokenSymbol: String {
+            switch self {
+            case .first:
+                return "USDT"
+            case .second:
+                return "USDC"
+            }
+        }
     }
 }
