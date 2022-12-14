@@ -25,9 +25,3 @@ struct CardInfo {
         }
     }
 }
-
-struct ImageLoadDTO: Equatable {
-    let cardId: String
-    let cardPublicKey: Data
-    let artwotkInfo: ArtworkInfo?
-}
