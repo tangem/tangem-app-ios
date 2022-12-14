@@ -107,6 +107,7 @@ extension DefaultExchangeManager: ExchangeManager {
     }
 
     func refresh() {
+        tokenExchangeAllowanceLimit = nil
         refreshValues(silent: true)
     }
 }
