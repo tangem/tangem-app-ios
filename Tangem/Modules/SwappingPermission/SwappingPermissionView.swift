@@ -62,6 +62,7 @@ struct SwappingPermissionView: View {
                 action: viewModel.didTapCancel
             )
         }
+        .minimumScaleFactor(1)
         .padding(.horizontal, 16)
     }
 }
