@@ -40,10 +40,10 @@ struct SuccessSwappingView: View {
                 .style(Fonts.Bold.title1, color: Colors.Text.primary1)
 
             VStack(spacing: 0) {
-                Text("swapping_swap_of_to".localized(viewModel.fromCurrency))
+                Text("swapping_swap_of_to".localized(viewModel.sourceFormatted))
                     .style(Fonts.Regular.callout, color: Colors.Text.secondary)
 
-                Text(viewModel.toCurrency)
+                Text(viewModel.resultFormatted)
                     .style(Fonts.Bold.callout, color: Colors.Text.accent)
             }
         }
@@ -65,8 +65,8 @@ struct SuccessSwappingView: View {
 
 struct SuccessSwappingView_Preview: PreviewProvider {
     static let viewModel = SuccessSwappingViewModel(
-        fromCurrency: "1 000 DAI",
-        toCurrency: "1 000,36 MATIC",
+        source: .init(amount: 1000, currency: .mock),
+        result: .init(amount: 200, currency: .mock),
         coordinator: SwappingCoordinator()
     )
 
