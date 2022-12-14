@@ -226,8 +226,8 @@ class WalletModel: ObservableObject, Identifiable {
         }
 
         print("🔄 Update state \(state) in WalletModel: \(blockchainNetwork.blockchain.displayName)")
-        DispatchQueue.main.async {
-            self.state = state
+        DispatchQueue.main.async { [weak self] in //captured as weak at call stack
+            self?.state = state
         }
     }
 
@@ -320,6 +320,7 @@ class WalletModel: ObservableObject, Identifiable {
             .handleEvents(receiveOutput: { [weak self] _ in
                 self?.startUpdatingTimer()
             })
+            .receive(on: DispatchQueue.main)
             .eraseToAnyPublisher()
     }
 
