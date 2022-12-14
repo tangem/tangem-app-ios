@@ -8,6 +8,7 @@
 
 import Combine
 import TangemExchange
+import TangemSdk
 
 final class SwappingPermissionViewModel: ObservableObject, Identifiable {
     /// For SwiftUI sheet logic
@@ -46,6 +47,8 @@ final class SwappingPermissionViewModel: ObservableObject, Identifiable {
                 DispatchQueue.main.async {
                     self.coordinator.userDidApprove()
                 }
+            } catch TangemSdkError.userCancelled {
+                // Do nothing
             } catch {
                 assertionFailure(error.localizedDescription)
                 // [REDACTED_TODO_COMMENT]
