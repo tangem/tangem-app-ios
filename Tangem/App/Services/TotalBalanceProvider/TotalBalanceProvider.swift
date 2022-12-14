@@ -70,6 +70,8 @@ private extension TotalBalanceProvider {
                 return pendingWalletModels
                     .map { $0.walletDidChange }
                     .combineLatest()
+                    /// This delay has been added because `walletDidChange` pushed the changes on `willSet`
+                    .delay(for: 0.1, scheduler: DispatchQueue.global())
                     .filter { $0.allConforms { !$0.isLoading } }
                     .mapVoid()
                     .eraseToAnyPublisher()
