@@ -90,6 +90,7 @@ class MainViewModel: ObservableObject {
     private var shouldRefreshWhenAppear: Bool
     private var bag = Set<AnyCancellable>()
     private var isProcessingNewCard = false
+    private var imageLoadingSubscription: AnyCancellable?
 
     private lazy var testnetBuyCryptoService = TestnetBuyCryptoService()
 
@@ -212,26 +213,6 @@ class MainViewModel: ObservableObject {
                 self.objectWillChange.send()
             }
             .store(in: &bag)
-    }
-
-    func updateContent() {
-        updateIsBackupAllowed()
-        loadImage()
-
-        if cardModel.isMultiWallet {
-            multiWalletContentViewModel = MultiWalletContentViewModel(
-                cardModel: cardModel,
-                userWalletModel: userWalletModel,
-                userTokenListManager: userWalletModel.userTokenListManager,
-                output: self
-            )
-        } else {
-            singleWalletContentViewModel = SingleWalletContentViewModel(
-                cardModel: cardModel,
-                userWalletModel: userWalletModel,
-                output: self
-            )
-        }
     }
 
     func updateIsBackupAllowed() {
@@ -406,6 +387,26 @@ class MainViewModel: ObservableObject {
 
     // MARK: - Private functions
 
+    private func updateContent() {
+        updateIsBackupAllowed()
+        loadImage()
+
+        if cardModel.isMultiWallet {
+            multiWalletContentViewModel = MultiWalletContentViewModel(
+                cardModel: cardModel,
+                userWalletModel: userWalletModel,
+                userTokenListManager: userWalletModel.userTokenListManager,
+                output: self
+            )
+        } else {
+            singleWalletContentViewModel = SingleWalletContentViewModel(
+                cardModel: cardModel,
+                userWalletModel: userWalletModel,
+                output: self
+            )
+        }
+    }
+
     private func setError(_ error: AlertBinder?) {
         if self.error != nil {
             return
@@ -430,10 +431,19 @@ class MainViewModel: ObservableObject {
     }
 
     private func loadImage() {
-        cardImageProvider
+        imageLoadingSubscription = cardImageProvider
             .loadImage(cardId: cardModel.cardId, cardPublicKey: cardModel.cardPublicKey)
-            .weakAssignAnimated(to: \.image, on: self)
-            .store(in: &bag)
+            .sink(receiveValue: { [weak self] loaderResult in
+                let uiImage = loaderResult.uiImage
+                switch loaderResult {
+                case .downloaded:
+                    withAnimation {
+                        self?.image = uiImage
+                    }
+                case .cached, .embedded:
+                    self?.image = uiImage
+                }
+            })
     }
 }
 
