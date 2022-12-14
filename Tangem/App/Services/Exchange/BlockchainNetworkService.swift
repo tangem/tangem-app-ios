@@ -62,15 +62,15 @@ extension BlockchainNetworkService: TangemExchange.BlockchainDataProvider {
     }
 
     func getFiatBalance(currency: Currency, amount: Decimal) async throws -> Decimal {
-//        if let fiat = getFiatBalanceFromWalletModel(currency: currency, amount: amount) {
-//            return fiat
-//        }
+        if let fiat = getFiatBalanceFromWalletModel(currency: currency, amount: amount) {
+            return fiat
+        }
 
         return try await getFiatBalanceThroughLoadRates(currency: currency, amount: amount)
     }
 
     func getFiatRateForFee(currency: Currency) async throws -> Decimal {
-        try await getFiatRate(currency: currency)
+        try await getFiatRate(currencyId: currency.blockchain.id)
     }
 }
 
@@ -123,18 +123,8 @@ private extension BlockchainNetworkService {
 
     func getFiatBalanceThroughLoadRates(currency: Currency, amount: Decimal) async throws -> Decimal {
         let id = currency.isToken ? currency.id : currency.blockchain.id
-        var currencyRate = rates[id]
+        let currencyRate = try await getFiatRate(currencyId: id)
 
-        if currencyRate == nil {
-            let loadedRates = try await tangemApiService.loadRates(for: [id]).async()
-            currencyRate = loadedRates[id]
-        }
-
-        guard let currencyRate else {
-            throw CommonError.noData
-        }
-
-        rates[currency.id] = currencyRate
         let fiatValue = amount * currencyRate
         if fiatValue == 0 {
             return 0
@@ -143,18 +133,19 @@ private extension BlockchainNetworkService {
         return max(fiatValue, 0.01).rounded(scale: 2, roundingMode: .plain)
     }
 
-    func getFiatRate(currency: Currency) async throws -> Decimal {
-        let id = currency.blockchain.id
-        var currencyRate = rates[id]
+    func getFiatRate(currencyId: String) async throws -> Decimal {
+        var currencyRate = rates[currencyId]
 
         if currencyRate == nil {
-            let loadedRates = try await tangemApiService.loadRates(for: [id]).async()
-            currencyRate = loadedRates[id]
+            let loadedRates = try await tangemApiService.loadRates(for: [currencyId]).async()
+            currencyRate = loadedRates[currencyId]
         }
 
         guard let currencyRate else {
             throw CommonError.noData
         }
+
+        rates[currencyId] = currencyRate
 
         return currencyRate
     }
