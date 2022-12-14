@@ -62,6 +62,7 @@ extension SwappingCoordinator: SwappingRoutable {
             sourceCurrency: sourceCurrency,
             userCurrencies: userCurrencies,
             tokenIconURLBuilder: factory.createTokenIconURLBuilder(),
+            currencyMapper: factory.createCurrencyMapper(),
             coordinator: self
         )
     }
