@@ -434,14 +434,15 @@ class MainViewModel: ObservableObject {
         imageLoadingSubscription = cardImageProvider
             .loadImage(cardId: cardModel.cardId, cardPublicKey: cardModel.cardPublicKey)
             .sink(receiveValue: { [weak self] loaderResult in
-                if case let .downloaded(image) = loaderResult {
+                let uiImage = loaderResult.uiImage
+                switch loaderResult {
+                case .downloaded:
                     withAnimation {
-                        self?.image = image
+                        self?.image = uiImage
                     }
-                    return
+                case .cached, .embedded:
+                    self?.image = uiImage
                 }
-
-                self?.image = loaderResult.image
             })
     }
 }
