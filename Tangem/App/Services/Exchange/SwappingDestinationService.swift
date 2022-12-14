@@ -53,7 +53,7 @@ extension SwappingDestinationService: SwappingDestinationServicing {
                 return currency
             }
 
-            return try await loadPreferCurrency(networkId: blockchain.networkId)
+            return try await loadPreferredCurrency(networkId: blockchain.networkId)
         }
 
         throw CommonError.noData
@@ -61,17 +61,17 @@ extension SwappingDestinationService: SwappingDestinationServicing {
 }
 
 private extension SwappingDestinationService {
-    func loadPreferCurrency(networkId: String) async throws -> Currency {
+    func loadPreferredCurrency(networkId: String) async throws -> Currency {
         for preferred in PreferredTokenSymbol.allCases {
-            if let currency = try? await loadPreferCurrencyFromAPI(networkId: networkId, tokenSymbol: preferred.rawValue) {
+            if let currency = try? await loadPreferredCurrencyFromAPI(networkId: networkId, tokenSymbol: preferred.rawValue) {
                 return currency
             }
         }
 
-        return try await loadPreferCurrencyFromAPI(networkId: networkId)
+        return try await loadPreferredCurrencyFromAPI(networkId: networkId)
     }
 
-    func loadPreferCurrencyFromAPI(networkId: String, tokenSymbol: String? = nil) async throws -> Currency {
+    func loadPreferredCurrencyFromAPI(networkId: String, tokenSymbol: String? = nil) async throws -> Currency {
         let model = CoinsListRequestModel(
             networkIds: [networkId],
             searchText: tokenSymbol,
