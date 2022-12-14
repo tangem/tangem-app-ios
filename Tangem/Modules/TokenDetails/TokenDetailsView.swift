@@ -63,8 +63,11 @@ struct TokenDetailsView: View {
 
     @ViewBuilder var bottomButtons: some View {
         HStack(alignment: .center) {
-
-            exchangeCryptoButton
+            if FeatureProvider.isAvailable(.exchange) {
+                exchangeButton
+            } else {
+                exchangeCryptoButton
+            }
 
             MainButton(
                 title: "wallet_button_send".localized,
@@ -151,20 +154,35 @@ struct TokenDetailsView: View {
 
     @ViewBuilder
     private var trailingButton: some View {
-        HStack {
-            if viewModel.swappingIsAvailable { // [REDACTED_TODO_COMMENT]
-                Button(action: viewModel.openSwapping) {
-                    Text("Swap")
-                }
-            }
-
-            Button(action: viewModel.onRemove) {
-                Text("token_details_hide_token")
-                    .foregroundColor(.tangemGrayDark6)
-                    .font(.system(size: 17))
-            }
+        Button(action: viewModel.onRemove) {
+            Text("token_details_hide_token")
+                .foregroundColor(.tangemGrayDark6)
+                .font(.system(size: 17))
         }
         .animation(nil)
+    }
+
+    @ViewBuilder
+    var exchangeButton: some View {
+        switch viewModel.exchangeButtonState {
+        case .single(let option):
+            MainButton(
+                title: option.title,
+                icon: .leading(option.icon),
+                isDisabled: !viewModel.isAvailable(type: option)
+            ) {
+                viewModel.didTapExchangeButtonAction(type: option)
+            }
+
+        case .multi:
+            MainButton(
+                title: "wallet_button_trade".localized,
+                icon: .leading(Assets.exchangeIcon),
+                action: viewModel.openExchangeActionSheet
+            )
+            .actionSheet(item: $viewModel.exchangeActionSheet, content: { $0.sheet })
+
+        }
     }
 }
 

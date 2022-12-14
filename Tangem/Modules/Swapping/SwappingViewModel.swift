@@ -37,6 +37,7 @@ final class SwappingViewModel: ObservableObject {
     // MARK: - Dependencies
 
     private let exchangeManager: ExchangeManager
+    private let swappingDestinationService: SwappingDestinationServicing
     private let userCurrenciesProvider: UserCurrenciesProviding
     private let tokenIconURLBuilder: TokenIconURLBuilding
     private unowned let coordinator: SwappingRoutable
@@ -47,11 +48,13 @@ final class SwappingViewModel: ObservableObject {
 
     init(
         exchangeManager: ExchangeManager,
+        swappingDestinationService: SwappingDestinationServicing,
         userCurrenciesProvider: UserCurrenciesProviding,
         tokenIconURLBuilder: TokenIconURLBuilding,
         coordinator: SwappingRoutable
     ) {
         self.exchangeManager = exchangeManager
+        self.swappingDestinationService = swappingDestinationService
         self.userCurrenciesProvider = userCurrenciesProvider
         self.tokenIconURLBuilder = tokenIconURLBuilder
         self.coordinator = coordinator
@@ -59,6 +62,7 @@ final class SwappingViewModel: ObservableObject {
         setupView()
         bind()
         exchangeManager.setDelegate(self)
+        loadDestinationIfNeeded()
     }
 
     func userDidRequestChangeDestination(to currency: Currency) {
@@ -70,9 +74,14 @@ final class SwappingViewModel: ObservableObject {
 
     func userDidTapSwapExchangeItemsButton() {
         var items = exchangeManager.getExchangeItems()
+
+        guard let destination = items.destination else {
+            return
+        }
+
         let source = items.source
 
-        items.source = items.destination
+        items.source = destination
         items.destination = source
 
         exchangeManager.update(exchangeItems: items)
@@ -84,6 +93,25 @@ final class SwappingViewModel: ObservableObject {
 
     func userDidTapMainButton() {
         // [REDACTED_TODO_COMMENT]
+    }
+
+    func loadDestinationIfNeeded() {
+        guard exchangeManager.getExchangeItems().destination == nil else {
+            print("Exchange item destination has already set")
+            return
+        }
+
+        Task {
+            var items = exchangeManager.getExchangeItems()
+
+            do {
+                items.destination = try await swappingDestinationService.getDestination(source: items.source)
+                exchangeManager.update(exchangeItems: items)
+            } catch {
+                print("Destination load handle error", error)
+                items.destination = nil
+            }
+        }
     }
 }
 
@@ -269,18 +297,26 @@ private extension SwappingViewModel {
             .store(in: &bag)
     }
 
-    func mapToSwappingTokenIconViewModel(currency: Currency) -> SwappingTokenIconViewModel {
+    func mapToSwappingTokenIconViewModel(currency: Currency?) -> SwappingTokenIconViewModel {
+        guard let currency = currency else {
+            return SwappingTokenIconViewModel(state: .loading)
+        }
+
         switch currency.currencyType {
         case .coin:
             return SwappingTokenIconViewModel(
-                imageURL: tokenIconURLBuilder.iconURL(id: currency.blockchain.id, size: .large),
-                tokenSymbol: currency.symbol
+                state: .loaded(
+                    imageURL: tokenIconURLBuilder.iconURL(id: currency.blockchain.id, size: .large),
+                    symbol: currency.symbol
+                )
             )
         case .token:
             return SwappingTokenIconViewModel(
-                imageURL: tokenIconURLBuilder.iconURL(id: currency.id, size: .large),
-                networkURL: tokenIconURLBuilder.iconURL(id: currency.blockchain.id, size: .small),
-                tokenSymbol: currency.symbol
+                state: .loaded(
+                    imageURL: tokenIconURLBuilder.iconURL(id: currency.id, size: .large),
+                    networkURL: tokenIconURLBuilder.iconURL(id: currency.blockchain.id, size: .small),
+                    symbol: currency.symbol
+                )
             )
         }
     }
