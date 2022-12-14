@@ -90,6 +90,7 @@ class MainViewModel: ObservableObject {
     private var shouldRefreshWhenAppear: Bool
     private var bag = Set<AnyCancellable>()
     private var isProcessingNewCard = false
+    private var imageLoadingSubscription: AnyCancellable?
 
     private lazy var testnetBuyCryptoService = TestnetBuyCryptoService()
 
@@ -430,10 +431,18 @@ class MainViewModel: ObservableObject {
     }
 
     private func loadImage() {
-        cardImageProvider
+        imageLoadingSubscription = cardImageProvider
             .loadImage(cardId: cardModel.cardId, cardPublicKey: cardModel.cardPublicKey)
-            .weakAssignAnimated(to: \.image, on: self)
-            .store(in: &bag)
+            .sink(receiveValue: { [weak self] loaderResult in
+                if case let .downloaded(image) = loaderResult {
+                    withAnimation {
+                        self?.image = image
+                    }
+                    return
+                }
+
+                self?.image = loaderResult.image
+            })
     }
 }
 
