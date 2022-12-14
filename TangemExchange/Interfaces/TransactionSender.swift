@@ -9,6 +9,5 @@
 import Foundation
 
 public protocol TransactionSenderProtocol {
-    func sendExchangeTransaction(_ info: ExchangeTransactionDataModel) async throws
-    func sendPermissionTransaction(_ info: ExchangeTransactionDataModel) async throws
+    func sendTransaction(_ info: ExchangeTransactionDataModel) async throws
 }
