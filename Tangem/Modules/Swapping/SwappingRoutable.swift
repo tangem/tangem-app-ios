@@ -11,6 +11,6 @@ import TangemExchange
 
 protocol SwappingRoutable: AnyObject {
     func presentSwappingTokenList(sourceCurrency: Currency, userCurrencies: [Currency])
-    func presentSuccessView(fromCurrency: String, toCurrency: String)
+    func presentSuccessView(source: CurrencyPrice, result: CurrencyPrice)
     func presentPermissionView(transactionInfo: ExchangeTransactionDataModel, transactionSender: TransactionSenderProtocol)
 }
