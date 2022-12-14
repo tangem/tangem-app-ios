@@ -108,23 +108,8 @@ final class SwappingViewModel: ObservableObject {
         }
     }
 
-    func loadDestinationIfNeeded() {
-        guard exchangeManager.getExchangeItems().destination == nil else {
-            print("Exchange item destination has already set")
-            return
-        }
-
-        Task {
-            var items = exchangeManager.getExchangeItems()
-
-            do {
-                items.destination = try await swappingDestinationService.getDestination(source: items.source)
-                exchangeManager.update(exchangeItems: items)
-            } catch {
-                print("Destination load handle error", error)
-                items.destination = nil
-            }
-        }
+    func approveTransactionHasSuccessfulSent() {
+        exchangeManager.refresh()
     }
 }
 
@@ -147,9 +132,20 @@ private extension SwappingViewModel {
         expectedModel: ExpectedSwappingResult,
         transactionModel: ExchangeTransactionDataModel
     ) {
+        let amount = transactionModel.amount / transactionModel.sourceCurrency.decimalValue
+        let source = CurrencyPrice(
+            amount: amount,
+            currency: transactionModel.sourceCurrency
+        )
+
+        let result = CurrencyPrice(
+            amount: expectedModel.expectedAmount,
+            currency: transactionModel.destinationCurrency
+        )
+
         coordinator.presentSuccessView(
-            fromCurrency: transactionModel.amount.description + " " + transactionModel.sourceCurrency.symbol,
-            toCurrency: expectedModel.expectedAmount.description + " " + transactionModel.destinationCurrency.symbol
+            source: source,
+            result: result
         )
     }
 
@@ -327,6 +323,25 @@ private extension SwappingViewModel {
             .store(in: &bag)
     }
 
+    func loadDestinationIfNeeded() {
+        guard exchangeManager.getExchangeItems().destination == nil else {
+            print("Exchange item destination has already set")
+            return
+        }
+
+        Task {
+            var items = exchangeManager.getExchangeItems()
+
+            do {
+                items.destination = try await swappingDestinationService.getDestination(source: items.source)
+                exchangeManager.update(exchangeItems: items)
+            } catch {
+                print("Destination load handle error", error)
+                items.destination = nil
+            }
+        }
+    }
+
     func mapToSwappingTokenIconViewModel(currency: Currency?) -> SwappingTokenIconViewModel {
         guard let currency = currency else {
             return SwappingTokenIconViewModel(state: .loading)
@@ -351,8 +366,6 @@ private extension SwappingViewModel {
         }
     }
 
-    // MARK: -
-
     func swapItems() {
         let state = exchangeManager.getAvailabilityState()
         guard case let .available(result, info) = state else {
@@ -361,13 +374,14 @@ private extension SwappingViewModel {
 
         Task {
             do {
-                try await transactionSender.sendExchangeTransaction(info)
+                try await transactionSender.sendTransaction(info)
                 openSuccessView(
                     expectedModel: result,
                     transactionModel: info
                 )
             } catch {
                 assertionFailure(error.localizedDescription)
+                // [REDACTED_TODO_COMMENT]
             }
         }
     }

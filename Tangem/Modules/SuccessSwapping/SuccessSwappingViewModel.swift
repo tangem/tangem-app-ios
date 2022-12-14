@@ -14,20 +14,27 @@ final class SuccessSwappingViewModel: ObservableObject, Identifiable {
 
     // MARK: - ViewState
 
-    let fromCurrency: String
-    let toCurrency: String
+    var sourceFormatted: String {
+        source.formatted
+    }
+
+    var resultFormatted: String {
+        result.formatted
+    }
 
     // MARK: - Dependencies
 
+    private let source: CurrencyPrice
+    private let result: CurrencyPrice
     private unowned let coordinator: SuccessSwappingRoutable
 
     init(
-        fromCurrency: String,
-        toCurrency: String,
+        source: CurrencyPrice,
+        result: CurrencyPrice,
         coordinator: SuccessSwappingRoutable
     ) {
-        self.fromCurrency = fromCurrency
-        self.toCurrency = toCurrency
+        self.source = source
+        self.result = result
         self.coordinator = coordinator
     }
 
