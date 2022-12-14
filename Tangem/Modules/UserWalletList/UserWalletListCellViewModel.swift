@@ -112,7 +112,7 @@ class UserWalletListCellViewModel: ObservableObject {
             .sink { [weak self] loadResult in
                 guard let self else { return }
 
-                self.image = self.scaleImage(loadResult.image, newHeight: self.imageHeight * UIScreen.main.scale)
+                self.image = self.scaleImage(loadResult.uiImage, newHeight: self.imageHeight * UIScreen.main.scale)
             }
             .store(in: &bag)
     }
