@@ -107,7 +107,7 @@ struct SwappingView: View {
             title: viewModel.mainButtonState.title,
             icon: viewModel.mainButtonState.icon,
             isDisabled: !viewModel.mainButtonIsEnabled,
-            action: viewModel.userDidTapMainButton
+            action: viewModel.didTapMainButton
         )
     }
 }

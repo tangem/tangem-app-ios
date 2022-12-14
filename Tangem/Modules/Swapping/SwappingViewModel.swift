@@ -94,7 +94,7 @@ final class SwappingViewModel: ObservableObject {
         openTokenListView()
     }
 
-    func userDidTapMainButton() {
+    func didTapMainButton() {
         switch mainButtonState {
         case .permitAndSwap:
             break // [REDACTED_TODO_COMMENT]
@@ -108,7 +108,7 @@ final class SwappingViewModel: ObservableObject {
         }
     }
 
-    func approveTransactionHasSuccessfulSent() {
+    func didSendApproveTransaction() {
         exchangeManager.refresh()
     }
 }
@@ -143,10 +143,7 @@ private extension SwappingViewModel {
             currency: transactionModel.destinationCurrency
         )
 
-        coordinator.presentSuccessView(
-            source: source,
-            result: result
-        )
+        coordinator.presentSuccessView(source: source, result: result)
     }
 
     func openPermissionView() {
