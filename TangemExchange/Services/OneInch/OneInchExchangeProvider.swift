@@ -52,7 +52,7 @@ extension OneInchExchangeProvider: ExchangeProvider {
         let destination = items.destination
         let parameters = ExchangeParameters(
             fromTokenAddress: items.source.contractAddress ?? oneInchCoinContractAddress,
-            toTokenAddress: destination.contractAddress ?? oneInchCoinContractAddress,
+            toTokenAddress: destination?.contractAddress ?? oneInchCoinContractAddress,
             amount: amount,
             fromAddress: walletAddress,
             slippage: defaultSlippage
@@ -71,7 +71,7 @@ extension OneInchExchangeProvider: ExchangeProvider {
     func fetchQuote(items: ExchangeItems, amount: String) async throws -> QuoteData {
         let parameters = QuoteParameters(
             fromTokenAddress: items.source.contractAddress ?? oneInchCoinContractAddress,
-            toTokenAddress: items.destination.contractAddress ?? oneInchCoinContractAddress,
+            toTokenAddress: items.destination?.contractAddress ?? oneInchCoinContractAddress,
             amount: amount
         )
 
