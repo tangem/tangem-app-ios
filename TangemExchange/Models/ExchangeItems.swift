@@ -10,13 +10,13 @@ import Foundation
 
 public struct ExchangeItems {
     public var source: Currency
-    public var destination: Currency
+    public var destination: Currency?
 
     public var sourceBalance: Balance
 
     public init(
         source: Currency,
-        destination: Currency,
+        destination: Currency?,
         sourceBalance: Balance = .zero
     ) {
         self.source = source
