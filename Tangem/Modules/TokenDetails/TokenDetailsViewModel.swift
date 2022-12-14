@@ -19,8 +19,7 @@ class TokenDetailsViewModel: ObservableObject {
     @Published var showTradeSheet: Bool = false
     @Published var isRefreshing: Bool = false
 
-    @Published var exchangeButton: ExchangeType?
-    @Published var exchangeVariations: [ExchangeType]?
+    @Published var exchangeVariations: [ExchangeButtonType] = []
     @Published var exchangeActionSheet: ActionSheetBinder?
 
     let card: CardViewModel
@@ -201,7 +200,7 @@ class TokenDetailsViewModel: ObservableObject {
     func updateExchangeButtons() {
         guard FeatureProvider.isAvailable(.exchange) else { return }
 
-        var exchangeVariations: [ExchangeType] = [.buy]
+        var exchangeVariations: [ExchangeButtonType] = [.buy]
 
         if canSellCrypto {
             exchangeVariations.append(.sell)
@@ -211,19 +210,15 @@ class TokenDetailsViewModel: ObservableObject {
             exchangeVariations.append(.swap)
         }
 
-        if exchangeVariations.count == 1 {
-            exchangeButton = exchangeVariations.first
-        } else {
-            self.exchangeVariations = exchangeVariations
-        }
+        self.exchangeVariations = exchangeVariations
     }
 
     func openExchangeActionSheet() {
-        var buttons: [ActionSheet.Button] = exchangeVariations?.map { action in
+        var buttons: [ActionSheet.Button] = exchangeVariations.map { action in
             .default(Text(action.title)) { [weak self] in
                 self?.didTapExchangeButtonAction(type: action)
             }
-        } ?? []
+        }
 
         buttons.append(.cancel())
 
@@ -231,7 +226,7 @@ class TokenDetailsViewModel: ObservableObject {
         exchangeActionSheet = ActionSheetBinder(sheet: sheet)
     }
 
-    func didTapExchangeButtonAction(type: ExchangeType) {
+    func didTapExchangeButtonAction(type: ExchangeButtonType) {
         switch type {
         case .swap:
             openSwapping()
@@ -242,7 +237,7 @@ class TokenDetailsViewModel: ObservableObject {
         }
     }
 
-    func isAvailable(type: ExchangeType) -> Bool {
+    func isAvailable(type: ExchangeButtonType) -> Bool {
         switch type {
         case .buy:
             return canBuyCrypto
@@ -547,17 +542,17 @@ private extension TokenDetailsViewModel {
 }
 
 extension TokenDetailsViewModel {
-    enum ExchangeType: Hashable {
+    enum ExchangeButtonType: Hashable {
         case buy
         case sell
         case swap
 
         var title: String {
             switch self {
-            case .sell:
-                return "wallet_button_sell_crypto".localized
             case .buy:
                 return "wallet_button_buy".localized
+            case .sell:
+                return "wallet_button_sell_crypto".localized
             case .swap:
                 return "swapping_swap".localized
             }
@@ -565,10 +560,10 @@ extension TokenDetailsViewModel {
 
         var icon: Image {
             switch self {
-            case .sell:
-                return Assets.arrowDownMini
             case .buy:
                 return Assets.arrowUpMini
+            case .sell:
+                return Assets.arrowDownMini
             case .swap:
                 return Assets.exchangeIcon
             }
