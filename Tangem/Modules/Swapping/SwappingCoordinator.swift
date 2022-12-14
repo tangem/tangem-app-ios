@@ -96,7 +96,7 @@ extension SwappingCoordinator: SwappingTokenListRoutable {
 // MARK: - SuccessSwappingRoutable
 
 extension SwappingCoordinator: SuccessSwappingRoutable {
-    func userDidTapMainButton() {
+    func didTapMainButton() {
         successSwappingViewModel = nil
         dismiss()
     }
@@ -105,9 +105,9 @@ extension SwappingCoordinator: SuccessSwappingRoutable {
 // MARK: - SwappingPermissionRoutable
 
 extension SwappingCoordinator: SwappingPermissionRoutable {
-    func approveTransactionHasSuccessfulSent() {
+    func didSendApproveTransaction() {
         swappingPermissionViewModel = nil
-        rootViewModel?.approveTransactionHasSuccessfulSent()
+        rootViewModel?.didSendApproveTransaction()
     }
 
     func userDidCancel() {
