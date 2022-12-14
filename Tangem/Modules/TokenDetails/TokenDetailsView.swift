@@ -164,22 +164,24 @@ struct TokenDetailsView: View {
 
     @ViewBuilder
     var exchangeButton: some View {
-        if let exchangeButton = viewModel.exchangeVariations.single {
+        switch viewModel.exchangeButtonState {
+        case .single(let option):
             MainButton(
-                title: exchangeButton.title,
-                icon: .leading(exchangeButton.icon),
-                isDisabled: !viewModel.isAvailable(type: exchangeButton)
+                title: option.title,
+                icon: .leading(option.icon),
+                isDisabled: !viewModel.isAvailable(type: option)
             ) {
-                viewModel.didTapExchangeButtonAction(type: exchangeButton)
+                viewModel.didTapExchangeButtonAction(type: option)
             }
-        } else {
+
+        case .multi:
             MainButton(
                 title: "wallet_button_trade".localized,
-                icon: .leading(Assets.exchangeIcon)
-            ) {
-                viewModel.openExchangeActionSheet()
-            }
+                icon: .leading(Assets.exchangeIcon),
+                action: viewModel.openExchangeActionSheet
+            )
             .actionSheet(item: $viewModel.exchangeActionSheet, content: { $0.sheet })
+
         }
     }
 }
