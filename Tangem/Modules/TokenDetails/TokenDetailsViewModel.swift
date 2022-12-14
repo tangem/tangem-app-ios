@@ -19,7 +19,7 @@ class TokenDetailsViewModel: ObservableObject {
     @Published var showTradeSheet: Bool = false
     @Published var isRefreshing: Bool = false
 
-    @Published var exchangeVariations: [ExchangeButtonType] = []
+    @Published var exchangeButtonState: ExchangeButtonState = .single(option: .buy)
     @Published var exchangeActionSheet: ActionSheetBinder?
 
     let card: CardViewModel
@@ -196,21 +196,26 @@ class TokenDetailsViewModel: ObservableObject {
     func updateExchangeButtons() {
         guard FeatureProvider.isAvailable(.exchange) else { return }
 
-        var exchangeVariations: [ExchangeButtonType] = [.buy]
+        var exchangeOptions: [ExchangeButtonType] = [.buy]
 
         if canSellCrypto {
-            exchangeVariations.append(.sell)
+            exchangeOptions.append(.sell)
         }
 
         if canSwap {
-            exchangeVariations.append(.swap)
+            exchangeOptions.append(.swap)
         }
 
-        self.exchangeVariations = exchangeVariations
+        if exchangeOptions.count == 1,
+           let single = exchangeOptions.first {
+            self.exchangeButtonState = .single(option: single)
+        } else {
+            self.exchangeButtonState = .multi(options: exchangeOptions)
+        }
     }
 
     func openExchangeActionSheet() {
-        var buttons: [ActionSheet.Button] = exchangeVariations.map { action in
+        var buttons: [ActionSheet.Button] = exchangeButtonState.options.map { action in
             .default(Text(action.title)) { [weak self] in
                 self?.didTapExchangeButtonAction(type: action)
             }
@@ -540,6 +545,20 @@ private extension TokenDetailsViewModel {
 }
 
 extension TokenDetailsViewModel {
+    enum ExchangeButtonState: Hashable {
+        case single(option: ExchangeButtonType)
+        case multi(options: [ExchangeButtonType])
+
+        var options: [ExchangeButtonType] {
+            switch self {
+            case .single(let option):
+                return [option]
+            case .multi(let options):
+                return options
+            }
+        }
+    }
+
     enum ExchangeButtonType: Hashable {
         case buy
         case sell
