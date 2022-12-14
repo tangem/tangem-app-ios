@@ -97,7 +97,7 @@ final class SwappingViewModel: ObservableObject {
     func userDidTapMainButton() {
         switch mainButtonState {
         case .permitAndSwap:
-            break
+            break // [REDACTED_TODO_COMMENT]
         case .swap:
             swapItems()
         case .givePermission:
