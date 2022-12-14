@@ -228,12 +228,12 @@ class TokenDetailsViewModel: ObservableObject {
 
     func didTapExchangeButtonAction(type: ExchangeButtonType) {
         switch type {
-        case .swap:
-            openSwapping()
         case .buy:
             openBuyCryptoIfPossible()
         case .sell:
             openSellCrypto()
+        case .swap:
+            openSwapping()
         }
     }
 
