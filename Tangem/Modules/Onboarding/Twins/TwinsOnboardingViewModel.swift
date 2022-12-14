@@ -344,7 +344,7 @@ class TwinsOnboardingViewModel: OnboardingTopupViewModel<TwinsOnboardingStep, On
     private func loadSecondTwinImage() {
         CardImageProvider()
             .loadTwinImage(for: twinData.series.pair.number)
-            .map { Image(uiImage: $0) }
+            .map { $0.image }
             .zip($cardImage.compactMap { $0 })
             .receive(on: DispatchQueue.main)
             .sink { [weak self] (paired, main) in
