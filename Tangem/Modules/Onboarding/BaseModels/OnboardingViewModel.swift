@@ -157,7 +157,7 @@ class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable>
 
         CardImageProvider(supportsOnlineImage: supportsOnlineImage)
             .loadImage(cardId: cardId, cardPublicKey: cardPublicKey)
-            .map { Image(uiImage: $0) }
+            .map { $0.image }
             .sink { [weak self] image in
                 withAnimation {
                     self?.cardImage = image
