@@ -38,6 +38,8 @@ enum UserWalletFeature: Int, CaseIterable { // [REDACTED_TODO_COMMENT]
     /// Synchronize tokens between devices using`userWalletId`
     /// Only for issued cards with multiple wallets
     case tokenSynchronization
+
+    case swapping
 }
 
 extension UserWalletFeature {
