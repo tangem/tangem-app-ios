@@ -9,6 +9,6 @@
 import Foundation
 
 protocol SwappingPermissionRoutable: AnyObject {
-    func approveTransactionHasSuccessfulSent()
+    func didSendApproveTransaction()
     func userDidCancel()
 }
