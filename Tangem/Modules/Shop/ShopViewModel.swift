@@ -287,9 +287,9 @@ extension ShopViewModel {
         var sku: String {
             switch self {
             case .twoCards:
-                return "TG115x2"
+                return "TG115X2-S"
             case .threeCards:
-                return "TG115x3"
+                return "TG115X3-S"
             }
         }
     }
