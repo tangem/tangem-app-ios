@@ -19,7 +19,7 @@ class WarningsService {
 
     private var mainWarnings: WarningsContainer = .init()
     private var sendWarnings: WarningsContainer = .init()
-    private var bag: Set<AnyCancellable> = []
+    private var validatorSubscription: AnyCancellable?
 
     init() {}
 
@@ -106,6 +106,8 @@ private extension WarningsService {
         card: CardDTO,
         validator: SignatureCountValidator?
     ) {
+        validatorSubscription = nil
+
         let cardId = card.cardId
         let cardSignedHashes = card.walletSignedHashes
         let isMultiWallet = config.hasFeature(.multiCurrency)
@@ -144,7 +146,7 @@ private extension WarningsService {
             return
         }
 
-        validator.validateSignatureCount(signedHashes: cardSignedHashes)
+        validatorSubscription = validator.validateSignatureCount(signedHashes: cardSignedHashes)
             .subscribe(on: DispatchQueue.global())
             .receive(on: RunLoop.main)
             .handleEvents(receiveCancel: {
@@ -159,7 +161,6 @@ private extension WarningsService {
                 }
                 didFinishCountingHashes()
             }
-            .store(in: &bag)
     }
 
     func showAlertAnimated(_ event: WarningEvent) {
