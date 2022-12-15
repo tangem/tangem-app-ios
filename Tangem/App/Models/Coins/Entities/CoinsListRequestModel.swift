@@ -12,7 +12,7 @@ struct CoinsListRequestModel: Encodable {
     let contractAddress: String?
     let networkIds: String?
     let searchText: String?
-    let exchangeable: Bool
+    let exchangeable: Bool?
     let limit: Int?
     let offset: Int?
     let active: Bool?
@@ -21,7 +21,7 @@ struct CoinsListRequestModel: Encodable {
         contractAddress: String? = nil,
         networkIds: [String],
         searchText: String? = nil,
-        exchangeable: Bool = false,
+        exchangeable: Bool? = nil,
         limit: Int? = nil,
         offset: Int? = nil,
         active: Bool? = nil
