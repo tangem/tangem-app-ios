@@ -170,7 +170,7 @@ private extension TokenListViewModel {
     func setupListDataLoader() -> ListDataLoader {
         let supportedBlockchains = cardModel?.supportedBlockchains ?? Blockchain.supportedBlockchains
         let networkIds = supportedBlockchains.map { $0.networkId }
-        let loader = ListDataLoader(networkIds: networkIds, exchangeable: false)
+        let loader = ListDataLoader(networkIds: networkIds)
 
         loader.$items
             .map { [unowned self] items -> [CoinViewModel] in
