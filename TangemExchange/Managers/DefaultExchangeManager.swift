@@ -187,6 +187,8 @@ private extension DefaultExchangeManager {
                         let exchangeData = try await getExchangeTxDataModel()
                         let info = try mapToExchangeTransactionInfo(exchangeData: exchangeData)
                         updateState(.available(expected: result, info: info))
+                    } else {
+                        updateState(.preview(expected: result))
                     }
                 case .token:
                     await updateExchangeAmountAllowance()
@@ -200,10 +202,10 @@ private extension DefaultExchangeManager {
                             spenderAddress: spender
                         )
                         updateState(.requiredPermission(expected: result, info: info))
+                    } else {
+                        updateState(.preview(expected: result))
                     }
                 }
-
-                updateState(.preview(expected: result))
             } catch {
                 updateState(.requiredRefresh(occurredError: error))
             }
@@ -278,7 +280,7 @@ private extension DefaultExchangeManager {
             throw ExchangeManagerError.destinationNotFound
         }
 
-        let paymentAmount = quoteData.fromTokenAmount / destination.decimalValue
+        let paymentAmount = quoteData.fromTokenAmount / exchangeItems.source.decimalValue
         let expectedAmount = quoteData.toTokenAmount / destination.decimalValue
 
         let expectedFiatAmount = try await blockchainDataProvider.getFiatBalance(
