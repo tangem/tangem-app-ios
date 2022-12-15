@@ -23,7 +23,7 @@ class ListDataLoader {
 
     // MARK: Input
     private let networkIds: [String]
-    private let exchangeable: Bool
+    private let exchangeable: Bool?
 
     // MARK: Private
 
@@ -39,7 +39,7 @@ class ListDataLoader {
     private var cachedSearch: [String: [CoinModel]] = [:]
     private var lastSearchText = ""
 
-    init(networkIds: [String], exchangeable: Bool) {
+    init(networkIds: [String], exchangeable: Bool? = nil) {
         self.networkIds = networkIds
         self.exchangeable = exchangeable
     }
