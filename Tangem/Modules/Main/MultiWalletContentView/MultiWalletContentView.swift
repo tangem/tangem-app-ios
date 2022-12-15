@@ -73,6 +73,7 @@ struct MultiWalletContentView: View {
                                 .padding(.leading, 68)
                         }
                     }
+                    .animation(nil)
                 }
             }
         }
