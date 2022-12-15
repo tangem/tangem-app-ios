@@ -418,8 +418,13 @@ class WalletOnboardingViewModel: OnboardingTopupViewModel<WalletOnboardingStep, 
                 switch newState {
                 case .kycStart:
                     if self.currentStep == .kycWaiting {
-                        break
+                        if case let .wallet(steps) = self.cardModel?.onboardingInput.steps { // rebuild steps from scratch
+                            self.steps = steps
+                            self.currentStepIndex = 0
+                        }
+                        return
                     }
+                    
                     self.goToNextStep()
                 case .claim:
                     self.goToNextStep()
