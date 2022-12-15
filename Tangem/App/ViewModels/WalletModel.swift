@@ -226,7 +226,7 @@ class WalletModel: ObservableObject, Identifiable {
         }
 
         print("🔄 Update state \(state) in WalletModel: \(blockchainNetwork.blockchain.displayName)")
-        DispatchQueue.main.async { [weak self] in //captured as weak at call stack
+        DispatchQueue.main.async { [weak self] in // captured as weak at call stack
             self?.state = state
         }
     }
