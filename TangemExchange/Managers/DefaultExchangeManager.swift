@@ -181,30 +181,27 @@ private extension DefaultExchangeManager {
                 let quoteData = try await getQuoteDataModel()
                 let result = try await mapExpectedSwappingResult(from: quoteData)
 
+                guard result.isEnoughAmountForExchange else {
+                    updateState(.preview(expected: result))
+                    return
+                }
+
                 switch exchangeItems.source.currencyType {
                 case .coin:
-                    if result.isEnoughAmountForExchange {
-                        let exchangeData = try await getExchangeTxDataModel()
-                        let info = try mapToExchangeTransactionInfo(exchangeData: exchangeData)
-                        updateState(.available(expected: result, info: info))
-                    } else {
-                        updateState(.preview(expected: result))
-                    }
+                    let exchangeData = try await getExchangeTxDataModel()
+                    let info = try mapToExchangeTransactionInfo(exchangeData: exchangeData)
+                    updateState(.available(expected: result, info: info))
                 case .token:
                     await updateExchangeAmountAllowance()
 
-                    if result.isEnoughAmountForExchange {
-                        let approvedDataModel = try await getExchangeApprovedDataModel()
-                        let spender = try await getApprovedSpenderAddress()
-                        let info = try mapToExchangeTransactionInfo(
-                            quoteData: quoteData,
-                            approvedData: approvedDataModel,
-                            spenderAddress: spender
-                        )
-                        updateState(.requiredPermission(expected: result, info: info))
-                    } else {
-                        updateState(.preview(expected: result))
-                    }
+                    let approvedDataModel = try await getExchangeApprovedDataModel()
+                    let spender = try await getApprovedSpenderAddress()
+                    let info = try mapToExchangeTransactionInfo(
+                        quoteData: quoteData,
+                        approvedData: approvedDataModel,
+                        spenderAddress: spender
+                    )
+                    updateState(.requiredPermission(expected: result, info: info))
                 }
             } catch {
                 updateState(.requiredRefresh(occurredError: error))
