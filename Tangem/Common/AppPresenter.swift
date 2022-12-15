@@ -11,7 +11,7 @@ import UIKit
 import SwiftUI
 
 class AppPresenter {
-    static let shared: AppPresenter = { .init() }()
+    static let shared = AppPresenter()
 
     private init() {}
 
