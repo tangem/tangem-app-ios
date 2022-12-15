@@ -85,7 +85,7 @@ struct TokenItemViewModel: Identifiable, Hashable, Equatable, Comparable {
         if state == .noDerivation {
             return "wallet_balance_missing_derivation".localized
         }
-        
+
         if state.isBlockchainUnreachable {
             return "wallet_balance_blockchain_unreachable".localized
         }
