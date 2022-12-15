@@ -37,7 +37,8 @@ class PreparePrimaryCardTask: CardSessionRunnable {
         sdkConfig.defaultDerivationPaths = derivations
         session.updateConfig(with: sdkConfig)
 
-        let createWalletsTask = CreateMultiWalletTask()
+        let curves: [EllipticCurve] = card.settings.maxWalletsCount > 1 ? [.secp256k1, .ed25519] : [.secp256k1]
+        let createWalletsTask = CreateMultiWalletTask(curves: curves)
         createWalletsTask.run(in: session) { result in
             switch result {
             case .success:
