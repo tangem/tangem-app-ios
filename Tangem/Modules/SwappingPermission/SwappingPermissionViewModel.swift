@@ -25,12 +25,12 @@ final class SwappingPermissionViewModel: ObservableObject, Identifiable {
     // MARK: - Dependencies
 
     private let transactionInfo: ExchangeTransactionDataModel
-    private let transactionSender: TransactionSenderProtocol
+    private let transactionSender: TransactionSendable
     private unowned let coordinator: SwappingPermissionRoutable
 
     init(
         transactionInfo: ExchangeTransactionDataModel,
-        transactionSender: TransactionSenderProtocol,
+        transactionSender: TransactionSendable,
         coordinator: SwappingPermissionRoutable
     ) {
         self.transactionInfo = transactionInfo
