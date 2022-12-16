@@ -46,6 +46,7 @@ class DefaultExchangeManager {
 
     private var refreshDataTimerBag: AnyCancellable?
     private var bag: Set<AnyCancellable> = []
+    private var permit: String?
 
     init(
         exchangeProvider: ExchangeProvider,
@@ -70,6 +71,18 @@ class DefaultExchangeManager {
 extension DefaultExchangeManager: ExchangeManager {
     func setDelegate(_ delegate: ExchangeManagerDelegate) {
         self.delegate = delegate
+    }
+
+    func setPermit(_ permit: String) {
+        self.permit = permit
+        Task {
+            do {
+                let exchangeData = try await getExchangeTxDataModel()
+                print(exchangeData)
+            } catch {
+                print("exchangeData", error)
+            }
+        }
     }
 
     func getAvailabilityState() -> ExchangeAvailabilityState {
@@ -211,6 +224,25 @@ private extension DefaultExchangeManager {
         }
     }
 
+    func refreshValuesForCoin(result: ExpectedSwappingResult, quoteData: QuoteDataModel) async throws {
+        let exchangeData = try await getExchangeTxDataModel()
+        let info = try mapToExchangeTransactionInfo(exchangeData: exchangeData)
+        updateState(.available(expected: result, info: info))
+    }
+
+    func refreshValuesForToken(result: ExpectedSwappingResult, quoteData: QuoteDataModel) async throws {
+        await updateExchangeAmountAllowance()
+
+        let approvedDataModel = try await getExchangeApprovedDataModel()
+        let spender = try await getApprovedSpenderAddress()
+        let info = try mapToExchangeTransactionInfo(
+            quoteData: quoteData,
+            approvedData: approvedDataModel,
+            spenderAddress: spender
+        )
+        updateState(.requiredPermission(expected: result, info: info))
+    }
+
     func updateExchangeAmountAllowance() async {
         /// If allowance limit already loaded use it
         guard tokenExchangeAllowanceLimit == nil,
@@ -253,7 +285,8 @@ private extension DefaultExchangeManager {
         return try await exchangeProvider.fetchExchangeData(
             items: exchangeItems,
             walletAddress: walletAddress,
-            amount: formattedAmount
+            amount: formattedAmount,
+            permit: permit
         )
     }
 
