@@ -134,12 +134,12 @@ private extension SwappingViewModel {
     ) {
         let amount = transactionModel.amount / transactionModel.sourceCurrency.decimalValue
         let source = CurrencyPrice(
-            amount: amount,
+            value: amount,
             currency: transactionModel.sourceCurrency
         )
 
         let result = CurrencyPrice(
-            amount: expectedModel.expectedAmount,
+            value: expectedModel.expectedAmount,
             currency: transactionModel.destinationCurrency
         )
 
@@ -372,10 +372,7 @@ private extension SwappingViewModel {
         Task {
             do {
                 try await transactionSender.sendTransaction(info)
-                openSuccessView(
-                    expectedModel: result,
-                    transactionModel: info
-                )
+                openSuccessView(expectedModel: result, transactionModel: info)
             } catch {
                 assertionFailure(error.localizedDescription)
                 // [REDACTED_TODO_COMMENT]
