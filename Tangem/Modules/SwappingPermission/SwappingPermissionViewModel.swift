@@ -44,9 +44,7 @@ final class SwappingPermissionViewModel: ObservableObject, Identifiable {
         Task {
             do {
                 try await transactionSender.sendTransaction(transactionInfo)
-                DispatchQueue.main.async {
-                    self.coordinator.didSendApproveTransaction()
-                }
+                await didSendApproveTransaction()
             } catch TangemSdkError.userCancelled {
                 // Do nothing
             } catch {
@@ -60,6 +58,17 @@ final class SwappingPermissionViewModel: ObservableObject, Identifiable {
         coordinator.userDidCancel()
     }
 }
+
+// MARK: - Navigation
+
+extension SwappingPermissionViewModel {
+    @MainActor
+    func didSendApproveTransaction() {
+        coordinator.didSendApproveTransaction()
+    }
+}
+
+// MARK: - Private
 
 private extension SwappingPermissionViewModel {
     func setupView() {
