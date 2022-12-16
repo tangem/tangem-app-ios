@@ -268,7 +268,7 @@ private extension SwappingViewModel {
             swappingFeeRowViewModel.update(
                 state: .fee(
                     fee: info.fee.groupedFormatted(maximumFractionDigits: result.decimalCount),
-                    symbol: exchangeManager.getExchangeItems().source.symbol,
+                    symbol: exchangeManager.getExchangeItems().source.blockchain.symbol,
                     fiat: fiatFee.currencyFormatted(code: AppSettings.shared.selectedCurrencyCode)
                 )
             )
