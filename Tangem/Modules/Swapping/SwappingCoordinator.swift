@@ -67,7 +67,7 @@ extension SwappingCoordinator: SwappingRoutable {
         )
     }
 
-    func presentPermissionView(transactionInfo: ExchangeTransactionDataModel, transactionSender: TransactionSenderProtocol) {
+    func presentPermissionView(transactionInfo: ExchangeTransactionDataModel, transactionSender: TransactionSendable) {
         swappingPermissionViewModel = SwappingPermissionViewModel(
             transactionInfo: transactionInfo,
             transactionSender: transactionSender,
