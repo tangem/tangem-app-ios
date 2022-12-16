@@ -29,7 +29,7 @@ public struct ExchangeTransactionDataModel {
 
     /// Calculated estimated fee
     public var fee: Decimal {
-        sourceCurrency.divide(value: Decimal(gasValue * gasPrice))
+        sourceCurrency.convertFromWEI(value: Decimal(gasValue * gasPrice))
     }
 
     public init(
