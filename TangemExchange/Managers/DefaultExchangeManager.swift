@@ -292,7 +292,6 @@ private extension DefaultExchangeManager {
             expectedAmount: expectedAmount,
             expectedFiatAmount: expectedFiatAmount,
             feeFiatRate: feeFiatRate,
-            decimalCount: exchangeItems.source.decimalCount,
             isEnoughAmountForExchange: isEnoughAmountForExchange
         )
     }
