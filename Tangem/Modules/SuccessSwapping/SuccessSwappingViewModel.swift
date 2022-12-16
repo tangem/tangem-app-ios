@@ -24,13 +24,13 @@ final class SuccessSwappingViewModel: ObservableObject, Identifiable {
 
     // MARK: - Dependencies
 
-    private let sourcePrice: CurrencyPrice
-    private let resultPrice: CurrencyPrice
+    private let sourcePrice: CurrencyAmount
+    private let resultPrice: CurrencyAmount
     private unowned let coordinator: SuccessSwappingRoutable
 
     init(
-        sourcePrice: CurrencyPrice,
-        resultPrice: CurrencyPrice,
+        sourcePrice: CurrencyAmount,
+        resultPrice: CurrencyAmount,
         coordinator: SuccessSwappingRoutable
     ) {
         self.sourcePrice = sourcePrice
