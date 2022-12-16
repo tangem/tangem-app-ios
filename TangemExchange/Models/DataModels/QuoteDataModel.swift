@@ -9,9 +9,9 @@
 import Foundation
 
 public struct QuoteDataModel {
-    /// GWEI
+    /// WEI
     public let toTokenAmount: Decimal
-    /// GWEI
+    /// WEI
     public let fromTokenAmount: Decimal
     public let estimatedGas: Int
 
