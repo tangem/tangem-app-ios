@@ -1,5 +1,5 @@
 //
-//  TransactionSenderProtocol.swift
+//  TransactionSendable.swift
 //  TangemExchange
 //
 //  Created by [REDACTED_AUTHOR]
@@ -8,6 +8,6 @@
 
 import Foundation
 
-public protocol TransactionSenderProtocol {
+public protocol TransactionSendable {
     func sendTransaction(_ info: ExchangeTransactionDataModel) async throws
 }
