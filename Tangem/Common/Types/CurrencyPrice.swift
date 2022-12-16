@@ -17,8 +17,8 @@ struct CurrencyPrice {
         return "\(amount) \(currency.symbol)"
     }
 
-    init(amount: Decimal, currency: Currency) {
-        self.value = amount
+    init(value: Decimal, currency: Currency) {
+        self.value = value
         self.currency = currency
     }
 }
