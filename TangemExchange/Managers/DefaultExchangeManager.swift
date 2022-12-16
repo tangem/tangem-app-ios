@@ -35,13 +35,12 @@ class DefaultExchangeManager {
     private weak var delegate: ExchangeManagerDelegate?
     private var amount: Decimal?
     private var formattedAmount: String {
-        guard var amount else {
+        guard let amount else {
             assertionFailure("Amount not set")
             return ""
         }
 
-        amount *= exchangeItems.source.decimalValue
-        return String(describing: amount)
+        return String(describing: exchangeItems.source.multiply(value: amount))
     }
 
     private var walletAddress: String? {
@@ -277,8 +276,8 @@ private extension DefaultExchangeManager {
             throw ExchangeManagerError.destinationNotFound
         }
 
-        let paymentAmount = quoteData.fromTokenAmount / exchangeItems.source.decimalValue
-        let expectedAmount = quoteData.toTokenAmount / destination.decimalValue
+        let paymentAmount = exchangeItems.source.divide(value: quoteData.fromTokenAmount)
+        let expectedAmount = destination.divide(value: quoteData.toTokenAmount)
 
         let expectedFiatAmount = try await blockchainDataProvider.getFiatBalance(
             currency: destination,
