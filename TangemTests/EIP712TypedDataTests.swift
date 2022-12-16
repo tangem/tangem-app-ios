@@ -122,4 +122,31 @@ class EIP712TypedDataTests: XCTestCase {
         let jsonTypedData = try typedData(for: "WCExample")
         XCTAssertEqual(jsonTypedData.signHash.hexString.lowercased(), "abc79f527273b9e7bca1b3f1ac6ad1a8431fa6dc34ece900deabcd6969856b5e")
     }
+
+    func testPermit() throws {
+        let jsonTypedData = try typedData(for: "permit")
+        XCTAssertEqual(jsonTypedData.signHash.hexString, "1995A8887FC026052978B0C23B8903599DC9AAB94E8B67C2A9EDD32C8614DFBE")
+    }
+
+    func testPermitEIP712ModelBuilder() throws {
+        let jsonTypedData = try typedData(for: "permit")
+
+        let domain = EIP712Domain(
+            name: "1INCH Token",
+            version: "1",
+            chainId: 56,
+            verifyingContract: "0x111111111117dc0aa78b770fa6a738034120c302"
+        )
+
+        let message = EIP712PermitMessage(
+            owner: "0x2c9b2dbdba8a9c969ac24153f5c1c23cb0e63914",
+            spender: "0x11111112542d85b3ef69ae05771c2dccff4faa26",
+            value: "1000000000",
+            nonce: 0,
+            deadline: 192689033
+        )
+
+        let permitModel = try EIP712ModelBuilder().permitTypedData(domain: domain, message: message)
+        XCTAssertEqual(jsonTypedData.signHash.hexString, permitModel.signHash.hexString)
+    }
 }
