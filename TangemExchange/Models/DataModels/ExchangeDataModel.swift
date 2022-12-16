@@ -10,16 +10,16 @@ import Foundation
 
 public struct ExchangeDataModel {
     public let gas: Int
-    /// GWEI
+    /// WEI
     public let gasPrice: Int
     public let txData: Data
 
     public let sourceAddress: String
     public let destinationAddress: String
 
-    /// GWEI
+    /// WEI
     public let sourceTokenAmount: Decimal
-    /// GWEI
+    /// WEI
     public let destinationTokenAmount: Decimal
 
     /// Contract address
