@@ -288,8 +288,7 @@ class TwinsOnboardingViewModel: OnboardingTopupViewModel<TwinsOnboardingStep, On
     override func handleUserWalletOnFinish() throws {
         if let originalUserWallet,
            retwinMode,
-           AppSettings.shared.saveUserWallets
-        {
+           AppSettings.shared.saveUserWallets {
             userWalletRepository.delete(originalUserWallet)
         } else {
             try super.handleUserWalletOnFinish()
