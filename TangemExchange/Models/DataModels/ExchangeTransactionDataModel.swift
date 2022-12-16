@@ -18,13 +18,13 @@ public struct ExchangeTransactionDataModel {
     /// Tx data which will be used as  etherium data in transaction
     public let txData: Data
 
-    /// Amount to send in GWEI
+    /// Amount to send in WEI
     public let amount: Decimal
 
     /// A long value gas, usual in period from 21000 to 30000
     public let gasValue: Int
 
-    /// Gas price in GWEI which will be used for calculate estimated fee
+    /// Gas price in WEI which will be used for calculate estimated fee
     public let gasPrice: Int
 
     /// Calculated estimated fee
