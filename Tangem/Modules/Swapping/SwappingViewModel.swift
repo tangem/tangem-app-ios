@@ -40,7 +40,7 @@ final class SwappingViewModel: ObservableObject {
     private let swappingDestinationService: SwappingDestinationServicing
     private let userCurrenciesProvider: UserCurrenciesProviding
     private let tokenIconURLBuilder: TokenIconURLBuilding
-    private let transactionSender: TransactionSenderProtocol
+    private let transactionSender: TransactionSendable
     private unowned let coordinator: SwappingRoutable
 
     // MARK: - Private
@@ -52,7 +52,7 @@ final class SwappingViewModel: ObservableObject {
         swappingDestinationService: SwappingDestinationServicing,
         userCurrenciesProvider: UserCurrenciesProviding,
         tokenIconURLBuilder: TokenIconURLBuilding,
-        transactionSender: TransactionSenderProtocol,
+        transactionSender: TransactionSendable,
         coordinator: SwappingRoutable
     ) {
         self.exchangeManager = exchangeManager
