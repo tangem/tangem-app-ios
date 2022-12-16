@@ -44,9 +44,9 @@ struct DependenciesFactory {
         UserCurrenciesProvider(walletModel: walletModel)
     }
 
-    func createTransactionSender(walletModel: WalletModel, signer: TransactionSigner) -> TransactionSenderProtocol {
-        TransactionSender(walletModel: walletModel,
-                          signer: signer,
-                          currencyMapper: createCurrencyMapper())
+    func createTransactionSender(sender: TransactionSender, signer: TransactionSigner) -> TransactionSendable {
+        ExchangeTransactionSender(sender: sender,
+                                  signer: signer,
+                                  currencyMapper: createCurrencyMapper())
     }
 }
