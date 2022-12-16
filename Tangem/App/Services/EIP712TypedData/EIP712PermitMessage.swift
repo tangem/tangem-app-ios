@@ -22,7 +22,7 @@ struct EIP712PermitMessage: Encodable, JSONEncodable {
     ///   - spender: Contract address
     ///   - value: amount ?
     ///   - nonce: number that can only be used once https://ru.wikipedia.org/wiki/Nonce
-    ///   - deadline: timestamp
+    ///   - deadline: The owner can limit the time a Permit is valid for by setting deadline to a value in the near future
     init(
         owner: String,
         spender: String,

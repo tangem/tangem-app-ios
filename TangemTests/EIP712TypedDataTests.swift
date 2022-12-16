@@ -139,14 +139,16 @@ class EIP712TypedDataTests: XCTestCase {
         )
 
         let message = EIP712PermitMessage(
-            owner: "0x2c9b2dbdba8a9c969ac24153f5c1c23cb0e63914",
+            owner: "0x29010F8F91B980858EB298A0843264cfF21Fd9c9",
             spender: "0x11111112542d85b3ef69ae05771c2dccff4faa26",
             value: "1000000000",
             nonce: 0,
-            deadline: 192689033
+            deadline: 1700000000 // Tue Nov 14 2023 22:13:20 GMT+0000
         )
 
+
         let permitModel = try EIP712ModelBuilder().permitTypedData(domain: domain, message: message)
+        print("permitModel.signHash.hexString", permitModel.signHash.hexString)
         XCTAssertEqual(jsonTypedData.signHash.hexString, permitModel.signHash.hexString)
     }
 }
