@@ -69,7 +69,8 @@ private extension CardSettingsViewModel {
 
     func prepareTwinOnboarding() {
         if let twinInput = cardModel.twinInput {
-            coordinator.openOnboarding(with: twinInput, isSavingCards: !userWalletRepository.isEmpty)
+            let canSelectDifferentCardAfterReset = AppSettings.shared.saveUserWallets && userWalletRepository.models.count > 1
+            coordinator.openOnboarding(with: twinInput, canSelectDifferentCardAfterReset: canSelectDifferentCardAfterReset)
         }
     }
 
