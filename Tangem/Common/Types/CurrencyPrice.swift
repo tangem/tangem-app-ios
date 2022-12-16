@@ -9,16 +9,16 @@
 import TangemExchange
 
 struct CurrencyPrice {
-    let amount: Decimal
+    let value: Decimal
     let currency: Currency
 
     var formatted: String {
-        let amount = amount.groupedFormatted(maximumFractionDigits: currency.decimalCount)
+        let amount = value.groupedFormatted(maximumFractionDigits: currency.decimalCount)
         return "\(amount) \(currency.symbol)"
     }
 
     init(amount: Decimal, currency: Currency) {
-        self.amount = amount
+        self.value = amount
         self.currency = currency
     }
 }
