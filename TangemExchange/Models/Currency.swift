@@ -75,7 +75,13 @@ public extension Currency {
 }
 
 public extension Currency {
-    var decimalValue: Decimal {
-        pow(10, decimalCount)
+    func multiply(value: Decimal) -> Decimal {
+        let decimalValue = pow(10, decimalCount)
+        return value * decimalValue
+    }
+
+    func divide(value: Decimal) -> Decimal {
+        let decimalValue = pow(10, decimalCount)
+        return value / decimalValue
     }
 }
