@@ -1,5 +1,5 @@
 //
-//  TransactionSender.swift
+//  ExchangeTransactionSender.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -9,27 +9,25 @@
 import TangemExchange
 import BlockchainSdk
 
-struct TransactionSender {
-    private let walletModel: WalletModel
+struct ExchangeTransactionSender {
+    private let sender: TransactionSender
     private let signer: TransactionSigner
     private let currencyMapper: CurrencyMapping
 
-    private var walletManager: WalletManager { walletModel.walletManager }
-
     init(
-        walletModel: WalletModel,
+        sender: TransactionSender,
         signer: TransactionSigner,
         currencyMapper: CurrencyMapping
     ) {
-        self.walletModel = walletModel
+        self.sender = sender
         self.signer = signer
         self.currencyMapper = currencyMapper
     }
 }
 
-// MARK: - TransactionSenderProtocol
+// MARK: - TransactionSendable
 
-extension TransactionSender: TransactionSenderProtocol {
+extension ExchangeTransactionSender: TransactionSendable {
     func sendTransaction(_ info: ExchangeTransactionDataModel) async throws {
         try await send(buildTransaction(for: info))
     }
@@ -37,12 +35,12 @@ extension TransactionSender: TransactionSenderProtocol {
 
 // MARK: - Private
 
-private extension TransactionSender {
+private extension ExchangeTransactionSender {
     func buildTransaction(for info: ExchangeTransactionDataModel) throws -> Transaction {
         let amount = createAmount(from: info.sourceCurrency, amount: info.amount / info.sourceCurrency.decimalValue)
         let fee = try createAmount(from: info.destinationCurrency.blockchain, amount: info.fee)
 
-        var transaction = try walletManager.createTransaction(
+        var transaction = try sender.createTransaction(
             amount: amount,
             fee: fee,
             destinationAddress: info.destinationAddress,
@@ -57,7 +55,7 @@ private extension TransactionSender {
     }
 
     func send(_ transaction: Transaction) async throws {
-        try await walletManager.send(transaction, signer: signer).async()
+        try await sender.send(transaction, signer: signer).async()
     }
 
     func createAmount(from currency: Currency, amount: Decimal) -> Amount {
