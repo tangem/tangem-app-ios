@@ -29,10 +29,7 @@ public struct ExchangeTransactionDataModel {
 
     /// Calculated estimated fee
     public var fee: Decimal {
-        let gas = Decimal(gasValue * gasPrice) / sourceCurrency.decimalValue
-        print("gas", gas, "gasValue", gasValue, "gasPrice", gasPrice)
-
-        return gas
+        sourceCurrency.divide(value: Decimal(gasValue * gasPrice))
     }
 
     public init(
