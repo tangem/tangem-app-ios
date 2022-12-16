@@ -26,10 +26,7 @@ class DefaultExchangeManager {
         didSet { delegate?.exchangeManager(self, didUpdate: exchangeItems) }
     }
     private var tokenExchangeAllowanceLimit: Decimal? {
-        didSet {
-            print("tokenExchangeAllowanceLimit", tokenExchangeAllowanceLimit)
-            delegate?.exchangeManager(self, didUpdate: isAvailableForExchange())
-        }
+        didSet { delegate?.exchangeManager(self, didUpdate: isAvailableForExchange()) }
     }
 
     private weak var delegate: ExchangeManagerDelegate?
@@ -40,7 +37,7 @@ class DefaultExchangeManager {
             return ""
         }
 
-        return String(describing: exchangeItems.source.multiply(value: amount))
+        return String(describing: exchangeItems.source.convertToWEI(value: amount))
     }
 
     private var walletAddress: String? {
@@ -276,8 +273,8 @@ private extension DefaultExchangeManager {
             throw ExchangeManagerError.destinationNotFound
         }
 
-        let paymentAmount = exchangeItems.source.divide(value: quoteData.fromTokenAmount)
-        let expectedAmount = destination.divide(value: quoteData.toTokenAmount)
+        let paymentAmount = exchangeItems.source.convertFromWEI(value: quoteData.fromTokenAmount)
+        let expectedAmount = destination.convertFromWEI(value: quoteData.toTokenAmount)
 
         let expectedFiatAmount = try await blockchainDataProvider.getFiatBalance(
             currency: destination,
