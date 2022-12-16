@@ -5,6 +5,7 @@
 //  Created by [REDACTED_AUTHOR]
 //  Copyright © 2022 Tangem AG. All rights reserved.
 //
+
 /// https://github.com/ethereum/EIPs/blob/master/EIPS/eip-712.md
 
 import Foundation

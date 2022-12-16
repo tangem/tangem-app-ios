@@ -1,27 +1,14 @@
-// Copyright © 2017-2018 Trust.
 //
-// This file is part of Trust. The full Trust copyright notice, including
-// terms governing use, modification, and redistribution, is contained in the
-// file LICENSE at the root of the source code distribution tree.
-
+//  EIP712TypedData.swift
+//  Tangem
+//
+//  Created by [REDACTED_AUTHOR]
+//  Copyright © 2022 Tangem AG. All rights reserved.
+//
 /// https://github.com/ethereum/EIPs/blob/master/EIPS/eip-712.md
 import Foundation
 import BigInt
 import BlockchainSdk
-
-/// A struct represents EIP712 type tuple
-public struct EIP712Type: Codable {
-    let name: String
-    let type: String
-}
-
-/// A struct represents EIP712 Domain
-public struct EIP712Domain: Codable {
-    let name: String
-    let version: String
-    let chainId: Int
-    let verifyingContract: String
-}
 
 /// A struct represents EIP712 TypedData
 public struct EIP712TypedData: Codable {
@@ -29,6 +16,13 @@ public struct EIP712TypedData: Codable {
     public let primaryType: String
     public let domain: JSON
     public let message: JSON
+
+    init(types: [String: [EIP712Type]], primaryType: String, domain: JSON, message: JSON) {
+        self.types = types
+        self.primaryType = primaryType
+        self.domain = domain
+        self.message = message
+    }
 }
 
 extension EIP712TypedData {
