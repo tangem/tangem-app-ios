@@ -11,6 +11,9 @@ import TangemExchange
 
 struct ExchangeManagerMock: ExchangeManager {
     func setDelegate(_ delegate: TangemExchange.ExchangeManagerDelegate) {}
+    func setPermit(_ permit: String) {
+
+    }
 
     func getExchangeItems() -> TangemExchange.ExchangeItems {
         ExchangeItems(source: .mock, destination: .mock)
