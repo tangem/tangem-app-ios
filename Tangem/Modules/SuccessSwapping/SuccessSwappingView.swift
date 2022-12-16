@@ -65,7 +65,7 @@ struct SuccessSwappingView: View {
 
 struct SuccessSwappingView_Preview: PreviewProvider {
     static let viewModel = SuccessSwappingViewModel(
-        sourcePrice: .init(amount: 1000, currency: .mock),
+        sourcePrice: .init(value: 1000, currency: .mock),
         resultPrice: .init(value: 200, currency: .mock),
         coordinator: SwappingCoordinator()
     )
