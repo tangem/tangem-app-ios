@@ -41,6 +41,14 @@ extension EIP712TypedData {
         return data.sha3(.keccak256)
     }
 
+    public var signHash2: Data {
+        let data = Data([0x19, 0x01]) +
+            hashStruct(data: domain, type: "EIP712Domain") +
+            hashStruct(data: message, type: primaryType)
+
+        return data
+    }
+
     func hashStruct(data: JSON, type: String) -> Data {
         encodeData(data: data, type: type).sha3(.keccak256)
     }
