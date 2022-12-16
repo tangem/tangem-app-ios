@@ -13,7 +13,7 @@ public struct ExchangeApprovedDataModel {
     public let gasPrice: Int
     public let tokenAddress: String
 
-    /// The value which send for approve in GWEI
+    /// The value which send for approve in WEI
     public let value: Decimal
 
     public init(approveTxData: ApprovedTransactionData) throws {
