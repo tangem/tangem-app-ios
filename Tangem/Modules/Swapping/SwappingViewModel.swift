@@ -264,11 +264,12 @@ private extension SwappingViewModel {
              let .requiredPermission(result, info):
 
             let fiatFee = info.fee * result.feeFiatRate
+            let source = exchangeManager.getExchangeItems().source
 
             swappingFeeRowViewModel.update(
                 state: .fee(
-                    fee: info.fee.groupedFormatted(maximumFractionDigits: result.decimalCount),
-                    symbol: exchangeManager.getExchangeItems().source.blockchain.symbol,
+                    fee: info.fee.groupedFormatted(maximumFractionDigits: source.decimalCount),
+                    symbol: source.blockchain.symbol,
                     fiat: fiatFee.currencyFormatted(code: AppSettings.shared.selectedCurrencyCode)
                 )
             )
