@@ -32,7 +32,7 @@ public struct TransactionData: Codable {
     public let data: String
     public let value: String
     public let gas: Int
-    // GWEI
+    // WEI
     public let gasPrice: String
 }
 
