@@ -507,6 +507,7 @@ extension TokenDetailsViewModel {
 
         let input = SwappingConfigurator.InputModel(
             walletModel: walletModel,
+            sender: walletModel.walletManager,
             signer: card.signer,
             source: source
         )
