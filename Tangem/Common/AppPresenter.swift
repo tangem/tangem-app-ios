@@ -19,8 +19,11 @@ class AppPresenter {
         let viewModel = SupportChatViewModel(cardId: cardId, dataCollector: dataCollector)
         let view = SupportChatView(viewModel: viewModel)
         let controller = UIHostingController(rootView: view)
+        show(controller)
+    }
 
-        DispatchQueue.main.async {
+    private func show(_ controller: UIViewController) {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
             UIApplication.modalFromTop(controller)
         }
     }
