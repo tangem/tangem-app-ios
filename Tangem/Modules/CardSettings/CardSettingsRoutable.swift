@@ -9,7 +9,7 @@
 import Foundation
 
 protocol CardSettingsRoutable: AnyObject {
-    func openOnboarding(with input: OnboardingInput, canSelectDifferentCardAfterReset: Bool)
+    func openOnboarding(with input: OnboardingInput, hasOtherCards: Bool)
     func openSecurityMode(cardModel: CardViewModel)
     func openResetCardToFactoryWarning(mainButtonAction: @escaping () -> Void)
     func dismiss()
