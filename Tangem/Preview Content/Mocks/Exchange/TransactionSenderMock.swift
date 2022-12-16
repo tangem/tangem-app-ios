@@ -8,6 +8,6 @@
 
 import TangemExchange
 
-struct TransactionSenderMock: TransactionSenderProtocol {
+struct TransactionSenderMock: TransactionSendable {
     func sendTransaction(_ info: ExchangeTransactionDataModel) async throws {}
 }
