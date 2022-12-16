@@ -75,7 +75,7 @@ extension SwappingCoordinator: SwappingRoutable {
         )
     }
 
-    func presentSuccessView(source: CurrencyPrice, result: CurrencyPrice) {
+    func presentSuccessView(source: CurrencyAmount, result: CurrencyAmount) {
         successSwappingViewModel = SuccessSwappingViewModel(
             sourcePrice: source,
             resultPrice: result,
