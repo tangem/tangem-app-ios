@@ -132,7 +132,7 @@ private extension SwappingViewModel {
         expectedModel: ExpectedSwappingResult,
         transactionModel: ExchangeTransactionDataModel
     ) {
-        let amount = transactionModel.sourceCurrency.divide(value: transactionModel.amount)
+        let amount = transactionModel.sourceCurrency.convertFromWEI(value: transactionModel.amount)
         let source = CurrencyAmount(
             value: amount,
             currency: transactionModel.sourceCurrency
