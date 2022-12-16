@@ -99,7 +99,9 @@ final class SwappingViewModel: ObservableObject {
     func didTapMainButton() {
         switch mainButtonState {
         case .permitAndSwap:
-            break // [REDACTED_TODO_COMMENT]
+            if let amount = sendDecimalValue {
+                permit(amount: amount)
+            }
         case .swap:
             swapItems()
         case .givePermission:
@@ -328,6 +330,31 @@ private extension SwappingViewModel {
             }
             .store(in: &bag)
     }
+
+    func permit(amount: Decimal) {
+        let source = exchangeManager.getExchangeItems().source
+        let value = amount * source.decimalValue
+
+        let domain = EIP712Domain(
+            name: source.symbol,
+            version: "4",
+            chainId: source.blockchain.chainId,
+            verifyingContract: source.contractAddress! //  "0x111111111117dc0aa78b770fa6a738034120c302"
+        )
+
+        let message = EIP712PermitMessage(
+            owner: "0x29010F8F91B980858EB298A0843264cfF21Fd9c9",
+            spender: "0x11111112542d85b3ef69ae05771c2dccff4faa26",
+            value: value.description,
+            nonce: 0,
+            deadline: 1700000000 // Tue Nov 14 2023 22:13:20 GMT+0000
+        )
+
+        let permitModel = try! EIP712ModelBuilder().permitTypedData(domain: domain, message: message)
+        print("permitModel.signHash.hexString", permitModel.signHash2.hexString)
+        exchangeManager.setPermit(permitModel.signHash2.hexString)
+    }
+
 
     func loadDestinationIfNeeded() {
         guard exchangeManager.getExchangeItems().destination == nil else {

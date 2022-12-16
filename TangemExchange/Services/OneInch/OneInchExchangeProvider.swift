@@ -12,7 +12,6 @@ import Combine
 class OneInchExchangeProvider {
     /// OneInch use this contractAddress for coins
     private let oneInchCoinContractAddress = "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"
-    private let defaultSlippage = 1
     private let oneInchAPIProvider: OneInchAPIServicing
 
     private var bag = Set<AnyCancellable>()
@@ -48,14 +47,14 @@ extension OneInchExchangeProvider: ExchangeProvider {
         }
     }
 
-    func fetchExchangeData(items: ExchangeItems, walletAddress: String, amount: String) async throws -> ExchangeDataModel {
+    func fetchExchangeData(items: ExchangeItems, walletAddress: String, amount: String, permit: String?) async throws -> ExchangeDataModel {
         let destination = items.destination
         let parameters = ExchangeParameters(
             fromTokenAddress: items.source.contractAddress ?? oneInchCoinContractAddress,
             toTokenAddress: destination?.contractAddress ?? oneInchCoinContractAddress,
             amount: amount,
             fromAddress: walletAddress,
-            slippage: defaultSlippage
+            permit: permit
         )
 
         let result = await oneInchAPIProvider.swap(blockchain: items.source.blockchain, parameters: parameters)

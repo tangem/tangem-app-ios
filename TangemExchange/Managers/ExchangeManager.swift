@@ -12,6 +12,8 @@ public protocol ExchangeManager {
     /// Delegate for view updates
     func setDelegate(_ delegate: ExchangeManagerDelegate)
 
+    func setPermit(_ permit: String)
+
     /// Items which currently to swapping
     func getExchangeItems() -> ExchangeItems
 
