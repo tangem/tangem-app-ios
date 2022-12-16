@@ -44,6 +44,18 @@ public enum ExchangeBlockchain: Hashable, CaseIterable {
         }
     }
 
+    public var symbol: String {
+        switch self {
+        case .ethereum, .arbitrum, .optimism, .aurora: return "ETH"
+        case .bsc: return "BNB"
+        case .polygon: return "MATIC"
+        case .avalanche: return "AVAX"
+        case .fantom: return "FTM"
+        case .gnosis: return "xDAI"
+        case .klayth: return "KLAY"
+        }
+    }
+
     /// Uses for build icon url
     public var id: String {
         switch self {
