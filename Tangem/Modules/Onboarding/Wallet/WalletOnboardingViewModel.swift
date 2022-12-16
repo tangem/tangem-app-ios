@@ -706,7 +706,7 @@ class WalletOnboardingViewModel: OnboardingTopupViewModel<WalletOnboardingStep, 
         backupService.discardIncompletedBackup()
     }
 
-    override func saveUserWalletIfNeeded() throws {
+    override func handleUserWalletOnFinish() throws {
         if AppSettings.shared.saveAccessCodes,
            let accessCode = self.accessCode,
            let cardIds = self.cardIds {
@@ -715,7 +715,7 @@ class WalletOnboardingViewModel: OnboardingTopupViewModel<WalletOnboardingStep, 
             try accessCodeRepository.save(accessCodeData, for: cardIds)
         }
 
-        try super.saveUserWalletIfNeeded()
+        try super.handleUserWalletOnFinish()
     }
 
     private func fireConfettiIfNeeded() {
