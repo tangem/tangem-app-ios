@@ -283,15 +283,13 @@ class TwinsOnboardingViewModel: OnboardingTopupViewModel<TwinsOnboardingStep, On
         }
     }
 
-    override func saveUserWalletIfNeeded() throws {
-        try super.saveUserWalletIfNeeded()
-
+    override func handleUserWalletOnFinish() throws {
         if let originalUserWallet,
-           let currentUserWalletId = input.cardInput.cardModel?.userWalletId,
-           originalUserWallet.userWalletId != currentUserWalletId,
-           AppSettings.shared.saveUserWallets
-        {
+           retwinMode,
+           AppSettings.shared.saveUserWallets {
             userWalletRepository.delete(originalUserWallet)
+        } else {
+            try super.handleUserWalletOnFinish()
         }
     }
 
