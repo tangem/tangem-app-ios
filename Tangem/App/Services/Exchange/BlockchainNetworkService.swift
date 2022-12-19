@@ -39,6 +39,19 @@ extension BlockchainNetworkService: TangemExchange.BlockchainDataProvider {
         return walletModel.wallet.address
     }
 
+    func getBalance(blockchain: ExchangeBlockchain) async throws -> Decimal {
+        guard walletModel.blockchainNetwork.blockchain.networkId == blockchain.networkId else {
+            assertionFailure("Incorrect WalletModel")
+            return 0
+        }
+
+        if let balance = walletModel.getDecimalBalance(for: .coin) {
+            return balance
+        }
+
+        return try await getBalanceThroughUpdateWalletModel(amountType: .coin)
+    }
+
     func getBalance(currency: Currency) async throws -> Decimal {
         let amountType: Amount.AmountType
 
