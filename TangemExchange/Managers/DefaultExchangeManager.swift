@@ -286,10 +286,11 @@ private extension DefaultExchangeManager {
         return PreviewSwappingDataModel(
             expectedAmount: expectedAmount,
             expectedFiatAmount: expectedFiatAmount,
+            isRequiredPermission: !isEnoughAllowance(),
             isEnoughAmountForExchange: isEnoughAmountForExchange
         )
     }
-    
+
     func mapToSwappingResultDataModel(
         preview: PreviewSwappingDataModel,
         transaction: ExchangeTransactionDataModel
@@ -297,13 +298,13 @@ private extension DefaultExchangeManager {
         guard let amount = amount else {
             throw ExchangeManagerError.amountNotFound
         }
-        
+
         let source = exchangeItems.source
         let sourceBalance = exchangeItems.sourceBalance.balance
         let fee = transaction.fee
-        
+
         let fiatFee = try await blockchainDataProvider.getFiat(amount: transaction.fee, blockchain: source.blockchain)
-        
+
         let isEnoughAmountForFee: Bool
         var paymentAmount = amount
         switch exchangeItems.source.currencyType {
@@ -314,7 +315,7 @@ private extension DefaultExchangeManager {
             let coinBalance = try await blockchainDataProvider.getBalance(blockchain: source.blockchain)
             isEnoughAmountForFee = coinBalance >= fee
         }
-        
+
         let isEnoughAmountForExchange = sourceBalance >= paymentAmount
 
         return SwappingResultDataModel(
@@ -324,7 +325,7 @@ private extension DefaultExchangeManager {
             fiatFee: fiatFee,
             isEnoughAmountForExchange: isEnoughAmountForExchange,
             isEnoughAmountForFee: isEnoughAmountForFee,
-            isRequiredPermission: isEnoughAllowance()
+            isRequiredPermission: !isEnoughAllowance()
         )
     }
 
