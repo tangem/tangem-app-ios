@@ -149,16 +149,18 @@ class WalletModel: ObservableObject, Identifiable {
                     switch error as? WalletError {
                     case .noAccount(let message):
                         self.updateState(.noAccount(message: message))
+                        self.updatePublisher?.send(completion: .finished)
+                        self.updatePublisher = nil
                     default:
                         self.updateState(
                             .failed(error: error.detailedError.localizedDescription)
                         )
+                        Analytics.log(error: error)
+                        self.updateRatesIfNeeded([:])
+                        
+                        self.updatePublisher?.send(completion: .failure(error))
+                        self.updatePublisher = nil
                     }
-                    
-                    Analytics.log(error: error)
-                    self.updateRatesIfNeeded([:])
-                    self.updatePublisher?.send(completion: .failure(error))
-                    self.updatePublisher = nil
                 }
 
             } receiveValue: { [weak self] rates in
