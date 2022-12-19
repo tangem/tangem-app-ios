@@ -13,6 +13,5 @@ public protocol BlockchainDataProvider {
 
     func getBalance(currency: Currency) async throws -> Decimal
     func getFiatBalance(currency: Currency, amount: Decimal) async throws -> Decimal
-
-    func getFee(currency: Currency, amount: Decimal, destination: String) async throws -> [Decimal]
+    func getFiatRateForFee(currency: Currency) async throws -> Decimal
 }
