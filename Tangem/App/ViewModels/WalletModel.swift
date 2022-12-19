@@ -131,7 +131,7 @@ class WalletModel: ObservableObject, Identifiable {
             return newUpdatePublisher.eraseToAnyPublisher()
         }
 
-        if !silent || state.isNoAccount {
+        if !silent {
             updateState(.loading)
         }
 
@@ -146,9 +146,17 @@ class WalletModel: ObservableObject, Identifiable {
                 case .finished:
                     break
                 case let .failure(error):
+                    switch error as? WalletError {
+                    case .noAccount(let message):
+                        self.updateState(.noAccount(message: message))
+                    default:
+                        self.updateState(
+                            .failed(error: error.detailedError.localizedDescription)
+                        )
+                    }
+                    
                     Analytics.log(error: error)
                     self.updateRatesIfNeeded([:])
-                    self.updateState(.failed(error: error.localizedDescription))
                     self.updatePublisher?.send(completion: .failure(error))
                     self.updatePublisher = nil
                 }
@@ -157,12 +165,7 @@ class WalletModel: ObservableObject, Identifiable {
                 guard let self else { return }
 
                 self.updateRatesIfNeeded(rates)
-
-                // Don't update noAccount state
-                if !self.state.isNoAccount {
-                    self.updateState(.idle)
-                }
-
+                self.updateState(.idle)
                 self.updatePublisher?.send(completion: .finished)
                 self.updatePublisher = nil
             }
@@ -189,14 +192,7 @@ class WalletModel: ObservableObject, Identifiable {
                         promise(.success(()))
 
                     case let .failure(error):
-                        switch error as? WalletError {
-                        case .noAccount(let message):
-                            // If we don't have a account just update state and loadRates
-                            self?.updateState(.noAccount(message: message))
-                            promise(.success(()))
-                        default:
-                            promise(.failure(error.detailedError))
-                        }
+                        promise(.failure(error))
                     }
                 }
             }
