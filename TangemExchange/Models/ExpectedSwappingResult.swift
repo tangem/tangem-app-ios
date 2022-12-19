@@ -25,30 +25,30 @@ public struct PreviewSwappingDataModel {
 }
 
 public struct SwappingResultDataModel {
-    public let expectedAmount: Decimal
-    public let expectedFiatAmount: Decimal
-    public let expectedFee: Decimal
-    public let expectedFiatFee: Decimal
+    public let amount: Decimal
+    public let fiatAmount: Decimal
+    public let fee: Decimal
+    public let fiatFee: Decimal
     
+    public let isEnoughAmountForExchange: Bool
     public let isEnoughAmountForFee: Bool
     public let isRequiredPermission: Bool
-    public let transactionInfo: ExchangeTransactionDataModel
     
     public init(
-        expectedAmount: Decimal,
-        expectedFiatAmount: Decimal,
-        expectedFee: Decimal,
-        expectedFiatFee: Decimal,
+        amount: Decimal,
+        fiatAmount: Decimal,
+        fee: Decimal,
+        fiatFee: Decimal,
+        isEnoughAmountForExchange: Bool,
         isEnoughAmountForFee: Bool,
-        isRequiredPermission: Bool,
-        transactionInfo: ExchangeTransactionDataModel
+        isRequiredPermission: Bool
     ) {
-        self.expectedAmount = expectedAmount
-        self.expectedFiatAmount = expectedFiatAmount
-        self.expectedFee = expectedFee
-        self.expectedFiatFee = expectedFiatFee
+        self.amount = amount
+        self.fiatAmount = fiatAmount
+        self.fee = fee
+        self.fiatFee = fiatFee
+        self.isEnoughAmountForExchange = isEnoughAmountForExchange
         self.isEnoughAmountForFee = isEnoughAmountForFee
         self.isRequiredPermission = isRequiredPermission
-        self.transactionInfo = transactionInfo
     }
 }
