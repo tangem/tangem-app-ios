@@ -51,14 +51,14 @@ extension CardSettingsCoordinator {
 // MARK: - CardSettingsRoutable
 
 extension CardSettingsCoordinator: CardSettingsRoutable {
-    func openOnboarding(with input: OnboardingInput, isSavingCards: Bool) {
+    func openOnboarding(with input: OnboardingInput, hasOtherCards: Bool) {
         let dismissAction: Action = { [weak self] in
             self?.modalOnboardingCoordinator = nil
             self?.dismiss()
         }
 
         let coordinator = OnboardingCoordinator(dismissAction: dismissAction, popToRootAction: popToRootAction)
-        let options = OnboardingCoordinator.Options(input: input, destination: isSavingCards ? .dismiss : .root)
+        let options = OnboardingCoordinator.Options(input: input, destination: hasOtherCards ? .dismiss : .root)
         coordinator.start(with: options)
         modalOnboardingCoordinator = coordinator
     }
