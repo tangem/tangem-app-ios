@@ -8,27 +8,47 @@
 
 import Foundation
 
-public struct ExpectedSwappingResult {
+public struct PreviewSwappingDataModel {
     public let expectedAmount: Decimal
     public let expectedFiatAmount: Decimal
-    public let feeFiatRate: Decimal
     public let isEnoughAmountForExchange: Bool
-    public let isEnoughAmountForFee: Bool
-    public let isRequiredPermission: Bool
 
-    init(
+    public init(
         expectedAmount: Decimal,
         expectedFiatAmount: Decimal,
-        feeFiatRate: Decimal,
-        isEnoughAmountForExchange: Bool,
-        isEnoughAmountForFee: Bool,
-        isRequiredPermission: Bool
+        isEnoughAmountForExchange: Bool
     ) {
         self.expectedAmount = expectedAmount
         self.expectedFiatAmount = expectedFiatAmount
-        self.feeFiatRate = feeFiatRate
         self.isEnoughAmountForExchange = isEnoughAmountForExchange
+    }
+}
+
+public struct SwappingResultDataModel {
+    public let expectedAmount: Decimal
+    public let expectedFiatAmount: Decimal
+    public let expectedFee: Decimal
+    public let expectedFiatFee: Decimal
+    
+    public let isEnoughAmountForFee: Bool
+    public let isRequiredPermission: Bool
+    public let transactionInfo: ExchangeTransactionDataModel
+    
+    public init(
+        expectedAmount: Decimal,
+        expectedFiatAmount: Decimal,
+        expectedFee: Decimal,
+        expectedFiatFee: Decimal,
+        isEnoughAmountForFee: Bool,
+        isRequiredPermission: Bool,
+        transactionInfo: ExchangeTransactionDataModel
+    ) {
+        self.expectedAmount = expectedAmount
+        self.expectedFiatAmount = expectedFiatAmount
+        self.expectedFee = expectedFee
+        self.expectedFiatFee = expectedFiatFee
         self.isEnoughAmountForFee = isEnoughAmountForFee
         self.isRequiredPermission = isRequiredPermission
+        self.transactionInfo = transactionInfo
     }
 }
