@@ -148,7 +148,8 @@ private extension SwappingViewModel {
 
     func openPermissionView() {
         let state = exchangeManager.getAvailabilityState()
-        guard case let .requiredPermission(_, info) = state else {
+        guard case let .available(result, info) = state,
+              result.isRequiredPermission else {
             return
         }
 
@@ -205,8 +206,7 @@ private extension SwappingViewModel {
         case .loading:
             state = .loading
         case let .preview(result),
-             let .available(result, _),
-             let .requiredPermission(result, _):
+             let .available(result, _):
             state = .loaded(result.expectedAmount, fiatValue: result.expectedFiatAmount)
         }
 
@@ -232,13 +232,24 @@ private extension SwappingViewModel {
             receiveCurrencyViewModel?.updateState(.loading)
 
         case let .preview(result),
-             let .available(result, _),
-             let .requiredPermission(result, _):
+             let .available(result, _):
             refreshWarningRowViewModel = nil
             feeWarningRowViewModel = nil
             receiveCurrencyViewModel?.updateState(
                 .loaded(result.expectedAmount, fiatValue: result.expectedFiatAmount)
             )
+
+            if result.isEnoughAmountForFee {
+                feeWarningRowViewModel = nil
+            } else {
+                let sourceBlockchain = exchangeManager.getExchangeItems().source.blockchain
+                feeWarningRowViewModel = DefaultWarningRowViewModel(
+                    icon: Assets.attention,
+                    title: nil,
+                    subtitle: "Not enough funds for fee on your \(sourceBlockchain.symbol) wallet to create a transaction. Top up your \(sourceBlockchain.symbol) wallet first.",
+                    action: {}
+                )
+            }
 
         case .requiredRefresh(let error):
             receiveCurrencyViewModel?.updateState(.loaded(0, fiatValue: 0))
@@ -260,8 +271,7 @@ private extension SwappingViewModel {
             swappingFeeRowViewModel.update(state: .idle)
         case .loading:
             swappingFeeRowViewModel.update(state: .loading)
-        case let .available(result, info),
-             let .requiredPermission(result, info):
+        case let .available(result, info):
 
             let fiatFee = info.fee * result.feeFiatRate
             let source = exchangeManager.getExchangeItems().source
@@ -288,17 +298,10 @@ private extension SwappingViewModel {
              let .available(result, _):
             mainButtonIsEnabled = result.isEnoughAmountForExchange
 
-            if result.isEnoughAmountForExchange {
-                mainButtonState = .swap
-            } else {
-                mainButtonState = .insufficientFunds
-            }
-
-        case let .requiredPermission(result, _):
-            mainButtonIsEnabled = result.isEnoughAmountForExchange
-
-            if result.isEnoughAmountForExchange {
+            if result.isRequiredPermission {
                 mainButtonState = .givePermission
+            } else if result.isEnoughAmountForExchange {
+                mainButtonState = .swap
             } else {
                 mainButtonState = .insufficientFunds
             }
