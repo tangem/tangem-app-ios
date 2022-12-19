@@ -37,7 +37,7 @@ struct CardSettingsView: View {
                 GroupedSection(viewModel.resetToFactoryViewModel) {
                     DefaultRowView(viewModel: $0)
                 } footer: {
-                    DefaultFooterView("card_settings_reset_card_to_factory_footer".localized)
+                    DefaultFooterView(viewModel.resetToFactoryMessage)
                 }
             }
         }
