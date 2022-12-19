@@ -17,7 +17,7 @@ class DefaultExchangeManager {
 
     // MARK: - Internal
 
-    private lazy var refreshDataTimer = Timer.publish(every: 30, on: .main, in: .common).autoconnect()
+    private lazy var refreshDataTimer = Timer.publish(every: 10, on: .main, in: .common).autoconnect()
 
     private var availabilityState: ExchangeAvailabilityState = .idle {
         didSet { delegate?.exchangeManager(self, didUpdate: availabilityState) }
@@ -104,7 +104,7 @@ extension DefaultExchangeManager: ExchangeManager {
 
     func refresh() {
         tokenExchangeAllowanceLimit = nil
-        refreshValues(silent: true)
+        refreshValues(silent: false)
     }
 }
 
@@ -115,6 +115,7 @@ private extension DefaultExchangeManager {
         updateSourceBalances()
 
         if amount == nil || amount == 0 {
+            stopTimer()
             updateState(.idle)
             return
         }
@@ -128,7 +129,10 @@ private extension DefaultExchangeManager {
         tokenExchangeAllowanceLimit = nil
         updateSourceBalances()
 
-        guard (amount ?? 0) > 0 else { return }
+        guard (amount ?? 0) > 0 else {
+            stopTimer()
+            return
+        }
 
         restartTimer()
         refreshValues(silent: false)
@@ -177,10 +181,10 @@ private extension DefaultExchangeManager {
                 let quoteData = try await getQuoteDataModel()
                 let preview = try await mapPreviewSwappingDataModel(from: quoteData)
 
-                guard preview.isEnoughAmountForExchange else {
-                    updateState(.preview(preview))
-                    return
-                }
+//                guard preview.isEnoughAmountForExchange else {
+//                    updateState(.preview(preview))
+//                    return
+//                }
 
                 switch exchangeItems.source.currencyType {
                 case .coin:
@@ -236,11 +240,11 @@ private extension DefaultExchangeManager {
     }
 
     func getExchangeApprovedDataModel() async throws -> ExchangeApprovedDataModel {
-        return try await exchangeProvider.fetchApproveExchangeData(for: exchangeItems.source)
+        try await exchangeProvider.fetchApproveExchangeData(for: exchangeItems.source)
     }
 
     func getApprovedSpenderAddress() async throws -> String {
-        return try await exchangeProvider.fetchSpenderAddress(for: exchangeItems.source)
+        try await exchangeProvider.fetchSpenderAddress(for: exchangeItems.source)
     }
 
     func getExchangeTxDataModel() async throws -> ExchangeDataModel {
