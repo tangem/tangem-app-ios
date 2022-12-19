@@ -10,21 +10,22 @@ import Foundation
 
 public struct ExchangeApprovedDataModel {
     public let data: Data
-    public let gasPrice: String
+    public let gasPrice: Int
     public let tokenAddress: String
-    public let value: String
 
-    public init(data: Data, gasPrice: String, tokenAddress: String, value: String) {
-        self.data = data
-        self.gasPrice = gasPrice
-        self.tokenAddress = tokenAddress
+    /// The value which send for approve in WEI
+    public let value: Decimal
+
+    public init(approveTxData: ApprovedTransactionData) throws {
+        guard let gasPrice = Int(approveTxData.gasPrice),
+              let value = Decimal(string: approveTxData.value) else {
+            throw ExchangeInchError.incorrectData
+        }
+
         self.value = value
-    }
+        self.gasPrice = gasPrice
 
-    public init(approveTxData: ApprovedTransactionData) {
         data = Data(hexString: approveTxData.data)
-        gasPrice = approveTxData.gasPrice
         tokenAddress = approveTxData.to
-        value = approveTxData.value
     }
 }
