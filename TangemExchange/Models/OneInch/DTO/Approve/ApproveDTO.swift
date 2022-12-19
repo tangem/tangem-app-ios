@@ -1,5 +1,5 @@
 //
-//  ApproveSpender.swift
+//  ApproveDTO.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
