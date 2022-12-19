@@ -75,12 +75,12 @@ public extension Currency {
 }
 
 public extension Currency {
-    func multiply(value: Decimal) -> Decimal {
+    func convertToWEI(value: Decimal) -> Decimal {
         let decimalValue = pow(10, decimalCount)
         return value * decimalValue
     }
 
-    func divide(value: Decimal) -> Decimal {
+    func convertFromWEI(value: Decimal) -> Decimal {
         let decimalValue = pow(10, decimalCount)
         return value / decimalValue
     }
