@@ -200,7 +200,8 @@ private extension DefaultExchangeManager {
                         approvedData: approvedDataModel,
                         spenderAddress: spender
                     )
-                    updateState(.requiredPermission(expected: result, info: info))
+
+                    updateState(.available(expected: result, info: info))
                 }
             } catch {
                 updateState(.requiredRefresh(occurredError: error))
@@ -292,7 +293,9 @@ private extension DefaultExchangeManager {
             expectedAmount: expectedAmount,
             expectedFiatAmount: expectedFiatAmount,
             feeFiatRate: feeFiatRate,
-            isEnoughAmountForExchange: isEnoughAmountForExchange
+            isEnoughAmountForExchange: isEnoughAmountForExchange,
+            isEnoughAmountForFee: false,
+            isRequiredPermission: isAvailableForExchange()
         )
     }
 

@@ -13,16 +13,22 @@ public struct ExpectedSwappingResult {
     public let expectedFiatAmount: Decimal
     public let feeFiatRate: Decimal
     public let isEnoughAmountForExchange: Bool
+    public let isEnoughAmountForFee: Bool
+    public let isRequiredPermission: Bool
 
     init(
         expectedAmount: Decimal,
         expectedFiatAmount: Decimal,
         feeFiatRate: Decimal,
-        isEnoughAmountForExchange: Bool
+        isEnoughAmountForExchange: Bool,
+        isEnoughAmountForFee: Bool,
+        isRequiredPermission: Bool
     ) {
         self.expectedAmount = expectedAmount
         self.expectedFiatAmount = expectedFiatAmount
         self.feeFiatRate = feeFiatRate
         self.isEnoughAmountForExchange = isEnoughAmountForExchange
+        self.isEnoughAmountForFee = isEnoughAmountForFee
+        self.isRequiredPermission = isRequiredPermission
     }
 }
