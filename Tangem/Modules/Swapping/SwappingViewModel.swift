@@ -129,7 +129,7 @@ private extension SwappingViewModel {
     }
 
     func openSuccessView(
-        expectedModel: ExpectedSwappingResult,
+        result: SwappingResultDataModel,
         transactionModel: ExchangeTransactionDataModel
     ) {
         let amount = transactionModel.sourceCurrency.convertFromWEI(value: transactionModel.amount)
@@ -139,7 +139,7 @@ private extension SwappingViewModel {
         )
 
         let result = CurrencyAmount(
-            value: expectedModel.expectedAmount,
+            value: result.amount,
             currency: transactionModel.destinationCurrency
         )
 
@@ -205,9 +205,10 @@ private extension SwappingViewModel {
             state = .loaded(0, fiatValue: 0)
         case .loading:
             state = .loading
-        case let .preview(result),
-             let .available(result, _):
+        case let .preview(result):
             state = .loaded(result.expectedAmount, fiatValue: result.expectedFiatAmount)
+        case let .available(result, _):
+            state = .loaded(result.amount, fiatValue: result.amount)
         }
 
         receiveCurrencyViewModel = ReceiveCurrencyViewModel(
@@ -231,12 +232,17 @@ private extension SwappingViewModel {
             refreshWarningRowViewModel?.update(detailsType: .loader)
             receiveCurrencyViewModel?.updateState(.loading)
 
-        case let .preview(result),
-             let .available(result, _):
+        case let .preview(result):
             refreshWarningRowViewModel = nil
             feeWarningRowViewModel = nil
             receiveCurrencyViewModel?.updateState(
                 .loaded(result.expectedAmount, fiatValue: result.expectedFiatAmount)
+            )
+
+        case let .available(result, _):
+            refreshWarningRowViewModel = nil
+            receiveCurrencyViewModel?.updateState(
+                .loaded(result.amount, fiatValue: result.fiatAmount)
             )
 
             if result.isEnoughAmountForFee {
@@ -271,16 +277,14 @@ private extension SwappingViewModel {
             swappingFeeRowViewModel.update(state: .idle)
         case .loading:
             swappingFeeRowViewModel.update(state: .loading)
-        case let .available(result, info):
-
-            let fiatFee = info.fee * result.feeFiatRate
+        case let .available(result, _):
             let source = exchangeManager.getExchangeItems().source
 
             swappingFeeRowViewModel.update(
                 state: .fee(
-                    fee: info.fee.groupedFormatted(maximumFractionDigits: source.decimalCount),
+                    fee: result.fee.groupedFormatted(maximumFractionDigits: source.decimalCount),
                     symbol: source.blockchain.symbol,
-                    fiat: fiatFee.currencyFormatted(code: AppSettings.shared.selectedCurrencyCode)
+                    fiat: result.fiatFee.currencyFormatted(code: AppSettings.shared.selectedCurrencyCode)
                 )
             )
         }
@@ -293,14 +297,23 @@ private extension SwappingViewModel {
             mainButtonState = .swap
         case .loading, .requiredRefresh:
             mainButtonIsEnabled = false
+        case let .preview(model):
+            mainButtonIsEnabled = model.isEnoughAmountForExchange
 
-        case let .preview(result),
-             let .available(result, _):
-            mainButtonIsEnabled = result.isEnoughAmountForExchange
-
-            if result.isRequiredPermission {
+            if model.isRequiredPermission {
                 mainButtonState = .givePermission
-            } else if result.isEnoughAmountForExchange {
+            } else if model.isEnoughAmountForExchange {
+                mainButtonState = .swap
+            } else {
+                mainButtonState = .insufficientFunds
+            }
+
+        case let .available(model, _):
+            mainButtonIsEnabled = model.isEnoughAmountForExchange && model.isEnoughAmountForFee
+
+            if model.isRequiredPermission {
+                mainButtonState = .givePermission
+            } else if model.isEnoughAmountForExchange {
                 mainButtonState = .swap
             } else {
                 mainButtonState = .insufficientFunds
@@ -376,7 +389,7 @@ private extension SwappingViewModel {
         Task {
             do {
                 try await transactionSender.sendTransaction(info)
-                openSuccessView(expectedModel: result, transactionModel: info)
+                openSuccessView(result: result, transactionModel: info)
             } catch {
                 assertionFailure(error.localizedDescription)
                 // [REDACTED_TODO_COMMENT]
