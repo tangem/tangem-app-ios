@@ -131,7 +131,7 @@ class WalletModel: ObservableObject, Identifiable {
             return newUpdatePublisher.eraseToAnyPublisher()
         }
 
-        if !silent {
+        if !silent || state.isNoAccount {
             updateState(.loading)
         }
 
