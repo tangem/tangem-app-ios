@@ -27,6 +27,14 @@ class CardSettingsViewModel: ObservableObject {
     var isResetToFactoryAvailable: Bool {
         !cardModel.resetToFactoryAvailability.isHidden
     }
+    
+    var resetToFactoryMessage: String {
+        if cardModel.hasBackupCards {
+            return "reset_card_with_backup_to_factory_message".localized
+        } else {
+            return "reset_card_without_backup_to_factory_message".localized
+        }
+    }
 
     // MARK: Dependecies
 
@@ -69,7 +77,8 @@ private extension CardSettingsViewModel {
 
     func prepareTwinOnboarding() {
         if let twinInput = cardModel.twinInput {
-            coordinator.openOnboarding(with: twinInput, isSavingCards: !userWalletRepository.isEmpty)
+            let hasOtherCards = AppSettings.shared.saveUserWallets && userWalletRepository.models.count > 1
+            coordinator.openOnboarding(with: twinInput, hasOtherCards: hasOtherCards)
         }
     }
 
@@ -120,25 +129,10 @@ private extension CardSettingsViewModel {
             self.coordinator.dismiss()
         }
     }
-
-    private func didResetCard(with userWallet: UserWallet, cardsCount: Int) {
-        let shouldAskToDeleteWallet = cardsCount > 1 && !userWalletRepository.isEmpty
-
-        if shouldAskToDeleteWallet {
-            presentDeleteWalletAlert(for: userWallet)
-        } else {
-            deleteWallet(userWallet)
-            navigateAwayAfterReset()
-        }
-    }
-
-    private func presentDeleteWalletAlert(for userWallet: UserWallet) {
-        self.alert = AlertBuilder.makeCardSettingsDeleteUserWalletAlert {
-            self.navigateAwayAfterReset()
-        } acceptAction: {
-            self.deleteWallet(userWallet)
-            self.navigateAwayAfterReset()
-        }
+    
+    private func didResetCard(with userWallet: UserWallet) {
+        deleteWallet(userWallet)
+        navigateAwayAfterReset()
     }
 }
 
@@ -168,19 +162,18 @@ extension CardSettingsViewModel {
             return
         }
 
-        let cardsCount = cardModel.cardsCount
         let userWallet = cardModel.userWallet
 
         if cardModel.canTwin {
             prepareTwinOnboarding()
         } else {
-            coordinator.openResetCardToFactoryWarning { [weak self] in
+            coordinator.openResetCardToFactoryWarning(message: resetToFactoryMessage) { [weak self] in
                 self?.cardModel.resetToFactory { [weak self] result in
                     guard let self, let userWallet else { return }
 
                     switch result {
                     case .success:
-                        self.didResetCard(with: userWallet, cardsCount: cardsCount)
+                        self.didResetCard(with: userWallet)
                     case let .failure(error):
                         if !error.isUserCancelled {
                             self.alert = error.alertBinder
