@@ -60,7 +60,7 @@ extension BlockchainNetworkService: TangemExchange.BlockchainDataProvider {
 
         return try await getBalanceThroughUpdateWalletModel(amountType: amountType)
     }
-    
+
     func getBalance(blockchain: ExchangeBlockchain) async throws -> Decimal {
         guard walletModel.blockchainNetwork.blockchain.networkId == blockchain.networkId else {
             assertionFailure("Incorrect WalletModel")
@@ -73,22 +73,22 @@ extension BlockchainNetworkService: TangemExchange.BlockchainDataProvider {
 
         return try await getBalanceThroughUpdateWalletModel(amountType: .coin)
     }
-    
+
     func getFiatRateFor(currency: Currency) async throws -> Decimal {
         let id = currency.isToken ? currency.id : currency.blockchain.id
         return try await getFiatRate(currencyId: id)
     }
-    
+
     func getFiatRateFor(blockchain: ExchangeBlockchain) async throws -> Decimal {
         try await getFiatRate(currencyId: blockchain.id)
     }
-    
+
     func getFiat(amount: Decimal, currency: Currency) async throws -> Decimal {
         let id = currency.isToken ? currency.id : currency.blockchain.id
         let rate = try await getFiatRate(currencyId: id)
         return mapToFiat(amount: amount, rate: rate)
     }
-    
+
     func getFiat(amount: Decimal, blockchain: ExchangeBlockchain) async throws -> Decimal {
         let rate = try await getFiatRate(currencyId: blockchain.id)
         return mapToFiat(amount: amount, rate: rate)
@@ -158,7 +158,7 @@ private extension BlockchainNetworkService {
 
         return currencyRate
     }
-    
+
     func mapToFiat(amount: Decimal, rate: Decimal) -> Decimal {
         let fiatValue = amount * rate
         if fiatValue == 0 {
