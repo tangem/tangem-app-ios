@@ -22,7 +22,7 @@ struct ExchangeManagerMock: ExchangeManager {
 
     func update(amount: Decimal?) {}
 
-    func isAvailableForExchange() -> Bool { true }
+    func isEnoughAllowance() -> Bool { true }
 
     func refresh() {}
 }
