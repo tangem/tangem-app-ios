@@ -27,7 +27,7 @@ class CardSettingsViewModel: ObservableObject {
     var isResetToFactoryAvailable: Bool {
         !cardModel.resetToFactoryAvailability.isHidden
     }
-    
+
     var resetToFactoryMessage: String {
         if cardModel.hasBackupCards {
             return "reset_card_with_backup_to_factory_message".localized
@@ -129,7 +129,7 @@ private extension CardSettingsViewModel {
             self.coordinator.dismiss()
         }
     }
-    
+
     private func didResetCard(with userWallet: UserWallet) {
         deleteWallet(userWallet)
         navigateAwayAfterReset()
