@@ -31,7 +31,7 @@ public struct ExchangeDataModel {
         guard let gasPrice = Int(exchangeData.tx.gasPrice),
               let fromTokenAmount = Decimal(string: exchangeData.fromTokenAmount),
               let toTokenAmount = Decimal(string: exchangeData.toTokenAmount) else {
-            throw ExchangeInchError.incorrectData
+            throw OneInchExchangeProvider.Errors.incorrectDataFormat
         }
 
         self.gas = exchangeData.tx.gas
