@@ -26,7 +26,7 @@ class DefaultExchangeManager {
         didSet { delegate?.exchangeManager(self, didUpdate: exchangeItems) }
     }
     private var tokenExchangeAllowanceLimit: Decimal? {
-        didSet { delegate?.exchangeManager(self, didUpdate: isAvailableForExchange()) }
+        didSet { delegate?.exchangeManager(self, didUpdate: isEnoughAllowance()) }
     }
 
     private weak var delegate: ExchangeManagerDelegate?
@@ -80,7 +80,7 @@ extension DefaultExchangeManager: ExchangeManager {
         return exchangeItems
     }
 
-    func isAvailableForExchange() -> Bool {
+    func isEnoughAllowance() -> Bool {
         guard exchangeItems.source.isToken, let amount, amount > 0 else {
             return true
         }
@@ -178,7 +178,7 @@ private extension DefaultExchangeManager {
                 let preview = try await mapPreviewSwappingDataModel(from: quoteData)
 
                 guard preview.isEnoughAmountForExchange else {
-                    updateState(.preview(expected: preview))
+                    updateState(.preview(preview))
                     return
                 }
 
@@ -186,7 +186,8 @@ private extension DefaultExchangeManager {
                 case .coin:
                     let exchangeData = try await getExchangeTxDataModel()
                     let info = try mapToExchangeTransactionInfo(exchangeData: exchangeData)
-                    updateState(.available(expected: preview, info: info))
+                    let result = try await mapToSwappingResultDataModel(preview: preview, transaction: info)
+                    updateState(.available(result, info: info))
                 case .token:
                     await updateExchangeAmountAllowance()
 
@@ -197,8 +198,10 @@ private extension DefaultExchangeManager {
                         approvedData: approvedDataModel,
                         spenderAddress: spender
                     )
+                    let result = try await mapToSwappingResultDataModel(preview: preview, transaction: info)
+                    updateState(.available(result, info: info))
 
-                    updateState(.available(expected: preview, info: info))
+                    updateState(.available(result, info: info))
                 }
             } catch {
                 updateState(.requiredRefresh(occurredError: error))
@@ -210,7 +213,7 @@ private extension DefaultExchangeManager {
         /// If allowance limit already loaded use it
         guard tokenExchangeAllowanceLimit == nil,
               let walletAddress else {
-            delegate?.exchangeManager(self, didUpdate: isAvailableForExchange())
+            delegate?.exchangeManager(self, didUpdate: isEnoughAllowance())
             return
         }
 
@@ -258,7 +261,7 @@ private extension DefaultExchangeManager {
             let balance = try await blockchainDataProvider.getBalance(currency: source)
             var fiatBalance: Decimal = 0
             if let amount = amount {
-                fiatBalance = try await blockchainDataProvider.getFiatBalance(currency: source, amount: amount)
+                fiatBalance = try await blockchainDataProvider.getFiat(amount: amount, currency: source)
             }
 
             exchangeItems.sourceBalance = ExchangeItems.Balance(balance: balance, fiatBalance: fiatBalance)
@@ -276,11 +279,7 @@ private extension DefaultExchangeManager {
 
         let paymentAmount = exchangeItems.source.convertFromWEI(value: quoteData.fromTokenAmount)
         let expectedAmount = destination.convertFromWEI(value: quoteData.toTokenAmount)
-
-        let expectedFiatAmount = try await blockchainDataProvider.getFiatBalance(
-            currency: destination,
-            amount: expectedAmount
-        )
+        let expectedFiatAmount = try await blockchainDataProvider.getFiat(amount: expectedAmount, currency: exchangeItems.source)
 
         let isEnoughAmountForExchange = exchangeItems.sourceBalance.balance >= paymentAmount
 
@@ -291,21 +290,41 @@ private extension DefaultExchangeManager {
         )
     }
     
-    func mapToSwappingResultDataModel(exchangeData: ExchangeDataModel) throws -> SwappingResultDataModel {
-        guard let destination = exchangeItems.destination else {
-            throw ExchangeManagerError.destinationNotFound
+    func mapToSwappingResultDataModel(
+        preview: PreviewSwappingDataModel,
+        transaction: ExchangeTransactionDataModel
+    ) async throws -> SwappingResultDataModel {
+        guard let amount = amount else {
+            throw ExchangeManagerError.amountNotFound
         }
         
-        let expectedAmount = destinationexchangeData.destinationTokenAmount
+        let source = exchangeItems.source
+        let sourceBalance = exchangeItems.sourceBalance.balance
+        let fee = transaction.fee
+        
+        let fiatFee = try await blockchainDataProvider.getFiat(amount: transaction.fee, blockchain: source.blockchain)
+        
+        let isEnoughAmountForFee: Bool
+        var paymentAmount = amount
+        switch exchangeItems.source.currencyType {
+        case .coin:
+            paymentAmount += fee
+            isEnoughAmountForFee = sourceBalance >= fee
+        case .token:
+            let coinBalance = try await blockchainDataProvider.getBalance(blockchain: source.blockchain)
+            isEnoughAmountForFee = coinBalance >= fee
+        }
+        
+        let isEnoughAmountForExchange = sourceBalance >= paymentAmount
 
         return SwappingResultDataModel(
-            expectedAmount: exchangeData.destinationTokenAmount,
-            expectedFiatAmount: Decimal,
-            expectedFee: Decimal,
-            expectedFiatFee: Decimal,
-            isEnoughAmountForFee: Bool,
-            isRequiredPermission: Bool,
-            transactionInfo: ExchangeTransactionDataModel
+            amount: preview.expectedAmount,
+            fiatAmount: preview.expectedFiatAmount,
+            fee: fee,
+            fiatFee: fiatFee,
+            isEnoughAmountForExchange: isEnoughAmountForExchange,
+            isEnoughAmountForFee: isEnoughAmountForFee,
+            isRequiredPermission: isEnoughAllowance()
         )
     }
 
@@ -349,9 +368,5 @@ private extension DefaultExchangeManager {
             gasValue: quoteData.estimatedGas,
             gasPrice: approvedData.gasPrice
         )
-    }
-    
-    func mapToFiat(amount: Decimal, rate: Decimal) -> Decimal {
-        
     }
 }
