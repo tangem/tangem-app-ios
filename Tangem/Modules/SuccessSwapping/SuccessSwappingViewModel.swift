@@ -14,24 +14,31 @@ final class SuccessSwappingViewModel: ObservableObject, Identifiable {
 
     // MARK: - ViewState
 
-    let fromCurrency: String
-    let toCurrency: String
+    var sourceFormatted: String {
+        sourceCurrencyAmount.formatted
+    }
+
+    var resultFormatted: String {
+        resultCurrencyAmount.formatted
+    }
 
     // MARK: - Dependencies
 
+    private let sourceCurrencyAmount: CurrencyAmount
+    private let resultCurrencyAmount: CurrencyAmount
     private unowned let coordinator: SuccessSwappingRoutable
 
     init(
-        fromCurrency: String,
-        toCurrency: String,
+        sourceCurrencyAmount: CurrencyAmount,
+        resultCurrencyAmount: CurrencyAmount,
         coordinator: SuccessSwappingRoutable
     ) {
-        self.fromCurrency = fromCurrency
-        self.toCurrency = toCurrency
+        self.sourceCurrencyAmount = sourceCurrencyAmount
+        self.resultCurrencyAmount = resultCurrencyAmount
         self.coordinator = coordinator
     }
 
     func doneDidTapped() {
-        coordinator.userDidTapMainButton()
+        coordinator.didTapMainButton()
     }
 }
