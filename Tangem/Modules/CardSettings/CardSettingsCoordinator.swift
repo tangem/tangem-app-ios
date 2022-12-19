@@ -51,14 +51,14 @@ extension CardSettingsCoordinator {
 // MARK: - CardSettingsRoutable
 
 extension CardSettingsCoordinator: CardSettingsRoutable {
-    func openOnboarding(with input: OnboardingInput, isSavingCards: Bool) {
+    func openOnboarding(with input: OnboardingInput, hasOtherCards: Bool) {
         let dismissAction: Action = { [weak self] in
             self?.modalOnboardingCoordinator = nil
             self?.dismiss()
         }
 
         let coordinator = OnboardingCoordinator(dismissAction: dismissAction, popToRootAction: popToRootAction)
-        let options = OnboardingCoordinator.Options(input: input, destination: isSavingCards ? .dismiss : .root)
+        let options = OnboardingCoordinator.Options(input: input, destination: hasOtherCards ? .dismiss : .root)
         coordinator.start(with: options)
         modalOnboardingCoordinator = coordinator
     }
@@ -70,13 +70,13 @@ extension CardSettingsCoordinator: CardSettingsRoutable {
         securityManagementCoordinator = coordinator
     }
 
-    func openResetCardToFactoryWarning(mainButtonAction: @escaping () -> Void) {
+    func openResetCardToFactoryWarning(message: String, mainButtonAction: @escaping () -> Void) {
         Analytics.log(.buttonFactoryReset)
         attentionViewModel = AttentionViewModel(
             isWarningChecked: false,
             navigationTitle: "card_settings_reset_card_to_factory".localized,
             title: "common_attention".localized,
-            message: "reset_card_to_factory_message".localized,
+            message: message,
             warningText: "reset_card_to_factory_warning_message".localized,
             buttonTitle: "reset_card_to_factory_button_title".localized,
             mainButtonAction: mainButtonAction
