@@ -13,6 +13,5 @@ public enum ExchangeAvailabilityState {
     case loading
     case preview(expected: ExpectedSwappingResult)
     case available(expected: ExpectedSwappingResult, info: ExchangeTransactionDataModel)
-    case requiredPermission(expected: ExpectedSwappingResult, info: ExchangeTransactionDataModel)
     case requiredRefresh(occurredError: Error)
 }
