@@ -98,7 +98,7 @@ class CardViewModel: Identifiable, ObservableObject {
     var canTwin: Bool {
         config.hasFeature(.twinning)
     }
-    
+
     var hasBackupCards: Bool {
         cardInfo.card.backupStatus?.isActive ?? false
     }
