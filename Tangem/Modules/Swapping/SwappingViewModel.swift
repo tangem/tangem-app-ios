@@ -194,7 +194,7 @@ private extension SwappingViewModel {
             balance: exchangeItems.sourceBalance.balance,
             maximumFractionDigits: source.decimalCount,
             fiatValue: exchangeItems.sourceBalance.fiatBalance,
-            isLockedVisible: !exchangeManager.isAvailableForExchange(),
+            isLockedVisible: !exchangeManager.isEnoughAllowance(),
             tokenIcon: mapToSwappingTokenIconViewModel(currency: source)
         )
 
