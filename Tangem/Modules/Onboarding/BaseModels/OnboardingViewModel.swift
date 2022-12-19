@@ -207,7 +207,7 @@ class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable>
     func goToNextStep() {
         if isOnboardingFinished {
             do {
-                try saveUserWalletIfNeeded()
+                try handleUserWalletOnFinish()
             } catch {
                 print("Failed to complete onboarding", error)
                 return
@@ -260,7 +260,7 @@ class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable>
         Analytics.log(.onboardingEnableBiometric, params: [.state: Analytics.ParameterValue.state(for: agreed).rawValue])
     }
 
-    func saveUserWalletIfNeeded() throws {
+    func handleUserWalletOnFinish() throws {
         guard
             AppSettings.shared.saveUserWallets,
             let userWallet = input.cardInput.cardModel?.userWallet
