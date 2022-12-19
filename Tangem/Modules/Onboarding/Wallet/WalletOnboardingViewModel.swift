@@ -413,8 +413,13 @@ class WalletOnboardingViewModel: OnboardingTopupViewModel<WalletOnboardingStep, 
                 switch newState {
                 case .kycStart:
                     if self.currentStep == .kycWaiting {
-                        break
+                        if case let .wallet(steps) = self.cardModel?.onboardingInput.steps { // rebuild steps from scratch
+                            self.steps = steps
+                            self.currentStepIndex = 0
+                        }
+                        return
                     }
+                    
                     self.goToNextStep()
                 case .claim:
                     self.goToNextStep()
@@ -696,7 +701,7 @@ class WalletOnboardingViewModel: OnboardingTopupViewModel<WalletOnboardingStep, 
         backupService.discardIncompletedBackup()
     }
 
-    override func saveUserWalletIfNeeded() throws {
+    override func handleUserWalletOnFinish() throws {
         if AppSettings.shared.saveAccessCodes,
            let accessCode = self.accessCode,
            let cardIds = self.cardIds {
@@ -705,7 +710,7 @@ class WalletOnboardingViewModel: OnboardingTopupViewModel<WalletOnboardingStep, 
             try accessCodeRepository.save(accessCodeData, for: cardIds)
         }
 
-        try super.saveUserWalletIfNeeded()
+        try super.handleUserWalletOnFinish()
     }
 
     private func fireConfettiIfNeeded() {
