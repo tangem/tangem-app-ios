@@ -1,5 +1,5 @@
 //
-//  CurrencyPrice.swift
+//  CurrencyAmount.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -8,7 +8,7 @@
 
 import TangemExchange
 
-struct CurrencyPrice {
+struct CurrencyAmount {
     let value: Decimal
     let currency: Currency
 
