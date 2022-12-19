@@ -98,6 +98,10 @@ class CardViewModel: Identifiable, ObservableObject {
     var canTwin: Bool {
         config.hasFeature(.twinning)
     }
+    
+    var hasBackupCards: Bool {
+        cardInfo.card.backupStatus?.isActive ?? false
+    }
 
     var shouldShowWC: Bool {
         !config.getFeatureAvailability(.walletConnect).isHidden
