@@ -27,6 +27,14 @@ class CardSettingsViewModel: ObservableObject {
     var isResetToFactoryAvailable: Bool {
         !cardModel.resetToFactoryAvailability.isHidden
     }
+    
+    var resetToFactoryMessage: String {
+        if cardModel.hasBackupCards {
+            return "reset_card_with_backup_to_factory_message".localized
+        } else {
+            return "reset_card_without_backup_to_factory_message".localized
+        }
+    }
 
     // MARK: Dependecies
 
@@ -158,7 +166,7 @@ extension CardSettingsViewModel {
         if cardModel.canTwin {
             prepareTwinOnboarding()
         } else {
-            coordinator.openResetCardToFactoryWarning { [weak self] in
+            coordinator.openResetCardToFactoryWarning(message: resetToFactoryMessage) { [weak self] in
                 self?.cardModel.resetToFactory { [weak self] result in
                     guard let self, let userWallet else { return }
 
