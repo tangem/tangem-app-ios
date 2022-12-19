@@ -40,6 +40,7 @@ final class SwappingViewModel: ObservableObject {
     private let swappingDestinationService: SwappingDestinationServicing
     private let userCurrenciesProvider: UserCurrenciesProviding
     private let tokenIconURLBuilder: TokenIconURLBuilding
+    private let transactionSender: TransactionSendable
     private unowned let coordinator: SwappingRoutable
 
     // MARK: - Private
@@ -51,12 +52,14 @@ final class SwappingViewModel: ObservableObject {
         swappingDestinationService: SwappingDestinationServicing,
         userCurrenciesProvider: UserCurrenciesProviding,
         tokenIconURLBuilder: TokenIconURLBuilding,
+        transactionSender: TransactionSendable,
         coordinator: SwappingRoutable
     ) {
         self.exchangeManager = exchangeManager
         self.swappingDestinationService = swappingDestinationService
         self.userCurrenciesProvider = userCurrenciesProvider
         self.tokenIconURLBuilder = tokenIconURLBuilder
+        self.transactionSender = transactionSender
         self.coordinator = coordinator
 
         setupView()
@@ -91,27 +94,22 @@ final class SwappingViewModel: ObservableObject {
         openTokenListView()
     }
 
-    func userDidTapMainButton() {
-        // [REDACTED_TODO_COMMENT]
+    func didTapMainButton() {
+        switch mainButtonState {
+        case .permitAndSwap:
+            break // [REDACTED_TODO_COMMENT]
+        case .swap:
+            swapItems()
+        case .givePermission:
+            openPermissionView()
+        case .insufficientFunds:
+            assertionFailure("Button should be disabled")
+            break
+        }
     }
 
-    func loadDestinationIfNeeded() {
-        guard exchangeManager.getExchangeItems().destination == nil else {
-            print("Exchange item destination has already set")
-            return
-        }
-
-        Task {
-            var items = exchangeManager.getExchangeItems()
-
-            do {
-                items.destination = try await swappingDestinationService.getDestination(source: items.source)
-                exchangeManager.update(exchangeItems: items)
-            } catch {
-                print("Destination load handle error", error)
-                items.destination = nil
-            }
-        }
+    func didSendApproveTransaction() {
+        exchangeManager.refresh()
     }
 }
 
@@ -130,19 +128,34 @@ private extension SwappingViewModel {
         )
     }
 
-    func openSuccessView() {
-        coordinator.presentSuccessView(fromCurrency: "ETH", toCurrency: "USDT")
+    func openSuccessView(
+        expectedModel: ExpectedSwappingResult,
+        transactionModel: ExchangeTransactionDataModel
+    ) {
+        let amount = transactionModel.sourceCurrency.convertFromWEI(value: transactionModel.amount)
+        let source = CurrencyAmount(
+            value: amount,
+            currency: transactionModel.sourceCurrency
+        )
+
+        let result = CurrencyAmount(
+            value: expectedModel.expectedAmount,
+            currency: transactionModel.destinationCurrency
+        )
+
+        coordinator.presentSuccessView(source: source, result: result)
     }
 
     func openPermissionView() {
-        let inputModel = SwappingPermissionViewModel.InputModel(
-            smartContractNetworkName: "DAI",
-            amount: 1000,
-            yourWalletAddress: "0x6B175474E89094C44Da98b954EedeAC495271d0F",
-            spenderWalletAddress: "0x6B175474E89094C44Da98b954EedeAC495271d0F",
-            fee: 2.14
+        let state = exchangeManager.getAvailabilityState()
+        guard case let .requiredPermission(_, info) = state else {
+            return
+        }
+
+        coordinator.presentPermissionView(
+            transactionInfo: info,
+            transactionSender: transactionSender
         )
-        coordinator.presentPermissionView(inputModel: inputModel)
     }
 }
 
@@ -243,18 +256,21 @@ private extension SwappingViewModel {
 
     func updateFeeValue(state: ExchangeAvailabilityState) {
         switch state {
-        case .idle, .requiredRefresh:
+        case .idle, .requiredRefresh, .preview:
             swappingFeeRowViewModel.update(state: .idle)
         case .loading:
             swappingFeeRowViewModel.update(state: .loading)
-        case let .preview(result),
-             let .available(result, _),
-             let .requiredPermission(result, _):
+        case let .available(result, info),
+             let .requiredPermission(result, info):
+
+            let fiatFee = info.fee * result.feeFiatRate
+            let source = exchangeManager.getExchangeItems().source
+
             swappingFeeRowViewModel.update(
                 state: .fee(
-                    fee: result.fee.groupedFormatted(maximumFractionDigits: result.decimalCount),
-                    symbol: exchangeManager.getExchangeItems().source.symbol,
-                    fiat: result.fiatFee.currencyFormatted(code: AppSettings.shared.selectedCurrencyCode)
+                    fee: info.fee.groupedFormatted(maximumFractionDigits: source.decimalCount),
+                    symbol: source.blockchain.symbol,
+                    fiat: fiatFee.currencyFormatted(code: AppSettings.shared.selectedCurrencyCode)
                 )
             )
         }
@@ -269,8 +285,16 @@ private extension SwappingViewModel {
             mainButtonIsEnabled = false
 
         case let .preview(result),
-             let .available(result, _),
-             let .requiredPermission(result, _):
+             let .available(result, _):
+            mainButtonIsEnabled = result.isEnoughAmountForExchange
+
+            if result.isEnoughAmountForExchange {
+                mainButtonState = .swap
+            } else {
+                mainButtonState = .insufficientFunds
+            }
+
+        case let .requiredPermission(result, _):
             mainButtonIsEnabled = result.isEnoughAmountForExchange
 
             if result.isEnoughAmountForExchange {
@@ -297,6 +321,25 @@ private extension SwappingViewModel {
             .store(in: &bag)
     }
 
+    func loadDestinationIfNeeded() {
+        guard exchangeManager.getExchangeItems().destination == nil else {
+            print("Exchange item destination has already set")
+            return
+        }
+
+        Task {
+            var items = exchangeManager.getExchangeItems()
+
+            do {
+                items.destination = try await swappingDestinationService.getDestination(source: items.source)
+                exchangeManager.update(exchangeItems: items)
+            } catch {
+                print("Destination load handle error", error)
+                items.destination = nil
+            }
+        }
+    }
+
     func mapToSwappingTokenIconViewModel(currency: Currency?) -> SwappingTokenIconViewModel {
         guard let currency = currency else {
             return SwappingTokenIconViewModel(state: .loading)
@@ -318,6 +361,23 @@ private extension SwappingViewModel {
                     symbol: currency.symbol
                 )
             )
+        }
+    }
+
+    func swapItems() {
+        let state = exchangeManager.getAvailabilityState()
+        guard case let .available(result, info) = state else {
+            return
+        }
+
+        Task {
+            do {
+                try await transactionSender.sendTransaction(info)
+                openSuccessView(expectedModel: result, transactionModel: info)
+            } catch {
+                assertionFailure(error.localizedDescription)
+                // [REDACTED_TODO_COMMENT]
+            }
         }
     }
 }
