@@ -495,6 +495,7 @@ URL: %@";
 "swapping_insufficient_funds" = "Insufficient funds";
 "swapping_give_permission" = "Give Permission";
 "swapping_permit_and_swap" = "Permit and Swap";
+"swapping_not_enough_funds_for_fee" = "Not enough funds for fee on your %@ wallet to create a transaction. Top up your %@ wallet first.";
 "details_referral_title" = "Referral program";
 "referral_title" = "Refer your friends to Tangem";
 "referral_point_currencies_title" = "You";
