@@ -29,7 +29,13 @@ public struct ExchangeTransactionDataModel {
 
     /// Calculated estimated fee
     public var fee: Decimal {
-        sourceCurrency.convertFromWEI(value: Decimal(gasValue * gasPrice))
+        switch sourceCurrency.currencyType {
+        case .coin:
+            return sourceCurrency.convertFromWEI(value: Decimal(gasValue * gasPrice))
+        case .token:
+            let decimalValue = pow(10, sourceCurrency.blockchain.decimalCount)
+            return Decimal(gasValue * gasPrice) / decimalValue
+        }
     }
 
     public init(
