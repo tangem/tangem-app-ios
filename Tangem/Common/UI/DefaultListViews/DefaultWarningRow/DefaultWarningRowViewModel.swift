@@ -14,14 +14,14 @@ struct DefaultWarningRowViewModel {
     let subtitle: String
     private(set) var detailsType: DetailsType?
 
-    let action: () -> ()
+    let action: (() -> ())?
 
     init(
         icon: Image,
         title: String?,
         subtitle: String,
         detailsType: DefaultWarningRowViewModel.DetailsType? = nil,
-        action: @escaping () -> ()
+        action: (() -> ())? = nil
     ) {
         self.icon = icon
         self.title = title
