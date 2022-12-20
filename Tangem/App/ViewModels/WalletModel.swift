@@ -365,16 +365,17 @@ extension WalletModel {
         // todo: handle default token
         let symbol = wallet.amounts[type]?.currencySymbol ?? wallet.blockchain.currencySymbol
 
+        let currencyName: String
         if case let .token(token) = amountType {
-            return String(format: "address_qr_code_message_token_format".localized,
-                          token.name,
-                          symbol,
-                          wallet.blockchain.displayName)
+            currencyName = token.name
         } else {
-            return String(format: "address_qr_code_message_format".localized,
-                          wallet.blockchain.displayName,
-                          symbol)
+            currencyName = wallet.blockchain.displayName
         }
+
+        return String(format: "address_qr_code_message_format".localized,
+                      currencyName,
+                      symbol,
+                      wallet.blockchain.displayName)
     }
 
     func getFiatFormatted(for amount: Amount?, roundingMode: NSDecimalNumber.RoundingMode = .down) -> String? {
