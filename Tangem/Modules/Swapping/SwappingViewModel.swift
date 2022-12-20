@@ -251,14 +251,13 @@ private extension SwappingViewModel {
                 feeWarningRowViewModel = DefaultWarningRowViewModel(
                     icon: Assets.attention,
                     title: nil,
-                    subtitle: "swapping_not_enough_funds_for_fee".localized([sourceBlockchain.symbol, sourceBlockchain.symbol]),
-                    action: {}
+                    subtitle: "swapping_not_enough_funds_for_fee".localized([sourceBlockchain.symbol, sourceBlockchain.symbol])
                 )
             }
 
         case .requiredRefresh(let error):
             receiveCurrencyViewModel?.updateState(.loaded(0, fiatValue: 0))
-            proceedError(error: error)
+            processingError(error: error)
         }
     }
 
@@ -388,7 +387,7 @@ private extension SwappingViewModel {
         }
     }
 
-    func proceedError(error: Error) {
+    func processingError(error: Error) {
         switch error {
         case let managerError as ExchangeManagerError:
             switch managerError {
