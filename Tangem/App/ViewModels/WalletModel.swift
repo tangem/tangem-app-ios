@@ -137,37 +137,36 @@ class WalletModel: ObservableObject, Identifiable {
 
         updateWalletModelBag = updateWalletManager()
             .receive(on: updateQueue)
-            .flatMap { [weak self] in self?.loadRates() ?? .justWithError(output: [:]) }
-            .receive(on: updateQueue)
-            .sink { [weak self] completion in
-                guard let self else { return }
-
-                switch completion {
-                case .finished:
-                    break
-                case let .failure(error):
-                    switch error as? WalletError {
-                    case .noAccount(let message):
-                        self.updateState(.noAccount(message: message))
-                        self.updatePublisher?.send(completion: .finished)
-                        self.updatePublisher = nil
-                    default:
-                        self.updateState(
-                            .failed(error: error.detailedError.localizedDescription)
-                        )
-                        Analytics.log(error: error)
-                        self.updateRatesIfNeeded([:])
-                        
-                        self.updatePublisher?.send(completion: .failure(error))
-                        self.updatePublisher = nil
-                    }
+            .tryMap { [weak self] result -> AnyPublisher<(WalletManagerUpdateResult, [String: Decimal]), Error> in
+                guard let self else {
+                    throw CommonError.objectReleased
                 }
 
-            } receiveValue: { [weak self] rates in
+                return self.loadRates().map { (result, $0) }.eraseToAnyPublisher()
+            }
+            .switchToLatest()
+            .receive(on: updateQueue)
+            .sink { [weak self] completion in
+                guard let self, case let .failure(error) = completion else { return }
+
+                Analytics.log(error: error)
+                self.updateRatesIfNeeded([:])
+                self.updateState(.failed(error: error.localizedDescription))
+                self.updatePublisher?.send(completion: .failure(error))
+                self.updatePublisher = nil
+
+            } receiveValue: { [weak self] updatedResult, rates in
                 guard let self else { return }
 
                 self.updateRatesIfNeeded(rates)
-                self.updateState(.idle)
+
+                switch updatedResult {
+                case .noAccount(let message):
+                    self.updateState(.noAccount(message: message))
+                case .success:
+                    self.updateState(.idle)
+                }
+
                 self.updatePublisher?.send(completion: .finished)
                 self.updatePublisher = nil
             }
@@ -175,7 +174,7 @@ class WalletModel: ObservableObject, Identifiable {
         return newUpdatePublisher.eraseToAnyPublisher()
     }
 
-    func updateWalletManager() -> AnyPublisher<Void, Error> {
+    func updateWalletManager() -> AnyPublisher<WalletManagerUpdateResult, Error> {
         Future { promise in
             self.updateQueue.sync {
                 print("🔄 Updating wallet model for \(self.wallet.blockchain)")
@@ -191,10 +190,15 @@ class WalletModel: ObservableObject, Identifiable {
                             self?.walletManager.wallet.add(coinValue: demoBalance)
                         }
 
-                        promise(.success(()))
+                        promise(.success(.success))
 
                     case let .failure(error):
-                        promise(.failure(error))
+                        switch error as? WalletError {
+                        case .noAccount(let message):
+                            promise(.success(.noAccount(message: message)))
+                        default:
+                            promise(.failure(error.detailedError))
+                        }
                     }
                 }
             }
@@ -600,5 +604,10 @@ extension WalletModel {
                 return true
             }
         }
+    }
+
+    enum WalletManagerUpdateResult: Hashable {
+        case success
+        case noAccount(message: String)
     }
 }
