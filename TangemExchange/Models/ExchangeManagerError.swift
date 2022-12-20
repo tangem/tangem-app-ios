@@ -9,7 +9,6 @@
 import Foundation
 
 public enum ExchangeManagerError: Error {
-    case incorrectData
     case walletAddressNotFound
     case destinationNotFound
     case amountNotFound
