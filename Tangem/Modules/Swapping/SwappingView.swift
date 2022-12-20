@@ -32,6 +32,7 @@ struct SwappingView: View {
             .scrollDismissesKeyboardCompat(true)
         }
         .navigationBarTitle(Text("swapping_swap".localized), displayMode: .inline)
+        .alert(item: $viewModel.errorAlert, content: { $0.alert })
     }
 
     @ViewBuilder
