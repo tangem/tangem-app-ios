@@ -8,6 +8,7 @@
 
 import Combine
 import TangemExchange
+import TangemSdk
 
 final class SwappingViewModel: ObservableObject {
     // MARK: - ViewState
@@ -21,6 +22,7 @@ final class SwappingViewModel: ObservableObject {
 
     @Published var mainButtonIsEnabled: Bool = false
     @Published var mainButtonState: MainButtonState = .swap
+    @Published var errorAlert: AlertBinder?
 
     var informationSectionViewModels: [InformationSectionViewModel] {
         var viewModels: [InformationSectionViewModel] = [.fee(swappingFeeRowViewModel)]
@@ -380,9 +382,10 @@ private extension SwappingViewModel {
             do {
                 try await transactionSender.sendTransaction(info)
                 openSuccessView(result: result, transactionModel: info)
+            } catch TangemSdkError.userCancelled {
+                // Do nothing
             } catch {
-                assertionFailure(error.localizedDescription)
-                // [REDACTED_TODO_COMMENT]
+                errorAlert = AlertBinder(title: "common_error".localized, message: error.localizedDescription)
             }
         }
     }
