@@ -181,13 +181,13 @@ private extension DefaultExchangeManager {
                 let quoteData = try await getQuoteDataModel()
                 let preview = try await mapPreviewSwappingDataModel(from: quoteData)
 
-//                guard preview.isEnoughAmountForExchange else {
-//                    updateState(.preview(preview))
-//                    return
-//                }
-
                 switch exchangeItems.source.currencyType {
                 case .coin:
+                    guard preview.isEnoughAmountForExchange else {
+                        updateState(.preview(preview))
+                        return
+                    }
+
                     let exchangeData = try await getExchangeTxDataModel()
                     let info = try mapToExchangeTransactionInfo(exchangeData: exchangeData)
                     let result = try await mapToSwappingResultDataModel(preview: preview, transaction: info)
@@ -283,7 +283,7 @@ private extension DefaultExchangeManager {
 
         let paymentAmount = exchangeItems.source.convertFromWEI(value: quoteData.fromTokenAmount)
         let expectedAmount = destination.convertFromWEI(value: quoteData.toTokenAmount)
-        let expectedFiatAmount = try await blockchainDataProvider.getFiat(amount: expectedAmount, currency: exchangeItems.source)
+        let expectedFiatAmount = try await blockchainDataProvider.getFiat(amount: expectedAmount, currency: destination)
 
         let isEnoughAmountForExchange = exchangeItems.sourceBalance.balance >= paymentAmount
 
