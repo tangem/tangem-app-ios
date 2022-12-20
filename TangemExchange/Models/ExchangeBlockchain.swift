@@ -44,6 +44,13 @@ public enum ExchangeBlockchain: Hashable, CaseIterable {
         }
     }
 
+    public var decimalCount: Int {
+        switch self {
+        case .ethereum, .bsc, .polygon, .avalanche, .fantom, .arbitrum, .gnosis, .optimism, .klayth, .aurora:
+            return 18
+        }
+    }
+
     public var symbol: String {
         switch self {
         case .ethereum, .arbitrum, .optimism, .aurora: return "ETH"
