@@ -16,7 +16,7 @@ struct DefaultWarningRow: View {
     }
 
     var body: some View {
-        Button(action: viewModel.action) {
+        Button(action: { viewModel.action?() }) {
             HStack(alignment: .center, spacing: 12) {
                 viewModel.icon
                     .resizable()
