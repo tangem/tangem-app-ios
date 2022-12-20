@@ -175,10 +175,10 @@ extension SwappingViewModel: ExchangeManagerDelegate {
         }
     }
 
-    func exchangeManager(_ manager: ExchangeManager, didUpdate availabilityForExchange: Bool) {
+    func exchangeManager(_ manager: ExchangeManager, didUpdate isEnoughAllowance: Bool) {
         DispatchQueue.main.async {
-            self.mainButtonState = availabilityForExchange ? .swap : .givePermission
-            self.sendCurrencyViewModel?.update(isLockedVisible: !availabilityForExchange)
+//            self.mainButtonState = isEnoughAllowance ? .swap : .givePermission
+            self.sendCurrencyViewModel?.update(isLockedVisible: !isEnoughAllowance)
         }
     }
 }
@@ -300,23 +300,23 @@ private extension SwappingViewModel {
         case let .preview(model):
             mainButtonIsEnabled = model.isEnoughAmountForExchange
 
-            if model.isRequiredPermission {
-                mainButtonState = .givePermission
-            } else if model.isEnoughAmountForExchange {
-                mainButtonState = .swap
-            } else {
+            if !model.isEnoughAmountForExchange {
                 mainButtonState = .insufficientFunds
+            } else if model.isRequiredPermission {
+                mainButtonState = .givePermission
+            } else {
+                mainButtonState = .swap
             }
 
         case let .available(model, _):
             mainButtonIsEnabled = model.isEnoughAmountForExchange && model.isEnoughAmountForFee
 
-            if model.isRequiredPermission {
-                mainButtonState = .givePermission
-            } else if model.isEnoughAmountForExchange {
-                mainButtonState = .swap
-            } else {
+            if !model.isEnoughAmountForExchange {
                 mainButtonState = .insufficientFunds
+            } else if model.isRequiredPermission {
+                mainButtonState = .givePermission
+            } else {
+                mainButtonState = .swap
             }
         }
     }
