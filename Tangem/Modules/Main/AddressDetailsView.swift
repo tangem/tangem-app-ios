@@ -83,7 +83,14 @@ struct AddressDetailView: View {
                     .accessibility(label: Text("voice_over_show_address_qr"))
             }
             .padding(.horizontal, 24.0)
-            .padding(.vertical, 16.0)
+            .padding(.top, 16.0)
+
+            Text(walletModel.getQRReceiveMessage())
+                .font(.system(size: 16, weight: .regular))
+                .multilineTextAlignment(.center)
+                .foregroundColor(.tangemGrayDark)
+                .padding(.horizontal, 24.0)
+                .padding(.vertical, 16.0)
         }
         .background(Color.white)
         .cornerRadius(6.0)
