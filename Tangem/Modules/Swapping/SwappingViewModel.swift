@@ -177,7 +177,6 @@ extension SwappingViewModel: ExchangeManagerDelegate {
 
     func exchangeManager(_ manager: ExchangeManager, didUpdate isEnoughAllowance: Bool) {
         DispatchQueue.main.async {
-//            self.mainButtonState = isEnoughAllowance ? .swap : .givePermission
             self.sendCurrencyViewModel?.update(isLockedVisible: !isEnoughAllowance)
         }
     }
@@ -252,22 +251,14 @@ private extension SwappingViewModel {
                 feeWarningRowViewModel = DefaultWarningRowViewModel(
                     icon: Assets.attention,
                     title: nil,
-                    subtitle: "Not enough funds for fee on your \(sourceBlockchain.symbol) wallet to create a transaction. Top up your \(sourceBlockchain.symbol) wallet first.",
+                    subtitle: "swapping_not_enough_funds_for_fee".localized([sourceBlockchain.symbol, sourceBlockchain.symbol]),
                     action: {}
                 )
             }
 
         case .requiredRefresh(let error):
             receiveCurrencyViewModel?.updateState(.loaded(0, fiatValue: 0))
-            refreshWarningRowViewModel = DefaultWarningRowViewModel(
-                icon: Assets.attention,
-                title: "Exchange rate has expired", // [REDACTED_TODO_COMMENT]
-                subtitle: error.detailedError.localizedDescription, // [REDACTED_TODO_COMMENT]
-                detailsType: .icon(Assets.refreshWarningIcon),
-                action: { [weak self] in
-                    self?.exchangeManager.refresh()
-                }
-            )
+            proceedError(error: error)
         }
     }
 
@@ -395,6 +386,39 @@ private extension SwappingViewModel {
                 // [REDACTED_TODO_COMMENT]
             }
         }
+    }
+
+    func proceedError(error: Error) {
+        switch error {
+        case let managerError as ExchangeManagerError:
+            switch managerError {
+            case .walletAddressNotFound, .destinationNotFound, .amountNotFound:
+                updateRefreshWarningRowViewModel(message: managerError.localizedDescription)
+            }
+        case let providerError as ExchangeProviderError:
+            switch providerError {
+            case let .requestError(error):
+                updateRefreshWarningRowViewModel(message: error.detailedError.localizedDescription)
+            case let .oneInchError(inchError):
+                updateRefreshWarningRowViewModel(message: inchError.description)
+            case let .decodingError(error):
+                updateRefreshWarningRowViewModel(message: error.localizedDescription)
+            }
+        default:
+            updateRefreshWarningRowViewModel(message: "common_error".localized)
+        }
+    }
+
+    func updateRefreshWarningRowViewModel(title: String? = nil, message: String) {
+        refreshWarningRowViewModel = DefaultWarningRowViewModel(
+            icon: Assets.attention,
+            title: title,
+            subtitle: message,
+            detailsType: .icon(Assets.refreshWarningIcon),
+            action: { [weak self] in
+                self?.exchangeManager.refresh()
+            }
+        )
     }
 }
 
