@@ -10,6 +10,7 @@ import Foundation
 
 public struct ExchangeTransactionDataModel {
     public let sourceCurrency: Currency
+    public let sourceBlockchain: ExchangeBlockchain
     public let destinationCurrency: Currency
 
     public let sourceAddress: String
@@ -29,17 +30,12 @@ public struct ExchangeTransactionDataModel {
 
     /// Calculated estimated fee
     public var fee: Decimal {
-        switch sourceCurrency.currencyType {
-        case .coin:
-            return sourceCurrency.convertFromWEI(value: Decimal(gasValue * gasPrice))
-        case .token:
-            let decimalValue = pow(10, sourceCurrency.blockchain.decimalCount)
-            return Decimal(gasValue * gasPrice) / decimalValue
-        }
+        sourceBlockchain.convertFromWEI(value: Decimal(gasValue * gasPrice))
     }
 
     public init(
         sourceCurrency: Currency,
+        sourceBlockchain: ExchangeBlockchain,
         destinationCurrency: Currency,
         sourceAddress: String,
         destinationAddress: String,
@@ -49,6 +45,7 @@ public struct ExchangeTransactionDataModel {
         gasPrice: Int
     ) {
         self.sourceCurrency = sourceCurrency
+        self.sourceBlockchain = sourceBlockchain
         self.destinationCurrency = destinationCurrency
         self.sourceAddress = sourceAddress
         self.destinationAddress = destinationAddress
