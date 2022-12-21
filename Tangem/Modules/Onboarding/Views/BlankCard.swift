@@ -51,7 +51,7 @@ struct BlankCard: View {
                 let horizontalPadding = geom.size.width * horizontalPaddingRatio
                 let verticalPadding = geom.size.height * verticalPaddingRatio
 
-                Image("tangemLogo")
+                Assets.tangemLogo.image
                     .renderingMode(.template)
                     .resizable()
                     .aspectRatio(contentMode: .fit)
