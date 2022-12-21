@@ -41,7 +41,7 @@ struct DefaultRowView: View {
             detailsView
 
             if isTappable {
-                Assets.chevron
+                Assets.chevron.image
             }
         }
         .lineLimit(1)
@@ -59,8 +59,8 @@ struct DefaultRowView: View {
         case .text(let string):
             Text(string)
                 .style(Fonts.Regular.body, color: Colors.Text.tertiary)
-        case .icon(let image):
-            image
+        case .icon(let imageType):
+            imageType.image
         }
     }
 }
