@@ -14,10 +14,10 @@ struct OnboardingCardView: View {
         case dark
         case light
 
-        var imageName: String {
+        var imageType: ImageType {
             switch self {
-            case .dark: return "dark_card"
-            case .light: return "light_card"
+            case .dark: return Assets.Onboarding.darkCard
+            case .light: return Assets.Onboarding.lightCard
             }
         }
 
@@ -42,7 +42,7 @@ struct OnboardingCardView: View {
                     .frame(size: geom.size)
                     .opacity(cardScanned ? 1.0 : 0.0)
             } else {
-                Image(placeholderCardType.imageName)
+                placeholderCardType.imageType.image
                     .resizable()
                     .aspectRatio(contentMode: .fit)
                     .frame(size: geom.size)
