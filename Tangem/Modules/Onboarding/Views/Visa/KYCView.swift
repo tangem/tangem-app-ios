@@ -10,8 +10,8 @@ import SwiftUI
 
 struct KYCView: View {
     let imageName: String
-    let title: LocalizedStringKey
-    let subtitle: LocalizedStringKey
+    let title: String
+    let subtitle: String
 
     var body: some View {
         VStack(spacing: 14) {

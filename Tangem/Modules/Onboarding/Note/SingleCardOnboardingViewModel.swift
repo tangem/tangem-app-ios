@@ -24,16 +24,16 @@ class SingleCardOnboardingViewModel: OnboardingTopupViewModel<SingleCardOnboardi
         return steps[currentStepIndex]
     }
 
-    override var subtitle: LocalizedStringKey? {
+    override var subtitle: String? {
         if currentStep == .topup,
            case .xrp = cardModel?.walletModels.first?.blockchainNetwork.blockchain {
-            return LocalizedStringKey(stringLiteral: L10n.onboardingTopUpBodyNoAccountError("10", "XRP"))
+            return String(stringLiteral: L10n.onboardingTopUpBodyNoAccountError("10", "XRP"))
         } else {
             return super.subtitle
         }
     }
 
-    override var mainButtonTitle: LocalizedStringKey {
+    override var mainButtonTitle: String {
         if case .topup = currentStep, !canBuyCrypto {
             return L10n.onboardingButtonReceiveCrypto
         }
@@ -66,7 +66,7 @@ class SingleCardOnboardingViewModel: OnboardingTopupViewModel<SingleCardOnboardi
         }
     }
 
-    var infoText: LocalizedStringKey? {
+    var infoText: String? {
         currentStep.infoText
     }
 
