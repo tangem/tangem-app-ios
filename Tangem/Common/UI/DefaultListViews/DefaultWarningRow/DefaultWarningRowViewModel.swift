@@ -6,10 +6,10 @@
 //  Copyright © 2022 Tangem AG. All rights reserved.
 //
 
-import SwiftUI
+import Foundation
 
 struct DefaultWarningRowViewModel {
-    let icon: Image
+    let icon: ImageType
     let title: String?
     let subtitle: String
     private(set) var detailsType: DetailsType?
@@ -17,7 +17,7 @@ struct DefaultWarningRowViewModel {
     let action: () -> ()
 
     init(
-        icon: Image,
+        icon: ImageType,
         title: String?,
         subtitle: String,
         detailsType: DefaultWarningRowViewModel.DetailsType? = nil,
@@ -36,8 +36,8 @@ struct DefaultWarningRowViewModel {
 }
 
 extension DefaultWarningRowViewModel {
-    enum DetailsType {
-        case icon(_ image: Image)
+    enum DetailsType: Hashable {
+        case icon(_ image: ImageType)
         case loader
     }
 }
@@ -46,6 +46,7 @@ extension DefaultWarningRowViewModel: Hashable {
     func hash(into hasher: inout Hasher) {
         hasher.combine(title)
         hasher.combine(subtitle)
+        hasher.combine(detailsType)
     }
 
     static func == (lhs: DefaultWarningRowViewModel, rhs: DefaultWarningRowViewModel) -> Bool {

@@ -5,6 +5,7 @@
 //  Created by [REDACTED_AUTHOR]
 //  Copyright © 2021 Tangem AG. All rights reserved.
 //
+
 import SwiftUI
 import BlockchainSdk
 import Combine
@@ -574,7 +575,7 @@ extension TokenDetailsViewModel {
             }
         }
 
-        var icon: Image {
+        var icon: ImageType {
             switch self {
             case .buy:
                 return Assets.arrowUpMini

@@ -9,11 +9,11 @@
 import SwiftUI
 
 struct IconWithBackground: View {
-    private let icon: Image
+    private let icon: ImageType
     private let settings: Settings
 
     init(
-        icon: Image,
+        icon: ImageType,
         settings: Settings = .init(backgroundColor: Colors.Button.secondary,
                                    padding: 14,
                                    cornerRadius: 16)
@@ -23,7 +23,7 @@ struct IconWithBackground: View {
     }
 
     var body: some View {
-        icon
+        icon.image
             .roundedBackground(with: settings.backgroundColor,
                                padding: settings.padding,
                                radius: settings.cornerRadius)
