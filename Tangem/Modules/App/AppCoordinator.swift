@@ -211,7 +211,7 @@ extension AppCoordinator: UIWindowSceneDelegate {
         if case .welcome = StartupProcessor().getStartupOption() {
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.5, execute: {
                 UIApplication.modalFromTop(
-                    AlertBuilder.makeOkGotItAlertController(message: "wallet_connect_need_to_scan_card".localized)
+                    AlertBuilder.makeOkGotItAlertController(message: L10n.walletConnectNeedToScanCard)
                 )
             })
         }

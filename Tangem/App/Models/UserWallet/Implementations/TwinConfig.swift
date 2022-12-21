@@ -34,7 +34,7 @@ extension TwinConfig: UserWalletConfig {
     }
 
     var cardSetLabel: String? {
-        String.localizedStringWithFormat("card_label_card_count".localized, cardsCount)
+        L10n.cardLabelCardCount(cardsCount)
     }
 
     var cardsCount: Int {
