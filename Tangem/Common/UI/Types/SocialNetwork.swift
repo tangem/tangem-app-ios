@@ -6,7 +6,7 @@
 //  Copyright © 2022 Tangem AG. All rights reserved.
 //
 
-import SwiftUI
+import Foundation
 
 enum SocialNetwork: Hashable, CaseIterable, Identifiable {
     var id: Int { hashValue }
@@ -19,7 +19,7 @@ enum SocialNetwork: Hashable, CaseIterable, Identifiable {
     case youtube
     case linkedin
 
-    var icon: Image {
+    var icon: ImageType {
         switch self {
         case .telegram:
             return Assets.SocialNetwork.telegram
