@@ -102,7 +102,7 @@ struct FanStackView: View {
 
     @ObservedObject var model: FanStackPreviewModel = .init()
 
-    private let image = Image(name: "wallet_card")
+    private let image = Assets.Onboarding.walletCard.image
 
     var body: some View {
         VStack {

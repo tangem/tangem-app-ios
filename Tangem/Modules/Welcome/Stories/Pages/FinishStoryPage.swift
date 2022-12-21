@@ -39,7 +39,7 @@ struct FinishStoryPage: View {
 
             Spacer()
 
-            Image("amazement")
+            Assets.Stories.amazement.image
                 .resizable()
                 .aspectRatio(contentMode: .fit)
                 .overlay(

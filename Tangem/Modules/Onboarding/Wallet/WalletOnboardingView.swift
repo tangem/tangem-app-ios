@@ -49,11 +49,11 @@ struct WalletOnboardingView: View {
                          subtitle: viewModel.currentStep.subtitle!,
                          maxDigits: SaltPayRegistrator.Constants.pinLength)
         case .registerWallet:
-            CustomContentView(imageName: "cards_wallet",
+            CustomContentView(imageType: Assets.cardsWallet,
                               title: viewModel.currentStep.title!,
                               subtitle: viewModel.currentStep.subtitle!)
         case .kycStart:
-            CustomContentView(imageName: "passport",
+            CustomContentView(imageType: Assets.passport,
                               title: viewModel.currentStep.title!,
                               subtitle: viewModel.currentStep.subtitle!)
         case .kycProgress:
@@ -61,11 +61,11 @@ struct WalletOnboardingView: View {
                 WebViewContainer(viewModel: kycModel)
             }
         case .kycWaiting:
-            KYCView(imageName: "success_waiting",
+            KYCView(imageType: Assets.successWaiting,
                     title: viewModel.currentStep.title!,
                     subtitle: viewModel.currentStep.subtitle!)
         case .kycRetry:
-            KYCView(imageName: "error_circle",
+            KYCView(imageType: Assets.errorCircle,
                     title: viewModel.currentStep.title!,
                     subtitle: viewModel.currentStep.subtitle!)
         default:

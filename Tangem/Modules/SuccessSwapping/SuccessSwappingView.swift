@@ -22,7 +22,7 @@ struct SuccessSwappingView: View {
                     Color.clear.frame(height: geometry.size.height * 0.1)
 
                     VStack(spacing: geometry.size.height * 0.2) {
-                        Assets.successBigIcon
+                        Assets.successBigIcon.image
 
                         infoView
                     }

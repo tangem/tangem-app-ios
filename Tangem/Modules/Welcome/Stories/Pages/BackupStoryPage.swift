@@ -45,7 +45,7 @@ struct BackupStoryPage: View {
                 Color.clear
                     .background(
                         // Bottom card
-                        Image("wallet_card")
+                        Assets.Onboarding.walletCard.image
                             .resizable()
                             .aspectRatio(contentMode: .fit)
                             .frame(width: 0.7 * geometry.size.width)
@@ -60,7 +60,7 @@ struct BackupStoryPage: View {
                     )
                     .background(
                         // Top left
-                        Image("wallet_card")
+                        Assets.Onboarding.walletCard.image
                             .resizable()
                             .aspectRatio(contentMode: .fit)
                             .frame(width: 0.65 * geometry.size.width)
@@ -74,7 +74,7 @@ struct BackupStoryPage: View {
                     )
                     .background(
                         // Top right
-                        Image("wallet_card")
+                        Assets.Onboarding.walletCard.image
                             .resizable()
                             .aspectRatio(contentMode: .fit)
                             .frame(width: 0.5 * geometry.size.width)
