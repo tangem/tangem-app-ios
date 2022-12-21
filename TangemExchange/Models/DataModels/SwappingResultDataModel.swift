@@ -16,7 +16,7 @@ public struct SwappingResultDataModel {
 
     public let isEnoughAmountForExchange: Bool
     public let isEnoughAmountForFee: Bool
-    public let isRequiredPermission: Bool
+    public let isPermissionRequired: Bool
 
     public init(
         amount: Decimal,
@@ -25,7 +25,7 @@ public struct SwappingResultDataModel {
         fiatFee: Decimal,
         isEnoughAmountForExchange: Bool,
         isEnoughAmountForFee: Bool,
-        isRequiredPermission: Bool
+        isPermissionRequired: Bool
     ) {
         self.amount = amount
         self.fiatAmount = fiatAmount
@@ -33,6 +33,6 @@ public struct SwappingResultDataModel {
         self.fiatFee = fiatFee
         self.isEnoughAmountForExchange = isEnoughAmountForExchange
         self.isEnoughAmountForFee = isEnoughAmountForFee
-        self.isRequiredPermission = isRequiredPermission
+        self.isPermissionRequired = isPermissionRequired
     }
 }
