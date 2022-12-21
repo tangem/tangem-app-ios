@@ -25,7 +25,7 @@ class TokenListViewModel: ObservableObject {
     @Published var pendingRemove: [TokenItem] = []
     @Published var showToast: Bool = false
 
-    var titleKey: LocalizedStringKey {
+    var titleKey: String {
         switch mode {
         case .add:
             return L10n.addTokensTitle
