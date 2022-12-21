@@ -55,7 +55,7 @@ struct CurrencySelectView: View {
                 .background(Color.tangemBgGray.edgesIgnoringSafeArea(.all))
             }
         }
-        .navigationBarTitle(L10n.detailsRowTitleCurrency, displayMode: .inline)
+        .navigationBarTitle(Text(L10n.detailsRowTitleCurrency), displayMode: .inline)
         .onAppear {
             self.viewModel.onAppear()
         }
