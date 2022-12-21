@@ -35,16 +35,14 @@ struct ReferralView: View {
                 }
                 .frame(width: geometry.size.width)
                 .frame(minHeight: geometry.size.height + geometry.safeAreaInsets.bottom)
-
             }
             .edgesIgnoringSafeArea(.bottom)
-            .toast(isPresenting: $viewModel.showCodeCopiedToast, alert: {
+            .toast(isPresenting: $viewModel.showCodeCopiedToast) {
                 AlertToast(type: .complete(Color.tangemGreen), title: L10n.referralPromoCodeCopied)
             }
-            )
         }
         .alert(item: $viewModel.errorAlert, content: { $0.alert })
-        .navigationBarTitle(L10n.detailsReferralTitle, displayMode: .inline)
+        .navigationBarTitle(Text(L10n.detailsReferralTitle), displayMode: .inline)
         .background(Colors.Background.secondary.edgesIgnoringSafeArea(.all))
     }
 

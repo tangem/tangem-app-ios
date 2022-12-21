@@ -10,7 +10,7 @@ import Foundation
 import SwiftUI
 
 struct TangemButton: View {
-    let title: LocalizedStringKey
+    let title: String
     var image: String = ""
     var systemImage: String = ""
     var iconPosition: IconPosition = .leading
@@ -68,7 +68,7 @@ extension TangemButton {
         case trailing
     }
 
-    static func vertical(title: LocalizedStringKey,
+    static func vertical(title: String,
                          image: String = "",
                          systemImage: String = "",
                          action: @escaping () -> Void) -> TangemButton {

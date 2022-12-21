@@ -98,7 +98,7 @@ enum SingleCardOnboardingStep: CaseIterable, Equatable {
 extension SingleCardOnboardingStep: SuccessStep { }
 
 extension SingleCardOnboardingStep: OnboardingMessagesProvider {
-    var title: LocalizedStringKey? {
+    var title: String? {
         switch self {
         case .welcome: return WelcomeStep.welcome.title
         case .createWallet: return L10n.onboardingCreateWalletButtonCreateWallet
@@ -109,7 +109,7 @@ extension SingleCardOnboardingStep: OnboardingMessagesProvider {
         }
     }
 
-    var subtitle: LocalizedStringKey? {
+    var subtitle: String? {
         switch self {
         case .welcome: return WelcomeStep.welcome.subtitle
         case .createWallet: return L10n.onboardingCreateWalletBody
@@ -130,7 +130,7 @@ extension SingleCardOnboardingStep: OnboardingMessagesProvider {
 }
 
 extension SingleCardOnboardingStep: OnboardingButtonsInfoProvider {
-    var mainButtonTitle: LocalizedStringKey {
+    var mainButtonTitle: String {
         switch self {
         case .createWallet: return L10n.onboardingCreateWalletButtonCreateWallet
         case .topup: return L10n.onboardingTopUpButtonButCrypto
@@ -148,7 +148,7 @@ extension SingleCardOnboardingStep: OnboardingButtonsInfoProvider {
         }
     }
 
-    var supplementButtonTitle: LocalizedStringKey {
+    var supplementButtonTitle: String {
         switch self {
         case .welcome: return WelcomeStep.welcome.supplementButtonTitle
         case .createWallet: return L10n.onboardingButtonWhatDoesItMean
@@ -157,11 +157,11 @@ extension SingleCardOnboardingStep: OnboardingButtonsInfoProvider {
         }
     }
 
-    var checkmarkText: LocalizedStringKey? {
+    var checkmarkText: String? {
         return nil
     }
 
-    var infoText: LocalizedStringKey? {
+    var infoText: String? {
         switch self {
         case .saveUserWallet:
             return L10n.saveUserWalletAgreementNotice

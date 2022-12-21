@@ -32,7 +32,7 @@ class TwinsOnboardingViewModel: OnboardingTopupViewModel<TwinsOnboardingStep, On
         return steps[currentStepIndex]
     }
 
-    override var title: LocalizedStringKey? {
+    override var title: String? {
         if !isInitialAnimPlayed {
             return super.title
         }
@@ -51,7 +51,7 @@ class TwinsOnboardingViewModel: OnboardingTopupViewModel<TwinsOnboardingStep, On
         return super.title
     }
 
-    override var mainButtonTitle: LocalizedStringKey {
+    override var mainButtonTitle: String {
         if !isInitialAnimPlayed {
             return super.mainButtonTitle
         }
@@ -107,7 +107,7 @@ class TwinsOnboardingViewModel: OnboardingTopupViewModel<TwinsOnboardingStep, On
         }
     }
 
-    var infoText: LocalizedStringKey? {
+    var infoText: String? {
         currentStep.infoText
     }
 

@@ -58,7 +58,7 @@ struct MainView: View {
             }
         }
         .navigationBarBackButtonHidden(true)
-        .navigationBarTitle(L10n.walletTitle, displayMode: .inline)
+        .navigationBarTitle(Text(L10n.walletTitle), displayMode: .inline)
         .navigationBarItems(leading: leadingNavigationButtons,
                             trailing: settingsNavigationButton)
         .background(Colors.Background.secondary.edgesIgnoringSafeArea(.all))
