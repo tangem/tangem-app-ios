@@ -12,7 +12,9 @@ import SwiftUI
 import AVFoundation
 
 class WalletConnectViewModel: ObservableObject {
-    @Injected(\.walletConnectServiceProvider) private var walletConnectProvider: WalletConnectServiceProviding
+    @Injected(\.walletConnectURLHandler) private var urlHandler: WalletConnectURLHandler
+    @Injected(\.walletConnectSessionController) private var sessionController: WalletConnectSessionController
+
     @Published var isActionSheetVisible: Bool = false
     @Published var showCameraDeniedAlert: Bool = false
     @Published var alert: AlertBinder?
@@ -24,7 +26,7 @@ class WalletConnectViewModel: ObservableObject {
             return false
         }
 
-        let canHandle = walletConnectProvider.service?.canHandle(url: copiedValue) ?? false
+        let canHandle = urlHandler.canHandle(url: copiedValue)
         if canHandle {
             self.copiedValue = copiedValue
         }
@@ -53,7 +55,7 @@ class WalletConnectViewModel: ObservableObject {
 
     func disconnectSession(_ session: WalletConnectSession) {
         Analytics.log(.buttonStopWalletConnectSession)
-        walletConnectProvider.service?.disconnectSession(session)
+        sessionController.disconnectSession(with: session.id)
         withAnimation {
             self.objectWillChange.send()
         }
@@ -82,22 +84,14 @@ class WalletConnectViewModel: ObservableObject {
     private func bind() {
         bag.removeAll()
 
-        //            walletConnectController.error
-        //                .receive(on: DispatchQueue.main)
-        //                .debounce(for: 0.3, scheduler: DispatchQueue.main)
-        //                .sink { error in
-        //                    self.alert = error.alertBinder
-        //                }
-        //                .store(in: &bag)
-
-        walletConnectProvider.service?.isServiceBusy
+        sessionController.canEstablishNewSessionPublisher
             .receive(on: DispatchQueue.main)
-            .sink { [weak self] (isServiceBusy) in
-                self?.isServiceBusy = isServiceBusy
+            .sink { [weak self] canEstablishNewSession in
+                self?.isServiceBusy = !canEstablishNewSession
             }
             .store(in: &bag)
 
-        walletConnectProvider.service?.sessionsPublisher
+        sessionController.sessionsPublisher
             .receive(on: DispatchQueue.main)
             .sink(receiveValue: { [weak self] in
                 guard let self = self else { return }
@@ -108,9 +102,10 @@ class WalletConnectViewModel: ObservableObject {
 
         scannedQRCode
             .compactMap { $0 }
-            .sink { [unowned self] qrCodeString in
-                if let service = self.walletConnectProvider.service,
-                   !service.handle(url: qrCodeString) {
+            .sink { [weak self] qrCodeString in
+                guard let self = self else { return }
+
+                if !self.urlHandler.handle(url: qrCodeString) {
                     self.alert = WalletConnectServiceError.failedToConnect.alertBinder
                 }
             }
