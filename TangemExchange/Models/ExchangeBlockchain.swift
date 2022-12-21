@@ -99,3 +99,15 @@ public enum ExchangeBlockchain: Hashable, CaseIterable {
         }
     }
 }
+
+public extension ExchangeBlockchain {
+    func convertToWEI(value: Decimal) -> Decimal {
+        let decimalValue = pow(10, decimalCount)
+        return value * decimalValue
+    }
+
+    func convertFromWEI(value: Decimal) -> Decimal {
+        let decimalValue = pow(10, decimalCount)
+        return value / decimalValue
+    }
+}
