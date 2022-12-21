@@ -42,7 +42,7 @@ struct DetailsView: View {
         .navigationBarBackButtonHidden(false)
         .navigationBarHidden(false)
         .alert(item: $viewModel.error) { $0.alert }
-        .navigationBarTitle("details_title", displayMode: .inline)
+        .navigationBarTitle(L10n.detailsTitle, displayMode: .inline)
     }
 
     // MARK: - Wallet Connect Section
@@ -61,7 +61,7 @@ struct DetailsView: View {
             DefaultRowView(viewModel: $0)
         } footer: {
             if viewModel.canCreateBackup {
-                DefaultFooterView("details_row_title_create_backup_footer".localized)
+                DefaultFooterView(L10n.detailsRowTitleCreateBackupFooter)
             }
         }
     }
