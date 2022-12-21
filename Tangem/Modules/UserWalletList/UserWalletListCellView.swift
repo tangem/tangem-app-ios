@@ -144,7 +144,7 @@ struct UserWalletListCellView: View {
 
     @ViewBuilder
     private var lockIcon: some View {
-        Assets.lock
+        Assets.lock.image
             .padding(.horizontal, 14)
             .padding(.vertical, 7)
             .background(Colors.Background.secondary)
