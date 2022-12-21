@@ -34,7 +34,7 @@ struct AuthView: View {
         VStack(spacing: 0) {
             Spacer()
 
-            Assets.tangemIconBig
+            Assets.tangemIconBig.image
                 .renderingMode(.template)
                 .resizable()
                 .aspectRatio(contentMode: .fit)
