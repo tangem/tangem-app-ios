@@ -50,7 +50,7 @@ struct AddCustomTokenView: View {
         .onAppear(perform: viewModel.onAppear)
         .onDisappear(perform: viewModel.onDisappear)
         .alert(item: $viewModel.error, content: { $0.alert })
-        .navigationBarTitle(L10n.addCustomTokenTitle, displayMode: .inline) // fix ios14 navbar overlap
+        .navigationBarTitle(Text(L10n.addCustomTokenTitle), displayMode: .inline) // fix ios14 navbar overlap
     }
 }
 
