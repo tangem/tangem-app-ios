@@ -76,7 +76,7 @@ struct OnboardingCircleButton: View {
                 Circle()
                     .foregroundColor(.white)
                     .overlay(
-                        Image("refresh")
+                        Assets.Onboarding.refresh.image
                             .resizable()
                             .renderingMode(.template)
                             .foregroundColor(state == .refreshButton ? .tangemGrayDark6 : .white)
@@ -101,7 +101,7 @@ struct OnboardingCircleButton: View {
                 .frame(size: successButtonSize)
                 .cornerRadius(successButtonSize.height)
                 .overlay(
-                    Image("design.checkmark")
+                    Assets.Onboarding.designCheckmark.image
                         .resizable()
                         .frame(size: size.checkmarkSize)
                         .cornerRadius(buttonSize.height / 2)

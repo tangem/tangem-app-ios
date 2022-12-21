@@ -82,7 +82,7 @@ struct MainView: View {
     var userWalletListNavigationButton: some View {
         Button(action: viewModel.didTapUserWalletListButton,
                label: {
-                   Assets.wallets
+                   Assets.wallets.image
                        .foregroundColor(Color.black)
                        .frame(width: 44, height: 44)
                        .offset(x: -11, y: 0)
@@ -94,7 +94,7 @@ struct MainView: View {
     var scanNavigationButton: some View {
         Button(action: viewModel.onScan,
                label: {
-                   Assets.scanWithPhone
+                   Assets.scanWithPhone.image
                        .foregroundColor(Color.black)
                        .frame(width: 44, height: 44)
                        .offset(x: -14, y: 0)
@@ -105,7 +105,7 @@ struct MainView: View {
 
     var settingsNavigationButton: some View {
         Button(action: viewModel.openSettings) {
-            Image("verticalDots")
+            Assets.verticalDots.image
                 .foregroundColor(Color.tangemGrayDark6)
                 .frame(width: 44, height: 44)
                 .offset(x: 11)
