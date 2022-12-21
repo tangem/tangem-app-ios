@@ -86,7 +86,7 @@ private extension OneInchAPIService {
             response = try response.filterSuccessfulStatusAndRedirectCodes()
         } catch {
             do {
-                let inchError = try decoder.decode(InchError.self, from: response.data)
+                let inchError = try decoder.decode(OneInchError.self, from: response.data)
                 logError(target: target, response: response, error: inchError)
                 return .failure(.oneInchError(inchError))
             } catch {
