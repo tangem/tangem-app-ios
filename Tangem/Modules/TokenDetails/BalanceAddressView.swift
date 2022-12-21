@@ -18,22 +18,22 @@ struct BalanceAddressView: View {
 
     var blockchainText: String {
         if walletModel.state.isNoAccount {
-            return "wallet_error_no_account".localized
+            return L10n.walletErrorNoAccount
         }
 
         if walletModel.state.isBlockchainUnreachable {
-            return "wallet_balance_blockchain_unreachable".localized
+            return L10n.walletBalanceBlockchainUnreachable
         }
 
         if walletModel.wallet.hasPendingTx(for: amountType) {
-            return "wallet_balance_tx_in_progress".localized
+            return L10n.walletBalanceTxInProgress
         }
 
         if walletModel.state.isLoading {
-            return "wallet_balance_loading".localized
+            return L10n.walletBalanceLoading
         }
 
-        return "wallet_balance_verified".localized
+        return L10n.walletBalanceVerified
     }
 
     var image: String {
@@ -142,14 +142,14 @@ struct BalanceAddressView: View {
                             HStack {
                                 RoundedRectButton(action: { copyAddress() },
                                                   systemImageName: "doc.on.clipboard",
-                                                  title: "common_copy".localized,
+                                                  title: L10n.commonCopy,
                                                   withVerification: true)
-                                    .accessibility(label: Text("voice_over_copy_address"))
+                                    .accessibility(label: Text(L10n.voiceOverCopyAddress))
 
                                 RoundedRectButton(action: { showShareSheet() },
                                                   systemImageName: "square.and.arrow.up",
-                                                  title: "common_share".localized)
-                                    .accessibility(label: Text("voice_over_share_address"))
+                                                  title: L10n.commonShare)
+                                    .accessibility(label: Text(L10n.voiceOverShareAddress))
                             }
 
                         }
