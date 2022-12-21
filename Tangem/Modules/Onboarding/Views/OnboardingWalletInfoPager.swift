@@ -133,13 +133,12 @@ struct PagerViewWithDots<Data, Content>: View
 }
 
 enum TangemWalletOnboardingInfoPage: CaseIterable {
-
     case first
     case second
     case third
     case fourth
 
-    var title: LocalizedStringKey {
+    var title: String {
         switch self {
         case .first: return L10n.onboardingWalletInfoTitleFirst
         case .second: return L10n.onboardingWalletInfoTitleSecond
@@ -147,7 +146,7 @@ enum TangemWalletOnboardingInfoPage: CaseIterable {
         case .fourth: return L10n.onboardingWalletInfoTitleFourth
         }
     }
-    var subtitle: LocalizedStringKey {
+    var subtitle: String {
         switch self {
         case .first: return L10n.onboardingWalletInfoSubtitleFirst
         case .second: return L10n.onboardingWalletInfoSubtitleSecond
