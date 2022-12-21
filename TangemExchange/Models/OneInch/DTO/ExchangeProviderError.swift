@@ -10,7 +10,7 @@ import Foundation
 
 public enum ExchangeProviderError: LocalizedError {
     case requestError(Error)
-    case oneInchError(InchError)
+    case oneInchError(OneInchError)
     case decodingError(Error)
 
     public var errorDescription: String? {
@@ -23,10 +23,4 @@ public enum ExchangeProviderError: LocalizedError {
             return error.localizedDescription
         }
     }
-}
-
-public struct InchError: Decodable {
-    public let statusCode: Int
-    public let description: String
-    public let requestId: String
 }
