@@ -11,7 +11,7 @@ import SwiftUI
 struct StoriesTangemLogo: View {
     var body: some View {
         HStack {
-            Image("tangemLogo")
+            Assets.tangemLogo.image
                 .renderingMode(.template)
                 .resizable()
                 .aspectRatio(contentMode: .fit)
