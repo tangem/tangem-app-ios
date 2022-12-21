@@ -57,7 +57,7 @@ struct UserWalletStorageAgreementView: View {
             Spacer()
 
             VStack(spacing: 10) {
-                MainButton(title: BiometricAuthorizationUtils.allowButtonLocalizationKey, action: viewModel.accept)
+                MainButton(title: BiometricAuthorizationUtils.allowButtonTitle, action: viewModel.accept)
 
                 MainButton(title: L10n.saveUserWalletAgreementDontAllow,
                            style: .secondary,
