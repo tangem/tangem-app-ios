@@ -136,7 +136,7 @@ extension SingleCardOnboardingStep: OnboardingButtonsInfoProvider {
         case .topup: return L10n.onboardingTopUpButtonButCrypto
         case .successTopup: return L10n.commonContinue
         case .welcome: return WelcomeStep.welcome.mainButtonTitle
-        case .saveUserWallet: return BiometricAuthorizationUtils.allowButtonLocalizationKey
+        case .saveUserWallet: return BiometricAuthorizationUtils.allowButtonTitle
         case .success: return successButtonTitle
         }
     }

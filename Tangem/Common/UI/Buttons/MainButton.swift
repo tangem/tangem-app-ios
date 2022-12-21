@@ -16,7 +16,6 @@ struct MainButton: View {
     private let isDisabled: Bool
     private let action: () -> Void
 
-    /// Better don't use it because it forces `import SwiftUI` in `viewModel` or services
     init(
         title: String,
         icon: Icon? = nil,
