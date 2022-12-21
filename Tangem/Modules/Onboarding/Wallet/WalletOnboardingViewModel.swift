@@ -59,7 +59,7 @@ class WalletOnboardingViewModel: OnboardingTopupViewModel<WalletOnboardingStep, 
         case .backupCards:
             switch backupServiceState {
             case .finalizingPrimaryCard: return isSaltPayOnboarding ? L10n.onboardingSaltpayTitlePrepareOrigin : L10n.commonOriginCard
-            case .finalizingBackupCard(let index): return isSaltPayOnboarding ? L10n.onboardingSaltpayTitleBackupCard : String(stringLiteral: L10n.onboardingTitleBackupCardFormat(index))
+            case .finalizingBackupCard(let index): return isSaltPayOnboarding ? L10n.onboardingSaltpayTitleBackupCard : L10n.onboardingTitleBackupCardFormat(index)
             default: break
             }
 
@@ -67,7 +67,7 @@ class WalletOnboardingViewModel: OnboardingTopupViewModel<WalletOnboardingStep, 
             return nil
         case .claim:
             let claimValue = saltPayRegistratorProvider.registrator?.claimableAmountDescription ?? ""
-            return claimed ? L10n.onboardingTitleClaimProgress : String(stringLiteral: L10n.onboardingTitleClaim(claimValue))
+            return claimed ? L10n.onboardingTitleClaimProgress : L10n.onboardingTitleClaim(claimValue)
         default: break
         }
         return super.title
@@ -101,7 +101,7 @@ class WalletOnboardingViewModel: OnboardingTopupViewModel<WalletOnboardingStep, 
                     return super.subtitle
                 }
 
-                return String(stringLiteral: L10n.onboardingSubtitleScanPrimaryCardFormat(cardIdFormatted))
+                return L10n.onboardingSubtitleScanPrimaryCardFormat(cardIdFormatted)
             case .finalizingBackupCard(let index):
                 if isSaltPayOnboarding {
                     return L10n.onboardingTwinsInterruptWarning
@@ -112,7 +112,7 @@ class WalletOnboardingViewModel: OnboardingTopupViewModel<WalletOnboardingStep, 
                     return super.subtitle
                 }
 
-                return String(stringLiteral: L10n.onboardingSubtitleScanBackupCardFormat(cardIdFormatted))
+                return L10n.onboardingSubtitleScanBackupCardFormat(cardIdFormatted)
             default: return super.subtitle
             }
         case .registerWallet, .kycStart, .kycRetry, .enterPin, .kycWaiting:
@@ -154,7 +154,7 @@ class WalletOnboardingViewModel: OnboardingTopupViewModel<WalletOnboardingStep, 
         case .backupCards:
             switch backupServiceState {
             case .finalizingPrimaryCard: return isSaltPayOnboarding ? L10n.onboardingSaltpayButtonBackupOrigin : L10n.onboardingButtonBackupOrigin
-            case .finalizingBackupCard(let index): return isSaltPayOnboarding ? L10n.onboardingSaltpayTitleBackupCard : String(stringLiteral: L10n.onboardingButtonBackupCardFormat(index))
+            case .finalizingBackupCard(let index): return isSaltPayOnboarding ? L10n.onboardingSaltpayTitleBackupCard : L10n.onboardingButtonBackupCardFormat(index)
             default: break
             }
         case .success:
