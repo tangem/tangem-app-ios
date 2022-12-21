@@ -25,7 +25,7 @@ final class UserWalletListViewModel: ObservableObject, Identifiable {
     // MARK: - Dependencies
 
     var unlockAllButtonTitle: String {
-        "user_wallet_list_unlock_all".localized(BiometricAuthorizationUtils.biometryType.name)
+        L10n.userWalletListUnlockAll(BiometricAuthorizationUtils.biometryType.name)
     }
 
     var isLocked: Bool {
@@ -129,20 +129,20 @@ final class UserWalletListViewModel: ObservableObject, Identifiable {
     func edit(_ userWallet: UserWallet) {
         Analytics.log(.buttonEditWalletTapped)
 
-        let alert = UIAlertController(title: "user_wallet_list_rename_popup_title".localized, message: nil, preferredStyle: .alert)
-        let cancelAction = UIAlertAction(title: "common_cancel".localized, style: .cancel) { _ in }
+        let alert = UIAlertController(title: L10n.userWalletListRenamePopupTitle, message: nil, preferredStyle: .alert)
+        let cancelAction = UIAlertAction(title: L10n.commonCancel, style: .cancel) { _ in }
         alert.addAction(cancelAction)
 
         var nameTextField: UITextField?
         alert.addTextField { textField in
             nameTextField = textField
-            nameTextField?.placeholder = "user_wallet_list_rename_popup_placeholder".localized
+            nameTextField?.placeholder = L10n.userWalletListRenamePopupPlaceholder
             nameTextField?.text = userWallet.name
             nameTextField?.clearButtonMode = .whileEditing
             nameTextField?.autocapitalizationType = .sentences
         }
 
-        let acceptButton = UIAlertAction(title: "common_ok".localized, style: .default) { [weak self, nameTextField] _ in
+        let acceptButton = UIAlertAction(title: L10n.commonOk, style: .default) { [weak self, nameTextField] _ in
             let newName = nameTextField?.text ?? ""
 
             guard userWallet.name != newName else { return }
@@ -270,7 +270,7 @@ final class UserWalletListViewModel: ObservableObject, Identifiable {
                 return embeddedBlockchain.blockchainNetwork.blockchain.displayName
             }
 
-            return String.localizedStringWithFormat("card_label_card_count".localized, config.cardsCount)
+            return L10n.cardLabelCardCount(config.cardsCount)
         }()
 
         return UserWalletListCellViewModel(
