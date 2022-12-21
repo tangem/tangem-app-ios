@@ -32,7 +32,7 @@ struct ShopView: View {
                         Spacer()
                             .frame(maxHeight: .infinity)
 
-                        Text("shop_one_wallet")
+                        Text(L10n.shopOneWallet)
                             .font(.system(size: 30, weight: .bold))
 
                         cardSelector
@@ -99,9 +99,9 @@ struct ShopView: View {
         VStack(spacing: 0) {
             HStack {
                 Image("box")
-                Text("shop_shipping")
+                Text(L10n.shopShipping)
                 Spacer()
-                Text("shop_free")
+                Text(L10n.shopFree)
             }
             .padding(.horizontal)
             .padding(.vertical, sectionRowVerticalPadding)
@@ -110,7 +110,7 @@ struct ShopView: View {
 
             HStack {
                 Image("ticket")
-                TextField("shop_i_have_a_promo_code", text: $viewModel.discountCode) { editing in
+                TextField(L10n.shopIHaveAPromoCode, text: $viewModel.discountCode) { editing in
                     if !editing {
                         viewModel.didEnterDiscountCode()
                     }
@@ -130,7 +130,7 @@ struct ShopView: View {
 
         VStack {
             HStack {
-                Text("shop_total")
+                Text(L10n.shopTotal)
 
                 Spacer()
 
@@ -169,14 +169,14 @@ struct ShopView: View {
             Button {
                 viewModel.openWebCheckout()
             } label: {
-                Text("shop_other_payment_methods")
+                Text(L10n.shopOtherPaymentMethods)
             }
             .buttonStyle(TangemButtonStyle(colorStyle: .transparentWhite, layout: .flexibleWidth))
         } else {
             Button {
                 viewModel.openWebCheckout()
             } label: {
-                Text("shop_buy_now")
+                Text(L10n.shopBuyNow)
             }
             .buttonStyle(TangemButtonStyle(colorStyle: .black, layout: .flexibleWidth))
         }
