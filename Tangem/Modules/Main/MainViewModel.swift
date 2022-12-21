@@ -312,9 +312,9 @@ class MainViewModel: ObservableObject {
         case .learnMore:
             if case .multiWalletSignedHashes = warning.event {
                 error = AlertBinder(alert: Alert(title: Text(warning.title),
-                                                 message: Text("alert_signed_hashes_message"),
+                                                 message: Text(L10n.alertSignedHashesMessage),
                                                  primaryButton: .cancel(),
-                                                 secondaryButton: .default(Text("common_understand")) { [weak self] in
+                                                 secondaryButton: .default(Text(L10n.commonUnderstand)) { [weak self] in
                                                      withAnimation {
                                                          registerValidatedSignedHashesCard()
                                                          self?.warningsService.hideWarning(warning)

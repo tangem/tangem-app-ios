@@ -128,7 +128,7 @@ struct WalletOnboardingView: View {
                                     OnboardingCardView(placeholderCardType: .dark,
                                                        cardImage: viewModel.cardImage,
                                                        cardScanned: viewModel.isInitialAnimPlayed && currentStep != .welcome)
-                                    Text("common_origin_card")
+                                    Text(L10n.commonOriginCard)
                                         .font(.system(size: 13, weight: .semibold))
                                         .foregroundColor(.white)
                                         .padding(.horizontal, 12)
