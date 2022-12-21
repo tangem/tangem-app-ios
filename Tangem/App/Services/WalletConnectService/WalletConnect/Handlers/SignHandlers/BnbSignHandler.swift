@@ -148,7 +148,8 @@ class BnbSignHandler: WalletConnectSignHandler {
             let uiMessage = L10n.walletConnectBnbTransactionMessage(
                 address,
                 output.address,
-                (Decimal(amountToSend) / decimalValue).description)
+                (Decimal(amountToSend) / decimalValue).description
+            )
 
             let encodedData = try! jsonEncoder.encode(transactionMessage)
             print("Encoded BNB transaction message: \(String(data: encodedData, encoding: .utf8)!)")
@@ -168,7 +169,8 @@ class BnbSignHandler: WalletConnectSignHandler {
                     message.symbol,
                     "\(price.description) \(blockchain.currencySymbol)",
                     "\(quantity)",
-                    "\(price * quantity) \(blockchain.currencySymbol)"))
+                    "\(price * quantity) \(blockchain.currencySymbol)")
+                )
                 if i < (numberOfMessages - 1) {
                     uiMessage += "\n\n"
                 }
