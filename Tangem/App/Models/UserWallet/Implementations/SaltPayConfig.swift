@@ -96,7 +96,7 @@ extension SaltPayConfig: UserWalletConfig {
         cardIds.append(card.cardId)
 
         config.filter.cardIdFilter = .allow(Set(cardIds), ranges: util.backupCardRanges)
-        config.filter.localizedDescription = "error_saltpay_wrong_backup_card".localized
+        config.filter.localizedDescription = L10n.errorSaltpayWrongBackupCard
         config.cardIdDisplayFormat = .none
         return config
     }
