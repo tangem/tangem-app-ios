@@ -36,6 +36,6 @@ struct EnterPinView: View {
 
 struct EnterPinView_Previews: PreviewProvider {
     static var previews: some View {
-        EnterPinView(text: .constant("0000"), title: "onboarding_title_pin", subtitle: "onboarding_subtitle_pin", maxDigits: 4)
+        EnterPinView(text: .constant("0000"), title: L10n.onboardingTitlePin, subtitle: L10n.onboardingSubtitlePin, maxDigits: 4)
     }
 }

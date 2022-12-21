@@ -18,10 +18,10 @@ struct ScanCardWarningView: View {
                     icon
 
                     VStack(alignment: .leading, spacing: 4) {
-                        Text("main_scan_card_warning_view_title".localized)
+                        Text(L10n.mainScanCardWarningViewTitle)
                             .style(Fonts.Bold.subheadline, color: Colors.Text.primary1)
 
-                        Text("main_scan_card_warning_view_subtitle")
+                        Text(L10n.mainScanCardWarningViewSubtitle)
                             .style(Fonts.Regular.footnote, color: Colors.Text.secondary)
                     }
                     .fixedSize(horizontal: false, vertical: true)

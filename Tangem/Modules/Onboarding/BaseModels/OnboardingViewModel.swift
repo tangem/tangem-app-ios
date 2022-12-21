@@ -46,7 +46,7 @@ class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable>
     }
 
     var navbarTitle: LocalizedStringKey {
-        "onboarding_getting_started"
+        L10n.onboardingGettingStarted
     }
 
     var title: LocalizedStringKey? {

@@ -91,19 +91,19 @@ struct TangemButton_Previews: PreviewProvider {
                 .buttonStyle(TangemButtonStyle(colorStyle: .black,
                                                layout: .big))
 
-            TangemButton(title: "wallet_address_button_explore",
+            TangemButton(title: L10n.walletAddressButtonExplore,
                          systemImage: "chevron.right",
                          iconPosition: .trailing) {}
                 .buttonStyle(TangemButtonStyle(colorStyle: .transparentWhite,
                                                layout: .wide))
 
             HStack {
-                TangemButton(title: "wallet_button_send",
+                TangemButton(title: L10n.walletButtonSend,
                              image: "scan") {}
                     .buttonStyle(TangemButtonStyle(layout: .smallVertical,
                                                    isLoading: true))
 
-                TangemButton.vertical(title: "wallet_button_buy",
+                TangemButton.vertical(title: L10n.walletButtonBuy,
                                       systemImage: "arrow.up") {}
                     .buttonStyle(TangemButtonStyle(layout: .smallVertical))
 

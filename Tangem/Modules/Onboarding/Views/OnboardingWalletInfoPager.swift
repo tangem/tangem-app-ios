@@ -141,18 +141,18 @@ enum TangemWalletOnboardingInfoPage: CaseIterable {
 
     var title: LocalizedStringKey {
         switch self {
-        case .first: return "onboarding_wallet_info_title_first"
-        case .second: return "onboarding_wallet_info_title_second"
-        case .third: return "onboarding_wallet_info_title_third"
-        case .fourth: return "onboarding_wallet_info_title_fourth"
+        case .first: return L10n.onboardingWalletInfoTitleFirst
+        case .second: return L10n.onboardingWalletInfoTitleSecond
+        case .third: return L10n.onboardingWalletInfoTitleThird
+        case .fourth: return L10n.onboardingWalletInfoTitleFourth
         }
     }
     var subtitle: LocalizedStringKey {
         switch self {
-        case .first: return "onboarding_wallet_info_subtitle_first"
-        case .second: return "onboarding_wallet_info_subtitle_second"
-        case .third: return "onboarding_wallet_info_subtitle_third"
-        case .fourth: return "onboarding_wallet_info_subtitle_fourth"
+        case .first: return L10n.onboardingWalletInfoSubtitleFirst
+        case .second: return L10n.onboardingWalletInfoSubtitleSecond
+        case .third: return L10n.onboardingWalletInfoSubtitleThird
+        case .fourth: return L10n.onboardingWalletInfoSubtitleFourth
         }
     }
 }

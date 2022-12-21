@@ -19,11 +19,11 @@ struct ScanTroubleshootingView: View {
         Color.clear
             .frame(width: 0.5, height: 0.5)
             .actionSheet(isPresented: $isPresented, content: {
-                ActionSheet(title: Text("alert_troubleshooting_scan_card_title"),
-                            message: Text("alert_troubleshooting_scan_card_message"),
+                ActionSheet(title: Text(L10n.alertTroubleshootingScanCardTitle),
+                            message: Text(L10n.alertTroubleshootingScanCardMessage),
                             buttons: [
-                                .default(Text("alert_button_try_again"), action: tryAgainAction),
-                                .default(Text("alert_button_request_support"), action: requestSupportAction),
+                                .default(Text(L10n.alertButtonTryAgain), action: tryAgainAction),
+                                .default(Text(L10n.alertButtonRequestSupport), action: requestSupportAction),
                                 .cancel(),
                             ])
             })

@@ -41,7 +41,7 @@ struct SingleCardOnboardingView: View {
                     let size = proxy.size
                     ZStack(alignment: .center) {
 
-                        NavigationBar(title: "onboarding_title",
+                        NavigationBar(title: L10n.onboardingTitle,
                                       settings: .init(titleFont: .system(size: 17, weight: .semibold), backgroundColor: .clear),
                                       leftItems: {
                                           BackButton(height: viewModel.navbarSize.height,

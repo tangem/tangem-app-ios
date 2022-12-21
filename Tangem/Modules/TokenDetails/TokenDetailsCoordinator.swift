@@ -51,7 +51,7 @@ extension TokenDetailsCoordinator: TokenDetailsRoutable {
     func openBuyCrypto(at url: URL, closeUrl: String, action: @escaping (String) -> Void) {
         Analytics.log(.topUpScreenOpened)
         pushedWebViewModel = WebViewContainerViewModel(url: url,
-                                                       title: "wallet_button_buy".localized,
+                                                       title: L10n.walletButtonBuy,
                                                        addLoadingIndicator: true,
                                                        urlActions: [
                                                            closeUrl: { [weak self] response in
@@ -62,14 +62,14 @@ extension TokenDetailsCoordinator: TokenDetailsRoutable {
 
     func openSellCrypto(at url: URL, sellRequestUrl: String, action: @escaping (String) -> Void) {
         pushedWebViewModel = WebViewContainerViewModel(url: url,
-                                                       title: "wallet_button_sell".localized,
+                                                       title: L10n.walletButtonSell,
                                                        addLoadingIndicator: true,
                                                        urlActions: [sellRequestUrl: action])
     }
 
     func openExplorer(at url: URL, blockchainDisplayName: String) {
         modalWebViewModel = WebViewContainerViewModel(url: url,
-                                                      title: "common_explorer_format".localized(blockchainDisplayName),
+                                                      title: L10n.commonExplorerFormat(blockchainDisplayName),
                                                       withCloseButton: true)
     }
 
