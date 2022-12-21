@@ -65,7 +65,7 @@ struct SwappingView: View {
                 ProgressViewCompat(color: Colors.Icon.informative)
             } else {
                 Button(action: viewModel.userDidTapSwapExchangeItemsButton) {
-                    Assets.swappingIcon
+                    Assets.swappingIcon.image
                         .resizable()
                         .frame(width: 20, height: 20)
                 }
