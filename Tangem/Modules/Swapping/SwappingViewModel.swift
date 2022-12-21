@@ -253,7 +253,7 @@ private extension SwappingViewModel {
                 feeWarningRowViewModel = DefaultWarningRowViewModel(
                     icon: Assets.attention,
                     title: nil,
-                    subtitle: "swapping_not_enough_funds_for_fee".localized([sourceBlockchain.symbol, sourceBlockchain.symbol])
+                    subtitle: L10n.swappingNotEnoughFundsForFee(sourceBlockchain.symbol, sourceBlockchain.symbol)
                 )
             }
 
@@ -385,7 +385,7 @@ private extension SwappingViewModel {
             } catch TangemSdkError.userCancelled {
                 // Do nothing
             } catch {
-                errorAlert = AlertBinder(title: "common_error".localized, message: error.localizedDescription)
+                errorAlert = AlertBinder(title: L10n.commonError.text, message: error.localizedDescription)
             }
         }
     }
@@ -407,7 +407,7 @@ private extension SwappingViewModel {
                 updateRefreshWarningRowViewModel(message: error.localizedDescription)
             }
         default:
-            updateRefreshWarningRowViewModel(message: "common_error".localized)
+            updateRefreshWarningRowViewModel(message: L10n.commonError.text)
         }
     }
 
