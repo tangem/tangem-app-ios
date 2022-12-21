@@ -11,18 +11,18 @@ import Foundation
 public struct PreviewSwappingDataModel {
     public let expectedAmount: Decimal
     public let expectedFiatAmount: Decimal
-    public let isRequiredPermission: Bool
+    public let isPermissionRequired: Bool
     public let isEnoughAmountForExchange: Bool
 
     public init(
         expectedAmount: Decimal,
         expectedFiatAmount: Decimal,
-        isRequiredPermission: Bool,
+        isPermissionRequired: Bool,
         isEnoughAmountForExchange: Bool
     ) {
         self.expectedAmount = expectedAmount
         self.expectedFiatAmount = expectedFiatAmount
-        self.isRequiredPermission = isRequiredPermission
+        self.isPermissionRequired = isPermissionRequired
         self.isEnoughAmountForExchange = isEnoughAmountForExchange
     }
 }
