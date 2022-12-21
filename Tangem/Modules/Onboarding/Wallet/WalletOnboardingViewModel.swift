@@ -42,11 +42,11 @@ class WalletOnboardingViewModel: OnboardingTopupViewModel<WalletOnboardingStep, 
     //        }
     //    }
 
-    override var navbarTitle: LocalizedStringKey {
+    override var navbarTitle: String {
         currentStep.navbarTitle
     }
 
-    override var title: LocalizedStringKey? {
+    override var title: String? {
         switch currentStep {
         case .selectBackupCards:
             switch backupCardsAddedCount {
@@ -59,7 +59,7 @@ class WalletOnboardingViewModel: OnboardingTopupViewModel<WalletOnboardingStep, 
         case .backupCards:
             switch backupServiceState {
             case .finalizingPrimaryCard: return isSaltPayOnboarding ? L10n.onboardingSaltpayTitlePrepareOrigin : L10n.commonOriginCard
-            case .finalizingBackupCard(let index): return isSaltPayOnboarding ? L10n.onboardingSaltpayTitleBackupCard : LocalizedStringKey(stringLiteral: L10n.onboardingTitleBackupCardFormat(index))
+            case .finalizingBackupCard(let index): return isSaltPayOnboarding ? L10n.onboardingSaltpayTitleBackupCard : String(stringLiteral: L10n.onboardingTitleBackupCardFormat(index))
             default: break
             }
 
@@ -67,13 +67,13 @@ class WalletOnboardingViewModel: OnboardingTopupViewModel<WalletOnboardingStep, 
             return nil
         case .claim:
             let claimValue = saltPayRegistratorProvider.registrator?.claimableAmountDescription ?? ""
-            return claimed ? L10n.onboardingTitleClaimProgress : LocalizedStringKey(stringLiteral: L10n.onboardingTitleClaim(claimValue))
+            return claimed ? L10n.onboardingTitleClaimProgress : String(stringLiteral: L10n.onboardingTitleClaim(claimValue))
         default: break
         }
         return super.title
     }
 
-    override var subtitle: LocalizedStringKey? {
+    override var subtitle: String? {
         switch currentStep {
         case .selectBackupCards:
             switch backupCardsAddedCount {
@@ -101,7 +101,7 @@ class WalletOnboardingViewModel: OnboardingTopupViewModel<WalletOnboardingStep, 
                     return super.subtitle
                 }
 
-                return LocalizedStringKey(stringLiteral: L10n.onboardingSubtitleScanPrimaryCardFormat(cardIdFormatted))
+                return String(stringLiteral: L10n.onboardingSubtitleScanPrimaryCardFormat(cardIdFormatted))
             case .finalizingBackupCard(let index):
                 if isSaltPayOnboarding {
                     return L10n.onboardingTwinsInterruptWarning
@@ -112,7 +112,7 @@ class WalletOnboardingViewModel: OnboardingTopupViewModel<WalletOnboardingStep, 
                     return super.subtitle
                 }
 
-                return LocalizedStringKey(stringLiteral: L10n.onboardingSubtitleScanBackupCardFormat(cardIdFormatted))
+                return String(stringLiteral: L10n.onboardingSubtitleScanBackupCardFormat(cardIdFormatted))
             default: return super.subtitle
             }
         case .registerWallet, .kycStart, .kycRetry, .enterPin, .kycWaiting:
@@ -147,14 +147,14 @@ class WalletOnboardingViewModel: OnboardingTopupViewModel<WalletOnboardingStep, 
         )
     }
 
-    override var mainButtonTitle: LocalizedStringKey {
+    override var mainButtonTitle: String {
         switch currentStep {
         case .selectBackupCards:
             return L10n.onboardingButtonAddBackupCard
         case .backupCards:
             switch backupServiceState {
             case .finalizingPrimaryCard: return isSaltPayOnboarding ? L10n.onboardingSaltpayButtonBackupOrigin : L10n.onboardingButtonBackupOrigin
-            case .finalizingBackupCard(let index): return isSaltPayOnboarding ? L10n.onboardingSaltpayTitleBackupCard : LocalizedStringKey(stringLiteral: L10n.onboardingButtonBackupCardFormat(index))
+            case .finalizingBackupCard(let index): return isSaltPayOnboarding ? L10n.onboardingSaltpayTitleBackupCard : String(stringLiteral: L10n.onboardingButtonBackupCardFormat(index))
             default: break
             }
         case .success:
@@ -225,7 +225,7 @@ class WalletOnboardingViewModel: OnboardingTopupViewModel<WalletOnboardingStep, 
         }
     }
 
-    var infoText: LocalizedStringKey? {
+    var infoText: String? {
         currentStep.infoText
     }
 
