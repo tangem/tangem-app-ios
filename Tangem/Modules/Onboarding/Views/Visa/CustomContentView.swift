@@ -9,7 +9,7 @@
 import SwiftUI
 
 struct CustomContentView: View {
-    let imageName: String
+    let imageType: ImageType
     let title: LocalizedStringKey
     let subtitle: LocalizedStringKey
 
@@ -17,7 +17,7 @@ struct CustomContentView: View {
         VStack(spacing: 14) {
             Spacer()
 
-            Image(name: imageName)
+            imageType.image
                 .padding(.bottom, 15)
 
             Text(title)
@@ -35,7 +35,7 @@ struct CustomContentView: View {
 
 struct CustomContentView_Previews: PreviewProvider {
     static var previews: some View {
-        CustomContentView(imageName: "passport",
+        CustomContentView(imageType: Assets.passport,
                           title: "onboarding_title_pin",
                           subtitle: "onboarding_subtitle_pin")
     }

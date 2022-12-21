@@ -11,7 +11,7 @@ import SwiftUI
 fileprivate struct AccessCodeFeature {
     let title: LocalizedStringKey
     let description: LocalizedStringKey
-    let icon: String
+    let icon: ImageType
 }
 
 struct OnboardingAccessCodeViewModel: Identifiable {
@@ -32,14 +32,14 @@ struct OnboardingAccessCodeView: View {
         switch state {
         case .intro:
             Spacer()
-            Image("input_with_lock")
+            Assets.Onboarding.inputWithLock.image
                 .scaleEffect(Constants.isSmallScreen ? 0.7 : 1)
             Spacer()
             VStack(alignment: .leading, spacing: 20) {
                 ForEach(0 ..< 3) { index in
                     let feature = ViewState.featuresDescription[index]
                     HStack(alignment: .customTop, spacing: 20) {
-                        Image(feature.icon)
+                        feature.icon.image
                             .alignmentGuide(.customTop) { d in d[VerticalAlignment.top] - 4 }
                         VStack(alignment: .leading, spacing: 3) {
                             Text(feature.title)
@@ -304,13 +304,13 @@ extension OnboardingAccessCodeView {
             [
                 .init(title: "onboarding_access_code_feature_1_title",
                       description: "onboarding_access_code_feature_1_description",
-                      icon: "access_code_feature_1"),
+                      icon: Assets.Onboarding.accessCodeFeature1),
                 .init(title: "onboarding_access_code_feature_2_title",
                       description: "onboarding_access_code_feature_2_description",
-                      icon: "access_code_feature_2"),
+                      icon: Assets.Onboarding.accessCodeFeature2),
                 .init(title: "onboarding_access_code_feature_3_title",
                       description: "onboarding_access_code_feature_3_description",
-                      icon: "access_code_feature_3"),
+                      icon: Assets.Onboarding.accessCodeFeature3),
             ]
         }
     }

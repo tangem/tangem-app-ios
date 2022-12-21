@@ -4,7 +4,7 @@
 
 {% if catalogs %}
 {% set enumName %}{{param.enumName|default:"Asset"}}{% endset %}
-{% set colorType %}{{param.colorTypeName|default:"ColorType"}}{% endset %}
+{% set colorType %}{{param.colorTypeName|default:"Color"}}{% endset %}
 {% set imageType %}{{param.imageTypeName|default:"ImageType"}}{% endset %}
 {% set forceNamespaces %}{{param.forceProvidesNamespaces|default:"false"}}{% endset %}
 {% set accessModifier %}{% if param.publicAccess %}public{% else %}internal{% endif %}{% endset %}
@@ -106,36 +106,15 @@ import SwiftUI
   }
 }
 
-{{accessModifier}} extension UIColor {
-  /// Creates a named color.
-  /// - Parameter name: the color resource to lookup.
-  convenience init!(name: String) {
-    let bundle = Bundle(for: BundleToken.self)
-    self.init(named: name, in: bundle, compatibleWith: nil)
-  }
-}
+{{accessModifier}} struct ImageType: Hashable {
+  {{accessModifier}} let name: String
 
-{{accessModifier}} struct ImageType {
-  let name: String
-
-  var image: Image {
+  {{accessModifier}} var image: Image {
     Image(name: name)
   }
 
-  var uiImage: UIImage {
+  {{accessModifier}} var uiImage: UIImage {
     UIImage(name: name)
-  }
-}
-
-{{accessModifier}} struct ColorType {
-  let name: String
-
-  var color: Color {
-    Color(name: name)
-  }
-
-  var uiColor: UIColor {
-    UIColor(name: name)
   }
 }
 
