@@ -419,7 +419,7 @@ class WalletOnboardingViewModel: OnboardingTopupViewModel<WalletOnboardingStep, 
                         }
                         return
                     }
-                    
+
                     self.goToNextStep()
                 case .claim:
                     self.goToNextStep()
