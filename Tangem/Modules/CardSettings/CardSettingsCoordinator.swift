@@ -74,11 +74,11 @@ extension CardSettingsCoordinator: CardSettingsRoutable {
         Analytics.log(.buttonFactoryReset)
         attentionViewModel = AttentionViewModel(
             isWarningChecked: false,
-            navigationTitle: "card_settings_reset_card_to_factory".localized,
-            title: "common_attention".localized,
+            navigationTitle: L10n.cardSettingsResetCardToFactory,
+            title: L10n.commonAttention,
             message: message,
-            warningText: "reset_card_to_factory_warning_message".localized,
-            buttonTitle: "reset_card_to_factory_button_title".localized,
+            warningText: L10n.resetCardToFactoryWarningMessage,
+            buttonTitle: L10n.resetCardToFactoryButtonTitle,
             mainButtonAction: mainButtonAction
         )
     }
