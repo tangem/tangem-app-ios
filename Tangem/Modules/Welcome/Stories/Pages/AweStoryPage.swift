@@ -20,7 +20,7 @@ struct AweStoryPage: View {
                 .padding()
 
             VStack(spacing: 12) {
-                Text("story_awe_title")
+                Text(L10n.storyAweTitle)
                     .font(.system(size: 36, weight: .semibold))
                     .minimumScaleFactor(0.5)
                     .multilineTextAlignment(.center)
@@ -28,7 +28,7 @@ struct AweStoryPage: View {
                     .padding(.horizontal)
                     .storyTextAppearanceModifier(progress: progress, type: .title, textBlockAppearance: .minorDelay)
 
-                Text("story_awe_description")
+                Text(L10n.storyAweDescription)
                     .font(.system(size: 24))
                     .multilineTextAlignment(.center)
                     .foregroundColor(.gray)
