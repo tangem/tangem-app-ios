@@ -29,7 +29,7 @@ enum WalletOnboardingStep: Equatable {
 
     case success
 
-    var navbarTitle: LocalizedStringKey {
+    var navbarTitle: String {
         switch self {
         case .welcome: return ""
         case .createWallet, .backupIntro: return L10n.onboardingGettingStarted
@@ -92,7 +92,7 @@ enum WalletOnboardingStep: Equatable {
 }
 
 extension WalletOnboardingStep: OnboardingMessagesProvider, SuccessStep {
-    var title: LocalizedStringKey? {
+    var title: String? {
         switch self {
         case .welcome: return WelcomeStep.welcome.title
         case .createWallet: return L10n.onboardingCreateWalletButtonCreateWallet
@@ -117,7 +117,7 @@ extension WalletOnboardingStep: OnboardingMessagesProvider, SuccessStep {
         }
     }
 
-    var subtitle: LocalizedStringKey? {
+    var subtitle: String? {
         switch self {
         case .welcome: return WelcomeStep.welcome.subtitle
         case .createWallet: return L10n.onboardingCreateWalletBody
@@ -153,7 +153,7 @@ extension WalletOnboardingStep: OnboardingMessagesProvider, SuccessStep {
 }
 
 extension WalletOnboardingStep: OnboardingButtonsInfoProvider {
-    var mainButtonTitle: LocalizedStringKey {
+    var mainButtonTitle: String {
         switch self {
         case .welcome: return WelcomeStep.welcome.mainButtonTitle
         case .createWallet: return L10n.walletButtonCreateWallet
@@ -168,7 +168,7 @@ extension WalletOnboardingStep: OnboardingButtonsInfoProvider {
         }
     }
 
-    var supplementButtonTitle: LocalizedStringKey {
+    var supplementButtonTitle: String {
         switch self {
         case .welcome: return WelcomeStep.welcome.supplementButtonTitle
         case .createWallet: return L10n.onboardingButtonWhatDoesItMean
@@ -196,11 +196,11 @@ extension WalletOnboardingStep: OnboardingButtonsInfoProvider {
         true
     }
 
-    var checkmarkText: LocalizedStringKey? {
+    var checkmarkText: String? {
         return nil
     }
 
-    var infoText: LocalizedStringKey? {
+    var infoText: String? {
         switch self {
         case .saveUserWallet:
             return L10n.saveUserWalletAgreementNotice
