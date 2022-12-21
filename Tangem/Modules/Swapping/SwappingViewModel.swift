@@ -381,7 +381,7 @@ private extension SwappingViewModel {
         Task {
             do {
                 try await transactionSender.sendTransaction(info)
-                openSuccessView(result: result, transactionMoisPermissionRequireddel: info)
+                openSuccessView(result: result, transactionModel: info)
             } catch TangemSdkError.userCancelled {
                 // Do nothing
             } catch {
