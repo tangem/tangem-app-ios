@@ -1,5 +1,5 @@
 //
-//  ResetToFactoryAttentionView.swift
+//  ResetToFactoryView.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -8,10 +8,10 @@
 
 import SwiftUI
 
-struct ResetToFactoryAttentionView: View {
-    @ObservedObject private var viewModel: ResetToFactoryAttentionViewModel
+struct ResetToFactoryView: View {
+    @ObservedObject private var viewModel: ResetToFactoryViewModel
 
-    init(viewModel: ResetToFactoryAttentionViewModel) {
+    init(viewModel: ResetToFactoryViewModel) {
         self.viewModel = viewModel
     }
 
@@ -37,8 +37,9 @@ struct ResetToFactoryAttentionView: View {
         }
         .edgesIgnoringSafeArea(.top)
         .padding(.bottom, 16)
-        .navigationBarTitle(Text(viewModel.navigationTitle), displayMode: .inline)
+        .navigationBarTitle(Text("Reset to factory settings"), displayMode: .inline)
         .actionSheet(item: $viewModel.actionSheet) { $0.sheet }
+        .alert(item: $viewModel.alert) { $0.alert }
     }
 
     private var informationViews: some View {
@@ -57,7 +58,7 @@ struct ResetToFactoryAttentionView: View {
 
     private var mainInformationView: some View {
         VStack(alignment: .center, spacing: 14) {
-            Text(viewModel.title)
+            Text(L10n.commonAttention)
                 .style(Fonts.Bold.title1, color: Colors.Text.primary1)
 
             Text(viewModel.message)
@@ -67,31 +68,26 @@ struct ResetToFactoryAttentionView: View {
         }
     }
 
-
     private var actionButton: some View {
         MainButton(
-            title: viewModel.buttonTitle,
+            title: L10n.resetCardToFactoryButtonTitle,
             icon: .trailing(Assets.tangemIcon),
-            isDisabled: !viewModel.isWarningChecked,
-            action: viewModel.mainButtonAction
+            style: .secondary,
+            action: viewModel.mainButtonDidTap
         )
         .padding(.horizontal, 16)
     }
 }
 
 struct ResetToFactoryAttentionView_Previews: PreviewProvider {
-    static let viewModel = ResetToFactoryAttentionViewModel(
-        navigationTitle: "Reset to factory settings",
-        title: "Attention",
-        message: "This action will lead to the complete removal of the wallet from the selected card and it will not be possible to restore the current wallet on it or use the card to recover the password",
-        warningText: "I understand that after performing this action, I will no longer have access to the current wallet",
-        buttonTitle: "Reset the card",
-        resetToFactoryAction: {}
+    static let viewModel = ResetToFactoryViewModel(
+        cardModel: CardViewModel(cardInfo: CardInfo(card: .init(card: .card), walletData: .none, name: "", artwork: .noArtwork, primaryCard: nil), config: GenericConfig(card: .init(card: .card)), userWallet: nil),
+        coordinator: CardSettingsCoordinator()
     )
 
     static var previews: some View {
         NavigationView {
-            ResetToFactoryAttentionView(viewModel: viewModel)
+            ResetToFactoryView(viewModel: viewModel)
         }
         .previewGroup(withZoomed: false)
     }
