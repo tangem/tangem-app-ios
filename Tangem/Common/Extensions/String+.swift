@@ -9,17 +9,14 @@
 import Foundation
 
 extension String {
-    @available(*, deprecated, message: "Use L10n instead")
     var localized: String {
         return NSLocalizedString(self, comment: "")
     }
 
-    @available(*, deprecated, message: "Use L10n instead")
     func localized(_ arguments: [CVarArg]) -> String {
         return String(format: localized, arguments: arguments)
     }
 
-    @available(*, deprecated, message: "Use L10n instead")
     func localized(_ arguments: CVarArg) -> String {
         return String(format: localized, arguments)
     }
