@@ -161,7 +161,7 @@ extension WalletOnboardingStep: OnboardingButtonsInfoProvider {
         case .backupIntro: return L10n.onboardingButtonBackupNow
         case .selectBackupCards: return L10n.onboardingButtonAddBackupCard
         case .backupCards, .kycProgress: return ""
-        case .saveUserWallet: return BiometricAuthorizationUtils.allowButtonLocalizationKey
+        case .saveUserWallet: return BiometricAuthorizationUtils.allowButtonTitle
         case .success: return L10n.onboardingButtonContinueWallet
         case .kycWaiting: return L10n.onboardingSupplementButtonKycWaiting
         default: return ""
