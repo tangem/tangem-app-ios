@@ -55,7 +55,7 @@ class WalletConnectSignHandler: TangemWalletConnectRequestHandler {
             }
         }
 
-        let alertMessage =  String(format: "wallet_connect_alert_sign_message".localized, message)
+        let alertMessage =  L10n.walletConnectAlertSignMessage(message)
         DispatchQueue.main.async {
             UIApplication.modalFromTop(
                 WalletConnectUIBuilder.makeAlert(for: .sign,

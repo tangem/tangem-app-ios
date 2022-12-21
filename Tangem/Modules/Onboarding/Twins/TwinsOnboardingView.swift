@@ -59,7 +59,7 @@ struct TwinsOnboardingView: View {
 
                         // Navbar is added to ZStack instead of VStack because of wrong animation when container changed
                         // and cards jumps instead of smooth transition
-                        NavigationBar(title: "twins_recreate_toolbar",
+                        NavigationBar(title: L10n.twinsRecreateToolbar,
                                       settings: .init(titleFont: .system(size: 17, weight: .semibold), backgroundColor: .clear),
                                       leftItems: {
                                           BackButton(height: viewModel.navbarSize.height,

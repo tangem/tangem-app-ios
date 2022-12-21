@@ -68,7 +68,7 @@ class TwinsOnboardingViewModel: OnboardingTopupViewModel<TwinsOnboardingStep, On
         }
 
         if case .topup = currentStep, !canBuy {
-            return "onboarding_button_receive_crypto"
+            return L10n.onboardingButtonReceiveCrypto
         }
 
         return super.mainButtonTitle
@@ -266,7 +266,7 @@ class TwinsOnboardingViewModel: OnboardingTopupViewModel<TwinsOnboardingStep, On
     override func backButtonAction() {
         switch currentStep {
         case .second, .third:
-            alert = AlertBuilder.makeOkGotItAlert(message: "onboarding_twin_exit_warning".localized)
+            alert = AlertBuilder.makeOkGotItAlert(message: L10n.onboardingTwinExitWarning)
         default:
             alert = AlertBuilder.makeExitAlert() { [weak self] in
                 guard let self else { return }
