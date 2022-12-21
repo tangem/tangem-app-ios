@@ -151,7 +151,7 @@ private extension SwappingViewModel {
     func openPermissionView() {
         let state = exchangeManager.getAvailabilityState()
         guard case let .available(result, info) = state,
-              result.isRequiredPermission else {
+              result.isPermissionRequired else {
             return
         }
 
@@ -294,7 +294,7 @@ private extension SwappingViewModel {
 
             if !model.isEnoughAmountForExchange {
                 mainButtonState = .insufficientFunds
-            } else if model.isRequiredPermission {
+            } else if model.isPermissionRequired {
                 mainButtonState = .givePermission
             } else {
                 mainButtonState = .swap
@@ -305,7 +305,7 @@ private extension SwappingViewModel {
 
             if !model.isEnoughAmountForExchange {
                 mainButtonState = .insufficientFunds
-            } else if model.isRequiredPermission {
+            } else if model.isPermissionRequired {
                 mainButtonState = .givePermission
             } else {
                 mainButtonState = .swap
@@ -381,7 +381,7 @@ private extension SwappingViewModel {
         Task {
             do {
                 try await transactionSender.sendTransaction(info)
-                openSuccessView(result: result, transactionModel: info)
+                openSuccessView(result: result, transactionMoisPermissionRequireddel: info)
             } catch TangemSdkError.userCancelled {
                 // Do nothing
             } catch {
@@ -392,17 +392,17 @@ private extension SwappingViewModel {
 
     func processingError(error: Error) {
         switch error {
-        case let managerError as ExchangeManagerError:
-            switch managerError {
+        case let error as ExchangeManagerError:
+            switch error {
             case .walletAddressNotFound, .destinationNotFound, .amountNotFound:
-                updateRefreshWarningRowViewModel(message: managerError.localizedDescription)
+                updateRefreshWarningRowViewModel(message: error.localizedDescription)
             }
-        case let providerError as ExchangeProviderError:
-            switch providerError {
+        case let error as ExchangeProviderError:
+            switch error {
             case let .requestError(error):
                 updateRefreshWarningRowViewModel(message: error.detailedError.localizedDescription)
-            case let .oneInchError(inchError):
-                updateRefreshWarningRowViewModel(message: inchError.description)
+            case let .oneInchError(error):
+                updateRefreshWarningRowViewModel(message: error.description)
             case let .decodingError(error):
                 updateRefreshWarningRowViewModel(message: error.localizedDescription)
             }
