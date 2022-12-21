@@ -19,11 +19,11 @@ struct AttentionView: View {
         GeometryReader { geometry in
             VStack(alignment: .center, spacing: 0) {
                 ZStack {
-                    Assets.attentionBg
+                    Assets.attentionBg.image
                         .resizable()
                         .fixedSize(horizontal: false, vertical: true)
 
-                    Assets.attentionRed
+                    Assets.attentionRed.image
                         .offset(y: 30)
                 }
                 .frame(
@@ -91,7 +91,7 @@ struct AttentionView: View {
     }
 
     private var circleImage: Image {
-        viewModel.isWarningChecked ? Assets.circleChecked : Assets.circleEmpty
+        viewModel.isWarningChecked ? Assets.circleChecked.image : Assets.circleEmpty.image
     }
 
     private var actionButton: some View {

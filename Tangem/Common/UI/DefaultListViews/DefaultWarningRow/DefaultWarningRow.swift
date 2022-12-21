@@ -18,7 +18,7 @@ struct DefaultWarningRow: View {
     var body: some View {
         Button(action: viewModel.action) {
             HStack(alignment: .center, spacing: 12) {
-                viewModel.icon
+                viewModel.icon.image
                     .resizable()
                     .frame(width: 24, height: 24)
                     .padding(8)
@@ -53,7 +53,7 @@ struct DefaultWarningRow: View {
             case .none:
                 EmptyView()
             case .icon(let image):
-                image
+                image.image
                     .resizable()
                     .frame(width: 20, height: 20)
             case .loader:
