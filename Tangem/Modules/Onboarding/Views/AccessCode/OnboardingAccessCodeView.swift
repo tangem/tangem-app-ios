@@ -9,8 +9,8 @@
 import SwiftUI
 
 fileprivate struct AccessCodeFeature {
-    let title: LocalizedStringKey
-    let description: LocalizedStringKey
+    let title: String
+    let description: String
     let icon: String
 }
 
@@ -158,7 +158,7 @@ struct OnboardingAccessCodeView: View {
 
 struct CustomPasswordTextField: View {
 
-    let placeholder: LocalizedStringKey
+    let placeholder: String
     let color: Color
     var backgroundColor: Color = .tangemBgGray2
 
@@ -235,7 +235,7 @@ private extension CustomPasswordTextField {
     struct FocusableTextField: View {
         let isSecured: Bool
         let shouldBecomeFirstResponder: Bool
-        let placeholder: LocalizedStringKey
+        let placeholder: String
         let text: Binding<String>
         var onEditingChanged: (Bool) -> Void = { _ in }
         var onCommit: () -> Void = {}
@@ -285,14 +285,14 @@ extension OnboardingAccessCodeView {
         case inputCode
         case repeatCode
 
-        var title: LocalizedStringKey {
+        var title: String {
             switch self {
             case .intro, .inputCode: return L10n.onboardingAccessCodeIntroTitle
             case .repeatCode: return L10n.onboardingAccessCodeRepeatCodeTitle
             }
         }
 
-        var buttonTitle: LocalizedStringKey {
+        var buttonTitle: String {
             switch self {
             case .intro: return L10n.commonContinue
             case .inputCode: return L10n.commonContinue
@@ -320,7 +320,7 @@ extension OnboardingAccessCodeView {
         case tooShort
         case dontMatch
 
-        var description: LocalizedStringKey {
+        var description: String {
             switch self {
             case .none: return ""
             case .tooShort: return L10n.onboardingAccessCodeTooShort

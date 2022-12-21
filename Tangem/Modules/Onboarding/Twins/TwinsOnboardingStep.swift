@@ -9,14 +9,14 @@
 import SwiftUI
 
 protocol SuccessStep {
-    var successTitle: LocalizedStringKey { get }
-    var successButtonTitle: LocalizedStringKey { get }
+    var successTitle: String { get }
+    var successButtonTitle: String { get }
     var successMessagesOffset: CGSize { get }
 }
 
 extension SuccessStep {
-    var successTitle: LocalizedStringKey { L10n.onboardingDoneHeader }
-    var successButtonTitle: LocalizedStringKey { L10n.commonContinue }
+    var successTitle: String { L10n.onboardingDoneHeader }
+    var successButtonTitle: String { L10n.commonContinue }
     var successMessagesOffset: CGSize {
         .init(width: 0, height: -UIScreen.main.bounds.size.height * 0.115)
     }
@@ -136,12 +136,12 @@ extension TwinsOnboardingStep: OnboardingTopupBalanceLayoutCalculator {}
 extension TwinsOnboardingStep: SuccessStep {}
 
 extension TwinsOnboardingStep: OnboardingMessagesProvider {
-    var title: LocalizedStringKey? {
+    var title: String? {
         switch self {
         case .welcome: return WelcomeStep.welcome.title
         case .intro: return L10n.twinsOnboardingSubtitle
-        case .first, .third: return LocalizedStringKey(stringLiteral: L10n.twinsRecreateTitleFormat("1"))
-        case .second: return LocalizedStringKey(stringLiteral: L10n.twinsRecreateTitleFormat("2"))
+        case .first, .third: return String(stringLiteral: L10n.twinsRecreateTitleFormat("1"))
+        case .second: return String(stringLiteral: L10n.twinsRecreateTitleFormat("2"))
         case .topup: return L10n.onboardingTopupTitle
         case .done: return L10n.onboardingDoneHeader
         case .saveUserWallet: return nil
@@ -150,10 +150,10 @@ extension TwinsOnboardingStep: OnboardingMessagesProvider {
         }
     }
 
-    var subtitle: LocalizedStringKey? {
+    var subtitle: String? {
         switch self {
         case .welcome: return WelcomeStep.welcome.subtitle
-        case .intro(let pairNumber): return LocalizedStringKey(stringLiteral: L10n.twinsOnboardingDescriptionFormat(pairNumber))
+        case .intro(let pairNumber): return String(stringLiteral: L10n.twinsOnboardingDescriptionFormat(pairNumber))
         case .first, .second, .third: return L10n.onboardingTwinsInterruptWarning
         case .topup: return L10n.onboardingTopUpBody
         case .saveUserWallet: return nil
@@ -170,12 +170,12 @@ extension TwinsOnboardingStep: OnboardingMessagesProvider {
 }
 
 extension TwinsOnboardingStep: OnboardingButtonsInfoProvider {
-    var mainButtonTitle: LocalizedStringKey {
+    var mainButtonTitle: String {
         switch self {
         case .welcome: return WelcomeStep.welcome.mainButtonTitle
         case .intro: return L10n.commonContinue
-        case .first, .third: return LocalizedStringKey(stringLiteral: L10n.twinsRecreateButtonFormat("1"))
-        case .second: return LocalizedStringKey(stringLiteral: L10n.twinsRecreateButtonFormat("2"))
+        case .first, .third: return String(stringLiteral: L10n.twinsRecreateButtonFormat("1"))
+        case .second: return String(stringLiteral: L10n.twinsRecreateButtonFormat("2"))
         case .topup: return L10n.onboardingTopUpButtonButCrypto
         case .done: return L10n.commonContinue
         case .saveUserWallet: return BiometricAuthorizationUtils.allowButtonLocalizationKey
@@ -184,7 +184,7 @@ extension TwinsOnboardingStep: OnboardingButtonsInfoProvider {
         }
     }
 
-    var supplementButtonTitle: LocalizedStringKey {
+    var supplementButtonTitle: String {
         switch self {
         case .welcome: return WelcomeStep.welcome.supplementButtonTitle
         case .topup: return L10n.onboardingTopUpButtonShowWalletAddress
@@ -201,7 +201,7 @@ extension TwinsOnboardingStep: OnboardingButtonsInfoProvider {
 
     var isContainSupplementButton: Bool { true }
 
-    var checkmarkText: LocalizedStringKey? {
+    var checkmarkText: String? {
         switch self {
         case .alert:
             return L10n.commonUnderstand
@@ -210,7 +210,7 @@ extension TwinsOnboardingStep: OnboardingButtonsInfoProvider {
         }
     }
 
-    var infoText: LocalizedStringKey? {
+    var infoText: String? {
         switch self {
         case .saveUserWallet:
             return L10n.saveUserWalletAgreementNotice
