@@ -42,7 +42,7 @@ struct DetailsView: View {
         .navigationBarBackButtonHidden(false)
         .navigationBarHidden(false)
         .alert(item: $viewModel.error) { $0.alert }
-        .navigationBarTitle(L10n.detailsTitle, displayMode: .inline)
+        .navigationBarTitle(Text(L10n.detailsTitle), displayMode: .inline)
     }
 
     // MARK: - Wallet Connect Section
