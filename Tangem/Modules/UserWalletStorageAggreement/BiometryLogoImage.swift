@@ -9,16 +9,16 @@
 import SwiftUI
 
 struct BiometryLogoImage {
-    static var image: Image {
+    static var image: ImageType {
         switch BiometricAuthorizationUtils.biometryType {
         case .faceID:
             return Assets.Biometry.faceId
         case .touchID:
             return Assets.Biometry.touchId
         case .none:
-            return Image(name: "")
+            return ImageType(name: "")
         @unknown default:
-            return Image(name: "")
+            return ImageType(name: "")
         }
     }
 }

@@ -20,7 +20,7 @@ struct UserWalletStorageAgreementView: View {
             Spacer()
 
             VStack(spacing: 0) {
-                BiometryLogoImage.image
+                BiometryLogoImage.image.image
 
                 FlexibleSpacer(maxHeight: 28)
 
@@ -92,7 +92,7 @@ fileprivate extension UserWalletStorageAgreementView {
     }
 
     struct FeatureDescriptionView: View {
-        let icon: Image
+        let icon: ImageType
         let title: String
         let description: String
 
@@ -104,7 +104,7 @@ fileprivate extension UserWalletStorageAgreementView {
                     .frame(width: iconSize, height: iconSize)
                     .cornerRadius(iconSize / 2)
                     .overlay(
-                        icon
+                        icon.image
                             .resizable()
                             .renderingMode(.template)
                             .foregroundColor(Colors.Text.primary1)

@@ -9,9 +9,9 @@
 import SwiftUI
 
 struct IconWithMessagePlaceholderView: View {
-    private let icon: Image
+    private let icon: ImageType
 
-    init(icon: Image) {
+    init(icon: ImageType) {
         self.icon = icon
     }
 
