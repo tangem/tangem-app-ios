@@ -19,7 +19,7 @@ struct ScanCardSettingsView: View {
         VStack(spacing: 16) {
             ScrollView {
                 VStack(alignment: .center, spacing: 0) {
-                    Assets.cards
+                    Assets.cards.image
                         .padding(.vertical, 32)
 
                     VStack(alignment: .center, spacing: 16) {
