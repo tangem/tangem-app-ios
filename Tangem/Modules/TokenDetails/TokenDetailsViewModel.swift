@@ -108,11 +108,11 @@ class TokenDetailsViewModel: ObservableObject {
               let currentAmount = wallet.amounts[amountType], amountType.isToken else { return nil }
 
         if wallet.hasPendingTx && !wallet.hasPendingTx(for: amountType) { // has pending tx for fee
-            return String(format: "token_details_send_blocked_tx_format".localized, wallet.amounts[.coin]?.currencySymbol ?? "")
+            return L10n.tokenDetailsSendBlockedTxFormat(wallet.amounts[.coin]?.currencySymbol ?? "")
         }
 
         if !wallet.hasPendingTx && !canSend && !currentAmount.isZero { // no fee
-            return String(format: "token_details_send_blocked_fee_format".localized, wallet.blockchain.displayName, wallet.blockchain.displayName)
+            return L10n.tokenDetailsSendBlockedFeeFormat(wallet.blockchain.displayName, wallet.blockchain.displayName)
         }
 
         return nil
@@ -129,7 +129,7 @@ class TokenDetailsViewModel: ObservableObject {
         let blockchainName = blockchain.displayName
         let existentialDepositAmount = existentialDepositProvider.existentialDeposit.string(roundingMode: .plain)
 
-        return String(format: "warning_existential_deposit_message".localized, blockchainName, existentialDepositAmount)
+        return L10n.warningExistentialDepositMessage(blockchainName, existentialDepositAmount)
     }
 
     var transactionLengthWarning: String? {
@@ -137,7 +137,7 @@ class TokenDetailsViewModel: ObservableObject {
             return nil
         }
 
-        return "token_details_transaction_length_warning".localized
+        return L10n.tokenDetailsTransactionLengthWarning
     }
 
     var title: String {
@@ -153,7 +153,7 @@ class TokenDetailsViewModel: ObservableObject {
             return nil
         }
 
-        return "wallet_currency_subtitle".localized(blockchainNetwork.blockchain.displayName)
+        return L10n.walletCurrencySubtitle(blockchainNetwork.blockchain.displayName)
     }
 
     @Published var solanaRentWarning: String? = nil
@@ -355,7 +355,7 @@ class TokenDetailsViewModel: ObservableObject {
                     self?.solanaRentWarning = nil
                     return
                 }
-                self.solanaRentWarning = String(format: "solana_rent_warning".localized, rentAmount.description, minimalBalanceForRentExemption.description)
+                self.solanaRentWarning = L10n.solanaRentWarning(rentAmount.description, minimalBalanceForRentExemption.description)
             }
             .store(in: &bag)
     }
@@ -375,27 +375,27 @@ class TokenDetailsViewModel: ObservableObject {
     }
 
     private func showUnableToHideAlert() {
-        let title = "token_details_unable_hide_alert_title".localized(currencySymbol)
+        let title = L10n.tokenDetailsUnableHideAlertTitle(currencySymbol)
 
-        let message = "token_details_unable_hide_alert_message".localized([
+        let message = L10n.tokenDetailsUnableHideAlertMessage(
             currencySymbol,
-            walletModel?.blockchainNetwork.blockchain.displayName ?? "",
-        ])
+            walletModel?.blockchainNetwork.blockchain.displayName ?? ""
+        )
 
         alert = AlertBinder(alert: Alert(
             title: Text(title),
             message: Text(message),
-            dismissButton: .default(Text("common_ok"))
+            dismissButton: .default(Text(L10n.commonOk))
         ))
     }
 
     private func showWarningDeleteAlert() {
-        let title = "token_details_hide_alert_title".localized(currencySymbol)
+        let title = L10n.tokenDetailsHideAlertTitle(currencySymbol)
 
         alert = warningAlert(
             title: title,
-            message: "token_details_hide_alert_message".localized,
-            primaryButton: .destructive(Text("token_details_hide_alert_hide")) { [weak self] in
+            message: L10n.tokenDetailsHideAlertMessage,
+            primaryButton: .destructive(Text(L10n.tokenDetailsHideAlertHide)) { [weak self] in
                 self?.deleteToken()
             }
         )
@@ -404,7 +404,7 @@ class TokenDetailsViewModel: ObservableObject {
     private func warningAlert(title: String, message: String, primaryButton: Alert.Button) -> AlertBinder {
         let alert = Alert(
             title: Text(title),
-            message: Text(message.localized),
+            message: Text(message),
             primaryButton: primaryButton,
             secondaryButton: Alert.Button.cancel()
         )
@@ -566,11 +566,11 @@ extension TokenDetailsViewModel {
         var title: String {
             switch self {
             case .buy:
-                return "wallet_button_buy".localized
+                return L10n.walletButtonBuy
             case .sell:
-                return "wallet_button_sell".localized
+                return L10n.walletButtonSell
             case .swap:
-                return "swapping_swap".localized
+                return L10n.swappingSwap
             }
         }
 

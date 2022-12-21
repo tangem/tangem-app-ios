@@ -15,8 +15,8 @@ protocol SuccessStep {
 }
 
 extension SuccessStep {
-    var successTitle: LocalizedStringKey { "onboarding_done_header" }
-    var successButtonTitle: LocalizedStringKey { "common_continue" }
+    var successTitle: LocalizedStringKey { L10n.onboardingDoneHeader }
+    var successButtonTitle: LocalizedStringKey { L10n.commonContinue }
     var successMessagesOffset: CGSize {
         .init(width: 0, height: -UIScreen.main.bounds.size.height * 0.115)
     }
@@ -139,26 +139,26 @@ extension TwinsOnboardingStep: OnboardingMessagesProvider {
     var title: LocalizedStringKey? {
         switch self {
         case .welcome: return WelcomeStep.welcome.title
-        case .intro: return "twins_onboarding_subtitle"
-        case .first, .third: return LocalizedStringKey(stringLiteral: "twins_recreate_title_format".localized("1"))
-        case .second: return LocalizedStringKey(stringLiteral: "twins_recreate_title_format".localized("2"))
-        case .topup: return "onboarding_topup_title"
-        case .done: return "onboarding_done_header"
+        case .intro: return L10n.twinsOnboardingSubtitle
+        case .first, .third: return LocalizedStringKey(stringLiteral: L10n.twinsRecreateTitleFormat("1"))
+        case .second: return LocalizedStringKey(stringLiteral: L10n.twinsRecreateTitleFormat("2"))
+        case .topup: return L10n.onboardingTopupTitle
+        case .done: return L10n.onboardingDoneHeader
         case .saveUserWallet: return nil
         case .success: return successTitle
-        case .alert: return "common_warning"
+        case .alert: return L10n.commonWarning
         }
     }
 
     var subtitle: LocalizedStringKey? {
         switch self {
         case .welcome: return WelcomeStep.welcome.subtitle
-        case .intro(let pairNumber): return LocalizedStringKey(stringLiteral: "twins_onboarding_description_format".localized(pairNumber))
-        case .first, .second, .third: return "onboarding_twins_interrupt_warning"
-        case .topup: return "onboarding_top_up_body"
+        case .intro(let pairNumber): return LocalizedStringKey(stringLiteral: L10n.twinsOnboardingDescriptionFormat(pairNumber))
+        case .first, .second, .third: return L10n.onboardingTwinsInterruptWarning
+        case .topup: return L10n.onboardingTopUpBody
         case .saveUserWallet: return nil
-        case .done, .success: return "onboarding_done_body"
-        case .alert: return "twins_recreate_warning"
+        case .done, .success: return L10n.onboardingDoneBody
+        case .alert: return L10n.twinsRecreateWarning
         }
     }
 
@@ -173,21 +173,21 @@ extension TwinsOnboardingStep: OnboardingButtonsInfoProvider {
     var mainButtonTitle: LocalizedStringKey {
         switch self {
         case .welcome: return WelcomeStep.welcome.mainButtonTitle
-        case .intro: return "common_continue"
-        case .first, .third: return LocalizedStringKey(stringLiteral: "twins_recreate_button_format".localized("1"))
-        case .second: return LocalizedStringKey(stringLiteral: "twins_recreate_button_format".localized("2"))
-        case .topup: return "onboarding_top_up_button_but_crypto"
-        case .done: return "common_continue"
+        case .intro: return L10n.commonContinue
+        case .first, .third: return LocalizedStringKey(stringLiteral: L10n.twinsRecreateButtonFormat("1"))
+        case .second: return LocalizedStringKey(stringLiteral: L10n.twinsRecreateButtonFormat("2"))
+        case .topup: return L10n.onboardingTopUpButtonButCrypto
+        case .done: return L10n.commonContinue
         case .saveUserWallet: return BiometricAuthorizationUtils.allowButtonLocalizationKey
         case .success: return successButtonTitle
-        case .alert: return "common_continue"
+        case .alert: return L10n.commonContinue
         }
     }
 
     var supplementButtonTitle: LocalizedStringKey {
         switch self {
         case .welcome: return WelcomeStep.welcome.supplementButtonTitle
-        case .topup: return "onboarding_top_up_button_show_wallet_address"
+        case .topup: return L10n.onboardingTopUpButtonShowWalletAddress
         default: return ""
         }
     }
@@ -204,7 +204,7 @@ extension TwinsOnboardingStep: OnboardingButtonsInfoProvider {
     var checkmarkText: LocalizedStringKey? {
         switch self {
         case .alert:
-            return "common_understand"
+            return L10n.commonUnderstand
         default:
             return nil
         }
@@ -213,7 +213,7 @@ extension TwinsOnboardingStep: OnboardingButtonsInfoProvider {
     var infoText: LocalizedStringKey? {
         switch self {
         case .saveUserWallet:
-            return "save_user_wallet_agreement_notice"
+            return L10n.saveUserWalletAgreementNotice
         default:
             return nil
         }

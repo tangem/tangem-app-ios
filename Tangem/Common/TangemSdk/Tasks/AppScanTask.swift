@@ -42,7 +42,7 @@ enum AppScanTaskError: String, Error, LocalizedError {
     case wrongCardClip
 
     var errorDescription: String? {
-        "alert_wrong_card_scanned".localized
+        "alert_wrong_card_scanned" // .localized
     }
 }
 
