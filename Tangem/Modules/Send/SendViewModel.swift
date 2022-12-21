@@ -126,7 +126,7 @@ class SendViewModel: ObservableObject {
     var walletTotalBalanceFormatted: String {
         let amount = walletModel.wallet.amounts[self.amountToSend.type]
         let value = getDescription(for: amount)
-        return String(format: "common_balance".localized, value)
+        return L10n.commonBalance(value)
     }
 
     // MARK: Private
@@ -321,8 +321,8 @@ class SendViewModel: ObservableObject {
                         print(error)
                         Analytics.log(error: error)
 
-                        let ok = Alert.Button.default(Text("common_ok"))
-                        let retry = Alert.Button.default(Text("common_retry")) { [unowned self] in
+                        let ok = Alert.Button.default(Text(L10n.commonOk))
+                        let retry = Alert.Button.default(Text(L10n.commonRetry)) { [unowned self] in
                             self.feeRetrySubject.send()
                         }
                         let alert = Alert(title: Text(WalletError.failedToGetFee.localizedDescription), primaryButton: retry, secondaryButton: ok)
@@ -412,7 +412,7 @@ class SendViewModel: ObservableObject {
 
                 let tag = UInt32(destTagStr)
                 self.validatedXrpDestinationTag = tag
-                self.destinationTagHint = tag == nil ? TextHint(isError: true, message: "send_extras_error_invalid_destination_tag".localized) : nil
+                self.destinationTagHint = tag == nil ? TextHint(isError: true, message: L10n.sendExtrasErrorInvalidDestinationTag) : nil
             })
             .store(in: &bag)
 
@@ -507,7 +507,7 @@ class SendViewModel: ObservableObject {
             setAdditionalInputVisibility(for: destination)
         } else {
             destinationHint = TextHint(isError: true,
-                                       message: "send_validation_invalid_address".localized)
+                                       message: L10n.sendValidationInvalidAddress)
             setAdditionalInputVisibility(for: nil)
         }
     }
@@ -516,7 +516,7 @@ class SendViewModel: ObservableObject {
         if let validator = walletModel.walletManager as? WithdrawalValidator,
            let warning = validator.validate(transaction),
            error == nil {
-            let alert = Alert(title: Text("common_warning"),
+            let alert = Alert(title: Text(L10n.commonWarning),
                               message: Text(warning.warningMessage),
                               primaryButton: Alert.Button.default(Text(warning.reduceMessage),
                                                                   action: {
@@ -628,8 +628,8 @@ class SendViewModel: ObservableObject {
                     }
 
                     DispatchQueue.main.async {
-                        let alert = AlertBuilder.makeSuccessAlert(message: isDemo ? "alert_demo_feature_disabled".localized
-                            : "send_transaction_success".localized,
+                        let alert = AlertBuilder.makeSuccessAlert(message: isDemo ? L10n.alertDemoFeatureDisabled
+                            : L10n.sendTransactionSuccess,
                             okAction: self.close)
                         self.error = alert
                     }
@@ -669,10 +669,11 @@ private extension SendViewModel {
             sendTotal = totalInFiatFormatted.total
 
             if transaction.amount.type == transaction.fee.type {
-                sendTotalSubtitle = "send_total_subtitle_format".localized(totalAmount.description)
+                sendTotalSubtitle = L10n.sendTotalSubtitleFormat(totalAmount.description)
             } else {
-                sendTotalSubtitle = "send_total_subtitle_asset_format".localized(
-                    [transaction.amount.description, transaction.fee.description]
+                sendTotalSubtitle = L10n.sendTotalSubtitleAssetFormat(
+                    transaction.amount.description,
+                    transaction.fee.description
                 )
             }
         } else {
@@ -682,8 +683,9 @@ private extension SendViewModel {
             if totalInFiatFormatted.total.isEmpty {
                 sendTotalSubtitle = "–"
             } else {
-                sendTotalSubtitle = "send_total_subtitle_fiat_format".localized(
-                    [totalInFiatFormatted.total, totalInFiatFormatted.fee]
+                sendTotalSubtitle = L10n.sendTotalSubtitleFiatFormat(
+                    totalInFiatFormatted.total,
+                    totalInFiatFormatted.fee
                 )
             }
         }

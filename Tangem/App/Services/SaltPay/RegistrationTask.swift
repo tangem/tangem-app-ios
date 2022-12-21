@@ -45,7 +45,7 @@ class RegistrationTask: CardSessionRunnable {
     }
 
     func run(in session: CardSession, completion: @escaping CompletionResult<RegistrationTaskResponse>) {
-        session.viewDelegate.showAlertMessage("registration_task_alert_message".localized)
+        session.viewDelegate.showAlertMessage(L10n.registrationTaskAlertMessage)
         generateOTP(in: session, completion: completion)
     }
 
