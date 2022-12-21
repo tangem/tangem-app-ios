@@ -57,7 +57,7 @@ extension GenericDemoConfig: UserWalletConfig {
             return nil
         }
 
-        return String.localizedStringWithFormat("card_label_card_count".localized, backupCardsCount + 1)
+        return L10n.cardLabelCardCount(backupCardsCount + 1)
     }
 
     var cardsCount: Int {
@@ -183,19 +183,19 @@ extension GenericDemoConfig: UserWalletConfig {
         case .signedHashesCounter:
             return .hidden
         case .backup:
-            return .disabled(localizedReason: "alert_demo_feature_disabled".localized)
+            return .disabled(localizedReason: L10n.alertDemoFeatureDisabled)
         case .twinning:
             return .hidden
         case .exchange:
-            return .disabled(localizedReason: "alert_demo_feature_disabled".localized)
+            return .disabled(localizedReason: L10n.alertDemoFeatureDisabled)
         case .walletConnect:
-            return .disabled(localizedReason: "alert_demo_feature_disabled".localized)
+            return .disabled(localizedReason: L10n.alertDemoFeatureDisabled)
         case .multiCurrency:
             return .available
         case .tokensSearch:
             return .hidden
         case .resetToFactory:
-            return .disabled(localizedReason: "alert_demo_feature_disabled".localized)
+            return .disabled(localizedReason: L10n.alertDemoFeatureDisabled)
         case .receive:
             return .available
         case .withdrawal:
