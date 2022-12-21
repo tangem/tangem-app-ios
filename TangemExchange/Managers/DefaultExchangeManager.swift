@@ -290,7 +290,7 @@ private extension DefaultExchangeManager {
         return PreviewSwappingDataModel(
             expectedAmount: expectedAmount,
             expectedFiatAmount: expectedFiatAmount,
-            isRequiredPermission: !isEnoughAllowance(),
+            isPermissionRequired: !isEnoughAllowance(),
             isEnoughAmountForExchange: isEnoughAmountForExchange
         )
     }
@@ -329,7 +329,7 @@ private extension DefaultExchangeManager {
             fiatFee: fiatFee,
             isEnoughAmountForExchange: isEnoughAmountForExchange,
             isEnoughAmountForFee: isEnoughAmountForFee,
-            isRequiredPermission: !isEnoughAllowance()
+            isPermissionRequired: !isEnoughAllowance()
         )
     }
 
