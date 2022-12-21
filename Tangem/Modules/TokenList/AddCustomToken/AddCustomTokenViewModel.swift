@@ -145,7 +145,7 @@ class AddCustomTokenViewModel: ObservableObject {
     }
 
     private func updateBlockchains(_ blockchains: Set<Blockchain>, newSelectedBlockchain: Blockchain? = nil) {
-        let defaultItem = ("custom_token_network_input_not_selected".localized, "")
+        let defaultItem = (L10n.customTokenNetworkInputNotSelected, "")
 
         let newBlockchains = [defaultItem] + blockchains.sorted {
             $0.displayName < $1.displayName
@@ -186,7 +186,7 @@ class AddCustomTokenViewModel: ObservableObject {
     }
 
     private func updateDerivationPaths() {
-        let defaultItem = ("custom_token_derivation_path_default".localized, "")
+        let defaultItem = (L10n.customTokenDerivationPathDefault, "")
 
         let evmBlockchains = getBlockchains(withTokenSupport: false).filter { $0.isEvm }
         let evmDerivationPaths: [(String, String)]
@@ -443,17 +443,17 @@ private extension AddCustomTokenViewModel {
         var errorDescription: String? {
             switch self {
             case .blockchainNotSelected:
-                return "custom_token_creation_error_network_not_selected".localized
+                return L10n.customTokenCreationErrorNetworkNotSelected
             case .emptyFields:
-                return "custom_token_creation_error_empty_fields".localized
+                return L10n.customTokenCreationErrorEmptyFields
             case .tokensNotSupported:
-                return "alert_manage_tokens_unsupported_message".localized
+                return L10n.alertManageTokensUnsupportedMessage
             case .invalidDecimals(let precision):
-                return "custom_token_creation_error_wrong_decimals".localized(precision)
+                return L10n.customTokenCreationErrorWrongDecimals(precision)
             case .invalidContractAddress:
-                return "custom_token_creation_error_invalid_contract_address".localized
+                return L10n.customTokenCreationErrorInvalidContractAddress
             case .invalidDerivationPath:
-                return "custom_token_creation_error_invalid_derivation_path".localized
+                return L10n.customTokenCreationErrorInvalidDerivationPath
             }
         }
     }
@@ -474,14 +474,14 @@ private extension AddCustomTokenViewModel {
         var errorDescription: String? {
             switch self {
             case .failedToFindToken:
-                return "custom_token_validation_error_not_found".localized
+                return L10n.customTokenValidationErrorNotFound
             case .alreadyAdded:
-                return "custom_token_validation_error_already_added".localized
+                return L10n.customTokenValidationErrorAlreadyAdded
             }
         }
 
         var appWarning: AppWarning {
-            return AppWarning(title: "common_warning".localized, message: errorDescription ?? "", priority: .warning)
+            return AppWarning(title: L10n.commonWarning, message: errorDescription ?? "", priority: .warning)
         }
     }
 }

@@ -18,16 +18,16 @@ struct MeetTangemStoryPage: View {
     private let words: [LocalizedStringKey] = [
         "",
         "",
-        "story_meet_buy",
-        "story_meet_store",
-        "story_meet_send",
-        "story_meet_pay",
-        "story_meet_exchange",
-        "story_meet_borrow",
-        "story_meet_lend",
-        "story_meet_lend",
+        L10n.storyMeetBuy,
+        L10n.storyMeetStore,
+        L10n.storyMeetSend,
+        L10n.storyMeetPay,
+        L10n.storyMeetExchange,
+        L10n.storyMeetBorrow,
+        L10n.storyMeetLend,
+        L10n.storyMeetLend,
         // Duplicate the last word to make it last longer
-//        "story_meet_stake", // no stake for now
+//        L10n.storyMeetStake, // no stake for now
         "",
     ]
 
@@ -61,7 +61,7 @@ struct MeetTangemStoryPage: View {
                         end: .infinity
                     ))
 
-                Text("story_meet_title")
+                Text(L10n.storyMeetTitle)
                     .font(.system(size: 60, weight: .semibold))
                     .lineLimit(2)
                     .minimumScaleFactor(0.5)

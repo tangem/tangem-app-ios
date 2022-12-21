@@ -30,9 +30,9 @@ class CardSettingsViewModel: ObservableObject {
 
     var resetToFactoryMessage: String {
         if cardModel.hasBackupCards {
-            return "reset_card_with_backup_to_factory_message".localized
+            return L10n.resetCardWithBackupToFactoryMessage
         } else {
-            return "reset_card_without_backup_to_factory_message".localized
+            return L10n.resetCardWithoutBackupToFactoryMessage
         }
     }
 
@@ -84,17 +84,17 @@ private extension CardSettingsViewModel {
 
     func setupView() {
         cardInfoSection = [
-            DefaultRowViewModel(title: "details_row_title_cid".localized, detailsType: .text(cardModel.cardIdFormatted)),
-            DefaultRowViewModel(title: "details_row_title_issuer".localized, detailsType: .text(cardModel.cardIssuer)),
-            DefaultRowViewModel(title: "details_row_title_signed_hashes".localized,
-                                detailsType: .text("details_row_subtitle_signed_hashes_format".localized("\(cardModel.cardSignedHashes)"))),
+            DefaultRowViewModel(title: L10n.detailsRowTitleCid, detailsType: .text(cardModel.cardIdFormatted)),
+            DefaultRowViewModel(title: L10n.detailsRowTitleIssuer, detailsType: .text(cardModel.cardIssuer)),
+            DefaultRowViewModel(title: L10n.detailsRowTitleSignedHashes,
+                                detailsType: .text(L10n.detailsRowSubtitleSignedHashesFormat("\(cardModel.cardSignedHashes)"))),
         ]
 
         setupSecurityOptions()
 
         if isResetToFactoryAvailable {
             resetToFactoryViewModel = DefaultRowViewModel(
-                title: "card_settings_reset_card_to_factory".localized,
+                title: L10n.cardSettingsResetCardToFactory,
                 action: openResetCard
             )
         }
@@ -102,7 +102,7 @@ private extension CardSettingsViewModel {
 
     private func setupSecurityOptions() {
         securityModeSection = [DefaultRowViewModel(
-            title: "card_settings_security_mode".localized,
+            title: L10n.cardSettingsSecurityMode,
             detailsType: .text(securityModeTitle),
             action: hasSingleSecurityMode ? nil : openSecurityMode
         )]
@@ -110,7 +110,7 @@ private extension CardSettingsViewModel {
         if isChangeAccessCodeVisible {
             securityModeSection.append(
                 DefaultRowViewModel(
-                    title: "card_settings_change_access_code".localized,
+                    title: L10n.cardSettingsChangeAccessCode,
                     detailsType: isChangeAccessCodeLoading ? .loader : .none,
                     action: openChangeAccessCodeWarningView
                 )

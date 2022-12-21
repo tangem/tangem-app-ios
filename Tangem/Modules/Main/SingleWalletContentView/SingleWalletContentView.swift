@@ -54,7 +54,7 @@ struct SingleWalletContentView: View {
                 .padding(.horizontal, 16.0)
 
             case .noAccount(let message):
-                MessageView(title: "wallet_error_no_account".localized, subtitle: message, type: .error)
+                MessageView(title: L10n.walletErrorNoAccount, subtitle: message, type: .error)
             }
         }
     }

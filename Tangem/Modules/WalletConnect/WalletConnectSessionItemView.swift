@@ -21,7 +21,7 @@ struct WalletConnectSessionItemView: View {
                     .foregroundColor(.tangemGrayDark6)
             }
             Spacer()
-            TangemButton(title: "common_disconnect", action: disconnectEvent)
+            TangemButton(title: L10n.commonDisconnect, action: disconnectEvent)
                 .buttonStyle(TangemButtonStyle(colorStyle: .gray, layout: .thinHorizontal))
         }
         .padding(.vertical, 12)
