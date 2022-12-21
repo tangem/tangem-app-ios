@@ -11,8 +11,8 @@ import Foundation
 public protocol BlockchainDataProvider {
     func getWalletAddress(currency: Currency) -> String?
 
-    func getBalance(currency: Currency) async throws -> Decimal
-    func getBalance(blockchain: ExchangeBlockchain) async throws -> Decimal
-    func getFiat(amount: Decimal, currency: Currency) async throws -> Decimal
-    func getFiat(amount: Decimal, blockchain: ExchangeBlockchain) async throws -> Decimal
+    func getBalance(for currency: Currency) async throws -> Decimal
+    func getBalance(for blockchain: ExchangeBlockchain) async throws -> Decimal
+    func getFiat(for currency: Currency, amount: Decimal) async throws -> Decimal
+    func getFiat(for blockchain: ExchangeBlockchain, amount: Decimal) async throws -> Decimal
 }

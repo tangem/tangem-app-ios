@@ -39,7 +39,7 @@ extension BlockchainNetworkService: TangemExchange.BlockchainDataProvider {
         return walletModel.wallet.address
     }
 
-    func getBalance(currency: Currency) async throws -> Decimal {
+    func getBalance(for currency: Currency) async throws -> Decimal {
         let amountType: Amount.AmountType
 
         switch currency.currencyType {
@@ -61,7 +61,7 @@ extension BlockchainNetworkService: TangemExchange.BlockchainDataProvider {
         return try await getBalanceThroughUpdateWalletModel(amountType: amountType)
     }
 
-    func getBalance(blockchain: ExchangeBlockchain) async throws -> Decimal {
+    func getBalance(for blockchain: ExchangeBlockchain) async throws -> Decimal {
         guard walletModel.blockchainNetwork.blockchain.networkId == blockchain.networkId else {
             assertionFailure("Incorrect WalletModel")
             return 0
@@ -74,22 +74,13 @@ extension BlockchainNetworkService: TangemExchange.BlockchainDataProvider {
         return try await getBalanceThroughUpdateWalletModel(amountType: .coin)
     }
 
-    func getFiatRateFor(currency: Currency) async throws -> Decimal {
-        let id = currency.isToken ? currency.id : currency.blockchain.id
-        return try await getFiatRate(currencyId: id)
-    }
-
-    func getFiatRateFor(blockchain: ExchangeBlockchain) async throws -> Decimal {
-        try await getFiatRate(currencyId: blockchain.id)
-    }
-
-    func getFiat(amount: Decimal, currency: Currency) async throws -> Decimal {
+    func getFiat(for currency: Currency, amount: Decimal) async throws -> Decimal {
         let id = currency.isToken ? currency.id : currency.blockchain.id
         let rate = try await getFiatRate(currencyId: id)
         return mapToFiat(amount: amount, rate: rate)
     }
 
-    func getFiat(amount: Decimal, blockchain: ExchangeBlockchain) async throws -> Decimal {
+    func getFiat(for blockchain: ExchangeBlockchain, amount: Decimal) async throws -> Decimal {
         let rate = try await getFiatRate(currencyId: blockchain.id)
         return mapToFiat(amount: amount, rate: rate)
     }
@@ -109,6 +100,15 @@ private extension BlockchainNetworkService {
             value: amount,
             decimals: currency.decimalCount
         )
+    }
+
+    func getFiatRateFor(for currency: Currency) async throws -> Decimal {
+        let id = currency.isToken ? currency.id : currency.blockchain.id
+        return try await getFiatRate(currencyId: id)
+    }
+
+    func getFiatRateFor(for blockchain: ExchangeBlockchain) async throws -> Decimal {
+        try await getFiatRate(currencyId: blockchain.id)
     }
 
     func getFiatBalanceFromWalletModel(currency: Currency, amount: Decimal) -> Decimal? {
