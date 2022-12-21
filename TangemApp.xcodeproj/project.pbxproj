@@ -601,7 +601,7 @@
 		EF4661FA2924CC6E00346B6C /* LimitOrderDTO.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF4661E32924CC6800346B6C /* LimitOrderDTO.swift */; };
 		EF4661FB2924CC6E00346B6C /* ApproveDTO.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF4661ED2924CC6C00346B6C /* ApproveDTO.swift */; };
 		EF4661FC2924CC6E00346B6C /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF4661DC2924CC6600346B6C /* Constants.swift */; };
-		EF4661FE2924CC6E00346B6C /* ExchangeInchError.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF4661DD2924CC6600346B6C /* ExchangeInchError.swift */; };
+		EF4661FE2924CC6E00346B6C /* ExchangeProviderError.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF4661DD2924CC6600346B6C /* ExchangeProviderError.swift */; };
 		EF4661FF2924CC6E00346B6C /* ExchangeBlockchain.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF4661E62924CC6900346B6C /* ExchangeBlockchain.swift */; };
 		EF4662002924CC6E00346B6C /* ApproveParameters.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF4661DB2924CC6500346B6C /* ApproveParameters.swift */; };
 		EF4662012924CC6E00346B6C /* LimitOrderTarget.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF4661EF2924CC6D00346B6C /* LimitOrderTarget.swift */; };
@@ -697,6 +697,7 @@
 		EF9F6F4428D499F600D6B190 /* LoadingValue.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF9F6F4328D499F600D6B190 /* LoadingValue.swift */; };
 		EFA580612893E4E200110DB0 /* LanguageCode.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFA580602893E4E200110DB0 /* LanguageCode.swift */; };
 		EFA580632893E6AA00110DB0 /* BiometricAuthorizationUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFA580622893E6AA00110DB0 /* BiometricAuthorizationUtils.swift */; };
+		EFA6B03F2953113E0090A92F /* OneInchError.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFA6B03E2953113E0090A92F /* OneInchError.swift */; };
 		EFA9854B294775B500D1FCB3 /* PreviewSwappingDataModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFA9854A294775B500D1FCB3 /* PreviewSwappingDataModel.swift */; };
 		EFA9854F2947787F00D1FCB3 /* TransactionSenderMock.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFA9854E2947787F00D1FCB3 /* TransactionSenderMock.swift */; };
 		EFA9855129477DA100D1FCB3 /* TransactionSendable.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFA9855029477DA100D1FCB3 /* TransactionSendable.swift */; };
@@ -1460,7 +1461,7 @@
 		EF4661D92924CC6400346B6C /* HealthCheckTarget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HealthCheckTarget.swift; sourceTree = "<group>"; };
 		EF4661DB2924CC6500346B6C /* ApproveParameters.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApproveParameters.swift; sourceTree = "<group>"; };
 		EF4661DC2924CC6600346B6C /* Constants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Constants.swift; sourceTree = "<group>"; };
-		EF4661DD2924CC6600346B6C /* ExchangeInchError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExchangeInchError.swift; sourceTree = "<group>"; };
+		EF4661DD2924CC6600346B6C /* ExchangeProviderError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExchangeProviderError.swift; sourceTree = "<group>"; };
 		EF4661DE2924CC6600346B6C /* OneInchLimitOrderService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OneInchLimitOrderService.swift; sourceTree = "<group>"; };
 		EF4661DF2924CC6700346B6C /* ExchangeParameters.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExchangeParameters.swift; sourceTree = "<group>"; };
 		EF4661E02924CC6700346B6C /* ExchangeDTO.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExchangeDTO.swift; sourceTree = "<group>"; };
@@ -1577,6 +1578,7 @@
 		EFA580602893E4E200110DB0 /* LanguageCode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LanguageCode.swift; sourceTree = "<group>"; };
 		EFA580622893E6AA00110DB0 /* BiometricAuthorizationUtils.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BiometricAuthorizationUtils.swift; sourceTree = "<group>"; };
 		EFA6824529376B5700C8F577 /* MainButton.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MainButton.swift; sourceTree = "<group>"; };
+		EFA6B03E2953113E0090A92F /* OneInchError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OneInchError.swift; sourceTree = "<group>"; };
 		EFA7173D72D1E6FAD54D308A /* Pods-TangemClip.release(beta).xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TangemClip.release(beta).xcconfig"; path = "Target Support Files/Pods-TangemClip/Pods-TangemClip.release(beta).xcconfig"; sourceTree = "<group>"; };
 		EFA9854A294775B500D1FCB3 /* PreviewSwappingDataModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreviewSwappingDataModel.swift; sourceTree = "<group>"; };
 		EFA9854E2947787F00D1FCB3 /* TransactionSenderMock.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransactionSenderMock.swift; sourceTree = "<group>"; };
@@ -3519,11 +3521,12 @@
 				EFD164542948A1BF000E56C7 /* Quote */,
 				EFD164532948A1AF000E56C7 /* LimitOrder */,
 				EFD164522948A1A5000E56C7 /* Approve */,
-				EF4661DD2924CC6600346B6C /* ExchangeInchError.swift */,
+				EF4661DD2924CC6600346B6C /* ExchangeProviderError.swift */,
 				EF4661EC2924CC6B00346B6C /* HealthCheck.swift */,
 				EF4661D72924CC6300346B6C /* LiquiditySourcesList.swift */,
 				EF4661E92924CC6A00346B6C /* PresetsConfiguration.swift */,
 				EF4661E72924CC6A00346B6C /* TokensList.swift */,
+				EFA6B03E2953113E0090A92F /* OneInchError.swift */,
 			);
 			path = DTO;
 			sourceTree = "<group>";
@@ -5135,6 +5138,7 @@
 			files = (
 				EF4661C52923B42A00346B6C /* ExchangeApprovedDataModel.swift in Sources */,
 				EFA9854B294775B500D1FCB3 /* PreviewSwappingDataModel.swift in Sources */,
+				EFA6B03F2953113E0090A92F /* OneInchError.swift in Sources */,
 				EF29BEED292FBD0800D7C782 /* ExchangeManagerDelegate.swift in Sources */,
 				EF4662002924CC6E00346B6C /* ApproveParameters.swift in Sources */,
 				EF29BEF429349F4200D7C782 /* Moya.Task+.swift in Sources */,
@@ -5175,7 +5179,7 @@
 				EF4662092924CC6E00346B6C /* TokensList.swift in Sources */,
 				EF4662072924CC6E00346B6C /* OneInchAPIServicing.swift in Sources */,
 				EF4661F12924CC6E00346B6C /* InfoTarget.swift in Sources */,
-				EF4661FE2924CC6E00346B6C /* ExchangeInchError.swift in Sources */,
+				EF4661FE2924CC6E00346B6C /* ExchangeProviderError.swift in Sources */,
 				EF4662042924CC6E00346B6C /* PresetsConfiguration.swift in Sources */,
 				EF808434293F38CE000D91EA /* UserCurrenciesProviding.swift in Sources */,
 				EF29BEE2292E5DB400D7C782 /* ExchangeTransactionDataModel.swift in Sources */,
