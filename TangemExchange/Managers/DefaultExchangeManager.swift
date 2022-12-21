@@ -262,10 +262,10 @@ private extension DefaultExchangeManager {
     func updateSourceBalances() {
         Task {
             let source = exchangeItems.source
-            let balance = try await blockchainDataProvider.getBalance(currency: source)
+            let balance = try await blockchainDataProvider.getBalance(for: source)
             var fiatBalance: Decimal = 0
             if let amount = amount {
-                fiatBalance = try await blockchainDataProvider.getFiat(amount: amount, currency: source)
+                fiatBalance = try await blockchainDataProvider.getFiat(for: source, amount: amount)
             }
 
             exchangeItems.sourceBalance = ExchangeItems.Balance(balance: balance, fiatBalance: fiatBalance)
@@ -283,7 +283,7 @@ private extension DefaultExchangeManager {
 
         let paymentAmount = exchangeItems.source.convertFromWEI(value: quoteData.fromTokenAmount)
         let expectedAmount = destination.convertFromWEI(value: quoteData.toTokenAmount)
-        let expectedFiatAmount = try await blockchainDataProvider.getFiat(amount: expectedAmount, currency: destination)
+        let expectedFiatAmount = try await blockchainDataProvider.getFiat(for: destination, amount: expectedAmount)
 
         let isEnoughAmountForExchange = exchangeItems.sourceBalance.balance >= paymentAmount
 
@@ -307,7 +307,7 @@ private extension DefaultExchangeManager {
         let sourceBalance = exchangeItems.sourceBalance.balance
         let fee = transaction.fee
 
-        let fiatFee = try await blockchainDataProvider.getFiat(amount: transaction.fee, blockchain: source.blockchain)
+        let fiatFee = try await blockchainDataProvider.getFiat(for: source.blockchain, amount: transaction.fee)
 
         let isEnoughAmountForFee: Bool
         var paymentAmount = amount
@@ -316,7 +316,7 @@ private extension DefaultExchangeManager {
             paymentAmount += fee
             isEnoughAmountForFee = sourceBalance >= fee
         case .token:
-            let coinBalance = try await blockchainDataProvider.getBalance(blockchain: source.blockchain)
+            let coinBalance = try await blockchainDataProvider.getBalance(for: source.blockchain)
             isEnoughAmountForFee = coinBalance >= fee
         }
 
