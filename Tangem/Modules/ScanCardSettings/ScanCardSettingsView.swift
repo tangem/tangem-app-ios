@@ -48,7 +48,7 @@ struct ScanCardSettingsView: View {
         .padding(.bottom, 16)
         .alert(item: $viewModel.alert) { $0.alert }
         .background(Colors.Background.secondary.edgesIgnoringSafeArea(.all))
-        .navigationBarTitle(L10n.cardSettingsTitle, displayMode: .inline)
+        .navigationBarTitle(Text(L10n.cardSettingsTitle), displayMode: .inline)
     }
 }
 
