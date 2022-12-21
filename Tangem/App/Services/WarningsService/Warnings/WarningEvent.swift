@@ -66,10 +66,10 @@ enum WarningButton: String, Identifiable {
 
     var buttonTitle: String {
         switch self {
-        case .okGotIt: return "warning_button_ok".localized
-        case .rateApp: return "warning_button_really_cool".localized
-        case .reportProblem: return "warning_button_can_be_better".localized
-        case .learnMore: return "warning_button_learn_more".localized
+        case .okGotIt: return L10n.warningButtonOk
+        case .rateApp: return L10n.warningButtonReallyCool
+        case .reportProblem: return L10n.warningButtonCanBeBetter
+        case .learnMore: return L10n.warningButtonLearnMore
         case .dismiss: return ""
         }
     }

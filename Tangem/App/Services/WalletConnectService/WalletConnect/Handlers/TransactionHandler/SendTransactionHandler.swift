@@ -46,7 +46,7 @@ class SendTransactionHandler: WalletConnectTransactionHandler {
             } receiveValue: { [weak self] ethWalletModel in
                 guard let self = self else { return }
 
-                let vc = WalletConnectUIBuilder.makeAlert(for: .success, message: "send_transaction_success".localized, onAcceptAction: {})
+                let vc = WalletConnectUIBuilder.makeAlert(for: .success, message: L10n.sendTransactionSuccess, onAcceptAction: {})
                 self.presentOnMain(vc: vc, delay: 0.1)
 
                 guard

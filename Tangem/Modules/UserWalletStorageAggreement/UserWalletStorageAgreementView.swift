@@ -24,7 +24,7 @@ struct UserWalletStorageAgreementView: View {
 
                 FlexibleSpacer(maxHeight: 28)
 
-                Text("save_user_wallet_agreement_header".localized(BiometricAuthorizationUtils.biometryType.name))
+                Text(L10n.saveUserWalletAgreementHeader(BiometricAuthorizationUtils.biometryType.name))
                     .style(Fonts.Bold.title1, color: Colors.Text.primary1)
                     .multilineTextAlignment(.center)
                     .fixedSize(horizontal: false, vertical: true)
@@ -41,16 +41,16 @@ struct UserWalletStorageAgreementView: View {
             VStack(spacing: 0) {
                 FeatureDescriptionView(
                     icon: BiometryLogoImage.image,
-                    title: "save_user_wallet_agreement_access_title".localized,
-                    description: "save_user_wallet_agreement_access_description".localized
+                    title: L10n.saveUserWalletAgreementAccessTitle,
+                    description: L10n.saveUserWalletAgreementAccessDescription
                 )
 
                 FlexibleSpacer(maxHeight: 28)
 
                 FeatureDescriptionView(
                     icon: Assets.lock,
-                    title: "save_user_wallet_agreement_code_title".localized,
-                    description: "save_user_wallet_agreement_code_description".localized(BiometricAuthorizationUtils.biometryType.name)
+                    title: L10n.saveUserWalletAgreementCodeTitle,
+                    description: L10n.saveUserWalletAgreementCodeDescription(BiometricAuthorizationUtils.biometryType.name)
                 )
             }
 
@@ -59,11 +59,11 @@ struct UserWalletStorageAgreementView: View {
             VStack(spacing: 10) {
                 MainButton(title: BiometricAuthorizationUtils.allowButtonLocalizationKey, action: viewModel.accept)
 
-                MainButton(title: "save_user_wallet_agreement_dont_allow".localized,
+                MainButton(title: L10n.saveUserWalletAgreementDontAllow,
                            style: .secondary,
                            action: viewModel.decline)
 
-                Text("save_user_wallet_agreement_notice".localized)
+                Text(L10n.saveUserWalletAgreementNotice)
                     .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
                     .multilineTextAlignment(.center)
             }
@@ -72,7 +72,7 @@ struct UserWalletStorageAgreementView: View {
     }
 
     private var newFeatureBadge: some View {
-        Text("save_user_wallet_agreement_new_feature".localized)
+        Text(L10n.saveUserWalletAgreementNewFeature)
             .style(Fonts.Bold.caption1, color: Colors.Text.accent)
             .padding(.vertical, 4)
             .padding(.horizontal, 10)
