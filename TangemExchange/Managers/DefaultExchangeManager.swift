@@ -340,6 +340,7 @@ private extension DefaultExchangeManager {
 
         return ExchangeTransactionDataModel(
             sourceCurrency: exchangeItems.source,
+            sourceBlockchain: exchangeItems.source.blockchain,
             destinationCurrency: destination,
             sourceAddress: exchangeData.sourceAddress,
             destinationAddress: exchangeData.destinationAddress,
@@ -365,6 +366,8 @@ private extension DefaultExchangeManager {
 
         return ExchangeTransactionDataModel(
             sourceCurrency: exchangeItems.source,
+            sourceBlockchain: exchangeItems.source.blockchain,
+
             destinationCurrency: destination,
             sourceAddress: walletAddress,
             destinationAddress: spenderAddress,
