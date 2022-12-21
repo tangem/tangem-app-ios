@@ -5,9 +5,10 @@
 // file LICENSE at the root of the source code distribution tree.
 
 import XCTest
-@testable import Tangem
 import BlockchainSdk
 import TangemSdk
+
+@testable import Tangem
 
 class EIP712TypedDataTests: XCTestCase {
     func jsonData(for fileName: String) throws -> Data {
