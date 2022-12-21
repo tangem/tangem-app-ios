@@ -16,33 +16,6 @@ enum SingleCardOnboardingStep: CaseIterable, Equatable {
     case saveUserWallet
     case success
 
-    var hasProgressStep: Bool {
-        switch self {
-        case .createWallet, .topup: return true
-        case .welcome, .successTopup, .saveUserWallet, .success: return false
-        }
-    }
-
-    var icon: Image? {
-        switch self {
-        case .createWallet: return Image("onboarding.create.wallet")
-        case .topup: return Image("onboarding.topup")
-        case .welcome, .successTopup, .saveUserWallet, .success: return nil
-        }
-    }
-
-    var iconFont: Font {
-        switch self {
-        default: return .system(size: 20, weight: .regular)
-        }
-    }
-
-    var bigCircleBackgroundScale: CGFloat {
-        switch self {
-        default: return 0.0
-        }
-    }
-
     func cardBackgroundOffset(containerSize: CGSize) -> CGSize {
         switch self {
         case .createWallet:
@@ -53,16 +26,6 @@ enum SingleCardOnboardingStep: CaseIterable, Equatable {
 //            return .init(width: 0, height: height)
         default:
             return .zero
-        }
-    }
-
-    func balanceTextOffset(containerSize: CGSize) -> CGSize {
-        switch self {
-        case .topup, .successTopup:
-            let backgroundOffset = cardBackgroundFrame(containerSize: containerSize)
-            return .init(width: backgroundOffset.width, height: backgroundOffset.height + 12)
-        default:
-            return cardBackgroundOffset(containerSize: containerSize)
         }
     }
 
@@ -95,7 +58,7 @@ enum SingleCardOnboardingStep: CaseIterable, Equatable {
     }
 }
 
-extension SingleCardOnboardingStep: SuccessStep { }
+extension SingleCardOnboardingStep: SuccessStep {}
 
 extension SingleCardOnboardingStep: OnboardingMessagesProvider {
     var title: LocalizedStringKey? {
