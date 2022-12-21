@@ -385,7 +385,7 @@ private extension SwappingViewModel {
             } catch TangemSdkError.userCancelled {
                 // Do nothing
             } catch {
-                errorAlert = AlertBinder(title: L10n.commonError.text, message: error.localizedDescription)
+                errorAlert = AlertBinder(title: L10n.commonError, message: error.localizedDescription)
             }
         }
     }
@@ -407,7 +407,7 @@ private extension SwappingViewModel {
                 updateRefreshWarningRowViewModel(message: error.localizedDescription)
             }
         default:
-            updateRefreshWarningRowViewModel(message: L10n.commonError.text)
+            updateRefreshWarningRowViewModel(message: L10n.commonError)
         }
     }
 
