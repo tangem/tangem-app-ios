@@ -15,7 +15,7 @@ struct MeetTangemStoryPage: View {
     let scanCard: (() -> Void)
     let orderCard: (() -> Void)
 
-    private let words: [LocalizedStringKey] = [
+    private let words: [String] = [
         "",
         "",
         L10n.storyMeetBuy,
