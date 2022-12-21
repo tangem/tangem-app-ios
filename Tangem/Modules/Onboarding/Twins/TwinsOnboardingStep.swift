@@ -140,8 +140,8 @@ extension TwinsOnboardingStep: OnboardingMessagesProvider {
         switch self {
         case .welcome: return WelcomeStep.welcome.title
         case .intro: return L10n.twinsOnboardingSubtitle
-        case .first, .third: return String(stringLiteral: L10n.twinsRecreateTitleFormat("1"))
-        case .second: return String(stringLiteral: L10n.twinsRecreateTitleFormat("2"))
+        case .first, .third: return L10n.twinsRecreateTitleFormat("1")
+        case .second: return L10n.twinsRecreateTitleFormat("2")
         case .topup: return L10n.onboardingTopupTitle
         case .done: return L10n.onboardingDoneHeader
         case .saveUserWallet: return nil
@@ -153,7 +153,7 @@ extension TwinsOnboardingStep: OnboardingMessagesProvider {
     var subtitle: String? {
         switch self {
         case .welcome: return WelcomeStep.welcome.subtitle
-        case .intro(let pairNumber): return String(stringLiteral: L10n.twinsOnboardingDescriptionFormat(pairNumber))
+        case .intro(let pairNumber): return L10n.twinsOnboardingDescriptionFormat(pairNumber)
         case .first, .second, .third: return L10n.onboardingTwinsInterruptWarning
         case .topup: return L10n.onboardingTopUpBody
         case .saveUserWallet: return nil
@@ -174,11 +174,11 @@ extension TwinsOnboardingStep: OnboardingButtonsInfoProvider {
         switch self {
         case .welcome: return WelcomeStep.welcome.mainButtonTitle
         case .intro: return L10n.commonContinue
-        case .first, .third: return String(stringLiteral: L10n.twinsRecreateButtonFormat("1"))
-        case .second: return String(stringLiteral: L10n.twinsRecreateButtonFormat("2"))
+        case .first, .third: return L10n.twinsRecreateButtonFormat("1")
+        case .second: return L10n.twinsRecreateButtonFormat("2")
         case .topup: return L10n.onboardingTopUpButtonButCrypto
         case .done: return L10n.commonContinue
-        case .saveUserWallet: return BiometricAuthorizationUtils.allowButtonLocalizationKey
+        case .saveUserWallet: return BiometricAuthorizationUtils.allowButtonTitle
         case .success: return successButtonTitle
         case .alert: return L10n.commonContinue
         }
