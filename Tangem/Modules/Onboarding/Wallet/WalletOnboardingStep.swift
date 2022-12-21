@@ -32,19 +32,19 @@ enum WalletOnboardingStep: Equatable {
     var navbarTitle: LocalizedStringKey {
         switch self {
         case .welcome: return ""
-        case .createWallet, .backupIntro: return "onboarding_getting_started"
-        case .scanPrimaryCard, .selectBackupCards: return "onboarding_navbar_title_creating_backup"
-        case .backupCards: return "onboarding_button_finalize_backup"
-        case .saveUserWallet: return "onboarding_navbar_save_wallet"
-        case .success: return "common_done"
+        case .createWallet, .backupIntro: return L10n.onboardingGettingStarted
+        case .scanPrimaryCard, .selectBackupCards: return L10n.onboardingNavbarTitleCreatingBackup
+        case .backupCards: return L10n.onboardingButtonFinalizeBackup
+        case .saveUserWallet: return L10n.onboardingNavbarSaveWallet
+        case .success: return L10n.commonDone
         case .enterPin:
-            return "onboarding_navbar_pin"
+            return L10n.onboardingNavbarPin
         case .registerWallet:
-            return "onboarding_navbar_register_wallet"
+            return L10n.onboardingNavbarRegisterWallet
         case .kycStart, .kycProgress, .kycWaiting, .kycRetry:
-            return "onboarding_navbar_kyc_progress"
+            return L10n.onboardingNavbarKycProgress
         case .claim, .successClaim:
-            return "onboarding_getting_started"
+            return L10n.onboardingGettingStarted
         }
     }
 
@@ -95,23 +95,23 @@ extension WalletOnboardingStep: OnboardingMessagesProvider, SuccessStep {
     var title: LocalizedStringKey? {
         switch self {
         case .welcome: return WelcomeStep.welcome.title
-        case .createWallet: return "onboarding_create_wallet_button_create_wallet"
-        case .scanPrimaryCard: return "onboarding_title_scan_origin_card"
-        case .backupIntro: return "onboarding_title_backup_card"
-        case .selectBackupCards: return "onboarding_title_no_backup_cards"
+        case .createWallet: return L10n.onboardingCreateWalletButtonCreateWallet
+        case .scanPrimaryCard: return L10n.onboardingTitleScanOriginCard
+        case .backupIntro: return L10n.onboardingTitleBackupCard
+        case .selectBackupCards: return L10n.onboardingTitleNoBackupCards
         case .backupCards, .kycProgress: return ""
         case .saveUserWallet: return nil
         case .success, .successClaim: return successTitle
         case .registerWallet:
-            return "onboarding_title_register_wallet"
+            return L10n.onboardingTitleRegisterWallet
         case .kycStart:
-            return "onboarding_title_kyc_start"
+            return L10n.onboardingTitleKycStart
         case .kycRetry:
-            return "onboarding_title_kyc_retry"
+            return L10n.onboardingTitleKycRetry
         case .kycWaiting:
-            return "onboarding_title_kyc_waiting"
+            return L10n.onboardingTitleKycWaiting
         case .enterPin:
-            return "onboarding_title_pin"
+            return L10n.onboardingTitlePin
         case .claim:
             return ""
         }
@@ -120,27 +120,27 @@ extension WalletOnboardingStep: OnboardingMessagesProvider, SuccessStep {
     var subtitle: LocalizedStringKey? {
         switch self {
         case .welcome: return WelcomeStep.welcome.subtitle
-        case .createWallet: return "onboarding_create_wallet_body"
-        case .scanPrimaryCard: return "onboarding_subtitle_scan_primary"
-        case .backupIntro: return "onboarding_subtitle_backup_card"
-        case .selectBackupCards: return "onboarding_subtitle_no_backup_cards"
+        case .createWallet: return L10n.onboardingCreateWalletBody
+        case .scanPrimaryCard: return L10n.onboardingSubtitleScanPrimary
+        case .backupIntro: return L10n.onboardingSubtitleBackupCard
+        case .selectBackupCards: return L10n.onboardingSubtitleNoBackupCards
         case .backupCards, .kycProgress: return ""
         case .saveUserWallet: return nil
-        case .success: return "onboarding_subtitle_success_backup"
+        case .success: return L10n.onboardingSubtitleSuccessBackup
         case .registerWallet:
-            return "onboarding_subtitle_register_wallet"
+            return L10n.onboardingSubtitleRegisterWallet
         case .kycStart:
-            return "onboarding_subtitle_kyc_start"
+            return L10n.onboardingSubtitleKycStart
         case .kycRetry:
-            return "onboarding_subtitle_kyc_retry"
+            return L10n.onboardingSubtitleKycRetry
         case .kycWaiting:
-            return "onboarding_subtitle_kyc_waiting"
+            return L10n.onboardingSubtitleKycWaiting
         case .enterPin:
-            return "onboarding_subtitle_pin"
+            return L10n.onboardingSubtitlePin
         case .claim:
-            return "onboarding_subtitle_claim"
+            return L10n.onboardingSubtitleClaim
         case .successClaim:
-            return "onboarding_subtitle_success_claim"
+            return L10n.onboardingSubtitleSuccessClaim
         }
     }
 
@@ -156,14 +156,14 @@ extension WalletOnboardingStep: OnboardingButtonsInfoProvider {
     var mainButtonTitle: LocalizedStringKey {
         switch self {
         case .welcome: return WelcomeStep.welcome.mainButtonTitle
-        case .createWallet: return "wallet_button_create_wallet"
-        case .scanPrimaryCard: return "onboarding_button_scan_origin_card"
-        case .backupIntro: return "onboarding_button_backup_now"
-        case .selectBackupCards: return "onboarding_button_add_backup_card"
+        case .createWallet: return L10n.walletButtonCreateWallet
+        case .scanPrimaryCard: return L10n.onboardingButtonScanOriginCard
+        case .backupIntro: return L10n.onboardingButtonBackupNow
+        case .selectBackupCards: return L10n.onboardingButtonAddBackupCard
         case .backupCards, .kycProgress: return ""
         case .saveUserWallet: return BiometricAuthorizationUtils.allowButtonLocalizationKey
-        case .success: return "onboarding_button_continue_wallet"
-        case .kycWaiting: return "onboarding_supplement_button_kyc_waiting"
+        case .success: return L10n.onboardingButtonContinueWallet
+        case .kycWaiting: return L10n.onboardingSupplementButtonKycWaiting
         default: return ""
         }
     }
@@ -171,15 +171,15 @@ extension WalletOnboardingStep: OnboardingButtonsInfoProvider {
     var supplementButtonTitle: LocalizedStringKey {
         switch self {
         case .welcome: return WelcomeStep.welcome.supplementButtonTitle
-        case .createWallet: return "onboarding_button_what_does_it_mean"
-        case .backupIntro: return "onboarding_button_skip_backup"
-        case .selectBackupCards: return "onboarding_button_finalize_backup"
-        case .kycWaiting: return  "onboarding_button_kyc_waiting"
-        case .enterPin: return "onboarding_button_pin"
-        case .registerWallet:  return "onboarding_button_register_wallet"
-        case .kycStart, .kycRetry:  return "onboarding_button_kyc_start"
-        case .claim: return "onboarding_button_claim"
-        case .successClaim: return "onboarding_button_continue_wallet"
+        case .createWallet: return L10n.onboardingButtonWhatDoesItMean
+        case .backupIntro: return L10n.onboardingButtonSkipBackup
+        case .selectBackupCards: return L10n.onboardingButtonFinalizeBackup
+        case .kycWaiting: return  L10n.onboardingButtonKycWaiting
+        case .enterPin: return L10n.onboardingButtonPin
+        case .registerWallet:  return L10n.onboardingButtonRegisterWallet
+        case .kycStart, .kycRetry:  return L10n.onboardingButtonKycStart
+        case .claim: return L10n.onboardingButtonClaim
+        case .successClaim: return L10n.onboardingButtonContinueWallet
         default: return ""
         }
 
@@ -203,7 +203,7 @@ extension WalletOnboardingStep: OnboardingButtonsInfoProvider {
     var infoText: LocalizedStringKey? {
         switch self {
         case .saveUserWallet:
-            return "save_user_wallet_agreement_notice"
+            return L10n.saveUserWalletAgreementNotice
         default:
             return nil
         }
