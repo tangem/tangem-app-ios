@@ -643,7 +643,6 @@
 		EF4BEF8328ACF0E700C5D1BE /* UserTokenListManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF4BEF8228ACF0E700C5D1BE /* UserTokenListManager.swift */; };
 		EF4BEFDF28AD3EE500C5D1BE /* ContentState.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF4BEFDE28AD3EE500C5D1BE /* ContentState.swift */; };
 		EF4BEFE128AD423C00C5D1BE /* TangemAPIError.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF4BEFE028AD423C00C5D1BE /* TangemAPIError.swift */; };
-		EF50A5A42881CEE30081C5BB /* XCAssets+Generated.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF50A5A32881CEE30081C5BB /* XCAssets+Generated.swift */; };
 		EF50A5B1288976140081C5BB /* View+ConditionalModifiers.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF50A5B0288976140081C5BB /* View+ConditionalModifiers.swift */; };
 		EF59038E290186DC00C527C9 /* LazyVStackCompat.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF59038D290186DC00C527C9 /* LazyVStackCompat.swift */; };
 		EF59039A29091CFB00C527C9 /* EnvironmentSetupView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF59039529091CFB00C527C9 /* EnvironmentSetupView.swift */; };
@@ -661,6 +660,8 @@
 		EF661E3228C0ACD1005769E5 /* ScanCardWarningView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF661E3128C0ACD0005769E5 /* ScanCardWarningView.swift */; };
 		EF661E3528C0ADC6005769E5 /* CommonError.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF661E3428C0ADC6005769E5 /* CommonError.swift */; };
 		EF692A3D2950C37F001F4B8A /* SwappingResultDataModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF692A3C2950C37F001F4B8A /* SwappingResultDataModel.swift */; };
+		EF692A482951E7C8001F4B8A /* XCAssets+Generated.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF692A462951E7C8001F4B8A /* XCAssets+Generated.swift */; };
+		EF692A492951E7C8001F4B8A /* Localizable+Generated.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF692A472951E7C8001F4B8A /* Localizable+Generated.swift */; };
 		EF6CB17C292E1080001335EA /* SwappingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF6CB17B292E1080001335EA /* SwappingView.swift */; };
 		EF6CB17E292E1190001335EA /* EnvironmentSetupViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF6CB17D292E1190001335EA /* EnvironmentSetupViewModel.swift */; };
 		EF74F50D289BF5AE001034D2 /* Fonts.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF74F50B289BF5AE001034D2 /* Fonts.swift */; };
@@ -1509,7 +1510,6 @@
 		EF4BEF8228ACF0E700C5D1BE /* UserTokenListManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserTokenListManager.swift; sourceTree = "<group>"; };
 		EF4BEFDE28AD3EE500C5D1BE /* ContentState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentState.swift; sourceTree = "<group>"; };
 		EF4BEFE028AD423C00C5D1BE /* TangemAPIError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TangemAPIError.swift; sourceTree = "<group>"; };
-		EF50A5A32881CEE30081C5BB /* XCAssets+Generated.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "XCAssets+Generated.swift"; sourceTree = "<group>"; };
 		EF50A5B0288976140081C5BB /* View+ConditionalModifiers.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "View+ConditionalModifiers.swift"; sourceTree = "<group>"; };
 		EF5267EB2927809300FC25A8 /* SwappingCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwappingCoordinator.swift; sourceTree = "<group>"; };
 		EF5267EC2927809300FC25A8 /* SwappingCoordinatorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwappingCoordinatorView.swift; sourceTree = "<group>"; };
@@ -1538,6 +1538,8 @@
 		EF661E3128C0ACD0005769E5 /* ScanCardWarningView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ScanCardWarningView.swift; sourceTree = "<group>"; };
 		EF661E3428C0ADC6005769E5 /* CommonError.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CommonError.swift; sourceTree = "<group>"; };
 		EF692A3C2950C37F001F4B8A /* SwappingResultDataModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwappingResultDataModel.swift; sourceTree = "<group>"; };
+		EF692A462951E7C8001F4B8A /* XCAssets+Generated.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "XCAssets+Generated.swift"; sourceTree = "<group>"; };
+		EF692A472951E7C8001F4B8A /* Localizable+Generated.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Localizable+Generated.swift"; sourceTree = "<group>"; };
 		EF6CB17B292E1080001335EA /* SwappingView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SwappingView.swift; sourceTree = "<group>"; };
 		EF6CB17D292E1190001335EA /* EnvironmentSetupViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EnvironmentSetupViewModel.swift; sourceTree = "<group>"; };
 		EF74F50B289BF5AE001034D2 /* Fonts.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Fonts.swift; sourceTree = "<group>"; };
@@ -1741,7 +1743,6 @@
 				5DFB499524E44BC90037E76F /* Tokens.xcassets */,
 				5D3F77CB24BF56DC00E8695B /* Assets.xcassets */,
 				5DBBAB0C24D8547F00E78F1C /* Colors.xcassets */,
-				EF50A5A32881CEE30081C5BB /* XCAssets+Generated.swift */,
 			);
 			path = Assets;
 			sourceTree = "<group>";
@@ -1835,7 +1836,6 @@
 				5D9DCADC255174140059799C /* App */,
 				DC7DA81A2844EED800AD6DBD /* Modules */,
 				5DFCCB6324C371AC0014A293 /* Common */,
-				5D383E4224D9602700C9BFF6 /* Assets */,
 				B0CC817C25CD626A006D49B9 /* Resources */,
 				EF2EFDE02865BFE800798051 /* Configurations */,
 				5D3F77C524BF56D800E8695B /* AppDelegate.swift */,
@@ -2145,7 +2145,6 @@
 				5D5332CD25F90DA900D32CA5 /* Formatters */,
 				5DF2522524F914C90015B429 /* TangemSdk */,
 				5D958E1224F513C1006BD932 /* UI */,
-				5D383E3C24D95B6B00C9BFF6 /* Localizations */,
 				EF661E3328C0ADC6005769E5 /* Types */,
 				5DBBAB0924D853A000E78F1C /* Extensions */,
 				B082E91E255A8E7800A0CEA9 /* Storage */,
@@ -2592,6 +2591,9 @@
 		B0CC817C25CD626A006D49B9 /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				EF692A452951E600001F4B8A /* Generated */,
+				5D383E4224D9602700C9BFF6 /* Assets */,
+				5D383E3C24D95B6B00C9BFF6 /* Localizations */,
 				5DE552F527B418B400D7ADCD /* testnet_tokens.json */,
 			);
 			path = Resources;
@@ -3731,6 +3733,15 @@
 			path = Types;
 			sourceTree = "<group>";
 		};
+		EF692A452951E600001F4B8A /* Generated */ = {
+			isa = PBXGroup;
+			children = (
+				EF692A472951E7C8001F4B8A /* Localizable+Generated.swift */,
+				EF692A462951E7C8001F4B8A /* XCAssets+Generated.swift */,
+			);
+			path = Generated;
+			sourceTree = "<group>";
+		};
 		EF7B9CED286C6B95004C33A9 /* CardSettings */ = {
 			isa = PBXGroup;
 			children = (
@@ -4809,6 +4820,7 @@
 				EF80843E293F698F000D91EA /* ExchangeManagerMock.swift in Sources */,
 				B0E9E2FD2679DA5B00269C7A /* Separator.swift in Sources */,
 				5DBAFD1E27E2471D0008B882 /* CoinModel.swift in Sources */,
+				EF692A482951E7C8001F4B8A /* XCAssets+Generated.swift in Sources */,
 				5DDE22EF2608EFDB008657C6 /* UIViewController+.swift in Sources */,
 				65339CE4289918E7006429EA /* ChangeObserver.swift in Sources */,
 				5D00FCD1261738C5004626DE /* WalletConnectEthTransaction.swift in Sources */,
@@ -5003,7 +5015,6 @@
 				B0B2DF6026E1FD5400BC0934 /* AnimatedView.swift in Sources */,
 				65C9FCAE28644F9D00FDE63E /* DetailsView.swift in Sources */,
 				B0E1D175257DE75D00A3AB98 /* CommonKeysManager.swift in Sources */,
-				EF50A5A42881CEE30081C5BB /* XCAssets+Generated.swift in Sources */,
 				5D84DBEF270EEADA0013A813 /* TwinIntroBackgroundView.swift in Sources */,
 				5D80ED472550186A0008DEF0 /* View+.swift in Sources */,
 				DA129DD3292B4A3D004291EC /* UserWalletListCellViewModel.swift in Sources */,
@@ -5082,6 +5093,7 @@
 				B068A7E725678A8800D28CD2 /* TwinCardsUtils.swift in Sources */,
 				DC66BC0A285B755800CDF765 /* PushTxRoutable.swift in Sources */,
 				EF0F99AC289028F8008B01DF /* AppSettingsViewModel.swift in Sources */,
+				EF692A492951E7C8001F4B8A /* Localizable+Generated.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
