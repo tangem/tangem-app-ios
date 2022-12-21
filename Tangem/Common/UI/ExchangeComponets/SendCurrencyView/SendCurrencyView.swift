@@ -46,7 +46,7 @@ struct SendCurrencyView: View {
     @ViewBuilder
     private var lockView: some View {
         if viewModel.isLockedVisible {
-            Assets.swappingLock
+            Assets.swappingLock.image
                 .resizable()
                 .frame(width: 20, height: 20)
                 .padding(.all, 14)
