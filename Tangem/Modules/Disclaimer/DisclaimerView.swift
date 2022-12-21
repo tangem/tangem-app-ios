@@ -64,7 +64,7 @@ extension DisclaimerView {
         case sheet
         case navbar
 
-        var title: LocalizedStringKey { L10n.disclaimerTitle }
+        var title: String { L10n.disclaimerTitle }
         var isVisibleHeader: Bool { self == .sheet }
         var isNavigationBarHidden: Bool { self == .sheet }
     }
