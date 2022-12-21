@@ -11,8 +11,8 @@ import SwiftUI
 struct EnterPinView: View {
     @Binding var text: String
 
-    let title: LocalizedStringKey
-    let subtitle: LocalizedStringKey
+    let title: String
+    let subtitle: String
 
     var maxDigits: Int
 
