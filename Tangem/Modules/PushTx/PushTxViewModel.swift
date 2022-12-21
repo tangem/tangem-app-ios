@@ -32,7 +32,7 @@ class PushTxViewModel: ObservableObject {
     var walletTotalBalanceFormatted: String {
         let amount = walletModel.wallet.amounts[self.amountToSend.type]
         let value = getDescription(for: amount, isFiat: isFiatCalculation)
-        return String(format: "common_balance".localized, value)
+        return L10n.commonBalance(value)
     }
 
     var walletModel: WalletModel {
@@ -109,7 +109,7 @@ class PushTxViewModel: ObservableObject {
     func onSend() {
         send() {
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) { [weak self] in
-                let alert = AlertBuilder.makeSuccessAlert(message: "send_transaction_success".localized) { [weak self] in
+                let alert = AlertBuilder.makeSuccessAlert(message: L10n.sendTransactionSuccess) { [weak self] in
                     self?.dismiss()
                 }
 
@@ -320,15 +320,15 @@ class PushTxViewModel: ObservableObject {
         if isFiat {
             sendTotal = totalFiatAmountFormatted ?? emptyValue
             sendTotalSubtitle = amountToSend.type == fee.type ?
-                String(format: "send_total_subtitle_format".localized, totalAmount.description) :
-                String(format: "send_total_subtitle_asset_format".localized,
-                       amountToSend.description,
-                       fee.description)
+                L10n.sendTotalSubtitleFormat(totalAmount.description) :
+                L10n.sendTotalSubtitleAssetFormat(
+                    amountToSend.description,
+                    fee.description)
         } else {
             sendTotal =  (amountToSend + fee).description
-            sendTotalSubtitle = totalFiatAmountFormatted == nil ? emptyValue :  String(format: "send_total_subtitle_fiat_format".localized,
-                                                                                       totalFiatAmountFormatted!,
-                                                                                       walletModel.getFiatFormatted(for: fee)!)
+            sendTotalSubtitle = totalFiatAmountFormatted == nil ? emptyValue :  L10n.sendTotalSubtitleFiatFormat(
+                totalFiatAmountFormatted!,
+                walletModel.getFiatFormatted(for: fee)!)
         }
     }
 }
