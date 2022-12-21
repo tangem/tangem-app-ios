@@ -18,11 +18,11 @@ struct WarningBankCardView: View {
                 .padding(.top, 80)
                 .padding(.leading, 10)
 
-            Text("russian_bank_card_warning_title".localized)
+            Text(L10n.russianBankCardWarningTitle)
                 .font(.system(size: 20, weight: .regular))
                 .padding(30)
 
-            Text("russian_bank_card_warning_subtitle".localized)
+            Text(L10n.russianBankCardWarningSubtitle)
                 .fixedSize(horizontal: false, vertical: true)
                 .font(.system(size: 15, weight: .regular))
                 .padding(.top, 50)
@@ -30,12 +30,12 @@ struct WarningBankCardView: View {
 
             HStack(spacing: 11) {
                 MainButton(
-                    title: "common_yes".localized,
+                    title: L10n.commonYes,
                     action: viewModel.confirmCallback
                 )
 
                 MainButton(
-                    title: "common_no".localized,
+                    title: L10n.commonNo,
                     style: .secondary,
                     action: viewModel.declineCallback
                 )
