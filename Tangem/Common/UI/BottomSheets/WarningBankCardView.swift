@@ -14,7 +14,7 @@ struct WarningBankCardView: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            Image("russia_flag")
+            Assets.russiaFlag.image
                 .padding(.top, 80)
                 .padding(.leading, 10)
 
