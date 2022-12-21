@@ -109,8 +109,8 @@ struct MainButton: View {
     }
 
     @ViewBuilder
-    private func iconView(icon: Image) -> some View {
-        icon
+    private func iconView(icon: ImageType) -> some View {
+        icon.image
             .resizable()
             .renderingMode(.template)
             .frame(width: 20, height: 20)
@@ -120,8 +120,8 @@ struct MainButton: View {
 
 extension MainButton {
     enum Icon {
-        case leading(_ icon: Image)
-        case trailing(_ icon: Image)
+        case leading(_ icon: ImageType)
+        case trailing(_ icon: ImageType)
     }
 
     enum Style: String, Hashable, CaseIterable {
