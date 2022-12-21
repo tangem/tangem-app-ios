@@ -22,10 +22,10 @@ extension Error {
 
 extension Error {
     private var alertTitle: String {
-        "common_error".localized
+        L10n.commonError
     }
     private var okButtonTitle: String {
-        "common_ok".localized
+        L10n.commonOk
     }
     var alertBinder: AlertBinder {
         return AlertBinder(alert: alert, error: self)
