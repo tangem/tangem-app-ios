@@ -58,7 +58,7 @@ struct WebViewContainer: View {
                 NavigationView {
                     content
                         .navigationBarItems(leading:
-                            Button("common_close") {
+                            Button(L10n.commonClose) {
                                 presentationMode.wrappedValue.dismiss()
                             }
                             .animation(nil)

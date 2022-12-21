@@ -20,7 +20,7 @@ struct BackupStoryPage: View {
                 .padding()
 
             VStack(spacing: 14) {
-                Text("story_backup_title")
+                Text(L10n.storyBackupTitle)
                     .font(.system(size: 36, weight: .semibold))
                     .minimumScaleFactor(0.5)
                     .multilineTextAlignment(.center)
@@ -28,8 +28,8 @@ struct BackupStoryPage: View {
                     .storyTextAppearanceModifier(progress: progress, type: .title, textBlockAppearance: .almostImmediate)
 
                 Group {
-                    Text("story_backup_description_1") + Text(" ") +
-                        Text("story_backup_description_2_bold").bold() + Text(" ") + Text("story_backup_description_3")
+                    Text(L10n.storyBackupDescription1) + Text(" ") +
+                        Text(L10n.storyBackupDescription2Bold).bold() + Text(" ") + Text(L10n.storyBackupDescription3)
                 }
                 .font(.system(size: 24))
                 .multilineTextAlignment(.center)

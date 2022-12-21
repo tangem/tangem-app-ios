@@ -33,19 +33,19 @@ final class UncompletedBackupViewModel: ObservableObject {
     }
 
     private func showAlert() {
-        let alert = Alert(title: Text("common_warning"),
-                          message: Text("welcome_interrupted_backup_alert_message"),
-                          primaryButton: .default(Text("welcome_interrupted_backup_alert_resume"), action: continueBackup),
-                          secondaryButton: .destructive(Text("welcome_interrupted_backup_alert_discard"), action: showExtraDiscardAlert))
+        let alert = Alert(title: Text(L10n.commonWarning),
+                          message: Text(L10n.welcomeInterruptedBackupAlertMessage),
+                          primaryButton: .default(Text(L10n.welcomeInterruptedBackupAlertResume), action: continueBackup),
+                          secondaryButton: .destructive(Text(L10n.welcomeInterruptedBackupAlertDiscard), action: showExtraDiscardAlert))
 
         self.error = AlertBinder(alert: alert)
     }
 
     private func showExtraDiscardAlert() {
-        let buttonResume: ActionSheet.Button = .cancel(Text("welcome_interrupted_backup_discard_resume"), action: continueBackup)
-        let buttonDiscard: ActionSheet.Button = .destructive(Text("welcome_interrupted_backup_discard_discard"), action: discardBackup)
-        let sheet = ActionSheet(title: Text("welcome_interrupted_backup_discard_title"),
-                                message: Text("welcome_interrupted_backup_discard_message"),
+        let buttonResume: ActionSheet.Button = .cancel(Text(L10n.welcomeInterruptedBackupDiscardResume), action: continueBackup)
+        let buttonDiscard: ActionSheet.Button = .destructive(Text(L10n.welcomeInterruptedBackupDiscardDiscard), action: discardBackup)
+        let sheet = ActionSheet(title: Text(L10n.welcomeInterruptedBackupDiscardTitle),
+                                message: Text(L10n.welcomeInterruptedBackupDiscardMessage),
                                 buttons: [buttonDiscard, buttonResume])
 
         DispatchQueue.main.async {
