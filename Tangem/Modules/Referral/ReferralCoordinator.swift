@@ -37,6 +37,6 @@ extension ReferralCoordinator {
 extension ReferralCoordinator: ReferralRoutable {
     func openTOS(with url: URL) {
         tosViewModel = WebViewContainerViewModel(url: url,
-                                                 title: "details_referral_title".localized)
+                                                 title: L10n.detailsReferralTitle)
     }
 }

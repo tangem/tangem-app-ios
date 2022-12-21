@@ -37,7 +37,7 @@ class SignTypedDataHandler: WalletConnectSignHandler {
                 return
             }
 
-            let displayedMessage = String(format: "wallet_connect_personal_sign_message".localized, session.session.dAppInfo.peerMeta.name, message)
+            let displayedMessage = L10n.walletConnectPersonalSignMessage(session.session.dAppInfo.peerMeta.name, message)
             askToSign(in: session, request: request, message: displayedMessage, dataToSign: typedData.signHash)
         } catch {
             delegate?.sendInvalid(request)
