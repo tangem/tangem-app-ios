@@ -28,7 +28,7 @@ struct AppSettingsView: View {
             }
         }
         .alert(item: $viewModel.alert) { $0.alert }
-        .navigationBarTitle(L10n.appSettingsTitle, displayMode: .inline)
+        .navigationBarTitle(Text(L10n.appSettingsTitle), displayMode: .inline)
     }
 
     @ViewBuilder
