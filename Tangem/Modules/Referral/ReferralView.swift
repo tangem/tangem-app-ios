@@ -21,7 +21,7 @@ struct ReferralView: View {
                         .aspectRatio(contentMode: .fit)
                         .padding(.horizontal, 40)
 
-                    Text("referral_title".localized)
+                    Text(L10n.referralTitle)
                         .style(Fonts.Bold.title1, color: Colors.Text.primary1)
                         .multilineTextAlignment(.center)
                         .lineLimit(2)
@@ -39,12 +39,12 @@ struct ReferralView: View {
             }
             .edgesIgnoringSafeArea(.bottom)
             .toast(isPresenting: $viewModel.showCodeCopiedToast, alert: {
-                AlertToast(type: .complete(Color.tangemGreen), title: "referral_promo_code_copied".localized)
+                AlertToast(type: .complete(Color.tangemGreen), title: L10n.referralPromoCodeCopied)
             }
             )
         }
         .alert(item: $viewModel.errorAlert, content: { $0.alert })
-        .navigationBarTitle("details_referral_title", displayMode: .inline)
+        .navigationBarTitle(L10n.detailsReferralTitle, displayMode: .inline)
         .background(Colors.Background.secondary.edgesIgnoringSafeArea(.all))
     }
 
@@ -62,9 +62,9 @@ struct ReferralView: View {
         VStack(spacing: 0) {
             IconWithMessageView(
                 Assets.cryptoCurrencies,
-                header: { Text("referral_point_currencies_title") },
+                header: { Text(L10n.referralPointCurrenciesTitle) },
                 description: {
-                    Text("referral_point_currencies_description_prefix".localized + " ") +
+                    Text(L10n.referralPointCurrenciesDescriptionPrefix + " ") +
                         Text(viewModel.award).foregroundColor(Colors.Text.primary1) +
                         Text(viewModel.awardDescriptionSuffix)
                 }
@@ -72,11 +72,11 @@ struct ReferralView: View {
 
             IconWithMessageView(
                 Assets.discount,
-                header: { Text("referral_point_discount_title") },
+                header: { Text(L10n.referralPointDiscountTitle) },
                 description: {
-                    Text("referral_point_discount_description_prefix".localized + " ") +
+                    Text(L10n.referralPointDiscountDescriptionPrefix + " ") +
                         Text(viewModel.discount).foregroundColor(Colors.Text.primary1) +
-                        Text(" " + "referral_point_discount_description_suffix".localized)
+                        Text(" " + L10n.referralPointDiscountDescriptionSuffix)
                 })
                 .padding(.top, viewModel.isAlreadyReferral ? 20 : 38)
 
@@ -107,8 +107,8 @@ struct ReferralView: View {
     private var tosButton: some View {
         Button(action: viewModel.openTOS) {
             Text(viewModel.tosButtonPrefix) +
-                Text("common_terms_and_conditions").foregroundColor(Colors.Text.accent) +
-                Text(" " + "referral_tos_suffix".localized)
+                Text(L10n.commonTermsAndConditions).foregroundColor(Colors.Text.accent) +
+                Text(" " + L10n.referralTosSuffix)
         }
         .multilineTextAlignment(.center)
         .fixedSize(horizontal: false, vertical: true)
@@ -123,7 +123,7 @@ struct ReferralView: View {
             Spacer()
 
             HStack {
-                Text("referral_friends_bought_title")
+                Text(L10n.referralFriendsBoughtTitle)
                     .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
 
                 Spacer()
@@ -137,7 +137,7 @@ struct ReferralView: View {
             .padding(.top, 24)
 
             VStack(spacing: 8) {
-                Text("referral_promo_code_title")
+                Text(L10n.referralPromoCodeTitle)
                     .style(Fonts.Bold.footnote,
                            color: Colors.Text.tertiary)
 
@@ -153,7 +153,7 @@ struct ReferralView: View {
             .cornerRadius(14)
 
             HStack(spacing: 12) {
-                TangemButton(title: "common_copy",
+                TangemButton(title: L10n.commonCopy,
                              systemImage: "square.on.square",
                              iconPosition: .leading,
                              iconPadding: 10,
@@ -161,7 +161,7 @@ struct ReferralView: View {
                     .buttonStyle(TangemButtonStyle(colorStyle: .black,
                                                    layout: .flexibleWidth))
 
-                TangemButton(title: "common_share",
+                TangemButton(title: L10n.commonShare,
                              systemImage: "arrowshape.turn.up.forward",
                              iconPosition: .leading,
                              iconPadding: 10,
@@ -180,7 +180,7 @@ struct ReferralView: View {
             tosButton
 
             TangemButton(
-                title: "referral_button_participate",
+                title: L10n.referralButtonParticipate,
                 image: "tangemIcon",
                 iconPosition: .trailing,
                 iconPadding: 10,
