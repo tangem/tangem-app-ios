@@ -24,11 +24,11 @@ struct WalletInfo: Codable, Hashable {
 }
 
 struct WalletConnectSession: Codable, Hashable, Identifiable {
-    var id: String { session.dAppInfo.peerId + "\(wallet.hashValue)" }
+    var id: Int { hashValue }
 
     func hash(into hasher: inout Hasher) {
-        hasher.combine(wallet.hashValue)
-        hasher.combine(session.dAppInfo.peerId)
+        hasher.combine(session.url)
+        hasher.combine(wallet)
     }
 
     var wallet: WalletInfo
