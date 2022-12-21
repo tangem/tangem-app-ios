@@ -23,12 +23,12 @@ struct UserWalletListCellView: View {
             content
                 .listRowInsets(EdgeInsets())
                 .swipeActions {
-                    Button("common_delete") { [weak viewModel] in
+                    Button(L10n.commonDelete) { [weak viewModel] in
                         viewModel?.delete()
                     }
                     .tint(.red)
 
-                    Button("user_wallet_list_rename") { [weak viewModel] in
+                    Button(L10n.userWalletListRename) { [weak viewModel] in
                         viewModel?.edit()
                     }
                     .tint(Colors.Icon.informative)
@@ -90,7 +90,7 @@ struct UserWalletListCellView: View {
                 viewModel.edit()
             } label: {
                 HStack {
-                    Text("user_wallet_list_rename")
+                    Text(L10n.userWalletListRename)
                     Image(systemName: "pencil")
                 }
             }
@@ -154,7 +154,7 @@ struct UserWalletListCellView: View {
     @ViewBuilder
     private var deleteButtonLabel: some View {
         HStack {
-            Text("common_delete")
+            Text(L10n.commonDelete)
             Image(systemName: "trash")
         }
     }

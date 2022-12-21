@@ -31,11 +31,11 @@ class TestnetBuyCryptoService {
                 let fee = fees[0]
 
                 guard fee.value <= walletManager.wallet.amounts[.coin]?.value ?? 0 else {
-                    return .anyFail(error: "testnet_error_not_enough_ether_message".localized)
+                    return .anyFail(error: L10n.testnetErrorNotEnoughEtherMessage)
                 }
 
                 guard let tx = try? walletManager.createTransaction(amount: amountToSend, fee: fee, destinationAddress: destinationAddress) else {
-                    return .anyFail(error: "testnet_error_failed_create_tx".localized)
+                    return .anyFail(error: L10n.testnetErrorFailedCreateTx)
                 }
 
                 return walletManager.send(tx, signer: signer)
@@ -45,7 +45,7 @@ class TestnetBuyCryptoService {
                     print(error)
                     self.presentOnMain(error.alertController)
                 } else {
-                    self.presentOnMain(AlertBuilder.makeSuccessAlertController(message: "testnet_address_topuped".localized))
+                    self.presentOnMain(AlertBuilder.makeSuccessAlertController(message: L10n.testnetAddressTopuped))
                 }
 
                 self.bag.remove(subs)

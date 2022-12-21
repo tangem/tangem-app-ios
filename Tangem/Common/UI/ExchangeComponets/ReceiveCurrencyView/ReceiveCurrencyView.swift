@@ -30,7 +30,7 @@ struct ReceiveCurrencyView: View {
     }
 
     private var headerLabel: some View {
-        Text("exchange_receive_view_header".localized)
+        Text(L10n.exchangeReceiveViewHeader)
             .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
     }
 
