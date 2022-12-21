@@ -38,14 +38,6 @@ struct AppScanTaskResponse {
     }
 }
 
-enum AppScanTaskError: String, Error, LocalizedError {
-    case wrongCardClip
-
-    var errorDescription: String? {
-        "alert_wrong_card_scanned" // .localized
-    }
-}
-
 final class AppScanTask: CardSessionRunnable {
     let allowsAccessCodeFromRepository: Bool
 
@@ -71,12 +63,6 @@ final class AppScanTask: CardSessionRunnable {
         }
 
         let currentBatch = card.batchId.lowercased()
-
-        if let targetBatch = self.targetBatch?.lowercased(),
-           targetBatch != currentBatch {
-            completion(.failure(TangemSdkError.underlying(error: AppScanTaskError.wrongCardClip)))
-            return
-        }
 
         if let legacyWalletData = session.environment.walletData,
            legacyWalletData.blockchain != "ANY" {
