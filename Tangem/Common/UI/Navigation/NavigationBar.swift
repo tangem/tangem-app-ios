@@ -43,7 +43,7 @@ struct BackButton: View {
             HStack(spacing: 5) {
                 Image(systemName: "chevron.left")
                     .padding(-1) // remove default? extra padding
-                Text("common_back")
+                Text(L10n.commonBack)
                     .font(.system(size: 17, weight: .regular))
             }
         })
@@ -66,7 +66,7 @@ struct ChatButton: View {
 
     var body: some View {
         Button(action: action, label: {
-            Text("onboarding_chat_button_title")
+            Text(L10n.onboardingChatButtonTitle)
                 .font(.system(size: 17, weight: .regular))
         })
         .allowsHitTesting(isEnabled)
