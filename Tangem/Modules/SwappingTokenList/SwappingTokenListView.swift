@@ -20,7 +20,7 @@ struct SwappingTokenListView: View {
             PerfList {
                 if #available(iOS 15.0, *) {} else {
                     let horizontalInset: CGFloat = UIDevice.isIOS13 ? 8 : 16
-                    SearchBar(text: $viewModel.searchText.value, placeholder: "common_search".localized)
+                    SearchBar(text: $viewModel.searchText.value, placeholder: L10n.commonSearch)
                         .padding(.horizontal, UIDevice.isIOS13 ? 0 : 8)
                         .listRowInsets(.init(top: 8, leading: horizontalInset, bottom: 8, trailing: horizontalInset))
                 }
@@ -28,7 +28,7 @@ struct SwappingTokenListView: View {
                 GroupedSection(viewModel.userItems) {
                     SwappingTokenItemView(viewModel: $0)
                 } header: {
-                    Text("swapping_token_list_your_tokens".localized.uppercased())
+                    Text(L10n.swappingTokenListYourTokens.uppercased())
                         .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
                 }
                 .separatorPadding(68)
@@ -36,7 +36,7 @@ struct SwappingTokenListView: View {
                 GroupedSection(viewModel.otherItems) {
                     SwappingTokenItemView(viewModel: $0)
                 } header: {
-                    Text("swapping_token_list_other_tokens".localized.uppercased())
+                    Text(L10n.swappingTokenListOtherTokens.uppercased())
                         .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
                 }
                 .separatorPadding(68)
@@ -48,7 +48,7 @@ struct SwappingTokenListView: View {
                 }
             }
             .searchableCompat(text: $viewModel.searchText.value)
-            .navigationBarTitle(Text("swapping_token_list_your_title".localized), displayMode: .inline)
+            .navigationBarTitle(Text(L10n.swappingTokenListYourTitle), displayMode: .inline)
             .onAppear(perform: viewModel.onAppear)
         }
     }
