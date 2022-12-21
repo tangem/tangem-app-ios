@@ -49,7 +49,7 @@ final class SwappingPermissionViewModel: ObservableObject, Identifiable {
             } catch TangemSdkError.userCancelled {
                 // Do nothing
             } catch {
-                errorAlert = AlertBinder(title: L10n.commonError.text, message: error.localizedDescription)
+                errorAlert = AlertBinder(title: L10n.commonError, message: error.localizedDescription)
             }
         }
     }
@@ -83,11 +83,11 @@ private extension SwappingPermissionViewModel {
         contentRowViewModels = [
             DefaultRowViewModel(title: L10n.swappingPermissionRowsAmount(tokenSymbol),
                                 detailsType: .icon(Assets.infinityMini)),
-            DefaultRowViewModel(title: L10n.swappingPermissionRowsYourWallet.text,
+            DefaultRowViewModel(title: L10n.swappingPermissionRowsYourWallet,
                                 detailsType: .text(String(walletAddress))),
-            DefaultRowViewModel(title: L10n.swappingPermissionRowsSpender.text,
+            DefaultRowViewModel(title: L10n.swappingPermissionRowsSpender,
                                 detailsType: .text(String(spenderAddress))),
-            DefaultRowViewModel(title: L10n.sendFeeLabel.text,
+            DefaultRowViewModel(title: L10n.sendFeeLabel,
                                 detailsType: .text(fee)),
         ]
     }
