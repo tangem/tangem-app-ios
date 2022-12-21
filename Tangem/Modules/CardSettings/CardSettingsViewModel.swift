@@ -60,6 +60,14 @@ class CardSettingsViewModel: ObservableObject {
         bind()
         setupView()
     }
+
+    func didResetCard() {
+        if let userWallet = cardModel.userWallet {
+            deleteWallet(userWallet)
+        }
+
+        navigateAwayAfterReset()
+    }
 }
 
 // MARK: - Private
@@ -123,16 +131,11 @@ private extension CardSettingsViewModel {
     }
 
     private func navigateAwayAfterReset() {
-        if self.userWalletRepository.isEmpty {
-            self.coordinator.popToRoot()
+        if userWalletRepository.isEmpty {
+            coordinator.popToRoot()
         } else {
-            self.coordinator.dismiss()
+            coordinator.dismiss()
         }
-    }
-
-    private func didResetCard(with userWallet: UserWallet) {
-        deleteWallet(userWallet)
-        navigateAwayAfterReset()
     }
 }
 
@@ -162,25 +165,10 @@ extension CardSettingsViewModel {
             return
         }
 
-        let userWallet = cardModel.userWallet
-
         if cardModel.canTwin {
             prepareTwinOnboarding()
         } else {
-            coordinator.openResetCardToFactoryWarning(message: resetToFactoryMessage) { [weak self] in
-                self?.cardModel.resetToFactory { [weak self] result in
-                    guard let self, let userWallet else { return }
-
-                    switch result {
-                    case .success:
-                        self.didResetCard(with: userWallet)
-                    case let .failure(error):
-                        if !error.isUserCancelled {
-                            self.alert = error.alertBinder
-                        }
-                    }
-                }
-            }
+            coordinator.openResetCardToFactoryWarning(cardModel: cardModel)
         }
     }
 }
