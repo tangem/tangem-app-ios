@@ -87,7 +87,6 @@ class MainViewModel: ObservableObject {
 
     private var userWalletModel: UserWalletModel
     private let cardImageProvider: CardImageProviding
-    private var shouldRefreshWhenAppear: Bool
     private var bag = Set<AnyCancellable>()
     private var isProcessingNewCard = false
     private var imageLoadingSubscription: AnyCancellable?
@@ -170,13 +169,11 @@ class MainViewModel: ObservableObject {
         cardModel: CardViewModel,
         userWalletModel: UserWalletModel,
         cardImageProvider: CardImageProviding,
-        shouldRefreshWhenAppear: Bool,
         coordinator: MainRoutable
     ) {
         self.cardModel = cardModel
         self.userWalletModel = userWalletModel
         self.cardImageProvider = cardImageProvider
-        self.shouldRefreshWhenAppear = shouldRefreshWhenAppear
         self.coordinator = coordinator
 
         bind()
@@ -272,11 +269,6 @@ class MainViewModel: ObservableObject {
     }
 
     func onAppear() {
-        if shouldRefreshWhenAppear {
-            singleWalletContentViewModel?.onAppear()
-            multiWalletContentViewModel?.onAppear()
-        }
-
         updateIsBackupAllowed()
     }
 
