@@ -12,7 +12,7 @@ import Kingfisher
 
 struct CoinView: View {
     @ObservedObject var model: CoinViewModel
-    var subtitle: String = L10n.currencySubtitleExpanded
+    var subtitle: String = Localization.currencySubtitleExpanded
 
     var body: some View {
         VStack(spacing: 10) {

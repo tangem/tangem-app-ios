@@ -17,7 +17,7 @@ struct WalletConnectView: View {
                              color: .tangemBlue,
                              systemImageName: "plus",
                              action: viewModel.openSession)
-            .accessibility(label: Text(L10n.voiceOverOpenNewWalletConnectSession))
+            .accessibility(label: Text(Localization.voiceOverOpenNewWalletConnectSession))
             .animation(nil)
     }
 
@@ -25,10 +25,10 @@ struct WalletConnectView: View {
         ZStack {
             VStack {
                 if viewModel.sessions.isEmpty {
-                    Text(L10n.walletConnectNoSessionsTitle)
+                    Text(Localization.walletConnectNoSessionsTitle)
                         .font(.system(size: 24, weight: .semibold))
                         .padding(.bottom, 10)
-                    Text(L10n.walletConnectNoSessionsMessage)
+                    Text(Localization.walletConnectNoSessionsMessage)
                         .multilineTextAlignment(.center)
                         .font(.system(size: 17, weight: .medium))
                         .padding(.horizontal, 40)
@@ -47,9 +47,9 @@ struct WalletConnectView: View {
 
             Color.clear.frame(width: 0.5, height: 0.5)
                 .actionSheet(isPresented: $viewModel.isActionSheetVisible, content: {
-                    ActionSheet(title: Text(L10n.commonSelectAction), message: Text(L10n.walletConnectClipboardAlert), buttons: [
-                        .default(Text(L10n.walletConnectPasteFromClipboard), action: viewModel.pasteFromClipboard),
-                        .default(Text(L10n.walletConnectScanNewCode), action: viewModel.openQRScanner),
+                    ActionSheet(title: Text(Localization.commonSelectAction), message: Text(Localization.walletConnectClipboardAlert), buttons: [
+                        .default(Text(Localization.walletConnectPasteFromClipboard), action: viewModel.pasteFromClipboard),
+                        .default(Text(Localization.walletConnectScanNewCode), action: viewModel.openQRScanner),
                         .cancel(),
                     ])
                 })
@@ -64,7 +64,7 @@ struct WalletConnectView: View {
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(Color.tangemBgGray.edgesIgnoringSafeArea(.all))
-        .navigationBarTitle(Text(L10n.walletConnectSessionsTitle))
+        .navigationBarTitle(Text(Localization.walletConnectSessionsTitle))
         .navigationBarItems(trailing: navBarButton)
         .onAppear(perform: viewModel.onAppear)
     }
