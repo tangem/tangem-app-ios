@@ -18,7 +18,7 @@ public struct QuoteDataModel {
     public init(quoteData: QuoteData) throws {
         guard let toTokenAmount = Decimal(string: quoteData.toTokenAmount),
               let fromTokenAmount = Decimal(string: quoteData.fromTokenAmount) else {
-            throw ExchangeInchError.incorrectData
+            throw OneInchExchangeProvider.Errors.incorrectDataFormat
         }
 
         self.toTokenAmount = toTokenAmount
