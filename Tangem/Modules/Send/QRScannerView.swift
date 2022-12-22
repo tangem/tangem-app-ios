@@ -23,7 +23,7 @@ struct QRScanView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
-            Button(L10n.commonDone) {
+            Button(Localization.commonDone) {
                 presentationMode.wrappedValue.dismiss()
             }.padding()
             QRScannerView(code: viewModel.code)

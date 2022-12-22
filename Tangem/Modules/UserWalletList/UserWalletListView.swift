@@ -29,7 +29,7 @@ struct UserWalletListView: View {
     var body: some View {
         ZStack {
             VStack(spacing: 16) {
-                Text(L10n.userWalletListTitle)
+                Text(Localization.userWalletListTitle)
                     .style(Fonts.Bold.body, color: Colors.Text.primary1)
 
                 userWalletsView()
@@ -42,7 +42,7 @@ struct UserWalletListView: View {
                                    action: viewModel.unlockAllWallets)
                     }
 
-                    MainButton(title: L10n.userWalletListAddButton,
+                    MainButton(title: Localization.userWalletListAddButton,
                                icon: .trailing(Assets.tangemIcon),
                                isLoading: viewModel.isScanningCard,
                                action: viewModel.addUserWallet)
@@ -55,10 +55,10 @@ struct UserWalletListView: View {
             $0.alert
         }
         .actionSheet(isPresented: $viewModel.showingDeleteConfirmation) {
-            ActionSheet(title: Text(L10n.userWalletListDeletePrompt),
+            ActionSheet(title: Text(Localization.userWalletListDeletePrompt),
                         buttons: [
-                            .destructive(Text(L10n.commonDelete), action: viewModel.didConfirmWalletDeletion),
-                            .cancel(Text(L10n.commonCancel), action: viewModel.didCancelWalletDeletion),
+                            .destructive(Text(Localization.commonDelete), action: viewModel.didConfirmWalletDeletion),
+                            .cancel(Text(Localization.commonCancel), action: viewModel.didCancelWalletDeletion),
                         ])
         }
         .background(Self.sheetBackground.edgesIgnoringSafeArea(.all))
@@ -113,8 +113,8 @@ extension UserWalletListView {
 
     @ViewBuilder
     private func sections() -> some View {
-        section(L10n.userWalletListMultiHeader, for: viewModel.multiCurrencyModels)
-        section(L10n.userWalletListSingleHeader, for: viewModel.singleCurrencyModels)
+        section(Localization.userWalletListMultiHeader, for: viewModel.multiCurrencyModels)
+        section(Localization.userWalletListSingleHeader, for: viewModel.singleCurrencyModels)
     }
 
     @ViewBuilder

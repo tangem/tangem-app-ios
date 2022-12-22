@@ -46,7 +46,7 @@ extension ShopCoordinator {
 extension ShopCoordinator: ShopViewRoutable {
     func openWebCheckout(at url: URL) {
         pushedWebViewModel = WebViewContainerViewModel(url: url,
-                                                       title: L10n.shopWebCheckoutTitle,
+                                                       title: Localization.shopWebCheckoutTitle,
                                                        addLoadingIndicator: true)
     }
 
