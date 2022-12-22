@@ -18,22 +18,22 @@ struct BalanceAddressView: View {
 
     var blockchainText: String {
         if walletModel.state.isNoAccount {
-            return "wallet_error_no_account".localized
+            return Localization.walletErrorNoAccount
         }
 
         if walletModel.state.isBlockchainUnreachable {
-            return "wallet_balance_blockchain_unreachable".localized
+            return Localization.walletBalanceBlockchainUnreachable
         }
 
         if walletModel.wallet.hasPendingTx(for: amountType) {
-            return "wallet_balance_tx_in_progress".localized
+            return Localization.walletBalanceTxInProgress
         }
 
         if walletModel.state.isLoading {
-            return "wallet_balance_loading".localized
+            return Localization.walletBalanceLoading
         }
 
-        return "wallet_balance_verified".localized
+        return Localization.walletBalanceVerified
     }
 
     var image: String {
@@ -142,14 +142,14 @@ struct BalanceAddressView: View {
                             HStack {
                                 RoundedRectButton(action: { copyAddress() },
                                                   systemImageName: "doc.on.clipboard",
-                                                  title: "common_copy".localized,
+                                                  title: Localization.commonCopy,
                                                   withVerification: true)
-                                    .accessibility(label: Text("voice_over_copy_address"))
+                                    .accessibility(label: Text(Localization.voiceOverCopyAddress))
 
                                 RoundedRectButton(action: { showShareSheet() },
                                                   systemImageName: "square.and.arrow.up",
-                                                  title: "common_share".localized)
-                                    .accessibility(label: Text("voice_over_share_address"))
+                                                  title: Localization.commonShare)
+                                    .accessibility(label: Text(Localization.voiceOverShareAddress))
                             }
 
                         }
