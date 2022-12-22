@@ -9,8 +9,8 @@
 import SwiftUI
 
 fileprivate struct AccessCodeFeature {
-    let title: LocalizedStringKey
-    let description: LocalizedStringKey
+    let title: String
+    let description: String
     let icon: String
 }
 
@@ -62,13 +62,13 @@ struct OnboardingAccessCodeView: View {
 
     @ViewBuilder
     var inputContent: some View {
-        Text("onboarding_access_code_hint")
+        Text(Localization.onboardingAccessCodeHint)
             .font(.system(size: 16, weight: .regular))
             .foregroundColor(.tangemGrayDark6)
             .padding(.bottom, 32)
             .padding(.top, 13)
             .multilineTextAlignment(.center)
-        CustomPasswordTextField(placeholder: "details_manage_security_access_code",
+        CustomPasswordTextField(placeholder: Localization.detailsManageSecurityAccessCode,
                                 color: .tangemGrayDark6,
                                 password: state == .inputCode ? $firstEnteredCode : $secondEnteredCode,
                                 onCommit: {})
@@ -158,7 +158,7 @@ struct OnboardingAccessCodeView: View {
 
 struct CustomPasswordTextField: View {
 
-    let placeholder: LocalizedStringKey
+    let placeholder: String
     let color: Color
     var backgroundColor: Color = .tangemBgGray2
 
@@ -235,7 +235,7 @@ private extension CustomPasswordTextField {
     struct FocusableTextField: View {
         let isSecured: Bool
         let shouldBecomeFirstResponder: Bool
-        let placeholder: LocalizedStringKey
+        let placeholder: String
         let text: Binding<String>
         var onEditingChanged: (Bool) -> Void = { _ in }
         var onCommit: () -> Void = {}
@@ -285,18 +285,18 @@ extension OnboardingAccessCodeView {
         case inputCode
         case repeatCode
 
-        var title: LocalizedStringKey {
+        var title: String {
             switch self {
-            case .intro, .inputCode: return "onboarding_access_code_intro_title"
-            case .repeatCode: return "onboarding_access_code_repeat_code_title"
+            case .intro, .inputCode: return Localization.onboardingAccessCodeIntroTitle
+            case .repeatCode: return Localization.onboardingAccessCodeRepeatCodeTitle
             }
         }
 
-        var buttonTitle: LocalizedStringKey {
+        var buttonTitle: String {
             switch self {
-            case .intro: return "common_continue"
-            case .inputCode: return "common_continue"
-            case .repeatCode: return "common_submit"
+            case .intro: return Localization.commonContinue
+            case .inputCode: return Localization.commonContinue
+            case .repeatCode: return Localization.commonSubmit
             }
         }
 
@@ -320,11 +320,11 @@ extension OnboardingAccessCodeView {
         case tooShort
         case dontMatch
 
-        var description: LocalizedStringKey {
+        var description: String {
             switch self {
             case .none: return ""
-            case .tooShort: return "onboarding_access_code_too_short"
-            case .dontMatch: return "onboarding_access_codes_doesnt_match"
+            case .tooShort: return Localization.onboardingAccessCodeTooShort
+            case .dontMatch: return Localization.onboardingAccessCodesDoesntMatch
             }
         }
 
