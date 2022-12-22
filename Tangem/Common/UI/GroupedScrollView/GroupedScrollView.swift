@@ -45,8 +45,8 @@ struct GroupedScrollView_Previews: PreviewProvider {
     static var previews: some View {
         GroupedScrollView {
             let viewModels = [
-                DefaultRowViewModel(title: L10n.detailsChat, action: {}),
-                DefaultRowViewModel(title: L10n.detailsRowTitleSendFeedback, action: {}),
+                DefaultRowViewModel(title: Localization.detailsChat, action: {}),
+                DefaultRowViewModel(title: Localization.detailsRowTitleSendFeedback, action: {}),
             ]
 
             GroupedSection(viewModels) {

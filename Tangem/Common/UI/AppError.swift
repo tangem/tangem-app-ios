@@ -15,9 +15,9 @@ enum AppError: Error, LocalizedError {
     var errorDescription: String? {
         switch self {
         case .serverUnavailable:
-            return L10n.commonServerUnavailable
+            return Localization.commonServerUnavailable
         case .wrongCardWasTapped:
-            return L10n.errorWrongWalletTapped
+            return Localization.errorWrongWalletTapped
         }
     }
 }
