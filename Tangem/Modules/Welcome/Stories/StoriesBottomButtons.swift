@@ -20,14 +20,14 @@ struct StoriesBottomButtons: View {
     var body: some View {
         HStack {
             MainButton(
-                title: L10n.homeButtonScan,
+                title: Localization.homeButtonScan,
                 style: scanColorStyle,
                 isLoading: isScanning,
                 action: scanCard
             )
 
             MainButton(
-                title: L10n.homeButtonOrder,
+                title: Localization.homeButtonOrder,
                 style: orderColorStyle,
                 isDisabled: isScanning,
                 action: orderCard

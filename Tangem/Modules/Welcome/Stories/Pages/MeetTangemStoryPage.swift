@@ -18,16 +18,16 @@ struct MeetTangemStoryPage: View {
     private let words: [String] = [
         "",
         "",
-        L10n.storyMeetBuy,
-        L10n.storyMeetStore,
-        L10n.storyMeetSend,
-        L10n.storyMeetPay,
-        L10n.storyMeetExchange,
-        L10n.storyMeetBorrow,
-        L10n.storyMeetLend,
-        L10n.storyMeetLend,
+        Localization.storyMeetBuy,
+        Localization.storyMeetStore,
+        Localization.storyMeetSend,
+        Localization.storyMeetPay,
+        Localization.storyMeetExchange,
+        Localization.storyMeetBorrow,
+        Localization.storyMeetLend,
+        Localization.storyMeetLend,
         // Duplicate the last word to make it last longer
-//        L10n.storyMeetStake, // no stake for now
+//        Localization.storyMeetStake, // no stake for now
         "",
     ]
 
@@ -61,7 +61,7 @@ struct MeetTangemStoryPage: View {
                         end: .infinity
                     ))
 
-                Text(L10n.storyMeetTitle)
+                Text(Localization.storyMeetTitle)
                     .font(.system(size: 60, weight: .semibold))
                     .lineLimit(2)
                     .minimumScaleFactor(0.5)

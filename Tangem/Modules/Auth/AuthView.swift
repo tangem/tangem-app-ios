@@ -42,11 +42,11 @@ struct AuthView: View {
                 .foregroundColor(Colors.Text.primary1)
                 .padding(.bottom, 48)
 
-            Text(L10n.welcomeUnlockTitle)
+            Text(Localization.welcomeUnlockTitle)
                 .style(Fonts.Bold.title1, color: Colors.Text.primary1)
                 .padding(.bottom, 14)
 
-            Text(L10n.welcomeUnlockDescription(BiometricAuthorizationUtils.biometryType.name))
+            Text(Localization.welcomeUnlockDescription(BiometricAuthorizationUtils.biometryType.name))
                 .style(Fonts.Regular.callout, color: Colors.Text.secondary)
                 .multilineTextAlignment(.center)
 
@@ -61,7 +61,7 @@ struct AuthView: View {
             .padding(.bottom, 11)
 
             MainButton(
-                title: L10n.welcomeUnlockCard,
+                title: Localization.welcomeUnlockCard,
                 icon: .trailing(Assets.tangemIcon),
                 style: .primary,
                 isLoading: viewModel.isScanningCard,
