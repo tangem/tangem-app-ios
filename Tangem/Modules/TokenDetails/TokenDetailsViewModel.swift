@@ -108,11 +108,11 @@ class TokenDetailsViewModel: ObservableObject {
               let currentAmount = wallet.amounts[amountType], amountType.isToken else { return nil }
 
         if wallet.hasPendingTx && !wallet.hasPendingTx(for: amountType) { // has pending tx for fee
-            return L10n.tokenDetailsSendBlockedTxFormat(wallet.amounts[.coin]?.currencySymbol ?? "")
+            return Localization.tokenDetailsSendBlockedTxFormat(wallet.amounts[.coin]?.currencySymbol ?? "")
         }
 
         if !wallet.hasPendingTx && !canSend && !currentAmount.isZero { // no fee
-            return L10n.tokenDetailsSendBlockedFeeFormat(wallet.blockchain.displayName, wallet.blockchain.displayName)
+            return Localization.tokenDetailsSendBlockedFeeFormat(wallet.blockchain.displayName, wallet.blockchain.displayName)
         }
 
         return nil
@@ -129,7 +129,7 @@ class TokenDetailsViewModel: ObservableObject {
         let blockchainName = blockchain.displayName
         let existentialDepositAmount = existentialDepositProvider.existentialDeposit.string(roundingMode: .plain)
 
-        return L10n.warningExistentialDepositMessage(blockchainName, existentialDepositAmount)
+        return Localization.warningExistentialDepositMessage(blockchainName, existentialDepositAmount)
     }
 
     var transactionLengthWarning: String? {
@@ -137,7 +137,7 @@ class TokenDetailsViewModel: ObservableObject {
             return nil
         }
 
-        return L10n.tokenDetailsTransactionLengthWarning
+        return Localization.tokenDetailsTransactionLengthWarning
     }
 
     var title: String {
@@ -153,7 +153,7 @@ class TokenDetailsViewModel: ObservableObject {
             return nil
         }
 
-        return L10n.walletCurrencySubtitle(blockchainNetwork.blockchain.displayName)
+        return Localization.walletCurrencySubtitle(blockchainNetwork.blockchain.displayName)
     }
 
     @Published var solanaRentWarning: String? = nil
@@ -355,7 +355,7 @@ class TokenDetailsViewModel: ObservableObject {
                     self?.solanaRentWarning = nil
                     return
                 }
-                self.solanaRentWarning = L10n.solanaRentWarning(rentAmount.description, minimalBalanceForRentExemption.description)
+                self.solanaRentWarning = Localization.solanaRentWarning(rentAmount.description, minimalBalanceForRentExemption.description)
             }
             .store(in: &bag)
     }
@@ -375,9 +375,9 @@ class TokenDetailsViewModel: ObservableObject {
     }
 
     private func showUnableToHideAlert() {
-        let title = L10n.tokenDetailsUnableHideAlertTitle(currencySymbol)
+        let title = Localization.tokenDetailsUnableHideAlertTitle(currencySymbol)
 
-        let message = L10n.tokenDetailsUnableHideAlertMessage(
+        let message = Localization.tokenDetailsUnableHideAlertMessage(
             currencySymbol,
             walletModel?.blockchainNetwork.blockchain.displayName ?? ""
         )
@@ -385,17 +385,17 @@ class TokenDetailsViewModel: ObservableObject {
         alert = AlertBinder(alert: Alert(
             title: Text(title),
             message: Text(message),
-            dismissButton: .default(Text(L10n.commonOk))
+            dismissButton: .default(Text(Localization.commonOk))
         ))
     }
 
     private func showWarningDeleteAlert() {
-        let title = L10n.tokenDetailsHideAlertTitle(currencySymbol)
+        let title = Localization.tokenDetailsHideAlertTitle(currencySymbol)
 
         alert = warningAlert(
             title: title,
-            message: L10n.tokenDetailsHideAlertMessage,
-            primaryButton: .destructive(Text(L10n.tokenDetailsHideAlertHide)) { [weak self] in
+            message: Localization.tokenDetailsHideAlertMessage,
+            primaryButton: .destructive(Text(Localization.tokenDetailsHideAlertHide)) { [weak self] in
                 self?.deleteToken()
             }
         )
@@ -566,11 +566,11 @@ extension TokenDetailsViewModel {
         var title: String {
             switch self {
             case .buy:
-                return L10n.walletButtonBuy
+                return Localization.walletButtonBuy
             case .sell:
-                return L10n.walletButtonSell
+                return Localization.walletButtonSell
             case .swap:
-                return L10n.swappingSwap
+                return Localization.swappingSwap
             }
         }
 

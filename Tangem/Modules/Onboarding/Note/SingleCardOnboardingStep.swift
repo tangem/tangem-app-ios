@@ -101,10 +101,10 @@ extension SingleCardOnboardingStep: OnboardingMessagesProvider {
     var title: String? {
         switch self {
         case .welcome: return WelcomeStep.welcome.title
-        case .createWallet: return L10n.onboardingCreateWalletButtonCreateWallet
-        case .topup: return L10n.onboardingTopupTitle
+        case .createWallet: return Localization.onboardingCreateWalletButtonCreateWallet
+        case .topup: return Localization.onboardingTopupTitle
         case .saveUserWallet: return nil
-        case .successTopup: return L10n.onboardingDoneHeader
+        case .successTopup: return Localization.onboardingDoneHeader
         case .success: return successTitle
         }
     }
@@ -112,11 +112,11 @@ extension SingleCardOnboardingStep: OnboardingMessagesProvider {
     var subtitle: String? {
         switch self {
         case .welcome: return WelcomeStep.welcome.subtitle
-        case .createWallet: return L10n.onboardingCreateWalletBody
-        case .topup: return L10n.onboardingTopUpBody
+        case .createWallet: return Localization.onboardingCreateWalletBody
+        case .topup: return Localization.onboardingTopUpBody
         case .saveUserWallet: return nil
-        case .successTopup: return L10n.onboardingDoneBody
-        case .success: return L10n.onboardingDoneBody
+        case .successTopup: return Localization.onboardingDoneBody
+        case .success: return Localization.onboardingDoneBody
         }
     }
 
@@ -132,9 +132,9 @@ extension SingleCardOnboardingStep: OnboardingMessagesProvider {
 extension SingleCardOnboardingStep: OnboardingButtonsInfoProvider {
     var mainButtonTitle: String {
         switch self {
-        case .createWallet: return L10n.onboardingCreateWalletButtonCreateWallet
-        case .topup: return L10n.onboardingTopUpButtonButCrypto
-        case .successTopup: return L10n.commonContinue
+        case .createWallet: return Localization.onboardingCreateWalletButtonCreateWallet
+        case .topup: return Localization.onboardingTopUpButtonButCrypto
+        case .successTopup: return Localization.commonContinue
         case .welcome: return WelcomeStep.welcome.mainButtonTitle
         case .saveUserWallet: return BiometricAuthorizationUtils.allowButtonTitle
         case .success: return successButtonTitle
@@ -151,8 +151,8 @@ extension SingleCardOnboardingStep: OnboardingButtonsInfoProvider {
     var supplementButtonTitle: String {
         switch self {
         case .welcome: return WelcomeStep.welcome.supplementButtonTitle
-        case .createWallet: return L10n.onboardingButtonWhatDoesItMean
-        case .topup: return L10n.onboardingTopUpButtonShowWalletAddress
+        case .createWallet: return Localization.onboardingButtonWhatDoesItMean
+        case .topup: return Localization.onboardingTopUpButtonShowWalletAddress
         case .successTopup, .saveUserWallet, .success: return ""
         }
     }
@@ -164,7 +164,7 @@ extension SingleCardOnboardingStep: OnboardingButtonsInfoProvider {
     var infoText: String? {
         switch self {
         case .saveUserWallet:
-            return L10n.saveUserWalletAgreementNotice
+            return Localization.saveUserWalletAgreementNotice
         default:
             return nil
         }

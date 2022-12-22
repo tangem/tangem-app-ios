@@ -38,16 +38,16 @@ struct PushTxView: View {
             ScrollView {
                 VStack(alignment: .leading, spacing: 0.0) {
                     HStack {
-                        Text(L10n.commonPush)
+                        Text(Localization.commonPush)
                             .font(Font.system(size: 30.0, weight: .bold, design: .default))
                             .foregroundColor(Color.tangemGrayDark6)
                         Spacer()
                     }
                     .padding(.bottom)
-                    FilledInputView(title: L10n.sendDestinationHintAddress, text: viewModel.destination)
+                    FilledInputView(title: Localization.sendDestinationHintAddress, text: viewModel.destination)
                         .opacity(0.6)
                     VStack(alignment: .leading) {
-                        Text(L10n.pushTxAddressHint)
+                        Text(Localization.pushTxAddressHint)
                             .font(Font.system(size: 13.0, weight: .medium, design: .default))
                             .foregroundColor(Color.tangemGrayDark)
                             .opacity(0.6)
@@ -88,13 +88,13 @@ struct PushTxView: View {
                             .foregroundColor(Color.tangemGrayDark)
                     }
                     VStack(alignment: .leading) {
-                        Text(L10n.sendNetworkFeeTitle)
+                        Text(Localization.sendNetworkFeeTitle)
                             .font(Font.system(size: 14.0, weight: .medium, design: .default))
                             .foregroundColor(Color.tangemGrayDark6)
                             .padding(.vertical, 8.0)
-                        PickerView(contents: [L10n.sendFeePickerLow,
-                                              L10n.sendFeePickerNormal,
-                                              L10n.sendFeePickerPriority],
+                        PickerView(contents: [Localization.sendFeePickerLow,
+                                              Localization.sendFeePickerNormal,
+                                              Localization.sendFeePickerPriority],
                                    selection: $viewModel.selectedFeeLevel)
                             .padding(.vertical, 8.0)
                         Text(viewModel.amountHint?.message ?? " ")
@@ -102,28 +102,28 @@ struct PushTxView: View {
                             .foregroundColor((viewModel.amountHint?.isError ?? false) ?
                                 Color.red : Color.tangemGrayDark)
                         Toggle(isOn: self.$viewModel.isFeeIncluded) {
-                            Text(L10n.sendFeeIncludeDescription)
+                            Text(Localization.sendFeeIncludeDescription)
                                 .font(Font.system(size: 13.0, weight: .medium, design: .default))
                                 .foregroundColor(Color.tangemGrayDark6)
                         }
                     }
                     Spacer()
                     VStack(spacing: 8.0) {
-                        AmountView(label: L10n.sendAmountLabel,
+                        AmountView(label: Localization.sendAmountLabel,
                                    labelColor: .tangemGrayDark6,
                                    amountText: viewModel.amount)
 
-                        AmountView(label: L10n.pushPreviousFee,
+                        AmountView(label: Localization.pushPreviousFee,
                                    labelColor: .tangemGrayDark,
                                    amountText: viewModel.previousFee)
                             .opacity(0.6)
-                        AmountView(label: L10n.pushAdditionalFee,
+                        AmountView(label: Localization.pushAdditionalFee,
                                    labelColor: .tangemGrayDark,
                                    isLoading: viewModel.isFeeLoading,
                                    amountText: viewModel.additionalFee)
                         Separator()
 
-                        AmountView(label: L10n.sendTotalLabel,
+                        AmountView(label: Localization.sendTotalLabel,
                                    labelColor: .tangemGrayDark6,
                                    labelFont: .system(size: 20, weight: .bold, design: .default),
                                    amountText: viewModel.sendTotal,
@@ -144,7 +144,7 @@ struct PushTxView: View {
                     //                    .padding(.bottom, 16)
                     HStack(alignment: .center, spacing: 8.0) {
                         Spacer()
-                        MainButton(title: L10n.walletButtonSend,
+                        MainButton(title: Localization.walletButtonSend,
                                    icon: .leading(Assets.arrowRightMini),
                                    isDisabled: !viewModel.isSendEnabled,
                                    action: viewModel.onSend)
@@ -155,10 +155,10 @@ struct PushTxView: View {
 
                                 let errorDescription = String(binder.error?.localizedDescription.dropTrailingPeriod ?? "Unknown error")
 
-                                return Alert(title: Text(L10n.feedbackSubjectTxFailed),
-                                             message: Text(L10n.alertFailedToSendTransactionMessage(errorDescription)),
-                                             primaryButton: .default(Text(L10n.alertButtonSendFeedback), action: viewModel.openMail),
-                                             secondaryButton: .default(Text(L10n.commonNo)))
+                                return Alert(title: Text(Localization.feedbackSubjectTxFailed),
+                                             message: Text(Localization.alertFailedToSendTransactionMessage(errorDescription)),
+                                             primaryButton: .default(Text(Localization.alertButtonSendFeedback), action: viewModel.openMail),
+                                             secondaryButton: .default(Text(Localization.commonNo)))
                             }
                     }
                     .padding(.top, 16.0)

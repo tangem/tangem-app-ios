@@ -16,7 +16,7 @@ struct SendView: View {
     @ObservedObject var viewModel: SendViewModel
 
     private var addressHint: String {
-        L10n.sendDestinationHintAddress
+        Localization.sendDestinationHintAddress
     }
 
     var body: some View {
@@ -24,7 +24,7 @@ struct SendView: View {
             ScrollView {
                 VStack(spacing: 0.0) {
                     HStack {
-                        Text(L10n.sendTitleCurrencyFormat(viewModel.amountToSend.currencySymbol))
+                        Text(Localization.sendTitleCurrencyFormat(viewModel.amountToSend.currencySymbol))
                             .font(Font.system(size: 30.0, weight: .bold, design: .default))
                             .foregroundColor(Color.tangemGrayDark6)
                         Spacer()
@@ -40,7 +40,7 @@ struct SendView: View {
                                                               isSystemImage: true,
                                                               imageColor: .tangemGrayDark6,
                                                               isDisabled: self.viewModel.validatedClipboard == nil)
-                                               .accessibility(label: Text(self.viewModel.validatedClipboard == nil ? L10n.voiceOverNothingToPaste : L10n.voiceOverPasteFromClipboard))
+                                               .accessibility(label: Text(self.viewModel.validatedClipboard == nil ? Localization.voiceOverNothingToPaste : Localization.voiceOverPasteFromClipboard))
                                                .disabled(self.viewModel.validatedClipboard == nil)
                                            CircleActionButton(
                                                action: viewModel.openQRScanner,
@@ -49,7 +49,7 @@ struct SendView: View {
                                                isSystemImage: true,
                                                imageColor: .tangemGrayDark6
                                            )
-                                           .accessibility(label: Text(L10n.voiceOverScanQrWithAddress))
+                                           .accessibility(label: Text(Localization.voiceOverScanQrWithAddress))
                                            .cameraAccessDeniedAlert($viewModel.showCameraDeniedAlert)
                                        }
                                    },
@@ -59,7 +59,7 @@ struct SendView: View {
 
                     if viewModel.isAdditionalInputEnabled {
                         if case .memo = viewModel.additionalInputFields {
-                            TextInputField(placeholder: L10n.sendExtrasHintMemo,
+                            TextInputField(placeholder: Localization.sendExtrasHintMemo,
                                            text: self.$viewModel.memo,
                                            clearButtonMode: .whileEditing,
                                            message: self.viewModel.memoHint?.message ?? "",
@@ -68,7 +68,7 @@ struct SendView: View {
                         }
 
                         if case .destinationTag = viewModel.additionalInputFields {
-                            TextInputField(placeholder: L10n.sendExtrasHintDestinationTag,
+                            TextInputField(placeholder: Localization.sendExtrasHintDestinationTag,
                                            text: self.$viewModel.destinationTagStr,
                                            keyboardType: .numberPad,
                                            clearButtonMode: .whileEditing,
@@ -85,7 +85,7 @@ struct SendView: View {
                                             actionButtonTapped: self.$viewModel.maxAmountTapped,
                                             defaultStringToClear: "0",
                                             handleKeyboard: true,
-                                            actionButton: L10n.sendMaxAmountLabel,
+                                            actionButton: Localization.sendMaxAmountLabel,
                                             keyboard: UIKeyboardType.decimalPad,
                                             textColor: viewModel.isSellingCrypto ? UIColor.tangemGrayDark6.withAlphaComponent(0.6) : UIColor.tangemGrayDark6,
                                             font: UIFont.systemFont(ofSize: 38.0, weight: .light),
@@ -129,7 +129,7 @@ struct SendView: View {
                     if self.viewModel.shouldShowNetworkBlock {
                         Group {
                             HStack {
-                                Text(L10n.sendNetworkFeeTitle)
+                                Text(Localization.sendNetworkFeeTitle)
                                     .font(Font.system(size: 14.0, weight: .medium, design: .default))
                                     .foregroundColor(Color.tangemGrayDark6)
                                 Spacer()
@@ -145,20 +145,20 @@ struct SendView: View {
                                             .padding([.vertical, .leading])
                                     }
                                 }
-                                .accessibility(label: Text(self.viewModel.isNetworkFeeBlockOpen ? L10n.voiceOverCloseNetworkFeeSettings : L10n.voiceOverOpenNetworkFeeSettings))
+                                .accessibility(label: Text(self.viewModel.isNetworkFeeBlockOpen ? Localization.voiceOverCloseNetworkFeeSettings : Localization.voiceOverOpenNetworkFeeSettings))
                                 .disabled(viewModel.isSellingCrypto)
                             }
                             if self.viewModel.isNetworkFeeBlockOpen || viewModel.isSellingCrypto {
                                 VStack(spacing: 16.0) {
                                     if self.viewModel.shoudShowFeeSelector {
-                                        PickerView(contents: [L10n.sendFeePickerLow,
-                                                              L10n.sendFeePickerNormal,
-                                                              L10n.sendFeePickerPriority],
+                                        PickerView(contents: [Localization.sendFeePickerLow,
+                                                              Localization.sendFeePickerNormal,
+                                                              Localization.sendFeePickerPriority],
                                                    selection: self.$viewModel.selectedFeeLevel)
                                     }
                                     if self.viewModel.shoudShowFeeIncludeSelector {
                                         Toggle(isOn: self.$viewModel.isFeeIncluded) {
-                                            Text(L10n.sendFeeIncludeDescription)
+                                            Text(Localization.sendFeeIncludeDescription)
                                                 .font(Font.system(size: 13.0, weight: .medium, design: .default))
                                                 .foregroundColor(Color.tangemGrayDark6)
                                         }.tintCompat(.tangemBlue)
@@ -174,7 +174,7 @@ struct SendView: View {
 
                     VStack(spacing: 8.0) {
                         HStack {
-                            Text(L10n.sendAmountLabel)
+                            Text(Localization.sendAmountLabel)
                                 .font(Font.system(size: 14.0, weight: .medium, design: .default))
                                 .foregroundColor(Color.tangemGrayDark6)
                             Spacer()
@@ -184,7 +184,7 @@ struct SendView: View {
                                 .foregroundColor(Color.tangemGrayDark6)
                         }
                         HStack {
-                            Text(L10n.sendFeeLabel)
+                            Text(Localization.sendFeeLabel)
                                 .font(Font.system(size: 14.0, weight: .medium, design: .default))
                                 .foregroundColor(Color.tangemGrayDark)
                             Spacer()
@@ -202,7 +202,7 @@ struct SendView: View {
                             .frame(width: nil, height: 1.0, alignment: .center)
                             .padding(.vertical, 8.0)
                         HStack {
-                            Text(L10n.sendTotalLabel)
+                            Text(Localization.sendTotalLabel)
                                 .font(Font.system(size: 20.0, weight: .bold, design: .default))
                                 .foregroundColor(Color.tangemGrayDark6)
                             Spacer()
@@ -250,7 +250,7 @@ struct SendView: View {
 
     @ViewBuilder private var sendButton: some View {
         MainButton(
-            title: L10n.walletButtonSend,
+            title: Localization.walletButtonSend,
             icon: .leading(Assets.arrowRightMini),
             isDisabled: !viewModel.isSendEnabled,
             action: viewModel.send
@@ -263,10 +263,10 @@ struct SendView: View {
 
             let errorDescription = String(binder.error?.localizedDescription.dropTrailingPeriod ?? "Unknown error")
 
-            return Alert(title: Text(L10n.feedbackSubjectTxFailed),
-                         message: Text(L10n.alertFailedToSendTransactionMessage(errorDescription)),
-                         primaryButton: .default(Text(L10n.alertButtonRequestSupport), action: viewModel.openMail),
-                         secondaryButton: .default(Text(L10n.commonCancel)))
+            return Alert(title: Text(Localization.feedbackSubjectTxFailed),
+                         message: Text(Localization.alertFailedToSendTransactionMessage(errorDescription)),
+                         primaryButton: .default(Text(Localization.alertButtonRequestSupport), action: viewModel.openMail),
+                         secondaryButton: .default(Text(Localization.commonCancel)))
         }
     }
 }

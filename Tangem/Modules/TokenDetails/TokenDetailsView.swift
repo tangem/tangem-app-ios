@@ -30,22 +30,22 @@ struct TokenDetailsView: View {
     var exchangeCryptoButton: some View {
         if viewModel.canSellCrypto && viewModel.canBuyCrypto {
             MainButton(
-                title: L10n.walletButtonTrade,
+                title: Localization.walletButtonTrade,
                 icon: .leading(Assets.exchangeMini),
                 isDisabled: !(viewModel.canBuyCrypto || viewModel.canSellCrypto),
                 action: viewModel.tradeCryptoAction
             )
             .actionSheet(isPresented: $viewModel.showTradeSheet, content: {
-                ActionSheet(title: Text(L10n.walletChooseTradeAction),
+                ActionSheet(title: Text(Localization.walletChooseTradeAction),
                             buttons: [
-                                .default(Text(L10n.walletButtonBuy), action: viewModel.openBuyCryptoIfPossible),
-                                .default(Text(L10n.walletButtonSell), action: viewModel.openSellCrypto),
+                                .default(Text(Localization.walletButtonBuy), action: viewModel.openBuyCryptoIfPossible),
+                                .default(Text(Localization.walletButtonSell), action: viewModel.openSellCrypto),
                                 .cancel(),
                             ])
             })
         } else if viewModel.canSellCrypto {
             MainButton(
-                title: L10n.walletButtonSell,
+                title: Localization.walletButtonSell,
                 icon: .leading(Assets.arrowDownMini),
                 isDisabled: !viewModel.canSellCrypto,
                 action: viewModel.openSellCrypto
@@ -53,7 +53,7 @@ struct TokenDetailsView: View {
         } else {
             // Keep the BUY button last so that it will appear when everything is disabled
             MainButton(
-                title: L10n.walletButtonBuy,
+                title: Localization.walletButtonBuy,
                 icon: .leading(Assets.arrowUpMini),
                 isDisabled: !viewModel.canBuyCrypto,
                 action: viewModel.openBuyCryptoIfPossible
@@ -70,7 +70,7 @@ struct TokenDetailsView: View {
             }
 
             MainButton(
-                title: L10n.walletButtonSend,
+                title: Localization.walletButtonSend,
                 icon: .leading(Assets.arrowRightMini),
                 isDisabled: !viewModel.canSend,
                 action: viewModel.openSend
@@ -116,15 +116,15 @@ struct TokenDetailsView: View {
                         }
 
                         if let existentialDepositWarning = viewModel.existentialDepositWarning {
-                            AlertCardView(title: L10n.commonWarning, message: existentialDepositWarning)
+                            AlertCardView(title: Localization.commonWarning, message: existentialDepositWarning)
                         }
 
                         if let transactionLengthWarning = viewModel.transactionLengthWarning {
-                            AlertCardView(title: L10n.commonWarning, message: transactionLengthWarning)
+                            AlertCardView(title: Localization.commonWarning, message: transactionLengthWarning)
                         }
 
                         if let solanaRentWarning = viewModel.solanaRentWarning {
-                            AlertCardView(title: L10n.commonWarning, message: solanaRentWarning)
+                            AlertCardView(title: Localization.commonWarning, message: solanaRentWarning)
                         }
                     }
                     .padding(.horizontal, 16)
@@ -155,7 +155,7 @@ struct TokenDetailsView: View {
     @ViewBuilder
     private var trailingButton: some View {
         Button(action: viewModel.onRemove) {
-            Text(L10n.tokenDetailsHideToken)
+            Text(Localization.tokenDetailsHideToken)
                 .foregroundColor(.tangemGrayDark6)
                 .font(.system(size: 17))
         }
@@ -176,7 +176,7 @@ struct TokenDetailsView: View {
 
         case .multi:
             MainButton(
-                title: L10n.walletButtonTrade,
+                title: Localization.walletButtonTrade,
                 icon: .leading(Assets.exchangeIcon),
                 action: viewModel.openExchangeActionSheet
             )

@@ -59,10 +59,10 @@ enum WalletConnectAction: String {
 
     var successMessage: String {
         switch self {
-        case .personalSign, .signTypedData, .signTypedDataV4: return L10n.walletConnectMessageSigned
-        case .signTransaction: return L10n.walletConnectTransactionSigned
-        case .sendTransaction: return L10n.walletConnectTransactionSignedAndSend
-        case .bnbSign: return L10n.walletConnectBnbTransactionSigned
+        case .personalSign, .signTypedData, .signTypedDataV4: return Localization.walletConnectMessageSigned
+        case .signTransaction: return Localization.walletConnectTransactionSigned
+        case .sendTransaction: return Localization.walletConnectTransactionSignedAndSend
+        case .bnbSign: return Localization.walletConnectBnbTransactionSigned
         case .bnbTxConfirmation, .switchChain: return ""
         }
     }
@@ -362,7 +362,7 @@ extension WalletConnectService: ServerDelegate {
         self.wallet = walletInfo
 
         let peerMeta = dAppInfo.peerMeta
-        var message = L10n.walletConnectRequestSessionStart(peerMeta.name, walletInfo.blockchain.displayName, peerMeta.url.absoluteString)
+        var message = Localization.walletConnectRequestSessionStart(peerMeta.name, walletInfo.blockchain.displayName, peerMeta.url.absoluteString)
 
         if let description = peerMeta.description, !description.isEmpty {
             message += "\n\n" + description
@@ -424,7 +424,7 @@ extension WalletConnectService: ServerDelegate {
                                                            message: message,
                                                            onAcceptAction: onAccept,
                                                            onReject: onReject,
-                                                           extraTitle: isSelectedChainAvailable ? L10n.walletConnectSelectNetwork : nil,
+                                                           extraTitle: isSelectedChainAvailable ? Localization.walletConnectSelectNetwork : nil,
                                                            onExtra: onSelectChainRequested),
                           delay: 0.5)
     }
@@ -537,18 +537,18 @@ enum WalletConnectServiceError: LocalizedError {
 
     var errorDescription: String? {
         switch self {
-        case .timeout: return L10n.walletConnectErrorTimeout
-        case .signFailed: return L10n.walletConnectErrorSingFailed
-        case .failedToConnect: return L10n.walletConnectErrorFailedToConnect
-        case .txNotFound: return L10n.walletConnectTxNotFound
-        case .sessionNotFound: return L10n.walletConnectSessionNotFound
-        case .failedToBuildTx(let code): return L10n.walletConnectFailedToBuildTx(code.rawValue)
+        case .timeout: return Localization.walletConnectErrorTimeout
+        case .signFailed: return Localization.walletConnectErrorSingFailed
+        case .failedToConnect: return Localization.walletConnectErrorFailedToConnect
+        case .txNotFound: return Localization.walletConnectTxNotFound
+        case .sessionNotFound: return Localization.walletConnectSessionNotFound
+        case .failedToBuildTx(let code): return Localization.walletConnectFailedToBuildTx(code.rawValue)
         case .other(let error): return error.localizedDescription
-        case .noChainId: return L10n.walletConnectServiceNoChainId
-        case .unsupportedNetwork: return L10n.walletConnectScannerErrorUnsupportedNetwork
-        case .notValidCard: return L10n.walletConnectScannerErrorNotValidCard
-        case .networkNotFound(let name): return L10n.walletConnectNetworkNotFoundFormat(name)
-        case .unsupportedDApp: return L10n.walletConnectErrorUnsupportedDapp
+        case .noChainId: return Localization.walletConnectServiceNoChainId
+        case .unsupportedNetwork: return Localization.walletConnectScannerErrorUnsupportedNetwork
+        case .notValidCard: return Localization.walletConnectScannerErrorNotValidCard
+        case .networkNotFound(let name): return Localization.walletConnectNetworkNotFoundFormat(name)
+        case .unsupportedDApp: return Localization.walletConnectErrorUnsupportedDapp
         default: return ""
         }
     }

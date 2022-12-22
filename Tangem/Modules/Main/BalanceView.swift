@@ -43,18 +43,18 @@ struct BalanceView: View {
 
     var blockchainText: String {
         if balanceViewModel.state.isLoading {
-            return  L10n.walletBalanceLoading
+            return  Localization.walletBalanceLoading
         }
 
         if balanceViewModel.state.errorDescription != nil {
-            return L10n.walletBalanceBlockchainUnreachable
+            return Localization.walletBalanceBlockchainUnreachable
         }
 
         if balanceViewModel.hasTransactionInProgress {
-            return  L10n.walletBalanceTxInProgress
+            return  Localization.walletBalanceTxInProgress
         }
 
-        return L10n.walletBalanceVerified
+        return Localization.walletBalanceVerified
     }
 
     var accentColor: Color {
