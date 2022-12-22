@@ -139,7 +139,7 @@ class TwinsCreateWalletTask: CardSessionRunnable {
     }
 
     private func scanCard(session: CardSession, walletResponse: CreateWalletResponse, completion: @escaping CompletionResult<CommandResponse>) {
-        self.scanCommand =  AppScanTask()
+        self.scanCommand =  AppScanTask(allowsAccessCodeFromRepository: false)
         scanCommand!.run(in: session) { scanCompletion in
             switch scanCompletion {
             case .failure(let error):
