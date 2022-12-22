@@ -88,7 +88,7 @@ class BnbSignHandler: WalletConnectSignHandler {
             return
         }
 
-        let message = L10n.walletConnectBnbSignMessage(session.session.dAppInfo.peerMeta.name, bnbMessage.message)
+        let message = Localization.walletConnectBnbSignMessage(session.session.dAppInfo.peerMeta.name, bnbMessage.message)
         askToSign(in: session, request: request, message: message, dataToSign: bnbMessage.data)
     }
 
@@ -145,7 +145,7 @@ class BnbSignHandler: WalletConnectSignHandler {
             let address = input.address
             let currency = input.coins.first?.denom ?? blockchain.currencySymbol
             let amountToSend: Int64 = input.coins.reduce(0, { $0 + ($1.denom == currency ? $1.amount : 0) })
-            let uiMessage = L10n.walletConnectBnbTransactionMessage(
+            let uiMessage = Localization.walletConnectBnbTransactionMessage(
                 address,
                 output.address,
                 (Decimal(amountToSend) / decimalValue).description
@@ -165,7 +165,7 @@ class BnbSignHandler: WalletConnectSignHandler {
                 let message = tradeMessage.messages[i]
                 let price = Decimal(message.price) / decimalValue
                 let quantity = Decimal(message.quantity) / decimalValue
-                uiMessage.append(L10n.walletConnectBnbTradeOrderMessage(
+                uiMessage.append(Localization.walletConnectBnbTradeOrderMessage(
                     message.symbol,
                     "\(price.description) \(blockchain.currencySymbol)",
                     "\(quantity)",

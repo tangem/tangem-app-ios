@@ -46,7 +46,7 @@ class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable>
     }
 
     var navbarTitle: String {
-        L10n.onboardingGettingStarted
+        Localization.onboardingGettingStarted
     }
 
     var title: String? {

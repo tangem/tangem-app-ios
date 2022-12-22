@@ -401,13 +401,13 @@ extension SwappingViewModel {
         var title: String {
             switch self {
             case .swap:
-                return L10n.swappingSwap
+                return Localization.swappingSwap
             case .insufficientFunds:
-                return L10n.swappingInsufficientFunds
+                return Localization.swappingInsufficientFunds
             case .givePermission:
-                return L10n.swappingGivePermission
+                return Localization.swappingGivePermission
             case .permitAndSwap:
-                return L10n.swappingPermitAndSwap
+                return Localization.swappingPermitAndSwap
             }
         }
 
