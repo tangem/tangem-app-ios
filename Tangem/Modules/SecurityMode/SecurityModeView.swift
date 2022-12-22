@@ -21,7 +21,7 @@ struct SecurityModeView: View {
             actionButton
         }
         .alert(item: $viewModel.error) { $0.alert }
-        .navigationBarTitle(Text(L10n.cardSettingsSecurityMode), displayMode: .inline)
+        .navigationBarTitle(Text(Localization.cardSettingsSecurityMode), displayMode: .inline)
     }
 
     private var list: some View {
@@ -45,7 +45,7 @@ struct SecurityModeView: View {
 
     private var actionButton: some View {
         MainButton(
-            title: L10n.commonSaveChanges,
+            title: Localization.commonSaveChanges,
             icon: .trailing(Assets.tangemIcon),
             isLoading: viewModel.isLoading,
             isDisabled: !viewModel.isActionButtonEnabled,
