@@ -31,7 +31,7 @@ struct SwappingView: View {
             .keyboardAdaptive()
             .scrollDismissesKeyboardCompat(true)
         }
-        .navigationBarTitle(Text(L10n.swappingSwap), displayMode: .inline)
+        .navigationBarTitle(Text(Localization.swappingSwap), displayMode: .inline)
     }
 
     @ViewBuilder

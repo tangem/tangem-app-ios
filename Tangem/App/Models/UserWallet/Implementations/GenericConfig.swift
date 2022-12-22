@@ -58,7 +58,7 @@ extension GenericConfig: UserWalletConfig {
             return nil
         }
 
-        return L10n.cardLabelCardCount(backupCardsCount + 1)
+        return Localization.cardLabelCardCount(backupCardsCount + 1)
     }
 
     var cardsCount: Int {

@@ -24,14 +24,14 @@ struct CurrenciesStoryPage: View {
                 .padding()
 
             VStack(spacing: 16) {
-                Text(L10n.storyCurrenciesTitle)
+                Text(Localization.storyCurrenciesTitle)
                     .font(.system(size: 36, weight: .semibold))
                     .minimumScaleFactor(0.5)
                     .multilineTextAlignment(.center)
                     .padding(.horizontal)
                     .storyTextAppearanceModifier(progress: progress, type: .title, textBlockAppearance: .almostImmediate)
 
-                Text(L10n.storyCurrenciesDescription)
+                Text(Localization.storyCurrenciesDescription)
                     .font(.system(size: 22))
                     .multilineTextAlignment(.center)
                     .foregroundColor(.gray)
@@ -70,7 +70,7 @@ struct CurrenciesStoryPage: View {
                     )
 
                 MainButton(
-                    title: L10n.homeButtonSearchTokens,
+                    title: Localization.homeButtonSearchTokens,
                     icon: .leading(Assets.search),
                     style: .secondary,
                     isDisabled: isScanning,
