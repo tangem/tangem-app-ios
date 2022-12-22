@@ -17,6 +17,7 @@ final class SwappingPermissionViewModel: ObservableObject, Identifiable {
     // MARK: - ViewState
 
     @Published var contentRowViewModels: [DefaultRowViewModel] = []
+    @Published var errorAlert: AlertBinder?
 
     var tokenSymbol: String {
         transactionInfo.sourceCurrency.symbol
@@ -48,8 +49,7 @@ final class SwappingPermissionViewModel: ObservableObject, Identifiable {
             } catch TangemSdkError.userCancelled {
                 // Do nothing
             } catch {
-                assertionFailure(error.localizedDescription)
-                // [REDACTED_TODO_COMMENT]
+                errorAlert = AlertBinder(title: L10n.commonError, message: error.localizedDescription)
             }
         }
     }
