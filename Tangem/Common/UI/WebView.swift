@@ -58,7 +58,7 @@ struct WebViewContainer: View {
                 NavigationView {
                     content
                         .navigationBarItems(leading:
-                            Button(L10n.commonClose) {
+                            Button(Localization.commonClose) {
                                 presentationMode.wrappedValue.dismiss()
                             }
                             .animation(nil)
