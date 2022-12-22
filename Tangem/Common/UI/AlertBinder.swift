@@ -31,21 +31,21 @@ struct AlertBinder: Identifiable {
     init(title: String, message: String, error: Error? = nil) {
         self.alert = Alert(title: Text(title),
                            message: Text(message),
-                           dismissButton: Alert.Button.default(Text(L10n.commonOk)))
+                           dismissButton: Alert.Button.default(Text(Localization.commonOk)))
         self.error = error
     }
 }
 
 enum AlertBuilder {
     static var successTitle: String {
-        L10n.commonSuccess
+        Localization.commonSuccess
     }
 
     static var warningTitle: String {
-        L10n.commonWarning
+        Localization.commonWarning
     }
 
-    static var okButtonTitle: String { L10n.commonOk }
+    static var okButtonTitle: String { Localization.commonOk }
 
     static func makeSuccessAlert(message: String, okAction: @escaping (() -> Void) = { }) -> AlertBinder {
         .init(alert: Alert(title: Text(successTitle),
@@ -62,7 +62,7 @@ enum AlertBuilder {
     static func makeOkGotItAlert(message: String, okAction: @escaping (() -> Void) = { }) -> AlertBinder {
         .init(alert: Alert(title: Text(warningTitle),
                            message: Text(message),
-                           dismissButton: .default(Text(L10n.warningButtonOk), action: okAction)))
+                           dismissButton: .default(Text(Localization.warningButtonOk), action: okAction)))
     }
 
     static func makeOkGotItAlertController(message: String, okAction: @escaping (() -> Void) = { }) -> UIAlertController {
@@ -72,9 +72,9 @@ enum AlertBuilder {
     }
 
     static func makeOkErrorAlert(message: String, okAction: @escaping (() -> Void) = { }) -> AlertBinder {
-        .init(alert: Alert(title: Text(L10n.commonError),
+        .init(alert: Alert(title: Text(Localization.commonError),
                            message: Text(message),
-                           dismissButton: .default(Text(L10n.warningButtonOk), action: okAction)))
+                           dismissButton: .default(Text(Localization.warningButtonOk), action: okAction)))
     }
 
     static func makeDemoAlert(_ message: String, okAction: @escaping (() -> Void) = {}) -> AlertBinder {
@@ -85,14 +85,14 @@ enum AlertBuilder {
 
     static func makeOldDeviceAlert() -> AlertBinder {
         .init(alert: Alert(title: Text(warningTitle),
-                           message: Text(L10n.onboardingAlertMessageOldDevice),
-                           dismissButton: .default(Text(L10n.commonOk), action: {})))
+                           message: Text(Localization.onboardingAlertMessageOldDevice),
+                           dismissButton: .default(Text(Localization.commonOk), action: {})))
     }
 
     static func makeExitAlert(okAction: @escaping (() -> Void) = { }) -> AlertBinder {
-        .init(alert: Alert(title: Text(L10n.onboardingExitAlertTitle),
-                           message: Text(L10n.onboardingExitAlertMessage),
-                           primaryButton: .default(Text(L10n.commonNo), action: {}),
-                           secondaryButton: .destructive(Text(L10n.commonYes), action: okAction)))
+        .init(alert: Alert(title: Text(Localization.onboardingExitAlertTitle),
+                           message: Text(Localization.onboardingExitAlertMessage),
+                           primaryButton: .default(Text(Localization.commonNo), action: {}),
+                           secondaryButton: .destructive(Text(Localization.commonYes), action: okAction)))
     }
 }
