@@ -2,8 +2,7 @@
 "add_custom_token_title" = "Добавить токен";
 "add_tokens_title" = "Валюты";
 "main_manage_tokens" = "Управление токенами";
-"address_qr_code_message_format" = "Отправляйте только %@ (%@) на этот адрес. Иначе это может привести к утрате средств.";
-"address_qr_code_message_token_format" = "Отправляйте только %@ (%@) из сети %@ на этот адрес. Иначе это может привести к утрате средств.";
+"address_qr_code_message_format" = "Отправляйте только %@ (%@) в сети %@ на этот адрес. Использование другой сети может привести к утрате средств.";
 "alert_app_feedback_sent_message" = "Спасибо за ваш отзыв";
 "alert_app_feedback_sent_title" = "Отправлено успешно";
 "alert_button_request_support" = "Обратиться в поддержку";
