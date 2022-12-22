@@ -18,7 +18,7 @@ struct SendCurrencyViewModel: Identifiable {
     let tokenIcon: SwappingTokenIconViewModel
 
     var balanceString: String {
-        "common_balance".localized(balance.groupedFormatted())
+        Localization.commonBalance(balance.groupedFormatted())
     }
 
     var fiatValueString: String {
