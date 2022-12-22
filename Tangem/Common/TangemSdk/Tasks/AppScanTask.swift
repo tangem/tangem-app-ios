@@ -39,17 +39,11 @@ struct AppScanTaskResponse {
 }
 
 final class AppScanTask: CardSessionRunnable {
-    let allowsAccessCodeFromRepository: Bool
-
-    private let targetBatch: String?
     private var walletData: DefaultWalletData = .none
     private var primaryCard: PrimaryCard? = nil
     private var linkingCommand: StartPrimaryCardLinkingTask? = nil
 
-    init(targetBatch: String? = nil, allowsAccessCodeFromRepository: Bool = false) {
-        self.targetBatch = targetBatch
-        self.allowsAccessCodeFromRepository = allowsAccessCodeFromRepository
-    }
+    init() {}
 
     deinit {
         print("AppScanTask deinit")
@@ -61,8 +55,6 @@ final class AppScanTask: CardSessionRunnable {
             completion(.failure(TangemSdkError.missingPreflightRead))
             return
         }
-
-        let currentBatch = card.batchId.lowercased()
 
         if let legacyWalletData = session.environment.walletData,
            legacyWalletData.blockchain != "ANY" {
