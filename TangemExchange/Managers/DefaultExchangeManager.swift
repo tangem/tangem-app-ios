@@ -196,11 +196,9 @@ private extension DefaultExchangeManager {
                     await updateExchangeAmountAllowance()
 
                     let approvedDataModel = try await getExchangeApprovedDataModel()
-                    let spender = try await getApprovedSpenderAddress()
                     let info = try mapToExchangeTransactionInfo(
                         quoteData: quoteData,
-                        approvedData: approvedDataModel,
-                        spenderAddress: spender
+                        approvedData: approvedDataModel
                     )
                     let result = try await mapToSwappingResultDataModel(preview: preview, transaction: info)
                     updateState(.available(result, info: info))
@@ -353,8 +351,7 @@ private extension DefaultExchangeManager {
 
     func mapToExchangeTransactionInfo(
         quoteData: QuoteDataModel,
-        approvedData: ExchangeApprovedDataModel,
-        spenderAddress: String
+        approvedData: ExchangeApprovedDataModel
     ) throws -> ExchangeTransactionDataModel {
         guard let destination = exchangeItems.destination else {
             throw ExchangeManagerError.destinationNotFound
@@ -369,7 +366,7 @@ private extension DefaultExchangeManager {
             sourceBlockchain: exchangeItems.source.blockchain,
             destinationCurrency: destination,
             sourceAddress: walletAddress,
-            destinationAddress: spenderAddress,
+            destinationAddress: approvedData.tokenAddress,
             txData: approvedData.data,
             amount: approvedData.value,
             gasValue: quoteData.estimatedGas,
