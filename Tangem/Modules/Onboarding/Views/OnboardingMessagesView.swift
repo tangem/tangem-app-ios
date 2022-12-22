@@ -9,9 +9,8 @@
 import SwiftUI
 
 struct OnboardingMessagesView: View {
-
-    let title: LocalizedStringKey
-    let subtitle: LocalizedStringKey
+    let title: String
+    let subtitle: String
     let onTitleTapCallback: (() -> Void)?
 
     var body: some View {
