@@ -34,7 +34,7 @@ enum BiometricAuthorizationUtils {
     }
 
     static var allowButtonTitle: String {
-        L10n.saveUserWalletAgreementAllow(biometryType.name)
+        Localization.saveUserWalletAgreementAllow(biometryType.name)
     }
 }
 

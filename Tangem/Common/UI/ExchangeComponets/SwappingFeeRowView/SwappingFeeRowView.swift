@@ -17,7 +17,7 @@ struct SwappingFeeRowView: View {
 
     var body: some View {
         HStack {
-            Text(L10n.sendFeeLabel)
+            Text(Localization.sendFeeLabel)
                 .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
 
             Spacer()
