@@ -15,11 +15,11 @@ struct CameraAccessDeniedModifier: ViewModifier {
     func body(content: Content) -> some View {
         content
             .alert(isPresented: $isDisplayed) {
-                return Alert(title: Text(L10n.commonCameraDeniedAlertTitle),
-                             message: Text(L10n.commonCameraDeniedAlertMessage),
-                             primaryButton: Alert.Button.default(Text(L10n.commonCameraAlertButtonSettings),
+                return Alert(title: Text(Localization.commonCameraDeniedAlertTitle),
+                             message: Text(Localization.commonCameraDeniedAlertMessage),
+                             primaryButton: Alert.Button.default(Text(Localization.commonCameraAlertButtonSettings),
                                                                  action: { UIApplication.openSystemSettings() }),
-                             secondaryButton: Alert.Button.default(Text(L10n.commonOk),
+                             secondaryButton: Alert.Button.default(Text(Localization.commonOk),
                                                                    action: {}))
             }
     }

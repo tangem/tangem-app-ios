@@ -161,7 +161,7 @@ class TwinsWalletCreationUtil {
 
     private func initialMessage(for cardId: String) -> Message {
         let formatted = AppTwinCardIdFormatter.format(cid: cardId, cardNumber: stepCardNumber)
-        let header = L10n.twinsScanTwinWithNumber(formatted)
+        let header = Localization.twinsScanTwinWithNumber(formatted)
         return Message(header: header)
     }
 }

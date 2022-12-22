@@ -18,7 +18,7 @@ struct TotalSumBalanceView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             HStack(spacing: 0) {
-                Text(L10n.mainPageBalance)
+                Text(Localization.mainPageBalance)
                     .lineLimit(1)
                     .font(.system(size: 13, weight: .medium))
                     .foregroundColor(Color.tangemTextGray)
@@ -42,7 +42,7 @@ struct TotalSumBalanceView: View {
             balanceView
 
             if viewModel.hasError {
-                Text(L10n.mainProcessingFullAmount)
+                Text(Localization.mainProcessingFullAmount)
                     .foregroundColor(Color.tangemWarning)
                     .font(.system(size: 13, weight: .regular))
                     .padding(.top, 2)
