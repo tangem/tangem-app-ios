@@ -88,7 +88,7 @@ class BnbSignHandler: WalletConnectSignHandler {
             return
         }
 
-        let message = String(format: "wallet_connect_bnb_sign_message".localized, session.session.dAppInfo.peerMeta.name, bnbMessage.message)
+        let message = Localization.walletConnectBnbSignMessage(session.session.dAppInfo.peerMeta.name, bnbMessage.message)
         askToSign(in: session, request: request, message: message, dataToSign: bnbMessage.data)
     }
 
@@ -145,10 +145,11 @@ class BnbSignHandler: WalletConnectSignHandler {
             let address = input.address
             let currency = input.coins.first?.denom ?? blockchain.currencySymbol
             let amountToSend: Int64 = input.coins.reduce(0, { $0 + ($1.denom == currency ? $1.amount : 0) })
-            let uiMessage = String(format: "wallet_connect_bnb_transaction_message".localized,
-                                   address,
-                                   output.address,
-                                   (Decimal(amountToSend) / decimalValue).description)
+            let uiMessage = Localization.walletConnectBnbTransactionMessage(
+                address,
+                output.address,
+                (Decimal(amountToSend) / decimalValue).description
+            )
 
             let encodedData = try! jsonEncoder.encode(transactionMessage)
             print("Encoded BNB transaction message: \(String(data: encodedData, encoding: .utf8)!)")
@@ -164,11 +165,12 @@ class BnbSignHandler: WalletConnectSignHandler {
                 let message = tradeMessage.messages[i]
                 let price = Decimal(message.price) / decimalValue
                 let quantity = Decimal(message.quantity) / decimalValue
-                uiMessage.append(String(format: "wallet_connect_bnb_trade_order_message".localized,
-                                        message.symbol,
-                                        "\(price.description) \(blockchain.currencySymbol)",
-                                        "\(quantity)",
-                                        "\(price * quantity) \(blockchain.currencySymbol)"))
+                uiMessage.append(Localization.walletConnectBnbTradeOrderMessage(
+                    message.symbol,
+                    "\(price.description) \(blockchain.currencySymbol)",
+                    "\(quantity)",
+                    "\(price * quantity) \(blockchain.currencySymbol)")
+                )
                 if i < (numberOfMessages - 1) {
                     uiMessage += "\n\n"
                 }
