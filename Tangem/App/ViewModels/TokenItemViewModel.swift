@@ -83,18 +83,18 @@ struct TokenItemViewModel: Identifiable, Hashable, Equatable, Comparable {
 
     var displayRateText: String {
         if state == .noDerivation {
-            return L10n.walletBalanceMissingDerivation
+            return Localization.walletBalanceMissingDerivation
         }
 
         if state.isBlockchainUnreachable {
-            return L10n.walletBalanceBlockchainUnreachable
+            return Localization.walletBalanceBlockchainUnreachable
         }
 
         if hasTransactionInProgress {
-            return L10n.walletBalanceTxInProgress
+            return Localization.walletBalanceTxInProgress
         }
 
-        return rate.isEmpty ? L10n.tokenItemNoRate : rate
+        return rate.isEmpty ? Localization.tokenItemNoRate : rate
     }
 
     var isLoading: Bool {

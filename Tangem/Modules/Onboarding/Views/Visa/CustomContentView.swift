@@ -36,7 +36,7 @@ struct CustomContentView: View {
 struct CustomContentView_Previews: PreviewProvider {
     static var previews: some View {
         CustomContentView(imageName: "passport",
-                          title: L10n.onboardingTitlePin,
-                          subtitle: L10n.onboardingSubtitlePin)
+                          title: Localization.onboardingTitlePin,
+                          subtitle: Localization.onboardingSubtitlePin)
     }
 }

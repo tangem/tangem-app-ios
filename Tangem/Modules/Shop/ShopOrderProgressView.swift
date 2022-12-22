@@ -26,7 +26,7 @@ struct ShopOrderProgressView: View {
                 }
             )
             .overlay(
-                Text(L10n.shopPlacingOrder)
+                Text(Localization.shopPlacingOrder)
                     .lineLimit(1)
                     .font(.system(size: 40, weight: .semibold))
                     .minimumScaleFactor(0.3)

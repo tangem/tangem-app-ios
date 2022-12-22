@@ -26,7 +26,7 @@ class PersonalSignHandler: WalletConnectSignHandler {
             }
 
             let messageData = Data(hex: messageBytes)
-            let displayedMessage = L10n.walletConnectPersonalSignMessage(session.session.dAppInfo.peerMeta.name, messageBytes)
+            let displayedMessage = Localization.walletConnectPersonalSignMessage(session.session.dAppInfo.peerMeta.name, messageBytes)
             let personalMessageData = self.makePersonalMessageData(messageData)
 
             askToSign(in: session, request: request, message: displayedMessage, dataToSign: personalMessageData)

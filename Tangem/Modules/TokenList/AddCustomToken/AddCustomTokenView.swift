@@ -15,20 +15,20 @@ struct AddCustomTokenView: View {
         ScrollView {
             VStack(spacing: 10) {
                 VStack(spacing: 1) {
-                    TextInputWithTitle(title: L10n.customTokenContractAddressInputTitle, placeholder: "0x0000000000000000000000000000000000000000", text: $viewModel.contractAddress, keyboardType: .default, isEnabled: true, isLoading: viewModel.isLoading)
+                    TextInputWithTitle(title: Localization.customTokenContractAddressInputTitle, placeholder: "0x0000000000000000000000000000000000000000", text: $viewModel.contractAddress, keyboardType: .default, isEnabled: true, isLoading: viewModel.isLoading)
                         .cornerRadius(10, corners: [.topLeft, .topRight])
 
-                    PickerInputWithTitle(title: L10n.customTokenNetworkInputTitle, model: $viewModel.blockchainsPicker)
+                    PickerInputWithTitle(title: Localization.customTokenNetworkInputTitle, model: $viewModel.blockchainsPicker)
 
-                    TextInputWithTitle(title: L10n.customTokenNameInputTitle, placeholder: L10n.customTokenNameInputPlaceholder, text: $viewModel.name, keyboardType: .default, isEnabled: viewModel.canEnterTokenDetails, isLoading: false)
+                    TextInputWithTitle(title: Localization.customTokenNameInputTitle, placeholder: Localization.customTokenNameInputPlaceholder, text: $viewModel.name, keyboardType: .default, isEnabled: viewModel.canEnterTokenDetails, isLoading: false)
 
-                    TextInputWithTitle(title: L10n.customTokenTokenSymbolInputTitle, placeholder: L10n.customTokenTokenSymbolInputPlaceholder, text: $viewModel.symbol, keyboardType: .default, isEnabled: viewModel.canEnterTokenDetails, isLoading: false)
+                    TextInputWithTitle(title: Localization.customTokenTokenSymbolInputTitle, placeholder: Localization.customTokenTokenSymbolInputPlaceholder, text: $viewModel.symbol, keyboardType: .default, isEnabled: viewModel.canEnterTokenDetails, isLoading: false)
 
-                    TextInputWithTitle(title: L10n.customTokenDecimalsInputTitle, placeholder: "0", text: $viewModel.decimals, keyboardType: .numberPad, isEnabled: viewModel.canEnterTokenDetails, isLoading: false)
+                    TextInputWithTitle(title: Localization.customTokenDecimalsInputTitle, placeholder: "0", text: $viewModel.decimals, keyboardType: .numberPad, isEnabled: viewModel.canEnterTokenDetails, isLoading: false)
                         .cornerRadius(viewModel.showDerivationPaths ? 0 : 10, corners: [.bottomLeft, .bottomRight])
 
                     if viewModel.showDerivationPaths {
-                        PickerInputWithTitle(title: L10n.customTokenDerivationPathInputTitle, model: $viewModel.derivationsPicker)
+                        PickerInputWithTitle(title: Localization.customTokenDerivationPathInputTitle, model: $viewModel.derivationsPicker)
                             .cornerRadius(10, corners: [.bottomLeft, .bottomRight])
                     }
                 }
@@ -36,7 +36,7 @@ struct AddCustomTokenView: View {
                 WarningListView(warnings: viewModel.warningContainer, warningButtonAction: { _, _, _ in })
 
                 MainButton(
-                    title: L10n.customTokenAddToken,
+                    title: Localization.customTokenAddToken,
                     icon: .leading(Assets.plusMini),
                     isLoading: viewModel.isLoading,
                     isDisabled: viewModel.addButtonDisabled,
@@ -50,7 +50,7 @@ struct AddCustomTokenView: View {
         .onAppear(perform: viewModel.onAppear)
         .onDisappear(perform: viewModel.onDisappear)
         .alert(item: $viewModel.error, content: { $0.alert })
-        .navigationBarTitle(Text(L10n.addCustomTokenTitle), displayMode: .inline) // fix ios14 navbar overlap
+        .navigationBarTitle(Text(Localization.addCustomTokenTitle), displayMode: .inline) // fix ios14 navbar overlap
     }
 }
 

@@ -37,7 +37,7 @@ class ReferralViewModel: ObservableObject {
             let award = referralProgramInfo?.conditions.awards.first,
             let blockchain = Blockchain(from: award.token.networkId)
         else {
-            errorAlert = AlertBuilder.makeOkErrorAlert(message: L10n.referralErrorFailedToLoadInfo,
+            errorAlert = AlertBuilder.makeOkErrorAlert(message: Localization.referralErrorFailedToLoadInfo,
                                                        okAction: coordinator.dismiss)
             return
         }
@@ -58,7 +58,7 @@ class ReferralViewModel: ObservableObject {
             }
             self.referralProgramInfo = referralProgramInfo
         } catch {
-            let message = L10n.referralErrorFailedToParticipate(error.localizedDescription)
+            let message = Localization.referralErrorFailedToParticipate(error.localizedDescription)
             errorAlert = AlertBuilder.makeOkErrorAlert(message: message)
         }
 
@@ -78,7 +78,7 @@ class ReferralViewModel: ObservableObject {
             }
             self.referralProgramInfo = referralProgramInfo
         } catch {
-            let message = L10n.referralErrorFailedToLoadInfoWithReason(error.localizedDescription)
+            let message = Localization.referralErrorFailedToLoadInfoWithReason(error.localizedDescription)
             self.errorAlert = AlertBuilder.makeOkErrorAlert(message: message, okAction: coordinator.dismiss)
         }
     }
@@ -171,7 +171,7 @@ extension ReferralViewModel {
             tokenName = blockchain.displayName
         }
 
-        return " " + L10n.referralPointCurrenciesDescriptionSuffix(tokenName, addressContent)
+        return " " + Localization.referralPointCurrenciesDescriptionSuffix(tokenName, addressContent)
     }
 
     var discount: String {
@@ -179,12 +179,12 @@ extension ReferralViewModel {
             return ""
         }
 
-        return L10n.referralPointDiscountDescriptionValue("\(info.conditions.discount.amount)\(info.conditions.discount.type.symbol)")
+        return Localization.referralPointDiscountDescriptionValue("\(info.conditions.discount.amount)\(info.conditions.discount.type.symbol)")
     }
 
     var numberOfWalletsBought: String {
         let count = referralProgramInfo?.referral?.walletsPurchased ?? 0
-        return L10n.referralWalletsPurchasedCount(count)
+        return Localization.referralWalletsPurchasedCount(count)
     }
 
     var promoCode: String {
@@ -197,10 +197,10 @@ extension ReferralViewModel {
 
     var tosButtonPrefix: String {
         if referralProgramInfo?.referral == nil {
-            return L10n.referralTosNotEnroledPrefix + " "
+            return Localization.referralTosNotEnroledPrefix + " "
         }
 
-        return L10n.referralTosEnroledPrefix + " "
+        return Localization.referralTosEnroledPrefix + " "
     }
 
     var shareLink: String {
@@ -208,7 +208,7 @@ extension ReferralViewModel {
             return ""
         }
 
-        return L10n.referralShareLink(referralInfo.shareLink)
+        return Localization.referralShareLink(referralInfo.shareLink)
     }
 
     var isProgramInfoLoaded: Bool { referralProgramInfo != nil }
