@@ -1,5 +1,5 @@
 //
-//  ExpectedSwappingResult.swift
+//  PreviewSwappingDataModel.swift
 //  TangemExchange
 //
 //  Created by [REDACTED_AUTHOR]
@@ -8,21 +8,21 @@
 
 import Foundation
 
-public struct ExpectedSwappingResult {
+public struct PreviewSwappingDataModel {
     public let expectedAmount: Decimal
     public let expectedFiatAmount: Decimal
-    public let feeFiatRate: Decimal
+    public let isPermissionRequired: Bool
     public let isEnoughAmountForExchange: Bool
 
-    init(
+    public init(
         expectedAmount: Decimal,
         expectedFiatAmount: Decimal,
-        feeFiatRate: Decimal,
+        isPermissionRequired: Bool,
         isEnoughAmountForExchange: Bool
     ) {
         self.expectedAmount = expectedAmount
         self.expectedFiatAmount = expectedFiatAmount
-        self.feeFiatRate = feeFiatRate
+        self.isPermissionRequired = isPermissionRequired
         self.isEnoughAmountForExchange = isEnoughAmountForExchange
     }
 }
