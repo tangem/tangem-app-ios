@@ -33,7 +33,7 @@ struct SendCurrencyView: View {
 
     private var headerLabels: some View {
         HStack(spacing: 0) {
-            Text(L10n.exchangeSendViewHeader)
+            Text(Localization.exchangeSendViewHeader)
                 .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
 
             Spacer()
