@@ -32,7 +32,7 @@ class PushTxViewModel: ObservableObject {
     var walletTotalBalanceFormatted: String {
         let amount = walletModel.wallet.amounts[self.amountToSend.type]
         let value = getDescription(for: amount, isFiat: isFiatCalculation)
-        return L10n.commonBalance(value)
+        return Localization.commonBalance(value)
     }
 
     var walletModel: WalletModel {
@@ -109,7 +109,7 @@ class PushTxViewModel: ObservableObject {
     func onSend() {
         send() {
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) { [weak self] in
-                let alert = AlertBuilder.makeSuccessAlert(message: L10n.sendTransactionSuccess) { [weak self] in
+                let alert = AlertBuilder.makeSuccessAlert(message: Localization.sendTransactionSuccess) { [weak self] in
                     self?.dismiss()
                 }
 
@@ -320,13 +320,13 @@ class PushTxViewModel: ObservableObject {
         if isFiat {
             sendTotal = totalFiatAmountFormatted ?? emptyValue
             sendTotalSubtitle = amountToSend.type == fee.type ?
-                L10n.sendTotalSubtitleFormat(totalAmount.description) :
-                L10n.sendTotalSubtitleAssetFormat(
+                Localization.sendTotalSubtitleFormat(totalAmount.description) :
+                Localization.sendTotalSubtitleAssetFormat(
                     amountToSend.description,
                     fee.description)
         } else {
             sendTotal =  (amountToSend + fee).description
-            sendTotalSubtitle = totalFiatAmountFormatted == nil ? emptyValue :  L10n.sendTotalSubtitleFiatFormat(
+            sendTotalSubtitle = totalFiatAmountFormatted == nil ? emptyValue :  Localization.sendTotalSubtitleFiatFormat(
                 totalFiatAmountFormatted!,
                 walletModel.getFiatFormatted(for: fee)!)
         }

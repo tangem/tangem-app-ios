@@ -30,17 +30,17 @@ struct SuccessSwappingView: View {
 
                 buttonView
             }
-            .navigationBarTitle(Text(L10n.swappingSwap), displayMode: .inline)
+            .navigationBarTitle(Text(Localization.swappingSwap), displayMode: .inline)
         }
     }
 
     private var infoView: some View {
         VStack(spacing: 14) {
-            Text(L10n.commonSuccess)
+            Text(Localization.commonSuccess)
                 .style(Fonts.Bold.title1, color: Colors.Text.primary1)
 
             VStack(spacing: 0) {
-                Text(L10n.swappingSwapOfTo(viewModel.sourceFormatted))
+                Text(Localization.swappingSwapOfTo(viewModel.sourceFormatted))
                     .style(Fonts.Regular.callout, color: Colors.Text.secondary)
 
                 Text(viewModel.resultFormatted)
@@ -54,7 +54,7 @@ struct SuccessSwappingView: View {
             Spacer()
 
             MainButton(
-                title: L10n.commonDone,
+                title: Localization.commonDone,
                 action: viewModel.doneDidTapped
             )
         }
