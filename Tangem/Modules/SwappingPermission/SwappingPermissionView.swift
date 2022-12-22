@@ -26,6 +26,7 @@ struct SwappingPermissionView: View {
         .padding(.top, 16)
         .padding(.bottom, 4)
         .background(Colors.Background.secondary)
+        .alert(item: $viewModel.errorAlert, content: { $0.alert })
     }
 
     private var headerView: some View {
