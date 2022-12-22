@@ -18,7 +18,7 @@ struct CardOperationView: View {
             Image(systemName: "exclamationmark.circle")
                 .font(.system(size: 120.0, weight: .regular, design: .default))
                 .foregroundColor(.tangemWarning)
-            Text(L10n.commonWarning.uppercased())
+            Text(Localization.commonWarning.uppercased())
                 .font(.system(size: 40.0, weight: .medium, design: .default))
                 .lineLimit(1)
                 .minimumScaleFactor(0.6)
