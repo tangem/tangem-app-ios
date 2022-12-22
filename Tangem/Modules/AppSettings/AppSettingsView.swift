@@ -28,7 +28,7 @@ struct AppSettingsView: View {
             }
         }
         .alert(item: $viewModel.alert) { $0.alert }
-        .navigationBarTitle(Text(L10n.appSettingsTitle), displayMode: .inline)
+        .navigationBarTitle(Text(Localization.appSettingsTitle), displayMode: .inline)
     }
 
     @ViewBuilder
@@ -42,7 +42,7 @@ struct AppSettingsView: View {
         GroupedSection(viewModel.savingWalletViewModel) {
             DefaultToggleRowView(viewModel: $0)
         } footer: {
-            DefaultFooterView(L10n.appSettingsSavedWalletFooter)
+            DefaultFooterView(Localization.appSettingsSavedWalletFooter)
         }
     }
 
@@ -50,7 +50,7 @@ struct AppSettingsView: View {
         GroupedSection(viewModel.savingAccessCodesViewModel) {
             DefaultToggleRowView(viewModel: $0)
         } footer: {
-            DefaultFooterView(L10n.appSettingsSavedAccessCodesFooter)
+            DefaultFooterView(Localization.appSettingsSavedAccessCodesFooter)
         }
     }
 }
