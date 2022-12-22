@@ -64,6 +64,7 @@ class CommonUserWalletRepository: UserWalletRepository {
         self.selectedUserWalletId = savedSelectedUserWalletId.isEmpty ? nil : savedSelectedUserWalletId
 
         userWallets = savedUserWallets(withSensitiveData: false)
+
         bind()
     }
 
@@ -322,7 +323,7 @@ class CommonUserWalletRepository: UserWalletRepository {
             self?.selectedUserWalletId = userWallet.userWalletId
             AppSettings.shared.selectedUserWalletId = userWallet.userWalletId
             self?.initializeServicesForSelectedModel()
-
+            self?.selectedModel?.userWalletModel?.initialUpdate()
             self?.sendEvent(.selected(userWallet: userWallet, reason: reason))
         }
 
@@ -474,6 +475,7 @@ class CommonUserWalletRepository: UserWalletRepository {
                     self.userWallets = self.savedUserWallets(withSensitiveData: true)
                     self.loadModels()
                     self.initializeServicesForSelectedModel()
+                    self.selectedModel?.userWalletModel?.initialUpdate()
                     self.isLocked = false
 
                     if let selectedModel = self.selectedModel {
@@ -540,7 +542,7 @@ class CommonUserWalletRepository: UserWalletRepository {
 
                 self.setSelectedUserWalletId(savedUserWallet.userWalletId, reason: .userSelected)
                 self.initializeServicesForSelectedModel()
-
+                self.selectedModel?.userWalletModel?.initialUpdate()
                 self.isLocked = self.userWallets.contains { $0.isLocked }
 
                 self.sendEvent(.updated(userWalletModel: userWalletModel))
@@ -565,7 +567,7 @@ class CommonUserWalletRepository: UserWalletRepository {
         guard index < models.count else { return }
 
         let cardModel = CardViewModel(userWallet: userWallet)
-        cardModel.userWalletModel?.initialUpdate()
+
         models[index] = cardModel
     }
 
