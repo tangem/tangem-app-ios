@@ -43,7 +43,7 @@ struct BackButton: View {
             HStack(spacing: 5) {
                 Image(systemName: "chevron.left")
                     .padding(-1) // remove default? extra padding
-                Text("common_back")
+                Text(Localization.commonBack)
                     .font(.system(size: 17, weight: .regular))
             }
         })
@@ -66,7 +66,7 @@ struct ChatButton: View {
 
     var body: some View {
         Button(action: action, label: {
-            Text("onboarding_chat_button_title")
+            Text(Localization.onboardingChatButtonTitle)
                 .font(.system(size: 17, weight: .regular))
         })
         .allowsHitTesting(isEnabled)
@@ -104,13 +104,13 @@ struct NavigationBar<LeftButtons: View, RightButtons: View>: View {
 
     }
 
-    private let title: LocalizedStringKey
+    private let title: String
     private let settings: Settings
     private let leftButtons: LeftButtons
     private let rightButtons: RightButtons
 
     init(
-        title: LocalizedStringKey,
+        title: String,
         settings: Settings = .init(),
         @ViewBuilder leftItems: () -> LeftButtons,
         @ViewBuilder rightItems: () -> RightButtons
@@ -139,7 +139,7 @@ struct NavigationBar<LeftButtons: View, RightButtons: View>: View {
 }
 
 extension NavigationBar where LeftButtons == EmptyView, RightButtons == EmptyView {
-    init(title: LocalizedStringKey, settings: Settings = .init()) {
+    init(title: String, settings: Settings = .init()) {
         self.title = title
         self.settings = settings
         leftButtons = EmptyView()
@@ -149,7 +149,7 @@ extension NavigationBar where LeftButtons == EmptyView, RightButtons == EmptyVie
 
 extension NavigationBar where LeftButtons == EmptyView {
     init(
-        title: LocalizedStringKey,
+        title: String,
         settings: Settings = .init(),
         @ViewBuilder rightButtons: () -> RightButtons
     ) {
@@ -162,7 +162,7 @@ extension NavigationBar where LeftButtons == EmptyView {
 
 extension NavigationBar where RightButtons == EmptyView {
     init(
-        title: LocalizedStringKey,
+        title: String,
         settings: Settings = .init(),
         @ViewBuilder leftButtons: () -> LeftButtons
     ) {
@@ -175,7 +175,7 @@ extension NavigationBar where RightButtons == EmptyView {
 
 extension NavigationBar where LeftButtons == ArrowBack, RightButtons == EmptyView {
     init(
-        title: LocalizedStringKey,
+        title: String,
         settings: Settings = .init(),
         backAction: @escaping () -> Void
     ) {
@@ -190,7 +190,7 @@ extension NavigationBar where LeftButtons == ArrowBack, RightButtons == EmptyVie
 
 extension NavigationBar where LeftButtons == ArrowBack, RightButtons == EmptyView {
     init(
-        title: LocalizedStringKey,
+        title: String,
         settings: Settings = .init(),
         presentationMode:  Binding<PresentationMode>
     ) {
