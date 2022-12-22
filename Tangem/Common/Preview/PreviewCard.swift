@@ -30,7 +30,7 @@ enum PreviewCard {
         let vm = CardViewModel(cardInfo: ci, config: config)
         let walletModels: [WalletModel]
         if let blockchain = blockchain {
-            let factory = WalletManagerFactory(config: .init(blockchairApiKey: "", blockcypherTokens: [], infuraProjectId: "", tronGridApiKey: "", quiknodeApiKey: "", quiknodeSubdomain: ""))
+            let factory = WalletManagerFactory(config: .init(blockchairApiKeys: [], blockcypherTokens: [], infuraProjectId: "", tronGridApiKey: "", quiknodeApiKey: "", quiknodeSubdomain: ""))
             let walletManager = try! factory.makeWalletManager(blockchain: blockchain, walletPublicKey: publicKey)
             walletModels = [WalletModel(walletManager: walletManager, derivationStyle: .legacy)]
         } else {
