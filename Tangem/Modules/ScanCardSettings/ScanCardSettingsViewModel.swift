@@ -63,7 +63,7 @@ extension ScanCardSettingsViewModel {
 extension ScanCardSettingsViewModel {
     func scan(completion: @escaping (Result<CardInfo, Error>) -> Void) {
         isLoading = true
-        let task = AppScanTask()
+        let task = AppScanTask(targetBatch: nil, allowsAccessCodeFromRepository: true)
         sdkProvider.sdk.startSession(with: task) { [weak self] result in
             self?.isLoading = false
 
