@@ -14,7 +14,7 @@ struct ExploreButton:  View {
     let showExplorerURL: (URL?) -> Void
 
     var body: some View {
-        TangemButton(title: L10n.walletAddressButtonExplore,
+        TangemButton(title: Localization.walletAddressButtonExplore,
                      systemImage: "chevron.right",
                      iconPosition: .trailing) { showExplorerURL(url) }
             .buttonStyle(TangemButtonStyle(colorStyle: .transparentWhite,
