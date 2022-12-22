@@ -49,7 +49,7 @@ final class SwappingPermissionViewModel: ObservableObject, Identifiable {
             } catch TangemSdkError.userCancelled {
                 // Do nothing
             } catch {
-                errorAlert = AlertBinder(title: L10n.commonError, message: error.localizedDescription)
+                errorAlert = AlertBinder(title: Localization.commonError, message: error.localizedDescription)
             }
         }
     }
