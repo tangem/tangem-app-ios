@@ -22,7 +22,7 @@ struct CurrencySelectView: View {
                 ActivityIndicatorView(isAnimating: true, style: .medium, color: .tangemGrayDark)
             } else {
                 VStack {
-                    SearchBar(text: $searchText, placeholder: "common_search".localized)
+                    SearchBar(text: $searchText, placeholder: Localization.commonSearch)
                     List {
                         ForEach(
                             viewModel.currencies.filter {
@@ -55,7 +55,7 @@ struct CurrencySelectView: View {
                 .background(Color.tangemBgGray.edgesIgnoringSafeArea(.all))
             }
         }
-        .navigationBarTitle("details_row_title_currency", displayMode: .inline)
+        .navigationBarTitle(Text(Localization.detailsRowTitleCurrency), displayMode: .inline)
         .onAppear {
             self.viewModel.onAppear()
         }
