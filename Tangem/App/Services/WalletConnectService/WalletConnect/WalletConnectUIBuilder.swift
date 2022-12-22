@@ -37,17 +37,17 @@ enum WalletConnectUIBuilder {
 
         switch event {
         case .establishSession:
-            buttonTitle = "common_start".localized
+            buttonTitle = Localization.commonStart
         case .sign:
-            buttonTitle = "common_sign".localized
+            buttonTitle = Localization.commonSign
         case .sendTx:
-            buttonTitle = "common_sign_and_send".localized
+            buttonTitle = Localization.commonSignAndSend
         case .error, .success:
-            buttonTitle = "common_ok".localized
+            buttonTitle = Localization.commonOk
         }
 
         if event.withCancelButton {
-            vc.addAction(UIAlertAction(title: "common_reject".localized, style: .cancel, handler: { _ in onReject() }))
+            vc.addAction(UIAlertAction(title: Localization.commonReject, style: .cancel, handler: { _ in onReject() }))
         }
 
         if let extraTitle = extraTitle {
@@ -65,14 +65,14 @@ enum WalletConnectUIBuilder {
     }
 
     static func makeChainsSheet(_ networks: [BlockchainNetwork], onAcceptAction: @escaping (BlockchainNetwork) -> Void, onReject: @escaping () -> Void) -> UIAlertController {
-        let vc: UIAlertController = UIAlertController(title: "WalletConnect", message: "wallet_connect_select_network".localized, preferredStyle: .actionSheet)
+        let vc: UIAlertController = UIAlertController(title: "WalletConnect", message: Localization.walletConnectSelectNetwork, preferredStyle: .actionSheet)
 
         for network in networks {
             let action = UIAlertAction(title: network.blockchain.displayName, style: .default, handler: { _ in onAcceptAction(network) })
             vc.addAction(action)
         }
 
-        vc.addAction(UIAlertAction(title: "common_reject".localized, style: .cancel, handler: { _ in onReject() }))
+        vc.addAction(UIAlertAction(title: Localization.commonReject, style: .cancel, handler: { _ in onReject() }))
 
         return vc
     }
