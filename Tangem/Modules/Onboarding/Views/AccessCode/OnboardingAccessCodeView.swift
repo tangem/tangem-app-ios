@@ -62,13 +62,13 @@ struct OnboardingAccessCodeView: View {
 
     @ViewBuilder
     var inputContent: some View {
-        Text(L10n.onboardingAccessCodeHint)
+        Text(Localization.onboardingAccessCodeHint)
             .font(.system(size: 16, weight: .regular))
             .foregroundColor(.tangemGrayDark6)
             .padding(.bottom, 32)
             .padding(.top, 13)
             .multilineTextAlignment(.center)
-        CustomPasswordTextField(placeholder: L10n.detailsManageSecurityAccessCode,
+        CustomPasswordTextField(placeholder: Localization.detailsManageSecurityAccessCode,
                                 color: .tangemGrayDark6,
                                 password: state == .inputCode ? $firstEnteredCode : $secondEnteredCode,
                                 onCommit: {})
@@ -287,16 +287,16 @@ extension OnboardingAccessCodeView {
 
         var title: String {
             switch self {
-            case .intro, .inputCode: return L10n.onboardingAccessCodeIntroTitle
-            case .repeatCode: return L10n.onboardingAccessCodeRepeatCodeTitle
+            case .intro, .inputCode: return Localization.onboardingAccessCodeIntroTitle
+            case .repeatCode: return Localization.onboardingAccessCodeRepeatCodeTitle
             }
         }
 
         var buttonTitle: String {
             switch self {
-            case .intro: return L10n.commonContinue
-            case .inputCode: return L10n.commonContinue
-            case .repeatCode: return L10n.commonSubmit
+            case .intro: return Localization.commonContinue
+            case .inputCode: return Localization.commonContinue
+            case .repeatCode: return Localization.commonSubmit
             }
         }
 
@@ -323,8 +323,8 @@ extension OnboardingAccessCodeView {
         var description: String {
             switch self {
             case .none: return ""
-            case .tooShort: return L10n.onboardingAccessCodeTooShort
-            case .dontMatch: return L10n.onboardingAccessCodesDoesntMatch
+            case .tooShort: return Localization.onboardingAccessCodeTooShort
+            case .dontMatch: return Localization.onboardingAccessCodesDoesntMatch
             }
         }
 
