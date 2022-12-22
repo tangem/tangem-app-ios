@@ -44,6 +44,13 @@ public enum ExchangeBlockchain: Hashable, CaseIterable {
         }
     }
 
+    public var decimalCount: Int {
+        switch self {
+        case .ethereum, .bsc, .polygon, .avalanche, .fantom, .arbitrum, .gnosis, .optimism, .klayth, .aurora:
+            return 18
+        }
+    }
+
     public var symbol: String {
         switch self {
         case .ethereum, .arbitrum, .optimism, .aurora: return "ETH"
@@ -90,5 +97,17 @@ public enum ExchangeBlockchain: Hashable, CaseIterable {
         case .klayth: return ""
         case .aurora: return ""
         }
+    }
+}
+
+public extension ExchangeBlockchain {
+    func convertToWEI(value: Decimal) -> Decimal {
+        let decimalValue = pow(10, decimalCount)
+        return value * decimalValue
+    }
+
+    func convertFromWEI(value: Decimal) -> Decimal {
+        let decimalValue = pow(10, decimalCount)
+        return value / decimalValue
     }
 }
