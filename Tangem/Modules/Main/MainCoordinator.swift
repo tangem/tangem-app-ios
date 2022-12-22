@@ -60,7 +60,7 @@ class MainCoordinator: CoordinatorObject {
                         return
                     }
 
-                    let options = Options(cardModel: selectedModel, shouldRefreshOnAppear: true)
+                    let options = Options(cardModel: selectedModel)
                     DispatchQueue.main.async { // fix ios13 freeze
                         self.start(with: options)
                     }
@@ -83,7 +83,6 @@ class MainCoordinator: CoordinatorObject {
             cardModel: options.cardModel,
             userWalletModel: userWalletModel,
             cardImageProvider: CardImageProvider(supportsOnlineImage: options.cardModel.supportsOnlineImage),
-            shouldRefreshWhenAppear: options.shouldRefreshOnAppear,
             coordinator: self
         )
     }
@@ -92,11 +91,9 @@ class MainCoordinator: CoordinatorObject {
 extension MainCoordinator {
     struct Options {
         let cardModel: CardViewModel
-        let shouldRefreshOnAppear: Bool
 
-        init(cardModel: CardViewModel, shouldRefreshOnAppear: Bool = true) {
+        init(cardModel: CardViewModel) {
             self.cardModel = cardModel
-            self.shouldRefreshOnAppear = shouldRefreshOnAppear
         }
     }
 }
