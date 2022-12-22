@@ -58,7 +58,7 @@ struct MainView: View {
             }
         }
         .navigationBarBackButtonHidden(true)
-        .navigationBarTitle(Text(L10n.walletTitle), displayMode: .inline)
+        .navigationBarTitle(Text(Localization.walletTitle), displayMode: .inline)
         .navigationBarItems(leading: leadingNavigationButtons,
                             trailing: settingsNavigationButton)
         .background(Colors.Background.secondary.edgesIgnoringSafeArea(.all))
@@ -112,7 +112,7 @@ struct MainView: View {
         }
         .buttonStyle(PlainButtonStyle())
         .animation(nil)
-        .accessibility(label: Text(L10n.voiceOverOpenCardDetails))
+        .accessibility(label: Text(Localization.voiceOverOpenCardDetails))
     }
 
     var backupWarningView: some View {
@@ -125,13 +125,13 @@ struct MainView: View {
 
     var sendButton: some View {
         MainButton(
-            title: L10n.walletButtonSend,
+            title: Localization.walletButtonSend,
             icon: .leading(Assets.arrowRightMini),
             isDisabled: !viewModel.canSend,
             action: viewModel.sendTapped
         )
         .actionSheet(isPresented: $viewModel.showSelectWalletSheet) {
-            ActionSheet(title: Text(L10n.walletChoiceWalletOptionTitle),
+            ActionSheet(title: Text(Localization.walletChoiceWalletOptionTitle),
                         message: nil,
                         buttons: sendChoiceButtons + [ActionSheet.Button.cancel()])
 
@@ -154,21 +154,21 @@ struct MainView: View {
     var exchangeCryptoButton: some View {
         if viewModel.canSellCrypto {
             MainButton(
-                title: L10n.walletButtonTrade,
+                title: Localization.walletButtonTrade,
                 icon: .leading(Assets.exchangeMini),
                 action: viewModel.tradeCryptoAction
             )
             .actionSheet(isPresented: $viewModel.showTradeSheet, content: {
-                ActionSheet(title: Text(L10n.walletChooseTradeAction),
+                ActionSheet(title: Text(Localization.walletChooseTradeAction),
                             buttons: [
-                                .default(Text(L10n.walletButtonBuy), action: viewModel.openBuyCryptoIfPossible),
-                                .default(Text(L10n.walletButtonSell), action: viewModel.openSellCrypto),
+                                .default(Text(Localization.walletButtonBuy), action: viewModel.openBuyCryptoIfPossible),
+                                .default(Text(Localization.walletButtonSell), action: viewModel.openSellCrypto),
                                 .cancel(),
                             ])
             })
         } else {
             MainButton(
-                title: L10n.walletButtonBuy,
+                title: Localization.walletButtonBuy,
                 icon: .leading(Assets.arrowUpMini),
                 action: viewModel.openBuyCryptoIfPossible
             )
