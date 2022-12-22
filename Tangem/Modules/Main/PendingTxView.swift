@@ -23,24 +23,24 @@ struct PendingTxView: View, Identifiable {
     var titlePrefixLocalized: String {
         switch pendingTx.direction {
         case .outgoing:
-            return L10n.walletPendingTxSending
+            return Localization.walletPendingTxSending
         case .incoming:
-            return L10n.walletPendingTxReceiving
+            return Localization.walletPendingTxReceiving
         }
     }
 
     func titleFormat(address: String) -> String {
         switch pendingTx.direction {
         case .outgoing:
-            return L10n.walletPendingTxSendingAddressFormat(address)
+            return Localization.walletPendingTxSendingAddressFormat(address)
         case .incoming:
-            return L10n.walletPendingTxReceivingAddressFormat(address)
+            return Localization.walletPendingTxReceivingAddressFormat(address)
         }
     }
 
     var text: String {
         if address == "unknown" {
-            return L10n.walletBalanceTxInProgress
+            return Localization.walletBalanceTxInProgress
         } else {
             return titlePrefixLocalized + " " + pendingTx.transferAmount + " " + titleFormat(address: AddressFormatter(address: address).truncated())
         }
@@ -69,7 +69,7 @@ struct PendingTxView: View, Identifiable {
                 if pendingTx.canBePushed {
                     RoundedRectButton(action: {
                         pushAction?()
-                    }, title: L10n.commonPush)
+                    }, title: Localization.commonPush)
                 }
             }
             .padding(.horizontal, 20.0)

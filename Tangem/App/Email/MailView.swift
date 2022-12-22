@@ -35,7 +35,7 @@ struct MailView: UIViewControllerRepresentable {
             let title = error == nil ? emailType.sentEmailAlertTitle : emailType.failedToSendAlertTitle
             let message = error == nil ? emailType.sentEmailAlertMessage : emailType.failedToSendAlertMessage(error)
             let alert = UIAlertController(title: nil, message: nil, preferredStyle: .alert)
-            let okAction = UIAlertAction(title: L10n.commonOk, style: .default, handler: { [weak self] _ in
+            let okAction = UIAlertAction(title: Localization.commonOk, style: .default, handler: { [weak self] _ in
                 if error == nil {
                     self?.$presentation.wrappedValue.dismiss()
                 }
@@ -84,16 +84,16 @@ fileprivate struct MailViewPlaceholder: View {
     var body: some View {
         VStack(spacing: 8) {
             HStack {
-                Button(L10n.commonClose) {
+                Button(Localization.commonClose) {
                     presentationMode.dismiss()
                 }
                 Spacer()
             }
             .padding([.horizontal, .top])
             Spacer()
-            Text(L10n.mailErrorNoAccountsTitle)
+            Text(Localization.mailErrorNoAccountsTitle)
                 .font(.title)
-            Text(L10n.mailErrorNoAccountsBody)
+            Text(Localization.mailErrorNoAccountsBody)
                 .font(.body)
                 .padding(.horizontal, 32)
                 .multilineTextAlignment(.center)
