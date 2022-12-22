@@ -94,33 +94,33 @@ enum SecurityModeOption: String, CaseIterable, Identifiable, Equatable {
     var title: String {
         switch self {
         case .accessCode:
-            return "details_manage_security_access_code".localized
+            return Localization.detailsManageSecurityAccessCode
         case .longTap:
-            return "details_manage_security_long_tap".localized
+            return Localization.detailsManageSecurityLongTap
         case .passCode:
-            return "details_manage_security_passcode".localized
+            return Localization.detailsManageSecurityPasscode
         }
     }
 
     var titleForDetails: String {
         switch self {
         case .accessCode:
-            return "details_manage_security_access_code".localized
+            return Localization.detailsManageSecurityAccessCode
         case .longTap:
-            return "details_manage_security_long_tap_shorter".localized
+            return Localization.detailsManageSecurityLongTapShorter
         case .passCode:
-            return "details_manage_security_passcode".localized
+            return Localization.detailsManageSecurityPasscode
         }
     }
 
     var subtitle: String {
         switch self {
         case .accessCode:
-            return "details_manage_security_access_code_description".localized
+            return Localization.detailsManageSecurityAccessCodeDescription
         case .longTap:
-            return "details_manage_security_long_tap_description".localized
+            return Localization.detailsManageSecurityLongTapDescription
         case .passCode:
-            return "details_manage_security_passcode_description".localized
+            return Localization.detailsManageSecurityPasscodeDescription
         }
     }
 }
