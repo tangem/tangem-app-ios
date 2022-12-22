@@ -9,29 +9,12 @@
 import SwiftUI
 
 struct MainButton: View {
-    private let title: LocalizedStringKey
+    private let title: String
     private let icon: Icon?
     private let style: Style
     private let isLoading: Bool
     private let isDisabled: Bool
     private let action: () -> Void
-
-    /// Better don't use it because it forces `import SwiftUI` in `viewModel` or services
-    init(
-        title: LocalizedStringKey,
-        icon: Icon? = nil,
-        style: Style = .primary,
-        isLoading: Bool = false,
-        isDisabled: Bool = false,
-        action: @escaping (() -> Void)
-    ) {
-        self.title = title
-        self.icon = icon
-        self.style = style
-        self.isLoading = isLoading
-        self.isDisabled = isDisabled
-        self.action = action
-    }
 
     init(
         title: String,
@@ -41,7 +24,7 @@ struct MainButton: View {
         isDisabled: Bool = false,
         action: @escaping (() -> Void)
     ) {
-        self.title = LocalizedStringKey(stringLiteral: title)
+        self.title = title
         self.icon = icon
         self.style = style
         self.isLoading = isLoading
@@ -178,28 +161,12 @@ extension MainButton {
     }
 
     struct Settings {
-        let title: LocalizedStringKey
+        let title: String
         let icon: Icon?
         let style: Style
         let isLoading: Bool
         var isDisabled: Bool
         let action: () -> Void
-
-        init(
-            title: LocalizedStringKey,
-            icon: Icon? = nil,
-            style: Style = .primary,
-            isLoading: Bool = false,
-            isDisabled: Bool = false,
-            action: @escaping (() -> Void)
-        ) {
-            self.title = title
-            self.icon = icon
-            self.style = style
-            self.isLoading = isLoading
-            self.isDisabled = isDisabled
-            self.action = action
-        }
 
         init(
             title: String,
@@ -209,7 +176,7 @@ extension MainButton {
             isDisabled: Bool = false,
             action: @escaping (() -> Void)
         ) {
-            self.title = LocalizedStringKey(stringLiteral: title)
+            self.title = title
             self.icon = icon
             self.style = style
             self.isLoading = isLoading
