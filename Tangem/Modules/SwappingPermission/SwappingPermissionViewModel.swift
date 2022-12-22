@@ -81,13 +81,13 @@ private extension SwappingPermissionViewModel {
         )
 
         contentRowViewModels = [
-            DefaultRowViewModel(title: "swapping_permission_rows_amount".localized(tokenSymbol),
+            DefaultRowViewModel(title: Localization.swappingPermissionRowsAmount(tokenSymbol),
                                 detailsType: .icon(Assets.infinityMini)),
-            DefaultRowViewModel(title: "swapping_permission_rows_your_wallet".localized,
+            DefaultRowViewModel(title: Localization.swappingPermissionRowsYourWallet,
                                 detailsType: .text(String(walletAddress))),
-            DefaultRowViewModel(title: "swapping_permission_rows_spender".localized,
+            DefaultRowViewModel(title: Localization.swappingPermissionRowsSpender,
                                 detailsType: .text(String(spenderAddress))),
-            DefaultRowViewModel(title: "send_fee_label".localized,
+            DefaultRowViewModel(title: Localization.sendFeeLabel,
                                 detailsType: .text(fee)),
         ]
     }
