@@ -32,7 +32,7 @@ struct ShopView: View {
                         Spacer()
                             .frame(maxHeight: .infinity)
 
-                        Text(L10n.shopOneWallet)
+                        Text(Localization.shopOneWallet)
                             .font(.system(size: 30, weight: .bold))
 
                         cardSelector
@@ -99,9 +99,9 @@ struct ShopView: View {
         VStack(spacing: 0) {
             HStack {
                 Image("box")
-                Text(L10n.shopShipping)
+                Text(Localization.shopShipping)
                 Spacer()
-                Text(L10n.shopFree)
+                Text(Localization.shopFree)
             }
             .padding(.horizontal)
             .padding(.vertical, sectionRowVerticalPadding)
@@ -110,7 +110,7 @@ struct ShopView: View {
 
             HStack {
                 Image("ticket")
-                TextField(L10n.shopIHaveAPromoCode, text: $viewModel.discountCode) { editing in
+                TextField(Localization.shopIHaveAPromoCode, text: $viewModel.discountCode) { editing in
                     if !editing {
                         viewModel.didEnterDiscountCode()
                     }
@@ -130,7 +130,7 @@ struct ShopView: View {
 
         VStack {
             HStack {
-                Text(L10n.shopTotal)
+                Text(Localization.shopTotal)
 
                 Spacer()
 
@@ -169,14 +169,14 @@ struct ShopView: View {
             Button {
                 viewModel.openWebCheckout()
             } label: {
-                Text(L10n.shopOtherPaymentMethods)
+                Text(Localization.shopOtherPaymentMethods)
             }
             .buttonStyle(TangemButtonStyle(colorStyle: .transparentWhite, layout: .flexibleWidth))
         } else {
             Button {
                 viewModel.openWebCheckout()
             } label: {
-                Text(L10n.shopBuyNow)
+                Text(Localization.shopBuyNow)
             }
             .buttonStyle(TangemButtonStyle(colorStyle: .black, layout: .flexibleWidth))
         }

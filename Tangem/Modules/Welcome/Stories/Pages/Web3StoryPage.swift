@@ -23,14 +23,14 @@ struct Web3StoryPage: View {
                 .padding()
 
             VStack(spacing: 16) {
-                Text(L10n.storyWeb3Title)
+                Text(Localization.storyWeb3Title)
                     .font(.system(size: 36, weight: .semibold))
                     .minimumScaleFactor(0.5)
                     .multilineTextAlignment(.center)
                     .padding(.horizontal)
                     .storyTextAppearanceModifier(progress: progress, type: .title, textBlockAppearance: .almostImmediate)
 
-                Text(L10n.storyWeb3Description)
+                Text(Localization.storyWeb3Description)
                     .font(.system(size: 20))
                     .multilineTextAlignment(.center)
                     .foregroundColor(.gray)
