@@ -37,7 +37,7 @@ class ReferralViewModel: ObservableObject {
             let award = referralProgramInfo?.conditions.awards.first,
             let blockchain = Blockchain(from: award.token.networkId)
         else {
-            errorAlert = AlertBuilder.makeOkErrorAlert(message: "referral_error_failed_to_load_info".localized,
+            errorAlert = AlertBuilder.makeOkErrorAlert(message: Localization.referralErrorFailedToLoadInfo,
                                                        okAction: coordinator.dismiss)
             return
         }
@@ -58,8 +58,8 @@ class ReferralViewModel: ObservableObject {
             }
             self.referralProgramInfo = referralProgramInfo
         } catch {
-            let format = "referral_error_failed_to_participate".localized
-            errorAlert = AlertBuilder.makeOkErrorAlert(message: String(format: format, error.localizedDescription))
+            let message = Localization.referralErrorFailedToParticipate(error.localizedDescription)
+            errorAlert = AlertBuilder.makeOkErrorAlert(message: message)
         }
 
         isProcessingRequest = false
@@ -78,9 +78,8 @@ class ReferralViewModel: ObservableObject {
             }
             self.referralProgramInfo = referralProgramInfo
         } catch {
-            let format = "referral_error_failed_to_load_info_with_reason".localized
-            self.errorAlert = AlertBuilder.makeOkErrorAlert(message: String(format: format, error.localizedDescription),
-                                                            okAction: self.coordinator.dismiss)
+            let message = Localization.referralErrorFailedToLoadInfoWithReason(error.localizedDescription)
+            self.errorAlert = AlertBuilder.makeOkErrorAlert(message: message, okAction: coordinator.dismiss)
         }
     }
 
@@ -160,7 +159,6 @@ extension ReferralViewModel {
     }
 
     var awardDescriptionSuffix: String {
-        let format = "referral_point_currencies_description_suffix".localized
         var addressContent = ""
         var tokenName = ""
         if let address = referralProgramInfo?.referral?.address {
@@ -173,7 +171,7 @@ extension ReferralViewModel {
             tokenName = blockchain.displayName
         }
 
-        return " " + String(format: format, tokenName, addressContent)
+        return " " + Localization.referralPointCurrenciesDescriptionSuffix(tokenName, addressContent)
     }
 
     var discount: String {
@@ -181,16 +179,12 @@ extension ReferralViewModel {
             return ""
         }
 
-        return String(format: "referral_point_discount_description_value".localized, "\(info.conditions.discount.amount)\(info.conditions.discount.type.symbol)")
+        return Localization.referralPointDiscountDescriptionValue("\(info.conditions.discount.amount)\(info.conditions.discount.type.symbol)")
     }
 
     var numberOfWalletsBought: String {
-        let stringFormat = "referral_wallets_purchased_count".localized
-        guard let info = referralProgramInfo?.referral else {
-            return String.localizedStringWithFormat(stringFormat, 0)
-        }
-
-        return String.localizedStringWithFormat(stringFormat, info.walletsPurchased)
+        let count = referralProgramInfo?.referral?.walletsPurchased ?? 0
+        return Localization.referralWalletsPurchasedCount(count)
     }
 
     var promoCode: String {
@@ -203,10 +197,10 @@ extension ReferralViewModel {
 
     var tosButtonPrefix: String {
         if referralProgramInfo?.referral == nil {
-            return "referral_tos_not_enroled_prefix".localized + " "
+            return Localization.referralTosNotEnroledPrefix + " "
         }
 
-        return "referral_tos_enroled_prefix".localized + " "
+        return Localization.referralTosEnroledPrefix + " "
     }
 
     var shareLink: String {
@@ -214,7 +208,7 @@ extension ReferralViewModel {
             return ""
         }
 
-        return String(format: "referral_share_link".localized, referralInfo.shareLink)
+        return Localization.referralShareLink(referralInfo.shareLink)
     }
 
     var isProgramInfoLoaded: Bool { referralProgramInfo != nil }
