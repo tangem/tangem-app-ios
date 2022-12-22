@@ -32,7 +32,7 @@ class TwinsOnboardingViewModel: OnboardingTopupViewModel<TwinsOnboardingStep, On
         return steps[currentStepIndex]
     }
 
-    override var title: LocalizedStringKey? {
+    override var title: String? {
         if !isInitialAnimPlayed {
             return super.title
         }
@@ -51,7 +51,7 @@ class TwinsOnboardingViewModel: OnboardingTopupViewModel<TwinsOnboardingStep, On
         return super.title
     }
 
-    override var mainButtonTitle: LocalizedStringKey {
+    override var mainButtonTitle: String {
         if !isInitialAnimPlayed {
             return super.mainButtonTitle
         }
@@ -68,7 +68,7 @@ class TwinsOnboardingViewModel: OnboardingTopupViewModel<TwinsOnboardingStep, On
         }
 
         if case .topup = currentStep, !canBuy {
-            return "onboarding_button_receive_crypto"
+            return Localization.onboardingButtonReceiveCrypto
         }
 
         return super.mainButtonTitle
@@ -107,7 +107,7 @@ class TwinsOnboardingViewModel: OnboardingTopupViewModel<TwinsOnboardingStep, On
         }
     }
 
-    var infoText: LocalizedStringKey? {
+    var infoText: String? {
         currentStep.infoText
     }
 
@@ -266,7 +266,7 @@ class TwinsOnboardingViewModel: OnboardingTopupViewModel<TwinsOnboardingStep, On
     override func backButtonAction() {
         switch currentStep {
         case .second, .third:
-            alert = AlertBuilder.makeOkGotItAlert(message: "onboarding_twin_exit_warning".localized)
+            alert = AlertBuilder.makeOkGotItAlert(message: Localization.onboardingTwinExitWarning)
         default:
             alert = AlertBuilder.makeExitAlert() { [weak self] in
                 guard let self else { return }

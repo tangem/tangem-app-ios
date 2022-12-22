@@ -366,14 +366,14 @@ extension WalletModel {
         let symbol = wallet.amounts[type]?.currencySymbol ?? wallet.blockchain.currencySymbol
 
         if case let .token(token) = amountType {
-            return String(format: "address_qr_code_message_token_format".localized,
-                          token.name,
-                          symbol,
-                          wallet.blockchain.displayName)
+            return Localization.addressQrCodeMessageTokenFormat(
+                token.name,
+                symbol,
+                wallet.blockchain.displayName)
         } else {
-            return String(format: "address_qr_code_message_format".localized,
-                          wallet.blockchain.displayName,
-                          symbol)
+            return Localization.addressQrCodeMessageFormat(
+                wallet.blockchain.displayName,
+                symbol)
         }
     }
 

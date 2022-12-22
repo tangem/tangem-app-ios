@@ -9,7 +9,7 @@
 import SwiftUI
 
 struct TangemButtonSettings {
-    let title: LocalizedStringKey
+    let title: String
     let size: ButtonLayout
     let action: (() -> Void)?
     let isBusy: Bool
@@ -31,13 +31,13 @@ struct OnboardingBottomButtonsSettings {
 
 struct OnboardingTextButtonView: View {
 
-    let title: LocalizedStringKey?
-    let subtitle: LocalizedStringKey?
+    let title: String?
+    let subtitle: String?
     var textOffset: CGSize = .zero
     let buttonsSettings: OnboardingBottomButtonsSettings
-    let infoText: LocalizedStringKey?
+    let infoText: String?
     let titleAction: (() -> Void)?
-    var checkmarkText: LocalizedStringKey? = nil
+    var checkmarkText: String? = nil
     var isCheckmarkChecked: Binding<Bool> = .constant(false)
 
     @ViewBuilder
