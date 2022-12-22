@@ -45,11 +45,11 @@ class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable>
         CGFloat(currentStepIndex + 1) / CGFloat(input.steps.stepsCount)
     }
 
-    var navbarTitle: LocalizedStringKey {
-        "onboarding_getting_started"
+    var navbarTitle: String {
+        Localization.onboardingGettingStarted
     }
 
-    var title: LocalizedStringKey? {
+    var title: String? {
         if !isInitialAnimPlayed, let welcomeStep = input.welcomeStep {
             return welcomeStep.title
         }
@@ -57,7 +57,7 @@ class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable>
         return currentStep.title
     }
 
-    var subtitle: LocalizedStringKey? {
+    var subtitle: String? {
         if !isInitialAnimPlayed, let welcomteStep = input.welcomeStep {
             return welcomteStep.subtitle
         }
@@ -78,7 +78,7 @@ class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable>
         currentStep.isOnboardingFinished
     }
 
-    var mainButtonTitle: LocalizedStringKey {
+    var mainButtonTitle: String {
         if !isInitialAnimPlayed, let welcomeStep = input.welcomeStep {
             return welcomeStep.mainButtonTitle
         }
@@ -98,7 +98,7 @@ class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable>
         )
     }
 
-    var supplementButtonTitle: LocalizedStringKey {
+    var supplementButtonTitle: String {
         if !isInitialAnimPlayed, let welcomteStep = input.welcomeStep {
             return welcomteStep.supplementButtonTitle
         }
