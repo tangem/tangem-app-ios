@@ -95,8 +95,10 @@ extension SaltPayConfig: UserWalletConfig {
         var cardIds = util.backupCardIds
         cardIds.append(card.cardId)
 
-        config.filter.cardIdFilter = .allow(Set(cardIds), ranges: util.backupCardRanges)
-        config.filter.localizedDescription = Localization.errorSaltpayWrongBackupCard
+        if !_backupSteps.isEmpty { // This filter should be applied to backup only.
+            config.filter.cardIdFilter = .allow(Set(cardIds), ranges: util.backupCardRanges)
+            config.filter.localizedDescription = Localization.errorSaltpayWrongBackupCard
+        }
         config.cardIdDisplayFormat = .none
         return config
     }
