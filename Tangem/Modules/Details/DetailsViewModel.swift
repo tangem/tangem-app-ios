@@ -188,20 +188,20 @@ extension DetailsViewModel {
         }
 
         walletConnectRowViewModel = WalletConnectRowViewModel(
-            title: L10n.walletConnectTitle,
-            subtitle: L10n.walletConnectSubtitle,
+            title: Localization.walletConnectTitle,
+            subtitle: Localization.walletConnectSubtitle,
             action: openWalletConnect
         )
     }
 
     func setupSupportSectionModels() {
         supportSectionModels = [
-            DefaultRowViewModel(title: L10n.detailsChat, action: openSupportChat),
-            DefaultRowViewModel(title: L10n.detailsRowTitleSendFeedback, action: openMail),
+            DefaultRowViewModel(title: Localization.detailsChat, action: openSupportChat),
+            DefaultRowViewModel(title: Localization.detailsRowTitleSendFeedback, action: openMail),
         ]
 
         if cardModel.canParticipateInReferralProgram && FeatureProvider.isAvailable(.referralProgram) {
-            supportSectionModels.append(DefaultRowViewModel(title: L10n.detailsReferralTitle, action: openReferral))
+            supportSectionModels.append(DefaultRowViewModel(title: Localization.detailsReferralTitle, action: openReferral))
         }
     }
 
@@ -210,27 +210,27 @@ extension DetailsViewModel {
 
         if !cardModel.isMultiWallet {
             viewModels.append(DefaultRowViewModel(
-                title: L10n.detailsRowTitleCurrency,
+                title: Localization.detailsRowTitleCurrency,
                 detailsType: .text(selectedCurrencyCode),
                 action: coordinator.openCurrencySelection
             ))
         }
 
         viewModels.append(DefaultRowViewModel(
-            title: L10n.cardSettingsTitle,
+            title: Localization.cardSettingsTitle,
             action: openCardSettings
         ))
 
         // [REDACTED_TODO_COMMENT]
 
         viewModels.append(DefaultRowViewModel(
-            title: L10n.appSettingsTitle,
+            title: Localization.appSettingsTitle,
             action: openAppSettings
         ))
 
         if canCreateBackup {
             viewModels.append(DefaultRowViewModel(
-                title: L10n.detailsRowTitleCreateBackup,
+                title: Localization.detailsRowTitleCreateBackup,
                 action: prepareBackup
             ))
         }
@@ -240,7 +240,7 @@ extension DetailsViewModel {
 
     func setupLegalSectionViewModels() {
         legalSectionViewModel = DefaultRowViewModel(
-            title: L10n.disclaimerTitle,
+            title: Localization.disclaimerTitle,
             action: openDisclaimer
         )
     }
