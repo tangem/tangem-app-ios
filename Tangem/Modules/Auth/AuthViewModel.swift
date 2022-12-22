@@ -18,7 +18,7 @@ final class AuthViewModel: ObservableObject {
     @Published var navigationBarHidden: Bool = false
 
     var unlockWithBiometryButtonTitle: String {
-        L10n.welcomeUnlock(BiometricAuthorizationUtils.biometryType.name)
+        Localization.welcomeUnlock(BiometricAuthorizationUtils.biometryType.name)
     }
 
     // MARK: - Dependencies
