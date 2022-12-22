@@ -19,13 +19,13 @@ struct TokenListView: View {
             PerfList {
                 if #available(iOS 15.0, *) {} else {
                     let horizontalInset: CGFloat = UIDevice.isIOS13 ? 8 : 16
-                    SearchBar(text: $viewModel.enteredSearchText.value, placeholder: L10n.commonSearch)
+                    SearchBar(text: $viewModel.enteredSearchText.value, placeholder: Localization.commonSearch)
                         .padding(.horizontal, UIDevice.isIOS13 ? 0 : 8)
                         .listRowInsets(.init(top: 8, leading: horizontalInset, bottom: 8, trailing: horizontalInset))
                 }
 
                 if viewModel.shouldShowAlert {
-                    Text(L10n.alertManageTokensAddressesMessage)
+                    Text(Localization.alertManageTokensAddressesMessage)
                         .font(.system(size: 13, weight: .medium, design: .default))
                         .multilineTextAlignment(.center)
                         .foregroundColor(Color(hex: "#848488"))
@@ -63,7 +63,7 @@ struct TokenListView: View {
         .navigationBarItems(trailing: addCustomView)
         .alert(item: $viewModel.alert, content: { $0.alert })
         .toast(isPresenting: $viewModel.showToast) {
-            AlertToast(type: .complete(Color.tangemGreen), title: L10n.contractAddressCopiedMessage)
+            AlertToast(type: .complete(Color.tangemGreen), title: Localization.contractAddressCopiedMessage)
         }
         .searchableCompat(text: $viewModel.enteredSearchText.value)
         .background(Color.clear.edgesIgnoringSafeArea(.all))
@@ -102,7 +102,7 @@ struct TokenListView: View {
                 Spacer()
 
                 MainButton(
-                    title: L10n.commonSaveChanges,
+                    title: Localization.commonSaveChanges,
                     isLoading: viewModel.isSaving,
                     isDisabled: viewModel.isSaveDisabled,
                     action: viewModel.saveChanges
