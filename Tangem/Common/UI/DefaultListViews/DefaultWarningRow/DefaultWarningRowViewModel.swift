@@ -14,14 +14,14 @@ struct DefaultWarningRowViewModel {
     let subtitle: String
     private(set) var detailsType: DetailsType?
 
-    let action: () -> ()
+    let action: (() -> ())?
 
     init(
         icon: Image,
         title: String?,
         subtitle: String,
         detailsType: DefaultWarningRowViewModel.DetailsType? = nil,
-        action: @escaping () -> ()
+        action: (() -> ())? = nil
     ) {
         self.icon = icon
         self.title = title
@@ -36,9 +36,18 @@ struct DefaultWarningRowViewModel {
 }
 
 extension DefaultWarningRowViewModel {
-    enum DetailsType {
+    enum DetailsType: Hashable {
         case icon(_ image: Image)
         case loader
+
+        func hash(into hasher: inout Hasher) {
+            switch self {
+            case .loader:
+                hasher.combine("loader")
+            case .icon:
+                hasher.combine("icon")
+            }
+        }
     }
 }
 
@@ -46,6 +55,7 @@ extension DefaultWarningRowViewModel: Hashable {
     func hash(into hasher: inout Hasher) {
         hasher.combine(title)
         hasher.combine(subtitle)
+        hasher.combine(detailsType)
     }
 
     static func == (lhs: DefaultWarningRowViewModel, rhs: DefaultWarningRowViewModel) -> Bool {
