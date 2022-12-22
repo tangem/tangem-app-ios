@@ -456,6 +456,7 @@ class CommonUserWalletRepository: UserWalletRepository {
         // This is done to avoid unnecessary changes in SDK config when the user scans an empty card
         // (that would open onboarding) and then immediately close it.
         if !AppSettings.shared.saveUserWallets {
+            cardModel.userWalletModel?.initialUpdate() // todo: fixme
             cardModel.updateSdkConfig()
         }
 
