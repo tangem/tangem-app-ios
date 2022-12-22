@@ -35,7 +35,7 @@ extension CommonKeysManager: KeysManager {
     }
 
     var blockchainConfig: BlockchainSdkConfig {
-        BlockchainSdkConfig(blockchairApiKey: keys.blockchairApiKey,
+        BlockchainSdkConfig(blockchairApiKeys: keys.blockchairApiKeys,
                             blockcypherTokens: keys.blockcypherTokens,
                             infuraProjectId: keys.infuraProjectId,
                             tronGridApiKey: keys.tronGridApiKey,
@@ -72,7 +72,7 @@ extension CommonKeysManager {
         let moonPayApiSecretKey: String
         let mercuryoWidgetId: String
         let mercuryoSecret: String
-        let blockchairApiKey: String
+        let blockchairApiKeys: [String]
         let blockcypherTokens: [String]
         let infuraProjectId: String
         let appsFlyerDevKey: String
