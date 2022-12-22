@@ -137,29 +137,33 @@ class WalletModel: ObservableObject, Identifiable {
 
         updateWalletModelBag = updateWalletManager()
             .receive(on: updateQueue)
-            .flatMap { [weak self] in self?.loadRates() ?? .justWithError(output: [:]) }
-            .receive(on: updateQueue)
-            .sink { [weak self] completion in
-                guard let self else { return }
-
-                switch completion {
-                case .finished:
-                    break
-                case let .failure(error):
-                    Analytics.log(error: error)
-                    self.updateRatesIfNeeded([:])
-                    self.updateState(.failed(error: error.localizedDescription))
-                    self.updatePublisher?.send(completion: .failure(error))
-                    self.updatePublisher = nil
+            .tryMap { [weak self] result -> AnyPublisher<(WalletManagerUpdateResult, [String: Decimal]), Error> in
+                guard let self else {
+                    throw CommonError.objectReleased
                 }
 
-            } receiveValue: { [weak self] rates in
+                return self.loadRates().map { (result, $0) }.eraseToAnyPublisher()
+            }
+            .switchToLatest()
+            .receive(on: updateQueue)
+            .sink { [weak self] completion in
+                guard let self, case let .failure(error) = completion else { return }
+
+                Analytics.log(error: error)
+                self.updateRatesIfNeeded([:])
+                self.updateState(.failed(error: error.localizedDescription))
+                self.updatePublisher?.send(completion: .failure(error))
+                self.updatePublisher = nil
+
+            } receiveValue: { [weak self] updatedResult, rates in
                 guard let self else { return }
 
                 self.updateRatesIfNeeded(rates)
 
-                // Don't update noAccount state
-                if !self.state.isNoAccount {
+                switch updatedResult {
+                case .noAccount(let message):
+                    self.updateState(.noAccount(message: message))
+                case .success:
                     self.updateState(.idle)
                 }
 
@@ -171,7 +175,7 @@ class WalletModel: ObservableObject, Identifiable {
         return newUpdatePublisher.eraseToAnyPublisher()
     }
 
-    func updateWalletManager() -> AnyPublisher<Void, Error> {
+    func updateWalletManager() -> AnyPublisher<WalletManagerUpdateResult, Error> {
         Future { promise in
             self.updateQueue.sync {
                 print("🔄 Updating wallet model for \(self.wallet.blockchain)")
@@ -187,14 +191,12 @@ class WalletModel: ObservableObject, Identifiable {
                             self?.walletManager.wallet.add(coinValue: demoBalance)
                         }
 
-                        promise(.success(()))
+                        promise(.success(.success))
 
                     case let .failure(error):
                         switch error as? WalletError {
                         case .noAccount(let message):
-                            // If we don't have a account just update state and loadRates
-                            self?.updateState(.noAccount(message: message))
-                            promise(.success(()))
+                            promise(.success(.noAccount(message: message)))
                         default:
                             promise(.failure(error.detailedError))
                         }
@@ -365,16 +367,14 @@ extension WalletModel {
         // todo: handle default token
         let symbol = wallet.amounts[type]?.currencySymbol ?? wallet.blockchain.currencySymbol
 
+        let currencyName: String
         if case let .token(token) = amountType {
-            return Localization.addressQrCodeMessageTokenFormat(
-                token.name,
-                symbol,
-                wallet.blockchain.displayName)
+            currencyName = token.name
         } else {
-            return Localization.addressQrCodeMessageFormat(
-                wallet.blockchain.displayName,
-                symbol)
+            currencyName = wallet.blockchain.displayName
         }
+
+        return Localization.addressQrCodeMessageFormat(currencyName, symbol, wallet.blockchain.displayName)
     }
 
     func getFiatFormatted(for amount: Amount?, roundingMode: NSDecimalNumber.RoundingMode = .down) -> String? {
@@ -608,5 +608,10 @@ extension WalletModel {
                 return true
             }
         }
+    }
+
+    enum WalletManagerUpdateResult: Hashable {
+        case success
+        case noAccount(message: String)
     }
 }
