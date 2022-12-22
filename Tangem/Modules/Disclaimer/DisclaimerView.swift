@@ -53,7 +53,7 @@ struct DisclaimerView: View {
                 height: viewModel.bottomOverlayHeight
             )
 
-            MainButton(title: L10n.commonAccept, action: viewModel.onAccept)
+            MainButton(title: Localization.commonAccept, action: viewModel.onAccept)
                 .padding(.horizontal, 16)
         }
     }
@@ -64,7 +64,7 @@ extension DisclaimerView {
         case sheet
         case navbar
 
-        var title: String { L10n.disclaimerTitle }
+        var title: String { Localization.disclaimerTitle }
         var isVisibleHeader: Bool { self == .sheet }
         var isNavigationBarHidden: Bool { self == .sheet }
     }
