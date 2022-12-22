@@ -28,9 +28,9 @@ class TokenListViewModel: ObservableObject {
     var titleKey: String {
         switch mode {
         case .add:
-            return L10n.addTokensTitle
+            return Localization.addTokensTitle
         case .show:
-            return L10n.searchTokensTitle
+            return Localization.searchTokensTitle
         }
     }
 
@@ -230,12 +230,12 @@ private extension TokenListViewModel {
            case .solana = blockchain,
            !cardModel.longHashesSupported
         {
-            let okButton = Alert.Button.default(Text(L10n.commonOk)) {
+            let okButton = Alert.Button.default(Text(Localization.commonOk)) {
                 self.updateSelection(tokenItem)
             }
 
-            alert = AlertBinder(alert: Alert(title: Text(L10n.commonAttention),
-                                             message: Text(L10n.alertManageTokensUnsupportedMessage),
+            alert = AlertBinder(alert: Alert(title: Text(Localization.commonAttention),
+                                             message: Text(Localization.alertManageTokensUnsupportedMessage),
                                              dismissButton: okButton))
 
             return
@@ -316,7 +316,7 @@ private extension TokenListViewModel {
             return
         }
         if canManage(tokenItem) || canRemove(tokenItem: tokenItem) {
-            let title = L10n.tokenDetailsHideAlertTitle(tokenItem.blockchain.currencySymbol)
+            let title = Localization.tokenDetailsHideAlertTitle(tokenItem.blockchain.currencySymbol)
 
             let cancelAction = { [unowned self] in
                 self.updateSelection(tokenItem)
@@ -328,8 +328,8 @@ private extension TokenListViewModel {
 
             alert = AlertBinder(alert:
                 Alert(title: Text(title),
-                      message: Text(L10n.tokenDetailsHideAlertMessage),
-                      primaryButton: .destructive(Text(L10n.tokenDetailsHideAlertHide), action: hideAction),
+                      message: Text(Localization.tokenDetailsHideAlertMessage),
+                      primaryButton: .destructive(Text(Localization.tokenDetailsHideAlertHide), action: hideAction),
                       secondaryButton: .cancel(cancelAction))
             )
         } else {
@@ -341,9 +341,9 @@ private extension TokenListViewModel {
                 return
             }
 
-            let title = L10n.tokenDetailsUnableHideAlertTitle(tokenItem.blockchain.currencySymbol)
+            let title = Localization.tokenDetailsUnableHideAlertTitle(tokenItem.blockchain.currencySymbol)
 
-            let message = L10n.tokenDetailsUnableHideAlertMessage(
+            let message = Localization.tokenDetailsUnableHideAlertMessage(
                 tokenItem.blockchain.currencySymbol,
                 walletModel.blockchainNetwork.blockchain.displayName
             )
@@ -351,7 +351,7 @@ private extension TokenListViewModel {
             alert = AlertBinder(alert: Alert(
                 title: Text(title),
                 message: Text(message),
-                dismissButton: .default(Text(L10n.commonOk), action: {
+                dismissButton: .default(Text(Localization.commonOk), action: {
                     self.updateSelection(tokenItem)
                 })
             ))

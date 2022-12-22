@@ -113,7 +113,7 @@ class WalletConnectTransactionHandler: TangemWalletConnectRequestHandler {
                     let message: String = {
 
                         var m = ""
-                        m += L10n.walletConnectCreateTxMessage(
+                        m += Localization.walletConnectCreateTxMessage(
                             dApp.peerMeta.name,
                             dApp.peerMeta.url.absoluteString,
                             valueAmount.description,
@@ -121,7 +121,7 @@ class WalletConnectTransactionHandler: TangemWalletConnectRequestHandler {
                             totalAmount.description,
                             walletModel.getBalance(for: .coin))
                         if (balance < totalAmount) {
-                            m += "\n\n" + L10n.walletConnectCreateTxNotEnoughFunds
+                            m += "\n\n" + Localization.walletConnectCreateTxNotEnoughFunds
                         }
                         return m
                     }()

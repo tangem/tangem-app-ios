@@ -38,20 +38,20 @@ extension WarningEvent {
 }
 
 fileprivate struct WarningsList {
-    static let warningTitle = L10n.commonWarning
+    static let warningTitle = Localization.commonWarning
 
-    static let oldCard = AppWarning(title: warningTitle, message: L10n.alertOldCard, priority: .info, type: .permanent)
-    static let oldDeviceOldCard = AppWarning(title: warningTitle, message: L10n.alertOldDeviceThisCard, priority: .info, type: .permanent)
-    static let devCard = AppWarning(title: warningTitle, message: L10n.alertDeveloperCard, priority: .critical, type: .permanent)
-    static let numberOfSignedHashesIncorrect = AppWarning(title: warningTitle, message: L10n.alertCardSignedTransactions, priority: .info, type: .temporary, event: .numberOfSignedHashesIncorrect)
-    static let rateApp = AppWarning(title: L10n.warningRateAppTitle, message: L10n.warningRateAppMessage, priority: .info, type: .temporary, event: .rateApp)
-    static let failedToVerifyCard = AppWarning(title: L10n.warningFailedToVerifyCardTitle, message: L10n.warningFailedToVerifyCardMessage, priority: .critical, type: .permanent, event: .failedToValidateCard)
-    static let multiWalletSignedHashes = AppWarning(title: L10n.warningImportantSecurityInfo, message: L10n.warningSignedTxPreviously, priority: .info, type: .temporary, location: [.main], event: .multiWalletSignedHashes)
-    static let testnetCard = AppWarning(title: warningTitle, message: L10n.warningTestnetCardMessage, priority: .critical, type: .permanent, location: [.main, .send], event: .testnetCard)
-    static let demoCard = AppWarning(title: warningTitle, message: L10n.alertDemoMessage, priority: .critical, type: .permanent, location: [.main, .send], event: .demoCard)
-    static let legacyDerivation = AppWarning(title: warningTitle, message: L10n.alertManageTokensAddressesMessage, priority: .critical, type: .permanent, location: [.manageTokens], event: .legacyDerivation)
+    static let oldCard = AppWarning(title: warningTitle, message: Localization.alertOldCard, priority: .info, type: .permanent)
+    static let oldDeviceOldCard = AppWarning(title: warningTitle, message: Localization.alertOldDeviceThisCard, priority: .info, type: .permanent)
+    static let devCard = AppWarning(title: warningTitle, message: Localization.alertDeveloperCard, priority: .critical, type: .permanent)
+    static let numberOfSignedHashesIncorrect = AppWarning(title: warningTitle, message: Localization.alertCardSignedTransactions, priority: .info, type: .temporary, event: .numberOfSignedHashesIncorrect)
+    static let rateApp = AppWarning(title: Localization.warningRateAppTitle, message: Localization.warningRateAppMessage, priority: .info, type: .temporary, event: .rateApp)
+    static let failedToVerifyCard = AppWarning(title: Localization.warningFailedToVerifyCardTitle, message: Localization.warningFailedToVerifyCardMessage, priority: .critical, type: .permanent, event: .failedToValidateCard)
+    static let multiWalletSignedHashes = AppWarning(title: Localization.warningImportantSecurityInfo, message: Localization.warningSignedTxPreviously, priority: .info, type: .temporary, location: [.main], event: .multiWalletSignedHashes)
+    static let testnetCard = AppWarning(title: warningTitle, message: Localization.warningTestnetCardMessage, priority: .critical, type: .permanent, location: [.main, .send], event: .testnetCard)
+    static let demoCard = AppWarning(title: warningTitle, message: Localization.alertDemoMessage, priority: .critical, type: .permanent, location: [.main, .send], event: .demoCard)
+    static let legacyDerivation = AppWarning(title: warningTitle, message: Localization.alertManageTokensAddressesMessage, priority: .critical, type: .permanent, location: [.manageTokens], event: .legacyDerivation)
     static func lowSignatures(count: Int) -> AppWarning {
-        let message = L10n.warningLowSignaturesFormat("\(count)")
+        let message = Localization.warningLowSignaturesFormat("\(count)")
         return AppWarning(title: warningTitle, message: message, priority: .critical, type: .permanent)
     }
 }
