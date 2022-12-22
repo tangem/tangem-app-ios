@@ -20,7 +20,7 @@ struct FinishStoryPage: View {
                 .padding()
 
             VStack(spacing: 18) {
-                Text(L10n.storyFinishTitle)
+                Text(Localization.storyFinishTitle)
                     .font(.system(size: 36, weight: .semibold))
                     .minimumScaleFactor(0.5)
                     .multilineTextAlignment(.center)
@@ -28,7 +28,7 @@ struct FinishStoryPage: View {
                     .padding(.horizontal)
                     .storyTextAppearanceModifier(progress: progress, type: .title, textBlockAppearance: .minorDelay)
 
-                Text(L10n.storyFinishDescription)
+                Text(Localization.storyFinishDescription)
                     .font(.system(size: 24))
                     .multilineTextAlignment(.center)
                     .foregroundColor(.gray)
