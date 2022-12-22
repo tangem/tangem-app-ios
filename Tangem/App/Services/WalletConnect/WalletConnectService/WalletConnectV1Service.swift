@@ -13,10 +13,14 @@ import TangemSdk
 fileprivate typealias ExtractedWCUrl = (url: String, handleDelay: TimeInterval)
 
 class WalletConnectV1Service {
-    var canEstablishNewSessionPublisher: CurrentValueSubject<Bool, Never> = .init(true)
-    var cardModel: CardViewModel
+    private enum ServiceConstants {
+        static let uriPrefix = "uri="
+        static let wcPrefix = "wc:"
+    }
+    
+    let canEstablishNewSessionPublisher = CurrentValueSubject<Bool, Never>(true)
 
-    @Published private(set) var sessions: [WalletConnectSession] = .init()
+    @Published private(set) var sessions = [WalletConnectSession]()
     var sessionsPublisher: AnyPublisher<[WalletConnectSession], Never> {
         $sessions
             .map { [weak self] wcSessions in
@@ -26,15 +30,16 @@ class WalletConnectV1Service {
             }
             .eraseToAnyPublisher()
     }
-
-    private(set) var server: Server!
+    private(set) var cardModel: CardViewModel
 
     fileprivate var wallet: WalletInfo? = nil
+
+    private var server: Server!
+    private let updateQueue = DispatchQueue(label: "ws_sessions_update_queue")
     private let sessionsKey = "wc_sessions"
 
     private var isWaitingToConnect: Bool = false
     private var timer: DispatchWorkItem?
-    private let updateQueue = DispatchQueue(label: "ws_sessions_update_queue")
 
     init(with cardModel: CardViewModel) {
         self.cardModel = cardModel
@@ -254,20 +259,27 @@ extension WalletConnectV1Service: WalletConnectURLHandler {
             return (url: absoluteStr, handleDelay: 0)
         }
 
-        let uriPrefix = "uri="
-        let wcPrefix = "wc:"
-
         guard
             let components = URLComponents(url: url, resolvingAgainstBaseURL: true),
             let scheme = components.scheme,
             var query = components.query
-        else { return nil }
+        else {
+            return nil
+        }
 
-        guard query.starts(with: uriPrefix + wcPrefix) ||
-            ((Bundle.main.infoDictionary?["CFBundleURLTypes"] as? [[String: Any]])?.map { $0["CFBundleURLSchemes"] as? [String] }.contains(where: { $0?.contains(scheme) ?? false }) ?? false)
-        else { return nil }
+        let bundleSchemes: [[String]]? = InfoDictionaryUtils.bundleURLSchemes.value()
+        guard
+            query.starts(with: ServiceConstants.uriPrefix + ServiceConstants.wcPrefix) ||
+            (bundleSchemes?.contains(where: { $0.contains(scheme) }) ?? false)
+        else {
+            return nil
+        }
 
-        query.removeFirst(uriPrefix.count)
+        guard query.count > ServiceConstants.uriPrefix.count else {
+            return nil
+        }
+
+        query.removeFirst(ServiceConstants.uriPrefix.count)
 
         guard canHandle(url: query) else { return nil }
 
