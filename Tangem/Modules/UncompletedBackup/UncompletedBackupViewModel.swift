@@ -33,19 +33,19 @@ final class UncompletedBackupViewModel: ObservableObject {
     }
 
     private func showAlert() {
-        let alert = Alert(title: Text(L10n.commonWarning),
-                          message: Text(L10n.welcomeInterruptedBackupAlertMessage),
-                          primaryButton: .default(Text(L10n.welcomeInterruptedBackupAlertResume), action: continueBackup),
-                          secondaryButton: .destructive(Text(L10n.welcomeInterruptedBackupAlertDiscard), action: showExtraDiscardAlert))
+        let alert = Alert(title: Text(Localization.commonWarning),
+                          message: Text(Localization.welcomeInterruptedBackupAlertMessage),
+                          primaryButton: .default(Text(Localization.welcomeInterruptedBackupAlertResume), action: continueBackup),
+                          secondaryButton: .destructive(Text(Localization.welcomeInterruptedBackupAlertDiscard), action: showExtraDiscardAlert))
 
         self.error = AlertBinder(alert: alert)
     }
 
     private func showExtraDiscardAlert() {
-        let buttonResume: ActionSheet.Button = .cancel(Text(L10n.welcomeInterruptedBackupDiscardResume), action: continueBackup)
-        let buttonDiscard: ActionSheet.Button = .destructive(Text(L10n.welcomeInterruptedBackupDiscardDiscard), action: discardBackup)
-        let sheet = ActionSheet(title: Text(L10n.welcomeInterruptedBackupDiscardTitle),
-                                message: Text(L10n.welcomeInterruptedBackupDiscardMessage),
+        let buttonResume: ActionSheet.Button = .cancel(Text(Localization.welcomeInterruptedBackupDiscardResume), action: continueBackup)
+        let buttonDiscard: ActionSheet.Button = .destructive(Text(Localization.welcomeInterruptedBackupDiscardDiscard), action: discardBackup)
+        let sheet = ActionSheet(title: Text(Localization.welcomeInterruptedBackupDiscardTitle),
+                                message: Text(Localization.welcomeInterruptedBackupDiscardMessage),
                                 buttons: [buttonDiscard, buttonResume])
 
         DispatchQueue.main.async {
