@@ -495,6 +495,7 @@ URL: %@";
 "swapping_insufficient_funds" = "Недостаточно средств";
 "swapping_give_permission" = "Дать разрешение";
 "swapping_permit_and_swap" = "Разрешить и обменять";
+"swapping_not_enough_funds_for_fee" = "Недостаточно средств для оплаты на вашем %@ кошельке для создания транзакции. Сначала пополните свой %@ кошелек.";
 "details_referral_title" = "Реферальная программа";
 "referral_title" = "Приведи друга в Tangem";
 "referral_point_currencies_title" = "Вы";
