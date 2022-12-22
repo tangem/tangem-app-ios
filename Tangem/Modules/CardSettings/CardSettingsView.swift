@@ -13,9 +13,9 @@ struct CardSettingsView: View {
 
     var firstSectionFooterTitle: String {
         if viewModel.isChangeAccessCodeVisible {
-            return L10n.cardSettingsChangeAccessCodeFooter
+            return Localization.cardSettingsChangeAccessCodeFooter
         } else {
-            return L10n.cardSettingsSecurityModeFooter
+            return Localization.cardSettingsSecurityModeFooter
         }
     }
 
@@ -42,6 +42,6 @@ struct CardSettingsView: View {
             }
         }
         .alert(item: $viewModel.alert) { $0.alert }
-        .navigationBarTitle(Text(L10n.cardSettingsTitle), displayMode: .inline)
+        .navigationBarTitle(Text(Localization.cardSettingsTitle), displayMode: .inline)
     }
 }
