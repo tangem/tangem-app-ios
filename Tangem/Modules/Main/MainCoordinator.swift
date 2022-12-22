@@ -60,7 +60,7 @@ class MainCoordinator: CoordinatorObject {
                         return
                     }
 
-                    let options = Options(cardModel: selectedModel, shouldRefreshOnAppear: false)
+                    let options = Options(cardModel: selectedModel, shouldRefreshOnAppear: true)
                     DispatchQueue.main.async { // fix ios13 freeze
                         self.start(with: options)
                     }
