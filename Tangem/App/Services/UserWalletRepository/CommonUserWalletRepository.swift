@@ -87,10 +87,10 @@ class CommonUserWalletRepository: UserWalletRepository {
             .store(in: &bag)
     }
 
-    private func scanPublisher(with batch: String? = nil) -> AnyPublisher<UserWalletRepositoryResult?, Never>  {
+    private func scanPublisher() -> AnyPublisher<UserWalletRepositoryResult?, Never>  {
         Deferred {
             Future { [weak self] promise in
-                self?.scanInternal(with: batch) { result in
+                self?.scanInternal { result in
                     switch result {
                     case .success(let scanResult):
                         promise(.success(scanResult))
@@ -172,7 +172,7 @@ class CommonUserWalletRepository: UserWalletRepository {
         .eraseToAnyPublisher()
     }
 
-    private func scanInternal(with batch: String? = nil, _ completion: @escaping (Result<CardViewModel, Error>) -> Void) {
+    private func scanInternal(completion: @escaping (Result<CardViewModel, Error>) -> Void) {
         Analytics.reset()
         Analytics.log(.readyToScan)
 
@@ -188,7 +188,7 @@ class CommonUserWalletRepository: UserWalletRepository {
         sdkProvider.setup(with: config)
 
         sendEvent(.scan(isScanning: true))
-        sdkProvider.sdk.startSession(with: AppScanTask(targetBatch: batch)) { [unowned self] result in
+        sdkProvider.sdk.startSession(with: AppScanTask()) { [unowned self] result in
             self.sendEvent(.scan(isScanning: false))
 
             sdkProvider.setup(with: oldConfig)
