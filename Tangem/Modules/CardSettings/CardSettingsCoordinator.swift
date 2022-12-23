@@ -18,7 +18,7 @@ class CardSettingsCoordinator: CoordinatorObject {
 
     // MARK: - Child view models
 
-    @Published var attentionViewModel: ResetToFactoryViewModel?
+    @Published var resetToFactoryViewModel: ResetToFactoryViewModel?
 
     // MARK: - Child coordinators
 
@@ -72,7 +72,7 @@ extension CardSettingsCoordinator: CardSettingsRoutable {
 
     func openResetCardToFactoryWarning(cardModel: CardViewModel) {
         Analytics.log(.buttonFactoryReset)
-        attentionViewModel = ResetToFactoryViewModel(
+        resetToFactoryViewModel = ResetToFactoryViewModel(
             cardModel: cardModel,
             coordinator: self
         )
