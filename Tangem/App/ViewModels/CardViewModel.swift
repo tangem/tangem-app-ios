@@ -344,7 +344,7 @@ class CardViewModel: Identifiable, ObservableObject {
         case .accessCode:
             tangemSdk.startSession(with: SetUserCodeCommand(accessCode: nil),
                                    cardId: cardId,
-                                   initialMessage: Message(header: nil, body: "initial_message_change_access_code_body".localized)) { [weak self] result in
+                                   initialMessage: Message(header: nil, body: Localization.initialMessageChangeAccessCodeBody)) { [weak self] result in
                 guard let self = self else { return }
 
                 switch result {
@@ -374,7 +374,7 @@ class CardViewModel: Identifiable, ObservableObject {
         case .passCode:
             tangemSdk.startSession(with: SetUserCodeCommand(passcode: nil),
                                    cardId: cardId,
-                                   initialMessage: Message(header: nil, body: "initial_message_change_passcode_body".localized)) { [weak self] result in
+                                   initialMessage: Message(header: nil, body: Localization.initialMessageChangePasscodeBody)) { [weak self] result in
                 guard let self = self else { return }
 
                 switch result {
@@ -396,7 +396,7 @@ class CardViewModel: Identifiable, ObservableObject {
         tangemSdk.startSession(with: CreateWalletAndReadTask(with: config.defaultCurve),
                                cardId: cardId,
                                initialMessage: Message(header: nil,
-                                                       body: "initial_message_create_wallet_body".localized)) { [weak self] result in
+                                                       body: Localization.initialMessageCreateWalletBody)) { [weak self] result in
             switch result {
             case .success(let card):
                 self?.onWalletCreated(card)
@@ -413,7 +413,7 @@ class CardViewModel: Identifiable, ObservableObject {
         tangemSdk.startSession(with: ResetToFactorySettingsTask(),
                                cardId: cardId,
                                initialMessage: Message(header: nil,
-                                                       body: "initial_message_purge_wallet_body".localized)) { [weak self] result in
+                                                       body: Localization.initialMessagePurgeWalletBody)) { [weak self] result in
             switch result {
             case .success:
                 Analytics.log(.factoryResetFinished)
