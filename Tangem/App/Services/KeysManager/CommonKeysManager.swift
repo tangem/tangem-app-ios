@@ -39,8 +39,8 @@ extension CommonKeysManager: KeysManager {
                             blockcypherTokens: keys.blockcypherTokens,
                             infuraProjectId: keys.infuraProjectId,
                             tronGridApiKey: keys.tronGridApiKey,
-                            quiknodeApiKey: keys.quiknodeApiKey,
-                            quiknodeSubdomain: keys.quiknodeSubdomain,
+                            quickNodeSolanaCredentials: .init(apiKey: keys.quiknodeApiKey, subdomain: keys.quiknodeSubdomain),
+                            quickNodeBscCredentials: .init(apiKey: keys.bscQuiknodeApiKey, subdomain: keys.bscQuiknodeSubdomain),
                             defaultNetworkProviderConfiguration: .init(logger: .verbose, urlSessionConfiguration: .standart),
                             networkProviderConfigurations: [.saltPay: .init(logger: .verbose, credentials: keys.saltPay.credentials)])
     }
@@ -80,6 +80,8 @@ extension CommonKeysManager {
         let tronGridApiKey: String
         let quiknodeApiKey: String
         let quiknodeSubdomain: String
+        let bscQuiknodeApiKey: String
+        let bscQuiknodeSubdomain: String
         let shopifyShop: ShopifyShop
         let zendesk: ZendeskConfig
         let saltPay: SaltPayConfiguration
