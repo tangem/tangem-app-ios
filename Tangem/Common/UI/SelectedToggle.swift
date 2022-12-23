@@ -16,15 +16,11 @@ struct SelectedToggle: View {
     }
 
     var body: some View {
-        Group {
-            if isSelected {
-                Assets.check.resizable()
-            } else {
-                // Need to cover empty place if unchecking
-                Rectangle()
-                    .fill(Color.clear)
-            }
-        }
-        .frame(width: 20, height: 20)
+        Assets.check
+            .resizable()
+            .foregroundColor(Colors.Control.checked)
+            /// Need to cover empty place if unchecking
+            .opacity(isSelected ? 1 : 0)
+            .frame(width: 20, height: 20)
     }
 }
