@@ -449,6 +449,7 @@ class CardViewModel: Identifiable, ObservableObject {
     func onWalletCreated(_ card: Card) {
         cardInfo.card.wallets = card.wallets
         onUpdate()
+        userWalletModel?.initialUpdate()
     }
 
     func onSecurityOptionChanged(isAccessCodeSet: Bool, isPasscodeSet: Bool) {
