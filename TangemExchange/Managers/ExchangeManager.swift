@@ -26,7 +26,7 @@ public protocol ExchangeManager {
 
     /// Checking that decimal value available for exchange without approved
     /// Only for tokens
-    func isAvailableForExchange() -> Bool
+    func isEnoughAllowance() -> Bool
 
     /// Refresh main values
     func refresh()

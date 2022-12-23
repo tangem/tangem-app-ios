@@ -19,7 +19,7 @@ public struct ExchangeApprovedDataModel {
     public init(approveTxData: ApprovedTransactionData) throws {
         guard let gasPrice = Int(approveTxData.gasPrice),
               let value = Decimal(string: approveTxData.value) else {
-            throw ExchangeInchError.incorrectData
+            throw OneInchExchangeProvider.Errors.incorrectDataFormat
         }
 
         self.value = value
