@@ -73,7 +73,7 @@ class SecurityModeViewModel: ObservableObject {
         securityViewModels = cardModel.availableSecurityOptions.map { option in
             DefaultSelectableRowViewModel(
                 title: option.title,
-                subtitle: option.subtitle,
+                subtitle: option.description,
                 isSelected: isSelected(option: option)
             )
         }
@@ -119,7 +119,7 @@ enum SecurityModeOption: String, CaseIterable, Identifiable, Equatable {
         }
     }
 
-    var subtitle: String {
+    var description: String {
         switch self {
         case .accessCode:
             return Localization.detailsManageSecurityAccessCodeDescription
