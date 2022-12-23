@@ -684,11 +684,11 @@
 		EF9F6F4428D499F600D6B190 /* LoadingValue.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF9F6F4328D499F600D6B190 /* LoadingValue.swift */; };
 		EFA580612893E4E200110DB0 /* LanguageCode.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFA580602893E4E200110DB0 /* LanguageCode.swift */; };
 		EFA580632893E6AA00110DB0 /* BiometricAuthorizationUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFA580622893E6AA00110DB0 /* BiometricAuthorizationUtils.swift */; };
+		EFA6B03F2953113E0090A92F /* OneInchError.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFA6B03E2953113E0090A92F /* OneInchError.swift */; };
 		EFA6B044295334AF0090A92F /* ResetToFactoryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFA6B042295334AF0090A92F /* ResetToFactoryView.swift */; };
 		EFA6B045295334AF0090A92F /* ResetToFactoryViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFA6B043295334AF0090A92F /* ResetToFactoryViewModel.swift */; };
 		EFA6B04729533C860090A92F /* ResetToFactoryViewRoutable.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFA6B04629533C860090A92F /* ResetToFactoryViewRoutable.swift */; };
-		EFA9854B294775B500D1FCB3 /* ExpectedSwappingResult.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFA9854A294775B500D1FCB3 /* ExpectedSwappingResult.swift */; };
-		EFA6B03F2953113E0090A92F /* OneInchError.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFA6B03E2953113E0090A92F /* OneInchError.swift */; };
+		EFA6B04C2955A3A30090A92F /* CardViewModel+Mock.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFA6B04B2955A3A30090A92F /* CardViewModel+Mock.swift */; };
 		EFA9854B294775B500D1FCB3 /* PreviewSwappingDataModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFA9854A294775B500D1FCB3 /* PreviewSwappingDataModel.swift */; };
 		EFA9854F2947787F00D1FCB3 /* TransactionSenderMock.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFA9854E2947787F00D1FCB3 /* TransactionSenderMock.swift */; };
 		EFA9855129477DA100D1FCB3 /* TransactionSendable.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFA9855029477DA100D1FCB3 /* TransactionSendable.swift */; };
@@ -1572,10 +1572,11 @@
 		EFA580602893E4E200110DB0 /* LanguageCode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LanguageCode.swift; sourceTree = "<group>"; };
 		EFA580622893E6AA00110DB0 /* BiometricAuthorizationUtils.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BiometricAuthorizationUtils.swift; sourceTree = "<group>"; };
 		EFA6824529376B5700C8F577 /* MainButton.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MainButton.swift; sourceTree = "<group>"; };
+		EFA6B03E2953113E0090A92F /* OneInchError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OneInchError.swift; sourceTree = "<group>"; };
 		EFA6B042295334AF0090A92F /* ResetToFactoryView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ResetToFactoryView.swift; sourceTree = "<group>"; };
 		EFA6B043295334AF0090A92F /* ResetToFactoryViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ResetToFactoryViewModel.swift; sourceTree = "<group>"; };
 		EFA6B04629533C860090A92F /* ResetToFactoryViewRoutable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ResetToFactoryViewRoutable.swift; sourceTree = "<group>"; };
-		EFA6B03E2953113E0090A92F /* OneInchError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OneInchError.swift; sourceTree = "<group>"; };
+		EFA6B04B2955A3A30090A92F /* CardViewModel+Mock.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CardViewModel+Mock.swift"; sourceTree = "<group>"; };
 		EFA7173D72D1E6FAD54D308A /* Pods-TangemClip.release(beta).xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TangemClip.release(beta).xcconfig"; path = "Target Support Files/Pods-TangemClip/Pods-TangemClip.release(beta).xcconfig"; sourceTree = "<group>"; };
 		EFA9854A294775B500D1FCB3 /* PreviewSwappingDataModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreviewSwappingDataModel.swift; sourceTree = "<group>"; };
 		EFA9854E2947787F00D1FCB3 /* TransactionSenderMock.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransactionSenderMock.swift; sourceTree = "<group>"; };
@@ -2030,7 +2031,6 @@
 				5DD95B8B24FA959C00E6B9D0 /* VerticalAlignment+.swift */,
 				5DBBAB0A24D853B600E78F1C /* Color+.swift */,
 				B0FB98A42598D24300B769A3 /* Card+.swift */,
-				5DFB499924E554140037E76F /* Card+Preview.swift */,
 				5DFE855624EF051400194106 /* Error+.swift */,
 				5D384B9024FD4E1800C2C92C /* String+.swift */,
 				5D24A12924FF98F1002A3BCA /* NetworkLoggerConfiguration+.swift */,
@@ -3787,6 +3787,7 @@
 		EF80843B293F6967000D91EA /* Mocks */ = {
 			isa = PBXGroup;
 			children = (
+				EFA6B04A2955A3930090A92F /* Common */,
 				EF80843C293F6976000D91EA /* Exchange */,
 				B0332D2F292519D000553AD9 /* Referral */,
 			);
@@ -3880,6 +3881,15 @@
 				EFA6B04629533C860090A92F /* ResetToFactoryViewRoutable.swift */,
 			);
 			path = ResetToFactory;
+			sourceTree = "<group>";
+		};
+		EFA6B04A2955A3930090A92F /* Common */ = {
+			isa = PBXGroup;
+			children = (
+				5DFB499924E554140037E76F /* Card+Preview.swift */,
+				EFA6B04B2955A3A30090A92F /* CardViewModel+Mock.swift */,
+			);
+			path = Common;
 			sourceTree = "<group>";
 		};
 		EFB4C1302837C50C00E991C1 /* Types */ = {
@@ -4850,6 +4860,7 @@
 				DC5118692860B3E1004FB954 /* PreviewCard.swift in Sources */,
 				EFA580612893E4E200110DB0 /* LanguageCode.swift in Sources */,
 				DA23788627B24222009795A8 /* Collection.swift in Sources */,
+				EFA6B04C2955A3A30090A92F /* CardViewModel+Mock.swift in Sources */,
 				EF4662392924E00400346B6C /* WalletConnectRowView.swift in Sources */,
 				B0453672264D4B730005B23E /* Constants.swift in Sources */,
 				EF80843E293F698F000D91EA /* ExchangeManagerMock.swift in Sources */,
