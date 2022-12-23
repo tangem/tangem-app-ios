@@ -19,6 +19,7 @@ struct DefaultSelectableRowViewModel {
         _isSelected = isSelected
     }
 
+    /// Use this method for change `isSelected` property programatically
     mutating func update(isSelected: Binding<Bool>) {
         _isSelected = isSelected
     }
