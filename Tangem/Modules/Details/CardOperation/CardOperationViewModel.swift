@@ -23,7 +23,7 @@ class CardOperationViewModel: ObservableObject {
     private var bag: Set<AnyCancellable> = []
 
     init(title: String,
-         buttonTitle: String = "common_save_changes".localized,
+         buttonTitle: String = Localization.commonSaveChanges,
          shouldPopToRoot: Bool = false,
          alert: String,
          actionButtonPressed: @escaping (@escaping (Result<Void, Error>) -> Void) -> Void,
