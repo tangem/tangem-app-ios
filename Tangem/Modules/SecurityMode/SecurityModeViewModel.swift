@@ -23,11 +23,9 @@ class SecurityModeViewModel: ObservableObject {
 
     // MARK: Private
 
-    private let cardModel: CardViewModel
-    private var currentSecurityOption: SecurityModeOption {
-        didSet { updateView() }
-    }
+    @Published private var currentSecurityOption: SecurityModeOption
 
+    private let cardModel: CardViewModel
     private var bag = Set<AnyCancellable>()
     private unowned let coordinator: SecurityModeRoutable
 
