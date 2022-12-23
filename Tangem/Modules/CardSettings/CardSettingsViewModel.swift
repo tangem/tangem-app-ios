@@ -30,9 +30,9 @@ class CardSettingsViewModel: ObservableObject {
 
     var resetToFactoryMessage: String {
         if cardModel.hasBackupCards {
-            return Localization.resetCardWithBackupToFactoryMessage
+            return Localization.cardSettingsResetCardWithBackupFooter
         } else {
-            return Localization.resetCardWithoutBackupToFactoryMessage
+            return Localization.cardSettingsResetCardWithoutBackupFooter
         }
     }
 
