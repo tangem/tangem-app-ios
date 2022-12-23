@@ -33,8 +33,8 @@ enum BiometricAuthorizationUtils {
         return context.biometryType
     }
 
-    static var allowButtonLocalizationKey: LocalizedStringKey {
-        LocalizedStringKey(stringLiteral: "save_user_wallet_agreement_allow".localized(biometryType.name))
+    static var allowButtonTitle: String {
+        Localization.saveUserWalletAgreementAllow(biometryType.name)
     }
 }
 

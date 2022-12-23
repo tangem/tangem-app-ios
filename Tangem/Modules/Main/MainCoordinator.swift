@@ -60,7 +60,7 @@ class MainCoordinator: CoordinatorObject {
                         return
                     }
 
-                    let options = Options(cardModel: selectedModel, shouldRefreshOnAppear: false)
+                    let options = Options(cardModel: selectedModel)
                     DispatchQueue.main.async { // fix ios13 freeze
                         self.start(with: options)
                     }
@@ -83,7 +83,6 @@ class MainCoordinator: CoordinatorObject {
             cardModel: options.cardModel,
             userWalletModel: userWalletModel,
             cardImageProvider: CardImageProvider(supportsOnlineImage: options.cardModel.supportsOnlineImage),
-            shouldRefreshWhenAppear: options.shouldRefreshOnAppear,
             coordinator: self
         )
     }
@@ -92,11 +91,9 @@ class MainCoordinator: CoordinatorObject {
 extension MainCoordinator {
     struct Options {
         let cardModel: CardViewModel
-        let shouldRefreshOnAppear: Bool
 
-        init(cardModel: CardViewModel, shouldRefreshOnAppear: Bool = true) {
+        init(cardModel: CardViewModel) {
             self.cardModel = cardModel
-            self.shouldRefreshOnAppear = shouldRefreshOnAppear
         }
     }
 }
@@ -117,7 +114,7 @@ extension MainCoordinator: MainRoutable {
     func openBuyCrypto(at url: URL, closeUrl: String, action: @escaping (String) -> Void) {
         Analytics.log(.topUpScreenOpened)
         pushedWebViewModel = WebViewContainerViewModel(url: url,
-                                                       title: "wallet_button_buy".localized,
+                                                       title: Localization.walletButtonBuy,
                                                        addLoadingIndicator: true,
                                                        urlActions: [
                                                            closeUrl: { [weak self] response in
@@ -129,14 +126,14 @@ extension MainCoordinator: MainRoutable {
     func openSellCrypto(at url: URL, sellRequestUrl: String, action: @escaping (String) -> Void) {
         Analytics.log(.withdrawScreenOpened)
         pushedWebViewModel = WebViewContainerViewModel(url: url,
-                                                       title: "wallet_button_sell".localized,
+                                                       title: Localization.walletButtonSell,
                                                        addLoadingIndicator: true,
                                                        urlActions: [sellRequestUrl: action])
     }
 
     func openExplorer(at url: URL, blockchainDisplayName: String) {
         modalWebViewModel = WebViewContainerViewModel(url: url,
-                                                      title: "common_explorer_format".localized(blockchainDisplayName),
+                                                      title: Localization.commonExplorerFormat(blockchainDisplayName),
                                                       withCloseButton: true)
     }
 
