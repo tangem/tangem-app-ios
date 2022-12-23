@@ -37,7 +37,7 @@ struct ResetToFactoryView: View {
         }
         .edgesIgnoringSafeArea(.top)
         .padding(.bottom, 16)
-        .navigationBarTitle(Text("Reset to factory settings"), displayMode: .inline)
+        .navigationBarTitle(Text(Localization.cardSettingsResetCardToFactory), displayMode: .inline)
         .actionSheet(item: $viewModel.actionSheet) { $0.sheet }
         .alert(item: $viewModel.alert) { $0.alert }
     }
@@ -58,7 +58,7 @@ struct ResetToFactoryView: View {
 
     private var mainInformationView: some View {
         VStack(alignment: .center, spacing: 14) {
-            Text(L10n.commonAttention)
+            Text(Localization.commonAttention)
                 .style(Fonts.Bold.title1, color: Colors.Text.primary1)
 
             Text(viewModel.message)
@@ -70,7 +70,7 @@ struct ResetToFactoryView: View {
 
     private var actionButton: some View {
         MainButton(
-            title: L10n.resetCardToFactoryButtonTitle,
+            title: Localization.resetCardToFactoryButtonTitle,
             icon: .trailing(Assets.tangemIcon),
             style: .secondary,
             action: viewModel.mainButtonDidTap
