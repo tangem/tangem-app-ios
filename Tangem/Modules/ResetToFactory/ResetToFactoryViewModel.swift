@@ -8,17 +8,16 @@
 
 import SwiftUI
 
-
 class ResetToFactoryViewModel: ObservableObject {
     @Published var actionSheet: ActionSheetBinder?
     @Published var alert: AlertBinder?
 
     var message: String {
-        if cardModel.isMultiWallet, cardModel.hasBackupCards {
-            return "Factory Reset will completely delete the wallet from the selected card. You will not be able to restore the current wallet or use the card to recover the access code."
+        if cardModel.hasBackupCards {
+            return Localization.resetCardWithBackupToFactoryMessage
+        } else {
+            return Localization.resetCardWithoutBackupToFactoryMessage
         }
-
-        return "Factory Reset will completely delete the wallet from the selected card. You will not be able to restore the current wallet."
     }
 
     private let cardModel: CardViewModel
@@ -37,12 +36,12 @@ class ResetToFactoryViewModel: ObservableObject {
 private extension ResetToFactoryViewModel {
     func showConfirmationAlert() {
         let sheet = ActionSheet(
-            title: Text(L10n.cardSettingsActionActionSheetTitle),
+            title: Text(Localization.cardSettingsActionActionSheetTitle),
             buttons: [
-                .destructive(Text(L10n.cardSettingsActionActionSheetReset)) { [weak self] in
+                .destructive(Text(Localization.cardSettingsActionActionSheetReset)) { [weak self] in
                     self?.resetCardToFactory()
                 },
-                .cancel(Text(L10n.commonCancel)),
+                .cancel(Text(Localization.commonCancel)),
             ])
 
         self.actionSheet = ActionSheetBinder(sheet: sheet)
