@@ -38,24 +38,14 @@ struct AppScanTaskResponse {
     }
 }
 
-enum AppScanTaskError: String, Error, LocalizedError {
-    case wrongCardClip
-
-    var errorDescription: String? {
-        "alert_wrong_card_scanned".localized
-    }
-}
-
 final class AppScanTask: CardSessionRunnable {
     let allowsAccessCodeFromRepository: Bool
 
-    private let targetBatch: String?
     private var walletData: DefaultWalletData = .none
     private var primaryCard: PrimaryCard? = nil
     private var linkingCommand: StartPrimaryCardLinkingTask? = nil
 
-    init(targetBatch: String? = nil, allowsAccessCodeFromRepository: Bool = false) {
-        self.targetBatch = targetBatch
+    init(allowsAccessCodeFromRepository: Bool) {
         self.allowsAccessCodeFromRepository = allowsAccessCodeFromRepository
     }
 
@@ -67,14 +57,6 @@ final class AppScanTask: CardSessionRunnable {
     public func run(in session: CardSession, completion: @escaping CompletionResult<AppScanTaskResponse>) {
         guard let card = session.environment.card else {
             completion(.failure(TangemSdkError.missingPreflightRead))
-            return
-        }
-
-        let currentBatch = card.batchId.lowercased()
-
-        if let targetBatch = self.targetBatch?.lowercased(),
-           targetBatch != currentBatch {
-            completion(.failure(TangemSdkError.underlying(error: AppScanTaskError.wrongCardClip)))
             return
         }
 
