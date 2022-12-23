@@ -40,34 +40,11 @@ struct SecurityModeView: View {
     }
 }
 
-extension SecurityModeView {
-    struct RowView: View {
-        let title: String
-
-        @Binding var isSelected: Bool
-
-        var body: some View {
-            Button(action: { isSelected.toggle() }) {
-                HStack {
-                    Text(title)
-                        .style(Fonts.Regular.body, color: Colors.Text.primary1)
-
-                    Spacer()
-
-                    Image(systemName: isSelected ? "checkmark.circle.fill" : "circle")
-                        .resizable()
-                        .frame(width: 22, height: 22)
-                        .foregroundColor(isSelected ? Colors.Text.accent : Colors.Background.secondary)
-                }
-                .lineLimit(1)
-            }
-        }
-    }
-}
-
 struct SecurityModeView_Previews: PreviewProvider {
     static var previews: some View {
-        SecurityModeView(viewModel: .init(cardModel: PreviewCard.tangemWalletEmpty.cardModel,
-                                          coordinator: SecurityModeCoordinator()))
+        NavigationView {
+            SecurityModeView(viewModel: .init(cardModel: PreviewCard.tangemWalletEmpty.cardModel,
+                                              coordinator: SecurityModeCoordinator()))
+        }
     }
 }
