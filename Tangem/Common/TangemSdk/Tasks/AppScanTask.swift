@@ -39,11 +39,15 @@ struct AppScanTaskResponse {
 }
 
 final class AppScanTask: CardSessionRunnable {
+    let allowsAccessCodeFromRepository: Bool
+
     private var walletData: DefaultWalletData = .none
     private var primaryCard: PrimaryCard? = nil
     private var linkingCommand: StartPrimaryCardLinkingTask? = nil
 
-    init() {}
+    init(allowsAccessCodeFromRepository: Bool) {
+        self.allowsAccessCodeFromRepository = allowsAccessCodeFromRepository
+    }
 
     deinit {
         print("AppScanTask deinit")
