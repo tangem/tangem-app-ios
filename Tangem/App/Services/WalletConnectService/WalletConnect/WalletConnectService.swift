@@ -59,11 +59,11 @@ enum WalletConnectAction: String {
 
     var successMessage: String {
         switch self {
-        case .personalSign, .signTypedData, .signTypedDataV4: return "wallet_connect_message_signed".localized
-        case .signTransaction: return "wallet_connect_transaction_signed".localized
-        case .sendTransaction: return "wallet_connect_transaction_signed_and_send".localized
-        case .bnbSign: return "wallet_connect_bnb_transaction_signed".localized
-        case .bnbTxConfirmation, .switchChain: return "".localized
+        case .personalSign, .signTypedData, .signTypedDataV4: return Localization.walletConnectMessageSigned
+        case .signTransaction: return Localization.walletConnectTransactionSigned
+        case .sendTransaction: return Localization.walletConnectTransactionSignedAndSend
+        case .bnbSign: return Localization.walletConnectBnbTransactionSigned
+        case .bnbTxConfirmation, .switchChain: return ""
         }
     }
 }
@@ -362,7 +362,7 @@ extension WalletConnectService: ServerDelegate {
         self.wallet = walletInfo
 
         let peerMeta = dAppInfo.peerMeta
-        var message = String(format: "wallet_connect_request_session_start".localized, peerMeta.name, walletInfo.blockchain.displayName, peerMeta.url.absoluteString)
+        var message = Localization.walletConnectRequestSessionStart(peerMeta.name, walletInfo.blockchain.displayName, peerMeta.url.absoluteString)
 
         if let description = peerMeta.description, !description.isEmpty {
             message += "\n\n" + description
@@ -424,7 +424,7 @@ extension WalletConnectService: ServerDelegate {
                                                            message: message,
                                                            onAcceptAction: onAccept,
                                                            onReject: onReject,
-                                                           extraTitle: isSelectedChainAvailable ? "wallet_connect_select_network".localized : nil,
+                                                           extraTitle: isSelectedChainAvailable ? Localization.walletConnectSelectNetwork : nil,
                                                            onExtra: onSelectChainRequested),
                           delay: 0.5)
     }
@@ -537,18 +537,18 @@ enum WalletConnectServiceError: LocalizedError {
 
     var errorDescription: String? {
         switch self {
-        case .timeout: return "wallet_connect_error_timeout".localized
-        case .signFailed: return "wallet_connect_error_sing_failed".localized
-        case .failedToConnect: return "wallet_connect_error_failed_to_connect".localized
-        case .txNotFound: return "wallet_connect_tx_not_found".localized
-        case .sessionNotFound: return "wallet_connect_session_not_found".localized
-        case .failedToBuildTx(let code): return String(format: "wallet_connect_failed_to_build_tx".localized, code.rawValue)
+        case .timeout: return Localization.walletConnectErrorTimeout
+        case .signFailed: return Localization.walletConnectErrorSingFailed
+        case .failedToConnect: return Localization.walletConnectErrorFailedToConnect
+        case .txNotFound: return Localization.walletConnectTxNotFound
+        case .sessionNotFound: return Localization.walletConnectSessionNotFound
+        case .failedToBuildTx(let code): return Localization.walletConnectFailedToBuildTx(code.rawValue)
         case .other(let error): return error.localizedDescription
-        case .noChainId: return "wallet_connect_service_no_chain_id".localized
-        case .unsupportedNetwork: return "wallet_connect_scanner_error_unsupported_network".localized
-        case .notValidCard: return "wallet_connect_scanner_error_not_valid_card".localized
-        case .networkNotFound(let name): return "wallet_connect_network_not_found_format".localized(name)
-        case .unsupportedDApp: return "wallet_connect_error_unsupported_dapp".localized
+        case .noChainId: return Localization.walletConnectServiceNoChainId
+        case .unsupportedNetwork: return Localization.walletConnectScannerErrorUnsupportedNetwork
+        case .notValidCard: return Localization.walletConnectScannerErrorNotValidCard
+        case .networkNotFound(let name): return Localization.walletConnectNetworkNotFoundFormat(name)
+        case .unsupportedDApp: return Localization.walletConnectErrorUnsupportedDapp
         default: return ""
         }
     }
