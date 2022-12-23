@@ -42,24 +42,24 @@ class WalletOnboardingViewModel: OnboardingTopupViewModel<WalletOnboardingStep, 
     //        }
     //    }
 
-    override var navbarTitle: LocalizedStringKey {
+    override var navbarTitle: String {
         currentStep.navbarTitle
     }
 
-    override var title: LocalizedStringKey? {
+    override var title: String? {
         switch currentStep {
         case .selectBackupCards:
             switch backupCardsAddedCount {
-            case 0: return isSaltPayOnboarding ? "onboarding_saltpay_title_no_backup_card" : "onboarding_title_no_backup_cards"
-            case 1: return isSaltPayOnboarding ? "onboarding_saltpay_title_one_backup_card" : "onboarding_title_one_backup_card"
-            default: return "onboarding_title_two_backup_cards"
+            case 0: return isSaltPayOnboarding ? Localization.onboardingSaltpayTitleNoBackupCard : Localization.onboardingTitleNoBackupCards
+            case 1: return isSaltPayOnboarding ? Localization.onboardingSaltpayTitleOneBackupCard : Localization.onboardingTitleOneBackupCard
+            default: return Localization.onboardingTitleTwoBackupCards
             }
         case .backupIntro:
             return ""
         case .backupCards:
             switch backupServiceState {
-            case .finalizingPrimaryCard: return isSaltPayOnboarding ? "onboarding_saltpay_title_prepare_origin" : "common_origin_card"
-            case .finalizingBackupCard(let index): return isSaltPayOnboarding ? "onboarding_saltpay_title_backup_card" : LocalizedStringKey(stringLiteral: "onboarding_title_backup_card_format".localized(index))
+            case .finalizingPrimaryCard: return isSaltPayOnboarding ? Localization.onboardingSaltpayTitlePrepareOrigin : Localization.commonOriginCard
+            case .finalizingBackupCard(let index): return isSaltPayOnboarding ? Localization.onboardingSaltpayTitleBackupCard : Localization.onboardingTitleBackupCardFormat(index)
             default: break
             }
 
@@ -67,33 +67,33 @@ class WalletOnboardingViewModel: OnboardingTopupViewModel<WalletOnboardingStep, 
             return nil
         case .claim:
             let claimValue = saltPayRegistratorProvider.registrator?.claimableAmountDescription ?? ""
-            return claimed ? "onboarding_title_claim_progress" : LocalizedStringKey(stringLiteral: "onboarding_title_claim".localized(claimValue))
+            return claimed ? Localization.onboardingTitleClaimProgress : Localization.onboardingTitleClaim(claimValue)
         default: break
         }
         return super.title
     }
 
-    override var subtitle: LocalizedStringKey? {
+    override var subtitle: String? {
         switch currentStep {
         case .selectBackupCards:
             switch backupCardsAddedCount {
-            case 0: return isSaltPayOnboarding ? "onboarding_saltpay_subtitle_no_backup_cards" : "onboarding_subtitle_no_backup_cards"
-            case 1: return isSaltPayOnboarding ? "onboarding_saltpay_subtitle_one_backup_card" : "onboarding_subtitle_one_backup_card"
-            default: return "onboarding_subtitle_two_backup_cards"
+            case 0: return isSaltPayOnboarding ? Localization.onboardingSaltpaySubtitleNoBackupCards : Localization.onboardingSubtitleNoBackupCards
+            case 1: return isSaltPayOnboarding ? Localization.onboardingSaltpaySubtitleOneBackupCard : Localization.onboardingSubtitleOneBackupCard
+            default: return Localization.onboardingSubtitleTwoBackupCards
             }
         case .backupIntro:
             return ""
         case .success:
             switch backupCardsAddedCount {
-            case 0: return "onboarding_subtitle_success_tangem_wallet_onboarding"
-            case 1: return "onboarding_subtitle_success_backup_one_card"
-            default: return "onboarding_subtitle_success_backup"
+            case 0: return Localization.onboardingSubtitleSuccessTangemWalletOnboarding
+            case 1: return Localization.onboardingSubtitleSuccessBackupOneCard
+            default: return Localization.onboardingSubtitleSuccessBackup
             }
         case .backupCards:
             switch backupServiceState {
             case .finalizingPrimaryCard:
                 if isSaltPayOnboarding {
-                    return "onboarding_twins_interrupt_warning"
+                    return Localization.onboardingTwinsInterruptWarning
                 }
 
                 guard let primaryCardId = backupService.primaryCard?.cardId,
@@ -101,10 +101,10 @@ class WalletOnboardingViewModel: OnboardingTopupViewModel<WalletOnboardingStep, 
                     return super.subtitle
                 }
 
-                return LocalizedStringKey(stringLiteral: "onboarding_subtitle_scan_primary_card_format".localized(cardIdFormatted))
+                return Localization.onboardingSubtitleScanPrimaryCardFormat(cardIdFormatted)
             case .finalizingBackupCard(let index):
                 if isSaltPayOnboarding {
-                    return "onboarding_twins_interrupt_warning"
+                    return Localization.onboardingTwinsInterruptWarning
                 }
 
                 let cardId = backupService.backupCardIds[index - 1]
@@ -112,13 +112,13 @@ class WalletOnboardingViewModel: OnboardingTopupViewModel<WalletOnboardingStep, 
                     return super.subtitle
                 }
 
-                return LocalizedStringKey(stringLiteral: "onboarding_subtitle_scan_backup_card_format".localized(cardIdFormatted))
+                return Localization.onboardingSubtitleScanBackupCardFormat(cardIdFormatted)
             default: return super.subtitle
             }
         case .registerWallet, .kycStart, .kycRetry, .enterPin, .kycWaiting:
             return nil
         case .claim:
-            return claimed ? "onboarding_subtitle_claim_progress" : super.subtitle
+            return claimed ? Localization.onboardingSubtitleClaimProgress : super.subtitle
         default: return super.subtitle
         }
     }
@@ -147,18 +147,18 @@ class WalletOnboardingViewModel: OnboardingTopupViewModel<WalletOnboardingStep, 
         )
     }
 
-    override var mainButtonTitle: LocalizedStringKey {
+    override var mainButtonTitle: String {
         switch currentStep {
         case .selectBackupCards:
-            return "onboarding_button_add_backup_card"
+            return Localization.onboardingButtonAddBackupCard
         case .backupCards:
             switch backupServiceState {
-            case .finalizingPrimaryCard: return isSaltPayOnboarding ? "onboarding_saltpay_button_backup_origin" : "onboarding_button_backup_origin"
-            case .finalizingBackupCard(let index): return isSaltPayOnboarding ? "onboarding_saltpay_title_backup_card" : LocalizedStringKey(stringLiteral: "onboarding_button_backup_card_format".localized(index))
+            case .finalizingPrimaryCard: return isSaltPayOnboarding ? Localization.onboardingSaltpayButtonBackupOrigin : Localization.onboardingButtonBackupOrigin
+            case .finalizingBackupCard(let index): return isSaltPayOnboarding ? Localization.onboardingSaltpayTitleBackupCard : Localization.onboardingButtonBackupCardFormat(index)
             default: break
             }
         case .success:
-            return input.isStandalone ? "common_continue" : super.mainButtonTitle
+            return input.isStandalone ? Localization.commonContinue : super.mainButtonTitle
         default: break
         }
         return super.mainButtonTitle
@@ -225,7 +225,7 @@ class WalletOnboardingViewModel: OnboardingTopupViewModel<WalletOnboardingStep, 
         }
     }
 
-    var infoText: LocalizedStringKey? {
+    var infoText: String? {
         currentStep.infoText
     }
 
@@ -531,13 +531,13 @@ class WalletOnboardingViewModel: OnboardingTopupViewModel<WalletOnboardingStep, 
             }
         case .selectBackupCards:
             if canAddBackupCards {
-                let controller = UIAlertController(title: "common_warning".localized, message: "onboarding_alert_message_not_max_backup_cards_added".localized, preferredStyle: .alert)
-                controller.addAction(UIAlertAction(title: "common_continue".localized, style: .default, handler: { [weak self] _ in
+                let controller = UIAlertController(title: Localization.commonWarning, message: Localization.onboardingAlertMessageNotMaxBackupCardsAdded, preferredStyle: .alert)
+                controller.addAction(UIAlertAction(title: Localization.commonContinue, style: .default, handler: { [weak self] _ in
                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
                         self?.openAccessCode()
                     }
                 }))
-                controller.addAction(UIAlertAction(title: "common_cancel".localized, style: .cancel, handler: { _ in }))
+                controller.addAction(UIAlertAction(title: Localization.commonCancel, style: .cancel, handler: { _ in }))
                 UIApplication.topViewController?.present(controller, animated: true, completion: nil)
             } else {
                 openAccessCode()
@@ -683,7 +683,7 @@ class WalletOnboardingViewModel: OnboardingTopupViewModel<WalletOnboardingStep, 
                 fallthrough
             }
 
-            alert = AlertBuilder.makeOkGotItAlert(message: "onboarding_backup_exit_warning".localized)
+            alert = AlertBuilder.makeOkGotItAlert(message: Localization.onboardingBackupExitWarning)
         default:
             alert = AlertBuilder.makeExitAlert() { [weak self] in
                 self?.back()
@@ -815,7 +815,7 @@ class WalletOnboardingViewModel: OnboardingTopupViewModel<WalletOnboardingStep, 
                 self.tangemSdk.startSession(with: task,
                                             cardId: cardId,
                                             initialMessage: Message(header: nil,
-                                                                    body: "initial_message_create_wallet_body".localized)) { [weak self] result in
+                                                                    body: Localization.initialMessageCreateWalletBody)) { [weak self] result in
                     switch result {
                     case .success(let result):
                         self?.addDefaultTokens(for: result.card)
