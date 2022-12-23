@@ -79,9 +79,9 @@ struct ResetToFactoryView: View {
     }
 }
 
-struct ResetToFactoryAttentionView_Previews: PreviewProvider {
+struct ResetToFactoryView_Previews: PreviewProvider {
     static let viewModel = ResetToFactoryViewModel(
-        cardModel: CardViewModel(cardInfo: CardInfo(card: .init(card: .card), walletData: .none, name: "", artwork: .noArtwork, primaryCard: nil), config: GenericConfig(card: .init(card: .card)), userWallet: nil),
+        cardModel: .mock,
         coordinator: CardSettingsCoordinator()
     )
 
