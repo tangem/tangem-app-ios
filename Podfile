@@ -6,7 +6,7 @@ use_frameworks!
 inhibit_all_warnings!
 
 def blockchain_sdk_pods
-  pod 'BlockchainSdk', :git => 'https://github.com/tangem/blockchain-sdk-swift.git', :tag => 'develop-183'
+  pod 'BlockchainSdk', :git => 'https://github.com/tangem/blockchain-sdk-swift.git', :tag => 'develop-184'
   # pod 'BlockchainSdk', :path => '../blockchain-sdk-swift'
 
   pod 'AnyCodable-FlightSchool'
