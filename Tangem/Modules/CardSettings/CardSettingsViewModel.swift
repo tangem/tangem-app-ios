@@ -28,7 +28,7 @@ class CardSettingsViewModel: ObservableObject {
         !cardModel.resetToFactoryAvailability.isHidden
     }
 
-    var resetToFactoryMessage: String {
+    var resetToFactoryFooterMessage: String {
         if cardModel.hasBackupCards {
             return Localization.cardSettingsResetCardWithBackupFooter
         } else {
