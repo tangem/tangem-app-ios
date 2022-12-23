@@ -1,5 +1,5 @@
 //
-//  SelectedToggle.swift
+//  CheckIconView.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -8,7 +8,7 @@
 
 import SwiftUI
 
-struct SelectedToggle: View {
+struct CheckIconView: View {
     @Binding private var isSelected: Bool
 
     init(isSelected: Binding<Bool>) {
