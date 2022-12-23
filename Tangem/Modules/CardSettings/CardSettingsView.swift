@@ -13,9 +13,9 @@ struct CardSettingsView: View {
 
     var firstSectionFooterTitle: String {
         if viewModel.isChangeAccessCodeVisible {
-            return "card_settings_change_access_code_footer".localized
+            return Localization.cardSettingsChangeAccessCodeFooter
         } else {
-            return "card_settings_security_mode_footer".localized
+            return Localization.cardSettingsSecurityModeFooter
         }
     }
 
@@ -42,6 +42,6 @@ struct CardSettingsView: View {
             }
         }
         .alert(item: $viewModel.alert) { $0.alert }
-        .navigationBarTitle("card_settings_title", displayMode: .inline)
+        .navigationBarTitle(Text(Localization.cardSettingsTitle), displayMode: .inline)
     }
 }

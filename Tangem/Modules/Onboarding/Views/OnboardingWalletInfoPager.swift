@@ -133,26 +133,25 @@ struct PagerViewWithDots<Data, Content>: View
 }
 
 enum TangemWalletOnboardingInfoPage: CaseIterable {
-
     case first
     case second
     case third
     case fourth
 
-    var title: LocalizedStringKey {
+    var title: String {
         switch self {
-        case .first: return "onboarding_wallet_info_title_first"
-        case .second: return "onboarding_wallet_info_title_second"
-        case .third: return "onboarding_wallet_info_title_third"
-        case .fourth: return "onboarding_wallet_info_title_fourth"
+        case .first: return Localization.onboardingWalletInfoTitleFirst
+        case .second: return Localization.onboardingWalletInfoTitleSecond
+        case .third: return Localization.onboardingWalletInfoTitleThird
+        case .fourth: return Localization.onboardingWalletInfoTitleFourth
         }
     }
-    var subtitle: LocalizedStringKey {
+    var subtitle: String {
         switch self {
-        case .first: return "onboarding_wallet_info_subtitle_first"
-        case .second: return "onboarding_wallet_info_subtitle_second"
-        case .third: return "onboarding_wallet_info_subtitle_third"
-        case .fourth: return "onboarding_wallet_info_subtitle_fourth"
+        case .first: return Localization.onboardingWalletInfoSubtitleFirst
+        case .second: return Localization.onboardingWalletInfoSubtitleSecond
+        case .third: return Localization.onboardingWalletInfoSubtitleThird
+        case .fourth: return Localization.onboardingWalletInfoSubtitleFourth
         }
     }
 }

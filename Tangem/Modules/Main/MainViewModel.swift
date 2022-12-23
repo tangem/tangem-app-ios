@@ -87,7 +87,6 @@ class MainViewModel: ObservableObject {
 
     private var userWalletModel: UserWalletModel
     private let cardImageProvider: CardImageProviding
-    private var shouldRefreshWhenAppear: Bool
     private var bag = Set<AnyCancellable>()
     private var isProcessingNewCard = false
     private var imageLoadingSubscription: AnyCancellable?
@@ -170,13 +169,11 @@ class MainViewModel: ObservableObject {
         cardModel: CardViewModel,
         userWalletModel: UserWalletModel,
         cardImageProvider: CardImageProviding,
-        shouldRefreshWhenAppear: Bool,
         coordinator: MainRoutable
     ) {
         self.cardModel = cardModel
         self.userWalletModel = userWalletModel
         self.cardImageProvider = cardImageProvider
-        self.shouldRefreshWhenAppear = shouldRefreshWhenAppear
         self.coordinator = coordinator
 
         bind()
@@ -272,11 +269,6 @@ class MainViewModel: ObservableObject {
     }
 
     func onAppear() {
-        if shouldRefreshWhenAppear {
-            singleWalletContentViewModel?.onAppear()
-            multiWalletContentViewModel?.onAppear()
-        }
-
         updateIsBackupAllowed()
     }
 
@@ -312,9 +304,9 @@ class MainViewModel: ObservableObject {
         case .learnMore:
             if case .multiWalletSignedHashes = warning.event {
                 error = AlertBinder(alert: Alert(title: Text(warning.title),
-                                                 message: Text("alert_signed_hashes_message"),
+                                                 message: Text(Localization.alertSignedHashesMessage),
                                                  primaryButton: .cancel(),
-                                                 secondaryButton: .default(Text("common_understand")) { [weak self] in
+                                                 secondaryButton: .default(Text(Localization.commonUnderstand)) { [weak self] in
                                                      withAnimation {
                                                          registerValidatedSignedHashesCard()
                                                          self?.warningsService.hideWarning(warning)

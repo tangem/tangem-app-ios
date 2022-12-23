@@ -10,7 +10,7 @@ import SwiftUI
 
 struct AmountView: View {
 
-    let label: LocalizedStringKey
+    let label: String
     let labelColor: Color
     var labelFont: Font = .system(size: 14.0, weight: .medium, design: .default)
 
