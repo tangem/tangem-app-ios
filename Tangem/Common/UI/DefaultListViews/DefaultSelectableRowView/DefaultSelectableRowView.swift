@@ -9,23 +9,18 @@
 import SwiftUI
 
 struct DefaultSelectableRowView: View {
-    private var viewModel: DefaultSelectableRowViewModel
-    @State private var isSelected: Bool
-    
+    @Binding private var viewModel: DefaultSelectableRowViewModel
+    @Binding private var isSelected: Bool
+
     init(viewModel: DefaultSelectableRowViewModel) {
-        self.viewModel = viewModel
-        self.isSelected = viewModel.isSelected
+        _viewModel = .constant(viewModel)
+        _isSelected = viewModel.$isSelected
     }
 
     var body: some View {
-        Button {
-            /// Off default behavior with fade animation
-            withAnimation(nil) {
-                isSelected.toggle()
-            }
-        } label: {
+        Button(action: { isSelected.toggle() }) {
             HStack(alignment: .center) {
-                VStack(alignment: .leading, spacing: 4) {
+                VStack(alignment: .leading, spacing: 6) {
                     Text(viewModel.title)
                         .style(Fonts.Regular.body, color: Colors.Text.primary1)
                         .multilineTextAlignment(.leading)
@@ -40,11 +35,12 @@ struct DefaultSelectableRowView: View {
                 Spacer(minLength: 12)
 
                 SelectedToggle(isSelected: $isSelected)
+                    /// Off default behavior with fade animation
+                    .animation(nil, value: isSelected)
             }
+            .padding(.vertical, 12)
             .contentShape(Rectangle())
         }
-        .buttonStyle(PlainButtonStyle())
-        .onChange(of: isSelected) { viewModel.isSelected = $0 }
     }
 }
 
