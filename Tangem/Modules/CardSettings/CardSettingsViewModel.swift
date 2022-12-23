@@ -15,7 +15,6 @@ class CardSettingsViewModel: ObservableObject {
     // MARK: ViewState
 
     @Published var hasSingleSecurityMode: Bool = false
-    @Published var isChangeAccessCodeVisible: Bool = false
     @Published var securityModeTitle: String
     @Published var alert: AlertBinder?
     @Published var isChangeAccessCodeLoading: Bool = false
@@ -36,10 +35,19 @@ class CardSettingsViewModel: ObservableObject {
         }
     }
 
+    var securityModeFooterMessage: String {
+        if isChangeAccessCodeVisible {
+            return Localization.cardSettingsChangeAccessCodeFooter
+        }
+
+        return cardModel.currentSecurityOption.description
+    }
+
     // MARK: Dependecies
 
     private unowned let coordinator: CardSettingsRoutable
     private let cardModel: CardViewModel
+    private var isChangeAccessCodeVisible: Bool = false
 
     // MARK: Properties
 
