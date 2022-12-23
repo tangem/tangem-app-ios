@@ -189,7 +189,7 @@ class CommonUserWalletRepository: UserWalletRepository {
         sdkProvider.setup(with: config)
 
         sendEvent(.scan(isScanning: true))
-        sdkProvider.sdk.startSession(with: AppScanTask()) { [unowned self] result in
+        sdkProvider.sdk.startSession(with: AppScanTask(allowsAccessCodeFromRepository: false)) { [unowned self] result in
             self.sendEvent(.scan(isScanning: false))
 
             sdkProvider.setup(with: oldConfig)
