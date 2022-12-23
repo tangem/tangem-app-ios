@@ -85,7 +85,7 @@ enum UserWalletRepositoryError: String, Error, LocalizedError {
     var alertBinder: AlertBinder {
         switch self {
         case .duplicateWalletAdded:
-            return .init(title: "", message: "user_wallet_list_error_wallet_already_saved".localized)
+            return .init(title: "", message: Localization.userWalletListErrorWalletAlreadySaved)
         }
     }
 }
