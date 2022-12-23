@@ -26,14 +26,15 @@ struct SwappingPermissionView: View {
         .padding(.top, 16)
         .padding(.bottom, 4)
         .background(Colors.Background.secondary)
+        .alert(item: $viewModel.errorAlert, content: { $0.alert })
     }
 
     private var headerView: some View {
         VStack(spacing: 16) {
-            Text("swapping_permission_header".localized)
+            Text(Localization.swappingPermissionHeader)
                 .style(Fonts.Bold.callout, color: Colors.Text.primary1)
 
-            Text("swapping_permission_subheader".localized(viewModel.tokenSymbol))
+            Text(Localization.swappingPermissionSubheader(viewModel.tokenSymbol))
                 .style(Fonts.Regular.subheadline, color: Colors.Text.secondary)
                 .padding(.horizontal, 50)
                 .multilineTextAlignment(.center)
@@ -51,13 +52,13 @@ struct SwappingPermissionView: View {
     private var buttons: some View {
         VStack(spacing: 10) {
             MainButton(
-                title: "swapping_permission_buttons_approve".localized,
+                title: Localization.swappingPermissionButtonsApprove,
                 icon: .trailing(Assets.tangemIcon),
                 action: viewModel.didTapApprove
             )
 
             MainButton(
-                title: "common_cancel".localized,
+                title: Localization.commonCancel,
                 style: .secondary,
                 action: viewModel.didTapCancel
             )
