@@ -34,7 +34,7 @@ struct DefaultSelectableRowView: View {
 
                 Spacer(minLength: 12)
 
-                SelectedToggle(isSelected: $isSelected)
+                CheckIconView(isSelected: $isSelected)
                     /// Off default behavior with fade animation
                     .animation(nil, value: isSelected)
             }

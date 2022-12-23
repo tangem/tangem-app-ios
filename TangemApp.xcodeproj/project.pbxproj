@@ -525,7 +525,7 @@
 		E9C17C5F291951BF00FDE4BC /* AnyPublisher+.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9C17C5E291951BF00FDE4BC /* AnyPublisher+.swift */; };
 		EF032C502955C59E006C1FF3 /* DefaultSelectableRowViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF032C4E2955C59E006C1FF3 /* DefaultSelectableRowViewModel.swift */; };
 		EF032C512955C59E006C1FF3 /* DefaultSelectableRowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF032C4F2955C59E006C1FF3 /* DefaultSelectableRowView.swift */; };
-		EF032C532955C725006C1FF3 /* SelectedToggle.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF032C522955C725006C1FF3 /* SelectedToggle.swift */; };
+		EF032C532955C725006C1FF3 /* CheckIconView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF032C522955C725006C1FF3 /* CheckIconView.swift */; };
 		EF053DF12938D4BC006FD13A /* UserWalletListCoordinatorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF053DEE2938D4BC006FD13A /* UserWalletListCoordinatorView.swift */; };
 		EF053DF22938D4BC006FD13A /* UserWalletListCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF053DEF2938D4BC006FD13A /* UserWalletListCoordinator.swift */; };
 		EF053DF32938D4BC006FD13A /* UserWalletListOutput.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF053DF02938D4BC006FD13A /* UserWalletListOutput.swift */; };
@@ -1403,7 +1403,7 @@
 		E9C17C71291ABB9000FDE4BC /* OneInchExchangeProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OneInchExchangeProvider.swift; sourceTree = "<group>"; };
 		EF032C4E2955C59E006C1FF3 /* DefaultSelectableRowViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DefaultSelectableRowViewModel.swift; sourceTree = "<group>"; };
 		EF032C4F2955C59E006C1FF3 /* DefaultSelectableRowView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DefaultSelectableRowView.swift; sourceTree = "<group>"; };
-		EF032C522955C725006C1FF3 /* SelectedToggle.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SelectedToggle.swift; sourceTree = "<group>"; };
+		EF032C522955C725006C1FF3 /* CheckIconView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CheckIconView.swift; sourceTree = "<group>"; };
 		EF053DEE2938D4BC006FD13A /* UserWalletListCoordinatorView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UserWalletListCoordinatorView.swift; sourceTree = "<group>"; };
 		EF053DEF2938D4BC006FD13A /* UserWalletListCoordinator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UserWalletListCoordinator.swift; sourceTree = "<group>"; };
 		EF053DF02938D4BC006FD13A /* UserWalletListOutput.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UserWalletListOutput.swift; sourceTree = "<group>"; };
@@ -1938,7 +1938,7 @@
 				B0A9E93D25921D12007B6D36 /* Warnings */,
 				5DD4CB4324FAAAE0008F23CC /* KeyboardAvoidance */,
 				B0C171CC264C171D00E4BA5C /* Modifiers */,
-				EF032C522955C725006C1FF3 /* SelectedToggle.swift */,
+				EF032C522955C725006C1FF3 /* CheckIconView.swift */,
 				EF4B41BC28644982003911F6 /* SkeletonView.swift */,
 				5DBBAB0724D850EA00E78F1C /* CircleView.swift */,
 				5DFB499B24E6BAF10037E76F /* MessageView.swift */,
@@ -4622,7 +4622,7 @@
 				DC912D1A28E73C7500D76628 /* SaltPayRegistrator.swift in Sources */,
 				5D0A2CDF27E9D47900396399 /* StatefulPreviewWrapper.swift in Sources */,
 				EF7B9CF1286C6BE2004C33A9 /* CardSettingsViewModel.swift in Sources */,
-				EF032C532955C725006C1FF3 /* SelectedToggle.swift in Sources */,
+				EF032C532955C725006C1FF3 /* CheckIconView.swift in Sources */,
 				DC0A57D82822A3C80031BECC /* InjectedValues.swift in Sources */,
 				B09BB87E259A095B00B92000 /* WarningsPriority+Colors.swift in Sources */,
 				B0F16D7126EF5ED800687C47 /* ProgressBar.swift in Sources */,
