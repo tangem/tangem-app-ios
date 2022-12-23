@@ -11,5 +11,6 @@ import Foundation
 extension OneInchExchangeProvider {
     enum Errors: Error {
         case noData
+        case incorrectDataFormat
     }
 }
