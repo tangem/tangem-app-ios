@@ -9,6 +9,7 @@
 import Foundation
 import Combine
 import TangemExchange
+import UIKit
 
 class SwappingCoordinator: CoordinatorObject {
     let dismissAction: Action
@@ -54,10 +55,7 @@ extension SwappingCoordinator {
 // MARK: - SwappingRoutable
 
 extension SwappingCoordinator: SwappingRoutable {
-    func presentSwappingTokenList(
-        sourceCurrency: Currency,
-        userCurrencies: [Currency]
-    ) {
+    func presentSwappingTokenList(sourceCurrency: Currency, userCurrencies: [Currency]) {
         swappingTokenListViewModel = SwappingTokenListViewModel(
             sourceCurrency: sourceCurrency,
             userCurrencies: userCurrencies,
@@ -68,6 +66,7 @@ extension SwappingCoordinator: SwappingRoutable {
     }
 
     func presentPermissionView(transactionInfo: ExchangeTransactionDataModel, transactionSender: TransactionSendable) {
+        UIApplication.shared.endEditing()
         swappingPermissionViewModel = SwappingPermissionViewModel(
             transactionInfo: transactionInfo,
             transactionSender: transactionSender,
