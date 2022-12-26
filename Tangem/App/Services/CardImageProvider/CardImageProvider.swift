@@ -45,7 +45,7 @@ extension CardImageProvider: CardImageProviding {
     }
 
     func loadImage(cardId: String, cardPublicKey: Data, artwork: CardArtwork?) -> AnyPublisher<CardImageResult, Never> {
-        if SaltPayUtil().isPrimaryCard(batchId: String(cardId.prefix(4))) {
+        if SaltPayUtil().isSaltPayCard(batchId: String(cardId.prefix(4)), cardId: cardId) { // [REDACTED_TODO_COMMENT]
             return Just(.embedded(UIImage(named: "saltpay")!))
                 .eraseToAnyPublisher()
         }
