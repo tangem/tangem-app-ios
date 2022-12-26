@@ -24,6 +24,27 @@ enum WalletConnectEvent {
     }
 }
 
+struct WalletConnectUIRequest {
+    let event: WalletConnectEvent
+    let message: String
+    var positiveReactionAction: (() -> Void)?
+    var negativeReactionAction: (() -> Void)?
+}
+
+protocol WalletConnectUIDelegate {
+    func showScreen(with request: WalletConnectUIRequest)
+}
+
+struct WalletConnectAlertUIDelegate {
+    private let appPresenter: AppPresenter = .shared
+}
+
+extension WalletConnectAlertUIDelegate: WalletConnectUIDelegate {
+    func showScreen(with request: WalletConnectUIRequest) {
+
+    }
+}
+
 enum WalletConnectUIBuilder {
     static func makeAlert(for event: WalletConnectEvent,
                           message: String,
