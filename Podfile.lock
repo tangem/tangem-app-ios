@@ -182,6 +182,23 @@ PODS:
   - TweetNacl (1.0.2)
   - WalletConnectSwift (1.7.0):
     - CryptoSwift (~> 1.5)
+  - WalletConnectSwiftV2 (1.1.0):
+    - WalletConnectSwiftV2/WalletConnect (= 1.1.0)
+  - WalletConnectSwiftV2/Commons (1.1.0)
+  - WalletConnectSwiftV2/JSONRPC (1.1.0):
+    - WalletConnectSwiftV2/Commons
+  - WalletConnectSwiftV2/WalletConnect (1.1.0):
+    - WalletConnectSwiftV2/WalletConnectPairing
+  - WalletConnectSwiftV2/WalletConnectKMS (1.1.0):
+    - WalletConnectSwiftV2/WalletConnectUtils
+  - WalletConnectSwiftV2/WalletConnectNetworking (1.1.0):
+    - WalletConnectSwiftV2/WalletConnectRelay
+  - WalletConnectSwiftV2/WalletConnectPairing (1.1.0):
+    - WalletConnectSwiftV2/WalletConnectNetworking
+  - WalletConnectSwiftV2/WalletConnectRelay (1.1.0):
+    - WalletConnectSwiftV2/WalletConnectKMS
+  - WalletConnectSwiftV2/WalletConnectUtils (1.1.0):
+    - WalletConnectSwiftV2/JSONRPC
   - web3swift (2.2.1):
     - BigInt
     - CryptoSwift
@@ -235,6 +252,7 @@ DEPENDENCIES:
   - stellar-ios-mac-sdk
   - TangemSdk (from `https://github.com/Tangem/tangem-sdk-ios.git`, tag `develop-195`)
   - WalletConnectSwift (from `https://github.com/WalletConnect/WalletConnectSwift`, tag `1.7.0`)
+  - WalletConnectSwiftV2
   - web3swift (from `https://github.com/tangem/web3swift.git`, tag `2.2.11`)
   - ZendeskAnswerBotSDK (~> 2.2.0)
   - ZendeskChatSDK (~> 2.12.0)
@@ -276,6 +294,7 @@ SPEC REPOS:
     - SwiftProtobuf
     - SwiftyJSON
     - TweetNacl
+    - WalletConnectSwiftV2
     - XCGLogger
     - ZendeskAnswerBotProvidersSDK
     - ZendeskAnswerBotSDK
@@ -395,6 +414,7 @@ SPEC CHECKSUMS:
   TangemSdk: 9ea2c230bd616787bdccc5fb3ab36925d06199d4
   TweetNacl: 3abf4d1d2082b0114e7a67410e300892448951e6
   WalletConnectSwift: 6309bf3011b0b30e3e9d1e7449535302a9240f71
+  WalletConnectSwiftV2: 2a1098c28f083a5084979222ba6d62c29f870e31
   web3swift: 93f68f5430c11a78bba2351c139d2d22f2c04b5e
   XCGLogger: 1943831ef907df55108b0b18657953f868de973b
   ZendeskAnswerBotProvidersSDK: ec58548f5a968c31d4672dcb2493a9ac307bd2a2
@@ -409,6 +429,6 @@ SPEC CHECKSUMS:
   ZendeskSupportProvidersSDK: 77a62fe6bacc05bb10ff20edce75612fa109fd61
   ZendeskSupportSDK: ba72e90e327635b5fde3d023a3de33242a6ee8ab
 
-PODFILE CHECKSUM: d435dea522870ffb59fcdbfedf4a9cd98ee838cc
+PODFILE CHECKSUM: dec0563d71a57b08a4c176ef5883d41de0a8c2cb
 
 COCOAPODS: 1.11.3

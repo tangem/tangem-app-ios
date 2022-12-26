@@ -41,6 +41,7 @@ target 'Tangem' do
   # Pods for Tangem
   pod 'Moya'
   pod 'WalletConnectSwift', :git => 'https://github.com/WalletConnect/WalletConnectSwift', :tag => '1.7.0'
+  pod 'WalletConnectSwiftV2'
   pod 'Kingfisher', :git => 'https://github.com/onevcat/Kingfisher.git', :branch => 'version6-xcode13'
   pod 'Mobile-Buy-SDK' # Shopify
 
