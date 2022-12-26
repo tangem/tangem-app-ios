@@ -17,7 +17,7 @@ class WalletConnectV1Service {
         static let uriPrefix = "uri="
         static let wcPrefix = "wc:"
     }
-    
+
     let canEstablishNewSessionPublisher = CurrentValueSubject<Bool, Never>(true)
 
     @Published private(set) var sessions = [WalletConnectSession]()
