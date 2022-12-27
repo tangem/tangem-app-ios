@@ -34,6 +34,8 @@ enum StorageType: String {
     case saveUserWallets = "tangem_save_user_wallets"
     case selectedUserWalletId = "tangem_selected_user_wallet_id"
     case saveAccessCodes = "tangem_save_access_codes"
+    case hasClearedUserWalletEncryptionKeysOnFirstLaunch = "has_cleared_user_wallet_encryption_keys_on_first_launch"
+    case hasClearedUserWalletPublicDataEncryptionKeyOnFirstLaunch = "has_cleared_user_wallet_public_data_encryption_key_on_first_launch"
 
     // Temp migrated cards storage. Remove with LegacyCardMigrator
     case migratedCardsWithDefaultTokens = "tangem_migrated_cards_default_tokens"
