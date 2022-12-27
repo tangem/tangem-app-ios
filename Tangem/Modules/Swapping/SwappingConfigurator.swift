@@ -21,6 +21,7 @@ struct SwappingConfigurator {
     func createModule(input: InputModel, coordinator: SwappingRoutable) -> SwappingViewModel {
         let exchangeManager = factory.createExchangeManager(
             walletModel: input.walletModel,
+            signer: input.signer,
             source: input.source,
             destination: input.destination
         )
@@ -40,14 +41,14 @@ extension SwappingConfigurator {
     struct InputModel {
         let walletModel: WalletModel
         let sender: TransactionSender
-        let signer: TransactionSigner
+        let signer: TangemSigner
         let source: Currency
         let destination: Currency?
 
         init(
             walletModel: WalletModel,
             sender: TransactionSender,
-            signer: TransactionSigner,
+            signer: TangemSigner,
             source: Currency,
             destination: Currency? = nil
         ) {

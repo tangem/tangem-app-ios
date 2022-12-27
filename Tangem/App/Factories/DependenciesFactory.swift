@@ -13,6 +13,7 @@ import BlockchainSdk
 struct DependenciesFactory {
     func createExchangeManager(
         walletModel: WalletModel,
+        signer: TangemSigner,
         source: Currency,
         destination: Currency?
     ) -> ExchangeManager {
@@ -21,8 +22,14 @@ struct DependenciesFactory {
             currencyMapper: createCurrencyMapper()
         )
 
+        let signTypedDataProvider = createSignTypedDataProvider(
+            walletManager: walletModel.walletManager,
+            signer: signer
+        )
+
         return TangemExchangeFactory().createExchangeManager(
             blockchainInfoProvider: networkService,
+            signTypedDataProvider: signTypedDataProvider,
             source: source,
             destination: destination
         )
@@ -48,5 +55,9 @@ struct DependenciesFactory {
         ExchangeTransactionSender(sender: sender,
                                   signer: signer,
                                   currencyMapper: createCurrencyMapper())
+    }
+
+    func createSignTypedDataProvider(walletManager: WalletManager, signer: TangemSigner) -> SignTypedDataProviding {
+        SignTypedDataProvider(walletManager: walletManager, tangemSigner: signer)
     }
 }

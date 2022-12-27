@@ -14,17 +14,19 @@ public struct TangemExchangeFactory {
 
     public func createExchangeManager(
         blockchainInfoProvider: BlockchainDataProvider,
+        signTypedDataProvider: SignTypedDataProviding,
         source: Currency,
         destination: Currency?,
         amount: Decimal? = nil
     ) -> ExchangeManager {
-        let exchangeItems = ExchangeItems(source: source, destination: destination)
+        let exchangeItems = ExchangeItems(source: source, destination: destination, supportedPermit: true, permit: nil)
         let exchangeService = OneInchAPIService()
         let provider = OneInchExchangeProvider(exchangeService: exchangeService)
 
         return DefaultExchangeManager(
             exchangeProvider: provider,
             blockchainInfoProvider: blockchainInfoProvider,
+            signTypedDataProvider: signTypedDataProvider,
             exchangeItems: exchangeItems,
             amount: amount
         )

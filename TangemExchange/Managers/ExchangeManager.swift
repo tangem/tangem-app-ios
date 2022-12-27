@@ -12,8 +12,6 @@ public protocol ExchangeManager {
     /// Delegate for view updates
     func setDelegate(_ delegate: ExchangeManagerDelegate)
 
-    func setPermit(_ permit: String)
-
     /// Items which currently to swapping
     func getExchangeItems() -> ExchangeItems
 
@@ -25,6 +23,8 @@ public protocol ExchangeManager {
 
     /// Update amount for swap
     func update(amount: Decimal?)
+
+    func updatePermit()
 
     /// Checking that decimal value available for exchange without approved
     /// Only for tokens
