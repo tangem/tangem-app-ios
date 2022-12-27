@@ -17,7 +17,10 @@ class UserWalletEncryptionKeyStorage {
     private let userWalletIdsStorageKey = "user_wallet_ids"
 
     init() {
-
+        if !AppSettings.shared.hasClearedUserWalletEncryptionKeysOnFirstLaunch {
+            clear()
+            AppSettings.shared.hasClearedUserWalletEncryptionKeysOnFirstLaunch = true
+        }
     }
 
     func fetch(completion: @escaping (Result<[Data: SymmetricKey], Error>) -> Void) {
