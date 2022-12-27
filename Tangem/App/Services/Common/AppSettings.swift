@@ -70,6 +70,12 @@ class AppSettings {
     @AppStorageCompat(StorageType.saveAccessCodes)
     var saveAccessCodes: Bool = false
 
+    @AppStorageCompat(StorageType.hasClearedUserWalletEncryptionKeysOnFirstLaunch)
+    var hasClearedUserWalletEncryptionKeysOnFirstLaunch: Bool = false
+
+    @AppStorageCompat(StorageType.hasClearedUserWalletPublicDataEncryptionKeyOnFirstLaunch)
+    var hasClearedUserWalletPublicDataEncryptionKeyOnFirstLaunch: Bool = false
+
     static let shared: AppSettings = { .init() }()
 
     private init() {}
