@@ -28,7 +28,7 @@ class ResetToFactoryViewModel: ObservableObject {
         self.coordinator = coordinator
     }
 
-    func mainButtonDidTap() {
+    func didTapMainButton() {
         showConfirmationAlert()
     }
 }
@@ -36,9 +36,9 @@ class ResetToFactoryViewModel: ObservableObject {
 private extension ResetToFactoryViewModel {
     func showConfirmationAlert() {
         let sheet = ActionSheet(
-            title: Text(Localization.cardSettingsActionActionSheetTitle),
+            title: Text(Localization.cardSettingsActionSheetTitle),
             buttons: [
-                .destructive(Text(Localization.cardSettingsActionActionSheetReset)) { [weak self] in
+                .destructive(Text(Localization.cardSettingsActionSheetReset)) { [weak self] in
                     self?.resetCardToFactory()
                 },
                 .cancel(Text(Localization.commonCancel)),
