@@ -9,7 +9,9 @@
 import SwiftUI
 
 struct DefaultSelectableRowView: View {
+    /// `Binding` required for trigger redrawing the view
     @Binding private var viewModel: DefaultSelectableRowViewModel
+    /// `@Binding isSelected` must be here to push changes at the place where this object was created
     @Binding private var isSelected: Bool
 
     init(viewModel: DefaultSelectableRowViewModel) {
