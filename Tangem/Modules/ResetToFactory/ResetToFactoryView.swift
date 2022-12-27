@@ -73,7 +73,7 @@ struct ResetToFactoryView: View {
             title: Localization.resetCardToFactoryButtonTitle,
             icon: .trailing(Assets.tangemIcon),
             style: .secondary,
-            action: viewModel.mainButtonDidTap
+            action: viewModel.didTapMainButton
         )
         .padding(.horizontal, 16)
     }
