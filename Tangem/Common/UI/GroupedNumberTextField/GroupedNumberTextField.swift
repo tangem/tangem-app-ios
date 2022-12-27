@@ -20,10 +20,7 @@ struct GroupedNumberTextField: View {
     init(decimalValue: Binding<Decimal?>) {
         _decimalValue = decimalValue
 
-        groupedNumberFormatter = GroupedNumberFormatter(
-            maximumFractionDigits: 8,
-            numberFormatter: numberFormatter
-        )
+        groupedNumberFormatter = GroupedNumberFormatter(numberFormatter: numberFormatter)
     }
 
     private var textFieldProxyBinding: Binding<String> {
