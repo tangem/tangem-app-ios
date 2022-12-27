@@ -48,10 +48,9 @@ extension OneInchExchangeProvider: ExchangeProvider {
     }
 
     func fetchExchangeData(items: ExchangeItems, walletAddress: String, amount: String, permit: String?) async throws -> ExchangeDataModel {
-        let destination = items.destination
         let parameters = ExchangeParameters(
             fromTokenAddress: items.source.contractAddress ?? oneInchCoinContractAddress,
-            toTokenAddress: destination?.contractAddress ?? oneInchCoinContractAddress,
+            toTokenAddress: items.destination?.contractAddress ?? oneInchCoinContractAddress,
             amount: amount,
             fromAddress: walletAddress,
             permit: permit
