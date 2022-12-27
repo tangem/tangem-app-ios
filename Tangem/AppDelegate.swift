@@ -65,11 +65,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         AppSettings.shared.numberOfLaunches += 1
         migrateTOS()
 
-        // Removing UserWallet-related data from Keychain
-        if AppSettings.shared.numberOfLaunches == 1 {
-            CommonUserWalletRepository.clearUserWallets()
-        }
-
         return true
     }
 
