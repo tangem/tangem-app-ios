@@ -60,11 +60,6 @@ class CommonUserWalletRepository: UserWalletRepository {
     private var bag: Set<AnyCancellable> = .init()
 
     init() {
-        let savedSelectedUserWalletId = AppSettings.shared.selectedUserWalletId
-        self.selectedUserWalletId = savedSelectedUserWalletId.isEmpty ? nil : savedSelectedUserWalletId
-
-        userWallets = savedUserWallets(withSensitiveData: false)
-
         bind()
     }
 
@@ -388,14 +383,14 @@ class CommonUserWalletRepository: UserWalletRepository {
     func clear() {
         discardSensitiveData()
 
-        Self.clearUserWallets()
+        clearUserWallets()
         setSelectedUserWalletId(nil, reason: .deleted)
     }
 
-    static func clearUserWallets() {
+    private func clearUserWallets() {
         UserWalletRepositoryUtil().saveUserWallets([])
         UserWalletRepositoryUtil().removePublicDataEncryptionKey()
-        UserWalletEncryptionKeyStorage().clear()
+        encryptionKeyStorage.clear()
     }
 
     private func discardSensitiveData() {
@@ -605,5 +600,19 @@ class CommonUserWalletRepository: UserWalletRepository {
 
     private func saveUserWallets(_ userWallets: [UserWallet]) {
         UserWalletRepositoryUtil().saveUserWallets(userWallets)
+    }
+}
+
+extension CommonUserWalletRepository {
+    func initialize() {
+        // Removing UserWallet-related data from Keychain
+        if AppSettings.shared.numberOfLaunches == 1 {
+            clearUserWallets()
+        }
+
+        let savedSelectedUserWalletId = AppSettings.shared.selectedUserWalletId
+        self.selectedUserWalletId = savedSelectedUserWalletId.isEmpty ? nil : savedSelectedUserWalletId
+
+        userWallets = savedUserWallets(withSensitiveData: false)
     }
 }
