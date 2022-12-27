@@ -20,10 +20,12 @@ class UserWalletRepositoryUtil {
 
     private let publicDataEncryptionKeyStorageKey = "user_wallet_public_data_encryption_key"
 
-    init() {
-        if !AppSettings.shared.hasClearedUserWalletPublicDataEncryptionKeyOnFirstLaunch {
-            removePublicDataEncryptionKey()
-            AppSettings.shared.hasClearedUserWalletPublicDataEncryptionKeyOnFirstLaunch = true
+    func removePublicDataEncryptionKey() {
+        do {
+            let secureStorage = SecureStorage()
+            try secureStorage.delete(publicDataEncryptionKeyStorageKey)
+        } catch {
+            print("Failed to erase public data encryption key", error)
         }
     }
 
@@ -121,15 +123,6 @@ class UserWalletRepositoryUtil {
         let newEncryptionKey = SymmetricKey(size: .bits256)
         try secureStorage.store(newEncryptionKey.dataRepresentationWithHexConversion, forKey: publicDataEncryptionKeyStorageKey)
         return newEncryptionKey
-    }
-
-    private func removePublicDataEncryptionKey() {
-        do {
-            let secureStorage = SecureStorage()
-            try secureStorage.delete(publicDataEncryptionKeyStorageKey)
-        } catch {
-            print("Failed to erase public data encryption key", error)
-        }
     }
 
     private func userWalletListPath() -> URL {
