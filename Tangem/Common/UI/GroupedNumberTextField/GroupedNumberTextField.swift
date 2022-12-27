@@ -13,7 +13,7 @@ struct GroupedNumberTextField: View {
     @State private var textFieldText: String = ""
 
     private let placeholder: String = "0"
-    private let separator: Character = Locale.current.decimalSeparator?.first ?? ","
+    private var decimalSeparator: Character { Character(numberFormatter.decimalSeparator) }
     private var groupedNumberFormatter: GroupedNumberFormatter
     private let numberFormatter: NumberFormatter = .grouped
 
@@ -39,17 +39,17 @@ struct GroupedNumberTextField: View {
 
                 /// If user double tap on zero, add `decimalSeparator` to continue enter number
                 if numberString == "00" {
-                    numberString.insert(separator, at: numberString.index(before: numberString.endIndex))
+                    numberString.insert(decimalSeparator, at: numberString.index(before: numberString.endIndex))
                 }
 
                 /// If user start enter number with `decimalSeparator` add zero before comma
-                if numberString == String(separator) {
+                if numberString == String(decimalSeparator) {
                     numberString.insert("0", at: numberString.startIndex)
                 }
 
                 /// If text already have `decimalSeparator` remove last one
-                if numberString.last == separator,
-                   numberString.prefix(numberString.count - 1).contains(separator) {
+                if numberString.last == decimalSeparator,
+                   numberString.prefix(numberString.count - 1).contains(decimalSeparator) {
                     numberString.removeLast()
                 }
 
