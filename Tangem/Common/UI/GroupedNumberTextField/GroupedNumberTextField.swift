@@ -12,7 +12,8 @@ struct GroupedNumberTextField: View {
     @Binding private var decimalValue: Decimal?
     @State private var textFieldText: String = ""
 
-    private var placeholder: String = "0"
+    private let placeholder: String = "0"
+    private let separator: Character = Locale.current.decimalSeparator?.first ?? ","
     private var groupedNumberFormatter: GroupedNumberFormatter
     private let numberFormatter: NumberFormatter = .grouped
 
@@ -36,26 +37,26 @@ struct GroupedNumberTextField: View {
                 // Remove space separators for formatter correct work
                 var numberString = newValue.replacingOccurrences(of: " ", with: "")
 
-                // If user double tap on zero, add "," to continue enter number
+                /// If user double tap on zero, add `decimalSeparator` to continue enter number
                 if numberString == "00" {
-                    numberString.insert(",", at: numberString.index(before: numberString.endIndex))
+                    numberString.insert(separator, at: numberString.index(before: numberString.endIndex))
                 }
 
-                // If user start enter number with "," add zero before comma
-                if numberString == "," {
+                /// If user start enter number with `decimalSeparator` add zero before comma
+                if numberString == String(separator) {
                     numberString.insert("0", at: numberString.startIndex)
                 }
 
-                // If text already have "," remove last one
-                if numberString.last == ",",
-                   numberString.prefix(numberString.count - 1).contains(",") {
+                /// If text already have `decimalSeparator` remove last one
+                if numberString.last == separator,
+                   numberString.prefix(numberString.count - 1).contains(separator) {
                     numberString.removeLast()
                 }
 
-                // Update private @State for display not correct number, like 0,000
+                /// Update private `@State` for display not correct number, like 0,000
                 textFieldText = numberString
 
-                // If string is correct number, update binding for work external updates
+                /// If string is correct number, update binding for work external updates
                 if let value = numberFormatter.number(from: numberString) {
                     decimalValue = value.decimalValue
                 } else if numberString.isEmpty {
