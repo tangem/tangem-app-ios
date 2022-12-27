@@ -17,7 +17,7 @@ extension NumberFormatter {
         formatter.locale = Locale.current
         formatter.numberStyle = .decimal
         formatter.groupingSeparator = " "
-        formatter.decimalSeparator = ","
+        formatter.decimalSeparator = Locale.current.decimalSeparator
         return formatter
     }()
 }
