@@ -43,10 +43,13 @@ class CardSettingsViewModel: ObservableObject {
         return cardModel.currentSecurityOption.description
     }
 
-    // MARK: Properties
+    // MARK: Dependencies
 
     private unowned let coordinator: CardSettingsRoutable
     private let cardModel: CardViewModel
+
+    // MARK: Private
+
     private var isChangeAccessCodeVisible: Bool {
         cardModel.currentSecurityOption == .accessCode
     }
