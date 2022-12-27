@@ -13,14 +13,20 @@ public struct ExchangeItems {
     public var destination: Currency?
 
     public var sourceBalance: Balance
+    public var supportedPermit: Bool
+    public var permit: String?
 
     public init(
         source: Currency,
         destination: Currency?,
+        supportedPermit: Bool,
+        permit: String?,
         sourceBalance: Balance = .zero
     ) {
         self.source = source
         self.destination = destination
+        self.supportedPermit = supportedPermit
+        self.permit = permit
         self.sourceBalance = sourceBalance
     }
 }

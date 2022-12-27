@@ -11,12 +11,12 @@ import TangemExchange
 
 struct ExchangeManagerMock: ExchangeManager {
     func setDelegate(_ delegate: TangemExchange.ExchangeManagerDelegate) {}
-    func setPermit(_ permit: String) {
+    func updatePermit() {
 
     }
 
     func getExchangeItems() -> TangemExchange.ExchangeItems {
-        ExchangeItems(source: .mock, destination: .mock)
+        ExchangeItems(source: .mock, destination: .mock, supportedPermit: true, permit: nil)
     }
 
     func getAvailabilityState() -> ExchangeAvailabilityState { .idle }
