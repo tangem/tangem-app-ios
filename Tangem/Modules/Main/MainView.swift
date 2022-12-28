@@ -20,7 +20,7 @@ struct MainView: View {
         GeometryReader { geometry in
             ZStack {
                 RefreshableScrollView(onRefresh: { viewModel.onRefresh($0) }) {
-                    VStack(spacing: 16) {
+                    VStack(spacing: 14) {
                         CardView(image: viewModel.image,
                                  width: geometry.size.width - 32,
                                  cardSetLabel: viewModel.cardsCountLabel)
