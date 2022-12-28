@@ -58,6 +58,12 @@ struct DependenciesFactory {
     }
 
     func createSignTypedDataProvider(walletManager: WalletManager, signer: TangemSigner) -> SignTypedDataProviding {
-        SignTypedDataProvider(walletManager: walletManager, tangemSigner: signer)
+        SignTypedDataProvider(walletManager: walletManager,
+                              tangemSigner: signer,
+                              decimalNumberConverter: createDecimalNumberConverter())
+    }
+
+    func createDecimalNumberConverter() -> DecimalNumberConverting {
+        DecimalNumberConverter()
     }
 }
