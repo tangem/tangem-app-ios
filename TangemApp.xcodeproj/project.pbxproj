@@ -526,6 +526,7 @@
 		EF032C552955E881006C1FF3 /* SignTypedDataProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF032C542955E881006C1FF3 /* SignTypedDataProvider.swift */; };
 		EF032C572955E890006C1FF3 /* TransactionSendable.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFA9855029477DA100D1FCB3 /* TransactionSendable.swift */; };
 		EF032C59295987E0006C1FF3 /* SignTypedDataProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF032C58295987E0006C1FF3 /* SignTypedDataProvider.swift */; };
+		EF032C5B295C4F76006C1FF3 /* DecimalNumberConverter.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF032C5A295C4F76006C1FF3 /* DecimalNumberConverter.swift */; };
 		EF053DF12938D4BC006FD13A /* UserWalletListCoordinatorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF053DEE2938D4BC006FD13A /* UserWalletListCoordinatorView.swift */; };
 		EF053DF22938D4BC006FD13A /* UserWalletListCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF053DEF2938D4BC006FD13A /* UserWalletListCoordinator.swift */; };
 		EF053DF32938D4BC006FD13A /* UserWalletListOutput.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF053DF02938D4BC006FD13A /* UserWalletListOutput.swift */; };
@@ -1409,6 +1410,7 @@
 		E9C17C71291ABB9000FDE4BC /* OneInchExchangeProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OneInchExchangeProvider.swift; sourceTree = "<group>"; };
 		EF032C542955E881006C1FF3 /* SignTypedDataProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignTypedDataProvider.swift; sourceTree = "<group>"; };
 		EF032C58295987E0006C1FF3 /* SignTypedDataProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignTypedDataProvider.swift; sourceTree = "<group>"; };
+		EF032C5A295C4F76006C1FF3 /* DecimalNumberConverter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DecimalNumberConverter.swift; sourceTree = "<group>"; };
 		EF053DEE2938D4BC006FD13A /* UserWalletListCoordinatorView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UserWalletListCoordinatorView.swift; sourceTree = "<group>"; };
 		EF053DEF2938D4BC006FD13A /* UserWalletListCoordinator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UserWalletListCoordinator.swift; sourceTree = "<group>"; };
 		EF053DF02938D4BC006FD13A /* UserWalletListOutput.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UserWalletListOutput.swift; sourceTree = "<group>"; };
@@ -2397,6 +2399,7 @@
 				DC5DBBC8289B951600C21E35 /* DemoUtil.swift */,
 				DC74BC2E28EF060600B49850 /* UserWalletId.swift */,
 				DA6C752329225F9B0070EEFD /* MinimizedAppTimer.swift */,
+				EF032C5A295C4F76006C1FF3 /* DecimalNumberConverter.swift */,
 			);
 			path = Utilities;
 			sourceTree = "<group>";
@@ -5161,6 +5164,7 @@
 				DC66BC0A285B755800CDF765 /* PushTxRoutable.swift in Sources */,
 				EF0F99AC289028F8008B01DF /* AppSettingsViewModel.swift in Sources */,
 				EF692A492951E7C8001F4B8A /* Localizable+Generated.swift in Sources */,
+				EF032C5B295C4F76006C1FF3 /* DecimalNumberConverter.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
