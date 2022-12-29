@@ -383,8 +383,6 @@ URL: %@";
 "card_settings_change_access_code" = "Смена кода доступа";
 "card_settings_change_access_code_footer" = "Код доступа будет изменен только на данной карте";
 "card_settings_reset_card_to_factory" = "Сброс к заводским настройкам";
-"card_settings_reset_card_without_backup_footer" = "Это действие приведет к полному удалению кошелька на этой карте. Кошелек невозможно будет восстановить.";
-"card_settings_reset_card_with_backup_footer" = "Это действие приведет к полному удалению кошелька на этой карте. Кошелек невозможно будет восстановить или использовать данную карту для восстановления кода доступа.";
 "app_settings_off_saved_wallet_alert_message" = "При отключении функции сохранения кошелька все ранее сохраненные кошельки будут удалены.";
 "app_settings_off_saved_access_code_alert_message" = "Все сохраненные коды доступа будут удалены. Вам потребуется вводить код доступа при работе с кошельком.";
 "scan_card_settings_title" = "Приготовьте свою карту";
