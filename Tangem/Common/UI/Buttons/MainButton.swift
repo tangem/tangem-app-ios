@@ -52,6 +52,7 @@ struct MainButton: View {
                 .cornerRadiusContinuous(14)
                 .contentShape(Rectangle())
         }
+        .buttonStyle(PlainButtonStyle())
         .disabled(isDisabled)
     }
 
