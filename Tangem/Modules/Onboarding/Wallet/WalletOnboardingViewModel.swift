@@ -190,7 +190,7 @@ class WalletOnboardingViewModel: OnboardingTopupViewModel<WalletOnboardingStep, 
             }
         }
 
-        if currentStep == .saveUserWallet {
+        if case .saveUserWallet = currentStep {
             return false
         }
 
@@ -524,8 +524,17 @@ class WalletOnboardingViewModel: OnboardingTopupViewModel<WalletOnboardingStep, 
             break
         case .backupIntro:
             Analytics.log(.backupSkipped)
-            if steps.contains(.saveUserWallet) {
-                goToStep(.saveUserWallet)
+
+            let saveUserWalletIndex = steps.firstIndex { step in
+                if case .saveUserWallet = step {
+                    return true
+                } else {
+                    return false
+                }
+            }
+
+            if let saveUserWalletIndex {
+                goToStep(with: saveUserWalletIndex)
             } else {
                 jumpToLatestStep()
             }
@@ -714,7 +723,7 @@ class WalletOnboardingViewModel: OnboardingTopupViewModel<WalletOnboardingStep, 
     }
 
     private func fireConfettiIfNeeded() {
-        if currentStep.isOnboardingFinished {
+        if currentStep.requiresConfetti {
             fireConfetti()
         }
     }
