@@ -57,6 +57,14 @@ struct UserWalletListCellView: View {
                             .lineLimit(1)
                             .layoutPriority(1)
                             .skeletonable(isShown: viewModel.isBalanceLoading, radius: 6)
+
+                        if viewModel.hasError {
+                            Assets.attention
+                                .resizable()
+                                .aspectRatio(contentMode: .fit)
+                                .frame(width: 17, height: 17)
+                                .padding(.leading, 2)
+                        }
                     }
                 }
 
