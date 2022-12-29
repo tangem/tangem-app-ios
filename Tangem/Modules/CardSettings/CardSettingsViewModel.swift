@@ -27,7 +27,7 @@ class CardSettingsViewModel: ObservableObject {
         !cardModel.resetToFactoryAvailability.isHidden
     }
 
-    var resetToFactoryMessage: String {
+    var resetToFactoryFooterMessage: String {
         if cardModel.hasBackupCards {
             return Localization.resetCardWithBackupToFactoryMessage
         } else {
@@ -67,6 +67,14 @@ class CardSettingsViewModel: ObservableObject {
 
         bind()
         setupView()
+    }
+
+    func didResetCard() {
+        if let userWallet = cardModel.userWallet {
+            deleteWallet(userWallet)
+        }
+
+        navigateAwayAfterReset()
     }
 }
 
@@ -130,10 +138,10 @@ private extension CardSettingsViewModel {
     }
 
     func navigateAwayAfterReset() {
-        if self.userWalletRepository.isEmpty {
-            self.coordinator.popToRoot()
+        if userWalletRepository.isEmpty {
+            coordinator.popToRoot()
         } else {
-            self.coordinator.dismiss()
+            coordinator.dismiss()
         }
     }
 
@@ -169,25 +177,10 @@ extension CardSettingsViewModel {
             return
         }
 
-        let userWallet = cardModel.userWallet
-
         if cardModel.canTwin {
             prepareTwinOnboarding()
         } else {
-            coordinator.openResetCardToFactoryWarning(message: resetToFactoryMessage) { [weak self] in
-                self?.cardModel.resetToFactory { [weak self] result in
-                    guard let self, let userWallet else { return }
-
-                    switch result {
-                    case .success:
-                        self.didResetCard(with: userWallet)
-                    case let .failure(error):
-                        if !error.isUserCancelled {
-                            self.alert = error.alertBinder
-                        }
-                    }
-                }
-            }
+            coordinator.openResetCardToFactoryWarning(cardModel: cardModel)
         }
     }
 }
