@@ -516,5 +516,5 @@ URL: %@";
 "referral_promo_code_copied" = "Персональный код скопирован!";
 "referral_share_link" = "Купи Tangem Wallet со скидкой!\n%@";
 "user_wallet_list_error_wallet_already_saved" = "Этот кошелек уже был сохранен, вы можете добавить другой";
-"card_settings_action_sheet_title" = "Вы уверены, что хотите это сделать?";
+"card_settings_action_sheet_title" = "Вы уверены, что хотите сделать это?";
 "card_settings_action_sheet_reset" = "Сбросить";
