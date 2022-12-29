@@ -85,6 +85,11 @@ struct SaltPayConfig {
 
         return steps
     }
+
+    private func userWalletSavingSteps(standalone: Bool) -> [WalletOnboardingStep] {
+        guard needUserWalletSavingSteps else { return [] }
+        return [.saveUserWallet(standalone: standalone)]
+    }
 }
 
 extension SaltPayConfig: UserWalletConfig {
@@ -129,23 +134,18 @@ extension SaltPayConfig: UserWalletConfig {
 
     var onboardingSteps: OnboardingSteps {
         if SaltPayUtil().isBackupCard(cardId: card.cardId) {
-            return .wallet([])
+            return .wallet(userWalletSavingSteps(standalone: true))
         }
 
         if card.wallets.isEmpty {
-            return .wallet([.createWallet] + _backupSteps + userWalletSavingSteps + registrationSteps)
+            return .wallet([.createWallet] + _backupSteps + userWalletSavingSteps(standalone: false) + registrationSteps)
         } else {
-            return .wallet(_backupSteps + userWalletSavingSteps + registrationSteps)
+            return .wallet(_backupSteps + userWalletSavingSteps(standalone: false) + registrationSteps)
         }
     }
 
     var backupSteps: OnboardingSteps? {
         return .wallet(_backupSteps)
-    }
-
-    var userWalletSavingSteps: [WalletOnboardingStep] {
-        guard needUserWalletSavingSteps else { return [] }
-        return [.saveUserWallet]
     }
 
     var supportedBlockchains: Set<Blockchain> {
