@@ -11,39 +11,45 @@ import XCTest
 @testable import Tangem
 
 class GroupedNumberFormatterTests: XCTestCase {
-    func testFormatterWithCommaSeparator() {
+    func testFormatterWithRussianLocale() {
         let numberFormatter = NumberFormatter.grouped
-        numberFormatter.decimalSeparator = ","
+        numberFormatter.locale = Locale(identifier: "ru_RU")
         let formatter = GroupedNumberFormatter(numberFormatter: numberFormatter)
 
+        let unbreakableSpace = "\u{00a0}"
+
         let data = [
-            (input: "0,000", result: "0,000"),
-            (input: "0,0001", result: "0,0001"),
-            (input: "15320", result: "15 320"),
-            (input: "1234,56", result: "1 234,56"),
-            (input: "0,123456789", result: "0,12345678"), // reduce maximumFractionDigits
+            (input: "0,000", expected: "0,000"),
+            (input: "0,0001", expected: "0,0001"),
+            (input: "15320", expected: "15\(unbreakableSpace)320"),
+            (input: "1234,56", expected: "1\(unbreakableSpace)234,56"),
+            (input: "0,123456789", expected: "0,12345678"), // reduce maximumFractionDigits
         ]
 
-        data.forEach { input, result in
-            XCTAssertEqual(formatter.format(from: input), result)
+        XCTAssertEqual(numberFormatter.groupingSeparator, unbreakableSpace)
+
+        data.forEach { input, expected in
+            let result = formatter.format(from: input)
+            XCTAssertEqual(result, expected)
         }
     }
 
-    func testFormatterWithDotSeparator() {
+    func testFormatterWithUSALocale() {
         let numberFormatter = NumberFormatter.grouped
-        numberFormatter.decimalSeparator = "."
+        numberFormatter.locale = Locale(identifier: "en_US")
         let formatter = GroupedNumberFormatter(numberFormatter: numberFormatter)
 
         let data = [
-            (input: "0.000", result: "0.000"),
-            (input: "0.0001", result: "0.0001"),
-            (input: "15320", result: "15 320"),
-            (input: "1234.56", result: "1 234.56"),
-            (input: "0.123456789", result: "0.12345678"), // reduce maximumFractionDigits
+            (input: "0.000", expected: "0.000"),
+            (input: "0.0001", expected: "0.0001"),
+            (input: "15320", expected: "15,320"),
+            (input: "1234.56", expected: "1,234.56"),
+            (input: "0.123456789", expected: "0.12345678"), // reduce maximumFractionDigits
         ]
 
-        data.forEach { input, result in
-            XCTAssertEqual(formatter.format(from: input), result)
+        data.forEach { input, expected in
+            let result = formatter.format(from: input)
+            XCTAssertEqual(result, expected)
         }
     }
 }
