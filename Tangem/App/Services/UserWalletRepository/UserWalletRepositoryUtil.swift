@@ -18,6 +18,17 @@ class UserWalletRepositoryUtil {
         fileManager.urls(for: .documentDirectory, in: .userDomainMask)[0].appendingPathComponent("user_wallets", isDirectory: true)
     }
 
+    private let publicDataEncryptionKeyStorageKey = "user_wallet_public_data_encryption_key"
+
+    func removePublicDataEncryptionKey() {
+        do {
+            let secureStorage = SecureStorage()
+            try secureStorage.delete(publicDataEncryptionKeyStorageKey)
+        } catch {
+            print("Failed to erase public data encryption key", error)
+        }
+    }
+
     func savedUserWallets(encryptionKeyByUserWalletId: [Data: SymmetricKey]) -> [UserWallet] {
         do {
             guard fileManager.fileExists(atPath: userWalletListPath().path) else {
@@ -101,17 +112,16 @@ class UserWalletRepositoryUtil {
     }
 
     private func publicDataEncryptionKey() throws -> SymmetricKey {
-        let keychainKey = "user_wallet_public_data_encryption_key"
         let secureStorage = SecureStorage()
 
-        let encryptionKeyData = try secureStorage.get(keychainKey)
+        let encryptionKeyData = try secureStorage.get(publicDataEncryptionKeyStorageKey)
         if let encryptionKeyData = encryptionKeyData {
             let symmetricKey: SymmetricKey = .init(data: encryptionKeyData)
             return symmetricKey
         }
 
         let newEncryptionKey = SymmetricKey(size: .bits256)
-        try secureStorage.store(newEncryptionKey.dataRepresentationWithHexConversion, forKey: keychainKey)
+        try secureStorage.store(newEncryptionKey.dataRepresentationWithHexConversion, forKey: publicDataEncryptionKeyStorageKey)
         return newEncryptionKey
     }
 
