@@ -15,7 +15,7 @@ enum WalletOnboardingStep: Equatable {
     case backupIntro
     case selectBackupCards
     case backupCards
-    case saveUserWallet
+    case saveUserWallet(standalone: Bool)
 
     // visa only
     case enterPin
@@ -218,7 +218,23 @@ extension WalletOnboardingStep: OnboardingInitialStepInfo {
 
 extension WalletOnboardingStep: OnboardingProgressStepIndicatable {
     var isOnboardingFinished: Bool {
-        self == .success ||  self == .successClaim
+        switch self {
+        case .success, .successClaim:
+            return true
+        case .saveUserWallet(let standalone):
+            return standalone
+        default:
+            return false
+        }
+    }
+
+    var requiresConfetti: Bool {
+        switch self {
+        case .success, .successClaim:
+            return true
+        default:
+            return false
+        }
     }
 
     var successCircleOpacity: Double {
