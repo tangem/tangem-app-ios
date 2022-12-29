@@ -9,7 +9,7 @@
 import TangemSdk
 
 class TwinsFinalizeWalletCreationTask: CardSessionRunnable {
-    var allowsAccessCodeFromRepository: Bool { false }
+    var shouldAskForAccessCode: Bool { false }
 
     private let fileToWrite: Data
     var requiresPin2: Bool { true }
@@ -51,7 +51,7 @@ class TwinsFinalizeWalletCreationTask: CardSessionRunnable {
     }
 
     func readCard(in session: CardSession, completion: @escaping CompletionResult<AppScanTaskResponse>) {
-        scanCommand = AppScanTask(allowsAccessCodeFromRepository: false)
+        scanCommand = AppScanTask()
         scanCommand!.run(in: session, completion: completion)
     }
 }
