@@ -35,7 +35,6 @@ class MainCoordinator: CoordinatorObject {
     @Published var addressQrBottomSheetContentViewModel: AddressQrBottomSheetContentViewModel? = nil
     @Published var warningBankCardViewModel: WarningBankCardViewModel? = nil
     @Published var userWalletListCoordinator: UserWalletListCoordinator?
-    @Published var userWalletStorageAgreementViewModel: UserWalletStorageAgreementViewModel?
 
     // MARK: - Helpers
     @Published var modalOnboardingCoordinatorKeeper: Bool = false
@@ -254,14 +253,6 @@ extension MainCoordinator: MainRoutable {
                                                       urlActions: [:])
     }
 
-    func openUserWalletSaveAcceptanceSheet() {
-        userWalletStorageAgreementViewModel = UserWalletStorageAgreementViewModel(isStandalone: true, coordinator: self)
-    }
-
-    func closeUserWalletSaveAcceptanceSheet() {
-        userWalletStorageAgreementViewModel = nil
-    }
-
     func openUserWalletList() {
         let dismissAction: Action = { [weak self] in
             self?.userWalletListCoordinator = nil
@@ -292,21 +283,5 @@ extension MainCoordinator: UserWalletListCoordinatorOutput {
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) {
             self.modalOnboardingCoordinator = coordinator
         }
-    }
-}
-
-extension MainCoordinator: UserWalletStorageAgreementRoutable {
-    func didAgreeToSaveUserWallets() {
-        logSaveUserWalletStep(agreed: true)
-        mainViewModel?.didAgreeToSaveUserWallets()
-    }
-
-    func didDeclineToSaveUserWallets() {
-        logSaveUserWalletStep(agreed: false)
-        mainViewModel?.didDeclineToSaveUserWallets()
-    }
-
-    private func logSaveUserWalletStep(agreed: Bool) {
-        Analytics.log(.mainEnableBiometric, params: [.state: Analytics.ParameterValue.state(for: agreed).rawValue])
     }
 }
