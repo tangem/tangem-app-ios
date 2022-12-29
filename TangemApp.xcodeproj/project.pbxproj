@@ -410,6 +410,7 @@
 		DC0A584A282C07A20031BECC /* WalletConnectServiceProviding.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC0A5849282C07A20031BECC /* WalletConnectServiceProviding.swift */; };
 		DC0A584C282C07B10031BECC /* WalletConnectServiceProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC0A584B282C07B10031BECC /* WalletConnectServiceProvider.swift */; };
 		DC0A5856282E3E220031BECC /* ServicesManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC0A5855282E3E220031BECC /* ServicesManager.swift */; };
+		DC10A7C6295DED4E00367574 /* BindableError.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC10A7C5295DED4E00367574 /* BindableError.swift */; };
 		DC194D2628EC6A76007FBC99 /* SaltPayRegistratorProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC194D2528EC6A76007FBC99 /* SaltPayRegistratorProvider.swift */; };
 		DC194D2828EC6AA0007FBC99 /* SaltPayRegistratorProviding.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC194D2728EC6AA0007FBC99 /* SaltPayRegistratorProviding.swift */; };
 		DC22535528A4F5730094F30C /* NoteDemoConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC22535428A4F5730094F30C /* NoteDemoConfig.swift */; };
@@ -1282,6 +1283,7 @@
 		DC0A5849282C07A20031BECC /* WalletConnectServiceProviding.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletConnectServiceProviding.swift; sourceTree = "<group>"; };
 		DC0A584B282C07B10031BECC /* WalletConnectServiceProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletConnectServiceProvider.swift; sourceTree = "<group>"; };
 		DC0A5855282E3E220031BECC /* ServicesManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ServicesManager.swift; sourceTree = "<group>"; };
+		DC10A7C5295DED4E00367574 /* BindableError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BindableError.swift; sourceTree = "<group>"; };
 		DC194D2528EC6A76007FBC99 /* SaltPayRegistratorProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SaltPayRegistratorProvider.swift; sourceTree = "<group>"; };
 		DC194D2728EC6AA0007FBC99 /* SaltPayRegistratorProviding.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SaltPayRegistratorProviding.swift; sourceTree = "<group>"; };
 		DC22535428A4F5730094F30C /* NoteDemoConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoteDemoConfig.swift; sourceTree = "<group>"; };
@@ -2155,6 +2157,7 @@
 				5DBBAB0924D853A000E78F1C /* Extensions */,
 				B082E91E255A8E7800A0CEA9 /* Storage */,
 				5D119E84256BF1E50046CAD2 /* Option.swift */,
+				DC10A7C5295DED4E00367574 /* BindableError.swift */,
 				B0453671264D4B730005B23E /* Constants.swift */,
 				EF0FF8702866021B00B7CEAF /* AppEnvironment.swift */,
 				DCFE143D294B31C00053106B /* AppPresenter.swift */,
@@ -4642,6 +4645,7 @@
 				B0F16D7126EF5ED800687C47 /* ProgressBar.swift in Sources */,
 				DC295B542861F104006CB7B6 /* OnboardingRoutable.swift in Sources */,
 				EF5A5AD528D86094002544AC /* CardImageProvider.swift in Sources */,
+				DC10A7C6295DED4E00367574 /* BindableError.swift in Sources */,
 				DA6C7522292224E00070EEFD /* UserWalletEncryptionKey.swift in Sources */,
 				DC66BC00285B3FD900CDF765 /* OnboardingTopupRoutable.swift in Sources */,
 				B04BA23426F0837C0036784C /* OnboardingTopupLayoutCalculator.swift in Sources */,
