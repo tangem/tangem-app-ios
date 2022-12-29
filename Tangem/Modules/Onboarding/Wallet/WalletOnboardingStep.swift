@@ -217,17 +217,6 @@ extension WalletOnboardingStep: OnboardingInitialStepInfo {
 }
 
 extension WalletOnboardingStep: OnboardingProgressStepIndicatable {
-    var isOnboardingFinished: Bool {
-        switch self {
-        case .success, .successClaim:
-            return true
-        case .saveUserWallet(let standalone):
-            return standalone
-        default:
-            return false
-        }
-    }
-
     var requiresConfetti: Bool {
         switch self {
         case .success, .successClaim:
