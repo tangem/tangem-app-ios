@@ -43,9 +43,9 @@ class TestnetBuyCryptoService {
             .sink { [unowned self] completion in
                 if case let .failure(error) = completion {
                     print(error)
-                    self.presentOnMain(error.alertController)
+                    AppPresenter.shared.showError(error)
                 } else {
-                    self.presentOnMain(AlertBuilder.makeSuccessAlertController(message: Localization.testnetAddressTopuped))
+                    AppPresenter.shared.show(AlertBuilder.makeSuccessAlertController(message: Localization.testnetAddressTopuped))
                 }
 
                 self.bag.remove(subs)
@@ -56,13 +56,6 @@ class TestnetBuyCryptoService {
 
         bag.insert(subs)
     }
-
-    private func presentOnMain(_ vc: UIViewController) {
-        DispatchQueue.main.async {
-            UIApplication.modalFromTop(vc)
-        }
-    }
-
 }
 
 extension TestnetBuyCryptoService {
