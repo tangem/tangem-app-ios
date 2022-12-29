@@ -302,14 +302,14 @@ extension OnboardingAccessCodeView {
 
         fileprivate static var featuresDescription: [AccessCodeFeature] {
             [
-                .init(title: "onboarding_access_code_feature_1_title",
-                      description: "onboarding_access_code_feature_1_description",
+                .init(title: Localization.onboardingAccessCodeFeature1Title,
+                      description: Localization.onboardingAccessCodeFeature1Description,
                       icon: "access_code_feature_1"),
-                .init(title: "onboarding_access_code_feature_2_title",
-                      description: "onboarding_access_code_feature_2_description",
+                .init(title: Localization.onboardingAccessCodeFeature2Title,
+                      description: Localization.onboardingAccessCodeFeature2Description,
                       icon: "access_code_feature_2"),
-                .init(title: "onboarding_access_code_feature_3_title",
-                      description: "onboarding_access_code_feature_3_description",
+                .init(title: Localization.onboardingAccessCodeFeature3Title,
+                      description: Localization.onboardingAccessCodeFeature3Description,
                       icon: "access_code_feature_3"),
             ]
         }
