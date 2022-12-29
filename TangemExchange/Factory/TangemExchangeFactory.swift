@@ -14,7 +14,7 @@ public struct TangemExchangeFactory {
 
     public func createExchangeManager(
         blockchainInfoProvider: BlockchainDataProvider,
-        signTypedDataProvider: SignTypedDataProviding,
+        permitTypedDataProvider: PermitTypedDataProviding,
         source: Currency,
         destination: Currency?,
         amount: Decimal? = nil
@@ -26,7 +26,7 @@ public struct TangemExchangeFactory {
         return DefaultExchangeManager(
             exchangeProvider: provider,
             blockchainInfoProvider: blockchainInfoProvider,
-            signTypedDataProvider: signTypedDataProvider,
+            permitTypedDataProvider: permitTypedDataProvider,
             exchangeItems: exchangeItems,
             amount: amount
         )

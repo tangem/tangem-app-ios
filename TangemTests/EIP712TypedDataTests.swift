@@ -138,7 +138,7 @@ class EIP712TypedDataTests: XCTestCase {
             verifyingContract: "0x111111111117dc0aa78b770fa6a738034120c302"
         )
 
-        let message = EIP712PermitMessage(
+        let message = EIP2612PermitMessage(
             owner: "0x29010F8F91B980858EB298A0843264cfF21Fd9c9",
             spender: "0x11111112542d85b3ef69ae05771c2dccff4faa26",
             value: "1000000000",
