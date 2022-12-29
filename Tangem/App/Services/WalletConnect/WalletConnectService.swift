@@ -9,11 +9,21 @@
 import Foundation
 import Combine
 
-class WalletConnectService {
+class CommonWalletConnectService {
     private var v1Service: WalletConnectV1Service? = nil
 }
 
-extension WalletConnectService: WalletConnectSetupManager {
+extension CommonWalletConnectService: WalletConnectService {
+    var canEstablishNewSessionPublisher: AnyPublisher<Bool, Never> {
+        v1Service?.canEstablishNewSessionPublisher.eraseToAnyPublisher() ??
+            Just(false).eraseToAnyPublisher()
+    }
+
+    var sessionsPublisher: AnyPublisher<[WalletConnectSession], Never> {
+        v1Service?.sessionsPublisher ??
+            Just([]).eraseToAnyPublisher()
+    }
+
     func initialize(with cardModel: CardViewModel) {
         guard cardModel.supportsWalletConnect else {
             return
@@ -25,23 +35,11 @@ extension WalletConnectService: WalletConnectSetupManager {
     func reset() {
         v1Service = nil
     }
-}
 
-extension WalletConnectService: WalletConnectSessionController {
-    var canEstablishNewSessionPublisher: AnyPublisher<Bool, Never> {
-        v1Service?.canEstablishNewSessionPublisher.eraseToAnyPublisher() ??
-            Just(false).eraseToAnyPublisher()
-    }
-    var sessionsPublisher: AnyPublisher<[WalletConnectSession], Never> {
-        v1Service?.sessionsPublisher ??
-            Just([]).eraseToAnyPublisher()
-    }
     func disconnectSession(with id: Int) {
         v1Service?.disconnectSession(with: id)
     }
-}
 
-extension WalletConnectService: WalletConnectURLHandler {
     func canHandle(url: String) -> Bool {
         v1Service?.canHandle(url: url) ?? false
     }
