@@ -29,7 +29,7 @@ struct PermitTypedDataProvider {
 extension PermitTypedDataProvider: PermitTypedDataProviding {
     func buildPermitCallData(for currency: Currency, parameters: PermitParameters) async throws -> String {
         let domain = try mapToDomain(currency: currency)
-        let nonce = ethereumTransactionProcessor.initialNonce
+        let nonce = 0 // ethereumTransactionProcessor.initialNonce
         let message = mapToPermitMessage(currency: currency, nonce: nonce, parameters: parameters)
 
         let signature = try await signTypedDataProvider.buildPermitSignature(domain: domain, message: message)
