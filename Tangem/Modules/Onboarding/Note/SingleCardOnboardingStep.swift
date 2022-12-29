@@ -8,12 +8,12 @@
 
 import SwiftUI
 
-enum SingleCardOnboardingStep: CaseIterable, Equatable {
+enum SingleCardOnboardingStep: Equatable {
     case welcome
     case createWallet
     case topup
     case successTopup
-    case saveUserWallet
+    case saveUserWallet(standalone: Bool)
     case success
 
     var hasProgressStep: Bool {
@@ -175,7 +175,17 @@ extension SingleCardOnboardingStep: OnboardingProgressStepIndicatable {
     var isOnboardingFinished: Bool {
         switch self {
         case .success, .successTopup: return true
+        case .saveUserWallet(let standalone): return standalone
         default: return false
+        }
+    }
+
+    var requiresConfetti: Bool {
+        switch self {
+        case .success, .successTopup:
+            return true
+        default:
+            return false
         }
     }
 
