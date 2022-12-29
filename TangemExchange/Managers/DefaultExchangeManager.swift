@@ -14,7 +14,7 @@ class DefaultExchangeManager {
 
     private let exchangeProvider: ExchangeProvider
     private let blockchainDataProvider: BlockchainDataProvider
-    private let signTypedDataProvider: SignTypedDataProviding
+    private let permitTypedDataProvider: PermitTypedDataProviding
 
     // MARK: - Internal
 
@@ -40,13 +40,13 @@ class DefaultExchangeManager {
     init(
         exchangeProvider: ExchangeProvider,
         blockchainInfoProvider: BlockchainDataProvider,
-        signTypedDataProvider: SignTypedDataProviding,
+        permitTypedDataProvider: PermitTypedDataProviding,
         exchangeItems: ExchangeItems,
         amount: Decimal? = nil
     ) {
         self.exchangeProvider = exchangeProvider
         self.blockchainDataProvider = blockchainInfoProvider
-        self.signTypedDataProvider = signTypedDataProvider
+        self.permitTypedDataProvider = permitTypedDataProvider
         self.exchangeItems = exchangeItems
         self.amount = amount
 
@@ -115,6 +115,7 @@ extension DefaultExchangeManager: ExchangeManager {
 
 private extension DefaultExchangeManager {
     func amountDidChange() {
+        exchangeItems.permit = nil
         updateSourceBalances()
 
         if amount == nil || amount == 0 {
@@ -130,6 +131,7 @@ private extension DefaultExchangeManager {
     func exchangeItemsDidChange() {
         /// Set nil for previous token
         tokenExchangeAllowanceLimit = nil
+        exchangeItems.permit = nil
         updateSourceBalances()
 
         guard (amount ?? 0) > 0 else {
@@ -267,8 +269,6 @@ private extension DefaultExchangeManager {
             throw ExchangeManagerError.walletAddressNotFound
         }
 
-        print("Permit", permit as Any)
-
         return try await exchangeProvider.fetchExchangeData(
             items: exchangeItems,
             walletAddress: walletAddress,
@@ -306,19 +306,15 @@ private extension DefaultExchangeManager {
             throw ExchangeManagerError.walletAddressNotFound
         }
 
-        let dataModel = SignTypedDataPermitDataModel(
+        let parameters = PermitParameters(
             walletAddress: walletAddress,
             spenderAddress: spenderAddress,
-            amount: amount
+            amount: amount,
+            deadline: Date(timeIntervalSinceNow: 60 * 30) // 30 min
         )
 
-        let permit = try await signTypedDataProvider.permitData(
-            for: exchangeItems.source,
-            dataModel: dataModel,
-            deadline: Date(timeIntervalSinceNow: 60 * 30)
-        )
-
-        return permit.lowercased()
+        let permitCallData = try await permitTypedDataProvider.buildPermitCallData(for: exchangeItems.source, parameters: parameters)
+        return permitCallData.lowercased()
     }
 
     private func formattedAmount() -> String {

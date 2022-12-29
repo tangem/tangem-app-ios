@@ -11,7 +11,7 @@ import Foundation
 struct EIP712ModelBuilder {
 
     /// https://eips.ethereum.org/EIPS/eip-2612
-    func permitTypedData(domain: EIP712Domain, message: EIP712PermitMessage) throws -> EIP712TypedData {
+    func permitTypedData(domain: EIP712Domain, message: EIP2612PermitMessage) throws -> EIP712TypedData {
         let types: [EIP712Types] = [.eip712Domain, .permit]
 
         return EIP712TypedData(
