@@ -150,8 +150,8 @@ class CommonUserWalletRepository: UserWalletRepository {
 
             self.failedCardScanTracker.recordFailure()
 
-            if let saltpayError = error as? SaltPayRegistratorError {
-                return Just(UserWalletRepositoryResult.error(saltpayError))
+            if error is SaltPayRegistratorError {
+                return Just(UserWalletRepositoryResult.error(error))
             }
 
             if self.failedCardScanTracker.shouldDisplayAlert {
