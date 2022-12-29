@@ -9,7 +9,6 @@
 import Foundation
 
 protocol OnboardingProgressStepIndicatable {
-    var isOnboardingFinished: Bool { get }
     var requiresConfetti: Bool { get }
     var successCircleOpacity: Double { get }
     var successCircleState: OnboardingCircleButton.State { get }

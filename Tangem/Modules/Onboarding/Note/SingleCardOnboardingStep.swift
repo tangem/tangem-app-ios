@@ -172,14 +172,6 @@ extension SingleCardOnboardingStep: OnboardingButtonsInfoProvider {
 }
 
 extension SingleCardOnboardingStep: OnboardingProgressStepIndicatable {
-    var isOnboardingFinished: Bool {
-        switch self {
-        case .success, .successTopup: return true
-        case .saveUserWallet(let standalone): return standalone
-        default: return false
-        }
-    }
-
     var requiresConfetti: Bool {
         switch self {
         case .success, .successTopup:
