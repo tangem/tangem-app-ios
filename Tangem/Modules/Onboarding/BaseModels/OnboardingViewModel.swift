@@ -75,7 +75,7 @@ class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable>
     }
 
     var isOnboardingFinished: Bool {
-        currentStep.isOnboardingFinished
+        currentStep == steps.last
     }
 
     var mainButtonTitle: String {
