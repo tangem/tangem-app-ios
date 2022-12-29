@@ -12,19 +12,20 @@ enum WelcomeStep {
     case welcome
     case letsStart
 
+    #warning("[REDACTED_TODO_COMMENT]")
     var title: String {
-        String("[REDACTED_TODO_COMMENT]")
+        String("")
     }
 
     var subtitle: String {
-        String("[REDACTED_TODO_COMMENT]")
+        String("")
     }
 
     var mainButtonTitle: String {
-        String("[REDACTED_TODO_COMMENT]")
+        String("")
     }
 
     var supplementButtonTitle: String {
-        String("[REDACTED_TODO_COMMENT]")
+        String("")
     }
 }
