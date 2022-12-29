@@ -32,6 +32,8 @@ struct SignTypedDataProvider {
 extension SignTypedDataProvider: SignTypedDataProviding {
     func buildPermitSignature(domain: EIP712Domain, message: EIP2612PermitMessage) async throws -> UnmarshalledSignedData {
         let permitModel = try EIP712ModelBuilder().permitTypedData(domain: domain, message: message)
+        let data = try JSONEncoder().encode(permitModel)
+        print("permitJson:\n" + String(bytes: data, encoding: .utf8)!)
         let signHash = permitModel.signHash
         let signData = try await tangemSigner.sign(hash: signHash, walletPublicKey: publicKey).async()
 
