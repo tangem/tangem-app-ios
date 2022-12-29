@@ -179,7 +179,6 @@ class MainViewModel: ObservableObject {
         bind()
         cardModel.setupWarnings()
         updateContent()
-        showUserWalletSaveIfNeeded()
     }
 
     deinit {
@@ -345,38 +344,6 @@ class MainViewModel: ObservableObject {
         }
     }
 
-    func didDeclineToSaveUserWallets() {
-        AppSettings.shared.askedToSaveUserWallets = true
-        AppSettings.shared.saveUserWallets = false
-
-        coordinator.closeUserWalletSaveAcceptanceSheet()
-    }
-
-    func didAgreeToSaveUserWallets() {
-        AppSettings.shared.askedToSaveUserWallets = true
-
-        userWalletRepository.unlock(with: .biometry) { [weak self, cardModel] result in
-            if case let .error(error) = result {
-                print("Failed to enable biometry: \(error)")
-                self?.coordinator.closeUserWalletSaveAcceptanceSheet()
-                return
-            }
-
-            // Doesn't seem to work without the delay
-            let delay = 1.0
-            DispatchQueue.main.asyncAfter(deadline: .now() + delay) {
-                guard let userWallet = cardModel.userWallet else { return }
-
-                AppSettings.shared.saveUserWallets = true
-                AppSettings.shared.saveAccessCodes = true
-
-                self?.userWalletRepository.save(userWallet)
-                self?.cardModel.updateSdkConfig()
-                self?.coordinator.closeUserWalletSaveAcceptanceSheet()
-            }
-        }
-    }
-
     // MARK: - Private functions
 
     private func updateContent() {
@@ -409,17 +376,6 @@ class MainViewModel: ObservableObject {
 
     private func updateLackDerivationWarningView(entries: [StorageEntry]) {
         isLackDerivationWarningViewVisible = !entries.isEmpty
-    }
-
-    private func showUserWalletSaveIfNeeded() {
-        if AppSettings.shared.askedToSaveUserWallets || !BiometricsUtil.isAvailable {
-            return
-        }
-
-        let delay = 1.0
-        DispatchQueue.main.asyncAfter(deadline: .now() + delay) { [weak self] in
-            self?.coordinator.openUserWalletSaveAcceptanceSheet()
-        }
     }
 
     private func loadImage() {
