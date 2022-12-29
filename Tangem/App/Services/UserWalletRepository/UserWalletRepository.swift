@@ -9,7 +9,7 @@
 import Foundation
 import Combine
 
-protocol UserWalletRepository {
+protocol UserWalletRepository: Initializable {
     var delegate: UserWalletRepositoryDelegate? { get set }
     var models: [CardViewModel] { get }
     var selectedModel: CardViewModel? { get }
