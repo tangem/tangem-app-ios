@@ -9,7 +9,7 @@
 import Foundation
 import SwiftUI
 
-enum SaltPayRegistratorError: String, Error, LocalizedError {
+enum SaltPayRegistratorError: String, Error, LocalizedError, BindableError {
     case failedToMakeTxData
     case needPin
     case empty
@@ -50,7 +50,7 @@ enum SaltPayRegistratorError: String, Error, LocalizedError {
 
             return .init(alert: alert)
         default:
-            return .init(alert: alert, error: self)
+            return .init(alert: alert)
         }
     }
 }
