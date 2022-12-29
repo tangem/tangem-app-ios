@@ -46,7 +46,7 @@ struct CardView: View {
     }
 
     private var verticalPadding: CGFloat {
-        cardSetLabel == nil ? 6.0 : 16.0
+        cardSetLabel == nil ? 0.0 : 16.0
     }
 }
 
