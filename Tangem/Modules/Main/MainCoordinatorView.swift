@@ -89,12 +89,6 @@ struct MainCoordinatorView: CoordinatorView {
             }
 
         NavHolder()
-            .sheet(item: $coordinator.userWalletStorageAgreementViewModel) {
-                UserWalletStorageAgreementView(viewModel: $0)
-                    .interactiveDismissDisabledCompat()
-            }
-
-        NavHolder()
             .sheet(item: $coordinator.userWalletListCoordinator) {
                 UserWalletListCoordinatorView(coordinator: $0)
             }
