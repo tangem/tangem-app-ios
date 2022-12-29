@@ -16,10 +16,6 @@ class UserWalletEncryptionKeyStorage {
     private let biometricsStorage = BiometricsStorage()
     private let userWalletIdsStorageKey = "user_wallet_ids"
 
-    init() {
-
-    }
-
     func fetch(completion: @escaping (Result<[Data: SymmetricKey], Error>) -> Void) {
         do {
             let userWalletIds = try userWalletIds()
