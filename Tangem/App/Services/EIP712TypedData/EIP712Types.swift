@@ -35,7 +35,7 @@ enum EIP712Types {
                 EIP712Type(name: "owner", type: "address"),
                 EIP712Type(name: "spender", type: "address"),
                 EIP712Type(name: "value", type: "uint256"),
-                EIP712Type(name: "nonce", type: "uint256"),
+//                EIP712Type(name: "nonce", type: "uint256"),
                 EIP712Type(name: "deadline", type: "uint256"),
             ]
         }
