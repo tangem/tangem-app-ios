@@ -15,7 +15,7 @@ struct TwinsCreateWalletTaskResponse: JSONStringConvertible {
 }
 
 class TwinsCreateWalletTask: CardSessionRunnable {
-    var allowsAccessCodeFromRepository: Bool { false }
+    var shouldAskForAccessCode: Bool { false }
 
     typealias CommandResponse = TwinsCreateWalletTaskResponse
 
@@ -139,7 +139,7 @@ class TwinsCreateWalletTask: CardSessionRunnable {
     }
 
     private func scanCard(session: CardSession, walletResponse: CreateWalletResponse, completion: @escaping CompletionResult<CommandResponse>) {
-        self.scanCommand =  AppScanTask(allowsAccessCodeFromRepository: false)
+        self.scanCommand =  AppScanTask()
         scanCommand!.run(in: session) { scanCompletion in
             switch scanCompletion {
             case .failure(let error):
