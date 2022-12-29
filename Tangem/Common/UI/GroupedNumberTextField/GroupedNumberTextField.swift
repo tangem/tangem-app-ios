@@ -27,21 +27,20 @@ struct GroupedNumberTextField: View {
         Binding<String>(
             get: { groupedNumberFormatter.format(from: textFieldText) },
             set: { newValue in
-                // If the field is empty
-                // The field supports only decimal values
-                guard newValue.isEmpty || Decimal(string: newValue) != nil else { return }
-
-                // Remove space separators for formatter correct work
+                /// Remove space separators for formatter correct work
                 var numberString = newValue.replacingOccurrences(of: " ", with: "")
-
-                /// If user double tap on zero, add `decimalSeparator` to continue enter number
-                if numberString == "00" {
-                    numberString.insert(decimalSeparator, at: numberString.index(before: numberString.endIndex))
-                }
 
                 /// If user start enter number with `decimalSeparator` add zero before comma
                 if numberString == String(decimalSeparator) {
                     numberString.insert("0", at: numberString.startIndex)
+                }
+
+                /// Continue if the field is empty. The field supports only decimal values
+                guard numberString.isEmpty || Decimal(string: numberString) != nil else { return }
+
+                /// If user double tap on zero, add `decimalSeparator` to continue enter number
+                if numberString == "00" {
+                    numberString.insert(decimalSeparator, at: numberString.index(before: numberString.endIndex))
                 }
 
                 /// If text already have `decimalSeparator` remove last one
