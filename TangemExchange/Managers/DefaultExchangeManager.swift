@@ -278,10 +278,16 @@ private extension DefaultExchangeManager {
     }
 
     /*
+     URL: https://api-tangem.1inch.io/v5.0/56/swap?amount=1000000000000000000&fromAddress=0x29010F8F91B980858EB298A0843264cfF21Fd9c9&fromTokenAddress=0x111111111117dc0aa78b770fa6a738034120c302&permit=
      0x
-     d380261114f7c3006efa1b0dfb952f1f098c23c9394d6778406e1c2d420896dd
-     200a15c97037342a883d74999156ede0d3ee40c25624e21ccb8a38bca7433aaf
-     1c
+     00000000000000000000000029010f8f91b980858eb298a0843264cff21fd9c9
+     0000000000000000000000001111111254eeb25477b68fb85ed929f73a960582
+     0000000000000000000000000000000000c097ce7bc90715b34b9f1000000000
+     000000000000000000000000000000000000000000000000000001855e59b424
+     000000000000000000000000000000000000000000000000000000000000001b
+     1f837357e7eca96e8d3d1aaeaffa0d32c991025bf5028569f903f5f6342d9735
+     5fcf8086f31f4d8cb3efa751b6cc6ada64f1b9aee762c5951c4741ce888af389
+     &slippage=1&toTokenAddress=0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee
      */
 
     func updateSourceBalances() {
@@ -314,6 +320,7 @@ private extension DefaultExchangeManager {
         )
 
         let permitCallData = try await permitTypedDataProvider.buildPermitCallData(for: exchangeItems.source, parameters: parameters)
+        print("permitCallData \n \(permitCallData)")
         return permitCallData.lowercased()
     }
 
