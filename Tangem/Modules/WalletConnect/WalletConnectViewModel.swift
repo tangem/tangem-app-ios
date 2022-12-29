@@ -12,8 +12,7 @@ import SwiftUI
 import AVFoundation
 
 class WalletConnectViewModel: ObservableObject {
-    @Injected(\.walletConnectURLHandler) private var urlHandler: WalletConnectURLHandler
-    @Injected(\.walletConnectSessionController) private var sessionController: WalletConnectSessionController
+    @Injected(\.walletConnectService) private var walletConnectService: WalletConnectService
 
     @Published var isActionSheetVisible: Bool = false
     @Published var showCameraDeniedAlert: Bool = false
@@ -26,7 +25,7 @@ class WalletConnectViewModel: ObservableObject {
             return false
         }
 
-        let canHandle = urlHandler.canHandle(url: copiedValue)
+        let canHandle = walletConnectService.canHandle(url: copiedValue)
         if canHandle {
             self.copiedValue = copiedValue
         }
@@ -55,7 +54,7 @@ class WalletConnectViewModel: ObservableObject {
 
     func disconnectSession(_ session: WalletConnectSession) {
         Analytics.log(.buttonStopWalletConnectSession)
-        sessionController.disconnectSession(with: session.id)
+        walletConnectService.disconnectSession(with: session.id)
         withAnimation {
             self.objectWillChange.send()
         }
@@ -84,14 +83,14 @@ class WalletConnectViewModel: ObservableObject {
     private func bind() {
         bag.removeAll()
 
-        sessionController.canEstablishNewSessionPublisher
+        walletConnectService.canEstablishNewSessionPublisher
             .receive(on: DispatchQueue.main)
             .sink { [weak self] canEstablishNewSession in
                 self?.isServiceBusy = !canEstablishNewSession
             }
             .store(in: &bag)
 
-        sessionController.sessionsPublisher
+        walletConnectService.sessionsPublisher
             .receive(on: DispatchQueue.main)
             .sink(receiveValue: { [weak self] in
                 guard let self = self else { return }
@@ -105,7 +104,7 @@ class WalletConnectViewModel: ObservableObject {
             .sink { [weak self] qrCodeString in
                 guard let self = self else { return }
 
-                if !self.urlHandler.handle(url: qrCodeString) {
+                if !self.walletConnectService.handle(url: qrCodeString) {
                     self.alert = WalletConnectServiceError.failedToConnect.alertBinder
                 }
             }
