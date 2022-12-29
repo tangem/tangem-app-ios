@@ -20,7 +20,6 @@ struct MultiWalletContentView: View {
             if !viewModel.tokenListIsEmpty {
                 TotalSumBalanceView(viewModel: viewModel.totalSumBalanceViewModel)
                     .padding(.horizontal, 16)
-                    .padding(.bottom, 6)
             }
 
             tokenList
@@ -30,8 +29,6 @@ struct MultiWalletContentView: View {
                 action: viewModel.openTokensList
             )
             .padding(.horizontal, 16)
-            .padding(.bottom, 8)
-            .padding(.top, 6)
         }
     }
 
