@@ -27,9 +27,14 @@ struct DependenciesFactory {
             signer: signer
         )
 
+        let permitTypedDataProvider = createPermitTypedDataProvider(
+            ethereumTransactionProcessor: walletModel.walletManager as! EthereumTransactionProcessor,
+            signTypedDataProvider: signTypedDataProvider
+        )
+
         return TangemExchangeFactory().createExchangeManager(
             blockchainInfoProvider: networkService,
-            signTypedDataProvider: signTypedDataProvider,
+            permitTypedDataProvider: permitTypedDataProvider,
             source: source,
             destination: destination
         )
@@ -57,10 +62,20 @@ struct DependenciesFactory {
                                   currencyMapper: createCurrencyMapper())
     }
 
+    func createPermitTypedDataProvider(ethereumTransactionProcessor: EthereumTransactionProcessor,
+                                       signTypedDataProvider: SignTypedDataProviding) -> PermitTypedDataProviding {
+        PermitTypedDataProvider(
+            ethereumTransactionProcessor: ethereumTransactionProcessor,
+            signTypedDataProvider: signTypedDataProvider,
+            decimalNumberConverter: createDecimalNumberConverter()
+        )
+    }
+
     func createSignTypedDataProvider(walletManager: WalletManager, signer: TangemSigner) -> SignTypedDataProviding {
-        SignTypedDataProvider(walletManager: walletManager,
-                              tangemSigner: signer,
-                              decimalNumberConverter: createDecimalNumberConverter())
+        SignTypedDataProvider(
+            publicKey: walletManager.wallet.publicKey,
+            tangemSigner: signer
+        )
     }
 
     func createDecimalNumberConverter() -> DecimalNumberConverting {
