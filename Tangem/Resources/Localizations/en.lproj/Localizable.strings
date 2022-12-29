@@ -383,6 +383,7 @@ URL: %@";
 "card_settings_change_access_code" = "Change Access Code";
 "card_settings_change_access_code_footer" = "Access code will be changed on this card only";
 "card_settings_reset_card_to_factory" = "Reset to Factory Settings";
+"scan_card_settings_title" = "Get your card ready!";
 "scan_card_settings_message" = "Scan the card to change its settings. The changes will impact only the card you've scanned and will not affect other cards tied to your wallet.";
 "scan_card_settings_button" = "Scan Card";
 "app_settings_title" = "App Settings";
