@@ -58,11 +58,7 @@ class WelcomeViewModel: ObservableObject {
             case .onboarding(let input):
                 self.openOnboarding(with: input)
             case .error(let error):
-                if let saltPayError = error as? SaltPayRegistratorError {
-                    self.error = saltPayError.alertBinder
-                } else {
-                    self.error = error.alertBinder
-                }
+                self.error = error.alertBinder
             case .success(let cardModel):
                 self.openMain(with: cardModel)
             }
