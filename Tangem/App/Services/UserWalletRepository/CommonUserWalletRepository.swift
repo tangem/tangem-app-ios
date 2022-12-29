@@ -388,8 +388,10 @@ class CommonUserWalletRepository: UserWalletRepository {
     }
 
     private func clearUserWallets() {
-        UserWalletRepositoryUtil().saveUserWallets([])
-        UserWalletRepositoryUtil().removePublicDataEncryptionKey()
+        let userWalletRepositoryUtil = UserWalletRepositoryUtil()
+        userWalletRepositoryUtil.saveUserWallets([])
+        userWalletRepositoryUtil.removePublicDataEncryptionKey()
+
         encryptionKeyStorage.clear()
     }
 
