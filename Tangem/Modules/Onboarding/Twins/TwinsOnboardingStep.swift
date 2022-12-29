@@ -30,7 +30,7 @@ enum TwinsOnboardingStep: Equatable {
     case third
     case topup
     case done
-    case saveUserWallet
+    case saveUserWallet(standalone: Bool)
     case success
     case alert
 
@@ -107,6 +107,17 @@ enum TwinsOnboardingStep: Equatable {
 
 extension TwinsOnboardingStep: OnboardingProgressStepIndicatable {
     var isOnboardingFinished: Bool {
+        switch self {
+        case .success, .done:
+            return true
+        case .saveUserWallet(let standalone):
+            return standalone
+        default:
+            return false
+        }
+    }
+
+    var requiresConfetti: Bool {
         switch self {
         case .success, .done:
             return true
