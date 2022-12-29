@@ -14,8 +14,7 @@ class CardSettingsViewModel: ObservableObject {
 
     // MARK: ViewState
 
-    @Published var hasSingleSecurityMode: Bool = false
-    @Published var isChangeAccessCodeVisible: Bool = false
+    @Published var hasSingleSecurityMode: Bool
     @Published var securityModeTitle: String
     @Published var alert: AlertBinder?
     @Published var isChangeAccessCodeLoading: Bool = false
@@ -36,15 +35,25 @@ class CardSettingsViewModel: ObservableObject {
         }
     }
 
-    // MARK: Dependecies
+    var securityModeFooterMessage: String {
+        if isChangeAccessCodeVisible {
+            return Localization.cardSettingsChangeAccessCodeFooter
+        }
+
+        return cardModel.currentSecurityOption.description
+    }
+
+    // MARK: Dependencies
 
     private unowned let coordinator: CardSettingsRoutable
     private let cardModel: CardViewModel
 
-    // MARK: Properties
+    // MARK: Private
 
+    private var isChangeAccessCodeVisible: Bool {
+        cardModel.currentSecurityOption == .accessCode
+    }
     private var bag: Set<AnyCancellable> = []
-    private var shouldShowAlertOnDisableSaveAccessCodes: Bool = true
 
     init(
         cardModel: CardViewModel,
@@ -55,7 +64,6 @@ class CardSettingsViewModel: ObservableObject {
 
         securityModeTitle = cardModel.currentSecurityOption.title
         hasSingleSecurityMode = cardModel.availableSecurityOptions.count <= 1
-        isChangeAccessCodeVisible = cardModel.currentSecurityOption == .accessCode
 
         bind()
         setupView()
@@ -75,11 +83,10 @@ class CardSettingsViewModel: ObservableObject {
 private extension CardSettingsViewModel {
     func bind() {
         cardModel.$currentSecurityOption
-            .map { $0.titleForDetails }
-            .sink(receiveValue: { [weak self] newMode in
-                self?.securityModeTitle = newMode
+            .receiveValue { [weak self] newMode in
+                self?.securityModeTitle = newMode.titleForDetails
                 self?.setupSecurityOptions()
-            })
+            }
             .store(in: &bag)
     }
 
@@ -108,7 +115,7 @@ private extension CardSettingsViewModel {
         }
     }
 
-    private func setupSecurityOptions() {
+    func setupSecurityOptions() {
         securityModeSection = [DefaultRowViewModel(
             title: Localization.cardSettingsSecurityMode,
             detailsType: .text(securityModeTitle),
@@ -126,16 +133,21 @@ private extension CardSettingsViewModel {
         }
     }
 
-    private func deleteWallet(_ userWallet: UserWallet) {
+    func deleteWallet(_ userWallet: UserWallet) {
         self.userWalletRepository.delete(userWallet)
     }
 
-    private func navigateAwayAfterReset() {
+    func navigateAwayAfterReset() {
         if userWalletRepository.isEmpty {
             coordinator.popToRoot()
         } else {
             coordinator.dismiss()
         }
+    }
+
+    func didResetCard(with userWallet: UserWallet) {
+        deleteWallet(userWallet)
+        navigateAwayAfterReset()
     }
 }
 
