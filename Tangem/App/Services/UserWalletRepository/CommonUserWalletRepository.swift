@@ -16,7 +16,7 @@ class CommonUserWalletRepository: UserWalletRepository {
     @Injected(\.tangemSdkProvider) private var sdkProvider: TangemSdkProviding
     @Injected(\.tangemApiService) private var tangemApiService: TangemApiService
     @Injected(\.backupServiceProvider) private var backupServiceProvider: BackupServiceProviding
-    @Injected(\.walletConnectSetupManager) private var walletConnectServiceProvider: WalletConnectSetupManager
+    @Injected(\.walletConnectService) private var walletConnectServiceProvider: WalletConnectService
     @Injected(\.saletPayRegistratorProvider) private var saltPayRegistratorProvider: SaltPayRegistratorProviding
     @Injected(\.supportChatService) private var supportChatService: SupportChatServiceProtocol
     @Injected(\.failedScanTracker) var failedCardScanTracker: FailedScanTrackable
