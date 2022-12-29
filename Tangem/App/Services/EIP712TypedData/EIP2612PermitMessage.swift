@@ -1,5 +1,5 @@
 //
-//  EIP712PermitMessage.swift
+//  EIP2612PermitMessage.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -10,7 +10,7 @@
 
 import Foundation
 
-struct EIP712PermitMessage: Encodable, JSONEncodable {
+struct EIP2612PermitMessage: Encodable, JSONEncodable {
     let owner: String
     let spender: String
     let value: String
@@ -20,8 +20,8 @@ struct EIP712PermitMessage: Encodable, JSONEncodable {
     /// - Parameters:
     ///   - owner: Wallet address
     ///   - spender: Contract address
-    ///   - value: amount ?
-    ///   - nonce: number that can only be used once https://ru.wikipedia.org/wiki/Nonce
+    ///   - value: Amount
+    ///   - nonce: Order number transaction on this owner address. Can be used only once
     ///   - deadline: The owner can limit the time a Permit is valid for by setting deadline to a value in the near future
     init(
         owner: String,
