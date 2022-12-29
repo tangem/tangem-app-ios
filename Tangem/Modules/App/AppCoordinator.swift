@@ -15,7 +15,7 @@ class AppCoordinator: NSObject, CoordinatorObject {
     var popToRootAction: (PopToRootOptions) -> Void = { _ in }
 
     // MARK: - Injected
-    @Injected(\.walletConnectURLHandler) private var walletConnectURLHandler: WalletConnectURLHandler
+    @Injected(\.walletConnectService) private var walletConnectURLHandler: WalletConnectService
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
 
     // MARK: - Child coordinators
