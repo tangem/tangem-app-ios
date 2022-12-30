@@ -413,6 +413,7 @@
 		DC0A584A282C07A20031BECC /* WalletConnectServicing.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC0A5849282C07A20031BECC /* WalletConnectServicing.swift */; };
 		DC0A584C282C07B10031BECC /* WalletConnectService.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC0A584B282C07B10031BECC /* WalletConnectService.swift */; };
 		DC0A5856282E3E220031BECC /* ServicesManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC0A5855282E3E220031BECC /* ServicesManager.swift */; };
+		DC10A7C6295DED4E00367574 /* BindableError.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC10A7C5295DED4E00367574 /* BindableError.swift */; };
 		DC194D2628EC6A76007FBC99 /* SaltPayRegistratorProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC194D2528EC6A76007FBC99 /* SaltPayRegistratorProvider.swift */; };
 		DC194D2828EC6AA0007FBC99 /* SaltPayRegistratorProviding.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC194D2728EC6AA0007FBC99 /* SaltPayRegistratorProviding.swift */; };
 		DC22535528A4F5730094F30C /* NoteDemoConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC22535428A4F5730094F30C /* NoteDemoConfig.swift */; };
@@ -513,6 +514,7 @@
 		DC936B6928F3F7D20023C75D /* GnosisRegistrator.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC936B6828F3F7D20023C75D /* GnosisRegistrator.swift */; };
 		DC936B6B28F3F8140023C75D /* SaltPayRegistratorError.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC936B6A28F3F8140023C75D /* SaltPayRegistratorError.swift */; };
 		DC936B6D28F3F83E0023C75D /* RegistrationTask.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC936B6C28F3F83E0023C75D /* RegistrationTask.swift */; };
+		DCAB57FE295ECA55005D0F4A /* SendError.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCAB57FD295ECA55005D0F4A /* SendError.swift */; };
 		DCE3379928F2A4580029A6F5 /* SaltPayConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCE3379828F2A4580029A6F5 /* SaltPayConfiguration.swift */; };
 		DCE5C66C28898B7F000C7F67 /* TangemApiService.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCE5C66B28898B7F000C7F67 /* TangemApiService.swift */; };
 		DCE5C66E28898BB6000C7F67 /* CommonTangemApiService.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCE5C66D28898BB6000C7F67 /* CommonTangemApiService.swift */; };
@@ -1288,6 +1290,7 @@
 		DC0A5849282C07A20031BECC /* WalletConnectServicing.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletConnectServicing.swift; sourceTree = "<group>"; };
 		DC0A584B282C07B10031BECC /* WalletConnectService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletConnectService.swift; sourceTree = "<group>"; };
 		DC0A5855282E3E220031BECC /* ServicesManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ServicesManager.swift; sourceTree = "<group>"; };
+		DC10A7C5295DED4E00367574 /* BindableError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BindableError.swift; sourceTree = "<group>"; };
 		DC194D2528EC6A76007FBC99 /* SaltPayRegistratorProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SaltPayRegistratorProvider.swift; sourceTree = "<group>"; };
 		DC194D2728EC6AA0007FBC99 /* SaltPayRegistratorProviding.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SaltPayRegistratorProviding.swift; sourceTree = "<group>"; };
 		DC22535428A4F5730094F30C /* NoteDemoConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoteDemoConfig.swift; sourceTree = "<group>"; };
@@ -1387,6 +1390,7 @@
 		DC936B6828F3F7D20023C75D /* GnosisRegistrator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GnosisRegistrator.swift; sourceTree = "<group>"; };
 		DC936B6A28F3F8140023C75D /* SaltPayRegistratorError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SaltPayRegistratorError.swift; sourceTree = "<group>"; };
 		DC936B6C28F3F83E0023C75D /* RegistrationTask.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RegistrationTask.swift; sourceTree = "<group>"; };
+		DCAB57FD295ECA55005D0F4A /* SendError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendError.swift; sourceTree = "<group>"; };
 		DCE3379828F2A4580029A6F5 /* SaltPayConfiguration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SaltPayConfiguration.swift; sourceTree = "<group>"; };
 		DCE5C66B28898B7F000C7F67 /* TangemApiService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TangemApiService.swift; sourceTree = "<group>"; };
 		DCE5C66D28898BB6000C7F67 /* CommonTangemApiService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonTangemApiService.swift; sourceTree = "<group>"; };
@@ -2163,6 +2167,7 @@
 				5DBBAB0924D853A000E78F1C /* Extensions */,
 				B082E91E255A8E7800A0CEA9 /* Storage */,
 				5D119E84256BF1E50046CAD2 /* Option.swift */,
+				DC10A7C5295DED4E00367574 /* BindableError.swift */,
 				B0453671264D4B730005B23E /* Constants.swift */,
 				EF0FF8702866021B00B7CEAF /* AppEnvironment.swift */,
 				DCFE143D294B31C00053106B /* AppPresenter.swift */,
@@ -2180,6 +2185,7 @@
 				DC66BC05285B6C7300CDF765 /* SendCoordinatorView.swift */,
 				DC66BC15285C529600CDF765 /* SendRoutable.swift */,
 				B09BB86C259A080900B92000 /* SendAdditionalFields.swift */,
+				DCAB57FD295ECA55005D0F4A /* SendError.swift */,
 			);
 			path = Send;
 			sourceTree = "<group>";
@@ -4651,6 +4657,7 @@
 				B0F16D7126EF5ED800687C47 /* ProgressBar.swift in Sources */,
 				DC295B542861F104006CB7B6 /* OnboardingRoutable.swift in Sources */,
 				EF5A5AD528D86094002544AC /* CardImageProvider.swift in Sources */,
+				DC10A7C6295DED4E00367574 /* BindableError.swift in Sources */,
 				DA6C7522292224E00070EEFD /* UserWalletEncryptionKey.swift in Sources */,
 				DC66BC00285B3FD900CDF765 /* OnboardingTopupRoutable.swift in Sources */,
 				B04BA23426F0837C0036784C /* OnboardingTopupLayoutCalculator.swift in Sources */,
@@ -5064,6 +5071,7 @@
 				5DF2522924F93C2A0015B429 /* QRCodeView.swift in Sources */,
 				DC936B6B28F3F8140023C75D /* SaltPayRegistratorError.swift in Sources */,
 				EFFC860D28BCE87700F863CE /* TokenItemsRepositoryMigrator.swift in Sources */,
+				DCAB57FE295ECA55005D0F4A /* SendError.swift in Sources */,
 				B04CD34229122C7D001EA84A /* ReferralRoutable.swift in Sources */,
 				B08ACD8A25D2BC47007387BD /* TokenListViewModel.swift in Sources */,
 				65C9FCAC2863103800FDE63E /* ZendeskConfig.swift in Sources */,
