@@ -87,8 +87,8 @@ struct ShopView: View {
     @ViewBuilder
     private var cardSelector: some View {
         Picker("", selection: $viewModel.selectedBundle) {
-            Text("shop_3_cards").tag(ShopViewModel.Bundle.threeCards)
-            Text("shop_2_cards").tag(ShopViewModel.Bundle.twoCards)
+            Text(Localization.cardLabelCardCount(3)).tag(ShopViewModel.Bundle.threeCards)
+            Text(Localization.cardLabelCardCount(2)).tag(ShopViewModel.Bundle.twoCards)
         }
         .pickerStyle(.segmented)
         .frame(minWidth: 0, maxWidth: 250)
