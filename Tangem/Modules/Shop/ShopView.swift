@@ -32,7 +32,7 @@ struct ShopView: View {
                         Spacer()
                             .frame(maxHeight: .infinity)
 
-                        Text("shop_one_wallet")
+                        Text(Localization.shopOneWallet)
                             .font(.system(size: 30, weight: .bold))
 
                         cardSelector
@@ -87,8 +87,8 @@ struct ShopView: View {
     @ViewBuilder
     private var cardSelector: some View {
         Picker("", selection: $viewModel.selectedBundle) {
-            Text("shop_3_cards").tag(ShopViewModel.Bundle.threeCards)
-            Text("shop_2_cards").tag(ShopViewModel.Bundle.twoCards)
+            Text(Localization.cardLabelCardCount(3)).tag(ShopViewModel.Bundle.threeCards)
+            Text(Localization.cardLabelCardCount(2)).tag(ShopViewModel.Bundle.twoCards)
         }
         .pickerStyle(.segmented)
         .frame(minWidth: 0, maxWidth: 250)
@@ -99,9 +99,9 @@ struct ShopView: View {
         VStack(spacing: 0) {
             HStack {
                 Image("box")
-                Text("shop_shipping")
+                Text(Localization.shopShipping)
                 Spacer()
-                Text("shop_free")
+                Text(Localization.shopFree)
             }
             .padding(.horizontal)
             .padding(.vertical, sectionRowVerticalPadding)
@@ -110,7 +110,7 @@ struct ShopView: View {
 
             HStack {
                 Image("ticket")
-                TextField("shop_i_have_a_promo_code", text: $viewModel.discountCode) { editing in
+                TextField(Localization.shopIHaveAPromoCode, text: $viewModel.discountCode) { editing in
                     if !editing {
                         viewModel.didEnterDiscountCode()
                     }
@@ -130,7 +130,7 @@ struct ShopView: View {
 
         VStack {
             HStack {
-                Text("shop_total")
+                Text(Localization.shopTotal)
 
                 Spacer()
 
@@ -169,14 +169,14 @@ struct ShopView: View {
             Button {
                 viewModel.openWebCheckout()
             } label: {
-                Text("shop_other_payment_methods")
+                Text(Localization.shopOtherPaymentMethods)
             }
             .buttonStyle(TangemButtonStyle(colorStyle: .transparentWhite, layout: .flexibleWidth))
         } else {
             Button {
                 viewModel.openWebCheckout()
             } label: {
-                Text("shop_buy_now")
+                Text(Localization.shopBuyNow)
             }
             .buttonStyle(TangemButtonStyle(colorStyle: .black, layout: .flexibleWidth))
         }
