@@ -48,7 +48,7 @@ extension NoteDemoConfig: UserWalletConfig {
             return .singleWallet([.createWallet] + userWalletSavingSteps + [.topup, .successTopup])
         } else {
             if !AppSettings.shared.cardsStartedActivation.contains(card.cardId) {
-                return .singleWallet([])
+                return .singleWallet(userWalletSavingSteps)
             }
 
             return .singleWallet(userWalletSavingSteps + [.topup, .successTopup])
