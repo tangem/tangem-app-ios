@@ -40,8 +40,8 @@ extension SecurityModeCoordinator {
 extension SecurityModeCoordinator: SecurityModeRoutable {
     func openPinChange(with title: String, action: @escaping (@escaping (Result<Void, Error>) -> Void) -> Void) {
         cardOperationViewModel = CardOperationViewModel(title: title,
-                                                        buttonTitle: "common_continue",
-                                                        alert: "details_security_management_warning".localized,
+                                                        buttonTitle: Localization.commonContinue,
+                                                        alert: Localization.detailsSecurityManagementWarning,
                                                         actionButtonPressed: action,
                                                         coordinator: self)
     }

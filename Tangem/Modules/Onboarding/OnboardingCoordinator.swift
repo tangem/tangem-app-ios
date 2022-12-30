@@ -25,7 +25,7 @@ class OnboardingCoordinator: CoordinatorObject {
     @Published var warningBankCardViewModel: WarningBankCardViewModel? = nil
     @Published var modalWebViewModel: WebViewContainerViewModel? = nil
     @Published var accessCodeModel: OnboardingAccessCodeViewModel? = nil
-    @Published var addressQrBottomSheetContentViewVodel: AddressQrBottomSheetContentViewVodel? = nil
+    @Published var addressQrBottomSheetContentViewModel: AddressQrBottomSheetContentViewModel? = nil
     @Published var supportChatViewModel: SupportChatViewModel? = nil
 
     // For non-dismissable presentation
@@ -73,7 +73,7 @@ extension OnboardingCoordinator {
 extension OnboardingCoordinator: OnboardingTopupRoutable {
     func openCryptoShop(at url: URL, closeUrl: String, action: @escaping (String) -> Void) {
         buyCryptoModel = .init(url: url,
-                               title: "wallet_button_topup".localized,
+                               title: Localization.walletButtonBuy,
                                addLoadingIndicator: true,
                                withCloseButton: true, urlActions: [closeUrl: { [weak self] response in
                                    DispatchQueue.main.async {
@@ -107,7 +107,7 @@ extension OnboardingCoordinator: OnboardingTopupRoutable {
     }
 
     func openQR(shareAddress: String, address: String, qrNotice: String) {
-        addressQrBottomSheetContentViewVodel = .init(shareAddress: shareAddress, address: address, qrNotice: qrNotice)
+        addressQrBottomSheetContentViewModel = .init(shareAddress: shareAddress, address: address, qrNotice: qrNotice)
     }
 }
 
