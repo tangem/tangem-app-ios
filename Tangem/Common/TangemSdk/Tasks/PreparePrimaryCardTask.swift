@@ -10,6 +10,8 @@ import TangemSdk
 import BlockchainSdk
 
 class PreparePrimaryCardTask: CardSessionRunnable {
+    var shouldAskForAccessCode: Bool { false }
+
     private var linkingCommand: StartPrimaryCardLinkingTask? = nil
 
     deinit {
@@ -22,7 +24,7 @@ class PreparePrimaryCardTask: CardSessionRunnable {
             return
         }
 
-        let config = UserWalletConfigFactory(CardInfo(card: card, walletData: .none)).makeConfig()
+        let config = UserWalletConfigFactory(CardInfo(card: CardDTO(card: card), walletData: .none, name: "")).makeConfig()
         let blockchainNetworks = config.defaultBlockchains.map { $0.blockchainNetwork }
 
         let derivations: [EllipticCurve: [DerivationPath]] = blockchainNetworks.reduce(into: [:]) { result, network in
@@ -35,7 +37,11 @@ class PreparePrimaryCardTask: CardSessionRunnable {
         sdkConfig.defaultDerivationPaths = derivations
         session.updateConfig(with: sdkConfig)
 
-        let createWalletsTask = CreateMultiWalletTask()
+        let existingCurves = card.wallets.map { $0.curve }
+        let requiredCurves: [EllipticCurve] = card.settings.maxWalletsCount > 1 ? [.secp256k1, .ed25519] : [.secp256k1]
+        let curves = requiredCurves.filter { !existingCurves.contains($0) }
+
+        let createWalletsTask = CreateMultiWalletTask(curves: curves)
         createWalletsTask.run(in: session) { result in
             switch result {
             case .success:
