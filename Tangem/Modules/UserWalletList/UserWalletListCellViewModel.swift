@@ -16,6 +16,7 @@ class UserWalletListCellViewModel: ObservableObject {
     @Published var image: UIImage?
     @Published var isSelected = false
     @Published var isBalanceLoading = true
+    @Published var hasError: Bool = false
 
     let userWalletModel: UserWalletModel
     let subtitle: String
@@ -85,9 +86,11 @@ class UserWalletListCellViewModel: ObservableObject {
                 case .loading:
                     self.isBalanceLoading = true
                     self.balance = Self.defaultBalanceValue
+                    self.hasError = false
                 case .loaded(let value):
                     self.isBalanceLoading = false
                     self.balance = value.balance.currencyFormatted(code: value.currencyCode)
+                    self.hasError = value.hasError
                 }
             }
             .store(in: &bag)

@@ -30,10 +30,6 @@ struct UserWalletStorageAgreementView: View {
                     .fixedSize(horizontal: false, vertical: true)
 
                 FlexibleSpacer(maxHeight: 28)
-
-                if viewModel.isStandalone {
-                    newFeatureBadge
-                }
             }
 
             Spacer()
@@ -69,15 +65,6 @@ struct UserWalletStorageAgreementView: View {
             }
         }
         .padding()
-    }
-
-    private var newFeatureBadge: some View {
-        Text(Localization.saveUserWalletAgreementNewFeature)
-            .style(Fonts.Bold.caption1, color: Colors.Text.accent)
-            .padding(.vertical, 4)
-            .padding(.horizontal, 10)
-            .background(Colors.Text.accent.opacity(0.12))
-            .cornerRadius(8)
     }
 }
 
