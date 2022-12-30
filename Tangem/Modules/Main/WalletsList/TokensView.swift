@@ -19,7 +19,7 @@ struct TokensView: View {
             EmptyView()
         } else {
             VStack(alignment: .leading, spacing: 0) {
-                Text("main_tokens".localized)
+                Text(Localization.mainTokens)
                     .font(.system(size: 13, weight: .medium))
                     .foregroundColor(Color.tangemTextGray)
                     .padding(.leading, 16)

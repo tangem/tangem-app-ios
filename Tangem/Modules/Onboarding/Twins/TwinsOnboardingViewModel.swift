@@ -14,7 +14,6 @@ class TwinsOnboardingViewModel: OnboardingTopupViewModel<TwinsOnboardingStep, On
 
     @Published var firstTwinImage: Image?
     @Published var secondTwinImage: Image?
-    @Published var pairNumber: String
     @Published var currentCardIndex: Int = 0
     @Published var displayTwinImages: Bool = false
     @Published var alertAccepted: Bool = false
@@ -33,7 +32,7 @@ class TwinsOnboardingViewModel: OnboardingTopupViewModel<TwinsOnboardingStep, On
         return steps[currentStepIndex]
     }
 
-    override var title: LocalizedStringKey? {
+    override var title: String? {
         if !isInitialAnimPlayed {
             return super.title
         }
@@ -52,7 +51,7 @@ class TwinsOnboardingViewModel: OnboardingTopupViewModel<TwinsOnboardingStep, On
         return super.title
     }
 
-    override var mainButtonTitle: LocalizedStringKey {
+    override var mainButtonTitle: String {
         if !isInitialAnimPlayed {
             return super.mainButtonTitle
         }
@@ -69,7 +68,7 @@ class TwinsOnboardingViewModel: OnboardingTopupViewModel<TwinsOnboardingStep, On
         }
 
         if case .topup = currentStep, !canBuy {
-            return "onboarding_button_receive_crypto"
+            return Localization.onboardingButtonReceiveCrypto
         }
 
         return super.mainButtonTitle
@@ -108,16 +107,16 @@ class TwinsOnboardingViewModel: OnboardingTopupViewModel<TwinsOnboardingStep, On
         }
     }
 
-    var infoText: LocalizedStringKey? {
+    var infoText: String? {
         currentStep.infoText
     }
 
-    override var mainButtonSettings: TangemButtonSettings? {
+    override var mainButtonSettings: MainButton.Settings? {
         var settings = super.mainButtonSettings
 
         switch currentStep {
         case .alert:
-            settings?.isEnabled = alertAccepted
+            settings?.isDisabled = !alertAccepted
         default: break
         }
 
@@ -136,7 +135,6 @@ class TwinsOnboardingViewModel: OnboardingTopupViewModel<TwinsOnboardingStep, On
         let cardModel = input.cardInput.cardModel!
         let twinData = input.twinData!
 
-        self.pairNumber = "\(twinData.series.pair.number)"
         self.twinData = twinData
         self.twinsService = .init(card: cardModel, twinData: twinData)
         self.originalUserWallet = cardModel.userWallet
@@ -268,7 +266,7 @@ class TwinsOnboardingViewModel: OnboardingTopupViewModel<TwinsOnboardingStep, On
     override func backButtonAction() {
         switch currentStep {
         case .second, .third:
-            alert = AlertBuilder.makeOkGotItAlert(message: "onboarding_twin_exit_warning".localized)
+            alert = AlertBuilder.makeOkGotItAlert(message: Localization.onboardingTwinExitWarning)
         default:
             alert = AlertBuilder.makeExitAlert() { [weak self] in
                 guard let self else { return }

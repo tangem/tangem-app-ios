@@ -19,13 +19,13 @@ struct TokenListView: View {
             PerfList {
                 if #available(iOS 15.0, *) {} else {
                     let horizontalInset: CGFloat = UIDevice.isIOS13 ? 8 : 16
-                    SearchBar(text: $viewModel.enteredSearchText.value, placeholder: "common_search".localized)
+                    SearchBar(text: $viewModel.enteredSearchText.value, placeholder: Localization.commonSearch)
                         .padding(.horizontal, UIDevice.isIOS13 ? 0 : 8)
                         .listRowInsets(.init(top: 8, leading: horizontalInset, bottom: 8, trailing: horizontalInset))
                 }
 
                 if viewModel.shouldShowAlert {
-                    Text("alert_manage_tokens_addresses_message")
+                    Text(Localization.alertManageTokensAddressesMessage)
                         .font(.system(size: 13, weight: .medium, design: .default))
                         .multilineTextAlignment(.center)
                         .foregroundColor(Color(hex: "#848488"))
@@ -59,11 +59,11 @@ struct TokenListView: View {
             overlay
         }
         .navigationBarBackButtonHidden(true)
-        .navigationBarTitle(viewModel.titleKey, displayMode: UIDevice.isIOS13 ? .inline : .automatic)
+        .navigationBarTitle(Text(viewModel.titleKey), displayMode: UIDevice.isIOS13 ? .inline : .automatic)
         .navigationBarItems(trailing: addCustomView)
         .alert(item: $viewModel.alert, content: { $0.alert })
         .toast(isPresenting: $viewModel.showToast) {
-            AlertToast(type: .complete(Color.tangemGreen), title: "contract_address_copied_message".localized)
+            AlertToast(type: .complete(Color.tangemGreen), title: Localization.contractAddressCopiedMessage)
         }
         .searchableCompat(text: $viewModel.enteredSearchText.value)
         .background(Color.clear.edgesIgnoringSafeArea(.all))
@@ -101,17 +101,18 @@ struct TokenListView: View {
             VStack {
                 Spacer()
 
-                TangemButton(title: "common_save_changes", action: viewModel.saveChanges)
-                    .buttonStyle(TangemButtonStyle(colorStyle: .black,
-                                                   layout: .flexibleWidth,
-                                                   isDisabled: viewModel.isSaveDisabled,
-                                                   isLoading: viewModel.isSaving))
-                    .padding(.horizontal, 16)
-                    .padding(.bottom, 8)
-                    .background(LinearGradient(colors: [.white, .white, .white.opacity(0)],
-                                               startPoint: .bottom,
-                                               endPoint: .top)
-                            .edgesIgnoringSafeArea(.bottom))
+                MainButton(
+                    title: Localization.commonSaveChanges,
+                    isLoading: viewModel.isSaving,
+                    isDisabled: viewModel.isSaveDisabled,
+                    action: viewModel.saveChanges
+                )
+                .padding(.horizontal, 16)
+                .padding(.bottom, 8)
+                .background(LinearGradient(colors: [.white, .white, .white.opacity(0)],
+                                           startPoint: .bottom,
+                                           endPoint: .top)
+                        .edgesIgnoringSafeArea(.bottom))
             }
         }
     }
