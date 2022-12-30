@@ -101,7 +101,7 @@ extension EIP712TypedData {
             }
             try encoder.encode(tuple: values)
         } catch let error {
-            print(error)
+            AppLog.shared.debug(error)
         }
         return encoder.data
     }
