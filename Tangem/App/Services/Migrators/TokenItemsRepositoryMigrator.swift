@@ -39,6 +39,6 @@ struct TokenItemsRepositoryMigrator {
         newRepository.append(oldEntries)
 
         oldRepository.removeAll()
-        print("TokenRepository for cardId: \(cardId) successfully migrates to userWalletId: \(userWalletId)")
+        AppLog.shared.debug("TokenRepository for cardId: \(cardId) successfully migrates to userWalletId: \(userWalletId)")
     }
 }
