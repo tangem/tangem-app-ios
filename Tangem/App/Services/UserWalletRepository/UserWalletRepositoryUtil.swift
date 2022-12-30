@@ -60,7 +60,7 @@ class UserWalletRepositoryUtil {
 
             return userWallets
         } catch {
-            AppLog.shared.debug(error)
+            AppLog.shared.error(error)
             return []
         }
     }
