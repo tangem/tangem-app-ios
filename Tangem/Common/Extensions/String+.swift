@@ -9,18 +9,6 @@
 import Foundation
 
 extension String {
-    var localized: String {
-        return NSLocalizedString(self, comment: "")
-    }
-
-    func localized(_ arguments: [CVarArg]) -> String {
-        return String(format: localized, arguments: arguments)
-    }
-
-    func localized(_ arguments: CVarArg) -> String {
-        return String(format: localized, arguments)
-    }
-
     func removeLatestSlash() -> String {
         if self.last == "/" {
             return String(self.dropLast())
