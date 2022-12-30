@@ -16,13 +16,12 @@ import TangemSdk
 
 enum Analytics {
     static private var analyticsSystems: [Analytics.AnalyticSystem] = [.firebase, .appsflyer, .amplitude]
-    static private var persistentParams: [ParameterKey: String] = [:]
-
-    static func reset() {
-        persistentParams = [:]
-    }
 
     static func log(_ event: Event, params: [ParameterKey: String] = [:]) {
+        if AppEnvironment.current.isXcodePreview {
+            return
+        }
+
         for system in analyticsSystems {
             switch system {
             case .appsflyer, .firebase:
@@ -31,13 +30,13 @@ enum Analytics {
                 logAmplitude(event: event, params: params)
             }
         }
-        logCrashlytics(event, with: params.firebaseParams)
+
+        let logMessage = "Analytics event: \(event). Params: \(params)"
+        AppLog.debug(logMessage)
     }
 
-    static func logScan(card: CardDTO, config: UserWalletConfig) {
-        persistentParams[.batchId] = card.batchId
-
-        log(event: .cardIsScanned, with: collectCardData(card))
+    static func logScan(card: CardDTO) {
+        log(event: .cardIsScanned, with: card.analyticsParameters)
 
         if DemoUtil().isDemoCard(cardId: card.cardId) {
             log(event: .demoActivated, with: [.cardId: card.cardId])
@@ -48,47 +47,6 @@ enum Analytics {
         let event: Event = isPushed ? .transactionIsPushed : .transactionIsSent
         let params = [ParameterKey.blockchain: blockchainName ?? ""]
         log(event, params: params)
-    }
-
-    static func logCardSdkError(_ error: TangemSdkError, for action: Action, parameters: [ParameterKey: String] = [:]) {
-        if case .userCancelled = error { return }
-
-        var params = parameters
-        params[.action] = action.rawValue
-        params[.errorKey] = String(describing: error)
-
-        let nsError = NSError(domain: "Tangem SDK Error #\(error.code)", code: error.code, userInfo: params.firebaseParams)
-        Crashlytics.crashlytics().record(error: nsError)
-    }
-
-    static func logCardSdkError(_ error: TangemSdkError, for action: Action, card: CardDTO, parameters: [ParameterKey: String] = [:]) {
-        logCardSdkError(error, for: action, parameters: collectCardData(card, additionalParams: parameters))
-    }
-
-    static func log(error: Error) {
-        if case .userCancelled = error.toTangemSdkError() {
-            return
-        }
-
-        if let detailedDescription = (error as? DetailedError)?.detailedDescription {
-            var params = [ParameterKey: String]()
-            params[.errorDescription] = detailedDescription
-            let nsError = NSError(domain: "DetailedError",
-                                  code: 1,
-                                  userInfo: params.firebaseParams)
-            Crashlytics.crashlytics().record(error: nsError)
-        } else {
-            Crashlytics.crashlytics().record(error: error)
-        }
-    }
-
-    static func logCrashlytics(_ event: Event, with params: [String: Any] = [:]) {
-        if AppEnvironment.current.isXcodePreview {
-            return
-        }
-
-        let message = "\(event.rawValue).\(params.isEmpty ? "" : " \(params.description)")"
-        Crashlytics.crashlytics().log(message)
     }
 
     static func logWcEvent(_ event: WalletConnectEvent) {
@@ -158,27 +116,44 @@ enum Analytics {
         ], uniquingKeysWith: { $1 }))
     }
 
+    fileprivate static func log(error: Error, for action: Action? = nil, params: [ParameterKey: String] = [:]) {
+        var params = params
+
+        if let action {
+            params[.action] = action.rawValue
+        }
+
+        if let sdkError = error as? TangemSdkError {
+            params[.errorKey] = String(describing: sdkError)
+            let nsError = NSError(domain: "Tangem SDK Error #\(sdkError.code)",
+                                  code: sdkError.code,
+                                  userInfo: params.firebaseParams)
+            Crashlytics.crashlytics().record(error: nsError)
+        } else if let detailedDescription = (error as? DetailedError)?.detailedDescription {
+            params[.errorDescription] = detailedDescription
+            let nsError = NSError(domain: "DetailedError",
+                                  code: 1,
+                                  userInfo: params.firebaseParams)
+            Crashlytics.crashlytics().record(error: nsError)
+        } else {
+            Crashlytics.crashlytics().record(error: error)
+        }
+    }
+
     private static func logAmplitude(event: Event, params: [ParameterKey: String] = [:]) {
-        let mergedParams = params.merging(persistentParams, uniquingKeysWith: { (current, _) in  current })
-        let convertedParams = mergedParams.reduce(into: [:]) { $0[$1.key.rawValue] = $1.value }
+        let convertedParams = params.reduce(into: [:]) { $0[$1.key.rawValue] = $1.value }
         Amplitude.instance().logEvent(event.rawValue, withEventProperties: convertedParams)
     }
 
     private static func log(event: Event, with params: [ParameterKey: String]? = nil) {
         let key = event.rawValue
-
-        let mergedParams = params?.merging(persistentParams, uniquingKeysWith: { (current, _) in  current })
-        let values = mergedParams?.firebaseParams
+        let values = params?.firebaseParams
 
         FirebaseAnalytics.Analytics.logEvent(key, parameters: values)
         AppsFlyerLib.shared().logEvent(key, withValues: values)
-    }
 
-    private static func collectCardData(_ card: CardDTO, additionalParams: [ParameterKey: String] = [:]) -> [ParameterKey: String] {
-        var params = additionalParams
-        params[.firmware] = card.firmwareVersion.stringValue
-        params[.currency] = card.walletCurves.reduce("", { $0 + $1.rawValue })
-        return params
+        let message = "\(key).\(values?.description ?? "")"
+        Crashlytics.crashlytics().log(message)
     }
 }
 
@@ -266,5 +241,18 @@ fileprivate extension Dictionary where Key == Analytics.ParameterKey, Value == S
         var convertedParams = [String: Any]()
         forEach { convertedParams[$0.key.rawValue] = $0.value }
         return convertedParams
+    }
+}
+
+// MARK: - AppLog error extension
+
+extension AppLog {
+    static func error(_ error: Error, for action: Analytics.Action? = nil, params: [Analytics.ParameterKey: String] = [:]) {
+        guard !error.toTangemSdkError().isUserCancelled else {
+            return
+        }
+
+        Log.error(error)
+        Analytics.log(error: error, for: action, params: params)
     }
 }
