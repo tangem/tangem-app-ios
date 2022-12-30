@@ -102,7 +102,7 @@ struct WebView: UIViewRepresentable {
         }
 
         if let url = url {
-            print("Loading request with url: \(url)")
+            AppLog.shared.debug("Loading request with url: \(url)")
             view.load(URLRequest(url: url))
         }
 
@@ -123,7 +123,7 @@ struct WebView: UIViewRepresentable {
         }
 
         func webView(_ webView: WKWebView, decidePolicyFor navigationAction: WKNavigationAction, decisionHandler: @escaping (WKNavigationActionPolicy) -> Void) {
-            print("decide for url \(String(describing: navigationAction.request.url?.absoluteString))")
+            AppLog.shared.debug("decide for url \(String(describing: navigationAction.request.url?.absoluteString))")
             if let url = navigationAction.request.url?.absoluteString.split(separator: "?").first,
                let actionForURL = urlActions[String(url).removeLatestSlash()] {
                 decisionHandler(.cancel)
