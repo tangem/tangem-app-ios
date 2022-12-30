@@ -13,7 +13,7 @@ import BlockchainSdk
 struct GenericDemoConfig {
     @Injected(\.backupServiceProvider) private var backupServiceProvider: BackupServiceProviding
 
-    private let card: Card
+    private let card: CardDTO
 
     private var _backupSteps: [WalletOnboardingStep] {
         if card.backupStatus?.isActive == true {
@@ -37,12 +37,16 @@ struct GenericDemoConfig {
         }
 
         steps.append(.backupCards)
-        steps.append(.success)
 
         return steps
     }
 
-    init(card: Card) {
+    var userWalletSavingSteps: [WalletOnboardingStep] {
+        guard needUserWalletSavingSteps else { return [] }
+        return [.saveUserWallet]
+    }
+
+    init(card: CardDTO) {
         self.card = card
     }
 }
@@ -64,24 +68,28 @@ extension GenericDemoConfig: UserWalletConfig {
         return nil
     }
 
+    var cardName: String {
+        "Wallet"
+    }
+
     var onboardingSteps: OnboardingSteps {
         if card.wallets.isEmpty {
-            return .wallet([.createWallet] + _backupSteps)
+            return .wallet([.createWallet] + _backupSteps + userWalletSavingSteps + [.success])
         } else {
             if !AppSettings.shared.cardsStartedActivation.contains(card.cardId) {
                 return .wallet([])
             }
 
-            return .wallet(_backupSteps)
+            return .wallet(_backupSteps + userWalletSavingSteps + [.success])
         }
     }
 
     var backupSteps: OnboardingSteps? {
-        .wallet(_backupSteps)
+        .wallet(_backupSteps + [.success])
     }
 
     var supportedBlockchains: Set<Blockchain> {
-        let allBlockchains = card.isTestnet ? Blockchain.supportedTestnetBlockchains
+        let allBlockchains = AppEnvironment.current.isTestnet ? Blockchain.supportedTestnetBlockchains
             : Blockchain.supportedBlockchains
 
         return allBlockchains.filter { card.walletCurves.contains($0.curve) }
@@ -92,7 +100,8 @@ extension GenericDemoConfig: UserWalletConfig {
             return persistentBlockchains
         }
 
-        let blockchains: [Blockchain] = [.ethereum(testnet: card.isTestnet), .bitcoin(testnet: card.isTestnet)]
+        let isTestnet = AppEnvironment.current.isTestnet
+        let blockchains: [Blockchain] = [.ethereum(testnet: isTestnet), .bitcoin(testnet: isTestnet)]
 
         let entries: [StorageEntry] = blockchains.map {
             if let derivationStyle = card.derivationStyle {
@@ -109,7 +118,7 @@ extension GenericDemoConfig: UserWalletConfig {
     }
 
     var persistentBlockchains: [StorageEntry]? {
-        let blockchains = DemoUtil().getDemoBlockchains(isTestnet: card.isTestnet)
+        let blockchains = DemoUtil().getDemoBlockchains(isTestnet: AppEnvironment.current.isTestnet)
 
         let entries: [StorageEntry] = blockchains.map {
             if let derivationStyle = card.derivationStyle {
@@ -132,9 +141,7 @@ extension GenericDemoConfig: UserWalletConfig {
     var warningEvents: [WarningEvent] {
         var warnings = WarningEventsFactory().makeWarningEvents(for: card)
 
-        if card.isTestnet {
-            warnings.append(.testnetCard)
-        } else {
+        if !AppEnvironment.current.isTestnet {
             warnings.append(.demoCard)
         }
 
@@ -244,11 +251,5 @@ fileprivate extension Card.BackupStatus {
         }
 
         return nil
-    }
-}
-
-fileprivate extension Card {
-    var isTestnet: Bool {
-        AppEnvironment.current.isTestnet
     }
 }

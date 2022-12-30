@@ -7,10 +7,12 @@
 //
 
 import Foundation
+import BlockchainSdk
 
 struct SaltPayConfiguration: Decodable {
     let zendesk: ZendeskConfig
     let kycProvider: KYCProvider
+    let credentials: NetworkProviderConfiguration.Credentials
 }
 
 struct KYCProvider: Decodable {
