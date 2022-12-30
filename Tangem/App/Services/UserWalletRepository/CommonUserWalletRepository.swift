@@ -60,11 +60,6 @@ class CommonUserWalletRepository: UserWalletRepository {
     private var bag: Set<AnyCancellable> = .init()
 
     init() {
-        let savedSelectedUserWalletId = AppSettings.shared.selectedUserWalletId
-        self.selectedUserWalletId = savedSelectedUserWalletId.isEmpty ? nil : savedSelectedUserWalletId
-
-        userWallets = savedUserWallets(withSensitiveData: false)
-
         bind()
     }
 
@@ -189,7 +184,7 @@ class CommonUserWalletRepository: UserWalletRepository {
         sdkProvider.setup(with: config)
 
         sendEvent(.scan(isScanning: true))
-        sdkProvider.sdk.startSession(with: AppScanTask(allowsAccessCodeFromRepository: false)) { [unowned self] result in
+        sdkProvider.sdk.startSession(with: AppScanTask()) { [unowned self] result in
             self.sendEvent(.scan(isScanning: false))
 
             sdkProvider.setup(with: oldConfig)
@@ -388,8 +383,15 @@ class CommonUserWalletRepository: UserWalletRepository {
     func clear() {
         discardSensitiveData()
 
-        saveUserWallets([])
+        clearUserWallets()
         setSelectedUserWalletId(nil, reason: .deleted)
+    }
+
+    private func clearUserWallets() {
+        let userWalletRepositoryUtil = UserWalletRepositoryUtil()
+        userWalletRepositoryUtil.saveUserWallets([])
+        userWalletRepositoryUtil.removePublicDataEncryptionKey()
+
         encryptionKeyStorage.clear()
     }
 
@@ -600,5 +602,19 @@ class CommonUserWalletRepository: UserWalletRepository {
 
     private func saveUserWallets(_ userWallets: [UserWallet]) {
         UserWalletRepositoryUtil().saveUserWallets(userWallets)
+    }
+}
+
+extension CommonUserWalletRepository {
+    func initialize() {
+        // Removing UserWallet-related data from Keychain
+        if AppSettings.shared.numberOfLaunches == 1 {
+            clearUserWallets()
+        }
+
+        let savedSelectedUserWalletId = AppSettings.shared.selectedUserWalletId
+        self.selectedUserWalletId = savedSelectedUserWalletId.isEmpty ? nil : savedSelectedUserWalletId
+
+        userWallets = savedUserWallets(withSensitiveData: false)
     }
 }
