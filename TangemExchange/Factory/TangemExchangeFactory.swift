@@ -16,10 +16,11 @@ public struct TangemExchangeFactory {
         blockchainInfoProvider: BlockchainDataProvider,
         source: Currency,
         destination: Currency?,
-        amount: Decimal? = nil
+        amount: Decimal? = nil,
+        logger: ExchangeLogger? = nil
     ) -> ExchangeManager {
         let exchangeItems = ExchangeItems(source: source, destination: destination)
-        let exchangeService = OneInchAPIService()
+        let exchangeService = OneInchAPIService(logger: logger ?? DefaultExchangeLogger())
         let provider = OneInchExchangeProvider(exchangeService: exchangeService)
 
         return DefaultExchangeManager(

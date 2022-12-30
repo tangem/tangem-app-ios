@@ -24,7 +24,7 @@ class TwinsCreateWalletTask: CardSessionRunnable {
     var requiresPin2: Bool { true }
 
     deinit {
-        print("Twins create wallet task deinited")
+        AppLog.shared.debug("Twins create wallet task deinited")
     }
 
     private let firstTwinCardId: String?
