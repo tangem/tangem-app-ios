@@ -15,7 +15,7 @@ enum WalletOnboardingStep: Equatable {
     case backupIntro
     case selectBackupCards
     case backupCards
-    case saveUserWallet(standalone: Bool)
+    case saveUserWallet
 
     // visa only
     case enterPin
