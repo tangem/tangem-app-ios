@@ -19,6 +19,7 @@ class TokenDetailsCoordinator: CoordinatorObject {
     // MARK: - Child coordinators
     @Published var sendCoordinator: SendCoordinator? = nil
     @Published var pushTxCoordinator: PushTxCoordinator? = nil
+    @Published var swappingCoordinator: SwappingCoordinator? = nil
 
     // MARK: - Child view models
     @Published var pushedWebViewModel: WebViewContainerViewModel? = nil
@@ -50,7 +51,7 @@ extension TokenDetailsCoordinator: TokenDetailsRoutable {
     func openBuyCrypto(at url: URL, closeUrl: String, action: @escaping (String) -> Void) {
         Analytics.log(.topUpScreenOpened)
         pushedWebViewModel = WebViewContainerViewModel(url: url,
-                                                       title: "wallet_button_topup".localized,
+                                                       title: Localization.walletButtonBuy,
                                                        addLoadingIndicator: true,
                                                        urlActions: [
                                                            closeUrl: { [weak self] response in
@@ -61,14 +62,14 @@ extension TokenDetailsCoordinator: TokenDetailsRoutable {
 
     func openSellCrypto(at url: URL, sellRequestUrl: String, action: @escaping (String) -> Void) {
         pushedWebViewModel = WebViewContainerViewModel(url: url,
-                                                       title: "wallet_button_sell_crypto".localized,
+                                                       title: Localization.walletButtonSell,
                                                        addLoadingIndicator: true,
                                                        urlActions: [sellRequestUrl: action])
     }
 
     func openExplorer(at url: URL, blockchainDisplayName: String) {
         modalWebViewModel = WebViewContainerViewModel(url: url,
-                                                      title: "common_explorer_format".localized(blockchainDisplayName),
+                                                      title: Localization.commonExplorerFormat(blockchainDisplayName),
                                                       withCloseButton: true)
     }
 
@@ -131,5 +132,16 @@ extension TokenDetailsCoordinator: TokenDetailsRoutable {
                                                       addLoadingIndicator: true,
                                                       withCloseButton: false,
                                                       urlActions: [:])
+    }
+
+    func openSwapping(input: SwappingConfigurator.InputModel) {
+        let dismissAction: Action = { [weak self] in
+            self?.swappingCoordinator = nil
+        }
+
+        let coordinator = SwappingCoordinator(dismissAction: dismissAction, popToRootAction: popToRootAction)
+        coordinator.start(with: SwappingCoordinator.Options(input: input))
+
+        swappingCoordinator = coordinator
     }
 }
