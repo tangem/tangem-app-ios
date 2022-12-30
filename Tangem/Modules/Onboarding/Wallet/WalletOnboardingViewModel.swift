@@ -190,7 +190,7 @@ class WalletOnboardingViewModel: OnboardingTopupViewModel<WalletOnboardingStep, 
             }
         }
 
-        if case .saveUserWallet = currentStep {
+        if currentStep == .saveUserWallet {
             return false
         }
 
@@ -524,17 +524,8 @@ class WalletOnboardingViewModel: OnboardingTopupViewModel<WalletOnboardingStep, 
             break
         case .backupIntro:
             Analytics.log(.backupSkipped)
-
-            let saveUserWalletIndex = steps.firstIndex { step in
-                if case .saveUserWallet = step {
-                    return true
-                } else {
-                    return false
-                }
-            }
-
-            if let saveUserWalletIndex {
-                goToStep(with: saveUserWalletIndex)
+            if steps.contains(.saveUserWallet) {
+                goToStep(.saveUserWallet)
             } else {
                 jumpToLatestStep()
             }

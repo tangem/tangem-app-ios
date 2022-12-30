@@ -30,7 +30,7 @@ enum TwinsOnboardingStep: Equatable {
     case third
     case topup
     case done
-    case saveUserWallet(standalone: Bool)
+    case saveUserWallet
     case success
     case alert
 

@@ -230,6 +230,15 @@ class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable>
         goToStep(with: newIndex)
     }
 
+    func goToStep(_ step: Step) {
+        guard let newIndex = steps.firstIndex(of: step) else {
+            print("Failed to find step", step)
+            return
+        }
+
+        goToStep(with: newIndex)
+    }
+
     func mainButtonAction() {
         fatalError("Not implemented")
     }
