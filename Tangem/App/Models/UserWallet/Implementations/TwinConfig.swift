@@ -24,11 +24,6 @@ struct TwinConfig {
         self.walletData = walletData
         self.twinData = twinData
     }
-
-    private func userWalletSavingSteps(standalone: Bool) -> [TwinsOnboardingStep] {
-        guard needUserWalletSavingSteps else { return [] }
-        return [.saveUserWallet(standalone: standalone)]
-    }
 }
 
 extension TwinConfig: UserWalletConfig {
@@ -65,26 +60,31 @@ extension TwinConfig: UserWalletConfig {
 
         if card.wallets.isEmpty { // twin without created wallet. Start onboarding
             steps.append(contentsOf: TwinsOnboardingStep.twinningProcessSteps)
-            steps.append(contentsOf: userWalletSavingSteps(standalone: false))
+            steps.append(contentsOf: userWalletSavingSteps)
             steps.append(contentsOf: TwinsOnboardingStep.topupSteps)
             return .twins(steps)
         } else { // twin with created wallet
             if twinData.pairPublicKey == nil { // is not twinned
                 steps.append(contentsOf: TwinsOnboardingStep.twinningProcessSteps)
-                steps.append(contentsOf: userWalletSavingSteps(standalone: false))
+                steps.append(contentsOf: userWalletSavingSteps)
                 steps.append(contentsOf: TwinsOnboardingStep.topupSteps)
                 return .twins(steps)
             } else { // is twinned
                 if AppSettings.shared.cardsStartedActivation.contains(card.cardId) { // card is in onboarding process, go to topup
-                    steps.append(contentsOf: userWalletSavingSteps(standalone: false))
+                    steps.append(contentsOf: userWalletSavingSteps)
                     steps.append(contentsOf: TwinsOnboardingStep.topupSteps)
                     return .twins(steps)
                 } else { // unknown twin, ready to use, go to main
-                    steps.append(contentsOf: userWalletSavingSteps(standalone: true))
+                    steps.append(contentsOf: userWalletSavingSteps)
                     return .twins(steps)
                 }
             }
         }
+    }
+
+    var userWalletSavingSteps: [TwinsOnboardingStep] {
+        guard needUserWalletSavingSteps else { return [] }
+        return [.saveUserWallet]
     }
 
     var backupSteps: OnboardingSteps? {
