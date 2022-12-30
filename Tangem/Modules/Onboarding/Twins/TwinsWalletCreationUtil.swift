@@ -154,7 +154,7 @@ class TwinsWalletCreationUtil {
             let data = try twinFileEncoder.encode(TwinCardFile(publicKey: publicKey, fileTypeName: TwinsWalletCreationUtil.twinFileName))
             return .success(data)
         } catch {
-            print("Failed to encode twin file:", error)
+            AppLog.shared.error(error)
             return .failure(error)
         }
     }
