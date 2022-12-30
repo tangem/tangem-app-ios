@@ -55,17 +55,14 @@ class WalletConnectSignHandler: TangemWalletConnectRequestHandler {
             }
         }
 
-        let alertMessage =  Localization.walletConnectAlertSignMessage(message)
-        DispatchQueue.main.async {
-            UIApplication.modalFromTop(
-                WalletConnectUIBuilder.makeAlert(for: .sign,
-                                                 message: alertMessage,
-                                                 onAcceptAction: onSign,
-                                                 onReject: { self.delegate?.sendReject(for: request,
-                                                                                       with: WalletConnectServiceError.cancelled,
-                                                                                       for: self.action) })
-            )
-        }
+        let alertMessage = Localization.walletConnectAlertSignMessage(message)
+        let controller = WalletConnectUIBuilder.makeAlert(for: .sign,
+                                                          message: alertMessage,
+                                                          onAcceptAction: onSign,
+                                                          onReject: { self.delegate?.sendReject(for: request,
+                                                                                                with: WalletConnectServiceError.cancelled,
+                                                                                                for: self.action) })
+        AppPresenter.shared.show(controller)
     }
 
     func sign(with wallet: WalletInfo, data: Data, completion: @escaping (Result<String, Error>) -> Void) {
