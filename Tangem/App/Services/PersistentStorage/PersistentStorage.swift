@@ -61,7 +61,7 @@ class PersistentStorage {
                 }
             }
         } catch {
-            AppLog.shared.debug(error)
+            AppLog.shared.error(error)
         }
     }
 
@@ -89,7 +89,7 @@ class PersistentStorage {
                 try fileManager.createDirectory(at: containerUrl, withIntermediateDirectories: true, attributes: nil)
             }
             catch {
-                AppLog.shared.debug(error.localizedDescription)
+                AppLog.shared.error(error)
             }
         }
     }
