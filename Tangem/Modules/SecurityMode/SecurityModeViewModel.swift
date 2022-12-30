@@ -13,8 +13,7 @@ import Combine
 class SecurityModeViewModel: ObservableObject {
     // MARK: ViewState
 
-    @Published var currentSecurityOption: SecurityModeOption
-    @Published var availableSecurityOptions: [SecurityModeOption]
+    @Published var securityViewModels: [DefaultSelectableRowViewModel] = []
     @Published var error: AlertBinder?
     @Published var isLoading: Bool = false
 
@@ -24,6 +23,8 @@ class SecurityModeViewModel: ObservableObject {
 
     // MARK: Private
 
+    @Published private var currentSecurityOption: SecurityModeOption
+
     private let cardModel: CardViewModel
     private var bag = Set<AnyCancellable>()
     private unowned let coordinator: SecurityModeRoutable
@@ -31,10 +32,9 @@ class SecurityModeViewModel: ObservableObject {
     init(cardModel: CardViewModel, coordinator: SecurityModeRoutable) {
         self.cardModel = cardModel
         self.coordinator = coordinator
+        self.currentSecurityOption = cardModel.currentSecurityOption
 
-        currentSecurityOption = cardModel.currentSecurityOption
-        availableSecurityOptions = cardModel.availableSecurityOptions
-
+        updateView()
         bind()
     }
 
@@ -69,16 +69,22 @@ class SecurityModeViewModel: ObservableObject {
         }
     }
 
-    func isSelected(option: SecurityModeOption) -> Binding<Bool> {
-        Binding<Bool> { [weak self] in
-            self?.currentSecurityOption == option
-        } set: { [weak self] isSelected in
-            guard let self = self else { return }
+    func updateView() {
+        securityViewModels = cardModel.availableSecurityOptions.map { option in
+            DefaultSelectableRowViewModel(
+                title: option.title,
+                subtitle: option.description,
+                isSelected: isSelected(option: option)
+            )
+        }
+    }
 
+    func isSelected(option: SecurityModeOption) -> Binding<Bool> {
+        Binding<Bool>(root: self, default: false) { root in
+            root.currentSecurityOption == option
+        } set: { root, isSelected in
             if isSelected {
-                self.currentSecurityOption = option
-            } else {
-                self.currentSecurityOption = self.cardModel.currentSecurityOption
+                root.currentSecurityOption = option
             }
         }
     }
@@ -94,33 +100,33 @@ enum SecurityModeOption: String, CaseIterable, Identifiable, Equatable {
     var title: String {
         switch self {
         case .accessCode:
-            return "details_manage_security_access_code".localized
+            return Localization.detailsManageSecurityAccessCode
         case .longTap:
-            return "details_manage_security_long_tap".localized
+            return Localization.detailsManageSecurityLongTap
         case .passCode:
-            return "details_manage_security_passcode".localized
+            return Localization.detailsManageSecurityPasscode
         }
     }
 
     var titleForDetails: String {
         switch self {
         case .accessCode:
-            return "details_manage_security_access_code".localized
+            return Localization.detailsManageSecurityAccessCode
         case .longTap:
-            return "details_manage_security_long_tap_shorter".localized
+            return Localization.detailsManageSecurityLongTapShorter
         case .passCode:
-            return "details_manage_security_passcode".localized
+            return Localization.detailsManageSecurityPasscode
         }
     }
 
-    var subtitle: String {
+    var description: String {
         switch self {
         case .accessCode:
-            return "details_manage_security_access_code_description".localized
+            return Localization.detailsManageSecurityAccessCodeDescription
         case .longTap:
-            return "details_manage_security_long_tap_description".localized
+            return Localization.detailsManageSecurityLongTapDescription
         case .passCode:
-            return "details_manage_security_passcode_description".localized
+            return Localization.detailsManageSecurityPasscodeDescription
         }
     }
 }
