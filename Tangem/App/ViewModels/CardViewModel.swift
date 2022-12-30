@@ -350,7 +350,9 @@ class CardViewModel: Identifiable, ObservableObject {
                     Analytics.log(.userCodeChanged)
                     completion(.success(()))
                 case .failure(let error):
-                    Analytics.logCardSdkError(error, for: .changeSecOptions, card: self.cardInfo.card, parameters: [.newSecOption: "Access Code"])
+                    var params = self.card.analyticsParameters
+                    params[.newSecOption] = "Access Code"
+                    AppLog.error(error, for: .changeSecOptions, params: params)
                     completion(.failure(error))
                 }
             }
@@ -364,7 +366,9 @@ class CardViewModel: Identifiable, ObservableObject {
                     self.onSecurityOptionChanged(isAccessCodeSet: false, isPasscodeSet: false)
                     completion(.success(()))
                 case .failure(let error):
-                    Analytics.logCardSdkError(error, for: .changeSecOptions, card: self.cardInfo.card, parameters: [.newSecOption: "Long tap"])
+                    var params = self.card.analyticsParameters
+                    params[.newSecOption] = "Long tap"
+                    AppLog.error(error, for: .changeSecOptions, params: params)
                     completion(.failure(error))
                 }
             }
@@ -379,7 +383,9 @@ class CardViewModel: Identifiable, ObservableObject {
                     self.onSecurityOptionChanged(isAccessCodeSet: false, isPasscodeSet: true)
                     completion(.success(()))
                 case .failure(let error):
-                    Analytics.logCardSdkError(error, for: .changeSecOptions, card: self.cardInfo.card, parameters: [.newSecOption: "Pass code"])
+                    var params = self.card.analyticsParameters
+                    params[.newSecOption] = "Passcode"
+                    AppLog.error(error, for: .changeSecOptions, params: params)
                     completion(.failure(error))
                 }
             }
@@ -399,7 +405,7 @@ class CardViewModel: Identifiable, ObservableObject {
                 self?.onWalletCreated(card)
                 completion(.success(()))
             case .failure(let error):
-                Analytics.logCardSdkError(error, for: .createWallet, card: card)
+                AppLog.error(error, for: .createWallet, params: card.analyticsParameters)
                 completion(.failure(error))
             }
         }
@@ -417,7 +423,7 @@ class CardViewModel: Identifiable, ObservableObject {
                 self?.clearTwinPairKey()
                 completion(.success(()))
             case .failure(let error):
-                Analytics.logCardSdkError(error, for: .purgeWallet, card: card)
+                AppLog.error(error, for: .purgeWallet, params: card.analyticsParameters)
                 completion(.failure(error))
             }
         }
@@ -503,14 +509,6 @@ class CardViewModel: Identifiable, ObservableObject {
             let newData = TwinData(series: twinData.series)
             cardInfo.walletData = .twin(walletData, newData)
         }
-    }
-
-    func logSdkError(_ error: Error, action: Analytics.Action, parameters: [Analytics.ParameterKey: String] = [:]) {
-        Analytics.logCardSdkError(error.toTangemSdkError(), for: action, card: cardInfo.card, parameters: parameters)
-    }
-
-    func didScan() {
-        Analytics.logScan(card: cardInfo.card, config: config)
     }
 
     func getDisabledLocalizedReason(for feature: UserWalletFeature) -> String? {
