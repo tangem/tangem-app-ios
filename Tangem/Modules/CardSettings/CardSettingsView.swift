@@ -29,7 +29,7 @@ struct CardSettingsView: View {
                 GroupedSection(viewModel.resetToFactoryViewModel) {
                     DefaultRowView(viewModel: $0)
                 } footer: {
-                    DefaultFooterView(viewModel.resetToFactoryMessage)
+                    DefaultFooterView(viewModel.resetToFactoryFooterMessage)
                 }
             }
         }
