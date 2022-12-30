@@ -75,6 +75,7 @@ extension TwinConfig: UserWalletConfig {
                     steps.append(contentsOf: TwinsOnboardingStep.topupSteps)
                     return .twins(steps)
                 } else { // unknown twin, ready to use, go to main
+                    steps.append(contentsOf: userWalletSavingSteps)
                     return .twins(steps)
                 }
             }
