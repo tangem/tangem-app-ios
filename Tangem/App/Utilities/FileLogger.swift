@@ -11,12 +11,12 @@ import TangemSdk
 
 class FileLogger: TangemSdkLogger {
     var logData: Data? {
-        try? Data(contentsOf: scanLogsFileUrl)
+        try? Data(contentsOf: scanLogsFileURL)
     }
 
     private let loggerSerialQueue = DispatchQueue(label: "com.tangem.filelogger.queue")
 
-    private var scanLogsFileUrl: URL {
+    private var scanLogsFileURL: URL {
         FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask)[0].appendingPathComponent("scanLogs.txt")
     }
 
@@ -33,12 +33,12 @@ class FileLogger: TangemSdkLogger {
             let formattedMessage = "\(level.emoji) \(self.dateFormatter.string(from: Date())):\(level.prefix) \(message)"
             let messageData = formattedMessage.data(using: .utf8)!
 
-            if let handler = try? FileHandle(forWritingTo: self.scanLogsFileUrl) {
+            if let handler = try? FileHandle(forWritingTo: self.scanLogsFileURL) {
                 handler.seekToEndOfFile()
                 handler.write(messageData)
                 handler.closeFile()
             } else {
-                try? messageData.write(to: self.scanLogsFileUrl)
+                try? messageData.write(to: self.scanLogsFileURL)
             }
         }
     }
