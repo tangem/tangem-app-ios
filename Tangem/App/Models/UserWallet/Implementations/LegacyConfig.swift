@@ -38,11 +38,6 @@ struct LegacyConfig {
         self.card = card
         self.walletData = walletData
     }
-
-    private func userWalletSavingSteps(standalone: Bool) -> [SingleCardOnboardingStep] {
-        guard needUserWalletSavingSteps else { return [] }
-        return [.saveUserWallet(standalone: standalone)]
-    }
 }
 
 extension LegacyConfig: UserWalletConfig {
@@ -64,18 +59,23 @@ extension LegacyConfig: UserWalletConfig {
 
     var onboardingSteps: OnboardingSteps {
         if card.wallets.isEmpty {
-            return .singleWallet([.createWallet] + userWalletSavingSteps(standalone: false) + [.success])
+            return .singleWallet([.createWallet] + userWalletSavingSteps + [.success])
         }
 
         if !AppSettings.shared.cardsStartedActivation.contains(card.cardId) {
-            return .singleWallet(userWalletSavingSteps(standalone: true))
+            return .singleWallet(userWalletSavingSteps)
         }
 
-        return .singleWallet(userWalletSavingSteps(standalone: false) + [.success])
+        return .singleWallet(userWalletSavingSteps + [.success])
     }
 
     var backupSteps: OnboardingSteps? {
         nil
+    }
+
+    var userWalletSavingSteps: [SingleCardOnboardingStep] {
+        guard needUserWalletSavingSteps else { return [] }
+        return [.saveUserWallet]
     }
 
     var supportedBlockchains: Set<Blockchain> {
