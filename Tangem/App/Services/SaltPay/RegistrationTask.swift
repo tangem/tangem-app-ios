@@ -41,7 +41,7 @@ class RegistrationTask: CardSessionRunnable {
     }
 
     deinit {
-        print("RegistrationTask deinit")
+        AppLog.shared.debug("RegistrationTask deinit")
     }
 
     func run(in session: CardSession, completion: @escaping CompletionResult<RegistrationTaskResponse>) {
