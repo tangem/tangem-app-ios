@@ -136,7 +136,7 @@ class WalletConnectV1Service {
             case .switchChainNotSupported:
                 break
             default:
-                presentOnTop(WalletConnectUIBuilder.makeErrorAlert(error), delay: delay)
+                AppPresenter.shared.show(WalletConnectUIBuilder.makeErrorAlert(error), delay: delay)
             }
         }
     }
@@ -144,12 +144,6 @@ class WalletConnectV1Service {
     private func resetSessionConnectTimer() {
         timer?.cancel()
         isWaitingToConnect = false
-    }
-
-    private func presentOnTop(_ vc: UIViewController, delay: TimeInterval = 0) {
-        DispatchQueue.main.asyncAfter(deadline: .now() + delay) {
-            UIApplication.modalFromTop(vc)
-        }
     }
 }
 
@@ -228,7 +222,7 @@ extension WalletConnectV1Service {
 }
 
 // MARK: - WalletConnectURLHandler
-extension WalletConnectV1Service: WalletConnectURLHandler {
+extension WalletConnectV1Service {
     func canHandle(url: String) -> Bool {
         WCURL(url) != nil
     }
@@ -417,20 +411,20 @@ extension WalletConnectV1Service: ServerDelegate {
                 .map { $0.blockchainNetwork }
 
 
-            self.presentOnTop(WalletConnectUIBuilder.makeChainsSheet(availableChains,
-                                                                     onAcceptAction: onSelectChain,
-                                                                     onReject: onReject),
-                              delay: 0.3)
+            AppPresenter.shared.show(WalletConnectUIBuilder.makeChainsSheet(availableChains,
+                                                                            onAcceptAction: onSelectChain,
+                                                                            onReject: onReject),
+                                     delay: 0.3)
 
         }
 
-        self.presentOnTop(WalletConnectUIBuilder.makeAlert(for: .establishSession,
-                                                           message: message,
-                                                           onAcceptAction: onAccept,
-                                                           onReject: onReject,
-                                                           extraTitle: isSelectedChainAvailable ? Localization.walletConnectSelectNetwork : nil,
-                                                           onExtra: onSelectChainRequested),
-                          delay: 0.5)
+        AppPresenter.shared.show(WalletConnectUIBuilder.makeAlert(for: .establishSession,
+                                                                  message: message,
+                                                                  onAcceptAction: onAccept,
+                                                                  onReject: onReject,
+                                                                  extraTitle: isSelectedChainAvailable ? Localization.walletConnectSelectNetwork : nil,
+                                                                  onExtra: onSelectChainRequested),
+                                 delay: 0.5)
     }
 
     func server(_ server: Server, didConnect session: Session) {
