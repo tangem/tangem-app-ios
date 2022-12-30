@@ -9,25 +9,23 @@
 import Foundation
 
 struct GroupedNumberFormatter {
-    private var maximumFractionDigits: Int
     private let numberFormatter: NumberFormatter
-    private let decimalSeparator: Character
+
+    private var maximumFractionDigits: Int { numberFormatter.maximumFractionDigits }
+    private var decimalSeparator: Character { Character(numberFormatter.decimalSeparator) }
 
     init(
-        maximumFractionDigits: Int = 8,
-        numberFormatter: NumberFormatter = .grouped,
-        decimalSeparator: Character = ","
+        numberFormatter: NumberFormatter,
+        maximumFractionDigits: Int = 8
     ) {
-        self.maximumFractionDigits = maximumFractionDigits
         self.numberFormatter = numberFormatter
-        self.decimalSeparator = decimalSeparator
 
         numberFormatter.minimumFractionDigits = 0 // Just for case
         numberFormatter.maximumFractionDigits = maximumFractionDigits
     }
 
     mutating func update(maximumFractionDigits: Int) {
-        self.maximumFractionDigits = maximumFractionDigits
+        numberFormatter.maximumFractionDigits = maximumFractionDigits
     }
 
     func format(from string: String) -> String {
@@ -44,7 +42,7 @@ struct GroupedNumberFormatter {
 
         // If textFieldText is correct number, return formatted number
         if let value = numberFormatter.number(from: numberString) {
-            return value.decimalValue.groupedFormatted()
+            return formatNumber(value.decimalValue)
         }
 
         // Otherwise just return text
@@ -70,6 +68,10 @@ struct GroupedNumberFormatter {
             afterComma = afterComma[afterComma.startIndex ... lastAcceptableIndex]
         }
 
-        return bodyNumber.decimalValue.groupedFormatted() + afterComma
+        return formatNumber(bodyNumber.decimalValue) + afterComma
+    }
+
+    private func formatNumber(_ value: Decimal) -> String {
+        numberFormatter.string(from: value as NSDecimalNumber) ?? "\(value)"
     }
 }

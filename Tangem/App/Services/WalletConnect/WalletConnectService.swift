@@ -9,12 +9,44 @@
 import Foundation
 import Combine
 
-class WalletConnectService {
+class CommonWalletConnectService {
     private var v1Service: WalletConnectV1Service?
     private var v2Service: WalletConnectV2Service?
 }
 
-extension WalletConnectService: WalletConnectSetupManager {
+extension CommonWalletConnectService: WalletConnectService {
+    var canEstablishNewSessionPublisher: AnyPublisher<Bool, Never> {
+        guard
+            let v1Service = v1Service,
+            let v2Service = v2Service
+        else {
+            return Just(false).eraseToAnyPublisher()
+        }
+        
+        return Publishers.CombineLatest(
+            v1Service.canEstablishNewSessionPublisher,
+            v2Service.canEstablishNewSessionPublisher
+        ).map { (v1Can, v2Can) in
+            v1Can && v2Can
+        }
+        .eraseToAnyPublisher()
+    }
+
+    var sessionsPublisher: AnyPublisher<[WalletConnectSession], Never> {
+        guard
+            let v1Service = v1Service,
+            let v2Service = v2Service
+        else {
+            return Just([]).eraseToAnyPublisher()
+        }
+        
+        return Publishers.Merge(
+            v2Service.sessionsPublisher,
+            v1Service.sessionsPublisher
+        )
+        .eraseToAnyPublisher()
+    }
+
     func initialize(with cardModel: CardViewModel) {
         guard cardModel.supportsWalletConnect else {
             return
@@ -28,45 +60,11 @@ extension WalletConnectService: WalletConnectSetupManager {
         v1Service = nil
         v2Service = nil
     }
-}
-
-extension WalletConnectService: WalletConnectSessionController {
-    var canEstablishNewSessionPublisher: AnyPublisher<Bool, Never> {
-        guard
-            let v1Service = v1Service,
-            let v2Service = v2Service
-        else {
-            return Just(false).eraseToAnyPublisher()
-        }
-
-        return Publishers.CombineLatest(
-            v1Service.canEstablishNewSessionPublisher,
-            v2Service.canEstablishNewSessionPublisher
-        ).map { (v1Can, v2Can) in
-            v1Can && v2Can
-        }
-        .eraseToAnyPublisher()
-    }
-    var sessionsPublisher: AnyPublisher<[WalletConnectSession], Never> {
-        guard
-            let v1Service = v1Service,
-            let v2Service = v2Service
-        else {
-            return Just([]).eraseToAnyPublisher()
-        }
-
-        return Publishers.Merge(
-            v2Service.sessionsPublisher,
-            v1Service.sessionsPublisher
-        )
-        .eraseToAnyPublisher()
-    }
+    
     func disconnectSession(with id: Int) {
         v1Service?.disconnectSession(with: id)
     }
-}
 
-extension WalletConnectService: WalletConnectURLHandler {
     func canHandle(url: String) -> Bool {
         serviceToHandleLink(url) != nil
     }
