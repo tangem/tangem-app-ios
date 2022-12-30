@@ -33,9 +33,12 @@ struct DefaultToggleRowView: View {
 }
 
 struct DefaultToggleRowViewPreview: PreviewProvider {
+    static var isSelected: Bool = true
     static let viewModel = DefaultToggleRowViewModel(
         title: "Title",
-        isOn: .constant(true)
+        isDisabled: false,
+        isOn: .init(get: { isSelected },
+                    set: { isSelected = $0 })
     )
 
     static var previews: some View {

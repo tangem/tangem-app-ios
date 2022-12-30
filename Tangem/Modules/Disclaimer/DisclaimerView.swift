@@ -53,9 +53,7 @@ struct DisclaimerView: View {
                 height: viewModel.bottomOverlayHeight
             )
 
-            TangemButton(title: "common_accept", action: viewModel.onAccept)
-                .buttonStyle(TangemButtonStyle(colorStyle: .black,
-                                               layout: .flexibleWidth))
+            MainButton(title: Localization.commonAccept, action: viewModel.onAccept)
                 .padding(.horizontal, 16)
         }
     }
@@ -66,7 +64,7 @@ extension DisclaimerView {
         case sheet
         case navbar
 
-        var title: LocalizedStringKey { "disclaimer_title" }
+        var title: String { Localization.disclaimerTitle }
         var isVisibleHeader: Bool { self == .sheet }
         var isNavigationBarHidden: Bool { self == .sheet }
     }
