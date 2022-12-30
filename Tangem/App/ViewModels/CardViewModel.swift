@@ -631,7 +631,7 @@ class CardViewModel: Identifiable, ObservableObject {
                     self.add(entries: [entry]) { _ in }
                 }
             case .failure(let error):
-                AppLog.shared.debug(error)
+                AppLog.shared.error(error)
             }
 
             AppSettings.shared.searchedCards.append(self.cardId)
