@@ -34,9 +34,7 @@ class MultiWalletContentViewModel: ObservableObject {
     private let cardModel: CardViewModel
     private let userWalletModel: UserWalletModel
     private let userTokenListManager: UserTokenListManager
-
     private var bag = Set<AnyCancellable>()
-    private var isFirstTimeOnAppear: Bool = true
 
     private lazy var totalBalanceManager = TotalBalanceProvider(
         userWalletModel: userWalletModel,
@@ -72,13 +70,6 @@ class MultiWalletContentViewModel: ObservableObject {
             }
         } else {
             userWalletModel.updateAndReloadWalletModels(silent: silent, completion: done)
-        }
-    }
-
-    func onAppear() {
-        if isFirstTimeOnAppear {
-            onRefresh(silent: false) {}
-            isFirstTimeOnAppear = false
         }
     }
 
@@ -120,13 +111,14 @@ private extension MultiWalletContentViewModel {
             entriesWithoutDerivation.mapVoid()
         )
         .receive(on: DispatchQueue.global())
-        .map { [unowned self] _ -> [TokenItemViewModel] in
-            collectTokenItemViewModels()
+        .map { [weak self] _ -> [TokenItemViewModel] in
+            /// `unowned` will be crashed when the wallet which currently open is deleted from the list of saved wallet
+            self?.collectTokenItemViewModels() ?? []
         }
         .removeDuplicates()
         .receive(on: RunLoop.main)
-        .sink { [unowned self] viewModels in
-            updateView(viewModels: viewModels)
+        .sink { [weak self] viewModels in
+            self?.updateView(viewModels: viewModels)
         }
         .store(in: &bag)
     }
