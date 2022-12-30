@@ -27,32 +27,32 @@ struct GroupedNumberTextField: View {
         Binding<String>(
             get: { groupedNumberFormatter.format(from: textFieldText) },
             set: { newValue in
-                /// Remove space separators for formatter correct work
+                // Remove space separators for formatter correct work
                 var numberString = newValue.replacingOccurrences(of: " ", with: "")
 
-                /// If user start enter number with `decimalSeparator` add zero before comma
+                // If user start enter number with `decimalSeparator` add zero before comma
                 if numberString == String(decimalSeparator) {
                     numberString.insert("0", at: numberString.startIndex)
                 }
 
-                /// Continue if the field is empty. The field supports only decimal values
+                // Continue if the field is empty. The field supports only decimal values
                 guard numberString.isEmpty || Decimal(string: numberString) != nil else { return }
 
-                /// If user double tap on zero, add `decimalSeparator` to continue enter number
+                // If user double tap on zero, add `decimalSeparator` to continue enter number
                 if numberString == "00" {
                     numberString.insert(decimalSeparator, at: numberString.index(before: numberString.endIndex))
                 }
 
-                /// If text already have `decimalSeparator` remove last one
+                // If text already have `decimalSeparator` remove last one
                 if numberString.last == decimalSeparator,
                    numberString.prefix(numberString.count - 1).contains(decimalSeparator) {
                     numberString.removeLast()
                 }
 
-                /// Update private `@State` for display not correct number, like 0,000
+                // Update private `@State` for display not correct number, like 0,000
                 textFieldText = numberString
 
-                /// If string is correct number, update binding for work external updates
+                // If string is correct number, update binding for work external updates
                 if let value = numberFormatter.number(from: numberString) {
                     decimalValue = value.decimalValue
                 } else if numberString.isEmpty {
