@@ -32,7 +32,7 @@ enum ReferralError: Error {
                 return 7001
             }
 
-            return Int("7\(response.statusCode)") ?? -7001
+            return 7000 + response.statusCode
         case .decodingError:
             return 7601
         case .unknown(let error):
