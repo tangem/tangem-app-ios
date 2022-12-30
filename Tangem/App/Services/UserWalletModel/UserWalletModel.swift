@@ -12,9 +12,10 @@ import Combine
 protocol UserWalletModel {
     /// Public until managers factory
     var userTokenListManager: UserTokenListManager { get }
+    var userWallet: UserWallet { get }
 
     func updateUserWalletModel(with config: UserWalletConfig)
-    func update(userWalletId: Data)
+    func updateUserWallet(_ userWallet: UserWallet)
 
     func getWalletModels() -> [WalletModel]
     func subscribeToWalletModels() -> AnyPublisher<[WalletModel], Never>
@@ -28,6 +29,8 @@ protocol UserWalletModel {
     func append(entries: [StorageEntry])
     func remove(item: CommonUserWalletModel.RemoveItem)
 
+    /// Update if the wallet model hasn't initial updates
+    func initialUpdate()
     func updateWalletModels()
     func updateAndReloadWalletModels(silent: Bool, completion: @escaping () -> Void)
 }
