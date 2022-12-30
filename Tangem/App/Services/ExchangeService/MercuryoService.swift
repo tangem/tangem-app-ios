@@ -54,7 +54,7 @@ class MercuryoService {
     init() {}
 
     deinit {
-        print("MercuryoService deinit")
+        AppLog.shared.debug("MercuryoService deinit")
     }
 }
 
