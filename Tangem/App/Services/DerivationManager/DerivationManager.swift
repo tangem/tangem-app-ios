@@ -57,7 +57,7 @@ struct DerivationManager {
 
         for entry in entries {
             if let path = entry.blockchainNetwork.derivationPath {
-                if let wallet = card.wallets.first(where: { $0.curve == entry.blockchainNetwork.blockchain.curve }) {
+                if let wallet = card.wallets.last(where: { $0.curve == entry.blockchainNetwork.blockchain.curve }) {
                     derivations[wallet.publicKey, default: []].append(path)
                 }
             }
