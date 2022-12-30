@@ -20,6 +20,9 @@ struct ViewStateHandler: UIViewControllerRepresentable {
     }
 
     func updateUIViewController(_ uiViewController: UIViewController, context: UIViewControllerRepresentableContext<ViewStateHandler>) {
+        context.coordinator.onWillAppear = onWillAppear
+        context.coordinator.onDidAppear = onDidAppear
+        context.coordinator.onWillDisappear = onWillDisappear
     }
 
     func makeCoordinator() -> ViewStateHandler.Coordinator {
@@ -27,9 +30,9 @@ struct ViewStateHandler: UIViewControllerRepresentable {
     }
 
     class Coordinator: UIViewController {
-        let onWillDisappear: (() -> Void)?
-        let onWillAppear: (() -> Void)?
-        let onDidAppear: (() -> Void)?
+        var onWillDisappear: (() -> Void)?
+        var onWillAppear: (() -> Void)?
+        var onDidAppear: (() -> Void)?
 
         init(onWillAppear: (() -> Void)?, onDidAppear: (() -> Void)?, onWillDisappear: (() -> Void)?) {
             self.onWillDisappear = onWillDisappear
