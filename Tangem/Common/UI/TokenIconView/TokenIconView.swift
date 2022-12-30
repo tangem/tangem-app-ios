@@ -12,13 +12,14 @@ import SwiftUI
 
 struct TokenIconView: View {
     private let viewModel: TokenIconViewModel
-    private let size = CGSize(width: 40, height: 40)
+    private let size: CGSize
 
     private let networkIconSize = CGSize(width: 16, height: 16)
     private let networkIconBorderWidth: Double = 2
 
-    init(viewModel: TokenIconViewModel) {
+    init(viewModel: TokenIconViewModel, size: CGSize = CGSize(width: 40, height: 40)) {
         self.viewModel = viewModel
+        self.size = size
     }
 
     var body: some View {

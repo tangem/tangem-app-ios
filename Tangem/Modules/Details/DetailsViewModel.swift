@@ -29,9 +29,11 @@ class DetailsViewModel: ObservableObject {
     }
 
     var applicationInfoFooter: String? {
-        guard let appName = InfoDictionaryUtils.appName.value,
-              let version = InfoDictionaryUtils.version.value,
-              let bundleVersion = InfoDictionaryUtils.bundleVersion.value else {
+        guard
+            let appName: String = InfoDictionaryUtils.appName.value(),
+            let version: String = InfoDictionaryUtils.version.value(),
+            let bundleVersion: String = InfoDictionaryUtils.bundleVersion.value()
+        else {
             return nil
         }
 
@@ -142,6 +144,16 @@ extension DetailsViewModel {
     func openEnvironmentSetup() {
         coordinator.openEnvironmentSetup()
     }
+
+    func openReferral() {
+        guard let userWalletId = cardModel.userWalletId else {
+            // This shouldn't be the case, because currently user can't reach this screen
+            // with card that doesn't have a wallet.
+            return
+        }
+
+        coordinator.openReferral(with: cardModel, userWalletId: userWalletId)
+    }
 }
 
 // MARK: - Private
@@ -178,17 +190,21 @@ extension DetailsViewModel {
         }
 
         walletConnectRowViewModel = WalletConnectRowViewModel(
-            title: "wallet_connect_title".localized,
-            subtitle: "wallet_connect_subtitle".localized,
+            title: Localization.walletConnectTitle,
+            subtitle: Localization.walletConnectSubtitle,
             action: openWalletConnect
         )
     }
 
     func setupSupportSectionModels() {
         supportSectionModels = [
-            DefaultRowViewModel(title: "details_chat".localized, action: openSupportChat),
-            DefaultRowViewModel(title: "details_row_title_send_feedback".localized, action: openMail),
+            DefaultRowViewModel(title: Localization.detailsChat, action: openSupportChat),
+            DefaultRowViewModel(title: Localization.detailsRowTitleSendFeedback, action: openMail),
         ]
+
+        if cardModel.canParticipateInReferralProgram && FeatureProvider.isAvailable(.referralProgram) {
+            supportSectionModels.append(DefaultRowViewModel(title: Localization.detailsReferralTitle, action: openReferral))
+        }
     }
 
     func setupSettingsSectionViewModels() {
@@ -196,27 +212,27 @@ extension DetailsViewModel {
 
         if !cardModel.isMultiWallet {
             viewModels.append(DefaultRowViewModel(
-                title: "details_row_title_currency".localized,
+                title: Localization.detailsRowTitleCurrency,
                 detailsType: .text(selectedCurrencyCode),
                 action: coordinator.openCurrencySelection
             ))
         }
 
         viewModels.append(DefaultRowViewModel(
-            title: "details_row_title_card_settings".localized,
+            title: Localization.cardSettingsTitle,
             action: openCardSettings
         ))
 
         // [REDACTED_TODO_COMMENT]
 
         viewModels.append(DefaultRowViewModel(
-            title: "details_row_title_app_settings".localized,
+            title: Localization.appSettingsTitle,
             action: openAppSettings
         ))
 
         if canCreateBackup {
             viewModels.append(DefaultRowViewModel(
-                title: "details_row_title_create_backup".localized,
+                title: Localization.detailsRowTitleCreateBackup,
                 action: prepareBackup
             ))
         }
@@ -226,7 +242,7 @@ extension DetailsViewModel {
 
     func setupLegalSectionViewModels() {
         legalSectionViewModel = DefaultRowViewModel(
-            title: "disclaimer_title".localized,
+            title: Localization.disclaimerTitle,
             action: openDisclaimer
         )
     }
