@@ -86,12 +86,4 @@ class SwitchChainHandler: TangemWalletConnectRequestHandler {
                                   peerId: oldSessionWalletInfo.peerId,
                                   peerMeta: oldSessionWalletInfo.peerMeta)
     }
-
-    private func showError(_ error: Error) {
-        DispatchQueue.main.async {
-            UIApplication.modalFromTop(
-                WalletConnectUIBuilder.makeAlert(for: .error, message: error.localizedDescription)
-            )
-        }
-    }
 }
