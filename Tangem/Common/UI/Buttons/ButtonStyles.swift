@@ -137,6 +137,7 @@ enum ButtonColorStyle {
     }
 }
 
+@available(*, deprecated, message: "Should be replace on specific component")
 struct TangemButtonStyle: ButtonStyle {
     var colorStyle: ButtonColorStyle = .black
     var layout: ButtonLayout = .small
