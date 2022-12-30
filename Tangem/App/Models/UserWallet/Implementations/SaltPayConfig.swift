@@ -14,7 +14,6 @@ import BlockchainSdk
 
 struct SaltPayConfig {
     @Injected(\.backupServiceProvider) private var backupServiceProvider: BackupServiceProviding
-    @Injected(\.loggerProvider) var loggerProvider: LoggerProviding
     @Injected(\.saletPayRegistratorProvider) private var saltPayRegistratorProvider: SaltPayRegistratorProviding
 
     private let card: CardDTO
