@@ -217,8 +217,13 @@ extension WalletOnboardingStep: OnboardingInitialStepInfo {
 }
 
 extension WalletOnboardingStep: OnboardingProgressStepIndicatable {
-    var isOnboardingFinished: Bool {
-        self == .success ||  self == .successClaim
+    var requiresConfetti: Bool {
+        switch self {
+        case .success, .successClaim:
+            return true
+        default:
+            return false
+        }
     }
 
     var successCircleOpacity: Double {
