@@ -20,22 +20,22 @@ struct MultiWalletContentView: View {
             if !viewModel.tokenListIsEmpty {
                 TotalSumBalanceView(viewModel: viewModel.totalSumBalanceViewModel)
                     .padding(.horizontal, 16)
-                    .padding(.bottom, 6)
             }
 
             tokenList
 
-            AddTokensView(action: viewModel.openTokensList)
-                .padding(.horizontal, 16)
-                .padding(.bottom, 8)
-                .padding(.top, 6)
+            MainButton(
+                title: Localization.mainManageTokens,
+                action: viewModel.openTokensList
+            )
+            .padding(.horizontal, 16)
         }
     }
 
     @ViewBuilder var tokenList: some View {
         if !viewModel.tokenListIsEmpty {
             VStack(alignment: .center, spacing: 0) {
-                Text("main_tokens".localized)
+                Text(Localization.mainTokens)
                     .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .padding([.leading, .top], 16)
