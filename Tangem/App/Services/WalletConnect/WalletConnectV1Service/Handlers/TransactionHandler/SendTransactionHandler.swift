@@ -47,7 +47,7 @@ class SendTransactionHandler: WalletConnectTransactionHandler {
                 guard let self = self else { return }
 
                 let vc = WalletConnectUIBuilder.makeAlert(for: .success, message: Localization.sendTransactionSuccess, onAcceptAction: {})
-                self.presentOnMain(vc: vc, delay: 0.1)
+                AppPresenter.shared.show(vc)
 
                 guard
                     let sendedTx = ethWalletModel.wallet.transactions.last,

@@ -9,45 +9,23 @@
 import Foundation
 import Combine
 
-typealias WalletConnectServicing = WalletConnectSetupManager & WalletConnectSessionController & WalletConnectURLHandler
-
-protocol WalletConnectSetupManager {
-    func initialize(with cardModel: CardViewModel)
-    func reset()
-}
-
-protocol WalletConnectURLHandler: URLHandler {
-    func canHandle(url: String) -> Bool
-}
-
-protocol WalletConnectSessionController {
+protocol WalletConnectService: URLHandler {
     var canEstablishNewSessionPublisher: AnyPublisher<Bool, Never> { get }
     var sessionsPublisher: AnyPublisher<[WalletConnectSession], Never> { get }
+
+    func initialize(with cardModel: CardViewModel)
+    func reset()
+
+    func canHandle(url: String) -> Bool
     func disconnectSession(with id: Int)
 }
-
 private struct WalletConnectServicingKey: InjectionKey {
-    static var currentValue: WalletConnectServicing = WalletConnectService()
+    static var currentValue: WalletConnectService = CommonWalletConnectService()
 }
 
 extension InjectedValues {
-    var walletConnectServicing: WalletConnectServicing {
+    var walletConnectService: WalletConnectService {
         get { Self[WalletConnectServicingKey.self] }
         set { Self[WalletConnectServicingKey.self] = newValue }
-    }
-
-    var walletConnectSetupManager: WalletConnectSetupManager {
-        get { Self[WalletConnectServicingKey.self] }
-        set { }
-    }
-
-    var walletConnectURLHandler: WalletConnectURLHandler {
-        get { Self[WalletConnectServicingKey.self] }
-        set { }
-    }
-
-    var walletConnectSessionController: WalletConnectSessionController {
-        get { Self[WalletConnectServicingKey.self] }
-        set { }
     }
 }
