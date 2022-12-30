@@ -6,73 +6,21 @@
 //  Copyright © 2021 Tangem AG. All rights reserved.
 //
 
-import Foundation
 import WalletConnectSwift
 import Combine
 import TangemSdk
-import BlockchainSdk
-import CryptoSwift
-import SwiftUI
-import web3swift
 
-protocol WalletConnectChecker: AnyObject {
-    var isServiceBusy: CurrentValueSubject<Bool, Never> { get }
-    func containSession(for wallet: WalletInfo) -> Bool
-}
+fileprivate typealias ExtractedWCUrl = (url: String, handleDelay: TimeInterval)
 
-protocol WalletConnectSessionController: WalletConnectChecker {
-    var sessionsPublisher: AnyPublisher<[WalletConnectSession], Never> { get }
-    func disconnectSession(_ session: WalletConnectSession)
-    func canHandle(url: String) -> Bool
-    func handle(url: String) -> Bool
-}
-
-protocol WalletConnectHandlerDelegate: AnyObject {
-    func send(_ response: Response, for action: WalletConnectAction)
-    func sendInvalid(_ request: Request)
-    func sendReject(for request: Request, with error: Error, for action: WalletConnectAction)
-    func sendUpdate(for session: Session, with walletInfo: Session.WalletInfo)
-}
-
-protocol WalletConnectHandlerDataSource: AnyObject {
-    var cardModel: CardViewModel { get }
-    func session(for request: Request) -> WalletConnectSession?
-    func updateSession(_ session: WalletConnectSession)
-}
-
-enum WalletConnectAction: String {
-    case personalSign = "personal_sign"
-    case signTransaction = "eth_signTransaction"
-    case sendTransaction = "eth_sendTransaction"
-    case bnbSign = "bnb_sign"
-    case bnbTxConfirmation = "bnb_tx_confirmation"
-    case signTypedData = "eth_signTypedData"
-    case signTypedDataV4 = "eth_signTypedData_v4"
-    case switchChain = "wallet_switchEthereumChain"
-
-//    var shouldDisplaySuccessAlert: Bool {
-//        switch self {
-//        case .bnbTxConfirmation: return false
-//        default: return true
-//        }
-//    }
-
-    var successMessage: String {
-        switch self {
-        case .personalSign, .signTypedData, .signTypedDataV4: return Localization.walletConnectMessageSigned
-        case .signTransaction: return Localization.walletConnectTransactionSigned
-        case .sendTransaction: return Localization.walletConnectTransactionSignedAndSend
-        case .bnbSign: return Localization.walletConnectBnbTransactionSigned
-        case .bnbTxConfirmation, .switchChain: return ""
-        }
+class WalletConnectV1Service {
+    private enum ServiceConstants {
+        static let uriPrefix = "uri="
+        static let wcPrefix = "wc:"
     }
-}
 
-class WalletConnectService: ObservableObject {
-    var isServiceBusy: CurrentValueSubject<Bool, Never> = .init(false)
-    var cardModel: CardViewModel
+    let canEstablishNewSessionPublisher = CurrentValueSubject<Bool, Never>(true)
 
-    @Published private(set) var sessions: [WalletConnectSession] = .init()
+    @Published private(set) var sessions = [WalletConnectSession]()
     var sessionsPublisher: AnyPublisher<[WalletConnectSession], Never> {
         $sessions
             .map { [weak self] wcSessions in
@@ -82,15 +30,16 @@ class WalletConnectService: ObservableObject {
             }
             .eraseToAnyPublisher()
     }
-
-    private(set) var server: Server!
+    private(set) var cardModel: CardViewModel
 
     fileprivate var wallet: WalletInfo? = nil
+
+    private var server: Server!
+    private let updateQueue = DispatchQueue(label: "ws_sessions_update_queue")
     private let sessionsKey = "wc_sessions"
 
     private var isWaitingToConnect: Bool = false
     private var timer: DispatchWorkItem?
-    private let updateQueue = DispatchQueue(label: "ws_sessions_update_queue")
 
     init(with cardModel: CardViewModel) {
         self.cardModel = cardModel
@@ -144,7 +93,7 @@ class WalletConnectService: ObservableObject {
             print(error)
             resetSessionConnectTimer()
             handle(error)
-            isServiceBusy.send(false)
+            canEstablishNewSessionPublisher.send(true)
         }
     }
 
@@ -157,7 +106,7 @@ class WalletConnectService: ObservableObject {
 
     private func setupSessionConnectTimer() {
         isWaitingToConnect = true
-        isServiceBusy.send(true)
+        canEstablishNewSessionPublisher.send(false)
         timer = DispatchWorkItem(block: { [weak self] in
             self?.isWaitingToConnect = false
             self?.handle(WalletConnectServiceError.timeout)
@@ -166,7 +115,7 @@ class WalletConnectService: ObservableObject {
     }
 
     private func handle(_ error: Error, for action: WalletConnectAction? = nil, delay: TimeInterval = 0) {
-        isServiceBusy.send(false)
+        canEstablishNewSessionPublisher.send(true)
         if let wcError = error as? WalletConnectServiceError {
             switch wcError {
             case .cancelled, .deallocated:
@@ -198,7 +147,7 @@ class WalletConnectService: ObservableObject {
     }
 }
 
-extension WalletConnectService: WalletConnectHandlerDataSource {
+extension WalletConnectV1Service: WalletConnectHandlerDataSource {
     func session(for request: Request) -> WalletConnectSession? {
         sessions.first(where: { $0.session.url.topic == request.url.topic })
     }
@@ -211,7 +160,7 @@ extension WalletConnectService: WalletConnectHandlerDataSource {
     }
 }
 
-extension WalletConnectService: WalletConnectHandlerDelegate {
+extension WalletConnectV1Service: WalletConnectHandlerDelegate {
     func send(_ response: Response, for action: WalletConnectAction) {
         server.send(response)
         Analytics.logWcEvent(.action(action))
@@ -222,9 +171,6 @@ extension WalletConnectService: WalletConnectHandlerDelegate {
         default:
             break
         }
-//        if action.shouldDisplaySuccessAlert {
-//            presentOnTop(WalletConnectUIBuilder.makeAlert(for: .success, message: action.successMessage), delay: 0.5)
-//        }
     }
 
     func sendInvalid(_ request: Request) {
@@ -246,19 +192,20 @@ extension WalletConnectService: WalletConnectHandlerDelegate {
     }
 }
 
-extension WalletConnectService: WalletConnectChecker {
+extension WalletConnectV1Service {
     func containSession(for wallet: WalletInfo) -> Bool {
         sessions.contains(where: { $0.wallet == wallet })
     }
 }
 
-extension WalletConnectService: WalletConnectSessionController {
-    func disconnectSession(_ session: WalletConnectSession) {
+extension WalletConnectV1Service {
+    func disconnectSession(with id: Int) {
         updateQueue.async { [weak self] in
             guard let self = self else { return }
 
-            guard let index = self.sessions.firstIndex(where: { $0.session == session.session }) else { return }
+            guard let index = self.sessions.firstIndex(where: { $0.id == id }) else { return }
 
+            let session = self.sessions[index]
             do {
                 try self.server.disconnect(from: session.session)
             } catch {
@@ -272,12 +219,69 @@ extension WalletConnectService: WalletConnectSessionController {
         }
     }
 
+}
+
+// MARK: - WalletConnectURLHandler
+extension WalletConnectV1Service {
     func canHandle(url: String) -> Bool {
         WCURL(url) != nil
     }
+
+    @discardableResult
+    func handle(url: URL) -> Bool {
+        guard let extracted = extractWcUrl(from: url) else { return false }
+
+        guard let wcUrl = WCURL(extracted.url) else { return false }
+
+        DispatchQueue.global().asyncAfter(deadline: .now() + extracted.handleDelay) {
+            self.connect(to: wcUrl)
+        }
+
+        return true
+    }
+
+    @discardableResult
+    func handle(url: String) -> Bool {
+        guard let url = URL(string: url) else { return false }
+
+        return handle(url: url)
+    }
+
+    private func extractWcUrl(from url: URL) -> ExtractedWCUrl? {
+        let absoluteStr = url.absoluteString
+        if canHandle(url: absoluteStr) {
+            return (url: absoluteStr, handleDelay: 0)
+        }
+
+        guard
+            let components = URLComponents(url: url, resolvingAgainstBaseURL: true),
+            let scheme = components.scheme,
+            var query = components.query
+        else {
+            return nil
+        }
+
+        let bundleSchemes: [[String]]? = InfoDictionaryUtils.bundleURLSchemes.value()
+        guard
+            query.starts(with: ServiceConstants.uriPrefix + ServiceConstants.wcPrefix) ||
+            (bundleSchemes?.contains(where: { $0.contains(scheme) }) ?? false)
+        else {
+            return nil
+        }
+
+        guard query.count > ServiceConstants.uriPrefix.count else {
+            return nil
+        }
+
+        query.removeFirst(ServiceConstants.uriPrefix.count)
+
+        guard canHandle(url: query) else { return nil }
+
+        return (query, 0.5)
+    }
 }
 
-extension WalletConnectService: ServerDelegate {
+extension WalletConnectV1Service: ServerDelegate {
     private var walletMeta: Session.ClientMeta {
         Session.ClientMeta(name: "Tangem Wallet",
                            description: nil,
@@ -300,7 +304,7 @@ extension WalletConnectService: ServerDelegate {
 
     func server(_ server: Server, shouldStart session: Session, completion: @escaping (Session.WalletInfo) -> Void) {
         let failureCompletion = { [unowned self] in
-            self.isServiceBusy.send(false)
+            self.canEstablishNewSessionPublisher.send(true)
             completion(self.rejectedResponse)
         }
 
@@ -397,7 +401,7 @@ extension WalletConnectService: ServerDelegate {
 
         let onReject = {
             completion(self.rejectedResponse)
-            self.isServiceBusy.send(false)
+            self.canEstablishNewSessionPublisher.send(true)
         }
 
         let onSelectChainRequested = { [cardModel] in
@@ -438,7 +442,7 @@ extension WalletConnectService: ServerDelegate {
                 }
             }
 
-            self.isServiceBusy.send(false)
+            self.canEstablishNewSessionPublisher.send(true)
         }
     }
 
@@ -455,106 +459,6 @@ extension WalletConnectService: ServerDelegate {
 
     func server(_ server: Server, didUpdate session: Session) {
         // todo: handle?
-    }
-}
-
-extension WalletConnectService: URLHandler {
-    @discardableResult func handle(url: URL) -> Bool {
-        guard let extracted = extractWcUrl(from: url) else { return false }
-
-        guard let wcUrl = WCURL(extracted.url) else { return false }
-
-        DispatchQueue.global().asyncAfter(deadline: .now() + extracted.handleDelay) {
-            self.connect(to: wcUrl)
-        }
-
-        return true
-    }
-
-    @discardableResult func handle(url: String) -> Bool {
-        guard let url = URL(string: url) else { return false }
-
-        return handle(url: url)
-    }
-
-    private func extractWcUrl(from url: URL) -> ExtractedWCUrl? {
-        let absoluteStr = url.absoluteString
-        if canHandle(url: absoluteStr) {
-            return (url: absoluteStr, handleDelay: 0)
-        }
-
-        let uriPrefix = "uri="
-        let wcPrefix = "wc:"
-
-        guard
-            let components = URLComponents(url: url, resolvingAgainstBaseURL: true),
-            let scheme = components.scheme,
-            var query = components.query
-        else { return nil }
-
-        guard query.starts(with: uriPrefix + wcPrefix) ||
-            ((Bundle.main.infoDictionary?["CFBundleURLTypes"] as? [[String: Any]])?.map { $0["CFBundleURLSchemes"] as? [String] }.contains(where: { $0?.contains(scheme) ?? false }) ?? false)
-        else { return nil }
-
-        query.removeFirst(uriPrefix.count)
-
-        guard canHandle(url: query) else { return nil }
-
-        return (query, 0.5)
-    }
-}
-
-enum WalletConnectServiceError: LocalizedError {
-    case failedToConnect
-    case signFailed
-    case cancelled
-    case timeout
-    case deallocated
-    case failedToFindSigner
-    case sessionNotFound
-    case txNotFound
-    case failedToBuildTx(code: TxErrorCodes)
-    case other(Error)
-    case noChainId
-    case unsupportedNetwork
-    case switchChainNotSupported
-    case notValidCard
-    case networkNotFound(name: String)
-    case unsupportedDApp
-
-    var shouldHandle: Bool {
-        switch self {
-        case .cancelled, .deallocated, .failedToFindSigner: return false
-        default: return true
-        }
-    }
-
-    var errorDescription: String? {
-        switch self {
-        case .timeout: return Localization.walletConnectErrorTimeout
-        case .signFailed: return Localization.walletConnectErrorSingFailed
-        case .failedToConnect: return Localization.walletConnectErrorFailedToConnect
-        case .txNotFound: return Localization.walletConnectTxNotFound
-        case .sessionNotFound: return Localization.walletConnectSessionNotFound
-        case .failedToBuildTx(let code): return Localization.walletConnectFailedToBuildTx(code.rawValue)
-        case .other(let error): return error.localizedDescription
-        case .noChainId: return Localization.walletConnectServiceNoChainId
-        case .unsupportedNetwork: return Localization.walletConnectScannerErrorUnsupportedNetwork
-        case .notValidCard: return Localization.walletConnectScannerErrorNotValidCard
-        case .networkNotFound(let name): return Localization.walletConnectNetworkNotFoundFormat(name)
-        case .unsupportedDApp: return Localization.walletConnectErrorUnsupportedDapp
-        default: return ""
-        }
-    }
-}
-
-fileprivate typealias ExtractedWCUrl = (url: String, handleDelay: TimeInterval)
-
-extension WalletConnectServiceError {
-    enum TxErrorCodes: String {
-        case noWalletManager
-        case wrongAddress
-        case noValue
     }
 }
 
