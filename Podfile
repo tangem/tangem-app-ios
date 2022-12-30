@@ -5,6 +5,11 @@ project 'TangemApp.xcodeproj'
 use_frameworks!
 inhibit_all_warnings!
 
+def tangem_sdk_pod
+  pod 'TangemSdk', :git => 'https://github.com/Tangem/tangem-sdk-ios.git', :tag => 'develop-197'
+  # pod 'TangemSdk', :path => '../tangem-sdk-ios'
+end
+
 def blockchain_sdk_pods
   pod 'BlockchainSdk', :git => 'https://github.com/tangem/blockchain-sdk-swift.git', :tag => 'develop-185'
   # pod 'BlockchainSdk', :path => '../blockchain-sdk-swift'
@@ -27,11 +32,6 @@ def blockchain_sdk_pods
   
   pod 'BitcoinCore.swift', :git => 'https://github.com/tangem/bitcoincore.git', :tag => '0.0.16'
   # pod 'BitcoinCore.swift', :path => '../bitcoincore'
-end
-
-def tangem_sdk_pod
-  pod 'TangemSdk', :git => 'https://github.com/Tangem/tangem-sdk-ios.git', :tag => 'develop-196'
-  # pod 'TangemSdk', :path => '../tangem-sdk-ios'
 end
 
 target 'Tangem' do
