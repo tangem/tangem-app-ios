@@ -317,8 +317,7 @@ class SendViewModel: ObservableObject {
                 self.isFeeLoading = true
                 return self.walletModel.getFee(amount: amount, destination: dest)
                     .catch { [unowned self] error -> Just<[Amount]> in
-                        print(error)
-                        Analytics.log(error: error)
+                        AppLog.error(error)
 
                         let ok = Alert.Button.default(Text(Localization.commonOk))
                         let retry = Alert.Button.default(Text(Localization.commonRetry)) { [unowned self] in
@@ -605,14 +604,11 @@ class SendViewModel: ObservableObject {
                 appDelegate.removeLoadingView()
 
                 if case let .failure(error) = completion {
-                    if case .userCancelled = error.toTangemSdkError() {
+                    if error.toTangemSdkError().isUserCancelled {
                         return
                     }
 
-                    self.cardViewModel.logSdkError(error,
-                                                   action: .sendTx,
-                                                   parameters: [.blockchain: self.walletModel.wallet.blockchain.displayName])
-
+                    AppLog.error(error, for: .sendTx, params: [.blockchain: self.walletModel.wallet.blockchain.displayName])
                     self.error = SendError(error, openMailAction: self.openMail).alertBinder
                 } else {
                     if !isDemo {
