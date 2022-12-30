@@ -20,6 +20,7 @@ class MainViewModel: ObservableObject {
     @Injected(\.failedScanTracker) var failedCardScanTracker: FailedScanTrackable
     @Injected(\.rateAppService) private var rateAppService: RateAppService
     @Injected(\.tangemApiService) private var tangemApiService: TangemApiService
+    @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
 
     // MARK: - Published variables
 
@@ -84,11 +85,11 @@ class MainViewModel: ObservableObject {
         }
     }
 
-    private let userWalletModel: UserWalletModel
+    private var userWalletModel: UserWalletModel
     private let cardImageProvider: CardImageProviding
-
     private var bag = Set<AnyCancellable>()
     private var isProcessingNewCard = false
+    private var imageLoadingSubscription: AnyCancellable?
 
     private lazy var testnetBuyCryptoService = TestnetBuyCryptoService()
 
@@ -160,6 +161,10 @@ class MainViewModel: ObservableObject {
         cardModel.canShowSend
     }
 
+    var saveUserWallets: Bool {
+        AppSettings.shared.saveUserWallets
+    }
+
     init(
         cardModel: CardViewModel,
         userWalletModel: UserWalletModel,
@@ -172,9 +177,9 @@ class MainViewModel: ObservableObject {
         self.coordinator = coordinator
 
         bind()
-        updateContent()
-        updateIsBackupAllowed()
         cardModel.setupWarnings()
+        updateContent()
+        showUserWalletSaveIfNeeded()
     }
 
     deinit {
@@ -198,23 +203,13 @@ class MainViewModel: ObservableObject {
                 self.updateLackDerivationWarningView(entries: entries)
             }
             .store(in: &bag)
-    }
 
-    func updateContent() {
-        if cardModel.isMultiWallet {
-            multiWalletContentViewModel = MultiWalletContentViewModel(
-                cardModel: cardModel,
-                userWalletModel: userWalletModel,
-                userTokenListManager: userWalletModel.userTokenListManager,
-                output: self
-            )
-        } else {
-            singleWalletContentViewModel = SingleWalletContentViewModel(
-                cardModel: cardModel,
-                userWalletModel: userWalletModel,
-                output: self
-            )
-        }
+        AppSettings.shared.$saveUserWallets
+            .dropFirst()
+            .sink { _ in
+                self.objectWillChange.send()
+            }
+            .store(in: &bag)
     }
 
     func updateIsBackupAllowed() {
@@ -245,6 +240,8 @@ class MainViewModel: ObservableObject {
                 withAnimation { done() }
             }
         }
+
+        loadImage()
     }
 
     func onScan() {
@@ -252,6 +249,11 @@ class MainViewModel: ObservableObject {
             Analytics.log(.buttonScanCard)
             self.coordinator.close(newScan: true)
         }
+    }
+
+    func didTapUserWalletListButton() {
+        Analytics.log(.buttonMyWallets)
+        self.coordinator.openUserWalletList()
     }
 
     func sendTapped() {
@@ -268,13 +270,6 @@ class MainViewModel: ObservableObject {
 
     func onAppear() {
         updateIsBackupAllowed()
-        singleWalletContentViewModel?.onAppear()
-        multiWalletContentViewModel?.onAppear()
-
-        cardImageProvider
-            .loadImage(cardId: cardModel.cardId, cardPublicKey: cardModel.cardPublicKey)
-            .weakAssignAnimated(to: \.image, on: self)
-            .store(in: &bag)
     }
 
     func deriveEntriesWithoutDerivation() {
@@ -350,7 +345,59 @@ class MainViewModel: ObservableObject {
         }
     }
 
+    func didDeclineToSaveUserWallets() {
+        AppSettings.shared.askedToSaveUserWallets = true
+        AppSettings.shared.saveUserWallets = false
+
+        coordinator.closeUserWalletSaveAcceptanceSheet()
+    }
+
+    func didAgreeToSaveUserWallets() {
+        AppSettings.shared.askedToSaveUserWallets = true
+
+        userWalletRepository.unlock(with: .biometry) { [weak self, cardModel] result in
+            if case let .error(error) = result {
+                print("Failed to enable biometry: \(error)")
+                self?.coordinator.closeUserWalletSaveAcceptanceSheet()
+                return
+            }
+
+            // Doesn't seem to work without the delay
+            let delay = 1.0
+            DispatchQueue.main.asyncAfter(deadline: .now() + delay) {
+                guard let userWallet = cardModel.userWallet else { return }
+
+                AppSettings.shared.saveUserWallets = true
+                AppSettings.shared.saveAccessCodes = true
+
+                self?.userWalletRepository.save(userWallet)
+                self?.cardModel.updateSdkConfig()
+                self?.coordinator.closeUserWalletSaveAcceptanceSheet()
+            }
+        }
+    }
+
     // MARK: - Private functions
+
+    private func updateContent() {
+        updateIsBackupAllowed()
+        loadImage()
+
+        if cardModel.isMultiWallet {
+            multiWalletContentViewModel = MultiWalletContentViewModel(
+                cardModel: cardModel,
+                userWalletModel: userWalletModel,
+                userTokenListManager: userWalletModel.userTokenListManager,
+                output: self
+            )
+        } else {
+            singleWalletContentViewModel = SingleWalletContentViewModel(
+                cardModel: cardModel,
+                userWalletModel: userWalletModel,
+                output: self
+            )
+        }
+    }
 
     private func setError(_ error: AlertBinder?) {
         if self.error != nil {
@@ -362,6 +409,33 @@ class MainViewModel: ObservableObject {
 
     private func updateLackDerivationWarningView(entries: [StorageEntry]) {
         isLackDerivationWarningViewVisible = !entries.isEmpty
+    }
+
+    private func showUserWalletSaveIfNeeded() {
+        if AppSettings.shared.askedToSaveUserWallets || !BiometricsUtil.isAvailable {
+            return
+        }
+
+        let delay = 1.0
+        DispatchQueue.main.asyncAfter(deadline: .now() + delay) { [weak self] in
+            self?.coordinator.openUserWalletSaveAcceptanceSheet()
+        }
+    }
+
+    private func loadImage() {
+        imageLoadingSubscription = cardImageProvider
+            .loadImage(cardId: cardModel.cardId, cardPublicKey: cardModel.cardPublicKey)
+            .sink(receiveValue: { [weak self] loaderResult in
+                let uiImage = loaderResult.uiImage
+                switch loaderResult {
+                case .downloaded:
+                    withAnimation {
+                        self?.image = uiImage
+                    }
+                case .cached, .embedded:
+                    self?.image = uiImage
+                }
+            })
     }
 }
 
