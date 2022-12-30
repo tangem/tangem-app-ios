@@ -714,7 +714,7 @@ class WalletOnboardingViewModel: OnboardingTopupViewModel<WalletOnboardingStep, 
     }
 
     private func fireConfettiIfNeeded() {
-        if currentStep.isOnboardingFinished {
+        if currentStep.requiresConfetti {
             fireConfetti()
         }
     }
