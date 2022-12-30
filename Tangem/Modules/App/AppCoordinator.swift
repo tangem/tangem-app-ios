@@ -208,11 +208,8 @@ extension AppCoordinator: UIWindowSceneDelegate {
         }
 
         if case .welcome = StartupProcessor().getStartupOption() {
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5, execute: {
-                UIApplication.modalFromTop(
-                    AlertBuilder.makeOkGotItAlertController(message: Localization.walletConnectNeedToScanCard)
-                )
-            })
+            let controller = AlertBuilder.makeOkGotItAlertController(message: Localization.walletConnectNeedToScanCard)
+            AppPresenter.shared.show(controller, delay: 0.5)
         }
     }
 }
