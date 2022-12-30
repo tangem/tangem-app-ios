@@ -40,4 +40,22 @@ extension UIApplication {
             }
         }
     }
+
+    // withTransaction not working with iOS16, UIView.performWithoutAnimations block not working
+    static func performWithoutAnimations(_ block: () -> Void) {
+        UIView.setAnimationsEnabled(false)
+
+        block()
+
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+            UIView.setAnimationsEnabled(true)
+        }
+    }
+}
+
+extension UIApplication {
+    static var safeAreaInsets: UIEdgeInsets {
+        let scene = UIApplication.shared.connectedScenes.first as? UIWindowScene
+        return scene?.windows.first?.safeAreaInsets ?? .zero
+    }
 }
