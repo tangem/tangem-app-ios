@@ -9,4 +9,17 @@
 import Foundation
 import TangemSdk
 
-typealias AppLog = Log
+class AppLog {
+    static var sdkLogConfig: Log.Config {
+        .custom(logLevel: Log.Level.allCases,
+                loggers: [FileLogger(), ConsoleLogger()])
+    }
+
+    static func configure() {
+        Log.config = sdkLogConfig
+    }
+
+    static func debug<T>(_ message: @autoclosure () -> T) {
+        Log.debug(message())
+    }
+}
