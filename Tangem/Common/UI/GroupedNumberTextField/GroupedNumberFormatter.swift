@@ -25,7 +25,7 @@ struct GroupedNumberFormatter {
     }
 
     mutating func update(maximumFractionDigits: Int) {
-        self.numberFormatter.maximumFractionDigits = maximumFractionDigits
+        numberFormatter.maximumFractionDigits = maximumFractionDigits
     }
 
     func format(from string: String) -> String {
@@ -72,6 +72,6 @@ struct GroupedNumberFormatter {
     }
 
     private func formatNumber(_ value: Decimal) -> String {
-        numberFormatter.string(from: value as NSDecimalNumber) ?? "\(self)"
+        numberFormatter.string(from: value as NSDecimalNumber) ?? "\(value)"
     }
 }
