@@ -319,7 +319,7 @@ class TwinsOnboardingViewModel: OnboardingTopupViewModel<TwinsOnboardingStep, On
                         }
                     }
                 default:
-                    print("Wrong state while twinning cards: current - \(self.currentStep), new - \(newStep)")
+                    AppLog.shared.debug("Wrong state while twinning cards: current - \(self.currentStep), new - \(newStep)")
                 }
 
                 if let pairCardId = twinsService.twinPairCardId,

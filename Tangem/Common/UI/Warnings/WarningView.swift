@@ -122,7 +122,7 @@ struct WarningView_Previews: PreviewProvider {
             ForEach(Array(warnings.enumerated()), id: \.element.id) { (i, item) in
                 WarningView(warning: warnings[i], buttonAction: { _ in
                     withAnimation {
-                        print("Ok button tapped")
+                        AppLog.shared.debug("Ok button tapped")
                         warnings.remove(at: i)
                     }
                 })
