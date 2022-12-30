@@ -134,11 +134,11 @@ class PushTxViewModel: ObservableObject {
                 appDelegate.removeLoadingView()
 
                 if case let .failure(error) = completion {
-                    if case .userCancelled = error.toTangemSdkError() {
+                    if error.toTangemSdkError().isUserCancelled {
                         return
                     }
 
-                    cardViewModel.logSdkError(error, action: .pushTx, parameters: [.blockchain: walletModel.wallet.blockchain.displayName])
+                    AppLog.error(error, for: .pushTx, params: [.blockchain: self.walletModel.wallet.blockchain.displayName])
                     self.sendError = SendError(error, openMailAction: openMail).alertBinder
                 } else {
                     walletModel.startUpdatingTimer()
