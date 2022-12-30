@@ -29,7 +29,7 @@ enum OnboardingSteps {
     }
 }
 
-typealias OnboardingStep = OnboardingProgressStepIndicatable & OnboardingMessagesProvider & OnboardingButtonsInfoProvider & OnboardingInitialStepInfo
+typealias OnboardingStep = OnboardingProgressStepIndicatable & OnboardingMessagesProvider & OnboardingButtonsInfoProvider & OnboardingInitialStepInfo & Equatable
 
 protocol OnboardingMessagesProvider {
     var title: LocalizedStringKey? { get }
@@ -42,6 +42,7 @@ protocol OnboardingButtonsInfoProvider {
     var supplementButtonTitle: LocalizedStringKey { get }
     var isSupplementButtonVisible: Bool { get }
     var checkmarkText: LocalizedStringKey? { get }
+    var infoText: LocalizedStringKey? { get }
 }
 
 protocol OnboardingInitialStepInfo {
