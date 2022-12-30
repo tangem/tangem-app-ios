@@ -20,6 +20,16 @@ struct SingleCardOnboardingView: View {
         viewModel.isNavBarVisible
     }
 
+    @ViewBuilder
+    var customContent: some View {
+        switch viewModel.currentStep {
+        case .saveUserWallet:
+            UserWalletStorageAgreementView(viewModel: viewModel.userWalletStorageAgreementViewModel)
+        default:
+            EmptyView()
+        }
+    }
+
     var body: some View {
         ZStack {
             ConfettiView(shouldFireConfetti: $viewModel.shouldFireConfetti)
@@ -59,54 +69,66 @@ struct SingleCardOnboardingView: View {
                         let backgroundFrame = viewModel.isInitialAnimPlayed ? currentStep.cardBackgroundFrame(containerSize: size) : .zero
                         let backgroundOffset = viewModel.isInitialAnimPlayed ? currentStep.cardBackgroundOffset(containerSize: size) : .zero
 
-                        AnimatedView(settings: viewModel.$supplementCardSettings) {
-                            OnboardingCardView(placeholderCardType: .light,
-                                               cardImage: nil,
-                                               cardScanned: false)
-                        }
-                        AnimatedView(settings: viewModel.$mainCardSettings) {
-                            OnboardingCardView(placeholderCardType: .dark,
-                                               cardImage: viewModel.cardImage,
-                                               cardScanned: viewModel.isInitialAnimPlayed && viewModel.isCardScanned)
-                        }
+                        if !viewModel.isCustomContentVisible {
+                            AnimatedView(settings: viewModel.$supplementCardSettings) {
+                                OnboardingCardView(placeholderCardType: .light,
+                                                   cardImage: nil,
+                                                   cardScanned: false)
+                            }
+                            AnimatedView(settings: viewModel.$mainCardSettings) {
+                                OnboardingCardView(placeholderCardType: .dark,
+                                                   cardImage: viewModel.cardImage,
+                                                   cardScanned: viewModel.isInitialAnimPlayed && viewModel.isCardScanned)
+                            }
 
-                        OnboardingTopupBalanceView(
-                            backgroundFrameSize: backgroundFrame,
-                            cornerSize: currentStep.cardBackgroundCornerRadius(containerSize: size),
-                            backgroundOffset: backgroundOffset,
-                            balance: viewModel.cardBalance,
-                            balanceUpdaterFrame: backgroundFrame,
-                            balanceUpdaterOffset: backgroundOffset,
-                            refreshAction: {
-                                viewModel.updateCardBalance()
-                            },
-                            refreshButtonState: viewModel.refreshButtonState,
-                            refreshButtonSize: .medium,
-                            refreshButtonOpacity: currentStep.balanceStackOpacity
-                        )
+                            OnboardingTopupBalanceView(
+                                backgroundFrameSize: backgroundFrame,
+                                cornerSize: currentStep.cardBackgroundCornerRadius(containerSize: size),
+                                backgroundOffset: backgroundOffset,
+                                balance: viewModel.cardBalance,
+                                balanceUpdaterFrame: backgroundFrame,
+                                balanceUpdaterOffset: backgroundOffset,
+                                refreshAction: {
+                                    viewModel.updateCardBalance()
+                                },
+                                refreshButtonState: viewModel.refreshButtonState,
+                                refreshButtonSize: .medium,
+                                refreshButtonOpacity: currentStep.balanceStackOpacity
+                            )
 
-                        OnboardingCircleButton(refreshAction: {},
-                                               state: currentStep.successCircleState,
-                                               size: .huge)
-                            .offset(y: 8)
-                            .opacity(currentStep.successCircleOpacity)
+                            OnboardingCircleButton(refreshAction: {},
+                                                   state: currentStep.successCircleState,
+                                                   size: .huge)
+                                .offset(y: 8)
+                                .opacity(currentStep.successCircleOpacity)
+                        }
                     }
                     .position(x: size.width / 2, y: size.height / 2)
                 }
                 .readSize { value in
-                    viewModel.setupContainer(with: value)
+                    if !viewModel.isCustomContentVisible {
+                        viewModel.setupContainer(with: value)
+                    }
                 }
 
-                OnboardingTextButtonView(
-                    title: viewModel.title,
-                    subtitle: viewModel.subtitle,
-                    textOffset: currentStep.messagesOffset,
-                    buttonsSettings: .init(main: viewModel.mainButtonSettings,
-                                           supplement: viewModel.supplementButtonSettings)
-                ) {
-                    viewModel.closeOnboarding()
+                if viewModel.isCustomContentVisible {
+                    customContent
+                        .layoutPriority(1)
                 }
-                .padding(.horizontal, 40)
+
+                if viewModel.isButtonsVisible {
+                    OnboardingTextButtonView(
+                        title: viewModel.title,
+                        subtitle: viewModel.subtitle,
+                        textOffset: currentStep.messagesOffset,
+                        buttonsSettings: .init(main: viewModel.mainButtonSettings,
+                                               supplement: viewModel.supplementButtonSettings),
+                        infoText: viewModel.infoText
+                    ) {
+                        viewModel.closeOnboarding()
+                    }
+                    .padding(.horizontal, 40)
+                }
             }
         }
         .alert(item: $viewModel.alert, content: { $0.alert })
