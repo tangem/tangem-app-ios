@@ -12,15 +12,16 @@ import BlockchainSdk
 
 class TotalBalanceProvider {
     @Injected(\.tangemApiService) private var tangemApiService: TangemApiService
+
     private let userWalletModel: UserWalletModel
-    private let totalBalanceAnalyticsService: TotalBalanceAnalyticsService
+    private let totalBalanceAnalyticsService: TotalBalanceAnalyticsService?
     private let totalBalanceSubject = CurrentValueSubject<LoadingValue<TotalBalance>, Never>(.loading)
     private var refreshSubscription: AnyCancellable?
     private let userWalletAmountType: Amount.AmountType?
     private var isFirstLoadForCardInSession: Bool = true
     private var bag: Set<AnyCancellable> = .init()
 
-    init(userWalletModel: UserWalletModel, userWalletAmountType: Amount.AmountType?, totalBalanceAnalyticsService: TotalBalanceAnalyticsService) {
+    init(userWalletModel: UserWalletModel, userWalletAmountType: Amount.AmountType?, totalBalanceAnalyticsService: TotalBalanceAnalyticsService?) {
         self.userWalletModel = userWalletModel
         self.userWalletAmountType = userWalletAmountType
         self.totalBalanceAnalyticsService = totalBalanceAnalyticsService
@@ -42,16 +43,16 @@ private extension TotalBalanceProvider {
         userWalletModel.subscribeToWalletModels()
             .combineLatest(AppSettings.shared.$selectedCurrencyCode)
             .receive(on: DispatchQueue.main)
-            .sink { [unowned self] walletModels, currencyCode  in
+            .sink { [weak self] walletModels, currencyCode in
                 let hasLoading = !walletModels.filter { $0.state.isLoading }.isEmpty
 
                 // We should wait for balance loading to complete
                 if hasLoading {
-                    self.totalBalanceSubject.send(.loading)
+                    self?.totalBalanceSubject.send(.loading)
                     return
                 }
 
-                self.updateTotalBalance(with: currencyCode)
+                self?.updateTotalBalance(with: currencyCode)
             }
             .store(in: &bag)
 
@@ -60,16 +61,25 @@ private extension TotalBalanceProvider {
             .filter { !$0.isEmpty }
             .receive(on: DispatchQueue.main)
             .map { walletModels -> AnyPublisher<Void, Never> in
-                walletModels.map { $0.walletDidChange }
+                let pendingWalletModels = walletModels.filter { $0.state.isLoading }
+
+                if pendingWalletModels.isEmpty {
+                    return .just
+                }
+
+                return pendingWalletModels
+                    .map { $0.walletDidChange }
                     .combineLatest()
+                    /// This delay has been added because `walletDidChange` pushed the changes on `willSet`
+                    .delay(for: 0.1, scheduler: DispatchQueue.global())
                     .filter { $0.allConforms { !$0.isLoading } }
                     .mapVoid()
                     .eraseToAnyPublisher()
             }
             .switchToLatest()
             .delay(for: 0.2, scheduler: DispatchQueue.main) // Hide skeleton with delay
-            .sink { [unowned self] walletModels in
-                self.updateTotalBalance(with: AppSettings.shared.selectedCurrencyCode)
+            .sink { [weak self] walletModels in
+                self?.updateTotalBalance(with: AppSettings.shared.selectedCurrencyCode)
             }
             .store(in: &bag)
     }
@@ -95,13 +105,13 @@ private extension TotalBalanceProvider {
             }
         }
 
-        totalBalanceAnalyticsService.sendToppedUpEventIfNeeded(
+        totalBalanceAnalyticsService?.sendToppedUpEventIfNeeded(
             tokenItemViewModels: tokenItemViewModels,
             balance: balance
         )
 
         if isFirstLoadForCardInSession {
-            totalBalanceAnalyticsService.sendFirstLoadBalanceEventForCard(
+            totalBalanceAnalyticsService?.sendFirstLoadBalanceEventForCard(
                 tokenItemViewModels: tokenItemViewModels,
                 balance: balance
             )

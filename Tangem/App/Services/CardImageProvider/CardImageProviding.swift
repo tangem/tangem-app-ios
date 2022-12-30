@@ -6,10 +6,11 @@
 //  Copyright © 2022 Tangem AG. All rights reserved.
 //
 
-import UIKit
+import Foundation
 import Combine
 
 protocol CardImageProviding {
-    func loadImage(cardId: String, cardPublicKey: Data) -> AnyPublisher<UIImage, Never>
-    func loadTwinImage(for number: Int) -> AnyPublisher<UIImage, Never>
+    func loadImage(cardId: String, cardPublicKey: Data) -> AnyPublisher<CardImageResult, Never>
+    func loadImage(cardId: String, cardPublicKey: Data, artwork: CardArtwork?) -> AnyPublisher<CardImageResult, Never>
+    func loadTwinImage(for number: Int) -> AnyPublisher<CardImageResult, Never>
 }
