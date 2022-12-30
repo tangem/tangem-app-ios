@@ -9,147 +9,94 @@
 import SwiftUI
 
 struct DetailsView: View {
-    @ObservedObject var viewModel: DetailsViewModel
+    @ObservedObject private var viewModel: DetailsViewModel
+    @State private var socialNetworksViewSize: CGSize = .zero
 
-    /// Change to @AppStorage and move to model with IOS 14.5 minimum deployment target
-    @AppStorageCompat(StorageType.selectedCurrencyCode)
-    private var selectedCurrencyCode: String = "USD"
+    init(viewModel: DetailsViewModel) {
+        self.viewModel = viewModel
+    }
 
     var body: some View {
-        List {
-            if viewModel.shouldShowWC {
+        ZStack(alignment: .bottom) {
+            GroupedScrollView {
                 walletConnectSection
+
+                GroupedSection(viewModel.supportSectionModels) {
+                    DefaultRowView(viewModel: $0)
+                }
+
+                settingsSection
+
+                legalSection
+
+                environmentSetupSection
+
+                Color.clear.frame(height: socialNetworksViewSize.height)
             }
 
-            supportSection
-
-            settingsSection
-
-            legalSection
-
-            if !AppEnvironment.current.isProduction {
-                setupEnvironmentSection
-            }
+            socialNetworks
+                .readSize { socialNetworksViewSize = $0 }
         }
-        .groupedListStyleCompatibility(background: Colors.Background.secondary)
-        .alert(item: $viewModel.error) { $0.alert }
-        .navigationBarTitle("details_title", displayMode: .inline)
+        .ignoresBottomArea()
+        .background(Colors.Background.secondary.edgesIgnoringSafeArea(.all))
         .navigationBarBackButtonHidden(false)
         .navigationBarHidden(false)
+        .alert(item: $viewModel.error) { $0.alert }
+        .navigationBarTitle("details_title", displayMode: .inline)
     }
 
     // MARK: - Wallet Connect Section
 
+    @ViewBuilder
     private var walletConnectSection: some View {
-        Section {
-            Button(action: {
-                viewModel.openWalletConnect()
-            }) {
-                HStack(spacing: 12) {
-                    Assets.walletConnect
-                        .resizable()
-                        .frame(width: 48, height: 48)
-
-                    VStack(alignment: .leading, spacing: 4) {
-                        Text("wallet_connect_title")
-                            .style(Fonts.Regular.body, color: Colors.Text.primary1)
-
-                        Text("wallet_connect_subtitle")
-                            .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
-                    }
-                    .lineLimit(1)
-
-                    Spacer()
-
-                    Assets.chevron
-                }
-                .padding(.vertical, 8)
-            }
+        GroupedSection(viewModel.walletConnectRowViewModel) {
+            WalletConnectRowView(viewModel: $0)
         }
     }
-
-    // MARK: - Wallet Connect Section
-
-    private var supportSection: some View {
-        Section {
-            DefaultRowView(title: "details_chat".localized) {
-                viewModel.openSupportChat()
-            }
-
-            if viewModel.canSendMail {
-                DefaultRowView(title: "details_row_title_send_feedback".localized) {
-                    viewModel.openMail()
-                }
-            }
-        }
-    }
-
-    // MARK: - Settings Section
 
     private var settingsSection: some View {
-        Section(content: {
-            if !viewModel.isMultiWallet {
-                DefaultRowView(title: "details_row_title_currency".localized,
-                               detailsType: .text(selectedCurrencyCode)) {
-                    viewModel.openCurrencySelection()
-                }
-            }
-
-            DefaultRowView(title: "details_row_title_card_settings".localized) {
-                viewModel.openCardSettings()
-            }
-
-//            DefaultRowView(title: "details_row_title_app_settings".localized, isTappable: true) {
-//                viewModel.openAppSettings()
-//            }
-
+        GroupedSection(viewModel.settingsSectionViewModels) {
+            DefaultRowView(viewModel: $0)
+        } footer: {
             if viewModel.canCreateBackup {
-                DefaultRowView(title: "details_row_title_create_backup".localized) {
-                    viewModel.prepareBackup()
-                }
+                DefaultFooterView("details_row_title_create_backup_footer".localized)
             }
-        }, footer: {
-            if viewModel.canCreateBackup {
-                DefaultFooterView(title: "details_row_title_create_backup_footer".localized)
-            }
-        })
+        }
     }
 
     // MARK: - Legal Section
 
     private var legalSection: some View {
-        Section(content: {
-            DefaultRowView(title: "disclaimer_title".localized) {
-                viewModel.openDisclaimer()
-            }
-        }, footer: {
-            HStack {
-                Spacer()
-
-                VStack(alignment: .center, spacing: 20) {
-                    HStack(spacing: 16) {
-                        ForEach(SocialNetwork.allCases) { network in
-                            socialNetworkView(network: network)
-                        }
-                    }
-
-                    if let applicationInfoFooter = viewModel.applicationInfoFooter {
-                        Text(applicationInfoFooter)
-                            .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
-                    }
-                }
-
-                Spacer()
-            }
-            .padding(.top, 40)
-        })
+        GroupedSection(viewModel.legalSectionViewModel) {
+            DefaultRowView(viewModel: $0)
+        }
     }
 
-    private var setupEnvironmentSection: some View {
-        Section {
-            DefaultRowView(title: "Environment setup") {
-                viewModel.openEnvironmentSetup()
+    private var socialNetworks: some View {
+        VStack(alignment: .center, spacing: 20) {
+            HStack(spacing: 16) {
+                ForEach(SocialNetwork.allCases) { network in
+                    socialNetworkView(network: network)
+                }
             }
+
+            if let applicationInfoFooter = viewModel.applicationInfoFooter {
+                Text(applicationInfoFooter)
+                    .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
+            }
+        }
+        .frame(maxWidth: .infinity)
+        .padding(.top, 16)
+        .padding(.bottom, max(16, UIApplication.safeAreaInsets.bottom))
+        .background(Colors.Background.secondary)
+    }
+
+    @ViewBuilder
+    private var environmentSetupSection: some View {
+        GroupedSection(viewModel.environmentSetupViewModel) {
+            DefaultRowView(viewModel: $0)
+        } header: {
+            DefaultHeaderView("Setup environment in app")
         }
     }
 
@@ -167,10 +114,11 @@ struct DetailsView: View {
 struct SettingsView_Previews: PreviewProvider {
     static var previews: some View {
         NavigationView {
-            DetailsView(viewModel: DetailsViewModel(cardModel: PreviewCard.cardanoNote.cardModel,
-                                                    coordinator: DetailsCoordinator()))
+            DetailsView(
+                viewModel: DetailsViewModel(cardModel: PreviewCard.tangemWalletEmpty.cardModel,
+                                            coordinator: DetailsCoordinator())
+            )
         }
-        .navigationViewStyle(StackNavigationViewStyle())
+        .navigationViewStyle(.stack)
     }
 }
-
