@@ -148,18 +148,7 @@ struct PushTxView: View {
                                    icon: .leading(Assets.arrowRightMini),
                                    isDisabled: !viewModel.isSendEnabled,
                                    action: viewModel.onSend)
-                            .alert(item: $viewModel.sendError) { binder in
-                                if binder.error == nil {
-                                    return binder.alert
-                                }
-
-                                let errorDescription = String(binder.error?.localizedDescription.dropTrailingPeriod ?? "Unknown error")
-
-                                return Alert(title: Text(Localization.feedbackSubjectTxFailed),
-                                             message: Text(Localization.alertFailedToSendTransactionMessage(errorDescription)),
-                                             primaryButton: .default(Text(Localization.alertButtonSendFeedback), action: viewModel.openMail),
-                                             secondaryButton: .default(Text(Localization.commonNo)))
-                            }
+                            .alert(item: $viewModel.sendError) { $0.alert }
                     }
                     .padding(.top, 16.0)
                 }
