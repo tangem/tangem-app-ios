@@ -37,7 +37,7 @@ extension PermitTypedDataProvider: PermitTypedDataProviding {
         let ownerAddressHex = Data(hexString: message.owner)
         let spenderAddressHex = Data(hexString: message.spender)
 //        let nonceAligned = decimalNumberConverter.encoded(value: Decimal(message.nonce), decimalCount: 0)
-        let valueAligned = decimalNumberConverter.encoded(value: Decimal(string: message.value)!, decimalCount: currency.decimalCount)
+        let valueAligned = decimalNumberConverter.encoded(value: Decimal(string: message.value)!, decimalCount: 0)
         let deadlineAligned = decimalNumberConverter.encoded(value: Decimal(message.deadline), decimalCount: 0)
 //        let allowedAligned = decimalNumberConverter.encoded(value: 1, decimalCount: 0)
 
@@ -74,8 +74,8 @@ private extension PermitTypedDataProvider {
         }
 
         return EIP712Domain(
-            name: currency.name,
-            version: "eth_signTypedData_v4",
+            name: "1INCH Token",
+            version: "1",
             chainId: currency.blockchain.chainId,
             verifyingContract: contractAddress
         )
@@ -85,9 +85,9 @@ private extension PermitTypedDataProvider {
         EIP2612PermitMessage(
             owner: parameters.walletAddress,
             spender: parameters.spenderAddress,
-            value: currency.convertToWEI(value: parameters.amount).description,
+            value: String(describing: parameters.amount),
             nonce: nonce,
-            deadline: Int(parameters.deadline.timeIntervalSince1970)
+            deadline: 1672559603
         )
     }
 }
