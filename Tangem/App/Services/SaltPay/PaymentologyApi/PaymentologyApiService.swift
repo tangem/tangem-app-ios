@@ -23,7 +23,7 @@ class CommonPaymentologyApiService {
         plugins: [NetworkLoggerPlugin(configuration: .init(logOptions: .verbose))])
 
     deinit {
-        print("PaymentologyApiService deinit")
+        AppLog.shared.debug("PaymentologyApiService deinit")
     }
 }
 
