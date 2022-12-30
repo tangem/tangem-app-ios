@@ -8,13 +8,14 @@
 
 import SwiftUI
 
-enum WalletOnboardingStep {
+enum WalletOnboardingStep: Equatable {
     case welcome
     case createWallet
     case scanPrimaryCard
     case backupIntro
     case selectBackupCards
     case backupCards
+    case saveUserWallet
 
     // visa only
     case enterPin
@@ -32,7 +33,9 @@ enum WalletOnboardingStep {
         switch self {
         case .welcome: return ""
         case .createWallet, .backupIntro: return "onboarding_getting_started"
-        case .scanPrimaryCard, .selectBackupCards, .backupCards: return "onboarding_navbar_title_creating_backup"
+        case .scanPrimaryCard, .selectBackupCards: return "onboarding_navbar_title_creating_backup"
+        case .backupCards: return "onboarding_button_finalize_backup"
+        case .saveUserWallet: return "onboarding_navbar_save_wallet"
         case .success: return "common_done"
         case .enterPin:
             return "onboarding_navbar_pin"
@@ -97,6 +100,7 @@ extension WalletOnboardingStep: OnboardingMessagesProvider, SuccessStep {
         case .backupIntro: return "onboarding_title_backup_card"
         case .selectBackupCards: return "onboarding_title_no_backup_cards"
         case .backupCards, .kycProgress: return ""
+        case .saveUserWallet: return nil
         case .success, .successClaim: return successTitle
         case .registerWallet:
             return "onboarding_title_register_wallet"
@@ -121,6 +125,7 @@ extension WalletOnboardingStep: OnboardingMessagesProvider, SuccessStep {
         case .backupIntro: return "onboarding_subtitle_backup_card"
         case .selectBackupCards: return "onboarding_subtitle_no_backup_cards"
         case .backupCards, .kycProgress: return ""
+        case .saveUserWallet: return nil
         case .success: return "onboarding_subtitle_success_backup"
         case .registerWallet:
             return "onboarding_subtitle_register_wallet"
@@ -156,6 +161,7 @@ extension WalletOnboardingStep: OnboardingButtonsInfoProvider {
         case .backupIntro: return "onboarding_button_backup_now"
         case .selectBackupCards: return "onboarding_button_add_backup_card"
         case .backupCards, .kycProgress: return ""
+        case .saveUserWallet: return BiometricAuthorizationUtils.allowButtonLocalizationKey
         case .success: return "onboarding_button_continue_wallet"
         case .kycWaiting: return "onboarding_supplement_button_kyc_waiting"
         default: return ""
@@ -192,6 +198,15 @@ extension WalletOnboardingStep: OnboardingButtonsInfoProvider {
 
     var checkmarkText: LocalizedStringKey? {
         return nil
+    }
+
+    var infoText: LocalizedStringKey? {
+        switch self {
+        case .saveUserWallet:
+            return "save_user_wallet_agreement_notice"
+        default:
+            return nil
+        }
     }
 }
 
