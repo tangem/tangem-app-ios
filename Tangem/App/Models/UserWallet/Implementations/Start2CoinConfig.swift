@@ -70,11 +70,6 @@ struct Start2CoinConfig {
         self.card = card
         self.walletData = walletData
     }
-
-    private func userWalletSavingSteps(standalone: Bool) -> [SingleCardOnboardingStep] {
-        guard needUserWalletSavingSteps else { return [] }
-        return [.saveUserWallet(standalone: standalone)]
-    }
 }
 
 extension Start2CoinConfig: UserWalletConfig {
@@ -105,14 +100,19 @@ extension Start2CoinConfig: UserWalletConfig {
 
     var onboardingSteps: OnboardingSteps {
         if card.wallets.isEmpty {
-            return .singleWallet([.createWallet] + userWalletSavingSteps(standalone: false) + [.success])
+            return .singleWallet([.createWallet] + userWalletSavingSteps + [.success])
         }
 
-        return .singleWallet(userWalletSavingSteps(standalone: true))
+        return .singleWallet(userWalletSavingSteps)
     }
 
     var backupSteps: OnboardingSteps? {
         return nil
+    }
+
+    var userWalletSavingSteps: [SingleCardOnboardingStep] {
+        guard needUserWalletSavingSteps else { return [] }
+        return [.saveUserWallet]
     }
 
     var supportedBlockchains: Set<Blockchain> {
