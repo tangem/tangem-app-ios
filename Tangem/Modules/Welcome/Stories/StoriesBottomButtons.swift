@@ -23,7 +23,7 @@ struct StoriesBottomButtons: View {
                 .buttonStyle(TangemButtonStyle(colorStyle: scanColorStyle, layout: .flexibleWidth, isLoading: isScanning))
 
             TangemButton(title: "home_button_order", action: orderCard)
-                .buttonStyle(TangemButtonStyle(colorStyle: orderColorStyle, layout: .flexibleWidth))
+                .buttonStyle(TangemButtonStyle(colorStyle: orderColorStyle, layout: .flexibleWidth, isDisabled: isScanning))
         }
     }
 }
