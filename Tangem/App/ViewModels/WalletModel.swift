@@ -137,14 +137,15 @@ class WalletModel: ObservableObject, Identifiable {
 
         updateWalletModelBag = updateWalletManager()
             .receive(on: updateQueue)
-            .tryMap { [weak self] result -> AnyPublisher<(WalletManagerUpdateResult, [String: Decimal]), Error> in
+            .flatMap { [weak self] result -> AnyPublisher<(WalletManagerUpdateResult, [String: Decimal]), Error> in
                 guard let self else {
-                    throw CommonError.objectReleased
+                    return .anyFail(error: CommonError.objectReleased)
                 }
 
-                return self.loadRates().map { (result, $0) }.eraseToAnyPublisher()
+                return self.loadRates()
+                    .map { (result, $0) }
+                    .eraseToAnyPublisher()
             }
-            .switchToLatest()
             .receive(on: updateQueue)
             .sink { [weak self] completion in
                 guard let self, case let .failure(error) = completion else { return }
@@ -505,7 +506,7 @@ extension WalletModel {
             balance: balanceViewModel.balance,
             fiatBalance: balanceViewModel.fiatBalance,
             rate: getRateFormatted(for: amountType),
-            fiatValue: getFiat(for: wallet.amounts[amountType]) ?? 0,
+            fiatValue: getFiat(for: wallet.amounts[amountType], roundingMode: .plain) ?? 0,
             blockchainNetwork: blockchainNetwork,
             amountType: amountType,
             hasTransactionInProgress: wallet.hasPendingTx(for: amountType),
@@ -523,7 +524,7 @@ extension WalletModel {
                 balance: balanceViewModel.balance,
                 fiatBalance: balanceViewModel.fiatBalance,
                 rate: getRateFormatted(for: amountType),
-                fiatValue: getFiat(for: wallet.amounts[amountType]) ?? 0,
+                fiatValue: getFiat(for: wallet.amounts[amountType], roundingMode: .plain) ?? 0,
                 blockchainNetwork: blockchainNetwork,
                 amountType: amountType,
                 hasTransactionInProgress: wallet.hasPendingTx(for: amountType),
