@@ -10,6 +10,8 @@ import SwiftUI
 import Combine
 
 class TwinsOnboardingViewModel: OnboardingTopupViewModel<TwinsOnboardingStep, OnboardingCoordinator>, ObservableObject {
+    @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
+
     @Published var firstTwinImage: Image?
     @Published var secondTwinImage: Image?
     @Published var pairNumber: String
@@ -90,6 +92,26 @@ class TwinsOnboardingViewModel: OnboardingTopupViewModel<TwinsOnboardingStep, On
         }
     }
 
+    var isCustomContentVisible: Bool {
+        switch currentStep {
+        case .saveUserWallet:
+            return true
+        default:
+            return false
+        }
+    }
+
+    var isButtonsVisible: Bool {
+        switch currentStep {
+        case .saveUserWallet: return false
+        default: return true
+        }
+    }
+
+    var infoText: LocalizedStringKey? {
+        currentStep.infoText
+    }
+
     override var mainButtonSettings: TangemButtonSettings? {
         var settings = super.mainButtonSettings
 
@@ -106,6 +128,7 @@ class TwinsOnboardingViewModel: OnboardingTopupViewModel<TwinsOnboardingStep, On
     private var twinData: TwinData
     private var stepUpdatesSubscription: AnyCancellable?
     private let twinsService: TwinsWalletCreationUtil
+    private let originalUserWallet: UserWallet?
 
     private var canBuy: Bool { exchangeService.canBuy("BTC", amountType: .coin, blockchain: .bitcoin(testnet: false)) }
 
@@ -116,6 +139,7 @@ class TwinsOnboardingViewModel: OnboardingTopupViewModel<TwinsOnboardingStep, On
         self.pairNumber = "\(twinData.series.pair.number)"
         self.twinData = twinData
         self.twinsService = .init(card: cardModel, twinData: twinData)
+        self.originalUserWallet = cardModel.userWallet
 
         super.init(input: input, coordinator: coordinator)
 
@@ -201,10 +225,12 @@ class TwinsOnboardingViewModel: OnboardingTopupViewModel<TwinsOnboardingStep, On
             twinsService.executeCurrentStep()
         case .topup:
             if canBuy {
-                openCryptoShop()
+                openCryptoShopIfPossible()
             } else {
                 supplementButtonAction()
             }
+        case .saveUserWallet:
+            break
         }
     }
 
@@ -259,6 +285,16 @@ class TwinsOnboardingViewModel: OnboardingTopupViewModel<TwinsOnboardingStep, On
         }
     }
 
+    override func handleUserWalletOnFinish() throws {
+        if let originalUserWallet,
+           retwinMode,
+           AppSettings.shared.saveUserWallets {
+            userWalletRepository.delete(originalUserWallet)
+        } else {
+            try super.handleUserWalletOnFinish()
+        }
+    }
+
     private func bind() {
         Analytics.log(.twinSetupStarted)
         twinsService
@@ -306,7 +342,7 @@ class TwinsOnboardingViewModel: OnboardingTopupViewModel<TwinsOnboardingStep, On
     private func loadSecondTwinImage() {
         CardImageProvider()
             .loadTwinImage(for: twinData.series.pair.number)
-            .map { Image(uiImage: $0) }
+            .map { $0.image }
             .zip($cardImage.compactMap { $0 })
             .receive(on: DispatchQueue.main)
             .sink { [weak self] (paired, main) in
