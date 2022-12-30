@@ -317,7 +317,7 @@ class SendViewModel: ObservableObject {
                 self.isFeeLoading = true
                 return self.walletModel.getFee(amount: amount, destination: dest)
                     .catch { [unowned self] error -> Just<[Amount]> in
-                        AppLog.error(error)
+                        AppLog.shared.error(error)
 
                         let ok = Alert.Button.default(Text(Localization.commonOk))
                         let retry = Alert.Button.default(Text(Localization.commonRetry)) { [unowned self] in
@@ -608,7 +608,7 @@ class SendViewModel: ObservableObject {
                         return
                     }
 
-                    AppLog.error(error, for: .sendTx, params: [.blockchain: self.walletModel.wallet.blockchain.displayName])
+                    AppLog.shared.error(error, for: .sendTx, params: [.blockchain: self.walletModel.wallet.blockchain.displayName])
                     self.error = SendError(error, openMailAction: self.openMail).alertBinder
                 } else {
                     if !isDemo {
