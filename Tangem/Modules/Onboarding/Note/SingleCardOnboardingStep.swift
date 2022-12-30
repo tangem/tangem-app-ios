@@ -13,7 +13,7 @@ enum SingleCardOnboardingStep: Equatable {
     case createWallet
     case topup
     case successTopup
-    case saveUserWallet(standalone: Bool)
+    case saveUserWallet
     case success
 
     var hasProgressStep: Bool {
