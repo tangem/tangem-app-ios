@@ -103,7 +103,7 @@ extension Start2CoinConfig: UserWalletConfig {
             return .singleWallet([.createWallet] + userWalletSavingSteps + [.success])
         }
 
-        return .singleWallet([])
+        return .singleWallet(userWalletSavingSteps)
     }
 
     var backupSteps: OnboardingSteps? {
