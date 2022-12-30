@@ -12,16 +12,26 @@ enum InfoDictionaryUtils {
     case appName
     case version
     case bundleVersion
+    case bundleURLTypes
+    case bundleURLSchemes
 
-    var value: String? {
+    func value<T>() -> T? {
         let infoDictionary = Bundle.main.infoDictionary ?? [:]
         switch self {
         case .appName:
-            return infoDictionary["CFBundleDisplayName"] as? String
+            return infoDictionary["CFBundleDisplayName"] as? T
         case .version:
-            return infoDictionary["CFBundleShortVersionString"] as? String
+            return infoDictionary["CFBundleShortVersionString"] as? T
         case .bundleVersion:
-            return infoDictionary["CFBundleVersion"] as? String
+            return infoDictionary["CFBundleVersion"] as? T
+        case .bundleURLTypes:
+            return infoDictionary["CFBundleURLTypes"] as? T
+        case .bundleURLSchemes:
+            guard let dictionary: [[String: Any]] = InfoDictionaryUtils.bundleURLTypes.value() else {
+                return nil
+            }
+
+            return dictionary.map { $0["CFBundleURLSchemes"] } as? T
         }
     }
 }
