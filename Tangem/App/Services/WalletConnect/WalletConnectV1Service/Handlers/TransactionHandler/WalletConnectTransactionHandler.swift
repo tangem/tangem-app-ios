@@ -142,18 +142,13 @@ class WalletConnectTransactionHandler: TangemWalletConnectRequestHandler {
                     }, isAcceptEnabled: (balance >= totalAmount), onReject: {
                         promise(.failure(WalletConnectServiceError.cancelled))
                     })
-                    self?.presentOnMain(vc: alert)
+
+                    AppPresenter.shared.show(alert)
                 }
                 .eraseToAnyPublisher()
             }
             .map { (walletModel, $0) }
             .eraseToAnyPublisher()
-    }
-
-    func presentOnMain(vc: UIViewController, delay: Double = 0) {
-        DispatchQueue.main.asyncAfter(deadline: .now() + delay) {
-            UIApplication.modalFromTop(vc)
-        }
     }
 
     private func getGasPrice(for amount: Amount, tx: WalletConnectEthTransaction, txSender: EthereumGasLoader, decimalCount: Int) -> AnyPublisher<Int, Error> {
