@@ -82,7 +82,7 @@ extension GenericConfig: UserWalletConfig {
             return .wallet([.createWallet] + _backupSteps + userWalletSavingSteps + [.success])
         } else {
             if !AppSettings.shared.cardsStartedActivation.contains(card.cardId) {
-                return .wallet([])
+                return .wallet(userWalletSavingSteps)
             }
 
             return .wallet(_backupSteps + userWalletSavingSteps + [.success])
