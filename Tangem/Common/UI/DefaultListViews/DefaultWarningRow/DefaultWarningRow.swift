@@ -16,7 +16,7 @@ struct DefaultWarningRow: View {
     }
 
     var body: some View {
-        Button(action: viewModel.action) {
+        Button(action: { viewModel.action?() }) {
             HStack(alignment: .center, spacing: 12) {
                 viewModel.icon
                     .resizable()
@@ -26,8 +26,10 @@ struct DefaultWarningRow: View {
                     .cornerRadius(40)
 
                 VStack(alignment: .leading, spacing: 4) {
-                    Text(viewModel.title)
-                        .style(Fonts.Bold.subheadline, color: Colors.Text.primary1)
+                    if let title = viewModel.title {
+                        Text(title)
+                            .style(Fonts.Bold.subheadline, color: Colors.Text.primary1)
+                    }
 
                     Text(viewModel.subtitle)
                         .style(Fonts.Regular.footnote, color: Colors.Text.secondary)
