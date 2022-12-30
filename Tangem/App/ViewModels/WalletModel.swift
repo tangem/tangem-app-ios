@@ -150,7 +150,7 @@ class WalletModel: ObservableObject, Identifiable {
             .sink { [weak self] completion in
                 guard let self, case let .failure(error) = completion else { return }
 
-                Analytics.log(error: error)
+                AppLog.error(error)
                 self.updateRatesIfNeeded([:])
                 self.updateState(.failed(error: error.localizedDescription))
                 self.updatePublisher?.send(completion: .failure(error))
