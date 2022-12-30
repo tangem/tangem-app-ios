@@ -24,13 +24,18 @@ struct ArrowBack: View {
     }
 }
 
+fileprivate enum DefaultNavigationBarSettings {
+    static let color = Color.tangemGrayDark6
+    static let padding = 16.0
+}
+
 struct BackButton: View {
 
     let height: CGFloat
     let isVisible: Bool
     let isEnabled: Bool
-    var color: Color = .tangemGrayDark6
-    var hPadding: CGFloat = 16
+    var color: Color = DefaultNavigationBarSettings.color
+    var hPadding: CGFloat = DefaultNavigationBarSettings.padding
     let action: () -> Void
 
     var body: some View {
@@ -71,6 +76,7 @@ struct ChatButton: View {
         .padding(.horizontal, hPadding)
     }
 }
+
 
 struct NavigationBar<LeftButtons: View, RightButtons: View>: View {
 
