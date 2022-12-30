@@ -231,9 +231,9 @@ struct RefreshableScrollViewView_Previews: PreviewProvider {
                         text = "\(Date())"
                     }
 
-                    Text("dfasdfasdf")
-                    Text("dfasdfasdf")
-                    Text("refresh control")
+                    Text("Row 1")
+                    Text("Row 2")
+                    Text("Row 3")
                 }
 
             }

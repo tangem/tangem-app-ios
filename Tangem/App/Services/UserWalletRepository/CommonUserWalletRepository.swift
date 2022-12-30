@@ -16,7 +16,7 @@ class CommonUserWalletRepository: UserWalletRepository {
     @Injected(\.tangemSdkProvider) private var sdkProvider: TangemSdkProviding
     @Injected(\.tangemApiService) private var tangemApiService: TangemApiService
     @Injected(\.backupServiceProvider) private var backupServiceProvider: BackupServiceProviding
-    @Injected(\.walletConnectServiceProvider) private var walletConnectServiceProvider: WalletConnectServiceProviding
+    @Injected(\.walletConnectService) private var walletConnectServiceProvider: WalletConnectService
     @Injected(\.saletPayRegistratorProvider) private var saltPayRegistratorProvider: SaltPayRegistratorProviding
     @Injected(\.supportChatService) private var supportChatService: SupportChatServiceProtocol
     @Injected(\.failedScanTracker) var failedCardScanTracker: FailedScanTrackable
@@ -60,11 +60,6 @@ class CommonUserWalletRepository: UserWalletRepository {
     private var bag: Set<AnyCancellable> = .init()
 
     init() {
-        let savedSelectedUserWalletId = AppSettings.shared.selectedUserWalletId
-        self.selectedUserWalletId = savedSelectedUserWalletId.isEmpty ? nil : savedSelectedUserWalletId
-
-        userWallets = savedUserWallets(withSensitiveData: false)
-
         bind()
     }
 
@@ -88,10 +83,10 @@ class CommonUserWalletRepository: UserWalletRepository {
             .store(in: &bag)
     }
 
-    private func scanPublisher(with batch: String? = nil) -> AnyPublisher<UserWalletRepositoryResult?, Never>  {
+    private func scanPublisher() -> AnyPublisher<UserWalletRepositoryResult?, Never>  {
         Deferred {
             Future { [weak self] promise in
-                self?.scanInternal(with: batch) { result in
+                self?.scanInternal { result in
                     switch result {
                     case .success(let scanResult):
                         promise(.success(scanResult))
@@ -173,7 +168,7 @@ class CommonUserWalletRepository: UserWalletRepository {
         .eraseToAnyPublisher()
     }
 
-    private func scanInternal(with batch: String? = nil, _ completion: @escaping (Result<CardViewModel, Error>) -> Void) {
+    private func scanInternal(completion: @escaping (Result<CardViewModel, Error>) -> Void) {
         Analytics.reset()
         Analytics.log(.readyToScan)
 
@@ -189,7 +184,7 @@ class CommonUserWalletRepository: UserWalletRepository {
         sdkProvider.setup(with: config)
 
         sendEvent(.scan(isScanning: true))
-        sdkProvider.sdk.startSession(with: AppScanTask(targetBatch: batch)) { [unowned self] result in
+        sdkProvider.sdk.startSession(with: AppScanTask()) { [unowned self] result in
             self.sendEvent(.scan(isScanning: false))
 
             sdkProvider.setup(with: oldConfig)
@@ -388,8 +383,15 @@ class CommonUserWalletRepository: UserWalletRepository {
     func clear() {
         discardSensitiveData()
 
-        saveUserWallets([])
+        clearUserWallets()
         setSelectedUserWalletId(nil, reason: .deleted)
+    }
+
+    private func clearUserWallets() {
+        let userWalletRepositoryUtil = UserWalletRepositoryUtil()
+        userWalletRepositoryUtil.saveUserWallets([])
+        userWalletRepositoryUtil.removePublicDataEncryptionKey()
+
         encryptionKeyStorage.clear()
     }
 
@@ -600,5 +602,19 @@ class CommonUserWalletRepository: UserWalletRepository {
 
     private func saveUserWallets(_ userWallets: [UserWallet]) {
         UserWalletRepositoryUtil().saveUserWallets(userWallets)
+    }
+}
+
+extension CommonUserWalletRepository {
+    func initialize() {
+        // Removing UserWallet-related data from Keychain
+        if AppSettings.shared.numberOfLaunches == 1 {
+            clearUserWallets()
+        }
+
+        let savedSelectedUserWalletId = AppSettings.shared.selectedUserWalletId
+        self.selectedUserWalletId = savedSelectedUserWalletId.isEmpty ? nil : savedSelectedUserWalletId
+
+        userWallets = savedUserWallets(withSensitiveData: false)
     }
 }
