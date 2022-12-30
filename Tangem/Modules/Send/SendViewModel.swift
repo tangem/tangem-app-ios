@@ -136,7 +136,6 @@ class SendViewModel: ObservableObject {
     let amountToSend: Amount
 
     private(set) var isSellingCrypto: Bool
-    private var lastError: Error? = nil
     private var scannedQRCode: CurrentValueSubject<String?, Never> = .init(nil)
 
     @Published private var validatedXrpDestinationTag: UInt32? = nil
@@ -530,7 +529,7 @@ class SendViewModel: ObservableObject {
 
                                                                    }))
             UIApplication.shared.endEditing()
-            self.error = AlertBinder(alert: alert, error: nil)
+            self.error = AlertBinder(alert: alert)
         }
     }
 
@@ -614,8 +613,7 @@ class SendViewModel: ObservableObject {
                                                    action: .sendTx,
                                                    parameters: [.blockchain: self.walletModel.wallet.blockchain.displayName])
 
-                    self.lastError = error
-                    self.error = error.alertBinder
+                    self.error = SendError(error, openMailAction: self.openMail).alertBinder
                 } else {
                     if !isDemo {
                         if self.isSellingCrypto {
@@ -730,14 +728,14 @@ private extension SendViewModel {
 
 // MARK: - Navigation
 extension SendViewModel {
-    func openMail() {
+    func openMail(with error: Error) {
         let emailDataCollector = SendScreenDataCollector(userWalletEmailData: cardViewModel.emailData,
                                                          walletModel: walletModel,
                                                          amountToSend: amountToSend,
                                                          feeText: sendFee,
                                                          destination: destination,
                                                          amountText: amountText,
-                                                         lastError: lastError)
+                                                         lastError: error)
 
         let recipient = cardViewModel.emailConfig?.recipient ?? EmailConfig.default.recipient
         coordinator.openMail(with: emailDataCollector, recipient: recipient)
