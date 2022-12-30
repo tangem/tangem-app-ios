@@ -39,14 +39,14 @@ struct AppScanTaskResponse {
 }
 
 final class AppScanTask: CardSessionRunnable {
-    let allowsAccessCodeFromRepository: Bool
+    let shouldAskForAccessCode: Bool
 
     private var walletData: DefaultWalletData = .none
     private var primaryCard: PrimaryCard? = nil
     private var linkingCommand: StartPrimaryCardLinkingTask? = nil
 
-    init(allowsAccessCodeFromRepository: Bool) {
-        self.allowsAccessCodeFromRepository = allowsAccessCodeFromRepository
+    init(shouldAskForAccessCode: Bool = false) {
+        self.shouldAskForAccessCode = shouldAskForAccessCode
     }
 
     deinit {
@@ -55,11 +55,6 @@ final class AppScanTask: CardSessionRunnable {
 
     /// read ->  readTwinData or note Data or derive wallet's keys -> appendWallets(createwallets+ scan)  -> attestation
     public func run(in session: CardSession, completion: @escaping CompletionResult<AppScanTaskResponse>) {
-        guard let card = session.environment.card else {
-            completion(.failure(TangemSdkError.missingPreflightRead))
-            return
-        }
-
         if let legacyWalletData = session.environment.walletData,
            legacyWalletData.blockchain != "ANY" {
             self.walletData = .legacy(legacyWalletData)
@@ -157,11 +152,6 @@ final class AppScanTask: CardSessionRunnable {
                 if let walletData = session.environment.walletData {
                     let twinData = self.decodeTwinFile(from: card, twinIssuerData: response.issuerData)
                     self.walletData = .twin(walletData, twinData)
-                }
-
-                guard let card = session.environment.card else {
-                    completion(.failure(.missingPreflightRead))
-                    return
                 }
 
                 self.runScanTask(session, completion)
