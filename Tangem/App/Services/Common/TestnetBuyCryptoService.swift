@@ -42,7 +42,7 @@ class TestnetBuyCryptoService {
             }
             .sink { [unowned self] completion in
                 if case let .failure(error) = completion {
-                    AppLog.shared.debug(error)
+                    AppLog.shared.error(error)
                     AppPresenter.shared.showError(error)
                 } else {
                     AppPresenter.shared.show(AlertBuilder.makeSuccessAlertController(message: Localization.testnetAddressTopuped))
