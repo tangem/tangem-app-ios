@@ -9,7 +9,7 @@
 import TangemSdk
 
 class WriteIssuerDataTask: CardSessionRunnable {
-    var message: Message? { Message(header: "twin_process_creating_wallet".localized) }
+    var message: Message? { Message(header: Localization.twinsRecreateTitleCreatingWallet) }
 
     private let pairPubKey: Data
     private let keys: KeyPair

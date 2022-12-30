@@ -58,7 +58,7 @@ extension GenericConfig: UserWalletConfig {
             return nil
         }
 
-        return String.localizedStringWithFormat("card_label_card_count".localized, backupCardsCount + 1)
+        return Localization.cardLabelCardCount(backupCardsCount + 1)
     }
 
     var cardsCount: Int {
@@ -209,6 +209,10 @@ extension GenericConfig: UserWalletConfig {
         case .topup:
             return .available
         case .tokenSynchronization:
+            return .available
+        case .referralProgram:
+            return .available
+        case .swapping:
             return .available
         }
     }
