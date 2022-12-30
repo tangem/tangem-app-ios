@@ -24,11 +24,6 @@ struct NoteDemoConfig {
         let defaultBlockchain = Blockchain.from(blockchainName: blockchainName, curve: .secp256k1)!
         return defaultBlockchain
     }
-
-    private func userWalletSavingSteps(standalone: Bool) -> [SingleCardOnboardingStep] {
-        guard needUserWalletSavingSteps else { return [] }
-        return [.saveUserWallet(standalone: standalone)]
-    }
 }
 
 extension NoteDemoConfig: UserWalletConfig {
@@ -50,18 +45,23 @@ extension NoteDemoConfig: UserWalletConfig {
 
     var onboardingSteps: OnboardingSteps {
         if card.wallets.isEmpty {
-            return .singleWallet([.createWallet] + userWalletSavingSteps(standalone: false) + [.topup, .successTopup])
+            return .singleWallet([.createWallet] + userWalletSavingSteps + [.topup, .successTopup])
         } else {
             if !AppSettings.shared.cardsStartedActivation.contains(card.cardId) {
-                return .singleWallet(userWalletSavingSteps(standalone: true))
+                return .singleWallet(userWalletSavingSteps)
             }
 
-            return .singleWallet(userWalletSavingSteps(standalone: false) + [.topup, .successTopup])
+            return .singleWallet(userWalletSavingSteps + [.topup, .successTopup])
         }
     }
 
     var backupSteps: OnboardingSteps? {
         nil
+    }
+
+    var userWalletSavingSteps: [SingleCardOnboardingStep] {
+        guard needUserWalletSavingSteps else { return [] }
+        return [.saveUserWallet]
     }
 
     var supportedBlockchains: Set<Blockchain> {
