@@ -83,7 +83,6 @@ class PushTxViewModel: ObservableObject {
     }
 
     private var bag: Set<AnyCancellable> = []
-    private var lastError: Error?
     @Published private var newTransaction: BlockchainSdk.Transaction?
 
     private unowned let coordinator: PushTxRoutable
@@ -140,8 +139,7 @@ class PushTxViewModel: ObservableObject {
                     }
 
                     cardViewModel.logSdkError(error, action: .pushTx, parameters: [.blockchain: walletModel.wallet.blockchain.displayName])
-                    self.lastError = error
-                    self.sendError = error.alertBinder
+                    self.sendError = SendError(error, openMailAction: openMail).alertBinder
                 } else {
                     walletModel.startUpdatingTimer()
                     Analytics.logTx(blockchainName: blockchainNetwork.blockchain.displayName)
@@ -335,7 +333,7 @@ class PushTxViewModel: ObservableObject {
 
 // MARK: - Navigation
 extension PushTxViewModel {
-    func openMail() {
+    func openMail(with error: Error) {
         let emailDataCollector = PushScreenDataCollector(userWalletEmailData: cardViewModel.emailData,
                                                          walletModel: walletModel,
                                                          amountToSend: amountToSend,
@@ -345,7 +343,7 @@ extension PushTxViewModel {
                                                          source: transaction.sourceAddress,
                                                          amountText: amount,
                                                          pushingTxHash: transaction.hash ?? .unknown,
-                                                         lastError: lastError)
+                                                         lastError: error)
 
         let recipient = cardViewModel.emailConfig?.recipient ?? EmailConfig.default.recipient
         coordinator.openMail(with: emailDataCollector, recipient: recipient)
