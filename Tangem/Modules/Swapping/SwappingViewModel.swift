@@ -331,7 +331,7 @@ private extension SwappingViewModel {
 
     func loadDestinationIfNeeded() {
         guard exchangeManager.getExchangeItems().destination == nil else {
-            print("Exchange item destination has already set")
+            AppLog.shared.debug("Exchange item destination has already set")
             return
         }
 
@@ -342,7 +342,7 @@ private extension SwappingViewModel {
                 items.destination = try await swappingDestinationService.getDestination(source: items.source)
                 exchangeManager.update(exchangeItems: items)
             } catch {
-                print("Destination load handle error", error)
+                AppLog.shared.debug("Destination load handle error with error: \(error)")
                 items.destination = nil
             }
         }
