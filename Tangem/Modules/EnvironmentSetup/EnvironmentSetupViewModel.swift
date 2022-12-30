@@ -12,8 +12,8 @@ import SwiftUI
 final class EnvironmentSetupViewModel: ObservableObject {
     // MARK: - ViewState
 
-    @Published var isTestnet: Bool
-    @Published var toggles: [FeatureToggleViewModel]
+    @Published var appSettingsTogglesViewModels: [DefaultToggleRowViewModel]
+    @Published var togglesViewModels: [DefaultToggleRowViewModel]
 
     @Published var alert: AlertBinder?
 
@@ -22,11 +22,23 @@ final class EnvironmentSetupViewModel: ObservableObject {
     private var bag: Set<AnyCancellable> = []
 
     init() {
-        isTestnet = EnvironmentProvider.shared.isTestnet
-        toggles = FeatureToggle.allCases.map { toggle in
-            FeatureToggleViewModel(
-                toggle: toggle,
-                isActive: Binding<Bool> {
+        appSettingsTogglesViewModels = [
+            DefaultToggleRowViewModel(
+                title: "Use testnet",
+                isOn: Binding<Bool>(get: { EnvironmentProvider.shared.isTestnet },
+                                    set: { EnvironmentProvider.shared.isTestnet = $0 })
+            ),
+            DefaultToggleRowViewModel(
+                title: "Use dev API",
+                isOn: Binding<Bool>(get: { EnvironmentProvider.shared.useDevApi },
+                                    set: { EnvironmentProvider.shared.useDevApi = $0 })
+            ),
+        ]
+
+        togglesViewModels = FeatureToggle.allCases.map { toggle in
+            DefaultToggleRowViewModel(
+                title: toggle.name,
+                isOn: Binding<Bool> {
                     EnvironmentProvider.shared.availableFeatures.contains(toggle)
                 } set: { isActive in
                     if isActive {
@@ -37,8 +49,6 @@ final class EnvironmentSetupViewModel: ObservableObject {
                 }
             )
         }
-
-        bind()
     }
 
     func showExitAlert() {
@@ -48,13 +58,5 @@ final class EnvironmentSetupViewModel: ObservableObject {
             secondaryButton: .cancel()
         )
         self.alert = AlertBinder(alert: alert)
-    }
-}
-
-private extension EnvironmentSetupViewModel {
-    func bind() {
-        $isTestnet
-            .sink { EnvironmentProvider.shared.isTestnet = $0 }
-            .store(in: &bag)
     }
 }
