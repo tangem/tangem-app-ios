@@ -29,9 +29,11 @@ class DetailsViewModel: ObservableObject {
     }
 
     var applicationInfoFooter: String? {
-        guard let appName = InfoDictionaryUtils.appName.value,
-              let version = InfoDictionaryUtils.version.value,
-              let bundleVersion = InfoDictionaryUtils.bundleVersion.value else {
+        guard
+            let appName: String = InfoDictionaryUtils.appName.value(),
+            let version: String = InfoDictionaryUtils.version.value(),
+            let bundleVersion: String = InfoDictionaryUtils.bundleVersion.value()
+        else {
             return nil
         }
 
