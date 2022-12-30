@@ -114,7 +114,7 @@ class BnbSignHandler: WalletConnectSignHandler {
             AppLog.shared.debug("Encoded string result for BNB sing: \(encodedString)")
             return try .init(url: request.url, value: encodedString, id: request.id!)
         } catch {
-            AppLog.shared.debug(error)
+            AppLog.shared.error(error)
             return .reject(request)
         }
 
@@ -218,7 +218,7 @@ class BnbSuccessHandler: TangemWalletConnectRequestHandler {
 
             delegate?.sendReject(for: request, with: error, for: action)
         } catch {
-            AppLog.shared.debug(error)
+            AppLog.shared.error(error)
             delegate?.sendInvalid(request)
         }
     }

@@ -90,7 +90,7 @@ class WalletConnectV1Service {
             try server.connect(to: url)
             Analytics.log(.newSessionEstablished)
         } catch {
-            AppLog.shared.debug(error)
+            AppLog.shared.error(error)
             resetSessionConnectTimer()
             handle(error)
             canEstablishNewSessionPublisher.send(true)
