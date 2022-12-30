@@ -121,7 +121,7 @@ extension NoteDemoConfig: UserWalletConfig {
         case .twinning:
             return .hidden
         case .exchange:
-            return .disabled(localizedReason: "alert_demo_feature_disabled".localized)
+            return .disabled(localizedReason: Localization.alertDemoFeatureDisabled)
         case .walletConnect:
             return .hidden
         case .multiCurrency:
@@ -129,7 +129,7 @@ extension NoteDemoConfig: UserWalletConfig {
         case .tokensSearch:
             return .hidden
         case .resetToFactory:
-            return .disabled(localizedReason: "alert_demo_feature_disabled".localized)
+            return .disabled(localizedReason: Localization.alertDemoFeatureDisabled)
         case .receive:
             return .available
         case .withdrawal:
@@ -143,6 +143,10 @@ extension NoteDemoConfig: UserWalletConfig {
         case .topup:
             return .available
         case .tokenSynchronization:
+            return .hidden
+        case .referralProgram:
+            return .hidden
+        case .swapping:
             return .hidden
         }
     }
