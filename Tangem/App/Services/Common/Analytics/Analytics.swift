@@ -18,7 +18,7 @@ enum Analytics {
     static private var analyticsSystems: [Analytics.AnalyticSystem] = [.firebase, .appsflyer, .amplitude]
 
     static func log(_ event: Event, params: [ParameterKey: String] = [:]) {
-        guard !AppEnvironment.current.isXcodePreview else {
+        if AppEnvironment.current.isXcodePreview {
             return
         }
 
