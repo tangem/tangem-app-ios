@@ -22,7 +22,7 @@ enum FeatureProvider {
 
     /// Return `true` if the feature is should be released or has already been released in current app version
     private static func isAvailableInProduction(_ toggle: FeatureToggle) -> Bool {
-        guard let appVersion = InfoDictionaryUtils.version.value,
+        guard let appVersion: String = InfoDictionaryUtils.version.value(),
               let releaseVersion = toggle.releaseVersion.version,
               appVersion >= releaseVersion else {
             return false
