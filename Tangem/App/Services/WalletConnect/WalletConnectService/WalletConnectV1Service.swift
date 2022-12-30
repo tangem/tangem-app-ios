@@ -125,7 +125,7 @@ class WalletConnectV1Service {
             }
         }
 
-        if let tangemError = error as? TangemSdkError, case .userCancelled = tangemError {
+        if error.toTangemSdkError().isUserCancelled {
             return
         }
 
@@ -187,7 +187,7 @@ extension WalletConnectV1Service: WalletConnectHandlerDelegate {
         do {
             try server.updateSession(session, with: walletInfo)
         } catch {
-            Log.error(error)
+            AppLog.error(error)
         }
     }
 }
