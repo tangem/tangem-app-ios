@@ -58,7 +58,8 @@ class ReferralViewModel: ObservableObject {
             }
             self.referralProgramInfo = referralProgramInfo
         } catch {
-            let message = Localization.referralErrorFailedToParticipate(error.localizedDescription)
+            let referralError = ReferralError(error)
+            let message = Localization.referralErrorFailedToParticipate(referralError.code)
             errorAlert = AlertBuilder.makeOkErrorAlert(message: message)
         }
 
@@ -78,7 +79,8 @@ class ReferralViewModel: ObservableObject {
             }
             self.referralProgramInfo = referralProgramInfo
         } catch {
-            let message = Localization.referralErrorFailedToLoadInfoWithReason(error.localizedDescription)
+            let referralError = ReferralError(error)
+            let message = Localization.referralErrorFailedToLoadInfoWithReason(referralError.code)
             self.errorAlert = AlertBuilder.makeOkErrorAlert(message: message, okAction: coordinator.dismiss)
         }
     }
