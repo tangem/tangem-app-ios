@@ -29,19 +29,23 @@ struct UserWalletListView: View {
     var body: some View {
         ZStack {
             VStack(spacing: 16) {
-                Text("user_wallet_list_title".localized)
+                Text(Localization.userWalletListTitle)
                     .style(Fonts.Bold.body, color: Colors.Text.primary1)
 
                 userWalletsView()
 
                 Group {
                     if viewModel.isLocked {
-                        TangemButton(title: viewModel.unlockAllButtonLocalizationKey, action: viewModel.unlockAllWallets)
-                            .buttonStyle(TangemButtonStyle(colorStyle: .black, layout: .flexibleWidth, isDisabled: viewModel.isScanningCard))
+                        MainButton(title: viewModel.unlockAllButtonTitle,
+                                   style: .secondary,
+                                   isDisabled: viewModel.isScanningCard,
+                                   action: viewModel.unlockAllWallets)
                     }
 
-                    TangemButton(title: "user_wallet_list_add_button", image: "tangemIconBlack", iconPosition: .trailing, action: viewModel.addUserWallet)
-                        .buttonStyle(TangemButtonStyle(colorStyle: .grayAlt3, layout: .flexibleWidth, isLoading: viewModel.isScanningCard))
+                    MainButton(title: Localization.userWalletListAddButton,
+                               icon: .trailing(Assets.tangemIcon),
+                               isLoading: viewModel.isScanningCard,
+                               action: viewModel.addUserWallet)
                 }
                 .padding(.horizontal, listHorizontalPadding)
             }
@@ -51,10 +55,10 @@ struct UserWalletListView: View {
             $0.alert
         }
         .actionSheet(isPresented: $viewModel.showingDeleteConfirmation) {
-            ActionSheet(title: Text("user_wallet_list_delete_prompt"),
+            ActionSheet(title: Text(Localization.userWalletListDeletePrompt),
                         buttons: [
-                            .destructive(Text("common_delete"), action: viewModel.didConfirmWalletDeletion),
-                            .cancel(Text("common_cancel"), action: viewModel.didCancelWalletDeletion),
+                            .destructive(Text(Localization.commonDelete), action: viewModel.didConfirmWalletDeletion),
+                            .cancel(Text(Localization.commonCancel), action: viewModel.didCancelWalletDeletion),
                         ])
         }
         .background(Self.sheetBackground.edgesIgnoringSafeArea(.all))
@@ -109,8 +113,8 @@ extension UserWalletListView {
 
     @ViewBuilder
     private func sections() -> some View {
-        section("user_wallet_list_multi_header".localized, for: viewModel.multiCurrencyModels)
-        section("user_wallet_list_single_header".localized, for: viewModel.singleCurrencyModels)
+        section(Localization.userWalletListMultiHeader, for: viewModel.multiCurrencyModels)
+        section(Localization.userWalletListSingleHeader, for: viewModel.singleCurrencyModels)
     }
 
     @ViewBuilder
