@@ -169,7 +169,6 @@ class CommonUserWalletRepository: UserWalletRepository {
     }
 
     private func scanInternal(completion: @escaping (Result<CardViewModel, Error>) -> Void) {
-        Analytics.reset()
         Analytics.log(.readyToScan)
 
         let oldConfig = sdkProvider.sdk.config
@@ -191,10 +190,12 @@ class CommonUserWalletRepository: UserWalletRepository {
 
             switch result {
             case .failure(let error):
-                Analytics.logCardSdkError(error, for: .scan)
+                AppLog.error(error, for: .scan)
                 completion(.failure(error))
             case .success(let response):
-                didScan(card: CardDTO(card: response.card), walletData: response.walletData)
+                let cardDTO = CardDTO(card: response.card)
+                Analytics.logScan(card: cardDTO)
+                didScan(card: cardDTO, walletData: response.walletData)
                 self.acceptTOSIfNeeded(response.getCardInfo(), completion)
             }
         }
@@ -451,8 +452,6 @@ class CommonUserWalletRepository: UserWalletRepository {
         let cardModel = CardViewModel(cardInfo: cardInfo, config: config)
 
         initializeServices(for: cardModel, cardInfo: cardInfo)
-
-        cardModel.didScan()
 
         // Updating the config file every time a card is scanned when wallets are NOT being saved.
         // This is done to avoid unnecessary changes in SDK config when the user scans an empty card
