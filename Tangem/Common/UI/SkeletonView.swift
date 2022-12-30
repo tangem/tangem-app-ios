@@ -17,6 +17,7 @@ public struct SkeletonView: View {
 
     private let secondary: Color = .tangemSkeletonGray
     private let primary: Color = .tangemSkeletonGray2
+    private let base: Color = .white
     private let backgroundOpacity: Double = 1
 
     private let activeAnimation = Animation.linear(duration: 1).repeatForever(autoreverses: false)
@@ -40,7 +41,7 @@ public struct SkeletonView: View {
 
     var gradientView: some View {
         LinearGradient(
-            gradient: Gradient(colors: [secondary, primary, secondary]),
+            gradient: Gradient(colors: [secondary, primary, base, primary, secondary]),
             startPoint: gradientPoints.start,
             endPoint: gradientPoints.end
         )

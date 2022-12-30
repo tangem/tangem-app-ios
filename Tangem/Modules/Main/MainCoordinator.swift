@@ -32,7 +32,7 @@ class MainCoordinator: CoordinatorObject {
     @Published var modalWebViewModel: WebViewContainerViewModel? = nil
     @Published var currencySelectViewModel: CurrencySelectViewModel? = nil
     @Published var mailViewModel: MailViewModel? = nil
-    @Published var addressQrBottomSheetContentViewVodel: AddressQrBottomSheetContentViewVodel? = nil
+    @Published var addressQrBottomSheetContentViewModel: AddressQrBottomSheetContentViewModel? = nil
     @Published var warningBankCardViewModel: WarningBankCardViewModel? = nil
     @Published var userWalletListCoordinator: UserWalletListCoordinator?
     @Published var userWalletStorageAgreementViewModel: UserWalletStorageAgreementViewModel?
@@ -114,7 +114,7 @@ extension MainCoordinator: MainRoutable {
     func openBuyCrypto(at url: URL, closeUrl: String, action: @escaping (String) -> Void) {
         Analytics.log(.topUpScreenOpened)
         pushedWebViewModel = WebViewContainerViewModel(url: url,
-                                                       title: "wallet_button_topup".localized,
+                                                       title: Localization.walletButtonBuy,
                                                        addLoadingIndicator: true,
                                                        urlActions: [
                                                            closeUrl: { [weak self] response in
@@ -126,14 +126,14 @@ extension MainCoordinator: MainRoutable {
     func openSellCrypto(at url: URL, sellRequestUrl: String, action: @escaping (String) -> Void) {
         Analytics.log(.withdrawScreenOpened)
         pushedWebViewModel = WebViewContainerViewModel(url: url,
-                                                       title: "wallet_button_sell_crypto".localized,
+                                                       title: Localization.walletButtonSell,
                                                        addLoadingIndicator: true,
                                                        urlActions: [sellRequestUrl: action])
     }
 
     func openExplorer(at url: URL, blockchainDisplayName: String) {
         modalWebViewModel = WebViewContainerViewModel(url: url,
-                                                      title: "common_explorer_format".localized(blockchainDisplayName),
+                                                      title: Localization.commonExplorerFormat(blockchainDisplayName),
                                                       withCloseButton: true)
     }
 
@@ -228,7 +228,7 @@ extension MainCoordinator: MainRoutable {
 
     func openQR(shareAddress: String, address: String, qrNotice: String) {
         Analytics.log(.receiveScreenOpened)
-        addressQrBottomSheetContentViewVodel = .init(shareAddress: shareAddress, address: address, qrNotice: qrNotice)
+        addressQrBottomSheetContentViewModel = .init(shareAddress: shareAddress, address: address, qrNotice: qrNotice)
     }
 
     func openBankWarning(confirmCallback: @escaping () -> (), declineCallback: @escaping () -> ()) {
@@ -272,6 +272,9 @@ extension MainCoordinator: MainRoutable {
 
         userWalletListCoordinator = coordinator
     }
+
+    /// Because `MainRoutable` inherits `TokenDetailsRoutable`. Todo: Remove it dependency
+    func openSwapping(input: SwappingConfigurator.InputModel) {}
 }
 
 extension MainCoordinator: UserWalletListCoordinatorOutput {

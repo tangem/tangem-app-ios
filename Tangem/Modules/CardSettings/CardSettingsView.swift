@@ -11,14 +11,6 @@ import SwiftUI
 struct CardSettingsView: View {
     @ObservedObject var viewModel: CardSettingsViewModel
 
-    var firstSectionFooterTitle: String {
-        if viewModel.isChangeAccessCodeVisible {
-            return "card_settings_change_access_code_footer".localized
-        } else {
-            return "card_settings_security_mode_footer".localized
-        }
-    }
-
     var body: some View {
         ZStack {
             Colors.Background.secondary.edgesIgnoringSafeArea(.all)
@@ -31,17 +23,17 @@ struct CardSettingsView: View {
                 GroupedSection(viewModel.securityModeSection) {
                     DefaultRowView(viewModel: $0)
                 } footer: {
-                    DefaultFooterView(firstSectionFooterTitle)
+                    DefaultFooterView(viewModel.securityModeFooterMessage)
                 }
 
                 GroupedSection(viewModel.resetToFactoryViewModel) {
                     DefaultRowView(viewModel: $0)
                 } footer: {
-                    DefaultFooterView(viewModel.resetToFactoryMessage)
+                    DefaultFooterView(viewModel.resetToFactoryFooterMessage)
                 }
             }
         }
         .alert(item: $viewModel.alert) { $0.alert }
-        .navigationBarTitle("card_settings_title", displayMode: .inline)
+        .navigationBarTitle(Text(Localization.cardSettingsTitle), displayMode: .inline)
     }
 }
