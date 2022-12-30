@@ -33,7 +33,7 @@ struct TokenItemView: View {
 
     var body: some View {
         HStack(alignment: .center, spacing: 12) {
-            TokenIconView(with: item.amountType, blockchain: item.blockchainNetwork.blockchain)
+            TokenIconView(viewModel: .init(with: item.amountType, blockchain: item.blockchainNetwork.blockchain))
                 .saturation(item.isTestnet ? 0.0 : 1.0)
                 .overlay(
                     customTokenMark
@@ -47,7 +47,6 @@ struct TokenItemView: View {
                         .font(.system(size: 15, weight: .medium))
                         .layoutPriority(2)
                         .fixedSize(horizontal: false, vertical: true)
-                        .skeletonable(isShown: item.isLoading, size: CGSize(width: 70, height: 11))
 
                     Spacer()
 
@@ -56,7 +55,7 @@ struct TokenItemView: View {
                         .multilineTextAlignment(.trailing)
                         .truncationMode(.middle)
                         .fixedSize(horizontal: false, vertical: true)
-                        .skeletonable(isShown: item.isLoading, size: CGSize(width: 50, height: 11))
+                        .skeletonable(isShown: item.isLoading, size: CGSize(width: 50, height: 13))
                 }
                 .lineLimit(2)
                 .minimumScaleFactor(0.8)
@@ -75,7 +74,7 @@ struct TokenItemView: View {
                         .fixedSize(horizontal: false, vertical: true)
                         .lineLimit(1)
                         .fixedSize()
-                        .skeletonable(isShown: item.isLoading, size: CGSize(width: 50, height: 11))
+                        .skeletonable(isShown: item.isLoading, size: CGSize(width: 100, height: 11))
                 }
                 .font(.system(size: 13, weight: .regular))
                 .frame(minHeight: 20)
