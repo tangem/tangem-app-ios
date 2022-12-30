@@ -21,18 +21,15 @@ struct ActionSheetBinder: Identifiable {
 struct AlertBinder: Identifiable {
     let id = UUID()
     let alert: Alert
-    var error: Error?
 
-    init(alert: Alert, error: Error? = nil) {
+    init(alert: Alert) {
         self.alert = alert
-        self.error = error
     }
 
-    init(title: String, message: String, error: Error? = nil) {
+    init(title: String, message: String) {
         self.alert = Alert(title: Text(title),
                            message: Text(message),
                            dismissButton: Alert.Button.default(Text(Localization.commonOk)))
-        self.error = error
     }
 }
 
