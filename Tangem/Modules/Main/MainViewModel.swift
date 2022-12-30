@@ -182,7 +182,7 @@ class MainViewModel: ObservableObject {
     }
 
     deinit {
-        print("MainViewModel deinit")
+        AppLog.shared.debug("MainViewModel deinit")
     }
 
     // MARK: - Functions
@@ -190,7 +190,7 @@ class MainViewModel: ObservableObject {
     func bind() {
         warningsService.warningsUpdatePublisher
             .sink { [unowned self] in
-                print("⚠️ Main view model fetching warnings")
+                AppLog.shared.debug("⚠️ Main view model fetching warnings")
                 self.warnings = self.warningsService.warnings(for: .main)
             }
             .store(in: &bag)
