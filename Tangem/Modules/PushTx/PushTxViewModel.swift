@@ -138,7 +138,7 @@ class PushTxViewModel: ObservableObject {
                         return
                     }
 
-                    AppLog.error(error, for: .pushTx, params: [.blockchain: self.walletModel.wallet.blockchain.displayName])
+                    AppLog.shared.error(error, for: .pushTx, params: [.blockchain: self.walletModel.wallet.blockchain.displayName])
                     self.sendError = SendError(error, openMailAction: openMail).alertBinder
                 } else {
                     walletModel.startUpdatingTimer()
@@ -157,7 +157,7 @@ class PushTxViewModel: ObservableObject {
     }
 
     private func bind() {
-        print("\n\nCreating push tx view model subscriptions \n\n")
+        AppLog.shared.debug("\n\nCreating push tx view model subscriptions \n\n")
 
         bag.removeAll()
 
@@ -268,7 +268,7 @@ class PushTxViewModel: ObservableObject {
             .sink(receiveCompletion: { [weak self] completion in
                 self?.isFeeLoading = false
                 if case .failure(let error) = completion {
-                    print("Failed to load fee error: \(error.localizedDescription)")
+                    AppLog.shared.debug("Failed to load fee error: \(error.localizedDescription)")
                     self?.amountHint = .init(isError: true, message: error.localizedDescription)
                 }
             }, receiveValue: { [weak self] fees in

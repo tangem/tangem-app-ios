@@ -59,20 +59,20 @@ class WalletConnectTransactionHandler: TangemWalletConnectRequestHandler {
 
         guard let walletModel else {
             let error = WalletConnectServiceError.failedToBuildTx(code: .wrongAddress)
-            AppLog.error(error)
+            AppLog.shared.error(error)
             return .anyFail(error: error)
         }
 
         guard let gasLoader = walletModel.walletManager as? EthereumGasLoader else {
             let error = WalletConnectServiceError.failedToBuildTx(code: .noWalletManager)
-            AppLog.error(error)
+            AppLog.shared.error(error)
             return .anyFail(error: error)
         }
 
         let rawValue = transaction.value ?? "0x0"
         guard let value = EthereumUtils.parseEthereumDecimal(rawValue, decimalsCount: blockchain.decimalCount) else {
             let error = ETHError.failedToParseBalance(value: rawValue, address: "", decimals: blockchain.decimalCount)
-            AppLog.error(error)
+            AppLog.shared.error(error)
             return .anyFail(error: error)
         }
 

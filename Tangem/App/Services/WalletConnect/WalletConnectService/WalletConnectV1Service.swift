@@ -56,7 +56,7 @@ class WalletConnectV1Service {
     }
 
     deinit {
-        print("WalletConnectService deinit")
+        AppLog.shared.debug("WalletConnectService deinit")
     }
 
     private func restore() {
@@ -90,7 +90,7 @@ class WalletConnectV1Service {
             try server.connect(to: url)
             Analytics.log(.newSessionEstablished)
         } catch {
-            print(error)
+            AppLog.shared.debug(error)
             resetSessionConnectTimer()
             handle(error)
             canEstablishNewSessionPublisher.send(true)
@@ -187,7 +187,7 @@ extension WalletConnectV1Service: WalletConnectHandlerDelegate {
         do {
             try server.updateSession(session, with: walletInfo)
         } catch {
-            AppLog.error(error)
+            AppLog.shared.error(error)
         }
     }
 }
@@ -209,7 +209,7 @@ extension WalletConnectV1Service {
             do {
                 try self.server.disconnect(from: session.session)
             } catch {
-                print("Failed to disconnect WC session: \(error.localizedDescription)")
+                AppLog.shared.debug("Failed to disconnect WC session: \(error.localizedDescription)")
             }
 
             self.sessions.remove(at: index)

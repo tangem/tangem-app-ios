@@ -75,6 +75,6 @@ class AppSettings {
     private init() {}
 
     deinit {
-        print("AppSettings deinit")
+        AppLog.shared.debug("AppSettings deinit")
     }
 }
