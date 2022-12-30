@@ -418,7 +418,6 @@ URL: %@";
 "save_user_wallet_agreement_notice" = "Обратите внимание, что для совершения транзакции с вашими средствами по-прежнему потребуется ваша карта";
 "save_user_wallet_agreement_allow" = "Использовать %@";
 "save_user_wallet_agreement_dont_allow" = "Не использовать";
-"save_user_wallet_agreement_new_feature" = "Новый функционал";
 "user_wallet_list_title" = "Мои кошельки";
 "user_wallet_list_multi_header" = "Мультивалютные";
 "user_wallet_list_single_header" = "Одновалютные";
