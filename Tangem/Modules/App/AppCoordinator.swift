@@ -15,7 +15,7 @@ class AppCoordinator: NSObject, CoordinatorObject {
     var popToRootAction: (PopToRootOptions) -> Void = { _ in }
 
     // MARK: - Injected
-    @Injected(\.walletConnectService) private var walletConnectURLHandler: WalletConnectService
+    @Injected(\.walletConnectService) private var walletConnectService: WalletConnectService
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
 
     // MARK: - Child coordinators
@@ -199,7 +199,7 @@ extension AppCoordinator: UIWindowSceneDelegate {
     }
 
     private func process(_ url: URL) {
-        if walletConnectURLHandler.handle(url: url) {
+        if walletConnectService.handle(url: url) {
             return
         }
 
