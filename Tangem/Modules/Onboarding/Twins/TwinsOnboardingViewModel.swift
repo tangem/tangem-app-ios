@@ -74,14 +74,6 @@ class TwinsOnboardingViewModel: OnboardingTopupViewModel<TwinsOnboardingStep, On
         return super.mainButtonTitle
     }
 
-    override var isOnboardingFinished: Bool {
-        if case .intro = currentStep, steps.count == 1 {
-            return true
-        }
-
-        return super.isOnboardingFinished
-    }
-
     override var isSupplementButtonVisible: Bool {
         switch currentStep {
         case .topup:
@@ -274,7 +266,7 @@ class TwinsOnboardingViewModel: OnboardingTopupViewModel<TwinsOnboardingStep, On
                 // This part is related only to the twin cards, because for other card types
                 // reset to factory settings goes not through onboarding screens. If back button
                 // appearance logic will change in future - recheck also this code and update it accordingly
-                if self.currentStep.isOnboardingFinished {
+                if self.isOnboardingFinished {
                     self.onboardingDidFinish()
                 } else {
                     self.closeOnboarding()
