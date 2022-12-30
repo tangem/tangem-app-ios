@@ -17,22 +17,22 @@ enum EmailType {
 
     var emailSubject: String {
         switch self {
-        case .negativeRateAppFeedback: return "feedback_subject_rate_negative".localized
-        case .failedToScanCard: return "feedback_subject_scan_failed".localized
-        case .failedToSendTx: return "feedback_subject_tx_failed".localized
+        case .negativeRateAppFeedback: return Localization.feedbackSubjectRateNegative
+        case .failedToScanCard: return Localization.feedbackSubjectScanFailed
+        case .failedToSendTx: return Localization.feedbackSubjectTxFailed
         case .appFeedback(let subject):
             return subject
-        case .failedToPushTx: return  "feedback_subject_tx_push_failed".localized
+        case .failedToPushTx: return  Localization.feedbackSubjectTxPushFailed
         }
     }
 
     var emailPreface: String {
         switch self {
-        case .negativeRateAppFeedback: return "feedback_preface_rate_negative".localized
-        case .failedToScanCard: return "feedback_preface_scan_failed".localized
-        case .failedToSendTx: return "feedback_preface_tx_failed".localized
-        case .appFeedback: return "feedback_preface_support".localized
-        case .failedToPushTx: return "feedback_preface_tx_push_failed".localized
+        case .negativeRateAppFeedback: return Localization.feedbackPrefaceRateNegative
+        case .failedToScanCard: return Localization.feedbackPrefaceScanFailed
+        case .failedToSendTx: return Localization.feedbackPrefaceTxFailed
+        case .appFeedback: return Localization.feedbackPrefaceSupport
+        case .failedToPushTx: return Localization.feedbackPrefaceTxFailed
         }
     }
 
@@ -40,30 +40,30 @@ enum EmailType {
         switch self {
         case .failedToScanCard: return ""
         default:
-            return "feedback_data_collection_message".localized
+            return Localization.feedbackDataCollectionMessage
         }
     }
 
     var sentEmailAlertTitle: String {
         switch self {
-        case .negativeRateAppFeedback: return "alert_negative_app_rate_sent_title".localized
-        default: return "alert_app_feedback_sent_title".localized
+        case .negativeRateAppFeedback: return Localization.alertNegativeAppRateSentTitle
+        default: return Localization.alertAppFeedbackSentTitle
         }
     }
 
     var sentEmailAlertMessage: String {
         switch self {
-        case .negativeRateAppFeedback: return "alert_negative_app_rate_sent_message".localized
-        default: return "alert_app_feedback_sent_message".localized
+        case .negativeRateAppFeedback: return Localization.alertNegativeAppRateSentMessage
+        default: return Localization.alertAppFeedbackSentMessage
         }
     }
 
     var failedToSendAlertTitle: String {
-        "alert_failed_to_send_email_title".localized
+        Localization.alertFailedToSendEmailTitle
     }
 
     func failedToSendAlertMessage(_ error: Error?) -> String {
-        String(format: "alert_failed_to_send_email_message".localized, error?.localizedDescription ?? "Unknown error")
+        Localization.alertFailedToSendTransactionMessage(error?.localizedDescription ?? "Unknown error")
     }
 
 }

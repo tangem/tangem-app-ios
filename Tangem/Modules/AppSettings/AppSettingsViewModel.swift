@@ -103,20 +103,20 @@ private extension AppSettingsViewModel {
         if !isBiometryAvailable {
             warningViewModel = DefaultWarningRowViewModel(
                 icon: Assets.attention,
-                title: "app_settings_warning_title".localized,
-                subtitle: "app_settings_warning_subtitle".localized,
+                title: Localization.appSettingsWarningTitle,
+                subtitle: Localization.appSettingsWarningSubtitle,
                 action: openBiometrySettings
             )
         }
 
         savingWalletViewModel = DefaultToggleRowViewModel(
-            title: "app_settings_saved_wallet".localized,
+            title: Localization.appSettingsSavedWallet,
             isDisabled: !isBiometryAvailable,
             isOn: isSavingWalletBinding()
         )
 
         savingAccessCodesViewModel = DefaultToggleRowViewModel(
-            title: "app_settings_saved_access_codes".localized,
+            title: Localization.appSettingsSavedAccessCodes,
             isDisabled: !isBiometryAvailable,
             isOn: isSavingAccessCodesBinding()
         )
@@ -147,16 +147,16 @@ private extension AppSettingsViewModel {
     }
 
     func presentSavingWalletDeleteAlert() {
-        let okButton = Alert.Button.destructive(Text("common_delete")) { [weak self] in
+        let okButton = Alert.Button.destructive(Text(Localization.commonDelete)) { [weak self] in
             self?.setSaveWallets(false)
         }
-        let cancelButton = Alert.Button.cancel(Text("common_cancel")) { [weak self] in
+        let cancelButton = Alert.Button.cancel(Text(Localization.commonCancel)) { [weak self] in
             self?.setSaveWallets(true)
         }
 
         let alert = Alert(
-            title: Text("common_attention"),
-            message: Text("app_settings_off_saved_wallet_alert_message"),
+            title: Text(Localization.commonAttention),
+            message: Text(Localization.appSettingsOffSavedWalletAlertMessage),
             primaryButton: okButton,
             secondaryButton: cancelButton
         )
@@ -165,17 +165,17 @@ private extension AppSettingsViewModel {
     }
 
     func presentSavingAccessCodesDeleteAlert() {
-        let okButton = Alert.Button.destructive(Text("common_delete")) { [weak self] in
+        let okButton = Alert.Button.destructive(Text(Localization.commonDelete)) { [weak self] in
             self?.setSaveAccessCodes(false)
         }
 
-        let cancelButton = Alert.Button.cancel(Text("common_cancel")) { [weak self] in
+        let cancelButton = Alert.Button.cancel(Text(Localization.commonCancel)) { [weak self] in
             self?.setSaveAccessCodes(true)
         }
 
         let alert = Alert(
-            title: Text("common_attention"),
-            message: Text("app_settings_off_saved_access_code_alert_message"),
+            title: Text(Localization.commonAttention),
+            message: Text(Localization.appSettingsOffSavedAccessCodeAlertMessage),
             primaryButton: okButton,
             secondaryButton: cancelButton
         )

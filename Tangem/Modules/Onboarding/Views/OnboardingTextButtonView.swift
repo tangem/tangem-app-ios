@@ -9,7 +9,7 @@
 import SwiftUI
 
 struct TangemButtonSettings {
-    let title: LocalizedStringKey
+    let title: String
     let size: ButtonLayout
     let action: (() -> Void)?
     let isBusy: Bool
@@ -24,55 +24,37 @@ struct TangemButtonSettings {
 }
 
 struct OnboardingBottomButtonsSettings {
-    let main: TangemButtonSettings?
+    let main: MainButton.Settings?
 
     var supplement: TangemButtonSettings? = nil
 }
 
-struct ButtonsSettings {
-    let mainTitle: LocalizedStringKey
-    let mainSize: ButtonLayout
-    let mainAction: (() -> Void)?
-    let mainIsBusy: Bool
-    var mainColor: ButtonColorStyle = .black
-    var mainButtonSystemIconName: String = ""
-    let isMainEnabled: Bool
-
-    let supplementTitle: LocalizedStringKey
-    let supplementSize: ButtonLayout
-    let supplementAction: (() -> Void)?
-    var supplementColor: ButtonColorStyle = .transparentWhite
-    let isVisible: Bool
-    let containSupplementButton: Bool
-}
-
 struct OnboardingTextButtonView: View {
 
-    let title: LocalizedStringKey?
-    let subtitle: LocalizedStringKey?
+    let title: String?
+    let subtitle: String?
     var textOffset: CGSize = .zero
-    //    let buttonsSettings: ButtonsSettings
     let buttonsSettings: OnboardingBottomButtonsSettings
-    let infoText: LocalizedStringKey?
+    let infoText: String?
     let titleAction: (() -> Void)?
-    var checkmarkText: LocalizedStringKey? = nil
+    var checkmarkText: String? = nil
     var isCheckmarkChecked: Binding<Bool> = .constant(false)
 
     @ViewBuilder
     var buttons: some View {
         VStack(spacing: 10) {
             if let mainSettings = buttonsSettings.main {
-                TangemButton(title: mainSettings.title,
-                             systemImage: mainSettings.systemIconName,
-                             iconPosition: mainSettings.iconPosition) {
+                MainButton(
+                    title: mainSettings.title,
+                    icon: mainSettings.icon,
+                    style: mainSettings.style,
+                    isLoading: mainSettings.isLoading,
+                    isDisabled: mainSettings.isDisabled
+                ) {
                     withAnimation {
-                        mainSettings.action?()
+                        mainSettings.action()
                     }
                 }
-                .buttonStyle(TangemButtonStyle(colorStyle: mainSettings.color,
-                                               layout: mainSettings.size,
-                                               isDisabled: !mainSettings.isEnabled,
-                                               isLoading: mainSettings.isBusy))
             }
 
             if let settings = buttonsSettings.supplement {
@@ -143,16 +125,14 @@ struct OnboardingTextButtonView_Previews: PreviewProvider {
     static var previews: some View {
         OnboardingTextButtonView(
             title: "Create wallet",
-            subtitle: "Let’s generate all the keys on your card and create a secure wallet",
+            subtitle: "Let's generate all the keys on your card and create a secure wallet",
             textOffset: .init(width: 0, height: -100),
             buttonsSettings:
-            .init(main: TangemButtonSettings(
+            .init(main: MainButton.Settings(
                 title: "Create wallet",
-                size: .wide,
-                action: {},
-                isBusy: false,
-                isEnabled: true,
-                isVisible: true),
+                isLoading: false,
+                isDisabled: false,
+                action: {}),
             supplement: TangemButtonSettings(
                 title: "What does it mean?",
                 size: .wide,
