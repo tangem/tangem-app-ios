@@ -17,6 +17,16 @@ class CreateMultiWalletTask: CardSessionRunnable {
     }
 
     func run(in session: CardSession, completion: @escaping CompletionResult<SuccessResponse>) {
+        guard let card = session.environment.card else {
+            completion(.failure(.missingPreflightRead))
+            return
+        }
+
+        if curves.isEmpty {
+            completion(.success(.init(cardId: card.cardId)))
+            return
+        }
+
         createWallet(at: 0, session: session, completion: completion)
     }
 
