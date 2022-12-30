@@ -73,7 +73,7 @@ extension ScanCardSettingsViewModel {
                     return
                 }
 
-                Analytics.logCardSdkError(error, for: .scan)
+                AppLog.error(error)
                 completion(.failure(error))
             case .success(let response):
                 completion(.success(response.getCardInfo()))
