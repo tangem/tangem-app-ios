@@ -30,23 +30,23 @@ enum SaltPayRegistratorError: String, Error, LocalizedError {
     var alertBinder: AlertBinder {
         switch self {
         case .weakPin:
-            return .init(title: "saltpay_error_pin_weak_title".localized,
-                         message: "saltpay_error_pin_weak_message".localized)
+            return .init(title: Localization.saltpayErrorPinWeakTitle,
+                         message: Localization.saltpayErrorPinWeakMessage)
         case .emptyBackupCardScanned:
-            return .init(title: "saltpay_error_empty_backup_title".localized,
-                         message: "saltpay_error_empty_backup_message".localized)
+            return .init(title: Localization.saltpayErrorEmptyBackupTitle,
+                         message: Localization.saltpayErrorEmptyBackupMessage)
         case .noGas:
-            let alert = Alert(title: Text("saltpay_error_no_gas_title"),
-                              message: Text("saltpay_error_no_gas_message"),
-                              primaryButton: Alert.Button.default(Text("details_chat"), action: { AppPresenter.shared.showChat() }),
-                              secondaryButton: Alert.Button.default(Text("common_ok")))
+            let alert = Alert(title: Text(Localization.saltpayErrorNoGasTitle),
+                              message: Text(Localization.saltpayErrorNoGasMessage),
+                              primaryButton: Alert.Button.default(Text(Localization.detailsChat), action: { AppPresenter.shared.showChat() }),
+                              secondaryButton: Alert.Button.default(Text(Localization.commonOk)))
 
             return .init(alert: alert)
         case .cardNotPassed, .cardDisabled, .failedToParseAllowance, .blockchainError:
-            let alert = Alert(title: Text("common_error"),
+            let alert = Alert(title: Text(Localization.commonError),
                               message: Text(errorDescription ?? ""),
-                              primaryButton: Alert.Button.default(Text("details_chat"), action: { AppPresenter.shared.showChat() }),
-                              secondaryButton: Alert.Button.default(Text("common_ok")))
+                              primaryButton: Alert.Button.default(Text(Localization.detailsChat), action: { AppPresenter.shared.showChat() }),
+                              secondaryButton: Alert.Button.default(Text(Localization.commonOk)))
 
             return .init(alert: alert)
         default:

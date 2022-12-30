@@ -6,7 +6,6 @@
 //  Copyright © 2022 Tangem AG. All rights reserved.
 //
 
-import SwiftUI
 import TangemSdk
 
 final class AuthViewModel: ObservableObject {
@@ -18,17 +17,8 @@ final class AuthViewModel: ObservableObject {
     // This screen seats on the navigation stack permanently. We should preserve the navigationBar state to fix the random hide/disappear events of navigationBar on iOS13 on other screens down the navigation hierarchy.
     @Published var navigationBarHidden: Bool = false
 
-    var unlockWithBiometryLocalizationKey: LocalizedStringKey {
-        switch BiometricAuthorizationUtils.biometryType {
-        case .faceID:
-            return "welcome_unlock_face_id"
-        case .touchID:
-            return "welcome_unlock_touch_id"
-        case .none:
-            return ""
-        @unknown default:
-            return ""
-        }
+    var unlockWithBiometryButtonTitle: String {
+        Localization.welcomeUnlock(BiometricAuthorizationUtils.biometryType.name)
     }
 
     // MARK: - Dependencies

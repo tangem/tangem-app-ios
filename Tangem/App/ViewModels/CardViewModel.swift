@@ -119,6 +119,10 @@ class CardViewModel: Identifiable, ObservableObject {
         config.hasFeature(.tokenSynchronization)
     }
 
+    var supportsSwapping: Bool {
+        config.hasFeature(.swapping)
+    }
+
     // Temp for WC. Migrate to userWalletId?
     var secp256k1SeedKey: Data? {
         cardInfo.card.wallets.first(where: { $0.curve == .secp256k1 })?.publicKey
@@ -200,6 +204,11 @@ class CardViewModel: Identifiable, ObservableObject {
         config.hasFeature(.withdrawal)
     }
 
+    var canParticipateInReferralProgram: Bool {
+        // [REDACTED_TODO_COMMENT]
+        config.hasFeature(.referralProgram)
+    }
+
     var supportedBlockchains: Set<Blockchain> {
         config.supportedBlockchains
     }
@@ -264,10 +273,7 @@ class CardViewModel: Identifiable, ObservableObject {
 
     private var _signer: TangemSigner {
         didSet {
-            signSubscription = _signer.signPublisher
-                .sink { [weak self] card in // [REDACTED_TODO_COMMENT]
-                    self?.onSigned(card)
-                }
+            bindSigner()
         }
     }
 
@@ -335,7 +341,7 @@ class CardViewModel: Identifiable, ObservableObject {
         case .accessCode:
             tangemSdk.startSession(with: SetUserCodeCommand(accessCode: nil),
                                    cardId: cardId,
-                                   initialMessage: Message(header: nil, body: "initial_message_change_access_code_body".localized)) { [weak self] result in
+                                   initialMessage: Message(header: nil, body: Localization.initialMessageChangeAccessCodeBody)) { [weak self] result in
                 guard let self = self else { return }
 
                 switch result {
@@ -365,7 +371,7 @@ class CardViewModel: Identifiable, ObservableObject {
         case .passCode:
             tangemSdk.startSession(with: SetUserCodeCommand(passcode: nil),
                                    cardId: cardId,
-                                   initialMessage: Message(header: nil, body: "initial_message_change_passcode_body".localized)) { [weak self] result in
+                                   initialMessage: Message(header: nil, body: Localization.initialMessageChangePasscodeBody)) { [weak self] result in
                 guard let self = self else { return }
 
                 switch result {
@@ -387,7 +393,7 @@ class CardViewModel: Identifiable, ObservableObject {
         tangemSdk.startSession(with: CreateWalletAndReadTask(with: config.defaultCurve),
                                cardId: cardId,
                                initialMessage: Message(header: nil,
-                                                       body: "initial_message_create_wallet_body".localized)) { [weak self] result in
+                                                       body: Localization.initialMessageCreateWalletBody)) { [weak self] result in
             switch result {
             case .success(let card):
                 self?.onWalletCreated(card)
@@ -404,7 +410,7 @@ class CardViewModel: Identifiable, ObservableObject {
         tangemSdk.startSession(with: ResetToFactorySettingsTask(),
                                cardId: cardId,
                                initialMessage: Message(header: nil,
-                                                       body: "initial_message_purge_wallet_body".localized)) { [weak self] result in
+                                                       body: Localization.initialMessagePurgeWalletBody)) { [weak self] result in
             switch result {
             case .success:
                 Analytics.log(.factoryResetFinished)
@@ -656,6 +662,15 @@ class CardViewModel: Identifiable, ObservableObject {
                 }
             }
             .store(in: &bag)
+
+        bindSigner()
+    }
+
+    private func bindSigner() {
+        signSubscription = _signer.signPublisher
+            .sink { [weak self] card in // [REDACTED_TODO_COMMENT]
+                self?.onSigned(card)
+            }
     }
 
     private func updateUserWallet() {
