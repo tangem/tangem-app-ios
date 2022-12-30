@@ -34,7 +34,7 @@ extension CardDTO {
     var analyticsParameters: [Analytics.ParameterKey: String] {
         var params = [Analytics.ParameterKey: String]()
         params[.firmware] = firmwareVersion.stringValue
-        params[.currency] = walletCurves.reduce("", { $0 + $1.rawValue })
+        params[.currency] = walletCurves.map { $0.rawValue }.joined(separator: ",")
         params[.batchId] = batchId
 
         return params
