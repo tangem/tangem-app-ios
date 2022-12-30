@@ -19,7 +19,7 @@ class TwinsCreateWalletTask: CardSessionRunnable {
 
     typealias CommandResponse = TwinsCreateWalletTaskResponse
 
-    var message: Message? { Message(header: "twin_process_preparing_card".localized) }
+    var message: Message? { Message(header: Localization.twinsRecreateTitlePreparing) }
 
     var requiresPin2: Bool { true }
 
@@ -38,7 +38,7 @@ class TwinsCreateWalletTask: CardSessionRunnable {
     }
 
     func run(in session: CardSession, completion: @escaping CompletionResult<CommandResponse>) {
-        session.viewDelegate.showAlertMessage("twin_process_preparing_card".localized)
+        session.viewDelegate.showAlertMessage(Localization.twinsRecreateTitlePreparing)
         guard let card = session.environment.card else {
             completion(.failure(.missingPreflightRead))
             return
@@ -46,18 +46,18 @@ class TwinsCreateWalletTask: CardSessionRunnable {
 
         if let firstTwinCardId = self.firstTwinCardId {
             guard let firstSeries = TwinCardSeries.series(for: firstTwinCardId) else {
-                completion(.failure(.underlying(error: "twin_error_not_a_twin_card".localized)))
+                completion(.failure(.underlying(error: Localization.twinErrorNotATwinCard)))
                 return
             }
 
             guard firstTwinCardId != card.cardId else {
-                completion(.failure(.underlying(error: String(format: "twin_error_same_card".localized, firstSeries.pair.number))))
+                completion(.failure(.underlying(error: Localization.twinErrorSameCard(firstSeries.pair.number))))
                 return
             }
 
             guard let secondSeries = TwinCardSeries.series(for: card.cardId),
                   firstSeries.pair == secondSeries else {
-                completion(.failure(.underlying(error: "twin_error_wrong_twin".localized)))
+                completion(.failure(.underlying(error: Localization.twinErrorWrongTwin)))
                 return
             }
         }
@@ -119,7 +119,7 @@ class TwinsCreateWalletTask: CardSessionRunnable {
         }
 
         let task = WriteIssuerDataTask(pairPubKey: fileToWrite, keys: issuerKeys)
-        session.viewDelegate.showAlertMessage("twin_process_creating_wallet".localized)
+        session.viewDelegate.showAlertMessage(Localization.twinsRecreateTitleCreatingWallet)
         task.run(in: session) { (response) in
             switch response {
             case .success:

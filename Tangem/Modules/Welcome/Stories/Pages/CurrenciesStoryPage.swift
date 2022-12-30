@@ -24,14 +24,14 @@ struct CurrenciesStoryPage: View {
                 .padding()
 
             VStack(spacing: 16) {
-                Text("story_currencies_title")
+                Text(Localization.storyCurrenciesTitle)
                     .font(.system(size: 36, weight: .semibold))
                     .minimumScaleFactor(0.5)
                     .multilineTextAlignment(.center)
                     .padding(.horizontal)
                     .storyTextAppearanceModifier(progress: progress, type: .title, textBlockAppearance: .almostImmediate)
 
-                Text("story_currencies_description")
+                Text(Localization.storyCurrenciesDescription)
                     .font(.system(size: 22))
                     .multilineTextAlignment(.center)
                     .foregroundColor(.gray)
@@ -69,12 +69,17 @@ struct CurrenciesStoryPage: View {
                         }
                     )
 
-                TangemButton(title: "home_button_search_tokens", systemImage: "magnifyingglass", action: searchTokens)
-                    .buttonStyle(TangemButtonStyle(colorStyle: .grayAlt2, layout: .flexibleWidth, isDisabled: isScanning))
-                    .padding(.horizontal)
+                MainButton(
+                    title: Localization.homeButtonSearchTokens,
+                    icon: .leading(Assets.search),
+                    style: .secondary,
+                    isDisabled: isScanning,
+                    action: searchTokens
+                )
+                .padding(.horizontal, 16)
             }
 
-            StoriesBottomButtons(scanColorStyle: .grayAlt2, orderColorStyle: .black, isScanning: isScanning, scanCard: scanCard, orderCard: orderCard)
+            StoriesBottomButtons(scanColorStyle: .secondary, orderColorStyle: .primary, isScanning: isScanning, scanCard: scanCard, orderCard: orderCard)
                 .padding(.horizontal)
                 .padding(.bottom)
         }
