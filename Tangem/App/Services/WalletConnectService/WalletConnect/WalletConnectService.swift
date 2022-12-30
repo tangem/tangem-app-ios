@@ -47,6 +47,7 @@ enum WalletConnectAction: String {
     case bnbSign = "bnb_sign"
     case bnbTxConfirmation = "bnb_tx_confirmation"
     case signTypedData = "eth_signTypedData"
+    case signTypedDataV4 = "eth_signTypedData_v4"
     case switchChain = "wallet_switchEthereumChain"
 
 //    var shouldDisplaySuccessAlert: Bool {
@@ -58,7 +59,7 @@ enum WalletConnectAction: String {
 
     var successMessage: String {
         switch self {
-        case .personalSign, .signTypedData: return "wallet_connect_message_signed".localized
+        case .personalSign, .signTypedData, .signTypedDataV4: return "wallet_connect_message_signed".localized
         case .signTransaction: return "wallet_connect_transaction_signed".localized
         case .sendTransaction: return "wallet_connect_transaction_signed_and_send".localized
         case .bnbSign: return "wallet_connect_bnb_transaction_signed".localized
@@ -100,6 +101,7 @@ class WalletConnectService: ObservableObject {
         server.register(handler: BnbSignHandler(delegate: self, dataSource: self))
         server.register(handler: BnbSuccessHandler(delegate: self, dataSource: self))
         server.register(handler: SignTypedDataHandler(delegate: self, dataSource: self))
+        server.register(handler: SignTypedDataHandlerV4(delegate: self, dataSource: self))
         server.register(handler: SwitchChainHandler(delegate: self, dataSource: self))
         restore()
     }
@@ -156,9 +158,9 @@ class WalletConnectService: ObservableObject {
     private func setupSessionConnectTimer() {
         isWaitingToConnect = true
         isServiceBusy.send(true)
-        timer = DispatchWorkItem(block: { [unowned self] in
-            self.isWaitingToConnect = false
-            self.handle(WalletConnectServiceError.timeout)
+        timer = DispatchWorkItem(block: { [weak self] in
+            self?.isWaitingToConnect = false
+            self?.handle(WalletConnectServiceError.timeout)
         })
         DispatchQueue.main.asyncAfter(deadline: .now() + 20, execute: timer!)
     }

@@ -14,12 +14,20 @@ struct DerivationManager {
     private let config: UserWalletConfig
     private let cardInfo: CardInfo
 
+    private var cardId: String? {
+        if config.cardsCount == 1 {
+            return cardInfo.card.cardId
+        }
+
+        return nil
+    }
+
     init(config: UserWalletConfig, cardInfo: CardInfo) {
         self.config = config
         self.cardInfo = cardInfo
     }
 
-    func deriveIfNeeded(entries: [StorageEntry], completion: @escaping (Result<Card?, TangemSdkError>) -> Void) {
+    func deriveIfNeeded(entries: [StorageEntry], completion: @escaping (Result<DerivationResult?, TangemSdkError>) -> Void) {
         guard config.hasFeature(.hdWallets) else {
             completion(.success(nil))
             return
@@ -43,21 +51,22 @@ struct DerivationManager {
         deriveKeys(entries: nonDeriveEntries, completion: completion)
     }
 
-    private func deriveKeys(entries: [StorageEntry], completion: @escaping (Result<Card?, TangemSdkError>) -> Void) {
+    private func deriveKeys(entries: [StorageEntry], completion: @escaping (Result<DerivationResult?, TangemSdkError>) -> Void) {
         let card = cardInfo.card
-        var derivations: [EllipticCurve: [DerivationPath]] = [:]
+        var derivations: [Data: [DerivationPath]] = [:]
 
         for entry in entries {
             if let path = entry.blockchainNetwork.derivationPath {
-                derivations[entry.blockchainNetwork.blockchain.curve, default: []].append(path)
+                if let wallet = card.wallets.last(where: { $0.curve == entry.blockchainNetwork.blockchain.curve }) {
+                    derivations[wallet.publicKey, default: []].append(path)
+                }
             }
         }
 
-        tangemSdkProvider.sdk.config.defaultDerivationPaths = derivations
-        tangemSdkProvider.sdk.startSession(with: ScanTask(), cardId: card.cardId) { result in
+        tangemSdkProvider.sdk.startSession(with: DeriveMultipleWalletPublicKeysTask(derivations), cardId: cardId) { result in
             switch result {
-            case .success(let card):
-                completion(.success(card))
+            case .success(let response):
+                completion(.success(response))
             case .failure(let error):
                 Analytics.logCardSdkError(error, for: .purgeWallet, card: card)
                 completion(.failure(error))
@@ -65,3 +74,6 @@ struct DerivationManager {
         }
     }
 }
+
+
+typealias DerivationResult = DeriveMultipleWalletPublicKeysTask.Response

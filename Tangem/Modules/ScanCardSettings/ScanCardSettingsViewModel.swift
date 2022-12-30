@@ -35,6 +35,8 @@ extension ScanCardSettingsViewModel {
 
             switch result {
             case let .success(cardInfo):
+                let config = UserWalletConfigFactory(cardInfo).makeConfig()
+                let cardModel = CardViewModel(cardInfo: cardInfo, config: config)
                 self.processSuccessScan(for: cardInfo)
             case let .failure(error):
                 self.showErrorAlert(error: error)
@@ -43,7 +45,7 @@ extension ScanCardSettingsViewModel {
     }
 
     private func processSuccessScan(for cardInfo: CardInfo) {
-        let cardModel = CardViewModel(cardInfo: cardInfo)
+        let cardModel = CardViewModel(cardInfo: cardInfo, config: UserWalletConfigFactory(cardInfo).makeConfig())
         guard
             let userWalletId = cardModel.userWalletId,
             userWalletId == expectedUserWalletId
@@ -52,7 +54,6 @@ extension ScanCardSettingsViewModel {
             return
         }
 
-        cardModel.didScan() // [REDACTED_TODO_COMMENT]
         self.coordinator.openCardSettings(cardModel: cardModel)
     }
 }
@@ -61,8 +62,7 @@ extension ScanCardSettingsViewModel {
 
 extension ScanCardSettingsViewModel {
     func scan(completion: @escaping (Result<CardInfo, Error>) -> Void) {
-        sdkProvider.setup(with: TangemSdkConfigFactory().makeDefaultConfig())
-        sdkProvider.sdk.startSession(with: AppScanTask(targetBatch: nil)) { result in
+        sdkProvider.sdk.startSession(with: AppScanTask(targetBatch: nil, shouldAskForAccessCode: true)) { result in
             switch result {
             case let .failure(error):
                 guard !error.isUserCancelled else {

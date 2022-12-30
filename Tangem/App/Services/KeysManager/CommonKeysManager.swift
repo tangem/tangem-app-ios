@@ -10,23 +10,10 @@ import Foundation
 import BlockchainSdk
 
 class CommonKeysManager {
-    private let keysFileName = "config"
     private let keys: Keys
 
     init() throws {
-        let keys = try JsonUtils.readBundleFile(with: keysFileName, type: CommonKeysManager.Keys.self)
-
-        if keys.blockchairApiKey.isEmpty ||
-            keys.blockcypherTokens.isEmpty ||
-            keys.infuraProjectId.isEmpty {
-            throw NSError(domain: "Empty keys in config file", code: -9998, userInfo: nil)
-        }
-
-        if keys.blockcypherTokens.first(where: { $0.isEmpty }) != nil {
-            throw NSError(domain: "One of blockcypher tokens is empty", code: -10001, userInfo: nil)
-        }
-
-        self.keys = keys
+        self.keys = try JsonUtils.readBundleFile(with: AppEnvironment.current.configFileName, type: CommonKeysManager.Keys.self)
     }
 }
 
@@ -48,13 +35,15 @@ extension CommonKeysManager: KeysManager {
     }
 
     var blockchainConfig: BlockchainSdkConfig {
-        BlockchainSdkConfig(blockchairApiKey: keys.blockchairApiKey,
+        BlockchainSdkConfig(blockchairApiKeys: keys.blockchairApiKeys,
                             blockcypherTokens: keys.blockcypherTokens,
                             infuraProjectId: keys.infuraProjectId,
                             tronGridApiKey: keys.tronGridApiKey,
-                            quiknodeApiKey: keys.quiknodeApiKey,
-                            quiknodeSubdomain: keys.quiknodeSubdomain,
-                            networkProviderConfiguration: .init(logger: .verbose, urlSessionConfiguration: .standart))
+                            // [REDACTED_TODO_COMMENT]
+                            quickNodeSolanaCredentials: .init(apiKey: keys.quiknodeApiKey, subdomain: keys.quiknodeSubdomain),
+                            quickNodeBscCredentials: .init(apiKey: keys.bscQuiknodeApiKey, subdomain: keys.bscQuiknodeSubdomain),
+                            defaultNetworkProviderConfiguration: .init(logger: .verbose, urlSessionConfiguration: .standart),
+                            networkProviderConfigurations: [.saltPay: .init(logger: .verbose, credentials: keys.saltPay.credentials)])
     }
 
     var shopifyShop: ShopifyShop {
@@ -84,7 +73,7 @@ extension CommonKeysManager {
         let moonPayApiSecretKey: String
         let mercuryoWidgetId: String
         let mercuryoSecret: String
-        let blockchairApiKey: String
+        let blockchairApiKeys: [String]
         let blockcypherTokens: [String]
         let infuraProjectId: String
         let appsFlyerDevKey: String
@@ -92,6 +81,8 @@ extension CommonKeysManager {
         let tronGridApiKey: String
         let quiknodeApiKey: String
         let quiknodeSubdomain: String
+        let bscQuiknodeApiKey: String
+        let bscQuiknodeSubdomain: String
         let shopifyShop: ShopifyShop
         let zendesk: ZendeskConfig
         let saltPay: SaltPayConfiguration

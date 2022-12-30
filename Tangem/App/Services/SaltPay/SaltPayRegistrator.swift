@@ -295,6 +295,8 @@ class SaltPayRegistrator {
                                          kycProvider: "UTORG",
                                          kycRefId: kycRefId)
 
+        self.state = .kycWaiting
+
         api.registerKYC(request: request)
             .map { _ in }
             .receiveCompletion { _ in }
