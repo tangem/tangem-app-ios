@@ -54,5 +54,4 @@ class TwinsFinalizeWalletCreationTask: CardSessionRunnable {
         scanCommand = AppScanTask()
         scanCommand!.run(in: session, completion: completion)
     }
-
 }

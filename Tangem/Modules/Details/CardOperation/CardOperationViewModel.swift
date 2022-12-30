@@ -7,7 +7,6 @@
 //
 
 import Foundation
-import SwiftUI
 import Combine
 
 class CardOperationViewModel: ObservableObject {
@@ -15,7 +14,7 @@ class CardOperationViewModel: ObservableObject {
     @Published var isLoading: Bool = false
 
     let title: String
-    let buttonTitle: LocalizedStringKey
+    let buttonTitle: String
     let shouldPopToRoot: Bool
     let alert: String
     let actionButtonPressed: (_ completion: @escaping (Result<Void, Error>) -> Void) -> Void
@@ -24,7 +23,7 @@ class CardOperationViewModel: ObservableObject {
     private var bag: Set<AnyCancellable> = []
 
     init(title: String,
-         buttonTitle: LocalizedStringKey = "common_save_changes",
+         buttonTitle: String = Localization.commonSaveChanges,
          shouldPopToRoot: Bool = false,
          alert: String,
          actionButtonPressed: @escaping (@escaping (Result<Void, Error>) -> Void) -> Void,

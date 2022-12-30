@@ -168,6 +168,7 @@ class WalletModel: ObservableObject, Identifiable {
                     self.updateState(.idle)
                 }
 
+                self.updatePublisher?.send(())
                 self.updatePublisher?.send(completion: .finished)
                 self.updatePublisher = nil
             }
@@ -217,6 +218,7 @@ class WalletModel: ObservableObject, Identifiable {
             self.state = .idle
         }
 
+        self.updatePublisher?.send(())
         self.updatePublisher?.send(completion: .finished)
         self.updatePublisher = nil
         return false
@@ -373,10 +375,7 @@ extension WalletModel {
             currencyName = wallet.blockchain.displayName
         }
 
-        return String(format: "address_qr_code_message_format".localized,
-                      currencyName,
-                      symbol,
-                      wallet.blockchain.displayName)
+        return Localization.addressQrCodeMessageFormat(currencyName, symbol, wallet.blockchain.displayName)
     }
 
     func getFiatFormatted(for amount: Amount?, roundingMode: NSDecimalNumber.RoundingMode = .down) -> String? {
@@ -431,6 +430,10 @@ extension WalletModel {
         }
 
         return wallet.getExploreURL(for: wallet.addresses[index].value)
+    }
+
+    func getDecimalBalance(for type: Amount.AmountType) -> Decimal? {
+        return wallet.amounts[type]?.value
     }
 
     func getBalance(for type: Amount.AmountType) -> String {
@@ -503,7 +506,7 @@ extension WalletModel {
             balance: balanceViewModel.balance,
             fiatBalance: balanceViewModel.fiatBalance,
             rate: getRateFormatted(for: amountType),
-            fiatValue: getFiat(for: wallet.amounts[amountType]) ?? 0,
+            fiatValue: getFiat(for: wallet.amounts[amountType], roundingMode: .plain) ?? 0,
             blockchainNetwork: blockchainNetwork,
             amountType: amountType,
             hasTransactionInProgress: wallet.hasPendingTx(for: amountType),
@@ -521,7 +524,7 @@ extension WalletModel {
                 balance: balanceViewModel.balance,
                 fiatBalance: balanceViewModel.fiatBalance,
                 rate: getRateFormatted(for: amountType),
-                fiatValue: getFiat(for: wallet.amounts[amountType]) ?? 0,
+                fiatValue: getFiat(for: wallet.amounts[amountType], roundingMode: .plain) ?? 0,
                 blockchainNetwork: blockchainNetwork,
                 amountType: amountType,
                 hasTransactionInProgress: wallet.hasPendingTx(for: amountType),

@@ -18,7 +18,7 @@ struct CardOperationView: View {
             Image(systemName: "exclamationmark.circle")
                 .font(.system(size: 120.0, weight: .regular, design: .default))
                 .foregroundColor(.tangemWarning)
-            Text("common_warning".localized.uppercased())
+            Text(Localization.commonWarning.uppercased())
                 .font(.system(size: 40.0, weight: .medium, design: .default))
                 .lineLimit(1)
                 .minimumScaleFactor(0.6)
@@ -31,13 +31,14 @@ struct CardOperationView: View {
                 .foregroundColor(.tangemGrayDark6)
                 .padding(.horizontal, 36.0)
             Spacer()
-            TangemButton(title: viewModel.buttonTitle, action: viewModel.onTap)
-                .buttonStyle(TangemButtonStyle(colorStyle: .black,
-                                               layout: .flexibleWidth,
-                                               isLoading: viewModel.isLoading))
-                .alert(item: $viewModel.error) { $0.alert }
-                .padding(.horizontal, 16.0)
-                .padding(.bottom, 16.0)
+            MainButton(
+                title: viewModel.buttonTitle,
+                isLoading: viewModel.isLoading,
+                action: viewModel.onTap
+            )
+            .alert(item: $viewModel.error) { $0.alert }
+            .padding(.horizontal, 16.0)
+            .padding(.bottom, 16.0)
         }
         .background(Color.tangemBgGray.edgesIgnoringSafeArea(.all))
         .navigationBarTitle(viewModel.title)

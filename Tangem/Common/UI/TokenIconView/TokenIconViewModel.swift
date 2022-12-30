@@ -17,10 +17,8 @@ struct TokenIconViewModel: Hashable, Identifiable {
     var imageURL: URL? {
         guard let id else { return nil }
 
-        return CoinsResponse.baseURL
-            .appendingPathComponent("coins")
-            .appendingPathComponent("large")
-            .appendingPathComponent("\(id).png")
+        return TokenIconURLBuilder(baseURL: CoinsResponse.baseURL)
+            .iconURL(id: id, size: .large)
     }
 
     var blockchainIconName: String? {
@@ -46,7 +44,7 @@ struct TokenIconViewModel: Hashable, Identifiable {
         case let .blockchain(blockchain):
             self.init(id: blockchain.id, name: blockchain.displayName, style: .blockchain)
         case let .token(token, blockchain):
-            self.init(id: token.id, name: token.name, style: .token(blockchainIconName: blockchain.iconNameFilled))
+            self.init(id: token.id, name: token.name, style: .token(blockchain.iconNameFilled))
         }
     }
 
@@ -55,14 +53,14 @@ struct TokenIconViewModel: Hashable, Identifiable {
         case .coin, .reserve:
             self.init(id: blockchain.id, name: blockchain.displayName, style: .blockchain)
         case .token(let token):
-            self.init(id: token.id, name: token.name, style: .token(blockchainIconName: blockchain.iconNameFilled))
+            self.init(id: token.id, name: token.name, style: .token(blockchain.iconNameFilled))
         }
     }
 }
 
 extension TokenIconViewModel {
     enum Style: Hashable {
-        case token(blockchainIconName: String)
         case blockchain
+        case token(_ blockchainIconName: String)
     }
 }
