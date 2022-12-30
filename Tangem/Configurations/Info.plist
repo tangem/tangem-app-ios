@@ -45,6 +45,8 @@
 	<string>To Scan QR Code or take a photo for chat support</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>To share with chat support</string>
+	<key>NSFaceIDUsageDescription</key>
+	<string>Use Face ID to allow save your card in the app</string>
 	<key>NSUbiquitousContainers</key>
 	<dict>
 		<key>iCloud.com.tangem.TangemTap</key>

@@ -17,9 +17,9 @@ struct SaltPayConfig {
     @Injected(\.loggerProvider) var loggerProvider: LoggerProviding
     @Injected(\.saletPayRegistratorProvider) private var saltPayRegistratorProvider: SaltPayRegistratorProviding
 
-    private let card: Card
+    private let card: CardDTO
 
-    init(card: Card) {
+    init(card: CardDTO) {
         self.card = card
         backupServiceProvider.backupService.skipCompatibilityChecks = true
     }
@@ -95,8 +95,11 @@ extension SaltPayConfig: UserWalletConfig {
         var cardIds = util.backupCardIds
         cardIds.append(card.cardId)
 
-        config.filter.cardIdFilter = .allow(Set(cardIds), ranges: util.backupCardRanges)
-        config.filter.localizedDescription = "error_saltpay_wrong_backup_card".localized
+        if !_backupSteps.isEmpty { // This filter should be applied to backup only.
+            config.filter.cardIdFilter = .allow(Set(cardIds), ranges: util.backupCardRanges)
+            config.filter.localizedDescription = "error_saltpay_wrong_backup_card".localized
+        }
+
         config.cardIdDisplayFormat = .none
         return config
     }
@@ -117,6 +120,10 @@ extension SaltPayConfig: UserWalletConfig {
         nil
     }
 
+    var cardName: String {
+        "SaltPay"
+    }
+
     var defaultCurve: EllipticCurve? {
         defaultBlockchain.curve
     }
@@ -127,14 +134,19 @@ extension SaltPayConfig: UserWalletConfig {
         }
 
         if card.wallets.isEmpty {
-            return .wallet([.createWallet] + _backupSteps + registrationSteps)
+            return .wallet([.createWallet] + _backupSteps + userWalletSavingSteps + registrationSteps)
         } else {
-            return .wallet(_backupSteps + registrationSteps)
+            return .wallet(_backupSteps + userWalletSavingSteps + registrationSteps)
         }
     }
 
     var backupSteps: OnboardingSteps? {
         return .wallet(_backupSteps)
+    }
+
+    var userWalletSavingSteps: [WalletOnboardingStep] {
+        guard needUserWalletSavingSteps else { return [] }
+        return [.saveUserWallet]
     }
 
     var supportedBlockchains: Set<Blockchain> {
@@ -148,7 +160,7 @@ extension SaltPayConfig: UserWalletConfig {
     }
 
     var persistentBlockchains: [StorageEntry]? {
-        nil
+        defaultBlockchains
     }
 
     var embeddedBlockchain: StorageEntry? {
