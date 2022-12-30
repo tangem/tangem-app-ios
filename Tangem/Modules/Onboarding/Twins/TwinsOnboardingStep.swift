@@ -106,7 +106,7 @@ enum TwinsOnboardingStep: Equatable {
 }
 
 extension TwinsOnboardingStep: OnboardingProgressStepIndicatable {
-    var isOnboardingFinished: Bool {
+    var requiresConfetti: Bool {
         switch self {
         case .success, .done:
             return true
