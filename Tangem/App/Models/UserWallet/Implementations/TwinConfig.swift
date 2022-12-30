@@ -34,7 +34,7 @@ extension TwinConfig: UserWalletConfig {
     }
 
     var cardSetLabel: String? {
-        String.localizedStringWithFormat("card_label_card_count".localized, cardsCount)
+        Localization.cardLabelCardCount(cardsCount)
     }
 
     var cardsCount: Int {
@@ -55,7 +55,7 @@ extension TwinConfig: UserWalletConfig {
         if !AppSettings.shared.isTwinCardOnboardingWasDisplayed { // show intro only once
             AppSettings.shared.isTwinCardOnboardingWasDisplayed = true
             let twinPairNumber = twinData.series.pair.number
-            steps.append(.intro(pairNumber: "\(twinPairNumber)"))
+            steps.append(.intro(pairNumber: "#\(twinPairNumber)"))
         }
 
         if card.wallets.isEmpty { // twin without created wallet. Start onboarding
@@ -175,6 +175,10 @@ extension TwinConfig: UserWalletConfig {
         case .topup:
             return .available
         case .tokenSynchronization:
+            return .hidden
+        case .referralProgram:
+            return .hidden
+        case .swapping:
             return .hidden
         }
     }
