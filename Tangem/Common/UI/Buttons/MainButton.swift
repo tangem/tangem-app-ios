@@ -50,9 +50,9 @@ struct MainButton: View {
                 .padding(.vertical, 14)
                 .background(style.background(isDisabled: isDisabled))
                 .cornerRadiusContinuous(14)
-                .contentShape(Rectangle())
         }
-        .disabled(isDisabled)
+        .buttonStyle(BorderlessButtonStyle())
+        .disabled(isDisabled || isLoading)
     }
 
     @ViewBuilder
@@ -229,5 +229,6 @@ struct MainButton_Previews: PreviewProvider {
                        isLoading: false) {}
         }
         .padding(.horizontal, 16)
+        .background(Colors.Background.secondary)
     }
 }
