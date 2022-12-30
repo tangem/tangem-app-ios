@@ -154,7 +154,7 @@ final class UserWalletListViewModel: ObservableObject, Identifiable {
         }
         alert.addAction(acceptButton)
 
-        UIApplication.modalFromTop(alert)
+        AppPresenter.shared.show(alert)
     }
 
     func showDeletionConfirmation(_ userWallet: UserWallet) {
