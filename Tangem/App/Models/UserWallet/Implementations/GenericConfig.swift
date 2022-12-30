@@ -41,14 +41,14 @@ struct GenericConfig {
         return steps
     }
 
+    var userWalletSavingSteps: [WalletOnboardingStep] {
+        guard needUserWalletSavingSteps else { return [] }
+        return [.saveUserWallet]
+    }
+
     init(card: CardDTO) {
         self.card = card
         backupServiceProvider.backupService.skipCompatibilityChecks = false
-    }
-
-    private func userWalletSavingSteps(standalone: Bool) -> [WalletOnboardingStep] {
-        guard needUserWalletSavingSteps else { return [] }
-        return [.saveUserWallet(standalone: standalone)]
     }
 }
 
@@ -79,13 +79,13 @@ extension GenericConfig: UserWalletConfig {
 
     var onboardingSteps: OnboardingSteps {
         if card.wallets.isEmpty {
-            return .wallet([.createWallet] + _backupSteps + userWalletSavingSteps(standalone: false) + [.success])
+            return .wallet([.createWallet] + _backupSteps + userWalletSavingSteps + [.success])
         } else {
             if !AppSettings.shared.cardsStartedActivation.contains(card.cardId) {
-                return .wallet(userWalletSavingSteps(standalone: true))
+                return .wallet(userWalletSavingSteps)
             }
 
-            return .wallet(_backupSteps + userWalletSavingSteps(standalone: false) + [.success])
+            return .wallet(_backupSteps + userWalletSavingSteps + [.success])
         }
     }
 
