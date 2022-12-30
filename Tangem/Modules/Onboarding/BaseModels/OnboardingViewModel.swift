@@ -75,7 +75,7 @@ class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable>
     }
 
     var isOnboardingFinished: Bool {
-        currentStep.isOnboardingFinished
+        currentStep == steps.last
     }
 
     var mainButtonTitle: String {
@@ -124,7 +124,7 @@ class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable>
 
     var isSupplementButtonVisible: Bool { currentStep.isSupplementButtonVisible }
 
-    lazy var userWalletStorageAgreementViewModel = UserWalletStorageAgreementViewModel(isStandalone: false, coordinator: self)
+    lazy var userWalletStorageAgreementViewModel = UserWalletStorageAgreementViewModel(coordinator: self)
 
     let input: OnboardingInput
 

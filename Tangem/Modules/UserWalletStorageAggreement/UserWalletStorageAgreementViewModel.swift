@@ -10,19 +10,12 @@ import Combine
 import SwiftUI
 
 final class UserWalletStorageAgreementViewModel: ObservableObject, Identifiable {
-    // MARK: - ViewState
-
-    let isStandalone: Bool
 
     // MARK: - Dependencies
 
     private unowned let coordinator: UserWalletStorageAgreementRoutable?
 
-    init(
-        isStandalone: Bool,
-        coordinator: UserWalletStorageAgreementRoutable?
-    ) {
-        self.isStandalone = isStandalone
+    init(coordinator: UserWalletStorageAgreementRoutable?) {
         self.coordinator = coordinator
     }
 
