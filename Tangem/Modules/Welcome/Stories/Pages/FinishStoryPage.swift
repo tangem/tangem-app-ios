@@ -20,7 +20,7 @@ struct FinishStoryPage: View {
                 .padding()
 
             VStack(spacing: 18) {
-                Text("story_finish_title")
+                Text(Localization.storyFinishTitle)
                     .font(.system(size: 36, weight: .semibold))
                     .minimumScaleFactor(0.5)
                     .multilineTextAlignment(.center)
@@ -28,7 +28,7 @@ struct FinishStoryPage: View {
                     .padding(.horizontal)
                     .storyTextAppearanceModifier(progress: progress, type: .title, textBlockAppearance: .minorDelay)
 
-                Text("story_finish_description")
+                Text(Localization.storyFinishDescription)
                     .font(.system(size: 24))
                     .multilineTextAlignment(.center)
                     .foregroundColor(.gray)
@@ -60,7 +60,7 @@ struct FinishStoryPage: View {
 
             Spacer()
 
-            StoriesBottomButtons(scanColorStyle: .black, orderColorStyle: .grayAlt, isScanning: isScanning, scanCard: scanCard, orderCard: orderCard)
+            StoriesBottomButtons(scanColorStyle: .primary, orderColorStyle: .secondary, isScanning: isScanning, scanCard: scanCard, orderCard: orderCard)
                 .padding(.horizontal)
                 .padding(.bottom)
         }
