@@ -22,7 +22,7 @@ class CommonTokenItemsRepository {
     }
 
     deinit {
-        print("TokenItemsRepository deinit")
+        AppLog.shared.debug("TokenItemsRepository deinit")
     }
 }
 
