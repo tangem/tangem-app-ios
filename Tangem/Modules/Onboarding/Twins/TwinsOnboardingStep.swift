@@ -9,14 +9,14 @@
 import SwiftUI
 
 protocol SuccessStep {
-    var successTitle: LocalizedStringKey { get }
-    var successButtonTitle: LocalizedStringKey { get }
+    var successTitle: String { get }
+    var successButtonTitle: String { get }
     var successMessagesOffset: CGSize { get }
 }
 
 extension SuccessStep {
-    var successTitle: LocalizedStringKey { "onboarding_success" }
-    var successButtonTitle: LocalizedStringKey { "common_continue" }
+    var successTitle: String { Localization.onboardingDoneHeader }
+    var successButtonTitle: String { Localization.commonContinue }
     var successMessagesOffset: CGSize {
         .init(width: 0, height: -UIScreen.main.bounds.size.height * 0.115)
     }
@@ -136,30 +136,29 @@ extension TwinsOnboardingStep: OnboardingTopupBalanceLayoutCalculator {}
 extension TwinsOnboardingStep: SuccessStep {}
 
 extension TwinsOnboardingStep: OnboardingMessagesProvider {
-    var title: LocalizedStringKey? {
+    var title: String? {
         switch self {
         case .welcome: return WelcomeStep.welcome.title
-        case .intro: return "twins_onboarding_subtitle"
-        case .first: return "onboarding_title_twin_first_card"
-        case .second: return "onboarding_title_twin_second_card"
-        case .third: return "onboarding_title_twin_first_card"
-        case .topup: return "onboarding_topup_title"
-        case .done: return "onboarding_confetti_title"
+        case .intro: return Localization.twinsOnboardingSubtitle
+        case .first, .third: return Localization.twinsRecreateTitleFormat("1")
+        case .second: return Localization.twinsRecreateTitleFormat("2")
+        case .topup: return Localization.onboardingTopupTitle
+        case .done: return Localization.onboardingDoneHeader
         case .saveUserWallet: return nil
         case .success: return successTitle
-        case .alert: return "common_warning"
+        case .alert: return Localization.commonWarning
         }
     }
 
-    var subtitle: LocalizedStringKey? {
+    var subtitle: String? {
         switch self {
         case .welcome: return WelcomeStep.welcome.subtitle
-        case .intro(let pairNumber): return LocalizedStringKey(stringLiteral: "onboarding_subtitle_intro".localized(pairNumber))
-        case .first, .second, .third: return "onboarding_subtitle_reset_twin_warning"
-        case .topup: return "onboarding_topup_subtitle"
+        case .intro(let pairNumber): return Localization.twinsOnboardingDescriptionFormat(pairNumber)
+        case .first, .second, .third: return Localization.onboardingTwinsInterruptWarning
+        case .topup: return Localization.onboardingTopUpBody
         case .saveUserWallet: return nil
-        case .done, .success: return "onboarding_success_subtitle"
-        case .alert: return "onboarding_alert_twins_recreate_subtitle"
+        case .done, .success: return Localization.onboardingDoneBody
+        case .alert: return Localization.twinsRecreateWarning
         }
     }
 
@@ -171,24 +170,24 @@ extension TwinsOnboardingStep: OnboardingMessagesProvider {
 }
 
 extension TwinsOnboardingStep: OnboardingButtonsInfoProvider {
-    var mainButtonTitle: LocalizedStringKey {
+    var mainButtonTitle: String {
         switch self {
         case .welcome: return WelcomeStep.welcome.mainButtonTitle
-        case .intro: return "common_continue"
-        case .first, .third: return "onboarding_button_tap_first_card"
-        case .second: return "onboarding_button_tap_second_card"
-        case .topup: return "onboarding_button_buy_crypto"
-        case .done: return "common_continue"
-        case .saveUserWallet: return BiometricAuthorizationUtils.allowButtonLocalizationKey
+        case .intro: return Localization.commonContinue
+        case .first, .third: return Localization.twinsRecreateButtonFormat("1")
+        case .second: return Localization.twinsRecreateButtonFormat("2")
+        case .topup: return Localization.onboardingTopUpButtonButCrypto
+        case .done: return Localization.commonContinue
+        case .saveUserWallet: return BiometricAuthorizationUtils.allowButtonTitle
         case .success: return successButtonTitle
-        case .alert: return "common_continue"
+        case .alert: return Localization.commonContinue
         }
     }
 
-    var supplementButtonTitle: LocalizedStringKey {
+    var supplementButtonTitle: String {
         switch self {
         case .welcome: return WelcomeStep.welcome.supplementButtonTitle
-        case .topup: return "onboarding_button_show_address_qr"
+        case .topup: return Localization.onboardingTopUpButtonShowWalletAddress
         default: return ""
         }
     }
@@ -202,19 +201,19 @@ extension TwinsOnboardingStep: OnboardingButtonsInfoProvider {
 
     var isContainSupplementButton: Bool { true }
 
-    var checkmarkText: LocalizedStringKey? {
+    var checkmarkText: String? {
         switch self {
         case .alert:
-            return "onboarding_alert_i_understand"
+            return Localization.commonUnderstand
         default:
             return nil
         }
     }
 
-    var infoText: LocalizedStringKey? {
+    var infoText: String? {
         switch self {
         case .saveUserWallet:
-            return "save_user_wallet_agreement_notice"
+            return Localization.saveUserWalletAgreementNotice
         default:
             return nil
         }

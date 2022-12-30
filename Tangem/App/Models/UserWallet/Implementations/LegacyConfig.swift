@@ -171,6 +171,10 @@ extension LegacyConfig: UserWalletConfig {
                 return .hidden
             }
         case .resetToFactory:
+            if card.wallets.contains(where: { $0.settings.isPermanent }) {
+                return .hidden
+            }
+
             return .available
         case .receive:
             return .available
@@ -184,12 +188,10 @@ extension LegacyConfig: UserWalletConfig {
             return .available
         case .topup:
             return .available
-        case .tokenSynchronization:
-            if isMultiwallet {
-                return .available
-            } else {
-                return .hidden
-            }
+        case .tokenSynchronization, .swapping:
+            return isMultiwallet ? .available : .hidden
+        case .referralProgram:
+            return .hidden
         }
     }
 
