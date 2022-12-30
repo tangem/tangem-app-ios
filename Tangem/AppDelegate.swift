@@ -36,7 +36,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     }
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
-        AppLog.configure()
+        AppLog.shared.configure()
         // Override point for customization after application launch.
         UISwitch.appearance().onTintColor = .tangemBlue
         UITableView.appearance().backgroundColor = .clear
@@ -78,7 +78,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             return false
         }
 
-        print("User continue with activity url: \(url)")
+        AppLog.shared.debug("User continue with activity url: \(url)")
 
         return true
     }
