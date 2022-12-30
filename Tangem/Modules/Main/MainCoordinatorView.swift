@@ -77,7 +77,7 @@ struct MainCoordinatorView: CoordinatorView {
             }
 
         NavHolder()
-            .bottomSheet(item: $coordinator.addressQrBottomSheetContentViewVodel,
+            .bottomSheet(item: $coordinator.addressQrBottomSheetContentViewModel,
                          viewModelSettings: .qr) {
                 AddressQrBottomSheetContent(viewModel: $0)
             }

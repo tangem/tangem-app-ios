@@ -34,8 +34,6 @@ class TwinsWalletCreationUtil {
         }
     }
 
-
-    private let scanMessageKey = "twins_scan_twin_with_number"
     private let twinFileEncoder: TwinCardFileEncoder = TwinCardTlvFileEncoder()
     private var firstTwinCid: String = ""
     // private var secondTwinCid: String = ""
@@ -162,7 +160,9 @@ class TwinsWalletCreationUtil {
     }
 
     private func initialMessage(for cardId: String) -> Message {
-        Message(header: String(format: scanMessageKey.localized, AppTwinCardIdFormatter.format(cid: cardId, cardNumber: stepCardNumber)))
+        let formatted = AppTwinCardIdFormatter.format(cid: cardId, cardNumber: stepCardNumber)
+        let header = Localization.twinsScanTwinWithNumber(formatted)
+        return Message(header: header)
     }
 }
 
