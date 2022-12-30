@@ -315,7 +315,7 @@ private extension DefaultExchangeManager {
         let parameters = PermitParameters(
             walletAddress: walletAddress,
             spenderAddress: spenderAddress,
-            amount: amount,
+            amount: exchangeItems.source.convertToWEI(value: amount),
             deadline: Date(timeIntervalSinceNow: 60 * 30) // 30 min
         )
 
