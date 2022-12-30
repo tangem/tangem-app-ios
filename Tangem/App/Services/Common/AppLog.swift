@@ -8,18 +8,29 @@
 
 import Foundation
 import TangemSdk
+import TangemExchange
 
 class AppLog {
-    static var sdkLogConfig: Log.Config {
+    static let shared = AppLog()
+
+    private init() {}
+
+    var sdkLogConfig: Log.Config {
         .custom(logLevel: Log.Level.allCases,
                 loggers: [FileLogger(), ConsoleLogger()])
     }
 
-    static func configure() {
+    func configure() {
         Log.config = sdkLogConfig
     }
 
-    static func debug<T>(_ message: @autoclosure () -> T) {
+    func debug<T>(_ message: @autoclosure () -> T) {
         Log.debug(message())
     }
+
+    func error(_ error: Error) {
+        self.error(error, for: nil, params: [:])
+    }
 }
+
+extension AppLog: ExchangeLogger {}
