@@ -37,7 +37,9 @@ enum ReferralError: Error {
             return 7601
         case .unknown(let error):
             let nsError = error as NSError
-            return Int("-7\(nsError.code)") ?? -7002
+            // Look for status code at https://osstatus.com
+            // if nothing was found - add the specific case to `ReferralError` enum
+            return nsError.code
         }
     }
 }
