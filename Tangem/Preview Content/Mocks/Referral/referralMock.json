@@ -1,0 +1,28 @@
+{
+    "referral": {
+        "shareLink": "undefined/?promocode=W8DRXK",
+        "address": "TDasX3gN3qi5jgBNzpwXCanwwjaTLmbJZA",
+        "promoCode": "W8DRXK",
+        "termsAcceptedAt": "2022-11-17T12:08:03.232Z",
+        "walletsPurchased": 0
+    },
+    "conditions": {
+        "award": 10,
+        "discount": {
+            "amount": 10,
+            "type": "percentage"
+        },
+        "tosLink": "https://tangem.com/terms_of_service.html",
+        "awards": [
+            {
+                "amount": 10,
+                "token": {
+                    "id": "tron",
+                    "name": "TRON",
+                    "symbol": "TRX",
+                    "networkId": "tron"
+                }
+            }
+        ]
+    }
+}
