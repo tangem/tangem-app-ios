@@ -12,34 +12,36 @@ struct WelcomeView: View {
     @ObservedObject var viewModel: WelcomeViewModel
 
     var body: some View {
-        ZStack {
-            StoriesView(viewModel: viewModel.storiesModel) { // [REDACTED_TODO_COMMENT]
-                viewModel.storiesModel.currentStoryPage(
-                    isScanning: viewModel.isScanningCard,
-                    scanCard: viewModel.scanCard,
-                    orderCard: viewModel.orderCard,
-                    searchTokens: viewModel.openTokensList
-                )
-            }
+        storiesView
+            .navigationBarHidden(viewModel.navigationBarHidden)
+            .navigationBarTitle("", displayMode: .inline)
+            .alert(item: $viewModel.error, content: { $0.alert })
+            .onAppear(perform: viewModel.onAppear)
+            .onDidAppear(viewModel.onDidAppear)
+            .onDisappear(perform: viewModel.onDisappear)
+            .background(
+                ScanTroubleshootingView(isPresented: $viewModel.showTroubleshootingView,
+                                        tryAgainAction: viewModel.tryAgain,
+                                        requestSupportAction: viewModel.requestSupport)
+            )
+    }
+
+    var storiesView: some View {
+        StoriesView(viewModel: viewModel.storiesModel) { // [REDACTED_TODO_COMMENT]
+            viewModel.storiesModel.currentStoryPage(
+                isScanning: viewModel.isScanningCard,
+                scanCard: viewModel.scanCard,
+                orderCard: viewModel.orderCard,
+                searchTokens: viewModel.openTokensList
+            )
         }
         .statusBar(hidden: true)
-        .navigationBarHidden(viewModel.navigationBarHidden)
-        .navigationBarTitle("", displayMode: .inline)
         .environment(\.colorScheme, viewModel.storiesModel.currentPage.colorScheme)
-        .actionSheet(item: $viewModel.discardAlert, content: { $0.sheet })
-        .alert(item: $viewModel.error, content: { $0.alert })
-        .onAppear(perform: viewModel.onAppear)
-        .onDisappear(perform: viewModel.onDissappear)
-        .background(
-            ScanTroubleshootingView(isPresented: $viewModel.showTroubleshootingView,
-                                    tryAgainAction: viewModel.tryAgain,
-                                    requestSupportAction: viewModel.requestSupport)
-        )
     }
 }
 
 struct WelcomeOnboardingView_Previews: PreviewProvider {
     static var previews: some View {
-        WelcomeView(viewModel: WelcomeViewModel(coordinator: WelcomeCoordinator()))
+        WelcomeView(viewModel: WelcomeViewModel(shouldScanOnAppear: false, coordinator: WelcomeCoordinator()))
     }
 }
