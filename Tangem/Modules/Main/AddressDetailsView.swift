@@ -89,6 +89,7 @@ struct AddressDetailView: View {
                 .font(.system(size: 16, weight: .regular))
                 .multilineTextAlignment(.center)
                 .foregroundColor(.tangemGrayDark)
+                .fixedSize(horizontal: false, vertical: true)
                 .padding(.horizontal, 24.0)
                 .padding(.vertical, 16.0)
         }
