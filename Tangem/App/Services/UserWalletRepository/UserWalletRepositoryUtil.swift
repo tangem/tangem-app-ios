@@ -25,7 +25,8 @@ class UserWalletRepositoryUtil {
             let secureStorage = SecureStorage()
             try secureStorage.delete(publicDataEncryptionKeyStorageKey)
         } catch {
-            print("Failed to erase public data encryption key", error)
+            AppLog.shared.debug("Failed to erase public data encryption key")
+            AppLog.shared.error(error)
         }
     }
 
@@ -59,7 +60,7 @@ class UserWalletRepositoryUtil {
 
             return userWallets
         } catch {
-            print(error)
+            AppLog.shared.debug(error)
             return []
         }
     }
@@ -96,7 +97,7 @@ class UserWalletRepositoryUtil {
                 let userWalletEncryptionKey = UserWalletEncryptionKeyFactory().encryptionKey(from: cardInfo)
 
                 guard let encryptionKey = userWalletEncryptionKey else {
-                    print("User wallet \(userWallet.card.cardId) failed to generate encryption key")
+                    AppLog.shared.debug("User wallet \(userWallet.card.cardId) failed to generate encryption key")
                     continue
                 }
 
@@ -107,7 +108,8 @@ class UserWalletRepositoryUtil {
                 try excludeFromBackup(url: sensitiveDataPath)
             }
         } catch {
-            print("Failed to save user wallets", error)
+            AppLog.shared.debug("Failed to save user wallets")
+            AppLog.shared.error(error)
         }
     }
 
