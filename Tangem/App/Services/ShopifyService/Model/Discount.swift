@@ -31,7 +31,7 @@ struct Discount {
         case let flatValue as Storefront.MoneyV2:
             self.value = .flat(flatValue.amount)
         default:
-            print("Unknown discount value")
+            AppLog.shared.debug("Unknown discount value")
             return nil
         }
     }
