@@ -224,7 +224,7 @@ extension ReferralViewModel {
             let link = referralProgramInfo?.conditions.tosLink,
             let url = URL(string: link)
         else {
-            print("Failed to create link")
+            AppLog.shared.debug("Failed to create link")
             return
         }
 
