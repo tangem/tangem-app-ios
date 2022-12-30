@@ -256,18 +256,7 @@ struct SendView: View {
             action: viewModel.send
         )
         .padding(.top, 16.0)
-        .alert(item: $viewModel.error) { binder in
-            if binder.error == nil {
-                return binder.alert
-            }
-
-            let errorDescription = String(binder.error?.localizedDescription.dropTrailingPeriod ?? "Unknown error")
-
-            return Alert(title: Text(Localization.feedbackSubjectTxFailed),
-                         message: Text(Localization.alertFailedToSendTransactionMessage(errorDescription)),
-                         primaryButton: .default(Text(Localization.alertButtonRequestSupport), action: viewModel.openMail),
-                         secondaryButton: .default(Text(Localization.commonCancel)))
-        }
+        .alert(item: $viewModel.error) { $0.alert }
     }
 }
 
