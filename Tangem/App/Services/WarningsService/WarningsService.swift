@@ -19,7 +19,7 @@ class WarningsService {
 
     private var mainWarnings: WarningsContainer = .init()
     private var sendWarnings: WarningsContainer = .init()
-    private var bag: Set<AnyCancellable> = []
+    private var validatorSubscription: AnyCancellable?
 
     init() {}
 
@@ -31,7 +31,7 @@ class WarningsService {
 extension WarningsService: AppWarningsProviding {
     func setupWarnings(
         for config: UserWalletConfig,
-        card: Card,
+        card: CardDTO,
         validator: SignatureCountValidator?
     ) {
         setupWarnings(for: config)
@@ -103,9 +103,11 @@ private extension WarningsService {
 
     func validateHashesCount(
         config: UserWalletConfig,
-        card: Card,
+        card: CardDTO,
         validator: SignatureCountValidator?
     ) {
+        validatorSubscription = nil
+
         let cardId = card.cardId
         let cardSignedHashes = card.walletSignedHashes
         let isMultiWallet = config.hasFeature(.multiCurrency)
@@ -116,6 +118,12 @@ private extension WarningsService {
         }
 
         guard !AppSettings.shared.validatedSignedHashesCards.contains(cardId) else {
+            didFinishCountingHashes()
+            return
+        }
+
+        guard canCountHashes else {
+            AppSettings.shared.validatedSignedHashesCards.append(cardId)
             didFinishCountingHashes()
             return
         }
@@ -132,19 +140,13 @@ private extension WarningsService {
             return
         }
 
-        guard canCountHashes else {
-            AppSettings.shared.validatedSignedHashesCards.append(cardId)
-            didFinishCountingHashes()
-            return
-        }
-
         guard let validator = validator else {
             showAlertAnimated(.numberOfSignedHashesIncorrect)
             didFinishCountingHashes()
             return
         }
 
-        validator.validateSignatureCount(signedHashes: cardSignedHashes)
+        validatorSubscription = validator.validateSignatureCount(signedHashes: cardSignedHashes)
             .subscribe(on: DispatchQueue.global())
             .receive(on: RunLoop.main)
             .handleEvents(receiveCancel: {
@@ -159,7 +161,6 @@ private extension WarningsService {
                 }
                 didFinishCountingHashes()
             }
-            .store(in: &bag)
     }
 
     func showAlertAnimated(_ event: WarningEvent) {
