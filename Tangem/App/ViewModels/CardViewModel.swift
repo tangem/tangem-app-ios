@@ -273,10 +273,7 @@ class CardViewModel: Identifiable, ObservableObject {
 
     private var _signer: TangemSigner {
         didSet {
-            signSubscription = _signer.signPublisher
-                .sink { [weak self] card in // [REDACTED_TODO_COMMENT]
-                    self?.onSigned(card)
-                }
+            bindSigner()
         }
     }
 
@@ -449,6 +446,7 @@ class CardViewModel: Identifiable, ObservableObject {
     func onWalletCreated(_ card: Card) {
         cardInfo.card.wallets = card.wallets
         onUpdate()
+        userWalletModel?.initialUpdate()
     }
 
     func onSecurityOptionChanged(isAccessCodeSet: Bool, isPasscodeSet: Bool) {
@@ -664,6 +662,15 @@ class CardViewModel: Identifiable, ObservableObject {
                 }
             }
             .store(in: &bag)
+
+        bindSigner()
+    }
+
+    private func bindSigner() {
+        signSubscription = _signer.signPublisher
+            .sink { [weak self] card in // [REDACTED_TODO_COMMENT]
+                self?.onSigned(card)
+            }
     }
 
     private func updateUserWallet() {

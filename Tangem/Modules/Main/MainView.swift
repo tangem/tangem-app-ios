@@ -20,7 +20,7 @@ struct MainView: View {
         GeometryReader { geometry in
             ZStack {
                 RefreshableScrollView(onRefresh: { viewModel.onRefresh($0) }) {
-                    VStack(spacing: 8.0) {
+                    VStack(spacing: 14) {
                         CardView(image: viewModel.image,
                                  width: geometry.size.width - 32,
                                  cardSetLabel: viewModel.cardsCountLabel)
@@ -120,7 +120,6 @@ struct MainView: View {
             viewModel.prepareForBackup()
         })
         .padding(.horizontal, 16)
-        .padding(.bottom, 6)
     }
 
     var sendButton: some View {
@@ -177,7 +176,6 @@ struct MainView: View {
 
     var bottomButtons: some View {
         VStack {
-
             Spacer()
 
             VStack {
@@ -191,8 +189,7 @@ struct MainView: View {
                     }
                 }
             }
-            .padding([.horizontal, .top], 16)
-            .padding(.bottom, 8)
+            .padding(.horizontal, 16)
         }
     }
 }
