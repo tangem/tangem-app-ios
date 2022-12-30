@@ -12,7 +12,7 @@ struct HorizontalButtonStack: View {
     struct ButtonInfo {
         let id = UUID()
         let imageName: String
-        let title: LocalizedStringKey
+        let title: String
         let action: () -> Void
         let isDisabled: Bool
     }

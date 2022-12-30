@@ -97,9 +97,8 @@ extension SaltPayConfig: UserWalletConfig {
 
         if !_backupSteps.isEmpty { // This filter should be applied to backup only.
             config.filter.cardIdFilter = .allow(Set(cardIds), ranges: util.backupCardRanges)
-            config.filter.localizedDescription = "error_saltpay_wrong_backup_card".localized
+            config.filter.localizedDescription = Localization.errorSaltpayWrongBackupCard
         }
-
         config.cardIdDisplayFormat = .none
         return config
     }
