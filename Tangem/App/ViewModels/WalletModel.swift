@@ -10,6 +10,8 @@ import Foundation
 import Combine
 import BlockchainSdk
 
+// [REDACTED_TODO_COMMENT]
+
 class WalletModel: ObservableObject, Identifiable {
     @Injected(\.tangemApiService) private var tangemApiService: TangemApiService
 
@@ -98,12 +100,12 @@ class WalletModel: ObservableObject, Identifiable {
             .$selectedCurrencyCode
             .dropFirst()
             .receive(on: updateQueue)
-            .map { [unowned self] _ in
-                self.loadRates().replaceError(with: [:])
+            .setFailureType(to: Error.self)
+            .flatMap { [weak self] _ in
+                self?.loadRates() ?? .justWithError(output: [:])
             }
-            .switchToLatest()
             .receive(on: updateQueue)
-            .receiveValue { [unowned self] in updateRatesIfNeeded($0) }
+            .receiveValue { [weak self] in self?.updateRatesIfNeeded($0) }
             .store(in: &bag)
     }
 
@@ -135,37 +137,45 @@ class WalletModel: ObservableObject, Identifiable {
 
         updateWalletModelBag = updateWalletManager()
             .receive(on: updateQueue)
-            .map { [unowned self] in loadRates() }
-            .switchToLatest()
+            .flatMap { [weak self] result -> AnyPublisher<(WalletManagerUpdateResult, [String: Decimal]), Error> in
+                guard let self else {
+                    return .anyFail(error: CommonError.objectReleased)
+                }
+
+                return self.loadRates()
+                    .map { (result, $0) }
+                    .eraseToAnyPublisher()
+            }
             .receive(on: updateQueue)
-            .sink { [unowned self] completion in
-                switch completion {
-                case .finished:
-                    break
-                case let .failure(error):
-                    Analytics.log(error: error)
-                    updateRatesIfNeeded([:])
-                    updateState(.failed(error: error.localizedDescription))
-                    updatePublisher?.send(completion: .failure(error))
-                    updatePublisher = nil
+            .sink { [weak self] completion in
+                guard let self, case let .failure(error) = completion else { return }
+
+                Analytics.log(error: error)
+                self.updateRatesIfNeeded([:])
+                self.updateState(.failed(error: error.localizedDescription))
+                self.updatePublisher?.send(completion: .failure(error))
+                self.updatePublisher = nil
+
+            } receiveValue: { [weak self] updatedResult, rates in
+                guard let self else { return }
+
+                self.updateRatesIfNeeded(rates)
+
+                switch updatedResult {
+                case .noAccount(let message):
+                    self.updateState(.noAccount(message: message))
+                case .success:
+                    self.updateState(.idle)
                 }
 
-            } receiveValue: { [unowned self] rates in
-                updateRatesIfNeeded(rates)
-
-                // Don't update noAccount state
-                if !state.isNoAccount {
-                    updateState(.idle)
-                }
-
-                updatePublisher?.send(completion: .finished)
-                updatePublisher = nil
+                self.updatePublisher?.send(completion: .finished)
+                self.updatePublisher = nil
             }
 
         return newUpdatePublisher.eraseToAnyPublisher()
     }
 
-    func updateWalletManager() -> AnyPublisher<Void, Error> {
+    func updateWalletManager() -> AnyPublisher<WalletManagerUpdateResult, Error> {
         Future { promise in
             self.updateQueue.sync {
                 print("🔄 Updating wallet model for \(self.wallet.blockchain)")
@@ -181,14 +191,12 @@ class WalletModel: ObservableObject, Identifiable {
                             self?.walletManager.wallet.add(coinValue: demoBalance)
                         }
 
-                        promise(.success(()))
+                        promise(.success(.success))
 
                     case let .failure(error):
                         switch error as? WalletError {
                         case .noAccount(let message):
-                            // If we don't have a account just update state and loadRates
-                            self?.updateState(.noAccount(message: message))
-                            promise(.success(()))
+                            promise(.success(.noAccount(message: message)))
                         default:
                             promise(.failure(error.detailedError))
                         }
@@ -221,8 +229,8 @@ class WalletModel: ObservableObject, Identifiable {
         }
 
         print("🔄 Update state \(state) in WalletModel: \(blockchainNetwork.blockchain.displayName)")
-        DispatchQueue.main.async {
-            self.state = state
+        DispatchQueue.main.async { [weak self] in // captured as weak at call stack
+            self?.state = state
         }
     }
 
@@ -236,9 +244,6 @@ class WalletModel: ObservableObject, Identifiable {
 
         return tangemApiService
             .loadRates(for: currenciesToExchange)
-            .replaceError(with: [:])
-            /// Hack that use `switchToLatest()` which is available in iOS 14.0. Remove it after update target version
-            .setFailureType(to: Error.self)
             .eraseToAnyPublisher()
     }
 
@@ -318,6 +323,7 @@ class WalletModel: ObservableObject, Identifiable {
             .handleEvents(receiveOutput: { [weak self] _ in
                 self?.startUpdatingTimer()
             })
+            .receive(on: DispatchQueue.main)
             .eraseToAnyPublisher()
     }
 
@@ -360,16 +366,17 @@ extension WalletModel {
         // todo: handle default token
         let symbol = wallet.amounts[type]?.currencySymbol ?? wallet.blockchain.currencySymbol
 
+        let currencyName: String
         if case let .token(token) = amountType {
-            return String(format: "address_qr_code_message_token_format".localized,
-                          token.name,
-                          symbol,
-                          wallet.blockchain.displayName)
+            currencyName = token.name
         } else {
-            return String(format: "address_qr_code_message_format".localized,
-                          wallet.blockchain.displayName,
-                          symbol)
+            currencyName = wallet.blockchain.displayName
         }
+
+        return String(format: "address_qr_code_message_format".localized,
+                      currencyName,
+                      symbol,
+                      wallet.blockchain.displayName)
     }
 
     func getFiatFormatted(for amount: Amount?, roundingMode: NSDecimalNumber.RoundingMode = .down) -> String? {
@@ -599,5 +606,10 @@ extension WalletModel {
                 return true
             }
         }
+    }
+
+    enum WalletManagerUpdateResult: Hashable {
+        case success
+        case noAccount(message: String)
     }
 }

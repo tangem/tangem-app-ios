@@ -59,7 +59,7 @@ struct MainView: View {
         }
         .navigationBarBackButtonHidden(true)
         .navigationBarTitle("wallet_title", displayMode: .inline)
-        .navigationBarItems(leading: scanNavigationButton,
+        .navigationBarItems(leading: leadingNavigationButtons,
                             trailing: settingsNavigationButton)
         .background(Colors.Background.secondary.edgesIgnoringSafeArea(.all))
         .onAppear {
@@ -70,13 +70,34 @@ struct MainView: View {
         .alert(item: $viewModel.error) { $0.alert }
     }
 
-    var scanNavigationButton: some View {
-        Button(action: viewModel.onScan,
+    @ViewBuilder
+    var leadingNavigationButtons: some View {
+        if viewModel.saveUserWallets {
+            userWalletListNavigationButton
+        } else {
+            scanNavigationButton
+        }
+    }
+
+    var userWalletListNavigationButton: some View {
+        Button(action: viewModel.didTapUserWalletListButton,
                label: {
-                   Image("wallets")
+                   Assets.wallets
                        .foregroundColor(Color.black)
                        .frame(width: 44, height: 44)
                        .offset(x: -11, y: 0)
+               })
+               .buttonStyle(PlainButtonStyle())
+               .animation(nil)
+    }
+
+    var scanNavigationButton: some View {
+        Button(action: viewModel.onScan,
+               label: {
+                   Assets.scanWithPhone
+                       .foregroundColor(Color.black)
+                       .frame(width: 44, height: 44)
+                       .offset(x: -14, y: 0)
                })
                .buttonStyle(PlainButtonStyle())
                .animation(nil)
