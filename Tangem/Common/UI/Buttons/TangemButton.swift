@@ -10,7 +10,7 @@ import Foundation
 import SwiftUI
 
 struct TangemButton: View {
-    let title: LocalizedStringKey
+    let title: String
     var image: String = ""
     var systemImage: String = ""
     var iconPosition: IconPosition = .leading
@@ -68,7 +68,7 @@ extension TangemButton {
         case trailing
     }
 
-    static func vertical(title: LocalizedStringKey,
+    static func vertical(title: String,
                          image: String = "",
                          systemImage: String = "",
                          action: @escaping () -> Void) -> TangemButton {
@@ -87,28 +87,28 @@ struct TangemButton_Previews: PreviewProvider {
             TangemButton(title: "Recharge de portefeuille", image: "scan") {}
                 .buttonStyle(TangemButtonStyle(colorStyle: .black))
 
-            TangemButton(title: "wallet_button_scan", image: "scan") {}
+            TangemButton(title: "Scan", image: "scan") {}
                 .buttonStyle(TangemButtonStyle(colorStyle: .black,
                                                layout: .big))
 
-            TangemButton(title: "wallet_address_button_explore",
+            TangemButton(title: Localization.walletAddressButtonExplore,
                          systemImage: "chevron.right",
                          iconPosition: .trailing) {}
                 .buttonStyle(TangemButtonStyle(colorStyle: .transparentWhite,
                                                layout: .wide))
 
             HStack {
-                TangemButton(title: "wallet_button_send",
+                TangemButton(title: Localization.walletButtonSend,
                              image: "scan") {}
                     .buttonStyle(TangemButtonStyle(layout: .smallVertical,
                                                    isLoading: true))
 
-                TangemButton.vertical(title: "wallet_button_topup",
+                TangemButton.vertical(title: Localization.walletButtonBuy,
                                       systemImage: "arrow.up") {}
                     .buttonStyle(TangemButtonStyle(layout: .smallVertical))
 
 
-                TangemButton.vertical(title: "wallet_button_scan",
+                TangemButton.vertical(title: "Scan",
                                       systemImage: "arrow.right") {}
                     .buttonStyle(TangemButtonStyle(layout: .smallVertical))
 

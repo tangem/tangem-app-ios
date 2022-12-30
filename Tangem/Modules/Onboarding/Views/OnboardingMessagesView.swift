@@ -9,9 +9,8 @@
 import SwiftUI
 
 struct OnboardingMessagesView: View {
-
-    let title: LocalizedStringKey
-    let subtitle: LocalizedStringKey
+    let title: String
+    let subtitle: String
     let onTitleTapCallback: (() -> Void)?
 
     var body: some View {
@@ -56,7 +55,7 @@ struct OnboardingMessagesView_Previews: PreviewProvider {
             }.background(Color.red)
 
             OnboardingMessagesView(title: "Create wallet",
-                                   subtitle: "All the backup cards can be used as full-functoinal wallets with the identical keys.") {
+                                   subtitle: "All the backup cards can be used as full-functional wallets with the identical keys.") {
             }.background(Color.green)
         }
         .padding(.horizontal, 80)
