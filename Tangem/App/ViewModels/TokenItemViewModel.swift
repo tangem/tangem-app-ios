@@ -82,7 +82,11 @@ struct TokenItemViewModel: Identifiable, Hashable, Equatable, Comparable {
     }
 
     var displayRateText: String {
-        if state.isBlockchainUnreachable || state == .noDerivation {
+        if state == .noDerivation {
+            return "wallet_balance_missing_derivation".localized
+        }
+
+        if state.isBlockchainUnreachable {
             return "wallet_balance_blockchain_unreachable".localized
         }
 
