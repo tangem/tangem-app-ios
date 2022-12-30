@@ -772,9 +772,7 @@ class WalletOnboardingViewModel: OnboardingTopupViewModel<WalletOnboardingStep, 
             .mapVoid()
             .sink(receiveCompletion: { [weak self] completion in
                 if case .failure(let error) = completion {
-                    if let cardModel = self?.input.cardInput.cardModel {
-                        cardModel.logSdkError(error, action: .preparePrimary)
-                    }
+                    AppLog.error(error, for: .preparePrimary)
                     self?.isMainButtonBusy = false
                     print(error)
                 }
@@ -792,9 +790,7 @@ class WalletOnboardingViewModel: OnboardingTopupViewModel<WalletOnboardingStep, 
             .sink(
                 receiveCompletion: { [weak self] completion in
                     if case .failure(let error) = completion {
-                        if let cardModel = self?.input.cardInput.cardModel {
-                            cardModel.logSdkError(error, action: .readPrimary)
-                        }
+                        AppLog.error(error, for: .readPrimary)
                         print("Failed to read origin card: \(error)")
                         self?.isMainButtonBusy = false
                     }
@@ -881,10 +877,7 @@ class WalletOnboardingViewModel: OnboardingTopupViewModel<WalletOnboardingStep, 
             .first()
             .sink(receiveCompletion: { [weak self] completion in
                 if case let .failure(error) = completion {
-                    print("Failed to add backup card. Reason: \(error)")
-                    if let cardModel = self?.input.cardInput.cardModel {
-                        cardModel.logSdkError(error, action: .addbackup)
-                    }
+                    AppLog.error(error, for: .addbackup)
                     self?.isMainButtonBusy = false
                 }
                 self?.stepPublisher = nil
@@ -922,10 +915,7 @@ class WalletOnboardingViewModel: OnboardingTopupViewModel<WalletOnboardingStep, 
             .first()
             .sink { [weak self] completion in
                 if case let .failure(error) = completion {
-                    print("Failed to proceed backup. Reason: \(error)")
-                    if let cardModel = self?.input.cardInput.cardModel {
-                        cardModel.logSdkError(error, action: .proceedBackup)
-                    }
+                    AppLog.error(error, for: .proceedBackup)
                     self?.isMainButtonBusy = false
                 }
                 self?.stepPublisher = nil
