@@ -774,7 +774,7 @@ class WalletOnboardingViewModel: OnboardingTopupViewModel<WalletOnboardingStep, 
                 if case .failure(let error) = completion {
                     AppLog.shared.error(error, for: .preparePrimary)
                     self?.isMainButtonBusy = false
-                    AppLog.shared.debug(error)
+                    AppLog.shared.error(error)
                 }
                 self?.stepPublisher = nil
             }, receiveValue: processPrimaryCardScan)
