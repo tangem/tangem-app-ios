@@ -11,6 +11,9 @@ import Combine
 import TangemSdk
 
 class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable> {
+    @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
+    @Injected(\.tangemSdkProvider) private var tangemSdkProvider: TangemSdkProviding
+
     let navbarSize: CGSize = .init(width: UIScreen.main.bounds.width, height: 44)
     let resetAnimDuration: Double = 0.3
 
@@ -124,6 +127,8 @@ class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable>
 
     var isSupplementButtonVisible: Bool { currentStep.isSupplementButtonVisible }
 
+    lazy var userWalletStorageAgreementViewModel = UserWalletStorageAgreementViewModel(isStandalone: false, coordinator: self)
+
     let input: OnboardingInput
 
     var isFromMain: Bool = false
@@ -152,7 +157,7 @@ class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable>
 
         CardImageProvider(supportsOnlineImage: supportsOnlineImage)
             .loadImage(cardId: cardId, cardPublicKey: cardPublicKey)
-            .map { Image(uiImage: $0) }
+            .map { $0.image }
             .sink { [weak self] image in
                 withAnimation {
                     self?.cardImage = image
@@ -164,8 +169,7 @@ class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable>
     func setupContainer(with size: CGSize) {
         let isInitialSetup = containerSize == .zero
         containerSize = size
-        if isFromMain,
-           isInitialAnimPlayed {
+        if (isFromMain && isInitialAnimPlayed) || isInitialSetup {
             setupCardsSettings(animated: !isInitialSetup, isContainerSetup: true)
         }
     }
@@ -205,17 +209,34 @@ class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable>
 
     func goToNextStep() {
         if isOnboardingFinished {
+            do {
+                try handleUserWalletOnFinish()
+            } catch {
+                print("Failed to complete onboarding", error)
+                return
+            }
+
             DispatchQueue.main.async {
                 self.onboardingDidFinish()
             }
 
-            onOnboardingFinished(for: input.cardInput.cardId)
+            self.onOnboardingFinished(for: self.input.cardInput.cardId)
+
             return
         }
 
         var newIndex = currentStepIndex + 1
         if newIndex >= steps.count {
             newIndex = steps.count - 1
+        }
+
+        goToStep(with: newIndex)
+    }
+
+    func goToStep(_ step: Step) {
+        guard let newIndex = steps.firstIndex(of: step) else {
+            print("Failed to find step", step)
+            return
         }
 
         goToStep(with: newIndex)
@@ -231,6 +252,27 @@ class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable>
 
     func setupCardsSettings(animated: Bool, isContainerSetup: Bool) {
         fatalError("Not implemented")
+    }
+
+    func didAskToSaveUserWallets(agreed: Bool) {
+        AppSettings.shared.askedToSaveUserWallets = true
+
+        AppSettings.shared.saveUserWallets = agreed
+        AppSettings.shared.saveAccessCodes = agreed
+
+        Analytics.log(.onboardingEnableBiometric, params: [.state: Analytics.ParameterValue.state(for: agreed).rawValue])
+    }
+
+    func handleUserWalletOnFinish() throws {
+        guard
+            AppSettings.shared.saveUserWallets,
+            let userWallet = input.cardInput.cardModel?.userWallet
+        else {
+            return
+        }
+
+        userWalletRepository.save(userWallet)
+        userWalletRepository.setSelectedUserWalletId(userWallet.userWalletId, reason: .inserted)
     }
 
     private func bindAnalytics() {
@@ -279,5 +321,32 @@ extension OnboardingViewModel {
 
         coordinator.openSupportChat(cardId: cardModel.cardId,
                                     dataCollector: dataCollector)
+    }
+}
+
+extension OnboardingViewModel: UserWalletStorageAgreementRoutable {
+    func didAgreeToSaveUserWallets() {
+        userWalletRepository.unlock(with: .biometry) { [weak self] result in
+            switch result {
+            case .error(let error):
+                if let tangemSdkError = error as? TangemSdkError,
+                   case .userCancelled = tangemSdkError
+                {
+                    return
+                }
+                print("Failed to get access to biometry", error)
+
+                self?.didAskToSaveUserWallets(agreed: false)
+            default:
+                self?.didAskToSaveUserWallets(agreed: true)
+            }
+
+            self?.goToNextStep()
+        }
+    }
+
+    func didDeclineToSaveUserWallets() {
+        didAskToSaveUserWallets(agreed: false)
+        goToNextStep()
     }
 }
