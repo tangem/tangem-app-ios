@@ -12,47 +12,44 @@ struct GroupedNumberTextField: View {
     @Binding private var decimalValue: Decimal?
     @State private var textFieldText: String = ""
 
-    private var placeholder: String = "0"
+    private let placeholder: String = "0"
+    private var decimalSeparator: Character { Character(numberFormatter.decimalSeparator) }
     private var groupedNumberFormatter: GroupedNumberFormatter
     private let numberFormatter: NumberFormatter = .grouped
 
     init(decimalValue: Binding<Decimal?>) {
         _decimalValue = decimalValue
 
-        groupedNumberFormatter = GroupedNumberFormatter(
-            maximumFractionDigits: 8,
-            numberFormatter: numberFormatter
-        )
+        groupedNumberFormatter = GroupedNumberFormatter(numberFormatter: numberFormatter)
     }
 
     private var textFieldProxyBinding: Binding<String> {
         Binding<String>(
             get: { groupedNumberFormatter.format(from: textFieldText) },
             set: { newValue in
-                // If the field is empty
-                // The field supports only decimal values
-                guard newValue.isEmpty || Decimal(string: newValue) != nil else { return }
-
                 // Remove space separators for formatter correct work
                 var numberString = newValue.replacingOccurrences(of: " ", with: "")
 
-                // If user double tap on zero, add "," to continue enter number
-                if numberString == "00" {
-                    numberString.insert(",", at: numberString.index(before: numberString.endIndex))
-                }
-
-                // If user start enter number with "," add zero before comma
-                if numberString == "," {
+                // If user start enter number with `decimalSeparator` add zero before comma
+                if numberString == String(decimalSeparator) {
                     numberString.insert("0", at: numberString.startIndex)
                 }
 
-                // If text already have "," remove last one
-                if numberString.last == ",",
-                   numberString.prefix(numberString.count - 1).contains(",") {
+                // Continue if the field is empty. The field supports only decimal values
+                guard numberString.isEmpty || Decimal(string: numberString) != nil else { return }
+
+                // If user double tap on zero, add `decimalSeparator` to continue enter number
+                if numberString == "00" {
+                    numberString.insert(decimalSeparator, at: numberString.index(before: numberString.endIndex))
+                }
+
+                // If text already have `decimalSeparator` remove last one
+                if numberString.last == decimalSeparator,
+                   numberString.prefix(numberString.count - 1).contains(decimalSeparator) {
                     numberString.removeLast()
                 }
 
-                // Update private @State for display not correct number, like 0,000
+                // Update private `@State` for display not correct number, like 0,000
                 textFieldText = numberString
 
                 // If string is correct number, update binding for work external updates
