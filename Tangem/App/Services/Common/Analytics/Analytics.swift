@@ -34,7 +34,7 @@ enum Analytics {
         logCrashlytics(event, with: params.firebaseParams)
     }
 
-    static func logScan(card: Card, config: UserWalletConfig) {
+    static func logScan(card: CardDTO, config: UserWalletConfig) {
         persistentParams[.batchId] = card.batchId
 
         log(event: .cardIsScanned, with: collectCardData(card))
@@ -61,7 +61,7 @@ enum Analytics {
         Crashlytics.crashlytics().record(error: nsError)
     }
 
-    static func logCardSdkError(_ error: TangemSdkError, for action: Action, card: Card, parameters: [ParameterKey: String] = [:]) {
+    static func logCardSdkError(_ error: TangemSdkError, for action: Action, card: CardDTO, parameters: [ParameterKey: String] = [:]) {
         logCardSdkError(error, for: action, parameters: collectCardData(card, additionalParams: parameters))
     }
 
@@ -174,7 +174,7 @@ enum Analytics {
         AppsFlyerLib.shared().logEvent(key, withValues: values)
     }
 
-    private static func collectCardData(_ card: Card, additionalParams: [ParameterKey: String] = [:]) -> [ParameterKey: String] {
+    private static func collectCardData(_ card: CardDTO, additionalParams: [ParameterKey: String] = [:]) -> [ParameterKey: String] {
         var params = additionalParams
         params[.firmware] = card.firmwareVersion.stringValue
         params[.currency] = card.walletCurves.reduce("", { $0 + $1.rawValue })
@@ -239,6 +239,10 @@ extension Analytics {
         case walletOnboarding = "wallet_onboarding"
         case on = "On"
         case off = "Off"
+
+        static func state(for toggle: Bool) -> ParameterValue {
+            return toggle ? .on : .off
+        }
     }
 
     enum AnalyticSystem {
