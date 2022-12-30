@@ -9,7 +9,7 @@
 import Foundation
 
 struct GroupedNumberFormatter {
-    private let maximumFractionDigits: Int
+    private var maximumFractionDigits: Int
     private let numberFormatter: NumberFormatter
     private let decimalSeparator: Character
 
@@ -24,6 +24,10 @@ struct GroupedNumberFormatter {
 
         numberFormatter.minimumFractionDigits = 0 // Just for case
         numberFormatter.maximumFractionDigits = maximumFractionDigits
+    }
+
+    mutating func update(maximumFractionDigits: Int) {
+        self.maximumFractionDigits = maximumFractionDigits
     }
 
     func format(from string: String) -> String {

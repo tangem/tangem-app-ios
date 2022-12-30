@@ -15,19 +15,19 @@ struct MeetTangemStoryPage: View {
     let scanCard: (() -> Void)
     let orderCard: (() -> Void)
 
-    private let words: [LocalizedStringKey] = [
+    private let words: [String] = [
         "",
         "",
-        "story_meet_buy",
-        "story_meet_store",
-        "story_meet_send",
-        "story_meet_pay",
-        "story_meet_exchange",
-        "story_meet_borrow",
-        "story_meet_lend",
-        "story_meet_lend",
+        Localization.storyMeetBuy,
+        Localization.storyMeetStore,
+        Localization.storyMeetSend,
+        Localization.storyMeetPay,
+        Localization.storyMeetExchange,
+        Localization.storyMeetBorrow,
+        Localization.storyMeetLend,
+        Localization.storyMeetLend,
         // Duplicate the last word to make it last longer
-//        "story_meet_stake", // no stake for now
+//        Localization.storyMeetStake, // no stake for now
         "",
     ]
 
@@ -61,7 +61,7 @@ struct MeetTangemStoryPage: View {
                         end: .infinity
                     ))
 
-                Text("story_meet_title")
+                Text(Localization.storyMeetTitle)
                     .font(.system(size: 60, weight: .semibold))
                     .lineLimit(2)
                     .minimumScaleFactor(0.5)
@@ -120,7 +120,7 @@ struct MeetTangemStoryPage: View {
             VStack {
                 Spacer()
 
-                StoriesBottomButtons(scanColorStyle: .black, orderColorStyle: .grayAlt, isScanning: isScanning, scanCard: scanCard, orderCard: orderCard)
+                StoriesBottomButtons(scanColorStyle: .primary, orderColorStyle: .secondary, isScanning: isScanning, scanCard: scanCard, orderCard: orderCard)
             }
             .padding(.horizontal)
             .padding(.bottom)

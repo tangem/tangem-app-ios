@@ -18,7 +18,7 @@ class CardSettingsCoordinator: CoordinatorObject {
 
     // MARK: - Child view models
 
-    @Published var attentionViewModel: AttentionViewModel?
+    @Published var resetToFactoryViewModel: ResetToFactoryViewModel?
 
     // MARK: - Child coordinators
 
@@ -70,16 +70,19 @@ extension CardSettingsCoordinator: CardSettingsRoutable {
         securityManagementCoordinator = coordinator
     }
 
-    func openResetCardToFactoryWarning(message: String, mainButtonAction: @escaping () -> Void) {
+    func openResetCardToFactoryWarning(cardModel: CardViewModel) {
         Analytics.log(.buttonFactoryReset)
-        attentionViewModel = AttentionViewModel(
-            isWarningChecked: false,
-            navigationTitle: "reset_card_to_factory_navigation_title".localized,
-            title: "common_attention".localized,
-            message: message,
-            warningText: "reset_card_to_factory_warning_message".localized,
-            buttonTitle: "reset_card_to_factory_button_title",
-            mainButtonAction: mainButtonAction
+        resetToFactoryViewModel = ResetToFactoryViewModel(
+            cardModel: cardModel,
+            coordinator: self
         )
+    }
+}
+
+// MARK: - ResetToFactoryViewRoutable
+
+extension CardSettingsCoordinator: ResetToFactoryViewRoutable {
+    func didResetCard() {
+        cardSettingsViewModel?.didResetCard()
     }
 }

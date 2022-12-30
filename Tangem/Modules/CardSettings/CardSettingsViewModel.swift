@@ -14,8 +14,7 @@ class CardSettingsViewModel: ObservableObject {
 
     // MARK: ViewState
 
-    @Published var hasSingleSecurityMode: Bool = false
-    @Published var isChangeAccessCodeVisible: Bool = false
+    @Published var hasSingleSecurityMode: Bool
     @Published var securityModeTitle: String
     @Published var alert: AlertBinder?
     @Published var isChangeAccessCodeLoading: Bool = false
@@ -28,23 +27,33 @@ class CardSettingsViewModel: ObservableObject {
         !cardModel.resetToFactoryAvailability.isHidden
     }
 
-    var resetToFactoryMessage: String {
+    var resetToFactoryFooterMessage: String {
         if cardModel.hasBackupCards {
-            return "reset_card_with_backup_to_factory_message".localized
+            return Localization.resetCardWithBackupToFactoryMessage
         } else {
-            return "reset_card_without_backup_to_factory_message".localized
+            return Localization.resetCardWithoutBackupToFactoryMessage
         }
     }
 
-    // MARK: Dependecies
+    var securityModeFooterMessage: String {
+        if isChangeAccessCodeVisible {
+            return Localization.cardSettingsChangeAccessCodeFooter
+        }
+
+        return cardModel.currentSecurityOption.description
+    }
+
+    // MARK: Dependencies
 
     private unowned let coordinator: CardSettingsRoutable
     private let cardModel: CardViewModel
 
-    // MARK: Properties
+    // MARK: Private
 
+    private var isChangeAccessCodeVisible: Bool {
+        cardModel.currentSecurityOption == .accessCode
+    }
     private var bag: Set<AnyCancellable> = []
-    private var shouldShowAlertOnDisableSaveAccessCodes: Bool = true
 
     init(
         cardModel: CardViewModel,
@@ -55,10 +64,17 @@ class CardSettingsViewModel: ObservableObject {
 
         securityModeTitle = cardModel.currentSecurityOption.title
         hasSingleSecurityMode = cardModel.availableSecurityOptions.count <= 1
-        isChangeAccessCodeVisible = cardModel.currentSecurityOption == .accessCode
 
         bind()
         setupView()
+    }
+
+    func didResetCard() {
+        if let userWallet = cardModel.userWallet {
+            deleteWallet(userWallet)
+        }
+
+        navigateAwayAfterReset()
     }
 }
 
@@ -67,11 +83,10 @@ class CardSettingsViewModel: ObservableObject {
 private extension CardSettingsViewModel {
     func bind() {
         cardModel.$currentSecurityOption
-            .map { $0.titleForDetails }
-            .sink(receiveValue: { [weak self] newMode in
-                self?.securityModeTitle = newMode
+            .receiveValue { [weak self] newMode in
+                self?.securityModeTitle = newMode.titleForDetails
                 self?.setupSecurityOptions()
-            })
+            }
             .store(in: &bag)
     }
 
@@ -84,25 +99,25 @@ private extension CardSettingsViewModel {
 
     func setupView() {
         cardInfoSection = [
-            DefaultRowViewModel(title: "details_row_title_cid".localized, detailsType: .text(cardModel.cardIdFormatted)),
-            DefaultRowViewModel(title: "details_row_title_issuer".localized, detailsType: .text(cardModel.cardIssuer)),
-            DefaultRowViewModel(title: "details_row_title_signed_hashes".localized,
-                                detailsType: .text("details_row_subtitle_signed_hashes_format".localized("\(cardModel.cardSignedHashes)"))),
+            DefaultRowViewModel(title: Localization.detailsRowTitleCid, detailsType: .text(cardModel.cardIdFormatted)),
+            DefaultRowViewModel(title: Localization.detailsRowTitleIssuer, detailsType: .text(cardModel.cardIssuer)),
+            DefaultRowViewModel(title: Localization.detailsRowTitleSignedHashes,
+                                detailsType: .text(Localization.detailsRowSubtitleSignedHashesFormat("\(cardModel.cardSignedHashes)"))),
         ]
 
         setupSecurityOptions()
 
         if isResetToFactoryAvailable {
             resetToFactoryViewModel = DefaultRowViewModel(
-                title: "card_settings_reset_card_to_factory".localized,
+                title: Localization.cardSettingsResetCardToFactory,
                 action: openResetCard
             )
         }
     }
 
-    private func setupSecurityOptions() {
+    func setupSecurityOptions() {
         securityModeSection = [DefaultRowViewModel(
-            title: "card_settings_security_mode".localized,
+            title: Localization.cardSettingsSecurityMode,
             detailsType: .text(securityModeTitle),
             action: hasSingleSecurityMode ? nil : openSecurityMode
         )]
@@ -110,7 +125,7 @@ private extension CardSettingsViewModel {
         if isChangeAccessCodeVisible {
             securityModeSection.append(
                 DefaultRowViewModel(
-                    title: "card_settings_change_access_code".localized,
+                    title: Localization.cardSettingsChangeAccessCode,
                     detailsType: isChangeAccessCodeLoading ? .loader : .none,
                     action: openChangeAccessCodeWarningView
                 )
@@ -118,19 +133,19 @@ private extension CardSettingsViewModel {
         }
     }
 
-    private func deleteWallet(_ userWallet: UserWallet) {
+    func deleteWallet(_ userWallet: UserWallet) {
         self.userWalletRepository.delete(userWallet)
     }
 
-    private func navigateAwayAfterReset() {
-        if self.userWalletRepository.isEmpty {
-            self.coordinator.popToRoot()
+    func navigateAwayAfterReset() {
+        if userWalletRepository.isEmpty {
+            coordinator.popToRoot()
         } else {
-            self.coordinator.dismiss()
+            coordinator.dismiss()
         }
     }
 
-    private func didResetCard(with userWallet: UserWallet) {
+    func didResetCard(with userWallet: UserWallet) {
         deleteWallet(userWallet)
         navigateAwayAfterReset()
     }
@@ -162,25 +177,10 @@ extension CardSettingsViewModel {
             return
         }
 
-        let userWallet = cardModel.userWallet
-
         if cardModel.canTwin {
             prepareTwinOnboarding()
         } else {
-            coordinator.openResetCardToFactoryWarning(message: resetToFactoryMessage) { [weak self] in
-                self?.cardModel.resetToFactory { [weak self] result in
-                    guard let self, let userWallet else { return }
-
-                    switch result {
-                    case .success:
-                        self.didResetCard(with: userWallet)
-                    case let .failure(error):
-                        if !error.isUserCancelled {
-                            self.alert = error.alertBinder
-                        }
-                    }
-                }
-            }
+            coordinator.openResetCardToFactoryWarning(cardModel: cardModel)
         }
     }
 }

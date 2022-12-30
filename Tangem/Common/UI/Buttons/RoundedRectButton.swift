@@ -39,7 +39,7 @@ struct RoundedRectButton: View {
             .font(Font.system(size: 13.0, weight: .medium, design: .default))
             .foregroundColor(foregroundColor)
             .background(backgroundColor)
-            .cornerRadius(8)
+            .cornerRadiusContinuous(8)
             .overlay(!isDisabled ? Color.clear : Color.white.opacity(0.4))
         })
         .buttonStyle(PlainButtonStyle())

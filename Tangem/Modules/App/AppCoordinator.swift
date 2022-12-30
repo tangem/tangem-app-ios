@@ -15,7 +15,7 @@ class AppCoordinator: NSObject, CoordinatorObject {
     var popToRootAction: (PopToRootOptions) -> Void = { _ in }
 
     // MARK: - Injected
-    @Injected(\.walletConnectServiceProvider) private var walletConnectServiceProvider: WalletConnectServiceProviding
+    @Injected(\.walletConnectService) private var walletConnectService: WalletConnectService
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
 
     // MARK: - Child coordinators
@@ -199,8 +199,7 @@ extension AppCoordinator: UIWindowSceneDelegate {
     }
 
     private func process(_ url: URL) {
-        if let wcService = walletConnectServiceProvider.service {
-            wcService.handle(url: url)
+        if walletConnectService.handle(url: url) {
             return
         }
 
@@ -211,7 +210,7 @@ extension AppCoordinator: UIWindowSceneDelegate {
         if case .welcome = StartupProcessor().getStartupOption() {
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.5, execute: {
                 UIApplication.modalFromTop(
-                    AlertBuilder.makeOkGotItAlertController(message: "wallet_connect_need_to_scan_card".localized)
+                    AlertBuilder.makeOkGotItAlertController(message: Localization.walletConnectNeedToScanCard)
                 )
             })
         }
