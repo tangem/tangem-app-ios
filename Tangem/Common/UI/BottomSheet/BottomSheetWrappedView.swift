@@ -29,11 +29,9 @@ struct BottomSheetWrappedView<Content: View>: View {
             }
             content
             if settings.showClosedButton {
-                TangemButton(title: "common_close") {
-                    hideCallback()
-                }
-                .buttonStyle(TangemButtonStyle(colorStyle: .grayAlt, layout: .wide))
-                .padding(.bottom, 16)
+                MainButton(title: Localization.commonClose, style: .secondary, action: hideCallback)
+                    .padding(.vertical, 16)
+                    .padding(.horizontal, 40)
             }
             Spacer()
         }

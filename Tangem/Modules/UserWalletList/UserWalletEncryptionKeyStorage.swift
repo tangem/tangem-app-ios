@@ -16,15 +16,11 @@ class UserWalletEncryptionKeyStorage {
     private let biometricsStorage = BiometricsStorage()
     private let userWalletIdsStorageKey = "user_wallet_ids"
 
-    init() {
-
-    }
-
     func fetch(completion: @escaping (Result<[Data: SymmetricKey], Error>) -> Void) {
         do {
             let userWalletIds = try userWalletIds()
 
-            let reason = "biometry_touch_id_reason".localized
+            let reason = Localization.biometryTouchIdReason
             BiometricsUtil.requestAccess(localizedReason: reason) { [weak self] result in
                 guard let self else { return }
 
