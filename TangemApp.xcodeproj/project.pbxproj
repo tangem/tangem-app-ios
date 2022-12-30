@@ -185,7 +185,7 @@
 		B020A51726F1DD9E00D38596 /* OnboardingTopupViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B020A51626F1DD9E00D38596 /* OnboardingTopupViewModel.swift */; };
 		B020A51926F1DDA700D38596 /* OnboardingViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B020A51826F1DDA700D38596 /* OnboardingViewModel.swift */; };
 		B020FFB425DE7F9300EF422C /* DataCollectors.swift in Sources */ = {isa = PBXBuildFile; fileRef = B020FFB325DE7F9300EF422C /* DataCollectors.swift */; };
-		B020FFBE25DE895E00EF422C /* Logger.swift in Sources */ = {isa = PBXBuildFile; fileRef = B020FFBD25DE895E00EF422C /* Logger.swift */; };
+		B020FFBE25DE895E00EF422C /* FileLogger.swift in Sources */ = {isa = PBXBuildFile; fileRef = B020FFBD25DE895E00EF422C /* FileLogger.swift */; };
 		B02275D72701D9FB004C752B /* PreparePrimaryCardTask.swift in Sources */ = {isa = PBXBuildFile; fileRef = B02275D62701D9FB004C752B /* PreparePrimaryCardTask.swift */; };
 		B022DB3D26C24D13006F18B4 /* ConfettiGenerator.swift in Sources */ = {isa = PBXBuildFile; fileRef = B022DB3C26C24D13006F18B4 /* ConfettiGenerator.swift */; };
 		B026178D26FCAB7900B5107F /* FanStackCalculator.swift in Sources */ = {isa = PBXBuildFile; fileRef = B026178C26FCAB7900B5107F /* FanStackCalculator.swift */; };
@@ -393,8 +393,6 @@
 		DC0A57D72822A3C80031BECC /* InjectionKey.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC0A57D42822A3C80031BECC /* InjectionKey.swift */; };
 		DC0A57D82822A3C80031BECC /* InjectedValues.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC0A57D52822A3C80031BECC /* InjectedValues.swift */; };
 		DC0A57D92822A3C80031BECC /* InjectedWrapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC0A57D62822A3C80031BECC /* InjectedWrapper.swift */; };
-		DC0A57DD2822A5020031BECC /* LoggerProviding.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC0A57DC2822A5020031BECC /* LoggerProviding.swift */; };
-		DC0A57DF2822A5490031BECC /* LoggerProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC0A57DE2822A5490031BECC /* LoggerProvider.swift */; };
 		DC0A57E22822A5C50031BECC /* TangemSdkProviding.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC0A57E12822A5C50031BECC /* TangemSdkProviding.swift */; };
 		DC0A57E42822A5D00031BECC /* TangemSdkProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC0A57E32822A5D00031BECC /* TangemSdkProvider.swift */; };
 		DC0A57E82822AC410031BECC /* PersistentStorageProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC0A57E72822AC410031BECC /* PersistentStorageProtocol.swift */; };
@@ -516,6 +514,7 @@
 		DC936B6B28F3F8140023C75D /* SaltPayRegistratorError.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC936B6A28F3F8140023C75D /* SaltPayRegistratorError.swift */; };
 		DC936B6D28F3F83E0023C75D /* RegistrationTask.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC936B6C28F3F83E0023C75D /* RegistrationTask.swift */; };
 		DCAB57FE295ECA55005D0F4A /* SendError.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCAB57FD295ECA55005D0F4A /* SendError.swift */; };
+		DCAB5800295EE820005D0F4A /* AppLog.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCAB57FF295EE820005D0F4A /* AppLog.swift */; };
 		DCE3379928F2A4580029A6F5 /* SaltPayConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCE3379828F2A4580029A6F5 /* SaltPayConfiguration.swift */; };
 		DCE5C66C28898B7F000C7F67 /* TangemApiService.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCE5C66B28898B7F000C7F67 /* TangemApiService.swift */; };
 		DCE5C66E28898BB6000C7F67 /* CommonTangemApiService.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCE5C66D28898BB6000C7F67 /* CommonTangemApiService.swift */; };
@@ -1043,7 +1042,7 @@
 		B020A51626F1DD9E00D38596 /* OnboardingTopupViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingTopupViewModel.swift; sourceTree = "<group>"; };
 		B020A51826F1DDA700D38596 /* OnboardingViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingViewModel.swift; sourceTree = "<group>"; };
 		B020FFB325DE7F9300EF422C /* DataCollectors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataCollectors.swift; sourceTree = "<group>"; };
-		B020FFBD25DE895E00EF422C /* Logger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Logger.swift; sourceTree = "<group>"; };
+		B020FFBD25DE895E00EF422C /* FileLogger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileLogger.swift; sourceTree = "<group>"; };
 		B02275D62701D9FB004C752B /* PreparePrimaryCardTask.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreparePrimaryCardTask.swift; sourceTree = "<group>"; };
 		B022D30F253746C900D934D7 /* fr */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = fr; path = fr.lproj/Localizable.strings; sourceTree = "<group>"; };
 		B022DB3C26C24D13006F18B4 /* ConfettiGenerator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConfettiGenerator.swift; sourceTree = "<group>"; };
@@ -1271,8 +1270,6 @@
 		DC0A57D42822A3C80031BECC /* InjectionKey.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = InjectionKey.swift; sourceTree = "<group>"; };
 		DC0A57D52822A3C80031BECC /* InjectedValues.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = InjectedValues.swift; sourceTree = "<group>"; };
 		DC0A57D62822A3C80031BECC /* InjectedWrapper.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = InjectedWrapper.swift; sourceTree = "<group>"; };
-		DC0A57DC2822A5020031BECC /* LoggerProviding.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoggerProviding.swift; sourceTree = "<group>"; };
-		DC0A57DE2822A5490031BECC /* LoggerProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoggerProvider.swift; sourceTree = "<group>"; };
 		DC0A57E12822A5C50031BECC /* TangemSdkProviding.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TangemSdkProviding.swift; sourceTree = "<group>"; };
 		DC0A57E32822A5D00031BECC /* TangemSdkProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TangemSdkProvider.swift; sourceTree = "<group>"; };
 		DC0A57E72822AC410031BECC /* PersistentStorageProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PersistentStorageProtocol.swift; sourceTree = "<group>"; };
@@ -1393,6 +1390,7 @@
 		DC936B6A28F3F8140023C75D /* SaltPayRegistratorError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SaltPayRegistratorError.swift; sourceTree = "<group>"; };
 		DC936B6C28F3F83E0023C75D /* RegistrationTask.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RegistrationTask.swift; sourceTree = "<group>"; };
 		DCAB57FD295ECA55005D0F4A /* SendError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendError.swift; sourceTree = "<group>"; };
+		DCAB57FF295EE820005D0F4A /* AppLog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppLog.swift; sourceTree = "<group>"; };
 		DCE3379828F2A4580029A6F5 /* SaltPayConfiguration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SaltPayConfiguration.swift; sourceTree = "<group>"; };
 		DCE5C66B28898B7F000C7F67 /* TangemApiService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TangemApiService.swift; sourceTree = "<group>"; };
 		DCE5C66D28898BB6000C7F67 /* CommonTangemApiService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonTangemApiService.swift; sourceTree = "<group>"; };
@@ -2371,6 +2369,7 @@
 			isa = PBXGroup;
 			children = (
 				EFA580622893E6AA00110DB0 /* BiometricAuthorizationUtils.swift */,
+				B020FFBD25DE895E00EF422C /* FileLogger.swift */,
 				B0F79C692689AC56008C9B30 /* FileEncryptionUtility.swift */,
 				B068A7E625678A8800D28CD2 /* TwinCardsUtils.swift */,
 				B0C87B422566461600F861DE /* TwinCardsFileCoder.swift */,
@@ -2946,19 +2945,8 @@
 				DC0A57E02822A5A10031BECC /* TangemSdk */,
 				DC0A5848282C07750031BECC /* WalletConnect */,
 				DC0A57F52822BDFB0031BECC /* CardImageLoader */,
-				DC0A57DB2822A4EA0031BECC /* Logger */,
 			);
 			path = Services;
-			sourceTree = "<group>";
-		};
-		DC0A57DB2822A4EA0031BECC /* Logger */ = {
-			isa = PBXGroup;
-			children = (
-				DC0A57DC2822A5020031BECC /* LoggerProviding.swift */,
-				DC0A57DE2822A5490031BECC /* LoggerProvider.swift */,
-				B020FFBD25DE895E00EF422C /* Logger.swift */,
-			);
-			path = Logger;
 			sourceTree = "<group>";
 		};
 		DC0A57E02822A5A10031BECC /* TangemSdk */ = {
@@ -3099,6 +3087,7 @@
 				5D9DCB05255193C30059799C /* AppSettings.swift */,
 				B0C4A1D22671F3FB00DCB921 /* TestnetBuyCryptoService.swift */,
 				5D6784CD25EB92F300149995 /* TestnetTokensRepository.swift */,
+				DCAB57FF295EE820005D0F4A /* AppLog.swift */,
 			);
 			path = Common;
 			sourceTree = "<group>";
@@ -4735,7 +4724,6 @@
 				5DDE22EA2608DC94008657C6 /* UrlHandler.swift in Sources */,
 				DA23788B27B2488D009795A8 /* ShopifyShop.swift in Sources */,
 				EF053DF22938D4BC006FD13A /* UserWalletListCoordinator.swift in Sources */,
-				DC0A57DD2822A5020031BECC /* LoggerProviding.swift in Sources */,
 				5D39515925597DA5002CC452 /* WalletModel.swift in Sources */,
 				65C9FCB22864507600FDE63E /* MainView.swift in Sources */,
 				5D78D11D261E084700F98B18 /* CreateMultiWalletTask.swift in Sources */,
@@ -4810,7 +4798,7 @@
 				DC295B5D2862E6DE006CB7B6 /* BackUpWarningView.swift in Sources */,
 				DC66BC10285C405C00CDF765 /* CoordinatorObject.swift in Sources */,
 				EF4B41BB2864491B003911F6 /* TangemSkeletonModifier.swift in Sources */,
-				B020FFBE25DE895E00EF422C /* Logger.swift in Sources */,
+				B020FFBE25DE895E00EF422C /* FileLogger.swift in Sources */,
 				B026178D26FCAB7900B5107F /* FanStackCalculator.swift in Sources */,
 				5DFCCB7624C381A70014A293 /* SendViewModel.swift in Sources */,
 				DCE5C66E28898BB6000C7F67 /* CommonTangemApiService.swift in Sources */,
@@ -4885,7 +4873,6 @@
 				B0D34E772626DF2F00625AC5 /* WalletConnectRequestHandler.swift in Sources */,
 				DC66BBE92859A8CC00CDF765 /* MailViewModel.swift in Sources */,
 				DAA5E30128D21369003C0E80 /* UserWalletStorageAgreementViewModel.swift in Sources */,
-				DC0A57DF2822A5490031BECC /* LoggerProvider.swift in Sources */,
 				DC7DA8202844F33D00AD6DBD /* CoordinatorView.swift in Sources */,
 				EFA6B045295334AF0090A92F /* ResetToFactoryViewModel.swift in Sources */,
 				EF5A5AD028D86089002544AC /* TotalBalanceProviding.swift in Sources */,
@@ -5061,6 +5048,7 @@
 				B0A2B3E925D6B5BD0001EEB4 /* TokenBalanceViewModel.swift in Sources */,
 				DAC53CFB27BE63830027147D /* CurrenciesStoryPage.swift in Sources */,
 				65B4DEDA28835C82001524CF /* BottomSheetModifier.swift in Sources */,
+				DCAB5800295EE820005D0F4A /* AppLog.swift in Sources */,
 				DC0A5856282E3E220031BECC /* ServicesManager.swift in Sources */,
 				5D52A75127C3CA32002783F7 /* SignTypedDataHandler.swift in Sources */,
 				DC261CB5292CF6B700875E64 /* UncompletedBackupView.swift in Sources */,
