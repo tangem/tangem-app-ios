@@ -34,7 +34,6 @@ struct SingleWalletContentView: View {
             } else {
                 TotalSumBalanceView(viewModel: viewModel.totalSumBalanceViewModel)
                     .padding(.horizontal, 16)
-                    .padding(.bottom, 6)
             }
         }
     }
