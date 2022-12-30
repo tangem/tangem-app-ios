@@ -1,5 +1,5 @@
 //
-//  LoggerProvider.swift
+//  AppLog.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -7,7 +7,6 @@
 //
 
 import Foundation
+import TangemSdk
 
-struct LoggerProvider: LoggerProviding {
-    var logger: Logger = .init()
-}
+typealias AppLog = Log
