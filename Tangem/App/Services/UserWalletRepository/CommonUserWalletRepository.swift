@@ -146,7 +146,7 @@ class CommonUserWalletRepository: UserWalletRepository {
                 return Just(nil)
             }
 
-            AppLog.shared.debug("Failed to scan card: \(error)")
+            AppLog.shared.error(error)
 
             self.failedCardScanTracker.recordFailure()
 
