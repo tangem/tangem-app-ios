@@ -735,7 +735,8 @@ class WalletOnboardingViewModel: OnboardingTopupViewModel<WalletOnboardingStep, 
                 self.goToNextStep()
             }
         } catch {
-            AppLog.shared.debug("Failed to set access code to backup service. Reason: \(error)")
+            AppLog.shared.debug("Failed to set access code to backup service")
+            AppLog.shared.error(error)
         }
     }
 
@@ -791,7 +792,8 @@ class WalletOnboardingViewModel: OnboardingTopupViewModel<WalletOnboardingStep, 
                 receiveCompletion: { [weak self] completion in
                     if case .failure(let error) = completion {
                         AppLog.shared.error(error, for: .readPrimary)
-                        AppLog.shared.debug("Failed to read origin card: \(error)")
+                        AppLog.shared.debug("Failed to read origin card")
+                        AppLog.shared.error(error)
                         self?.isMainButtonBusy = false
                     }
                     self?.stepPublisher = nil
