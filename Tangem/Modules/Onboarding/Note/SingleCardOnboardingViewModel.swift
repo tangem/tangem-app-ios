@@ -193,7 +193,8 @@ class SingleCardOnboardingViewModel: OnboardingTopupViewModel<SingleCardOnboardi
         .sink { [weak self] completion in
             if case let .failure(error) = completion {
                 self?.isMainButtonBusy = false
-                AppLog.shared.debug("Failed to create wallet. \(error)")
+                AppLog.shared.debug("Failed to create wallet")
+                AppLog.shared.error(error)
             }
             subscription.map { _ = self?.bag.remove($0) }
         } receiveValue: { [weak self] (_, _) in
