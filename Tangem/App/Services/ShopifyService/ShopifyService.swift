@@ -119,7 +119,8 @@ class ShopifyService: ShopifyProtocol {
                 }
 
                 if let error = error {
-                    AppLog.shared.debug("Failed to get collections with error: \(error)")
+                    AppLog.shared.debug("Failed to get collections")
+                    AppLog.shared.error(error)
                     promise(.failure(error))
                     return
                 }
@@ -169,7 +170,8 @@ class ShopifyService: ShopifyProtocol {
                 }
 
                 if let error = error {
-                    AppLog.shared.debug("Failed to get checkout with error: \(error)")
+                    AppLog.shared.debug("Failed to get checkout")
+                    AppLog.shared.error(error)
                     promise(.failure(error))
                     return
                 }
@@ -359,7 +361,8 @@ extension ShopifyService: PaySessionDelegate {
             .sink { completion in
                 switch completion {
                 case .failure(let error):
-                    AppLog.shared.debug("Apple Pay: Failed to update shipping address with error: \(error)")
+                    AppLog.shared.debug("Apple Pay: Failed to update shipping address")
+                    AppLog.shared.error(error)
                     provide(nil, [])
                 case .finished:
                     break
@@ -386,7 +389,8 @@ extension ShopifyService: PaySessionDelegate {
             .sink { completion in
                 switch completion {
                 case .failure(let error):
-                    AppLog.shared.debug("Apple Pay: Failed to update shipping rate with error: \(error)")
+                    AppLog.shared.debug("Apple Pay: Failed to update shipping rate")
+                    AppLog.shared.error(error)
                     provide(nil)
                 case .finished:
                     break
@@ -528,7 +532,8 @@ extension ShopifyService: PaySessionDelegate {
                 }
 
                 if let error = error {
-                    AppLog.shared.debug("Checkout modification failed (\(description)): \(error)")
+                    AppLog.shared.debug("Checkout modification failed (\(description))")
+                    AppLog.shared.error(error)
                     promise(.failure(error))
                     return
                 }
