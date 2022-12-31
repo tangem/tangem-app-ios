@@ -96,7 +96,8 @@ extension CommonWalletListManager: WalletListManager {
                     AppLog.shared.debug("‼️ Make WalletModel for \(displayName) not derivation")
                     nonDeriveEntries.append(entry)
                 } catch {
-                    AppLog.shared.debug("‼️ Make WalletModel for \(displayName) catch error: \(error)")
+                    AppLog.shared.debug("‼️ Make WalletModel for \(displayName) catch error")
+                    AppLog.shared.error(error)
                 }
 
                 return nil
