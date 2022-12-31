@@ -57,7 +57,8 @@ class PersistentStorage {
                     try encryptAndWriteToDocuments(data, at: &documentPath)
                     try fileManager.removeItem(at: cloudPath)
                 } catch {
-                    AppLog.shared.debug("Error for file at path: \(cloudPath). Error description: \(error)")
+                    AppLog.shared.debug("Error for file at path: \(cloudPath)")
+                    AppLog.shared.error(error)
                 }
             }
         } catch {
