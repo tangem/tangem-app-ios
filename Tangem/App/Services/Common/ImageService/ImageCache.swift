@@ -97,7 +97,8 @@ public final class ImageCache: ImageCacheType {
             do {
                 try data.write(to: localFileUrl(for: url))
             } catch {
-                AppLog.shared.debug("Failed to write to file. Reason: \(error)")
+                AppLog.shared.debug("Failed to write to file")
+                AppLog.shared.error(error)
             }
         }
     }
