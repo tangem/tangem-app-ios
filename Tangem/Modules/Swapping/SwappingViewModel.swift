@@ -342,7 +342,8 @@ private extension SwappingViewModel {
                 items.destination = try await swappingDestinationService.getDestination(source: items.source)
                 exchangeManager.update(exchangeItems: items)
             } catch {
-                AppLog.shared.debug("Destination load handle error with error: \(error)")
+                AppLog.shared.debug("Destination load handle error")
+                AppLog.shared.error(error)
                 items.destination = nil
             }
         }
