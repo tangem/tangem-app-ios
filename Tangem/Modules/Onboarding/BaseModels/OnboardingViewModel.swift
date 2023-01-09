@@ -209,7 +209,7 @@ class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable>
             do {
                 try handleUserWalletOnFinish()
             } catch {
-                print("Failed to complete onboarding", error)
+                AppLog.shared.error(error)
                 return
             }
 
@@ -232,7 +232,7 @@ class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable>
 
     func goToStep(_ step: Step) {
         guard let newIndex = steps.firstIndex(of: step) else {
-            print("Failed to find step", step)
+            AppLog.shared.debug("Failed to find step \(step)")
             return
         }
 
@@ -331,7 +331,7 @@ extension OnboardingViewModel: UserWalletStorageAgreementRoutable {
                 {
                     return
                 }
-                print("Failed to get access to biometry", error)
+                AppLog.shared.error(error)
 
                 self?.didAskToSaveUserWallets(agreed: false)
             default:
