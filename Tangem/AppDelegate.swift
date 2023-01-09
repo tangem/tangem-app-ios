@@ -11,9 +11,10 @@ import Firebase
 import AppsFlyerLib
 import Amplitude
 
-
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
+    @Injected(\.walletConnectDeeplinkManager) private var walletConnectDeeplinkManager: WalletConnectDeeplinkManaging
+    
     var loadingView: UIView? = nil
 
     func addLoadingView() {
@@ -101,6 +102,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         guard AppEnvironment.current.isProduction else { return }
 
         AppsFlyerLib.shared().start()
+    }
+    
+    func application(_ app: UIApplication, open url: URL, options: [UIApplication.OpenURLOptionsKey : Any] = [:]) -> Bool {
+        walletConnectDeeplinkManager.proceedDeeplink(url: url, options: options)
     }
 
     private func migrateTOS() {
