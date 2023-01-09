@@ -20,6 +20,10 @@ public class RemoteRouteManager {
     public init() {
         deeplinkManager.setDelegate(self)
     }
+    
+    deinit {
+        deeplinkManager.removeDelegate()
+    }
 }
 
 // MARK: - DeeplinkManagerDelegate
