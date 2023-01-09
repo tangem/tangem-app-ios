@@ -32,7 +32,7 @@ enum Analytics {
         }
 
         let logMessage = "Analytics event: \(event). Params: \(params)"
-        AppLog.debug(logMessage)
+        AppLog.shared.debug(logMessage)
     }
 
     static func logScan(card: CardDTO) {
@@ -247,7 +247,7 @@ fileprivate extension Dictionary where Key == Analytics.ParameterKey, Value == S
 // MARK: - AppLog error extension
 
 extension AppLog {
-    static func error(_ error: Error, for action: Analytics.Action? = nil, params: [Analytics.ParameterKey: String] = [:]) {
+    func error(_ error: Error, for action: Analytics.Action? = nil, params: [Analytics.ParameterKey: String] = [:]) {
         guard !error.toTangemSdkError().isUserCancelled else {
             return
         }
