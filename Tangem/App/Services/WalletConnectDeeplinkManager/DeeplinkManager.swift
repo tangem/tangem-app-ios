@@ -1,5 +1,5 @@
 //
-//  WalletConnectDeeplinkManager.swift
+//  DeeplinkManager.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -7,22 +7,25 @@
 //
 
 import Foundation
+import UIKit
 
-struct WalletConnectDeeplinkManager {
-    weak var delegate: WalletConnectDeeplinkManagerDelegate?
+public class DeeplinkManager {
+    weak var delegate: DeeplinkManagerDelegate?
     public init() {}
 }
 
-// MARK: - WalletConnectDeeplinkManaging
+// MARK: - DeeplinkManaging
 
-extension WalletConnectDeeplinkManager: WalletConnectDeeplinkManaging {
-    public func proceedDeeplink(url: URL, options _: UIScene.OpenURLOptions?) {
-        let remouteRoute: RemoteRouteModel = .url(url)
+extension DeeplinkManager: DeeplinkManaging {
+    public func proceedDeeplink(url: URL, options: [UIApplication.OpenURLOptionsKey: Any]) -> Bool {
+        let remouteRoute: RemoteRouteModel = .walletConnect(url)
         // Logic for parse wallet connect url
+        // return false if deeplink will not proceed
 
         delegate?.didReceiveDeeplink(self, remoteRoute: remouteRoute)
+        return true
     }
-    
+
     public func setDelegate(_ delegate: DeeplinkManagerDelegate) {
         self.delegate = delegate
     }
