@@ -329,7 +329,7 @@ class CardViewModel: Identifiable, ObservableObject {
             case .success:
                 self?.userWalletModel?.updateAndReloadWalletModels()
             case .failure:
-                print("Derivation error")
+                AppLog.shared.debug("Derivation error")
             }
         }
     }
@@ -352,7 +352,7 @@ class CardViewModel: Identifiable, ObservableObject {
                 case .failure(let error):
                     var params = self.card.analyticsParameters
                     params[.newSecOption] = "Access Code"
-                    AppLog.error(error, for: .changeSecOptions, params: params)
+                    AppLog.shared.error(error, for: .changeSecOptions, params: params)
                     completion(.failure(error))
                 }
             }
@@ -368,7 +368,7 @@ class CardViewModel: Identifiable, ObservableObject {
                 case .failure(let error):
                     var params = self.card.analyticsParameters
                     params[.newSecOption] = "Long tap"
-                    AppLog.error(error, for: .changeSecOptions, params: params)
+                    AppLog.shared.error(error, for: .changeSecOptions, params: params)
                     completion(.failure(error))
                 }
             }
@@ -385,7 +385,7 @@ class CardViewModel: Identifiable, ObservableObject {
                 case .failure(let error):
                     var params = self.card.analyticsParameters
                     params[.newSecOption] = "Passcode"
-                    AppLog.error(error, for: .changeSecOptions, params: params)
+                    AppLog.shared.error(error, for: .changeSecOptions, params: params)
                     completion(.failure(error))
                 }
             }
@@ -405,7 +405,7 @@ class CardViewModel: Identifiable, ObservableObject {
                 self?.onWalletCreated(card)
                 completion(.success(()))
             case .failure(let error):
-                AppLog.error(error, for: .createWallet, params: card.analyticsParameters)
+                AppLog.shared.error(error, for: .createWallet, params: card.analyticsParameters)
                 completion(.failure(error))
             }
         }
@@ -423,7 +423,7 @@ class CardViewModel: Identifiable, ObservableObject {
                 self?.clearTwinPairKey()
                 completion(.success(()))
             case .failure(let error):
-                AppLog.error(error, for: .purgeWallet, params: card.analyticsParameters)
+                AppLog.shared.error(error, for: .purgeWallet, params: card.analyticsParameters)
                 completion(.failure(error))
             }
         }
@@ -497,7 +497,7 @@ class CardViewModel: Identifiable, ObservableObject {
     }
 
     private func onUpdate() {
-        print("🔄 Updating CardViewModel with new Card")
+        AppLog.shared.debug("🔄 Updating CardViewModel with new Card")
         config = UserWalletConfigFactory(cardInfo).makeConfig()
         _signer = config.tangemSigner
         updateModel()
@@ -537,7 +537,7 @@ class CardViewModel: Identifiable, ObservableObject {
     }
 
     private func updateModel() {
-        print("🔄 Updating Card view model")
+        AppLog.shared.debug("🔄 Updating Card view model")
         updateCurrentSecurityOption()
 
         setupWarnings()
@@ -631,7 +631,7 @@ class CardViewModel: Identifiable, ObservableObject {
                     self.add(entries: [entry]) { _ in }
                 }
             case .failure(let error):
-                print(error)
+                AppLog.shared.error(error)
             }
 
             AppSettings.shared.searchedCards.append(self.cardId)
