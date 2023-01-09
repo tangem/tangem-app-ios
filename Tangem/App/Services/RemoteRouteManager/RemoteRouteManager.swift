@@ -13,16 +13,14 @@ public class RemoteRouteManager {
     @Injected(\.deeplinkManager) private var deeplinkManager: DeeplinkManaging
 
     public private(set) var pendingRoute: RemoteRouteModel?
-
-    private var subscriptions = Set<AnyCancellable>()
-    private var responders = OrderedMulticastDelegate<RemoteRouteManagerResponder>()
+    private var responders = OrderedWeakObjectsCollection<RemoteRouteManagerResponder>()
 
     public init() {
-        deeplinkManager.setDelegate(self)
+        deeplinkManager.delegate = self
     }
-    
+
     deinit {
-        deeplinkManager.removeDelegate()
+        deeplinkManager.delegate = nil
     }
 }
 
