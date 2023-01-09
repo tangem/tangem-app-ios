@@ -25,7 +25,7 @@ mint bootstrap --mintfile ./Utilites/Mintfile
 echo "✅ Dependencies succesfully installed"
 
 echo "🚀 Running SwiftFormat"
-mint run swiftformat@0.49.11 . --config .swiftformat
+mint run swiftformat@0.50.7 . --config .swiftformat
 
 echo "🚀 Running SwiftGen"
 mint run swiftgen@6.5.1 config run --config swiftgen.yml 
