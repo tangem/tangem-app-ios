@@ -93,4 +93,25 @@ class PermitTypedDataProviderTests: XCTestCase {
 
         XCTAssertEqual(callData, except)
     }
+
+    func testPermitData2() async throws {
+        let wallet_key = "965e092fdfc08940d2bd05c7b5c7e1c51e283e92c7f52bbf1408973ae9a9acb7" // Your wallet private key
+        let wallet_address = "0x2c9b2DBdbA8A9c969Ac24153f5C1c23CB0e63914" // Your wallet address
+        let inchTokenAddress = "0x111111111117dc0aa78b770fa6a738034120c302" // 1inch token address
+        let chainID = 56 // BSC chain ID
+        let spender = "0x1111111254eeb25477b68fb85ed929f73a960582"; // 1inch contract address
+
+
+
+        let except2 = [
+            "0x",
+            "00000000000000000000000029010f8f91b980858eb298a0843264cff21fd9c9",
+            "0000000000000000000000001111111254eeb25477b68fb85ed929f73a960582",
+            "0000000000000000000000000000000000c097ce7bc90715b34b9f1000000000",
+            "0000000000000000000000000000000000000000000000000000000063ada9c0",
+            "000000000000000000000000000000000000000000000000000000000000001b",
+            "04dd10d79a8b12a5a93606f6872bb5b25ba3e41609be79409032f9dc6738792b",
+            "08e0318c0dcd4ec8e3309ac0ff46d52d25e43369611402bc1ddd01fe0602ee56",
+        ]
+    }
 }
