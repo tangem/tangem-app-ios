@@ -4,7 +4,6 @@
 # Install "Command line tools" xcode-select --install
 # Install Homebrew -> https://brew.sh
 
-
 echo "🔜 Check & Install dependencies..."
 
 if which -a brew > /dev/null; then
