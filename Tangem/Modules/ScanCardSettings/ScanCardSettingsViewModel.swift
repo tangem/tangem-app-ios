@@ -73,7 +73,7 @@ extension ScanCardSettingsViewModel {
                     return
                 }
 
-                AppLog.error(error)
+                AppLog.shared.error(error)
                 completion(.failure(error))
             case .success(let response):
                 completion(.success(response.getCardInfo()))
