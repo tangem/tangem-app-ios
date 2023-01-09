@@ -13,8 +13,8 @@ import Amplitude
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
-    @Injected(\.walletConnectDeeplinkManager) private var walletConnectDeeplinkManager: WalletConnectDeeplinkManaging
-    
+    @Injected(\.deeplinkManager) private var deeplinkManager: DeeplinkManaging
+
     var loadingView: UIView? = nil
 
     func addLoadingView() {
@@ -103,9 +103,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
         AppsFlyerLib.shared().start()
     }
-    
-    func application(_ app: UIApplication, open url: URL, options: [UIApplication.OpenURLOptionsKey : Any] = [:]) -> Bool {
-        walletConnectDeeplinkManager.proceedDeeplink(url: url, options: options)
+
+    func application(_ app: UIApplication, open url: URL, options: [UIApplication.OpenURLOptionsKey: Any] = [:]) -> Bool {
+        deeplinkManager.proceedDeeplink(url: url, options: options)
     }
 
     private func migrateTOS() {
