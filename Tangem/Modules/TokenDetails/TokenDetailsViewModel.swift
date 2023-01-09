@@ -294,7 +294,7 @@ class TokenDetailsViewModel: ObservableObject {
     }
 
     private func bind() {
-        print("🔗 Token Details view model updates binding")
+        AppLog.shared.debug("🔗 Token Details view model updates binding")
         card.objectWillChange
             .receive(on: RunLoop.main)
             .sink { [weak self] in
@@ -326,7 +326,7 @@ class TokenDetailsViewModel: ObservableObject {
             .receive(on: RunLoop.main)
             .sink { [weak self] _ in
                 guard let self = self else { return }
-                print("♻️ Token wallet model loading state changed")
+                AppLog.shared.debug("♻️ Token wallet model loading state changed")
                 withAnimation(.default.delay(0.2)) {
                     self.isRefreshing = false
                     done()
