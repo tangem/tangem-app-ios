@@ -47,8 +47,8 @@ extension RemoteRouteManager: RemoteRouteManaging {
             return
         }
 
-        for delegate in responders.allDelegates.reversed() {
-            if delegate.didReceiveRemoteRoute(pendingRoute) {
+        for responder in responders.allDelegates.reversed() {
+            if responder.didReceiveRemoteRoute(pendingRoute) {
                 break
             }
         }
