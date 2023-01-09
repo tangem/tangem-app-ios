@@ -10,21 +10,23 @@ import Combine
 import Foundation
 
 public class RemoteRouteManager {
-    @Injected(\.walletConnectDeeplinkManager) private var walletConnectDeeplinkManager: WalletConnectDeeplinkManaging
-    
+    @Injected(\.deeplinkManager) private var deeplinkManager: DeeplinkManaging
+
     public private(set) var pendingRoute: RemoteRouteModel?
 
     private var subscriptions = Set<AnyCancellable>()
     private var responders = OrderedMulticastDelegate<RemoteRouteManagerResponder>()
-    
+
     public init() {
-        walletConnectDeeplinkManager.setDelegate(self)
+        deeplinkManager.setDelegate(self)
     }
 }
 
-extension RemoteRouteManager: WalletConnectDeeplinkManagerDelegate {
-    func didReceiveDeeplink(_ manager: WalletConnectDeeplinkManaging, remoteRoute: RemoteRouteModel) {
-        self.pendingRoute = remoteRoute
+// MARK: - DeeplinkManagerDelegate
+
+extension RemoteRouteManager: DeeplinkManagerDelegate {
+    public func didReceiveDeeplink(_ manager: DeeplinkManaging, remoteRoute: RemoteRouteModel) {
+        pendingRoute = remoteRoute
         tryHandleLastRoute()
     }
 }
