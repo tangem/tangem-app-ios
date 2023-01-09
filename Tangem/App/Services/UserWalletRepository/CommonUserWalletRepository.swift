@@ -64,7 +64,7 @@ class CommonUserWalletRepository: UserWalletRepository {
     }
 
     deinit {
-        print("UserWalletRepository deinit")
+        AppLog.shared.debug("UserWalletRepository deinit")
     }
 
     func bind() {
@@ -146,7 +146,7 @@ class CommonUserWalletRepository: UserWalletRepository {
                 return Just(nil)
             }
 
-            print("Failed to scan card: \(error)")
+            AppLog.shared.error(error)
 
             self.failedCardScanTracker.recordFailure()
 
@@ -190,7 +190,7 @@ class CommonUserWalletRepository: UserWalletRepository {
 
             switch result {
             case .failure(let error):
-                AppLog.error(error, for: .scan)
+                AppLog.shared.error(error, for: .scan)
                 completion(.failure(error))
             case .success(let response):
                 let cardDTO = CardDTO(card: response.card)
