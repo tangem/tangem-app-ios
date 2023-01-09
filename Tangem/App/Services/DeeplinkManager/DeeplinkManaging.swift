@@ -14,9 +14,9 @@ public protocol DeeplinkManagerDelegate: AnyObject {
 }
 
 public protocol DeeplinkManaging {
-    func proceedDeeplink(url: URL, options: [UIApplication.OpenURLOptionsKey: Any]) -> Bool
-    func setDelegate(_ delegate: DeeplinkManagerDelegate)
-    func removeDelegate()
+    var delegate: DeeplinkManagerDelegate? { get set }
+
+    func handleDeeplink(url: URL, options: [UIApplication.OpenURLOptionsKey: Any]) -> Bool
 }
 
 private struct DeeplinkManagingKey: InjectionKey {
