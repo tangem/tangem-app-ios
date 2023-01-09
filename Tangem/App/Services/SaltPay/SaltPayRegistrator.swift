@@ -314,7 +314,7 @@ class SaltPayRegistrator {
                 self?.updateState()
             })
             .mapError { error in
-                AppLog.error(error)
+                AppLog.shared.error(error)
                 return SaltPayRegistratorError.blockchainError
             }
             .tryMap { hasGas in
