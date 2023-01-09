@@ -663,7 +663,7 @@
 		EF6CB17E292E1190001335EA /* EnvironmentSetupViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF6CB17D292E1190001335EA /* EnvironmentSetupViewModel.swift */; };
 		EF6EDD7E296C0D40001B21A3 /* RemoteRouteManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF6EDD7C296C0D40001B21A3 /* RemoteRouteManager.swift */; };
 		EF6EDD7F296C0D40001B21A3 /* RemoteRouteManaging.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF6EDD7D296C0D40001B21A3 /* RemoteRouteManaging.swift */; };
-		EF6EDD81296C0D61001B21A3 /* OrderedMulticastDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF6EDD80296C0D61001B21A3 /* OrderedMulticastDelegate.swift */; };
+		EF6EDD81296C0D61001B21A3 /* OrderedWeakObjectsCollection.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF6EDD80296C0D61001B21A3 /* OrderedWeakObjectsCollection.swift */; };
 		EF6EDD84296C0EA9001B21A3 /* DeeplinkManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF6EDD83296C0EA9001B21A3 /* DeeplinkManager.swift */; };
 		EF6EDD86296C0F21001B21A3 /* DeeplinkManaging.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF6EDD85296C0F21001B21A3 /* DeeplinkManaging.swift */; };
 		EF74F50D289BF5AE001034D2 /* Fonts.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF74F50B289BF5AE001034D2 /* Fonts.swift */; };
@@ -1559,7 +1559,7 @@
 		EF6CB17D292E1190001335EA /* EnvironmentSetupViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EnvironmentSetupViewModel.swift; sourceTree = "<group>"; };
 		EF6EDD7C296C0D40001B21A3 /* RemoteRouteManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RemoteRouteManager.swift; sourceTree = "<group>"; };
 		EF6EDD7D296C0D40001B21A3 /* RemoteRouteManaging.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RemoteRouteManaging.swift; sourceTree = "<group>"; };
-		EF6EDD80296C0D61001B21A3 /* OrderedMulticastDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OrderedMulticastDelegate.swift; sourceTree = "<group>"; };
+		EF6EDD80296C0D61001B21A3 /* OrderedWeakObjectsCollection.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OrderedWeakObjectsCollection.swift; sourceTree = "<group>"; };
 		EF6EDD83296C0EA9001B21A3 /* DeeplinkManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeeplinkManager.swift; sourceTree = "<group>"; };
 		EF6EDD85296C0F21001B21A3 /* DeeplinkManaging.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeeplinkManaging.swift; sourceTree = "<group>"; };
 		EF74F50B289BF5AE001034D2 /* Fonts.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Fonts.swift; sourceTree = "<group>"; };
@@ -3769,7 +3769,7 @@
 				EF661E3428C0ADC6005769E5 /* CommonError.swift */,
 				EF9F6F4328D499F600D6B190 /* LoadingValue.swift */,
 				EFD1645A2949F11C000E56C7 /* CurrencyAmount.swift */,
-				EF6EDD80296C0D61001B21A3 /* OrderedMulticastDelegate.swift */,
+				EF6EDD80296C0D61001B21A3 /* OrderedWeakObjectsCollection.swift */,
 			);
 			path = Types;
 			sourceTree = "<group>";
@@ -4787,7 +4787,7 @@
 				DC6244F428A0CA6300AD3EA8 /* SaltPayConfig.swift in Sources */,
 				65B4DED6288357DC001524CF /* BottomSheetBaseController.swift in Sources */,
 				EF46621F2924DEEE00346B6C /* DefaultWarningRow.swift in Sources */,
-				EF6EDD81296C0D61001B21A3 /* OrderedMulticastDelegate.swift in Sources */,
+				EF6EDD81296C0D61001B21A3 /* OrderedWeakObjectsCollection.swift in Sources */,
 				DAA5E31028D2137C003C0E80 /* UserWalletListCellView.swift in Sources */,
 				EF9CFC13288FECE100329BE0 /* ScanCardSettingsViewModel.swift in Sources */,
 				DC261CAB292CF56600875E64 /* AuthViewModel.swift in Sources */,
