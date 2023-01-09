@@ -93,10 +93,10 @@ class ShopViewModel: ObservableObject {
                 return self.shopifyService.checkout(pollUntilOrder: true, checkoutID: checkoutID)
             }
             .sink { completion in
-                print("Finished Apple Pay session", completion)
+                AppLog.shared.debug("Finished Apple Pay session with completion: \(completion)")
                 self.pollingForOrder = false
             } receiveValue: { [weak self] checkout in
-                print("Checkout after Apple Pay session", checkout)
+                AppLog.shared.debug("Checkout after Apple Pay session with checkout: \(checkout)")
                 if let order = checkout.order {
                     self?.didPlaceOrder(order)
                 }
