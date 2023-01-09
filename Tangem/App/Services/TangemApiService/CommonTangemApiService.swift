@@ -19,7 +19,7 @@ class CommonTangemApiService {
     private var authData: TangemApiTarget.AuthData? = nil
 
     deinit {
-        print("CommonTangemApiService deinit")
+        AppLog.shared.debug("CommonTangemApiService deinit")
     }
 }
 
