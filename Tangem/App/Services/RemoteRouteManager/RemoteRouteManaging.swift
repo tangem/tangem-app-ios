@@ -8,19 +8,16 @@
 
 import Combine
 
-/// Object's interface for encapsulating logic of push/deeplink handling
-
+/// Object's interface for encapsulating logic of deeplink handling
 public protocol RemoteRouteManaging: AnyObject {
     var pendingRoute: RemoteRouteModel? { get }
-
-    /// Clear pending route
-    func clearPendingRoute()
 
     func becomeFirstResponder(_ responder: RemoteRouteManagerResponder)
     func resignFirstResponder(_ responder: RemoteRouteManagerResponder)
 
     /// If there is pendingRoute, RemoteRouteManager sends it to all responders, starting from last subscribed
     func tryHandleLastRoute()
+    func clearPendingRoute()
 }
 
 public protocol RemoteRouteManagerResponder: AnyObject {
