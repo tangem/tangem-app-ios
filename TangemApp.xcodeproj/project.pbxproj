@@ -2929,7 +2929,7 @@
 		DC0A57DA2822A4DC0031BECC /* Services */ = {
 			isa = PBXGroup;
 			children = (
-				EF6EDD82296C0E8D001B21A3 /* WalletConnectDeeplinkManager */,
+				EF6EDD82296C0E8D001B21A3 /* DeeplinkManager */,
 				EF6EDD7B296C0D40001B21A3 /* RemoteRouteManager */,
 				EF808441293F6B43000D91EA /* TokenIconURLBuilder */,
 				EF4661BE2923B35800346B6C /* Exchange */,
@@ -3792,13 +3792,13 @@
 			path = RemoteRouteManager;
 			sourceTree = "<group>";
 		};
-		EF6EDD82296C0E8D001B21A3 /* WalletConnectDeeplinkManager */ = {
+		EF6EDD82296C0E8D001B21A3 /* DeeplinkManager */ = {
 			isa = PBXGroup;
 			children = (
 				EF6EDD83296C0EA9001B21A3 /* DeeplinkManager.swift */,
 				EF6EDD85296C0F21001B21A3 /* DeeplinkManaging.swift */,
 			);
-			path = WalletConnectDeeplinkManager;
+			path = DeeplinkManager;
 			sourceTree = "<group>";
 		};
 		EF7B9CED286C6B95004C33A9 /* CardSettings */ = {
