@@ -735,7 +735,8 @@ class WalletOnboardingViewModel: OnboardingTopupViewModel<WalletOnboardingStep, 
                 self.goToNextStep()
             }
         } catch {
-            print("Failed to set access code to backup service. Reason: \(error)")
+            AppLog.shared.debug("Failed to set access code to backup service")
+            AppLog.shared.error(error)
         }
     }
 
@@ -772,9 +773,9 @@ class WalletOnboardingViewModel: OnboardingTopupViewModel<WalletOnboardingStep, 
             .mapVoid()
             .sink(receiveCompletion: { [weak self] completion in
                 if case .failure(let error) = completion {
-                    AppLog.error(error, for: .preparePrimary)
+                    AppLog.shared.error(error, for: .preparePrimary)
                     self?.isMainButtonBusy = false
-                    print(error)
+                    AppLog.shared.error(error)
                 }
                 self?.stepPublisher = nil
             }, receiveValue: processPrimaryCardScan)
@@ -790,8 +791,9 @@ class WalletOnboardingViewModel: OnboardingTopupViewModel<WalletOnboardingStep, 
             .sink(
                 receiveCompletion: { [weak self] completion in
                     if case .failure(let error) = completion {
-                        AppLog.error(error, for: .readPrimary)
-                        print("Failed to read origin card: \(error)")
+                        AppLog.shared.error(error, for: .readPrimary)
+                        AppLog.shared.debug("Failed to read origin card")
+                        AppLog.shared.error(error)
                         self?.isMainButtonBusy = false
                     }
                     self?.stepPublisher = nil
@@ -877,7 +879,7 @@ class WalletOnboardingViewModel: OnboardingTopupViewModel<WalletOnboardingStep, 
             .first()
             .sink(receiveCompletion: { [weak self] completion in
                 if case let .failure(error) = completion {
-                    AppLog.error(error, for: .addbackup)
+                    AppLog.shared.error(error, for: .addbackup)
                     self?.isMainButtonBusy = false
                 }
                 self?.stepPublisher = nil
@@ -915,7 +917,7 @@ class WalletOnboardingViewModel: OnboardingTopupViewModel<WalletOnboardingStep, 
             .first()
             .sink { [weak self] completion in
                 if case let .failure(error) = completion {
-                    AppLog.error(error, for: .proceedBackup)
+                    AppLog.shared.error(error, for: .proceedBackup)
                     self?.isMainButtonBusy = false
                 }
                 self?.stepPublisher = nil
