@@ -35,12 +35,24 @@ extension SignTypedDataProvider: SignTypedDataProviding {
         let data = try JSONEncoder().encode(permitModel)
         print("permitJson:\n" + String(bytes: data, encoding: .utf8)!)
         let signHash = permitModel.signHash
+
         let signData = try await tangemSigner.sign(hash: signHash, walletPublicKey: publicKey).async()
+//        let publicKey = oneInchKey()
+//        let signData = try Secp256k1Utils().sign(hash: signHash, with: publicKey.blockchainKey)
 
         let signature = try Secp256k1Signature(with: signData)
         let unmarshalledSig = try signature.unmarshal(with: publicKey.blockchainKey, hash: signHash)
 
         return UnmarshalledSignedData(v: unmarshalledSig.v, r: unmarshalledSig.r, s: unmarshalledSig.s)
+    }
+
+    func oneInchKey() -> Wallet.PublicKey {
+        let privateKey = Data(hexString: "965e092fdfc08940d2bd05c7b5c7e1c51e283e92c7f52bbf1408973ae9a9acb7")
+        let publicKey = Data(hexString: "04b2eecd54c2c346093076fc8912126d5bf0985aff0e2c17d7d4f6ac885cb65f474fa15046f77257fbff0dae5c41051d8b503b29df2e262468a26a412327b58f0f")
+        // 04b2eecd54c2c346093076fc8912126d5bf0985aff0e2c17d7d4f6ac885cb65f474fa15046f77257fbff0dae5c41051d8b503b29df2e262468a26a412327b58f0f
+        let seedKey = try! Secp256k1Utils().createPublicKey(privateKey: privateKey, compressed: false)
+//
+        return .init(seedKey: seedKey, derivedKey: nil, derivationPath: nil)
     }
 }
 
