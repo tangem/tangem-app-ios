@@ -58,6 +58,7 @@ class AppSettings {
 
     @AppStorageCompat(StorageType.termsOfServiceAccepted)
     var termsOfServicesAccepted: [String] = []
+
     @AppStorageCompat(StorageType.askedToSaveUserWallets)
     var askedToSaveUserWallets: Bool = false
 
