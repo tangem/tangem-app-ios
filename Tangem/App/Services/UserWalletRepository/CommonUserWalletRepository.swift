@@ -404,16 +404,16 @@ class CommonUserWalletRepository: UserWalletRepository {
     }
 
     private func acceptTOSIfNeeded(_ cardInfo: CardInfo, _ completion: @escaping (Result<CardViewModel, Error>) -> Void) {
-        let touURL = UserWalletConfigFactory(cardInfo).makeConfig().touURL
+        let tou = UserWalletConfigFactory(cardInfo).makeConfig().tou
 
-        guard let delegate, !AppSettings.shared.termsOfServicesAccepted.contains(touURL.absoluteString) else {
+        guard let delegate, !AppSettings.shared.termsOfServicesAccepted.contains(tou.id) else {
             completion(.success(processScan(cardInfo)))
             return
         }
 
-        delegate.showTOS(at: touURL) { accepted in
+        delegate.showTOS(at: tou.url) { accepted in
             if accepted {
-                AppSettings.shared.termsOfServicesAccepted.insert(touURL.absoluteString)
+                AppSettings.shared.termsOfServicesAccepted.insert(tou.id)
                 completion(.success(self.processScan(cardInfo)))
             } else {
                 completion(.failure(TangemSdkError.userCancelled))
