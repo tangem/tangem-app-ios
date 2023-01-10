@@ -106,8 +106,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     private func migrateTOS() {
         guard AppSettings.shared.isTermsOfServiceAccepted else { return }
 
-        let defaultUrl = DummyConfig().touURL.absoluteString
-        AppSettings.shared.termsOfServicesAccepted.insert(defaultUrl)
+        let defaultId = DummyConfig().tou.id
+        AppSettings.shared.termsOfServicesAccepted.insert(defaultId)
         AppSettings.shared.isTermsOfServiceAccepted = false
     }
 }
