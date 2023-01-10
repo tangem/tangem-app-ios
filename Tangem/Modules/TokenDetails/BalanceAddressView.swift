@@ -86,13 +86,13 @@ struct BalanceAddressView: View {
                             .truncationMode(.middle)
                             .lineLimit(2)
                             .fixedSize(horizontal: false, vertical: true)
-                            .skeletonable(isShown: isSkeletonShown, radius: 6)
+                            .skeletonable(isShown: isSkeletonShown, size: CGSize(width: 70, height: 20), radius: 6)
                         Text(balance)
                             .font(Font.system(size: 14.0, weight: .medium, design: .default))
                             .lineLimit(1)
                             .fixedSize(horizontal: false, vertical: true)
                             .foregroundColor(Color.tangemGrayDark)
-                            .skeletonable(isShown: isSkeletonShown, radius: 6)
+                            .skeletonable(isShown: isSkeletonShown, size: CGSize(width: 100, height: 14), radius: 6)
                     }
                     HStack(alignment: .firstTextBaseline, spacing: 5.0) {
                         Image(systemName: image)
