@@ -70,6 +70,10 @@ final class SwappingViewModel: ObservableObject {
         loadDestinationIfNeeded()
     }
 
+    func userDidTapMaxAmount() {
+        sendDecimalValue = exchangeManager.getExchangeItems().sourceBalance.balance
+    }
+
     func userDidRequestChangeDestination(to currency: Currency) {
         var items = exchangeManager.getExchangeItems()
         items.destination = currency
