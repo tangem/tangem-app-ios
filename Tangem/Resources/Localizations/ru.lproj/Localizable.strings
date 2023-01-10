@@ -515,3 +515,4 @@ URL: %@";
 "user_wallet_list_error_wallet_already_saved" = "Этот кошелек уже был сохранен, вы можете добавить другой";
 "card_settings_action_sheet_title" = "Вы уверены, что хотите сделать это?";
 "card_settings_action_sheet_reset" = "Сбросить";
+"wallet_button_actions" = "Действия";
