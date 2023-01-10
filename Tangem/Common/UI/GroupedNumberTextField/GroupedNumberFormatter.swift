@@ -9,10 +9,10 @@
 import Foundation
 
 struct GroupedNumberFormatter {
-    private let numberFormatter: NumberFormatter
+    var maximumFractionDigits: Int { numberFormatter.maximumFractionDigits }
+    var decimalSeparator: Character { Character(numberFormatter.decimalSeparator) }
 
-    private var maximumFractionDigits: Int { numberFormatter.maximumFractionDigits }
-    private var decimalSeparator: Character { Character(numberFormatter.decimalSeparator) }
+    private let numberFormatter: NumberFormatter
 
     init(
         numberFormatter: NumberFormatter,
@@ -42,14 +42,31 @@ struct GroupedNumberFormatter {
 
         // If textFieldText is correct number, return formatted number
         if let value = numberFormatter.number(from: numberString) {
-            return formatNumber(value.decimalValue)
+            return format(from: value.decimalValue)
         }
 
         // Otherwise just return text
         return string
     }
 
-    private func formatIntegerAndFractionSeparately(string: String) -> String {
+    func format(from value: Decimal) -> String {
+        guard let string = numberFormatter.string(from: value as NSDecimalNumber) else {
+            assertionFailure("number \(value) can not formatted")
+            return "\(value)"
+        }
+
+        return string
+    }
+
+    func number(from string: String) -> NSNumber? {
+        numberFormatter.number(from: string)
+    }
+}
+
+// MARK: - Private
+
+private extension GroupedNumberFormatter {
+    func formatIntegerAndFractionSeparately(string: String) -> String {
         guard let commaIndex = string.firstIndex(of: decimalSeparator) else {
             return string
         }
@@ -68,10 +85,6 @@ struct GroupedNumberFormatter {
             afterComma = afterComma[afterComma.startIndex ... lastAcceptableIndex]
         }
 
-        return formatNumber(bodyNumber.decimalValue) + afterComma
-    }
-
-    private func formatNumber(_ value: Decimal) -> String {
-        numberFormatter.string(from: value as NSDecimalNumber) ?? "\(value)"
+        return format(from: bodyNumber.decimalValue) + afterComma
     }
 }
