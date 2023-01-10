@@ -13,6 +13,7 @@ struct SendCurrencyView: View {
     @Binding private var decimalValue: Decimal?
 
     private let tokenIconSize = CGSize(width: 36, height: 36)
+    private var didTapMaxAmountAction: (() -> Void)?
 
     init(viewModel: SendCurrencyViewModel, decimalValue: Binding<Decimal?>) {
         self.viewModel = viewModel
@@ -60,8 +61,17 @@ struct SendCurrencyView: View {
             lockView
 
             VStack(alignment: .leading, spacing: 8) {
-                GroupedNumberTextField(decimalValue: $decimalValue)
+                if #available(iOS 15.0, *) {
+                    SendNumberTextField(decimalValue: $decimalValue) {
+                        Button(Localization.sendMaxAmountLabel) {
+                            didTapMaxAmountAction?()
+                        }
+                    }
                     .maximumFractionDigits(viewModel.maximumFractionDigits)
+                } else {
+                    GroupedNumberTextField(decimalValue: $decimalValue)
+                        .maximumFractionDigits(viewModel.maximumFractionDigits)
+                }
 
                 Text(viewModel.fiatValueString)
                     .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
@@ -78,6 +88,14 @@ struct SendCurrencyView: View {
 
             SwappingTokenIconView(viewModel: viewModel.tokenIcon)
         }
+    }
+}
+
+// MARK: - Setupable
+
+extension SendCurrencyView: Setupable {
+    func didTapMaxAmount(_ action: @escaping () -> Void) -> Self {
+        map { $0.didTapMaxAmountAction = action }
     }
 }
 
