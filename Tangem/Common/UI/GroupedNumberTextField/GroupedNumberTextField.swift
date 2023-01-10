@@ -13,14 +13,13 @@ struct GroupedNumberTextField: View {
     @State private var textFieldText: String = ""
 
     private let placeholder: String = "0"
-    private var decimalSeparator: Character { Character(numberFormatter.decimalSeparator) }
     private var groupedNumberFormatter: GroupedNumberFormatter
-    private let numberFormatter: NumberFormatter = .grouped
+    private var decimalSeparator: Character { groupedNumberFormatter.decimalSeparator }
 
     init(decimalValue: Binding<Decimal?>) {
         _decimalValue = decimalValue
 
-        groupedNumberFormatter = GroupedNumberFormatter(numberFormatter: numberFormatter)
+        groupedNumberFormatter = GroupedNumberFormatter(numberFormatter: .grouped)
     }
 
     private var textFieldProxyBinding: Binding<String> {
@@ -53,7 +52,7 @@ struct GroupedNumberTextField: View {
                 textFieldText = numberString
 
                 // If string is correct number, update binding for work external updates
-                if let value = numberFormatter.number(from: numberString) {
+                if let value = groupedNumberFormatter.number(from: numberString) {
                     decimalValue = value.decimalValue
                 } else if numberString.isEmpty {
                     decimalValue = nil
@@ -67,8 +66,21 @@ struct GroupedNumberTextField: View {
             .style(Fonts.Regular.title1, color: Colors.Text.primary1)
             .keyboardType(.decimalPad)
             .tintCompat(Colors.Text.primary1)
+            .onChange(of: decimalValue) { decimalValue in
+                guard let decimalValue else {
+                    textFieldText = ""
+                    return
+                }
+
+                let newValue = groupedNumberFormatter.format(from: decimalValue)
+                if textFieldText != newValue {
+                    textFieldText = newValue
+                }
+            }
     }
 }
+
+// MARK: - Setupable
 
 extension GroupedNumberTextField: Setupable {
     func maximumFractionDigits(_ digits: Int) -> Self {
