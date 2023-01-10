@@ -515,3 +515,4 @@ URL: %@";
 "user_wallet_list_error_wallet_already_saved" = "This wallet has already been saved, you can add another one";
 "card_settings_action_sheet_title" = "Are you sure you want to do this?";
 "card_settings_action_sheet_reset" = "Reset";
+"wallet_button_actions" = "Actions";
