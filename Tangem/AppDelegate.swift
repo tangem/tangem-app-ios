@@ -11,7 +11,6 @@ import Firebase
 import AppsFlyerLib
 import Amplitude
 
-
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
     var loadingView: UIView? = nil
