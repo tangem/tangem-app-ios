@@ -28,7 +28,7 @@ struct Start2CoinConfig {
         return url
     }
 
-    private func makeTouID() -> String? {
+    private func makeTouID() -> String {
         let regionCode = regionCode(for: card.cardId) ?? "fr"
         let filename = filename(languageCode: "", regionCode: regionCode)
         return baseTouUrl + filename
@@ -89,7 +89,7 @@ extension Start2CoinConfig: UserWalletConfig {
         let id = makeTouID()
         let url = makeTouURL()
 
-        guard let id, let url else {
+        guard let url else {
             return DummyConfig().tou
         }
 
