@@ -14,17 +14,24 @@ struct Start2CoinConfig {
     private let card: CardDTO
     private let walletData: WalletData
 
+    private let baseTouUrl = "https://app.tangem.com/tou/"
+
     private var defaultBlockchain: Blockchain {
         Blockchain.from(blockchainName: walletData.blockchain, curve: card.supportedCurves[0])!
     }
 
     private func makeTouURL() -> URL? {
-        let baseurl = "https://app.tangem.com/tou/"
-        let regionCode = self.regionCode(for: card.cardId) ?? "fr"
+        let regionCode = regionCode(for: card.cardId) ?? "fr"
         let languageCode = Locale.current.languageCode ?? "fr"
-        let filename = self.filename(languageCode: languageCode, regionCode: regionCode)
-        let url = URL(string: baseurl + filename)
+        let filename = filename(languageCode: languageCode, regionCode: regionCode)
+        let url = URL(string: baseTouUrl + filename)
         return url
+    }
+
+    private func makeTouID() -> String? {
+        let regionCode = regionCode(for: card.cardId) ?? "fr"
+        let filename = filename(languageCode: "", regionCode: regionCode)
+        return baseTouUrl + filename
     }
 
     private func filename(languageCode: String, regionCode: String) -> String {
@@ -78,8 +85,15 @@ extension Start2CoinConfig: UserWalletConfig {
               subject: Localization.feedbackSubjectSupport)
     }
 
-    var touURL: URL {
-        makeTouURL() ?? DummyConfig().touURL
+    var tou: TOU {
+        let id = makeTouID()
+        let url = makeTouURL()
+
+        guard let id, let url else {
+            return DummyConfig().tou
+        }
+
+        return TOU(id: id, url: url)
     }
 
     var cardsCount: Int {
