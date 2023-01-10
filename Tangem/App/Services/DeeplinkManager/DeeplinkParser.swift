@@ -10,7 +10,7 @@ import Foundation
 import UIKit
 
 public class DeeplinkParser {
-    public weak var delegate: DeeplinkManagerDelegate?
+    public weak var delegate: DeeplinkParserDelegate?
     public init() {}
 }
 
