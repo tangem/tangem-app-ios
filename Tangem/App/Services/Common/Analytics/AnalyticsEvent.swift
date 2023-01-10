@@ -136,6 +136,13 @@ extension Analytics {
         case chatScreenOpened = "[Chat] Chat Screen Opened"
         case settingsScreenOpened = "[Settings] Settings Screen Opened"
 
+        // MARK: - Referral program
+        case referralScreenOpened = "[Referral Program] Referral Screen Opened"
+        case referralButtonParticipate = "[Referral Program] Button - Participate"
+        case referralButtonCopyCode = "[Referral Program] Button - Copy"
+        case referralButtonShareCode = "[Referral Program] Button - Share"
+        case referralButtonOpenTos = "[Referral Program] Link - TaC"
+
         // MARK: -
         fileprivate static var nfcError: String {
             "nfc_error"
