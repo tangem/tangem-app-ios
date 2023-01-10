@@ -10,24 +10,24 @@ import Combine
 import Foundation
 
 public class RemoteRouteManager {
-    @Injected(\.deeplinkManager) private var deeplinkManager: DeeplinkManaging
+    @Injected(\.deeplinkParser) private var deeplinkParser: DeeplinkParsing
 
     public private(set) var pendingRoute: RemoteRouteModel?
     private var responders = OrderedWeakObjectsCollection<RemoteRouteManagerResponder>()
 
     public init() {
-        deeplinkManager.delegate = self
+        deeplinkParser.delegate = self
     }
 
     deinit {
-        deeplinkManager.delegate = nil
+        deeplinkParser.delegate = nil
     }
 }
 
 // MARK: - DeeplinkManagerDelegate
 
 extension RemoteRouteManager: DeeplinkManagerDelegate {
-    public func didReceiveDeeplink(_ manager: DeeplinkManaging, remoteRoute: RemoteRouteModel) {
+    public func didReceiveDeeplink(_ manager: DeeplinkParsing, remoteRoute: RemoteRouteModel) {
         pendingRoute = remoteRoute
         tryHandleLastRoute()
     }
