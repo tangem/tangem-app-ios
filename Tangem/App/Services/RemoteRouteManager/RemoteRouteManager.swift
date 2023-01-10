@@ -24,9 +24,9 @@ public class RemoteRouteManager {
     }
 }
 
-// MARK: - DeeplinkManagerDelegate
+// MARK: - DeeplinkParserDelegate
 
-extension RemoteRouteManager: DeeplinkManagerDelegate {
+extension RemoteRouteManager: DeeplinkParserDelegate {
     public func didReceiveDeeplink(_ manager: DeeplinkParsing, remoteRoute: RemoteRouteModel) {
         pendingRoute = remoteRoute
         tryHandleLastRoute()
