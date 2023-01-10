@@ -37,13 +37,13 @@ struct BackUpWarningButton: View {
 
                 Image("chevron")
             }
+            .padding(.horizontal, 16)
+            .padding(.vertical, 10)
+            .background(Color.white)
+            .contentShape(Rectangle())
+            .cornerRadius(16)
         }
         .buttonStyle(PlainButtonStyle())
-        .padding(.horizontal, 16)
-        .padding(.vertical, 10)
-        .background(Color.white)
-        .contentShape(Rectangle())
-        .cornerRadius(16)
     }
 }
 
