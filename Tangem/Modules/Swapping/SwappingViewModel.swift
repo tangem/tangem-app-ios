@@ -272,9 +272,10 @@ private extension SwappingViewModel {
         case let .available(result, _):
             let source = exchangeManager.getExchangeItems().source
 
+            let fee = result.fee.rounded(scale: 2, roundingMode: .up)
             swappingFeeRowViewModel.update(
                 state: .fee(
-                    fee: result.fee.groupedFormatted(maximumFractionDigits: source.decimalCount),
+                    fee: fee.groupedFormatted(maximumFractionDigits: source.decimalCount),
                     symbol: source.blockchain.symbol,
                     fiat: result.fiatFee.currencyFormatted(code: AppSettings.shared.selectedCurrencyCode)
                 )
