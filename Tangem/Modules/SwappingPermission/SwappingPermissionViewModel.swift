@@ -77,12 +77,9 @@ private extension SwappingPermissionViewModel {
         let walletAddress = AddressFormatter(address: transactionInfo.sourceAddress).truncated()
         let spenderAddress = AddressFormatter(address: transactionInfo.destinationAddress).truncated()
 
-        let fee = transactionInfo.fee.groupedFormatted(
-            maximumFractionDigits: transactionInfo.sourceCurrency.decimalCount
-        )
-
+        let fee = transactionInfo.fee.rounded(scale: 2, roundingMode: .up)
         let fiatFee = inputModel.fiatFee.currencyFormatted(code: AppSettings.shared.selectedCurrencyCode)
-        let formattedFee = "\(fee)(\(fiatFee))"
+        let formattedFee = "\(fee.groupedFormatted()) \(inputModel.transactionInfo.sourceBlockchain.symbol) (\(fiatFee))"
 
         contentRowViewModels = [
             DefaultRowViewModel(title: Localization.swappingPermissionRowsAmount(tokenSymbol),
