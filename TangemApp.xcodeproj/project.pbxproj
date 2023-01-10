@@ -664,8 +664,8 @@
 		EF6EDD7E296C0D40001B21A3 /* RemoteRouteManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF6EDD7C296C0D40001B21A3 /* RemoteRouteManager.swift */; };
 		EF6EDD7F296C0D40001B21A3 /* RemoteRouteManaging.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF6EDD7D296C0D40001B21A3 /* RemoteRouteManaging.swift */; };
 		EF6EDD81296C0D61001B21A3 /* OrderedWeakObjectsCollection.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF6EDD80296C0D61001B21A3 /* OrderedWeakObjectsCollection.swift */; };
-		EF6EDD84296C0EA9001B21A3 /* DeeplinkManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF6EDD83296C0EA9001B21A3 /* DeeplinkManager.swift */; };
-		EF6EDD86296C0F21001B21A3 /* DeeplinkManaging.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF6EDD85296C0F21001B21A3 /* DeeplinkManaging.swift */; };
+		EF6EDD84296C0EA9001B21A3 /* DeeplinkParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF6EDD83296C0EA9001B21A3 /* DeeplinkParser.swift */; };
+		EF6EDD86296C0F21001B21A3 /* DeeplinkParsing.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF6EDD85296C0F21001B21A3 /* DeeplinkParsing.swift */; };
 		EF74F50D289BF5AE001034D2 /* Fonts.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF74F50B289BF5AE001034D2 /* Fonts.swift */; };
 		EF74F50E289BF5AE001034D2 /* Text+.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF74F50C289BF5AE001034D2 /* Text+.swift */; };
 		EF78433B29431903007E57D1 /* ExchangeManagerError.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF78433A29431903007E57D1 /* ExchangeManagerError.swift */; };
@@ -1560,8 +1560,8 @@
 		EF6EDD7C296C0D40001B21A3 /* RemoteRouteManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RemoteRouteManager.swift; sourceTree = "<group>"; };
 		EF6EDD7D296C0D40001B21A3 /* RemoteRouteManaging.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RemoteRouteManaging.swift; sourceTree = "<group>"; };
 		EF6EDD80296C0D61001B21A3 /* OrderedWeakObjectsCollection.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OrderedWeakObjectsCollection.swift; sourceTree = "<group>"; };
-		EF6EDD83296C0EA9001B21A3 /* DeeplinkManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeeplinkManager.swift; sourceTree = "<group>"; };
-		EF6EDD85296C0F21001B21A3 /* DeeplinkManaging.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeeplinkManaging.swift; sourceTree = "<group>"; };
+		EF6EDD83296C0EA9001B21A3 /* DeeplinkParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeeplinkParser.swift; sourceTree = "<group>"; };
+		EF6EDD85296C0F21001B21A3 /* DeeplinkParsing.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeeplinkParsing.swift; sourceTree = "<group>"; };
 		EF74F50B289BF5AE001034D2 /* Fonts.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Fonts.swift; sourceTree = "<group>"; };
 		EF74F50C289BF5AE001034D2 /* Text+.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Text+.swift"; sourceTree = "<group>"; };
 		EF78433A29431903007E57D1 /* ExchangeManagerError.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ExchangeManagerError.swift; sourceTree = "<group>"; };
@@ -3795,8 +3795,8 @@
 		EF6EDD82296C0E8D001B21A3 /* DeeplinkManager */ = {
 			isa = PBXGroup;
 			children = (
-				EF6EDD83296C0EA9001B21A3 /* DeeplinkManager.swift */,
-				EF6EDD85296C0F21001B21A3 /* DeeplinkManaging.swift */,
+				EF6EDD83296C0EA9001B21A3 /* DeeplinkParser.swift */,
+				EF6EDD85296C0F21001B21A3 /* DeeplinkParsing.swift */,
 			);
 			path = DeeplinkManager;
 			sourceTree = "<group>";
@@ -4593,7 +4593,7 @@
 				EFE23AC6292CB6F700A3C554 /* SwappingTokenListView.swift in Sources */,
 				DAA5E31A28D214BF003C0E80 /* UserWalletFactory.swift in Sources */,
 				DC7DA8192844EAFF00AD6DBD /* WelcomeCoordinator.swift in Sources */,
-				EF6EDD86296C0F21001B21A3 /* DeeplinkManaging.swift in Sources */,
+				EF6EDD86296C0F21001B21A3 /* DeeplinkParsing.swift in Sources */,
 				5D384B9124FD4E1800C2C92C /* String+.swift in Sources */,
 				5DD4CB4E24FAAB1A008F23CC /* KeyboardAdaptive.swift in Sources */,
 				DC66BBE72858EBE400CDF765 /* OnboardingCoordinatorView.swift in Sources */,
@@ -4678,7 +4678,7 @@
 				EFFE2CEC28B8E1B000B9F279 /* DerivationManager.swift in Sources */,
 				DCE7E02C287BF92400063EEC /* SwitchChainHandler.swift in Sources */,
 				EFE23AC8292CB6F700A3C554 /* SwappingTokenListRoutable.swift in Sources */,
-				EF6EDD84296C0EA9001B21A3 /* DeeplinkManager.swift in Sources */,
+				EF6EDD84296C0EA9001B21A3 /* DeeplinkParser.swift in Sources */,
 				B09BB865259A075600B92000 /* TextInputField.swift in Sources */,
 				B037B1EE256E747F0022EFFF /* TwinsFinalizeWalletCreationTask.swift in Sources */,
 				EF4661D22923E4C000346B6C /* BlockchainNetworkService.swift in Sources */,

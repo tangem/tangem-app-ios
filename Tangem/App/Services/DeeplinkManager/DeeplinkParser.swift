@@ -1,5 +1,5 @@
 //
-//  DeeplinkManager.swift
+//  DeeplinkParser.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -9,14 +9,14 @@
 import Foundation
 import UIKit
 
-public class DeeplinkManager {
+public class DeeplinkParser {
     public weak var delegate: DeeplinkManagerDelegate?
     public init() {}
 }
 
-// MARK: - DeeplinkManaging
+// MARK: - DeeplinkParsing
 
-extension DeeplinkManager: DeeplinkManaging {
+extension DeeplinkParser: DeeplinkParsing {
     public func handleDeeplink(url: URL, options: [UIApplication.OpenURLOptionsKey: Any]) -> Bool {
         let remouteRoute: RemoteRouteModel = .walletConnect(url)
         // Logic for parse wallet connect url
