@@ -176,7 +176,7 @@ struct TokenDetailsView: View {
 
         case .multi:
             MainButton(
-                title: Localization.walletButtonTrade,
+                title: Localization.walletButtonActions,
                 icon: .leading(Assets.exchangeIcon),
                 action: viewModel.openExchangeActionSheet
             )
