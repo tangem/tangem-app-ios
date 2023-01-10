@@ -661,6 +661,7 @@
 		EF692A492951E7C8001F4B8A /* Localizable+Generated.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF692A472951E7C8001F4B8A /* Localizable+Generated.swift */; };
 		EF6CB17C292E1080001335EA /* SwappingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF6CB17B292E1080001335EA /* SwappingView.swift */; };
 		EF6CB17E292E1190001335EA /* EnvironmentSetupViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF6CB17D292E1190001335EA /* EnvironmentSetupViewModel.swift */; };
+		EF6EDD8C296D6B51001B21A3 /* SendNumberTextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF6EDD8B296D6B51001B21A3 /* SendNumberTextField.swift */; };
 		EF74F50D289BF5AE001034D2 /* Fonts.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF74F50B289BF5AE001034D2 /* Fonts.swift */; };
 		EF74F50E289BF5AE001034D2 /* Text+.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF74F50C289BF5AE001034D2 /* Text+.swift */; };
 		EF78433B29431903007E57D1 /* ExchangeManagerError.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF78433A29431903007E57D1 /* ExchangeManagerError.swift */; };
@@ -1552,6 +1553,7 @@
 		EF692A472951E7C8001F4B8A /* Localizable+Generated.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Localizable+Generated.swift"; sourceTree = "<group>"; };
 		EF6CB17B292E1080001335EA /* SwappingView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SwappingView.swift; sourceTree = "<group>"; };
 		EF6CB17D292E1190001335EA /* EnvironmentSetupViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EnvironmentSetupViewModel.swift; sourceTree = "<group>"; };
+		EF6EDD8B296D6B51001B21A3 /* SendNumberTextField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendNumberTextField.swift; sourceTree = "<group>"; };
 		EF74F50B289BF5AE001034D2 /* Fonts.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Fonts.swift; sourceTree = "<group>"; };
 		EF74F50C289BF5AE001034D2 /* Text+.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Text+.swift"; sourceTree = "<group>"; };
 		EF78433A29431903007E57D1 /* ExchangeManagerError.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ExchangeManagerError.swift; sourceTree = "<group>"; };
@@ -1923,6 +1925,7 @@
 		5D958E1224F513C1006BD932 /* UI */ = {
 			isa = PBXGroup;
 			children = (
+				EF6EDD8A296D6B3B001B21A3 /* SendNumberTextField */,
 				EFBAABAB2927CCBA0065C6D4 /* GroupedNumberTextField */,
 				EFE23AC9292CB84600A3C554 /* IconView */,
 				EF4662322924DFAF00346B6C /* GroupedScrollView */,
@@ -3770,6 +3773,14 @@
 			path = Generated;
 			sourceTree = "<group>";
 		};
+		EF6EDD8A296D6B3B001B21A3 /* SendNumberTextField */ = {
+			isa = PBXGroup;
+			children = (
+				EF6EDD8B296D6B51001B21A3 /* SendNumberTextField.swift */,
+			);
+			path = SendNumberTextField;
+			sourceTree = "<group>";
+		};
 		EF7B9CED286C6B95004C33A9 /* CardSettings */ = {
 			isa = PBXGroup;
 			children = (
@@ -4731,6 +4742,7 @@
 				DA23788B27B2488D009795A8 /* ShopifyShop.swift in Sources */,
 				EF053DF22938D4BC006FD13A /* UserWalletListCoordinator.swift in Sources */,
 				5D39515925597DA5002CC452 /* WalletModel.swift in Sources */,
+				EF6EDD8C296D6B51001B21A3 /* SendNumberTextField.swift in Sources */,
 				65C9FCB22864507600FDE63E /* MainView.swift in Sources */,
 				5D78D11D261E084700F98B18 /* CreateMultiWalletTask.swift in Sources */,
 				B07AE16C25DD548A0045179A /* CommonRateAppService.swift in Sources */,
