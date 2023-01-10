@@ -9,12 +9,12 @@
 import Foundation
 import UIKit
 
-public protocol DeeplinkManagerDelegate: AnyObject {
+public protocol DeeplinkParserDelegate: AnyObject {
     func didReceiveDeeplink(_ manager: DeeplinkParsing, remoteRoute: RemoteRouteModel)
 }
 
 public protocol DeeplinkParsing {
-    var delegate: DeeplinkManagerDelegate? { get set }
+    var delegate: DeeplinkParserDelegate? { get set }
 
     func handleDeeplink(url: URL, options: [UIApplication.OpenURLOptionsKey: Any]) -> Bool
 }
