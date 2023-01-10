@@ -108,7 +108,7 @@ class CardViewModel: Identifiable, ObservableObject {
     }
 
     var cardTouURL: URL {
-        config.touURL
+        config.tou.url
     }
 
     var supportsWalletConnect: Bool {
