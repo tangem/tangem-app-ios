@@ -118,8 +118,8 @@ private extension AppDelegate {
     func configureAppsFlyer() {
         guard AppEnvironment.current.isProduction else { return }
 
-        AppsFlyerLib.shared().appsFlyerDevKey = try! CommonKeysManager().appsFlyerDevKey
-        AppsFlyerLib.shared().appleAppID =  "1354868448"
+        AppsFlyerLib.shared().appsFlyerDevKey = try! CommonKeysManager().appsFlyer.appsFlyerDevKey
+        AppsFlyerLib.shared().appleAppID = try! CommonKeysManager().appsFlyer.appsFlyerAppID
     }
 
     func configureAmplitude() {
