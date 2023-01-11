@@ -32,7 +32,7 @@ struct SendCurrencyViewModel: Identifiable {
     init(
         balance: Decimal,
         maximumFractionDigits: Int,
-        fiatValue: Decimal,
+        fiatValue: Decimal = 0,
         isLockedVisible: Bool = false,
         tokenIcon: SwappingTokenIconViewModel
     ) {
