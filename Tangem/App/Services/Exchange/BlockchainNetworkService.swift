@@ -39,6 +39,15 @@ extension BlockchainNetworkService: TangemExchange.BlockchainDataProvider {
         return walletModel.wallet.address
     }
 
+    func hasPendingTransaction(currency: Currency) -> Bool {
+        guard walletModel.wallet.blockchain.networkId == currency.blockchain.networkId else {
+            assertionFailure("Incorrect WalletModel")
+            return false
+        }
+
+        return walletModel.wallet.hasPendingTx
+    }
+
     func getBalance(for currency: Currency) async throws -> Decimal {
         let amountType: Amount.AmountType
 
