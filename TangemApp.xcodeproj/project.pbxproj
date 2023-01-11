@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 51;
+	objectVersion = 54;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -131,7 +131,6 @@
 		5DDFC2042812B72C005976FE /* Currency.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DDFC2032812B72C005976FE /* Currency.swift */; };
 		5DDFC2072812B7AB005976FE /* RatesResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DDFC2062812B7AB005976FE /* RatesResponse.swift */; };
 		5DE2038E24EE8A510044EF46 /* ActivityIndicatorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DE2038D24EE8A510044EF46 /* ActivityIndicatorView.swift */; };
-		5DE552F627B418B400D7ADCD /* testnet_tokens.json in Resources */ = {isa = PBXBuildFile; fileRef = 5DE552F527B418B400D7ADCD /* testnet_tokens.json */; };
 		5DEC50A525F160930022CE83 /* CircleImageTextView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DEC50A425F160930022CE83 /* CircleImageTextView.swift */; };
 		5DF2522724F914E30015B429 /* AppScanTask.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DF2522624F914E30015B429 /* AppScanTask.swift */; };
 		5DF2522924F93C2A0015B429 /* QRCodeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DF2522824F93C2A0015B429 /* QRCodeView.swift */; };
@@ -544,7 +543,6 @@
 		EF0F99AC289028F8008B01DF /* AppSettingsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF0F99A7289028F8008B01DF /* AppSettingsViewModel.swift */; };
 		EF0F99AD289028F8008B01DF /* AppSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF0F99A8289028F8008B01DF /* AppSettingsView.swift */; };
 		EF0F99AE289028F8008B01DF /* AppSettingsRoutable.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF0F99A9289028F8008B01DF /* AppSettingsRoutable.swift */; };
-		EF0F99B328902902008B01DF /* DefaultFooterView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF0F99B028902902008B01DF /* DefaultFooterView.swift */; };
 		EF0F99E128917003008B01DF /* SocialNetwork.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF0F99E028917003008B01DF /* SocialNetwork.swift */; };
 		EF0F99E3289177C6008B01DF /* InfoDictionaryUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF0F99E2289177C6008B01DF /* InfoDictionaryUtils.swift */; };
 		EF0FF8712866021B00B7CEAF /* AppEnvironment.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF0FF8702866021B00B7CEAF /* AppEnvironment.swift */; };
@@ -554,8 +552,6 @@
 		EF11DD9C29378A6F0044B33C /* SwappingTokenListViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF11DD9529378A6E0044B33C /* SwappingTokenListViewModel.swift */; };
 		EF11DD9D29378A6F0044B33C /* SwappingTokenItemViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF11DD9829378A6E0044B33C /* SwappingTokenItemViewModel.swift */; };
 		EF11DD9E29378A6F0044B33C /* SwappingTokenItemView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF11DD9929378A6E0044B33C /* SwappingTokenItemView.swift */; };
-		EF11DD9F29378A6F0044B33C /* SwappingTokenListRoutable.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF11DD9A29378A6E0044B33C /* SwappingTokenListRoutable.swift */; };
-		EF11DDA029378A6F0044B33C /* SwappingTokenListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF11DD9B29378A6E0044B33C /* SwappingTokenListView.swift */; };
 		EF130EB428E1C47C00D37EFC /* SingleWalletContentViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF130EB328E1C47C00D37EFC /* SingleWalletContentViewModel.swift */; };
 		EF130EB628E1C6CB00D37EFC /* MultiWalletContentViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF130EB528E1C6CB00D37EFC /* MultiWalletContentViewModel.swift */; };
 		EF130EBA28E1D33000D37EFC /* SingleWalletContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF130EB928E1D33000D37EFC /* SingleWalletContentView.swift */; };
@@ -615,17 +611,11 @@
 		EF46621B2924DEEE00346B6C /* DefaultHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF4662102924DEEE00346B6C /* DefaultHeaderView.swift */; };
 		EF46621C2924DEEE00346B6C /* DefaultFooterView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF4662112924DEEE00346B6C /* DefaultFooterView.swift */; };
 		EF46621D2924DEEE00346B6C /* DefaultRowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF4662132924DEEE00346B6C /* DefaultRowView.swift */; };
-		EF46621E2924DEEE00346B6C /* DefaultRowViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF4662142924DEEE00346B6C /* DefaultRowViewModel.swift */; };
-		EF46621F2924DEEE00346B6C /* DefaultWarningRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF4662162924DEEE00346B6C /* DefaultWarningRow.swift */; };
 		EF4662202924DEEE00346B6C /* DefaultWarningRowViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF4662172924DEEE00346B6C /* DefaultWarningRowViewModel.swift */; };
-		EF4662212924DEEE00346B6C /* DefaultToggleRowViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF4662192924DEEE00346B6C /* DefaultToggleRowViewModel.swift */; };
 		EF4662222924DEEE00346B6C /* DefaultToggleRowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF46621A2924DEEE00346B6C /* DefaultToggleRowView.swift */; };
 		EF46622C2924DF0300346B6C /* DefaultToggleRowViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF4662242924DF0300346B6C /* DefaultToggleRowViewModel.swift */; };
-		EF46622D2924DF0300346B6C /* DefaultToggleRowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF4662252924DF0300346B6C /* DefaultToggleRowView.swift */; };
-		EF46622E2924DF0300346B6C /* DefaultRowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF4662272924DF0300346B6C /* DefaultRowView.swift */; };
 		EF46622F2924DF0300346B6C /* DefaultRowViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF4662282924DF0300346B6C /* DefaultRowViewModel.swift */; };
 		EF4662302924DF0300346B6C /* DefaultWarningRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF46622A2924DF0300346B6C /* DefaultWarningRow.swift */; };
-		EF4662312924DF0300346B6C /* DefaultWarningRowViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF46622B2924DF0300346B6C /* DefaultWarningRowViewModel.swift */; };
 		EF4662352924DFAF00346B6C /* GroupedScrollView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF4662332924DFAF00346B6C /* GroupedScrollView.swift */; };
 		EF4662362924DFAF00346B6C /* GroupedSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF4662342924DFAF00346B6C /* GroupedSection.swift */; };
 		EF4662392924E00400346B6C /* WalletConnectRowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF4662382924E00400346B6C /* WalletConnectRowView.swift */; };
@@ -784,14 +774,14 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
-		B066823E26564ADB00CB86CF /* Embed App Extensions */ = {
+		B066823E26564ADB00CB86CF /* Embed Foundation Extensions */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
 			dstPath = "";
 			dstSubfolderSpec = 13;
 			files = (
 			);
-			name = "Embed App Extensions";
+			name = "Embed Foundation Extensions";
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		EF4661B02923AFC500346B6C /* Embed Frameworks */ = {
@@ -4166,7 +4156,7 @@
 				5D3F77BF24BF56D800E8695B /* Frameworks */,
 				5D3F77C024BF56D800E8695B /* Resources */,
 				78515DF22ED176E83FF382BF /* [CP] Embed Pods Frameworks */,
-				B066823E26564ADB00CB86CF /* Embed App Extensions */,
+				B066823E26564ADB00CB86CF /* Embed Foundation Extensions */,
 				EFA18E73290FBA1B00CF1AE4 /* Run SwiftFormat */,
 				EF4661B02923AFC500346B6C /* Embed Frameworks */,
 			);
@@ -4265,7 +4255,7 @@
 			isa = PBXProject;
 			attributes = {
 				LastSwiftUpdateCheck = 1410;
-				LastUpgradeCheck = 1310;
+				LastUpgradeCheck = 1420;
 				ORGANIZATIONNAME = "Tangem AG";
 				TargetAttributes = {
 					5D3F77C124BF56D800E8695B = {
@@ -4331,14 +4321,11 @@
 				5DFB499624E44BC90037E76F /* Tokens.xcassets in Resources */,
 				5D15102E264BD49600961000 /* issuers.json in Resources */,
 				B0332D3429251A4A00553AD9 /* notReferralMock.json in Resources */,
-				5DE552F627B418B400D7ADCD /* testnet_tokens.json in Resources */,
 				5D383E3F24D95BA600C9BFF6 /* Localizable.strings in Resources */,
 				B0DC10D1292755BB00BBE854 /* walletWithBackup.json in Resources */,
 				B0332D3529251A4A00553AD9 /* referralMock.json in Resources */,
 				DC7AC968292BD64D00580668 /* config_alpha.json in Resources */,
 				DC261C9F292CD3B800875E64 /* GoogleService-Info-Beta.plist in Resources */,
-				5DE552F627B418B400D7ADCD /* testnet_tokens.json in Resources */,
-				5D383E3F24D95BA600C9BFF6 /* Localizable.strings in Resources */,
 				5D3F77CF24BF56DC00E8695B /* Preview Assets.xcassets in Resources */,
 				5D5CE1A82625FF00009023EC /* config_dev.json in Resources */,
 				EF48288F28D1C99D002809C6 /* Localizable.stringsdict in Resources */,
@@ -4533,6 +4520,7 @@
 		};
 		EFA18E73290FBA1B00CF1AE4 /* Run SwiftFormat */ = {
 			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
 			buildActionMask = 2147483647;
 			files = (
 			);
@@ -4651,7 +4639,6 @@
 				EF9F6F3D28D486B200D6B190 /* Publishers+CombineLatestMany.swift in Sources */,
 				B051A1B0262192A300809FD2 /* WalletConnectModels.swift in Sources */,
 				EF4662362924DFAF00346B6C /* GroupedSection.swift in Sources */,
-				EF11DDA029378A6F0044B33C /* SwappingTokenListView.swift in Sources */,
 				5DFB499C24E6BAF10037E76F /* MessageView.swift in Sources */,
 				DC912D1A28E73C7500D76628 /* SaltPayRegistrator.swift in Sources */,
 				5D0A2CDF27E9D47900396399 /* StatefulPreviewWrapper.swift in Sources */,
@@ -4784,7 +4771,6 @@
 				5D5D013C25CC1F3900DA8616 /* TransparentModal.swift in Sources */,
 				5DFCE54C274BDEE200C1B1A0 /* ResetToFactorySettingsTask.swift in Sources */,
 				5DDFC2072812B7AB005976FE /* RatesResponse.swift in Sources */,
-				EF46622E2924DF0300346B6C /* DefaultRowView.swift in Sources */,
 				EF808438293F3A6D000D91EA /* CurrencyMapper.swift in Sources */,
 				B0D76D4525D4E4560073FA98 /* AddCustomTokenView.swift in Sources */,
 				5D6784C325EB8EF000149995 /* CommonTokenItemsRepository.swift in Sources */,
@@ -4796,7 +4782,6 @@
 				B04CD33E29122C64001EA84A /* ReferralViewModel.swift in Sources */,
 				DC6244F428A0CA6300AD3EA8 /* SaltPayConfig.swift in Sources */,
 				65B4DED6288357DC001524CF /* BottomSheetBaseController.swift in Sources */,
-				EF46621F2924DEEE00346B6C /* DefaultWarningRow.swift in Sources */,
 				EF6EDD81296C0D61001B21A3 /* OrderedWeakObjectsCollection.swift in Sources */,
 				DAA5E31028D2137C003C0E80 /* UserWalletListCellView.swift in Sources */,
 				EF9CFC13288FECE100329BE0 /* ScanCardSettingsViewModel.swift in Sources */,
@@ -4894,7 +4879,6 @@
 				B09536FE26D3D2460040A90D /* DisclaimerView.swift in Sources */,
 				5D09383225E7A9820049B8F0 /* Wallet+.swift in Sources */,
 				5D39516125597DB1002CC452 /* BalanceViewModel.swift in Sources */,
-				EF46622D2924DF0300346B6C /* DefaultToggleRowView.swift in Sources */,
 				5D4B8BC327EDD601002CE87C /* CardInfo.swift in Sources */,
 				DC261CB7292CF6B700875E64 /* UncompletedBackupRoutable.swift in Sources */,
 				5D9DCB06255193C30059799C /* AppSettings.swift in Sources */,
@@ -4974,7 +4958,6 @@
 				EF08A0EF283D1914008BD923 /* Moya+.swift in Sources */,
 				5D09382D25E7A2EA0049B8F0 /* TokenDetailsViewModel.swift in Sources */,
 				DAC53CF927BE63830027147D /* StoriesViewModel.swift in Sources */,
-				EF4662212924DEEE00346B6C /* DefaultToggleRowViewModel.swift in Sources */,
 				B0C4F76B26F0896E0086D815 /* SingleCardOnboardingCardsLayout.swift in Sources */,
 				5DDFC1FB2812A59F005976FE /* CoinsResponse.swift in Sources */,
 				5D15F9E8258A522500392BA5 /* PickerView.swift in Sources */,
@@ -5018,11 +5001,9 @@
 				5DDFC2022812B716005976FE /* CurrenciesResponse.swift in Sources */,
 				EF9241362934E25900C28551 /* TokenIconURLBuilder.swift in Sources */,
 				5D51036F27C535D10025EA55 /* ABIValue.swift in Sources */,
-				EF11DD9F29378A6F0044B33C /* SwappingTokenListRoutable.swift in Sources */,
 				EF0F99E3289177C6008B01DF /* InfoDictionaryUtils.swift in Sources */,
 				DC66BC0C285B75BF00CDF765 /* PushTxCoordinator.swift in Sources */,
 				DC3F54A928EB1D4500BC9A6D /* EnterPinView.swift in Sources */,
-				EF46621E2924DEEE00346B6C /* DefaultRowViewModel.swift in Sources */,
 				B0E1564D26B941AF005B33E4 /* SingleCardOnboardingViewModel.swift in Sources */,
 				B09BB85F259A075600B92000 /* TangemButton.swift in Sources */,
 				DA2D04D327BB9B07006F1E69 /* ShopOrderProgressView.swift in Sources */,
@@ -5030,7 +5011,6 @@
 				DC295B482861C4BE006CB7B6 /* DetailsCoordinator.swift in Sources */,
 				B02275D72701D9FB004C752B /* PreparePrimaryCardTask.swift in Sources */,
 				B029C1DC270229530017C848 /* OnboardingAccessCodeView.swift in Sources */,
-				EF4662312924DF0300346B6C /* DefaultWarningRowViewModel.swift in Sources */,
 				B0F62C5525DE4F6B005C8BA0 /* DeviceInfoProvider.swift in Sources */,
 				B020A51426F1DBE700D38596 /* OnboardingInput.swift in Sources */,
 				EF92413929354C7C00C28551 /* SwappingTokenIconView.swift in Sources */,
@@ -5168,7 +5148,6 @@
 				5D9DCB0C255199AA0059799C /* SecurityModeViewModel.swift in Sources */,
 				DA4C84CE27DA2D6D00B76F91 /* StoriesConstants.swift in Sources */,
 				DAA5E31228D2137C003C0E80 /* UserWalletEncryptionKeyStorage.swift in Sources */,
-				EF0F99B328902902008B01DF /* DefaultFooterView.swift in Sources */,
 				5DF612A224E6E0ED001BF301 /* AddressFormatter.swift in Sources */,
 				5D384B9424FD51C000C2C92C /* DetailsViewModel.swift in Sources */,
 				DC295B502861D9B3006CB7B6 /* SecurityModeCoordinatorView.swift in Sources */,
@@ -6207,7 +6186,7 @@
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
-				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_IDENTITY = "";
 				CODE_SIGN_STYLE = Automatic;
 				COPY_PHASE_STRIP = NO;
 				CURRENT_PROJECT_VERSION = 1;
@@ -6286,7 +6265,7 @@
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
-				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_IDENTITY = "";
 				CODE_SIGN_STYLE = Automatic;
 				COPY_PHASE_STRIP = NO;
 				CURRENT_PROJECT_VERSION = 1;
@@ -6365,7 +6344,7 @@
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
-				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_IDENTITY = "";
 				CODE_SIGN_STYLE = Automatic;
 				COPY_PHASE_STRIP = NO;
 				CURRENT_PROJECT_VERSION = 1;
