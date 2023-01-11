@@ -163,7 +163,7 @@ struct ReferralView: View {
                              systemImage: "arrowshape.turn.up.forward",
                              iconPosition: .leading,
                              iconPadding: 10,
-                             action: showShareSheet)
+                             action: viewModel.sharePromoCode)
                     .buttonStyle(TangemButtonStyle(colorStyle: .black,
                                                    layout: .flexibleWidth))
             }
@@ -192,11 +192,6 @@ struct ReferralView: View {
                                   isLoading: viewModel.isProcessingRequest)
             )
         }
-    }
-
-    private func showShareSheet() {
-        let av = UIActivityViewController(activityItems: [viewModel.shareLink], applicationActivities: nil)
-        UIApplication.topViewController?.present(av, animated: true, completion: nil)
     }
 }
 
