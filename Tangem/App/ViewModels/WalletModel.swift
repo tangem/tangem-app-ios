@@ -389,7 +389,7 @@ extension WalletModel {
         return nil
     }
 
-    func getFiat(for value: Decimal, currencyId: String?, roundingMode: NSDecimalNumber.RoundingMode = .down) -> Decimal? {
+    func getFiat(for value: Decimal, currencyId: String?, roundingMode: NSDecimalNumber.RoundingMode) -> Decimal? {
         if let currencyId = currencyId,
            let rate = rates[currencyId]
         {
