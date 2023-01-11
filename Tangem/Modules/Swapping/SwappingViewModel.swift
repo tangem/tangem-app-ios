@@ -155,8 +155,13 @@ private extension SwappingViewModel {
             return
         }
 
+        let inputModel = SwappingPermissionInputModel(
+            fiatFee: result.fiatFee,
+            transactionInfo: info
+        )
+
         coordinator.presentPermissionView(
-            transactionInfo: info,
+            inputModel: inputModel,
             transactionSender: transactionSender
         )
     }
