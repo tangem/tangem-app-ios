@@ -266,7 +266,7 @@ private extension DefaultExchangeManager {
 
             if let destination = exchangeItems.destination {
                 let balance = try await blockchainDataProvider.getBalance(for: destination)
-                exchangeItems.destinationBalance = balance // ExchangeItems.Balance(balance: balance, fiatBalance: 0)
+                exchangeItems.destinationBalance = balance
             }
 
             exchangeItems.sourceBalance = ExchangeItems.Balance(balance: balance, fiatBalance: fiatBalance)
@@ -305,7 +305,7 @@ private extension DefaultExchangeManager {
         }
 
         let source = exchangeItems.source
-        let sourceBalance = exchangeItems.sourceBalance
+        let sourceBalance = exchangeItems.sourceBalance.balance
         let fee = transaction.fee
 
         let fiatFee = try await blockchainDataProvider.getFiat(for: source.blockchain, amount: transaction.fee)
@@ -315,13 +315,13 @@ private extension DefaultExchangeManager {
         switch exchangeItems.source.currencyType {
         case .coin:
             paymentAmount += fee
-            isEnoughAmountForFee = sourceBalance.balance >= fee
+            isEnoughAmountForFee = sourceBalance >= fee
         case .token:
             let coinBalance = try await blockchainDataProvider.getBalance(for: source.blockchain)
             isEnoughAmountForFee = coinBalance >= fee
         }
 
-        let isEnoughAmountForExchange = sourceBalance.balance >= paymentAmount
+        let isEnoughAmountForExchange = sourceBalance >= paymentAmount
 
         return SwappingResultDataModel(
             amount: preview.expectedAmount,
