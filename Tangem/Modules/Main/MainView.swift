@@ -26,10 +26,6 @@ struct MainView: View {
                                  cardSetLabel: viewModel.cardsCountLabel)
                             .fixedSize(horizontal: false, vertical: true)
 
-                        if viewModel.isBackupAllowed {
-                            backupWarningView
-                        }
-
                         if viewModel.isLackDerivationWarningViewVisible {
                             ScanCardWarningView(action: viewModel.deriveEntriesWithoutDerivation)
                                 .padding(.horizontal, 16)
@@ -39,7 +35,10 @@ struct MainView: View {
                             viewModel.warningButtonAction(at: $0, priority: $1, button: $2)
                         })
                         .padding(.horizontal, 16)
-
+                        
+                        if viewModel.isBackupAllowed {
+                            backupWarningView
+                        }
 
                         if let viewModel = viewModel.multiWalletContentViewModel {
                             MultiWalletContentView(viewModel: viewModel)
