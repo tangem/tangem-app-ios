@@ -35,7 +35,7 @@ struct MainView: View {
                             viewModel.warningButtonAction(at: $0, priority: $1, button: $2)
                         })
                         .padding(.horizontal, 16)
-                        
+
                         if viewModel.isBackupAllowed {
                             backupWarningView
                         }
