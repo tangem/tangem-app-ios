@@ -12,7 +12,6 @@ struct SendCurrencyViewModel: Identifiable {
     var id: Int { hashValue }
 
     // ViewState
-    private(set) var isLockedVisible: Bool
     private(set) var maximumFractionDigits: Int
 
     let tokenIcon: SwappingTokenIconViewModel
@@ -33,13 +32,11 @@ struct SendCurrencyViewModel: Identifiable {
         balance: Decimal,
         maximumFractionDigits: Int,
         fiatValue: Decimal,
-        isLockedVisible: Bool = false,
         tokenIcon: SwappingTokenIconViewModel
     ) {
         self.balance = balance
         self.maximumFractionDigits = maximumFractionDigits
         self.fiatValue = fiatValue
-        self.isLockedVisible = isLockedVisible
         self.tokenIcon = tokenIcon
     }
 
@@ -49,10 +46,6 @@ struct SendCurrencyViewModel: Identifiable {
 
     mutating func update(maximumFractionDigits: Int) {
         self.maximumFractionDigits = maximumFractionDigits
-    }
-
-    mutating func update(isLockedVisible: Bool) {
-        self.isLockedVisible = isLockedVisible
     }
 }
 
