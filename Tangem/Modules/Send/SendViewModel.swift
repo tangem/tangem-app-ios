@@ -260,7 +260,7 @@ class SendViewModel: ObservableObject {
 
                 let currencyId = self.walletModel.currencyId(for: self.amountToSend.type)
 
-                if let converted = value ? self.walletModel.getFiat(for: decimals, currencyId: currencyId)
+                if let converted = value ? self.walletModel.getFiat(for: decimals, currencyId: currencyId, roundingMode: .down)
                     : self.walletModel.getCrypto(for: Amount(with: self.amountToSend, value: decimals)) {
                     self.amountText = converted.description
                 } else {
