@@ -182,6 +182,12 @@ extension SwappingViewModel: ExchangeManagerDelegate {
             self.sendCurrencyViewModel?.update(isLockedVisible: !isEnoughAllowance)
         }
     }
+
+    func exchangeManager(_ manager: ExchangeManager, didUpdate sendingFiatAmount: Decimal) {
+        DispatchQueue.main.async {
+            self.sendCurrencyViewModel?.update(fiatValue: sendingFiatAmount)
+        }
+    }
 }
 
 // MARK: - View updates
@@ -213,6 +219,7 @@ private extension SwappingViewModel {
         }
 
         receiveCurrencyViewModel = ReceiveCurrencyViewModel(
+            balance: exchangeItems.destinationBalance,
             state: state,
             tokenIcon: mapToSwappingTokenIconViewModel(currency: destination)
         )
