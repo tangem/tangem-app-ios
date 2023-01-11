@@ -382,7 +382,7 @@ extension WalletModel {
         return getFiat(for: amount, roundingMode: roundingMode)?.currencyFormatted(code: AppSettings.shared.selectedCurrencyCode)
     }
 
-    func getFiat(for amount: Amount?, roundingMode: NSDecimalNumber.RoundingMode = .down) -> Decimal? {
+    func getFiat(for amount: Amount?, roundingMode: NSDecimalNumber.RoundingMode) -> Decimal? {
         if let amount = amount {
             return getFiat(for: amount.value, currencyId: currencyId(for: amount.type), roundingMode: roundingMode)
         }
