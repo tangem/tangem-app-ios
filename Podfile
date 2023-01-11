@@ -11,12 +11,8 @@ def tangem_sdk_pod
 end
 
 def blockchain_sdk_pods
-  pod 'BlockchainSdk', :git => 'https://github.com/tangem/blockchain-sdk-swift.git', :tag => 'develop-185'
-  # pod 'BlockchainSdk', :path => '../blockchain-sdk-swift'
-
-  pod 'AnyCodable-FlightSchool'
-  pod 'stellar-ios-mac-sdk'
-  pod 'ScaleCodec'
+  pod 'BlockchainSdk', :git => 'https://github.com/tangem/blockchain-sdk-swift.git', :tag => 'develop-187'
+  #pod 'BlockchainSdk', :path => '../blockchain-sdk-swift'
 
   pod 'Solana.Swift', :git => 'https://github.com/tangem/Solana.Swift', :tag => 'add-external-signer-6'
   # pod 'Solana.Swift', :path => '../Solana.Swift'
@@ -50,9 +46,7 @@ target 'Tangem' do
   
   # support chat 
   pod 'ZendeskSupportSDK', '~> 5.5.0'
-  pod 'ZendeskSupportProvidersSDK', '~> 5.5.0'
   pod 'ZendeskChatSDK', '~> 2.12.0'
-  pod 'ZendeskAnswerBotSDK', '~> 2.2.0'
   
   # Analytics
   pod 'Amplitude', '~> 8.8.0'
@@ -89,14 +83,18 @@ post_install do |installer|
       if config.name.include?("Debug")
           config.build_settings['GCC_OPTIMIZATION_LEVEL'] = '0'
           config.build_settings['SWIFT_OPTIMIZATION_LEVEL'] = '-Onone'
+          config.build_settings['ONLY_ACTIVE_ARCH'] = 'YES'
+          config.build_settings['ENABLE_TESTABILITY'] = 'YES'
+          config.build_settings['SWIFT_COMPILATION_MODE'] = 'Incremental'
       end
+
+      config.build_settings['DEAD_CODE_STRIPPING'] = 'YES'
   end
   
 	installer.pods_project.targets.each do |target|
 		target.build_configurations.each do |config|
-			if Gem::Version.new('9.0') > Gem::Version.new(config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'])
-				config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '9.0'
-			end
+      config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '13.0'
+
       if target.respond_to?(:product_type) and target.product_type == "com.apple.product-type.bundle"
         target.build_configurations.each do |config|
             config.build_settings['CODE_SIGNING_ALLOWED'] = 'NO'
