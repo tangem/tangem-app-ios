@@ -15,7 +15,7 @@ class PushTxViewModel: ObservableObject {
 
     var previousTotal: String {
         isFiatCalculation ?
-            walletModel.getFiat(for: previousTotalAmount)?.description ?? "" :
+            walletModel.getFiat(for: previousTotalAmount, roundingMode: .down)?.description ?? "" :
             previousTotalAmount.value.description
     }
 
@@ -25,7 +25,7 @@ class PushTxViewModel: ObservableObject {
 
     var walletTotalBalanceDecimals: String {
         let amount = walletModel.wallet.amounts[amountToSend.type]
-        return isFiatCalculation ? walletModel.getFiat(for: amount)?.description ?? ""
+        return isFiatCalculation ? walletModel.getFiat(for: amount, roundingMode: .down)?.description ?? ""
             : amount?.value.description ?? ""
     }
 
@@ -74,7 +74,7 @@ class PushTxViewModel: ObservableObject {
     let blockchainNetwork: BlockchainNetwork
     var transaction: BlockchainSdk.Transaction
 
-    lazy var amountDecimal: String = { "\(walletModel.getFiat(for: amountToSend) ?? 0)" }()
+    lazy var amountDecimal: String = { "\(walletModel.getFiat(for: amountToSend, roundingMode: .down) ?? 0)" }()
     lazy var amount: String = { transaction.amount.description }()
     lazy var previousFee: String = { transaction.fee.description }()
 
@@ -279,7 +279,7 @@ class PushTxViewModel: ObservableObject {
 
     private func fillPreviousTxInfo(isFiat: Bool) {
         amount = getDescription(for: amountToSend, isFiat: isFiat)
-        amountDecimal = isFiat ? walletModel.getFiat(for: amountToSend)?.description ?? "" : amountToSend.value.description
+        amountDecimal = isFiat ? walletModel.getFiat(for: amountToSend, roundingMode: .down)?.description ?? "" : amountToSend.value.description
         previousFee = getDescription(for: previousFeeAmount, isFiat: isFiat)
     }
 
@@ -309,7 +309,7 @@ class PushTxViewModel: ObservableObject {
         let totalAmount = transaction.amount + fee
         var totalFiatAmount: Decimal? = nil
 
-        if let fiatAmount = self.walletModel.getFiat(for: amountToSend), let fiatFee = self.walletModel.getFiat(for: fee) {
+        if let fiatAmount = self.walletModel.getFiat(for: amountToSend, roundingMode: .down), let fiatFee = self.walletModel.getFiat(for: fee, roundingMode: .down) {
             totalFiatAmount = fiatAmount + fiatFee
         }
 
