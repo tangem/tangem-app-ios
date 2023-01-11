@@ -19,6 +19,7 @@ final class SwappingViewModel: ObservableObject {
 
     @Published var sendDecimalValue: Decimal?
     @Published var refreshWarningRowViewModel: DefaultWarningRowViewModel?
+    @Published var requiredPermissionInfoRowViewModel: DefaultWarningRowViewModel?
 
     @Published var mainButtonIsEnabled: Bool = false
     @Published var mainButtonState: MainButtonState = .swap
@@ -203,7 +204,7 @@ extension SwappingViewModel: ExchangeManagerDelegate {
 
     func exchangeManager(_ manager: ExchangeManager, didUpdate isEnoughAllowance: Bool) {
         DispatchQueue.main.async {
-            self.sendCurrencyViewModel?.update(isLockedVisible: !isEnoughAllowance)
+            self.updateRequiredPermission(isEnoughAllowance: isEnoughAllowance)
         }
     }
 }
@@ -219,7 +220,6 @@ private extension SwappingViewModel {
             balance: exchangeItems.sourceBalance.balance,
             maximumFractionDigits: source.decimalCount,
             fiatValue: exchangeItems.sourceBalance.fiatBalance,
-            isLockedVisible: !exchangeManager.isEnoughAllowance(),
             tokenIcon: mapToSwappingTokenIconViewModel(currency: source)
         )
 
@@ -289,6 +289,18 @@ private extension SwappingViewModel {
         case .requiredRefresh(let error):
             receiveCurrencyViewModel?.updateState(.loaded(0, fiatValue: 0))
             processingError(error: error)
+        }
+    }
+
+    func updateRequiredPermission(isEnoughAllowance: Bool) {
+        if isEnoughAllowance {
+            requiredPermissionInfoRowViewModel = nil
+        } else {
+            requiredPermissionInfoRowViewModel = DefaultWarningRowViewModel(
+                icon: Assets.lock,
+                title: Localization.swappingGivePermission,
+                subtitle: Localization.swappingPermissionSubheader(exchangeManager.getExchangeItems().source.symbol)
+            )
         }
     }
 
