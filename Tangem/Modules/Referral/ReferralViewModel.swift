@@ -27,10 +27,10 @@ class ReferralViewModel: ObservableObject {
         guard let referralInfo = referralProgramInfo?.referral else {
             return ""
         }
-        
+
         return Localization.referralShareLink(referralInfo.shareLink)
     }
-    
+
     init(cardModel: CardViewModel, userWalletId: Data, coordinator: ReferralRoutable) {
         self.cardModel = cardModel
         self.userWalletId = userWalletId
