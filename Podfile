@@ -42,7 +42,7 @@ target 'Tangem' do
 
   # Helpers
   pod 'DeviceGuru', '8.0.0'
-  pod 'AlertToast', :git => 'https://github.com/tangem/AlertToast'
+  pod 'AlertToast', :git => 'https://github.com/elai950/AlertToast', :commit => 'a437862bb6605080a5816e866cbd4ac8c8657b49'
   
   # support chat 
   pod 'ZendeskSupportSDK', '~> 5.5.0'
