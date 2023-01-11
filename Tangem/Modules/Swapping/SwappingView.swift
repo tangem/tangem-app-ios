@@ -22,6 +22,8 @@ struct SwappingView: View {
             GroupedScrollView(spacing: 14) {
                 swappingViews
 
+                requiredPermissionInfoSection
+
                 refreshWarningSection
 
                 informationSection
@@ -80,6 +82,14 @@ struct SwappingView: View {
             RoundedRectangle(cornerRadius: 22)
                 .stroke(Colors.Stroke.primary, lineWidth: 1)
         )
+    }
+
+    @ViewBuilder
+    private var requiredPermissionInfoSection: some View {
+        GroupedSection(viewModel.requiredPermissionInfoRowViewModel) {
+            DefaultWarningRow(viewModel: $0)
+        }
+        .verticalPadding(0)
     }
 
     @ViewBuilder

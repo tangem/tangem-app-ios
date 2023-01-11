@@ -213,8 +213,7 @@ private extension DefaultExchangeManager {
 
     func updateExchangeAmountAllowance() async {
         /// If allowance limit already loaded use it
-        guard tokenExchangeAllowanceLimit == nil,
-              let walletAddress else {
+        guard tokenExchangeAllowanceLimit == nil, let walletAddress else {
             delegate?.exchangeManager(self, didUpdate: isEnoughAllowance())
             return
         }
