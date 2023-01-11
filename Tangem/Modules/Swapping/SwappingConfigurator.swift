@@ -31,6 +31,7 @@ struct SwappingConfigurator {
             userCurrenciesProvider: factory.createUserCurrenciesProvider(walletModel: input.walletModel),
             tokenIconURLBuilder: factory.createTokenIconURLBuilder(),
             transactionSender: factory.createTransactionSender(sender: input.sender, signer: input.signer),
+            blockchainInformationProvider: BlockchainInformationProvider(wallet: input.walletModel.wallet),
             coordinator: coordinator
         )
     }
