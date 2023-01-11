@@ -378,7 +378,7 @@ extension WalletModel {
         return Localization.addressQrCodeMessageFormat(currencyName, symbol, wallet.blockchain.displayName)
     }
 
-    func getFiatFormatted(for amount: Amount?, roundingMode: NSDecimalNumber.RoundingMode = .down) -> String? {
+    func getFiatFormatted(for amount: Amount?, roundingMode: NSDecimalNumber.RoundingMode) -> String? {
         return getFiat(for: amount, roundingMode: roundingMode)?.currencyFormatted(code: AppSettings.shared.selectedCurrencyCode)
     }
 
