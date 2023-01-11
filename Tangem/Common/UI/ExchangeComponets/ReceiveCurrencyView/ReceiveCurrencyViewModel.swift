@@ -16,9 +16,7 @@ struct ReceiveCurrencyViewModel: Identifiable {
     let tokenIcon: SwappingTokenIconViewModel
 
     var balanceString: String? {
-        guard let balance else { return nil }
-
-        return Localization.commonBalance(balance.groupedFormatted())
+        Localization.commonBalance((balance ?? 0).groupedFormatted())
     }
 
     var value: String {
