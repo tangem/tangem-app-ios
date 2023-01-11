@@ -181,7 +181,7 @@ class SendViewModel: ObservableObject {
 
     private func getDescription(for amount: Amount?) -> String {
         if isFiatCalculation {
-            return walletModel.getFiatFormatted(for: amount) ?? ""
+            return walletModel.getFiatFormatted(for: amount, roundingMode: .down) ?? ""
         }
 
         return amount?.description ?? ""
