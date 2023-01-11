@@ -83,10 +83,6 @@ private extension SwappingPermissionViewModel {
 
         contentRowViewModels = [
             DefaultRowViewModel(
-                title: Localization.swappingPermissionRowsAmount(tokenSymbol),
-                detailsType: .icon(Assets.infinityMini)
-            ),
-            DefaultRowViewModel(
                 title: Localization.swappingPermissionRowsYourWallet,
                 detailsType: .text(String(walletAddress))
             ),
