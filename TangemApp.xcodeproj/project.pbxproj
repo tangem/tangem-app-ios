@@ -669,6 +669,7 @@
 		EF74F50D289BF5AE001034D2 /* Fonts.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF74F50B289BF5AE001034D2 /* Fonts.swift */; };
 		EF74F50E289BF5AE001034D2 /* Text+.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF74F50C289BF5AE001034D2 /* Text+.swift */; };
 		EF78433B29431903007E57D1 /* ExchangeManagerError.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF78433A29431903007E57D1 /* ExchangeManagerError.swift */; };
+		EF7861AF296D978A00829CB7 /* SwappingPermissionInputModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF7861AE296D978A00829CB7 /* SwappingPermissionInputModel.swift */; };
 		EF7B9CEF286C6BD7004C33A9 /* CardSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF7B9CEE286C6BD7004C33A9 /* CardSettingsView.swift */; };
 		EF7B9CF1286C6BE2004C33A9 /* CardSettingsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF7B9CF0286C6BE2004C33A9 /* CardSettingsViewModel.swift */; };
 		EF7B9CF5286C7023004C33A9 /* CardSettingsCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF7B9CF4286C7023004C33A9 /* CardSettingsCoordinator.swift */; };
@@ -1562,9 +1563,12 @@
 		EF6EDD80296C0D61001B21A3 /* OrderedWeakObjectsCollection.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OrderedWeakObjectsCollection.swift; sourceTree = "<group>"; };
 		EF6EDD83296C0EA9001B21A3 /* DeeplinkParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeeplinkParser.swift; sourceTree = "<group>"; };
 		EF6EDD85296C0F21001B21A3 /* DeeplinkParsing.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeeplinkParsing.swift; sourceTree = "<group>"; };
+		EF6EDD87296D4DE1001B21A3 /* TangemBeta.entitlements */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.entitlements; path = TangemBeta.entitlements; sourceTree = "<group>"; };
+		EF6EDD88296D4DE1001B21A3 /* TangemAlpha.entitlements */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.entitlements; path = TangemAlpha.entitlements; sourceTree = "<group>"; };
 		EF74F50B289BF5AE001034D2 /* Fonts.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Fonts.swift; sourceTree = "<group>"; };
 		EF74F50C289BF5AE001034D2 /* Text+.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Text+.swift"; sourceTree = "<group>"; };
 		EF78433A29431903007E57D1 /* ExchangeManagerError.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ExchangeManagerError.swift; sourceTree = "<group>"; };
+		EF7861AE296D978A00829CB7 /* SwappingPermissionInputModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwappingPermissionInputModel.swift; sourceTree = "<group>"; };
 		EF7B9CEE286C6BD7004C33A9 /* CardSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardSettingsView.swift; sourceTree = "<group>"; };
 		EF7B9CF0286C6BE2004C33A9 /* CardSettingsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardSettingsViewModel.swift; sourceTree = "<group>"; };
 		EF7B9CF2286C6C7A004C33A9 /* CardSettingsRoutable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardSettingsRoutable.swift; sourceTree = "<group>"; };
@@ -4051,6 +4055,7 @@
 				EFE23AB4292B8D1800A3C554 /* SwappingPermissionView.swift */,
 				EFE23AB5292B8D1800A3C554 /* SwappingPermissionViewModel.swift */,
 				EFE23AB6292B8D1800A3C554 /* SwappingPermissionRoutable.swift */,
+				EF7861AE296D978A00829CB7 /* SwappingPermissionInputModel.swift */,
 			);
 			path = SwappingPermission;
 			sourceTree = "<group>";
@@ -5104,6 +5109,7 @@
 				5D51036927C534A60025EA55 /* JSON.swift in Sources */,
 				DC66BBEF2859B6C700CDF765 /* ShopCoordinatorView.swift in Sources */,
 				EF661E3228C0ACD1005769E5 /* ScanCardWarningView.swift in Sources */,
+				EF7861AF296D978A00829CB7 /* SwappingPermissionInputModel.swift in Sources */,
 				5DDE22E32608C2E2008657C6 /* WalletConnectV1Service.swift in Sources */,
 				DC51185F28609F67004FB954 /* CardOperationViewModel.swift in Sources */,
 				EF808443293F6B69000D91EA /* TokenIconURLBuilding.swift in Sources */,
