@@ -121,6 +121,7 @@ extension DetailsCoordinator: DetailsRoutable {
         let coordinator = ReferralCoordinator(dismissAction: dismissAction)
         coordinator.start(with: .init(cardModel: cardModel, userWalletId: userWalletId))
         referralCoordinator = coordinator
+        Analytics.log(.referralScreenOpened)
     }
 }
 
