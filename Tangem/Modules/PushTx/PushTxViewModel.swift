@@ -152,7 +152,7 @@ class PushTxViewModel: ObservableObject {
 
     private func getDescription(for amount: Amount?, isFiat: Bool) -> String {
         isFiat ?
-            walletModel.getFiatFormatted(for: amount) ?? "" :
+            walletModel.getFiatFormatted(for: amount, roundingMode: .down) ?? "" :
             amount?.description ?? emptyValue
     }
 
@@ -326,7 +326,7 @@ class PushTxViewModel: ObservableObject {
             sendTotal =  (amountToSend + fee).description
             sendTotalSubtitle = totalFiatAmountFormatted == nil ? emptyValue :  Localization.sendTotalSubtitleFiatFormat(
                 totalFiatAmountFormatted!,
-                walletModel.getFiatFormatted(for: fee)!)
+                walletModel.getFiatFormatted(for: fee, roundingMode: .down)!)
         }
     }
 }
