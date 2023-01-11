@@ -17,7 +17,7 @@ class DefaultExchangeManager {
 
     // MARK: - Internal
 
-    private lazy var refreshDataTimer = Timer.publish(every: 10, on: .main, in: .common).autoconnect()
+    private lazy var refreshDataTimer = Timer.publish(every: 1, on: .main, in: .common)
 
     private var availabilityState: ExchangeAvailabilityState = .idle {
         didSet { delegate?.exchangeManager(self, didUpdate: availabilityState) }
@@ -154,17 +154,20 @@ private extension DefaultExchangeManager {
     }
 
     func startTimer() {
+        let startTimestamp = Date().timeIntervalSince1970
         refreshDataTimerBag = refreshDataTimer
-            .upstream
-            .sink { [weak self] _ in
-                self?.refreshValues(silent: true)
+            .autoconnect()
+            .sink { [weak self] date in
+                let period = Int(date.timeIntervalSince1970 - startTimestamp)
+                if period % 10 == 0 {
+                    self?.refreshValues(silent: false)
+                }
             }
     }
 
     func stopTimer() {
         refreshDataTimerBag?.cancel()
         refreshDataTimer
-            .upstream
             .connect()
             .cancel()
     }
@@ -177,6 +180,9 @@ private extension DefaultExchangeManager {
         if !silent {
             updateState(.loading)
         }
+
+        let hasPendingTransaction = blockchainDataProvider.hasPendingTransaction(currency: exchangeItems.source)
+        delegate?.exchangeManager(self, hasPendingTransaction: !hasPendingTransaction)
 
         Task {
             do {
