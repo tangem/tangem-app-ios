@@ -20,21 +20,21 @@ final class SwappingPermissionViewModel: ObservableObject, Identifiable {
     @Published var errorAlert: AlertBinder?
 
     var tokenSymbol: String {
-        transactionInfo.sourceCurrency.symbol
+        inputModel.transactionInfo.sourceCurrency.symbol
     }
 
     // MARK: - Dependencies
 
-    private let transactionInfo: ExchangeTransactionDataModel
+    private let inputModel: SwappingPermissionInputModel
     private let transactionSender: TransactionSendable
     private unowned let coordinator: SwappingPermissionRoutable
 
     init(
-        transactionInfo: ExchangeTransactionDataModel,
+        inputModel: SwappingPermissionInputModel,
         transactionSender: TransactionSendable,
         coordinator: SwappingPermissionRoutable
     ) {
-        self.transactionInfo = transactionInfo
+        self.inputModel = inputModel
         self.transactionSender = transactionSender
         self.coordinator = coordinator
 
@@ -44,7 +44,7 @@ final class SwappingPermissionViewModel: ObservableObject, Identifiable {
     func didTapApprove() {
         Task {
             do {
-                try await transactionSender.sendTransaction(transactionInfo)
+                try await transactionSender.sendTransaction(inputModel.transactionInfo)
                 await didSendApproveTransaction()
             } catch TangemSdkError.userCancelled {
                 // Do nothing
@@ -72,13 +72,14 @@ extension SwappingPermissionViewModel {
 
 private extension SwappingPermissionViewModel {
     func setupView() {
+        let transactionInfo = inputModel.transactionInfo
         /// Addresses have to the same width for both
         let walletAddress = AddressFormatter(address: transactionInfo.sourceAddress).truncated()
         let spenderAddress = AddressFormatter(address: transactionInfo.destinationAddress).truncated()
 
-        let fee = transactionInfo.fee.groupedFormatted(
-            maximumFractionDigits: transactionInfo.sourceCurrency.decimalCount
-        )
+        let fee = transactionInfo.fee.rounded(scale: 2, roundingMode: .up)
+        let fiatFee = inputModel.fiatFee.currencyFormatted(code: AppSettings.shared.selectedCurrencyCode)
+        let formattedFee = "\(fee.groupedFormatted()) \(inputModel.transactionInfo.sourceBlockchain.symbol) (\(fiatFee))"
 
         contentRowViewModels = [
             DefaultRowViewModel(title: Localization.swappingPermissionRowsAmount(tokenSymbol),
@@ -88,7 +89,7 @@ private extension SwappingPermissionViewModel {
             DefaultRowViewModel(title: Localization.swappingPermissionRowsSpender,
                                 detailsType: .text(String(spenderAddress))),
             DefaultRowViewModel(title: Localization.sendFeeLabel,
-                                detailsType: .text(fee)),
+                                detailsType: .text(formattedFee)),
         ]
     }
 }
