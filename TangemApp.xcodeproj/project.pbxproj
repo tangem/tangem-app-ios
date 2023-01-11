@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		1EBA3D6F2C0D67281AD424CE /* Pods_TangemExchangeTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F5FE7C1AF02BBD0818B10EF0 /* Pods_TangemExchangeTests.framework */; };
+		2DB43917296EBC6000CBBB1E /* AppsFlyerConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DB43916296EBC6000CBBB1E /* AppsFlyerConfig.swift */; };
 		542E11307176E79BCD02CA72 /* Pods_TangemTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1FD2A40CDCE4FC2158D5C55C /* Pods_TangemTests.framework */; };
 		5D00FCC72617387E004626DE /* PersonalSignHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D00FCC62617387E004626DE /* PersonalSignHandler.swift */; };
 		5D00FCCC2617389E004626DE /* SignTransactionHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D00FCCB2617389E004626DE /* SignTransactionHandler.swift */; };
@@ -827,6 +828,7 @@
 		2B61DB66AA58CED76DC49A13 /* Pods-TangemClip.release(alpha).xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TangemClip.release(alpha).xcconfig"; path = "Target Support Files/Pods-TangemClip/Pods-TangemClip.release(alpha).xcconfig"; sourceTree = "<group>"; };
 		2D66BF23CE510C673B216762 /* Pods-TangemTests.release(production).xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TangemTests.release(production).xcconfig"; path = "Target Support Files/Pods-TangemTests/Pods-TangemTests.release(production).xcconfig"; sourceTree = "<group>"; };
 		2D6D2FE46404F0E708C55100 /* Pods-Tangem-TangemUITests.firebase(production).xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Tangem-TangemUITests.firebase(production).xcconfig"; path = "Target Support Files/Pods-Tangem-TangemUITests/Pods-Tangem-TangemUITests.firebase(production).xcconfig"; sourceTree = "<group>"; };
+		2DB43916296EBC6000CBBB1E /* AppsFlyerConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppsFlyerConfig.swift; sourceTree = "<group>"; };
 		2EC2D70AF1525799F8BBFC03 /* Pods-TangemClip.firebase(production).xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TangemClip.firebase(production).xcconfig"; path = "Target Support Files/Pods-TangemClip/Pods-TangemClip.firebase(production).xcconfig"; sourceTree = "<group>"; };
 		2ED1D760E9F54C530F39C785 /* Pods-Tangem.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Tangem.debug.xcconfig"; path = "Target Support Files/Pods-Tangem/Pods-Tangem.debug.xcconfig"; sourceTree = "<group>"; };
 		30859B3B36FCEE9235C691E4 /* Pods-TangemExchange-TangemExchangeTests.release(production).xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TangemExchange-TangemExchangeTests.release(production).xcconfig"; path = "Target Support Files/Pods-TangemExchange-TangemExchangeTests/Pods-TangemExchange-TangemExchangeTests.release(production).xcconfig"; sourceTree = "<group>"; };
@@ -1558,8 +1560,6 @@
 		EF692A472951E7C8001F4B8A /* Localizable+Generated.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Localizable+Generated.swift"; sourceTree = "<group>"; };
 		EF6CB17B292E1080001335EA /* SwappingView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SwappingView.swift; sourceTree = "<group>"; };
 		EF6CB17D292E1190001335EA /* EnvironmentSetupViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EnvironmentSetupViewModel.swift; sourceTree = "<group>"; };
-		EF6EDD87296D4DE1001B21A3 /* TangemBeta.entitlements */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.entitlements; path = TangemBeta.entitlements; sourceTree = "<group>"; };
-		EF6EDD88296D4DE1001B21A3 /* TangemAlpha.entitlements */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.entitlements; path = TangemAlpha.entitlements; sourceTree = "<group>"; };
 		EF6EDD7C296C0D40001B21A3 /* RemoteRouteManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RemoteRouteManager.swift; sourceTree = "<group>"; };
 		EF6EDD7D296C0D40001B21A3 /* RemoteRouteManaging.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RemoteRouteManaging.swift; sourceTree = "<group>"; };
 		EF6EDD80296C0D61001B21A3 /* OrderedWeakObjectsCollection.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OrderedWeakObjectsCollection.swift; sourceTree = "<group>"; };
@@ -3034,6 +3034,7 @@
 			isa = PBXGroup;
 			children = (
 				DC0A5805282501530031BECC /* KeysManager.swift */,
+				2DB43916296EBC6000CBBB1E /* AppsFlyerConfig.swift */,
 				B0E1D174257DE75D00A3AB98 /* CommonKeysManager.swift */,
 				DC0A5807282501CA0031BECC /* MoonPayKeys.swift */,
 				65C9FCAB2863103800FDE63E /* ZendeskConfig.swift */,
@@ -5159,6 +5160,7 @@
 				DC261CB4292CF6B700875E64 /* UncompletedBackupCoordinatorView.swift in Sources */,
 				B035645D2950689700397787 /* WalletConnectServiceError.swift in Sources */,
 				EF4B41BD28644982003911F6 /* SkeletonView.swift in Sources */,
+				2DB43917296EBC6000CBBB1E /* AppsFlyerConfig.swift in Sources */,
 				EF7B9CEF286C6BD7004C33A9 /* CardSettingsView.swift in Sources */,
 				DC7127B12897ECDF00F60F71 /* LegacyConfig.swift in Sources */,
 				DAA5E31628D213A4003C0E80 /* CardDTO.swift in Sources */,
