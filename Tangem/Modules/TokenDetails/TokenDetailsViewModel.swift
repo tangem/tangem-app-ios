@@ -100,15 +100,28 @@ class TokenDetailsViewModel: ObservableObject {
     }
 
     var sendBlockedReason: String? {
-        guard let wallet = walletModel?.wallet,
-              let currentAmount = wallet.amounts[amountType], amountType.isToken else { return nil }
+        guard
+            let wallet = walletModel?.wallet,
+            let currentAmount = wallet.amounts[amountType],
+            let token = amountType.token
+        else {
+            return nil
+        }
 
         if wallet.hasPendingTx && !wallet.hasPendingTx(for: amountType) { // has pending tx for fee
             return String(format: "token_details_send_blocked_tx_format".localized, wallet.amounts[.coin]?.currencySymbol ?? "")
         }
 
-        if !wallet.hasPendingTx && !canSend && !currentAmount.isZero { // no fee
-            return String(format: "token_details_send_blocked_fee_format".localized, wallet.blockchain.displayName, wallet.blockchain.displayName)
+        // no fee
+        if !wallet.hasPendingTx && !canSend && !currentAmount.isZero {
+            return String(
+                format: "token_details_send_blocked_fee_format".localized,
+                token.name,
+                wallet.blockchain.displayName,
+                token.name,
+                wallet.blockchain.displayName,
+                wallet.blockchain.currencySymbol
+            )
         }
 
         return nil
