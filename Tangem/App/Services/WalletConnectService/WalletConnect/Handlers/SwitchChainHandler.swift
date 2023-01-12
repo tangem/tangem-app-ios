@@ -25,6 +25,12 @@ class SwitchChainHandler: TangemWalletConnectRequestHandler {
     }
 
     func handle(request: Request) {
+        Task {
+            await handle(request: request)
+        }
+    }
+
+    private func handle(request: Request) async {
         do {
             let chainIdHexString = (try request.parameter(of: [String: String].self, at: 0))["chainId"]
             let chainId = chainIdHexString.map { Data(hexString: $0) }?.toInt()
@@ -35,15 +41,14 @@ class SwitchChainHandler: TangemWalletConnectRequestHandler {
                 return
             }
 
-            let sessionWalletInfo = try switchChain(session, chainId: chainId)
+            let sessionWalletInfo = try await switchChain(session, chainId: chainId)
             delegate?.sendUpdate(for: session.session, with: sessionWalletInfo)
         } catch {
             delegate?.sendReject(for: request, with: error, for: action)
-
         }
     }
 
-    private func switchChain(_ session: WalletConnectSession, chainId: Int) throws -> Session.WalletInfo  {
+    private func switchChain(_ session: WalletConnectSession, chainId: Int) async throws -> Session.WalletInfo  {
         var session = session
         let oldWalletInfo = session.wallet
 
@@ -57,13 +62,20 @@ class SwitchChainHandler: TangemWalletConnectRequestHandler {
             throw WalletConnectServiceError.unsupportedNetwork
         }
 
-        let availableWallet = dataSource?.cardModel.walletModels
-            .filter { !$0.isCustom(.coin) }
-            .first(where: { $0.wallet.blockchain == targetBlockchain })
-            .map { $0.wallet }
+        let availableWallets = dataSource?.cardModel.walletModels
+            .filter { $0.wallet.blockchain == targetBlockchain }
+            .map { $0.wallet } ?? []
 
-        guard let wallet = availableWallet else {
+        guard !availableWallets.isEmpty else {
             throw WalletConnectServiceError.networkNotFound(name: targetBlockchain.displayName)
+        }
+
+        let wallet: Wallet
+
+        if availableWallets.count == 1 {
+            wallet = availableWallets.first!
+        } else {
+            wallet = try await selectWallet(from: availableWallets)
         }
 
         let derivedKey = wallet.publicKey.blockchainKey != wallet.publicKey.seedKey ? wallet.publicKey.blockchainKey : nil
@@ -92,6 +104,22 @@ class SwitchChainHandler: TangemWalletConnectRequestHandler {
             UIApplication.modalFromTop(
                 WalletConnectUIBuilder.makeAlert(for: .error, message: error.localizedDescription)
             )
+        }
+    }
+
+    private func selectWallet(from wallets: [Wallet]) async throws -> Wallet {
+        return try await withCheckedThrowingContinuation { continuation in
+            DispatchQueue.main.async {
+                let vc = WalletConnectUIBuilder.makeChainsSheet(wallets,
+                                                                onAcceptAction: {
+                                                                    continuation.resume(returning: $0)
+                                                                },
+                                                                onReject: {
+                                                                    continuation.resume(throwing: WalletConnectServiceError.cancelled)
+                                                                })
+
+                UIApplication.modalFromTop(vc)
+            }
         }
     }
 }
