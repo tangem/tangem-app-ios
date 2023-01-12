@@ -362,10 +362,10 @@ extension WalletConnectService: ServerDelegate {
         self.wallet = walletInfo
 
         let peerMeta = dAppInfo.peerMeta
-        let blockchainName = "\(walletInfo.blockchain.displayName) (\(AddressFormatter(address: walletInfo.address).truncated()))"
+        let walletDescription = "\(walletInfo.blockchain.displayName) (\(AddressFormatter(address: walletInfo.address).truncated()))"
         var message = String(format: "wallet_connect_request_session_start".localized,
                              peerMeta.name,
-                             blockchainName,
+                             walletDescription,
                              peerMeta.url.absoluteString)
 
         if let description = peerMeta.description, !description.isEmpty {
