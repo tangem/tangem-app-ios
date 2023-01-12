@@ -110,13 +110,14 @@ class SwitchChainHandler: TangemWalletConnectRequestHandler {
     private func selectWallet(from wallets: [Wallet]) async throws -> Wallet {
         return try await withCheckedThrowingContinuation { continuation in
             DispatchQueue.main.async {
-                let vc = WalletConnectUIBuilder.makeChainsSheet(wallets,
-                                                                onAcceptAction: {
-                                                                    continuation.resume(returning: $0)
-                                                                },
-                                                                onReject: {
-                                                                    continuation.resume(throwing: WalletConnectServiceError.cancelled)
-                                                                })
+                let vc = WalletConnectUIBuilder.makeChainsSheet(
+                    wallets,
+                    onAcceptAction: {
+                        continuation.resume(returning: $0)
+                    },
+                    onReject: {
+                        continuation.resume(throwing: WalletConnectServiceError.cancelled)
+                    })
 
                 UIApplication.modalFromTop(vc)
             }
