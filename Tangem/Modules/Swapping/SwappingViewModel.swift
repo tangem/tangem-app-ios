@@ -218,6 +218,7 @@ private extension SwappingViewModel {
         }
 
         receiveCurrencyViewModel = ReceiveCurrencyViewModel(
+            balance: exchangeItems.destinationBalance,
             state: state,
             tokenIcon: mapToSwappingTokenIconViewModel(currency: destination)
         )
