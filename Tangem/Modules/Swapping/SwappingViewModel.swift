@@ -430,7 +430,9 @@ private extension SwappingViewModel {
             } catch TangemSdkError.userCancelled {
                 // Do nothing
             } catch {
-                errorAlert = AlertBinder(title: Localization.commonError, message: error.localizedDescription)
+                await runOnMain {
+                    errorAlert = AlertBinder(title: Localization.commonError, message: error.localizedDescription)
+                }
             }
         }
     }
@@ -446,9 +448,9 @@ private extension SwappingViewModel {
             switch error {
             case .requestError(let error):
                 updateRefreshWarningRowViewModel(message: error.detailedError.localizedDescription)
-            case .oneInchError(let error):
-                updateRefreshWarningRowViewModel(message: error.description)
-            case .decodingError(let error):
+            case let .oneInchError(error):
+                updateRefreshWarningRowViewModel(message: error.localizedDescription)
+            case let .decodingError(error):
                 updateRefreshWarningRowViewModel(message: error.localizedDescription)
             }
         default:
