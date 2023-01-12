@@ -159,8 +159,13 @@ private extension SwappingViewModel {
             return
         }
 
+        let inputModel = SwappingPermissionInputModel(
+            fiatFee: result.fiatFee,
+            transactionInfo: info
+        )
+
         coordinator.presentPermissionView(
-            transactionInfo: info,
+            inputModel: inputModel,
             transactionSender: transactionSender
         )
     }
@@ -217,6 +222,7 @@ private extension SwappingViewModel {
         }
 
         receiveCurrencyViewModel = ReceiveCurrencyViewModel(
+            balance: exchangeItems.destinationBalance,
             state: state,
             tokenIcon: mapToSwappingTokenIconViewModel(currency: destination)
         )
@@ -276,9 +282,10 @@ private extension SwappingViewModel {
         case let .available(result, _):
             let source = exchangeManager.getExchangeItems().source
 
+            let fee = result.fee.rounded(scale: 2, roundingMode: .up)
             swappingFeeRowViewModel.update(
                 state: .fee(
-                    fee: result.fee.groupedFormatted(maximumFractionDigits: source.decimalCount),
+                    fee: fee.groupedFormatted(maximumFractionDigits: source.decimalCount),
                     symbol: source.blockchain.symbol,
                     fiat: result.fiatFee.currencyFormatted(code: AppSettings.shared.selectedCurrencyCode)
                 )
