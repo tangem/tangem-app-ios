@@ -61,17 +61,9 @@ struct SendCurrencyView: View {
             lockView
 
             VStack(alignment: .leading, spacing: 8) {
-                if #available(iOS 15.0, *) {
-                    SendNumberTextField(decimalValue: $decimalValue) {
-                        Button(Localization.sendMaxAmountLabel) {
-                            didTapMaxAmountAction?()
-                        }
-                    }
+                SendNumberTextField(decimalValue: $decimalValue)
                     .maximumFractionDigits(viewModel.maximumFractionDigits)
-                } else {
-                    GroupedNumberTextField(decimalValue: $decimalValue)
-                        .maximumFractionDigits(viewModel.maximumFractionDigits)
-                }
+                    .didTapMaxAmount { didTapMaxAmountAction?() }
 
                 Text(viewModel.fiatValueString)
                     .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
