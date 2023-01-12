@@ -6,7 +6,7 @@
 //  Copyright © 2022 Tangem AG. All rights reserved.
 //
 
-import Foundation
+import TangemExchange
 
 public protocol TransactionSendable {
     func sendTransaction(_ info: ExchangeTransactionDataModel) async throws
