@@ -34,10 +34,7 @@ class DefaultExchangeManager {
     private weak var delegate: ExchangeManagerDelegate?
     private var amount: Decimal?
     private var formattedAmount: String {
-        guard let amount else {
-            assertionFailure("Amount not set")
-            return ""
-        }
+        guard let amount else { return "" }
 
         return String(describing: exchangeItems.source.convertToWEI(value: amount))
     }
@@ -91,6 +88,7 @@ extension DefaultExchangeManager: ExchangeManager {
             return false
         }
 
+        print("tokenExchangeAllowanceLimit", tokenExchangeAllowanceLimit)
         return amount <= tokenExchangeAllowanceLimit
     }
 
@@ -106,7 +104,10 @@ extension DefaultExchangeManager: ExchangeManager {
 
     func refresh() {
         tokenExchangeAllowanceLimit = nil
-        refreshValues(silent: false)
+        Task {
+            try await blockchainDataProvider.updateWallet()
+            refreshValues(silent: false)
+        }
     }
 }
 
@@ -127,6 +128,7 @@ private extension DefaultExchangeManager {
     }
 
     func exchangeItemsDidChange() {
+        updateState(.idle)
         /// Set nil for previous token
         tokenExchangeAllowanceLimit = nil
         updateBalances()
@@ -181,9 +183,6 @@ private extension DefaultExchangeManager {
             updateState(.loading)
         }
 
-        let hasPendingTransaction = blockchainDataProvider.hasPendingTransaction(currency: exchangeItems.source)
-        delegate?.exchangeManager(self, hasPendingTransaction: !hasPendingTransaction)
-
         Task {
             do {
                 let quoteData = try await getQuoteDataModel()
@@ -219,7 +218,7 @@ private extension DefaultExchangeManager {
 
     func updateExchangeAmountAllowance() async {
         /// If allowance limit already loaded use it
-        guard tokenExchangeAllowanceLimit == nil, let walletAddress else {
+        guard let walletAddress else {
             delegate?.exchangeManager(self, didUpdate: isEnoughAllowance())
             return
         }
