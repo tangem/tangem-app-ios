@@ -23,6 +23,14 @@ class ReferralViewModel: ObservableObject {
     private let cardModel: CardViewModel
     private let userWalletId: Data
 
+    private var shareLink: String {
+        guard let referralInfo = referralProgramInfo?.referral else {
+            return ""
+        }
+
+        return Localization.referralShareLink(referralInfo.shareLink)
+    }
+
     init(cardModel: CardViewModel, userWalletId: Data, coordinator: ReferralRoutable) {
         self.cardModel = cardModel
         self.userWalletId = userWalletId
@@ -33,10 +41,13 @@ class ReferralViewModel: ObservableObject {
 
     @MainActor
     func participateInReferralProgram() async {
+        Analytics.log(.referralButtonParticipate)
+
         guard
             let award = referralProgramInfo?.conditions.awards.first,
             let blockchain = Blockchain(from: award.token.networkId)
         else {
+            AppLog.shared.error(Localization.referralErrorFailedToLoadInfo)
             errorAlert = AlertBuilder.makeOkErrorAlert(message: Localization.referralErrorFailedToLoadInfo,
                                                        okAction: coordinator.dismiss)
             return
@@ -50,7 +61,6 @@ class ReferralViewModel: ObservableObject {
         }
 
         saveToStorageIfNeeded(token, for: blockchain)
-
         isProcessingRequest = true
         do {
             let referralProgramInfo = try await runInTask {
@@ -61,14 +71,22 @@ class ReferralViewModel: ObservableObject {
             let referralError = ReferralError(error)
             let message = Localization.referralErrorFailedToParticipate(referralError.code)
             errorAlert = AlertBuilder.makeOkErrorAlert(message: message)
+            AppLog.shared.error(referralError)
         }
 
         isProcessingRequest = false
     }
 
     func copyPromoCode() {
+        Analytics.log(.referralButtonCopyCode)
         UIPasteboard.general.string = referralProgramInfo?.referral?.promoCode
         showCodeCopiedToast = true
+    }
+
+    func sharePromoCode() {
+        Analytics.log(.referralButtonShareCode)
+        let shareActivityVC = UIActivityViewController(activityItems: [shareLink], applicationActivities: nil)
+        AppPresenter.shared.show(shareActivityVC)
     }
 
     @MainActor
@@ -81,6 +99,7 @@ class ReferralViewModel: ObservableObject {
         } catch {
             let referralError = ReferralError(error)
             let message = Localization.referralErrorFailedToLoadInfoWithReason(referralError.code)
+            AppLog.shared.error(referralError)
             self.errorAlert = AlertBuilder.makeOkErrorAlert(message: message, okAction: coordinator.dismiss)
         }
     }
@@ -107,6 +126,7 @@ class ReferralViewModel: ObservableObject {
                     return
                 }
 
+                AppLog.shared.error(error)
                 self.errorAlert = error.alertBinder
             }
         }
@@ -205,14 +225,6 @@ extension ReferralViewModel {
         return Localization.referralTosEnroledPrefix + " "
     }
 
-    var shareLink: String {
-        guard let referralInfo = referralProgramInfo?.referral else {
-            return ""
-        }
-
-        return Localization.referralShareLink(referralInfo.shareLink)
-    }
-
     var isProgramInfoLoaded: Bool { referralProgramInfo != nil }
     var isAlreadyReferral: Bool { referralProgramInfo?.referral != nil }
 }
@@ -228,6 +240,7 @@ extension ReferralViewModel {
             return
         }
 
+        Analytics.log(.referralButtonOpenTos)
         coordinator.openTOS(with: url)
     }
 }
