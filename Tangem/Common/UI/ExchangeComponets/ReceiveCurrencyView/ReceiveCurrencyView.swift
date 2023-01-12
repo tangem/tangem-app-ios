@@ -19,7 +19,7 @@ struct ReceiveCurrencyView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
-            headerLabel
+            headerLabels
 
             mainContent
         }
@@ -29,9 +29,18 @@ struct ReceiveCurrencyView: View {
         .cornerRadius(14)
     }
 
-    private var headerLabel: some View {
-        Text(Localization.exchangeReceiveViewHeader)
-            .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
+    private var headerLabels: some View {
+        HStack(spacing: 0) {
+            Text(Localization.exchangeReceiveViewHeader)
+                .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
+
+            Spacer()
+
+            if let balanceString = viewModel.balanceString {
+                Text(balanceString)
+                    .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
+            }
+        }
     }
 
     @ViewBuilder
@@ -89,6 +98,7 @@ extension ReceiveCurrencyView: Setupable {
 
 struct ReceiveCurrencyView_Preview: PreviewProvider {
     static let viewModel = ReceiveCurrencyViewModel(
+        balance: 0.124124,
         state: .loaded(1100.46, fiatValue: 1000.71),
         tokenIcon: SwappingTokenIconViewModel(
             state: .loaded(
@@ -99,6 +109,7 @@ struct ReceiveCurrencyView_Preview: PreviewProvider {
     )
 
     static let loadingViewModel = ReceiveCurrencyViewModel(
+        balance: 0.124124,
         state: .loading,
         tokenIcon: SwappingTokenIconViewModel(
             state: .loaded(
