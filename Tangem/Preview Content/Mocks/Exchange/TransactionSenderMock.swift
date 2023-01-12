@@ -11,7 +11,3 @@ import TangemExchange
 struct TransactionSenderMock: TransactionSendable {
     func sendTransaction(_ info: ExchangeTransactionDataModel) async throws {}
 }
-
-struct BlockchainInformationProviderMock: BlockchainInformationProviding {
-    func hasPendingTransaction(currency: Currency) -> Bool { true }
-}
