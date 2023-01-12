@@ -30,7 +30,7 @@ struct SwappingConfigurator {
             swappingDestinationService: factory.createSwappingDestinationService(walletModel: input.walletModel),
             userCurrenciesProvider: factory.createUserCurrenciesProvider(walletModel: input.walletModel),
             tokenIconURLBuilder: factory.createTokenIconURLBuilder(),
-            transactionSender: factory.createTransactionSender(sender: input.sender, signer: input.signer),
+            transactionSender: factory.createTransactionSender(walletManager: input.walletModel.walletManager, signer: input.signer),
             coordinator: coordinator
         )
     }
