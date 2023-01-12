@@ -58,7 +58,7 @@ class DefaultExchangeManager {
         self.exchangeItems = exchangeItems
         self.amount = amount
 
-        updateSourceBalances()
+        updateBalances()
         Task {
             await updateExchangeAmountAllowance()
         }
@@ -112,7 +112,7 @@ extension DefaultExchangeManager: ExchangeManager {
 
 private extension DefaultExchangeManager {
     func amountDidChange() {
-        updateSourceBalances()
+        updateBalances()
 
         if amount == nil || amount == 0 {
             stopTimer()
@@ -127,7 +127,7 @@ private extension DefaultExchangeManager {
     func exchangeItemsDidChange() {
         /// Set nil for previous token
         tokenExchangeAllowanceLimit = nil
-        updateSourceBalances()
+        updateBalances()
 
         guard (amount ?? 0) > 0 else {
             stopTimer()
@@ -202,8 +202,6 @@ private extension DefaultExchangeManager {
                     )
                     let result = try await mapToSwappingResultDataModel(preview: preview, transaction: info)
                     updateState(.available(result, info: info))
-
-                    updateState(.available(result, info: info))
                 }
             } catch {
                 updateState(.requiredRefresh(occurredError: error))
@@ -257,13 +255,18 @@ private extension DefaultExchangeManager {
         )
     }
 
-    func updateSourceBalances() {
+    func updateBalances() {
         Task {
             let source = exchangeItems.source
             let balance = try await blockchainDataProvider.getBalance(for: source)
             var fiatBalance: Decimal = 0
             if let amount = amount {
                 fiatBalance = try await blockchainDataProvider.getFiat(for: source, amount: amount)
+            }
+
+            if let destination = exchangeItems.destination {
+                let balance = try await blockchainDataProvider.getBalance(for: destination)
+                exchangeItems.destinationBalance = balance
             }
 
             exchangeItems.sourceBalance = ExchangeItems.Balance(balance: balance, fiatBalance: fiatBalance)
