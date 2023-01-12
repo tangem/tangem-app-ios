@@ -11,13 +11,14 @@ import SwiftUI
 
 struct ArrowView: View {
     let position: ItemPosition
+    let width: CGFloat
     let height: CGFloat
     let color = Color(hex: "#DEDEDE")!
     var body: some View {
         LineShape(position: position)
             .foregroundColor(color)
             .overlay(TriangleShape().fill(color))
-            .frame(width: 46, height: height)
+            .frame(width: width, height: height)
     }
 }
 
@@ -106,9 +107,9 @@ fileprivate struct TriangleShape: Shape {
 struct ArrowView_Previews: PreviewProvider {
     static var previews: some View {
         VStack {
-            ArrowView(position: .first, height: 50)
-            ArrowView(position: .middle, height: 50)
-            ArrowView(position: .last, height: 50)
+            ArrowView(position: .first, width: 50, height: 50)
+            ArrowView(position: .middle, width: 50, height: 50)
+            ArrowView(position: .last, width: 50, height: 50)
         }
     }
 }
