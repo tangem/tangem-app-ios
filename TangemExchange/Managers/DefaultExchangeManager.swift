@@ -85,10 +85,11 @@ extension DefaultExchangeManager: ExchangeManager {
         }
 
         guard let tokenExchangeAllowanceLimit else {
-            return false
+            // If tokenExchangeAllowanceLimit not loaded don't show view
+            return true
         }
 
-        print("tokenExchangeAllowanceLimit", tokenExchangeAllowanceLimit)
+//        print("tokenExchangeAllowanceLimit", tokenExchangeAllowanceLimit)
         return amount <= tokenExchangeAllowanceLimit
     }
 
@@ -147,7 +148,11 @@ private extension DefaultExchangeManager {
 
 private extension DefaultExchangeManager {
     func updateState(_ state: ExchangeAvailabilityState) {
-        availabilityState = state
+        if case .requiredRefresh = state {
+            stopTimer()
+        }
+
+        self.availabilityState = state
     }
 
     func restartTimer() {
@@ -190,17 +195,16 @@ private extension DefaultExchangeManager {
 
                 switch exchangeItems.source.currencyType {
                 case .coin:
-                    guard preview.isEnoughAmountForExchange else {
-                        updateState(.preview(preview))
-                        return
-                    }
+                    try await loadExchangeData(preview: preview)
 
-                    let exchangeData = try await getExchangeTxDataModel()
-                    let info = try mapToExchangeTransactionInfo(exchangeData: exchangeData)
-                    let result = try await mapToSwappingResultDataModel(preview: preview, transaction: info)
-                    updateState(.available(result, info: info))
+
                 case .token:
                     await updateExchangeAmountAllowance()
+                    // Check if permission required
+                    guard !isEnoughAllowance() else {
+                        try await loadExchangeData(preview: preview)
+                        return
+                    }
 
                     let approvedDataModel = try await getExchangeApprovedDataModel()
                     let info = try mapToExchangeTransactionInfo(
@@ -216,6 +220,18 @@ private extension DefaultExchangeManager {
         }
     }
 
+    func loadExchangeData(preview: PreviewSwappingDataModel) async throws {
+        guard preview.isEnoughAmountForExchange else {
+            updateState(.preview(preview))
+            return
+        }
+
+        let exchangeData = try await getExchangeTxDataModel()
+        let info = try mapToExchangeTransactionInfo(exchangeData: exchangeData)
+        let result = try await mapToSwappingResultDataModel(preview: preview, transaction: info)
+        updateState(.available(result, info: info))
+    }
+
     func updateExchangeAmountAllowance() async {
         /// If allowance limit already loaded use it
         guard let walletAddress else {
@@ -228,6 +244,7 @@ private extension DefaultExchangeManager {
                 for: exchangeItems.source,
                 walletAddress: walletAddress
             )
+            print("tokenExchangeAllowanceLimit", tokenExchangeAllowanceLimit as Any)
         } catch {
             tokenExchangeAllowanceLimit = nil
             updateState(.requiredRefresh(occurredError: error))
@@ -352,7 +369,8 @@ private extension DefaultExchangeManager {
             sourceAddress: exchangeData.sourceAddress,
             destinationAddress: exchangeData.destinationAddress,
             txData: exchangeData.txData,
-            amount: exchangeData.sourceTokenAmount,
+            amount: exchangeData.swappingAmount,
+            value: exchangeData.value,
             gasValue: exchangeData.gas,
             gasPrice: exchangeData.gasPrice
         )
@@ -378,6 +396,7 @@ private extension DefaultExchangeManager {
             destinationAddress: approvedData.tokenAddress,
             txData: approvedData.data,
             amount: approvedData.value,
+            value: approvedData.value,
             gasValue: quoteData.estimatedGas,
             gasPrice: approvedData.gasPrice
         )
