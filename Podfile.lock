@@ -211,7 +211,7 @@ PODS:
     - ZendeskSupportProvidersSDK (= 5.5.0)
 
 DEPENDENCIES:
-  - AlertToast (from `https://github.com/tangem/AlertToast`)
+  - AlertToast (from `https://github.com/elai950/AlertToast`)
   - Amplitude (~> 8.8.0)
   - AppsFlyerFramework
   - BinanceChain (from `https://github.com/tangem/swiftbinancechain.git`, tag `0.0.9`)
@@ -279,7 +279,7 @@ SPEC REPOS:
 
 EXTERNAL SOURCES:
   AlertToast:
-    :git: https://github.com/tangem/AlertToast
+    :git: https://github.com/elai950/AlertToast
   BinanceChain:
     :git: https://github.com/tangem/swiftbinancechain.git
     :tag: 0.0.9
@@ -310,8 +310,8 @@ EXTERNAL SOURCES:
 
 CHECKOUT OPTIONS:
   AlertToast:
-    :commit: 21d1084e39dd919daffaba2f1c4a4e204a57336e
-    :git: https://github.com/tangem/AlertToast
+    :commit: a437862bb6605080a5816e866cbd4ac8c8657b49
+    :git: https://github.com/elai950/AlertToast
   BinanceChain:
     :git: https://github.com/tangem/swiftbinancechain.git
     :tag: 0.0.9
@@ -395,6 +395,6 @@ SPEC CHECKSUMS:
   ZendeskSupportProvidersSDK: 77a62fe6bacc05bb10ff20edce75612fa109fd61
   ZendeskSupportSDK: ba72e90e327635b5fde3d023a3de33242a6ee8ab
 
-PODFILE CHECKSUM: 3e530a024ae288622774546994881ef2229da2fa
+PODFILE CHECKSUM: 559ae20d2b18ebccebadc41f0ac84036bd6929a2
 
 COCOAPODS: 1.11.3
