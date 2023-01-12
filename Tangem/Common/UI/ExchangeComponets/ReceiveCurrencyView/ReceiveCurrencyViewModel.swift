@@ -15,6 +15,10 @@ struct ReceiveCurrencyViewModel: Identifiable {
 
     let tokenIcon: SwappingTokenIconViewModel
 
+    var balanceString: String? {
+        Localization.commonBalance((balance ?? 0).groupedFormatted())
+    }
+
     var value: String {
         state.value?.groupedFormatted() ?? "0"
     }
@@ -23,10 +27,14 @@ struct ReceiveCurrencyViewModel: Identifiable {
         state.fiatValue?.currencyFormatted(code: AppSettings.shared.selectedCurrencyCode) ?? "0"
     }
 
+    private let balance: Decimal?
+
     init(
+        balance: Decimal?,
         state: State,
         tokenIcon: SwappingTokenIconViewModel
     ) {
+        self.balance = balance
         self.state = state
         self.tokenIcon = tokenIcon
     }
