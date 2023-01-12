@@ -14,10 +14,12 @@ struct CoinView: View {
     @ObservedObject var model: CoinViewModel
     var subtitle: String = Localization.currencySubtitleExpanded
 
+    let iconWidth: Double = 46
+
     var body: some View {
         VStack(spacing: 10) {
             HStack(spacing: 0) {
-                IconView(url: model.imageURL, name: model.name)
+                IconView(url: model.imageURL, name: model.name, size: CGSize(width: iconWidth, height: iconWidth))
                     .padding(.trailing, 14)
 
                 VStack(alignment: .leading, spacing: 6) {
@@ -41,7 +43,7 @@ struct CoinView: View {
                         } else {
                             HStack(spacing: 5) {
                                 ForEach(model.items) {
-                                    CoinItemView(model: $0).icon
+                                    CoinItemView(model: $0, arrowWidth: iconWidth).icon
                                 }
                             }
                         }
@@ -59,7 +61,7 @@ struct CoinView: View {
 
             if isExpanded {
                 VStack(spacing: 0) {
-                    ForEach(model.items) { CoinItemView(model: $0) }
+                    ForEach(model.items) { CoinItemView(model: $0, arrowWidth: iconWidth) }
                 }
             }
         }
