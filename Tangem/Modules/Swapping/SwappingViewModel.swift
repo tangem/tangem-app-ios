@@ -20,6 +20,7 @@ final class SwappingViewModel: ObservableObject {
     @Published var sendDecimalValue: Decimal?
     @Published var refreshWarningRowViewModel: DefaultWarningRowViewModel?
     @Published var requiredPermissionInfoRowViewModel: DefaultWarningRowViewModel?
+    @Published var transactionInProgressInfoRowViewModel: DefaultWarningRowViewModel?
 
     @Published var mainButtonIsEnabled: Bool = false
     @Published var mainButtonState: MainButtonState = .swap
@@ -44,7 +45,6 @@ final class SwappingViewModel: ObservableObject {
     private let userCurrenciesProvider: UserCurrenciesProviding
     private let tokenIconURLBuilder: TokenIconURLBuilding
     private let transactionSender: TransactionSendable
-    private let blockchainInformationProvider: BlockchainInformationProviding
 
     private unowned let coordinator: SwappingRoutable
 
@@ -58,7 +58,6 @@ final class SwappingViewModel: ObservableObject {
         userCurrenciesProvider: UserCurrenciesProviding,
         tokenIconURLBuilder: TokenIconURLBuilding,
         transactionSender: TransactionSendable,
-        blockchainInformationProvider: BlockchainInformationProviding,
         coordinator: SwappingRoutable
     ) {
         self.exchangeManager = exchangeManager
@@ -66,7 +65,6 @@ final class SwappingViewModel: ObservableObject {
         self.userCurrenciesProvider = userCurrenciesProvider
         self.tokenIconURLBuilder = tokenIconURLBuilder
         self.transactionSender = transactionSender
-        self.blockchainInformationProvider = blockchainInformationProvider
         self.coordinator = coordinator
 
         setupView()
@@ -209,18 +207,6 @@ extension SwappingViewModel: ExchangeManagerDelegate {
     func exchangeManager(_ manager: ExchangeManager, didUpdate isEnoughAllowance: Bool) {
         DispatchQueue.main.async {
             self.updateRequiredPermission(isEnoughAllowance: isEnoughAllowance)
-        }
-    }
-
-    func exchangeManager(_ manager: ExchangeManager, hasPendingTransaction: Bool) {
-        if hasPendingTransaction {
-            requiredPermissionInfoRowViewModel = DefaultWarningRowViewModel(
-                icon: Assets.attentionRed,
-                title: "Waiting",
-                subtitle: "Transaction in progress..."
-            )
-        } else {
-            requiredPermissionInfoRowViewModel = nil
         }
     }
 }

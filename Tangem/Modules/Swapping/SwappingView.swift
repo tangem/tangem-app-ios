@@ -131,7 +131,6 @@ struct SwappingView_Preview: PreviewProvider {
         userCurrenciesProvider: UserCurrenciesProviderMock(),
         tokenIconURLBuilder: TokenIconURLBuilderMock(),
         transactionSender: TransactionSenderMock(),
-        blockchainInformationProvider: BlockchainInformationProviderMock(),
         coordinator: SwappingCoordinator()
     )
 
@@ -141,4 +140,3 @@ struct SwappingView_Preview: PreviewProvider {
         }
     }
 }
-
