@@ -29,6 +29,8 @@ final class SwappingPermissionViewModel: ObservableObject, Identifiable {
     private let transactionSender: TransactionSendable
     private unowned let coordinator: SwappingPermissionRoutable
 
+    private var didBecomeActiveNotificationBag: AnyCancellable?
+
     init(
         inputModel: SwappingPermissionInputModel,
         transactionSender: TransactionSendable,
@@ -45,11 +47,14 @@ final class SwappingPermissionViewModel: ObservableObject, Identifiable {
         Task {
             do {
                 try await transactionSender.sendTransaction(inputModel.transactionInfo)
-                await didSendApproveTransaction()
+                self.didSendApproveTransaction()
+
             } catch TangemSdkError.userCancelled {
                 // Do nothing
             } catch {
-                errorAlert = AlertBinder(title: Localization.commonError, message: error.localizedDescription)
+                await runOnMain {
+                    errorAlert = AlertBinder(title: Localization.commonError, message: error.localizedDescription)
+                }
             }
         }
     }
@@ -62,9 +67,14 @@ final class SwappingPermissionViewModel: ObservableObject, Identifiable {
 // MARK: - Navigation
 
 extension SwappingPermissionViewModel {
-    @MainActor
     func didSendApproveTransaction() {
-        coordinator.didSendApproveTransaction()
+        didBecomeActiveNotificationBag = NotificationCenter
+            .default
+            .publisher(for: UIApplication.didBecomeActiveNotification)
+            .print("didBecomeActiveNotification")
+            .sink { [weak self] _ in
+                self?.coordinator.didSendApproveTransaction()
+            }
     }
 }
 
