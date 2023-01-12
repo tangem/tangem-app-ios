@@ -8,6 +8,7 @@
 
 import Foundation
 import SwiftUI
+import BlockchainSdk
 
 enum WalletConnectEvent {
     case establishSession
@@ -64,11 +65,13 @@ enum WalletConnectUIBuilder {
         makeAlert(for: .error, message: error.localizedDescription)
     }
 
-    static func makeChainsSheet(_ networks: [BlockchainNetwork], onAcceptAction: @escaping (BlockchainNetwork) -> Void, onReject: @escaping () -> Void) -> UIAlertController {
+    static func makeChainsSheet(_ wallets: [Wallet], onAcceptAction: @escaping (Wallet) -> Void, onReject: @escaping () -> Void) -> UIAlertController {
         let vc: UIAlertController = UIAlertController(title: "WalletConnect", message: "wallet_connect_select_network".localized, preferredStyle: .actionSheet)
 
-        for network in networks {
-            let action = UIAlertAction(title: network.blockchain.displayName, style: .default, handler: { _ in onAcceptAction(network) })
+        for wallet in wallets {
+            let addressFormatter = AddressFormatter(address: wallet.address)
+            let title = "\(wallet.blockchain.displayName) (\(addressFormatter.truncated()))"
+            let action = UIAlertAction(title: title, style: .default, handler: { _ in onAcceptAction(wallet) })
             vc.addAction(action)
         }
 
