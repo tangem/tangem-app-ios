@@ -44,6 +44,7 @@ struct SwappingView: View {
                         viewModel: sendCurrencyViewModel,
                         decimalValue: $viewModel.sendDecimalValue
                     )
+                    .didTapMaxAmount(viewModel.userDidTapMaxAmount)
                 }
 
                 if let receiveCurrencyViewModel = viewModel.receiveCurrencyViewModel {
