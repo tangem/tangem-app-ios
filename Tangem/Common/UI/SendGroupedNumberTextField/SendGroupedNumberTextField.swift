@@ -1,5 +1,5 @@
 //
-//  SendNumberTextField.swift
+//  SendGroupedNumberTextField.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -9,7 +9,7 @@
 import Foundation
 import SwiftUI
 
-struct SendNumberTextField: View {
+struct SendGroupedNumberTextField: View {
     @Binding private var decimalValue: Decimal?
     @State private var maximumFractionDigits: Int = 8
     private var didTapMaxAmountAction: (() -> Void)?
@@ -20,7 +20,7 @@ struct SendNumberTextField: View {
 
     var body: some View {
         if #available(iOS 15, *) {
-            FocusedNumberTextField(decimalValue: $decimalValue) {
+            FocusedGroupedNumberTextField(decimalValue: $decimalValue) {
                 Button(Localization.sendMaxAmountLabel) {
                     didTapMaxAmountAction?()
                 }
@@ -35,7 +35,7 @@ struct SendNumberTextField: View {
 
 // MARK: - Setupable
 
-extension SendNumberTextField: Setupable {
+extension SendGroupedNumberTextField: Setupable {
     func maximumFractionDigits(_ digits: Int) -> Self {
         map { $0.maximumFractionDigits = digits }
     }
