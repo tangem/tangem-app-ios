@@ -1931,8 +1931,6 @@
 			isa = PBXGroup;
 			children = (
 				EF6EDD8A296D6B3B001B21A3 /* SendNumberTextField */,
-				EFEC5F72296FF2A1009C0E5F /* FocusedNumberTextField */,
-				EFBAABAB2927CCBA0065C6D4 /* GroupedNumberTextField */,
 				EFE23AC9292CB84600A3C554 /* IconView */,
 				EF4662322924DFAF00346B6C /* GroupedScrollView */,
 				EF46620F2924DEEE00346B6C /* DefaultListViews */,
@@ -3807,6 +3805,9 @@
 			isa = PBXGroup;
 			children = (
 				EF6EDD8B296D6B51001B21A3 /* SendNumberTextField.swift */,
+				EFEC5F73296FF2BA009C0E5F /* FocusedNumberTextField.swift */,
+				EFBAABAC2927CCBA0065C6D4 /* GroupedNumberTextField.swift */,
+				EFBAABAD2927CCBA0065C6D4 /* GroupedNumberFormatter.swift */,
 			);
 			path = SendNumberTextField;
 			sourceTree = "<group>";
@@ -3960,15 +3961,6 @@
 			path = Types;
 			sourceTree = "<group>";
 		};
-		EFBAABAB2927CCBA0065C6D4 /* GroupedNumberTextField */ = {
-			isa = PBXGroup;
-			children = (
-				EFBAABAC2927CCBA0065C6D4 /* GroupedNumberTextField.swift */,
-				EFBAABAD2927CCBA0065C6D4 /* GroupedNumberFormatter.swift */,
-			);
-			path = GroupedNumberTextField;
-			sourceTree = "<group>";
-		};
 		EFC46EFC29266978003928E3 /* SendCurrencyView */ = {
 			isa = PBXGroup;
 			children = (
@@ -4107,14 +4099,6 @@
 				EFEBCE2A29265CF300B0C886 /* TokenIconViewModel.swift */,
 			);
 			path = TokenIconView;
-			sourceTree = "<group>";
-		};
-		EFEC5F72296FF2A1009C0E5F /* FocusedNumberTextField */ = {
-			isa = PBXGroup;
-			children = (
-				EFEC5F73296FF2BA009C0E5F /* FocusedNumberTextField.swift */,
-			);
-			path = FocusedNumberTextField;
 			sourceTree = "<group>";
 		};
 		EFF034AD28B6521900F70FF7 /* WalletListManager */ = {
