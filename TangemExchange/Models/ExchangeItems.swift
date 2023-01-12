@@ -12,7 +12,9 @@ public struct ExchangeItems {
     public var source: Currency
     public var destination: Currency?
 
+    // [REDACTED_TODO_COMMENT]
     public var sourceBalance: Balance
+    public var destinationBalance: Decimal?
 
     public init(
         source: Currency,
