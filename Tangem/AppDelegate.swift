@@ -11,7 +11,6 @@ import Firebase
 import AppsFlyerLib
 import Amplitude
 
-
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
     var loadingView: UIView? = nil
@@ -64,7 +63,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         }
 
         AppSettings.shared.numberOfLaunches += 1
-        migrateTOS()
         return true
     }
 
@@ -101,14 +99,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         guard AppEnvironment.current.isProduction else { return }
 
         AppsFlyerLib.shared().start()
-    }
-
-    private func migrateTOS() {
-        guard AppSettings.shared.isTermsOfServiceAccepted else { return }
-
-        let defaultId = DummyConfig().tou.id
-        AppSettings.shared.termsOfServicesAccepted.insert(defaultId)
-        AppSettings.shared.isTermsOfServiceAccepted = false
     }
 }
 
