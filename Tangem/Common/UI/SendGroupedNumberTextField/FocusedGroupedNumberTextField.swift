@@ -1,5 +1,5 @@
 //
-//  FocusedNumberTextField.swift
+//  FocusedGroupedNumberTextField.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -11,7 +11,7 @@ import SwiftUI
 
 /// It same as`GroupedNumberTextField` but with support focus state and toolbar buttons
 @available(iOS 15.0, *)
-struct FocusedNumberTextField<ToolbarButton: View>: View {
+struct FocusedGroupedNumberTextField<ToolbarButton: View>: View {
     @Binding private var decimalValue: Decimal?
     @FocusState private var isInputActive: Bool
     @State private var maximumFractionDigits: Int = 8
@@ -50,7 +50,7 @@ struct FocusedNumberTextField<ToolbarButton: View>: View {
 
 // MARK: - Setupable
 @available(iOS 15.0, *)
-extension FocusedNumberTextField: Setupable {
+extension FocusedGroupedNumberTextField: Setupable {
     func maximumFractionDigits(_ digits: Int) -> Self {
         map { $0.maximumFractionDigits = digits }
     }
@@ -61,7 +61,7 @@ struct FocusedNumberTextField_Previews: PreviewProvider {
 
     static var previews: some View {
         if #available(iOS 15.0, *) {
-            FocusedNumberTextField(decimalValue: $decimalValue) {}
+            FocusedGroupedNumberTextField(decimalValue: $decimalValue) {}
         }
     }
 }
