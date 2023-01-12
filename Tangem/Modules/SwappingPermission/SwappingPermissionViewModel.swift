@@ -72,6 +72,7 @@ extension SwappingPermissionViewModel {
             .default
             .publisher(for: UIApplication.didBecomeActiveNotification)
             .print("didBecomeActiveNotification")
+            .delay(for: 0.3, scheduler: DispatchQueue.main)
             .sink { [weak self] _ in
                 self?.coordinator.didSendApproveTransaction()
             }
