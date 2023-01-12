@@ -9,58 +9,39 @@
 import Foundation
 import SwiftUI
 
-/// It same as`GroupedNumberTextField` but with support focus state and toolbar buttons
-@available(iOS 15.0, *)
-struct SendNumberTextField<ToolbarButton: View>: View {
+struct SendNumberTextField: View {
     @Binding private var decimalValue: Decimal?
-    @FocusState private var isInputActive: Bool
     @State private var maximumFractionDigits: Int = 8
+    private var didTapMaxAmountAction: (() -> Void)?
 
-    private let toolbarButton: () -> ToolbarButton
-
-    init(
-        decimalValue: Binding<Decimal?>,
-        @ViewBuilder toolbarButton: @escaping () -> ToolbarButton
-    ) {
+    init(decimalValue: Binding<Decimal?>) {
         _decimalValue = decimalValue
-        self.toolbarButton = toolbarButton
     }
 
     var body: some View {
-        GroupedNumberTextField(decimalValue: $decimalValue)
-            .maximumFractionDigits(maximumFractionDigits)
-            .focused($isInputActive)
-            .toolbar {
-                ToolbarItemGroup(placement: .keyboard) {
-                    toolbarButton()
-
-                    Button {
-                        isInputActive = false
-                    } label: {
-                        Image(systemName: "keyboard.chevron.compact.down")
-                            .resizable()
-                    }
+        if #available(iOS 15, *) {
+            FocusedNumberTextField(decimalValue: $decimalValue) {
+                Button(Localization.sendMaxAmountLabel) {
+                    didTapMaxAmountAction?()
                 }
             }
-            .onAppear { isInputActive = true }
+            .maximumFractionDigits(maximumFractionDigits)
+        } else {
+            GroupedNumberTextField(decimalValue: $decimalValue)
+                .maximumFractionDigits(maximumFractionDigits)
+        }
     }
 }
 
 // MARK: - Setupable
 
-@available(iOS 15.0, *)
 extension SendNumberTextField: Setupable {
     func maximumFractionDigits(_ digits: Int) -> Self {
         map { $0.maximumFractionDigits = digits }
     }
-}
 
-struct SendNumberTextField_Previews: PreviewProvider {
-    @State private static var decimalValue: Decimal?
-
-    static var previews: some View {
-        if #available(iOS 15.0, *) {
-            SendNumberTextField(decimalValue: $decimalValue) {}
-        }
+    func didTapMaxAmount(_ action: @escaping () -> Void) -> Self {
+        map { $0.didTapMaxAmountAction = action }
     }
 }
+
