@@ -343,7 +343,6 @@ extension WalletConnectService: ServerDelegate {
         let blockchainNetwork = cardModel.getBlockchainNetwork(for: blockchain, derivationPath: nil)
 
         let wallet = cardModel.walletModels
-            .filter { !$0.isCustom(.coin) }
             .first { $0.blockchainNetwork == blockchainNetwork }
             .map { $0.wallet }
 
@@ -363,7 +362,11 @@ extension WalletConnectService: ServerDelegate {
         self.wallet = walletInfo
 
         let peerMeta = dAppInfo.peerMeta
-        var message = String(format: "wallet_connect_request_session_start".localized, peerMeta.name, walletInfo.blockchain.displayName, peerMeta.url.absoluteString)
+        let blockchainName = "\(walletInfo.blockchain.displayName) (\(AddressFormatter(address: walletInfo.address).truncated()))"
+        var message = String(format: "wallet_connect_request_session_start".localized,
+                             peerMeta.name,
+                             blockchainName,
+                             peerMeta.url.absoluteString)
 
         if let description = peerMeta.description, !description.isEmpty {
             message += "\n\n" + description
