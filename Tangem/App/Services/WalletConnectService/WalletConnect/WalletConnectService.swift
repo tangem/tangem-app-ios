@@ -343,6 +343,7 @@ extension WalletConnectService: ServerDelegate {
         let blockchainNetwork = cardModel.getBlockchainNetwork(for: blockchain, derivationPath: nil)
 
         let wallet = cardModel.walletModels
+            .filter { !$0.isCustom(.coin) }
             .first { $0.blockchainNetwork == blockchainNetwork }
             .map { $0.wallet }
 
@@ -385,18 +386,13 @@ extension WalletConnectService: ServerDelegate {
                                           peerMeta: self.walletMeta))
         }
 
-        let onSelectChain: (BlockchainNetwork) -> Void = { [cardModel] selectedNetwork in
-            let wallet = cardModel.walletModels
-                .filter { !$0.isCustom(.coin) }
-                .first(where: { $0.wallet.blockchain == selectedNetwork.blockchain })
-                .map { $0.wallet }!
-
+        let onSelectChain: (Wallet) -> Void = { wallet in
             let derivedKey = wallet.publicKey.blockchainKey != wallet.publicKey.seedKey ? wallet.publicKey.blockchainKey : nil
 
             self.wallet = WalletInfo(walletPublicKey: wallet.publicKey.seedKey,
                                      derivedPublicKey: derivedKey,
                                      derivationPath: wallet.publicKey.derivationPath,
-                                     blockchain: selectedNetwork.blockchain)
+                                     blockchain: wallet.blockchain)
 
             onAccept()
         }
@@ -409,8 +405,7 @@ extension WalletConnectService: ServerDelegate {
         let onSelectChainRequested = { [cardModel] in
             let availableChains = cardModel.walletModels
                 .filter { $0.blockchainNetwork.blockchain.isEvm }
-                .filter { !$0.isCustom(.coin) }
-                .map { $0.blockchainNetwork }
+                .map { $0.wallet }
 
 
             self.presentOnTop(WalletConnectUIBuilder.makeChainsSheet(availableChains,
