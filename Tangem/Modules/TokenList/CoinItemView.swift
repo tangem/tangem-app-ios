@@ -13,6 +13,8 @@ import BlockchainSdk
 struct CoinItemView: View {
     @ObservedObject var model: CoinItemViewModel
 
+    let arrowWidth: Double
+
     var icon: some View {
         NetworkIcon(imageName: model.selectedPublisher ? model.imageNameSelected : model.imageName,
                     isMainIndicatorVisible: model.isMain)
@@ -22,7 +24,7 @@ struct CoinItemView: View {
 
     var body: some View {
         HStack(spacing: 6) {
-            ArrowView(position: model.position, height: size.height)
+            ArrowView(position: model.position, width: arrowWidth, height: size.height)
 
             HStack(spacing: 0) {
                 icon
@@ -68,19 +70,21 @@ struct CurrencyItemView_Previews: PreviewProvider {
         VStack(spacing: 0) {
             CoinItemView(model: CoinItemViewModel(tokenItem: .blockchain(.ethereum(testnet: false)),
                                                   isReadonly: false,
-                                                  isSelected: .constant(false)))
+                                                  isSelected: .constant(false)),
+                         arrowWidth: 46)
 
             CoinItemView(model: CoinItemViewModel(tokenItem: .blockchain(.ethereum(testnet: false)),
                                                   isReadonly: false,
                                                   isSelected: .constant(true),
-                                                  position: .last))
+                                                  position: .last),
+                         arrowWidth: 46)
 
 
             StatefulPreviewWrapper(false) {
                 CoinItemView(model: CoinItemViewModel(tokenItem: .blockchain(.ethereum(testnet: false)),
                                                       isReadonly: false,
-                                                      isSelected: $0))
-
+                                                      isSelected: $0),
+                             arrowWidth: 46)
             }
 
             Spacer()
