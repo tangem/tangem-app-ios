@@ -378,18 +378,18 @@ extension WalletModel {
         return Localization.addressQrCodeMessageFormat(currencyName, symbol, wallet.blockchain.displayName)
     }
 
-    func getFiatFormatted(for amount: Amount?, roundingMode: NSDecimalNumber.RoundingMode = .down) -> String? {
+    func getFiatFormatted(for amount: Amount?, roundingMode: NSDecimalNumber.RoundingMode) -> String? {
         return getFiat(for: amount, roundingMode: roundingMode)?.currencyFormatted(code: AppSettings.shared.selectedCurrencyCode)
     }
 
-    func getFiat(for amount: Amount?, roundingMode: NSDecimalNumber.RoundingMode = .down) -> Decimal? {
+    func getFiat(for amount: Amount?, roundingMode: NSDecimalNumber.RoundingMode) -> Decimal? {
         if let amount = amount {
             return getFiat(for: amount.value, currencyId: currencyId(for: amount.type), roundingMode: roundingMode)
         }
         return nil
     }
 
-    func getFiat(for value: Decimal, currencyId: String?, roundingMode: NSDecimalNumber.RoundingMode = .down) -> Decimal? {
+    func getFiat(for value: Decimal, currencyId: String?, roundingMode: NSDecimalNumber.RoundingMode) -> Decimal? {
         if let currencyId = currencyId,
            let rate = rates[currencyId]
         {
