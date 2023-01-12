@@ -61,7 +61,7 @@ struct SendCurrencyView: View {
             lockView
 
             VStack(alignment: .leading, spacing: 8) {
-                SendNumberTextField(decimalValue: $decimalValue)
+                SendGroupedNumberTextField(decimalValue: $decimalValue)
                     .maximumFractionDigits(viewModel.maximumFractionDigits)
                     .didTapMaxAmount { didTapMaxAmountAction?() }
 
