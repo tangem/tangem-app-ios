@@ -127,7 +127,7 @@ class AppCoordinator: NSObject, CoordinatorObject {
         switch reason {
         case .loggedOut:
             animated = false
-            newScan = true
+            newScan = AppSettings.shared.saveUserWallets
         case .nothingToDisplay:
             animated = true
             newScan = false
