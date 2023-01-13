@@ -21,6 +21,9 @@ APP_BUNDLE_IDENTIFIER = com.tangem.TangemBeta
 // Storage container name
 SUITE_NAME = group.$(APP_BUNDLE_IDENTIFIER)
 
+// Path to *.entitlements file
+ENTITLEMENTS_PATH = Tangem/Configurations/TangemBeta.entitlements
+
 // Overriding (do NOT change key name)
 // app name
 PRODUCT_NAME = Tangem $(ENVIRONMENT_NAME)

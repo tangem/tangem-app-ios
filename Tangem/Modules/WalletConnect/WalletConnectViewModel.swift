@@ -47,7 +47,7 @@ class WalletConnectViewModel: ObservableObject {
     }
 
     deinit {
-        print("WalletConnectViewModel deinit")
+        AppLog.shared.debug("WalletConnectViewModel deinit")
     }
 
     func onAppear() {
