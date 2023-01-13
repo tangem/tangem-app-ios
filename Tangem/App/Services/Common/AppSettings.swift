@@ -9,10 +9,6 @@
 import Foundation
 
 class AppSettings {
-    @available(*, deprecated, message: "Use termsOfServicesAccepted instead")
-    @AppStorageCompat(StorageType.termsOfServiceAccepted)
-    var isTermsOfServiceAccepted = false
-
     @AppStorageCompat(StorageType.twinCardOnboardingDisplayed)
     var isTwinCardOnboardingWasDisplayed: Bool = false
 
@@ -58,6 +54,7 @@ class AppSettings {
 
     @AppStorageCompat(StorageType.termsOfServiceAccepted)
     var termsOfServicesAccepted: [String] = []
+
     @AppStorageCompat(StorageType.askedToSaveUserWallets)
     var askedToSaveUserWallets: Bool = false
 
@@ -75,6 +72,6 @@ class AppSettings {
     private init() {}
 
     deinit {
-        print("AppSettings deinit")
+        AppLog.shared.debug("AppSettings deinit")
     }
 }
