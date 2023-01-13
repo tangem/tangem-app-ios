@@ -22,7 +22,7 @@ struct SuccessSwappingView: View {
                     Color.clear.frame(height: geometry.size.height * 0.1)
 
                     VStack(spacing: geometry.size.height * 0.2) {
-                        Assets.successBigIcon
+                        Assets.waitingInCircle
 
                         infoView
                     }
@@ -36,7 +36,7 @@ struct SuccessSwappingView: View {
 
     private var infoView: some View {
         VStack(spacing: 14) {
-            Text(Localization.commonSuccess)
+            Text(Localization.swappingSuccessViewTitle)
                 .style(Fonts.Bold.title1, color: Colors.Text.primary1)
 
             VStack(spacing: 0) {
@@ -53,10 +53,19 @@ struct SuccessSwappingView: View {
         VStack(spacing: 0) {
             Spacer()
 
-            MainButton(
-                title: Localization.commonDone,
-                action: viewModel.doneDidTapped
-            )
+            VStack(spacing: 10) {
+                MainButton(
+                    title: Localization.swappingSuccessViewExplorerButtonTitle,
+                    icon: .leading(Assets.arrowRightUpMini),
+                    style: .secondary,
+                    action: viewModel.didTapViewInExplorer
+                )
+
+                MainButton(
+                    title: Localization.commonDone,
+                    action: viewModel.didTapClose
+                )
+            }
         }
         .padding(.horizontal, 16)
         .padding(.bottom, 8)
@@ -65,9 +74,12 @@ struct SuccessSwappingView: View {
 
 struct SuccessSwappingView_Preview: PreviewProvider {
     static let viewModel = SuccessSwappingViewModel(
-        sourceCurrencyAmount: .init(value: 1000, currency: .mock),
-        resultCurrencyAmount: .init(value: 200, currency: .mock),
-        coordinator: SwappingCoordinator()
+        inputModel: SuccessSwappingInputModel(
+            sourceCurrencyAmount: .init(value: 1000, currency: .mock),
+            resultCurrencyAmount: .init(value: 200, currency: .mock),
+            explorerURL: URL(string: "")!
+        ),
+        coordinator: SuccessSwappingCoordinator()
     )
 
     static var previews: some View {
