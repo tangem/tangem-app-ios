@@ -294,8 +294,8 @@ private extension SwappingViewModel {
     func updatePendingApprovingTransaction(hasPendingTransaction: Bool) {
         if hasPendingTransaction {
             permissionInfoRowViewModel = DefaultWarningRowViewModel(
-                title: "Waiting",
-                subtitle: "Transaction in progress...",
+                title: Localization.swappingPendingTransactionTitle,
+                subtitle: Localization.swappingPendingTransactionSubtitle,
                 leftView: .loader
             )
         } else {
@@ -470,9 +470,9 @@ private extension SwappingViewModel {
         }
     }
 
-    func updateRefreshWarningRowViewModel(title: String? = nil, message: String) {
+    func updateRefreshWarningRowViewModel(message: String) {
         refreshWarningRowViewModel = DefaultWarningRowViewModel(
-            title: title,
+            title: nil,
             subtitle: message.capitalizingFirstLetter(),
             leftView: .icon(Assets.attention),
             rightView: .icon(Assets.refreshWarningIcon)
