@@ -43,6 +43,8 @@ class DefaultExchangeManager {
         blockchainDataProvider.getWalletAddress(currency: exchangeItems.source)
     }
 
+    // Cached addresses for check approving transactions
+    private var spenderAddresses: [Currency: String] = [:]
     private var refreshDataTimerBag: AnyCancellable?
     private var bag: Set<AnyCancellable> = []
 
@@ -58,9 +60,6 @@ class DefaultExchangeManager {
         self.amount = amount
 
         updateBalances()
-        Task {
-            await updateExchangeAmountAllowance()
-        }
     }
 }
 
@@ -86,10 +85,10 @@ extension DefaultExchangeManager: ExchangeManager {
 
         guard let tokenExchangeAllowanceLimit else {
             // If tokenExchangeAllowanceLimit not loaded don't show view
-            return true
+            // Because will be better if the view will be expanded instead of collapsed
+            return false
         }
 
-//        print("tokenExchangeAllowanceLimit", tokenExchangeAllowanceLimit)
         return amount <= tokenExchangeAllowanceLimit
     }
 
@@ -105,10 +104,7 @@ extension DefaultExchangeManager: ExchangeManager {
 
     func refresh() {
         tokenExchangeAllowanceLimit = nil
-        Task {
-            try await blockchainDataProvider.updateWallet()
-            refreshValues(silent: false)
-        }
+        refreshValues(silent: false)
     }
 }
 
@@ -151,7 +147,7 @@ private extension DefaultExchangeManager {
         if case .requiredRefresh = state {
             stopTimer()
         }
-
+        print("updateState", state)
         self.availabilityState = state
     }
 
@@ -197,22 +193,14 @@ private extension DefaultExchangeManager {
                 case .coin:
                     try await loadExchangeData(preview: preview)
 
-
                 case .token:
-                    await updateExchangeAmountAllowance()
                     // Check if permission required
                     guard !isEnoughAllowance() else {
                         try await loadExchangeData(preview: preview)
                         return
                     }
 
-                    let approvedDataModel = try await getExchangeApprovedDataModel()
-                    let info = try mapToExchangeTransactionInfo(
-                        quoteData: quoteData,
-                        approvedData: approvedDataModel
-                    )
-                    let result = try await mapToSwappingResultDataModel(preview: preview, transaction: info)
-                    updateState(.available(result, info: info))
+                    try await loadApproveData(preview: preview, quoteData: quoteData)
                 }
             } catch {
                 updateState(.requiredRefresh(occurredError: error))
@@ -232,9 +220,67 @@ private extension DefaultExchangeManager {
         updateState(.available(result, info: info))
     }
 
+    func loadApproveData(preview: PreviewSwappingDataModel, quoteData: QuoteDataModel) async throws {
+        // If approving transaction isn't send
+        if preview.hasPendingTransaction {
+            try await blockchainDataProvider.updateWallet()
+            tokenExchangeAllowanceLimit = nil
+            await updateExchangeAmountAllowance()
+
+            if isEnoughAllowance() {
+                refreshValues(silent: false)
+            } else {
+                updateState(.preview(preview))
+            }
+
+            return
+        }
+
+        let approvedDataModel = try await getExchangeApprovedDataModel()
+        // Save destination address for approve
+        spenderAddresses[exchangeItems.source] = approvedDataModel.tokenAddress
+
+        let info = try mapToExchangeTransactionInfo(
+            quoteData: quoteData,
+            approvedData: approvedDataModel
+        )
+
+        let result = try await mapToSwappingResultDataModel(preview: preview, transaction: info)
+        updateState(.available(result, info: info))
+    }
+
+    func hasPendingApprovingTransaction() async throws -> Bool {
+        guard let spenderAddress = spenderAddresses[exchangeItems.source] else {
+            return false
+        }
+
+        return blockchainDataProvider.hasPendingTransaction(
+            currency: exchangeItems.source,
+            to: spenderAddress
+        )
+    }
+
+    func updateWalletIfHasPendingApprovingTransaction(spenderAddress: String) async throws {
+        let hasPendingTransaction = blockchainDataProvider.hasPendingTransaction(
+            currency: exchangeItems.source,
+            to: spenderAddress
+        )
+
+        delegate?.exchangeManager(self, hasPendingApprovingTransaction: hasPendingTransaction)
+
+        guard hasPendingTransaction else {
+            delegate?.exchangeManager(self, didUpdate: isEnoughAllowance())
+            return
+        }
+
+        try await blockchainDataProvider.updateWallet()
+        tokenExchangeAllowanceLimit = nil
+        await updateExchangeAmountAllowance()
+    }
+
     func updateExchangeAmountAllowance() async {
-        /// If allowance limit already loaded use it
-        guard let walletAddress else {
+        // If allowance limit already loaded just call delegate method
+        guard tokenExchangeAllowanceLimit == nil, let walletAddress else {
             delegate?.exchangeManager(self, didUpdate: isEnoughAllowance())
             return
         }
@@ -260,10 +306,6 @@ private extension DefaultExchangeManager {
 
     func getExchangeApprovedDataModel() async throws -> ExchangeApprovedDataModel {
         try await exchangeProvider.fetchApproveExchangeData(for: exchangeItems.source)
-    }
-
-    func getApprovedSpenderAddress() async throws -> String {
-        try await exchangeProvider.fetchSpenderAddress(for: exchangeItems.source)
     }
 
     func getExchangeTxDataModel() async throws -> ExchangeDataModel {
@@ -308,13 +350,15 @@ private extension DefaultExchangeManager {
         let paymentAmount = exchangeItems.source.convertFromWEI(value: quoteData.fromTokenAmount)
         let expectedAmount = destination.convertFromWEI(value: quoteData.toTokenAmount)
         let expectedFiatAmount = try await blockchainDataProvider.getFiat(for: destination, amount: expectedAmount)
-
+        let hasPendingTransaction = try await hasPendingApprovingTransaction()
         let isEnoughAmountForExchange = exchangeItems.sourceBalance.balance >= paymentAmount
+        print("hasPendingApprovingTransaction", hasPendingTransaction)
 
         return PreviewSwappingDataModel(
             expectedAmount: expectedAmount,
             expectedFiatAmount: expectedFiatAmount,
             isPermissionRequired: !isEnoughAllowance(),
+            hasPendingTransaction: hasPendingTransaction,
             isEnoughAmountForExchange: isEnoughAmountForExchange
         )
     }
