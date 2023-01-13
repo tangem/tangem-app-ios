@@ -102,10 +102,9 @@ private extension AppSettingsViewModel {
     func setupView() {
         if !isBiometryAvailable {
             warningViewModel = DefaultWarningRowViewModel(
-                icon: Assets.attention,
                 title: Localization.appSettingsWarningTitle,
                 subtitle: Localization.appSettingsWarningSubtitle,
-                action: openBiometrySettings
+                leftView: .icon(Assets.attention)
             )
         }
 
