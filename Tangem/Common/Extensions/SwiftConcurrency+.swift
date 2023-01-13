@@ -14,6 +14,13 @@ func runTask(_ code: @escaping () async -> Void) -> Task<Void, Never> {
 }
 
 @discardableResult
+func runTask(_ code: @escaping () async throws -> Void) -> Task<Void, Error> {
+    Task {
+        try await code()
+    }
+}
+
+@discardableResult
 func runTask(_ code: @escaping () -> Void) -> Task<Void, Never> {
     Task {
         code()
