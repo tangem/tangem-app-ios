@@ -109,6 +109,7 @@ private extension SwappingTokenListViewModel {
 
     func mapToSwappingTokenItemViewModel(currency: Currency) -> SwappingTokenItemViewModel {
         SwappingTokenItemViewModel(
+            id: currency.id,
             iconURL: tokenIconURLBuilder.iconURL(id: currency.id, size: .large),
             name: currency.name,
             symbol: currency.symbol,
