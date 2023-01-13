@@ -19,16 +19,10 @@ struct SuccessSwappingCoordinatorView: CoordinatorView {
         ZStack {
             if let rootViewModel = coordinator.rootViewModel {
                 SuccessSwappingView(viewModel: rootViewModel)
-                    .navigationLinks(links)
             }
 
             sheets
         }
-    }
-
-    @ViewBuilder
-    private var links: some View {
-        EmptyView()
     }
 
     @ViewBuilder
