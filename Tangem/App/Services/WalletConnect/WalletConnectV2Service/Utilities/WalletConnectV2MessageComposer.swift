@@ -39,44 +39,17 @@ extension WalletConnectV2MessageComposer: WalletConnectV2MessageComposable {
 
     func makeErrorMessage(_ error: WalletConnectV2Error) -> String {
         switch error {
-        case .unsupportedBlockchains(let blockchains):
-            let unsupportedChains = blockchains.map { $0.displayName }.joined(separator: ", ")
+        case .unsupportedBlockchains(let blockchainNames):
+            let unsupportedChains = blockchainNames.joined(separator: ", ")
 
-            var message = "Session request contains unsupported blockchains for WalletConnect connection. List of unsupported blockchains:\n"
+            var message = "Session request contains unsupported blockchains for WalletConnect connection. Unsupported blockchains:\n"
             message += unsupportedChains
 
             return message
+        case .sessionForTopicNotFound:
+            return "We've encountered unknown error. Error code: \(error.code). If the problem persists — feel free to contact our support"
+        case .unknown(let errorMessage):
+            return "We've encountered unknown error. Error code: \(errorMessage). If the problem persists — feel free to contact our support"
         }
     }
 }
-
-
-// Proposal(id: "e8edbaad5873c12b94ad552df984476bb0292434718a921d7a6695b338b6585f",
-//         proposer: WalletConnectSwiftV2.AppMetadata(name: "React App",
-//                                                    description: "React App for WalletConnect",
-//                                                    url: "https://react-app.walletconnect.com",
-//                                                    icons: ["https://avatars.githubusercontent.com/u/37784886"],
-//                                                    redirect: nil),
-//         requiredNamespaces: ["eip155": WalletConnectSwiftV2.ProposalNamespace(chains: Set([eip155:80001, eip155:5, eip155:420]),
-//                                                                               methods: Set(["eth_signTypedData", "eth_sendTransaction", "eth_signTransaction", "personal_sign", "eth_sign"]),
-//                                                                               events: Set(["chainChanged", "accountsChanged"]),
-//                                                                               extensions: nil)],
-//         proposal: WalletConnectSwiftV2.SessionProposal(
-//            relays: [WalletConnectSwiftV2.RelayProtocolOptions(protocol: "irn", data: nil)],
-//            proposer: WalletConnectSwiftV2.Participant(
-//                publicKey: "e8edbaad5873c12b94ad552df984476bb0292434718a921d7a6695b338b6585f",
-//                metadata: WalletConnectSwiftV2.AppMetadata(
-//                    name: "React App",
-//                    description: "React App for WalletConnect",
-//                    url: "https://react-app.walletconnect.com",
-//                    icons: ["https://avatars.githubusercontent.com/u/37784886"],
-//                    redirect: nil)),
-//            requiredNamespaces: ["eip155": WalletConnectSwiftV2.ProposalNamespace(
-//                chains: Set([eip155:80001, eip155:5, eip155:420]),
-//
-//                methods: Set(["eth_signTypedData", "eth_sendTransaction", "eth_signTransaction", "personal_sign", "eth_sign"]),
-//                events: Set(["chainChanged", "accountsChanged"]),
-//                extensions: nil)
-//            ]
-//         )
-// )
