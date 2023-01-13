@@ -134,6 +134,7 @@ private extension SwappingViewModel {
         )
     }
 
+    @MainActor
     func openSuccessView(
         result: SwappingResultDataModel,
         transactionModel: ExchangeTransactionDataModel
@@ -149,7 +150,18 @@ private extension SwappingViewModel {
             currency: transactionModel.destinationCurrency
         )
 
-        coordinator.presentSuccessView(source: source, result: result)
+        let explorerURL = transactionModel.sourceBlockchain.getExploreURL(
+            for: transactionModel.sourceAddress,
+            contractAddress: transactionModel.sourceCurrency.contractAddress
+        )
+
+        let inputModel = SuccessSwappingInputModel(
+            sourceCurrencyAmount: source,
+            resultCurrencyAmount: result,
+            explorerURL: explorerURL
+        )
+
+        coordinator.presentSuccessView(inputModel: inputModel)
     }
 
     func openPermissionView() {
