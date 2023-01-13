@@ -11,7 +11,6 @@ import Firebase
 import AppsFlyerLib
 import Amplitude
 
-
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
     var loadingView: UIView? = nil
@@ -36,6 +35,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     }
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
+        AppLog.shared.configure()
         // Override point for customization after application launch.
         UISwitch.appearance().onTintColor = .tangemBlue
         UITableView.appearance().backgroundColor = .clear
@@ -63,7 +63,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         }
 
         AppSettings.shared.numberOfLaunches += 1
-        migrateTOS()
         return true
     }
 
@@ -77,7 +76,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             return false
         }
 
-        print("User continue with activity url: \(url)")
+        AppLog.shared.debug("User continue with activity url: \(url)")
 
         return true
     }
@@ -100,14 +99,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         guard AppEnvironment.current.isProduction else { return }
 
         AppsFlyerLib.shared().start()
-    }
-
-    private func migrateTOS() {
-        guard AppSettings.shared.isTermsOfServiceAccepted else { return }
-
-        let defaultUrl = DummyConfig().touURL.absoluteString
-        AppSettings.shared.termsOfServicesAccepted.insert(defaultUrl)
-        AppSettings.shared.isTermsOfServiceAccepted = false
     }
 }
 
