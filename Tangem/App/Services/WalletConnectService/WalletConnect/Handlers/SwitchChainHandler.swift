@@ -62,32 +62,26 @@ class SwitchChainHandler: TangemWalletConnectRequestHandler {
             throw WalletConnectServiceError.unsupportedNetwork
         }
 
-        let availableWallets = dataSource?.cardModel.walletModels
+        let allTargetWallets = dataSource?.cardModel.walletModels
             .filter { $0.wallet.blockchain == targetBlockchain }
             .map { $0.wallet } ?? []
 
-        guard !availableWallets.isEmpty else {
+        if allTargetWallets.isEmpty {
             throw WalletConnectServiceError.networkNotFound(name: targetBlockchain.displayName)
         }
 
-        let wallet: Wallet
+        let availableWallets = allTargetWallets
+            .filter { $0.address == oldWalletInfo.address }
 
-        if availableWallets.count == 1 {
-            wallet = availableWallets.first!
-        } else {
-            wallet = try await selectWallet(from: availableWallets)
+        guard let wallet = availableWallets.first else {
+            throw WalletConnectServiceError.switchChainNotSupported
         }
 
         let derivedKey = wallet.publicKey.blockchainKey != wallet.publicKey.seedKey ? wallet.publicKey.blockchainKey : nil
-
         let walletInfo = WalletInfo(walletPublicKey: wallet.publicKey.seedKey,
                                     derivedPublicKey: derivedKey,
                                     derivationPath: wallet.publicKey.derivationPath,
                                     blockchain: targetBlockchain)
-
-        if wallet.address != oldWalletInfo.address {
-            throw WalletConnectServiceError.switchChainNotSupported
-        }
 
         session.wallet = walletInfo
         dataSource?.updateSession(session)
@@ -104,23 +98,6 @@ class SwitchChainHandler: TangemWalletConnectRequestHandler {
             UIApplication.modalFromTop(
                 WalletConnectUIBuilder.makeAlert(for: .error, message: error.localizedDescription)
             )
-        }
-    }
-
-    private func selectWallet(from wallets: [Wallet]) async throws -> Wallet {
-        return try await withCheckedThrowingContinuation { continuation in
-            DispatchQueue.main.async {
-                let vc = WalletConnectUIBuilder.makeChainsSheet(
-                    wallets,
-                    onAcceptAction: {
-                        continuation.resume(returning: $0)
-                    },
-                    onReject: {
-                        continuation.resume(throwing: WalletConnectServiceError.cancelled)
-                    })
-
-                UIApplication.modalFromTop(vc)
-            }
         }
     }
 }
