@@ -86,6 +86,9 @@ struct SwappingView: View {
     private var refreshWarningSection: some View {
         GroupedSection(viewModel.refreshWarningRowViewModel) {
             DefaultWarningRow(viewModel: $0)
+                .onTap {
+                    viewModel.didTapWaringRefresh()
+                }
         }
         .verticalPadding(0)
     }
