@@ -91,11 +91,6 @@ private extension WarningsService {
             }
         }
 
-        if rateAppChecker.shouldShowRateAppWarning {
-            Analytics.log(.displayRateAppWarning)
-            main.add(WarningEvent.rateApp.warning)
-        }
-
         mainWarnings = main
         sendWarnings = send
         warningsUpdatePublisher.send(())
