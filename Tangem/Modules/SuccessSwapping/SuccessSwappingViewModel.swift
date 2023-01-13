@@ -15,30 +15,38 @@ final class SuccessSwappingViewModel: ObservableObject, Identifiable {
     // MARK: - ViewState
 
     var sourceFormatted: String {
-        sourceCurrencyAmount.formatted
+        inputModel.sourceCurrencyAmount.formatted
     }
 
     var resultFormatted: String {
-        resultCurrencyAmount.formatted
+        inputModel.resultCurrencyAmount.formatted
+    }
+
+    var isViewInExplorerAvailable: Bool {
+        inputModel.explorerURL != nil
     }
 
     // MARK: - Dependencies
 
-    private let sourceCurrencyAmount: CurrencyAmount
-    private let resultCurrencyAmount: CurrencyAmount
+    private let inputModel: SuccessSwappingInputModel
     private unowned let coordinator: SuccessSwappingRoutable
 
     init(
-        sourceCurrencyAmount: CurrencyAmount,
-        resultCurrencyAmount: CurrencyAmount,
+        inputModel: SuccessSwappingInputModel,
         coordinator: SuccessSwappingRoutable
     ) {
-        self.sourceCurrencyAmount = sourceCurrencyAmount
-        self.resultCurrencyAmount = resultCurrencyAmount
+        self.inputModel = inputModel
         self.coordinator = coordinator
     }
 
-    func doneDidTapped() {
-        coordinator.didTapMainButton()
+    func didTapViewInExplorer() {
+        coordinator.openExplorer(
+            url: inputModel.explorerURL,
+            displayName: inputModel.sourceCurrencyAmount.currency.name
+        )
+    }
+
+    func didTapClose() {
+        coordinator.didTapCloseButton()
     }
 }
