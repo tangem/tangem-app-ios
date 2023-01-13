@@ -24,7 +24,7 @@ struct WalletConnectView: View {
     var body: some View {
         ZStack {
             VStack {
-                if viewModel.newSessions.isEmpty {
+                if viewModel.sessions.isEmpty, viewModel.newSessions.isEmpty {
                     Text(Localization.walletConnectNoSessionsTitle)
                         .font(.system(size: 24, weight: .semibold))
                         .padding(.bottom, 10)
@@ -42,8 +42,6 @@ struct WalletConnectView: View {
                             }
                         }
                         .listRowInsets(.none)
-
-                        Text("V2 sessions")
 
                         ForEach(Array(viewModel.newSessions.enumerated()), id: \.element) { (i, item) -> WalletConnectSessionItemView in
                             WalletConnectSessionItemView(
