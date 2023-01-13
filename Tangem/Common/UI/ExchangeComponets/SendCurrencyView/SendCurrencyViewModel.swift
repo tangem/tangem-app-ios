@@ -17,7 +17,7 @@ struct SendCurrencyViewModel: Identifiable {
     let tokenIcon: SwappingTokenIconViewModel
 
     var balanceString: String {
-        Localization.commonBalance(balance.groupedFormatted())
+        Localization.commonBalance(balance.groupedFormatted(maximumFractionDigits: maximumFractionDigits))
     }
 
     var fiatValueString: String {
@@ -54,5 +54,6 @@ extension SendCurrencyViewModel: Hashable {
         hasher.combine(balance)
         hasher.combine(fiatValue)
         hasher.combine(tokenIcon)
+        hasher.combine(maximumFractionDigits)
     }
 }
