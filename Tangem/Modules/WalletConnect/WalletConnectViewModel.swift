@@ -20,6 +20,8 @@ class WalletConnectViewModel: ObservableObject {
     @Published var isServiceBusy: Bool = true
     @Published var sessions: [WalletConnectSession] = []
 
+    @Published @MainActor var newSessions: [WalletConnectSavedSession] = []
+
     private var hasWCInPasteboard: Bool {
         guard let copiedValue = UIPasteboard.general.string else {
             return false
@@ -60,6 +62,18 @@ class WalletConnectViewModel: ObservableObject {
         }
     }
 
+    func disconnectNewSession(_ session: WalletConnectSavedSession) {
+        Analytics.log(.buttonStopWalletConnectSession)
+        Task { [weak self] in
+            await self?.walletConnectService.disconnectV2Session(with: session.id)
+            await runOnMain {
+                withAnimation {
+                    self?.objectWillChange.send()
+                }
+            }
+        }
+    }
+
     func pasteFromClipboard() {
         guard let value = copiedValue else { return }
 
@@ -80,8 +94,14 @@ class WalletConnectViewModel: ObservableObject {
         }
     }
 
+    func terminateAll() {
+        walletConnectService.terminateAllSessions()
+    }
+
     private func bind() {
         bag.removeAll()
+
+        subscribeToNewSessions()
 
         walletConnectService.canEstablishNewSessionPublisher
             .receive(on: DispatchQueue.main)
@@ -96,6 +116,7 @@ class WalletConnectViewModel: ObservableObject {
                 guard let self = self else { return }
 
                 self.sessions = $0
+                self.objectWillChange.send()
             })
             .store(in: &bag)
 
@@ -109,6 +130,18 @@ class WalletConnectViewModel: ObservableObject {
                 }
             }
             .store(in: &bag)
+    }
+
+    private func subscribeToNewSessions() {
+        Task {
+            for await sessions in await walletConnectService.newSessions {
+                await MainActor.run {
+                    withAnimation {
+                        self.newSessions = sessions
+                    }
+                }
+            }
+        }
     }
 }
 
