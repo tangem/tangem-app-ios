@@ -27,10 +27,6 @@ class DefaultExchangeManager {
         didSet { delegate?.exchangeManager(self, didUpdate: exchangeItems) }
     }
 
-    private var tokenExchangeAllowanceLimit: Decimal? {
-        didSet { delegate?.exchangeManager(self, didUpdate: isEnoughAllowance()) }
-    }
-
     private weak var delegate: ExchangeManagerDelegate?
     private var amount: Decimal?
     private var formattedAmount: String {
@@ -43,6 +39,7 @@ class DefaultExchangeManager {
         blockchainDataProvider.getWalletAddress(currency: exchangeItems.source)
     }
 
+    private var tokenExchangeAllowanceLimit: Decimal?
     // Cached addresses for check approving transactions
     private var spenderAddresses: [Currency: String] = [:]
     private var refreshDataTimerBag: AnyCancellable?
@@ -260,28 +257,9 @@ private extension DefaultExchangeManager {
         )
     }
 
-    func updateWalletIfHasPendingApprovingTransaction(spenderAddress: String) async throws {
-        let hasPendingTransaction = blockchainDataProvider.hasPendingTransaction(
-            currency: exchangeItems.source,
-            to: spenderAddress
-        )
-
-        delegate?.exchangeManager(self, hasPendingApprovingTransaction: hasPendingTransaction)
-
-        guard hasPendingTransaction else {
-            delegate?.exchangeManager(self, didUpdate: isEnoughAllowance())
-            return
-        }
-
-        try await blockchainDataProvider.updateWallet()
-        tokenExchangeAllowanceLimit = nil
-        await updateExchangeAmountAllowance()
-    }
-
     func updateExchangeAmountAllowance() async {
         // If allowance limit already loaded just call delegate method
         guard tokenExchangeAllowanceLimit == nil, let walletAddress else {
-            delegate?.exchangeManager(self, didUpdate: isEnoughAllowance())
             return
         }
 
