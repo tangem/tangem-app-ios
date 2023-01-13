@@ -27,7 +27,7 @@ enum WalletConnectEvent {
 struct WalletConnectUIRequest {
     let event: WalletConnectEvent
     let message: String
-    var positiveReactionAction: (() -> Void)?
+    var positiveReactionAction: (() -> Void)
     var negativeReactionAction: (() -> Void)?
 }
 
@@ -41,7 +41,14 @@ struct WalletConnectAlertUIDelegate {
 
 extension WalletConnectAlertUIDelegate: WalletConnectUIDelegate {
     func showScreen(with request: WalletConnectUIRequest) {
+        let alert = WalletConnectUIBuilder.makeAlert(
+            for: request.event,
+            message: request.message,
+            onAcceptAction: request.positiveReactionAction,
+            onReject: request.negativeReactionAction ?? {}
+        )
 
+        appPresenter.show(alert)
     }
 }
 
