@@ -45,44 +45,35 @@ struct DefaultWarningRow: View {
 
     @ViewBuilder
     private var leftView: some View {
-        Group {
-            switch viewModel.leftView {
-            case .none:
-                EmptyView()
-            case .icon(let image):
-                image
-                    .resizable()
-                    .frame(width: 20, height: 20)
-            case .loader:
-                ProgressViewCompat(color: Colors.Icon.informative)
-                    .frame(width: 20, height: 20)
-            }
-        }
-        .frame(width: 24, height: 24)
-        .padding(8)
-        .background(Colors.Background.secondary)
-        .cornerRadius(40)
+        baseAdditionalView(type: viewModel.leftView)
+            .frame(width: 24, height: 24)
+            .padding(8)
+            .background(Colors.Background.secondary)
+            .cornerRadius(40)
     }
 
     @ViewBuilder
     private var rightView: some View {
-        Group {
-            switch viewModel.rightView {
-            case .none:
-                EmptyView()
-            case .icon(let image):
-                image
-                    .resizable()
-                    .frame(width: 20, height: 20)
-            case .loader:
-                ProgressViewCompat(color: Colors.Icon.informative)
-                    .frame(width: 20, height: 20)
-            }
+        baseAdditionalView(type: viewModel.rightView)
+            .padding(.vertical, 7)
+            .padding(.horizontal, 14)
+            .background(Colors.Button.secondary)
+            .cornerRadius(10)
+    }
+
+    @ViewBuilder
+    func baseAdditionalView(type: DefaultWarningRowViewModel.AdditionalViewType?) -> some View {
+        switch type {
+        case .none:
+            EmptyView()
+        case .icon(let image):
+            image
+                .resizable()
+                .frame(width: 20, height: 20)
+        case .loader:
+            ProgressViewCompat(color: Colors.Icon.informative)
+                .frame(width: 20, height: 20)
         }
-        .padding(.vertical, 7)
-        .padding(.horizontal, 14)
-        .background(Colors.Button.secondary)
-        .cornerRadius(10)
     }
 }
 
