@@ -105,7 +105,9 @@ private extension AppSettingsViewModel {
                 title: Localization.appSettingsWarningTitle,
                 subtitle: Localization.appSettingsWarningSubtitle,
                 leftView: .icon(Assets.attention)
-            )
+            ) { [weak self] in
+                self?.openBiometrySettings()
+            }
         }
 
         savingWalletViewModel = DefaultToggleRowViewModel(
