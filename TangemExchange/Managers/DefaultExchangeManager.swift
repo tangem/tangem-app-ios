@@ -14,6 +14,7 @@ class DefaultExchangeManager {
 
     private let exchangeProvider: ExchangeProvider
     private let blockchainDataProvider: BlockchainDataProvider
+    private let logger: ExchangeLogger
 
     // MARK: - Internal
 
@@ -48,11 +49,13 @@ class DefaultExchangeManager {
     init(
         exchangeProvider: ExchangeProvider,
         blockchainInfoProvider: BlockchainDataProvider,
+        logger: ExchangeLogger,
         exchangeItems: ExchangeItems,
         amount: Decimal? = nil
     ) {
         self.exchangeProvider = exchangeProvider
-        blockchainDataProvider = blockchainInfoProvider
+        self.blockchainDataProvider = blockchainInfoProvider
+        self.logger = logger
         self.exchangeItems = exchangeItems
         self.amount = amount
 
@@ -123,8 +126,6 @@ private extension DefaultExchangeManager {
 
     func exchangeItemsDidChange() {
         updateState(.idle)
-        /// Set nil for previous token
-        tokenExchangeAllowanceLimit = nil
         updateBalances()
 
         guard (amount ?? 0) > 0 else {
@@ -141,7 +142,10 @@ private extension DefaultExchangeManager {
 
 private extension DefaultExchangeManager {
     func updateState(_ state: ExchangeAvailabilityState) {
-        if case .requiredRefresh = state {
+        if case .requiredRefresh(let error) = state {
+            logger.debug("DefaultExchangeManager catch error: ")
+            logger.error(error)
+
             stopTimer()
         }
 
@@ -223,7 +227,6 @@ private extension DefaultExchangeManager {
         // If approving transaction isn't send
         if preview.hasPendingTransaction {
             try await blockchainDataProvider.updateWallet()
-            tokenExchangeAllowanceLimit = nil
             await updateExchangeAmountAllowance()
 
             if isEnoughAllowance() {
@@ -261,7 +264,7 @@ private extension DefaultExchangeManager {
 
     func updateExchangeAmountAllowance() async {
         // If allowance limit already loaded just call delegate method
-        guard tokenExchangeAllowanceLimit == nil, let walletAddress else {
+        guard let walletAddress else {
             return
         }
 
@@ -270,7 +273,8 @@ private extension DefaultExchangeManager {
                 for: exchangeItems.source,
                 walletAddress: walletAddress
             )
-            print("tokenExchangeAllowanceLimit", tokenExchangeAllowanceLimit as Any)
+
+            logger.debug("Token \(exchangeItems.source) allowanceLimit \(tokenExchangeAllowanceLimit as Any)")
         } catch {
             tokenExchangeAllowanceLimit = nil
             updateState(.requiredRefresh(occurredError: error))
@@ -332,7 +336,6 @@ private extension DefaultExchangeManager {
         let expectedFiatAmount = try await blockchainDataProvider.getFiat(for: destination, amount: expectedAmount)
         let hasPendingTransaction = try await hasPendingApprovingTransaction()
         let isEnoughAmountForExchange = exchangeItems.sourceBalance.balance >= paymentAmount
-        print("hasPendingApprovingTransaction", hasPendingTransaction)
 
         return PreviewSwappingDataModel(
             expectedAmount: expectedAmount,
