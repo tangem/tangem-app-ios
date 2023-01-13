@@ -362,7 +362,11 @@ extension WalletConnectService: ServerDelegate {
         self.wallet = walletInfo
 
         let peerMeta = dAppInfo.peerMeta
-        var message = String(format: "wallet_connect_request_session_start".localized, peerMeta.name, walletInfo.blockchain.displayName, peerMeta.url.absoluteString)
+        let walletDescription = "\(walletInfo.blockchain.displayName) (\(AddressFormatter(address: walletInfo.address).truncated()))"
+        var message = String(format: "wallet_connect_request_session_start".localized,
+                             peerMeta.name,
+                             walletDescription,
+                             peerMeta.url.absoluteString)
 
         if let description = peerMeta.description, !description.isEmpty {
             message += "\n\n" + description
@@ -385,18 +389,13 @@ extension WalletConnectService: ServerDelegate {
                                           peerMeta: self.walletMeta))
         }
 
-        let onSelectChain: (BlockchainNetwork) -> Void = { [cardModel] selectedNetwork in
-            let wallet = cardModel.walletModels
-                .filter { !$0.isCustom(.coin) }
-                .first(where: { $0.wallet.blockchain == selectedNetwork.blockchain })
-                .map { $0.wallet }!
-
+        let onSelectChain: (Wallet) -> Void = { wallet in
             let derivedKey = wallet.publicKey.blockchainKey != wallet.publicKey.seedKey ? wallet.publicKey.blockchainKey : nil
 
             self.wallet = WalletInfo(walletPublicKey: wallet.publicKey.seedKey,
                                      derivedPublicKey: derivedKey,
                                      derivationPath: wallet.publicKey.derivationPath,
-                                     blockchain: selectedNetwork.blockchain)
+                                     blockchain: wallet.blockchain)
 
             onAccept()
         }
@@ -409,8 +408,7 @@ extension WalletConnectService: ServerDelegate {
         let onSelectChainRequested = { [cardModel] in
             let availableChains = cardModel.walletModels
                 .filter { $0.blockchainNetwork.blockchain.isEvm }
-                .filter { !$0.isCustom(.coin) }
-                .map { $0.blockchainNetwork }
+                .map { $0.wallet }
 
 
             self.presentOnTop(WalletConnectUIBuilder.makeChainsSheet(availableChains,
