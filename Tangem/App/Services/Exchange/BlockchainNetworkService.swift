@@ -26,7 +26,9 @@ class BlockchainNetworkService {
         self.currencyMapper = currencyMapper
 
         rates = walletModel.rates
-        balances = walletModel.wallet.amounts.reduce(into: [:]) { $0[$1.key] = $1.value.value }
+        balances = walletModel.wallet.amounts.reduce(into: [:]) {
+            $0[$1.key] = $1.value.value.rounded(scale: $1.value.decimals, roundingMode: .down)
+        }
     }
 }
 
