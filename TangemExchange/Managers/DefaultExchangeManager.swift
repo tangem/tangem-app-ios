@@ -144,7 +144,7 @@ private extension DefaultExchangeManager {
         if case .requiredRefresh = state {
             stopTimer()
         }
-        print("updateState", state)
+
         self.availabilityState = state
     }
 
