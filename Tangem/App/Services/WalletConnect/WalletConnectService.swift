@@ -22,7 +22,7 @@ extension CommonWalletConnectService: WalletConnectService {
         else {
             return Just(false).eraseToAnyPublisher()
         }
-        
+
         return Publishers.CombineLatest(
             v1Service.canEstablishNewSessionPublisher,
             v2Service.canEstablishNewSessionPublisher
@@ -33,18 +33,24 @@ extension CommonWalletConnectService: WalletConnectService {
     }
 
     var sessionsPublisher: AnyPublisher<[WalletConnectSession], Never> {
-        guard
-            let v1Service = v1Service,
-            let v2Service = v2Service
-        else {
+        guard let v1Service = v1Service else {
             return Just([]).eraseToAnyPublisher()
         }
-        
-        return Publishers.Merge(
-            v2Service.sessionsPublisher,
-            v1Service.sessionsPublisher
-        )
-        .eraseToAnyPublisher()
+
+        return v1Service.sessionsPublisher
+            .eraseToAnyPublisher()
+    }
+
+    var newSessions: AsyncStream<[WalletConnectSavedSession]> {
+        get async {
+            await v2Service!.newSessions
+        }
+    }
+
+    func terminateAllSessions() {
+        Task {
+            try await v2Service!.terminateAllSessions()
+        }
     }
 
     func initialize(with cardModel: CardViewModel) {
@@ -60,9 +66,13 @@ extension CommonWalletConnectService: WalletConnectService {
         v1Service = nil
         v2Service = nil
     }
-    
+
     func disconnectSession(with id: Int) {
         v1Service?.disconnectSession(with: id)
+    }
+
+    func disconnectV2Session(with id: Int) async {
+        await v2Service?.disconnectSession(with: id)
     }
 
     func canHandle(url: String) -> Bool {

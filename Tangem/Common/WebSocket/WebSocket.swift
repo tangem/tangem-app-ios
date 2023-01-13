@@ -51,6 +51,7 @@ class WebSocket: NSObject {
         print("[WS] Attempting to send message through socket connection: \(string)")
         socket?.send(.string(string), completionHandler: { error in
             if let error {
+                print("[WS] Failed to send message through socket connection. Error: \(error)")
                 self.onDisconnect?(error)
                 return
             }
@@ -65,7 +66,9 @@ class WebSocket: NSObject {
             print("[WS] socket receive something: \(result)")
             switch result {
             case .failure(let error):
+                self.disconnect()
                 self.onDisconnect?(error)
+                self.connect()
             case .success(let message):
                 print("[WS] Receive web socket message: \(message)")
                 switch message {
