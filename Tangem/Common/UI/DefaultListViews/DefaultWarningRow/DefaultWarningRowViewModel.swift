@@ -15,16 +15,20 @@ struct DefaultWarningRowViewModel {
     private(set) var leftView: AdditionalViewType?
     private(set) var rightView: AdditionalViewType?
 
+    let action: (() -> ())?
+
     init(
-        title: String?,
+        title: String? = nil,
         subtitle: String,
         leftView: DefaultWarningRowViewModel.AdditionalViewType? = nil,
-        rightView: DefaultWarningRowViewModel.AdditionalViewType? = nil
+        rightView: DefaultWarningRowViewModel.AdditionalViewType? = nil,
+        action: (() -> ())? = nil
     ) {
         self.title = title
         self.subtitle = subtitle
         self.leftView = leftView
         self.rightView = rightView
+        self.action = action
     }
 
     mutating func update(leftView: AdditionalViewType?) {
