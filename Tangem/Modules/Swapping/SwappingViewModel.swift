@@ -70,6 +70,10 @@ final class SwappingViewModel: ObservableObject {
         loadDestinationIfNeeded()
     }
 
+    func userDidTapMaxAmount() {
+        sendDecimalValue = exchangeManager.getExchangeItems().sourceBalance.balance
+    }
+
     func userDidRequestChangeDestination(to currency: Currency) {
         var items = exchangeManager.getExchangeItems()
         items.destination = currency
@@ -155,8 +159,13 @@ private extension SwappingViewModel {
             return
         }
 
+        let inputModel = SwappingPermissionInputModel(
+            fiatFee: result.fiatFee,
+            transactionInfo: info
+        )
+
         coordinator.presentPermissionView(
-            transactionInfo: info,
+            inputModel: inputModel,
             transactionSender: transactionSender
         )
     }
@@ -213,6 +222,7 @@ private extension SwappingViewModel {
         }
 
         receiveCurrencyViewModel = ReceiveCurrencyViewModel(
+            balance: exchangeItems.destinationBalance,
             state: state,
             tokenIcon: mapToSwappingTokenIconViewModel(currency: destination)
         )
@@ -272,9 +282,10 @@ private extension SwappingViewModel {
         case let .available(result, _):
             let source = exchangeManager.getExchangeItems().source
 
+            let fee = result.fee.rounded(scale: 2, roundingMode: .up)
             swappingFeeRowViewModel.update(
                 state: .fee(
-                    fee: result.fee.groupedFormatted(maximumFractionDigits: source.decimalCount),
+                    fee: fee.groupedFormatted(maximumFractionDigits: source.decimalCount),
                     symbol: source.blockchain.symbol,
                     fiat: result.fiatFee.currencyFormatted(code: AppSettings.shared.selectedCurrencyCode)
                 )
@@ -331,7 +342,7 @@ private extension SwappingViewModel {
 
     func loadDestinationIfNeeded() {
         guard exchangeManager.getExchangeItems().destination == nil else {
-            print("Exchange item destination has already set")
+            AppLog.shared.debug("Exchange item destination has already set")
             return
         }
 
@@ -342,7 +353,8 @@ private extension SwappingViewModel {
                 items.destination = try await swappingDestinationService.getDestination(source: items.source)
                 exchangeManager.update(exchangeItems: items)
             } catch {
-                print("Destination load handle error", error)
+                AppLog.shared.debug("Destination load handle error")
+                AppLog.shared.error(error)
                 items.destination = nil
             }
         }

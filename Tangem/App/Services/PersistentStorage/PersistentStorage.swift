@@ -32,7 +32,7 @@ class PersistentStorage {
     }
 
     deinit {
-        print("PersistentStorage deinit")
+        AppLog.shared.debug("PersistentStorage deinit")
     }
 
     private func transferFiles() {
@@ -57,11 +57,12 @@ class PersistentStorage {
                     try encryptAndWriteToDocuments(data, at: &documentPath)
                     try fileManager.removeItem(at: cloudPath)
                 } catch {
-                    print("Error for file at path: \(cloudPath). Error description: \(error)")
+                    AppLog.shared.debug("Error for file at path: \(cloudPath)")
+                    AppLog.shared.error(error)
                 }
             }
         } catch {
-            print(error)
+            AppLog.shared.error(error)
         }
     }
 
@@ -89,7 +90,7 @@ class PersistentStorage {
                 try fileManager.createDirectory(at: containerUrl, withIntermediateDirectories: true, attributes: nil)
             }
             catch {
-                print(error.localizedDescription)
+                AppLog.shared.error(error)
             }
         }
     }
