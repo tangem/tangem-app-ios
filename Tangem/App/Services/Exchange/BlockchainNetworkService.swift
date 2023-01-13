@@ -37,6 +37,12 @@ extension BlockchainNetworkService: TangemExchange.BlockchainDataProvider {
         try await walletModel.update(silent: true).async()
     }
 
+    func hasPendingTransaction(currency: Currency, to spenderAddress: String) -> Bool {
+        let outgoing = walletModel.wallet.pendingOutgoingTransactions
+
+        return outgoing.contains(where: { $0.destinationAddress == spenderAddress })
+    }
+
     func getWalletAddress(currency: Currency) -> String? {
         let blockchain = walletModel.blockchainNetwork.blockchain
         guard blockchain.networkId == currency.blockchain.networkId else {
@@ -66,8 +72,11 @@ extension BlockchainNetworkService: TangemExchange.BlockchainDataProvider {
             return balance
         }
 
-        let balance = try await getBalanceThroughUpdateWalletModel(amountType: amountType)
+        var balance = try await getBalanceThroughUpdateWalletModel(amountType: amountType)
+        balance.round(scale: currency.decimalCount, roundingMode: .down)
+
         balances[amountType] = balance
+
         return balance
     }
 
