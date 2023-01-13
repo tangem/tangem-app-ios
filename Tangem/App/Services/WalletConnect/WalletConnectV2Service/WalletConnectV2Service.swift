@@ -20,7 +20,7 @@ class WalletConnectV2Service {
     private let pairApi: PairingInteracting
     private let signApi: SignClient
 
-    private let factory = WCDefaultSocketFactory()
+    private let factory = WalletConnectV2DefaultSocketFactory()
     private let cardModel: CardViewModel
 
     private var bag = Set<AnyCancellable>()
@@ -66,12 +66,10 @@ class WalletConnectV2Service {
             await self.storage.loadSessions(for: userWalletId.hexString)
 
             let pairingSessions = self.pairApi.getPairings()
-            print(pairingSessions)
+            AppLog.shared.debug(pairingSessions)
 
             let sessions = self.signApi.getSessions()
-            print(sessions)
-
-            print("-------Stop---------")
+            AppLog.shared.debug(sessions)
         }
     }
 
@@ -79,7 +77,7 @@ class WalletConnectV2Service {
         signApi.sessionProposalPublisher
             .receive(on: DispatchQueue.main)
             .sink { [weak self] sessionProposal in
-                print("[WC] Session proposal: \(sessionProposal)")
+                AppLog.shared.debug("[WC 2.0] Session proposal: \(sessionProposal)")
                 self?.validateProposal(sessionProposal)
             }
             .store(in: &bag)
@@ -92,8 +90,8 @@ class WalletConnectV2Service {
                     let userWalletId = self.cardModel.userWalletId
                 else { return }
 
-                print("[WC] Session established: \(session)")
-                let savedSession = WalletConnectV2Utils().createSavedSession(for: session, with: userWalletId.hexString)
+                AppLog.shared.debug("[WC 2.0] Session established: \(session)")
+                let savedSession = WalletConnectV2Utility().createSavedSession(for: session, with: userWalletId.hexString)
 
                 await self.storage.save(savedSession)
             }
@@ -102,25 +100,36 @@ class WalletConnectV2Service {
     }
 
     private func validateProposal(_ proposal: Session.Proposal) {
-        let utils = WalletConnectV2Utils()
+        let utils = WalletConnectV2Utility()
         guard utils.isAllChainsSupported(in: proposal.requiredNamespaces) else {
-            let unsupportedBlockchains = utils.extractUnsupportedBlockchains(from: proposal.requiredNamespaces)
+            let unsupportedBlockchains = utils.extractUnsupportedBlockchainNames(from: proposal.requiredNamespaces)
             displayErrorUI(.unsupportedBlockchains(unsupportedBlockchains))
             sessionRejected(with: proposal)
             return
         }
 
-        displaySessionConnectionUI(for: proposal)
+        do {
+            let sessionNamespaces = try WalletConnectV2Utility().createSessionNamespaces(
+                from: proposal.requiredNamespaces,
+                for: cardModel.wallets
+            )
+            displaySessionConnectionUI(for: proposal, namespaces: sessionNamespaces)
+
+        } catch let error as WalletConnectV2Error {
+            displayErrorUI(error)
+        } catch {
+            AppLog.shared.error("[WC 2.0] \(error)")
+        }
     }
 
-    private func displaySessionConnectionUI(for proposal: Session.Proposal) {
-        print("[WC] Did receive session proposal")
+    private func displaySessionConnectionUI(for proposal: Session.Proposal, namespaces: [String: SessionNamespace]) {
+        AppLog.shared.debug("[WC 2.0] Did receive session proposal")
         let message = messageComposer.makeMessage(for: proposal)
         uiDelegate.showScreen(with: WalletConnectUIRequest(
             event: .establishSession,
             message: message,
             positiveReactionAction: { [weak self] in
-                self?.sessionAccepted(with: proposal)
+                self?.sessionAccepted(with: proposal.id, namespaces: namespaces)
             },
             negativeReactionAction: { [weak self] in
                 self?.sessionRejected(with: proposal)
@@ -139,16 +148,19 @@ class WalletConnectV2Service {
 
     // MARK: - Session manipulation
 
-    private func sessionAccepted(with proposal: Session.Proposal) {
+    private func sessionAccepted(with id: String, namespaces: [String: SessionNamespace]) {
         runTask { [weak self] in
             guard let self else { return }
 
             do {
-                let sessionNamespaces = WalletConnectV2Utils().createSessionNamespaces(from: proposal.requiredNamespaces,
-                                                                                       for: self.cardModel.wallets)
-                try await self.signApi.approve(proposalId: proposal.id, namespaces: sessionNamespaces)
+                AppLog.shared.debug("[WC 2.0] Namespaces to approve for session connection: \(namespaces)")
+                try await self.signApi.approve(proposalId: id, namespaces: namespaces)
+            } catch let error as WalletConnectV2Error {
+                self.displayErrorUI(error)
             } catch {
-                print("[DAPP] Approve Session error: \(error)")
+                let mappedError = WalletConnectV2ErrorMappingUtils().mapWCv2Error(error)
+                self.displayErrorUI(mappedError)
+                AppLog.shared.error("[WC 2.0] Failed to approve Session with error: \(error)")
             }
         }
     }
@@ -157,9 +169,10 @@ class WalletConnectV2Service {
         runTask { [weak self] in
             do {
                 try await self?.signApi.reject(proposalId: proposal.id, reason: .userRejectedChains)
+                AppLog.shared.debug("[WC 2.0] User reject WC connection")
             }
             catch {
-                print("[WC] User reject WC connection")
+                AppLog.shared.error("[WC 2.0] Failed to reject WC connection with error: \(error)")
             }
         }
     }
@@ -185,13 +198,13 @@ extension WalletConnectV2Service: WalletConnectURLHandler {
     }
 
     private func pairClient(with uri: WalletConnectURI) {
-        print("[WC] Trying to pair client: \(uri)")
+        AppLog.shared.debug("[WC 2.0] Trying to pair client: \(uri)")
         Task {
             do {
                 try await pairApi.pair(uri: uri)
-                print("[WC] Established pair for \(uri)")
+                AppLog.shared.debug("[WC 2.0] Established pair for \(uri)")
             } catch {
-                print("[WC] Failed to connect to \(uri). Reason: \(error)")
+                AppLog.shared.error("[WC 2.0] Failed to connect to \(uri) with error: \(error)")
             }
             _canEstablishNewSessionPublisher.send(true)
         }
@@ -220,7 +233,12 @@ extension WalletConnectV2Service {
             try await signApi.disconnect(topic: session.topic)
             await storage.remove(session)
         } catch {
-            print("[WC] Failed to disconnect session with topic: \(session.topic). Reason: \(error)")
+            let internalError = WalletConnectV2ErrorMappingUtils().mapWCv2Error(error)
+            if case .sessionForTopicNotFound = internalError {
+                await storage.remove(session)
+                return
+            }
+            AppLog.shared.error("[WC 2.0] Failed to disconnect session with topic: \(session.topic) with error: \(error)")
         }
 
     }
