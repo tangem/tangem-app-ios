@@ -12,14 +12,14 @@ struct DefaultWarningRowViewModel {
     let title: String?
     let subtitle: String
 
-    private(set) var leftView: DetailsType?
-    private(set) var rightView: DetailsType?
+    private(set) var leftView: AdditionalViewType?
+    private(set) var rightView: AdditionalViewType?
 
     init(
         title: String?,
         subtitle: String,
-        leftView: DefaultWarningRowViewModel.DetailsType? = nil,
-        rightView: DefaultWarningRowViewModel.DetailsType? = nil
+        leftView: DefaultWarningRowViewModel.AdditionalViewType? = nil,
+        rightView: DefaultWarningRowViewModel.AdditionalViewType? = nil
     ) {
         self.title = title
         self.subtitle = subtitle
@@ -27,17 +27,17 @@ struct DefaultWarningRowViewModel {
         self.rightView = rightView
     }
 
-    mutating func update(leftView: DetailsType?) {
+    mutating func update(leftView: AdditionalViewType?) {
         self.leftView = leftView
     }
 
-    mutating func update(rightView: DetailsType?) {
+    mutating func update(rightView: AdditionalViewType?) {
         self.rightView = rightView
     }
 }
 
 extension DefaultWarningRowViewModel {
-    enum DetailsType: Hashable {
+    enum AdditionalViewType: Hashable {
         case icon(_ image: Image)
         case loader
 
