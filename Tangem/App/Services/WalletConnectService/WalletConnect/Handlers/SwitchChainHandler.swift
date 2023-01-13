@@ -39,7 +39,6 @@ class SwitchChainHandler: TangemWalletConnectRequestHandler {
             delegate?.sendUpdate(for: session.session, with: sessionWalletInfo)
         } catch {
             delegate?.sendReject(for: request, with: error, for: action)
-
         }
     }
 
@@ -57,25 +56,26 @@ class SwitchChainHandler: TangemWalletConnectRequestHandler {
             throw WalletConnectServiceError.unsupportedNetwork
         }
 
-        let availableWallet = dataSource?.cardModel.walletModels
-            .filter { !$0.isCustom(.coin) }
-            .first(where: { $0.wallet.blockchain == targetBlockchain })
-            .map { $0.wallet }
+        let allTargetWallets = dataSource?.cardModel.walletModels
+            .filter { $0.wallet.blockchain == targetBlockchain }
+            .map { $0.wallet } ?? []
 
-        guard let wallet = availableWallet else {
+        if allTargetWallets.isEmpty {
             throw WalletConnectServiceError.networkNotFound(name: targetBlockchain.displayName)
         }
 
-        let derivedKey = wallet.publicKey.blockchainKey != wallet.publicKey.seedKey ? wallet.publicKey.blockchainKey : nil
+        let availableWallets = allTargetWallets
+            .filter { $0.address == oldWalletInfo.address }
 
+        guard let wallet = availableWallets.first else {
+            throw WalletConnectServiceError.switchChainNotSupported
+        }
+
+        let derivedKey = wallet.publicKey.blockchainKey != wallet.publicKey.seedKey ? wallet.publicKey.blockchainKey : nil
         let walletInfo = WalletInfo(walletPublicKey: wallet.publicKey.seedKey,
                                     derivedPublicKey: derivedKey,
                                     derivationPath: wallet.publicKey.derivationPath,
                                     blockchain: targetBlockchain)
-
-        if wallet.address != oldWalletInfo.address {
-            throw WalletConnectServiceError.switchChainNotSupported
-        }
 
         session.wallet = walletInfo
         dataSource?.updateSession(session)
