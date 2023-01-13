@@ -284,9 +284,9 @@ private extension SwappingViewModel {
             permissionInfoRowViewModel = nil
         } else {
             permissionInfoRowViewModel = DefaultWarningRowViewModel(
-                icon: Assets.swappingLock,
                 title: Localization.swappingGivePermission,
-                subtitle: Localization.swappingPermissionSubheader(exchangeManager.getExchangeItems().source.symbol)
+                subtitle: Localization.swappingPermissionSubheader(exchangeManager.getExchangeItems().source.symbol),
+                leftView: .icon(Assets.swappingLock)
             )
         }
     }
@@ -294,9 +294,9 @@ private extension SwappingViewModel {
     func updatePendingApprovingTransaction(hasPendingTransaction: Bool) {
         if hasPendingTransaction {
             permissionInfoRowViewModel = DefaultWarningRowViewModel(
-                icon: Assets.attentionRed,
                 title: "Waiting",
-                subtitle: "Transaction in progress..."
+                subtitle: "Transaction in progress...",
+                leftView: .loader
             )
         } else {
             permissionInfoRowViewModel = nil
