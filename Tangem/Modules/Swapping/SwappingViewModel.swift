@@ -434,10 +434,12 @@ private extension SwappingViewModel {
     func updateRefreshWarningRowViewModel(title: String? = nil, message: String) {
         refreshWarningRowViewModel = DefaultWarningRowViewModel(
             title: title,
-            subtitle: message,
+            subtitle: message.capitalizingFirstLetter(),
             leftView: .icon(Assets.attention),
             rightView: .icon(Assets.refreshWarningIcon)
-        )
+        ) { [weak self] in
+            self?.didTapWaringRefresh()
+        }
     }
 }
 
