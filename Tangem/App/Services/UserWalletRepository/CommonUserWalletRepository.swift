@@ -64,7 +64,7 @@ class CommonUserWalletRepository: UserWalletRepository {
     }
 
     deinit {
-        print("UserWalletRepository deinit")
+        AppLog.shared.debug("UserWalletRepository deinit")
     }
 
     func bind() {
@@ -146,7 +146,7 @@ class CommonUserWalletRepository: UserWalletRepository {
                 return Just(nil)
             }
 
-            print("Failed to scan card: \(error)")
+            AppLog.shared.error(error)
 
             self.failedCardScanTracker.recordFailure()
 
@@ -169,7 +169,6 @@ class CommonUserWalletRepository: UserWalletRepository {
     }
 
     private func scanInternal(completion: @escaping (Result<CardViewModel, Error>) -> Void) {
-        Analytics.reset()
         Analytics.log(.readyToScan)
 
         let oldConfig = sdkProvider.sdk.config
@@ -191,10 +190,12 @@ class CommonUserWalletRepository: UserWalletRepository {
 
             switch result {
             case .failure(let error):
-                Analytics.logCardSdkError(error, for: .scan)
+                AppLog.shared.error(error, for: .scan)
                 completion(.failure(error))
             case .success(let response):
-                didScan(card: CardDTO(card: response.card), walletData: response.walletData)
+                let cardDTO = CardDTO(card: response.card)
+                Analytics.logScan(card: cardDTO)
+                didScan(card: cardDTO, walletData: response.walletData)
                 self.acceptTOSIfNeeded(response.getCardInfo(), completion)
             }
         }
@@ -403,16 +404,16 @@ class CommonUserWalletRepository: UserWalletRepository {
     }
 
     private func acceptTOSIfNeeded(_ cardInfo: CardInfo, _ completion: @escaping (Result<CardViewModel, Error>) -> Void) {
-        let touURL = UserWalletConfigFactory(cardInfo).makeConfig().touURL
+        let tou = UserWalletConfigFactory(cardInfo).makeConfig().tou
 
-        guard let delegate, !AppSettings.shared.termsOfServicesAccepted.contains(touURL.absoluteString) else {
+        guard let delegate, !AppSettings.shared.termsOfServicesAccepted.contains(tou.id) else {
             completion(.success(processScan(cardInfo)))
             return
         }
 
-        delegate.showTOS(at: touURL) { accepted in
+        delegate.showTOS(at: tou.url) { accepted in
             if accepted {
-                AppSettings.shared.termsOfServicesAccepted.insert(touURL.absoluteString)
+                AppSettings.shared.termsOfServicesAccepted.insert(tou.id)
                 completion(.success(self.processScan(cardInfo)))
             } else {
                 completion(.failure(TangemSdkError.userCancelled))
@@ -451,8 +452,6 @@ class CommonUserWalletRepository: UserWalletRepository {
         let cardModel = CardViewModel(cardInfo: cardInfo, config: config)
 
         initializeServices(for: cardModel, cardInfo: cardInfo)
-
-        cardModel.didScan()
 
         // Updating the config file every time a card is scanned when wallets are NOT being saved.
         // This is done to avoid unnecessary changes in SDK config when the user scans an empty card
