@@ -15,7 +15,7 @@ class PreparePrimaryCardTask: CardSessionRunnable {
     private var linkingCommand: StartPrimaryCardLinkingTask? = nil
 
     deinit {
-        print("PreparePrimaryCardTask deinit")
+        AppLog.shared.debug("PreparePrimaryCardTask deinit")
     }
 
     func run(in session: CardSession, completion: @escaping CompletionResult<PreparePrimaryCardTaskResponse>) {
