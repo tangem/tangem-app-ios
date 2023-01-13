@@ -24,7 +24,8 @@ struct DependenciesFactory {
         return TangemExchangeFactory().createExchangeManager(
             blockchainInfoProvider: networkService,
             source: source,
-            destination: destination
+            destination: destination,
+            logger: AppLog.shared
         )
     }
 

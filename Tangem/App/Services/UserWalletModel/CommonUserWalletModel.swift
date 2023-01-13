@@ -36,13 +36,13 @@ class CommonUserWalletModel {
 
 extension CommonUserWalletModel: UserWalletModel {
     func updateUserWallet(_ userWallet: UserWallet) {
-        print("🔄 Updating UserWalletModel with new userWalletId")
+        AppLog.shared.debug("🔄 Updating UserWalletModel with new userWalletId")
         self.userWallet = userWallet
         userTokenListManager.update(userWalletId: userWallet.userWalletId)
     }
 
     func updateUserWalletModel(with config: UserWalletConfig) {
-        print("🔄 Updating UserWalletModel with new config")
+        AppLog.shared.debug("🔄 Updating UserWalletModel with new config")
         self.config = config
         walletListManager.update(config: config)
     }
@@ -69,7 +69,7 @@ extension CommonUserWalletModel: UserWalletModel {
 
     func initialUpdate() {
         guard !didPerformInitialUpdate else {
-            print("Initial update has been performed")
+            AppLog.shared.debug("Initial update has been performed")
             return
         }
 

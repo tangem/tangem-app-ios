@@ -69,7 +69,7 @@ class SendViewModel: ObservableObject {
     }
 
     var isFiatConvertingAvailable: Bool {
-        !isSellingCrypto && walletModel.getFiat(for: amountToSend) != nil
+        !isSellingCrypto && walletModel.getFiat(for: amountToSend, roundingMode: .down) != nil
     }
 
     @Published var isNetworkFeeBlockOpen: Bool = false
@@ -119,7 +119,7 @@ class SendViewModel: ObservableObject {
 
     var walletTotalBalanceDecimals: String {
         let amount = walletModel.wallet.amounts[amountToSend.type]
-        return isFiatCalculation ? walletModel.getFiat(for: amount)?.description ?? ""
+        return isFiatCalculation ? walletModel.getFiat(for: amount, roundingMode: .down)?.description ?? ""
             : amount?.value.description ?? ""
     }
 
@@ -181,7 +181,7 @@ class SendViewModel: ObservableObject {
 
     private func getDescription(for amount: Amount?) -> String {
         if isFiatCalculation {
-            return walletModel.getFiatFormatted(for: amount) ?? ""
+            return walletModel.getFiatFormatted(for: amount, roundingMode: .down) ?? ""
         }
 
         return amount?.description ?? ""
@@ -260,7 +260,7 @@ class SendViewModel: ObservableObject {
 
                 let currencyId = self.walletModel.currencyId(for: self.amountToSend.type)
 
-                if let converted = value ? self.walletModel.getFiat(for: decimals, currencyId: currencyId)
+                if let converted = value ? self.walletModel.getFiat(for: decimals, currencyId: currencyId, roundingMode: .down)
                     : self.walletModel.getCrypto(for: Amount(with: self.amountToSend, value: decimals)) {
                     self.amountText = converted.description
                 } else {
@@ -317,8 +317,7 @@ class SendViewModel: ObservableObject {
                 self.isFeeLoading = true
                 return self.walletModel.getFee(amount: amount, destination: dest)
                     .catch { [unowned self] error -> Just<[Amount]> in
-                        print(error)
-                        Analytics.log(error: error)
+                        AppLog.shared.error(error)
 
                         let ok = Alert.Button.default(Text(Localization.commonOk))
                         let retry = Alert.Button.default(Text(Localization.commonRetry)) { [unowned self] in
@@ -521,7 +520,7 @@ class SendViewModel: ObservableObject {
                                                                   action: {
 
                                                                       let newAmount = totalAmount - warning.suggestedReduceAmount
-                                                                      self.amountText = self.isFiatCalculation ? self.walletModel.getFiat(for: newAmount)?.description ?? "0" :
+                                                                      self.amountText = self.isFiatCalculation ? self.walletModel.getFiat(for: newAmount, roundingMode: .down)?.description ?? "0" :
                                                                           newAmount.value.description
                                                                   }),
                               secondaryButton: Alert.Button.cancel(Text(warning.ignoreMessage),
@@ -605,14 +604,11 @@ class SendViewModel: ObservableObject {
                 appDelegate.removeLoadingView()
 
                 if case let .failure(error) = completion {
-                    if case .userCancelled = error.toTangemSdkError() {
+                    if error.toTangemSdkError().isUserCancelled {
                         return
                     }
 
-                    self.cardViewModel.logSdkError(error,
-                                                   action: .sendTx,
-                                                   parameters: [.blockchain: self.walletModel.wallet.blockchain.displayName])
-
+                    AppLog.shared.error(error, for: .sendTx, params: [.blockchain: self.walletModel.wallet.blockchain.displayName])
                     self.error = SendError(error, openMailAction: self.openMail).alertBinder
                 } else {
                     if !isDemo {
