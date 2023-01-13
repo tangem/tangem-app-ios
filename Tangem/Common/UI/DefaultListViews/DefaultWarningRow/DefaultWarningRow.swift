@@ -11,14 +11,12 @@ import SwiftUI
 struct DefaultWarningRow: View {
     private let viewModel: DefaultWarningRowViewModel
 
-    private var onTapAction: (() -> ())?
-
     init(viewModel: DefaultWarningRowViewModel) {
         self.viewModel = viewModel
     }
 
     var body: some View {
-        Button(action: { onTapAction?() }) {
+        Button(action: { viewModel.action?() }) {
             HStack(alignment: .center, spacing: 12) {
                 leftView
 
@@ -46,8 +44,7 @@ struct DefaultWarningRow: View {
     @ViewBuilder
     private var leftView: some View {
         baseAdditionalView(type: viewModel.leftView)
-            .frame(width: 24, height: 24)
-            .padding(8)
+            .padding(10)
             .background(Colors.Background.secondary)
             .cornerRadius(40)
     }
@@ -74,14 +71,6 @@ struct DefaultWarningRow: View {
             ProgressViewCompat(color: Colors.Icon.informative)
                 .frame(width: 20, height: 20)
         }
-    }
-}
-
-// MARK: - Setupable
-
-extension DefaultWarningRow: Setupable {
-    func onTap(_ action: @escaping () -> ()) -> Self {
-        map { $0.onTapAction = action }
     }
 }
 

@@ -35,9 +35,6 @@ struct AppSettingsView: View {
     private var warningSection: some View {
         GroupedSection(viewModel.warningViewModel) {
             DefaultWarningRow(viewModel: $0)
-                .onTap {
-                    viewModel.openBiometrySettings()
-                }
         }
     }
 
