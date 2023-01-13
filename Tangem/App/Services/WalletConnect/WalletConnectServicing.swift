@@ -9,16 +9,22 @@
 import Foundation
 import Combine
 
-protocol WalletConnectService: URLHandler {
+protocol WalletConnectService: WalletConnectURLHandler {
     var canEstablishNewSessionPublisher: AnyPublisher<Bool, Never> { get }
     var sessionsPublisher: AnyPublisher<[WalletConnectSession], Never> { get }
+    var newSessions: AsyncStream<[WalletConnectSavedSession]> { get async }
 
+    func terminateAllSessions()
     func initialize(with cardModel: CardViewModel)
     func reset()
-
-    func canHandle(url: String) -> Bool
     func disconnectSession(with id: Int)
+    func disconnectV2Session(with id: Int) async
 }
+
+protocol WalletConnectURLHandler: URLHandler {
+    func canHandle(url: String) -> Bool
+}
+
 private struct WalletConnectServicingKey: InjectionKey {
     static var currentValue: WalletConnectService = CommonWalletConnectService()
 }

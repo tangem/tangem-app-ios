@@ -222,7 +222,7 @@ extension WalletConnectV1Service {
 }
 
 // MARK: - WalletConnectURLHandler
-extension WalletConnectV1Service {
+extension WalletConnectV1Service: WalletConnectURLHandler {
     func canHandle(url: String) -> Bool {
         WCURL(url) != nil
     }
