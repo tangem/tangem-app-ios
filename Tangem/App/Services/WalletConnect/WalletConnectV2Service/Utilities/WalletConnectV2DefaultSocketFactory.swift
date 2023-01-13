@@ -9,7 +9,7 @@
 import Foundation
 import WalletConnectSwiftV2
 
-struct WCDefaultSocketFactory: WebSocketFactory {
+struct WalletConnectV2DefaultSocketFactory: WebSocketFactory {
     func create(with url: URL) -> WebSocketConnecting {
         WebSocket(url: url)
     }
