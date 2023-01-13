@@ -11,19 +11,16 @@ import SwiftUI
 struct DefaultWarningRow: View {
     private let viewModel: DefaultWarningRowViewModel
 
+    private var onTapAction: (() -> ())?
+
     init(viewModel: DefaultWarningRowViewModel) {
         self.viewModel = viewModel
     }
 
     var body: some View {
-        Button(action: { viewModel.action?() }) {
+        Button(action: { onTapAction?() }) {
             HStack(alignment: .center, spacing: 12) {
-                viewModel.icon
-                    .resizable()
-                    .frame(width: 24, height: 24)
-                    .padding(8)
-                    .background(Colors.Background.secondary)
-                    .cornerRadius(40)
+                leftView
 
                 VStack(alignment: .leading, spacing: 4) {
                     if let title = viewModel.title {
@@ -36,7 +33,7 @@ struct DefaultWarningRow: View {
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
 
-                detailsView
+                rightView
             }
             .padding(.vertical, 16)
             .background(Colors.Background.primary)
@@ -47,9 +44,30 @@ struct DefaultWarningRow: View {
     }
 
     @ViewBuilder
-    private var detailsView: some View {
+    private var leftView: some View {
         Group {
-            switch viewModel.detailsType {
+            switch viewModel.leftView {
+            case .none:
+                EmptyView()
+            case .icon(let image):
+                image
+                    .resizable()
+                    .frame(width: 20, height: 20)
+            case .loader:
+                ProgressViewCompat(color: Colors.Icon.informative)
+                    .frame(width: 20, height: 20)
+            }
+        }
+        .frame(width: 24, height: 24)
+        .padding(8)
+        .background(Colors.Background.secondary)
+        .cornerRadius(40)
+    }
+
+    @ViewBuilder
+    private var rightView: some View {
+        Group {
+            switch viewModel.rightView {
             case .none:
                 EmptyView()
             case .icon(let image):
@@ -68,21 +86,52 @@ struct DefaultWarningRow: View {
     }
 }
 
+// MARK: - Setupable
+
+extension DefaultWarningRow: Setupable {
+    func onTap(_ action: @escaping () -> ()) -> Self {
+        map { $0.onTapAction = action }
+    }
+}
+
 struct DefaultWarningRow_Preview: PreviewProvider {
-    static let viewModel = DefaultWarningRowViewModel(
-        icon: Assets.attention,
-        title: "Enable biometric authentication",
-        subtitle: "Not enough funds for fee on your Polygon wallet to create a transaction. Top up your Polygon wallet first.",
-        detailsType: .icon(Assets.refreshWarningIcon),
-        action: {}
-    )
+    static let viewModels: [DefaultWarningRowViewModel] = [
+        DefaultWarningRowViewModel(
+            title: "Enable biometric authentication",
+            subtitle: "Not enough funds for fee on your Polygon wallet to create a transaction. Top up your Polygon wallet first.",
+            leftView: .icon(Assets.attention)
+        ), DefaultWarningRowViewModel(
+            title: "Exchange rate has expired",
+            subtitle: "Recalculate route",
+            leftView: .icon(Assets.attention),
+            rightView: .icon(Assets.refreshWarningIcon)
+        ), DefaultWarningRowViewModel(
+            title: "Exchange rate has expired",
+            subtitle: "Recalculate route",
+            leftView: .icon(Assets.attention),
+            rightView: .loader
+        ), DefaultWarningRowViewModel(
+            title: "Give Permission",
+            subtitle: "To continue you need to allow 1inch smart contracts to use your Dai",
+            leftView: .icon(Assets.swappingLock)
+        ),  DefaultWarningRowViewModel(
+            title: "Waiting",
+            subtitle: "Transaction in progress...",
+            leftView: .loader
+        ),
+    ]
 
     static var previews: some View {
         ZStack {
             Colors.Background.secondary
 
-            DefaultWarningRow(viewModel: viewModel)
-                .padding(.horizontal, 16)
+            VStack {
+                ForEach(viewModels) {
+                    DefaultWarningRow(viewModel: $0)
+                        .padding(.horizontal, 16)
+                        .background(Color.white)
+                }
+            }
         }
     }
 }
