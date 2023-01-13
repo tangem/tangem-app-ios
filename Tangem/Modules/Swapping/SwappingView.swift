@@ -86,7 +86,7 @@ struct SwappingView: View {
 
     @ViewBuilder
     private var requiredPermissionInfoSection: some View {
-        GroupedSection(viewModel.requiredPermissionInfoRowViewModel) {
+        GroupedSection(viewModel.permissionInfoRowViewModel) {
             DefaultWarningRow(viewModel: $0)
         }
         .verticalPadding(0)
