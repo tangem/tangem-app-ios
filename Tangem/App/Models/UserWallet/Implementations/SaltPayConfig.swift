@@ -14,7 +14,6 @@ import BlockchainSdk
 
 struct SaltPayConfig {
     @Injected(\.backupServiceProvider) private var backupServiceProvider: BackupServiceProviding
-    @Injected(\.loggerProvider) var loggerProvider: LoggerProviding
     @Injected(\.saletPayRegistratorProvider) private var saltPayRegistratorProvider: SaltPayRegistratorProviding
 
     private let card: CardDTO
@@ -107,8 +106,9 @@ extension SaltPayConfig: UserWalletConfig {
         return nil
     }
 
-    var touURL: URL {
-        .init(string: "https://tangem.com/soltpay_tos.html")!
+    var tou: TOU {
+        let url = URL(string: "https://tangem.com/soltpay_tos.html")!
+        return TOU(id: url.absoluteString, url: url)
     }
 
     var cardsCount: Int {

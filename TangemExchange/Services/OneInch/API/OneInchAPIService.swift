@@ -11,7 +11,11 @@ import Moya
 
 struct OneInchAPIService: OneInchAPIServicing {
     private let provider = MoyaProvider<OneInchBaseTarget>()
-    init() {}
+    private let logger: ExchangeLogger
+
+    init(logger: ExchangeLogger) {
+        self.logger = logger
+    }
 
     func healthCheck(blockchain: ExchangeBlockchain) async -> Result<HealthCheck, ExchangeProviderError> {
         await request(
@@ -109,10 +113,12 @@ private extension OneInchAPIService {
             info = String(data: response.data, encoding: .utf8)!
         }
 
-        print(
-            "Error when request to target \(target.path)",
-            "with info \(info)",
-            "\(error)"
+        logger.debug(
+            """
+            Error when request to target \(target.path)
+            with info \(info)
+            \(error)
+            """
         )
     }
 }
