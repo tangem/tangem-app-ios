@@ -36,6 +36,10 @@ struct NegativeFeedbackDataCollector: EmailDataCollector {
 }
 
 struct SendScreenDataCollector: EmailDataCollector {
+    var attachment: Data? {
+        FileLogger().logData
+    }
+
     var dataForEmail: String {
         var data = userWalletEmailData
         data.append(.separator(.dashes))
@@ -107,6 +111,10 @@ struct SendScreenDataCollector: EmailDataCollector {
 }
 
 struct PushScreenDataCollector: EmailDataCollector {
+    var attachment: Data? {
+        FileLogger().logData
+    }
+
     var dataForEmail: String {
         var data = userWalletEmailData
         data.append(.separator(.dashes))
@@ -160,6 +168,10 @@ struct PushScreenDataCollector: EmailDataCollector {
 }
 
 struct DetailsFeedbackDataCollector: EmailDataCollector {
+    var attachment: Data? {
+        FileLogger().logData
+    }
+
     var dataForEmail: String {
         var dataToFormat = userWalletEmailData
 
