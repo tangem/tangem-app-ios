@@ -116,6 +116,7 @@ class WalletConnectViewModel: ObservableObject {
                 guard let self = self else { return }
 
                 self.sessions = $0
+                AppLog.shared.debug("Loaded v1 sessions: \($0)")
                 self.objectWillChange.send()
             })
             .store(in: &bag)
@@ -135,6 +136,7 @@ class WalletConnectViewModel: ObservableObject {
     private func subscribeToNewSessions() {
         Task {
             for await sessions in await walletConnectService.newSessions {
+                AppLog.shared.debug("Loaded v2 sessions: \(sessions)")
                 await MainActor.run {
                     withAnimation {
                         self.newSessions = sessions
