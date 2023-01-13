@@ -46,8 +46,8 @@ private extension ExchangeTransactionSender {
         var transaction = try transactionCreator.createTransaction(
             amount: amount,
             fee: fee,
-            destinationAddress: info.destinationAddress,
             sourceAddress: info.sourceAddress,
+            destinationAddress: info.destinationAddress,
             changeAddress: info.sourceAddress,
             contractAddress: info.destinationAddress
         )
