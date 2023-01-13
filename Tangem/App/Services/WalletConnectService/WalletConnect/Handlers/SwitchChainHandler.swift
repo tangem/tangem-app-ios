@@ -25,12 +25,6 @@ class SwitchChainHandler: TangemWalletConnectRequestHandler {
     }
 
     func handle(request: Request) {
-        Task {
-            await handle(request: request)
-        }
-    }
-
-    private func handle(request: Request) async {
         do {
             let chainIdHexString = (try request.parameter(of: [String: String].self, at: 0))["chainId"]
             let chainId = chainIdHexString.map { Data(hexString: $0) }?.toInt()
@@ -41,14 +35,14 @@ class SwitchChainHandler: TangemWalletConnectRequestHandler {
                 return
             }
 
-            let sessionWalletInfo = try await switchChain(session, chainId: chainId)
+            let sessionWalletInfo = try switchChain(session, chainId: chainId)
             delegate?.sendUpdate(for: session.session, with: sessionWalletInfo)
         } catch {
             delegate?.sendReject(for: request, with: error, for: action)
         }
     }
 
-    private func switchChain(_ session: WalletConnectSession, chainId: Int) async throws -> Session.WalletInfo  {
+    private func switchChain(_ session: WalletConnectSession, chainId: Int) throws -> Session.WalletInfo  {
         var session = session
         let oldWalletInfo = session.wallet
 
