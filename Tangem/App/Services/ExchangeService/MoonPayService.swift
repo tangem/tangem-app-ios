@@ -76,7 +76,7 @@ class MoonPayService {
     init() {}
 
     deinit {
-        print("MoonPay deinit")
+        AppLog.shared.debug("MoonPay deinit")
     }
 
     private func makeSignature(for components: URLComponents) -> URLQueryItem {
@@ -201,7 +201,8 @@ extension MoonPayService: ExchangeService {
                 countryCode = decodedResponse.countryCode
                 stateCode = decodedResponse.stateCode
             } catch {
-                print("Failed to check IP address: \(error)")
+                AppLog.shared.debug("Failed to check IP address")
+                AppLog.shared.error(error)
             }
             do {
                 var currenciesToBuy = Set<String>()
@@ -233,7 +234,8 @@ extension MoonPayService: ExchangeService {
                 self.availableToBuy = currenciesToBuy
                 self.availableToSell = currenciesToSell
             } catch {
-                print("Failed to load currencies: \(error)")
+                AppLog.shared.debug("Failed to load currencies")
+                AppLog.shared.error(error)
             }
         }
         .store(in: &bag)
