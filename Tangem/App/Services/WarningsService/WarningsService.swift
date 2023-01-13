@@ -24,7 +24,7 @@ class WarningsService {
     init() {}
 
     deinit {
-        print("WarningsService deinit")
+        AppLog.shared.debug("WarningsService deinit")
     }
 }
 
@@ -114,7 +114,7 @@ private extension WarningsService {
         let canCountHashes = config.hasFeature(.signedHashesCounter)
 
         func didFinishCountingHashes() {
-            print("⚠️ Hashes counted")
+            AppLog.shared.debug("⚠️ Hashes counted")
         }
 
         guard !AppSettings.shared.validatedSignedHashesCards.contains(cardId) else {
@@ -150,7 +150,7 @@ private extension WarningsService {
             .subscribe(on: DispatchQueue.global())
             .receive(on: RunLoop.main)
             .handleEvents(receiveCancel: {
-                print("⚠️ Hash counter subscription cancelled")
+                AppLog.shared.debug("⚠️ Hash counter subscription cancelled")
             })
             .receiveCompletion { [weak self] completion in
                 switch completion {
