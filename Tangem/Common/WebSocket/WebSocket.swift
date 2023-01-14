@@ -191,12 +191,12 @@ private extension WebSocket {
             var error: Error? = nil
             switch closeCode {
             case .normalClosure:
-                AppLog.shared.debug("[WebSocket] disconnected (normal closure)")
+                AppLog.shared.debug("[WebSocket] 💥💥💥 disconnected (normal closure)")
             case .abnormalClosure, .goingAway:
-                AppLog.shared.debug("[WebSocket] disconnected (peer disconnected)")
+                AppLog.shared.debug("[WebSocket] 💥💥💥 disconnected (peer disconnected)")
                 error = WebSocketError.peerDisconnected
             default:
-                AppLog.shared.debug("[WebSocket] disconnected (\(closeCode)")
+                AppLog.shared.debug("[WebSocket] 💥💥💥 disconnected (\(closeCode)")
                 error = WebSocketError.closedUnexpectedly
             }
             onDisconnect?(error)
