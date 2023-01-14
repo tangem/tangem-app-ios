@@ -333,7 +333,7 @@
 		B0FB98A52598D24300B769A3 /* Card+.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0FB98A42598D24300B769A3 /* Card+.swift */; };
 		B0FE0B3129711C7D0046EE2C /* AsyncButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0FE0B3029711C7D0046EE2C /* AsyncButton.swift */; };
 		B0FE0B33297124B10046EE2C /* PassthroughSubject+.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0FE0B32297124B10046EE2C /* PassthroughSubject+.swift */; };
-		B0FE0B3529712C170046EE2C /* WalletConnectV2Utility.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0FE0B3429712C170046EE2C /* WalletConnectV2Utility.swift */; };
+		B0FE0B3529712C170046EE2C /* WalletConnectV2Utils.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0FE0B3429712C170046EE2C /* WalletConnectV2Utils.swift */; };
 		B0FE0B37297138CC0046EE2C /* WalletConnectSavedSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0FE0B36297138CC0046EE2C /* WalletConnectSavedSession.swift */; };
 		B0FE0B3A297140D10046EE2C /* WalletConnectV2Error.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0FE0B39297140D10046EE2C /* WalletConnectV2Error.swift */; };
 		DA129DD3292B4A3D004291EC /* UserWalletListCellViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA129DD2292B4A3D004291EC /* UserWalletListCellViewModel.swift */; };
@@ -1205,7 +1205,7 @@
 		B0FB98A42598D24300B769A3 /* Card+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Card+.swift"; sourceTree = "<group>"; };
 		B0FE0B3029711C7D0046EE2C /* AsyncButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AsyncButton.swift; sourceTree = "<group>"; };
 		B0FE0B32297124B10046EE2C /* PassthroughSubject+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "PassthroughSubject+.swift"; sourceTree = "<group>"; };
-		B0FE0B3429712C170046EE2C /* WalletConnectV2Utility.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletConnectV2Utility.swift; sourceTree = "<group>"; };
+		B0FE0B3429712C170046EE2C /* WalletConnectV2Utils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletConnectV2Utils.swift; sourceTree = "<group>"; };
 		B0FE0B36297138CC0046EE2C /* WalletConnectSavedSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletConnectSavedSession.swift; sourceTree = "<group>"; };
 		B0FE0B39297140D10046EE2C /* WalletConnectV2Error.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletConnectV2Error.swift; sourceTree = "<group>"; };
 		B9F1CD10D9C48557C2894B61 /* Pods-Tangem Tap.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Tangem Tap.debug.xcconfig"; path = "Target Support Files/Pods-Tangem Tap/Pods-Tangem Tap.debug.xcconfig"; sourceTree = "<group>"; };
@@ -2671,7 +2671,7 @@
 			children = (
 				B0468CE62954A0D300F2E728 /* WalletConnectV2DefaultSocketFactory.swift */,
 				B03AEEB129596EBD00212267 /* WalletConnectV2MessageComposer.swift */,
-				B0FE0B3429712C170046EE2C /* WalletConnectV2Utility.swift */,
+				B0FE0B3429712C170046EE2C /* WalletConnectV2Utils.swift */,
 			);
 			path = Utilities;
 			sourceTree = "<group>";
@@ -5212,7 +5212,7 @@
 				B0431B3F291951C200F84DEF /* IconWithMessageView.swift in Sources */,
 				B04BA23626F083C30036784C /* OnboardingTopupBalanceView.swift in Sources */,
 				5DEC50A525F160930022CE83 /* CircleImageTextView.swift in Sources */,
-				B0FE0B3529712C170046EE2C /* WalletConnectV2Utility.swift in Sources */,
+				B0FE0B3529712C170046EE2C /* WalletConnectV2Utils.swift in Sources */,
 				EFEC5F74296FF2BA009C0E5F /* FocusedGroupedNumberTextField.swift in Sources */,
 				DA23788527B24222009795A8 /* CheckoutLineItem.swift in Sources */,
 				B0C4F77126F08C4D0086D815 /* TwinsOnboardingCardLayout.swift in Sources */,
