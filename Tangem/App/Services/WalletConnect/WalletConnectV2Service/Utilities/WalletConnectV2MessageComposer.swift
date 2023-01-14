@@ -23,7 +23,7 @@ extension WalletConnectV2MessageComposer: WalletConnectV2MessageComposable {
         let namespaces = proposal.requiredNamespaces
 
         let proposerName = proposer.name
-        let chains = targetBlockchains.joined(separator: ", ")      
+        let chains = targetBlockchains.joined(separator: ", ")
         let allMethods = namespaces.map { $0.value.methods.joined(separator: ", ") }.joined(separator: ";\n")
         let allChains = namespaces.map { $0.value.chains.map { $0.absoluteString }.joined(separator: ", ") }.joined(separator: ";\n")
         let allEvents = namespaces.map { $0.value.events.joined(separator: ", ") }.joined(separator: ";\n")
