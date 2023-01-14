@@ -12,7 +12,7 @@ import WalletConnectSwiftV2
 import BlockchainSdk
 
 class WalletConnectV2Service {
-    @Injected(\.walletConnectStorage) private var storage: WalletConnectStorage
+    @Injected(\.walletConnectSessionsStorage) private var sessionsStorage: WalletConnectSessionsStorage
     private var _canEstablishNewSessionPublisher: CurrentValueSubject<Bool, Never> = .init(true)
 
     private let uiDelegate: WalletConnectUIDelegate
@@ -62,7 +62,7 @@ class WalletConnectV2Service {
             try await self.pairApi.disconnect(topic: pairing.topic)
         }
 
-        await storage.clearStorage()
+        await sessionsStorage.clearStorage()
     }
 
     private func loadSessions(for userWalletId: Data?) {
@@ -74,7 +74,7 @@ class WalletConnectV2Service {
 //            try await self.disconnectAllSessions()
 
             AppLog.shared.debug("[WC 2.0] Loading sessions for UserWallet with id: \(userWalletId.hexString)")
-            let loadedSessions = await self.storage.loadSessions(for: userWalletId.hexString)
+            let loadedSessions = await self.sessionsStorage.loadSessions(for: userWalletId.hexString)
 
             let pairingSessions = self.pairApi.getPairings()
             AppLog.shared.debug("[WC 2.0] Saved pairing sessions in WC storage \(pairingSessions)")
@@ -108,7 +108,7 @@ class WalletConnectV2Service {
                 AppLog.shared.debug("[WC 2.0] Session established: \(session)")
                 let savedSession = WalletConnectV2Utils().createSavedSession(for: session, with: userWalletId.hexString)
 
-                await self.storage.save(savedSession)
+                await self.sessionsStorage.save(savedSession)
             }
             .sink()
             .store(in: &bag)
@@ -239,20 +239,20 @@ extension WalletConnectV2Service {
 
     var newSessions: AsyncStream<[WalletConnectSavedSession]> {
         get async {
-            await storage.sessions
+            await sessionsStorage.sessions
         }
     }
 
     func disconnectSession(with id: Int) async {
-        guard let session = await storage.session(with: id) else { return }
+        guard let session = await sessionsStorage.session(with: id) else { return }
 
         do {
             try await signApi.disconnect(topic: session.topic)
-            await storage.remove(session)
+            await sessionsStorage.remove(session)
         } catch {
             let internalError = WalletConnectV2ErrorMappingUtils().mapWCv2Error(error)
             if case .sessionForTopicNotFound = internalError {
-                await storage.remove(session)
+                await sessionsStorage.remove(session)
                 return
             }
             AppLog.shared.error("[WC 2.0] Failed to disconnect session with topic: \(session.topic) with error: \(error)")

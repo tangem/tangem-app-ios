@@ -29,5 +29,4 @@ extension WalletConnectSavedSession {
         let supportedChains: [String]?
         var supportedMethods: [String]?
     }
-
 }
