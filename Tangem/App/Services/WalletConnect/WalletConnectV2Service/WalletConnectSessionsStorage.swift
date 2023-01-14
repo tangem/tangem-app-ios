@@ -1,5 +1,5 @@
 //
-//  WalletConnectStorage.swift
+//  WalletConnectSessionsStorage.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -8,7 +8,7 @@
 
 import Combine
 
-protocol WalletConnectStorage: Actor {
+protocol WalletConnectSessionsStorage: Actor {
     var sessions: AsyncStream<[WalletConnectSavedSession]> { get async }
     @discardableResult
     func loadSessions(for userWalletId: String) -> [WalletConnectSavedSession]
@@ -19,18 +19,18 @@ protocol WalletConnectStorage: Actor {
     func clearStorage()
 }
 
-private struct WalletConnectStorageKey: InjectionKey {
-    static var currentValue: WalletConnectStorage = CommonWalletConnectStorage()
+private struct WalletConnectSessionsStorageKey: InjectionKey {
+    static var currentValue: WalletConnectSessionsStorage = CommonWalletConnectSessionsStorage()
 }
 
 extension InjectedValues {
-    var walletConnectStorage: WalletConnectStorage {
-        get { Self[WalletConnectStorageKey.self] }
-        set { Self[WalletConnectStorageKey.self] = newValue }
+    var walletConnectSessionsStorage: WalletConnectSessionsStorage {
+        get { Self[WalletConnectSessionsStorageKey.self] }
+        set { Self[WalletConnectSessionsStorageKey.self] = newValue }
     }
 }
 
-actor CommonWalletConnectStorage: ObservableObject {
+actor CommonWalletConnectSessionsStorage: ObservableObject {
     @Injected(\.persistentStorage) private var storage: PersistentStorageProtocol
 
     var sessions: AsyncStream<[WalletConnectSavedSession]> {
@@ -54,7 +54,7 @@ actor CommonWalletConnectStorage: ObservableObject {
     }
 }
 
-extension CommonWalletConnectStorage: WalletConnectStorage {
+extension CommonWalletConnectSessionsStorage: WalletConnectSessionsStorage {
     func clearStorage() {
         _sessions.removeAll()
         saveSessionsToFile()
