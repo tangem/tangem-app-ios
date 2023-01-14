@@ -31,7 +31,7 @@ enum Analytics {
             }
         }
 
-        let logMessage = "Analytics event: \(event). Params: \(params)"
+        let logMessage = "Analytics event: \(event.rawValue). Params: \(params)"
         AppLog.shared.debug(logMessage)
     }
 
