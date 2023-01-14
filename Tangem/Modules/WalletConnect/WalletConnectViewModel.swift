@@ -117,7 +117,6 @@ class WalletConnectViewModel: ObservableObject {
 
                 self.sessions = $0
                 AppLog.shared.debug("Loaded v1 sessions: \($0)")
-                self.objectWillChange.send()
             })
             .store(in: &bag)
 
