@@ -11,12 +11,16 @@ import BlockchainSdk
 enum WalletConnectV2Error: Error {
     case unsupportedBlockchains([String])
     case sessionForTopicNotFound
+    case missingBlockchains([String])
+
     case unknown(String)
 
     var code: Int {
         switch self {
         case .unsupportedBlockchains: return 8001
         case .sessionForTopicNotFound: return 8002
+        case .missingBlockchains: return 8003
+
         case .unknown: return 8999
         }
     }

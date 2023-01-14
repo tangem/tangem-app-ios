@@ -1,5 +1,5 @@
 //
-//  WalletConnectV2Utility.swift
+//  WalletConnectV2Utils.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -10,10 +10,17 @@ import Foundation
 import WalletConnectSwiftV2
 import BlockchainSdk
 
-struct WalletConnectV2Utility {
+struct WalletConnectV2Utils {
+    private let evmNamespace = "eip155"
+
     func isAllChainsSupported(in namespaces: [String: ProposalNamespace]) -> Bool {
-        for (namespace, _) in namespaces {
-            if namespace != "eip155" {
+        for (namespace, proposals) in namespaces {
+            if namespace != evmNamespace {
+                return false
+            }
+
+            let blockchains = proposals.chains.compactMap(createBlockchain(for:))
+            if blockchains.count != proposals.chains.count {
                 return false
             }
         }
@@ -21,10 +28,16 @@ struct WalletConnectV2Utility {
         return true
     }
 
+    func getBlockchainNamesFromNamespaces(_ namespaces: [String: SessionNamespace]) -> [String] {
+        let blockchainNetworks = createBlockchains(from: namespaces)
+
+        return blockchainNetworks.map { $0.blockchain.displayName }
+    }
+
     func extractUnsupportedBlockchainNames(from namespaces: [String: ProposalNamespace]) -> [String] {
         var blockchains = [String]()
         for (namespace, proposal) in namespaces {
-            if namespace != "eip155", let chain = proposal.chains.first {
+            if namespace != evmNamespace, let chain = proposal.chains.first {
                 let blockchain = createBlockchain(for: chain)?.displayName ?? namespace.capitalizingFirstLetter()
                 blockchains.append(blockchain)
             }
@@ -35,14 +48,17 @@ struct WalletConnectV2Utility {
 
     func createSessionNamespaces(from keyedNamespaces: [String: ProposalNamespace], for wallets: [Wallet]) throws -> [String: SessionNamespace] {
         var sessionNamespaces: [String: SessionNamespace] = [:]
-        var unsupportedEip155Chains = [String]()
+        var missingChains = [String]()
+        var unsupportedEVMChains = [String]()
         for (namespace, proposalNamespace) in keyedNamespaces {
             let accounts: [Account] = proposalNamespace.chains.compactMap { wcBlockchain in
-                guard
-                    let blockchain = createBlockchain(for: wcBlockchain),
-                    let wallet = wallets.first(where: { $0.blockchain == blockchain })
-                else {
-                    unsupportedEip155Chains.append(wcBlockchain.reference)
+                guard let blockchain = createBlockchain(for: wcBlockchain) else {
+                    unsupportedEVMChains.append(wcBlockchain.reference)
+                    return nil
+                }
+
+                guard let wallet = wallets.first(where: { $0.blockchain == blockchain }) else {
+                    missingChains.append(blockchain.displayName)
                     return nil
                 }
 
@@ -57,8 +73,12 @@ struct WalletConnectV2Utility {
             sessionNamespaces[namespace] = sessionNamespace
         }
 
-        guard unsupportedEip155Chains.isEmpty else {
-            throw WalletConnectV2Error.unsupportedBlockchains(unsupportedEip155Chains)
+        guard unsupportedEVMChains.isEmpty else {
+            throw WalletConnectV2Error.unsupportedBlockchains(unsupportedEVMChains)
+        }
+
+        guard missingChains.isEmpty else {
+            throw WalletConnectV2Error.missingBlockchains(missingChains)
         }
 
         return sessionNamespaces
@@ -94,7 +114,7 @@ struct WalletConnectV2Utility {
 
     private func createBlockchain(for wcBlockchain: WalletConnectSwiftV2.Blockchain) -> BlockchainSdk.Blockchain? {
         switch wcBlockchain.namespace {
-        case "eip155":
+        case evmNamespace:
             return BlockchainSdk.Blockchain.supportedBlockchains.first(where: { $0.chainId == Int(wcBlockchain.reference) })
         default:
             return BlockchainSdk.Blockchain(from: wcBlockchain.namespace)
