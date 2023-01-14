@@ -18,7 +18,6 @@ struct WalletConnectV2MessageComposer { }
 extension WalletConnectV2MessageComposer: WalletConnectV2MessageComposable {
     // [REDACTED_TODO_COMMENT]
     func makeMessage(for proposal: Session.Proposal, targetBlockchains: [String]) -> String {
-
         let proposer = proposal.proposer
         let namespaces = proposal.requiredNamespaces
 
