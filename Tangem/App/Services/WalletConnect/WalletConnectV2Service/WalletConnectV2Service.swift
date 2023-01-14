@@ -34,8 +34,18 @@ class WalletConnectV2Service {
         self.uiDelegate = uiDelegate
         self.messageComposer = messageComposer
 
-        Networking.configure(projectId: "c0e14e9fac0113e872980f2aae3354de", socketFactory: factory, socketConnectionType: .automatic)
-        Pair.configure(metadata: AppMetadata(name: "Tangem", description: "NFC crypto wallet", url: "tangem.com", icons: ["https://user-images.githubusercontent.com/24321494/124071202-72a00900-da58-11eb-935a-dcdab21de52b.png"]))
+        Networking.configure(
+            // [REDACTED_TODO_COMMENT]
+            projectId: "c0e14e9fac0113e872980f2aae3354de",
+            socketFactory: factory,
+            socketConnectionType: .automatic
+        )
+        Pair.configure(metadata: AppMetadata(
+            name: "Tangem \(cardModel.name)",
+            description: "NFC crypto wallet",
+            url: "tangem.com",
+            icons: ["https://user-images.githubusercontent.com/24321494/124071202-72a00900-da58-11eb-935a-dcdab21de52b.png"]
+        ))
         pairApi = Pair.instance
         signApi = Sign.instance
 
@@ -63,13 +73,18 @@ class WalletConnectV2Service {
 
 //            try await self.disconnectAllSessions()
 
-            await self.storage.loadSessions(for: userWalletId.hexString)
+            AppLog.shared.debug("[WC 2.0] Loading sessions for UserWallet with id: \(userWalletId.hexString)")
+            let loadedSessions = await self.storage.loadSessions(for: userWalletId.hexString)
 
             let pairingSessions = self.pairApi.getPairings()
-            AppLog.shared.debug(pairingSessions)
+            AppLog.shared.debug("[WC 2.0] Saved pairing sessions in WC storage \(pairingSessions)")
 
             let sessions = self.signApi.getSessions()
-            AppLog.shared.debug(sessions)
+            AppLog.shared.debug("[WC 2.0] Currently active sessions. Restored by framework: \(sessions)")
+
+            AppLog.shared.debug("[WC 2.0] Loaded sessions from internal storage: \(loadedSessions)")
+
+            AppLog.shared.debug("------Stop-------")
         }
     }
 
@@ -91,7 +106,7 @@ class WalletConnectV2Service {
                 else { return }
 
                 AppLog.shared.debug("[WC 2.0] Session established: \(session)")
-                let savedSession = WalletConnectV2Utility().createSavedSession(for: session, with: userWalletId.hexString)
+                let savedSession = WalletConnectV2Utils().createSavedSession(for: session, with: userWalletId.hexString)
 
                 await self.storage.save(savedSession)
             }
@@ -100,7 +115,8 @@ class WalletConnectV2Service {
     }
 
     private func validateProposal(_ proposal: Session.Proposal) {
-        let utils = WalletConnectV2Utility()
+        let utils = WalletConnectV2Utils()
+        AppLog.shared.debug("[WC 2.0] Attemping to approve session proposal: \(proposal)")
         guard utils.isAllChainsSupported(in: proposal.requiredNamespaces) else {
             let unsupportedBlockchains = utils.extractUnsupportedBlockchainNames(from: proposal.requiredNamespaces)
             displayErrorUI(.unsupportedBlockchains(unsupportedBlockchains))
@@ -109,7 +125,7 @@ class WalletConnectV2Service {
         }
 
         do {
-            let sessionNamespaces = try WalletConnectV2Utility().createSessionNamespaces(
+            let sessionNamespaces = try WalletConnectV2Utils().createSessionNamespaces(
                 from: proposal.requiredNamespaces,
                 for: cardModel.wallets
             )
@@ -124,7 +140,8 @@ class WalletConnectV2Service {
 
     private func displaySessionConnectionUI(for proposal: Session.Proposal, namespaces: [String: SessionNamespace]) {
         AppLog.shared.debug("[WC 2.0] Did receive session proposal")
-        let message = messageComposer.makeMessage(for: proposal)
+        let blockchains = WalletConnectV2Utils().getBlockchainNamesFromNamespaces(namespaces)
+        let message = messageComposer.makeMessage(for: proposal, targetBlockchains: blockchains)
         uiDelegate.showScreen(with: WalletConnectUIRequest(
             event: .establishSession,
             message: message,
