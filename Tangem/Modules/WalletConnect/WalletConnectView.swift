@@ -45,7 +45,7 @@ struct WalletConnectView: View {
 
                         ForEach(Array(viewModel.newSessions.enumerated()), id: \.element) { (i, item) -> WalletConnectSessionItemView in
                             WalletConnectSessionItemView(
-                                dAppName: item.topic
+                                dAppName: item.sessionInfo.dAppInfo.name
                             ) {
                                 viewModel.disconnectNewSession(item)
                             }
