@@ -8,6 +8,7 @@
 
 import WalletConnectSwift
 import Combine
+import BlockchainSdk
 import TangemSdk
 
 fileprivate typealias ExtractedWCUrl = (url: String, handleDelay: TimeInterval)
@@ -360,7 +361,12 @@ extension WalletConnectV1Service: ServerDelegate {
         self.wallet = walletInfo
 
         let peerMeta = dAppInfo.peerMeta
-        var message = Localization.walletConnectRequestSessionStart(peerMeta.name, walletInfo.blockchain.displayName, peerMeta.url.absoluteString)
+        let walletDescription = "\(walletInfo.blockchain.displayName) (\(AddressFormatter(address: walletInfo.address).truncated()))"
+        var message = Localization.walletConnectRequestSessionStart(
+            peerMeta.name,
+            walletDescription,
+            peerMeta.url.absoluteString
+        )
 
         if let description = peerMeta.description, !description.isEmpty {
             message += "\n\n" + description
@@ -383,18 +389,13 @@ extension WalletConnectV1Service: ServerDelegate {
                                           peerMeta: self.walletMeta))
         }
 
-        let onSelectChain: (BlockchainNetwork) -> Void = { [cardModel] selectedNetwork in
-            let wallet = cardModel.walletModels
-                .filter { !$0.isCustom(.coin) }
-                .first(where: { $0.wallet.blockchain == selectedNetwork.blockchain })
-                .map { $0.wallet }!
-
+        let onSelectChain: (Wallet) -> Void = { wallet in
             let derivedKey = wallet.publicKey.blockchainKey != wallet.publicKey.seedKey ? wallet.publicKey.blockchainKey : nil
 
             self.wallet = WalletInfo(walletPublicKey: wallet.publicKey.seedKey,
                                      derivedPublicKey: derivedKey,
                                      derivationPath: wallet.publicKey.derivationPath,
-                                     blockchain: selectedNetwork.blockchain)
+                                     blockchain: wallet.blockchain)
 
             onAccept()
         }
@@ -407,8 +408,7 @@ extension WalletConnectV1Service: ServerDelegate {
         let onSelectChainRequested = { [cardModel] in
             let availableChains = cardModel.walletModels
                 .filter { $0.blockchainNetwork.blockchain.isEvm }
-                .filter { !$0.isCustom(.coin) }
-                .map { $0.blockchainNetwork }
+                .map { $0.wallet }
 
 
             AppPresenter.shared.show(WalletConnectUIBuilder.makeChainsSheet(availableChains,
