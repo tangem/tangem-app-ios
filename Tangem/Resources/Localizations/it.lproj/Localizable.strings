@@ -343,7 +343,7 @@ URL: %@";
 "search_tokens_title" = "Search tokens";
 "alert_demo_message" = "You are currently running in Demo mode. All funds are not real.";
 "alert_demo_feature_disabled" = "This feature is disabled in Demo mode";
-"token_details_send_blocked_fee_format" = "Not enough funds for fee in your %@ wallet to send a transaction. Top up your %@ wallet first.";
+"token_details_send_blocked_fee_format" = "%@ is a token in the %@ network. To make a %@ transaction you need to deposit some %@ (%@) to cover the network fee.";
 "currency_subtitle_expanded" = "Available networks";
 "wallet_connect_network_not_found_format" = "%@ network not found. Please, add it first and try again.";
 "common_attention" = "Attention";
