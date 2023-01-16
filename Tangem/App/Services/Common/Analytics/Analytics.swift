@@ -241,6 +241,7 @@ extension Analytics {
         case off = "Off"
         case full = "Full"
         case empty = "Empty"
+        case multicurrency = "Multicurrency"
 
         static func state(for toggle: Bool) -> ParameterValue {
             return toggle ? .on : .off
