@@ -515,6 +515,8 @@ class WalletOnboardingViewModel: OnboardingTopupViewModel<WalletOnboardingStep, 
                 if let disabledLocalizedReason = input.cardInput.cardModel?.getDisabledLocalizedReason(for: .backup) {
                     alert = AlertBuilder.makeDemoAlert(disabledLocalizedReason)
                 } else {
+                    Analytics.log(.backupStarted)
+                    
                     goToNextStep()
                 }
             }
@@ -874,7 +876,7 @@ class WalletOnboardingViewModel: OnboardingTopupViewModel<WalletOnboardingStep, 
 
     private func addBackupCard() {
         isMainButtonBusy = true
-        Analytics.log(.backupStarted)
+
         stepPublisher =
             Deferred {
                 Future { [unowned self] promise in
