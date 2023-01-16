@@ -53,10 +53,10 @@ extension SuccessSwappingCoordinator: SuccessSwappingRoutable {
         dismiss()
     }
 
-    func openExplorer(url: URL?, displayName: String) {
+    func openExplorer(url: URL?, currencyName: String) {
         webViewContainerViewModel = WebViewContainerViewModel(
             url: url,
-            title: Localization.commonExplorerFormat(displayName),
+            title: Localization.commonExplorerFormat(currencyName),
             withCloseButton: true
         )
     }
