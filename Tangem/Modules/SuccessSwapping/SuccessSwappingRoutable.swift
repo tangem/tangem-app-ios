@@ -9,6 +9,6 @@
 import Foundation
 
 protocol SuccessSwappingRoutable: AnyObject {
-    func openExplorer(url: URL?, displayName: String)
+    func openExplorer(url: URL?, currencyName: String)
     func didTapCloseButton()
 }
