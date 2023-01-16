@@ -133,6 +133,7 @@ class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable>
 
     var isFromMain: Bool = false
     private(set) var containerSize: CGSize = .zero
+    private var didSendOnboardingStartedAnalytics = false
     unowned let coordinator: Coordinator
 
     init(input: OnboardingInput, coordinator: Coordinator) {
@@ -275,6 +276,13 @@ class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable>
         userWalletRepository.setSelectedUserWalletId(userWallet.userWalletId, reason: .inserted)
     }
 
+    func sendOnboardingStartedAnalytics() {
+        if !didSendOnboardingStartedAnalytics {
+            didSendOnboardingStartedAnalytics = true
+            Analytics.log(.onboardingStarted)
+        }
+    }
+    
     private func bindAnalytics() {
         $steps
             .dropFirst()
