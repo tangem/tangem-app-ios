@@ -217,11 +217,8 @@ class TwinsOnboardingViewModel: OnboardingTopupViewModel<TwinsOnboardingStep, On
         case .done, .success, .alert:
             goToNextStep()
         case .first:
-            if !retwinMode {
-                if let cardId = cardModel?.cardId {
-                    AppSettings.shared.cardsStartedActivation.insert(cardId)
-                }
-                Analytics.log(.onboardingStarted)
+            if !retwinMode, let cardId = cardModel?.cardId {
+                AppSettings.shared.cardsStartedActivation.insert(cardId)
             }
 
             if twinsService.step.value != .first {
