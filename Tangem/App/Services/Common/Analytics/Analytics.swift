@@ -221,6 +221,7 @@ extension Analytics {
         case success
         case token = "Token"
         case derivationPath = "Derivation Path"
+        case network = "Network"
         case networkId = "Network Id"
         case contractAddress = "Contract Address"
         case mode = "Mode"
