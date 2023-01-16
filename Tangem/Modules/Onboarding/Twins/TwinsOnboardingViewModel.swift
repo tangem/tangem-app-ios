@@ -169,7 +169,7 @@ class TwinsOnboardingViewModel: OnboardingTopupViewModel<TwinsOnboardingStep, On
     }
     
     func onAppear() {
-        sendOnboardingStartedAnalytics()
+        Analytics.log(.onboardingStarted)
         
         if isInitialAnimPlayed {
             return
