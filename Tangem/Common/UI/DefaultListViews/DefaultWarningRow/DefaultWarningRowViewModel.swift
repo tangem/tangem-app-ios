@@ -9,34 +9,39 @@
 import SwiftUI
 
 struct DefaultWarningRowViewModel {
-    let icon: Image
     let title: String?
     let subtitle: String
-    private(set) var detailsType: DetailsType?
+
+    private(set) var leftView: AdditionalViewType?
+    private(set) var rightView: AdditionalViewType?
 
     let action: (() -> ())?
 
     init(
-        icon: Image,
-        title: String?,
+        title: String? = nil,
         subtitle: String,
-        detailsType: DefaultWarningRowViewModel.DetailsType? = nil,
+        leftView: DefaultWarningRowViewModel.AdditionalViewType? = nil,
+        rightView: DefaultWarningRowViewModel.AdditionalViewType? = nil,
         action: (() -> ())? = nil
     ) {
-        self.icon = icon
         self.title = title
         self.subtitle = subtitle
-        self.detailsType = detailsType
+        self.leftView = leftView
+        self.rightView = rightView
         self.action = action
     }
 
-    mutating func update(detailsType: DetailsType?) {
-        self.detailsType = detailsType
+    mutating func update(leftView: AdditionalViewType?) {
+        self.leftView = leftView
+    }
+
+    mutating func update(rightView: AdditionalViewType?) {
+        self.rightView = rightView
     }
 }
 
 extension DefaultWarningRowViewModel {
-    enum DetailsType: Hashable {
+    enum AdditionalViewType: Hashable {
         case icon(_ image: Image)
         case loader
 
@@ -55,7 +60,8 @@ extension DefaultWarningRowViewModel: Hashable {
     func hash(into hasher: inout Hasher) {
         hasher.combine(title)
         hasher.combine(subtitle)
-        hasher.combine(detailsType)
+        hasher.combine(leftView)
+        hasher.combine(rightView)
     }
 
     static func == (lhs: DefaultWarningRowViewModel, rhs: DefaultWarningRowViewModel) -> Bool {
