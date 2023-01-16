@@ -309,9 +309,8 @@ private extension SwappingViewModel {
         } else {
             let sourceBlockchain = exchangeManager.getExchangeItems().source.blockchain
             feeWarningRowViewModel = DefaultWarningRowViewModel(
-                icon: Assets.attention,
-                title: nil,
                 subtitle: Localization.swappingNotEnoughFundsForFee(sourceBlockchain.symbol, sourceBlockchain.symbol)
+                leftView: .icon(Assets.attention)
             )
         }
     }
