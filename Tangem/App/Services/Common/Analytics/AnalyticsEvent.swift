@@ -116,6 +116,7 @@ extension Analytics {
         case buttonDeleteWalletTapped = "[My Wallets] Button - Delete Wallet Tapped"
         case buttonChat = "[Settings] Button - Chat"
         case buttonSendFeedback = "[Settings] Button - Send Feedback"
+        case buttonWalletConnect = "[Settings] Button - Wallet Connect"
         case buttonStartWalletConnectSession = "[Settings] Button - Start Wallet Connect Session"
         case buttonStopWalletConnectSession = "[Settings] Button - Stop Wallet Connect Session"
         case buttonCardSettings = "[Settings] Button - Card Settings"
