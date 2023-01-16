@@ -397,7 +397,6 @@ class WalletOnboardingViewModel: OnboardingTopupViewModel<WalletOnboardingStep, 
            let backup = cardModel.backupInput, backup.steps.stepsCount > 0,
            !AppSettings.shared.cardsStartedActivation.contains(cardModel.cardId) {
             AppSettings.shared.cardsStartedActivation.insert(cardModel.cardId)
-            Analytics.log(.onboardingStarted)
         }
 
         saltPayRegistrator
@@ -775,7 +774,6 @@ class WalletOnboardingViewModel: OnboardingTopupViewModel<WalletOnboardingStep, 
         isMainButtonBusy = true
         if !input.isStandalone {
             AppSettings.shared.cardsStartedActivation.insert(input.cardInput.cardId)
-            Analytics.log(.onboardingStarted)
         }
         stepPublisher = preparePrimaryCardPublisher()
             .combineLatest(NotificationCenter.didBecomeActivePublisher)
