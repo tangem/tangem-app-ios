@@ -167,6 +167,16 @@ class TwinsOnboardingViewModel: OnboardingTopupViewModel<TwinsOnboardingStep, On
         bind()
         loadSecondTwinImage()
     }
+    
+    func onAppear() {
+        if isInitialAnimPlayed {
+            return
+        }
+
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+            self.playInitialAnim()
+        }
+    }
 
     override func setupContainer(with size: CGSize) {
         stackCalculator.setup(for: size, with: .init(topCardSize: TwinOnboardingCardLayout.first.frame(for: .first, containerSize: size),
