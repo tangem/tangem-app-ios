@@ -11,10 +11,12 @@ import Foundation
 struct TotalBalanceCardSupportInfo {
     let cardBatchId: String
     let cardNumberHash: String
+    let embeddedBlockchainCurrencySymbol: String?
 
-    init(cardBatchId: String, cardNumber: String) {
+    init(cardBatchId: String, cardNumber: String, embeddedBlockchainCurrencySymbol: String?) {
         self.cardBatchId = cardBatchId
         self.cardNumberHash = cardNumber.sha256Hash.hexString
+        self.embeddedBlockchainCurrencySymbol = embeddedBlockchainCurrencySymbol
     }
 }
 
@@ -25,24 +27,22 @@ class TotalBalanceAnalyticsService {
     private var cardBalanceInfoWasSaved: Bool {
         userDefaults.data(forKey: totalBalanceCardSupportInfo.cardNumberHash) != nil
     }
+    
+    private var basicCurrency: String {
+        return totalBalanceCardSupportInfo.embeddedBlockchainCurrencySymbol ?? Analytics.ParameterValue.multicurrency.rawValue
+    }
 
     init(totalBalanceCardSupportInfo: TotalBalanceCardSupportInfo) {
         self.totalBalanceCardSupportInfo = totalBalanceCardSupportInfo
     }
 
     func sendFirstLoadBalanceEventForCard(tokenItemViewModels: [TokenItemViewModel], balance: Decimal) {
-        let fullCurrenciesName: String = tokenItemViewModels
-            .filter({ $0.fiatValue > 0 })
-            .map({ $0.currencySymbol })
-            .reduce("") { partialResult, currencySymbol in
-                "\(partialResult)\(partialResult.isEmpty ? "" : " / ")\(currencySymbol)"
-            }
-
-        var params: [Analytics.ParameterKey: String] = [.state: Analytics.ParameterValue.state(for: balance).rawValue]
-        if !fullCurrenciesName.isEmpty {
-            params[.basicCurrency] = fullCurrenciesName
-        }
-        params[.batchId] = totalBalanceCardSupportInfo.cardBatchId
+        let params: [Analytics.ParameterKey: String] = [
+            .state: Analytics.ParameterValue.state(for: balance).rawValue,
+            .basicCurrency: basicCurrency,
+            .batchId: totalBalanceCardSupportInfo.cardBatchId,
+        ]
+            
         Analytics.log(.signedIn, params: params)
     }
 
@@ -59,13 +59,7 @@ class TotalBalanceAnalyticsService {
            let previousBalance = try? JSONDecoder().decode(Decimal.self, from: data),
            previousBalance == 0
         {
-            let fullCurrenciesName: String = tokenItemViewModels
-                .filter({ $0.fiatValue > 0 })
-                .map({ $0.currencySymbol })
-                .reduce("") { partialResult, currencySymbol in
-                    "\(partialResult)\(partialResult.isEmpty ? "" : " / ")\(currencySymbol)"
-                }
-            Analytics.log(.toppedUp, params: [.basicCurrency: fullCurrenciesName])
+            Analytics.log(.toppedUp, params: [.basicCurrency: basicCurrency])
             let encodeToData = try? JSONEncoder().encode(balance)
             userDefaults.set(encodeToData, forKey: totalBalanceCardSupportInfo.cardNumberHash)
         }
