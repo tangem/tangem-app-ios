@@ -911,7 +911,7 @@ class WalletOnboardingViewModel: OnboardingTopupViewModel<WalletOnboardingStep, 
 
     private func backupCard() {
         isMainButtonBusy = true
-        Analytics.log(.buttonCreateBackup)
+
         stepPublisher =
             Deferred {
                 Future { [unowned self] promise in
