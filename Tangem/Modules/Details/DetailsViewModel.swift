@@ -135,7 +135,9 @@ extension DetailsViewModel {
             return
         }
 
-        Analytics.log(.buttonSocialNetwork)
+        Analytics.log(.buttonSocialNetwork, params: [
+            .network: network.name,
+        ])
         coordinator.openInSafari(url: url)
     }
 
