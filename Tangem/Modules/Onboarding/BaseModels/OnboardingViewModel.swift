@@ -198,7 +198,6 @@ class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable>
         if !confettiFired {
             shouldFireConfetti = true
             confettiFired = true
-            Analytics.log(.walletCreatedSuccessfully)
         }
     }
 
