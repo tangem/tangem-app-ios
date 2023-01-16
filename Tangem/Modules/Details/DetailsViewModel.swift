@@ -95,6 +95,7 @@ extension DetailsViewModel {
     }
 
     func openWalletConnect() {
+        Analytics.log(.buttonWalletConnect)
         coordinator.openWalletConnect(with: cardModel)
     }
 
