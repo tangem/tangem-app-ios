@@ -276,30 +276,59 @@ class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable>
     }
 
     private func bindAnalytics() {
-        $currentStepIndex
+        $steps
             .dropFirst()
-            .removeDuplicates()
-            .receiveValue { [weak self] index in
-                guard let self else { return }
-
-                let currentStep = self.currentStep
-
-                if let walletStep = currentStep as? WalletOnboardingStep {
-                    switch walletStep {
-                    case .kycProgress:
-                        Analytics.log(.kycProgressScreenOpened)
-                    case .kycRetry:
-                        Analytics.log(.kycRetryScreenOpened)
-                    case .kycWaiting:
-                        Analytics.log(.kycWaitingScreenOpened)
-                    case .claim:
-                        Analytics.log(.claimScreenOpened)
-                    default:
-                        break
-                    }
+            .receiveValue { [weak self] _ in
+                DispatchQueue.main.async {
+                    self?.sendCurrentStepAnalytics()
                 }
             }
             .store(in: &bag)
+        
+        $currentStepIndex
+            .dropFirst()
+            .removeDuplicates()
+            .receiveValue { [weak self] _ in
+                DispatchQueue.main.async {
+                    self?.sendCurrentStepAnalytics()
+                }
+            }
+            .store(in: &bag)
+    }
+    
+    private func sendCurrentStepAnalytics() {
+        if let walletStep = currentStep as? WalletOnboardingStep {
+            switch walletStep {
+            case .createWallet:
+                Analytics.log(.createWalletScreenOpened)
+            case .backupIntro:
+                Analytics.log(.backupScreenOpened)
+            case .kycProgress:
+                Analytics.log(.kycProgressScreenOpened)
+            case .kycRetry:
+                Analytics.log(.kycRetryScreenOpened)
+            case .kycWaiting:
+                Analytics.log(.kycWaitingScreenOpened)
+            case .claim:
+                Analytics.log(.claimScreenOpened)
+            default:
+                break
+            }
+        } else if let singleCardStep = currentStep as? SingleCardOnboardingStep {
+            switch singleCardStep {
+            case .createWallet:
+                Analytics.log(.createWalletScreenOpened)
+            default:
+                break
+            }
+        } else if let twinStep = currentStep as? TwinsOnboardingStep {
+            switch twinStep {
+            case .first:
+                Analytics.log(.createWalletScreenOpened)
+            default:
+                break
+            }
+        }
     }
 }
 

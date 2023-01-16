@@ -500,7 +500,6 @@ class WalletOnboardingViewModel: OnboardingTopupViewModel<WalletOnboardingStep, 
         case .scanPrimaryCard:
             readPrimaryCard()
         case .backupIntro:
-            Analytics.log(.backupScreenOpened)
             if NFCUtils.isPoorNfcQualityDevice {
                 self.alert = AlertBuilder.makeOldDeviceAlert()
             } else {
@@ -764,7 +763,6 @@ class WalletOnboardingViewModel: OnboardingTopupViewModel<WalletOnboardingStep, 
 
     private func createWallet() {
         Analytics.log(.buttonCreateWallet)
-        Analytics.log(.createWalletScreenOpened)
 
         isMainButtonBusy = true
         if !input.isStandalone {
@@ -868,7 +866,6 @@ class WalletOnboardingViewModel: OnboardingTopupViewModel<WalletOnboardingStep, 
     private func addBackupCard() {
         isMainButtonBusy = true
         Analytics.log(.backupStarted)
-        Analytics.log(.backupScreenOpened)
         stepPublisher =
             Deferred {
                 Future { [unowned self] promise in
