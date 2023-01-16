@@ -38,7 +38,7 @@ class TotalBalanceAnalyticsService {
                 "\(partialResult)\(partialResult.isEmpty ? "" : " / ")\(currencySymbol)"
             }
 
-        var params: [Analytics.ParameterKey: String] = [.state: balance > 0 ? "Full" : "Empty"]
+        var params: [Analytics.ParameterKey: String] = [.state: Analytics.ParameterValue.state(for: balance).rawValue]
         if !fullCurrenciesName.isEmpty {
             params[.basicCurrency] = fullCurrenciesName
         }
