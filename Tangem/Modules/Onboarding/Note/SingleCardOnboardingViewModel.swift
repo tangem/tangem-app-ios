@@ -106,6 +106,8 @@ class SingleCardOnboardingViewModel: OnboardingTopupViewModel<SingleCardOnboardi
     // MARK: Functions
     
     func onAppear() {
+        sendOnboardingStartedAnalytics()
+
         playInitialAnim()
     }
 
