@@ -107,6 +107,7 @@ struct OnboardingAccessCodeView: View {
                 let nextState: ViewState
                 switch state {
                 case .intro:
+                    Analytics.log(.settingAccessCodeStarted)
                     nextState = .inputCode
                 case .inputCode:
                     guard isAccessCodeValid() else {
