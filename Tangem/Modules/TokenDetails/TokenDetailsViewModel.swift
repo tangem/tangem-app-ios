@@ -401,7 +401,6 @@ extension TokenDetailsViewModel {
     }
 
     func openBuyCrypto() {
-        Analytics.log(.buttonBuy)
         if let disabledLocalizedReason = card.getDisabledLocalizedReason(for: .exchange) {
             alert = AlertBuilder.makeDemoAlert(disabledLocalizedReason)
             return
@@ -425,7 +424,7 @@ extension TokenDetailsViewModel {
     }
 
     func openBuyCryptoIfPossible() {
-        Analytics.log(.buttonBuyCrypto)
+        Analytics.log(.buttonBuy)
         if tangemApiService.geoIpRegionCode == LanguageCode.ru {
             coordinator.openBankWarning {
                 self.openBuyCrypto()
