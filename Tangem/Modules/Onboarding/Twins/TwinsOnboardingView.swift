@@ -165,16 +165,7 @@ struct TwinsOnboardingView: View {
             binder.alert
         })
         .preference(key: ModalSheetPreferenceKey.self, value: currentStep.isModal)
-        .onAppear(perform: {
-            if viewModel.isInitialAnimPlayed {
-                return
-            }
-
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                self.viewModel.playInitialAnim()
-            }
-
-        })
+        .onAppear(perform: viewModel.onAppear)
 
     }
 }
