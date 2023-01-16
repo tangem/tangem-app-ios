@@ -29,6 +29,8 @@ class ShopCoordinator: CoordinatorObject {
     }
 
     func start(with options: ShopCoordinator.Options = .init()) {
+        Analytics.log(.shopScreenOpened)
+        
         if let webShopUrl = ShopWebHelper().webShopUrl {
             self.webShopUrl = webShopUrl
         } else {
