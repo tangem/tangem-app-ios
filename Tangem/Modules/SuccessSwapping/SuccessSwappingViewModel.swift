@@ -42,7 +42,7 @@ final class SuccessSwappingViewModel: ObservableObject, Identifiable {
     func didTapViewInExplorer() {
         coordinator.openExplorer(
             url: inputModel.explorerURL,
-            displayName: inputModel.sourceCurrencyAmount.currency.name
+            currencyName: inputModel.sourceCurrencyAmount.currency.name
         )
     }
 
