@@ -104,6 +104,10 @@ class SingleCardOnboardingViewModel: OnboardingTopupViewModel<SingleCardOnboardi
     }
 
     // MARK: Functions
+    
+    func onAppear() {
+        playInitialAnim()
+    }
 
     override func backButtonAction() {
         alert = AlertBuilder.makeExitAlert() { [weak self] in
