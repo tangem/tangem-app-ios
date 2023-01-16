@@ -764,8 +764,6 @@ class WalletOnboardingViewModel: OnboardingTopupViewModel<WalletOnboardingStep, 
             } else {
                 setupCardsSettings(animated: true, isContainerSetup: false)
             }
-        case .success:
-            Analytics.log(.onboardingFinished)
         default:
             break
         }
