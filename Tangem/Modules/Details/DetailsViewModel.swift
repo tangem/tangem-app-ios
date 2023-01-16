@@ -78,7 +78,6 @@ class DetailsViewModel: ObservableObject {
 
 extension DetailsViewModel {
     func openOnboarding(with input: OnboardingInput) {
-        Analytics.log(.backupScreenOpened)
         coordinator.openOnboardingModal(with: input)
     }
 
