@@ -138,6 +138,8 @@ class TwinsWalletCreationUtil {
 
             switch result {
             case .success(let response):
+                Analytics.log(.walletCreatedSuccessfully)
+                
                 self.card.onTwinWalletCreated(response.walletData)
                 self.card.appendDefaultBlockchains()
                 self.card.userWalletModel?.updateAndReloadWalletModels { [weak self] in
