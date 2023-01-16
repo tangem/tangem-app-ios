@@ -369,6 +369,14 @@ class WalletOnboardingViewModel: OnboardingTopupViewModel<WalletOnboardingStep, 
             }
         }
     }
+    
+    func onAppear() {
+        if isInitialAnimPlayed {
+            return
+        }
+
+        playInitialAnim()
+    }
 
     func onRefresh() {
         guard let registrator = saltPayRegistratorProvider.registrator else { return }
