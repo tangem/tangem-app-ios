@@ -117,6 +117,10 @@ final class SwappingViewModel: ObservableObject {
     func didSendApproveTransaction() {
         exchangeManager.refresh()
     }
+
+    func didTapWaringRefresh() {
+        exchangeManager.refresh()
+    }
 }
 
 // MARK: - Navigation
@@ -252,7 +256,7 @@ private extension SwappingViewModel {
 
         case .loading:
             feeWarningRowViewModel = nil
-            refreshWarningRowViewModel?.update(detailsType: .loader)
+            refreshWarningRowViewModel?.update(rightView: .loader)
             receiveCurrencyViewModel?.updateState(.loading)
 
         case let .preview(result):
@@ -272,10 +276,14 @@ private extension SwappingViewModel {
                 feeWarningRowViewModel = nil
             } else {
                 let sourceBlockchain = exchangeManager.getExchangeItems().source.blockchain
+                let subtitle = Localization.swappingNotEnoughFundsForFee(
+                    sourceBlockchain.symbol,
+                    sourceBlockchain.symbol
+                )
                 feeWarningRowViewModel = DefaultWarningRowViewModel(
-                    icon: Assets.attention,
                     title: nil,
-                    subtitle: Localization.swappingNotEnoughFundsForFee(sourceBlockchain.symbol, sourceBlockchain.symbol)
+                    subtitle: subtitle,
+                    leftView: .icon(Assets.attention)
                 )
             }
 
@@ -437,14 +445,13 @@ private extension SwappingViewModel {
 
     func updateRefreshWarningRowViewModel(title: String? = nil, message: String) {
         refreshWarningRowViewModel = DefaultWarningRowViewModel(
-            icon: Assets.attention,
             title: title,
-            subtitle: message,
-            detailsType: .icon(Assets.refreshWarningIcon),
-            action: { [weak self] in
-                self?.exchangeManager.refresh()
-            }
-        )
+            subtitle: message.capitalizingFirstLetter(),
+            leftView: .icon(Assets.attention),
+            rightView: .icon(Assets.refreshWarningIcon)
+        ) { [weak self] in
+            self?.didTapWaringRefresh()
+        }
     }
 }
 
