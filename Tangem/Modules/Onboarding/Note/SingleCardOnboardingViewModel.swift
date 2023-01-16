@@ -177,6 +177,8 @@ class SingleCardOnboardingViewModel: OnboardingTopupViewModel<SingleCardOnboardi
     private func createWallet() {
         guard let cardModel else { return }
 
+        Analytics.log(.buttonCreateWallet)
+        
         isMainButtonBusy = true
 
         var subscription: AnyCancellable? = nil
