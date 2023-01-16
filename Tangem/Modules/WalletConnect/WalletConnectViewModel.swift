@@ -48,6 +48,7 @@ class WalletConnectViewModel: ObservableObject {
     }
 
     func onAppear() {
+        Analytics.log(.walletConnectScreenOpened)
         bind()
     }
 
