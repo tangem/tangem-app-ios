@@ -743,7 +743,6 @@ class WalletOnboardingViewModel: OnboardingTopupViewModel<WalletOnboardingStep, 
 
             saltPayRegistratorProvider.registrator?.setAccessCode(code)
 
-            Analytics.log(.settingAccessCodeStarted)
             stackCalculator.setupNumberOfCards(1 + backupCardsAddedCount)
 
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) {
