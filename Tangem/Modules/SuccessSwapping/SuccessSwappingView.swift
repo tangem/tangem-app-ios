@@ -54,13 +54,15 @@ struct SuccessSwappingView: View {
             Spacer()
 
             VStack(spacing: 10) {
-                MainButton(
-                    title: Localization.swappingSuccessViewExplorerButtonTitle,
-                    icon: .leading(Assets.arrowRightUpMini),
-                    style: .secondary,
-                    action: viewModel.didTapViewInExplorer
-                )
-
+                if viewModel.isViewInExplorerAvailable {
+                    MainButton(
+                        title: Localization.swappingSuccessViewExplorerButtonTitle,
+                        icon: .leading(Assets.arrowRightUpMini),
+                        style: .secondary,
+                        action: viewModel.didTapViewInExplorer
+                    )
+                }
+                
                 MainButton(
                     title: Localization.commonDone,
                     action: viewModel.didTapClose
@@ -77,7 +79,7 @@ struct SuccessSwappingView_Preview: PreviewProvider {
         inputModel: SuccessSwappingInputModel(
             sourceCurrencyAmount: .init(value: 1000, currency: .mock),
             resultCurrencyAmount: .init(value: 200, currency: .mock),
-            explorerURL: URL(string: "")!
+            explorerURL: URL(string: "")
         ),
         coordinator: SuccessSwappingCoordinator()
     )
