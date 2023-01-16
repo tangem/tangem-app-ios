@@ -65,7 +65,7 @@ class SingleWalletContentViewModel: ObservableObject {
     private unowned let output: SingleWalletContentViewModelOutput
     private var bag = Set<AnyCancellable>()
     private var totalBalanceCardSupportInfo: TotalBalanceCardSupportInfo {
-        TotalBalanceCardSupportInfo(cardBatchId: cardModel.batchId, cardNumber: cardModel.cardId)
+        TotalBalanceCardSupportInfo(cardBatchId: cardModel.batchId, cardNumber: cardModel.cardId, embeddedBlockchainCurrencySymbol: cardModel.embeddedBlockchain?.currencySymbol)
     }
 
     init(
