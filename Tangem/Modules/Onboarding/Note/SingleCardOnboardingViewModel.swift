@@ -211,8 +211,6 @@ class SingleCardOnboardingViewModel: OnboardingTopupViewModel<SingleCardOnboardi
                 AppSettings.shared.cardsStartedActivation.insert(cardId)
             }
 
-            Analytics.log(.onboardingStarted)
-
             self.cardModel?.userWalletModel?.updateAndReloadWalletModels()
             self.walletCreatedWhileOnboarding = true
 
