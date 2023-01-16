@@ -780,12 +780,15 @@ class WalletOnboardingViewModel: OnboardingTopupViewModel<WalletOnboardingStep, 
             .first()
             .mapVoid()
             .sink(receiveCompletion: { [weak self] completion in
-                if case .failure(let error) = completion {
+                switch completion {
+                case .failure(let error):
                     if let cardModel = self?.input.cardInput.cardModel {
                         cardModel.logSdkError(error, action: .preparePrimary)
                     }
                     self?.isMainButtonBusy = false
                     print(error)
+                case .finished:
+                    Analytics.log(.walletCreatedSuccessfully)
                 }
                 self?.stepPublisher = nil
             }, receiveValue: processPrimaryCardScan)
