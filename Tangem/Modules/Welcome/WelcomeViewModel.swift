@@ -38,35 +38,9 @@ class WelcomeViewModel: ObservableObject {
             })
     }
 
-    func scanCard() {
-        isScanningCard = true
-        Analytics.log(.buttonScanCard)
-
-        userWalletRepository.unlock(with: .card(userWallet: nil)) { [weak self] result in
-            self?.isScanningCard = false
-
-            guard
-                let self,
-                let result
-            else {
-                return
-            }
-
-            switch result {
-            case .troubleshooting:
-                self.showTroubleshootingView = true
-            case .onboarding(let input):
-                self.openOnboarding(with: input)
-            case .error(let error):
-                if let saltPayError = error as? SaltPayRegistratorError {
-                    self.error = saltPayError.alertBinder
-                } else {
-                    self.error = error.alertBinder
-                }
-            case .success(let cardModel):
-                self.openMain(with: cardModel)
-            }
-        }
+    func scanCardTapped() {
+        Analytics.log(.introductionProcessButtonScanCard)
+        scanCard()
     }
 
     func tryAgain() {
@@ -103,6 +77,36 @@ class WelcomeViewModel: ObservableObject {
 
     func onDisappear() {
         navigationBarHidden = false
+    }
+    
+    private func scanCard() {
+        isScanningCard = true
+        
+        userWalletRepository.unlock(with: .card(userWallet: nil)) { [weak self] result in
+            self?.isScanningCard = false
+
+            guard
+                let self,
+                let result
+            else {
+                return
+            }
+
+            switch result {
+            case .troubleshooting:
+                self.showTroubleshootingView = true
+            case .onboarding(let input):
+                self.openOnboarding(with: input)
+            case .error(let error):
+                if let saltPayError = error as? SaltPayRegistratorError {
+                    self.error = saltPayError.alertBinder
+                } else {
+                    self.error = error.alertBinder
+                }
+            case .success(let cardModel):
+                self.openMain(with: cardModel)
+            }
+        }
     }
 }
 
