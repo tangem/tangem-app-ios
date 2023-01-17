@@ -21,6 +21,7 @@ class ShopViewModel: ObservableObject {
     var bag = Set<AnyCancellable>()
 
     // MARK: - Input
+
     @Published var selectedBundle: Bundle = .threeCards
     @Published var discountCode = ""
     @Published var canUseApplePay = true
@@ -38,7 +39,7 @@ class ShopViewModel: ObservableObject {
     @Published var error: AlertBinder?
 
     private var shopifyProductVariants: [ProductVariant] = []
-    private var currentVariantID: GraphQL.ID = GraphQL.ID(rawValue: "")
+    private var currentVariantID: GraphQL.ID = .init(rawValue: "")
     private var checkoutByVariantID: [GraphQL.ID: Checkout] = [:]
     private var initialized = false
     private unowned let coordinator: ShopViewRoutable
@@ -52,8 +53,6 @@ class ShopViewModel: ObservableObject {
     }
 
     func didAppear() {
-        Analytics.log(.shopScreenOpened)
-
         closeWebCheckout()
 
         fetchProduct()
@@ -159,7 +158,7 @@ class ShopViewModel: ObservableObject {
             return
         }
 
-        self.currentVariantID = variant.id
+        currentVariantID = variant.id
         updatePrice()
         createCheckouts()
     }
@@ -220,7 +219,7 @@ class ShopViewModel: ObservableObject {
         }
 
         let isCurrentVariantID = (variantID == currentVariantID)
-        if isCurrentVariantID && discountCode != nil {
+        if isCurrentVariantID, discountCode != nil {
             checkingDiscountCode = true
         }
 
@@ -257,7 +256,6 @@ class ShopViewModel: ObservableObject {
             return
         }
 
-
         let totalAmount: Decimal
         if let checkout = checkoutByVariantID[currentVariantID] {
             totalAmount = checkout.total
@@ -265,14 +263,13 @@ class ShopViewModel: ObservableObject {
             totalAmount = currentVariant.amount
         }
 
-
         let formatter = moneyFormatter(currentVariant.currencyCode)
 
         self.totalAmount = formatter.string(from: NSDecimalNumber(decimal: totalAmount)) ?? ""
         if let originalAmount = currentVariant.originalAmount {
-            self.totalAmountWithoutDiscount = formatter.string(from: NSDecimalNumber(decimal: originalAmount))
+            totalAmountWithoutDiscount = formatter.string(from: NSDecimalNumber(decimal: originalAmount))
         } else {
-            self.totalAmountWithoutDiscount = nil
+            totalAmountWithoutDiscount = nil
         }
     }
 }
@@ -296,6 +293,7 @@ extension ShopViewModel {
 }
 
 // MARK: - Navigation
+
 extension ShopViewModel {
     func openWebCheckout() {
         guard let checkoutID = checkoutByVariantID[currentVariantID]?.id else {
