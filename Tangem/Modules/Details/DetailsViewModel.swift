@@ -78,7 +78,6 @@ class DetailsViewModel: ObservableObject {
 
 extension DetailsViewModel {
     func openOnboarding(with input: OnboardingInput) {
-        Analytics.log(.backupScreenOpened)
         coordinator.openOnboardingModal(with: input)
     }
 
@@ -96,6 +95,7 @@ extension DetailsViewModel {
     }
 
     func openWalletConnect() {
+        Analytics.log(.buttonWalletConnect)
         coordinator.openWalletConnect(with: cardModel)
     }
 
@@ -135,7 +135,9 @@ extension DetailsViewModel {
             return
         }
 
-        Analytics.log(.buttonSocialNetwork)
+        Analytics.log(.buttonSocialNetwork, params: [
+            .network: network.name,
+        ])
         coordinator.openInSafari(url: url)
     }
 
