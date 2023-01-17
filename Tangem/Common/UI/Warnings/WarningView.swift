@@ -14,7 +14,6 @@ struct Counter {
 }
 
 struct CounterView: View {
-
     let counter: Counter
 
     var body: some View {
@@ -30,7 +29,6 @@ struct CounterView: View {
 }
 
 struct WarningView: View {
-
     let warning: AppWarning
     var buttonAction: (WarningButton) -> Void = { _ in }
 
@@ -105,7 +103,6 @@ struct WarningView: View {
             EmptyView()
         }
     }
-
 }
 
 struct WarningView_Previews: PreviewProvider {
@@ -119,7 +116,7 @@ struct WarningView_Previews: PreviewProvider {
     ]
     static var previews: some View {
         ScrollView {
-            ForEach(Array(warnings.enumerated()), id: \.element.id) { (i, item) in
+            ForEach(Array(warnings.enumerated()), id: \.element.id) { i, item in
                 WarningView(warning: warnings[i], buttonAction: { _ in
                     withAnimation {
                         AppLog.shared.debug("Ok button tapped")
@@ -129,6 +126,5 @@ struct WarningView_Previews: PreviewProvider {
                 .transition(.opacity)
             }
         }
-
     }
 }
