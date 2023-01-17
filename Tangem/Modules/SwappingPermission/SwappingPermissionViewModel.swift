@@ -29,7 +29,7 @@ final class SwappingPermissionViewModel: ObservableObject, Identifiable {
     private let transactionSender: TransactionSendable
     private unowned let coordinator: SwappingPermissionRoutable
 
-    private var didBecomeActiveNotificationBag: AnyCancellable?
+    private var didBecomeActiveNotificationCancellable: AnyCancellable?
 
     init(
         inputModel: SwappingPermissionInputModel,
@@ -47,8 +47,7 @@ final class SwappingPermissionViewModel: ObservableObject, Identifiable {
         Task {
             do {
                 try await transactionSender.sendTransaction(inputModel.transactionInfo)
-                self.didSendApproveTransaction()
-
+                await didSendApproveTransaction()
             } catch TangemSdkError.userCancelled {
                 // Do nothing
             } catch {
@@ -67,9 +66,10 @@ final class SwappingPermissionViewModel: ObservableObject, Identifiable {
 // MARK: - Navigation
 
 extension SwappingPermissionViewModel {
+    @MainActor
     func didSendApproveTransaction() {
         // We have to waiting close the nfc view to close this permission view
-        didBecomeActiveNotificationBag = NotificationCenter
+        didBecomeActiveNotificationCancellable = NotificationCenter
             .default
             .publisher(for: UIApplication.didBecomeActiveNotification)
             .delay(for: 0.3, scheduler: DispatchQueue.main)
