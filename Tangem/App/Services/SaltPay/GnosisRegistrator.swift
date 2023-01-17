@@ -21,7 +21,7 @@ class GnosisRegistrator {
 
     init(settings: GnosisRegistrator.Settings, walletPublicKey: Data, factory: WalletManagerFactory) throws {
         self.settings = settings
-        self.walletManager = try factory.makeWalletManager(blockchain: settings.blockchain, walletPublicKey: walletPublicKey)
+        walletManager = try factory.makeWalletManager(blockchain: settings.blockchain, walletPublicKey: walletPublicKey)
     }
 
     func checkHasGas() -> AnyPublisher<Bool, Error> {
@@ -37,26 +37,30 @@ class GnosisRegistrator {
     }
 
     func getClaimableAmount() -> AnyPublisher<Amount, Error> {
-        transactionProcessor.getAllowance(from: settings.treasurySafeAddress,
-                                          to: cardAddress,
-                                          contractAddress: settings.token.contractAddress)
-            .tryMap { [settings] response -> Amount in
-                let stringResponse = "\(response)".stripHexPrefix()
+        transactionProcessor.getAllowance(
+            from: settings.treasurySafeAddress,
+            to: cardAddress,
+            contractAddress: settings.token.contractAddress
+        )
+        .tryMap { [settings] response -> Amount in
+            let stringResponse = "\(response)".stripHexPrefix()
 
-                guard let weiAmount = BigUInt(stringResponse),
-                      let tokenAmount = Web3.Utils.formatToEthereumUnits(weiAmount,
-                                                                         toUnits: .eth,
-                                                                         decimals: settings.token.decimalCount,
-                                                                         decimalSeparator: ".",
-                                                                         fallbackToScientific: false),
-                      let decimalAmount = Decimal(string: tokenAmount) else {
-                    throw SaltPayRegistratorError.failedToParseAllowance
-                }
-
-                return Amount(with: settings.token, value: decimalAmount)
+            guard let weiAmount = BigUInt(stringResponse),
+                  let tokenAmount = Web3.Utils.formatToEthereumUnits(
+                      weiAmount,
+                      toUnits: .eth,
+                      decimals: settings.token.decimalCount,
+                      decimalSeparator: ".",
+                      fallbackToScientific: false
+                  ),
+                  let decimalAmount = Decimal(string: tokenAmount) else {
+                throw SaltPayRegistratorError.failedToParseAllowance
             }
-            .receive(on: DispatchQueue.main)
-            .eraseToAnyPublisher()
+
+            return Amount(with: settings.token, value: decimalAmount)
+        }
+        .receive(on: DispatchQueue.main)
+        .eraseToAnyPublisher()
     }
 
     func sendTransactions(_ transactions: [SignedEthereumTransaction]) -> AnyPublisher<Void, Error> {
@@ -73,7 +77,7 @@ class GnosisRegistrator {
             .eraseToAnyPublisher()
     }
 
-    func makeSetSpendLimitTx(value: Decimal) -> AnyPublisher<CompiledEthereumTransaction, Error>  {
+    func makeSetSpendLimitTx(value: Decimal) -> AnyPublisher<CompiledEthereumTransaction, Error> {
         do {
             let limitAmount = Amount(with: settings.token, value: value)
             let setSpedLimitData = try makeTxData(sig: Signatures.setSpendLimit, address: cardAddress, amount: limitAmount)
@@ -82,9 +86,11 @@ class GnosisRegistrator {
                 //  .replaceError(with: [Amount(with: settings.blockchain, value: 0.00001), Amount(with: settings.blockchain, value: 0.00001)]) //[REDACTED_TODO_COMMENT]
                 .tryMap { fees -> Transaction in
                     let params = EthereumTransactionParams(data: setSpedLimitData, nonce: self.transactionProcessor.initialNonce)
-                    var transaction = try self.walletManager.createTransaction(amount: Amount.zeroCoin(for: self.settings.blockchain),
-                                                                               fee: fees[1],
-                                                                               destinationAddress: self.settings.otpProcessorContractAddress)
+                    var transaction = try self.walletManager.createTransaction(
+                        amount: Amount.zeroCoin(for: self.settings.blockchain),
+                        fee: fees[1],
+                        destinationAddress: self.settings.otpProcessorContractAddress
+                    )
                     transaction.params = params
 
                     return transaction
@@ -98,16 +104,18 @@ class GnosisRegistrator {
         }
     }
 
-    func makeInitOtpTx(rootOTP: Data, rootOTPCounter: Int) -> AnyPublisher<CompiledEthereumTransaction, Error>  {
+    func makeInitOtpTx(rootOTP: Data, rootOTPCounter: Int) -> AnyPublisher<CompiledEthereumTransaction, Error> {
         let initOTPData = Signatures.initOTP + rootOTP.prefix(16) + Data(count: 46) + rootOTPCounter.bytes2
 
         return transactionProcessor.getFee(to: settings.otpProcessorContractAddress, data: "0x\(initOTPData.hexString)", amount: nil)
             // .replaceError(with: [Amount(with: settings.blockchain, value: 0.00001), Amount(with: settings.blockchain, value: 0.00001)]) //[REDACTED_TODO_COMMENT]
             .tryMap { fees -> Transaction in
                 let params = EthereumTransactionParams(data: initOTPData, nonce: self.transactionProcessor.initialNonce + 1)
-                var transaction = try self.walletManager.createTransaction(amount: Amount.zeroCoin(for: self.settings.blockchain),
-                                                                           fee: fees[1],
-                                                                           destinationAddress: self.settings.otpProcessorContractAddress)
+                var transaction = try self.walletManager.createTransaction(
+                    amount: Amount.zeroCoin(for: self.settings.blockchain),
+                    fee: fees[1],
+                    destinationAddress: self.settings.otpProcessorContractAddress
+                )
                 transaction.params = params
 
                 return transaction
@@ -118,7 +126,7 @@ class GnosisRegistrator {
             .eraseToAnyPublisher()
     }
 
-    func makeSetWalletTx() -> AnyPublisher<CompiledEthereumTransaction, Error>  {
+    func makeSetWalletTx() -> AnyPublisher<CompiledEthereumTransaction, Error> {
         do {
             let setWalletData = try makeTxData(sig: Signatures.setWallet, address: cardAddress, amount: nil)
 
@@ -126,9 +134,11 @@ class GnosisRegistrator {
                 //   .replaceError(with: [Amount(with: settings.blockchain, value: 0.00001), Amount(with: settings.blockchain, value: 0.00001)]) //[REDACTED_TODO_COMMENT]
                 .tryMap { fees -> Transaction in
                     let params = EthereumTransactionParams(data: setWalletData, nonce: self.transactionProcessor.initialNonce + 2)
-                    var transaction = try self.walletManager.createTransaction(amount: Amount.zeroCoin(for: self.settings.blockchain),
-                                                                               fee: fees[1],
-                                                                               destinationAddress: self.settings.otpProcessorContractAddress)
+                    var transaction = try self.walletManager.createTransaction(
+                        amount: Amount.zeroCoin(for: self.settings.blockchain),
+                        fee: fees[1],
+                        destinationAddress: self.settings.otpProcessorContractAddress
+                    )
                     transaction.params = params
 
                     return transaction
@@ -142,7 +152,7 @@ class GnosisRegistrator {
         }
     }
 
-    func makeApprovalTx(value: Decimal) -> AnyPublisher<CompiledEthereumTransaction, Error>  {
+    func makeApprovalTx(value: Decimal) -> AnyPublisher<CompiledEthereumTransaction, Error> {
         let approveAmount = Amount(with: settings.token, value: value)
         let zeroApproveAmount = Amount(with: approveAmount, value: 0)
 
@@ -153,9 +163,11 @@ class GnosisRegistrator {
                 //   .replaceError(with: [Amount(with: settings.blockchain, value: 0.00001), Amount(with: settings.blockchain, value: 0.00001)]) //[REDACTED_TODO_COMMENT]
                 .tryMap { fees -> Transaction in
                     let params = EthereumTransactionParams(data: approveData, nonce: self.transactionProcessor.initialNonce + 3)
-                    var transaction = try self.walletManager.createTransaction(amount: zeroApproveAmount,
-                                                                               fee: fees[1],
-                                                                               destinationAddress: "")
+                    var transaction = try self.walletManager.createTransaction(
+                        amount: zeroApproveAmount,
+                        fee: fees[1],
+                        destinationAddress: ""
+                    )
                     transaction.params = params
 
                     return transaction
@@ -169,7 +181,7 @@ class GnosisRegistrator {
         }
     }
 
-    func makeClaimTx(value: Amount) -> AnyPublisher<CompiledEthereumTransaction, Error>  {
+    func makeClaimTx(value: Amount) -> AnyPublisher<CompiledEthereumTransaction, Error> {
         let zeroApproveAmount = Amount(with: value, value: 0)
         do {
             let approveData = try makeTxData(sig: Signatures.claim, address: settings.treasurySafeAddress, address2: cardAddress, amount: value)
@@ -178,9 +190,11 @@ class GnosisRegistrator {
                 //   .replaceError(with: [Amount(with: settings.blockchain, value: 0.00001), Amount(with: settings.blockchain, value: 0.00001)]) //[REDACTED_TODO_COMMENT]
                 .tryMap { fees -> Transaction in
                     let params = EthereumTransactionParams(data: approveData, nonce: self.transactionProcessor.initialNonce)
-                    var transaction = try self.walletManager.createTransaction(amount: zeroApproveAmount,
-                                                                               fee: fees[1],
-                                                                               destinationAddress: "")
+                    var transaction = try self.walletManager.createTransaction(
+                        amount: zeroApproveAmount,
+                        fee: fees[1],
+                        destinationAddress: ""
+                    )
                     transaction.params = params
 
                     return transaction
@@ -255,10 +269,12 @@ extension GnosisRegistrator {
         private var sdkToken: WalletData.Token {
             switch self {
             case .main:
-                return .init(name: "WXDAI",
-                             symbol: "WXDAI",
-                             contractAddress: "0x4200000000000000000000000000000000000006",
-                             decimals: 18)
+                return .init(
+                    name: "WXDAI",
+                    symbol: "WXDAI",
+                    contractAddress: "0x4200000000000000000000000000000000000006",
+                    decimals: 18
+                )
             }
         }
     }
@@ -266,6 +282,6 @@ extension GnosisRegistrator {
 
 fileprivate extension String {
     var signedPrefix: Data {
-        self.data(using: .utf8)!.sha3(.keccak256).prefix(4)
+        data(using: .utf8)!.sha3(.keccak256).prefix(4)
     }
 }

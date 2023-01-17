@@ -15,7 +15,7 @@ import Amplitude
 import TangemSdk
 
 enum Analytics {
-    static private var analyticsSystems: [Analytics.AnalyticSystem] = [.firebase, .appsflyer, .amplitude]
+    private static var analyticsSystems: [Analytics.AnalyticSystem] = [.firebase, .appsflyer, .amplitude]
 
     static func log(_ event: Event, params: [ParameterKey: String] = [:]) {
         if AppEnvironment.current.isXcodePreview {
@@ -53,14 +53,16 @@ enum Analytics {
         var params = [ParameterKey: String]()
         let firEvent: Event
         switch event {
-        case let .error(error, action):
+        case .error(let error, let action):
             if let action = action {
                 params[.walletConnectAction] = action.rawValue
             }
             params[.errorDescription] = error.localizedDescription
-            let nsError = NSError(domain: "WalletConnect Error for: \(action?.rawValue ?? "WC Service error")",
-                                  code: 0,
-                                  userInfo: params.firebaseParams)
+            let nsError = NSError(
+                domain: "WalletConnect Error for: \(action?.rawValue ?? "WC Service error")",
+                code: 0,
+                userInfo: params.firebaseParams
+            )
             Crashlytics.crashlytics().record(error: nsError)
             return
         case .action(let action):
@@ -125,15 +127,19 @@ enum Analytics {
 
         if let sdkError = error as? TangemSdkError {
             params[.errorKey] = String(describing: sdkError)
-            let nsError = NSError(domain: "Tangem SDK Error #\(sdkError.code)",
-                                  code: sdkError.code,
-                                  userInfo: params.firebaseParams)
+            let nsError = NSError(
+                domain: "Tangem SDK Error #\(sdkError.code)",
+                code: sdkError.code,
+                userInfo: params.firebaseParams
+            )
             Crashlytics.crashlytics().record(error: nsError)
         } else if let detailedDescription = (error as? DetailedError)?.detailedDescription {
             params[.errorDescription] = detailedDescription
-            let nsError = NSError(domain: "DetailedError",
-                                  code: 1,
-                                  userInfo: params.firebaseParams)
+            let nsError = NSError(
+                domain: "DetailedError",
+                code: 1,
+                userInfo: params.firebaseParams
+            )
             Crashlytics.crashlytics().record(error: nsError)
         } else {
             Crashlytics.crashlytics().record(error: error)
@@ -176,10 +182,10 @@ extension Analytics {
     }
 
     enum ParameterKey: String {
-        case blockchain = "blockchain"
+        case blockchain
         case batchId = "batch_id"
-        case firmware = "firmware"
-        case action = "action"
+        case firmware
+        case action
         case errorDescription = "error_description"
         case errorCode = "error_code"
         case newSecOption = "new_security_option"
@@ -188,8 +194,8 @@ extension Analytics {
         case walletConnectRequest = "wallet_connect_request"
         case walletConnectDappUrl = "wallet_connect_dapp_url"
         case currencyCode = "currency_code"
-        case source = "source"
-        case cardId = "cardId"
+        case source
+        case cardId
         case tokenName = "token_name"
         case type
         case currency = "Currency Type"
