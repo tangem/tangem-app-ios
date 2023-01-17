@@ -12,15 +12,18 @@ import Combine
 /// Drop with IOS 14 minimum deployment target
 /// A property wrapper type that reflects a value from `UserDefaults` and
 /// invalidates a view on a change in value in that user default.
-@frozen @propertyWrapper public struct AppStorageCompat<Key: RawRepresentable<String>, Value>: DynamicProperty {
+@frozen @propertyWrapper
+public struct AppStorageCompat<Key: RawRepresentable<String>, Value>: DynamicProperty {
     @ObservedObject private var _value: Storage<Value>
     private let saveValue: (Value) -> Void
 
-    private init(value: Value,
-                 store: UserDefaults,
-                 key: Key,
-                 transform: @escaping (Any?) -> Value?,
-                 saveValue: @escaping (Value) -> Void) {
+    private init(
+        value: Value,
+        store: UserDefaults,
+        key: Key,
+        transform: @escaping (Any?) -> Value?,
+        saveValue: @escaping (Value) -> Void
+    ) {
         _value = Storage(value: value, store: store, key: key.rawValue, transform: transform)
         self.saveValue = saveValue
     }
@@ -44,7 +47,7 @@ final class Storage<Value>: NSObject, ObservableObject {
     @Published var publishedValue: Value
 
     var value: Value {
-        store.value(forKey: keyPath).flatMap(self.transform) ?? self.defaultValue
+        store.value(forKey: keyPath).flatMap(transform) ?? defaultValue
     }
 
     private let defaultValue: Value
@@ -53,10 +56,10 @@ final class Storage<Value>: NSObject, ObservableObject {
     private let transform: (Any?) -> Value?
 
     init(value: Value, store: UserDefaults, key: String, transform: @escaping (Any?) -> Value?) {
-        self.publishedValue = value
-        self.defaultValue = value
+        publishedValue = value
+        defaultValue = value
         self.store = store
-        self.keyPath = key
+        keyPath = key
         self.transform = transform
         super.init()
 
@@ -67,11 +70,12 @@ final class Storage<Value>: NSObject, ObservableObject {
         store.removeObserver(self, forKeyPath: keyPath)
     }
 
-    override func observeValue(forKeyPath keyPath: String?,
-                               of object: Any?,
-                               change: [NSKeyValueChangeKey: Any]?,
-                               context: UnsafeMutableRawPointer?) {
-
+    override func observeValue(
+        forKeyPath keyPath: String?,
+        of object: Any?,
+        change: [NSKeyValueChangeKey: Any]?,
+        context: UnsafeMutableRawPointer?
+    ) {
         DispatchQueue.main.async {
             self.publishedValue = change?[.newKey].flatMap(self.transform) ?? self.defaultValue
         }
@@ -79,7 +83,6 @@ final class Storage<Value>: NSObject, ObservableObject {
 }
 
 extension AppStorageCompat where Value == Bool {
-
     /// Creates a property that can read and write to a boolean user default.
     ///
     /// - Parameters:
@@ -143,7 +146,6 @@ extension AppStorageCompat where Value == Int {
 }
 
 extension AppStorageCompat where Value == Double {
-
     /// Creates a property that can read and write to a double user default.
     ///
     /// - Parameters:
@@ -165,7 +167,6 @@ extension AppStorageCompat where Value == Double {
 }
 
 extension AppStorageCompat where Value == String {
-
     /// Creates a property that can read and write to a string user default.
     ///
     /// - Parameters:
@@ -187,7 +188,6 @@ extension AppStorageCompat where Value == String {
 }
 
 extension AppStorageCompat where Value == URL {
-
     /// Creates a property that can read and write to a url user default.
     ///
     /// - Parameters:
@@ -209,7 +209,6 @@ extension AppStorageCompat where Value == URL {
 }
 
 extension AppStorageCompat where Value == Data {
-
     /// Creates a property that can read and write to a user default as data.
     ///
     /// Avoid storing large data blobs in user defaults, such as image data,
@@ -236,7 +235,6 @@ extension AppStorageCompat where Value == Data {
 }
 
 extension AppStorageCompat where Value: RawRepresentable, Value.RawValue == Int {
-
     /// Creates a property that can read and write to an integer user default,
     /// transforming that to `RawRepresentable` data type.
     ///
@@ -272,7 +270,6 @@ extension AppStorageCompat where Value: RawRepresentable, Value.RawValue == Int 
 }
 
 extension AppStorageCompat where Value: RawRepresentable, Value.RawValue == String {
-
     /// Creates a property that can read and write to a string user default,
     /// transforming that to `RawRepresentable` data type.
     ///

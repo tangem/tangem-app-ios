@@ -13,19 +13,19 @@ protocol CheckoutPayload {
 }
 
 extension Storefront.CheckoutLineItemsReplacePayload: CheckoutPayload {
-    var checkoutUserErrors: [Storefront.CheckoutUserError] { self.userErrors }
+    var checkoutUserErrors: [Storefront.CheckoutUserError] { userErrors }
 }
 
-extension Storefront.CheckoutCreatePayload: CheckoutPayload { }
+extension Storefront.CheckoutCreatePayload: CheckoutPayload {}
 
-extension Storefront.CheckoutDiscountCodeApplyV2Payload: CheckoutPayload { }
+extension Storefront.CheckoutDiscountCodeApplyV2Payload: CheckoutPayload {}
 
-extension Storefront.CheckoutDiscountCodeRemovePayload: CheckoutPayload { }
+extension Storefront.CheckoutDiscountCodeRemovePayload: CheckoutPayload {}
 
-extension Storefront.CheckoutShippingAddressUpdateV2Payload: CheckoutPayload { }
+extension Storefront.CheckoutShippingAddressUpdateV2Payload: CheckoutPayload {}
 
-extension Storefront.CheckoutEmailUpdateV2Payload: CheckoutPayload { }
+extension Storefront.CheckoutEmailUpdateV2Payload: CheckoutPayload {}
 
-extension Storefront.CheckoutShippingLineUpdatePayload: CheckoutPayload { }
+extension Storefront.CheckoutShippingLineUpdatePayload: CheckoutPayload {}
 
-extension Storefront.CheckoutCompleteWithTokenizedPaymentV3Payload: CheckoutPayload { }
+extension Storefront.CheckoutCompleteWithTokenizedPaymentV3Payload: CheckoutPayload {}

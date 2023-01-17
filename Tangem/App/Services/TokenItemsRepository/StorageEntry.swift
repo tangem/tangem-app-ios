@@ -21,7 +21,7 @@ struct StorageEntry: Hashable, Codable, Equatable {
         self.blockchainNetwork = blockchainNetwork
 
         if let token = token {
-            self.tokens = [token]
+            tokens = [token]
         } else {
             tokens = []
         }
