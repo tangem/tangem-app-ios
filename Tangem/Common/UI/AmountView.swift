@@ -9,7 +9,6 @@
 import SwiftUI
 
 struct AmountView: View {
-
     let label: String
     let labelColor: Color
     var labelFont: Font = .system(size: 14.0, weight: .medium, design: .default)
@@ -17,12 +16,12 @@ struct AmountView: View {
     var isLoading: Bool = false
 
     let amountText: String
-    var amountColor: Color? = nil
-    var amountFont: Font? = nil
-    var amountScaleFactor: CGFloat? = nil
-    var amountLineLimit: Int? = nil
+    var amountColor: Color?
+    var amountFont: Font?
+    var amountScaleFactor: CGFloat?
+    var amountLineLimit: Int?
 
-    var blinkPublisher: Published<Bool>.Publisher? = nil
+    var blinkPublisher: Published<Bool>.Publisher?
 
     @ViewBuilder
     var valueText: some View {
@@ -35,10 +34,12 @@ struct AmountView: View {
 
         if blinkPublisher != nil {
             txt
-                .blink(publisher: blinkPublisher!,
-                       originalColor: mainColor,
-                       color: .red,
-                       duration: 0.25)
+                .blink(
+                    publisher: blinkPublisher!,
+                    originalColor: mainColor,
+                    color: .red,
+                    duration: 0.25
+                )
         } else {
             txt
         }
@@ -71,16 +72,18 @@ struct AmountView_Previews: PreviewProvider {
             Button("Blink") {
                 blinker.blink.toggle()
             }
-            AmountView(label: "Amount",
-                       labelColor: .tangemGrayDark6,
-                       labelFont: .system(size: 14, weight: .regular, design: .default),
-                       isLoading: false,
-                       amountText: "0 BTC",
-                       amountColor: .tangemGrayDark6,
-                       amountFont: .system(size: 15, weight: .regular, design: .default),
-                       amountScaleFactor: 1,
-                       amountLineLimit: 1,
-                       blinkPublisher: blinker.$blink)
+            AmountView(
+                label: "Amount",
+                labelColor: .tangemGrayDark6,
+                labelFont: .system(size: 14, weight: .regular, design: .default),
+                isLoading: false,
+                amountText: "0 BTC",
+                amountColor: .tangemGrayDark6,
+                amountFont: .system(size: 15, weight: .regular, design: .default),
+                amountScaleFactor: 1,
+                amountLineLimit: 1,
+                blinkPublisher: blinker.$blink
+            )
         }
     }
 }
