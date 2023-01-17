@@ -31,9 +31,10 @@ class WalletConnectV1Service {
             }
             .eraseToAnyPublisher()
     }
+
     private(set) var cardModel: CardViewModel
 
-    fileprivate var wallet: WalletInfo? = nil
+    fileprivate var wallet: WalletInfo?
 
     private var server: Server!
     private let updateQueue = DispatchQueue(label: "ws_sessions_update_queue")
@@ -100,8 +101,8 @@ class WalletConnectV1Service {
 
     private func save() {
         let encoder = JSONEncoder()
-        if let sessionsData = try? encoder.encode(self.sessions) {
-            UserDefaults.standard.set(sessionsData, forKey: self.sessionsKey)
+        if let sessionsData = try? encoder.encode(sessions) {
+            UserDefaults.standard.set(sessionsData, forKey: sessionsKey)
         }
     }
 
@@ -219,10 +220,10 @@ extension WalletConnectV1Service {
             Analytics.log(.sessionDisconnected)
         }
     }
-
 }
 
 // MARK: - WalletConnectURLHandler
+
 extension WalletConnectV1Service: WalletConnectURLHandler {
     func canHandle(url: String) -> Bool {
         WCURL(url) != nil
@@ -284,18 +285,22 @@ extension WalletConnectV1Service: WalletConnectURLHandler {
 
 extension WalletConnectV1Service: ServerDelegate {
     private var walletMeta: Session.ClientMeta {
-        Session.ClientMeta(name: "Tangem Wallet",
-                           description: nil,
-                           icons: [],
-                           url: Constants.tangemDomainUrl)
+        Session.ClientMeta(
+            name: "Tangem Wallet",
+            description: nil,
+            icons: [],
+            url: Constants.tangemDomainUrl
+        )
     }
 
     private var rejectedResponse: Session.WalletInfo {
-        Session.WalletInfo(approved: false,
-                           accounts: [],
-                           chainId: 0,
-                           peerId: "",
-                           peerMeta: walletMeta)
+        Session.WalletInfo(
+            approved: false,
+            accounts: [],
+            chainId: 0,
+            peerId: "",
+            peerMeta: walletMeta
+        )
     }
 
     func server(_ server: Server, didFailToConnect url: WCURL) {
@@ -334,8 +339,10 @@ extension WalletConnectV1Service: ServerDelegate {
             throw WalletConnectServiceError.notValidCard
         }
 
-        guard let blockchain = WalletConnectNetworkParserUtility.parse(dAppInfo: dAppInfo,
-                                                                       isTestnet: AppEnvironment.current.isTestnet) else {
+        guard let blockchain = WalletConnectNetworkParserUtility.parse(
+            dAppInfo: dAppInfo,
+            isTestnet: AppEnvironment.current.isTestnet
+        ) else {
             throw WalletConnectServiceError.unsupportedNetwork
         }
 
@@ -351,14 +358,16 @@ extension WalletConnectV1Service: ServerDelegate {
 
         let derivedKey = wallet.publicKey.blockchainKey != wallet.publicKey.seedKey ? wallet.publicKey.blockchainKey : nil
 
-        return WalletInfo(walletPublicKey: wallet.publicKey.seedKey,
-                          derivedPublicKey: derivedKey,
-                          derivationPath: wallet.publicKey.derivationPath,
-                          blockchain: blockchainNetwork.blockchain)
+        return WalletInfo(
+            walletPublicKey: wallet.publicKey.seedKey,
+            derivedPublicKey: derivedKey,
+            derivationPath: wallet.publicKey.derivationPath,
+            blockchain: blockchainNetwork.blockchain
+        )
     }
 
     private func askToConnect(walletInfo: WalletInfo, dAppInfo: Session.DAppInfo, server: Server, completion: @escaping (Session.WalletInfo) -> Void) {
-        self.wallet = walletInfo
+        wallet = walletInfo
 
         let peerMeta = dAppInfo.peerMeta
         let walletDescription = "\(walletInfo.blockchain.displayName) (\(AddressFormatter(address: walletInfo.address).truncated()))"
@@ -382,20 +391,24 @@ extension WalletConnectV1Service: ServerDelegate {
                 return $0.wallet == self.wallet &&
                     (savedUrl.count > newUrl.count ? savedUrl.contains(newUrl) : newUrl.contains(savedUrl))
             }.forEach { try? server.disconnect(from: $0.session) }
-            completion(Session.WalletInfo(approved: true,
-                                          accounts: [self.wallet!.address],
-                                          chainId: self.wallet?.blockchain.chainId ?? 1, // binance case only?
-                                          peerId: UUID().uuidString,
-                                          peerMeta: self.walletMeta))
+            completion(Session.WalletInfo(
+                approved: true,
+                accounts: [self.wallet!.address],
+                chainId: self.wallet?.blockchain.chainId ?? 1, // binance case only?
+                peerId: UUID().uuidString,
+                peerMeta: self.walletMeta
+            ))
         }
 
         let onSelectChain: (Wallet) -> Void = { wallet in
             let derivedKey = wallet.publicKey.blockchainKey != wallet.publicKey.seedKey ? wallet.publicKey.blockchainKey : nil
 
-            self.wallet = WalletInfo(walletPublicKey: wallet.publicKey.seedKey,
-                                     derivedPublicKey: derivedKey,
-                                     derivationPath: wallet.publicKey.derivationPath,
-                                     blockchain: wallet.blockchain)
+            self.wallet = WalletInfo(
+                walletPublicKey: wallet.publicKey.seedKey,
+                derivedPublicKey: derivedKey,
+                derivationPath: wallet.publicKey.derivationPath,
+                blockchain: wallet.blockchain
+            )
 
             onAccept()
         }
@@ -410,21 +423,27 @@ extension WalletConnectV1Service: ServerDelegate {
                 .filter { $0.blockchainNetwork.blockchain.isEvm }
                 .map { $0.wallet }
 
-
-            AppPresenter.shared.show(WalletConnectUIBuilder.makeChainsSheet(availableChains,
-                                                                            onAcceptAction: onSelectChain,
-                                                                            onReject: onReject),
-                                     delay: 0.3)
-
+            AppPresenter.shared.show(
+                WalletConnectUIBuilder.makeChainsSheet(
+                    availableChains,
+                    onAcceptAction: onSelectChain,
+                    onReject: onReject
+                ),
+                delay: 0.3
+            )
         }
 
-        AppPresenter.shared.show(WalletConnectUIBuilder.makeAlert(for: .establishSession,
-                                                                  message: message,
-                                                                  onAcceptAction: onAccept,
-                                                                  onReject: onReject,
-                                                                  extraTitle: isSelectedChainAvailable ? Localization.walletConnectSelectNetwork : nil,
-                                                                  onExtra: onSelectChainRequested),
-                                 delay: 0.5)
+        AppPresenter.shared.show(
+            WalletConnectUIBuilder.makeAlert(
+                for: .establishSession,
+                message: message,
+                onAcceptAction: onAccept,
+                onReject: onReject,
+                extraTitle: isSelectedChainAvailable ? Localization.walletConnectSelectNetwork : nil,
+                onExtra: onSelectChainRequested
+            ),
+            delay: 0.5
+        )
     }
 
     func server(_ server: Server, didConnect session: Session) {
@@ -458,7 +477,7 @@ extension WalletConnectV1Service: ServerDelegate {
     }
 
     func server(_ server: Server, didUpdate session: Session) {
-        // todo: handle?
+        // [REDACTED_TODO_COMMENT]
     }
 }
 

@@ -13,7 +13,7 @@ protocol WalletConnectV2MessageComposable {
     func makeErrorMessage(_ error: WalletConnectV2Error) -> String
 }
 
-struct WalletConnectV2MessageComposer { }
+struct WalletConnectV2MessageComposer {}
 
 extension WalletConnectV2MessageComposer: WalletConnectV2MessageComposable {
     // [REDACTED_TODO_COMMENT]
