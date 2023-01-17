@@ -116,10 +116,16 @@ private extension AppDelegate {
     }
 
     func configureAppsFlyer() {
-        guard AppEnvironment.current.isProduction else { return }
+        guard
+            AppEnvironment.current.isProduction,
+            let keysManager = try? CommonKeysManager()
+        else {
+            assertionFailure("CommonKeysManager not initialized")
+            return
+        }
 
-        AppsFlyerLib.shared().appsFlyerDevKey = try! CommonKeysManager().appsFlyer.appsFlyerDevKey
-        AppsFlyerLib.shared().appleAppID = try! CommonKeysManager().appsFlyer.appsFlyerAppID
+        AppsFlyerLib.shared().appsFlyerDevKey = keysManager.appsFlyer.appsFlyerDevKey
+        AppsFlyerLib.shared().appleAppID = keysManager.appsFlyer.appsFlyerAppID
     }
 
     func configureAmplitude() {
