@@ -94,8 +94,10 @@ struct EmailConfig {
     let subject: String
 
     static var `default`: EmailConfig {
-        .init(recipient: "support@tangem.com",
-              subject: Localization.feedbackSubjectSupportTangem)
+        .init(
+            recipient: "support@tangem.com",
+            subject: Localization.feedbackSubjectSupportTangem
+        )
     }
 }
 
