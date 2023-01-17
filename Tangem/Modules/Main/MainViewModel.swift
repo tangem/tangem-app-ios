@@ -272,6 +272,7 @@ class MainViewModel: ObservableObject {
     }
 
     func deriveEntriesWithoutDerivation() {
+        Analytics.log(.noticeScanYourCardTapped)
         cardModel.deriveEntriesWithoutDerivation()
     }
 
