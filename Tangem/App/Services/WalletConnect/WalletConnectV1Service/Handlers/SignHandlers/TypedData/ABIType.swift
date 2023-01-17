@@ -51,7 +51,7 @@ public indirect enum ABIType: Equatable, CustomStringConvertible {
         case .string:
             return "string"
         case .tuple(let types):
-            return types.reduce("", { $0 + $1.description })
+            return types.reduce("") { $0 + $1.description }
         }
     }
 }
