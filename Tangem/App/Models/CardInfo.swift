@@ -15,10 +15,10 @@ struct CardInfo {
     var walletData: DefaultWalletData
     var name: String
     var artwork: CardArtwork = .notLoaded
-    var primaryCard: PrimaryCard? = nil
+    var primaryCard: PrimaryCard?
 
     var cardIdFormatted: String {
-        if case let .twin(_, twinData) = walletData {
+        if case .twin(_, let twinData) = walletData {
             return AppTwinCardIdFormatter.format(cid: card.cardId, cardNumber: twinData.series.number)
         } else {
             return AppCardIdFormatter(cid: card.cardId).formatted()
