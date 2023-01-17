@@ -85,7 +85,6 @@ private extension SwappingTokenListViewModel {
     func setupLoader() -> ListDataLoader {
         let dataLoader = ListDataLoader(networkIds: [sourceCurrency.blockchain.networkId], exchangeable: true)
         dataLoader.$items
-//            .print("dataLoader")
             .receive(on: DispatchQueue.global())
             .map { [weak self] coinModels in
                 coinModels.compactMap { self?.currencyMapper.mapToCurrency(coinModel: $0) }
@@ -110,7 +109,6 @@ private extension SwappingTokenListViewModel {
 
     func mapToSwappingTokenItemViewModel(currency: Currency) -> SwappingTokenItemViewModel {
         SwappingTokenItemViewModel(
-            id: currency.id,
             iconURL: tokenIconURLBuilder.iconURL(id: currency.id, size: .large),
             name: currency.name,
             symbol: currency.symbol,

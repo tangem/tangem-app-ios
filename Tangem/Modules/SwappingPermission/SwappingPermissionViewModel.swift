@@ -68,10 +68,10 @@ final class SwappingPermissionViewModel: ObservableObject, Identifiable {
 
 extension SwappingPermissionViewModel {
     func didSendApproveTransaction() {
+        // We have to waiting close the nfc view to close this permission view
         didBecomeActiveNotificationBag = NotificationCenter
             .default
             .publisher(for: UIApplication.didBecomeActiveNotification)
-            .print("didBecomeActiveNotification")
             .delay(for: 0.3, scheduler: DispatchQueue.main)
             .sink { [weak self] _ in
                 self?.coordinator.didSendApproveTransaction()

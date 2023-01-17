@@ -9,7 +9,8 @@
 import Foundation
 
 struct SwappingTokenItemViewModel: Identifiable {
-    let id: String
+    var id: Int { hashValue }
+
     let iconURL: URL?
     let name: String
     let symbol: String
@@ -26,7 +27,6 @@ struct SwappingTokenItemViewModel: Identifiable {
     }
 
     init(
-        id: String,
         iconURL: URL? = nil,
         name: String,
         symbol: String,
@@ -34,7 +34,6 @@ struct SwappingTokenItemViewModel: Identifiable {
         balance: Decimal?,
         itemDidTap: @escaping () -> Void
     ) {
-        self.id = id
         self.iconURL = iconURL
         self.name = name
         self.symbol = symbol
