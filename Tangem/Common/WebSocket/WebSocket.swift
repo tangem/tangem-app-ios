@@ -24,7 +24,6 @@ class WebSocket {
 
     private(set) var isConnected: Bool = false
 
-
     private var task: URLSessionWebSocketTask?
 
     private lazy var session: URLSession = {
@@ -57,7 +56,7 @@ class WebSocket {
         self.url = url
         self.onConnect = onConnect
         self.onDisconnect = onDisconnect
-        self.onText = onTextReceive
+        onText = onTextReceive
 
         request = URLRequest(url: url, timeoutInterval: timeoutInterval)
 
@@ -72,7 +71,7 @@ class WebSocket {
             guard !ProcessInfo.processInfo.isiOSAppOnMac else { return }
         }
 
-        self.backgroundNotificationObserver = NotificationCenter.default.addObserver(
+        backgroundNotificationObserver = NotificationCenter.default.addObserver(
             forName: UIScene.didEnterBackgroundNotification,
             object: nil,
             queue: OperationQueue.main
@@ -80,7 +79,7 @@ class WebSocket {
             self?.requestBackgroundExecutionTime()
         }
 
-        self.foregroundNotificationObserver = NotificationCenter.default.addObserver(
+        foregroundNotificationObserver = NotificationCenter.default.addObserver(
             forName: UIScene.didActivateNotification,
             object: nil,
             queue: OperationQueue.main
@@ -131,7 +130,6 @@ class WebSocket {
 }
 
 private extension WebSocket {
-
     enum WebSocketEvent {
         case connected
         case disconnected(URLSessionWebSocketTask.CloseCode)
@@ -147,7 +145,7 @@ private extension WebSocket {
         task.receive { [weak self] result in
             switch result {
             case .success(let message):
-                if case let .string(text) = message {
+                if case .string(let text) = message {
                     self?.handleEvent(.messageReceived(text))
                 }
                 self?.receive()
@@ -188,7 +186,7 @@ private extension WebSocket {
             isConnected = false
             pingTimer?.invalidate()
 
-            var error: Error? = nil
+            var error: Error?
             switch closeCode {
             case .normalClosure:
                 AppLog.shared.debug("[WebSocket] 💥💥💥 disconnected (normal closure)")
@@ -227,7 +225,7 @@ private extension WebSocket {
             webSocketTask: URLSessionWebSocketTask,
             didOpenWithProtocol protocol: String?
         ) {
-            self.connectivityCheckTimer?.invalidate()
+            connectivityCheckTimer?.invalidate()
             eventHandler(.connected)
         }
 
@@ -271,7 +269,6 @@ private extension WebSocket {
 }
 
 private extension WebSocket {
-
     func requestBackgroundExecutionTime() {
         if bgTaskIdentifier != .invalid {
             endBackgroundExecutionTime()
