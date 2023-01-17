@@ -18,13 +18,15 @@ struct CardsStackAnimatorSettings {
     var maxCardsInStack: Int
 
     static var zero: CardsStackAnimatorSettings {
-        .init(topCardSize: .zero,
-              topCardOffset: .zero,
-              cardsVerticalOffset: 0,
-              scaleStep: 0,
-              opacityStep: 0,
-              numberOfCards: 2,
-              maxCardsInStack: 2)
+        .init(
+            topCardSize: .zero,
+            topCardOffset: .zero,
+            cardsVerticalOffset: 0,
+            scaleStep: 0,
+            opacityStep: 0,
+            numberOfCards: 2,
+            maxCardsInStack: 2
+        )
     }
 }
 
@@ -75,12 +77,13 @@ struct CardAnimSettings: Equatable {
     }
 
     static var zero: CardAnimSettings {
-        .init(frame: .zero,
-              offset: .zero,
-              scale: 0,
-              opacity: 0,
-              zIndex: 0,
-              rotationAngle: .zero
+        .init(
+            frame: .zero,
+            offset: .zero,
+            scale: 0,
+            opacity: 0,
+            zIndex: 0,
+            rotationAngle: .zero
         )
     }
 
@@ -104,7 +107,6 @@ struct CardAnimSettings: Equatable {
 
 @available(iOS 14, *)
 struct CardStackAnimator<Card: View>: View {
-
     let cards: [Card]
     let namespace: Namespace.ID
     let settings: CardsStackAnimatorSettings
@@ -166,12 +168,14 @@ struct CardStackAnimator<Card: View>: View {
         let settings = cardInStackSettings(at: index)
         let targetFrameHeight = settings.frame.height
 
-        return .init(frame: settings.frame,
-                     offset: .init(width: 0, height: -(settings.frame.height / 2 + targetFrameHeight / 2) - 10),
-                     scale: 1.0,
-                     opacity: 1.0,
-                     zIndex: maxZIndex + 100,
-                     rotationAngle: Angle(degrees: 0))
+        return .init(
+            frame: settings.frame,
+            offset: .init(width: 0, height: -(settings.frame.height / 2 + targetFrameHeight / 2) - 10),
+            scale: 1.0,
+            opacity: 1.0,
+            zIndex: maxZIndex + 100,
+            rotationAngle: Angle(degrees: 0)
+        )
     }
 
     private func cardInStackSettings(at index: Int) -> CardAnimSettings {
@@ -182,18 +186,18 @@ struct CardStackAnimator<Card: View>: View {
         let opacity: Double = max(1 - settings.opacityStep * doubleIndex, 0)
         let zIndex: Double = maxZIndex - Double(index)
 
-        return .init(frame: settings.topCardSize,
-                     offset: .init(width: 0, height: offset),
-                     scale: scale,
-                     opacity: opacity,
-                     zIndex: zIndex,
-                     rotationAngle: .zero)
+        return .init(
+            frame: settings.topCardSize,
+            offset: .init(width: 0, height: offset),
+            scale: scale,
+            opacity: opacity,
+            zIndex: zIndex,
+            rotationAngle: .zero
+        )
     }
-
 }
 
 class CardStackAnimatorPreviewModel: ObservableObject {
-
     enum Content {
         case twins
         case backup(numberOfCards: Int)
@@ -214,24 +218,24 @@ class CardStackAnimatorPreviewModel: ObservableObject {
     init(content: Content) {
         self.content = content
     }
-
 }
 
 @available(iOS 14, *)
 struct CardStackAnimatorPreview: View {
-
-    @ObservedObject var viewModel: CardStackAnimatorPreviewModel = CardStackAnimatorPreviewModel(content: .backup(numberOfCards: 3))
+    @ObservedObject var viewModel: CardStackAnimatorPreviewModel = .init(content: .backup(numberOfCards: 3))
 
     @Namespace var ns
 
     var animatorSettings: CardsStackAnimatorSettings {
-        .init(topCardSize: .init(width: 315, height: 184),
-              topCardOffset: .zero,
-              cardsVerticalOffset: 17,
-              scaleStep: 0.1,
-              opacityStep: 0.2,
-              numberOfCards: 3,
-              maxCardsInStack: 3)
+        .init(
+            topCardSize: .init(width: 315, height: 184),
+            topCardOffset: .zero,
+            cardsVerticalOffset: 17,
+            scaleStep: 0.1,
+            opacityStep: 0.2,
+            numberOfCards: 3,
+            maxCardsInStack: 3
+        )
     }
 
     @ViewBuilder
@@ -240,12 +244,16 @@ struct CardStackAnimatorPreview: View {
         case .twins:
             CardStackAnimator(
                 cards: [
-                    OnboardingCardView(placeholderCardType: .dark,
-                                       cardImage: nil,
-                                       cardScanned: false),
-                    OnboardingCardView(placeholderCardType: .light,
-                                       cardImage: nil,
-                                       cardScanned: false),
+                    OnboardingCardView(
+                        placeholderCardType: .dark,
+                        cardImage: nil,
+                        cardScanned: false
+                    ),
+                    OnboardingCardView(
+                        placeholderCardType: .light,
+                        cardImage: nil,
+                        cardScanned: false
+                    ),
                 ], namespace: ns,
                 settings: animatorSettings,
                 currentCardIndexPublisher: viewModel.$currentCardIndex
@@ -254,9 +262,11 @@ struct CardStackAnimatorPreview: View {
             CardStackAnimator(
                 cards: (0 ..< numberOfCards)
                     .map { index in
-                        OnboardingCardView(placeholderCardType: .dark,
-                                           cardImage: nil,
-                                           cardScanned: false)
+                        OnboardingCardView(
+                            placeholderCardType: .dark,
+                            cardImage: nil,
+                            cardScanned: false
+                        )
                     }, namespace: ns,
                 settings: animatorSettings,
                 currentCardIndexPublisher: viewModel.$currentCardIndex
@@ -268,11 +278,11 @@ struct CardStackAnimatorPreview: View {
         VStack(spacing: 0) {
             animator
 
-            OnboardingMessagesView(title: "Testing animator",
-                                   subtitle: "This is preview screen and must not be used in production. \nSelect card number:") {
-
-            }
-            .padding(.bottom, 50)
+            OnboardingMessagesView(
+                title: "Testing animator",
+                subtitle: "This is preview screen and must not be used in production. \nSelect card number:"
+            ) {}
+                .padding(.bottom, 50)
             HStack {
                 ForEach(0 ... viewModel.maxIndex) { index in
                     Button(action: {
@@ -303,12 +313,10 @@ struct CardStackAnimatorPreview: View {
         }
         .padding(.horizontal, 40)
     }
-
 }
 
 @available(iOS 14, *)
 struct CardStackAnimator_Previews: PreviewProvider {
-
     static var previews: some View {
         CardStackAnimatorPreview(
             viewModel:

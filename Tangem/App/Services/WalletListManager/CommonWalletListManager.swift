@@ -165,7 +165,7 @@ private extension CommonWalletListManager {
 
     func updateWalletModelsPublisher(silent: Bool) -> AnyPublisher<Void, Never> {
         let publishers = getWalletModels().map {
-            $0.update(silent: silent).replaceError(with: (()))
+            $0.update(silent: silent).replaceError(with: ())
         }
 
         return Publishers
@@ -175,7 +175,7 @@ private extension CommonWalletListManager {
             .eraseToAnyPublisher()
     }
 
-    func tryMigrateTokens() -> AnyPublisher<Void, Never>  {
+    func tryMigrateTokens() -> AnyPublisher<Void, Never> {
         if migrated {
             return .just
         }
