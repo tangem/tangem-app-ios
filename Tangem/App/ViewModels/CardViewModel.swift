@@ -111,6 +111,10 @@ class CardViewModel: Identifiable, ObservableObject {
         config.tou.url
     }
 
+    var embeddedBlockchain: Blockchain? {
+        config.embeddedBlockchain?.blockchainNetwork.blockchain
+    }
+
     var supportsWalletConnect: Bool {
         config.hasFeature(.walletConnect)
     }
