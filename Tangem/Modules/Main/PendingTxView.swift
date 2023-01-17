@@ -9,12 +9,10 @@
 import Foundation
 import SwiftUI
 
-
 struct PendingTxView: View, Identifiable {
-
     var id: Int { pendingTx.id }
     let pendingTx: PendingTransaction
-    var pushAction: (() -> Void)? = nil
+    var pushAction: (() -> Void)?
 
     var address: String {
         pendingTx.destination
@@ -50,7 +48,7 @@ struct PendingTxView: View, Identifiable {
         VStack(alignment: .leading) {
             HStack(spacing: 0) {
                 if address != "unknown" {
-                    Image(systemName: self.pendingTx.direction == .incoming ?  "arrow.down" :
+                    Image(systemName: self.pendingTx.direction == .incoming ? "arrow.down" :
                         "arrow.right")
                         .resizable()
                         .aspectRatio(contentMode: .fit)
@@ -90,7 +88,6 @@ struct PendingTxView_Previews: PreviewProvider {
                 PendingTxView(pendingTx: PendingTransaction(amountType: .coin, destination: "0x2314719083467891237649123675478612354", transferAmount: "0.2 BTC", canBePushed: true, direction: .outgoing))
             }
             .padding(.horizontal, 16)
-
         }
     }
 }
