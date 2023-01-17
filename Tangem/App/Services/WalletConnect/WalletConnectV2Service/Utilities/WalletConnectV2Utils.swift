@@ -66,10 +66,12 @@ struct WalletConnectV2Utils {
             }
 
             let filteredAccounts = Set(accounts)
-            let sessionNamespace = SessionNamespace(accounts: filteredAccounts,
-                                                    methods: proposalNamespace.methods,
-                                                    events: proposalNamespace.events,
-                                                    extensions: nil)
+            let sessionNamespace = SessionNamespace(
+                accounts: filteredAccounts,
+                methods: proposalNamespace.methods,
+                events: proposalNamespace.events,
+                extensions: nil
+            )
             sessionNamespaces[namespace] = sessionNamespace
         }
 
@@ -88,17 +90,23 @@ struct WalletConnectV2Utils {
         let targetBlockchains = createBlockchains(from: session.namespaces)
 
         let dApp = session.peer
-        let dAppInfo = WalletConnectSavedSession.DAppInfo(name: dApp.name,
-                                                          description: dApp.description,
-                                                          url: dApp.url,
-                                                          iconsLinks: dApp.icons,
-                                                          supportedChains: nil)
-        let sessionInfo = WalletConnectSavedSession.SessionInfo(connectedBlockchains: targetBlockchains,
-                                                                dAppInfo: dAppInfo)
+        let dAppInfo = WalletConnectSavedSession.DAppInfo(
+            name: dApp.name,
+            description: dApp.description,
+            url: dApp.url,
+            iconsLinks: dApp.icons,
+            supportedChains: nil
+        )
+        let sessionInfo = WalletConnectSavedSession.SessionInfo(
+            connectedBlockchains: targetBlockchains,
+            dAppInfo: dAppInfo
+        )
 
-        return WalletConnectSavedSession(userWalletId: userWalletId,
-                                         topic: session.topic,
-                                         sessionInfo: sessionInfo)
+        return WalletConnectSavedSession(
+            userWalletId: userWalletId,
+            topic: session.topic,
+            sessionInfo: sessionInfo
+        )
     }
 
     private func createBlockchains(from namespaces: [String: SessionNamespace]) -> [BlockchainNetwork] {
