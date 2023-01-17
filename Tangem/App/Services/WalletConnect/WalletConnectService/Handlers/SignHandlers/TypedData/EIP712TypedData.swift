@@ -4,7 +4,7 @@
 // terms governing use, modification, and redistribution, is contained in the
 // file LICENSE at the root of the source code distribution tree.
 
-/// https://github.com/ethereum/EIPs/blob/master/EIPS/eip-712.md
+// https://github.com/ethereum/EIPs/blob/master/EIPS/eip-712.md
 import Foundation
 import BigInt
 import BlockchainSdk
@@ -31,15 +31,15 @@ public struct EIP712TypedData: Codable {
     public let message: JSON
 }
 
-extension EIP712TypedData {
+public extension EIP712TypedData {
     /// Type hash for the primaryType of an `EIP712TypedData`
-    public var typeHash: Data {
+    var typeHash: Data {
         let data = encodeType(primaryType: primaryType)
         return data.sha3(.keccak256)
     }
 
     /// Sign-able hash for an `EIP712TypedData`
-    public var signHash: Data {
+    var signHash: Data {
         let data = Data([0x19, 0x01]) +
             hashStruct(data: domain, type: "EIP712Domain") +
             hashStruct(data: message, type: primaryType)
@@ -47,27 +47,8 @@ extension EIP712TypedData {
         return data.sha3(.keccak256)
     }
 
-    func hashStruct(data: JSON, type: String) -> Data {
-        encodeData(data: data, type: type).sha3(.keccak256)
-    }
-
-    /// Recursively finds all the dependencies of a type
-    func findDependencies(primaryType: String, dependencies: Set<String> = Set<String>()) -> Set<String> {
-        var found = dependencies
-        guard !found.contains(primaryType),
-              let primaryTypes = types[primaryType] else {
-            return found
-        }
-        found.insert(primaryType)
-        for type in primaryTypes {
-            findDependencies(primaryType: type.type, dependencies: found)
-                .forEach { found.insert($0) }
-        }
-        return found
-    }
-
     /// Encode a type of struct
-    public func encodeType(primaryType: String) -> Data {
+    func encodeType(primaryType: String) -> Data {
         var depSet = findDependencies(primaryType: primaryType)
         depSet.remove(primaryType)
         let sorted = [primaryType] + Array(depSet).sorted()
@@ -81,7 +62,7 @@ extension EIP712TypedData {
     /// Encode an instance of struct
     ///
     /// Implemented with `ABIEncoder` and `ABIValue`
-    public func encodeData(data: JSON, type: String) -> Data {
+    func encodeData(data: JSON, type: String) -> Data {
         let encoder = ABIEncoder()
         var values: [ABIValue] = []
         do {
@@ -100,12 +81,14 @@ extension EIP712TypedData {
                 }
             }
             try encoder.encode(tuple: values)
-        } catch let error {
+        } catch {
             AppLog.shared.error(error)
         }
         return encoder.data
     }
+}
 
+private extension EIP712TypedData {
     /// Helper func for `encodeData`
     private func makeABIValue(data: JSON?, type: String) -> ABIValue? {
         let isArrayType = type.contains("[")
@@ -114,19 +97,16 @@ extension EIP712TypedData {
             let valueType = String(type.prefix(while: { $0 != "[" }))
             let abiValues = values.compactMap { makeABIValue(data: $0, type: valueType) }
             return .array(abiValues)
-        }
-        else if type == "string",
-                let value = data?.stringValue,
-                let valueData = value.data(using: .utf8) {
+        } else if type == "string",
+                  let value = data?.stringValue,
+                  let valueData = value.data(using: .utf8) {
             return try? ABIValue(valueData.sha3(.keccak256), type: .bytes(32))
-        }
-        else if type == "bytes",
-                let value = data?.stringValue {
-            let valueData = Data(hexString:  value)
+        } else if type == "bytes",
+                  let value = data?.stringValue {
+            let valueData = Data(hexString: value)
             return try? ABIValue(valueData.sha3(.keccak256), type: .bytes(32))
-        }
-        else if type == "bool",
-                let value = data?.boolValue {
+        } else if type == "bool",
+                  let value = data?.boolValue {
             return try? ABIValue(value, type: .bool)
         } else if type == "address",
                   let value = data?.stringValue,
@@ -175,6 +155,25 @@ extension EIP712TypedData {
             return -1
         }
         return size
+    }
+
+    func hashStruct(data: JSON, type: String) -> Data {
+        encodeData(data: data, type: type).sha3(.keccak256)
+    }
+
+    /// Recursively finds all the dependencies of a type
+    func findDependencies(primaryType: String, dependencies: Set<String> = Set<String>()) -> Set<String> {
+        var found = dependencies
+        guard !found.contains(primaryType),
+              let primaryTypes = types[primaryType] else {
+            return found
+        }
+        found.insert(primaryType)
+        for type in primaryTypes {
+            findDependencies(primaryType: type.type, dependencies: found)
+                .forEach { found.insert($0) }
+        }
+        return found
     }
 }
 

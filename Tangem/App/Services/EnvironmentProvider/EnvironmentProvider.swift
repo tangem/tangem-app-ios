@@ -27,7 +27,7 @@ class EnvironmentProvider {
 // MARK: - Keys
 
 enum EnvironmentProviderKeys: String {
-    case testnet = "testnet"
+    case testnet
     case availableFeatures = "integrated_features"
     case useDevApi = "use_dev_api"
 }
