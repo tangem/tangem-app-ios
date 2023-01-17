@@ -132,9 +132,7 @@ struct SingleCardOnboardingView: View {
             }
         }
         .alert(item: $viewModel.alert, content: { $0.alert })
-        .onAppear(perform: {
-            viewModel.playInitialAnim()
-        })
+        .onAppear(perform: viewModel.onAppear)
     }
 }
 
