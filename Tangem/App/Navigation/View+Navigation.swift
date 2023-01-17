@@ -8,7 +8,6 @@
 import SwiftUI
 
 extension View {
-
     func onNavigation(_ action: @escaping () -> Void) -> some View {
         let isActive = Binding(
             get: { false },
@@ -36,9 +35,11 @@ extension View {
                 }
             }
         )
-        return NavigationLink(destination: EmptyView(),
-                              tag: tag,
-                              selection: isActiveSelection) {
+        return NavigationLink(
+            destination: EmptyView(),
+            tag: tag,
+            selection: isActiveSelection
+        ) {
             self
         }
     }
@@ -74,22 +75,23 @@ extension View {
     }
 
     func navigationLinks<Links: View>(_ links: Links) -> some View {
-        self.background(links)
+        background(links)
     }
 
     /// Fixes ios13 single link issue
     func emptyNavigationLink() -> some View {
-        self.navigation(item: .constant(nil)) {
+        navigation(item: .constant(nil)) {
             EmptyView()
         }
     }
 }
 
 extension NavigationLink {
-
-    init<T: Identifiable, D: View>(item: Binding<T?>,
-                                   @ViewBuilder destination: (T) -> D,
-                                   @ViewBuilder label: () -> Label) where Destination == D? {
+    init<T: Identifiable, D: View>(
+        item: Binding<T?>,
+        @ViewBuilder destination: (T) -> D,
+        @ViewBuilder label: () -> Label
+    ) where Destination == D? {
         let isActive = Binding(
             get: { item.wrappedValue != nil },
             set: { value in
@@ -104,5 +106,4 @@ extension NavigationLink {
             label: label
         )
     }
-
 }
