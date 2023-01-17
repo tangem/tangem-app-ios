@@ -65,18 +65,19 @@ fileprivate struct LineShape: Shape {
     func path(in rect: CGRect) -> Path {
         var path = Path()
 
-        let style = StrokeStyle(lineWidth: 1.4,
-                                lineCap: .round,
-                                lineJoin: .bevel,
-                                miterLimit: 0.0,
-                                dash: [],
-                                dashPhase: 0.0)
+        let style = StrokeStyle(
+            lineWidth: 1.4,
+            lineCap: .round,
+            lineJoin: .bevel,
+            miterLimit: 0.0,
+            dash: [],
+            dashPhase: 0.0
+        )
 
         let startPoint = CGPoint(x: rect.midX, y: rect.minY - position.startOffset)
         let startCurvePoint = CGPoint(x: rect.midX, y: rect.minY)
         let endCurvePoint = CGPoint(x: rect.maxX, y: rect.midY)
         let bottomPoint = position.isLast ? startCurvePoint : CGPoint(x: rect.midX, y: rect.maxY)
-
 
         path.move(to: startPoint)
         path.addLine(to: bottomPoint)
