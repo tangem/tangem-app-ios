@@ -14,7 +14,7 @@ class TotalSumBalanceViewModel: ObservableObject {
     // MARK: - ViewState
 
     @Published var isLoading: Bool = true
-    @Published var totalFiatValueString: NSAttributedString = NSAttributedString(string: "")
+    @Published var totalFiatValueString: NSAttributedString = .init(string: "")
     @Published var hasError: Bool = false
 
     /// If we have a note or any single coin wallet that we should show this balance
@@ -44,7 +44,7 @@ class TotalSumBalanceViewModel: ObservableObject {
     }
 
     func updateForSingleCoinCard() {
-        guard let cardAmountType = self.cardAmountType else { return }
+        guard let cardAmountType = cardAmountType else { return }
         let walletModels = userWalletModel.getWalletModels()
 
         singleWalletBalance = walletModels.first?.allTokenItemViewModels().first(where: { $0.amountType == cardAmountType })?.balance
