@@ -75,5 +75,4 @@ struct DerivationManager {
     }
 }
 
-
 typealias DerivationResult = DeriveMultipleWalletPublicKeysTask.Response

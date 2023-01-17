@@ -13,7 +13,7 @@ import Combine
 struct WebImage: View {
     @State var downloadedImage: DownloadedImage? = nil
     let imagePath: URL
-    var placeholder: AnyView? = nil
+    var placeholder: AnyView?
 
     var img: UIImage {
         downloadedImage?.image ?? UIImage()
@@ -39,5 +39,4 @@ struct WebImage: View {
                 }
             })
     }
-
 }

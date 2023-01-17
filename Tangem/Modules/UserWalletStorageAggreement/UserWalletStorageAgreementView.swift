@@ -55,9 +55,11 @@ struct UserWalletStorageAgreementView: View {
             VStack(spacing: 10) {
                 MainButton(title: BiometricAuthorizationUtils.allowButtonTitle, action: viewModel.accept)
 
-                MainButton(title: Localization.saveUserWalletAgreementDontAllow,
-                           style: .secondary,
-                           action: viewModel.decline)
+                MainButton(
+                    title: Localization.saveUserWalletAgreementDontAllow,
+                    style: .secondary,
+                    action: viewModel.decline
+                )
 
                 Text(Localization.saveUserWalletAgreementNotice)
                     .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
