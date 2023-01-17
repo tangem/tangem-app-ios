@@ -316,7 +316,7 @@ private extension TokenListViewModel {
             return
         }
         if canManage(tokenItem) || canRemove(tokenItem: tokenItem) {
-            let title = Localization.tokenDetailsHideAlertTitle(tokenItem.blockchain.currencySymbol)
+            let title = Localization.tokenDetailsHideAlertTitle(tokenItem.currencySymbol)
 
             let cancelAction = { [unowned self] in
                 self.updateSelection(tokenItem)
