@@ -20,7 +20,6 @@ final class SwappingViewModel: ObservableObject {
     @Published var sendDecimalValue: Decimal?
     @Published var refreshWarningRowViewModel: DefaultWarningRowViewModel?
     @Published var permissionInfoRowViewModel: DefaultWarningRowViewModel?
-    @Published var transactionInProgressInfoRowViewModel: DefaultWarningRowViewModel?
 
     @Published var mainButtonIsEnabled: Bool = false
     @Published var mainButtonState: MainButtonState = .swap
@@ -475,7 +474,6 @@ private extension SwappingViewModel {
 
     func updateRefreshWarningRowViewModel(message: String) {
         refreshWarningRowViewModel = DefaultWarningRowViewModel(
-            title: nil,
             subtitle: message.capitalizingFirstLetter(),
             leftView: .icon(Assets.attention),
             rightView: .icon(Assets.refreshWarningIcon)
