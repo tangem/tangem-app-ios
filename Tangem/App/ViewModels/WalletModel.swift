@@ -385,18 +385,18 @@ extension WalletModel {
         return Localization.addressQrCodeMessageFormat(currencyName, symbol, wallet.blockchain.displayName)
     }
 
-    func getFiatFormatted(for amount: Amount?, roundingMode: NSDecimalNumber.RoundingMode, roundToSignificantDigits: Bool = false) -> String? {
-        return getFiat(for: amount, roundingMode: roundingMode, roundToSignificantDigits: roundToSignificantDigits)?.currencyFormatted(code: AppSettings.shared.selectedCurrencyCode)
+    func getFiatFormatted(for amount: Amount?, roundingMode: NSDecimalNumber.RoundingMode, roundToFirstSignificantFractionDigit: Bool = false) -> String? {
+        return getFiat(for: amount, roundingMode: roundingMode, roundToFirstSignificantFractionDigit: roundToFirstSignificantFractionDigit)?.currencyFormatted(code: AppSettings.shared.selectedCurrencyCode)
     }
 
-    func getFiat(for amount: Amount?, roundingMode: NSDecimalNumber.RoundingMode, roundToSignificantDigits: Bool = false) -> Decimal? {
+    func getFiat(for amount: Amount?, roundingMode: NSDecimalNumber.RoundingMode, roundToFirstSignificantFractionDigit: Bool = false) -> Decimal? {
         if let amount = amount {
-            return getFiat(for: amount.value, currencyId: currencyId(for: amount.type), roundingMode: roundingMode, roundToSignificantDigits: roundToSignificantDigits)
+            return getFiat(for: amount.value, currencyId: currencyId(for: amount.type), roundingMode: roundingMode, roundToFirstSignificantFractionDigit: roundToFirstSignificantFractionDigit)
         }
         return nil
     }
 
-    func getFiat(for value: Decimal, currencyId: String?, roundingMode: NSDecimalNumber.RoundingMode, roundToSignificantDigits: Bool = false) -> Decimal? {
+    func getFiat(for value: Decimal, currencyId: String?, roundingMode: NSDecimalNumber.RoundingMode, roundToFirstSignificantFractionDigit: Bool = false) -> Decimal? {
         if let currencyId = currencyId,
            let rate = rates[currencyId] {
             let fiatValue = value * rate
@@ -404,8 +404,8 @@ extension WalletModel {
                 return 0
             }
 
-            if roundToSignificantDigits {
-                return SignificantDigitRounder(roundingMode: roundingMode).round(value: fiatValue)
+            if roundToFirstSignificantFractionDigit {
+                return SignificantFractionDigitRounder(roundingMode: roundingMode).round(value: fiatValue)
             } else {
                 return max(fiatValue, 0.01).rounded(scale: 2, roundingMode: roundingMode)
             }
