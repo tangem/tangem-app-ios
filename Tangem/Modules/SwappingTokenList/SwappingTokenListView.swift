@@ -11,7 +11,8 @@ import SwiftUI
 struct SwappingTokenListView: View {
     @ObservedObject private var viewModel: SwappingTokenListViewModel
 
-    private let separatorInset: CGFloat = 52 // 40(icon) + 12(padding)
+    // 40(icon) + 12(padding) from SwappingTokenItemView
+    private let separatorInset: CGFloat = 52
 
     init(viewModel: SwappingTokenListViewModel) {
         self.viewModel = viewModel
@@ -27,13 +28,19 @@ struct SwappingTokenListView: View {
                         .listRowInsets(.init(top: 8, leading: horizontalInset, bottom: 8, trailing: horizontalInset))
                 }
 
-                Spacer().frame(height: 12)
+                FixedSpacer(height: 12)
 
-                userItemsSection()
+                section(
+                    title: Localization.swappingTokenListYourTokens.uppercased(),
+                    items: viewModel.userItems
+                )
 
-                Spacer().frame(height: 12)
+                FixedSpacer(height: 12)
 
-                otherItemsSection()
+                section(
+                    title: Localization.swappingTokenListOtherTokens.uppercased(),
+                    items: viewModel.otherItems
+                )
 
                 if viewModel.hasNextPage {
                     ProgressViewCompat(color: Colors.Icon.informative)
@@ -46,31 +53,15 @@ struct SwappingTokenListView: View {
         }
     }
 
-    func userItemsSection() -> some View {
+    func section(title: String, items: [SwappingTokenItemViewModel]) -> some View {
         Group {
-            Text(Localization.swappingTokenListYourTokens.uppercased())
+            Text(title)
                 .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
 
-            ForEach(viewModel.userItems) { model in
-                SwappingTokenItemView(viewModel: model)
+            ForEach(items) { item in
+                SwappingTokenItemView(viewModel: item)
 
-                if viewModel.userItems.last?.id != model.id {
-                    Separator(color: Colors.Stroke.primary)
-                        .padding(.leading, separatorInset)
-                }
-            }
-        }
-    }
-
-    func otherItemsSection() -> some View {
-        Group {
-            Text(Localization.swappingTokenListOtherTokens.uppercased())
-                .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
-
-            ForEach(viewModel.otherItems) { model in
-                SwappingTokenItemView(viewModel: model)
-
-                if viewModel.otherItems.last?.id != model.id {
+                if items.last?.id != item.id {
                     Separator(color: Colors.Stroke.primary)
                         .padding(.leading, separatorInset)
                 }
