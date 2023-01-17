@@ -403,7 +403,9 @@ extension WalletModel {
             if fiatValue == 0 {
                 return 0
             }
-            return max(fiatValue, 0.01).rounded(scale: 2, roundingMode: roundingMode)
+
+//            return max(fiatValue, 0.01).rounded(scale: 2, roundingMode: roundingMode)
+            return SignificantDigitRounder(roundingMode: roundingMode).round(value: fiatValue)
         }
         return nil
     }
