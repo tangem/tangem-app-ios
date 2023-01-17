@@ -67,10 +67,7 @@ extension Checkout {
         }
 
         let shippingAddress = address?.payAddress
-
         let discount = discount?.payDiscount(itemsTotal: lineItemsTotal)
-
-        let total = self.total
 
         let payCheckout = PayCheckout(
             id: id.rawValue,
