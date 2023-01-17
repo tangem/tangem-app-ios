@@ -18,9 +18,11 @@ struct ProgressBar: View {
     var body: some View {
         Rectangle()
             .modifier(
-                AnimatableGradient(backgroundColor: backgroundColor,
-                                   progressColor: progressColor,
-                                   gradientStop: max(0, min(1, currentProgress)))
+                AnimatableGradient(
+                    backgroundColor: backgroundColor,
+                    progressColor: progressColor,
+                    gradientStop: max(0, min(1, currentProgress))
+                )
             )
             .cornerRadius(height / 2)
             .frame(height: height)
@@ -28,7 +30,6 @@ struct ProgressBar: View {
 }
 
 struct ProgressBarPreviewView: View {
-
     @State var progress: CGFloat = 0.4
 
     var body: some View {
@@ -51,10 +52,7 @@ struct ProgressBarPreviewView: View {
             })
             Spacer()
         }
-
     }
-
-
 }
 
 struct ProgressBar_Previews: PreviewProvider {
