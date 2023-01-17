@@ -30,7 +30,7 @@ struct WelcomeView: View {
         StoriesView(viewModel: viewModel.storiesModel) { // [REDACTED_TODO_COMMENT]
             viewModel.storiesModel.currentStoryPage(
                 isScanning: viewModel.isScanningCard,
-                scanCard: viewModel.scanCard,
+                scanCard: viewModel.scanCardTapped,
                 orderCard: viewModel.orderCard,
                 searchTokens: viewModel.openTokensList
             )
