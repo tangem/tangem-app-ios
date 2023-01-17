@@ -16,8 +16,10 @@ class AppLog {
     private init() {}
 
     var sdkLogConfig: Log.Config {
-        .custom(logLevel: Log.Level.allCases,
-                loggers: [FileLogger(), ConsoleLogger()])
+        .custom(
+            logLevel: Log.Level.allCases,
+            loggers: [FileLogger(), ConsoleLogger()]
+        )
     }
 
     func configure() {

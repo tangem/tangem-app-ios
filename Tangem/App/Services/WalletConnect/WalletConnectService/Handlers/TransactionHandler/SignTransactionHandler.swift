@@ -52,6 +52,5 @@ class SignTransactionHandler: WalletConnectTransactionHandler {
                 self?.delegate?.send(.signature(tx, for: request), for: .signTransaction)
             }
             .store(in: &bag)
-
     }
 }

@@ -24,11 +24,13 @@ struct SingleWalletContentView: View {
                 walletView
 
                 if let walletModel = viewModel.singleWalletModel {
-                    AddressDetailView(selectedAddressIndex: $viewModel.selectedAddressIndex,
-                                      walletModel: walletModel,
-                                      copyAddress: viewModel.copyAddress,
-                                      showQr: viewModel.openQR,
-                                      showExplorerURL: viewModel.showExplorerURL(url:))
+                    AddressDetailView(
+                        selectedAddressIndex: $viewModel.selectedAddressIndex,
+                        walletModel: walletModel,
+                        copyAddress: viewModel.copyAddress,
+                        showQr: viewModel.openQR,
+                        showExplorerURL: viewModel.showExplorerURL(url:)
+                    )
                 }
 
             } else {
