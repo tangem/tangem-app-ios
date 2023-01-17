@@ -49,7 +49,7 @@ extension UserWalletFeature {
         case disabled(localizedReason: String? = nil)
 
         var disabledLocalizedReason: String? {
-            if case let .disabled(reason) = self, let reason = reason {
+            if case .disabled(let reason) = self, let reason = reason {
                 return reason
             }
 
