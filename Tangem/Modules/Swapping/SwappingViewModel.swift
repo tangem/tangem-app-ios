@@ -264,7 +264,7 @@ private extension SwappingViewModel {
                 .loaded(result.expectedAmount, fiatValue: result.expectedFiatAmount)
             )
 
-            updateRequiredPermission(isEnoughAllowance: !result.isPermissionRequired)
+            updateRequiredPermission(isPermissionRequired: result.isPermissionRequired)
             updatePendingApprovingTransaction(hasPendingTransaction: result.hasPendingTransaction)
 
         case let .available(result, _):
@@ -273,7 +273,7 @@ private extension SwappingViewModel {
                 .loaded(result.amount, fiatValue: result.fiatAmount)
             )
 
-            updateRequiredPermission(isEnoughAllowance: !result.isPermissionRequired)
+            updateRequiredPermission(isPermissionRequired: result.isPermissionRequired)
             updateEnoughAmountForFee(isEnoughAmountForFee: result.isEnoughAmountForFee)
 
         case .requiredRefresh(let error):
@@ -282,15 +282,15 @@ private extension SwappingViewModel {
         }
     }
 
-    func updateRequiredPermission(isEnoughAllowance: Bool) {
-        if isEnoughAllowance {
-            permissionInfoRowViewModel = nil
-        } else {
+    func updateRequiredPermission(isPermissionRequired: Bool) {
+        if isPermissionRequired {
             permissionInfoRowViewModel = DefaultWarningRowViewModel(
                 title: Localization.swappingGivePermission,
                 subtitle: Localization.swappingPermissionSubheader(exchangeManager.getExchangeItems().source.symbol),
                 leftView: .icon(Assets.swappingLock)
             )
+        } else {
+            permissionInfoRowViewModel = nil
         }
     }
 
