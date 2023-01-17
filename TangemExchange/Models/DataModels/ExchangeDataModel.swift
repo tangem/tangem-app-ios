@@ -34,10 +34,10 @@ public struct ExchangeDataModel {
             throw OneInchExchangeProvider.Errors.incorrectDataFormat
         }
 
-        self.gas = exchangeData.tx.gas
+        gas = exchangeData.tx.gas
         self.gasPrice = gasPrice
-        self.sourceTokenAmount = fromTokenAmount
-        self.destinationTokenAmount = toTokenAmount
+        sourceTokenAmount = fromTokenAmount
+        destinationTokenAmount = toTokenAmount
 
         txData = Data(hexString: exchangeData.tx.data)
         sourceAddress = exchangeData.tx.from

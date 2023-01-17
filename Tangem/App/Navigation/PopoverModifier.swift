@@ -8,7 +8,6 @@
 import SwiftUI
 
 struct PopoverModifier<Item: Identifiable, Destination: View>: ViewModifier {
-
     // MARK: Stored Properties
 
     private let item: Binding<Item?>
@@ -16,11 +15,12 @@ struct PopoverModifier<Item: Identifiable, Destination: View>: ViewModifier {
 
     // MARK: Initialization
 
-    init(item: Binding<Item?>,
-         @ViewBuilder content: @escaping (Item) -> Destination) {
-
+    init(
+        item: Binding<Item?>,
+        @ViewBuilder content: @escaping (Item) -> Destination
+    ) {
         self.item = item
-        self.destination = content
+        destination = content
     }
 
     // MARK: Methods
@@ -28,5 +28,4 @@ struct PopoverModifier<Item: Identifiable, Destination: View>: ViewModifier {
     func body(content: Content) -> some View {
         content.popover(item: item, content: destination)
     }
-
 }

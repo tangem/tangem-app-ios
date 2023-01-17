@@ -11,13 +11,17 @@ import TangemSdk
 import BlockchainSdk
 
 class WalletModelFactory {
-    func makeSingleWallet(walletPublicKey: Data,
-                          blockchain: Blockchain,
-                          token: BlockchainSdk.Token?,
-                          derivationStyle: DerivationStyle?) throws -> WalletModel {
+    func makeSingleWallet(
+        walletPublicKey: Data,
+        blockchain: Blockchain,
+        token: BlockchainSdk.Token?,
+        derivationStyle: DerivationStyle?
+    ) throws -> WalletModel {
         let factory = WalletManagerFactoryProvider().factory
-        let walletManager = try factory.makeWalletManager(blockchain: blockchain,
-                                                          walletPublicKey: walletPublicKey)
+        let walletManager = try factory.makeWalletManager(
+            blockchain: blockchain,
+            walletPublicKey: walletPublicKey
+        )
         if let token = token {
             walletManager.addTokens([token])
         }
@@ -25,25 +29,31 @@ class WalletModelFactory {
         return WalletModel(walletManager: walletManager, derivationStyle: derivationStyle)
     }
 
-    func makeMultipleWallet(walletPublicKeys: [EllipticCurve: Data],
-                            entry: StorageEntry,
-                            derivationStyle: DerivationStyle?) throws -> WalletModel {
+    func makeMultipleWallet(
+        walletPublicKeys: [EllipticCurve: Data],
+        entry: StorageEntry,
+        derivationStyle: DerivationStyle?
+    ) throws -> WalletModel {
         guard let walletPublicKey = walletPublicKeys[entry.blockchainNetwork.blockchain.curve] else {
             throw CommonError.noData
         }
 
         let factory = WalletManagerFactoryProvider().factory
-        let walletManager = try factory.makeWalletManager(blockchain: entry.blockchainNetwork.blockchain,
-                                                          walletPublicKey: walletPublicKey)
+        let walletManager = try factory.makeWalletManager(
+            blockchain: entry.blockchainNetwork.blockchain,
+            walletPublicKey: walletPublicKey
+        )
 
         walletManager.addTokens(entry.tokens)
         return WalletModel(walletManager: walletManager, derivationStyle: derivationStyle)
     }
 
-    func makeMultipleWallet(seedKeys: [EllipticCurve: Data],
-                            entry: StorageEntry,
-                            derivedKeys: [EllipticCurve: [DerivationPath: ExtendedPublicKey]],
-                            derivationStyle: DerivationStyle?) throws -> WalletModel {
+    func makeMultipleWallet(
+        seedKeys: [EllipticCurve: Data],
+        entry: StorageEntry,
+        derivedKeys: [EllipticCurve: [DerivationPath: ExtendedPublicKey]],
+        derivationStyle: DerivationStyle?
+    ) throws -> WalletModel {
         let curve = entry.blockchainNetwork.blockchain.curve
 
         guard let derivationPath = entry.blockchainNetwork.derivationPath else {
@@ -57,10 +67,12 @@ class WalletModelFactory {
         }
 
         let factory = WalletManagerFactoryProvider().factory
-        let walletManager = try factory.makeWalletManager(blockchain: entry.blockchainNetwork.blockchain,
-                                                          seedKey: seedKey,
-                                                          derivedKey: derivedKey,
-                                                          derivation: .custom(derivationPath))
+        let walletManager = try factory.makeWalletManager(
+            blockchain: entry.blockchainNetwork.blockchain,
+            seedKey: seedKey,
+            derivedKey: derivedKey,
+            derivation: .custom(derivationPath)
+        )
         walletManager.addTokens(entry.tokens)
         return WalletModel(walletManager: walletManager, derivationStyle: derivationStyle)
     }

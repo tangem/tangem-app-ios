@@ -10,7 +10,6 @@ import Combine
 import SwiftUI
 
 final class UserWalletStorageAgreementViewModel: ObservableObject, Identifiable {
-
     // MARK: - Dependencies
 
     private unowned let coordinator: UserWalletStorageAgreementRoutable?
