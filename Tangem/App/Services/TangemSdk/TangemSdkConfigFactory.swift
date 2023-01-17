@@ -14,10 +14,12 @@ struct TangemSdkConfigFactory {
         var config = Config()
         config.filter.allowedCardTypes = [.release, .sdk]
         config.logConfig = AppLog.shared.sdkLogConfig
-        config.filter.batchIdFilter = .deny(["0027", // todo: tangem tags
-                                             "0030",
-                                             "0031",
-                                             "0035"])
+        config.filter.batchIdFilter = .deny([
+            "0027", // [REDACTED_TODO_COMMENT]
+            "0030",
+            "0031",
+            "0035",
+        ])
 
         config.filter.issuerFilter = .deny(["TTM BANK"])
         config.allowUntrustedCards = true
