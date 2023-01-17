@@ -104,6 +104,12 @@ class SingleCardOnboardingViewModel: OnboardingTopupViewModel<SingleCardOnboardi
     }
 
     // MARK: Functions
+    
+    func onAppear() {
+        Analytics.log(.onboardingStarted)
+
+        playInitialAnim()
+    }
 
     override func backButtonAction() {
         alert = AlertBuilder.makeExitAlert() { [weak self] in
@@ -171,6 +177,8 @@ class SingleCardOnboardingViewModel: OnboardingTopupViewModel<SingleCardOnboardi
     private func createWallet() {
         guard let cardModel else { return }
 
+        Analytics.log(.buttonCreateWallet)
+        
         isMainButtonBusy = true
 
         var subscription: AnyCancellable? = nil
@@ -198,14 +206,14 @@ class SingleCardOnboardingViewModel: OnboardingTopupViewModel<SingleCardOnboardi
             subscription.map { _ = self?.bag.remove($0) }
         } receiveValue: { [weak self] (_, _) in
             guard let self = self else { return }
+            
+            Analytics.log(.walletCreatedSuccessfully)
 
             self.cardModel?.appendDefaultBlockchains()
 
             if let cardId = self.cardModel?.cardId {
                 AppSettings.shared.cardsStartedActivation.insert(cardId)
             }
-
-            Analytics.log(.onboardingStarted)
 
             self.cardModel?.userWalletModel?.updateAndReloadWalletModels()
             self.walletCreatedWhileOnboarding = true
