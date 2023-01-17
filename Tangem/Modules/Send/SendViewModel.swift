@@ -713,9 +713,9 @@ private extension SendViewModel {
     }
 
     func totalAndFeeInFiatFormatted(from transaction: BlockchainSdk.Transaction, currencyCode: String) -> (total: String, fee: String) {
-        guard let famount = walletModel.getFiat(for: transaction.amount, roundingMode: .plain),
-              let ffee = walletModel.getFiat(for: transaction.fee, roundingMode: .plain),
-              let feeFormatted = walletModel.getFiatFormatted(for: transaction.fee, roundingMode: .plain) else {
+        guard let famount = walletModel.getFiat(for: transaction.amount, roundingMode: .plain, roundToSignificantDigits: true),
+              let ffee = walletModel.getFiat(for: transaction.fee, roundingMode: .plain, roundToSignificantDigits: true),
+              let feeFormatted = walletModel.getFiatFormatted(for: transaction.fee, roundingMode: .plain, roundToSignificantDigits: true) else {
             return (total: "", fee: "")
         }
 
