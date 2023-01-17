@@ -153,7 +153,6 @@ extension Blockchain {
     var iconNameFilled: String { "\(iconName).fill" }
 }
 
-
 extension Blockchain {
     static var supportedBlockchains: Set<Blockchain> = {
         [

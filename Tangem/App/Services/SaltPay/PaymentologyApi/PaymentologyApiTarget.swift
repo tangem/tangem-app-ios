@@ -55,10 +55,12 @@ struct PaymentologyApiTarget: TargetType {
             let data = try! Data(contentsOf: url)
             return data
         case .requestAttestationChallenge:
-            let response = AttestationResponse(challenge: try! CryptoUtils.generateRandomBytes(count: 16),
-                                               error: nil,
-                                               errorCode: nil,
-                                               success: true)
+            let response = AttestationResponse(
+                challenge: try! CryptoUtils.generateRandomBytes(count: 16),
+                error: nil,
+                errorCode: nil,
+                success: true
+            )
             let data = try! JSONEncoder.saltPayEncoder.encode(response)
             return data
         case .registerWallet:
@@ -96,7 +98,7 @@ extension JSONDecoder {
 }
 
 extension JSONEncoder {
-    static var saltPayEncoder: JSONEncoder  {
+    static var saltPayEncoder: JSONEncoder {
         let encoder = JSONEncoder()
         encoder.dataEncodingStrategy = .custom { data, encoder in
             var container = encoder.singleValueContainer()
