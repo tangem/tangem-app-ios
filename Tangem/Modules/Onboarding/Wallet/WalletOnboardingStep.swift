@@ -174,15 +174,14 @@ extension WalletOnboardingStep: OnboardingButtonsInfoProvider {
         case .createWallet: return Localization.onboardingButtonWhatDoesItMean
         case .backupIntro: return Localization.onboardingButtonSkipBackup
         case .selectBackupCards: return Localization.onboardingButtonFinalizeBackup
-        case .kycWaiting: return  Localization.onboardingButtonKycWaiting
+        case .kycWaiting: return Localization.onboardingButtonKycWaiting
         case .enterPin: return Localization.onboardingButtonPin
-        case .registerWallet:  return Localization.onboardingButtonRegisterWallet
-        case .kycStart, .kycRetry:  return Localization.onboardingButtonKycStart
+        case .registerWallet: return Localization.onboardingButtonRegisterWallet
+        case .kycStart, .kycRetry: return Localization.onboardingButtonKycStart
         case .claim: return Localization.onboardingButtonClaim
         case .successClaim: return Localization.onboardingButtonContinueWallet
         default: return ""
         }
-
     }
 
     var isSupplementButtonVisible: Bool {
@@ -238,4 +237,4 @@ extension WalletOnboardingStep: OnboardingProgressStepIndicatable {
     }
 }
 
-extension WalletOnboardingStep: OnboardingTopupBalanceLayoutCalculator { }
+extension WalletOnboardingStep: OnboardingTopupBalanceLayoutCalculator {}

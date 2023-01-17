@@ -14,6 +14,6 @@ public enum ABIError: String, LocalizedError {
     case functionSignatureMismatch
 
     public var errorDescription: String? {
-        return self.rawValue
+        return rawValue
     }
 }
