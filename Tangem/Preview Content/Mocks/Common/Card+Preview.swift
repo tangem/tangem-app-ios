@@ -10,9 +10,7 @@ import Foundation
 import TangemSdk
 
 extension Card {
-    static var card: Card = {
-        fromJson(cardJson)
-    }()
+    static var card: Card = fromJson(cardJson)
 
     private static func fromJson(_ json: String) -> Card {
         let jsonData = json.data(using: .utf8)!
@@ -25,7 +23,7 @@ extension Card {
             guard let error = error as? DecodingError else {
                 fatalError(error.localizedDescription)
             }
-            if case let DecodingError.keyNotFound(_, context) = error {
+            if case DecodingError.keyNotFound(_, let context) = error {
                 fatalError(context.debugDescription)
             }
             fatalError(error.errorDescription ?? error.localizedDescription)
