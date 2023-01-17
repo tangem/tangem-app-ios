@@ -67,7 +67,7 @@ class DetailsViewModel: ObservableObject {
     func prepareBackup() {
         Analytics.log(.buttonCreateBackup)
         if let input = cardModel.backupInput {
-            self.openOnboarding(with: input)
+            openOnboarding(with: input)
         }
     }
 
@@ -88,12 +88,16 @@ extension DetailsViewModel {
 
         guard let emailConfig = cardModel.emailConfig else { return }
 
-        let dataCollector = DetailsFeedbackDataCollector(cardModel: cardModel,
-                                                         userWalletEmailData: cardModel.emailData)
+        let dataCollector = DetailsFeedbackDataCollector(
+            cardModel: cardModel,
+            userWalletEmailData: cardModel.emailData
+        )
 
-        coordinator.openMail(with: dataCollector,
-                             recipient: emailConfig.recipient,
-                             emailType: .appFeedback(subject: emailConfig.subject))
+        coordinator.openMail(
+            with: dataCollector,
+            recipient: emailConfig.recipient,
+            emailType: .appFeedback(subject: emailConfig.subject)
+        )
     }
 
     func openWalletConnect() {
@@ -121,11 +125,15 @@ extension DetailsViewModel {
 
     func openSupportChat() {
         Analytics.log(.buttonChat)
-        let dataCollector = DetailsFeedbackDataCollector(cardModel: cardModel,
-                                                         userWalletEmailData: cardModel.emailData)
+        let dataCollector = DetailsFeedbackDataCollector(
+            cardModel: cardModel,
+            userWalletEmailData: cardModel.emailData
+        )
 
-        coordinator.openSupportChat(cardId: cardModel.cardId,
-                                    dataCollector: dataCollector)
+        coordinator.openSupportChat(
+            cardId: cardModel.cardId,
+            dataCollector: dataCollector
+        )
     }
 
     func openDisclaimer() {
@@ -204,7 +212,7 @@ extension DetailsViewModel {
             DefaultRowViewModel(title: Localization.detailsRowTitleSendFeedback, action: openMail),
         ]
 
-        if cardModel.canParticipateInReferralProgram && FeatureProvider.isAvailable(.referralProgram) {
+        if cardModel.canParticipateInReferralProgram, FeatureProvider.isAvailable(.referralProgram) {
             supportSectionModels.append(DefaultRowViewModel(title: Localization.detailsReferralTitle, action: openReferral))
         }
     }
