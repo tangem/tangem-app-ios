@@ -24,7 +24,7 @@ extension CommonWalletConnectService: WalletConnectService {
             return Publishers.CombineLatest(
                 v1Service.canEstablishNewSessionPublisher,
                 v2Service.canEstablishNewSessionPublisher
-            ).map { (v1Can, v2Can) in
+            ).map { v1Can, v2Can in
                 v1Can && v2Can
             }
             .eraseToAnyPublisher()
