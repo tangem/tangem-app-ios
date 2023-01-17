@@ -79,4 +79,3 @@ extension ReceiveCurrencyViewModel: Hashable {
         hasher.combine(tokenIcon)
     }
 }
-
