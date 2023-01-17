@@ -10,7 +10,6 @@ import Foundation
 
 public protocol BlockchainDataProvider {
     func updateWallet() async throws
-    /// Use this method for pending approving transaction
     func hasPendingTransaction(currency: Currency, to spenderAddress: String) -> Bool
     func getWalletAddress(currency: Currency) -> String?
 
