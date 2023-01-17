@@ -41,7 +41,7 @@ enum TwinCardsUtils {
     private static func calculateLuhn(for cid: String) -> Int {
         cid.reversed()
             .enumerated()
-            .reduce(0, {
+            .reduce(0) {
                 var int = ($1.element.hexDigitValue ?? 0)
                 int -= int < 10 ? 0 : 0xA
                 if $1.offset % 2 == 0 {
@@ -50,7 +50,7 @@ enum TwinCardsUtils {
                     let doubled = int * 2
                     return $0 + (doubled >= 10 ? doubled - 9 : doubled)
                 }
-            })
+            }
     }
 
     private static func calculateLuhnRemainder(_ cid: String) -> Int {
@@ -62,5 +62,4 @@ enum TwinCardsUtils {
         if remainder == 0 { return 0 }
         return 10 - remainder
     }
-
 }
