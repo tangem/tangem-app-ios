@@ -188,6 +188,7 @@ class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable>
 
     func onOnboardingFinished(for cardId: String) {
         AppSettings.shared.cardsStartedActivation.remove(cardId)
+        Analytics.log(.onboardingFinished)
     }
 
     func backButtonAction() {}
@@ -196,7 +197,6 @@ class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable>
         if !confettiFired {
             shouldFireConfetti = true
             confettiFired = true
-            Analytics.log(.walletCreatedSuccessfully)
         }
     }
 
@@ -277,15 +277,19 @@ class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable>
 
     private func bindAnalytics() {
         $currentStepIndex
-            .dropFirst()
             .removeDuplicates()
-            .receiveValue { [weak self] index in
-                guard let self else { return }
-
-                let currentStep = self.currentStep
+            .combineLatest($steps)
+            .receiveValue { index, steps in
+                guard index < steps.count else { return }
+                
+                let currentStep = steps[index]
 
                 if let walletStep = currentStep as? WalletOnboardingStep {
                     switch walletStep {
+                    case .createWallet:
+                        Analytics.log(.createWalletScreenOpened)
+                    case .backupIntro:
+                        Analytics.log(.backupScreenOpened)
                     case .kycProgress:
                         Analytics.log(.kycProgressScreenOpened)
                     case .kycRetry:
@@ -294,6 +298,20 @@ class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable>
                         Analytics.log(.kycWaitingScreenOpened)
                     case .claim:
                         Analytics.log(.claimScreenOpened)
+                    default:
+                        break
+                    }
+                } else if let singleCardStep = currentStep as? SingleCardOnboardingStep {
+                    switch singleCardStep {
+                    case .createWallet:
+                        Analytics.log(.createWalletScreenOpened)
+                    default:
+                        break
+                    }
+                } else if let twinStep = currentStep as? TwinsOnboardingStep {
+                    switch twinStep {
+                    case .first:
+                        Analytics.log(.createWalletScreenOpened)
                     default:
                         break
                     }
