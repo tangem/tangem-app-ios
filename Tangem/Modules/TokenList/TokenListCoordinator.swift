@@ -13,9 +13,11 @@ class TokenListCoordinator: CoordinatorObject {
     var popToRootAction: ParamsAction<PopToRootOptions>
 
     // MARK: - Main view model
+
     @Published private(set) var tokenListViewModel: TokenListViewModel? = nil
 
     // MARK: - Child view models
+
     @Published var addCustomTokenViewModel: AddCustomTokenViewModel? = nil
 
     required init(dismissAction: @escaping Action, popToRootAction: @escaping ParamsAction<PopToRootOptions>) {
