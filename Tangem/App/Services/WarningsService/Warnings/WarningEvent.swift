@@ -73,5 +73,4 @@ enum WarningButton: String, Identifiable {
         case .dismiss: return ""
         }
     }
-
 }
