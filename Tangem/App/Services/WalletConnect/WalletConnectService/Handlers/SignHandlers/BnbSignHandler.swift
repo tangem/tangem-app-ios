@@ -19,10 +19,12 @@ fileprivate struct TransactionMessage: BinanceMessage {
         let amount: Int64
         let denom: String
     }
+
     struct Item: Codable {
         let address: String
         let coins: [Coin]
     }
+
     let inputs: [Item]
     let outputs: [Item]
 }
@@ -76,7 +78,6 @@ fileprivate struct BnbMessageDTO {
 }
 
 class BnbSignHandler: WalletConnectSignHandler {
-
     override var action: WalletConnectAction { .bnbSign }
 
     override func handle(request: Request) {
@@ -117,7 +118,6 @@ class BnbSignHandler: WalletConnectSignHandler {
             AppLog.shared.error(error)
             return .reject(request)
         }
-
     }
 
     override func sign(data: Data, walletPublicKey: Wallet.PublicKey, signer: TangemSigner) -> AnyPublisher<String, Error> {
@@ -144,7 +144,7 @@ class BnbSignHandler: WalletConnectSignHandler {
 
             let address = input.address
             let currency = input.coins.first?.denom ?? blockchain.currencySymbol
-            let amountToSend: Int64 = input.coins.reduce(0, { $0 + ($1.denom == currency ? $1.amount : 0) })
+            let amountToSend: Int64 = input.coins.reduce(0) { $0 + ($1.denom == currency ? $1.amount : 0) }
             let uiMessage = Localization.walletConnectBnbTransactionMessage(
                 address,
                 output.address,
@@ -159,7 +159,7 @@ class BnbSignHandler: WalletConnectSignHandler {
         } else if let tradeMessage = try? request.parameter(of: BinanceSingMessage<TradeMessage>.self, at: 0) {
             guard let address = tradeMessage.messages.first?.sender else { return nil }
 
-            var uiMessage: String = ""
+            var uiMessage = ""
             let numberOfMessages = tradeMessage.messages.count
             for i in 0 ..< numberOfMessages {
                 let message = tradeMessage.messages[i]
@@ -169,7 +169,8 @@ class BnbSignHandler: WalletConnectSignHandler {
                     message.symbol,
                     "\(price.description) \(blockchain.currencySymbol)",
                     "\(quantity)",
-                    "\(price * quantity) \(blockchain.currencySymbol)")
+                    "\(price * quantity) \(blockchain.currencySymbol)"
+                )
                 )
                 if i < (numberOfMessages - 1) {
                     uiMessage += "\n\n"
@@ -183,11 +184,9 @@ class BnbSignHandler: WalletConnectSignHandler {
 
         return nil
     }
-
 }
 
 class BnbSuccessHandler: TangemWalletConnectRequestHandler {
-
     struct ConfirmationResponse: Decodable {
         let ok: Bool
         let error: String?
@@ -222,5 +221,4 @@ class BnbSuccessHandler: TangemWalletConnectRequestHandler {
             delegate?.sendInvalid(request)
         }
     }
-
 }

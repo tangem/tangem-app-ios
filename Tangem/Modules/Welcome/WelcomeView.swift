@@ -20,9 +20,11 @@ struct WelcomeView: View {
             .onDidAppear(viewModel.onDidAppear)
             .onDisappear(perform: viewModel.onDisappear)
             .background(
-                ScanTroubleshootingView(isPresented: $viewModel.showTroubleshootingView,
-                                        tryAgainAction: viewModel.tryAgain,
-                                        requestSupportAction: viewModel.requestSupport)
+                ScanTroubleshootingView(
+                    isPresented: $viewModel.showTroubleshootingView,
+                    tryAgainAction: viewModel.tryAgain,
+                    requestSupportAction: viewModel.requestSupport
+                )
             )
     }
 
@@ -30,7 +32,7 @@ struct WelcomeView: View {
         StoriesView(viewModel: viewModel.storiesModel) { // [REDACTED_TODO_COMMENT]
             viewModel.storiesModel.currentStoryPage(
                 isScanning: viewModel.isScanningCard,
-                scanCard: viewModel.scanCard,
+                scanCard: viewModel.scanCardTapped,
                 orderCard: viewModel.orderCard,
                 searchTokens: viewModel.openTokensList
             )

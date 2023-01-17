@@ -12,7 +12,7 @@ import TangemSdk
 
 final class SwappingPermissionViewModel: ObservableObject, Identifiable {
     /// For SwiftUI sheet logic
-    let id: UUID = UUID()
+    let id: UUID = .init()
 
     // MARK: - ViewState
 
@@ -82,14 +82,22 @@ private extension SwappingPermissionViewModel {
         let formattedFee = "\(fee.groupedFormatted()) \(inputModel.transactionInfo.sourceBlockchain.symbol) (\(fiatFee))"
 
         contentRowViewModels = [
-            DefaultRowViewModel(title: Localization.swappingPermissionRowsAmount(tokenSymbol),
-                                detailsType: .icon(Assets.infinityMini)),
-            DefaultRowViewModel(title: Localization.swappingPermissionRowsYourWallet,
-                                detailsType: .text(String(walletAddress))),
-            DefaultRowViewModel(title: Localization.swappingPermissionRowsSpender,
-                                detailsType: .text(String(spenderAddress))),
-            DefaultRowViewModel(title: Localization.sendFeeLabel,
-                                detailsType: .text(formattedFee)),
+            DefaultRowViewModel(
+                title: Localization.swappingPermissionRowsAmount(tokenSymbol),
+                detailsType: .icon(Assets.infinityMini)
+            ),
+            DefaultRowViewModel(
+                title: Localization.swappingPermissionRowsYourWallet,
+                detailsType: .text(String(walletAddress))
+            ),
+            DefaultRowViewModel(
+                title: Localization.swappingPermissionRowsSpender,
+                detailsType: .text(String(spenderAddress))
+            ),
+            DefaultRowViewModel(
+                title: Localization.sendFeeLabel,
+                detailsType: .text(formattedFee)
+            ),
         ]
     }
 }
