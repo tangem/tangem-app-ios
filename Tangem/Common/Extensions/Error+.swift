@@ -12,8 +12,8 @@ import SwiftUI
 
 extension Error {
     var detailedError: Error {
-        if case let .underlying(uError, _) = self as? MoyaError,
-           case let .sessionTaskFailed(sessionError) = uError.asAFError {
+        if case .underlying(let uError, _) = self as? MoyaError,
+           case .sessionTaskFailed(let sessionError) = uError.asAFError {
             return sessionError
         }
         return self
