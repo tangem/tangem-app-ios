@@ -10,8 +10,8 @@ import Foundation
 
 extension String {
     func removeLatestSlash() -> String {
-        if self.last == "/" {
-            return String(self.dropLast())
+        if last == "/" {
+            return String(dropLast())
         }
 
         return self
@@ -22,17 +22,17 @@ extension String {
     }
 
     mutating func capitalizeFirstLetter() {
-        self = self.capitalizingFirstLetter()
+        self = capitalizingFirstLetter()
     }
 
     func remove(contentsOf strings: [String]) -> String {
-        strings.reduce(into: self, {
+        strings.reduce(into: self) {
             $0 = $0.remove($1)
-        })
+        }
     }
 
     func trimmed() -> String {
-        self.trimmingCharacters(in: .whitespacesAndNewlines)
+        trimmingCharacters(in: .whitespacesAndNewlines)
     }
 
     func camelCaseToSnakeCase() -> String {
