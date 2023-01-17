@@ -126,20 +126,24 @@ class MainViewModel: ObservableObject {
                 return blockchain.testnetFaucetURL
             }
 
-            return exchangeService.getBuyUrl(currencySymbol: wallet.blockchain.currencySymbol,
-                                             amountType: .coin,
-                                             blockchain: wallet.blockchain,
-                                             walletAddress: wallet.address)
+            return exchangeService.getBuyUrl(
+                currencySymbol: wallet.blockchain.currencySymbol,
+                amountType: .coin,
+                blockchain: wallet.blockchain,
+                walletAddress: wallet.address
+            )
         }
         return nil
     }
 
     var sellCryptoURL: URL? {
         if let wallet {
-            return exchangeService.getSellUrl(currencySymbol: wallet.blockchain.currencySymbol,
-                                              amountType: .coin,
-                                              blockchain: wallet.blockchain,
-                                              walletAddress: wallet.address)
+            return exchangeService.getSellUrl(
+                currencySymbol: wallet.blockchain.currencySymbol,
+                amountType: .coin,
+                blockchain: wallet.blockchain,
+                walletAddress: wallet.address
+            )
         }
 
         return nil
@@ -252,7 +256,7 @@ class MainViewModel: ObservableObject {
 
     func didTapUserWalletListButton() {
         Analytics.log(.buttonMyWallets)
-        self.coordinator.openUserWalletList()
+        coordinator.openUserWalletList()
     }
 
     func sendTapped() {
@@ -272,6 +276,7 @@ class MainViewModel: ObservableObject {
     }
 
     func deriveEntriesWithoutDerivation() {
+        Analytics.log(.noticeScanYourCardTapped)
         cardModel.deriveEntriesWithoutDerivation()
     }
 
@@ -302,15 +307,17 @@ class MainViewModel: ObservableObject {
             openMail(with: .negativeFeedback)
         case .learnMore:
             if case .multiWalletSignedHashes = warning.event {
-                error = AlertBinder(alert: Alert(title: Text(warning.title),
-                                                 message: Text(Localization.alertSignedHashesMessage),
-                                                 primaryButton: .cancel(),
-                                                 secondaryButton: .default(Text(Localization.commonUnderstand)) { [weak self] in
-                                                     withAnimation {
-                                                         registerValidatedSignedHashesCard()
-                                                         self?.warningsService.hideWarning(warning)
-                                                     }
-                                                 }))
+                error = AlertBinder(alert: Alert(
+                    title: Text(warning.title),
+                    message: Text(Localization.alertSignedHashesMessage),
+                    primaryButton: .cancel(),
+                    secondaryButton: .default(Text(Localization.commonUnderstand)) { [weak self] in
+                        withAnimation {
+                            registerValidatedSignedHashesCard()
+                            self?.warningsService.hideWarning(warning)
+                        }
+                    }
+                ))
                 return
             }
         }
@@ -428,10 +435,12 @@ extension MainViewModel {
         guard let blockchainNetwork = cardModel.walletModels.first?.blockchainNetwork else { return }
 
         let amount = Amount(with: blockchainNetwork.blockchain, value: request.amount)
-        coordinator.openSendToSell(amountToSend: amount,
-                                   destination: request.targetAddress,
-                                   blockchainNetwork: blockchainNetwork,
-                                   cardViewModel: cardModel)
+        coordinator.openSendToSell(
+            amountToSend: amount,
+            destination: request.targetAddress,
+            blockchainNetwork: blockchainNetwork,
+            cardViewModel: cardModel
+        )
     }
 
     func openSellCrypto() {
@@ -528,8 +537,10 @@ extension MainViewModel: MultiWalletContentViewModelOutput {
     }
 
     func openTokenDetails(_ tokenItem: TokenItemViewModel) {
-        coordinator.openTokenDetails(cardModel: cardModel,
-                                     blockchainNetwork: tokenItem.blockchainNetwork,
-                                     amountType: tokenItem.amountType)
+        coordinator.openTokenDetails(
+            cardModel: cardModel,
+            blockchainNetwork: tokenItem.blockchainNetwork,
+            amountType: tokenItem.amountType
+        )
     }
 }
