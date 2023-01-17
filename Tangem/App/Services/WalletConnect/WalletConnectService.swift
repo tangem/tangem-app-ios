@@ -16,20 +16,22 @@ class CommonWalletConnectService {
 
 extension CommonWalletConnectService: WalletConnectService {
     var canEstablishNewSessionPublisher: AnyPublisher<Bool, Never> {
-        guard
-            let v1Service = v1Service,
-            let v2Service = v2Service
-        else {
+        guard let v1Service = v1Service else {
             return Just(false).eraseToAnyPublisher()
         }
 
-        return Publishers.CombineLatest(
-            v1Service.canEstablishNewSessionPublisher,
-            v2Service.canEstablishNewSessionPublisher
-        ).map { (v1Can, v2Can) in
-            v1Can && v2Can
+        if let v2Service = v2Service {
+            return Publishers.CombineLatest(
+                v1Service.canEstablishNewSessionPublisher,
+                v2Service.canEstablishNewSessionPublisher
+            ).map { (v1Can, v2Can) in
+                v1Can && v2Can
+            }
+            .eraseToAnyPublisher()
         }
-        .eraseToAnyPublisher()
+
+        return v1Service.canEstablishNewSessionPublisher
+            .eraseToAnyPublisher()
     }
 
     var sessionsPublisher: AnyPublisher<[WalletConnectSession], Never> {
@@ -43,7 +45,7 @@ extension CommonWalletConnectService: WalletConnectService {
 
     var newSessions: AsyncStream<[WalletConnectSavedSession]> {
         get async {
-            await v2Service!.newSessions
+            await v2Service?.newSessions ?? AsyncStream { $0.finish() }
         }
     }
 
@@ -59,7 +61,10 @@ extension CommonWalletConnectService: WalletConnectService {
         }
 
         v1Service = .init(with: cardModel)
-        v2Service = .init(with: cardModel)
+
+        if FeatureProvider.isAvailable(.walletConnectV2) {
+            v2Service = .init(with: cardModel)
+        }
     }
 
     func reset() {
