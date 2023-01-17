@@ -158,6 +158,18 @@ class TwinsOnboardingViewModel: OnboardingTopupViewModel<TwinsOnboardingStep, On
         loadSecondTwinImage()
     }
 
+    func onAppear() {
+        Analytics.log(.onboardingStarted)
+
+        if isInitialAnimPlayed {
+            return
+        }
+
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+            self.playInitialAnim()
+        }
+    }
+
     override func setupContainer(with size: CGSize) {
         stackCalculator.setup(for: size, with: .init(topCardSize: TwinOnboardingCardLayout.first.frame(for: .first, containerSize: size),
                                                      topCardOffset: .init(width: 0, height: 0.06 * size.height),
@@ -195,11 +207,8 @@ class TwinsOnboardingViewModel: OnboardingTopupViewModel<TwinsOnboardingStep, On
         case .done, .success, .alert:
             goToNextStep()
         case .first:
-            if !retwinMode {
-                if let cardId = cardModel?.cardId {
-                    AppSettings.shared.cardsStartedActivation.insert(cardId)
-                }
-                Analytics.log(.onboardingStarted)
+            if !retwinMode, let cardId = cardModel?.cardId {
+                AppSettings.shared.cardsStartedActivation.insert(cardId)
             }
 
             if twinsService.step.value != .first {
