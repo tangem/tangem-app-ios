@@ -43,7 +43,8 @@ class MultiWalletContentViewModel: ObservableObject {
     )
     private lazy var totalBalanceCardSupportInfo = TotalBalanceCardSupportInfo(
         cardBatchId: cardModel.batchId,
-        cardNumber: cardModel.cardId
+        cardNumber: cardModel.cardId,
+        embeddedBlockchainCurrencySymbol: cardModel.embeddedBlockchain?.currencySymbol
     )
 
     init(
