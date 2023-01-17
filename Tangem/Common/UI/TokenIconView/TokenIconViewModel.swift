@@ -22,7 +22,7 @@ struct TokenIconViewModel: Hashable, Identifiable {
     }
 
     var blockchainIconName: String? {
-        if case let .token(iconName) = style {
+        if case .token(let iconName) = style {
             return iconName
         }
 
@@ -41,9 +41,9 @@ struct TokenIconViewModel: Hashable, Identifiable {
 
     init(tokenItem: TokenItem) {
         switch tokenItem {
-        case let .blockchain(blockchain):
+        case .blockchain(let blockchain):
             self.init(id: blockchain.id, name: blockchain.displayName, style: .blockchain)
-        case let .token(token, blockchain):
+        case .token(let token, let blockchain):
             self.init(id: token.id, name: token.name, style: .token(blockchain.iconNameFilled))
         }
     }
