@@ -676,6 +676,9 @@
 		EF808443293F6B69000D91EA /* TokenIconURLBuilding.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF808442293F6B69000D91EA /* TokenIconURLBuilding.swift */; };
 		EF808445293F6B76000D91EA /* TokenURLIconSize.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF808444293F6B76000D91EA /* TokenURLIconSize.swift */; };
 		EF808447293F6C27000D91EA /* TokenIconURLBuilderMock.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF808446293F6C27000D91EA /* TokenIconURLBuilderMock.swift */; };
+		EF862714297182B6007EBFF9 /* SuccessSwappingCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF862712297182B6007EBFF9 /* SuccessSwappingCoordinator.swift */; };
+		EF862715297182B6007EBFF9 /* SuccessSwappingCoordinatorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF862713297182B6007EBFF9 /* SuccessSwappingCoordinatorView.swift */; };
+		EF8627172971897D007EBFF9 /* SuccessSwappingInputModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF8627162971897D007EBFF9 /* SuccessSwappingInputModel.swift */; };
 		EF8F2352294098C80046F4C0 /* SwappingDestinationServiceMock.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF8F2351294098C80046F4C0 /* SwappingDestinationServiceMock.swift */; };
 		EF92412F2934BB8000C28551 /* MainButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF92412E2934BB8000C28551 /* MainButton.swift */; };
 		EF9241322934C25400C28551 /* DependenciesFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF9241312934C25400C28551 /* DependenciesFactory.swift */; };
@@ -1578,6 +1581,9 @@
 		EF808442293F6B69000D91EA /* TokenIconURLBuilding.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenIconURLBuilding.swift; sourceTree = "<group>"; };
 		EF808444293F6B76000D91EA /* TokenURLIconSize.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenURLIconSize.swift; sourceTree = "<group>"; };
 		EF808446293F6C27000D91EA /* TokenIconURLBuilderMock.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenIconURLBuilderMock.swift; sourceTree = "<group>"; };
+		EF862712297182B6007EBFF9 /* SuccessSwappingCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SuccessSwappingCoordinator.swift; sourceTree = "<group>"; };
+		EF862713297182B6007EBFF9 /* SuccessSwappingCoordinatorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SuccessSwappingCoordinatorView.swift; sourceTree = "<group>"; };
+		EF8627162971897D007EBFF9 /* SuccessSwappingInputModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SuccessSwappingInputModel.swift; sourceTree = "<group>"; };
 		EF8F2351294098C80046F4C0 /* SwappingDestinationServiceMock.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwappingDestinationServiceMock.swift; sourceTree = "<group>"; };
 		EF92412E2934BB8000C28551 /* MainButton.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MainButton.swift; sourceTree = "<group>"; };
 		EF9241312934C25400C28551 /* DependenciesFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DependenciesFactory.swift; sourceTree = "<group>"; };
@@ -4043,6 +4049,9 @@
 				EF11DD87293789C60044B33C /* SuccessSwappingRoutable.swift */,
 				EF11DD88293789C60044B33C /* SuccessSwappingView.swift */,
 				EF11DD89293789C60044B33C /* SuccessSwappingViewModel.swift */,
+				EF862712297182B6007EBFF9 /* SuccessSwappingCoordinator.swift */,
+				EF862713297182B6007EBFF9 /* SuccessSwappingCoordinatorView.swift */,
+				EF8627162971897D007EBFF9 /* SuccessSwappingInputModel.swift */,
 			);
 			path = SuccessSwapping;
 			sourceTree = "<group>";
@@ -4683,6 +4692,7 @@
 				B037B1EE256E747F0022EFFF /* TwinsFinalizeWalletCreationTask.swift in Sources */,
 				EF4661D22923E4C000346B6C /* BlockchainNetworkService.swift in Sources */,
 				DC0A5808282501CA0031BECC /* MoonPayKeys.swift in Sources */,
+				EF862714297182B6007EBFF9 /* SuccessSwappingCoordinator.swift in Sources */,
 				B00D7150258A1B6C00A9442C /* JsonUtils.swift in Sources */,
 				5DFE855724EF051400194106 /* Error+.swift in Sources */,
 				DC261CB6292CF6B700875E64 /* UncompletedBackupViewModel.swift in Sources */,
@@ -4925,6 +4935,7 @@
 				5DBBAB0F24D8617C00E78F1C /* CardRectView.swift in Sources */,
 				B0EBBB222924C42E00020EC2 /* ReferralParticipationRequestBody.swift in Sources */,
 				DC5118632860A339004FB954 /* SecurityModeRoutable.swift in Sources */,
+				EF8627172971897D007EBFF9 /* SuccessSwappingInputModel.swift in Sources */,
 				DC22535928A4FD9C0094F30C /* UserWalletConfigFactory.swift in Sources */,
 				B0606E122684A946004004ED /* BlinkingModifier.swift in Sources */,
 				EFFC860E28BCE87700F863CE /* LegacyCardMigrator.swift in Sources */,
@@ -5150,6 +5161,7 @@
 				DAA5E31628D213A4003C0E80 /* CardDTO.swift in Sources */,
 				B020A51726F1DD9E00D38596 /* OnboardingTopupViewModel.swift in Sources */,
 				5D9DCB0C255199AA0059799C /* SecurityModeViewModel.swift in Sources */,
+				EF862715297182B6007EBFF9 /* SuccessSwappingCoordinatorView.swift in Sources */,
 				DA4C84CE27DA2D6D00B76F91 /* StoriesConstants.swift in Sources */,
 				DAA5E31228D2137C003C0E80 /* UserWalletEncryptionKeyStorage.swift in Sources */,
 				5DF612A224E6E0ED001BF301 /* AddressFormatter.swift in Sources */,
