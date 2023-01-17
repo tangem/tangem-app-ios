@@ -48,7 +48,7 @@ extension SwappingFeeRowViewModel {
             switch self {
             case .idle, .loading:
                 return ""
-            case let .fee(fee, symbol, fiat):
+            case .fee(let fee, let symbol, let fiat):
                 return "\(fee) \(symbol) (\(fiat))"
             }
         }
