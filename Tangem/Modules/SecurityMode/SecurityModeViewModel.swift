@@ -32,7 +32,7 @@ class SecurityModeViewModel: ObservableObject {
     init(cardModel: CardViewModel, coordinator: SecurityModeRoutable) {
         self.cardModel = cardModel
         self.coordinator = coordinator
-        self.currentSecurityOption = cardModel.currentSecurityOption
+        currentSecurityOption = cardModel.currentSecurityOption
 
         updateView()
         bind()
@@ -132,6 +132,7 @@ enum SecurityModeOption: String, CaseIterable, Identifiable, Equatable {
 }
 
 // MARK: - Navigation
+
 extension SecurityModeViewModel {
     func openPinChange() {
         coordinator.openPinChange(with: currentSecurityOption.title) { [weak self] completion in
