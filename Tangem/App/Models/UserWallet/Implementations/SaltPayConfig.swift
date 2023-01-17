@@ -7,8 +7,6 @@
 //
 
 import Foundation
-
-import Foundation
 import TangemSdk
 import BlockchainSdk
 
@@ -39,7 +37,7 @@ struct SaltPayConfig {
 
         var steps: [WalletOnboardingStep] = .init()
 
-        if !card.wallets.isEmpty && !backupServiceProvider.backupService.primaryCardIsSet {
+        if !card.wallets.isEmpty, !backupServiceProvider.backupService.primaryCardIsSet {
             steps.append(.scanPrimaryCard)
         }
 
@@ -200,9 +198,11 @@ extension SaltPayConfig: UserWalletConfig {
         }
 
         let factory = WalletModelFactory()
-        return try factory.makeSingleWallet(walletPublicKey: walletPublicKey,
-                                            blockchain: blockchain,
-                                            token: token.tokens.first,
-                                            derivationStyle: card.derivationStyle)
+        return try factory.makeSingleWallet(
+            walletPublicKey: walletPublicKey,
+            blockchain: blockchain,
+            token: token.tokens.first,
+            derivationStyle: card.derivationStyle
+        )
     }
 }
