@@ -26,14 +26,16 @@ enum WalletConnectEvent {
 }
 
 enum WalletConnectUIBuilder {
-    static func makeAlert(for event: WalletConnectEvent,
-                          message: String,
-                          onAcceptAction: @escaping () -> Void = {},
-                          isAcceptEnabled: Bool = true,
-                          onReject: @escaping () -> Void = {},
-                          extraTitle: String? = nil,
-                          onExtra: @escaping () -> Void = {}) -> UIAlertController {
-        let vc: UIAlertController = UIAlertController(title: "WalletConnect", message: message, preferredStyle: .alert)
+    static func makeAlert(
+        for event: WalletConnectEvent,
+        message: String,
+        onAcceptAction: @escaping () -> Void = {},
+        isAcceptEnabled: Bool = true,
+        onReject: @escaping () -> Void = {},
+        extraTitle: String? = nil,
+        onExtra: @escaping () -> Void = {}
+    ) -> UIAlertController {
+        let vc = UIAlertController(title: "WalletConnect", message: message, preferredStyle: .alert)
         let buttonTitle: String
 
         switch event {
@@ -66,7 +68,7 @@ enum WalletConnectUIBuilder {
     }
 
     static func makeChainsSheet(_ wallets: [Wallet], onAcceptAction: @escaping (Wallet) -> Void, onReject: @escaping () -> Void) -> UIAlertController {
-        let vc: UIAlertController = UIAlertController(title: "WalletConnect", message: Localization.walletConnectSelectNetwork, preferredStyle: .actionSheet)
+        let vc = UIAlertController(title: "WalletConnect", message: Localization.walletConnectSelectNetwork, preferredStyle: .actionSheet)
 
         for wallet in wallets {
             let addressFormatter = AddressFormatter(address: wallet.address)

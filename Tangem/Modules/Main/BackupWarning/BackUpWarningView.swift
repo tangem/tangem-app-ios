@@ -9,7 +9,7 @@
 import SwiftUI
 
 struct BackUpWarningButton: View {
-    let tapAction: () -> ()
+    let tapAction: () -> Void
 
     var body: some View {
         Button {
@@ -49,6 +49,6 @@ struct BackUpWarningButton: View {
 
 struct BackUpWarningView_Previews: PreviewProvider {
     static var previews: some View {
-        BackUpWarningButton(tapAction: { })
+        BackUpWarningButton(tapAction: {})
     }
 }
