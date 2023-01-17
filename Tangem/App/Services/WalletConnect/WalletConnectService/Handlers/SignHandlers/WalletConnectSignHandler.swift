@@ -27,7 +27,7 @@ class WalletConnectSignHandler: TangemWalletConnectRequestHandler {
         self.dataSource = dataSource
     }
 
-    func handle(request: Request) { }
+    func handle(request: Request) {}
 
     func signatureResponse(for signature: String, session: WalletConnectSession, request: Request) -> Response {
         fatalError("Must be overriden by a subclass")
@@ -56,12 +56,16 @@ class WalletConnectSignHandler: TangemWalletConnectRequestHandler {
         }
 
         let alertMessage = Localization.walletConnectAlertSignMessage(message)
-        let controller = WalletConnectUIBuilder.makeAlert(for: .sign,
-                                                          message: alertMessage,
-                                                          onAcceptAction: onSign,
-                                                          onReject: { self.delegate?.sendReject(for: request,
-                                                                                                with: WalletConnectServiceError.cancelled,
-                                                                                                for: self.action) })
+        let controller = WalletConnectUIBuilder.makeAlert(
+            for: .sign,
+            message: alertMessage,
+            onAcceptAction: onSign,
+            onReject: { self.delegate?.sendReject(
+                for: request,
+                with: WalletConnectServiceError.cancelled,
+                for: self.action
+            ) }
+        )
         AppPresenter.shared.show(controller)
     }
 
@@ -71,19 +75,24 @@ class WalletConnectSignHandler: TangemWalletConnectRequestHandler {
             return
         }
 
+        guard let cardWallet = cardModel.wallets.first(where: { $0.publicKey.seedKey == wallet.walletPublicKey }) else {
+            completion(.failure(WalletConnectServiceError.signFailed))
+            return
+        }
+
         Analytics.log(.requestSigned)
-        signerSubscription = sign(data: data,
-                                  walletPublicKey: Wallet.PublicKey(seedKey: wallet.walletPublicKey,
-                                                                    derivedKey: wallet.derivedPublicKey,
-                                                                    derivationPath: wallet.derivationPath),
-                                  signer: cardModel.signer)
-            .sink(receiveCompletion: { [weak self] subsCompletion in
-                if case let .failure(error) = subsCompletion {
-                    completion(.failure(error))
-                }
-                self?.signerSubscription = nil
-            }, receiveValue: { signature in
-                completion(.success(signature))
-            })
+        signerSubscription = sign(
+            data: data,
+            walletPublicKey: cardWallet.publicKey,
+            signer: cardModel.signer
+        )
+        .sink(receiveCompletion: { [weak self] subsCompletion in
+            if case .failure(let error) = subsCompletion {
+                completion(.failure(error))
+            }
+            self?.signerSubscription = nil
+        }, receiveValue: { signature in
+            completion(.success(signature))
+        })
     }
 }
