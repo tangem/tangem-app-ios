@@ -13,12 +13,12 @@ import Amplitude
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
-    var loadingView: UIView? = nil
+    var loadingView: UIView?
 
     func addLoadingView() {
         if let window = UIApplication.shared.windows.first(where: { $0.isKeyWindow }) {
             let view = UIView(frame: window.bounds)
-            view.backgroundColor = UIColor.init(white: 0.0, alpha: 0.6)
+            view.backgroundColor = UIColor(white: 0.0, alpha: 0.6)
             let indicator = UIActivityIndicatorView(style: .medium)
             view.addSubview(indicator)
             indicator.center = CGPoint(x: view.bounds.midX, y: view.bounds.midY)
@@ -66,9 +66,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         return true
     }
 
-
     func application(_ application: UIApplication, continue userActivity: NSUserActivity, restorationHandler: @escaping ([UIUserActivityRestoring]?) -> Void) -> Bool {
-
         guard
             userActivity.activityType == NSUserActivityTypeBrowsingWeb,
             let url = userActivity.webpageURL
