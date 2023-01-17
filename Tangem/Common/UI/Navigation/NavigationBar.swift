@@ -30,7 +30,6 @@ fileprivate enum DefaultNavigationBarSettings {
 }
 
 struct BackButton: View {
-
     let height: CGFloat
     let isVisible: Bool
     let isEnabled: Bool
@@ -56,7 +55,6 @@ struct BackButton: View {
 }
 
 struct ChatButton: View {
-
     let height: CGFloat
     let isVisible: Bool
     let isEnabled: Bool
@@ -77,9 +75,7 @@ struct ChatButton: View {
     }
 }
 
-
 struct NavigationBar<LeftButtons: View, RightButtons: View>: View {
-
     struct Settings {
         let titleFont: Font
         let titleColor: Color
@@ -87,12 +83,13 @@ struct NavigationBar<LeftButtons: View, RightButtons: View>: View {
         let horizontalPadding: CGFloat
         let height: CGFloat
 
-        init(titleFont: Font = .system(size: 17, weight: .medium),
-             titleColor: Color = .tangemGrayDark6,
-             backgroundColor: Color = .tangemBgGray,
-             horizontalPadding: CGFloat = 0,
-             height: CGFloat = 44) {
-
+        init(
+            titleFont: Font = .system(size: 17, weight: .medium),
+            titleColor: Color = .tangemGrayDark6,
+            backgroundColor: Color = .tangemBgGray,
+            horizontalPadding: CGFloat = 0,
+            height: CGFloat = 44
+        ) {
             self.titleFont = titleFont
             self.titleColor = titleColor
             self.backgroundColor = backgroundColor
@@ -101,7 +98,6 @@ struct NavigationBar<LeftButtons: View, RightButtons: View>: View {
         }
 
         //		static var `default`: Settings { .init() }
-
     }
 
     private let title: String
@@ -192,7 +188,7 @@ extension NavigationBar where LeftButtons == ArrowBack, RightButtons == EmptyVie
     init(
         title: String,
         settings: Settings = .init(),
-        presentationMode:  Binding<PresentationMode>
+        presentationMode: Binding<PresentationMode>
     ) {
         leftButtons = ArrowBack(action: {
             presentationMode.wrappedValue.dismiss()
@@ -227,10 +223,9 @@ struct NavigationBar_Previews: PreviewProvider {
             }.deviceForPreview(.iPhone11ProMax)
 
             HStack {
-                BackButton(height: 44, isVisible: true, isEnabled: true) { }
+                BackButton(height: 44, isVisible: true, isEnabled: true) {}
                 Spacer()
             }.deviceForPreview(.iPhone11ProMax)
         }
     }
 }
-
