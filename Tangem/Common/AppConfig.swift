@@ -46,6 +46,6 @@ struct AppConfig {
 
     init() {
         let path = Bundle.main.path(forResource: "Config", ofType: "plist")!
-        raw =  NSDictionary(contentsOfFile: path) as! Dictionary
+        raw = NSDictionary(contentsOfFile: path) as! Dictionary
     }
 }
