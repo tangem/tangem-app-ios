@@ -37,11 +37,13 @@ class WalletModel: ObservableObject, Identifiable {
 
     var incomingPendingTransactions: [PendingTransaction] {
         wallet.pendingIncomingTransactions.map {
-            PendingTransaction(amountType: $0.amount.type,
-                               destination: $0.sourceAddress,
-                               transferAmount: $0.amount.string(with: 8),
-                               canBePushed: false,
-                               direction: .incoming)
+            PendingTransaction(
+                amountType: $0.amount.type,
+                destination: $0.sourceAddress,
+                transferAmount: $0.amount.string(with: 8),
+                canBePushed: false,
+                direction: .incoming
+            )
         }
     }
 
@@ -51,11 +53,13 @@ class WalletModel: ObservableObject, Identifiable {
         return wallet.pendingOutgoingTransactions.map {
             // let isTxStuckByTime = Date().timeIntervalSince($0.date ?? Date()) > Constants.bitcoinTxStuckTimeSec
 
-            return PendingTransaction(amountType: $0.amount.type,
-                                      destination: $0.destinationAddress,
-                                      transferAmount: $0.amount.string(with: 8),
-                                      canBePushed: false, // (txPusher?.isPushAvailable(for: $0.hash ?? "") ?? false) && isTxStuckByTime, //[REDACTED_TODO_COMMENT]
-                                      direction: .outgoing)
+            return PendingTransaction(
+                amountType: $0.amount.type,
+                destination: $0.destinationAddress,
+                transferAmount: $0.amount.string(with: 8),
+                canBePushed: false, // (txPusher?.isPushAvailable(for: $0.hash ?? "") ?? false) && isTxStuckByTime, //[REDACTED_TODO_COMMENT]
+                direction: .outgoing
+            )
         }
     }
 
@@ -77,7 +81,7 @@ class WalletModel: ObservableObject, Identifiable {
     let walletManager: WalletManager
 
     private let derivationStyle: DerivationStyle?
-    private var latestUpdateTime: Date? = nil
+    private var latestUpdateTime: Date?
     private var updatePublisher: PassthroughSubject<Void, Error>?
     private var updateTimer: AnyCancellable?
     private var updateWalletModelBag: AnyCancellable?
@@ -120,7 +124,7 @@ class WalletModel: ObservableObject, Identifiable {
 
         // Keep this before the async call
         let newUpdatePublisher = PassthroughSubject<Void, Error>()
-        self.updatePublisher = newUpdatePublisher
+        updatePublisher = newUpdatePublisher
 
         // Check if time interval after latest update not enough
         guard checkLatestUpdateTime(silent: silent) else {
@@ -148,7 +152,7 @@ class WalletModel: ObservableObject, Identifiable {
             }
             .receive(on: updateQueue)
             .sink { [weak self] completion in
-                guard let self, case let .failure(error) = completion else { return }
+                guard let self, case .failure(let error) = completion else { return }
 
                 AppLog.shared.error(error)
                 self.updateRatesIfNeeded([:])
@@ -194,7 +198,7 @@ class WalletModel: ObservableObject, Identifiable {
 
                         promise(.success(.success))
 
-                    case let .failure(error):
+                    case .failure(let error):
                         switch error as? WalletError {
                         case .noAccount(let message):
                             promise(.success(.noAccount(message: message)))
@@ -215,12 +219,12 @@ class WalletModel: ObservableObject, Identifiable {
         }
 
         if !silent {
-            self.state = .idle
+            state = .idle
         }
 
-        self.updatePublisher?.send(())
-        self.updatePublisher?.send(completion: .finished)
-        self.updatePublisher = nil
+        updatePublisher?.send(())
+        updatePublisher?.send(completion: .finished)
+        updatePublisher = nil
         return false
     }
 
@@ -242,7 +246,7 @@ class WalletModel: ObservableObject, Identifiable {
         var currenciesToExchange = [walletManager.wallet.blockchain.currencyId]
         currenciesToExchange += walletManager.cardTokens.compactMap { $0.id }
 
-        AppLog.shared.debug("🔄 Start loading rates for \(self.wallet.blockchain)")
+        AppLog.shared.debug("🔄 Start loading rates for \(wallet.blockchain)")
 
         return tangemApiService
             .loadRates(for: currenciesToExchange)
@@ -250,7 +254,7 @@ class WalletModel: ObservableObject, Identifiable {
     }
 
     func updateRatesIfNeeded(_ rates: [String: Decimal]) {
-        if !self.rates.isEmpty && rates.isEmpty {
+        if !self.rates.isEmpty, rates.isEmpty {
             AppLog.shared.debug("🔴 New rates for \(wallet.blockchain) isEmpty")
             return
         }
@@ -280,7 +284,7 @@ class WalletModel: ObservableObject, Identifiable {
     }
 
     func canRemove(amountType: Amount.AmountType) -> Bool {
-        if amountType == .coin && !walletManager.cardTokens.isEmpty {
+        if amountType == .coin, !walletManager.cardTokens.isEmpty {
             return false
         }
 
@@ -299,25 +303,29 @@ class WalletModel: ObservableObject, Identifiable {
     func startUpdatingTimer() {
         latestUpdateTime = nil
         AppLog.shared.debug("⏰ Starting updating timer for Wallet model")
-        updateTimer = Timer.TimerPublisher(interval: 10.0,
-                                           tolerance: 0.1,
-                                           runLoop: .main,
-                                           mode: .common)
-            .autoconnect()
-            .sink() { [weak self] _ in
-                AppLog.shared.debug("⏰ Updating timer alarm ‼️ Wallet model will be updated")
-                self?.update(silent: false)
-                self?.updateTimer?.cancel()
-            }
+        updateTimer = Timer.TimerPublisher(
+            interval: 10.0,
+            tolerance: 0.1,
+            runLoop: .main,
+            mode: .common
+        )
+        .autoconnect()
+        .sink { [weak self] _ in
+            AppLog.shared.debug("⏰ Updating timer alarm ‼️ Wallet model will be updated")
+            self?.update(silent: false)
+            self?.updateTimer?.cancel()
+        }
     }
 
     func send(_ tx: Transaction, signer: TangemSigner) -> AnyPublisher<Void, Error> {
         if isDemo {
-            return signer.sign(hash: Data.randomData(count: 32),
-                               walletPublicKey: wallet.publicKey)
-                .mapVoid()
-                .receive(on: DispatchQueue.main)
-                .eraseToAnyPublisher()
+            return signer.sign(
+                hash: Data.randomData(count: 32),
+                walletPublicKey: wallet.publicKey
+            )
+            .mapVoid()
+            .receive(on: DispatchQueue.main)
+            .eraseToAnyPublisher()
         }
 
         return walletManager.send(tx, signer: signer)
@@ -354,7 +362,7 @@ extension WalletModel {
     func getRateFormatted(for amountType: Amount.AmountType) -> String {
         var rateString = ""
 
-        if let currencyId = self.currencyId(for: amountType),
+        if let currencyId = currencyId(for: amountType),
            let rate = rates[currencyId] {
             rateString = rate.currencyFormatted(code: AppSettings.shared.selectedCurrencyCode)
         }
@@ -362,14 +370,13 @@ extension WalletModel {
         return rateString
     }
 
-
-    func getQRReceiveMessage(for amountType: Amount.AmountType? = nil)  -> String {
+    func getQRReceiveMessage(for amountType: Amount.AmountType? = nil) -> String {
         let type: Amount.AmountType = amountType ?? wallet.amounts.keys.first(where: { $0.isToken }) ?? .coin
-        // todo: handle default token
+        // [REDACTED_TODO_COMMENT]
         let symbol = wallet.amounts[type]?.currencySymbol ?? wallet.blockchain.currencySymbol
 
         let currencyName: String
-        if case let .token(token) = amountType {
+        if case .token(let token) = amountType {
             currencyName = token.name
         } else {
             currencyName = wallet.blockchain.displayName
@@ -391,8 +398,7 @@ extension WalletModel {
 
     func getFiat(for value: Decimal, currencyId: String?, roundingMode: NSDecimalNumber.RoundingMode) -> Decimal? {
         if let currencyId = currencyId,
-           let rate = rates[currencyId]
-        {
+           let rate = rates[currencyId] {
             let fiatValue = value * rate
             if fiatValue == 0 {
                 return 0
@@ -405,7 +411,7 @@ extension WalletModel {
     func getCrypto(for amount: Amount?) -> Decimal? {
         guard
             let amount = amount,
-            let currencyId = self.currencyId(for: amount.type)
+            let currencyId = currencyId(for: amount.type)
         else {
             return nil
         }
@@ -476,7 +482,7 @@ extension WalletModel {
             isToken: false,
             hasTransactionInProgress: wallet.hasPendingTx,
             state: state,
-            name:  wallet.blockchain.displayName,
+            name: wallet.blockchain.displayName,
             fiatBalance: getFiatBalance(for: .coin),
             balance: getBalance(for: .coin),
             secondaryBalance: "",
