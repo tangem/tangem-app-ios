@@ -11,6 +11,8 @@ import SwiftUI
 struct SwappingTokenListView: View {
     @ObservedObject private var viewModel: SwappingTokenListViewModel
 
+    private let separatorInset: CGFloat = 52 // 40(icon) + 12(padding)
+
     init(viewModel: SwappingTokenListViewModel) {
         self.viewModel = viewModel
     }
@@ -54,7 +56,7 @@ struct SwappingTokenListView: View {
 
                 if viewModel.userItems.last?.id != model.id {
                     Separator(color: Colors.Stroke.primary)
-                        .padding(.leading, 42)
+                        .padding(.leading, separatorInset)
                 }
             }
         }
@@ -70,7 +72,7 @@ struct SwappingTokenListView: View {
 
                 if viewModel.otherItems.last?.id != model.id {
                     Separator(color: Colors.Stroke.primary)
-                        .padding(.leading, 42)
+                        .padding(.leading, separatorInset)
                 }
             }
         }
