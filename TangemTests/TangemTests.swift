@@ -32,7 +32,7 @@ class TangemTests: XCTestCase {
         }
     }
 
-    func testSignificantDigitRounder() throws {
+    func testSignificantFractionDigitRounder() throws {
         let roundingMode: NSDecimalNumber.RoundingMode = .down
 
         let pairs: [(Double, Double)] = [
@@ -46,7 +46,7 @@ class TangemTests: XCTestCase {
             (1.45002345, 1.45),
         ]
 
-        let rounder = SignificantDigitRounder(roundingMode: roundingMode)
+        let rounder = SignificantFractionDigitRounder(roundingMode: roundingMode)
 
         for (value, expectedValue) in pairs {
             let roundedValue = rounder.round(value: Decimal(floatLiteral: value))
