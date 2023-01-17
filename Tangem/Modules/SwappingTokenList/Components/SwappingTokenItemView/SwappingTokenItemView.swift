@@ -32,7 +32,7 @@ struct SwappingTokenItemView: View {
 
                 currencyView
             }
-            .padding(.vertical, 16)
+            .padding(.vertical, 12)
             .contentShape(Rectangle())
         }
     }
