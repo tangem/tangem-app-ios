@@ -61,4 +61,23 @@ enum SocialNetwork: Hashable, CaseIterable, Identifiable {
             return URL(string: "https://www.linkedin.com/company/tangem")
         }
     }
+    
+    var name: String {
+        switch self {
+        case .telegram:
+            return "Telegram"
+        case .twitter:
+            return "Twitter"
+        case .facebook:
+            return "Facebook"
+        case .instagram:
+            return "Instagram"
+        case .github:
+            return "GitHub"
+        case .youtube:
+            return "YouTube"
+        case .linkedin:
+            return "LinkedIn"
+        }
+    }
 }
