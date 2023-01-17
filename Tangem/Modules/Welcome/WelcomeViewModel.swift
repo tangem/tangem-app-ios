@@ -22,7 +22,7 @@ class WelcomeViewModel: ObservableObject {
     // This screen seats on the navigation stack permanently. We should preserve the navigationBar state to fix the random hide/disappear events of navigationBar on iOS13 on other screens down the navigation hierarchy.
     @Published var navigationBarHidden: Bool = false
 
-    private var storiesModelSubscription: AnyCancellable? = nil
+    private var storiesModelSubscription: AnyCancellable?
     private var shouldScanOnAppear: Bool = false
 
     private unowned let coordinator: WelcomeRoutable
@@ -31,38 +31,16 @@ class WelcomeViewModel: ObservableObject {
         self.shouldScanOnAppear = shouldScanOnAppear
         self.coordinator = coordinator
         userWalletRepository.delegate = self
-        self.storiesModelSubscription = storiesModel.objectWillChange
+        storiesModelSubscription = storiesModel.objectWillChange
             .receive(on: DispatchQueue.main)
             .sink(receiveValue: { [weak self] in
                 self?.objectWillChange.send()
             })
     }
 
-    func scanCard() {
-        isScanningCard = true
-        Analytics.log(.buttonScanCard)
-
-        userWalletRepository.unlock(with: .card(userWallet: nil)) { [weak self] result in
-            self?.isScanningCard = false
-
-            guard
-                let self,
-                let result
-            else {
-                return
-            }
-
-            switch result {
-            case .troubleshooting:
-                self.showTroubleshootingView = true
-            case .onboarding(let input):
-                self.openOnboarding(with: input)
-            case .error(let error):
-                self.error = error.alertBinder
-            case .success(let cardModel):
-                self.openMain(with: cardModel)
-            }
-        }
+    func scanCardTapped() {
+        Analytics.log(.introductionProcessButtonScanCard)
+        scanCard()
     }
 
     func tryAgain() {
@@ -100,9 +78,35 @@ class WelcomeViewModel: ObservableObject {
     func onDisappear() {
         navigationBarHidden = false
     }
+
+    private func scanCard() {
+        isScanningCard = true
+
+        userWalletRepository.unlock(with: .card(userWallet: nil)) { [weak self] result in
+            self?.isScanningCard = false
+
+            guard
+                let self, let result
+            else {
+                return
+            }
+
+            switch result {
+            case .troubleshooting:
+                self.showTroubleshootingView = true
+            case .onboarding(let input):
+                self.openOnboarding(with: input)
+            case .error(let error):
+                self.error = error.alertBinder
+            case .success(let cardModel):
+                self.openMain(with: cardModel)
+            }
+        }
+    }
 }
 
 // MARK: - Navigation
+
 extension WelcomeViewModel {
     func openMail() {
         coordinator.openMail(with: failedCardScanTracker, recipient: EmailConfig.default.recipient)

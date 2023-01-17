@@ -42,9 +42,10 @@ private extension ResetToFactoryViewModel {
                     self?.resetCardToFactory()
                 },
                 .cancel(Text(Localization.commonCancel)),
-            ])
+            ]
+        )
 
-        self.actionSheet = ActionSheetBinder(sheet: sheet)
+        actionSheet = ActionSheetBinder(sheet: sheet)
     }
 
     func resetCardToFactory() {
@@ -52,7 +53,7 @@ private extension ResetToFactoryViewModel {
             switch result {
             case .success:
                 self?.coordinator.didResetCard()
-            case let .failure(error):
+            case .failure(let error):
                 if !error.isUserCancelled {
                     self?.alert = error.alertBinder
                 }
