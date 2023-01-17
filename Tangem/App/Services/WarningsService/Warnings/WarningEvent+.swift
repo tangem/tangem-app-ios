@@ -37,7 +37,7 @@ extension WarningEvent {
     }
 }
 
-fileprivate struct WarningsList {
+fileprivate enum WarningsList {
     static let warningTitle = Localization.commonWarning
 
     static let oldCard = AppWarning(title: warningTitle, message: Localization.alertOldCard, priority: .info, type: .permanent)
