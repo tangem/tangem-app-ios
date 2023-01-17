@@ -15,6 +15,7 @@ final class UserWalletListViewModel: ObservableObject, Identifiable {
     @Injected(\.failedScanTracker) var failedCardScanTracker: FailedScanTrackable
 
     // MARK: - ViewState
+
     @Published var multiCurrencyModels: [UserWalletListCellViewModel] = []
     @Published var singleCurrencyModels: [UserWalletListCellViewModel] = []
     @Published var isScanningCard = false
@@ -178,7 +179,7 @@ final class UserWalletListViewModel: ObservableObject, Identifiable {
     }
 
     private func setSelectedWallet(_ userWallet: UserWallet, reason: UserWalletRepositorySelectionChangeReason) {
-        self.selectedUserWalletId = userWallet.userWalletId
+        selectedUserWalletId = userWallet.userWalletId
         updateSelectedWalletModel()
 
         switch reason {
