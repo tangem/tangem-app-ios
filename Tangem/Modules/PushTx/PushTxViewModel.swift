@@ -30,13 +30,13 @@ class PushTxViewModel: ObservableObject {
     }
 
     var walletTotalBalanceFormatted: String {
-        let amount = walletModel.wallet.amounts[self.amountToSend.type]
+        let amount = walletModel.wallet.amounts[amountToSend.type]
         let value = getDescription(for: amount, isFiat: isFiatCalculation)
         return Localization.commonBalance(value)
     }
 
     var walletModel: WalletModel {
-        cardViewModel.walletModels.first(where: { $0.blockchainNetwork ==  blockchainNetwork })!
+        cardViewModel.walletModels.first(where: { $0.blockchainNetwork == blockchainNetwork })!
     }
 
     var previousFeeAmount: Amount { transaction.fee }
@@ -74,9 +74,9 @@ class PushTxViewModel: ObservableObject {
     let blockchainNetwork: BlockchainNetwork
     var transaction: BlockchainSdk.Transaction
 
-    lazy var amountDecimal: String = { "\(walletModel.getFiat(for: amountToSend, roundingMode: .down) ?? 0)" }()
-    lazy var amount: String = { transaction.amount.description }()
-    lazy var previousFee: String = { transaction.fee.description }()
+    lazy var amountDecimal: String = "\(walletModel.getFiat(for: amountToSend, roundingMode: .down) ?? 0)"
+    lazy var amount: String = transaction.amount.description
+    lazy var previousFee: String = transaction.fee.description
 
     private var emptyValue: String {
         getDescription(for: Amount.zeroCoin(for: blockchainNetwork.blockchain), isFiat: isFiatCalculation)
@@ -87,15 +87,17 @@ class PushTxViewModel: ObservableObject {
 
     private unowned let coordinator: PushTxRoutable
 
-    init(transaction: BlockchainSdk.Transaction,
-         blockchainNetwork: BlockchainNetwork,
-         cardViewModel: CardViewModel,
-         coordinator: PushTxRoutable) {
+    init(
+        transaction: BlockchainSdk.Transaction,
+        blockchainNetwork: BlockchainNetwork,
+        cardViewModel: CardViewModel,
+        coordinator: PushTxRoutable
+    ) {
         self.coordinator = coordinator
         self.blockchainNetwork = blockchainNetwork
         self.cardViewModel = cardViewModel
         self.transaction = transaction
-        self.amountToSend = transaction.amount
+        amountToSend = transaction.amount
         additionalFee = emptyValue
         sendTotal = emptyValue
         sendTotalSubtitle = emptyValue
@@ -106,7 +108,7 @@ class PushTxViewModel: ObservableObject {
     }
 
     func onSend() {
-        send() {
+        send {
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) { [weak self] in
                 let alert = AlertBuilder.makeSuccessAlert(message: Localization.sendTransactionSuccess) { [weak self] in
                     self?.dismiss()
@@ -133,7 +135,7 @@ class PushTxViewModel: ObservableObject {
             .sink(receiveCompletion: { [unowned self] completion in
                 appDelegate.removeLoadingView()
 
-                if case let .failure(error) = completion {
+                if case .failure(let error) = completion {
                     if error.toTangemSdkError().isUserCancelled {
                         return
                     }
@@ -146,7 +148,7 @@ class PushTxViewModel: ObservableObject {
                     callback()
                 }
 
-            }, receiveValue: { _ in  })
+            }, receiveValue: { _ in })
             .store(in: &bag)
     }
 
@@ -211,7 +213,7 @@ class PushTxViewModel: ObservableObject {
         $selectedFee
             .dropFirst()
             .combineLatest($isFeeIncluded)
-            .map { [unowned self] (fee, isFeeIncluded) -> (BlockchainSdk.Transaction?, Amount?) in
+            .map { [unowned self] fee, isFeeIncluded -> (BlockchainSdk.Transaction?, Amount?) in
                 var errorMessage: String?
                 defer {
                     self.amountHint = errorMessage == nil ? nil : .init(isError: true, message: errorMessage!)
@@ -229,12 +231,14 @@ class PushTxViewModel: ObservableObject {
 
                 let newAmount = isFeeIncluded ? self.transaction.amount + self.previousFeeAmount - fee : self.transaction.amount
 
-                var tx: BlockchainSdk.Transaction? = nil
+                var tx: BlockchainSdk.Transaction?
 
                 do {
-                    tx = try walletModel.walletManager.createTransaction(amount: newAmount,
-                                                                         fee: fee,
-                                                                         destinationAddress: self.destination)
+                    tx = try walletModel.walletManager.createTransaction(
+                        amount: newAmount,
+                        fee: fee,
+                        destinationAddress: self.destination
+                    )
                 } catch {
                     errorMessage = error.localizedDescription
                 }
@@ -307,9 +311,9 @@ class PushTxViewModel: ObservableObject {
         }
 
         let totalAmount = transaction.amount + fee
-        var totalFiatAmount: Decimal? = nil
+        var totalFiatAmount: Decimal?
 
-        if let fiatAmount = self.walletModel.getFiat(for: amountToSend, roundingMode: .down), let fiatFee = self.walletModel.getFiat(for: fee, roundingMode: .down) {
+        if let fiatAmount = walletModel.getFiat(for: amountToSend, roundingMode: .down), let fiatFee = walletModel.getFiat(for: fee, roundingMode: .down) {
             totalFiatAmount = fiatAmount + fiatFee
         }
 
@@ -321,29 +325,34 @@ class PushTxViewModel: ObservableObject {
                 Localization.sendTotalSubtitleFormat(totalAmount.description) :
                 Localization.sendTotalSubtitleAssetFormat(
                     amountToSend.description,
-                    fee.description)
+                    fee.description
+                )
         } else {
-            sendTotal =  (amountToSend + fee).description
-            sendTotalSubtitle = totalFiatAmountFormatted == nil ? emptyValue :  Localization.sendTotalSubtitleFiatFormat(
+            sendTotal = (amountToSend + fee).description
+            sendTotalSubtitle = totalFiatAmountFormatted == nil ? emptyValue : Localization.sendTotalSubtitleFiatFormat(
                 totalFiatAmountFormatted!,
-                walletModel.getFiatFormatted(for: fee, roundingMode: .down)!)
+                walletModel.getFiatFormatted(for: fee, roundingMode: .down)!
+            )
         }
     }
 }
 
 // MARK: - Navigation
+
 extension PushTxViewModel {
     func openMail(with error: Error) {
-        let emailDataCollector = PushScreenDataCollector(userWalletEmailData: cardViewModel.emailData,
-                                                         walletModel: walletModel,
-                                                         amountToSend: amountToSend,
-                                                         feeText: newFee,
-                                                         pushingFeeText: selectedFee?.description ?? .unknown,
-                                                         destination: transaction.destinationAddress,
-                                                         source: transaction.sourceAddress,
-                                                         amountText: amount,
-                                                         pushingTxHash: transaction.hash ?? .unknown,
-                                                         lastError: error)
+        let emailDataCollector = PushScreenDataCollector(
+            userWalletEmailData: cardViewModel.emailData,
+            walletModel: walletModel,
+            amountToSend: amountToSend,
+            feeText: newFee,
+            pushingFeeText: selectedFee?.description ?? .unknown,
+            destination: transaction.destinationAddress,
+            source: transaction.sourceAddress,
+            amountText: amount,
+            pushingTxHash: transaction.hash ?? .unknown,
+            lastError: error
+        )
 
         let recipient = cardViewModel.emailConfig?.recipient ?? EmailConfig.default.recipient
         coordinator.openMail(with: emailDataCollector, recipient: recipient)
