@@ -28,7 +28,7 @@ struct GenericConfig {
 
         steps.append(.backupIntro)
 
-        if !card.wallets.isEmpty && !backupServiceProvider.backupService.primaryCardIsSet {
+        if !card.wallets.isEmpty, !backupServiceProvider.backupService.primaryCardIsSet {
             steps.append(.scanPrimaryCard)
         }
 
@@ -101,7 +101,7 @@ extension GenericConfig: UserWalletConfig {
     }
 
     var defaultBlockchains: [StorageEntry] {
-        if let persistentBlockchains = self.persistentBlockchains {
+        if let persistentBlockchains = persistentBlockchains {
             return persistentBlockchains
         }
 
@@ -133,7 +133,7 @@ extension GenericConfig: UserWalletConfig {
     var warningEvents: [WarningEvent] {
         var warnings = WarningEventsFactory().makeWarningEvents(for: card)
 
-        if hasFeature(.hdWallets) && card.derivationStyle == .legacy {
+        if hasFeature(.hdWallets), card.derivationStyle == .legacy {
             warnings.append(.legacyDerivation)
         }
 
@@ -228,24 +228,27 @@ extension GenericConfig: UserWalletConfig {
                 partialResult[cardWallet.curve] = cardWallet.derivedKeys
             }
 
-            return try factory.makeMultipleWallet(seedKeys: walletPublicKeys,
-                                                  entry: token,
-                                                  derivedKeys: derivedKeys,
-                                                  derivationStyle: card.derivationStyle)
+            return try factory.makeMultipleWallet(
+                seedKeys: walletPublicKeys,
+                entry: token,
+                derivedKeys: derivedKeys,
+                derivationStyle: card.derivationStyle
+            )
         } else {
-            return try factory.makeMultipleWallet(walletPublicKeys: walletPublicKeys,
-                                                  entry: token,
-                                                  derivationStyle: card.derivationStyle)
+            return try factory.makeMultipleWallet(
+                walletPublicKeys: walletPublicKeys,
+                entry: token,
+                derivationStyle: card.derivationStyle
+            )
         }
     }
 }
-
 
 // MARK: - Private extensions
 
 fileprivate extension Card.BackupStatus {
     var backupCardsCount: Int? {
-        if case let .active(backupCards) = self {
+        if case .active(let backupCards) = self {
             return backupCards
         }
 
