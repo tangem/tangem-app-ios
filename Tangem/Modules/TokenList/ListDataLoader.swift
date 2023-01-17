@@ -34,7 +34,7 @@ class ListDataLoader {
     private var currentPage = 0
 
     // Limit of records per page
-    private let perPage = 250
+    private let perPage = 50
 
     private var cancellable: AnyCancellable?
 
