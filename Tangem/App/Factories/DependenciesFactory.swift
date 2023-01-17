@@ -46,8 +46,10 @@ struct DependenciesFactory {
     }
 
     func createTransactionSender(sender: TransactionSender, signer: TransactionSigner) -> TransactionSendable {
-        ExchangeTransactionSender(sender: sender,
-                                  signer: signer,
-                                  currencyMapper: createCurrencyMapper())
+        ExchangeTransactionSender(
+            sender: sender,
+            signer: signer,
+            currencyMapper: createCurrencyMapper()
+        )
     }
 }
