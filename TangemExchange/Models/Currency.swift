@@ -65,7 +65,7 @@ public extension Currency {
         }
 
         var contractAddress: String? {
-            if case let .token(address) = self {
+            if case .token(let address) = self {
                 return address
             }
 
