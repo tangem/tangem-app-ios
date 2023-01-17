@@ -13,7 +13,6 @@ import TangemSdk
 import BlockchainSdk
 
 class PersonalSignHandler: WalletConnectSignHandler {
-
     override var action: WalletConnectAction { .personalSign }
 
     override func handle(request: Request) {
@@ -27,7 +26,7 @@ class PersonalSignHandler: WalletConnectSignHandler {
 
             let messageData = Data(hex: messageBytes)
             let displayedMessage = Localization.walletConnectPersonalSignMessage(session.session.dAppInfo.peerMeta.name, messageBytes)
-            let personalMessageData = self.makePersonalMessageData(messageData)
+            let personalMessageData = makePersonalMessageData(messageData)
 
             askToSign(in: session, request: request, message: displayedMessage, dataToSign: personalMessageData)
         } catch {
@@ -44,9 +43,11 @@ class PersonalSignHandler: WalletConnectSignHandler {
 
         return signer.sign(hash: hash, walletPublicKey: walletPublicKey)
             .tryMap { response -> String in
-                if let unmarshalledSig = try? Secp256k1Signature(with: response).unmarshal(with: walletPublicKey.blockchainKey,
-                                                                                           hash: hash) {
-                    let strSig =  "0x" + unmarshalledSig.r.hexString + unmarshalledSig.s.hexString +
+                if let unmarshalledSig = try? Secp256k1Signature(with: response).unmarshal(
+                    with: walletPublicKey.blockchainKey,
+                    hash: hash
+                ) {
+                    let strSig = "0x" + unmarshalledSig.r.hexString + unmarshalledSig.s.hexString +
                         unmarshalledSig.v.hexString
                     return strSig
                 } else {
@@ -61,6 +62,4 @@ class PersonalSignHandler: WalletConnectSignHandler {
         let prefixData = (prefix + "\(data.count)").data(using: .utf8)!
         return prefixData + data
     }
-
 }
-

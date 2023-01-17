@@ -16,9 +16,10 @@ struct BottomSheetModifier<ContentView: View>: ViewModifier {
     private let viewModelSettings: BottomSheetSettings
     private let contentView: () -> ContentView
 
-    init(isPresented: Binding<Bool>,
-         viewModelSettings: BottomSheetSettings,
-         @ViewBuilder contentView: @escaping () -> ContentView
+    init(
+        isPresented: Binding<Bool>,
+        viewModelSettings: BottomSheetSettings,
+        @ViewBuilder contentView: @escaping () -> ContentView
     ) {
         _isPresented = isPresented
         self.viewModelSettings = viewModelSettings
@@ -47,8 +48,10 @@ struct BottomSheetModifier<ContentView: View>: ViewModifier {
         }
 
         if isPresented {
-            let wrappedView = BottomSheetWrappedView(content: contentView(),
-                                                     settings: viewModelSettings) {
+            let wrappedView = BottomSheetWrappedView(
+                content: contentView(),
+                settings: viewModelSettings
+            ) {
                 bottomSheetViewController?.dismiss(animated: true)
             }
 
