@@ -22,7 +22,7 @@ struct SwappingView: View {
             GroupedScrollView(spacing: 14) {
                 swappingViews
 
-                requiredPermissionInfoSection
+                permissionInfoSection
 
                 refreshWarningSection
 
@@ -85,7 +85,7 @@ struct SwappingView: View {
     }
 
     @ViewBuilder
-    private var requiredPermissionInfoSection: some View {
+    private var permissionInfoSection: some View {
         GroupedSection(viewModel.permissionInfoRowViewModel) {
             DefaultWarningRow(viewModel: $0)
         }
