@@ -77,7 +77,7 @@ public extension Publisher {
     }
 
     func eraseError() -> AnyPublisher<Output, Error> {
-        return self.mapError { error -> Error in
+        return mapError { error -> Error in
             return error as Error
         }
         .eraseToAnyPublisher()
