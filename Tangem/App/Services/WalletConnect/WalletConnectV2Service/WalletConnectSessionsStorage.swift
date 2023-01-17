@@ -38,9 +38,10 @@ actor CommonWalletConnectSessionsStorage: ObservableObject {
             await $_sessions.values
         }
     }
+
     @Published private var _sessions: [WalletConnectSavedSession] = []
 
-    private var currentUserWalletId: String? = nil
+    private var currentUserWalletId: String?
 
     private func readSessionsFromFile(with key: String) -> [WalletConnectSavedSession] {
         let savedSessions: [WalletConnectSavedSession] = (try? storage.value(for: .walletConnectSessions(userWalletId: key))) ?? []
