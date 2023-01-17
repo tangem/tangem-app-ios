@@ -138,6 +138,7 @@ private extension SwappingViewModel {
         )
     }
 
+    @MainActor
     func openSuccessView(
         result: SwappingResultDataModel,
         transactionModel: ExchangeTransactionDataModel
@@ -153,7 +154,18 @@ private extension SwappingViewModel {
             currency: transactionModel.destinationCurrency
         )
 
-        coordinator.presentSuccessView(source: source, result: result)
+        let explorerURL = transactionModel.sourceBlockchain.getExploreURL(
+            for: transactionModel.sourceAddress,
+            contractAddress: transactionModel.sourceCurrency.contractAddress
+        )
+
+        let inputModel = SuccessSwappingInputModel(
+            sourceCurrencyAmount: source,
+            resultCurrencyAmount: result,
+            explorerURL: explorerURL
+        )
+
+        coordinator.presentSuccessView(inputModel: inputModel)
     }
 
     func openPermissionView() {
@@ -401,7 +413,7 @@ private extension SwappingViewModel {
         Task {
             do {
                 try await transactionSender.sendTransaction(info)
-                openSuccessView(result: result, transactionModel: info)
+                await openSuccessView(result: result, transactionModel: info)
             } catch TangemSdkError.userCancelled {
                 // Do nothing
             } catch {
