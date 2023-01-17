@@ -9,7 +9,6 @@
 import SwiftUI
 
 struct OnboardingProgressIconView: View {
-
     var steps: [SingleCardOnboardingStep]
     var currentStep: Int
 
@@ -26,16 +25,17 @@ struct OnboardingProgressIconView: View {
                         if stepIndex > 0 {
                             ProgressIndicatorGroupView(filled: isFilled, animDuration: animDuration)
                         }
-                        OnboardingStepIconView(image: icon,
-                                               state: state,
-                                               imageFont: step.iconFont,
-                                               circleSize: .init(width: 50, height: 50))
+                        OnboardingStepIconView(
+                            image: icon,
+                            state: state,
+                            imageFont: step.iconFont,
+                            circleSize: .init(width: 50, height: 50)
+                        )
                     } else {
                         EmptyView()
                     }
                 }
             }
-
         }
     }
 
@@ -51,14 +51,11 @@ struct OnboardingProgressIconView: View {
 }
 
 struct OnboardingProgressIconView_Previews: PreviewProvider {
-
     static var previews: some View {
         VStack {
             OnboardingProgressIconView(steps: [.createWallet, .topup], currentStep: 1)
             OnboardingProgressIconView(steps: [.createWallet], currentStep: 0)
             OnboardingProgressIconView(steps: [.topup], currentStep: 0)
         }
-
     }
-
 }
