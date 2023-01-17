@@ -19,6 +19,7 @@ protocol WalletConnectService: URLHandler {
     func canHandle(url: String) -> Bool
     func disconnectSession(with id: Int)
 }
+
 private struct WalletConnectServicingKey: InjectionKey {
     static var currentValue: WalletConnectService = CommonWalletConnectService()
 }

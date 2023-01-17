@@ -15,12 +15,12 @@ struct Product {
 
 extension Product {
     init(_ product: Storefront.Product) {
-        self.id = product.id
-        self.title = product.title
+        id = product.id
+        title = product.title
         if product.fields["variants"] != nil {
-            self.variants = product.variants.edges.map { .init($0.node) }
+            variants = product.variants.edges.map { .init($0.node) }
         } else {
-            self.variants = []
+            variants = []
         }
     }
 }
@@ -28,8 +28,7 @@ extension Product {
 extension Storefront.ProductQuery {
     @discardableResult
     func productFieldsFragment(includeVariants: Bool = true) -> Storefront.ProductQuery {
-        var query = self
-            .id()
+        var query = id()
             .title()
 
         if includeVariants {
