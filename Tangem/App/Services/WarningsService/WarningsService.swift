@@ -81,7 +81,7 @@ private extension WarningsService {
         let main = WarningsContainer()
         let send = WarningsContainer()
 
-        for warningEvent in config.warningEvents  {
+        for warningEvent in config.warningEvents {
             if warningEvent.locationsToDisplay.contains(WarningsLocation.main) {
                 main.add(warningEvent.warning)
             }

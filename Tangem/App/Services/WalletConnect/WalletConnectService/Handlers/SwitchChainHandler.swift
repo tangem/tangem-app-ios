@@ -42,7 +42,7 @@ class SwitchChainHandler: TangemWalletConnectRequestHandler {
         }
     }
 
-    private func switchChain(_ session: WalletConnectSession, chainId: Int) throws -> Session.WalletInfo  {
+    private func switchChain(_ session: WalletConnectSession, chainId: Int) throws -> Session.WalletInfo {
         var session = session
         let oldWalletInfo = session.wallet
 
@@ -72,18 +72,22 @@ class SwitchChainHandler: TangemWalletConnectRequestHandler {
         }
 
         let derivedKey = wallet.publicKey.blockchainKey != wallet.publicKey.seedKey ? wallet.publicKey.blockchainKey : nil
-        let walletInfo = WalletInfo(walletPublicKey: wallet.publicKey.seedKey,
-                                    derivedPublicKey: derivedKey,
-                                    derivationPath: wallet.publicKey.derivationPath,
-                                    blockchain: targetBlockchain)
+        let walletInfo = WalletInfo(
+            walletPublicKey: wallet.publicKey.seedKey,
+            derivedPublicKey: derivedKey,
+            derivationPath: wallet.publicKey.derivationPath,
+            blockchain: targetBlockchain
+        )
 
         session.wallet = walletInfo
         dataSource?.updateSession(session)
 
-        return Session.WalletInfo(approved: true,
-                                  accounts: [wallet.address],
-                                  chainId: chainId,
-                                  peerId: oldSessionWalletInfo.peerId,
-                                  peerMeta: oldSessionWalletInfo.peerMeta)
+        return Session.WalletInfo(
+            approved: true,
+            accounts: [wallet.address],
+            chainId: chainId,
+            peerId: oldSessionWalletInfo.peerId,
+            peerMeta: oldSessionWalletInfo.peerMeta
+        )
     }
 }

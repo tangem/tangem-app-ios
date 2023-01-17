@@ -27,8 +27,10 @@ extension BindableError where Self: Error {
     }
 
     var alert: Alert {
-        return Alert(title: Text(Localization.commonError),
-                     message: Text(localizedDescription),
-                     dismissButton: Alert.Button.default(Text(Localization.commonOk)))
+        return Alert(
+            title: Text(Localization.commonError),
+            message: Text(localizedDescription),
+            dismissButton: Alert.Button.default(Text(Localization.commonOk))
+        )
     }
 }
