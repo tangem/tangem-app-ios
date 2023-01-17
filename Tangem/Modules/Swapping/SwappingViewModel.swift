@@ -110,11 +110,14 @@ final class SwappingViewModel: ObservableObject {
             openPermissionView()
         case .insufficientFunds:
             assertionFailure("Button should be disabled")
-            break
         }
     }
 
     func didSendApproveTransaction() {
+        exchangeManager.refresh()
+    }
+
+    func didTapWaringRefresh() {
         exchangeManager.refresh()
     }
 }
@@ -134,6 +137,7 @@ private extension SwappingViewModel {
         )
     }
 
+    @MainActor
     func openSuccessView(
         result: SwappingResultDataModel,
         transactionModel: ExchangeTransactionDataModel
@@ -149,12 +153,23 @@ private extension SwappingViewModel {
             currency: transactionModel.destinationCurrency
         )
 
-        coordinator.presentSuccessView(source: source, result: result)
+        let explorerURL = transactionModel.sourceBlockchain.getExploreURL(
+            for: transactionModel.sourceAddress,
+            contractAddress: transactionModel.sourceCurrency.contractAddress
+        )
+
+        let inputModel = SuccessSwappingInputModel(
+            sourceCurrencyAmount: source,
+            resultCurrencyAmount: result,
+            explorerURL: explorerURL
+        )
+
+        coordinator.presentSuccessView(inputModel: inputModel)
     }
 
     func openPermissionView() {
         let state = exchangeManager.getAvailabilityState()
-        guard case let .available(result, info) = state,
+        guard case .available(let result, let info) = state,
               result.isPermissionRequired else {
             return
         }
@@ -215,9 +230,9 @@ private extension SwappingViewModel {
             state = .loaded(0, fiatValue: 0)
         case .loading:
             state = .loading
-        case let .preview(result):
+        case .preview(let result):
             state = .loaded(result.expectedAmount, fiatValue: result.expectedFiatAmount)
-        case let .available(result, _):
+        case .available(let result, _):
             state = .loaded(result.amount, fiatValue: result.amount)
         }
 
@@ -240,17 +255,17 @@ private extension SwappingViewModel {
 
         case .loading:
             feeWarningRowViewModel = nil
-            refreshWarningRowViewModel?.update(detailsType: .loader)
+            refreshWarningRowViewModel?.update(rightView: .loader)
             receiveCurrencyViewModel?.updateState(.loading)
 
-        case let .preview(result):
+        case .preview(let result):
             refreshWarningRowViewModel = nil
             feeWarningRowViewModel = nil
             receiveCurrencyViewModel?.updateState(
                 .loaded(result.expectedAmount, fiatValue: result.expectedFiatAmount)
             )
 
-        case let .available(result, _):
+        case .available(let result, _):
             refreshWarningRowViewModel = nil
             receiveCurrencyViewModel?.updateState(
                 .loaded(result.amount, fiatValue: result.fiatAmount)
@@ -260,10 +275,14 @@ private extension SwappingViewModel {
                 feeWarningRowViewModel = nil
             } else {
                 let sourceBlockchain = exchangeManager.getExchangeItems().source.blockchain
+                let subtitle = Localization.swappingNotEnoughFundsForFee(
+                    sourceBlockchain.symbol,
+                    sourceBlockchain.symbol
+                )
                 feeWarningRowViewModel = DefaultWarningRowViewModel(
-                    icon: Assets.attention,
                     title: nil,
-                    subtitle: Localization.swappingNotEnoughFundsForFee(sourceBlockchain.symbol, sourceBlockchain.symbol)
+                    subtitle: subtitle,
+                    leftView: .icon(Assets.attention)
                 )
             }
 
@@ -279,7 +298,7 @@ private extension SwappingViewModel {
             swappingFeeRowViewModel.update(state: .idle)
         case .loading:
             swappingFeeRowViewModel.update(state: .loading)
-        case let .available(result, _):
+        case .available(let result, _):
             let source = exchangeManager.getExchangeItems().source
 
             let fee = result.fee.rounded(scale: 2, roundingMode: .up)
@@ -300,7 +319,7 @@ private extension SwappingViewModel {
             mainButtonState = .swap
         case .loading, .requiredRefresh:
             mainButtonIsEnabled = false
-        case let .preview(model):
+        case .preview(let model):
             mainButtonIsEnabled = model.isEnoughAmountForExchange
 
             if !model.isEnoughAmountForExchange {
@@ -311,7 +330,7 @@ private extension SwappingViewModel {
                 mainButtonState = .swap
             }
 
-        case let .available(model, _):
+        case .available(let model, _):
             mainButtonIsEnabled = model.isEnoughAmountForExchange && model.isEnoughAmountForFee
 
             if !model.isEnoughAmountForExchange {
@@ -386,14 +405,14 @@ private extension SwappingViewModel {
 
     func swapItems() {
         let state = exchangeManager.getAvailabilityState()
-        guard case let .available(result, info) = state else {
+        guard case .available(let result, let info) = state else {
             return
         }
 
         Task {
             do {
                 try await transactionSender.sendTransaction(info)
-                openSuccessView(result: result, transactionModel: info)
+                await openSuccessView(result: result, transactionModel: info)
             } catch TangemSdkError.userCancelled {
                 // Do nothing
             } catch {
@@ -411,11 +430,11 @@ private extension SwappingViewModel {
             }
         case let error as ExchangeProviderError:
             switch error {
-            case let .requestError(error):
+            case .requestError(let error):
                 updateRefreshWarningRowViewModel(message: error.detailedError.localizedDescription)
-            case let .oneInchError(error):
+            case .oneInchError(let error):
                 updateRefreshWarningRowViewModel(message: error.description)
-            case let .decodingError(error):
+            case .decodingError(let error):
                 updateRefreshWarningRowViewModel(message: error.localizedDescription)
             }
         default:
@@ -425,14 +444,13 @@ private extension SwappingViewModel {
 
     func updateRefreshWarningRowViewModel(title: String? = nil, message: String) {
         refreshWarningRowViewModel = DefaultWarningRowViewModel(
-            icon: Assets.attention,
             title: title,
-            subtitle: message,
-            detailsType: .icon(Assets.refreshWarningIcon),
-            action: { [weak self] in
-                self?.exchangeManager.refresh()
-            }
-        )
+            subtitle: message.capitalizingFirstLetter(),
+            leftView: .icon(Assets.attention),
+            rightView: .icon(Assets.refreshWarningIcon)
+        ) { [weak self] in
+            self?.didTapWaringRefresh()
+        }
     }
 }
 
