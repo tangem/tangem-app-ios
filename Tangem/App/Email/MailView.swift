@@ -15,7 +15,6 @@ struct MailView: UIViewControllerRepresentable {
     @Environment(\.presentationMode) private var presentation
 
     class Coordinator: NSObject, MFMailComposeViewControllerDelegate {
-
         @Binding var presentation: PresentationMode
 
         let emailType: EmailType
@@ -25,9 +24,11 @@ struct MailView: UIViewControllerRepresentable {
             self.emailType = emailType
         }
 
-        func mailComposeController(_ controller: MFMailComposeViewController,
-                                   didFinishWith result: MFMailComposeResult,
-                                   error: Error?) {
+        func mailComposeController(
+            _ controller: MFMailComposeViewController,
+            didFinishWith result: MFMailComposeResult,
+            error: Error?
+        ) {
             guard result == .sent || result == .failed else {
                 $presentation.wrappedValue.dismiss()
                 return
@@ -72,10 +73,10 @@ struct MailView: UIViewControllerRepresentable {
         return vc
     }
 
-    func updateUIViewController(_ uiViewController: UIViewController,
-                                context: UIViewControllerRepresentableContext<MailView>) {
-
-    }
+    func updateUIViewController(
+        _ uiViewController: UIViewController,
+        context: UIViewControllerRepresentableContext<MailView>
+    ) {}
 }
 
 fileprivate struct MailViewPlaceholder: View {

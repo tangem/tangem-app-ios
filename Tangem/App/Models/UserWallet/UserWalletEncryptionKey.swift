@@ -19,6 +19,6 @@ struct UserWalletEncryptionKey {
         let tokensSymmetricKey = HMAC<SHA256>.authenticationCode(for: message, using: key)
         let tokensSymmetricKeyData = Data(tokensSymmetricKey)
 
-        self.symmetricKey = SymmetricKey(data: tokensSymmetricKeyData)
+        symmetricKey = SymmetricKey(data: tokensSymmetricKeyData)
     }
 }
