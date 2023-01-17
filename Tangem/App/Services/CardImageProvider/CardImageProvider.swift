@@ -29,7 +29,7 @@ struct CardImageProvider {
         configuration.timeoutIntervalForRequest = 20
         configuration.timeoutIntervalForResource = 30
         let networkService = NetworkService(configuration: configuration)
-        self.cardVerifier = OnlineCardVerifier(with: networkService)
+        cardVerifier = OnlineCardVerifier(with: networkService)
     }
 
     func cardArtwork(for cardId: String) -> CardArtwork? {
@@ -104,7 +104,7 @@ private extension CardImageProvider {
                 }
                 .switchToLatest()
                 .eraseToAnyPublisher()
-        case let .artwork(artworkInfo):
+        case .artwork(let artworkInfo):
             return imageLoader
                 .loadImage(cid: cardId, cardPublicKey: cardPublicKey, artworkInfoId: artworkInfo.id)
                 .handleEvents(receiveOutput: { image in
