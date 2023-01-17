@@ -15,6 +15,8 @@ extension Decimal {
         formatter.numberStyle = .currency
         formatter.usesGroupingSeparator = true
         formatter.currencyCode = code
+        formatter.minimumFractionDigits = 2
+        formatter.maximumFractionDigits = 18
         if code == "RUB" {
             formatter.currencySymbol = "₽"
         }
