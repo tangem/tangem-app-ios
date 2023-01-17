@@ -85,14 +85,14 @@ private extension TotalBalanceProvider {
     }
 
     func updateTotalBalance(with currencyCode: String) {
-        let totalBalance = self.mapToTotalBalance(currencyCode: currencyCode)
-        self.totalBalanceSubject.send(.loaded(totalBalance))
+        let totalBalance = mapToTotalBalance(currencyCode: currencyCode)
+        totalBalanceSubject.send(.loaded(totalBalance))
     }
 
     func mapToTotalBalance(currencyCode: String) -> TotalBalance {
         let tokenItemViewModels = getTokenItemViewModels()
 
-        var hasError: Bool = false
+        var hasError = false
         var balance: Decimal = 0.0
 
         for token in tokenItemViewModels {
