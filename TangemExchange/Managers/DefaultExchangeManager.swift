@@ -22,9 +22,11 @@ class DefaultExchangeManager {
     private var availabilityState: ExchangeAvailabilityState = .idle {
         didSet { delegate?.exchangeManager(self, didUpdate: availabilityState) }
     }
+
     private var exchangeItems: ExchangeItems {
         didSet { delegate?.exchangeManager(self, didUpdate: exchangeItems) }
     }
+
     private var tokenExchangeAllowanceLimit: Decimal? {
         didSet { delegate?.exchangeManager(self, didUpdate: isEnoughAllowance()) }
     }
@@ -54,7 +56,7 @@ class DefaultExchangeManager {
         amount: Decimal? = nil
     ) {
         self.exchangeProvider = exchangeProvider
-        self.blockchainDataProvider = blockchainInfoProvider
+        blockchainDataProvider = blockchainInfoProvider
         self.exchangeItems = exchangeItems
         self.amount = amount
 
@@ -143,7 +145,7 @@ private extension DefaultExchangeManager {
 
 private extension DefaultExchangeManager {
     func updateState(_ state: ExchangeAvailabilityState) {
-        self.availabilityState = state
+        availabilityState = state
     }
 
     func restartTimer() {

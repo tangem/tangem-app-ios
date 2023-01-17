@@ -24,10 +24,12 @@ class OnboardingTopupViewModel<Step: OnboardingStep, Coordinator: OnboardingTopu
 
     var buyCryptoURL: URL? {
         if let wallet = cardModel?.wallets.first {
-            return exchangeService.getBuyUrl(currencySymbol: wallet.blockchain.currencySymbol,
-                                             amountType: .coin,
-                                             blockchain: wallet.blockchain,
-                                             walletAddress: wallet.address)
+            return exchangeService.getBuyUrl(
+                currencySymbol: wallet.blockchain.currencySymbol,
+                amountType: .coin,
+                blockchain: wallet.blockchain,
+                walletAddress: wallet.address
+            )
         }
 
         return nil
@@ -117,10 +119,10 @@ class OnboardingTopupViewModel<Step: OnboardingStep, Coordinator: OnboardingTopu
             self.refreshButtonState = .refreshButton
         }
     }
-
 }
 
 // MARK: - Navigation
+
 extension OnboardingTopupViewModel {
     func openCryptoShopIfPossible() {
         if tangemApiService.geoIpRegionCode == LanguageCode.ru {
