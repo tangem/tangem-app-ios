@@ -94,9 +94,9 @@ struct SwappingView: View {
     private var informationSection: some View {
         GroupedSection(viewModel.informationSectionViewModels) { item in
             switch item {
-            case let .fee(viewModel):
+            case .fee(let viewModel):
                 SwappingFeeRowView(viewModel: viewModel)
-            case let .warning(viewModel):
+            case .warning(let viewModel):
                 DefaultWarningRow(viewModel: viewModel)
             }
         }
