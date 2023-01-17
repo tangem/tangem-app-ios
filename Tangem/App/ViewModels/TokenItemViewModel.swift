@@ -102,7 +102,7 @@ struct TokenItemViewModel: Identifiable, Hashable, Equatable, Comparable {
     }
 
     static func < (lhs: TokenItemViewModel, rhs: TokenItemViewModel) -> Bool {
-        if lhs.fiatValue == 0 && rhs.fiatValue == 0 {
+        if lhs.fiatValue == 0, rhs.fiatValue == 0 {
             return lhs.name < rhs.name
         }
 
@@ -122,4 +122,3 @@ extension TokenItemViewModel {
         isCustom: false
     )
 }
-
