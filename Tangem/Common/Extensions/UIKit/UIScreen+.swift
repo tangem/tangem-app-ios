@@ -9,13 +9,12 @@
 import Foundation
 import UIKit
 
-
 extension UIScreen {
     func animateBrightness(from: CGFloat, to value: CGFloat) {
         let dist = abs(from - value)
         let step: CGFloat = dist / 30.0
 
-        guard  abs(UIScreen.main.brightness - value) > step else { return }
+        guard abs(UIScreen.main.brightness - value) > step else { return }
 
         let delta = UIScreen.main.brightness > value ? -step : step
 
