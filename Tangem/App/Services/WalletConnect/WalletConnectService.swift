@@ -10,7 +10,7 @@ import Foundation
 import Combine
 
 class CommonWalletConnectService {
-    private var v1Service: WalletConnectV1Service? = nil
+    private var v1Service: WalletConnectV1Service?
 }
 
 extension CommonWalletConnectService: WalletConnectService {
