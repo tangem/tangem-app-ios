@@ -11,7 +11,7 @@ import Foundation
 struct WalletConnectUIRequest {
     let event: WalletConnectEvent
     let message: String
-    var positiveReactionAction: (() -> Void)
+    var positiveReactionAction: () -> Void
     var negativeReactionAction: (() -> Void)?
 }
 
