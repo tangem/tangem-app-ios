@@ -62,7 +62,7 @@ struct SuccessSwappingView: View {
                         action: viewModel.didTapViewInExplorer
                     )
                 }
-                
+
                 MainButton(
                     title: Localization.commonDone,
                     action: viewModel.didTapClose
