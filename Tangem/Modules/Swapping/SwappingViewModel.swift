@@ -99,10 +99,12 @@ final class SwappingViewModel: ObservableObject {
         exchangeManager.update(exchangeItems: items)
     }
 
+    @MainActor
     func userDidTapChangeDestinationButton() {
         openTokenListView()
     }
 
+    @MainActor
     func didTapMainButton() {
         switch mainButtonState {
         case .permitAndSwap:
@@ -128,6 +130,7 @@ final class SwappingViewModel: ObservableObject {
 // MARK: - Navigation
 
 private extension SwappingViewModel {
+    @MainActor
     func openTokenListView() {
         let source = exchangeManager.getExchangeItems().source
         let userCurrencies = userCurrenciesProvider.getCurrencies(
@@ -170,6 +173,7 @@ private extension SwappingViewModel {
         coordinator.presentSuccessView(inputModel: inputModel)
     }
 
+    @MainActor
     func openPermissionView() {
         let state = exchangeManager.getAvailabilityState()
         guard case .available(let result, let info) = state,
