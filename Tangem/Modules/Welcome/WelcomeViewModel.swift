@@ -86,8 +86,7 @@ class WelcomeViewModel: ObservableObject {
             self?.isScanningCard = false
 
             guard
-                let self,
-                let result
+                let self, let result
             else {
                 return
             }
