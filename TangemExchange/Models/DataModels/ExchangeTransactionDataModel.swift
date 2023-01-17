@@ -22,7 +22,7 @@ public struct ExchangeTransactionDataModel {
     /// Amount which will be swapped in WEI
     public let amount: Decimal
 
-    /// Value from 1inch to send in transactio n
+    /// Value from 1inch to send in transaction
     public let value: Decimal
 
     /// A long value gas, usual in period from 21000 to 30000
