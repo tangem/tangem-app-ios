@@ -18,9 +18,7 @@ enum ShopifyError: Error {
 class ShopifyService: ShopifyProtocol {
     @Injected(\.keysManager) var keysManager: KeysManager
 
-    private lazy var client: Graph.Client = {
-        .init(shopDomain: shop.domain, apiKey: shop.storefrontApiKey, locale: Locale.current)
-    }()
+    private lazy var client: Graph.Client = .init(shopDomain: shop.domain, apiKey: shop.storefrontApiKey, locale: Locale.current)
 
     private let testApplePayPayments: Bool
     private var shop: ShopifyShop { keysManager.shopifyShop }
@@ -149,7 +147,7 @@ class ShopifyService: ShopifyProtocol {
                 return
             }
 
-            let retryHandler: Graph.RetryHandler<Storefront.QueryRoot>  = .init() { response, error in
+            let retryHandler: Graph.RetryHandler<Storefront.QueryRoot> = .init { response, error in
                 guard pollUntilOrder else { return false }
 
                 guard
@@ -317,12 +315,13 @@ class ShopifyService: ShopifyProtocol {
     }
 
     // MARK: - Apple Pay
+
     func canUseApplePay() -> Bool {
         PKPaymentAuthorizationController.canMakePayments()
     }
 
     func startApplePaySession(checkoutID: GraphQL.ID) -> AnyPublisher<Checkout, Error> {
-        guard self.paySession == nil else {
+        guard paySession == nil else {
             AppLog.shared.debug("Another pay session is in progress")
             return Fail<Checkout, Error>(error: ShopifyError.applePayFailed)
                 .eraseToAnyPublisher()
@@ -456,7 +455,7 @@ extension ShopifyService: PaySessionDelegate {
 
     func paySessionDidFinish(_ paySession: PaySession) {
         self.paySession = nil
-        self.paySessionPublisher?.send(completion: .failure(ShopifyError.applePayFailed))
+        paySessionPublisher?.send(completion: .failure(ShopifyError.applePayFailed))
     }
 
     // MARK: - Updating checkout
@@ -478,15 +477,14 @@ extension ShopifyService: PaySessionDelegate {
                 return false
             }
 
-            if checkShippingRates && checkout?.availableShippingRates?.ready != true {
+            if checkShippingRates, checkout?.availableShippingRates?.ready != true {
                 AppLog.shared.debug("Shipping rates not ready, continue polling")
                 return true
             }
 
             if waitUntilReady,
                let checkoutReady = checkout?.ready,
-               !checkoutReady
-            {
+               !checkoutReady {
                 AppLog.shared.debug("Checkout is not ready, continue polling")
                 return true
             }
@@ -546,5 +544,4 @@ extension ShopifyService: PaySessionDelegate {
         }
         .eraseToAnyPublisher()
     }
-
 }
