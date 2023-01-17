@@ -276,59 +276,48 @@ class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable>
     }
 
     private func bindAnalytics() {
-        $steps
-            .dropFirst()
-            .receiveValue { [weak self] _ in
-                DispatchQueue.main.async {
-                    self?.sendCurrentStepAnalytics()
-                }
-            }
-            .store(in: &bag)
-        
         $currentStepIndex
-            .dropFirst()
             .removeDuplicates()
-            .receiveValue { [weak self] _ in
-                DispatchQueue.main.async {
-                    self?.sendCurrentStepAnalytics()
+            .combineLatest($steps)
+            .receiveValue { index, steps in
+                guard index < steps.count else { return }
+                
+                let currentStep = steps[index]
+
+                if let walletStep = currentStep as? WalletOnboardingStep {
+                    switch walletStep {
+                    case .createWallet:
+                        Analytics.log(.createWalletScreenOpened)
+                    case .backupIntro:
+                        Analytics.log(.backupScreenOpened)
+                    case .kycProgress:
+                        Analytics.log(.kycProgressScreenOpened)
+                    case .kycRetry:
+                        Analytics.log(.kycRetryScreenOpened)
+                    case .kycWaiting:
+                        Analytics.log(.kycWaitingScreenOpened)
+                    case .claim:
+                        Analytics.log(.claimScreenOpened)
+                    default:
+                        break
+                    }
+                } else if let singleCardStep = currentStep as? SingleCardOnboardingStep {
+                    switch singleCardStep {
+                    case .createWallet:
+                        Analytics.log(.createWalletScreenOpened)
+                    default:
+                        break
+                    }
+                } else if let twinStep = currentStep as? TwinsOnboardingStep {
+                    switch twinStep {
+                    case .first:
+                        Analytics.log(.createWalletScreenOpened)
+                    default:
+                        break
+                    }
                 }
             }
             .store(in: &bag)
-    }
-    
-    private func sendCurrentStepAnalytics() {
-        if let walletStep = currentStep as? WalletOnboardingStep {
-            switch walletStep {
-            case .createWallet:
-                Analytics.log(.createWalletScreenOpened)
-            case .backupIntro:
-                Analytics.log(.backupScreenOpened)
-            case .kycProgress:
-                Analytics.log(.kycProgressScreenOpened)
-            case .kycRetry:
-                Analytics.log(.kycRetryScreenOpened)
-            case .kycWaiting:
-                Analytics.log(.kycWaitingScreenOpened)
-            case .claim:
-                Analytics.log(.claimScreenOpened)
-            default:
-                break
-            }
-        } else if let singleCardStep = currentStep as? SingleCardOnboardingStep {
-            switch singleCardStep {
-            case .createWallet:
-                Analytics.log(.createWalletScreenOpened)
-            default:
-                break
-            }
-        } else if let twinStep = currentStep as? TwinsOnboardingStep {
-            switch twinStep {
-            case .first:
-                Analytics.log(.createWalletScreenOpened)
-            default:
-                break
-            }
-        }
     }
 }
 
