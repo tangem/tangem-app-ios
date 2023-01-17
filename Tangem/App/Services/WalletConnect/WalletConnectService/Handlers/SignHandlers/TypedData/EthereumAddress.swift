@@ -11,7 +11,7 @@ public struct EthereumAddress: Equatable {
     public static let size = 20
 
     /// Validates that the raw data is a valid address.
-    static public func isValid(data: Data) -> Bool {
+    public static func isValid(data: Data) -> Bool {
         return data.count == EthereumAddress.size
     }
 
