@@ -1,5 +1,5 @@
 //
-//  SignificantDigitRounder.swift
+//  SignificantFractionDigitRounder.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -8,7 +8,7 @@
 
 import Foundation
 
-struct SignificantDigitRounder {
+struct SignificantFractionDigitRounder {
     let roundingMode: NSDecimalNumber.RoundingMode
 
     func round(value: Decimal) -> Decimal {
