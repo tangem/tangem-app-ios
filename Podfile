@@ -12,7 +12,7 @@ end
 
 def blockchain_sdk_pods
   pod 'BlockchainSdk', :git => 'https://github.com/tangem/blockchain-sdk-swift.git', :tag => 'develop-191'
-  #pod 'BlockchainSdk', :path => '../blockchain-sdk-swift'
+#  pod 'BlockchainSdk', :path => '../blockchain-sdk-swift'
 
   pod 'Solana.Swift', :git => 'https://github.com/tangem/Solana.Swift', :tag => 'add-external-signer-6'
   # pod 'Solana.Swift', :path => '../Solana.Swift'
