@@ -393,6 +393,7 @@ private extension TokenListViewModel {
     func sendAnalyticsOnChangeTokenState(tokenIsSelected: Bool, tokenItem: TokenItem) {
         Analytics.log(.tokenSwitcherChanged, params: [
             .state: Analytics.ParameterValue.state(for: tokenIsSelected).rawValue,
+            .token: tokenItem.currencySymbol,
         ])
     }
 

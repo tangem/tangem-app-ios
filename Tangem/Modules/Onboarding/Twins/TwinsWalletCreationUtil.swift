@@ -75,6 +75,8 @@ class TwinsWalletCreationUtil {
     }
 
     private func createWalletOnFirstCard() {
+        Analytics.log(.buttonCreateWallet)
+        
         let task = TwinsCreateWalletTask(firstTwinCardId: nil, fileToWrite: nil)
         tangemSdkProvider.sdk.startSession(with: task, cardId: firstTwinCid, initialMessage: initialMessage(for: firstTwinCid)) { (result) in
             switch result {
@@ -136,6 +138,8 @@ class TwinsWalletCreationUtil {
 
             switch result {
             case .success(let response):
+                Analytics.log(.walletCreatedSuccessfully)
+                
                 self.card.onTwinWalletCreated(response.walletData)
                 self.card.appendDefaultBlockchains()
                 self.card.userWalletModel?.updateAndReloadWalletModels { [weak self] in

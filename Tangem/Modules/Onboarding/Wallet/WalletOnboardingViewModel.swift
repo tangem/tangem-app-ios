@@ -369,6 +369,16 @@ class WalletOnboardingViewModel: OnboardingTopupViewModel<WalletOnboardingStep, 
             }
         }
     }
+    
+    func onAppear() {
+        Analytics.log(.onboardingStarted)
+        
+        if isInitialAnimPlayed {
+            return
+        }
+
+        playInitialAnim()
+    }
 
     func onRefresh() {
         guard let registrator = saltPayRegistratorProvider.registrator else { return }
@@ -387,7 +397,6 @@ class WalletOnboardingViewModel: OnboardingTopupViewModel<WalletOnboardingStep, 
            let backup = cardModel.backupInput, backup.steps.stepsCount > 0,
            !AppSettings.shared.cardsStartedActivation.contains(cardModel.cardId) {
             AppSettings.shared.cardsStartedActivation.insert(cardModel.cardId)
-            Analytics.log(.onboardingStarted)
         }
 
         saltPayRegistrator
@@ -500,13 +509,14 @@ class WalletOnboardingViewModel: OnboardingTopupViewModel<WalletOnboardingStep, 
         case .scanPrimaryCard:
             readPrimaryCard()
         case .backupIntro:
-            Analytics.log(.backupScreenOpened)
             if NFCUtils.isPoorNfcQualityDevice {
                 self.alert = AlertBuilder.makeOldDeviceAlert()
             } else {
                 if let disabledLocalizedReason = input.cardInput.cardModel?.getDisabledLocalizedReason(for: .backup) {
                     alert = AlertBuilder.makeDemoAlert(disabledLocalizedReason)
                 } else {
+                    Analytics.log(.backupStarted)
+                    
                     goToNextStep()
                 }
             }
@@ -733,7 +743,6 @@ class WalletOnboardingViewModel: OnboardingTopupViewModel<WalletOnboardingStep, 
 
             saltPayRegistratorProvider.registrator?.setAccessCode(code)
 
-            Analytics.log(.settingAccessCodeStarted)
             stackCalculator.setupNumberOfCards(1 + backupCardsAddedCount)
 
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) {
@@ -755,8 +764,6 @@ class WalletOnboardingViewModel: OnboardingTopupViewModel<WalletOnboardingStep, 
             } else {
                 setupCardsSettings(animated: true, isContainerSetup: false)
             }
-        case .success:
-            Analytics.log(.onboardingFinished)
         default:
             break
         }
@@ -764,24 +771,25 @@ class WalletOnboardingViewModel: OnboardingTopupViewModel<WalletOnboardingStep, 
 
     private func createWallet() {
         Analytics.log(.buttonCreateWallet)
-        Analytics.log(.createWalletScreenOpened)
 
         isMainButtonBusy = true
         if !input.isStandalone {
             AppSettings.shared.cardsStartedActivation.insert(input.cardInput.cardId)
-            Analytics.log(.onboardingStarted)
         }
         stepPublisher = preparePrimaryCardPublisher()
             .combineLatest(NotificationCenter.didBecomeActivePublisher)
             .first()
             .mapVoid()
             .sink(receiveCompletion: { [weak self] completion in
-                if case .failure(let error) = completion {
+                switch completion {
+                case .failure(let error):
                     if let cardModel = self?.input.cardInput.cardModel {
                         cardModel.logSdkError(error, action: .preparePrimary)
                     }
                     self?.isMainButtonBusy = false
                     print(error)
+                case .finished:
+                    Analytics.log(.walletCreatedSuccessfully)
                 }
                 self?.stepPublisher = nil
             }, receiveValue: processPrimaryCardScan)
@@ -867,8 +875,7 @@ class WalletOnboardingViewModel: OnboardingTopupViewModel<WalletOnboardingStep, 
 
     private func addBackupCard() {
         isMainButtonBusy = true
-        Analytics.log(.backupStarted)
-        Analytics.log(.backupScreenOpened)
+
         stepPublisher =
             Deferred {
                 Future { [unowned self] promise in
@@ -903,7 +910,7 @@ class WalletOnboardingViewModel: OnboardingTopupViewModel<WalletOnboardingStep, 
 
     private func backupCard() {
         isMainButtonBusy = true
-        Analytics.log(.buttonCreateBackup)
+
         stepPublisher =
             Deferred {
                 Future { [unowned self] promise in
