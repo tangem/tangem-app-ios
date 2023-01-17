@@ -18,7 +18,7 @@ class OneInchExchangeProvider {
     private var bag = Set<AnyCancellable>()
 
     init(exchangeService: OneInchAPIServicing) {
-        self.oneInchAPIProvider = exchangeService
+        oneInchAPIProvider = exchangeService
     }
 }
 

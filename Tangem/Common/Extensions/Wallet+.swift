@@ -10,9 +10,8 @@ import Foundation
 import BlockchainSdk
 import SwiftUI
 
-extension Wallet {
-
-    public func canSend(amountType: Amount.AmountType) -> Bool {
+public extension Wallet {
+    func canSend(amountType: Amount.AmountType) -> Bool {
         if hasPendingTx {
             return false
         }

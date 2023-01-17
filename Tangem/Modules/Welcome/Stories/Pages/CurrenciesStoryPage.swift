@@ -11,9 +11,9 @@ import SwiftUI
 struct CurrenciesStoryPage: View {
     @Binding var progress: Double
     let isScanning: Bool
-    let scanCard: (() -> Void)
-    let orderCard: (() -> Void)
-    let searchTokens: (() -> Void)
+    let scanCard: () -> Void
+    let orderCard: () -> Void
+    let searchTokens: () -> Void
 
     private let numberOfRows = 6
     private let numberOfRowImages = 5
@@ -54,8 +54,8 @@ struct CurrenciesStoryPage: View {
                             }
                             .frame(height: 80)
                         }
-                        .offset(x: 0, y: 30)
-                        ,
+                        .offset(x: 0, y: 30),
+
                         alignment: .top
                     )
                     .clipped()
@@ -90,7 +90,7 @@ struct CurrenciesStoryPage: View {
 
 struct CurrenciesStoryPage_Previews: PreviewProvider {
     static var previews: some View {
-        CurrenciesStoryPage(progress: .constant(1), isScanning: false) { } orderCard: { } searchTokens: { }
+        CurrenciesStoryPage(progress: .constant(1), isScanning: false) {} orderCard: {} searchTokens: {}
             .previewGroup(devices: [.iPhone7, .iPhone12ProMax], withZoomed: false)
     }
 }
