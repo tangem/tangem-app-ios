@@ -26,20 +26,19 @@ struct BlinkingModifier: ViewModifier {
         targetColor = originalColor
     }
 
-    func body(content: Content) -> some View
-    {
+    func body(content: Content) -> some View {
         content
             .foregroundColor(.white)
             .colorMultiply(targetColor)
-            .onReceive(publisher, perform: { newValue -> Void in
+            .onReceive(publisher, perform: { newValue in
                 item?.cancel()
-                withAnimation(.easeOut(duration: duration), {
+                withAnimation(.easeOut(duration: duration)) {
                     targetColor = newValue ? color : originalColor
-                })
+                }
                 item = DispatchWorkItem(block: {
-                    withAnimation(.easeOut(duration: duration), {
+                    withAnimation(.easeOut(duration: duration)) {
                         targetColor = originalColor
-                    })
+                    }
                 })
                 DispatchQueue.main.asyncAfter(deadline: .now() + self.duration, execute: item!)
             })
@@ -47,13 +46,17 @@ struct BlinkingModifier: ViewModifier {
 }
 
 extension View {
-    func blink(publisher: Published<Bool>.Publisher,
-               originalColor: Color,
-               color: Color,
-               duration: Double = 0.5) -> some View {
-        self.modifier(BlinkingModifier(publisher: publisher,
-                                       originalColor: originalColor,
-                                       color: color,
-                                       duration: duration))
+    func blink(
+        publisher: Published<Bool>.Publisher,
+        originalColor: Color,
+        color: Color,
+        duration: Double = 0.5
+    ) -> some View {
+        modifier(BlinkingModifier(
+            publisher: publisher,
+            originalColor: originalColor,
+            color: color,
+            duration: duration
+        ))
     }
 }
