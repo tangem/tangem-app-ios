@@ -46,7 +46,7 @@ class UserWalletEncryptionKeyStorage {
                     }
                 }
             }
-        } catch let error {
+        } catch {
             completion(.failure(error))
         }
     }

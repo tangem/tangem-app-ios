@@ -45,10 +45,13 @@ struct ShopView: View {
                         buyButtons
                     }
                     .padding(.horizontal)
-                    .frame(minWidth: geometry.size.width,
-                           maxWidth: geometry.size.width,
-                           minHeight: geometry.size.height,
-                           maxHeight: .infinity, alignment: .top)
+                    .frame(
+                        minWidth: geometry.size.width,
+                        maxWidth: geometry.size.width,
+                        minHeight: geometry.size.height,
+                        maxHeight: .infinity,
+                        alignment: .top
+                    )
                 }
             }
         }
