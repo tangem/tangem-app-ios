@@ -21,11 +21,12 @@ class SwappingCoordinator: CoordinatorObject {
 
     // MARK: - Child coordinators
 
-    @Published var swappingTokenListViewModel: SwappingTokenListViewModel?
-    @Published var swappingPermissionViewModel: SwappingPermissionViewModel?
-    @Published var successSwappingViewModel: SuccessSwappingViewModel?
+    @Published var successSwappingCoordinator: SuccessSwappingCoordinator?
 
     // MARK: - Child view models
+
+    @Published var swappingTokenListViewModel: SwappingTokenListViewModel?
+    @Published var swappingPermissionViewModel: SwappingPermissionViewModel?
 
     // MARK: - Properties
 
@@ -74,12 +75,14 @@ extension SwappingCoordinator: SwappingRoutable {
         )
     }
 
-    func presentSuccessView(source: CurrencyAmount, result: CurrencyAmount) {
-        successSwappingViewModel = SuccessSwappingViewModel(
-            sourceCurrencyAmount: source,
-            resultCurrencyAmount: result,
-            coordinator: self
+    func presentSuccessView(inputModel: SuccessSwappingInputModel) {
+        let coordinator = SuccessSwappingCoordinator(
+            dismissAction: dismissAction,
+            popToRootAction: popToRootAction
         )
+        coordinator.start(with: .init(inputModel: inputModel))
+
+        successSwappingCoordinator = coordinator
     }
 }
 
@@ -89,15 +92,6 @@ extension SwappingCoordinator: SwappingTokenListRoutable {
     func userDidTap(currency: Currency) {
         swappingTokenListViewModel = nil
         rootViewModel?.userDidRequestChangeDestination(to: currency)
-    }
-}
-
-// MARK: - SuccessSwappingRoutable
-
-extension SwappingCoordinator: SuccessSwappingRoutable {
-    func didTapMainButton() {
-        successSwappingViewModel = nil
-        dismiss()
     }
 }
 
