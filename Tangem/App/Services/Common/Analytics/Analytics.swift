@@ -196,6 +196,7 @@ extension Analytics {
         case success
         case token = "Token"
         case derivationPath = "Derivation Path"
+        case network = "Network"
         case networkId = "Network Id"
         case contractAddress = "Contract Address"
         case mode = "Mode"
@@ -214,9 +215,16 @@ extension Analytics {
         case walletOnboarding = "wallet_onboarding"
         case on = "On"
         case off = "Off"
+        case full = "Full"
+        case empty = "Empty"
+        case multicurrency = "Multicurrency"
 
         static func state(for toggle: Bool) -> ParameterValue {
             return toggle ? .on : .off
+        }
+
+        static func state(for balance: Decimal) -> ParameterValue {
+            return balance > 0 ? .full : .empty
         }
     }
 
