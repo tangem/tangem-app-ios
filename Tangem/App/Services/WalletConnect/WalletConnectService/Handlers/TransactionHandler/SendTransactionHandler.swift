@@ -13,7 +13,6 @@ import TangemSdk
 import Combine
 
 class SendTransactionHandler: WalletConnectTransactionHandler {
-
     override var action: WalletConnectAction { .sendTransaction }
 
     override func handle(request: Request) {
@@ -60,6 +59,5 @@ class SendTransactionHandler: WalletConnectTransactionHandler {
                 self.delegate?.send(try! Response(url: request.url, value: txHash, id: request.id!), for: self.action)
             }
             .store(in: &bag)
-
     }
 }
