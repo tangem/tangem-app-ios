@@ -81,8 +81,10 @@ struct Start2CoinConfig {
 
 extension Start2CoinConfig: UserWalletConfig {
     var emailConfig: EmailConfig? {
-        .init(recipient: "cardsupport@start2coin.com",
-              subject: Localization.feedbackSubjectSupport)
+        .init(
+            recipient: "cardsupport@start2coin.com",
+            subject: Localization.feedbackSubjectSupport
+        )
     }
 
     var tou: TOU {
@@ -220,9 +222,11 @@ extension Start2CoinConfig: UserWalletConfig {
         }
 
         let factory = WalletModelFactory()
-        return try factory.makeSingleWallet(walletPublicKey: walletPublicKey,
-                                            blockchain: defaultBlockchain,
-                                            token: nil,
-                                            derivationStyle: card.derivationStyle)
+        return try factory.makeSingleWallet(
+            walletPublicKey: walletPublicKey,
+            blockchain: defaultBlockchain,
+            token: nil,
+            derivationStyle: card.derivationStyle
+        )
     }
 }
