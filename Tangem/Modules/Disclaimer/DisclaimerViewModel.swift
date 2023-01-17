@@ -19,19 +19,23 @@ class DisclaimerViewModel: Identifiable {
     private var acceptanceHandler: ((Bool) -> Void)?
     private var accepted: Bool = false
 
-    init(url: URL,
-         style: DisclaimerView.Style,
-         coordinator: DisclaimerRoutable?,
-         acceptanceHandler: ((Bool) -> Void)? = nil) {
+    init(
+        url: URL,
+        style: DisclaimerView.Style,
+        coordinator: DisclaimerRoutable?,
+        acceptanceHandler: ((Bool) -> Void)? = nil
+    ) {
         self.style = style
         self.coordinator = coordinator
         self.acceptanceHandler = acceptanceHandler
-        self.webViewModel = .init(url: url,
-                                  title: "",
-                                  addLoadingIndicator: true,
-                                  withCloseButton: false,
-                                  withNavigationBar: false,
-                                  contentInset: .init(top: 0, left: 0, bottom: bottomOverlayHeight / 2, right: 0))
+        webViewModel = .init(
+            url: url,
+            title: "",
+            addLoadingIndicator: true,
+            withCloseButton: false,
+            withNavigationBar: false,
+            contentInset: .init(top: 0, left: 0, bottom: bottomOverlayHeight / 2, right: 0)
+        )
     }
 
     func onAccept() {
@@ -45,6 +49,7 @@ class DisclaimerViewModel: Identifiable {
 }
 
 // MARK: - Navigation
+
 extension DisclaimerViewModel {
     private func dismissAccepted() {
         coordinator?.dismissDisclaimer()

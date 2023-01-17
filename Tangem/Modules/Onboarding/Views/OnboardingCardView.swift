@@ -9,7 +9,6 @@
 import SwiftUI
 
 struct OnboardingCardView: View {
-
     enum CardType {
         case dark
         case light
@@ -51,21 +50,21 @@ struct OnboardingCardView: View {
             }
         }
     }
-
 }
 
 struct OnboardingCardView_Previews: PreviewProvider {
-
     static var previews: some View {
         VStack {
-            OnboardingCardView(placeholderCardType: .dark,
-                               cardImage: nil,
-                               cardScanned: false)
-            OnboardingCardView(placeholderCardType: .light,
-                               cardImage: nil,
-                               cardScanned: false)
-
+            OnboardingCardView(
+                placeholderCardType: .dark,
+                cardImage: nil,
+                cardScanned: false
+            )
+            OnboardingCardView(
+                placeholderCardType: .light,
+                cardImage: nil,
+                cardScanned: false
+            )
         }
     }
-
 }
