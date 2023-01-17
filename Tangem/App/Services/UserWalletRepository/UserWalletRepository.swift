@@ -79,7 +79,7 @@ enum UserWalletRepositoryError: String, Error, LocalizedError {
     case duplicateWalletAdded
 
     var errorDescription: String? {
-        self.rawValue
+        rawValue
     }
 
     var alertBinder: AlertBinder {
