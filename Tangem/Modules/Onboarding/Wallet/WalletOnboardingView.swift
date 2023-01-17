@@ -211,13 +211,7 @@ struct WalletOnboardingView: View {
             alertBinder.alert
         })
         .preference(key: ModalSheetPreferenceKey.self, value: viewModel.isModal)
-        .onAppear(perform: {
-            if viewModel.isInitialAnimPlayed {
-                return
-            }
-
-            viewModel.playInitialAnim()
-        })
+        .onAppear(perform: viewModel.onAppear)
     }
 }
 
