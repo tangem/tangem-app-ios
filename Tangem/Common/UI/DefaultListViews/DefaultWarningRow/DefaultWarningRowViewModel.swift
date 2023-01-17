@@ -15,14 +15,14 @@ struct DefaultWarningRowViewModel {
     private(set) var leftView: AdditionalViewType?
     private(set) var rightView: AdditionalViewType?
 
-    let action: (() -> ())?
+    let action: (() -> Void)?
 
     init(
         title: String? = nil,
         subtitle: String,
         leftView: DefaultWarningRowViewModel.AdditionalViewType? = nil,
         rightView: DefaultWarningRowViewModel.AdditionalViewType? = nil,
-        action: (() -> ())? = nil
+        action: (() -> Void)? = nil
     ) {
         self.title = title
         self.subtitle = subtitle

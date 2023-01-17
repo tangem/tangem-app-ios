@@ -13,7 +13,7 @@ class CommonKeysManager {
     private let keys: Keys
 
     init() throws {
-        self.keys = try JsonUtils.readBundleFile(with: AppEnvironment.current.configFileName, type: CommonKeysManager.Keys.self)
+        keys = try JsonUtils.readBundleFile(with: AppEnvironment.current.configFileName, type: CommonKeysManager.Keys.self)
     }
 }
 
@@ -35,15 +35,17 @@ extension CommonKeysManager: KeysManager {
     }
 
     var blockchainConfig: BlockchainSdkConfig {
-        BlockchainSdkConfig(blockchairApiKeys: keys.blockchairApiKeys,
-                            blockcypherTokens: keys.blockcypherTokens,
-                            infuraProjectId: keys.infuraProjectId,
-                            tronGridApiKey: keys.tronGridApiKey,
-                            // [REDACTED_TODO_COMMENT]
-                            quickNodeSolanaCredentials: .init(apiKey: keys.quiknodeApiKey, subdomain: keys.quiknodeSubdomain),
-                            quickNodeBscCredentials: .init(apiKey: keys.bscQuiknodeApiKey, subdomain: keys.bscQuiknodeSubdomain),
-                            defaultNetworkProviderConfiguration: .init(logger: .verbose, urlSessionConfiguration: .standart),
-                            networkProviderConfigurations: [.saltPay: .init(logger: .verbose, credentials: keys.saltPay.credentials)])
+        BlockchainSdkConfig(
+            blockchairApiKeys: keys.blockchairApiKeys,
+            blockcypherTokens: keys.blockcypherTokens,
+            infuraProjectId: keys.infuraProjectId,
+            tronGridApiKey: keys.tronGridApiKey,
+            // [REDACTED_TODO_COMMENT]
+            quickNodeSolanaCredentials: .init(apiKey: keys.quiknodeApiKey, subdomain: keys.quiknodeSubdomain),
+            quickNodeBscCredentials: .init(apiKey: keys.bscQuiknodeApiKey, subdomain: keys.bscQuiknodeSubdomain),
+            defaultNetworkProviderConfiguration: .init(logger: .verbose, urlSessionConfiguration: .standart),
+            networkProviderConfigurations: [.saltPay: .init(logger: .verbose, credentials: keys.saltPay.credentials)]
+        )
     }
 
     var shopifyShop: ShopifyShop {

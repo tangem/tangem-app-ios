@@ -94,7 +94,7 @@ struct DefaultWarningRow_Preview: PreviewProvider {
             title: "Give Permission",
             subtitle: "To continue you need to allow 1inch smart contracts to use your Dai",
             leftView: .icon(Assets.swappingLock)
-        ),  DefaultWarningRowViewModel(
+        ), DefaultWarningRowViewModel(
             title: "Waiting",
             subtitle: "Transaction in progress...",
             leftView: .loader

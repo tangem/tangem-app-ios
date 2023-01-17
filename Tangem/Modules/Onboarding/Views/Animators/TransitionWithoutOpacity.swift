@@ -13,10 +13,12 @@ struct TransitionWithoutOpacity: AnimatableModifier {
     init(_ x: CGFloat) {
         animatableData = x
     }
+
     func body(content: Content) -> some View {
         return content
     }
 }
+
 extension AnyTransition {
     static let withoutOpacity: AnyTransition = .modifier(active: TransitionWithoutOpacity(1), identity: TransitionWithoutOpacity(0))
 }

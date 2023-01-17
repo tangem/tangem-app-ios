@@ -46,7 +46,7 @@ extension AppEnvironment {
             URL(string: "https://api.tangem-tech.com/v1")!
     }
 
-    var isTestnet: Bool  {
+    var isTestnet: Bool {
         EnvironmentProvider.shared.isTestnet
     }
 
