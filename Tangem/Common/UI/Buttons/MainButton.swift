@@ -65,13 +65,13 @@ struct MainButton: View {
                 case .none:
                     textView
 
-                case let .leading(icon):
+                case .leading(let icon):
                     HStack(alignment: .center, spacing: 10) {
                         iconView(icon: icon)
 
                         textView
                     }
-                case let .trailing(icon):
+                case .trailing(let icon):
                     HStack(alignment: .center, spacing: 10) {
                         textView
 
@@ -86,8 +86,10 @@ struct MainButton: View {
     @ViewBuilder
     private var textView: some View {
         Text(title)
-            .style(Fonts.Bold.callout,
-                   color: style.textColor(isDisabled: isDisabled))
+            .style(
+                Fonts.Bold.callout,
+                color: style.textColor(isDisabled: isDisabled)
+            )
             .lineLimit(1)
     }
 
@@ -200,33 +202,45 @@ struct MainButton_Previews: PreviewProvider {
     @ViewBuilder
     static func buttons(style: MainButton.Style) -> some View {
         VStack(spacing: 16) {
-            MainButton(title: "Order card",
-                       icon: .leading(Assets.tangemIcon),
-                       style: style) {}
+            MainButton(
+                title: "Order card",
+                icon: .leading(Assets.tangemIcon),
+                style: style
+            ) {}
 
-            MainButton(title: "Order card",
-                       icon: .leading(Assets.tangemIcon),
-                       style: style,
-                       isDisabled: true) {}
+            MainButton(
+                title: "Order card",
+                icon: .leading(Assets.tangemIcon),
+                style: style,
+                isDisabled: true
+            ) {}
 
-            MainButton(title: "Order card",
-                       icon: .trailing(Assets.tangemIcon),
-                       style: style) {}
+            MainButton(
+                title: "Order card",
+                icon: .trailing(Assets.tangemIcon),
+                style: style
+            ) {}
 
-            MainButton(title: "Order card",
-                       icon: .trailing(Assets.tangemIcon),
-                       style: style,
-                       isDisabled: true) {}
+            MainButton(
+                title: "Order card",
+                icon: .trailing(Assets.tangemIcon),
+                style: style,
+                isDisabled: true
+            ) {}
 
-            MainButton(title: "Order card",
-                       icon: .trailing(Assets.tangemIcon),
-                       style: style,
-                       isLoading: true) {}
+            MainButton(
+                title: "Order card",
+                icon: .trailing(Assets.tangemIcon),
+                style: style,
+                isLoading: true
+            ) {}
 
-            MainButton(title: "A long long long long long long long long long long text",
-                       icon: .trailing(Assets.tangemIcon),
-                       style: style,
-                       isLoading: false) {}
+            MainButton(
+                title: "A long long long long long long long long long long text",
+                icon: .trailing(Assets.tangemIcon),
+                style: style,
+                isLoading: false
+            ) {}
         }
         .padding(.horizontal, 16)
         .background(Colors.Background.secondary)
