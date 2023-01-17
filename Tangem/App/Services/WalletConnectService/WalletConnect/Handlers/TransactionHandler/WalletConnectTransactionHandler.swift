@@ -78,8 +78,8 @@ class WalletConnectTransactionHandler: TangemWalletConnectRequestHandler {
 
         let valueAmount = Amount(with: blockchain, type: .coin, value: value)
 
-        let gasLimit = transaction.gas?.hexToInteger ?? transaction.gasLimit?.hexToInteger
-        let dappGasLimitPublisher: AnyPublisher<Int, Error>? = gasLimit.map { .justWithError(output: $0) }
+        let dappGasLimit = transaction.gas?.hexToInteger ?? transaction.gasLimit?.hexToInteger
+        let dappGasLimitPublisher: AnyPublisher<Int, Error>? = dappGasLimit.map { .justWithError(output: $0) }
 
         let gasPricePublisher = getGasPrice(for: valueAmount, tx: transaction, txSender: gasLoader, decimalCount: blockchain.decimalCount)
         let gasLimitPublisher = dappGasLimitPublisher ?? getGasLimit(for: valueAmount, destination: transaction.to, data: transaction.data, txSender: gasLoader)
