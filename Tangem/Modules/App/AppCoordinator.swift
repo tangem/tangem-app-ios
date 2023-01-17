@@ -15,15 +15,18 @@ class AppCoordinator: NSObject, CoordinatorObject {
     var popToRootAction: (PopToRootOptions) -> Void = { _ in }
 
     // MARK: - Injected
+
     @Injected(\.walletConnectService) private var walletConnectService: WalletConnectService
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
 
     // MARK: - Child coordinators
+
     @Published var welcomeCoordinator: WelcomeCoordinator?
     @Published var uncompletedBackupCoordinator: UncompletedBackupCoordinator?
     @Published var authCoordinator: AuthCoordinator?
 
     // MARK: - Private
+
     private let servicesManager: ServicesManager = .init()
     private var bag: Set<AnyCancellable> = []
 
@@ -75,7 +78,7 @@ class AppCoordinator: NSObject, CoordinatorObject {
 
         let coordinator = WelcomeCoordinator(dismissAction: dismissAction, popToRootAction: popToRootAction)
         coordinator.start(with: .init(shouldScan: shouldScan))
-        self.welcomeCoordinator = coordinator
+        welcomeCoordinator = coordinator
     }
 
     private func setupAuth(with options: AppCoordinator.Options) {
@@ -95,7 +98,7 @@ class AppCoordinator: NSObject, CoordinatorObject {
 
         let coordinator = AuthCoordinator(dismissAction: dismissAction, popToRootAction: popToRootAction)
         coordinator.start(with: .init(unlockOnStart: unlockOnStart))
-        self.authCoordinator = coordinator
+        authCoordinator = coordinator
     }
 
     private func setupUncompletedBackup() {
@@ -106,7 +109,7 @@ class AppCoordinator: NSObject, CoordinatorObject {
 
         let coordinator = UncompletedBackupCoordinator(dismissAction: dismissAction)
         coordinator.start()
-        self.uncompletedBackupCoordinator = coordinator
+        uncompletedBackupCoordinator = coordinator
     }
 
     private func bind() {
@@ -146,7 +149,7 @@ class AppCoordinator: NSObject, CoordinatorObject {
         }
     }
 
-    private func closeAllSheetsIfNeeded(animated: Bool, completion: @escaping () -> Void = { }) {
+    private func closeAllSheetsIfNeeded(animated: Bool, completion: @escaping () -> Void = {}) {
         guard let topViewController = UIApplication.topViewController,
               topViewController.presentingViewController != nil else {
             DispatchQueue.main.async {
@@ -171,6 +174,7 @@ extension AppCoordinator {
 }
 
 // MARK: - UIWindowSceneDelegate
+
 extension AppCoordinator: UIWindowSceneDelegate {
     func scene(_ scene: UIScene, continue userActivity: NSUserActivity) {
         handle(activities: [userActivity])
@@ -215,15 +219,18 @@ extension AppCoordinator: UIWindowSceneDelegate {
 }
 
 // MARK: - URLHandler
+
 extension AppCoordinator: URLHandler {
-    @discardableResult func handle(url: String) -> Bool {
+    @discardableResult
+    func handle(url: String) -> Bool {
         guard url.starts(with: "https://app.tangem.com")
             || url.starts(with: Constants.tangemDomain + "/ndef") else { return false }
 
         return true
     }
 
-    @discardableResult func handle(url: URL) -> Bool {
+    @discardableResult
+    func handle(url: URL) -> Bool {
         handle(url: url.absoluteString)
     }
 }
