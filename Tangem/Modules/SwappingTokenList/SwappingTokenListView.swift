@@ -17,7 +17,7 @@ struct SwappingTokenListView: View {
 
     var body: some View {
         NavigationView {
-            PerfList {
+            GroupedScrollView(alignment: .leading, spacing: 0) {
                 if #available(iOS 15.0, *) {} else {
                     let horizontalInset: CGFloat = UIDevice.isIOS13 ? 8 : 16
                     SearchBar(text: $viewModel.searchText.value, placeholder: Localization.commonSearch)
@@ -25,21 +25,13 @@ struct SwappingTokenListView: View {
                         .listRowInsets(.init(top: 8, leading: horizontalInset, bottom: 8, trailing: horizontalInset))
                 }
 
-                GroupedSection(viewModel.userItems) {
-                    SwappingTokenItemView(viewModel: $0)
-                } header: {
-                    Text(Localization.swappingTokenListYourTokens.uppercased())
-                        .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
-                }
-                .separatorPadding(68)
+                Spacer().frame(height: 12)
 
-                GroupedSection(viewModel.otherItems) {
-                    SwappingTokenItemView(viewModel: $0)
-                } header: {
-                    Text(Localization.swappingTokenListOtherTokens.uppercased())
-                        .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
-                }
-                .separatorPadding(68)
+                userItemsSection()
+
+                Spacer().frame(height: 12)
+
+                otherItemsSection()
 
                 if viewModel.hasNextPage {
                     ProgressViewCompat(color: Colors.Icon.informative)
@@ -49,7 +41,38 @@ struct SwappingTokenListView: View {
             }
             .searchableCompat(text: $viewModel.searchText.value)
             .navigationBarTitle(Text(Localization.swappingTokenListYourTitle), displayMode: .inline)
-            .onAppear(perform: viewModel.onAppear)
+        }
+    }
+
+    func userItemsSection() -> some View {
+        Group {
+            Text(Localization.swappingTokenListYourTokens.uppercased())
+                .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
+
+            ForEach(viewModel.userItems) { model in
+                SwappingTokenItemView(viewModel: model)
+
+                if viewModel.userItems.last?.id != model.id {
+                    Separator(color: Colors.Stroke.primary)
+                        .padding(.leading, 42)
+                }
+            }
+        }
+    }
+
+    func otherItemsSection() -> some View {
+        Group {
+            Text(Localization.swappingTokenListOtherTokens.uppercased())
+                .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
+
+            ForEach(viewModel.otherItems) { model in
+                SwappingTokenItemView(viewModel: model)
+
+                if viewModel.otherItems.last?.id != model.id {
+                    Separator(color: Colors.Stroke.primary)
+                        .padding(.leading, 42)
+                }
+            }
         }
     }
 }
