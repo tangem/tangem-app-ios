@@ -51,6 +51,7 @@ class WalletConnectViewModel: ObservableObject {
     }
 
     func onAppear() {
+        Analytics.log(.walletConnectScreenOpened)
         bind()
     }
 
@@ -82,6 +83,8 @@ class WalletConnectViewModel: ObservableObject {
     }
 
     func openSession() {
+        Analytics.log(.buttonStartWalletConnectSession)
+
         if let disabledLocalizedReason = cardModel.getDisabledLocalizedReason(for: .walletConnect) {
             alert = AlertBuilder.makeDemoAlert(disabledLocalizedReason)
             return
