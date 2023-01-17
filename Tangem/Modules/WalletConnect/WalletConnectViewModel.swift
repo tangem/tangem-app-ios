@@ -116,6 +116,7 @@ class WalletConnectViewModel: ObservableObject {
 }
 
 // MARK: - Navigation
+
 extension WalletConnectViewModel {
     func openQRScanner() {
         if case .denied = AVCaptureDevice.authorizationStatus(for: .video) {
@@ -127,7 +128,8 @@ extension WalletConnectViewModel {
                 },
                 set: { [weak self] in
                     self?.scannedQRCode.send($0)
-                })
+                }
+            )
 
             coordinator.openQRScanner(with: binding)
         }
