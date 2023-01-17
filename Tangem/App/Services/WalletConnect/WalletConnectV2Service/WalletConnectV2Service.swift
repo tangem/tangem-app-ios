@@ -54,12 +54,12 @@ class WalletConnectV2Service {
     }
 
     func terminateAllSessions() async throws {
-        for session in self.signApi.getSessions() {
-            try await self.signApi.disconnect(topic: session.topic)
+        for session in signApi.getSessions() {
+            try await signApi.disconnect(topic: session.topic)
         }
 
-        for pairing in self.pairApi.getPairings() {
-            try await self.pairApi.disconnect(topic: pairing.topic)
+        for pairing in pairApi.getPairings() {
+            try await pairApi.disconnect(topic: pairing.topic)
         }
 
         await sessionsStorage.clearStorage()
@@ -159,7 +159,7 @@ class WalletConnectV2Service {
         uiDelegate.showScreen(with: WalletConnectUIRequest(
             event: .error,
             message: message,
-            positiveReactionAction: { }
+            positiveReactionAction: {}
         ))
     }
 
@@ -187,8 +187,7 @@ class WalletConnectV2Service {
             do {
                 try await self?.signApi.reject(proposalId: proposal.id, reason: .userRejectedChains)
                 AppLog.shared.debug("[WC 2.0] User reject WC connection")
-            }
-            catch {
+            } catch {
                 AppLog.shared.error("[WC 2.0] Failed to reject WC connection with error: \(error)")
             }
         }
@@ -257,6 +256,5 @@ extension WalletConnectV2Service {
             }
             AppLog.shared.error("[WC 2.0] Failed to disconnect session with topic: \(session.topic) with error: \(error)")
         }
-
     }
 }
