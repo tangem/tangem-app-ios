@@ -77,7 +77,7 @@ enum TwinsOnboardingStep: Equatable {
 
     func backgroundFrame(in container: CGSize) -> CGSize {
         switch self {
-        case .topup,  .done:
+        case .topup, .done:
             return defaultBackgroundFrameSize(in: container)
         case .welcome:
             return .zero
@@ -87,7 +87,7 @@ enum TwinsOnboardingStep: Equatable {
 
     func backgroundCornerRadius(in container: CGSize) -> CGFloat {
         switch self {
-        case .topup,  .done: return defaultBackgroundCornerRadius
+        case .topup, .done: return defaultBackgroundCornerRadius
         case .welcome: return 0
         default: return backgroundFrame(in: container).height / 2
         }
@@ -99,7 +99,7 @@ enum TwinsOnboardingStep: Equatable {
 
     var backgroundOpacity: Double {
         switch self {
-        case .topup,  .done: return 1
+        case .topup, .done: return 1
         default: return 0
         }
     }
@@ -129,7 +129,6 @@ extension TwinsOnboardingStep: OnboardingProgressStepIndicatable {
         }
     }
 }
-
 
 extension TwinsOnboardingStep: OnboardingTopupBalanceLayoutCalculator {}
 
