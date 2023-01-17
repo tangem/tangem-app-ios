@@ -23,9 +23,10 @@ struct ProgressIndicatorView: View {
                 .scaleEffect(filled ? 1.0 : 0.0)
                 .animation(
                     .easeIn(duration: animDuration)
-                        .delay(filled ?
-                            Double(index) / 2 * animDuration :
-                            0
+                        .delay(
+                            filled ?
+                                Double(index) / 2 * animDuration :
+                                0
 //                                Double(maxIndex - index) / 2 * animDuration
                         )
                 )
@@ -34,7 +35,6 @@ struct ProgressIndicatorView: View {
 }
 
 struct ProgressIndicatorGroupView: View {
-
     var filled: Bool
     var numberOfIndicators: Int = 3
     var animDuration: TimeInterval
@@ -42,21 +42,20 @@ struct ProgressIndicatorGroupView: View {
     var body: some View {
         HStack {
             ForEach(1 ... numberOfIndicators) { index in
-                ProgressIndicatorView(index: index,
-                                      maxIndex: numberOfIndicators,
-                                      filled: filled,
-                                      animDuration: animDuration)
-                    .frame(size: CGSize(width: 5, height: 5))
+                ProgressIndicatorView(
+                    index: index,
+                    maxIndex: numberOfIndicators,
+                    filled: filled,
+                    animDuration: animDuration
+                )
+                .frame(size: CGSize(width: 5, height: 5))
             }
         }
     }
-
 }
 
 struct ProgressIndicatorGroupView_Previews: PreviewProvider {
-
     static var previews: some View {
         ProgressIndicatorGroupView(filled: true, numberOfIndicators: 3, animDuration: 0.3)
     }
-
 }
