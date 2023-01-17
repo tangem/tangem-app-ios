@@ -65,7 +65,6 @@ struct SwappingTokenItemView: View {
 struct SwappingTokenItemView_Previews: PreviewProvider {
     static let viewModels = [
         SwappingTokenItemViewModel(
-            id: "bitcoin",
             iconURL: nil,
             name: "Bitcoin",
             symbol: "BTC",
@@ -73,7 +72,6 @@ struct SwappingTokenItemView_Previews: PreviewProvider {
             balance: 1.23415,
             itemDidTap: {}
         ), SwappingTokenItemViewModel(
-            id: "ethereum",
             iconURL: nil,
             name: "Ethereum",
             symbol: "ETH",
