@@ -40,7 +40,6 @@ struct CardView: View {
                     .background(Color.gray)
                     .cornerRadius(14)
                     .offset(x: 24)
-
             }
         }
     }

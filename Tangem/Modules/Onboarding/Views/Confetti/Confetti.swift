@@ -28,7 +28,6 @@ struct ConfettiView: UIViewRepresentable {
             DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
                 self.shouldFireConfetti.wrappedValue = false
             }
-
         }
     }
 
@@ -37,10 +36,12 @@ struct ConfettiView: UIViewRepresentable {
         let confettiLayers = ConfettiGenerator.shared
             .generateConfettiLayers(
                 with:
-                ConfettiGeneratorSettings(generatorPosition: position,
-                                          generatorSize: CGSize(width: 100, height: 120),
-                                          confettiLifetime: confettiLifetime,
-                                          generationDuration: generationDuration)
+                ConfettiGeneratorSettings(
+                    generatorPosition: position,
+                    generatorSize: CGSize(width: 100, height: 120),
+                    confettiLifetime: confettiLifetime,
+                    generationDuration: generationDuration
+                )
             )
         for layer in confettiLayers {
             view.layer.addSublayer(layer)
@@ -53,7 +54,6 @@ struct ConfettiView: UIViewRepresentable {
 }
 
 struct ConfettiViewPreview: View {
-
     @State var shouldFireConfetti: Bool = false
 
     var body: some View {
@@ -76,7 +76,6 @@ struct ConfettiViewPreview: View {
             }
         }
     }
-
 }
 
 struct ConfettiView_Previews: PreviewProvider {

@@ -185,6 +185,7 @@ class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable>
 
     func onOnboardingFinished(for cardId: String) {
         AppSettings.shared.cardsStartedActivation.remove(cardId)
+        Analytics.log(.onboardingFinished)
     }
 
     func backButtonAction() {}
@@ -193,7 +194,6 @@ class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable>
         if !confettiFired {
             shouldFireConfetti = true
             confettiFired = true
-            Analytics.log(.walletCreatedSuccessfully)
         }
     }
 
@@ -217,7 +217,7 @@ class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable>
                 self.onboardingDidFinish()
             }
 
-            self.onOnboardingFinished(for: self.input.cardInput.cardId)
+            onOnboardingFinished(for: input.cardInput.cardId)
 
             return
         }
@@ -274,15 +274,19 @@ class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable>
 
     private func bindAnalytics() {
         $currentStepIndex
-            .dropFirst()
             .removeDuplicates()
-            .receiveValue { [weak self] index in
-                guard let self else { return }
+            .combineLatest($steps)
+            .receiveValue { index, steps in
+                guard index < steps.count else { return }
 
-                let currentStep = self.currentStep
+                let currentStep = steps[index]
 
                 if let walletStep = currentStep as? WalletOnboardingStep {
                     switch walletStep {
+                    case .createWallet:
+                        Analytics.log(.createWalletScreenOpened)
+                    case .backupIntro:
+                        Analytics.log(.backupScreenOpened)
                     case .kycProgress:
                         Analytics.log(.kycProgressScreenOpened)
                     case .kycRetry:
@@ -294,6 +298,20 @@ class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable>
                     default:
                         break
                     }
+                } else if let singleCardStep = currentStep as? SingleCardOnboardingStep {
+                    switch singleCardStep {
+                    case .createWallet:
+                        Analytics.log(.createWalletScreenOpened)
+                    default:
+                        break
+                    }
+                } else if let twinStep = currentStep as? TwinsOnboardingStep {
+                    switch twinStep {
+                    case .first:
+                        Analytics.log(.createWalletScreenOpened)
+                    default:
+                        break
+                    }
                 }
             }
             .store(in: &bag)
@@ -301,6 +319,7 @@ class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable>
 }
 
 // MARK: - Navigation
+
 extension OnboardingViewModel {
     func onboardingDidFinish() {
         coordinator.onboardingDidFinish()
@@ -313,11 +332,15 @@ extension OnboardingViewModel {
     func openSupportChat() {
         guard let cardModel = input.cardInput.cardModel else { return }
 
-        let dataCollector = DetailsFeedbackDataCollector(cardModel: cardModel,
-                                                         userWalletEmailData: cardModel.emailData)
+        let dataCollector = DetailsFeedbackDataCollector(
+            cardModel: cardModel,
+            userWalletEmailData: cardModel.emailData
+        )
 
-        coordinator.openSupportChat(cardId: cardModel.cardId,
-                                    dataCollector: dataCollector)
+        coordinator.openSupportChat(
+            cardId: cardModel.cardId,
+            dataCollector: dataCollector
+        )
     }
 }
 
@@ -327,8 +350,7 @@ extension OnboardingViewModel: UserWalletStorageAgreementRoutable {
             switch result {
             case .error(let error):
                 if let tangemSdkError = error as? TangemSdkError,
-                   case .userCancelled = tangemSdkError
-                {
+                   case .userCancelled = tangemSdkError {
                     return
                 }
                 AppLog.shared.error(error)
