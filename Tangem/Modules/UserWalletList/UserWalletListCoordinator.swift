@@ -13,9 +13,11 @@ class UserWalletListCoordinator: CoordinatorObject {
     let popToRootAction: ParamsAction<PopToRootOptions>
 
     // MARK: - Root view model
+
     @Published private(set) var rootViewModel: UserWalletListViewModel?
 
     // MARK: - Child coordinators
+
     @Published var disclaimerViewModel: DisclaimerViewModel? = nil
     @Published var mailViewModel: MailViewModel? = nil
 
@@ -32,7 +34,7 @@ class UserWalletListCoordinator: CoordinatorObject {
     }
 
     func start(with options: Options = .default) {
-        self.rootViewModel = .init(coordinator: self)
+        rootViewModel = .init(coordinator: self)
     }
 }
 
