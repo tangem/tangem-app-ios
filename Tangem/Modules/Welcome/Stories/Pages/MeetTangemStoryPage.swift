@@ -12,8 +12,8 @@ struct MeetTangemStoryPage: View {
     @Binding var progress: Double
     var immediatelyShowButtons: Bool
     let isScanning: Bool
-    let scanCard: (() -> Void)
-    let orderCard: (() -> Void)
+    let scanCard: () -> Void
+    let orderCard: () -> Void
 
     private let words: [String] = [
         "",
@@ -111,8 +111,8 @@ struct MeetTangemStoryPage: View {
                                 progress: progress,
                                 start: wordListProgressEnd,
                                 end: 1
-                            ))
-                        ,
+                            )),
+
                         alignment: .top
                     )
             }
@@ -135,10 +135,9 @@ struct MeetTangemStoryPage: View {
     }
 }
 
-
 struct MeetTangemStoryPage_Previews: PreviewProvider {
     static var previews: some View {
-        MeetTangemStoryPage(progress: .constant(0.8), immediatelyShowButtons: false, isScanning: false) { } orderCard: { }
+        MeetTangemStoryPage(progress: .constant(0.8), immediatelyShowButtons: false, isScanning: false) {} orderCard: {}
             .previewGroup(devices: [.iPhone7, .iPhone12ProMax], withZoomed: false)
             .environment(\.colorScheme, .dark)
     }
