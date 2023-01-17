@@ -15,4 +15,4 @@ struct WalletConnectV2DefaultSocketFactory: WebSocketFactory {
     }
 }
 
-extension WebSocket: WebSocketConnecting { }
+extension WebSocket: WebSocketConnecting {}
