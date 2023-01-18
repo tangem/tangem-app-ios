@@ -125,7 +125,7 @@ extension CommonUserWalletModel: UserWalletModel {
         switch item.amount {
         case .coin:
             removeBlockchain(item.blockchainNetwork)
-        case let .token(token):
+        case .token(let token):
             removeToken(token, in: item.blockchainNetwork)
         case .reserve: break
         }
