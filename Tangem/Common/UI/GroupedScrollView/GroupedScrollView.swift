@@ -43,14 +43,6 @@ struct GroupedScrollView<Content: View>: View {
     }
 }
 
-// MARK: - Setupable
-
-extension GroupedScrollView: Setupable {
-    func horizontalPadding(_ padding: CGFloat) -> Self {
-        map { $0.horizontalPadding = padding }
-    }
-}
-
 struct GroupedScrollView_Previews: PreviewProvider {
     static var previews: some View {
         GroupedScrollView {
