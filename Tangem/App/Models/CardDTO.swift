@@ -27,20 +27,20 @@ public struct CardDTO: Codable {
     public internal(set) var attestation: Attestation = .empty
 
     init(card: Card) {
-        self.cardId = card.cardId
-        self.batchId = card.batchId
-        self.cardPublicKey = card.cardPublicKey
-        self.firmwareVersion = card.firmwareVersion
-        self.manufacturer = card.manufacturer
-        self.issuer = card.issuer
-        self.settings = .init(settings: card.settings)
-        self.linkedTerminalStatus = card.linkedTerminalStatus
-        self.isAccessCodeSet = card.isAccessCodeSet
-        self.isPasscodeSet = card.isPasscodeSet
-        self.supportedCurves = card.supportedCurves
-        self.backupStatus = card.backupStatus
-        self.wallets = card.wallets
-        self.attestation = card.attestation
+        cardId = card.cardId
+        batchId = card.batchId
+        cardPublicKey = card.cardPublicKey
+        firmwareVersion = card.firmwareVersion
+        manufacturer = card.manufacturer
+        issuer = card.issuer
+        settings = .init(settings: card.settings)
+        linkedTerminalStatus = card.linkedTerminalStatus
+        isAccessCodeSet = card.isAccessCodeSet
+        isPasscodeSet = card.isPasscodeSet
+        supportedCurves = card.supportedCurves
+        backupStatus = card.backupStatus
+        wallets = card.wallets
+        attestation = card.attestation
     }
 }
 
@@ -59,16 +59,16 @@ public extension CardDTO {
         public let isBackupAllowed: Bool
 
         init(settings: Card.Settings) {
-            self.securityDelay = settings.securityDelay
-            self.maxWalletsCount = settings.maxWalletsCount
-            self.isSettingAccessCodeAllowed = settings.isSettingAccessCodeAllowed
-            self.isSettingPasscodeAllowed = settings.isSettingPasscodeAllowed
-            self.isResettingUserCodesAllowed = settings.isResettingUserCodesAllowed
-            self.isLinkedTerminalEnabled = settings.isLinkedTerminalEnabled
-            self.supportedEncryptionModes = settings.supportedEncryptionModes
-            self.isFilesAllowed = settings.isFilesAllowed
-            self.isHDWalletAllowed = settings.isHDWalletAllowed
-            self.isBackupAllowed = settings.isBackupAllowed
+            securityDelay = settings.securityDelay
+            maxWalletsCount = settings.maxWalletsCount
+            isSettingAccessCodeAllowed = settings.isSettingAccessCodeAllowed
+            isSettingPasscodeAllowed = settings.isSettingPasscodeAllowed
+            isResettingUserCodesAllowed = settings.isResettingUserCodesAllowed
+            isLinkedTerminalEnabled = settings.isLinkedTerminalEnabled
+            supportedEncryptionModes = settings.supportedEncryptionModes
+            isFilesAllowed = settings.isFilesAllowed
+            isHDWalletAllowed = settings.isHDWalletAllowed
+            isBackupAllowed = settings.isBackupAllowed
         }
     }
 }

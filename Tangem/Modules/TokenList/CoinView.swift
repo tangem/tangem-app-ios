@@ -23,7 +23,6 @@ struct CoinView: View {
                     .padding(.trailing, 14)
 
                 VStack(alignment: .leading, spacing: 6) {
-
                     Group {
                         Text(model.name)
                             .foregroundColor(.tangemGrayDark6)
@@ -85,43 +84,59 @@ struct CurrencyView_Previews: PreviewProvider {
     static var previews: some View {
         VStack {
             StatefulPreviewWrapper(false) {
-                CoinView(model: CoinViewModel(imageURL: nil,
-                                              name: "Tether",
-                                              symbol: "USDT",
-                                              items: [
-                                                  CoinItemViewModel(tokenItem: .blockchain(.ethereum(testnet: false)),
-                                                                    isReadonly: false,
-                                                                    isSelected: $0,
-                                                                    position: .first),
-                                                  CoinItemViewModel(tokenItem: .blockchain(.ethereum(testnet: false)),
-                                                                    isReadonly: false,
-                                                                    isSelected: $0,
-                                                                    position: .middle),
-                                                  CoinItemViewModel(tokenItem: .blockchain(.ethereum(testnet: false)),
-                                                                    isReadonly: false,
-                                                                    isSelected: $0,
-                                                                    position: .last),
-                                              ]))
+                CoinView(model: CoinViewModel(
+                    imageURL: nil,
+                    name: "Tether",
+                    symbol: "USDT",
+                    items: [
+                        CoinItemViewModel(
+                            tokenItem: .blockchain(.ethereum(testnet: false)),
+                            isReadonly: false,
+                            isSelected: $0,
+                            position: .first
+                        ),
+                        CoinItemViewModel(
+                            tokenItem: .blockchain(.ethereum(testnet: false)),
+                            isReadonly: false,
+                            isSelected: $0,
+                            position: .middle
+                        ),
+                        CoinItemViewModel(
+                            tokenItem: .blockchain(.ethereum(testnet: false)),
+                            isReadonly: false,
+                            isSelected: $0,
+                            position: .last
+                        ),
+                    ]
+                ))
             }
 
             StatefulPreviewWrapper(false) {
-                CoinView(model: CoinViewModel(imageURL: nil,
-                                              name: "Very Long Name of The Token",
-                                              symbol: "VLNOFT",
-                                              items: [
-                                                  CoinItemViewModel(tokenItem: .blockchain(.ethereum(testnet: false)),
-                                                                    isReadonly: false,
-                                                                    isSelected: $0,
-                                                                    position: .first),
-                                                  CoinItemViewModel(tokenItem: .blockchain(.ethereum(testnet: false)),
-                                                                    isReadonly: false,
-                                                                    isSelected: $0,
-                                                                    position: .middle),
-                                                  CoinItemViewModel(tokenItem: .blockchain(.ethereum(testnet: false)),
-                                                                    isReadonly: false,
-                                                                    isSelected: $0,
-                                                                    position: .last),
-                                              ]))
+                CoinView(model: CoinViewModel(
+                    imageURL: nil,
+                    name: "Very Long Name of The Token",
+                    symbol: "VLNOFT",
+                    items: [
+                        CoinItemViewModel(
+                            tokenItem: .blockchain(.ethereum(testnet: false)),
+                            isReadonly: false,
+                            isSelected: $0,
+                            position: .first
+                        ),
+                        CoinItemViewModel(
+                            tokenItem: .blockchain(.ethereum(testnet: false)),
+                            isReadonly: false,
+                            isSelected: $0,
+                            position: .middle
+                        ),
+                        CoinItemViewModel(
+                            tokenItem: .blockchain(.ethereum(testnet: false)),
+                            isReadonly: false,
+                            isSelected: $0,
+                            position: .last
+                        ),
+                    ]
+                ))
             }
 
             Spacer()

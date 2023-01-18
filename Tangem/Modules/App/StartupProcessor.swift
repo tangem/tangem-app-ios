@@ -19,9 +19,9 @@ class StartupProcessor {
             return .uncompletedBackup
         }
 
-        if AppSettings.shared.saveUserWallets
-            && !userWalletRepository.isEmpty
-            && BiometricsUtil.isAvailable {
+        if AppSettings.shared.saveUserWallets,
+           !userWalletRepository.isEmpty,
+           BiometricsUtil.isAvailable {
             return .auth
         }
 

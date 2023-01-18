@@ -53,6 +53,7 @@ class CardSettingsViewModel: ObservableObject {
     private var isChangeAccessCodeVisible: Bool {
         cardModel.currentSecurityOption == .accessCode
     }
+
     private var bag: Set<AnyCancellable> = []
 
     init(
@@ -101,8 +102,10 @@ private extension CardSettingsViewModel {
         cardInfoSection = [
             DefaultRowViewModel(title: Localization.detailsRowTitleCid, detailsType: .text(cardModel.cardIdFormatted)),
             DefaultRowViewModel(title: Localization.detailsRowTitleIssuer, detailsType: .text(cardModel.cardIssuer)),
-            DefaultRowViewModel(title: Localization.detailsRowTitleSignedHashes,
-                                detailsType: .text(Localization.detailsRowSubtitleSignedHashesFormat("\(cardModel.cardSignedHashes)"))),
+            DefaultRowViewModel(
+                title: Localization.detailsRowTitleSignedHashes,
+                detailsType: .text(Localization.detailsRowSubtitleSignedHashesFormat("\(cardModel.cardSignedHashes)"))
+            ),
         ]
 
         setupSecurityOptions()
@@ -134,7 +137,7 @@ private extension CardSettingsViewModel {
     }
 
     func deleteWallet(_ userWallet: UserWallet) {
-        self.userWalletRepository.delete(userWallet)
+        userWalletRepository.delete(userWallet)
     }
 
     func navigateAwayAfterReset() {

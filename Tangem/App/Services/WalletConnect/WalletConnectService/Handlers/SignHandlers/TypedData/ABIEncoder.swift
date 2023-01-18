@@ -45,7 +45,7 @@ public final class ABIEncoder {
         let encoder = ABIEncoder()
         try encoder.encode(tuple: array)
         let hash = encoder.data.sha3(.keccak256)
-        self.data.append(hash)
+        data.append(hash)
     }
 
     /// Encodes a tuple
@@ -155,7 +155,6 @@ public final class ABIEncoder {
         return hash[0 ..< 4]
     }
 }
-
 
 fileprivate extension BigInt {
     /// Serializes the `BigInt` with the specified bit width.

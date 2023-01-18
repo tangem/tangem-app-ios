@@ -14,6 +14,7 @@ class UserWalletRepositoryUtil {
     private var fileManager: FileManager {
         FileManager.default
     }
+
     private var userWalletDirectoryUrl: URL {
         fileManager.urls(for: .documentDirectory, in: .userDomainMask)[0].appendingPathComponent("user_wallets", isDirectory: true)
     }

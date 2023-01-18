@@ -36,11 +36,15 @@ struct OneInchLimitOrderService: OneInchLimitOrderServicing {
         )
     }
 
-    func hasActiveOrdersWithPermit(blockchain: ExchangeBlockchain,
-                                   walletAddress: String,
-                                   tokenAddress: String) async -> Result<Bool, ExchangeProviderError> {
-        let target = LimitOrderTarget.hasActiveOrdersWithPermit(walletAddress: walletAddress,
-                                                                tokenAddress: tokenAddress)
+    func hasActiveOrdersWithPermit(
+        blockchain: ExchangeBlockchain,
+        walletAddress: String,
+        tokenAddress: String
+    ) async -> Result<Bool, ExchangeProviderError> {
+        let target = LimitOrderTarget.hasActiveOrdersWithPermit(
+            walletAddress: walletAddress,
+            tokenAddress: tokenAddress
+        )
 
         let response: Result<ActiveOrdersWithPermitDTO, ExchangeProviderError> = await request(
             target: OneInchBaseTarget(target: target, blockchain: blockchain)
@@ -76,4 +80,3 @@ private extension OneInchLimitOrderService {
         }
     }
 }
-

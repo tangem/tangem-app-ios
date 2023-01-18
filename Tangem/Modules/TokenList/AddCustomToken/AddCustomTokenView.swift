@@ -61,7 +61,7 @@ fileprivate struct TextInputWithTitle: View {
     var text: Binding<String>
     var keyboardType: UIKeyboardType
     var height: CGFloat = 60
-    var backgroundColor: Color =  .white
+    var backgroundColor: Color = .white
     let isEnabled: Bool
     let isLoading: Bool
 
