@@ -83,7 +83,8 @@ struct SwappingTokenItemView_Previews: PreviewProvider {
             fiatBalance: 3.543 * 1341,
             balance: 3.543,
             itemDidTap: {}
-        )]
+        ),
+    ]
 
     static var previews: some View {
         ZStack {

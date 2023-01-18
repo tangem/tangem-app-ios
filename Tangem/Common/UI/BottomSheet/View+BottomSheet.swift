@@ -9,15 +9,19 @@
 import SwiftUI
 
 extension View {
-    func bottomSheet<Content: View>(isPresented: Binding<Bool>,
-                                    viewModelSettings: BottomSheetSettings,
-                                    @ViewBuilder contentView: @escaping () -> Content) -> some View {
-        self.modifier(BottomSheetModifier(isPresented: isPresented, viewModelSettings: viewModelSettings, contentView: contentView))
+    func bottomSheet<Content: View>(
+        isPresented: Binding<Bool>,
+        viewModelSettings: BottomSheetSettings,
+        @ViewBuilder contentView: @escaping () -> Content
+    ) -> some View {
+        modifier(BottomSheetModifier(isPresented: isPresented, viewModelSettings: viewModelSettings, contentView: contentView))
     }
 
-    func bottomSheet<Item: Identifiable, Content: View>(item: Binding<Item?>,
-                                                        viewModelSettings: BottomSheetSettings,
-                                                        @ViewBuilder content: @escaping (Item) -> Content) -> some View {
+    func bottomSheet<Item: Identifiable, Content: View>(
+        item: Binding<Item?>,
+        viewModelSettings: BottomSheetSettings,
+        @ViewBuilder content: @escaping (Item) -> Content
+    ) -> some View {
         let isPresented = Binding {
             item.wrappedValue != nil
         } set: { value in
@@ -35,9 +39,11 @@ extension View {
         }
     }
 
-    func resizableBottomSheet<Item, Content: ResizableSheetView>(item: Binding<Item?>,
-                                                                 viewModelSettings: BottomSheetSettings,
-                                                                 contentView: @escaping (Item) -> Content) -> some View {
+    func resizableBottomSheet<Item, Content: ResizableSheetView>(
+        item: Binding<Item?>,
+        viewModelSettings: BottomSheetSettings,
+        contentView: @escaping (Item) -> Content
+    ) -> some View {
         let isPresented = Binding {
             item.wrappedValue != nil
         } set: { value in
@@ -55,9 +61,11 @@ extension View {
         }
     }
 
-    func resizableBottomSheet<Content: ResizableSheetView>(isPresented: Binding<Bool>,
-                                                           viewModelSettings: BottomSheetSettings,
-                                                           contentView: @escaping () -> Content) -> some View {
-        self.modifier(ResizableBottomSheetModifier(isPresented: isPresented, viewModelSettings: viewModelSettings, contentView: contentView))
+    func resizableBottomSheet<Content: ResizableSheetView>(
+        isPresented: Binding<Bool>,
+        viewModelSettings: BottomSheetSettings,
+        contentView: @escaping () -> Content
+    ) -> some View {
+        modifier(ResizableBottomSheetModifier(isPresented: isPresented, viewModelSettings: viewModelSettings, contentView: contentView))
     }
 }
