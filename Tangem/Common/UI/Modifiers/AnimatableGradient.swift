@@ -9,7 +9,6 @@
 import SwiftUI
 
 struct AnimatableGradient: AnimatableModifier {
-
     let backgroundColor: Color
     let progressColor: Color
     var gradientStop: CGFloat
@@ -20,11 +19,13 @@ struct AnimatableGradient: AnimatableModifier {
     }
 
     func body(content: Content) -> some View {
-        LinearGradient(gradient: Gradient(stops: [
-            .init(color: progressColor, location: gradientStop),
-            .init(color: backgroundColor, location: gradientStop),
-        ]),
-        startPoint: .leading,
-        endPoint: .trailing)
+        LinearGradient(
+            gradient: Gradient(stops: [
+                .init(color: progressColor, location: gradientStop),
+                .init(color: backgroundColor, location: gradientStop),
+            ]),
+            startPoint: .leading,
+            endPoint: .trailing
+        )
     }
 }
