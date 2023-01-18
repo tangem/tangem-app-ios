@@ -10,7 +10,6 @@ import Foundation
 import SwiftUI
 
 extension Color {
-
     // MARK: Primary
 
     @nonobjc static var tangemGreen: Color {
@@ -156,6 +155,7 @@ extension Color {
 
 extension UIColor {
     // MARK: Background
+
     @nonobjc static var tangemBgGray: UIColor {
         return UIColor(named: "tangem_bg_gray")!
     }
@@ -189,9 +189,8 @@ extension UIColor {
     }
 }
 
-
-extension Color {
-    public init?(hex: String) {
+public extension Color {
+    init?(hex: String) {
         let r, g, b, a: Double
 
         var hexColor = hex.remove("#")
