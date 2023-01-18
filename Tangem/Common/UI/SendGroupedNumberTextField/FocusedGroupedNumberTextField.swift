@@ -49,6 +49,7 @@ struct FocusedGroupedNumberTextField<ToolbarButton: View>: View {
 }
 
 // MARK: - Setupable
+
 @available(iOS 15.0, *)
 extension FocusedGroupedNumberTextField: Setupable {
     func maximumFractionDigits(_ digits: Int) -> Self {

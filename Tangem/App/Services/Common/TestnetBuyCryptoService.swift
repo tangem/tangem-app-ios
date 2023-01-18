@@ -16,7 +16,7 @@ class TestnetBuyCryptoService {
 
     func buyCrypto(_ target: CryptoToBuy) {
         switch target {
-        case let .erc20Token(token, walletManager, signer):
+        case .erc20Token(let token, let walletManager, let signer):
             buyErc20Token(token, walletManager: walletManager, signer: signer)
         }
     }
@@ -41,7 +41,7 @@ class TestnetBuyCryptoService {
                 return walletManager.send(tx, signer: signer)
             }
             .sink { [unowned self] completion in
-                if case let .failure(error) = completion {
+                if case .failure(let error) = completion {
                     AppLog.shared.error(error)
                     AppPresenter.shared.showError(error)
                 } else {
@@ -50,9 +50,7 @@ class TestnetBuyCryptoService {
 
                 self.bag.remove(subs)
                 subs = nil
-            } receiveValue: {
-
-            }
+            } receiveValue: {}
 
         bag.insert(subs)
     }
