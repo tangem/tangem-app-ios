@@ -11,7 +11,7 @@ import SwiftUI
 
 struct SendGroupedNumberTextField: View {
     @Binding private var decimalValue: Decimal?
-    @State private var maximumFractionDigits: Int = 8
+    private var maximumFractionDigits: Int = 8
     private var didTapMaxAmountAction: (() -> Void)?
 
     init(decimalValue: Binding<Decimal?>) {
