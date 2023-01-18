@@ -42,7 +42,7 @@ class DefaultExchangeManager {
 
     private var tokenExchangeAllowanceLimit: Decimal?
     // Cached addresses for check approving transactions
-    private var spenderAddresses: [Currency: String] = [:]
+    private var pendingTransactions: [Currency: PendingTransactionState] = [:]
     private var refreshDataTimerBag: AnyCancellable?
     private var bag: Set<AnyCancellable> = []
 
@@ -103,6 +103,12 @@ extension DefaultExchangeManager: ExchangeManager {
     func refresh() {
         tokenExchangeAllowanceLimit = nil
         refreshValues(silent: false)
+    }
+
+    func didSendApprovingTransaction(exchangeTxData: ExchangeTransactionDataModel) {
+        pendingTransactions[exchangeTxData.sourceCurrency] = .pending(destination: exchangeTxData.destinationAddress)
+
+        refresh()
     }
 }
 
@@ -226,10 +232,11 @@ private extension DefaultExchangeManager {
     func loadApproveData(preview: PreviewSwappingDataModel, quoteData: QuoteDataModel) async throws {
         // If approving transaction isn't send
         if preview.hasPendingTransaction {
-            try await blockchainDataProvider.updateWallet()
             await updateExchangeAmountAllowance()
 
             if isEnoughAllowance() {
+                /// If we get enough allowance
+                pendingTransactions[exchangeItems.source] = nil
                 refreshValues(silent: false)
             } else {
                 updateState(.preview(preview))
@@ -239,9 +246,6 @@ private extension DefaultExchangeManager {
         }
 
         let approvedDataModel = try await getExchangeApprovedDataModel()
-        // Save destination address for approve
-        spenderAddresses[exchangeItems.source] = approvedDataModel.tokenAddress
-
         let info = try mapToExchangeTransactionInfo(
             quoteData: quoteData,
             approvedData: approvedDataModel
@@ -252,14 +256,7 @@ private extension DefaultExchangeManager {
     }
 
     func hasPendingApprovingTransaction() async throws -> Bool {
-        guard let spenderAddress = spenderAddresses[exchangeItems.source] else {
-            return false
-        }
-
-        return blockchainDataProvider.hasPendingTransaction(
-            currency: exchangeItems.source,
-            to: spenderAddress
-        )
+        pendingTransactions[exchangeItems.source] != nil
     }
 
     func updateExchangeAmountAllowance() async {
@@ -427,5 +424,11 @@ private extension DefaultExchangeManager {
             gasValue: quoteData.estimatedGas,
             gasPrice: approvedData.gasPrice
         )
+    }
+}
+
+extension DefaultExchangeManager {
+    enum PendingTransactionState: Hashable {
+        case pending(destination: String)
     }
 }
