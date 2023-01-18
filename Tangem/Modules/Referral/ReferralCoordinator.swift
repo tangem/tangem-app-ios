@@ -21,9 +21,11 @@ class ReferralCoordinator: CoordinatorObject {
     }
 
     func start(with options: Options) {
-        referralViewModel = .init(cardModel: options.cardModel,
-                                  userWalletId: options.userWalletId,
-                                  coordinator: self)
+        referralViewModel = .init(
+            cardModel: options.cardModel,
+            userWalletId: options.userWalletId,
+            coordinator: self
+        )
     }
 }
 
@@ -36,7 +38,9 @@ extension ReferralCoordinator {
 
 extension ReferralCoordinator: ReferralRoutable {
     func openTOS(with url: URL) {
-        tosViewModel = WebViewContainerViewModel(url: url,
-                                                 title: Localization.detailsReferralTitle)
+        tosViewModel = WebViewContainerViewModel(
+            url: url,
+            title: Localization.detailsReferralTitle
+        )
     }
 }
