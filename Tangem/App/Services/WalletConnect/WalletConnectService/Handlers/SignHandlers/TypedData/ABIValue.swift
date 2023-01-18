@@ -40,12 +40,12 @@ public indirect enum ABIValue: Equatable {
         case .bytes(let data):
             return ((data.count + 31) / 32) * 32
         case .array(let values):
-            return values.reduce(0, { $0 + $1.length })
+            return values.reduce(0) { $0 + $1.length }
         case .string(let string):
             let dataLength = string.data(using: .utf8)?.count ?? 0
             return 32 + ((dataLength + 31) / 32) * 32
         case .tuple(let array):
-            return array.reduce(0, { $0 + $1.length })
+            return array.reduce(0) { $0 + $1.length }
         }
     }
 
@@ -91,7 +91,7 @@ public indirect enum ABIValue: Equatable {
         case (.string, let string as String):
             self = .string(string)
         case (.tuple(let types), let array as [Any]):
-            self = .tuple(try zip(types, array).map({ try ABIValue($1, type: $0) }))
+            self = .tuple(try zip(types, array).map { try ABIValue($1, type: $0) })
         default:
             throw ABIError.invalidArgumentType
         }

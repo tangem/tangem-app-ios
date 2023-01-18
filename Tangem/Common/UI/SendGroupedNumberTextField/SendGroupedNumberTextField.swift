@@ -44,4 +44,3 @@ extension SendGroupedNumberTextField: Setupable {
         map { $0.didTapMaxAmountAction = action }
     }
 }
-

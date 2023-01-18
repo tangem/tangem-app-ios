@@ -10,9 +10,7 @@ import Foundation
 import SwiftUI
 
 struct CustomTextField: UIViewRepresentable {
-
     class Coordinator: NSObject, UITextFieldDelegate {
-
         @Binding var text: String
         @Binding var isResponder: Bool?
         @Binding var actionButtonTapped: Bool
@@ -22,8 +20,15 @@ struct CustomTextField: UIViewRepresentable {
         var isEnabled = true
         var maxCount: Int?
 
-        init(text: Binding<String>, placeholder: String, decimalCount: Int?, defaultStringToClear: String?,
-             isResponder: Binding<Bool?>, actionButtonTapped: Binding<Bool>, maxCount: Int?) {
+        init(
+            text: Binding<String>,
+            placeholder: String,
+            decimalCount: Int?,
+            defaultStringToClear: String?,
+            isResponder: Binding<Bool?>,
+            actionButtonTapped: Binding<Bool>,
+            maxCount: Int?
+        ) {
             _text = text
             _isResponder = isResponder
             _actionButtonTapped = actionButtonTapped
@@ -65,11 +70,13 @@ struct CustomTextField: UIViewRepresentable {
             }
         }
 
-        @objc func actionTapped() {
-            self.actionButtonTapped.toggle()
+        @objc
+        func actionTapped() {
+            actionButtonTapped.toggle()
         }
 
-        @objc func hideKeyboard() {
+        @objc
+        func hideKeyboard() {
             UIApplication.shared.endEditing()
         }
 
@@ -82,11 +89,11 @@ struct CustomTextField: UIViewRepresentable {
                 return false
             }
 
-            guard let maxLength = self.decimalCount else {
+            guard let maxLength = decimalCount else {
                 return true
             }
 
-            guard Array(newString).filter({ $0 == "." || $0 == "," }).count  <= 1 else {
+            guard Array(newString).filter({ $0 == "." || $0 == "," }).count <= 1 else {
                 return false
             }
 
@@ -111,7 +118,6 @@ struct CustomTextField: UIViewRepresentable {
 
             return true
         }
-
     }
 
     @Binding var text: String
@@ -120,18 +126,18 @@ struct CustomTextField: UIViewRepresentable {
 
     var isSecured: Bool = false
     var clearsOnBeginEditing: Bool = false
-    var defaultStringToClear: String? = nil
+    var defaultStringToClear: String?
     var handleKeyboard: Bool = false
-    var actionButton: String? =  nil
+    var actionButton: String?
     var keyboard: UIKeyboardType = .default
     var clearButtonMode: UITextField.ViewMode = .never
-    var textColor: UIColor = UIColor.tangemGrayDark4
+    var textColor: UIColor = .tangemGrayDark4
     var font: UIFont = UIFont.systemFont(ofSize: 16.0)
     let placeholder: String
     let toolbarItems: [UIBarButtonItem]? = nil
-    var decimalCount: Int? = nil
+    var decimalCount: Int?
     var isEnabled = true
-    var maxCount: Int? = nil
+    var maxCount: Int?
 
     func makeUIView(context: UIViewRepresentableContext<CustomTextField>) -> UITextField {
         let textField = UITextField(frame: .zero)
@@ -148,26 +154,33 @@ struct CustomTextField: UIViewRepresentable {
         textField.setContentHuggingPriority(.defaultLow, for: .horizontal)
         textField.setContentHuggingPriority(.required, for: .vertical)
         textField.clearButtonMode = clearButtonMode
-        var toolbarItems =  [UIBarButtonItem]()
+        var toolbarItems = [UIBarButtonItem]()
         if handleKeyboard {
-            toolbarItems = [UIBarButtonItem(barButtonSystemItem: .flexibleSpace,
-                                            target: nil,
-                                            action: nil),
-                            UIBarButtonItem(image: UIImage(systemName: "keyboard.chevron.compact.down"),
-                                            style: .plain,
-                                            target: context.coordinator,
-                                            action: #selector(context.coordinator.hideKeyboard))]
-
-
-
+            toolbarItems = [
+                UIBarButtonItem(
+                    barButtonSystemItem: .flexibleSpace,
+                    target: nil,
+                    action: nil
+                ),
+                UIBarButtonItem(
+                    image: UIImage(systemName: "keyboard.chevron.compact.down"),
+                    style: .plain,
+                    target: context.coordinator,
+                    action: #selector(context.coordinator.hideKeyboard)
+                ),
+            ]
         }
 
         if let actionButton = actionButton {
-            toolbarItems.insert(UIBarButtonItem(title: actionButton,
-                                                style: .plain,
-                                                target: context.coordinator,
-                                                action: #selector(context.coordinator.actionTapped)),
-                                at: 0)
+            toolbarItems.insert(
+                UIBarButtonItem(
+                    title: actionButton,
+                    style: .plain,
+                    target: context.coordinator,
+                    action: #selector(context.coordinator.actionTapped)
+                ),
+                at: 0
+            )
         }
         if !toolbarItems.isEmpty {
             let toolbar = UIToolbar(frame: CGRect(x: 0, y: 0, width: UIScreen.main.bounds.width, height: 44))
@@ -181,12 +194,15 @@ struct CustomTextField: UIViewRepresentable {
     }
 
     func makeCoordinator() -> CustomTextField.Coordinator {
-        return Coordinator(text: $text, placeholder: placeholder,
-                           decimalCount: decimalCount,
-                           defaultStringToClear: defaultStringToClear,
-                           isResponder: $isResponder,
-                           actionButtonTapped: $actionButtonTapped,
-                           maxCount: maxCount)
+        return Coordinator(
+            text: $text,
+            placeholder: placeholder,
+            decimalCount: decimalCount,
+            defaultStringToClear: defaultStringToClear,
+            isResponder: $isResponder,
+            actionButtonTapped: $actionButtonTapped,
+            maxCount: maxCount
+        )
     }
 
     func updateUIView(_ uiView: UITextField, context: UIViewRepresentableContext<CustomTextField>) {
@@ -201,6 +217,4 @@ struct CustomTextField: UIViewRepresentable {
             }
         }
     }
-
 }
-

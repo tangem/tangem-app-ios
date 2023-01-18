@@ -191,9 +191,11 @@ extension TwinConfig: UserWalletConfig {
         }
 
         let factory = WalletManagerFactoryProvider().factory
-        let twinManager = try factory.makeTwinWalletManager(walletPublicKey: walletPublicKey,
-                                                            pairKey: savedPairKey,
-                                                            isTestnet: AppEnvironment.current.isTestnet)
+        let twinManager = try factory.makeTwinWalletManager(
+            walletPublicKey: walletPublicKey,
+            pairKey: savedPairKey,
+            isTestnet: AppEnvironment.current.isTestnet
+        )
 
         return WalletModel(walletManager: twinManager, derivationStyle: card.derivationStyle)
     }

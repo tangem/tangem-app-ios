@@ -95,7 +95,7 @@ enum SingleCardOnboardingStep: Equatable {
     }
 }
 
-extension SingleCardOnboardingStep: SuccessStep { }
+extension SingleCardOnboardingStep: SuccessStep {}
 
 extension SingleCardOnboardingStep: OnboardingMessagesProvider {
     var title: String? {
@@ -197,5 +197,4 @@ extension SingleCardOnboardingStep: OnboardingInitialStepInfo {
     static var initialStep: SingleCardOnboardingStep { .welcome }
 }
 
-extension SingleCardOnboardingStep: OnboardingTopupBalanceLayoutCalculator { }
-
+extension SingleCardOnboardingStep: OnboardingTopupBalanceLayoutCalculator {}

@@ -11,11 +11,12 @@ import SwiftUI
 struct BottomSheetWrappedView<Content: View>: View {
     let content: Content
     let settings: BottomSheetSettings
-    let hideCallback: () -> ()
+    let hideCallback: () -> Void
 
-    init(content: Content,
-         settings: BottomSheetSettings,
-         hideCallback: @escaping () -> ()
+    init(
+        content: Content,
+        settings: BottomSheetSettings,
+        hideCallback: @escaping () -> Void
     ) {
         self.content = content
         self.settings = settings

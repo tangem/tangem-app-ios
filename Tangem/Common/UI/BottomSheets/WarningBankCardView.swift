@@ -49,6 +49,6 @@ struct WarningBankCardView: View {
 
 struct WarningBankCardView_Previews: PreviewProvider {
     static var previews: some View {
-        WarningBankCardView(viewModel: WarningBankCardViewModel(confirmCallback: { }, declineCallback: { }))
+        WarningBankCardView(viewModel: WarningBankCardViewModel(confirmCallback: {}, declineCallback: {}))
     }
 }

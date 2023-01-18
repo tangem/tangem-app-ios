@@ -58,7 +58,7 @@ struct SwappingTokenIconView: View {
                     .frame(width: 30, height: 14)
             }
 
-        case let .loaded(imageURL, networkURL, symbol):
+        case .loaded(let imageURL, let networkURL, let symbol):
             VStack(spacing: 4) {
                 image(imageURL: imageURL, networkURL: networkURL)
 
