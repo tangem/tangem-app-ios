@@ -54,7 +54,7 @@ class DefaultExchangeManager {
         amount: Decimal? = nil
     ) {
         self.exchangeProvider = exchangeProvider
-        self.blockchainDataProvider = blockchainInfoProvider
+        blockchainDataProvider = blockchainInfoProvider
         self.logger = logger
         self.exchangeItems = exchangeItems
         self.amount = amount
@@ -147,7 +147,7 @@ private extension DefaultExchangeManager {
             stopTimer()
         }
 
-        self.availabilityState = state
+        availabilityState = state
     }
 
     func restartTimer() {
