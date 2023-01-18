@@ -114,10 +114,17 @@ private extension AppDelegate {
     }
 
     func configureAppsFlyer() {
-        guard AppEnvironment.current.isProduction else { return }
+        guard AppEnvironment.current.isProduction else {
+            return
+        }
 
-        AppsFlyerLib.shared().appsFlyerDevKey = try! CommonKeysManager().appsFlyerDevKey
-        AppsFlyerLib.shared().appleAppID = "1354868448"
+        do {
+            let keysManager = try CommonKeysManager()
+            AppsFlyerLib.shared().appsFlyerDevKey = keysManager.appsFlyer.appsFlyerDevKey
+            AppsFlyerLib.shared().appleAppID = keysManager.appsFlyer.appsFlyerAppID
+        } catch {
+            assertionFailure("CommonKeysManager not initialized with error: \(error.localizedDescription)")
+        }
     }
 
     func configureAmplitude() {
