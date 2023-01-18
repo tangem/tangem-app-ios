@@ -9,6 +9,8 @@
 import Foundation
 
 public protocol BlockchainDataProvider {
+    func updateWallet() async throws
+    func hasPendingTransaction(currency: Currency, to spenderAddress: String) -> Bool
     func getWalletAddress(currency: Currency) -> String?
 
     func getBalance(for currency: Currency) async throws -> Decimal
