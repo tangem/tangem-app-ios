@@ -162,14 +162,14 @@ private extension DefaultExchangeManager {
     }
 
     func startTimer() {
-        let startTimestamp = Date().timeIntervalSince1970
+        let timeStarted = Date().timeIntervalSince1970
         refreshDataTimerBag = refreshDataTimer
             .autoconnect()
             .sink { [weak self] date in
                 // [REDACTED_TODO_COMMENT]
 
-                let period = Int(date.timeIntervalSince1970 - startTimestamp)
-                if period % 10 == 0 {
+                let timeElapsed = (date.timeIntervalSince1970 - timeStarted).rounded()
+                if Int(timeElapsed) % 10 == 0 {
                     self?.refreshValues(silent: false)
                 }
             }
