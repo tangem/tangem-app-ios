@@ -50,7 +50,6 @@ struct CurrencySelectView: View {
                                 .id(currency.id)
                             }
                     }
-
                 }
                 .background(Color.tangemBgGray.edgesIgnoringSafeArea(.all))
             }
