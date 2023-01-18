@@ -117,8 +117,10 @@ struct SettingsView_Previews: PreviewProvider {
     static var previews: some View {
         NavigationView {
             DetailsView(
-                viewModel: DetailsViewModel(cardModel: PreviewCard.tangemWalletEmpty.cardModel,
-                                            coordinator: DetailsCoordinator())
+                viewModel: DetailsViewModel(
+                    cardModel: PreviewCard.tangemWalletEmpty.cardModel,
+                    coordinator: DetailsCoordinator()
+                )
             )
         }
         .navigationViewStyle(.stack)
