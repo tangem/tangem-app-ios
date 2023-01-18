@@ -132,8 +132,8 @@ class WalletConnectTransactionHandler: TangemWalletConnectRequestHandler {
                             var tx = try walletModel.walletManager.createTransaction(
                                 amount: valueAmount,
                                 fee: gasAmount,
-                                destinationAddress: transaction.to,
-                                sourceAddress: transaction.from
+                                sourceAddress: transaction.from,
+                                destinationAddress: transaction.to
                             )
                             let contractDataString = transaction.data.drop0xPrefix
                             let wcTxData = Data(hexString: String(contractDataString))
