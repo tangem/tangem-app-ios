@@ -51,7 +51,7 @@ struct WalletConnectV2Utils {
         var missingBlockchains: [String] = []
         var unsupportedEVMBlockchains: [String] = []
         for (namespace, proposalNamespace) in namespaces {
-            var accounts: [Account] = proposalNamespace.chains.compactMap { wcBlockchain in
+            let accounts: [Account] = proposalNamespace.chains.compactMap { wcBlockchain in
                 guard let blockchain = createBlockchain(for: wcBlockchain) else {
                     unsupportedEVMBlockchains.append(wcBlockchain.reference)
                     return nil
