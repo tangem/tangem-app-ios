@@ -382,9 +382,9 @@ class CommonUserWalletRepository: UserWalletRepository {
     }
 
     func clear() {
+        clearUserWallets()
         discardSensitiveData()
 
-        clearUserWallets()
         setSelectedUserWalletId(nil, reason: .deleted)
     }
 
