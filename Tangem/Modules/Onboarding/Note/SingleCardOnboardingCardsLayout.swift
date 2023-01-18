@@ -15,13 +15,15 @@ enum SingleCardOnboardingCardsLayout: OnboardingCardFrameCalculator {
     var cardHeightWidthRatio: CGFloat { 0.609 }
 
     func cardAnimSettings(for step: SingleCardOnboardingStep, containerSize: CGSize, animated: Bool) -> CardAnimSettings {
-        .init(frame: frame(for: step, containerSize: containerSize),
-              offset: offset(at: step, containerSize: containerSize),
-              scale: 1.0,
-              opacity: opacity(at: step),
-              zIndex: self == .main ? 100 : 10,
-              rotationAngle: rotationAngle(at: step),
-              animType: animated ? .default : .noAnim)
+        .init(
+            frame: frame(for: step, containerSize: containerSize),
+            offset: offset(at: step, containerSize: containerSize),
+            scale: 1.0,
+            opacity: opacity(at: step),
+            zIndex: self == .main ? 100 : 10,
+            rotationAngle: rotationAngle(at: step),
+            animType: animated ? .default : .noAnim
+        )
     }
 
     func rotationAngle(at step: SingleCardOnboardingStep) -> Angle {

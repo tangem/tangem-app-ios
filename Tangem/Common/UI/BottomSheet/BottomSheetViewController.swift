@@ -17,10 +17,12 @@ class BottomSheetViewController<Content: View>: BottomSheetBaseController {
     private var keyboardSubscription: AnyCancellable?
     private var bottomConstraint: NSLayoutConstraint!
 
-    init(isPresented: Binding<Bool>,
-         content: Content) {
+    init(
+        isPresented: Binding<Bool>,
+        content: Content
+    ) {
         _isPresented = isPresented
-        self.contentView = UIHostingController(rootView: content)
+        contentView = UIHostingController(rootView: content)
         super.init(nibName: nil, bundle: nil)
     }
 

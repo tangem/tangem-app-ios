@@ -68,11 +68,13 @@ struct OnboardingAccessCodeView: View {
             .padding(.bottom, 32)
             .padding(.top, 13)
             .multilineTextAlignment(.center)
-        CustomPasswordTextField(placeholder: Localization.detailsManageSecurityAccessCode,
-                                color: .tangemGrayDark6,
-                                password: state == .inputCode ? $firstEnteredCode : $secondEnteredCode,
-                                onCommit: {})
-            .frame(height: 44)
+        CustomPasswordTextField(
+            placeholder: Localization.detailsManageSecurityAccessCode,
+            color: .tangemGrayDark6,
+            password: state == .inputCode ? $firstEnteredCode : $secondEnteredCode,
+            onCommit: {}
+        )
+        .frame(height: 44)
     }
 
     var body: some View {
@@ -154,11 +156,9 @@ struct OnboardingAccessCodeView: View {
         }
         return error == .none
     }
-
 }
 
 struct CustomPasswordTextField: View {
-
     let placeholder: String
     let color: Color
     var backgroundColor: Color = .tangemBgGray2
@@ -166,7 +166,7 @@ struct CustomPasswordTextField: View {
     var password: Binding<String>
 
     var onEditingChanged: (Bool) -> Void = { _ in }
-    var onCommit: () -> Void = { }
+    var onCommit: () -> Void = {}
     /// iOS15+
     var shouldBecomeFirstResponder: Bool = true
 
@@ -175,12 +175,14 @@ struct CustomPasswordTextField: View {
     @ViewBuilder
     var input: some View {
         if #available(iOS 15.0, *) {
-            FocusableTextField(isSecured: isSecured,
-                               shouldBecomeFirstResponder: shouldBecomeFirstResponder,
-                               placeholder: placeholder,
-                               text: password,
-                               onEditingChanged: onEditingChanged,
-                               onCommit: onCommit)
+            FocusableTextField(
+                isSecured: isSecured,
+                shouldBecomeFirstResponder: shouldBecomeFirstResponder,
+                placeholder: placeholder,
+                text: password,
+                onEditingChanged: onEditingChanged,
+                onCommit: onCommit
+            )
         } else {
             legacyInput
         }
@@ -189,14 +191,18 @@ struct CustomPasswordTextField: View {
     @ViewBuilder
     private var legacyInput: some View {
         if isSecured {
-            SecureField(placeholder,
-                        text: password,
-                        onCommit: onCommit)
+            SecureField(
+                placeholder,
+                text: password,
+                onCommit: onCommit
+            )
         } else {
-            TextField(placeholder,
-                      text: password,
-                      onEditingChanged: onEditingChanged,
-                      onCommit: onCommit)
+            TextField(
+                placeholder,
+                text: password,
+                onEditingChanged: onEditingChanged,
+                onCommit: onCommit
+            )
         }
     }
 
@@ -246,16 +252,20 @@ private extension CustomPasswordTextField {
         var body: some View {
             ZStack {
                 if isSecured {
-                    SecureField(placeholder,
-                                text: text,
-                                onCommit: onCommit)
-                        .focused($focusedField, equals: .secure)
+                    SecureField(
+                        placeholder,
+                        text: text,
+                        onCommit: onCommit
+                    )
+                    .focused($focusedField, equals: .secure)
                 } else {
-                    TextField(placeholder,
-                              text: text,
-                              onEditingChanged: onEditingChanged,
-                              onCommit: onCommit)
-                        .focused($focusedField, equals: .plain)
+                    TextField(
+                        placeholder,
+                        text: text,
+                        onEditingChanged: onEditingChanged,
+                        onCommit: onCommit
+                    )
+                    .focused($focusedField, equals: .plain)
                 }
             }
             .keyboardType(.default)
@@ -303,15 +313,21 @@ extension OnboardingAccessCodeView {
 
         fileprivate static var featuresDescription: [AccessCodeFeature] {
             [
-                .init(title: Localization.onboardingAccessCodeFeature1Title,
-                      description: Localization.onboardingAccessCodeFeature1Description,
-                      icon: "access_code_feature_1"),
-                .init(title: Localization.onboardingAccessCodeFeature2Title,
-                      description: Localization.onboardingAccessCodeFeature2Description,
-                      icon: "access_code_feature_2"),
-                .init(title: Localization.onboardingAccessCodeFeature3Title,
-                      description: Localization.onboardingAccessCodeFeature3Description,
-                      icon: "access_code_feature_3"),
+                .init(
+                    title: Localization.onboardingAccessCodeFeature1Title,
+                    description: Localization.onboardingAccessCodeFeature1Description,
+                    icon: "access_code_feature_1"
+                ),
+                .init(
+                    title: Localization.onboardingAccessCodeFeature2Title,
+                    description: Localization.onboardingAccessCodeFeature2Description,
+                    icon: "access_code_feature_2"
+                ),
+                .init(
+                    title: Localization.onboardingAccessCodeFeature3Title,
+                    description: Localization.onboardingAccessCodeFeature3Description,
+                    icon: "access_code_feature_3"
+                ),
             ]
         }
     }

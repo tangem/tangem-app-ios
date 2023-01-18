@@ -26,17 +26,19 @@ extension CoinModel {
         let url = baseImageURL?.appendingPathComponent("large")
             .appendingPathComponent("\(id).png")
 
-        self.items = entity.networks.compactMap { network in
+        items = entity.networks.compactMap { network in
             guard let blockchain = Blockchain(from: network.networkId) else {
                 return nil
             }
 
             if let contractAddress = network.contractAddress, let decimalCount = network.decimalCount {
-                return .token(Token(name: name,
-                                    symbol: symbol,
-                                    contractAddress: contractAddress.trimmed(),
-                                    decimalCount: decimalCount,
-                                    id: id), blockchain)
+                return .token(Token(
+                    name: name,
+                    symbol: symbol,
+                    contractAddress: contractAddress.trimmed(),
+                    decimalCount: decimalCount,
+                    id: id
+                ), blockchain)
             } else {
                 return .blockchain(blockchain)
             }
@@ -45,6 +47,6 @@ extension CoinModel {
         self.id = id
         self.name = name
         self.symbol = symbol
-        self.imageURL = url
+        imageURL = url
     }
 }
