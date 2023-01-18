@@ -10,7 +10,7 @@ import Foundation
 import BlockchainSdk
 
 protocol KeysManager {
-    var appsFlyerDevKey: String { get }
+    var appsFlyer: AppsFlyerConfig { get }
     var moonPayKeys: MoonPayKeys { get }
     var mercuryoWidgetId: String { get }
     var mercuryoSecret: String { get }
