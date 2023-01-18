@@ -29,6 +29,8 @@ final class SwappingPermissionViewModel: ObservableObject, Identifiable {
     private let transactionSender: TransactionSendable
     private unowned let coordinator: SwappingPermissionRoutable
 
+    private var didBecomeActiveNotificationCancellable: AnyCancellable?
+
     init(
         inputModel: SwappingPermissionInputModel,
         transactionSender: TransactionSendable,
@@ -45,11 +47,13 @@ final class SwappingPermissionViewModel: ObservableObject, Identifiable {
         Task {
             do {
                 try await transactionSender.sendTransaction(inputModel.transactionInfo)
-                await didSendApproveTransaction()
+                await didSendApproveTransaction(transactionInfo: inputModel.transactionInfo)
             } catch TangemSdkError.userCancelled {
                 // Do nothing
             } catch {
-                errorAlert = AlertBinder(title: Localization.commonError, message: error.localizedDescription)
+                await runOnMain {
+                    errorAlert = AlertBinder(title: Localization.commonError, message: error.localizedDescription)
+                }
             }
         }
     }
@@ -63,8 +67,15 @@ final class SwappingPermissionViewModel: ObservableObject, Identifiable {
 
 extension SwappingPermissionViewModel {
     @MainActor
-    func didSendApproveTransaction() {
-        coordinator.didSendApproveTransaction()
+    func didSendApproveTransaction(transactionInfo: ExchangeTransactionDataModel) {
+        // We have to waiting close the nfc view to close this permission view
+        didBecomeActiveNotificationCancellable = NotificationCenter
+            .default
+            .publisher(for: UIApplication.didBecomeActiveNotification)
+            .delay(for: 0.3, scheduler: DispatchQueue.main)
+            .sink { [weak self] _ in
+                self?.coordinator.didSendApproveTransaction(transactionInfo: transactionInfo)
+            }
     }
 }
 
@@ -82,10 +93,6 @@ private extension SwappingPermissionViewModel {
         let formattedFee = "\(fee.groupedFormatted()) \(inputModel.transactionInfo.sourceBlockchain.symbol) (\(fiatFee))"
 
         contentRowViewModels = [
-            DefaultRowViewModel(
-                title: Localization.swappingPermissionRowsAmount(tokenSymbol),
-                detailsType: .icon(Assets.infinityMini)
-            ),
             DefaultRowViewModel(
                 title: Localization.swappingPermissionRowsYourWallet,
                 detailsType: .text(String(walletAddress))
