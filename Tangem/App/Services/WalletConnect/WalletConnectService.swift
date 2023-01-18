@@ -49,12 +49,6 @@ extension CommonWalletConnectService: WalletConnectService {
         }
     }
 
-    func terminateAllSessions() {
-        Task {
-            try await v2Service!.terminateAllSessions()
-        }
-    }
-
     func initialize(with cardModel: CardViewModel) {
         guard cardModel.supportsWalletConnect else {
             return
@@ -81,22 +75,22 @@ extension CommonWalletConnectService: WalletConnectService {
     }
 
     func canHandle(url: String) -> Bool {
-        serviceToHandleLink(url) != nil
+        return service(for: url) != nil
     }
 
     func handle(url: URL) -> Bool {
-        handle(url: url.absoluteString)
+        return handle(url: url.absoluteString)
     }
 
     func handle(url: String) -> Bool {
-        guard let service = serviceToHandleLink(url) else {
+        guard let service = service(for: url) else {
             return false
         }
 
         return service.handle(url: url)
     }
 
-    private func serviceToHandleLink(_ link: String) -> WalletConnectURLHandler? {
+    private func service(for link: String) -> WalletConnectURLHandler? {
         if v2Service?.canHandle(url: link) ?? false {
             return v2Service
         }
