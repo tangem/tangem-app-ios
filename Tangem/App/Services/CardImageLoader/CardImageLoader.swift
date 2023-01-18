@@ -47,9 +47,11 @@ class CardImageLoader {
 
 extension CardImageLoader: CardImageLoaderProtocol {
     func loadImage(cid: String, cardPublicKey: Data, artworkInfoId: String) -> AnyPublisher<UIImage, Error> {
-        let endpoint = TangemEndpoint.artwork(cid: cid,
-                                              cardPublicKey: cardPublicKey,
-                                              artworkId: artworkInfoId)
+        let endpoint = TangemEndpoint.artwork(
+            cid: cid,
+            cardPublicKey: cardPublicKey,
+            artworkId: artworkInfoId
+        )
 
         return loadImage(at: endpoint)
     }
@@ -80,8 +82,8 @@ extension Publisher where Output == String {
     }
 }
 
-extension Publisher {
-    public func replaceNil<T>(with error: Error) -> Publishers.TryMap<Self, T> where Self.Output == T? {
+public extension Publisher {
+    func replaceNil<T>(with error: Error) -> Publishers.TryMap<Self, T> where Self.Output == T? {
         tryMap { output -> T in
             if let output = output {
                 return output

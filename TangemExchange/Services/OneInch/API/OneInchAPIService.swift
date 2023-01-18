@@ -108,7 +108,7 @@ private extension OneInchAPIService {
     }
 
     func logError(target: OneInchBaseTarget, response: Response? = nil, error: Any) {
-        var info: String = ""
+        var info = ""
         if let response {
             info = String(data: response.data, encoding: .utf8)!
         }
