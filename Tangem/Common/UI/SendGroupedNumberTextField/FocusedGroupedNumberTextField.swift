@@ -14,7 +14,7 @@ import SwiftUI
 struct FocusedGroupedNumberTextField<ToolbarButton: View>: View {
     @Binding private var decimalValue: Decimal?
     @FocusState private var isInputActive: Bool
-    @State private var maximumFractionDigits: Int = 8
+    private var maximumFractionDigits: Int = 8
 
     private let toolbarButton: () -> ToolbarButton
 
