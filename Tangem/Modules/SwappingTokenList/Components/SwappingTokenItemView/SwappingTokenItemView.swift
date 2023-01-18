@@ -9,6 +9,9 @@
 import SwiftUI
 
 struct SwappingTokenItemView: View {
+    static let iconSize = CGSize(width: 40, height: 40)
+    static let horizontalInteritemSpacing: CGFloat = 12
+    
     private let viewModel: SwappingTokenItemViewModel
 
     init(viewModel: SwappingTokenItemViewModel) {
@@ -18,11 +21,11 @@ struct SwappingTokenItemView: View {
     var body: some View {
         Button(action: viewModel.itemDidTap) {
             HStack(spacing: 0) {
-                HStack(spacing: 12) {
+                HStack(spacing: SwappingTokenItemView.horizontalInteritemSpacing) {
                     IconView(
                         url: viewModel.iconURL,
                         name: viewModel.name,
-                        size: CGSize(width: 40, height: 40)
+                        size: SwappingTokenItemView.iconSize
                     )
 
                     tokenInfoView
