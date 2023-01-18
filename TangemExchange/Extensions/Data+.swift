@@ -20,12 +20,12 @@ extension Data {
                 skip -= 1
                 continue
             }
-            guard char.value >= 48 && char.value <= 102 else {
+            guard char.value >= 48, char.value <= 102 else {
                 removeAll()
                 return
             }
             let v: UInt8
-            let c: UInt8 = UInt8(char.value)
+            let c = UInt8(char.value)
             switch c {
             case let c where c <= 57:
                 v = c - 48
