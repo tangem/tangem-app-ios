@@ -22,9 +22,11 @@ class SupportChatService: SupportChatServiceProtocol {
 
     func initialize(with env: SupportChatEnvironment) {
         let config = makeConfig(for: env)
-        Zendesk.initialize(appId: config.zendeskAppId,
-                           clientId: config.zendeskClientId,
-                           zendeskUrl: config.zendeskUrl)
+        Zendesk.initialize(
+            appId: config.zendeskAppId,
+            clientId: config.zendeskClientId,
+            zendeskUrl: config.zendeskUrl
+        )
         Support.initialize(withZendesk: Zendesk.instance)
         Zendesk.instance?.setIdentity(Identity.createAnonymous())
         Chat.initialize(accountKey: config.zendeskAccountKey, appId: config.zendeskAppId)

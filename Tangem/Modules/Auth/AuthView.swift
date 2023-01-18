@@ -24,9 +24,11 @@ struct AuthView: View {
             .onDidAppear(viewModel.onDidAppear)
             .onDisappear(perform: viewModel.onDisappear)
             .background(
-                ScanTroubleshootingView(isPresented: $viewModel.showTroubleshootingView,
-                                        tryAgainAction: viewModel.tryAgain,
-                                        requestSupportAction: viewModel.requestSupport)
+                ScanTroubleshootingView(
+                    isPresented: $viewModel.showTroubleshootingView,
+                    tryAgainAction: viewModel.tryAgain,
+                    requestSupportAction: viewModel.requestSupport
+                )
             )
     }
 

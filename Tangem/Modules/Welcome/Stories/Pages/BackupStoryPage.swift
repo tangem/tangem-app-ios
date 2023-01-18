@@ -11,8 +11,8 @@ import SwiftUI
 struct BackupStoryPage: View {
     @Binding var progress: Double
     let isScanning: Bool
-    let scanCard: (() -> Void)
-    let orderCard: (() -> Void)
+    let scanCard: () -> Void
+    let orderCard: () -> Void
 
     var body: some View {
         VStack {
@@ -102,7 +102,7 @@ struct BackupStoryPage: View {
 
 struct BackupStoryPage_Previews: PreviewProvider {
     static var previews: some View {
-        BackupStoryPage(progress: .constant(1), isScanning: false) { } orderCard: { }
+        BackupStoryPage(progress: .constant(1), isScanning: false) {} orderCard: {}
             .previewGroup(devices: [.iPhone7, .iPhone12ProMax], withZoomed: false)
     }
 }
