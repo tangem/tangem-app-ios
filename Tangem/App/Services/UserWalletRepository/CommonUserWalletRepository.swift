@@ -21,7 +21,7 @@ class CommonUserWalletRepository: UserWalletRepository {
     @Injected(\.supportChatService) private var supportChatService: SupportChatServiceProtocol
     @Injected(\.failedScanTracker) var failedCardScanTracker: FailedScanTrackable
 
-    weak var delegate: UserWalletRepositoryDelegate? = nil
+    weak var delegate: UserWalletRepositoryDelegate?
 
     var selectedModel: CardViewModel? {
         return models.first {
@@ -83,7 +83,7 @@ class CommonUserWalletRepository: UserWalletRepository {
             .store(in: &bag)
     }
 
-    private func scanPublisher() -> AnyPublisher<UserWalletRepositoryResult?, Never>  {
+    private func scanPublisher() -> AnyPublisher<UserWalletRepositoryResult?, Never> {
         Deferred {
             Future { [weak self] promise in
                 self?.scanInternal { result in
@@ -101,7 +101,7 @@ class CommonUserWalletRepository: UserWalletRepository {
             let hasSaltPayBackup = self?.backupService.hasUncompletedSaltPayBackup ?? false
             let primaryCardId = self?.backupService.primaryCard?.cardId ?? ""
 
-            if hasSaltPayBackup && response.cardId != primaryCardId  {
+            if hasSaltPayBackup, response.cardId != primaryCardId {
                 return .anyFail(error: SaltPayRegistratorError.emptyBackupCardScanned)
             }
 
@@ -284,7 +284,7 @@ class CommonUserWalletRepository: UserWalletRepository {
             models.append(newModel)
             userWalletModel = newModel.userWalletModel
 
-            self.sendEvent(.inserted(userWallet: userWallet))
+            sendEvent(.inserted(userWallet: userWallet))
         }
 
         guard let userWalletModel else { return }
@@ -438,9 +438,11 @@ class CommonUserWalletRepository: UserWalletRepository {
 
         if SaltPayUtil().isPrimaryCard(batchId: cardInfo.card.batchId),
            let wallet = cardInfo.card.wallets.first {
-            try? saltPayRegistratorProvider.initialize(cardId: cardInfo.card.cardId,
-                                                       walletPublicKey: wallet.publicKey,
-                                                       cardPublicKey: cardInfo.card.cardPublicKey)
+            try? saltPayRegistratorProvider.initialize(
+                cardId: cardInfo.card.cardId,
+                walletPublicKey: wallet.publicKey,
+                cardPublicKey: cardInfo.card.cardPublicKey
+            )
         }
     }
 
@@ -457,7 +459,7 @@ class CommonUserWalletRepository: UserWalletRepository {
         // This is done to avoid unnecessary changes in SDK config when the user scans an empty card
         // (that would open onboarding) and then immediately close it.
         if !AppSettings.shared.saveUserWallets {
-            cardModel.userWalletModel?.initialUpdate() // todo: fixme
+            cardModel.userWalletModel?.initialUpdate() // [REDACTED_TODO_COMMENT]
             cardModel.updateSdkConfig()
         }
 
@@ -496,7 +498,7 @@ class CommonUserWalletRepository: UserWalletRepository {
             .sink { [weak self] result in
                 guard
                     let self,
-                    case let .success(cardModel) = result,
+                    case .success(let cardModel) = result,
                     AppSettings.shared.saveUserWallets
                 else {
                     self?.isLocked = false
@@ -612,7 +614,7 @@ extension CommonUserWalletRepository {
         }
 
         let savedSelectedUserWalletId = AppSettings.shared.selectedUserWalletId
-        self.selectedUserWalletId = savedSelectedUserWalletId.isEmpty ? nil : savedSelectedUserWalletId
+        selectedUserWalletId = savedSelectedUserWalletId.isEmpty ? nil : savedSelectedUserWalletId
 
         userWallets = savedUserWallets(withSensitiveData: false)
     }

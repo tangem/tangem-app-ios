@@ -24,15 +24,15 @@ extension JSON: Codable {
     public func encode(to encoder: Encoder) throws {
         var container = encoder.singleValueContainer()
         switch self {
-        case let .array(array):
+        case .array(let array):
             try container.encode(array)
-        case let .object(object):
+        case .object(let object):
             try container.encode(object)
-        case let .string(string):
+        case .string(let string):
             try container.encode(string)
-        case let .number(number):
+        case .number(let number):
             try container.encode(number)
-        case let .bool(bool):
+        case .bool(let bool):
             try container.encode(bool)
         case .null:
             try container.encodeNil()

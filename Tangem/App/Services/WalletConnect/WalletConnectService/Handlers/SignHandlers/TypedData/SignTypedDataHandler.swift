@@ -23,7 +23,6 @@ class SignTypedDataHandlerV4: SignTypedDataHandler {
 }
 
 class SignTypedDataHandler: WalletConnectSignHandler {
-
     override var action: WalletConnectAction { .signTypedData }
 
     override func handle(request: Request) {
@@ -51,9 +50,11 @@ class SignTypedDataHandler: WalletConnectSignHandler {
     override func sign(data: Data, walletPublicKey: Wallet.PublicKey, signer: TangemSigner) -> AnyPublisher<String, Error> {
         return signer.sign(hash: data, walletPublicKey: walletPublicKey)
             .tryMap { response -> String in
-                if let unmarshalledSig = try? Secp256k1Signature(with: response).unmarshal(with: walletPublicKey.blockchainKey,
-                                                                                           hash: data) {
-                    let strSig =  "0x" + unmarshalledSig.r.hexString + unmarshalledSig.s.hexString +
+                if let unmarshalledSig = try? Secp256k1Signature(with: response).unmarshal(
+                    with: walletPublicKey.blockchainKey,
+                    hash: data
+                ) {
+                    let strSig = "0x" + unmarshalledSig.r.hexString + unmarshalledSig.s.hexString +
                         unmarshalledSig.v.hexString
 
                     return strSig
