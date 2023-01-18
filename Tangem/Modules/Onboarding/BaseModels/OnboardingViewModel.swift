@@ -217,7 +217,7 @@ class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable>
                 self.onboardingDidFinish()
             }
 
-            self.onOnboardingFinished(for: self.input.cardInput.cardId)
+            onOnboardingFinished(for: input.cardInput.cardId)
 
             return
         }
@@ -319,6 +319,7 @@ class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable>
 }
 
 // MARK: - Navigation
+
 extension OnboardingViewModel {
     func onboardingDidFinish() {
         coordinator.onboardingDidFinish()
@@ -331,11 +332,15 @@ extension OnboardingViewModel {
     func openSupportChat() {
         guard let cardModel = input.cardInput.cardModel else { return }
 
-        let dataCollector = DetailsFeedbackDataCollector(cardModel: cardModel,
-                                                         userWalletEmailData: cardModel.emailData)
+        let dataCollector = DetailsFeedbackDataCollector(
+            cardModel: cardModel,
+            userWalletEmailData: cardModel.emailData
+        )
 
-        coordinator.openSupportChat(cardId: cardModel.cardId,
-                                    dataCollector: dataCollector)
+        coordinator.openSupportChat(
+            cardId: cardModel.cardId,
+            dataCollector: dataCollector
+        )
     }
 }
 
@@ -345,8 +350,7 @@ extension OnboardingViewModel: UserWalletStorageAgreementRoutable {
             switch result {
             case .error(let error):
                 if let tangemSdkError = error as? TangemSdkError,
-                   case .userCancelled = tangemSdkError
-                {
+                   case .userCancelled = tangemSdkError {
                     return
                 }
                 AppLog.shared.error(error)
