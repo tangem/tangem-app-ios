@@ -14,6 +14,6 @@ enum Constants {
         case v4 = "v4.0"
     }
 
-    static let limitAPIBaseURL: URL = URL(string: "https://limit-orders.1inch.io/\(OneInchAPIVersion.v2.rawValue)/")!
-    static let exchangeAPIBaseURL: URL = URL(string: "https://api.1inch.io/\(OneInchAPIVersion.v4.rawValue)/")!
+    static let limitAPIBaseURL: URL = .init(string: "https://limit-orders.1inch.io/\(OneInchAPIVersion.v2.rawValue)/")!
+    static let exchangeAPIBaseURL: URL = .init(string: "https://api.1inch.io/\(OneInchAPIVersion.v4.rawValue)/")!
 }
