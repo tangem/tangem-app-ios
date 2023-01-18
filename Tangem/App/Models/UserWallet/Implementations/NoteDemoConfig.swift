@@ -159,10 +159,12 @@ extension NoteDemoConfig: UserWalletConfig {
         }
 
         let factory = WalletModelFactory()
-        let model = try factory.makeSingleWallet(walletPublicKey: walletPublicKey,
-                                                 blockchain: blockchain,
-                                                 token: token.tokens.first,
-                                                 derivationStyle: card.derivationStyle)
+        let model = try factory.makeSingleWallet(
+            walletPublicKey: walletPublicKey,
+            blockchain: blockchain,
+            token: token.tokens.first,
+            derivationStyle: card.derivationStyle
+        )
         model.demoBalance = DemoUtil().getDemoBalance(for: defaultBlockchain)
         return model
     }

@@ -12,7 +12,7 @@ import BlockchainSdk
 class PreparePrimaryCardTask: CardSessionRunnable {
     var shouldAskForAccessCode: Bool { false }
 
-    private var linkingCommand: StartPrimaryCardLinkingTask? = nil
+    private var linkingCommand: StartPrimaryCardLinkingTask?
 
     deinit {
         AppLog.shared.debug("PreparePrimaryCardTask deinit")

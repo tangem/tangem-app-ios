@@ -28,6 +28,7 @@ extension Analytics {
         case demoActivated = "demo_mode_activated"
 
         // MARK: - Amplitude
+
         case signedIn = "[Basic] Signed in"
         case toppedUp = "[Basic] Topped up"
         case buttonTokensList = "[Introduction Process] Button - Tokens List"
@@ -139,6 +140,7 @@ extension Analytics {
         case settingsScreenOpened = "[Settings] Settings Screen Opened"
 
         // MARK: - Referral program
+
         case referralScreenOpened = "[Referral Program] Referral Screen Opened"
         case referralButtonParticipate = "[Referral Program] Button - Participate"
         case referralButtonCopyCode = "[Referral Program] Button - Copy"
@@ -146,6 +148,7 @@ extension Analytics {
         case referralButtonOpenTos = "[Referral Program] Link - TaC"
 
         // MARK: -
+
         fileprivate static var nfcError: String {
             "nfc_error"
         }
