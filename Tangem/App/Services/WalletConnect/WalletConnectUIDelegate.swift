@@ -11,8 +11,8 @@ import Foundation
 struct WalletConnectUIRequest {
     let event: WalletConnectEvent
     let message: String
-    var positiveReactionAction: () -> Void
-    var negativeReactionAction: (() -> Void)?
+    var approveAction: () -> Void
+    var rejectAction: (() -> Void)?
 }
 
 protocol WalletConnectUIDelegate {
@@ -28,8 +28,8 @@ extension WalletConnectAlertUIDelegate: WalletConnectUIDelegate {
         let alert = WalletConnectUIBuilder.makeAlert(
             for: request.event,
             message: request.message,
-            onAcceptAction: request.positiveReactionAction,
-            onReject: request.negativeReactionAction ?? {}
+            onAcceptAction: request.approveAction,
+            onReject: request.rejectAction ?? {}
         )
 
         appPresenter.show(alert)
