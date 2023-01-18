@@ -9,8 +9,7 @@
 import Foundation
 import Combine
 
-class SuccessSwappingCoordinator: CoordinatorObject, Identifiable {
-    let id = UUID()
+class SuccessSwappingCoordinator: CoordinatorObject {
     let dismissAction: Action
     let popToRootAction: ParamsAction<PopToRootOptions>
 
