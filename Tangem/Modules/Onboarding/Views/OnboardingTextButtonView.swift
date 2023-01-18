@@ -20,24 +20,22 @@ struct TangemButtonSettings {
     var customIconName: String = ""
     var systemIconName: String = ""
     var iconPosition: TangemButton.IconPosition = .trailing
-
 }
 
 struct OnboardingBottomButtonsSettings {
     let main: MainButton.Settings?
 
-    var supplement: TangemButtonSettings? = nil
+    var supplement: TangemButtonSettings?
 }
 
 struct OnboardingTextButtonView: View {
-
     let title: String?
     let subtitle: String?
     var textOffset: CGSize = .zero
     let buttonsSettings: OnboardingBottomButtonsSettings
     let infoText: String?
     let titleAction: (() -> Void)?
-    var checkmarkText: String? = nil
+    var checkmarkText: String?
     var isCheckmarkChecked: Binding<Bool> = .constant(false)
 
     @ViewBuilder
@@ -63,10 +61,12 @@ struct OnboardingTextButtonView: View {
                     settings.action?()
                 }
                 .opacity(settings.isVisible ? 1.0 : 0.0)
-                .buttonStyle(TangemButtonStyle(colorStyle: settings.color,
-                                               layout: settings.size,
-                                               isDisabled: !settings.isEnabled,
-                                               isLoading: settings.isBusy))
+                .buttonStyle(TangemButtonStyle(
+                    colorStyle: settings.color,
+                    layout: settings.size,
+                    isDisabled: !settings.isEnabled,
+                    isLoading: settings.isBusy
+                ))
                 .overlay(infoTextView)
             }
         }
@@ -85,8 +85,10 @@ struct OnboardingTextButtonView: View {
     var body: some View {
         VStack(spacing: 0) {
             if let title = self.title, let subtitle = self.subtitle {
-                OnboardingMessagesView(title: title,
-                                       subtitle: subtitle) {
+                OnboardingMessagesView(
+                    title: title,
+                    subtitle: subtitle
+                ) {
                     titleAction?()
                 }
                 .frame(alignment: .top)
@@ -97,9 +99,11 @@ struct OnboardingTextButtonView: View {
 
             if let checkmarkText = self.checkmarkText {
                 HStack {
-                    CheckmarkSwitch(isChecked: isCheckmarkChecked,
-                                    settings: .defaultRoundedRect())
-                        .frame(size: .init(width: 26, height: 26))
+                    CheckmarkSwitch(
+                        isChecked: isCheckmarkChecked,
+                        settings: .defaultRoundedRect()
+                    )
+                    .frame(size: .init(width: 26, height: 26))
                     Text(checkmarkText).bold()
                         .onTapGesture {
                             withAnimation {
@@ -113,7 +117,6 @@ struct OnboardingTextButtonView: View {
 
             buttons
                 .padding(.bottom, buttonsSettings.supplement != nil ? 16 : 20)
-
         }
         .frame(maxHeight: 304)
     }
@@ -128,25 +131,27 @@ struct OnboardingTextButtonView_Previews: PreviewProvider {
             subtitle: "Let's generate all the keys on your card and create a secure wallet",
             textOffset: .init(width: 0, height: -100),
             buttonsSettings:
-            .init(main: MainButton.Settings(
-                title: "Create wallet",
-                isLoading: false,
-                isDisabled: false,
-                action: {}),
-            supplement: TangemButtonSettings(
-                title: "What does it mean?",
-                size: .wide,
-                action: {},
-                isBusy: false,
-                isEnabled: false,
-                isVisible: true,
-                color: .grayAlt,
-                systemIconName: "plus",
-                iconPosition: .leading
-            )
+            .init(
+                main: MainButton.Settings(
+                    title: "Create wallet",
+                    isLoading: false,
+                    isDisabled: false,
+                    action: {}
+                ),
+                supplement: TangemButtonSettings(
+                    title: "What does it mean?",
+                    size: .wide,
+                    action: {},
+                    isBusy: false,
+                    isEnabled: false,
+                    isVisible: true,
+                    color: .grayAlt,
+                    systemIconName: "plus",
+                    iconPosition: .leading
+                )
             ),
             infoText: nil,
-            titleAction: { },
+            titleAction: {},
             checkmarkText: "I understand",
             isCheckmarkChecked: $isChecked
             //                .init(

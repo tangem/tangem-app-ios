@@ -109,10 +109,12 @@ struct TokenListView: View {
                 )
                 .padding(.horizontal, 16)
                 .padding(.bottom, 8)
-                .background(LinearGradient(colors: [.white, .white, .white.opacity(0)],
-                                           startPoint: .bottom,
-                                           endPoint: .top)
-                        .edgesIgnoringSafeArea(.bottom))
+                .background(LinearGradient(
+                    colors: [.white, .white, .white.opacity(0)],
+                    startPoint: .bottom,
+                    endPoint: .top
+                )
+                .edgesIgnoringSafeArea(.bottom))
             }
         }
     }
@@ -120,7 +122,9 @@ struct TokenListView: View {
 
 struct AddNewTokensView_Previews: PreviewProvider {
     static var previews: some View {
-        TokenListView(viewModel: .init(mode: .add(cardModel: PreviewCard.ethereum.cardModel),
-                                       coordinator: TokenListCoordinator()))
+        TokenListView(viewModel: .init(
+            mode: .add(cardModel: PreviewCard.ethereum.cardModel),
+            coordinator: TokenListCoordinator()
+        ))
     }
 }
