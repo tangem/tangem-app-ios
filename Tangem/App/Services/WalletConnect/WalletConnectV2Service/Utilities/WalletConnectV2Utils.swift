@@ -46,28 +46,27 @@ struct WalletConnectV2Utils {
         return blockchains
     }
 
-    func createSessionNamespaces(from keyedNamespaces: [String: ProposalNamespace], for wallets: [Wallet]) throws -> [String: SessionNamespace] {
+    func createSessionNamespaces(from namespaces: [String: ProposalNamespace], for wallets: [Wallet]) throws -> [String: SessionNamespace] {
         var sessionNamespaces: [String: SessionNamespace] = [:]
-        var missingChains = [String]()
-        var unsupportedEVMChains = [String]()
-        for (namespace, proposalNamespace) in keyedNamespaces {
-            let accounts: [Account] = proposalNamespace.chains.compactMap { wcBlockchain in
+        var missingBlockchains: [String] = []
+        var unsupportedEVMBlockchains: [String] = []
+        for (namespace, proposalNamespace) in namespaces {
+            var accounts: [Account] = proposalNamespace.chains.compactMap { wcBlockchain in
                 guard let blockchain = createBlockchain(for: wcBlockchain) else {
-                    unsupportedEVMChains.append(wcBlockchain.reference)
+                    unsupportedEVMBlockchains.append(wcBlockchain.reference)
                     return nil
                 }
 
                 guard let wallet = wallets.first(where: { $0.blockchain == blockchain }) else {
-                    missingChains.append(blockchain.displayName)
+                    missingBlockchains.append(blockchain.displayName)
                     return nil
                 }
 
                 return Account(wcBlockchain.absoluteString + ":\(wallet.address)")
             }
 
-            let filteredAccounts = Set(accounts)
             let sessionNamespace = SessionNamespace(
-                accounts: filteredAccounts,
+                accounts: Set(accounts),
                 methods: proposalNamespace.methods,
                 events: proposalNamespace.events,
                 extensions: nil
@@ -75,12 +74,12 @@ struct WalletConnectV2Utils {
             sessionNamespaces[namespace] = sessionNamespace
         }
 
-        guard unsupportedEVMChains.isEmpty else {
-            throw WalletConnectV2Error.unsupportedBlockchains(unsupportedEVMChains)
+        guard unsupportedEVMBlockchains.isEmpty else {
+            throw WalletConnectV2Error.unsupportedBlockchains(unsupportedEVMBlockchains)
         }
 
-        guard missingChains.isEmpty else {
-            throw WalletConnectV2Error.missingBlockchains(missingChains)
+        guard missingBlockchains.isEmpty else {
+            throw WalletConnectV2Error.missingBlockchains(missingBlockchains)
         }
 
         return sessionNamespaces
@@ -94,8 +93,7 @@ struct WalletConnectV2Utils {
             name: dApp.name,
             description: dApp.description,
             url: dApp.url,
-            iconsLinks: dApp.icons,
-            supportedChains: nil
+            iconLinks: dApp.icons
         )
         let sessionInfo = WalletConnectSavedSession.SessionInfo(
             connectedBlockchains: targetBlockchains,
