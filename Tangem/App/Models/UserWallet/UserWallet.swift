@@ -43,7 +43,7 @@ extension UserWallet {
         return CardInfo(
             card: card,
             walletData: walletData,
-            name: self.name,
+            name: name,
             artwork: cardArtwork,
             primaryCard: nil
         )
