@@ -37,8 +37,10 @@ struct KYCView: View {
 
 struct KYCView_Previews: PreviewProvider {
     static var previews: some View {
-        KYCView(imageName: "passport",
-                title: Localization.onboardingTitlePin,
-                subtitle: Localization.onboardingSubtitlePin)
+        KYCView(
+            imageName: "passport",
+            title: Localization.onboardingTitlePin,
+            subtitle: Localization.onboardingSubtitlePin
+        )
     }
 }
