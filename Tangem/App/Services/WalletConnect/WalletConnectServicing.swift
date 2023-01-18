@@ -14,7 +14,6 @@ protocol WalletConnectService: WalletConnectURLHandler {
     var sessionsPublisher: AnyPublisher<[WalletConnectSession], Never> { get }
     var newSessions: AsyncStream<[WalletConnectSavedSession]> { get async }
 
-    func terminateAllSessions()
     func initialize(with cardModel: CardViewModel)
     func reset()
     func disconnectSession(with id: Int)
