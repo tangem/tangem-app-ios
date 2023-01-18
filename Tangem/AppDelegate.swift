@@ -13,12 +13,12 @@ import Amplitude
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
-    var loadingView: UIView? = nil
+    var loadingView: UIView?
 
     func addLoadingView() {
         if let window = UIApplication.shared.windows.first(where: { $0.isKeyWindow }) {
             let view = UIView(frame: window.bounds)
-            view.backgroundColor = UIColor.init(white: 0.0, alpha: 0.6)
+            view.backgroundColor = UIColor(white: 0.0, alpha: 0.6)
             let indicator = UIActivityIndicatorView(style: .medium)
             view.addSubview(indicator)
             indicator.center = CGPoint(x: view.bounds.midX, y: view.bounds.midY)
@@ -66,9 +66,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         return true
     }
 
-
     func application(_ application: UIApplication, continue userActivity: NSUserActivity, restorationHandler: @escaping ([UIUserActivityRestoring]?) -> Void) -> Bool {
-
         guard
             userActivity.activityType == NSUserActivityTypeBrowsingWeb,
             let url = userActivity.webpageURL
@@ -116,10 +114,17 @@ private extension AppDelegate {
     }
 
     func configureAppsFlyer() {
-        guard AppEnvironment.current.isProduction else { return }
+        guard AppEnvironment.current.isProduction else {
+            return
+        }
 
-        AppsFlyerLib.shared().appsFlyerDevKey = try! CommonKeysManager().appsFlyerDevKey
-        AppsFlyerLib.shared().appleAppID = "1354868448"
+        do {
+            let keysManager = try CommonKeysManager()
+            AppsFlyerLib.shared().appsFlyerDevKey = keysManager.appsFlyer.appsFlyerDevKey
+            AppsFlyerLib.shared().appleAppID = keysManager.appsFlyer.appsFlyerAppID
+        } catch {
+            assertionFailure("CommonKeysManager not initialized with error: \(error.localizedDescription)")
+        }
     }
 
     func configureAmplitude() {
