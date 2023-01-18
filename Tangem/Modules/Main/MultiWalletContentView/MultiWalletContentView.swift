@@ -55,7 +55,7 @@ struct MultiWalletContentView: View {
             ActivityIndicatorView(color: .gray)
                 .padding()
 
-        case let .loaded(viewModels):
+        case .loaded(let viewModels):
             LazyVStackCompat(alignment: .leading, spacing: 0) {
                 ForEach(viewModels) { item in
                     VStack(spacing: 0) {

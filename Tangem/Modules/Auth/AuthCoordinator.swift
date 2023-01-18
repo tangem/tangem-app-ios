@@ -14,13 +14,16 @@ class AuthCoordinator: CoordinatorObject {
     let popToRootAction: ParamsAction<PopToRootOptions>
 
     // MARK: - Root view model
+
     @Published private(set) var rootViewModel: AuthViewModel?
 
     // MARK: - Child coordinators
+
     @Published var mainCoordinator: MainCoordinator?
     @Published var pushedOnboardingCoordinator: OnboardingCoordinator?
 
     // MARK: - Child view models
+
     @Published var mailViewModel: MailViewModel?
     @Published var disclaimerViewModel: DisclaimerViewModel?
 
@@ -33,7 +36,7 @@ class AuthCoordinator: CoordinatorObject {
     }
 
     func start(with options: Options = .default) {
-        self.rootViewModel = .init(unlockOnStart: options.unlockOnStart, coordinator: self)
+        rootViewModel = .init(unlockOnStart: options.unlockOnStart, coordinator: self)
     }
 }
 
@@ -80,6 +83,6 @@ extension AuthCoordinator: AuthRoutable {
 
 extension AuthCoordinator: DisclaimerRoutable {
     func dismissDisclaimer() {
-        self.disclaimerViewModel = nil
+        disclaimerViewModel = nil
     }
 }

@@ -22,5 +22,4 @@ struct AddressFormatter {
 
         return "\(address.prefix(prefixLimit))\(delimiter)\(address.suffix(suffixLimit))"
     }
-
 }

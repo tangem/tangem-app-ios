@@ -10,7 +10,6 @@ import SwiftUI
 import Combine
 
 struct OnboardingProgressCheckmarksView: View {
-
     var numberOfSteps: Int
     var currentStep: Published<Int>.Publisher
 
@@ -49,13 +48,16 @@ struct OnboardingProgressCheckmarksView: View {
                     .modifier(AnimatableGradient(
                         backgroundColor: .tangemGreen2,
                         progressColor: .tangemGreen,
-                        gradientStop: currentProgress)
+                        gradientStop: currentProgress
+                    )
                     )
                     .frame(width: containerSize.width, height: 3)
                 ForEach(0 ..< numberOfSteps) { stepIndex in
                     OnboardingProgressCircle(index: stepIndex, selectedIndex: animatedSelectedIndex)
-                        .offset(x: calculateCircleOffset(for: stepIndex),
-                                y: 0)
+                        .offset(
+                            x: calculateCircleOffset(for: stepIndex),
+                            y: 0
+                        )
                 }
             }
             .frame(maxWidth: .infinity)
@@ -90,11 +92,9 @@ struct OnboardingProgressCheckmarksView: View {
             containerSize.width / 2 :
             (CGFloat(index) * (containerSize.width - checkmarksDiameter) / CGFloat(numberOfSteps - 1))
     }
-
 }
 
 fileprivate class Provider: ObservableObject {
-
     @Published var currentStep: Int = 10
 
     var numberOfSteps: Int { 6 }
@@ -106,18 +106,18 @@ fileprivate class Provider: ObservableObject {
         }
         currentStep = nextStep
     }
-
 }
 
 struct OnboardingProgressCheckmarksPreview: View {
-
     @ObservedObject fileprivate var model: Provider
 
     var body: some View {
         VStack {
-            OnboardingProgressCheckmarksView(numberOfSteps: model.numberOfSteps,
-                                             currentStep: model.$currentStep)
-                .padding(.horizontal, 40)
+            OnboardingProgressCheckmarksView(
+                numberOfSteps: model.numberOfSteps,
+                currentStep: model.$currentStep
+            )
+            .padding(.horizontal, 40)
             Button(action: {
                 model.goToNextStep()
             }, label: {
@@ -126,7 +126,6 @@ struct OnboardingProgressCheckmarksPreview: View {
             })
         }
     }
-
 }
 
 struct OnboardingProgressCheckmarksView_Previews: PreviewProvider {
