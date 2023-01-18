@@ -267,7 +267,7 @@ private extension SwappingViewModel {
             updateRequiredPermission(isPermissionRequired: result.isPermissionRequired)
             updatePendingApprovingTransaction(hasPendingTransaction: result.hasPendingTransaction)
 
-        case let .available(result, _):
+        case .available(let result, _):
             refreshWarningRowViewModel = nil
             receiveCurrencyViewModel?.updateState(
                 .loaded(result.amount, fiatValue: result.fiatAmount)
@@ -345,7 +345,7 @@ private extension SwappingViewModel {
             mainButtonState = .swap
         case .loading, .requiredRefresh:
             mainButtonIsEnabled = false
-        case let .preview(preview):
+        case .preview(let preview):
             mainButtonIsEnabled = preview.isEnoughAmountForExchange && !preview.hasPendingTransaction
 
             if !preview.isEnoughAmountForExchange {
@@ -462,9 +462,9 @@ private extension SwappingViewModel {
             switch error {
             case .requestError(let error):
                 updateRefreshWarningRowViewModel(message: error.detailedError.localizedDescription)
-            case let .oneInchError(error):
+            case .oneInchError(let error):
                 updateRefreshWarningRowViewModel(message: error.localizedDescription)
-            case let .decodingError(error):
+            case .decodingError(let error):
                 updateRefreshWarningRowViewModel(message: error.localizedDescription)
             }
         default:
