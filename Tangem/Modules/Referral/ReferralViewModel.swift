@@ -48,8 +48,10 @@ class ReferralViewModel: ObservableObject {
             let blockchain = Blockchain(from: award.token.networkId)
         else {
             AppLog.shared.error(Localization.referralErrorFailedToLoadInfo)
-            errorAlert = AlertBuilder.makeOkErrorAlert(message: Localization.referralErrorFailedToLoadInfo,
-                                                       okAction: coordinator.dismiss)
+            errorAlert = AlertBuilder.makeOkErrorAlert(
+                message: Localization.referralErrorFailedToLoadInfo,
+                okAction: coordinator.dismiss
+            )
             return
         }
 
@@ -100,7 +102,7 @@ class ReferralViewModel: ObservableObject {
             let referralError = ReferralError(error)
             let message = Localization.referralErrorFailedToLoadInfoWithReason(referralError.code)
             AppLog.shared.error(referralError)
-            self.errorAlert = AlertBuilder.makeOkErrorAlert(message: message, okAction: coordinator.dismiss)
+            errorAlert = AlertBuilder.makeOkErrorAlert(message: message, okAction: coordinator.dismiss)
         }
     }
 
@@ -145,7 +147,6 @@ class ReferralViewModel: ObservableObject {
 
         if let savedNetworkIndex = savedEntries.firstIndex(where: { $0.blockchainNetwork == network }),
            !savedEntries[savedNetworkIndex].tokens.contains(where: { $0 == storageToken }) {
-
             savedEntries[savedNetworkIndex].tokens.append(storageToken)
             cardModel.userWalletModel?.update(entries: savedEntries)
         }
@@ -159,15 +160,18 @@ class ReferralViewModel: ObservableObject {
             return nil
         }
 
-        return Token(name: token.name,
-                     symbol: token.symbol,
-                     contractAddress: contractAddress,
-                     decimalCount: decimalCount,
-                     id: token.id)
+        return Token(
+            name: token.name,
+            symbol: token.symbol,
+            contractAddress: contractAddress,
+            decimalCount: decimalCount,
+            id: token.id
+        )
     }
 }
 
 // MARK: UI stuff
+
 extension ReferralViewModel {
     var award: String {
         guard
@@ -230,6 +234,7 @@ extension ReferralViewModel {
 }
 
 // MARK: - Navigation
+
 extension ReferralViewModel {
     func openTOS() {
         guard
