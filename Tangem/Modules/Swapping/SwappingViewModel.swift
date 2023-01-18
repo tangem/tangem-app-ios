@@ -19,6 +19,7 @@ final class SwappingViewModel: ObservableObject {
 
     @Published var sendDecimalValue: Decimal?
     @Published var refreshWarningRowViewModel: DefaultWarningRowViewModel?
+    @Published var permissionInfoRowViewModel: DefaultWarningRowViewModel?
 
     @Published var mainButtonIsEnabled: Bool = false
     @Published var mainButtonState: MainButtonState = .swap
@@ -43,6 +44,7 @@ final class SwappingViewModel: ObservableObject {
     private let userCurrenciesProvider: UserCurrenciesProviding
     private let tokenIconURLBuilder: TokenIconURLBuilding
     private let transactionSender: TransactionSendable
+
     private unowned let coordinator: SwappingRoutable
 
     // MARK: - Private
@@ -96,10 +98,12 @@ final class SwappingViewModel: ObservableObject {
         exchangeManager.update(exchangeItems: items)
     }
 
+    @MainActor
     func userDidTapChangeDestinationButton() {
         openTokenListView()
     }
 
+    @MainActor
     func didTapMainButton() {
         switch mainButtonState {
         case .permitAndSwap:
@@ -113,8 +117,8 @@ final class SwappingViewModel: ObservableObject {
         }
     }
 
-    func didSendApproveTransaction() {
-        exchangeManager.refresh()
+    func didSendApproveTransaction(transactionInfo: ExchangeTransactionDataModel) {
+        exchangeManager.didSendApprovingTransaction(exchangeTxData: transactionInfo)
     }
 
     func didTapWaringRefresh() {
@@ -125,6 +129,7 @@ final class SwappingViewModel: ObservableObject {
 // MARK: - Navigation
 
 private extension SwappingViewModel {
+    @MainActor
     func openTokenListView() {
         let source = exchangeManager.getExchangeItems().source
         let userCurrencies = userCurrenciesProvider.getCurrencies(
@@ -167,6 +172,7 @@ private extension SwappingViewModel {
         coordinator.presentSuccessView(inputModel: inputModel)
     }
 
+    @MainActor
     func openPermissionView() {
         let state = exchangeManager.getAvailabilityState()
         guard case .available(let result, let info) = state,
@@ -200,12 +206,6 @@ extension SwappingViewModel: ExchangeManagerDelegate {
             self.updateState(state: availabilityState)
         }
     }
-
-    func exchangeManager(_ manager: ExchangeManager, didUpdate isEnoughAllowance: Bool) {
-        DispatchQueue.main.async {
-            self.sendCurrencyViewModel?.update(isLockedVisible: !isEnoughAllowance)
-        }
-    }
 }
 
 // MARK: - View updates
@@ -219,7 +219,6 @@ private extension SwappingViewModel {
             balance: exchangeItems.sourceBalance.balance,
             maximumFractionDigits: source.decimalCount,
             fiatValue: exchangeItems.sourceBalance.fiatBalance,
-            isLockedVisible: !exchangeManager.isEnoughAllowance(),
             tokenIcon: mapToSwappingTokenIconViewModel(currency: source)
         )
 
@@ -265,30 +264,57 @@ private extension SwappingViewModel {
                 .loaded(result.expectedAmount, fiatValue: result.expectedFiatAmount)
             )
 
+            updateRequiredPermission(isPermissionRequired: result.isPermissionRequired)
+            updatePendingApprovingTransaction(hasPendingTransaction: result.hasPendingTransaction)
+
         case .available(let result, _):
             refreshWarningRowViewModel = nil
             receiveCurrencyViewModel?.updateState(
                 .loaded(result.amount, fiatValue: result.fiatAmount)
             )
 
-            if result.isEnoughAmountForFee {
-                feeWarningRowViewModel = nil
-            } else {
-                let sourceBlockchain = exchangeManager.getExchangeItems().source.blockchain
-                let subtitle = Localization.swappingNotEnoughFundsForFee(
-                    sourceBlockchain.symbol,
-                    sourceBlockchain.symbol
-                )
-                feeWarningRowViewModel = DefaultWarningRowViewModel(
-                    title: nil,
-                    subtitle: subtitle,
-                    leftView: .icon(Assets.attention)
-                )
-            }
+            updateRequiredPermission(isPermissionRequired: result.isPermissionRequired)
+            updateEnoughAmountForFee(isEnoughAmountForFee: result.isEnoughAmountForFee)
 
         case .requiredRefresh(let error):
             receiveCurrencyViewModel?.updateState(.loaded(0, fiatValue: 0))
             processingError(error: error)
+        }
+    }
+
+    func updateRequiredPermission(isPermissionRequired: Bool) {
+        if isPermissionRequired {
+            permissionInfoRowViewModel = DefaultWarningRowViewModel(
+                title: Localization.swappingGivePermission,
+                subtitle: Localization.swappingPermissionSubheader(exchangeManager.getExchangeItems().source.symbol),
+                leftView: .icon(Assets.swappingLock)
+            )
+        } else {
+            permissionInfoRowViewModel = nil
+        }
+    }
+
+    func updatePendingApprovingTransaction(hasPendingTransaction: Bool) {
+        if hasPendingTransaction {
+            permissionInfoRowViewModel = DefaultWarningRowViewModel(
+                title: Localization.swappingPendingTransactionTitle,
+                subtitle: Localization.swappingPendingTransactionSubtitle,
+                leftView: .loader
+            )
+        } else {
+            permissionInfoRowViewModel = nil
+        }
+    }
+
+    func updateEnoughAmountForFee(isEnoughAmountForFee: Bool) {
+        if isEnoughAmountForFee {
+            feeWarningRowViewModel = nil
+        } else {
+            let sourceBlockchain = exchangeManager.getExchangeItems().source.blockchain
+            feeWarningRowViewModel = DefaultWarningRowViewModel(
+                subtitle: Localization.swappingNotEnoughFundsForFee(sourceBlockchain.symbol, sourceBlockchain.symbol),
+                leftView: .icon(Assets.attention)
+            )
         }
     }
 
@@ -319,12 +345,14 @@ private extension SwappingViewModel {
             mainButtonState = .swap
         case .loading, .requiredRefresh:
             mainButtonIsEnabled = false
-        case .preview(let model):
-            mainButtonIsEnabled = model.isEnoughAmountForExchange
+        case .preview(let preview):
+            mainButtonIsEnabled = preview.isEnoughAmountForExchange && !preview.hasPendingTransaction
 
-            if !model.isEnoughAmountForExchange {
+            if !preview.isEnoughAmountForExchange {
                 mainButtonState = .insufficientFunds
-            } else if model.isPermissionRequired {
+            } else if preview.hasPendingTransaction {
+                mainButtonState = .swap
+            } else if preview.isPermissionRequired {
                 mainButtonState = .givePermission
             } else {
                 mainButtonState = .swap
@@ -416,7 +444,9 @@ private extension SwappingViewModel {
             } catch TangemSdkError.userCancelled {
                 // Do nothing
             } catch {
-                errorAlert = AlertBinder(title: Localization.commonError, message: error.localizedDescription)
+                await runOnMain {
+                    errorAlert = AlertBinder(title: Localization.commonError, message: error.localizedDescription)
+                }
             }
         }
     }
@@ -433,7 +463,7 @@ private extension SwappingViewModel {
             case .requestError(let error):
                 updateRefreshWarningRowViewModel(message: error.detailedError.localizedDescription)
             case .oneInchError(let error):
-                updateRefreshWarningRowViewModel(message: error.description)
+                updateRefreshWarningRowViewModel(message: error.localizedDescription)
             case .decodingError(let error):
                 updateRefreshWarningRowViewModel(message: error.localizedDescription)
             }
@@ -442,9 +472,8 @@ private extension SwappingViewModel {
         }
     }
 
-    func updateRefreshWarningRowViewModel(title: String? = nil, message: String) {
+    func updateRefreshWarningRowViewModel(message: String) {
         refreshWarningRowViewModel = DefaultWarningRowViewModel(
-            title: title,
             subtitle: message.capitalizingFirstLetter(),
             leftView: .icon(Assets.attention),
             rightView: .icon(Assets.refreshWarningIcon)
