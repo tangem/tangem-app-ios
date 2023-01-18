@@ -13,16 +13,15 @@ import BlockchainSdk
 
 class WalletConnectV2Service {
     @Injected(\.walletConnectSessionsStorage) private var sessionsStorage: WalletConnectSessionsStorage
-    private var _canEstablishNewSessionPublisher: CurrentValueSubject<Bool, Never> = .init(true)
 
+    private let factory = WalletConnectV2DefaultSocketFactory()
     private let uiDelegate: WalletConnectUIDelegate
     private let messageComposer: WalletConnectV2MessageComposable
     private let pairApi: PairingInteracting
     private let signApi: SignClient
-
-    private let factory = WalletConnectV2DefaultSocketFactory()
     private let cardModel: CardViewModel
 
+    private var canEstablishNewSessionSubject: CurrentValueSubject<Bool, Never> = .init(true)
     private var bag = Set<AnyCancellable>()
 
     init(
@@ -41,11 +40,13 @@ class WalletConnectV2Service {
             socketConnectionType: .automatic
         )
         Pair.configure(metadata: AppMetadata(
+            // Not sure that we really need this name, but currently it is hard to recognize what card is connected in dApp
             name: "Tangem \(cardModel.name)",
             description: "NFC crypto wallet",
             url: "tangem.com",
             icons: ["https://user-images.githubusercontent.com/24321494/124071202-72a00900-da58-11eb-935a-dcdab21de52b.png"]
         ))
+
         pairApi = Pair.instance
         signApi = Sign.instance
 
@@ -70,8 +71,6 @@ class WalletConnectV2Service {
 
         Task { [weak self] in
             guard let self else { return }
-
-//            try await self.disconnectAllSessions()
 
             AppLog.shared.debug("[WC 2.0] Loading sessions for UserWallet with id: \(userWalletId.hexString)")
             let loadedSessions = await self.sessionsStorage.loadSessions(for: userWalletId.hexString)
@@ -117,6 +116,7 @@ class WalletConnectV2Service {
     private func validateProposal(_ proposal: Session.Proposal) {
         let utils = WalletConnectV2Utils()
         AppLog.shared.debug("[WC 2.0] Attemping to approve session proposal: \(proposal)")
+
         guard utils.isAllChainsSupported(in: proposal.requiredNamespaces) else {
             let unsupportedBlockchains = utils.extractUnsupportedBlockchainNames(from: proposal.requiredNamespaces)
             displayErrorUI(.unsupportedBlockchains(unsupportedBlockchains))
@@ -130,7 +130,6 @@ class WalletConnectV2Service {
                 for: cardModel.wallets
             )
             displaySessionConnectionUI(for: proposal, namespaces: sessionNamespaces)
-
         } catch let error as WalletConnectV2Error {
             displayErrorUI(error)
         } catch {
@@ -145,10 +144,10 @@ class WalletConnectV2Service {
         uiDelegate.showScreen(with: WalletConnectUIRequest(
             event: .establishSession,
             message: message,
-            positiveReactionAction: { [weak self] in
+            approveAction: { [weak self] in
                 self?.sessionAccepted(with: proposal.id, namespaces: namespaces)
             },
-            negativeReactionAction: { [weak self] in
+            rejectAction: { [weak self] in
                 self?.sessionRejected(with: proposal)
             }
         ))
@@ -159,7 +158,7 @@ class WalletConnectV2Service {
         uiDelegate.showScreen(with: WalletConnectUIRequest(
             event: .error,
             message: message,
-            positiveReactionAction: {}
+            approveAction: {}
         ))
     }
 
@@ -196,11 +195,11 @@ class WalletConnectV2Service {
 
 extension WalletConnectV2Service: WalletConnectURLHandler {
     func canHandle(url: String) -> Bool {
-        WalletConnectURI(string: url) != nil
+        return WalletConnectURI(string: url) != nil
     }
 
     func handle(url: URL) -> Bool {
-        handle(url: url.absoluteString)
+        return handle(url: url.absoluteString)
     }
 
     func handle(url: String) -> Bool {
@@ -208,7 +207,7 @@ extension WalletConnectV2Service: WalletConnectURLHandler {
             return false
         }
 
-        _canEstablishNewSessionPublisher.send(false)
+        canEstablishNewSessionSubject.send(false)
         pairClient(with: uri)
         return true
     }
@@ -222,18 +221,20 @@ extension WalletConnectV2Service: WalletConnectURLHandler {
             } catch {
                 AppLog.shared.error("[WC 2.0] Failed to connect to \(uri) with error: \(error)")
             }
-            _canEstablishNewSessionPublisher.send(true)
+            canEstablishNewSessionSubject.send(true)
         }
     }
 }
 
 extension WalletConnectV2Service {
     var canEstablishNewSessionPublisher: AnyPublisher<Bool, Never> {
-        _canEstablishNewSessionPublisher.eraseToAnyPublisher()
+        canEstablishNewSessionSubject
+            .eraseToAnyPublisher()
     }
 
     var sessionsPublisher: AnyPublisher<[WalletConnectSession], Never> {
-        Just([]).eraseToAnyPublisher()
+        Just([])
+            .eraseToAnyPublisher()
     }
 
     var newSessions: AsyncStream<[WalletConnectSavedSession]> {
