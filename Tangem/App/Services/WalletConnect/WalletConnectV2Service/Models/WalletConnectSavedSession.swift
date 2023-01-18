@@ -25,8 +25,6 @@ extension WalletConnectSavedSession {
         let name: String
         let description: String
         let url: String
-        let iconsLinks: [String]
-        let supportedChains: [String]?
-        var supportedMethods: [String]?
+        let iconLinks: [String]
     }
 }

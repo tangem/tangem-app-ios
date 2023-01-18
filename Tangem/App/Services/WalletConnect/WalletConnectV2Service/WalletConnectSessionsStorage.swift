@@ -51,7 +51,11 @@ actor CommonWalletConnectSessionsStorage: ObservableObject {
     private func saveSessionsToFile() {
         guard let currentUserWalletId else { return }
 
-        try? storage.store(value: _sessions, for: .walletConnectSessions(userWalletId: currentUserWalletId))
+        do {
+            try storage.store(value: _sessions, for: .walletConnectSessions(userWalletId: currentUserWalletId))
+        } catch {
+            AppLog.shared.error(error)
+        }
     }
 }
 
@@ -74,7 +78,7 @@ extension CommonWalletConnectSessionsStorage: WalletConnectSessionsStorage {
     }
 
     func session(with id: Int) -> WalletConnectSavedSession? {
-        _sessions.first(where: { $0.id == id })
+        return _sessions.first(where: { $0.id == id })
     }
 
     func removeSession(with id: Int) {
