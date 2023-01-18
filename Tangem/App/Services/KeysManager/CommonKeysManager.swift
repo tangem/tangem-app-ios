@@ -18,8 +18,8 @@ class CommonKeysManager {
 }
 
 extension CommonKeysManager: KeysManager {
-    var appsFlyerDevKey: String {
-        keys.appsFlyerDevKey
+    var appsFlyer: AppsFlyerConfig {
+        keys.appsFlyer
     }
 
     var moonPayKeys: MoonPayKeys {
@@ -78,7 +78,7 @@ extension CommonKeysManager {
         let blockchairApiKeys: [String]
         let blockcypherTokens: [String]
         let infuraProjectId: String
-        let appsFlyerDevKey: String
+        let appsFlyer: AppsFlyerConfig
         let amplitudeApiKey: String
         let tronGridApiKey: String
         let quiknodeApiKey: String
