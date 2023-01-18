@@ -15,6 +15,7 @@ import SwiftUI
 
 class CardViewModel: Identifiable, ObservableObject {
     // MARK: Services
+
     @Injected(\.appWarningsService) private var warningsService: AppWarningsProviding
     @Injected(\.tangemSdkProvider) private var tangemSdkProvider: TangemSdkProviding
     @Injected(\.tangemApiService) var tangemApiService: TangemApiService
@@ -220,25 +221,28 @@ class CardViewModel: Identifiable, ObservableObject {
     var backupInput: OnboardingInput? {
         guard let backupSteps = config.backupSteps else { return nil }
 
-        return OnboardingInput(steps: backupSteps,
-                               cardInput: .cardModel(self),
-                               welcomeStep: nil,
-                               twinData: nil,
-                               currentStepIndex: 0,
-                               isStandalone: true)
+        return OnboardingInput(
+            steps: backupSteps,
+            cardInput: .cardModel(self),
+            welcomeStep: nil,
+            twinData: nil,
+            currentStepIndex: 0,
+            isStandalone: true
+        )
     }
 
     var onboardingInput: OnboardingInput {
-        OnboardingInput(steps: config.onboardingSteps,
-                        cardInput: .cardModel(self),
-                        welcomeStep: nil,
-                        twinData: cardInfo.walletData.twinData,
-                        currentStepIndex: 0)
+        OnboardingInput(
+            steps: config.onboardingSteps,
+            cardInput: .cardModel(self),
+            welcomeStep: nil,
+            twinData: cardInfo.walletData.twinData,
+            currentStepIndex: 0
+        )
     }
 
     var twinInput: OnboardingInput? {
         guard config.hasFeature(.twinning) else { return nil }
-
 
         return OnboardingInput(
             steps: .twins(TwinsOnboardingStep.twinningSteps),
@@ -246,7 +250,8 @@ class CardViewModel: Identifiable, ObservableObject {
             welcomeStep: nil,
             twinData: cardInfo.walletData.twinData,
             currentStepIndex: 0,
-            isStandalone: true)
+            isStandalone: true
+        )
     }
 
     var resetToFactoryAvailability: UserWalletFeature.Availability {
@@ -271,7 +276,7 @@ class CardViewModel: Identifiable, ObservableObject {
         }
     }
 
-    private var searchBlockchainsCancellable: AnyCancellable? = nil
+    private var searchBlockchainsCancellable: AnyCancellable?
     private var bag = Set<AnyCancellable>()
     private var signSubscription: AnyCancellable?
 
@@ -295,7 +300,7 @@ class CardViewModel: Identifiable, ObservableObject {
     ) {
         self.cardInfo = cardInfo
         self.config = config
-        self._signer = config.tangemSigner
+        _signer = config.tangemSigner
         createUserWalletModelIfNeeded(with: userWallet)
         updateCurrentSecurityOption()
         appendPersistentBlockchains()
@@ -343,9 +348,11 @@ class CardViewModel: Identifiable, ObservableObject {
     func changeSecurityOption(_ option: SecurityModeOption, completion: @escaping (Result<Void, Error>) -> Void) {
         switch option {
         case .accessCode:
-            tangemSdk.startSession(with: SetUserCodeCommand(accessCode: nil),
-                                   cardId: cardId,
-                                   initialMessage: Message(header: nil, body: Localization.initialMessageChangeAccessCodeBody)) { [weak self] result in
+            tangemSdk.startSession(
+                with: SetUserCodeCommand(accessCode: nil),
+                cardId: cardId,
+                initialMessage: Message(header: nil, body: Localization.initialMessageChangeAccessCodeBody)
+            ) { [weak self] result in
                 guard let self = self else { return }
 
                 switch result {
@@ -361,8 +368,10 @@ class CardViewModel: Identifiable, ObservableObject {
                 }
             }
         case .longTap:
-            tangemSdk.startSession(with: SetUserCodeCommand.resetUserCodes,
-                                   cardId: cardId) { [weak self] result in
+            tangemSdk.startSession(
+                with: SetUserCodeCommand.resetUserCodes,
+                cardId: cardId
+            ) { [weak self] result in
                 guard let self = self else { return }
 
                 switch result {
@@ -377,9 +386,11 @@ class CardViewModel: Identifiable, ObservableObject {
                 }
             }
         case .passCode:
-            tangemSdk.startSession(with: SetUserCodeCommand(passcode: nil),
-                                   cardId: cardId,
-                                   initialMessage: Message(header: nil, body: Localization.initialMessageChangePasscodeBody)) { [weak self] result in
+            tangemSdk.startSession(
+                with: SetUserCodeCommand(passcode: nil),
+                cardId: cardId,
+                initialMessage: Message(header: nil, body: Localization.initialMessageChangePasscodeBody)
+            ) { [weak self] result in
                 guard let self = self else { return }
 
                 switch result {
@@ -399,11 +410,15 @@ class CardViewModel: Identifiable, ObservableObject {
     // MARK: - Wallet
 
     func createWallet(_ completion: @escaping (Result<Void, Error>) -> Void) {
-        let card = self.cardInfo.card
-        tangemSdk.startSession(with: CreateWalletAndReadTask(with: config.defaultCurve),
-                               cardId: cardId,
-                               initialMessage: Message(header: nil,
-                                                       body: Localization.initialMessageCreateWalletBody)) { [weak self] result in
+        let card = cardInfo.card
+        tangemSdk.startSession(
+            with: CreateWalletAndReadTask(with: config.defaultCurve),
+            cardId: cardId,
+            initialMessage: Message(
+                header: nil,
+                body: Localization.initialMessageCreateWalletBody
+            )
+        ) { [weak self] result in
             switch result {
             case .success(let card):
                 self?.onWalletCreated(card)
@@ -416,11 +431,15 @@ class CardViewModel: Identifiable, ObservableObject {
     }
 
     func resetToFactory(completion: @escaping (Result<Void, TangemSdkError>) -> Void) {
-        let card = self.cardInfo.card
-        tangemSdk.startSession(with: ResetToFactorySettingsTask(),
-                               cardId: cardId,
-                               initialMessage: Message(header: nil,
-                                                       body: Localization.initialMessagePurgeWalletBody)) { [weak self] result in
+        let card = cardInfo.card
+        tangemSdk.startSession(
+            with: ResetToFactorySettingsTask(),
+            cardId: cardId,
+            initialMessage: Message(
+                header: nil,
+                body: Localization.initialMessagePurgeWalletBody
+            )
+        ) { [weak self] result in
             switch result {
             case .success:
                 Analytics.log(.factoryResetFinished)
@@ -496,7 +515,7 @@ class CardViewModel: Identifiable, ObservableObject {
     }
 
     func onTwinWalletCreated(_ walletData: DefaultWalletData) { // [REDACTED_TODO_COMMENT]
-        self.cardInfo.walletData = walletData
+        cardInfo.walletData = walletData
         onUpdate()
     }
 
@@ -509,7 +528,7 @@ class CardViewModel: Identifiable, ObservableObject {
     }
 
     func clearTwinPairKey() { // [REDACTED_TODO_COMMENT]
-        if case let .twin(walletData, twinData) = cardInfo.walletData {
+        if case .twin(let walletData, let twinData) = cardInfo.walletData {
             let newData = TwinData(series: twinData.series)
             cardInfo.walletData = .twin(walletData, newData)
         }
@@ -618,8 +637,8 @@ class CardViewModel: Identifiable, ObservableObject {
 
         guard let ethWalletModel = ethWalletModel,
               let tokenFinder = ethWalletModel.walletManager as? TokenFinder else {
-            AppSettings.shared.searchedCards.append(self.cardId)
-            self.searchBlockchains()
+            AppSettings.shared.searchedCards.append(cardId)
+            searchBlockchains()
             return
         }
 
@@ -645,11 +664,11 @@ class CardViewModel: Identifiable, ObservableObject {
 
     private func updateCurrentSecurityOption() {
         if cardInfo.card.isAccessCodeSet {
-            self.currentSecurityOption = .accessCode
-        } else if (cardInfo.card.isPasscodeSet ?? false) {
-            self.currentSecurityOption = .passCode
+            currentSecurityOption = .accessCode
+        } else if cardInfo.card.isPasscodeSet ?? false {
+            currentSecurityOption = .passCode
         } else {
-            self.currentSecurityOption = .longTap
+            currentSecurityOption = .longTap
         }
     }
 
@@ -698,7 +717,7 @@ class CardViewModel: Identifiable, ObservableObject {
             return
         }
 
-        self.userWalletId = userWallet.userWalletId
+        userWalletId = userWallet.userWalletId
         userWalletModel = CommonUserWalletModel(config: config, userWallet: userWallet)
     }
 }
@@ -722,7 +741,7 @@ extension CardViewModel {
                 self?.userWalletModel?.append(entries: entries)
                 self?.userWalletModel?.updateAndReloadWalletModels()
                 completion(.success(()))
-            case let .failure(error):
+            case .failure(let error):
                 completion(.failure(error))
             }
         }
@@ -735,7 +754,7 @@ extension CardViewModel {
                 self?.userWalletModel?.update(entries: entries)
                 self?.userWalletModel?.updateAndReloadWalletModels()
                 completion(.success(()))
-            case let .failure(error):
+            case .failure(let error):
                 completion(.failure(error))
             }
         }
@@ -746,13 +765,13 @@ extension CardViewModel {
         let alreadySaved = userWalletModel?.getSavedEntries() ?? []
         derivationManager.deriveIfNeeded(entries: alreadySaved + entries, completion: { [weak self] result in
             switch result {
-            case let .success(response):
+            case .success(let response):
                 if let response {
                     self?.onDerived(response)
                 }
 
                 completion(.success(()))
-            case let .failure(error):
+            case .failure(let error):
                 completion(.failure(error))
             }
         })
