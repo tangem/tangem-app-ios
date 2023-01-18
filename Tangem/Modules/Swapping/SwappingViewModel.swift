@@ -117,8 +117,8 @@ final class SwappingViewModel: ObservableObject {
         }
     }
 
-    func didSendApproveTransaction() {
-        exchangeManager.refresh()
+    func didSendApproveTransaction(transactionInfo: ExchangeTransactionDataModel) {
+        exchangeManager.didSendApprovingTransaction(exchangeTxData: transactionInfo)
     }
 
     func didTapWaringRefresh() {
