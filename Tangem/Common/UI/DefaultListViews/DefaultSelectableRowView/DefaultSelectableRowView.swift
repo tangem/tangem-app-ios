@@ -51,8 +51,10 @@ struct DefaultSelectableRowViewPreview: PreviewProvider {
     static let viewModel = DefaultSelectableRowViewModel(
         title: "Long Tap",
         subtitle: "This mechanism protects against proximity attacks on a card. It will enforce a delay.",
-        isSelected: .init(get: { isSelected },
-                          set: { isSelected = $0 })
+        isSelected: .init(
+            get: { isSelected },
+            set: { isSelected = $0 }
+        )
     )
 
     static var previews: some View {

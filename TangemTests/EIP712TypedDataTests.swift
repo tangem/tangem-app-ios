@@ -7,7 +7,6 @@
 import XCTest
 import BlockchainSdk
 import TangemSdk
-
 @testable import Tangem
 
 class EIP712TypedDataTests: XCTestCase {
@@ -91,7 +90,6 @@ class EIP712TypedDataTests: XCTestCase {
         let jsonTypedData = try typedData(for: "hashEncode")
         XCTAssertEqual(jsonTypedData.signHash.hexString.lowercased(), "be609aee343fb3c4b28e1df9e632fca64fcfaede20f02e86244efddf30957bd2")
     }
-
 
     func testAnotherTypedData1() throws {
         let jsonTypedData = try typedData(for: "hashEncode2")
