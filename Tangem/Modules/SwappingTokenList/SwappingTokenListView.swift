@@ -11,8 +11,9 @@ import SwiftUI
 struct SwappingTokenListView: View {
     @ObservedObject private var viewModel: SwappingTokenListViewModel
 
-    // 40(icon) + 12(padding) from SwappingTokenItemView
-    private let separatorInset: CGFloat = 52
+    private var separatorInset: CGFloat {
+        SwappingTokenItemView.iconSize.width + SwappingTokenItemView.horizontalInteritemSpacing
+    }
 
     init(viewModel: SwappingTokenListViewModel) {
         self.viewModel = viewModel
