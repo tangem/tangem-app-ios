@@ -22,9 +22,10 @@ class WebSocket {
     var onDisconnect: ((Error?) -> Void)?
     var onText: ((String) -> Void)?
 
-    private(set) var isConnected: Bool = false
+    private let pingInterval: TimeInterval = 30
+    private let timeoutInterval: TimeInterval = 20
 
-    private var task: URLSessionWebSocketTask?
+    private(set) var isConnected = false
 
     private lazy var session: URLSession = {
         let delegate = WebSocketConnectionDelegate(eventHandler: { [weak self] event in
@@ -38,25 +39,22 @@ class WebSocket {
     }()
 
     private var bgTaskIdentifier: UIBackgroundTaskIdentifier = .invalid
-    private var foregroundNotificationObserver: Any?
-    private var backgroundNotificationObserver: Any?
-
     // needed to keep connection alive
     private var pingTimer: Timer?
-
-    private let pingInterval: TimeInterval = 30
-    private let timeoutInterval: TimeInterval = 20
+    private var task: URLSessionWebSocketTask?
+    private var foregroundNotificationObserver: Any?
+    private var backgroundNotificationObserver: Any?
 
     init(
         url: URL,
         onConnect: (() -> Void)? = nil,
         onDisconnect: ((Error?) -> Void)? = nil,
-        onTextReceive: ((String) -> Void)? = nil
+        onText: ((String) -> Void)? = nil
     ) {
         self.url = url
         self.onConnect = onConnect
         self.onDisconnect = onDisconnect
-        onText = onTextReceive
+        self.onText = onText
 
         request = URLRequest(url: url, timeoutInterval: timeoutInterval)
 
@@ -65,11 +63,6 @@ class WebSocket {
         // around 30 secs in the background instead of having the socket killed instantly, which
         // solves the issue of connecting a wallet and a dApp both on the same device.
         // See https://github.com/WalletConnect/WalletConnectSwift/pull/81#issuecomment-1175931673
-
-        if #available(iOS 14.0, *) {
-            // We don't really need this on Apple Silicon Macs
-            guard !ProcessInfo.processInfo.isiOSAppOnMac else { return }
-        }
 
         backgroundNotificationObserver = NotificationCenter.default.addObserver(
             forName: UIScene.didEnterBackgroundNotification,
@@ -84,7 +77,7 @@ class WebSocket {
             object: nil,
             queue: OperationQueue.main
         ) { [weak self] _ in
-            self?.endBackgroundExecutionTime()
+            self?.endBackgroundTask()
         }
     }
 
@@ -118,6 +111,7 @@ class WebSocket {
 
     func write(string text: String, completion: (() -> Void)?) {
         guard isConnected else { return }
+
         task?.send(.string(text)) { [weak self] error in
             if let error = error {
                 self?.handleEvent(.connnectionError(error))
@@ -142,6 +136,7 @@ private extension WebSocket {
 
     func receive() {
         guard let task = task else { return }
+
         task.receive { [weak self] result in
             switch result {
             case .success(let message):
@@ -157,12 +152,14 @@ private extension WebSocket {
 
     func sendPing() {
         guard isConnected else { return }
+
         task?.sendPing(pongReceiveHandler: { [weak self] error in
-            if let error = error {
+            if let error {
                 self?.handleEvent(.connnectionError(error))
-            } else {
-                self?.handleEvent(.pongReceived)
+                return
             }
+
+            self?.handleEvent(.pongReceived)
         })
         handleEvent(.pingSent)
     }
@@ -183,6 +180,7 @@ private extension WebSocket {
             onConnect?()
         case .disconnected(let closeCode):
             guard isConnected else { break }
+
             isConnected = false
             pingTimer?.invalidate()
 
@@ -239,7 +237,7 @@ private extension WebSocket {
         }
 
         func urlSession(_ session: URLSession, task: URLSessionTask, didCompleteWithError error: Error?) {
-            if let error = error {
+            if let error {
                 eventHandler(.connnectionError(error))
             } else {
                 // Possibly not really necessary since connection closure would likely have been reported
@@ -271,18 +269,19 @@ private extension WebSocket {
 private extension WebSocket {
     func requestBackgroundExecutionTime() {
         if bgTaskIdentifier != .invalid {
-            endBackgroundExecutionTime()
+            endBackgroundTask()
         }
 
         bgTaskIdentifier = UIApplication.shared.beginBackgroundTask(
             withName: "WebSocketConnection-bgTime"
         ) { [weak self] in
-            self?.endBackgroundExecutionTime()
+            self?.endBackgroundTask()
         }
     }
 
-    func endBackgroundExecutionTime() {
+    func endBackgroundTask() {
         guard bgTaskIdentifier != .invalid else { return }
+
         UIApplication.shared.endBackgroundTask(bgTaskIdentifier)
         bgTaskIdentifier = .invalid
     }

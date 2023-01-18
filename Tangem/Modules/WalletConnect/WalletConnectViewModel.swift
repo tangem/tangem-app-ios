@@ -18,9 +18,9 @@ class WalletConnectViewModel: ObservableObject {
     @Published var showCameraDeniedAlert: Bool = false
     @Published var alert: AlertBinder?
     @Published var isServiceBusy: Bool = true
-    @Published var sessions: [WalletConnectSession] = []
+    @Published var v1Sessions: [WalletConnectSession] = []
 
-    @Published @MainActor var newSessions: [WalletConnectSavedSession] = []
+    @Published @MainActor var v2Sessions: [WalletConnectSavedSession] = []
 
     private var hasWCInPasteboard: Bool {
         guard let copiedValue = UIPasteboard.general.string else {
@@ -55,7 +55,7 @@ class WalletConnectViewModel: ObservableObject {
         bind()
     }
 
-    func disconnectSession(_ session: WalletConnectSession) {
+    func disconnectV1Session(_ session: WalletConnectSession) {
         Analytics.log(.buttonStopWalletConnectSession)
         walletConnectService.disconnectSession(with: session.id)
         withAnimation {
@@ -63,7 +63,7 @@ class WalletConnectViewModel: ObservableObject {
         }
     }
 
-    func disconnectNewSession(_ session: WalletConnectSavedSession) {
+    func disconnectV2Session(_ session: WalletConnectSavedSession) {
         Analytics.log(.buttonStopWalletConnectSession)
         Task { [weak self] in
             await self?.walletConnectService.disconnectV2Session(with: session.id)
@@ -97,10 +97,6 @@ class WalletConnectViewModel: ObservableObject {
         }
     }
 
-    func terminateAll() {
-        walletConnectService.terminateAllSessions()
-    }
-
     private func bind() {
         bag.removeAll()
 
@@ -118,7 +114,7 @@ class WalletConnectViewModel: ObservableObject {
             .sink(receiveValue: { [weak self] in
                 guard let self = self else { return }
 
-                self.sessions = $0
+                self.v1Sessions = $0
                 AppLog.shared.debug("Loaded v1 sessions: \($0)")
             })
             .store(in: &bag)
@@ -141,7 +137,7 @@ class WalletConnectViewModel: ObservableObject {
                 AppLog.shared.debug("Loaded v2 sessions: \(sessions)")
                 await MainActor.run {
                     withAnimation {
-                        self.newSessions = sessions
+                        self.v2Sessions = sessions
                     }
                 }
             }
