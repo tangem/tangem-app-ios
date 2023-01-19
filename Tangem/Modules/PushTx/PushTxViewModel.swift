@@ -144,7 +144,7 @@ class PushTxViewModel: ObservableObject {
                     self.sendError = error.alertBinder
                 } else {
                     walletModel.startUpdatingTimer()
-                    Analytics.logTx(blockchainName: blockchainNetwork.blockchain.displayName)
+                    Analytics.logTx(blockchainName: blockchainNetwork.blockchain.displayName, type: .push)
                     callback()
                 }
 
