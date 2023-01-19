@@ -438,7 +438,6 @@ extension WalletConnectService: ServerDelegate {
                     self.sessions.append(WalletConnectSession(wallet: wallet, session: session, status: .connected))
                     self.save()
                     Analytics.logWcEvent(.session(.connect, session.dAppInfo.peerMeta.url))
-                    Analytics.log(.buttonStartWalletConnectSession)
                 }
             }
 
