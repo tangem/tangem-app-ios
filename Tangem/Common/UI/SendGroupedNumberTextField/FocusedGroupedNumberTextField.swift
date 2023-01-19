@@ -36,6 +36,8 @@ struct FocusedGroupedNumberTextField<ToolbarButton: View>: View {
                 ToolbarItemGroup(placement: .keyboard) {
                     toolbarButton()
 
+                    Spacer()
+
                     Button {
                         isInputActive = false
                     } label: {
