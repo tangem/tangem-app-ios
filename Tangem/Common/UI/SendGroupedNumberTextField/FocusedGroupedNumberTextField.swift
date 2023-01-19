@@ -14,20 +14,22 @@ import SwiftUI
 struct FocusedGroupedNumberTextField<ToolbarButton: View>: View {
     @Binding private var decimalValue: Decimal?
     @FocusState private var isInputActive: Bool
-    private var maximumFractionDigits: Int = 8
+    private var maximumFractionDigits: Int
 
     private let toolbarButton: () -> ToolbarButton
 
     init(
         decimalValue: Binding<Decimal?>,
+        maximumFractionDigits: Int,
         @ViewBuilder toolbarButton: @escaping () -> ToolbarButton
     ) {
         _decimalValue = decimalValue
+        self.maximumFractionDigits = maximumFractionDigits
         self.toolbarButton = toolbarButton
     }
 
     var body: some View {
-        GroupedNumberTextField(decimalValue: $decimalValue)
+        GroupedNumberTextField(decimalValue: $decimalValue, maximumFractionDigits: maximumFractionDigits)
             .maximumFractionDigits(maximumFractionDigits)
             .focused($isInputActive)
             .toolbar {
@@ -62,7 +64,7 @@ struct FocusedNumberTextField_Previews: PreviewProvider {
 
     static var previews: some View {
         if #available(iOS 15.0, *) {
-            FocusedGroupedNumberTextField(decimalValue: $decimalValue) {}
+            FocusedGroupedNumberTextField(decimalValue: $decimalValue, maximumFractionDigits: 8) {}
         }
     }
 }
