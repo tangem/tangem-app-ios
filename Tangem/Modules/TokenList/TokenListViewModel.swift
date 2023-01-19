@@ -153,6 +153,10 @@ private extension TokenListViewModel {
             .debounce(for: 0.5, scheduler: DispatchQueue.main)
             .removeDuplicates()
             .sink { [weak self] string in
+                if !string.isEmpty {
+                    Analytics.log(.tokenSearched)
+                }
+
                 self?.loader.fetch(string)
             }
             .store(in: &bag)
