@@ -44,10 +44,10 @@ enum Analytics {
         }
     }
 
-    static func logTx(blockchainName: String?, isPushed: Bool = false) {
-        let event: Event = isPushed ? .transactionIsPushed : .transactionIsSent
-        let params = [ParameterKey.blockchain: blockchainName ?? ""]
-        log(event, params: params)
+    static func logTx(blockchainName: String?, type: TransactionType) {
+        log(type.event, params: [
+            .blockchain: blockchainName ?? "",
+        ])
     }
 
     static func logCardSdkError(_ error: TangemSdkError, for action: Action, parameters: [ParameterKey: String] = [:]) {
@@ -266,6 +266,25 @@ extension Analytics {
         }
 
         case error(Error, WalletConnectAction?), session(SessionEvent, URL), action(WalletConnectAction), invalidRequest(json: String?)
+    }
+}
+
+extension Analytics {
+    enum TransactionType {
+        case regular
+        case push
+        case sell
+
+        var event: Analytics.Event {
+            switch self {
+            case .regular:
+                return .transactionSent
+            case .push:
+                return .transactionIsPushed
+            case .sell:
+                return .userSoldCrypto
+            }
+        }
     }
 }
 
