@@ -247,7 +247,7 @@ extension Analytics {
         static func state(for toggle: Bool) -> ParameterValue {
             return toggle ? .on : .off
         }
-        
+
         static func state(for balance: Decimal) -> ParameterValue {
             return balance > 0 ? .full : .empty
         }
