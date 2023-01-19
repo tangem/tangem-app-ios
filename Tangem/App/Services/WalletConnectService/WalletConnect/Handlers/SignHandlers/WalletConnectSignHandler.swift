@@ -79,7 +79,6 @@ class WalletConnectSignHandler: TangemWalletConnectRequestHandler {
             return
         }
 
-        Analytics.log(.requestSigned)
         signerSubscription = sign(data: data,
                                   walletPublicKey: cardWallet.publicKey,
                                   signer: cardModel.signer)
@@ -89,6 +88,8 @@ class WalletConnectSignHandler: TangemWalletConnectRequestHandler {
                 }
                 self?.signerSubscription = nil
             }, receiveValue: { signature in
+                Analytics.log(.requestSigned)
+
                 completion(.success(signature))
             })
     }
