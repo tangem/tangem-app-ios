@@ -199,7 +199,6 @@ class TwinsOnboardingViewModel: OnboardingTopupViewModel<TwinsOnboardingStep, On
     }
 
     override func onOnboardingFinished(for cardId: String) {
-        Analytics.log(.twinSetupFinished)
         super.onOnboardingFinished(for: cardId)
 
         // remove pair cid
@@ -305,7 +304,6 @@ class TwinsOnboardingViewModel: OnboardingTopupViewModel<TwinsOnboardingStep, On
     }
 
     private func bind() {
-        Analytics.log(.twinSetupStarted)
         twinsService
             .isServiceBusy
             .receive(on: DispatchQueue.main)
