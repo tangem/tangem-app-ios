@@ -314,7 +314,9 @@ class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable>
                     switch twinStep {
                     case .first:
                         Analytics.log(.createWalletScreenOpened)
+                        Analytics.log(.twinSetupStarted)
                     case .topup:
+                        Analytics.log(.twinSetupFinished)
                         Analytics.log(.activationScreenOpened)
                     default:
                         break
