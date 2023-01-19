@@ -42,7 +42,7 @@ struct SendCurrencyView: View {
             switch viewModel.balance {
             case .loading:
                 SkeletonView()
-                    .frame(width: 100, height: 14)
+                    .frame(width: 100, height: 13)
                     .cornerRadius(6)
             case .loaded:
                 Text(viewModel.balanceString)
@@ -60,7 +60,7 @@ struct SendCurrencyView: View {
             switch viewModel.fiatValue {
             case .loading:
                 SkeletonView()
-                    .frame(width: 50, height: 14)
+                    .frame(width: 50, height: 13)
                     .cornerRadius(6)
             case .loaded:
                 Text(viewModel.fiatValueString)
