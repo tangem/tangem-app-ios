@@ -220,6 +220,8 @@ class TwinsOnboardingViewModel: OnboardingTopupViewModel<TwinsOnboardingStep, On
                 AppSettings.shared.cardsStartedActivation.insert(cardId)
             }
 
+            Analytics.log(.twinSetupStarted)
+
             if twinsService.step.value != .first {
                 twinsService.resetSteps()
                 stepUpdatesSubscription = nil
