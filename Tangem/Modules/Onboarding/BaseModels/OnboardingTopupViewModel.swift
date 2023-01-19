@@ -135,6 +135,8 @@ extension OnboardingTopupViewModel {
     }
 
     func openQR() {
+        Analytics.log(.buttonShowTheWalletAddress)
+
         coordinator.openQR(shareAddress: shareAddress, address: walletAddress, qrNotice: qrNoticeMessage)
     }
 
