@@ -72,7 +72,7 @@ extension Analytics {
         case claimFinished = "[Onboarding] Claim was successfully "
         case screenOpened = "[Main Screen] Screen opened"
         case buttonScanCard = "[Main Screen] Button - Scan Card"
-        case cardWasScanned = "[Main Screen] Card Was Scanned"
+        case mainCardWasScanned = "[Main Screen] Card Was Scanned"
         case buttonMyWallets = "[Main Screen] Button - My Wallets"
         case mainEnableBiometric = "[Main Screen / Biometric] Enable Biometric"
         case mainCurrencyChanged = "[Main Screen] Main Currency Changed"
