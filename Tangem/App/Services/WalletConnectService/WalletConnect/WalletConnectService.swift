@@ -221,16 +221,6 @@ extension WalletConnectService: WalletConnectHandlerDelegate {
     func send(_ response: Response, for action: WalletConnectAction) {
         server.send(response)
         Analytics.logWcEvent(.action(action))
-
-        switch action {
-        case .signTransaction, .bnbSign, .personalSign, .sendTransaction:
-            Analytics.log(.requestSigned)
-        default:
-            break
-        }
-//        if action.shouldDisplaySuccessAlert {
-//            presentOnTop(WalletConnectUIBuilder.makeAlert(for: .success, message: action.successMessage), delay: 0.5)
-//        }
     }
 
     func sendInvalid(_ request: Request) {
