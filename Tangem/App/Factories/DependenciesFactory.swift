@@ -53,4 +53,8 @@ struct DependenciesFactory {
             currencyMapper: createCurrencyMapper()
         )
     }
+
+    func createFiatRatesProvider(walletModel: WalletModel) -> FiatRatesProviding {
+        FiatRatesProvider(rates: walletModel.rates)
+    }
 }
