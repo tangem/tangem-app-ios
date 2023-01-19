@@ -167,10 +167,10 @@ class TwinsOnboardingViewModel: OnboardingTopupViewModel<TwinsOnboardingStep, On
         bind()
         loadSecondTwinImage()
     }
-    
+
     func onAppear() {
         Analytics.log(.onboardingStarted)
-        
+
         if isInitialAnimPlayed {
             return
         }
