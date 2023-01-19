@@ -11,7 +11,8 @@ import Foundation
 struct ReceiveCurrencyViewModel: Identifiable {
     var id: Int { hashValue }
 
-    private(set) var state: State
+    private(set) var valueState: State
+    private(set) var fiatValueState: State
 
     let tokenIcon: SwappingTokenIconViewModel
 
@@ -20,48 +21,45 @@ struct ReceiveCurrencyViewModel: Identifiable {
     }
 
     var value: String {
-        state.value?.groupedFormatted() ?? "0"
+        valueState.value?.groupedFormatted() ?? "0"
     }
 
     var fiatValue: String {
-        state.fiatValue?.currencyFormatted(code: AppSettings.shared.selectedCurrencyCode) ?? "0"
+        fiatValueState.value?.currencyFormatted(code: AppSettings.shared.selectedCurrencyCode) ?? "0"
     }
 
     private let balance: Decimal?
 
     init(
         balance: Decimal?,
-        state: State,
+        valueState: State,
+        fiatValueState: State,
         tokenIcon: SwappingTokenIconViewModel
     ) {
         self.balance = balance
-        self.state = state
+        self.valueState = valueState
+        self.fiatValueState = fiatValueState
         self.tokenIcon = tokenIcon
     }
 
-    mutating func updateState(_ state: State) {
-        self.state = state
+    mutating func update(valueState: State) {
+        self.valueState = valueState
+    }
+
+    mutating func update(fiatValueState: State) {
+        self.fiatValueState = fiatValueState
     }
 }
 
 extension ReceiveCurrencyViewModel {
     enum State: Hashable {
         case loading
-        case loaded(_ value: Decimal, fiatValue: Decimal)
+        case loaded(_ value: Decimal)
 
         var value: Decimal? {
             switch self {
-            case .loaded(let value, _):
+            case .loaded(let value):
                 return value
-            default:
-                return nil
-            }
-        }
-
-        var fiatValue: Decimal? {
-            switch self {
-            case .loaded(_, let fiatValue):
-                return fiatValue
             default:
                 return nil
             }
@@ -75,7 +73,8 @@ extension ReceiveCurrencyViewModel: Hashable {
     }
 
     func hash(into hasher: inout Hasher) {
-        hasher.combine(state)
+        hasher.combine(valueState)
+        hasher.combine(fiatValueState)
         hasher.combine(tokenIcon)
     }
 }
