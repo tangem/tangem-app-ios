@@ -39,6 +39,7 @@ extension Analytics {
         case shopScreenOpened = "[Shop] Shop Screen Opened"
         case purchased = "[Shop] Purchased"
         case redirected = "[Shop] Redirected"
+        case signInScreenOpened = "[Sign In] Sing In Screen Opened"
         case buttonBiometricSignIn = "[Sign In] Button - Biometric Sign In"
         case buttonCardSignIn = "[Sign In] Button - Card Sign In"
         case onboardingStarted = "[Onboarding] Onboarding Started"
