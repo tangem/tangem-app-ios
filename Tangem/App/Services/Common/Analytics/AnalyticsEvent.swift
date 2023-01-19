@@ -132,7 +132,7 @@ extension Analytics {
         case saveUserWalletSwitcherChanged = "[Settings / App Settings] Save Wallet Switcher Changed"
         case saveAccessCodeSwitcherChanged = "[Settings / App Settings] Save Access Code Switcher Changed"
         case buttonEnableBiometricAuthentication = "[Settings / App Settings] Button - Enable Biometric Authentication"
-        case walletConnectScreenOpened = "[Wallet Connect] WC screen opened"
+        case walletConnectScreenOpened = "[Wallet Connect] WC Screen Opened"
         case newSessionEstablished = "[Wallet Connect] New Session Established"
         case sessionDisconnected = "[Wallet Connect] Session Disconnected"
         case requestSigned = "[Wallet Connect] Request Signed"
