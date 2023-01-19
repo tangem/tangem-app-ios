@@ -78,10 +78,10 @@ class WelcomeViewModel: ObservableObject {
     func onDisappear() {
         navigationBarHidden = false
     }
-    
+
     private func scanCard() {
         isScanningCard = true
-        
+
         userWalletRepository.unlock(with: .card(userWallet: nil)) { [weak self] result in
             self?.isScanningCard = false
 
