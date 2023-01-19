@@ -154,7 +154,7 @@ enum Analytics {
         logAmplitude(event: .purchased, params: amplitudeDiscountParams.merging([
             .sku: sku,
             .count: "\(order.lineItems.count)",
-            .amount: "\(order.total)\(order.currencyCode)",
+            .amount: "\(order.total) \(order.currencyCode)",
         ], uniquingKeysWith: { $1 }))
     }
 
