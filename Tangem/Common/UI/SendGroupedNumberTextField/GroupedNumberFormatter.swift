@@ -11,12 +11,13 @@ import Foundation
 struct GroupedNumberFormatter {
     var maximumFractionDigits: Int { numberFormatter.maximumFractionDigits }
     var decimalSeparator: Character { Character(numberFormatter.decimalSeparator) }
+    var groupingSeparator: String { numberFormatter.groupingSeparator }
 
     private let numberFormatter: NumberFormatter
 
     init(
         numberFormatter: NumberFormatter,
-        maximumFractionDigits: Int = 8
+        maximumFractionDigits: Int
     ) {
         self.numberFormatter = numberFormatter
 
