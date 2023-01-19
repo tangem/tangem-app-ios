@@ -62,12 +62,11 @@ private extension TotalBalanceProvider {
             .receive(on: DispatchQueue.main)
             .map { walletModels -> AnyPublisher<Void, Never> in
                 return walletModels
-                    .filter { $0.state.isLoading }
                     .map { $0.walletDidChange }
                     .combineLatest()
-                /// This delay has been added because `walletDidChange` pushed the changes on `willSet`
-                    .delay(for: 0.1, scheduler: DispatchQueue.global())
                     .filter { $0.allConforms { !$0.isLoading } }
+                    /// This delay has been added because `walletDidChange` pushed the changes on `willSet`
+                    .delay(for: 0.1, scheduler: DispatchQueue.global())
                     .mapVoid()
                     .eraseToAnyPublisher()
             }
