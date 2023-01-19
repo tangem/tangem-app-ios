@@ -46,7 +46,7 @@ struct SendCurrencyView: View {
 
     private var currencyContent: some View {
         VStack(alignment: .leading, spacing: 8) {
-            SendGroupedNumberTextField(decimalValue: $decimalValue)
+            SendGroupedNumberTextField(decimalValue: $decimalValue, maximumFractionDigits: viewModel.maximumFractionDigits)
                 .maximumFractionDigits(viewModel.maximumFractionDigits)
                 .didTapMaxAmount { didTapMaxAmountAction?() }
 
