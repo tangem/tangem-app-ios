@@ -123,6 +123,8 @@ class OnboardingTopupViewModel<Step: OnboardingStep, Coordinator: OnboardingTopu
 // MARK: - Navigation
 extension OnboardingTopupViewModel {
     func openCryptoShopIfPossible() {
+        Analytics.log(.buttonBuyCrypto)
+
         if tangemApiService.geoIpRegionCode == LanguageCode.ru {
             coordinator.openBankWarning {
                 self.openBuyCrypto()
