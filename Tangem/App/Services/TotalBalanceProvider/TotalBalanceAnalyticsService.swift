@@ -32,11 +32,19 @@ class TotalBalanceAnalyticsService {
         return totalBalanceCardSupportInfo.embeddedBlockchainCurrencySymbol ?? Analytics.ParameterValue.multicurrency.rawValue
     }
 
+    private static var signedInCards: Set<String> = []
+
     init(totalBalanceCardSupportInfo: TotalBalanceCardSupportInfo) {
         self.totalBalanceCardSupportInfo = totalBalanceCardSupportInfo
     }
 
     func sendFirstLoadBalanceEventForCard(tokenItemViewModels: [TokenItemViewModel], balance: Decimal) {
+        guard !Self.signedInCards.contains(totalBalanceCardSupportInfo.cardNumberHash) else {
+            return
+        }
+
+        Self.signedInCards.insert(totalBalanceCardSupportInfo.cardNumberHash)
+
         let params: [Analytics.ParameterKey: String] = [
             .state: Analytics.ParameterValue.state(for: balance).rawValue,
             .basicCurrency: basicCurrency,
