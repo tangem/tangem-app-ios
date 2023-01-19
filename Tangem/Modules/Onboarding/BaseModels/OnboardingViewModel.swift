@@ -281,7 +281,7 @@ class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable>
             .combineLatest($steps)
             .receiveValue { index, steps in
                 guard index < steps.count else { return }
-                
+
                 let currentStep = steps[index]
 
                 if let walletStep = currentStep as? WalletOnboardingStep {
