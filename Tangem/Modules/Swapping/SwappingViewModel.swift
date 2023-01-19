@@ -445,9 +445,10 @@ private extension SwappingViewModel {
         $sendDecimalValue
             .removeDuplicates()
             .dropFirst()
-            .debounce(for: 1, scheduler: DispatchQueue.global())
+            .debounce(for: 1, scheduler: DispatchQueue.main)
             .sink { [weak self] amount in
                 self?.exchangeManager.update(amount: amount)
+                self?.updateSendFiatValue()
             }
             .store(in: &bag)
     }
