@@ -114,7 +114,7 @@ extension Analytics {
         case walletUnlockTapped = "[My Wallets] Wallet Unlock Tapped"
         case buttonEditWalletTapped = "[My Wallets] Button - Edit Wallet Tapped"
         case buttonDeleteWalletTapped = "[My Wallets] Button - Delete Wallet Tapped"
-        case buttonChat = "[Settings] Button - Chat"
+        case settingsButtonChat = "[Settings] Button - Chat"
         case buttonSendFeedback = "[Settings] Button - Send Feedback"
         case buttonWalletConnect = "[Settings] Button - Wallet Connect"
         case buttonStartWalletConnectSession = "[Settings] Button - Start Wallet Connect Session"
