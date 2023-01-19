@@ -63,6 +63,7 @@ extension Analytics {
         case twinSetupFinished = "[Onboarding / Twins] Twin Setup Finished"
         case pinCodeSet = "[Onboarding] PIN code set"
         case buttonConnect = "[Onboarding] Button - Connect"
+        case onboardingButtonChat = "[Onboarding] Button - Chat"
         case kycProgressScreenOpened = "[Onboarding] KYC started"
         case kycWaitingScreenOpened = "[Onboarding] KYC in progress"
         case kycRetryScreenOpened = "[Onboarding] KYC rejected"
