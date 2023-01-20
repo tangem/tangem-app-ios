@@ -21,55 +21,55 @@ struct Address {
     let phone: String?
 
     init(_ address: Storefront.MailingAddress) {
-        self.addressLine1 = address.address1
-        self.addressLine2 = address.address2
-        self.city         = address.city
-        self.country      = address.country
-        self.province     = address.province
-        self.zip          = address.zip
+        addressLine1 = address.address1
+        addressLine2 = address.address2
+        city = address.city
+        country = address.country
+        province = address.province
+        self.zip = address.zip
 
-        self.firstName    = address.firstName
-        self.lastName     = address.lastName
-        self.phone        = address.phone
+        firstName = address.firstName
+        lastName = address.lastName
+        phone = address.phone
     }
 
     init(_ address: PayAddress) {
-        self.addressLine1 = address.addressLine1
-        self.addressLine2 = address.addressLine2
-        self.city         = address.city
-        self.country      = address.country
-        self.province     = address.province
-        self.zip          = address.zip
+        addressLine1 = address.addressLine1
+        addressLine2 = address.addressLine2
+        city = address.city
+        country = address.country
+        province = address.province
+        self.zip = address.zip
 
-        self.firstName    = address.firstName
-        self.lastName     = address.lastName
-        self.phone        = address.phone
+        firstName = address.firstName
+        lastName = address.lastName
+        phone = address.phone
     }
 
     init(_ address: PayPostalAddress) {
-        self.city = address.city
-        self.country = address.country
-        self.province = address.province
+        city = address.city
+        country = address.country
+        province = address.province
         self.zip = address.zip
 
-        self.addressLine1 = nil
-        self.addressLine2 = nil
-        self.firstName = nil
-        self.lastName = nil
-        self.phone = nil
+        addressLine1 = nil
+        addressLine2 = nil
+        firstName = nil
+        lastName = nil
+        phone = nil
     }
 
     init(_ address: CNPostalAddress) {
-        self.country = address.country
-        self.province = address.state
-        self.city = address.city
-        self.addressLine1 = address.street
-        self.addressLine2 = address.subLocality
+        country = address.country
+        province = address.state
+        city = address.city
+        addressLine1 = address.street
+        addressLine2 = address.subLocality
         self.zip = address.postalCode
 
-        self.firstName = nil
-        self.lastName = nil
-        self.phone = nil
+        firstName = nil
+        lastName = nil
+        phone = nil
     }
 }
 
@@ -104,8 +104,7 @@ extension Address {
 extension Storefront.MailingAddressQuery {
     @discardableResult
     func addressFieldsFragment() -> Storefront.MailingAddressQuery {
-        self
-            .address1()
+        address1()
             .address2()
             .city()
             .country()

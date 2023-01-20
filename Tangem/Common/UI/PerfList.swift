@@ -47,7 +47,8 @@ struct PerfListDivider: View {
 }
 
 extension View {
-    @ViewBuilder func perfListPadding() -> some View {
+    @ViewBuilder
+    func perfListPadding() -> some View {
         if #available(iOS 14.0, *) {
             self.padding(.horizontal)
         } else {
