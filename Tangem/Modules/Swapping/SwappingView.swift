@@ -22,6 +22,8 @@ struct SwappingView: View {
             GroupedScrollView(spacing: 14) {
                 swappingViews
 
+                permissionInfoSection
+
                 refreshWarningSection
 
                 informationSection
@@ -31,7 +33,8 @@ struct SwappingView: View {
             .keyboardAdaptive()
             .scrollDismissesKeyboardCompat(true)
         }
-        .navigationBarTitle(Text("swapping_swap".localized), displayMode: .inline)
+        .navigationBarTitle(Text(Localization.swappingSwap), displayMode: .inline)
+        .alert(item: $viewModel.errorAlert, content: { $0.alert })
     }
 
     @ViewBuilder
@@ -43,6 +46,7 @@ struct SwappingView: View {
                         viewModel: sendCurrencyViewModel,
                         decimalValue: $viewModel.sendDecimalValue
                     )
+                    .didTapMaxAmount(viewModel.userDidTapMaxAmount)
                 }
 
                 if let receiveCurrencyViewModel = viewModel.receiveCurrencyViewModel {
@@ -81,6 +85,14 @@ struct SwappingView: View {
     }
 
     @ViewBuilder
+    private var permissionInfoSection: some View {
+        GroupedSection(viewModel.permissionInfoRowViewModel) {
+            DefaultWarningRow(viewModel: $0)
+        }
+        .verticalPadding(0)
+    }
+
+    @ViewBuilder
     private var refreshWarningSection: some View {
         GroupedSection(viewModel.refreshWarningRowViewModel) {
             DefaultWarningRow(viewModel: $0)
@@ -92,9 +104,9 @@ struct SwappingView: View {
     private var informationSection: some View {
         GroupedSection(viewModel.informationSectionViewModels) { item in
             switch item {
-            case let .fee(viewModel):
+            case .fee(let viewModel):
                 SwappingFeeRowView(viewModel: viewModel)
-            case let .warning(viewModel):
+            case .warning(let viewModel):
                 DefaultWarningRow(viewModel: viewModel)
             }
         }
