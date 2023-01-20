@@ -14,7 +14,7 @@ extension Set where Element: Option {
     var rawValue: Int {
         var rawValue = 0
         for (index, element) in Element.allCases.enumerated() {
-            if self.contains(element) {
+            if contains(element) {
                 rawValue |= (1 << index)
             }
         }
