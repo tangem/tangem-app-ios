@@ -35,9 +35,9 @@ extension ExchangeTarget: TargetType {
 
     var task: Task {
         switch self {
-        case let .quote(parameters):
+        case .quote(let parameters):
             return .requestParameters(parameters)
-        case let .swap(parameters):
+        case .swap(let parameters):
             return .requestParameters(parameters)
         }
     }
