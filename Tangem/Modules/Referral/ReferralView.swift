@@ -21,7 +21,7 @@ struct ReferralView: View {
                         .aspectRatio(contentMode: .fit)
                         .padding(.horizontal, 40)
 
-                    Text("referral_title".localized)
+                    Text(Localization.referralTitle)
                         .style(Fonts.Bold.title1, color: Colors.Text.primary1)
                         .multilineTextAlignment(.center)
                         .lineLimit(2)
@@ -31,20 +31,17 @@ struct ReferralView: View {
 
                     content
                         .padding(.bottom, max(geometry.safeAreaInsets.bottom, 10))
-
                 }
                 .frame(width: geometry.size.width)
                 .frame(minHeight: geometry.size.height + geometry.safeAreaInsets.bottom)
-
             }
             .edgesIgnoringSafeArea(.bottom)
-            .toast(isPresenting: $viewModel.showCodeCopiedToast, alert: {
-                AlertToast(type: .complete(Color.tangemGreen), title: "referral_promo_code_copied".localized)
+            .toast(isPresenting: $viewModel.showCodeCopiedToast) {
+                AlertToast(type: .complete(Color.tangemGreen), title: Localization.referralPromoCodeCopied)
             }
-            )
         }
         .alert(item: $viewModel.errorAlert, content: { $0.alert })
-        .navigationBarTitle("details_referral_title", displayMode: .inline)
+        .navigationBarTitle(Text(Localization.detailsReferralTitle), displayMode: .inline)
         .background(Colors.Background.secondary.edgesIgnoringSafeArea(.all))
     }
 
@@ -62,9 +59,9 @@ struct ReferralView: View {
         VStack(spacing: 0) {
             IconWithMessageView(
                 Assets.cryptoCurrencies,
-                header: { Text("referral_point_currencies_title") },
+                header: { Text(Localization.referralPointCurrenciesTitle) },
                 description: {
-                    Text("referral_point_currencies_description_prefix".localized + " ") +
+                    Text(Localization.referralPointCurrenciesDescriptionPrefix + " ") +
                         Text(viewModel.award).foregroundColor(Colors.Text.primary1) +
                         Text(viewModel.awardDescriptionSuffix)
                 }
@@ -72,13 +69,14 @@ struct ReferralView: View {
 
             IconWithMessageView(
                 Assets.discount,
-                header: { Text("referral_point_discount_title") },
+                header: { Text(Localization.referralPointDiscountTitle) },
                 description: {
-                    Text("referral_point_discount_description_prefix".localized + " ") +
+                    Text(Localization.referralPointDiscountDescriptionPrefix + " ") +
                         Text(viewModel.discount).foregroundColor(Colors.Text.primary1) +
-                        Text(" " + "referral_point_discount_description_suffix".localized)
-                })
-                .padding(.top, viewModel.isAlreadyReferral ? 20 : 38)
+                        Text(" " + Localization.referralPointDiscountDescriptionSuffix)
+                }
+            )
+            .padding(.top, viewModel.isAlreadyReferral ? 20 : 38)
 
             Spacer()
 
@@ -107,8 +105,8 @@ struct ReferralView: View {
     private var tosButton: some View {
         Button(action: viewModel.openTOS) {
             Text(viewModel.tosButtonPrefix) +
-                Text("common_terms_and_conditions").foregroundColor(Colors.Text.accent) +
-                Text(" " + "referral_tos_suffix".localized)
+                Text(Localization.commonTermsAndConditions).foregroundColor(Colors.Text.accent) +
+                Text(" " + Localization.referralTosSuffix)
         }
         .multilineTextAlignment(.center)
         .fixedSize(horizontal: false, vertical: true)
@@ -123,7 +121,7 @@ struct ReferralView: View {
             Spacer()
 
             HStack {
-                Text("referral_friends_bought_title")
+                Text(Localization.referralFriendsBoughtTitle)
                     .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
 
                 Spacer()
@@ -131,19 +129,25 @@ struct ReferralView: View {
                 Text(viewModel.numberOfWalletsBought)
                     .style(Fonts.Regular.subheadline, color: Colors.Text.primary1)
             }
-            .roundedBackground(with: Colors.Background.primary,
-                               padding: 16,
-                               radius: 14)
+            .roundedBackground(
+                with: Colors.Background.primary,
+                padding: 16,
+                radius: 14
+            )
             .padding(.top, 24)
 
             VStack(spacing: 8) {
-                Text("referral_promo_code_title")
-                    .style(Fonts.Bold.footnote,
-                           color: Colors.Text.tertiary)
+                Text(Localization.referralPromoCodeTitle)
+                    .style(
+                        Fonts.Bold.footnote,
+                        color: Colors.Text.tertiary
+                    )
 
                 Text(viewModel.promoCode)
-                    .style(Fonts.Regular.title1,
-                           color: Colors.Text.primary1)
+                    .style(
+                        Fonts.Regular.title1,
+                        color: Colors.Text.primary1
+                    )
                     .fixedSize(horizontal: false, vertical: true)
             }
             .frame(maxWidth: .infinity)
@@ -153,21 +157,29 @@ struct ReferralView: View {
             .cornerRadius(14)
 
             HStack(spacing: 12) {
-                TangemButton(title: "common_copy",
-                             systemImage: "square.on.square",
-                             iconPosition: .leading,
-                             iconPadding: 10,
-                             action: viewModel.copyPromoCode)
-                    .buttonStyle(TangemButtonStyle(colorStyle: .black,
-                                                   layout: .flexibleWidth))
+                TangemButton(
+                    title: Localization.commonCopy,
+                    systemImage: "square.on.square",
+                    iconPosition: .leading,
+                    iconPadding: 10,
+                    action: viewModel.copyPromoCode
+                )
+                .buttonStyle(TangemButtonStyle(
+                    colorStyle: .black,
+                    layout: .flexibleWidth
+                ))
 
-                TangemButton(title: "common_share",
-                             systemImage: "arrowshape.turn.up.forward",
-                             iconPosition: .leading,
-                             iconPadding: 10,
-                             action: showShareSheet)
-                    .buttonStyle(TangemButtonStyle(colorStyle: .black,
-                                                   layout: .flexibleWidth))
+                TangemButton(
+                    title: Localization.commonShare,
+                    systemImage: "arrowshape.turn.up.forward",
+                    iconPosition: .leading,
+                    iconPadding: 10,
+                    action: viewModel.sharePromoCode
+                )
+                .buttonStyle(TangemButtonStyle(
+                    colorStyle: .black,
+                    layout: .flexibleWidth
+                ))
             }
 
             tosButton
@@ -180,7 +192,7 @@ struct ReferralView: View {
             tosButton
 
             TangemButton(
-                title: "referral_button_participate",
+                title: Localization.referralButtonParticipate,
                 image: "tangemIcon",
                 iconPosition: .trailing,
                 iconPadding: 10,
@@ -189,16 +201,13 @@ struct ReferralView: View {
                 }
             )
             .buttonStyle(
-                TangemButtonStyle(colorStyle: .black,
-                                  layout: .flexibleWidth,
-                                  isLoading: viewModel.isProcessingRequest)
+                TangemButtonStyle(
+                    colorStyle: .black,
+                    layout: .flexibleWidth,
+                    isLoading: viewModel.isProcessingRequest
+                )
             )
         }
-    }
-
-    private func showShareSheet() {
-        let av = UIActivityViewController(activityItems: [viewModel.shareLink], applicationActivities: nil)
-        UIApplication.topViewController?.present(av, animated: true, completion: nil)
     }
 }
 
@@ -207,18 +216,21 @@ struct ReferralView_Previews: PreviewProvider {
     static var previews: some View {
         NavigationView {
             ReferralView(
-                viewModel: ReferralViewModel(cardModel: demoCard.cardModel,
-                                             userWalletId: Data(),
-                                             coordinator: ReferralCoordinator())
+                viewModel: ReferralViewModel(
+                    cardModel: demoCard.cardModel,
+                    userWalletId: Data(),
+                    coordinator: ReferralCoordinator()
+                )
             )
         }
         .previewGroup(devices: [.iPhone7], withZoomed: false)
 
         NavigationView {
             ReferralView(
-                viewModel: ReferralViewModel(cardModel: demoCard.cardModel,
-                                             userWalletId: Data(hexString: "6772C99F8B400E6F59FFCE0C4A66193BFD49DE2D9738868DE36F5E16569BB4F9"),
-                                             coordinator: ReferralCoordinator()
+                viewModel: ReferralViewModel(
+                    cardModel: demoCard.cardModel,
+                    userWalletId: Data(hexString: "6772C99F8B400E6F59FFCE0C4A66193BFD49DE2D9738868DE36F5E16569BB4F9"),
+                    coordinator: ReferralCoordinator()
                 )
             )
         }

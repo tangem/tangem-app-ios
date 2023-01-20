@@ -28,6 +28,7 @@ extension Analytics {
         case demoActivated = "demo_mode_activated"
 
         // MARK: - Amplitude
+
         case signedIn = "[Basic] Signed in"
         case toppedUp = "[Basic] Topped up"
         case buttonTokensList = "[Introduction Process] Button - Tokens List"
@@ -73,7 +74,6 @@ extension Analytics {
         case buttonScanCard = "[Main Screen] Button - Scan Card"
         case cardWasScanned = "[Main Screen] Card Was Scanned"
         case buttonMyWallets = "[Main Screen] Button - My Wallets"
-        case mainEnableBiometric = "[Main Screen / Biometric] Enable Biometric"
         case mainCurrencyChanged = "[Main Screen] Main Currency Changed"
         case noticeRateTheAppButtonTapped = "[Main Screen] Notice - Rate The App Button Tapped"
         case noticeBackupYourWalletTapped = "[Main Screen] Notice - Backup Your Wallet Tapped"
@@ -116,6 +116,7 @@ extension Analytics {
         case buttonDeleteWalletTapped = "[My Wallets] Button - Delete Wallet Tapped"
         case buttonChat = "[Settings] Button - Chat"
         case buttonSendFeedback = "[Settings] Button - Send Feedback"
+        case buttonWalletConnect = "[Settings] Button - Wallet Connect"
         case buttonStartWalletConnectSession = "[Settings] Button - Start Wallet Connect Session"
         case buttonStopWalletConnectSession = "[Settings] Button - Stop Wallet Connect Session"
         case buttonCardSettings = "[Settings] Button - Card Settings"
@@ -131,13 +132,23 @@ extension Analytics {
         case saveUserWalletSwitcherChanged = "[Settings / App Settings] Save Wallet Switcher Changed"
         case saveAccessCodeSwitcherChanged = "[Settings / App Settings] Save Access Code Switcher Changed"
         case buttonEnableBiometricAuthentication = "[Settings / App Settings] Button - Enable Biometric Authentication"
+        case walletConnectScreenOpened = "[Wallet Connect] WC screen opened"
         case newSessionEstablished = "[Wallet Connect] New Session Established"
         case sessionDisconnected = "[Wallet Connect] Session Disconnected"
         case requestSigned = "[Wallet Connect] Request Signed"
         case chatScreenOpened = "[Chat] Chat Screen Opened"
         case settingsScreenOpened = "[Settings] Settings Screen Opened"
 
+        // MARK: - Referral program
+
+        case referralScreenOpened = "[Referral Program] Referral Screen Opened"
+        case referralButtonParticipate = "[Referral Program] Button - Participate"
+        case referralButtonCopyCode = "[Referral Program] Button - Copy"
+        case referralButtonShareCode = "[Referral Program] Button - Share"
+        case referralButtonOpenTos = "[Referral Program] Link - TaC"
+
         // MARK: -
+
         fileprivate static var nfcError: String {
             "nfc_error"
         }
