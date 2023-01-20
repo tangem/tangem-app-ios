@@ -60,9 +60,9 @@ struct ReceiveCurrencyView: View {
             switch viewModel.valueState {
             case .loading:
                 SkeletonView()
-                    .frame(width: 102, height: 20)
+                    .frame(width: 102, height: 24)
                     .cornerRadius(6)
-                    .padding(.vertical, 4)
+                    .padding(.vertical, 6)
 
             case .loaded:
                 Text(viewModel.value)
@@ -74,7 +74,7 @@ struct ReceiveCurrencyView: View {
             switch viewModel.fiatValueState {
             case .loading:
                 SkeletonView()
-                    .frame(width: 40, height: 11)
+                    .frame(width: 40, height: 13)
                     .cornerRadius(6)
             case .loaded:
                 Text(viewModel.fiatValue)
