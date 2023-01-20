@@ -16,15 +16,11 @@ class UserWalletEncryptionKeyStorage {
     private let biometricsStorage = BiometricsStorage()
     private let userWalletIdsStorageKey = "user_wallet_ids"
 
-    init() {
-
-    }
-
     func fetch(completion: @escaping (Result<[Data: SymmetricKey], Error>) -> Void) {
         do {
             let userWalletIds = try userWalletIds()
 
-            let reason = "biometry_touch_id_reason".localized
+            let reason = Localization.biometryTouchIdReason
             BiometricsUtil.requestAccess(localizedReason: reason) { [weak self] result in
                 guard let self else { return }
 
@@ -45,12 +41,12 @@ class UserWalletEncryptionKeyStorage {
 
                         completion(.success(keys))
                     } catch {
-                        print("Failed to get encryption key for UserWallet", error)
+                        AppLog.shared.error(error)
                         completion(.failure(error))
                     }
                 }
             }
-        } catch let error {
+        } catch {
             completion(.failure(error))
         }
     }
@@ -59,7 +55,7 @@ class UserWalletEncryptionKeyStorage {
         let cardInfo = userWallet.cardInfo()
 
         guard let encryptionKey = UserWalletEncryptionKeyFactory().encryptionKey(from: cardInfo) else {
-            print("Failed to get encryption key for UserWallet")
+            AppLog.shared.debug("Failed to get encryption key for UserWallet")
             return
         }
 
@@ -74,7 +70,8 @@ class UserWalletEncryptionKeyStorage {
             let encryptionKeyData = encryptionKey.symmetricKey.dataRepresentationWithHexConversion
             try biometricsStorage.store(encryptionKeyData, forKey: encryptionKeyStorageKey(for: userWallet))
         } catch {
-            print("Failed to add UserWallet ID to the list: \(error)")
+            AppLog.shared.debug("Failed to add UserWallet ID to the list")
+            AppLog.shared.error(error)
             return
         }
     }
@@ -90,7 +87,8 @@ class UserWalletEncryptionKeyStorage {
                 try accessCodeRepository.deleteAccessCode(for: Array(userWallet.associatedCardIds))
             }
         } catch {
-            print("Failed to delete user wallet list encryption key: \(error)")
+            AppLog.shared.debug("Failed to delete user wallet list encryption key")
+            AppLog.shared.error(error)
         }
     }
 
@@ -102,7 +100,8 @@ class UserWalletEncryptionKeyStorage {
                 try biometricsStorage.delete(encryptionKeyStorageKey(for: userWalletId))
             }
         } catch {
-            print("Failed to clear user wallet encryption keys: \(error)")
+            AppLog.shared.debug("Failed to clear user wallet encryption keys")
+            AppLog.shared.error(error)
         }
     }
 
