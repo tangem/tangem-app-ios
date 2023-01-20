@@ -79,7 +79,6 @@ extension DetailsCoordinator: DetailsRoutable {
     }
 
     func openWalletConnect(with cardModel: CardViewModel) {
-        Analytics.log(.myWalletsScreenOpened)
         let coordinator = WalletConnectCoordinator()
         let options = WalletConnectCoordinator.Options(cardModel: cardModel)
         coordinator.start(with: options)
@@ -121,6 +120,7 @@ extension DetailsCoordinator: DetailsRoutable {
         let coordinator = ReferralCoordinator(dismissAction: dismissAction)
         coordinator.start(with: .init(cardModel: cardModel, userWalletId: userWalletId))
         referralCoordinator = coordinator
+        Analytics.log(.referralScreenOpened)
     }
 }
 

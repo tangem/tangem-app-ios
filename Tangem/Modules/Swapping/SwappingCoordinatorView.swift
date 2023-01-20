@@ -33,14 +33,16 @@ struct SwappingCoordinatorView: CoordinatorView {
             }
 
         NavHolder()
-            .bottomSheet(item: $coordinator.swappingPermissionViewModel,
-                         viewModelSettings: .swappingPermission) {
+            .bottomSheet(
+                item: $coordinator.swappingPermissionViewModel,
+                viewModelSettings: .swappingPermission
+            ) {
                 SwappingPermissionView(viewModel: $0)
             }
 
         NavHolder()
-            .sheet(item: $coordinator.successSwappingViewModel) {
-                SuccessSwappingView(viewModel: $0)
+            .sheet(item: $coordinator.successSwappingCoordinator) {
+                SuccessSwappingCoordinatorView(coordinator: $0)
             }
     }
 }
