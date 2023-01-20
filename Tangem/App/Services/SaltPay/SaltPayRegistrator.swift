@@ -55,12 +55,12 @@ class SaltPayRegistrator {
     private let cardPublicKey: Data
     private let walletPublicKey: Data
     private var bag: Set<AnyCancellable> = .init()
-    private var pin: String? = nil
-    private var hasGas: Bool? = nil
-    private var registrationState: RegistrationResponse.Item? = nil
-    private var registrationTask: RegistrationTask? = nil
-    private var accessCode: String? = nil
-    private var claimableAmount: Amount? = nil
+    private var pin: String?
+    private var hasGas: Bool?
+    private var registrationState: RegistrationResponse.Item?
+    private var registrationTask: RegistrationTask?
+    private var accessCode: String?
+    private var claimableAmount: Amount?
 
     private let approvalValue: Decimal = .greatestFiniteMagnitude
     private let spendLimitValue: Decimal = 100
@@ -99,7 +99,7 @@ class SaltPayRegistrator {
             .sink { [weak self] completionResult in
                 guard let self = self else { return }
 
-                if case let .failure(error) = completionResult {
+                if case .failure(let error) = completionResult {
                     self.error = error.alertBinder
                 }
 
@@ -183,20 +183,24 @@ class SaltPayRegistrator {
             .flatMap { [weak self] attestationResponse -> AnyPublisher<RegistrationTask.Response, Error> in
                 guard let self = self else { return .anyFail(error: SaltPayRegistratorError.empty) }
 
-                let task = RegistrationTask(gnosis: self.gnosis,
-                                            challenge: attestationResponse.challenge,
-                                            walletPublicKey: self.walletPublicKey,
-                                            approvalValue: self.approvalValue,
-                                            spendLimitValue: self.spendLimitValue)
+                let task = RegistrationTask(
+                    gnosis: self.gnosis,
+                    challenge: attestationResponse.challenge,
+                    walletPublicKey: self.walletPublicKey,
+                    approvalValue: self.approvalValue,
+                    spendLimitValue: self.spendLimitValue
+                )
 
                 self.registrationTask = task
 
-                return self.tangemSdkProvider.sdk.startSessionPublisher(with: task,
-                                                                        cardId: self.cardId,
-                                                                        initialMessage: nil,
-                                                                        accessCode: self.accessCode)
-                    .eraseToAnyPublisher()
-                    .eraseError()
+                return self.tangemSdkProvider.sdk.startSessionPublisher(
+                    with: task,
+                    cardId: self.cardId,
+                    initialMessage: nil,
+                    accessCode: self.accessCode
+                )
+                .eraseToAnyPublisher()
+                .eraseError()
             }
             .flatMap { [gnosis] response -> AnyPublisher<RegistrationTask.RegistrationTaskResponse, Error> in
 //                return Just(response) // [REDACTED_TODO_COMMENT]
@@ -219,14 +223,16 @@ class SaltPayRegistrator {
                 let cardSalt = response.attestResponse.publicKeySalt ?? Data()
                 let cardSignature = response.attestResponse.cardSignature ?? Data()
 
-                let request = ReqisterWalletRequest(cardId: self.cardId,
-                                                    publicKey: self.cardPublicKey,
-                                                    walletPublicKey: self.walletPublicKey,
-                                                    walletSalt: response.attestResponse.salt,
-                                                    walletSignature: response.attestResponse.walletSignature,
-                                                    cardSalt: cardSalt,
-                                                    cardSignature: cardSignature,
-                                                    pin: pin)
+                let request = ReqisterWalletRequest(
+                    cardId: self.cardId,
+                    publicKey: self.cardPublicKey,
+                    walletPublicKey: self.walletPublicKey,
+                    walletSalt: response.attestResponse.salt,
+                    walletSignature: response.attestResponse.walletSignature,
+                    cardSalt: cardSalt,
+                    cardSignature: cardSignature,
+                    pin: pin
+                )
 
                 return self.api.registerWallet(request: request)
                     // .replaceError(with: RegisterWalletResponse(error: nil, errorCode: nil, success: true)) //[REDACTED_TODO_COMMENT]
@@ -234,7 +240,7 @@ class SaltPayRegistrator {
                     .eraseToAnyPublisher()
             }
             .sink { [weak self] completion in
-                if case let .failure(error) = completion {
+                if case .failure(let error) = completion {
                     self?.error = error.alertBinder
                 }
 
@@ -253,9 +259,9 @@ class SaltPayRegistrator {
 
         if registrationState.active == true {
             if canClaim {
-                newState = .claim  // active is true, can claim, go to claim screen
+                newState = .claim // active is true, can claim, go to claim screen
             } else {
-                newState = .finished  // active is true, go to success screen
+                newState = .finished // active is true, go to success screen
             }
         } else if registrationState.pinSet != true {
             if pin == nil {
@@ -274,9 +280,9 @@ class SaltPayRegistrator {
                     newState = .kycWaiting
                 case .approved: // Handled by registrationState.active == true ?
                     if canClaim {
-                        newState = .claim  // active is true, can claim, go to claim screen
+                        newState = .claim // active is true, can claim, go to claim screen
                     } else {
-                        newState = .finished  // active is true, go to success screen
+                        newState = .finished // active is true, go to success screen
                     }
                 }
             } else {
@@ -285,17 +291,19 @@ class SaltPayRegistrator {
         }
 
         if newState != state {
-            self.state = newState
+            state = newState
         }
     }
 
     public func registerKYC() {
-        let request = RegisterKYCRequest(cardId: cardId,
-                                         publicKey: cardPublicKey,
-                                         kycProvider: "UTORG",
-                                         kycRefId: kycRefId)
+        let request = RegisterKYCRequest(
+            cardId: cardId,
+            publicKey: cardPublicKey,
+            kycProvider: "UTORG",
+            kycRefId: kycRefId
+        )
 
-        self.state = .kycWaiting
+        state = .kycWaiting
 
         api.registerKYC(request: request)
             .map { _ in }
@@ -304,7 +312,7 @@ class SaltPayRegistrator {
     }
 
     private func checkGasIfNeeded() -> AnyPublisher<Void, Error> {
-        guard (state == .registration || state == .needPin) else {
+        guard state == .registration || state == .needPin else {
             return .justWithError(output: ())
         }
 
@@ -314,7 +322,7 @@ class SaltPayRegistrator {
                 self?.updateState()
             })
             .mapError { error in
-                Analytics.log(error: error)
+                AppLog.shared.error(error)
                 return SaltPayRegistratorError.blockchainError
             }
             .tryMap { hasGas in
@@ -326,7 +334,7 @@ class SaltPayRegistrator {
     }
 
     private func checkCanClaimIfNeeded() -> AnyPublisher<Void, Error> {
-        guard !self.canClaim else {
+        guard !canClaim else {
             return .justWithError(output: ())
         }
 
@@ -345,7 +353,7 @@ class SaltPayRegistrator {
                 self?.registrationState = response
                 self?.updateState()
             })
-            .tryMap { response -> Void in
+            .tryMap { response in
                 guard response.passed == true else { // passed is false, show error
                     throw SaltPayRegistratorError.cardNotPassed
                 }

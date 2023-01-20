@@ -10,8 +10,8 @@ import SwiftUI
 
 struct CustomContentView: View {
     let imageType: ImageType
-    let title: LocalizedStringKey
-    let subtitle: LocalizedStringKey
+    let title: String
+    let subtitle: String
 
     var body: some View {
         VStack(spacing: 14) {
@@ -35,8 +35,10 @@ struct CustomContentView: View {
 
 struct CustomContentView_Previews: PreviewProvider {
     static var previews: some View {
-        CustomContentView(imageType: Assets.passport,
-                          title: "onboarding_title_pin",
-                          subtitle: "onboarding_subtitle_pin")
+        CustomContentView(
+            imageType: Assets.passport,
+            title: Localization.onboardingTitlePin,
+            subtitle: Localization.onboardingSubtitlePin
+        )
     }
 }

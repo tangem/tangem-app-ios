@@ -53,4 +53,3 @@ extension DefaultRowViewModel {
         case icon(_ image: ImageType)
     }
 }
-

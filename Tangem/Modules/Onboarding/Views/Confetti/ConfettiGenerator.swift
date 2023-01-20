@@ -40,7 +40,6 @@ struct ConfettiGeneratorSettings {
 }
 
 class ConfettiGenerator {
-
     static let shared = ConfettiGenerator()
 
     private let defaultColors: [UIColor] = [
@@ -93,6 +92,7 @@ class ConfettiGenerator {
 
         return emitterLayer
     }
+
     private func createConfettiCells(confettiLifetime: Float) -> [CAEmitterCell] {
         return confettiTypes.map { confettiType in
             let cell = CAEmitterCell()
@@ -138,7 +138,6 @@ class ConfettiGenerator {
         return behavior
     }
 
-
     private func attractorBehavior(for emitterLayer: CAEmitterLayer) -> Any {
         let behavior = createBehavior(type: "attractor")
         behavior.setValue("attractor", forKeyPath: "name")
@@ -147,9 +146,13 @@ class ConfettiGenerator {
         behavior.setValue(125, forKeyPath: "radius")
         behavior.setValue(10, forKeyPath: "stiffness")
 
-        behavior.setValue(CGPoint(x: emitterLayer.emitterPosition.x,
-                                  y: emitterLayer.emitterPosition.y + 20),
-                          forKeyPath: "position")
+        behavior.setValue(
+            CGPoint(
+                x: emitterLayer.emitterPosition.x,
+                y: emitterLayer.emitterPosition.y + 20
+            ),
+            forKeyPath: "position"
+        )
         behavior.setValue(-50, forKeyPath: "zPosition")
 
         return behavior
@@ -206,7 +209,7 @@ class ConfettiGenerator {
 //        animation.fromValue = 0
 //        animation.toValue = 3
 
-        layer.add(animation, forKey:  "emitterBehaviors.drag.drag")
+        layer.add(animation, forKey: "emitterBehaviors.drag.drag")
     }
 
     private func addGravityAnimation(to layer: CALayer, generationDuration: Double) {
@@ -214,7 +217,6 @@ class ConfettiGenerator {
         animation.duration = 6 * (generationDuration / 2 + 0.5)
         animation.keyTimes = [0.0, 0.3, 0.5, 1]
         animation.values = [0, 100, 500, -150]
-
 
         for image in confettiTypes {
             layer.add(animation, forKey: "emitterCells.\(image.name).yAcceleration")
@@ -237,13 +239,11 @@ class ConfettiGenerator {
         emitterLayer.birthRate = 0
         emitterLayer.emitterCells = createConfettiCells(confettiLifetime: confettiLifetime)
         emitterLayer.emitterPosition = emitterPosition // CGPoint(x: UIScreen.main.bounds.midX, y: UIScreen.main.bounds.minY - 150)
-        emitterLayer.emitterSize =  emitterSize // CGSize(width: 100, height: 120)
+        emitterLayer.emitterSize = emitterSize // CGSize(width: 100, height: 120)
         emitterLayer.emitterShape = .sphere
         emitterLayer.frame = UIScreen.main.bounds
 
         emitterLayer.beginTime = CACurrentMediaTime()
         return emitterLayer
     }
-
 }
-

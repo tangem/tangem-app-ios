@@ -10,12 +10,12 @@ import TangemSdk
 import BlockchainSdk
 
 class PreparePrimaryCardTask: CardSessionRunnable {
-    var allowsAccessCodeFromRepository: Bool { false }
+    var shouldAskForAccessCode: Bool { false }
 
-    private var linkingCommand: StartPrimaryCardLinkingTask? = nil
+    private var linkingCommand: StartPrimaryCardLinkingTask?
 
     deinit {
-        print("PreparePrimaryCardTask deinit")
+        AppLog.shared.debug("PreparePrimaryCardTask deinit")
     }
 
     func run(in session: CardSession, completion: @escaping CompletionResult<PreparePrimaryCardTaskResponse>) {
@@ -37,7 +37,10 @@ class PreparePrimaryCardTask: CardSessionRunnable {
         sdkConfig.defaultDerivationPaths = derivations
         session.updateConfig(with: sdkConfig)
 
-        let curves: [EllipticCurve] = card.settings.maxWalletsCount > 1 ? [.secp256k1, .ed25519] : [.secp256k1]
+        let existingCurves = card.wallets.map { $0.curve }
+        let requiredCurves: [EllipticCurve] = card.settings.maxWalletsCount > 1 ? [.secp256k1, .ed25519] : [.secp256k1]
+        let curves = requiredCurves.filter { !existingCurves.contains($0) }
+
         let createWalletsTask = CreateMultiWalletTask(curves: curves)
         createWalletsTask.run(in: session) { result in
             switch result {
