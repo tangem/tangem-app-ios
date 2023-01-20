@@ -24,7 +24,6 @@ class WelcomeViewModel: ObservableObject {
 
     private var storiesModelSubscription: AnyCancellable? = nil
     private var shouldScanOnAppear: Bool = false
-    private var lastScanInitiatorSource: ScanInitiatorSource?
 
     private unowned let coordinator: WelcomeRoutable
 
@@ -40,14 +39,12 @@ class WelcomeViewModel: ObservableObject {
     }
 
     func scanCardTapped() {
-        Analytics.log(.introductionProcessButtonScanCard)
-        scanCard(source: .internal)
+        Analytics.beginLoggingCardScan(source: .welcome)
+        scanCard()
     }
 
     func tryAgain() {
-        guard let lastScanInitiatorSource else { return }
-
-        scanCard(source: lastScanInitiatorSource)
+        scanCard()
     }
 
     func requestSupport() {
@@ -73,7 +70,7 @@ class WelcomeViewModel: ObservableObject {
     func onDidAppear() {
         if shouldScanOnAppear {
             DispatchQueue.main.async {
-                self.scanCard(source: .external)
+                self.scanCard()
             }
         }
     }
@@ -82,10 +79,8 @@ class WelcomeViewModel: ObservableObject {
         navigationBarHidden = false
     }
 
-    private func scanCard(source: ScanInitiatorSource) {
+    private func scanCard() {
         isScanningCard = true
-
-        lastScanInitiatorSource = source
 
         userWalletRepository.unlock(with: .card(userWallet: nil)) { [weak self] result in
             self?.isScanningCard = false
@@ -94,10 +89,6 @@ class WelcomeViewModel: ObservableObject {
                 let self, let result
             else {
                 return
-            }
-
-            if result.hasScannedCard {
-                Analytics.log(source.event)
             }
 
             switch result {
@@ -158,23 +149,5 @@ extension WelcomeViewModel: WelcomeViewLifecycleListener {
 
     func becomeActive() {
         storiesModel.becomeActive()
-    }
-}
-
-extension WelcomeViewModel {
-    enum ScanInitiatorSource {
-        case `internal`
-        case external
-    }
-}
-
-extension WelcomeViewModel.ScanInitiatorSource {
-    var event: Analytics.Event {
-        switch self {
-        case .internal:
-            return .introductionProcessCardWasScanned
-        case .external:
-            return .mainCardWasScanned
-        }
     }
 }
