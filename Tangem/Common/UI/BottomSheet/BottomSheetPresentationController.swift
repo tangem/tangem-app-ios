@@ -166,7 +166,7 @@ class BottomSheetPresentationController: UIPresentationController {
     }
 
     func incrementHeight(by value: CGFloat) {
-        let currentHeight = self.currentHeight == 0 ? (presentedView?.frame.height ?? 0) : self.currentHeight
+        let currentHeight = currentHeight == 0 ? (presentedView?.frame.height ?? 0) : currentHeight
         let incrementedHeight = currentHeight + value
         let changedHeight = incrementedHeight > maxHeight ? maxHeight : incrementedHeight
         self.currentHeight = changedHeight
@@ -174,14 +174,14 @@ class BottomSheetPresentationController: UIPresentationController {
     }
 
     func decrementHeight(by value: CGFloat) {
-        let currentHeight = self.currentHeight == 0 ? (presentedView?.frame.height ?? 0) : self.currentHeight
+        let currentHeight = currentHeight == 0 ? (presentedView?.frame.height ?? 0) : currentHeight
         let changedHeight = currentHeight - value
         self.currentHeight = changedHeight
         createHeightAnimator(height: changedHeight).startAnimation()
     }
 
     func updateHeightForPresentedView(with newHeight: CGFloat) {
-        self.currentHeight = newHeight > maxHeight ? maxHeight : newHeight
+        currentHeight = newHeight > maxHeight ? maxHeight : newHeight
         createHeightAnimator(height: currentHeight).startAnimation()
     }
 
@@ -201,7 +201,8 @@ class BottomSheetPresentationController: UIPresentationController {
         return propertyAnimator
     }
 
-    @objc private func onTap(_ gestureRecognizer: UITapGestureRecognizer) {
+    @objc
+    private func onTap(_ gestureRecognizer: UITapGestureRecognizer) {
         guard
             let presentedView = presentedView,
             let containerView = containerView,
@@ -213,7 +214,8 @@ class BottomSheetPresentationController: UIPresentationController {
         presentingViewController.dismiss(animated: true)
     }
 
-    @objc private func onPan(_ gestureRecognizer: UIPanGestureRecognizer) {
+    @objc
+    private func onPan(_ gestureRecognizer: UIPanGestureRecognizer) {
         guard let presentedView = presentedView else {
             return
         }
@@ -228,7 +230,7 @@ class BottomSheetPresentationController: UIPresentationController {
                 moving: presentedView, interactiveDismissal: panToDismissEnabled
             )
         case .changed:
-            if panToDismissEnabled && progress > 0 && !presentedViewController.isBeingDismissed {
+            if panToDismissEnabled, progress > 0, !presentedViewController.isBeingDismissed {
                 presentingViewController.dismiss(animated: true)
             }
             bottomSheetInteractiveDismissalTransition.move(

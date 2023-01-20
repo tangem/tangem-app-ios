@@ -14,14 +14,18 @@ class SaltPayRegistratorProvider: SaltPayRegistratorProviding {
     func initialize(cardId: String, walletPublicKey: Data, cardPublicKey: Data) throws {
         let wmFactory = WalletManagerFactoryProvider().factory
 
-        let gnosis = try GnosisRegistrator(settings: .main,
-                                           walletPublicKey: walletPublicKey,
-                                           factory: wmFactory)
+        let gnosis = try GnosisRegistrator(
+            settings: .main,
+            walletPublicKey: walletPublicKey,
+            factory: wmFactory
+        )
 
-        let registrator = SaltPayRegistrator(cardId: cardId,
-                                             cardPublicKey: cardPublicKey,
-                                             walletPublicKey: walletPublicKey,
-                                             gnosis: gnosis)
+        let registrator = SaltPayRegistrator(
+            cardId: cardId,
+            cardPublicKey: cardPublicKey,
+            walletPublicKey: walletPublicKey,
+            gnosis: gnosis
+        )
 
         self.registrator = registrator
     }
