@@ -51,25 +51,33 @@ struct WalletOnboardingView: View {
                 maxDigits: SaltPayRegistrator.Constants.pinLength
             )
         case .registerWallet:
-            CustomContentView(imageType: Assets.cardsWallet,
-                              title: viewModel.currentStep.title!,
-                              subtitle: viewModel.currentStep.subtitle!)
+            CustomContentView(
+                imageType: Assets.cardsWallet,
+                title: viewModel.currentStep.title!,
+                subtitle: viewModel.currentStep.subtitle!
+            )
         case .kycStart:
-            CustomContentView(imageType: Assets.passport,
-                              title: viewModel.currentStep.title!,
-                              subtitle: viewModel.currentStep.subtitle!)
+            CustomContentView(
+                imageType: Assets.passport,
+                title: viewModel.currentStep.title!,
+                subtitle: viewModel.currentStep.subtitle!
+            )
         case .kycProgress:
             if let kycModel = viewModel.kycModel {
                 WebViewContainer(viewModel: kycModel)
             }
         case .kycWaiting:
-            KYCView(imageType: Assets.successWaiting,
-                    title: viewModel.currentStep.title!,
-                    subtitle: viewModel.currentStep.subtitle!)
+            KYCView(
+                imageType: Assets.successWaiting,
+                title: viewModel.currentStep.title!,
+                subtitle: viewModel.currentStep.subtitle!
+            )
         case .kycRetry:
-            KYCView(imageType: Assets.errorCircle,
-                    title: viewModel.currentStep.title!,
-                    subtitle: viewModel.currentStep.subtitle!)
+            KYCView(
+                imageType: Assets.errorCircle,
+                title: viewModel.currentStep.title!,
+                subtitle: viewModel.currentStep.subtitle!
+            )
         default:
             EmptyView()
         }
