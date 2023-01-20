@@ -14,9 +14,11 @@ struct IconWithBackground: View {
 
     init(
         icon: ImageType,
-        settings: Settings = .init(backgroundColor: Colors.Button.secondary,
-                                   padding: 14,
-                                   cornerRadius: 16)
+        settings: Settings = .init(
+            backgroundColor: Colors.Button.secondary,
+            padding: 14,
+            cornerRadius: 16
+        )
     ) {
         self.icon = icon
         self.settings = settings
@@ -24,9 +26,11 @@ struct IconWithBackground: View {
 
     var body: some View {
         icon.image
-            .roundedBackground(with: settings.backgroundColor,
-                               padding: settings.padding,
-                               radius: settings.cornerRadius)
+            .roundedBackground(
+                with: settings.backgroundColor,
+                padding: settings.padding,
+                radius: settings.cornerRadius
+            )
     }
 }
 
