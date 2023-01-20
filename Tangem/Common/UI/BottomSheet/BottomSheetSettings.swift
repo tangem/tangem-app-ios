@@ -34,6 +34,7 @@ extension BottomSheetSettings {
     static var swappingPermission: BottomSheetSettings {
         BottomSheetSettings(
             showClosedButton: false,
+            swipeDownToDismissEnabled: false,
             contentBackgroundColor: Colors.Background.secondary
         )
     }

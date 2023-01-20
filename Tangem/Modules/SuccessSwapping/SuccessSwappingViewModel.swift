@@ -9,9 +9,7 @@
 import Combine
 import SwiftUI
 
-final class SuccessSwappingViewModel: ObservableObject, Identifiable {
-    let id = UUID()
-
+final class SuccessSwappingViewModel: ObservableObject {
     // MARK: - ViewState
 
     var sourceFormatted: String {
