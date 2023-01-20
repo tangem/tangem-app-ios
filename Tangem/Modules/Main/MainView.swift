@@ -20,15 +20,13 @@ struct MainView: View {
         GeometryReader { geometry in
             ZStack {
                 RefreshableScrollView(onRefresh: { viewModel.onRefresh($0) }) {
-                    VStack(spacing: 8.0) {
-                        CardView(image: viewModel.image,
-                                 width: geometry.size.width - 32,
-                                 cardSetLabel: viewModel.cardsCountLabel)
-                            .fixedSize(horizontal: false, vertical: true)
-
-                        if viewModel.isBackupAllowed {
-                            backupWarningView
-                        }
+                    VStack(spacing: 14) {
+                        CardView(
+                            image: viewModel.image,
+                            width: geometry.size.width - 32,
+                            cardSetLabel: viewModel.cardsCountLabel
+                        )
+                        .fixedSize(horizontal: false, vertical: true)
 
                         if viewModel.isLackDerivationWarningViewVisible {
                             ScanCardWarningView(action: viewModel.deriveEntriesWithoutDerivation)
@@ -40,6 +38,9 @@ struct MainView: View {
                         })
                         .padding(.horizontal, 16)
 
+                        if viewModel.isBackupAllowed {
+                            backupWarningView
+                        }
 
                         if let viewModel = viewModel.multiWalletContentViewModel {
                             MultiWalletContentView(viewModel: viewModel)
@@ -58,9 +59,11 @@ struct MainView: View {
             }
         }
         .navigationBarBackButtonHidden(true)
-        .navigationBarTitle("wallet_title", displayMode: .inline)
-        .navigationBarItems(leading: leadingNavigationButtons,
-                            trailing: settingsNavigationButton)
+        .navigationBarTitle(Text(Localization.walletTitle), displayMode: .inline)
+        .navigationBarItems(
+            leading: leadingNavigationButtons,
+            trailing: settingsNavigationButton
+        )
         .background(Colors.Background.secondary.edgesIgnoringSafeArea(.all))
         .onAppear {
             viewModel.onAppear()
@@ -112,7 +115,7 @@ struct MainView: View {
         }
         .buttonStyle(PlainButtonStyle())
         .animation(nil)
-        .accessibility(label: Text("voice_over_open_card_details"))
+        .accessibility(label: Text(Localization.voiceOverOpenCardDetails))
     }
 
     var backupWarningView: some View {
@@ -120,21 +123,21 @@ struct MainView: View {
             viewModel.prepareForBackup()
         })
         .padding(.horizontal, 16)
-        .padding(.bottom, 6)
     }
 
     var sendButton: some View {
         MainButton(
-            title: "wallet_button_send".localized,
+            title: Localization.walletButtonSend,
             icon: .leading(Assets.arrowRightMini),
             isDisabled: !viewModel.canSend,
             action: viewModel.sendTapped
         )
         .actionSheet(isPresented: $viewModel.showSelectWalletSheet) {
-            ActionSheet(title: Text("wallet_choice_wallet_option_title"),
-                        message: nil,
-                        buttons: sendChoiceButtons + [ActionSheet.Button.cancel()])
-
+            ActionSheet(
+                title: Text(Localization.walletChoiceWalletOptionTitle),
+                message: nil,
+                buttons: sendChoiceButtons + [ActionSheet.Button.cancel()]
+            )
         }
     }
 
@@ -154,21 +157,23 @@ struct MainView: View {
     var exchangeCryptoButton: some View {
         if viewModel.canSellCrypto {
             MainButton(
-                title: "wallet_button_trade".localized,
+                title: Localization.walletButtonTrade,
                 icon: .leading(Assets.exchangeMini),
                 action: viewModel.tradeCryptoAction
             )
             .actionSheet(isPresented: $viewModel.showTradeSheet, content: {
-                ActionSheet(title: Text("wallet_choose_trade_action"),
-                            buttons: [
-                                .default(Text("wallet_button_buy"), action: viewModel.openBuyCryptoIfPossible),
-                                .default(Text("wallet_button_sell"), action: viewModel.openSellCrypto),
-                                .cancel(),
-                            ])
+                ActionSheet(
+                    title: Text(Localization.walletChooseTradeAction),
+                    buttons: [
+                        .default(Text(Localization.walletButtonBuy), action: viewModel.openBuyCryptoIfPossible),
+                        .default(Text(Localization.walletButtonSell), action: viewModel.openSellCrypto),
+                        .cancel(),
+                    ]
+                )
             })
         } else {
             MainButton(
-                title: "wallet_button_buy".localized,
+                title: Localization.walletButtonBuy,
                 icon: .leading(Assets.arrowUpMini),
                 action: viewModel.openBuyCryptoIfPossible
             )
@@ -177,7 +182,6 @@ struct MainView: View {
 
     var bottomButtons: some View {
         VStack {
-
             Spacer()
 
             VStack {
@@ -191,8 +195,7 @@ struct MainView: View {
                     }
                 }
             }
-            .padding([.horizontal, .top], 16)
-            .padding(.bottom, 8)
+            .padding(.horizontal, 16)
         }
     }
 }
@@ -200,11 +203,12 @@ struct MainView: View {
 struct MainView_Previews: PreviewProvider {
     static var previews: some View {
         NavigationView {
-            MainView(viewModel: .init(cardModel: PreviewCard.stellar.cardModel,
-                                      userWalletModel: PreviewCard.stellar.cardModel.userWalletModel!,
-                                      cardImageProvider: CardImageProvider(),
-                                      shouldRefreshWhenAppear: true,
-                                      coordinator: MainCoordinator()))
+            MainView(viewModel: .init(
+                cardModel: PreviewCard.stellar.cardModel,
+                userWalletModel: PreviewCard.stellar.cardModel.userWalletModel!,
+                cardImageProvider: CardImageProvider(),
+                coordinator: MainCoordinator()
+            ))
         }
         .previewGroup(devices: [.iPhone12ProMax])
         .navigationViewStyle(StackNavigationViewStyle())
