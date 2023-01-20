@@ -15,6 +15,7 @@ final class UserWalletListViewModel: ObservableObject, Identifiable {
     @Injected(\.failedScanTracker) var failedCardScanTracker: FailedScanTrackable
 
     // MARK: - ViewState
+
     @Published var multiCurrencyModels: [UserWalletListCellViewModel] = []
     @Published var singleCurrencyModels: [UserWalletListCellViewModel] = []
     @Published var isScanningCard = false
@@ -25,7 +26,7 @@ final class UserWalletListViewModel: ObservableObject, Identifiable {
     // MARK: - Dependencies
 
     var unlockAllButtonTitle: String {
-        "user_wallet_list_unlock_all".localized(BiometricAuthorizationUtils.biometryType.name)
+        Localization.userWalletListUnlockAll(BiometricAuthorizationUtils.biometryType.name)
     }
 
     var isLocked: Bool {
@@ -129,20 +130,20 @@ final class UserWalletListViewModel: ObservableObject, Identifiable {
     func edit(_ userWallet: UserWallet) {
         Analytics.log(.buttonEditWalletTapped)
 
-        let alert = UIAlertController(title: "user_wallet_list_rename_popup_title".localized, message: nil, preferredStyle: .alert)
-        let cancelAction = UIAlertAction(title: "common_cancel".localized, style: .cancel) { _ in }
+        let alert = UIAlertController(title: Localization.userWalletListRenamePopupTitle, message: nil, preferredStyle: .alert)
+        let cancelAction = UIAlertAction(title: Localization.commonCancel, style: .cancel) { _ in }
         alert.addAction(cancelAction)
 
         var nameTextField: UITextField?
         alert.addTextField { textField in
             nameTextField = textField
-            nameTextField?.placeholder = "user_wallet_list_rename_popup_placeholder".localized
+            nameTextField?.placeholder = Localization.userWalletListRenamePopupPlaceholder
             nameTextField?.text = userWallet.name
             nameTextField?.clearButtonMode = .whileEditing
             nameTextField?.autocapitalizationType = .sentences
         }
 
-        let acceptButton = UIAlertAction(title: "common_ok".localized, style: .default) { [weak self, nameTextField] _ in
+        let acceptButton = UIAlertAction(title: Localization.commonOk, style: .default) { [weak self, nameTextField] _ in
             let newName = nameTextField?.text ?? ""
 
             guard userWallet.name != newName else { return }
@@ -154,7 +155,7 @@ final class UserWalletListViewModel: ObservableObject, Identifiable {
         }
         alert.addAction(acceptButton)
 
-        UIApplication.modalFromTop(alert)
+        AppPresenter.shared.show(alert)
     }
 
     func showDeletionConfirmation(_ userWallet: UserWallet) {
@@ -178,7 +179,7 @@ final class UserWalletListViewModel: ObservableObject, Identifiable {
     }
 
     private func setSelectedWallet(_ userWallet: UserWallet, reason: UserWalletRepositorySelectionChangeReason) {
-        self.selectedUserWalletId = userWallet.userWalletId
+        selectedUserWalletId = userWallet.userWalletId
         updateSelectedWalletModel()
 
         switch reason {
@@ -270,7 +271,7 @@ final class UserWalletListViewModel: ObservableObject, Identifiable {
                 return embeddedBlockchain.blockchainNetwork.blockchain.displayName
             }
 
-            return String.localizedStringWithFormat("card_label_card_count".localized, config.cardsCount)
+            return Localization.cardLabelCardCount(config.cardsCount)
         }()
 
         return UserWalletListCellViewModel(
