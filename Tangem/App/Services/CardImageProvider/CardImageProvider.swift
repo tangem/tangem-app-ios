@@ -29,7 +29,7 @@ struct CardImageProvider {
         configuration.timeoutIntervalForRequest = 20
         configuration.timeoutIntervalForResource = 30
         let networkService = NetworkService(configuration: configuration)
-        self.cardVerifier = OnlineCardVerifier(with: networkService)
+        cardVerifier = OnlineCardVerifier(with: networkService)
     }
 
     func cardArtwork(for cardId: String) -> CardArtwork? {
@@ -45,7 +45,7 @@ extension CardImageProvider: CardImageProviding {
     }
 
     func loadImage(cardId: String, cardPublicKey: Data, artwork: CardArtwork?) -> AnyPublisher<CardImageResult, Never> {
-        if SaltPayUtil().isPrimaryCard(batchId: String(cardId.prefix(4))) {
+        if SaltPayUtil().isSaltPayCard(batchId: String(cardId.prefix(4)), cardId: cardId) { // [REDACTED_TODO_COMMENT]
             return Just(.embedded(UIImage(named: "saltpay")!))
                 .eraseToAnyPublisher()
         }
@@ -104,7 +104,7 @@ private extension CardImageProvider {
                 }
                 .switchToLatest()
                 .eraseToAnyPublisher()
-        case let .artwork(artworkInfo):
+        case .artwork(let artworkInfo):
             return imageLoader
                 .loadImage(cid: cardId, cardPublicKey: cardPublicKey, artworkInfoId: artworkInfo.id)
                 .handleEvents(receiveOutput: { image in
