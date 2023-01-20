@@ -81,8 +81,12 @@ class WalletConnectTransactionHandler: TangemWalletConnectRequestHandler {
         let dappGasLimit = transaction.gas?.hexToInteger ?? transaction.gasLimit?.hexToInteger
         let dappGasLimitPublisher: AnyPublisher<Int, Error>? = dappGasLimit.map { .justWithError(output: $0) }
 
-        let gasPricePublisher = getGasPrice(for: valueAmount, tx: transaction, txSender: gasLoader, decimalCount: blockchain.decimalCount)
-        let gasLimitPublisher = dappGasLimitPublisher ?? getGasLimit(for: valueAmount, destination: transaction.to, data: transaction.data, txSender: gasLoader)
+        let gasPricePublisher = getGasPrice(tx: transaction, txSender: gasLoader, decimalCount: blockchain.decimalCount)
+        let gasLimitPublisher = dappGasLimitPublisher ?? getGasLimit(to: transaction.to,
+                                                                     from: transaction.from,
+                                                                     value: transaction.value,
+                                                                     data: transaction.data,
+                                                                     txSender: gasLoader)
 
         let walletUpdatePublisher = walletModel
             .$state
@@ -159,7 +163,7 @@ class WalletConnectTransactionHandler: TangemWalletConnectRequestHandler {
         }
     }
 
-    private func getGasPrice(for amount: Amount, tx: WalletConnectEthTransaction, txSender: EthereumGasLoader, decimalCount: Int) -> AnyPublisher<Int, Error> {
+    private func getGasPrice(tx: WalletConnectEthTransaction, txSender: EthereumGasLoader, decimalCount: Int) -> AnyPublisher<Int, Error> {
         guard
             let gasPriceString = tx.gasPrice,
             let gasPrice = gasPriceString.hexToInteger
@@ -174,8 +178,8 @@ class WalletConnectTransactionHandler: TangemWalletConnectRequestHandler {
         return .justWithError(output: gasPrice)
     }
 
-    private func getGasLimit(for amount: Amount, destination: String, data: String?, txSender: EthereumGasLoader) -> AnyPublisher<Int, Error> {
-        return txSender.getGasLimit(amount: amount, destination: destination)
+    private func getGasLimit(to: String, from: String, value: String?, data: String?, txSender: EthereumGasLoader) -> AnyPublisher<Int, Error> {
+        return txSender.getGasLimit(to: to, from: from, value: value, data: data)
             .map { Int($0) }
             .replaceError(with: 600000) // Fixed high gaslimit
             .setFailureType(to: Error.self)
