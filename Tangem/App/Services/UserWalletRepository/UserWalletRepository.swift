@@ -50,17 +50,6 @@ enum UserWalletRepositoryResult {
     case error(Error)
 }
 
-extension UserWalletRepositoryResult {
-    var hasScannedCard: Bool {
-        switch self {
-        case .success, .onboarding, .error:
-            return true
-        case .troubleshooting:
-            return false
-        }
-    }
-}
-
 enum UserWalletRepositoryEvent {
     case locked(reason: UserWalletRepositoryLockReason)
     case scan(isScanning: Bool)
