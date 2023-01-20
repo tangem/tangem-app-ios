@@ -94,7 +94,7 @@ final class UserWalletListViewModel: ObservableObject, Identifiable {
     }
 
     func addUserWallet() {
-        Analytics.log(.buttonScanNewCard)
+        Analytics.beginLoggingCardScan(source: .myWallets)
 
         userWalletRepository.add { [weak self] result in
             guard

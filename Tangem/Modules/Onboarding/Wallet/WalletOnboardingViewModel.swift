@@ -369,10 +369,10 @@ class WalletOnboardingViewModel: OnboardingTopupViewModel<WalletOnboardingStep, 
             }
         }
     }
-    
+
     func onAppear() {
         Analytics.log(.onboardingStarted)
-        
+
         if isInitialAnimPlayed {
             return
         }
@@ -516,7 +516,7 @@ class WalletOnboardingViewModel: OnboardingTopupViewModel<WalletOnboardingStep, 
                     alert = AlertBuilder.makeDemoAlert(disabledLocalizedReason)
                 } else {
                     Analytics.log(.backupStarted)
-                    
+
                     goToNextStep()
                 }
             }
