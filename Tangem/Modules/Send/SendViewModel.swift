@@ -620,11 +620,10 @@ class SendViewModel: ObservableObject {
                     if !isDemo {
                         if self.isSellingCrypto {
                             Analytics.log(.transactionIsSent)
-                            Analytics.log(.transactionSent, params: [.token: "\(tx.amount.currencySymbol)"])
                             Analytics.log(.userSoldCrypto, params: [.currencyCode: self.blockchainNetwork.blockchain.currencySymbol])
-                        } else {
-                            Analytics.logTx(blockchainName: self.blockchainNetwork.blockchain.displayName)
                         }
+
+                        Analytics.logTx(blockchainName: self.blockchainNetwork.blockchain.displayName, type: self.isSellingCrypto ? .sell : .regular)
                     }
 
                     DispatchQueue.main.async {
