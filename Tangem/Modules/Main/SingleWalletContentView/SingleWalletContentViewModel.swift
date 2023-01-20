@@ -53,9 +53,11 @@ class SingleWalletContentViewModel: ObservableObject {
 
     lazy var totalSumBalanceViewModel = TotalSumBalanceViewModel(
         userWalletModel: userWalletModel,
-        totalBalanceManager: TotalBalanceProvider(userWalletModel: userWalletModel,
-                                                  userWalletAmountType: cardModel.cardAmountType,
-                                                  totalBalanceAnalyticsService: TotalBalanceAnalyticsService(totalBalanceCardSupportInfo: totalBalanceCardSupportInfo)),
+        totalBalanceManager: TotalBalanceProvider(
+            userWalletModel: userWalletModel,
+            userWalletAmountType: cardModel.cardAmountType,
+            totalBalanceAnalyticsService: TotalBalanceAnalyticsService(totalBalanceCardSupportInfo: totalBalanceCardSupportInfo)
+        ),
         cardAmountType: cardModel.cardAmountType,
         tapOnCurrencySymbol: output
     )
@@ -63,10 +65,9 @@ class SingleWalletContentViewModel: ObservableObject {
     private let cardModel: CardViewModel
     private let userWalletModel: UserWalletModel
     private unowned let output: SingleWalletContentViewModelOutput
-    private var refreshed: Bool = false
     private var bag = Set<AnyCancellable>()
     private var totalBalanceCardSupportInfo: TotalBalanceCardSupportInfo {
-        TotalBalanceCardSupportInfo(cardBatchId: cardModel.batchId, cardNumber: cardModel.cardId)
+        TotalBalanceCardSupportInfo(cardBatchId: cardModel.batchId, cardNumber: cardModel.cardId, embeddedBlockchainCurrencySymbol: cardModel.embeddedBlockchain?.currencySymbol)
     }
 
     init(
@@ -86,14 +87,6 @@ class SingleWalletContentViewModel: ObservableObject {
 
     func onRefresh(done: @escaping () -> Void) {
         userWalletModel.updateAndReloadWalletModels(completion: done)
-    }
-
-    func onAppear() {
-        if !refreshed {
-            userWalletModel.updateAndReloadWalletModels()
-            singleWalletModel = userWalletModel.getWalletModels().first
-            refreshed = true
-        }
     }
 
     func openQR() {

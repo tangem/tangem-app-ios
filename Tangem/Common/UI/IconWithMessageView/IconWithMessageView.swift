@@ -58,7 +58,8 @@ struct IconWithMessageView_Previews: PreviewProvider {
                 header: { Text("Your friend") },
                 description: {
                     Text("Will get a ") + Text("10% discount").foregroundColor(Colors.Text.primary1) + Text(" when buying card on tangem.com")
-                })
+                }
+            )
         }
         .padding(16)
     }

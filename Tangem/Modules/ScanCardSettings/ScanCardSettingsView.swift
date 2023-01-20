@@ -23,11 +23,11 @@ struct ScanCardSettingsView: View {
                         .padding(.vertical, 32)
 
                     VStack(alignment: .center, spacing: 16) {
-                        Text("scan_card_settings_title")
+                        Text(Localization.scanCardSettingsTitle)
                             .style(Fonts.Bold.title1, color: Colors.Text.primary1)
                             .multilineTextAlignment(.center)
 
-                        Text("scan_card_settings_message")
+                        Text(Localization.scanCardSettingsMessage)
                             .style(Fonts.Regular.callout, color: Colors.Text.secondary)
                             .multilineTextAlignment(.center)
                     }
@@ -38,7 +38,7 @@ struct ScanCardSettingsView: View {
             Spacer()
 
             MainButton(
-                title: "scan_card_settings_button".localized,
+                title: Localization.scanCardSettingsButton,
                 icon: .trailing(Assets.tangemIcon),
                 isLoading: viewModel.isLoading,
                 action: viewModel.scanCard
@@ -48,7 +48,7 @@ struct ScanCardSettingsView: View {
         .padding(.bottom, 16)
         .alert(item: $viewModel.alert) { $0.alert }
         .background(Colors.Background.secondary.edgesIgnoringSafeArea(.all))
-        .navigationBarTitle("card_settings_title", displayMode: .inline)
+        .navigationBarTitle(Text(Localization.cardSettingsTitle), displayMode: .inline)
     }
 }
 

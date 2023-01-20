@@ -9,6 +9,7 @@
 import Foundation
 import Combine
 import TangemExchange
+import UIKit
 
 class SwappingCoordinator: CoordinatorObject {
     let dismissAction: Action
@@ -20,11 +21,12 @@ class SwappingCoordinator: CoordinatorObject {
 
     // MARK: - Child coordinators
 
-    @Published var swappingTokenListViewModel: SwappingTokenListViewModel?
-    @Published var swappingPermissionViewModel: SwappingPermissionViewModel?
-    @Published var successSwappingViewModel: SuccessSwappingViewModel?
+    @Published var successSwappingCoordinator: SuccessSwappingCoordinator?
 
     // MARK: - Child view models
+
+    @Published var swappingTokenListViewModel: SwappingTokenListViewModel?
+    @Published var swappingPermissionViewModel: SwappingPermissionViewModel?
 
     // MARK: - Properties
 
@@ -54,10 +56,9 @@ extension SwappingCoordinator {
 // MARK: - SwappingRoutable
 
 extension SwappingCoordinator: SwappingRoutable {
-    func presentSwappingTokenList(
-        sourceCurrency: Currency,
-        userCurrencies: [Currency]
-    ) {
+    func presentSwappingTokenList(sourceCurrency: Currency, userCurrencies: [Currency]) {
+        UIApplication.shared.endEditing()
+
         swappingTokenListViewModel = SwappingTokenListViewModel(
             sourceCurrency: sourceCurrency,
             userCurrencies: userCurrencies,
@@ -67,20 +68,25 @@ extension SwappingCoordinator: SwappingRoutable {
         )
     }
 
-    func presentPermissionView(transactionInfo: ExchangeTransactionDataModel, transactionSender: TransactionSendable) {
+    func presentPermissionView(inputModel: SwappingPermissionInputModel, transactionSender: TransactionSendable) {
+        UIApplication.shared.endEditing()
         swappingPermissionViewModel = SwappingPermissionViewModel(
-            transactionInfo: transactionInfo,
+            inputModel: inputModel,
             transactionSender: transactionSender,
             coordinator: self
         )
     }
 
-    func presentSuccessView(source: CurrencyAmount, result: CurrencyAmount) {
-        successSwappingViewModel = SuccessSwappingViewModel(
-            sourceCurrencyAmount: source,
-            resultCurrencyAmount: result,
-            coordinator: self
+    func presentSuccessView(inputModel: SuccessSwappingInputModel) {
+        UIApplication.shared.endEditing()
+
+        let coordinator = SuccessSwappingCoordinator(
+            dismissAction: dismissAction,
+            popToRootAction: popToRootAction
         )
+        coordinator.start(with: .init(inputModel: inputModel))
+
+        successSwappingCoordinator = coordinator
     }
 }
 
@@ -93,21 +99,12 @@ extension SwappingCoordinator: SwappingTokenListRoutable {
     }
 }
 
-// MARK: - SuccessSwappingRoutable
-
-extension SwappingCoordinator: SuccessSwappingRoutable {
-    func didTapMainButton() {
-        successSwappingViewModel = nil
-        dismiss()
-    }
-}
-
 // MARK: - SwappingPermissionRoutable
 
 extension SwappingCoordinator: SwappingPermissionRoutable {
-    func didSendApproveTransaction() {
+    func didSendApproveTransaction(transactionInfo: ExchangeTransactionDataModel) {
         swappingPermissionViewModel = nil
-        rootViewModel?.didSendApproveTransaction()
+        rootViewModel?.didSendApproveTransaction(transactionInfo: transactionInfo)
     }
 
     func userDidCancel() {
