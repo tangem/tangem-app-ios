@@ -388,6 +388,7 @@ extension TokenDetailsViewModel {
 
     func openSellCrypto() {
         Analytics.log(.buttonSell)
+
         if let disabledLocalizedReason = card.getDisabledLocalizedReason(for: .exchange) {
             alert = AlertBuilder.makeDemoAlert(disabledLocalizedReason)
             return
