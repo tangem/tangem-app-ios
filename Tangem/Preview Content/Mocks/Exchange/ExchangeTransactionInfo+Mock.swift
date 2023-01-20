@@ -11,11 +11,13 @@ import TangemExchange
 extension ExchangeTransactionDataModel {
     static let mock = ExchangeTransactionDataModel(
         sourceCurrency: .mock,
+        sourceBlockchain: .ethereum,
         destinationCurrency: .mock,
         sourceAddress: "",
         destinationAddress: "",
         txData: Data(),
         amount: 123_000_000_000_000,
+        value: 0,
         gasValue: 21000,
         gasPrice: 15_000_000_000
     )
