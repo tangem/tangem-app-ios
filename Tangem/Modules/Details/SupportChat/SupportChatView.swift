@@ -19,5 +19,5 @@ struct SupportChatView: UIViewControllerRepresentable {
         return UINavigationController(rootViewController: viewController)
     }
 
-    func updateUIViewController(_ uiViewController: UIViewControllerType, context: Context) { }
+    func updateUIViewController(_ uiViewController: UIViewControllerType, context: Context) {}
 }

@@ -28,10 +28,12 @@ struct LegacyConfig {
     private var defaultToken: BlockchainSdk.Token? {
         guard let token = walletData?.token else { return nil }
 
-        return .init(name: token.name,
-                     symbol: token.symbol,
-                     contractAddress: token.contractAddress,
-                     decimalCount: token.decimals)
+        return .init(
+            name: token.name,
+            symbol: token.symbol,
+            contractAddress: token.contractAddress,
+            decimalCount: token.decimals
+        )
     }
 
     init(card: CardDTO, walletData: WalletData?) {
@@ -63,7 +65,7 @@ extension LegacyConfig: UserWalletConfig {
         }
 
         if !AppSettings.shared.cardsStartedActivation.contains(card.cardId) {
-            return .singleWallet([])
+            return .singleWallet(userWalletSavingSteps)
         }
 
         return .singleWallet(userWalletSavingSteps + [.success])
@@ -203,9 +205,11 @@ extension LegacyConfig: UserWalletConfig {
                 partialResult[cardWallet.curve] = cardWallet.publicKey
             }
 
-            return try factory.makeMultipleWallet(walletPublicKeys: walletPublicKeys,
-                                                  entry: token,
-                                                  derivationStyle: card.derivationStyle)
+            return try factory.makeMultipleWallet(
+                walletPublicKeys: walletPublicKeys,
+                entry: token,
+                derivationStyle: card.derivationStyle
+            )
         } else {
             let blockchain = token.blockchainNetwork.blockchain
 
@@ -213,10 +217,12 @@ extension LegacyConfig: UserWalletConfig {
                 throw CommonError.noData
             }
 
-            return try factory.makeSingleWallet(walletPublicKey: walletPublicKey,
-                                                blockchain: blockchain,
-                                                token: token.tokens.first,
-                                                derivationStyle: card.derivationStyle)
+            return try factory.makeSingleWallet(
+                walletPublicKey: walletPublicKey,
+                blockchain: blockchain,
+                token: token.tokens.first,
+                derivationStyle: card.derivationStyle
+            )
         }
     }
 }
