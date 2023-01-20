@@ -428,6 +428,7 @@ class MainViewModel: ObservableObject {
     private func loadImage() {
         imageLoadingSubscription = cardImageProvider
             .loadImage(cardId: cardModel.cardId, cardPublicKey: cardModel.cardPublicKey)
+            .receive(on: DispatchQueue.main)
             .sink(receiveValue: { [weak self] loaderResult in
                 let uiImage = loaderResult.uiImage
                 switch loaderResult {
