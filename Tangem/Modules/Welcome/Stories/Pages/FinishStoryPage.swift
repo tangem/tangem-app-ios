@@ -11,8 +11,8 @@ import SwiftUI
 struct FinishStoryPage: View {
     @Binding var progress: Double
     let isScanning: Bool
-    let scanCard: (() -> Void)
-    let orderCard: (() -> Void)
+    let scanCard: () -> Void
+    let orderCard: () -> Void
 
     var body: some View {
         VStack {
@@ -20,7 +20,7 @@ struct FinishStoryPage: View {
                 .padding()
 
             VStack(spacing: 18) {
-                Text("story_finish_title")
+                Text(Localization.storyFinishTitle)
                     .font(.system(size: 36, weight: .semibold))
                     .minimumScaleFactor(0.5)
                     .multilineTextAlignment(.center)
@@ -28,7 +28,7 @@ struct FinishStoryPage: View {
                     .padding(.horizontal)
                     .storyTextAppearanceModifier(progress: progress, type: .title, textBlockAppearance: .minorDelay)
 
-                Text("story_finish_description")
+                Text(Localization.storyFinishDescription)
                     .font(.system(size: 24))
                     .multilineTextAlignment(.center)
                     .foregroundColor(.gray)
@@ -71,7 +71,7 @@ struct FinishStoryPage: View {
 
 struct FinishStoryPage_Previews: PreviewProvider {
     static var previews: some View {
-        FinishStoryPage(progress: .constant(1), isScanning: false) { } orderCard: { }
+        FinishStoryPage(progress: .constant(1), isScanning: false) {} orderCard: {}
             .previewGroup(devices: [.iPhone7, .iPhone12ProMax], withZoomed: false)
             .environment(\.colorScheme, .dark)
     }

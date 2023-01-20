@@ -48,7 +48,7 @@ extension NoteConfig: UserWalletConfig {
             return .singleWallet([.createWallet] + userWalletSavingSteps + [.topup, .successTopup])
         } else {
             if !AppSettings.shared.cardsStartedActivation.contains(card.cardId) {
-                return .singleWallet([])
+                return .singleWallet(userWalletSavingSteps)
             }
 
             return .singleWallet(userWalletSavingSteps + [.topup, .successTopup])
@@ -157,9 +157,11 @@ extension NoteConfig: UserWalletConfig {
         }
 
         let factory = WalletModelFactory()
-        return try factory.makeSingleWallet(walletPublicKey: walletPublicKey,
-                                            blockchain: blockchain,
-                                            token: token.tokens.first,
-                                            derivationStyle: card.derivationStyle)
+        return try factory.makeSingleWallet(
+            walletPublicKey: walletPublicKey,
+            blockchain: blockchain,
+            token: token.tokens.first,
+            derivationStyle: card.derivationStyle
+        )
     }
 }

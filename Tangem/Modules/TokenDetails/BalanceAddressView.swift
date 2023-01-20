@@ -18,22 +18,22 @@ struct BalanceAddressView: View {
 
     var blockchainText: String {
         if walletModel.state.isNoAccount {
-            return "wallet_error_no_account".localized
+            return Localization.walletErrorNoAccount
         }
 
         if walletModel.state.isBlockchainUnreachable {
-            return "wallet_balance_blockchain_unreachable".localized
+            return Localization.walletBalanceBlockchainUnreachable
         }
 
         if walletModel.wallet.hasPendingTx(for: amountType) {
-            return "wallet_balance_tx_in_progress".localized
+            return Localization.walletBalanceTxInProgress
         }
 
         if walletModel.state.isLoading {
-            return "wallet_balance_loading".localized
+            return Localization.walletBalanceLoading
         }
 
-        return "wallet_balance_verified".localized
+        return Localization.walletBalanceVerified
     }
 
     var image: String {
@@ -47,9 +47,9 @@ struct BalanceAddressView: View {
     }
 
     var accentColor: Color {
-        if walletModel.state.errorDescription == nil
-            && !walletModel.wallet.hasPendingTx(for: amountType)
-            && !walletModel.state.isLoading {
+        if walletModel.state.errorDescription == nil,
+           !walletModel.wallet.hasPendingTx(for: amountType),
+           !walletModel.state.isLoading {
             return .tangemGreen
         }
         return .tangemWarning
@@ -86,13 +86,13 @@ struct BalanceAddressView: View {
                             .truncationMode(.middle)
                             .lineLimit(2)
                             .fixedSize(horizontal: false, vertical: true)
-                            .skeletonable(isShown: isSkeletonShown, radius: 6)
+                            .skeletonable(isShown: isSkeletonShown, size: CGSize(width: 70, height: 20), radius: 6)
                         Text(balance)
                             .font(Font.system(size: 14.0, weight: .medium, design: .default))
                             .lineLimit(1)
                             .fixedSize(horizontal: false, vertical: true)
                             .foregroundColor(Color.tangemGrayDark)
-                            .skeletonable(isShown: isSkeletonShown, radius: 6)
+                            .skeletonable(isShown: isSkeletonShown, size: CGSize(width: 100, height: 14), radius: 6)
                     }
                     HStack(alignment: .firstTextBaseline, spacing: 5.0) {
                         Image(systemName: image)
@@ -119,7 +119,6 @@ struct BalanceAddressView: View {
                     .padding(.vertical, 16)
             }
 
-
             GeometryReader { geometry in
                 VStack {
                     HStack(alignment: .top, spacing: 8) {
@@ -136,26 +135,30 @@ struct BalanceAddressView: View {
                                 .foregroundColor(Color.tangemGrayDark)
                                 .fixedSize(horizontal: false, vertical: true)
 
-                            ExploreButton(url: walletModel.exploreURL(for: selectedAddressIndex),
-                                          showExplorerURL: showExplorerURL)
+                            ExploreButton(
+                                url: walletModel.exploreURL(for: selectedAddressIndex),
+                                showExplorerURL: showExplorerURL
+                            )
 
                             HStack {
-                                RoundedRectButton(action: { copyAddress() },
-                                                  systemImageName: "doc.on.clipboard",
-                                                  title: "common_copy".localized,
-                                                  withVerification: true)
-                                    .accessibility(label: Text("voice_over_copy_address"))
+                                RoundedRectButton(
+                                    action: { copyAddress() },
+                                    systemImageName: "doc.on.clipboard",
+                                    title: Localization.commonCopy,
+                                    withVerification: true
+                                )
+                                .accessibility(label: Text(Localization.voiceOverCopyAddress))
 
-                                RoundedRectButton(action: { showShareSheet() },
-                                                  systemImageName: "square.and.arrow.up",
-                                                  title: "common_share".localized)
-                                    .accessibility(label: Text("voice_over_share_address"))
+                                RoundedRectButton(
+                                    action: { showShareSheet() },
+                                    systemImageName: "square.and.arrow.up",
+                                    title: Localization.commonShare
+                                )
+                                .accessibility(label: Text(Localization.voiceOverShareAddress))
                             }
-
                         }
                         .frame(width: geometry.size.width * 0.7)
                     }
-
                 }
             }
             .frame(height: 86)
@@ -165,7 +168,6 @@ struct BalanceAddressView: View {
                 .font(.system(size: 16, weight: .regular))
                 .multilineTextAlignment(.center)
                 .foregroundColor(.tangemGrayDark)
-
         }
         .padding(16)
         .background(Color.white)
@@ -198,8 +200,9 @@ struct BalanceAddressView_Previews: PreviewProvider {
             Color.gray
             ScrollView {
                 BalanceAddressView(
-                    walletModel: walletModel, amountType: .coin, isRefreshing: false, showExplorerURL: { _ in })
-                    .padding()
+                    walletModel: walletModel, amountType: .coin, isRefreshing: false, showExplorerURL: { _ in }
+                )
+                .padding()
             }
         }
         .previewGroup(devices: [.iPhone7])

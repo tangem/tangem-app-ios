@@ -9,7 +9,6 @@
 import SwiftUI
 
 struct BlankCard: View {
-
     enum CardType {
         case dark
         case light

@@ -17,9 +17,11 @@ class MainCoordinator: CoordinatorObject {
     var popToRootAction: ParamsAction<PopToRootOptions>
 
     // MARK: - Main view model
+
     @Published private(set) var mainViewModel: MainViewModel? = nil
 
     // MARK: - Child coordinators
+
     @Published var sendCoordinator: SendCoordinator? = nil
     @Published var pushTxCoordinator: PushTxCoordinator? = nil
     @Published var tokenDetailsCoordinator: TokenDetailsCoordinator? = nil
@@ -28,6 +30,7 @@ class MainCoordinator: CoordinatorObject {
     @Published var modalOnboardingCoordinator: OnboardingCoordinator? = nil
 
     // MARK: - Child view models
+
     @Published var pushedWebViewModel: WebViewContainerViewModel? = nil
     @Published var modalWebViewModel: WebViewContainerViewModel? = nil
     @Published var currencySelectViewModel: CurrencySelectViewModel? = nil
@@ -35,9 +38,9 @@ class MainCoordinator: CoordinatorObject {
     @Published var addressQrBottomSheetContentViewModel: AddressQrBottomSheetContentViewModel? = nil
     @Published var warningBankCardViewModel: WarningBankCardViewModel? = nil
     @Published var userWalletListCoordinator: UserWalletListCoordinator?
-    @Published var userWalletStorageAgreementViewModel: UserWalletStorageAgreementViewModel?
 
     // MARK: - Helpers
+
     @Published var modalOnboardingCoordinatorKeeper: Bool = false
 
     private var lastInsertedUserWalletId: Data?
@@ -60,7 +63,7 @@ class MainCoordinator: CoordinatorObject {
                         return
                     }
 
-                    let options = Options(cardModel: selectedModel, shouldRefreshOnAppear: false)
+                    let options = Options(cardModel: selectedModel)
                     DispatchQueue.main.async { // fix ios13 freeze
                         self.start(with: options)
                     }
@@ -83,7 +86,6 @@ class MainCoordinator: CoordinatorObject {
             cardModel: options.cardModel,
             userWalletModel: userWalletModel,
             cardImageProvider: CardImageProvider(supportsOnlineImage: options.cardModel.supportsOnlineImage),
-            shouldRefreshWhenAppear: options.shouldRefreshOnAppear,
             coordinator: self
         )
     }
@@ -92,11 +94,9 @@ class MainCoordinator: CoordinatorObject {
 extension MainCoordinator {
     struct Options {
         let cardModel: CardViewModel
-        let shouldRefreshOnAppear: Bool
 
-        init(cardModel: CardViewModel, shouldRefreshOnAppear: Bool = true) {
+        init(cardModel: CardViewModel) {
             self.cardModel = cardModel
-            self.shouldRefreshOnAppear = shouldRefreshOnAppear
         }
     }
 }
@@ -116,28 +116,35 @@ extension MainCoordinator: MainRoutable {
 
     func openBuyCrypto(at url: URL, closeUrl: String, action: @escaping (String) -> Void) {
         Analytics.log(.topUpScreenOpened)
-        pushedWebViewModel = WebViewContainerViewModel(url: url,
-                                                       title: "wallet_button_buy".localized,
-                                                       addLoadingIndicator: true,
-                                                       urlActions: [
-                                                           closeUrl: { [weak self] response in
-                                                               self?.pushedWebViewModel = nil
-                                                               action(response)
-                                                           }])
+        pushedWebViewModel = WebViewContainerViewModel(
+            url: url,
+            title: Localization.walletButtonBuy,
+            addLoadingIndicator: true,
+            urlActions: [
+                closeUrl: { [weak self] response in
+                    self?.pushedWebViewModel = nil
+                    action(response)
+                },
+            ]
+        )
     }
 
     func openSellCrypto(at url: URL, sellRequestUrl: String, action: @escaping (String) -> Void) {
         Analytics.log(.withdrawScreenOpened)
-        pushedWebViewModel = WebViewContainerViewModel(url: url,
-                                                       title: "wallet_button_sell".localized,
-                                                       addLoadingIndicator: true,
-                                                       urlActions: [sellRequestUrl: action])
+        pushedWebViewModel = WebViewContainerViewModel(
+            url: url,
+            title: Localization.walletButtonSell,
+            addLoadingIndicator: true,
+            urlActions: [sellRequestUrl: action]
+        )
     }
 
     func openExplorer(at url: URL, blockchainDisplayName: String) {
-        modalWebViewModel = WebViewContainerViewModel(url: url,
-                                                      title: "common_explorer_format".localized(blockchainDisplayName),
-                                                      withCloseButton: true)
+        modalWebViewModel = WebViewContainerViewModel(
+            url: url,
+            title: Localization.commonExplorerFormat(blockchainDisplayName),
+            withCloseButton: true
+        )
     }
 
     func openSend(amountToSend: Amount, blockchainNetwork: BlockchainNetwork, cardViewModel: CardViewModel) {
@@ -145,24 +152,28 @@ extension MainCoordinator: MainRoutable {
         let coordinator = SendCoordinator { [weak self] in
             self?.sendCoordinator = nil
         }
-        let options = SendCoordinator.Options(amountToSend: amountToSend,
-                                              destination: nil,
-                                              blockchainNetwork: blockchainNetwork,
-                                              cardViewModel: cardViewModel)
+        let options = SendCoordinator.Options(
+            amountToSend: amountToSend,
+            destination: nil,
+            blockchainNetwork: blockchainNetwork,
+            cardViewModel: cardViewModel
+        )
         coordinator.start(with: options)
-        self.sendCoordinator = coordinator
+        sendCoordinator = coordinator
     }
 
     func openSendToSell(amountToSend: Amount, destination: String, blockchainNetwork: BlockchainNetwork, cardViewModel: CardViewModel) {
         let coordinator = SendCoordinator { [weak self] in
             self?.sendCoordinator = nil
         }
-        let options = SendCoordinator.Options(amountToSend: amountToSend,
-                                              destination: destination,
-                                              blockchainNetwork: blockchainNetwork,
-                                              cardViewModel: cardViewModel)
+        let options = SendCoordinator.Options(
+            amountToSend: amountToSend,
+            destination: destination,
+            blockchainNetwork: blockchainNetwork,
+            cardViewModel: cardViewModel
+        )
         coordinator.start(with: options)
-        self.sendCoordinator = coordinator
+        sendCoordinator = coordinator
     }
 
     func openPushTx(for tx: BlockchainSdk.Transaction, blockchainNetwork: BlockchainNetwork, card: CardViewModel) {
@@ -171,15 +182,17 @@ extension MainCoordinator: MainRoutable {
         }
 
         let coordinator = PushTxCoordinator(dismissAction: dismissAction)
-        let options = PushTxCoordinator.Options(tx: tx,
-                                                blockchainNetwork: blockchainNetwork,
-                                                cardModel: card)
+        let options = PushTxCoordinator.Options(
+            tx: tx,
+            blockchainNetwork: blockchainNetwork,
+            cardModel: card
+        )
         coordinator.start(with: options)
-        self.pushTxCoordinator = coordinator
+        pushTxCoordinator = coordinator
     }
 
     func close(newScan: Bool) {
-        self.popToRoot(with: .init(newScan: newScan))
+        popToRoot(with: .init(newScan: newScan))
     }
 
     func openSettings(cardModel: CardViewModel) {
@@ -188,10 +201,10 @@ extension MainCoordinator: MainRoutable {
             self?.detailsCoordinator = nil
         }
 
-        let coordinator = DetailsCoordinator(dismissAction: dismissAction, popToRootAction: self.popToRootAction)
+        let coordinator = DetailsCoordinator(dismissAction: dismissAction, popToRootAction: popToRootAction)
         let options = DetailsCoordinator.Options(cardModel: cardModel)
         coordinator.start(with: options)
-        coordinator.popToRootAction = self.popToRootAction
+        coordinator.popToRootAction = popToRootAction
         detailsCoordinator = coordinator
     }
 
@@ -202,9 +215,11 @@ extension MainCoordinator: MainRoutable {
         }
 
         let coordinator = TokenDetailsCoordinator(dismissAction: dismissAction)
-        let options = TokenDetailsCoordinator.Options(cardModel: cardModel,
-                                                      blockchainNetwork: blockchainNetwork,
-                                                      amountType: amountType)
+        let options = TokenDetailsCoordinator.Options(
+            cardModel: cardModel,
+            blockchainNetwork: blockchainNetwork,
+            amountType: amountType
+        )
         coordinator.start(with: options)
         tokenDetailsCoordinator = coordinator
     }
@@ -222,7 +237,7 @@ extension MainCoordinator: MainRoutable {
 
         let coordinator = TokenListCoordinator(dismissAction: dismissAction)
         coordinator.start(with: .add(cardModel: cardModel))
-        self.tokenListCoordinator = coordinator
+        tokenListCoordinator = coordinator
     }
 
     func openMail(with dataCollector: EmailDataCollector, emailType: EmailType, recipient: String) {
@@ -234,7 +249,7 @@ extension MainCoordinator: MainRoutable {
         addressQrBottomSheetContentViewModel = .init(shareAddress: shareAddress, address: address, qrNotice: qrNotice)
     }
 
-    func openBankWarning(confirmCallback: @escaping () -> (), declineCallback: @escaping () -> ()) {
+    func openBankWarning(confirmCallback: @escaping () -> Void, declineCallback: @escaping () -> Void) {
         let delay = 0.6
         warningBankCardViewModel = .init(confirmCallback: { [weak self] in
             self?.warningBankCardViewModel = nil
@@ -250,19 +265,13 @@ extension MainCoordinator: MainRoutable {
     }
 
     func openP2PTutorial() {
-        modalWebViewModel = WebViewContainerViewModel(url: URL(string: "https://tangem.com/howtobuy.html")!,
-                                                      title: "",
-                                                      addLoadingIndicator: true,
-                                                      withCloseButton: false,
-                                                      urlActions: [:])
-    }
-
-    func openUserWalletSaveAcceptanceSheet() {
-        userWalletStorageAgreementViewModel = UserWalletStorageAgreementViewModel(isStandalone: true, coordinator: self)
-    }
-
-    func closeUserWalletSaveAcceptanceSheet() {
-        userWalletStorageAgreementViewModel = nil
+        modalWebViewModel = WebViewContainerViewModel(
+            url: URL(string: "https://tangem.com/howtobuy.html")!,
+            title: "",
+            addLoadingIndicator: true,
+            withCloseButton: false,
+            urlActions: [:]
+        )
     }
 
     func openUserWalletList() {
@@ -295,21 +304,5 @@ extension MainCoordinator: UserWalletListCoordinatorOutput {
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) {
             self.modalOnboardingCoordinator = coordinator
         }
-    }
-}
-
-extension MainCoordinator: UserWalletStorageAgreementRoutable {
-    func didAgreeToSaveUserWallets() {
-        logSaveUserWalletStep(agreed: true)
-        mainViewModel?.didAgreeToSaveUserWallets()
-    }
-
-    func didDeclineToSaveUserWallets() {
-        logSaveUserWalletStep(agreed: false)
-        mainViewModel?.didDeclineToSaveUserWallets()
-    }
-
-    private func logSaveUserWalletStep(agreed: Bool) {
-        Analytics.log(.mainEnableBiometric, params: [.state: Analytics.ParameterValue.state(for: agreed).rawValue])
     }
 }

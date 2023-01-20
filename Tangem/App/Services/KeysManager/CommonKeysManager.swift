@@ -13,13 +13,13 @@ class CommonKeysManager {
     private let keys: Keys
 
     init() throws {
-        self.keys = try JsonUtils.readBundleFile(with: AppEnvironment.current.configFileName, type: CommonKeysManager.Keys.self)
+        keys = try JsonUtils.readBundleFile(with: AppEnvironment.current.configFileName, type: CommonKeysManager.Keys.self)
     }
 }
 
 extension CommonKeysManager: KeysManager {
-    var appsFlyerDevKey: String {
-        keys.appsFlyerDevKey
+    var appsFlyer: AppsFlyerConfig {
+        keys.appsFlyer
     }
 
     var moonPayKeys: MoonPayKeys {
@@ -35,14 +35,17 @@ extension CommonKeysManager: KeysManager {
     }
 
     var blockchainConfig: BlockchainSdkConfig {
-        BlockchainSdkConfig(blockchairApiKey: keys.blockchairApiKey,
-                            blockcypherTokens: keys.blockcypherTokens,
-                            infuraProjectId: keys.infuraProjectId,
-                            tronGridApiKey: keys.tronGridApiKey,
-                            quiknodeApiKey: keys.quiknodeApiKey,
-                            quiknodeSubdomain: keys.quiknodeSubdomain,
-                            defaultNetworkProviderConfiguration: .init(logger: .verbose, urlSessionConfiguration: .standart),
-                            networkProviderConfigurations: [.saltPay: .init(logger: .verbose, credentials: keys.saltPay.credentials)])
+        BlockchainSdkConfig(
+            blockchairApiKeys: keys.blockchairApiKeys,
+            blockcypherTokens: keys.blockcypherTokens,
+            infuraProjectId: keys.infuraProjectId,
+            tronGridApiKey: keys.tronGridApiKey,
+            // [REDACTED_TODO_COMMENT]
+            quickNodeSolanaCredentials: .init(apiKey: keys.quiknodeApiKey, subdomain: keys.quiknodeSubdomain),
+            quickNodeBscCredentials: .init(apiKey: keys.bscQuiknodeApiKey, subdomain: keys.bscQuiknodeSubdomain),
+            defaultNetworkProviderConfiguration: .init(logger: .verbose, urlSessionConfiguration: .standart),
+            networkProviderConfigurations: [.saltPay: .init(logger: .verbose, credentials: keys.saltPay.credentials)]
+        )
     }
 
     var shopifyShop: ShopifyShop {
@@ -72,14 +75,16 @@ extension CommonKeysManager {
         let moonPayApiSecretKey: String
         let mercuryoWidgetId: String
         let mercuryoSecret: String
-        let blockchairApiKey: String
+        let blockchairApiKeys: [String]
         let blockcypherTokens: [String]
         let infuraProjectId: String
-        let appsFlyerDevKey: String
+        let appsFlyer: AppsFlyerConfig
         let amplitudeApiKey: String
         let tronGridApiKey: String
         let quiknodeApiKey: String
         let quiknodeSubdomain: String
+        let bscQuiknodeApiKey: String
+        let bscQuiknodeSubdomain: String
         let shopifyShop: ShopifyShop
         let zendesk: ZendeskConfig
         let saltPay: SaltPayConfiguration

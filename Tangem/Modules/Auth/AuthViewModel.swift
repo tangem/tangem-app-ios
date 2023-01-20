@@ -10,6 +10,7 @@ import TangemSdk
 
 final class AuthViewModel: ObservableObject {
     // MARK: - ViewState
+
     @Published var showTroubleshootingView: Bool = false
     @Published var isScanningCard: Bool = false
     @Published var error: AlertBinder?
@@ -18,10 +19,11 @@ final class AuthViewModel: ObservableObject {
     @Published var navigationBarHidden: Bool = false
 
     var unlockWithBiometryButtonTitle: String {
-        "welcome_unlock".localized(BiometricAuthorizationUtils.biometryType.name)
+        Localization.welcomeUnlock(BiometricAuthorizationUtils.biometryType.name)
     }
 
     // MARK: - Dependencies
+
     @Injected(\.failedScanTracker) private var failedCardScanTracker: FailedScanTrackable
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
 
@@ -105,6 +107,7 @@ final class AuthViewModel: ObservableObject {
 }
 
 // MARK: - Navigation
+
 extension AuthViewModel {
     func openMail() {
         coordinator.openMail(with: failedCardScanTracker, recipient: EmailConfig.default.recipient)
