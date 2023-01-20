@@ -21,7 +21,7 @@ struct WalletConnectSessionItemView: View {
                     .foregroundColor(.tangemGrayDark6)
             }
             Spacer()
-            TangemButton(title: "common_disconnect", action: disconnectEvent)
+            TangemButton(title: Localization.commonDisconnect, action: disconnectEvent)
                 .buttonStyle(TangemButtonStyle(colorStyle: .gray, layout: .thinHorizontal))
         }
         .padding(.vertical, 12)
@@ -30,7 +30,9 @@ struct WalletConnectSessionItemView: View {
 
 struct WalletConnectSessionItemView_Previews: PreviewProvider {
     static var previews: some View {
-        WalletConnectSessionItemView(dAppName: "DAppName 1",
-                                     disconnectEvent: { })
+        WalletConnectSessionItemView(
+            dAppName: "DAppName 1",
+            disconnectEvent: {}
+        )
     }
 }

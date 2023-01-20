@@ -53,7 +53,7 @@ public struct OrdersForAddressParameters: Encodable {
         try container.encode(page, forKey: .page)
         try container.encode(limit, forKey: .limit)
 
-        let statuses = "\(statuses.map({ $0.rawValue }).sorted())"
+        let statuses = "\(statuses.map { $0.rawValue }.sorted())"
         try container.encode(statuses, forKey: .statuses)
 
         try container.encodeIfPresent(makerAsset, forKey: .makerAsset)
@@ -96,7 +96,7 @@ public struct AllOrdersParameters: Encodable {
         try container.encode(limit, forKey: .limit)
 
         if !statuses.isEmpty {
-            let statuses = "\(statuses.map({ $0.rawValue }).sorted())"
+            let statuses = "\(statuses.map { $0.rawValue }.sorted())"
             try container.encode(statuses, forKey: .statuses)
         }
 
@@ -104,4 +104,3 @@ public struct AllOrdersParameters: Encodable {
         try container.encodeIfPresent(takerAsset, forKey: .takerAsset)
     }
 }
-

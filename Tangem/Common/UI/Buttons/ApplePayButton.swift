@@ -21,8 +21,7 @@ struct ApplePayButton: UIViewRepresentable {
         return button
     }
 
-    func updateUIView(_ uiView: UIViewType, context: Context) {
-    }
+    func updateUIView(_ uiView: UIViewType, context: Context) {}
 
     func makeCoordinator() -> Coordinator {
         Coordinator(self)
@@ -44,7 +43,7 @@ struct ApplePayButton: UIViewRepresentable {
 
 struct ApplePayButton_Previews: PreviewProvider {
     static var previews: some View {
-        ApplePayButton(action: { })
+        ApplePayButton(action: {})
             .frame(height: 45)
             .padding(.horizontal)
     }
