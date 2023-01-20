@@ -12,14 +12,14 @@ import BlockchainSdk
 struct TokensView: View {
     var items: [TokenItemViewModel]
 
-    var action: (TokenItemViewModel) -> ()
+    var action: (TokenItemViewModel) -> Void
 
     var body: some View {
         if items.isEmpty {
             EmptyView()
         } else {
             VStack(alignment: .leading, spacing: 0) {
-                Text("main_tokens".localized)
+                Text(Localization.mainTokens)
                     .font(.system(size: 13, weight: .medium))
                     .foregroundColor(Color.tangemTextGray)
                     .padding(.leading, 16)
@@ -55,56 +55,66 @@ struct TokensView_Previews: PreviewProvider {
         ZStack {
             Color.tangemBgGray
             TokensView(items: [
-                TokenItemViewModel(state: .idle,
-                                   name: "Ethereum ",
-                                   balance: "0.00000348501 BTC",
-                                   fiatBalance: "$3.45",
-                                   rate: "1.5 USD",
-                                   fiatValue: 0,
-                                   blockchainNetwork: .init(.ethereum(testnet: false)),
-                                   amountType: .coin,
-                                   hasTransactionInProgress: false,
-                                   isCustom: false),
-                TokenItemViewModel(state: .idle,
-                                   name: "Ethereum ",
-                                   balance: "0.00000348501 BTC",
-                                   fiatBalance: "$100500222.33",
-                                   rate: "1.5 USD",
-                                   fiatValue: 0,
-                                   blockchainNetwork: .init(.ethereum(testnet: false)),
-                                   amountType: .coin,
-                                   hasTransactionInProgress: false,
-                                   isCustom: true),
-                TokenItemViewModel(state: .loading,
-                                   name: "Ethereum smart contract token",
-                                   balance: "0.00000348573986753845001 BTC",
-                                   fiatBalance: "$3.45",
-                                   rate: "1.5 USD",
-                                   fiatValue: 0,
-                                   blockchainNetwork: .init(.ethereum(testnet: false)),
-                                   amountType: .coin,
-                                   hasTransactionInProgress: false,
-                                   isCustom: false),
-                TokenItemViewModel(state: .failed(error: "The internet connection appears to be offline. Very very very long error description. Very very very long error description. Very very very long error description. Very very very long error description. Very very very long error description. Very very very long error description"),
-                                   name: "Ethereum smart contract token",
-                                   balance: " ",
-                                   fiatBalance: " ",
-                                   rate: "1.5 USD",
-                                   fiatValue: 0,
-                                   blockchainNetwork: .init(.ethereum(testnet: false)),
-                                   amountType: .coin,
-                                   hasTransactionInProgress: false,
-                                   isCustom: false),
-                TokenItemViewModel(state: .idle,
-                                   name: "Bitcoin token",
-                                   balance: "10 BTCA",
-                                   fiatBalance: "5 USD",
-                                   rate: "1.5 USD",
-                                   fiatValue: 0,
-                                   blockchainNetwork: .init(.ethereum(testnet: false)),
-                                   amountType: .coin,
-                                   hasTransactionInProgress: true,
-                                   isCustom: false),
+                TokenItemViewModel(
+                    state: .idle,
+                    name: "Ethereum ",
+                    balance: "0.00000348501 BTC",
+                    fiatBalance: "$3.45",
+                    rate: "1.5 USD",
+                    fiatValue: 0,
+                    blockchainNetwork: .init(.ethereum(testnet: false)),
+                    amountType: .coin,
+                    hasTransactionInProgress: false,
+                    isCustom: false
+                ),
+                TokenItemViewModel(
+                    state: .idle,
+                    name: "Ethereum ",
+                    balance: "0.00000348501 BTC",
+                    fiatBalance: "$100500222.33",
+                    rate: "1.5 USD",
+                    fiatValue: 0,
+                    blockchainNetwork: .init(.ethereum(testnet: false)),
+                    amountType: .coin,
+                    hasTransactionInProgress: false,
+                    isCustom: true
+                ),
+                TokenItemViewModel(
+                    state: .loading,
+                    name: "Ethereum smart contract token",
+                    balance: "0.00000348573986753845001 BTC",
+                    fiatBalance: "$3.45",
+                    rate: "1.5 USD",
+                    fiatValue: 0,
+                    blockchainNetwork: .init(.ethereum(testnet: false)),
+                    amountType: .coin,
+                    hasTransactionInProgress: false,
+                    isCustom: false
+                ),
+                TokenItemViewModel(
+                    state: .failed(error: "The internet connection appears to be offline. Very very very long error description. Very very very long error description. Very very very long error description. Very very very long error description. Very very very long error description. Very very very long error description"),
+                    name: "Ethereum smart contract token",
+                    balance: " ",
+                    fiatBalance: " ",
+                    rate: "1.5 USD",
+                    fiatValue: 0,
+                    blockchainNetwork: .init(.ethereum(testnet: false)),
+                    amountType: .coin,
+                    hasTransactionInProgress: false,
+                    isCustom: false
+                ),
+                TokenItemViewModel(
+                    state: .idle,
+                    name: "Bitcoin token",
+                    balance: "10 BTCA",
+                    fiatBalance: "5 USD",
+                    rate: "1.5 USD",
+                    fiatValue: 0,
+                    blockchainNetwork: .init(.ethereum(testnet: false)),
+                    amountType: .coin,
+                    hasTransactionInProgress: true,
+                    isCustom: false
+                ),
             ], action: { _ in })
         }
     }
