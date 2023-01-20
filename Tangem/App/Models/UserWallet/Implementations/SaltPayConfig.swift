@@ -7,14 +7,11 @@
 //
 
 import Foundation
-
-import Foundation
 import TangemSdk
 import BlockchainSdk
 
 struct SaltPayConfig {
     @Injected(\.backupServiceProvider) private var backupServiceProvider: BackupServiceProviding
-    @Injected(\.loggerProvider) var loggerProvider: LoggerProviding
     @Injected(\.saletPayRegistratorProvider) private var saltPayRegistratorProvider: SaltPayRegistratorProviding
 
     private let card: CardDTO
@@ -40,7 +37,7 @@ struct SaltPayConfig {
 
         var steps: [WalletOnboardingStep] = .init()
 
-        if !card.wallets.isEmpty && !backupServiceProvider.backupService.primaryCardIsSet {
+        if !card.wallets.isEmpty, !backupServiceProvider.backupService.primaryCardIsSet {
             steps.append(.scanPrimaryCard)
         }
 
@@ -95,8 +92,10 @@ extension SaltPayConfig: UserWalletConfig {
         var cardIds = util.backupCardIds
         cardIds.append(card.cardId)
 
-        config.filter.cardIdFilter = .allow(Set(cardIds), ranges: util.backupCardRanges)
-        config.filter.localizedDescription = "error_saltpay_wrong_backup_card".localized
+        if !_backupSteps.isEmpty { // This filter should be applied to backup only.
+            config.filter.cardIdFilter = .allow(Set(cardIds), ranges: util.backupCardRanges)
+            config.filter.localizedDescription = Localization.errorSaltpayWrongBackupCard
+        }
         config.cardIdDisplayFormat = .none
         return config
     }
@@ -105,8 +104,9 @@ extension SaltPayConfig: UserWalletConfig {
         return nil
     }
 
-    var touURL: URL {
-        .init(string: "https://tangem.com/soltpay_tos.html")!
+    var tou: TOU {
+        let url = URL(string: "https://tangem.com/soltpay_tos.html")!
+        return TOU(id: url.absoluteString, url: url)
     }
 
     var cardsCount: Int {
@@ -127,7 +127,7 @@ extension SaltPayConfig: UserWalletConfig {
 
     var onboardingSteps: OnboardingSteps {
         if SaltPayUtil().isBackupCard(cardId: card.cardId) {
-            return .wallet([])
+            return .wallet(userWalletSavingSteps)
         }
 
         if card.wallets.isEmpty {
@@ -198,9 +198,11 @@ extension SaltPayConfig: UserWalletConfig {
         }
 
         let factory = WalletModelFactory()
-        return try factory.makeSingleWallet(walletPublicKey: walletPublicKey,
-                                            blockchain: blockchain,
-                                            token: token.tokens.first,
-                                            derivationStyle: card.derivationStyle)
+        return try factory.makeSingleWallet(
+            walletPublicKey: walletPublicKey,
+            blockchain: blockchain,
+            token: token.tokens.first,
+            derivationStyle: card.derivationStyle
+        )
     }
 }
