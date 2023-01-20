@@ -26,6 +26,7 @@ public struct TangemExchangeFactory {
         return DefaultExchangeManager(
             exchangeProvider: provider,
             blockchainInfoProvider: blockchainInfoProvider,
+            logger: logger ?? DefaultExchangeLogger(),
             exchangeItems: exchangeItems,
             amount: amount
         )
