@@ -12,27 +12,29 @@ import TangemSdk
 import BlockchainSdk
 
 class RegistrationTask: CardSessionRunnable {
-    private weak var gnosis: GnosisRegistrator? = nil
+    private weak var gnosis: GnosisRegistrator?
     private var challenge: Data
     private let approvalValue: Decimal
     private let spendLimitValue: Decimal
     private let walletPublicKey: Data
 
-    private var generateOTPCommand: GenerateOTPCommand? = nil
-    private var attestWalletCommand: AttestWalletKeyCommand? = nil
-    private var signCommand: SignHashesCommand? = nil
+    private var generateOTPCommand: GenerateOTPCommand?
+    private var attestWalletCommand: AttestWalletKeyCommand?
+    private var signCommand: SignHashesCommand?
 
-    private var generateOTPResponse: GenerateOTPResponse? = nil
-    private var attestWalletResponse: AttestWalletKeyResponse? = nil
+    private var generateOTPResponse: GenerateOTPResponse?
+    private var attestWalletResponse: AttestWalletKeyResponse?
     private var signedTransactions: [SignedEthereumTransaction] = []
 
     private var bag: Set<AnyCancellable> = .init()
 
-    init(gnosis: GnosisRegistrator,
-         challenge: Data,
-         walletPublicKey: Data,
-         approvalValue: Decimal,
-         spendLimitValue: Decimal) {
+    init(
+        gnosis: GnosisRegistrator,
+        challenge: Data,
+        walletPublicKey: Data,
+        approvalValue: Decimal,
+        spendLimitValue: Decimal
+    ) {
         self.gnosis = gnosis
         self.challenge = challenge
         self.walletPublicKey = walletPublicKey
@@ -41,17 +43,17 @@ class RegistrationTask: CardSessionRunnable {
     }
 
     deinit {
-        print("RegistrationTask deinit")
+        AppLog.shared.debug("RegistrationTask deinit")
     }
 
     func run(in session: CardSession, completion: @escaping CompletionResult<RegistrationTaskResponse>) {
-        session.viewDelegate.showAlertMessage("registration_task_alert_message".localized)
+        session.viewDelegate.showAlertMessage(Localization.registrationTaskAlertMessage)
         generateOTP(in: session, completion: completion)
     }
 
     private func generateOTP(in session: CardSession, completion: @escaping CompletionResult<RegistrationTaskResponse>) {
         let cmd = GenerateOTPCommand()
-        self.generateOTPCommand = cmd
+        generateOTPCommand = cmd
 
         cmd.run(in: session) { result in
             switch result {
@@ -76,11 +78,13 @@ class RegistrationTask: CardSessionRunnable {
             return
         }
 
-        let cmd = AttestWalletKeyCommand(publicKey: walletPublicKey,
-                                         challenge: self.challenge,
-                                         confirmationMode: .dynamic)
+        let cmd = AttestWalletKeyCommand(
+            publicKey: walletPublicKey,
+            challenge: challenge,
+            confirmationMode: .dynamic
+        )
 
-        self.attestWalletCommand = cmd
+        attestWalletCommand = cmd
 
         cmd.run(in: session) { result in
             switch result {
@@ -94,8 +98,8 @@ class RegistrationTask: CardSessionRunnable {
     }
 
     private func prepareTransactions(in session: CardSession, completion: @escaping CompletionResult<RegistrationTaskResponse>) {
-        guard let gnosis = self.gnosis,
-              let generateOTPResponse = self.generateOTPResponse else {
+        guard let gnosis = gnosis,
+              let generateOTPResponse = generateOTPResponse else {
             completion(.failure(.unknownError))
             return
         }
@@ -111,7 +115,7 @@ class RegistrationTask: CardSessionRunnable {
             .MergeMany(txPublishers)
             .collect()
             .sink { completionResult in
-                if case let .failure(error) = completionResult {
+                if case .failure(let error) = completionResult {
                     completion(.failure(error.toTangemSdkError()))
                 }
             } receiveValue: { compiledTransactions in
@@ -120,9 +124,11 @@ class RegistrationTask: CardSessionRunnable {
             .store(in: &bag)
     }
 
-    private func signTransactions(_ transactions: [CompiledEthereumTransaction],
-                                  in session: CardSession,
-                                  completion: @escaping CompletionResult<RegistrationTaskResponse>) {
+    private func signTransactions(
+        _ transactions: [CompiledEthereumTransaction],
+        in session: CardSession,
+        completion: @escaping CompletionResult<RegistrationTaskResponse>
+    ) {
         guard let walletPublicKey = session.environment.card?.wallets.first?.publicKey else {
             completion(.failure(.walletNotFound))
             return
@@ -130,12 +136,12 @@ class RegistrationTask: CardSessionRunnable {
 
         let hashes = transactions.map { $0.hash }
         let cmd = SignHashesCommand(hashes: hashes, walletPublicKey: walletPublicKey)
-        self.signCommand = cmd
+        signCommand = cmd
 
         cmd.run(in: session) { result in
             switch result {
             case .success(let response):
-                let signedTxs = zip(transactions, response.signatures).map { (tx, signature) in
+                let signedTxs = zip(transactions, response.signatures).map { tx, signature in
                     SignedEthereumTransaction(compiledTransaction: tx, signature: signature)
                 }
 
@@ -148,14 +154,16 @@ class RegistrationTask: CardSessionRunnable {
     }
 
     private func complete(completion: @escaping CompletionResult<RegistrationTaskResponse>) {
-        guard let attestWalletResponse = self.attestWalletResponse,
+        guard let attestWalletResponse = attestWalletResponse,
               !self.signedTransactions.isEmpty else {
             completion(.failure(.unknownError))
             return
         }
 
-        let response = RegistrationTaskResponse(signedTransactions: signedTransactions,
-                                                attestResponse: attestWalletResponse)
+        let response = RegistrationTaskResponse(
+            signedTransactions: signedTransactions,
+            attestResponse: attestWalletResponse
+        )
 
         completion(.success(response))
     }
