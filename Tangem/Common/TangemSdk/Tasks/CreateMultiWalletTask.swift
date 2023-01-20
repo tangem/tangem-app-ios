@@ -17,6 +17,16 @@ class CreateMultiWalletTask: CardSessionRunnable {
     }
 
     func run(in session: CardSession, completion: @escaping CompletionResult<SuccessResponse>) {
+        guard let card = session.environment.card else {
+            completion(.failure(.missingPreflightRead))
+            return
+        }
+
+        if curves.isEmpty {
+            completion(.success(.init(cardId: card.cardId)))
+            return
+        }
+
         createWallet(at: 0, session: session, completion: completion)
     }
 
@@ -29,12 +39,11 @@ class CreateMultiWalletTask: CardSessionRunnable {
                 completion(.failure(error))
             case .success(let createWalletResponse):
                 if index == self.curves.count - 1 {
-                    completion(.success(SuccessResponse(cardId: (createWalletResponse).cardId)))
+                    completion(.success(SuccessResponse(cardId: createWalletResponse.cardId)))
                 } else {
                     self.createWallet(at: index + 1, session: session, completion: completion)
                 }
             }
         }
     }
-
 }

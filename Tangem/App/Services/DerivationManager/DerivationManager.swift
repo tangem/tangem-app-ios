@@ -57,7 +57,7 @@ struct DerivationManager {
 
         for entry in entries {
             if let path = entry.blockchainNetwork.derivationPath {
-                if let wallet = card.wallets.first(where: { $0.curve == entry.blockchainNetwork.blockchain.curve }) {
+                if let wallet = card.wallets.last(where: { $0.curve == entry.blockchainNetwork.blockchain.curve }) {
                     derivations[wallet.publicKey, default: []].append(path)
                 }
             }
@@ -68,12 +68,11 @@ struct DerivationManager {
             case .success(let response):
                 completion(.success(response))
             case .failure(let error):
-                Analytics.logCardSdkError(error, for: .purgeWallet, card: card)
+                AppLog.shared.error(error, for: .deriveKeys)
                 completion(.failure(error))
             }
         }
     }
 }
-
 
 typealias DerivationResult = DeriveMultipleWalletPublicKeysTask.Response

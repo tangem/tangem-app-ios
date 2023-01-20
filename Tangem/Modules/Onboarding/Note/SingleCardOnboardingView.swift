@@ -40,26 +40,32 @@ struct SingleCardOnboardingView: View {
                 GeometryReader { proxy in
                     let size = proxy.size
                     ZStack(alignment: .center) {
-
-                        NavigationBar(title: "onboarding_title",
-                                      settings: .init(titleFont: .system(size: 17, weight: .semibold), backgroundColor: .clear),
-                                      leftItems: {
-                                          BackButton(height: viewModel.navbarSize.height,
-                                                     isVisible: viewModel.isBackButtonVisible,
-                                                     isEnabled: viewModel.isBackButtonEnabled,
-                                                     hPadding: horizontalPadding) {
-                                              viewModel.backButtonAction()
-                                          }
-                                      }, rightItems: {
-                                          ChatButton(height: viewModel.navbarSize.height,
-                                                     isVisible: true,
-                                                     isEnabled: true) {
-                                              viewModel.openSupportChat()
-                                          }
-                                      })
-                                      .frame(size: viewModel.navbarSize)
-                                      .offset(x: 0, y: -size.height / 2 + (isTopItemsVisible ? viewModel.navbarSize.height / 2 : 0))
-                                      .opacity(isTopItemsVisible ? 1.0 : 0.0)
+                        NavigationBar(
+                            title: Localization.onboardingTitle,
+                            settings: .init(titleFont: .system(size: 17, weight: .semibold), backgroundColor: .clear),
+                            leftItems: {
+                                BackButton(
+                                    height: viewModel.navbarSize.height,
+                                    isVisible: viewModel.isBackButtonVisible,
+                                    isEnabled: viewModel.isBackButtonEnabled,
+                                    hPadding: horizontalPadding
+                                ) {
+                                    viewModel.backButtonAction()
+                                }
+                            },
+                            rightItems: {
+                                ChatButton(
+                                    height: viewModel.navbarSize.height,
+                                    isVisible: true,
+                                    isEnabled: true
+                                ) {
+                                    viewModel.openSupportChat()
+                                }
+                            }
+                        )
+                        .frame(size: viewModel.navbarSize)
+                        .offset(x: 0, y: -size.height / 2 + (isTopItemsVisible ? viewModel.navbarSize.height / 2 : 0))
+                        .opacity(isTopItemsVisible ? 1.0 : 0.0)
 
                         ProgressBar(height: 5, currentProgress: viewModel.currentProgress)
                             .offset(x: 0, y: -size.height / 2 + (isTopItemsVisible ? viewModel.navbarSize.height + 10 : 0))
@@ -71,14 +77,18 @@ struct SingleCardOnboardingView: View {
 
                         if !viewModel.isCustomContentVisible {
                             AnimatedView(settings: viewModel.$supplementCardSettings) {
-                                OnboardingCardView(placeholderCardType: .light,
-                                                   cardImage: nil,
-                                                   cardScanned: false)
+                                OnboardingCardView(
+                                    placeholderCardType: .light,
+                                    cardImage: nil,
+                                    cardScanned: false
+                                )
                             }
                             AnimatedView(settings: viewModel.$mainCardSettings) {
-                                OnboardingCardView(placeholderCardType: .dark,
-                                                   cardImage: viewModel.cardImage,
-                                                   cardScanned: viewModel.isInitialAnimPlayed && viewModel.isCardScanned)
+                                OnboardingCardView(
+                                    placeholderCardType: .dark,
+                                    cardImage: viewModel.cardImage,
+                                    cardScanned: viewModel.isInitialAnimPlayed && viewModel.isCardScanned
+                                )
                             }
 
                             OnboardingTopupBalanceView(
@@ -96,11 +106,13 @@ struct SingleCardOnboardingView: View {
                                 refreshButtonOpacity: currentStep.balanceStackOpacity
                             )
 
-                            OnboardingCircleButton(refreshAction: {},
-                                                   state: currentStep.successCircleState,
-                                                   size: .huge)
-                                .offset(y: 8)
-                                .opacity(currentStep.successCircleOpacity)
+                            OnboardingCircleButton(
+                                refreshAction: {},
+                                state: currentStep.successCircleState,
+                                size: .huge
+                            )
+                            .offset(y: 8)
+                            .opacity(currentStep.successCircleOpacity)
                         }
                     }
                     .position(x: size.width / 2, y: size.height / 2)
@@ -121,8 +133,10 @@ struct SingleCardOnboardingView: View {
                         title: viewModel.title,
                         subtitle: viewModel.subtitle,
                         textOffset: currentStep.messagesOffset,
-                        buttonsSettings: .init(main: viewModel.mainButtonSettings,
-                                               supplement: viewModel.supplementButtonSettings),
+                        buttonsSettings: .init(
+                            main: viewModel.mainButtonSettings,
+                            supplement: viewModel.supplementButtonSettings
+                        ),
                         infoText: viewModel.infoText
                     ) {
                         viewModel.closeOnboarding()
@@ -132,21 +146,20 @@ struct SingleCardOnboardingView: View {
             }
         }
         .alert(item: $viewModel.alert, content: { $0.alert })
-        .onAppear(perform: {
-            viewModel.playInitialAnim()
-        })
+        .onAppear(perform: viewModel.onAppear)
     }
 }
 
 struct OnboardingView_Previews: PreviewProvider {
     static var previews: some View {
-        SingleCardOnboardingView(viewModel: .init(input: PreviewData.previewNoteCardOnboardingInput,
-                                                  coordinator: OnboardingCoordinator()))
+        SingleCardOnboardingView(viewModel: .init(
+            input: PreviewData.previewNoteCardOnboardingInput,
+            coordinator: OnboardingCoordinator()
+        ))
     }
 }
 
 struct CardOnboardingBackgroundCircle: View {
-
     let scale: CGFloat
 
     var body: some View {
@@ -167,5 +180,4 @@ struct CardOnboardingBackgroundCircle: View {
             .scaleEffect(scale)
             .offset(x: 299, y: -228)
     }
-
 }

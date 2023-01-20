@@ -21,37 +21,37 @@ struct Checkout {
     let order: Order?
 
     init(_ checkout: Storefront.Checkout) {
-        self.id = checkout.id
-        self.webUrl = checkout.webUrl
-        self.lineItemsTotal = checkout.lineItemsSubtotalPrice.amount
-        self.total = checkout.totalPriceV2.amount
-        self.currencyCode = checkout.currencyCode.rawValue
-        self.lineItems = checkout.lineItems.edges.map { .init($0.node) }
+        id = checkout.id
+        webUrl = checkout.webUrl
+        lineItemsTotal = checkout.lineItemsSubtotalPrice.amount
+        total = checkout.totalPriceV2.amount
+        currencyCode = checkout.currencyCode.rawValue
+        lineItems = checkout.lineItems.edges.map { .init($0.node) }
 
         if let shippingAddress = checkout.shippingAddress {
-            self.address = Address(shippingAddress)
+            address = Address(shippingAddress)
         } else {
-            self.address = nil
+            address = nil
         }
 
         if let shippingLine = checkout.shippingLine {
-            self.shippingRate = ShippingRate(shippingLine)
+            shippingRate = ShippingRate(shippingLine)
         } else {
-            self.shippingRate = nil
+            shippingRate = nil
         }
 
-        self.availableShippingRates = checkout.availableShippingRates?.shippingRates?.map { ShippingRate($0) } ?? []
+        availableShippingRates = checkout.availableShippingRates?.shippingRates?.map { ShippingRate($0) } ?? []
 
         if let discount = checkout.discountApplications.edges.first.map({ Discount($0.node) }) {
             self.discount = discount
         } else {
-            self.discount = nil
+            discount = nil
         }
 
         if let order = checkout.order {
             self.order = Order(order)
         } else {
-            self.order = nil
+            order = nil
         }
     }
 }
@@ -62,15 +62,12 @@ extension Checkout {
     }
 
     var payCheckout: PayCheckout {
-        let lineItems: [PayLineItem] = self.lineItems.map {
+        let lineItems: [PayLineItem] = lineItems.map {
             PayLineItem(price: $0.amount, quantity: Int($0.quantity))
         }
 
         let shippingAddress = address?.payAddress
-
         let discount = discount?.payDiscount(itemsTotal: lineItemsTotal)
-
-        let total = self.total
 
         let payCheckout = PayCheckout(
             id: id.rawValue,
@@ -80,7 +77,7 @@ extension Checkout {
             shippingDiscount: nil,
             shippingAddress: shippingAddress,
             shippingRate: shippingRate?.payShippingRate,
-            currencyCode: self.payCurrency.currencyCode,
+            currencyCode: payCurrency.currencyCode,
             totalDuties: nil,
             subtotalPrice: total,
             needsShipping: true,
@@ -95,8 +92,7 @@ extension Checkout {
 extension Storefront.CheckoutQuery {
     @discardableResult
     func checkoutFieldsFragment() -> Storefront.CheckoutQuery {
-        self
-            .id()
+        id()
             .ready()
             .webUrl()
             .currencyCode()

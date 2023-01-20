@@ -15,20 +15,24 @@ class WelcomeCoordinator: CoordinatorObject {
     var popToRootAction: ParamsAction<PopToRootOptions>
 
     // MARK: - Main view model
+
     @Published private(set) var welcomeViewModel: WelcomeViewModel? = nil
 
     // MARK: - Child coordinators
+
     @Published var mainCoordinator: MainCoordinator? = nil
     @Published var pushedOnboardingCoordinator: OnboardingCoordinator? = nil
     @Published var shopCoordinator: ShopCoordinator? = nil
     @Published var tokenListCoordinator: TokenListCoordinator? = nil
 
     // MARK: - Child view models
+
     @Published var mailViewModel: MailViewModel? = nil
     @Published var disclaimerViewModel: DisclaimerViewModel? = nil
 
     // MARK: - Private
-    private var welcomeLifecycleSubscription: AnyCancellable? = nil
+
+    private var welcomeLifecycleSubscription: AnyCancellable?
 
     private var lifecyclePublisher: AnyPublisher<Bool, Never> {
         // Only modals, because the modal presentation will not trigger onAppear/onDissapear events
@@ -48,7 +52,7 @@ class WelcomeCoordinator: CoordinatorObject {
     }
 
     func start(with options: WelcomeCoordinator.Options) {
-        self.welcomeViewModel = .init(shouldScanOnAppear: options.shouldScan, coordinator: self)
+        welcomeViewModel = .init(shouldScanOnAppear: options.shouldScan, coordinator: self)
         subscribeToWelcomeLifecycle()
     }
 
@@ -106,18 +110,18 @@ extension WelcomeCoordinator: WelcomeRoutable {
         }
         let coordinator = TokenListCoordinator(dismissAction: dismissAction)
         coordinator.start(with: .show)
-        self.tokenListCoordinator = coordinator
+        tokenListCoordinator = coordinator
     }
 
     func openShop() {
         let coordinator = ShopCoordinator()
         coordinator.start()
-        self.shopCoordinator = coordinator
+        shopCoordinator = coordinator
     }
 }
 
 extension WelcomeCoordinator: DisclaimerRoutable {
     func dismissDisclaimer() {
-        self.disclaimerViewModel = nil
+        disclaimerViewModel = nil
     }
 }

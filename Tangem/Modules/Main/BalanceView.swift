@@ -43,24 +43,24 @@ struct BalanceView: View {
 
     var blockchainText: String {
         if balanceViewModel.state.isLoading {
-            return  "wallet_balance_loading".localized
+            return Localization.walletBalanceLoading
         }
 
         if balanceViewModel.state.errorDescription != nil {
-            return "wallet_balance_blockchain_unreachable".localized
+            return Localization.walletBalanceBlockchainUnreachable
         }
 
         if balanceViewModel.hasTransactionInProgress {
-            return  "wallet_balance_tx_in_progress".localized
+            return Localization.walletBalanceTxInProgress
         }
 
-        return "wallet_balance_verified".localized
+        return Localization.walletBalanceVerified
     }
 
     var accentColor: Color {
-        if balanceViewModel.state.errorDescription == nil
-            && !balanceViewModel.hasTransactionInProgress
-            && !balanceViewModel.state.isLoading {
+        if balanceViewModel.state.errorDescription == nil,
+           !balanceViewModel.hasTransactionInProgress,
+           !balanceViewModel.state.isLoading {
             return .tangemGreen
         }
         return .tangemWarning
@@ -68,7 +68,6 @@ struct BalanceView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
-
             Color.clear.frame(height: 16)
 
             HStack {
@@ -85,7 +84,6 @@ struct BalanceView: View {
             .padding(.horizontal, 24.0)
             .padding(.bottom, 8)
             .fixedSize(horizontal: false, vertical: true)
-
 
             HStack(alignment: .firstTextBaseline, spacing: 5.0) {
                 Image(systemName: balanceViewModel.state.errorDescription == nil && !balanceViewModel.hasTransactionInProgress ? "checkmark.circle" : "exclamationmark.circle")
@@ -116,7 +114,6 @@ struct BalanceView: View {
             .padding(.bottom, 16.0)
             .padding(.horizontal, 24.0)
 
-
             if balanceViewModel.isToken {
                 Color.tangemGrayLight5
                     .frame(width: nil, height: 1.0, alignment: .center)
@@ -138,7 +135,6 @@ struct BalanceView: View {
                             .lineLimit(1)
                             .foregroundColor(Color.tangemGrayDark)
                     }
-
                 }
                 .padding(.horizontal, 24.0)
 
@@ -159,62 +155,81 @@ struct BalanceView: View {
 }
 
 struct BalanceView_Previews: PreviewProvider {
-
     static let tokens = [
-        TokenBalanceViewModel(token: Token(name: "SushiSwap", symbol: "SUSHI", contractAddress: "", decimalCount: 18),
-                              balance: "163.7425436",
-                              fiatBalance: "$ 2241.31"),
+        TokenBalanceViewModel(
+            token: Token(name: "SushiSwap", symbol: "SUSHI", contractAddress: "", decimalCount: 18),
+            balance: "163.7425436",
+            fiatBalance: "$ 2241.31"
+        ),
     ]
 
     static var previews: some View {
         ZStack {
             Color.tangemBgGray
             VStack {
-                BalanceView(balanceViewModel: BalanceViewModel(isToken: false,
-                                                               hasTransactionInProgress: false,
-                                                               state: .idle,
-                                                               name: "Ethereum smart contract token",
-                                                               fiatBalance: "$3.45",
-                                                               balance: "0.00000348573986753845001 BTC",
-                                                               secondaryBalance: "", secondaryFiatBalance: "",
-                                                               secondaryName: ""),
-                            tokenBalanceViewModels: tokens)
-                    .padding(.horizontal, 16)
+                BalanceView(
+                    balanceViewModel: BalanceViewModel(
+                        isToken: false,
+                        hasTransactionInProgress: false,
+                        state: .idle,
+                        name: "Ethereum smart contract token",
+                        fiatBalance: "$3.45",
+                        balance: "0.00000348573986753845001 BTC",
+                        secondaryBalance: "",
+                        secondaryFiatBalance: "",
+                        secondaryName: ""
+                    ),
+                    tokenBalanceViewModels: tokens
+                )
+                .padding(.horizontal, 16)
 
-                BalanceView(balanceViewModel: BalanceViewModel(isToken: false,
-                                                               hasTransactionInProgress: false,
-                                                               state: .loading,
-                                                               name: "Ethereum smart contract token",
-                                                               fiatBalance: "$3.45",
-                                                               balance: "0.00000348573986753845001 BTC",
-                                                               secondaryBalance: "", secondaryFiatBalance: "",
-                                                               secondaryName: ""),
-                            tokenBalanceViewModels: tokens)
-                    .padding(.horizontal, 16)
+                BalanceView(
+                    balanceViewModel: BalanceViewModel(
+                        isToken: false,
+                        hasTransactionInProgress: false,
+                        state: .loading,
+                        name: "Ethereum smart contract token",
+                        fiatBalance: "$3.45",
+                        balance: "0.00000348573986753845001 BTC",
+                        secondaryBalance: "",
+                        secondaryFiatBalance: "",
+                        secondaryName: ""
+                    ),
+                    tokenBalanceViewModels: tokens
+                )
+                .padding(.horizontal, 16)
 
-                BalanceView(balanceViewModel: BalanceViewModel(isToken: true,
-                                                               hasTransactionInProgress: false,
-                                                               state: .failed(error: "The internet connection appears to be offline. Very very very long error description. Very very very long error description. Very very very long error description. Very very very long error description. Very very very long error description. Very very very long error description"),
-                                                               name: "Ethereum smart contract token",
-                                                               fiatBalance: " ",
-                                                               balance: " ",
-                                                               secondaryBalance: " ",
-                                                               secondaryFiatBalance: "",
-                                                               secondaryName: "Bitcoin"),
-                            tokenBalanceViewModels: tokens)
-                    .padding(.horizontal, 16)
+                BalanceView(
+                    balanceViewModel: BalanceViewModel(
+                        isToken: true,
+                        hasTransactionInProgress: false,
+                        state: .failed(error: "The internet connection appears to be offline. Very very very long error description. Very very very long error description. Very very very long error description. Very very very long error description. Very very very long error description. Very very very long error description"),
+                        name: "Ethereum smart contract token",
+                        fiatBalance: " ",
+                        balance: " ",
+                        secondaryBalance: " ",
+                        secondaryFiatBalance: "",
+                        secondaryName: "Bitcoin"
+                    ),
+                    tokenBalanceViewModels: tokens
+                )
+                .padding(.horizontal, 16)
 
-                BalanceView(balanceViewModel: BalanceViewModel(isToken: true,
-                                                               hasTransactionInProgress: true,
-                                                               state: .idle,
-                                                               name: "Bitcoin token",
-                                                               fiatBalance: "5 USD",
-                                                               balance: "10 BTCA",
-                                                               secondaryBalance: "19 BTC",
-                                                               secondaryFiatBalance: "10 USD",
-                                                               secondaryName: "Bitcoin"),
-                            tokenBalanceViewModels: tokens)
-                    .padding(.horizontal, 16)
+                BalanceView(
+                    balanceViewModel: BalanceViewModel(
+                        isToken: true,
+                        hasTransactionInProgress: true,
+                        state: .idle,
+                        name: "Bitcoin token",
+                        fiatBalance: "5 USD",
+                        balance: "10 BTCA",
+                        secondaryBalance: "19 BTC",
+                        secondaryFiatBalance: "10 USD",
+                        secondaryName: "Bitcoin"
+                    ),
+                    tokenBalanceViewModels: tokens
+                )
+                .padding(.horizontal, 16)
             }
         }
     }
