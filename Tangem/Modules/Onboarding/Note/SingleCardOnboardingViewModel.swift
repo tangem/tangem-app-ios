@@ -104,7 +104,7 @@ class SingleCardOnboardingViewModel: OnboardingTopupViewModel<SingleCardOnboardi
     }
 
     // MARK: Functions
-    
+
     func onAppear() {
         Analytics.log(.onboardingStarted)
 
@@ -178,7 +178,7 @@ class SingleCardOnboardingViewModel: OnboardingTopupViewModel<SingleCardOnboardi
         guard let cardModel else { return }
 
         Analytics.log(.buttonCreateWallet)
-        
+
         isMainButtonBusy = true
 
         var subscription: AnyCancellable? = nil
@@ -206,7 +206,7 @@ class SingleCardOnboardingViewModel: OnboardingTopupViewModel<SingleCardOnboardi
             subscription.map { _ = self?.bag.remove($0) }
         } receiveValue: { [weak self] (_, _) in
             guard let self = self else { return }
-            
+
             Analytics.log(.walletCreatedSuccessfully)
 
             self.cardModel?.appendDefaultBlockchains()
