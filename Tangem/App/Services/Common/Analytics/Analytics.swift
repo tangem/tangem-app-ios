@@ -24,15 +24,9 @@ enum Analytics {
     }
 
     static func log(_ event: Event, params: [ParameterKey: String] = [:]) {
-        for system in analyticsSystems {
-            switch system {
-            case .appsflyer, .firebase:
-                log(event: event, with: params)
-            case .amplitude:
-                logAmplitude(event: event, params: params)
-            }
-        }
-        logCrashlytics(event, with: params.firebaseParams)
+        assert(event.canBeLoggedDirectly)
+        
+        logInternal(event, params: params)
     }
 
     static func logScan(card: CardDTO, config: UserWalletConfig) {
@@ -46,7 +40,7 @@ enum Analytics {
     }
 
     static func beginLoggingCardScan(source: CardScanSource) {
-        log(source.cardScanButtonEvent)
+        logInternal(source.cardScanButtonEvent)
         
         additionalDataRepository.cardDidScanEvent = source.cardDidScanEvent
     }
@@ -57,7 +51,7 @@ enum Analytics {
             return
         }
         
-        log(event)
+        logInternal(event)
     }
 
     static func logCardSignIn(balance: Decimal, basicCurrency: String, batchId: String, cardNumberHash: String) {
@@ -73,7 +67,7 @@ enum Analytics {
             .batchId: batchId,
         ]
 
-        Analytics.log(.signedIn, params: params)
+        Analytics.logInternal(.signedIn, params: params)
     }
     
     static func logTx(blockchainName: String?, type: TransactionType) {
@@ -188,6 +182,18 @@ enum Analytics {
             .count: "\(order.lineItems.count)",
             .amount: "\(order.total) \(order.currencyCode)",
         ], uniquingKeysWith: { $1 }))
+    }
+
+    private static func logInternal(_ event: Event, params: [ParameterKey: String] = [:]) {
+        for system in analyticsSystems {
+            switch system {
+            case .appsflyer, .firebase:
+                log(event: event, with: params)
+            case .amplitude:
+                logAmplitude(event: event, params: params)
+            }
+        }
+        logCrashlytics(event, with: params.firebaseParams)
     }
 
     private static func logAmplitude(event: Event, params: [ParameterKey: String] = [:]) {
@@ -357,5 +363,22 @@ fileprivate extension Dictionary where Key == Analytics.ParameterKey, Value == S
         var convertedParams = [String: Any]()
         forEach { convertedParams[$0.key.rawValue] = $0.value }
         return convertedParams
+    }
+}
+
+fileprivate extension Analytics.Event {
+    var canBeLoggedDirectly: Bool {
+        switch self {
+        case .introductionProcessButtonScanCard,
+                .buttonScanCard,
+                .buttonScanNewCard,
+                .introductionProcessCardWasScanned,
+                .mainCardWasScanned,
+                .myWalletsCardWasScanned,
+                .signedIn:
+            return false
+        default:
+            return true
+        }
     }
 }
