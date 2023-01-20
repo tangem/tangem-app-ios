@@ -17,6 +17,7 @@ import TangemSdk
 enum Analytics {
     static private var analyticsSystems: [Analytics.AnalyticSystem] = [.firebase, .appsflyer, .amplitude]
     static private var persistentParams: [ParameterKey: String] = [:]
+    static private let additionalDataRepository = AdditionalDataRepository()
 
     static func reset() {
         persistentParams = [:]
@@ -42,6 +43,21 @@ enum Analytics {
         if DemoUtil().isDemoCard(cardId: card.cardId) {
             log(event: .demoActivated, with: [.cardId: card.cardId])
         }
+    }
+
+    static func beginLoggingCardScan(source: CardScanSource) {
+        log(source.cardScanButtonEvent)
+        
+        additionalDataRepository.cardDidScanEvent = source.cardDidScanEvent
+    }
+    
+    static func endLoggingCardScan() {
+        guard let event = additionalDataRepository.cardDidScanEvent else {
+            assertionFailure("Don't forget to call beginLoggingCardScan")
+            return
+        }
+        
+        log(event)
     }
 
     static func logTx(blockchainName: String?, type: TransactionType) {
@@ -284,6 +300,38 @@ extension Analytics {
             case .sell:
                 return .userSoldCrypto
             }
+        }
+    }
+}
+
+extension Analytics {
+    enum CardScanSource {
+        case welcome
+        case main
+        case myWallets
+    }
+}
+
+extension Analytics.CardScanSource {
+    var cardScanButtonEvent: Analytics.Event {
+        switch self {
+        case .welcome:
+            return .introductionProcessButtonScanCard
+        case .main:
+            return .buttonScanCard
+        case .myWallets:
+            return .buttonScanNewCard
+        }
+    }
+    
+    var cardDidScanEvent: Analytics.Event {
+        switch self {
+        case .welcome:
+            return .introductionProcessCardWasScanned
+        case .main:
+            return .mainCardWasScanned
+        case .myWallets:
+            return .myWalletsCardWasScanned
         }
     }
 }
