@@ -16,6 +16,7 @@ enum Constants {
         3600 * 24 * 1
 //        0 // for testing RBF
     }
+
     static var isSmallScreen: Bool {
         UIScreen.main.bounds.width < 375 || UIScreen.main.bounds.height < 650
     }

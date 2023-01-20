@@ -14,8 +14,21 @@ class UserWalletRepositoryUtil {
     private var fileManager: FileManager {
         FileManager.default
     }
+
     private var userWalletDirectoryUrl: URL {
         fileManager.urls(for: .documentDirectory, in: .userDomainMask)[0].appendingPathComponent("user_wallets", isDirectory: true)
+    }
+
+    private let publicDataEncryptionKeyStorageKey = "user_wallet_public_data_encryption_key"
+
+    func removePublicDataEncryptionKey() {
+        do {
+            let secureStorage = SecureStorage()
+            try secureStorage.delete(publicDataEncryptionKeyStorageKey)
+        } catch {
+            AppLog.shared.debug("Failed to erase public data encryption key")
+            AppLog.shared.error(error)
+        }
     }
 
     func savedUserWallets(encryptionKeyByUserWalletId: [Data: SymmetricKey]) -> [UserWallet] {
@@ -48,7 +61,7 @@ class UserWalletRepositoryUtil {
 
             return userWallets
         } catch {
-            print(error)
+            AppLog.shared.error(error)
             return []
         }
     }
@@ -85,7 +98,7 @@ class UserWalletRepositoryUtil {
                 let userWalletEncryptionKey = UserWalletEncryptionKeyFactory().encryptionKey(from: cardInfo)
 
                 guard let encryptionKey = userWalletEncryptionKey else {
-                    print("User wallet \(userWallet.card.cardId) failed to generate encryption key")
+                    AppLog.shared.debug("User wallet \(userWallet.card.cardId) failed to generate encryption key")
                     continue
                 }
 
@@ -96,22 +109,22 @@ class UserWalletRepositoryUtil {
                 try excludeFromBackup(url: sensitiveDataPath)
             }
         } catch {
-            print("Failed to save user wallets", error)
+            AppLog.shared.debug("Failed to save user wallets")
+            AppLog.shared.error(error)
         }
     }
 
     private func publicDataEncryptionKey() throws -> SymmetricKey {
-        let keychainKey = "user_wallet_public_data_encryption_key"
         let secureStorage = SecureStorage()
 
-        let encryptionKeyData = try secureStorage.get(keychainKey)
+        let encryptionKeyData = try secureStorage.get(publicDataEncryptionKeyStorageKey)
         if let encryptionKeyData = encryptionKeyData {
             let symmetricKey: SymmetricKey = .init(data: encryptionKeyData)
             return symmetricKey
         }
 
         let newEncryptionKey = SymmetricKey(size: .bits256)
-        try secureStorage.store(newEncryptionKey.dataRepresentationWithHexConversion, forKey: keychainKey)
+        try secureStorage.store(newEncryptionKey.dataRepresentationWithHexConversion, forKey: publicDataEncryptionKeyStorageKey)
         return newEncryptionKey
     }
 
