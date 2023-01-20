@@ -52,7 +52,7 @@ private extension TotalBalanceProvider {
                     return
                 }
 
-                self?.tryUpdateTotalBalance(with: currencyCode)
+                self?.updateTotalBalance(with: currencyCode, walletModels)
             }
             .store(in: &bag)
 
@@ -60,7 +60,7 @@ private extension TotalBalanceProvider {
         userWalletModel.subscribeToWalletModels()
             .filter { !$0.isEmpty }
             .receive(on: DispatchQueue.main)
-            .flatMap { walletModels -> AnyPublisher<Void, Never> in
+            .flatMap { walletModels -> AnyPublisher<[WalletModel], Never> in
                 Publishers.MergeMany(
                     walletModels.map { $0
                         .walletDidChange
@@ -68,28 +68,28 @@ private extension TotalBalanceProvider {
                         // This delay has been added because `walletDidChange` pushed the changes on `willSet`
                         .delay(for: 0.1, scheduler: DispatchQueue.main)
                     })
-                    .mapVoid()
+                    .map { _ in walletModels }
                     .eraseToAnyPublisher()
             }
             .debounce(for: 0.2, scheduler: DispatchQueue.main) // Hide skeleton with delay
+            .filter { walletModels in
+                // We can still have loading items
+                walletModels.allConforms({ !$0.state.isLoading })
+            }
             .sink { [weak self] walletModels in
-                self?.tryUpdateTotalBalance(with: AppSettings.shared.selectedCurrencyCode)
+                self?.updateTotalBalance(with: AppSettings.shared.selectedCurrencyCode, walletModels)
             }
             .store(in: &bag)
     }
 
-    func tryUpdateTotalBalance(with currencyCode: String) {
-        let tokenItemViewModels = getTokenItemViewModels()
-        guard tokenItemViewModels.allConforms({ !$0.state.isLoading }) else {
-            // We still have loading items
-            return
-        }
-
-        let totalBalance = mapToTotalBalance(currencyCode: currencyCode, tokenItemViewModels: tokenItemViewModels)
+    func updateTotalBalance(with currencyCode: String, _ walletModels: [WalletModel]) {
+        let totalBalance = mapToTotalBalance(currencyCode: currencyCode, walletModels)
         totalBalanceSubject.send(.loaded(totalBalance))
     }
 
-    func mapToTotalBalance(currencyCode: String, tokenItemViewModels: [TokenItemViewModel]) -> TotalBalance {
+    func mapToTotalBalance(currencyCode: String, _ walletModels: [WalletModel]) -> TotalBalance {
+        let tokenItemViewModels = getTokenItemViewModels(from: walletModels)
+
         var hasError: Bool = false
         var balance: Decimal = 0.0
 
@@ -119,8 +119,8 @@ private extension TotalBalanceProvider {
         return TotalBalance(balance: balance, currencyCode: currencyCode, hasError: hasError)
     }
 
-    func getTokenItemViewModels() -> [TokenItemViewModel] {
-        userWalletModel.getWalletModels()
+    func getTokenItemViewModels(from walletModels: [WalletModel]) -> [TokenItemViewModel] {
+        walletModels
             .flatMap { $0.allTokenItemViewModels() }
             .filter { model in
                 guard let amountType = userWalletAmountType else { return true }
