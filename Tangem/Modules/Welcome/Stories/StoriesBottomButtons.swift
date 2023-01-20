@@ -14,20 +14,20 @@ struct StoriesBottomButtons: View {
 
     let isScanning: Bool
 
-    let scanCard: (() -> Void)
-    let orderCard: (() -> Void)
+    let scanCard: () -> Void
+    let orderCard: () -> Void
 
     var body: some View {
         HStack {
             MainButton(
-                title: "home_button_scan".localized,
+                title: Localization.homeButtonScan,
                 style: scanColorStyle,
                 isLoading: isScanning,
                 action: scanCard
             )
 
             MainButton(
-                title: "home_button_order".localized,
+                title: Localization.homeButtonOrder,
                 style: orderColorStyle,
                 isDisabled: isScanning,
                 action: orderCard
@@ -38,10 +38,6 @@ struct StoriesBottomButtons: View {
 
 struct StoriesBottomButtons_Previews: PreviewProvider {
     static var previews: some View {
-        StoriesBottomButtons(scanColorStyle: .primary, orderColorStyle: .secondary, isScanning: false) {
-
-        } orderCard: {
-
-        }
+        StoriesBottomButtons(scanColorStyle: .primary, orderColorStyle: .secondary, isScanning: false) {} orderCard: {}
     }
 }
