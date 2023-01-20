@@ -13,7 +13,6 @@ import Combine
 import BlockchainSdk
 
 class SingleCardOnboardingViewModel: OnboardingTopupViewModel<SingleCardOnboardingStep, OnboardingCoordinator>, ObservableObject {
-
     @Published var isCardScanned: Bool = true
 
     override var currentStep: SingleCardOnboardingStep {
@@ -24,18 +23,18 @@ class SingleCardOnboardingViewModel: OnboardingTopupViewModel<SingleCardOnboardi
         return steps[currentStepIndex]
     }
 
-    override var subtitle: LocalizedStringKey? {
+    override var subtitle: String? {
         if currentStep == .topup,
            case .xrp = cardModel?.walletModels.first?.blockchainNetwork.blockchain {
-            return LocalizedStringKey(stringLiteral: "onboarding_top_up_body_no_account_error".localized(["10", "XRP"]))
+            return Localization.onboardingTopUpBodyNoAccountError("10", "XRP")
         } else {
             return super.subtitle
         }
     }
 
-    override var mainButtonTitle: LocalizedStringKey {
+    override var mainButtonTitle: String {
         if case .topup = currentStep, !canBuyCrypto {
-            return "onboarding_button_receive_crypto"
+            return Localization.onboardingButtonReceiveCrypto
         }
 
         return super.mainButtonTitle
@@ -66,7 +65,7 @@ class SingleCardOnboardingViewModel: OnboardingTopupViewModel<SingleCardOnboardi
         }
     }
 
-    var infoText: LocalizedStringKey? {
+    var infoText: String? {
         currentStep.infoText
     }
 
@@ -86,17 +85,17 @@ class SingleCardOnboardingViewModel: OnboardingTopupViewModel<SingleCardOnboardi
     override init(input: OnboardingInput, coordinator: OnboardingCoordinator) {
         super.init(input: input, coordinator: coordinator)
 
-        if case let .singleWallet(steps) = input.steps {
+        if case .singleWallet(let steps) = input.steps {
             self.steps = steps
         } else {
             fatalError("Wrong onboarding steps passed to initializer")
         }
 
-        if let walletModel = self.cardModel?.walletModels.first {
+        if let walletModel = cardModel?.walletModels.first {
             updateCardBalanceText(for: walletModel)
         }
 
-        if steps.first == .topup && currentStep == .topup {
+        if steps.first == .topup, currentStep == .topup {
             DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
                 self.updateCardBalance()
             }
@@ -105,8 +104,14 @@ class SingleCardOnboardingViewModel: OnboardingTopupViewModel<SingleCardOnboardi
 
     // MARK: Functions
 
+    func onAppear() {
+        Analytics.log(.onboardingStarted)
+
+        playInitialAnim()
+    }
+
     override func backButtonAction() {
-        alert = AlertBuilder.makeExitAlert() { [weak self] in
+        alert = AlertBuilder.makeExitAlert { [weak self] in
             self?.closeOnboarding()
         }
     }
@@ -160,10 +165,14 @@ class SingleCardOnboardingViewModel: OnboardingTopupViewModel<SingleCardOnboardi
             mainCardSettings = .zero
             supplementCardSettings = .zero
         default:
-            mainCardSettings = .init(targetSettings: SingleCardOnboardingCardsLayout.main.cardAnimSettings(for: currentStep,
-                                                                                                           containerSize: containerSize,
-                                                                                                           animated: animated),
-                                     intermediateSettings: nil)
+            mainCardSettings = .init(
+                targetSettings: SingleCardOnboardingCardsLayout.main.cardAnimSettings(
+                    for: currentStep,
+                    containerSize: containerSize,
+                    animated: animated
+                ),
+                intermediateSettings: nil
+            )
             supplementCardSettings = .init(targetSettings: SingleCardOnboardingCardsLayout.supplementary.cardAnimSettings(for: currentStep, containerSize: containerSize, animated: animated), intermediateSettings: nil)
         }
     }
@@ -171,9 +180,11 @@ class SingleCardOnboardingViewModel: OnboardingTopupViewModel<SingleCardOnboardi
     private func createWallet() {
         guard let cardModel else { return }
 
+        Analytics.log(.buttonCreateWallet)
+
         isMainButtonBusy = true
 
-        var subscription: AnyCancellable? = nil
+        var subscription: AnyCancellable?
 
         subscription = Deferred {
             Future { (promise: @escaping Future<Void, Error>.Promise) in
@@ -191,21 +202,22 @@ class SingleCardOnboardingViewModel: OnboardingTopupViewModel<SingleCardOnboardi
         .combineLatest(NotificationCenter.didBecomeActivePublisher)
         .first()
         .sink { [weak self] completion in
-            if case let .failure(error) = completion {
+            if case .failure(let error) = completion {
                 self?.isMainButtonBusy = false
-                print("Failed to create wallet. \(error)")
+                AppLog.shared.debug("Failed to create wallet")
+                AppLog.shared.error(error)
             }
             subscription.map { _ = self?.bag.remove($0) }
-        } receiveValue: { [weak self] (_, _) in
+        } receiveValue: { [weak self] _, _ in
             guard let self = self else { return }
+
+            Analytics.log(.walletCreatedSuccessfully)
 
             self.cardModel?.appendDefaultBlockchains()
 
             if let cardId = self.cardModel?.cardId {
                 AppSettings.shared.cardsStartedActivation.insert(cardId)
             }
-
-            Analytics.log(.onboardingStarted)
 
             self.cardModel?.userWalletModel?.updateAndReloadWalletModels()
             self.walletCreatedWhileOnboarding = true
@@ -222,7 +234,7 @@ class SingleCardOnboardingViewModel: OnboardingTopupViewModel<SingleCardOnboardi
     private func stepUpdate() {
         switch currentStep {
         case .topup:
-            if let walletModel = self.cardModel?.walletModels.first {
+            if let walletModel = cardModel?.walletModels.first {
                 updateCardBalanceText(for: walletModel)
             }
 

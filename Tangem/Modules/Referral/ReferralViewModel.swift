@@ -23,6 +23,14 @@ class ReferralViewModel: ObservableObject {
     private let cardModel: CardViewModel
     private let userWalletId: Data
 
+    private var shareLink: String {
+        guard let referralInfo = referralProgramInfo?.referral else {
+            return ""
+        }
+
+        return Localization.referralShareLink(referralInfo.shareLink)
+    }
+
     init(cardModel: CardViewModel, userWalletId: Data, coordinator: ReferralRoutable) {
         self.cardModel = cardModel
         self.userWalletId = userWalletId
@@ -33,12 +41,17 @@ class ReferralViewModel: ObservableObject {
 
     @MainActor
     func participateInReferralProgram() async {
+        Analytics.log(.referralButtonParticipate)
+
         guard
             let award = referralProgramInfo?.conditions.awards.first,
             let blockchain = Blockchain(from: award.token.networkId)
         else {
-            errorAlert = AlertBuilder.makeOkErrorAlert(message: "referral_error_failed_to_load_info".localized,
-                                                       okAction: coordinator.dismiss)
+            AppLog.shared.error(Localization.referralErrorFailedToLoadInfo)
+            errorAlert = AlertBuilder.makeOkErrorAlert(
+                message: Localization.referralErrorFailedToLoadInfo,
+                okAction: coordinator.dismiss
+            )
             return
         }
 
@@ -50,7 +63,6 @@ class ReferralViewModel: ObservableObject {
         }
 
         saveToStorageIfNeeded(token, for: blockchain)
-
         isProcessingRequest = true
         do {
             let referralProgramInfo = try await runInTask {
@@ -58,16 +70,25 @@ class ReferralViewModel: ObservableObject {
             }
             self.referralProgramInfo = referralProgramInfo
         } catch {
-            let format = "referral_error_failed_to_participate".localized
-            errorAlert = AlertBuilder.makeOkErrorAlert(message: String(format: format, error.localizedDescription))
+            let referralError = ReferralError(error)
+            let message = Localization.referralErrorFailedToParticipate(referralError.code)
+            errorAlert = AlertBuilder.makeOkErrorAlert(message: message)
+            AppLog.shared.error(referralError)
         }
 
         isProcessingRequest = false
     }
 
     func copyPromoCode() {
+        Analytics.log(.referralButtonCopyCode)
         UIPasteboard.general.string = referralProgramInfo?.referral?.promoCode
         showCodeCopiedToast = true
+    }
+
+    func sharePromoCode() {
+        Analytics.log(.referralButtonShareCode)
+        let shareActivityVC = UIActivityViewController(activityItems: [shareLink], applicationActivities: nil)
+        AppPresenter.shared.show(shareActivityVC)
     }
 
     @MainActor
@@ -78,9 +99,10 @@ class ReferralViewModel: ObservableObject {
             }
             self.referralProgramInfo = referralProgramInfo
         } catch {
-            let format = "referral_error_failed_to_load_info_with_reason".localized
-            self.errorAlert = AlertBuilder.makeOkErrorAlert(message: String(format: format, error.localizedDescription),
-                                                            okAction: self.coordinator.dismiss)
+            let referralError = ReferralError(error)
+            let message = Localization.referralErrorFailedToLoadInfoWithReason(referralError.code)
+            AppLog.shared.error(referralError)
+            errorAlert = AlertBuilder.makeOkErrorAlert(message: message, okAction: coordinator.dismiss)
         }
     }
 
@@ -106,6 +128,7 @@ class ReferralViewModel: ObservableObject {
                     return
                 }
 
+                AppLog.shared.error(error)
                 self.errorAlert = error.alertBinder
             }
         }
@@ -124,7 +147,6 @@ class ReferralViewModel: ObservableObject {
 
         if let savedNetworkIndex = savedEntries.firstIndex(where: { $0.blockchainNetwork == network }),
            !savedEntries[savedNetworkIndex].tokens.contains(where: { $0 == storageToken }) {
-
             savedEntries[savedNetworkIndex].tokens.append(storageToken)
             cardModel.userWalletModel?.update(entries: savedEntries)
         }
@@ -138,15 +160,18 @@ class ReferralViewModel: ObservableObject {
             return nil
         }
 
-        return Token(name: token.name,
-                     symbol: token.symbol,
-                     contractAddress: contractAddress,
-                     decimalCount: decimalCount,
-                     id: token.id)
+        return Token(
+            name: token.name,
+            symbol: token.symbol,
+            contractAddress: contractAddress,
+            decimalCount: decimalCount,
+            id: token.id
+        )
     }
 }
 
 // MARK: UI stuff
+
 extension ReferralViewModel {
     var award: String {
         guard
@@ -160,7 +185,6 @@ extension ReferralViewModel {
     }
 
     var awardDescriptionSuffix: String {
-        let format = "referral_point_currencies_description_suffix".localized
         var addressContent = ""
         var tokenName = ""
         if let address = referralProgramInfo?.referral?.address {
@@ -173,7 +197,7 @@ extension ReferralViewModel {
             tokenName = blockchain.displayName
         }
 
-        return " " + String(format: format, tokenName, addressContent)
+        return " " + Localization.referralPointCurrenciesDescriptionSuffix(tokenName, addressContent)
     }
 
     var discount: String {
@@ -181,16 +205,12 @@ extension ReferralViewModel {
             return ""
         }
 
-        return String(format: "referral_point_discount_description_value".localized, "\(info.conditions.discount.amount)\(info.conditions.discount.type.symbol)")
+        return Localization.referralPointDiscountDescriptionValue("\(info.conditions.discount.amount)\(info.conditions.discount.type.symbol)")
     }
 
     var numberOfWalletsBought: String {
-        let stringFormat = "referral_wallets_purchased_count".localized
-        guard let info = referralProgramInfo?.referral else {
-            return String.localizedStringWithFormat(stringFormat, 0)
-        }
-
-        return String.localizedStringWithFormat(stringFormat, info.walletsPurchased)
+        let count = referralProgramInfo?.referral?.walletsPurchased ?? 0
+        return Localization.referralWalletsPurchasedCount(count)
     }
 
     var promoCode: String {
@@ -203,18 +223,10 @@ extension ReferralViewModel {
 
     var tosButtonPrefix: String {
         if referralProgramInfo?.referral == nil {
-            return "referral_tos_not_enroled_prefix".localized + " "
+            return Localization.referralTosNotEnroledPrefix + " "
         }
 
-        return "referral_tos_enroled_prefix".localized + " "
-    }
-
-    var shareLink: String {
-        guard let referralInfo = referralProgramInfo?.referral else {
-            return ""
-        }
-
-        return String(format: "referral_share_link".localized, referralInfo.shareLink)
+        return Localization.referralTosEnroledPrefix + " "
     }
 
     var isProgramInfoLoaded: Bool { referralProgramInfo != nil }
@@ -222,16 +234,18 @@ extension ReferralViewModel {
 }
 
 // MARK: - Navigation
+
 extension ReferralViewModel {
     func openTOS() {
         guard
             let link = referralProgramInfo?.conditions.tosLink,
             let url = URL(string: link)
         else {
-            print("Failed to create link")
+            AppLog.shared.debug("Failed to create link")
             return
         }
 
+        Analytics.log(.referralButtonOpenTos)
         coordinator.openTOS(with: url)
     }
 }

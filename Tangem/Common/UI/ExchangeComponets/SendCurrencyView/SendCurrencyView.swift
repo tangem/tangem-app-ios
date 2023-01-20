@@ -13,6 +13,7 @@ struct SendCurrencyView: View {
     @Binding private var decimalValue: Decimal?
 
     private let tokenIconSize = CGSize(width: 36, height: 36)
+    private var didTapMaxAmountAction: (() -> Void)?
 
     init(viewModel: SendCurrencyViewModel, decimalValue: Binding<Decimal?>) {
         self.viewModel = viewModel
@@ -33,7 +34,7 @@ struct SendCurrencyView: View {
 
     private var headerLabels: some View {
         HStack(spacing: 0) {
-            Text("exchange_send_view_header".localized)
+            Text(Localization.exchangeSendViewHeader)
                 .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
 
             Spacer()
@@ -43,31 +44,15 @@ struct SendCurrencyView: View {
         }
     }
 
-    @ViewBuilder
-    private var lockView: some View {
-        if viewModel.isLockedVisible {
-            Assets.swappingLock.image
-                .resizable()
-                .frame(width: 20, height: 20)
-                .padding(.all, 14)
-                .background(Colors.Background.secondary)
-                .cornerRadius(10)
-        }
-    }
-
     private var currencyContent: some View {
-        HStack(spacing: 12) {
-            lockView
+        VStack(alignment: .leading, spacing: 8) {
+            SendGroupedNumberTextField(decimalValue: $decimalValue, maximumFractionDigits: viewModel.maximumFractionDigits)
+                .maximumFractionDigits(viewModel.maximumFractionDigits)
+                .didTapMaxAmount { didTapMaxAmountAction?() }
 
-            VStack(alignment: .leading, spacing: 8) {
-                GroupedNumberTextField(decimalValue: $decimalValue)
-                    .maximumFractionDigits(viewModel.maximumFractionDigits)
-
-                Text(viewModel.fiatValueString)
-                    .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
-            }
+            Text(viewModel.fiatValueString)
+                .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
         }
-        .animation(.easeInOut, value: viewModel.isLockedVisible)
     }
 
     private var mainContent: some View {
@@ -78,6 +63,14 @@ struct SendCurrencyView: View {
 
             SwappingTokenIconView(viewModel: viewModel.tokenIcon)
         }
+    }
+}
+
+// MARK: - Setupable
+
+extension SendCurrencyView: Setupable {
+    func didTapMaxAmount(_ action: @escaping () -> Void) -> Self {
+        map { $0.didTapMaxAmountAction = action }
     }
 }
 
@@ -100,7 +93,6 @@ struct SendCurrencyView_Preview: PreviewProvider {
         balance: 0.02,
         maximumFractionDigits: 8,
         fiatValue: 0.02,
-        isLockedVisible: true,
         tokenIcon: SwappingTokenIconViewModel(
             state: .loaded(
                 imageURL: TokenIconURLBuilderMock().iconURL(id: "bitcoin", size: .large),
