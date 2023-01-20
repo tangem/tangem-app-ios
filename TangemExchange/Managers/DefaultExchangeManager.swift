@@ -330,13 +330,11 @@ private extension DefaultExchangeManager {
 
         let paymentAmount = exchangeItems.source.convertFromWEI(value: quoteData.fromTokenAmount)
         let expectedAmount = destination.convertFromWEI(value: quoteData.toTokenAmount)
-//        let expectedFiatAmount = try await blockchainDataProvider.getFiat(for: destination, amount: expectedAmount)
         let hasPendingTransaction = try await hasPendingApprovingTransaction()
         let isEnoughAmountForExchange = exchangeItems.sourceBalance >= paymentAmount
 
         return PreviewSwappingDataModel(
             expectedAmount: expectedAmount,
-//            expectedFiatAmount: expectedFiatAmount,
             isPermissionRequired: !isEnoughAllowance(),
             hasPendingTransaction: hasPendingTransaction,
             isEnoughAmountForExchange: isEnoughAmountForExchange
@@ -355,8 +353,6 @@ private extension DefaultExchangeManager {
         let sourceBalance = exchangeItems.sourceBalance
         let fee = transaction.fee
 
-//        let fiatFee = try await blockchainDataProvider.getFiat(for: source.blockchain, amount: transaction.fee)
-
         let isEnoughAmountForFee: Bool
         var paymentAmount = amount
         switch exchangeItems.source.currencyType {
@@ -372,9 +368,7 @@ private extension DefaultExchangeManager {
 
         return SwappingResultDataModel(
             amount: preview.expectedAmount,
-//            fiatAmount: preview.expectedFiatAmount,
             fee: fee,
-//            fiatFee: fiatFee,
             isEnoughAmountForExchange: isEnoughAmountForExchange,
             isEnoughAmountForFee: isEnoughAmountForFee,
             isPermissionRequired: !isEnoughAllowance()
