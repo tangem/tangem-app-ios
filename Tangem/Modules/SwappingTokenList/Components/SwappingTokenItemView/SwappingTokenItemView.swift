@@ -21,11 +21,11 @@ struct SwappingTokenItemView: View {
     var body: some View {
         Button(action: viewModel.itemDidTap) {
             HStack(spacing: 0) {
-                HStack(spacing: SwappingTokenItemView.horizontalInteritemSpacing) {
+                HStack(spacing: Self.horizontalInteritemSpacing) {
                     IconView(
                         url: viewModel.iconURL,
                         name: viewModel.name,
-                        size: SwappingTokenItemView.iconSize
+                        size: Self.iconSize
                     )
 
                     tokenInfoView
