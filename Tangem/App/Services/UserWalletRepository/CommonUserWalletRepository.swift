@@ -128,6 +128,7 @@ class CommonUserWalletRepository: UserWalletRepository {
             
             Analytics.endLoggingCardScan()
 
+            self?.sendEvent(.scan(isScanning: false))
             let onboardingInput = cardModel.onboardingInput
             if onboardingInput.steps.needOnboarding {
                 cardModel.userWalletModel?.updateAndReloadWalletModels()
@@ -149,6 +150,7 @@ class CommonUserWalletRepository: UserWalletRepository {
             print("Failed to scan card: \(error)")
 
             self.failedCardScanTracker.recordFailure()
+            self.sendEvent(.scan(isScanning: false))
 
             if let saltpayError = error as? SaltPayRegistratorError {
                 return Just(UserWalletRepositoryResult.error(saltpayError))
@@ -185,7 +187,6 @@ class CommonUserWalletRepository: UserWalletRepository {
 
         sendEvent(.scan(isScanning: true))
         sdkProvider.sdk.startSession(with: AppScanTask(targetBatch: batch)) { [unowned self] result in
-            self.sendEvent(.scan(isScanning: false))
 
             sdkProvider.setup(with: oldConfig)
 
