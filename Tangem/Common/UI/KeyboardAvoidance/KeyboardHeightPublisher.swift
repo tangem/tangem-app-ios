@@ -30,5 +30,4 @@ extension Notification {
     var anumationDuration: Double {
         return (userInfo?[UIResponder.keyboardAnimationDurationUserInfoKey] as? NSNumber)?.doubleValue ?? 0
     }
-
 }
