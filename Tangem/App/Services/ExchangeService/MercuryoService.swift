@@ -54,7 +54,7 @@ class MercuryoService {
     init() {}
 
     deinit {
-        print("MercuryoService deinit")
+        AppLog.shared.debug("MercuryoService deinit")
     }
 }
 
@@ -151,8 +151,8 @@ extension MercuryoService: ExchangeService {
     }
 }
 
-extension URLQueryItem {
-    fileprivate init(key: QueryKey, value: String?) {
+fileprivate extension URLQueryItem {
+    init(key: QueryKey, value: String?) {
         self.init(name: key.rawValue, value: value)
     }
 }
