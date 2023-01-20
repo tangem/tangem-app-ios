@@ -110,7 +110,7 @@ class CardViewModel: Identifiable, ObservableObject {
     var cardTouURL: URL {
         config.touURL
     }
-    
+
     var embeddedBlockchain: Blockchain? {
         config.embeddedBlockchain?.blockchainNetwork.blockchain
     }
