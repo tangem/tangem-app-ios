@@ -9,29 +9,12 @@
 import SwiftUI
 
 struct MainButton: View {
-    private let title: LocalizedStringKey
+    private let title: String
     private let icon: Icon?
     private let style: Style
     private let isLoading: Bool
     private let isDisabled: Bool
     private let action: () -> Void
-
-    /// Better don't use it because it forces `import SwiftUI` in `viewModel` or services
-    init(
-        title: LocalizedStringKey,
-        icon: Icon? = nil,
-        style: Style = .primary,
-        isLoading: Bool = false,
-        isDisabled: Bool = false,
-        action: @escaping (() -> Void)
-    ) {
-        self.title = title
-        self.icon = icon
-        self.style = style
-        self.isLoading = isLoading
-        self.isDisabled = isDisabled
-        self.action = action
-    }
 
     init(
         title: String,
@@ -41,7 +24,7 @@ struct MainButton: View {
         isDisabled: Bool = false,
         action: @escaping (() -> Void)
     ) {
-        self.title = LocalizedStringKey(stringLiteral: title)
+        self.title = title
         self.icon = icon
         self.style = style
         self.isLoading = isLoading
@@ -67,9 +50,9 @@ struct MainButton: View {
                 .padding(.vertical, 14)
                 .background(style.background(isDisabled: isDisabled))
                 .cornerRadiusContinuous(14)
-                .contentShape(Rectangle())
         }
-        .disabled(isDisabled)
+        .buttonStyle(BorderlessButtonStyle())
+        .disabled(isDisabled || isLoading)
     }
 
     @ViewBuilder
@@ -82,13 +65,13 @@ struct MainButton: View {
                 case .none:
                     textView
 
-                case let .leading(icon):
+                case .leading(let icon):
                     HStack(alignment: .center, spacing: 10) {
                         iconView(icon: icon)
 
                         textView
                     }
-                case let .trailing(icon):
+                case .trailing(let icon):
                     HStack(alignment: .center, spacing: 10) {
                         textView
 
@@ -103,8 +86,10 @@ struct MainButton: View {
     @ViewBuilder
     private var textView: some View {
         Text(title)
-            .style(Fonts.Bold.callout,
-                   color: style.textColor(isDisabled: isDisabled))
+            .style(
+                Fonts.Bold.callout,
+                color: style.textColor(isDisabled: isDisabled)
+            )
             .lineLimit(1)
     }
 
@@ -178,28 +163,12 @@ extension MainButton {
     }
 
     struct Settings {
-        let title: LocalizedStringKey
+        let title: String
         let icon: Icon?
         let style: Style
         let isLoading: Bool
         var isDisabled: Bool
         let action: () -> Void
-
-        init(
-            title: LocalizedStringKey,
-            icon: Icon? = nil,
-            style: Style = .primary,
-            isLoading: Bool = false,
-            isDisabled: Bool = false,
-            action: @escaping (() -> Void)
-        ) {
-            self.title = title
-            self.icon = icon
-            self.style = style
-            self.isLoading = isLoading
-            self.isDisabled = isDisabled
-            self.action = action
-        }
 
         init(
             title: String,
@@ -209,7 +178,7 @@ extension MainButton {
             isDisabled: Bool = false,
             action: @escaping (() -> Void)
         ) {
-            self.title = LocalizedStringKey(stringLiteral: title)
+            self.title = title
             self.icon = icon
             self.style = style
             self.isLoading = isLoading
@@ -233,34 +202,47 @@ struct MainButton_Previews: PreviewProvider {
     @ViewBuilder
     static func buttons(style: MainButton.Style) -> some View {
         VStack(spacing: 16) {
-            MainButton(title: "Order card",
-                       icon: .leading(Assets.tangemIcon),
-                       style: style) {}
+            MainButton(
+                title: "Order card",
+                icon: .leading(Assets.tangemIcon),
+                style: style
+            ) {}
 
-            MainButton(title: "Order card",
-                       icon: .leading(Assets.tangemIcon),
-                       style: style,
-                       isDisabled: true) {}
+            MainButton(
+                title: "Order card",
+                icon: .leading(Assets.tangemIcon),
+                style: style,
+                isDisabled: true
+            ) {}
 
-            MainButton(title: "Order card",
-                       icon: .trailing(Assets.tangemIcon),
-                       style: style) {}
+            MainButton(
+                title: "Order card",
+                icon: .trailing(Assets.tangemIcon),
+                style: style
+            ) {}
 
-            MainButton(title: "Order card",
-                       icon: .trailing(Assets.tangemIcon),
-                       style: style,
-                       isDisabled: true) {}
+            MainButton(
+                title: "Order card",
+                icon: .trailing(Assets.tangemIcon),
+                style: style,
+                isDisabled: true
+            ) {}
 
-            MainButton(title: "Order card",
-                       icon: .trailing(Assets.tangemIcon),
-                       style: style,
-                       isLoading: true) {}
+            MainButton(
+                title: "Order card",
+                icon: .trailing(Assets.tangemIcon),
+                style: style,
+                isLoading: true
+            ) {}
 
-            MainButton(title: "A long long long long long long long long long long text",
-                       icon: .trailing(Assets.tangemIcon),
-                       style: style,
-                       isLoading: false) {}
+            MainButton(
+                title: "A long long long long long long long long long long text",
+                icon: .trailing(Assets.tangemIcon),
+                style: style,
+                isLoading: false
+            ) {}
         }
         .padding(.horizontal, 16)
+        .background(Colors.Background.secondary)
     }
 }
