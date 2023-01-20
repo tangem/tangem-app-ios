@@ -47,13 +47,14 @@ class SecurityModeViewModel: ObservableObject {
     }
 
     func actionButtonDidTap() {
-        Analytics.log(.securityModeChanged, params: [.mode: currentSecurityOption.rawValue])
         switch currentSecurityOption {
         case .accessCode, .passCode:
             openPinChange()
         case .longTap:
             isLoading = true
             cardModel.changeSecurityOption(.longTap) { [weak self] result in
+                self?.logSecurityModeChange()
+
                 self?.isLoading = false
 
                 switch result {
@@ -81,6 +82,10 @@ class SecurityModeViewModel: ObservableObject {
                 self.currentSecurityOption = self.cardModel.currentSecurityOption
             }
         }
+    }
+
+    private func logSecurityModeChange() {
+        Analytics.log(.securityModeChanged, params: [.mode: currentSecurityOption.analyticsName])
     }
 }
 
@@ -123,15 +128,30 @@ enum SecurityModeOption: String, CaseIterable, Identifiable, Equatable {
             return "details_manage_security_passcode_description".localized
         }
     }
+
+    var analyticsName: String {
+        switch self {
+        case .longTap:
+            return "Long Tap"
+        case .passCode:
+            return "Passcode"
+        case .accessCode:
+            return "Access Code"
+        }
+    }
 }
 
 // MARK: - Navigation
 extension SecurityModeViewModel {
     func openPinChange() {
-        coordinator.openPinChange(with: currentSecurityOption.title) { [weak self] completion in
+        coordinator.openPinChange(with: currentSecurityOption.title) { [weak self] coordinatorCompletion in
             guard let self = self else { return }
 
-            self.cardModel.changeSecurityOption(self.currentSecurityOption, completion: completion)
+            self.cardModel.changeSecurityOption(self.currentSecurityOption) { [weak self] result in
+                self?.logSecurityModeChange()
+
+                coordinatorCompletion(result)
+            }
         }
     }
 }

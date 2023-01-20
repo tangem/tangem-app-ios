@@ -281,7 +281,7 @@ class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable>
             .combineLatest($steps)
             .receiveValue { index, steps in
                 guard index < steps.count else { return }
-                
+
                 let currentStep = steps[index]
 
                 if let walletStep = currentStep as? WalletOnboardingStep {
@@ -305,6 +305,8 @@ class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable>
                     switch singleCardStep {
                     case .createWallet:
                         Analytics.log(.createWalletScreenOpened)
+                    case .topup:
+                        Analytics.log(.activationScreenOpened)
                     default:
                         break
                     }
@@ -312,6 +314,9 @@ class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable>
                     switch twinStep {
                     case .first:
                         Analytics.log(.createWalletScreenOpened)
+                    case .topup:
+                        Analytics.log(.twinSetupFinished)
+                        Analytics.log(.activationScreenOpened)
                     default:
                         break
                     }
@@ -333,6 +338,8 @@ extension OnboardingViewModel {
 
     func openSupportChat() {
         guard let cardModel = input.cardInput.cardModel else { return }
+
+        Analytics.log(.onboardingButtonChat)
 
         let dataCollector = DetailsFeedbackDataCollector(cardModel: cardModel,
                                                          userWalletEmailData: cardModel.emailData)
