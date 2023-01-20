@@ -9,29 +9,34 @@
 import Foundation
 
 struct DefaultWarningRowViewModel {
-    let icon: ImageType
     let title: String?
     let subtitle: String
-    private(set) var detailsType: DetailsType?
 
-    let action: () -> ()
+    private(set) var leftView: AdditionalViewType?
+    private(set) var rightView: AdditionalViewType?
+
+    let action: (() -> Void)?
 
     init(
-        icon: ImageType,
-        title: String?,
+        title: String? = nil,
         subtitle: String,
-        detailsType: DefaultWarningRowViewModel.DetailsType? = nil,
-        action: @escaping () -> ()
+        leftView: DefaultWarningRowViewModel.AdditionalViewType? = nil,
+        rightView: DefaultWarningRowViewModel.AdditionalViewType? = nil,
+        action: (() -> Void)? = nil
     ) {
-        self.icon = icon
         self.title = title
         self.subtitle = subtitle
-        self.detailsType = detailsType
+        self.leftView = leftView
+        self.rightView = rightView
         self.action = action
     }
 
-    mutating func update(detailsType: DetailsType?) {
-        self.detailsType = detailsType
+    mutating func update(leftView: AdditionalViewType?) {
+        self.leftView = leftView
+    }
+
+    mutating func update(rightView: AdditionalViewType?) {
+        self.rightView = rightView
     }
 }
 
@@ -46,7 +51,8 @@ extension DefaultWarningRowViewModel: Hashable {
     func hash(into hasher: inout Hasher) {
         hasher.combine(title)
         hasher.combine(subtitle)
-        hasher.combine(detailsType)
+        hasher.combine(leftView)
+        hasher.combine(rightView)
     }
 
     static func == (lhs: DefaultWarningRowViewModel, rhs: DefaultWarningRowViewModel) -> Bool {

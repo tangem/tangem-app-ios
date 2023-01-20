@@ -34,7 +34,7 @@ extension TwinConfig: UserWalletConfig {
     }
 
     var cardSetLabel: String? {
-        String.localizedStringWithFormat("card_label_card_count".localized, cardsCount)
+        Localization.cardLabelCardCount(cardsCount)
     }
 
     var cardsCount: Int {
@@ -75,6 +75,7 @@ extension TwinConfig: UserWalletConfig {
                     steps.append(contentsOf: TwinsOnboardingStep.topupSteps)
                     return .twins(steps)
                 } else { // unknown twin, ready to use, go to main
+                    steps.append(contentsOf: userWalletSavingSteps)
                     return .twins(steps)
                 }
             }
@@ -190,9 +191,11 @@ extension TwinConfig: UserWalletConfig {
         }
 
         let factory = WalletManagerFactoryProvider().factory
-        let twinManager = try factory.makeTwinWalletManager(walletPublicKey: walletPublicKey,
-                                                            pairKey: savedPairKey,
-                                                            isTestnet: AppEnvironment.current.isTestnet)
+        let twinManager = try factory.makeTwinWalletManager(
+            walletPublicKey: walletPublicKey,
+            pairKey: savedPairKey,
+            isTestnet: AppEnvironment.current.isTestnet
+        )
 
         return WalletModel(walletManager: twinManager, derivationStyle: card.derivationStyle)
     }
