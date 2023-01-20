@@ -17,21 +17,16 @@ import TangemSdk
 enum Analytics {
     static private var analyticsSystems: [Analytics.AnalyticSystem] = [.firebase, .appsflyer, .amplitude]
     static private var persistentParams: [ParameterKey: String] = [:]
+    static private let additionalDataRepository = AdditionalDataRepository()
 
     static func reset() {
         persistentParams = [:]
     }
 
     static func log(_ event: Event, params: [ParameterKey: String] = [:]) {
-        for system in analyticsSystems {
-            switch system {
-            case .appsflyer, .firebase:
-                log(event: event, with: params)
-            case .amplitude:
-                logAmplitude(event: event, params: params)
-            }
-        }
-        logCrashlytics(event, with: params.firebaseParams)
+        assert(event.canBeLoggedDirectly)
+        
+        logInternal(event, params: params)
     }
 
     static func logScan(card: CardDTO, config: UserWalletConfig) {
@@ -44,10 +39,41 @@ enum Analytics {
         }
     }
 
-    static func logTx(blockchainName: String?, isPushed: Bool = false) {
-        let event: Event = isPushed ? .transactionIsPushed : .transactionIsSent
-        let params = [ParameterKey.blockchain: blockchainName ?? ""]
-        log(event, params: params)
+    static func beginLoggingCardScan(source: CardScanSource) {
+        logInternal(source.cardScanButtonEvent)
+        
+        additionalDataRepository.cardDidScanEvent = source.cardDidScanEvent
+    }
+    
+    static func endLoggingCardScan() {
+        guard let event = additionalDataRepository.cardDidScanEvent else {
+            assertionFailure("Don't forget to call beginLoggingCardScan")
+            return
+        }
+        
+        logInternal(event)
+    }
+
+    static func logCardSignIn(balance: Decimal, basicCurrency: String, batchId: String, cardNumberHash: String) {
+        if additionalDataRepository.signedInCardIdentifiers.contains(cardNumberHash) {
+            return
+        }
+        
+        additionalDataRepository.signedInCardIdentifiers.insert(cardNumberHash)
+        
+        let params: [ParameterKey: String] = [
+            .state: ParameterValue.state(for: balance).rawValue,
+            .basicCurrency: basicCurrency,
+            .batchId: batchId,
+        ]
+
+        Analytics.logInternal(.signedIn, params: params)
+    }
+    
+    static func logTx(blockchainName: String?, type: TransactionType) {
+        log(type.event, params: [
+            .blockchain: blockchainName ?? "",
+        ])
     }
 
     static func logCardSdkError(_ error: TangemSdkError, for action: Action, parameters: [ParameterKey: String] = [:]) {
@@ -154,8 +180,20 @@ enum Analytics {
         logAmplitude(event: .purchased, params: amplitudeDiscountParams.merging([
             .sku: sku,
             .count: "\(order.lineItems.count)",
-            .amount: "\(order.total)\(order.currencyCode)",
+            .amount: "\(order.total) \(order.currencyCode)",
         ], uniquingKeysWith: { $1 }))
+    }
+
+    private static func logInternal(_ event: Event, params: [ParameterKey: String] = [:]) {
+        for system in analyticsSystems {
+            switch system {
+            case .appsflyer, .firebase:
+                log(event: event, with: params)
+            case .amplitude:
+                logAmplitude(event: event, params: params)
+            }
+        }
+        logCrashlytics(event, with: params.firebaseParams)
     }
 
     private static func logAmplitude(event: Event, params: [ParameterKey: String] = [:]) {
@@ -247,7 +285,7 @@ extension Analytics {
         static func state(for toggle: Bool) -> ParameterValue {
             return toggle ? .on : .off
         }
-        
+
         static func state(for balance: Decimal) -> ParameterValue {
             return balance > 0 ? .full : .empty
         }
@@ -269,10 +307,78 @@ extension Analytics {
     }
 }
 
+extension Analytics {
+    enum TransactionType {
+        case regular
+        case push
+        case sell
+
+        var event: Analytics.Event {
+            switch self {
+            case .regular:
+                return .transactionSent
+            case .push:
+                return .transactionIsPushed
+            case .sell:
+                return .userSoldCrypto
+            }
+        }
+    }
+}
+
+extension Analytics {
+    enum CardScanSource {
+        case welcome
+        case main
+        case myWallets
+    }
+}
+
+extension Analytics.CardScanSource {
+    var cardScanButtonEvent: Analytics.Event {
+        switch self {
+        case .welcome:
+            return .introductionProcessButtonScanCard
+        case .main:
+            return .buttonScanCard
+        case .myWallets:
+            return .buttonScanNewCard
+        }
+    }
+    
+    var cardDidScanEvent: Analytics.Event {
+        switch self {
+        case .welcome:
+            return .introductionProcessCardWasScanned
+        case .main:
+            return .mainCardWasScanned
+        case .myWallets:
+            return .myWalletsCardWasScanned
+        }
+    }
+}
+
 fileprivate extension Dictionary where Key == Analytics.ParameterKey, Value == String {
     var firebaseParams: [String: Any] {
         var convertedParams = [String: Any]()
         forEach { convertedParams[$0.key.rawValue] = $0.value }
         return convertedParams
+    }
+}
+
+fileprivate extension Analytics.Event {
+    var canBeLoggedDirectly: Bool {
+        switch self {
+        case .introductionProcessButtonScanCard,
+                .buttonScanCard,
+                .buttonScanNewCard,
+                .introductionProcessCardWasScanned,
+                .mainCardWasScanned,
+                .myWalletsCardWasScanned,
+                .signedIn:
+            return false
+        default:
+            return true
+        }
     }
 }
