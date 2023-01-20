@@ -94,7 +94,7 @@ final class UserWalletListViewModel: ObservableObject, Identifiable {
     }
 
     func addUserWallet() {
-        Analytics.log(.buttonScanNewCard)
+        Analytics.beginLoggingCardScan(source: .myWallets)
 
         userWalletRepository.add { [weak self] result in
             guard
@@ -102,10 +102,6 @@ final class UserWalletListViewModel: ObservableObject, Identifiable {
                 let result
             else {
                 return
-            }
-
-            if result.hasScannedCard {
-                Analytics.log(.myWalletsCardWasScanned)
             }
 
             switch result {
