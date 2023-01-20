@@ -125,10 +125,10 @@ class CommonUserWalletRepository: UserWalletRepository {
         }
         .flatMap { [weak self] cardModel -> AnyPublisher<UserWalletRepositoryResult?, Error> in
             self?.failedCardScanTracker.resetCounter()
+            
+            Analytics.endLoggingCardScan()
 
-            Analytics.log(.cardWasScanned)
             self?.sendEvent(.scan(isScanning: false))
-
             let onboardingInput = cardModel.onboardingInput
             if onboardingInput.steps.needOnboarding {
                 cardModel.userWalletModel?.updateAndReloadWalletModels()
