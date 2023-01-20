@@ -10,7 +10,6 @@ import SwiftUI
 
 /// An animatable modifier that is used for observing animations for a given animatable value.
 struct AnimationCompletionObserverModifier<Value>: AnimatableModifier where Value: VectorArithmetic {
-
     /// While animating, SwiftUI changes the old input value to the new target value using this property. This value is set to the old value until the animation completes.
     var animatableData: Value {
         didSet {
@@ -26,7 +25,7 @@ struct AnimationCompletionObserverModifier<Value>: AnimatableModifier where Valu
 
     init(observedValue: Value, completion: @escaping () -> Void) {
         self.completion = completion
-        self.animatableData = observedValue
+        animatableData = observedValue
         targetValue = observedValue
     }
 
@@ -48,7 +47,6 @@ struct AnimationCompletionObserverModifier<Value>: AnimatableModifier where Valu
 }
 
 extension View {
-
     /// Calls the completion handler whenever an animation on the given value completes.
     /// - Parameters:
     ///   - value: The value to observe for animations.

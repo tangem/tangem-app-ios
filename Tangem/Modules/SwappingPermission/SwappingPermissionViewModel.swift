@@ -12,28 +12,31 @@ import TangemSdk
 
 final class SwappingPermissionViewModel: ObservableObject, Identifiable {
     /// For SwiftUI sheet logic
-    let id: UUID = UUID()
+    let id: UUID = .init()
 
     // MARK: - ViewState
 
     @Published var contentRowViewModels: [DefaultRowViewModel] = []
+    @Published var errorAlert: AlertBinder?
 
     var tokenSymbol: String {
-        transactionInfo.sourceCurrency.symbol
+        inputModel.transactionInfo.sourceCurrency.symbol
     }
 
     // MARK: - Dependencies
 
-    private let transactionInfo: ExchangeTransactionDataModel
+    private let inputModel: SwappingPermissionInputModel
     private let transactionSender: TransactionSendable
     private unowned let coordinator: SwappingPermissionRoutable
 
+    private var didBecomeActiveNotificationCancellable: AnyCancellable?
+
     init(
-        transactionInfo: ExchangeTransactionDataModel,
+        inputModel: SwappingPermissionInputModel,
         transactionSender: TransactionSendable,
         coordinator: SwappingPermissionRoutable
     ) {
-        self.transactionInfo = transactionInfo
+        self.inputModel = inputModel
         self.transactionSender = transactionSender
         self.coordinator = coordinator
 
@@ -43,13 +46,14 @@ final class SwappingPermissionViewModel: ObservableObject, Identifiable {
     func didTapApprove() {
         Task {
             do {
-                try await transactionSender.sendTransaction(transactionInfo)
-                await didSendApproveTransaction()
+                try await transactionSender.sendTransaction(inputModel.transactionInfo)
+                await didSendApproveTransaction(transactionInfo: inputModel.transactionInfo)
             } catch TangemSdkError.userCancelled {
                 // Do nothing
             } catch {
-                assertionFailure(error.localizedDescription)
-                // [REDACTED_TODO_COMMENT]
+                await runOnMain {
+                    errorAlert = AlertBinder(title: Localization.commonError, message: error.localizedDescription)
+                }
             }
         }
     }
@@ -63,8 +67,15 @@ final class SwappingPermissionViewModel: ObservableObject, Identifiable {
 
 extension SwappingPermissionViewModel {
     @MainActor
-    func didSendApproveTransaction() {
-        coordinator.didSendApproveTransaction()
+    func didSendApproveTransaction(transactionInfo: ExchangeTransactionDataModel) {
+        // We have to waiting close the nfc view to close this permission view
+        didBecomeActiveNotificationCancellable = NotificationCenter
+            .default
+            .publisher(for: UIApplication.didBecomeActiveNotification)
+            .delay(for: 0.3, scheduler: DispatchQueue.main)
+            .sink { [weak self] _ in
+                self?.coordinator.didSendApproveTransaction(transactionInfo: transactionInfo)
+            }
     }
 }
 
@@ -72,23 +83,28 @@ extension SwappingPermissionViewModel {
 
 private extension SwappingPermissionViewModel {
     func setupView() {
+        let transactionInfo = inputModel.transactionInfo
         /// Addresses have to the same width for both
         let walletAddress = AddressFormatter(address: transactionInfo.sourceAddress).truncated()
         let spenderAddress = AddressFormatter(address: transactionInfo.destinationAddress).truncated()
 
-        let fee = transactionInfo.fee.groupedFormatted(
-            maximumFractionDigits: transactionInfo.sourceCurrency.decimalCount
-        )
+        let fee = transactionInfo.fee.rounded(scale: 2, roundingMode: .up)
+        let fiatFee = inputModel.fiatFee.currencyFormatted(code: AppSettings.shared.selectedCurrencyCode)
+        let formattedFee = "\(fee.groupedFormatted()) \(inputModel.transactionInfo.sourceBlockchain.symbol) (\(fiatFee))"
 
         contentRowViewModels = [
-            DefaultRowViewModel(title: "swapping_permission_rows_amount".localized(tokenSymbol),
-                                detailsType: .icon(Assets.infinityMini)),
-            DefaultRowViewModel(title: "swapping_permission_rows_your_wallet".localized,
-                                detailsType: .text(String(walletAddress))),
-            DefaultRowViewModel(title: "swapping_permission_rows_spender".localized,
-                                detailsType: .text(String(spenderAddress))),
-            DefaultRowViewModel(title: "send_fee_label".localized,
-                                detailsType: .text(fee)),
+            DefaultRowViewModel(
+                title: Localization.swappingPermissionRowsYourWallet,
+                detailsType: .text(String(walletAddress))
+            ),
+            DefaultRowViewModel(
+                title: Localization.swappingPermissionRowsSpender,
+                detailsType: .text(String(spenderAddress))
+            ),
+            DefaultRowViewModel(
+                title: Localization.sendFeeLabel,
+                detailsType: .text(formattedFee)
+            ),
         ]
     }
 }

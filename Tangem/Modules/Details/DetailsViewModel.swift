@@ -29,9 +29,11 @@ class DetailsViewModel: ObservableObject {
     }
 
     var applicationInfoFooter: String? {
-        guard let appName = InfoDictionaryUtils.appName.value,
-              let version = InfoDictionaryUtils.version.value,
-              let bundleVersion = InfoDictionaryUtils.bundleVersion.value else {
+        guard
+            let appName: String = InfoDictionaryUtils.appName.value(),
+            let version: String = InfoDictionaryUtils.version.value(),
+            let bundleVersion: String = InfoDictionaryUtils.bundleVersion.value()
+        else {
             return nil
         }
 
@@ -42,7 +44,7 @@ class DetailsViewModel: ObservableObject {
     }
 
     deinit {
-        print("DetailsViewModel deinit")
+        AppLog.shared.debug("DetailsViewModel deinit")
     }
 
     // MARK: - Private
@@ -65,7 +67,7 @@ class DetailsViewModel: ObservableObject {
     func prepareBackup() {
         Analytics.log(.buttonCreateBackup)
         if let input = cardModel.backupInput {
-            self.openOnboarding(with: input)
+            openOnboarding(with: input)
         }
     }
 
@@ -78,7 +80,6 @@ class DetailsViewModel: ObservableObject {
 
 extension DetailsViewModel {
     func openOnboarding(with input: OnboardingInput) {
-        Analytics.log(.backupScreenOpened)
         coordinator.openOnboardingModal(with: input)
     }
 
@@ -87,15 +88,20 @@ extension DetailsViewModel {
 
         guard let emailConfig = cardModel.emailConfig else { return }
 
-        let dataCollector = DetailsFeedbackDataCollector(cardModel: cardModel,
-                                                         userWalletEmailData: cardModel.emailData)
+        let dataCollector = DetailsFeedbackDataCollector(
+            cardModel: cardModel,
+            userWalletEmailData: cardModel.emailData
+        )
 
-        coordinator.openMail(with: dataCollector,
-                             recipient: emailConfig.recipient,
-                             emailType: .appFeedback(subject: emailConfig.subject))
+        coordinator.openMail(
+            with: dataCollector,
+            recipient: emailConfig.recipient,
+            emailType: .appFeedback(subject: emailConfig.subject)
+        )
     }
 
     func openWalletConnect() {
+        Analytics.log(.buttonWalletConnect)
         coordinator.openWalletConnect(with: cardModel)
     }
 
@@ -119,11 +125,15 @@ extension DetailsViewModel {
 
     func openSupportChat() {
         Analytics.log(.buttonChat)
-        let dataCollector = DetailsFeedbackDataCollector(cardModel: cardModel,
-                                                         userWalletEmailData: cardModel.emailData)
+        let dataCollector = DetailsFeedbackDataCollector(
+            cardModel: cardModel,
+            userWalletEmailData: cardModel.emailData
+        )
 
-        coordinator.openSupportChat(cardId: cardModel.cardId,
-                                    dataCollector: dataCollector)
+        coordinator.openSupportChat(
+            cardId: cardModel.cardId,
+            dataCollector: dataCollector
+        )
     }
 
     func openDisclaimer() {
@@ -135,7 +145,9 @@ extension DetailsViewModel {
             return
         }
 
-        Analytics.log(.buttonSocialNetwork)
+        Analytics.log(.buttonSocialNetwork, params: [
+            .network: network.name,
+        ])
         coordinator.openInSafari(url: url)
     }
 
@@ -188,20 +200,20 @@ extension DetailsViewModel {
         }
 
         walletConnectRowViewModel = WalletConnectRowViewModel(
-            title: "wallet_connect_title".localized,
-            subtitle: "wallet_connect_subtitle".localized,
+            title: Localization.walletConnectTitle,
+            subtitle: Localization.walletConnectSubtitle,
             action: openWalletConnect
         )
     }
 
     func setupSupportSectionModels() {
         supportSectionModels = [
-            DefaultRowViewModel(title: "details_chat".localized, action: openSupportChat),
-            DefaultRowViewModel(title: "details_row_title_send_feedback".localized, action: openMail),
+            DefaultRowViewModel(title: Localization.detailsChat, action: openSupportChat),
+            DefaultRowViewModel(title: Localization.detailsRowTitleSendFeedback, action: openMail),
         ]
 
-        if cardModel.canParticipateInReferralProgram && FeatureProvider.isAvailable(.referralProgram) {
-            supportSectionModels.append(DefaultRowViewModel(title: "details_referral_title".localized, action: openReferral))
+        if cardModel.canParticipateInReferralProgram, FeatureProvider.isAvailable(.referralProgram) {
+            supportSectionModels.append(DefaultRowViewModel(title: Localization.detailsReferralTitle, action: openReferral))
         }
     }
 
@@ -210,27 +222,27 @@ extension DetailsViewModel {
 
         if !cardModel.isMultiWallet {
             viewModels.append(DefaultRowViewModel(
-                title: "details_row_title_currency".localized,
+                title: Localization.detailsRowTitleCurrency,
                 detailsType: .text(selectedCurrencyCode),
                 action: coordinator.openCurrencySelection
             ))
         }
 
         viewModels.append(DefaultRowViewModel(
-            title: "card_settings_title".localized,
+            title: Localization.cardSettingsTitle,
             action: openCardSettings
         ))
 
         // [REDACTED_TODO_COMMENT]
 
         viewModels.append(DefaultRowViewModel(
-            title: "app_settings_title".localized,
+            title: Localization.appSettingsTitle,
             action: openAppSettings
         ))
 
         if canCreateBackup {
             viewModels.append(DefaultRowViewModel(
-                title: "details_row_title_create_backup".localized,
+                title: Localization.detailsRowTitleCreateBackup,
                 action: prepareBackup
             ))
         }
@@ -240,7 +252,7 @@ extension DetailsViewModel {
 
     func setupLegalSectionViewModels() {
         legalSectionViewModel = DefaultRowViewModel(
-            title: "disclaimer_title".localized,
+            title: Localization.disclaimerTitle,
             action: openDisclaimer
         )
     }

@@ -76,7 +76,7 @@ class MoonPayService {
     init() {}
 
     deinit {
-        print("MoonPay deinit")
+        AppLog.shared.debug("MoonPay deinit")
     }
 
     private func makeSignature(for components: URLComponents) -> URLQueryItem {
@@ -86,11 +86,9 @@ class MoonPayService {
 
         return .init(key: .signature, value: Data(signature).base64EncodedString().addingPercentEncoding(withAllowedCharacters: .afURLQueryAllowed))
     }
-
 }
 
 extension MoonPayService: ExchangeService {
-
     var successCloseUrl: String { "https://success.tangem.com" }
 
     var sellRequestUrl: String {
@@ -98,7 +96,7 @@ extension MoonPayService: ExchangeService {
     }
 
     func canBuy(_ currencySymbol: String, amountType: Amount.AmountType, blockchain: Blockchain) -> Bool {
-        if currencySymbol.uppercased() == "BNB" && (blockchain == .bsc(testnet: true) || blockchain == .bsc(testnet: false)) {
+        if currencySymbol.uppercased() == "BNB", blockchain == .bsc(testnet: true) || blockchain == .bsc(testnet: false) {
             return false
         }
 
@@ -106,7 +104,7 @@ extension MoonPayService: ExchangeService {
     }
 
     func canSell(_ currencySymbol: String, amountType: Amount.AmountType, blockchain: Blockchain) -> Bool {
-        if currencySymbol.uppercased() == "BNB" && (blockchain == .bsc(testnet: true) || blockchain == .bsc(testnet: false)) {
+        if currencySymbol.uppercased() == "BNB", blockchain == .bsc(testnet: true) || blockchain == .bsc(testnet: false) {
             return false
         }
 
@@ -186,14 +184,14 @@ extension MoonPayService: ExchangeService {
         let session = URLSession(configuration: config)
 
         Publishers.Zip(
-            session.dataTaskPublisher(for: URL(string: ("https://api.moonpay.com/v4/ip_address?" + QueryKey.apiKey.rawValue + "=" + keys.apiKey))!),
+            session.dataTaskPublisher(for: URL(string: "https://api.moonpay.com/v4/ip_address?" + QueryKey.apiKey.rawValue + "=" + keys.apiKey)!),
             session.dataTaskPublisher(for: URL(string: "https://api.moonpay.com/v3/currencies?" + QueryKey.apiKey.rawValue + "=" + keys.apiKey)!)
         )
-        .sink(receiveCompletion: { _ in }) { [weak self] (ipOutput, currenciesOutput) in
+        .sink(receiveCompletion: { _ in }) { [weak self] ipOutput, currenciesOutput in
             guard let self = self else { return }
             let decoder = JSONDecoder()
-            var countryCode: String = ""
-            var stateCode: String = ""
+            var countryCode = ""
+            var stateCode = ""
             do {
                 let decodedResponse = try decoder.decode(IpCheckResponse.self, from: ipOutput.data)
                 self.canBuyCrypto = decodedResponse.isBuyAllowed
@@ -201,7 +199,8 @@ extension MoonPayService: ExchangeService {
                 countryCode = decodedResponse.countryCode
                 stateCode = decodedResponse.stateCode
             } catch {
-                print("Failed to check IP address: \(error)")
+                AppLog.shared.debug("Failed to check IP address")
+                AppLog.shared.error(error)
             }
             do {
                 var currenciesToBuy = Set<String>()
@@ -233,15 +232,16 @@ extension MoonPayService: ExchangeService {
                 self.availableToBuy = currenciesToBuy
                 self.availableToSell = currenciesToSell
             } catch {
-                print("Failed to load currencies: \(error)")
+                AppLog.shared.debug("Failed to load currencies")
+                AppLog.shared.error(error)
             }
         }
         .store(in: &bag)
     }
 }
 
-extension URLQueryItem {
-    fileprivate init(key: QueryKey, value: String?) {
+fileprivate extension URLQueryItem {
+    init(key: QueryKey, value: String?) {
         self.init(name: key.rawValue, value: value)
     }
 }

@@ -18,17 +18,33 @@ class BlockchainNetworkService {
 
     /// Collect rates for calculate fiat balance
     private var rates: [String: Decimal] = [:]
+    private var balances: [Amount.AmountType: Decimal] = [:]
     private var walletManager: WalletManager { walletModel.walletManager }
 
     init(walletModel: WalletModel, currencyMapper: CurrencyMapping) {
         self.walletModel = walletModel
         self.currencyMapper = currencyMapper
+
+        rates = walletModel.rates
+        balances = walletModel.wallet.amounts.reduce(into: [:]) {
+            $0[$1.key] = $1.value.value.rounded(scale: $1.value.decimals, roundingMode: .down)
+        }
     }
 }
 
 // MARK: - BlockchainDataProvider
 
 extension BlockchainNetworkService: TangemExchange.BlockchainDataProvider {
+    func updateWallet() async throws {
+        try await walletModel.update(silent: true).async()
+    }
+
+    func hasPendingTransaction(currency: Currency, to spenderAddress: String) -> Bool {
+        let outgoing = walletModel.wallet.pendingOutgoingTransactions
+
+        return outgoing.contains(where: { $0.destinationAddress == spenderAddress })
+    }
+
     func getWalletAddress(currency: Currency) -> String? {
         let blockchain = walletModel.blockchainNetwork.blockchain
         guard blockchain.networkId == currency.blockchain.networkId else {
@@ -39,7 +55,7 @@ extension BlockchainNetworkService: TangemExchange.BlockchainDataProvider {
         return walletModel.wallet.address
     }
 
-    func getBalance(currency: Currency) async throws -> Decimal {
+    func getBalance(for currency: Currency) async throws -> Decimal {
         let amountType: Amount.AmountType
 
         switch currency.currencyType {
@@ -54,23 +70,42 @@ extension BlockchainNetworkService: TangemExchange.BlockchainDataProvider {
             amountType = Amount.AmountType.coin
         }
 
-        if let balance = walletModel.getDecimalBalance(for: amountType) {
+        if let balance = balances[amountType] {
             return balance
         }
 
-        return try await getBalanceThroughUpdateWalletModel(amountType: amountType)
+        var balance = try await getBalanceThroughUpdateWalletModel(amountType: amountType)
+        balance.round(scale: currency.decimalCount, roundingMode: .down)
+
+        balances[amountType] = balance
+
+        return balance
     }
 
-    func getFiatBalance(currency: Currency, amount: Decimal) async throws -> Decimal {
-        if let fiat = getFiatBalanceFromWalletModel(currency: currency, amount: amount) {
-            return fiat
+    func getBalance(for blockchain: ExchangeBlockchain) async throws -> Decimal {
+        guard walletModel.blockchainNetwork.blockchain.networkId == blockchain.networkId else {
+            assertionFailure("Incorrect WalletModel")
+            return 0
         }
 
-        return try await getFiatBalanceThroughLoadRates(currency: currency, amount: amount)
+        if let balance = balances[.coin] {
+            return balance
+        }
+
+        let balance = try await getBalanceThroughUpdateWalletModel(amountType: .coin)
+        balances[.coin] = balance
+        return balance
     }
 
-    func getFiatRateForFee(currency: Currency) async throws -> Decimal {
-        try await getFiatRate(currencyId: currency.blockchain.id)
+    func getFiat(for currency: Currency, amount: Decimal) async throws -> Decimal {
+        let id = currency.isToken ? currency.id : currency.blockchain.id
+        let rate = try await getFiatRate(currencyId: id)
+        return mapToFiat(amount: amount, rate: rate)
+    }
+
+    func getFiat(for blockchain: ExchangeBlockchain, amount: Decimal) async throws -> Decimal {
+        let rate = try await getFiatRate(currencyId: blockchain.id)
+        return mapToFiat(amount: amount, rate: rate)
     }
 }
 
@@ -88,6 +123,15 @@ private extension BlockchainNetworkService {
             value: amount,
             decimals: currency.decimalCount
         )
+    }
+
+    func getFiatRateFor(for currency: Currency) async throws -> Decimal {
+        let id = currency.isToken ? currency.id : currency.blockchain.id
+        return try await getFiatRate(currencyId: id)
+    }
+
+    func getFiatRateFor(for blockchain: ExchangeBlockchain) async throws -> Decimal {
+        try await getFiatRate(currencyId: blockchain.id)
     }
 
     func getFiatBalanceFromWalletModel(currency: Currency, amount: Decimal) -> Decimal? {
@@ -110,7 +154,7 @@ private extension BlockchainNetworkService {
             }
         }
 
-        // Think about it, because we unnecessary updates all tokens in walletModel
+        /// Think about it, because we unnecessary updates all tokens in walletModel
         try await walletModel.update(silent: true).async()
 
         if let balance = walletModel.getDecimalBalance(for: amountType) {
@@ -119,18 +163,6 @@ private extension BlockchainNetworkService {
 
         assertionFailure("WalletModel haven't balance for coin")
         return 0
-    }
-
-    func getFiatBalanceThroughLoadRates(currency: Currency, amount: Decimal) async throws -> Decimal {
-        let id = currency.isToken ? currency.id : currency.blockchain.id
-        let currencyRate = try await getFiatRate(currencyId: id)
-
-        let fiatValue = amount * currencyRate
-        if fiatValue == 0 {
-            return 0
-        }
-
-        return max(fiatValue, 0.01).rounded(scale: 2, roundingMode: .plain)
     }
 
     func getFiatRate(currencyId: String) async throws -> Decimal {
@@ -148,5 +180,14 @@ private extension BlockchainNetworkService {
         rates[currencyId] = currencyRate
 
         return currencyRate
+    }
+
+    func mapToFiat(amount: Decimal, rate: Decimal) -> Decimal {
+        let fiatValue = amount * rate
+        if fiatValue == 0 {
+            return 0
+        }
+
+        return max(fiatValue, 0.01).rounded(scale: 2, roundingMode: .plain)
     }
 }

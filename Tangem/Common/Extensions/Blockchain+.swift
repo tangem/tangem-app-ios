@@ -46,7 +46,7 @@ extension Blockchain {
         case "ethereumfair": self = .ethereumFair
         case "sxdai": self = .saltPay // [REDACTED_TODO_COMMENT]
         default:
-            print("⚠️⚠️⚠️ Failed to map network ID \"\(stringId)\"")
+            AppLog.shared.debug("⚠️⚠️⚠️ Failed to map network ID \"\(stringId)\"")
             return nil
         }
     }
@@ -152,7 +152,6 @@ extension Blockchain {
 
     var iconNameFilled: String { "\(iconName).fill" }
 }
-
 
 extension Blockchain {
     static var supportedBlockchains: Set<Blockchain> = {
