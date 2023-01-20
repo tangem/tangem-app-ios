@@ -41,7 +41,7 @@ struct DefaultWarningRowViewModel {
 }
 
 extension DefaultWarningRowViewModel {
-    enum DetailsType: Hashable {
+    enum AdditionalViewType: Hashable {
         case icon(_ image: ImageType)
         case loader
     }
