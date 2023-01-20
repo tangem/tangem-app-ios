@@ -34,7 +34,6 @@ class MultiWalletContentViewModel: ObservableObject {
     private let cardModel: CardViewModel
     private let userWalletModel: UserWalletModel
     private let userTokenListManager: UserTokenListManager
-    private var refreshed: Bool = false
     private var bag = Set<AnyCancellable>()
 
     private lazy var totalBalanceManager = TotalBalanceProvider(
@@ -44,7 +43,8 @@ class MultiWalletContentViewModel: ObservableObject {
     )
     private lazy var totalBalanceCardSupportInfo = TotalBalanceCardSupportInfo(
         cardBatchId: cardModel.batchId,
-        cardNumber: cardModel.cardId
+        cardNumber: cardModel.cardId,
+        embeddedBlockchainCurrencySymbol: cardModel.embeddedBlockchain?.currencySymbol
     )
 
     init(
@@ -71,13 +71,6 @@ class MultiWalletContentViewModel: ObservableObject {
             }
         } else {
             userWalletModel.updateAndReloadWalletModels(silent: silent, completion: done)
-        }
-    }
-
-    func onAppear() {
-        if !refreshed {
-            onRefresh(silent: false) {}
-            refreshed = true
         }
     }
 

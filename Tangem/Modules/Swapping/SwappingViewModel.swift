@@ -8,6 +8,7 @@
 
 import Combine
 import TangemExchange
+import TangemSdk
 
 final class SwappingViewModel: ObservableObject {
     // MARK: - ViewState
@@ -18,9 +19,11 @@ final class SwappingViewModel: ObservableObject {
 
     @Published var sendDecimalValue: Decimal?
     @Published var refreshWarningRowViewModel: DefaultWarningRowViewModel?
+    @Published var permissionInfoRowViewModel: DefaultWarningRowViewModel?
 
     @Published var mainButtonIsEnabled: Bool = false
     @Published var mainButtonState: MainButtonState = .swap
+    @Published var errorAlert: AlertBinder?
 
     var informationSectionViewModels: [InformationSectionViewModel] {
         var viewModels: [InformationSectionViewModel] = [.fee(swappingFeeRowViewModel)]
@@ -41,6 +44,7 @@ final class SwappingViewModel: ObservableObject {
     private let userCurrenciesProvider: UserCurrenciesProviding
     private let tokenIconURLBuilder: TokenIconURLBuilding
     private let transactionSender: TransactionSendable
+
     private unowned let coordinator: SwappingRoutable
 
     // MARK: - Private
@@ -68,6 +72,10 @@ final class SwappingViewModel: ObservableObject {
         loadDestinationIfNeeded()
     }
 
+    func userDidTapMaxAmount() {
+        sendDecimalValue = exchangeManager.getExchangeItems().sourceBalance.balance
+    }
+
     func userDidRequestChangeDestination(to currency: Currency) {
         var items = exchangeManager.getExchangeItems()
         items.destination = currency
@@ -90,10 +98,12 @@ final class SwappingViewModel: ObservableObject {
         exchangeManager.update(exchangeItems: items)
     }
 
+    @MainActor
     func userDidTapChangeDestinationButton() {
         openTokenListView()
     }
 
+    @MainActor
     func didTapMainButton() {
         switch mainButtonState {
         case .permitAndSwap:
@@ -104,11 +114,14 @@ final class SwappingViewModel: ObservableObject {
             openPermissionView()
         case .insufficientFunds:
             assertionFailure("Button should be disabled")
-            break
         }
     }
 
-    func didSendApproveTransaction() {
+    func didSendApproveTransaction(transactionInfo: ExchangeTransactionDataModel) {
+        exchangeManager.didSendApprovingTransaction(exchangeTxData: transactionInfo)
+    }
+
+    func didTapWaringRefresh() {
         exchangeManager.refresh()
     }
 }
@@ -116,6 +129,7 @@ final class SwappingViewModel: ObservableObject {
 // MARK: - Navigation
 
 private extension SwappingViewModel {
+    @MainActor
     func openTokenListView() {
         let source = exchangeManager.getExchangeItems().source
         let userCurrencies = userCurrenciesProvider.getCurrencies(
@@ -128,8 +142,9 @@ private extension SwappingViewModel {
         )
     }
 
+    @MainActor
     func openSuccessView(
-        expectedModel: ExpectedSwappingResult,
+        result: SwappingResultDataModel,
         transactionModel: ExchangeTransactionDataModel
     ) {
         let amount = transactionModel.sourceCurrency.convertFromWEI(value: transactionModel.amount)
@@ -139,21 +154,39 @@ private extension SwappingViewModel {
         )
 
         let result = CurrencyAmount(
-            value: expectedModel.expectedAmount,
+            value: result.amount,
             currency: transactionModel.destinationCurrency
         )
 
-        coordinator.presentSuccessView(source: source, result: result)
+        let explorerURL = transactionModel.sourceBlockchain.getExploreURL(
+            for: transactionModel.sourceAddress,
+            contractAddress: transactionModel.sourceCurrency.contractAddress
+        )
+
+        let inputModel = SuccessSwappingInputModel(
+            sourceCurrencyAmount: source,
+            resultCurrencyAmount: result,
+            explorerURL: explorerURL
+        )
+
+        coordinator.presentSuccessView(inputModel: inputModel)
     }
 
+    @MainActor
     func openPermissionView() {
         let state = exchangeManager.getAvailabilityState()
-        guard case let .requiredPermission(_, info) = state else {
+        guard case .available(let result, let info) = state,
+              result.isPermissionRequired else {
             return
         }
 
+        let inputModel = SwappingPermissionInputModel(
+            fiatFee: result.fiatFee,
+            transactionInfo: info
+        )
+
         coordinator.presentPermissionView(
-            transactionInfo: info,
+            inputModel: inputModel,
             transactionSender: transactionSender
         )
     }
@@ -173,13 +206,6 @@ extension SwappingViewModel: ExchangeManagerDelegate {
             self.updateState(state: availabilityState)
         }
     }
-
-    func exchangeManager(_ manager: ExchangeManager, didUpdate availabilityForExchange: Bool) {
-        DispatchQueue.main.async {
-            self.mainButtonState = availabilityForExchange ? .swap : .givePermission
-            self.sendCurrencyViewModel?.update(isLockedVisible: !availabilityForExchange)
-        }
-    }
 }
 
 // MARK: - View updates
@@ -193,7 +219,6 @@ private extension SwappingViewModel {
             balance: exchangeItems.sourceBalance.balance,
             maximumFractionDigits: source.decimalCount,
             fiatValue: exchangeItems.sourceBalance.fiatBalance,
-            isLockedVisible: !exchangeManager.isAvailableForExchange(),
             tokenIcon: mapToSwappingTokenIconViewModel(currency: source)
         )
 
@@ -204,13 +229,14 @@ private extension SwappingViewModel {
             state = .loaded(0, fiatValue: 0)
         case .loading:
             state = .loading
-        case let .preview(result),
-             let .available(result, _),
-             let .requiredPermission(result, _):
+        case .preview(let result):
             state = .loaded(result.expectedAmount, fiatValue: result.expectedFiatAmount)
+        case .available(let result, _):
+            state = .loaded(result.amount, fiatValue: result.amount)
         }
 
         receiveCurrencyViewModel = ReceiveCurrencyViewModel(
+            balance: exchangeItems.destinationBalance,
             state: state,
             tokenIcon: mapToSwappingTokenIconViewModel(currency: destination)
         )
@@ -228,28 +254,66 @@ private extension SwappingViewModel {
 
         case .loading:
             feeWarningRowViewModel = nil
-            refreshWarningRowViewModel?.update(detailsType: .loader)
+            refreshWarningRowViewModel?.update(rightView: .loader)
             receiveCurrencyViewModel?.updateState(.loading)
 
-        case let .preview(result),
-             let .available(result, _),
-             let .requiredPermission(result, _):
+        case .preview(let result):
             refreshWarningRowViewModel = nil
             feeWarningRowViewModel = nil
             receiveCurrencyViewModel?.updateState(
                 .loaded(result.expectedAmount, fiatValue: result.expectedFiatAmount)
             )
 
+            updateRequiredPermission(isPermissionRequired: result.isPermissionRequired)
+            updatePendingApprovingTransaction(hasPendingTransaction: result.hasPendingTransaction)
+
+        case .available(let result, _):
+            refreshWarningRowViewModel = nil
+            receiveCurrencyViewModel?.updateState(
+                .loaded(result.amount, fiatValue: result.fiatAmount)
+            )
+
+            updateRequiredPermission(isPermissionRequired: result.isPermissionRequired)
+            updateEnoughAmountForFee(isEnoughAmountForFee: result.isEnoughAmountForFee)
+
         case .requiredRefresh(let error):
             receiveCurrencyViewModel?.updateState(.loaded(0, fiatValue: 0))
-            refreshWarningRowViewModel = DefaultWarningRowViewModel(
-                icon: Assets.attention,
-                title: "Exchange rate has expired", // [REDACTED_TODO_COMMENT]
-                subtitle: error.localizedDescription, // [REDACTED_TODO_COMMENT]
-                detailsType: .icon(Assets.refreshWarningIcon),
-                action: { [weak self] in
-                    self?.exchangeManager.refresh()
-                }
+            processingError(error: error)
+        }
+    }
+
+    func updateRequiredPermission(isPermissionRequired: Bool) {
+        if isPermissionRequired {
+            permissionInfoRowViewModel = DefaultWarningRowViewModel(
+                title: Localization.swappingGivePermission,
+                subtitle: Localization.swappingPermissionSubheader(exchangeManager.getExchangeItems().source.symbol),
+                leftView: .icon(Assets.swappingLock)
+            )
+        } else {
+            permissionInfoRowViewModel = nil
+        }
+    }
+
+    func updatePendingApprovingTransaction(hasPendingTransaction: Bool) {
+        if hasPendingTransaction {
+            permissionInfoRowViewModel = DefaultWarningRowViewModel(
+                title: Localization.swappingPendingTransactionTitle,
+                subtitle: Localization.swappingPendingTransactionSubtitle,
+                leftView: .loader
+            )
+        } else {
+            permissionInfoRowViewModel = nil
+        }
+    }
+
+    func updateEnoughAmountForFee(isEnoughAmountForFee: Bool) {
+        if isEnoughAmountForFee {
+            feeWarningRowViewModel = nil
+        } else {
+            let sourceBlockchain = exchangeManager.getExchangeItems().source.blockchain
+            feeWarningRowViewModel = DefaultWarningRowViewModel(
+                subtitle: Localization.swappingNotEnoughFundsForFee(sourceBlockchain.symbol, sourceBlockchain.symbol),
+                leftView: .icon(Assets.attention)
             )
         }
     }
@@ -260,17 +324,15 @@ private extension SwappingViewModel {
             swappingFeeRowViewModel.update(state: .idle)
         case .loading:
             swappingFeeRowViewModel.update(state: .loading)
-        case let .available(result, info),
-             let .requiredPermission(result, info):
-
-            let fiatFee = info.fee * result.feeFiatRate
+        case .available(let result, _):
             let source = exchangeManager.getExchangeItems().source
 
+            let fee = result.fee.rounded(scale: 2, roundingMode: .up)
             swappingFeeRowViewModel.update(
                 state: .fee(
-                    fee: info.fee.groupedFormatted(maximumFractionDigits: source.decimalCount),
+                    fee: fee.groupedFormatted(maximumFractionDigits: source.decimalCount),
                     symbol: source.blockchain.symbol,
-                    fiat: fiatFee.currencyFormatted(code: AppSettings.shared.selectedCurrencyCode)
+                    fiat: result.fiatFee.currencyFormatted(code: AppSettings.shared.selectedCurrencyCode)
                 )
             )
         }
@@ -283,24 +345,28 @@ private extension SwappingViewModel {
             mainButtonState = .swap
         case .loading, .requiredRefresh:
             mainButtonIsEnabled = false
+        case .preview(let preview):
+            mainButtonIsEnabled = preview.isEnoughAmountForExchange && !preview.hasPendingTransaction
 
-        case let .preview(result),
-             let .available(result, _):
-            mainButtonIsEnabled = result.isEnoughAmountForExchange
-
-            if result.isEnoughAmountForExchange {
-                mainButtonState = .swap
-            } else {
+            if !preview.isEnoughAmountForExchange {
                 mainButtonState = .insufficientFunds
-            }
-
-        case let .requiredPermission(result, _):
-            mainButtonIsEnabled = result.isEnoughAmountForExchange
-
-            if result.isEnoughAmountForExchange {
+            } else if preview.hasPendingTransaction {
+                mainButtonState = .swap
+            } else if preview.isPermissionRequired {
                 mainButtonState = .givePermission
             } else {
+                mainButtonState = .swap
+            }
+
+        case .available(let model, _):
+            mainButtonIsEnabled = model.isEnoughAmountForExchange && model.isEnoughAmountForFee
+
+            if !model.isEnoughAmountForExchange {
                 mainButtonState = .insufficientFunds
+            } else if model.isPermissionRequired {
+                mainButtonState = .givePermission
+            } else {
+                mainButtonState = .swap
             }
         }
     }
@@ -323,7 +389,7 @@ private extension SwappingViewModel {
 
     func loadDestinationIfNeeded() {
         guard exchangeManager.getExchangeItems().destination == nil else {
-            print("Exchange item destination has already set")
+            AppLog.shared.debug("Exchange item destination has already set")
             return
         }
 
@@ -334,7 +400,8 @@ private extension SwappingViewModel {
                 items.destination = try await swappingDestinationService.getDestination(source: items.source)
                 exchangeManager.update(exchangeItems: items)
             } catch {
-                print("Destination load handle error", error)
+                AppLog.shared.debug("Destination load handle error")
+                AppLog.shared.error(error)
                 items.destination = nil
             }
         }
@@ -366,18 +433,52 @@ private extension SwappingViewModel {
 
     func swapItems() {
         let state = exchangeManager.getAvailabilityState()
-        guard case let .available(result, info) = state else {
+        guard case .available(let result, let info) = state else {
             return
         }
 
         Task {
             do {
                 try await transactionSender.sendTransaction(info)
-                openSuccessView(expectedModel: result, transactionModel: info)
+                await openSuccessView(result: result, transactionModel: info)
+            } catch TangemSdkError.userCancelled {
+                // Do nothing
             } catch {
-                assertionFailure(error.localizedDescription)
-                // [REDACTED_TODO_COMMENT]
+                await runOnMain {
+                    errorAlert = AlertBinder(title: Localization.commonError, message: error.localizedDescription)
+                }
             }
+        }
+    }
+
+    func processingError(error: Error) {
+        switch error {
+        case let error as ExchangeManagerError:
+            switch error {
+            case .walletAddressNotFound, .destinationNotFound, .amountNotFound:
+                updateRefreshWarningRowViewModel(message: error.localizedDescription)
+            }
+        case let error as ExchangeProviderError:
+            switch error {
+            case .requestError(let error):
+                updateRefreshWarningRowViewModel(message: error.detailedError.localizedDescription)
+            case .oneInchError(let error):
+                updateRefreshWarningRowViewModel(message: error.localizedDescription)
+            case .decodingError(let error):
+                updateRefreshWarningRowViewModel(message: error.localizedDescription)
+            }
+        default:
+            updateRefreshWarningRowViewModel(message: Localization.commonError)
+        }
+    }
+
+    func updateRefreshWarningRowViewModel(message: String) {
+        refreshWarningRowViewModel = DefaultWarningRowViewModel(
+            subtitle: message.capitalizingFirstLetter(),
+            leftView: .icon(Assets.attention),
+            rightView: .icon(Assets.refreshWarningIcon)
+        ) { [weak self] in
+            self?.didTapWaringRefresh()
         }
     }
 }
@@ -401,13 +502,13 @@ extension SwappingViewModel {
         var title: String {
             switch self {
             case .swap:
-                return "swapping_swap".localized
+                return Localization.swappingSwap
             case .insufficientFunds:
-                return "swapping_insufficient_funds".localized
+                return Localization.swappingInsufficientFunds
             case .givePermission:
-                return "swapping_give_permission".localized
+                return Localization.swappingGivePermission
             case .permitAndSwap:
-                return "swapping_permit_and_swap".localized
+                return Localization.swappingPermitAndSwap
             }
         }
 
