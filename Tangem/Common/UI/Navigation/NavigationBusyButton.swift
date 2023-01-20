@@ -29,7 +29,7 @@ struct NavigationBusyButton: View {
     init(isBusy: Bool, color: UIColor, imageName: ImageType, action: @escaping () -> Void) {
         self.isBusy = isBusy
         self.color = color
-        self.image = imageName.image
+        image = imageName.image
         self.action = action
     }
 
