@@ -27,7 +27,7 @@ class TotalBalanceAnalyticsService {
     private var cardBalanceInfoWasSaved: Bool {
         userDefaults.data(forKey: totalBalanceCardSupportInfo.cardNumberHash) != nil
     }
-    
+
     private var basicCurrency: String {
         return totalBalanceCardSupportInfo.embeddedBlockchainCurrencySymbol ?? Analytics.ParameterValue.multicurrency.rawValue
     }
@@ -37,13 +37,12 @@ class TotalBalanceAnalyticsService {
     }
 
     func sendFirstLoadBalanceEventForCard(tokenItemViewModels: [TokenItemViewModel], balance: Decimal) {
-        let params: [Analytics.ParameterKey: String] = [
-            .state: Analytics.ParameterValue.state(for: balance).rawValue,
-            .basicCurrency: basicCurrency,
-            .batchId: totalBalanceCardSupportInfo.cardBatchId,
-        ]
-            
-        Analytics.log(.signedIn, params: params)
+        Analytics.logCardSignIn(
+            balance: balance,
+            basicCurrency: basicCurrency,
+            batchId: totalBalanceCardSupportInfo.cardBatchId,
+            cardNumberHash: totalBalanceCardSupportInfo.cardNumberHash
+        )
     }
 
     func sendToppedUpEventIfNeeded(tokenItemViewModels: [TokenItemViewModel], balance: Decimal) {
