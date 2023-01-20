@@ -9,7 +9,7 @@
 import SwiftUI
 
 struct RoundedRectButton: View {
-    var action: () -> Void = { }
+    var action: () -> Void = {}
     var backgroundColor: Color = .init(red: 224.0 / 255.0, green: 230.0 / 255.0, blue: 250.0 / 255.0, opacity: 1)
     var systemImageName: String?
     let title: String

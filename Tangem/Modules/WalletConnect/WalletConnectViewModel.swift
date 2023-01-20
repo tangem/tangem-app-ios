@@ -12,7 +12,8 @@ import SwiftUI
 import AVFoundation
 
 class WalletConnectViewModel: ObservableObject {
-    @Injected(\.walletConnectServiceProvider) private var walletConnectProvider: WalletConnectServiceProviding
+    @Injected(\.walletConnectService) private var walletConnectService: WalletConnectService
+
     @Published var isActionSheetVisible: Bool = false
     @Published var showCameraDeniedAlert: Bool = false
     @Published var alert: AlertBinder?
@@ -24,7 +25,7 @@ class WalletConnectViewModel: ObservableObject {
             return false
         }
 
-        let canHandle = walletConnectProvider.service?.canHandle(url: copiedValue) ?? false
+        let canHandle = walletConnectService.canHandle(url: copiedValue)
         if canHandle {
             self.copiedValue = copiedValue
         }
@@ -44,16 +45,17 @@ class WalletConnectViewModel: ObservableObject {
     }
 
     deinit {
-        print("WalletConnectViewModel deinit")
+        AppLog.shared.debug("WalletConnectViewModel deinit")
     }
 
     func onAppear() {
+        Analytics.log(.walletConnectScreenOpened)
         bind()
     }
 
     func disconnectSession(_ session: WalletConnectSession) {
         Analytics.log(.buttonStopWalletConnectSession)
-        walletConnectProvider.service?.disconnectSession(session)
+        walletConnectService.disconnectSession(with: session.id)
         withAnimation {
             self.objectWillChange.send()
         }
@@ -67,6 +69,8 @@ class WalletConnectViewModel: ObservableObject {
     }
 
     func openSession() {
+        Analytics.log(.buttonStartWalletConnectSession)
+
         if let disabledLocalizedReason = cardModel.getDisabledLocalizedReason(for: .walletConnect) {
             alert = AlertBuilder.makeDemoAlert(disabledLocalizedReason)
             return
@@ -82,22 +86,14 @@ class WalletConnectViewModel: ObservableObject {
     private func bind() {
         bag.removeAll()
 
-        //            walletConnectController.error
-        //                .receive(on: DispatchQueue.main)
-        //                .debounce(for: 0.3, scheduler: DispatchQueue.main)
-        //                .sink { error in
-        //                    self.alert = error.alertBinder
-        //                }
-        //                .store(in: &bag)
-
-        walletConnectProvider.service?.isServiceBusy
+        walletConnectService.canEstablishNewSessionPublisher
             .receive(on: DispatchQueue.main)
-            .sink { [weak self] (isServiceBusy) in
-                self?.isServiceBusy = isServiceBusy
+            .sink { [weak self] canEstablishNewSession in
+                self?.isServiceBusy = !canEstablishNewSession
             }
             .store(in: &bag)
 
-        walletConnectProvider.service?.sessionsPublisher
+        walletConnectService.sessionsPublisher
             .receive(on: DispatchQueue.main)
             .sink(receiveValue: { [weak self] in
                 guard let self = self else { return }
@@ -108,9 +104,10 @@ class WalletConnectViewModel: ObservableObject {
 
         scannedQRCode
             .compactMap { $0 }
-            .sink { [unowned self] qrCodeString in
-                if let service = self.walletConnectProvider.service,
-                   !service.handle(url: qrCodeString) {
+            .sink { [weak self] qrCodeString in
+                guard let self = self else { return }
+
+                if !self.walletConnectService.handle(url: qrCodeString) {
                     self.alert = WalletConnectServiceError.failedToConnect.alertBinder
                 }
             }
@@ -119,6 +116,7 @@ class WalletConnectViewModel: ObservableObject {
 }
 
 // MARK: - Navigation
+
 extension WalletConnectViewModel {
     func openQRScanner() {
         if case .denied = AVCaptureDevice.authorizationStatus(for: .video) {
@@ -130,7 +128,8 @@ extension WalletConnectViewModel {
                 },
                 set: { [weak self] in
                     self?.scannedQRCode.send($0)
-                })
+                }
+            )
 
             coordinator.openQRScanner(with: binding)
         }
