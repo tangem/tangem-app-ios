@@ -49,7 +49,6 @@ class TokenDetailsViewModel: ObservableObject {
 
     var buyCryptoUrl: URL? {
         if let wallet = wallet {
-
             if blockchainNetwork.blockchain.isTestnet {
                 return blockchainNetwork.blockchain.testnetFaucetURL
             }
@@ -77,7 +76,6 @@ class TokenDetailsViewModel: ObservableObject {
 
     var sellCryptoUrl: URL? {
         if let wallet = wallet {
-
             let address = wallet.address
             switch amountType {
             case .coin:
@@ -101,19 +99,31 @@ class TokenDetailsViewModel: ObservableObject {
             return false
         }
 
-        return wallet?.canSend(amountType: self.amountType) ?? false
+        return wallet?.canSend(amountType: amountType) ?? false
     }
 
     var sendBlockedReason: String? {
-        guard let wallet = walletModel?.wallet,
-              let currentAmount = wallet.amounts[amountType], amountType.isToken else { return nil }
-
-        if wallet.hasPendingTx && !wallet.hasPendingTx(for: amountType) { // has pending tx for fee
-            return String(format: "token_details_send_blocked_tx_format".localized, wallet.amounts[.coin]?.currencySymbol ?? "")
+        guard
+            let wallet = walletModel?.wallet,
+            let currentAmount = wallet.amounts[amountType],
+            let token = amountType.token
+        else {
+            return nil
         }
 
-        if !wallet.hasPendingTx && !canSend && !currentAmount.isZero { // no fee
-            return String(format: "token_details_send_blocked_fee_format".localized, wallet.blockchain.displayName, wallet.blockchain.displayName)
+        if wallet.hasPendingTx, !wallet.hasPendingTx(for: amountType) { // has pending tx for fee
+            return Localization.tokenDetailsSendBlockedTxFormat(wallet.amounts[.coin]?.currencySymbol ?? "")
+        }
+
+        // no fee
+        if !wallet.hasPendingTx, !canSend, !currentAmount.isZero {
+            return Localization.tokenDetailsSendBlockedFeeFormat(
+                token.name,
+                wallet.blockchain.displayName,
+                token.name,
+                wallet.blockchain.displayName,
+                wallet.blockchain.currencySymbol
+            )
         }
 
         return nil
@@ -130,7 +140,7 @@ class TokenDetailsViewModel: ObservableObject {
         let blockchainName = blockchain.displayName
         let existentialDepositAmount = existentialDepositProvider.existentialDeposit.string(roundingMode: .plain)
 
-        return String(format: "warning_existential_deposit_message".localized, blockchainName, existentialDepositAmount)
+        return Localization.warningExistentialDepositMessage(blockchainName, existentialDepositAmount)
     }
 
     var transactionLengthWarning: String? {
@@ -138,7 +148,7 @@ class TokenDetailsViewModel: ObservableObject {
             return nil
         }
 
-        return "token_details_transaction_length_warning".localized
+        return Localization.tokenDetailsTransactionLengthWarning
     }
 
     var title: String {
@@ -154,7 +164,7 @@ class TokenDetailsViewModel: ObservableObject {
             return nil
         }
 
-        return "wallet_currency_subtitle".localized(blockchainNetwork.blockchain.displayName)
+        return Localization.walletCurrencySubtitle(blockchainNetwork.blockchain.displayName)
     }
 
     @Published var solanaRentWarning: String? = nil
@@ -163,7 +173,7 @@ class TokenDetailsViewModel: ObservableObject {
 
     private var bag = Set<AnyCancellable>()
     private var rentWarningSubscription: AnyCancellable?
-    private var refreshCancellable: AnyCancellable? = nil
+    private var refreshCancellable: AnyCancellable?
     private lazy var testnetBuyCryptoService: TestnetBuyCryptoService = .init()
     private unowned let coordinator: TokenDetailsRoutable
 
@@ -174,8 +184,7 @@ class TokenDetailsViewModel: ObservableObject {
     private var canSignLongTransactions: Bool {
         if let blockchain = walletModel?.blockchainNetwork.blockchain,
            NFCUtils.isPoorNfcQualityDevice,
-           case .solana = blockchain
-        {
+           case .solana = blockchain {
             return false
         } else {
             return true
@@ -183,7 +192,7 @@ class TokenDetailsViewModel: ObservableObject {
     }
 
     init(cardModel: CardViewModel, blockchainNetwork: BlockchainNetwork, amountType: Amount.AmountType, coordinator: TokenDetailsRoutable) {
-        self.card = cardModel
+        card = cardModel
         self.blockchainNetwork = blockchainNetwork
         self.amountType = amountType
         self.coordinator = coordinator
@@ -209,9 +218,9 @@ class TokenDetailsViewModel: ObservableObject {
 
         if exchangeOptions.count == 1,
            let single = exchangeOptions.first {
-            self.exchangeButtonState = .single(option: single)
+            exchangeButtonState = .single(option: single)
         } else {
-            self.exchangeButtonState = .multi(options: exchangeOptions)
+            exchangeButtonState = .multi(options: exchangeOptions)
         }
     }
 
@@ -295,7 +304,7 @@ class TokenDetailsViewModel: ObservableObject {
     }
 
     private func bind() {
-        print("🔗 Token Details view model updates binding")
+        AppLog.shared.debug("🔗 Token Details view model updates binding")
         card.objectWillChange
             .receive(on: RunLoop.main)
             .sink { [weak self] in
@@ -314,7 +323,7 @@ class TokenDetailsViewModel: ObservableObject {
     func showExplorerURL(url: URL?) {
         guard let url = url else { return }
 
-        self.openExplorer(at: url)
+        openExplorer(at: url)
     }
 
     func onRefresh(_ done: @escaping () -> Void) {
@@ -327,13 +336,12 @@ class TokenDetailsViewModel: ObservableObject {
             .receive(on: RunLoop.main)
             .sink { [weak self] _ in
                 guard let self = self else { return }
-                print("♻️ Token wallet model loading state changed")
+                AppLog.shared.debug("♻️ Token wallet model loading state changed")
                 withAnimation(.default.delay(0.2)) {
                     self.isRefreshing = false
                     done()
                 }
             } receiveValue: { _ in
-
             }
     }
 
@@ -347,7 +355,7 @@ class TokenDetailsViewModel: ObservableObject {
             .receive(on: RunLoop.main)
             .sink { _ in
 
-            } receiveValue: { [weak self] (rentAmount, minimalBalanceForRentExemption) in
+            } receiveValue: { [weak self] rentAmount, minimalBalanceForRentExemption in
                 guard
                     let self = self,
                     let amount = self.walletModel?.wallet.amounts[.coin],
@@ -356,7 +364,7 @@ class TokenDetailsViewModel: ObservableObject {
                     self?.solanaRentWarning = nil
                     return
                 }
-                self.solanaRentWarning = String(format: "solana_rent_warning".localized, rentAmount.description, minimalBalanceForRentExemption.description)
+                self.solanaRentWarning = Localization.solanaRentWarning(rentAmount.description, minimalBalanceForRentExemption.description)
             }
             .store(in: &bag)
     }
@@ -376,27 +384,27 @@ class TokenDetailsViewModel: ObservableObject {
     }
 
     private func showUnableToHideAlert() {
-        let title = "token_details_unable_hide_alert_title".localized(currencySymbol)
+        let title = Localization.tokenDetailsUnableHideAlertTitle(currencySymbol)
 
-        let message = "token_details_unable_hide_alert_message".localized([
+        let message = Localization.tokenDetailsUnableHideAlertMessage(
             currencySymbol,
-            walletModel?.blockchainNetwork.blockchain.displayName ?? "",
-        ])
+            walletModel?.blockchainNetwork.blockchain.displayName ?? ""
+        )
 
         alert = AlertBinder(alert: Alert(
             title: Text(title),
             message: Text(message),
-            dismissButton: .default(Text("common_ok"))
+            dismissButton: .default(Text(Localization.commonOk))
         ))
     }
 
     private func showWarningDeleteAlert() {
-        let title = "token_details_hide_alert_title".localized(currencySymbol)
+        let title = Localization.tokenDetailsHideAlertTitle(currencySymbol)
 
         alert = warningAlert(
             title: title,
-            message: "token_details_hide_alert_message".localized,
-            primaryButton: .destructive(Text("token_details_hide_alert_hide")) { [weak self] in
+            message: Localization.tokenDetailsHideAlertMessage,
+            primaryButton: .destructive(Text(Localization.tokenDetailsHideAlertHide)) { [weak self] in
                 self?.deleteToken()
             }
         )
@@ -405,7 +413,7 @@ class TokenDetailsViewModel: ObservableObject {
     private func warningAlert(title: String, message: String, primaryButton: Alert.Button) -> AlertBinder {
         let alert = Alert(
             title: Text(title),
-            message: Text(message.localized),
+            message: Text(message),
             primaryButton: primaryButton,
             secondaryButton: Alert.Button.cancel()
         )
@@ -422,7 +430,7 @@ extension Int: Identifiable {
 
 extension TokenDetailsViewModel {
     func openSend() {
-        guard let amountToSend = self.wallet?.amounts[amountType] else { return }
+        guard let amountToSend = wallet?.amounts[amountType] else { return }
 
         Analytics.log(.buttonSend)
         coordinator.openSend(amountToSend: amountToSend, blockchainNetwork: blockchainNetwork, cardViewModel: card)
@@ -430,10 +438,12 @@ extension TokenDetailsViewModel {
 
     func openSendToSell(with request: SellCryptoRequest) {
         let amount = Amount(with: blockchainNetwork.blockchain, value: request.amount)
-        coordinator.openSendToSell(amountToSend: amount,
-                                   destination: request.targetAddress,
-                                   blockchainNetwork: blockchainNetwork,
-                                   cardViewModel: card)
+        coordinator.openSendToSell(
+            amountToSend: amount,
+            destination: request.targetAddress,
+            blockchainNetwork: blockchainNetwork,
+            cardViewModel: card
+        )
     }
 
     func openSellCrypto() {
@@ -451,13 +461,12 @@ extension TokenDetailsViewModel {
     }
 
     func openBuyCrypto() {
-        Analytics.log(.buttonBuy)
         if let disabledLocalizedReason = card.getDisabledLocalizedReason(for: .exchange) {
             alert = AlertBuilder.makeDemoAlert(disabledLocalizedReason)
             return
         }
 
-        if let walletModel = self.walletModel,
+        if let walletModel = walletModel,
            let token = amountType.token,
            blockchainNetwork.blockchain == .ethereum(testnet: true) {
             testnetBuyCryptoService.buyCrypto(.erc20Token(token, walletManager: walletModel.walletManager, signer: card.signer))
@@ -475,7 +484,7 @@ extension TokenDetailsViewModel {
     }
 
     func openBuyCryptoIfPossible() {
-        Analytics.log(.buttonBuyCrypto)
+        Analytics.log(.buttonBuy)
         if tangemApiService.geoIpRegionCode == LanguageCode.ru {
             coordinator.openBankWarning {
                 self.openBuyCrypto()
@@ -567,11 +576,11 @@ extension TokenDetailsViewModel {
         var title: String {
             switch self {
             case .buy:
-                return "wallet_button_buy".localized
+                return Localization.walletButtonBuy
             case .sell:
-                return "wallet_button_sell".localized
+                return Localization.walletButtonSell
             case .swap:
-                return "swapping_swap".localized
+                return Localization.swappingSwap
             }
         }
 
