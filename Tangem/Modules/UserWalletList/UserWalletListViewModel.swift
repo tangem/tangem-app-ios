@@ -287,7 +287,7 @@ final class UserWalletListViewModel: ObservableObject, Identifiable {
             isMultiWallet: config.hasFeature(.multiCurrency),
             isUserWalletLocked: userWallet.isLocked,
             isSelected: selectedUserWalletId == userWallet.userWalletId,
-            totalBalanceProvider: totalBalanceProvider ?? TotalBalanceProvider(userWalletModel: userWalletModel, userWalletAmountType: nil, totalBalanceAnalyticsService: nil),
+            totalBalanceProvider: totalBalanceProvider ?? TotalBalanceProvider(userWalletModel: userWalletModel, userWalletAmountType: config.cardAmountType, totalBalanceAnalyticsService: nil),
             cardImageProvider: CardImageProvider()
         ) { [weak self] in
             if userWallet.isLocked {
