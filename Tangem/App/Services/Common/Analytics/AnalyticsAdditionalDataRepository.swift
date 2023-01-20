@@ -11,5 +11,6 @@ import Foundation
 extension Analytics {
     class AdditionalDataRepository {
         var cardDidScanEvent: Analytics.Event?
+        var signedInCardIdentifiers: Set<String> = []
     }
 }
