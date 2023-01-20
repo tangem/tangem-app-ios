@@ -38,14 +38,20 @@ enum SaltPayRegistratorError: String, Error, LocalizedError {
         case .noGas:
             let alert = Alert(title: Text("saltpay_error_no_gas_title"),
                               message: Text("saltpay_error_no_gas_message"),
-                              primaryButton: Alert.Button.default(Text("details_chat"), action: { AppPresenter.shared.showChat() }),
+                              primaryButton: Alert.Button.default(Text("details_chat")) {
+                                  Analytics.log(.onboardingButtonChat)
+                                  AppPresenter.shared.showChat()
+                              },
                               secondaryButton: Alert.Button.default(Text("common_ok")))
 
             return .init(alert: alert)
         case .cardNotPassed, .cardDisabled, .failedToParseAllowance, .blockchainError:
             let alert = Alert(title: Text("common_error"),
                               message: Text(errorDescription ?? ""),
-                              primaryButton: Alert.Button.default(Text("details_chat"), action: { AppPresenter.shared.showChat() }),
+                              primaryButton: Alert.Button.default(Text("details_chat")) {
+                                  Analytics.log(.onboardingButtonChat)
+                                  AppPresenter.shared.showChat()
+                              },
                               secondaryButton: Alert.Button.default(Text("common_ok")))
 
             return .init(alert: alert)
