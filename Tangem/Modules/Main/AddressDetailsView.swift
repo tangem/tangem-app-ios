@@ -17,11 +17,12 @@ struct AddressDetailView: View {
     let showQr: () -> Void
     let showExplorerURL: (URL?) -> Void
 
-    init(selectedAddressIndex: Binding<Int>,
-         walletModel: WalletModel,
-         copyAddress: @escaping () -> Void,
-         showQr: @escaping () -> Void,
-         showExplorerURL: @escaping (URL?) -> Void
+    init(
+        selectedAddressIndex: Binding<Int>,
+        walletModel: WalletModel,
+        copyAddress: @escaping () -> Void,
+        showQr: @escaping () -> Void,
+        showExplorerURL: @escaping (URL?) -> Void
     ) {
         _selectedAddressIndex = selectedAddressIndex
         self.walletModel = walletModel
@@ -59,31 +60,45 @@ struct AddressDetailView: View {
                         .truncationMode(.middle)
                         .foregroundColor(Color.tangemGrayDark)
 
-                    ExploreButton(url: walletModel.exploreURL(for: selectedAddressIndex),
-                                  showExplorerURL: showExplorerURL)
+                    ExploreButton(
+                        url: walletModel.exploreURL(for: selectedAddressIndex),
+                        showExplorerURL: showExplorerURL
+                    )
                 }
 
                 Spacer()
 
-                CircleActionButton(action: copyAddress,
-                                   backgroundColor: .tangemBgGray,
-                                   imageName: "square.on.square",
-                                   isSystemImage: true,
-                                   imageColor: .tangemGrayDark6,
-                                   withVerification: true,
-                                   isDisabled: false)
-                    .accessibility(label: Text("voice_over_copy_address"))
+                CircleActionButton(
+                    action: copyAddress,
+                    backgroundColor: .tangemBgGray,
+                    imageName: "square.on.square",
+                    isSystemImage: true,
+                    imageColor: .tangemGrayDark6,
+                    withVerification: true,
+                    isDisabled: false
+                )
+                .accessibility(label: Text(Localization.voiceOverCopyAddress))
 
-                CircleActionButton(action: showQr,
-                                   backgroundColor: .tangemBgGray,
-                                   imageName: "qrcode",
-                                   isSystemImage: true,
-                                   imageColor: .tangemGrayDark6,
-                                   isDisabled: false)
-                    .accessibility(label: Text("voice_over_show_address_qr"))
+                CircleActionButton(
+                    action: showQr,
+                    backgroundColor: .tangemBgGray,
+                    imageName: "qrcode",
+                    isSystemImage: true,
+                    imageColor: .tangemGrayDark6,
+                    isDisabled: false
+                )
+                .accessibility(label: Text(Localization.voiceOverShowAddressQr))
             }
             .padding(.horizontal, 24.0)
-            .padding(.vertical, 16.0)
+            .padding(.top, 16.0)
+
+            Text(walletModel.getQRReceiveMessage())
+                .font(.system(size: 16, weight: .regular))
+                .multilineTextAlignment(.center)
+                .foregroundColor(.tangemGrayDark)
+                .fixedSize(horizontal: false, vertical: true)
+                .padding(.horizontal, 24.0)
+                .padding(.vertical, 16.0)
         }
         .background(Color.white)
         .cornerRadius(6.0)
@@ -95,11 +110,13 @@ struct AddressDetailView_Previews: PreviewProvider {
     static var previews: some View {
         ZStack {
             Color.tangemBgGray
-            AddressDetailView(selectedAddressIndex: .constant(0),
-                              walletModel: PreviewCard.v4.cardModel.walletModels.first!,
-                              copyAddress: {},
-                              showQr: {},
-                              showExplorerURL: { _ in })
+            AddressDetailView(
+                selectedAddressIndex: .constant(0),
+                walletModel: PreviewCard.v4.cardModel.walletModels.first!,
+                copyAddress: {},
+                showQr: {},
+                showExplorerURL: { _ in }
+            )
         }
     }
 }

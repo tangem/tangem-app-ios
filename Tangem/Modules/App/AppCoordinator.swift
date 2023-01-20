@@ -15,15 +15,18 @@ class AppCoordinator: NSObject, CoordinatorObject {
     var popToRootAction: (PopToRootOptions) -> Void = { _ in }
 
     // MARK: - Injected
-    @Injected(\.walletConnectServiceProvider) private var walletConnectServiceProvider: WalletConnectServiceProviding
+
+    @Injected(\.walletConnectService) private var walletConnectService: WalletConnectService
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
 
     // MARK: - Child coordinators
+
     @Published var welcomeCoordinator: WelcomeCoordinator?
     @Published var uncompletedBackupCoordinator: UncompletedBackupCoordinator?
     @Published var authCoordinator: AuthCoordinator?
 
     // MARK: - Private
+
     private let servicesManager: ServicesManager = .init()
     private var bag: Set<AnyCancellable> = []
 
@@ -75,7 +78,7 @@ class AppCoordinator: NSObject, CoordinatorObject {
 
         let coordinator = WelcomeCoordinator(dismissAction: dismissAction, popToRootAction: popToRootAction)
         coordinator.start(with: .init(shouldScan: shouldScan))
-        self.welcomeCoordinator = coordinator
+        welcomeCoordinator = coordinator
     }
 
     private func setupAuth(with options: AppCoordinator.Options) {
@@ -95,7 +98,7 @@ class AppCoordinator: NSObject, CoordinatorObject {
 
         let coordinator = AuthCoordinator(dismissAction: dismissAction, popToRootAction: popToRootAction)
         coordinator.start(with: .init(unlockOnStart: unlockOnStart))
-        self.authCoordinator = coordinator
+        authCoordinator = coordinator
     }
 
     private func setupUncompletedBackup() {
@@ -106,7 +109,7 @@ class AppCoordinator: NSObject, CoordinatorObject {
 
         let coordinator = UncompletedBackupCoordinator(dismissAction: dismissAction)
         coordinator.start()
-        self.uncompletedBackupCoordinator = coordinator
+        uncompletedBackupCoordinator = coordinator
     }
 
     private func bind() {
@@ -127,7 +130,7 @@ class AppCoordinator: NSObject, CoordinatorObject {
         switch reason {
         case .loggedOut:
             animated = false
-            newScan = true
+            newScan = AppSettings.shared.saveUserWallets
         case .nothingToDisplay:
             animated = true
             newScan = false
@@ -146,7 +149,7 @@ class AppCoordinator: NSObject, CoordinatorObject {
         }
     }
 
-    private func closeAllSheetsIfNeeded(animated: Bool, completion: @escaping () -> Void = { }) {
+    private func closeAllSheetsIfNeeded(animated: Bool, completion: @escaping () -> Void = {}) {
         guard let topViewController = UIApplication.topViewController,
               topViewController.presentingViewController != nil else {
             DispatchQueue.main.async {
@@ -171,6 +174,7 @@ extension AppCoordinator {
 }
 
 // MARK: - UIWindowSceneDelegate
+
 extension AppCoordinator: UIWindowSceneDelegate {
     func scene(_ scene: UIScene, continue userActivity: NSUserActivity) {
         handle(activities: [userActivity])
@@ -199,8 +203,7 @@ extension AppCoordinator: UIWindowSceneDelegate {
     }
 
     private func process(_ url: URL) {
-        if let wcService = walletConnectServiceProvider.service {
-            wcService.handle(url: url)
+        if walletConnectService.handle(url: url) {
             return
         }
 
@@ -209,25 +212,25 @@ extension AppCoordinator: UIWindowSceneDelegate {
         }
 
         if case .welcome = StartupProcessor().getStartupOption() {
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5, execute: {
-                UIApplication.modalFromTop(
-                    AlertBuilder.makeOkGotItAlertController(message: "wallet_connect_need_to_scan_card".localized)
-                )
-            })
+            let controller = AlertBuilder.makeOkGotItAlertController(message: Localization.walletConnectNeedToScanCard)
+            AppPresenter.shared.show(controller, delay: 0.5)
         }
     }
 }
 
 // MARK: - URLHandler
+
 extension AppCoordinator: URLHandler {
-    @discardableResult func handle(url: String) -> Bool {
+    @discardableResult
+    func handle(url: String) -> Bool {
         guard url.starts(with: "https://app.tangem.com")
             || url.starts(with: Constants.tangemDomain + "/ndef") else { return false }
 
         return true
     }
 
-    @discardableResult func handle(url: URL) -> Bool {
+    @discardableResult
+    func handle(url: URL) -> Bool {
         handle(url: url.absoluteString)
     }
 }

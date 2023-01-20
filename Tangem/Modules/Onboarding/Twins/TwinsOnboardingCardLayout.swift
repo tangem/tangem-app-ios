@@ -17,11 +17,15 @@ enum TwinOnboardingCardLayout: OnboardingCardFrameCalculator {
     func animSettings(at step: TwinsOnboardingStep, containerSize: CGSize, stackCalculator: StackCalculator, animated: Bool) -> AnimatedViewSettings {
         switch (step, self) {
         case (.first, _), (.second, .second), (.third, .first):
-            return .init(targetSettings: stackCalculator.cardSettings(at: stackIndex(at: step)),
-                         intermediateSettings: nil)
+            return .init(
+                targetSettings: stackCalculator.cardSettings(at: stackIndex(at: step)),
+                intermediateSettings: nil
+            )
         case (.second, .first), (.third, .second):
-            return .init(targetSettings: stackCalculator.cardSettings(at: stackIndex(at: step)),
-                         intermediateSettings: animated ? stackCalculator.prehideAnimSettings : nil)
+            return .init(
+                targetSettings: stackCalculator.cardSettings(at: stackIndex(at: step)),
+                intermediateSettings: animated ? stackCalculator.prehideAnimSettings : nil
+            )
         case (.welcome, .first):
             return WelcomeCardLayout.main.cardSettings(at: .welcome, in: containerSize, animated: animated)
         case (.welcome, .second):
@@ -32,14 +36,18 @@ enum TwinOnboardingCardLayout: OnboardingCardFrameCalculator {
             settings.offset = offset(at: step, in: containerSize)
             return .init(targetSettings: settings, intermediateSettings: nil)
         default:
-            return .init(targetSettings: CardAnimSettings(frame: frame(for: step, containerSize: containerSize),
-                                                          offset: offset(at: step, in: containerSize),
-                                                          scale: 1.0,
-                                                          opacity: opacity(at: step),
-                                                          zIndex: zIndex(at: step),
-                                                          rotationAngle: rotationAngle(at: step),
-                                                          animType: animated ? .default : .noAnim),
-                         intermediateSettings: nil)
+            return .init(
+                targetSettings: CardAnimSettings(
+                    frame: frame(for: step, containerSize: containerSize),
+                    offset: offset(at: step, in: containerSize),
+                    scale: 1.0,
+                    opacity: opacity(at: step),
+                    zIndex: zIndex(at: step),
+                    rotationAngle: rotationAngle(at: step),
+                    animType: animated ? .default : .noAnim
+                ),
+                intermediateSettings: nil
+            )
         }
     }
 

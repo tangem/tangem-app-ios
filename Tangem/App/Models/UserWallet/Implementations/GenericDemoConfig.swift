@@ -57,7 +57,7 @@ extension GenericDemoConfig: UserWalletConfig {
             return nil
         }
 
-        return String.localizedStringWithFormat("card_label_card_count".localized, backupCardsCount + 1)
+        return Localization.cardLabelCardCount(backupCardsCount + 1)
     }
 
     var cardsCount: Int {
@@ -77,7 +77,7 @@ extension GenericDemoConfig: UserWalletConfig {
             return .wallet([.createWallet] + _backupSteps + userWalletSavingSteps + [.success])
         } else {
             if !AppSettings.shared.cardsStartedActivation.contains(card.cardId) {
-                return .wallet([])
+                return .wallet(userWalletSavingSteps)
             }
 
             return .wallet(_backupSteps + userWalletSavingSteps + [.success])
@@ -96,7 +96,7 @@ extension GenericDemoConfig: UserWalletConfig {
     }
 
     var defaultBlockchains: [StorageEntry] {
-        if let persistentBlockchains = self.persistentBlockchains {
+        if let persistentBlockchains = persistentBlockchains {
             return persistentBlockchains
         }
 
@@ -183,19 +183,19 @@ extension GenericDemoConfig: UserWalletConfig {
         case .signedHashesCounter:
             return .hidden
         case .backup:
-            return .disabled(localizedReason: "alert_demo_feature_disabled".localized)
+            return .disabled(localizedReason: Localization.alertDemoFeatureDisabled)
         case .twinning:
             return .hidden
         case .exchange:
-            return .disabled(localizedReason: "alert_demo_feature_disabled".localized)
+            return .disabled(localizedReason: Localization.alertDemoFeatureDisabled)
         case .walletConnect:
-            return .disabled(localizedReason: "alert_demo_feature_disabled".localized)
+            return .disabled(localizedReason: Localization.alertDemoFeatureDisabled)
         case .multiCurrency:
             return .available
         case .tokensSearch:
             return .hidden
         case .resetToFactory:
-            return .disabled(localizedReason: "alert_demo_feature_disabled".localized)
+            return .disabled(localizedReason: Localization.alertDemoFeatureDisabled)
         case .receive:
             return .available
         case .withdrawal:
@@ -230,14 +230,18 @@ extension GenericDemoConfig: UserWalletConfig {
                 partialResult[cardWallet.curve] = cardWallet.derivedKeys
             }
 
-            model = try factory.makeMultipleWallet(seedKeys: walletPublicKeys,
-                                                   entry: token,
-                                                   derivedKeys: derivedKeys,
-                                                   derivationStyle: card.derivationStyle)
+            model = try factory.makeMultipleWallet(
+                seedKeys: walletPublicKeys,
+                entry: token,
+                derivedKeys: derivedKeys,
+                derivationStyle: card.derivationStyle
+            )
         } else {
-            model = try factory.makeMultipleWallet(walletPublicKeys: walletPublicKeys,
-                                                   entry: token,
-                                                   derivationStyle: card.derivationStyle)
+            model = try factory.makeMultipleWallet(
+                walletPublicKeys: walletPublicKeys,
+                entry: token,
+                derivationStyle: card.derivationStyle
+            )
         }
 
         model.demoBalance = DemoUtil().getDemoBalance(for: model.wallet.blockchain)
@@ -245,12 +249,11 @@ extension GenericDemoConfig: UserWalletConfig {
     }
 }
 
-
 // MARK: - Private extensions
 
 fileprivate extension Card.BackupStatus {
     var backupCardsCount: Int? {
-        if case let .active(backupCards) = self {
+        if case .active(let backupCards) = self {
             return backupCards
         }
 

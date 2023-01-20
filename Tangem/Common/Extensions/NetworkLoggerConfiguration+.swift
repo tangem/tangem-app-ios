@@ -11,9 +11,11 @@ import Moya
 
 extension NetworkLoggerPlugin.Configuration {
     static var verboseConfiguration: NetworkLoggerPlugin.Configuration {
-        let c = NetworkLoggerPlugin.Configuration(formatter: Formatter(),
-                                                  output: NetworkLoggerPlugin.Configuration.defaultOutput,
-                                                  logOptions: .verbose)
+        let c = NetworkLoggerPlugin.Configuration(
+            formatter: Formatter(),
+            output: NetworkLoggerPlugin.Configuration.defaultOutput,
+            logOptions: .verbose
+        )
         return c
     }
 }

@@ -10,13 +10,15 @@ import Foundation
 import SwiftUI
 
 extension View {
-    @ViewBuilder func skeletonable(isShown: Bool, size: CGSize, radius: CGFloat = 3) -> some View {
+    @ViewBuilder
+    func skeletonable(isShown: Bool, size: CGSize, radius: CGFloat = 3) -> some View {
         modifier(
             SkeletonModifier(isShown: isShown, modificationType: .size(size: size), radius: radius)
         )
     }
 
-    @ViewBuilder func skeletonable(isShown: Bool, radius: CGFloat = 3) -> some View {
+    @ViewBuilder
+    func skeletonable(isShown: Bool, radius: CGFloat = 3) -> some View {
         modifier(
             SkeletonModifier(isShown: isShown, modificationType: .overlay, radius: radius)
         )
@@ -45,7 +47,7 @@ public struct SkeletonModifier: ViewModifier {
                         SkeletonView()
                             .cornerRadius(radius)
                     )
-            case let .size(size):
+            case .size(let size):
                 SkeletonView()
                     .frame(size: size)
                     .cornerRadius(radius)

@@ -41,12 +41,14 @@ struct PinStackView: View {
             pinText = value
         }
 
-        CustomTextField(text: binding,
-                        isResponder: Binding.constant(true),
-                        actionButtonTapped: Binding.constant(true),
-                        keyboard: .numberPad,
-                        placeholder: "",
-                        maxCount: maxDigits)
+        CustomTextField(
+            text: binding,
+            isResponder: Binding.constant(true),
+            actionButtonTapped: Binding.constant(true),
+            keyboard: .numberPad,
+            placeholder: "",
+            maxCount: maxDigits
+        )
     }
 
     private func getDigit(_ index: Int) -> String {

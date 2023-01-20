@@ -16,6 +16,7 @@ class UserWalletListCellViewModel: ObservableObject {
     @Published var image: UIImage?
     @Published var isSelected = false
     @Published var isBalanceLoading = true
+    @Published var hasError: Bool = false
 
     let userWalletModel: UserWalletModel
     let subtitle: String
@@ -85,9 +86,11 @@ class UserWalletListCellViewModel: ObservableObject {
                 case .loading:
                     self.isBalanceLoading = true
                     self.balance = Self.defaultBalanceValue
+                    self.hasError = false
                 case .loaded(let value):
                     self.isBalanceLoading = false
                     self.balance = value.balance.currencyFormatted(code: value.currencyCode)
+                    self.hasError = value.hasError
                 }
             }
             .store(in: &bag)
@@ -95,9 +98,9 @@ class UserWalletListCellViewModel: ObservableObject {
 
     private func updateNumberOfTokens() {
         let blockchainsCount = userWalletModel.getSavedEntries().count
-        let allTokensCount = blockchainsCount + userWalletModel.getSavedEntries().reduce(0, { $0 + $1.tokens.count })
+        let allTokensCount = blockchainsCount + userWalletModel.getSavedEntries().reduce(0) { $0 + $1.tokens.count }
 
-        numberOfTokens = String.localizedStringWithFormat("token_count".localized, allTokensCount)
+        numberOfTokens = Localization.tokenCount(allTokensCount)
     }
 
     private func loadImage() {
@@ -131,5 +134,5 @@ class UserWalletListCellViewModel: ObservableObject {
 }
 
 extension UserWalletListCellViewModel {
-    static private let defaultBalanceValue = "$0,000.00"
+    private static let defaultBalanceValue = "$0,000.00"
 }
