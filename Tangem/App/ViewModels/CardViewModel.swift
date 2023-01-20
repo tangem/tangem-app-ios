@@ -180,7 +180,7 @@ class CardViewModel: Identifiable, ObservableObject {
         config.hasFeature(.send)
     }
 
-    var cardAmountType: Amount.AmountType {
+    var cardAmountType: Amount.AmountType? {
         config.cardAmountType
     }
 
