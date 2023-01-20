@@ -15,7 +15,7 @@ protocol UserWalletConfig {
 
     var emailConfig: EmailConfig? { get }
 
-    var touURL: URL { get }
+    var tou: TOU { get }
 
     var cardsCount: Int { get }
 
@@ -79,8 +79,9 @@ extension UserWalletConfig {
         .default
     }
 
-    var touURL: URL {
-        .init(string: "https://tangem.com/tangem_tos.html")!
+    var tou: TOU {
+        let url = URL(string: "https://tangem.com/tangem_tos.html")!
+        return TOU(id: url.absoluteString, url: url)
     }
 
     var emailConfig: EmailConfig? {
@@ -93,8 +94,14 @@ struct EmailConfig {
     let subject: String
 
     static var `default`: EmailConfig {
-        .init(recipient: "support@tangem.com",
-              subject: "feedback_subject_support_tangem".localized)
+        .init(
+            recipient: "support@tangem.com",
+            subject: Localization.feedbackSubjectSupportTangem
+        )
     }
 }
 
+struct TOU {
+    let id: String
+    let url: URL
+}

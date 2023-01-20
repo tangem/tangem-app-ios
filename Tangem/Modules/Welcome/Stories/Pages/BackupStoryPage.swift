@@ -11,8 +11,8 @@ import SwiftUI
 struct BackupStoryPage: View {
     @Binding var progress: Double
     let isScanning: Bool
-    let scanCard: (() -> Void)
-    let orderCard: (() -> Void)
+    let scanCard: () -> Void
+    let orderCard: () -> Void
 
     var body: some View {
         VStack {
@@ -20,7 +20,7 @@ struct BackupStoryPage: View {
                 .padding()
 
             VStack(spacing: 14) {
-                Text("story_backup_title")
+                Text(Localization.storyBackupTitle)
                     .font(.system(size: 36, weight: .semibold))
                     .minimumScaleFactor(0.5)
                     .multilineTextAlignment(.center)
@@ -28,8 +28,8 @@ struct BackupStoryPage: View {
                     .storyTextAppearanceModifier(progress: progress, type: .title, textBlockAppearance: .almostImmediate)
 
                 Group {
-                    Text("story_backup_description_1") + Text(" ") +
-                        Text("story_backup_description_2_bold").bold() + Text(" ") + Text("story_backup_description_3")
+                    Text(Localization.storyBackupDescription1) + Text(" ") +
+                        Text(Localization.storyBackupDescription2Bold).bold() + Text(" ") + Text(Localization.storyBackupDescription3)
                 }
                 .font(.system(size: 24))
                 .multilineTextAlignment(.center)
@@ -102,7 +102,7 @@ struct BackupStoryPage: View {
 
 struct BackupStoryPage_Previews: PreviewProvider {
     static var previews: some View {
-        BackupStoryPage(progress: .constant(1), isScanning: false) { } orderCard: { }
+        BackupStoryPage(progress: .constant(1), isScanning: false) {} orderCard: {}
             .previewGroup(devices: [.iPhone7, .iPhone12ProMax], withZoomed: false)
     }
 }

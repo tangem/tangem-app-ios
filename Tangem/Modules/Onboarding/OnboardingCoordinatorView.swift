@@ -68,8 +68,10 @@ struct OnboardingCoordinatorView: CoordinatorView {
             }
 
         NavHolder()
-            .bottomSheet(item: $coordinator.warningBankCardViewModel,
-                         viewModelSettings: .warning) {
+            .bottomSheet(
+                item: $coordinator.warningBankCardViewModel,
+                viewModelSettings: .warning
+            ) {
                 WarningBankCardView(viewModel: $0)
             }
 
