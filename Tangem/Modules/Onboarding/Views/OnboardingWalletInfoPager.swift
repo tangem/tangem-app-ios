@@ -11,7 +11,6 @@ import Combine
 
 struct PagerView<Data, Content>: View
     where Data: RandomAccessCollection, Data.Element: Hashable, Content: View {
-
     let indexUpdateNotifier: PassthroughSubject<Void, Never>
     // the source data to render, can be a range, an array, or any other collection of Hashable
     private let data: Data
@@ -25,10 +24,12 @@ struct PagerView<Data, Content>: View
 
     // the custom init is here to allow for @ViewBuilder for
     // defining content mapping
-    init(_ data: Data,
-         indexUpdateNotifier: PassthroughSubject<Void, Never>,
-         currentIndex: Binding<Int>,
-         @ViewBuilder content: @escaping (Data.Element) -> Content) {
+    init(
+        _ data: Data,
+        indexUpdateNotifier: PassthroughSubject<Void, Never>,
+        currentIndex: Binding<Int>,
+        @ViewBuilder content: @escaping (Data.Element) -> Content
+    ) {
         self.data = data
         self.indexUpdateNotifier = indexUpdateNotifier
         _currentIndex = currentIndex
@@ -80,8 +81,11 @@ struct PagerViewWithDots<Data, Content>: View
     @State private var indexUpdatePublisher: PassthroughSubject<Void, Never> = .init()
     @State private var pageUpdateWork: DispatchWorkItem?
 
-    init(_ data: Data, animated: Bool,
-         @ViewBuilder content: @escaping (Data.Element) -> Content) {
+    init(
+        _ data: Data,
+        animated: Bool,
+        @ViewBuilder content: @escaping (Data.Element) -> Content
+    ) {
         self.data = data
         self.animated = animated
         self.content = content
@@ -133,43 +137,41 @@ struct PagerViewWithDots<Data, Content>: View
 }
 
 enum TangemWalletOnboardingInfoPage: CaseIterable {
-
     case first
     case second
     case third
     case fourth
 
-    var title: LocalizedStringKey {
+    var title: String {
         switch self {
-        case .first: return "onboarding_wallet_info_title_first"
-        case .second: return "onboarding_wallet_info_title_second"
-        case .third: return "onboarding_wallet_info_title_third"
-        case .fourth: return "onboarding_wallet_info_title_fourth"
+        case .first: return Localization.onboardingWalletInfoTitleFirst
+        case .second: return Localization.onboardingWalletInfoTitleSecond
+        case .third: return Localization.onboardingWalletInfoTitleThird
+        case .fourth: return Localization.onboardingWalletInfoTitleFourth
         }
     }
-    var subtitle: LocalizedStringKey {
+
+    var subtitle: String {
         switch self {
-        case .first: return "onboarding_wallet_info_subtitle_first"
-        case .second: return "onboarding_wallet_info_subtitle_second"
-        case .third: return "onboarding_wallet_info_subtitle_third"
-        case .fourth: return "onboarding_wallet_info_subtitle_fourth"
+        case .first: return Localization.onboardingWalletInfoSubtitleFirst
+        case .second: return Localization.onboardingWalletInfoSubtitleSecond
+        case .third: return Localization.onboardingWalletInfoSubtitleThird
+        case .fourth: return Localization.onboardingWalletInfoSubtitleFourth
         }
     }
 }
 
 struct OnboardingWalletInfoPager: View {
-
     let infoPages: [TangemWalletOnboardingInfoPage] = TangemWalletOnboardingInfoPage.allCases
 
     let animated: Bool
 
     var body: some View {
         PagerViewWithDots(infoPages, animated: animated) { page in
-            OnboardingMessagesView(title: page.title, subtitle: page.subtitle, onTitleTapCallback: { })
+            OnboardingMessagesView(title: page.title, subtitle: page.subtitle, onTitleTapCallback: {})
                 .padding(.horizontal, 40)
         }
     }
-
 }
 
 struct OnboardingWalletInfoPager_Previews: PreviewProvider {
