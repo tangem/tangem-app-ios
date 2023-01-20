@@ -10,8 +10,7 @@ import SwiftUI
 import Combine
 
 struct CircleActionButton: View {
-
-    var action: () -> Void = { }
+    var action: () -> Void = {}
     var diameter: CGFloat = 41
     let backgroundColor: Color
     let imageName: String
@@ -72,10 +71,12 @@ struct CircleActionButton: View {
 
 struct CircleActionButton_Previews: PreviewProvider {
     static var previews: some View {
-        CircleActionButton(diameter: 40,
-                           backgroundColor: .tangemBgGray,
-                           imageName: "doc.on.clipboard",
-                           isSystemImage: true,
-                           imageColor: .tangemGrayDark6)
+        CircleActionButton(
+            diameter: 40,
+            backgroundColor: .tangemBgGray,
+            imageName: "doc.on.clipboard",
+            isSystemImage: true,
+            imageColor: .tangemGrayDark6
+        )
     }
 }
