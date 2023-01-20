@@ -61,7 +61,7 @@ enum SocialNetwork: Hashable, CaseIterable, Identifiable {
             return URL(string: "https://www.linkedin.com/company/tangem")
         }
     }
-    
+
     var name: String {
         switch self {
         case .telegram:
