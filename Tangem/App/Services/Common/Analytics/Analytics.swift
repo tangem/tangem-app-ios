@@ -60,6 +60,22 @@ enum Analytics {
         log(event)
     }
 
+    static func logCardSignIn(balance: Decimal, basicCurrency: String, batchId: String, cardNumberHash: String) {
+        if additionalDataRepository.signedInCardIdentifiers.contains(cardNumberHash) {
+            return
+        }
+        
+        additionalDataRepository.signedInCardIdentifiers.insert(cardNumberHash)
+        
+        let params: [ParameterKey: String] = [
+            .state: ParameterValue.state(for: balance).rawValue,
+            .basicCurrency: basicCurrency,
+            .batchId: batchId,
+        ]
+
+        Analytics.log(.signedIn, params: params)
+    }
+    
     static func logTx(blockchainName: String?, type: TransactionType) {
         log(type.event, params: [
             .blockchain: blockchainName ?? "",
