@@ -59,7 +59,7 @@ struct UserWalletListCellView: View {
                             .skeletonable(isShown: viewModel.isBalanceLoading, radius: 6)
 
                         if viewModel.hasError {
-                            Assets.attention
+                            Assets.attention.image
                                 .resizable()
                                 .aspectRatio(contentMode: .fit)
                                 .frame(width: 17, height: 17)
