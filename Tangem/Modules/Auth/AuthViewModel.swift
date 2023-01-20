@@ -73,6 +73,7 @@ final class AuthViewModel: ObservableObject {
     }
 
     func onAppear() {
+        Analytics.log(.signInScreenOpened)
         navigationBarHidden = true
     }
 
