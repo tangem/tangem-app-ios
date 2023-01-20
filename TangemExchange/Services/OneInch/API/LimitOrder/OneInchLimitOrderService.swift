@@ -12,37 +12,41 @@ import Moya
 struct OneInchLimitOrderService: OneInchLimitOrderServicing {
     private let provider = MoyaProvider<OneInchBaseTarget>()
 
-    func ordersForAddress(blockchain: ExchangeBlockchain, parameters: OrdersForAddressParameters) async -> Result<[LimitOrder], ExchangeInchError> {
+    func ordersForAddress(blockchain: ExchangeBlockchain, parameters: OrdersForAddressParameters) async -> Result<[LimitOrder], ExchangeProviderError> {
         await request(
             target: OneInchBaseTarget(target: LimitOrderTarget.ordersForAddress(parameters), blockchain: blockchain)
         )
     }
 
-    func allOrders(blockchain: ExchangeBlockchain, parameters: AllOrdersParameters) async -> Result<[LimitOrder], ExchangeInchError> {
+    func allOrders(blockchain: ExchangeBlockchain, parameters: AllOrdersParameters) async -> Result<[LimitOrder], ExchangeProviderError> {
         await request(
             target: OneInchBaseTarget(target: LimitOrderTarget.allOrders(parameters), blockchain: blockchain)
         )
     }
 
-    func countOrders(blockchain: ExchangeBlockchain, statuses: [ExchangeOrderStatus]) async -> Result<CountLimitOrders, ExchangeInchError> {
+    func countOrders(blockchain: ExchangeBlockchain, statuses: [ExchangeOrderStatus]) async -> Result<CountLimitOrders, ExchangeProviderError> {
         await request(
             target: OneInchBaseTarget(target: LimitOrderTarget.countOrders(statuses), blockchain: blockchain)
         )
     }
 
-    func events(blockchain: ExchangeBlockchain, limit: Int) async -> Result<[EventsLimitOrder], ExchangeInchError> {
+    func events(blockchain: ExchangeBlockchain, limit: Int) async -> Result<[EventsLimitOrder], ExchangeProviderError> {
         await request(
             target: OneInchBaseTarget(target: LimitOrderTarget.events(limit), blockchain: blockchain)
         )
     }
 
-    func hasActiveOrdersWithPermit(blockchain: ExchangeBlockchain,
-                                   walletAddress: String,
-                                   tokenAddress: String) async -> Result<Bool, ExchangeInchError> {
-        let target = LimitOrderTarget.hasActiveOrdersWithPermit(walletAddress: walletAddress,
-                                                                tokenAddress: tokenAddress)
+    func hasActiveOrdersWithPermit(
+        blockchain: ExchangeBlockchain,
+        walletAddress: String,
+        tokenAddress: String
+    ) async -> Result<Bool, ExchangeProviderError> {
+        let target = LimitOrderTarget.hasActiveOrdersWithPermit(
+            walletAddress: walletAddress,
+            tokenAddress: tokenAddress
+        )
 
-        let response: Result<ActiveOrdersWithPermitDTO, ExchangeInchError> = await request(
+        let response: Result<ActiveOrdersWithPermitDTO, ExchangeProviderError> = await request(
             target: OneInchBaseTarget(target: target, blockchain: blockchain)
         )
 
@@ -56,14 +60,14 @@ struct OneInchLimitOrderService: OneInchLimitOrderServicing {
 }
 
 private extension OneInchLimitOrderService {
-    func request<T: Decodable>(target: OneInchBaseTarget) async -> Result<T, ExchangeInchError> {
+    func request<T: Decodable>(target: OneInchBaseTarget) async -> Result<T, ExchangeProviderError> {
         var response: Response
 
         do {
             response = try await provider.asyncRequest(target)
             response = try response.filterSuccessfulStatusAndRedirectCodes()
         } catch {
-            return .failure(.serverError(withError: error))
+            return .failure(.requestError(error))
         }
 
         let decoder = JSONDecoder()
@@ -72,8 +76,7 @@ private extension OneInchLimitOrderService {
         do {
             return .success(try decoder.decode(T.self, from: response.data))
         } catch {
-            return .failure(.decodeError(error: error))
+            return .failure(.decodingError(error))
         }
     }
 }
-
