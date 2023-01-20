@@ -24,7 +24,8 @@ struct DependenciesFactory {
         return TangemExchangeFactory().createExchangeManager(
             blockchainInfoProvider: networkService,
             source: source,
-            destination: destination
+            destination: destination,
+            logger: AppLog.shared
         )
     }
 
@@ -44,9 +45,12 @@ struct DependenciesFactory {
         UserCurrenciesProvider(walletModel: walletModel)
     }
 
-    func createTransactionSender(sender: TransactionSender, signer: TransactionSigner) -> TransactionSendable {
-        ExchangeTransactionSender(sender: sender,
-                                  signer: signer,
-                                  currencyMapper: createCurrencyMapper())
+    func createTransactionSender(walletManager: WalletManager, signer: TransactionSigner) -> TransactionSendable {
+        ExchangeTransactionSender(
+            transactionCreator: walletManager,
+            transactionSender: walletManager,
+            transactionSigner: signer,
+            currencyMapper: createCurrencyMapper()
+        )
     }
 }
