@@ -246,7 +246,7 @@ class MainViewModel: ObservableObject {
 
     func onScan() {
         DispatchQueue.main.async {
-            Analytics.log(.buttonScanCard)
+            Analytics.beginLoggingCardScan(source: .main)
             self.coordinator.close(newScan: true)
         }
     }
