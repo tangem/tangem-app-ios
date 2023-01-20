@@ -177,7 +177,7 @@ extension SaltPayConfig: UserWalletConfig {
         CardEmailDataFactory().makeEmailData(for: card, walletData: nil)
     }
 
-    var cardAmountType: Amount.AmountType {
+    var cardAmountType: Amount.AmountType? {
         .token(value: defaultToken)
     }
 
