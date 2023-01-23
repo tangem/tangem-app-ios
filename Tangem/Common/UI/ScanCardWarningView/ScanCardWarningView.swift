@@ -29,7 +29,7 @@ struct ScanCardWarningView: View {
 
                 Spacer()
 
-                Assets.chevron
+                Assets.chevron.image
             }
             .frame(maxWidth: .infinity)
             .padding([.vertical, .horizontal], 16)
@@ -41,7 +41,7 @@ struct ScanCardWarningView: View {
 
     private var icon: some View {
         ZStack(alignment: .topTrailing) {
-            Assets.tangemCircleGrayIcon
+            Assets.tangemCircleGrayIcon.image
 
             Circle()
                 .fill(Colors.Text.attention)
