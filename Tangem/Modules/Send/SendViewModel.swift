@@ -493,7 +493,7 @@ class SendViewModel: ObservableObject {
     // MARK: - Validation
 
     func validateClipboard() {
-        if #available(iOS 16) {
+        if #available(iOS 16, *) {
             assertionFailure("Don't call this method, use PasteButton instead")
         }
 
