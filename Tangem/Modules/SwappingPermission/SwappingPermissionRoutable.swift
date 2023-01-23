@@ -6,9 +6,9 @@
 //  Copyright © 2022 Tangem AG. All rights reserved.
 //
 
-import Foundation
+import TangemExchange
 
 protocol SwappingPermissionRoutable: AnyObject {
-    func didSendApproveTransaction()
+    func didSendApproveTransaction(transactionInfo: ExchangeTransactionDataModel)
     func userDidCancel()
 }
