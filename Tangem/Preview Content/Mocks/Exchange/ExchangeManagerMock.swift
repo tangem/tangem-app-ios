@@ -25,4 +25,6 @@ struct ExchangeManagerMock: ExchangeManager {
     func isEnoughAllowance() -> Bool { true }
 
     func refresh() {}
+
+    func didSendApprovingTransaction(exchangeTxData: ExchangeTransactionDataModel) {}
 }
