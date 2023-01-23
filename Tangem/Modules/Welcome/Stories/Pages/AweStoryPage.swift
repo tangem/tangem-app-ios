@@ -39,7 +39,7 @@ struct AweStoryPage: View {
 
             Spacer()
 
-            Image("coin_shower")
+            Assets.Stories.coinShower.image
                 .resizable()
                 .aspectRatio(contentMode: .fit)
                 .overlay(
