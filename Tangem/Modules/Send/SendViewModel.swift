@@ -311,12 +311,13 @@ class SendViewModel: ObservableObject {
                 let newAmountValue = isFiat ? self.walletModel.getCrypto(for: Amount(with: self.amountToSend, value: decimals)) ?? 0 : decimals
                 let newAmount = Amount(with: self.amountToSend, value: newAmountValue)
 
-                if let amountError = self.walletModel.walletManager.validate(amount: newAmount) {
-                    self.amountHint = TextHint(isError: true, message: amountError.localizedDescription)
-                    self.validatedAmount = nil
-                } else {
+                do {
+                    try self.walletModel.walletManager.validate(amount: newAmount)
                     self.amountHint = nil
                     self.validatedAmount = newAmount
+                } catch {
+                    self.amountHint = TextHint(isError: true, message: error.localizedDescription)
+                    self.validatedAmount = nil
                 }
             }
             .store(in: &bag)
