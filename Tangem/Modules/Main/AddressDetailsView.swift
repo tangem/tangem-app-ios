@@ -71,8 +71,7 @@ struct AddressDetailView: View {
                 CircleActionButton(
                     action: copyAddress,
                     backgroundColor: .tangemBgGray,
-                    imageName: "square.on.square",
-                    isSystemImage: true,
+                    systemImageName: "square.on.square",
                     imageColor: .tangemGrayDark6,
                     withVerification: true,
                     isDisabled: false
@@ -82,8 +81,7 @@ struct AddressDetailView: View {
                 CircleActionButton(
                     action: showQr,
                     backgroundColor: .tangemBgGray,
-                    imageName: "qrcode",
-                    isSystemImage: true,
+                    systemImageName: "qrcode",
                     imageColor: .tangemGrayDark6,
                     isDisabled: false
                 )
