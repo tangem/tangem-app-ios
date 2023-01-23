@@ -146,6 +146,9 @@ struct SingleCardOnboardingView: View {
                 if viewModel.isCustomContentVisible {
                     customContent
                         .layoutPriority(1)
+                        .readSize { size in
+                            viewModel.setupContainer(with: size)
+                        }
                 }
 
                 if viewModel.isButtonsVisible {
