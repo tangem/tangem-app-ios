@@ -30,4 +30,7 @@ public protocol ExchangeManager {
 
     /// Refresh main values
     func refresh()
+
+    /// Call it to save transaction in pending list
+    func didSendApprovingTransaction(exchangeTxData: ExchangeTransactionDataModel)
 }
