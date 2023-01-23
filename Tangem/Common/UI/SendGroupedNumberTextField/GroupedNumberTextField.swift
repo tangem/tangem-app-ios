@@ -15,11 +15,15 @@ struct GroupedNumberTextField: View {
     private let placeholder: String = "0"
     private var groupedNumberFormatter: GroupedNumberFormatter
     private var decimalSeparator: Character { groupedNumberFormatter.decimalSeparator }
+    private var groupingSeparator: String { groupedNumberFormatter.groupingSeparator }
 
-    init(decimalValue: Binding<Decimal?>) {
+    init(decimalValue: Binding<Decimal?>, maximumFractionDigits: Int) {
         _decimalValue = decimalValue
 
-        groupedNumberFormatter = GroupedNumberFormatter(numberFormatter: .grouped)
+        groupedNumberFormatter = GroupedNumberFormatter(
+            numberFormatter: .grouped,
+            maximumFractionDigits: maximumFractionDigits
+        )
     }
 
     private var textFieldProxyBinding: Binding<String> {
@@ -27,7 +31,7 @@ struct GroupedNumberTextField: View {
             get: { groupedNumberFormatter.format(from: textFieldText) },
             set: { newValue in
                 // Remove space separators for formatter correct work
-                var numberString = newValue.replacingOccurrences(of: " ", with: "")
+                var numberString = newValue.replacingOccurrences(of: groupingSeparator, with: "")
 
                 // If user start enter number with `decimalSeparator` add zero before comma
                 if numberString == String(decimalSeparator) {
@@ -66,17 +70,6 @@ struct GroupedNumberTextField: View {
             .style(Fonts.Regular.title1, color: Colors.Text.primary1)
             .keyboardType(.decimalPad)
             .tintCompat(Colors.Text.primary1)
-            .onChange(of: decimalValue) { decimalValue in
-                guard let decimalValue else {
-                    textFieldText = ""
-                    return
-                }
-
-                let newValue = groupedNumberFormatter.format(from: decimalValue)
-                if textFieldText != newValue {
-                    textFieldText = newValue
-                }
-            }
     }
 }
 
@@ -92,6 +85,6 @@ struct GroupedNumberTextField_Previews: PreviewProvider {
     @State private static var decimalValue: Decimal?
 
     static var previews: some View {
-        GroupedNumberTextField(decimalValue: $decimalValue)
+        GroupedNumberTextField(decimalValue: $decimalValue, maximumFractionDigits: 8)
     }
 }
