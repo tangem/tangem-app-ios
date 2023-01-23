@@ -63,6 +63,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         }
 
         AppSettings.shared.numberOfLaunches += 1
+        S2CTOUMigrator().migrate()
         return true
     }
 

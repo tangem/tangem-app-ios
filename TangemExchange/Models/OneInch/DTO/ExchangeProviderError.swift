@@ -18,7 +18,7 @@ public enum ExchangeProviderError: LocalizedError {
         case .requestError(let error):
             return error.localizedDescription
         case .oneInchError(let inchError):
-            return inchError.description
+            return inchError.localizedDescription
         case .decodingError(let error):
             return error.localizedDescription
         }
