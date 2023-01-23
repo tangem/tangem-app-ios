@@ -19,11 +19,11 @@ struct ResetToFactoryView: View {
         GeometryReader { geometry in
             VStack(alignment: .center, spacing: 0) {
                 ZStack {
-                    Assets.attentionBg
+                    Assets.attentionBg.image
                         .resizable()
                         .fixedSize(horizontal: false, vertical: true)
 
-                    Assets.attentionRed
+                    Assets.attentionRed.image
                         .offset(y: 30)
                 }
                 .frame(
