@@ -47,7 +47,7 @@ protocol UserWalletConfig {
 
     var emailData: [EmailCollectedData] { get }
 
-    var cardAmountType: Amount.AmountType { get }
+    var cardAmountType: Amount.AmountType? { get }
 
     var userWalletIdSeed: Data? { get }
 
@@ -71,8 +71,8 @@ extension UserWalletConfig {
         getFeatureAvailability(feature).isAvailable
     }
 
-    var cardAmountType: Amount.AmountType {
-        .coin
+    var cardAmountType: Amount.AmountType? {
+        return nil
     }
 
     var supportChatEnvironment: SupportChatEnvironment {
