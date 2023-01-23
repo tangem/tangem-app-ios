@@ -31,8 +31,6 @@ enum SingleCardOnboardingStep: Equatable {
             return .init(width: 0, height: containerSize.height * 0.103)
         case .topup, .successTopup:
             return defaultBackgroundOffset(in: containerSize)
-//            let height = 0.112 * containerSize.height
-//            return .init(width: 0, height: height)
         default:
             return .zero
         }
@@ -53,8 +51,6 @@ enum SingleCardOnboardingStep: Equatable {
             return .init(width: diameter, height: diameter)
         case .topup, .successTopup:
             return defaultBackgroundFrameSize(in: containerSize)
-//            let height = 0.61 * containerSize.height
-//            return .init(width: containerSize.width * 0.787, height: height)
         }
     }
 
@@ -72,10 +68,9 @@ extension SingleCardOnboardingStep: SuccessStep {}
 extension SingleCardOnboardingStep: OnboardingMessagesProvider {
     var title: String? {
         switch self {
-        case .disclaimer: return ""
+        case .saveUserWallet, .disclaimer: return nil
         case .createWallet: return Localization.onboardingCreateWalletButtonCreateWallet
         case .topup: return Localization.onboardingTopupTitle
-        case .saveUserWallet: return nil
         case .successTopup: return Localization.onboardingDoneHeader
         case .success: return successTitle
         }
@@ -83,10 +78,9 @@ extension SingleCardOnboardingStep: OnboardingMessagesProvider {
 
     var subtitle: String? {
         switch self {
-        case .disclaimer: return ""
+        case .saveUserWallet, .disclaimer: return nil
         case .createWallet: return Localization.onboardingCreateWalletBody
         case .topup: return Localization.onboardingTopUpBody
-        case .saveUserWallet: return nil
         case .successTopup: return Localization.onboardingDoneBody
         case .success: return Localization.onboardingDoneBody
         }
@@ -94,10 +88,6 @@ extension SingleCardOnboardingStep: OnboardingMessagesProvider {
 
     var messagesOffset: CGSize {
         return .zero
-//        switch self {
-//        case .success: return successMessagesOffset
-//        default: return .zero
-        //       }
     }
 }
 
