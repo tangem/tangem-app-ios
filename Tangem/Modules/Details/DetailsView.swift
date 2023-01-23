@@ -106,7 +106,7 @@ struct DetailsView: View {
         Button(action: {
             viewModel.openSocialNetwork(network: network)
         }) {
-            network.icon
+            network.icon.image
                 .resizable()
                 .frame(width: 24, height: 24)
         }
