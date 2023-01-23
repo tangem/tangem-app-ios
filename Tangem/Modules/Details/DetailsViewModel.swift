@@ -137,7 +137,7 @@ extension DetailsViewModel {
     }
 
     func openDisclaimer() {
-        coordinator.openDisclaimer(at: cardModel.cardTouURL)
+        coordinator.openDisclaimer(at: cardModel.cardDisclaimer.url)
     }
 
     func openSocialNetwork(network: SocialNetwork) {
