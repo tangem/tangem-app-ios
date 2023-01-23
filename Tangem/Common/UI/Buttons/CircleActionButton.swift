@@ -13,8 +13,7 @@ struct CircleActionButton: View {
     var action: () -> Void = {}
     var diameter: CGFloat = 41
     let backgroundColor: Color
-    let imageName: String
-    let isSystemImage: Bool
+    let systemImageName: String
     let imageColor: Color
     var withVerification: Bool = false
     var isDisabled = false
@@ -22,9 +21,7 @@ struct CircleActionButton: View {
     @State private var isVerify = false
 
     var image: Image {
-        isSystemImage ?
-            Image(systemName: imageName) :
-            Image(imageName)
+        Image(systemName: systemImageName)
     }
 
     var body: some View {
@@ -74,8 +71,7 @@ struct CircleActionButton_Previews: PreviewProvider {
         CircleActionButton(
             diameter: 40,
             backgroundColor: .tangemBgGray,
-            imageName: "doc.on.clipboard",
-            isSystemImage: true,
+            systemImageName: "doc.on.clipboard",
             imageColor: .tangemGrayDark6
         )
     }
