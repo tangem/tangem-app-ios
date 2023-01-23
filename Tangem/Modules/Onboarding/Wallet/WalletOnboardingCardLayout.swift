@@ -23,14 +23,6 @@ enum WalletOnboardingCardLayout {
 
     func animSettings(at step: WalletOnboardingStep, in container: CGSize, fanStackCalculator: FanStackCalculator, animated: Bool) -> AnimatedViewSettings {
         switch (self, step) {
-        case (.origin, .welcome):
-            return WelcomeCardLayout.main.cardSettings(at: .welcome, in: container, animated: animated)
-        case (.firstBackup, .welcome):
-            return WelcomeCardLayout.supplementary.cardSettings(at: .welcome, in: container, animated: animated)
-        case (.secondBackup, .welcome):
-            var settings = WelcomeCardLayout.supplementary.cardSettings(at: .welcome, in: container, animated: animated)
-            settings.targetSettings.opacity = 0
-            return settings
         case (_, .selectBackupCards):
             return .init(
                 targetSettings: fanStackCalculator.settingsForCard(at: cardFanStackIndex),
@@ -90,7 +82,7 @@ enum WalletOnboardingCardLayout {
 
     func opacity(at step: WalletOnboardingStep, in container: CGSize) -> Double {
         switch (self, step) {
-        case (.secondBackup, .createWallet), (.secondBackup, .welcome), (_, .success): return 0
+        case (.secondBackup, .createWallet), (_, .success): return 0
         default:
             return 1
         }
