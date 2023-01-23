@@ -45,10 +45,11 @@ struct DependenciesFactory {
         UserCurrenciesProvider(walletModel: walletModel)
     }
 
-    func createTransactionSender(sender: TransactionSender, signer: TransactionSigner) -> TransactionSendable {
+    func createTransactionSender(walletManager: WalletManager, signer: TransactionSigner) -> TransactionSendable {
         ExchangeTransactionSender(
-            sender: sender,
-            signer: signer,
+            transactionCreator: walletManager,
+            transactionSender: walletManager,
+            transactionSigner: signer,
             currencyMapper: createCurrencyMapper()
         )
     }
