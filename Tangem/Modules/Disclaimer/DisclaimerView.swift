@@ -14,27 +14,19 @@ struct DisclaimerView: View {
     var body: some View {
         ZStack(alignment: .bottom) {
             VStack(alignment: .leading, spacing: 16) {
-                if viewModel.style.isVisibleHeader {
-                    Text(viewModel.style.title)
-                        .font(.system(size: 30, weight: .bold, design: .default))
-                        .foregroundColor(.tangemGrayDark6)
-                        .padding([.top, .horizontal], 16)
-                }
-
                 WebViewContainer(viewModel: viewModel.webViewModel)
             }
 
-            if viewModel.showAccept {
+            if viewModel.showBottomOverlay {
                 bottomView
             }
         }
-        .modifier(if: viewModel.showAccept, then: {
+        .modifier(if: viewModel.showBottomOverlay, then: {
             $0.edgesIgnoringSafeArea(.bottom)
         })
-        .navigationBarTitle(viewModel.style.title)
-        .navigationBarBackButtonHidden(viewModel.style.isNavigationBarHidden)
-        .navigationBarHidden(viewModel.style.isNavigationBarHidden)
-        .onDisappear(perform: viewModel.onDisappear)
+        .navigationBarTitle(Localization.disclaimerTitle)
+//        .navigationBarBackButtonHidden(false)
+//        .navigationBarHidden(viewModel.style.isNavigationBarHidden)
     }
 
     private var bottomView: some View {
@@ -52,21 +44,14 @@ struct DisclaimerView: View {
                 width: UIScreen.main.bounds.width,
                 height: viewModel.bottomOverlayHeight
             )
-
-            MainButton(title: Localization.commonAccept, action: viewModel.onAccept)
-                .padding(.horizontal, 16)
         }
     }
 }
 
 extension DisclaimerView {
     enum Style {
-        case sheet
-        case navbar
-
-        var title: String { Localization.disclaimerTitle }
-        var isVisibleHeader: Bool { self == .sheet }
-        var isNavigationBarHidden: Bool { self == .sheet }
+        case onboarding
+        case details
     }
 }
 
@@ -74,11 +59,11 @@ struct DisclaimerView_Previews: PreviewProvider {
     private static var url: URL = .init(string: "https://tangem.com")!
 
     static var previews: some View {
-        DisclaimerView(viewModel: .init(url: url, style: .sheet, coordinator: nil, acceptanceHandler: { _ in }))
+        DisclaimerView(viewModel: .init(url: url, style: .onboarding))
             .previewGroup(devices: [.iPhone12Pro, .iPhone8Plus], withZoomed: false)
 
         NavigationView(content: {
-            DisclaimerView(viewModel: .init(url: url, style: .navbar, coordinator: nil, acceptanceHandler: { _ in }))
+            DisclaimerView(viewModel: .init(url: url, style: .details))
         })
     }
 }
