@@ -86,8 +86,8 @@ struct SuccessSwappingView_Preview: PreviewProvider {
 
     static var previews: some View {
         NavHolder()
-            .sheet(item: .constant(viewModel)) {
-                SuccessSwappingView(viewModel: $0)
+            .sheet(isPresented: .constant(true)) {
+                SuccessSwappingView(viewModel: viewModel)
             }
     }
 }
