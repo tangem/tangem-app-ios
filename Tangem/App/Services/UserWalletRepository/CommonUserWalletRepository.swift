@@ -126,8 +126,9 @@ class CommonUserWalletRepository: UserWalletRepository {
         .flatMap { [weak self] cardModel -> AnyPublisher<UserWalletRepositoryResult?, Error> in
             self?.failedCardScanTracker.resetCounter()
 
-            Analytics.log(.cardWasScanned)
+            Analytics.endLoggingCardScan()
 
+            self?.sendEvent(.scan(isScanning: false))
             let onboardingInput = cardModel.onboardingInput
             if onboardingInput.steps.needOnboarding {
                 cardModel.userWalletModel?.updateAndReloadWalletModels()
@@ -149,6 +150,7 @@ class CommonUserWalletRepository: UserWalletRepository {
             AppLog.shared.error(error)
 
             self.failedCardScanTracker.recordFailure()
+            self.sendEvent(.scan(isScanning: false))
 
             if error is SaltPayRegistratorError {
                 return Just(UserWalletRepositoryResult.error(error))
@@ -184,7 +186,6 @@ class CommonUserWalletRepository: UserWalletRepository {
 
         sendEvent(.scan(isScanning: true))
         sdkProvider.sdk.startSession(with: AppScanTask()) { [unowned self] result in
-            self.sendEvent(.scan(isScanning: false))
 
             sdkProvider.setup(with: oldConfig)
 
@@ -382,9 +383,9 @@ class CommonUserWalletRepository: UserWalletRepository {
     }
 
     func clear() {
+        clearUserWallets()
         discardSensitiveData()
 
-        clearUserWallets()
         setSelectedUserWalletId(nil, reason: .deleted)
     }
 
