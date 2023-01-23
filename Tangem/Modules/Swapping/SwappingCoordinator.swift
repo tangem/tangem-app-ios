@@ -57,6 +57,8 @@ extension SwappingCoordinator {
 
 extension SwappingCoordinator: SwappingRoutable {
     func presentSwappingTokenList(sourceCurrency: Currency, userCurrencies: [Currency]) {
+        UIApplication.shared.endEditing()
+
         swappingTokenListViewModel = SwappingTokenListViewModel(
             sourceCurrency: sourceCurrency,
             userCurrencies: userCurrencies,
@@ -76,6 +78,8 @@ extension SwappingCoordinator: SwappingRoutable {
     }
 
     func presentSuccessView(inputModel: SuccessSwappingInputModel) {
+        UIApplication.shared.endEditing()
+
         let coordinator = SuccessSwappingCoordinator(
             dismissAction: dismissAction,
             popToRootAction: popToRootAction
@@ -98,9 +102,9 @@ extension SwappingCoordinator: SwappingTokenListRoutable {
 // MARK: - SwappingPermissionRoutable
 
 extension SwappingCoordinator: SwappingPermissionRoutable {
-    func didSendApproveTransaction() {
+    func didSendApproveTransaction(transactionInfo: ExchangeTransactionDataModel) {
         swappingPermissionViewModel = nil
-        rootViewModel?.didSendApproveTransaction()
+        rootViewModel?.didSendApproveTransaction(transactionInfo: transactionInfo)
     }
 
     func userDidCancel() {
