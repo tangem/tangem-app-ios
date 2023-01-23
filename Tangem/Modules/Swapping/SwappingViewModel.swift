@@ -257,30 +257,30 @@ private extension SwappingViewModel {
     func updateReceiveView(exchangeItems: ExchangeItems) {
         let destination = exchangeItems.destination
 
-        let valueState: ReceiveCurrencyViewModel.State
-        let fiatValueState: ReceiveCurrencyViewModel.State
+        let cryptoAmountState: ReceiveCurrencyViewModel.State
+        let fiatAmountState: ReceiveCurrencyViewModel.State
 
         switch exchangeManager.getAvailabilityState() {
         case .idle, .requiredRefresh:
-            valueState = .loaded(0)
-            fiatValueState = .loaded(0)
+            cryptoAmountState = .loaded(0)
+            fiatAmountState = .loaded(0)
         case .loading:
-            valueState = .loading
-            fiatValueState = .loading
+            cryptoAmountState = .loading
+            fiatAmountState = .loading
         case .preview(let result):
-            valueState = .loaded(result.expectedAmount)
-            fiatValueState = .loading
+            cryptoAmountState = .loaded(result.expectedAmount)
+            fiatAmountState = .loading
             updateReceiveCurrencyValue(value: result.expectedAmount)
         case .available(let result, _):
-            valueState = .loaded(result.amount)
-            fiatValueState = .loading
+            cryptoAmountState = .loaded(result.amount)
+            fiatAmountState = .loading
             updateReceiveCurrencyValue(value: result.amount)
         }
 
         receiveCurrencyViewModel = ReceiveCurrencyViewModel(
             balance: exchangeItems.destinationBalance,
-            valueState: valueState,
-            fiatValueState: fiatValueState,
+            cryptoAmountState: cryptoAmountState,
+            fiatAmountState: fiatAmountState,
             tokenIcon: mapToSwappingTokenIconViewModel(currency: destination)
         )
     }
@@ -295,13 +295,13 @@ private extension SwappingViewModel {
             feeWarningRowViewModel = nil
             permissionInfoRowViewModel = nil
 
-            receiveCurrencyViewModel?.update(valueState: .loaded(0))
-            receiveCurrencyViewModel?.update(fiatValueState: .loaded(0))
+            receiveCurrencyViewModel?.update(cryptoAmountState: .loaded(0))
+            receiveCurrencyViewModel?.update(fiatAmountState: .loaded(0))
 
         case .loading:
             refreshWarningRowViewModel?.update(rightView: .loader)
-            receiveCurrencyViewModel?.update(valueState: .loading)
-            receiveCurrencyViewModel?.update(fiatValueState: .loading)
+            receiveCurrencyViewModel?.update(cryptoAmountState: .loading)
+            receiveCurrencyViewModel?.update(fiatAmountState: .loading)
 
         case .preview(let result):
             refreshWarningRowViewModel = nil
@@ -319,23 +319,23 @@ private extension SwappingViewModel {
             updateEnoughAmountForFee(isEnoughAmountForFee: result.isEnoughAmountForFee)
 
         case .requiredRefresh(let error):
-            receiveCurrencyViewModel?.update(valueState: .loaded(0))
-            receiveCurrencyViewModel?.update(fiatValueState: .loaded(0))
+            receiveCurrencyViewModel?.update(cryptoAmountState: .loaded(0))
+            receiveCurrencyViewModel?.update(fiatAmountState: .loaded(0))
 
             processingError(error: error)
         }
     }
 
     func updateReceiveCurrencyValue(value: Decimal) {
-        receiveCurrencyViewModel?.update(valueState: .loaded(value))
+        receiveCurrencyViewModel?.update(cryptoAmountState: .loaded(value))
 
         guard let destination = exchangeManager.getExchangeItems().destination else { return }
-        receiveCurrencyViewModel?.update(fiatValueState: .loading)
+        receiveCurrencyViewModel?.update(fiatAmountState: .loading)
 
         Task {
             let fiatValue = try await fiatRatesProvider.getFiat(for: destination, amount: value)
             await runOnMain {
-                receiveCurrencyViewModel?.update(fiatValueState: .loaded(fiatValue))
+                receiveCurrencyViewModel?.update(fiatAmountState: .loaded(fiatValue))
             }
         }
     }
