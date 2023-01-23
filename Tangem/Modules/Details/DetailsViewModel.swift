@@ -124,7 +124,7 @@ extension DetailsViewModel {
     }
 
     func openSupportChat() {
-        Analytics.log(.buttonChat)
+        Analytics.log(.settingsButtonChat)
         let dataCollector = DetailsFeedbackDataCollector(
             cardModel: cardModel,
             userWalletEmailData: cardModel.emailData
