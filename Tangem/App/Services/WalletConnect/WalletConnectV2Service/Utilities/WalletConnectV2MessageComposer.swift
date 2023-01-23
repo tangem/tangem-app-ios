@@ -38,11 +38,8 @@ extension WalletConnectV2MessageComposer: WalletConnectV2MessageComposable {
     func makeErrorMessage(_ error: WalletConnectV2Error) -> String {
         switch error {
         case .unsupportedBlockchains(let blockchainNames):
-            let unsupportedChains = blockchainNames.joined(separator: ", ")
-
-            
             var message = Localization.walletConnectErrorUnsupportedBlockchains
-            message += unsupportedChains
+            message += blockchainNames.joined(separator: ", ")
 
             return message
         case .sessionForTopicNotFound:
@@ -52,7 +49,6 @@ extension WalletConnectV2MessageComposer: WalletConnectV2MessageComposable {
             message += blockchainNames.joined(separator: ", ")
 
             return message
-
         case .unknown(let errorMessage):
             return Localization.walletConnectErrorWithFrameworkMessage(errorMessage)
         }
