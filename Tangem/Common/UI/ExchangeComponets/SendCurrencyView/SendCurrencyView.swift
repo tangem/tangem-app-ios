@@ -44,32 +44,15 @@ struct SendCurrencyView: View {
         }
     }
 
-    @ViewBuilder
-    private var lockView: some View {
-        if viewModel.isLockedVisible {
-            Assets.swappingLock
-                .resizable()
-                .frame(width: 20, height: 20)
-                .padding(.all, 14)
-                .background(Colors.Background.secondary)
-                .cornerRadius(10)
-        }
-    }
-
     private var currencyContent: some View {
-        HStack(spacing: 12) {
-            lockView
+        VStack(alignment: .leading, spacing: 8) {
+            SendGroupedNumberTextField(decimalValue: $decimalValue, maximumFractionDigits: viewModel.maximumFractionDigits)
+                .maximumFractionDigits(viewModel.maximumFractionDigits)
+                .didTapMaxAmount { didTapMaxAmountAction?() }
 
-            VStack(alignment: .leading, spacing: 8) {
-                SendGroupedNumberTextField(decimalValue: $decimalValue)
-                    .maximumFractionDigits(viewModel.maximumFractionDigits)
-                    .didTapMaxAmount { didTapMaxAmountAction?() }
-
-                Text(viewModel.fiatValueString)
-                    .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
-            }
+            Text(viewModel.fiatValueString)
+                .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
         }
-        .animation(.easeInOut, value: viewModel.isLockedVisible)
     }
 
     private var mainContent: some View {
@@ -110,7 +93,6 @@ struct SendCurrencyView_Preview: PreviewProvider {
         balance: 0.02,
         maximumFractionDigits: 8,
         fiatValue: 0.02,
-        isLockedVisible: true,
         tokenIcon: SwappingTokenIconViewModel(
             state: .loaded(
                 imageURL: TokenIconURLBuilderMock().iconURL(id: "bitcoin", size: .large),
