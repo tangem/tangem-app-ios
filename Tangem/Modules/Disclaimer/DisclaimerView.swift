@@ -13,20 +13,14 @@ struct DisclaimerView: View {
 
     var body: some View {
         ZStack(alignment: .bottom) {
-            VStack(alignment: .leading, spacing: 16) {
-                WebViewContainer(viewModel: viewModel.webViewModel)
-            }
+            WebViewContainer(viewModel: viewModel.webViewModel)
 
-            if viewModel.showBottomOverlay {
-                bottomView
-            }
+            bottomView
         }
-        .modifier(if: viewModel.showBottomOverlay, then: {
-            $0.edgesIgnoringSafeArea(.bottom)
-        })
-        .navigationBarTitle(Localization.disclaimerTitle)
-//        .navigationBarBackButtonHidden(false)
-//        .navigationBarHidden(viewModel.style.isNavigationBarHidden)
+        .modifier(if: viewModel.showNavBarTitle) {
+            $0.navigationBarTitle(Localization.disclaimerTitle)
+        }
+        .edgesIgnoringSafeArea(.bottom)
     }
 
     private var bottomView: some View {
@@ -45,13 +39,6 @@ struct DisclaimerView: View {
                 height: viewModel.bottomOverlayHeight
             )
         }
-    }
-}
-
-extension DisclaimerView {
-    enum Style {
-        case onboarding
-        case details
     }
 }
 
