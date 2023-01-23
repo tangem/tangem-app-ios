@@ -87,7 +87,7 @@ struct MeetTangemStoryPage: View {
 
                 Color.clear
                     .background(
-                        Image("hand_with_card")
+                        Assets.Stories.handWithCard.image
                             .resizable()
                             .aspectRatio(contentMode: .fit)
                             .fixedSize(horizontal: false, vertical: true)
