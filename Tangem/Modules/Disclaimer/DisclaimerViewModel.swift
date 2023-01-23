@@ -10,16 +10,16 @@ import Foundation
 
 class DisclaimerViewModel: Identifiable {
     let webViewModel: WebViewContainerViewModel
-    let bottomOverlayHeight: CGFloat = 170
     let id: UUID = .init()
 
-    var showBottomOverlay: Bool { style == .onboarding }
+    var showNavBarTitle: Bool { style == .details }
+    var bottomOverlayHeight: CGFloat { style.bottomOverlayHeight }
 
-    private let style: DisclaimerView.Style
+    private let style: Style
 
     init(
         url: URL,
-        style: DisclaimerView.Style
+        style: Style
     ) {
         self.style = style
         webViewModel = .init(
@@ -28,7 +28,23 @@ class DisclaimerViewModel: Identifiable {
             addLoadingIndicator: true,
             withCloseButton: false,
             withNavigationBar: false,
-            contentInset: .init(top: 0, left: 0, bottom: bottomOverlayHeight / 2, right: 0)
+            contentInset: .init(top: 0, left: 0, bottom: style.bottomOverlayHeight / 2, right: 0)
         )
+    }
+}
+
+extension DisclaimerViewModel {
+    enum Style {
+        case onboarding
+        case details
+
+        var bottomOverlayHeight: CGFloat {
+            switch self {
+            case .details:
+                return 40
+            case .onboarding:
+                return 170
+            }
+        }
     }
 }
