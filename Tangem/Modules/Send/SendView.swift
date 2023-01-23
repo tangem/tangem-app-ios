@@ -38,7 +38,7 @@ struct SendView: View {
                                 if #available(iOS 16.0, *) {
                                     PasteButton(payloadType: String.self) { strings in
                                         DispatchQueue.main.async {
-                                            viewModel.pasteClipboardTapped(strings[0])
+                                            viewModel.pasteClipboardTapped(strings)
                                         }
                                     }
                                     .tint(Colors.Button.paste)
