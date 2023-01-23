@@ -58,9 +58,9 @@ struct SendView: View {
 
                                 CircleActionButton(
                                     action: viewModel.openQRScanner,
-                                    backgroundColor: .tangemBgGray,
+                                    backgroundColor: Colors.Button.paste,
                                     systemImageName: "qrcode.viewfinder",
-                                    imageColor: .tangemGrayDark6
+                                    imageColor: .white
                                 )
                                 .accessibility(label: Text(Localization.voiceOverScanQrWithAddress))
                                 .cameraAccessDeniedAlert($viewModel.showCameraDeniedAlert)
