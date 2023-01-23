@@ -16,7 +16,7 @@ struct CheckIconView: View {
     }
 
     var body: some View {
-        Assets.check
+        Assets.check.image
             .resizable()
             .foregroundColor(Colors.Control.checked)
             /// Need to cover empty place if unchecking
