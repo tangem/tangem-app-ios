@@ -31,7 +31,7 @@ struct TotalSumBalanceView: View {
                             .lineLimit(1)
                             .font(.system(size: 13, weight: .medium))
 
-                        Assets.tangemArrowDown
+                        Assets.tangemArrowDown.image
                     }
                     .foregroundColor(.tangemGrayLight7)
                 }
