@@ -8,8 +8,13 @@
 
 import Foundation
 
-public struct OneInchError: Decodable {
-    public let statusCode: Int
-    public let description: String
-    public let requestId: String
+public struct OneInchError: Decodable, LocalizedError {
+    public let statusCode: Int?
+    public let error: String?
+    public let description: String?
+    public let requestId: String?
+
+    public var errorDescription: String? {
+        description ?? error ?? "Unknown error"
+    }
 }
