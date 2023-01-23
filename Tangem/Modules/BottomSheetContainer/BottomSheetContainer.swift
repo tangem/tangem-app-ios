@@ -9,7 +9,7 @@
 import Foundation
 import SwiftUI
 
-struct BottomSheetContainer<Item, ContentView>: View where Item: Equatable & Identifiable, ContentView: View {
+struct BottomSheetContainer<Item, ContentView: View>: View {
     @Binding private var item: Item?
     private let settings: Settings
     private let content: (Item) -> ContentView
@@ -64,7 +64,7 @@ struct BottomSheetContainer<Item, ContentView>: View where Item: Equatable & Ide
         }
         .edgesIgnoringSafeArea(.all)
         .animation(isDragging ? .interactiveSpring() : .easeInOut(duration: settings.animationDuration))
-        .onChange(of: item, perform: didChangeItem)
+        .onChange(of: item == nil, perform: didChangeItem)
     }
 
     private func content(item: Item) -> some View {
@@ -120,8 +120,8 @@ struct BottomSheetContainer<Item, ContentView>: View where Item: Equatable & Ide
             }
     }
 
-    private func didChangeItem(_ item: Item?) {
-        if item == nil {
+    private func didChangeItem(itemIsNil: Bool) {
+        if itemIsNil {
             hideView(withDelay: true)
         } else {
             offset = 0
@@ -217,11 +217,11 @@ struct BottomSheetContainer_Previews: PreviewProvider {
 // MARK: - View +
 
 extension View {
-    func bottomSheet<Item, ContentView>(
+    func bottomSheet<Item, ContentView: View>(
         item: Binding<Item?>,
         settings: BottomSheetContainer<Item, ContentView>.Settings = .init(),
         content: @escaping (Item) -> ContentView
-    ) -> some View where Item: Equatable & Identifiable, ContentView: View {
+    ) -> some View {
         BottomSheetContainer(item: item, settings: settings, content: content)
     }
 }
