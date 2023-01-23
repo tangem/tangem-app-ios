@@ -10,17 +10,20 @@ import TangemExchange
 import BlockchainSdk
 
 struct ExchangeTransactionSender {
-    private let sender: TransactionSender
-    private let signer: TransactionSigner
+    private let transactionCreator: TransactionCreator
+    private let transactionSender: TransactionSender
+    private let transactionSigner: TransactionSigner
     private let currencyMapper: CurrencyMapping
 
     init(
-        sender: TransactionSender,
-        signer: TransactionSigner,
+        transactionCreator: TransactionCreator,
+        transactionSender: TransactionSender,
+        transactionSigner: TransactionSigner,
         currencyMapper: CurrencyMapping
     ) {
-        self.sender = sender
-        self.signer = signer
+        self.transactionCreator = transactionCreator
+        self.transactionSender = transactionSender
+        self.transactionSigner = transactionSigner
         self.currencyMapper = currencyMapper
     }
 }
@@ -40,11 +43,13 @@ private extension ExchangeTransactionSender {
         let amount = createAmount(from: info.sourceCurrency, amount: info.sourceCurrency.convertFromWEI(value: info.amount))
         let fee = try createAmount(from: info.sourceBlockchain, amount: info.fee)
 
-        var transaction = try sender.createTransaction(
+        var transaction = try transactionCreator.createTransaction(
             amount: amount,
             fee: fee,
+            sourceAddress: info.sourceAddress,
             destinationAddress: info.destinationAddress,
-            sourceAddress: info.sourceAddress
+            changeAddress: info.sourceAddress,
+            contractAddress: info.destinationAddress
         )
 
         transaction.params = EthereumTransactionParams(data: info.txData, gasLimit: info.gasValue)
@@ -52,7 +57,7 @@ private extension ExchangeTransactionSender {
     }
 
     func send(_ transaction: Transaction) async throws {
-        try await sender.send(transaction, signer: signer).async()
+        try await transactionSender.send(transaction, signer: transactionSigner).async()
     }
 
     func createAmount(from currency: Currency, amount: Decimal) -> Amount {
