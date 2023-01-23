@@ -311,12 +311,13 @@ class SendViewModel: ObservableObject {
                 let newAmountValue = isFiat ? self.walletModel.getCrypto(for: Amount(with: self.amountToSend, value: decimals)) ?? 0 : decimals
                 let newAmount = Amount(with: self.amountToSend, value: newAmountValue)
 
-                if let amountError = self.walletModel.walletManager.validate(amount: newAmount) {
-                    self.amountHint = TextHint(isError: true, message: amountError.localizedDescription)
-                    self.validatedAmount = nil
-                } else {
+                do {
+                    try self.walletModel.walletManager.validate(amount: newAmount)
                     self.amountHint = nil
                     self.validatedAmount = newAmount
+                } catch {
+                    self.amountHint = TextHint(isError: true, message: error.localizedDescription)
+                    self.validatedAmount = nil
                 }
             }
             .store(in: &bag)
@@ -637,11 +638,10 @@ class SendViewModel: ObservableObject {
                     if !isDemo {
                         if self.isSellingCrypto {
                             Analytics.log(.transactionIsSent)
-                            Analytics.log(.transactionSent, params: [.token: "\(tx.amount.currencySymbol)"])
                             Analytics.log(.userSoldCrypto, params: [.currencyCode: self.blockchainNetwork.blockchain.currencySymbol])
-                        } else {
-                            Analytics.logTx(blockchainName: self.blockchainNetwork.blockchain.displayName)
                         }
+
+                        Analytics.logTx(blockchainName: self.blockchainNetwork.blockchain.displayName, type: self.isSellingCrypto ? .sell : .regular)
                     }
 
                     DispatchQueue.main.async {
