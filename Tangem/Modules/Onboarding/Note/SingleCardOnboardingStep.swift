@@ -68,9 +68,10 @@ extension SingleCardOnboardingStep: SuccessStep {}
 extension SingleCardOnboardingStep: OnboardingMessagesProvider {
     var title: String? {
         switch self {
-        case .saveUserWallet, .disclaimer: return nil
+        case .disclaimer: return ""
         case .createWallet: return Localization.onboardingCreateWalletButtonCreateWallet
         case .topup: return Localization.onboardingTopupTitle
+        case .saveUserWallet: return nil
         case .successTopup: return Localization.onboardingDoneHeader
         case .success: return successTitle
         }
@@ -78,9 +79,10 @@ extension SingleCardOnboardingStep: OnboardingMessagesProvider {
 
     var subtitle: String? {
         switch self {
-        case .saveUserWallet, .disclaimer: return nil
+        case .disclaimer: return ""
         case .createWallet: return Localization.onboardingCreateWalletBody
         case .topup: return Localization.onboardingTopUpBody
+        case .saveUserWallet: return nil
         case .successTopup: return Localization.onboardingDoneBody
         case .success: return Localization.onboardingDoneBody
         }
