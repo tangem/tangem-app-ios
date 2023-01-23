@@ -52,13 +52,13 @@ struct WalletOnboardingView: View {
             )
         case .registerWallet:
             CustomContentView(
-                imageName: "cards_wallet",
+                imageType: Assets.cardsWallet,
                 title: viewModel.currentStep.title!,
                 subtitle: viewModel.currentStep.subtitle!
             )
         case .kycStart:
             CustomContentView(
-                imageName: "passport",
+                imageType: Assets.passport,
                 title: viewModel.currentStep.title!,
                 subtitle: viewModel.currentStep.subtitle!
             )
@@ -68,13 +68,13 @@ struct WalletOnboardingView: View {
             }
         case .kycWaiting:
             KYCView(
-                imageName: "success_waiting",
+                imageType: Assets.successWaiting,
                 title: viewModel.currentStep.title!,
                 subtitle: viewModel.currentStep.subtitle!
             )
         case .kycRetry:
             KYCView(
-                imageName: "error_circle",
+                imageType: Assets.errorCircle,
                 title: viewModel.currentStep.title!,
                 subtitle: viewModel.currentStep.subtitle!
             )
