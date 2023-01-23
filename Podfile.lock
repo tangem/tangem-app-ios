@@ -244,7 +244,7 @@ DEPENDENCIES:
   - Solana.Swift (from `https://github.com/tangem/Solana.Swift`, tag `add-external-signer-6`)
   - TangemSdk (from `https://github.com/Tangem/tangem-sdk-ios.git`, tag `develop-198`)
   - WalletConnectSwift (from `https://github.com/WalletConnect/WalletConnectSwift`, tag `1.7.0`)
-  - WalletConnectSwiftV2
+  - WalletConnectSwiftV2 (from `https://github.com/WalletConnect/WalletConnectSwiftV2`, tag `1.1.0`)
   - web3swift (from `https://github.com/tangem/web3swift.git`, tag `2.2.11`)
   - ZendeskChatSDK (~> 2.12.0)
   - ZendeskSupportSDK (~> 5.5.0)
@@ -284,7 +284,6 @@ SPEC REPOS:
     - SwiftProtobuf
     - SwiftyJSON
     - TweetNacl
-    - WalletConnectSwiftV2
     - XCGLogger
     - ZendeskChatProvidersSDK
     - ZendeskChatSDK
@@ -324,6 +323,9 @@ EXTERNAL SOURCES:
   WalletConnectSwift:
     :git: https://github.com/WalletConnect/WalletConnectSwift
     :tag: 1.7.0
+  WalletConnectSwiftV2:
+    :git: https://github.com/WalletConnect/WalletConnectSwiftV2
+    :tag: 1.1.0
   web3swift:
     :git: https://github.com/tangem/web3swift.git
     :tag: 2.2.11
@@ -356,6 +358,9 @@ CHECKOUT OPTIONS:
   WalletConnectSwift:
     :git: https://github.com/WalletConnect/WalletConnectSwift
     :tag: 1.7.0
+  WalletConnectSwiftV2:
+    :git: https://github.com/WalletConnect/WalletConnectSwiftV2
+    :tag: 1.1.0
   web3swift:
     :git: https://github.com/tangem/web3swift.git
     :tag: 2.2.11
@@ -416,6 +421,6 @@ SPEC CHECKSUMS:
   ZendeskSupportProvidersSDK: 77a62fe6bacc05bb10ff20edce75612fa109fd61
   ZendeskSupportSDK: ba72e90e327635b5fde3d023a3de33242a6ee8ab
 
-PODFILE CHECKSUM: 24615011a0f6c22dc2cd2ea77ba1179df992cfea
+PODFILE CHECKSUM: d999b2535af7f89500a9e643d6d640de5306b0f2
 
 COCOAPODS: 1.11.3
