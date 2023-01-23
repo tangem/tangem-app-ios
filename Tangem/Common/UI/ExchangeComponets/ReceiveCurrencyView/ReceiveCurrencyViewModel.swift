@@ -11,8 +11,8 @@ import Foundation
 struct ReceiveCurrencyViewModel: Identifiable {
     var id: Int { hashValue }
 
-    private(set) var valueState: State
-    private(set) var fiatValueState: State
+    private(set) var cryptoAmountState: State
+    private(set) var fiatAmountState: State
 
     let tokenIcon: SwappingTokenIconViewModel
 
@@ -20,34 +20,34 @@ struct ReceiveCurrencyViewModel: Identifiable {
         Localization.commonBalance((balance ?? 0).groupedFormatted())
     }
 
-    var value: String {
-        valueState.value?.groupedFormatted() ?? "0"
+    var cryptoAmountFormatted: String {
+        cryptoAmountState.value?.groupedFormatted() ?? "0"
     }
 
-    var fiatValue: String {
-        fiatValueState.value?.currencyFormatted(code: AppSettings.shared.selectedCurrencyCode) ?? "0"
+    var fiatAmountFormatted: String {
+        fiatAmountState.value?.currencyFormatted(code: AppSettings.shared.selectedCurrencyCode) ?? "0"
     }
 
     private let balance: Decimal?
 
     init(
         balance: Decimal?,
-        valueState: State,
-        fiatValueState: State,
+        cryptoAmountState: State,
+        fiatAmountState: State,
         tokenIcon: SwappingTokenIconViewModel
     ) {
         self.balance = balance
-        self.valueState = valueState
-        self.fiatValueState = fiatValueState
+        self.cryptoAmountState = cryptoAmountState
+        self.fiatAmountState = fiatAmountState
         self.tokenIcon = tokenIcon
     }
 
-    mutating func update(valueState: State) {
-        self.valueState = valueState
+    mutating func update(cryptoAmountState: State) {
+        self.cryptoAmountState = cryptoAmountState
     }
 
-    mutating func update(fiatValueState: State) {
-        self.fiatValueState = fiatValueState
+    mutating func update(fiatAmountState: State) {
+        self.fiatAmountState = fiatAmountState
     }
 }
 
@@ -73,8 +73,8 @@ extension ReceiveCurrencyViewModel: Hashable {
     }
 
     func hash(into hasher: inout Hasher) {
-        hasher.combine(valueState)
-        hasher.combine(fiatValueState)
+        hasher.combine(cryptoAmountState)
+        hasher.combine(fiatAmountState)
         hasher.combine(tokenIcon)
     }
 }
