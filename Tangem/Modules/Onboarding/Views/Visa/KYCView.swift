@@ -9,7 +9,7 @@
 import SwiftUI
 
 struct KYCView: View {
-    let imageName: String
+    let imageType: ImageType
     let title: String
     let subtitle: String
 
@@ -17,7 +17,7 @@ struct KYCView: View {
         VStack(spacing: 14) {
             Spacer()
 
-            Image(name: imageName)
+            imageType.image
                 .padding(.bottom, 15)
 
             Spacer()
@@ -38,7 +38,7 @@ struct KYCView: View {
 struct KYCView_Previews: PreviewProvider {
     static var previews: some View {
         KYCView(
-            imageName: "passport",
+            imageType: Assets.passport,
             title: Localization.onboardingTitlePin,
             subtitle: Localization.onboardingSubtitlePin
         )
