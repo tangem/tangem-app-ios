@@ -57,7 +57,7 @@ struct ReceiveCurrencyView: View {
 
     private var currencyContent: some View {
         VStack(alignment: .leading, spacing: 8) {
-            switch viewModel.valueState {
+            switch viewModel.cryptoAmountState {
             case .loading:
                 SkeletonView()
                     .frame(width: 102, height: 24)
@@ -65,19 +65,19 @@ struct ReceiveCurrencyView: View {
                     .padding(.vertical, 6)
 
             case .loaded:
-                Text(viewModel.value)
+                Text(viewModel.cryptoAmountFormatted)
                     .style(Fonts.Regular.title1, color: Colors.Text.primary1)
                     .minimumScaleFactor(0.5)
                     .lineLimit(1)
             }
 
-            switch viewModel.fiatValueState {
+            switch viewModel.fiatAmountState {
             case .loading:
                 SkeletonView()
                     .frame(width: 40, height: 13)
                     .cornerRadius(6)
             case .loaded:
-                Text(viewModel.fiatValue)
+                Text(viewModel.fiatAmountFormatted)
                     .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
                     .minimumScaleFactor(0.5)
                     .lineLimit(1)
@@ -98,8 +98,8 @@ struct ReceiveCurrencyView_Preview: PreviewProvider {
     static let viewModels = [
         ReceiveCurrencyViewModel(
             balance: 0.124124,
-            valueState: .loading,
-            fiatValueState: .loading,
+            cryptoAmountState: .loading,
+            fiatAmountState: .loading,
             tokenIcon: SwappingTokenIconViewModel(
                 state: .loaded(
                     imageURL: TokenIconURLBuilderMock().iconURL(id: "polygon", size: .large),
@@ -109,8 +109,8 @@ struct ReceiveCurrencyView_Preview: PreviewProvider {
         ),
         ReceiveCurrencyViewModel(
             balance: 0.124124,
-            valueState: .loaded(1100.46),
-            fiatValueState: .loading,
+            cryptoAmountState: .loaded(1100.46),
+            fiatAmountState: .loading,
             tokenIcon: SwappingTokenIconViewModel(
                 state: .loaded(
                     imageURL: TokenIconURLBuilderMock().iconURL(id: "polygon", size: .large),
@@ -120,8 +120,8 @@ struct ReceiveCurrencyView_Preview: PreviewProvider {
         ),
         ReceiveCurrencyViewModel(
             balance: 0.124124,
-            valueState: .loading,
-            fiatValueState: .loaded(1100.46),
+            cryptoAmountState: .loading,
+            fiatAmountState: .loaded(1100.46),
             tokenIcon: SwappingTokenIconViewModel(
                 state: .loaded(
                     imageURL: TokenIconURLBuilderMock().iconURL(id: "polygon", size: .large),
@@ -131,8 +131,8 @@ struct ReceiveCurrencyView_Preview: PreviewProvider {
         ),
         ReceiveCurrencyViewModel(
             balance: 0.124124,
-            valueState: .loaded(1100.46),
-            fiatValueState: .loaded(1100.46),
+            cryptoAmountState: .loaded(1100.46),
+            fiatAmountState: .loaded(1100.46),
             tokenIcon: SwappingTokenIconViewModel(
                 state: .loaded(
                     imageURL: TokenIconURLBuilderMock().iconURL(id: "polygon", size: .large),
