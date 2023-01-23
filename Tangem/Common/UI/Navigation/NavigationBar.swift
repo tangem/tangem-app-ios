@@ -206,17 +206,7 @@ struct NavigationBar_Previews: PreviewProvider {
                 NavigationBar(title: "Hello, World!", backAction: {})
                 Spacer()
             }.deviceForPreview(.iPhone11Pro)
-            //			VStack {
-            //				NavigationBar(title: "Hello, World!", rightButtons: {
-            //					Button(action: {},
-            //						   label: {
-            //							Image("verticalDots")
-            //								.foregroundColor(Color.tangemGrayDark6)
-            //								.frame(width: 44.0, height: 44.0, alignment: .center)
-            //						   })
-            //				})
-            //				Spacer()
-            //			}.deviceForPreview(.iPhone11ProMax)
+
             VStack {
                 NavigationBar(title: "Hello, World!")
                 Spacer()
