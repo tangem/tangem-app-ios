@@ -78,11 +78,19 @@ class WalletConnectTransactionHandler: TangemWalletConnectRequestHandler {
 
         let valueAmount = Amount(with: blockchain, type: .coin, value: value)
 
+        let dappGasPrice = transaction.gasPrice?.hexToInteger
+        let dappGasPricePublisher: AnyPublisher<Int, Error>? = dappGasPrice.map { .justWithError(output: $0) }
+        let gasPricePublisher = dappGasPricePublisher ?? getGasPrice(gasLoader)
+
         let dappGasLimit = transaction.gas?.hexToInteger ?? transaction.gasLimit?.hexToInteger
         let dappGasLimitPublisher: AnyPublisher<Int, Error>? = dappGasLimit.map { .justWithError(output: $0) }
-
-        let gasPricePublisher = getGasPrice(for: valueAmount, tx: transaction, txSender: gasLoader, decimalCount: blockchain.decimalCount)
-        let gasLimitPublisher = dappGasLimitPublisher ?? getGasLimit(for: valueAmount, destination: transaction.to, data: transaction.data, txSender: gasLoader)
+        let gasLimitPublisher = dappGasLimitPublisher ?? getGasLimit(
+            to: transaction.to,
+            from: transaction.from,
+            value: transaction.value,
+            data: transaction.data,
+            gasLoader
+        )
 
         let walletUpdatePublisher = walletModel
             .$state
@@ -132,8 +140,8 @@ class WalletConnectTransactionHandler: TangemWalletConnectRequestHandler {
                             var tx = try walletModel.walletManager.createTransaction(
                                 amount: valueAmount,
                                 fee: gasAmount,
-                                destinationAddress: transaction.to,
-                                sourceAddress: transaction.from
+                                sourceAddress: transaction.from,
+                                destinationAddress: transaction.to
                             )
                             let contractDataString = transaction.data.drop0xPrefix
                             let wcTxData = Data(hexString: String(contractDataString))
@@ -154,26 +162,15 @@ class WalletConnectTransactionHandler: TangemWalletConnectRequestHandler {
             .eraseToAnyPublisher()
     }
 
-    private func getGasPrice(for amount: Amount, tx: WalletConnectEthTransaction, txSender: EthereumGasLoader, decimalCount: Int) -> AnyPublisher<Int, Error> {
-        guard
-            let gasPriceString = tx.gasPrice,
-            let gasPrice = gasPriceString.hexToInteger
-        else {
-            return txSender.getGasPrice()
-                .flatMap { gasPrice -> AnyPublisher<Int, Error> in
-                    .justWithError(output: Int(gasPrice))
-                }
-                .eraseToAnyPublisher()
-        }
-
-        return .justWithError(output: gasPrice)
+    private func getGasPrice(_ gasLoader: EthereumGasLoader) -> AnyPublisher<Int, Error> {
+        return gasLoader.getGasPrice()
+            .map { Int($0) }
+            .eraseToAnyPublisher()
     }
 
-    private func getGasLimit(for amount: Amount, destination: String, data: String?, txSender: EthereumGasLoader) -> AnyPublisher<Int, Error> {
-        return txSender.getGasLimit(amount: amount, destination: destination)
+    private func getGasLimit(to: String, from: String, value: String?, data: String?, _ gasLoader: EthereumGasLoader) -> AnyPublisher<Int, Error> {
+        return gasLoader.getGasLimit(to: to, from: from, value: value, data: data)
             .map { Int($0) }
-            .replaceError(with: 600000) // Fixed high gaslimit
-            .setFailureType(to: Error.self)
             .eraseToAnyPublisher()
     }
 }
