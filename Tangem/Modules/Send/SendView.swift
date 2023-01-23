@@ -35,15 +35,27 @@ struct SendView: View {
                         text: self.$viewModel.destination,
                         suplementView: {
                             if !viewModel.isSellingCrypto {
-                                CircleActionButton(
-                                    action: { viewModel.pasteClipboardTapped() },
-                                    backgroundColor: .tangemBgGray,
-                                    systemImageName: viewModel.validatedClipboard == nil ? "doc.on.clipboard" : "doc.on.clipboard.fill",
-                                    imageColor: .tangemGrayDark6,
-                                    isDisabled: viewModel.validatedClipboard == nil
-                                )
-                                .accessibility(label: Text(self.viewModel.validatedClipboard == nil ? Localization.voiceOverNothingToPaste : Localization.voiceOverPasteFromClipboard))
-                                .disabled(self.viewModel.validatedClipboard == nil)
+                                if #available(iOS 16.0, *) {
+                                    PasteButton(payloadType: String.self) { strings in
+                                        DispatchQueue.main.async {
+                                            viewModel.pasteClipboardTapped(strings[0])
+                                        }
+                                    }
+                                    .tint(Colors.Button.paste)
+                                    .labelStyle(.iconOnly)
+                                    .buttonBorderShape(.capsule)
+                                } else {
+                                    CircleActionButton(
+                                        action: { viewModel.pasteClipboardTapped() },
+                                        backgroundColor: Colors.Button.paste,
+                                        systemImageName: viewModel.validatedClipboard == nil ? "doc.on.clipboard" : "doc.on.clipboard.fill",
+                                        imageColor: .white,
+                                        isDisabled: viewModel.validatedClipboard == nil
+                                    )
+                                    .accessibility(label: Text(self.viewModel.validatedClipboard == nil ? Localization.voiceOverNothingToPaste : Localization.voiceOverPasteFromClipboard))
+                                    .disabled(self.viewModel.validatedClipboard == nil)
+                                }
+
                                 CircleActionButton(
                                     action: viewModel.openQRScanner,
                                     backgroundColor: .tangemBgGray,
