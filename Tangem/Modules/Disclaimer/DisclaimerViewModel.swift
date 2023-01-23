@@ -9,25 +9,19 @@
 import Foundation
 
 class DisclaimerViewModel: Identifiable {
-    let id: UUID = .init()
-    let style: DisclaimerView.Style
     let webViewModel: WebViewContainerViewModel
-    var showAccept: Bool { acceptanceHandler != nil }
-    let bottomOverlayHeight: CGFloat = 150
+    let bottomOverlayHeight: CGFloat = 170
+    let id: UUID = .init()
 
-    private unowned let coordinator: DisclaimerRoutable?
-    private var acceptanceHandler: ((Bool) -> Void)?
-    private var accepted: Bool = false
+    var showBottomOverlay: Bool { style == .onboarding }
+
+    private let style: DisclaimerView.Style
 
     init(
         url: URL,
-        style: DisclaimerView.Style,
-        coordinator: DisclaimerRoutable?,
-        acceptanceHandler: ((Bool) -> Void)? = nil
+        style: DisclaimerView.Style
     ) {
         self.style = style
-        self.coordinator = coordinator
-        self.acceptanceHandler = acceptanceHandler
         webViewModel = .init(
             url: url,
             title: "",
@@ -36,22 +30,5 @@ class DisclaimerViewModel: Identifiable {
             withNavigationBar: false,
             contentInset: .init(top: 0, left: 0, bottom: bottomOverlayHeight / 2, right: 0)
         )
-    }
-
-    func onAccept() {
-        accepted = true
-        dismissAccepted()
-    }
-
-    func onDisappear() {
-        acceptanceHandler?(accepted)
-    }
-}
-
-// MARK: - Navigation
-
-extension DisclaimerViewModel {
-    private func dismissAccepted() {
-        coordinator?.dismissDisclaimer()
     }
 }
