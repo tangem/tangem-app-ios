@@ -191,7 +191,6 @@ class TwinsOnboardingViewModel: OnboardingTopupViewModel<TwinsOnboardingStep, On
     }
 
     override func onOnboardingFinished(for cardId: String) {
-        Analytics.log(.twinSetupFinished)
         super.onOnboardingFinished(for: cardId)
 
         // remove pair cid
@@ -212,6 +211,8 @@ class TwinsOnboardingViewModel: OnboardingTopupViewModel<TwinsOnboardingStep, On
             if !retwinMode, let cardId = cardModel?.cardId {
                 AppSettings.shared.cardsStartedActivation.insert(cardId)
             }
+
+            Analytics.log(.twinSetupStarted)
 
             if twinsService.step.value != .first {
                 twinsService.resetSteps()
@@ -297,7 +298,6 @@ class TwinsOnboardingViewModel: OnboardingTopupViewModel<TwinsOnboardingStep, On
     }
 
     private func bind() {
-        Analytics.log(.twinSetupStarted)
         twinsService
             .isServiceBusy
             .receive(on: DispatchQueue.main)
