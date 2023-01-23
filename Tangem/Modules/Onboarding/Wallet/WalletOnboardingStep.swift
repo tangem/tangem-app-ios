@@ -98,7 +98,8 @@ extension WalletOnboardingStep: OnboardingMessagesProvider, SuccessStep {
         case .scanPrimaryCard: return Localization.onboardingTitleScanOriginCard
         case .backupIntro: return Localization.onboardingTitleBackupCard
         case .selectBackupCards: return Localization.onboardingTitleNoBackupCards
-        case .backupCards, .kycProgress, .claim, .disclaimer, .saveUserWallet: return nil
+        case .backupCards, .kycProgress, .claim, .disclaimer: return ""
+        case .saveUserWallet: return nil
         case .success, .successClaim: return successTitle
         case .registerWallet:
             return Localization.onboardingTitleRegisterWallet
@@ -119,7 +120,8 @@ extension WalletOnboardingStep: OnboardingMessagesProvider, SuccessStep {
         case .scanPrimaryCard: return Localization.onboardingSubtitleScanPrimary
         case .backupIntro: return Localization.onboardingSubtitleBackupCard
         case .selectBackupCards: return Localization.onboardingSubtitleNoBackupCards
-        case .backupCards, .kycProgress, .disclaimer, .saveUserWallet: return nil
+        case .backupCards, .kycProgress, .disclaimer: return ""
+        case .saveUserWallet: return nil
         case .success: return Localization.onboardingSubtitleSuccessBackup
         case .registerWallet:
             return Localization.onboardingSubtitleRegisterWallet

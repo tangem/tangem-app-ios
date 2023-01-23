@@ -146,12 +146,13 @@ extension TwinsOnboardingStep: SuccessStep {}
 extension TwinsOnboardingStep: OnboardingMessagesProvider {
     var title: String? {
         switch self {
-        case .saveUserWallet, .disclaimer: return nil
+        case .disclaimer: return ""
         case .intro: return Localization.twinsOnboardingSubtitle
         case .first, .third: return Localization.twinsRecreateTitleFormat("1")
         case .second: return Localization.twinsRecreateTitleFormat("2")
         case .topup: return Localization.onboardingTopupTitle
         case .done: return Localization.onboardingDoneHeader
+        case .saveUserWallet: return nil
         case .success: return successTitle
         case .alert: return Localization.commonWarning
         }
@@ -159,10 +160,11 @@ extension TwinsOnboardingStep: OnboardingMessagesProvider {
 
     var subtitle: String? {
         switch self {
-        case .saveUserWallet, .disclaimer: return nil
+        case .disclaimer: return ""
         case .intro(let pairNumber): return Localization.twinsOnboardingDescriptionFormat(pairNumber)
         case .first, .second, .third: return Localization.onboardingTwinsInterruptWarning
         case .topup: return Localization.onboardingTopUpBody
+        case .saveUserWallet: return nil
         case .done, .success: return Localization.onboardingDoneBody
         case .alert: return Localization.twinsRecreateWarning
         }
