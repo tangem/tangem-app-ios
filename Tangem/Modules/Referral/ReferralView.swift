@@ -16,7 +16,7 @@ struct ReferralView: View {
         GeometryReader { geometry in
             ScrollView {
                 VStack(spacing: 0) {
-                    Assets.referralDude
+                    Assets.referralDude.image
                         .resizable()
                         .aspectRatio(contentMode: .fit)
                         .padding(.horizontal, 40)
