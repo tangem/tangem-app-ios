@@ -10,6 +10,12 @@ import Combine
 import TangemExchange
 import TangemSdk
 
+extension SwappingPermissionViewModel: Equatable {
+    static func == (lhs: SwappingPermissionViewModel, rhs: SwappingPermissionViewModel) -> Bool {
+        lhs.id == rhs.id
+    }
+}
+
 final class SwappingPermissionViewModel: ObservableObject, Identifiable {
     /// For SwiftUI sheet logic
     let id: UUID = .init()
