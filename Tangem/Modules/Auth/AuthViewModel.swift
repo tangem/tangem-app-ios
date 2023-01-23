@@ -36,7 +36,6 @@ final class AuthViewModel: ObservableObject {
     ) {
         self.unlockOnStart = unlockOnStart
         self.coordinator = coordinator
-        userWalletRepository.delegate = self
     }
 
     func tryAgain() {
@@ -120,11 +119,5 @@ extension AuthViewModel {
 
     func openMain(with cardModel: CardViewModel) {
         coordinator.openMain(with: cardModel)
-    }
-}
-
-extension AuthViewModel: UserWalletRepositoryDelegate {
-    func showTOS(at url: URL, _ completion: @escaping (Bool) -> Void) {
-        coordinator.openDisclaimer(at: url, completion)
     }
 }
