@@ -113,7 +113,7 @@ private extension BlockchainNetworkService {
 
     func getFiatBalanceFromWalletModel(currency: Currency, amount: Decimal) -> Decimal? {
         let amount = createAmount(from: currency, amount: amount)
-        if let fiat = walletModel.getFiat(for: amount, roundingMode: .plain) {
+        if let fiat = walletModel.getFiat(for: amount, roundingType: .default(roundingMode: .plain)) {
             return fiat
         }
 
