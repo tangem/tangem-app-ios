@@ -9,12 +9,21 @@
 import SwiftUI
 
 enum SingleCardOnboardingStep: Equatable {
-    case welcome
+    case disclaimer
     case createWallet
     case topup
     case successTopup
     case saveUserWallet
     case success
+
+    var navbarTitle: String {
+        switch self {
+        case .disclaimer:
+            return Localization.disclaimerTitle
+        default:
+            return Localization.onboardingTitle
+        }
+    }
 
     func cardBackgroundOffset(containerSize: CGSize) -> CGSize {
         switch self {
@@ -31,14 +40,14 @@ enum SingleCardOnboardingStep: Equatable {
 
     var balanceStackOpacity: Double {
         switch self {
-        case .welcome, .createWallet, .saveUserWallet, .success: return 0
+        case .disclaimer, .createWallet, .saveUserWallet, .success: return 0
         case .topup, .successTopup: return 1
         }
     }
 
     func cardBackgroundFrame(containerSize: CGSize) -> CGSize {
         switch self {
-        case .welcome, .saveUserWallet, .success: return .zero
+        case .disclaimer, .saveUserWallet, .success: return .zero
         case .createWallet:
             let diameter = SingleCardOnboardingCardsLayout.main.frame(for: self, containerSize: containerSize).height * 1.317
             return .init(width: diameter, height: diameter)
@@ -51,7 +60,7 @@ enum SingleCardOnboardingStep: Equatable {
 
     func cardBackgroundCornerRadius(containerSize: CGSize) -> CGFloat {
         switch self {
-        case .welcome, .saveUserWallet, .success: return 0
+        case .disclaimer, .saveUserWallet, .success: return 0
         case .createWallet: return cardBackgroundFrame(containerSize: containerSize).height / 2
         case .topup, .successTopup: return 8
         }
@@ -63,7 +72,7 @@ extension SingleCardOnboardingStep: SuccessStep {}
 extension SingleCardOnboardingStep: OnboardingMessagesProvider {
     var title: String? {
         switch self {
-        case .welcome: return WelcomeStep.welcome.title
+        case .disclaimer: return ""
         case .createWallet: return Localization.onboardingCreateWalletButtonCreateWallet
         case .topup: return Localization.onboardingTopupTitle
         case .saveUserWallet: return nil
@@ -74,7 +83,7 @@ extension SingleCardOnboardingStep: OnboardingMessagesProvider {
 
     var subtitle: String? {
         switch self {
-        case .welcome: return WelcomeStep.welcome.subtitle
+        case .disclaimer: return ""
         case .createWallet: return Localization.onboardingCreateWalletBody
         case .topup: return Localization.onboardingTopUpBody
         case .saveUserWallet: return nil
@@ -98,7 +107,7 @@ extension SingleCardOnboardingStep: OnboardingButtonsInfoProvider {
         case .createWallet: return Localization.onboardingCreateWalletButtonCreateWallet
         case .topup: return Localization.onboardingTopUpButtonButCrypto
         case .successTopup: return Localization.commonContinue
-        case .welcome: return WelcomeStep.welcome.mainButtonTitle
+        case .disclaimer: return ""
         case .saveUserWallet: return BiometricAuthorizationUtils.allowButtonTitle
         case .success: return successButtonTitle
         }
@@ -106,14 +115,14 @@ extension SingleCardOnboardingStep: OnboardingButtonsInfoProvider {
 
     var isSupplementButtonVisible: Bool {
         switch self {
-        case .welcome, .topup: return true
+        case .disclaimer, .topup: return true
         case .successTopup, .success, .createWallet, .saveUserWallet: return false
         }
     }
 
     var supplementButtonTitle: String {
         switch self {
-        case .welcome: return WelcomeStep.welcome.supplementButtonTitle
+        case .disclaimer: return Localization.commonAccept
         case .createWallet: return Localization.onboardingButtonWhatDoesItMean
         case .topup: return Localization.onboardingTopUpButtonShowWalletAddress
         case .successTopup, .saveUserWallet, .success: return ""
@@ -154,10 +163,6 @@ extension SingleCardOnboardingStep: OnboardingProgressStepIndicatable {
         default: return .blank
         }
     }
-}
-
-extension SingleCardOnboardingStep: OnboardingInitialStepInfo {
-    static var initialStep: SingleCardOnboardingStep { .welcome }
 }
 
 extension SingleCardOnboardingStep: OnboardingTopupBalanceLayoutCalculator {}
