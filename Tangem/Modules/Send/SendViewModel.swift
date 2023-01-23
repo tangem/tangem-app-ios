@@ -574,10 +574,10 @@ class SendViewModel: ObservableObject {
         }
     }
 
-    func pasteClipboardTapped(_ string: String) {
+    func pasteClipboardTapped(_ strings: [String]) {
         Analytics.log(.buttonPaste)
 
-        if validateAddress(string) {
+        if let string = strings.first, validateAddress(string) {
             destination = string
         } else {
             let notificationGenerator = UINotificationFeedbackGenerator()
