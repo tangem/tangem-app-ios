@@ -18,17 +18,33 @@ class BlockchainNetworkService {
 
     /// Collect rates for calculate fiat balance
     private var rates: [String: Decimal] = [:]
+    private var balances: [Amount.AmountType: Decimal] = [:]
     private var walletManager: WalletManager { walletModel.walletManager }
 
     init(walletModel: WalletModel, currencyMapper: CurrencyMapping) {
         self.walletModel = walletModel
         self.currencyMapper = currencyMapper
+
+        rates = walletModel.rates
+        balances = walletModel.wallet.amounts.reduce(into: [:]) {
+            $0[$1.key] = $1.value.value.rounded(scale: $1.value.decimals, roundingMode: .down)
+        }
     }
 }
 
 // MARK: - BlockchainDataProvider
 
 extension BlockchainNetworkService: TangemExchange.BlockchainDataProvider {
+    func updateWallet() async throws {
+        try await walletModel.update(silent: true).async()
+    }
+
+    func hasPendingTransaction(currency: Currency, to spenderAddress: String) -> Bool {
+        let outgoing = walletModel.wallet.pendingOutgoingTransactions
+
+        return outgoing.contains(where: { $0.destinationAddress == spenderAddress })
+    }
+
     func getWalletAddress(currency: Currency) -> String? {
         let blockchain = walletModel.blockchainNetwork.blockchain
         guard blockchain.networkId == currency.blockchain.networkId else {
@@ -54,11 +70,16 @@ extension BlockchainNetworkService: TangemExchange.BlockchainDataProvider {
             amountType = Amount.AmountType.coin
         }
 
-        if let balance = walletModel.getDecimalBalance(for: amountType) {
+        if let balance = balances[amountType] {
             return balance
         }
 
-        return try await getBalanceThroughUpdateWalletModel(amountType: amountType)
+        var balance = try await getBalanceThroughUpdateWalletModel(amountType: amountType)
+        balance.round(scale: currency.decimalCount, roundingMode: .down)
+
+        balances[amountType] = balance
+
+        return balance
     }
 
     func getBalance(for blockchain: ExchangeBlockchain) async throws -> Decimal {
@@ -67,11 +88,13 @@ extension BlockchainNetworkService: TangemExchange.BlockchainDataProvider {
             return 0
         }
 
-        if let balance = walletModel.getDecimalBalance(for: .coin) {
+        if let balance = balances[.coin] {
             return balance
         }
 
-        return try await getBalanceThroughUpdateWalletModel(amountType: .coin)
+        let balance = try await getBalanceThroughUpdateWalletModel(amountType: .coin)
+        balances[.coin] = balance
+        return balance
     }
 
     func getFiat(for currency: Currency, amount: Decimal) async throws -> Decimal {
