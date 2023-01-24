@@ -221,7 +221,7 @@ extension Color {
     /// Doesn't work with Color(named: "")
     /// Use only with RGB
     /// - Returns: UIKit color
-    func uiColor() -> UIColor {
+    func uiColorFromRGB() -> UIColor {
         if #available(iOS 14.0, *) {
             return UIColor(self)
         }
