@@ -9,9 +9,7 @@
 import Foundation
 
 protocol URLHandler: AnyObject {
-    @discardableResult
-    func handle(url: URL) -> Bool
-
+    func canHandle(url: String) -> Bool
     @discardableResult
     func handle(url: String) -> Bool
 }
