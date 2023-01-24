@@ -9,7 +9,7 @@
 import SwiftUI
 
 enum WalletOnboardingStep: Equatable {
-    case welcome
+    case disclaimer
     case createWallet
     case scanPrimaryCard
     case backupIntro
@@ -31,7 +31,7 @@ enum WalletOnboardingStep: Equatable {
 
     var navbarTitle: String {
         switch self {
-        case .welcome: return ""
+        case .disclaimer: return Localization.disclaimerTitle
         case .createWallet, .backupIntro: return Localization.onboardingGettingStarted
         case .scanPrimaryCard, .selectBackupCards: return Localization.onboardingNavbarTitleCreatingBackup
         case .backupCards: return Localization.onboardingButtonFinalizeBackup
@@ -54,7 +54,7 @@ enum WalletOnboardingStep: Equatable {
 
     func cardBackgroundFrame(containerSize: CGSize) -> CGSize {
         switch self {
-        case .welcome, .success, .backupCards:
+        case .disclaimer, .success, .backupCards:
             return .zero
         case .claim, .successClaim:
             return defaultBackgroundFrameSize(in: containerSize)
@@ -67,7 +67,7 @@ enum WalletOnboardingStep: Equatable {
 
     func cardBackgroundCornerRadius(containerSize: CGSize) -> CGFloat {
         switch self {
-        case .welcome, .success, .backupCards: return 0
+        case .disclaimer, .success, .backupCards: return 0
         case .claim, .successClaim: return 8
         default: return cardBackgroundFrame(containerSize: containerSize).height / 2
         }
@@ -94,12 +94,11 @@ enum WalletOnboardingStep: Equatable {
 extension WalletOnboardingStep: OnboardingMessagesProvider, SuccessStep {
     var title: String? {
         switch self {
-        case .welcome: return WelcomeStep.welcome.title
         case .createWallet: return Localization.onboardingCreateWalletButtonCreateWallet
         case .scanPrimaryCard: return Localization.onboardingTitleScanOriginCard
         case .backupIntro: return Localization.onboardingTitleBackupCard
         case .selectBackupCards: return Localization.onboardingTitleNoBackupCards
-        case .backupCards, .kycProgress: return ""
+        case .backupCards, .kycProgress, .claim, .disclaimer: return ""
         case .saveUserWallet: return nil
         case .success, .successClaim: return successTitle
         case .registerWallet:
@@ -112,19 +111,16 @@ extension WalletOnboardingStep: OnboardingMessagesProvider, SuccessStep {
             return Localization.onboardingTitleKycWaiting
         case .enterPin:
             return Localization.onboardingTitlePin
-        case .claim:
-            return ""
         }
     }
 
     var subtitle: String? {
         switch self {
-        case .welcome: return WelcomeStep.welcome.subtitle
         case .createWallet: return Localization.onboardingCreateWalletBody
         case .scanPrimaryCard: return Localization.onboardingSubtitleScanPrimary
         case .backupIntro: return Localization.onboardingSubtitleBackupCard
         case .selectBackupCards: return Localization.onboardingSubtitleNoBackupCards
-        case .backupCards, .kycProgress: return ""
+        case .backupCards, .kycProgress, .disclaimer: return ""
         case .saveUserWallet: return nil
         case .success: return Localization.onboardingSubtitleSuccessBackup
         case .registerWallet:
@@ -155,12 +151,10 @@ extension WalletOnboardingStep: OnboardingMessagesProvider, SuccessStep {
 extension WalletOnboardingStep: OnboardingButtonsInfoProvider {
     var mainButtonTitle: String {
         switch self {
-        case .welcome: return WelcomeStep.welcome.mainButtonTitle
         case .createWallet: return Localization.walletButtonCreateWallet
         case .scanPrimaryCard: return Localization.onboardingButtonScanOriginCard
         case .backupIntro: return Localization.onboardingButtonBackupNow
         case .selectBackupCards: return Localization.onboardingButtonAddBackupCard
-        case .backupCards, .kycProgress: return ""
         case .saveUserWallet: return BiometricAuthorizationUtils.allowButtonTitle
         case .success: return Localization.onboardingButtonContinueWallet
         case .kycWaiting: return Localization.onboardingSupplementButtonKycWaiting
@@ -170,7 +164,7 @@ extension WalletOnboardingStep: OnboardingButtonsInfoProvider {
 
     var supplementButtonTitle: String {
         switch self {
-        case .welcome: return WelcomeStep.welcome.supplementButtonTitle
+        case .disclaimer: return Localization.commonAccept
         case .createWallet: return Localization.onboardingButtonWhatDoesItMean
         case .backupIntro: return Localization.onboardingButtonSkipBackup
         case .selectBackupCards: return Localization.onboardingButtonFinalizeBackup
@@ -186,7 +180,7 @@ extension WalletOnboardingStep: OnboardingButtonsInfoProvider {
 
     var isSupplementButtonVisible: Bool {
         switch self {
-        case .scanPrimaryCard, .backupCards, .success, .createWallet: return false
+        case .scanPrimaryCard, .backupCards, .success, .createWallet, .saveUserWallet: return false
         default: return true
         }
     }
@@ -206,12 +200,6 @@ extension WalletOnboardingStep: OnboardingButtonsInfoProvider {
         default:
             return nil
         }
-    }
-}
-
-extension WalletOnboardingStep: OnboardingInitialStepInfo {
-    static var initialStep: WalletOnboardingStep {
-        .welcome
     }
 }
 
