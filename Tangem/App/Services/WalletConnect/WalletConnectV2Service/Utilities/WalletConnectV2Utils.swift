@@ -13,6 +13,10 @@ import BlockchainSdk
 struct WalletConnectV2Utils {
     private let evmNamespace = "eip155"
 
+    /// Validates that all blockchains are supported by BlockchainSdk. Currently (24 Jan 2023) we support only EVM blockchains
+    /// All other blockchains such as Solana, Tron, Polkadot using different methods, not `eth_sign`, `eth_sendTransaction` etc.
+    /// - Returns:
+    /// `Bool` that indicates that all blockchains in session proposal is supported
     func allChainsSupported(in namespaces: [String: ProposalNamespace]) -> Bool {
         for (namespace, proposals) in namespaces {
             if namespace != evmNamespace {
@@ -28,12 +32,20 @@ struct WalletConnectV2Utils {
         return true
     }
 
+    /// Attempts to create `BlockchainNetwork` for each session namespace. This can be used for displaying Blockchain name for user
+    /// in an alert with new session connection request
+    /// - Returns:
+    /// Array of strings with the blockchain names
     func getBlockchainNamesFromNamespaces(_ namespaces: [String: SessionNamespace]) -> [String] {
         let blockchainNetworks = createBlockchains(from: namespaces)
 
         return blockchainNetworks.map { $0.blockchain.displayName }
     }
 
+    /// If not all blockchains in session proposal request are supported this method will extract all of the not supported blockchain names and capitalize first letter
+    /// Capitalization is needed because all blockchain (`chainis` in `WalletConnectSwiftV2` terminology)  in proposal stored as lowercased, e.g. `solana`, `polkadot`
+    /// - Returns:
+    /// Array of Strings with unsupported blockchain names
     func extractUnsupportedBlockchainNames(from namespaces: [String: ProposalNamespace]) -> [String] {
         var blockchains = [String]()
         for (namespace, proposal) in namespaces {
@@ -46,6 +58,13 @@ struct WalletConnectV2Utils {
         return blockchains
     }
 
+    /// Wallet must convert all `ProposalNamespace` into `SessionNamespace` with corresponding `Account`s and send session approve to `SignApi`
+    /// - Note:
+    /// We can use multiple `Account`s for single blockchain. E.g. if user attempting to connect to ETH blockchain if we can create
+    /// multiple addresses (using derivation), then we can create `Account`s and they will be displayed in dApp UI. At least in demo dApp it works)
+    /// - Returns:
+    /// Dictionary with `chains` (`WalletConnectSwiftV2` terminology) as keys and session settings as values.
+    /// - Throws:Error with list of unsupported blockchain names or a list of not added to user token list blockchain names
     func createSessionNamespaces(from namespaces: [String: ProposalNamespace], for wallets: [Wallet]) throws -> [String: SessionNamespace] {
         var sessionNamespaces: [String: SessionNamespace] = [:]
         var missingBlockchains: [String] = []
@@ -85,6 +104,9 @@ struct WalletConnectV2Utils {
         return sessionNamespaces
     }
 
+    /// Method for creating internal session structure for storing on disk. Used for finding information about wallet using session topic.
+    /// Also used in UI to display list of connected WC sessions for selected Wallet
+    /// - Returns: `WalletConnectSavedSession` with info about wallet, dApp and session
     func createSavedSession(for session: Session, with userWalletId: String) -> WalletConnectSavedSession {
         let targetBlockchains = createBlockchains(from: session.namespaces)
 
