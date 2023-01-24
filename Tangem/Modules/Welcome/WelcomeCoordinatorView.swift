@@ -51,11 +51,6 @@ struct WelcomeCoordinatorView: CoordinatorView {
             }
 
         NavHolder()
-            .sheet(item: $coordinator.disclaimerViewModel) {
-                DisclaimerView(viewModel: $0)
-            }
-
-        NavHolder()
             .sheet(item: $coordinator.mailViewModel) {
                 MailView(viewModel: $0)
             }
