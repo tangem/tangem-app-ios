@@ -64,11 +64,12 @@ struct ShopView: View {
         .alert(item: $viewModel.error) { $0.alert }
     }
 
+    @ViewBuilder
     private var cardStack: some View {
         let secondCardOffset = 12.0
         let thirdCardOffset = 22.0
 
-        return Image("wallet_card")
+        Assets.Onboarding.walletCard.image
             .resizable()
             .aspectRatio(contentMode: .fit)
             .background(
@@ -101,7 +102,7 @@ struct ShopView: View {
     private var purchaseForm: some View {
         VStack(spacing: 0) {
             HStack {
-                Image("box")
+                Assets.Shop.box.image
                 Text(Localization.shopShipping)
                 Spacer()
                 Text(Localization.shopFree)
@@ -112,7 +113,7 @@ struct ShopView: View {
             Separator(height: 0.5, padding: 0)
 
             HStack {
-                Image("ticket")
+                Assets.Shop.ticket.image
                 TextField(Localization.shopIHaveAPromoCode, text: $viewModel.discountCode) { editing in
                     if !editing {
                         viewModel.didEnterDiscountCode()
