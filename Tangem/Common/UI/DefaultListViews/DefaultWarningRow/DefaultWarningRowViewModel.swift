@@ -6,7 +6,7 @@
 //  Copyright © 2022 Tangem AG. All rights reserved.
 //
 
-import SwiftUI
+import Foundation
 
 struct DefaultWarningRowViewModel {
     let title: String?
@@ -42,17 +42,8 @@ struct DefaultWarningRowViewModel {
 
 extension DefaultWarningRowViewModel {
     enum AdditionalViewType: Hashable {
-        case icon(_ image: Image)
+        case icon(_ image: ImageType)
         case loader
-
-        func hash(into hasher: inout Hasher) {
-            switch self {
-            case .loader:
-                hasher.combine("loader")
-            case .icon:
-                hasher.combine("icon")
-            }
-        }
     }
 }
 
