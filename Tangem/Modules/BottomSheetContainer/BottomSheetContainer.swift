@@ -10,9 +10,10 @@ import Foundation
 import SwiftUI
 
 struct BottomSheetContainer<Item, ContentView: View>: View {
-    @Binding private var item: Item?
+    @Binding private var isShowing: Bool
+
     private let settings: Settings
-    private let content: (Item) -> ContentView
+    private let content: () -> ContentView
 
     // MARK: - Internal
 
@@ -34,25 +35,25 @@ struct BottomSheetContainer<Item, ContentView: View>: View {
     }
 
     init(
-        item: Binding<Item?>,
-        settings: Settings = Settings(),
-        content: @escaping (Item) -> ContentView
+        isShowing: Binding<Bool>,
+        settings: Settings,
+        @ViewBuilder content: @escaping () -> ContentView
     ) {
-        _item = item
+        _isShowing = isShowing
         self.settings = settings
         self.content = content
     }
 
     var body: some View {
         ZStack(alignment: .bottom) {
-            if let item = item {
+            if isShowing {
                 Color.black.opacity(opacity)
                     .edgesIgnoringSafeArea(.all)
                     .onTapGesture {
-                        hideView(withDelay: false)
+                        hideView(withDelay: true)
                     }
 
-                content(item: item)
+                sheetView
                     .transition(.move(edge: .bottom))
 
                 settings.backgroundColor
@@ -63,15 +64,16 @@ struct BottomSheetContainer<Item, ContentView: View>: View {
             }
         }
         .edgesIgnoringSafeArea(.all)
-        .animation(isDragging ? .interactiveSpring() : .easeInOut(duration: settings.animationDuration))
-        .onChange(of: item == nil, perform: didChangeItem)
+        .animation(isDragging ? .interactiveSpring() : .easeOut(duration: settings.animationDuration))
+        .onChange(of: isShowing, perform: didChange)
+        .onAppear { didChange(isShowing: isShowing) }
     }
 
-    private func content(item: Item) -> some View {
+    private var sheetView: some View {
         VStack(spacing: 0) {
             indicator
 
-            content(item)
+            content()
                 .padding(.bottom, UIApplication.safeAreaInsets.bottom)
         }
         .zIndex(1)
@@ -79,6 +81,7 @@ struct BottomSheetContainer<Item, ContentView: View>: View {
         .background(settings.backgroundColor)
         .cornerRadius(settings.cornerRadius, corners: [.topLeft, .topRight])
         .readSize { contentHeight = $0.height }
+        .gesture(dragGesture)
         .offset(y: offset)
     }
 
@@ -91,7 +94,6 @@ struct BottomSheetContainer<Item, ContentView: View>: View {
         }
         .frame(maxWidth: .infinity)
         .background(settings.backgroundColor)
-        .gesture(dragGesture)
     }
 
     private var dragGesture: some Gesture {
@@ -102,7 +104,13 @@ struct BottomSheetContainer<Item, ContentView: View>: View {
                 }
 
                 let dragValue = value.translation.height - previousDragTransition.height
-                offset += dragValue / 3
+                let locationChange = value.startLocation.y - value.location.y
+
+                if locationChange > 0 {
+                    offset += dragValue / 3
+                } else {
+                    offset += dragValue
+                }
 
                 previousDragTransition = value.translation
             }
@@ -112,7 +120,7 @@ struct BottomSheetContainer<Item, ContentView: View>: View {
 
                 // If swipe did be enough then hide view
                 if value.translation.height > settings.distanceToHide {
-                    hideView(withDelay: false)
+                    hideView(withDelay: true) // false
                     // Otherwise set the view to default state
                 } else {
                     offset = 0
@@ -120,11 +128,11 @@ struct BottomSheetContainer<Item, ContentView: View>: View {
             }
     }
 
-    private func didChangeItem(itemIsNil: Bool) {
-        if itemIsNil {
-            hideView(withDelay: true)
-        } else {
+    private func didChange(isShowing: Bool) {
+        if isShowing {
             offset = 0
+        } else {
+            hideView(withDelay: true)
         }
     }
 
@@ -132,14 +140,12 @@ struct BottomSheetContainer<Item, ContentView: View>: View {
     /// Otherwise, like close after swipe we shouldn't wait
     private func hideView(withDelay: Bool) {
         offset = UIScreen.main.bounds.height
-        guard item != nil else { return }
+        guard isShowing else { return }
 
-        if withDelay {
-            DispatchQueue.main.asyncAfter(deadline: .now() + settings.animationDuration) {
-                item = nil
-            }
-        } else {
-            item = nil
+        let delay: CGFloat = withDelay ? settings.animationDuration : 0
+
+        DispatchQueue.main.asyncAfter(deadline: .now() + delay) {
+            isShowing = false
         }
     }
 
@@ -160,8 +166,8 @@ extension BottomSheetContainer {
             cornerRadius: CGFloat = 16,
             backgroundColor: Color = Colors.Background.secondary,
             backgroundOpacity: CGFloat = 0.5,
-            distanceToHide: CGFloat = 100,
-            animationDuration: Double = 0.3
+            distanceToHide: CGFloat = UIScreen.main.bounds.height * 0.1,
+            animationDuration: Double = 0.45
         ) {
             self.cornerRadius = cornerRadius
             self.backgroundColor = backgroundColor
@@ -217,11 +223,38 @@ struct BottomSheetContainer_Previews: PreviewProvider {
 // MARK: - View +
 
 extension View {
+    @ViewBuilder
     func bottomSheet<Item, ContentView: View>(
         item: Binding<Item?>,
         settings: BottomSheetContainer<Item, ContentView>.Settings = .init(),
-        content: @escaping (Item) -> ContentView
+        @ViewBuilder content: @escaping (Item) -> ContentView
     ) -> some View {
-        BottomSheetContainer(item: item, settings: settings, content: content)
+        let isShowing = Binding<Bool>(
+            get: { item.wrappedValue != nil },
+            set: { isShow in
+                if !isShow {
+                    item.wrappedValue = nil
+                }
+            }
+        )
+
+        if let itemValue = item.wrappedValue {
+            BottomSheetContainer(isShowing: isShowing, settings: settings) { content(itemValue) }
+        } else {
+            EmptyView()
+        }
+    }
+
+    @ViewBuilder
+    func bottomSheet<Item, ContentView: View>(
+        isShowing: Binding<Bool>,
+        settings: BottomSheetContainer<Item, ContentView>.Settings = .init(),
+        @ViewBuilder content: @escaping () -> ContentView
+    ) -> some View {
+        if isShowing.wrappedValue {
+            BottomSheetContainer(isShowing: isShowing, settings: settings, content: content)
+        } else {
+            EmptyView()
+        }
     }
 }
