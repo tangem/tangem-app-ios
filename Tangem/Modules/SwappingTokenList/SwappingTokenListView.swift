@@ -11,13 +11,17 @@ import SwiftUI
 struct SwappingTokenListView: View {
     @ObservedObject private var viewModel: SwappingTokenListViewModel
 
+    private var separatorInset: CGFloat {
+        SwappingTokenItemView.iconSize.width + SwappingTokenItemView.horizontalInteritemSpacing
+    }
+
     init(viewModel: SwappingTokenListViewModel) {
         self.viewModel = viewModel
     }
 
     var body: some View {
         NavigationView {
-            PerfList {
+            GroupedScrollView(alignment: .leading, spacing: 0) {
                 if #available(iOS 15.0, *) {} else {
                     let horizontalInset: CGFloat = UIDevice.isIOS13 ? 8 : 16
                     SearchBar(text: $viewModel.searchText.value, placeholder: Localization.commonSearch)
@@ -25,21 +29,19 @@ struct SwappingTokenListView: View {
                         .listRowInsets(.init(top: 8, leading: horizontalInset, bottom: 8, trailing: horizontalInset))
                 }
 
-                GroupedSection(viewModel.userItems) {
-                    SwappingTokenItemView(viewModel: $0)
-                } header: {
-                    Text(Localization.swappingTokenListYourTokens.uppercased())
-                        .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
-                }
-                .separatorPadding(68)
+                FixedSpacer(height: 12)
 
-                GroupedSection(viewModel.otherItems) {
-                    SwappingTokenItemView(viewModel: $0)
-                } header: {
-                    Text(Localization.swappingTokenListOtherTokens.uppercased())
-                        .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
-                }
-                .separatorPadding(68)
+                section(
+                    title: Localization.swappingTokenListYourTokens.uppercased(),
+                    items: viewModel.userItems
+                )
+
+                FixedSpacer(height: 12)
+
+                section(
+                    title: Localization.swappingTokenListOtherTokens.uppercased(),
+                    items: viewModel.otherItems
+                )
 
                 if viewModel.hasNextPage {
                     ProgressViewCompat(color: Colors.Icon.informative)
@@ -49,7 +51,22 @@ struct SwappingTokenListView: View {
             }
             .searchableCompat(text: $viewModel.searchText.value)
             .navigationBarTitle(Text(Localization.swappingTokenListYourTitle), displayMode: .inline)
-            .onAppear(perform: viewModel.onAppear)
+        }
+    }
+
+    func section(title: String, items: [SwappingTokenItemViewModel]) -> some View {
+        Group {
+            Text(title)
+                .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
+
+            ForEach(items) { item in
+                SwappingTokenItemView(viewModel: item)
+
+                if items.last?.id != item.id {
+                    Separator(color: Colors.Stroke.primary)
+                        .padding(.leading, separatorInset)
+                }
+            }
         }
     }
 }
