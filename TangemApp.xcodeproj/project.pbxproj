@@ -560,6 +560,7 @@
 		EF29BEF229349C2900D7C782 /* Data+.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF29BEF129349C2900D7C782 /* Data+.swift */; };
 		EF29BEF429349F4200D7C782 /* Moya.Task+.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF29BEF329349F4200D7C782 /* Moya.Task+.swift */; };
 		EF3EC523289AB2DE0071BA7F /* TangemProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF3EC522289AB2DE0071BA7F /* TangemProvider.swift */; };
+		EF4535372976C1D80030639A /* FixedSpacer.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF4535362976C1D80030639A /* FixedSpacer.swift */; };
 		EF45E045293F74EB00C7090F /* UserCurrenciesProviderMock.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF45E044293F74EB00C7090F /* UserCurrenciesProviderMock.swift */; };
 		EF46618829237C9F00346B6C /* ProgressViewCompat.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF46618729237C9F00346B6C /* ProgressViewCompat.swift */; };
 		EF4661962923AFC400346B6C /* TangemExchange.docc in Sources */ = {isa = PBXBuildFile; fileRef = EF4661952923AFC400346B6C /* TangemExchange.docc */; };
@@ -1452,6 +1453,7 @@
 		EF2EFDE12865C05D00798051 /* Production.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Production.xcconfig; sourceTree = "<group>"; };
 		EF2EFDE22865C07100798051 /* Beta.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Beta.xcconfig; sourceTree = "<group>"; };
 		EF3EC522289AB2DE0071BA7F /* TangemProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TangemProvider.swift; sourceTree = "<group>"; };
+		EF4535362976C1D80030639A /* FixedSpacer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FixedSpacer.swift; sourceTree = "<group>"; };
 		EF45E044293F74EB00C7090F /* UserCurrenciesProviderMock.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserCurrenciesProviderMock.swift; sourceTree = "<group>"; };
 		EF46618729237C9F00346B6C /* ProgressViewCompat.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProgressViewCompat.swift; sourceTree = "<group>"; };
 		EF46618B2923AFA200346B6C /* BlockchainDataProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlockchainDataProvider.swift; sourceTree = "<group>"; };
@@ -1976,6 +1978,7 @@
 				DC295B3928615D03006CB7B6 /* NavHolder.swift */,
 				EF59038D290186DC00C527C9 /* LazyVStackCompat.swift */,
 				EF46618729237C9F00346B6C /* ProgressViewCompat.swift */,
+				EF4535362976C1D80030639A /* FixedSpacer.swift */,
 			);
 			path = UI;
 			sourceTree = "<group>";
@@ -5092,6 +5095,7 @@
 				DC261CB5292CF6B700875E64 /* UncompletedBackupView.swift in Sources */,
 				B0B2DF6026E1FD5400BC0934 /* AnimatedView.swift in Sources */,
 				65C9FCAE28644F9D00FDE63E /* DetailsView.swift in Sources */,
+				EF4535372976C1D80030639A /* FixedSpacer.swift in Sources */,
 				EFEC5F782970369D009C0E5F /* TransactionSendable.swift in Sources */,
 				B0E1D175257DE75D00A3AB98 /* CommonKeysManager.swift in Sources */,
 				5D84DBEF270EEADA0013A813 /* TwinIntroBackgroundView.swift in Sources */,
