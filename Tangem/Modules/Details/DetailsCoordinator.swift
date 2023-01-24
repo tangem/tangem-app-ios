@@ -86,7 +86,7 @@ extension DetailsCoordinator: DetailsRoutable {
     }
 
     func openDisclaimer(at url: URL) {
-        disclaimerViewModel = .init(url: url, style: .navbar, coordinator: nil)
+        disclaimerViewModel = .init(url: url, style: .details)
     }
 
     func openScanCardSettings(with userWalletId: Data) {
