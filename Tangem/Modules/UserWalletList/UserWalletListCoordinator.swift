@@ -18,7 +18,6 @@ class UserWalletListCoordinator: CoordinatorObject {
 
     // MARK: - Child coordinators
 
-    @Published var disclaimerViewModel: DisclaimerViewModel? = nil
     @Published var mailViewModel: MailViewModel? = nil
 
     private weak var output: UserWalletListCoordinatorOutput?
@@ -47,21 +46,11 @@ extension UserWalletListCoordinator {
 }
 
 extension UserWalletListCoordinator: UserWalletListRoutable {
-    func openDisclaimer(at url: URL, _ handler: @escaping (Bool) -> Void) {
-        disclaimerViewModel = DisclaimerViewModel(url: url, style: .sheet, coordinator: self, acceptanceHandler: handler)
-    }
-
     func openOnboarding(with input: OnboardingInput) {
         output?.dismissAndOpenOnboarding(with: input)
     }
 
     func openMail(with dataCollector: EmailDataCollector, emailType: EmailType, recipient: String) {
         mailViewModel = MailViewModel(dataCollector: dataCollector, recipient: recipient, emailType: emailType)
-    }
-}
-
-extension UserWalletListCoordinator: DisclaimerRoutable {
-    func dismissDisclaimer() {
-        disclaimerViewModel = nil
     }
 }
