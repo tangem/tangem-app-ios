@@ -35,27 +35,7 @@ struct SendView: View {
                         text: self.$viewModel.destination,
                         suplementView: {
                             if !viewModel.isSellingCrypto {
-                                if #available(iOS 16.0, *) {
-                                    PasteButton(payloadType: String.self) { strings in
-                                        DispatchQueue.main.async {
-                                            viewModel.pasteClipboardTapped(strings)
-                                        }
-                                    }
-                                    .tint(Colors.Button.paste)
-                                    .labelStyle(.iconOnly)
-                                    .buttonBorderShape(.capsule)
-                                } else {
-                                    CircleActionButton(
-                                        action: { viewModel.pasteClipboardTapped() },
-                                        diameter: 34,
-                                        backgroundColor: Colors.Button.paste,
-                                        systemImageName: viewModel.validatedClipboard == nil ? "doc.on.clipboard" : "doc.on.clipboard.fill",
-                                        imageColor: .white,
-                                        isDisabled: viewModel.validatedClipboard == nil
-                                    )
-                                    .accessibility(label: Text(self.viewModel.validatedClipboard == nil ? Localization.voiceOverNothingToPaste : Localization.voiceOverPasteFromClipboard))
-                                    .disabled(self.viewModel.validatedClipboard == nil)
-                                }
+                                pasteAddressButton
 
                                 CircleActionButton(
                                     action: viewModel.openQRScanner,
@@ -273,6 +253,30 @@ struct SendView: View {
         .onReceive(NotificationCenter.default.publisher(for: UIApplication.didBecomeActiveNotification)
             .receive(on: DispatchQueue.main)) { _ in
                 viewModel.onBecomingActive()
+        }
+    }
+
+    @ViewBuilder private var pasteAddressButton: some View {
+        if #available(iOS 16.0, *) {
+            PasteButton(payloadType: String.self) { strings in
+                DispatchQueue.main.async {
+                    viewModel.pasteClipboardTapped(strings)
+                }
+            }
+            .tint(Colors.Button.paste)
+            .labelStyle(.iconOnly)
+            .buttonBorderShape(.capsule)
+        } else {
+            CircleActionButton(
+                action: { viewModel.pasteClipboardTapped() },
+                diameter: 34,
+                backgroundColor: Colors.Button.paste,
+                systemImageName: viewModel.validatedClipboard == nil ? "doc.on.clipboard" : "doc.on.clipboard.fill",
+                imageColor: .white,
+                isDisabled: viewModel.validatedClipboard == nil
+            )
+            .accessibility(label: Text(self.viewModel.validatedClipboard == nil ? Localization.voiceOverNothingToPaste : Localization.voiceOverPasteFromClipboard))
+            .disabled(self.viewModel.validatedClipboard == nil)
         }
     }
 
