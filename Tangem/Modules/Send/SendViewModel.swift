@@ -71,7 +71,7 @@ class SendViewModel: ObservableObject {
     }
 
     var isFiatConvertingAvailable: Bool {
-        !isSellingCrypto && walletModel.getFiat(for: amountToSend, roundingMode: .down) != nil
+        !isSellingCrypto && walletModel.getFiat(for: amountToSend, roundingType: .default(roundingMode: .down)) != nil
     }
 
     @Published var isNetworkFeeBlockOpen: Bool = false
@@ -123,7 +123,7 @@ class SendViewModel: ObservableObject {
 
     var walletTotalBalanceDecimals: String {
         let amount = walletModel.wallet.amounts[amountToSend.type]
-        return isFiatCalculation ? walletModel.getFiat(for: amount, roundingMode: .down)?.description ?? ""
+        return isFiatCalculation ? walletModel.getFiat(for: amount, roundingType: .default(roundingMode: .down))?.description ?? ""
             : amount?.value.description ?? ""
     }
 
@@ -192,7 +192,7 @@ class SendViewModel: ObservableObject {
 
     private func getDescription(for amount: Amount?) -> String {
         if isFiatCalculation {
-            return walletModel.getFiatFormatted(for: amount, roundingMode: .down) ?? ""
+            return walletModel.getFiatFormatted(for: amount, roundingType: .default(roundingMode: .down)) ?? ""
         }
 
         return amount?.description ?? ""
@@ -272,7 +272,7 @@ class SendViewModel: ObservableObject {
 
                 let currencyId = self.walletModel.currencyId(for: self.amountToSend.type)
 
-                if let converted = value ? self.walletModel.getFiat(for: decimals, currencyId: currencyId, roundingMode: .down)
+                if let converted = value ? self.walletModel.getFiat(for: decimals, currencyId: currencyId, roundingType: .default(roundingMode: .down))
                     : self.walletModel.getCrypto(for: Amount(with: self.amountToSend, value: decimals)) {
                     self.amountText = converted.description
                 } else {
@@ -542,7 +542,7 @@ class SendViewModel: ObservableObject {
                     Text(warning.reduceMessage),
                     action: {
                         let newAmount = totalAmount - warning.suggestedReduceAmount
-                        self.amountText = self.isFiatCalculation ? self.walletModel.getFiat(for: newAmount, roundingMode: .down)?.description ?? "0" :
+                        self.amountText = self.isFiatCalculation ? self.walletModel.getFiat(for: newAmount, roundingType: .default(roundingMode: .down))?.description ?? "0" :
                             newAmount.value.description
                     }
                 ),
@@ -638,11 +638,10 @@ class SendViewModel: ObservableObject {
                     if !isDemo {
                         if self.isSellingCrypto {
                             Analytics.log(.transactionIsSent)
-                            Analytics.log(.transactionSent, params: [.token: "\(tx.amount.currencySymbol)"])
                             Analytics.log(.userSoldCrypto, params: [.currencyCode: self.blockchainNetwork.blockchain.currencySymbol])
-                        } else {
-                            Analytics.logTx(blockchainName: self.blockchainNetwork.blockchain.displayName)
                         }
+
+                        Analytics.logTx(blockchainName: self.blockchainNetwork.blockchain.displayName, type: self.isSellingCrypto ? .sell : .regular)
                     }
 
                     DispatchQueue.main.async {
@@ -685,7 +684,7 @@ private extension SendViewModel {
         )
 
         if isFiatCalculation {
-            sendAmount = walletModel.getFiatFormatted(for: transaction.amount, roundingMode: .plain) ?? ""
+            sendAmount = walletModel.getFiatFormatted(for: transaction.amount, roundingType: .default(roundingMode: .plain)) ?? ""
             sendTotal = totalInFiatFormatted.total
 
             if transaction.amount.type == transaction.fee.type {
@@ -714,9 +713,9 @@ private extension SendViewModel {
     }
 
     func totalAndFeeInFiatFormatted(from transaction: BlockchainSdk.Transaction, currencyCode: String) -> (total: String, fee: String) {
-        guard let famount = walletModel.getFiat(for: transaction.amount, roundingMode: .plain),
-              let ffee = walletModel.getFiat(for: transaction.fee, roundingMode: .plain),
-              let feeFormatted = walletModel.getFiatFormatted(for: transaction.fee, roundingMode: .plain) else {
+        guard let famount = walletModel.getFiat(for: transaction.amount, roundingType: .shortestFraction(roundingMode: .plain)),
+              let ffee = walletModel.getFiat(for: transaction.fee, roundingType: .shortestFraction(roundingMode: .plain)),
+              let feeFormatted = walletModel.getFiatFormatted(for: transaction.fee, roundingType: .shortestFraction(roundingMode: .plain)) else {
             return (total: "", fee: "")
         }
 
@@ -735,7 +734,7 @@ private extension SendViewModel {
         let formatted: String
 
         if isFiatCalculation {
-            formatted = walletModel.getFiatFormatted(for: amount, roundingMode: .plain) ?? ""
+            formatted = walletModel.getFiatFormatted(for: amount, roundingType: .default(roundingMode: .plain)) ?? ""
         } else {
             formatted = amount.description
         }
