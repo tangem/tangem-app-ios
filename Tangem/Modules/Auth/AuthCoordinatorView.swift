@@ -47,10 +47,5 @@ struct AuthCoordinatorView: CoordinatorView {
             .sheet(item: $coordinator.mailViewModel) {
                 MailView(viewModel: $0)
             }
-
-        NavHolder()
-            .sheet(item: $coordinator.disclaimerViewModel) {
-                DisclaimerView(viewModel: $0)
-            }
     }
 }
