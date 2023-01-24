@@ -36,7 +36,7 @@ class TotalBalanceAnalyticsService {
         self.totalBalanceCardSupportInfo = totalBalanceCardSupportInfo
     }
 
-    func sendFirstLoadBalanceEventForCard(tokenItemViewModels: [TokenItemViewModel], balance: Decimal) {
+    func sendFirstLoadBalanceEventForCard(balance: Decimal) {
         Analytics.logCardSignIn(
             balance: balance,
             basicCurrency: basicCurrency,
@@ -45,7 +45,7 @@ class TotalBalanceAnalyticsService {
         )
     }
 
-    func sendToppedUpEventIfNeeded(tokenItemViewModels: [TokenItemViewModel], balance: Decimal) {
+    func sendToppedUpEventIfNeeded(balance: Decimal) {
         guard balance > 0 else {
             if !cardBalanceInfoWasSaved {
                 let encodedData = try? JSONEncoder().encode(Decimal(0))
