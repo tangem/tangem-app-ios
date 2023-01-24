@@ -28,7 +28,6 @@ class WelcomeCoordinator: CoordinatorObject {
     // MARK: - Child view models
 
     @Published var mailViewModel: MailViewModel? = nil
-    @Published var disclaimerViewModel: DisclaimerViewModel? = nil
 
     // MARK: - Private
 
@@ -40,7 +39,6 @@ class WelcomeCoordinator: CoordinatorObject {
         publishers.append($mailViewModel.dropFirst().map { $0 == nil }.eraseToAnyPublisher())
         publishers.append($shopCoordinator.dropFirst().map { $0 == nil }.eraseToAnyPublisher())
         publishers.append($tokenListCoordinator.dropFirst().map { $0 == nil }.eraseToAnyPublisher())
-        publishers.append($disclaimerViewModel.dropFirst().map { $0 == nil }.eraseToAnyPublisher())
 
         return Publishers.MergeMany(publishers)
             .eraseToAnyPublisher()
@@ -100,10 +98,6 @@ extension WelcomeCoordinator: WelcomeRoutable {
         mailViewModel = MailViewModel(dataCollector: dataCollector, recipient: recipient, emailType: .failedToScanCard)
     }
 
-    func openDisclaimer(at url: URL, _ handler: @escaping (Bool) -> Void) {
-        disclaimerViewModel = DisclaimerViewModel(url: url, style: .sheet, coordinator: self, acceptanceHandler: handler)
-    }
-
     func openTokensList() {
         let dismissAction: Action = { [weak self] in
             self?.tokenListCoordinator = nil
@@ -117,11 +111,5 @@ extension WelcomeCoordinator: WelcomeRoutable {
         let coordinator = ShopCoordinator()
         coordinator.start()
         shopCoordinator = coordinator
-    }
-}
-
-extension WelcomeCoordinator: DisclaimerRoutable {
-    func dismissDisclaimer() {
-        disclaimerViewModel = nil
     }
 }
