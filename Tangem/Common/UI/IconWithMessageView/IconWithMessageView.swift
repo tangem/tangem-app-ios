@@ -9,12 +9,12 @@
 import SwiftUI
 
 struct IconWithMessageView: View {
-    private let icon: Image
+    private let icon: ImageType
     private let header: Text
     private let description: Text
 
     init(
-        _ icon: Image,
+        _ icon: ImageType,
         @ViewBuilder header: () -> Text,
         @ViewBuilder description: () -> Text
     ) {

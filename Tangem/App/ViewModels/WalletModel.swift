@@ -385,25 +385,31 @@ extension WalletModel {
         return Localization.addressQrCodeMessageFormat(currencyName, symbol, wallet.blockchain.displayName)
     }
 
-    func getFiatFormatted(for amount: Amount?, roundingMode: NSDecimalNumber.RoundingMode) -> String? {
-        return getFiat(for: amount, roundingMode: roundingMode)?.currencyFormatted(code: AppSettings.shared.selectedCurrencyCode)
+    func getFiatFormatted(for amount: Amount?, roundingType: AmountRoundingType) -> String? {
+        return getFiat(for: amount, roundingType: roundingType)?.currencyFormatted(code: AppSettings.shared.selectedCurrencyCode)
     }
 
-    func getFiat(for amount: Amount?, roundingMode: NSDecimalNumber.RoundingMode) -> Decimal? {
+    func getFiat(for amount: Amount?, roundingType: AmountRoundingType) -> Decimal? {
         if let amount = amount {
-            return getFiat(for: amount.value, currencyId: currencyId(for: amount.type), roundingMode: roundingMode)
+            return getFiat(for: amount.value, currencyId: currencyId(for: amount.type), roundingType: roundingType)
         }
         return nil
     }
 
-    func getFiat(for value: Decimal, currencyId: String?, roundingMode: NSDecimalNumber.RoundingMode) -> Decimal? {
+    func getFiat(for value: Decimal, currencyId: String?, roundingType: AmountRoundingType) -> Decimal? {
         if let currencyId = currencyId,
            let rate = rates[currencyId] {
             let fiatValue = value * rate
             if fiatValue == 0 {
                 return 0
             }
-            return max(fiatValue, 0.01).rounded(scale: 2, roundingMode: roundingMode)
+
+            switch roundingType {
+            case .shortestFraction(let roundingMode):
+                return SignificantFractionDigitRounder(roundingMode: roundingMode).round(value: fiatValue)
+            case .default(let roundingMode):
+                return max(fiatValue, 0.01).rounded(scale: 2, roundingMode: roundingMode)
+            }
         }
         return nil
     }
@@ -448,7 +454,7 @@ extension WalletModel {
 
     func getFiatBalance(for type: Amount.AmountType) -> String {
         let amount = wallet.amounts[type] ?? Amount(with: wallet.blockchain, type: type, value: .zero)
-        return getFiatFormatted(for: amount, roundingMode: .plain) ?? "–"
+        return getFiatFormatted(for: amount, roundingType: .default(roundingMode: .plain)) ?? "–"
     }
 
     func isCustom(_ amountType: Amount.AmountType) -> Bool {
@@ -512,7 +518,7 @@ extension WalletModel {
             balance: balanceViewModel.balance,
             fiatBalance: balanceViewModel.fiatBalance,
             rate: getRateFormatted(for: amountType),
-            fiatValue: getFiat(for: wallet.amounts[amountType], roundingMode: .plain) ?? 0,
+            fiatValue: getFiat(for: wallet.amounts[amountType], roundingType: .default(roundingMode: .plain)) ?? 0,
             blockchainNetwork: blockchainNetwork,
             amountType: amountType,
             hasTransactionInProgress: wallet.hasPendingTx(for: amountType),
@@ -530,7 +536,7 @@ extension WalletModel {
                 balance: balanceViewModel.balance,
                 fiatBalance: balanceViewModel.fiatBalance,
                 rate: getRateFormatted(for: amountType),
-                fiatValue: getFiat(for: wallet.amounts[amountType], roundingMode: .plain) ?? 0,
+                fiatValue: getFiat(for: wallet.amounts[amountType], roundingType: .default(roundingMode: .plain)) ?? 0,
                 blockchainNetwork: blockchainNetwork,
                 amountType: amountType,
                 hasTransactionInProgress: wallet.hasPendingTx(for: amountType),
