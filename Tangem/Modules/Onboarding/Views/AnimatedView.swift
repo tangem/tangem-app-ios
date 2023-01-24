@@ -289,7 +289,6 @@ fileprivate struct AnimatedViewPreview: View {
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .background(Color.red.opacity(0.4))
         }
-        .navigationBarHidden(true)
     }
 }
 
