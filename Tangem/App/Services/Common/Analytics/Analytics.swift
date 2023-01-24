@@ -25,7 +25,7 @@ enum Analytics {
 
     static func log(_ event: Event, params: [ParameterKey: String] = [:]) {
         assert(event.canBeLoggedDirectly)
-        
+
         logInternal(event, params: params)
     }
 
@@ -41,18 +41,18 @@ enum Analytics {
 
     static func beginLoggingCardScan(source: CardScanSource) {
         logInternal(source.cardScanButtonEvent)
-        
+
         additionalDataRepository.cardDidScanEvent = source.cardDidScanEvent
     }
-    
+
     static func endLoggingCardScan() {
         guard let event = additionalDataRepository.cardDidScanEvent else {
             assertionFailure("Don't forget to call beginLoggingCardScan")
             return
         }
-        
+
         additionalDataRepository.cardDidScanEvent = nil
-        
+
         logInternal(event)
     }
 
@@ -60,9 +60,9 @@ enum Analytics {
         if additionalDataRepository.signedInCardIdentifiers.contains(cardNumberHash) {
             return
         }
-        
+
         additionalDataRepository.signedInCardIdentifiers.insert(cardNumberHash)
-        
+
         let params: [ParameterKey: String] = [
             .state: ParameterValue.state(for: balance).rawValue,
             .basicCurrency: basicCurrency,
@@ -71,7 +71,7 @@ enum Analytics {
 
         Analytics.logInternal(.signedIn, params: params)
     }
-    
+
     static func logTx(blockchainName: String?, type: TransactionType) {
         log(type.event, params: [
             .blockchain: blockchainName ?? "",
@@ -347,7 +347,7 @@ extension Analytics.CardScanSource {
             return .buttonScanNewCard
         }
     }
-    
+
     var cardDidScanEvent: Analytics.Event {
         switch self {
         case .welcome:
@@ -372,12 +372,12 @@ fileprivate extension Analytics.Event {
     var canBeLoggedDirectly: Bool {
         switch self {
         case .introductionProcessButtonScanCard,
-                .buttonScanCard,
-                .buttonScanNewCard,
-                .introductionProcessCardWasScanned,
-                .mainCardWasScanned,
-                .myWalletsCardWasScanned,
-                .signedIn:
+             .buttonScanCard,
+             .buttonScanNewCard,
+             .introductionProcessCardWasScanned,
+             .mainCardWasScanned,
+             .myWalletsCardWasScanned,
+             .signedIn:
             return false
         default:
             return true
