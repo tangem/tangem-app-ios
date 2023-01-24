@@ -117,7 +117,7 @@ class WalletConnectV2Service {
         let utils = WalletConnectV2Utils()
         AppLog.shared.debug("[WC 2.0] Attemping to approve session proposal: \(proposal)")
 
-        guard utils.isAllChainsSupported(in: proposal.requiredNamespaces) else {
+        guard utils.allChainsSupported(in: proposal.requiredNamespaces) else {
             let unsupportedBlockchains = utils.extractUnsupportedBlockchainNames(from: proposal.requiredNamespaces)
             displayErrorUI(.unsupportedBlockchains(unsupportedBlockchains))
             sessionRejected(with: proposal)
@@ -203,23 +203,23 @@ extension WalletConnectV2Service: WalletConnectURLHandler {
     }
 
     func handle(url: String) -> Bool {
-        guard let uri = WalletConnectURI(string: url) else {
+        guard let url = WalletConnectURI(string: url) else {
             return false
         }
 
         canEstablishNewSessionSubject.send(false)
-        pairClient(with: uri)
+        pairClient(with: url)
         return true
     }
 
-    private func pairClient(with uri: WalletConnectURI) {
-        AppLog.shared.debug("[WC 2.0] Trying to pair client: \(uri)")
+    private func pairClient(with url: WalletConnectURI) {
+        AppLog.shared.debug("[WC 2.0] Trying to pair client: \(url)")
         Task {
             do {
-                try await pairApi.pair(uri: uri)
-                AppLog.shared.debug("[WC 2.0] Established pair for \(uri)")
+                try await pairApi.pair(uri: url)
+                AppLog.shared.debug("[WC 2.0] Established pair for \(url)")
             } catch {
-                AppLog.shared.error("[WC 2.0] Failed to connect to \(uri) with error: \(error)")
+                AppLog.shared.error("[WC 2.0] Failed to connect to \(url) with error: \(error)")
             }
             canEstablishNewSessionSubject.send(true)
         }
