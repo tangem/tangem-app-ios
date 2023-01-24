@@ -34,11 +34,7 @@ class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable>
     var bag: Set<AnyCancellable> = []
 
     var currentStep: Step {
-        if currentStepIndex >= steps.count {
-            return Step.initialStep
-        }
-
-        return steps[currentStepIndex]
+        steps[currentStepIndex]
     }
 
     var currentProgress: CGFloat {
@@ -50,19 +46,11 @@ class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable>
     }
 
     var title: String? {
-        if !isInitialAnimPlayed, let welcomeStep = input.welcomeStep {
-            return welcomeStep.title
-        }
-
-        return currentStep.title
+        currentStep.title
     }
 
     var subtitle: String? {
-        if !isInitialAnimPlayed, let welcomteStep = input.welcomeStep {
-            return welcomteStep.subtitle
-        }
-
-        return currentStep.subtitle
+        currentStep.subtitle
     }
 
     var mainButtonSettings: MainButton.Settings? {
@@ -79,11 +67,7 @@ class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable>
     }
 
     var mainButtonTitle: String {
-        if !isInitialAnimPlayed, let welcomeStep = input.welcomeStep {
-            return welcomeStep.mainButtonTitle
-        }
-
-        return currentStep.mainButtonTitle
+        currentStep.mainButtonTitle
     }
 
     var supplementButtonSettings: TangemButtonSettings? {
@@ -92,18 +76,22 @@ class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable>
             size: .wide,
             action: supplementButtonAction,
             isBusy: isSupplementButtonBusy,
-            isEnabled: true,
+            isEnabled: isSupplementButtonEnabled,
             isVisible: isSupplementButtonVisible,
-            color: .transparentWhite
+            color: supplementButtonColor
         )
     }
 
-    var supplementButtonTitle: String {
-        if !isInitialAnimPlayed, let welcomteStep = input.welcomeStep {
-            return welcomteStep.supplementButtonTitle
-        }
+    var isSupplementButtonEnabled: Bool {
+        return true
+    }
 
-        return currentStep.supplementButtonTitle
+    var supplementButtonColor: ButtonColorStyle {
+        .transparentWhite
+    }
+
+    var supplementButtonTitle: String {
+        currentStep.supplementButtonTitle
     }
 
     var isBackButtonVisible: Bool {
@@ -125,6 +113,14 @@ class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable>
     var isSupplementButtonVisible: Bool { currentStep.isSupplementButtonVisible }
 
     lazy var userWalletStorageAgreementViewModel = UserWalletStorageAgreementViewModel(coordinator: self)
+
+    var disclaimerModel: DisclaimerViewModel? {
+        guard let url = input.cardInput.cardModel?.cardDisclaimer.url else {
+            return nil
+        }
+
+        return .init(url: url, style: .onboarding)
+    }
 
     let input: OnboardingInput
 
@@ -270,6 +266,14 @@ class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable>
 
         userWalletRepository.save(userWallet)
         userWalletRepository.setSelectedUserWalletId(userWallet.userWalletId, reason: .inserted)
+    }
+
+    func disclaimerAccepted() {
+        guard let id = input.cardInput.cardModel?.cardDisclaimer.id else {
+            return
+        }
+
+        AppSettings.shared.termsOfServicesAccepted.append(id)
     }
 
     private func bindAnalytics() {
