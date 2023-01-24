@@ -51,6 +51,8 @@ enum Analytics {
             return
         }
         
+        additionalDataRepository.cardDidScanEvent = nil
+        
         logInternal(event)
     }
 
