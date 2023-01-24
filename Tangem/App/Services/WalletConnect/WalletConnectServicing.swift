@@ -9,7 +9,7 @@
 import Foundation
 import Combine
 
-protocol WalletConnectService: WalletConnectURLHandler {
+protocol WalletConnectService: URLHandler {
     var canEstablishNewSessionPublisher: AnyPublisher<Bool, Never> { get }
     var sessionsPublisher: AnyPublisher<[WalletConnectSession], Never> { get }
     var newSessions: AsyncStream<[WalletConnectSavedSession]> { get async }
@@ -18,10 +18,6 @@ protocol WalletConnectService: WalletConnectURLHandler {
     func reset()
     func disconnectSession(with id: Int)
     func disconnectV2Session(with id: Int) async
-}
-
-protocol WalletConnectURLHandler: URLHandler {
-    func canHandle(url: String) -> Bool
 }
 
 private struct WalletConnectServicingKey: InjectionKey {
