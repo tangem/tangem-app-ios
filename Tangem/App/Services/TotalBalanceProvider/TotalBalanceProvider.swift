@@ -103,16 +103,10 @@ private extension TotalBalanceProvider {
             }
         }
 
-        totalBalanceAnalyticsService?.sendToppedUpEventIfNeeded(
-            tokenItemViewModels: tokenItemViewModels,
-            balance: balance
-        )
+        totalBalanceAnalyticsService?.sendToppedUpEventIfNeeded(balance: balance)
 
         if isFirstLoadForCardInSession {
-            totalBalanceAnalyticsService?.sendFirstLoadBalanceEventForCard(
-                tokenItemViewModels: tokenItemViewModels,
-                balance: balance
-            )
+            totalBalanceAnalyticsService?.sendFirstLoadBalanceEventForCard(balance: balance)
             isFirstLoadForCardInSession = false
         }
 
