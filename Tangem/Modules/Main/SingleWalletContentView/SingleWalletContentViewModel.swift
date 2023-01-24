@@ -55,10 +55,12 @@ class SingleWalletContentViewModel: ObservableObject {
         userWalletModel: userWalletModel,
         totalBalanceManager: TotalBalanceProvider(userWalletModel: userWalletModel,
                                                   userWalletAmountType: cardModel.cardAmountType,
-                                                  totalBalanceAnalyticsService: TotalBalanceAnalyticsService(totalBalanceCardSupportInfo: totalBalanceCardSupportInfo)),
+                                                  totalBalanceAnalyticsService: self.totalBalanceAnalyticsService),
         cardAmountType: cardModel.cardAmountType,
         tapOnCurrencySymbol: output
     )
+    
+    private lazy var totalBalanceAnalyticsService = TotalBalanceAnalyticsService(totalBalanceCardSupportInfo: totalBalanceCardSupportInfo)
 
     private let cardModel: CardViewModel
     private let userWalletModel: UserWalletModel
@@ -139,6 +141,22 @@ class SingleWalletContentViewModel: ObservableObject {
             .sink(receiveValue: { [weak self] publish in
                 self?.objectWillChange.send()
             })
+            .store(in: &bag)
+        
+        singleWalletModel?.$state
+            .sink { [weak self] state in
+                guard
+                    let self,
+                    let singleWalletModel = self.singleWalletModel,
+                    !state.isLoading
+                else {
+                    return
+                }
+                
+                let balance = singleWalletModel.blockchainTokenItemViewModel().fiatValue
+                self.totalBalanceAnalyticsService.sendToppedUpEventIfNeeded(balance: balance)
+                self.totalBalanceAnalyticsService.sendFirstLoadBalanceEventForCard(balance: balance)
+            }
             .store(in: &bag)
     }
 }
