@@ -69,6 +69,7 @@ extension TokenDetailsCoordinator: TokenDetailsRoutable {
     }
 
     func openSellCrypto(at url: URL, sellRequestUrl: String, action: @escaping (String) -> Void) {
+        Analytics.log(.withdrawScreenOpened)
         pushedWebViewModel = WebViewContainerViewModel(
             url: url,
             title: Localization.walletButtonSell,
