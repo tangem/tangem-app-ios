@@ -12,7 +12,6 @@ import TangemSdk
 struct OnboardingInput { // [REDACTED_TODO_COMMENT]
     let steps: OnboardingSteps
     let cardInput: CardInput
-    let welcomeStep: WelcomeStep?
     let twinData: TwinData?
     var currentStepIndex: Int
     var isStandalone = false
