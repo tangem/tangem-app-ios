@@ -94,10 +94,7 @@ class WebSocket {
     }
 
     func connect() {
-        if task != nil {
-            disconnect()
-        }
-
+        disconnect()
         task = session.webSocketTask(with: request)
         task?.resume()
         receive()
