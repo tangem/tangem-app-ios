@@ -30,7 +30,6 @@ class WelcomeViewModel: ObservableObject {
     init(shouldScanOnAppear: Bool, coordinator: WelcomeRoutable) {
         self.shouldScanOnAppear = shouldScanOnAppear
         self.coordinator = coordinator
-        userWalletRepository.delegate = self
         storiesModelSubscription = storiesModel.objectWillChange
             .receive(on: DispatchQueue.main)
             .sink(receiveValue: { [weak self] in
@@ -130,12 +129,6 @@ extension WelcomeViewModel {
 
     func openMain(with cardModel: CardViewModel) {
         coordinator.openMain(with: cardModel)
-    }
-}
-
-extension WelcomeViewModel: UserWalletRepositoryDelegate {
-    func showTOS(at url: URL, _ completion: @escaping (Bool) -> Void) {
-        coordinator.openDisclaimer(at: url, completion)
     }
 }
 
