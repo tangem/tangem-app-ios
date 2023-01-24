@@ -78,10 +78,6 @@ extension CommonWalletConnectService: WalletConnectService {
         return service(for: url) != nil
     }
 
-    func handle(url: URL) -> Bool {
-        return handle(url: url.absoluteString)
-    }
-
     func handle(url: String) -> Bool {
         guard let service = service(for: url) else {
             return false
@@ -90,7 +86,7 @@ extension CommonWalletConnectService: WalletConnectService {
         return service.handle(url: url)
     }
 
-    private func service(for link: String) -> WalletConnectURLHandler? {
+    private func service(for link: String) -> URLHandler? {
         if v2Service?.canHandle(url: link) ?? false {
             return v2Service
         }
