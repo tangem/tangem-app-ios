@@ -258,6 +258,8 @@ class MainViewModel: ObservableObject {
 
     func sendTapped() {
         guard let wallet else { return }
+        
+        Analytics.log(.buttonSend)
 
         let hasTokenAmounts = !wallet.amounts.values.filter { $0.type.isToken && !$0.isZero }.isEmpty
 
