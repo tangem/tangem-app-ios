@@ -15,12 +15,14 @@ import BlockchainSdk
 class SingleCardOnboardingViewModel: OnboardingTopupViewModel<SingleCardOnboardingStep, OnboardingCoordinator>, ObservableObject {
     @Published var isCardScanned: Bool = true
 
-    override var currentStep: SingleCardOnboardingStep {
-        guard currentStepIndex < steps.count else {
-            return .welcome
-        }
+    override var disclaimerModel: DisclaimerViewModel? {
+        guard currentStep == .disclaimer else { return nil }
 
-        return steps[currentStepIndex]
+        return super.disclaimerModel
+    }
+
+    override var navbarTitle: String {
+        currentStep.navbarTitle
     }
 
     override var subtitle: String? {
@@ -40,6 +42,15 @@ class SingleCardOnboardingViewModel: OnboardingTopupViewModel<SingleCardOnboardi
         return super.mainButtonTitle
     }
 
+    override var mainButtonSettings: MainButton.Settings? {
+        switch currentStep {
+        case .disclaimer:
+            return nil
+        default:
+            return super.mainButtonSettings
+        }
+    }
+
     override var isSupplementButtonVisible: Bool {
         switch currentStep {
         case .topup:
@@ -49,9 +60,18 @@ class SingleCardOnboardingViewModel: OnboardingTopupViewModel<SingleCardOnboardi
         }
     }
 
+    override var supplementButtonColor: ButtonColorStyle {
+        switch currentStep {
+        case .disclaimer:
+            return .black
+        default:
+            return super.supplementButtonColor
+        }
+    }
+
     var isCustomContentVisible: Bool {
         switch currentStep {
-        case .saveUserWallet:
+        case .saveUserWallet, .disclaimer:
             return true
         default:
             return false
@@ -123,8 +143,8 @@ class SingleCardOnboardingViewModel: OnboardingTopupViewModel<SingleCardOnboardi
 
     override func mainButtonAction() {
         switch currentStep {
-        case .welcome:
-            fallthrough
+        case .disclaimer:
+            break
         case .createWallet:
             createWallet()
         case .topup:
@@ -154,6 +174,9 @@ class SingleCardOnboardingViewModel: OnboardingTopupViewModel<SingleCardOnboardi
         switch currentStep {
         case .topup:
             openQR()
+        case .disclaimer:
+            disclaimerAccepted()
+            goToNextStep()
         default:
             break
         }
