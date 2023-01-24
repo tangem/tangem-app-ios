@@ -59,7 +59,7 @@ struct UserWalletListCellView: View {
                             .skeletonable(isShown: viewModel.isBalanceLoading, radius: 6)
 
                         if viewModel.hasError {
-                            Assets.attention
+                            Assets.attention.image
                                 .resizable()
                                 .aspectRatio(contentMode: .fit)
                                 .frame(width: 17, height: 17)
@@ -152,7 +152,7 @@ struct UserWalletListCellView: View {
 
     @ViewBuilder
     private var lockIcon: some View {
-        Assets.lock
+        Assets.lock.image
             .padding(.horizontal, 14)
             .padding(.vertical, 7)
             .background(Colors.Background.secondary)
