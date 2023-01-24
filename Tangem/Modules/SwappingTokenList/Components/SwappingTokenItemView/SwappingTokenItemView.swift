@@ -9,6 +9,9 @@
 import SwiftUI
 
 struct SwappingTokenItemView: View {
+    static let iconSize = CGSize(width: 40, height: 40)
+    static let horizontalInteritemSpacing: CGFloat = 12
+    
     private let viewModel: SwappingTokenItemViewModel
 
     init(viewModel: SwappingTokenItemViewModel) {
@@ -18,11 +21,11 @@ struct SwappingTokenItemView: View {
     var body: some View {
         Button(action: viewModel.itemDidTap) {
             HStack(spacing: 0) {
-                HStack(spacing: 12) {
+                HStack(spacing: Self.horizontalInteritemSpacing) {
                     IconView(
                         url: viewModel.iconURL,
                         name: viewModel.name,
-                        size: CGSize(width: 40, height: 40)
+                        size: Self.iconSize
                     )
 
                     tokenInfoView
@@ -32,7 +35,7 @@ struct SwappingTokenItemView: View {
 
                 currencyView
             }
-            .padding(.vertical, 16)
+            .padding(.vertical, 12)
             .contentShape(Rectangle())
         }
     }
@@ -65,6 +68,7 @@ struct SwappingTokenItemView: View {
 struct SwappingTokenItemView_Previews: PreviewProvider {
     static let viewModels = [
         SwappingTokenItemViewModel(
+            id: "Bitcoin",
             iconURL: nil,
             name: "Bitcoin",
             symbol: "BTC",
@@ -72,6 +76,7 @@ struct SwappingTokenItemView_Previews: PreviewProvider {
             balance: 1.23415,
             itemDidTap: {}
         ), SwappingTokenItemViewModel(
+            id: "Ethereum",
             iconURL: nil,
             name: "Ethereum",
             symbol: "ETH",
