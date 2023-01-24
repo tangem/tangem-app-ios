@@ -14,6 +14,8 @@ struct GroupedScrollView<Content: View>: View {
     private let spacing: CGFloat
     private let content: () -> Content
 
+    private var horizontalPadding: CGFloat = 16
+
     init(
         alignment: HorizontalAlignment = .center,
         spacing: CGFloat = 0,
@@ -27,7 +29,7 @@ struct GroupedScrollView<Content: View>: View {
     var body: some View {
         ScrollView {
             stackContent
-                .padding(.horizontal, 16)
+                .padding(.horizontal, horizontalPadding)
         }
     }
 
