@@ -42,6 +42,7 @@ extension Analytics {
         case signInScreenOpened = "[Sign In] Sing In Screen Opened"
         case buttonBiometricSignIn = "[Sign In] Button - Biometric Sign In"
         case buttonCardSignIn = "[Sign In] Button - Card Sign In"
+        case signInCardWasScanned = "[Sign In] Card Was Scanned"
         case onboardingStarted = "[Onboarding] Onboarding Started"
         case onboardingFinished = "[Onboarding] Onboarding Finished"
         case createWalletScreenOpened = "[Onboarding / Create Wallet] Create Wallet Screen Opened"
