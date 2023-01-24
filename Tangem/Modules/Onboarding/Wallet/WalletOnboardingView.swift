@@ -13,6 +13,9 @@ struct WalletOnboardingView: View {
 
     private let screenSize: CGSize = UIScreen.main.bounds.size
     private let infoPagerHeight: CGFloat = 146
+    private let progressBarHeight: CGFloat = 5
+    private let progressBarPadding: CGFloat = 10
+    private let disclaimerTopPadding: CGFloat = 8
 
     var currentStep: WalletOnboardingStep {
         viewModel.currentStep
@@ -23,10 +26,6 @@ struct WalletOnboardingView: View {
     }
 
     var isProgressBarVisible: Bool {
-        if case .welcome = currentStep {
-            return false
-        }
-
         if !viewModel.isInitialAnimPlayed {
             return false
         }
@@ -83,12 +82,24 @@ struct WalletOnboardingView: View {
         }
     }
 
+    @ViewBuilder
+    var disclaimerContent: some View {
+        if let disclaimerModel = viewModel.disclaimerModel {
+            DisclaimerView(viewModel: disclaimerModel)
+                .offset(y: progressBarHeight + progressBarPadding + disclaimerTopPadding)
+                .offset(y: viewModel.isNavBarVisible ? viewModel.navbarSize.height : 0)
+        }
+    }
+
     var body: some View {
         ZStack {
             ConfettiView(shouldFireConfetti: $viewModel.shouldFireConfetti)
                 .allowsHitTesting(false)
+                .disabled(true) // Resolve iOS13 gesture conflict with the webView
                 .frame(maxWidth: screenSize.width)
                 .zIndex(110)
+
+            disclaimerContent
 
             VStack(spacing: 0) {
                 GeometryReader { geom in
@@ -121,10 +132,10 @@ struct WalletOnboardingView: View {
                         .offset(x: 0, y: -geom.size.height / 2 + (isNavbarVisible ? viewModel.navbarSize.height / 2 + 4 : 0))
                         .opacity(isNavbarVisible ? 1.0 : 0.0)
 
-                        ProgressBar(height: 5, currentProgress: viewModel.currentProgress)
+                        ProgressBar(height: progressBarHeight, currentProgress: viewModel.currentProgress)
                             .opacity(isProgressBarVisible ? 1.0 : 0.0)
                             .frame(width: screenSize.width - 32)
-                            .offset(x: 0, y: -size.height / 2 + viewModel.navbarSize.height + 10)
+                            .offset(x: 0, y: -size.height / 2 + viewModel.navbarSize.height + progressBarPadding)
 
                         if !viewModel.isCustomContentVisible {
                             AnimatedView(settings: viewModel.$thirdCardSettings) {
@@ -148,7 +159,7 @@ struct WalletOnboardingView: View {
                                     OnboardingCardView(
                                         placeholderCardType: .dark,
                                         cardImage: viewModel.cardImage,
-                                        cardScanned: viewModel.isInitialAnimPlayed && currentStep != .welcome
+                                        cardScanned: viewModel.isInitialAnimPlayed
                                     )
                                     Text(Localization.commonOriginCard)
                                         .font(.system(size: 13, weight: .semibold))
