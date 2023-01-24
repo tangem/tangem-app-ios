@@ -126,15 +126,23 @@ extension SaltPayConfig: UserWalletConfig {
     }
 
     var onboardingSteps: OnboardingSteps {
-        if SaltPayUtil().isBackupCard(cardId: card.cardId) {
-            return .wallet(userWalletSavingSteps)
+        var steps = [WalletOnboardingStep]()
+
+        if !AppSettings.shared.termsOfServicesAccepted.contains(tou.id) {
+            steps.append(.disclaimer)
         }
 
-        if card.wallets.isEmpty {
-            return .wallet([.createWallet] + _backupSteps + userWalletSavingSteps + registrationSteps)
+        if SaltPayUtil().isBackupCard(cardId: card.cardId) {
+            steps.append(contentsOf: userWalletSavingSteps)
         } else {
-            return .wallet(_backupSteps + userWalletSavingSteps + registrationSteps)
+            if card.wallets.isEmpty {
+                steps.append(contentsOf: [.createWallet] + _backupSteps + userWalletSavingSteps + registrationSteps)
+            } else {
+                steps.append(contentsOf: _backupSteps + userWalletSavingSteps + registrationSteps)
+            }
         }
+
+        return .wallet(steps)
     }
 
     var backupSteps: OnboardingSteps? {
