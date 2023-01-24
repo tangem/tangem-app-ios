@@ -26,7 +26,7 @@ struct WalletConnectView: View {
     var body: some View {
         ZStack {
             VStack {
-                if viewModel.v1Sessions.isEmpty, viewModel.v2Sessions.isEmpty {
+                if viewModel.noActiveSessions {
                     Text(Localization.walletConnectNoSessionsTitle)
                         .font(.system(size: 24, weight: .semibold))
                         .padding(.bottom, 10)
@@ -36,7 +36,7 @@ struct WalletConnectView: View {
                         .padding(.horizontal, 40)
                 } else {
                     List {
-                        ForEach(Array(viewModel.v1Sessions.enumerated()), id: \.element) { i, item -> WalletConnectSessionItemView in
+                        ForEach(viewModel.v1Sessions, id: \.id) { item -> WalletConnectSessionItemView in
                             WalletConnectSessionItemView(
                                 dAppName: item.session.dAppInfo.peerMeta.name
                             ) {
@@ -45,7 +45,7 @@ struct WalletConnectView: View {
                         }
                         .listRowInsets(.none)
 
-                        ForEach(Array(viewModel.v2Sessions.enumerated()), id: \.element) { i, item -> WalletConnectSessionItemView in
+                        ForEach(viewModel.v2Sessions, id: \.id) { item -> WalletConnectSessionItemView in
                             WalletConnectSessionItemView(
                                 dAppName: item.sessionInfo.dAppInfo.name
                             ) {
