@@ -125,7 +125,7 @@ class CommonUserWalletRepository: UserWalletRepository {
         }
         .flatMap { [weak self] cardModel -> AnyPublisher<UserWalletRepositoryResult?, Error> in
             self?.failedCardScanTracker.resetCounter()
-            
+
             Analytics.endLoggingCardScan()
 
             self?.sendEvent(.scan(isScanning: false))
