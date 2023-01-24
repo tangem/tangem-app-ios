@@ -43,6 +43,12 @@ class WalletOnboardingViewModel: OnboardingTopupViewModel<WalletOnboardingStep, 
     //        }
     //    }
 
+    override var disclaimerModel: DisclaimerViewModel? {
+        guard currentStep == .disclaimer else { return nil }
+
+        return super.disclaimerModel
+    }
+
     override var navbarTitle: String {
         currentStep.navbarTitle
     }
@@ -126,7 +132,7 @@ class WalletOnboardingViewModel: OnboardingTopupViewModel<WalletOnboardingStep, 
 
     override var mainButtonSettings: MainButton.Settings? {
         switch currentStep {
-        case .enterPin, .registerWallet, .kycStart, .kycRetry, .kycProgress, .claim, .successClaim:
+        case .enterPin, .registerWallet, .kycStart, .kycRetry, .kycProgress, .claim, .successClaim, .disclaimer:
             return nil
         default:
             break
@@ -191,26 +197,10 @@ class WalletOnboardingViewModel: OnboardingTopupViewModel<WalletOnboardingStep, 
             }
         }
 
-        if currentStep == .saveUserWallet {
-            return false
-        }
-
         return super.isSupplementButtonVisible
     }
 
-    override var supplementButtonSettings: TangemButtonSettings? {
-        return .init(
-            title: supplementButtonTitle,
-            size: .wide,
-            action: supplementButtonAction,
-            isBusy: isSupplementButtonBusy,
-            isEnabled: isSupplementButtonEnabled,
-            isVisible: isSupplementButtonVisible,
-            color: supplementButtonColor
-        )
-    }
-
-    var isSupplementButtonEnabled: Bool {
+    override var isSupplementButtonEnabled: Bool {
         switch currentStep {
         case .selectBackupCards: return backupCardsAddedCount > 0
         case .claim:
@@ -219,10 +209,12 @@ class WalletOnboardingViewModel: OnboardingTopupViewModel<WalletOnboardingStep, 
         }
     }
 
-    var supplementButtonColor: ButtonColorStyle {
+    override var supplementButtonColor: ButtonColorStyle {
         switch currentStep {
-        case .selectBackupCards, .kycWaiting, .enterPin, .registerWallet, .kycStart, .kycRetry, .kycProgress, .claim, .successClaim: return .black
-        default: return .transparentWhite
+        case .backupIntro:
+            return .transparentWhite
+        default:
+            return .black
         }
     }
 
@@ -250,7 +242,7 @@ class WalletOnboardingViewModel: OnboardingTopupViewModel<WalletOnboardingStep, 
 
     var isCustomContentVisible: Bool {
         switch currentStep {
-        case .saveUserWallet, .enterPin, .registerWallet, .kycStart, .kycRetry, .kycProgress, .kycWaiting:
+        case .saveUserWallet, .enterPin, .registerWallet, .kycStart, .kycRetry, .kycProgress, .kycWaiting, .disclaimer:
             return true
         default: return false
         }
@@ -507,9 +499,6 @@ class WalletOnboardingViewModel: OnboardingTopupViewModel<WalletOnboardingStep, 
 
     override func mainButtonAction() {
         switch currentStep {
-        case .welcome:
-            isNavBarVisible = true
-            goToNextStep()
         case .createWallet:
             createWallet()
         case .scanPrimaryCard:
@@ -606,6 +595,9 @@ class WalletOnboardingViewModel: OnboardingTopupViewModel<WalletOnboardingStep, 
                     break
                 }
             }
+        case .disclaimer:
+            disclaimerAccepted()
+            goToNextStep()
         default:
             break
         }
