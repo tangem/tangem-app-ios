@@ -73,15 +73,23 @@ extension GenericDemoConfig: UserWalletConfig {
     }
 
     var onboardingSteps: OnboardingSteps {
+        var steps = [WalletOnboardingStep]()
+
+        if !AppSettings.shared.termsOfServicesAccepted.contains(tou.id) {
+            steps.append(.disclaimer)
+        }
+
         if card.wallets.isEmpty {
-            return .wallet([.createWallet] + _backupSteps + userWalletSavingSteps + [.success])
+            steps.append(contentsOf: [.createWallet] + _backupSteps + userWalletSavingSteps + [.success])
         } else {
             if !AppSettings.shared.cardsStartedActivation.contains(card.cardId) {
-                return .wallet(userWalletSavingSteps)
+                steps.append(contentsOf: userWalletSavingSteps)
+            } else {
+                steps.append(contentsOf: _backupSteps + userWalletSavingSteps + [.success])
             }
-
-            return .wallet(_backupSteps + userWalletSavingSteps + [.success])
         }
+
+        return .wallet(steps)
     }
 
     var backupSteps: OnboardingSteps? {
