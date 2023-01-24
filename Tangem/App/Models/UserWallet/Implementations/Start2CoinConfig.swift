@@ -53,11 +53,19 @@ extension Start2CoinConfig: UserWalletConfig {
     }
 
     var onboardingSteps: OnboardingSteps {
-        if card.wallets.isEmpty {
-            return .singleWallet([.createWallet] + userWalletSavingSteps + [.success])
+        var steps = [SingleCardOnboardingStep]()
+
+        if !AppSettings.shared.termsOfServicesAccepted.contains(tou.id) {
+            steps.append(.disclaimer)
         }
 
-        return .singleWallet(userWalletSavingSteps)
+        if card.wallets.isEmpty {
+            steps.append(contentsOf: [.createWallet] + userWalletSavingSteps + [.success])
+        } else {
+            steps.append(contentsOf: userWalletSavingSteps)
+        }
+
+        return .singleWallet(steps)
     }
 
     var backupSteps: OnboardingSteps? {
