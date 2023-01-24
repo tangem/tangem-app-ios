@@ -47,8 +47,6 @@ final class UserWalletListViewModel: ObservableObject, Identifiable {
         selectedUserWalletId = userWalletRepository.selectedUserWalletId
         updateModels()
 
-        userWalletRepository.delegate = self
-
         bind()
     }
 
@@ -292,11 +290,5 @@ final class UserWalletListViewModel: ObservableObject, Identifiable {
         } didDeleteUserWallet: { [weak self] in
             self?.showDeletionConfirmation(userWallet)
         }
-    }
-}
-
-extension UserWalletListViewModel: UserWalletRepositoryDelegate {
-    func showTOS(at url: URL, _ completion: @escaping (Bool) -> Void) {
-        coordinator.openDisclaimer(at: url, completion)
     }
 }
