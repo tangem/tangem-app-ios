@@ -70,8 +70,6 @@ class WelcomeViewModel: ObservableObject {
         }
     }
 
-    func onDisappear() {}
-
     private func scanCard() {
         isScanningCard = true
 
