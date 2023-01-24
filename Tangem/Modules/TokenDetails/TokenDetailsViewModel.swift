@@ -5,6 +5,7 @@
 //  Created by [REDACTED_AUTHOR]
 //  Copyright © 2021 Tangem AG. All rights reserved.
 //
+
 import SwiftUI
 import BlockchainSdk
 import Combine
@@ -447,6 +448,7 @@ extension TokenDetailsViewModel {
 
     func openSellCrypto() {
         Analytics.log(.buttonSell)
+
         if let disabledLocalizedReason = card.getDisabledLocalizedReason(for: .exchange) {
             alert = AlertBuilder.makeDemoAlert(disabledLocalizedReason)
             return
@@ -583,7 +585,7 @@ extension TokenDetailsViewModel {
             }
         }
 
-        var icon: Image {
+        var icon: ImageType {
             switch self {
             case .buy:
                 return Assets.arrowUpMini
