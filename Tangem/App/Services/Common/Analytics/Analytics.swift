@@ -331,6 +331,7 @@ extension Analytics {
 extension Analytics {
     enum CardScanSource {
         case welcome
+        case auth
         case main
         case myWallets
     }
@@ -341,6 +342,8 @@ extension Analytics.CardScanSource {
         switch self {
         case .welcome:
             return .introductionProcessButtonScanCard
+        case .auth:
+            return .buttonCardSignIn
         case .main:
             return .buttonScanCard
         case .myWallets:
@@ -352,6 +355,8 @@ extension Analytics.CardScanSource {
         switch self {
         case .welcome:
             return .introductionProcessCardWasScanned
+        case .auth:
+            return .signInCardWasScanned
         case .main:
             return .mainCardWasScanned
         case .myWallets:
@@ -374,6 +379,8 @@ fileprivate extension Analytics.Event {
         case .introductionProcessButtonScanCard,
              .buttonScanCard,
              .buttonScanNewCard,
+             .buttonCardSignIn,
+             .signInCardWasScanned,
              .introductionProcessCardWasScanned,
              .mainCardWasScanned,
              .myWalletsCardWasScanned,
