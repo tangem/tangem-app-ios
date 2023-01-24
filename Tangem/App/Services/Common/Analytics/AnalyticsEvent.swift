@@ -76,7 +76,7 @@ extension Analytics {
         case buttonScanCard = "[Main Screen] Button - Scan Card"
         case mainCardWasScanned = "[Main Screen] Card Was Scanned"
         case buttonMyWallets = "[Main Screen] Button - My Wallets"
-        case mainEnableBiometric = "[Main Screen / Biometric] Enable Biometric"
+        case mainEnableBiometric = "[Main Screen] Enable Biometric"
         case mainCurrencyChanged = "[Main Screen] Main Currency Changed"
         case noticeRateTheAppButtonTapped = "[Main Screen] Notice - Rate The App Button Tapped"
         case noticeBackupYourWalletTapped = "[Main Screen] Notice - Backup Your Wallet Tapped"
