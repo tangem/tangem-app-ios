@@ -11,6 +11,12 @@ import Combine
 import WalletConnectSwiftV2
 import BlockchainSdk
 
+protocol WalletConnectUserWalletInfoProvider {
+    var name: String { get }
+    var userWalletId: Data? { get }
+    var wallets: [Wallet] { get }
+}
+
 class WalletConnectV2Service {
     @Injected(\.walletConnectSessionsStorage) private var sessionsStorage: WalletConnectSessionsStorage
 
@@ -19,17 +25,33 @@ class WalletConnectV2Service {
     private let messageComposer: WalletConnectV2MessageComposable
     private let pairApi: PairingInteracting
     private let signApi: SignClient
-    private let cardModel: CardViewModel
+    private let infoProvider: WalletConnectUserWalletInfoProvider
 
     private var canEstablishNewSessionSubject: CurrentValueSubject<Bool, Never> = .init(true)
     private var bag = Set<AnyCancellable>()
 
+    var canEstablishNewSessionPublisher: AnyPublisher<Bool, Never> {
+        canEstablishNewSessionSubject
+            .eraseToAnyPublisher()
+    }
+
+    var sessionsPublisher: AnyPublisher<[WalletConnectSession], Never> {
+        Just([])
+            .eraseToAnyPublisher()
+    }
+
+    var newSessions: AsyncStream<[WalletConnectSavedSession]> {
+        get async {
+            await sessionsStorage.sessions
+        }
+    }
+
     init(
-        with cardModel: CardViewModel,
+        with infoProvider: WalletConnectUserWalletInfoProvider,
         uiDelegate: WalletConnectUIDelegate = WalletConnectAlertUIDelegate(),
         messageComposer: WalletConnectV2MessageComposable = WalletConnectV2MessageComposer()
     ) {
-        self.cardModel = cardModel
+        self.infoProvider = infoProvider
         self.uiDelegate = uiDelegate
         self.messageComposer = messageComposer
 
@@ -41,7 +63,7 @@ class WalletConnectV2Service {
         )
         Pair.configure(metadata: AppMetadata(
             // Not sure that we really need this name, but currently it is hard to recognize what card is connected in dApp
-            name: "Tangem \(cardModel.name)",
+            name: "Tangem \(infoProvider.name)",
             description: "NFC crypto wallet",
             url: "tangem.com",
             icons: ["https://user-images.githubusercontent.com/24321494/124071202-72a00900-da58-11eb-935a-dcdab21de52b.png"]
@@ -50,40 +72,31 @@ class WalletConnectV2Service {
         pairApi = Pair.instance
         signApi = Sign.instance
 
-        loadSessions(for: cardModel.userWalletId)
+        loadSessions(for: infoProvider.userWalletId)
         subscribeToMessages()
     }
 
-    func terminateAllSessions() async throws {
-        for session in signApi.getSessions() {
+    func disconnectSession(with id: Int) async {
+        guard let session = await sessionsStorage.session(with: id) else { return }
+
+        do {
             try await signApi.disconnect(topic: session.topic)
+            await sessionsStorage.remove(session)
+        } catch {
+            let internalError = WalletConnectV2ErrorMappingUtils().mapWCv2Error(error)
+            if case .sessionForTopicNotFound = internalError {
+                await sessionsStorage.remove(session)
+                return
+            }
+            AppLog.shared.error("[WC 2.0] Failed to disconnect session with topic: \(session.topic) with error: \(error)")
         }
-
-        for pairing in pairApi.getPairings() {
-            try await pairApi.disconnect(topic: pairing.topic)
-        }
-
-        await sessionsStorage.clearStorage()
     }
 
     private func loadSessions(for userWalletId: Data?) {
         guard let userWalletId else { return }
 
-        Task { [weak self] in
-            guard let self else { return }
-
-            AppLog.shared.debug("[WC 2.0] Loading sessions for UserWallet with id: \(userWalletId.hexString)")
-            let loadedSessions = await self.sessionsStorage.loadSessions(for: userWalletId.hexString)
-
-            let pairingSessions = self.pairApi.getPairings()
-            AppLog.shared.debug("[WC 2.0] Saved pairing sessions in WC storage \(pairingSessions)")
-
-            let sessions = self.signApi.getSessions()
-            AppLog.shared.debug("[WC 2.0] Currently active sessions. Restored by framework: \(sessions)")
-
-            AppLog.shared.debug("[WC 2.0] Loaded sessions from internal storage: \(loadedSessions)")
-
-            AppLog.shared.debug("------Stop-------")
+        runTask { [weak self] in
+            await self?.sessionsStorage.loadSessions(for: userWalletId.hexString)
         }
     }
 
@@ -101,7 +114,7 @@ class WalletConnectV2Service {
             .asyncMap { [weak self] session in
                 guard
                     let self,
-                    let userWalletId = self.cardModel.userWalletId
+                    let userWalletId = self.infoProvider.userWalletId
                 else { return }
 
                 AppLog.shared.debug("[WC 2.0] Session established: \(session)")
@@ -125,15 +138,16 @@ class WalletConnectV2Service {
         }
 
         do {
-            let sessionNamespaces = try WalletConnectV2Utils().createSessionNamespaces(
+            let sessionNamespaces = try utils.createSessionNamespaces(
                 from: proposal.requiredNamespaces,
-                for: cardModel.wallets
+                for: infoProvider.wallets
             )
             displaySessionConnectionUI(for: proposal, namespaces: sessionNamespaces)
         } catch let error as WalletConnectV2Error {
             displayErrorUI(error)
         } catch {
             AppLog.shared.error("[WC 2.0] \(error)")
+            displayErrorUI(.unknown(error.localizedDescription))
         }
     }
 
@@ -154,7 +168,7 @@ class WalletConnectV2Service {
     }
 
     private func displayErrorUI(_ error: WalletConnectV2Error) {
-        let message = messageComposer.makeErrorMessage(error)
+        let message = messageComposer.makeErrorMessage(with: error)
         uiDelegate.showScreen(with: WalletConnectUIRequest(
             event: .error,
             message: message,
@@ -193,13 +207,9 @@ class WalletConnectV2Service {
     }
 }
 
-extension WalletConnectV2Service: WalletConnectURLHandler {
+extension WalletConnectV2Service: URLHandler {
     func canHandle(url: String) -> Bool {
         return WalletConnectURI(string: url) != nil
-    }
-
-    func handle(url: URL) -> Bool {
-        return handle(url: url.absoluteString)
     }
 
     func handle(url: String) -> Bool {
@@ -214,48 +224,14 @@ extension WalletConnectV2Service: WalletConnectURLHandler {
 
     private func pairClient(with url: WalletConnectURI) {
         AppLog.shared.debug("[WC 2.0] Trying to pair client: \(url)")
-        Task {
+        runTask { [weak self] in
             do {
-                try await pairApi.pair(uri: url)
+                try await self?.pairApi.pair(uri: url)
                 AppLog.shared.debug("[WC 2.0] Established pair for \(url)")
             } catch {
                 AppLog.shared.error("[WC 2.0] Failed to connect to \(url) with error: \(error)")
             }
-            canEstablishNewSessionSubject.send(true)
-        }
-    }
-}
-
-extension WalletConnectV2Service {
-    var canEstablishNewSessionPublisher: AnyPublisher<Bool, Never> {
-        canEstablishNewSessionSubject
-            .eraseToAnyPublisher()
-    }
-
-    var sessionsPublisher: AnyPublisher<[WalletConnectSession], Never> {
-        Just([])
-            .eraseToAnyPublisher()
-    }
-
-    var newSessions: AsyncStream<[WalletConnectSavedSession]> {
-        get async {
-            await sessionsStorage.sessions
-        }
-    }
-
-    func disconnectSession(with id: Int) async {
-        guard let session = await sessionsStorage.session(with: id) else { return }
-
-        do {
-            try await signApi.disconnect(topic: session.topic)
-            await sessionsStorage.remove(session)
-        } catch {
-            let internalError = WalletConnectV2ErrorMappingUtils().mapWCv2Error(error)
-            if case .sessionForTopicNotFound = internalError {
-                await sessionsStorage.remove(session)
-                return
-            }
-            AppLog.shared.error("[WC 2.0] Failed to disconnect session with topic: \(session.topic) with error: \(error)")
+            self?.canEstablishNewSessionSubject.send(true)
         }
     }
 }
