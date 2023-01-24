@@ -13,8 +13,15 @@ struct SingleCardOnboardingView: View {
 
     private let horizontalPadding: CGFloat = 16
     private let screenSize: CGSize = UIScreen.main.bounds.size
+    private let progressBarHeight: CGFloat = 5
+    private let progressBarPadding: CGFloat = 10
+    private let disclaimerTopPadding: CGFloat = 8
 
     var currentStep: SingleCardOnboardingStep { viewModel.currentStep }
+
+    var isProgressBarVisible: Bool {
+        return true
+    }
 
     private var isTopItemsVisible: Bool {
         viewModel.isNavBarVisible
@@ -30,18 +37,31 @@ struct SingleCardOnboardingView: View {
         }
     }
 
+    @ViewBuilder
+    var disclaimerContent: some View {
+        if let disclaimerModel = viewModel.disclaimerModel {
+            DisclaimerView(viewModel: disclaimerModel)
+                .offset(y: progressBarHeight + progressBarPadding + disclaimerTopPadding)
+                .offset(y: viewModel.isNavBarVisible ? viewModel.navbarSize.height : 0)
+        }
+    }
+
     var body: some View {
         ZStack {
             ConfettiView(shouldFireConfetti: $viewModel.shouldFireConfetti)
                 .allowsHitTesting(false)
+                .disabled(true) // Resolve iOS13 gesture conflict with the webView
                 .frame(maxWidth: screenSize.width)
                 .zIndex(100)
+
+            disclaimerContent
+
             VStack(spacing: 0) {
                 GeometryReader { proxy in
                     let size = proxy.size
                     ZStack(alignment: .center) {
                         NavigationBar(
-                            title: Localization.onboardingTitle,
+                            title: viewModel.navbarTitle,
                             settings: .init(titleFont: .system(size: 17, weight: .semibold), backgroundColor: .clear),
                             leftItems: {
                                 BackButton(
@@ -67,9 +87,9 @@ struct SingleCardOnboardingView: View {
                         .offset(x: 0, y: -size.height / 2 + (isTopItemsVisible ? viewModel.navbarSize.height / 2 : 0))
                         .opacity(isTopItemsVisible ? 1.0 : 0.0)
 
-                        ProgressBar(height: 5, currentProgress: viewModel.currentProgress)
-                            .offset(x: 0, y: -size.height / 2 + (isTopItemsVisible ? viewModel.navbarSize.height + 10 : 0))
-                            .opacity(isTopItemsVisible ? 1.0 : 0.0)
+                        ProgressBar(height: progressBarHeight, currentProgress: viewModel.currentProgress)
+                            .offset(x: 0, y: -size.height / 2 + (isTopItemsVisible ? viewModel.navbarSize.height + progressBarPadding : 0))
+                            .opacity(isTopItemsVisible && isProgressBarVisible ? 1.0 : 0.0)
                             .padding(.horizontal, horizontalPadding)
 
                         let backgroundFrame = viewModel.isInitialAnimPlayed ? currentStep.cardBackgroundFrame(containerSize: size) : .zero
@@ -126,6 +146,9 @@ struct SingleCardOnboardingView: View {
                 if viewModel.isCustomContentVisible {
                     customContent
                         .layoutPriority(1)
+                        .readSize { size in
+                            viewModel.setupContainer(with: size)
+                        }
                 }
 
                 if viewModel.isButtonsVisible {
