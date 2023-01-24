@@ -254,7 +254,6 @@ struct WalletOnboardingView_Previews: PreviewProvider {
     static var previews: some View {
         NavigationView {
             WalletOnboardingView(viewModel: .init(input: PreviewData.previewWalletOnboardingInput, coordinator: OnboardingCoordinator()))
-                .navigationBarHidden(true)
         }
     }
 }
