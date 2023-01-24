@@ -87,7 +87,7 @@ final class UserWalletListViewModel: ObservableObject, Identifiable {
     }
 
     func addUserWallet() {
-        Analytics.log(.buttonScanNewCard)
+        Analytics.beginLoggingCardScan(source: .myWallets)
 
         userWalletRepository.add { [weak self] result in
             guard
@@ -280,7 +280,7 @@ final class UserWalletListViewModel: ObservableObject, Identifiable {
             isMultiWallet: config.hasFeature(.multiCurrency),
             isUserWalletLocked: userWallet.isLocked,
             isSelected: selectedUserWalletId == userWallet.userWalletId,
-            totalBalanceProvider: totalBalanceProvider ?? TotalBalanceProvider(userWalletModel: userWalletModel, userWalletAmountType: nil, totalBalanceAnalyticsService: nil),
+            totalBalanceProvider: totalBalanceProvider ?? TotalBalanceProvider(userWalletModel: userWalletModel, userWalletAmountType: config.cardAmountType, totalBalanceAnalyticsService: nil),
             cardImageProvider: CardImageProvider()
         ) { [weak self] in
             if userWallet.isLocked {
