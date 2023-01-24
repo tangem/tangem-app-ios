@@ -52,6 +52,10 @@ extension TwinConfig: UserWalletConfig {
     var onboardingSteps: OnboardingSteps {
         var steps = [TwinsOnboardingStep]()
 
+        if !AppSettings.shared.termsOfServicesAccepted.contains(tou.id) {
+            steps.append(.disclaimer)
+        }
+
         if !AppSettings.shared.isTwinCardOnboardingWasDisplayed { // show intro only once
             AppSettings.shared.isTwinCardOnboardingWasDisplayed = true
             let twinPairNumber = twinData.series.pair.number
