@@ -15,7 +15,6 @@ struct PreviewData {
         OnboardingInput(
             steps: .singleWallet([.createWallet, .success]),
             cardInput: .cardModel(PreviewCard.ethEmptyNote.cardModel),
-            welcomeStep: nil,
             twinData: nil,
             currentStepIndex: 0
         )
@@ -32,7 +31,6 @@ struct PreviewData {
                 .done,
             ]),
             cardInput: .cardModel(PreviewCard.twin.cardModel),
-            welcomeStep: nil,
             twinData: .init(series: TwinCardSeries.cb61),
             currentStepIndex: 0
         )
@@ -42,7 +40,6 @@ struct PreviewData {
         .init(
             steps: .wallet([.createWallet, .backupIntro, .selectBackupCards, .backupCards, .success]),
             cardInput: .cardModel(PreviewCard.tangemWalletEmpty.cardModel),
-            welcomeStep: nil,
             twinData: nil,
             currentStepIndex: 0
         )
