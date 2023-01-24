@@ -10,8 +10,7 @@ import Foundation
 import SwiftUI
 
 struct BottomSheetContainer<Item, ContentView: View>: View {
-    @Binding private var isShowing: Bool
-
+    @Binding private var isVisible: Bool
     private let settings: Settings
     private let content: () -> ContentView
 
@@ -35,22 +34,22 @@ struct BottomSheetContainer<Item, ContentView: View>: View {
     }
 
     init(
-        isShowing: Binding<Bool>,
+        isVisible: Binding<Bool>,
         settings: Settings,
         @ViewBuilder content: @escaping () -> ContentView
     ) {
-        _isShowing = isShowing
+        _isVisible = isVisible
         self.settings = settings
         self.content = content
     }
 
     var body: some View {
         ZStack(alignment: .bottom) {
-            if isShowing {
+            if isVisible {
                 Color.black.opacity(opacity)
                     .edgesIgnoringSafeArea(.all)
                     .onTapGesture {
-                        hideView(withDelay: true)
+                        hideView()
                     }
 
                 sheetView
@@ -65,8 +64,8 @@ struct BottomSheetContainer<Item, ContentView: View>: View {
         }
         .edgesIgnoringSafeArea(.all)
         .animation(isDragging ? .interactiveSpring() : .easeOut(duration: settings.animationDuration))
-        .onChange(of: isShowing, perform: didChange)
-        .onAppear { didChange(isShowing: isShowing) }
+        .onChange(of: isVisible, perform: didChange)
+        .onAppear { didChange(isShowing: isVisible) }
     }
 
     private var sheetView: some View {
@@ -120,7 +119,7 @@ struct BottomSheetContainer<Item, ContentView: View>: View {
 
                 // If swipe did be enough then hide view
                 if value.translation.height > settings.distanceToHide {
-                    hideView(withDelay: true) // false
+                    hideView()
                     // Otherwise set the view to default state
                 } else {
                     offset = 0
@@ -132,20 +131,17 @@ struct BottomSheetContainer<Item, ContentView: View>: View {
         if isShowing {
             offset = 0
         } else {
-            hideView(withDelay: true)
+            hideView()
         }
     }
 
-    /// If item we want close view from external place need to await animation completion
-    /// Otherwise, like close after swipe we shouldn't wait
-    private func hideView(withDelay: Bool) {
+    private func hideView() {
         offset = UIScreen.main.bounds.height
-        guard isShowing else { return }
+        guard isVisible else { return }
 
-        let delay: CGFloat = withDelay ? settings.animationDuration : 0
-
+        let delay: CGFloat = settings.animationDuration
         DispatchQueue.main.asyncAfter(deadline: .now() + delay) {
-            isShowing = false
+            isVisible = false
         }
     }
 
@@ -239,7 +235,7 @@ extension View {
         )
 
         if let itemValue = item.wrappedValue {
-            BottomSheetContainer(isShowing: isShowing, settings: settings) { content(itemValue) }
+            BottomSheetContainer(isVisible: isShowing, settings: settings) { content(itemValue) }
         } else {
             EmptyView()
         }
@@ -252,7 +248,7 @@ extension View {
         @ViewBuilder content: @escaping () -> ContentView
     ) -> some View {
         if isShowing.wrappedValue {
-            BottomSheetContainer(isShowing: isShowing, settings: settings, content: content)
+            BottomSheetContainer(isVisible: isShowing, settings: settings, content: content)
         } else {
             EmptyView()
         }
