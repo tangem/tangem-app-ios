@@ -25,7 +25,6 @@ class AuthCoordinator: CoordinatorObject {
     // MARK: - Child view models
 
     @Published var mailViewModel: MailViewModel?
-    @Published var disclaimerViewModel: DisclaimerViewModel?
 
     required init(
         dismissAction: @escaping Action,
@@ -74,15 +73,5 @@ extension AuthCoordinator: AuthRoutable {
 
     func openMail(with dataCollector: EmailDataCollector, recipient: String) {
         mailViewModel = MailViewModel(dataCollector: dataCollector, recipient: recipient, emailType: .failedToScanCard)
-    }
-
-    func openDisclaimer(at url: URL, _ handler: @escaping (Bool) -> Void) {
-        disclaimerViewModel = DisclaimerViewModel(url: url, style: .sheet, coordinator: self, acceptanceHandler: handler)
-    }
-}
-
-extension AuthCoordinator: DisclaimerRoutable {
-    func dismissDisclaimer() {
-        disclaimerViewModel = nil
     }
 }
