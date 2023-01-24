@@ -39,7 +39,7 @@ class WelcomeViewModel: ObservableObject {
     }
 
     func scanCardTapped() {
-        Analytics.log(.introductionProcessButtonScanCard)
+        Analytics.beginLoggingCardScan(source: .welcome)
         scanCard()
     }
 
