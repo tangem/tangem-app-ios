@@ -55,10 +55,6 @@ final class SwappingTokenListViewModel: ObservableObject, Identifiable {
         bind()
     }
 
-    func onAppear() {
-        dataLoader.fetch(searchText.value)
-    }
-
     func fetch() {
         dataLoader.fetch(searchText.value)
     }
@@ -77,7 +73,7 @@ private extension SwappingTokenListViewModel {
             .debounce(for: 0.5, scheduler: DispatchQueue.main)
             .removeDuplicates()
             .sink { [weak self] string in
-                self?.dataLoader.fetch(string)
+                self?.dataLoader.reset(string)
             }
             .store(in: &bag)
     }
@@ -109,6 +105,7 @@ private extension SwappingTokenListViewModel {
 
     func mapToSwappingTokenItemViewModel(currency: Currency) -> SwappingTokenItemViewModel {
         SwappingTokenItemViewModel(
+            id: currency.id,
             iconURL: tokenIconURLBuilder.iconURL(id: currency.id, size: .large),
             name: currency.name,
             symbol: currency.symbol,
