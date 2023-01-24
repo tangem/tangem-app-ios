@@ -22,6 +22,11 @@ class WalletConnectViewModel: ObservableObject {
 
     @Published @MainActor var v2Sessions: [WalletConnectSavedSession] = []
 
+    @MainActor
+    var noActiveSessions: Bool {
+        v1Sessions.isEmpty && v2Sessions.isEmpty
+    }
+
     private var hasWCInPasteboard: Bool {
         guard let copiedValue = UIPasteboard.general.string else {
             return false
