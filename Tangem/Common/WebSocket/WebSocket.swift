@@ -8,11 +8,7 @@
 
 import Foundation
 import UIKit
-
-enum WebSocketError: Error {
-    case closedUnexpectedly
-    case peerDisconnected
-}
+import Combine
 
 class WebSocket {
     let url: URL
@@ -42,8 +38,8 @@ class WebSocket {
     // needed to keep connection alive
     private var pingTimer: Timer?
     private var task: URLSessionWebSocketTask?
-    private var foregroundNotificationObserver: Any?
-    private var backgroundNotificationObserver: Any?
+
+    private var bag = Set<AnyCancellable>()
 
     init(
         url: URL,
@@ -64,33 +60,26 @@ class WebSocket {
         // solves the issue of connecting a wallet and a dApp both on the same device.
         // See https://github.com/WalletConnect/WalletConnectSwift/pull/81#issuecomment-1175931673
 
-        backgroundNotificationObserver = NotificationCenter.default.addObserver(
-            forName: UIScene.didEnterBackgroundNotification,
-            object: nil,
-            queue: OperationQueue.main
-        ) { [weak self] _ in
-            self?.requestBackgroundExecutionTime()
-        }
+        NotificationCenter.default
+            .publisher(for: UIScene.didEnterBackgroundNotification)
+            .receive(on: DispatchQueue.main)
+            .sink(receiveValue: { [weak self] _ in
+                self?.requestBackgroundExecutionTime()
+            })
+            .store(in: &bag)
 
-        foregroundNotificationObserver = NotificationCenter.default.addObserver(
-            forName: UIScene.didActivateNotification,
-            object: nil,
-            queue: OperationQueue.main
-        ) { [weak self] _ in
-            self?.endBackgroundTask()
-        }
+        NotificationCenter.default
+            .publisher(for: UIScene.didActivateNotification)
+            .receive(on: DispatchQueue.main)
+            .sink(receiveValue: { [weak self] _ in
+                self?.endBackgroundTask()
+            })
+            .store(in: &bag)
     }
 
     deinit {
         session.invalidateAndCancel()
         pingTimer?.invalidate()
-
-        if let observer = self.foregroundNotificationObserver {
-            NotificationCenter.default.removeObserver(observer)
-        }
-        if let observer = self.backgroundNotificationObserver {
-            NotificationCenter.default.removeObserver(observer)
-        }
     }
 
     func connect() {
@@ -118,20 +107,8 @@ class WebSocket {
             }
         }
     }
-}
 
-private extension WebSocket {
-    enum WebSocketEvent {
-        case connected
-        case disconnected(URLSessionWebSocketTask.CloseCode)
-        case messageReceived(String)
-        case messageSent(String)
-        case pingSent
-        case pongReceived
-        case connnectionError(Error)
-    }
-
-    func receive() {
+    private func receive() {
         guard let task = task else { return }
 
         task.receive { [weak self] result in
@@ -147,7 +124,7 @@ private extension WebSocket {
         }
     }
 
-    func sendPing() {
+    private func sendPing() {
         guard isConnected else { return }
 
         task?.sendPing(pongReceiveHandler: { [weak self] error in
@@ -161,7 +138,7 @@ private extension WebSocket {
         handleEvent(.pingSent)
     }
 
-    func handleEvent(_ event: WebSocketEvent) {
+    private func handleEvent(_ event: WebSocketEvent) {
         switch event {
         case .connected:
             isConnected = true
@@ -207,64 +184,7 @@ private extension WebSocket {
         }
     }
 
-    class WebSocketConnectionDelegate: NSObject, URLSessionWebSocketDelegate, URLSessionTaskDelegate {
-        private let eventHandler: (WebSocketEvent) -> Void
-        private var connectivityCheckTimer: Timer?
-
-        init(eventHandler: @escaping (WebSocketEvent) -> Void) {
-            self.eventHandler = eventHandler
-        }
-
-        func urlSession(
-            _ session: URLSession,
-            webSocketTask: URLSessionWebSocketTask,
-            didOpenWithProtocol protocol: String?
-        ) {
-            connectivityCheckTimer?.invalidate()
-            eventHandler(.connected)
-        }
-
-        func urlSession(
-            _ session: URLSession,
-            webSocketTask: URLSessionWebSocketTask,
-            didCloseWith closeCode: URLSessionWebSocketTask.CloseCode,
-            reason: Data?
-        ) {
-            eventHandler(.disconnected(closeCode))
-        }
-
-        func urlSession(_ session: URLSession, task: URLSessionTask, didCompleteWithError error: Error?) {
-            if let error {
-                eventHandler(.connnectionError(error))
-            } else {
-                // Possibly not really necessary since connection closure would likely have been reported
-                // by the other delegate method, but just to be safe. We have checks in place to prevent
-                // duplicated connection closing reporting anyway.
-                eventHandler(.disconnected(.normalClosure))
-            }
-        }
-
-        func urlSession(_ session: URLSession, taskIsWaitingForConnectivity task: URLSessionTask) {
-            AppLog.shared.debug("[WebSocket] waiting for connectivity...")
-
-            // Lets not wait forever, since the user might be waiting for the connection to show in the UI.
-            // It's better to show an error -if it's a new session- or else let the retry logic do its job
-            DispatchQueue.main.async {
-                self.connectivityCheckTimer?.invalidate()
-                self.connectivityCheckTimer = Timer.scheduledTimer(
-                    withTimeInterval: task.originalRequest?.timeoutInterval ?? 30,
-                    repeats: false
-                ) { _ in
-                    // Cancelling the task should trigger an invocation to `didCompleteWithError`
-                    task.cancel()
-                }
-            }
-        }
-    }
-}
-
-private extension WebSocket {
-    func requestBackgroundExecutionTime() {
+    private func requestBackgroundExecutionTime() {
         if bgTaskIdentifier != .invalid {
             endBackgroundTask()
         }
@@ -276,7 +196,7 @@ private extension WebSocket {
         }
     }
 
-    func endBackgroundTask() {
+    private func endBackgroundTask() {
         guard bgTaskIdentifier != .invalid else { return }
 
         UIApplication.shared.endBackgroundTask(bgTaskIdentifier)
