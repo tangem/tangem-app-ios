@@ -10,7 +10,7 @@ import WalletConnectSwiftV2
 
 protocol WalletConnectV2MessageComposable {
     func makeMessage(for proposal: Session.Proposal, targetBlockchains: [String]) -> String
-    func makeErrorMessage(_ error: WalletConnectV2Error) -> String
+    func makeErrorMessage(with error: WalletConnectV2Error) -> String
 }
 
 struct WalletConnectV2MessageComposer {}
@@ -35,7 +35,7 @@ extension WalletConnectV2MessageComposer: WalletConnectV2MessageComposable {
         return message
     }
 
-    func makeErrorMessage(_ error: WalletConnectV2Error) -> String {
+    func makeErrorMessage(with error: WalletConnectV2Error) -> String {
         switch error {
         case .unsupportedBlockchains(let blockchainNames):
             var message = Localization.walletConnectErrorUnsupportedBlockchains
