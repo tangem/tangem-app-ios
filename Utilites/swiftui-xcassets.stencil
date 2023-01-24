@@ -1,10 +1,11 @@
 // swiftlint:disable all
 // Generated using SwiftGen — https://github.com/SwiftGen/SwiftGen
+// Based on: https://github.com/SwiftGen/SwiftGen/blob/stable/Documentation/templates/xcassets/swift5.md
 
 {% if catalogs %}
 {% set enumName %}{{param.enumName|default:"Asset"}}{% endset %}
 {% set colorType %}{{param.colorTypeName|default:"Color"}}{% endset %}
-{% set imageType %}{{param.imageTypeName|default:"Image"}}{% endset %}
+{% set imageType %}{{param.imageTypeName|default:"ImageType"}}{% endset %}
 {% set forceNamespaces %}{{param.forceProvidesNamespaces|default:"false"}}{% endset %}
 {% set accessModifier %}{% if param.publicAccess %}public{% else %}internal{% endif %}{% endset %}
 {% set removeFolderName %}{{param.removeFolderName|default:"false"}}{% endset %}
@@ -80,7 +81,7 @@ import SwiftUI
 
 {{accessModifier}} extension Color {
   /// Creates a named color.
-  /// - Parameter asset: the color resource to lookup.
+  /// - Parameter name: the color resource to lookup.
   init(name: String) {
     let bundle = Bundle(for: BundleToken.self)
     self.init(name, bundle: bundle)
@@ -88,11 +89,32 @@ import SwiftUI
 }
 
 {{accessModifier}} extension Image {
-  /// Creates a labeled image that you can use as content for controls.
-  /// - Parameter asset: the image resource to lookup.
+  /// Creates a named image.
+  /// - Parameter name: the image resource to lookup.
   init(name: String) {
     let bundle = Bundle(for: BundleToken.self)
     self.init(name, bundle: bundle)
+  }
+}
+
+{{accessModifier}} extension UIImage {
+  /// Creates a named image.
+  /// - Parameter name: the image resource to lookup.
+  convenience init!(name: String) {
+    let bundle = Bundle(for: BundleToken.self)
+    self.init(named: name, in: bundle, compatibleWith: nil)
+  }
+}
+
+{{accessModifier}} struct ImageType: Hashable {
+  {{accessModifier}} let name: String
+
+  {{accessModifier}} var image: Image {
+    Image(name: name)
+  }
+
+  {{accessModifier}} var uiImage: UIImage {
+    UIImage(name: name)
   }
 }
 
