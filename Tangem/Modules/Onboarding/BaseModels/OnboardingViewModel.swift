@@ -352,6 +352,7 @@ extension OnboardingViewModel {
 extension OnboardingViewModel: UserWalletStorageAgreementRoutable {
     func didAgreeToSaveUserWallets() {
         userWalletRepository.unlock(with: .biometry) { [weak self] result in
+            let biometryAccessGranted: Bool
             switch result {
             case .error(let error):
                 if let tangemSdkError = error as? TangemSdkError,
@@ -361,10 +362,16 @@ extension OnboardingViewModel: UserWalletStorageAgreementRoutable {
                 }
                 print("Failed to get access to biometry", error)
 
+                biometryAccessGranted = false
                 self?.didAskToSaveUserWallets(agreed: false)
             default:
+                biometryAccessGranted = true
                 self?.didAskToSaveUserWallets(agreed: true)
             }
+            
+            Analytics.log(.allowBiometricID, params: [
+                .state: Analytics.ParameterValue.state(for: biometryAccessGranted).rawValue,
+            ])
 
             self?.goToNextStep()
         }
