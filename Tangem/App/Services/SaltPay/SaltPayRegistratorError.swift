@@ -43,7 +43,10 @@ enum SaltPayRegistratorError: String, Error, LocalizedError, BindableError {
             let alert = Alert(
                 title: Text(Localization.saltpayErrorNoGasTitle),
                 message: Text(Localization.saltpayErrorNoGasMessage),
-                primaryButton: Alert.Button.default(Text(Localization.detailsChat), action: { AppPresenter.shared.showChat() }),
+                primaryButton: Alert.Button.default(Text(Localization.detailsChat)) {
+                    Analytics.log(.onboardingButtonChat)
+                    AppPresenter.shared.showChat()
+                },
                 secondaryButton: Alert.Button.default(Text(Localization.commonOk))
             )
 
@@ -52,7 +55,10 @@ enum SaltPayRegistratorError: String, Error, LocalizedError, BindableError {
             let alert = Alert(
                 title: Text(Localization.commonError),
                 message: Text(errorDescription ?? ""),
-                primaryButton: Alert.Button.default(Text(Localization.detailsChat), action: { AppPresenter.shared.showChat() }),
+                primaryButton: Alert.Button.default(Text(Localization.detailsChat)) {
+                    Analytics.log(.onboardingButtonChat)
+                    AppPresenter.shared.showChat()
+                },
                 secondaryButton: Alert.Button.default(Text(Localization.commonOk))
             )
 

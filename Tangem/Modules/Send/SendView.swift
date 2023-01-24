@@ -36,20 +36,18 @@ struct SendView: View {
                         suplementView: {
                             if !viewModel.isSellingCrypto {
                                 CircleActionButton(
-                                    action: { self.viewModel.pasteClipboardTapped() },
+                                    action: { viewModel.pasteClipboardTapped() },
                                     backgroundColor: .tangemBgGray,
-                                    imageName: self.viewModel.validatedClipboard == nil ? "doc.on.clipboard" : "doc.on.clipboard.fill",
-                                    isSystemImage: true,
+                                    systemImageName: viewModel.validatedClipboard == nil ? "doc.on.clipboard" : "doc.on.clipboard.fill",
                                     imageColor: .tangemGrayDark6,
-                                    isDisabled: self.viewModel.validatedClipboard == nil
+                                    isDisabled: viewModel.validatedClipboard == nil
                                 )
                                 .accessibility(label: Text(self.viewModel.validatedClipboard == nil ? Localization.voiceOverNothingToPaste : Localization.voiceOverPasteFromClipboard))
                                 .disabled(self.viewModel.validatedClipboard == nil)
                                 CircleActionButton(
                                     action: viewModel.openQRScanner,
                                     backgroundColor: .tangemBgGray,
-                                    imageName: "qrcode.viewfinder",
-                                    isSystemImage: true,
+                                    systemImageName: "qrcode.viewfinder",
                                     imageColor: .tangemGrayDark6
                                 )
                                 .accessibility(label: Text(Localization.voiceOverScanQrWithAddress))
