@@ -8,7 +8,7 @@
 
 import BlockchainSdk
 
-enum WalletConnectV2Error: Error {
+enum WalletConnectV2Error: LocalizedError {
     case unsupportedBlockchains([String])
     case sessionForTopicNotFound
     case missingBlockchains([String])
