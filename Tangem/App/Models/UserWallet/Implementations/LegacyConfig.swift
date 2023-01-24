@@ -60,15 +60,23 @@ extension LegacyConfig: UserWalletConfig {
     }
 
     var onboardingSteps: OnboardingSteps {
+        var steps = [SingleCardOnboardingStep]()
+
+        if !AppSettings.shared.termsOfServicesAccepted.contains(tou.id) {
+            steps.append(.disclaimer)
+        }
+
         if card.wallets.isEmpty {
-            return .singleWallet([.createWallet] + userWalletSavingSteps + [.success])
+            steps.append(contentsOf: [.createWallet] + userWalletSavingSteps + [.success])
+        } else {
+            if !AppSettings.shared.cardsStartedActivation.contains(card.cardId) {
+                steps.append(contentsOf: userWalletSavingSteps)
+            } else {
+                steps.append(contentsOf: userWalletSavingSteps + [.success])
+            }
         }
 
-        if !AppSettings.shared.cardsStartedActivation.contains(card.cardId) {
-            return .singleWallet(userWalletSavingSteps)
-        }
-
-        return .singleWallet(userWalletSavingSteps + [.success])
+        return .singleWallet(steps)
     }
 
     var backupSteps: OnboardingSteps? {
