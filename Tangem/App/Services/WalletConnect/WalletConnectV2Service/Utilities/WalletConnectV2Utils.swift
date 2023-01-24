@@ -13,7 +13,7 @@ import BlockchainSdk
 struct WalletConnectV2Utils {
     private let evmNamespace = "eip155"
 
-    func isAllChainsSupported(in namespaces: [String: ProposalNamespace]) -> Bool {
+    func allChainsSupported(in namespaces: [String: ProposalNamespace]) -> Bool {
         for (namespace, proposals) in namespaces {
             if namespace != evmNamespace {
                 return false
