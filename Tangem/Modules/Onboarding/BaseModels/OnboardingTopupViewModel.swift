@@ -52,6 +52,8 @@ class OnboardingTopupViewModel<Step: OnboardingStep, Coordinator: OnboardingTopu
     override init(input: OnboardingInput, coordinator: Coordinator) {
         if let cardModel = input.cardInput.cardModel {
             self.cardModel = cardModel
+            
+            Self.logZeroBalanceAnalytics(cardModel: cardModel)
         }
 
         super.init(input: input, coordinator: coordinator)
@@ -118,6 +120,15 @@ class OnboardingTopupViewModel<Step: OnboardingStep, Coordinator: OnboardingTopu
         }
     }
 
+    static private func logZeroBalanceAnalytics(cardModel: CardViewModel) {
+        let info = TotalBalanceCardSupportInfo(
+            cardBatchId: cardModel.batchId,
+            cardNumber: cardModel.cardId,
+            embeddedBlockchainCurrencySymbol: cardModel.embeddedBlockchain?.currencySymbol
+        )
+        let analyticsService = TotalBalanceAnalyticsService(totalBalanceCardSupportInfo: info)
+        analyticsService.sendToppedUpEventIfNeeded(balance: 0)
+    }
 }
 
 // MARK: - Navigation
