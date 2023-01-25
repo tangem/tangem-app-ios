@@ -121,11 +121,8 @@ class OnboardingTopupViewModel<Step: OnboardingStep, Coordinator: OnboardingTopu
     }
 
     static private func logZeroBalanceAnalytics(cardModel: CardViewModel) {
-        let info = TotalBalanceCardSupportInfo(
-            cardBatchId: cardModel.batchId,
-            cardNumber: cardModel.cardId,
-            embeddedBlockchainCurrencySymbol: cardModel.embeddedBlockchain?.currencySymbol
-        )
+        guard let info = TotalBalanceCardSupportInfoFactory(cardModel: cardModel).createInfo() else { return }
+
         let analyticsService = TotalBalanceAnalyticsService(totalBalanceCardSupportInfo: info)
         analyticsService.sendToppedUpEventIfNeeded(balance: 0)
     }
