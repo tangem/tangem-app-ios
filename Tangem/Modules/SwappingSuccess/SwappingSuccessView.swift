@@ -1,5 +1,5 @@
 //
-//  SuccessSwappingView.swift
+//  SwappingSuccessView.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -8,10 +8,10 @@
 
 import SwiftUI
 
-struct SuccessSwappingView: View {
-    @ObservedObject private var viewModel: SuccessSwappingViewModel
+struct SwappingSuccessView: View {
+    @ObservedObject private var viewModel: SwappingSuccessViewModel
 
-    init(viewModel: SuccessSwappingViewModel) {
+    init(viewModel: SwappingSuccessViewModel) {
         self.viewModel = viewModel
     }
 
@@ -74,20 +74,23 @@ struct SuccessSwappingView: View {
     }
 }
 
-struct SuccessSwappingView_Preview: PreviewProvider {
-    static let viewModel = SuccessSwappingViewModel(
-        inputModel: SuccessSwappingInputModel(
+struct SwappingSuccessView_Preview: PreviewProvider {
+    static let viewModel = SwappingSuccessViewModel(
+        inputModel: SwappingSuccessInputModel(
             sourceCurrencyAmount: .init(value: 1000, currency: .mock),
             resultCurrencyAmount: .init(value: 200, currency: .mock),
             explorerURL: URL(string: "")
         ),
-        coordinator: SuccessSwappingCoordinator()
+        userTokenListManager: UserTokenListManagerMock(),
+        currencyMapper: CurrencyMapper(),
+        blockchainNetwork: PreviewCard.ethereum.blockchainNetwork!,
+        coordinator: SwappingSuccessCoordinator()
     )
 
     static var previews: some View {
         NavHolder()
             .sheet(isPresented: .constant(true)) {
-                SuccessSwappingView(viewModel: viewModel)
+                SwappingSuccessView(viewModel: viewModel)
             }
     }
 }
