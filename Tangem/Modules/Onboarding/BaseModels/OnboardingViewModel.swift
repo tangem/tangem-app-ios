@@ -368,7 +368,7 @@ extension OnboardingViewModel: UserWalletStorageAgreementRoutable {
                 biometryAccessGranted = true
                 self?.didAskToSaveUserWallets(agreed: true)
             }
-            
+
             Analytics.log(.allowBiometricID, params: [
                 .state: Analytics.ParameterValue.state(for: biometryAccessGranted).rawValue,
             ])
