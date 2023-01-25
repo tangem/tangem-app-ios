@@ -21,7 +21,7 @@ class SwappingCoordinator: CoordinatorObject {
 
     // MARK: - Child coordinators
 
-    @Published var successSwappingCoordinator: SuccessSwappingCoordinator?
+    @Published var successSwappingCoordinator: SwappingSuccessCoordinator?
 
     // MARK: - Child view models
 
@@ -30,12 +30,14 @@ class SwappingCoordinator: CoordinatorObject {
 
     // MARK: - Properties
 
-    private let factory = DependenciesFactory()
+    private let factory: SwappingDependenciesFactoring
 
     required init(
+        factory: SwappingDependenciesFactoring,
         dismissAction: @escaping Action,
         popToRootAction: @escaping ParamsAction<PopToRootOptions>
     ) {
+        self.factory = factory
         self.dismissAction = dismissAction
         self.popToRootAction = popToRootAction
     }
@@ -62,8 +64,8 @@ extension SwappingCoordinator: SwappingRoutable {
         swappingTokenListViewModel = SwappingTokenListViewModel(
             sourceCurrency: sourceCurrency,
             userCurrencies: userCurrencies,
-            tokenIconURLBuilder: factory.createTokenIconURLBuilder(),
-            currencyMapper: factory.createCurrencyMapper(),
+            tokenIconURLBuilder: factory.tokenIconURLBuilder(),
+            currencyMapper: factory.currencyMapper(),
             coordinator: self
         )
     }
@@ -77,10 +79,10 @@ extension SwappingCoordinator: SwappingRoutable {
         )
     }
 
-    func presentSuccessView(inputModel: SuccessSwappingInputModel) {
+    func presentSuccessView(inputModel: SwappingSuccessInputModel) {
         UIApplication.shared.endEditing()
 
-        let coordinator = SuccessSwappingCoordinator(
+        let coordinator = SwappingSuccessCoordinator(
             dismissAction: dismissAction,
             popToRootAction: popToRootAction
         )
