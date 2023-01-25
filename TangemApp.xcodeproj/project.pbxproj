@@ -190,7 +190,6 @@
 		B029C1DC270229530017C848 /* OnboardingAccessCodeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B029C1DB270229530017C848 /* OnboardingAccessCodeView.swift */; };
 		B031AAB126C1443E00015003 /* Confetti.swift in Sources */ = {isa = PBXBuildFile; fileRef = B031AAB026C1443D00015003 /* Confetti.swift */; };
 		B031AAB326C169E900015003 /* ConfettiType.swift in Sources */ = {isa = PBXBuildFile; fileRef = B031AAB226C169E900015003 /* ConfettiType.swift */; };
-		B031AAB526C16A1B00015003 /* UIColor+.swift in Sources */ = {isa = PBXBuildFile; fileRef = B031AAB426C16A1B00015003 /* UIColor+.swift */; };
 		B0323F27258BFCF4005C7CD5 /* WriteIssuerDataTask.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0323F26258BFCF4005C7CD5 /* WriteIssuerDataTask.swift */; };
 		B0323F2C258C041D005C7CD5 /* SignerUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0323F2B258C041D005C7CD5 /* SignerUtils.swift */; };
 		B0332D3429251A4A00553AD9 /* notReferralMock.json in Resources */ = {isa = PBXBuildFile; fileRef = B0332D3229251A4A00553AD9 /* notReferralMock.json */; };
@@ -507,6 +506,7 @@
 		DC936B6928F3F7D20023C75D /* GnosisRegistrator.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC936B6828F3F7D20023C75D /* GnosisRegistrator.swift */; };
 		DC936B6B28F3F8140023C75D /* SaltPayRegistratorError.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC936B6A28F3F8140023C75D /* SaltPayRegistratorError.swift */; };
 		DC936B6D28F3F83E0023C75D /* RegistrationTask.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC936B6C28F3F83E0023C75D /* RegistrationTask.swift */; };
+		DC93AD86298010AA004018DF /* UIColorConverter.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC93AD85298010AA004018DF /* UIColorConverter.swift */; };
 		DCAB57FE295ECA55005D0F4A /* SendError.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCAB57FD295ECA55005D0F4A /* SendError.swift */; };
 		DCAB5800295EE820005D0F4A /* AppLog.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCAB57FF295EE820005D0F4A /* AppLog.swift */; };
 		DCAB5806295F45AA005D0F4A /* ExchangeLogger.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCAB5805295F45AA005D0F4A /* ExchangeLogger.swift */; };
@@ -1049,7 +1049,6 @@
 		B029C1DB270229530017C848 /* OnboardingAccessCodeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingAccessCodeView.swift; sourceTree = "<group>"; };
 		B031AAB026C1443D00015003 /* Confetti.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Confetti.swift; sourceTree = "<group>"; };
 		B031AAB226C169E900015003 /* ConfettiType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConfettiType.swift; sourceTree = "<group>"; };
-		B031AAB426C16A1B00015003 /* UIColor+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIColor+.swift"; sourceTree = "<group>"; };
 		B0323F26258BFCF4005C7CD5 /* WriteIssuerDataTask.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WriteIssuerDataTask.swift; sourceTree = "<group>"; };
 		B0323F2B258C041D005C7CD5 /* SignerUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignerUtils.swift; sourceTree = "<group>"; };
 		B0332D3229251A4A00553AD9 /* notReferralMock.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = notReferralMock.json; sourceTree = "<group>"; };
@@ -1386,6 +1385,7 @@
 		DC936B6828F3F7D20023C75D /* GnosisRegistrator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GnosisRegistrator.swift; sourceTree = "<group>"; };
 		DC936B6A28F3F8140023C75D /* SaltPayRegistratorError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SaltPayRegistratorError.swift; sourceTree = "<group>"; };
 		DC936B6C28F3F83E0023C75D /* RegistrationTask.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RegistrationTask.swift; sourceTree = "<group>"; };
+		DC93AD85298010AA004018DF /* UIColorConverter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIColorConverter.swift; sourceTree = "<group>"; };
 		DCAB57FD295ECA55005D0F4A /* SendError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendError.swift; sourceTree = "<group>"; };
 		DCAB57FF295EE820005D0F4A /* AppLog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppLog.swift; sourceTree = "<group>"; };
 		DCAB5805295F45AA005D0F4A /* ExchangeLogger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExchangeLogger.swift; sourceTree = "<group>"; };
@@ -2167,6 +2167,7 @@
 				B0453671264D4B730005B23E /* Constants.swift */,
 				EF0FF8702866021B00B7CEAF /* AppEnvironment.swift */,
 				DCFE143D294B31C00053106B /* AppPresenter.swift */,
+				DC93AD85298010AA004018DF /* UIColorConverter.swift */,
 			);
 			path = Common;
 			sourceTree = "<group>";
@@ -2443,7 +2444,6 @@
 				5DF2522C24F95E390015B429 /* UIScreen+.swift */,
 				5D80ED412550172A0008DEF0 /* UIApplication+.swift */,
 				5DDE22EE2608EFDB008657C6 /* UIViewController+.swift */,
-				B031AAB426C16A1B00015003 /* UIColor+.swift */,
 				B0C6B4C226CE678900FA990B /* CGSize+.swift */,
 				5D3FEA2128058CB7001DF0E0 /* UIDevice+.swift */,
 			);
@@ -4739,6 +4739,7 @@
 				EF46623B2924E02A00346B6C /* Binding+.swift in Sources */,
 				B0B9E0B62629779500408726 /* AlertBinder.swift in Sources */,
 				DA23788127B24222009795A8 /* Product.swift in Sources */,
+				DC93AD86298010AA004018DF /* UIColorConverter.swift in Sources */,
 				B04CD34029122C6E001EA84A /* ReferralCoordinator.swift in Sources */,
 				EFFE2CE928B8E0B300B9F279 /* UserWalletModel.swift in Sources */,
 				DC66BBFD285A389000CDF765 /* SheetModifier.swift in Sources */,
@@ -5031,7 +5032,6 @@
 				B05209BE261F1FF3000DD204 /* RoundedCorner.swift in Sources */,
 				5D09380F25E6BDB00049B8F0 /* RoundedRectButton.swift in Sources */,
 				DC66BC18285C65C900CDF765 /* TokenDetailsRoutable.swift in Sources */,
-				B031AAB526C16A1B00015003 /* UIColor+.swift in Sources */,
 				B0DC10D42927564000BBE854 /* PreviewCards.swift in Sources */,
 				DA5FAD8627B2791C00EE53AE /* ApplePayButton.swift in Sources */,
 				DC295B3C2861C19C006CB7B6 /* MainCoordinator.swift in Sources */,
