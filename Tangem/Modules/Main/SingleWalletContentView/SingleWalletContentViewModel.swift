@@ -60,14 +60,13 @@ class SingleWalletContentViewModel: ObservableObject {
         tapOnCurrencySymbol: output
     )
 
-    private lazy var totalBalanceAnalyticsService = TotalBalanceAnalyticsService(totalBalanceCardSupportInfo: totalBalanceCardSupportInfo)
-
     private let cardModel: CardViewModel
     private let userWalletModel: UserWalletModel
     private unowned let output: SingleWalletContentViewModelOutput
     private var bag = Set<AnyCancellable>()
-    private var totalBalanceCardSupportInfo: TotalBalanceCardSupportInfo {
-        TotalBalanceCardSupportInfo(cardBatchId: cardModel.batchId, cardNumber: cardModel.cardId, embeddedBlockchainCurrencySymbol: cardModel.embeddedBlockchain?.currencySymbol)
+    private var totalBalanceAnalyticsService: TotalBalanceAnalyticsService? {
+        guard let info = TotalBalanceCardSupportInfoFactory(cardModel: cardModel).createInfo() else { return nil }
+        return TotalBalanceAnalyticsService(totalBalanceCardSupportInfo: info)
     }
 
     init(
@@ -154,8 +153,8 @@ class SingleWalletContentViewModel: ObservableObject {
                 }
 
                 let balance = singleWalletModel.blockchainTokenItemViewModel().fiatValue
-                self.totalBalanceAnalyticsService.sendToppedUpEventIfNeeded(balance: balance)
-                self.totalBalanceAnalyticsService.sendFirstLoadBalanceEventForCard(balance: balance)
+                self.totalBalanceAnalyticsService?.sendToppedUpEventIfNeeded(balance: balance)
+                self.totalBalanceAnalyticsService?.sendFirstLoadBalanceEventForCard(balance: balance)
             }
             .store(in: &bag)
     }
