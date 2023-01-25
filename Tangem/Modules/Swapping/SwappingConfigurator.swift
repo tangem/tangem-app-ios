@@ -12,25 +12,19 @@ import BlockchainSdk
 
 /// Helper for configure `SwappingViewModel`
 struct SwappingConfigurator {
-    private let factory: DependenciesFactory
+    private let factory: SwappingDependenciesFactoring
 
-    init(factory: DependenciesFactory) {
+    init(factory: SwappingDependenciesFactoring) {
         self.factory = factory
     }
 
     func createModule(input: InputModel, coordinator: SwappingRoutable) -> SwappingViewModel {
-        let exchangeManager = factory.createExchangeManager(
-            walletModel: input.walletModel,
-            source: input.source,
-            destination: input.destination
-        )
-
-        return SwappingViewModel(
-            exchangeManager: exchangeManager,
-            swappingDestinationService: factory.createSwappingDestinationService(walletModel: input.walletModel),
-            userCurrenciesProvider: factory.createUserCurrenciesProvider(walletModel: input.walletModel),
-            tokenIconURLBuilder: factory.createTokenIconURLBuilder(),
-            transactionSender: factory.createTransactionSender(walletManager: input.walletModel.walletManager, signer: input.signer),
+        SwappingViewModel(
+            exchangeManager: factory.exchangeManager(source: input.source, destination: input.destination),
+            swappingDestinationService: factory.swappingDestinationService(),
+            userCurrenciesProvider: factory.userCurrenciesProvider(),
+            tokenIconURLBuilder: factory.tokenIconURLBuilder(),
+            transactionSender: factory.transactionSender(),
             coordinator: coordinator
         )
     }
