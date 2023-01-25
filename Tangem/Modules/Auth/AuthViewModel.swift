@@ -67,7 +67,7 @@ final class AuthViewModel: ObservableObject {
     func unlockWithCard() {
         isScanningCard = true
         Analytics.beginLoggingCardScan(source: .auth)
-        
+
         userWalletRepository.unlock(with: .card(userWallet: nil)) { [weak self] result in
             self?.didFinishUnlocking(result)
         }
