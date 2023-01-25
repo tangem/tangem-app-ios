@@ -22,14 +22,14 @@ struct TotalBalanceCardSupportInfo {
 
 struct TotalBalanceCardSupportInfoFactory {
     private let cardModel: CardViewModel
-    
+
     init(cardModel: CardViewModel) {
         self.cardModel = cardModel
     }
-    
+
     func createInfo() -> TotalBalanceCardSupportInfo? {
         guard let userWalletId = cardModel.userWalletId else { return nil }
-        
+
         return TotalBalanceCardSupportInfo(
             cardBatchId: cardModel.batchId,
             userWalletId: userWalletId,
