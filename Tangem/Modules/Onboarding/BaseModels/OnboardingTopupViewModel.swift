@@ -52,8 +52,6 @@ class OnboardingTopupViewModel<Step: OnboardingStep, Coordinator: OnboardingTopu
     override init(input: OnboardingInput, coordinator: Coordinator) {
         if let cardModel = input.cardInput.cardModel {
             self.cardModel = cardModel
-            
-            Self.logZeroBalanceAnalytics(cardModel: cardModel)
         }
 
         super.init(input: input, coordinator: coordinator)
@@ -120,8 +118,13 @@ class OnboardingTopupViewModel<Step: OnboardingStep, Coordinator: OnboardingTopu
         }
     }
 
-    static private func logZeroBalanceAnalytics(cardModel: CardViewModel) {
-        guard let info = TotalBalanceCardSupportInfoFactory(cardModel: cardModel).createInfo() else { return }
+    func logZeroBalanceAnalytics() {
+        guard
+            let cardModel = self.cardModel,
+            let info = TotalBalanceCardSupportInfoFactory(cardModel: cardModel).createInfo()
+        else {
+            return
+        }
 
         let analyticsService = TotalBalanceAnalyticsService(totalBalanceCardSupportInfo: info)
         analyticsService.sendToppedUpEventIfNeeded(balance: 0)
