@@ -26,6 +26,7 @@ struct MainView: View {
                             width: geometry.size.width - 32,
                             cardSetLabel: viewModel.cardsCountLabel
                         )
+                        .padding(.top, 8)
                         .fixedSize(horizontal: false, vertical: true)
 
                         if viewModel.isLackDerivationWarningViewVisible {
@@ -55,6 +56,7 @@ struct MainView: View {
                 if !viewModel.isMultiWalletMode {
                     bottomButtons
                         .frame(width: geometry.size.width)
+                        .padding(.bottom, 8)
                 }
             }
         }
