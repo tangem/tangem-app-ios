@@ -42,7 +42,7 @@ struct SwappingCoordinatorView: CoordinatorView {
 
         NavHolder()
             .sheet(item: $coordinator.successSwappingCoordinator) {
-                SuccessSwappingCoordinatorView(coordinator: $0)
+                SwappingSuccessCoordinatorView(coordinator: $0)
             }
     }
 }
