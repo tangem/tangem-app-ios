@@ -12,7 +12,7 @@ import SwiftUI
 struct BottomSheetContainer<Item, ContentView: View>: View {
     @Binding private var isVisible: Bool
     private let settings: Settings
-    private let content: () -> ContentView
+    private let content: () -> ContentView?
 
     // MARK: - Internal
 
@@ -36,7 +36,7 @@ struct BottomSheetContainer<Item, ContentView: View>: View {
     init(
         isVisible: Binding<Bool>,
         settings: Settings,
-        @ViewBuilder content: @escaping () -> ContentView
+        @ViewBuilder content: @escaping () -> ContentView?
     ) {
         _isVisible = isVisible
         self.settings = settings
@@ -72,8 +72,10 @@ struct BottomSheetContainer<Item, ContentView: View>: View {
         VStack(spacing: 0) {
             indicator
 
-            content()
-                .padding(.bottom, UIApplication.safeAreaInsets.bottom)
+            if let view = content() {
+                view
+                    .padding(.bottom, UIApplication.safeAreaInsets.bottom)
+            }
         }
         .zIndex(1)
         .frame(maxWidth: .infinity)
@@ -213,44 +215,5 @@ struct BottomSheetContainer_Previews: PreviewProvider {
 
     static var previews: some View {
         StatableContainer()
-    }
-}
-
-// MARK: - View +
-
-extension View {
-    @ViewBuilder
-    func bottomSheet<Item, ContentView: View>(
-        item: Binding<Item?>,
-        settings: BottomSheetContainer<Item, ContentView>.Settings = .init(),
-        @ViewBuilder content: @escaping (Item) -> ContentView
-    ) -> some View {
-        let isShowing = Binding<Bool>(
-            get: { item.wrappedValue != nil },
-            set: { isShow in
-                if !isShow {
-                    item.wrappedValue = nil
-                }
-            }
-        )
-
-        if let itemValue = item.wrappedValue {
-            BottomSheetContainer(isVisible: isShowing, settings: settings) { content(itemValue) }
-        } else {
-            EmptyView()
-        }
-    }
-
-    @ViewBuilder
-    func bottomSheet<Item, ContentView: View>(
-        isShowing: Binding<Bool>,
-        settings: BottomSheetContainer<Item, ContentView>.Settings = .init(),
-        @ViewBuilder content: @escaping () -> ContentView
-    ) -> some View {
-        if isShowing.wrappedValue {
-            BottomSheetContainer(isVisible: isShowing, settings: settings, content: content)
-        } else {
-            EmptyView()
-        }
     }
 }
