@@ -160,7 +160,11 @@ extension TokenDetailsCoordinator: TokenDetailsRoutable {
             self?.swappingCoordinator = nil
         }
 
-        let coordinator = SwappingCoordinator(dismissAction: dismissAction, popToRootAction: popToRootAction)
+        let factory = SwappingDependenciesFactory(userTokenListManager: <#T##UserTokenListManager#>,
+                                                  walletModel: input.walletModel,
+                                                  signer: input.signer,
+                                                  logger: AppLog.shared)
+        let coordinator = SwappingCoordinator(factory: SwappingDependenciesFactory, dismissAction: <#T##Action#>, popToRootAction: <#T##ParamsAction<PopToRootOptions>#> dismissAction: dismissAction, popToRootAction: popToRootAction)
         coordinator.start(with: SwappingCoordinator.Options(input: input))
 
         swappingCoordinator = coordinator
