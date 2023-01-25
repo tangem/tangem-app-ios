@@ -22,8 +22,8 @@ struct ShopCoordinatorView: CoordinatorView {
                         ShopOrderView(order: order)
                     } else if coordinator.shopViewModel?.pollingForOrder == true {
                         ShopOrderProgressView()
-                    } else {
-                        ShopView(viewModel: coordinator.shopViewModel!)
+                    } else if let shopViewModel = coordinator.shopViewModel {
+                        ShopView(viewModel: shopViewModel)
                             .navigationLinks(links)
                     }
                 }
