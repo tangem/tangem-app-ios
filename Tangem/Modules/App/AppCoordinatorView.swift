@@ -14,14 +14,12 @@ struct AppCoordinatorView: CoordinatorView {
 
     var body: some View {
         NavigationView {
-            ZStack {
-                if let welcomeCoordinator = coordinator.welcomeCoordinator {
-                    WelcomeCoordinatorView(coordinator: welcomeCoordinator)
-                } else if let uncompletedBackupCoordinator = coordinator.uncompletedBackupCoordinator {
-                    UncompletedBackupCoordinatorView(coordinator: uncompletedBackupCoordinator)
-                } else if let authCoordinator = coordinator.authCoordinator {
-                    AuthCoordinatorView(coordinator: authCoordinator)
-                }
+            if let welcomeCoordinator = coordinator.welcomeCoordinator {
+                WelcomeCoordinatorView(coordinator: welcomeCoordinator)
+            } else if let uncompletedBackupCoordinator = coordinator.uncompletedBackupCoordinator {
+                UncompletedBackupCoordinatorView(coordinator: uncompletedBackupCoordinator)
+            } else if let authCoordinator = coordinator.authCoordinator {
+                AuthCoordinatorView(coordinator: authCoordinator)
             }
         }
         .navigationViewStyle(.stack)
