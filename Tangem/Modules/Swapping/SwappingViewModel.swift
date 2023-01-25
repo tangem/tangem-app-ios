@@ -163,7 +163,7 @@ private extension SwappingViewModel {
             contractAddress: transactionModel.sourceCurrency.contractAddress
         )
 
-        let inputModel = SuccessSwappingInputModel(
+        let inputModel = SwappingSuccessInputModel(
             sourceCurrencyAmount: source,
             resultCurrencyAmount: result,
             explorerURL: explorerURL
@@ -439,7 +439,7 @@ private extension SwappingViewModel {
 
         Task {
             do {
-                try await transactionSender.sendTransaction(info)
+//                try await transactionSender.sendTransaction(info)
                 await openSuccessView(result: result, transactionModel: info)
             } catch TangemSdkError.userCancelled {
                 // Do nothing
