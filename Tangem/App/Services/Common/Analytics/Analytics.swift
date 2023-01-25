@@ -56,12 +56,12 @@ enum Analytics {
         logInternal(event)
     }
 
-    static func logCardSignIn(balance: Decimal, basicCurrency: String, batchId: String, cardNumberHash: String) {
-        if additionalDataRepository.signedInCardIdentifiers.contains(cardNumberHash) {
+    static func logCardSignIn(balance: Decimal, basicCurrency: String, batchId: String, cardIdentifier: String) {
+        if additionalDataRepository.signedInCardIdentifiers.contains(cardIdentifier) {
             return
         }
 
-        additionalDataRepository.signedInCardIdentifiers.insert(cardNumberHash)
+        additionalDataRepository.signedInCardIdentifiers.insert(cardIdentifier)
 
         let params: [ParameterKey: String] = [
             .state: ParameterValue.state(for: balance).rawValue,
