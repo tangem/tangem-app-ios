@@ -71,7 +71,7 @@ class AppSettings {
     var saveAccessCodes: Bool = false
 
     @AppStorageCompat(StorageType.osDeprecationWarningDismissDate)
-    var osDeprecationWarningDismissDate: Date? = nil
+    var osDeprecationWarningDismissalDate: Date? = nil
 
     static let shared: AppSettings = { .init() }()
 
