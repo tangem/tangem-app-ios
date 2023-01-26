@@ -97,7 +97,7 @@ struct SwappingTokenIconView: View {
             .resizable()
             .scaledToFit()
             .frame(size: size)
-            .cornerRadius(size.height / 2)
+            .cornerRadiusContinuous(5)
     }
 }
 
