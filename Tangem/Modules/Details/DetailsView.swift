@@ -39,8 +39,6 @@ struct DetailsView: View {
         }
         .ignoresBottomArea()
         .background(Colors.Background.secondary.edgesIgnoringSafeArea(.all))
-        .navigationBarBackButtonHidden(false)
-        .navigationBarHidden(false)
         .alert(item: $viewModel.error) { $0.alert }
         .navigationBarTitle(Text(Localization.detailsTitle), displayMode: .inline)
     }
