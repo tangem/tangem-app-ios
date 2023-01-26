@@ -96,6 +96,7 @@ private extension MultiWalletContentViewModel {
         let newWalletModels = userWalletModel.subscribeToWalletModels()
             .dropFirst()
             .share()
+            .print("newWalletModels")
 
         let walletModelsDidChange = newWalletModels
             .filter { !$0.isEmpty }
