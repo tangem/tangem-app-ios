@@ -58,12 +58,12 @@ extension SwappingCoordinator {
 // MARK: - SwappingRoutable
 
 extension SwappingCoordinator: SwappingRoutable {
-    func presentSwappingTokenList(sourceCurrency: Currency, userCurrencies: [Currency]) {
+    func presentSwappingTokenList(sourceCurrency: Currency) {
         UIApplication.shared.endEditing()
 
         swappingTokenListViewModel = SwappingTokenListViewModel(
             sourceCurrency: sourceCurrency,
-            userCurrencies: userCurrencies,
+            userCurrenciesProvider: factory.userCurrenciesProvider(),
             tokenIconURLBuilder: factory.tokenIconURLBuilder(),
             currencyMapper: factory.currencyMapper(),
             coordinator: self
