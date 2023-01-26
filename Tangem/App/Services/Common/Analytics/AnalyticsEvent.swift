@@ -87,6 +87,7 @@ extension Analytics {
         case detailsScreenOpened = "[Details Screen] Details Screen Opened"
         case buttonRemoveToken = "[Token] Button - Remove Token"
         case buttonExplore = "[Token] Button - Explore"
+        case tokenButtonShowTheWalletAddress = "[Token] Button - Show the Wallet Address"
         case refreshed = "[Token] Refreshed"
         case buttonBuy = "[Token] Button - Buy"
         case buttonSell = "[Token] Button - Sell"
