@@ -14,6 +14,7 @@ import SwiftUI
 
 class WarningsService {
     @Injected(\.rateAppService) var rateAppChecker: RateAppService
+    @Injected(\.deprecationService) var deprecationService: DeprecationServicing
 
     var warningsUpdatePublisher: CurrentValueSubject<Void, Never> = .init(())
 
@@ -81,7 +82,8 @@ private extension WarningsService {
         let main = WarningsContainer()
         let send = WarningsContainer()
 
-        for warningEvent in config.warningEvents  {
+        let deprecationWarnings = deprecationService.deprecationWarnings
+        for warningEvent in (deprecationWarnings + config.warningEvents)  {
             if warningEvent.locationsToDisplay.contains(WarningsLocation.main) {
                 main.add(warningEvent.warning)
             }
