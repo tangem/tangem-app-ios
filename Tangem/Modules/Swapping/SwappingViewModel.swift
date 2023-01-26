@@ -15,7 +15,7 @@ final class SwappingViewModel: ObservableObject {
 
     @Published var sendCurrencyViewModel: SendCurrencyViewModel?
     @Published var receiveCurrencyViewModel: ReceiveCurrencyViewModel?
-    @Published var isLoading: Bool = false
+    @Published var swapButtonIsLoading: Bool = false
 
     @Published var sendDecimalValue: Decimal?
     @Published var refreshWarningRowViewModel: DefaultWarningRowViewModel?
@@ -252,14 +252,19 @@ private extension SwappingViewModel {
             feeWarningRowViewModel = nil
             receiveCurrencyViewModel?.updateState(.loaded(0, fiatValue: 0))
 
-        case .loading:
-            feeWarningRowViewModel = nil
+        case .loading(let type):
+            swapButtonIsLoading = true
+
+            // Turn on skeletons only for full update
+            guard type == .full else { return }
+
             refreshWarningRowViewModel?.update(rightView: .loader)
             receiveCurrencyViewModel?.updateState(.loading)
 
         case .preview(let result):
             refreshWarningRowViewModel = nil
             feeWarningRowViewModel = nil
+            swapButtonIsLoading = false
             receiveCurrencyViewModel?.updateState(
                 .loaded(result.expectedAmount, fiatValue: result.expectedFiatAmount)
             )
@@ -269,6 +274,7 @@ private extension SwappingViewModel {
 
         case .available(let result, _):
             refreshWarningRowViewModel = nil
+            swapButtonIsLoading = false
             receiveCurrencyViewModel?.updateState(
                 .loaded(result.amount, fiatValue: result.fiatAmount)
             )
