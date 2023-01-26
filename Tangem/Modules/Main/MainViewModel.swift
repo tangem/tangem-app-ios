@@ -292,7 +292,7 @@ class MainViewModel: ObservableObject {
             case .numberOfSignedHashesIncorrect:
                 registerValidatedSignedHashesCard()
             case .osDeprecationTemporary:
-                deprecationService.userDismissOSDeprecationWarning()
+                deprecationService.didDismissOSDeprecationWarning()
             default:
                 return
             }
