@@ -25,7 +25,7 @@ enum Analytics {
 
     static func log(_ event: Event, params: [ParameterKey: String] = [:]) {
         assert(event.canBeLoggedDirectly)
-        
+
         logInternal(event, params: params)
     }
 
@@ -41,26 +41,28 @@ enum Analytics {
 
     static func beginLoggingCardScan(source: CardScanSource) {
         logInternal(source.cardScanButtonEvent)
-        
+
         additionalDataRepository.cardDidScanEvent = source.cardDidScanEvent
     }
-    
+
     static func endLoggingCardScan() {
         guard let event = additionalDataRepository.cardDidScanEvent else {
             assertionFailure("Don't forget to call beginLoggingCardScan")
             return
         }
-        
+
+        additionalDataRepository.cardDidScanEvent = nil
+
         logInternal(event)
     }
 
-    static func logCardSignIn(balance: Decimal, basicCurrency: String, batchId: String, cardNumberHash: String) {
-        if additionalDataRepository.signedInCardIdentifiers.contains(cardNumberHash) {
+    static func logCardSignIn(balance: Decimal, basicCurrency: String, batchId: String, cardIdentifier: String) {
+        if additionalDataRepository.signedInCardIdentifiers.contains(cardIdentifier) {
             return
         }
-        
-        additionalDataRepository.signedInCardIdentifiers.insert(cardNumberHash)
-        
+
+        additionalDataRepository.signedInCardIdentifiers.insert(cardIdentifier)
+
         let params: [ParameterKey: String] = [
             .state: ParameterValue.state(for: balance).rawValue,
             .basicCurrency: basicCurrency,
@@ -69,7 +71,7 @@ enum Analytics {
 
         Analytics.logInternal(.signedIn, params: params)
     }
-    
+
     static func logTx(blockchainName: String?, type: TransactionType) {
         log(type.event, params: [
             .blockchain: blockchainName ?? "",
@@ -329,6 +331,7 @@ extension Analytics {
 extension Analytics {
     enum CardScanSource {
         case welcome
+        case auth
         case main
         case myWallets
     }
@@ -339,17 +342,21 @@ extension Analytics.CardScanSource {
         switch self {
         case .welcome:
             return .introductionProcessButtonScanCard
+        case .auth:
+            return .buttonCardSignIn
         case .main:
             return .buttonScanCard
         case .myWallets:
             return .buttonScanNewCard
         }
     }
-    
+
     var cardDidScanEvent: Analytics.Event {
         switch self {
         case .welcome:
             return .introductionProcessCardWasScanned
+        case .auth:
+            return .signInCardWasScanned
         case .main:
             return .mainCardWasScanned
         case .myWallets:
@@ -370,12 +377,14 @@ fileprivate extension Analytics.Event {
     var canBeLoggedDirectly: Bool {
         switch self {
         case .introductionProcessButtonScanCard,
-                .buttonScanCard,
-                .buttonScanNewCard,
-                .introductionProcessCardWasScanned,
-                .mainCardWasScanned,
-                .myWalletsCardWasScanned,
-                .signedIn:
+             .buttonScanCard,
+             .buttonScanNewCard,
+             .buttonCardSignIn,
+             .signInCardWasScanned,
+             .introductionProcessCardWasScanned,
+             .mainCardWasScanned,
+             .myWalletsCardWasScanned,
+             .signedIn:
             return false
         default:
             return true
