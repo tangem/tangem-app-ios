@@ -15,9 +15,9 @@ struct OnboardingCoordinatorView: CoordinatorView {
     var body: some View {
         ZStack {
             content
-                .transition(.withoutOpacity)
+                .navigationBarHidden(coordinator.navigationBarHidden)
                 .navigationBarTitle("", displayMode: .inline)
-                .navigationBarHidden(true)
+                .transition(.withoutOpacity)
                 .navigationLinks(links)
 
             sheets
