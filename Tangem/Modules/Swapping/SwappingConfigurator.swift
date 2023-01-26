@@ -12,26 +12,19 @@ import BlockchainSdk
 
 /// Helper for configure `SwappingViewModel`
 struct SwappingConfigurator {
-    private let factory: DependenciesFactory
+    private let factory: SwappingDependenciesFactoring
 
-    init(factory: DependenciesFactory) {
+    init(factory: SwappingDependenciesFactoring) {
         self.factory = factory
     }
 
     func createModule(input: InputModel, coordinator: SwappingRoutable) -> SwappingViewModel {
-        let exchangeManager = factory.createExchangeManager(
-            walletModel: input.walletModel,
-            source: input.source,
-            destination: input.destination
-        )
-
-        return SwappingViewModel(
+        SwappingViewModel(
             initialSourceCurrency: input.source,
-            exchangeManager: exchangeManager,
-            swappingDestinationService: factory.createSwappingDestinationService(walletModel: input.walletModel),
-            userCurrenciesProvider: factory.createUserCurrenciesProvider(walletModel: input.walletModel),
-            tokenIconURLBuilder: factory.createTokenIconURLBuilder(),
-            transactionSender: factory.createTransactionSender(walletManager: input.walletModel.walletManager, signer: input.signer),
+            exchangeManager: factory.exchangeManager(source: input.source, destination: input.destination),
+            swappingDestinationService: factory.swappingDestinationService(),
+            tokenIconURLBuilder: factory.tokenIconURLBuilder(),
+            transactionSender: factory.transactionSender(),
             coordinator: coordinator
         )
     }
@@ -39,6 +32,7 @@ struct SwappingConfigurator {
 
 extension SwappingConfigurator {
     struct InputModel {
+        let userWalletModel: UserWalletModel
         let walletModel: WalletModel
         let sender: TransactionSender
         let signer: TransactionSigner
@@ -46,12 +40,14 @@ extension SwappingConfigurator {
         let destination: Currency?
 
         init(
+            userWalletModel: UserWalletModel,
             walletModel: WalletModel,
             sender: TransactionSender,
             signer: TransactionSigner,
             source: Currency,
             destination: Currency? = nil
         ) {
+            self.userWalletModel = userWalletModel
             self.walletModel = walletModel
             self.sender = sender
             self.signer = signer
