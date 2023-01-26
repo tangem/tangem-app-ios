@@ -83,6 +83,7 @@ extension SwappingCoordinator: SwappingRoutable {
         UIApplication.shared.endEditing()
 
         let coordinator = SwappingSuccessCoordinator(
+            factory: factory,
             dismissAction: dismissAction,
             popToRootAction: popToRootAction
         )
