@@ -13,18 +13,15 @@ struct WelcomeCoordinatorView: CoordinatorView {
     @ObservedObject var coordinator: WelcomeCoordinator
 
     var body: some View {
-        NavigationView {
-            ZStack {
-                if let welcomeModel = coordinator.welcomeViewModel {
-                    WelcomeView(viewModel: welcomeModel)
-                        .navigationLinks(links)
-                }
-
-                sheets
+        ZStack {
+            if let welcomeModel = coordinator.welcomeViewModel {
+                WelcomeView(viewModel: welcomeModel)
+                    .navigationLinks(links)
             }
+
+            sheets
         }
-        .navigationViewStyle(.stack)
-        .accentColor(Colors.Text.primary1)
+        .navigationBarHidden(coordinator.navigationBarHidden)
     }
 
     @ViewBuilder
