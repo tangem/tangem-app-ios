@@ -278,9 +278,10 @@ class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable>
     private func bindAnalytics() {
         $currentStepIndex
             .removeDuplicates()
-            .combineLatest($steps)
-            .receiveValue { index, steps in
-                guard index < steps.count else { return }
+            .delay(for: 0.1, scheduler: DispatchQueue.main)
+            .receiveValue { [weak self] index in
+                guard let steps = self?.steps,
+                      index < steps.count else { return }
 
                 let currentStep = steps[index]
 
