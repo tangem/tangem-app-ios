@@ -11,7 +11,7 @@ import SwiftUI
 struct SwappingTokenItemView: View {
     static let iconSize = CGSize(width: 40, height: 40)
     static let horizontalInteritemSpacing: CGFloat = 12
-    
+
     private let viewModel: SwappingTokenItemViewModel
 
     init(viewModel: SwappingTokenItemViewModel) {
