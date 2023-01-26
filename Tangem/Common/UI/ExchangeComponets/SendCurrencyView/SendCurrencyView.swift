@@ -13,6 +13,7 @@ struct SendCurrencyView: View {
     @Binding private var decimalValue: Decimal?
 
     private let tokenIconSize = CGSize(width: 36, height: 36)
+    private var didTapTokenView: () -> Void = {}
     private var didTapMaxAmountAction: (() -> Void)?
 
     init(viewModel: SendCurrencyViewModel, decimalValue: Binding<Decimal?>) {
@@ -62,6 +63,7 @@ struct SendCurrencyView: View {
             Spacer()
 
             SwappingTokenIconView(viewModel: viewModel.tokenIcon)
+                .onTap(viewModel.isChangeable ? didTapTokenView : nil)
         }
     }
 }
@@ -72,6 +74,10 @@ extension SendCurrencyView: Setupable {
     func didTapMaxAmount(_ action: @escaping () -> Void) -> Self {
         map { $0.didTapMaxAmountAction = action }
     }
+
+    func didTapTokenView(_ block: @escaping () -> Void) -> Self {
+        map { $0.didTapTokenView = block }
+    }
 }
 
 struct SendCurrencyView_Preview: PreviewProvider {
@@ -80,6 +86,7 @@ struct SendCurrencyView_Preview: PreviewProvider {
     static let viewModel = SendCurrencyViewModel(
         balance: 3043.75,
         maximumFractionDigits: 8,
+        isChangeable: false,
         fiatValue: 1000.71,
         tokenIcon: SwappingTokenIconViewModel(
             state: .loaded(
@@ -92,6 +99,7 @@ struct SendCurrencyView_Preview: PreviewProvider {
     static let viewModelLocked = SendCurrencyViewModel(
         balance: 0.02,
         maximumFractionDigits: 8,
+        isChangeable: true,
         fiatValue: 0.02,
         tokenIcon: SwappingTokenIconViewModel(
             state: .loaded(
