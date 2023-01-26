@@ -78,7 +78,13 @@ final class SwappingViewModel: ObservableObject {
 
     func userDidRequestChangeDestination(to currency: Currency) {
         var items = exchangeManager.getExchangeItems()
-        items.destination = currency
+
+        // If changed source
+        if items.source == initialSourceCurrency {
+            items.destination = currency
+        } else if items.destination == initialSourceCurrency {
+            items.source = currency
+        }
 
         exchangeManager.update(exchangeItems: items)
     }
@@ -96,6 +102,10 @@ final class SwappingViewModel: ObservableObject {
         items.destination = source
 
         exchangeManager.update(exchangeItems: items)
+    }
+
+    func userDidTapChangeSourceButton() {
+        openTokenListView()
     }
 
     func userDidTapChangeDestinationButton() {
@@ -128,8 +138,7 @@ final class SwappingViewModel: ObservableObject {
 
 private extension SwappingViewModel {
     func openTokenListView() {
-        let source = exchangeManager.getExchangeItems().source
-        coordinator.presentSwappingTokenList(sourceCurrency: source)
+        coordinator.presentSwappingTokenList(sourceCurrency: initialSourceCurrency)
     }
 
     func openSuccessView(
