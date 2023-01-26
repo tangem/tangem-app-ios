@@ -56,7 +56,6 @@ struct MainView: View {
                 if !viewModel.isMultiWalletMode {
                     bottomButtons
                         .frame(width: geometry.size.width)
-                        .padding(.bottom, 8)
                 }
             }
         }
@@ -202,6 +201,7 @@ struct MainView: View {
                 }
             }
             .padding(.horizontal, 16)
+            .padding(.bottom, 8)
         }
     }
 }
