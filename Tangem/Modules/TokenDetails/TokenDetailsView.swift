@@ -136,9 +136,7 @@ struct TokenDetailsView: View {
             }
         }
         .edgesIgnoringSafeArea(.bottom)
-        .navigationBarHidden(false)
         .navigationBarTitle("", displayMode: .inline)
-        .navigationBarBackButtonHidden(false)
         .navigationBarItems(trailing: trailingButton)
         .background(Color.tangemBgGray.edgesIgnoringSafeArea(.all))
         .ignoresKeyboard()
