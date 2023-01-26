@@ -512,4 +512,4 @@ URL: %@";
 "warning_os_update_message" = "Tangem recommends installing the latest iOS update for stable and safe operation.";
 
 "warning_os_13_deprecation_title" = "System update required";
-"warning_os_13_deprecation_with_date_message" = "Support for the current version of iOS will end on %@. To receive future app updates, the operating system must be updated to the latest version.";
+"warning_os_13_deprecation_with_date_message" = "Support for your version of the operating system will end on %@. To receive future app updates you must update it to the latest version.";
