@@ -63,7 +63,7 @@ fileprivate struct WarningsList {
     static let osDeprecationTemporary = AppWarning(
         title: "warning_os_update_title".localized,
         message: "warning_os_update_message".localized,
-        priority: .info,
+        priority: .warning,
         type: .temporary,
         event: .osDeprecationTemporary
     )
@@ -72,7 +72,7 @@ fileprivate struct WarningsList {
         return AppWarning(
             title: "warning_os_13_deprecation_title".localized,
             message: String(format: "warning_os_13_deprecation_with_date_message".localized, dateString),
-            priority: .info,
+            priority: .critical,
             type: .permanent
         )
     }
