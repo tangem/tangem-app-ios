@@ -9,12 +9,12 @@
 import UIKit
 
 class DeprecationService {
-    private let firstSupportedOperatingSystemVersion = "14.6"
-    private let opearingSystemVersion = UIDevice.current.systemVersion
+    private let firstSupportedSystemVersion = "14.6"
+    private let systemVersion = UIDevice.current.systemVersion
 
     private let daysBetweenWarnings = 7
-    private let permanentDeprecationWarningDate = DateComponents(calendar: Calendar(identifier: .gregorian), year: 2023, month: 2, day: 15).date!
-    private let operatingSystemDeprecationDate = DateComponents(calendar: Calendar(identifier: .gregorian), year: 2023, month: 4, day: 1).date!
+    private let permanentSystemDeprecationWarningDate = DateComponents(calendar: Calendar(identifier: .gregorian), year: 2023, month: 2, day: 15).date!
+    private let systemDeprecationDate = DateComponents(calendar: Calendar(identifier: .gregorian), year: 2023, month: 4, day: 1).date!
 
     private lazy var dateFormatter: DateFormatter = {
         let formatter = DateFormatter()
@@ -24,25 +24,25 @@ class DeprecationService {
         return formatter
     }()
 
-    private var osDeprecationWarning: WarningEvent? {
-        guard operatingSystemDeprecated else {
+    private var systemDeprecationWarning: WarningEvent? {
+        guard systemDeprecated else {
             return nil
         }
 
         let currentDate = Date()
-        guard currentDate < permanentDeprecationWarningDate else {
-            return .osDeprecationPermanent(
-                dateFormatter.string(from: operatingSystemDeprecationDate)
+        guard currentDate < permanentSystemDeprecationWarningDate else {
+            return .systemDeprecationPermanent(
+                dateFormatter.string(from: systemDeprecationDate)
             )
         }
 
-        if let dismissalDate = AppSettings.shared.osDeprecationWarningDismissalDate,
+        if let dismissalDate = AppSettings.shared.systemDeprecationWarningDismissalDate,
            let nextWarningAppearanceDate = Calendar.current.date(byAdding: .day, value: daysBetweenWarnings, to: dismissalDate),
            currentDate < nextWarningAppearanceDate {
             return nil
         }
 
-        return .osDeprecationTemporary
+        return .systemDeprecationTemporary
     }
 
     private var appDeprecationWarning: WarningEvent? {
@@ -51,25 +51,23 @@ class DeprecationService {
     }
 
     init() {
-        if permanentDeprecationWarningDate >= operatingSystemDeprecationDate {
-            assertionFailure("Permanent deprecation warning date should be before actual OS deprecation date")
-        }
+        assert(
+            permanentSystemDeprecationWarningDate < systemDeprecationDate,
+            "Permanent deprecation warning date should be before actual OS deprecation date"
+        )
     }
 }
 
 extension DeprecationService: DeprecationServicing {
     var deprecationWarnings: [WarningEvent] {
-        var events = [WarningEvent]()
-        osDeprecationWarning.map { events.append($0) }
-        appDeprecationWarning.map { events.append($0) }
-        return events
+        [systemDeprecationWarning, appDeprecationWarning].compactMap { $0 }
     }
 
-    var operatingSystemDeprecated: Bool {
-        opearingSystemVersion < firstSupportedOperatingSystemVersion
+    var systemDeprecated: Bool {
+        systemVersion < firstSupportedSystemVersion
     }
 
-    func didDismissOSDeprecationWarning() {
-        AppSettings.shared.osDeprecationWarningDismissalDate = Date()
+    func didDismissSystemDeprecationWarning() {
+        AppSettings.shared.systemDeprecationWarningDismissalDate = Date()
     }
 }
