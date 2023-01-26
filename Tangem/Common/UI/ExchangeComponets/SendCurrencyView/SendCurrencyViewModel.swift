@@ -13,6 +13,7 @@ struct SendCurrencyViewModel: Identifiable {
 
     // ViewState
     private(set) var maximumFractionDigits: Int
+    private(set) var isChangeable: Bool
 
     let tokenIcon: SwappingTokenIconViewModel
 
@@ -31,11 +32,13 @@ struct SendCurrencyViewModel: Identifiable {
     init(
         balance: Decimal,
         maximumFractionDigits: Int,
+        isChangeable: Bool,
         fiatValue: Decimal,
         tokenIcon: SwappingTokenIconViewModel
     ) {
         self.balance = balance
         self.maximumFractionDigits = maximumFractionDigits
+        self.isChangeable = isChangeable
         self.fiatValue = fiatValue
         self.tokenIcon = tokenIcon
     }
@@ -55,5 +58,6 @@ extension SendCurrencyViewModel: Hashable {
         hasher.combine(fiatValue)
         hasher.combine(tokenIcon)
         hasher.combine(maximumFractionDigits)
+        hasher.combine(isChangeable)
     }
 }

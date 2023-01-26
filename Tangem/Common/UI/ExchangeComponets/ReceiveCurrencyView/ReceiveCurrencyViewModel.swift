@@ -12,6 +12,7 @@ struct ReceiveCurrencyViewModel: Identifiable {
     var id: Int { hashValue }
 
     private(set) var state: State
+    private(set) var isChangeable: Bool
 
     let tokenIcon: SwappingTokenIconViewModel
 
@@ -30,12 +31,14 @@ struct ReceiveCurrencyViewModel: Identifiable {
     private let balance: Decimal?
 
     init(
-        balance: Decimal?,
         state: State,
+        isChangeable: Bool,
+        balance: Decimal?,
         tokenIcon: SwappingTokenIconViewModel
     ) {
-        self.balance = balance
         self.state = state
+        self.isChangeable = isChangeable
+        self.balance = balance
         self.tokenIcon = tokenIcon
     }
 
