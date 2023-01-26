@@ -26,6 +26,7 @@ struct SwappingConfigurator {
         )
 
         return SwappingViewModel(
+            initialSourceCurrency: input.source,
             exchangeManager: exchangeManager,
             swappingDestinationService: factory.createSwappingDestinationService(walletModel: input.walletModel),
             userCurrenciesProvider: factory.createUserCurrenciesProvider(walletModel: input.walletModel),
