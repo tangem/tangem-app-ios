@@ -15,9 +15,6 @@ final class AuthViewModel: ObservableObject {
     @Published var isScanningCard: Bool = false
     @Published var error: AlertBinder?
 
-    // This screen seats on the navigation stack permanently. We should preserve the navigationBar state to fix the random hide/disappear events of navigationBar on iOS13 on other screens down the navigation hierarchy.
-    @Published var navigationBarHidden: Bool = false
-
     var unlockWithBiometryButtonTitle: String {
         Localization.welcomeUnlock(BiometricAuthorizationUtils.biometryType.name)
     }
@@ -65,7 +62,6 @@ final class AuthViewModel: ObservableObject {
 
     func onAppear() {
         Analytics.log(.signInScreenOpened)
-        navigationBarHidden = true
     }
 
     func onDidAppear() {
@@ -78,9 +74,7 @@ final class AuthViewModel: ObservableObject {
         }
     }
 
-    func onDisappear() {
-        navigationBarHidden = false
-    }
+    func onDisappear() {}
 
     private func didFinishUnlocking(_ result: UserWalletRepositoryResult?) {
         isScanningCard = false
