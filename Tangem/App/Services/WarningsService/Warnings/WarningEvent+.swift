@@ -33,6 +33,10 @@ extension WarningEvent {
             return WarningsList.oldDeviceOldCard
         case .legacyDerivation:
             return WarningsList.legacyDerivation
+        case .systemDeprecationTemporary:
+            return WarningsList.systemDeprecationTemporary
+        case .systemDeprecationPermanent(let dateString):
+            return WarningsList.systemDeprecationPermanent(dateString: dateString)
         }
     }
 }
@@ -50,8 +54,29 @@ fileprivate struct WarningsList {
     static let testnetCard = AppWarning(title: warningTitle, message: "warning_testnet_card_message".localized, priority: .critical, type: .permanent, location: [.main, .send], event: .testnetCard)
     static let demoCard = AppWarning(title: warningTitle, message: "alert_demo_message".localized, priority: .critical, type: .permanent, location: [.main, .send], event: .demoCard)
     static let legacyDerivation = AppWarning(title: warningTitle, message: "alert_manage_tokens_addresses_message".localized, priority: .critical, type: .permanent, location: [.manageTokens], event: .legacyDerivation)
+
     static func lowSignatures(count: Int) -> AppWarning {
         let message = String(format: "warning_low_signatures_format".localized, "\(count)")
         return AppWarning(title: warningTitle, message: message, priority: .critical, type: .permanent)
+    }
+
+    static let systemDeprecationTemporary = AppWarning(
+        title: "warning_system_update_title".localized,
+        message: "warning_system_update_message".localized,
+        priority: .warning,
+        type: .temporary,
+        event: .systemDeprecationTemporary
+    )
+
+    static func systemDeprecationPermanent(dateString: String) -> AppWarning {
+        return AppWarning(
+            title: "warning_system_deprecation_title".localized,
+            // we need to search and replace double dot, because in ru locale year is clipped as `г.`. So at the end of the sentence
+            // we have double dot... But if you are using Buddhist calendar, you will have `2023 г. ВЕ.`
+            message: String(format: "warning_system_deprecation_with_date_message".localized, dateString)
+                .replacingOccurrences(of: "..", with: "."),
+            priority: .critical,
+            type: .permanent
+        )
     }
 }
