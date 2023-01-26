@@ -35,14 +35,6 @@ class BlockchainNetworkService {
 // MARK: - BlockchainDataProvider
 
 extension BlockchainNetworkService: TangemExchange.BlockchainDataProvider {
-    func addTokenToWallet(currency: Currency) {
-        guard let token = currencyMapper.mapToToken(currency: currency) else {
-            return
-        }
-
-        walletModel.addTokens([token])
-    }
-
     func updateWallet() async throws {
         try await walletModel.update(silent: true).async()
     }
