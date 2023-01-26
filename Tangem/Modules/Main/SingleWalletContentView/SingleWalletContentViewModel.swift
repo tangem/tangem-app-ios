@@ -96,7 +96,7 @@ class SingleWalletContentViewModel: ObservableObject {
         let qrNotice = walletModel.getQRReceiveMessage()
 
         output.openQR(shareAddress: shareAddress, address: address, qrNotice: qrNotice)
-        Analytics.log(.buttonShowTheWalletAddress)
+        Analytics.log(.onboardingButtonShowTheWalletAddress)
     }
 
     func showExplorerURL(url: URL?) {
