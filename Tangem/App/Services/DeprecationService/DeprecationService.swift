@@ -9,7 +9,7 @@
 import UIKit
 
 class DeprecationService {
-    private let lastSupportedVersion = "14.6"
+    private let firstSupportedOSVersion = "14.6"
     private let osVersion = UIDevice.current.systemVersion
 
     private let warningAppearanceDayInterval = 7
@@ -63,7 +63,7 @@ extension DeprecationService: DeprecationServicing {
     }
 
     var osDeprecated: Bool {
-        osVersion < lastSupportedVersion ? true : false
+        osVersion < firstSupportedOSVersion ? true : false
     }
 
     func userDismissOSDeprecationWarning() {
