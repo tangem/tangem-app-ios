@@ -55,7 +55,7 @@ class SingleWalletContentViewModel: ObservableObject {
         userWalletModel: userWalletModel,
         totalBalanceManager: TotalBalanceProvider(userWalletModel: userWalletModel,
                                                   userWalletAmountType: cardModel.cardAmountType,
-                                                  totalBalanceAnalyticsService: TotalBalanceAnalyticsService(totalBalanceCardSupportInfo: totalBalanceCardSupportInfo)),
+                                                  totalBalanceAnalyticsService: self.totalBalanceAnalyticsService),
         cardAmountType: cardModel.cardAmountType,
         tapOnCurrencySymbol: output
     )
@@ -64,8 +64,9 @@ class SingleWalletContentViewModel: ObservableObject {
     private let userWalletModel: UserWalletModel
     private unowned let output: SingleWalletContentViewModelOutput
     private var bag = Set<AnyCancellable>()
-    private var totalBalanceCardSupportInfo: TotalBalanceCardSupportInfo {
-        TotalBalanceCardSupportInfo(cardBatchId: cardModel.batchId, cardNumber: cardModel.cardId, embeddedBlockchainCurrencySymbol: cardModel.embeddedBlockchain?.currencySymbol)
+    private var totalBalanceAnalyticsService: TotalBalanceAnalyticsService? {
+        guard let info = TotalBalanceCardSupportInfoFactory(cardModel: cardModel).createInfo() else { return nil }
+        return TotalBalanceAnalyticsService(totalBalanceCardSupportInfo: info)
     }
 
     init(
@@ -95,7 +96,7 @@ class SingleWalletContentViewModel: ObservableObject {
         let qrNotice = walletModel.getQRReceiveMessage()
 
         output.openQR(shareAddress: shareAddress, address: address, qrNotice: qrNotice)
-        Analytics.log(.buttonShowTheWalletAddress)
+        Analytics.log(.tokenButtonShowTheWalletAddress)
     }
 
     func showExplorerURL(url: URL?) {
@@ -139,6 +140,22 @@ class SingleWalletContentViewModel: ObservableObject {
             .sink(receiveValue: { [weak self] publish in
                 self?.objectWillChange.send()
             })
+            .store(in: &bag)
+
+        singleWalletModel?.$state
+            .sink { [weak self] state in
+                guard
+                    let self,
+                    let singleWalletModel = self.singleWalletModel,
+                    !state.isLoading
+                else {
+                    return
+                }
+
+                let balance = singleWalletModel.blockchainTokenItemViewModel().fiatValue
+                self.totalBalanceAnalyticsService?.sendToppedUpEventIfNeeded(balance: balance)
+                self.totalBalanceAnalyticsService?.sendFirstLoadBalanceEventForCard(balance: balance)
+            }
             .store(in: &bag)
     }
 }
