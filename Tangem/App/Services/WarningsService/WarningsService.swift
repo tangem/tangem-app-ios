@@ -14,7 +14,7 @@ import SwiftUI
 
 class WarningsService {
     @Injected(\.rateAppService) var rateAppChecker: RateAppService
-    @Injected(\.deprecationService) var osDeprecationService: DeprecationServicing
+    @Injected(\.deprecationService) var deprecationService: DeprecationServicing
 
     var warningsUpdatePublisher: CurrentValueSubject<Void, Never> = .init(())
 
@@ -26,11 +26,6 @@ class WarningsService {
 
     deinit {
         print("WarningsService deinit")
-    }
-
-    private func addDeprecationWarningsIfNeeded() {
-        let events = osDeprecationService.deprecationWarnings
-        events.forEach(appendWarning(for:))
     }
 }
 
@@ -46,8 +41,6 @@ extension WarningsService: AppWarningsProviding {
         if !AppEnvironment.current.isTestnet {
             validateHashesCount(config: config, card: card, validator: validator)
         }
-
-        addDeprecationWarningsIfNeeded()
     }
 
     func warnings(for location: WarningsLocation) -> WarningsContainer {
@@ -89,7 +82,8 @@ private extension WarningsService {
         let main = WarningsContainer()
         let send = WarningsContainer()
 
-        for warningEvent in config.warningEvents  {
+        let deprecationWarnings = deprecationService.deprecationWarnings
+        for warningEvent in (deprecationWarnings + config.warningEvents)  {
             if warningEvent.locationsToDisplay.contains(WarningsLocation.main) {
                 main.add(warningEvent.warning)
             }
