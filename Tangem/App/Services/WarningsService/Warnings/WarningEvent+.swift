@@ -33,6 +33,10 @@ extension WarningEvent {
             return WarningsList.oldDeviceOldCard
         case .legacyDerivation:
             return WarningsList.legacyDerivation
+        case .osDeprecationTemporary:
+            return WarningsList.osDeprecationTemporary
+        case .osDeprecationPermanent(let dateString):
+            return WarningsList.osDeprecationPermanent(dateString: dateString)
         }
     }
 }
@@ -50,8 +54,26 @@ fileprivate struct WarningsList {
     static let testnetCard = AppWarning(title: warningTitle, message: "warning_testnet_card_message".localized, priority: .critical, type: .permanent, location: [.main, .send], event: .testnetCard)
     static let demoCard = AppWarning(title: warningTitle, message: "alert_demo_message".localized, priority: .critical, type: .permanent, location: [.main, .send], event: .demoCard)
     static let legacyDerivation = AppWarning(title: warningTitle, message: "alert_manage_tokens_addresses_message".localized, priority: .critical, type: .permanent, location: [.manageTokens], event: .legacyDerivation)
+
     static func lowSignatures(count: Int) -> AppWarning {
         let message = String(format: "warning_low_signatures_format".localized, "\(count)")
         return AppWarning(title: warningTitle, message: message, priority: .critical, type: .permanent)
+    }
+
+    static let osDeprecationTemporary = AppWarning(
+        title: "warning_os_update_title".localized,
+        message: "warning_os_update_message".localized,
+        priority: .info,
+        type: .temporary,
+        event: .osDeprecationTemporary
+    )
+
+    static func osDeprecationPermanent(dateString: String) -> AppWarning {
+        return AppWarning(
+            title: "warning_os_13_deprecation_title".localized,
+            message: String(format: "warning_os_13_deprecation_with_date_message".localized, dateString),
+            priority: .info,
+            type: .permanent
+        )
     }
 }
