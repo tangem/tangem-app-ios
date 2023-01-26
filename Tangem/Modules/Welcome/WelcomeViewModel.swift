@@ -19,9 +19,6 @@ class WelcomeViewModel: ObservableObject {
     @Published var error: AlertBinder?
     @Published var storiesModel: StoriesViewModel = .init()
 
-    // This screen seats on the navigation stack permanently. We should preserve the navigationBar state to fix the random hide/disappear events of navigationBar on iOS13 on other screens down the navigation hierarchy.
-    @Published var navigationBarHidden: Bool = false
-
     private var storiesModelSubscription: AnyCancellable?
     private var shouldScanOnAppear: Bool = false
 
@@ -62,7 +59,6 @@ class WelcomeViewModel: ObservableObject {
     }
 
     func onAppear() {
-        navigationBarHidden = true
         Analytics.log(.introductionProcessOpened)
     }
 
@@ -72,10 +68,6 @@ class WelcomeViewModel: ObservableObject {
                 self.scanCard()
             }
         }
-    }
-
-    func onDisappear() {
-        navigationBarHidden = false
     }
 
     private func scanCard() {
