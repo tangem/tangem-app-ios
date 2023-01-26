@@ -57,7 +57,7 @@ extension Analytics {
         case backupFinished = "[Onboarding / Backup] Backup Finished"
         case activationScreenOpened = "[Onboarding / Top Up] Activation Screen Opened"
         case buttonBuyCrypto = "[Onboarding / Top Up] Button - Buy Crypto"
-        case buttonShowTheWalletAddress = "[Onboarding / Top Up] Button - Show the Wallet Address"
+        case onboardingButtonShowTheWalletAddress = "[Onboarding / Top Up] Button - Show the Wallet Address"
         case onboardingEnableBiometric = "[Onboarding / Biometric] Enable Biometric"
         case allowBiometricID = "[Onboarding / Biometric] Allow Face ID / Touch ID (System)"
         case twinningScreenOpened = "[Onboarding / Twins] Twinning Screen Opened"
