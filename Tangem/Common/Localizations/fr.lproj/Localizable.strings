@@ -506,3 +506,10 @@ URL: %@";
 "exchange_send_view_header" = "You Send";
 "exchange_receive_view_header" = "You Receive";
 "user_wallet_list_error_wallet_already_saved" = "This wallet has already been saved, you can add another one";
+
+// TODO: Add to lokalise
+"warning_os_update_title" = "System update available";
+"warning_os_update_message" = "Tangem recommends installing the latest iOS update for stable and safe operation.";
+
+"warning_os_13_deprecation_title" = "System update required";
+"warning_os_13_deprecation_with_date_message" = "Support for the current version of iOS will end on %@. To receive future app updates, the operating system must be updated to the latest version.";
