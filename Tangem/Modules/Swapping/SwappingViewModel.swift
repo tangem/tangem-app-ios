@@ -39,6 +39,7 @@ final class SwappingViewModel: ObservableObject {
 
     // MARK: - Dependencies
 
+    private let initialSourceCurrency: Currency
     private let exchangeManager: ExchangeManager
     private let swappingDestinationService: SwappingDestinationServicing
     private let userCurrenciesProvider: UserCurrenciesProviding
@@ -52,6 +53,7 @@ final class SwappingViewModel: ObservableObject {
     private var bag: Set<AnyCancellable> = []
 
     init(
+        initialSourceCurrency: Currency,
         exchangeManager: ExchangeManager,
         swappingDestinationService: SwappingDestinationServicing,
         userCurrenciesProvider: UserCurrenciesProviding,
@@ -59,6 +61,7 @@ final class SwappingViewModel: ObservableObject {
         transactionSender: TransactionSendable,
         coordinator: SwappingRoutable
     ) {
+        self.initialSourceCurrency = initialSourceCurrency
         self.exchangeManager = exchangeManager
         self.swappingDestinationService = swappingDestinationService
         self.userCurrenciesProvider = userCurrenciesProvider
@@ -133,7 +136,7 @@ private extension SwappingViewModel {
     func openTokenListView() {
         let source = exchangeManager.getExchangeItems().source
         let userCurrencies = userCurrenciesProvider.getCurrencies(
-            blockchain: source.blockchain
+            blockchain: initialSourceCurrency.blockchain
         )
 
         coordinator.presentSwappingTokenList(
@@ -218,6 +221,7 @@ private extension SwappingViewModel {
         sendCurrencyViewModel = SendCurrencyViewModel(
             balance: exchangeItems.sourceBalance.balance,
             maximumFractionDigits: source.decimalCount,
+            isChangeable: source != initialSourceCurrency,
             fiatValue: exchangeItems.sourceBalance.fiatBalance,
             tokenIcon: mapToSwappingTokenIconViewModel(currency: source)
         )
@@ -236,8 +240,9 @@ private extension SwappingViewModel {
         }
 
         receiveCurrencyViewModel = ReceiveCurrencyViewModel(
-            balance: exchangeItems.destinationBalance,
             state: state,
+            isChangeable: destination != initialSourceCurrency,
+            balance: exchangeItems.destinationBalance,
             tokenIcon: mapToSwappingTokenIconViewModel(currency: destination)
         )
     }
