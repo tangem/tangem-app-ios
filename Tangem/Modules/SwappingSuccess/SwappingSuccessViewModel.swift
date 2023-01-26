@@ -27,20 +27,20 @@ final class SwappingSuccessViewModel: ObservableObject {
     // MARK: - Dependencies
 
     private let inputModel: SwappingSuccessInputModel
-    private let userTokenListManager: UserTokenListManager
+    private let userWalletModel: UserWalletModel
     private let currencyMapper: CurrencyMapping
     private let blockchainNetwork: BlockchainNetwork
     private unowned let coordinator: SwappingSuccessRoutable
 
     init(
         inputModel: SwappingSuccessInputModel,
-        userTokenListManager: UserTokenListManager,
+        userWalletModel: UserWalletModel,
         currencyMapper: CurrencyMapping,
         blockchainNetwork: BlockchainNetwork,
         coordinator: SwappingSuccessRoutable
     ) {
         self.inputModel = inputModel
-        self.userTokenListManager = userTokenListManager
+        self.userWalletModel = userWalletModel
         self.currencyMapper = currencyMapper
         self.blockchainNetwork = blockchainNetwork
         self.coordinator = coordinator
@@ -57,7 +57,8 @@ final class SwappingSuccessViewModel: ObservableObject {
         let destination = inputModel.resultCurrencyAmount.currency
         if let token = currencyMapper.mapToToken(currency: destination) {
             let entry = StorageEntry(blockchainNetwork: blockchainNetwork, token: token)
-            userTokenListManager.update(.append([entry]))
+            userWalletModel.append(entries: [entry])
+            userWalletModel.updateWalletModels()
         }
 
         coordinator.didTapCloseButton()
