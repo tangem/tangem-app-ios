@@ -291,8 +291,8 @@ class MainViewModel: ObservableObject {
             switch warning.event {
             case .numberOfSignedHashesIncorrect:
                 registerValidatedSignedHashesCard()
-            case .osDeprecationTemporary:
-                deprecationService.didDismissOSDeprecationWarning()
+            case .systemDeprecationTemporary:
+                deprecationService.didDismissSystemDeprecationWarning()
             default:
                 return
             }
