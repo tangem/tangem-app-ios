@@ -39,6 +39,8 @@ extension CommonKeysManager: KeysManager {
             blockchairApiKeys: keys.blockchairApiKeys,
             blockcypherTokens: keys.blockcypherTokens,
             infuraProjectId: keys.infuraProjectId,
+            nowNodesApiKey: keys.nowNodesApiKey,
+            getBlockApiKey: keys.getBlockApiKey,
             tronGridApiKey: keys.tronGridApiKey,
             // [REDACTED_TODO_COMMENT]
             quickNodeSolanaCredentials: .init(apiKey: keys.quiknodeApiKey, subdomain: keys.quiknodeSubdomain),
@@ -78,6 +80,8 @@ extension CommonKeysManager {
         let blockchairApiKeys: [String]
         let blockcypherTokens: [String]
         let infuraProjectId: String
+        let nowNodesApiKey: String
+        let getBlockApiKey: String
         let appsFlyer: AppsFlyerConfig
         let amplitudeApiKey: String
         let tronGridApiKey: String
