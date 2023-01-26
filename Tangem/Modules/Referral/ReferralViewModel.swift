@@ -44,7 +44,7 @@ class ReferralViewModel: ObservableObject {
         if isProcessingRequest {
             return
         }
-        
+
         isProcessingRequest = true
         Analytics.log(.referralButtonParticipate)
 
