@@ -71,7 +71,10 @@ fileprivate struct WarningsList {
     static func systemDeprecationPermanent(dateString: String) -> AppWarning {
         return AppWarning(
             title: "warning_system_deprecation_title".localized,
-            message: String(format: "warning_system_deprecation_with_date_message".localized, dateString),
+            // we need to search and replace double dot, because in ru locale year is clipped as `г.`. So at the end of the sentence
+            // we have double dot... But if you are using Buddhist calendar, you will have `2023 г. ВЕ.`
+            message: String(format: "warning_system_deprecation_with_date_message".localized, dateString)
+                .replacingOccurrences(of: "..", with: "."),
             priority: .critical,
             type: .permanent
         )
