@@ -22,7 +22,6 @@ struct SwappingConfigurator {
         SwappingViewModel(
             exchangeManager: factory.exchangeManager(source: input.source, destination: input.destination),
             swappingDestinationService: factory.swappingDestinationService(),
-            userCurrenciesProvider: factory.userCurrenciesProvider(),
             tokenIconURLBuilder: factory.tokenIconURLBuilder(),
             transactionSender: factory.transactionSender(),
             coordinator: coordinator
