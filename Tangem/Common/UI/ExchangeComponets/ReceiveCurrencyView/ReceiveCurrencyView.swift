@@ -56,7 +56,7 @@ struct ReceiveCurrencyView: View {
             Spacer()
 
             SwappingTokenIconView(viewModel: viewModel.tokenIcon)
-                .onTap(didTapTokenView)
+                .onTap(viewModel.isChangeable ? didTapTokenView : nil)
         }
     }
 
@@ -98,8 +98,9 @@ extension ReceiveCurrencyView: Setupable {
 
 struct ReceiveCurrencyView_Preview: PreviewProvider {
     static let viewModel = ReceiveCurrencyViewModel(
-        balance: 0.124124,
         state: .loaded(1100.46, fiatValue: 1000.71),
+        isChangeable: false,
+        balance: 0.124124,
         tokenIcon: SwappingTokenIconViewModel(
             state: .loaded(
                 imageURL: TokenIconURLBuilderMock().iconURL(id: "polygon", size: .large),
@@ -109,8 +110,9 @@ struct ReceiveCurrencyView_Preview: PreviewProvider {
     )
 
     static let loadingViewModel = ReceiveCurrencyViewModel(
-        balance: 0.124124,
         state: .loading,
+        isChangeable: false,
+        balance: 0.124124,
         tokenIcon: SwappingTokenIconViewModel(
             state: .loaded(
                 imageURL: TokenIconURLBuilderMock().iconURL(id: "polygon", size: .large),
