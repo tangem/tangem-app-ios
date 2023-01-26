@@ -33,10 +33,10 @@ extension WarningEvent {
             return WarningsList.oldDeviceOldCard
         case .legacyDerivation:
             return WarningsList.legacyDerivation
-        case .osDeprecationTemporary:
-            return WarningsList.osDeprecationTemporary
-        case .osDeprecationPermanent(let dateString):
-            return WarningsList.osDeprecationPermanent(dateString: dateString)
+        case .systemDeprecationTemporary:
+            return WarningsList.systemDeprecationTemporary
+        case .systemDeprecationPermanent(let dateString):
+            return WarningsList.systemDeprecationPermanent(dateString: dateString)
         }
     }
 }
@@ -60,18 +60,18 @@ fileprivate struct WarningsList {
         return AppWarning(title: warningTitle, message: message, priority: .critical, type: .permanent)
     }
 
-    static let osDeprecationTemporary = AppWarning(
-        title: "warning_os_update_title".localized,
-        message: "warning_os_update_message".localized,
+    static let systemDeprecationTemporary = AppWarning(
+        title: "warning_system_update_title".localized,
+        message: "warning_system_update_message".localized,
         priority: .warning,
         type: .temporary,
-        event: .osDeprecationTemporary
+        event: .systemDeprecationTemporary
     )
 
-    static func osDeprecationPermanent(dateString: String) -> AppWarning {
+    static func systemDeprecationPermanent(dateString: String) -> AppWarning {
         return AppWarning(
-            title: "warning_os_deprecation_title".localized,
-            message: String(format: "warning_os_deprecation_with_date_message".localized, dateString),
+            title: "warning_system_deprecation_title".localized,
+            message: String(format: "warning_system_deprecation_with_date_message".localized, dateString),
             priority: .critical,
             type: .permanent
         )
