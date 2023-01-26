@@ -40,13 +40,13 @@ final class SwappingTokenListViewModel: ObservableObject, Identifiable {
 
     init(
         sourceCurrency: Currency,
-        userCurrencies: [Currency],
+        userCurrenciesProvider: UserCurrenciesProviding,
         tokenIconURLBuilder: TokenIconURLBuilding,
         currencyMapper: CurrencyMapping,
         coordinator: SwappingTokenListRoutable
     ) {
         self.sourceCurrency = sourceCurrency
-        self.userCurrencies = userCurrencies
+        userCurrencies = userCurrenciesProvider.getCurrencies(blockchain: sourceCurrency.blockchain)
         self.tokenIconURLBuilder = tokenIconURLBuilder
         self.currencyMapper = currencyMapper
         self.coordinator = coordinator
