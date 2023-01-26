@@ -20,6 +20,8 @@ enum WarningEvent: Equatable {
     case devCard
     case lowSignatures(count: Int)
     case legacyDerivation
+    case osDeprecationTemporary
+    case osDeprecationPermanent(String)
 
     var locationsToDisplay: Set<WarningsLocation> {
         switch self {
@@ -43,7 +45,7 @@ enum WarningEvent: Equatable {
 
     var buttons: [WarningButton] {
         switch self {
-        case .numberOfSignedHashesIncorrect:
+        case .numberOfSignedHashesIncorrect, .osDeprecationTemporary:
             return [.okGotIt]
         case .multiWalletSignedHashes:
             return [.learnMore]
