@@ -70,8 +70,8 @@ fileprivate struct WarningsList {
 
     static func osDeprecationPermanent(dateString: String) -> AppWarning {
         return AppWarning(
-            title: "warning_os_13_deprecation_title".localized,
-            message: String(format: "warning_os_13_deprecation_with_date_message".localized, dateString),
+            title: "warning_os_deprecation_title".localized,
+            message: String(format: "warning_os_deprecation_with_date_message".localized, dateString),
             priority: .critical,
             type: .permanent
         )
