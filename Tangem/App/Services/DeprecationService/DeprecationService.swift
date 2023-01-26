@@ -9,7 +9,7 @@
 import UIKit
 
 class DeprecationService {
-    private let firstSupportedSystemVersion = "14.6"
+    private let firstSupportedSystemVersion = "14.5"
     private let systemVersion = UIDevice.current.systemVersion
 
     private let daysBetweenWarnings = 7
@@ -18,11 +18,15 @@ class DeprecationService {
 
     private lazy var dateFormatter: DateFormatter = {
         let formatter = DateFormatter()
-        formatter.calendar = Calendar(identifier: .gregorian)
+        formatter.calendar = .current
         formatter.locale = .current
         formatter.dateStyle = .long
         return formatter
     }()
+
+    private var systemDeprecated: Bool {
+        systemVersion < firstSupportedSystemVersion
+    }
 
     private var systemDeprecationWarning: WarningEvent? {
         guard systemDeprecated else {
@@ -61,10 +65,6 @@ class DeprecationService {
 extension DeprecationService: DeprecationServicing {
     var deprecationWarnings: [WarningEvent] {
         [systemDeprecationWarning, appDeprecationWarning].compactMap { $0 }
-    }
-
-    var systemDeprecated: Bool {
-        systemVersion < firstSupportedSystemVersion
     }
 
     func didDismissSystemDeprecationWarning() {
