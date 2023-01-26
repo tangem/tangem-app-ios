@@ -506,3 +506,10 @@ URL: %@";
 "exchange_send_view_header" = "Вы отправляете";
 "exchange_receive_view_header" = "Вы получаете";
 "user_wallet_list_error_wallet_already_saved" = "Этот кошелек уже был сохранен, вы можете добавить другой";
+
+// TODO: Add to lokalise
+"warning_os_update_title" = "Доступно обновление системы";
+"warning_os_update_message" = "Tangem рекомендует установить последнее обновление iOS для стабильной и безопасной работы.";
+
+"warning_os_13_deprecation_title" = "Требуется обновление системы";
+"warning_os_13_deprecation_with_date_message" = "Поддержка текущей версии iOS завершится %@ Для получения последующих обновлений приложения, необходимо обновить операционную систему до последней версии.";
