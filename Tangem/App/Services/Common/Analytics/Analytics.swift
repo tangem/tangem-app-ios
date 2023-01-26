@@ -51,15 +51,16 @@ enum Analytics {
             return
         }
 
+        additionalDataRepository.cardDidScanEvent = nil
         logInternal(event)
     }
 
-    static func logCardSignIn(balance: Decimal, basicCurrency: String, batchId: String, cardNumberHash: String) {
-        if additionalDataRepository.signedInCardIdentifiers.contains(cardNumberHash) {
+    static func logCardSignIn(balance: Decimal, basicCurrency: String, batchId: String, cardIdentifier: String) {
+        if additionalDataRepository.signedInCardIdentifiers.contains(cardIdentifier) {
             return
         }
 
-        additionalDataRepository.signedInCardIdentifiers.insert(cardNumberHash)
+        additionalDataRepository.signedInCardIdentifiers.insert(cardIdentifier)
 
         let params: [ParameterKey: String] = [
             .state: ParameterValue.state(for: balance).rawValue,
@@ -329,6 +330,7 @@ extension Analytics {
 extension Analytics {
     enum CardScanSource {
         case welcome
+        case auth
         case main
         case myWallets
     }
@@ -339,6 +341,8 @@ extension Analytics.CardScanSource {
         switch self {
         case .welcome:
             return .introductionProcessButtonScanCard
+        case .auth:
+            return .buttonCardSignIn
         case .main:
             return .buttonScanCard
         case .myWallets:
@@ -350,6 +354,8 @@ extension Analytics.CardScanSource {
         switch self {
         case .welcome:
             return .introductionProcessCardWasScanned
+        case .auth:
+            return .signInCardWasScanned
         case .main:
             return .mainCardWasScanned
         case .myWallets:
@@ -372,6 +378,8 @@ fileprivate extension Analytics.Event {
         case .introductionProcessButtonScanCard,
              .buttonScanCard,
              .buttonScanNewCard,
+             .buttonCardSignIn,
+             .signInCardWasScanned,
              .introductionProcessCardWasScanned,
              .mainCardWasScanned,
              .myWalletsCardWasScanned,
