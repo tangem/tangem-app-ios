@@ -32,6 +32,7 @@ struct SwappingConfigurator {
 
 extension SwappingConfigurator {
     struct InputModel {
+        let userWalletModel: UserWalletModel
         let walletModel: WalletModel
         let sender: TransactionSender
         let signer: TransactionSigner
@@ -39,12 +40,14 @@ extension SwappingConfigurator {
         let destination: Currency?
 
         init(
+            userWalletModel: UserWalletModel,
             walletModel: WalletModel,
             sender: TransactionSender,
             signer: TransactionSigner,
             source: Currency,
             destination: Currency? = nil
         ) {
+            self.userWalletModel = userWalletModel
             self.walletModel = walletModel
             self.sender = sender
             self.signer = signer
