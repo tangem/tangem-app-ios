@@ -41,7 +41,6 @@ final class SwappingViewModel: ObservableObject {
 
     private let exchangeManager: ExchangeManager
     private let swappingDestinationService: SwappingDestinationServicing
-    private let userCurrenciesProvider: UserCurrenciesProviding
     private let tokenIconURLBuilder: TokenIconURLBuilding
     private let transactionSender: TransactionSendable
 
@@ -54,14 +53,12 @@ final class SwappingViewModel: ObservableObject {
     init(
         exchangeManager: ExchangeManager,
         swappingDestinationService: SwappingDestinationServicing,
-        userCurrenciesProvider: UserCurrenciesProviding,
         tokenIconURLBuilder: TokenIconURLBuilding,
         transactionSender: TransactionSendable,
         coordinator: SwappingRoutable
     ) {
         self.exchangeManager = exchangeManager
         self.swappingDestinationService = swappingDestinationService
-        self.userCurrenciesProvider = userCurrenciesProvider
         self.tokenIconURLBuilder = tokenIconURLBuilder
         self.transactionSender = transactionSender
         self.coordinator = coordinator
@@ -98,12 +95,10 @@ final class SwappingViewModel: ObservableObject {
         exchangeManager.update(exchangeItems: items)
     }
 
-    @MainActor
     func userDidTapChangeDestinationButton() {
         openTokenListView()
     }
 
-    @MainActor
     func didTapMainButton() {
         switch mainButtonState {
         case .permitAndSwap:
@@ -129,20 +124,11 @@ final class SwappingViewModel: ObservableObject {
 // MARK: - Navigation
 
 private extension SwappingViewModel {
-    @MainActor
     func openTokenListView() {
         let source = exchangeManager.getExchangeItems().source
-        let userCurrencies = userCurrenciesProvider.getCurrencies(
-            blockchain: source.blockchain
-        )
-
-        coordinator.presentSwappingTokenList(
-            sourceCurrency: source,
-            userCurrencies: userCurrencies
-        )
+        coordinator.presentSwappingTokenList(sourceCurrency: source)
     }
 
-    @MainActor
     func openSuccessView(
         result: SwappingResultDataModel,
         transactionModel: ExchangeTransactionDataModel
@@ -172,7 +158,6 @@ private extension SwappingViewModel {
         coordinator.presentSuccessView(inputModel: inputModel)
     }
 
-    @MainActor
     func openPermissionView() {
         let state = exchangeManager.getAvailabilityState()
         guard case .available(let result, let info) = state,
@@ -440,7 +425,9 @@ private extension SwappingViewModel {
         Task {
             do {
                 try await transactionSender.sendTransaction(info)
-                await openSuccessView(result: result, transactionModel: info)
+                await runOnMain {
+                    openSuccessView(result: result, transactionModel: info)
+                }
             } catch TangemSdkError.userCancelled {
                 // Do nothing
             } catch {
