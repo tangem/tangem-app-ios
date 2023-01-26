@@ -17,14 +17,17 @@ struct ShopCoordinatorView: CoordinatorView {
             SafariView(url: webShopUrl)
         } else {
             NavigationView {
-                if let order = coordinator.shopViewModel?.order { // [REDACTED_TODO_COMMENT]
-                    ShopOrderView(order: order)
-                } else if coordinator.shopViewModel?.pollingForOrder == true {
-                    ShopOrderProgressView()
-                } else {
-                    ShopView(viewModel: coordinator.shopViewModel!)
-                        .navigationLinks(links)
+                ZStack {
+                    if let order = coordinator.shopViewModel?.order { // [REDACTED_TODO_COMMENT]
+                        ShopOrderView(order: order)
+                    } else if coordinator.shopViewModel?.pollingForOrder == true {
+                        ShopOrderProgressView()
+                    } else if let shopViewModel = coordinator.shopViewModel {
+                        ShopView(viewModel: shopViewModel)
+                            .navigationLinks(links)
+                    }
                 }
+                .navigationBarHidden(true)
             }
             .navigationViewStyle(.stack)
         }
