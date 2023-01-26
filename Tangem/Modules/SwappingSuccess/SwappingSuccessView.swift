@@ -81,7 +81,7 @@ struct SwappingSuccessView_Preview: PreviewProvider {
             resultCurrencyAmount: .init(value: 200, currency: .mock),
             explorerURL: URL(string: "")
         ),
-        userTokenListManager: UserTokenListManagerMock(),
+        userWalletModel: UserWalletModelMock(),
         currencyMapper: CurrencyMapper(),
         blockchainNetwork: PreviewCard.ethereum.blockchainNetwork!,
         coordinator: SwappingSuccessCoordinator()

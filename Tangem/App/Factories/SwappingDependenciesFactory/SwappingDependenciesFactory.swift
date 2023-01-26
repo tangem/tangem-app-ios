@@ -10,34 +10,22 @@ import Foundation
 import TangemExchange
 import BlockchainSdk
 
-protocol SwappingDependenciesFactoring {
-    // [REDACTED_TODO_COMMENT]
-    func walletModel() -> WalletModel
-    func userTokenListManager() -> UserTokenListManager
-    func exchangeManager(source: Currency, destination: Currency?) -> ExchangeManager
-    func swappingDestinationService() -> SwappingDestinationServicing
-    func currencyMapper() -> CurrencyMapping
-    func tokenIconURLBuilder() -> TokenIconURLBuilding
-    func userCurrenciesProvider() -> UserCurrenciesProviding
-    func transactionSender() -> TransactionSendable
-}
-
 struct SwappingDependenciesFactory {
-    // Think about it. Maybe in future we will implement it from AppDependenciesFactory
-    private let _userTokenListManager: UserTokenListManager
+    private let _userWalletModel: UserWalletModel
     private let _walletModel: WalletModel
     private let signer: TransactionSigner
     private let logger: ExchangeLogger
 
     private var walletManager: WalletManager { _walletModel.walletManager }
 
+    // Think about it. Maybe in future we will create this factory from AppDependenciesFactory
     init(
-        userTokenListManager: UserTokenListManager,
+        userWalletModel: UserWalletModel,
         walletModel: WalletModel,
         signer: TransactionSigner,
         logger: ExchangeLogger
     ) {
-        _userTokenListManager = userTokenListManager
+        _userWalletModel = userWalletModel
         _walletModel = walletModel
         self.signer = signer
         self.logger = logger
@@ -51,8 +39,8 @@ extension SwappingDependenciesFactory: SwappingDependenciesFactoring {
         return _walletModel
     }
 
-    func userTokenListManager() -> UserTokenListManager {
-        return _userTokenListManager
+    func userWalletModel() -> UserWalletModel {
+        return _userWalletModel
     }
 
     func exchangeManager(source: Currency, destination: Currency?) -> ExchangeManager {
