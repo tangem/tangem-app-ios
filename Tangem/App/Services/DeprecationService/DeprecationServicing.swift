@@ -11,7 +11,6 @@ import UIKit
 
 protocol DeprecationServicing {
     var deprecationWarnings: [WarningEvent] { get }
-    var systemDeprecated: Bool { get }
     func didDismissSystemDeprecationWarning()
 }
 
