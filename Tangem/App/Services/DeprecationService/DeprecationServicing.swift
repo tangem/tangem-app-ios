@@ -11,8 +11,8 @@ import UIKit
 
 protocol DeprecationServicing {
     var deprecationWarnings: [WarningEvent] { get }
-    var operatingSystemDeprecated: Bool { get }
-    func didDismissOSDeprecationWarning()
+    var systemDeprecated: Bool { get }
+    func didDismissSystemDeprecationWarning()
 }
 
 private struct DeprecationServicingKey: InjectionKey {
