@@ -14,7 +14,7 @@ import BlockchainSdk
 protocol WalletConnectUserWalletInfoProvider {
     var name: String { get }
     var userWalletId: Data? { get }
-    var wallets: [Wallet] { get }
+    var walletModels: [WalletModel] { get }
 }
 
 class WalletConnectV2Service {
@@ -118,7 +118,11 @@ class WalletConnectV2Service {
                 else { return }
 
                 AppLog.shared.debug("[WC 2.0] Session established: \(session)")
-                let savedSession = WalletConnectV2Utils().createSavedSession(for: session, with: userWalletId.hexString)
+                let savedSession = WalletConnectV2Utils().createSavedSession(
+                    from: session,
+                    with: userWalletId.hexString,
+                    and: self.infoProvider.walletModels
+                )
 
                 await self.sessionsStorage.save(savedSession)
             }
@@ -140,7 +144,7 @@ class WalletConnectV2Service {
         do {
             let sessionNamespaces = try utils.createSessionNamespaces(
                 from: proposal.requiredNamespaces,
-                for: infoProvider.wallets
+                for: infoProvider.walletModels
             )
             displaySessionConnectionUI(for: proposal, namespaces: sessionNamespaces)
         } catch let error as WalletConnectV2Error {
@@ -153,7 +157,7 @@ class WalletConnectV2Service {
 
     private func displaySessionConnectionUI(for proposal: Session.Proposal, namespaces: [String: SessionNamespace]) {
         AppLog.shared.debug("[WC 2.0] Did receive session proposal")
-        let blockchains = WalletConnectV2Utils().getBlockchainNamesFromNamespaces(namespaces)
+        let blockchains = WalletConnectV2Utils().getBlockchainNamesFromNamespaces(namespaces, using: infoProvider.walletModels)
         let message = messageComposer.makeMessage(for: proposal, targetBlockchains: blockchains)
         uiDelegate.showScreen(with: WalletConnectUIRequest(
             event: .establishSession,
