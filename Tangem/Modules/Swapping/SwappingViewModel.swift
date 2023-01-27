@@ -180,7 +180,7 @@ private extension SwappingViewModel {
 
         guard case .available(let result, let info) = state,
               result.isPermissionRequired,
-            fiatRatesProvider.hasRates(for: source) else {
+              fiatRatesProvider.hasRates(for: source) else {
             // If we don't have enough data disable button and refresh()
             mainButtonIsEnabled = false
             exchangeManager.refresh()
@@ -188,17 +188,17 @@ private extension SwappingViewModel {
             return
         }
 
-        Task {
-            let fiatFee = try await fiatRatesProvider.getFiat(for: source, amount: info.fee)
+        runTask(in: self) { obj in
+            let fiatFee = try await obj.fiatRatesProvider.getFiat(for: source, amount: info.fee)
             let inputModel = SwappingPermissionInputModel(
                 fiatFee: fiatFee,
                 transactionInfo: info
             )
 
             await runOnMain {
-                coordinator.presentPermissionView(
+                obj.coordinator.presentPermissionView(
                     inputModel: inputModel,
-                    transactionSender: transactionSender
+                    transactionSender: obj.transactionSender
                 )
             }
         }
