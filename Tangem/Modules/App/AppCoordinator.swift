@@ -203,7 +203,7 @@ extension AppCoordinator: UIWindowSceneDelegate {
     }
 
     private func process(_ url: URL) {
-        if walletConnectService.handle(url: url) {
+        if walletConnectService.handle(url: url.absoluteString) {
             return
         }
 
@@ -221,12 +221,16 @@ extension AppCoordinator: UIWindowSceneDelegate {
 // MARK: - URLHandler
 
 extension AppCoordinator: URLHandler {
-    @discardableResult
-    func handle(url: String) -> Bool {
+    func canHandle(url: String) -> Bool {
         guard url.starts(with: "https://app.tangem.com")
             || url.starts(with: Constants.tangemDomain + "/ndef") else { return false }
 
         return true
+    }
+
+    @discardableResult
+    func handle(url: String) -> Bool {
+        canHandle(url: url)
     }
 
     @discardableResult
