@@ -155,24 +155,19 @@ extension TokenDetailsCoordinator: TokenDetailsRoutable {
         )
     }
 
-    func openSwapping(input: SwappingConfigurator.InputModel) {
+    func openSwapping(input: CommonSwappingModulesFactory.InputModel) {
         let dismissAction: Action = { [weak self] in
             self?.swappingCoordinator = nil
         }
 
-        let factory = SwappingDependenciesFactory(
-            userWalletModel: input.userWalletModel,
-            walletModel: input.walletModel,
-            signer: input.signer,
-            logger: AppLog.shared
-        )
-
+        let factory = CommonSwappingModulesFactory(inputModel: input)
         let coordinator = SwappingCoordinator(
             factory: factory,
             dismissAction: dismissAction,
             popToRootAction: popToRootAction
         )
-        coordinator.start(with: SwappingCoordinator.Options(input: input))
+
+        coordinator.start(with: .default)
 
         swappingCoordinator = coordinator
     }
