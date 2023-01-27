@@ -11,17 +11,33 @@ import Combine
 
 class CommonWalletConnectService {
     private var v1Service: WalletConnectV1Service?
+    private var v2Service: WalletConnectV2Service?
 }
 
 extension CommonWalletConnectService: WalletConnectService {
     var canEstablishNewSessionPublisher: AnyPublisher<Bool, Never> {
-        v1Service?.canEstablishNewSessionPublisher.eraseToAnyPublisher() ??
-            Just(false).eraseToAnyPublisher()
+        Publishers.CombineLatest(
+            v1Service?.canEstablishNewSessionPublisher.eraseToAnyPublisher() ?? Just(false).eraseToAnyPublisher(),
+            v2Service?.canEstablishNewSessionPublisher.eraseToAnyPublisher() ?? Just(true).eraseToAnyPublisher()
+        ).map { v1Can, v2Can in
+            v1Can && v2Can
+        }
+        .eraseToAnyPublisher()
     }
 
     var sessionsPublisher: AnyPublisher<[WalletConnectSession], Never> {
-        v1Service?.sessionsPublisher ??
-            Just([]).eraseToAnyPublisher()
+        guard let v1Service = v1Service else {
+            return Just([]).eraseToAnyPublisher()
+        }
+
+        return v1Service.sessionsPublisher
+            .eraseToAnyPublisher()
+    }
+
+    var newSessions: AsyncStream<[WalletConnectSavedSession]> {
+        get async {
+            await v2Service?.newSessions ?? AsyncStream { $0.finish() }
+        }
     }
 
     func initialize(with cardModel: CardViewModel) {
@@ -30,29 +46,46 @@ extension CommonWalletConnectService: WalletConnectService {
         }
 
         v1Service = .init(with: cardModel)
+
+        if FeatureProvider.isAvailable(.walletConnectV2) {
+            v2Service = .init(with: cardModel)
+        }
     }
 
     func reset() {
         v1Service = nil
+        v2Service = nil
     }
 
     func disconnectSession(with id: Int) {
         v1Service?.disconnectSession(with: id)
     }
 
-    func canHandle(url: String) -> Bool {
-        v1Service?.canHandle(url: url) ?? false
+    func disconnectV2Session(with id: Int) async {
+        await v2Service?.disconnectSession(with: id)
     }
 
-    func handle(url: URL) -> Bool {
-        v1Service?.handle(url: url) ?? false
+    func canHandle(url: String) -> Bool {
+        return service(for: url) != nil
     }
 
     func handle(url: String) -> Bool {
-        guard let url = URL(string: url) else {
+        guard let service = service(for: url) else {
             return false
         }
 
-        return handle(url: url)
+        return service.handle(url: url)
+    }
+
+    private func service(for url: String) -> URLHandler? {
+        if v2Service?.canHandle(url: url) ?? false {
+            return v2Service
+        }
+
+        if v1Service?.canHandle(url: url) ?? false {
+            return v1Service
+        }
+
+        return nil
     }
 }
