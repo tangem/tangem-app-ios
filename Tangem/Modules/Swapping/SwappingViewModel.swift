@@ -91,7 +91,6 @@ final class SwappingViewModel: ObservableObject {
     func userDidRequestChangeDestination(to currency: Currency) {
         var items = exchangeManager.getExchangeItems()
 
-        // If changed source
         if items.source == initialSourceCurrency {
             items.destination = currency
         } else if items.destination == initialSourceCurrency {
