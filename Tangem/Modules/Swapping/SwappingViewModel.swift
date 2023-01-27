@@ -345,7 +345,7 @@ private extension SwappingViewModel {
         case .loading, .requiredRefresh:
             mainButtonIsEnabled = false
         case .preview(let preview):
-            mainButtonIsEnabled = preview.isEnoughAmountForExchange && !preview.hasPendingTransaction
+            mainButtonIsEnabled = true // preview.isEnoughAmountForExchange && !preview.hasPendingTransaction
 
             if !preview.isEnoughAmountForExchange {
                 mainButtonState = .insufficientFunds
