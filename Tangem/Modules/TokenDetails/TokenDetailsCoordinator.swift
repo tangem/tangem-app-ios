@@ -155,12 +155,12 @@ extension TokenDetailsCoordinator: TokenDetailsRoutable {
         )
     }
 
-    func openSwapping(input: SwappingModulesFactory.InputModel) {
+    func openSwapping(input: CommonSwappingModulesFactory.InputModel) {
         let dismissAction: Action = { [weak self] in
             self?.swappingCoordinator = nil
         }
 
-        let factory = SwappingModulesFactory(inputModel: input)
+        let factory = CommonSwappingModulesFactory(inputModel: input)
         let coordinator = SwappingCoordinator(
             factory: factory,
             dismissAction: dismissAction,
