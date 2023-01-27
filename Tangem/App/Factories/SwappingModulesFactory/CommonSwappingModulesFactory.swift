@@ -35,6 +35,7 @@ struct CommonSwappingModulesFactory {
 extension CommonSwappingModulesFactory: SwappingModulesFactory {
     func makeSwappingViewModel(coordinator: SwappingRoutable) -> SwappingViewModel {
         SwappingViewModel(
+            initialSourceCurrency: source,
             exchangeManager: exchangeManager(source: source, destination: destination),
             swappingDestinationService: swappingDestinationService,
             tokenIconURLBuilder: tokenIconURLBuilder,
@@ -89,8 +90,11 @@ private extension CommonSwappingModulesFactory {
     }
 
     var currencyMapper: CurrencyMapping { CurrencyMapper() }
+
     var tokenIconURLBuilder: TokenIconURLBuilding { TokenIconURLBuilder(baseURL: CoinsResponse.baseURL) }
+
     var userCurrenciesProvider: UserCurrenciesProviding { UserCurrenciesProvider(walletModel: walletModel) }
+
     var transactionSender: TransactionSendable {
         ExchangeTransactionSender(
             transactionCreator: walletManager,
