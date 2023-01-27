@@ -10,12 +10,13 @@ import TangemExchange
 
 protocol SwappingDependenciesFactoring {
     // [REDACTED_TODO_COMMENT]
-    func walletModel() -> WalletModel
-    func userWalletModel() -> UserWalletModel
+    var walletModel: WalletModel { get }
+    var userWalletModel: UserWalletModel { get }
+    var swappingDestinationService: SwappingDestinationServicing { get }
+    var currencyMapper: CurrencyMapping { get }
+    var tokenIconURLBuilder: TokenIconURLBuilding { get }
+    var userCurrenciesProvider: UserCurrenciesProviding { get }
+    var transactionSender: TransactionSendable { get }
+
     func exchangeManager(source: Currency, destination: Currency?) -> ExchangeManager
-    func swappingDestinationService() -> SwappingDestinationServicing
-    func currencyMapper() -> CurrencyMapping
-    func tokenIconURLBuilder() -> TokenIconURLBuilding
-    func userCurrenciesProvider() -> UserCurrenciesProviding
-    func transactionSender() -> TransactionSendable
 }
