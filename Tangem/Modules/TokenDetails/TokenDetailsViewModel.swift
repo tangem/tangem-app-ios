@@ -517,11 +517,12 @@ extension TokenDetailsViewModel {
             return
         }
 
-        let input = SwappingConfigurator.InputModel(
+        let input = SwappingModulesFactory.InputModel(
             userWalletModel: userWalletModel,
             walletModel: walletModel,
             sender: walletModel.walletManager,
             signer: card.signer,
+            logger: AppLog.shared,
             source: source
         )
 
