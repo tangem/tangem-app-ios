@@ -18,18 +18,18 @@ struct BottomSheetContainer<Item, ContentView: View>: View {
 
     @State private var contentHeight: CGFloat = 400
     @State private var isDragging: Bool = false
-    @State private var previousDragTransition: CGSize = .zero
+    @State private var previousDragTranslation: CGSize = .zero
     @State private var offset: CGFloat = UIScreen.main.bounds.height
 
     private let indicatorSize = CGSize(width: 40, height: 4)
 
-    var dragPercentage: CGFloat {
+    private var dragPercentage: CGFloat {
         let visibleHeight = contentHeight - offset
         let percentage = visibleHeight / contentHeight
         return max(0, percentage)
     }
 
-    var opacity: CGFloat {
+    private var opacity: CGFloat {
         max(0, settings.backgroundOpacity * dragPercentage)
     }
 
@@ -63,21 +63,20 @@ struct BottomSheetContainer<Item, ContentView: View>: View {
             }
         }
         .edgesIgnoringSafeArea(.all)
-        .animation(isDragging ? .interactiveSpring() : .easeOut(duration: settings.animationDuration))
-        .onChange(of: isVisible, perform: didChange)
-        .onAppear { didChange(isShowing: isVisible) }
+        .animation(isDragging ? .interactiveSpring() : .easeInOut(duration: settings.animationDuration))
+        .onChange(of: isVisible, perform: updateVisibility)
+        .onAppear { updateVisibility(isVisible: isVisible) }
     }
 
     private var sheetView: some View {
         VStack(spacing: 0) {
             indicator
 
-            if let view = content() {
-                view
+            if let contentView = content() {
+                contentView
                     .padding(.bottom, UIApplication.safeAreaInsets.bottom)
             }
         }
-        .zIndex(1)
         .frame(maxWidth: .infinity)
         .background(settings.backgroundColor)
         .cornerRadius(settings.cornerRadius, corners: [.topLeft, .topRight])
@@ -104,7 +103,7 @@ struct BottomSheetContainer<Item, ContentView: View>: View {
                     isDragging = true
                 }
 
-                let dragValue = value.translation.height - previousDragTransition.height
+                let dragValue = value.translation.height - previousDragTranslation.height
                 let locationChange = value.startLocation.y - value.location.y
 
                 if locationChange > 0 {
@@ -113,10 +112,10 @@ struct BottomSheetContainer<Item, ContentView: View>: View {
                     offset += dragValue
                 }
 
-                previousDragTransition = value.translation
+                previousDragTranslation = value.translation
             }
             .onEnded { value in
-                previousDragTransition = .zero
+                previousDragTranslation = .zero
                 isDragging = false
 
                 // If swipe did be enough then hide view
@@ -129,8 +128,10 @@ struct BottomSheetContainer<Item, ContentView: View>: View {
             }
     }
 
-    private func didChange(isShowing: Bool) {
-        if isShowing {
+    // MARK: - Methods
+
+    private func updateVisibility(isVisible: Bool) {
+        if isVisible {
             offset = 0
         } else {
             hideView()
@@ -141,8 +142,7 @@ struct BottomSheetContainer<Item, ContentView: View>: View {
         offset = UIScreen.main.bounds.height
         guard isVisible else { return }
 
-        let delay: CGFloat = settings.animationDuration
-        DispatchQueue.main.asyncAfter(deadline: .now() + delay) {
+        DispatchQueue.main.asyncAfter(deadline: .now() + settings.animationDuration) {
             isVisible = false
         }
     }
