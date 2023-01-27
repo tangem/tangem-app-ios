@@ -102,36 +102,36 @@ struct SkeletonView_Preview: PreviewProvider {
     static var previews: some View {
         ZStack {
             Color.gray
-            
+
             VStack(spacing: 8) {
                 Separator()
-                
+
                 Text("")
                     .style(Fonts.Regular.title1, color: Colors.Text.primary1)
                     .skeletonable(isShown: true)
-                
+
                 Separator()
-                
+
                 Text("          ") // 10 spaces
                     .style(Fonts.Regular.title1, color: Colors.Text.primary1)
                     .skeletonable(isShown: true)
-                
+
                 Separator()
-                
+
                 Text("")
                     .style(Fonts.Regular.title1, color: Colors.Text.primary1)
                     .skeletonable(isShown: true, width: 70)
-                
+
                 Text("text")
                     .style(Fonts.Regular.title1, color: Colors.Text.primary1)
                     .skeletonable(isShown: false, width: 70)
-                
+
                 Separator()
-                
+
                 SkeletonView()
                     .frame(width: 70, height: 20)
                     .cornerRadiusContinuous(6)
-                
+
                 Separator()
             }
         }
