@@ -88,39 +88,6 @@ extension View {
     }
 }
 
-// MARK: - Bottom sheet
-
-extension View {
-    @ViewBuilder
-    func bottomSheet<Item, ContentView: View>(
-        item: Binding<Item?>,
-        settings: BottomSheetContainer<Item, ContentView>.Settings = .init(),
-        @ViewBuilder content: @escaping (Item) -> ContentView
-    ) -> some View {
-        let isShowing = Binding<Bool>(
-            get: { item.wrappedValue != nil },
-            set: { isShow in
-                if !isShow {
-                    item.wrappedValue = nil
-                }
-            }
-        )
-
-        BottomSheetContainer(isVisible: isShowing, settings: settings) {
-            item.wrappedValue.map(content)
-        }
-    }
-
-    @ViewBuilder
-    func bottomSheet<Item, ContentView: View>(
-        isShowing: Binding<Bool>,
-        settings: BottomSheetContainer<Item, ContentView>.Settings = .init(),
-        @ViewBuilder content: @escaping () -> ContentView
-    ) -> some View {
-        BottomSheetContainer(isVisible: isShowing, settings: settings, content: content)
-    }
-}
-
 extension NavigationLink {
     init<T: Identifiable, D: View>(
         item: Binding<T?>,
