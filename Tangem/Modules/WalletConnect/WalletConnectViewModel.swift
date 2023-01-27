@@ -18,7 +18,14 @@ class WalletConnectViewModel: ObservableObject {
     @Published var showCameraDeniedAlert: Bool = false
     @Published var alert: AlertBinder?
     @Published var isServiceBusy: Bool = true
-    @Published var sessions: [WalletConnectSession] = []
+    @Published var v1Sessions: [WalletConnectSession] = []
+
+    @Published @MainActor var v2Sessions: [WalletConnectSavedSession] = []
+
+    @MainActor
+    var noActiveSessions: Bool {
+        v1Sessions.isEmpty && v2Sessions.isEmpty
+    }
 
     private var hasWCInPasteboard: Bool {
         guard let copiedValue = UIPasteboard.general.string else {
@@ -53,11 +60,23 @@ class WalletConnectViewModel: ObservableObject {
         bind()
     }
 
-    func disconnectSession(_ session: WalletConnectSession) {
+    func disconnectV1Session(_ session: WalletConnectSession) {
         Analytics.log(.buttonStopWalletConnectSession)
         walletConnectService.disconnectSession(with: session.id)
         withAnimation {
             self.objectWillChange.send()
+        }
+    }
+
+    func disconnectV2Session(_ session: WalletConnectSavedSession) {
+        Analytics.log(.buttonStopWalletConnectSession)
+        Task { [weak self] in
+            await self?.walletConnectService.disconnectV2Session(with: session.id)
+            await runOnMain {
+                withAnimation {
+                    self?.objectWillChange.send()
+                }
+            }
         }
     }
 
@@ -86,6 +105,8 @@ class WalletConnectViewModel: ObservableObject {
     private func bind() {
         bag.removeAll()
 
+        subscribeToNewSessions()
+
         walletConnectService.canEstablishNewSessionPublisher
             .receive(on: DispatchQueue.main)
             .sink { [weak self] canEstablishNewSession in
@@ -98,7 +119,8 @@ class WalletConnectViewModel: ObservableObject {
             .sink(receiveValue: { [weak self] in
                 guard let self = self else { return }
 
-                self.sessions = $0
+                self.v1Sessions = $0
+                AppLog.shared.debug("Loaded v1 sessions: \($0)")
             })
             .store(in: &bag)
 
@@ -112,6 +134,19 @@ class WalletConnectViewModel: ObservableObject {
                 }
             }
             .store(in: &bag)
+    }
+
+    private func subscribeToNewSessions() {
+        Task {
+            for await sessions in await walletConnectService.newSessions {
+                AppLog.shared.debug("Loaded v2 sessions: \(sessions)")
+                await MainActor.run {
+                    withAnimation {
+                        self.v2Sessions = sessions
+                    }
+                }
+            }
+        }
     }
 }
 
