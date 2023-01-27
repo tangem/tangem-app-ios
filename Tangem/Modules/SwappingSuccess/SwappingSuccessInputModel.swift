@@ -1,5 +1,5 @@
 //
-//  SuccessSwappingInputModel.swift
+//  SwappingSuccessInputModel.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -8,7 +8,7 @@
 
 import Foundation
 
-struct SuccessSwappingInputModel {
+struct SwappingSuccessInputModel {
     let sourceCurrencyAmount: CurrencyAmount
     let resultCurrencyAmount: CurrencyAmount
     let explorerURL: URL?
