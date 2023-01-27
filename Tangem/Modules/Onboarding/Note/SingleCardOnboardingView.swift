@@ -142,6 +142,7 @@ struct SingleCardOnboardingView: View {
                         viewModel.setupContainer(with: value)
                     }
                 }
+                .frame(minHeight: viewModel.navbarSize.height + 20)
 
                 if viewModel.isCustomContentVisible {
                     customContent
