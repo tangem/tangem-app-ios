@@ -13,7 +13,14 @@ extension View {
     @ViewBuilder
     func skeletonable(isShown: Bool, size: CGSize, radius: CGFloat = 3) -> some View {
         modifier(
-            SkeletonModifier(isShown: isShown, modificationType: .size(size: size), radius: radius)
+            SkeletonModifier(isShown: isShown, modificationType: .size(size), radius: radius)
+        )
+    }
+    
+    @ViewBuilder
+    func skeletonable(isShown: Bool, width: CGFloat, radius: CGFloat = 3) -> some View {
+        modifier(
+            SkeletonModifier(isShown: isShown, modificationType: .width(width), radius: radius)
         )
     }
 
@@ -51,6 +58,13 @@ public struct SkeletonModifier: ViewModifier {
                 SkeletonView()
                     .frame(size: size)
                     .cornerRadius(radius)
+            case .width(let width):
+                content
+                    .frame(width: width)
+                    .overlay(
+                        SkeletonView()
+                            .cornerRadius(radius)
+                    )
             }
         } else {
             content
@@ -60,7 +74,8 @@ public struct SkeletonModifier: ViewModifier {
 
 public extension SkeletonModifier {
     enum ModificationType {
-        case size(size: CGSize)
+        case size(CGSize)
+        case width(CGFloat)
         case overlay
     }
 }
