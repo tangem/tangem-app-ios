@@ -59,7 +59,7 @@ final class SwappingViewModel: ObservableObject {
         swappingDestinationService: SwappingDestinationServicing,
         tokenIconURLBuilder: TokenIconURLBuilding,
         transactionSender: TransactionSendable,
-fiatRatesProvider: FiatRatesProviding,
+        fiatRatesProvider: FiatRatesProviding,
         userWalletModel: UserWalletModel,
         currencyMapper: CurrencyMapping,
         blockchainNetwork: BlockchainNetwork,
