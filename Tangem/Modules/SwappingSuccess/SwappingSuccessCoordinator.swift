@@ -1,5 +1,5 @@
 //
-//  SuccessSwappingCoordinator.swift
+//  SwappingSuccessCoordinator.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -9,45 +9,46 @@
 import Foundation
 import Combine
 
-class SuccessSwappingCoordinator: CoordinatorObject {
+class SwappingSuccessCoordinator: CoordinatorObject {
     let dismissAction: Action
     let popToRootAction: ParamsAction<PopToRootOptions>
 
     // MARK: - Root view model
 
-    @Published private(set) var rootViewModel: SuccessSwappingViewModel?
+    @Published private(set) var rootViewModel: SwappingSuccessViewModel?
 
     // MARK: - Child view models
 
     @Published var webViewContainerViewModel: WebViewContainerViewModel?
 
+    private let factory: SwappingModulesFactory
+
     required init(
+        factory: SwappingModulesFactory,
         dismissAction: @escaping Action,
         popToRootAction: @escaping ParamsAction<PopToRootOptions>
     ) {
+        self.factory = factory
         self.dismissAction = dismissAction
         self.popToRootAction = popToRootAction
     }
 
     func start(with options: Options) {
-        rootViewModel = SuccessSwappingViewModel(
-            inputModel: options.inputModel,
-            coordinator: self
-        )
+        rootViewModel = factory.makeSwappingSuccessViewModel(inputModel: options.inputModel, coordinator: self)
     }
 }
 
 // MARK: - Options
 
-extension SuccessSwappingCoordinator {
+extension SwappingSuccessCoordinator {
     struct Options {
-        let inputModel: SuccessSwappingInputModel
+        let inputModel: SwappingSuccessInputModel
     }
 }
 
-// MARK: - SuccessSwappingRoutable
+// MARK: - SwappingSuccessRoutable
 
-extension SuccessSwappingCoordinator: SuccessSwappingRoutable {
+extension SwappingSuccessCoordinator: SwappingSuccessRoutable {
     func didTapCloseButton() {
         dismiss()
     }
