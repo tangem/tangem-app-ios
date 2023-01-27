@@ -21,10 +21,10 @@ class SwappingSuccessCoordinator: CoordinatorObject {
 
     @Published var webViewContainerViewModel: WebViewContainerViewModel?
 
-    private let factory: SwappingModulesFactoring
+    private let factory: SwappingModulesFactory
 
     required init(
-        factory: SwappingModulesFactoring,
+        factory: SwappingModulesFactory,
         dismissAction: @escaping Action,
         popToRootAction: @escaping ParamsAction<PopToRootOptions>
     ) {
