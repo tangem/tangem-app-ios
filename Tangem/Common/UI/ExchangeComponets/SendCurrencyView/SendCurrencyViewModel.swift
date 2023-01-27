@@ -14,36 +14,42 @@ struct SendCurrencyViewModel: Identifiable {
     // ViewState
     private(set) var maximumFractionDigits: Int
     private(set) var isChangeable: Bool
+    private(set) var balance: State
+    private(set) var fiatValue: State
 
     let tokenIcon: SwappingTokenIconViewModel
 
     var balanceString: String {
-        Localization.commonBalance(balance.groupedFormatted(maximumFractionDigits: maximumFractionDigits))
+        let balance = balance.value ?? 0
+        return Localization.commonBalance(
+            balance.groupedFormatted(maximumFractionDigits: maximumFractionDigits)
+        )
     }
 
     var fiatValueString: String {
-        fiatValue.currencyFormatted(code: AppSettings.shared.selectedCurrencyCode)
+        let fiatValue = fiatValue.value ?? 0
+        return fiatValue.currencyFormatted(code: AppSettings.shared.selectedCurrencyCode)
     }
 
-    // Private
-    private let balance: Decimal
-    private var fiatValue: Decimal
-
     init(
-        balance: Decimal,
+        balance: State,
+        fiatValue: State,
         maximumFractionDigits: Int,
         isChangeable: Bool,
-        fiatValue: Decimal,
         tokenIcon: SwappingTokenIconViewModel
     ) {
         self.balance = balance
+        self.fiatValue = fiatValue
         self.maximumFractionDigits = maximumFractionDigits
         self.isChangeable = isChangeable
-        self.fiatValue = fiatValue
         self.tokenIcon = tokenIcon
     }
 
-    mutating func update(fiatValue: Decimal) {
+    mutating func update(balance: State) {
+        self.balance = balance
+    }
+
+    mutating func update(fiatValue: State) {
         self.fiatValue = fiatValue
     }
 
@@ -52,12 +58,28 @@ struct SendCurrencyViewModel: Identifiable {
     }
 }
 
+extension SendCurrencyViewModel {
+    enum State: Hashable {
+        case loading
+        case loaded(_ value: Decimal)
+
+        var value: Decimal? {
+            switch self {
+            case .loaded(let value):
+                return value
+            default:
+                return nil
+            }
+        }
+    }
+}
+
 extension SendCurrencyViewModel: Hashable {
     func hash(into hasher: inout Hasher) {
         hasher.combine(balance)
         hasher.combine(fiatValue)
-        hasher.combine(tokenIcon)
         hasher.combine(maximumFractionDigits)
         hasher.combine(isChangeable)
+        hasher.combine(tokenIcon)
     }
 }
