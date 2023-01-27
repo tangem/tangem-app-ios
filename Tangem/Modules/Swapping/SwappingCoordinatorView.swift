@@ -41,8 +41,8 @@ struct SwappingCoordinatorView: CoordinatorView {
             }
 
         NavHolder()
-            .sheet(item: $coordinator.successSwappingCoordinator) {
-                SuccessSwappingCoordinatorView(coordinator: $0)
+            .sheet(item: $coordinator.swappingSuccessCoordinator) {
+                SwappingSuccessCoordinatorView(coordinator: $0)
             }
     }
 }
