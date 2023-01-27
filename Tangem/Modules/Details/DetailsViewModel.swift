@@ -188,7 +188,7 @@ extension DetailsViewModel {
 
     func setupSupportSectionModels() {
         supportSectionModels = [
-            DefaultRowViewModel(title: "details_chat".localized, action: openSupportChat)
+            DefaultRowViewModel(title: "details_chat".localized, action: openSupportChat),
         ]
 
         if cardModel.emailConfig != nil {
