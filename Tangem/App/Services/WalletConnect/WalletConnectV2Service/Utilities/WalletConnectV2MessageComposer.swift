@@ -13,9 +13,7 @@ protocol WalletConnectV2MessageComposable {
     func makeErrorMessage(with error: WalletConnectV2Error) -> String
 }
 
-struct WalletConnectV2MessageComposer {}
-
-extension WalletConnectV2MessageComposer: WalletConnectV2MessageComposable {
+struct WalletConnectV2MessageComposer: WalletConnectV2MessageComposable {
     func makeMessage(for proposal: Session.Proposal, targetBlockchains: [String]) -> String {
         let proposer = proposal.proposer
         let namespaces = proposal.requiredNamespaces
