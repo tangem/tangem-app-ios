@@ -45,6 +45,9 @@ final class SwappingViewModel: ObservableObject {
     private let tokenIconURLBuilder: TokenIconURLBuilding
     private let transactionSender: TransactionSendable
     private let fiatRatesProvider: FiatRatesProviding
+    private let userWalletModel: UserWalletModel
+    private let currencyMapper: CurrencyMapping
+    private let blockchainNetwork: BlockchainNetwork
 
     private unowned let coordinator: SwappingRoutable
 
@@ -59,6 +62,9 @@ final class SwappingViewModel: ObservableObject {
         tokenIconURLBuilder: TokenIconURLBuilding,
         transactionSender: TransactionSendable,
         fiatRatesProvider: FiatRatesProviding,
+        userWalletModel: UserWalletModel,
+        currencyMapper: CurrencyMapping,
+        blockchainNetwork: BlockchainNetwork,
         coordinator: SwappingRoutable
     ) {
         self.initialSourceCurrency = initialSourceCurrency
@@ -67,6 +73,9 @@ final class SwappingViewModel: ObservableObject {
         self.tokenIconURLBuilder = tokenIconURLBuilder
         self.transactionSender = transactionSender
         self.fiatRatesProvider = fiatRatesProvider
+        self.userWalletModel = userWalletModel
+        self.currencyMapper = currencyMapper
+        self.blockchainNetwork = blockchainNetwork
         self.coordinator = coordinator
 
         setupView()
@@ -514,6 +523,7 @@ private extension SwappingViewModel {
         Task {
             do {
                 try await transactionSender.sendTransaction(info)
+                addDestinationTokenToUserWalletList()
                 await runOnMain {
                     openSuccessView(result: result, transactionModel: info)
                 }
@@ -556,6 +566,17 @@ private extension SwappingViewModel {
         ) { [weak self] in
             self?.didTapWaringRefresh()
         }
+    }
+
+    func addDestinationTokenToUserWalletList() {
+        guard let destination = exchangeManager.getExchangeItems().destination,
+              let token = currencyMapper.mapToToken(currency: destination) else {
+            return
+        }
+
+        let entry = StorageEntry(blockchainNetwork: blockchainNetwork, token: token)
+        userWalletModel.append(entries: [entry])
+        userWalletModel.updateWalletModels()
     }
 }
 
