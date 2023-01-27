@@ -41,10 +41,12 @@ final class SwappingViewModel: ObservableObject {
 
     private let exchangeManager: ExchangeManager
     private let swappingDestinationService: SwappingDestinationServicing
-    private let userCurrenciesProvider: UserCurrenciesProviding
     private let tokenIconURLBuilder: TokenIconURLBuilding
     private let transactionSender: TransactionSendable
     private let fiatRatesProvider: FiatRatesProviding
+    private let userWalletModel: UserWalletModel
+    private let currencyMapper: CurrencyMapping
+    private let blockchainNetwork: BlockchainNetwork
 
     private unowned let coordinator: SwappingRoutable
 
@@ -55,18 +57,22 @@ final class SwappingViewModel: ObservableObject {
     init(
         exchangeManager: ExchangeManager,
         swappingDestinationService: SwappingDestinationServicing,
-        userCurrenciesProvider: UserCurrenciesProviding,
         tokenIconURLBuilder: TokenIconURLBuilding,
         transactionSender: TransactionSendable,
         fiatRatesProvider: FiatRatesProviding,
+        userWalletModel: UserWalletModel,
+        currencyMapper: CurrencyMapping,
+        blockchainNetwork: BlockchainNetwork,
         coordinator: SwappingRoutable
     ) {
         self.exchangeManager = exchangeManager
         self.swappingDestinationService = swappingDestinationService
-        self.userCurrenciesProvider = userCurrenciesProvider
         self.tokenIconURLBuilder = tokenIconURLBuilder
         self.transactionSender = transactionSender
         self.fiatRatesProvider = fiatRatesProvider
+        self.userWalletModel = userWalletModel
+        self.currencyMapper = currencyMapper
+        self.blockchainNetwork = blockchainNetwork
         self.coordinator = coordinator
 
         setupView()
@@ -101,7 +107,6 @@ final class SwappingViewModel: ObservableObject {
         exchangeManager.update(exchangeItems: items)
     }
 
-    @MainActor
     func userDidTapChangeDestinationButton() {
         openTokenListView()
     }
@@ -131,20 +136,11 @@ final class SwappingViewModel: ObservableObject {
 // MARK: - Navigation
 
 private extension SwappingViewModel {
-    @MainActor
     func openTokenListView() {
         let source = exchangeManager.getExchangeItems().source
-        let userCurrencies = userCurrenciesProvider.getCurrencies(
-            blockchain: source.blockchain
-        )
-
-        coordinator.presentSwappingTokenList(
-            sourceCurrency: source,
-            userCurrencies: userCurrencies
-        )
+        coordinator.presentSwappingTokenList(sourceCurrency: source)
     }
 
-    @MainActor
     func openSuccessView(
         result: SwappingResultDataModel,
         transactionModel: ExchangeTransactionDataModel
@@ -165,7 +161,7 @@ private extension SwappingViewModel {
             contractAddress: transactionModel.sourceCurrency.contractAddress
         )
 
-        let inputModel = SuccessSwappingInputModel(
+        let inputModel = SwappingSuccessInputModel(
             sourceCurrencyAmount: source,
             resultCurrencyAmount: result,
             explorerURL: explorerURL
@@ -513,7 +509,10 @@ private extension SwappingViewModel {
         Task {
             do {
                 try await transactionSender.sendTransaction(info)
-                await openSuccessView(result: result, transactionModel: info)
+                addDestinationTokenToUserWalletList()
+                await runOnMain {
+                    openSuccessView(result: result, transactionModel: info)
+                }
             } catch TangemSdkError.userCancelled {
                 // Do nothing
             } catch {
@@ -553,6 +552,17 @@ private extension SwappingViewModel {
         ) { [weak self] in
             self?.didTapWaringRefresh()
         }
+    }
+
+    func addDestinationTokenToUserWalletList() {
+        guard let destination = exchangeManager.getExchangeItems().destination,
+              let token = currencyMapper.mapToToken(currency: destination) else {
+            return
+        }
+
+        let entry = StorageEntry(blockchainNetwork: blockchainNetwork, token: token)
+        userWalletModel.append(entries: [entry])
+        userWalletModel.updateWalletModels()
     }
 }
 
