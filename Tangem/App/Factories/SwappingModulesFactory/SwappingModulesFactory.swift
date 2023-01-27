@@ -1,5 +1,5 @@
 //
-//  SwappingModulesFactoring.swift
+//  SwappingModulesFactory.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -8,7 +8,7 @@
 
 import TangemExchange
 
-protocol SwappingModulesFactoring {
+protocol SwappingModulesFactory {
     func makeSwappingViewModel(coordinator: SwappingRoutable) -> SwappingViewModel
     func makeSwappingTokenListViewModel(coordinator: SwappingTokenListRoutable) -> SwappingTokenListViewModel
     func makeSwappingPermissionViewModel(
