@@ -286,7 +286,7 @@ extension MainCoordinator: MainRoutable {
     }
 
     /// Because `MainRoutable` inherits `TokenDetailsRoutable`. Todo: Remove it dependency
-    func openSwapping(input: SwappingConfigurator.InputModel) {}
+    func openSwapping(input: SwappingModulesFactory.InputModel) {}
 }
 
 extension MainCoordinator: UserWalletListCoordinatorOutput {
