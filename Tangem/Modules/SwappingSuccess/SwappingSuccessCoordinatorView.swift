@@ -1,5 +1,5 @@
 //
-//  SuccessSwappingCoordinatorView.swift
+//  SwappingSuccessCoordinatorView.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -8,17 +8,17 @@
 
 import SwiftUI
 
-struct SuccessSwappingCoordinatorView: CoordinatorView {
-    @ObservedObject var coordinator: SuccessSwappingCoordinator
+struct SwappingSuccessCoordinatorView: CoordinatorView {
+    @ObservedObject var coordinator: SwappingSuccessCoordinator
 
-    init(coordinator: SuccessSwappingCoordinator) {
+    init(coordinator: SwappingSuccessCoordinator) {
         self.coordinator = coordinator
     }
 
     var body: some View {
         ZStack {
             if let rootViewModel = coordinator.rootViewModel {
-                SuccessSwappingView(viewModel: rootViewModel)
+                SwappingSuccessView(viewModel: rootViewModel)
             }
 
             sheets
