@@ -21,9 +21,12 @@ struct SwappingConfigurator {
     func createModule(input: InputModel, coordinator: SwappingRoutable) -> SwappingViewModel {
         SwappingViewModel(
             exchangeManager: factory.exchangeManager(source: input.source, destination: input.destination),
-            swappingDestinationService: factory.swappingDestinationService(),
-            tokenIconURLBuilder: factory.tokenIconURLBuilder(),
-            transactionSender: factory.transactionSender(),
+            swappingDestinationService: factory.swappingDestinationService,
+            tokenIconURLBuilder: factory.tokenIconURLBuilder,
+            transactionSender: factory.transactionSender,
+            userWalletModel: factory.userWalletModel,
+            currencyMapper: factory.currencyMapper,
+            blockchainNetwork: factory.walletModel.blockchainNetwork,
             coordinator: coordinator
         )
     }
