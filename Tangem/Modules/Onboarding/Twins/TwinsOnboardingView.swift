@@ -151,6 +151,7 @@ struct TwinsOnboardingView: View {
                         viewModel.setupContainer(with: size)
                     }
                 }
+                .frame(minHeight: viewModel.navbarSize.height + 20)
 
                 if viewModel.isCustomContentVisible {
                     customContent
