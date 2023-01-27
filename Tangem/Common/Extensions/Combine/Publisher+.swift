@@ -95,3 +95,63 @@ extension Publisher where Output == Void, Failure == Never {
         Just(()).eraseToAnyPublisher()
     }
 }
+
+extension Publisher {
+    func asyncMap<T>(
+        _ transform: @escaping (Output) async throws -> T
+    ) -> Publishers.FlatMap<Future<T, Error>, Self> {
+        flatMap { value in
+            Future { promise in
+                Task {
+                    do {
+                        let output = try await transform(value)
+                        promise(.success(output))
+                    } catch {
+                        promise(.failure(error))
+                    }
+                }
+            }
+        }
+    }
+
+    func asyncMap<T>(
+        _ transform: @escaping (Output) async -> T
+    ) -> Publishers.FlatMap<Future<T, Never>, Self> {
+        flatMap { value in
+            Future { promise in
+                Task {
+                    let output = await transform(value)
+                    promise(.success(output))
+                }
+            }
+        }
+    }
+}
+
+@available(iOS, deprecated: 15.0, message: "AsyncCompatibilityKit is only useful when targeting iOS versions earlier than 15")
+public extension Publisher where Failure == Never {
+    /// Convert this publisher into an `AsyncStream` that can
+    /// be iterated over asynchronously using `for await`. The
+    /// stream will yield each output value produced by the
+    /// publisher and will finish once the publisher completes.
+    var values: AsyncStream<Output> {
+        get async {
+            AsyncStream { continuation in
+                var cancellable: AnyCancellable?
+                let onTermination = { cancellable?.cancel() }
+
+                continuation.onTermination = { @Sendable _ in
+                    onTermination()
+                }
+
+                cancellable = sink(
+                    receiveCompletion: { _ in
+                        continuation.finish()
+                    }, receiveValue: { value in
+                        continuation.yield(value)
+                    }
+                )
+            }
+        }
+    }
+}

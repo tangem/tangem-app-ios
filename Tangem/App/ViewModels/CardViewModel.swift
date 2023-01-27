@@ -790,3 +790,5 @@ extension CardViewModel {
         case loaded
     }
 }
+
+extension CardViewModel: WalletConnectUserWalletInfoProvider {}
