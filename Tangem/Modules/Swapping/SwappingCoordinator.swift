@@ -21,7 +21,7 @@ class SwappingCoordinator: CoordinatorObject {
 
     // MARK: - Child coordinators
 
-    @Published var successSwappingCoordinator: SwappingSuccessCoordinator?
+    @Published var swappingSuccessCoordinator: SwappingSuccessCoordinator?
 
     // MARK: - Child view models
 
@@ -30,10 +30,10 @@ class SwappingCoordinator: CoordinatorObject {
 
     // MARK: - Properties
 
-    private let factory: SwappingDependenciesFactoring
+    private let factory: SwappingModulesFactory
 
     required init(
-        factory: SwappingDependenciesFactoring,
+        factory: SwappingModulesFactory,
         dismissAction: @escaping Action,
         popToRootAction: @escaping ParamsAction<PopToRootOptions>
     ) {
@@ -43,15 +43,15 @@ class SwappingCoordinator: CoordinatorObject {
     }
 
     func start(with options: Options) {
-        rootViewModel = SwappingConfigurator(factory: factory).createModule(input: options.input, coordinator: self)
+        rootViewModel = factory.makeSwappingViewModel(coordinator: self)
     }
 }
 
 // MARK: - Options
 
 extension SwappingCoordinator {
-    struct Options {
-        let input: SwappingConfigurator.InputModel
+    enum Options {
+        case `default`
     }
 }
 
@@ -61,22 +61,12 @@ extension SwappingCoordinator: SwappingRoutable {
     func presentSwappingTokenList(sourceCurrency: Currency) {
         UIApplication.shared.endEditing()
 
-        swappingTokenListViewModel = SwappingTokenListViewModel(
-            sourceCurrency: sourceCurrency,
-            userCurrenciesProvider: factory.userCurrenciesProvider(),
-            tokenIconURLBuilder: factory.tokenIconURLBuilder(),
-            currencyMapper: factory.currencyMapper(),
-            coordinator: self
-        )
+        swappingTokenListViewModel = factory.makeSwappingTokenListViewModel(coordinator: self)
     }
 
     func presentPermissionView(inputModel: SwappingPermissionInputModel, transactionSender: TransactionSendable) {
         UIApplication.shared.endEditing()
-        swappingPermissionViewModel = SwappingPermissionViewModel(
-            inputModel: inputModel,
-            transactionSender: transactionSender,
-            coordinator: self
-        )
+        swappingPermissionViewModel = factory.makeSwappingPermissionViewModel(inputModel: inputModel, coordinator: self)
     }
 
     func presentSuccessView(inputModel: SwappingSuccessInputModel) {
@@ -89,7 +79,7 @@ extension SwappingCoordinator: SwappingRoutable {
         )
         coordinator.start(with: .init(inputModel: inputModel))
 
-        successSwappingCoordinator = coordinator
+        swappingSuccessCoordinator = coordinator
     }
 }
 
