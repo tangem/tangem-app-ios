@@ -9,6 +9,7 @@
 import Foundation
 import SwiftUI
 
+@available(iOS 15.0, *)
 struct BottomSheetContainer<Item, ContentView: View>: View {
     @Binding private var isVisible: Bool
     private let settings: Settings
@@ -152,6 +153,7 @@ struct BottomSheetContainer<Item, ContentView: View>: View {
     }
 }
 
+@available(iOS 15.0, *)
 extension BottomSheetContainer {
     struct Settings {
         let cornerRadius: CGFloat
@@ -176,6 +178,7 @@ extension BottomSheetContainer {
     }
 }
 
+@available(iOS 15.0, *)
 struct BottomSheetContainer_Previews: PreviewProvider {
     struct StatableContainer: View {
         @State private var item: SwappingPermissionViewModel? = nil
