@@ -19,11 +19,9 @@ protocol WalletConnectUIDelegate {
     func showScreen(with request: WalletConnectUIRequest)
 }
 
-struct WalletConnectAlertUIDelegate {
+struct WalletConnectAlertUIDelegate: WalletConnectUIDelegate {
     private let appPresenter: AppPresenter = .shared
-}
 
-extension WalletConnectAlertUIDelegate: WalletConnectUIDelegate {
     func showScreen(with request: WalletConnectUIRequest) {
         let alert = WalletConnectUIBuilder.makeAlert(
             for: request.event,
