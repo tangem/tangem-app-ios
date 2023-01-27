@@ -247,7 +247,6 @@ private extension SwappingViewModel {
             receiveCurrencyViewModel?.updateState(.loaded(0, fiatValue: 0))
 
         case .loading:
-            feeWarningRowViewModel = nil
             refreshWarningRowViewModel?.update(rightView: .loader)
             receiveCurrencyViewModel?.updateState(.loading)
 
