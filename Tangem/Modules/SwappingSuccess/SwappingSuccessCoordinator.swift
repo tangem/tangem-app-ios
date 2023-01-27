@@ -21,10 +21,10 @@ class SwappingSuccessCoordinator: CoordinatorObject {
 
     @Published var webViewContainerViewModel: WebViewContainerViewModel?
 
-    private let factory: SwappingDependenciesFactoring
+    private let factory: SwappingModulesFactory
 
     required init(
-        factory: SwappingDependenciesFactoring,
+        factory: SwappingModulesFactory,
         dismissAction: @escaping Action,
         popToRootAction: @escaping ParamsAction<PopToRootOptions>
     ) {
@@ -34,13 +34,7 @@ class SwappingSuccessCoordinator: CoordinatorObject {
     }
 
     func start(with options: Options) {
-        rootViewModel = SwappingSuccessViewModel(
-            inputModel: options.inputModel,
-            userWalletModel: factory.userWalletModel(),
-            currencyMapper: factory.currencyMapper(),
-            blockchainNetwork: factory.walletModel().blockchainNetwork,
-            coordinator: self
-        )
+        rootViewModel = factory.makeSwappingSuccessViewModel(inputModel: options.inputModel, coordinator: self)
     }
 }
 
