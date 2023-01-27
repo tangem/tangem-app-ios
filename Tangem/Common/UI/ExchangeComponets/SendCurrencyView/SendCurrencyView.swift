@@ -101,8 +101,8 @@ struct SendCurrencyView_Preview: PreviewProvider {
         SendCurrencyViewModel(
             balance: .loading,
             fiatValue: .loading,
-            isChangeable: true,
             maximumFractionDigits: 8,
+            isChangeable: true,
             tokenIcon: SwappingTokenIconViewModel(
                 state: .loaded(
                     imageURL: TokenIconURLBuilderMock().iconURL(id: "bitcoin", size: .large),
@@ -113,8 +113,8 @@ struct SendCurrencyView_Preview: PreviewProvider {
         SendCurrencyViewModel(
             balance: .loaded(3043.75),
             fiatValue: .loaded(1000.71),
-            isChangeable: true,
             maximumFractionDigits: 8,
+            isChangeable: true,
             tokenIcon: SwappingTokenIconViewModel(
                 state: .loaded(
                     imageURL: TokenIconURLBuilderMock().iconURL(id: "bitcoin", size: .large),
