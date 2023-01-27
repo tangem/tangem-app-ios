@@ -134,6 +134,7 @@ struct SwappingView_Preview: PreviewProvider {
         swappingDestinationService: SwappingDestinationServiceMock(),
         tokenIconURLBuilder: TokenIconURLBuilderMock(),
         transactionSender: TransactionSenderMock(),
+        fiatRatesProvider: FiatRatesProviderMock(),
         coordinator: SwappingCoordinator()
     )
 
