@@ -41,6 +41,11 @@ class ReferralViewModel: ObservableObject {
 
     @MainActor
     func participateInReferralProgram() async {
+        if isProcessingRequest {
+            return
+        }
+
+        isProcessingRequest = true
         Analytics.log(.referralButtonParticipate)
 
         guard
@@ -52,18 +57,18 @@ class ReferralViewModel: ObservableObject {
                 message: Localization.referralErrorFailedToLoadInfo,
                 okAction: coordinator.dismiss
             )
+            isProcessingRequest = false
             return
         }
 
         let token = award.token
 
         guard let address = cardModel.wallets.first(where: { $0.blockchain == blockchain })?.address else {
-            await requestDerivation(for: blockchain, with: token)
+            requestDerivation(for: blockchain, with: token)
             return
         }
 
         saveToStorageIfNeeded(token, for: blockchain)
-        isProcessingRequest = true
         do {
             let referralProgramInfo = try await runInTask {
                 try await self.tangemApiService.participateInReferralProgram(using: token, for: address, with: self.userWalletId.hexString)
@@ -106,8 +111,7 @@ class ReferralViewModel: ObservableObject {
         }
     }
 
-    @MainActor
-    private func requestDerivation(for blockchain: Blockchain, with referralToken: ReferralProgramInfo.Token) async {
+    private func requestDerivation(for blockchain: Blockchain, with referralToken: ReferralProgramInfo.Token) {
         let network = cardModel.getBlockchainNetwork(for: blockchain, derivationPath: nil)
         let token = convertToStorageToken(from: referralToken)
 
@@ -124,6 +128,7 @@ class ReferralViewModel: ObservableObject {
             case .success:
                 runTask(self.participateInReferralProgram)
             case .failure(let error):
+                self.isProcessingRequest = false
                 if case .userCancelled = error.toTangemSdkError() {
                     return
                 }
