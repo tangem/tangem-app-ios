@@ -1,5 +1,5 @@
 //
-//  SuccessSwappingRoutable.swift
+//  SwappingSuccessRoutable.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -8,7 +8,7 @@
 
 import Foundation
 
-protocol SuccessSwappingRoutable: AnyObject {
+protocol SwappingSuccessRoutable: AnyObject {
     func openExplorer(url: URL?, currencyName: String)
     func didTapCloseButton()
 }
