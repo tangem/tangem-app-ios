@@ -1,5 +1,5 @@
 //
-//  SuccessSwappingViewModel.swift
+//  SwappingSuccessViewModel.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -7,9 +7,9 @@
 //
 
 import Combine
-import SwiftUI
+import TangemExchange
 
-final class SuccessSwappingViewModel: ObservableObject {
+final class SwappingSuccessViewModel: ObservableObject {
     // MARK: - ViewState
 
     var sourceFormatted: String {
@@ -26,12 +26,12 @@ final class SuccessSwappingViewModel: ObservableObject {
 
     // MARK: - Dependencies
 
-    private let inputModel: SuccessSwappingInputModel
-    private unowned let coordinator: SuccessSwappingRoutable
+    private let inputModel: SwappingSuccessInputModel
+    private unowned let coordinator: SwappingSuccessRoutable
 
     init(
-        inputModel: SuccessSwappingInputModel,
-        coordinator: SuccessSwappingRoutable
+        inputModel: SwappingSuccessInputModel,
+        coordinator: SwappingSuccessRoutable
     ) {
         self.inputModel = inputModel
         self.coordinator = coordinator
