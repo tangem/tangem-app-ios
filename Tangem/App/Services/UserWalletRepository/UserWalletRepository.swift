@@ -10,7 +10,6 @@ import Foundation
 import Combine
 
 protocol UserWalletRepository: Initializable {
-    var delegate: UserWalletRepositoryDelegate? { get set }
     var models: [CardViewModel] { get }
     var selectedModel: CardViewModel? { get }
     var selectedUserWalletId: Data? { get }
@@ -26,10 +25,6 @@ protocol UserWalletRepository: Initializable {
     func save(_ userWallet: UserWallet)
     func delete(_ userWallet: UserWallet)
     func clear()
-}
-
-protocol UserWalletRepositoryDelegate: AnyObject {
-    func showTOS(at url: URL, _ completion: @escaping (Bool) -> Void)
 }
 
 private struct UserWalletRepositoryKey: InjectionKey {
