@@ -35,18 +35,28 @@ struct SwappingDependenciesFactory {
 // MARK: - SwappingDependenciesFactoring
 
 extension SwappingDependenciesFactory: SwappingDependenciesFactoring {
-    func walletModel() -> WalletModel {
-        return _walletModel
+    var walletModel: WalletModel { _walletModel }
+    var userWalletModel: UserWalletModel { _userWalletModel }
+    var swappingDestinationService: SwappingDestinationServicing {
+        SwappingDestinationService(walletModel: _walletModel, mapper: currencyMapper)
     }
 
-    func userWalletModel() -> UserWalletModel {
-        return _userWalletModel
+    var currencyMapper: CurrencyMapping { CurrencyMapper() }
+    var tokenIconURLBuilder: TokenIconURLBuilding { TokenIconURLBuilder(baseURL: CoinsResponse.baseURL) }
+    var userCurrenciesProvider: UserCurrenciesProviding { UserCurrenciesProvider(walletModel: _walletModel) }
+    var transactionSender: TransactionSendable {
+        ExchangeTransactionSender(
+            transactionCreator: walletManager,
+            transactionSender: walletManager,
+            transactionSigner: signer,
+            currencyMapper: currencyMapper
+        )
     }
 
     func exchangeManager(source: Currency, destination: Currency?) -> ExchangeManager {
         let networkService = BlockchainNetworkService(
             walletModel: _walletModel,
-            currencyMapper: currencyMapper()
+            currencyMapper: currencyMapper
         )
 
         return TangemExchangeFactory().createExchangeManager(
@@ -54,31 +64,6 @@ extension SwappingDependenciesFactory: SwappingDependenciesFactoring {
             source: source,
             destination: destination,
             logger: logger
-        )
-    }
-
-    func swappingDestinationService() -> SwappingDestinationServicing {
-        SwappingDestinationService(walletModel: _walletModel, mapper: currencyMapper())
-    }
-
-    func currencyMapper() -> CurrencyMapping {
-        CurrencyMapper()
-    }
-
-    func tokenIconURLBuilder() -> TokenIconURLBuilding {
-        TokenIconURLBuilder(baseURL: CoinsResponse.baseURL)
-    }
-
-    func userCurrenciesProvider() -> UserCurrenciesProviding {
-        UserCurrenciesProvider(walletModel: _walletModel)
-    }
-
-    func transactionSender() -> TransactionSendable {
-        ExchangeTransactionSender(
-            transactionCreator: walletManager,
-            transactionSender: walletManager,
-            transactionSigner: signer,
-            currencyMapper: currencyMapper()
         )
     }
 }
