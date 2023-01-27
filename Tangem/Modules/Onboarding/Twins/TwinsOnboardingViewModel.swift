@@ -20,16 +20,14 @@ class TwinsOnboardingViewModel: OnboardingTopupViewModel<TwinsOnboardingStep, On
 
     var retwinMode: Bool = false
 
-    override var currentStep: TwinsOnboardingStep {
-        guard currentStepIndex < steps.count else {
-            return .welcome
-        }
+    override var disclaimerModel: DisclaimerViewModel? {
+        guard currentStep == .disclaimer else { return nil }
 
-        guard isInitialAnimPlayed else {
-            return .welcome
-        }
+        return super.disclaimerModel
+    }
 
-        return steps[currentStepIndex]
+    override var navbarTitle: String {
+        currentStep.navbarTitle
     }
 
     override var title: String? {
@@ -74,6 +72,15 @@ class TwinsOnboardingViewModel: OnboardingTopupViewModel<TwinsOnboardingStep, On
         return super.mainButtonTitle
     }
 
+    override var supplementButtonColor: ButtonColorStyle {
+        switch currentStep {
+        case .disclaimer:
+            return .black
+        default:
+            return super.supplementButtonColor
+        }
+    }
+
     override var isSupplementButtonVisible: Bool {
         switch currentStep {
         case .topup:
@@ -85,7 +92,7 @@ class TwinsOnboardingViewModel: OnboardingTopupViewModel<TwinsOnboardingStep, On
 
     var isCustomContentVisible: Bool {
         switch currentStep {
-        case .saveUserWallet:
+        case .saveUserWallet, .disclaimer:
             return true
         default:
             return false
@@ -107,6 +114,8 @@ class TwinsOnboardingViewModel: OnboardingTopupViewModel<TwinsOnboardingStep, On
         var settings = super.mainButtonSettings
 
         switch currentStep {
+        case .disclaimer:
+            return nil
         case .alert:
             settings?.isDisabled = !alertAccepted
         default: break
@@ -201,8 +210,8 @@ class TwinsOnboardingViewModel: OnboardingTopupViewModel<TwinsOnboardingStep, On
 
     override func mainButtonAction() {
         switch currentStep {
-        case .welcome:
-            fallthrough
+        case .disclaimer:
+            break
         case .intro:
             fallthrough
         case .done, .success, .alert:
@@ -256,6 +265,9 @@ class TwinsOnboardingViewModel: OnboardingTopupViewModel<TwinsOnboardingStep, On
             withAnimation {
                 openQR()
             }
+        case .disclaimer:
+            disclaimerAccepted()
+            goToNextStep()
         default:
             break
         }
