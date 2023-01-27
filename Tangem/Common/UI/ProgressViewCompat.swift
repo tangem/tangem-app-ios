@@ -16,7 +16,7 @@ struct ProgressViewCompat: View {
             ProgressView()
                 .progressViewStyle(CircularProgressViewStyle(tint: color))
         } else {
-            ActivityIndicatorView(color: color.uiColor())
+            ActivityIndicatorView(color: color.uiColor)
         }
     }
 }
