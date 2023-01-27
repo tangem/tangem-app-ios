@@ -510,16 +510,19 @@ extension TokenDetailsViewModel {
 
     func openSwapping() {
         guard FeatureProvider.isAvailable(.exchange),
+              let userWalletModel = card.userWalletModel,
               let walletModel = walletModel,
               let source = sourceCurrency
         else {
             return
         }
 
-        let input = SwappingConfigurator.InputModel(
+        let input = CommonSwappingModulesFactory.InputModel(
+            userWalletModel: userWalletModel,
             walletModel: walletModel,
             sender: walletModel.walletManager,
             signer: card.signer,
+            logger: AppLog.shared,
             source: source
         )
 
