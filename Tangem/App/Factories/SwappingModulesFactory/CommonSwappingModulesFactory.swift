@@ -10,7 +10,7 @@ import Foundation
 import TangemExchange
 import BlockchainSdk
 
-struct SwappingModulesFactory {
+struct CommonSwappingModulesFactory {
     private let userWalletModel: UserWalletModel
     private let walletModel: WalletModel
     private let sender: TransactionSender
@@ -30,9 +30,9 @@ struct SwappingModulesFactory {
     }
 }
 
-// MARK: - SwappingModulesFactoring
+// MARK: - SwappingModulesFactory
 
-extension SwappingModulesFactory: SwappingModulesFactoring {
+extension CommonSwappingModulesFactory: SwappingModulesFactory {
     func makeSwappingViewModel(coordinator: SwappingRoutable) -> SwappingViewModel {
         SwappingViewModel(
             exchangeManager: exchangeManager(source: source, destination: destination),
@@ -80,7 +80,7 @@ extension SwappingModulesFactory: SwappingModulesFactoring {
 
 // MARK: Dependencies
 
-private extension SwappingModulesFactory {
+private extension CommonSwappingModulesFactory {
     var walletManager: WalletManager { walletModel.walletManager }
 
     var swappingDestinationService: SwappingDestinationServicing {
@@ -114,7 +114,7 @@ private extension SwappingModulesFactory {
     }
 }
 
-extension SwappingModulesFactory {
+extension CommonSwappingModulesFactory {
     struct InputModel {
         let userWalletModel: UserWalletModel
         let walletModel: WalletModel
