@@ -16,7 +16,7 @@ extension View {
             SkeletonModifier(isShown: isShown, modificationType: .size(size), radius: radius)
         )
     }
-    
+
     @ViewBuilder
     func skeletonable(isShown: Bool, width: CGFloat, radius: CGFloat = 3) -> some View {
         modifier(

@@ -517,7 +517,7 @@ extension TokenDetailsViewModel {
             return
         }
 
-        let input = SwappingModulesFactory.InputModel(
+        let input = CommonSwappingModulesFactory.InputModel(
             userWalletModel: userWalletModel,
             walletModel: walletModel,
             sender: walletModel.walletManager,

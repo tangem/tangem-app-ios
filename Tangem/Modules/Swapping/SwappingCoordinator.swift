@@ -30,10 +30,10 @@ class SwappingCoordinator: CoordinatorObject {
 
     // MARK: - Properties
 
-    private let factory: SwappingModulesFactoring
+    private let factory: SwappingModulesFactory
 
     required init(
-        factory: SwappingModulesFactoring,
+        factory: SwappingModulesFactory,
         dismissAction: @escaping Action,
         popToRootAction: @escaping ParamsAction<PopToRootOptions>
     ) {
