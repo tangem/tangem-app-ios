@@ -217,29 +217,26 @@ extension WalletConnectV1Service {
 
 // MARK: - WalletConnectURLHandler
 
-extension WalletConnectV1Service {
+extension WalletConnectV1Service: URLHandler {
     func canHandle(url: String) -> Bool {
         WCURL(url) != nil
     }
 
     @discardableResult
-    func handle(url: URL) -> Bool {
-        guard let extracted = extractWcUrl(from: url) else { return false }
-
-        guard let wcUrl = WCURL(extracted.url) else { return false }
+    func handle(url: String) -> Bool {
+        guard
+            let url = URL(string: url),
+            let extracted = extractWcUrl(from: url),
+            let wcUrl = WCURL(extracted.url)
+        else {
+            return false
+        }
 
         DispatchQueue.global().asyncAfter(deadline: .now() + extracted.handleDelay) {
             self.connect(to: wcUrl)
         }
 
         return true
-    }
-
-    @discardableResult
-    func handle(url: String) -> Bool {
-        guard let url = URL(string: url) else { return false }
-
-        return handle(url: url)
     }
 
     private func extractWcUrl(from url: URL) -> ExtractedWCUrl? {
