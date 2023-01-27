@@ -44,15 +44,23 @@ extension NoteConfig: UserWalletConfig {
     }
 
     var onboardingSteps: OnboardingSteps {
+        var steps = [SingleCardOnboardingStep]()
+
+        if !AppSettings.shared.termsOfServicesAccepted.contains(tou.id) {
+            steps.append(.disclaimer)
+        }
+
         if card.wallets.isEmpty {
-            return .singleWallet([.createWallet] + userWalletSavingSteps + [.topup, .successTopup])
+            steps.append(contentsOf: [.createWallet] + userWalletSavingSteps + [.topup, .successTopup])
         } else {
             if !AppSettings.shared.cardsStartedActivation.contains(card.cardId) {
-                return .singleWallet(userWalletSavingSteps)
+                steps.append(contentsOf: userWalletSavingSteps)
+            } else {
+                steps.append(contentsOf: userWalletSavingSteps + [.topup, .successTopup])
             }
-
-            return .singleWallet(userWalletSavingSteps + [.topup, .successTopup])
         }
+
+        return .singleWallet(steps)
     }
 
     var backupSteps: OnboardingSteps? {
