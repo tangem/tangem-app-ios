@@ -14,12 +14,6 @@ extension AnyPublisher {
         Just(output).eraseToAnyPublisher()
     }
 
-    static func justWithError(output: Output) -> AnyPublisher<Output, Error> {
-        Just(output)
-            .setFailureType(to: Error.self)
-            .eraseToAnyPublisher()
-    }
-
     func async() async throws -> Output {
         try await withCheckedThrowingContinuation { continuation in
             var cancellable: AnyCancellable?
