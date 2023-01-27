@@ -11,13 +11,9 @@ import BlockchainSdk
 import TangemExchange
 
 class BlockchainNetworkService {
-    @Injected(\.tangemApiService) private var tangemApiService: TangemApiService
-
     private let walletModel: WalletModel
     private let currencyMapper: CurrencyMapping
 
-    /// Collect rates for calculate fiat balance
-    private var rates: [String: Decimal] = [:]
     private var balances: [Amount.AmountType: Decimal] = [:]
     private var walletManager: WalletManager { walletModel.walletManager }
 
@@ -25,7 +21,6 @@ class BlockchainNetworkService {
         self.walletModel = walletModel
         self.currencyMapper = currencyMapper
 
-        rates = walletModel.rates
         balances = walletModel.wallet.amounts.reduce(into: [:]) {
             $0[$1.key] = $1.value.value.rounded(scale: $1.value.decimals, roundingMode: .down)
         }
@@ -96,17 +91,6 @@ extension BlockchainNetworkService: TangemExchange.BlockchainDataProvider {
         balances[.coin] = balance
         return balance
     }
-
-    func getFiat(for currency: Currency, amount: Decimal) async throws -> Decimal {
-        let id = currency.isToken ? currency.id : currency.blockchain.id
-        let rate = try await getFiatRate(currencyId: id)
-        return mapToFiat(amount: amount, rate: rate)
-    }
-
-    func getFiat(for blockchain: ExchangeBlockchain, amount: Decimal) async throws -> Decimal {
-        let rate = try await getFiatRate(currencyId: blockchain.id)
-        return mapToFiat(amount: amount, rate: rate)
-    }
 }
 
 // MARK: - Private
@@ -123,15 +107,6 @@ private extension BlockchainNetworkService {
             value: amount,
             decimals: currency.decimalCount
         )
-    }
-
-    func getFiatRateFor(for currency: Currency) async throws -> Decimal {
-        let id = currency.isToken ? currency.id : currency.blockchain.id
-        return try await getFiatRate(currencyId: id)
-    }
-
-    func getFiatRateFor(for blockchain: ExchangeBlockchain) async throws -> Decimal {
-        try await getFiatRate(currencyId: blockchain.id)
     }
 
     func getFiatBalanceFromWalletModel(currency: Currency, amount: Decimal) -> Decimal? {
@@ -163,31 +138,5 @@ private extension BlockchainNetworkService {
 
         assertionFailure("WalletModel haven't balance for coin")
         return 0
-    }
-
-    func getFiatRate(currencyId: String) async throws -> Decimal {
-        var currencyRate = rates[currencyId]
-
-        if currencyRate == nil {
-            let loadedRates = try await tangemApiService.loadRates(for: [currencyId]).async()
-            currencyRate = loadedRates[currencyId]
-        }
-
-        guard let currencyRate else {
-            throw CommonError.noData
-        }
-
-        rates[currencyId] = currencyRate
-
-        return currencyRate
-    }
-
-    func mapToFiat(amount: Decimal, rate: Decimal) -> Decimal {
-        let fiatValue = amount * rate
-        if fiatValue == 0 {
-            return 0
-        }
-
-        return max(fiatValue, 0.01).rounded(scale: 2, roundingMode: .plain)
     }
 }
