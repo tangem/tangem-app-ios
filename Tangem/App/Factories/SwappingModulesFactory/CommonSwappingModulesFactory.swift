@@ -39,6 +39,7 @@ extension CommonSwappingModulesFactory: SwappingModulesFactory {
             swappingDestinationService: swappingDestinationService,
             tokenIconURLBuilder: tokenIconURLBuilder,
             transactionSender: transactionSender,
+            fiatRatesProvider: fiatRatesProvider,
             userWalletModel: userWalletModel,
             currencyMapper: currencyMapper,
             blockchainNetwork: walletModel.blockchainNetwork,
@@ -97,6 +98,10 @@ private extension CommonSwappingModulesFactory {
             transactionSigner: signer,
             currencyMapper: currencyMapper
         )
+    }
+
+    var fiatRatesProvider: FiatRatesProviding {
+        FiatRatesProvider(rates: walletModel.rates)
     }
 
     func exchangeManager(source: Currency, destination: Currency?) -> ExchangeManager {
