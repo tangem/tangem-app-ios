@@ -36,9 +36,6 @@ class SwappingSuccessCoordinator: CoordinatorObject {
     func start(with options: Options) {
         rootViewModel = SwappingSuccessViewModel(
             inputModel: options.inputModel,
-            userWalletModel: factory.userWalletModel(),
-            currencyMapper: factory.currencyMapper(),
-            blockchainNetwork: factory.walletModel().blockchainNetwork,
             coordinator: self
         )
     }

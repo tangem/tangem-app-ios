@@ -21,7 +21,7 @@ class SwappingCoordinator: CoordinatorObject {
 
     // MARK: - Child coordinators
 
-    @Published var successSwappingCoordinator: SwappingSuccessCoordinator?
+    @Published var swappingSuccessCoordinator: SwappingSuccessCoordinator?
 
     // MARK: - Child view models
 
@@ -63,9 +63,9 @@ extension SwappingCoordinator: SwappingRoutable {
 
         swappingTokenListViewModel = SwappingTokenListViewModel(
             sourceCurrency: sourceCurrency,
-            userCurrenciesProvider: factory.userCurrenciesProvider(),
-            tokenIconURLBuilder: factory.tokenIconURLBuilder(),
-            currencyMapper: factory.currencyMapper(),
+            userCurrenciesProvider: factory.userCurrenciesProvider,
+            tokenIconURLBuilder: factory.tokenIconURLBuilder,
+            currencyMapper: factory.currencyMapper,
             coordinator: self
         )
     }
@@ -89,7 +89,7 @@ extension SwappingCoordinator: SwappingRoutable {
         )
         coordinator.start(with: .init(inputModel: inputModel))
 
-        successSwappingCoordinator = coordinator
+        swappingSuccessCoordinator = coordinator
     }
 }
 
