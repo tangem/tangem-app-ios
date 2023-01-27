@@ -89,8 +89,11 @@ private extension CommonSwappingModulesFactory {
     }
 
     var currencyMapper: CurrencyMapping { CurrencyMapper() }
+
     var tokenIconURLBuilder: TokenIconURLBuilding { TokenIconURLBuilder(baseURL: CoinsResponse.baseURL) }
+
     var userCurrenciesProvider: UserCurrenciesProviding { UserCurrenciesProvider(walletModel: walletModel) }
+
     var transactionSender: TransactionSendable {
         ExchangeTransactionSender(
             transactionCreator: walletManager,
