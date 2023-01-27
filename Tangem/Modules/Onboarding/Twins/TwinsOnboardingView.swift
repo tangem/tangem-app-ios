@@ -12,6 +12,9 @@ struct TwinsOnboardingView: View {
     @ObservedObject var viewModel: TwinsOnboardingViewModel
 
     private let screenSize: CGSize = UIScreen.main.bounds.size
+    private let progressBarHeight: CGFloat = 5
+    private let progressBarPadding: CGFloat = 10
+    private let disclaimerTopPadding: CGFloat = 8
 
     var isNavbarVisible: Bool {
         viewModel.isNavBarVisible
@@ -19,10 +22,6 @@ struct TwinsOnboardingView: View {
 
     var isProgressBarVisible: Bool {
         if case .intro = currentStep {
-            return false
-        }
-
-        if case .welcome = currentStep {
             return false
         }
 
@@ -45,12 +44,24 @@ struct TwinsOnboardingView: View {
         }
     }
 
+    @ViewBuilder
+    var disclaimerContent: some View {
+        if let disclaimerModel = viewModel.disclaimerModel {
+            DisclaimerView(viewModel: disclaimerModel)
+                .offset(y: progressBarHeight + progressBarPadding + disclaimerTopPadding)
+                .offset(y: viewModel.isNavBarVisible ? viewModel.navbarSize.height : 0)
+        }
+    }
+
     var body: some View {
         ZStack {
             ConfettiView(shouldFireConfetti: $viewModel.shouldFireConfetti)
                 .allowsHitTesting(false)
+                .disabled(true) // Resolve iOS13 gesture conflict with the webView
                 .frame(maxWidth: screenSize.width)
                 .zIndex(110)
+
+            disclaimerContent
 
             VStack(spacing: 0) {
                 GeometryReader { geom in
@@ -60,7 +71,7 @@ struct TwinsOnboardingView: View {
                         // Navbar is added to ZStack instead of VStack because of wrong animation when container changed
                         // and cards jumps instead of smooth transition
                         NavigationBar(
-                            title: Localization.twinsRecreateToolbar,
+                            title: viewModel.navbarTitle,
                             settings: .init(titleFont: .system(size: 17, weight: .semibold), backgroundColor: .clear),
                             leftItems: {
                                 BackButton(
@@ -84,8 +95,8 @@ struct TwinsOnboardingView: View {
                         .offset(x: 0, y: -geom.size.height / 2 + (isNavbarVisible ? viewModel.navbarSize.height / 2 : 0))
                         .opacity(isNavbarVisible ? 1.0 : 0.0)
 
-                        ProgressBar(height: 5, currentProgress: viewModel.currentProgress)
-                            .offset(x: 0, y: -size.height / 2 + viewModel.navbarSize.height + 10)
+                        ProgressBar(height: progressBarHeight, currentProgress: viewModel.currentProgress)
+                            .offset(x: 0, y: -size.height / 2 + viewModel.navbarSize.height + progressBarPadding)
                             .opacity(isProgressBarVisible ? 1.0 : 0.0)
                             .padding(.horizontal, 16)
 
@@ -144,6 +155,9 @@ struct TwinsOnboardingView: View {
                 if viewModel.isCustomContentVisible {
                     customContent
                         .layoutPriority(1)
+                        .readSize { size in
+                            viewModel.setupContainer(with: size)
+                        }
                 }
 
                 if viewModel.isButtonsVisible {

@@ -477,17 +477,26 @@ class SendViewModel: ObservableObject {
     }
 
     func onAppear() {
-        validateClipboard()
+        if #unavailable(iOS 16) {
+            validateClipboard()
+        }
+
         setupWarnings()
     }
 
     func onBecomingActive() {
-        validateClipboard()
+        if #unavailable(iOS 16) {
+            validateClipboard()
+        }
     }
 
     // MARK: - Validation
 
     func validateClipboard() {
+        if #available(iOS 16, *) {
+            assertionFailure("Don't call this method, use PasteButton instead")
+        }
+
         let clipboardChangeCount = UIPasteboard.general.changeCount
         if clipboardChangeCount == lastClipboardChangeCount {
             return
@@ -562,6 +571,17 @@ class SendViewModel: ObservableObject {
         Analytics.log(.buttonPaste)
         if let validatedClipboard = validatedClipboard {
             destination = validatedClipboard
+        }
+    }
+
+    func pasteClipboardTapped(_ strings: [String]) {
+        Analytics.log(.buttonPaste)
+
+        if let string = strings.first, validateAddress(string) {
+            destination = string
+        } else {
+            let notificationGenerator = UINotificationFeedbackGenerator()
+            notificationGenerator.notificationOccurred(.error)
         }
     }
 
