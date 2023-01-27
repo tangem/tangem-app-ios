@@ -21,10 +21,10 @@ class SwappingSuccessCoordinator: CoordinatorObject {
 
     @Published var webViewContainerViewModel: WebViewContainerViewModel?
 
-    private let factory: SwappingDependenciesFactoring
+    private let factory: SwappingModulesFactoring
 
     required init(
-        factory: SwappingDependenciesFactoring,
+        factory: SwappingModulesFactoring,
         dismissAction: @escaping Action,
         popToRootAction: @escaping ParamsAction<PopToRootOptions>
     ) {
@@ -34,10 +34,7 @@ class SwappingSuccessCoordinator: CoordinatorObject {
     }
 
     func start(with options: Options) {
-        rootViewModel = SwappingSuccessViewModel(
-            inputModel: options.inputModel,
-            coordinator: self
-        )
+        rootViewModel = factory.makeSwappingSuccessViewModel(inputModel: options.inputModel, coordinator: self)
     }
 }
 
