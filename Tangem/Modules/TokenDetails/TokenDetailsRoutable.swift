@@ -18,6 +18,6 @@ protocol TokenDetailsRoutable: AnyObject {
     func openPushTx(for tx: BlockchainSdk.Transaction, blockchainNetwork: BlockchainNetwork, card: CardViewModel)
     func openBankWarning(confirmCallback: @escaping () -> Void, declineCallback: @escaping () -> Void)
     func openP2PTutorial()
-    func openSwapping(input: SwappingModulesFactory.InputModel)
+    func openSwapping(input: CommonSwappingModulesFactory.InputModel)
     func dismiss()
 }
