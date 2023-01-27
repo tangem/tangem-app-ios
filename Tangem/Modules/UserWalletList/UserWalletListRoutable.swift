@@ -10,7 +10,6 @@ import Foundation
 
 protocol UserWalletListRoutable: AnyObject {
     func dismiss()
-    func openDisclaimer(at url: URL, _ completion: @escaping (Bool) -> Void)
     func openOnboarding(with input: OnboardingInput)
     func openMail(with dataCollector: EmailDataCollector, emailType: EmailType, recipient: String)
 }
