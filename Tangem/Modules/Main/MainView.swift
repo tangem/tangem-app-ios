@@ -58,7 +58,7 @@ struct MainView: View {
                 }
             }
         }
-        .navigationBarBackButtonHidden(true)
+        .navigationBarBackButtonHidden(true) // Remove default back button. Because we don't have back transition. Has no effect on iOS13.
         .navigationBarTitle(Text(Localization.walletTitle), displayMode: .inline)
         .navigationBarItems(
             leading: leadingNavigationButtons,
@@ -68,7 +68,6 @@ struct MainView: View {
         .onAppear {
             viewModel.onAppear()
         }
-        .navigationBarHidden(false)
         .ignoresKeyboard()
         .alert(item: $viewModel.error) { $0.alert }
     }
