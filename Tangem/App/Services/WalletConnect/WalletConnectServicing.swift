@@ -12,12 +12,12 @@ import Combine
 protocol WalletConnectService: URLHandler {
     var canEstablishNewSessionPublisher: AnyPublisher<Bool, Never> { get }
     var sessionsPublisher: AnyPublisher<[WalletConnectSession], Never> { get }
+    var newSessions: AsyncStream<[WalletConnectSavedSession]> { get async }
 
     func initialize(with cardModel: CardViewModel)
     func reset()
-
-    func canHandle(url: String) -> Bool
     func disconnectSession(with id: Int)
+    func disconnectV2Session(with id: Int) async
 }
 
 private struct WalletConnectServicingKey: InjectionKey {
