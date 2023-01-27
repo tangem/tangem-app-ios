@@ -44,6 +44,7 @@ final class SwappingViewModel: ObservableObject {
     private let userCurrenciesProvider: UserCurrenciesProviding
     private let tokenIconURLBuilder: TokenIconURLBuilding
     private let transactionSender: TransactionSendable
+    private let fiatRatesProvider: FiatRatesProviding
 
     private unowned let coordinator: SwappingRoutable
 
@@ -57,6 +58,7 @@ final class SwappingViewModel: ObservableObject {
         userCurrenciesProvider: UserCurrenciesProviding,
         tokenIconURLBuilder: TokenIconURLBuilding,
         transactionSender: TransactionSendable,
+        fiatRatesProvider: FiatRatesProviding,
         coordinator: SwappingRoutable
     ) {
         self.exchangeManager = exchangeManager
@@ -64,6 +66,7 @@ final class SwappingViewModel: ObservableObject {
         self.userCurrenciesProvider = userCurrenciesProvider
         self.tokenIconURLBuilder = tokenIconURLBuilder
         self.transactionSender = transactionSender
+        self.fiatRatesProvider = fiatRatesProvider
         self.coordinator = coordinator
 
         setupView()
@@ -73,7 +76,7 @@ final class SwappingViewModel: ObservableObject {
     }
 
     func userDidTapMaxAmount() {
-        sendDecimalValue = exchangeManager.getExchangeItems().sourceBalance.balance
+        sendDecimalValue = exchangeManager.getExchangeItems().sourceBalance
     }
 
     func userDidRequestChangeDestination(to currency: Currency) {
@@ -103,7 +106,6 @@ final class SwappingViewModel: ObservableObject {
         openTokenListView()
     }
 
-    @MainActor
     func didTapMainButton() {
         switch mainButtonState {
         case .permitAndSwap:
@@ -172,23 +174,34 @@ private extension SwappingViewModel {
         coordinator.presentSuccessView(inputModel: inputModel)
     }
 
-    @MainActor
     func openPermissionView() {
         let state = exchangeManager.getAvailabilityState()
+        let source = exchangeManager.getExchangeItems().source
+
         guard case .available(let result, let info) = state,
-              result.isPermissionRequired else {
+              result.isPermissionRequired,
+              fiatRatesProvider.hasRates(for: source) else {
+            // If we don't have enough data disable button and refresh()
+            mainButtonIsEnabled = false
+            exchangeManager.refresh()
+
             return
         }
 
-        let inputModel = SwappingPermissionInputModel(
-            fiatFee: result.fiatFee,
-            transactionInfo: info
-        )
+        runTask(in: self) { obj in
+            let fiatFee = try await obj.fiatRatesProvider.getFiat(for: source, amount: info.fee)
+            let inputModel = SwappingPermissionInputModel(
+                fiatFee: fiatFee,
+                transactionInfo: info
+            )
 
-        coordinator.presentPermissionView(
-            inputModel: inputModel,
-            transactionSender: transactionSender
-        )
+            await runOnMain {
+                obj.coordinator.presentPermissionView(
+                    inputModel: inputModel,
+                    transactionSender: obj.transactionSender
+                )
+            }
+        }
     }
 }
 
@@ -212,32 +225,69 @@ extension SwappingViewModel: ExchangeManagerDelegate {
 
 private extension SwappingViewModel {
     func updateView(exchangeItems: ExchangeItems) {
+        updateSendView(exchangeItems: exchangeItems)
+        updateReceiveView(exchangeItems: exchangeItems)
+    }
+
+    func updateSendView(exchangeItems: ExchangeItems) {
         let source = exchangeItems.source
-        let destination = exchangeItems.destination
 
         sendCurrencyViewModel = SendCurrencyViewModel(
-            balance: exchangeItems.sourceBalance.balance,
+            balance: .loaded(exchangeItems.sourceBalance),
+            fiatValue: .loading,
             maximumFractionDigits: source.decimalCount,
-            fiatValue: exchangeItems.sourceBalance.fiatBalance,
             tokenIcon: mapToSwappingTokenIconViewModel(currency: source)
         )
 
-        let state: ReceiveCurrencyViewModel.State
+        updateSendFiatValue()
+    }
+
+    func updateSendFiatValue() {
+        guard let sendDecimalValue = sendDecimalValue else {
+            sendCurrencyViewModel?.update(fiatValue: .loaded(0))
+            return
+        }
+
+        let source = exchangeManager.getExchangeItems().source
+        if !fiatRatesProvider.hasRates(for: source) {
+            sendCurrencyViewModel?.update(fiatValue: .loading)
+        }
+
+        Task {
+            let fiatValue = try await fiatRatesProvider.getFiat(for: source, amount: sendDecimalValue)
+            await runOnMain {
+                sendCurrencyViewModel?.update(fiatValue: .loaded(fiatValue))
+            }
+        }
+    }
+
+    func updateReceiveView(exchangeItems: ExchangeItems) {
+        let destination = exchangeItems.destination
+
+        let cryptoAmountState: ReceiveCurrencyViewModel.State
+        let fiatAmountState: ReceiveCurrencyViewModel.State
 
         switch exchangeManager.getAvailabilityState() {
         case .idle, .requiredRefresh:
-            state = .loaded(0, fiatValue: 0)
+            cryptoAmountState = .loaded(0)
+            fiatAmountState = .loaded(0)
         case .loading:
-            state = .loading
+            cryptoAmountState = .loading
+            fiatAmountState = .loading
         case .preview(let result):
-            state = .loaded(result.expectedAmount, fiatValue: result.expectedFiatAmount)
+            cryptoAmountState = .loaded(result.expectedAmount)
+            fiatAmountState = .loading
+            updateReceiveCurrencyValue(value: result.expectedAmount)
         case .available(let result, _):
-            state = .loaded(result.amount, fiatValue: result.amount)
+            cryptoAmountState = .loaded(result.amount)
+            fiatAmountState = .loading
+            updateReceiveCurrencyValue(value: result.amount)
         }
 
         receiveCurrencyViewModel = ReceiveCurrencyViewModel(
             balance: exchangeItems.destinationBalance,
-            state: state,
+            cryptoAmountState: cryptoAmountState,
+            fiatAmountState: fiatAmountState,
             tokenIcon: mapToSwappingTokenIconViewModel(currency: destination)
         )
     }
@@ -250,7 +300,10 @@ private extension SwappingViewModel {
         case .idle:
             refreshWarningRowViewModel = nil
             feeWarningRowViewModel = nil
-            receiveCurrencyViewModel?.updateState(.loaded(0, fiatValue: 0))
+            permissionInfoRowViewModel = nil
+
+            receiveCurrencyViewModel?.update(cryptoAmountState: .loaded(0))
+            receiveCurrencyViewModel?.update(fiatAmountState: .loaded(0))
 
         case .loading(let type):
             swapButtonIsLoading = true
@@ -259,32 +312,45 @@ private extension SwappingViewModel {
             guard type == .full else { return }
 
             refreshWarningRowViewModel?.update(rightView: .loader)
-            receiveCurrencyViewModel?.updateState(.loading)
+            receiveCurrencyViewModel?.update(cryptoAmountState: .loading)
+            receiveCurrencyViewModel?.update(fiatAmountState: .loading)
 
         case .preview(let result):
             refreshWarningRowViewModel = nil
             feeWarningRowViewModel = nil
             swapButtonIsLoading = false
-            receiveCurrencyViewModel?.updateState(
-                .loaded(result.expectedAmount, fiatValue: result.expectedFiatAmount)
-            )
 
+            updateReceiveCurrencyValue(value: result.expectedAmount)
             updateRequiredPermission(isPermissionRequired: result.isPermissionRequired)
             updatePendingApprovingTransaction(hasPendingTransaction: result.hasPendingTransaction)
 
         case .available(let result, _):
             refreshWarningRowViewModel = nil
             swapButtonIsLoading = false
-            receiveCurrencyViewModel?.updateState(
-                .loaded(result.amount, fiatValue: result.fiatAmount)
-            )
 
+            updateReceiveCurrencyValue(value: result.amount)
             updateRequiredPermission(isPermissionRequired: result.isPermissionRequired)
             updateEnoughAmountForFee(isEnoughAmountForFee: result.isEnoughAmountForFee)
 
         case .requiredRefresh(let error):
-            receiveCurrencyViewModel?.updateState(.loaded(0, fiatValue: 0))
+            receiveCurrencyViewModel?.update(cryptoAmountState: .loaded(0))
+            receiveCurrencyViewModel?.update(fiatAmountState: .loaded(0))
+
             processingError(error: error)
+        }
+    }
+
+    func updateReceiveCurrencyValue(value: Decimal) {
+        receiveCurrencyViewModel?.update(cryptoAmountState: .loaded(value))
+
+        guard let destination = exchangeManager.getExchangeItems().destination else { return }
+        receiveCurrencyViewModel?.update(fiatAmountState: .loading)
+
+        Task {
+            let fiatValue = try await fiatRatesProvider.getFiat(for: destination, amount: value)
+            await runOnMain {
+                receiveCurrencyViewModel?.update(fiatAmountState: .loaded(fiatValue))
+            }
         }
     }
 
@@ -330,17 +396,24 @@ private extension SwappingViewModel {
             swappingFeeRowViewModel.update(state: .idle)
         case .loading:
             swappingFeeRowViewModel.update(state: .loading)
-        case .available(let result, _):
+        case .available(let result, let info):
             let source = exchangeManager.getExchangeItems().source
-
             let fee = result.fee.rounded(scale: 2, roundingMode: .up)
-            swappingFeeRowViewModel.update(
-                state: .fee(
-                    fee: fee.groupedFormatted(maximumFractionDigits: source.decimalCount),
-                    symbol: source.blockchain.symbol,
-                    fiat: result.fiatFee.currencyFormatted(code: AppSettings.shared.selectedCurrencyCode)
-                )
-            )
+
+            Task {
+                let fiatFee = try await fiatRatesProvider.getFiat(for: info.sourceBlockchain, amount: result.fee)
+                let code = await AppSettings.shared.selectedCurrencyCode
+
+                await runOnMain {
+                    swappingFeeRowViewModel.update(
+                        state: .fee(
+                            fee: fee.groupedFormatted(maximumFractionDigits: source.decimalCount),
+                            symbol: source.blockchain.symbol,
+                            fiat: fiatFee.currencyFormatted(code: code)
+                        )
+                    )
+                }
+            }
         }
     }
 
@@ -386,9 +459,10 @@ private extension SwappingViewModel {
         $sendDecimalValue
             .removeDuplicates()
             .dropFirst()
-            .debounce(for: 1, scheduler: DispatchQueue.global())
+            .debounce(for: 1, scheduler: DispatchQueue.main)
             .sink { [weak self] amount in
                 self?.exchangeManager.update(amount: amount)
+                self?.updateSendFiatValue()
             }
             .store(in: &bag)
     }
