@@ -10,5 +10,4 @@ import Foundation
 
 public protocol UserCurrenciesProviding {
     func getCurrencies(blockchain: ExchangeBlockchain) -> [Currency]
-    func add(currency: Currency)
 }

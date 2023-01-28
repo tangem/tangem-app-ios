@@ -26,6 +26,7 @@ struct MainView: View {
                             width: geometry.size.width - 32,
                             cardSetLabel: viewModel.cardsCountLabel
                         )
+                        .padding(.top, 8)
                         .fixedSize(horizontal: false, vertical: true)
 
                         if viewModel.isLackDerivationWarningViewVisible {
@@ -199,6 +200,7 @@ struct MainView: View {
                 }
             }
             .padding(.horizontal, 16)
+            .padding(.bottom, 8)
         }
     }
 }
