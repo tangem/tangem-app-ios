@@ -19,10 +19,6 @@ struct UserCurrenciesProvider {
 // MARK: - UserCurrenciesProviding
 
 extension UserCurrenciesProvider: UserCurrenciesProviding {
-    func add(currency: TangemExchange.Currency) {
-        // [REDACTED_TODO_COMMENT]
-    }
-
     func getCurrencies(blockchain exchangeBlockchain: ExchangeBlockchain) -> [Currency] {
         let blockchain = walletModel.blockchainNetwork.blockchain
 
