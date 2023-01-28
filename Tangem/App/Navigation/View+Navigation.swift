@@ -7,8 +7,6 @@
 
 import SwiftUI
 
-// MARK: - Push/pop navigation
-
 extension View {
     func onNavigation(_ action: @escaping () -> Void) -> some View {
         let isActive = Binding(
