@@ -122,7 +122,7 @@ struct BottomSheetContainer<Item, ContentView: View>: View {
                 // If swipe did be enough then hide view
                 if value.translation.height > settings.distanceToHide {
                     hideView()
-                // Otherwise set the view to default state
+                    // Otherwise set the view to default state
                 } else {
                     offset = 0
                 }
