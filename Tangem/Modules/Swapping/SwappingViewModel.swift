@@ -243,7 +243,7 @@ private extension SwappingViewModel {
             balance: .loaded(exchangeItems.sourceBalance),
             fiatValue: .loading,
             maximumFractionDigits: source.decimalCount,
-            isChangeable: source != initialSourceCurrency,
+            canChangeCurrency: source != initialSourceCurrency,
             tokenIcon: mapToSwappingTokenIconViewModel(currency: source)
         )
 
@@ -294,7 +294,7 @@ private extension SwappingViewModel {
 
         receiveCurrencyViewModel = ReceiveCurrencyViewModel(
             balance: exchangeItems.destinationBalance,
-            isChangeable: destination != initialSourceCurrency,
+            canChangeCurrency: destination != initialSourceCurrency,
             cryptoAmountState: cryptoAmountState,
             fiatAmountState: fiatAmountState,
             tokenIcon: mapToSwappingTokenIconViewModel(currency: destination)
