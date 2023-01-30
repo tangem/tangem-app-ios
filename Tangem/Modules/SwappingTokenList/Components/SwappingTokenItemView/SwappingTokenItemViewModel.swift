@@ -9,7 +9,9 @@
 import Foundation
 
 struct SwappingTokenItemViewModel: Identifiable {
-    let id: String
+    var id: Int { hashValue }
+
+    let tokenId: String
     let iconURL: URL?
     let name: String
     let symbol: String
@@ -26,7 +28,7 @@ struct SwappingTokenItemViewModel: Identifiable {
     }
 
     init(
-        id: String,
+        tokenId: String,
         iconURL: URL? = nil,
         name: String,
         symbol: String,
@@ -34,12 +36,27 @@ struct SwappingTokenItemViewModel: Identifiable {
         balance: Decimal?,
         itemDidTap: @escaping () -> Void
     ) {
-        self.id = id
+        self.tokenId = tokenId
         self.iconURL = iconURL
         self.name = name
         self.symbol = symbol
         self.fiatBalance = fiatBalance
         self.balance = balance
         self.itemDidTap = itemDidTap
+    }
+}
+
+extension SwappingTokenItemViewModel: Hashable {
+    static func == (lhs: SwappingTokenItemViewModel, rhs: SwappingTokenItemViewModel) -> Bool {
+        lhs.id == rhs.id
+    }
+    
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(tokenId)
+        hasher.combine(iconURL)
+        hasher.combine(name)
+        hasher.combine(symbol)
+        hasher.combine(fiatBalance)
+        hasher.combine(balance)
     }
 }
