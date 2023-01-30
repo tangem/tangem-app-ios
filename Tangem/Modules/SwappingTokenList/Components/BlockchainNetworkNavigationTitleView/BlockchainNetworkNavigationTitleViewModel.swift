@@ -12,7 +12,7 @@ struct BlockchainNetworkNavigationTitleViewModel: Hashable {
     let title: String
     let iconURL: URL
     let network: String
-    
+
     var networkName: String {
         "\(network) network".capitalized
     }
