@@ -15,7 +15,7 @@ struct TotalBalanceCardSupportInfo {
 
     init(cardBatchId: String, userWalletId: Data, embeddedBlockchainCurrencySymbol: String?) {
         self.cardBatchId = cardBatchId
-        self.cardIdentifier = userWalletId.sha256().hexString
+        cardIdentifier = userWalletId.sha256().hexString
         self.embeddedBlockchainCurrencySymbol = embeddedBlockchainCurrencySymbol
     }
 }
