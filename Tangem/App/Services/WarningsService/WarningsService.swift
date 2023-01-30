@@ -83,7 +83,7 @@ private extension WarningsService {
         let send = WarningsContainer()
 
         let deprecationWarnings = deprecationService.deprecationWarnings
-        for warningEvent in (deprecationWarnings + config.warningEvents) {
+        for warningEvent in deprecationWarnings + config.warningEvents {
             if warningEvent.locationsToDisplay.contains(WarningsLocation.main) {
                 main.add(warningEvent.warning)
             }
