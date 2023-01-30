@@ -35,7 +35,7 @@ struct RefreshableScrollView<Content: View>: View {
 
     @available(iOS 16.0, *)
     private var refreshableScrollView: some View {
-        ScrollView(.vertical) {
+        ScrollView(.vertical, showsIndicators: false) {
             self.content
         }
         .refreshable {
