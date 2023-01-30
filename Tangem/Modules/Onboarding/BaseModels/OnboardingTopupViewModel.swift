@@ -122,7 +122,7 @@ class OnboardingTopupViewModel<Step: OnboardingStep, Coordinator: OnboardingTopu
 
     func logZeroBalanceAnalytics() {
         guard
-            let cardModel = self.cardModel,
+            let cardModel = cardModel,
             let info = TotalBalanceCardSupportInfoFactory(cardModel: cardModel).createInfo()
         else {
             return
