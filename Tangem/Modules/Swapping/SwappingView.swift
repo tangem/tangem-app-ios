@@ -47,11 +47,14 @@ struct SwappingView: View {
                         decimalValue: $viewModel.sendDecimalValue
                     )
                     .didTapMaxAmount(viewModel.userDidTapMaxAmount)
+                    .didTapChangeCurrency {
+                        viewModel.userDidTapChangeCurrencyButton()
+                    }
                 }
 
                 if let receiveCurrencyViewModel = viewModel.receiveCurrencyViewModel {
                     ReceiveCurrencyView(viewModel: receiveCurrencyViewModel)
-                        .didTapTokenView {
+                        .didTapChangeCurrency {
                             viewModel.userDidTapChangeDestinationButton()
                         }
                 }
@@ -65,7 +68,7 @@ struct SwappingView: View {
     @ViewBuilder
     private var swappingButton: some View {
         Group {
-            if viewModel.isLoading {
+            if viewModel.swapButtonIsLoading {
                 ProgressViewCompat(color: Colors.Icon.informative)
             } else {
                 Button(action: viewModel.userDidTapSwapExchangeItemsButton) {
@@ -126,6 +129,7 @@ struct SwappingView: View {
 
 struct SwappingView_Preview: PreviewProvider {
     static let viewModel = SwappingViewModel(
+        initialSourceCurrency: .mock,
         exchangeManager: ExchangeManagerMock(),
         swappingDestinationService: SwappingDestinationServiceMock(),
         tokenIconURLBuilder: TokenIconURLBuilderMock(),
