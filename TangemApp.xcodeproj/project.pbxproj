@@ -716,6 +716,8 @@
 		EFA9855529478AF200D1FCB3 /* ExchangeTransactionInfo+Mock.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFA9855429478AF200D1FCB3 /* ExchangeTransactionInfo+Mock.swift */; };
 		EFAF63E92927CA63004B3227 /* Setupable.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFAF63E82927CA63004B3227 /* Setupable.swift */; };
 		EFB4C1322837C51700E991C1 /* TextHint.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFB4C1312837C51700E991C1 /* TextHint.swift */; };
+		EFBA17E42987B0B500C23955 /* BlockchainNetworkNavigationTitleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFBA17E32987B0B500C23955 /* BlockchainNetworkNavigationTitleView.swift */; };
+		EFBA17E62987B0C200C23955 /* BlockchainNetworkNavigationTitleViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFBA17E52987B0C200C23955 /* BlockchainNetworkNavigationTitleViewModel.swift */; };
 		EFBAABAE2927CCBA0065C6D4 /* GroupedNumberTextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFBAABAC2927CCBA0065C6D4 /* GroupedNumberTextField.swift */; };
 		EFBAABAF2927CCBA0065C6D4 /* GroupedNumberFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFBAABAD2927CCBA0065C6D4 /* GroupedNumberFormatter.swift */; };
 		EFBFD56F2979990900B20C2E /* FiatRatesProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFBFD56E2979990900B20C2E /* FiatRatesProvider.swift */; };
@@ -1636,6 +1638,8 @@
 		EFA9855429478AF200D1FCB3 /* ExchangeTransactionInfo+Mock.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ExchangeTransactionInfo+Mock.swift"; sourceTree = "<group>"; };
 		EFAF63E82927CA63004B3227 /* Setupable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Setupable.swift; sourceTree = "<group>"; };
 		EFB4C1312837C51700E991C1 /* TextHint.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextHint.swift; sourceTree = "<group>"; };
+		EFBA17E32987B0B500C23955 /* BlockchainNetworkNavigationTitleView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlockchainNetworkNavigationTitleView.swift; sourceTree = "<group>"; };
+		EFBA17E52987B0C200C23955 /* BlockchainNetworkNavigationTitleViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlockchainNetworkNavigationTitleViewModel.swift; sourceTree = "<group>"; };
 		EFBAABAC2927CCBA0065C6D4 /* GroupedNumberTextField.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GroupedNumberTextField.swift; sourceTree = "<group>"; };
 		EFBAABAD2927CCBA0065C6D4 /* GroupedNumberFormatter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GroupedNumberFormatter.swift; sourceTree = "<group>"; };
 		EFBFD56E2979990900B20C2E /* FiatRatesProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FiatRatesProvider.swift; sourceTree = "<group>"; };
@@ -3455,6 +3459,7 @@
 		EF11DD9629378A6E0044B33C /* Components */ = {
 			isa = PBXGroup;
 			children = (
+				EFBA17E22987B0AD00C23955 /* BlockchainNetworkNavigationTitleView */,
 				EF11DD9729378A6E0044B33C /* SwappingTokenItemView */,
 			);
 			path = Components;
@@ -4050,6 +4055,15 @@
 				EFAF63E82927CA63004B3227 /* Setupable.swift */,
 			);
 			path = Types;
+			sourceTree = "<group>";
+		};
+		EFBA17E22987B0AD00C23955 /* BlockchainNetworkNavigationTitleView */ = {
+			isa = PBXGroup;
+			children = (
+				EFBA17E32987B0B500C23955 /* BlockchainNetworkNavigationTitleView.swift */,
+				EFBA17E52987B0C200C23955 /* BlockchainNetworkNavigationTitleViewModel.swift */,
+			);
+			path = BlockchainNetworkNavigationTitleView;
 			sourceTree = "<group>";
 		};
 		EFBFD56D297998EE00B20C2E /* FiatRatesProvider */ = {
@@ -4677,6 +4691,7 @@
 				EF5A5AD728D86094002544AC /* CardArtwork.swift in Sources */,
 				EF032C502955C59E006C1FF3 /* DefaultSelectableRowViewModel.swift in Sources */,
 				DA23789027B250EB009795A8 /* ShopViewModel.swift in Sources */,
+				EFBA17E42987B0B500C23955 /* BlockchainNetworkNavigationTitleView.swift in Sources */,
 				DA23787A27B24222009795A8 /* Address.swift in Sources */,
 				5DD4CB5024FAAB1A008F23CC /* KeyboardHeightPublisher.swift in Sources */,
 				DC66BBF12859B77700CDF765 /* TokenListCoordinator.swift in Sources */,
@@ -4768,6 +4783,7 @@
 				DC10A7C6295DED4E00367574 /* BindableError.swift in Sources */,
 				DA6C7522292224E00070EEFD /* UserWalletEncryptionKey.swift in Sources */,
 				DC66BC00285B3FD900CDF765 /* OnboardingTopupRoutable.swift in Sources */,
+				EFBA17E62987B0C200C23955 /* BlockchainNetworkNavigationTitleViewModel.swift in Sources */,
 				B04BA23426F0837C0036784C /* OnboardingTopupLayoutCalculator.swift in Sources */,
 				DC5DBBC9289B951600C21E35 /* DemoUtil.swift in Sources */,
 				DA23788327B24222009795A8 /* ShippingRate.swift in Sources */,
