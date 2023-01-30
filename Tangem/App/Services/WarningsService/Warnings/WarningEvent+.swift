@@ -33,6 +33,10 @@ extension WarningEvent {
             return WarningsList.oldDeviceOldCard
         case .legacyDerivation:
             return WarningsList.legacyDerivation
+        case .systemDeprecationTemporary:
+            return WarningsList.systemDeprecationTemporary
+        case .systemDeprecationPermanent(let dateString):
+            return WarningsList.systemDeprecationPermanent(dateString: dateString)
         }
     }
 }
@@ -50,8 +54,29 @@ fileprivate enum WarningsList {
     static let testnetCard = AppWarning(title: warningTitle, message: Localization.warningTestnetCardMessage, priority: .critical, type: .permanent, location: [.main, .send], event: .testnetCard)
     static let demoCard = AppWarning(title: warningTitle, message: Localization.alertDemoMessage, priority: .critical, type: .permanent, location: [.main, .send], event: .demoCard)
     static let legacyDerivation = AppWarning(title: warningTitle, message: Localization.alertManageTokensAddressesMessage, priority: .critical, type: .permanent, location: [.manageTokens], event: .legacyDerivation)
+
     static func lowSignatures(count: Int) -> AppWarning {
         let message = Localization.warningLowSignaturesFormat("\(count)")
         return AppWarning(title: warningTitle, message: message, priority: .critical, type: .permanent)
+    }
+
+    static let systemDeprecationTemporary = AppWarning(
+        title: "warning_system_update_title",
+        message: "warning_system_update_message",
+        priority: .warning,
+        type: .temporary,
+        event: .systemDeprecationTemporary
+    )
+
+    static func systemDeprecationPermanent(dateString: String) -> AppWarning {
+        return AppWarning(
+            title: "warning_system_deprecation_title",
+            // we need to search and replace double dot, because in ru locale year is clipped as `г.`. So at the end of the sentence
+            // we have double dot... But if you are using Buddhist calendar, you will have `2023 г. ВЕ.`
+            message: String(format: "warning_system_deprecation_with_date_message", dateString)
+                .replacingOccurrences(of: "..", with: "."),
+            priority: .critical,
+            type: .permanent
+        )
     }
 }
