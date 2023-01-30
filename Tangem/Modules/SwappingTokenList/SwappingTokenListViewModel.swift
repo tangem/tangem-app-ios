@@ -20,6 +20,7 @@ final class SwappingTokenListViewModel: ObservableObject, Identifiable {
 
     // I can't use @Published here, because of swiftui redraw perfomance drop
     var searchText = CurrentValueSubject<String, Never>("")
+    @Published var navigationTitleViewModel: BlockchainNetworkNavigationTitleViewModel?
     @Published var userItems: [SwappingTokenItemViewModel] = []
     @Published var otherItems: [SwappingTokenItemViewModel] = []
 
@@ -57,6 +58,7 @@ final class SwappingTokenListViewModel: ObservableObject, Identifiable {
         self.fiatRatesProvider = fiatRatesProvider
         self.coordinator = coordinator
 
+        setupNavigationTitleView()
         setupUserItemsSection()
         bind()
     }
@@ -67,6 +69,14 @@ final class SwappingTokenListViewModel: ObservableObject, Identifiable {
 }
 
 private extension SwappingTokenListViewModel {
+    func setupNavigationTitleView() {
+        navigationTitleViewModel = .init(
+            title: Localization.swappingTokenListYourTitle,
+            iconURL: tokenIconURLBuilder.iconURL(id: sourceCurrency.blockchain.id, size: .small),
+            network: sourceCurrency.blockchain.name
+        )
+    }
+
     func setupUserItemsSection() {
         let currencies = userCurrencies.filter { sourceCurrency != $0 }
 
