@@ -61,23 +61,26 @@ struct SwappingTokenListView: View {
                         }
                 } else {
                     view
-                        .navigationBarTitle(Text(Localization.swappingTokenListYourTitle), displayMode: .inline)
+                        .navigationBarTitle(Text(Localization.swappingTokenListTitle), displayMode: .inline)
                 }
             }
         }
     }
 
+    @ViewBuilder
     func section(title: String, items: [SwappingTokenItemViewModel]) -> some View {
-        Group {
-            Text(title)
-                .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
+        if !items.isEmpty {
+            Group {
+                Text(title)
+                    .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
 
-            ForEach(items) { item in
-                SwappingTokenItemView(viewModel: item)
+                ForEach(items) { item in
+                    SwappingTokenItemView(viewModel: item)
 
-                if items.last?.id != item.id {
-                    Separator(color: Colors.Stroke.primary)
-                        .padding(.leading, separatorInset)
+                    if items.last?.id != item.id {
+                        Separator(color: Colors.Stroke.primary)
+                            .padding(.leading, separatorInset)
+                    }
                 }
             }
         }
