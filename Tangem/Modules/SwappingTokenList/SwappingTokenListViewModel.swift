@@ -31,6 +31,8 @@ final class SwappingTokenListViewModel: ObservableObject, Identifiable {
 
     private let tokenIconURLBuilder: TokenIconURLBuilding
     private let currencyMapper: CurrencyMapping
+    private let blockchainDataProvider: TangemExchange.BlockchainDataProvider
+    private let fiatRatesProvider: FiatRatesProviding
     private unowned let coordinator: SwappingTokenListRoutable
 
     private let sourceCurrency: Currency
@@ -43,12 +45,16 @@ final class SwappingTokenListViewModel: ObservableObject, Identifiable {
         userCurrenciesProvider: UserCurrenciesProviding,
         tokenIconURLBuilder: TokenIconURLBuilding,
         currencyMapper: CurrencyMapping,
+        blockchainDataProvider: TangemExchange.BlockchainDataProvider,
+        fiatRatesProvider: FiatRatesProviding,
         coordinator: SwappingTokenListRoutable
     ) {
         self.sourceCurrency = sourceCurrency
         userCurrencies = userCurrenciesProvider.getCurrencies(blockchain: sourceCurrency.blockchain)
         self.tokenIconURLBuilder = tokenIconURLBuilder
         self.currencyMapper = currencyMapper
+        self.blockchainDataProvider = blockchainDataProvider
+        self.fiatRatesProvider = fiatRatesProvider
         self.coordinator = coordinator
 
         setupUserItemsSection()
