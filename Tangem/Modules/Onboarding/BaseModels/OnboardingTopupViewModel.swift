@@ -119,6 +119,18 @@ class OnboardingTopupViewModel<Step: OnboardingStep, Coordinator: OnboardingTopu
             self.refreshButtonState = .refreshButton
         }
     }
+
+    func logZeroBalanceAnalytics() {
+        guard
+            let cardModel = self.cardModel,
+            let info = TotalBalanceCardSupportInfoFactory(cardModel: cardModel).createInfo()
+        else {
+            return
+        }
+
+        let analyticsService = TotalBalanceAnalyticsService(totalBalanceCardSupportInfo: info)
+        analyticsService.sendToppedUpEventIfNeeded(balance: 0)
+    }
 }
 
 // MARK: - Navigation
@@ -139,7 +151,7 @@ extension OnboardingTopupViewModel {
     }
 
     func openQR() {
-        Analytics.log(.buttonShowTheWalletAddress)
+        Analytics.log(.onboardingButtonShowTheWalletAddress)
 
         coordinator.openQR(shareAddress: shareAddress, address: walletAddress, qrNotice: qrNoticeMessage)
     }
