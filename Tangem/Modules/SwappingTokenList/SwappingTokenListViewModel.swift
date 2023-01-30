@@ -71,7 +71,7 @@ final class SwappingTokenListViewModel: ObservableObject, Identifiable {
 private extension SwappingTokenListViewModel {
     func setupNavigationTitleView() {
         navigationTitleViewModel = .init(
-            title: Localization.swappingTokenListYourTitle,
+            title: Localization.swappingTokenListTitle,
             iconURL: tokenIconURLBuilder.iconURL(id: sourceCurrency.blockchain.id, size: .small),
             network: sourceCurrency.blockchain.name
         )
