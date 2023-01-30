@@ -39,6 +39,7 @@ final class SwappingViewModel: ObservableObject {
 
     // MARK: - Dependencies
 
+    private let initialSourceCurrency: Currency
     private let exchangeManager: ExchangeManager
     private let swappingDestinationService: SwappingDestinationServicing
     private let tokenIconURLBuilder: TokenIconURLBuilding
@@ -55,6 +56,7 @@ final class SwappingViewModel: ObservableObject {
     private var bag: Set<AnyCancellable> = []
 
     init(
+        initialSourceCurrency: Currency,
         exchangeManager: ExchangeManager,
         swappingDestinationService: SwappingDestinationServicing,
         tokenIconURLBuilder: TokenIconURLBuilding,
@@ -65,6 +67,7 @@ final class SwappingViewModel: ObservableObject {
         blockchainNetwork: BlockchainNetwork,
         coordinator: SwappingRoutable
     ) {
+        self.initialSourceCurrency = initialSourceCurrency
         self.exchangeManager = exchangeManager
         self.swappingDestinationService = swappingDestinationService
         self.tokenIconURLBuilder = tokenIconURLBuilder
@@ -87,7 +90,12 @@ final class SwappingViewModel: ObservableObject {
 
     func userDidRequestChangeDestination(to currency: Currency) {
         var items = exchangeManager.getExchangeItems()
-        items.destination = currency
+
+        if items.source == initialSourceCurrency {
+            items.destination = currency
+        } else if items.destination == initialSourceCurrency {
+            items.source = currency
+        }
 
         exchangeManager.update(exchangeItems: items)
     }
@@ -105,6 +113,10 @@ final class SwappingViewModel: ObservableObject {
         items.destination = source
 
         exchangeManager.update(exchangeItems: items)
+    }
+
+    func userDidTapChangeCurrencyButton() {
+        openTokenListView()
     }
 
     func userDidTapChangeDestinationButton() {
@@ -137,8 +149,7 @@ final class SwappingViewModel: ObservableObject {
 
 private extension SwappingViewModel {
     func openTokenListView() {
-        let source = exchangeManager.getExchangeItems().source
-        coordinator.presentSwappingTokenList(sourceCurrency: source)
+        coordinator.presentSwappingTokenList(sourceCurrency: initialSourceCurrency)
     }
 
     func openSuccessView(
@@ -232,6 +243,7 @@ private extension SwappingViewModel {
             balance: .loaded(exchangeItems.sourceBalance),
             fiatValue: .loading,
             maximumFractionDigits: source.decimalCount,
+            canChangeCurrency: source != initialSourceCurrency,
             tokenIcon: mapToSwappingTokenIconViewModel(currency: source)
         )
 
@@ -282,6 +294,7 @@ private extension SwappingViewModel {
 
         receiveCurrencyViewModel = ReceiveCurrencyViewModel(
             balance: exchangeItems.destinationBalance,
+            canChangeCurrency: destination != initialSourceCurrency,
             cryptoAmountState: cryptoAmountState,
             fiatAmountState: fiatAmountState,
             tokenIcon: mapToSwappingTokenIconViewModel(currency: destination)
