@@ -279,9 +279,10 @@ class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable>
     private func bindAnalytics() {
         $currentStepIndex
             .removeDuplicates()
-            .combineLatest($steps)
-            .receiveValue { index, steps in
-                guard index < steps.count else { return }
+            .delay(for: 0.1, scheduler: DispatchQueue.main)
+            .receiveValue { [weak self] index in
+                guard let steps = self?.steps,
+                      index < steps.count else { return }
 
                 let currentStep = steps[index]
 
@@ -357,6 +358,7 @@ extension OnboardingViewModel {
 extension OnboardingViewModel: UserWalletStorageAgreementRoutable {
     func didAgreeToSaveUserWallets() {
         userWalletRepository.unlock(with: .biometry) { [weak self] result in
+            let biometryAccessGranted: Bool
             switch result {
             case .error(let error):
                 if let tangemSdkError = error as? TangemSdkError,
@@ -365,10 +367,16 @@ extension OnboardingViewModel: UserWalletStorageAgreementRoutable {
                 }
                 AppLog.shared.error(error)
 
+                biometryAccessGranted = false
                 self?.didAskToSaveUserWallets(agreed: false)
             default:
+                biometryAccessGranted = true
                 self?.didAskToSaveUserWallets(agreed: true)
             }
+
+            Analytics.log(.allowBiometricID, params: [
+                .state: Analytics.ParameterValue.state(for: biometryAccessGranted).rawValue,
+            ])
 
             self?.goToNextStep()
         }
