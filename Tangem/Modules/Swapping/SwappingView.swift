@@ -48,7 +48,7 @@ struct SwappingView: View {
                     )
                     .didTapMaxAmount(viewModel.userDidTapMaxAmount)
                     .didTapChangeCurrency {
-                        viewModel.userDidTapChangeSourceButton()
+                        viewModel.userDidTapChangeCurrencyButton()
                     }
                 }
 
