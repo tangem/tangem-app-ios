@@ -209,11 +209,14 @@ extension DetailsViewModel {
     func setupSupportSectionModels() {
         supportSectionModels = [
             DefaultRowViewModel(title: Localization.detailsChat, action: openSupportChat),
-            DefaultRowViewModel(title: Localization.detailsRowTitleSendFeedback, action: openMail),
         ]
 
         if cardModel.canParticipateInReferralProgram, FeatureProvider.isAvailable(.referralProgram) {
             supportSectionModels.append(DefaultRowViewModel(title: Localization.detailsReferralTitle, action: openReferral))
+        }
+        
+        if cardModel.emailConfig != nil {
+            supportSectionModels.append(DefaultRowViewModel(title: Localization.detailsRowTitleSendFeedback, action: openMail))
         }
     }
 
