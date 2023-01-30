@@ -102,7 +102,7 @@ extension DefaultExchangeManager: ExchangeManager {
 
     func refresh() {
         tokenExchangeAllowanceLimit = nil
-        refreshValues(silent: false)
+        refreshValues()
     }
 
     func didSendApprovingTransaction(exchangeTxData: ExchangeTransactionDataModel) {
@@ -125,7 +125,7 @@ private extension DefaultExchangeManager {
         }
 
         restartTimer()
-        refreshValues(silent: false)
+        refreshValues()
     }
 
     func exchangeItemsDidChange() {
@@ -138,7 +138,7 @@ private extension DefaultExchangeManager {
         }
 
         restartTimer()
-        refreshValues(silent: false)
+        refreshValues()
     }
 }
 
@@ -170,7 +170,7 @@ private extension DefaultExchangeManager {
 
                 let timeElapsed = (date.timeIntervalSince1970 - timeStarted).rounded()
                 if Int(timeElapsed) % 10 == 0 {
-                    self?.refreshValues(silent: false)
+                    self?.refreshValues(loadingType: .autoupdate)
                 }
             }
     }
@@ -186,10 +186,8 @@ private extension DefaultExchangeManager {
 // MARK: - Requests
 
 private extension DefaultExchangeManager {
-    func refreshValues(silent: Bool) {
-        if !silent {
-            updateState(.loading)
-        }
+    func refreshValues(loadingType: ExchangeAvailabilityLoadingType = .full) {
+        updateState(.loading(loadingType))
 
         Task {
             do {
@@ -237,7 +235,7 @@ private extension DefaultExchangeManager {
             if isEnoughAllowance() {
                 /// If we get enough allowance
                 pendingTransactions[exchangeItems.source] = nil
-                refreshValues(silent: false)
+                refreshValues()
             } else {
                 updateState(.preview(preview))
             }
