@@ -360,7 +360,7 @@
 "swapping_swap" = "Swap";
 "swapping_swap_of_to" = "Swap of %@ to";
 "swapping_token_list_other_tokens" = "Other tokens";
-"swapping_token_list_your_title" = "Choose token";
+"swapping_token_list_title" = "Choose token";
 "swapping_token_list_your_tokens" = "Your tokens";
 "testnet_address_topuped" = "Transaction signed and sent to testnet. Wait for a while and reload balance";
 "testnet_error_failed_create_tx" = "Failed to create topup transaction for token. Try again later";
