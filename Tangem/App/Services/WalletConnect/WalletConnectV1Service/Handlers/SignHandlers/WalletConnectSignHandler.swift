@@ -75,7 +75,8 @@ class WalletConnectSignHandler: TangemWalletConnectRequestHandler {
             return
         }
 
-        guard let cardWallet = cardModel.wallets.first(where: { $0.publicKey.seedKey == wallet.walletPublicKey }) else {
+        let targetNetwork = BlockchainNetwork(wallet.blockchain, derivationPath: wallet.derivationPath)
+        guard let cardWallet = cardModel.walletModels.first(where: { $0.blockchainNetwork == targetNetwork })?.wallet else {
             completion(.failure(WalletConnectServiceError.signFailed))
             return
         }
