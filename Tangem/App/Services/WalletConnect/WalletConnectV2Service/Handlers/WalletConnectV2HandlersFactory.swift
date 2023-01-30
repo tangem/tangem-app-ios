@@ -30,7 +30,10 @@ struct WalletConnectHandlersFactory {
                 using: wcSigner
             )
         case .signTypedData, .signTypedDataV4:
-            fallthrough
+            return try WalletConnectV2SignTypedDataHandler(
+                requestParams: params,
+                signer: wcSigner
+            )
         case .signTransaction:
             fallthrough
         case .sendTransaction:
