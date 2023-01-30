@@ -14,6 +14,7 @@ protocol WalletConnectSessionsStorage: Actor {
     func loadSessions(for userWalletId: String) -> [WalletConnectSavedSession]
     func save(_ session: WalletConnectSavedSession)
     func session(with id: Int) -> WalletConnectSavedSession?
+    func session(with topic: String) -> WalletConnectSavedSession?
     func removeSession(with id: Int)
     func remove(_ session: WalletConnectSavedSession)
     func clearStorage()
@@ -79,6 +80,10 @@ extension CommonWalletConnectSessionsStorage: WalletConnectSessionsStorage {
 
     func session(with id: Int) -> WalletConnectSavedSession? {
         return _sessions.first(where: { $0.id == id })
+    }
+
+    func session(with topic: String) -> WalletConnectSavedSession? {
+        _sessions.first(where: { $0.topic == topic })
     }
 
     func removeSession(with id: Int) {
