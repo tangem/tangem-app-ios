@@ -40,8 +40,6 @@ struct WalletConnectV2MessageComposer: WalletConnectV2MessageComposable {
             message += blockchainNames.joined(separator: ", ")
 
             return message
-        case .sessionForTopicNotFound:
-            return Localization.walletConnectGenericErrorWithCode(error.code)
         case .missingBlockchains(let blockchainNames):
             var message = Localization.walletConnectErrorMissingBlockchains
             message += blockchainNames.joined(separator: ", ")
@@ -49,6 +47,8 @@ struct WalletConnectV2MessageComposer: WalletConnectV2MessageComposable {
             return message
         case .unknown(let errorMessage):
             return Localization.walletConnectErrorWithFrameworkMessage(errorMessage)
+        default:
+            return Localization.walletConnectGenericErrorWithCode(error.code)
         }
     }
 }
