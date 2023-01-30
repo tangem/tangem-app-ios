@@ -14,6 +14,6 @@ struct BlockchainNetworkNavigationTitleViewModel: Hashable {
     let network: String
 
     var networkName: String {
-        "\(network) network".capitalized
+        Localization.walletCurrencySubtitle(network).capitalized
     }
 }
