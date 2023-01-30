@@ -38,7 +38,7 @@ struct BlockchainNetworkNavigationTitleView_Preview: PreviewProvider {
     static var previews: some View {
         BlockchainNetworkNavigationTitleView(
             viewModel: BlockchainNetworkNavigationTitleViewModel(
-                title: Localization.swappingTokenListYourTitle,
+                title: Localization.swappingTokenListTitle,
                 iconURL: TokenIconURLBuilder(baseURL: CoinsResponse.baseURL).iconURL(id: "bitcoin"),
                 network: "bitcoin"
             )
