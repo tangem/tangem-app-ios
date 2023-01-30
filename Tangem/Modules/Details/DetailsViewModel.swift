@@ -214,7 +214,7 @@ extension DetailsViewModel {
         if cardModel.canParticipateInReferralProgram, FeatureProvider.isAvailable(.referralProgram) {
             supportSectionModels.append(DefaultRowViewModel(title: Localization.detailsReferralTitle, action: openReferral))
         }
-        
+
         if cardModel.emailConfig != nil {
             supportSectionModels.append(DefaultRowViewModel(title: Localization.detailsRowTitleSendFeedback, action: openMail))
         }

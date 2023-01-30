@@ -61,8 +61,8 @@ fileprivate enum WarningsList {
     }
 
     static let systemDeprecationTemporary = AppWarning(
-        title: "warning_system_update_title",
-        message: "warning_system_update_message",
+        title: Localization.warningSystemUpdateTitle,
+        message: Localization.warningSystemUpdateMessage,
         priority: .warning,
         type: .temporary,
         event: .systemDeprecationTemporary
@@ -70,10 +70,10 @@ fileprivate enum WarningsList {
 
     static func systemDeprecationPermanent(dateString: String) -> AppWarning {
         return AppWarning(
-            title: "warning_system_deprecation_title",
+            title: Localization.warningSystemDeprecationTitle,
             // we need to search and replace double dot, because in ru locale year is clipped as `г.`. So at the end of the sentence
             // we have double dot... But if you are using Buddhist calendar, you will have `2023 г. ВЕ.`
-            message: String(format: "warning_system_deprecation_with_date_message", dateString)
+            message: String(format: Localization.warningSystemDeprecationWithDateMessage(dateString))
                 .replacingOccurrences(of: "..", with: "."),
             priority: .critical,
             type: .permanent
