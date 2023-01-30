@@ -115,7 +115,7 @@ final class SwappingViewModel: ObservableObject {
         exchangeManager.update(exchangeItems: items)
     }
 
-    func userDidTapChangeSourceButton() {
+    func userDidTapChangeCurrencyButton() {
         openTokenListView()
     }
 
