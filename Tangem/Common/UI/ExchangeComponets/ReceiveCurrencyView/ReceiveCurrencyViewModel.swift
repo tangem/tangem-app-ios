@@ -11,6 +11,7 @@ import Foundation
 struct ReceiveCurrencyViewModel: Identifiable {
     var id: Int { hashValue }
 
+    private(set) var canChangeCurrency: Bool
     private(set) var cryptoAmountState: State
     private(set) var fiatAmountState: State
 
@@ -32,11 +33,13 @@ struct ReceiveCurrencyViewModel: Identifiable {
 
     init(
         balance: Decimal?,
+        canChangeCurrency: Bool,
         cryptoAmountState: State,
         fiatAmountState: State,
         tokenIcon: SwappingTokenIconViewModel
     ) {
         self.balance = balance
+        self.canChangeCurrency = canChangeCurrency
         self.cryptoAmountState = cryptoAmountState
         self.fiatAmountState = fiatAmountState
         self.tokenIcon = tokenIcon
