@@ -8,7 +8,7 @@
 
 import TangemExchange
 
-struct CurrencyAmount {
+struct CurrencyAmount: Hashable {
     let value: Decimal
     let currency: Currency
 
