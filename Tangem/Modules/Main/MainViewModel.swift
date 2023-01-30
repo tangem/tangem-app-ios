@@ -21,6 +21,7 @@ class MainViewModel: ObservableObject {
     @Injected(\.rateAppService) private var rateAppService: RateAppService
     @Injected(\.tangemApiService) private var tangemApiService: TangemApiService
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
+    @Injected(\.deprecationService) private var deprecationService: DeprecationServicing
 
     // MARK: - Published variables
 
@@ -262,6 +263,8 @@ class MainViewModel: ObservableObject {
     func sendTapped() {
         guard let wallet else { return }
 
+        Analytics.log(.buttonSend)
+
         let hasTokenAmounts = !wallet.amounts.values.filter { $0.type.isToken && !$0.isZero }.isEmpty
 
         if hasTokenAmounts {
@@ -280,7 +283,7 @@ class MainViewModel: ObservableObject {
         cardModel.deriveEntriesWithoutDerivation()
     }
 
-    // MARK: Warning action handler
+    // MARK: - Warning action handler
 
     func warningButtonAction(at index: Int, priority: WarningPriority, button: WarningButton) {
         guard let warning = warnings.warning(at: index, with: priority) else { return }
@@ -289,12 +292,21 @@ class MainViewModel: ObservableObject {
             AppSettings.shared.validatedSignedHashesCards.append(cardModel.cardId)
         }
 
+        func handleOkGotItButtonAction() {
+            switch warning.event {
+            case .numberOfSignedHashesIncorrect:
+                registerValidatedSignedHashesCard()
+            case .systemDeprecationTemporary:
+                deprecationService.didDismissSystemDeprecationWarning()
+            default:
+                return
+            }
+        }
+
         // [REDACTED_TODO_COMMENT]
         switch button {
         case .okGotIt:
-            if case .numberOfSignedHashesIncorrect = warning.event {
-                registerValidatedSignedHashesCard()
-            }
+            handleOkGotItButtonAction()
         case .rateApp:
             Analytics.log(.positiveRateAppFeedback)
             rateAppService.userReactToRateAppWarning(isPositive: true)
@@ -525,6 +537,8 @@ extension MainViewModel: SingleWalletContentViewModelOutput {
 
     func showExplorerURL(url: URL?, walletModel: WalletModel) {
         guard let url = url else { return }
+
+        Analytics.log(.buttonExplore)
 
         let blockchainName = walletModel.blockchainNetwork.blockchain.displayName
         coordinator.openExplorer(at: url, blockchainDisplayName: blockchainName)
