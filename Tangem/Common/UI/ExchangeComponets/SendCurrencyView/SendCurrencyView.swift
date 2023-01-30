@@ -13,6 +13,7 @@ struct SendCurrencyView: View {
     @Binding private var decimalValue: Decimal?
 
     private let tokenIconSize = CGSize(width: 36, height: 36)
+    private var didTapChangeCurrency: (() -> Void)?
     private var didTapMaxAmountAction: (() -> Void)?
 
     init(viewModel: SendCurrencyViewModel, decimalValue: Binding<Decimal?>) {
@@ -76,6 +77,7 @@ struct SendCurrencyView: View {
             Spacer()
 
             SwappingTokenIconView(viewModel: viewModel.tokenIcon)
+                .onTap(viewModel.canChangeCurrency ? didTapChangeCurrency : nil)
         }
     }
 }
@@ -85,6 +87,10 @@ struct SendCurrencyView: View {
 extension SendCurrencyView: Setupable {
     func didTapMaxAmount(_ action: @escaping () -> Void) -> Self {
         map { $0.didTapMaxAmountAction = action }
+    }
+
+    func didTapChangeCurrency(_ block: @escaping () -> Void) -> Self {
+        map { $0.didTapChangeCurrency = block }
     }
 }
 
@@ -96,6 +102,7 @@ struct SendCurrencyView_Preview: PreviewProvider {
             balance: .loading,
             fiatValue: .loading,
             maximumFractionDigits: 8,
+            canChangeCurrency: true,
             tokenIcon: SwappingTokenIconViewModel(
                 state: .loaded(
                     imageURL: TokenIconURLBuilderMock().iconURL(id: "bitcoin", size: .large),
@@ -107,6 +114,7 @@ struct SendCurrencyView_Preview: PreviewProvider {
             balance: .loaded(3043.75),
             fiatValue: .loaded(1000.71),
             maximumFractionDigits: 8,
+            canChangeCurrency: true,
             tokenIcon: SwappingTokenIconViewModel(
                 state: .loaded(
                     imageURL: TokenIconURLBuilderMock().iconURL(id: "bitcoin", size: .large),
