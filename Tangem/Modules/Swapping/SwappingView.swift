@@ -68,7 +68,7 @@ struct SwappingView: View {
     @ViewBuilder
     private var swappingButton: some View {
         Group {
-            if viewModel.isLoading {
+            if viewModel.swapButtonIsLoading {
                 ProgressViewCompat(color: Colors.Icon.informative)
             } else {
                 Button(action: viewModel.userDidTapSwapExchangeItemsButton) {
