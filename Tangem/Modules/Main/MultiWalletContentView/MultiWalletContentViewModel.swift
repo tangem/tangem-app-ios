@@ -39,13 +39,12 @@ class MultiWalletContentViewModel: ObservableObject {
     private lazy var totalBalanceManager = TotalBalanceProvider(
         userWalletModel: userWalletModel,
         userWalletAmountType: nil,
-        totalBalanceAnalyticsService: TotalBalanceAnalyticsService(totalBalanceCardSupportInfo: totalBalanceCardSupportInfo)
+        totalBalanceAnalyticsService: totalBalanceAnalyticsService
     )
-    private lazy var totalBalanceCardSupportInfo = TotalBalanceCardSupportInfo(
-        cardBatchId: cardModel.batchId,
-        cardNumber: cardModel.cardId,
-        embeddedBlockchainCurrencySymbol: cardModel.embeddedBlockchain?.currencySymbol
-    )
+    private var totalBalanceAnalyticsService: TotalBalanceAnalyticsService? {
+        guard let info = TotalBalanceCardSupportInfoFactory(cardModel: cardModel).createInfo() else { return nil }
+        return TotalBalanceAnalyticsService(totalBalanceCardSupportInfo: info)
+    }
 
     init(
         cardModel: CardViewModel,
