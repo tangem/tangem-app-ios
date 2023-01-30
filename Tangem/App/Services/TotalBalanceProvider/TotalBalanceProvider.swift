@@ -102,7 +102,6 @@ private extension TotalBalanceProvider {
             }
         }
 
-
         // It is also empty when derivation is missing
         if !tokenItemViewModels.isEmpty {
             totalBalanceAnalyticsService?.sendFirstLoadBalanceEventForCard(balance: balance)
