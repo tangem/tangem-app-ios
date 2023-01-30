@@ -50,7 +50,20 @@ struct SwappingTokenListView: View {
                 }
             }
             .searchableCompat(text: $viewModel.searchText.value)
-            .navigationBarTitle(Text(Localization.swappingTokenListYourTitle), displayMode: .inline)
+            .modifier(ifLet: viewModel.navigationTitleViewModel) { view, viewModel in
+                if #available(iOS 14.0, *) {
+                    view
+                        .navigationBarTitleDisplayMode(.inline)
+                        .toolbar {
+                            ToolbarItem(placement: .principal) {
+                                BlockchainNetworkNavigationTitleView(viewModel: viewModel)
+                            }
+                        }
+                } else {
+                    view
+                        .navigationBarTitle(Text(Localization.swappingTokenListYourTitle), displayMode: .inline)
+                }
+            }
         }
     }
 
