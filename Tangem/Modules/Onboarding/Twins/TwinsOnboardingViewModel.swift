@@ -349,6 +349,8 @@ class TwinsOnboardingViewModel: OnboardingTopupViewModel<TwinsOnboardingStep, On
                    !retwinMode {
                     AppSettings.shared.cardsStartedActivation.insert(pairCardId)
                 }
+
+                self.logZeroBalanceAnalytics()
             })
     }
 
