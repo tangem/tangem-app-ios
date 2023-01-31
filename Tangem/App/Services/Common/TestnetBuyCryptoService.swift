@@ -27,7 +27,7 @@ class TestnetBuyCryptoService {
 
         var subs: AnyCancellable!
         subs = walletManager.getFee(amount: amountToSend, destination: destinationAddress)
-            .flatMap { (fees: [Amount]) -> AnyPublisher<Void, Error> in
+            .flatMap { (fees: [Amount]) -> AnyPublisher<TransactionSendResult, Error> in
                 let fee = fees[0]
 
                 guard fee.value <= walletManager.wallet.amounts[.coin]?.value ?? 0 else {
@@ -50,7 +50,7 @@ class TestnetBuyCryptoService {
 
                 self.bag.remove(subs)
                 subs = nil
-            } receiveValue: {}
+            } receiveValue: { _ in }
 
         bag.insert(subs)
     }
