@@ -54,7 +54,9 @@ final class WalletConnectHandlersFactory: WalletConnectHandlersCreator {
         case .signTypedData, .signTypedDataV4:
             return try WalletConnectV2SignTypedDataHandler(
                 requestParams: params,
-                signer: wcSigner
+                blockchain: blockchain,
+                using: CommonWalletConnectSigner(signer: signer),
+                and: walletModelProvider
             )
         case .signTransaction:
             fallthrough
