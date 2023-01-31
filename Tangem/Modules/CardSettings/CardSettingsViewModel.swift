@@ -102,12 +102,14 @@ private extension CardSettingsViewModel {
         cardInfoSection = [
             DefaultRowViewModel(title: Localization.detailsRowTitleCid, detailsType: .text(cardModel.cardIdFormatted)),
             DefaultRowViewModel(title: Localization.detailsRowTitleIssuer, detailsType: .text(cardModel.cardIssuer)),
-            DefaultRowViewModel(
-                title: Localization.detailsRowTitleSignedHashes,
-                detailsType: .text(Localization.detailsRowSubtitleSignedHashesFormat("\(cardModel.cardSignedHashes)"))
-            ),
         ]
 
+        if !cardModel.canTwin {
+            cardInfoSection.append(DefaultRowViewModel(
+                title: Localization.detailsRowTitleSignedHashes,
+                detailsType: .text(Localization.detailsRowSubtitleSignedHashesFormat("\(cardModel.cardSignedHashes)"))
+            ))
+        }
         setupSecurityOptions()
 
         if isResetToFactoryAvailable {
