@@ -9,5 +9,5 @@
 import TangemExchange
 
 public protocol TransactionSendable {
-    func sendTransaction(_ info: ExchangeTransactionDataModel) async throws
+    func sendTransaction(_ info: ExchangeTransactionDataModel) async throws -> String
 }
