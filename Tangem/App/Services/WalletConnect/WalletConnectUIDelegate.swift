@@ -19,7 +19,7 @@ struct WalletConnectAsyncUIRequest<T> {
     let event: WalletConnectEvent
     let message: String
     var approveAction: () async throws -> T
-    var rejectAction: (() async throws -> T)?
+    var rejectAction: () async throws -> T
 }
 
 protocol WalletConnectUIDelegate {
@@ -52,9 +52,7 @@ struct WalletConnectAlertUIDelegate: WalletConnectUIDelegate {
                     continuation.resume(returning: request.approveAction)
                 },
                 onReject: {
-                    if let rejectAction = request.rejectAction {
-                        continuation.resume(returning: rejectAction)
-                    }
+                    continuation.resume(returning: request.rejectAction)
                 }
             )
             appPresenter.show(alert)
