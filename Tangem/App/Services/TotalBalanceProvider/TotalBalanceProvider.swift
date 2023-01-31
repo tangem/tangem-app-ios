@@ -18,7 +18,6 @@ class TotalBalanceProvider {
     private let totalBalanceSubject = CurrentValueSubject<LoadingValue<TotalBalance>, Never>(.loading)
     private var refreshSubscription: AnyCancellable?
     private let userWalletAmountType: Amount.AmountType?
-    private var isFirstLoadForCardInSession: Bool = true
     private var bag: Set<AnyCancellable> = .init()
 
     init(userWalletModel: UserWalletModel, userWalletAmountType: Amount.AmountType?, totalBalanceAnalyticsService: TotalBalanceAnalyticsService?) {
@@ -103,17 +102,10 @@ private extension TotalBalanceProvider {
             }
         }
 
-        totalBalanceAnalyticsService?.sendToppedUpEventIfNeeded(
-            tokenItemViewModels: tokenItemViewModels,
-            balance: balance
-        )
-
-        if isFirstLoadForCardInSession {
-            totalBalanceAnalyticsService?.sendFirstLoadBalanceEventForCard(
-                tokenItemViewModels: tokenItemViewModels,
-                balance: balance
-            )
-            isFirstLoadForCardInSession = false
+        // It is also empty when derivation is missing
+        if !tokenItemViewModels.isEmpty {
+            totalBalanceAnalyticsService?.sendFirstLoadBalanceEventForCard(balance: balance)
+            totalBalanceAnalyticsService?.sendToppedUpEventIfNeeded(balance: balance)
         }
 
         return TotalBalance(balance: balance, currencyCode: currencyCode, hasError: hasError)
