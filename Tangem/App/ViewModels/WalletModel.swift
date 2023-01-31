@@ -334,6 +334,7 @@ class WalletModel: ObservableObject, Identifiable {
                 self?.startUpdatingTimer()
             })
             .receive(on: DispatchQueue.main)
+            .mapVoid()
             .eraseToAnyPublisher()
     }
 
