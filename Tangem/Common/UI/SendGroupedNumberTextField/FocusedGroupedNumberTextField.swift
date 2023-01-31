@@ -49,6 +49,12 @@ struct FocusedGroupedNumberTextField<ToolbarButton: View>: View {
             .onAppear {
                 isInputActive = true
             }
+            // On change handler must be after onAppear for ignore automatic change isInputActive value
+            .onChange(of: isInputActive) { isInputActive in
+                if isInputActive {
+                    Analytics.log(.swapSendTokenBalanceClicked)
+                }
+            }
     }
 }
 
