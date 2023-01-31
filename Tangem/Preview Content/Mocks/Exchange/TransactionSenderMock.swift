@@ -9,7 +9,7 @@
 import TangemExchange
 
 struct TransactionSenderMock: TransactionSendable {
-    func sendTransaction(_ info: ExchangeTransactionDataModel) async throws {}
+    func sendTransaction(_ info: ExchangeTransactionDataModel) async throws -> String { "" }
 }
 
 struct FiatRatesProviderMock: FiatRatesProviding {
