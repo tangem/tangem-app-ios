@@ -44,6 +44,8 @@ final class SwappingPermissionViewModel: ObservableObject, Identifiable {
     }
 
     func didTapApprove() {
+        Analytics.log(.swapButtonPermissionApprove)
+
         Task {
             do {
                 try await transactionSender.sendTransaction(inputModel.transactionInfo)
@@ -59,6 +61,7 @@ final class SwappingPermissionViewModel: ObservableObject, Identifiable {
     }
 
     func didTapCancel() {
+        Analytics.log(.swapButtonPermissionCancel)
         coordinator.userDidCancel()
     }
 }
