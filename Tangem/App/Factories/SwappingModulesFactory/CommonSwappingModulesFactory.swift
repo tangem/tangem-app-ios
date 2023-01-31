@@ -75,6 +75,7 @@ extension CommonSwappingModulesFactory: SwappingModulesFactory {
     ) -> SwappingSuccessViewModel {
         SwappingSuccessViewModel(
             inputModel: inputModel,
+            explorerLinkProvider: explorerLinkProvider,
             coordinator: coordinator
         )
     }
@@ -106,6 +107,10 @@ private extension CommonSwappingModulesFactory {
 
     var fiatRatesProvider: FiatRatesProviding {
         FiatRatesProvider(rates: walletModel.rates)
+    }
+
+    var explorerLinkProvider: ExplorerLinkProviding {
+        ExplorerLinkProvider()
     }
 
     func exchangeManager(source: Currency, destination: Currency?) -> ExchangeManager {
