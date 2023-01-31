@@ -8,11 +8,14 @@
 
 import TangemSdk
 
-struct WalletConnectSigner {
-    let walletModel: WalletModel
+protocol WalletConnectSigner {
+    func sign(data: Data, using walletModel: WalletModel) async throws -> String
+}
+
+struct CommonWalletConnectSigner: WalletConnectSigner {
     let signer: TangemSigner
 
-    func sign(data: Data) async throws -> String {
+    func sign(data: Data, using walletModel: WalletModel) async throws -> String {
         let pubKey = walletModel.wallet.publicKey
         return try await signer.sign(hash: data, walletPublicKey: pubKey)
             .tryMap { response -> String in
