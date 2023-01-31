@@ -7,16 +7,21 @@
 //
 
 import Foundation
-import WalletConnectSwiftV2
+import enum BlockchainSdk.Blockchain
+import struct WalletConnectSwiftV2.AnyCodable
+import enum WalletConnectSwiftV2.RPCResult
 
 struct WalletConnectV2SignTypedDataHandler {
     private let message: String
     private let typedData: EIP712TypedData
     private let signer: WalletConnectSigner
+    private let walletModel: WalletModel
 
     init(
         requestParams: AnyCodable,
-        signer: WalletConnectSigner
+        blockchain: Blockchain,
+        using signer: WalletConnectSigner,
+        and walletModelProvider: WalletConnectV2WalletModelProvider
     ) throws {
         let params = try requestParams.get([String].self)
 
@@ -26,6 +31,8 @@ struct WalletConnectV2SignTypedDataHandler {
 
         message = params[1]
 
+        let targetAddress = params[0]
+        walletModel = try walletModelProvider.getModel(with: targetAddress, in: blockchain)
         guard
             let messageData = message.data(using: .utf8),
             let typedData = try? JSONDecoder().decode(EIP712TypedData.self, from: messageData)
@@ -48,7 +55,7 @@ extension WalletConnectV2SignTypedDataHandler: WalletConnectMessageHandler {
     func handle() async throws -> RPCResult {
         let hash = typedData.signHash
 
-        let signedHash = try await signer.sign(data: hash)
+        let signedHash = try await signer.sign(data: hash, using: walletModel)
         AppLog.shared.debug("[WC 2.0] Type data \(hash.hexString) signed: \(signedHash)")
         return .response(AnyCodable(signedHash))
     }
