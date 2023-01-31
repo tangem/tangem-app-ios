@@ -153,7 +153,7 @@ extension Analytics {
         case referralButtonOpenTos = "[Referral Program] Link - TaC"
 
         // MARK: - Swapping
-        
+
         case swapScreenOpenedSwap = "[Swap] Swap Screen Opened"
         case swapSendTokenBalanceClicked = "[Swap] Send Token Balance Clicked"
         case swapReceiveTokenClicked = "[Swap] Receive Token Clicked"
