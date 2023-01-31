@@ -18,7 +18,11 @@ protocol WalletConnectUserWalletInfoProvider {
     var signer: TangemSigner { get }
 }
 
-class WalletConnectV2Service {
+protocol WalletConnectV2WalletModelProvider: AnyObject {
+    func getModel(with address: String, in blockchain: BlockchainSdk.Blockchain) throws -> WalletModel
+}
+
+final class WalletConnectV2Service {
     @Injected(\.walletConnectSessionsStorage) private var sessionsStorage: WalletConnectSessionsStorage
 
     private let factory = WalletConnectV2DefaultSocketFactory()
@@ -266,11 +270,6 @@ class WalletConnectV2Service {
             return
         }
 
-        guard let targetWallet = infoProvider.walletModels.first(where: { $0.wallet.blockchain == targetBlockchain }) else {
-            log("Failed to find wallet for \(targetBlockchain) for \(logSuffix)")
-            return
-        }
-
         func respond(with error: WalletConnectV2Error) async {
             AppLog.shared.error(error)
             let message = messageComposer.makeErrorMessage(with: error)
@@ -286,8 +285,7 @@ class WalletConnectV2Service {
             let result = try await wcHandlersService.handle(
                 request,
                 from: session.sessionInfo.dAppInfo,
-                using: signer,
-                with: targetWallet
+                blockchain: targetBlockchain
             )
 
             log("Receive result from user \(result) for \(logSuffix)")
@@ -335,5 +333,16 @@ extension WalletConnectV2Service: URLHandler {
             }
             self?.canEstablishNewSessionSubject.send(true)
         }
+    }
+}
+
+extension WalletConnectV2Service: WalletConnectV2WalletModelProvider {
+    func getModel(with address: String, in blockchain: BlockchainSdk.Blockchain) throws -> WalletModel {
+        guard let model = infoProvider.walletModels.first(where: { $0.wallet.blockchain == blockchain && $0.wallet.address == address }) else {
+            log("Failed to find wallet for \(blockchain) with address \(address)")
+            throw WalletConnectV2Error.walletModelNotFound(blockchain)
+        }
+
+        return model
     }
 }
