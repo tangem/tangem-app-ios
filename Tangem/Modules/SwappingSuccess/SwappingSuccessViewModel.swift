@@ -21,25 +21,37 @@ final class SwappingSuccessViewModel: ObservableObject {
     }
 
     var isViewInExplorerAvailable: Bool {
-        inputModel.explorerURL != nil
+        explorerLink != nil
     }
 
     // MARK: - Dependencies
 
     private let inputModel: SwappingSuccessInputModel
+    private let explorerLinkProvider: ExplorerLinkProviding
     private unowned let coordinator: SwappingSuccessRoutable
+
+    private var explorerLink: URL? {
+        explorerLinkProvider.getExplorerLink(
+            for: inputModel.sourceCurrencyAmount.currency.blockchain,
+            transaction: inputModel.transactionHash
+        )
+    }
 
     init(
         inputModel: SwappingSuccessInputModel,
+        explorerLinkProvider: ExplorerLinkProviding,
         coordinator: SwappingSuccessRoutable
     ) {
         self.inputModel = inputModel
+        self.explorerLinkProvider = explorerLinkProvider
         self.coordinator = coordinator
     }
 
     func didTapViewInExplorer() {
+        guard let url = explorerLink else { return }
+
         coordinator.openExplorer(
-            url: inputModel.explorerURL,
+            url: url,
             currencyName: inputModel.sourceCurrencyAmount.currency.name
         )
     }
