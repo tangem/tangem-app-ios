@@ -7,30 +7,41 @@
 //
 
 import Foundation
-import WalletConnectSwiftV2
+import enum BlockchainSdk.Blockchain
+import struct WalletConnectSwiftV2.AnyCodable
+import enum WalletConnectSwiftV2.RPCResult
 
 struct WalletConnectV2PersonalSignHandler {
-    private let message: [String]
+    private let message: String
     private let signer: WalletConnectSigner
+    private let walletModel: WalletModel
 
     private var dataToSign: Data {
-        Data(hex: message[0])
+        Data(hex: message)
     }
 
-    init(request: AnyCodable, using signer: WalletConnectSigner) throws {
+    init(
+        request: AnyCodable,
+        blockchain: Blockchain,
+        using signer: WalletConnectSigner,
+        and walletModelProvider: WalletConnectV2WalletModelProvider
+    ) throws {
         let castedParams: [String]
         do {
             castedParams = try request.get([String].self)
             if castedParams.count < 2 {
                 throw WalletConnectV2Error.notEnoughDataInRequest(String(describing: request))
             }
+
+            let targetAddress = castedParams[1]
+            walletModel = try walletModelProvider.getModel(with: targetAddress, in: blockchain)
         } catch {
             let stringRepresentation = request.stringRepresentation
             AppLog.shared.debug("[WC 2.0] Failed to create sign handler. Raised error: \(error), request data: \(stringRepresentation)")
             throw WalletConnectV2Error.dataInWrongFormat(stringRepresentation)
         }
 
-        message = castedParams
+        message = castedParams[0]
         self.signer = signer
     }
 
@@ -53,7 +64,7 @@ extension WalletConnectV2PersonalSignHandler: WalletConnectMessageHandler {
         let personalMessageData = makePersonalMessageData(dataToSign)
         let hash = personalMessageData.sha3(.keccak256)
         do {
-            let signedMessage = try await signer.sign(data: hash)
+            let signedMessage = try await signer.sign(data: hash, using: walletModel)
             return .response(AnyCodable(signedMessage))
         } catch {
             AppLog.shared.debug("[WC 2.0] Failed to sign message. \(error)")
