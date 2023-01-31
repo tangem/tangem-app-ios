@@ -133,16 +133,13 @@ struct WalletConnectV2Utils {
     func createBlockchain(for wcBlockchain: WalletConnectSwiftV2.Blockchain) -> BlockchainSdk.Blockchain? {
         switch wcBlockchain.namespace {
         case evmNamespace:
-            if let blockchain = BlockchainSdk.Blockchain.supportedBlockchains.first(where: { $0.chainId == Int(wcBlockchain.reference) }) {
-                return blockchain
+            var blockchains = BlockchainSdk.Blockchain.supportedBlockchains
+            if EnvironmentProvider.shared.isTestnet {
+                blockchains = blockchains.union(BlockchainSdk.Blockchain.supportedTestnetBlockchains)
             }
 
-            if EnvironmentProvider.shared.isTestnet,
-               let blockchain = BlockchainSdk.Blockchain.supportedTestnetBlockchains.first(where: { $0.chainId == Int(wcBlockchain.reference) }) {
-                return blockchain
-            }
-
-            return nil
+            let wcChainId = Int(wcBlockchain.reference)
+            return blockchains.first(where: { $0.chainId == wcChainId })
         default:
             return BlockchainSdk.Blockchain(from: wcBlockchain.namespace)
         }
@@ -167,7 +164,7 @@ struct WalletConnectV2Utils {
         switch wcBlockchain.namespace {
         case evmNamespace:
             guard
-                let blockchain = BlockchainSdk.Blockchain.supportedBlockchains.first(where: { $0.chainId == Int(wcBlockchain.reference) }),
+                let blockchain = createBlockchain(for: wcBlockchain),
                 let walletModel = walletModels.first(where: { $0.wallet.blockchain == blockchain && $0.wallet.address == address })
             else {
                 return nil
