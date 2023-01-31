@@ -23,14 +23,17 @@ struct IconView: View {
     var body: some View {
         KFImage(url)
             .setProcessor(DownsamplingImageProcessor(size: size))
-            .placeholder { CircleImageTextView(name: name, color: .tangemGrayLight4) }
+            .placeholder {
+                SkeletonView()
+                    .frame(size: size)
+                    .cornerRadius(size.height / 2)
+            }
             .fade(duration: 0.3)
-            .forceTransition()
             .cacheOriginalImage()
             .scaleFactor(UIScreen.main.scale)
             .resizable()
             .scaledToFit()
-            .cornerRadius(5)
             .frame(size: size)
+            .cornerRadiusContinuous(5)
     }
 }
