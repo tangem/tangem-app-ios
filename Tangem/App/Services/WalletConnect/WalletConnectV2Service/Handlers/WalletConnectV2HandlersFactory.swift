@@ -6,28 +6,50 @@
 //  Copyright © 2023 Tangem AG. All rights reserved.
 //
 
-import Foundation
-import WalletConnectSwiftV2
+import BlockchainSdk
+import struct WalletConnectSwiftV2.AnyCodable
 
-struct WalletConnectHandlersFactory {
+protocol WalletConnectHandlersCreator: AnyObject {
+    func createHandler(
+        for action: WalletConnectAction,
+        with params: AnyCodable,
+        blockchain: Blockchain
+    ) throws -> WalletConnectMessageHandler
+}
+
+final class WalletConnectHandlersFactory: WalletConnectHandlersCreator {
+    private let signer: TangemSigner
     private let messageComposer: WalletConnectV2MessageComposable
     private let uiDelegate: WalletConnectUIDelegate
 
+    weak var walletModelProvider: WalletConnectV2WalletModelProvider?
+
     init(
+        signer: TangemSigner,
         messageComposer: WalletConnectV2MessageComposable,
         uiDelegate: WalletConnectUIDelegate
     ) {
+        self.signer = signer
         self.messageComposer = messageComposer
         self.uiDelegate = uiDelegate
     }
 
-    func createHandler(for action: WalletConnectAction, with params: AnyCodable, using signer: TangemSigner, and walletModel: WalletModel) throws -> WalletConnectMessageHandler {
-        let wcSigner = WalletConnectSigner(walletModel: walletModel, signer: signer)
+    func createHandler(
+        for action: WalletConnectAction,
+        with params: AnyCodable,
+        blockchain: Blockchain
+    ) throws -> WalletConnectMessageHandler {
+        guard let walletModelProvider = self.walletModelProvider else {
+            throw WalletConnectV2Error.missingWalletModelProviderInHandlersFactory
+        }
+
         switch action {
         case .personalSign:
             return try WalletConnectV2PersonalSignHandler(
                 request: params,
-                using: wcSigner
+                blockchain: blockchain,
+                using: CommonWalletConnectSigner(signer: signer),
+                and: walletModelProvider
             )
         case .signTypedData, .signTypedDataV4:
             return try WalletConnectV2SignTypedDataHandler(

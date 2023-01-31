@@ -22,12 +22,13 @@ struct WalletConnectFactory {
         let messageComposer = WalletConnectV2MessageComposer()
 
         let handlersFactory = WalletConnectHandlersFactory(
+            signer: model.signer,
             messageComposer: messageComposer,
             uiDelegate: uiDelegate
         )
         let wcHandlersService = WalletConnectV2HandlersService(
             uiDelegate: uiDelegate,
-            handlerFactory: handlersFactory
+            handlersCreator: handlersFactory
         )
         let v2Service = WalletConnectV2Service(
             with: model,
@@ -36,6 +37,7 @@ struct WalletConnectFactory {
             wcHandlersService: wcHandlersService
         )
 
+        handlersFactory.walletModelProvider = v2Service
         return (v1Service, v2Service)
     }
 }
