@@ -125,11 +125,6 @@ extension UIQRScannerView {
         return captureSession?.isRunning ?? false
     }
 
-    func startScanning() {
-        feedbackGenerator?.prepare()
-        captureSession?.startRunning()
-    }
-
     func stopScanning() {
         captureSession?.stopRunning()
         delegate?.qrScanningDidStop()
@@ -188,7 +183,9 @@ extension UIQRScannerView {
         layer.session = captureSession
         layer.videoGravity = .resizeAspectFill
 
-        captureSession?.startRunning()
+        DispatchQueue.global(qos: .userInitiated).async {
+            self.captureSession?.startRunning()
+        }
     }
 
     func scanningDidFail() {
