@@ -35,6 +35,7 @@ struct CommonSwappingModulesFactory {
 extension CommonSwappingModulesFactory: SwappingModulesFactory {
     func makeSwappingViewModel(coordinator: SwappingRoutable) -> SwappingViewModel {
         SwappingViewModel(
+            initialSourceCurrency: source,
             exchangeManager: exchangeManager(source: source, destination: destination),
             swappingDestinationService: swappingDestinationService,
             tokenIconURLBuilder: tokenIconURLBuilder,
