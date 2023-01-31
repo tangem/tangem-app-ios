@@ -110,6 +110,7 @@ private extension CardSettingsViewModel {
                 detailsType: .text(Localization.detailsRowSubtitleSignedHashesFormat("\(cardModel.cardSignedHashes)"))
             ))
         }
+
         setupSecurityOptions()
 
         if isResetToFactoryAvailable {
