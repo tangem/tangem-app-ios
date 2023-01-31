@@ -11,7 +11,7 @@ import SwiftUI
 struct ReceiveCurrencyView: View {
     private let viewModel: ReceiveCurrencyViewModel
     private let tokenIconSize = CGSize(width: 36, height: 36)
-    private var didTapTokenView: () -> Void = {}
+    private var didTapChangeCurrency: () -> Void = {}
 
     init(viewModel: ReceiveCurrencyViewModel) {
         self.viewModel = viewModel
@@ -51,7 +51,7 @@ struct ReceiveCurrencyView: View {
             Spacer()
 
             SwappingTokenIconView(viewModel: viewModel.tokenIcon)
-                .onTap(didTapTokenView)
+                .onTap(viewModel.canChangeCurrency ? didTapChangeCurrency : nil)
         }
     }
 
@@ -89,8 +89,8 @@ struct ReceiveCurrencyView: View {
 // MARK: - Setupable
 
 extension ReceiveCurrencyView: Setupable {
-    func didTapTokenView(_ block: @escaping () -> Void) -> Self {
-        map { $0.didTapTokenView = block }
+    func didTapChangeCurrency(_ block: @escaping () -> Void) -> Self {
+        map { $0.didTapChangeCurrency = block }
     }
 }
 
@@ -98,6 +98,7 @@ struct ReceiveCurrencyView_Preview: PreviewProvider {
     static let viewModels = [
         ReceiveCurrencyViewModel(
             balance: 0.124124,
+            canChangeCurrency: false,
             cryptoAmountState: .loading,
             fiatAmountState: .loading,
             tokenIcon: SwappingTokenIconViewModel(
@@ -109,6 +110,7 @@ struct ReceiveCurrencyView_Preview: PreviewProvider {
         ),
         ReceiveCurrencyViewModel(
             balance: 0.124124,
+            canChangeCurrency: false,
             cryptoAmountState: .loaded(1100.46),
             fiatAmountState: .loading,
             tokenIcon: SwappingTokenIconViewModel(
@@ -120,6 +122,7 @@ struct ReceiveCurrencyView_Preview: PreviewProvider {
         ),
         ReceiveCurrencyViewModel(
             balance: 0.124124,
+            canChangeCurrency: false,
             cryptoAmountState: .loading,
             fiatAmountState: .loaded(1100.46),
             tokenIcon: SwappingTokenIconViewModel(
@@ -131,6 +134,7 @@ struct ReceiveCurrencyView_Preview: PreviewProvider {
         ),
         ReceiveCurrencyViewModel(
             balance: 0.124124,
+            canChangeCurrency: false,
             cryptoAmountState: .loaded(1100.46),
             fiatAmountState: .loaded(1100.46),
             tokenIcon: SwappingTokenIconViewModel(
