@@ -48,8 +48,8 @@ final class WalletConnectHandlersFactory: WalletConnectHandlersCreator {
             return try WalletConnectV2PersonalSignHandler(
                 request: params,
                 blockchain: blockchain,
-                using: CommonWalletConnectSigner(signer: signer),
-                and: walletModelProvider
+                signer: CommonWalletConnectSigner(signer: signer),
+                walletModelProvider: walletModelProvider
             )
         case .signTypedData, .signTypedDataV4:
             fallthrough
