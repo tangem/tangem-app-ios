@@ -202,6 +202,8 @@ extension LegacyConfig: UserWalletConfig {
             return isMultiwallet ? .available : .hidden
         case .referralProgram:
             return .hidden
+        case .displayHashesCount:
+            return .available
         }
     }
 
