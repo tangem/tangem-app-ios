@@ -7,9 +7,10 @@
 //
 
 import TangemExchange
+import BlockchainSdk
 
 struct TransactionSenderMock: TransactionSendable {
-    func sendTransaction(_ info: ExchangeTransactionDataModel) async throws -> String { "" }
+    func sendTransaction(_ info: ExchangeTransactionDataModel) async throws -> TransactionSendResult { TransactionSendResult(hash: "") }
 }
 
 struct FiatRatesProviderMock: FiatRatesProviding {
