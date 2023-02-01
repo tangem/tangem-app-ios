@@ -222,6 +222,8 @@ extension GenericConfig: UserWalletConfig {
             return .available
         case .swapping:
             return .available
+        case .displayHashesCount:
+            return .available
         }
     }
 
