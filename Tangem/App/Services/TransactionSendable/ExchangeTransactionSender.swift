@@ -31,8 +31,9 @@ struct ExchangeTransactionSender {
 // MARK: - TransactionSendable
 
 extension ExchangeTransactionSender: TransactionSendable {
-    func sendTransaction(_ info: ExchangeTransactionDataModel) async throws -> String {
-        try await send(buildTransaction(for: info))
+    func sendTransaction(_ info: ExchangeTransactionDataModel) async throws -> TransactionSendResult {
+        let transaction = try buildTransaction(for: info)
+        return try await transactionSender.send(transaction, signer: transactionSigner).async()
     }
 }
 
@@ -54,11 +55,6 @@ private extension ExchangeTransactionSender {
 
         transaction.params = EthereumTransactionParams(data: info.txData, gasLimit: info.gasValue)
         return transaction
-    }
-
-    func send(_ transaction: Transaction) async throws -> String {
-        let result = try await transactionSender.send(transaction, signer: transactionSigner).async()
-        return result.hash
     }
 
     func createAmount(from currency: Currency, amount: Decimal) -> Amount {

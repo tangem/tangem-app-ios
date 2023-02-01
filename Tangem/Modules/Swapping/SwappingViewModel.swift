@@ -524,10 +524,10 @@ private extension SwappingViewModel {
 
         Task {
             do {
-                let transactionHash = try await transactionSender.sendTransaction(info)
+                let sendResult = try await transactionSender.sendTransaction(info)
                 addDestinationTokenToUserWalletList()
                 await runOnMain {
-                    openSuccessView(result: result, transactionModel: info, transactionHash: transactionHash)
+                    openSuccessView(result: result, transactionModel: info, transactionHash: sendResult.hash)
                 }
             } catch TangemSdkError.userCancelled {
                 // Do nothing
