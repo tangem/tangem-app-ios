@@ -45,11 +45,12 @@ extension CommonWalletConnectService: WalletConnectService {
             return
         }
 
-        v1Service = .init(with: cardModel)
+        // Note: If we are planning to write unit tests for each class this factory can be wrapped
+        // with protocol and injected via initializer. But for now I think it'll be enough.
+        let services = WalletConnectFactory().createWCServices(for: cardModel)
 
-        if FeatureProvider.isAvailable(.walletConnectV2) {
-            v2Service = .init(with: cardModel)
-        }
+        v1Service = services.v1Service
+        v2Service = services.v2Service
     }
 
     func reset() {
