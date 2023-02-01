@@ -80,7 +80,7 @@ struct SwappingSuccessView_Preview: PreviewProvider {
             sourceCurrencyAmount: .init(value: 1000, currency: .mock),
             resultCurrencyAmount: .init(value: 200, currency: .mock),
             transactionHash: ""
-        ), explorerURLService: CommonExplorerURLServiceMock(),
+        ), explorerURLService: MockExplorerURLService(),
         coordinator: SwappingSuccessCoordinator()
     )
 
