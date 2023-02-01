@@ -56,7 +56,7 @@ public extension View {
     @ViewBuilder
     func modifier<Content: View, Value>(
         ifLet optionalValue: Value?,
-        then content: (Self, Value) -> Content
+        @ViewBuilder then content: (Self, Value) -> Content
     ) -> some View {
         if let optionalValue = optionalValue {
             content(self, optionalValue)
