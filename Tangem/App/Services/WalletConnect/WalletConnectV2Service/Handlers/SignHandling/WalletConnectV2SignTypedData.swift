@@ -49,7 +49,7 @@ extension WalletConnectV2SignTypedDataHandler: WalletConnectMessageHandler {
     var event: WalletConnectEvent { .sign }
 
     func messageForUser(from dApp: WalletConnectSavedSession.DAppInfo) async throws -> String {
-        Localization.walletConnectPersonalSignMessage(dApp.name, message)
+        return Localization.walletConnectPersonalSignMessage(dApp.name, message)
     }
 
     func handle() async throws -> RPCResult {
