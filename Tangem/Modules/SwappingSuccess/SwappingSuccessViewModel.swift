@@ -31,7 +31,7 @@ final class SwappingSuccessViewModel: ObservableObject {
     private unowned let coordinator: SwappingSuccessRoutable
 
     private var explorerLink: URL? {
-        explorerLinkProvider.getExplorerLink(
+        explorerLinkProvider.getExplorerURL(
             for: inputModel.sourceCurrencyAmount.currency.blockchain,
             transaction: inputModel.transactionHash
         )
