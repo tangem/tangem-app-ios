@@ -44,7 +44,7 @@ struct CommonWalletConnectEthTransactionBuilder {
     }
 }
 
-extension WalletConnectEthTransactionBuilder: WalletConnectEthTransactionBuilder {
+extension CommonWalletConnectEthTransactionBuilder: WalletConnectEthTransactionBuilder {
     func buildTx(from wcTransaction: WalletConnectEthTransaction, for walletModel: WalletModel) async throws -> Transaction {
         guard let gasLoader = walletModel.walletManager as? EthereumGasLoader else {
             let error = WalletConnectV2Error.missingGasLoader
