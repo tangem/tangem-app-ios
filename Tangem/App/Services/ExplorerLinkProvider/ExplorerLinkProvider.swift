@@ -40,11 +40,5 @@ extension ExplorerLinkProvider: ExplorerLinkProviding {
         case .klayth, .aurora:
             return nil
         }
-//
-//        guard let blockchain = Blockchain(from: blockchain.id) else {
-//            return nil
-//        }
-//
-//        return blockchain.getExploreURL(from: transaction)
     }
 }
