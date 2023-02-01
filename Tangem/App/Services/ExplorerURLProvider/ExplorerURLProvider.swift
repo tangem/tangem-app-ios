@@ -15,24 +15,24 @@ struct CommonExplorerURLService {}
 // MARK: - ExplorerURLService
 
 extension CommonExplorerURLService: ExplorerURLService {
-    func getExplorerURL(for blockchain: ExchangeBlockchain, transaction: String) -> URL? {
+    func getExplorerURL(for blockchain: ExchangeBlockchain, transactionID: String) -> URL? {
         switch blockchain {
         case .ethereum:
-            return URL(string: "https://etherscan.io/tx/\(transaction)")!
+            return URL(string: "https://etherscan.io/tx/\(transactionID)")!
         case .bsc:
-            return URL(string: "https://bscscan.com/tx/\(transaction)")!
+            return URL(string: "https://bscscan.com/tx/\(transactionID)")!
         case .polygon:
-            return URL(string: "https://polygonscan.com/tx/\(transaction)")!
+            return URL(string: "https://polygonscan.com/tx/\(transactionID)")!
         case .avalanche:
-            return URL(string: "https://snowtrace.io/tx/\(transaction)")!
+            return URL(string: "https://snowtrace.io/tx/\(transactionID)")!
         case .fantom:
-            return URL(string: "https://ftmscan.com/tx/\(transaction)")!
+            return URL(string: "https://ftmscan.com/tx/\(transactionID)")!
         case .arbitrum:
-            return URL(string: "https://arbiscan.io/tx/\(transaction)")!
+            return URL(string: "https://arbiscan.io/tx/\(transactionID)")!
         case .gnosis:
-            return URL(string: "https://blockscout.com/xdai/mainnet/tx/\(transaction)")!
+            return URL(string: "https://blockscout.com/xdai/mainnet/tx/\(transactionID)")!
         case .optimism:
-            return URL(string: "https://optimistic.etherscan.io/tx/\(transaction)")!
+            return URL(string: "https://optimistic.etherscan.io/tx/\(transactionID)")!
         case .klayth, .aurora:
             return nil
         }
