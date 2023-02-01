@@ -12,6 +12,11 @@ enum WalletConnectV2Error: LocalizedError {
     case unsupportedBlockchains([String])
     case sessionForTopicNotFound
     case missingBlockchains([String])
+    case unsupportedWCMethod(String)
+    case dataInWrongFormat(String)
+    case notEnoughDataInRequest(String)
+    case walletModelNotFound(Blockchain)
+    case missingWalletModelProviderInHandlersFactory
 
     case unknown(String)
 
@@ -20,6 +25,11 @@ enum WalletConnectV2Error: LocalizedError {
         case .unsupportedBlockchains: return 8001
         case .sessionForTopicNotFound: return 8002
         case .missingBlockchains: return 8003
+        case .unsupportedWCMethod: return 8004
+        case .dataInWrongFormat: return 8005
+        case .notEnoughDataInRequest: return 8006
+        case .walletModelNotFound: return 8007
+        case .missingWalletModelProviderInHandlersFactory: return 8008
 
         case .unknown: return 8999
         }
