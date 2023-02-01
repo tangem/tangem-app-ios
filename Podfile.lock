@@ -173,7 +173,7 @@ PODS:
     - Starscream (~> 4.0.0)
     - TweetNacl (~> 1.0.2)
   - Starscream (4.0.4)
-  - stellar-ios-mac-sdk (2.2.5)
+  - stellar-ios-mac-sdk (2.3.0)
   - SwiftCBOR (0.4.5)
   - SwiftDate (6.3.1)
   - SwiftProtobuf (1.19.0)
@@ -233,7 +233,7 @@ DEPENDENCIES:
   - AppsFlyerFramework
   - BinanceChain (from `https://github.com/tangem/swiftbinancechain.git`, tag `0.0.9`)
   - BitcoinCore.swift (from `https://github.com/tangem/bitcoincore.git`, tag `0.0.16`)
-  - BlockchainSdk (from `https://github.com/tangem/blockchain-sdk-swift.git`, branch `IOS-2882-Add-SendResult-to-send-method`)
+  - BlockchainSdk (from `https://github.com/tangem/blockchain-sdk-swift.git`, tag `develop-195`)
   - DeviceGuru (= 8.0.0)
   - Firebase/Analytics
   - Firebase/Crashlytics
@@ -306,8 +306,8 @@ EXTERNAL SOURCES:
     :git: https://github.com/tangem/bitcoincore.git
     :tag: 0.0.16
   BlockchainSdk:
-    :branch: IOS-2882-Add-SendResult-to-send-method
     :git: https://github.com/tangem/blockchain-sdk-swift.git
+    :tag: develop-195
   HDWalletKit:
     :git: https://github.com/tangem/hdwallet.git
     :tag: 0.3.12
@@ -341,8 +341,8 @@ CHECKOUT OPTIONS:
     :git: https://github.com/tangem/bitcoincore.git
     :tag: 0.0.16
   BlockchainSdk:
-    :commit: e7abb7a98cb42c08d8209093b565174928650ee3
     :git: https://github.com/tangem/blockchain-sdk-swift.git
+    :tag: develop-195
   HDWalletKit:
     :git: https://github.com/tangem/hdwallet.git
     :tag: 0.3.12
@@ -400,7 +400,7 @@ SPEC CHECKSUMS:
   Sodium: 23d11554ecd556196d313cf6130d406dfe7ac6da
   Solana.Swift: 81d52fee263fded11b0d4e7859863ae489fe753e
   Starscream: 5178aed56b316f13fa3bc55694e583d35dd414d9
-  stellar-ios-mac-sdk: a6199f37910fc6481d17f317c11ccd3fdac542a1
+  stellar-ios-mac-sdk: 644df8597d7601119aa505685ad9c97fe9552b38
   SwiftCBOR: ac340b74d3b2cf1f8884bb748bd09875848e3873
   SwiftDate: 72d28954e8e1c6c1c0f917ccc8005e4f83c7d4b2
   SwiftProtobuf: 6ef3f0e422ef90d6605ca20b21a94f6c1324d6b3
@@ -421,6 +421,6 @@ SPEC CHECKSUMS:
   ZendeskSupportProvidersSDK: 77a62fe6bacc05bb10ff20edce75612fa109fd61
   ZendeskSupportSDK: ba72e90e327635b5fde3d023a3de33242a6ee8ab
 
-PODFILE CHECKSUM: 374efe3fa77f457e49ea1971985a62644f9d7fc3
+PODFILE CHECKSUM: 4506d7a28ba9df9b5a9eda0de2cd2d93976a5829
 
 COCOAPODS: 1.11.3
