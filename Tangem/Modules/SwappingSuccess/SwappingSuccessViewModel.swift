@@ -27,11 +27,11 @@ final class SwappingSuccessViewModel: ObservableObject {
     // MARK: - Dependencies
 
     private let inputModel: SwappingSuccessInputModel
-    private let explorerLinkProvider: ExplorerLinkProviding
+    private let explorerURLService: ExplorerURLService
     private unowned let coordinator: SwappingSuccessRoutable
 
     private var explorerLink: URL? {
-        explorerLinkProvider.getExplorerURL(
+        explorerURLService.getExplorerURL(
             for: inputModel.sourceCurrencyAmount.currency.blockchain,
             transaction: inputModel.transactionHash
         )
@@ -39,11 +39,11 @@ final class SwappingSuccessViewModel: ObservableObject {
 
     init(
         inputModel: SwappingSuccessInputModel,
-        explorerLinkProvider: ExplorerLinkProviding,
+        explorerURLService: ExplorerURLService,
         coordinator: SwappingSuccessRoutable
     ) {
         self.inputModel = inputModel
-        self.explorerLinkProvider = explorerLinkProvider
+        self.explorerURLService = explorerURLService
         self.coordinator = coordinator
     }
 
