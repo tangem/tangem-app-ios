@@ -1,5 +1,5 @@
 //
-//  ExplorerLinkProvider.swift
+//  CommonExplorerURLService.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -10,11 +10,11 @@ import Foundation
 import TangemExchange
 
 // [REDACTED_TODO_COMMENT]
-struct ExplorerLinkProvider {}
+struct CommonExplorerURLService {}
 
-// MARK: - ExplorerLinkProviding
+// MARK: - ExplorerURLService
 
-extension ExplorerLinkProvider: ExplorerLinkProviding {
+extension CommonExplorerURLService: ExplorerURLService {
     func getExplorerURL(for blockchain: ExchangeBlockchain, transaction: String) -> URL? {
         switch blockchain {
         case .ethereum:
