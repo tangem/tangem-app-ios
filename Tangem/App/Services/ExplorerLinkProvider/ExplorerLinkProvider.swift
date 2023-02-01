@@ -15,7 +15,7 @@ struct ExplorerLinkProvider {}
 // MARK: - ExplorerLinkProviding
 
 extension ExplorerLinkProvider: ExplorerLinkProviding {
-    func getExplorerLink(for blockchain: ExchangeBlockchain, transaction: String) -> URL? {
+    func getExplorerURL(for blockchain: ExchangeBlockchain, transaction: String) -> URL? {
         switch blockchain {
         case .ethereum:
             return URL(string: "https://etherscan.io/tx/\(transaction)")!
