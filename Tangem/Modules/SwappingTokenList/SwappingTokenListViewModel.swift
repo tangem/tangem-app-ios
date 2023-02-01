@@ -20,6 +20,7 @@ final class SwappingTokenListViewModel: ObservableObject, Identifiable {
 
     // I can't use @Published here, because of swiftui redraw perfomance drop
     var searchText = CurrentValueSubject<String, Never>("")
+    @Published var navigationTitleViewModel: BlockchainNetworkNavigationTitleViewModel?
     @Published var userItems: [SwappingTokenItemViewModel] = []
     @Published var otherItems: [SwappingTokenItemViewModel] = []
 
@@ -31,6 +32,8 @@ final class SwappingTokenListViewModel: ObservableObject, Identifiable {
 
     private let tokenIconURLBuilder: TokenIconURLBuilding
     private let currencyMapper: CurrencyMapping
+    private let blockchainDataProvider: TangemExchange.BlockchainDataProvider
+    private let fiatRatesProvider: FiatRatesProviding
     private unowned let coordinator: SwappingTokenListRoutable
 
     private let sourceCurrency: Currency
@@ -43,14 +46,19 @@ final class SwappingTokenListViewModel: ObservableObject, Identifiable {
         userCurrenciesProvider: UserCurrenciesProviding,
         tokenIconURLBuilder: TokenIconURLBuilding,
         currencyMapper: CurrencyMapping,
+        blockchainDataProvider: TangemExchange.BlockchainDataProvider,
+        fiatRatesProvider: FiatRatesProviding,
         coordinator: SwappingTokenListRoutable
     ) {
         self.sourceCurrency = sourceCurrency
         userCurrencies = userCurrenciesProvider.getCurrencies(blockchain: sourceCurrency.blockchain)
         self.tokenIconURLBuilder = tokenIconURLBuilder
         self.currencyMapper = currencyMapper
+        self.blockchainDataProvider = blockchainDataProvider
+        self.fiatRatesProvider = fiatRatesProvider
         self.coordinator = coordinator
 
+        setupNavigationTitleView()
         setupUserItemsSection()
         bind()
     }
@@ -61,10 +69,41 @@ final class SwappingTokenListViewModel: ObservableObject, Identifiable {
 }
 
 private extension SwappingTokenListViewModel {
+    func setupNavigationTitleView() {
+        navigationTitleViewModel = .init(
+            title: Localization.swappingTokenListTitle,
+            iconURL: tokenIconURLBuilder.iconURL(id: sourceCurrency.blockchain.id, size: .small),
+            network: sourceCurrency.blockchain.name
+        )
+    }
+
     func setupUserItemsSection() {
-        userItems = userCurrencies
-            .filter { sourceCurrency != $0 }
-            .map { mapToSwappingTokenItemViewModel(currency: $0) }
+        let currencies = userCurrencies.filter { sourceCurrency != $0 }
+
+        runTask(in: self) { obj in
+            var items: [SwappingTokenItemViewModel] = []
+
+            for currency in currencies {
+                let balance = await obj.getCurrencyAmount(for: currency)
+                var fiatBalance: Decimal?
+
+                if let balance {
+                    fiatBalance = try? await obj.fiatRatesProvider.getFiat(for: currency, amount: balance.value)
+                }
+
+                let viewModel = obj.mapToSwappingTokenItemViewModel(
+                    currency: currency,
+                    balance: balance,
+                    fiatBalance: fiatBalance
+                )
+
+                items.append(viewModel)
+            }
+
+            await runOnMain {
+                obj.userItems = items
+            }
+        }
     }
 
     func bind() {
@@ -103,16 +142,29 @@ private extension SwappingTokenListViewModel {
         coordinator.userDidTap(currency: currency)
     }
 
-    func mapToSwappingTokenItemViewModel(currency: Currency) -> SwappingTokenItemViewModel {
+    func mapToSwappingTokenItemViewModel(
+        currency: Currency,
+        balance: CurrencyAmount? = nil,
+        fiatBalance: Decimal? = nil
+    ) -> SwappingTokenItemViewModel {
         SwappingTokenItemViewModel(
-            id: currency.id,
+            tokenId: currency.id,
             iconURL: tokenIconURLBuilder.iconURL(id: currency.id, size: .large),
             name: currency.name,
             symbol: currency.symbol,
-            fiatBalance: nil,
-            balance: nil
+            balance: balance,
+            fiatBalance: fiatBalance
         ) { [weak self] in
             self?.userDidTap(currency)
+        }
+    }
+
+    func getCurrencyAmount(for currency: Currency) async -> CurrencyAmount? {
+        do {
+            let balance = try await blockchainDataProvider.getBalance(for: currency)
+            return CurrencyAmount(value: balance, currency: currency)
+        } catch {
+            return nil
         }
     }
 }
