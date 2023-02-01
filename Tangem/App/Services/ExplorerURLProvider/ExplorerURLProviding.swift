@@ -9,5 +9,5 @@
 import TangemExchange
 
 protocol ExplorerURLService {
-    func getExplorerURL(for blockchain: ExchangeBlockchain, transaction: String) -> URL?
+    func getExplorerURL(for blockchain: ExchangeBlockchain, transactionID: String) -> URL?
 }
