@@ -7,7 +7,8 @@
 //
 
 import TangemExchange
+import BlockchainSdk
 
 public protocol TransactionSendable {
-    func sendTransaction(_ info: ExchangeTransactionDataModel) async throws -> String
+    func sendTransaction(_ info: ExchangeTransactionDataModel) async throws -> TransactionSendResult
 }
