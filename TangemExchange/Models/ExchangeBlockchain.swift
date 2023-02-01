@@ -99,6 +99,22 @@ public enum ExchangeBlockchain: Hashable, CaseIterable {
         }
     }
 
+    /// Uses for load tokens
+    public var name: String {
+        switch self {
+        case .ethereum: return "ethereum"
+        case .bsc: return "binance"
+        case .polygon: return "polygon"
+        case .avalanche: return "avalanche"
+        case .fantom: return "fantom"
+        case .arbitrum: return "arbitrum"
+        case .gnosis: return "gnosis"
+        case .optimism: return "optimism"
+        case .klayth: return ""
+        case .aurora: return ""
+        }
+    }
+
     public func getExploreURL(for address: String, contractAddress: String? = nil) -> URL? {
         switch self {
         case .ethereum:
