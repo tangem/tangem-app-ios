@@ -20,8 +20,8 @@ struct WalletConnectV2SignTypedDataHandler {
     init(
         requestParams: AnyCodable,
         blockchain: Blockchain,
-        using signer: WalletConnectSigner,
-        and walletModelProvider: WalletConnectV2WalletModelProvider
+        signer: WalletConnectSigner,
+        walletModelProvider: WalletConnectV2WalletModelProvider
     ) throws {
         let params = try requestParams.get([String].self)
 
