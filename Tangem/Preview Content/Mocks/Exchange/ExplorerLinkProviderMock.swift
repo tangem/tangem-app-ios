@@ -8,8 +8,8 @@
 
 import TangemExchange
 
-struct CommonExplorerURLServiceMock: ExplorerURLService {
-    func getExplorerURL(for blockchain: ExchangeBlockchain, transaction: String) -> URL? {
+struct MockExplorerURLService: ExplorerURLService {
+    func getExplorerURL(for blockchain: ExchangeBlockchain, transactionID: String) -> URL? {
         nil
     }
 }
