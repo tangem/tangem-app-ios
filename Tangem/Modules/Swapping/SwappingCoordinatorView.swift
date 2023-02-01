@@ -32,13 +32,17 @@ struct SwappingCoordinatorView: CoordinatorView {
                 SwappingTokenListView(viewModel: $0)
             }
 
-        NavHolder()
-            .bottomSheet(
-                item: $coordinator.swappingPermissionViewModel,
-                viewModelSettings: .swappingPermission
-            ) {
-                SwappingPermissionView(viewModel: $0)
-            }
+        if #available(iOS 15, *) {
+            NavHolder()
+                .bottomSheet(item: $coordinator.swappingPermissionViewModel) {
+                    SwappingPermissionView(viewModel: $0)
+                }
+        } else {
+            NavHolder()
+                .bottomSheet(item: $coordinator.swappingPermissionViewModel, viewModelSettings: .swappingPermission) {
+                    SwappingPermissionView(viewModel: $0)
+                }
+        }
 
         NavHolder()
             .sheet(item: $coordinator.swappingSuccessCoordinator) {
