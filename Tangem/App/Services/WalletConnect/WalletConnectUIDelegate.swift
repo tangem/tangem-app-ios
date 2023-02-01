@@ -15,8 +15,17 @@ struct WalletConnectUIRequest {
     var rejectAction: (() -> Void)?
 }
 
+struct WalletConnectAsyncUIRequest<T> {
+    let event: WalletConnectEvent
+    let message: String
+    var approveAction: () async throws -> T
+    var rejectAction: () async throws -> T
+}
+
 protocol WalletConnectUIDelegate {
     func showScreen(with request: WalletConnectUIRequest)
+    @MainActor
+    func getResponseFromUser<Result>(with request: WalletConnectAsyncUIRequest<Result>) async -> (() async throws -> Result)
 }
 
 struct WalletConnectAlertUIDelegate: WalletConnectUIDelegate {
@@ -31,5 +40,22 @@ struct WalletConnectAlertUIDelegate: WalletConnectUIDelegate {
         )
 
         appPresenter.show(alert)
+    }
+
+    @MainActor
+    func getResponseFromUser<Result>(with request: WalletConnectAsyncUIRequest<Result>) async -> (() async throws -> Result) {
+        await withCheckedContinuation { continuation in
+            let alert = WalletConnectUIBuilder.makeAlert(
+                for: request.event,
+                message: request.message,
+                onAcceptAction: {
+                    continuation.resume(returning: request.approveAction)
+                },
+                onReject: {
+                    continuation.resume(returning: request.rejectAction)
+                }
+            )
+            appPresenter.show(alert)
+        }
     }
 }
