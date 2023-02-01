@@ -21,17 +21,20 @@ final class WalletConnectHandlersFactory: WalletConnectHandlersCreator {
     private let signer: TangemSigner
     private let messageComposer: WalletConnectV2MessageComposable
     private let uiDelegate: WalletConnectUIDelegate
+    private let ethTransactionBuilder: WalletConnectEthTransactionBuilder
 
     weak var walletModelProvider: WalletConnectV2WalletModelProvider?
 
     init(
         signer: TangemSigner,
         messageComposer: WalletConnectV2MessageComposable,
-        uiDelegate: WalletConnectUIDelegate
+        uiDelegate: WalletConnectUIDelegate,
+        ethTransactionBuilder: WalletConnectEthTransactionBuilder
     ) {
         self.signer = signer
         self.messageComposer = messageComposer
         self.uiDelegate = uiDelegate
+        self.ethTransactionBuilder = ethTransactionBuilder
     }
 
     func createHandler(
@@ -59,7 +62,14 @@ final class WalletConnectHandlersFactory: WalletConnectHandlersCreator {
                 walletModelProvider: walletModelProvider
             )
         case .signTransaction:
-            fallthrough
+            return try WalletConnectV2SignTransactionHandler(
+                requestParams: params,
+                blockchain: blockchain,
+                transactionBuilder: ethTransactionBuilder,
+                messageComposer: messageComposer,
+                signer: signer,
+                walletModelProvider: walletModelProvider
+            )
         case .sendTransaction:
             throw WalletConnectV2Error.unknown("Not implemented")
         case .bnbSign, .bnbTxConfirmation:
