@@ -7,18 +7,15 @@
 //
 
 import Foundation
-import BlockchainSdk
 import TangemExchange
 
-protocol ExplorerLinkProviding {
-    func getExplorerLink(for blockchain: ExchangeBlockchain, transaction: String) -> URL?
-}
-
+// [REDACTED_TODO_COMMENT]
 struct ExplorerLinkProvider {}
 
 // MARK: - ExplorerLinkProviding
 
 extension ExplorerLinkProvider: ExplorerLinkProviding {
+    
     func getExplorerLink(for blockchain: ExchangeBlockchain, transaction: String) -> URL? {
         switch blockchain {
         case .ethereum:
