@@ -33,7 +33,7 @@ final class SwappingSuccessViewModel: ObservableObject {
     private var explorerLink: URL? {
         explorerURLService.getExplorerURL(
             for: inputModel.sourceCurrencyAmount.currency.blockchain,
-            transaction: inputModel.transactionHash
+            transactionID: inputModel.transactionHash
         )
     }
 
