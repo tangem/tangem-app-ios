@@ -641,7 +641,12 @@ class SendViewModel: ObservableObject {
         appDelegate.addLoadingView()
 
         let isDemo = walletModel.isDemo
-        walletModel.send(tx, signer: cardViewModel.signer)
+        walletModel.update(silent: true)
+            .flatMap { [weak self] _ -> AnyPublisher<Void, Error> in
+                guard let self else { return .justWithError(output: ()) }
+
+                return self.walletModel.send(tx, signer: self.cardViewModel.signer)
+            }
             .sink(receiveCompletion: { [weak self] completion in
                 guard let self = self else { return }
 
