@@ -104,7 +104,7 @@ private extension CardSettingsViewModel {
             DefaultRowViewModel(title: Localization.detailsRowTitleIssuer, detailsType: .text(cardModel.cardIssuer)),
         ]
 
-        if !cardModel.canTwin {
+        if cardModel.canDisplayHashesCount {
             cardInfoSection.append(DefaultRowViewModel(
                 title: Localization.detailsRowTitleSignedHashes,
                 detailsType: .text(Localization.detailsRowSubtitleSignedHashesFormat("\(cardModel.cardSignedHashes)"))
