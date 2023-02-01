@@ -159,6 +159,8 @@ extension Start2CoinConfig: UserWalletConfig {
             return .hidden
         case .swapping:
             return .hidden
+        case .displayHashesCount:
+            return .available
         }
     }
 
