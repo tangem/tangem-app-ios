@@ -25,7 +25,7 @@ struct CommonWalletConnectEthTransactionBuilder {
         return Int(price)
     }
 
-    private func getGasLimit(for tx: WalletConnectEthTransaction, with amount: Amount, using gasLoader: EthereumGasLoader) async throws -> Int {
+    private func getGasLimit(for tx: WalletConnectEthTransaction, with amount: Amount, using gasLoader: EthereumGasLoader) async -> Int {
         if let dappGasLimit = tx.gas?.hexToInteger ?? tx.gasLimit?.hexToInteger {
             return dappGasLimit
         }
