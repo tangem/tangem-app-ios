@@ -98,7 +98,7 @@ extension CommonWalletConnectEthTransactionBuilder: WalletConnectEthTransactionB
 
         let contractDataString = wcTransaction.data.drop0xPrefix
         let wcTxData = Data(hexString: String(contractDataString))
-        transaction.params = try await EthereumTransactionParams(data: wcTxData, gasLimit: gasLimit, nonce: wcTransaction.nonce?.hexToInteger)
+        transaction.params = await EthereumTransactionParams(data: wcTxData, gasLimit: gasLimit, nonce: wcTransaction.nonce?.hexToInteger)
 
         return transaction
     }
