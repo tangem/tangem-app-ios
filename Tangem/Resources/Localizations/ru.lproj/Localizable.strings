@@ -445,7 +445,7 @@
 "wallet_connect_no_sessions_message" = "Нет открытых сессий WalletConnect";
 "wallet_connect_no_sessions_title" = "Упс. Нет сессий.";
 "wallet_connect_paste_from_clipboard" = "Вставить из буфера обмена";
-"wallet_connect_personal_sign_message" = "Message for %1$@:\n%2$@";
+"wallet_connect_personal_sign_message" = "Сообщение для %1$@:\n%2$@";
 "wallet_connect_request_session_start" = "Запрос на открытие сессии для\n%1$@\n\nСЕТЬ: %2$@\n\nURL: %3$@";
 "wallet_connect_scan_new_code" = "Сканировать новый код";
 "wallet_connect_scanner_error_not_valid_card" = "Эту карту нельзя использовать с WalletConnect.";
