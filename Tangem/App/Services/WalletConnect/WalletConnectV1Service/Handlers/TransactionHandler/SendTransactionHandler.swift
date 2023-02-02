@@ -31,7 +31,7 @@ class SendTransactionHandler: WalletConnectTransactionHandler {
                 let ethWalletModel = buildResult.0
                 let tx = buildResult.1
                 return ethWalletModel.walletManager.send(tx, signer: cardModel.signer)
-                    .map { ethWalletModel }
+                    .map { _ in ethWalletModel }
                     .eraseToAnyPublisher()
             }
             .sink { [weak self] completion in
