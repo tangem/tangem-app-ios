@@ -77,6 +77,7 @@ extension CommonSwappingModulesFactory: SwappingModulesFactory {
     ) -> SwappingSuccessViewModel {
         SwappingSuccessViewModel(
             inputModel: inputModel,
+            explorerURLService: explorerURLService,
             coordinator: coordinator
         )
     }
@@ -108,6 +109,10 @@ private extension CommonSwappingModulesFactory {
 
     var fiatRatesProvider: FiatRatesProviding {
         FiatRatesProvider(rates: walletModel.rates)
+    }
+
+    var explorerURLService: ExplorerURLService {
+        CommonExplorerURLService()
     }
 
     var blockchainDataProvider: TangemExchange.BlockchainDataProvider {
