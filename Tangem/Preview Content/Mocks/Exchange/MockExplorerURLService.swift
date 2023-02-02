@@ -1,5 +1,5 @@
 //
-//  CommonExplorerURLServiceMock.swift
+//  MockExplorerURLService.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
