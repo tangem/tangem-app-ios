@@ -102,11 +102,14 @@ private extension CardSettingsViewModel {
         cardInfoSection = [
             DefaultRowViewModel(title: Localization.detailsRowTitleCid, detailsType: .text(cardModel.cardIdFormatted)),
             DefaultRowViewModel(title: Localization.detailsRowTitleIssuer, detailsType: .text(cardModel.cardIssuer)),
-            DefaultRowViewModel(
+        ]
+
+        if cardModel.canDisplayHashesCount {
+            cardInfoSection.append(DefaultRowViewModel(
                 title: Localization.detailsRowTitleSignedHashes,
                 detailsType: .text(Localization.detailsRowSubtitleSignedHashesFormat("\(cardModel.cardSignedHashes)"))
-            ),
-        ]
+            ))
+        }
 
         setupSecurityOptions()
 
