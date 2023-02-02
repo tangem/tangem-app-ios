@@ -12,14 +12,14 @@ import SwiftUI
 /// It same as`GroupedNumberTextField` but with support focus state and toolbar buttons
 @available(iOS 15.0, *)
 struct FocusedGroupedNumberTextField<ToolbarButton: View>: View {
-    @Binding private var decimalValue: Decimal?
+    @Binding private var decimalValue: GroupedNumberTextField.DecimalValue?
     @FocusState private var isInputActive: Bool
     private var maximumFractionDigits: Int
 
     private let toolbarButton: () -> ToolbarButton
 
     init(
-        decimalValue: Binding<Decimal?>,
+        decimalValue: Binding<GroupedNumberTextField.DecimalValue?>,
         maximumFractionDigits: Int,
         @ViewBuilder toolbarButton: @escaping () -> ToolbarButton
     ) {
@@ -29,26 +29,29 @@ struct FocusedGroupedNumberTextField<ToolbarButton: View>: View {
     }
 
     var body: some View {
-        GroupedNumberTextField(decimalValue: $decimalValue, maximumFractionDigits: maximumFractionDigits)
-            .maximumFractionDigits(maximumFractionDigits)
-            .focused($isInputActive)
-            .toolbar {
-                ToolbarItemGroup(placement: .keyboard) {
-                    toolbarButton()
+        GroupedNumberTextField(
+            decimalValue: $decimalValue,
+            groupedNumberFormatter: GroupedNumberFormatter(maximumFractionDigits: maximumFractionDigits)
+        )
+        .maximumFractionDigits(maximumFractionDigits)
+        .focused($isInputActive)
+        .toolbar {
+            ToolbarItemGroup(placement: .keyboard) {
+                toolbarButton()
 
-                    Spacer()
+                Spacer()
 
-                    Button {
-                        isInputActive = false
-                    } label: {
-                        Image(systemName: "keyboard.chevron.compact.down")
-                            .resizable()
-                    }
+                Button {
+                    isInputActive = false
+                } label: {
+                    Image(systemName: "keyboard.chevron.compact.down")
+                        .resizable()
                 }
             }
-            .onAppear {
-                isInputActive = true
-            }
+        }
+        .onAppear {
+            isInputActive = true
+        }
     }
 }
 
@@ -62,7 +65,7 @@ extension FocusedGroupedNumberTextField: Setupable {
 }
 
 struct FocusedNumberTextField_Previews: PreviewProvider {
-    @State private static var decimalValue: Decimal?
+    @State private static var decimalValue: GroupedNumberTextField.DecimalValue?
 
     static var previews: some View {
         if #available(iOS 15.0, *) {
