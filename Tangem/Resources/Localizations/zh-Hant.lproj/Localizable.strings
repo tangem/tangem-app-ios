@@ -308,7 +308,7 @@
 "send_title_currency_format" = "發送 %@";
 "send_total_label" = "總計";
 "send_total_subtitle_asset_format" = "%1$@ 和 %2$@ 將被發送";
-"send_total_subtitle_fiat_format" = "≈ %1$@ (inc. fee: %2$@)";
+"send_total_subtitle_fiat_format" = "≈ %1$@ (費用包含: %2$@)";
 "send_total_subtitle_format" = "%@ 將被發送";
 "send_transaction_success" = "交易已成功簽署並發送至區塊鏈節點。錢包餘額稍後更新";
 "send_validation_invalid_address" = "無效地址";
@@ -358,6 +358,7 @@
 "swapping_success_view_explorer_button_title" = "在瀏覽器中查看";
 "swapping_success_view_title" = "進行中";
 "swapping_swap" = "交換";
+"swapping_swap_of_to" = "交易 %@ 至";
 "swapping_token_list_other_tokens" = "其他代幣";
 "swapping_token_list_title" = "選擇代幣";
 "swapping_token_list_your_tokens" = "您的代幣";
