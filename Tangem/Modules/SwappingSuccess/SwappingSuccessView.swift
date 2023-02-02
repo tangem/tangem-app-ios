@@ -79,7 +79,7 @@ struct SwappingSuccessView_Preview: PreviewProvider {
         inputModel: SwappingSuccessInputModel(
             sourceCurrencyAmount: .init(value: 1000, currency: .mock),
             resultCurrencyAmount: .init(value: 200, currency: .mock),
-            transactionHash: ""
+            transactionID: ""
         ), explorerURLService: MockExplorerURLService(),
         coordinator: SwappingSuccessCoordinator()
     )
