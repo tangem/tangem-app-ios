@@ -57,7 +57,7 @@ public struct EventsLimitOrder: Decodable {
     public let orderHash: String
     public let taker: String
     public let remainingMakerAmount: String
-    public let transactionID: String
+    public let transactionHash: String
     public let blockNumber: Int
     public let createDateTime: String
 }
