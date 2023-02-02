@@ -6,10 +6,12 @@
 //  Copyright © 2022 Tangem AG. All rights reserved.
 //
 
+import BlockchainSdk
 import WalletConnectSwiftV2
 
 protocol WalletConnectV2MessageComposable {
     func makeMessage(for proposal: Session.Proposal, targetBlockchains: [String]) -> String
+    func makeMessage(for transaction: Transaction, walletModel: WalletModel, dApp: WalletConnectSavedSession.DAppInfo) -> String
     func makeErrorMessage(with error: WalletConnectV2Error) -> String
 }
 
@@ -33,6 +35,27 @@ struct WalletConnectV2MessageComposer: WalletConnectV2MessageComposable {
         return message
     }
 
+    func makeMessage(for transaction: Transaction, walletModel: WalletModel, dApp: WalletConnectSavedSession.DAppInfo) -> String {
+        let totalAmount = transaction.amount + transaction.fee
+        let balance = walletModel.wallet.amounts[.coin] ?? .zeroCoin(for: walletModel.wallet.blockchain)
+        let message: String = {
+            var m = ""
+            m += Localization.walletConnectCreateTxMessage(
+                dApp.name,
+                dApp.url,
+                transaction.amount.description,
+                transaction.fee.description,
+                totalAmount.description,
+                walletModel.getBalance(for: .coin)
+            )
+            if balance < totalAmount {
+                m += "\n\n" + Localization.walletConnectCreateTxNotEnoughFunds
+            }
+            return m
+        }()
+        return message
+    }
+
     func makeErrorMessage(with error: WalletConnectV2Error) -> String {
         switch error {
         case .unsupportedBlockchains(let blockchainNames):
@@ -40,8 +63,6 @@ struct WalletConnectV2MessageComposer: WalletConnectV2MessageComposable {
             message += blockchainNames.joined(separator: ", ")
 
             return message
-        case .sessionForTopicNotFound:
-            return Localization.walletConnectGenericErrorWithCode(error.code)
         case .missingBlockchains(let blockchainNames):
             var message = Localization.walletConnectErrorMissingBlockchains
             message += blockchainNames.joined(separator: ", ")
@@ -49,6 +70,8 @@ struct WalletConnectV2MessageComposer: WalletConnectV2MessageComposable {
             return message
         case .unknown(let errorMessage):
             return Localization.walletConnectErrorWithFrameworkMessage(errorMessage)
+        default:
+            return Localization.walletConnectGenericErrorWithCode(error.code)
         }
     }
 }
