@@ -155,7 +155,7 @@ private extension SwappingViewModel {
     func openSuccessView(
         result: SwappingResultDataModel,
         transactionModel: ExchangeTransactionDataModel,
-        transactionHash: String
+        transactionID: String
     ) {
         let amount = transactionModel.sourceCurrency.convertFromWEI(value: transactionModel.amount)
         let source = CurrencyAmount(
@@ -171,7 +171,7 @@ private extension SwappingViewModel {
         let inputModel = SwappingSuccessInputModel(
             sourceCurrencyAmount: source,
             resultCurrencyAmount: result,
-            transactionHash: transactionHash
+            transactionID: transactionID
         )
 
         coordinator.presentSuccessView(inputModel: inputModel)
@@ -527,7 +527,7 @@ private extension SwappingViewModel {
                 let sendResult = try await transactionSender.sendTransaction(info)
                 addDestinationTokenToUserWalletList()
                 await runOnMain {
-                    openSuccessView(result: result, transactionModel: info, transactionHash: sendResult.hash)
+                    openSuccessView(result: result, transactionModel: info, transactionID: sendResult.hash)
                 }
             } catch TangemSdkError.userCancelled {
                 // Do nothing
