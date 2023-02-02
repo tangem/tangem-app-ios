@@ -730,7 +730,7 @@
 		EFBA17E42987B0B500C23955 /* BlockchainNetworkNavigationTitleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFBA17E32987B0B500C23955 /* BlockchainNetworkNavigationTitleView.swift */; };
 		EFBA17E62987B0C200C23955 /* BlockchainNetworkNavigationTitleViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFBA17E52987B0C200C23955 /* BlockchainNetworkNavigationTitleViewModel.swift */; };
 		EFBA1801298900B600C23955 /* ExplorerURLProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFBA1800298900B600C23955 /* ExplorerURLProvider.swift */; };
-		EFBA18032989063A00C23955 /* ExplorerLinkProviderMock.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFBA18022989063A00C23955 /* ExplorerLinkProviderMock.swift */; };
+		EFBA18032989063A00C23955 /* MockExplorerURLService.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFBA18022989063A00C23955 /* MockExplorerURLService.swift */; };
 		EFBAABAE2927CCBA0065C6D4 /* GroupedNumberTextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFBAABAC2927CCBA0065C6D4 /* GroupedNumberTextField.swift */; };
 		EFBAABAF2927CCBA0065C6D4 /* GroupedNumberFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFBAABAD2927CCBA0065C6D4 /* GroupedNumberFormatter.swift */; };
 		EFBFD56F2979990900B20C2E /* FiatRatesProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFBFD56E2979990900B20C2E /* FiatRatesProvider.swift */; };
@@ -1665,7 +1665,7 @@
 		EFBA17E32987B0B500C23955 /* BlockchainNetworkNavigationTitleView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlockchainNetworkNavigationTitleView.swift; sourceTree = "<group>"; };
 		EFBA17E52987B0C200C23955 /* BlockchainNetworkNavigationTitleViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlockchainNetworkNavigationTitleViewModel.swift; sourceTree = "<group>"; };
 		EFBA1800298900B600C23955 /* ExplorerURLProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExplorerURLProvider.swift; sourceTree = "<group>"; };
-		EFBA18022989063A00C23955 /* ExplorerLinkProviderMock.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExplorerLinkProviderMock.swift; sourceTree = "<group>"; };
+		EFBA18022989063A00C23955 /* MockExplorerURLService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockExplorerURLService.swift; sourceTree = "<group>"; };
 		EFBAABAC2927CCBA0065C6D4 /* GroupedNumberTextField.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GroupedNumberTextField.swift; sourceTree = "<group>"; };
 		EFBAABAD2927CCBA0065C6D4 /* GroupedNumberFormatter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GroupedNumberFormatter.swift; sourceTree = "<group>"; };
 		EFBFD56E2979990900B20C2E /* FiatRatesProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FiatRatesProvider.swift; sourceTree = "<group>"; };
@@ -4017,7 +4017,7 @@
 				EF45E044293F74EB00C7090F /* UserCurrenciesProviderMock.swift */,
 				EFA9854E2947787F00D1FCB3 /* TransactionSenderMock.swift */,
 				EFA9855429478AF200D1FCB3 /* ExchangeTransactionInfo+Mock.swift */,
-				EFBA18022989063A00C23955 /* ExplorerLinkProviderMock.swift */,
+				EFBA18022989063A00C23955 /* MockExplorerURLService.swift */,
 			);
 			path = Exchange;
 			sourceTree = "<group>";
@@ -5052,7 +5052,7 @@
 				DC0A584A282C07A20031BECC /* WalletConnectServicing.swift in Sources */,
 				5D4B8BB927EDB327002CE87C /* ArrowView.swift in Sources */,
 				B06997D02692EC5E0014A676 /* ExchangeService.swift in Sources */,
-				EFBA18032989063A00C23955 /* ExplorerLinkProviderMock.swift in Sources */,
+				EFBA18032989063A00C23955 /* MockExplorerURLService.swift in Sources */,
 				DC3F54B128EB3D5D00BC9A6D /* KYCView.swift in Sources */,
 				EFE23ABA292B8D1800A3C554 /* SwappingPermissionViewModel.swift in Sources */,
 				EF08A0F1283D2382008BD923 /* CoinsListRequestModel.swift in Sources */,
