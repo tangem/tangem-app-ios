@@ -49,6 +49,10 @@ class CardViewModel: Identifiable, ObservableObject {
         config.hasFeature(.multiCurrency)
     }
 
+    var canDisplayHashesCount: Bool {
+        config.hasFeature(.displayHashesCount)
+    }
+
     var emailData: [EmailCollectedData] {
         var data = config.emailData
 
