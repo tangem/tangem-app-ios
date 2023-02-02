@@ -11,5 +11,5 @@ import Foundation
 struct SwappingSuccessInputModel {
     let sourceCurrencyAmount: CurrencyAmount
     let resultCurrencyAmount: CurrencyAmount
-    let explorerURL: URL?
+    let transactionID: String
 }
