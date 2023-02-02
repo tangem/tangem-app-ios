@@ -169,7 +169,7 @@ class WebSocket {
                 AppLog.shared.debug("[WebSocket] 💥💥💥 disconnected (\(closeCode)")
                 error = WebSocketError.closedUnexpectedly
             }
-            onDisconnect?(error)
+            disconnectOnMainThread(with: error)
         case .messageReceived(let text):
             onText?(text)
         case .messageSent(let text):
@@ -180,7 +180,7 @@ class WebSocket {
             AppLog.shared.debug("[WebSocket] <== pong")
         case .connnectionError(let error):
             AppLog.shared.debug("[WebSocket] Connection error: \(error.localizedDescription)")
-            onDisconnect?(error)
+            disconnectOnMainThread(with: error)
         }
     }
 
@@ -201,5 +201,16 @@ class WebSocket {
 
         UIApplication.shared.endBackgroundTask(bgTaskIdentifier)
         bgTaskIdentifier = .invalid
+    }
+
+    private func disconnectOnMainThread(with error: Error?) {
+        if Thread.isMainThread {
+            onDisconnect?(error)
+            return
+        }
+
+        DispatchQueue.main.async {
+            self.onDisconnect?(error)
+        }
     }
 }
