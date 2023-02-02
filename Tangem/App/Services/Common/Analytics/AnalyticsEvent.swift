@@ -164,8 +164,7 @@ extension Analytics {
         case swapButtonPermissionApprove = "[Swap] Button - Permission Approve"
         case swapButtonPermissionCancel = "[Swap] Button - Permission Cancel"
         case swapButtonPermitAndSwap = "[Swap] Button - Permit and Swap"
-        case swapNotificationRateExpired = "[Swap] Notification - Rate expired"
-        case swapButtonSwipe = "[Swap] Button -Swipe"
+        case swapButtonSwipe = "[Swap] Button - Swipe"
         case swapSwapInProgressScreenOpened = "[Swap] Swap in Progress Screen Opened"
 
         fileprivate static var nfcError: String {
