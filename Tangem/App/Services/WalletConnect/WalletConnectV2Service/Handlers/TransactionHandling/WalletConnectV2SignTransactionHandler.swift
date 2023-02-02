@@ -7,7 +7,6 @@
 //
 
 import Foundation
-import Combine
 import BlockchainSdk
 import struct WalletConnectSwiftV2.AnyCodable
 import enum WalletConnectSwiftV2.RPCResult
