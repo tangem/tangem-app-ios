@@ -114,33 +114,6 @@ public enum ExchangeBlockchain: Hashable, CaseIterable {
         case .aurora: return ""
         }
     }
-
-    public func getExploreURL(for address: String, contractAddress: String? = nil) -> URL? {
-        switch self {
-        case .ethereum:
-            if let contractAddress {
-                return URL(string: "https://etherscan.io/token/\(contractAddress)?a=\(address)")
-            }
-
-            return URL(string: "https://etherscan.io/address/\(address)")!
-        case .bsc:
-            return URL(string: "https://bscscan.com/address/\(address)")!
-        case .polygon:
-            return URL(string: "https://polygonscan.com/address/\(address)")!
-        case .avalanche:
-            return URL(string: "https://snowtrace.io/address/\(address)")!
-        case .fantom:
-            return URL(string: "https://ftmscan.com/address/\(address)")!
-        case .arbitrum:
-            return URL(string: "https://arbiscan.io/address/\(address)")!
-        case .gnosis:
-            return URL(string: "https://blockscout.com/xdai/mainnet/address/\(address)")!
-        case .optimism:
-            return URL(string: "https://optimistic.etherscan.io/address/\(address)")!
-        case .klayth, .aurora:
-            return nil
-        }
-    }
 }
 
 public extension ExchangeBlockchain {
