@@ -21,7 +21,7 @@ final class SwappingSuccessViewModel: ObservableObject {
     }
 
     var isViewInExplorerAvailable: Bool {
-        explorerLink != nil
+        explorerURL != nil
     }
 
     // MARK: - Dependencies
@@ -30,7 +30,7 @@ final class SwappingSuccessViewModel: ObservableObject {
     private let explorerURLService: ExplorerURLService
     private unowned let coordinator: SwappingSuccessRoutable
 
-    private var explorerLink: URL? {
+    private var explorerURL: URL? {
         explorerURLService.getExplorerURL(
             for: inputModel.sourceCurrencyAmount.currency.blockchain,
             transactionID: inputModel.transactionID
@@ -48,7 +48,7 @@ final class SwappingSuccessViewModel: ObservableObject {
     }
 
     func didTapViewInExplorer() {
-        guard let url = explorerLink else { return }
+        guard let url = explorerURL else { return }
 
         coordinator.openExplorer(
             url: url,
