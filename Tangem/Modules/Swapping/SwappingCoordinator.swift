@@ -72,6 +72,7 @@ extension SwappingCoordinator: SwappingRoutable {
 
     func presentSuccessView(inputModel: SwappingSuccessInputModel) {
         UIApplication.shared.endEditing()
+        Analytics.log(.swapSwapInProgressScreenOpened)
 
         let coordinator = SwappingSuccessCoordinator(
             factory: factory,
