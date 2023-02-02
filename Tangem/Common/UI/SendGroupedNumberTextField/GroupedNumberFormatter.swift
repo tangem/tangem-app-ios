@@ -16,7 +16,7 @@ struct GroupedNumberFormatter {
     private let numberFormatter: NumberFormatter
 
     init(
-        numberFormatter: NumberFormatter,
+        numberFormatter: NumberFormatter = .grouped,
         maximumFractionDigits: Int
     ) {
         self.numberFormatter = numberFormatter
