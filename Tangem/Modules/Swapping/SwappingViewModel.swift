@@ -112,7 +112,7 @@ final class SwappingViewModel: ObservableObject {
 
         items.source = destination
         items.destination = source
-        
+
         exchangeManager.update(exchangeItems: items)
     }
 
@@ -129,7 +129,7 @@ final class SwappingViewModel: ObservableObject {
         switch mainButtonState {
         case .permitAndSwap:
             Analytics.log(.swapButtonPermitAndSwap)
-            break // [REDACTED_TODO_COMMENT]
+        // [REDACTED_TODO_COMMENT]
         case .swap:
             Analytics.log(.swapButtonSwap)
             swapItems()
@@ -571,7 +571,6 @@ private extension SwappingViewModel {
             leftView: .icon(Assets.attention),
             rightView: .icon(Assets.refreshWarningIcon)
         ) { [weak self] in
-            Analytics.log(.swapNotificationRateExpired)
             self?.didTapWaringRefresh()
         }
     }
