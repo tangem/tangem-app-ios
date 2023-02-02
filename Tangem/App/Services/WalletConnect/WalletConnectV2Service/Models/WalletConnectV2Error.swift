@@ -17,6 +17,10 @@ enum WalletConnectV2Error: LocalizedError {
     case notEnoughDataInRequest(String)
     case walletModelNotFound(Blockchain)
     case missingWalletModelProviderInHandlersFactory
+    case missingGasLoader
+    case missingEthTransactionSigner
+    case missingTransaction
+    case transactionSentButNotFoundInManager
 
     case unknown(String)
 
@@ -30,6 +34,10 @@ enum WalletConnectV2Error: LocalizedError {
         case .notEnoughDataInRequest: return 8006
         case .walletModelNotFound: return 8007
         case .missingWalletModelProviderInHandlersFactory: return 8008
+        case .missingGasLoader: return 8009
+        case .missingEthTransactionSigner: return 8010
+        case .missingTransaction: return 8011
+        case .transactionSentButNotFoundInManager: return 8012
 
         case .unknown: return 8999
         }
