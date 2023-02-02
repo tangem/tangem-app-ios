@@ -57,6 +57,9 @@ struct SendCurrencyView: View {
             SendGroupedNumberTextField(decimalValue: $decimalValue, maximumFractionDigits: viewModel.maximumFractionDigits)
                 .maximumFractionDigits(viewModel.maximumFractionDigits)
                 .didTapMaxAmount { didTapMaxAmountAction?() }
+                .simultaneousGesture(TapGesture().onEnded {
+                    viewModel.textFieldDidTapped()
+                })
 
             switch viewModel.fiatValue {
             case .loading:
