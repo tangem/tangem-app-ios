@@ -222,6 +222,8 @@ extension GenericDemoConfig: UserWalletConfig {
             return .hidden
         case .swapping:
             return .hidden
+        case .displayHashesCount:
+            return .available
         }
     }
 
