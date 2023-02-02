@@ -20,6 +20,7 @@ enum WalletConnectV2Error: LocalizedError {
     case missingGasLoader
     case missingEthTransactionSigner
     case missingTransaction
+    case transactionSentButNotFoundInManager
 
     case unknown(String)
 
@@ -36,6 +37,7 @@ enum WalletConnectV2Error: LocalizedError {
         case .missingGasLoader: return 8009
         case .missingEthTransactionSigner: return 8010
         case .missingTransaction: return 8011
+        case .transactionSentButNotFoundInManager: return 8012
 
         case .unknown: return 8999
         }
