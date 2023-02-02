@@ -362,6 +362,7 @@
 "swapping_token_list_other_tokens" = "Other tokens";
 "swapping_token_list_title" = "Choose token";
 "swapping_token_list_your_tokens" = "Your tokens";
+"swapping_token_not_available" = "not available";
 "testnet_address_topuped" = "Transaction signed and sent to testnet. Wait for a while and reload balance";
 "testnet_error_failed_create_tx" = "Failed to create topup transaction for token. Try again later";
 "testnet_error_not_enough_ether_message" = "Not enough funds on ETH wallet balance. You need to topup ETH wallet first";
@@ -444,7 +445,7 @@
 "wallet_connect_no_sessions_message" = "No opened WalletConnect sessions";
 "wallet_connect_no_sessions_title" = "Ooops. No Sessions.";
 "wallet_connect_paste_from_clipboard" = "Paste from clipboard";
-"wallet_connect_personal_sign_message" = "Message for %@:\n%@";
+"wallet_connect_personal_sign_message" = "Message for %1$@:\n%2$@";
 "wallet_connect_request_session_start" = "Request to start a session for\n%1$@\n\nNETWORK: %2$@\n\nURL: %3$@";
 "wallet_connect_scan_new_code" = "Scan new code";
 "wallet_connect_scanner_error_not_valid_card" = "This card can't be used to establish WalletConnect session";
@@ -477,10 +478,10 @@
 "warning_rate_app_message" = "How do you like Tangem?";
 "warning_rate_app_title" = "One question";
 "warning_signed_tx_previously" = "This card has signed transactions in the past";
-"warning_system_update_title" = "System update available";
-"warning_system_update_message" = "Tangem recommends installing the latest iOS update for stable and safe operation";
 "warning_system_deprecation_title" = "System update required";
 "warning_system_deprecation_with_date_message" = "Support for your version of the operating system will end on %@. To receive future app updates you must update it to the latest version.";
+"warning_system_update_message" = "Tangem recommends installing the latest iOS update for stable and safe operation";
+"warning_system_update_title" = "System update available";
 "warning_testnet_card_message" = "This is a Testnet card. Don't accept it as a payment. This card must only be used for testing and development purposes.";
 "welcome_interrupted_backup_alert_discard" = "Discard";
 "welcome_interrupted_backup_alert_message" = "You have an interrupted backup. Do you want to resume?";
