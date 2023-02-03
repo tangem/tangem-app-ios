@@ -11,7 +11,7 @@ import Foundation
 class PersistentStorage {
     private let documentType = "json"
 
-    private lazy var encryptionUtility: FileEncryptionUtility = .init()
+    private lazy var encryptionUtility = FileEncryptionUtility()
 
     private var fileManager: FileManager { FileManager.default }
 
