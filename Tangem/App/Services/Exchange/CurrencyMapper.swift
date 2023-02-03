@@ -35,6 +35,7 @@ struct CurrencyMapper: CurrencyMapping {
             name: token.name,
             symbol: token.symbol,
             decimalCount: token.decimalCount,
+            supportOptions: [.eip2612],
             currencyType: .token(contractAddress: token.contractAddress)
         )
     }
@@ -51,6 +52,7 @@ struct CurrencyMapper: CurrencyMapping {
             name: blockchain.displayName,
             symbol: blockchain.currencySymbol,
             decimalCount: blockchain.decimalCount,
+            supportOptions: [],
             currencyType: .coin
         )
     }
