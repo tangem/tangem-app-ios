@@ -270,8 +270,8 @@ extension GnosisRegistrator {
             switch self {
             case .main:
                 return .init(
-                    name: "WXDAI",
-                    symbol: "WXDAI",
+                    name: "wxDAI",
+                    symbol: "wxDAI",
                     contractAddress: "0x4200000000000000000000000000000000000006",
                     decimals: 18
                 )
