@@ -9,65 +9,18 @@
 import Foundation
 
 class PersistentStorage {
-    private let documentsFolderName = "Documents"
     private let documentType = "json"
 
-    private var fileManager: FileManager { FileManager.default }
+    private lazy var encryptionUtility = FileEncryptionUtility()
 
-    private var cloudContainerUrl: URL? {
-        fileManager.url(forUbiquityContainerIdentifier: nil)?.appendingPathComponent(documentsFolderName)
-    }
+    private var fileManager: FileManager { FileManager.default }
 
     private var containerUrl: URL {
         fileManager.urls(for: .documentDirectory, in: .userDomainMask)[0]
     }
 
-    private lazy var encryptionUtility: FileEncryptionUtility = .init()
-
-    init() {
-        transferFiles()
-        clean()
-    }
-
     deinit {
         AppLog.shared.debug("PersistentStorage deinit")
-    }
-
-    private func transferFiles() {
-        guard let cloudContainerUrl = cloudContainerUrl else {
-            return
-        }
-
-        do {
-            let contents = try fileManager.contentsOfDirectory(atPath: cloudContainerUrl.path)
-            guard !contents.isEmpty else {
-                return
-            }
-
-            contents.forEach {
-                let cloudPath = cloudContainerUrl.appendingPathComponent($0)
-
-                guard fileManager.fileExists(atPath: cloudPath.path) else { return }
-
-                do {
-                    var documentPath = containerUrl.appendingPathComponent($0)
-                    let data = try Data(contentsOf: cloudPath)
-                    try encryptAndWriteToDocuments(data, at: &documentPath)
-                    try fileManager.removeItem(at: cloudPath)
-                } catch {
-                    AppLog.shared.debug("Error for file at path: \(cloudPath)")
-                    AppLog.shared.error(error)
-                }
-            }
-        } catch {
-            AppLog.shared.error(error)
-        }
-    }
-
-    private func clean() {
-        let key = PersistentStorageKey.cards
-        let documentPath = documentPath(for: key.path)
-        try? fileManager.removeItem(atPath: documentPath.path)
     }
 
     private func documentPath(for key: String) -> URL {
