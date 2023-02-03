@@ -44,6 +44,7 @@ class SwappingCoordinator: CoordinatorObject {
 
     func start(with options: Options) {
         rootViewModel = factory.makeSwappingViewModel(coordinator: self)
+        Analytics.log(.swapScreenOpenedSwap)
     }
 }
 
@@ -60,7 +61,7 @@ extension SwappingCoordinator {
 extension SwappingCoordinator: SwappingRoutable {
     func presentSwappingTokenList(sourceCurrency: Currency) {
         UIApplication.shared.endEditing()
-
+        Analytics.log(.swapСhooseTokenScreenOpened)
         swappingTokenListViewModel = factory.makeSwappingTokenListViewModel(coordinator: self)
     }
 
@@ -71,6 +72,7 @@ extension SwappingCoordinator: SwappingRoutable {
 
     func presentSuccessView(inputModel: SwappingSuccessInputModel) {
         UIApplication.shared.endEditing()
+        Analytics.log(.swapSwapInProgressScreenOpened)
 
         let coordinator = SwappingSuccessCoordinator(
             factory: factory,
