@@ -14,8 +14,6 @@ protocol WalletConnectEthTransactionBuilder {
 }
 
 struct CommonWalletConnectEthTransactionBuilder {
-    private let defaultGasLimit = 600_000
-
     private func getGasPrice(for tx: WalletConnectEthTransaction, using gasLoader: EthereumGasLoader) async throws -> Int {
         if let gasPrice = tx.gasPrice?.hexToInteger {
             return gasPrice
@@ -25,22 +23,18 @@ struct CommonWalletConnectEthTransactionBuilder {
         return Int(price)
     }
 
-    private func getGasLimit(for tx: WalletConnectEthTransaction, with amount: Amount, using gasLoader: EthereumGasLoader) async -> Int {
+    private func getGasLimit(for tx: WalletConnectEthTransaction, with amount: Amount, using gasLoader: EthereumGasLoader) async throws -> Int {
         if let dappGasLimit = tx.gas?.hexToInteger ?? tx.gasLimit?.hexToInteger {
             return dappGasLimit
         }
 
-        do {
-            let gasLimitBigInt = try await gasLoader.getGasLimit(
-                to: tx.to,
-                from: tx.from,
-                value: tx.value,
-                data: tx.data
-            ).async()
-            return Int(gasLimitBigInt)
-        } catch {
-            return defaultGasLimit
-        }
+        let gasLimitBigInt = try await gasLoader.getGasLimit(
+            to: tx.to,
+            from: tx.from,
+            value: tx.value,
+            data: tx.data
+        ).async()
+        return Int(gasLimitBigInt)
     }
 }
 
@@ -98,7 +92,7 @@ extension CommonWalletConnectEthTransactionBuilder: WalletConnectEthTransactionB
 
         let contractDataString = wcTransaction.data.drop0xPrefix
         let wcTxData = Data(hexString: String(contractDataString))
-        transaction.params = await EthereumTransactionParams(data: wcTxData, gasLimit: gasLimit, nonce: wcTransaction.nonce?.hexToInteger)
+        transaction.params = try await EthereumTransactionParams(data: wcTxData, gasLimit: gasLimit, nonce: wcTransaction.nonce?.hexToInteger)
 
         return transaction
     }
