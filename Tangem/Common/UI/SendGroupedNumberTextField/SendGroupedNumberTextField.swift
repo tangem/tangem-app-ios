@@ -10,11 +10,11 @@ import Foundation
 import SwiftUI
 
 struct SendGroupedNumberTextField: View {
-    @Binding private var decimalValue: Decimal?
+    @Binding private var decimalValue: GroupedNumberTextField.DecimalValue?
     private var maximumFractionDigits: Int
     private var didTapMaxAmountAction: (() -> Void)?
 
-    init(decimalValue: Binding<Decimal?>, maximumFractionDigits: Int) {
+    init(decimalValue: Binding<GroupedNumberTextField.DecimalValue?>, maximumFractionDigits: Int) {
         _decimalValue = decimalValue
         self.maximumFractionDigits = maximumFractionDigits
     }
@@ -22,17 +22,17 @@ struct SendGroupedNumberTextField: View {
     var body: some View {
         if #available(iOS 15, *) {
             FocusedGroupedNumberTextField(decimalValue: $decimalValue, maximumFractionDigits: maximumFractionDigits) {
-                EmptyView()
-
-                // [REDACTED_TODO_COMMENT]
-                // Button(Localization.sendMaxAmountLabel) {
-                //     didTapMaxAmountAction?()
-                // }
+                Button(Localization.sendMaxAmountLabel) {
+                    didTapMaxAmountAction?()
+                }
             }
             .maximumFractionDigits(maximumFractionDigits)
         } else {
-            GroupedNumberTextField(decimalValue: $decimalValue, maximumFractionDigits: maximumFractionDigits)
-                .maximumFractionDigits(maximumFractionDigits)
+            GroupedNumberTextField(
+                decimalValue: $decimalValue,
+                groupedNumberFormatter: GroupedNumberFormatter(maximumFractionDigits: maximumFractionDigits)
+            )
+            .maximumFractionDigits(maximumFractionDigits)
         }
     }
 }
