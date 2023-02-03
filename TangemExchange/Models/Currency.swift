@@ -18,6 +18,7 @@ public struct Currency {
     public let name: String
     public let symbol: String
     public let decimalCount: Int
+    public let supportOptions: [Options]
     public let currencyType: CurrencyType
 
     public var contractAddress: String? {
@@ -34,6 +35,7 @@ public struct Currency {
         name: String,
         symbol: String,
         decimalCount: Int,
+        supportOptions: [Options],
         currencyType: Currency.CurrencyType
     ) {
         self.id = id
@@ -41,6 +43,7 @@ public struct Currency {
         self.name = name
         self.symbol = symbol
         self.decimalCount = decimalCount
+        self.supportOptions = supportOptions
         self.currencyType = currencyType
     }
 }
@@ -83,5 +86,11 @@ public extension Currency {
     func convertFromWEI(value: Decimal) -> Decimal {
         let decimalValue = pow(10, decimalCount)
         return value / decimalValue
+    }
+}
+
+public extension Currency {
+    enum Options: Hashable {
+        case eip2612
     }
 }

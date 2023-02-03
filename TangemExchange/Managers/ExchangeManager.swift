@@ -33,4 +33,7 @@ public protocol ExchangeManager {
 
     /// Call it to save transaction in pending list
     func didSendApprovingTransaction(exchangeTxData: ExchangeTransactionDataModel)
+
+    ///
+    func makePermitSignature(currency: Currency)
 }
