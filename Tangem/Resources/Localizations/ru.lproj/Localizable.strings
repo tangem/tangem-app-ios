@@ -149,13 +149,13 @@
 "main_scan_card_warning_view_subtitle" = "Чтобы получить доступ ко всем сетям, вам необходимо отсканировать карту";
 "main_scan_card_warning_view_title" = "Отсканируйте карту";
 "main_tokens" = "Токены";
-"onboarding_access_code_feature_1_description" = "Вам необходимо установить единый код доступа для защиты всех ваших карт.";
+"onboarding_access_code_feature_1_description" = "Вам необходимо установить единый код доступа для защиты всех ваших карт";
 "onboarding_access_code_feature_1_title" = "Защита";
-"onboarding_access_code_feature_2_description" = "Позже вы сможете установить индивидуальный код доступа для каждой карты.";
+"onboarding_access_code_feature_2_description" = "Позже вы сможете установить индивидуальный код доступа для каждой карты";
 "onboarding_access_code_feature_2_title" = "Персонализация";
-"onboarding_access_code_feature_3_description" = "Код доступа можно восстановить с помощью привязанной карты. Не храните все карты в одном месте.";
+"onboarding_access_code_feature_3_description" = "Код доступа можно восстановить с помощью привязанной карты. Не храните все карты в одном месте";
 "onboarding_access_code_feature_3_title" = "Восстановление";
-"onboarding_access_code_hint" = "Выберите любое слово, фразу или число в качестве кода доступа.";
+"onboarding_access_code_hint" = "Выберите любое слово, фразу или число в качестве кода доступа";
 "onboarding_access_code_intro_title" = "Создайте код доступа";
 "onboarding_access_code_repeat_code_title" = "Повторно введите код доступа";
 "onboarding_access_code_too_short" = "Код доступа должен состоять не менее чем из 4 символов.";
@@ -238,7 +238,7 @@
 "onboarding_top_up_button_show_wallet_address" = "Показать адрес кошелька";
 "onboarding_topup_title" = "Активация кошелька";
 "onboarding_twin_exit_warning" = "Процесс связывания карт частично завершен. Вы не можете выйти из него сейчас.";
-"onboarding_twins_interrupt_warning" = "Если процесc создания кошелька каким-либо образом прервется, вам придется начинать сначала.";
+"onboarding_twins_interrupt_warning" = "Если процесc создания кошелька каким-либо образом прервется, вам придется начинать сначала";
 "onboarding_wallet_info_subtitle_first" = "Вы можете сделать резервную копию своих ключей на одной или двух других пустых картах Wallet.";
 "onboarding_wallet_info_subtitle_fourth" = "Код доступа можно восстановить с помощью одной из резервных карт.";
 "onboarding_wallet_info_subtitle_second" = "Все резервные карты являются полнофункциональными и содержат одинаковые ключи.";
