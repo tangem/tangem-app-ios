@@ -54,6 +54,9 @@ final class SwappingViewModel: ObservableObject {
     // MARK: - Private
 
     private var bag: Set<AnyCancellable> = []
+    private var initialSourceCurrencySupportPermit: Bool {
+        initialSourceCurrency.supportOptions.contains(.eip2612)
+    }
 
     init(
         initialSourceCurrency: Currency,
@@ -126,7 +129,7 @@ final class SwappingViewModel: ObservableObject {
     func didTapMainButton() {
         switch mainButtonState {
         case .permitAndSwap:
-            break // [REDACTED_TODO_COMMENT]
+            exchangeManager.makePermitSignature(currency: initialSourceCurrency)
         case .swap:
             swapItems()
         case .givePermission:
@@ -447,6 +450,8 @@ private extension SwappingViewModel {
 
             if !model.isEnoughAmountForExchange {
                 mainButtonState = .insufficientFunds
+            } else if initialSourceCurrencySupportPermit {
+                mainButtonState = .permitAndSwap
             } else if model.isPermissionRequired {
                 mainButtonState = .givePermission
             } else {
@@ -543,7 +548,7 @@ private extension SwappingViewModel {
         switch error {
         case let error as ExchangeManagerError:
             switch error {
-            case .walletAddressNotFound, .destinationNotFound, .amountNotFound:
+            case .walletAddressNotFound, .destinationNotFound, .amountNotFound, .permitCannotCreated:
                 updateRefreshWarningRowViewModel(message: error.localizedDescription)
             }
         case let error as ExchangeProviderError:
