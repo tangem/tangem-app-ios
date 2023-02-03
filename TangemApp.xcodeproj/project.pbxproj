@@ -1281,6 +1281,10 @@
 		DA5FAD8927B27F7F00EE53AE /* SheetDragHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SheetDragHandler.swift; sourceTree = "<group>"; };
 		DA64C36E27CCAD7E005B5E9A /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		DA64C37027CCAD7F005B5E9A /* ru */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ru; path = ru.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		DA69F557298BB3AC004A5A93 /* zh-Hant */ = {isa = PBXFileReference; lastKnownFileType = text.plist.stringsdict; name = "zh-Hant"; path = "zh-Hant.lproj/Localizable.stringsdict"; sourceTree = "<group>"; };
+		DA69F558298BB3AC004A5A93 /* zh-Hant */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hant"; path = "zh-Hant.lproj/Localizable.strings"; sourceTree = "<group>"; };
+		DA69F559298BB3AC004A5A93 /* zh-Hant */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hant"; path = "zh-Hant.lproj/InfoPlist.strings"; sourceTree = "<group>"; };
+		DA69F55B298BB689004A5A93 /* zh-Hant */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hant"; path = "zh-Hant.lproj/Intents.strings"; sourceTree = "<group>"; };
 		DA6C7521292224E00070EEFD /* UserWalletEncryptionKey.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserWalletEncryptionKey.swift; sourceTree = "<group>"; };
 		DA6C752329225F9B0070EEFD /* MinimizedAppTimer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MinimizedAppTimer.swift; sourceTree = "<group>"; };
 		DA6C75252924F9790070EEFD /* BackupService+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "BackupService+.swift"; sourceTree = "<group>"; };
@@ -4517,6 +4521,7 @@
 				it,
 				Base,
 				ru,
+				"zh-Hant",
 			);
 			mainGroup = 5D3F77B924BF56D800E8695B;
 			productRefGroup = 5D3F77C324BF56D800E8695B /* Products */;
@@ -5563,6 +5568,7 @@
 				B022D30F253746C900D934D7 /* fr */,
 				5DD1D62E25558975007910EF /* it */,
 				5D9D568627B6C80100FA7A76 /* ru */,
+				DA69F558298BB3AC004A5A93 /* zh-Hant */,
 			);
 			name = Localizable.strings;
 			sourceTree = "<group>";
@@ -5580,6 +5586,7 @@
 			children = (
 				DA64C36E27CCAD7E005B5E9A /* en */,
 				DA64C37027CCAD7F005B5E9A /* ru */,
+				DA69F559298BB3AC004A5A93 /* zh-Hant */,
 			);
 			name = InfoPlist.strings;
 			sourceTree = "<group>";
@@ -5592,6 +5599,7 @@
 				EF48289128D1C9A3002809C6 /* de */,
 				EF48289228D1C9A5002809C6 /* it */,
 				EF48289328D1C9A6002809C6 /* ru */,
+				DA69F557298BB3AC004A5A93 /* zh-Hant */,
 			);
 			name = Localizable.stringsdict;
 			sourceTree = "<group>";
@@ -5603,6 +5611,7 @@
 				EF661E2B28BF41D6005769E5 /* it */,
 				EF661E2C28BF41D6005769E5 /* ru */,
 				EF661E2D28BF41D6005769E5 /* fr */,
+				DA69F55B298BB689004A5A93 /* zh-Hant */,
 			);
 			name = Intents.strings;
 			sourceTree = "<group>";
