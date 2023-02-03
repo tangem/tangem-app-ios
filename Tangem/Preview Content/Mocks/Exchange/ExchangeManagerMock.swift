@@ -27,4 +27,6 @@ struct ExchangeManagerMock: ExchangeManager {
     func refresh() {}
 
     func didSendApprovingTransaction(exchangeTxData: ExchangeTransactionDataModel) {}
+
+    func makePermitSignature(currency: Currency) {}
 }

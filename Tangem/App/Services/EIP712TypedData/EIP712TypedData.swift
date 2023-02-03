@@ -1,27 +1,14 @@
-// Copyright © 2017-2018 Trust.
 //
-// This file is part of Trust. The full Trust copyright notice, including
-// terms governing use, modification, and redistribution, is contained in the
-// file LICENSE at the root of the source code distribution tree.
-
-// https://github.com/ethereum/EIPs/blob/master/EIPS/eip-712.md
+//  EIP712TypedData.swift
+//  Tangem
+//
+//  Created by [REDACTED_AUTHOR]
+//  Copyright © 2022 Tangem AG. All rights reserved.
+//
+/// https://github.com/ethereum/EIPs/blob/master/EIPS/eip-712.md
 import Foundation
 import BigInt
 import BlockchainSdk
-
-/// A struct represents EIP712 type tuple
-public struct EIP712Type: Codable {
-    let name: String
-    let type: String
-}
-
-/// A struct represents EIP712 Domain
-public struct EIP712Domain: Codable {
-    let name: String
-    let version: String
-    let chainId: Int
-    let verifyingContract: String
-}
 
 /// A struct represents EIP712 TypedData
 public struct EIP712TypedData: Codable {
@@ -29,6 +16,13 @@ public struct EIP712TypedData: Codable {
     public let primaryType: String
     public let domain: JSON
     public let message: JSON
+
+    init(types: [String: [EIP712Type]], primaryType: String, domain: JSON, message: JSON) {
+        self.types = types
+        self.primaryType = primaryType
+        self.domain = domain
+        self.message = message
+    }
 }
 
 public extension EIP712TypedData {
@@ -45,6 +39,25 @@ public extension EIP712TypedData {
             hashStruct(data: message, type: primaryType)
 
         return data.sha3(.keccak256)
+    }
+
+    internal func hashStruct(data: JSON, type: String) -> Data {
+        encodeData(data: data, type: type).sha3(.keccak256)
+    }
+
+    /// Recursively finds all the dependencies of a type
+    internal func findDependencies(primaryType: String, dependencies: Set<String> = Set<String>()) -> Set<String> {
+        var found = dependencies
+        guard !found.contains(primaryType),
+              let primaryTypes = types[primaryType] else {
+            return found
+        }
+        found.insert(primaryType)
+        for type in primaryTypes {
+            findDependencies(primaryType: type.type, dependencies: found)
+                .forEach { found.insert($0) }
+        }
+        return found
     }
 
     /// Encode a type of struct
@@ -82,13 +95,11 @@ public extension EIP712TypedData {
             }
             try encoder.encode(tuple: values)
         } catch {
-            AppLog.shared.error(error)
+            print(error)
         }
         return encoder.data
     }
-}
 
-private extension EIP712TypedData {
     /// Helper func for `encodeData`
     private func makeABIValue(data: JSON?, type: String) -> ABIValue? {
         let isArrayType = type.contains("[")
@@ -155,25 +166,6 @@ private extension EIP712TypedData {
             return -1
         }
         return size
-    }
-
-    func hashStruct(data: JSON, type: String) -> Data {
-        encodeData(data: data, type: type).sha3(.keccak256)
-    }
-
-    /// Recursively finds all the dependencies of a type
-    func findDependencies(primaryType: String, dependencies: Set<String> = Set<String>()) -> Set<String> {
-        var found = dependencies
-        guard !found.contains(primaryType),
-              let primaryTypes = types[primaryType] else {
-            return found
-        }
-        found.insert(primaryType)
-        for type in primaryTypes {
-            findDependencies(primaryType: type.type, dependencies: found)
-                .forEach { found.insert($0) }
-        }
-        return found
     }
 }
 
