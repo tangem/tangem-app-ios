@@ -101,6 +101,7 @@ final class SwappingViewModel: ObservableObject {
     }
 
     func userDidTapSwapExchangeItemsButton() {
+        Analytics.log(.swapButtonSwipe)
         var items = exchangeManager.getExchangeItems()
 
         guard let destination = items.destination else {
@@ -120,16 +121,20 @@ final class SwappingViewModel: ObservableObject {
     }
 
     func userDidTapChangeDestinationButton() {
+        Analytics.log(.swapReceiveTokenClicked)
         openTokenListView()
     }
 
     func didTapMainButton() {
         switch mainButtonState {
         case .permitAndSwap:
-            break // [REDACTED_TODO_COMMENT]
+            Analytics.log(.swapButtonPermitAndSwap)
+        // [REDACTED_TODO_COMMENT]
         case .swap:
+            Analytics.log(.swapButtonSwap)
             swapItems()
         case .givePermission:
+            Analytics.log(.swapButtonGivePermission)
             openPermissionView()
         case .insufficientFunds:
             assertionFailure("Button should be disabled")
