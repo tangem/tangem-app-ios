@@ -110,7 +110,7 @@ extension GroupedNumberTextField {
         case `internal`(Decimal)
         case external(Decimal)
 
-        var value: Decimal? {
+        var value: Decimal {
             switch self {
             case .internal(let value):
                 return value
