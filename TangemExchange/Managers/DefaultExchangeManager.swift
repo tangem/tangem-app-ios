@@ -15,6 +15,7 @@ class DefaultExchangeManager {
     private let exchangeProvider: ExchangeProvider
     private let blockchainDataProvider: BlockchainDataProvider
     private let logger: ExchangeLogger
+    private let permitTypedDataService: PermitTypedDataService
 
     // MARK: - Internal
 
@@ -48,13 +49,15 @@ class DefaultExchangeManager {
 
     init(
         exchangeProvider: ExchangeProvider,
-        blockchainInfoProvider: BlockchainDataProvider,
+        blockchainDataProvider: BlockchainDataProvider,
+        permitTypedDataService: PermitTypedDataService,
         logger: ExchangeLogger,
         exchangeItems: ExchangeItems,
         amount: Decimal? = nil
     ) {
         self.exchangeProvider = exchangeProvider
-        blockchainDataProvider = blockchainInfoProvider
+        self.blockchainDataProvider = blockchainDataProvider
+        self.permitTypedDataService = permitTypedDataService
         self.logger = logger
         self.exchangeItems = exchangeItems
         self.amount = amount
@@ -109,6 +112,17 @@ extension DefaultExchangeManager: ExchangeManager {
         pendingTransactions[exchangeTxData.sourceCurrency] = .pending(destination: exchangeTxData.destinationAddress)
 
         refresh()
+    }
+
+    func makePermitSignature(currency: Currency) {
+        Task {
+            do {
+                let spenderAddress = try await exchangeProvider.fetchSpenderAddress(for: currency)
+                try await updatePermitSignature(currency: currency, spenderAddress: spenderAddress)
+            } catch {
+                updateState(.requiredRefresh(occurredError: error))
+            }
+        }
     }
 }
 
@@ -199,6 +213,11 @@ private extension DefaultExchangeManager {
                     try await loadExchangeData(preview: preview)
 
                 case .token:
+                    guard exchangeItems.permit == nil else {
+                        try await loadExchangeData(preview: preview)
+                        return
+                    }
+
                     await updateExchangeAmountAllowance()
 
                     // Check if permission required
@@ -292,11 +311,13 @@ private extension DefaultExchangeManager {
             throw ExchangeManagerError.walletAddressNotFound
         }
 
-        return try await exchangeProvider.fetchExchangeData(
-            items: exchangeItems,
+        let parameters = FetchExchangeDataParameters(
             walletAddress: walletAddress,
-            amount: formattedAmount
+            amount: formattedAmount,
+            permit: exchangeItems.permit
         )
+
+        return try await exchangeProvider.fetchExchangeData(items: exchangeItems, parameters: parameters)
     }
 
     func updateBalances() {
@@ -315,6 +336,30 @@ private extension DefaultExchangeManager {
                 exchangeItems.sourceBalance = balance
             }
         }
+    }
+
+    func updatePermitSignature(currency: Currency, spenderAddress: String) async throws {
+        guard let amount = amount else {
+            throw ExchangeManagerError.amountNotFound
+        }
+
+        guard let walletAddress = walletAddress else {
+            throw ExchangeManagerError.walletAddressNotFound
+        }
+
+        let parameters = PermitParameters(
+            walletAddress: walletAddress,
+            spenderAddress: spenderAddress,
+            amount: currency.convertToWEI(value: amount),
+            deadline: Date(timeIntervalSinceNow: 60 * 30) // 30 min
+        )
+
+        var permitCallData = try await permitTypedDataService.buildPermitCallData(for: currency, parameters: parameters)
+        permitCallData = permitCallData.lowercased()
+//        print("permitCallData \n \(permitCallData)")
+
+        exchangeItems.permit = permitCallData
+        refreshValues()
     }
 }
 
