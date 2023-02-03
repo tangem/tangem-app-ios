@@ -16,6 +16,7 @@ extension Currency {
         name: "ethereum",
         symbol: "ETH",
         decimalCount: 18,
+        supportOptions: [],
         currencyType: .coin
     )
 }
