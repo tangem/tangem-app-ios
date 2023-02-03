@@ -14,6 +14,7 @@ public struct ExchangeParameters: Encodable {
     public var amount: String
     public var fromAddress: String
     public var slippage: Int
+    public var permit: String?
     public var disableEstimate: Bool?
     public var protocols: String?
     public var destReceiver: String?
@@ -28,12 +29,14 @@ public struct ExchangeParameters: Encodable {
     public var gasLimit: String?
     public var gasPrice: String?
 
+    /// https://docs.1inch.io/docs/aggregation-protocol/api/swap-params
     public init(
         fromTokenAddress: String,
         toTokenAddress: String,
         amount: String,
         fromAddress: String,
-        slippage: Int,
+        slippage: Int = 1,
+        permit: String?,
         disableEstimate: Bool? = nil,
         protocols: String? = nil,
         destReceiver: String? = nil,
@@ -53,6 +56,7 @@ public struct ExchangeParameters: Encodable {
         self.amount = amount
         self.fromAddress = fromAddress
         self.slippage = slippage
+        self.permit = permit
         self.disableEstimate = disableEstimate
         self.protocols = protocols
         self.destReceiver = destReceiver

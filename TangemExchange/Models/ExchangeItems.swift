@@ -15,6 +15,8 @@ public struct ExchangeItems {
     public var sourceBalance: Decimal = 0
     public var destinationBalance: Decimal?
 
+    public var permit: String?
+
     public init(source: Currency, destination: Currency?) {
         self.source = source
         self.destination = destination

@@ -48,14 +48,13 @@ extension OneInchExchangeProvider: ExchangeProvider {
         }
     }
 
-    func fetchExchangeData(items: ExchangeItems, walletAddress: String, amount: String) async throws -> ExchangeDataModel {
-        let destination = items.destination
+    func fetchExchangeData(items: ExchangeItems, parameters: FetchExchangeDataParameters) async throws -> ExchangeDataModel {
         let parameters = ExchangeParameters(
             fromTokenAddress: items.source.contractAddress ?? oneInchCoinContractAddress,
-            toTokenAddress: destination?.contractAddress ?? oneInchCoinContractAddress,
-            amount: amount,
-            fromAddress: walletAddress,
-            slippage: defaultSlippage
+            toTokenAddress: items.destination?.contractAddress ?? oneInchCoinContractAddress,
+            amount: parameters.amount,
+            fromAddress: parameters.walletAddress,
+            permit: parameters.permit
         )
 
         let result = await oneInchAPIProvider.swap(blockchain: items.source.blockchain, parameters: parameters)

@@ -122,9 +122,29 @@ private extension CommonSwappingModulesFactory {
         )
     }
 
+    var signTypedDataProvider: SignTypedDataProviding {
+        SignTypedDataProvider(
+            publicKey: walletModel.wallet.publicKey,
+            transactionSigner: signer
+        )
+    }
+
+    var decimalNumberConverter: DecimalNumberConverting {
+        DecimalNumberConverter()
+    }
+
+    var permitTypedDataService: PermitTypedDataService {
+        CommonPermitTypedDataService(
+            ethereumTransactionProcessor: walletManager as! EthereumTransactionProcessor,
+            signTypedDataProvider: signTypedDataProvider,
+            decimalNumberConverter: decimalNumberConverter
+        )
+    }
+
     func exchangeManager(source: Currency, destination: Currency?) -> ExchangeManager {
-        return TangemExchangeFactory().createExchangeManager(
-            blockchainInfoProvider: blockchainDataProvider,
+        TangemExchangeFactory().createExchangeManager(
+            blockchainDataProvider: blockchainDataProvider,
+            permitTypedDataService: permitTypedDataService,
             source: source,
             destination: destination,
             logger: logger
