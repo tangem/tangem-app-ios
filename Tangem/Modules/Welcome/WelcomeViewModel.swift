@@ -13,6 +13,7 @@ import TangemSdk
 class WelcomeViewModel: ObservableObject {
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
     @Injected(\.failedScanTracker) private var failedCardScanTracker: FailedScanTrackable
+    @Injected(\.incomingActionManager) private var incomingActionManager: IncomingActionManaging
 
     @Published var showTroubleshootingView: Bool = false
     @Published var isScanningCard: Bool = false
@@ -35,7 +36,6 @@ class WelcomeViewModel: ObservableObject {
     }
 
     func scanCardTapped() {
-        Analytics.beginLoggingCardScan(source: .welcome)
         scanCard()
     }
 
@@ -60,6 +60,7 @@ class WelcomeViewModel: ObservableObject {
 
     func onAppear() {
         Analytics.log(.introductionProcessOpened)
+        incomingActionManager.becomeFirstResponder(self)
     }
 
     func onDidAppear() {
@@ -70,8 +71,13 @@ class WelcomeViewModel: ObservableObject {
         }
     }
 
+    func onDisappear() {
+        incomingActionManager.resignFirstResponder(self)
+    }
+
     private func scanCard() {
         isScanningCard = true
+        Analytics.beginLoggingCardScan(source: .welcome)
 
         userWalletRepository.unlock(with: .card(userWallet: nil)) { [weak self] result in
             self?.isScanningCard = false
@@ -124,6 +130,8 @@ extension WelcomeViewModel {
     }
 }
 
+// MARK: - WelcomeViewLifecycleListener
+
 extension WelcomeViewModel: WelcomeViewLifecycleListener {
     func resignActve() {
         storiesModel.resignActve()
@@ -131,5 +139,22 @@ extension WelcomeViewModel: WelcomeViewLifecycleListener {
 
     func becomeActive() {
         storiesModel.becomeActive()
+    }
+}
+
+// MARK: - IncomingActionResponder
+
+extension WelcomeViewModel: IncomingActionResponder {
+    func didReceiveIncomingAction(_ action: IncomingAction) -> Bool {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+            self.scanCard()
+        }
+
+        switch action {
+        case .start:
+            return true
+        case .walletConnect:
+            return false
+        }
     }
 }
