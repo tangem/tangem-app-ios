@@ -216,8 +216,6 @@ class TokenDetailsViewModel: ObservableObject {
             exchangeOptions.append(.sell)
         }
 
-        print("isCustomToken", isCustomToken)
-
         if canSwap {
             exchangeOptions.append(.swap)
         }
