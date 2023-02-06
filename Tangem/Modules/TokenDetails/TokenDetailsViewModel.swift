@@ -191,6 +191,10 @@ class TokenDetailsViewModel: ObservableObject {
         }
     }
 
+    private var isCustomToken: Bool {
+        amountType.token?.isCustom == true
+    }
+
     init(cardModel: CardViewModel, blockchainNetwork: BlockchainNetwork, amountType: Amount.AmountType, coordinator: TokenDetailsRoutable) {
         card = cardModel
         self.blockchainNetwork = blockchainNetwork
@@ -211,6 +215,8 @@ class TokenDetailsViewModel: ObservableObject {
         if canSellCrypto {
             exchangeOptions.append(.sell)
         }
+
+        print("isCustomToken", isCustomToken)
 
         if canSwap {
             exchangeOptions.append(.swap)
@@ -539,6 +545,7 @@ extension TokenDetailsViewModel {
 private extension TokenDetailsViewModel {
     var canSwap: Bool {
         FeatureProvider.isAvailable(.exchange) &&
+            !isCustomToken &&
             card.supportsSwapping &&
             ExchangeManagerUtil().isNetworkAvailableForExchange(networkId: blockchainNetwork.blockchain.networkId)
     }
