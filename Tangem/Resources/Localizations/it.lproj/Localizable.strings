@@ -440,7 +440,6 @@
 "wallet_connect_failed_to_build_tx" = "Failed to create transaction from Dapp data. Code: %@";
 "wallet_connect_generic_error_with_code" = "We've encountered unknown error. Error code: %li. If the problem persists — feel free to contact our support";
 "wallet_connect_message_signed" = "The message has been successfully signed and sent to the Dapp";
-"wallet_connect_need_to_scan_card" = "Please scan the card and repeat your request";
 "wallet_connect_network_not_found_format" = "%@ network not found. Please, add it first and try again.";
 "wallet_connect_no_sessions_message" = "No opened WalletConnect sessions";
 "wallet_connect_no_sessions_title" = "Ooops. No Sessions.";

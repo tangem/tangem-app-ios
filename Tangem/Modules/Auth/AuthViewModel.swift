@@ -23,6 +23,7 @@ final class AuthViewModel: ObservableObject {
 
     @Injected(\.failedScanTracker) private var failedCardScanTracker: FailedScanTrackable
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
+    @Injected(\.incomingActionManager) private var incomingActionManager: IncomingActionManaging
 
     private var unlockOnStart: Bool
     private unowned let coordinator: AuthRoutable
@@ -63,6 +64,7 @@ final class AuthViewModel: ObservableObject {
 
     func onAppear() {
         Analytics.log(.signInScreenOpened)
+        incomingActionManager.becomeFirstResponder(self)
     }
 
     func onDidAppear() {
@@ -75,7 +77,9 @@ final class AuthViewModel: ObservableObject {
         }
     }
 
-    func onDisappear() {}
+    func onDisappear() {
+        incomingActionManager.resignFirstResponder(self)
+    }
 
     private func didFinishUnlocking(_ result: UserWalletRepositoryResult?) {
         isScanningCard = false
@@ -114,5 +118,24 @@ extension AuthViewModel {
 
     func openMain(with cardModel: CardViewModel) {
         coordinator.openMain(with: cardModel)
+    }
+}
+
+// MARK: - IncomingActionResponder
+
+extension AuthViewModel: IncomingActionResponder {
+    func didReceiveIncomingAction(_ action: IncomingAction) -> Bool {
+        if !unlockOnStart {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                self.unlockWithBiometry()
+            }
+        }
+
+        switch action {
+        case .start:
+            return true
+        case .walletConnect:
+            return false
+        }
     }
 }
