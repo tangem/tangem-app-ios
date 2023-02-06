@@ -27,21 +27,9 @@ class WalletConnectViewModel: ObservableObject {
         v1Sessions.isEmpty && v2Sessions.isEmpty
     }
 
-    private var hasWCInPasteboard: Bool {
-        guard let copiedValue = UIPasteboard.general.string else {
-            return false
-        }
-
-        let canHandle = walletConnectService.canHandle(url: copiedValue)
-        if canHandle {
-            self.copiedValue = copiedValue
-        }
-        return canHandle
-    }
-
     private var cardModel: CardViewModel
     private var bag = Set<AnyCancellable>()
-    private var copiedValue: String?
+    private var pendingURI: WalletConnectRequestURI?
     private var scannedQRCode: CurrentValueSubject<String?, Never> = .init(nil)
 
     private unowned let coordinator: WalletConnectRoutable
@@ -80,11 +68,21 @@ class WalletConnectViewModel: ObservableObject {
         }
     }
 
-    func pasteFromClipboard() {
-        guard let value = copiedValue else { return }
+    func tryReadFromPasteboard() -> WalletConnectRequestURI? {
+        guard let pasteboardValue = UIPasteboard.general.string,
+              let uri = WalletConnectURLParser().parse(pasteboardValue),
+              walletConnectService.canOpenSession(with: uri) else {
+            return nil
+        }
 
-        scannedQRCode.send(value)
-        copiedValue = nil
+        return uri
+    }
+
+    func pasteFromClipboard() {
+        guard let pendingURI else { return }
+
+        openSession(with: pendingURI)
+        self.pendingURI = nil
     }
 
     func openSession() {
@@ -95,11 +93,22 @@ class WalletConnectViewModel: ObservableObject {
             return
         }
 
-        if hasWCInPasteboard {
+        pendingURI = tryReadFromPasteboard()
+
+        if pendingURI != nil {
             isActionSheetVisible = true
         } else {
             openQRScanner()
         }
+    }
+
+    private func openSession(with uri: WalletConnectRequestURI) {
+        guard walletConnectService.canOpenSession(with: uri) else {
+            alert = WalletConnectServiceError.failedToConnect.alertBinder
+            return
+        }
+
+        walletConnectService.openSession(with: uri)
     }
 
     private func bind() {
@@ -126,12 +135,9 @@ class WalletConnectViewModel: ObservableObject {
 
         scannedQRCode
             .compactMap { $0 }
-            .sink { [weak self] qrCodeString in
-                guard let self = self else { return }
-
-                if !self.walletConnectService.handle(url: qrCodeString) {
-                    self.alert = WalletConnectServiceError.failedToConnect.alertBinder
-                }
+            .compactMap { WalletConnectURLParser().parse($0) }
+            .sink { [weak self] uri in
+                self?.openSession(with: uri)
             }
             .store(in: &bag)
     }
