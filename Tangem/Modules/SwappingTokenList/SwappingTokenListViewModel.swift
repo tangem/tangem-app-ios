@@ -19,14 +19,12 @@ final class SwappingTokenListViewModel: ObservableObject, Identifiable {
     // MARK: - ViewState
 
     // I can't use @Published here, because of swiftui redraw perfomance drop
-    var searchText = CurrentValueSubject<String, Never>("")
+    @Published var searchText: String = "" // = CurrentValueSubject<String, Never>("")
+
     @Published var navigationTitleViewModel: BlockchainNetworkNavigationTitleViewModel?
     @Published var userItems: [SwappingTokenItemViewModel] = []
     @Published var otherItems: [SwappingTokenItemViewModel] = []
-
-    var hasNextPage: Bool {
-        dataLoader.canFetchMore
-    }
+    @Published var isLoading: Bool = false
 
     // MARK: - Dependencies
 
@@ -61,10 +59,20 @@ final class SwappingTokenListViewModel: ObservableObject, Identifiable {
         setupNavigationTitleView()
         setupUserItemsSection()
         bind()
+//        fetch()
     }
 
-    func fetch() {
-        dataLoader.fetch(searchText.value)
+    func didReachLastView() {
+        if dataLoader.canFetchMore {
+            fetch()
+        } else {
+            print("Reach to end of list")
+        }
+    }
+
+    private func fetch() {
+        isLoading = true
+        dataLoader.fetch(searchText)
     }
 }
 
@@ -107,12 +115,14 @@ private extension SwappingTokenListViewModel {
     }
 
     func bind() {
-        searchText
+        $searchText
             .dropFirst()
-            .debounce(for: 0.5, scheduler: DispatchQueue.main)
+            .map { $0.trimmed() }
             .removeDuplicates()
+            .debounce(for: 1, scheduler: DispatchQueue.main)
+            .print("reset")
             .sink { [weak self] string in
-                self?.dataLoader.reset(string)
+                self?.dataLoader.fetch(string)
             }
             .store(in: &bag)
     }
@@ -131,6 +141,7 @@ private extension SwappingTokenListViewModel {
             }
             .receive(on: DispatchQueue.main)
             .receiveValue { [weak self] items in
+                self?.isLoading = false
                 self?.otherItems = items
             }
             .store(in: &bag)
