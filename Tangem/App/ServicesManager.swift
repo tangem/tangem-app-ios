@@ -13,6 +13,7 @@ class ServicesManager {
     @Injected(\.exchangeService) private var exchangeService: ExchangeService
     @Injected(\.tangemApiService) private var tangemApiService: TangemApiService
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
+    @Injected(\.walletConnectService) private var walletConnectService: WalletConnectService
 
     private var bag = Set<AnyCancellable>()
 
