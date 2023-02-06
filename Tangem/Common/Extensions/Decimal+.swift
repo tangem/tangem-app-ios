@@ -28,7 +28,8 @@ extension Decimal {
         minimumFractionDigits: Int = 0,
         maximumFractionDigits: Int = 8
     ) -> String {
-        let formatter = NumberFormatter.grouped
+        let formatter = NumberFormatter()
+        formatter.numberStyle = .decimal
         formatter.minimumFractionDigits = minimumFractionDigits
         formatter.maximumFractionDigits = maximumFractionDigits
 
