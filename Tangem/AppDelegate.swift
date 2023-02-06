@@ -10,7 +10,6 @@ import UIKit
 import Firebase
 import AppsFlyerLib
 import Amplitude
-import Intents
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
