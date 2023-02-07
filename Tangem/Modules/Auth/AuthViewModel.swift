@@ -84,6 +84,10 @@ final class AuthViewModel: ObservableObject {
     private func didFinishUnlocking(_ result: UserWalletRepositoryResult?) {
         isScanningCard = false
 
+        if result?.isSuccess != true {
+            incomingActionManager.cancelIncomingAction()
+        }
+
         guard let result else { return }
 
         switch result {
