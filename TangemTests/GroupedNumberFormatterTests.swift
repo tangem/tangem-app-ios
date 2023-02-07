@@ -11,8 +11,9 @@ import XCTest
 
 class GroupedNumberFormatterTests: XCTestCase {
     func testFormatterWithRussianLocale() {
-        let numberFormatter = NumberFormatter.grouped
+        let numberFormatter = NumberFormatter()
         numberFormatter.locale = Locale(identifier: "ru_RU")
+
         let formatter = GroupedNumberFormatter(numberFormatter: numberFormatter, maximumFractionDigits: 8)
 
         let unbreakableSpace = "\u{00a0}"
@@ -34,8 +35,9 @@ class GroupedNumberFormatterTests: XCTestCase {
     }
 
     func testFormatterWithUSALocale() {
-        let numberFormatter = NumberFormatter.grouped
+        let numberFormatter = NumberFormatter()
         numberFormatter.locale = Locale(identifier: "en_US")
+
         let formatter = GroupedNumberFormatter(numberFormatter: numberFormatter, maximumFractionDigits: 8)
 
         let data = [
