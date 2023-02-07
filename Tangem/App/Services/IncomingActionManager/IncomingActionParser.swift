@@ -14,7 +14,7 @@ public class IncomingActionParser {
 
     public init() {}
 
-    public func handleDeeplink(_ url: URL) -> IncomingAction? {
+    public func parseDeeplink(_ url: URL) -> IncomingAction? {
         guard validateURL(url) else { return nil }
 
         if url.absoluteString.starts(with: Constants.ndefURL) {
@@ -29,7 +29,7 @@ public class IncomingActionParser {
         return nil
     }
 
-    public func handleIntent(_ intent: String) -> IncomingAction? {
+    public func parseIntent(_ intent: String) -> IncomingAction? {
         switch intent {
         case AppIntent.scanCard.rawValue:
             return .start
