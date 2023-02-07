@@ -19,12 +19,15 @@ final class SwappingTokenListViewModel: ObservableObject, Identifiable {
     // MARK: - ViewState
 
     // I can't use @Published here, because of swiftui redraw perfomance drop
-    @Published var searchText: String = "" // = CurrentValueSubject<String, Never>("")
+    @Published var searchText = CurrentValueSubject<String, Never>("")
 
     @Published var navigationTitleViewModel: BlockchainNetworkNavigationTitleViewModel?
     @Published var userItems: [SwappingTokenItemViewModel] = []
     @Published var otherItems: [SwappingTokenItemViewModel] = []
-    @Published var isLoading: Bool = false
+
+    var hasNextPage: Bool {
+        dataLoader.canFetchMore
+    }
 
     // MARK: - Dependencies
 
@@ -59,20 +62,11 @@ final class SwappingTokenListViewModel: ObservableObject, Identifiable {
         setupNavigationTitleView()
         setupUserItemsSection()
         bind()
-//        fetch()
+        fetch()
     }
 
-    func didReachLastView() {
-        if dataLoader.canFetchMore {
-            fetch()
-        } else {
-            print("Reach to end of list")
-        }
-    }
-
-    private func fetch() {
-        isLoading = true
-        dataLoader.fetch(searchText)
+    func fetch() {
+        dataLoader.fetch(searchText.value)
     }
 }
 
@@ -115,12 +109,11 @@ private extension SwappingTokenListViewModel {
     }
 
     func bind() {
-        $searchText
+        searchText
             .dropFirst()
             .map { $0.trimmed() }
             .removeDuplicates()
             .debounce(for: 1, scheduler: DispatchQueue.main)
-            .print("reset")
             .sink { [weak self] string in
                 self?.dataLoader.fetch(string)
             }
@@ -141,7 +134,6 @@ private extension SwappingTokenListViewModel {
             }
             .receive(on: DispatchQueue.main)
             .receiveValue { [weak self] items in
-                self?.isLoading = false
                 self?.otherItems = items
             }
             .store(in: &bag)
