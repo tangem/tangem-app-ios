@@ -29,19 +29,19 @@ extension CommonIncomingActionManager: IncomingActionManaging {
         responders.remove(responder)
     }
 
+    public func cancelIncomingAction() {
+        pendingAction = nil // cancelled
+    }
+
     private func tryHandleLastAction() {
         guard let pendingAction else { return }
 
         for responder in responders.allDelegates.reversed() {
             if responder.didReceiveIncomingAction(pendingAction) {
-                clearPendingAction()
+                self.pendingAction = nil // handled
                 break
             }
         }
-    }
-
-    private func clearPendingAction() {
-        pendingAction = nil
     }
 }
 
@@ -51,7 +51,7 @@ extension CommonIncomingActionManager: IncomingActionHandler {
     public func handleIntent(_ intent: String) -> Bool {
         AppLog.shared.debug("Received intent: \(intent)")
 
-        guard let action = parser.handleIntent(intent) else {
+        guard let action = parser.parseIntent(intent) else {
             return false
         }
 
@@ -63,7 +63,7 @@ extension CommonIncomingActionManager: IncomingActionHandler {
     public func handleDeeplink(_ url: URL) -> Bool {
         AppLog.shared.debug("Received deeplink: \(url.absoluteString)")
 
-        guard let action = parser.handleDeeplink(url) else {
+        guard let action = parser.parseDeeplink(url) else {
             return false
         }
 
