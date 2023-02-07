@@ -17,10 +17,9 @@ public protocol IncomingActionHandler {
 
 /// Object's interface for encapsulating logic of deeplink handling
 public protocol IncomingActionManaging: AnyObject {
-    var pendingAction: IncomingAction? { get }
-
     func becomeFirstResponder(_ responder: IncomingActionResponder)
     func resignFirstResponder(_ responder: IncomingActionResponder)
+    func cancelIncomingAction()
 }
 
 public protocol IncomingActionResponder: AnyObject {
