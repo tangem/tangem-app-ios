@@ -43,6 +43,15 @@ enum UserWalletRepositoryResult {
     case onboarding(OnboardingInput)
     case troubleshooting
     case error(Error)
+
+    var isSuccess: Bool {
+        switch self {
+        case .success:
+            return true
+        default:
+            return false
+        }
+    }
 }
 
 enum UserWalletRepositoryEvent {
