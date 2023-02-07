@@ -60,15 +60,9 @@ class TotalSumBalanceViewModel: ObservableObject {
 
         Publishers.CombineLatest(totalBalanceManager.totalBalancePublisher(), hasEntriesWithoutDerivation)
             .map { [unowned self] balance, hasEntriesWithoutDerivation -> NSAttributedString in
-                if hasEntriesWithoutDerivation {
-                    return dashAttributedString()
-                }
-
-                guard let value = balance.value else {
-                    return dashAttributedString()
-                }
-
-                if value.hasError {
+                guard !hasEntriesWithoutDerivation,
+                      let value = balance.value,
+                      !value.hasError else {
                     return dashAttributedString()
                 }
 
