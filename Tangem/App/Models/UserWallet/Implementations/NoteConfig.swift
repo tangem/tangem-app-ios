@@ -104,6 +104,11 @@ extension NoteConfig: UserWalletConfig {
         card.wallets.first?.publicKey
     }
 
+    // [REDACTED_TODO_COMMENT]
+    var exchangeServiceEnvironment: ExchangeServiceEnvironment {
+        .saltpay
+    }
+
     func getFeatureAvailability(_ feature: UserWalletFeature) -> UserWalletFeature.Availability {
         switch feature {
         case .accessCode:
