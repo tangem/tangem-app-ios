@@ -10,14 +10,12 @@ import Foundation
 import Combine
 
 class ServicesManager {
-    @Injected(\.exchangeService) private var exchangeService: ExchangeService
     @Injected(\.tangemApiService) private var tangemApiService: TangemApiService
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
 
     private var bag = Set<AnyCancellable>()
 
     func initialize() {
-        exchangeService.initialize()
         tangemApiService.initialize()
         userWalletRepository.initialize()
     }
