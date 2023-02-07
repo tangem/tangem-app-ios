@@ -31,11 +31,17 @@ struct SwappingTokenListView: View {
 
                 FixedSpacer(height: 12)
 
-                section(type: .userItems, items: viewModel.userItems)
+                section(
+                    title: Localization.swappingTokenListYourTokens.uppercased(),
+                    items: viewModel.userItems
+                )
 
                 FixedSpacer(height: 12)
 
-                section(type: .otherItems, items: viewModel.otherItems)
+                section(
+                    title: Localization.swappingTokenListOtherTokens.uppercased(),
+                    items: viewModel.otherItems
+                )
 
                 if viewModel.hasNextPage {
                     ProgressViewCompat(color: Colors.Icon.informative)
@@ -61,9 +67,9 @@ struct SwappingTokenListView: View {
     }
 
     @ViewBuilder
-    func section(type: SectionType, items: [SwappingTokenItemViewModel]) -> some View {
+    func section(title: String, items: [SwappingTokenItemViewModel]) -> some View {
         if !items.isEmpty {
-            Text(type.title.uppercased())
+            Text(title)
                 .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
                 .frame(maxWidth: .infinity, alignment: .leading)
 
@@ -74,22 +80,6 @@ struct SwappingTokenListView: View {
                     Separator(color: Colors.Stroke.primary)
                         .padding(.leading, separatorInset)
                 }
-            }
-        }
-    }
-}
-
-extension SwappingTokenListView {
-    enum SectionType {
-        case userItems
-        case otherItems
-
-        var title: String {
-            switch self {
-            case .userItems:
-                return Localization.swappingTokenListYourTokens
-            case .otherItems:
-                return Localization.swappingTokenListOtherTokens
             }
         }
     }
