@@ -19,7 +19,7 @@ private struct SaltPayRegistratorProviderKey: InjectionKey {
 }
 
 extension InjectedValues {
-    var saletPayRegistratorProvider: SaltPayRegistratorProviding {
+    var saltPayRegistratorProvider: SaltPayRegistratorProviding {
         get { Self[SaltPayRegistratorProviderKey.self] }
         set { Self[SaltPayRegistratorProviderKey.self] = newValue }
     }
