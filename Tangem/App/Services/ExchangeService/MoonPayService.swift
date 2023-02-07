@@ -57,6 +57,8 @@ fileprivate struct MoonpayCurrency: Decodable {
 class MoonPayService {
     @Injected(\.keysManager) var keysManager: KeysManager
 
+    @Published private var initializationSubject = false
+
     private var keys: MoonPayKeys { keysManager.moonPayKeys }
 
     private var availableToBuy: Set<String> = [
@@ -73,7 +75,9 @@ class MoonPayService {
     private(set) var canSellCrypto = true
     private var bag: Set<AnyCancellable> = []
 
-    init() {}
+    init() {
+        initialize(for: .default)
+    }
 
     deinit {
         AppLog.shared.debug("MoonPay deinit")
@@ -89,11 +93,11 @@ class MoonPayService {
 }
 
 extension MoonPayService: ExchangeService {
+    var initialized: Published<Bool>.Publisher { $initializationSubject }
+
     var successCloseUrl: String { "https://success.tangem.com" }
 
-    var sellRequestUrl: String {
-        "https://sell-request.tangem.com"
-    }
+    var sellRequestUrl: String { "https://sell-request.tangem.com" }
 
     func canBuy(_ currencySymbol: String, amountType: Amount.AmountType, blockchain: Blockchain) -> Bool {
         if currencySymbol.uppercased() == "BNB", blockchain == .bsc(testnet: true) || blockchain == .bsc(testnet: false) {
@@ -176,7 +180,11 @@ extension MoonPayService: ExchangeService {
         return .init(currencyCode: currencyCode, amount: amount, targetAddress: targetAddress)
     }
 
-    func initialize() {
+    func initialize(for _: ExchangeServiceEnvironment) {
+        if initializationSubject {
+            return
+        }
+
         let config = URLSessionConfiguration.default
         config.requestCachePolicy = .reloadIgnoringLocalCacheData
         config.urlCache = nil
@@ -235,6 +243,8 @@ extension MoonPayService: ExchangeService {
                 AppLog.shared.debug("Failed to load currencies")
                 AppLog.shared.error(error)
             }
+
+            self.initializationSubject = true
         }
         .store(in: &bag)
     }
