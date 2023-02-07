@@ -19,7 +19,7 @@ final class SwappingTokenListViewModel: ObservableObject, Identifiable {
     // MARK: - ViewState
 
     // I can't use @Published here, because of swiftui redraw perfomance drop
-    let searchText = CurrentValueSubject<String, Never>("")
+    var searchText = CurrentValueSubject<String, Never>("")
 
     @Published var navigationTitleViewModel: BlockchainNetworkNavigationTitleViewModel?
     @Published var userItems: [SwappingTokenItemViewModel] = []
