@@ -82,6 +82,10 @@ class WelcomeViewModel: ObservableObject {
         userWalletRepository.unlock(with: .card(userWallet: nil)) { [weak self] result in
             self?.isScanningCard = false
 
+            if result?.isSuccess != true {
+                self?.incomingActionManager.cancelIncomingAction()
+            }
+
             guard
                 let self, let result
             else {
