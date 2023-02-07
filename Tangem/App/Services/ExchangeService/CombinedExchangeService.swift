@@ -10,16 +10,25 @@ import Foundation
 import BlockchainSdk
 
 class CombinedExchangeService {
-    private let buyService: ExchangeService
+    private var buyService: ExchangeService
     private let sellService: ExchangeService
 
-    init(buyService: ExchangeService, sellService: ExchangeService) {
-        self.buyService = buyService
+    private let mercuryoService: MercuryoService
+    private let utorgService: UtorgService
+
+    init(mercuryoService: MercuryoService, utorgService: UtorgService, sellService: ExchangeService) {
+        buyService = mercuryoService
+        self.mercuryoService = mercuryoService
+        self.utorgService = utorgService
         self.sellService = sellService
     }
 }
 
 extension CombinedExchangeService: ExchangeService {
+    var initialized: Published<Bool>.Publisher {
+        buyService.initialized
+    }
+
     var successCloseUrl: String {
         buyService.successCloseUrl
     }
@@ -48,8 +57,12 @@ extension CombinedExchangeService: ExchangeService {
         sellService.extractSellCryptoRequest(from: data)
     }
 
-    func initialize() {
-        buyService.initialize()
-        sellService.initialize()
+    func initialize(for environment: ExchangeServiceEnvironment) {
+        switch environment {
+        case .default:
+            buyService = mercuryoService
+        case .saltpay:
+            buyService = utorgService
+        }
     }
 }
