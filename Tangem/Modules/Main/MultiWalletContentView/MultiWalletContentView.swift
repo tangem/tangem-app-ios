@@ -19,6 +19,9 @@ struct MultiWalletContentView: View {
         Group {
             if !viewModel.tokenListIsEmpty {
                 TotalSumBalanceView(viewModel: viewModel.totalSumBalanceViewModel)
+                    .padding(16)
+                    .background(Colors.Background.primary)
+                    .cornerRadius(16)
                     .padding(.horizontal, 16)
             }
 

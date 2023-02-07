@@ -34,8 +34,38 @@ struct SingleWalletContentView: View {
                 }
 
             } else {
-                TotalSumBalanceView(viewModel: viewModel.totalSumBalanceViewModel)
-                    .padding(.horizontal, 16)
+                VStack(alignment: .leading, spacing: 12) {
+                    TotalSumBalanceView(viewModel: viewModel.totalSumBalanceViewModel)
+                        .padding([.horizontal, .top], 16)
+                        .padding(.bottom, viewModel.buttons.isEmpty ? 16 : 0)
+
+                    if !viewModel.buttons.isEmpty {
+                        ForEach(viewModel.buttons) { buttonInfo in
+                            MainButton(
+                                title: buttonInfo.title,
+                                icon: .leading(buttonInfo.icon),
+                                style: .secondary,
+                                dimensions: .init(
+                                    maxWidth: nil,
+                                    verticalPadding: 8,
+                                    horizontalPadding: 14,
+                                    cornerRadius: 10,
+                                    iconToLabelPadding: 8,
+                                    iconSize: .init(width: 16, height: 16)
+                                ),
+                                font: Fonts.Bold.subheadline,
+                                isLoading: buttonInfo.isLoading,
+                                isDisabled: buttonInfo.isDisabled,
+                                action: buttonInfo.action
+                            )
+                        }
+                        .padding(.horizontal, 16)
+                        .padding(.bottom, 12)
+                    }
+                }
+                .background(Colors.Background.primary)
+                .cornerRadius(16)
+                .padding(.horizontal, 16)
             }
         }
     }
