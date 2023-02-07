@@ -69,8 +69,6 @@ class ListDataLoader {
 
                 self.currentPage += 1
                 self.items.append(contentsOf: items)
-                print("items.count - \(self.items.count)")
-                print("perPage - \(self.perPage)")
                 // If count of data received is less than perPage value then it is last page.
                 if items.count < self.perPage {
                     self.canFetchMore = false
