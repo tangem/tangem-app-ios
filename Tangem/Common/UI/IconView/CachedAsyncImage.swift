@@ -66,6 +66,7 @@ import SwiftUI
 ///         }
 ///     }
 ///
+/// Source: https://github.com/lorenzofiamingo/swiftui-cached-async-image
 @available(iOS 15.0, macOS 12.0, tvOS 15.0, watchOS 8.0, *)
 public struct CachedAsyncImage<Content>: View where Content: View {
     @State private var phase: AsyncImagePhase
