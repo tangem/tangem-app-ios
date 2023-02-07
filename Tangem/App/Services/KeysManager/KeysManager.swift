@@ -14,6 +14,7 @@ protocol KeysManager {
     var moonPayKeys: MoonPayKeys { get }
     var mercuryoWidgetId: String { get }
     var mercuryoSecret: String { get }
+    var utorgSID: String { get }
     var blockchainConfig: BlockchainSdkConfig { get }
     var shopifyShop: ShopifyShop { get }
     var zendesk: ZendeskConfig { get }
