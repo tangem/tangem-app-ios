@@ -145,7 +145,6 @@
 "main_no_backup_warning_subtitle" = "Чтобы защитить свои активы, мы советуем вам выполнить эту процедуру";
 "main_no_backup_warning_title" = "Бэкап кошелька не был произведен";
 "main_page_balance" = "Баланс";
-"main_processing_full_amount" = "В сумме учтены не все монеты";
 "main_scan_card_warning_view_subtitle" = "Чтобы получить доступ ко всем сетям, вам необходимо отсканировать карту";
 "main_scan_card_warning_view_title" = "Отсканируйте карту";
 "main_tokens" = "Токены";
@@ -200,7 +199,7 @@
 "onboarding_saltpay_title_one_backup_card" = "Бэкап карта создана";
 "onboarding_saltpay_title_prepare_origin" = "Приготовьте SaltPay карту";
 "onboarding_subtitle_backup_card" = "Вы можете сделать резервную копию своих ключей на одной или двух других пустых картах Wallet";
-"onboarding_subtitle_claim" = "Для начала работы просто запросите начисление wxDai на свой кошелек";
+"onboarding_subtitle_claim" = "Для начала работы просто запросите начисление wxDAI на свой кошелек";
 "onboarding_subtitle_claim_progress" = "Это займет несколько секунд";
 "onboarding_subtitle_kyc_retry" = "Более подробная информация отправлена на ваш адрес электронной почты.";
 "onboarding_subtitle_kyc_start" = "Для начала работы с картой вам необходимо завершить процесс подтверждения личности";
