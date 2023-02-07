@@ -38,6 +38,8 @@ fileprivate struct MercuryoConfig: Decodable {
 class MercuryoService {
     @Injected(\.keysManager) private var keysManager: KeysManager
 
+    @Published private var initializationSubject = false
+
     private var widgetId: String {
         keysManager.mercuryoWidgetId
     }
@@ -51,7 +53,9 @@ class MercuryoService {
 
     private var bag: Set<AnyCancellable> = []
 
-    init() {}
+    init() {
+        initialize(for: .default)
+    }
 
     deinit {
         AppLog.shared.debug("MercuryoService deinit")
@@ -59,11 +63,11 @@ class MercuryoService {
 }
 
 extension MercuryoService: ExchangeService {
+    var initialized: Published<Bool>.Publisher { $initializationSubject }
+
     var successCloseUrl: String { "https://success.tangem.com" }
 
-    var sellRequestUrl: String {
-        return ""
-    }
+    var sellRequestUrl: String { "" }
 
     func canBuy(_ currencySymbol: String, amountType: Amount.AmountType, blockchain: Blockchain) -> Bool {
         guard availableCryptoCurrencyCodes.contains(currencySymbol) else {
@@ -127,7 +131,11 @@ extension MercuryoService: ExchangeService {
         return nil
     }
 
-    func initialize() {
+    func initialize(for _: ExchangeServiceEnvironment) {
+        if initializationSubject {
+            return
+        }
+
         let request = URLRequest(url: URL(string: "https://api.mercuryo.io/v1.6/lib/currencies")!)
 
         let config = URLSessionConfiguration.default
@@ -142,6 +150,7 @@ extension MercuryoService: ExchangeService {
             } receiveValue: { [unowned self] response in
                 self.availableCryptoCurrencyCodes = response.data.crypto
                 self.networkCodeByCurrencyCode = response.data.config.base
+                self.initializationSubject = true
             }
             .store(in: &bag)
     }

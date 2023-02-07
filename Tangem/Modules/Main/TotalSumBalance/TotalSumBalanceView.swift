@@ -48,9 +48,6 @@ struct TotalSumBalanceView: View {
                     .padding(.top, 2)
             }
         }
-        .padding(16)
-        .background(Colors.Background.primary)
-        .cornerRadius(16)
     }
 
     private var balanceView: some View {
