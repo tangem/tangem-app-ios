@@ -40,13 +40,6 @@ struct TotalSumBalanceView: View {
             .padding(.bottom, 4)
 
             balanceView
-
-            if viewModel.hasError {
-                Text(Localization.mainProcessingFullAmount)
-                    .foregroundColor(Color.tangemWarning)
-                    .font(.system(size: 13, weight: .regular))
-                    .padding(.top, 2)
-            }
         }
     }
 
