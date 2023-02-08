@@ -85,7 +85,7 @@ final class AuthViewModel: ObservableObject {
         isScanningCard = false
 
         if result?.isSuccess != true {
-            incomingActionManager.cancelIncomingAction()
+            incomingActionManager.discardIncomingAction()
         }
 
         guard let result else { return }

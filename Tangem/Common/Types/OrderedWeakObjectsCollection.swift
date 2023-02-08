@@ -31,6 +31,11 @@ public class OrderedWeakObjectsCollection<T> {
         }
     }
 
+    public func contains(_ delegate: T) -> Bool {
+        return mapTable.keyEnumerator()
+            .first(where: { mapTable.object(forKey: $0 as? KeyType) === delegate as AnyObject }) as? KeyType != nil
+    }
+
     public var allDelegates: [T] {
         allKeys
             .map { key -> (Int, T?) in
