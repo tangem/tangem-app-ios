@@ -44,6 +44,8 @@ final class SwappingPermissionViewModel: ObservableObject, Identifiable {
     }
 
     func didTapApprove() {
+        Analytics.log(.swapButtonPermissionApprove)
+
         Task {
             do {
                 try await transactionSender.sendTransaction(inputModel.transactionInfo)
@@ -59,6 +61,7 @@ final class SwappingPermissionViewModel: ObservableObject, Identifiable {
     }
 
     func didTapCancel() {
+        Analytics.log(.swapButtonPermissionCancel)
         coordinator.userDidCancel()
     }
 }
@@ -90,7 +93,8 @@ private extension SwappingPermissionViewModel {
 
         let fee = transactionInfo.fee.rounded(scale: 2, roundingMode: .up)
         let fiatFee = inputModel.fiatFee.currencyFormatted(code: AppSettings.shared.selectedCurrencyCode)
-        let formattedFee = "\(fee.groupedFormatted()) \(inputModel.transactionInfo.sourceBlockchain.symbol) (\(fiatFee))"
+        let formattedFee = fee.groupedFormatted(maximumFractionDigits: transactionInfo.sourceBlockchain.decimalCount)
+        let feeLabel = "\(formattedFee) \(inputModel.transactionInfo.sourceBlockchain.symbol) (\(fiatFee))"
 
         contentRowViewModels = [
             DefaultRowViewModel(
@@ -103,7 +107,7 @@ private extension SwappingPermissionViewModel {
             ),
             DefaultRowViewModel(
                 title: Localization.sendFeeLabel,
-                detailsType: .text(formattedFee)
+                detailsType: .text(feeLabel)
             ),
         ]
     }
