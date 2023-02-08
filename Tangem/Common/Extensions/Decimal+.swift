@@ -9,14 +9,14 @@
 import Foundation
 
 extension Decimal {
-    func currencyFormatted(code: String) -> String {
+    func currencyFormatted(code: String, maximumFractionDigits: Int = 18) -> String {
         let formatter = NumberFormatter()
         formatter.locale = Locale.current
         formatter.numberStyle = .currency
         formatter.usesGroupingSeparator = true
         formatter.currencyCode = code
         formatter.minimumFractionDigits = 2
-        formatter.maximumFractionDigits = 18
+        formatter.maximumFractionDigits = maximumFractionDigits
         if code == "RUB" {
             formatter.currencySymbol = "₽"
         }
