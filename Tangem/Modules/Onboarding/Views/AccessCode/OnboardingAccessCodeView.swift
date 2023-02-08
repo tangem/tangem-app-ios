@@ -33,7 +33,7 @@ struct OnboardingAccessCodeView: View {
         case .intro:
             Spacer()
             Assets.Onboarding.inputWithLock.image
-                .scaleEffect(Constants.isSmallScreen ? 0.7 : 1)
+                .scaleEffect(AppConstants.isSmallScreen ? 0.7 : 1)
             Spacer()
             VStack(alignment: .leading, spacing: 20) {
                 ForEach(0 ..< 3) { index in
@@ -54,7 +54,7 @@ struct OnboardingAccessCodeView: View {
                     }
                 }
             }
-            .padding(.horizontal, Constants.isSmallScreen ? 0 : 10)
+            .padding(.horizontal, AppConstants.isSmallScreen ? 0 : 10)
         case .inputCode, .repeatCode:
             inputContent
         }
@@ -85,7 +85,7 @@ struct OnboardingAccessCodeView: View {
                 .multilineTextAlignment(.center)
                 .padding(.horizontal, 10)
                 .foregroundColor(.tangemGrayDark6)
-                .padding(.top, Constants.isSmallScreen ? 20 : 72)
+                .padding(.top, AppConstants.isSmallScreen ? 20 : 72)
                 .lineLimit(2)
                 .id("title_\(state.rawValue)")
                 .onTapGesture {
