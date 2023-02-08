@@ -213,20 +213,26 @@ private extension DefaultExchangeManager {
                     try await loadExchangeData(preview: preview)
 
                 case .token:
-                    guard exchangeItems.permit == nil else {
-                        try await loadExchangeData(preview: preview)
-                        return
+                    let isSupportedPermit = exchangeItems.source.supportOptions.contains(.eip2612)
+
+                    if isSupportedPermit {
+                        // If haven't permit just show preview
+                        if exchangeItems.permit == nil {
+                            updateState(.preview(preview))
+                        } else {
+                            try await loadExchangeData(preview: preview)
+                        }
+                    } else {
+                        await updateExchangeAmountAllowance()
+
+                        // Check if permission required
+                        guard !isEnoughAllowance() else {
+                            try await loadExchangeData(preview: preview)
+                            return
+                        }
+
+                        try await loadApproveData(preview: preview, quoteData: quoteData)
                     }
-
-                    await updateExchangeAmountAllowance()
-
-                    // Check if permission required
-                    guard !isEnoughAllowance() else {
-                        try await loadExchangeData(preview: preview)
-                        return
-                    }
-
-                    try await loadApproveData(preview: preview, quoteData: quoteData)
                 }
             } catch {
                 updateState(.requiredRefresh(occurredError: error))
