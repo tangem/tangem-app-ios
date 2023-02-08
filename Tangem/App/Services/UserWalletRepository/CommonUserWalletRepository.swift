@@ -10,7 +10,6 @@ import Foundation
 import Combine
 import CryptoKit
 import TangemSdk
-import Intents
 
 class CommonUserWalletRepository: UserWalletRepository {
     @Injected(\.tangemSdkProvider) private var sdkProvider: TangemSdkProviding
