@@ -16,11 +16,12 @@ struct GroupedNumberFormatter {
     private let numberFormatter: NumberFormatter
 
     init(
-        numberFormatter: NumberFormatter = .grouped,
+        numberFormatter: NumberFormatter = NumberFormatter(),
         maximumFractionDigits: Int
     ) {
         self.numberFormatter = numberFormatter
 
+        numberFormatter.numberStyle = .decimal
         numberFormatter.minimumFractionDigits = 0 // Just for case
         numberFormatter.maximumFractionDigits = maximumFractionDigits
     }
