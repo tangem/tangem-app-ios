@@ -44,9 +44,6 @@ struct IconView: View {
                 Colors.Icon.informative
                     .frame(size: size)
                     .cornerRadiusContinuous(5)
-                    .onAppear {
-                        AppLog.shared.debug("Load image error \(error.localizedDescription)")
-                    }
             @unknown default:
                 EmptyView()
             }
