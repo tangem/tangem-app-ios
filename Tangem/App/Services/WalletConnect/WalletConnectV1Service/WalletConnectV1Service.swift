@@ -11,14 +11,7 @@ import Combine
 import BlockchainSdk
 import TangemSdk
 
-fileprivate typealias ExtractedWCUrl = (url: String, handleDelay: TimeInterval)
-
 class WalletConnectV1Service {
-    private enum ServiceConstants {
-        static let uriPrefix = "uri="
-        static let wcPrefix = "wc:"
-    }
-
     let canEstablishNewSessionPublisher = CurrentValueSubject<Bool, Never>(true)
 
     @Published private(set) var sessions = [WalletConnectSession]()
@@ -59,6 +52,10 @@ class WalletConnectV1Service {
 
     deinit {
         AppLog.shared.debug("WalletConnectService deinit")
+    }
+
+    func openSession(with uri: WalletConnectV1URI) {
+        connect(to: uri)
     }
 
     private func restore() {
@@ -215,71 +212,13 @@ extension WalletConnectV1Service {
     }
 }
 
-// MARK: - WalletConnectURLHandler
-
-extension WalletConnectV1Service: URLHandler {
-    func canHandle(url: String) -> Bool {
-        WCURL(url) != nil
-    }
-
-    @discardableResult
-    func handle(url: String) -> Bool {
-        guard
-            let url = URL(string: url),
-            let extracted = extractWcUrl(from: url),
-            let wcUrl = WCURL(extracted.url)
-        else {
-            return false
-        }
-
-        DispatchQueue.global().asyncAfter(deadline: .now() + extracted.handleDelay) {
-            self.connect(to: wcUrl)
-        }
-
-        return true
-    }
-
-    private func extractWcUrl(from url: URL) -> ExtractedWCUrl? {
-        let absoluteStr = url.absoluteString
-        if canHandle(url: absoluteStr) {
-            return (url: absoluteStr, handleDelay: 0)
-        }
-
-        guard
-            let components = URLComponents(url: url, resolvingAgainstBaseURL: true),
-            let scheme = components.scheme,
-            var query = components.query
-        else {
-            return nil
-        }
-
-        let bundleSchemes: [[String]]? = InfoDictionaryUtils.bundleURLSchemes.value()
-        guard
-            query.starts(with: ServiceConstants.uriPrefix + ServiceConstants.wcPrefix) ||
-            (bundleSchemes?.contains(where: { $0.contains(scheme) }) ?? false)
-        else {
-            return nil
-        }
-
-        guard query.count > ServiceConstants.uriPrefix.count else {
-            return nil
-        }
-
-        query.removeFirst(ServiceConstants.uriPrefix.count)
-
-        guard canHandle(url: query) else { return nil }
-
-        return (query, 0.5)
-    }
-}
-
 extension WalletConnectV1Service: ServerDelegate {
     private var walletMeta: Session.ClientMeta {
         Session.ClientMeta(
             name: "Tangem Wallet",
             description: nil,
             icons: [],
-            url: Constants.tangemDomainUrl
+            url: AppConstants.tangemDomainUrl
         )
     }
 
@@ -483,3 +422,5 @@ fileprivate struct DApps {
         return true
     }
 }
+
+public typealias WalletConnectV1URI = WCURL
