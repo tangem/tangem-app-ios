@@ -439,7 +439,6 @@
 "wallet_connect_failed_to_build_tx" = "Не удалось создать транзакцию из данных Dapp. Код: %@";
 "wallet_connect_generic_error_with_code" = "Произошла непредвиденная ошибка. Код ошибки: %li Попробуйте, пожалуйста, позже. Если проблема будет продолжать возникать - обратитесь в службу поддержки.";
 "wallet_connect_message_signed" = "Сообщение было успешно подписано и отправлено в Dapp";
-"wallet_connect_need_to_scan_card" = "Пожалуйста, отсканируйте карту и повторите ваш запрос";
 "wallet_connect_network_not_found_format" = "Сеть %@ не найдена. Пожалуйста, добавьте её и попробуйте заново.";
 "wallet_connect_no_sessions_message" = "Нет открытых сессий WalletConnect";
 "wallet_connect_no_sessions_title" = "Упс. Нет сессий.";
