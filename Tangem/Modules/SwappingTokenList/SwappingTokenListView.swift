@@ -21,8 +21,8 @@ struct SwappingTokenListView: View {
 
     var body: some View {
         NavigationView {
-            GroupedScrollView(alignment: .leading, spacing: 0) {
-                if #available(iOS 15.0, *) {} else {
+            GroupedScrollView(alignment: .center, spacing: 0) {
+                if #unavailable(iOS 15.0) {
                     let horizontalInset: CGFloat = UIDevice.isIOS13 ? 8 : 16
                     SearchBar(text: $viewModel.searchText.value, placeholder: Localization.commonSearch)
                         .padding(.horizontal, UIDevice.isIOS13 ? 0 : 8)
@@ -46,7 +46,6 @@ struct SwappingTokenListView: View {
                 if viewModel.hasNextPage {
                     ProgressViewCompat(color: Colors.Icon.informative)
                         .onAppear(perform: viewModel.fetch)
-                        .frame(alignment: .center)
                 }
             }
             .searchableCompat(text: $viewModel.searchText.value)
@@ -70,17 +69,16 @@ struct SwappingTokenListView: View {
     @ViewBuilder
     func section(title: String, items: [SwappingTokenItemViewModel]) -> some View {
         if !items.isEmpty {
-            Group {
-                Text(title)
-                    .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
+            Text(title)
+                .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
+                .frame(maxWidth: .infinity, alignment: .leading)
 
-                ForEach(items) { item in
-                    SwappingTokenItemView(viewModel: item)
+            ForEach(items) { item in
+                SwappingTokenItemView(viewModel: item)
 
-                    if items.last?.id != item.id {
-                        Separator(color: Colors.Stroke.primary)
-                            .padding(.leading, separatorInset)
-                    }
+                if items.last?.id != item.id {
+                    Separator(color: Colors.Stroke.primary)
+                        .padding(.leading, separatorInset)
                 }
             }
         }
