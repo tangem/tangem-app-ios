@@ -34,38 +34,45 @@ struct SingleWalletContentView: View {
                 }
 
             } else {
-                VStack(alignment: .leading, spacing: 12) {
-                    TotalSumBalanceView(viewModel: viewModel.totalSumBalanceViewModel)
-                        .padding([.horizontal, .top], 16)
-                        .padding(.bottom, viewModel.buttons.isEmpty ? 16 : 0)
+                VStack(spacing: 14) {
+                    VStack(alignment: .leading, spacing: 12) {
+                        TotalSumBalanceView(viewModel: viewModel.totalSumBalanceViewModel)
+                            .padding([.horizontal, .top], 16)
+                            .padding(.bottom, viewModel.buttons.isEmpty ? 16 : 0)
 
-                    if !viewModel.buttons.isEmpty {
-                        ForEach(viewModel.buttons) { buttonInfo in
-                            MainButton(
-                                title: buttonInfo.title,
-                                icon: .leading(buttonInfo.icon),
-                                style: .secondary,
-                                dimensions: .init(
-                                    maxWidth: nil,
-                                    verticalPadding: 8,
-                                    horizontalPadding: 14,
-                                    cornerRadius: 10,
-                                    iconToLabelPadding: 8,
-                                    iconSize: .init(width: 16, height: 16)
-                                ),
-                                font: Fonts.Bold.subheadline,
-                                isLoading: buttonInfo.isLoading,
-                                isDisabled: buttonInfo.isDisabled,
-                                action: buttonInfo.action
-                            )
+                        if !viewModel.buttons.isEmpty {
+                            ForEach(viewModel.buttons) { buttonInfo in
+                                MainButton(
+                                    title: buttonInfo.title,
+                                    icon: .leading(buttonInfo.icon),
+                                    style: .secondary,
+                                    dimensions: .init(
+                                        maxWidth: nil,
+                                        verticalPadding: 8,
+                                        horizontalPadding: 14,
+                                        cornerRadius: 10,
+                                        iconToLabelPadding: 8,
+                                        iconSize: .init(width: 16, height: 16)
+                                    ),
+                                    font: Fonts.Bold.subheadline,
+                                    isLoading: buttonInfo.isLoading,
+                                    isDisabled: buttonInfo.isDisabled,
+                                    action: buttonInfo.action
+                                )
+                            }
+                            .padding(.horizontal, 16)
+                            .padding(.bottom, 12)
                         }
-                        .padding(.horizontal, 16)
-                        .padding(.bottom, 12)
                     }
+                    .background(Colors.Background.primary)
+                    .cornerRadius(16)
+                    .padding(.horizontal, 16)
+
+                    TransactionsListView(transactionItems: listItems, exploreAction: viewModel.openExplorer)
+                        .background(Colors.Background.primary)
+                        .cornerRadius(16)
+                        .padding(.horizontal, 16)
                 }
-                .background(Colors.Background.primary)
-                .cornerRadius(16)
-                .padding(.horizontal, 16)
             }
         }
     }
@@ -88,5 +95,279 @@ struct SingleWalletContentView: View {
                 MessageView(title: Localization.walletErrorNoAccount, subtitle: message, type: .error)
             }
         }
+    }
+}
+
+extension SingleWalletContentView {
+    var listItems: [TransactionListItem] {
+        [
+            TransactionListItem(
+                header: "Today",
+                items: [
+                    TransactionRecord(
+                        amountType: .coin,
+                        destination: "0x01230...3feed",
+                        dateTime: "In progress...",
+                        transferAmount: "+443 wxDAI",
+                        canBePushed: false,
+                        direction: .incoming,
+                        status: .inProgress
+                    ),
+                    TransactionRecord(
+                        amountType: .coin,
+                        destination: "0x01230...3feed",
+                        dateTime: "05:10",
+                        transferAmount: "+50 wxDAI",
+                        canBePushed: false,
+                        direction: .incoming,
+                        status: .confirmed
+                    ),
+                    TransactionRecord(
+                        amountType: .coin,
+                        destination: "0x012...baced",
+                        dateTime: "In progress...",
+                        transferAmount: "-0.5 wxDAI",
+                        canBePushed: false,
+                        direction: .outgoing,
+                        status: .inProgress
+                    ),
+                    TransactionRecord(
+                        amountType: .coin,
+                        destination: "0x0123...baced",
+                        dateTime: "05:00",
+                        transferAmount: "-15 wxDAI",
+                        canBePushed: false,
+                        direction: .outgoing,
+                        status: .confirmed
+                    ),
+                    TransactionRecord(
+                        amountType: .coin,
+                        destination: "0x01230...3feed",
+                        dateTime: "In progress...",
+                        transferAmount: "+443 wxDAI",
+                        canBePushed: false,
+                        direction: .incoming,
+                        status: .inProgress
+                    ),
+                    TransactionRecord(
+                        amountType: .coin,
+                        destination: "0x01230...3feed",
+                        dateTime: "05:10",
+                        transferAmount: "+50 wxDAI",
+                        canBePushed: false,
+                        direction: .incoming,
+                        status: .confirmed
+                    ),
+                    TransactionRecord(
+                        amountType: .coin,
+                        destination: "0x012...baced",
+                        dateTime: "In progress...",
+                        transferAmount: "-0.5 wxDAI",
+                        canBePushed: false,
+                        direction: .outgoing,
+                        status: .inProgress
+                    ),
+                    TransactionRecord(
+                        amountType: .coin,
+                        destination: "0x0123...baced",
+                        dateTime: "05:00",
+                        transferAmount: "-15 wxDAI",
+                        canBePushed: false,
+                        direction: .outgoing,
+                        status: .confirmed
+                    ),
+                    TransactionRecord(
+                        amountType: .coin,
+                        destination: "0x01230...3feed",
+                        dateTime: "In progress...",
+                        transferAmount: "+443 wxDAI",
+                        canBePushed: false,
+                        direction: .incoming,
+                        status: .inProgress
+                    ),
+                    TransactionRecord(
+                        amountType: .coin,
+                        destination: "0x01230...3feed",
+                        dateTime: "05:10",
+                        transferAmount: "+50 wxDAI",
+                        canBePushed: false,
+                        direction: .incoming,
+                        status: .confirmed
+                    ),
+                    TransactionRecord(
+                        amountType: .coin,
+                        destination: "0x012...baced",
+                        dateTime: "In progress...",
+                        transferAmount: "-0.5 wxDAI",
+                        canBePushed: false,
+                        direction: .outgoing,
+                        status: .inProgress
+                    ),
+                    TransactionRecord(
+                        amountType: .coin,
+                        destination: "0x0123...baced",
+                        dateTime: "05:00",
+                        transferAmount: "-15 wxDAI",
+                        canBePushed: false,
+                        direction: .outgoing,
+                        status: .confirmed
+                    ),
+                    TransactionRecord(
+                        amountType: .coin,
+                        destination: "0x01230...3feed",
+                        dateTime: "In progress...",
+                        transferAmount: "+443 wxDAI",
+                        canBePushed: false,
+                        direction: .incoming,
+                        status: .inProgress
+                    ),
+                    TransactionRecord(
+                        amountType: .coin,
+                        destination: "0x01230...3feed",
+                        dateTime: "05:10",
+                        transferAmount: "+50 wxDAI",
+                        canBePushed: false,
+                        direction: .incoming,
+                        status: .confirmed
+                    ),
+                    TransactionRecord(
+                        amountType: .coin,
+                        destination: "0x012...baced",
+                        dateTime: "In progress...",
+                        transferAmount: "-0.5 wxDAI",
+                        canBePushed: false,
+                        direction: .outgoing,
+                        status: .inProgress
+                    ),
+                    TransactionRecord(
+                        amountType: .coin,
+                        destination: "0x0123...baced",
+                        dateTime: "05:00",
+                        transferAmount: "-15 wxDAI",
+                        canBePushed: false,
+                        direction: .outgoing,
+                        status: .confirmed
+                    ),
+                    TransactionRecord(
+                        amountType: .coin,
+                        destination: "0x01230...3feed",
+                        dateTime: "In progress...",
+                        transferAmount: "+443 wxDAI",
+                        canBePushed: false,
+                        direction: .incoming,
+                        status: .inProgress
+                    ),
+                    TransactionRecord(
+                        amountType: .coin,
+                        destination: "0x01230...3feed",
+                        dateTime: "05:10",
+                        transferAmount: "+50 wxDAI",
+                        canBePushed: false,
+                        direction: .incoming,
+                        status: .confirmed
+                    ),
+                    TransactionRecord(
+                        amountType: .coin,
+                        destination: "0x012...baced",
+                        dateTime: "In progress...",
+                        transferAmount: "-0.5 wxDAI",
+                        canBePushed: false,
+                        direction: .outgoing,
+                        status: .inProgress
+                    ),
+                    TransactionRecord(
+                        amountType: .coin,
+                        destination: "0x0123...baced",
+                        dateTime: "05:00",
+                        transferAmount: "-15 wxDAI",
+                        canBePushed: false,
+                        direction: .outgoing,
+                        status: .confirmed
+                    ),
+                    TransactionRecord(
+                        amountType: .coin,
+                        destination: "0x01230...3feed",
+                        dateTime: "In progress...",
+                        transferAmount: "+443 wxDAI",
+                        canBePushed: false,
+                        direction: .incoming,
+                        status: .inProgress
+                    ),
+                    TransactionRecord(
+                        amountType: .coin,
+                        destination: "0x01230...3feed",
+                        dateTime: "05:10",
+                        transferAmount: "+50 wxDAI",
+                        canBePushed: false,
+                        direction: .incoming,
+                        status: .confirmed
+                    ),
+                    TransactionRecord(
+                        amountType: .coin,
+                        destination: "0x012...baced",
+                        dateTime: "In progress...",
+                        transferAmount: "-0.5 wxDAI",
+                        canBePushed: false,
+                        direction: .outgoing,
+                        status: .inProgress
+                    ),
+                    TransactionRecord(
+                        amountType: .coin,
+                        destination: "0x0123...baced",
+                        dateTime: "05:00",
+                        transferAmount: "-15 wxDAI",
+                        canBePushed: false,
+                        direction: .outgoing,
+                        status: .confirmed
+                    ),
+                ]
+            ),
+            TransactionListItem(
+                header: "Yesterday",
+                items: [
+                    TransactionRecord(
+                        amountType: .coin,
+                        destination: "0x012...baced",
+                        dateTime: "In progress...",
+                        transferAmount: "-0.5 wxDAI",
+                        canBePushed: false,
+                        direction: .outgoing,
+                        status: .inProgress
+                    ),
+                    TransactionRecord(
+                        amountType: .coin,
+                        destination: "0x0123...baced",
+                        dateTime: "05:00",
+                        transferAmount: "-15 wxDAI",
+                        canBePushed: false,
+                        direction: .outgoing,
+                        status: .confirmed
+                    ),
+                ]
+            ),
+            TransactionListItem(
+                header: "02.05.23",
+                items: [
+                    TransactionRecord(
+                        amountType: .coin,
+                        destination: "0x012...baced",
+                        dateTime: "In progress...",
+                        transferAmount: "-0.5 wxDAI",
+                        canBePushed: false,
+                        direction: .outgoing,
+                        status: .inProgress
+                    ),
+                    TransactionRecord(
+                        amountType: .coin,
+                        destination: "0x0123...baced",
+                        dateTime: "05:00",
+                        transferAmount: "-15 wxDAI",
+                        canBePushed: false,
+                        direction: .outgoing,
+                        status: .confirmed
+                    ),
+                ]
+            ),
+        ]
     }
 }
