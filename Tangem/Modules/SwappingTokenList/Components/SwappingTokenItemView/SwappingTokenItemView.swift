@@ -48,6 +48,7 @@ struct SwappingTokenItemView: View {
             Text(viewModel.symbol)
                 .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
         }
+        .lineLimit(1)
     }
 
     private var currencyView: some View {

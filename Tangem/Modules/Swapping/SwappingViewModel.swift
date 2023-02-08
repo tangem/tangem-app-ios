@@ -17,7 +17,7 @@ final class SwappingViewModel: ObservableObject {
     @Published var receiveCurrencyViewModel: ReceiveCurrencyViewModel?
     @Published var swapButtonIsLoading: Bool = false
 
-    @Published var sendDecimalValue: Decimal?
+    @Published var sendDecimalValue: GroupedNumberTextField.DecimalValue?
     @Published var refreshWarningRowViewModel: DefaultWarningRowViewModel?
     @Published var permissionInfoRowViewModel: DefaultWarningRowViewModel?
 
@@ -88,7 +88,7 @@ final class SwappingViewModel: ObservableObject {
     }
 
     func userDidTapMaxAmount() {
-        sendDecimalValue = exchangeManager.getExchangeItems().sourceBalance
+        sendDecimalValue = .external(exchangeManager.getExchangeItems().sourceBalance)
     }
 
     func userDidRequestChangeDestination(to currency: Currency) {
@@ -104,6 +104,7 @@ final class SwappingViewModel: ObservableObject {
     }
 
     func userDidTapSwapExchangeItemsButton() {
+        Analytics.log(.swapButtonSwipe)
         var items = exchangeManager.getExchangeItems()
 
         guard let destination = items.destination else {
@@ -123,16 +124,21 @@ final class SwappingViewModel: ObservableObject {
     }
 
     func userDidTapChangeDestinationButton() {
+        Analytics.log(.swapReceiveTokenClicked)
         openTokenListView()
     }
 
     func didTapMainButton() {
         switch mainButtonState {
         case .permitAndSwap:
+            Analytics.log(.swapButtonPermitAndSwap)
             exchangeManager.makePermitSignature(currency: initialSourceCurrency)
+            // [REDACTED_TODO_COMMENT]
         case .swap:
+            Analytics.log(.swapButtonSwap)
             swapItems()
         case .givePermission:
+            Analytics.log(.swapButtonGivePermission)
             openPermissionView()
         case .insufficientFunds:
             assertionFailure("Button should be disabled")
@@ -250,7 +256,7 @@ private extension SwappingViewModel {
     }
 
     func updateSendFiatValue() {
-        guard let sendDecimalValue = sendDecimalValue else {
+        guard let decimalValue = sendDecimalValue?.value else {
             sendCurrencyViewModel?.update(fiatValue: .loaded(0))
             return
         }
@@ -261,7 +267,7 @@ private extension SwappingViewModel {
         }
 
         Task {
-            let fiatValue = try await fiatRatesProvider.getFiat(for: source, amount: sendDecimalValue)
+            let fiatValue = try await fiatRatesProvider.getFiat(for: source, amount: decimalValue)
             await runOnMain {
                 sendCurrencyViewModel?.update(fiatValue: .loaded(fiatValue))
             }
@@ -470,6 +476,7 @@ private extension SwappingViewModel {
             .removeDuplicates()
             .dropFirst()
             .debounce(for: 1, scheduler: DispatchQueue.main)
+            .map { $0?.value }
             .sink { [weak self] amount in
                 self?.exchangeManager.update(amount: amount)
                 self?.updateSendFiatValue()
