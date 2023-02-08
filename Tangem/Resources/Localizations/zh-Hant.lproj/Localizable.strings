@@ -145,7 +145,6 @@
 "main_no_backup_warning_subtitle" = "為了保護您的資產，我們建議您執行此程序";
 "main_no_backup_warning_title" = "您的錢包尚未備份";
 "main_page_balance" = "總餘額";
-"main_processing_full_amount" = "該金額不包括您的部分資金";
 "main_scan_card_warning_view_subtitle" = "要訪問所有的網路您需要掃描卡片";
 "main_scan_card_warning_view_title" = "掃描卡片";
 "main_tokens" = "代幣";
@@ -440,7 +439,6 @@
 "wallet_connect_failed_to_build_tx" = "無法從 Dapp 數據創建交易。代碼： %@";
 "wallet_connect_generic_error_with_code" = "我們遇到了未知錯誤。錯誤代碼：%li。如果問題仍然存在-請隨時聯繫我們的支持人員";
 "wallet_connect_message_signed" = "消息已成功簽名並發送至Dapp";
-"wallet_connect_need_to_scan_card" = "請掃描您的卡片和重複您的請求";
 "wallet_connect_network_not_found_format" = "沒有 %@ 網路，請先加入後再試一次";
 "wallet_connect_no_sessions_message" = "沒有打開中的WalletConnect連接";
 "wallet_connect_no_sessions_title" = "Ooops, 沒有連接";
