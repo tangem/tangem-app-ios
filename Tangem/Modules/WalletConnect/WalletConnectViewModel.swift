@@ -68,7 +68,7 @@ class WalletConnectViewModel: ObservableObject {
         }
     }
 
-    func tryReadFromPasteboard() -> WalletConnectRequestURI? {
+    func tryReadFromClipboard() -> WalletConnectRequestURI? {
         guard let pasteboardValue = UIPasteboard.general.string,
               let uri = WalletConnectURLParser().parse(pasteboardValue),
               walletConnectService.canOpenSession(with: uri) else {
@@ -93,7 +93,7 @@ class WalletConnectViewModel: ObservableObject {
             return
         }
 
-        pendingURI = tryReadFromPasteboard()
+        pendingURI = tryReadFromClipboard()
 
         if pendingURI != nil {
             isActionSheetVisible = true
