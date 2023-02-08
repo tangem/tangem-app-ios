@@ -24,7 +24,7 @@ extension CommonIncomingActionManager: IncomingActionManaging {
         if !responders.contains(responder) {
             responders.add(responder)
         }
-        
+
         tryHandleLastAction()
     }
 
