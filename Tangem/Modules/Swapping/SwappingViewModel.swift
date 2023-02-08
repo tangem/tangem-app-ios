@@ -133,7 +133,7 @@ final class SwappingViewModel: ObservableObject {
         case .permitAndSwap:
             Analytics.log(.swapButtonPermitAndSwap)
             exchangeManager.makePermitSignature(currency: initialSourceCurrency)
-            // [REDACTED_TODO_COMMENT]
+        // [REDACTED_TODO_COMMENT]
         case .swap:
             Analytics.log(.swapButtonSwap)
             swapItems()
@@ -445,6 +445,8 @@ private extension SwappingViewModel {
                 mainButtonState = .insufficientFunds
             } else if preview.hasPendingTransaction {
                 mainButtonState = .swap
+            } else if initialSourceCurrencySupportPermit {
+                mainButtonState = .permitAndSwap
             } else if preview.isPermissionRequired {
                 mainButtonState = .givePermission
             } else {
@@ -456,8 +458,6 @@ private extension SwappingViewModel {
 
             if !model.isEnoughAmountForExchange {
                 mainButtonState = .insufficientFunds
-            } else if initialSourceCurrencySupportPermit {
-                mainButtonState = .permitAndSwap
             } else if model.isPermissionRequired {
                 mainButtonState = .givePermission
             } else {
