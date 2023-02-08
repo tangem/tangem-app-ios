@@ -21,7 +21,10 @@ public class CommonIncomingActionManager {
 
 extension CommonIncomingActionManager: IncomingActionManaging {
     public func becomeFirstResponder(_ responder: IncomingActionResponder) {
-        responders.add(responder)
+        if !responders.contains(responder) {
+            responders.add(responder)
+        }
+        
         tryHandleLastAction()
     }
 
@@ -29,8 +32,8 @@ extension CommonIncomingActionManager: IncomingActionManaging {
         responders.remove(responder)
     }
 
-    public func cancelIncomingAction() {
-        pendingAction = nil // cancelled
+    public func discardIncomingAction() {
+        pendingAction = nil // discarded
     }
 
     private func tryHandleLastAction() {
