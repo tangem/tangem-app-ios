@@ -83,7 +83,7 @@ class WelcomeViewModel: ObservableObject {
             self?.isScanningCard = false
 
             if result?.isSuccess != true {
-                self?.incomingActionManager.cancelIncomingAction()
+                self?.incomingActionManager.discardIncomingAction()
             }
 
             guard
