@@ -121,6 +121,15 @@ class SingleWalletContentViewModel: ObservableObject {
         }
     }
 
+    func openExplorer() {
+        guard
+            let walletModel = singleWalletModel,
+            let url = walletModel.exploreURL(for: 0)
+        else { return }
+
+        output.showExplorerURL(url: url, walletModel: walletModel)
+    }
+
     private func bind() {
         /// Subscribe for update `singleWalletModel` for each changes in `WalletModel`
         userWalletModel.subscribeToWalletModels()
