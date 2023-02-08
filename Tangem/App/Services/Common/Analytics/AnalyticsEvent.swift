@@ -152,7 +152,20 @@ extension Analytics {
         case referralButtonShareCode = "[Referral Program] Button - Share"
         case referralButtonOpenTos = "[Referral Program] Link - TaC"
 
-        // MARK: -
+        // MARK: - Swapping
+
+        case swapScreenOpenedSwap = "[Swap] Swap Screen Opened"
+        case swapSendTokenBalanceClicked = "[Swap] Send Token Balance Clicked"
+        case swapReceiveTokenClicked = "[Swap] Receive Token Clicked"
+        case swapСhooseTokenScreenOpened = "[Swap] Сhoose Token screen opened"
+        case swapSearchTokenClicked = "[Swap] Search Token Clicked"
+        case swapButtonSwap = "[Swap] Button -Swap"
+        case swapButtonGivePermission = "[Swap] Button - Give permission"
+        case swapButtonPermissionApprove = "[Swap] Button - Permission Approve"
+        case swapButtonPermissionCancel = "[Swap] Button - Permission Cancel"
+        case swapButtonPermitAndSwap = "[Swap] Button - Permit and Swap"
+        case swapButtonSwipe = "[Swap] Button - Swipe"
+        case swapSwapInProgressScreenOpened = "[Swap] Swap in Progress Screen Opened"
 
         fileprivate static var nfcError: String {
             "nfc_error"
