@@ -21,13 +21,40 @@ struct IconView: View {
     }
 
     var body: some View {
-        KFImage(url)
-            .setProcessor(DownsamplingImageProcessor(size: size))
-            .placeholder {
-                SkeletonView()
+        if #available(iOS 15.0, *) {
+            cachedAsyncImage
+        } else {
+            kfImage
+        }
+    }
+
+    @available(iOS 15.0, *)
+    var cachedAsyncImage: some View {
+        CachedAsyncImage(url: url, scale: UIScreen.main.scale) { phase in
+            switch phase {
+            case .empty:
+                placeholder
+            case .success(let image):
+                image
+                    .resizable()
+                    .scaledToFit()
                     .frame(size: size)
-                    .cornerRadius(size.height / 2)
+                    .cornerRadiusContinuous(5)
+            case .failure(let error):
+                Colors.Icon.informative
+                    .frame(size: size)
+                    .cornerRadiusContinuous(5)
+            @unknown default:
+                EmptyView()
             }
+        }
+    }
+
+    var kfImage: some View {
+        KFImage(url)
+            .cancelOnDisappear(true)
+            .setProcessor(DownsamplingImageProcessor(size: size))
+            .placeholder { placeholder }
             .fade(duration: 0.3)
             .cacheOriginalImage()
             .scaleFactor(UIScreen.main.scale)
@@ -35,5 +62,11 @@ struct IconView: View {
             .scaledToFit()
             .frame(size: size)
             .cornerRadiusContinuous(5)
+    }
+
+    private var placeholder: some View {
+        SkeletonView()
+            .frame(size: size)
+            .cornerRadius(size.height / 2)
     }
 }
