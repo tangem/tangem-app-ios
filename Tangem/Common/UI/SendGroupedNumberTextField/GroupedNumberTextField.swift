@@ -19,7 +19,7 @@ struct GroupedNumberTextField: View {
 
     init(
         decimalValue: Binding<DecimalValue?>,
-        groupedNumberFormatter: GroupedNumberFormatter = GroupedNumberFormatter(maximumFractionDigits: 8)
+        groupedNumberFormatter: GroupedNumberFormatter
     ) {
         _decimalValue = decimalValue
         self.groupedNumberFormatter = groupedNumberFormatter
@@ -78,7 +78,8 @@ struct GroupedNumberTextField: View {
         textFieldText = numberString
 
         // If string is correct number, update binding for work external updates
-        if let value = groupedNumberFormatter.number(from: numberString) {
+        let formattedValue = groupedNumberFormatter.format(from: numberString)
+        if let value = groupedNumberFormatter.number(from: formattedValue) {
             decimalValue = .internal(value.decimalValue)
         } else if numberString.isEmpty {
             decimalValue = nil
