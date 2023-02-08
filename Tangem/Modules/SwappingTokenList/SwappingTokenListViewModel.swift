@@ -20,6 +20,7 @@ final class SwappingTokenListViewModel: ObservableObject, Identifiable {
 
     // I can't use @Published here, because of swiftui redraw perfomance drop
     var searchText = CurrentValueSubject<String, Never>("")
+
     @Published var navigationTitleViewModel: BlockchainNetworkNavigationTitleViewModel?
     @Published var userItems: [SwappingTokenItemViewModel] = []
     @Published var otherItems: [SwappingTokenItemViewModel] = []
@@ -61,6 +62,7 @@ final class SwappingTokenListViewModel: ObservableObject, Identifiable {
         setupNavigationTitleView()
         setupUserItemsSection()
         bind()
+        fetch()
     }
 
     func fetch() {
@@ -109,10 +111,11 @@ private extension SwappingTokenListViewModel {
     func bind() {
         searchText
             .dropFirst()
-            .debounce(for: 0.5, scheduler: DispatchQueue.main)
+            .map { $0.trimmed() }
             .removeDuplicates()
+            .debounce(for: 0.5, scheduler: DispatchQueue.main)
             .sink { [weak self] string in
-                self?.dataLoader.reset(string)
+                self?.dataLoader.fetch(string)
             }
             .store(in: &bag)
     }
