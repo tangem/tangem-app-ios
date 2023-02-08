@@ -10,13 +10,13 @@ import SwiftUI
 
 struct SendCurrencyView: View {
     private var viewModel: SendCurrencyViewModel
-    @Binding private var decimalValue: Decimal?
+    @Binding private var decimalValue: GroupedNumberTextField.DecimalValue?
 
     private let tokenIconSize = CGSize(width: 36, height: 36)
     private var didTapChangeCurrency: (() -> Void)?
     private var didTapMaxAmountAction: (() -> Void)?
 
-    init(viewModel: SendCurrencyViewModel, decimalValue: Binding<Decimal?>) {
+    init(viewModel: SendCurrencyViewModel, decimalValue: Binding<GroupedNumberTextField.DecimalValue?>) {
         self.viewModel = viewModel
         _decimalValue = decimalValue
     }
@@ -57,6 +57,9 @@ struct SendCurrencyView: View {
             SendGroupedNumberTextField(decimalValue: $decimalValue, maximumFractionDigits: viewModel.maximumFractionDigits)
                 .maximumFractionDigits(viewModel.maximumFractionDigits)
                 .didTapMaxAmount { didTapMaxAmountAction?() }
+                .simultaneousGesture(TapGesture().onEnded {
+                    viewModel.textFieldDidTapped()
+                })
 
             switch viewModel.fiatValue {
             case .loading:
@@ -95,7 +98,7 @@ extension SendCurrencyView: Setupable {
 }
 
 struct SendCurrencyView_Preview: PreviewProvider {
-    @State private static var decimalValue: Decimal? = nil
+    @State private static var decimalValue: GroupedNumberTextField.DecimalValue? = nil
 
     static let viewModels: [SendCurrencyViewModel] = [
         SendCurrencyViewModel(

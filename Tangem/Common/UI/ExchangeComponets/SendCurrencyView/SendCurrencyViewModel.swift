@@ -45,6 +45,10 @@ struct SendCurrencyViewModel: Identifiable {
         self.tokenIcon = tokenIcon
     }
 
+    func textFieldDidTapped() {
+        Analytics.log(.swapSendTokenBalanceClicked)
+    }
+
     mutating func update(balance: State) {
         self.balance = balance
     }
