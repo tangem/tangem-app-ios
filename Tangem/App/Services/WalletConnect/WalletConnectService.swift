@@ -10,6 +10,8 @@ import Foundation
 import Combine
 
 class CommonWalletConnectService {
+    @Injected(\.incomingActionManager) private var incomingActionManager: IncomingActionManaging
+
     private var v1Service: WalletConnectV1Service?
     private var v2Service: WalletConnectV2Service?
 }
@@ -51,9 +53,11 @@ extension CommonWalletConnectService: WalletConnectService {
 
         v1Service = services.v1Service
         v2Service = services.v2Service
+        incomingActionManager.becomeFirstResponder(self)
     }
 
     func reset() {
+        incomingActionManager.resignFirstResponder(self)
         v1Service = nil
         v2Service = nil
     }
@@ -66,27 +70,34 @@ extension CommonWalletConnectService: WalletConnectService {
         await v2Service?.disconnectSession(with: id)
     }
 
-    func canHandle(url: String) -> Bool {
-        return service(for: url) != nil
+    func canOpenSession(with uri: WalletConnectRequestURI) -> Bool {
+        switch uri {
+        case .v1:
+            return v1Service != nil
+        case .v2:
+            return v2Service != nil
+        }
     }
 
-    func handle(url: String) -> Bool {
-        guard let service = service(for: url) else {
+    func openSession(with uri: WalletConnectRequestURI) {
+        switch uri {
+        case .v1(let v1URI):
+            v1Service?.openSession(with: v1URI)
+        case .v2(let v2URI):
+            v2Service?.openSession(with: v2URI)
+        }
+    }
+}
+
+// MARK: - IncomingActionResponder
+
+extension CommonWalletConnectService: IncomingActionResponder {
+    func didReceiveIncomingAction(_ action: IncomingAction) -> Bool {
+        guard case .walletConnect(let uri) = action, canOpenSession(with: uri) else {
             return false
         }
 
-        return service.handle(url: url)
-    }
-
-    private func service(for url: String) -> URLHandler? {
-        if v2Service?.canHandle(url: url) ?? false {
-            return v2Service
-        }
-
-        if v1Service?.canHandle(url: url) ?? false {
-            return v1Service
-        }
-
-        return nil
+        openSession(with: uri)
+        return true
     }
 }
