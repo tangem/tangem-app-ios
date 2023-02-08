@@ -86,6 +86,11 @@ final class WalletConnectV2Service {
         setupMessagesSubscriptions()
     }
 
+    func openSession(with uri: WalletConnectV2URI) {
+        canEstablishNewSessionSubject.send(false)
+        pairClient(with: uri)
+    }
+
     func disconnectSession(with id: Int) async {
         guard let session = await sessionsStorage.session(with: id) else { return }
 
@@ -107,6 +112,19 @@ final class WalletConnectV2Service {
 
         runTask { [weak self] in
             await self?.sessionsStorage.loadSessions(for: userWalletId.hexString)
+        }
+    }
+
+    private func pairClient(with url: WalletConnectURI) {
+        log("Trying to pair client: \(url)")
+        runTask { [weak self] in
+            do {
+                try await self?.pairApi.pair(uri: url)
+                self?.log("Established pair for \(url)")
+            } catch {
+                AppLog.shared.error("[WC 2.0] Failed to connect to \(url) with error: \(error)")
+            }
+            self?.canEstablishNewSessionSubject.send(true)
         }
     }
 
@@ -307,35 +325,6 @@ final class WalletConnectV2Service {
     }
 }
 
-extension WalletConnectV2Service: URLHandler {
-    func canHandle(url: String) -> Bool {
-        return WalletConnectURI(string: url) != nil
-    }
-
-    func handle(url: String) -> Bool {
-        guard let url = WalletConnectURI(string: url) else {
-            return false
-        }
-
-        canEstablishNewSessionSubject.send(false)
-        pairClient(with: url)
-        return true
-    }
-
-    private func pairClient(with url: WalletConnectURI) {
-        log("Trying to pair client: \(url)")
-        runTask { [weak self] in
-            do {
-                try await self?.pairApi.pair(uri: url)
-                self?.log("Established pair for \(url)")
-            } catch {
-                AppLog.shared.error("[WC 2.0] Failed to connect to \(url) with error: \(error)")
-            }
-            self?.canEstablishNewSessionSubject.send(true)
-        }
-    }
-}
-
 extension WalletConnectV2Service: WalletConnectV2WalletModelProvider {
     func getModel(with address: String, in blockchain: BlockchainSdk.Blockchain) throws -> WalletModel {
         guard let model = infoProvider.walletModels.first(where: { $0.wallet.blockchain == blockchain && $0.wallet.address == address }) else {
@@ -346,3 +335,5 @@ extension WalletConnectV2Service: WalletConnectV2WalletModelProvider {
         return model
     }
 }
+
+public typealias WalletConnectV2URI = WalletConnectURI
