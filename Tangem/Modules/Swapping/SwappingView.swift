@@ -19,6 +19,8 @@ struct SwappingView: View {
         ZStack {
             Colors.Background.secondary.edgesIgnoringSafeArea(.all)
 
+            logo1inch
+
             GroupedScrollView(spacing: 14) {
                 swappingViews
 
@@ -124,6 +126,18 @@ struct SwappingView: View {
             isDisabled: !viewModel.mainButtonIsEnabled,
             action: viewModel.didTapMainButton
         )
+    }
+
+    @ViewBuilder
+    private var logo1inch: some View {
+        VStack(spacing: 0) {
+            Spacer()
+
+            Assets.logo1inch.image
+        }
+        .padding(.bottom, UIApplication.safeAreaInsets.bottom + 10)
+        .edgesIgnoringSafeArea(.bottom)
+        .ignoresKeyboard()
     }
 }
 
