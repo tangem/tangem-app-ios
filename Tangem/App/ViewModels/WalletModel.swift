@@ -360,17 +360,6 @@ extension WalletModel {
         }
     }
 
-    func getRateFormatted(for amountType: Amount.AmountType) -> String {
-        var rateString = ""
-
-        if let currencyId = currencyId(for: amountType),
-           let rate = rates[currencyId] {
-            rateString = rate.currencyFormatted(code: AppSettings.shared.selectedCurrencyCode)
-        }
-
-        return rateString
-    }
-
     func getQRReceiveMessage(for amountType: Amount.AmountType? = nil) -> String {
         let type: Amount.AmountType = amountType ?? wallet.amounts.keys.first(where: { $0.isToken }) ?? .coin
         // [REDACTED_TODO_COMMENT]
@@ -483,6 +472,8 @@ extension WalletModel {
     }
 }
 
+// MARK: - ViewModelBuilder helpers
+
 extension WalletModel {
     func balanceViewModel() -> BalanceViewModel {
         BalanceViewModel(
@@ -546,6 +537,18 @@ extension WalletModel {
         }
 
         return [blockchainTokenItemViewModel()] + tokenViewModels
+    }
+
+    func getRateFormatted(for amountType: Amount.AmountType) -> String {
+        guard let currencyId = currencyId(for: amountType),
+              let rate = rates[currencyId] else {
+            return ""
+        }
+
+        return rate.currencyFormatted(
+            code: AppSettings.shared.selectedCurrencyCode,
+            maximumFractionDigits: 2
+        )
     }
 }
 
