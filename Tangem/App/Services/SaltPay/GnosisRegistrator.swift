@@ -45,15 +45,7 @@ class GnosisRegistrator {
         .tryMap { [settings] response -> Amount in
             let stringResponse = "\(response)".stripHexPrefix()
 
-            guard let weiAmount = BigUInt(stringResponse),
-                  let tokenAmount = Web3.Utils.formatToEthereumUnits(
-                      weiAmount,
-                      toUnits: .eth,
-                      decimals: settings.token.decimalCount,
-                      decimalSeparator: ".",
-                      fallbackToScientific: false
-                  ),
-                  let decimalAmount = Decimal(string: tokenAmount) else {
+            guard let decimalAmount = EthereumUtils.parseEthereumDecimal(stringResponse, decimalsCount: settings.token.decimalCount) else {
                 throw SaltPayRegistratorError.failedToParseAllowance
             }
 
@@ -270,8 +262,8 @@ extension GnosisRegistrator {
             switch self {
             case .main:
                 return .init(
-                    name: "WXDAI",
-                    symbol: "WXDAI",
+                    name: "wxDAI",
+                    symbol: "wxDAI",
                     contractAddress: "0x4200000000000000000000000000000000000006",
                     decimals: 18
                 )
