@@ -73,7 +73,7 @@ enum ButtonLayout {
     }
 
     private var defaultHeight: CGFloat {
-        Constants.isSmallScreen ? 44 : 50
+        AppConstants.isSmallScreen ? 44 : 50
     }
 }
 
