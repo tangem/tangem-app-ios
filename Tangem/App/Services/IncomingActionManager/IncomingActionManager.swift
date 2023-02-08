@@ -19,7 +19,7 @@ public protocol IncomingActionHandler {
 public protocol IncomingActionManaging: AnyObject {
     func becomeFirstResponder(_ responder: IncomingActionResponder)
     func resignFirstResponder(_ responder: IncomingActionResponder)
-    func cancelIncomingAction()
+    func discardIncomingAction()
 }
 
 public protocol IncomingActionResponder: AnyObject {
