@@ -53,6 +53,8 @@ protocol UserWalletConfig {
 
     var supportChatEnvironment: SupportChatEnvironment { get }
 
+    var exchangeServiceEnvironment: ExchangeServiceEnvironment { get }
+
     func getFeatureAvailability(_ feature: UserWalletFeature) -> UserWalletFeature.Availability
 
     func makeWalletModel(for token: StorageEntry) throws -> WalletModel
@@ -76,6 +78,10 @@ extension UserWalletConfig {
     }
 
     var supportChatEnvironment: SupportChatEnvironment {
+        .default
+    }
+
+    var exchangeServiceEnvironment: ExchangeServiceEnvironment {
         .default
     }
 
