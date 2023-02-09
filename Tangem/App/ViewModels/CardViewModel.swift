@@ -197,6 +197,10 @@ class CardViewModel: Identifiable, ObservableObject {
         config.supportChatEnvironment
     }
 
+    var exchangeServiceEnvironment: ExchangeServiceEnvironment {
+        config.exchangeServiceEnvironment
+    }
+
     var hasWallet: Bool {
         !walletModels.isEmpty
     }
