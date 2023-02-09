@@ -13,12 +13,16 @@ import class UIKit.UIPasteboard
 protocol SingleWalletContentViewModelOutput: OpenCurrencySelectionDelegate {
     func openPushTx(for index: Int, walletModel: WalletModel)
     func openQR(shareAddress: String, address: String, qrNotice: String)
+    func openBuyCrypto()
     func showExplorerURL(url: URL?, walletModel: WalletModel)
 }
 
 class SingleWalletContentViewModel: ObservableObject {
+    @Injected(\.exchangeService) var exchangeService: ExchangeService
+
     @Published var selectedAddressIndex: Int = 0
     @Published var singleWalletModel: WalletModel?
+    @Published var totalBalanceButtons = [TotalBalanceButton]()
 
     var pendingTransactionViews: [PendingTxView] {
         guard let singleWalletModel else { return [] }
@@ -71,6 +75,8 @@ class SingleWalletContentViewModel: ObservableObject {
         return TotalBalanceAnalyticsService(totalBalanceCardSupportInfo: info)
     }
 
+    private var exchangeServiceInitialized = false
+
     init(
         cardModel: CardViewModel,
         userWalletModel: UserWalletModel,
@@ -83,6 +89,7 @@ class SingleWalletContentViewModel: ObservableObject {
         /// Initial set to `singleWalletModel`
         singleWalletModel = userWalletModel.getWalletModels().first
 
+        makeActionButtons()
         bind()
     }
 
@@ -159,5 +166,48 @@ class SingleWalletContentViewModel: ObservableObject {
                 self.totalBalanceAnalyticsService?.sendFirstLoadBalanceEventForCard(balance: balance)
             }
             .store(in: &bag)
+
+        if !canShowAddress {
+            exchangeService.initializationPublisher
+                .receive(on: DispatchQueue.main)
+                .sink { [weak self] exchangeServiceInitialized in
+                    guard exchangeServiceInitialized else {
+                        return
+                    }
+
+                    self?.exchangeServiceInitialized = exchangeServiceInitialized
+                    self?.makeActionButtons()
+                }
+                .store(in: &bag)
+        }
+    }
+
+    private func makeActionButtons() {
+        if canShowAddress {
+            return
+        }
+
+        guard
+            let walletModel = singleWalletModel,
+            let token = walletModel.getTokens().first,
+            exchangeServiceInitialized,
+            exchangeService.canBuy(
+                token.symbol,
+                amountType: .token(value: token),
+                blockchain: walletModel.blockchainNetwork.blockchain
+            )
+        else {
+            return
+        }
+
+        totalBalanceButtons = [
+            .init(
+                title: Localization.walletButtonBuy,
+                icon: Assets.plusMini,
+                isLoading: false,
+                isDisabled: false,
+                action: output.openBuyCrypto
+            ),
+        ]
     }
 }
