@@ -9,7 +9,11 @@
 import Foundation
 import BlockchainSdk
 
+// [REDACTED_TODO_COMMENT]
+private typealias ExternalExchangeService = ExchangeService & ExchangeServiceConfigurator
+
 protocol ExchangeService: AnyObject, Initializable {
+    var initializationPublisher: Published<Bool>.Publisher { get }
     var successCloseUrl: String { get }
     var sellRequestUrl: String { get }
     func canBuy(_ currencySymbol: String, amountType: Amount.AmountType, blockchain: Blockchain) -> Bool
@@ -19,15 +23,34 @@ protocol ExchangeService: AnyObject, Initializable {
     func extractSellCryptoRequest(from data: String) -> SellCryptoRequest?
 }
 
+protocol ExchangeServiceConfigurator {
+    func configure(for environment: ExchangeServiceEnvironment)
+}
+
+enum ExchangeServiceEnvironment {
+    case `default`
+    case saltpay
+}
+
 private struct ExchangeServiceKey: InjectionKey {
-    static var currentValue: ExchangeService = CombinedExchangeService(
-        buyService: MercuryoService(),
+    static var currentValue: ExternalExchangeService = CombinedExchangeService(
+        mercuryoService: MercuryoService(),
+        utorgService: UtorgService(),
         sellService: MoonPayService()
     )
 }
 
 extension InjectedValues {
     var exchangeService: ExchangeService {
+        externalExchangeService
+    }
+
+    var exchangeServiceConfigurator: ExchangeServiceConfigurator {
+        externalExchangeService
+    }
+
+    // [REDACTED_TODO_COMMENT]
+    private var externalExchangeService: ExternalExchangeService {
         get { Self[ExchangeServiceKey.self] }
         set { Self[ExchangeServiceKey.self] = newValue }
     }
