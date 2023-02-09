@@ -125,6 +125,7 @@ private extension CommonSwappingModulesFactory {
     func exchangeManager(source: Currency, destination: Currency?) -> ExchangeManager {
         return TangemExchangeFactory().createExchangeManager(
             blockchainInfoProvider: blockchainDataProvider,
+            referrer: nil,
             source: source,
             destination: destination,
             logger: logger
@@ -139,6 +140,7 @@ extension CommonSwappingModulesFactory {
         let sender: TransactionSender
         let signer: TransactionSigner
         let logger: ExchangeLogger
+        let referrer: ExchangeReferrerAccount?
         let source: Currency
         let destination: Currency?
 
@@ -148,6 +150,7 @@ extension CommonSwappingModulesFactory {
             sender: TransactionSender,
             signer: TransactionSigner,
             logger: ExchangeLogger,
+            referrer: ExchangeReferrerAccount?,
             source: Currency,
             destination: Currency? = nil
         ) {
@@ -156,6 +159,7 @@ extension CommonSwappingModulesFactory {
             self.sender = sender
             self.signer = signer
             self.logger = logger
+            self.referrer = referrer
             self.source = source
             self.destination = destination
         }
