@@ -57,7 +57,15 @@ extension CombinedExchangeService: ExchangeService {
         sellService.extractSellCryptoRequest(from: data)
     }
 
-    func initialize(for environment: ExchangeServiceEnvironment) {
+    func initialize() {
+        mercuryoService.initialize()
+        sellService.initialize()
+        utorgService.initialize()
+    }
+}
+
+extension CombinedExchangeService: ExchangeServiceConfigurator {
+    func configure(for environment: ExchangeServiceEnvironment) {
         switch environment {
         case .default:
             buyService = mercuryoService
