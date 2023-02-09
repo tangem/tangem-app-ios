@@ -51,7 +51,7 @@ struct SingleWalletContentView: View {
                                         verticalPadding: 8,
                                         horizontalPadding: 14,
                                         cornerRadius: 10,
-                                        iconToLabelPadding: 8,
+                                        iconToLabelSpacing: 8,
                                         iconSize: .init(width: 16, height: 16)
                                     ),
                                     font: Fonts.Bold.subheadline,
