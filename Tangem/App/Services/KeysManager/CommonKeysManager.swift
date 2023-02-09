@@ -34,10 +34,6 @@ extension CommonKeysManager: KeysManager {
         keys.mercuryoSecret
     }
 
-    var utorgSID: String {
-        "tangemTEST"
-    }
-
     var blockchainConfig: BlockchainSdkConfig {
         BlockchainSdkConfig(
             blockchairApiKeys: keys.blockchairApiKeys,
