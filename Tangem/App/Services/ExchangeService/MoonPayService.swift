@@ -57,7 +57,7 @@ fileprivate struct MoonpayCurrency: Decodable {
 class MoonPayService {
     @Injected(\.keysManager) var keysManager: KeysManager
 
-    @Published private var initializationSubject = false
+    @Published private var initialized = false
 
     private var keys: MoonPayKeys { keysManager.moonPayKeys }
 
@@ -89,7 +89,7 @@ class MoonPayService {
 }
 
 extension MoonPayService: ExchangeService {
-    var initialized: Published<Bool>.Publisher { $initializationSubject }
+    var initializationPublisher: Published<Bool>.Publisher { $initialized }
 
     var successCloseUrl: String { "https://success.tangem.com" }
 
@@ -177,7 +177,7 @@ extension MoonPayService: ExchangeService {
     }
 
     func initialize() {
-        if initializationSubject {
+        if initialized {
             return
         }
 
@@ -240,7 +240,7 @@ extension MoonPayService: ExchangeService {
                 AppLog.shared.error(error)
             }
 
-            self.initializationSubject = true
+            self.initialized = true
         }
         .store(in: &bag)
     }
