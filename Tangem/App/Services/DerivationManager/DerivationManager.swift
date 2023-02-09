@@ -68,7 +68,7 @@ struct DerivationManager {
             case .success(let response):
                 completion(.success(response))
             case .failure(let error):
-                AppLog.shared.error(error, for: .deriveKeys)
+                AppLog.shared.error(error, params: [.action: .deriveKeys])
                 completion(.failure(error))
             }
         }
