@@ -22,7 +22,7 @@ class SingleWalletContentViewModel: ObservableObject {
 
     @Published var selectedAddressIndex: Int = 0
     @Published var singleWalletModel: WalletModel?
-    @Published var buttons = [BalanceButtonInfo]()
+    @Published var totalBalanceButtons = [TotalBalanceButton]()
 
     var pendingTransactionViews: [PendingTxView] {
         guard let singleWalletModel else { return [] }
@@ -177,14 +177,14 @@ class SingleWalletContentViewModel: ObservableObject {
             .store(in: &bag)
 
         if !canShowAddress {
-            exchangeService.initialized
+            exchangeService.initializationPublisher
                 .receive(on: DispatchQueue.main)
-                .sink { [weak self] utorgInitialized in
-                    guard utorgInitialized else {
+                .sink { [weak self] exchangeServiceInitialized in
+                    guard exchangeServiceInitialized else {
                         return
                     }
 
-                    self?.exchangeServiceInitialized = utorgInitialized
+                    self?.exchangeServiceInitialized = exchangeServiceInitialized
                     self?.makeActionButtons()
                 }
                 .store(in: &bag)
@@ -209,7 +209,7 @@ class SingleWalletContentViewModel: ObservableObject {
             return
         }
 
-        buttons = [
+        totalBalanceButtons = [
             .init(
                 title: Localization.walletButtonBuy,
                 icon: Assets.plusMini,
