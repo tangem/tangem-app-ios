@@ -17,6 +17,7 @@ struct WelcomeView: View {
             .alert(item: $viewModel.error, content: { $0.alert })
             .onAppear(perform: viewModel.onAppear)
             .onDidAppear(viewModel.onDidAppear)
+            .onDisappear(perform: viewModel.onDisappear)
             .background(
                 ScanTroubleshootingView(
                     isPresented: $viewModel.showTroubleshootingView,
