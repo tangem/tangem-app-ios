@@ -53,10 +53,6 @@ class MercuryoService {
 
     private var bag: Set<AnyCancellable> = []
 
-    init() {
-        initialize(for: .default)
-    }
-
     deinit {
         AppLog.shared.debug("MercuryoService deinit")
     }
@@ -131,7 +127,7 @@ extension MercuryoService: ExchangeService {
         return nil
     }
 
-    func initialize(for _: ExchangeServiceEnvironment) {
+    func initialize() {
         if initializationSubject {
             return
         }
