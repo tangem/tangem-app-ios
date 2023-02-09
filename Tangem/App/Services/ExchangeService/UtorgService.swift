@@ -52,7 +52,7 @@ fileprivate enum UtorgEndpoint: String {
 
 class UtorgService {
     @Injected(\.keysManager) var keysManager: KeysManager
-    @Published private var initializationSubject: Bool = false
+    @Published private var initialized: Bool = false
 
     private var supportedCurrencies = [UtorgCurrency]()
 
@@ -67,11 +67,11 @@ class UtorgService {
     private func currency(with symbol: String, blockchain: Blockchain) -> UtorgCurrency? {
         return supportedCurrencies.first(where: {
             guard
-                let chainString = $0.chain,
-                let convertedBlockchain = Blockchain(from: chainString.lowercased()),
+                let chain = $0.chain,
+                let utorgBlockchain = Blockchain(from: chain.lowercased()),
                 $0.enabled,
                 $0.symbol.lowercased() == symbol.lowercased(),
-                convertedBlockchain == blockchain
+                utorgBlockchain == blockchain
             else {
                 return false
             }
@@ -82,7 +82,7 @@ class UtorgService {
 }
 
 extension UtorgService: ExchangeService {
-    var initialized: Published<Bool>.Publisher { $initializationSubject }
+    var initializationPublisher: Published<Bool>.Publisher { $initialized }
 
     var successCloseUrl: String { "https://success.tangem.com" }
 
@@ -127,16 +127,16 @@ extension UtorgService: ExchangeService {
     }
 
     func initialize() {
-        if initializationSubject {
+        if initialized {
             return
         }
 
         runTask { [weak self] in
             guard let self else { return }
             do {
-                try await self.setSuccessURL()
                 try await self.loadCurrencies()
-                
+                self.initialized = true
+                try await self.setSuccessURL()
             } catch {
                 AppLog.shared.debug("[Utorg] Failed to initialize Utorg service. Error: \(error)")
             }
@@ -153,7 +153,6 @@ extension UtorgService: ExchangeService {
 
         supportedCurrencies = loadedCurrencies.filter { $0.type == .crypto }
         AppLog.shared.debug("[Utorg] Receive currencies. Currencies count: \(supportedCurrencies.count)")
-        initializationSubject = true
     }
 
     /// Ensures that Utorg UI setup properly. This neede to display button "Back to Account" when user finishes buying crypto in WebView
