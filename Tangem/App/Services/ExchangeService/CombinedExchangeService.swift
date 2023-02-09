@@ -25,8 +25,8 @@ class CombinedExchangeService {
 }
 
 extension CombinedExchangeService: ExchangeService {
-    var initialized: Published<Bool>.Publisher {
-        buyService.initialized
+    var initializationPublisher: Published<Bool>.Publisher {
+        buyService.initializationPublisher
     }
 
     var successCloseUrl: String {
