@@ -37,11 +37,11 @@ struct SingleWalletContentView: View {
                 VStack(alignment: .leading, spacing: 12) {
                     TotalSumBalanceView(viewModel: viewModel.totalSumBalanceViewModel)
                         .padding([.horizontal, .top], 16)
-                        .padding(.bottom, viewModel.buttons.isEmpty ? 16 : 0)
+                        .padding(.bottom, viewModel.totalBalanceButtons.isEmpty ? 16 : 0)
 
-                    if !viewModel.buttons.isEmpty {
+                    if !viewModel.totalBalanceButtons.isEmpty {
                         HStack {
-                            ForEach(viewModel.buttons) { buttonInfo in
+                            ForEach(viewModel.totalBalanceButtons) { buttonInfo in
                                 MainButton(
                                     title: buttonInfo.title,
                                     icon: .leading(buttonInfo.icon),
