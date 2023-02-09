@@ -711,6 +711,7 @@
 		EF9241362934E25900C28551 /* TokenIconURLBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF9241352934E25900C28551 /* TokenIconURLBuilder.swift */; };
 		EF92413929354C7C00C28551 /* SwappingTokenIconView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF92413829354C7C00C28551 /* SwappingTokenIconView.swift */; };
 		EF92413B2935F24A00C28551 /* SwappingTokenIconViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF92413A2935F24A00C28551 /* SwappingTokenIconViewModel.swift */; };
+		EF92E2B029952BB800DD9B06 /* ExchangeReferrerAccount.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF92E2AF29952BB800DD9B06 /* ExchangeReferrerAccount.swift */; };
 		EF94A86E298A557D008F2C3F /* ExplorerURLProviding.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF94A86D298A557D008F2C3F /* ExplorerURLProviding.swift */; };
 		EF94A89C29927C50008F2C3F /* CachedAsyncImage.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF94A89B29927C4F008F2C3F /* CachedAsyncImage.swift */; };
 		EF9C52B3287C77A10015D540 /* CardSettingsRoutable.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF7B9CF2286C6C7A004C33A9 /* CardSettingsRoutable.swift */; };
@@ -1656,6 +1657,7 @@
 		EF9241352934E25900C28551 /* TokenIconURLBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenIconURLBuilder.swift; sourceTree = "<group>"; };
 		EF92413829354C7C00C28551 /* SwappingTokenIconView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwappingTokenIconView.swift; sourceTree = "<group>"; };
 		EF92413A2935F24A00C28551 /* SwappingTokenIconViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwappingTokenIconViewModel.swift; sourceTree = "<group>"; };
+		EF92E2AF29952BB800DD9B06 /* ExchangeReferrerAccount.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExchangeReferrerAccount.swift; sourceTree = "<group>"; };
 		EF94A86D298A557D008F2C3F /* ExplorerURLProviding.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExplorerURLProviding.swift; sourceTree = "<group>"; };
 		EF94A89B29927C4F008F2C3F /* CachedAsyncImage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CachedAsyncImage.swift; sourceTree = "<group>"; };
 		EF98BDF028CF89AF00D51719 /* Collection+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Collection+.swift"; sourceTree = "<group>"; };
@@ -3717,6 +3719,7 @@
 				EF4661D32923E5BB00346B6C /* ExchangeItems.swift */,
 				EF78433A29431903007E57D1 /* ExchangeManagerError.swift */,
 				EF29BEEA292FBCFB00D7C782 /* ExchangeAvailabilityState.swift */,
+				EF92E2AF29952BB800DD9B06 /* ExchangeReferrerAccount.swift */,
 				EFD164512948A167000E56C7 /* DataModels */,
 				EF29BEE0292E5D9B00D7C782 /* OneInch */,
 			);
@@ -5490,6 +5493,7 @@
 				EF4661FB2924CC6E00346B6C /* ApproveDTO.swift in Sources */,
 				EF4662022924CC6E00346B6C /* HealthCheck.swift in Sources */,
 				EF692A3D2950C37F001F4B8A /* SwappingResultDataModel.swift in Sources */,
+				EF92E2B029952BB800DD9B06 /* ExchangeReferrerAccount.swift in Sources */,
 				EF29BEE4292E5DC400D7C782 /* OneInchExchangeProviderErrors.swift in Sources */,
 				EF4661FC2924CC6E00346B6C /* Constants.swift in Sources */,
 				EF78433B29431903007E57D1 /* ExchangeManagerError.swift in Sources */,
