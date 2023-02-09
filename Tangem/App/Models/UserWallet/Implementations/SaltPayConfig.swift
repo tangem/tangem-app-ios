@@ -12,7 +12,7 @@ import BlockchainSdk
 
 struct SaltPayConfig {
     @Injected(\.backupServiceProvider) private var backupServiceProvider: BackupServiceProviding
-    @Injected(\.saletPayRegistratorProvider) private var saltPayRegistratorProvider: SaltPayRegistratorProviding
+    @Injected(\.saltPayRegistratorProvider) private var saltPayRegistratorProvider: SaltPayRegistratorProviding
 
     private let card: CardDTO
 
@@ -192,6 +192,10 @@ extension SaltPayConfig: UserWalletConfig {
 
     var userWalletIdSeed: Data? {
         card.wallets.first?.publicKey
+    }
+
+    var exchangeServiceEnvironment: ExchangeServiceEnvironment {
+        .saltpay
     }
 
     func getFeatureAvailability(_ feature: UserWalletFeature) -> UserWalletFeature.Availability {
