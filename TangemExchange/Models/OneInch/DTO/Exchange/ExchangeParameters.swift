@@ -18,7 +18,7 @@ public struct ExchangeParameters: Encodable {
     public var protocols: String?
     public var destReceiver: String?
     public var referrerAddress: String?
-    public var fee: String?
+    public var fee: Double?
     public var burnChi: Bool?
     public var allowPartialFill: Bool?
     public var parts: String?
@@ -38,7 +38,7 @@ public struct ExchangeParameters: Encodable {
         protocols: String? = nil,
         destReceiver: String? = nil,
         referrerAddress: String? = nil,
-        fee: String? = nil,
+        fee: Double? = nil,
         burnChi: Bool? = nil,
         allowPartialFill: Bool? = nil,
         parts: String? = nil,
