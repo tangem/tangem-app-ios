@@ -1,5 +1,5 @@
 //
-//  BalanceButtonInfo.swift
+//  TotalBalanceButton.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -8,7 +8,7 @@
 
 import Foundation
 
-struct BalanceButtonInfo {
+struct TotalBalanceButton {
     let title: String
     let icon: ImageType
     let isLoading: Bool
@@ -16,7 +16,7 @@ struct BalanceButtonInfo {
     let action: () -> Void
 }
 
-extension BalanceButtonInfo: Hashable {
+extension TotalBalanceButton: Hashable {
     func hash(into hasher: inout Hasher) {
         hasher.combine(title)
         hasher.combine(icon)
@@ -24,11 +24,11 @@ extension BalanceButtonInfo: Hashable {
         hasher.combine(isDisabled)
     }
 
-    static func == (lhs: BalanceButtonInfo, rhs: BalanceButtonInfo) -> Bool {
+    static func == (lhs: TotalBalanceButton, rhs: TotalBalanceButton) -> Bool {
         lhs.hashValue == rhs.hashValue
     }
 }
 
-extension BalanceButtonInfo: Identifiable {
+extension TotalBalanceButton: Identifiable {
     var id: Int { hashValue }
 }
