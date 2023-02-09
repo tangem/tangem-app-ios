@@ -43,6 +43,10 @@ struct DummyConfig: UserWalletConfig {
 
     var userWalletIdSeed: Data? { nil }
 
+    var productType: Analytics.ProductType {
+        .other
+    }
+
     func getFeatureAvailability(_ feature: UserWalletFeature) -> UserWalletFeature.Availability {
         return .available
     }
