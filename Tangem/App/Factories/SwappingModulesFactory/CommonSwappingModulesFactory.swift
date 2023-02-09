@@ -150,7 +150,7 @@ extension CommonSwappingModulesFactory {
             sender: TransactionSender,
             signer: TransactionSigner,
             logger: ExchangeLogger,
-            referrer: ExchangeReferrerAccount?,
+            referrer: ExchangeReferrerAccount? = nil,
             source: Currency,
             destination: Currency? = nil
         ) {
