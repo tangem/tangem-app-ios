@@ -15,6 +15,7 @@ class DefaultExchangeManager {
     private let exchangeProvider: ExchangeProvider
     private let blockchainDataProvider: BlockchainDataProvider
     private let logger: ExchangeLogger
+    private let referrer: ExchangeReferrerAccount?
 
     // MARK: - Internal
 
@@ -50,12 +51,14 @@ class DefaultExchangeManager {
         exchangeProvider: ExchangeProvider,
         blockchainInfoProvider: BlockchainDataProvider,
         logger: ExchangeLogger,
+        referrer: ExchangeReferrerAccount?,
         exchangeItems: ExchangeItems,
         amount: Decimal? = nil
     ) {
         self.exchangeProvider = exchangeProvider
         blockchainDataProvider = blockchainInfoProvider
         self.logger = logger
+        self.referrer = referrer
         self.exchangeItems = exchangeItems
         self.amount = amount
 
@@ -300,7 +303,8 @@ private extension DefaultExchangeManager {
         return try await exchangeProvider.fetchExchangeData(
             items: exchangeItems,
             walletAddress: walletAddress,
-            amount: formattedAmount
+            amount: formattedAmount,
+            referrer: referrer
         )
     }
 
