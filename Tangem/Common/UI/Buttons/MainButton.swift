@@ -77,13 +77,13 @@ struct MainButton: View {
                     textView
 
                 case .leading(let icon):
-                    HStack(alignment: .center, spacing: 10) {
+                    HStack(alignment: .center, spacing: dimensions.iconToLabelPadding) {
                         iconView(icon: icon)
 
                         textView
                     }
                 case .trailing(let icon):
-                    HStack(alignment: .center, spacing: 10) {
+                    HStack(alignment: .center, spacing: dimensions.iconToLabelPadding) {
                         textView
 
                         iconView(icon: icon)
@@ -239,7 +239,7 @@ struct MainButton_Previews: PreviewProvider {
         VStack(spacing: 16) {
             MainButton(
                 title: "Order card",
-                icon: .leading(Assets.tangemIcon),
+                icon: .leading(Assets.plusMini),
                 style: style,
                 dimensions: .init(
                     maxWidth: 200,
