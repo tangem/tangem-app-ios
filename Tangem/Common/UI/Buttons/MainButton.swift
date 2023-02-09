@@ -77,13 +77,13 @@ struct MainButton: View {
                     textView
 
                 case .leading(let icon):
-                    HStack(alignment: .center, spacing: dimensions.iconToLabelPadding) {
+                    HStack(alignment: .center, spacing: dimensions.iconToLabelSpacing) {
                         iconView(icon: icon)
 
                         textView
                     }
                 case .trailing(let icon):
-                    HStack(alignment: .center, spacing: dimensions.iconToLabelPadding) {
+                    HStack(alignment: .center, spacing: dimensions.iconToLabelSpacing) {
                         textView
 
                         iconView(icon: icon)
@@ -178,7 +178,7 @@ extension MainButton {
         let verticalPadding: CGFloat
         let horizontalPadding: CGFloat
         let cornerRadius: CGFloat
-        let iconToLabelPadding: CGFloat
+        let iconToLabelSpacing: CGFloat
         let iconSize: CGSize
 
         static let `default` = Dimensions(
@@ -186,7 +186,7 @@ extension MainButton {
             verticalPadding: 14,
             horizontalPadding: 16,
             cornerRadius: 14,
-            iconToLabelPadding: 10,
+            iconToLabelSpacing: 10,
             iconSize: CGSize(width: 20, height: 20)
         )
     }
@@ -246,7 +246,7 @@ struct MainButton_Previews: PreviewProvider {
                     verticalPadding: 8,
                     horizontalPadding: 14,
                     cornerRadius: 10,
-                    iconToLabelPadding: 8,
+                    iconToLabelSpacing: 8,
                     iconSize: .init(width: 16, height: 16)
                 ),
                 font: Fonts.Bold.subheadline
