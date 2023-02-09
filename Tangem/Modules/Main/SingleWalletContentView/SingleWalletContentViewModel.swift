@@ -212,7 +212,7 @@ class SingleWalletContentViewModel: ObservableObject {
         buttons = [
             .init(
                 title: Localization.walletButtonBuy,
-                icon: Assets.arrowUpMini,
+                icon: Assets.plusMini,
                 isLoading: false,
                 isDisabled: false,
                 action: output.openBuyCrypto
