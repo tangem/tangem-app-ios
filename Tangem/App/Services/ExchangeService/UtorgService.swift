@@ -19,6 +19,7 @@ fileprivate struct UtorgResponse<SuccessResult: Decodable>: Decodable {
 fileprivate enum UtorgErrorType: String, Decodable {
     case unauthorized = "UNAUTHORIZED"
     case unknownError = "UNKNOWN_ERROR"
+    case badRequest = "BAD_REQUEST"
 }
 
 fileprivate struct UtorgError: Decodable {
@@ -35,9 +36,18 @@ fileprivate struct UtorgCurrency: Decodable {
     let chain: String?
 }
 
+fileprivate struct UtorgSuccessURLResponse: Decodable {
+    let successUrl: String
+}
+
 fileprivate enum CurrencyType: String, Decodable {
     case crypto = "CRYPTO"
     case fiat = "FIAT"
+}
+
+fileprivate enum UtorgEndpoint: String {
+    case currency
+    case successUrl
 }
 
 class UtorgService {
@@ -121,24 +131,52 @@ extension UtorgService: ExchangeService {
             return
         }
 
-        Task {
+        runTask { [weak self] in
+            guard let self else { return }
             do {
-                try await loadCurrencies()
+                try await self.setSuccessURL()
+                try await self.loadCurrencies()
+                
             } catch {
-                AppLog.shared.debug("[Utorg] Failed to load currencies. Error: \(error)")
+                AppLog.shared.debug("[Utorg] Failed to initialize Utorg service. Error: \(error)")
             }
         }
     }
 
     private func loadCurrencies() async throws {
+        let currenciesResponse: UtorgResponse<[UtorgCurrency]> = try await performRequest(for: .currency)
+
+        guard let loadedCurrencies = currenciesResponse.data else {
+            AppLog.shared.debug("[Utorg] Failed to load currencies data. Currencies response: \(currenciesResponse)")
+            return
+        }
+
+        supportedCurrencies = loadedCurrencies.filter { $0.type == .crypto }
+        AppLog.shared.debug("[Utorg] Receive currencies. Currencies count: \(supportedCurrencies.count)")
+        initializationSubject = true
+    }
+
+    /// Ensures that Utorg UI setup properly. This neede to display button "Back to Account" when user finishes buying crypto in WebView
+    private func setSuccessURL() async throws {
+        let data = "{\"url\":\"\(successCloseUrl)\"}".data(using: .utf8)
+        let response: UtorgResponse<UtorgSuccessURLResponse> = try await performRequest(for: .successUrl, with: data)
+
+        guard let successURL = response.data else {
+            AppLog.shared.debug("[Utorg] Failed to set SuccessURL. Success URL response: \(response)")
+            return
+        }
+
+        AppLog.shared.debug("[Utorg] Success url response: \(successURL)")
+    }
+
+    private func performRequest<T: Decodable>(for endpoint: UtorgEndpoint, with data: Data? = nil) async throws -> UtorgResponse<T> {
         var urlComponents = URLComponents()
         urlComponents.scheme = "https"
         urlComponents.host = host
-        urlComponents.path = "/api/merchant/v1/settings/currency"
+        urlComponents.path = "/api/merchant/v1/settings/\(endpoint.rawValue)"
 
         guard let url = urlComponents.url else {
-            AppLog.shared.debug("[Utorg] Failed to create url")
-            return
+            throw "Failed to create URL for: \(endpoint)"
         }
 
         var request = URLRequest(url: url)
@@ -153,19 +191,12 @@ extension UtorgService: ExchangeService {
         config.requestCachePolicy = .reloadIgnoringLocalCacheData
         config.urlCache = nil
 
-        AppLog.shared.debug("[Utorg] Request headers: \(request.allHTTPHeaderFields!)")
-        let (responseData, _) = try await URLSession(configuration: config).upload(for: request, from: Data())
+        AppLog.shared.debug("[Utorg] attempting to send request to endpoint: \(endpoint). Request: \(request)")
+        let (responseData, _) = try await URLSession(configuration: config).upload(for: request, from: data ?? Data())
 
         let decoder = JSONDecoder()
-        let currenciesResponse = try decoder.decode(UtorgResponse<[UtorgCurrency]>.self, from: responseData)
+        let successURLResponse = try decoder.decode(UtorgResponse<T>.self, from: responseData)
 
-        guard let loadedCurrencies = currenciesResponse.data else {
-            AppLog.shared.debug("[Utorg] Failed to load currencies data. Currencies response: \(currenciesResponse)")
-            return
-        }
-
-        supportedCurrencies = loadedCurrencies.filter { $0.type == .crypto }
-        AppLog.shared.debug("[Utorg] Filtered crypto: \(supportedCurrencies)")
-        initializationSubject = true
+        return successURLResponse
     }
 }
