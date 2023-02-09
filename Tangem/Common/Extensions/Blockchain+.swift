@@ -31,7 +31,7 @@ extension Blockchain {
         case "tezos": self = .tezos(curve: .secp256k1)
         case "dogecoin": self = .dogecoin
         case "binance-smart-chain": self = .bsc(testnet: isTestnet)
-        case "polygon-pos", "matic-network": self = .polygon(testnet: isTestnet)
+        case "polygon-pos", "matic-network", "polygon": self = .polygon(testnet: isTestnet)
         case "avalanche", "avalanche-2": self = .avalanche(testnet: isTestnet)
         case "solana": self = .solana(testnet: isTestnet)
         case "fantom": self = .fantom(testnet: isTestnet)
@@ -40,7 +40,7 @@ extension Blockchain {
         case "tron": self = .tron(testnet: isTestnet)
         case "arbitrum", "arbitrum-one": self = .arbitrum(testnet: isTestnet)
         case "dash": self = .dash(testnet: isTestnet)
-        case "xdai": self = .gnosis
+        case "xdai", "gnosis": self = .gnosis
         case "optimistic-ethereum": self = .optimism(testnet: isTestnet)
         case "ethereum-pow-iou": self = .ethereumPoW(testnet: isTestnet)
         case "ethereumfair": self = .ethereumFair
