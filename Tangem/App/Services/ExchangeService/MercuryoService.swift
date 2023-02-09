@@ -38,7 +38,7 @@ fileprivate struct MercuryoConfig: Decodable {
 class MercuryoService {
     @Injected(\.keysManager) private var keysManager: KeysManager
 
-    @Published private var initializationSubject = false
+    @Published private var initialized = false
 
     private var widgetId: String {
         keysManager.mercuryoWidgetId
@@ -59,7 +59,7 @@ class MercuryoService {
 }
 
 extension MercuryoService: ExchangeService {
-    var initialized: Published<Bool>.Publisher { $initializationSubject }
+    var initializationPublisher: Published<Bool>.Publisher { $initialized }
 
     var successCloseUrl: String { "https://success.tangem.com" }
 
@@ -128,7 +128,7 @@ extension MercuryoService: ExchangeService {
     }
 
     func initialize() {
-        if initializationSubject {
+        if initialized {
             return
         }
 
@@ -146,7 +146,7 @@ extension MercuryoService: ExchangeService {
             } receiveValue: { [unowned self] response in
                 self.availableCryptoCurrencyCodes = response.data.crypto
                 self.networkCodeByCurrencyCode = response.data.config.base
-                self.initializationSubject = true
+                self.initialized = true
             }
             .store(in: &bag)
     }

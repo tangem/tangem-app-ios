@@ -13,7 +13,7 @@ import BlockchainSdk
 private typealias ExternalExchangeService = ExchangeService & ExchangeServiceConfigurator
 
 protocol ExchangeService: AnyObject, Initializable {
-    var initialized: Published<Bool>.Publisher { get }
+    var initializationPublisher: Published<Bool>.Publisher { get }
     var successCloseUrl: String { get }
     var sellRequestUrl: String { get }
     func canBuy(_ currencySymbol: String, amountType: Amount.AmountType, blockchain: Blockchain) -> Bool
