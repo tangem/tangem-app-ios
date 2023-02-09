@@ -75,10 +75,6 @@ class MoonPayService {
     private(set) var canSellCrypto = true
     private var bag: Set<AnyCancellable> = []
 
-    init() {
-        initialize(for: .default)
-    }
-
     deinit {
         AppLog.shared.debug("MoonPay deinit")
     }
@@ -180,7 +176,7 @@ extension MoonPayService: ExchangeService {
         return .init(currencyCode: currencyCode, amount: amount, targetAddress: targetAddress)
     }
 
-    func initialize(for _: ExchangeServiceEnvironment) {
+    func initialize() {
         if initializationSubject {
             return
         }
