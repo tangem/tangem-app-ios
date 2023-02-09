@@ -54,10 +54,6 @@ class UtorgService {
         return "app.utorg.pro"
     }
 
-    init() {
-        initialize(for: .saltpay)
-    }
-
     private func currency(with symbol: String, blockchain: Blockchain) -> UtorgCurrency? {
         return supportedCurrencies.first(where: {
             guard
@@ -120,7 +116,7 @@ extension UtorgService: ExchangeService {
         return nil
     }
 
-    func initialize(for _: ExchangeServiceEnvironment) {
+    func initialize() {
         if initializationSubject {
             return
         }
