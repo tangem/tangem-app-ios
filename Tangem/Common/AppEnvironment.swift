@@ -71,10 +71,11 @@ extension AppEnvironment {
             return "config_dev"
         }
 
-        if self == .alpha {
+        switch self {
+        case .production:
+            return "config_prod"
+        case .alpha, .beta:
             return "config_alpha"
         }
-
-        return "config_prod"
     }
 }
