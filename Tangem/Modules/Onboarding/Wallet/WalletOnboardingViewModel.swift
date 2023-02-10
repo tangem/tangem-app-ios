@@ -181,7 +181,6 @@ class WalletOnboardingViewModel: OnboardingTopupViewModel<WalletOnboardingStep, 
     var isMainButtonEnabled: Bool {
         switch currentStep {
         case .selectBackupCards: return canAddBackupCards
-        case .enterPin: return pinText.count == SaltPayRegistrator.Constants.pinLength
         default: return true
         }
     }
@@ -205,6 +204,7 @@ class WalletOnboardingViewModel: OnboardingTopupViewModel<WalletOnboardingStep, 
         case .selectBackupCards: return backupCardsAddedCount > 0
         case .claim:
             return saltPayRegistratorProvider.registrator?.canClaim ?? false
+        case .enterPin: return pinText.count == SaltPayRegistrator.Constants.pinLength
         default: return true
         }
     }
@@ -353,6 +353,8 @@ class WalletOnboardingViewModel: OnboardingTopupViewModel<WalletOnboardingStep, 
 
         bindSaltPayIfNeeded()
 
+        bind()
+
         if steps.first == .claim, currentStep == .claim {
             DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
                 self.onRefresh()
@@ -374,6 +376,33 @@ class WalletOnboardingViewModel: OnboardingTopupViewModel<WalletOnboardingStep, 
         guard let registrator = saltPayRegistratorProvider.registrator else { return }
 
         updateCardBalance(for: saltPayAmountType, shouldGoToNextStep: !registrator.canClaim)
+    }
+
+    private func bind() {
+        $currentStepIndex
+            .removeDuplicates()
+            .delay(for: 0.1, scheduler: DispatchQueue.main)
+            .receiveValue { [weak self] index in
+                guard let steps = self?.steps,
+                      index < steps.count else { return }
+
+                let currentStep = steps[index]
+
+                switch currentStep {
+                case .successClaim:
+                    withAnimation {
+                        self?.refreshButtonState = .doneCheckmark
+                        self?.fireConfetti()
+                    }
+                case .success:
+                    withAnimation {
+                        self?.fireConfetti()
+                    }
+                default:
+                    break
+                }
+            }
+            .store(in: &bag)
     }
 
     private func bindSaltPayIfNeeded() {
@@ -666,32 +695,6 @@ class WalletOnboardingViewModel: OnboardingTopupViewModel<WalletOnboardingStep, 
             case .failure:
                 self?.resetRefreshButtonState()
             }
-        }
-    }
-
-    override func goToStep(with index: Int) {
-        super.goToStep(with: index)
-        onStep()
-    }
-
-    override func goToNextStep() {
-        super.goToNextStep()
-        onStep()
-    }
-
-    private func onStep() {
-        switch currentStep {
-        case .successClaim:
-            withAnimation {
-                refreshButtonState = .doneCheckmark
-            }
-            fallthrough
-        case .success:
-            withAnimation {
-                fireConfetti()
-            }
-        default:
-            break
         }
     }
 
