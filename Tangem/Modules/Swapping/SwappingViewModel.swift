@@ -53,6 +53,8 @@ final class SwappingViewModel: ObservableObject {
 
     // MARK: - Private
 
+    private lazy var refreshDataTimer = Timer.publish(every: 1, on: .main, in: .common)
+    private var refreshDataTimerBag: AnyCancellable?
     private var bag: Set<AnyCancellable> = []
 
     init(
@@ -146,7 +148,7 @@ final class SwappingViewModel: ObservableObject {
     }
 
     func didTapWaringRefresh() {
-        exchangeManager.refresh()
+        exchangeManager.refresh(type: .full)
     }
 }
 
@@ -191,7 +193,7 @@ private extension SwappingViewModel {
               fiatRatesProvider.hasRates(for: source) else {
             // If we don't have enough data disable button and refresh()
             mainButtonIsEnabled = false
-            exchangeManager.refresh()
+            exchangeManager.refresh(type: .full)
 
             return
         }
@@ -202,6 +204,8 @@ private extension SwappingViewModel {
                 fiatFee: fiatFee,
                 transactionInfo: info
             )
+
+            obj.stopTimer()
 
             await runOnMain {
                 obj.coordinator.presentPermissionView(
@@ -330,6 +334,7 @@ private extension SwappingViewModel {
             feeWarningRowViewModel = nil
             swapButtonIsLoading = false
 
+            restartTimer()
             updateReceiveCurrencyValue(value: result.expectedAmount)
             updateRequiredPermission(isPermissionRequired: result.isPermissionRequired)
             updatePendingApprovingTransaction(hasPendingTransaction: result.hasPendingTransaction)
@@ -338,11 +343,15 @@ private extension SwappingViewModel {
             refreshWarningRowViewModel = nil
             swapButtonIsLoading = false
 
+            restartTimer()
             updateReceiveCurrencyValue(value: result.amount)
             updateRequiredPermission(isPermissionRequired: result.isPermissionRequired)
             updateEnoughAmountForFee(isEnoughAmountForFee: result.isEnoughAmountForFee)
 
         case .requiredRefresh(let error):
+            swapButtonIsLoading = false
+
+            stopTimer()
             receiveCurrencyViewModel?.update(cryptoAmountState: .loaded(0))
             receiveCurrencyViewModel?.update(fiatAmountState: .loaded(0))
 
@@ -528,15 +537,18 @@ private extension SwappingViewModel {
             return
         }
 
+        stopTimer()
+
         Task {
             do {
                 let sendResult = try await transactionSender.sendTransaction(info)
                 addDestinationTokenToUserWalletList()
+                exchangeManager.didSendSwapTransaction(exchangeTxData: info)
                 await runOnMain {
                     openSuccessView(result: result, transactionModel: info, transactionID: sendResult.hash)
                 }
             } catch TangemSdkError.userCancelled {
-                // Do nothing
+                restartTimer()
             } catch {
                 await runOnMain {
                     errorAlert = AlertBinder(title: Localization.commonError, message: error.localizedDescription)
@@ -546,6 +558,8 @@ private extension SwappingViewModel {
     }
 
     func processingError(error: Error) {
+        // [REDACTED_TODO_COMMENT]
+
         switch error {
         case let error as ExchangeManagerError:
             switch error {
@@ -585,6 +599,37 @@ private extension SwappingViewModel {
         let entry = StorageEntry(blockchainNetwork: blockchainNetwork, token: token)
         userWalletModel.append(entries: [entry])
         userWalletModel.updateWalletModels()
+    }
+
+    // MARK: - Timer
+
+    func restartTimer() {
+        stopTimer()
+        startTimer()
+    }
+
+    func stopTimer() {
+        AppLog.shared.debug("[Swap] Stop timer")
+        refreshDataTimerBag?.cancel()
+        refreshDataTimer
+            .connect()
+            .cancel()
+    }
+
+    func startTimer() {
+        AppLog.shared.debug("[Swap] Start timer")
+        let timeStarted = Date().timeIntervalSince1970
+        refreshDataTimerBag = refreshDataTimer
+            .autoconnect()
+            .sink { [weak self] date in
+                // [REDACTED_TODO_COMMENT]
+
+                let timeElapsed = (date.timeIntervalSince1970 - timeStarted).rounded()
+                if Int(timeElapsed) % 10 == 0 {
+                    AppLog.shared.debug("[Swap] Timer call autoupdate")
+                    self?.exchangeManager.refresh(type: .refreshRates)
+                }
+            }
     }
 }
 
