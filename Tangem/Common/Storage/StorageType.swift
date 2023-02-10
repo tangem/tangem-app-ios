@@ -9,7 +9,6 @@
 import Foundation
 
 enum StorageType: String {
-    case scannedCards = "tangem_tap_scanned_cards"
     case oldDeviceOldCardAlert = "tangem_tap_oldDeviceOldCard_shown"
     case selectedCurrencyCode = "tangem_tap_selected_currency_code"
     case termsOfServiceAccepted = "tangem_tap_terms_of_service_accepted"
