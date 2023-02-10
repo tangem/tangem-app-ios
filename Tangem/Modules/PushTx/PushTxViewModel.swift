@@ -140,11 +140,22 @@ class PushTxViewModel: ObservableObject {
                         return
                     }
 
-                    AppLog.shared.error(error, for: .pushTx, params: [.blockchain: self.walletModel.wallet.blockchain.displayName])
+                    AppLog.shared.error(error: error, params: [
+                        .blockchain: self.walletModel.wallet.blockchain.displayName,
+                        .action: Analytics.ParameterValue.pushTx.rawValue,
+                    ])
                     self.sendError = SendError(error, openMailAction: openMail).alertBinder
                 } else {
                     walletModel.startUpdatingTimer()
-                    Analytics.logTx(blockchainName: blockchainNetwork.blockchain.displayName, type: .push)
+
+                    Analytics.log(
+                        event: .transactionIsPushed,
+                        params: [
+                            .currencyCode: self.blockchainNetwork.blockchain.currencySymbol,
+                            .blockchain: self.blockchainNetwork.blockchain.displayName,
+                        ]
+                    )
+
                     callback()
                 }
 
