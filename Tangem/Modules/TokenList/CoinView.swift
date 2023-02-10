@@ -19,7 +19,7 @@ struct CoinView: View {
     var body: some View {
         VStack(spacing: 10) {
             HStack(spacing: 0) {
-                IconView(url: model.imageURL, name: model.name, size: CGSize(width: iconWidth, height: iconWidth))
+                IconView(url: model.imageURL, size: CGSize(width: iconWidth, height: iconWidth))
                     .padding(.trailing, 14)
 
                 VStack(alignment: .leading, spacing: 6) {
