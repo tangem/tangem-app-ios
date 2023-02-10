@@ -53,7 +53,7 @@ struct TransactionsListView: View {
             }
             .padding(.horizontal, 60)
             .padding(.top, 53)
-            .padding(.bottom, 86)
+            .padding(.bottom, 70)
         } else {
             ForEach(transactionItems, id: \.id) { item in
                 Section {
