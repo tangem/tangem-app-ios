@@ -245,20 +245,6 @@ class TwinsOnboardingViewModel: OnboardingTopupViewModel<TwinsOnboardingStep, On
         }
     }
 
-    override func goToNextStep() {
-        super.goToNextStep()
-
-        switch currentStep {
-        case .done, .success:
-            withAnimation {
-                refreshButtonState = .doneCheckmark
-                fireConfetti()
-            }
-        default:
-            break
-        }
-    }
-
     override func supplementButtonAction() {
         switch currentStep {
         case .topup:
@@ -315,6 +301,27 @@ class TwinsOnboardingViewModel: OnboardingTopupViewModel<TwinsOnboardingStep, On
             .receive(on: DispatchQueue.main)
             .sink { [weak self] isServiceBudy in
                 self?.isMainButtonBusy = isServiceBudy
+            }
+            .store(in: &bag)
+
+        $currentStepIndex
+            .removeDuplicates()
+            .delay(for: 0.1, scheduler: DispatchQueue.main)
+            .receiveValue { [weak self] index in
+                guard let steps = self?.steps,
+                      index < steps.count else { return }
+
+                let currentStep = steps[index]
+
+                switch currentStep {
+                case .done, .success:
+                    withAnimation {
+                        self?.refreshButtonState = .doneCheckmark
+                        self?.fireConfetti()
+                    }
+                default:
+                    break
+                }
             }
             .store(in: &bag)
     }
