@@ -228,6 +228,8 @@ extension GenericDemoConfig: UserWalletConfig {
             return .hidden
         case .displayHashesCount:
             return .available
+        case .transactionHistory:
+            return .hidden
         }
     }
 
