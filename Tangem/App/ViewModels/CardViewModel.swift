@@ -213,6 +213,10 @@ class CardViewModel: Identifiable, ObservableObject {
         config.hasFeature(.receive)
     }
 
+    var canShowTransactionHistory: Bool {
+        config.hasFeature(.transactionHistory)
+    }
+
     var canShowSend: Bool {
         config.hasFeature(.withdrawal)
     }
