@@ -31,7 +31,7 @@ class AppLog {
     }
 
     func error(_ error: Error) {
-        self.error(error, for: nil, params: [:])
+        self.error(error: error, params: [:])
     }
 }
 
