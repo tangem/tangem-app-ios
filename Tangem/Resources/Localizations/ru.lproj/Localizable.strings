@@ -39,6 +39,7 @@
 "card_settings_security_mode" = "Тип безопасности";
 "card_settings_security_mode_footer" = "Выбранный способ защиты приложения";
 "card_settings_title" = "Настройки карты";
+"chat_button_title" = "Чат";
 "common_accept" = "Принять";
 "common_attention" = "Внимание";
 "common_back" = "Назад";
@@ -178,7 +179,6 @@
 "onboarding_button_scan_origin_card" = "Сканировать основную карту";
 "onboarding_button_skip_backup" = "Пропустить";
 "onboarding_button_what_does_it_mean" = "Как это работает?";
-"onboarding_chat_button_title" = "Чат";
 "onboarding_create_wallet_body" = "Давайте сгенерируем все ключи на вашей карте и создадим безопасный кошелек";
 "onboarding_create_wallet_button_create_wallet" = "Создать кошелек";
 "onboarding_done_body" = "Ваша карта активирована и готова к использованию";
@@ -216,7 +216,6 @@
 "onboarding_subtitle_success_claim" = "Поздравляем! Ваша платежная крипто карта теперь активирована!";
 "onboarding_subtitle_success_tangem_wallet_onboarding" = "Ваша карта настроена и готова к использованию.";
 "onboarding_subtitle_two_backup_cards" = "Добавлено максимальное количество карт. Завершите процесс резервного копирования.";
-"onboarding_supplement_button_kyc_waiting" = "Чат поддержки";
 "onboarding_title" = "Активация карты";
 "onboarding_title_backup_card" = "Создайте резервную копию вашей карты";
 "onboarding_title_backup_card_format" = "Резервная карта #%li";
@@ -375,6 +374,10 @@
 "token_details_unable_hide_alert_message" = "Токен %1$@ является основной валютой в сети %2$@ и не может быть скрыт до тех пор, пока у вас в списке есть другие токены этой сети.";
 "token_details_unable_hide_alert_title" = "Невозможно скрыть %@";
 "token_item_no_rate" = "Нет цены";
+"transaction_history_empty_transactions" = "У вас еще нет транзакций";
+"transaction_history_error_failed_to_load" = "Не удалось загрузить транзакции. Пожалуйста, попробуйте позже";
+"transaction_history_title" = "Транзакции";
+"transaction_history_tx_in_progress" = "В процессе...";
 "twin_error_not_a_twin_card" = "Вы отсканировали не twin-карту. Для создания двойного кошелька необходимо отсканировать карту Tangem Twin.";
 "twin_error_same_card" = "Вы отсканировали ту же карту. Для создания twin-кошелька вам необходимо отсканировать карту с номером %li";
 "twin_error_wrong_twin" = "Вы отсканировали не ту twin-карту. Пожалуйста, попробуйте отсканировать другую";
