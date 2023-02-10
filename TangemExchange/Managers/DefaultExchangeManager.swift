@@ -18,8 +18,6 @@ class DefaultExchangeManager {
 
     // MARK: - Internal
 
-    private lazy var refreshDataTimer = Timer.publish(every: 1, on: .main, in: .common)
-
     private var availabilityState: ExchangeAvailabilityState = .idle {
         didSet { delegate?.exchangeManager(self, didUpdate: availabilityState) }
     }
@@ -43,7 +41,7 @@ class DefaultExchangeManager {
     private var tokenExchangeAllowanceLimit: Decimal?
     // Cached addresses for check approving transactions
     private var pendingTransactions: [Currency: PendingTransactionState] = [:]
-    private var refreshDataTimerBag: AnyCancellable?
+
     private var bag: Set<AnyCancellable> = []
 
     init(
@@ -100,15 +98,22 @@ extension DefaultExchangeManager: ExchangeManager {
         amountDidChange()
     }
 
-    func refresh() {
-        tokenExchangeAllowanceLimit = nil
-        refreshValues()
+    func refresh(type: ExchangeManagerRefreshType) {
+        if type == .full {
+            tokenExchangeAllowanceLimit = nil
+        }
+
+        refreshValues(refreshType: type)
     }
 
     func didSendApprovingTransaction(exchangeTxData: ExchangeTransactionDataModel) {
         pendingTransactions[exchangeTxData.sourceCurrency] = .pending(destination: exchangeTxData.destinationAddress)
 
-        refresh()
+        refresh(type: .full)
+    }
+
+    func didSendSwapTransaction(exchangeTxData: ExchangeTransactionDataModel) {
+        updateState(.idle)
     }
 }
 
@@ -119,12 +124,10 @@ private extension DefaultExchangeManager {
         updateBalances()
 
         if amount == nil || amount == 0 {
-            stopTimer()
             updateState(.idle)
             return
         }
 
-        restartTimer()
         refreshValues()
     }
 
@@ -133,11 +136,10 @@ private extension DefaultExchangeManager {
         updateBalances()
 
         guard (amount ?? 0) > 0 else {
-            stopTimer()
+            updateState(.idle)
             return
         }
 
-        restartTimer()
         refreshValues()
     }
 }
@@ -149,45 +151,17 @@ private extension DefaultExchangeManager {
         if case .requiredRefresh(let error) = state {
             logger.debug("DefaultExchangeManager catch error: ")
             logger.error(error)
-
-            stopTimer()
         }
 
         availabilityState = state
-    }
-
-    func restartTimer() {
-        stopTimer()
-        startTimer()
-    }
-
-    func startTimer() {
-        let timeStarted = Date().timeIntervalSince1970
-        refreshDataTimerBag = refreshDataTimer
-            .autoconnect()
-            .sink { [weak self] date in
-                // [REDACTED_TODO_COMMENT]
-
-                let timeElapsed = (date.timeIntervalSince1970 - timeStarted).rounded()
-                if Int(timeElapsed) % 10 == 0 {
-                    self?.refreshValues(loadingType: .autoupdate)
-                }
-            }
-    }
-
-    func stopTimer() {
-        refreshDataTimerBag?.cancel()
-        refreshDataTimer
-            .connect()
-            .cancel()
     }
 }
 
 // MARK: - Requests
 
 private extension DefaultExchangeManager {
-    func refreshValues(loadingType: ExchangeAvailabilityLoadingType = .full) {
-        updateState(.loading(loadingType))
+    func refreshValues(refreshType: ExchangeManagerRefreshType = .full) {
+        updateState(.loading(refreshType))
 
         Task {
             do {
