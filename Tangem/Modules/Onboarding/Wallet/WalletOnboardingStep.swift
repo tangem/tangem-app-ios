@@ -157,7 +157,6 @@ extension WalletOnboardingStep: OnboardingButtonsInfoProvider {
         case .selectBackupCards: return Localization.onboardingButtonAddBackupCard
         case .saveUserWallet: return BiometricAuthorizationUtils.allowButtonTitle
         case .success: return Localization.onboardingButtonContinueWallet
-        case .kycWaiting: return Localization.onboardingSupplementButtonKycWaiting
         default: return ""
         }
     }
