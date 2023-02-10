@@ -192,6 +192,11 @@ private extension DefaultExchangeManager {
                     try await loadExchangeData(preview: preview)
 
                 case .token:
+                    guard preview.isEnoughAmountForExchange else {
+                        updateState(.preview(preview))
+                        return
+                    }
+
                     await updateExchangeAmountAllowance()
 
                     // Check if permission required
