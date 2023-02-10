@@ -11,12 +11,10 @@ import Kingfisher
 
 struct IconView: View {
     private let url: URL?
-    private let name: String
     private let size: CGSize
 
-    init(url: URL?, name: String, size: CGSize = CGSize(width: 36, height: 36)) {
+    init(url: URL?, size: CGSize = CGSize(width: 36, height: 36)) {
         self.url = url
-        self.name = name
         self.size = size
     }
 
@@ -40,7 +38,7 @@ struct IconView: View {
                     .scaledToFit()
                     .frame(size: size)
                     .cornerRadiusContinuous(5)
-            case .failure(let error):
+            case .failure:
                 Colors.Icon.informative
                     .frame(size: size)
                     .cornerRadiusContinuous(5)
