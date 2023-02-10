@@ -70,7 +70,7 @@ class WalletModel: ObservableObject, Identifiable {
     }
 
     var transactions: [TransactionRecord] {
-        TransactionsHistoryUtility().convertToTransactionRecords(wallet.transactions, for: wallet)
+        TransactionHistoryUtility().convertToTransactionRecords(wallet.transactions, for: wallet.addresses)
     }
 
     var isEmptyIncludingPendingIncomingTxs: Bool {

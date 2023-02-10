@@ -147,7 +147,7 @@ class SingleWalletContentViewModel: ObservableObject {
             .switchToLatest()
             .receive(on: DispatchQueue.main)
             .sink(receiveValue: { [weak self] publish in
-                self?.updateTransactionsHistoryList()
+                self?.updateTransactionHistoryList()
                 self?.objectWillChange.send()
             })
             .store(in: &bag)
@@ -215,7 +215,7 @@ class SingleWalletContentViewModel: ObservableObject {
         ]
     }
 
-    private func updateTransactionsHistoryList() {
+    private func updateTransactionHistoryList() {
         guard
             canShowTransactionHistory,
             let singleWalletModel = singleWalletModel
@@ -223,6 +223,6 @@ class SingleWalletContentViewModel: ObservableObject {
             return
         }
 
-        transactionListItems = TransactionsHistoryUtility().makeTransactionListItems(from: singleWalletModel.transactions)
+        transactionListItems = TransactionHistoryUtility().makeTransactionListItems(from: singleWalletModel.transactions)
     }
 }
