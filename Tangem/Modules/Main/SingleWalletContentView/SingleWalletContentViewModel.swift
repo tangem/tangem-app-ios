@@ -216,7 +216,10 @@ class SingleWalletContentViewModel: ObservableObject {
                 icon: Assets.plusMini,
                 isLoading: false,
                 isDisabled: false,
-                action: output.openBuyCrypto
+                action: { [weak self] in
+                    Analytics.log(.buttonBuyMainScreen)
+                    self?.output.openBuyCrypto()
+                }
             ),
         ]
     }
