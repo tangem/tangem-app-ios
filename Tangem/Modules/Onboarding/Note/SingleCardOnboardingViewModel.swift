@@ -120,9 +120,50 @@ class SingleCardOnboardingViewModel: OnboardingTopupViewModel<SingleCardOnboardi
                 self.updateCardBalance()
             }
         }
+
+        bind()
     }
 
     // MARK: Functions
+
+    private func bind() {
+        $currentStepIndex
+            .removeDuplicates()
+            .delay(for: 0.1, scheduler: DispatchQueue.main)
+            .receiveValue { [weak self] index in
+                guard let self,
+                      index < self.steps.count else { return }
+
+                let currentStep = self.steps[index]
+
+                switch currentStep {
+                case .topup:
+                    if let walletModel = self.cardModel?.walletModels.first {
+                        self.updateCardBalanceText(for: walletModel)
+                    }
+
+                    if self.walletCreatedWhileOnboarding {
+                        return
+                    }
+
+                    withAnimation {
+                        self.isBalanceRefresherVisible = true
+                    }
+
+                    self.updateCardBalance()
+                case .successTopup:
+                    withAnimation {
+                        self.refreshButtonState = .doneCheckmark
+                    }
+                    fallthrough
+                case .success:
+                    self.fireConfetti()
+                default:
+                    break
+                }
+            }
+            .store(in: &bag)
+    }
 
     func onAppear() {
         Analytics.log(.onboardingStarted)
@@ -134,11 +175,6 @@ class SingleCardOnboardingViewModel: OnboardingTopupViewModel<SingleCardOnboardi
         alert = AlertBuilder.makeExitAlert { [weak self] in
             self?.closeOnboarding()
         }
-    }
-
-    override func goToNextStep() {
-        super.goToNextStep()
-        stepUpdate()
     }
 
     override func mainButtonAction() {
@@ -254,33 +290,5 @@ class SingleCardOnboardingViewModel: OnboardingTopupViewModel<SingleCardOnboardi
         }
 
         subscription?.store(in: &bag)
-    }
-
-    private func stepUpdate() {
-        switch currentStep {
-        case .topup:
-            if let walletModel = cardModel?.walletModels.first {
-                updateCardBalanceText(for: walletModel)
-            }
-
-            if walletCreatedWhileOnboarding {
-                return
-            }
-
-            withAnimation {
-                isBalanceRefresherVisible = true
-            }
-
-            updateCardBalance()
-        case .successTopup:
-            withAnimation {
-                refreshButtonState = .doneCheckmark
-            }
-            fallthrough
-        case .success:
-            fireConfetti()
-        default:
-            break
-        }
     }
 }
