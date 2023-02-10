@@ -100,7 +100,7 @@ final class SwappingViewModel: ObservableObject {
         }
 
         exchangeManager.update(exchangeItems: items)
-        exchangeManager.refresh()
+        exchangeManager.refresh(type: .full)
     }
 
     func userDidTapSwapExchangeItemsButton() {
@@ -513,7 +513,7 @@ private extension SwappingViewModel {
             do {
                 items.destination = try await swappingDestinationService.getDestination(source: items.source)
                 exchangeManager.update(exchangeItems: items)
-                exchangeManager.refresh()
+                exchangeManager.refresh(type: .full)
             } catch {
                 AppLog.shared.debug("Destination load handle error")
                 AppLog.shared.error(error)
