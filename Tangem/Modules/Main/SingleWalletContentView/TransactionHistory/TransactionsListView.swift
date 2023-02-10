@@ -86,7 +86,7 @@ struct TransactionsListView_Previews: PreviewProvider {
                 TransactionRecord(
                     amountType: .coin,
                     destination: "0x0123...baced",
-                    time: "05:00",
+                    timeFormatted: "05:00",
                     transferAmount: "-15 wxDAI",
                     canBePushed: false,
                     direction: .outgoing,
@@ -95,7 +95,7 @@ struct TransactionsListView_Previews: PreviewProvider {
                 TransactionRecord(
                     amountType: .coin,
                     destination: "0x0123...baced",
-                    time: "05:00",
+                    timeFormatted: "05:00",
                     transferAmount: "-15 wxDAI",
                     canBePushed: false,
                     direction: .outgoing,
@@ -104,7 +104,7 @@ struct TransactionsListView_Previews: PreviewProvider {
                 TransactionRecord(
                     amountType: .coin,
                     destination: "0x0123...baced",
-                    time: "05:00",
+                    timeFormatted: "05:00",
                     transferAmount: "-15 wxDAI",
                     canBePushed: false,
                     direction: .outgoing,
@@ -113,7 +113,7 @@ struct TransactionsListView_Previews: PreviewProvider {
                 TransactionRecord(
                     amountType: .coin,
                     destination: "0x0123...baced",
-                    time: "05:00",
+                    timeFormatted: "05:00",
                     transferAmount: "-15 wxDAI",
                     canBePushed: false,
                     direction: .outgoing,
@@ -127,7 +127,7 @@ struct TransactionsListView_Previews: PreviewProvider {
                 TransactionRecord(
                     amountType: .coin,
                     destination: "0x0123...baced",
-                    time: "05:00",
+                    timeFormatted: "05:00",
                     transferAmount: "-15 wxDAI",
                     canBePushed: false,
                     direction: .outgoing,
@@ -136,7 +136,7 @@ struct TransactionsListView_Previews: PreviewProvider {
                 TransactionRecord(
                     amountType: .coin,
                     destination: "0x0123...baced",
-                    time: "05:00",
+                    timeFormatted: "05:00",
                     transferAmount: "-15 wxDAI",
                     canBePushed: false,
                     direction: .outgoing,
@@ -150,7 +150,7 @@ struct TransactionsListView_Previews: PreviewProvider {
                 TransactionRecord(
                     amountType: .coin,
                     destination: "0x0123...baced",
-                    time: "05:00",
+                    timeFormatted: "05:00",
                     transferAmount: "-15 wxDAI",
                     canBePushed: false,
                     direction: .outgoing,
@@ -159,7 +159,7 @@ struct TransactionsListView_Previews: PreviewProvider {
                 TransactionRecord(
                     amountType: .coin,
                     destination: "0x0123...baced",
-                    time: "05:00",
+                    timeFormatted: "05:00",
                     transferAmount: "-15 wxDAI",
                     canBePushed: false,
                     direction: .outgoing,
