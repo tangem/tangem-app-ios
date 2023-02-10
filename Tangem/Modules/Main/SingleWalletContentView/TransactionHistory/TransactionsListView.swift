@@ -31,7 +31,7 @@ struct TransactionsListView: View {
     @ViewBuilder
     private var header: some View {
         HStack {
-            Text(Localization.transactionsHistoryTitle)
+            Text(Localization.transactionHistoryTitle)
                 .style(
                     Fonts.Bold.footnote,
                     color: Colors.Text.tertiary
@@ -48,7 +48,7 @@ struct TransactionsListView: View {
                     .renderingMode(.template)
                     .foregroundColor(Colors.Icon.informative)
 
-                Text(Localization.transactionsHistoryEmptyTransactions)
+                Text(Localization.transactionHistoryEmptyTransactions)
                     .style(Fonts.Regular.subheadline, color: Colors.Text.tertiary)
             }
             .padding(.horizontal, 60)
