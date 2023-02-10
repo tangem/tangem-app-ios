@@ -35,32 +35,42 @@ class WalletModel: ObservableObject, Identifiable {
         wallet.blockchain.isTestnet
     }
 
-    var incomingPendingTransactions: [PendingTransaction] {
+    var incomingPendingTransactions: [TransactionRecord] {
         wallet.pendingIncomingTransactions.map {
-            PendingTransaction(
+            TransactionRecord(
                 amountType: $0.amount.type,
                 destination: $0.sourceAddress,
+                timeFormatted: "",
+                date: $0.date,
                 transferAmount: $0.amount.string(with: 8),
                 canBePushed: false,
-                direction: .incoming
+                direction: .incoming,
+                status: .inProgress
             )
         }
     }
 
-    var outgoingPendingTransactions: [PendingTransaction] {
+    var outgoingPendingTransactions: [TransactionRecord] {
         // let txPusher = walletManager as? TransactionPusher
 
         return wallet.pendingOutgoingTransactions.map {
             // let isTxStuckByTime = Date().timeIntervalSince($0.date ?? Date()) > Constants.bitcoinTxStuckTimeSec
 
-            return PendingTransaction(
+            return TransactionRecord(
                 amountType: $0.amount.type,
                 destination: $0.destinationAddress,
+                timeFormatted: "",
+                date: $0.date,
                 transferAmount: $0.amount.string(with: 8),
                 canBePushed: false, // (txPusher?.isPushAvailable(for: $0.hash ?? "") ?? false) && isTxStuckByTime, //[REDACTED_TODO_COMMENT]
-                direction: .outgoing
+                direction: .outgoing,
+                status: .inProgress
             )
         }
+    }
+
+    var transactions: [TransactionRecord] {
+        TransactionHistoryMapper().convertToTransactionRecords(wallet.transactions, for: wallet.addresses)
     }
 
     var isEmptyIncludingPendingIncomingTxs: Bool {
