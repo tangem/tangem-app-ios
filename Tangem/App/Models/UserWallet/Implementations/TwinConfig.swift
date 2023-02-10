@@ -135,6 +135,10 @@ extension TwinConfig: UserWalletConfig {
         TwinCardsUtils.makeCombinedWalletKey(for: card, pairData: twinData)
     }
 
+    var productType: Analytics.ProductType {
+        .twin
+    }
+
     func getFeatureAvailability(_ feature: UserWalletFeature) -> UserWalletFeature.Availability {
         switch feature {
         case .accessCode:
