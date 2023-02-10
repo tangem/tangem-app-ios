@@ -14,16 +14,14 @@ class TotalBalanceProvider {
     @Injected(\.tangemApiService) private var tangemApiService: TangemApiService
 
     private let userWalletModel: UserWalletModel
-    private let totalBalanceAnalyticsService: TotalBalanceAnalyticsService?
     private let totalBalanceSubject = CurrentValueSubject<LoadingValue<TotalBalance>, Never>(.loading)
     private var refreshSubscription: AnyCancellable?
     private let userWalletAmountType: Amount.AmountType?
     private var bag: Set<AnyCancellable> = .init()
 
-    init(userWalletModel: UserWalletModel, userWalletAmountType: Amount.AmountType?, totalBalanceAnalyticsService: TotalBalanceAnalyticsService?) {
+    init(userWalletModel: UserWalletModel, userWalletAmountType: Amount.AmountType?) {
         self.userWalletModel = userWalletModel
         self.userWalletAmountType = userWalletAmountType
-        self.totalBalanceAnalyticsService = totalBalanceAnalyticsService
         bind()
     }
 }
@@ -104,8 +102,8 @@ private extension TotalBalanceProvider {
 
         // It is also empty when derivation is missing
         if !tokenItemViewModels.isEmpty {
-            totalBalanceAnalyticsService?.sendFirstLoadBalanceEventForCard(balance: balance)
-            totalBalanceAnalyticsService?.sendToppedUpEventIfNeeded(balance: balance)
+            Analytics.logSignInIfNeeded(balance: balance)
+            Analytics.logTopUpIfNeeded(balance: balance)
         }
 
         return TotalBalance(balance: balance, currencyCode: currencyCode, hasError: hasError)
