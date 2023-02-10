@@ -24,7 +24,6 @@ struct SwappingTokenItemView: View {
                 HStack(spacing: Self.horizontalInteritemSpacing) {
                     IconView(
                         url: viewModel.iconURL,
-                        name: viewModel.name,
                         size: Self.iconSize
                     )
 
