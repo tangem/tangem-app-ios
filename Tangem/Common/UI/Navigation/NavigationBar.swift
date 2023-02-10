@@ -64,7 +64,7 @@ struct ChatButton: View {
 
     var body: some View {
         Button(action: action, label: {
-            Text(Localization.onboardingChatButtonTitle)
+            Text(Localization.chatButtonTitle)
                 .font(.system(size: 17, weight: .regular))
         })
         .allowsHitTesting(isEnabled)
