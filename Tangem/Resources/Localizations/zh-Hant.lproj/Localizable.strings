@@ -39,6 +39,7 @@
 "card_settings_security_mode" = "安全模式";
 "card_settings_security_mode_footer" = "選定的應用程序保護方法";
 "card_settings_title" = "卡片設置";
+"chat_button_title" = "支援";
 "common_accept" = "接受";
 "common_attention" = "注意";
 "common_back" = "返回";
@@ -178,7 +179,6 @@
 "onboarding_button_scan_origin_card" = "掃描主卡";
 "onboarding_button_skip_backup" = "暫時略過";
 "onboarding_button_what_does_it_mean" = "它是如何運作的？";
-"onboarding_chat_button_title" = "支援";
 "onboarding_create_wallet_body" = "讓我們生成您卡上的所有密鑰並創建一個安全的錢包";
 "onboarding_create_wallet_button_create_wallet" = "創建錢包";
 "onboarding_done_body" = "您的卡已激活並可以使用";
@@ -216,7 +216,6 @@
 "onboarding_subtitle_success_claim" = "恭喜！ 您的第一張支付加密卡已啟用！";
 "onboarding_subtitle_success_tangem_wallet_onboarding" = "您的錢包卡已配置完畢，可以使用了";
 "onboarding_subtitle_two_backup_cards" = "已添加至最大數量。完成備份過程";
-"onboarding_supplement_button_kyc_waiting" = "聯繫客服";
 "onboarding_title" = "啟用卡片";
 "onboarding_title_backup_card" = "備援錢包";
 "onboarding_title_backup_card_format" = "備份卡 #%li";
