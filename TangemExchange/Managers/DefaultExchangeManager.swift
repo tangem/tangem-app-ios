@@ -49,14 +49,14 @@ class DefaultExchangeManager {
 
     init(
         exchangeProvider: ExchangeProvider,
-        blockchainInfoProvider: BlockchainDataProvider,
+        blockchainDataProvider: BlockchainDataProvider,
         logger: ExchangeLogger,
         referrer: ExchangeReferrerAccount?,
         exchangeItems: ExchangeItems,
         amount: Decimal? = nil
     ) {
         self.exchangeProvider = exchangeProvider
-        blockchainDataProvider = blockchainInfoProvider
+        self.blockchainDataProvider = blockchainDataProvider
         self.logger = logger
         self.referrer = referrer
         self.exchangeItems = exchangeItems
