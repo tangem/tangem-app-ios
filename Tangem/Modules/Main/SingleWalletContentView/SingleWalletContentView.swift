@@ -34,40 +34,49 @@ struct SingleWalletContentView: View {
                 }
 
             } else {
-                VStack(alignment: .leading, spacing: 12) {
-                    TotalSumBalanceView(viewModel: viewModel.totalSumBalanceViewModel)
-                        .padding([.horizontal, .top], 16)
-                        .padding(.bottom, viewModel.totalBalanceButtons.isEmpty ? 16 : 0)
+                VStack(spacing: 14) {
+                    VStack(alignment: .leading, spacing: 12) {
+                        TotalSumBalanceView(viewModel: viewModel.totalSumBalanceViewModel)
+                            .padding([.horizontal, .top], 16)
+                            .padding(.bottom, viewModel.totalBalanceButtons.isEmpty ? 16 : 0)
 
-                    if !viewModel.totalBalanceButtons.isEmpty {
-                        HStack {
-                            ForEach(viewModel.totalBalanceButtons) { buttonInfo in
-                                MainButton(
-                                    title: buttonInfo.title,
-                                    icon: .leading(buttonInfo.icon),
-                                    style: .secondary,
-                                    dimensions: .init(
-                                        maxWidth: .infinity,
-                                        verticalPadding: 8,
-                                        horizontalPadding: 14,
-                                        cornerRadius: 10,
-                                        iconToLabelSpacing: 8,
-                                        iconSize: .init(width: 16, height: 16)
-                                    ),
-                                    font: Fonts.Bold.subheadline,
-                                    isLoading: buttonInfo.isLoading,
-                                    isDisabled: buttonInfo.isDisabled,
-                                    action: buttonInfo.action
-                                )
+                        if !viewModel.totalBalanceButtons.isEmpty {
+                            HStack {
+                                ForEach(viewModel.totalBalanceButtons) { buttonInfo in
+                                    MainButton(
+                                        title: buttonInfo.title,
+                                        icon: .leading(buttonInfo.icon),
+                                        style: .secondary,
+                                        dimensions: .init(
+                                            maxWidth: .infinity,
+                                            verticalPadding: 8,
+                                            horizontalPadding: 14,
+                                            cornerRadius: 10,
+                                            iconToLabelSpacing: 8,
+                                            iconSize: .init(width: 16, height: 16)
+                                        ),
+                                        font: Fonts.Bold.subheadline,
+                                        isLoading: buttonInfo.isLoading,
+                                        isDisabled: buttonInfo.isDisabled,
+                                        action: buttonInfo.action
+                                    )
+                                }
                             }
+                            .padding(.horizontal, 16)
+                            .padding(.bottom, 19)
                         }
-                        .padding(.horizontal, 16)
-                        .padding(.bottom, 19)
+                    }
+                    .background(Colors.Background.primary)
+                    .cornerRadius(16)
+                    .padding(.horizontal, 16)
+
+                    if viewModel.canShowTransactionHistory {
+                        TransactionsListView(transactionItems: viewModel.transactionListItems)
+                            .background(Colors.Background.primary)
+                            .cornerRadius(16)
+                            .padding(.horizontal, 16)
                     }
                 }
-                .background(Colors.Background.primary)
-                .cornerRadius(16)
-                .padding(.horizontal, 16)
             }
         }
     }
