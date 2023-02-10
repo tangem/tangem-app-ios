@@ -39,6 +39,7 @@
 "card_settings_security_mode" = "Security Mode";
 "card_settings_security_mode_footer" = "Selected application protection method";
 "card_settings_title" = "Card Settings";
+"chat_button_title" = "Support";
 "common_accept" = "Accetta";
 "common_attention" = "Attention";
 "common_back" = "Back";
@@ -178,7 +179,6 @@
 "onboarding_button_scan_origin_card" = "Scan primary card";
 "onboarding_button_skip_backup" = "Skip for later";
 "onboarding_button_what_does_it_mean" = "How does it work?";
-"onboarding_chat_button_title" = "Support";
 "onboarding_create_wallet_body" = "Let's generate all the keys on your card and create a secure wallet";
 "onboarding_create_wallet_button_create_wallet" = "Create wallet";
 "onboarding_done_body" = "Your card is activated and ready to be used";
@@ -216,7 +216,6 @@
 "onboarding_subtitle_success_claim" = "Congratulations! Your first payment crypto card has been activated!";
 "onboarding_subtitle_success_tangem_wallet_onboarding" = "Your wallet card is configured and ready for use.";
 "onboarding_subtitle_two_backup_cards" = "Max number of cards added. Finalize the backup process.";
-"onboarding_supplement_button_kyc_waiting" = "Chat with support";
 "onboarding_title" = "Activating card";
 "onboarding_title_backup_card" = "Backup your wallet";
 "onboarding_title_backup_card_format" = "Backup card #%li";
@@ -375,6 +374,10 @@
 "token_details_unable_hide_alert_message" = "The %1$@ token is the main currency on the %2$@ network and cannot be hidden as long as you have other tokens on this network in the list.";
 "token_details_unable_hide_alert_title" = "Unable to hide %@";
 "token_item_no_rate" = "No rate";
+"transaction_history_empty_transactions" = "You don't have any transactions yet";
+"transaction_history_error_failed_to_load" = "Failed to load transactions. Try again later.";
+"transaction_history_title" = "Transactions";
+"transaction_history_tx_in_progress" = "In progress...";
 "twin_error_not_a_twin_card" = "You've scanned not a twin card. To create twin wallet you need to scan a Tangem Twin card";
 "twin_error_same_card" = "You've scanned the same card. To create a twin wallet you need to scan the card with number %li";
 "twin_error_wrong_twin" = "You've scanned wrong twin card. Please try another one";
