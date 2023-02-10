@@ -15,7 +15,8 @@ struct TransactionRecord: Hashable, Identifiable {
 
     let amountType: Amount.AmountType
     let destination: String
-    let dateTime: String
+    let time: String
+    var date: Date?
     let transferAmount: String
     let canBePushed: Bool
     let direction: Direction
@@ -26,11 +27,29 @@ extension TransactionRecord {
     enum Direction {
         case incoming
         case outgoing
+
+        var amountPrefix: String {
+            switch self {
+            case .incoming:
+                return "+"
+            case .outgoing:
+                return "-"
+            }
+        }
     }
 
     enum Status {
         case inProgress
         case confirmed
+
+        init(_ blockchainSdkStatus: TransactionStatus) {
+            switch blockchainSdkStatus {
+            case .confirmed:
+                self = .confirmed
+            case .unconfirmed:
+                self = .inProgress
+            }
+        }
 
         var iconColor: Color {
             switch self {
