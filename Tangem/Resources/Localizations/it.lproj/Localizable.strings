@@ -206,7 +206,7 @@
 "onboarding_subtitle_kyc_waiting" = "Please wait until the verification is completed. You'll be notified via email. Usually it takes up to 1 hour. You can close the app and come back later.";
 "onboarding_subtitle_no_backup_cards" = "To start the backup process add up to two backup cards.";
 "onboarding_subtitle_one_backup_card" = "You can add one more card or finalize the backup process";
-"onboarding_subtitle_pin" = "Set PIN code for your SaltPay card";
+"onboarding_subtitle_pin" = "Set up a 4-digit code.\nIt will be used for payments.";
 "onboarding_subtitle_register_wallet" = "Connect your card to the decentralized payment system";
 "onboarding_subtitle_scan_backup_card_format" = "Prepare the backup card with number %@";
 "onboarding_subtitle_scan_primary" = "Scan the primary card to start the backup process.";
