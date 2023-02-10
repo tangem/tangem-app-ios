@@ -55,6 +55,8 @@ protocol UserWalletConfig {
 
     var exchangeServiceEnvironment: ExchangeServiceEnvironment { get }
 
+    var productType: Analytics.ProductType { get }
+
     func getFeatureAvailability(_ feature: UserWalletFeature) -> UserWalletFeature.Availability
 
     func makeWalletModel(for token: StorageEntry) throws -> WalletModel
