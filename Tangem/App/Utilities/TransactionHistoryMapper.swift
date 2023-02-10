@@ -1,5 +1,5 @@
 //
-//  TransactionHistoryUtility.swift
+//  TransactionHistoryMapper.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -8,7 +8,7 @@
 
 import BlockchainSdk
 
-struct TransactionHistoryUtility {
+struct TransactionHistoryMapper {
     func convertToTransactionRecords(_ transactions: [Transaction], for addresses: [BlockchainSdk.Address]) -> [TransactionRecord] {
         transactions.compactMap { convertToTransactionRecord($0, for: addresses) }
     }
@@ -25,7 +25,7 @@ struct TransactionHistoryUtility {
         return .init(
             amountType: transaction.amount.type,
             destination: AddressFormatter(address: transaction.destinationAddress).truncated(),
-            time: timeFormatter.string(from: date),
+            timeFormatted: timeFormatter.string(from: date),
             transferAmount: "\(direction.amountPrefix)\(transaction.amount.string(with: 8))",
             canBePushed: false,
             direction: direction,
@@ -47,37 +47,49 @@ struct TransactionHistoryUtility {
                 return
             }
 
-            if controlDate == .none {
+            // Check if this is first transaction. If so add to list.
+            if controlDate == nil {
                 controlDate = recordDate
                 controlDateTxs.append(tx)
                 return
             }
 
+            // If this current transaction was in the same day - add to list
+            // otherwise create day group
             if calendar.isDate(recordDate, inSameDayAs: controlDate) {
                 controlDateTxs.append(tx)
                 return
             }
 
+            // Create transaction list item grouped by day with relative date formatting
+            // all transaction from previous date will be added to list excluding current transaction
             let listItem = TransactionListItem(
                 header: dateFormatter.string(from: controlDate),
                 items: controlDateTxs
             )
             txListItems.append(listItem)
+
+            // Set current transaction date as new control date and create new list with current transaction
             controlDate = recordDate
-            controlDateTxs = []
+            controlDateTxs = [tx]
         }
 
-        if controlDate != .none, !controlDateTxs.isEmpty {
+        // Transactions in the last day group won't be added in forEach loop, so we need to
+        // check if there are any. If so - create a list of transactions for the last day
+        if controlDate != nil, !controlDateTxs.isEmpty {
             txListItems.append(TransactionListItem(
                 header: dateFormatter.string(from: controlDate),
                 items: controlDateTxs
             ))
         }
 
+        #if DEBUG
+        // Validate that groups doesn't contain duplicated
         txListItems.forEach {
             let set = Set($0.items)
             assert(set.count == $0.items.count, "Contain duplicates... In \($0.header)")
         }
+        #endif
 
         return txListItems
     }
