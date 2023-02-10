@@ -352,7 +352,7 @@ class MainViewModel: ObservableObject {
     func sendAnalyticsEvent(_ event: Analytics.Event) {
         switch event {
         case .userBoughtCrypto:
-            Analytics.log(event, params: [.currencyCode: currenyCode])
+            Analytics.log(event: event, params: [.currencyCode: currenyCode])
         default:
             break
         }
