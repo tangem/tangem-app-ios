@@ -15,7 +15,7 @@ struct TransactionRecord: Hashable, Identifiable {
 
     let amountType: Amount.AmountType
     let destination: String
-    let time: String
+    let timeFormatted: String
     var date: Date?
     let transferAmount: String
     let canBePushed: Bool
