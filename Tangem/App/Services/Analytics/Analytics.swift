@@ -187,7 +187,7 @@ class Analytics {
 
         let printableParams: [String: String] = params.reduce(into: [:]) { $0[$1.key.rawValue] = $1.value }
         if let data = try? JSONSerialization.data(withJSONObject: printableParams, options: .sortedKeys),
-           let paramsString = String(data: data, encoding: .utf8)?.replacingOccurrences(of: ",", with: ", ") {
+           let paramsString = String(data: data, encoding: .utf8)?.replacingOccurrences(of: ", \"", with: ", ") {
             let logMessage = "Analytics event: \(event.rawValue). Params: \(paramsString)"
             AppLog.shared.debug(logMessage)
         }
