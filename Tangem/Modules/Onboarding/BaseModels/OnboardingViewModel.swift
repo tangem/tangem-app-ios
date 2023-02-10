@@ -253,7 +253,7 @@ class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable>
         AppSettings.shared.saveUserWallets = agreed
         AppSettings.shared.saveAccessCodes = agreed
 
-        Analytics.log(.onboardingEnableBiometric, params: [.state: Analytics.ParameterValue.state(for: agreed).rawValue])
+        Analytics.log(.onboardingEnableBiometric, params: [.state: Analytics.ParameterValue.state(for: agreed)])
     }
 
     func handleUserWalletOnFinish() throws {
@@ -375,7 +375,7 @@ extension OnboardingViewModel: UserWalletStorageAgreementRoutable {
             }
 
             Analytics.log(.allowBiometricID, params: [
-                .state: Analytics.ParameterValue.state(for: biometryAccessGranted).rawValue,
+                .state: Analytics.ParameterValue.state(for: biometryAccessGranted),
             ])
 
             self?.goToNextStep()
