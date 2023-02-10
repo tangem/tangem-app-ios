@@ -223,6 +223,6 @@ class SingleWalletContentViewModel: ObservableObject {
             return
         }
 
-        transactionListItems = TransactionHistoryUtility().makeTransactionListItems(from: singleWalletModel.transactions)
+        transactionListItems = TransactionHistoryMapper().makeTransactionListItems(from: singleWalletModel.transactions)
     }
 }
