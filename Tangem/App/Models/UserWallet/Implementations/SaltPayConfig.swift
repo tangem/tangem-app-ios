@@ -198,6 +198,10 @@ extension SaltPayConfig: UserWalletConfig {
         .saltpay
     }
 
+    var productType: Analytics.ProductType {
+        SaltPayUtil().isBackupCard(cardId: card.cardId) ? .visaBackup : .visa
+    }
+
     func getFeatureAvailability(_ feature: UserWalletFeature) -> UserWalletFeature.Availability {
         switch feature {
         case .transactionHistory:
