@@ -116,8 +116,8 @@ class CardViewModel: Identifiable, ObservableObject {
         config.tou
     }
 
-    var embeddedBlockchain: Blockchain? {
-        config.embeddedBlockchain?.blockchainNetwork.blockchain
+    var embeddedEntry: StorageEntry? {
+        config.embeddedBlockchain
     }
 
     var supportsWalletConnect: Bool {
@@ -277,6 +277,10 @@ class CardViewModel: Identifiable, ObservableObject {
         userWalletModel?.userWallet
     }
 
+    var productType: Analytics.ProductType {
+        config.productType
+    }
+
     private var isActive: Bool {
         if let selectedUserWalletId = userWalletRepository.selectedUserWalletId {
             return selectedUserWalletId == userWalletId
@@ -370,9 +374,13 @@ class CardViewModel: Identifiable, ObservableObject {
                     Analytics.log(.userCodeChanged)
                     completion(.success(()))
                 case .failure(let error):
-                    var params = self.card.analyticsParameters
-                    params[.newSecOption] = "Access Code"
-                    AppLog.shared.error(error, for: .changeSecOptions, params: params)
+                    AppLog.shared.error(
+                        error,
+                        params: [
+                            .newSecOption: .accessCode,
+                            .action: .changeSecOptions,
+                        ]
+                    )
                     completion(.failure(error))
                 }
             }
@@ -388,9 +396,13 @@ class CardViewModel: Identifiable, ObservableObject {
                     self.onSecurityOptionChanged(isAccessCodeSet: false, isPasscodeSet: false)
                     completion(.success(()))
                 case .failure(let error):
-                    var params = self.card.analyticsParameters
-                    params[.newSecOption] = "Long tap"
-                    AppLog.shared.error(error, for: .changeSecOptions, params: params)
+                    AppLog.shared.error(
+                        error,
+                        params: [
+                            .newSecOption: .longTap,
+                            .action: .changeSecOptions,
+                        ]
+                    )
                     completion(.failure(error))
                 }
             }
@@ -407,9 +419,13 @@ class CardViewModel: Identifiable, ObservableObject {
                     self.onSecurityOptionChanged(isAccessCodeSet: false, isPasscodeSet: true)
                     completion(.success(()))
                 case .failure(let error):
-                    var params = self.card.analyticsParameters
-                    params[.newSecOption] = "Passcode"
-                    AppLog.shared.error(error, for: .changeSecOptions, params: params)
+                    AppLog.shared.error(
+                        error,
+                        params: [
+                            .newSecOption: .passcode,
+                            .action: .changeSecOptions,
+                        ]
+                    )
                     completion(.failure(error))
                 }
             }
@@ -433,7 +449,7 @@ class CardViewModel: Identifiable, ObservableObject {
                 self?.onWalletCreated(card)
                 completion(.success(()))
             case .failure(let error):
-                AppLog.shared.error(error, for: .createWallet, params: card.analyticsParameters)
+                AppLog.shared.error(error, params: [.action: .createWallet])
                 completion(.failure(error))
             }
         }
@@ -455,7 +471,7 @@ class CardViewModel: Identifiable, ObservableObject {
                 self?.clearTwinPairKey()
                 completion(.success(()))
             case .failure(let error):
-                AppLog.shared.error(error, for: .purgeWallet, params: card.analyticsParameters)
+                AppLog.shared.error(error, params: [.action: .purgeWallet])
                 completion(.failure(error))
             }
         }
