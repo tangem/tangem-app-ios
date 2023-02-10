@@ -62,6 +62,8 @@ struct SingleWalletContentView: View {
                                     )
                                 }
                             }
+                            .padding(.horizontal, 16)
+                            .padding(.bottom, 19)
                         }
                     }
                     .background(Colors.Background.primary)
