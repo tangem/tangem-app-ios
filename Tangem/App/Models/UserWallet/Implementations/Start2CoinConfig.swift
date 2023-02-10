@@ -109,6 +109,10 @@ extension Start2CoinConfig: UserWalletConfig {
         card.wallets.first?.publicKey
     }
 
+    var productType: Analytics.ProductType {
+        .start2coin
+    }
+
     func getFeatureAvailability(_ feature: UserWalletFeature) -> UserWalletFeature.Availability {
         switch feature {
         case .send:
