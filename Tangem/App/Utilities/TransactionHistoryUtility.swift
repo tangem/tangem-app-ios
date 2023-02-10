@@ -1,5 +1,5 @@
 //
-//  TransactionsHistoryUtility.swift
+//  TransactionHistoryUtility.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -8,12 +8,12 @@
 
 import BlockchainSdk
 
-struct TransactionsHistoryUtility {
-    func convertToTransactionRecords(_ transactions: [Transaction], for wallet: Wallet) -> [TransactionRecord] {
-        transactions.compactMap { convertToTransactionRecord($0, for: wallet) }
+struct TransactionHistoryUtility {
+    func convertToTransactionRecords(_ transactions: [Transaction], for addresses: [BlockchainSdk.Address]) -> [TransactionRecord] {
+        transactions.compactMap { convertToTransactionRecord($0, for: addresses) }
     }
 
-    func convertToTransactionRecord(_ transaction: Transaction, for wallet: Wallet) -> TransactionRecord? {
+    func convertToTransactionRecord(_ transaction: Transaction, for addresses: [BlockchainSdk.Address]) -> TransactionRecord? {
         let timeFormatter = DateFormatter()
         timeFormatter.timeStyle = .short
 
@@ -21,10 +21,10 @@ struct TransactionsHistoryUtility {
             return nil
         }
 
-        let direction: TransactionRecord.Direction = wallet.addresses.contains(where: { $0.value == transaction.destinationAddress }) ? .incoming : .outgoing
+        let direction: TransactionRecord.Direction = addresses.contains(where: { $0.value == transaction.destinationAddress }) ? .incoming : .outgoing
         return .init(
             amountType: transaction.amount.type,
-            destination: transaction.destinationAddress,
+            destination: AddressFormatter(address: transaction.destinationAddress).truncated(),
             time: timeFormatter.string(from: date),
             transferAmount: "\(direction.amountPrefix)\(transaction.amount.string(with: 8))",
             canBePushed: false,
