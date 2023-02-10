@@ -25,7 +25,7 @@ struct TransactionView: View {
                         Fonts.Regular.subheadline,
                         color: Colors.Text.primary1
                     )
-                Text(transactionRecord.dateTime)
+                Text(subtitleText)
                     .style(
                         Fonts.Regular.footnote,
                         color: transactionRecord.status.textColor
@@ -48,13 +48,22 @@ struct TransactionView: View {
             return Assets.arrowUpMini.image
         }
     }
+
+    private var subtitleText: String {
+        switch transactionRecord.status {
+        case .confirmed:
+            return transactionRecord.time
+        case .inProgress:
+            return Localization.transactionHistoryTxInProgress
+        }
+    }
 }
 
 struct TransactionView_Previews: PreviewProvider {
     static let incomingInProgressRecord = TransactionRecord(
         amountType: .coin,
         destination: "0x01230...3feed",
-        dateTime: "In progress...",
+        time: "",
         transferAmount: "+443 wxDAI",
         canBePushed: false,
         direction: .incoming,
@@ -64,7 +73,7 @@ struct TransactionView_Previews: PreviewProvider {
     static let incomingConfirmedRecord = TransactionRecord(
         amountType: .coin,
         destination: "0x01230...3feed",
-        dateTime: "05:10",
+        time: "05:10",
         transferAmount: "+50 wxDAI",
         canBePushed: false,
         direction: .incoming,
@@ -74,7 +83,7 @@ struct TransactionView_Previews: PreviewProvider {
     static let outgoingInProgressRecord = TransactionRecord(
         amountType: .coin,
         destination: "0x012...baced",
-        dateTime: "In progress...",
+        time: "00:04",
         transferAmount: "-0.5 wxDAI",
         canBePushed: false,
         direction: .outgoing,
@@ -84,7 +93,7 @@ struct TransactionView_Previews: PreviewProvider {
     static let outgoingConfirmedRecord = TransactionRecord(
         amountType: .coin,
         destination: "0x0123...baced",
-        dateTime: "05:00",
+        time: "15:00",
         transferAmount: "-15 wxDAI",
         canBePushed: false,
         direction: .outgoing,

@@ -40,7 +40,8 @@ class WalletModel: ObservableObject, Identifiable {
             TransactionRecord(
                 amountType: $0.amount.type,
                 destination: $0.sourceAddress,
-                dateTime: "",
+                time: "",
+                date: $0.date,
                 transferAmount: $0.amount.string(with: 8),
                 canBePushed: false,
                 direction: .incoming,
@@ -58,13 +59,18 @@ class WalletModel: ObservableObject, Identifiable {
             return TransactionRecord(
                 amountType: $0.amount.type,
                 destination: $0.destinationAddress,
-                dateTime: "",
+                time: "",
+                date: $0.date,
                 transferAmount: $0.amount.string(with: 8),
                 canBePushed: false, // (txPusher?.isPushAvailable(for: $0.hash ?? "") ?? false) && isTxStuckByTime, //[REDACTED_TODO_COMMENT]
                 direction: .outgoing,
                 status: .inProgress
             )
         }
+    }
+
+    var transactions: [TransactionRecord] {
+        TransactionsHistoryUtility().convertToTransactionRecords(wallet.transactions, for: wallet)
     }
 
     var isEmptyIncludingPendingIncomingTxs: Bool {
