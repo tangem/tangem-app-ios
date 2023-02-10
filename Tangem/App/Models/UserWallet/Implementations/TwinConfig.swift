@@ -187,6 +187,8 @@ extension TwinConfig: UserWalletConfig {
             return .hidden
         case .displayHashesCount:
             return .hidden
+        case .transactionHistory:
+            return .hidden
         }
     }
 
