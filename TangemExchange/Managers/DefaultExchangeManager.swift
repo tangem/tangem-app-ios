@@ -148,11 +148,6 @@ private extension DefaultExchangeManager {
 
 private extension DefaultExchangeManager {
     func updateState(_ state: ExchangeAvailabilityState) {
-        if case .requiredRefresh(let error) = state {
-            logger.debug("DefaultExchangeManager catch error: ")
-            logger.error(error)
-        }
-
         availabilityState = state
     }
 }
