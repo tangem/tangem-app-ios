@@ -722,6 +722,7 @@
 		EF92413929354C7C00C28551 /* SwappingTokenIconView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF92413829354C7C00C28551 /* SwappingTokenIconView.swift */; };
 		EF92413B2935F24A00C28551 /* SwappingTokenIconViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF92413A2935F24A00C28551 /* SwappingTokenIconViewModel.swift */; };
 		EF92E2B829954B3200DD9B06 /* config_beta.json in Resources */ = {isa = PBXBuildFile; fileRef = EF92E2B729954B3100DD9B06 /* config_beta.json */; };
+		EF92E2BC29964CFE00DD9B06 /* ExchangeManagerRefreshType.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF92E2BB29964CFE00DD9B06 /* ExchangeManagerRefreshType.swift */; };
 		EF94A86E298A557D008F2C3F /* ExplorerURLProviding.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF94A86D298A557D008F2C3F /* ExplorerURLProviding.swift */; };
 		EF94A89C29927C50008F2C3F /* CachedAsyncImage.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF94A89B29927C4F008F2C3F /* CachedAsyncImage.swift */; };
 		EF9C52B3287C77A10015D540 /* CardSettingsRoutable.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF7B9CF2286C6C7A004C33A9 /* CardSettingsRoutable.swift */; };
@@ -1678,6 +1679,7 @@
 		EF92413829354C7C00C28551 /* SwappingTokenIconView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwappingTokenIconView.swift; sourceTree = "<group>"; };
 		EF92413A2935F24A00C28551 /* SwappingTokenIconViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwappingTokenIconViewModel.swift; sourceTree = "<group>"; };
 		EF92E2B729954B3100DD9B06 /* config_beta.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; name = config_beta.json; path = "tangem-app-config/config_beta.json"; sourceTree = SOURCE_ROOT; };
+		EF92E2BB29964CFE00DD9B06 /* ExchangeManagerRefreshType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExchangeManagerRefreshType.swift; sourceTree = "<group>"; };
 		EF94A86D298A557D008F2C3F /* ExplorerURLProviding.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExplorerURLProviding.swift; sourceTree = "<group>"; };
 		EF94A89B29927C4F008F2C3F /* CachedAsyncImage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CachedAsyncImage.swift; sourceTree = "<group>"; };
 		EF98BDF028CF89AF00D51719 /* Collection+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Collection+.swift"; sourceTree = "<group>"; };
@@ -3759,6 +3761,7 @@
 				EF4661D32923E5BB00346B6C /* ExchangeItems.swift */,
 				EF78433A29431903007E57D1 /* ExchangeManagerError.swift */,
 				EF29BEEA292FBCFB00D7C782 /* ExchangeAvailabilityState.swift */,
+				EF92E2BB29964CFE00DD9B06 /* ExchangeManagerRefreshType.swift */,
 				EFD164512948A167000E56C7 /* DataModels */,
 				EF29BEE0292E5D9B00D7C782 /* OneInch */,
 			);
@@ -5551,6 +5554,7 @@
 				EF4661C42923B42A00346B6C /* Currency.swift in Sources */,
 				EF4661D02923CD4C00346B6C /* BlockchainDataProvider.swift in Sources */,
 				EF4661962923AFC400346B6C /* TangemExchange.docc in Sources */,
+				EF92E2BC29964CFE00DD9B06 /* ExchangeManagerRefreshType.swift in Sources */,
 				EF4662032924CC6E00346B6C /* OneInchBaseTarget.swift in Sources */,
 				EF4662062924CC6E00346B6C /* ApproveTarget.swift in Sources */,
 				EF4661FF2924CC6E00346B6C /* ExchangeBlockchain.swift in Sources */,
