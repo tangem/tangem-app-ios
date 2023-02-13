@@ -32,7 +32,7 @@ extension UIViewController {
         let toPresent = UIHostingController(rootView: builder())
         toPresent.modalPresentationStyle = style
         toPresent.modalTransitionStyle = transitionStyle
-        toPresent.view.backgroundColor = UIColor.init(red: 0, green: 0, blue: 0, alpha: 0.5)
-        self.present(toPresent, animated: true, completion: nil)
+        toPresent.view.backgroundColor = UIColor(red: 0, green: 0, blue: 0, alpha: 0.5)
+        present(toPresent, animated: true, completion: nil)
     }
 }
