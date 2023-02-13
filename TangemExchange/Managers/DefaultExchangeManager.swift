@@ -79,6 +79,10 @@ extension DefaultExchangeManager: ExchangeManager {
         return exchangeItems
     }
 
+    func getReferrerAccount() -> ExchangeReferrerAccount? {
+        return referrer
+    }
+
     func isEnoughAllowance() -> Bool {
         guard exchangeItems.source.isToken, let amount, amount > 0 else {
             return true
@@ -296,7 +300,12 @@ private extension DefaultExchangeManager {
         }
 
         let paymentAmount = exchangeItems.source.convertFromWEI(value: quoteData.fromTokenAmount)
-        let expectedAmount = destination.convertFromWEI(value: quoteData.toTokenAmount)
+        var expectedAmount = destination.convertFromWEI(value: quoteData.toTokenAmount)
+        if let referrer = referrer {
+            // We have to add divide to 100 because referrer.fee not a decimal percent
+            let referrerAmount = expectedAmount * (referrer.fee / 100)
+            expectedAmount -= referrerAmount
+        }
         let hasPendingTransaction = try await hasPendingApprovingTransaction()
         let isEnoughAmountForExchange = exchangeItems.sourceBalance >= paymentAmount
 
