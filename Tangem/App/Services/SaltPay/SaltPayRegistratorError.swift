@@ -9,7 +9,7 @@
 import Foundation
 import SwiftUI
 
-enum SaltPayRegistratorError: String, Error, LocalizedError {
+enum SaltPayRegistratorError: String, Error, LocalizedError, BindableError {
     case failedToMakeTxData
     case needPin
     case empty
@@ -24,40 +24,47 @@ enum SaltPayRegistratorError: String, Error, LocalizedError {
     case blockchainError
 
     var errorDescription: String? {
-        self.rawValue
+        rawValue
     }
 
     var alertBinder: AlertBinder {
         switch self {
         case .weakPin:
-            return .init(title: "saltpay_error_pin_weak_title".localized,
-                         message: "saltpay_error_pin_weak_message".localized)
+            return .init(
+                title: Localization.saltpayErrorPinWeakTitle,
+                message: Localization.saltpayErrorPinWeakMessage
+            )
         case .emptyBackupCardScanned:
-            return .init(title: "saltpay_error_empty_backup_title".localized,
-                         message: "saltpay_error_empty_backup_message".localized)
+            return .init(
+                title: Localization.saltpayErrorEmptyBackupTitle,
+                message: Localization.saltpayErrorEmptyBackupMessage
+            )
         case .noGas:
-            let alert = Alert(title: Text("saltpay_error_no_gas_title"),
-                              message: Text("saltpay_error_no_gas_message"),
-                              primaryButton: Alert.Button.default(Text("details_chat")) {
-                                  Analytics.log(.onboardingButtonChat)
-                                  AppPresenter.shared.showChat()
-                              },
-                              secondaryButton: Alert.Button.default(Text("common_ok")))
+            let alert = Alert(
+                title: Text(Localization.saltpayErrorNoGasTitle),
+                message: Text(Localization.saltpayErrorNoGasMessage),
+                primaryButton: Alert.Button.default(Text(Localization.chatButtonTitle)) {
+                    Analytics.log(.onboardingButtonChat)
+                    AppPresenter.shared.showChat()
+                },
+                secondaryButton: Alert.Button.default(Text(Localization.commonOk))
+            )
 
             return .init(alert: alert)
         case .cardNotPassed, .cardDisabled, .failedToParseAllowance, .blockchainError:
-            let alert = Alert(title: Text("common_error"),
-                              message: Text(errorDescription ?? ""),
-                              primaryButton: Alert.Button.default(Text("details_chat")) {
-                                  Analytics.log(.onboardingButtonChat)
-                                  AppPresenter.shared.showChat()
-                              },
-                              secondaryButton: Alert.Button.default(Text("common_ok")))
+            let alert = Alert(
+                title: Text(Localization.commonError),
+                message: Text(errorDescription ?? ""),
+                primaryButton: Alert.Button.default(Text(Localization.chatButtonTitle)) {
+                    Analytics.log(.onboardingButtonChat)
+                    AppPresenter.shared.showChat()
+                },
+                secondaryButton: Alert.Button.default(Text(Localization.commonOk))
+            )
 
             return .init(alert: alert)
         default:
-            return .init(alert: alert, error: self)
+            return .init(alert: alert)
         }
     }
 }
-
