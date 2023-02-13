@@ -8,12 +8,11 @@
 
 import SwiftUI
 
-extension ScrollView {
+extension View {
     @ViewBuilder
     func scrollDismissesKeyboardCompat(_ dismissKeyboardOnScroll: Bool) -> some View {
         if #available(iOS 16.0, *) {
-            self
-                .scrollDismissesKeyboard(dismissKeyboardOnScroll ? .immediately : .never)
+            self.scrollDismissesKeyboard(dismissKeyboardOnScroll ? .immediately : .never)
         } else {
             self
         }

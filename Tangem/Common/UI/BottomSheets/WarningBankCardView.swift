@@ -14,37 +14,31 @@ struct WarningBankCardView: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            Image("russia_flag")
+            Assets.russiaFlag.image
                 .padding(.top, 80)
                 .padding(.leading, 10)
 
-            Text("russian_bank_card_warning_title".localized)
+            Text(Localization.russianBankCardWarningTitle)
                 .font(.system(size: 20, weight: .regular))
                 .padding(30)
 
-            Text("russian_bank_card_warning_subtitle".localized)
+            Text(Localization.russianBankCardWarningSubtitle)
                 .fixedSize(horizontal: false, vertical: true)
                 .font(.system(size: 15, weight: .regular))
                 .padding(.top, 50)
                 .padding([.horizontal, .bottom], 30)
 
             HStack(spacing: 11) {
-                Button(action: {
-                    viewModel.confirmCallback()
-                }, label: {
-                    Text("common_yes".localized)
-                        .font(.system(size: 15, weight: .medium))
-                })
-                .buttonStyle(TangemButtonStyle(colorStyle: .black, layout: .flexibleWidth))
+                MainButton(
+                    title: Localization.commonYes,
+                    action: viewModel.confirmCallback
+                )
 
-                Button(action: {
-                    viewModel.declineCallback()
-                }, label: {
-                    Text("common_no".localized)
-                        .foregroundColor(.black)
-                        .font(.system(size: 15, weight: .medium))
-                })
-                .buttonStyle(TangemButtonStyle(colorStyle: .gray, layout: .flexibleWidth))
+                MainButton(
+                    title: Localization.commonNo,
+                    style: .secondary,
+                    action: viewModel.declineCallback
+                )
             }
             .padding(.horizontal, 16)
         }
@@ -55,6 +49,6 @@ struct WarningBankCardView: View {
 
 struct WarningBankCardView_Previews: PreviewProvider {
     static var previews: some View {
-        WarningBankCardView(viewModel: WarningBankCardViewModel(confirmCallback: { }, declineCallback: { }))
+        WarningBankCardView(viewModel: WarningBankCardViewModel(confirmCallback: {}, declineCallback: {}))
     }
 }

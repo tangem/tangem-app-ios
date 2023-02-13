@@ -21,15 +21,16 @@ enum PreviewCard {
     case cardanoNoteEmptyWallet
     case ethEmptyNote
     case tangemWalletEmpty
+    case tangemWalletBackuped
 
     var cardModel: CardViewModel {
-        let card = CardDTO(card: Card.card)
+        let card = CardDTO(card: card)
         let ci = CardInfo(card: card, walletData: walletData, name: "Name")
         let config = UserWalletConfigFactory(ci).makeConfig()
         let vm = CardViewModel(cardInfo: ci, config: config)
         let walletModels: [WalletModel]
         if let blockchain = blockchain {
-            let factory = WalletManagerFactory(config: .init(blockchairApiKeys: [], blockcypherTokens: [], infuraProjectId: "", tronGridApiKey: "", quickNodeSolanaCredentials: .init(apiKey: "", subdomain: ""), quickNodeBscCredentials: .init(apiKey: "", subdomain: "")))
+            let factory = WalletManagerFactory(config: .init(blockchairApiKeys: [], blockcypherTokens: [], infuraProjectId: "", nowNodesApiKey: "", getBlockApiKey: "", tronGridApiKey: "", quickNodeSolanaCredentials: .init(apiKey: "", subdomain: ""), quickNodeBscCredentials: .init(apiKey: "", subdomain: "")))
             let walletManager = try! factory.makeWalletManager(blockchain: blockchain, walletPublicKey: publicKey)
             walletModels = [WalletModel(walletManager: walletManager, derivationStyle: .legacy)]
         } else {
@@ -91,6 +92,15 @@ enum PreviewCard {
             return true
         default:
             return false
+        }
+    }
+
+    private var card: Card {
+        switch self {
+        case .tangemWalletBackuped:
+            return .walletWithBackup
+        default:
+            return .card
         }
     }
 }
