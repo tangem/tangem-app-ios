@@ -92,7 +92,7 @@ class SecurityModeViewModel: ObservableObject {
     }
 
     private func logSecurityModeChange() {
-        Analytics.log(.securityModeChanged, params: [.mode: currentSecurityOption.analyticsName])
+        Analytics.log(event: .securityModeChanged, params: [.mode: currentSecurityOption.analyticsName])
     }
 }
 
