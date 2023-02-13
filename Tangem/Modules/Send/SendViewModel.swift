@@ -647,6 +647,7 @@ class SendViewModel: ObservableObject {
 
                 return self.walletModel.send(tx, signer: self.cardViewModel.signer)
             }
+            .receive(on: DispatchQueue.main)
             .sink(receiveCompletion: { [weak self] completion in
                 guard let self = self else { return }
 
@@ -674,14 +675,12 @@ class SendViewModel: ObservableObject {
                         )
                     }
 
-                    DispatchQueue.main.async {
-                        let alert = AlertBuilder.makeSuccessAlert(
-                            message: isDemo ? Localization.alertDemoFeatureDisabled
-                                : Localization.sendTransactionSuccess,
-                            okAction: self.close
-                        )
-                        self.error = alert
-                    }
+                    let alert = AlertBuilder.makeSuccessAlert(
+                        message: isDemo ? Localization.alertDemoFeatureDisabled
+                            : Localization.sendTransactionSuccess,
+                        okAction: self.close
+                    )
+                    self.error = alert
                 }
 
             }, receiveValue: { _ in })
