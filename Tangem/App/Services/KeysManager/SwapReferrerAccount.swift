@@ -10,5 +10,5 @@ import Foundation
 
 struct SwapReferrerAccount: Decodable {
     let address: String
-    let fee: Double
+    let fee: Decimal
 }
