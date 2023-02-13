@@ -38,6 +38,8 @@ fileprivate struct MercuryoConfig: Decodable {
 class MercuryoService {
     @Injected(\.keysManager) private var keysManager: KeysManager
 
+    @Published private var initialized = false
+
     private var widgetId: String {
         keysManager.mercuryoWidgetId
     }
@@ -51,19 +53,17 @@ class MercuryoService {
 
     private var bag: Set<AnyCancellable> = []
 
-    init() {}
-
     deinit {
-        print("MercuryoService deinit")
+        AppLog.shared.debug("MercuryoService deinit")
     }
 }
 
 extension MercuryoService: ExchangeService {
+    var initializationPublisher: Published<Bool>.Publisher { $initialized }
+
     var successCloseUrl: String { "https://success.tangem.com" }
 
-    var sellRequestUrl: String {
-        return ""
-    }
+    var sellRequestUrl: String { "" }
 
     func canBuy(_ currencySymbol: String, amountType: Amount.AmountType, blockchain: Blockchain) -> Bool {
         guard availableCryptoCurrencyCodes.contains(currencySymbol) else {
@@ -128,6 +128,10 @@ extension MercuryoService: ExchangeService {
     }
 
     func initialize() {
+        if initialized {
+            return
+        }
+
         let request = URLRequest(url: URL(string: "https://api.mercuryo.io/v1.6/lib/currencies")!)
 
         let config = URLSessionConfiguration.default
@@ -142,6 +146,7 @@ extension MercuryoService: ExchangeService {
             } receiveValue: { [unowned self] response in
                 self.availableCryptoCurrencyCodes = response.data.crypto
                 self.networkCodeByCurrencyCode = response.data.config.base
+                self.initialized = true
             }
             .store(in: &bag)
     }
@@ -151,8 +156,8 @@ extension MercuryoService: ExchangeService {
     }
 }
 
-extension URLQueryItem {
-    fileprivate init(key: QueryKey, value: String?) {
+fileprivate extension URLQueryItem {
+    init(key: QueryKey, value: String?) {
         self.init(name: key.rawValue, value: value)
     }
 }

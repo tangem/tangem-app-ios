@@ -15,7 +15,6 @@ struct MailView: UIViewControllerRepresentable {
     @Environment(\.presentationMode) private var presentation
 
     class Coordinator: NSObject, MFMailComposeViewControllerDelegate {
-
         @Binding var presentation: PresentationMode
 
         let emailType: EmailType
@@ -25,9 +24,11 @@ struct MailView: UIViewControllerRepresentable {
             self.emailType = emailType
         }
 
-        func mailComposeController(_ controller: MFMailComposeViewController,
-                                   didFinishWith result: MFMailComposeResult,
-                                   error: Error?) {
+        func mailComposeController(
+            _ controller: MFMailComposeViewController,
+            didFinishWith result: MFMailComposeResult,
+            error: Error?
+        ) {
             guard result == .sent || result == .failed else {
                 $presentation.wrappedValue.dismiss()
                 return
@@ -35,7 +36,7 @@ struct MailView: UIViewControllerRepresentable {
             let title = error == nil ? emailType.sentEmailAlertTitle : emailType.failedToSendAlertTitle
             let message = error == nil ? emailType.sentEmailAlertMessage : emailType.failedToSendAlertMessage(error)
             let alert = UIAlertController(title: nil, message: nil, preferredStyle: .alert)
-            let okAction = UIAlertAction(title: "common_ok".localized, style: .default, handler: { [weak self] _ in
+            let okAction = UIAlertAction(title: Localization.commonOk, style: .default, handler: { [weak self] _ in
                 if error == nil {
                     self?.$presentation.wrappedValue.dismiss()
                 }
@@ -72,10 +73,10 @@ struct MailView: UIViewControllerRepresentable {
         return vc
     }
 
-    func updateUIViewController(_ uiViewController: UIViewController,
-                                context: UIViewControllerRepresentableContext<MailView>) {
-
-    }
+    func updateUIViewController(
+        _ uiViewController: UIViewController,
+        context: UIViewControllerRepresentableContext<MailView>
+    ) {}
 }
 
 fileprivate struct MailViewPlaceholder: View {
@@ -84,16 +85,16 @@ fileprivate struct MailViewPlaceholder: View {
     var body: some View {
         VStack(spacing: 8) {
             HStack {
-                Button("common_close") {
+                Button(Localization.commonClose) {
                     presentationMode.dismiss()
                 }
                 Spacer()
             }
             .padding([.horizontal, .top])
             Spacer()
-            Text("mail_error_no_accounts_title")
+            Text(Localization.mailErrorNoAccountsTitle)
                 .font(.title)
-            Text("mail_error_no_accounts_body")
+            Text(Localization.mailErrorNoAccountsBody)
                 .font(.body)
                 .padding(.horizontal, 32)
                 .multilineTextAlignment(.center)
