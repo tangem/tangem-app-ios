@@ -13,18 +13,15 @@ struct WelcomeCoordinatorView: CoordinatorView {
     @ObservedObject var coordinator: WelcomeCoordinator
 
     var body: some View {
-        NavigationView {
-            ZStack {
-                if let welcomeModel = coordinator.welcomeViewModel {
-                    WelcomeView(viewModel: welcomeModel)
-                        .navigationLinks(links)
-                }
-
-                sheets
+        ZStack {
+            if let welcomeModel = coordinator.welcomeViewModel {
+                WelcomeView(viewModel: welcomeModel)
+                    .navigationLinks(links)
             }
+
+            sheets
         }
-        .navigationViewStyle(.stack)
-        .accentColor(Colors.Text.primary1)
+        .navigationBarHidden(coordinator.navigationBarHidden)
     }
 
     @ViewBuilder
@@ -48,11 +45,6 @@ struct WelcomeCoordinatorView: CoordinatorView {
         NavHolder()
             .sheet(item: $coordinator.tokenListCoordinator) {
                 TokenListCoordinatorView(coordinator: $0)
-            }
-
-        NavHolder()
-            .sheet(item: $coordinator.disclaimerViewModel) {
-                DisclaimerView(viewModel: $0)
             }
 
         NavHolder()

@@ -34,59 +34,40 @@ class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable>
     var bag: Set<AnyCancellable> = []
 
     var currentStep: Step {
-        if currentStepIndex >= steps.count {
-            return Step.initialStep
-        }
-
-        return steps[currentStepIndex]
+        steps[currentStepIndex]
     }
 
     var currentProgress: CGFloat {
         CGFloat(currentStepIndex + 1) / CGFloat(input.steps.stepsCount)
     }
 
-    var navbarTitle: LocalizedStringKey {
-        "onboarding_getting_started"
+    var navbarTitle: String {
+        Localization.onboardingGettingStarted
     }
 
-    var title: LocalizedStringKey? {
-        if !isInitialAnimPlayed, let welcomeStep = input.welcomeStep {
-            return welcomeStep.title
-        }
-
-        return currentStep.title
+    var title: String? {
+        currentStep.title
     }
 
-    var subtitle: LocalizedStringKey? {
-        if !isInitialAnimPlayed, let welcomteStep = input.welcomeStep {
-            return welcomteStep.subtitle
-        }
-
-        return currentStep.subtitle
+    var subtitle: String? {
+        currentStep.subtitle
     }
 
-    var mainButtonSettings: TangemButtonSettings? {
-        .init(
+    var mainButtonSettings: MainButton.Settings? {
+        MainButton.Settings(
             title: mainButtonTitle,
-            size: .wide,
-            action: mainButtonAction,
-            isBusy: isMainButtonBusy,
-            isEnabled: true,
-            isVisible: true,
-            color: .black
+            style: .primary,
+            isLoading: isMainButtonBusy,
+            action: mainButtonAction
         )
     }
 
     var isOnboardingFinished: Bool {
-        currentStep.isOnboardingFinished
+        currentStep == steps.last
     }
 
-    var mainButtonTitle: LocalizedStringKey {
-        if !isInitialAnimPlayed, let welcomeStep = input.welcomeStep {
-            return welcomeStep.mainButtonTitle
-        }
-
-        return currentStep.mainButtonTitle
+    var mainButtonTitle: String {
+        currentStep.mainButtonTitle
     }
 
     var supplementButtonSettings: TangemButtonSettings? {
@@ -95,18 +76,22 @@ class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable>
             size: .wide,
             action: supplementButtonAction,
             isBusy: isSupplementButtonBusy,
-            isEnabled: true,
+            isEnabled: isSupplementButtonEnabled,
             isVisible: isSupplementButtonVisible,
-            color: .transparentWhite
+            color: supplementButtonColor
         )
     }
 
-    var supplementButtonTitle: LocalizedStringKey {
-        if !isInitialAnimPlayed, let welcomteStep = input.welcomeStep {
-            return welcomteStep.supplementButtonTitle
-        }
+    var isSupplementButtonEnabled: Bool {
+        return true
+    }
 
-        return currentStep.supplementButtonTitle
+    var supplementButtonColor: ButtonColorStyle {
+        .transparentWhite
+    }
+
+    var supplementButtonTitle: String {
+        currentStep.supplementButtonTitle
     }
 
     var isBackButtonVisible: Bool {
@@ -127,7 +112,15 @@ class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable>
 
     var isSupplementButtonVisible: Bool { currentStep.isSupplementButtonVisible }
 
-    lazy var userWalletStorageAgreementViewModel = UserWalletStorageAgreementViewModel(isStandalone: false, coordinator: self)
+    lazy var userWalletStorageAgreementViewModel = UserWalletStorageAgreementViewModel(coordinator: self)
+
+    var disclaimerModel: DisclaimerViewModel? {
+        guard let url = input.cardInput.cardModel?.cardDisclaimer.url else {
+            return nil
+        }
+
+        return .init(url: url, style: .onboarding)
+    }
 
     let input: OnboardingInput
 
@@ -212,7 +205,7 @@ class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable>
             do {
                 try handleUserWalletOnFinish()
             } catch {
-                print("Failed to complete onboarding", error)
+                AppLog.shared.error(error)
                 return
             }
 
@@ -220,7 +213,7 @@ class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable>
                 self.onboardingDidFinish()
             }
 
-            self.onOnboardingFinished(for: self.input.cardInput.cardId)
+            onOnboardingFinished(for: input.cardInput.cardId)
 
             return
         }
@@ -235,7 +228,7 @@ class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable>
 
     func goToStep(_ step: Step) {
         guard let newIndex = steps.firstIndex(of: step) else {
-            print("Failed to find step", step)
+            AppLog.shared.debug("Failed to find step \(step)")
             return
         }
 
@@ -260,7 +253,7 @@ class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable>
         AppSettings.shared.saveUserWallets = agreed
         AppSettings.shared.saveAccessCodes = agreed
 
-        Analytics.log(.onboardingEnableBiometric, params: [.state: Analytics.ParameterValue.state(for: agreed).rawValue])
+        Analytics.log(.onboardingEnableBiometric, params: [.state: Analytics.ParameterValue.state(for: agreed)])
     }
 
     func handleUserWalletOnFinish() throws {
@@ -273,6 +266,14 @@ class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable>
 
         userWalletRepository.save(userWallet)
         userWalletRepository.setSelectedUserWalletId(userWallet.userWalletId, reason: .inserted)
+    }
+
+    func disclaimerAccepted() {
+        guard let id = input.cardInput.cardModel?.cardDisclaimer.id else {
+            return
+        }
+
+        AppSettings.shared.termsOfServicesAccepted.append(id)
     }
 
     private func bindAnalytics() {
@@ -291,6 +292,8 @@ class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable>
                         Analytics.log(.createWalletScreenOpened)
                     case .backupIntro:
                         Analytics.log(.backupScreenOpened)
+                    case .kycStart:
+                        Analytics.log(.kycStartScreenOpened)
                     case .kycProgress:
                         Analytics.log(.kycProgressScreenOpened)
                     case .kycRetry:
@@ -299,6 +302,8 @@ class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable>
                         Analytics.log(.kycWaitingScreenOpened)
                     case .claim:
                         Analytics.log(.claimScreenOpened)
+                    case .enterPin:
+                        Analytics.log(.pinScreenOpened)
                     default:
                         break
                     }
@@ -328,6 +333,7 @@ class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable>
 }
 
 // MARK: - Navigation
+
 extension OnboardingViewModel {
     func onboardingDidFinish() {
         coordinator.onboardingDidFinish()
@@ -341,12 +347,15 @@ extension OnboardingViewModel {
         guard let cardModel = input.cardInput.cardModel else { return }
 
         Analytics.log(.onboardingButtonChat)
+        let dataCollector = DetailsFeedbackDataCollector(
+            cardModel: cardModel,
+            userWalletEmailData: cardModel.emailData
+        )
 
-        let dataCollector = DetailsFeedbackDataCollector(cardModel: cardModel,
-                                                         userWalletEmailData: cardModel.emailData)
-
-        coordinator.openSupportChat(cardId: cardModel.cardId,
-                                    dataCollector: dataCollector)
+        coordinator.openSupportChat(
+            cardId: cardModel.cardId,
+            dataCollector: dataCollector
+        )
     }
 }
 
@@ -357,11 +366,10 @@ extension OnboardingViewModel: UserWalletStorageAgreementRoutable {
             switch result {
             case .error(let error):
                 if let tangemSdkError = error as? TangemSdkError,
-                   case .userCancelled = tangemSdkError
-                {
+                   case .userCancelled = tangemSdkError {
                     return
                 }
-                print("Failed to get access to biometry", error)
+                AppLog.shared.error(error)
 
                 biometryAccessGranted = false
                 self?.didAskToSaveUserWallets(agreed: false)
@@ -371,7 +379,7 @@ extension OnboardingViewModel: UserWalletStorageAgreementRoutable {
             }
 
             Analytics.log(.allowBiometricID, params: [
-                .state: Analytics.ParameterValue.state(for: biometryAccessGranted).rawValue,
+                .state: Analytics.ParameterValue.state(for: biometryAccessGranted),
             ])
 
             self?.goToNextStep()
