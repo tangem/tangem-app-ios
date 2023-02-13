@@ -30,7 +30,6 @@ public protocol ImageCacheType: AnyObject {
 }
 
 public final class ImageCache: ImageCacheType {
-
     public struct Config {
         public let countLimit: Int
         public let memoryLimit: Int
@@ -43,11 +42,13 @@ public final class ImageCache: ImageCacheType {
         cache.countLimit = config.countLimit
         return cache
     }()
+
     private lazy var decodedImageCache: NSCache<AnyObject, AnyObject> = {
         let cache = NSCache<AnyObject, AnyObject>()
         cache.totalCostLimit = config.memoryLimit
         return cache
     }()
+
     private let fileManager: FileManager = .default
 
     private var cacheFolderUrl: URL {
@@ -97,7 +98,8 @@ public final class ImageCache: ImageCacheType {
             do {
                 try data.write(to: localFileUrl(for: url))
             } catch {
-                print("Failed to write to file. Reason: \(error)")
+                AppLog.shared.debug("Failed to write to file")
+                AppLog.shared.error(error)
             }
         }
     }
@@ -145,7 +147,6 @@ fileprivate extension String {
 }
 
 fileprivate extension UIImage {
-
     func decodedImage() -> UIImage {
         guard let cgImage = cgImage else { return self }
         let size = CGSize(width: cgImage.width, height: cgImage.height)

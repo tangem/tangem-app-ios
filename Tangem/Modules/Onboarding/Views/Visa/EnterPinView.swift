@@ -11,8 +11,8 @@ import SwiftUI
 struct EnterPinView: View {
     @Binding var text: String
 
-    let title: LocalizedStringKey
-    let subtitle: LocalizedStringKey
+    let title: String
+    let subtitle: String
 
     var maxDigits: Int
 
@@ -25,6 +25,7 @@ struct EnterPinView: View {
 
             Text(subtitle)
                 .style(Fonts.Regular.callout, color: Colors.Text.secondary)
+                .multilineTextAlignment(.center)
 
             PinStackView(maxDigits: maxDigits, pinText: $text)
                 .padding(.top, 22)
@@ -36,6 +37,6 @@ struct EnterPinView: View {
 
 struct EnterPinView_Previews: PreviewProvider {
     static var previews: some View {
-        EnterPinView(text: .constant("0000"), title: "onboarding_title_pin", subtitle: "onboarding_subtitle_pin", maxDigits: 4)
+        EnterPinView(text: .constant("0000"), title: Localization.onboardingTitlePin, subtitle: Localization.onboardingSubtitlePin, maxDigits: 4)
     }
 }

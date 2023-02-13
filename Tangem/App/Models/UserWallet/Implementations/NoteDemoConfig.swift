@@ -44,15 +44,23 @@ extension NoteDemoConfig: UserWalletConfig {
     }
 
     var onboardingSteps: OnboardingSteps {
+        var steps = [SingleCardOnboardingStep]()
+
+        if !AppSettings.shared.termsOfServicesAccepted.contains(tou.id) {
+            steps.append(.disclaimer)
+        }
+
         if card.wallets.isEmpty {
-            return .singleWallet([.createWallet] + userWalletSavingSteps + [.topup, .successTopup])
+            steps.append(contentsOf: [.createWallet] + userWalletSavingSteps + [.topup, .successTopup])
         } else {
             if !AppSettings.shared.cardsStartedActivation.contains(card.cardId) {
-                return .singleWallet([])
+                steps.append(contentsOf: userWalletSavingSteps)
+            } else {
+                steps.append(contentsOf: userWalletSavingSteps + [.topup, .successTopup])
             }
-
-            return .singleWallet(userWalletSavingSteps + [.topup, .successTopup])
         }
+
+        return .singleWallet(steps)
     }
 
     var backupSteps: OnboardingSteps? {
@@ -102,6 +110,10 @@ extension NoteDemoConfig: UserWalletConfig {
         card.wallets.first?.publicKey
     }
 
+    var productType: Analytics.ProductType {
+        .demoNote
+    }
+
     func getFeatureAvailability(_ feature: UserWalletFeature) -> UserWalletFeature.Availability {
         switch feature {
         case .accessCode:
@@ -121,7 +133,7 @@ extension NoteDemoConfig: UserWalletConfig {
         case .twinning:
             return .hidden
         case .exchange:
-            return .disabled(localizedReason: "alert_demo_feature_disabled".localized)
+            return .disabled(localizedReason: Localization.alertDemoFeatureDisabled)
         case .walletConnect:
             return .hidden
         case .multiCurrency:
@@ -129,7 +141,7 @@ extension NoteDemoConfig: UserWalletConfig {
         case .tokensSearch:
             return .hidden
         case .resetToFactory:
-            return .disabled(localizedReason: "alert_demo_feature_disabled".localized)
+            return .disabled(localizedReason: Localization.alertDemoFeatureDisabled)
         case .receive:
             return .available
         case .withdrawal:
@@ -144,6 +156,14 @@ extension NoteDemoConfig: UserWalletConfig {
             return .available
         case .tokenSynchronization:
             return .hidden
+        case .referralProgram:
+            return .hidden
+        case .swapping:
+            return .hidden
+        case .displayHashesCount:
+            return .available
+        case .transactionHistory:
+            return .hidden
         }
     }
 
@@ -155,10 +175,12 @@ extension NoteDemoConfig: UserWalletConfig {
         }
 
         let factory = WalletModelFactory()
-        let model = try factory.makeSingleWallet(walletPublicKey: walletPublicKey,
-                                                 blockchain: blockchain,
-                                                 token: token.tokens.first,
-                                                 derivationStyle: card.derivationStyle)
+        let model = try factory.makeSingleWallet(
+            walletPublicKey: walletPublicKey,
+            blockchain: blockchain,
+            token: token.tokens.first,
+            derivationStyle: card.derivationStyle
+        )
         model.demoBalance = DemoUtil().getDemoBalance(for: defaultBlockchain)
         return model
     }
