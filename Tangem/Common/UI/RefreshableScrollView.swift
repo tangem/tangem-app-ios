@@ -18,7 +18,7 @@ struct RefreshableScrollView<Content: View>: View {
     let content: Content
 
     init(height: CGFloat = 100, onRefresh: @escaping OnRefresh, @ViewBuilder content: () -> Content) {
-        self.threshold = height
+        threshold = height
         self.onRefresh = onRefresh
         self.content = content()
     }
@@ -35,7 +35,7 @@ struct RefreshableScrollView<Content: View>: View {
 
     @available(iOS 16.0, *)
     private var refreshableScrollView: some View {
-        ScrollView(.vertical) {
+        ScrollView(.vertical, showsIndicators: false) {
             self.content
         }
         .refreshable {
@@ -89,13 +89,13 @@ struct RefreshableScrollView<Content: View>: View {
             let movingBounds = values.first { $0.vType == .movingView }?.bounds ?? .zero
             let fixedBounds = values.first { $0.vType == .fixedView }?.bounds ?? .zero
 
-            self.scrollOffset  = movingBounds.minY - fixedBounds.minY
+            self.scrollOffset = movingBounds.minY - fixedBounds.minY
 
             self.rotation = self.symbolRotation(self.scrollOffset)
             self.alpha = self.symbolAlpha(self.scrollOffset)
 
             // Crossing the threshold on the way down, we start the refresh process
-            if !self.refreshing && (self.scrollOffset > self.threshold && self.previousScrollOffset <= self.threshold) {
+            if !self.refreshing, self.scrollOffset > self.threshold, self.previousScrollOffset <= self.threshold {
                 self.refreshing = true
 
                 self.onRefresh {
@@ -104,7 +104,7 @@ struct RefreshableScrollView<Content: View>: View {
             }
             if self.refreshing {
                 // Crossing the threshold on the way up, we add a space at the top of the scrollview
-                if self.previousScrollOffset > self.threshold && self.scrollOffset < self.previousScrollOffset {
+                if self.previousScrollOffset > self.threshold, self.scrollOffset < self.previousScrollOffset {
                     frozen = true
                 }
             } else {
@@ -120,7 +120,7 @@ struct RefreshableScrollView<Content: View>: View {
     private func symbolAnimationProgress(_ scrollOffset: CGFloat) -> Double {
         // We will begin rotation, only after we have passed
         // 60% of the way of reaching the threshold.
-        let h = Double(self.threshold)
+        let h = Double(threshold)
         let d = Double(scrollOffset)
         let v = max(min(d - (h * 0.6), h * 0.4), 0)
         return v / (h * 0.4)
@@ -140,7 +140,6 @@ struct RefreshableScrollView<Content: View>: View {
         var frozen: Bool
         var rotation: Angle
         var alpha: Double
-
 
         var body: some View {
             Group {
@@ -182,7 +181,7 @@ struct RefreshableScrollView<Content: View>: View {
     }
 }
 
-fileprivate struct RefreshableKeyTypes {
+fileprivate enum RefreshableKeyTypes {
     enum ViewType: Int {
         case movingView
         case fixedView
@@ -231,11 +230,10 @@ struct RefreshableScrollViewView_Previews: PreviewProvider {
                         text = "\(Date())"
                     }
 
-                    Text("dfasdfasdf")
-                    Text("dfasdfasdf")
-                    Text("refresh control")
+                    Text("Row 1")
+                    Text("Row 2")
+                    Text("Row 3")
                 }
-
             }
         }
     }

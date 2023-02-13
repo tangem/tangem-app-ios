@@ -10,18 +10,17 @@ import Foundation
 import Combine
 import CryptoKit
 import TangemSdk
-import Intents
 
 class CommonUserWalletRepository: UserWalletRepository {
     @Injected(\.tangemSdkProvider) private var sdkProvider: TangemSdkProviding
     @Injected(\.tangemApiService) private var tangemApiService: TangemApiService
     @Injected(\.backupServiceProvider) private var backupServiceProvider: BackupServiceProviding
-    @Injected(\.walletConnectServiceProvider) private var walletConnectServiceProvider: WalletConnectServiceProviding
-    @Injected(\.saletPayRegistratorProvider) private var saltPayRegistratorProvider: SaltPayRegistratorProviding
+    @Injected(\.walletConnectService) private var walletConnectServiceProvider: WalletConnectService
+    @Injected(\.saltPayRegistratorProvider) private var saltPayRegistratorProvider: SaltPayRegistratorProviding
     @Injected(\.supportChatService) private var supportChatService: SupportChatServiceProtocol
     @Injected(\.failedScanTracker) var failedCardScanTracker: FailedScanTrackable
-
-    weak var delegate: UserWalletRepositoryDelegate? = nil
+    @Injected(\.exchangeServiceConfigurator) var exchangeService: ExchangeServiceConfigurator
+    @Injected(\.analyticsContext) var analyticsContext: AnalyticsContext
 
     var selectedModel: CardViewModel? {
         return models.first {
@@ -64,7 +63,7 @@ class CommonUserWalletRepository: UserWalletRepository {
     }
 
     deinit {
-        print("UserWalletRepository deinit")
+        AppLog.shared.debug("UserWalletRepository deinit")
     }
 
     func bind() {
@@ -83,95 +82,106 @@ class CommonUserWalletRepository: UserWalletRepository {
             .store(in: &bag)
     }
 
-    private func scanPublisher(with batch: String? = nil) -> AnyPublisher<UserWalletRepositoryResult?, Never>  {
-        Deferred {
-            Future { [weak self] promise in
-                self?.scanInternal(with: batch) { result in
-                    switch result {
-                    case .success(let scanResult):
-                        promise(.success(scanResult))
-                    case .failure(let error):
-                        promise(.failure(error))
-                    }
-                }
-            }
-        }
-        .flatMap { [weak self] (response: CardViewModel) -> AnyPublisher<CardViewModel, Error> in
-            let saltPayUtil = SaltPayUtil()
-            let hasSaltPayBackup = self?.backupService.hasUncompletedSaltPayBackup ?? false
-            let primaryCardId = self?.backupService.primaryCard?.cardId ?? ""
-
-            if hasSaltPayBackup && response.cardId != primaryCardId  {
-                return .anyFail(error: SaltPayRegistratorError.emptyBackupCardScanned)
-            }
-
-            if saltPayUtil.isBackupCard(cardId: response.cardId) {
-                if let backupInput = response.backupInput, backupInput.steps.stepsCount > 0 {
-                    return .anyFail(error: SaltPayRegistratorError.emptyBackupCardScanned)
-                } else {
+    private func scanPublisher() -> AnyPublisher<UserWalletRepositoryResult?, Never> {
+        scanInternal()
+            .eraseError()
+            .flatMap { [weak self] response -> AnyPublisher<AppScanTaskResponse, Error> in
+                guard let self else {
                     return .justWithError(output: response)
                 }
-            }
 
-            guard let saltPayRegistrator = self?.saltPayRegistratorProvider.registrator else {
-                return .justWithError(output: response)
-            }
+                let saltPayUtil = SaltPayUtil()
+                let hasSaltPayBackup = self.backupService.hasUncompletedSaltPayBackup
+                let primaryCardId = self.backupService.primaryCard?.cardId ?? ""
 
-            return saltPayRegistrator.updatePublisher()
-                .map { _ in
-                    return response
+                if hasSaltPayBackup, response.card.cardId != primaryCardId {
+                    return .anyFail(error: SaltPayRegistratorError.emptyBackupCardScanned)
                 }
-                .eraseToAnyPublisher()
-        }
-        .flatMap { [weak self] cardModel -> AnyPublisher<UserWalletRepositoryResult?, Error> in
-            self?.failedCardScanTracker.resetCounter()
 
-            Analytics.endLoggingCardScan()
+                if saltPayUtil.isBackupCard(cardId: response.card.cardId) {
+                    if response.card.wallets.isEmpty {
+                        return .anyFail(error: SaltPayRegistratorError.emptyBackupCardScanned)
+                    } else {
+                        return .justWithError(output: response)
+                    }
+                }
 
-            self?.sendEvent(.scan(isScanning: false))
-            let onboardingInput = cardModel.onboardingInput
-            if onboardingInput.steps.needOnboarding {
-                cardModel.userWalletModel?.updateAndReloadWalletModels()
+                if !saltPayUtil.isPrimaryCard(batchId: response.card.batchId) {
+                    self.saltPayRegistratorProvider.reset()
+                    return .justWithError(output: response)
+                }
 
-                return Just(UserWalletRepositoryResult.onboarding(onboardingInput))
+                if let wallet = response.card.wallets.first {
+                    try? self.saltPayRegistratorProvider.initialize(
+                        cardId: response.card.cardId,
+                        walletPublicKey: wallet.publicKey,
+                        cardPublicKey: response.card.cardPublicKey
+                    )
+                }
+
+                guard let saltPayRegistrator = self.saltPayRegistratorProvider.registrator else {
+                    return .justWithError(output: response)
+                }
+
+                return saltPayRegistrator.updatePublisher()
+                    .map { _ in
+                        return response
+                    }
+                    .eraseToAnyPublisher()
+            }
+            .flatMap { [weak self] response -> AnyPublisher<UserWalletRepositoryResult?, Error> in
+                guard let self else {
+                    return .justWithError(output: nil)
+                }
+
+                self.failedCardScanTracker.resetCounter()
+                self.sendEvent(.scan(isScanning: false))
+
+                let cardDTO = CardDTO(card: response.card)
+                self.didScan(card: cardDTO, walletData: response.walletData)
+                let cardModel = self.processScan(response.getCardInfo())
+                Analytics.endLoggingCardScan()
+                let onboardingInput = cardModel.onboardingInput
+                if onboardingInput.steps.needOnboarding {
+                    cardModel.userWalletModel?.updateAndReloadWalletModels()
+
+                    return Just(UserWalletRepositoryResult.onboarding(onboardingInput))
+                        .setFailureType(to: Error.self)
+                        .eraseToAnyPublisher()
+                }
+
+                return Just(.success(cardModel))
                     .setFailureType(to: Error.self)
                     .eraseToAnyPublisher()
             }
+            .catch { [weak self] error -> Just<UserWalletRepositoryResult?> in
+                guard let self else {
+                    return Just(nil)
+                }
 
-            return Just(.success(cardModel))
-                .setFailureType(to: Error.self)
-                .eraseToAnyPublisher()
-        }
-        .catch { [weak self] (error: Error) -> Just<UserWalletRepositoryResult?> in
-            guard let self else {
-                return Just(nil)
+                AppLog.shared.error(error)
+                self.failedCardScanTracker.recordFailure()
+                self.sendEvent(.scan(isScanning: false))
+
+                if error is SaltPayRegistratorError {
+                    return Just(UserWalletRepositoryResult.error(error))
+                }
+
+                if self.failedCardScanTracker.shouldDisplayAlert {
+                    return Just(UserWalletRepositoryResult.troubleshooting)
+                }
+
+                switch error.toTangemSdkError() {
+                case .unknownError, .cardVerificationFailed:
+                    return Just(UserWalletRepositoryResult.error(error))
+                default:
+                    return Just(nil)
+                }
             }
-
-            print("Failed to scan card: \(error)")
-
-            self.failedCardScanTracker.recordFailure()
-            self.sendEvent(.scan(isScanning: false))
-
-            if let saltpayError = error as? SaltPayRegistratorError {
-                return Just(UserWalletRepositoryResult.error(saltpayError))
-            }
-
-            if self.failedCardScanTracker.shouldDisplayAlert {
-                return Just(UserWalletRepositoryResult.troubleshooting)
-            }
-
-            switch error.toTangemSdkError() {
-            case .unknownError, .cardVerificationFailed:
-                return Just(UserWalletRepositoryResult.error(error))
-            default:
-                return Just(nil)
-            }
-        }
-        .eraseToAnyPublisher()
+            .eraseToAnyPublisher()
     }
 
-    private func scanInternal(with batch: String? = nil, _ completion: @escaping (Result<CardViewModel, Error>) -> Void) {
-        Analytics.reset()
+    private func scanInternal() -> AnyPublisher<AppScanTaskResponse, TangemSdkError> {
         Analytics.log(.readyToScan)
 
         let oldConfig = sdkProvider.sdk.config
@@ -186,19 +196,13 @@ class CommonUserWalletRepository: UserWalletRepository {
         sdkProvider.setup(with: config)
 
         sendEvent(.scan(isScanning: true))
-        sdkProvider.sdk.startSession(with: AppScanTask(targetBatch: batch)) { [unowned self] result in
 
-            sdkProvider.setup(with: oldConfig)
-
-            switch result {
-            case .failure(let error):
-                Analytics.logCardSdkError(error, for: .scan)
-                completion(.failure(error))
-            case .success(let response):
-                didScan(card: CardDTO(card: response.card), walletData: response.walletData)
-                self.acceptTOSIfNeeded(response.getCardInfo(), completion)
-            }
-        }
+        return sdkProvider.sdk
+            .startSessionPublisher(with: AppScanTask())
+            .handleEvents(receiveCompletion: { [weak self] error in
+                self?.sdkProvider.setup(with: oldConfig)
+            })
+            .eraseToAnyPublisher()
     }
 
     func unlock(with method: UserWalletRepositoryUnlockMethod, completion: @escaping (UserWalletRepositoryResult?) -> Void) {
@@ -284,7 +288,7 @@ class CommonUserWalletRepository: UserWalletRepository {
             models.append(newModel)
             userWalletModel = newModel.userWalletModel
 
-            self.sendEvent(.inserted(userWallet: userWallet))
+            sendEvent(.inserted(userWallet: userWallet))
         }
 
         guard let userWalletModel else { return }
@@ -382,9 +386,9 @@ class CommonUserWalletRepository: UserWalletRepository {
     }
 
     func clear() {
+        clearUserWallets()
         discardSensitiveData()
 
-        clearUserWallets()
         setSelectedUserWalletId(nil, reason: .deleted)
     }
 
@@ -403,45 +407,32 @@ class CommonUserWalletRepository: UserWalletRepository {
         userWallets = savedUserWallets(withSensitiveData: false)
     }
 
-    private func acceptTOSIfNeeded(_ cardInfo: CardInfo, _ completion: @escaping (Result<CardViewModel, Error>) -> Void) {
-        let touURL = UserWalletConfigFactory(cardInfo).makeConfig().touURL
-
-        guard let delegate, !AppSettings.shared.termsOfServicesAccepted.contains(touURL.absoluteString) else {
-            completion(.success(processScan(cardInfo)))
-            return
-        }
-
-        delegate.showTOS(at: touURL) { accepted in
-            if accepted {
-                AppSettings.shared.termsOfServicesAccepted.insert(touURL.absoluteString)
-                completion(.success(self.processScan(cardInfo)))
-            } else {
-                completion(.failure(TangemSdkError.userCancelled))
-            }
-        }
-    }
-
     // [REDACTED_TODO_COMMENT]
     private func resetServices() {
         walletConnectServiceProvider.reset()
-        saltPayRegistratorProvider.reset()
+        analyticsContext.clearContext()
     }
 
     private func initializeServices(for cardModel: CardViewModel, cardInfo: CardInfo) {
+        if let userWalletId = cardModel.userWalletId {
+            let contextData = AnalyticsContextData(
+                card: cardInfo.card,
+                productType: cardModel.productType,
+                userWalletId: userWalletId,
+                embeddedEntry: cardModel.embeddedEntry
+            )
+
+            analyticsContext.setupContext(with: contextData)
+        }
+
         if let primaryCard = cardInfo.primaryCard {
             backupServiceProvider.backupService.setPrimaryCard(primaryCard)
         }
 
         tangemApiService.setAuthData(cardInfo.card.tangemApiAuthData)
         supportChatService.initialize(with: cardModel.supportChatEnvironment)
+        exchangeService.configure(for: cardModel.exchangeServiceEnvironment)
         walletConnectServiceProvider.initialize(with: cardModel)
-
-        if SaltPayUtil().isPrimaryCard(batchId: cardInfo.card.batchId),
-           let wallet = cardInfo.card.wallets.first {
-            try? saltPayRegistratorProvider.initialize(cardId: cardInfo.card.cardId,
-                                                       walletPublicKey: wallet.publicKey,
-                                                       cardPublicKey: cardInfo.card.cardPublicKey)
-        }
     }
 
     private func processScan(_ cardInfo: CardInfo) -> CardViewModel {
@@ -453,13 +444,11 @@ class CommonUserWalletRepository: UserWalletRepository {
 
         initializeServices(for: cardModel, cardInfo: cardInfo)
 
-        cardModel.didScan()
-
         // Updating the config file every time a card is scanned when wallets are NOT being saved.
         // This is done to avoid unnecessary changes in SDK config when the user scans an empty card
         // (that would open onboarding) and then immediately close it.
         if !AppSettings.shared.saveUserWallets {
-            cardModel.userWalletModel?.initialUpdate() // todo: fixme
+            cardModel.userWalletModel?.initialUpdate() // [REDACTED_TODO_COMMENT]
             cardModel.updateSdkConfig()
         }
 
@@ -498,7 +487,7 @@ class CommonUserWalletRepository: UserWalletRepository {
             .sink { [weak self] result in
                 guard
                     let self,
-                    case let .success(cardModel) = result,
+                    case .success(let cardModel) = result,
                     AppSettings.shared.saveUserWallets
                 else {
                     self?.isLocked = false
@@ -614,7 +603,7 @@ extension CommonUserWalletRepository {
         }
 
         let savedSelectedUserWalletId = AppSettings.shared.selectedUserWalletId
-        self.selectedUserWalletId = savedSelectedUserWalletId.isEmpty ? nil : savedSelectedUserWalletId
+        selectedUserWalletId = savedSelectedUserWalletId.isEmpty ? nil : savedSelectedUserWalletId
 
         userWallets = savedUserWallets(withSensitiveData: false)
     }
