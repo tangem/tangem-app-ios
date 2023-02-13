@@ -44,12 +44,20 @@ final class SwappingPermissionViewModel: ObservableObject, Identifiable {
     }
 
     func didTapApprove() {
-        Analytics.log(.swapButtonPermissionApprove)
+        let info = inputModel.transactionInfo
+
+        Analytics.log(
+            event: .swapButtonPermissionApprove,
+            params: [
+                .sendToken: info.sourceCurrency.symbol,
+                .receiveToken: info.destinationCurrency.symbol,
+            ]
+        )
 
         Task {
             do {
-                try await transactionSender.sendTransaction(inputModel.transactionInfo)
-                await didSendApproveTransaction(transactionInfo: inputModel.transactionInfo)
+                _ = try await transactionSender.sendTransaction(info)
+                await didSendApproveTransaction(transactionInfo: info)
             } catch TangemSdkError.userCancelled {
                 // Do nothing
             } catch {
