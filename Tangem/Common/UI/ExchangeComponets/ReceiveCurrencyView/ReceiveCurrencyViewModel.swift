@@ -11,62 +11,64 @@ import Foundation
 struct ReceiveCurrencyViewModel: Identifiable {
     var id: Int { hashValue }
 
-    private(set) var state: State
-    let tokenIcon: TokenIconViewModel
-    let didTapTokenView: () -> Void
+    private(set) var canChangeCurrency: Bool
+    private(set) var cryptoAmountState: State
+    private(set) var fiatAmountState: State
 
-    var value: String {
-        guard let value = state.value as? NSDecimalNumber else {
-            return "0"
-        }
+    let tokenIcon: SwappingTokenIconViewModel
 
-        return NumberFormatter.grouped.string(from: value) ?? "0"
+    var balanceString: String? {
+        Localization.commonBalance((balance ?? 0).groupedFormatted())
     }
 
-    var fiatValue: String {
-        state.fiatValue?.currencyFormatted(code: AppSettings.shared.selectedCurrencyCode) ?? "0"
+    var cryptoAmountFormatted: String {
+        cryptoAmountState.value?.groupedFormatted() ?? "0"
     }
+
+    var fiatAmountFormatted: String {
+        fiatAmountState.value?.currencyFormatted(code: AppSettings.shared.selectedCurrencyCode) ?? "0"
+    }
+
+    private let balance: Decimal?
 
     init(
-        state: State,
-        tokenIcon: TokenIconViewModel,
-        didTapTokenView: @escaping () -> Void
+        balance: Decimal?,
+        canChangeCurrency: Bool,
+        cryptoAmountState: State,
+        fiatAmountState: State,
+        tokenIcon: SwappingTokenIconViewModel
     ) {
-        self.state = state
+        self.balance = balance
+        self.canChangeCurrency = canChangeCurrency
+        self.cryptoAmountState = cryptoAmountState
+        self.fiatAmountState = fiatAmountState
         self.tokenIcon = tokenIcon
-        self.didTapTokenView = didTapTokenView
     }
 
-    mutating func updateState(_ state: State) {
-        self.state = state
+    mutating func update(cryptoAmountState: State) {
+        self.cryptoAmountState = cryptoAmountState
+    }
+
+    mutating func update(fiatAmountState: State) {
+        self.fiatAmountState = fiatAmountState
     }
 }
 
 extension ReceiveCurrencyViewModel {
     enum State: Hashable {
         case loading
-        case loaded(_ value: Decimal, fiatValue: Decimal)
+        case loaded(_ value: Decimal)
 
         var value: Decimal? {
             switch self {
-            case .loaded(let value, _):
+            case .loaded(let value):
                 return value
-            default:
-                return nil
-            }
-        }
-
-        var fiatValue: Decimal? {
-            switch self {
-            case .loaded(_, let fiatValue):
-                return fiatValue
             default:
                 return nil
             }
         }
     }
 }
-
 
 extension ReceiveCurrencyViewModel: Hashable {
     static func == (lhs: ReceiveCurrencyViewModel, rhs: ReceiveCurrencyViewModel) -> Bool {
@@ -74,8 +76,8 @@ extension ReceiveCurrencyViewModel: Hashable {
     }
 
     func hash(into hasher: inout Hasher) {
-        hasher.combine(state)
+        hasher.combine(cryptoAmountState)
+        hasher.combine(fiatAmountState)
         hasher.combine(tokenIcon)
     }
 }
-
