@@ -23,6 +23,7 @@ class SingleWalletContentViewModel: ObservableObject {
     @Published var selectedAddressIndex: Int = 0
     @Published var singleWalletModel: WalletModel?
     @Published var totalBalanceButtons = [TotalBalanceButton]()
+    @Published var transactionListItems = [TransactionListItem]()
 
     var pendingTransactionViews: [PendingTxView] {
         guard let singleWalletModel else { return [] }
@@ -47,6 +48,10 @@ class SingleWalletContentViewModel: ObservableObject {
         cardModel.canShowAddress
     }
 
+    var canShowTransactionHistory: Bool {
+        cardModel.canShowTransactionHistory
+    }
+
     public var canSend: Bool {
         guard cardModel.canSend else {
             return false
@@ -59,8 +64,7 @@ class SingleWalletContentViewModel: ObservableObject {
         userWalletModel: userWalletModel,
         totalBalanceManager: TotalBalanceProvider(
             userWalletModel: userWalletModel,
-            userWalletAmountType: cardModel.cardAmountType,
-            totalBalanceAnalyticsService: self.totalBalanceAnalyticsService
+            userWalletAmountType: cardModel.cardAmountType
         ),
         cardAmountType: cardModel.cardAmountType,
         tapOnCurrencySymbol: output
@@ -70,10 +74,6 @@ class SingleWalletContentViewModel: ObservableObject {
     private let userWalletModel: UserWalletModel
     private unowned let output: SingleWalletContentViewModelOutput
     private var bag = Set<AnyCancellable>()
-    private var totalBalanceAnalyticsService: TotalBalanceAnalyticsService? {
-        guard let info = TotalBalanceCardSupportInfoFactory(cardModel: cardModel).createInfo() else { return nil }
-        return TotalBalanceAnalyticsService(totalBalanceCardSupportInfo: info)
-    }
 
     private var exchangeServiceInitialized = false
 
@@ -147,6 +147,7 @@ class SingleWalletContentViewModel: ObservableObject {
             .switchToLatest()
             .receive(on: DispatchQueue.main)
             .sink(receiveValue: { [weak self] publish in
+                self?.updateTransactionHistoryList()
                 self?.objectWillChange.send()
             })
             .store(in: &bag)
@@ -162,8 +163,8 @@ class SingleWalletContentViewModel: ObservableObject {
                 }
 
                 let balance = singleWalletModel.blockchainTokenItemViewModel().fiatValue
-                self.totalBalanceAnalyticsService?.sendToppedUpEventIfNeeded(balance: balance)
-                self.totalBalanceAnalyticsService?.sendFirstLoadBalanceEventForCard(balance: balance)
+                Analytics.logTopUpIfNeeded(balance: balance)
+                Analytics.logSignInIfNeeded(balance: balance)
             }
             .store(in: &bag)
 
@@ -206,8 +207,22 @@ class SingleWalletContentViewModel: ObservableObject {
                 icon: Assets.plusMini,
                 isLoading: false,
                 isDisabled: false,
-                action: output.openBuyCrypto
+                action: { [weak self] in
+                    Analytics.log(.buttonBuyMainScreen)
+                    self?.output.openBuyCrypto()
+                }
             ),
         ]
+    }
+
+    private func updateTransactionHistoryList() {
+        guard
+            canShowTransactionHistory,
+            let singleWalletModel = singleWalletModel
+        else {
+            return
+        }
+
+        transactionListItems = TransactionHistoryMapper().makeTransactionListItems(from: singleWalletModel.transactions)
     }
 }
