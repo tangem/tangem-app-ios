@@ -417,7 +417,7 @@ class AddCustomTokenViewModel: ObservableObject {
             params[.contractAddress] = token.contractAddress
         }
 
-        Analytics.log(.customTokenWasAdded, params: params)
+        Analytics.log(event: .customTokenWasAdded, params: params)
     }
 }
 
