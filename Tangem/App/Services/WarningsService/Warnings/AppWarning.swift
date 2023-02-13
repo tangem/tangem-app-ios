@@ -43,8 +43,15 @@ struct AppWarning: Identifiable, Equatable, Hashable {
     var blockchains: [String]?
     var event: WarningEvent?
 
-    init(title: String, message: String, priority: WarningPriority, type: WarningType = .permanent,
-         location: [WarningsLocation] = [.main], blockchains: [String]? = nil, event: WarningEvent? = nil) {
+    init(
+        title: String,
+        message: String,
+        priority: WarningPriority,
+        type: WarningType = .permanent,
+        location: [WarningsLocation] = [.main],
+        blockchains: [String]? = nil,
+        event: WarningEvent? = nil
+    ) {
         self.title = title
         self.message = message
         self.priority = priority
