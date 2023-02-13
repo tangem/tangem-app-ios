@@ -86,7 +86,7 @@ class SecurityModeViewModel: ObservableObject {
                 subtitle: option.description,
                 isSelected: { [weak self] in
                     self?.isSelected(option: option) ?? .constant(false)
-                }()
+                }
             )
         }
     }
