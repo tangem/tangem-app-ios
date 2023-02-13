@@ -23,29 +23,28 @@ struct Order {
 
 extension Order {
     init(_ order: Storefront.Order) {
-        self.id = order.id
-        self.number = Int(order.orderNumber)
-        self.processedDate = order.processedAt
-        self.fulfillmentStatus = order.fulfillmentStatus.rawValue
-        self.financialStatus = order.financialStatus?.rawValue ?? ""
-        self.statusUrl = order.statusUrl
-        self.address = (order.shippingAddress?.formatted ?? []).joined(separator: ", ")
+        id = order.id
+        number = Int(order.orderNumber)
+        processedDate = order.processedAt
+        fulfillmentStatus = order.fulfillmentStatus.rawValue
+        financialStatus = order.financialStatus?.rawValue ?? ""
+        statusUrl = order.statusUrl
+        address = (order.shippingAddress?.formatted ?? []).joined(separator: ", ")
         if let discount = order.discountApplications.edges.first.map({ Discount($0.node) }) {
             self.discount = discount
         } else {
-            self.discount = nil
+            discount = nil
         }
-        self.total = order.totalPriceV2.amount
-        self.currencyCode = order.totalPriceV2.currencyCode.rawValue
-        self.lineItems = order.lineItems.edges.map { .init($0.node) }
+        total = order.totalPriceV2.amount
+        currencyCode = order.totalPriceV2.currencyCode.rawValue
+        lineItems = order.lineItems.edges.map { .init($0.node) }
     }
 }
 
 extension Storefront.OrderQuery {
     @discardableResult
     func orderFieldsFragment() -> Storefront.OrderQuery {
-        self
-            .cancelReason()
+        cancelReason()
             .canceledAt()
             .currencyCode()
             .customerLocale()

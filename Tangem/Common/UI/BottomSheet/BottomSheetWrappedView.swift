@@ -11,11 +11,12 @@ import SwiftUI
 struct BottomSheetWrappedView<Content: View>: View {
     let content: Content
     let settings: BottomSheetSettings
-    let hideCallback: () -> ()
+    let hideCallback: () -> Void
 
-    init(content: Content,
-         settings: BottomSheetSettings,
-         hideCallback: @escaping () -> ()
+    init(
+        content: Content,
+        settings: BottomSheetSettings,
+        hideCallback: @escaping () -> Void
     ) {
         self.content = content
         self.settings = settings
@@ -29,11 +30,9 @@ struct BottomSheetWrappedView<Content: View>: View {
             }
             content
             if settings.showClosedButton {
-                TangemButton(title: "common_close") {
-                    hideCallback()
-                }
-                .buttonStyle(TangemButtonStyle(colorStyle: .grayAlt, layout: .wide))
-                .padding(.bottom, 16)
+                MainButton(title: Localization.commonClose, style: .secondary, action: hideCallback)
+                    .padding(.vertical, 16)
+                    .padding(.horizontal, 40)
             }
             Spacer()
         }

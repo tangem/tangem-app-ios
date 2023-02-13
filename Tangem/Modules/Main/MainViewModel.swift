@@ -127,20 +127,24 @@ class MainViewModel: ObservableObject {
                 return blockchain.testnetFaucetURL
             }
 
-            return exchangeService.getBuyUrl(currencySymbol: wallet.blockchain.currencySymbol,
-                                             amountType: .coin,
-                                             blockchain: wallet.blockchain,
-                                             walletAddress: wallet.address)
+            return exchangeService.getBuyUrl(
+                currencySymbol: wallet.blockchain.currencySymbol,
+                amountType: .coin,
+                blockchain: wallet.blockchain,
+                walletAddress: wallet.address
+            )
         }
         return nil
     }
 
     var sellCryptoURL: URL? {
         if let wallet {
-            return exchangeService.getSellUrl(currencySymbol: wallet.blockchain.currencySymbol,
-                                              amountType: .coin,
-                                              blockchain: wallet.blockchain,
-                                              walletAddress: wallet.address)
+            return exchangeService.getSellUrl(
+                currencySymbol: wallet.blockchain.currencySymbol,
+                amountType: .coin,
+                blockchain: wallet.blockchain,
+                walletAddress: wallet.address
+            )
         }
 
         return nil
@@ -180,11 +184,10 @@ class MainViewModel: ObservableObject {
         bind()
         cardModel.setupWarnings()
         updateContent()
-        showUserWalletSaveIfNeeded()
     }
 
     deinit {
-        print("MainViewModel deinit")
+        AppLog.shared.debug("MainViewModel deinit")
     }
 
     // MARK: - Functions
@@ -192,7 +195,7 @@ class MainViewModel: ObservableObject {
     func bind() {
         warningsService.warningsUpdatePublisher
             .sink { [unowned self] in
-                print("⚠️ Main view model fetching warnings")
+                AppLog.shared.debug("⚠️ Main view model fetching warnings")
                 self.warnings = self.warningsService.warnings(for: .main)
             }
             .store(in: &bag)
@@ -254,7 +257,7 @@ class MainViewModel: ObservableObject {
 
     func didTapUserWalletListButton() {
         Analytics.log(.buttonMyWallets)
-        self.coordinator.openUserWalletList()
+        coordinator.openUserWalletList()
     }
 
     func sendTapped() {
@@ -316,15 +319,17 @@ class MainViewModel: ObservableObject {
             openMail(with: .negativeFeedback)
         case .learnMore:
             if case .multiWalletSignedHashes = warning.event {
-                error = AlertBinder(alert: Alert(title: Text(warning.title),
-                                                 message: Text("alert_signed_hashes_message"),
-                                                 primaryButton: .cancel(),
-                                                 secondaryButton: .default(Text("alert_button_i_understand")) { [weak self] in
-                                                     withAnimation {
-                                                         registerValidatedSignedHashesCard()
-                                                         self?.warningsService.hideWarning(warning)
-                                                     }
-                                                 }))
+                error = AlertBinder(alert: Alert(
+                    title: Text(warning.title),
+                    message: Text(Localization.alertSignedHashesMessage),
+                    primaryButton: .cancel(),
+                    secondaryButton: .default(Text(Localization.commonUnderstand)) { [weak self] in
+                        withAnimation {
+                            registerValidatedSignedHashesCard()
+                            self?.warningsService.hideWarning(warning)
+                        }
+                    }
+                ))
                 return
             }
         }
@@ -347,7 +352,7 @@ class MainViewModel: ObservableObject {
     func sendAnalyticsEvent(_ event: Analytics.Event) {
         switch event {
         case .userBoughtCrypto:
-            Analytics.log(event, params: [.currencyCode: currenyCode])
+            Analytics.log(event: event, params: [.currencyCode: currenyCode])
         default:
             break
         }
@@ -357,38 +362,6 @@ class MainViewModel: ObservableObject {
         if let input = cardModel.backupInput {
             Analytics.log(.noticeBackupYourWalletTapped)
             openOnboarding(with: input)
-        }
-    }
-
-    func didDeclineToSaveUserWallets() {
-        AppSettings.shared.askedToSaveUserWallets = true
-        AppSettings.shared.saveUserWallets = false
-
-        coordinator.closeUserWalletSaveAcceptanceSheet()
-    }
-
-    func didAgreeToSaveUserWallets() {
-        AppSettings.shared.askedToSaveUserWallets = true
-
-        userWalletRepository.unlock(with: .biometry) { [weak self, cardModel] result in
-            if case let .error(error) = result {
-                print("Failed to enable biometry: \(error)")
-                self?.coordinator.closeUserWalletSaveAcceptanceSheet()
-                return
-            }
-
-            // Doesn't seem to work without the delay
-            let delay = 1.0
-            DispatchQueue.main.asyncAfter(deadline: .now() + delay) {
-                guard let userWallet = cardModel.userWallet else { return }
-
-                AppSettings.shared.saveUserWallets = true
-                AppSettings.shared.saveAccessCodes = true
-
-                self?.userWalletRepository.save(userWallet)
-                self?.cardModel.updateSdkConfig()
-                self?.coordinator.closeUserWalletSaveAcceptanceSheet()
-            }
         }
     }
 
@@ -424,17 +397,6 @@ class MainViewModel: ObservableObject {
 
     private func updateLackDerivationWarningView(entries: [StorageEntry]) {
         isLackDerivationWarningViewVisible = !entries.isEmpty
-    }
-
-    private func showUserWalletSaveIfNeeded() {
-        if AppSettings.shared.askedToSaveUserWallets || !BiometricsUtil.isAvailable {
-            return
-        }
-
-        let delay = 1.0
-        DispatchQueue.main.asyncAfter(deadline: .now() + delay) { [weak self] in
-            self?.coordinator.openUserWalletSaveAcceptanceSheet()
-        }
     }
 
     private func loadImage() {
@@ -488,10 +450,12 @@ extension MainViewModel {
         guard let blockchainNetwork = cardModel.walletModels.first?.blockchainNetwork else { return }
 
         let amount = Amount(with: blockchainNetwork.blockchain, value: request.amount)
-        coordinator.openSendToSell(amountToSend: amount,
-                                   destination: request.targetAddress,
-                                   blockchainNetwork: blockchainNetwork,
-                                   cardViewModel: cardModel)
+        coordinator.openSendToSell(
+            amountToSend: amount,
+            destination: request.targetAddress,
+            blockchainNetwork: blockchainNetwork,
+            cardViewModel: cardModel
+        )
     }
 
     func openSellCrypto() {
@@ -593,8 +557,10 @@ extension MainViewModel: MultiWalletContentViewModelOutput {
     }
 
     func openTokenDetails(_ tokenItem: TokenItemViewModel) {
-        coordinator.openTokenDetails(cardModel: cardModel,
-                                     blockchainNetwork: tokenItem.blockchainNetwork,
-                                     amountType: tokenItem.amountType)
+        coordinator.openTokenDetails(
+            cardModel: cardModel,
+            blockchainNetwork: tokenItem.blockchainNetwork,
+            amountType: tokenItem.amountType
+        )
     }
 }
