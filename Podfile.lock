@@ -37,8 +37,8 @@ PODS:
     - ScaleCodec
     - Sodium
     - Solana.Swift
-    - stellar-ios-mac-sdk
-    - SwiftCBOR
+    - stellar-ios-mac-sdk (= 2.2.5)
+    - SwiftCBOR (= 0.4.5)
     - SwiftyJSON
     - TangemSdk
     - web3swift
@@ -233,7 +233,7 @@ DEPENDENCIES:
   - AppsFlyerFramework
   - BinanceChain (from `https://github.com/tangem/swiftbinancechain.git`, tag `0.0.9`)
   - BitcoinCore.swift (from `https://github.com/tangem/bitcoincore.git`, tag `0.0.16`)
-  - BlockchainSdk (from `https://github.com/tangem/blockchain-sdk-swift.git`, tag `develop-199`)
+  - BlockchainSdk (from `https://github.com/tangem/blockchain-sdk-swift.git`, tag `develop-201`)
   - DeviceGuru (= 8.0.0)
   - Firebase/Analytics
   - Firebase/Crashlytics
@@ -309,7 +309,7 @@ EXTERNAL SOURCES:
     :tag: 0.0.16
   BlockchainSdk:
     :git: https://github.com/tangem/blockchain-sdk-swift.git
-    :tag: develop-199
+    :tag: develop-201
   HDWalletKit:
     :git: https://github.com/tangem/hdwallet.git
     :tag: 0.3.12
@@ -344,7 +344,7 @@ CHECKOUT OPTIONS:
     :tag: 0.0.16
   BlockchainSdk:
     :git: https://github.com/tangem/blockchain-sdk-swift.git
-    :tag: develop-199
+    :tag: develop-201
   HDWalletKit:
     :git: https://github.com/tangem/hdwallet.git
     :tag: 0.3.12
@@ -377,7 +377,7 @@ SPEC CHECKSUMS:
   BigInt: f668a80089607f521586bbe29513d708491ef2f7
   BinanceChain: b77d4c0e496efbf13bdb1f428621480fd52f4ba1
   BitcoinCore.swift: 64ac4e69d9a6ef917bcbb0c23f1324cf57a822fb
-  BlockchainSdk: 9226bd88d7949e7f9da294020417d4d9fc63b9da
+  BlockchainSdk: 4e43124d8089a0d635a6528159488acc98ac124c
   CryptoSwift: c4f2debceb38bf44c80659afe009f71e23e4a082
   DeviceGuru: 0362f13097207ca1fe246e92df2ba1d3978b2293
   Firebase: 1b810f3d0c0532e27a48f1961f8c0400a668a2cf
@@ -423,6 +423,6 @@ SPEC CHECKSUMS:
   ZendeskSupportProvidersSDK: 77a62fe6bacc05bb10ff20edce75612fa109fd61
   ZendeskSupportSDK: ba72e90e327635b5fde3d023a3de33242a6ee8ab
 
-PODFILE CHECKSUM: 30de24d147bff6c94e2289c2190edd5caed7e367
+PODFILE CHECKSUM: 7fea6c761b78dd766ade20974bcd10fbc6ee2756
 
 COCOAPODS: 1.11.3
