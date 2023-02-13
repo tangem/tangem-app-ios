@@ -10,7 +10,6 @@ import SwiftUI
 import BlockchainSdk
 
 struct FilledInputView: View {
-
     let title: String
     let text: String
 
@@ -25,8 +24,6 @@ struct FilledInputView: View {
                 .foregroundColor(.tangemGrayDark6)
             Separator()
         }
-
-
     }
 }
 
@@ -38,16 +35,16 @@ struct PushTxView: View {
             ScrollView {
                 VStack(alignment: .leading, spacing: 0.0) {
                     HStack {
-                        Text("common_push")
+                        Text(Localization.commonPush)
                             .font(Font.system(size: 30.0, weight: .bold, design: .default))
                             .foregroundColor(Color.tangemGrayDark6)
                         Spacer()
                     }
                     .padding(.bottom)
-                    FilledInputView(title: "send_destination_hint_address".localized, text: viewModel.destination)
+                    FilledInputView(title: Localization.sendDestinationHintAddress, text: viewModel.destination)
                         .opacity(0.6)
                     VStack(alignment: .leading) {
-                        Text("push_tx_address_hint")
+                        Text(Localization.pushTxAddressHint)
                             .font(Font.system(size: 13.0, weight: .medium, design: .default))
                             .foregroundColor(Color.tangemGrayDark)
                             .opacity(0.6)
@@ -88,47 +85,59 @@ struct PushTxView: View {
                             .foregroundColor(Color.tangemGrayDark)
                     }
                     VStack(alignment: .leading) {
-                        Text("send_network_fee_title")
+                        Text(Localization.sendNetworkFeeTitle)
                             .font(Font.system(size: 14.0, weight: .medium, design: .default))
                             .foregroundColor(Color.tangemGrayDark6)
                             .padding(.vertical, 8.0)
-                        PickerView(contents: ["send_fee_picker_low".localized,
-                                              "send_fee_picker_normal".localized,
-                                              "send_fee_picker_priority".localized],
-                                   selection: $viewModel.selectedFeeLevel)
-                            .padding(.vertical, 8.0)
+                        PickerView(
+                            contents: [
+                                Localization.sendFeePickerLow,
+                                Localization.sendFeePickerNormal,
+                                Localization.sendFeePickerPriority,
+                            ],
+                            selection: $viewModel.selectedFeeLevel
+                        )
+                        .padding(.vertical, 8.0)
                         Text(viewModel.amountHint?.message ?? " ")
                             .font(.system(size: 13.0, weight: .medium, design: .default))
                             .foregroundColor((viewModel.amountHint?.isError ?? false) ?
                                 Color.red : Color.tangemGrayDark)
                         Toggle(isOn: self.$viewModel.isFeeIncluded) {
-                            Text("send_fee_include_description")
+                            Text(Localization.sendFeeIncludeDescription)
                                 .font(Font.system(size: 13.0, weight: .medium, design: .default))
                                 .foregroundColor(Color.tangemGrayDark6)
                         }
                     }
                     Spacer()
                     VStack(spacing: 8.0) {
-                        AmountView(label: "send_amount_label",
-                                   labelColor: .tangemGrayDark6,
-                                   amountText: viewModel.amount)
+                        AmountView(
+                            label: Localization.sendAmountLabel,
+                            labelColor: .tangemGrayDark6,
+                            amountText: viewModel.amount
+                        )
 
-                        AmountView(label: "push_previous_fee",
-                                   labelColor: .tangemGrayDark,
-                                   amountText: viewModel.previousFee)
-                            .opacity(0.6)
-                        AmountView(label: "push_additional_fee",
-                                   labelColor: .tangemGrayDark,
-                                   isLoading: viewModel.isFeeLoading,
-                                   amountText: viewModel.additionalFee)
+                        AmountView(
+                            label: Localization.pushPreviousFee,
+                            labelColor: .tangemGrayDark,
+                            amountText: viewModel.previousFee
+                        )
+                        .opacity(0.6)
+                        AmountView(
+                            label: Localization.pushAdditionalFee,
+                            labelColor: .tangemGrayDark,
+                            isLoading: viewModel.isFeeLoading,
+                            amountText: viewModel.additionalFee
+                        )
                         Separator()
 
-                        AmountView(label: "send_total_label",
-                                   labelColor: .tangemGrayDark6,
-                                   labelFont: .system(size: 20, weight: .bold, design: .default),
-                                   amountText: viewModel.sendTotal,
-                                   amountScaleFactor: 0.5,
-                                   amountLineLimit: 1)
+                        AmountView(
+                            label: Localization.sendTotalLabel,
+                            labelColor: .tangemGrayDark6,
+                            labelFont: .system(size: 20, weight: .bold, design: .default),
+                            amountText: viewModel.sendTotal,
+                            amountScaleFactor: 0.5,
+                            amountLineLimit: 1
+                        )
                         HStack {
                             Spacer()
                             Text(viewModel.sendTotalSubtitle)
@@ -144,31 +153,24 @@ struct PushTxView: View {
                     //                    .padding(.bottom, 16)
                     HStack(alignment: .center, spacing: 8.0) {
                         Spacer()
-                        TangemButton(title: "wallet_button_send",
-                                     systemImage: "arrow.right",
-                                     action: viewModel.onSend)
-                            .buttonStyle(TangemButtonStyle(layout: .big,
-                                                           isDisabled: !viewModel.isSendEnabled))
-                            .alert(item: self.$viewModel.sendError) { binder in
-                                if binder.error == nil {
-                                    return binder.alert
-                                }
-
-                                let errorDescription = String(binder.error?.localizedDescription.dropTrailingPeriod ?? "Unknown error")
-
-                                return Alert(title: Text("alert_failed_to_send_transaction_title"),
-                                             message: Text(String(format: "alert_failed_to_send_transaction_message".localized, errorDescription)),
-                                             primaryButton: .default(Text("alert_button_send_feedback"), action: viewModel.openMail),
-                                             secondaryButton: .default(Text("common_no")))
-                            }
+                        MainButton(
+                            title: Localization.walletButtonSend,
+                            icon: .leading(Assets.arrowRightMini),
+                            isDisabled: !viewModel.isSendEnabled,
+                            action: viewModel.onSend
+                        )
+                        .alert(item: $viewModel.sendError) { $0.alert }
                     }
                     .padding(.top, 16.0)
                 }
                 .padding()
-                .frame(minWidth: geometry.size.width,
-                       maxWidth: geometry.size.width,
-                       minHeight: geometry.size.height,
-                       maxHeight: .infinity, alignment: .top)
+                .frame(
+                    minWidth: geometry.size.width,
+                    maxWidth: geometry.size.width,
+                    minHeight: geometry.size.height,
+                    maxHeight: .infinity,
+                    alignment: .top
+                )
             }
         }
     }
@@ -176,11 +178,15 @@ struct PushTxView: View {
 
 struct PushTxView_Previews: PreviewProvider {
     static var previews: some View {
-        PushTxView(viewModel: .init(transaction: .dummyTx(blockchain: .bitcoin(testnet: false),
-                                                          type: .coin,
-                                                          destinationAddress: "tb1qrvkydv7322e7fl9v58eqvn87tx2jtlpqaetz2n"),
-                                    blockchainNetwork: PreviewCard.ethereum.blockchainNetwork!,
-                                    cardViewModel: PreviewCard.ethereum.cardModel,
-                                    coordinator: PushTxCoordinator()))
+        PushTxView(viewModel: .init(
+            transaction: .dummyTx(
+                blockchain: .bitcoin(testnet: false),
+                type: .coin,
+                destinationAddress: "tb1qrvkydv7322e7fl9v58eqvn87tx2jtlpqaetz2n"
+            ),
+            blockchainNetwork: PreviewCard.ethereum.blockchainNetwork!,
+            cardViewModel: PreviewCard.ethereum.cardModel,
+            coordinator: PushTxCoordinator()
+        ))
     }
 }
