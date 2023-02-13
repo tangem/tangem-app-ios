@@ -53,7 +53,7 @@ struct DefaultSelectableRowViewPreview: PreviewProvider {
                 viewModel: DefaultSelectableRowViewModel(
                     title: "Long Tap",
                     subtitle: "This mechanism protects against proximity attacks on a card. It will enforce a delay.",
-                    isSelected: $isSelected
+                    isSelected: { $isSelected }
                 )
             )
         }
