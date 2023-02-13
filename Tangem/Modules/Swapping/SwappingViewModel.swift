@@ -176,7 +176,7 @@ private extension SwappingViewModel {
         transactionModel: ExchangeTransactionDataModel,
         transactionID: String
     ) {
-        let amount = transactionModel.sourceCurrency.convertFromWEI(value: transactionModel.amount)
+        let amount = transactionModel.sourceCurrency.convertFromWEI(value: transactionModel.sourceAmount)
         let source = CurrencyAmount(
             value: amount,
             currency: transactionModel.sourceCurrency
