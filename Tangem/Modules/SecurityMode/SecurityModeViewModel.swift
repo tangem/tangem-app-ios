@@ -96,7 +96,7 @@ class SecurityModeViewModel: ObservableObject {
     }
 }
 
-enum SecurityModeOption: String, CaseIterable, Identifiable, Hashable {
+enum SecurityModeOption: String, CaseIterable, Identifiable, Equatable {
     case longTap
     case passCode
     case accessCode
