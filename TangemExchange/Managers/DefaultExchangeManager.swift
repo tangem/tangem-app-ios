@@ -79,10 +79,6 @@ extension DefaultExchangeManager: ExchangeManager {
         return exchangeItems
     }
 
-    func getReferrerAccount() -> ExchangeReferrerAccount? {
-        return referrer
-    }
-
     func isEnoughAllowance() -> Bool {
         guard exchangeItems.source.isToken, let amount, amount > 0 else {
             return true
@@ -300,12 +296,7 @@ private extension DefaultExchangeManager {
         }
 
         let paymentAmount = exchangeItems.source.convertFromWEI(value: quoteData.fromTokenAmount)
-        var expectedAmount = destination.convertFromWEI(value: quoteData.toTokenAmount)
-        if let referrer = referrer {
-            // We have to add divide to 100 because referrer.fee not a decimal percent
-            let referrerAmount = expectedAmount * (referrer.fee / 100)
-            expectedAmount -= referrerAmount
-        }
+        let expectedAmount = destination.convertFromWEI(value: quoteData.toTokenAmount)
         let hasPendingTransaction = try await hasPendingApprovingTransaction()
         let isEnoughAmountForExchange = exchangeItems.sourceBalance >= paymentAmount
 
@@ -321,16 +312,13 @@ private extension DefaultExchangeManager {
         preview: PreviewSwappingDataModel,
         transaction: ExchangeTransactionDataModel
     ) async throws -> SwappingResultDataModel {
-        guard let amount = amount else {
-            throw ExchangeManagerError.amountNotFound
-        }
-
         let source = exchangeItems.source
         let sourceBalance = exchangeItems.sourceBalance
         let fee = transaction.fee
 
         let isEnoughAmountForFee: Bool
-        var paymentAmount = amount
+        var paymentAmount = transaction.sourceCurrency.convertFromWEI(value: transaction.sourceAmount)
+        let receivedAmount = transaction.destinationCurrency.convertFromWEI(value: transaction.destinationAmount)
         switch exchangeItems.source.currencyType {
         case .coin:
             paymentAmount += fee
@@ -343,7 +331,7 @@ private extension DefaultExchangeManager {
         let isEnoughAmountForExchange = sourceBalance >= paymentAmount
 
         return SwappingResultDataModel(
-            amount: preview.expectedAmount,
+            amount: receivedAmount,
             fee: fee,
             isEnoughAmountForExchange: isEnoughAmountForExchange,
             isEnoughAmountForFee: isEnoughAmountForFee,
@@ -363,7 +351,8 @@ private extension DefaultExchangeManager {
             sourceAddress: exchangeData.sourceAddress,
             destinationAddress: exchangeData.destinationAddress,
             txData: exchangeData.txData,
-            amount: exchangeData.swappingAmount,
+            sourceAmount: exchangeData.sourceCurrencyAmount,
+            destinationAmount: exchangeData.destinationCurrencyAmount,
             value: exchangeData.value,
             gasValue: exchangeData.gas,
             gasPrice: exchangeData.gasPrice
@@ -389,7 +378,8 @@ private extension DefaultExchangeManager {
             sourceAddress: walletAddress,
             destinationAddress: approvedData.tokenAddress,
             txData: approvedData.data,
-            amount: approvedData.value,
+            sourceAmount: approvedData.value,
+            destinationAmount: 0,
             value: approvedData.value,
             gasValue: quoteData.estimatedGas,
             gasPrice: approvedData.gasPrice
