@@ -16,29 +16,38 @@ struct DefaultWarningRow: View {
     }
 
     var body: some View {
-        Button(action: { viewModel.action?() }) {
-            HStack(alignment: .center, spacing: 12) {
-                leftView
-
-                VStack(alignment: .leading, spacing: 4) {
-                    if let title = viewModel.title {
-                        Text(title)
-                            .style(Fonts.Bold.subheadline, color: Colors.Text.primary1)
-                    }
-
-                    Text(viewModel.subtitle)
-                        .style(Fonts.Regular.footnote, color: Colors.Text.secondary)
-                }
-                .frame(maxWidth: .infinity, alignment: .leading)
-
-                rightView
+        if let action = viewModel.action {
+            Button(action: { action() }) {
+                content
             }
-            .padding(.vertical, 16)
-            .background(Colors.Background.primary)
-            .contentShape(Rectangle())
-            .cornerRadius(12)
+            .buttonStyle(PlainButtonStyle())
+        } else {
+            content
         }
-        .buttonStyle(PlainButtonStyle())
+    }
+
+    @ViewBuilder
+    private var content: some View {
+        HStack(alignment: .center, spacing: 12) {
+            leftView
+
+            VStack(alignment: .leading, spacing: 4) {
+                if let title = viewModel.title {
+                    Text(title)
+                        .style(Fonts.Bold.subheadline, color: Colors.Text.primary1)
+                }
+
+                Text(viewModel.subtitle)
+                    .style(Fonts.Regular.footnote, color: Colors.Text.secondary)
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+
+            rightView
+        }
+        .padding(.vertical, 16)
+        .background(Colors.Background.primary)
+        .contentShape(Rectangle())
+        .cornerRadius(12)
     }
 
     @ViewBuilder
