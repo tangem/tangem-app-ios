@@ -110,6 +110,10 @@ extension NoteDemoConfig: UserWalletConfig {
         card.wallets.first?.publicKey
     }
 
+    var productType: Analytics.ProductType {
+        .demoNote
+    }
+
     func getFeatureAvailability(_ feature: UserWalletFeature) -> UserWalletFeature.Availability {
         switch feature {
         case .accessCode:
@@ -158,6 +162,8 @@ extension NoteDemoConfig: UserWalletConfig {
             return .hidden
         case .displayHashesCount:
             return .available
+        case .transactionHistory:
+            return .hidden
         }
     }
 
