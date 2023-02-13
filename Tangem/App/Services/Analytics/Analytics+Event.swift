@@ -10,8 +10,6 @@ import Foundation
 
 extension Analytics {
     enum Event: String {
-        case cardIsScanned = "card_is_scanned"
-        case transactionIsSent = "transaction_is_sent"
         case transactionIsPushed = "transaction_is_pushed"
         case readyToScan = "ready_to_scan"
         case displayRateAppWarning = "rate_app_warning_displayed"
@@ -82,6 +80,7 @@ extension Analytics {
         case noticeRateTheAppButtonTapped = "[Main Screen] Notice - Rate The App Button Tapped"
         case noticeBackupYourWalletTapped = "[Main Screen] Notice - Backup Your Wallet Tapped"
         case noticeScanYourCardTapped = "[Main Screen] Notice - Scan Your Card Tapped"
+        case buttonBuyMainScreen = "[Main Screen] Button - Buy"
         case buttonManageTokens = "[Portfolio] Button - Manage Tokens"
         case tokenIsTapped = "[Portfolio] Token is Tapped"
         case mainRefreshed = "[Portfolio] Refreshed"

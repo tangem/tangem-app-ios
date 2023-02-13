@@ -110,8 +110,6 @@ private extension AppDelegate {
     }
 
     func configureAmplitude() {
-        guard AppEnvironment.current.isProduction else { return }
-
         Amplitude.instance().trackingSessionEvents = true
         Amplitude.instance().initializeApiKey(try! CommonKeysManager().amplitudeApiKey)
     }
