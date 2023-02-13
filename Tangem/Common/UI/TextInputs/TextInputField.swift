@@ -9,7 +9,6 @@
 import SwiftUI
 
 struct TextInputField<SupplementView: View>: View {
-
     let placeholder: String
     let text: Binding<String>
     let keyboardType: UIKeyboardType
@@ -35,15 +34,17 @@ struct TextInputField<SupplementView: View>: View {
                     Text(text.wrappedValue.isEmpty ? " " : placeholder)
                         .font(Font.system(size: 13.0, weight: .medium, design: .default))
                         .foregroundColor(Color.tangemGrayDark)
-                    CustomTextField(text: text,
-                                    isResponder:  Binding.constant(nil),
-                                    actionButtonTapped: Binding.constant(true),
-                                    handleKeyboard: true,
-                                    keyboard: keyboardType,
-                                    clearButtonMode: clearButtonMode,
-                                    textColor: UIColor.tangemGrayDark6,
-                                    font: UIFont.systemFont(ofSize: 16.0, weight: .regular),
-                                    placeholder: placeholder)
+                    CustomTextField(
+                        text: text,
+                        isResponder: Binding.constant(nil),
+                        actionButtonTapped: Binding.constant(true),
+                        handleKeyboard: true,
+                        keyboard: keyboardType,
+                        clearButtonMode: clearButtonMode,
+                        textColor: UIColor.tangemGrayDark6,
+                        font: UIFont.systemFont(ofSize: 16.0, weight: .regular),
+                        placeholder: placeholder
+                    )
                 }
                 Spacer()
                 suplementView
@@ -71,7 +72,7 @@ extension TextInputField where SupplementView == EmptyView {
         self.text = text
         self.keyboardType = keyboardType
         self.clearButtonMode = clearButtonMode
-        self.suplementView = EmptyView()
+        suplementView = EmptyView()
         self.message = message
         self.isErrorMessage = isErrorMessage
     }
@@ -80,10 +81,12 @@ extension TextInputField where SupplementView == EmptyView {
 struct TextInputField_Previews: PreviewProvider {
     @State static var text = ""
     static var previews: some View {
-        TextInputField(placeholder: "Address",
-                       text: $text,
-                       suplementView: {},
-                       message: nil,
-                       isErrorMessage: false)
+        TextInputField(
+            placeholder: "Address",
+            text: $text,
+            suplementView: {},
+            message: nil,
+            isErrorMessage: false
+        )
     }
 }
