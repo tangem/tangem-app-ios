@@ -16,7 +16,7 @@ class TwinsWalletCreationUtil {
 
     static let twinFileName = "TwinPublicKey"
 
-    var twinPairCardId: String? = nil
+    var twinPairCardId: String?
 
     /// Determines is user start twin wallet creation from Twin card with first number
     var isStartedFromFirstNumber: Bool {
@@ -34,8 +34,6 @@ class TwinsWalletCreationUtil {
         }
     }
 
-
-    private let scanMessageKey = "twins_scan_twin_with_number"
     private let twinFileEncoder: TwinCardFileEncoder = TwinCardTlvFileEncoder()
     private var firstTwinCid: String = ""
     // private var secondTwinCid: String = ""
@@ -78,7 +76,7 @@ class TwinsWalletCreationUtil {
         Analytics.log(.buttonCreateWallet)
 
         let task = TwinsCreateWalletTask(firstTwinCardId: nil, fileToWrite: nil)
-        tangemSdkProvider.sdk.startSession(with: task, cardId: firstTwinCid, initialMessage: initialMessage(for: firstTwinCid)) { (result) in
+        tangemSdkProvider.sdk.startSession(with: task, cardId: firstTwinCid, initialMessage: initialMessage(for: firstTwinCid)) { result in
             switch result {
             case .success(let response):
                 self.card.clearTwinPairKey()
@@ -106,7 +104,7 @@ class TwinsWalletCreationUtil {
         //		switch twinFileToWrite(publicKey: firstTwinKey) {
         //		case .success(let file):
         let task = TwinsCreateWalletTask(firstTwinCardId: firstTwinCid, fileToWrite: firstTwinKey)
-        tangemSdkProvider.sdk.startSession(with: task, /* cardId: secondTwinCid, */ initialMessage: Message(header: "Scan card #\(series.pair.number)") /* initialMessage(for: secondTwinCid) */ ) { (result) in
+        tangemSdkProvider.sdk.startSession(with: task, /* cardId: secondTwinCid, */ initialMessage: Message(header: "Scan card #\(series.pair.number)") /* initialMessage(for: secondTwinCid) */ ) { result in
             switch result {
             case .success(let response):
                 self.secondTwinPublicKey = response.createWalletResponse.wallet.publicKey
@@ -120,7 +118,6 @@ class TwinsWalletCreationUtil {
         //		case .failure(let error):
         //			occuredError.send(error)
         //		}
-
     }
 
     private func writeSecondPublicKeyToFirst() {
@@ -133,7 +130,7 @@ class TwinsWalletCreationUtil {
         //		switch twinFileToWrite(publicKey: secondTwinKey) {
         //		case .success(let file):
         let task = TwinsFinalizeWalletCreationTask(fileToWrite: secondTwinKey)
-        tangemSdkProvider.sdk.startSession(with: task, cardId: firstTwinCid, initialMessage: initialMessage(for: firstTwinCid)) { [weak self] (result) in
+        tangemSdkProvider.sdk.startSession(with: task, cardId: firstTwinCid, initialMessage: initialMessage(for: firstTwinCid)) { [weak self] result in
             guard let self = self else { return }
 
             switch result {
@@ -160,13 +157,15 @@ class TwinsWalletCreationUtil {
             let data = try twinFileEncoder.encode(TwinCardFile(publicKey: publicKey, fileTypeName: TwinsWalletCreationUtil.twinFileName))
             return .success(data)
         } catch {
-            print("Failed to encode twin file:", error)
+            AppLog.shared.error(error)
             return .failure(error)
         }
     }
 
     private func initialMessage(for cardId: String) -> Message {
-        Message(header: String(format: scanMessageKey.localized, AppTwinCardIdFormatter.format(cid: cardId, cardNumber: stepCardNumber)))
+        let formatted = AppTwinCardIdFormatter.format(cid: cardId, cardNumber: stepCardNumber)
+        let header = Localization.twinsScanTwinWithNumber(formatted)
+        return Message(header: header)
     }
 }
 

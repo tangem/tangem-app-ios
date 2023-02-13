@@ -14,6 +14,8 @@ struct GroupedScrollView<Content: View>: View {
     private let spacing: CGFloat
     private let content: () -> Content
 
+    private var horizontalPadding: CGFloat = 16
+
     init(
         alignment: HorizontalAlignment = .center,
         spacing: CGFloat = 0,
@@ -27,7 +29,7 @@ struct GroupedScrollView<Content: View>: View {
     var body: some View {
         ScrollView {
             stackContent
-                .padding(.horizontal, 16)
+                .padding(.horizontal, horizontalPadding)
         }
     }
 
@@ -45,8 +47,8 @@ struct GroupedScrollView_Previews: PreviewProvider {
     static var previews: some View {
         GroupedScrollView {
             let viewModels = [
-                DefaultRowViewModel(title: "details_chat".localized, action: {}),
-                DefaultRowViewModel(title: "details_row_title_send_feedback".localized, action: {}),
+                DefaultRowViewModel(title: Localization.detailsChat, action: {}),
+                DefaultRowViewModel(title: Localization.detailsRowTitleSendFeedback, action: {}),
             ]
 
             GroupedSection(viewModels) {

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Scheme
-   LastUpgradeVersion = "1310"
+   LastUpgradeVersion = "1420"
    version = "1.3">
    <BuildAction
       parallelizeBuildables = "YES"
@@ -45,6 +45,17 @@
                BlueprintIdentifier = "5D3F77E224BF56DC00E8695B"
                BuildableName = "TangemUITests.xctest"
                BlueprintName = "TangemUITests"
+               ReferencedContainer = "container:TangemApp.xcodeproj">
+            </BuildableReference>
+         </TestableReference>
+         <TestableReference
+            skipped = "NO"
+            parallelizable = "YES">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "EF46619A2923AFC400346B6C"
+               BuildableName = "TangemExchangeTests.xctest"
+               BlueprintName = "TangemExchangeTests"
                ReferencedContainer = "container:TangemApp.xcodeproj">
             </BuildableReference>
          </TestableReference>

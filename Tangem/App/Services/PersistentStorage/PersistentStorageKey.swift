@@ -11,6 +11,7 @@ import Foundation
 enum PersistentStorageKey {
     case cards
     case wallets(cid: String)
+    case walletConnectSessions(userWalletId: String)
 
     var path: String {
         switch self {
@@ -18,6 +19,8 @@ enum PersistentStorageKey {
             return "scanned_cards"
         case .wallets(let cid):
             return "wallets_\(cid)"
+        case .walletConnectSessions(let userWalletId):
+            return "wc_sessions_\(userWalletId)"
         }
     }
 }

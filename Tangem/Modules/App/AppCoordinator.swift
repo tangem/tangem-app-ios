@@ -10,25 +10,26 @@ import Foundation
 import UIKit
 import Combine
 
-class AppCoordinator: NSObject, CoordinatorObject {
+class AppCoordinator: CoordinatorObject {
     var dismissAction: () -> Void = {}
     var popToRootAction: (PopToRootOptions) -> Void = { _ in }
 
     // MARK: - Injected
-    @Injected(\.walletConnectServiceProvider) private var walletConnectServiceProvider: WalletConnectServiceProviding
+
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
 
     // MARK: - Child coordinators
+
     @Published var welcomeCoordinator: WelcomeCoordinator?
     @Published var uncompletedBackupCoordinator: UncompletedBackupCoordinator?
     @Published var authCoordinator: AuthCoordinator?
 
     // MARK: - Private
+
     private let servicesManager: ServicesManager = .init()
     private var bag: Set<AnyCancellable> = []
 
-    override init() {
-        super.init()
+    init() {
         servicesManager.initialize()
         bind()
     }
@@ -44,11 +45,6 @@ class AppCoordinator: NSObject, CoordinatorObject {
             setupAuth(with: options)
         case .uncompletedBackup:
             setupUncompletedBackup()
-        }
-
-        if let options = options.connectionOptions, startupOption != .uncompletedBackup {
-            handle(contexts: options.urlContexts)
-            handle(activities: options.userActivities)
         }
     }
 
@@ -67,7 +63,7 @@ class AppCoordinator: NSObject, CoordinatorObject {
         let popToRootAction: ParamsAction<PopToRootOptions> = { [weak self] options in
             self?.closeAllSheetsIfNeeded(animated: true) {
                 self?.welcomeCoordinator = nil
-                self?.start(with: .init(connectionOptions: nil, newScan: options.newScan))
+                self?.start(with: .init(newScan: options.newScan))
             }
         }
 
@@ -75,7 +71,7 @@ class AppCoordinator: NSObject, CoordinatorObject {
 
         let coordinator = WelcomeCoordinator(dismissAction: dismissAction, popToRootAction: popToRootAction)
         coordinator.start(with: .init(shouldScan: shouldScan))
-        self.welcomeCoordinator = coordinator
+        welcomeCoordinator = coordinator
     }
 
     private func setupAuth(with options: AppCoordinator.Options) {
@@ -87,7 +83,7 @@ class AppCoordinator: NSObject, CoordinatorObject {
         let popToRootAction: ParamsAction<PopToRootOptions> = { [weak self] options in
             self?.closeAllSheetsIfNeeded(animated: true) {
                 self?.authCoordinator = nil
-                self?.start(with: .init(connectionOptions: nil, newScan: options.newScan))
+                self?.start(with: .init(newScan: options.newScan))
             }
         }
 
@@ -95,7 +91,7 @@ class AppCoordinator: NSObject, CoordinatorObject {
 
         let coordinator = AuthCoordinator(dismissAction: dismissAction, popToRootAction: popToRootAction)
         coordinator.start(with: .init(unlockOnStart: unlockOnStart))
-        self.authCoordinator = coordinator
+        authCoordinator = coordinator
     }
 
     private func setupUncompletedBackup() {
@@ -106,7 +102,7 @@ class AppCoordinator: NSObject, CoordinatorObject {
 
         let coordinator = UncompletedBackupCoordinator(dismissAction: dismissAction)
         coordinator.start()
-        self.uncompletedBackupCoordinator = coordinator
+        uncompletedBackupCoordinator = coordinator
     }
 
     private func bind() {
@@ -127,13 +123,13 @@ class AppCoordinator: NSObject, CoordinatorObject {
         switch reason {
         case .loggedOut:
             animated = false
-            newScan = true
+            newScan = AppSettings.shared.saveUserWallets
         case .nothingToDisplay:
             animated = true
             newScan = false
         }
 
-        let options = AppCoordinator.Options(connectionOptions: nil, newScan: newScan)
+        let options = AppCoordinator.Options(newScan: newScan)
 
         closeAllSheetsIfNeeded(animated: animated) {
             if animated {
@@ -146,7 +142,7 @@ class AppCoordinator: NSObject, CoordinatorObject {
         }
     }
 
-    private func closeAllSheetsIfNeeded(animated: Bool, completion: @escaping () -> Void = { }) {
+    private func closeAllSheetsIfNeeded(animated: Bool, completion: @escaping () -> Void = {}) {
         guard let topViewController = UIApplication.topViewController,
               topViewController.presentingViewController != nil else {
             DispatchQueue.main.async {
@@ -163,71 +159,8 @@ class AppCoordinator: NSObject, CoordinatorObject {
 
 extension AppCoordinator {
     struct Options {
-        let connectionOptions: UIScene.ConnectionOptions?
         let newScan: Bool?
 
-        static let `default`: Options = .init(connectionOptions: nil, newScan: false)
-    }
-}
-
-// MARK: - UIWindowSceneDelegate
-extension AppCoordinator: UIWindowSceneDelegate {
-    func scene(_ scene: UIScene, continue userActivity: NSUserActivity) {
-        handle(activities: [userActivity])
-    }
-
-    func scene(_ scene: UIScene, openURLContexts URLContexts: Set<UIOpenURLContext>) {
-        handle(contexts: URLContexts)
-    }
-
-    private func handle(activities: Set<NSUserActivity>) {
-        activities.forEach {
-            switch $0.activityType {
-            case NSUserActivityTypeBrowsingWeb:
-                guard let url = $0.webpageURL else { return }
-
-                process(url)
-            default: return
-            }
-        }
-    }
-
-    private func handle(contexts: Set<UIOpenURLContext>) {
-        if let url = contexts.first?.url {
-            process(url)
-        }
-    }
-
-    private func process(_ url: URL) {
-        if let wcService = walletConnectServiceProvider.service {
-            wcService.handle(url: url)
-            return
-        }
-
-        guard url.lastPathComponent == "wc" else {
-            return
-        }
-
-        if case .welcome = StartupProcessor().getStartupOption() {
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5, execute: {
-                UIApplication.modalFromTop(
-                    AlertBuilder.makeOkGotItAlertController(message: "wallet_connect_need_to_scan_card".localized)
-                )
-            })
-        }
-    }
-}
-
-// MARK: - URLHandler
-extension AppCoordinator: URLHandler {
-    @discardableResult func handle(url: String) -> Bool {
-        guard url.starts(with: "https://app.tangem.com")
-            || url.starts(with: Constants.tangemDomain + "/ndef") else { return false }
-
-        return true
-    }
-
-    @discardableResult func handle(url: URL) -> Bool {
-        handle(url: url.absoluteString)
+        static let `default`: Options = .init(newScan: false)
     }
 }

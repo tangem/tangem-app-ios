@@ -28,10 +28,12 @@ struct LegacyConfig {
     private var defaultToken: BlockchainSdk.Token? {
         guard let token = walletData?.token else { return nil }
 
-        return .init(name: token.name,
-                     symbol: token.symbol,
-                     contractAddress: token.contractAddress,
-                     decimalCount: token.decimals)
+        return .init(
+            name: token.name,
+            symbol: token.symbol,
+            contractAddress: token.contractAddress,
+            decimalCount: token.decimals
+        )
     }
 
     init(card: CardDTO, walletData: WalletData?) {
@@ -58,15 +60,23 @@ extension LegacyConfig: UserWalletConfig {
     }
 
     var onboardingSteps: OnboardingSteps {
+        var steps = [SingleCardOnboardingStep]()
+
+        if !AppSettings.shared.termsOfServicesAccepted.contains(tou.id) {
+            steps.append(.disclaimer)
+        }
+
         if card.wallets.isEmpty {
-            return .singleWallet([.createWallet] + userWalletSavingSteps + [.success])
+            steps.append(contentsOf: [.createWallet] + userWalletSavingSteps + [.success])
+        } else {
+            if !AppSettings.shared.cardsStartedActivation.contains(card.cardId) {
+                steps.append(contentsOf: userWalletSavingSteps)
+            } else {
+                steps.append(contentsOf: userWalletSavingSteps + [.success])
+            }
         }
 
-        if !AppSettings.shared.cardsStartedActivation.contains(card.cardId) {
-            return .singleWallet([])
-        }
-
-        return .singleWallet(userWalletSavingSteps + [.success])
+        return .singleWallet(steps)
     }
 
     var backupSteps: OnboardingSteps? {
@@ -135,6 +145,10 @@ extension LegacyConfig: UserWalletConfig {
         card.wallets.first?.publicKey
     }
 
+    var productType: Analytics.ProductType {
+        .other
+    }
+
     func getFeatureAvailability(_ feature: UserWalletFeature) -> UserWalletFeature.Availability {
         switch feature {
         case .accessCode:
@@ -171,6 +185,10 @@ extension LegacyConfig: UserWalletConfig {
                 return .hidden
             }
         case .resetToFactory:
+            if card.wallets.contains(where: { $0.settings.isPermanent }) {
+                return .hidden
+            }
+
             return .available
         case .receive:
             return .available
@@ -184,12 +202,14 @@ extension LegacyConfig: UserWalletConfig {
             return .available
         case .topup:
             return .available
-        case .tokenSynchronization:
-            if isMultiwallet {
-                return .available
-            } else {
-                return .hidden
-            }
+        case .tokenSynchronization, .swapping:
+            return isMultiwallet ? .available : .hidden
+        case .referralProgram:
+            return .hidden
+        case .displayHashesCount:
+            return .available
+        case .transactionHistory:
+            return .hidden
         }
     }
 
@@ -201,9 +221,11 @@ extension LegacyConfig: UserWalletConfig {
                 partialResult[cardWallet.curve] = cardWallet.publicKey
             }
 
-            return try factory.makeMultipleWallet(walletPublicKeys: walletPublicKeys,
-                                                  entry: token,
-                                                  derivationStyle: card.derivationStyle)
+            return try factory.makeMultipleWallet(
+                walletPublicKeys: walletPublicKeys,
+                entry: token,
+                derivationStyle: card.derivationStyle
+            )
         } else {
             let blockchain = token.blockchainNetwork.blockchain
 
@@ -211,10 +233,12 @@ extension LegacyConfig: UserWalletConfig {
                 throw CommonError.noData
             }
 
-            return try factory.makeSingleWallet(walletPublicKey: walletPublicKey,
-                                                blockchain: blockchain,
-                                                token: token.tokens.first,
-                                                derivationStyle: card.derivationStyle)
+            return try factory.makeSingleWallet(
+                walletPublicKey: walletPublicKey,
+                blockchain: blockchain,
+                token: token.tokens.first,
+                derivationStyle: card.derivationStyle
+            )
         }
     }
 }

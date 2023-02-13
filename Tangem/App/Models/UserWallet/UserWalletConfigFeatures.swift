@@ -32,10 +32,16 @@ enum UserWalletFeature: Int, CaseIterable { // [REDACTED_TODO_COMMENT]
     /// Count signed hashes to display warning for user if card already sign hashes in the past.
     case signedHashesCounter
     case onlineImage
+    /// Is wallet allowed to participate in referral program
+    case referralProgram
 
     /// Synchronize tokens between devices using`userWalletId`
     /// Only for issued cards with multiple wallets
     case tokenSynchronization
+
+    case swapping
+    case displayHashesCount
+    case transactionHistory
 }
 
 extension UserWalletFeature {
@@ -45,7 +51,7 @@ extension UserWalletFeature {
         case disabled(localizedReason: String? = nil)
 
         var disabledLocalizedReason: String? {
-            if case let .disabled(reason) = self, let reason = reason {
+            if case .disabled(let reason) = self, let reason = reason {
                 return reason
             }
 
