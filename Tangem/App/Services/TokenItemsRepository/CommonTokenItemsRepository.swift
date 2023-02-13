@@ -22,7 +22,7 @@ class CommonTokenItemsRepository {
     }
 
     deinit {
-        print("TokenItemsRepository deinit")
+        AppLog.shared.debug("TokenItemsRepository deinit")
     }
 }
 
@@ -150,7 +150,7 @@ fileprivate extension Array where Element == StorageEntry {
         }
 
         // We already have the blockchainNetwork in storage
-        var appended: Bool = false
+        var appended = false
 
         // Add new tokens in the existing StorageEntry
         entry.tokens.forEach { token in
@@ -229,12 +229,14 @@ fileprivate enum LegacyStorageEntry: Codable {
         }
 
         if let tokenDto = try? container.decode(LegacyCloudToken.self) {
-            let token = LegacyToken(name: tokenDto.name,
-                                    symbol: tokenDto.symbol,
-                                    contractAddress: tokenDto.contractAddress,
-                                    decimalCount: tokenDto.decimalCount,
-                                    customIconUrl: tokenDto.customIconUrl,
-                                    blockchain: .ethereum(testnet: false))
+            let token = LegacyToken(
+                name: tokenDto.name,
+                symbol: tokenDto.symbol,
+                contractAddress: tokenDto.contractAddress,
+                decimalCount: tokenDto.decimalCount,
+                customIconUrl: tokenDto.customIconUrl,
+                blockchain: .ethereum(testnet: false)
+            )
             self = .token(token)
             return
         }
@@ -252,11 +254,13 @@ fileprivate struct LegacyToken: Codable {
     let blockchain: Blockchain
 
     var newToken: Token {
-        .init(name: name,
-              symbol: symbol,
-              contractAddress: contractAddress,
-              decimalCount: decimalCount,
-              customIconUrl: customIconUrl)
+        .init(
+            name: name,
+            symbol: symbol,
+            contractAddress: contractAddress,
+            decimalCount: decimalCount,
+            customIconUrl: customIconUrl
+        )
     }
 }
 
