@@ -14,8 +14,7 @@ class TotalSumBalanceViewModel: ObservableObject {
     // MARK: - ViewState
 
     @Published var isLoading: Bool = true
-    @Published var totalFiatValueString: NSAttributedString = NSAttributedString(string: "")
-    @Published var hasError: Bool = false
+    @Published var totalFiatValueString: NSAttributedString = .init(string: "")
 
     /// If we have a note or any single coin wallet that we should show this balance
     @Published var singleWalletBalance: String?
@@ -44,7 +43,7 @@ class TotalSumBalanceViewModel: ObservableObject {
     }
 
     func updateForSingleCoinCard() {
-        guard let cardAmountType = self.cardAmountType else { return }
+        guard let cardAmountType = cardAmountType else { return }
         let walletModels = userWalletModel.getWalletModels()
 
         singleWalletBalance = walletModels.first?.allTokenItemViewModels().first(where: { $0.amountType == cardAmountType })?.balance
@@ -55,28 +54,23 @@ class TotalSumBalanceViewModel: ObservableObject {
     }
 
     private func bind() {
-        // Total balance main subscription
-        totalBalanceManager.totalBalancePublisher()
-            .compactMap { $0.value }
-            .map { [unowned self] balance in
-                checkPositiveBalance()
-                updateForSingleCoinCard()
-                return addAttributeForBalance(balance.balance, withCurrencyCode: balance.currencyCode)
-            }
-            .weakAssign(to: \.totalFiatValueString, on: self)
-            .store(in: &bag)
-
-        let hasErrorInUpdate = totalBalanceManager.totalBalancePublisher()
-            .compactMap { $0.value?.hasError }
-
         let hasEntriesWithoutDerivation = userWalletModel
             .subscribeToEntriesWithoutDerivation()
             .map { !$0.isEmpty }
 
-        Publishers.CombineLatest(hasErrorInUpdate, hasEntriesWithoutDerivation)
-            .map { $0 || $1 }
-            .removeDuplicates()
-            .weakAssign(to: \.hasError, on: self)
+        Publishers.CombineLatest(totalBalanceManager.totalBalancePublisher(), hasEntriesWithoutDerivation)
+            .map { [unowned self] balance, hasEntriesWithoutDerivation -> NSAttributedString in
+                guard !hasEntriesWithoutDerivation,
+                      let value = balance.value,
+                      !value.hasError else {
+                    return dashAttributedString()
+                }
+
+                checkPositiveBalance()
+                updateForSingleCoinCard()
+                return addAttributeForBalance(value.balance, withCurrencyCode: value.currencyCode)
+            }
+            .weakAssign(to: \.totalFiatValueString, on: self)
             .store(in: &bag)
 
         // Skeleton subscription
@@ -84,6 +78,10 @@ class TotalSumBalanceViewModel: ObservableObject {
             .map { $0.isLoading }
             .weakAssignAnimated(to: \.isLoading, on: self)
             .store(in: &bag)
+    }
+
+    private func dashAttributedString() -> NSAttributedString {
+        NSAttributedString(string: "–", attributes: [.font: UIFont.systemFont(ofSize: 28, weight: .semibold)])
     }
 
     private func addAttributeForBalance(_ balance: Decimal, withCurrencyCode: String) -> NSAttributedString {

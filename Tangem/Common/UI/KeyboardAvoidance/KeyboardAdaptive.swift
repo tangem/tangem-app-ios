@@ -18,7 +18,7 @@ struct KeyboardAdaptive: ViewModifier {
 
     func body(content: Content) -> some View {
         content
-            .padding(.bottom, self.bottomPadding)
+            .padding(.bottom, bottomPadding)
             .onReceive(Publishers.keyboardInfo.debounce(for: 0.1, scheduler: RunLoop.main)) { keyboardHeight, animationDuration in
                 // let keyboardTop = geometry.frame(in: .global).height - keyboardHeight
                 // let focusedTextInputBottom = UIResponder.currentFirstResponder?.globalFrame?.maxY ?? 0
