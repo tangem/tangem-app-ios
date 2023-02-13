@@ -9,15 +9,14 @@
 import SwiftUI
 
 struct OnboardingCardView: View {
-
     enum CardType {
         case dark
         case light
 
-        var imageName: String {
+        var imageType: ImageType {
             switch self {
-            case .dark: return "dark_card"
-            case .light: return "light_card"
+            case .dark: return Assets.Onboarding.darkCard
+            case .light: return Assets.Onboarding.lightCard
             }
         }
 
@@ -42,7 +41,7 @@ struct OnboardingCardView: View {
                     .frame(size: geom.size)
                     .opacity(cardScanned ? 1.0 : 0.0)
             } else {
-                Image(placeholderCardType.imageName)
+                placeholderCardType.imageType.image
                     .resizable()
                     .aspectRatio(contentMode: .fit)
                     .frame(size: geom.size)
@@ -51,21 +50,21 @@ struct OnboardingCardView: View {
             }
         }
     }
-
 }
 
 struct OnboardingCardView_Previews: PreviewProvider {
-
     static var previews: some View {
         VStack {
-            OnboardingCardView(placeholderCardType: .dark,
-                               cardImage: nil,
-                               cardScanned: false)
-            OnboardingCardView(placeholderCardType: .light,
-                               cardImage: nil,
-                               cardScanned: false)
-
+            OnboardingCardView(
+                placeholderCardType: .dark,
+                cardImage: nil,
+                cardScanned: false
+            )
+            OnboardingCardView(
+                placeholderCardType: .light,
+                cardImage: nil,
+                cardScanned: false
+            )
         }
     }
-
 }
