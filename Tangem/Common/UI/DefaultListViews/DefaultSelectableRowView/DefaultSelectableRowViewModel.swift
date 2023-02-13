@@ -13,7 +13,7 @@ struct DefaultSelectableRowViewModel {
     let subtitle: String?
     let isSelected: () -> Binding<Bool>
 
-    init(title: String, subtitle: String?, isSelected: @autoclosure @escaping () -> Binding<Bool>) {
+    init(title: String, subtitle: String?, isSelected: @escaping () -> Binding<Bool>) {
         self.title = title
         self.subtitle = subtitle
         self.isSelected = isSelected
