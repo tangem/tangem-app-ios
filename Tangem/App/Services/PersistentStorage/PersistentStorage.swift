@@ -9,66 +9,18 @@
 import Foundation
 
 class PersistentStorage {
-    private let documentsFolderName = "Documents"
     private let documentType = "json"
 
-    private var fileManager: FileManager {
-        get { FileManager.default }
-    }
+    private lazy var encryptionUtility = FileEncryptionUtility()
 
-    private var cloudContainerUrl: URL? {
-        fileManager.url(forUbiquityContainerIdentifier: nil)?.appendingPathComponent(documentsFolderName)
-    }
+    private var fileManager: FileManager { FileManager.default }
 
     private var containerUrl: URL {
         fileManager.urls(for: .documentDirectory, in: .userDomainMask)[0]
     }
 
-    private lazy var encryptionUtility: FileEncryptionUtility = .init()
-
-    init() {
-        transferFiles()
-        clean()
-    }
-
     deinit {
-        print("PersistentStorage deinit")
-    }
-
-    private func transferFiles() {
-        guard let cloudContainerUrl = self.cloudContainerUrl else {
-            return
-        }
-
-        do {
-            let contents = try fileManager.contentsOfDirectory(atPath: cloudContainerUrl.path)
-            guard !contents.isEmpty else {
-                return
-            }
-
-            contents.forEach {
-                let cloudPath = cloudContainerUrl.appendingPathComponent($0)
-
-                guard fileManager.fileExists(atPath: cloudPath.path) else { return }
-
-                do {
-                    var documentPath = containerUrl.appendingPathComponent($0)
-                    let data = try Data(contentsOf: cloudPath)
-                    try encryptAndWriteToDocuments(data, at: &documentPath)
-                    try fileManager.removeItem(at: cloudPath)
-                } catch {
-                    print("Error for file at path: \(cloudPath). Error description: \(error)")
-                }
-            }
-        } catch {
-            print(error)
-        }
-    }
-
-    private func clean() {
-        let key = PersistentStorageKey.cards
-        let documentPath = self.documentPath(for: key.path)
-        try? fileManager.removeItem(atPath: documentPath.path)
+        AppLog.shared.debug("PersistentStorage deinit")
     }
 
     private func documentPath(for key: String) -> URL {
@@ -87,9 +39,8 @@ class PersistentStorage {
         if !fileManager.fileExists(atPath: containerUrl.path, isDirectory: nil) {
             do {
                 try fileManager.createDirectory(at: containerUrl, withIntermediateDirectories: true, attributes: nil)
-            }
-            catch {
-                print(error.localizedDescription)
+            } catch {
+                AppLog.shared.error(error)
             }
         }
     }
@@ -97,7 +48,7 @@ class PersistentStorage {
 
 extension PersistentStorage: PersistentStorageProtocol {
     func value<T: Decodable>(for key: PersistentStorageKey) throws -> T? {
-        let documentPath = self.documentPath(for: key.path)
+        let documentPath = documentPath(for: key.path)
         if fileManager.fileExists(atPath: documentPath.path) {
             let data = try Data(contentsOf: documentPath)
             let decryptedData = try encryptionUtility.decryptData(data)
@@ -108,7 +59,7 @@ extension PersistentStorage: PersistentStorageProtocol {
     }
 
     func store<T: Encodable>(value: T, for key: PersistentStorageKey) throws {
-        var documentPath = self.documentPath(for: key.path)
+        var documentPath = documentPath(for: key.path)
         createDirectory()
         let data = try JSONEncoder().encode(value)
         try encryptAndWriteToDocuments(data, at: &documentPath)

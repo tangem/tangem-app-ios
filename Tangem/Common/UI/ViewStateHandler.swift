@@ -67,9 +67,11 @@ struct WillDisappearModifier: ViewModifier {
 
     func body(content: Content) -> some View {
         content
-            .background(ViewStateHandler(onWillAppear: nil,
-                                         onDidAppear: nil,
-                                         onWillDisappear: callback))
+            .background(ViewStateHandler(
+                onWillAppear: nil,
+                onDidAppear: nil,
+                onWillDisappear: callback
+            ))
     }
 }
 
@@ -78,9 +80,11 @@ struct WillAppearModifier: ViewModifier {
 
     func body(content: Content) -> some View {
         content
-            .background(ViewStateHandler(onWillAppear: callback,
-                                         onDidAppear: nil,
-                                         onWillDisappear: nil))
+            .background(ViewStateHandler(
+                onWillAppear: callback,
+                onDidAppear: nil,
+                onWillDisappear: nil
+            ))
     }
 }
 
@@ -89,23 +93,24 @@ struct DidAppearModifier: ViewModifier {
 
     func body(content: Content) -> some View {
         content
-            .background(ViewStateHandler(onWillAppear: nil,
-                                         onDidAppear: callback,
-                                         onWillDisappear: nil))
+            .background(ViewStateHandler(
+                onWillAppear: nil,
+                onDidAppear: callback,
+                onWillDisappear: nil
+            ))
     }
 }
 
-
 extension View {
     func onWillDisappear(_ perform: @escaping () -> Void) -> some View {
-        self.modifier(WillDisappearModifier(callback: perform))
+        modifier(WillDisappearModifier(callback: perform))
     }
 
     func onWillAppear(_ perform: @escaping () -> Void) -> some View {
-        self.modifier(WillAppearModifier(callback: perform))
+        modifier(WillAppearModifier(callback: perform))
     }
 
     func onDidAppear(_ perform: @escaping () -> Void) -> some View {
-        self.modifier(DidAppearModifier(callback: perform))
+        modifier(DidAppearModifier(callback: perform))
     }
 }

@@ -20,20 +20,16 @@ struct UserWalletStorageAgreementView: View {
             Spacer()
 
             VStack(spacing: 0) {
-                BiometryLogoImage.image
+                BiometryLogoImage.image.image
 
                 FlexibleSpacer(maxHeight: 28)
 
-                Text("save_user_wallet_agreement_header".localized(BiometricAuthorizationUtils.biometryType.name))
+                Text(Localization.saveUserWalletAgreementHeader(BiometricAuthorizationUtils.biometryType.name))
                     .style(Fonts.Bold.title1, color: Colors.Text.primary1)
                     .multilineTextAlignment(.center)
                     .fixedSize(horizontal: false, vertical: true)
 
                 FlexibleSpacer(maxHeight: 28)
-
-                if viewModel.isStandalone {
-                    newFeatureBadge
-                }
             }
 
             Spacer()
@@ -41,43 +37,36 @@ struct UserWalletStorageAgreementView: View {
             VStack(spacing: 0) {
                 FeatureDescriptionView(
                     icon: BiometryLogoImage.image,
-                    title: "save_user_wallet_agreement_access_title".localized,
-                    description: "save_user_wallet_agreement_access_description".localized
+                    title: Localization.saveUserWalletAgreementAccessTitle,
+                    description: Localization.saveUserWalletAgreementAccessDescription
                 )
 
                 FlexibleSpacer(maxHeight: 28)
 
                 FeatureDescriptionView(
                     icon: Assets.lock,
-                    title: "save_user_wallet_agreement_code_title".localized,
-                    description: "save_user_wallet_agreement_code_description".localized(BiometricAuthorizationUtils.biometryType.name)
+                    title: Localization.saveUserWalletAgreementCodeTitle,
+                    description: Localization.saveUserWalletAgreementCodeDescription(BiometricAuthorizationUtils.biometryType.name)
                 )
             }
 
             Spacer()
 
             VStack(spacing: 10) {
-                TangemButton(title: BiometricAuthorizationUtils.allowButtonLocalizationKey, action: viewModel.accept)
-                    .buttonStyle(TangemButtonStyle(colorStyle: .black, layout: .flexibleWidth))
+                MainButton(title: BiometricAuthorizationUtils.allowButtonTitle, action: viewModel.accept)
 
-                TangemButton(title: "save_user_wallet_agreement_dont_allow", action: viewModel.decline)
-                    .buttonStyle(TangemButtonStyle(colorStyle: .grayAlt3, layout: .flexibleWidth))
+                MainButton(
+                    title: Localization.saveUserWalletAgreementDontAllow,
+                    style: .secondary,
+                    action: viewModel.decline
+                )
 
-                Text("save_user_wallet_agreement_notice".localized)
+                Text(Localization.saveUserWalletAgreementNotice)
                     .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
                     .multilineTextAlignment(.center)
             }
         }
         .padding()
-    }
-
-    private var newFeatureBadge: some View {
-        Text("save_user_wallet_agreement_new_feature".localized)
-            .style(Fonts.Bold.caption1, color: Colors.Text.accent)
-            .padding(.vertical, 4)
-            .padding(.horizontal, 10)
-            .background(Colors.Text.accent.opacity(0.12))
-            .cornerRadius(8)
     }
 }
 
@@ -92,7 +81,7 @@ fileprivate extension UserWalletStorageAgreementView {
     }
 
     struct FeatureDescriptionView: View {
-        let icon: Image
+        let icon: ImageType
         let title: String
         let description: String
 
@@ -104,7 +93,7 @@ fileprivate extension UserWalletStorageAgreementView {
                     .frame(width: iconSize, height: iconSize)
                     .cornerRadius(iconSize / 2)
                     .overlay(
-                        icon
+                        icon.image
                             .resizable()
                             .renderingMode(.template)
                             .foregroundColor(Colors.Text.primary1)

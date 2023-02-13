@@ -40,13 +40,12 @@ struct CardView: View {
                     .background(Color.gray)
                     .cornerRadius(14)
                     .offset(x: 24)
-
             }
         }
     }
 
     private var verticalPadding: CGFloat {
-        cardSetLabel == nil ? 6.0 : 16.0
+        cardSetLabel == nil ? 0.0 : 16.0
     }
 }
 
