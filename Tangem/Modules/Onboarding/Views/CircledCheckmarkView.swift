@@ -9,7 +9,6 @@
 import SwiftUI
 
 struct CircledCheckmarkView: View {
-
     var borderColor: Color = .white
     var foregroundColor: Color = .tangemGreen
     var filled: Bool
@@ -40,7 +39,6 @@ struct Checkmark: View {
             .trim(from: 0, to: filled ? 1.0 : 0.0)
             .stroke(Color.white, lineWidth: lineWidth)
         }
-
     }
 }
 
@@ -51,6 +49,5 @@ struct CircledCheckmarkView_Previews: PreviewProvider {
             CircledCheckmarkView(filled: true)
                 .frame(size: CGSize(width: 60, height: 60))
         }
-
     }
 }

@@ -12,6 +12,9 @@ struct TwinsOnboardingView: View {
     @ObservedObject var viewModel: TwinsOnboardingViewModel
 
     private let screenSize: CGSize = UIScreen.main.bounds.size
+    private let progressBarHeight: CGFloat = 5
+    private let progressBarPadding: CGFloat = 10
+    private let disclaimerTopPadding: CGFloat = 8
 
     var isNavbarVisible: Bool {
         viewModel.isNavBarVisible
@@ -19,10 +22,6 @@ struct TwinsOnboardingView: View {
 
     var isProgressBarVisible: Bool {
         if case .intro = currentStep {
-            return false
-        }
-
-        if case .welcome = currentStep {
             return false
         }
 
@@ -45,12 +44,24 @@ struct TwinsOnboardingView: View {
         }
     }
 
+    @ViewBuilder
+    var disclaimerContent: some View {
+        if let disclaimerModel = viewModel.disclaimerModel {
+            DisclaimerView(viewModel: disclaimerModel)
+                .offset(y: progressBarHeight + progressBarPadding + disclaimerTopPadding)
+                .offset(y: viewModel.isNavBarVisible ? viewModel.navbarSize.height : 0)
+        }
+    }
+
     var body: some View {
         ZStack {
             ConfettiView(shouldFireConfetti: $viewModel.shouldFireConfetti)
                 .allowsHitTesting(false)
+                .disabled(true) // Resolve iOS13 gesture conflict with the webView
                 .frame(maxWidth: screenSize.width)
                 .zIndex(110)
+
+            disclaimerContent
 
             VStack(spacing: 0) {
                 GeometryReader { geom in
@@ -59,27 +70,33 @@ struct TwinsOnboardingView: View {
 
                         // Navbar is added to ZStack instead of VStack because of wrong animation when container changed
                         // and cards jumps instead of smooth transition
-                        NavigationBar(title: "twins_onboarding_title",
-                                      settings: .init(titleFont: .system(size: 17, weight: .semibold), backgroundColor: .clear),
-                                      leftItems: {
-                                          BackButton(height: viewModel.navbarSize.height,
-                                                     isVisible: viewModel.isBackButtonVisible,
-                                                     isEnabled: viewModel.isBackButtonEnabled) {
-                                              viewModel.backButtonAction()
-                                          }
-                                      },
-                                      rightItems: {
-                                          ChatButton(height: viewModel.navbarSize.height,
-                                                     isVisible: true,
-                                                     isEnabled: true) {
-                                              viewModel.openSupportChat()
-                                          }
-                                      })
-                                      .offset(x: 0, y: -geom.size.height / 2 + (isNavbarVisible ? viewModel.navbarSize.height / 2 : 0))
-                                      .opacity(isNavbarVisible ? 1.0 : 0.0)
+                        NavigationBar(
+                            title: viewModel.navbarTitle,
+                            settings: .init(titleFont: .system(size: 17, weight: .semibold), backgroundColor: .clear),
+                            leftItems: {
+                                BackButton(
+                                    height: viewModel.navbarSize.height,
+                                    isVisible: viewModel.isBackButtonVisible,
+                                    isEnabled: viewModel.isBackButtonEnabled
+                                ) {
+                                    viewModel.backButtonAction()
+                                }
+                            },
+                            rightItems: {
+                                ChatButton(
+                                    height: viewModel.navbarSize.height,
+                                    isVisible: true,
+                                    isEnabled: true
+                                ) {
+                                    viewModel.openSupportChat()
+                                }
+                            }
+                        )
+                        .offset(x: 0, y: -geom.size.height / 2 + (isNavbarVisible ? viewModel.navbarSize.height / 2 : 0))
+                        .opacity(isNavbarVisible ? 1.0 : 0.0)
 
-                        ProgressBar(height: 5, currentProgress: viewModel.currentProgress)
-                            .offset(x: 0, y: -size.height / 2 + viewModel.navbarSize.height + 10)
+                        ProgressBar(height: progressBarHeight, currentProgress: viewModel.currentProgress)
+                            .offset(x: 0, y: -size.height / 2 + viewModel.navbarSize.height + progressBarPadding)
                             .opacity(isProgressBarVisible ? 1.0 : 0.0)
                             .padding(.horizontal, 16)
 
@@ -101,23 +118,29 @@ struct TwinsOnboardingView: View {
                                 refreshButtonOpacity: currentStep.backgroundOpacity
                             )
 
-                            OnboardingCircleButton(refreshAction: {
-                                                       viewModel.updateCardBalance()
-                                                   },
-                                                   state: currentStep.successCircleState,
-                                                   size: .huge)
-                                .offset(y: 8)
-                                .opacity(currentStep.successCircleOpacity)
+                            OnboardingCircleButton(
+                                refreshAction: {
+                                    viewModel.updateCardBalance()
+                                },
+                                state: currentStep.successCircleState,
+                                size: .huge
+                            )
+                            .offset(y: 8)
+                            .opacity(currentStep.successCircleOpacity)
 
                             AnimatedView(settings: viewModel.$supplementCardSettings) {
-                                OnboardingCardView(placeholderCardType: .light,
-                                                   cardImage: viewModel.secondTwinImage,
-                                                   cardScanned: viewModel.displayTwinImages)
+                                OnboardingCardView(
+                                    placeholderCardType: .light,
+                                    cardImage: viewModel.secondTwinImage,
+                                    cardScanned: viewModel.displayTwinImages
+                                )
                             }
                             AnimatedView(settings: viewModel.$mainCardSettings) {
-                                OnboardingCardView(placeholderCardType: .dark,
-                                                   cardImage: viewModel.firstTwinImage,
-                                                   cardScanned: viewModel.displayTwinImages)
+                                OnboardingCardView(
+                                    placeholderCardType: .dark,
+                                    cardImage: viewModel.firstTwinImage,
+                                    cardScanned: viewModel.displayTwinImages
+                                )
                             }
                         }
                     }
@@ -128,18 +151,24 @@ struct TwinsOnboardingView: View {
                         viewModel.setupContainer(with: size)
                     }
                 }
+                .frame(minHeight: viewModel.navbarSize.height + 20)
 
                 if viewModel.isCustomContentVisible {
                     customContent
                         .layoutPriority(1)
+                        .readSize { size in
+                            viewModel.setupContainer(with: size)
+                        }
                 }
 
                 if viewModel.isButtonsVisible {
                     OnboardingTextButtonView(
                         title: viewModel.title,
                         subtitle: viewModel.subtitle,
-                        buttonsSettings: .init(main: viewModel.mainButtonSettings,
-                                               supplement: viewModel.supplementButtonSettings),
+                        buttonsSettings: .init(
+                            main: viewModel.mainButtonSettings,
+                            supplement: viewModel.supplementButtonSettings
+                        ),
                         infoText: viewModel.infoText,
                         titleAction: {
 //                                                    guard viewModel.assembly.isPreview else { return }
@@ -156,23 +185,26 @@ struct TwinsOnboardingView: View {
             }
         }
         .background(
-            TwinIntroBackgroundView(size: CGSize(width: screenSize.height * 1.2 * 1.2,
-                                                 height: screenSize.height * 1.2))
-                .offset(x: -screenSize.width / 2, y: -screenSize.height / 2)
-                .opacity(currentStep.isBackgroundVisible ? 1 : 0)
+            TwinIntroBackgroundView(size: CGSize(
+                width: screenSize.height * 1.2 * 1.2,
+                height: screenSize.height * 1.2
+            ))
+            .offset(x: -screenSize.width / 2, y: -screenSize.height / 2)
+            .opacity(currentStep.isBackgroundVisible ? 1 : 0)
         )
         .alert(item: $viewModel.alert, content: { binder in
             binder.alert
         })
         .preference(key: ModalSheetPreferenceKey.self, value: currentStep.isModal)
         .onAppear(perform: viewModel.onAppear)
-
     }
 }
 
 struct TwinsOnboardingView_Previews: PreviewProvider {
     static var previews: some View {
-        TwinsOnboardingView(viewModel: TwinsOnboardingViewModel(input: PreviewData.previewTwinOnboardingInput,
-                                                                coordinator: OnboardingCoordinator()))
+        TwinsOnboardingView(viewModel: TwinsOnboardingViewModel(
+            input: PreviewData.previewTwinOnboardingInput,
+            coordinator: OnboardingCoordinator()
+        ))
     }
 }
