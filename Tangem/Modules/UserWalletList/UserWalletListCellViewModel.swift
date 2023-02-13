@@ -98,9 +98,9 @@ class UserWalletListCellViewModel: ObservableObject {
 
     private func updateNumberOfTokens() {
         let blockchainsCount = userWalletModel.getSavedEntries().count
-        let allTokensCount = blockchainsCount + userWalletModel.getSavedEntries().reduce(0, { $0 + $1.tokens.count })
+        let allTokensCount = blockchainsCount + userWalletModel.getSavedEntries().reduce(0) { $0 + $1.tokens.count }
 
-        numberOfTokens = String.localizedStringWithFormat("token_count".localized, allTokensCount)
+        numberOfTokens = Localization.tokenCount(allTokensCount)
     }
 
     private func loadImage() {
@@ -134,5 +134,5 @@ class UserWalletListCellViewModel: ObservableObject {
 }
 
 extension UserWalletListCellViewModel {
-    static private let defaultBalanceValue = "$0,000.00"
+    private static let defaultBalanceValue = "$0,000.00"
 }
