@@ -38,7 +38,7 @@ struct AlertCardView: View {
 struct AlertCardView_Previews: PreviewProvider {
     static var previews: some View {
         VStack {
-            AlertCardView(title: "Warning", message: "Tangem cards manufactured before September 2019 cannot currently be extracted with an iPhone. We’re working hard with Apple to make it possible in future versions of iOS.")
+            AlertCardView(title: "Warning", message: "Tangem cards manufactured before September 2019 cannot currently be extracted with an iPhone. We're working hard with Apple to make it possible in future versions of iOS.")
 
             AlertCardView(title: "", message: "Tangem cards manufactured before September 2019 cannot currently be extracted")
         }
