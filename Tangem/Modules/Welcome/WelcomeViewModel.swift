@@ -54,7 +54,7 @@ class WelcomeViewModel: ObservableObject {
         guard !isScanningCard else { return }
 
         openShop()
-        Analytics.log(.getACard, params: [.source: Analytics.ParameterValue.welcome.rawValue])
+        Analytics.log(.getACard, params: [.source: Analytics.ParameterValue.welcome])
         Analytics.log(.buttonBuyCards)
     }
 
