@@ -26,7 +26,7 @@ class CurrencySelectViewModel: ObservableObject {
             .loadCurrencies()
             .receive(on: DispatchQueue.main)
             .sink(receiveCompletion: { [weak self] completion in
-                if case let .failure(error) = completion {
+                if case .failure(let error) = completion {
                     self?.error = error.alertBinder
                 }
                 self?.loading = false
@@ -36,7 +36,7 @@ class CurrencySelectViewModel: ObservableObject {
                         $0.description < $1.description
                     }
             })
-            .store(in: &self.bag)
+            .store(in: &bag)
     }
 
     func isSelected(_ currency: CurrenciesResponse.Currency) -> Bool {
@@ -44,7 +44,7 @@ class CurrencySelectViewModel: ObservableObject {
     }
 
     func onSelect(_ currency: CurrenciesResponse.Currency) {
-        Analytics.log(.mainCurrencyChanged, params: [.currency: currency.name])
+        Analytics.log(event: .mainCurrencyChanged, params: [.currency: currency.name])
         objectWillChange.send()
         AppSettings.shared.selectedCurrencyCode = currency.code
     }

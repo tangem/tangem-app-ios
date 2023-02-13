@@ -23,9 +23,9 @@ class CoinViewModel: Identifiable, ObservableObject {
     }
 
     init(with model: CoinModel, items: [CoinItemViewModel]) {
-        self.name = model.name
-        self.symbol = model.symbol
-        self.imageURL = model.imageURL
+        name = model.name
+        symbol = model.symbol
+        imageURL = model.imageURL
         self.items = items
     }
 
