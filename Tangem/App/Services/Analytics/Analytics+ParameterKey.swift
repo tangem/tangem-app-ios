@@ -42,5 +42,7 @@ extension Analytics {
         case count = "Count"
         case couponCode = "Coupon Code"
         case productType = "Product Type"
+        case sendToken = "Send Token"
+        case receiveToken = "Receive Token"
     }
 }
