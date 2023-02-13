@@ -102,15 +102,16 @@ extension DefaultExchangeManager: ExchangeManager {
     }
 
     func refresh(type: ExchangeManagerRefreshType) {
-        if type == .full {
-            tokenExchangeAllowanceLimit = nil
+        if let amount = amount, amount > 0 {
+            refreshValues(refreshType: type)
+        } else {
+            updateState(.idle)
         }
-
-        refreshValues(refreshType: type)
     }
 
     func didSendApprovingTransaction(exchangeTxData: ExchangeTransactionDataModel) {
         pendingTransactions[exchangeTxData.sourceCurrency] = .pending(destination: exchangeTxData.destinationAddress)
+        tokenExchangeAllowanceLimit = nil
 
         refresh(type: .full)
     }
@@ -126,24 +127,14 @@ private extension DefaultExchangeManager {
     func amountDidChange() {
         updateBalances()
 
-        if amount == nil || amount == 0 {
-            updateState(.idle)
-            return
-        }
-
-        refreshValues()
+        refresh(type: .full)
     }
 
     func exchangeItemsDidChange() {
         updateState(.idle)
         updateBalances()
 
-        guard (amount ?? 0) > 0 else {
-            updateState(.idle)
-            return
-        }
-
-        refreshValues()
+        tokenExchangeAllowanceLimit = nil
     }
 }
 
