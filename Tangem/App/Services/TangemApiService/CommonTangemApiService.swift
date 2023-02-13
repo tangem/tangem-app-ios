@@ -15,11 +15,11 @@ class CommonTangemApiService {
     private var bag: Set<AnyCancellable> = []
 
     private let fallbackRegionCode = Locale.current.regionCode?.lowercased() ?? ""
-    private var _geoIpRegionCode: String? = nil
-    private var authData: TangemApiTarget.AuthData? = nil
+    private var _geoIpRegionCode: String?
+    private var authData: TangemApiTarget.AuthData?
 
     deinit {
-        print("CommonTangemApiService deinit")
+        AppLog.shared.debug("CommonTangemApiService deinit")
     }
 }
 
@@ -103,14 +103,48 @@ extension CommonTangemApiService: TangemApiService {
 
     func loadRates(for coinIds: [String]) -> AnyPublisher<[String: Decimal], Error> {
         provider
-            .requestPublisher(TangemApiTarget(type: .rates(coinIds: coinIds,
-                                                           currencyId: AppSettings.shared.selectedCurrencyCode),
-                                              authData: authData))
+            .requestPublisher(TangemApiTarget(
+                type: .rates(
+                    coinIds: coinIds,
+                    currencyId: AppSettings.shared.selectedCurrencyCode
+                ),
+                authData: authData
+            ))
             .filterSuccessfulStatusAndRedirectCodes()
             .map(RatesResponse.self)
             .eraseError()
             .map { $0.rates }
             .eraseToAnyPublisher()
+    }
+
+    func loadReferralProgramInfo(for userWalletId: String) async throws -> ReferralProgramInfo {
+        let target = TangemApiTarget(
+            type: .loadReferralProgramInfo(userWalletId: userWalletId),
+            authData: authData
+        )
+        let response = try await provider.asyncRequest(for: target)
+        let filteredResponse = try response.filterSuccessfulStatusAndRedirectCodes()
+        return try JSONDecoder().decode(ReferralProgramInfo.self, from: filteredResponse.data)
+    }
+
+    func participateInReferralProgram(
+        using token: ReferralProgramInfo.Token,
+        for address: String,
+        with userWalletId: String
+    ) async throws -> ReferralProgramInfo {
+        let userInfo = ReferralParticipationRequestBody(
+            walletId: userWalletId,
+            networkId: token.networkId,
+            tokenId: token.id,
+            address: address
+        )
+        let target = TangemApiTarget(
+            type: .participateInReferralProgram(userInfo: userInfo),
+            authData: authData
+        )
+        let response = try await provider.asyncRequest(for: target)
+        let filteredResponse = try response.filterSuccessfulStatusAndRedirectCodes()
+        return try JSONDecoder().decode(ReferralProgramInfo.self, from: filteredResponse.data)
     }
 
     func initialize() {

@@ -17,16 +17,17 @@ struct AuthView: View {
 
     var body: some View {
         unlockView
-            .navigationBarHidden(viewModel.navigationBarHidden)
             .navigationBarTitle("", displayMode: .inline)
             .alert(item: $viewModel.error, content: { $0.alert })
             .onAppear(perform: viewModel.onAppear)
             .onDidAppear(viewModel.onDidAppear)
             .onDisappear(perform: viewModel.onDisappear)
             .background(
-                ScanTroubleshootingView(isPresented: $viewModel.showTroubleshootingView,
-                                        tryAgainAction: viewModel.tryAgain,
-                                        requestSupportAction: viewModel.requestSupport)
+                ScanTroubleshootingView(
+                    isPresented: $viewModel.showTroubleshootingView,
+                    tryAgainAction: viewModel.tryAgain,
+                    requestSupportAction: viewModel.requestSupport
+                )
             )
     }
 
@@ -34,7 +35,7 @@ struct AuthView: View {
         VStack(spacing: 0) {
             Spacer()
 
-            Assets.tangemIconBig
+            Assets.tangemIconBig.image
                 .renderingMode(.template)
                 .resizable()
                 .aspectRatio(contentMode: .fit)
@@ -42,22 +43,31 @@ struct AuthView: View {
                 .foregroundColor(Colors.Text.primary1)
                 .padding(.bottom, 48)
 
-            Text("welcome_unlock_title")
+            Text(Localization.welcomeUnlockTitle)
                 .style(Fonts.Bold.title1, color: Colors.Text.primary1)
                 .padding(.bottom, 14)
 
-            Text("welcome_unlock_description".localized(BiometricAuthorizationUtils.biometryType.name))
+            Text(Localization.welcomeUnlockDescription(BiometricAuthorizationUtils.biometryType.name))
                 .style(Fonts.Regular.callout, color: Colors.Text.secondary)
                 .multilineTextAlignment(.center)
 
             Spacer()
 
-            TangemButton(title: viewModel.unlockWithBiometryLocalizationKey, action: viewModel.unlockWithBiometry)
-                .buttonStyle(TangemButtonStyle(colorStyle: .grayAlt3, layout: .flexibleWidth, isDisabled: viewModel.isScanningCard))
-                .padding(.bottom, 11)
+            MainButton(
+                title: viewModel.unlockWithBiometryButtonTitle,
+                style: .secondary,
+                isDisabled: viewModel.isScanningCard,
+                action: viewModel.unlockWithBiometry
+            )
+            .padding(.bottom, 11)
 
-            TangemButton(title: "welcome_unlock_card", image: "tangemIconWhite", iconPosition: .trailing, action: viewModel.unlockWithCard)
-                .buttonStyle(TangemButtonStyle(colorStyle: .black, layout: .flexibleWidth, isLoading: viewModel.isScanningCard))
+            MainButton(
+                title: Localization.welcomeUnlockCard,
+                icon: .trailing(Assets.tangemIcon),
+                style: .primary,
+                isLoading: viewModel.isScanningCard,
+                action: viewModel.unlockWithCard
+            )
         }
         .padding()
     }

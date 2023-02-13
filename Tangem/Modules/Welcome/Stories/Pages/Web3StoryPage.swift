@@ -11,8 +11,8 @@ import SwiftUI
 struct Web3StoryPage: View {
     @Binding var progress: Double
     let isScanning: Bool
-    let scanCard: (() -> Void)
-    let orderCard: (() -> Void)
+    let scanCard: () -> Void
+    let orderCard: () -> Void
 
     private let numberOfRows = 6
     private let numberOfRowImages = 6
@@ -23,14 +23,14 @@ struct Web3StoryPage: View {
                 .padding()
 
             VStack(spacing: 16) {
-                Text("story_web3_title")
+                Text(Localization.storyWeb3Title)
                     .font(.system(size: 36, weight: .semibold))
                     .minimumScaleFactor(0.5)
                     .multilineTextAlignment(.center)
                     .padding(.horizontal)
                     .storyTextAppearanceModifier(progress: progress, type: .title, textBlockAppearance: .almostImmediate)
 
-                Text("story_web3_description")
+                Text(Localization.storyWeb3Description)
                     .font(.system(size: 20))
                     .multilineTextAlignment(.center)
                     .foregroundColor(.gray)
@@ -52,8 +52,8 @@ struct Web3StoryPage: View {
                         }
                         .frame(height: 63)
                     }
-                    .offset(x: 0, y: 30)
-                    ,
+                    .offset(x: 0, y: 30),
+
                     alignment: .top
                 )
                 .clipped()
@@ -67,7 +67,7 @@ struct Web3StoryPage: View {
                     }
                 )
 
-            StoriesBottomButtons(scanColorStyle: .grayAlt2, orderColorStyle: .black, isScanning: isScanning, scanCard: scanCard, orderCard: orderCard)
+            StoriesBottomButtons(scanColorStyle: .secondary, orderColorStyle: .primary, isScanning: isScanning, scanCard: scanCard, orderCard: orderCard)
                 .padding(.horizontal)
                 .padding(.bottom)
         }
@@ -78,7 +78,7 @@ struct Web3StoryPage: View {
 
 struct Web3StoryPage_Previews: PreviewProvider {
     static var previews: some View {
-        Web3StoryPage(progress: .constant(1), isScanning: false) { } orderCard: { }
+        Web3StoryPage(progress: .constant(1), isScanning: false) {} orderCard: {}
             .previewGroup(devices: [.iPhone7, .iPhone12ProMax], withZoomed: false)
     }
 }

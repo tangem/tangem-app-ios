@@ -13,16 +13,14 @@ import TangemSdk
 class WelcomeViewModel: ObservableObject {
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
     @Injected(\.failedScanTracker) private var failedCardScanTracker: FailedScanTrackable
+    @Injected(\.incomingActionManager) private var incomingActionManager: IncomingActionManaging
 
     @Published var showTroubleshootingView: Bool = false
     @Published var isScanningCard: Bool = false
     @Published var error: AlertBinder?
     @Published var storiesModel: StoriesViewModel = .init()
 
-    // This screen seats on the navigation stack permanently. We should preserve the navigationBar state to fix the random hide/disappear events of navigationBar on iOS13 on other screens down the navigation hierarchy.
-    @Published var navigationBarHidden: Bool = false
-
-    private var storiesModelSubscription: AnyCancellable? = nil
+    private var storiesModelSubscription: AnyCancellable?
     private var shouldScanOnAppear: Bool = false
 
     private unowned let coordinator: WelcomeRoutable
@@ -30,8 +28,7 @@ class WelcomeViewModel: ObservableObject {
     init(shouldScanOnAppear: Bool, coordinator: WelcomeRoutable) {
         self.shouldScanOnAppear = shouldScanOnAppear
         self.coordinator = coordinator
-        userWalletRepository.delegate = self
-        self.storiesModelSubscription = storiesModel.objectWillChange
+        storiesModelSubscription = storiesModel.objectWillChange
             .receive(on: DispatchQueue.main)
             .sink(receiveValue: { [weak self] in
                 self?.objectWillChange.send()
@@ -39,7 +36,6 @@ class WelcomeViewModel: ObservableObject {
     }
 
     func scanCardTapped() {
-        Analytics.beginLoggingCardScan(source: .welcome)
         scanCard()
     }
 
@@ -58,13 +54,13 @@ class WelcomeViewModel: ObservableObject {
         guard !isScanningCard else { return }
 
         openShop()
-        Analytics.log(.getACard, params: [.source: Analytics.ParameterValue.welcome.rawValue])
+        Analytics.log(.getACard, params: [.source: Analytics.ParameterValue.welcome])
         Analytics.log(.buttonBuyCards)
     }
 
     func onAppear() {
-        navigationBarHidden = true
         Analytics.log(.introductionProcessOpened)
+        incomingActionManager.becomeFirstResponder(self)
     }
 
     func onDidAppear() {
@@ -76,14 +72,19 @@ class WelcomeViewModel: ObservableObject {
     }
 
     func onDisappear() {
-        navigationBarHidden = false
+        incomingActionManager.resignFirstResponder(self)
     }
 
     private func scanCard() {
         isScanningCard = true
+        Analytics.beginLoggingCardScan(source: .welcome)
 
         userWalletRepository.unlock(with: .card(userWallet: nil)) { [weak self] result in
             self?.isScanningCard = false
+
+            if result?.isSuccess != true {
+                self?.incomingActionManager.discardIncomingAction()
+            }
 
             guard
                 let self, let result
@@ -97,11 +98,7 @@ class WelcomeViewModel: ObservableObject {
             case .onboarding(let input):
                 self.openOnboarding(with: input)
             case .error(let error):
-                if let saltPayError = error as? SaltPayRegistratorError {
-                    self.error = saltPayError.alertBinder
-                } else {
-                    self.error = error.alertBinder
-                }
+                self.error = error.alertBinder
             case .success(let cardModel):
                 self.openMain(with: cardModel)
             }
@@ -110,6 +107,7 @@ class WelcomeViewModel: ObservableObject {
 }
 
 // MARK: - Navigation
+
 extension WelcomeViewModel {
     func openMail() {
         coordinator.openMail(with: failedCardScanTracker, recipient: EmailConfig.default.recipient)
@@ -136,11 +134,7 @@ extension WelcomeViewModel {
     }
 }
 
-extension WelcomeViewModel: UserWalletRepositoryDelegate {
-    func showTOS(at url: URL, _ completion: @escaping (Bool) -> Void) {
-        coordinator.openDisclaimer(at: url, completion)
-    }
-}
+// MARK: - WelcomeViewLifecycleListener
 
 extension WelcomeViewModel: WelcomeViewLifecycleListener {
     func resignActve() {
@@ -149,5 +143,22 @@ extension WelcomeViewModel: WelcomeViewLifecycleListener {
 
     func becomeActive() {
         storiesModel.becomeActive()
+    }
+}
+
+// MARK: - IncomingActionResponder
+
+extension WelcomeViewModel: IncomingActionResponder {
+    func didReceiveIncomingAction(_ action: IncomingAction) -> Bool {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+            self.scanCard()
+        }
+
+        switch action {
+        case .start:
+            return true
+        case .walletConnect:
+            return false
+        }
     }
 }

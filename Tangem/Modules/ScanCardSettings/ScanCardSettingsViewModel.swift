@@ -34,11 +34,11 @@ extension ScanCardSettingsViewModel {
             guard let self = self else { return }
 
             switch result {
-            case let .success(cardInfo):
+            case .success(let cardInfo):
                 let config = UserWalletConfigFactory(cardInfo).makeConfig()
                 let cardModel = CardViewModel(cardInfo: cardInfo, config: config)
                 self.processSuccessScan(for: cardInfo)
-            case let .failure(error):
+            case .failure(let error):
                 self.showErrorAlert(error: error)
             }
         }
@@ -54,7 +54,7 @@ extension ScanCardSettingsViewModel {
             return
         }
 
-        self.coordinator.openCardSettings(cardModel: cardModel)
+        coordinator.openCardSettings(cardModel: cardModel)
     }
 }
 
@@ -62,14 +62,18 @@ extension ScanCardSettingsViewModel {
 
 extension ScanCardSettingsViewModel {
     func scan(completion: @escaping (Result<CardInfo, Error>) -> Void) {
-        sdkProvider.sdk.startSession(with: AppScanTask(targetBatch: nil, shouldAskForAccessCode: true)) { result in
+        isLoading = true
+        let task = AppScanTask(shouldAskForAccessCode: true)
+        sdkProvider.sdk.startSession(with: task) { [weak self] result in
+            self?.isLoading = false
+
             switch result {
-            case let .failure(error):
+            case .failure(let error):
                 guard !error.isUserCancelled else {
                     return
                 }
 
-                Analytics.logCardSdkError(error, for: .scan)
+                AppLog.shared.error(error)
                 completion(.failure(error))
             case .success(let response):
                 completion(.success(response.getCardInfo()))
@@ -78,6 +82,6 @@ extension ScanCardSettingsViewModel {
     }
 
     func showErrorAlert(error: Error) {
-        self.alert = AlertBuilder.makeOkErrorAlert(message: error.localizedDescription)
+        alert = AlertBuilder.makeOkErrorAlert(message: error.localizedDescription)
     }
 }
