@@ -9,7 +9,7 @@
 import SwiftUI
 import Combine
 
-struct AddressQrBottomSheetContentViewVodel: Identifiable {
+struct AddressQrBottomSheetContentViewModel: Identifiable {
     let id: UUID = .init()
     var shareAddress: String
     var address: String
@@ -25,7 +25,7 @@ struct AddressQrBottomSheetContentViewVodel: Identifiable {
 }
 
 struct AddressQrBottomSheetContent: View {
-    let viewModel: AddressQrBottomSheetContentViewVodel
+    let viewModel: AddressQrBottomSheetContentViewModel
 
     @State private var showCheckmark = false
 
@@ -98,12 +98,9 @@ struct AddressQrBottomSheetContent: View {
         let av = UIActivityViewController(activityItems: [viewModel.address], applicationActivities: nil)
         UIApplication.topViewController?.present(av, animated: true, completion: nil)
     }
-
 }
 
-
 struct AddressQrBottomSheetPreviewView: View {
-
     @ObservedObject var model: BottomSheetPreviewProvider
 
     var body: some View {
@@ -116,26 +113,27 @@ struct AddressQrBottomSheetPreviewView: View {
             })
             NavHolder()
                 .bottomSheet(isPresented: $model.isBottomSheetPresented, viewModelSettings: .qr) {
-                    AddressQrBottomSheetContent(viewModel: .init(shareAddress: "eth:0x01232483902f903678a098bce",
-                                                                 address: "0x01232483902f903678a098bce",
-                                                                 qrNotice: "BTC"))
+                    AddressQrBottomSheetContent(viewModel: .init(
+                        shareAddress: "eth:0x01232483902f903678a098bce",
+                        address: "0x01232483902f903678a098bce",
+                        qrNotice: "BTC"
+                    ))
                 }
         }
-
     }
 }
 
 struct AddressQrBottomSheet_Previews: PreviewProvider {
-
     static var previews: some View {
         AddressQrBottomSheetPreviewView(model: BottomSheetPreviewProvider())
             .previewGroup(devices: [.iPhoneX], withZoomed: false)
 
-        AddressQrBottomSheetContent(viewModel: .init(shareAddress: "eth:0x01232483902f903678a098bce",
-                                                     address: "0x01232483902f903678a098bce",
-                                                     qrNotice: "BTC"))
+        AddressQrBottomSheetContent(viewModel: .init(
+            shareAddress: "eth:0x01232483902f903678a098bce",
+            address: "0x01232483902f903678a098bce",
+            qrNotice: "BTC"
+        ))
     }
-
 }
 
 class BottomSheetPreviewProvider: ObservableObject {

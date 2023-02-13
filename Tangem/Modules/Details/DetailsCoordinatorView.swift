@@ -44,6 +44,9 @@ struct DetailsCoordinatorView: CoordinatorView {
             .navigation(item: $coordinator.setupEnvironmentViewModel) {
                 EnvironmentSetupView(viewModel: $0)
             }
+            .navigation(item: $coordinator.referralCoordinator) {
+                ReferralCoordinatorView(coordinator: $0)
+            }
     }
 
     @ViewBuilder
