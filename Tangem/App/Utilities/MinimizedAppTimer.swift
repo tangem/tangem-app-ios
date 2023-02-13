@@ -34,8 +34,7 @@ class MinimizedAppTimer {
                 guard let self else { return }
 
                 if let lastTimeEnteredBackground = self.lastTimeEnteredBackground,
-                   Date().timeIntervalSince(lastTimeEnteredBackground) >= self.interval
-                {
+                   Date().timeIntervalSince(lastTimeEnteredBackground) >= self.interval {
                     self.publisher.send(())
                 }
 

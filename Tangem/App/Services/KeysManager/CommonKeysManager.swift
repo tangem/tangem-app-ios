@@ -13,13 +13,13 @@ class CommonKeysManager {
     private let keys: Keys
 
     init() throws {
-        self.keys = try JsonUtils.readBundleFile(with: AppEnvironment.current.configFileName, type: CommonKeysManager.Keys.self)
+        keys = try JsonUtils.readBundleFile(with: AppEnvironment.current.configFileName, type: CommonKeysManager.Keys.self)
     }
 }
 
 extension CommonKeysManager: KeysManager {
-    var appsFlyerDevKey: String {
-        keys.appsFlyerDevKey
+    var appsFlyer: AppsFlyerConfig {
+        keys.appsFlyer
     }
 
     var moonPayKeys: MoonPayKeys {
@@ -35,15 +35,19 @@ extension CommonKeysManager: KeysManager {
     }
 
     var blockchainConfig: BlockchainSdkConfig {
-        BlockchainSdkConfig(blockchairApiKeys: keys.blockchairApiKeys,
-                            blockcypherTokens: keys.blockcypherTokens,
-                            infuraProjectId: keys.infuraProjectId,
-                            tronGridApiKey: keys.tronGridApiKey,
-                            // [REDACTED_TODO_COMMENT]
-                            quickNodeSolanaCredentials: .init(apiKey: keys.quiknodeApiKey, subdomain: keys.quiknodeSubdomain),
-                            quickNodeBscCredentials: .init(apiKey: keys.bscQuiknodeApiKey, subdomain: keys.bscQuiknodeSubdomain),
-                            defaultNetworkProviderConfiguration: .init(logger: .verbose, urlSessionConfiguration: .standart),
-                            networkProviderConfigurations: [.saltPay: .init(logger: .verbose, credentials: keys.saltPay.credentials)])
+        BlockchainSdkConfig(
+            blockchairApiKeys: keys.blockchairApiKeys,
+            blockcypherTokens: keys.blockcypherTokens,
+            infuraProjectId: keys.infuraProjectId,
+            nowNodesApiKey: keys.nowNodesApiKey,
+            getBlockApiKey: keys.getBlockApiKey,
+            tronGridApiKey: keys.tronGridApiKey,
+            // [REDACTED_TODO_COMMENT]
+            quickNodeSolanaCredentials: .init(apiKey: keys.quiknodeApiKey, subdomain: keys.quiknodeSubdomain),
+            quickNodeBscCredentials: .init(apiKey: keys.bscQuiknodeApiKey, subdomain: keys.bscQuiknodeSubdomain),
+            defaultNetworkProviderConfiguration: .init(logger: .verbose, urlSessionConfiguration: .standart),
+            networkProviderConfigurations: [.saltPay: .init(logger: .verbose, credentials: keys.saltPay.credentials)]
+        )
     }
 
     var shopifyShop: ShopifyShop {
@@ -65,6 +69,10 @@ extension CommonKeysManager: KeysManager {
     var infuraProjectId: String {
         keys.infuraProjectId
     }
+
+    var swapReferrerAccount: SwapReferrerAccount? {
+        keys.swapReferrerAccount
+    }
 }
 
 extension CommonKeysManager {
@@ -76,7 +84,9 @@ extension CommonKeysManager {
         let blockchairApiKeys: [String]
         let blockcypherTokens: [String]
         let infuraProjectId: String
-        let appsFlyerDevKey: String
+        let nowNodesApiKey: String
+        let getBlockApiKey: String
+        let appsFlyer: AppsFlyerConfig
         let amplitudeApiKey: String
         let tronGridApiKey: String
         let quiknodeApiKey: String
@@ -86,5 +96,6 @@ extension CommonKeysManager {
         let shopifyShop: ShopifyShop
         let zendesk: ZendeskConfig
         let saltPay: SaltPayConfiguration
+        let swapReferrerAccount: SwapReferrerAccount?
     }
 }

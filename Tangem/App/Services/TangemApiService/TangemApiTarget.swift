@@ -27,32 +27,46 @@ struct TangemApiTarget: TargetType {
             return "/coins"
         case .geo:
             return "/geo"
-        case let .getUserWalletTokens(key), let .saveUserWalletTokens(key, _):
+        case .getUserWalletTokens(let key), .saveUserWalletTokens(let key, _):
             return "/user-tokens/\(key)"
+        case .loadReferralProgramInfo(let userWalletId):
+            return "/referral/\(userWalletId)"
+        case .participateInReferralProgram:
+            return "/referral"
         }
     }
 
     var method: Moya.Method {
         switch type {
-        case .rates, .currencies, .coins, .geo, .getUserWalletTokens:
+        case .rates, .currencies, .coins, .geo, .getUserWalletTokens, .loadReferralProgramInfo:
             return .get
         case .saveUserWalletTokens:
             return .put
+        case .participateInReferralProgram:
+            return .post
         }
     }
 
     var task: Task {
         switch type {
         case .rates(let coinIds, let currencyId):
-            return .requestParameters(parameters: ["coinIds": coinIds.joined(separator: ","),
-                                                   "currencyId": currencyId.lowercased()],
-                                      encoding: URLEncoding.default)
-        case let .coins(pageModel):
+            return .requestParameters(
+                parameters: [
+                    "coinIds": coinIds.joined(separator: ","),
+                    "currencyId": currencyId.lowercased(),
+                ],
+                encoding: URLEncoding.default
+            )
+        case .coins(let pageModel):
             return .requestURLEncodable(pageModel)
         case .currencies, .geo, .getUserWalletTokens:
             return .requestPlain
-        case let .saveUserWalletTokens(_, list):
+        case .saveUserWalletTokens(_, let list):
             return .requestJSONEncodable(list)
+        case .loadReferralProgramInfo:
+            return .requestPlain
+        case .participateInReferralProgram(let requestData):
+            return .requestURLEncodable(requestData)
         }
     }
 
@@ -69,6 +83,8 @@ extension TangemApiTarget {
         case geo
         case getUserWalletTokens(key: String)
         case saveUserWalletTokens(key: String, list: UserTokenList)
+        case loadReferralProgramInfo(userWalletId: String)
+        case participateInReferralProgram(userInfo: ReferralParticipationRequestBody)
     }
 
     struct AuthData {

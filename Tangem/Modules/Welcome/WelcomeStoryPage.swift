@@ -11,7 +11,7 @@ import SwiftUI
 
 enum WelcomeStoryPage: Int, Identifiable, CaseIterable {
     var id: Int {
-        self.rawValue
+        rawValue
     }
 
     case meetTangem
