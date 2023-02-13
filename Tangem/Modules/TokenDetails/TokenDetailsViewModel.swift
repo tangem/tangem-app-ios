@@ -15,6 +15,7 @@ import TangemExchange
 class TokenDetailsViewModel: ObservableObject {
     @Injected(\.exchangeService) private var exchangeService: ExchangeService
     @Injected(\.tangemApiService) private var tangemApiService: TangemApiService
+    @Injected(\.keysManager) private var keysManager: KeysManager
 
     @Published var alert: AlertBinder? = nil
     @Published var showTradeSheet: Bool = false
@@ -521,12 +522,19 @@ extension TokenDetailsViewModel {
             return
         }
 
+        var referrer: ExchangeReferrerAccount?
+
+        if let account = keysManager.swapReferrerAccount {
+            referrer = ExchangeReferrerAccount(address: account.address, fee: account.fee)
+        }
+
         let input = CommonSwappingModulesFactory.InputModel(
             userWalletModel: userWalletModel,
             walletModel: walletModel,
             sender: walletModel.walletManager,
             signer: card.signer,
             logger: AppLog.shared,
+            referrer: referrer,
             source: source
         )
 
