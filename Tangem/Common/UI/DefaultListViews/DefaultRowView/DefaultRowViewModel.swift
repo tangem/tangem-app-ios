@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import SwiftUI
 
 // [REDACTED_TODO_COMMENT]
 struct DefaultRowViewModel {
@@ -49,6 +50,6 @@ extension DefaultRowViewModel {
     enum DetailsType: Hashable {
         case text(_ string: String)
         case loader
+        case icon(_ image: ImageType)
     }
 }
-

@@ -6,34 +6,24 @@
 //  Copyright © 2022 Tangem AG. All rights reserved.
 //
 
-import SwiftUI
 import TangemSdk
 
 final class AuthViewModel: ObservableObject {
     // MARK: - ViewState
+
     @Published var showTroubleshootingView: Bool = false
     @Published var isScanningCard: Bool = false
     @Published var error: AlertBinder?
 
-    // This screen seats on the navigation stack permanently. We should preserve the navigationBar state to fix the random hide/disappear events of navigationBar on iOS13 on other screens down the navigation hierarchy.
-    @Published var navigationBarHidden: Bool = false
-
-    var unlockWithBiometryLocalizationKey: LocalizedStringKey {
-        switch BiometricAuthorizationUtils.biometryType {
-        case .faceID:
-            return "welcome_unlock_face_id"
-        case .touchID:
-            return "welcome_unlock_touch_id"
-        case .none:
-            return ""
-        @unknown default:
-            return ""
-        }
+    var unlockWithBiometryButtonTitle: String {
+        Localization.welcomeUnlock(BiometricAuthorizationUtils.biometryType.name)
     }
 
     // MARK: - Dependencies
+
     @Injected(\.failedScanTracker) private var failedCardScanTracker: FailedScanTrackable
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
+    @Injected(\.incomingActionManager) private var incomingActionManager: IncomingActionManaging
 
     private var unlockOnStart: Bool
     private unowned let coordinator: AuthRoutable
@@ -44,7 +34,6 @@ final class AuthViewModel: ObservableObject {
     ) {
         self.unlockOnStart = unlockOnStart
         self.coordinator = coordinator
-        userWalletRepository.delegate = self
     }
 
     func tryAgain() {
@@ -75,7 +64,7 @@ final class AuthViewModel: ObservableObject {
 
     func onAppear() {
         Analytics.log(.signInScreenOpened)
-        navigationBarHidden = true
+        incomingActionManager.becomeFirstResponder(self)
     }
 
     func onDidAppear() {
@@ -89,11 +78,15 @@ final class AuthViewModel: ObservableObject {
     }
 
     func onDisappear() {
-        navigationBarHidden = false
+        incomingActionManager.resignFirstResponder(self)
     }
 
     private func didFinishUnlocking(_ result: UserWalletRepositoryResult?) {
         isScanningCard = false
+
+        if result?.isSuccess != true {
+            incomingActionManager.discardIncomingAction()
+        }
 
         guard let result else { return }
 
@@ -117,6 +110,7 @@ final class AuthViewModel: ObservableObject {
 }
 
 // MARK: - Navigation
+
 extension AuthViewModel {
     func openMail() {
         coordinator.openMail(with: failedCardScanTracker, recipient: EmailConfig.default.recipient)
@@ -131,8 +125,21 @@ extension AuthViewModel {
     }
 }
 
-extension AuthViewModel: UserWalletRepositoryDelegate {
-    func showTOS(at url: URL, _ completion: @escaping (Bool) -> Void) {
-        coordinator.openDisclaimer(at: url, completion)
+// MARK: - IncomingActionResponder
+
+extension AuthViewModel: IncomingActionResponder {
+    func didReceiveIncomingAction(_ action: IncomingAction) -> Bool {
+        if !unlockOnStart {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                self.unlockWithBiometry()
+            }
+        }
+
+        switch action {
+        case .start:
+            return true
+        case .walletConnect:
+            return false
+        }
     }
 }

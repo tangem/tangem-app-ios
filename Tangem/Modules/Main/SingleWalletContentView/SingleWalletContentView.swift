@@ -24,17 +24,59 @@ struct SingleWalletContentView: View {
                 walletView
 
                 if let walletModel = viewModel.singleWalletModel {
-                    AddressDetailView(selectedAddressIndex: $viewModel.selectedAddressIndex,
-                                      walletModel: walletModel,
-                                      copyAddress: viewModel.copyAddress,
-                                      showQr: viewModel.openQR,
-                                      showExplorerURL: viewModel.showExplorerURL(url:))
+                    AddressDetailView(
+                        selectedAddressIndex: $viewModel.selectedAddressIndex,
+                        walletModel: walletModel,
+                        copyAddress: viewModel.copyAddress,
+                        showQr: viewModel.openQR,
+                        showExplorerURL: viewModel.showExplorerURL(url:)
+                    )
                 }
 
             } else {
-                TotalSumBalanceView(viewModel: viewModel.totalSumBalanceViewModel)
+                VStack(spacing: 14) {
+                    VStack(alignment: .leading, spacing: 12) {
+                        TotalSumBalanceView(viewModel: viewModel.totalSumBalanceViewModel)
+                            .padding([.horizontal, .top], 16)
+                            .padding(.bottom, viewModel.totalBalanceButtons.isEmpty ? 16 : 0)
+
+                        if !viewModel.totalBalanceButtons.isEmpty {
+                            HStack {
+                                ForEach(viewModel.totalBalanceButtons) { buttonInfo in
+                                    MainButton(
+                                        title: buttonInfo.title,
+                                        icon: .leading(buttonInfo.icon),
+                                        style: .secondary,
+                                        dimensions: .init(
+                                            maxWidth: .infinity,
+                                            verticalPadding: 8,
+                                            horizontalPadding: 14,
+                                            cornerRadius: 10,
+                                            iconToLabelSpacing: 8,
+                                            iconSize: .init(width: 16, height: 16)
+                                        ),
+                                        font: Fonts.Bold.subheadline,
+                                        isLoading: buttonInfo.isLoading,
+                                        isDisabled: buttonInfo.isDisabled,
+                                        action: buttonInfo.action
+                                    )
+                                }
+                            }
+                            .padding(.horizontal, 16)
+                            .padding(.bottom, 19)
+                        }
+                    }
+                    .background(Colors.Background.primary)
+                    .cornerRadius(16)
                     .padding(.horizontal, 16)
-                    .padding(.bottom, 6)
+
+                    if viewModel.canShowTransactionHistory {
+                        TransactionsListView(transactionItems: viewModel.transactionListItems)
+                            .background(Colors.Background.primary)
+                            .cornerRadius(16)
+                            .padding(.horizontal, 16)
+                    }
+                }
             }
         }
     }
@@ -54,7 +96,7 @@ struct SingleWalletContentView: View {
                 .padding(.horizontal, 16.0)
 
             case .noAccount(let message):
-                MessageView(title: "wallet_error_no_account".localized, subtitle: message, type: .error)
+                MessageView(title: Localization.walletErrorNoAccount, subtitle: message, type: .error)
             }
         }
     }
