@@ -148,8 +148,12 @@ class StoriesViewModel: ObservableObject {
         let progress = elapsedTime / currentPage.duration
 
         timerSubscription = nil
-        withAnimation(.linear(duration: 0)) {
-            self.currentProgress = progress
+        
+        DispatchQueue.main.async {
+            withAnimation(.linear(duration: 0)) { [weak self] in
+                guard let self = self else { return }
+                self.currentProgress = progress
+            }
         }
     }
 
