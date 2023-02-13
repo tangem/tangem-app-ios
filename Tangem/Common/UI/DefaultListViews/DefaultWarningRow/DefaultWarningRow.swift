@@ -17,7 +17,7 @@ struct DefaultWarningRow: View {
 
     var body: some View {
         if let action = viewModel.action {
-            Button(action: { action() }) {
+            Button(action: action) {
                 content
             }
             .buttonStyle(PlainButtonStyle())
