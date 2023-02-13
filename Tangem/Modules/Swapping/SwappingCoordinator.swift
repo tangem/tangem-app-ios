@@ -44,7 +44,6 @@ class SwappingCoordinator: CoordinatorObject {
 
     func start(with options: Options) {
         rootViewModel = factory.makeSwappingViewModel(coordinator: self)
-        Analytics.log(.swapScreenOpenedSwap)
     }
 }
 
