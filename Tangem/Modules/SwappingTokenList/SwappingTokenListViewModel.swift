@@ -142,6 +142,7 @@ private extension SwappingTokenListViewModel {
     }
 
     func userDidTap(_ currency: Currency) {
+        Analytics.log(event: .swapSearchedTokenClicked, params: [.token: currency.symbol])
         coordinator.userDidTap(currency: currency)
     }
 
