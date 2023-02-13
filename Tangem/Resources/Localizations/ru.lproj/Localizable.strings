@@ -341,6 +341,7 @@
 "story_meet_title" = "Встречайте\nTangem";
 "story_web3_description" = "Обменивайте, покупайте NFT, получайте займы и делайте вклады в более чем 100 различных децентрализованных сервисах";
 "story_web3_title" = "Поддержка DeFi";
+"swapping_error_wrapper" = "Ошибка: %@";
 "swapping_give_permission" = "Дать разрешение";
 "swapping_insufficient_funds" = "Недостаточно средств";
 "swapping_not_enough_funds_for_fee" = "Недостаточно средств для оплаты на вашем %1$@ кошельке для создания транзакции. Сначала пополните свой %2$@ кошелек.";
@@ -375,9 +376,9 @@
 "token_details_unable_hide_alert_title" = "Невозможно скрыть %@";
 "token_item_no_rate" = "Нет цены";
 "transaction_history_empty_transactions" = "У вас еще нет транзакций";
-"transaction_history_error_failed_to_load" = "Не удалось загрузить транзакции. Пожалуйста, попробуйте позже";
+"transaction_history_error_failed_to_load" = "Не удалось загрузить транзакции.  Пожалуйста, попробуйте позже.";
 "transaction_history_title" = "Транзакции";
-"transaction_history_tx_in_progress" = "В процессе...";
+"transaction_history_tx_in_progress" = "В процессе…";
 "twin_error_not_a_twin_card" = "Вы отсканировали не twin-карту. Для создания двойного кошелька необходимо отсканировать карту Tangem Twin.";
 "twin_error_same_card" = "Вы отсканировали ту же карту. Для создания twin-кошелька вам необходимо отсканировать карту с номером %li";
 "twin_error_wrong_twin" = "Вы отсканировали не ту twin-карту. Пожалуйста, попробуйте отсканировать другую";
