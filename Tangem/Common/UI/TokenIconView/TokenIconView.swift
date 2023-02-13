@@ -12,13 +12,14 @@ import SwiftUI
 
 struct TokenIconView: View {
     private let viewModel: TokenIconViewModel
-    private let size = CGSize(width: 40, height: 40)
+    private let size: CGSize
 
     private let networkIconSize = CGSize(width: 16, height: 16)
     private let networkIconBorderWidth: Double = 2
 
-    init(viewModel: TokenIconViewModel) {
+    init(viewModel: TokenIconViewModel, size: CGSize = CGSize(width: 40, height: 40)) {
         self.viewModel = viewModel
+        self.size = size
     }
 
     var body: some View {
@@ -38,14 +39,16 @@ struct TokenIconView: View {
     @ViewBuilder
     private var networkIcon: some View {
         if let iconName = viewModel.blockchainIconName {
-            NetworkIcon(imageName: iconName,
-                        isMainIndicatorVisible: false,
-                        size: networkIconSize)
-                .background(
-                    Color.white
-                        .clipShape(Circle())
-                        .frame(size: networkIconSize + CGSize(width: 2 * networkIconBorderWidth, height: 2 * networkIconBorderWidth))
-                )
+            NetworkIcon(
+                imageName: iconName,
+                isMainIndicatorVisible: false,
+                size: networkIconSize
+            )
+            .background(
+                Color.white
+                    .clipShape(Circle())
+                    .frame(size: networkIconSize + CGSize(width: 2 * networkIconBorderWidth, height: 2 * networkIconBorderWidth))
+            )
         }
     }
 

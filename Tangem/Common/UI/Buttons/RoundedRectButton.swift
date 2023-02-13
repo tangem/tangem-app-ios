@@ -9,7 +9,7 @@
 import SwiftUI
 
 struct RoundedRectButton: View {
-    var action: () -> Void = { }
+    var action: () -> Void = {}
     var backgroundColor: Color = .init(red: 224.0 / 255.0, green: 230.0 / 255.0, blue: 250.0 / 255.0, opacity: 1)
     var systemImageName: String?
     let title: String
@@ -39,7 +39,7 @@ struct RoundedRectButton: View {
             .font(Font.system(size: 13.0, weight: .medium, design: .default))
             .foregroundColor(foregroundColor)
             .background(backgroundColor)
-            .cornerRadius(8)
+            .cornerRadiusContinuous(8)
             .overlay(!isDisabled ? Color.clear : Color.white.opacity(0.4))
         })
         .buttonStyle(PlainButtonStyle())
