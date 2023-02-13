@@ -10,6 +10,8 @@ import SwiftUI
 
 struct ReceiveCurrencyView: View {
     private let viewModel: ReceiveCurrencyViewModel
+    private let tokenIconSize = CGSize(width: 36, height: 36)
+    private var didTapChangeCurrency: () -> Void = {}
 
     init(viewModel: ReceiveCurrencyViewModel) {
         self.viewModel = viewModel
@@ -17,7 +19,7 @@ struct ReceiveCurrencyView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
-            headerLabel
+            headerLabels
 
             mainContent
         }
@@ -27,86 +29,131 @@ struct ReceiveCurrencyView: View {
         .cornerRadius(14)
     }
 
-    private var headerLabel: some View {
-        Text("exchange_receive_view_header".localized)
-            .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
+    private var headerLabels: some View {
+        HStack(spacing: 0) {
+            Text(Localization.exchangeReceiveViewHeader)
+                .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
+
+            Spacer()
+
+            if let balanceString = viewModel.balanceString {
+                Text(balanceString)
+                    .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
+            }
+        }
     }
 
     @ViewBuilder
     private var mainContent: some View {
         HStack(spacing: 0) {
-            switch viewModel.state {
-            case .loading:
-                loadingContent
-            case .loaded:
-                currencyContent
-            }
+            currencyContent
 
             Spacer()
 
-            tokenView
+            SwappingTokenIconView(viewModel: viewModel.tokenIcon)
+                .onTap(viewModel.canChangeCurrency ? didTapChangeCurrency : nil)
         }
-    }
-
-    private var loadingContent: some View {
-        VStack(alignment: .leading, spacing: 18) {
-            SkeletonView()
-                .frame(width: 102, height: 21)
-                .cornerRadius(6)
-
-            SkeletonView()
-                .frame(width: 40, height: 11)
-                .cornerRadius(6)
-        }
-        .padding(.vertical, 4)
     }
 
     private var currencyContent: some View {
         VStack(alignment: .leading, spacing: 8) {
-            Text(viewModel.value)
-                .style(Fonts.Regular.title1, color: Colors.Text.primary1)
-                .minimumScaleFactor(0.5)
-                .lineLimit(1)
+            switch viewModel.cryptoAmountState {
+            case .loading:
+                SkeletonView()
+                    .frame(width: 102, height: 24)
+                    .cornerRadius(6)
+                    .padding(.vertical, 6)
 
-            Text(viewModel.fiatValue)
-                .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
-                .minimumScaleFactor(0.5)
-                .lineLimit(1)
-        }
-    }
+            case .loaded:
+                Text(viewModel.cryptoAmountFormatted)
+                    .style(Fonts.Regular.title1, color: Colors.Text.primary1)
+                    .minimumScaleFactor(0.5)
+                    .lineLimit(1)
+            }
 
-    private var tokenView: some View {
-        Button(action: viewModel.didTapTokenView) {
-            HStack(spacing: 8) {
-                TokenIconView(viewModel: viewModel.tokenIcon)
-
-                Assets.chevronDownMini
-                    .resizable()
-                    .frame(width: 9, height: 9)
+            switch viewModel.fiatAmountState {
+            case .loading:
+                SkeletonView()
+                    .frame(width: 40, height: 13)
+                    .cornerRadius(6)
+            case .loaded:
+                Text(viewModel.fiatAmountFormatted)
+                    .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
+                    .minimumScaleFactor(0.5)
+                    .lineLimit(1)
             }
         }
     }
 }
 
-struct ReceiveCurrencyView_Preview: PreviewProvider {
-    static let viewModel = ReceiveCurrencyViewModel(
-        state: .loaded(11412413131.46, fiatValue: 1000.71),
-        tokenIcon: .init(tokenItem: .blockchain(.bitcoin(testnet: false)))
-    ) {}
+// MARK: - Setupable
 
-    static let loadingViewModel = ReceiveCurrencyViewModel(
-        state: .loading,
-        tokenIcon: .init(tokenItem: .blockchain(.bitcoin(testnet: false)))
-    ) {}
+extension ReceiveCurrencyView: Setupable {
+    func didTapChangeCurrency(_ block: @escaping () -> Void) -> Self {
+        map { $0.didTapChangeCurrency = block }
+    }
+}
+
+struct ReceiveCurrencyView_Preview: PreviewProvider {
+    static let viewModels = [
+        ReceiveCurrencyViewModel(
+            balance: 0.124124,
+            canChangeCurrency: false,
+            cryptoAmountState: .loading,
+            fiatAmountState: .loading,
+            tokenIcon: SwappingTokenIconViewModel(
+                state: .loaded(
+                    imageURL: TokenIconURLBuilderMock().iconURL(id: "polygon", size: .large),
+                    symbol: "MATIC"
+                )
+            )
+        ),
+        ReceiveCurrencyViewModel(
+            balance: 0.124124,
+            canChangeCurrency: false,
+            cryptoAmountState: .loaded(1100.46),
+            fiatAmountState: .loading,
+            tokenIcon: SwappingTokenIconViewModel(
+                state: .loaded(
+                    imageURL: TokenIconURLBuilderMock().iconURL(id: "polygon", size: .large),
+                    symbol: "MATIC"
+                )
+            )
+        ),
+        ReceiveCurrencyViewModel(
+            balance: 0.124124,
+            canChangeCurrency: false,
+            cryptoAmountState: .loading,
+            fiatAmountState: .loaded(1100.46),
+            tokenIcon: SwappingTokenIconViewModel(
+                state: .loaded(
+                    imageURL: TokenIconURLBuilderMock().iconURL(id: "polygon", size: .large),
+                    symbol: "MATIC"
+                )
+            )
+        ),
+        ReceiveCurrencyViewModel(
+            balance: 0.124124,
+            canChangeCurrency: false,
+            cryptoAmountState: .loaded(1100.46),
+            fiatAmountState: .loaded(1100.46),
+            tokenIcon: SwappingTokenIconViewModel(
+                state: .loaded(
+                    imageURL: TokenIconURLBuilderMock().iconURL(id: "polygon", size: .large),
+                    symbol: "MATIC"
+                )
+            )
+        ),
+    ]
 
     static var previews: some View {
         ZStack {
             Colors.Background.secondary
 
             VStack {
-                ReceiveCurrencyView(viewModel: viewModel)
-
-                ReceiveCurrencyView(viewModel: loadingViewModel)
+                ForEach(viewModels) {
+                    ReceiveCurrencyView(viewModel: $0)
+                }
             }
             .padding(.horizontal, 16)
         }
