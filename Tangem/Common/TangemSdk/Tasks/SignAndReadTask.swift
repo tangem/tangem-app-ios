@@ -14,7 +14,7 @@ class SignAndReadTask: CardSessionRunnable {
     let walletPublicKey: Data
     let pairWalletPublicKey: Data?
     let derivationPath: DerivationPath?
-    private var signCommand: SignHashesCommand? = nil
+    private var signCommand: SignHashesCommand?
 
     init(hashes: [Data], walletPublicKey: Data, pairWalletPublicKey: Data?, derivationPath: DerivationPath?) {
         self.hashes = hashes
