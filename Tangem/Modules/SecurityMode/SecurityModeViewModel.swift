@@ -38,18 +38,10 @@ class SecurityModeViewModel: ObservableObject {
         bind()
     }
 
-    func bind() {
-        cardModel.$currentSecurityOption
-            .sink { [weak self] option in
-                self?.currentSecurityOption = option
-            }
-            .store(in: &bag)
-    }
-
     func actionButtonDidTap() {
         switch currentSecurityOption {
         case .accessCode, .passCode:
-            openPinChange()
+            openPinChange(option: currentSecurityOption)
         case .longTap:
             isLoading = true
             cardModel.changeSecurityOption(.longTap) { [weak self] result in
@@ -64,19 +56,8 @@ class SecurityModeViewModel: ObservableObject {
                     if case .userCancelled = error.toTangemSdkError() {
                         return
                     }
-                    self?.error = error.alertBinder
                 }
             }
-        }
-    }
-
-    func updateView() {
-        securityViewModels = cardModel.availableSecurityOptions.map { option in
-            DefaultSelectableRowViewModel(
-                title: option.title,
-                subtitle: option.description,
-                isSelected: isSelected(option: option)
-            )
         }
     }
 
@@ -87,6 +68,26 @@ class SecurityModeViewModel: ObservableObject {
             if isSelected {
                 root.currentSecurityOption = option
             }
+        }
+    }
+
+    private func bind() {
+        cardModel.$currentSecurityOption
+            .sink { [weak self] option in
+                self?.currentSecurityOption = option
+            }
+            .store(in: &bag)
+    }
+
+    private func updateView() {
+        securityViewModels = cardModel.availableSecurityOptions.map { option in
+            DefaultSelectableRowViewModel(
+                title: option.title,
+                subtitle: option.description,
+                isSelected: { [weak self] in
+                    self?.isSelected(option: option) ?? .constant(false)
+                }
+            )
         }
     }
 
@@ -150,11 +151,11 @@ enum SecurityModeOption: String, CaseIterable, Identifiable, Equatable {
 // MARK: - Navigation
 
 extension SecurityModeViewModel {
-    func openPinChange() {
-        coordinator.openPinChange(with: currentSecurityOption.title) { [weak self] coordinatorCompletion in
+    func openPinChange(option: SecurityModeOption) {
+        coordinator.openPinChange(with: option.title) { [weak self] coordinatorCompletion in
             guard let self = self else { return }
 
-            self.cardModel.changeSecurityOption(self.currentSecurityOption) { [weak self] result in
+            self.cardModel.changeSecurityOption(option) { [weak self] result in
                 self?.logSecurityModeChange()
 
                 coordinatorCompletion(result)
