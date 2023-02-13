@@ -22,16 +22,16 @@ extension Blockchain {
         case "ethereum": self = .ethereum(testnet: isTestnet)
         case "ethereum-classic": self = .ethereumClassic(testnet: isTestnet)
         case "litecoin": self = .litecoin
-        case "rootstock": self = .rsk
+        case "rootstock", "rsk": self = .rsk
         case "bitcoin-cash": self = .bitcoinCash(testnet: isTestnet)
-        case "binancecoin": self = .binance(testnet: isTestnet)
+        case "binancecoin", "bnb": self = .binance(testnet: isTestnet)
         case "cardano": self = .cardano(shelley: true)
         case "ripple", "xrp": self = .xrp(curve: .secp256k1)
         case "ducatus": self = .ducatus
         case "tezos": self = .tezos(curve: .secp256k1)
         case "dogecoin": self = .dogecoin
-        case "binance-smart-chain": self = .bsc(testnet: isTestnet)
-        case "polygon-pos", "matic-network": self = .polygon(testnet: isTestnet)
+        case "binance-smart-chain", "binance_smart_chain": self = .bsc(testnet: isTestnet)
+        case "polygon-pos", "matic-network", "polygon": self = .polygon(testnet: isTestnet)
         case "avalanche", "avalanche-2": self = .avalanche(testnet: isTestnet)
         case "solana": self = .solana(testnet: isTestnet)
         case "fantom": self = .fantom(testnet: isTestnet)
@@ -40,13 +40,13 @@ extension Blockchain {
         case "tron": self = .tron(testnet: isTestnet)
         case "arbitrum", "arbitrum-one": self = .arbitrum(testnet: isTestnet)
         case "dash": self = .dash(testnet: isTestnet)
-        case "xdai": self = .gnosis
+        case "xdai", "gnosis": self = .gnosis
         case "optimistic-ethereum": self = .optimism(testnet: isTestnet)
         case "ethereum-pow-iou": self = .ethereumPoW(testnet: isTestnet)
         case "ethereumfair": self = .ethereumFair
         case "sxdai": self = .saltPay // [REDACTED_TODO_COMMENT]
         default:
-            print("⚠️⚠️⚠️ Failed to map network ID \"\(stringId)\"")
+            AppLog.shared.debug("⚠️⚠️⚠️ Failed to map network ID \"\(stringId)\"")
             return nil
         }
     }
@@ -152,7 +152,6 @@ extension Blockchain {
 
     var iconNameFilled: String { "\(iconName).fill" }
 }
-
 
 extension Blockchain {
     static var supportedBlockchains: Set<Blockchain> = {
