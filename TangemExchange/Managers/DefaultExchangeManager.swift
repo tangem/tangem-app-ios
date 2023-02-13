@@ -15,6 +15,7 @@ class DefaultExchangeManager {
     private let exchangeProvider: ExchangeProvider
     private let blockchainDataProvider: BlockchainDataProvider
     private let logger: ExchangeLogger
+    private let referrer: ExchangeReferrerAccount?
 
     // MARK: - Internal
 
@@ -46,14 +47,16 @@ class DefaultExchangeManager {
 
     init(
         exchangeProvider: ExchangeProvider,
-        blockchainInfoProvider: BlockchainDataProvider,
+        blockchainDataProvider: BlockchainDataProvider,
         logger: ExchangeLogger,
+        referrer: ExchangeReferrerAccount?,
         exchangeItems: ExchangeItems,
         amount: Decimal? = nil
     ) {
         self.exchangeProvider = exchangeProvider
-        blockchainDataProvider = blockchainInfoProvider
+        self.blockchainDataProvider = blockchainDataProvider
         self.logger = logger
+        self.referrer = referrer
         self.exchangeItems = exchangeItems
         self.amount = amount
 
@@ -260,7 +263,8 @@ private extension DefaultExchangeManager {
         return try await exchangeProvider.fetchExchangeData(
             items: exchangeItems,
             walletAddress: walletAddress,
-            amount: formattedAmount
+            amount: formattedAmount,
+            referrer: referrer
         )
     }
 
@@ -308,16 +312,13 @@ private extension DefaultExchangeManager {
         preview: PreviewSwappingDataModel,
         transaction: ExchangeTransactionDataModel
     ) async throws -> SwappingResultDataModel {
-        guard let amount = amount else {
-            throw ExchangeManagerError.amountNotFound
-        }
-
         let source = exchangeItems.source
         let sourceBalance = exchangeItems.sourceBalance
         let fee = transaction.fee
 
         let isEnoughAmountForFee: Bool
-        var paymentAmount = amount
+        var paymentAmount = transaction.sourceCurrency.convertFromWEI(value: transaction.sourceAmount)
+        let receivedAmount = transaction.destinationCurrency.convertFromWEI(value: transaction.destinationAmount)
         switch exchangeItems.source.currencyType {
         case .coin:
             paymentAmount += fee
@@ -330,7 +331,7 @@ private extension DefaultExchangeManager {
         let isEnoughAmountForExchange = sourceBalance >= paymentAmount
 
         return SwappingResultDataModel(
-            amount: preview.expectedAmount,
+            amount: receivedAmount,
             fee: fee,
             isEnoughAmountForExchange: isEnoughAmountForExchange,
             isEnoughAmountForFee: isEnoughAmountForFee,
@@ -350,7 +351,8 @@ private extension DefaultExchangeManager {
             sourceAddress: exchangeData.sourceAddress,
             destinationAddress: exchangeData.destinationAddress,
             txData: exchangeData.txData,
-            amount: exchangeData.swappingAmount,
+            sourceAmount: exchangeData.sourceCurrencyAmount,
+            destinationAmount: exchangeData.destinationCurrencyAmount,
             value: exchangeData.value,
             gasValue: exchangeData.gas,
             gasPrice: exchangeData.gasPrice
@@ -376,7 +378,8 @@ private extension DefaultExchangeManager {
             sourceAddress: walletAddress,
             destinationAddress: approvedData.tokenAddress,
             txData: approvedData.data,
-            amount: approvedData.value,
+            sourceAmount: approvedData.value,
+            destinationAmount: 0,
             value: approvedData.value,
             gasValue: quoteData.estimatedGas,
             gasPrice: approvedData.gasPrice
