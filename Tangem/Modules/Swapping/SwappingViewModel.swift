@@ -100,6 +100,7 @@ final class SwappingViewModel: ObservableObject {
         }
 
         exchangeManager.update(exchangeItems: items)
+        exchangeManager.refresh(type: .full)
     }
 
     func userDidTapSwapExchangeItemsButton() {
@@ -114,8 +115,15 @@ final class SwappingViewModel: ObservableObject {
 
         items.source = destination
         items.destination = source
-
         exchangeManager.update(exchangeItems: items)
+
+        // If amount have been set we'll should to round and update it with new decimalCount
+        if let amount = sendDecimalValue?.value {
+            let roundedAmount = amount.rounded(scale: items.source.decimalCount, roundingMode: .plain)
+            sendDecimalValue = .external(roundedAmount)
+
+            exchangeManager.update(amount: roundedAmount)
+        }
     }
 
     func userDidTapChangeCurrencyButton() {
@@ -480,10 +488,12 @@ private extension SwappingViewModel {
 
     func bind() {
         $sendDecimalValue
-            .removeDuplicates()
             .dropFirst()
-            .debounce(for: 1, scheduler: DispatchQueue.main)
+            // If value == nil anyway continue chain
+            .filter { $0?.isInternal ?? true }
             .map { $0?.value }
+            .removeDuplicates()
+            .debounce(for: 1, scheduler: DispatchQueue.main)
             .sink { [weak self] amount in
                 self?.exchangeManager.update(amount: amount)
                 self?.updateSendFiatValue()
@@ -503,6 +513,7 @@ private extension SwappingViewModel {
             do {
                 items.destination = try await swappingDestinationService.getDestination(source: items.source)
                 exchangeManager.update(exchangeItems: items)
+                exchangeManager.refresh(type: .full)
             } catch {
                 AppLog.shared.debug("Destination load handle error")
                 AppLog.shared.error(error)
