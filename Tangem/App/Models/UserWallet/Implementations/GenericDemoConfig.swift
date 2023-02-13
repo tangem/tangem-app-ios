@@ -168,6 +168,10 @@ extension GenericDemoConfig: UserWalletConfig {
         card.wallets.first?.publicKey
     }
 
+    var productType: Analytics.ProductType {
+        card.firmwareVersion.doubleValue >= 4.39 ? .demoWallet : .other
+    }
+
     func getFeatureAvailability(_ feature: UserWalletFeature) -> UserWalletFeature.Availability {
         switch feature {
         case .accessCode:
@@ -224,6 +228,8 @@ extension GenericDemoConfig: UserWalletConfig {
             return .hidden
         case .displayHashesCount:
             return .available
+        case .transactionHistory:
+            return .hidden
         }
     }
 

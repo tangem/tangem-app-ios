@@ -31,15 +31,6 @@ extension CardDTO {
         .init(cardId: cardId, cardPublicKey: cardPublicKey)
     }
 
-    var analyticsParameters: [Analytics.ParameterKey: String] {
-        var params = [Analytics.ParameterKey: String]()
-        params[.firmware] = firmwareVersion.stringValue
-        params[.currency] = walletCurves.map { $0.rawValue }.joined(separator: ",")
-        params[.batchId] = batchId
-
-        return params
-    }
-
     static func getDerivationStyle(for batchId: String, isHdWalletAllowed: Bool) -> DerivationStyle? {
         guard isHdWalletAllowed else {
             return nil
