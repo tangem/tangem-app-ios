@@ -13,32 +13,42 @@ import Combine
 import BlockchainSdk
 
 class SingleCardOnboardingViewModel: OnboardingTopupViewModel<SingleCardOnboardingStep, OnboardingCoordinator>, ObservableObject {
-
     @Published var isCardScanned: Bool = true
 
-    override var currentStep: SingleCardOnboardingStep {
-        guard currentStepIndex < steps.count else {
-            return .welcome
-        }
+    override var disclaimerModel: DisclaimerViewModel? {
+        guard currentStep == .disclaimer else { return nil }
 
-        return steps[currentStepIndex]
+        return super.disclaimerModel
     }
 
-    override var subtitle: LocalizedStringKey? {
+    override var navbarTitle: String {
+        currentStep.navbarTitle
+    }
+
+    override var subtitle: String? {
         if currentStep == .topup,
            case .xrp = cardModel?.walletModels.first?.blockchainNetwork.blockchain {
-            return "onboarding_topup_subtitle_xrp"
+            return Localization.onboardingTopUpBodyNoAccountError("10", "XRP")
         } else {
             return super.subtitle
         }
     }
 
-    override var mainButtonTitle: LocalizedStringKey {
+    override var mainButtonTitle: String {
         if case .topup = currentStep, !canBuyCrypto {
-            return "onboarding_button_receive_crypto"
+            return Localization.onboardingButtonReceiveCrypto
         }
 
         return super.mainButtonTitle
+    }
+
+    override var mainButtonSettings: MainButton.Settings? {
+        switch currentStep {
+        case .disclaimer:
+            return nil
+        default:
+            return super.mainButtonSettings
+        }
     }
 
     override var isSupplementButtonVisible: Bool {
@@ -50,9 +60,18 @@ class SingleCardOnboardingViewModel: OnboardingTopupViewModel<SingleCardOnboardi
         }
     }
 
+    override var supplementButtonColor: ButtonColorStyle {
+        switch currentStep {
+        case .disclaimer:
+            return .black
+        default:
+            return super.supplementButtonColor
+        }
+    }
+
     var isCustomContentVisible: Bool {
         switch currentStep {
-        case .saveUserWallet:
+        case .saveUserWallet, .disclaimer:
             return true
         default:
             return false
@@ -66,7 +85,7 @@ class SingleCardOnboardingViewModel: OnboardingTopupViewModel<SingleCardOnboardi
         }
     }
 
-    var infoText: LocalizedStringKey? {
+    var infoText: String? {
         currentStep.infoText
     }
 
@@ -86,24 +105,65 @@ class SingleCardOnboardingViewModel: OnboardingTopupViewModel<SingleCardOnboardi
     override init(input: OnboardingInput, coordinator: OnboardingCoordinator) {
         super.init(input: input, coordinator: coordinator)
 
-        if case let .singleWallet(steps) = input.steps {
+        if case .singleWallet(let steps) = input.steps {
             self.steps = steps
         } else {
             fatalError("Wrong onboarding steps passed to initializer")
         }
 
-        if let walletModel = self.cardModel?.walletModels.first {
+        if let walletModel = cardModel?.walletModels.first {
             updateCardBalanceText(for: walletModel)
         }
 
-        if steps.first == .topup && currentStep == .topup {
+        if steps.first == .topup, currentStep == .topup {
             DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
                 self.updateCardBalance()
             }
         }
+
+        bind()
     }
 
     // MARK: Functions
+
+    private func bind() {
+        $currentStepIndex
+            .removeDuplicates()
+            .delay(for: 0.1, scheduler: DispatchQueue.main)
+            .receiveValue { [weak self] index in
+                guard let self,
+                      index < self.steps.count else { return }
+
+                let currentStep = self.steps[index]
+
+                switch currentStep {
+                case .topup:
+                    if let walletModel = self.cardModel?.walletModels.first {
+                        self.updateCardBalanceText(for: walletModel)
+                    }
+
+                    if self.walletCreatedWhileOnboarding {
+                        return
+                    }
+
+                    withAnimation {
+                        self.isBalanceRefresherVisible = true
+                    }
+
+                    self.updateCardBalance()
+                case .successTopup:
+                    withAnimation {
+                        self.refreshButtonState = .doneCheckmark
+                    }
+                    fallthrough
+                case .success:
+                    self.fireConfetti()
+                default:
+                    break
+                }
+            }
+            .store(in: &bag)
+    }
 
     func onAppear() {
         Analytics.log(.onboardingStarted)
@@ -112,20 +172,15 @@ class SingleCardOnboardingViewModel: OnboardingTopupViewModel<SingleCardOnboardi
     }
 
     override func backButtonAction() {
-        alert = AlertBuilder.makeExitAlert() { [weak self] in
+        alert = AlertBuilder.makeExitAlert { [weak self] in
             self?.closeOnboarding()
         }
     }
 
-    override func goToNextStep() {
-        super.goToNextStep()
-        stepUpdate()
-    }
-
     override func mainButtonAction() {
         switch currentStep {
-        case .welcome:
-            fallthrough
+        case .disclaimer:
+            break
         case .createWallet:
             createWallet()
         case .topup:
@@ -155,6 +210,9 @@ class SingleCardOnboardingViewModel: OnboardingTopupViewModel<SingleCardOnboardi
         switch currentStep {
         case .topup:
             openQR()
+        case .disclaimer:
+            disclaimerAccepted()
+            goToNextStep()
         default:
             break
         }
@@ -166,10 +224,14 @@ class SingleCardOnboardingViewModel: OnboardingTopupViewModel<SingleCardOnboardi
             mainCardSettings = .zero
             supplementCardSettings = .zero
         default:
-            mainCardSettings = .init(targetSettings: SingleCardOnboardingCardsLayout.main.cardAnimSettings(for: currentStep,
-                                                                                                           containerSize: containerSize,
-                                                                                                           animated: animated),
-                                     intermediateSettings: nil)
+            mainCardSettings = .init(
+                targetSettings: SingleCardOnboardingCardsLayout.main.cardAnimSettings(
+                    for: currentStep,
+                    containerSize: containerSize,
+                    animated: animated
+                ),
+                intermediateSettings: nil
+            )
             supplementCardSettings = .init(targetSettings: SingleCardOnboardingCardsLayout.supplementary.cardAnimSettings(for: currentStep, containerSize: containerSize, animated: animated), intermediateSettings: nil)
         }
     }
@@ -181,7 +243,7 @@ class SingleCardOnboardingViewModel: OnboardingTopupViewModel<SingleCardOnboardi
 
         isMainButtonBusy = true
 
-        var subscription: AnyCancellable? = nil
+        var subscription: AnyCancellable?
 
         subscription = Deferred {
             Future { (promise: @escaping Future<Void, Error>.Promise) in
@@ -199,12 +261,13 @@ class SingleCardOnboardingViewModel: OnboardingTopupViewModel<SingleCardOnboardi
         .combineLatest(NotificationCenter.didBecomeActivePublisher)
         .first()
         .sink { [weak self] completion in
-            if case let .failure(error) = completion {
+            if case .failure(let error) = completion {
                 self?.isMainButtonBusy = false
-                print("Failed to create wallet. \(error)")
+                AppLog.shared.debug("Failed to create wallet")
+                AppLog.shared.error(error)
             }
             subscription.map { _ = self?.bag.remove($0) }
-        } receiveValue: { [weak self] (_, _) in
+        } receiveValue: { [weak self] _, _ in
             guard let self = self else { return }
 
             Analytics.log(.walletCreatedSuccessfully)
@@ -227,33 +290,5 @@ class SingleCardOnboardingViewModel: OnboardingTopupViewModel<SingleCardOnboardi
         }
 
         subscription?.store(in: &bag)
-    }
-
-    private func stepUpdate() {
-        switch currentStep {
-        case .topup:
-            if let walletModel = self.cardModel?.walletModels.first {
-                updateCardBalanceText(for: walletModel)
-            }
-
-            if walletCreatedWhileOnboarding {
-                return
-            }
-
-            withAnimation {
-                isBalanceRefresherVisible = true
-            }
-
-            updateCardBalance()
-        case .successTopup:
-            withAnimation {
-                refreshButtonState = .doneCheckmark
-            }
-            fallthrough
-        case .success:
-            fireConfetti()
-        default:
-            break
-        }
     }
 }
