@@ -77,21 +77,19 @@ struct MainCoordinatorView: CoordinatorView {
             }
 
         NavHolder()
-            .bottomSheet(item: $coordinator.addressQrBottomSheetContentViewVodel,
-                         viewModelSettings: .qr) {
+            .bottomSheet(
+                item: $coordinator.addressQrBottomSheetContentViewModel,
+                viewModelSettings: .qr
+            ) {
                 AddressQrBottomSheetContent(viewModel: $0)
             }
 
         NavHolder()
-            .bottomSheet(item: $coordinator.warningBankCardViewModel,
-                         viewModelSettings: .warning) {
+            .bottomSheet(
+                item: $coordinator.warningBankCardViewModel,
+                viewModelSettings: .warning
+            ) {
                 WarningBankCardView(viewModel: $0)
-            }
-
-        NavHolder()
-            .sheet(item: $coordinator.userWalletStorageAgreementViewModel) {
-                UserWalletStorageAgreementView(viewModel: $0)
-                    .interactiveDismissDisabledCompat()
             }
 
         NavHolder()
