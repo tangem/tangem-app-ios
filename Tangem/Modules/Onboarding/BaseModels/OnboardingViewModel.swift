@@ -292,6 +292,8 @@ class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable>
                         Analytics.log(.createWalletScreenOpened)
                     case .backupIntro:
                         Analytics.log(.backupScreenOpened)
+                    case .kycStart:
+                        Analytics.log(.kycStartScreenOpened)
                     case .kycProgress:
                         Analytics.log(.kycProgressScreenOpened)
                     case .kycRetry:
@@ -300,6 +302,8 @@ class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable>
                         Analytics.log(.kycWaitingScreenOpened)
                     case .claim:
                         Analytics.log(.claimScreenOpened)
+                    case .enterPin:
+                        Analytics.log(.pinScreenOpened)
                     default:
                         break
                     }
