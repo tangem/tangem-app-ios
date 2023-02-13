@@ -28,10 +28,6 @@ def blockchain_sdk_pods
   
   pod 'BitcoinCore.swift', :git => 'https://github.com/tangem/bitcoincore.git', :tag => '0.0.16'
   # pod 'BitcoinCore.swift', :path => '../bitcoincore'
-  
-  pod 'stellar-ios-mac-sdk', '2.2.5'
-
-  pod 'SwiftCBOR', '0.4.5'
 end
 
 target 'Tangem' do
