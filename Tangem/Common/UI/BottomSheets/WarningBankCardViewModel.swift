@@ -9,10 +9,10 @@
 import Foundation
 
 class WarningBankCardViewModel: Identifiable {
-    let confirmCallback: () -> ()
-    let declineCallback: () -> ()
+    let confirmCallback: () -> Void
+    let declineCallback: () -> Void
 
-    init(confirmCallback: @escaping () -> (), declineCallback: @escaping () -> ()) {
+    init(confirmCallback: @escaping () -> Void, declineCallback: @escaping () -> Void) {
         self.confirmCallback = confirmCallback
         self.declineCallback = declineCallback
     }
