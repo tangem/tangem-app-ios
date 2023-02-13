@@ -148,8 +148,9 @@ class StoriesViewModel: ObservableObject {
         let progress = elapsedTime / currentPage.duration
 
         timerSubscription = nil
-        withAnimation(.linear(duration: 0)) {
-            self.currentProgress = progress
+        
+        withAnimation(.linear(duration: 0)) { [weak self] in
+            self?.currentProgress = progress
         }
     }
 
@@ -160,8 +161,8 @@ class StoriesViewModel: ObservableObject {
 
         timerStartDate = Date() - TimeInterval(currentStoryTime)
 
-        withAnimation(.linear(duration: remainingStoryDuration)) {
-            self.currentProgress = 1
+        withAnimation(.linear(duration: remainingStoryDuration)) { [weak self] in
+            self?.currentProgress = 1
         }
 
         timerSubscription = Timer.publish(every: remainingStoryDuration, on: .main, in: .default)
