@@ -145,6 +145,10 @@ extension LegacyConfig: UserWalletConfig {
         card.wallets.first?.publicKey
     }
 
+    var productType: Analytics.ProductType {
+        .other
+    }
+
     func getFeatureAvailability(_ feature: UserWalletFeature) -> UserWalletFeature.Availability {
         switch feature {
         case .accessCode:
@@ -204,6 +208,8 @@ extension LegacyConfig: UserWalletConfig {
             return .hidden
         case .displayHashesCount:
             return .available
+        case .transactionHistory:
+            return .hidden
         }
     }
 

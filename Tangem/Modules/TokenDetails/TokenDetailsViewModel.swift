@@ -31,11 +31,11 @@ class TokenDetailsViewModel: ObservableObject {
 
     var walletModel: WalletModel?
 
-    var incomingTransactions: [PendingTransaction] {
+    var incomingTransactions: [TransactionRecord] {
         walletModel?.incomingPendingTransactions.filter { $0.amountType == amountType } ?? []
     }
 
-    var outgoingTransactions: [PendingTransaction] {
+    var outgoingTransactions: [TransactionRecord] {
         walletModel?.outgoingPendingTransactions.filter { $0.amountType == amountType } ?? []
     }
 
@@ -301,7 +301,7 @@ class TokenDetailsViewModel: ObservableObject {
     func sendAnalyticsEvent(_ event: Analytics.Event) {
         switch event {
         case .userBoughtCrypto:
-            Analytics.log(event, params: [.currencyCode: blockchainNetwork.blockchain.currencySymbol])
+            Analytics.log(event: event, params: [.currencyCode: blockchainNetwork.blockchain.currencySymbol])
         default:
             break
         }
@@ -380,7 +380,7 @@ class TokenDetailsViewModel: ObservableObject {
         }
 
         let currencySymbol = amountType.token?.symbol ?? blockchainNetwork.blockchain.currencySymbol
-        Analytics.log(.buttonRemoveToken, params: [Analytics.ParameterKey.token: currencySymbol])
+        Analytics.log(event: .buttonRemoveToken, params: [Analytics.ParameterKey.token: currencySymbol])
 
         let item = CommonUserWalletModel.RemoveItem(amount: amountType, blockchainNetwork: walletModel.blockchainNetwork)
         card.userWalletModel?.remove(item: item)
