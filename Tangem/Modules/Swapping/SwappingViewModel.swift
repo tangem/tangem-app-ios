@@ -80,6 +80,7 @@ final class SwappingViewModel: ObservableObject {
         self.blockchainNetwork = blockchainNetwork
         self.coordinator = coordinator
 
+        Analytics.log(event: .swapScreenOpenedSwap, params: [.token: initialSourceCurrency.symbol])
         setupView()
         bind()
         exchangeManager.setDelegate(self)
@@ -141,7 +142,6 @@ final class SwappingViewModel: ObservableObject {
             Analytics.log(.swapButtonPermitAndSwap)
         // [REDACTED_TODO_COMMENT]
         case .swap:
-            Analytics.log(.swapButtonSwap)
             swapItems()
         case .givePermission:
             Analytics.log(.swapButtonGivePermission)
@@ -553,6 +553,13 @@ private extension SwappingViewModel {
         }
 
         stopTimer()
+        Analytics.log(
+            event: .swapButtonSwap,
+            params: [
+                .sendToken: info.sourceCurrency.symbol,
+                .receiveToken: info.destinationCurrency.symbol,
+            ]
+        )
 
         Task {
             do {
