@@ -10,7 +10,6 @@ import SwiftUI
 
 // [REDACTED_TODO_COMMENT]
 struct StackCalculator {
-
     private(set) var prehideAnimSettings: CardAnimSettings = .zero
 
     private let maxZIndex: Double = 100
@@ -38,7 +37,7 @@ struct StackCalculator {
         return cardsSettings[index]
     }
 
-    mutating private func populateSettings() {
+    private mutating func populateSettings() {
         prehideAnimSettings = .zero
         cardsSettings = []
         for i in 0 ..< settings.numberOfCards {
@@ -53,14 +52,16 @@ struct StackCalculator {
         let settings = cardsSettings[0]
         let targetFrameHeight = settings.frame.height
 
-        return .init(frame: settings.frame,
-                     offset: CGSize(width: self.settings.topCardOffset.width, height: self.settings.topCardOffset.height - (settings.frame.height / 2 + targetFrameHeight / 2) - 10),
-                     scale: 1.0,
-                     opacity: 1.0,
-                     zIndex: maxZIndex + 100,
-                     rotationAngle: Angle(degrees: 0),
-                     animType: .linear,
-                     animDuration: 0.15)
+        return .init(
+            frame: settings.frame,
+            offset: CGSize(width: self.settings.topCardOffset.width, height: self.settings.topCardOffset.height - (settings.frame.height / 2 + targetFrameHeight / 2) - 10),
+            scale: 1.0,
+            opacity: 1.0,
+            zIndex: maxZIndex + 100,
+            rotationAngle: Angle(degrees: 0),
+            animType: .linear,
+            animDuration: 0.15
+        )
     }
 
     private func cardInStackSettings(at index: Int) -> CardAnimSettings {
@@ -71,14 +72,15 @@ struct StackCalculator {
         let opacity: Double = max(1 - settings.opacityStep * doubleIndex, 0)
         let zIndex: Double = maxZIndex - Double(index)
 
-        return .init(frame: settings.topCardSize,
-                     offset: .init(width: settings.topCardOffset.width, height: offset),
-                     scale: scale,
-                     opacity: opacity,
-                     zIndex: zIndex,
-                     rotationAngle: .zero,
-                     animType: .linear,
-                     animDuration: 0.3)
+        return .init(
+            frame: settings.topCardSize,
+            offset: .init(width: settings.topCardOffset.width, height: offset),
+            scale: scale,
+            opacity: opacity,
+            zIndex: zIndex,
+            rotationAngle: .zero,
+            animType: .linear,
+            animDuration: 0.3
+        )
     }
-
 }
