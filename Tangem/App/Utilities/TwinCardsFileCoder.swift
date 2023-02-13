@@ -23,8 +23,10 @@ struct TwinCardTlvFileDecoder: TwinCardFileDecoder {
         }
 
         let decoder = TlvDecoder(tlv: tlv)
-        return TwinCardFile(publicKey: try decoder.decode(.fileData),
-                            fileTypeName: try decoder.decode(.fileTypeName))
+        return TwinCardFile(
+            publicKey: try decoder.decode(.fileData),
+            fileTypeName: try decoder.decode(.fileTypeName)
+        )
     }
 }
 

@@ -24,10 +24,12 @@ class OnboardingTopupViewModel<Step: OnboardingStep, Coordinator: OnboardingTopu
 
     var buyCryptoURL: URL? {
         if let wallet = cardModel?.wallets.first {
-            return exchangeService.getBuyUrl(currencySymbol: wallet.blockchain.currencySymbol,
-                                             amountType: .coin,
-                                             blockchain: wallet.blockchain,
-                                             walletAddress: wallet.address)
+            return exchangeService.getBuyUrl(
+                currencySymbol: wallet.blockchain.currencySymbol,
+                amountType: .coin,
+                blockchain: wallet.blockchain,
+                walletAddress: wallet.address
+            )
         }
 
         return nil
@@ -73,7 +75,7 @@ class OnboardingTopupViewModel<Step: OnboardingStep, Coordinator: OnboardingTopu
                 self.updateCardBalanceText(for: walletModel, type: type)
                 switch walletModelState {
                 case .noAccount(let message):
-                    print(message)
+                    AppLog.shared.debug(message)
                     fallthrough
                 case .idle:
                     if shouldGoToNextStep,
@@ -119,19 +121,12 @@ class OnboardingTopupViewModel<Step: OnboardingStep, Coordinator: OnboardingTopu
     }
 
     func logZeroBalanceAnalytics() {
-        guard
-            let cardModel = self.cardModel,
-            let info = TotalBalanceCardSupportInfoFactory(cardModel: cardModel).createInfo()
-        else {
-            return
-        }
-
-        let analyticsService = TotalBalanceAnalyticsService(totalBalanceCardSupportInfo: info)
-        analyticsService.sendToppedUpEventIfNeeded(balance: 0)
+        Analytics.logTopUpIfNeeded(balance: 0)
     }
 }
 
 // MARK: - Navigation
+
 extension OnboardingTopupViewModel {
     func openCryptoShopIfPossible() {
         Analytics.log(.buttonBuyCrypto)
