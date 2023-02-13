@@ -10,7 +10,7 @@ import Foundation
 import SwiftUI
 
 struct TangemButton: View {
-    let title: LocalizedStringKey
+    let title: String
     var image: String = ""
     var systemImage: String = ""
     var iconPosition: IconPosition = .leading
@@ -40,9 +40,8 @@ struct TangemButton: View {
             .id("tangem_button_\(title)")
     }
 
-
     var body: some View {
-        Button(action: action, label:  {
+        Button(action: action, label: {
             if !hasImage {
                 label
             } else {
@@ -68,16 +67,20 @@ extension TangemButton {
         case trailing
     }
 
-    static func vertical(title: LocalizedStringKey,
-                         image: String = "",
-                         systemImage: String = "",
-                         action: @escaping () -> Void) -> TangemButton {
-        return TangemButton(title: title,
-                            image: image,
-                            systemImage: systemImage,
-                            iconPosition: .leading,
-                            iconPadding: 2,
-                            action: action)
+    static func vertical(
+        title: String,
+        image: String = "",
+        systemImage: String = "",
+        action: @escaping () -> Void
+    ) -> TangemButton {
+        return TangemButton(
+            title: title,
+            image: image,
+            systemImage: systemImage,
+            iconPosition: .leading,
+            iconPadding: 2,
+            action: action
+        )
     }
 }
 
@@ -87,34 +90,45 @@ struct TangemButton_Previews: PreviewProvider {
             TangemButton(title: "Recharge de portefeuille", image: "scan") {}
                 .buttonStyle(TangemButtonStyle(colorStyle: .black))
 
-            TangemButton(title: "wallet_button_scan", image: "scan") {}
-                .buttonStyle(TangemButtonStyle(colorStyle: .black,
-                                               layout: .big))
+            TangemButton(title: "Scan", image: "scan") {}
+                .buttonStyle(TangemButtonStyle(
+                    colorStyle: .black,
+                    layout: .big
+                ))
 
-            TangemButton(title: "wallet_address_button_explore",
-                         systemImage: "chevron.right",
-                         iconPosition: .trailing) {}
-                .buttonStyle(TangemButtonStyle(colorStyle: .transparentWhite,
-                                               layout: .wide))
+            TangemButton(
+                title: Localization.walletAddressButtonExplore,
+                systemImage: "chevron.right",
+                iconPosition: .trailing
+            ) {}
+                .buttonStyle(TangemButtonStyle(
+                    colorStyle: .transparentWhite,
+                    layout: .wide
+                ))
 
             HStack {
-                TangemButton(title: "wallet_button_send",
-                             image: "scan") {}
-                    .buttonStyle(TangemButtonStyle(layout: .smallVertical,
-                                                   isLoading: true))
+                TangemButton(
+                    title: Localization.walletButtonSend,
+                    image: "scan"
+                ) {}
+                    .buttonStyle(TangemButtonStyle(
+                        layout: .smallVertical,
+                        isLoading: true
+                    ))
 
-                TangemButton.vertical(title: "wallet_button_topup",
-                                      systemImage: "arrow.up") {}
+                TangemButton.vertical(
+                    title: Localization.walletButtonBuy,
+                    systemImage: "arrow.up"
+                ) {}
                     .buttonStyle(TangemButtonStyle(layout: .smallVertical))
 
-
-                TangemButton.vertical(title: "wallet_button_scan",
-                                      systemImage: "arrow.right") {}
+                TangemButton.vertical(
+                    title: "Scan",
+                    systemImage: "arrow.right"
+                ) {}
                     .buttonStyle(TangemButtonStyle(layout: .smallVertical))
-
             }
             .padding(.horizontal, 8)
-
         }
         .environment(\.locale, .init(identifier: "fr"))
         .previewGroup()

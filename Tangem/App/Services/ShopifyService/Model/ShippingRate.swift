@@ -13,9 +13,9 @@ struct ShippingRate {
     let amount: Decimal
 
     init(_ shippingRate: Storefront.ShippingRate) {
-        self.handle = shippingRate.handle
-        self.title = shippingRate.title
-        self.amount = shippingRate.priceV2.amount
+        handle = shippingRate.handle
+        title = shippingRate.title
+        amount = shippingRate.priceV2.amount
     }
 }
 
@@ -28,8 +28,7 @@ extension ShippingRate {
 extension Storefront.ShippingRateQuery {
     @discardableResult
     func shippingRateFragment() -> Storefront.ShippingRateQuery {
-        self
-            .handle()
+        handle()
             .title()
             .priceV2 { $0
                 .amount()

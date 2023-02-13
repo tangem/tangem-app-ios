@@ -13,14 +13,17 @@ class ShopCoordinator: CoordinatorObject {
     var popToRootAction: ParamsAction<PopToRootOptions>
 
     // MARK: - Main view model
+
     @Published private(set) var shopViewModel: ShopViewModel? = nil
 
     // MARK: - Child view models
+
     @Published var pushedWebViewModel: WebViewContainerViewModel? = nil
 
     @Published var webShopUrl: URL? = nil
 
     // MARK: - Private helpers
+
     @Published var emptyModel: Int? = nil // Fix single navigation link issue
 
     required init(dismissAction: @escaping Action, popToRootAction: @escaping ParamsAction<PopToRootOptions>) {
@@ -40,16 +43,16 @@ class ShopCoordinator: CoordinatorObject {
 }
 
 extension ShopCoordinator {
-    struct Options {
-
-    }
+    struct Options {}
 }
 
 extension ShopCoordinator: ShopViewRoutable {
     func openWebCheckout(at url: URL) {
-        pushedWebViewModel = WebViewContainerViewModel(url: url,
-                                                       title: "shop_web_checkout_title".localized,
-                                                       addLoadingIndicator: true)
+        pushedWebViewModel = WebViewContainerViewModel(
+            url: url,
+            title: Localization.shopWebCheckoutTitle,
+            addLoadingIndicator: true
+        )
     }
 
     func closeWebCheckout() {

@@ -9,80 +9,115 @@
 import SwiftUI
 
 struct MainButton: View {
-    private let text: String
+    private let title: String
     private let icon: Icon?
     private let style: Style
+    private let dimensions: Dimensions
+    private let font: Font
+    private let isLoading: Bool
     private let isDisabled: Bool
     private let action: () -> Void
 
     init(
-        text: String,
+        title: String,
         icon: Icon? = nil,
         style: Style = .primary,
+        dimensions: Dimensions = .default,
+        font: Font = Fonts.Bold.callout,
+        isLoading: Bool = false,
         isDisabled: Bool = false,
         action: @escaping (() -> Void)
     ) {
-        self.text = text
+        self.title = title
         self.icon = icon
         self.style = style
+        self.dimensions = dimensions
+        self.font = font
+        self.isLoading = isLoading
         self.isDisabled = isDisabled
         self.action = action
+    }
+
+    init(settings: Settings) {
+        self.init(
+            title: settings.title,
+            icon: settings.icon,
+            style: settings.style,
+            dimensions: settings.dimensions,
+            font: settings.font,
+            isLoading: settings.isLoading,
+            isDisabled: settings.isDisabled,
+            action: settings.action
+        )
     }
 
     var body: some View {
         Button(action: action) {
             content
-                .frame(maxWidth: .infinity, alignment: .center)
-                .padding(.vertical, 14)
+                .frame(
+                    maxWidth: dimensions.maxWidth,
+                    alignment: .center
+                )
+                .padding(.vertical, dimensions.verticalPadding)
                 .background(style.background(isDisabled: isDisabled))
-                .cornerRadius(14)
-                .contentShape(Rectangle())
+                .cornerRadiusContinuous(dimensions.cornerRadius)
         }
-        .disabled(isDisabled)
+        .buttonStyle(BorderlessButtonStyle())
+        .disabled(isDisabled || isLoading)
     }
 
     @ViewBuilder
     private var content: some View {
-        switch icon {
-        case .none:
-            textView
+        if isLoading {
+            ProgressViewCompat(color: style.loaderColor())
+        } else {
+            Group {
+                switch icon {
+                case .none:
+                    textView
 
-        case let .leading(icon):
-            HStack(alignment: .center, spacing: 10) {
-                iconView(icon: icon)
+                case .leading(let icon):
+                    HStack(alignment: .center, spacing: dimensions.iconToLabelSpacing) {
+                        iconView(icon: icon)
 
-                textView
+                        textView
+                    }
+                case .trailing(let icon):
+                    HStack(alignment: .center, spacing: dimensions.iconToLabelSpacing) {
+                        textView
+
+                        iconView(icon: icon)
+                    }
+                }
             }
-        case let .trailing(icon):
-            HStack(alignment: .center, spacing: 10) {
-                textView
-
-                iconView(icon: icon)
-            }
+            .padding(.horizontal, 16)
         }
     }
 
     @ViewBuilder
     private var textView: some View {
-        Text(text)
-            .style(Fonts.Bold.callout,
-                   color: style.textColor(isDisabled: isDisabled))
+        Text(title)
+            .style(
+                font,
+                color: style.textColor(isDisabled: isDisabled)
+            )
+            .lineLimit(1)
     }
 
     @ViewBuilder
-    private func iconView(icon: Image) -> some View {
-        icon
+    private func iconView(icon: ImageType) -> some View {
+        icon.image
             .resizable()
             .renderingMode(.template)
-            .frame(width: 20, height: 20)
+            .frame(size: dimensions.iconSize)
             .foregroundColor(style.iconColor(isDisabled: isDisabled))
     }
 }
 
 extension MainButton {
     enum Icon {
-        case leading(_ icon: Image)
-        case trailing(_ icon: Image)
+        case leading(_ icon: ImageType)
+        case trailing(_ icon: ImageType)
     }
 
     enum Style: String, Hashable, CaseIterable {
@@ -115,6 +150,15 @@ extension MainButton {
             }
         }
 
+        func loaderColor() -> Color {
+            switch self {
+            case .primary:
+                return Colors.Text.primary2
+            case .secondary:
+                return Colors.Text.primary1
+            }
+        }
+
         func background(isDisabled: Bool) -> Color {
             if isDisabled {
                 return Colors.Button.disabled
@@ -126,6 +170,55 @@ extension MainButton {
             case .secondary:
                 return Colors.Button.secondary
             }
+        }
+    }
+
+    struct Dimensions {
+        let maxWidth: CGFloat?
+        let verticalPadding: CGFloat
+        let horizontalPadding: CGFloat
+        let cornerRadius: CGFloat
+        let iconToLabelSpacing: CGFloat
+        let iconSize: CGSize
+
+        static let `default` = Dimensions(
+            maxWidth: .infinity,
+            verticalPadding: 14,
+            horizontalPadding: 16,
+            cornerRadius: 14,
+            iconToLabelSpacing: 10,
+            iconSize: CGSize(width: 20, height: 20)
+        )
+    }
+
+    struct Settings {
+        let title: String
+        let icon: Icon?
+        let style: Style
+        let dimensions: Dimensions
+        let font: Font
+        let isLoading: Bool
+        var isDisabled: Bool
+        let action: () -> Void
+
+        init(
+            title: String,
+            icon: Icon? = nil,
+            style: Style = .primary,
+            dimensions: Dimensions = .default,
+            font: Font = Fonts.Regular.callout,
+            isLoading: Bool = false,
+            isDisabled: Bool = false,
+            action: @escaping (() -> Void)
+        ) {
+            self.title = title
+            self.icon = icon
+            self.style = style
+            self.dimensions = dimensions
+            self.font = font
+            self.isLoading = isLoading
+            self.isDisabled = isDisabled
+            self.action = action
         }
     }
 }
@@ -144,24 +237,56 @@ struct MainButton_Previews: PreviewProvider {
     @ViewBuilder
     static func buttons(style: MainButton.Style) -> some View {
         VStack(spacing: 16) {
-            MainButton(text: "Order card",
-                       icon: .leading(Assets.tangemIconBlack),
-                       style: style) {}
+            MainButton(
+                title: "Order card",
+                icon: .leading(Assets.plusMini),
+                style: style,
+                dimensions: .init(
+                    maxWidth: 200,
+                    verticalPadding: 8,
+                    horizontalPadding: 14,
+                    cornerRadius: 10,
+                    iconToLabelSpacing: 8,
+                    iconSize: .init(width: 16, height: 16)
+                ),
+                font: Fonts.Bold.subheadline
+            ) {}
 
-            MainButton(text: "Order card",
-                       icon: .leading(Assets.tangemIconBlack),
-                       style: style,
-                       isDisabled: true) {}
+            MainButton(
+                title: "Order card",
+                icon: .leading(Assets.tangemIcon),
+                style: style,
+                isDisabled: true
+            ) {}
 
-            MainButton(text: "Order card",
-                       icon: .trailing(Assets.tangemIconBlack),
-                       style: style) {}
+            MainButton(
+                title: "Order card",
+                icon: .trailing(Assets.tangemIcon),
+                style: style
+            ) {}
 
-            MainButton(text: "Order card",
-                       icon: .trailing(Assets.tangemIconBlack),
-                       style: style,
-                       isDisabled: true) {}
+            MainButton(
+                title: "Order card",
+                icon: .trailing(Assets.tangemIcon),
+                style: style,
+                isDisabled: true
+            ) {}
+
+            MainButton(
+                title: "Order card",
+                icon: .trailing(Assets.tangemIcon),
+                style: style,
+                isLoading: true
+            ) {}
+
+            MainButton(
+                title: "A long long long long long long long long long long text",
+                icon: .trailing(Assets.tangemIcon),
+                style: style,
+                isLoading: false
+            ) {}
         }
         .padding(.horizontal, 16)
+        .background(Colors.Background.secondary)
     }
 }

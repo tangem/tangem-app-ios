@@ -39,10 +39,8 @@ struct DetailsView: View {
         }
         .ignoresBottomArea()
         .background(Colors.Background.secondary.edgesIgnoringSafeArea(.all))
-        .navigationBarBackButtonHidden(false)
-        .navigationBarHidden(false)
         .alert(item: $viewModel.error) { $0.alert }
-        .navigationBarTitle("details_title", displayMode: .inline)
+        .navigationBarTitle(Text(Localization.detailsTitle), displayMode: .inline)
     }
 
     // MARK: - Wallet Connect Section
@@ -54,12 +52,14 @@ struct DetailsView: View {
         }
     }
 
+    // MARK: - Settings Section
+
     private var settingsSection: some View {
         GroupedSection(viewModel.settingsSectionViewModels) {
             DefaultRowView(viewModel: $0)
         } footer: {
             if viewModel.canCreateBackup {
-                DefaultFooterView("details_row_title_create_backup_footer".localized)
+                DefaultFooterView(Localization.detailsRowTitleCreateBackupFooter)
             }
         }
     }
@@ -104,7 +104,7 @@ struct DetailsView: View {
         Button(action: {
             viewModel.openSocialNetwork(network: network)
         }) {
-            network.icon
+            network.icon.image
                 .resizable()
                 .frame(width: 24, height: 24)
         }
@@ -115,8 +115,10 @@ struct SettingsView_Previews: PreviewProvider {
     static var previews: some View {
         NavigationView {
             DetailsView(
-                viewModel: DetailsViewModel(cardModel: PreviewCard.tangemWalletEmpty.cardModel,
-                                            coordinator: DetailsCoordinator())
+                viewModel: DetailsViewModel(
+                    cardModel: PreviewCard.tangemWalletEmpty.cardModel,
+                    coordinator: DetailsCoordinator()
+                )
             )
         }
         .navigationViewStyle(.stack)

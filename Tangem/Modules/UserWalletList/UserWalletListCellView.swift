@@ -23,12 +23,12 @@ struct UserWalletListCellView: View {
             content
                 .listRowInsets(EdgeInsets())
                 .swipeActions {
-                    Button("common_delete") { [weak viewModel] in
+                    Button(Localization.commonDelete) { [weak viewModel] in
                         viewModel?.delete()
                     }
                     .tint(.red)
 
-                    Button("user_wallet_list_rename") { [weak viewModel] in
+                    Button(Localization.userWalletListRename) { [weak viewModel] in
                         viewModel?.edit()
                     }
                     .tint(Colors.Icon.informative)
@@ -59,7 +59,7 @@ struct UserWalletListCellView: View {
                             .skeletonable(isShown: viewModel.isBalanceLoading, radius: 6)
 
                         if viewModel.hasError {
-                            Assets.attention
+                            Assets.attention.image
                                 .resizable()
                                 .aspectRatio(contentMode: .fit)
                                 .frame(width: 17, height: 17)
@@ -98,7 +98,7 @@ struct UserWalletListCellView: View {
                 viewModel.edit()
             } label: {
                 HStack {
-                    Text("user_wallet_list_rename")
+                    Text(Localization.userWalletListRename)
                     Image(systemName: "pencil")
                 }
             }
@@ -152,7 +152,7 @@ struct UserWalletListCellView: View {
 
     @ViewBuilder
     private var lockIcon: some View {
-        Assets.lock
+        Assets.lock.image
             .padding(.horizontal, 14)
             .padding(.vertical, 7)
             .background(Colors.Background.secondary)
@@ -162,7 +162,7 @@ struct UserWalletListCellView: View {
     @ViewBuilder
     private var deleteButtonLabel: some View {
         HStack {
-            Text("common_delete")
+            Text(Localization.commonDelete)
             Image(systemName: "trash")
         }
     }

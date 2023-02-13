@@ -19,7 +19,7 @@ extension EmailDataCollector {
     var attachment: Data? { nil }
 
     fileprivate func formatData(_ data: [EmailCollectedData], appendDeviceInfo: Bool = true) -> String {
-        data.reduce("", { $0 + $1.type.title + $1.data + "\n" }) + (appendDeviceInfo ? DeviceInfoProvider.info() : "")
+        data.reduce("") { $0 + $1.type.title + $1.data + "\n" } + (appendDeviceInfo ? DeviceInfoProvider.info() : "")
     }
 }
 
@@ -36,12 +36,18 @@ struct NegativeFeedbackDataCollector: EmailDataCollector {
 }
 
 struct SendScreenDataCollector: EmailDataCollector {
+    var attachment: Data? {
+        FileLogger().logData
+    }
+
     var dataForEmail: String {
         var data = userWalletEmailData
         data.append(.separator(.dashes))
 
-        data.append(EmailCollectedData(type: .card(.blockchain),
-                                       data: walletModel.blockchainNetwork.blockchain.displayName))
+        data.append(EmailCollectedData(
+            type: .card(.blockchain),
+            data: walletModel.blockchainNetwork.blockchain.displayName
+        ))
 
         switch amountToSend.type {
         case .token(let token):
@@ -56,7 +62,7 @@ struct SendScreenDataCollector: EmailDataCollector {
             data.append(EmailCollectedData(type: .wallet(.outputsCount), data: outputsDescription))
         }
 
-        if let errorDescription = self.lastError?.localizedDescription {
+        if let errorDescription = lastError?.localizedDescription {
             data.append(EmailCollectedData(type: .error, data: errorDescription))
         }
 
@@ -72,7 +78,7 @@ struct SendScreenDataCollector: EmailDataCollector {
             EmailCollectedData(type: .send(.fee), data: feeText),
         ])
 
-        if let txHex = self.txHex {
+        if let txHex = txHex {
             data.append(EmailCollectedData(type: .send(.transactionHex), data: txHex))
         }
 
@@ -107,6 +113,10 @@ struct SendScreenDataCollector: EmailDataCollector {
 }
 
 struct PushScreenDataCollector: EmailDataCollector {
+    var attachment: Data? {
+        FileLogger().logData
+    }
+
     var dataForEmail: String {
         var data = userWalletEmailData
         data.append(.separator(.dashes))
@@ -160,6 +170,10 @@ struct PushScreenDataCollector: EmailDataCollector {
 }
 
 struct DetailsFeedbackDataCollector: EmailDataCollector {
+    var attachment: Data? {
+        FileLogger().logData
+    }
+
     var dataForEmail: String {
         var dataToFormat = userWalletEmailData
 

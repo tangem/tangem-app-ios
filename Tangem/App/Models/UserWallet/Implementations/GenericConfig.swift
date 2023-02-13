@@ -28,7 +28,7 @@ struct GenericConfig {
 
         steps.append(.backupIntro)
 
-        if !card.wallets.isEmpty && !backupServiceProvider.backupService.primaryCardIsSet {
+        if !card.wallets.isEmpty, !backupServiceProvider.backupService.primaryCardIsSet {
             steps.append(.scanPrimaryCard)
         }
 
@@ -58,7 +58,7 @@ extension GenericConfig: UserWalletConfig {
             return nil
         }
 
-        return String.localizedStringWithFormat("card_label_card_count".localized, backupCardsCount + 1)
+        return Localization.cardLabelCardCount(backupCardsCount + 1)
     }
 
     var cardsCount: Int {
@@ -78,15 +78,23 @@ extension GenericConfig: UserWalletConfig {
     }
 
     var onboardingSteps: OnboardingSteps {
+        var steps = [WalletOnboardingStep]()
+
+        if !AppSettings.shared.termsOfServicesAccepted.contains(tou.id) {
+            steps.append(.disclaimer)
+        }
+
         if card.wallets.isEmpty {
-            return .wallet([.createWallet] + _backupSteps + userWalletSavingSteps + [.success])
+            steps.append(contentsOf: [.createWallet] + _backupSteps + userWalletSavingSteps + [.success])
         } else {
             if !AppSettings.shared.cardsStartedActivation.contains(card.cardId) {
-                return .wallet([])
+                steps.append(contentsOf: userWalletSavingSteps)
+            } else {
+                steps.append(contentsOf: _backupSteps + userWalletSavingSteps + [.success])
             }
-
-            return .wallet(_backupSteps + userWalletSavingSteps + [.success])
         }
+
+        return .wallet(steps)
     }
 
     var backupSteps: OnboardingSteps? {
@@ -101,7 +109,7 @@ extension GenericConfig: UserWalletConfig {
     }
 
     var defaultBlockchains: [StorageEntry] {
-        if let persistentBlockchains = self.persistentBlockchains {
+        if let persistentBlockchains = persistentBlockchains {
             return persistentBlockchains
         }
 
@@ -133,7 +141,7 @@ extension GenericConfig: UserWalletConfig {
     var warningEvents: [WarningEvent] {
         var warnings = WarningEventsFactory().makeWarningEvents(for: card)
 
-        if hasFeature(.hdWallets) && card.derivationStyle == .legacy {
+        if hasFeature(.hdWallets), card.derivationStyle == .legacy {
             warnings.append(.legacyDerivation)
         }
 
@@ -154,6 +162,10 @@ extension GenericConfig: UserWalletConfig {
 
     var userWalletIdSeed: Data? {
         card.wallets.first?.publicKey
+    }
+
+    var productType: Analytics.ProductType {
+        card.firmwareVersion.doubleValue >= 4.39 ? .wallet : .other
     }
 
     func getFeatureAvailability(_ feature: UserWalletFeature) -> UserWalletFeature.Availability {
@@ -210,6 +222,14 @@ extension GenericConfig: UserWalletConfig {
             return .available
         case .tokenSynchronization:
             return .available
+        case .referralProgram:
+            return .available
+        case .swapping:
+            return .available
+        case .displayHashesCount:
+            return .available
+        case .transactionHistory:
+            return .hidden
         }
     }
 
@@ -224,24 +244,27 @@ extension GenericConfig: UserWalletConfig {
                 partialResult[cardWallet.curve] = cardWallet.derivedKeys
             }
 
-            return try factory.makeMultipleWallet(seedKeys: walletPublicKeys,
-                                                  entry: token,
-                                                  derivedKeys: derivedKeys,
-                                                  derivationStyle: card.derivationStyle)
+            return try factory.makeMultipleWallet(
+                seedKeys: walletPublicKeys,
+                entry: token,
+                derivedKeys: derivedKeys,
+                derivationStyle: card.derivationStyle
+            )
         } else {
-            return try factory.makeMultipleWallet(walletPublicKeys: walletPublicKeys,
-                                                  entry: token,
-                                                  derivationStyle: card.derivationStyle)
+            return try factory.makeMultipleWallet(
+                walletPublicKeys: walletPublicKeys,
+                entry: token,
+                derivationStyle: card.derivationStyle
+            )
         }
     }
 }
-
 
 // MARK: - Private extensions
 
 fileprivate extension Card.BackupStatus {
     var backupCardsCount: Int? {
-        if case let .active(backupCards) = self {
+        if case .active(let backupCards) = self {
             return backupCards
         }
 

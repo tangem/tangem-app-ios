@@ -9,7 +9,7 @@
 import SwiftUI
 
 struct TangemButtonSettings {
-    let title: LocalizedStringKey
+    let title: String
     let size: ButtonLayout
     let action: (() -> Void)?
     let isBusy: Bool
@@ -20,59 +20,39 @@ struct TangemButtonSettings {
     var customIconName: String = ""
     var systemIconName: String = ""
     var iconPosition: TangemButton.IconPosition = .trailing
-
 }
 
 struct OnboardingBottomButtonsSettings {
-    let main: TangemButtonSettings?
+    let main: MainButton.Settings?
 
-    var supplement: TangemButtonSettings? = nil
-}
-
-struct ButtonsSettings {
-    let mainTitle: LocalizedStringKey
-    let mainSize: ButtonLayout
-    let mainAction: (() -> Void)?
-    let mainIsBusy: Bool
-    var mainColor: ButtonColorStyle = .black
-    var mainButtonSystemIconName: String = ""
-    let isMainEnabled: Bool
-
-    let supplementTitle: LocalizedStringKey
-    let supplementSize: ButtonLayout
-    let supplementAction: (() -> Void)?
-    var supplementColor: ButtonColorStyle = .transparentWhite
-    let isVisible: Bool
-    let containSupplementButton: Bool
+    var supplement: TangemButtonSettings?
 }
 
 struct OnboardingTextButtonView: View {
-
-    let title: LocalizedStringKey?
-    let subtitle: LocalizedStringKey?
+    let title: String?
+    let subtitle: String?
     var textOffset: CGSize = .zero
-    //    let buttonsSettings: ButtonsSettings
     let buttonsSettings: OnboardingBottomButtonsSettings
-    let infoText: LocalizedStringKey?
+    let infoText: String?
     let titleAction: (() -> Void)?
-    var checkmarkText: LocalizedStringKey? = nil
+    var checkmarkText: String?
     var isCheckmarkChecked: Binding<Bool> = .constant(false)
 
     @ViewBuilder
     var buttons: some View {
         VStack(spacing: 10) {
             if let mainSettings = buttonsSettings.main {
-                TangemButton(title: mainSettings.title,
-                             systemImage: mainSettings.systemIconName,
-                             iconPosition: mainSettings.iconPosition) {
+                MainButton(
+                    title: mainSettings.title,
+                    icon: mainSettings.icon,
+                    style: mainSettings.style,
+                    isLoading: mainSettings.isLoading,
+                    isDisabled: mainSettings.isDisabled
+                ) {
                     withAnimation {
-                        mainSettings.action?()
+                        mainSettings.action()
                     }
                 }
-                .buttonStyle(TangemButtonStyle(colorStyle: mainSettings.color,
-                                               layout: mainSettings.size,
-                                               isDisabled: !mainSettings.isEnabled,
-                                               isLoading: mainSettings.isBusy))
             }
 
             if let settings = buttonsSettings.supplement {
@@ -81,10 +61,12 @@ struct OnboardingTextButtonView: View {
                     settings.action?()
                 }
                 .opacity(settings.isVisible ? 1.0 : 0.0)
-                .buttonStyle(TangemButtonStyle(colorStyle: settings.color,
-                                               layout: settings.size,
-                                               isDisabled: !settings.isEnabled,
-                                               isLoading: settings.isBusy))
+                .buttonStyle(TangemButtonStyle(
+                    colorStyle: settings.color,
+                    layout: settings.size,
+                    isDisabled: !settings.isEnabled,
+                    isLoading: settings.isBusy
+                ))
                 .overlay(infoTextView)
             }
         }
@@ -103,8 +85,10 @@ struct OnboardingTextButtonView: View {
     var body: some View {
         VStack(spacing: 0) {
             if let title = self.title, let subtitle = self.subtitle {
-                OnboardingMessagesView(title: title,
-                                       subtitle: subtitle) {
+                OnboardingMessagesView(
+                    title: title,
+                    subtitle: subtitle
+                ) {
                     titleAction?()
                 }
                 .frame(alignment: .top)
@@ -115,9 +99,11 @@ struct OnboardingTextButtonView: View {
 
             if let checkmarkText = self.checkmarkText {
                 HStack {
-                    CheckmarkSwitch(isChecked: isCheckmarkChecked,
-                                    settings: .defaultRoundedRect())
-                        .frame(size: .init(width: 26, height: 26))
+                    CheckmarkSwitch(
+                        isChecked: isCheckmarkChecked,
+                        settings: .defaultRoundedRect()
+                    )
+                    .frame(size: .init(width: 26, height: 26))
                     Text(checkmarkText).bold()
                         .onTapGesture {
                             withAnimation {
@@ -131,7 +117,6 @@ struct OnboardingTextButtonView: View {
 
             buttons
                 .padding(.bottom, buttonsSettings.supplement != nil ? 16 : 20)
-
         }
         .frame(maxHeight: 304)
     }
@@ -143,30 +128,30 @@ struct OnboardingTextButtonView_Previews: PreviewProvider {
     static var previews: some View {
         OnboardingTextButtonView(
             title: "Create wallet",
-            subtitle: "Let’s generate all the keys on your card and create a secure wallet",
+            subtitle: "Let's generate all the keys on your card and create a secure wallet",
             textOffset: .init(width: 0, height: -100),
             buttonsSettings:
-            .init(main: TangemButtonSettings(
-                title: "Create wallet",
-                size: .wide,
-                action: {},
-                isBusy: false,
-                isEnabled: true,
-                isVisible: true),
-            supplement: TangemButtonSettings(
-                title: "What does it mean?",
-                size: .wide,
-                action: {},
-                isBusy: false,
-                isEnabled: false,
-                isVisible: true,
-                color: .grayAlt,
-                systemIconName: "plus",
-                iconPosition: .leading
-            )
+            .init(
+                main: MainButton.Settings(
+                    title: "Create wallet",
+                    isLoading: false,
+                    isDisabled: false,
+                    action: {}
+                ),
+                supplement: TangemButtonSettings(
+                    title: "What does it mean?",
+                    size: .wide,
+                    action: {},
+                    isBusy: false,
+                    isEnabled: false,
+                    isVisible: true,
+                    color: .grayAlt,
+                    systemIconName: "plus",
+                    iconPosition: .leading
+                )
             ),
             infoText: nil,
-            titleAction: { },
+            titleAction: {},
             checkmarkText: "I understand",
             isCheckmarkChecked: $isChecked
             //                .init(

@@ -20,10 +20,11 @@ protocol PaymentologyApiService: AnyObject {
 
 class CommonPaymentologyApiService {
     private let provider = TangemProvider<PaymentologyApiTarget>( /* stubClosure: MoyaProvider.delayedStub(1.0), */
-        plugins: [NetworkLoggerPlugin(configuration: .init(logOptions: .verbose))])
+        plugins: [NetworkLoggerPlugin(configuration: .init(logOptions: .verbose))]
+    )
 
     deinit {
-        print("PaymentologyApiService deinit")
+        AppLog.shared.debug("PaymentologyApiService deinit")
     }
 }
 
@@ -82,10 +83,9 @@ extension CommonPaymentologyApiService: PaymentologyApiService {
     }
 }
 
-
 fileprivate extension AnyPublisher where Output: ErrorContainer, Failure: Error {
     func tryExtractError() -> AnyPublisher<Output, Error> {
-        self.tryMap { container in
+        tryMap { container in
             if let error = container.error {
                 throw error
             }
@@ -98,7 +98,7 @@ fileprivate extension AnyPublisher where Output: ErrorContainer, Failure: Error 
 
 fileprivate extension AnyPublisher where Output == RegistrationResponse, Failure == Error {
     func tryGetFirstResult() -> AnyPublisher<RegistrationResponse.Item, Error> {
-        self.tryMap { response in
+        tryMap { response in
             if let first = response.results.first {
                 return first
             }

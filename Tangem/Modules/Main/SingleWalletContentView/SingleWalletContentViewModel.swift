@@ -13,12 +13,17 @@ import class UIKit.UIPasteboard
 protocol SingleWalletContentViewModelOutput: OpenCurrencySelectionDelegate {
     func openPushTx(for index: Int, walletModel: WalletModel)
     func openQR(shareAddress: String, address: String, qrNotice: String)
+    func openBuyCrypto()
     func showExplorerURL(url: URL?, walletModel: WalletModel)
 }
 
 class SingleWalletContentViewModel: ObservableObject {
+    @Injected(\.exchangeService) var exchangeService: ExchangeService
+
     @Published var selectedAddressIndex: Int = 0
     @Published var singleWalletModel: WalletModel?
+    @Published var totalBalanceButtons = [TotalBalanceButton]()
+    @Published var transactionListItems = [TransactionListItem]()
 
     var pendingTransactionViews: [PendingTxView] {
         guard let singleWalletModel else { return [] }
@@ -43,6 +48,10 @@ class SingleWalletContentViewModel: ObservableObject {
         cardModel.canShowAddress
     }
 
+    var canShowTransactionHistory: Bool {
+        cardModel.canShowTransactionHistory
+    }
+
     public var canSend: Bool {
         guard cardModel.canSend else {
             return false
@@ -53,9 +62,10 @@ class SingleWalletContentViewModel: ObservableObject {
 
     lazy var totalSumBalanceViewModel = TotalSumBalanceViewModel(
         userWalletModel: userWalletModel,
-        totalBalanceManager: TotalBalanceProvider(userWalletModel: userWalletModel,
-                                                  userWalletAmountType: cardModel.cardAmountType,
-                                                  totalBalanceAnalyticsService: self.totalBalanceAnalyticsService),
+        totalBalanceManager: TotalBalanceProvider(
+            userWalletModel: userWalletModel,
+            userWalletAmountType: cardModel.cardAmountType
+        ),
         cardAmountType: cardModel.cardAmountType,
         tapOnCurrencySymbol: output
     )
@@ -64,10 +74,8 @@ class SingleWalletContentViewModel: ObservableObject {
     private let userWalletModel: UserWalletModel
     private unowned let output: SingleWalletContentViewModelOutput
     private var bag = Set<AnyCancellable>()
-    private var totalBalanceAnalyticsService: TotalBalanceAnalyticsService? {
-        guard let info = TotalBalanceCardSupportInfoFactory(cardModel: cardModel).createInfo() else { return nil }
-        return TotalBalanceAnalyticsService(totalBalanceCardSupportInfo: info)
-    }
+
+    private var exchangeServiceInitialized = false
 
     init(
         cardModel: CardViewModel,
@@ -81,6 +89,7 @@ class SingleWalletContentViewModel: ObservableObject {
         /// Initial set to `singleWalletModel`
         singleWalletModel = userWalletModel.getWalletModels().first
 
+        makeActionButtons()
         bind()
     }
 
@@ -138,6 +147,7 @@ class SingleWalletContentViewModel: ObservableObject {
             .switchToLatest()
             .receive(on: DispatchQueue.main)
             .sink(receiveValue: { [weak self] publish in
+                self?.updateTransactionHistoryList()
                 self?.objectWillChange.send()
             })
             .store(in: &bag)
@@ -153,9 +163,66 @@ class SingleWalletContentViewModel: ObservableObject {
                 }
 
                 let balance = singleWalletModel.blockchainTokenItemViewModel().fiatValue
-                self.totalBalanceAnalyticsService?.sendToppedUpEventIfNeeded(balance: balance)
-                self.totalBalanceAnalyticsService?.sendFirstLoadBalanceEventForCard(balance: balance)
+                Analytics.logTopUpIfNeeded(balance: balance)
+                Analytics.logSignInIfNeeded(balance: balance)
             }
             .store(in: &bag)
+
+        if !canShowAddress {
+            exchangeService.initializationPublisher
+                .receive(on: DispatchQueue.main)
+                .sink { [weak self] exchangeServiceInitialized in
+                    guard exchangeServiceInitialized else {
+                        return
+                    }
+
+                    self?.exchangeServiceInitialized = exchangeServiceInitialized
+                    self?.makeActionButtons()
+                }
+                .store(in: &bag)
+        }
+    }
+
+    private func makeActionButtons() {
+        if canShowAddress {
+            return
+        }
+
+        guard
+            let walletModel = singleWalletModel,
+            let token = walletModel.getTokens().first,
+            exchangeServiceInitialized,
+            exchangeService.canBuy(
+                token.symbol,
+                amountType: .token(value: token),
+                blockchain: walletModel.blockchainNetwork.blockchain
+            )
+        else {
+            return
+        }
+
+        totalBalanceButtons = [
+            .init(
+                title: Localization.walletButtonBuy,
+                icon: Assets.plusMini,
+                isLoading: false,
+                isDisabled: false,
+                action: { [weak self] in
+                    Analytics.log(.buttonBuyMainScreen)
+                    self?.output.openBuyCrypto()
+                }
+            ),
+        ]
+    }
+
+    private func updateTransactionHistoryList() {
+        guard
+            canShowTransactionHistory,
+            let singleWalletModel = singleWalletModel
+        else {
+            return
+        }
+
+        transactionListItems = TransactionHistoryMapper().makeTransactionListItems(from: singleWalletModel.transactions)
     }
 }

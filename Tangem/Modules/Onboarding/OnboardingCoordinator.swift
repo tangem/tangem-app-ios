@@ -13,20 +13,28 @@ class OnboardingCoordinator: CoordinatorObject {
     var popToRootAction: ParamsAction<PopToRootOptions>
 
     // MARK: - Main view models
+
     @Published private(set) var singleCardViewModel: SingleCardOnboardingViewModel? = nil
     @Published private(set) var twinsViewModel: TwinsOnboardingViewModel? = nil
     @Published private(set) var walletViewModel: WalletOnboardingViewModel? = nil
 
     // MARK: - Child coordinators
+
     @Published var mainCoordinator: MainCoordinator? = nil
 
     // MARK: - Child view models
+
     @Published var buyCryptoModel: WebViewContainerViewModel? = nil
     @Published var warningBankCardViewModel: WarningBankCardViewModel? = nil
     @Published var modalWebViewModel: WebViewContainerViewModel? = nil
     @Published var accessCodeModel: OnboardingAccessCodeViewModel? = nil
-    @Published var addressQrBottomSheetContentViewVodel: AddressQrBottomSheetContentViewVodel? = nil
+    @Published var addressQrBottomSheetContentViewModel: AddressQrBottomSheetContentViewModel? = nil
     @Published var supportChatViewModel: SupportChatViewModel? = nil
+
+    // MARK: - Navigation bar state
+
+    // We should update navigationBar visibility state for the main module on iOS13
+    var navigationBarHidden: Bool { mainCoordinator == nil }
 
     // For non-dismissable presentation
     var onDismissalAttempt: () -> Void = {}
@@ -64,6 +72,7 @@ extension OnboardingCoordinator {
         case root
         case dismiss
     }
+
     struct Options {
         let input: OnboardingInput
         let destination: DestinationOnFinish
@@ -72,18 +81,21 @@ extension OnboardingCoordinator {
 
 extension OnboardingCoordinator: OnboardingTopupRoutable {
     func openCryptoShop(at url: URL, closeUrl: String, action: @escaping (String) -> Void) {
-        buyCryptoModel = .init(url: url,
-                               title: "wallet_button_topup".localized,
-                               addLoadingIndicator: true,
-                               withCloseButton: true, urlActions: [closeUrl: { [weak self] response in
-                                   DispatchQueue.main.async {
-                                       action(response)
-                                       self?.buyCryptoModel = nil
-                                   }
-                               }])
+        buyCryptoModel = .init(
+            url: url,
+            title: Localization.walletButtonBuy,
+            addLoadingIndicator: true,
+            withCloseButton: true,
+            urlActions: [closeUrl: { [weak self] response in
+                DispatchQueue.main.async {
+                    action(response)
+                    self?.buyCryptoModel = nil
+                }
+            }]
+        )
     }
 
-    func openBankWarning(confirmCallback: @escaping () -> (), declineCallback: @escaping () -> ()) {
+    func openBankWarning(confirmCallback: @escaping () -> Void, declineCallback: @escaping () -> Void) {
         let delay = 0.6
         warningBankCardViewModel = .init(confirmCallback: { [weak self] in
             self?.warningBankCardViewModel = nil
@@ -99,15 +111,17 @@ extension OnboardingCoordinator: OnboardingTopupRoutable {
     }
 
     func openP2PTutorial() {
-        modalWebViewModel = WebViewContainerViewModel(url: URL(string: "https://tangem.com/howtobuy.html")!,
-                                                      title: "",
-                                                      addLoadingIndicator: true,
-                                                      withCloseButton: false,
-                                                      urlActions: [:])
+        modalWebViewModel = WebViewContainerViewModel(
+            url: URL(string: "https://tangem.com/howtobuy.html")!,
+            title: "",
+            addLoadingIndicator: true,
+            withCloseButton: false,
+            urlActions: [:]
+        )
     }
 
     func openQR(shareAddress: String, address: String, qrNotice: String) {
-        addressQrBottomSheetContentViewVodel = .init(shareAddress: shareAddress, address: address, qrNotice: qrNotice)
+        addressQrBottomSheetContentViewModel = .init(shareAddress: shareAddress, address: address, qrNotice: qrNotice)
     }
 }
 
