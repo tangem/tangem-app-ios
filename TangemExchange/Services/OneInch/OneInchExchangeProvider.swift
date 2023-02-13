@@ -57,7 +57,7 @@ extension OneInchExchangeProvider: ExchangeProvider {
             fromAddress: walletAddress,
             slippage: defaultSlippage,
             referrerAddress: referrer?.address,
-            fee: referrer?.fee
+            fee: referrer?.fee.description
         )
 
         let result = await oneInchAPIProvider.swap(blockchain: items.source.blockchain, parameters: parameters)
