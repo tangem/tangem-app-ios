@@ -20,7 +20,8 @@ public struct ExchangeTransactionDataModel {
     public let txData: Data
 
     /// Amount which will be swapped in WEI
-    public let amount: Decimal
+    public let sourceAmount: Decimal
+    public let destinationAmount: Decimal
 
     /// Value from 1inch to send in transaction
     public let value: Decimal
@@ -43,7 +44,8 @@ public struct ExchangeTransactionDataModel {
         sourceAddress: String,
         destinationAddress: String,
         txData: Data,
-        amount: Decimal,
+        sourceAmount: Decimal,
+        destinationAmount: Decimal,
         value: Decimal,
         gasValue: Int,
         gasPrice: Int
@@ -54,7 +56,8 @@ public struct ExchangeTransactionDataModel {
         self.sourceAddress = sourceAddress
         self.destinationAddress = destinationAddress
         self.txData = txData
-        self.amount = amount
+        self.sourceAmount = sourceAmount
+        self.destinationAmount = destinationAmount
         self.value = value
         self.gasValue = gasValue
         self.gasPrice = gasPrice
