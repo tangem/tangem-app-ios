@@ -14,16 +14,14 @@ class TotalBalanceProvider {
     @Injected(\.tangemApiService) private var tangemApiService: TangemApiService
 
     private let userWalletModel: UserWalletModel
-    private let totalBalanceAnalyticsService: TotalBalanceAnalyticsService?
     private let totalBalanceSubject = CurrentValueSubject<LoadingValue<TotalBalance>, Never>(.loading)
     private var refreshSubscription: AnyCancellable?
     private let userWalletAmountType: Amount.AmountType?
     private var bag: Set<AnyCancellable> = .init()
 
-    init(userWalletModel: UserWalletModel, userWalletAmountType: Amount.AmountType?, totalBalanceAnalyticsService: TotalBalanceAnalyticsService?) {
+    init(userWalletModel: UserWalletModel, userWalletAmountType: Amount.AmountType?) {
         self.userWalletModel = userWalletModel
         self.userWalletAmountType = userWalletAmountType
-        self.totalBalanceAnalyticsService = totalBalanceAnalyticsService
         bind()
     }
 }
@@ -73,7 +71,7 @@ private extension TotalBalanceProvider {
             .debounce(for: 0.2, scheduler: DispatchQueue.main) // Hide skeleton with delay
             .filter { walletModels in
                 // We can still have loading items
-                walletModels.allConforms({ !$0.state.isLoading })
+                walletModels.allConforms { !$0.state.isLoading }
             }
             .sink { [weak self] walletModels in
                 self?.updateTotalBalance(with: AppSettings.shared.selectedCurrencyCode, walletModels)
@@ -89,7 +87,7 @@ private extension TotalBalanceProvider {
     func mapToTotalBalance(currencyCode: String, _ walletModels: [WalletModel]) -> TotalBalance {
         let tokenItemViewModels = getTokenItemViewModels(from: walletModels)
 
-        var hasError: Bool = false
+        var hasError = false
         var balance: Decimal = 0.0
 
         for token in tokenItemViewModels {
@@ -102,11 +100,10 @@ private extension TotalBalanceProvider {
             }
         }
 
-
         // It is also empty when derivation is missing
         if !tokenItemViewModels.isEmpty {
-            totalBalanceAnalyticsService?.sendFirstLoadBalanceEventForCard(balance: balance)
-            totalBalanceAnalyticsService?.sendToppedUpEventIfNeeded(balance: balance)
+            Analytics.logSignInIfNeeded(balance: balance)
+            Analytics.logTopUpIfNeeded(balance: balance)
         }
 
         return TotalBalance(balance: balance, currencyCode: currencyCode, hasError: hasError)
