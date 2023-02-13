@@ -30,7 +30,7 @@ class CommonWalletListManager {
 
 extension CommonWalletListManager: WalletListManager {
     func update(config: UserWalletConfig) {
-        print("🔄 Updating WalletListManager with new config")
+        AppLog.shared.debug("🔄 Updating WalletListManager with new config")
         self.config = config
     }
 
@@ -51,7 +51,7 @@ extension CommonWalletListManager: WalletListManager {
     }
 
     func updateWalletModels() {
-        print("🔄 Updating Wallet models")
+        AppLog.shared.debug("🔄 Updating Wallet models")
 
         var walletModels = getWalletModels()
         let entries = userTokenListManager.getEntriesFromRepository()
@@ -90,13 +90,14 @@ extension CommonWalletListManager: WalletListManager {
 
                 do {
                     let walletModel = try config.makeWalletModel(for: entry)
-                    print("✅ Make WalletModel for \(displayName) success")
+                    AppLog.shared.debug("✅ Make WalletModel for \(displayName) success")
                     return walletModel
                 } catch WalletModelFactory.Errors.noDerivation {
-                    print("‼️ Make WalletModel for \(displayName) not derivation")
+                    AppLog.shared.debug("‼️ Make WalletModel for \(displayName) not derivation")
                     nonDeriveEntries.append(entry)
                 } catch {
-                    print("‼️ Make WalletModel for \(displayName) catch error: \(error)")
+                    AppLog.shared.debug("‼️ Make WalletModel for \(displayName) catch error")
+                    AppLog.shared.error(error)
                 }
 
                 return nil
@@ -104,7 +105,7 @@ extension CommonWalletListManager: WalletListManager {
 
         walletModels.removeAll { walletModel in
             if !entries.contains(where: { $0.blockchainNetwork == walletModel.blockchainNetwork }) {
-                print("‼️ WalletModel will be removed \(walletModel.blockchainNetwork.blockchain.displayName)")
+                AppLog.shared.debug("‼️ WalletModel will be removed \(walletModel.blockchainNetwork.blockchain.displayName)")
                 return true
             }
 
@@ -120,7 +121,7 @@ extension CommonWalletListManager: WalletListManager {
 
     func reloadWalletModels(silent: Bool) -> AnyPublisher<Void, Never> {
         guard !getWalletModels().isEmpty else {
-            print("‼️ WalletModels is empty")
+            AppLog.shared.debug("‼️ WalletModels is empty")
             return .just
         }
 
@@ -164,7 +165,7 @@ private extension CommonWalletListManager {
 
     func updateWalletModelsPublisher(silent: Bool) -> AnyPublisher<Void, Never> {
         let publishers = getWalletModels().map {
-            $0.update(silent: silent).replaceError(with: (()))
+            $0.update(silent: silent).replaceError(with: ())
         }
 
         return Publishers
@@ -174,7 +175,7 @@ private extension CommonWalletListManager {
             .eraseToAnyPublisher()
     }
 
-    func tryMigrateTokens() -> AnyPublisher<Void, Never>  {
+    func tryMigrateTokens() -> AnyPublisher<Void, Never> {
         if migrated {
             return .just
         }
@@ -241,7 +242,7 @@ private extension CommonWalletListManager {
             return text
         }
 
-        print("✅ Actual List of StorageEntry [\(printList.joined(separator: ", "))]")
+        AppLog.shared.debug("✅ Actual List of StorageEntry [\(printList.joined(separator: ", "))]")
     }
 
     func log(walletModels: [WalletModel]) {
@@ -253,6 +254,6 @@ private extension CommonWalletListManager {
             return text
         }
 
-        print("✅ Actual List of WalletModels [\(printList.joined(separator: ", "))]")
+        AppLog.shared.debug("✅ Actual List of WalletModels [\(printList.joined(separator: ", "))]")
     }
 }
