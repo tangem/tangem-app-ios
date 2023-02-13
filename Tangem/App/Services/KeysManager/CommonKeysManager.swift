@@ -69,6 +69,10 @@ extension CommonKeysManager: KeysManager {
     var infuraProjectId: String {
         keys.infuraProjectId
     }
+
+    var swapReferrerAccount: SwapReferrerAccount? {
+        keys.swapReferrerAccount
+    }
 }
 
 extension CommonKeysManager {
@@ -92,5 +96,6 @@ extension CommonKeysManager {
         let shopifyShop: ShopifyShop
         let zendesk: ZendeskConfig
         let saltPay: SaltPayConfiguration
+        let swapReferrerAccount: SwapReferrerAccount?
     }
 }
