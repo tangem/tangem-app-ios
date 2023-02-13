@@ -13,8 +13,8 @@ struct WarningEventsFactory {
     func makeWarningEvents(for card: CardDTO) -> [WarningEvent] {
         var warnings: [WarningEvent] = []
 
-        if card.firmwareVersion.type != .sdk &&
-            card.attestation.status == .failed {
+        if card.firmwareVersion.type != .sdk,
+           card.attestation.status == .failed {
             warnings.append(.failedToValidateCard)
         }
 
@@ -28,7 +28,7 @@ struct WarningEventsFactory {
 
         if AppEnvironment.current.isTestnet {
             warnings.append(.testnetCard)
-        } else if card.firmwareVersion.type == .sdk && !DemoUtil().isDemoCard(cardId: card.cardId) {
+        } else if card.firmwareVersion.type == .sdk, !DemoUtil().isDemoCard(cardId: card.cardId) {
             warnings.append(.devCard)
         }
 
