@@ -242,8 +242,6 @@ DEPENDENCIES:
   - Mobile-Buy-SDK
   - Moya
   - Solana.Swift (from `https://github.com/tangem/Solana.Swift`, tag `add-external-signer-7`)
-  - stellar-ios-mac-sdk (= 2.2.5)
-  - SwiftCBOR (= 0.4.5)
   - TangemSdk (from `https://github.com/Tangem/tangem-sdk-ios.git`, tag `develop-200`)
   - WalletConnectSwift (from `https://github.com/WalletConnect/WalletConnectSwift`, tag `1.7.0`)
   - WalletConnectSwiftV2 (from `https://github.com/WalletConnect/WalletConnectSwiftV2`, tag `1.1.0`)
@@ -423,6 +421,6 @@ SPEC CHECKSUMS:
   ZendeskSupportProvidersSDK: 77a62fe6bacc05bb10ff20edce75612fa109fd61
   ZendeskSupportSDK: ba72e90e327635b5fde3d023a3de33242a6ee8ab
 
-PODFILE CHECKSUM: 7fea6c761b78dd766ade20974bcd10fbc6ee2756
+PODFILE CHECKSUM: 8912ce8178aba50e41ad9e716dd5a28b96efe524
 
 COCOAPODS: 1.11.3
