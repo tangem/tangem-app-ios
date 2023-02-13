@@ -19,7 +19,7 @@ struct ChangeObserver<V: Equatable>: ViewModifier {
 
     init(newValue: V, action: @escaping (V) -> Void) {
         self.newValue = newValue
-        self.newAction = action
+        newAction = action
     }
 
     func body(content: Content) -> some View {

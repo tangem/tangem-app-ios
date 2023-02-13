@@ -148,8 +148,9 @@ class StoriesViewModel: ObservableObject {
         let progress = elapsedTime / currentPage.duration
 
         timerSubscription = nil
-        withAnimation(.linear(duration: 0)) {
-            self.currentProgress = progress
+        
+        withAnimation(.linear(duration: 0)) { [weak self] in
+            self?.currentProgress = progress
         }
     }
 
@@ -160,8 +161,8 @@ class StoriesViewModel: ObservableObject {
 
         timerStartDate = Date() - TimeInterval(currentStoryTime)
 
-        withAnimation(.linear(duration: remainingStoryDuration)) {
-            self.currentProgress = 1
+        withAnimation(.linear(duration: remainingStoryDuration)) { [weak self] in
+            self?.currentProgress = 1
         }
 
         timerSubscription = Timer.publish(every: remainingStoryDuration, on: .main, in: .default)
@@ -189,6 +190,6 @@ extension StoriesViewModel: WelcomeViewLifecycleListener {
 
 fileprivate extension CGPoint {
     func distance(to other: CGPoint) -> CGFloat {
-        return sqrt(pow(self.x - other.x, 2) + pow(self.y - other.y, 2))
+        return sqrt(pow(x - other.x, 2) + pow(y - other.y, 2))
     }
 }

@@ -74,7 +74,7 @@ class BottomSheetDismissalTransition: NSObject {
         heightAnimator?.isReversed = true
         offsetAnimator?.isReversed = cancelDismiss && progress <= 0.45
 
-        if cancelDismiss && progress <= 0.45 {
+        if cancelDismiss, progress <= 0.45 {
             transitionContext?.cancelInteractiveTransition()
         } else {
             transitionContext?.finishInteractiveTransition()

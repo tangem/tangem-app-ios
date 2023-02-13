@@ -13,8 +13,15 @@ struct SingleCardOnboardingView: View {
 
     private let horizontalPadding: CGFloat = 16
     private let screenSize: CGSize = UIScreen.main.bounds.size
+    private let progressBarHeight: CGFloat = 5
+    private let progressBarPadding: CGFloat = 10
+    private let disclaimerTopPadding: CGFloat = 8
 
     var currentStep: SingleCardOnboardingStep { viewModel.currentStep }
+
+    var isProgressBarVisible: Bool {
+        return true
+    }
 
     private var isTopItemsVisible: Bool {
         viewModel.isNavBarVisible
@@ -30,40 +37,59 @@ struct SingleCardOnboardingView: View {
         }
     }
 
+    @ViewBuilder
+    var disclaimerContent: some View {
+        if let disclaimerModel = viewModel.disclaimerModel {
+            DisclaimerView(viewModel: disclaimerModel)
+                .offset(y: progressBarHeight + progressBarPadding + disclaimerTopPadding)
+                .offset(y: viewModel.isNavBarVisible ? viewModel.navbarSize.height : 0)
+        }
+    }
+
     var body: some View {
         ZStack {
             ConfettiView(shouldFireConfetti: $viewModel.shouldFireConfetti)
                 .allowsHitTesting(false)
+                .disabled(true) // Resolve iOS13 gesture conflict with the webView
                 .frame(maxWidth: screenSize.width)
                 .zIndex(100)
+
+            disclaimerContent
+
             VStack(spacing: 0) {
                 GeometryReader { proxy in
                     let size = proxy.size
                     ZStack(alignment: .center) {
+                        NavigationBar(
+                            title: viewModel.navbarTitle,
+                            settings: .init(titleFont: .system(size: 17, weight: .semibold), backgroundColor: .clear),
+                            leftItems: {
+                                BackButton(
+                                    height: viewModel.navbarSize.height,
+                                    isVisible: viewModel.isBackButtonVisible,
+                                    isEnabled: viewModel.isBackButtonEnabled,
+                                    hPadding: horizontalPadding
+                                ) {
+                                    viewModel.backButtonAction()
+                                }
+                            },
+                            rightItems: {
+                                ChatButton(
+                                    height: viewModel.navbarSize.height,
+                                    isVisible: true,
+                                    isEnabled: true
+                                ) {
+                                    viewModel.openSupportChat()
+                                }
+                            }
+                        )
+                        .frame(size: viewModel.navbarSize)
+                        .offset(x: 0, y: -size.height / 2 + (isTopItemsVisible ? viewModel.navbarSize.height / 2 : 0))
+                        .opacity(isTopItemsVisible ? 1.0 : 0.0)
 
-                        NavigationBar(title: "onboarding_navbar_activating_card",
-                                      settings: .init(titleFont: .system(size: 17, weight: .semibold), backgroundColor: .clear),
-                                      leftItems: {
-                                          BackButton(height: viewModel.navbarSize.height,
-                                                     isVisible: viewModel.isBackButtonVisible,
-                                                     isEnabled: viewModel.isBackButtonEnabled,
-                                                     hPadding: horizontalPadding) {
-                                              viewModel.backButtonAction()
-                                          }
-                                      }, rightItems: {
-                                          ChatButton(height: viewModel.navbarSize.height,
-                                                     isVisible: true,
-                                                     isEnabled: true) {
-                                              viewModel.openSupportChat()
-                                          }
-                                      })
-                                      .frame(size: viewModel.navbarSize)
-                                      .offset(x: 0, y: -size.height / 2 + (isTopItemsVisible ? viewModel.navbarSize.height / 2 : 0))
-                                      .opacity(isTopItemsVisible ? 1.0 : 0.0)
-
-                        ProgressBar(height: 5, currentProgress: viewModel.currentProgress)
-                            .offset(x: 0, y: -size.height / 2 + (isTopItemsVisible ? viewModel.navbarSize.height + 10 : 0))
-                            .opacity(isTopItemsVisible ? 1.0 : 0.0)
+                        ProgressBar(height: progressBarHeight, currentProgress: viewModel.currentProgress)
+                            .offset(x: 0, y: -size.height / 2 + (isTopItemsVisible ? viewModel.navbarSize.height + progressBarPadding : 0))
+                            .opacity(isTopItemsVisible && isProgressBarVisible ? 1.0 : 0.0)
                             .padding(.horizontal, horizontalPadding)
 
                         let backgroundFrame = viewModel.isInitialAnimPlayed ? currentStep.cardBackgroundFrame(containerSize: size) : .zero
@@ -71,14 +97,18 @@ struct SingleCardOnboardingView: View {
 
                         if !viewModel.isCustomContentVisible {
                             AnimatedView(settings: viewModel.$supplementCardSettings) {
-                                OnboardingCardView(placeholderCardType: .light,
-                                                   cardImage: nil,
-                                                   cardScanned: false)
+                                OnboardingCardView(
+                                    placeholderCardType: .light,
+                                    cardImage: nil,
+                                    cardScanned: false
+                                )
                             }
                             AnimatedView(settings: viewModel.$mainCardSettings) {
-                                OnboardingCardView(placeholderCardType: .dark,
-                                                   cardImage: viewModel.cardImage,
-                                                   cardScanned: viewModel.isInitialAnimPlayed && viewModel.isCardScanned)
+                                OnboardingCardView(
+                                    placeholderCardType: .dark,
+                                    cardImage: viewModel.cardImage,
+                                    cardScanned: viewModel.isInitialAnimPlayed && viewModel.isCardScanned
+                                )
                             }
 
                             OnboardingTopupBalanceView(
@@ -96,11 +126,13 @@ struct SingleCardOnboardingView: View {
                                 refreshButtonOpacity: currentStep.balanceStackOpacity
                             )
 
-                            OnboardingCircleButton(refreshAction: {},
-                                                   state: currentStep.successCircleState,
-                                                   size: .huge)
-                                .offset(y: 8)
-                                .opacity(currentStep.successCircleOpacity)
+                            OnboardingCircleButton(
+                                refreshAction: {},
+                                state: currentStep.successCircleState,
+                                size: .huge
+                            )
+                            .offset(y: 8)
+                            .opacity(currentStep.successCircleOpacity)
                         }
                     }
                     .position(x: size.width / 2, y: size.height / 2)
@@ -110,10 +142,14 @@ struct SingleCardOnboardingView: View {
                         viewModel.setupContainer(with: value)
                     }
                 }
+                .frame(minHeight: viewModel.navbarSize.height + 20)
 
                 if viewModel.isCustomContentVisible {
                     customContent
                         .layoutPriority(1)
+                        .readSize { size in
+                            viewModel.setupContainer(with: size)
+                        }
                 }
 
                 if viewModel.isButtonsVisible {
@@ -121,8 +157,10 @@ struct SingleCardOnboardingView: View {
                         title: viewModel.title,
                         subtitle: viewModel.subtitle,
                         textOffset: currentStep.messagesOffset,
-                        buttonsSettings: .init(main: viewModel.mainButtonSettings,
-                                               supplement: viewModel.supplementButtonSettings),
+                        buttonsSettings: .init(
+                            main: viewModel.mainButtonSettings,
+                            supplement: viewModel.supplementButtonSettings
+                        ),
                         infoText: viewModel.infoText
                     ) {
                         viewModel.closeOnboarding()
@@ -138,13 +176,14 @@ struct SingleCardOnboardingView: View {
 
 struct OnboardingView_Previews: PreviewProvider {
     static var previews: some View {
-        SingleCardOnboardingView(viewModel: .init(input: PreviewData.previewNoteCardOnboardingInput,
-                                                  coordinator: OnboardingCoordinator()))
+        SingleCardOnboardingView(viewModel: .init(
+            input: PreviewData.previewNoteCardOnboardingInput,
+            coordinator: OnboardingCoordinator()
+        ))
     }
 }
 
 struct CardOnboardingBackgroundCircle: View {
-
     let scale: CGFloat
 
     var body: some View {
@@ -165,5 +204,4 @@ struct CardOnboardingBackgroundCircle: View {
             .scaleEffect(scale)
             .offset(x: 299, y: -228)
     }
-
 }

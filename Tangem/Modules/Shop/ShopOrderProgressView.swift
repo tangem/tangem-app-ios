@@ -26,15 +26,14 @@ struct ShopOrderProgressView: View {
                 }
             )
             .overlay(
-                Text("shop_placing_order")
+                Text(Localization.shopPlacingOrder)
                     .lineLimit(1)
                     .font(.system(size: 40, weight: .semibold))
                     .minimumScaleFactor(0.3)
                     .padding(.horizontal)
                     .offset(x: 0, y: -50)
             )
+            .navigationBarTitle("", displayMode: .inline) // Don't remove it, otherwise navigation title will NOT hide on iOS 13
             .edgesIgnoringSafeArea(.all)
-            .navigationBarHidden(true)
-            .navigationBarTitle("", displayMode: .inline)
     }
 }

@@ -15,16 +15,15 @@ struct Collection {
 
 extension Collection {
     init(_ collection: Storefront.Collection) {
-        self.title = collection.title
-        self.products = collection.products.edges.map { .init($0.node) }
+        title = collection.title
+        products = collection.products.edges.map { .init($0.node) }
     }
 }
 
 extension Storefront.CollectionQuery {
     @discardableResult
     func collectionFieldsFragment() -> Storefront.CollectionQuery {
-        self
-            .title()
+        title()
             .products(first: 250) { $0
                 .edges { $0
                     .node { $0

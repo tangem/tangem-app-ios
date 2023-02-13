@@ -6,34 +6,43 @@
 //  Copyright © 2022 Tangem AG. All rights reserved.
 //
 
-import SwiftUI
+import Foundation
 
 struct DefaultWarningRowViewModel {
-    let icon: Image
-    let title: String
+    let title: String?
     let subtitle: String
-    let detailsType: DetailsType?
 
-    let action: () -> ()
+    private(set) var leftView: AdditionalViewType?
+    private(set) var rightView: AdditionalViewType?
+
+    let action: (() -> Void)?
 
     init(
-        icon: Image,
-        title: String,
+        title: String? = nil,
         subtitle: String,
-        detailsType: DefaultWarningRowViewModel.DetailsType? = nil,
-        action: @escaping () -> ()
+        leftView: DefaultWarningRowViewModel.AdditionalViewType? = nil,
+        rightView: DefaultWarningRowViewModel.AdditionalViewType? = nil,
+        action: (() -> Void)? = nil
     ) {
-        self.icon = icon
         self.title = title
         self.subtitle = subtitle
-        self.detailsType = detailsType
+        self.leftView = leftView
+        self.rightView = rightView
         self.action = action
+    }
+
+    mutating func update(leftView: AdditionalViewType?) {
+        self.leftView = leftView
+    }
+
+    mutating func update(rightView: AdditionalViewType?) {
+        self.rightView = rightView
     }
 }
 
 extension DefaultWarningRowViewModel {
-    enum DetailsType {
-        case icon(_ image: Image)
+    enum AdditionalViewType: Hashable {
+        case icon(_ image: ImageType)
         case loader
     }
 }
@@ -42,6 +51,8 @@ extension DefaultWarningRowViewModel: Hashable {
     func hash(into hasher: inout Hasher) {
         hasher.combine(title)
         hasher.combine(subtitle)
+        hasher.combine(leftView)
+        hasher.combine(rightView)
     }
 
     static func == (lhs: DefaultWarningRowViewModel, rhs: DefaultWarningRowViewModel) -> Bool {

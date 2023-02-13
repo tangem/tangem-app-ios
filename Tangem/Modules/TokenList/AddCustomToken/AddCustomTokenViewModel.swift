@@ -81,7 +81,7 @@ class AddCustomTokenViewModel: ObservableObject {
             $derivationsPicker.map { $0.selection }.removeDuplicates()
         )
         .debounce(for: 0.1, scheduler: RunLoop.main)
-        .sink { [unowned self] (newBlockchainName, _) in
+        .sink { [unowned self] newBlockchainName, _ in
             self.didChangeBlockchain(newBlockchainName)
         }
         .store(in: &bag)
@@ -98,10 +98,9 @@ class AddCustomTokenViewModel: ObservableObject {
             blockchain = try enteredBlockchain()
             derivationPath = try enteredDerivationPath()
 
-            if case let .token(_, blockchain) = tokenItem,
+            if case .token(_, let blockchain) = tokenItem,
                case .solana = blockchain,
-               !cardModel.longHashesSupported
-            {
+               !cardModel.longHashesSupported {
                 throw TokenCreationErrors.tokensNotSupported
             }
         } catch {
@@ -145,7 +144,7 @@ class AddCustomTokenViewModel: ObservableObject {
     }
 
     private func updateBlockchains(_ blockchains: Set<Blockchain>, newSelectedBlockchain: Blockchain? = nil) {
-        let defaultItem = ("custom_token_network_input_not_selected".localized, "")
+        let defaultItem = (Localization.customTokenNetworkInputNotSelected, "")
 
         let newBlockchains = [defaultItem] + blockchains.sorted {
             $0.displayName < $1.displayName
@@ -186,7 +185,7 @@ class AddCustomTokenViewModel: ObservableObject {
     }
 
     private func updateDerivationPaths() {
-        let defaultItem = ("custom_token_derivation_path_default".localized, "")
+        let defaultItem = (Localization.customTokenDerivationPathDefault, "")
 
         let evmBlockchains = getBlockchains(withTokenSupport: false).filter { $0.isEvm }
         let evmDerivationPaths: [(String, String)]
@@ -218,7 +217,7 @@ class AddCustomTokenViewModel: ObservableObject {
     private func enteredTokenItem() throws -> TokenItem {
         let blockchain = try enteredBlockchain()
 
-        if contractAddress.isEmpty && name.isEmpty && symbol.isEmpty && decimals.isEmpty {
+        if contractAddress.isEmpty, name.isEmpty, symbol.isEmpty, decimals.isEmpty {
             return .blockchain(blockchain)
         } else {
             let enteredContractAddress = try self.enteredContractAddress(in: blockchain)
@@ -230,7 +229,7 @@ class AddCustomTokenViewModel: ObservableObject {
             let maxDecimalNumber = 30
             guard
                 let decimals = Int(decimals),
-                0 <= decimals && decimals <= maxDecimalNumber
+                0 <= decimals, decimals <= maxDecimalNumber
             else {
                 throw TokenCreationErrors.invalidDecimals(precision: maxDecimalNumber)
             }
@@ -288,8 +287,7 @@ class AddCustomTokenViewModel: ObservableObject {
 
     private func enteredDerivationPath() throws -> DerivationPath? {
         if let blockchain = try? enteredBlockchain(),
-           !blockchain.isEvm
-        {
+           !blockchain.isEvm {
             return nil
         }
 
@@ -323,8 +321,7 @@ class AddCustomTokenViewModel: ObservableObject {
     private func findToken(contractAddress: String) -> AnyPublisher<[CoinModel], Never> {
         if let currentCurrencyModel = foundStandardToken,
            let token = currentCurrencyModel.items.first?.token,
-           token.contractAddress.caseInsensitiveCompare(contractAddress) == .orderedSame
-        {
+           token.contractAddress.caseInsensitiveCompare(contractAddress) == .orderedSame {
             return Just([currentCurrencyModel])
                 .eraseToAnyPublisher()
         }
@@ -415,16 +412,17 @@ class AddCustomTokenViewModel: ObservableObject {
             params[.derivationPath] = usedDerivationPath.rawPath
         }
 
-        if case let .token(token, blockchain) = tokenItem {
+        if case .token(let token, let blockchain) = tokenItem {
             params[.networkId] = blockchain.networkId
             params[.contractAddress] = token.contractAddress
         }
 
-        Analytics.log(.customTokenWasAdded, params: params)
+        Analytics.log(event: .customTokenWasAdded, params: params)
     }
 }
 
 // MARK: - Navigation
+
 extension AddCustomTokenViewModel {
     func closeModule() {
         coordinator.closeModule()
@@ -443,17 +441,17 @@ private extension AddCustomTokenViewModel {
         var errorDescription: String? {
             switch self {
             case .blockchainNotSelected:
-                return "custom_token_creation_error_network_not_selected".localized
+                return Localization.customTokenCreationErrorNetworkNotSelected
             case .emptyFields:
-                return "custom_token_creation_error_empty_fields".localized
+                return Localization.customTokenCreationErrorEmptyFields
             case .tokensNotSupported:
-                return "alert_manage_tokens_unsupported_message".localized
+                return Localization.alertManageTokensUnsupportedMessage
             case .invalidDecimals(let precision):
-                return "custom_token_creation_error_wrong_decimals".localized(precision)
+                return Localization.customTokenCreationErrorWrongDecimals(precision)
             case .invalidContractAddress:
-                return "custom_token_creation_error_invalid_contract_address".localized
+                return Localization.customTokenCreationErrorInvalidContractAddress
             case .invalidDerivationPath:
-                return "custom_token_creation_error_invalid_derivation_path".localized
+                return Localization.customTokenCreationErrorInvalidDerivationPath
             }
         }
     }
@@ -474,14 +472,14 @@ private extension AddCustomTokenViewModel {
         var errorDescription: String? {
             switch self {
             case .failedToFindToken:
-                return "custom_token_validation_error_not_found".localized
+                return Localization.customTokenValidationErrorNotFound
             case .alreadyAdded:
-                return "custom_token_validation_error_already_added".localized
+                return Localization.customTokenValidationErrorAlreadyAdded
             }
         }
 
         var appWarning: AppWarning {
-            return AppWarning(title: "common_warning".localized, message: errorDescription ?? "", priority: .warning)
+            return AppWarning(title: Localization.commonWarning, message: errorDescription ?? "", priority: .warning)
         }
     }
 }
