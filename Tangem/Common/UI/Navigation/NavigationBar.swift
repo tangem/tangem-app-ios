@@ -30,7 +30,6 @@ fileprivate enum DefaultNavigationBarSettings {
 }
 
 struct BackButton: View {
-
     let height: CGFloat
     let isVisible: Bool
     let isEnabled: Bool
@@ -43,7 +42,7 @@ struct BackButton: View {
             HStack(spacing: 5) {
                 Image(systemName: "chevron.left")
                     .padding(-1) // remove default? extra padding
-                Text("common_back")
+                Text(Localization.commonBack)
                     .font(.system(size: 17, weight: .regular))
             }
         })
@@ -56,7 +55,6 @@ struct BackButton: View {
 }
 
 struct ChatButton: View {
-
     let height: CGFloat
     let isVisible: Bool
     let isEnabled: Bool
@@ -66,7 +64,7 @@ struct ChatButton: View {
 
     var body: some View {
         Button(action: action, label: {
-            Text("onboarding_chat_button_title")
+            Text(Localization.chatButtonTitle)
                 .font(.system(size: 17, weight: .regular))
         })
         .allowsHitTesting(isEnabled)
@@ -77,9 +75,7 @@ struct ChatButton: View {
     }
 }
 
-
 struct NavigationBar<LeftButtons: View, RightButtons: View>: View {
-
     struct Settings {
         let titleFont: Font
         let titleColor: Color
@@ -87,12 +83,13 @@ struct NavigationBar<LeftButtons: View, RightButtons: View>: View {
         let horizontalPadding: CGFloat
         let height: CGFloat
 
-        init(titleFont: Font = .system(size: 17, weight: .medium),
-             titleColor: Color = .tangemGrayDark6,
-             backgroundColor: Color = .tangemBgGray,
-             horizontalPadding: CGFloat = 0,
-             height: CGFloat = 44) {
-
+        init(
+            titleFont: Font = .system(size: 17, weight: .medium),
+            titleColor: Color = .tangemGrayDark6,
+            backgroundColor: Color = .tangemBgGray,
+            horizontalPadding: CGFloat = 0,
+            height: CGFloat = 44
+        ) {
             self.titleFont = titleFont
             self.titleColor = titleColor
             self.backgroundColor = backgroundColor
@@ -101,16 +98,15 @@ struct NavigationBar<LeftButtons: View, RightButtons: View>: View {
         }
 
         //		static var `default`: Settings { .init() }
-
     }
 
-    private let title: LocalizedStringKey
+    private let title: String
     private let settings: Settings
     private let leftButtons: LeftButtons
     private let rightButtons: RightButtons
 
     init(
-        title: LocalizedStringKey,
+        title: String,
         settings: Settings = .init(),
         @ViewBuilder leftItems: () -> LeftButtons,
         @ViewBuilder rightItems: () -> RightButtons
@@ -139,7 +135,7 @@ struct NavigationBar<LeftButtons: View, RightButtons: View>: View {
 }
 
 extension NavigationBar where LeftButtons == EmptyView, RightButtons == EmptyView {
-    init(title: LocalizedStringKey, settings: Settings = .init()) {
+    init(title: String, settings: Settings = .init()) {
         self.title = title
         self.settings = settings
         leftButtons = EmptyView()
@@ -149,7 +145,7 @@ extension NavigationBar where LeftButtons == EmptyView, RightButtons == EmptyVie
 
 extension NavigationBar where LeftButtons == EmptyView {
     init(
-        title: LocalizedStringKey,
+        title: String,
         settings: Settings = .init(),
         @ViewBuilder rightButtons: () -> RightButtons
     ) {
@@ -162,7 +158,7 @@ extension NavigationBar where LeftButtons == EmptyView {
 
 extension NavigationBar where RightButtons == EmptyView {
     init(
-        title: LocalizedStringKey,
+        title: String,
         settings: Settings = .init(),
         @ViewBuilder leftButtons: () -> LeftButtons
     ) {
@@ -175,7 +171,7 @@ extension NavigationBar where RightButtons == EmptyView {
 
 extension NavigationBar where LeftButtons == ArrowBack, RightButtons == EmptyView {
     init(
-        title: LocalizedStringKey,
+        title: String,
         settings: Settings = .init(),
         backAction: @escaping () -> Void
     ) {
@@ -190,9 +186,9 @@ extension NavigationBar where LeftButtons == ArrowBack, RightButtons == EmptyVie
 
 extension NavigationBar where LeftButtons == ArrowBack, RightButtons == EmptyView {
     init(
-        title: LocalizedStringKey,
+        title: String,
         settings: Settings = .init(),
-        presentationMode:  Binding<PresentationMode>
+        presentationMode: Binding<PresentationMode>
     ) {
         leftButtons = ArrowBack(action: {
             presentationMode.wrappedValue.dismiss()
@@ -210,27 +206,16 @@ struct NavigationBar_Previews: PreviewProvider {
                 NavigationBar(title: "Hello, World!", backAction: {})
                 Spacer()
             }.deviceForPreview(.iPhone11Pro)
-            //			VStack {
-            //				NavigationBar(title: "Hello, World!", rightButtons: {
-            //					Button(action: {},
-            //						   label: {
-            //							Image("verticalDots")
-            //								.foregroundColor(Color.tangemGrayDark6)
-            //								.frame(width: 44.0, height: 44.0, alignment: .center)
-            //						   })
-            //				})
-            //				Spacer()
-            //			}.deviceForPreview(.iPhone11ProMax)
+
             VStack {
                 NavigationBar(title: "Hello, World!")
                 Spacer()
             }.deviceForPreview(.iPhone11ProMax)
 
             HStack {
-                BackButton(height: 44, isVisible: true, isEnabled: true) { }
+                BackButton(height: 44, isVisible: true, isEnabled: true) {}
                 Spacer()
             }.deviceForPreview(.iPhone11ProMax)
         }
     }
 }
-

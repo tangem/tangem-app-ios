@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+  <dict>
+    <key>card_label_card_count</key>
+    <dict>
+      <key>NSStringLocalizedFormatKey</key>
+      <string>%#@format@</string>
+      <key>format</key>
+      <dict>
+        <key>NSStringFormatSpecTypeKey</key>
+        <string>NSStringPluralRuleType</string>
+        <key>NSStringFormatValueTypeKey</key>
+        <string>li</string>
+        <key>one</key>
+        <string>%li карта</string>
+        <key>few</key>
+        <string>%li карты</string>
+        <key>many</key>
+        <string>%li карт</string>
+        <key>other</key>
+        <string>%li карт</string>
+      </dict>
+    </dict>
+    <key>referral_wallets_purchased_count</key>
+    <dict>
+      <key>NSStringLocalizedFormatKey</key>
+      <string>%#@format@</string>
+      <key>format</key>
+      <dict>
+        <key>NSStringFormatSpecTypeKey</key>
+        <string>NSStringPluralRuleType</string>
+        <key>NSStringFormatValueTypeKey</key>
+        <string>li</string>
+        <key>one</key>
+        <string>%li кошелек</string>
+        <key>few</key>
+        <string>%li кошелька</string>
+        <key>many</key>
+        <string>%li кошельков</string>
+        <key>other</key>
+        <string>%li кошельков</string>
+      </dict>
+    </dict>
+    <key>token_count</key>
+    <dict>
+      <key>NSStringLocalizedFormatKey</key>
+      <string>%#@format@</string>
+      <key>format</key>
+      <dict>
+        <key>NSStringFormatSpecTypeKey</key>
+        <string>NSStringPluralRuleType</string>
+        <key>NSStringFormatValueTypeKey</key>
+        <string>li</string>
+        <key>one</key>
+        <string>%li токен</string>
+        <key>few</key>
+        <string>%li токена</string>
+        <key>many</key>
+        <string>%li токенов</string>
+        <key>other</key>
+        <string>%li токенов</string>
+      </dict>
+    </dict>
+  </dict>
+</plist>
