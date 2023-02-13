@@ -236,7 +236,7 @@
 "onboarding_top_up_button_show_wallet_address" = "Show the wallet's address";
 "onboarding_topup_title" = "Activate a wallet";
 "onboarding_twin_exit_warning" = "The twinning process is partly complete. You can't exit it now.";
-"onboarding_twins_interrupt_warning" = "If the process of creating the wallet gets interrupted in any way, you'll have to start over.";
+"onboarding_twins_interrupt_warning" = "If the process of creating the wallet gets interrupted in any way, you'll have to start over";
 "onboarding_wallet_info_subtitle_first" = "You can backup your keys up to two other blank Tangem Wallet cards.";
 "onboarding_wallet_info_subtitle_fourth" = "Access code can be restored with one of backup cards.";
 "onboarding_wallet_info_subtitle_second" = "All the backup cards can be used as full-functional with the identical keys.";
@@ -341,6 +341,7 @@
 "story_meet_title" = "Meet\nTangem";
 "story_web3_description" = "Exchange, buy NFT's, make loans and deposits in more than 100 different decentralized services";
 "story_web3_title" = "DeFi Compatible";
+"swapping_error_wrapper" = "Error: %@";
 "swapping_give_permission" = "Give Permission";
 "swapping_insufficient_funds" = "Insufficient funds";
 "swapping_not_enough_funds_for_fee" = "Not enough funds for fee in your %1$@ wallet to create a transaction. Top up your %2$@ wallet first.";
