@@ -7,15 +7,12 @@
 //
 
 import Foundation
-
-import Foundation
 import TangemSdk
 import BlockchainSdk
 
 struct SaltPayConfig {
     @Injected(\.backupServiceProvider) private var backupServiceProvider: BackupServiceProviding
-    @Injected(\.loggerProvider) var loggerProvider: LoggerProviding
-    @Injected(\.saletPayRegistratorProvider) private var saltPayRegistratorProvider: SaltPayRegistratorProviding
+    @Injected(\.saltPayRegistratorProvider) private var saltPayRegistratorProvider: SaltPayRegistratorProviding
 
     private let card: CardDTO
 
@@ -40,7 +37,7 @@ struct SaltPayConfig {
 
         var steps: [WalletOnboardingStep] = .init()
 
-        if !card.wallets.isEmpty && !backupServiceProvider.backupService.primaryCardIsSet {
+        if !card.wallets.isEmpty, !backupServiceProvider.backupService.primaryCardIsSet {
             steps.append(.scanPrimaryCard)
         }
 
@@ -97,9 +94,8 @@ extension SaltPayConfig: UserWalletConfig {
 
         if !_backupSteps.isEmpty { // This filter should be applied to backup only.
             config.filter.cardIdFilter = .allow(Set(cardIds), ranges: util.backupCardRanges)
-            config.filter.localizedDescription = "error_saltpay_wrong_backup_card".localized
+            config.filter.localizedDescription = Localization.errorSaltpayWrongBackupCard
         }
-
         config.cardIdDisplayFormat = .none
         return config
     }
@@ -108,8 +104,9 @@ extension SaltPayConfig: UserWalletConfig {
         return nil
     }
 
-    var touURL: URL {
-        .init(string: "https://tangem.com/soltpay_tos.html")!
+    var tou: TOU {
+        let url = URL(string: "https://tangem.com/soltpay_tos.html")!
+        return TOU(id: url.absoluteString, url: url)
     }
 
     var cardsCount: Int {
@@ -129,15 +126,23 @@ extension SaltPayConfig: UserWalletConfig {
     }
 
     var onboardingSteps: OnboardingSteps {
-        if SaltPayUtil().isBackupCard(cardId: card.cardId) {
-            return .wallet([])
+        var steps = [WalletOnboardingStep]()
+
+        if !AppSettings.shared.termsOfServicesAccepted.contains(tou.id) {
+            steps.append(.disclaimer)
         }
 
-        if card.wallets.isEmpty {
-            return .wallet([.createWallet] + _backupSteps + userWalletSavingSteps + registrationSteps)
+        if SaltPayUtil().isBackupCard(cardId: card.cardId) {
+            steps.append(contentsOf: userWalletSavingSteps)
         } else {
-            return .wallet(_backupSteps + userWalletSavingSteps + registrationSteps)
+            if card.wallets.isEmpty {
+                steps.append(contentsOf: [.createWallet] + _backupSteps + userWalletSavingSteps + registrationSteps)
+            } else {
+                steps.append(contentsOf: _backupSteps + userWalletSavingSteps + registrationSteps)
+            }
         }
+
+        return .wallet(steps)
     }
 
     var backupSteps: OnboardingSteps? {
@@ -189,8 +194,21 @@ extension SaltPayConfig: UserWalletConfig {
         card.wallets.first?.publicKey
     }
 
+    var exchangeServiceEnvironment: ExchangeServiceEnvironment {
+        .saltpay
+    }
+
+    var productType: Analytics.ProductType {
+        SaltPayUtil().isBackupCard(cardId: card.cardId) ? .visaBackup : .visa
+    }
+
     func getFeatureAvailability(_ feature: UserWalletFeature) -> UserWalletFeature.Availability {
-        .hidden
+        switch feature {
+        case .transactionHistory:
+            return .available
+        default:
+            return .hidden
+        }
     }
 
     func makeWalletModel(for token: StorageEntry) throws -> WalletModel {
@@ -201,9 +219,11 @@ extension SaltPayConfig: UserWalletConfig {
         }
 
         let factory = WalletModelFactory()
-        return try factory.makeSingleWallet(walletPublicKey: walletPublicKey,
-                                            blockchain: blockchain,
-                                            token: token.tokens.first,
-                                            derivationStyle: card.derivationStyle)
+        return try factory.makeSingleWallet(
+            walletPublicKey: walletPublicKey,
+            blockchain: blockchain,
+            token: token.tokens.first,
+            derivationStyle: card.derivationStyle
+        )
     }
 }
