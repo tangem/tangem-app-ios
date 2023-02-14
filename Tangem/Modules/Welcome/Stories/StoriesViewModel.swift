@@ -148,7 +148,7 @@ class StoriesViewModel: ObservableObject {
         let progress = elapsedTime / currentPage.duration
 
         timerSubscription = nil
-        
+
         withAnimation(.linear(duration: 0)) { [weak self] in
             self?.currentProgress = progress
         }
