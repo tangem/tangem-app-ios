@@ -9,6 +9,7 @@
 import Combine
 import Foundation
 import class UIKit.UIPasteboard
+import BlockchainSdk
 
 protocol SingleWalletContentViewModelOutput: OpenCurrencySelectionDelegate {
     func openPushTx(for index: Int, walletModel: WalletModel)
@@ -23,7 +24,7 @@ class SingleWalletContentViewModel: ObservableObject {
     @Published var selectedAddressIndex: Int = 0
     @Published var singleWalletModel: WalletModel?
     @Published var totalBalanceButtons = [TotalBalanceButton]()
-    @Published var transactionListItems = [TransactionListItem]()
+    @Published var transactionHistoryState = TransactionsListView.State.loading
 
     var pendingTransactionViews: [PendingTxView] {
         guard let singleWalletModel else { return [] }
@@ -74,6 +75,7 @@ class SingleWalletContentViewModel: ObservableObject {
     private let userWalletModel: UserWalletModel
     private unowned let output: SingleWalletContentViewModelOutput
     private var bag = Set<AnyCancellable>()
+    private var transactionHistoryLoaderSubscription: AnyCancellable?
 
     private var exchangeServiceInitialized = false
 
@@ -89,12 +91,14 @@ class SingleWalletContentViewModel: ObservableObject {
         /// Initial set to `singleWalletModel`
         singleWalletModel = userWalletModel.getWalletModels().first
 
+        loadTransactionHistory()
         makeActionButtons()
         bind()
     }
 
     func onRefresh(done: @escaping () -> Void) {
         userWalletModel.updateAndReloadWalletModels(completion: done)
+        loadTransactionHistory()
     }
 
     func openQR() {
@@ -119,6 +123,30 @@ class SingleWalletContentViewModel: ObservableObject {
         if let walletModel = singleWalletModel {
             UIPasteboard.general.string = walletModel.displayAddress(for: selectedAddressIndex)
         }
+    }
+
+    func loadTransactionHistory() {
+        guard
+            canShowTransactionHistory,
+            let singleWalletModel = singleWalletModel,
+            let historyLoader = singleWalletModel.walletManager as? TransactionHistoryLoader,
+            transactionHistoryLoaderSubscription == nil
+        else {
+            return
+        }
+
+        transactionHistoryState = .loading
+        transactionHistoryLoaderSubscription = historyLoader.loadTransactionHistory()
+            .receive(on: DispatchQueue.main)
+            .sink(receiveCompletion: { [weak self] completion in
+                if case .failure(let error) = completion {
+                    AppLog.shared.debug("[SaltPay] error while loading transaction history: \(error)")
+                    self?.transactionHistoryState = .error(error)
+                }
+                self?.transactionHistoryLoaderSubscription = nil
+            }, receiveValue: { [weak self] _ in
+                self?.updateTransactionHistoryList()
+            })
     }
 
     private func bind() {
@@ -147,7 +175,6 @@ class SingleWalletContentViewModel: ObservableObject {
             .switchToLatest()
             .receive(on: DispatchQueue.main)
             .sink(receiveValue: { [weak self] publish in
-                self?.updateTransactionHistoryList()
                 self?.objectWillChange.send()
             })
             .store(in: &bag)
@@ -223,6 +250,7 @@ class SingleWalletContentViewModel: ObservableObject {
             return
         }
 
-        transactionListItems = TransactionHistoryMapper().makeTransactionListItems(from: singleWalletModel.transactions)
+        let txListItems = TransactionHistoryMapper().makeTransactionListItems(from: singleWalletModel.transactions)
+        transactionHistoryState = .loaded(txListItems)
     }
 }
