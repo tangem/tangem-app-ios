@@ -137,6 +137,11 @@ extension OnboardingCoordinator: WalletOnboardingRoutable {
         Analytics.log(.chatScreenOpened)
         supportChatViewModel = SupportChatViewModel(cardId: cardId, dataCollector: dataCollector)
     }
+
+    func openSprinklSupportChat(appID: String) {
+        Analytics.log(.chatScreenOpened)
+        modalWebViewModel = WebViewContainerViewModel.sprinklSupportChat(appID: appID)
+    }
 }
 
 extension OnboardingCoordinator: OnboardingRoutable {
