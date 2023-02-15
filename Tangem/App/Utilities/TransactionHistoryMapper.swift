@@ -21,7 +21,10 @@ struct TransactionHistoryMapper {
             return nil
         }
 
-        let direction: TransactionRecord.Direction = addresses.contains(where: { $0.value.lowercased() == transaction.destinationAddress.lowercased() }) ? .incoming : .outgoing
+        let direction: TransactionRecord.Direction = addresses.contains(where: {
+            $0.value.caseInsensitiveCompare(transaction.destinationAddress) == .orderedSame
+        }) ? .incoming : .outgoing
+
         return .init(
             amountType: transaction.amount.type,
             destination: AddressFormatter(address: transaction.destinationAddress).truncated(),
