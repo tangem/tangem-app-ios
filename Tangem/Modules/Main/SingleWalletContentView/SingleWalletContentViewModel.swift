@@ -176,7 +176,7 @@ class SingleWalletContentViewModel: ObservableObject {
                 })
                 .store(in: &bag)
         }
-        
+
         if !canShowAddress {
             exchangeService.initializationPublisher
                 .receive(on: DispatchQueue.main)
