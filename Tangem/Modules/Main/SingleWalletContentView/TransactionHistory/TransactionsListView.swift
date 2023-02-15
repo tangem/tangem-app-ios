@@ -16,7 +16,8 @@ struct TransactionListItem: Hashable, Identifiable {
 }
 
 struct TransactionsListView: View {
-    let transactionItems: [TransactionListItem]
+    let state: State
+    var retryAction: (() -> Void)?
 
     var body: some View {
         VStack {
@@ -42,6 +43,56 @@ struct TransactionsListView: View {
 
     @ViewBuilder
     private var content: some View {
+        switch state {
+        case .loaded(let items):
+            transactionsContent(transactionItems: items)
+        case .error:
+            errorContent
+        case .loading:
+            loadingContent
+        }
+    }
+
+    @ViewBuilder
+    private var loadingContent: some View {
+        VStack(spacing: 10) {
+            ForEach(0 ... 2) { _ in
+                TransactionViewPlaceholder()
+            }
+            .padding(.vertical, 8)
+        }
+        .padding(.vertical, 12)
+    }
+
+    @ViewBuilder
+    private var errorContent: some View {
+        VStack(spacing: 20) {
+            Text(Localization.transactionHistoryErrorFailedToLoad)
+                .style(
+                    Fonts.Bold.footnote,
+                    color: Colors.Text.tertiary
+                )
+
+            MainButton(
+                title: Localization.onboardingButtonKycWaiting,
+                style: .secondary,
+                dimensions: .init(
+                    verticalPadding: 7,
+                    horizontalPadding: 14,
+                    cornerRadius: 10
+                ),
+                font: Fonts.Bold.subheadline,
+                isLoading: false,
+                isDisabled: false,
+                action: retryAction ?? {}
+            )
+        }
+        .padding(.top, 66)
+        .padding(.bottom, 99)
+    }
+
+    @ViewBuilder
+    private func transactionsContent(transactionItems: [TransactionListItem]) -> some View {
         if transactionItems.isEmpty {
             VStack(spacing: 20) {
                 Assets.coinSlot.image
@@ -51,7 +102,6 @@ struct TransactionsListView: View {
                 Text(Localization.transactionHistoryEmptyTransactions)
                     .style(Fonts.Regular.subheadline, color: Colors.Text.tertiary)
             }
-            .padding(.horizontal, 60)
             .padding(.top, 53)
             .padding(.bottom, 70)
         } else {
@@ -75,6 +125,14 @@ struct TransactionsListView: View {
                 }
             }
         }
+    }
+}
+
+extension TransactionsListView {
+    enum State {
+        case loading
+        case error(Error)
+        case loaded([TransactionListItem])
     }
 }
 
@@ -170,12 +228,15 @@ struct TransactionsListView_Previews: PreviewProvider {
     ]
     static var previews: some View {
         PerfList {
-            TransactionsListView(transactionItems: listItems)
+            TransactionsListView(state: .loaded([]))
+            TransactionsListView(state: .error(""))
+            TransactionsListView(state: .loading)
         }
+        .background(Colors.Background.secondary)
         .padding(.horizontal, 16)
 
         PerfList {
-            TransactionsListView(transactionItems: [])
+            TransactionsListView(state: .loaded(listItems))
         }
         .padding(.horizontal, 16)
     }
