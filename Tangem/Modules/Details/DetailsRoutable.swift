@@ -17,7 +17,7 @@ protocol DetailsRoutable: AnyObject {
     func openScanCardSettings(with userWalletId: Data)
     func openAppSettings(userWallet: UserWallet)
     func openSupportChat(cardId: String, dataCollector: EmailDataCollector)
-    func openSprinklSupportChat()
+    func openSprinklSupportChat(appID: String)
     func openInSafari(url: URL)
     func openEnvironmentSetup()
     func openReferral(with cardModel: CardViewModel, userWalletId: Data)
