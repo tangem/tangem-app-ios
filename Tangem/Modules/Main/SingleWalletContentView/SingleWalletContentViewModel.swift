@@ -91,14 +91,12 @@ class SingleWalletContentViewModel: ObservableObject {
         /// Initial set to `singleWalletModel`
         singleWalletModel = userWalletModel.getWalletModels().first
 
-        loadTransactionHistory()
         makeActionButtons()
         bind()
     }
 
     func onRefresh(done: @escaping () -> Void) {
         userWalletModel.updateAndReloadWalletModels(completion: done)
-        loadTransactionHistory()
     }
 
     func openQR() {
@@ -171,6 +169,14 @@ class SingleWalletContentViewModel: ObservableObject {
             }
             .store(in: &bag)
 
+        if canShowTransactionHistory {
+            singleWalletModel?.$transactionHistoryState
+                .sink(receiveValue: { [weak self] state in
+                    self?.updateTransactionHistoryState(state)
+                })
+                .store(in: &bag)
+        }
+        
         if !canShowAddress {
             exchangeService.initializationPublisher
                 .receive(on: DispatchQueue.main)
@@ -216,27 +222,17 @@ class SingleWalletContentViewModel: ObservableObject {
         ]
     }
 
-    private func loadTransactionHistory() {
-        guard
-            canShowTransactionHistory,
-            let singleWalletModel = singleWalletModel,
-            let historyLoader = singleWalletModel.walletManager as? TransactionHistoryLoader,
-            transactionHistoryLoaderSubscription == nil
-        else {
-            return
+    private func updateTransactionHistoryState(_ newState: WalletModel.TransactionHistoryState) {
+        switch newState {
+        case .notSupported, .loading:
+            break
+        case .notLoaded:
+            transactionHistoryState = .loading
+        case .failedToLoad(let error):
+            transactionHistoryState = .error(error)
+        case .loaded:
+            updateTransactionHistoryList()
         }
-
-        transactionHistoryLoaderSubscription = historyLoader.loadTransactionHistory()
-            .receive(on: DispatchQueue.main)
-            .sink(receiveCompletion: { [weak self] completion in
-                if case .failure(let error) = completion {
-                    AppLog.shared.debug("[SaltPay] error while loading transaction history: \(error)")
-                    self?.transactionHistoryState = .error(error)
-                }
-                self?.transactionHistoryLoaderSubscription = nil
-            }, receiveValue: { [weak self] _ in
-                self?.updateTransactionHistoryList()
-            })
     }
 
     private func updateTransactionHistoryList() {
