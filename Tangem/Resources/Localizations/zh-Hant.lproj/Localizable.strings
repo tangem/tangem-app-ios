@@ -375,6 +375,10 @@
 "token_details_unable_hide_alert_message" = "%1$@ 代幣是 %2$@ 網絡上的主要貨幣，只要列表中還有該網絡上的其他代幣，它就無法被隱藏。";
 "token_details_unable_hide_alert_title" = "無法隱藏 %@";
 "token_item_no_rate" = "無費用";
+"transaction_history_empty_transactions" = "您還沒有任何交易";
+"transaction_history_error_failed_to_load" = "無法加載交易";
+"transaction_history_title" = "交易";
+"transaction_history_tx_in_progress" = "進行中...";
 "twin_error_not_a_twin_card" = "您掃描的不是雙胞胎卡。要創建雙胞胎錢包，您需要掃描 Tangem Twin 卡";
 "twin_error_same_card" = "您掃描了同一張卡片。要創建雙錢包，您需要掃描編號為 %li 的卡";
 "twin_error_wrong_twin" = "你掃描錯了胞胎卡。請嘗試另一個";
