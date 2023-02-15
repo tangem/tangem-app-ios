@@ -49,6 +49,7 @@ class DetailsViewModel: ObservableObject {
 
     // MARK: - Private
 
+    @Injected(\.keysManager) private var keysManager: KeysManager
     private var bag = Set<AnyCancellable>()
     private unowned let coordinator: DetailsRoutable
 
@@ -124,17 +125,22 @@ extension DetailsViewModel {
     }
 
     func openSupportChat() {
-        coordinator.openSprinklSupportChat()
-//        Analytics.log(.settingsButtonChat)
-//        let dataCollector = DetailsFeedbackDataCollector(
-//            cardModel: cardModel,
-//            userWalletEmailData: cardModel.emailData
-//        )
-//
-//        coordinator.openSupportChat(
-//            cardId: cardModel.cardId,
-//            dataCollector: dataCollector
-//        )
+        Analytics.log(.settingsButtonChat)
+
+        switch cardModel.supportChatEnvironment {
+        case .tangem:
+            let dataCollector = DetailsFeedbackDataCollector(
+                cardModel: cardModel,
+                userWalletEmailData: cardModel.emailData
+            )
+
+            coordinator.openSupportChat(
+                cardId: cardModel.cardId,
+                dataCollector: dataCollector
+            )
+        case .saltPay:
+            coordinator.openSprinklSupportChat(appID: keysManager.saltPay.sprinklrAppID)
+        }
     }
 
     func openDisclaimer() {
