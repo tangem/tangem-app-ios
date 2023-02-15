@@ -10,7 +10,7 @@ import Foundation
 import BlockchainSdk
 
 struct SaltPayConfiguration: Decodable {
-    let zendesk: ZendeskConfig
+    let sprinklrAppID: String
     let kycProvider: KYCProvider
     let credentials: NetworkProviderConfiguration.Credentials
 }
