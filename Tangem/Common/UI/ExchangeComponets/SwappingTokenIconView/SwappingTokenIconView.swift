@@ -70,10 +70,10 @@ struct SwappingTokenIconView: View {
 
     private func image(imageURL: URL, networkURL: URL?) -> some View {
         ZStack(alignment: .topTrailing) {
-            icon(url: imageURL, size: imageSize)
+            IconView(url: imageURL, size: imageSize)
 
             if let networkIcon = networkURL {
-                icon(url: networkIcon, size: networkIconSize)
+                IconView(url: networkIcon, size: networkIconSize)
                     .frame(size: networkIconSize)
                     .padding(.all, 1)
                     .background(Colors.Background.primary)
@@ -81,23 +81,6 @@ struct SwappingTokenIconView: View {
                     .offset(x: 6, y: -6)
             }
         }
-    }
-
-    private func icon(url: URL, size: CGSize) -> some View {
-        KFImage(url)
-            .setProcessor(DownsamplingImageProcessor(size: size))
-            .placeholder {
-                SkeletonView()
-                    .frame(size: size)
-                    .cornerRadius(size.height / 2)
-            }
-            .fade(duration: 0.3)
-            .cacheOriginalImage()
-            .scaleFactor(UIScreen.main.scale)
-            .resizable()
-            .scaledToFit()
-            .frame(size: size)
-            .cornerRadiusContinuous(5)
     }
 }
 
