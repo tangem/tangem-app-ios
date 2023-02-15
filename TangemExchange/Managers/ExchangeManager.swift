@@ -29,8 +29,11 @@ public protocol ExchangeManager {
     func isEnoughAllowance() -> Bool
 
     /// Refresh main values
-    func refresh()
+    func refresh(type: ExchangeManagerRefreshType)
 
     /// Call it to save transaction in pending list
     func didSendApprovingTransaction(exchangeTxData: ExchangeTransactionDataModel)
+
+    /// Call it to signal success swap and stop timer
+    func didSendSwapTransaction(exchangeTxData: ExchangeTransactionDataModel)
 }
