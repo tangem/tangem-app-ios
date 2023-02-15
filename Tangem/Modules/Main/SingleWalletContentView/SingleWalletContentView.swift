@@ -43,23 +43,25 @@ struct SingleWalletContentView: View {
                         if !viewModel.totalBalanceButtons.isEmpty {
                             HStack {
                                 ForEach(viewModel.totalBalanceButtons) { buttonInfo in
-                                    MainButton(
-                                        title: buttonInfo.title,
-                                        icon: .leading(buttonInfo.icon),
-                                        style: .secondary,
-                                        dimensions: .init(
-                                            maxWidth: .infinity,
-                                            verticalPadding: 8,
-                                            horizontalPadding: 14,
-                                            cornerRadius: 10,
-                                            iconToLabelSpacing: 8,
-                                            iconSize: .init(width: 16, height: 16)
-                                        ),
-                                        font: Fonts.Bold.subheadline,
-                                        isLoading: buttonInfo.isLoading,
-                                        isDisabled: buttonInfo.isDisabled,
-                                        action: buttonInfo.action
-                                    )
+                                    Button(action: buttonInfo.action) {
+                                        HStack {
+                                            buttonInfo.icon.image
+                                                .renderingMode(.template)
+                                                .foregroundColor(Colors.Icon.primary1)
+                                                .frame(width: 16, height: 16)
+
+                                            Text(buttonInfo.title)
+                                                .style(
+                                                    Fonts.Bold.callout,
+                                                    color: Colors.Text.primary1
+                                                )
+                                        }
+                                        .padding(.vertical, 9)
+                                        .frame(maxWidth: .infinity)
+                                        .background(Colors.Button.secondary)
+                                        .cornerRadius(10)
+                                    }
+                                    .buttonStyle(BorderlessButtonStyle())
                                 }
                             }
                             .padding(.horizontal, 16)
@@ -71,7 +73,7 @@ struct SingleWalletContentView: View {
                     .padding(.horizontal, 16)
 
                     if viewModel.canShowTransactionHistory {
-                        TransactionsListView(state: viewModel.transactionHistoryState, retryAction: viewModel.loadTransactionHistory)
+                        TransactionsListView(state: viewModel.transactionHistoryState)
                             .background(Colors.Background.primary)
                             .cornerRadius(16)
                             .padding(.horizontal, 16)
