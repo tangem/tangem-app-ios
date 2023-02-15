@@ -119,5 +119,14 @@ extension GroupedNumberTextField {
                 return value
             }
         }
+
+        var isInternal: Bool {
+            switch self {
+            case .internal:
+                return true
+            case .external:
+                return false
+            }
+        }
     }
 }
