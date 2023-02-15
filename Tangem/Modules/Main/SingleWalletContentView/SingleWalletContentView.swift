@@ -71,7 +71,7 @@ struct SingleWalletContentView: View {
                     .padding(.horizontal, 16)
 
                     if viewModel.canShowTransactionHistory {
-                        TransactionsListView(transactionItems: viewModel.transactionListItems)
+                        TransactionsListView(state: viewModel.transactionHistoryState, retryAction: viewModel.loadTransactionHistory)
                             .background(Colors.Background.primary)
                             .cornerRadius(16)
                             .padding(.horizontal, 16)
