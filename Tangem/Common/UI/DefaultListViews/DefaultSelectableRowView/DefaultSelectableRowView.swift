@@ -9,14 +9,14 @@
 import SwiftUI
 
 struct DefaultSelectableRowView: View {
-    /// `Binding` required for trigger redrawing the view
-    @Binding private var viewModel: DefaultSelectableRowViewModel
+    private var viewModel: DefaultSelectableRowViewModel
+
     /// `@Binding isSelected` must be here to push changes at the place where this object was created
     @Binding private var isSelected: Bool
 
     init(viewModel: DefaultSelectableRowViewModel) {
-        _viewModel = .constant(viewModel)
-        _isSelected = viewModel.$isSelected
+        self.viewModel = viewModel
+        _isSelected = viewModel.isSelected()
     }
 
     var body: some View {
@@ -37,7 +37,7 @@ struct DefaultSelectableRowView: View {
                 Spacer(minLength: 12)
 
                 CheckIconView(isSelected: $isSelected)
-                    /// Off default behavior with fade animation
+                    // Off default behavior with fade animation
                     .animation(nil, value: isSelected)
             }
             .padding(.vertical, 12)
@@ -47,17 +47,21 @@ struct DefaultSelectableRowView: View {
 }
 
 struct DefaultSelectableRowViewPreview: PreviewProvider {
-    static var isSelected: Bool = true
-    static let viewModel = DefaultSelectableRowViewModel(
-        title: "Long Tap",
-        subtitle: "This mechanism protects against proximity attacks on a card. It will enforce a delay.",
-        isSelected: .init(
-            get: { isSelected },
-            set: { isSelected = $0 }
-        )
-    )
+    struct ContainerView: View {
+        @State private var isSelected: Bool = false
+
+        var body: some View {
+            DefaultSelectableRowView(
+                viewModel: DefaultSelectableRowViewModel(
+                    title: "Long Tap",
+                    subtitle: "This mechanism protects against proximity attacks on a card. It will enforce a delay.",
+                    isSelected: { $isSelected }
+                )
+            )
+        }
+    }
 
     static var previews: some View {
-        DefaultSelectableRowView(viewModel: viewModel)
+        ContainerView().padding()
     }
 }
