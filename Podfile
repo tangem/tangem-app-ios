@@ -48,7 +48,6 @@ target 'Tangem' do
   # support chat 
   pod 'ZendeskSupportSDK', '~> 5.5.0'
   pod 'ZendeskChatSDK', '~> 2.12.0'
-  pod 'SPRMessengerClient'
   
   # Analytics
   pod 'Amplitude', '~> 8.8.0'
