@@ -12,4 +12,5 @@ protocol OnboardingRoutable: AnyObject {
     func onboardingDidFinish()
     func closeOnboarding()
     func openSupportChat(cardId: String, dataCollector: EmailDataCollector)
+    func openSprinklSupportChat(appID: String)
 }
