@@ -125,30 +125,6 @@ class SingleWalletContentViewModel: ObservableObject {
         }
     }
 
-    func loadTransactionHistory() {
-        guard
-            canShowTransactionHistory,
-            let singleWalletModel = singleWalletModel,
-            let historyLoader = singleWalletModel.walletManager as? TransactionHistoryLoader,
-            transactionHistoryLoaderSubscription == nil
-        else {
-            return
-        }
-
-        transactionHistoryState = .loading
-        transactionHistoryLoaderSubscription = historyLoader.loadTransactionHistory()
-            .receive(on: DispatchQueue.main)
-            .sink(receiveCompletion: { [weak self] completion in
-                if case .failure(let error) = completion {
-                    AppLog.shared.debug("[SaltPay] error while loading transaction history: \(error)")
-                    self?.transactionHistoryState = .error(error)
-                }
-                self?.transactionHistoryLoaderSubscription = nil
-            }, receiveValue: { [weak self] _ in
-                self?.updateTransactionHistoryList()
-            })
-    }
-
     private func bind() {
         /// Subscribe for update `singleWalletModel` for each changes in `WalletModel`
         userWalletModel.subscribeToWalletModels()
@@ -232,14 +208,35 @@ class SingleWalletContentViewModel: ObservableObject {
             .init(
                 title: Localization.walletButtonBuy,
                 icon: Assets.plusMini,
-                isLoading: false,
-                isDisabled: false,
                 action: { [weak self] in
                     Analytics.log(.buttonBuyMainScreen)
                     self?.output.openBuyCrypto()
                 }
             ),
         ]
+    }
+
+    private func loadTransactionHistory() {
+        guard
+            canShowTransactionHistory,
+            let singleWalletModel = singleWalletModel,
+            let historyLoader = singleWalletModel.walletManager as? TransactionHistoryLoader,
+            transactionHistoryLoaderSubscription == nil
+        else {
+            return
+        }
+
+        transactionHistoryLoaderSubscription = historyLoader.loadTransactionHistory()
+            .receive(on: DispatchQueue.main)
+            .sink(receiveCompletion: { [weak self] completion in
+                if case .failure(let error) = completion {
+                    AppLog.shared.debug("[SaltPay] error while loading transaction history: \(error)")
+                    self?.transactionHistoryState = .error(error)
+                }
+                self?.transactionHistoryLoaderSubscription = nil
+            }, receiveValue: { [weak self] _ in
+                self?.updateTransactionHistoryList()
+            })
     }
 
     private func updateTransactionHistoryList() {
