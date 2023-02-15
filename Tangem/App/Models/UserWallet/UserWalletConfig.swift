@@ -80,7 +80,7 @@ extension UserWalletConfig {
     }
 
     var supportChatEnvironment: SupportChatEnvironment {
-        .default
+        .saltPay
     }
 
     var exchangeServiceEnvironment: ExchangeServiceEnvironment {
