@@ -181,6 +181,22 @@ extension MainButton {
         let iconToLabelSpacing: CGFloat
         let iconSize: CGSize
 
+        init(
+            maxWidth: CGFloat? = nil,
+            verticalPadding: CGFloat,
+            horizontalPadding: CGFloat,
+            cornerRadius: CGFloat,
+            iconToLabelSpacing: CGFloat = 0,
+            iconSize: CGSize = .zero
+        ) {
+            self.maxWidth = maxWidth
+            self.verticalPadding = verticalPadding
+            self.horizontalPadding = horizontalPadding
+            self.cornerRadius = cornerRadius
+            self.iconToLabelSpacing = iconToLabelSpacing
+            self.iconSize = iconSize
+        }
+
         static let `default` = Dimensions(
             maxWidth: .infinity,
             verticalPadding: 14,
