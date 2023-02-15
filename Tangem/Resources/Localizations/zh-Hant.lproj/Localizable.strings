@@ -39,6 +39,7 @@
 "card_settings_security_mode" = "安全模式";
 "card_settings_security_mode_footer" = "選定的應用程序保護方法";
 "card_settings_title" = "卡片設置";
+"chat_button_title" = "支援";
 "common_accept" = "接受";
 "common_attention" = "注意";
 "common_back" = "返回";
@@ -148,13 +149,13 @@
 "main_scan_card_warning_view_subtitle" = "要訪問所有的網路您需要掃描卡片";
 "main_scan_card_warning_view_title" = "掃描卡片";
 "main_tokens" = "代幣";
-"onboarding_access_code_feature_1_description" = "您必須設置一個單一的訪問代碼來保護您的所有錢包。";
+"onboarding_access_code_feature_1_description" = "您必須設置一個單一的訪問代碼來保護您的所有錢包";
 "onboarding_access_code_feature_1_title" = "保護";
 "onboarding_access_code_feature_2_description" = "您可以稍後在每張卡上設置單獨的訪問密碼";
 "onboarding_access_code_feature_2_title" = "個人化";
-"onboarding_access_code_feature_3_description" = "門禁密碼可以用聯動卡恢復，不要把所有卡都放在一個地方。";
+"onboarding_access_code_feature_3_description" = "門禁密碼可以用聯動卡恢復，不要把所有卡都放在一個地方";
 "onboarding_access_code_feature_3_title" = "恢復";
-"onboarding_access_code_hint" = "選擇您想要的任何單詞、短語或數字作為您的訪問代碼。";
+"onboarding_access_code_hint" = "選擇您想要的任何單詞、短語或數字作為您的訪問代碼";
 "onboarding_access_code_intro_title" = "建立訪問密碼";
 "onboarding_access_code_repeat_code_title" = "重新輸入訪問密碼";
 "onboarding_access_code_too_short" = "訪問代碼的長度必須至少為 4 個字符";
@@ -178,7 +179,6 @@
 "onboarding_button_scan_origin_card" = "掃描主卡";
 "onboarding_button_skip_backup" = "暫時略過";
 "onboarding_button_what_does_it_mean" = "它是如何運作的？";
-"onboarding_chat_button_title" = "支援";
 "onboarding_create_wallet_body" = "讓我們生成您卡上的所有密鑰並創建一個安全的錢包";
 "onboarding_create_wallet_button_create_wallet" = "創建錢包";
 "onboarding_done_body" = "您的卡已激活並可以使用";
@@ -206,7 +206,7 @@
 "onboarding_subtitle_kyc_waiting" = "請等待驗證完成，您將收到電子郵件通知。通常最多需要 1 小時。您可以關閉該應用程序，稍後再回來";
 "onboarding_subtitle_no_backup_cards" = "要開始備份過程，最多可添加兩張備份卡。";
 "onboarding_subtitle_one_backup_card" = "您可以再添加一張卡或完成備份過程";
-"onboarding_subtitle_pin" = "為您的 SaltPay 卡設置 PIN 碼";
+"onboarding_subtitle_pin" = "設置一個 4 位密碼。 \n它將用在付款時使用。";
 "onboarding_subtitle_register_wallet" = "將您的卡片連接到去中心化支付系統";
 "onboarding_subtitle_scan_backup_card_format" = "準備編號為 %@ 的備份卡";
 "onboarding_subtitle_scan_primary" = "掃描主卡以啟動備份過程";
@@ -216,7 +216,6 @@
 "onboarding_subtitle_success_claim" = "恭喜！ 您的第一張支付加密卡已啟用！";
 "onboarding_subtitle_success_tangem_wallet_onboarding" = "您的錢包卡已配置完畢，可以使用了";
 "onboarding_subtitle_two_backup_cards" = "已添加至最大數量。完成備份過程";
-"onboarding_supplement_button_kyc_waiting" = "聯繫客服";
 "onboarding_title" = "啟用卡片";
 "onboarding_title_backup_card" = "備援錢包";
 "onboarding_title_backup_card_format" = "備份卡 #%li";
@@ -314,7 +313,7 @@
 "shop_buy_now" = "現在購買";
 "shop_free" = "免費";
 "shop_i_have_a_promo_code" = "輸入折扣碼";
-"shop_one_wallet" = "Tangem 冷錢包";
+"shop_one_wallet" = "Tangem Wallet";
 "shop_other_payment_methods" = "其他付款方式";
 "shop_placing_order" = "下訂";
 "shop_shipping" = "運送";
@@ -342,6 +341,7 @@
 "story_meet_title" = "認識Tangem";
 "story_web3_description" = "交易、購買NFT、自由穿梭於100+去中心化服務";
 "story_web3_title" = "兼容DeFi";
+"swapping_error_wrapper" = "錯誤： %@";
 "swapping_give_permission" = "賦予權限";
 "swapping_insufficient_funds" = "餘額不足";
 "swapping_not_enough_funds_for_fee" = "您的 %1$@ 錢包中沒有足夠的資金來創建交易。首先為您的 %2$@ 錢包充值";
@@ -388,7 +388,7 @@
 "twins_recreate_title_creating_wallet" = "創建錢包";
 "twins_recreate_title_format" = "掃描 #%@ 雙胞胎卡";
 "twins_recreate_title_preparing" = "準備卡片";
-"twins_recreate_toolbar" = "Tangem雙胞胎卡";
+"twins_recreate_toolbar" = "Tangem Twin";
 "twins_recreate_warning" = "這個動作是不可逆的。您將無法訪問舊錢包";
 "twins_scan_twin_with_number" = "將您的 iPhone 靠近編號為 %@ 的雙胞胎卡";
 "user_wallet_list_add_button" = "添加新錢包";
