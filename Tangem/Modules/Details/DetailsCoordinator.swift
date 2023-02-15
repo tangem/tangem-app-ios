@@ -105,9 +105,9 @@ extension DetailsCoordinator: DetailsRoutable {
         supportChatViewModel = SupportChatViewModel(cardId: cardId, dataCollector: dataCollector)
     }
 
-    func openSprinklSupportChat() {
+    func openSprinklSupportChat(appID: String) {
         Analytics.log(.chatScreenOpened)
-        webViewContainerViewModel = WebViewContainerViewModel.sprinklSupportChat(appKey: "")
+        webViewContainerViewModel = WebViewContainerViewModel.sprinklSupportChat(appID: appID)
     }
 
     func openInSafari(url: URL) {
