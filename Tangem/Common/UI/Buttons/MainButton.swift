@@ -5,15 +5,12 @@
 //  Created by [REDACTED_AUTHOR]
 //  Copyright © 2022 Tangem AG. All rights reserved.
 //
-
 import SwiftUI
 
 struct MainButton: View {
     private let title: String
     private let icon: Icon?
     private let style: Style
-    private let dimensions: Dimensions
-    private let font: Font
     private let isLoading: Bool
     private let isDisabled: Bool
     private let action: () -> Void
@@ -22,8 +19,6 @@ struct MainButton: View {
         title: String,
         icon: Icon? = nil,
         style: Style = .primary,
-        dimensions: Dimensions = .default,
-        font: Font = Fonts.Bold.callout,
         isLoading: Bool = false,
         isDisabled: Bool = false,
         action: @escaping (() -> Void)
@@ -31,8 +26,6 @@ struct MainButton: View {
         self.title = title
         self.icon = icon
         self.style = style
-        self.dimensions = dimensions
-        self.font = font
         self.isLoading = isLoading
         self.isDisabled = isDisabled
         self.action = action
@@ -43,8 +36,6 @@ struct MainButton: View {
             title: settings.title,
             icon: settings.icon,
             style: settings.style,
-            dimensions: settings.dimensions,
-            font: settings.font,
             isLoading: settings.isLoading,
             isDisabled: settings.isDisabled,
             action: settings.action
@@ -54,13 +45,10 @@ struct MainButton: View {
     var body: some View {
         Button(action: action) {
             content
-                .frame(
-                    maxWidth: dimensions.maxWidth,
-                    alignment: .center
-                )
-                .padding(.vertical, dimensions.verticalPadding)
+                .frame(maxWidth: .infinity, alignment: .center)
+                .padding(.vertical, 14)
                 .background(style.background(isDisabled: isDisabled))
-                .cornerRadiusContinuous(dimensions.cornerRadius)
+                .cornerRadiusContinuous(14)
         }
         .buttonStyle(BorderlessButtonStyle())
         .disabled(isDisabled || isLoading)
@@ -77,13 +65,13 @@ struct MainButton: View {
                     textView
 
                 case .leading(let icon):
-                    HStack(alignment: .center, spacing: dimensions.iconToLabelSpacing) {
+                    HStack(alignment: .center, spacing: 10) {
                         iconView(icon: icon)
 
                         textView
                     }
                 case .trailing(let icon):
-                    HStack(alignment: .center, spacing: dimensions.iconToLabelSpacing) {
+                    HStack(alignment: .center, spacing: 10) {
                         textView
 
                         iconView(icon: icon)
@@ -98,7 +86,7 @@ struct MainButton: View {
     private var textView: some View {
         Text(title)
             .style(
-                font,
+                Fonts.Bold.callout,
                 color: style.textColor(isDisabled: isDisabled)
             )
             .lineLimit(1)
@@ -109,7 +97,7 @@ struct MainButton: View {
         icon.image
             .resizable()
             .renderingMode(.template)
-            .frame(size: dimensions.iconSize)
+            .frame(width: 20, height: 20)
             .foregroundColor(style.iconColor(isDisabled: isDisabled))
     }
 }
@@ -173,46 +161,10 @@ extension MainButton {
         }
     }
 
-    struct Dimensions {
-        let maxWidth: CGFloat?
-        let verticalPadding: CGFloat
-        let horizontalPadding: CGFloat
-        let cornerRadius: CGFloat
-        let iconToLabelSpacing: CGFloat
-        let iconSize: CGSize
-
-        init(
-            maxWidth: CGFloat? = nil,
-            verticalPadding: CGFloat,
-            horizontalPadding: CGFloat,
-            cornerRadius: CGFloat,
-            iconToLabelSpacing: CGFloat = 0,
-            iconSize: CGSize = .zero
-        ) {
-            self.maxWidth = maxWidth
-            self.verticalPadding = verticalPadding
-            self.horizontalPadding = horizontalPadding
-            self.cornerRadius = cornerRadius
-            self.iconToLabelSpacing = iconToLabelSpacing
-            self.iconSize = iconSize
-        }
-
-        static let `default` = Dimensions(
-            maxWidth: .infinity,
-            verticalPadding: 14,
-            horizontalPadding: 16,
-            cornerRadius: 14,
-            iconToLabelSpacing: 10,
-            iconSize: CGSize(width: 20, height: 20)
-        )
-    }
-
     struct Settings {
         let title: String
         let icon: Icon?
         let style: Style
-        let dimensions: Dimensions
-        let font: Font
         let isLoading: Bool
         var isDisabled: Bool
         let action: () -> Void
@@ -221,8 +173,6 @@ extension MainButton {
             title: String,
             icon: Icon? = nil,
             style: Style = .primary,
-            dimensions: Dimensions = .default,
-            font: Font = Fonts.Regular.callout,
             isLoading: Bool = false,
             isDisabled: Bool = false,
             action: @escaping (() -> Void)
@@ -230,8 +180,6 @@ extension MainButton {
             self.title = title
             self.icon = icon
             self.style = style
-            self.dimensions = dimensions
-            self.font = font
             self.isLoading = isLoading
             self.isDisabled = isDisabled
             self.action = action
@@ -255,17 +203,8 @@ struct MainButton_Previews: PreviewProvider {
         VStack(spacing: 16) {
             MainButton(
                 title: "Order card",
-                icon: .leading(Assets.plusMini),
-                style: style,
-                dimensions: .init(
-                    maxWidth: 200,
-                    verticalPadding: 8,
-                    horizontalPadding: 14,
-                    cornerRadius: 10,
-                    iconToLabelSpacing: 8,
-                    iconSize: .init(width: 16, height: 16)
-                ),
-                font: Fonts.Bold.subheadline
+                icon: .leading(Assets.tangemIcon),
+                style: style
             ) {}
 
             MainButton(
