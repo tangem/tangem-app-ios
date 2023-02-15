@@ -44,7 +44,6 @@ class SwappingCoordinator: CoordinatorObject {
 
     func start(with options: Options) {
         rootViewModel = factory.makeSwappingViewModel(coordinator: self)
-        Analytics.log(.swapScreenOpenedSwap)
     }
 }
 
@@ -104,5 +103,6 @@ extension SwappingCoordinator: SwappingPermissionRoutable {
 
     func userDidCancel() {
         swappingPermissionViewModel = nil
+        rootViewModel?.didClosePermissionSheet()
     }
 }

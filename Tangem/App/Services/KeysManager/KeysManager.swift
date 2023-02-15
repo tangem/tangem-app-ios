@@ -19,6 +19,7 @@ protocol KeysManager {
     var zendesk: ZendeskConfig { get }
     var saltPay: SaltPayConfiguration { get }
     var infuraProjectId: String { get }
+    var swapReferrerAccount: SwapReferrerAccount? { get }
 }
 
 private struct KeysManagerKey: InjectionKey {
