@@ -33,6 +33,7 @@ class DetailsCoordinator: CoordinatorObject {
     @Published var supportChatViewModel: SupportChatViewModel? = nil
     @Published var scanCardSettingsViewModel: ScanCardSettingsViewModel? = nil
     @Published var setupEnvironmentViewModel: EnvironmentSetupViewModel? = nil
+    @Published var webViewContainerViewModel: WebViewContainerViewModel?
 
     // MARK: - Helpers
 
@@ -102,6 +103,11 @@ extension DetailsCoordinator: DetailsRoutable {
     func openSupportChat(cardId: String, dataCollector: EmailDataCollector) {
         Analytics.log(.chatScreenOpened)
         supportChatViewModel = SupportChatViewModel(cardId: cardId, dataCollector: dataCollector)
+    }
+
+    func openSprinklSupportChat() {
+        Analytics.log(.chatScreenOpened)
+        webViewContainerViewModel = WebViewContainerViewModel.sprinklSupportChat(appKey: "")
     }
 
     func openInSafari(url: URL) {
