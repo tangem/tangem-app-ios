@@ -117,7 +117,6 @@
 		5DD4CB5424FAEE8B008F23CC /* AppCardIdFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DD4CB5324FAEE8B008F23CC /* AppCardIdFormatter.swift */; };
 		5DD6DF21251E018A00F2693E /* AlertCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DD6DF20251E018A00F2693E /* AlertCardView.swift */; };
 		5DD95B8C24FA959C00E6B9D0 /* VerticalAlignment+.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DD95B8B24FA959C00E6B9D0 /* VerticalAlignment+.swift */; };
-		5DD966F925499E8B006070F3 /* WebView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DD966F825499E8B006070F3 /* WebView.swift */; };
 		5DDE22E32608C2E2008657C6 /* WalletConnectV1Service.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DDE22E22608C2E2008657C6 /* WalletConnectV1Service.swift */; };
 		5DDE22EF2608EFDB008657C6 /* UIViewController+.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DDE22EE2608EFDB008657C6 /* UIViewController+.swift */; };
 		5DDE22F52609022D008657C6 /* WalletConnectView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DDE22F42609022D008657C6 /* WalletConnectView.swift */; };
@@ -733,9 +732,9 @@
 		EF9CFC14288FECE100329BE0 /* ScanCardSettingsRoutable.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF9CFC0F288FECE100329BE0 /* ScanCardSettingsRoutable.swift */; };
 		EF9F6F3D28D486B200D6B190 /* Publishers+CombineLatestMany.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF9F6F3C28D486B100D6B190 /* Publishers+CombineLatestMany.swift */; };
 		EF9F6F4428D499F600D6B190 /* LoadingValue.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF9F6F4328D499F600D6B190 /* LoadingValue.swift */; };
-		EF9F9078299CEDFA006F638F /* SprinklrSupportChatView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF9F9073299CEDFA006F638F /* SprinklrSupportChatView.swift */; };
-		EF9F9079299CEDFA006F638F /* SprinklrSupportChatViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF9F9074299CEDFA006F638F /* SprinklrSupportChatViewModel.swift */; };
-		EF9F907A299CEDFA006F638F /* SprinklrSupportChatRoutable.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF9F9075299CEDFA006F638F /* SprinklrSupportChatRoutable.swift */; };
+		EF9F907D299CFCBE006F638F /* WebViewContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF9F907C299CFCBE006F638F /* WebViewContainer.swift */; };
+		EF9F907F299CFCC7006F638F /* WebViewContainerViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF9F907E299CFCC7006F638F /* WebViewContainerViewModel.swift */; };
+		EF9F9081299CFCE9006F638F /* WebView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF9F9080299CFCE9006F638F /* WebView.swift */; };
 		EFA580612893E4E200110DB0 /* LanguageCode.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFA580602893E4E200110DB0 /* LanguageCode.swift */; };
 		EFA580632893E6AA00110DB0 /* BiometricAuthorizationUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFA580622893E6AA00110DB0 /* BiometricAuthorizationUtils.swift */; };
 		EFA6B03F2953113E0090A92F /* OneInchError.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFA6B03E2953113E0090A92F /* OneInchError.swift */; };
@@ -1007,7 +1006,6 @@
 		5DD4CB5324FAEE8B008F23CC /* AppCardIdFormatter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppCardIdFormatter.swift; sourceTree = "<group>"; };
 		5DD6DF20251E018A00F2693E /* AlertCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlertCardView.swift; sourceTree = "<group>"; };
 		5DD95B8B24FA959C00E6B9D0 /* VerticalAlignment+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "VerticalAlignment+.swift"; sourceTree = "<group>"; };
-		5DD966F825499E8B006070F3 /* WebView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebView.swift; sourceTree = "<group>"; };
 		5DDE22E22608C2E2008657C6 /* WalletConnectV1Service.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletConnectV1Service.swift; sourceTree = "<group>"; };
 		5DDE22EE2608EFDB008657C6 /* UIViewController+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIViewController+.swift"; sourceTree = "<group>"; };
 		5DDE22F42609022D008657C6 /* WalletConnectView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletConnectView.swift; sourceTree = "<group>"; };
@@ -1694,9 +1692,9 @@
 		EF9CFC0F288FECE100329BE0 /* ScanCardSettingsRoutable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScanCardSettingsRoutable.swift; sourceTree = "<group>"; };
 		EF9F6F3C28D486B100D6B190 /* Publishers+CombineLatestMany.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Publishers+CombineLatestMany.swift"; sourceTree = "<group>"; };
 		EF9F6F4328D499F600D6B190 /* LoadingValue.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoadingValue.swift; sourceTree = "<group>"; };
-		EF9F9073299CEDFA006F638F /* SprinklrSupportChatView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SprinklrSupportChatView.swift; sourceTree = "<group>"; };
-		EF9F9074299CEDFA006F638F /* SprinklrSupportChatViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SprinklrSupportChatViewModel.swift; sourceTree = "<group>"; };
-		EF9F9075299CEDFA006F638F /* SprinklrSupportChatRoutable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SprinklrSupportChatRoutable.swift; sourceTree = "<group>"; };
+		EF9F907C299CFCBE006F638F /* WebViewContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebViewContainer.swift; sourceTree = "<group>"; };
+		EF9F907E299CFCC7006F638F /* WebViewContainerViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebViewContainerViewModel.swift; sourceTree = "<group>"; };
+		EF9F9080299CFCE9006F638F /* WebView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebView.swift; sourceTree = "<group>"; };
 		EFA580602893E4E200110DB0 /* LanguageCode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LanguageCode.swift; sourceTree = "<group>"; };
 		EFA580622893E6AA00110DB0 /* BiometricAuthorizationUtils.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BiometricAuthorizationUtils.swift; sourceTree = "<group>"; };
 		EFA6B03E2953113E0090A92F /* OneInchError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OneInchError.swift; sourceTree = "<group>"; };
@@ -2068,7 +2066,6 @@
 				5D958E1324F513D9006BD932 /* RefreshableScrollView.swift */,
 				5D9004E324FA79F700E90939 /* ViewStateHandler.swift */,
 				5D69E0E225016A10005CFFF4 /* TapSwitchTogglColoredToggleStyleeStyle.swift */,
-				5DD966F825499E8B006070F3 /* WebView.swift */,
 				DAADD5B327EB5A180046DEC3 /* SafariView.swift */,
 				5D15F9E7258A522500392BA5 /* PickerView.swift */,
 				5D12D21225B60AA3006060A1 /* SearchBar.swift */,
@@ -3514,7 +3511,7 @@
 		DC7DA81A2844EED800AD6DBD /* Modules */ = {
 			isa = PBXGroup;
 			children = (
-				EF9F9070299CEDAF006F638F /* SprinklrSupportChat */,
+				EF9F907B299CFCB1006F638F /* WebViewContainer */,
 				EF09A307297A9A7D00B869A1 /* BottomSheetContainer */,
 				EF5267DF2927805B00FC25A8 /* Swapping */,
 				EF11DD9429378A6E0044B33C /* SwappingTokenList */,
@@ -4172,14 +4169,14 @@
 			path = DefaultListViews;
 			sourceTree = "<group>";
 		};
-		EF9F9070299CEDAF006F638F /* SprinklrSupportChat */ = {
+		EF9F907B299CFCB1006F638F /* WebViewContainer */ = {
 			isa = PBXGroup;
 			children = (
-				EF9F9073299CEDFA006F638F /* SprinklrSupportChatView.swift */,
-				EF9F9074299CEDFA006F638F /* SprinklrSupportChatViewModel.swift */,
-				EF9F9075299CEDFA006F638F /* SprinklrSupportChatRoutable.swift */,
+				EF9F907C299CFCBE006F638F /* WebViewContainer.swift */,
+				EF9F907E299CFCC7006F638F /* WebViewContainerViewModel.swift */,
+				EF9F9080299CFCE9006F638F /* WebView.swift */,
 			);
-			path = SprinklrSupportChat;
+			path = WebViewContainer;
 			sourceTree = "<group>";
 		};
 		EFA580642893F89000110DB0 /* ResetToFactory */ = {
@@ -4870,7 +4867,6 @@
 				DC66BBED2859B68100CDF765 /* ShopCoordinator.swift in Sources */,
 				B06917E0270444CE0000E6C1 /* OnboardingWalletInfoPager.swift in Sources */,
 				DC295B422861C444006CB7B6 /* TokenDetailsCoordinatorView.swift in Sources */,
-				5DD966F925499E8B006070F3 /* WebView.swift in Sources */,
 				B0ADFD40298A70FF00EF2869 /* WalletConnectV2SignTransactionHandler.swift in Sources */,
 				B0BA7BC526C4F96B00D7066F /* NonDismissableModalView.swift in Sources */,
 				DC3F54AB28EB1D6700BC9A6D /* CustomContentView.swift in Sources */,
@@ -4882,7 +4878,9 @@
 				5DF2522B24F9439D0015B429 /* UIImage+.swift in Sources */,
 				B0F62C4825DE4ABE005C8BA0 /* EmailType.swift in Sources */,
 				5D3D6D3D28088D0400778B67 /* ListDataLoader.swift in Sources */,
+				EF9F9081299CFCE9006F638F /* WebView.swift in Sources */,
 				DCE3379928F2A4580029A6F5 /* SaltPayConfiguration.swift in Sources */,
+				EF9F907D299CFCBE006F638F /* WebViewContainer.swift in Sources */,
 				EF053DF12938D4BC006FD13A /* UserWalletListCoordinatorView.swift in Sources */,
 				B02B74B629879F4A006473F2 /* WalletConnectMessageHandler.swift in Sources */,
 				DAA0559928744E2400E4F7B9 /* MercuryoService.swift in Sources */,
@@ -4922,7 +4920,6 @@
 				65B4DEC92881AAD1001524CF /* BottomSheetPresentationController.swift in Sources */,
 				652B013A28319F9000F2E27A /* TotalSumBalanceViewModel.swift in Sources */,
 				B05A859729937E2400E87C6E /* TransactionView.swift in Sources */,
-				EF9F9078299CEDFA006F638F /* SprinklrSupportChatView.swift in Sources */,
 				5D51037927C539B60025EA55 /* ABIError.swift in Sources */,
 				DC7127AB2897EC6B00F60F71 /* Start2CoinConfig.swift in Sources */,
 				EF9241322934C25400C28551 /* CommonSwappingModulesFactory.swift in Sources */,
@@ -5250,7 +5247,6 @@
 				B0606E122684A946004004ED /* BlinkingModifier.swift in Sources */,
 				DCBC945D299404510050BC35 /* CommonAnalyticsContext.swift in Sources */,
 				EFFC860E28BCE87700F863CE /* LegacyCardMigrator.swift in Sources */,
-				EF9F907A299CEDFA006F638F /* SprinklrSupportChatRoutable.swift in Sources */,
 				DC261CA9292CF56600875E64 /* AuthCoordinatorView.swift in Sources */,
 				DAA5E30328D21369003C0E80 /* BiometryLogoImage.swift in Sources */,
 				5D119E85256BF1E50046CAD2 /* Option.swift in Sources */,
@@ -5487,10 +5483,10 @@
 				2DB43917296EBC6000CBBB1E /* AppsFlyerConfig.swift in Sources */,
 				EFBFD5712979991100B20C2E /* FiatRatesProviding.swift in Sources */,
 				EF7B9CEF286C6BD7004C33A9 /* CardSettingsView.swift in Sources */,
-				EF9F9079299CEDFA006F638F /* SprinklrSupportChatViewModel.swift in Sources */,
 				DC7127B12897ECDF00F60F71 /* LegacyConfig.swift in Sources */,
 				DAA5E31628D213A4003C0E80 /* CardDTO.swift in Sources */,
 				B020A51726F1DD9E00D38596 /* OnboardingTopupViewModel.swift in Sources */,
+				EF9F907F299CFCC7006F638F /* WebViewContainerViewModel.swift in Sources */,
 				5D9DCB0C255199AA0059799C /* SecurityModeViewModel.swift in Sources */,
 				EF862715297182B6007EBFF9 /* SwappingSuccessCoordinatorView.swift in Sources */,
 				B02B74AE29879DA5006473F2 /* WalletConnectV2PersonalSignHandler.swift in Sources */,

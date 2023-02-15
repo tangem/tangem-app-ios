@@ -75,5 +75,10 @@ struct DetailsCoordinatorView: CoordinatorView {
             .sheet(item: $coordinator.scanCardSettingsViewModel) {
                 ScanCardSettingsView(viewModel: $0)
             }
+
+        NavHolder()
+            .sheet(item: $coordinator.webViewContainerViewModel) {
+                WebViewContainer(viewModel: $0)
+            }
     }
 }
