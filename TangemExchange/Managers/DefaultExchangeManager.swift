@@ -15,10 +15,9 @@ class DefaultExchangeManager {
     private let exchangeProvider: ExchangeProvider
     private let blockchainDataProvider: BlockchainDataProvider
     private let logger: ExchangeLogger
+    private let referrer: ExchangeReferrerAccount?
 
     // MARK: - Internal
-
-    private lazy var refreshDataTimer = Timer.publish(every: 1, on: .main, in: .common)
 
     private var availabilityState: ExchangeAvailabilityState = .idle {
         didSet { delegate?.exchangeManager(self, didUpdate: availabilityState) }
@@ -43,19 +42,21 @@ class DefaultExchangeManager {
     private var tokenExchangeAllowanceLimit: Decimal?
     // Cached addresses for check approving transactions
     private var pendingTransactions: [Currency: PendingTransactionState] = [:]
-    private var refreshDataTimerBag: AnyCancellable?
+
     private var bag: Set<AnyCancellable> = []
 
     init(
         exchangeProvider: ExchangeProvider,
-        blockchainInfoProvider: BlockchainDataProvider,
+        blockchainDataProvider: BlockchainDataProvider,
         logger: ExchangeLogger,
+        referrer: ExchangeReferrerAccount?,
         exchangeItems: ExchangeItems,
         amount: Decimal? = nil
     ) {
         self.exchangeProvider = exchangeProvider
-        blockchainDataProvider = blockchainInfoProvider
+        self.blockchainDataProvider = blockchainDataProvider
         self.logger = logger
+        self.referrer = referrer
         self.exchangeItems = exchangeItems
         self.amount = amount
 
@@ -100,15 +101,23 @@ extension DefaultExchangeManager: ExchangeManager {
         amountDidChange()
     }
 
-    func refresh() {
-        tokenExchangeAllowanceLimit = nil
-        refreshValues()
+    func refresh(type: ExchangeManagerRefreshType) {
+        if let amount = amount, amount > 0 {
+            refreshValues(refreshType: type)
+        } else {
+            updateState(.idle)
+        }
     }
 
     func didSendApprovingTransaction(exchangeTxData: ExchangeTransactionDataModel) {
         pendingTransactions[exchangeTxData.sourceCurrency] = .pending(destination: exchangeTxData.destinationAddress)
+        tokenExchangeAllowanceLimit = nil
 
-        refresh()
+        refresh(type: .full)
+    }
+
+    func didSendSwapTransaction(exchangeTxData: ExchangeTransactionDataModel) {
+        updateState(.idle)
     }
 }
 
@@ -118,27 +127,14 @@ private extension DefaultExchangeManager {
     func amountDidChange() {
         updateBalances()
 
-        if amount == nil || amount == 0 {
-            stopTimer()
-            updateState(.idle)
-            return
-        }
-
-        restartTimer()
-        refreshValues()
+        refresh(type: .full)
     }
 
     func exchangeItemsDidChange() {
         updateState(.idle)
         updateBalances()
 
-        guard (amount ?? 0) > 0 else {
-            stopTimer()
-            return
-        }
-
-        restartTimer()
-        refreshValues()
+        tokenExchangeAllowanceLimit = nil
     }
 }
 
@@ -146,48 +142,15 @@ private extension DefaultExchangeManager {
 
 private extension DefaultExchangeManager {
     func updateState(_ state: ExchangeAvailabilityState) {
-        if case .requiredRefresh(let error) = state {
-            logger.debug("DefaultExchangeManager catch error: ")
-            logger.error(error)
-
-            stopTimer()
-        }
-
         availabilityState = state
-    }
-
-    func restartTimer() {
-        stopTimer()
-        startTimer()
-    }
-
-    func startTimer() {
-        let timeStarted = Date().timeIntervalSince1970
-        refreshDataTimerBag = refreshDataTimer
-            .autoconnect()
-            .sink { [weak self] date in
-                // [REDACTED_TODO_COMMENT]
-
-                let timeElapsed = (date.timeIntervalSince1970 - timeStarted).rounded()
-                if Int(timeElapsed) % 10 == 0 {
-                    self?.refreshValues(loadingType: .autoupdate)
-                }
-            }
-    }
-
-    func stopTimer() {
-        refreshDataTimerBag?.cancel()
-        refreshDataTimer
-            .connect()
-            .cancel()
     }
 }
 
 // MARK: - Requests
 
 private extension DefaultExchangeManager {
-    func refreshValues(loadingType: ExchangeAvailabilityLoadingType = .full) {
-        updateState(.loading(loadingType))
+    func refreshValues(refreshType: ExchangeManagerRefreshType = .full) {
+        updateState(.loading(refreshType))
 
         Task {
             do {
@@ -300,7 +263,8 @@ private extension DefaultExchangeManager {
         return try await exchangeProvider.fetchExchangeData(
             items: exchangeItems,
             walletAddress: walletAddress,
-            amount: formattedAmount
+            amount: formattedAmount,
+            referrer: referrer
         )
     }
 
@@ -348,16 +312,13 @@ private extension DefaultExchangeManager {
         preview: PreviewSwappingDataModel,
         transaction: ExchangeTransactionDataModel
     ) async throws -> SwappingResultDataModel {
-        guard let amount = amount else {
-            throw ExchangeManagerError.amountNotFound
-        }
-
         let source = exchangeItems.source
         let sourceBalance = exchangeItems.sourceBalance
         let fee = transaction.fee
 
         let isEnoughAmountForFee: Bool
-        var paymentAmount = amount
+        var paymentAmount = transaction.sourceCurrency.convertFromWEI(value: transaction.sourceAmount)
+        let receivedAmount = transaction.destinationCurrency.convertFromWEI(value: transaction.destinationAmount)
         switch exchangeItems.source.currencyType {
         case .coin:
             paymentAmount += fee
@@ -370,7 +331,7 @@ private extension DefaultExchangeManager {
         let isEnoughAmountForExchange = sourceBalance >= paymentAmount
 
         return SwappingResultDataModel(
-            amount: preview.expectedAmount,
+            amount: receivedAmount,
             fee: fee,
             isEnoughAmountForExchange: isEnoughAmountForExchange,
             isEnoughAmountForFee: isEnoughAmountForFee,
@@ -390,7 +351,8 @@ private extension DefaultExchangeManager {
             sourceAddress: exchangeData.sourceAddress,
             destinationAddress: exchangeData.destinationAddress,
             txData: exchangeData.txData,
-            amount: exchangeData.swappingAmount,
+            sourceAmount: exchangeData.sourceCurrencyAmount,
+            destinationAmount: exchangeData.destinationCurrencyAmount,
             value: exchangeData.value,
             gasValue: exchangeData.gas,
             gasPrice: exchangeData.gasPrice
@@ -416,7 +378,8 @@ private extension DefaultExchangeManager {
             sourceAddress: walletAddress,
             destinationAddress: approvedData.tokenAddress,
             txData: approvedData.data,
-            amount: approvedData.value,
+            sourceAmount: approvedData.value,
+            destinationAmount: 0,
             value: approvedData.value,
             gasValue: quoteData.estimatedGas,
             gasPrice: approvedData.gasPrice

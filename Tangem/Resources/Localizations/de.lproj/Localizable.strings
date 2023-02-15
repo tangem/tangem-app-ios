@@ -39,6 +39,7 @@
 "card_settings_security_mode" = "Security Mode";
 "card_settings_security_mode_footer" = "Selected application protection method";
 "card_settings_title" = "Card Settings";
+"chat_button_title" = "Support";
 "common_accept" = "Akzeptieren";
 "common_attention" = "Attention";
 "common_back" = "Back";
@@ -178,7 +179,6 @@
 "onboarding_button_scan_origin_card" = "Scan primary card";
 "onboarding_button_skip_backup" = "Skip for later";
 "onboarding_button_what_does_it_mean" = "How does it work?";
-"onboarding_chat_button_title" = "Support";
 "onboarding_create_wallet_body" = "Let's generate all the keys on your card and create a secure wallet";
 "onboarding_create_wallet_button_create_wallet" = "Create wallet";
 "onboarding_done_body" = "Your card is activated and ready to be used";
@@ -206,7 +206,7 @@
 "onboarding_subtitle_kyc_waiting" = "Please wait until the verification is completed. You'll be notified via email. Usually it takes up to 1 hour. You can close the app and come back later.";
 "onboarding_subtitle_no_backup_cards" = "To start the backup process add up to two backup cards.";
 "onboarding_subtitle_one_backup_card" = "You can add one more card or finalize the backup process";
-"onboarding_subtitle_pin" = "Set PIN code for your SaltPay card";
+"onboarding_subtitle_pin" = "Set up a 4-digit code.\nIt will be used for payments.";
 "onboarding_subtitle_register_wallet" = "Connect your card to the decentralized payment system";
 "onboarding_subtitle_scan_backup_card_format" = "Prepare the backup card with number %@";
 "onboarding_subtitle_scan_primary" = "Scan the primary card to start the backup process.";
@@ -216,7 +216,6 @@
 "onboarding_subtitle_success_claim" = "Congratulations! Your first payment crypto card has been activated!";
 "onboarding_subtitle_success_tangem_wallet_onboarding" = "Your wallet card is configured and ready for use.";
 "onboarding_subtitle_two_backup_cards" = "Max number of cards added. Finalize the backup process.";
-"onboarding_supplement_button_kyc_waiting" = "Chat with support";
 "onboarding_title" = "Activating card";
 "onboarding_title_backup_card" = "Backup your wallet";
 "onboarding_title_backup_card_format" = "Backup card #%li";
@@ -342,6 +341,7 @@
 "story_meet_title" = "Meet\nTangem";
 "story_web3_description" = "Exchange, buy NFT's, make loans and deposits in more than 100 different decentralized services";
 "story_web3_title" = "DeFi Compatible";
+"swapping_error_wrapper" = "Error: %@";
 "swapping_give_permission" = "Give Permission";
 "swapping_insufficient_funds" = "Insufficient funds";
 "swapping_not_enough_funds_for_fee" = "Not enough funds for fee in your %1$@ wallet to create a transaction. Top up your %2$@ wallet first.";

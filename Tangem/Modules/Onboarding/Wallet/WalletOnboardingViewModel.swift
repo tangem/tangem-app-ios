@@ -132,7 +132,7 @@ class WalletOnboardingViewModel: OnboardingTopupViewModel<WalletOnboardingStep, 
 
     override var mainButtonSettings: MainButton.Settings? {
         switch currentStep {
-        case .enterPin, .registerWallet, .kycStart, .kycRetry, .kycProgress, .claim, .successClaim, .disclaimer:
+        case .enterPin, .registerWallet, .kycStart, .kycRetry, .kycProgress, .claim, .successClaim, .disclaimer, .kycWaiting:
             return nil
         default:
             break
@@ -550,8 +550,6 @@ class WalletOnboardingViewModel: OnboardingTopupViewModel<WalletOnboardingStep, 
             backupCard()
         case .success:
             goToNextStep()
-        case .kycWaiting:
-            openSupportChat()
         default:
             break
         }
