@@ -17,11 +17,12 @@ protocol SupportChatServiceProtocol {
     func initialize(with env: SupportChatEnvironment)
 }
 
+// [REDACTED_TODO_COMMENT]
 class SupportChatService: SupportChatServiceProtocol {
     @Injected(\.keysManager) private var keysManager: KeysManager
 
     func initialize(with env: SupportChatEnvironment) {
-        let config = makeConfig(for: env)
+        let config = keysManager.zendesk
         Zendesk.initialize(
             appId: config.zendeskAppId,
             clientId: config.zendeskClientId,
@@ -31,20 +32,11 @@ class SupportChatService: SupportChatServiceProtocol {
         Zendesk.instance?.setIdentity(Identity.createAnonymous())
         Chat.initialize(accountKey: config.zendeskAccountKey, appId: config.zendeskAppId)
     }
-
-    private func makeConfig(for env: SupportChatEnvironment) -> ZendeskConfig {
-        switch env {
-        case .default:
-            return keysManager.zendesk
-        case .saltpay:
-            return keysManager.saltPay.zendesk
-        }
-    }
 }
 
 enum SupportChatEnvironment {
-    case `default`
-    case saltpay
+    case tangem
+    case saltPay
 }
 
 private struct KeysManagerKey: InjectionKey {
