@@ -124,16 +124,17 @@ extension DetailsViewModel {
     }
 
     func openSupportChat() {
-        Analytics.log(.settingsButtonChat)
-        let dataCollector = DetailsFeedbackDataCollector(
-            cardModel: cardModel,
-            userWalletEmailData: cardModel.emailData
-        )
-
-        coordinator.openSupportChat(
-            cardId: cardModel.cardId,
-            dataCollector: dataCollector
-        )
+        coordinator.openSprinklSupportChat()
+//        Analytics.log(.settingsButtonChat)
+//        let dataCollector = DetailsFeedbackDataCollector(
+//            cardModel: cardModel,
+//            userWalletEmailData: cardModel.emailData
+//        )
+//
+//        coordinator.openSupportChat(
+//            cardId: cardModel.cardId,
+//            dataCollector: dataCollector
+//        )
     }
 
     func openDisclaimer() {
