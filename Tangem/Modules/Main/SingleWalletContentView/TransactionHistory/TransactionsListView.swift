@@ -17,7 +17,6 @@ struct TransactionListItem: Hashable, Identifiable {
 
 struct TransactionsListView: View {
     let state: State
-    var retryAction: (() -> Void)?
 
     var body: some View {
         VStack {
@@ -66,29 +65,15 @@ struct TransactionsListView: View {
 
     @ViewBuilder
     private var errorContent: some View {
-        VStack(spacing: 20) {
+        VStack {
             Text(Localization.transactionHistoryErrorFailedToLoad)
                 .style(
                     Fonts.Bold.footnote,
                     color: Colors.Text.tertiary
                 )
-
-            MainButton(
-                title: Localization.onboardingButtonKycWaiting,
-                style: .secondary,
-                dimensions: .init(
-                    verticalPadding: 7,
-                    horizontalPadding: 14,
-                    cornerRadius: 10
-                ),
-                font: Fonts.Bold.subheadline,
-                isLoading: false,
-                isDisabled: false,
-                action: retryAction ?? {}
-            )
         }
-        .padding(.top, 66)
-        .padding(.bottom, 99)
+        .padding(.top, 93)
+        .padding(.bottom, 126)
     }
 
     @ViewBuilder
