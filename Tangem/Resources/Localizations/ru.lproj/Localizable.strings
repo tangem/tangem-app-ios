@@ -39,6 +39,7 @@
 "card_settings_security_mode" = "Тип безопасности";
 "card_settings_security_mode_footer" = "Выбранный способ защиты приложения";
 "card_settings_title" = "Настройки карты";
+"chat_button_title" = "Чат";
 "common_accept" = "Принять";
 "common_attention" = "Внимание";
 "common_back" = "Назад";
@@ -178,7 +179,6 @@
 "onboarding_button_scan_origin_card" = "Сканировать основную карту";
 "onboarding_button_skip_backup" = "Пропустить";
 "onboarding_button_what_does_it_mean" = "Как это работает?";
-"onboarding_chat_button_title" = "Чат";
 "onboarding_create_wallet_body" = "Давайте сгенерируем все ключи на вашей карте и создадим безопасный кошелек";
 "onboarding_create_wallet_button_create_wallet" = "Создать кошелек";
 "onboarding_done_body" = "Ваша карта активирована и готова к использованию";
@@ -206,7 +206,7 @@
 "onboarding_subtitle_kyc_waiting" = "Пожалуйста дождитесь завершения процесса подтверждения личности. Вы будете уведомлены через e-mail. Обычно это занимает не более часа. Вы можете закрыть приложение и вернуться позже.";
 "onboarding_subtitle_no_backup_cards" = "Чтобы начать процесс резервного копирования, добавьте одну или две резервные карты.";
 "onboarding_subtitle_one_backup_card" = "Вы можете добавить еще одну карту или завершить процесс резервного копирования";
-"onboarding_subtitle_pin" = "Установите Код доступа для вашей SaltPay карты";
+"onboarding_subtitle_pin" = "Установите 4-х значный код.\nОн будет использован для платежей.";
 "onboarding_subtitle_register_wallet" = "Подключите вашу карту к децентрализованной платежной системе";
 "onboarding_subtitle_scan_backup_card_format" = "Подготовьте резервную карту с номером %@";
 "onboarding_subtitle_scan_primary" = "Отсканируйте основную карту, чтобы начать процесс резервного копирования.";
@@ -216,7 +216,6 @@
 "onboarding_subtitle_success_claim" = "Поздравляем! Ваша платежная крипто карта теперь активирована!";
 "onboarding_subtitle_success_tangem_wallet_onboarding" = "Ваша карта настроена и готова к использованию.";
 "onboarding_subtitle_two_backup_cards" = "Добавлено максимальное количество карт. Завершите процесс резервного копирования.";
-"onboarding_supplement_button_kyc_waiting" = "Чат поддержки";
 "onboarding_title" = "Активация карты";
 "onboarding_title_backup_card" = "Создайте резервную копию вашей карты";
 "onboarding_title_backup_card_format" = "Резервная карта #%li";
@@ -342,6 +341,7 @@
 "story_meet_title" = "Встречайте\nTangem";
 "story_web3_description" = "Обменивайте, покупайте NFT, получайте займы и делайте вклады в более чем 100 различных децентрализованных сервисах";
 "story_web3_title" = "Поддержка DeFi";
+"swapping_error_wrapper" = "Ошибка: %@";
 "swapping_give_permission" = "Дать разрешение";
 "swapping_insufficient_funds" = "Недостаточно средств";
 "swapping_not_enough_funds_for_fee" = "Недостаточно средств для оплаты на вашем %1$@ кошельке для создания транзакции. Сначала пополните свой %2$@ кошелек.";
@@ -378,7 +378,7 @@
 "transaction_history_empty_transactions" = "У вас еще нет транзакций";
 "transaction_history_error_failed_to_load" = "Не удалось загрузить транзакции";
 "transaction_history_title" = "Транзакции";
-"transaction_history_tx_in_progress" = "В процессе...";
+"transaction_history_tx_in_progress" = "В процессе…";
 "twin_error_not_a_twin_card" = "Вы отсканировали не twin-карту. Для создания двойного кошелька необходимо отсканировать карту Tangem Twin.";
 "twin_error_same_card" = "Вы отсканировали ту же карту. Для создания twin-кошелька вам необходимо отсканировать карту с номером %li";
 "twin_error_wrong_twin" = "Вы отсканировали не ту twin-карту. Пожалуйста, попробуйте отсканировать другую";
