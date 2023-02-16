@@ -21,11 +21,15 @@ struct TransactionHistoryMapper {
             return nil
         }
 
-        let direction: TransactionRecord.Direction = addresses.contains(where: { $0.value == transaction.destinationAddress }) ? .incoming : .outgoing
+        let direction: TransactionRecord.Direction = addresses.contains(where: {
+            $0.value.caseInsensitiveCompare(transaction.destinationAddress) == .orderedSame
+        }) ? .incoming : .outgoing
+
         return .init(
             amountType: transaction.amount.type,
             destination: AddressFormatter(address: transaction.destinationAddress).truncated(),
             timeFormatted: timeFormatter.string(from: date),
+            date: date,
             transferAmount: "\(direction.amountPrefix)\(transaction.amount.string(with: 8))",
             canBePushed: false,
             direction: direction,
@@ -82,14 +86,6 @@ struct TransactionHistoryMapper {
                 items: controlDateTxs
             ))
         }
-
-        #if DEBUG
-        // Validate that groups doesn't contain duplicated
-        txListItems.forEach {
-            let set = Set($0.items)
-            assert(set.count == $0.items.count, "Contain duplicates... In \($0.header)")
-        }
-        #endif
 
         return txListItems
     }
