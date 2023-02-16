@@ -36,8 +36,6 @@ struct WelcomeView: View {
                     orderCard: viewModel.orderCard,
                     searchTokens: viewModel.openTokensList
                 )
-            } else {
-                EmptyView()
             }
         }
         .statusBar(hidden: true)
