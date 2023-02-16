@@ -382,8 +382,8 @@ private extension DefaultExchangeManager {
             sourceAddress: walletAddress,
             destinationAddress: approvedData.tokenAddress,
             txData: approvedData.data,
-            sourceAmount: approvedData.value,
-            destinationAmount: 0,
+            sourceAmount: quoteData.fromTokenAmount,
+            destinationAmount: quoteData.toTokenAmount,
             value: approvedData.value,
             gasValue: quoteData.estimatedGas,
             gasPrice: approvedData.gasPrice
