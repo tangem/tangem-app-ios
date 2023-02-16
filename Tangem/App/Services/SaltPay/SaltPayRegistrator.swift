@@ -140,7 +140,9 @@ class SaltPayRegistrator {
             .receiveCompletion { [weak self] completionResult in
                 switch completionResult {
                 case .failure(let error):
-                    self?.error = error.alertBinder
+                    if !error.toTangemSdkError().isUserCancelled {
+                        self?.error = error.alertBinder
+                    }
                     completion(.failure(error))
                 case .finished:
                     self?.claimableAmount = nil
@@ -241,7 +243,9 @@ class SaltPayRegistrator {
             }
             .sink { [weak self] completion in
                 if case .failure(let error) = completion {
-                    self?.error = error.alertBinder
+                    if !error.toTangemSdkError().isUserCancelled {
+                        self?.error = error.alertBinder
+                    }
                 }
 
                 self?.isBusy = false
