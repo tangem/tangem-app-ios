@@ -136,7 +136,7 @@ private extension BlockchainNetworkService {
             return balance
         }
 
-        assertionFailure("WalletModel haven't balance for coin")
+        AppLog.shared.debug("WalletModel haven't balance for coin")
         return 0
     }
 }
