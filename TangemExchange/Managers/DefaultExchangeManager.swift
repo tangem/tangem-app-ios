@@ -79,6 +79,10 @@ extension DefaultExchangeManager: ExchangeManager {
         return exchangeItems
     }
 
+    func getReferrerAccount() -> ExchangeReferrerAccount? {
+        return referrer
+    }
+
     func isEnoughAllowance() -> Bool {
         guard exchangeItems.source.isToken, let amount, amount > 0 else {
             return true
