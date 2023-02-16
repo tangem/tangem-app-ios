@@ -24,7 +24,7 @@ extension WebViewContainerViewModel {
         let baseURL = "https://live-chat-static.sprinklr.com/chat/page/floLbo9_o/index.html?"
         var url = URLComponents(string: baseURL)!
         url.queryItems = [
-            URLQueryItem(name: "appId", value: appID), // "60c1d169c96beb5bf5a326f3_app_950954"
+            URLQueryItem(name: "appId", value: appID + "_app_160103"), // "60c1d169c96beb5bf5a326f3_app_950954"
             URLQueryItem(name: "device", value: "MOBILE"),
             URLQueryItem(name: "enableClose", value: "true"),
             URLQueryItem(name: "zoom", value: "false"),
