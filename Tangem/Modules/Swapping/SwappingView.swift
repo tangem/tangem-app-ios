@@ -26,7 +26,7 @@ struct SwappingView: View {
 
                 permissionInfoSection
 
-                refreshWarningSection
+                warningSections
 
                 informationSection
 
@@ -98,7 +98,12 @@ struct SwappingView: View {
     }
 
     @ViewBuilder
-    private var refreshWarningSection: some View {
+    private var warningSections: some View {
+        GroupedSection(viewModel.highImpactWarningRowViewModel) {
+            DefaultWarningRow(viewModel: $0)
+        }
+        .verticalPadding(0)
+
         GroupedSection(viewModel.refreshWarningRowViewModel) {
             DefaultWarningRow(viewModel: $0)
         }
