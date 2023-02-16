@@ -59,10 +59,6 @@ struct GroupedNumberFormatter {
 
         return string
     }
-
-    func number(from string: String) -> NSNumber? {
-        numberFormatter.number(from: string)
-    }
 }
 
 // MARK: - Private
