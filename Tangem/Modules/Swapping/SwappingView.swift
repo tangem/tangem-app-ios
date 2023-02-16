@@ -99,7 +99,7 @@ struct SwappingView: View {
 
     @ViewBuilder
     private var warningSections: some View {
-        GroupedSection(viewModel.highImpactWarningRowViewModel) {
+        GroupedSection(viewModel.highPriceImpactWarningRowViewModel) {
             DefaultWarningRow(viewModel: $0)
         }
         .verticalPadding(0)
