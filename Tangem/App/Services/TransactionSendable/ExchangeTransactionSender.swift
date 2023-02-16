@@ -41,7 +41,8 @@ extension ExchangeTransactionSender: TransactionSendable {
 
 private extension ExchangeTransactionSender {
     func buildTransaction(for info: ExchangeTransactionDataModel) throws -> Transaction {
-        let sourceAmount = info.sourceCurrency.convertFromWEI(value: info.sourceAmount)
+        let sourceAmount = info.sourceCurrency.convertFromWEI(value: info.value)
+
         let amount = createAmount(from: info.sourceCurrency, amount: sourceAmount)
         let fee = try createAmount(from: info.sourceBlockchain, amount: info.fee)
 
