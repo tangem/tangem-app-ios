@@ -7,26 +7,40 @@
 //
 
 import Foundation
+import SwiftUI
 
-struct SwappingFeeRowViewModel: Identifiable, Hashable {
+struct SwappingFeeRowViewModel: Identifiable {
     var id: Int { hashValue }
 
     var isLoading: Bool {
         state.isLoading
     }
 
-    var formattedFee: String {
+    var formattedFee: String? {
         state.formattedFee
     }
 
+    let isDisclaimerOpened: () -> Binding<Bool>
+
     private var state: State
 
-    init(state: State) {
+    init(state: State, isDisclaimerOpened: @escaping () -> Binding<Bool>) {
         self.state = state
+        self.isDisclaimerOpened = isDisclaimerOpened
     }
 
     mutating func update(state: State) {
         self.state = state
+    }
+}
+
+extension SwappingFeeRowViewModel: Hashable {
+    static func == (lhs: SwappingFeeRowViewModel, rhs: SwappingFeeRowViewModel) -> Bool {
+        lhs.id == rhs.id
+    }
+
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(state)
     }
 }
 
@@ -44,10 +58,10 @@ extension SwappingFeeRowViewModel {
             return false
         }
 
-        var formattedFee: String {
+        var formattedFee: String? {
             switch self {
             case .idle, .loading:
-                return ""
+                return nil
             case .fee(let fee, let symbol, let fiat):
                 return "\(fee) \(symbol) (\(fiat))"
             }
