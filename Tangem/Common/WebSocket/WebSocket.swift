@@ -57,7 +57,7 @@ class WebSocket {
         onDisconnect: ((Error?) -> Void)? = nil,
         onText: ((String) -> Void)? = nil
     ) {
-        AppLog.shared.debug("[WC 2.0 WebSocket] Initializing new WebSocket for url: \(url)")
+        AppLog.shared.debug("[WebSocket] Initializing new WebSocket for url: \(url)")
         self.url = url
         self.onConnect = onConnect
         self.onDisconnect = onDisconnect
@@ -89,33 +89,23 @@ class WebSocket {
     }
 
     deinit {
-        AppLog.shared.debug("[WC 2.0 WebSocket] Deinitializing WebSocket with url: \(url)")
+        AppLog.shared.debug("[WebSocket] Deinitializing WebSocket with url: \(url)")
         session.invalidateAndCancel()
         pingTimer?.invalidate()
     }
-
-    private func address(for object: AnyObject) -> UnsafeMutableRawPointer {
-        Unmanaged.passUnretained(object).toOpaque()
-    }
-
-    private lazy var dateFormatter: DateFormatter = {
-        let formatter = DateFormatter()
-        formatter.dateFormat = "HH:mm:ss:SSS"
-        return formatter
-    }()
 
     func connect() {
         log("Attempting to connect WebSocket with state \(state) to \(url)")
         guard state == .notConnected else {
             return
         }
+
+        // If state is `notConnected` then task shouldn't exist
         if task != nil {
-            log("Attempting to create task for request: \(request). Current task: \(address(for: task!))")
             disconnect()
         }
         state = .connecting
         task = session.webSocketTask(with: request)
-        log("New task created: \(address(for: task!))")
         task?.resume()
         receive()
     }
@@ -125,6 +115,7 @@ class WebSocket {
         pingTimer?.invalidate()
         pingTimer = nil
         state = .notConnected
+        isWaitingForMessage = false
         if task == nil {
             return
         }
@@ -150,26 +141,22 @@ class WebSocket {
     private lazy var memoryAddress = Unmanaged.passUnretained(self).toOpaque()
 
     private func log(_ message: String) {
-        if AppEnvironment.current.isDebug {
-            print("\(dateFormatter.string(from: Date())): [WC 2.0 WebSocket] \(memoryAddress). ✉️ Message: \(message)")
-        }
+        AppLog.shared.debug("[WebSocket] \(memoryAddress). ✉️ Message: \(message)")
     }
 
     private func receive() {
         guard let task = task else { return }
 
+        // We don't want to setup another `receive` subscription
         if isWaitingForMessage {
-            log("Already waiting for new message. Ignoring call")
             return
         }
 
         isWaitingForMessage = true
-        log("Waiting for new message through \(url)")
         task.receive { [weak self] result in
             self?.isWaitingForMessage = false
             switch result {
             case .success(let message):
-                self?.log("Receive message: \(message)")
                 if case .string(let text) = message {
                     self?.log("Received message is string message. Message text \(text). Handling received message")
                     self?.handleEvent(.messageReceived(text))
@@ -183,37 +170,30 @@ class WebSocket {
     }
 
     private func setupPingTimer() {
-        log("Scheduling ping timer")
         if pingTimer != nil {
-            log("Ping timer not nil: \(address(for: pingTimer!))")
             pingTimer?.invalidate()
             pingTimer = nil
-            log("Ping timer should be invalidated: \(pingTimer)")
         }
+
         DispatchQueue.main.async {
             self.pingTimer = Timer.scheduledTimer(
                 withTimeInterval: self.pingInterval,
                 repeats: true
             ) { [weak self] timer in
-                self?.log("Scheduled ping timer fired: \(self?.address(for: timer))")
                 self?.sendPing()
             }
-            self.log("New ping timer")
         }
     }
 
     private func sendPing() {
         guard isConnected else { return }
 
-        log("Attempting to send ping")
         task?.sendPing(pongReceiveHandler: { [weak self] error in
             if let error {
-                self?.log("Failed to send ping message: \(error)")
                 self?.handleEvent(.connnectionError(error))
                 return
             }
 
-            self?.log("Receive pong message")
             self?.handleEvent(.pongReceived)
         })
         handleEvent(.pingSent)
@@ -224,29 +204,32 @@ class WebSocket {
         case .connected:
             state = .connected
             setupPingTimer()
-            log("Successfully connected. Sending message to onConnect closure")
             onConnect?()
         case .disconnected(let closeCode):
-            log("Receive disconnect event. Close code: \(closeCode)")
+            let closeCodeRawValue = String(describing: closeCode.rawValue)
+
+            log("Receive disconnect event. Close code: \(closeCodeRawValue)")
             guard isConnected else { break }
 
             state = .notConnected
             pingTimer?.invalidate()
 
             var error: Error?
-            let closeCodeDescription = String(describing: closeCode.rawValue)
             switch closeCode {
             case .normalClosure:
+                // If we receive normal closure disconnection code it means that it was
+                // initiated outside, so we don't need to notify onDisconnect
                 log("💥💥💥 disconnected (normal closure)")
                 return
             case .abnormalClosure, .goingAway:
-                log("💥💥💥 disconnected close code (peer disconnected) - \(closeCodeDescription)")
+                log("💥💥💥 disconnected close code (peer disconnected) - \(closeCodeRawValue)")
                 error = WebSocketError.peerDisconnected
             default:
-                log("💥💥💥 disconnected with not specified close code - \(closeCodeDescription)")
+                log("💥💥💥 disconnected with not specified close code - \(closeCodeRawValue)")
                 error = WebSocketError.closedUnexpectedly
             }
-            disconnectOnMainThread(with: error)
+
+            notifyOnDisconnectOnMainThread(with: error)
         case .messageReceived(let text):
             onText?(text)
         case .messageSent(let text):
@@ -256,8 +239,10 @@ class WebSocket {
         case .pongReceived:
             log("<== Pong received")
         case .connnectionError(let error):
+            // If occured connection error Socket delegate will send `disconnected` event
+            // with corresponding closure code. So no need to notify here about disconnection
+            // because this is not actual disconnection.
             log("Connection error: \(error.localizedDescription)")
-//            disconnectOnMainThread(with: error)
         }
     }
 
@@ -280,15 +265,15 @@ class WebSocket {
         bgTaskIdentifier = .invalid
     }
 
-    private func disconnectOnMainThread(with error: Error?) {
+    private func notifyOnDisconnectOnMainThread(with error: Error?) {
         if Thread.isMainThread {
-            log("Sending onDisconnect event without switching to main thread")
             onDisconnect?(error)
             return
         }
 
+        // Need to switch to main thread because WC 2.0 library accessing to
+        // some of the UIApplication components from current thread.
         DispatchQueue.main.async {
-            self.log("Switching to main thread to send onDisconnect event")
             self.onDisconnect?(error)
         }
     }
