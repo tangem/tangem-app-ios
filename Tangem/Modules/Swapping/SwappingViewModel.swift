@@ -496,19 +496,19 @@ private extension SwappingViewModel {
         updateState(state: .idle)
         updateView(exchangeItems: exchangeManager.getExchangeItems())
 
-        swappingFeeRowViewModel = SwappingFeeRowViewModel(state: .idle) {
-            Binding<Bool>(root: self, default: false) { root in
-                root.feeInfoRowViewModel != nil
-            } set: { root, isOpen in
+        swappingFeeRowViewModel = SwappingFeeRowViewModel(state: .idle) { [weak self] in
+            Binding<Bool> {
+                self?.feeInfoRowViewModel != nil
+            } set: { isOpen in
                 if isOpen {
-                    let percentFee = root.exchangeManager.getReferrerAccount()?.fee ?? 0
+                    let percentFee = self?.exchangeManager.getReferrerAccount()?.fee ?? 0
                     let formattedFee = "\(percentFee.groupedFormatted())%"
-                    root.feeInfoRowViewModel = DefaultWarningRowViewModel(
+                    self?.feeInfoRowViewModel = DefaultWarningRowViewModel(
                         subtitle: Localization.swappingTangemFeeDisclaimer(formattedFee),
                         leftView: .icon(Assets.heartMini)
                     )
                 } else {
-                    root.feeInfoRowViewModel = nil
+                    self?.feeInfoRowViewModel = nil
                 }
             }
         }
