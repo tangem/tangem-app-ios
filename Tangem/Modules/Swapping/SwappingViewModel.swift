@@ -19,7 +19,7 @@ final class SwappingViewModel: ObservableObject {
 
     @Published var sendDecimalValue: GroupedNumberTextField.DecimalValue?
     @Published var refreshWarningRowViewModel: DefaultWarningRowViewModel?
-    @Published var highImpactWarningRowViewModel: DefaultWarningRowViewModel?
+    @Published var highPriceImpactWarningRowViewModel: DefaultWarningRowViewModel?
     @Published var permissionInfoRowViewModel: DefaultWarningRowViewModel?
 
     @Published var mainButtonIsEnabled: Bool = false
@@ -382,7 +382,7 @@ private extension SwappingViewModel {
             let fiatValue = try await fiatRatesProvider.getFiat(for: destination, amount: value)
             await runOnMain {
                 receiveCurrencyViewModel?.update(fiatAmountState: .loaded(fiatValue))
-                checkForHightPriceImpact(destinationFiatAmount: fiatValue)
+                checkForHighPriceImpact(destinationFiatAmount: fiatValue)
             }
         }
     }
@@ -483,7 +483,7 @@ private extension SwappingViewModel {
         }
     }
 
-    func checkForHightPriceImpact(destinationFiatAmount: Decimal) {
+    func checkForHighPriceImpact(destinationFiatAmount: Decimal) {
         guard let sendDecimalValue = sendDecimalValue?.value else {
             return
         }
@@ -497,14 +497,14 @@ private extension SwappingViewModel {
             let lostInPercents = (sourceFiatAmount / destinationFiatAmount - 1) * 100
 
             await runOnMain {
-                if lostInPercents > Constants.hightImpactPercent {
-                    highImpactWarningRowViewModel = DefaultWarningRowViewModel(
+                if lostInPercents >= Constants.highPriceImpactWarningLimit {
+                    highPriceImpactWarningRowViewModel = DefaultWarningRowViewModel(
                         title: Localization.swappingHighPriceImpact,
                         subtitle: Localization.swappingHighPriceImpactDescription,
                         leftView: .icon(Assets.warningIcon)
                     )
                 } else {
-                    highImpactWarningRowViewModel = nil
+                    highPriceImpactWarningRowViewModel = nil
                 }
             }
         }
@@ -727,6 +727,6 @@ extension SwappingViewModel {
 
 extension SwappingViewModel {
     private enum Constants {
-        static let hightImpactPercent: Decimal = 10
+        static let highPriceImpactWarningLimit: Decimal = 10
     }
 }
