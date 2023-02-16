@@ -360,6 +360,7 @@
 "swapping_success_view_title" = "В процессе";
 "swapping_swap" = "Обмен";
 "swapping_swap_of_to" = "Обмен %@ на";
+"swapping_tangem_fee_disclaimer" = "Кроме того, котировки включают комиссию Tangem в размере %s. Это помогает нам предоставлять первоклассный продукт.";
 "swapping_token_list_other_tokens" = "Другие токены";
 "swapping_token_list_title" = "Выберите токен";
 "swapping_token_list_your_tokens" = "Ваши токены";
@@ -378,7 +379,7 @@
 "token_details_unable_hide_alert_title" = "Невозможно скрыть %@";
 "token_item_no_rate" = "Нет цены";
 "transaction_history_empty_transactions" = "У вас еще нет транзакций";
-"transaction_history_error_failed_to_load" = "Не удалось загрузить транзакции.  Пожалуйста, попробуйте позже.";
+"transaction_history_error_failed_to_load" = "Не удалось загрузить транзакции";
 "transaction_history_title" = "Транзакции";
 "transaction_history_tx_in_progress" = "В процессе…";
 "twin_error_not_a_twin_card" = "Вы отсканировали не twin-карту. Для создания двойного кошелька необходимо отсканировать карту Tangem Twin.";
