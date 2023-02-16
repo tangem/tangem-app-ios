@@ -134,9 +134,7 @@ struct WalletConnectV2Utils {
         switch wcBlockchain.namespace {
         case evmNamespace:
             var blockchains = BlockchainSdk.Blockchain.supportedBlockchains
-            if EnvironmentProvider.shared.isTestnet {
-                blockchains = blockchains.union(BlockchainSdk.Blockchain.supportedTestnetBlockchains)
-            }
+            blockchains = blockchains.union(BlockchainSdk.Blockchain.supportedTestnetBlockchains)
 
             let wcChainId = Int(wcBlockchain.reference)
             return blockchains.first(where: { $0.chainId == wcChainId })
