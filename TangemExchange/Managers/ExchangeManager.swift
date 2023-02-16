@@ -18,6 +18,9 @@ public protocol ExchangeManager {
     /// Current manager state
     func getAvailabilityState() -> ExchangeAvailabilityState
 
+    /// Beneficiary account
+    func getReferrerAccount() -> ExchangeReferrerAccount?
+
     /// Update swapping items and reload rates
     func update(exchangeItems: ExchangeItems)
 
