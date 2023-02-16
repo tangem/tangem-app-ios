@@ -9,6 +9,7 @@
 import Combine
 import TangemExchange
 import TangemSdk
+import SwiftUI
 
 final class SwappingViewModel: ObservableObject {
     // MARK: - ViewState
@@ -26,16 +27,26 @@ final class SwappingViewModel: ObservableObject {
     @Published var errorAlert: AlertBinder?
 
     var informationSectionViewModels: [InformationSectionViewModel] {
-        var viewModels: [InformationSectionViewModel] = [.fee(swappingFeeRowViewModel)]
-        if let feeWarningRowViewModel {
+        var viewModels: [InformationSectionViewModel] = []
+
+        if let swappingFeeRowViewModel = swappingFeeRowViewModel {
+            viewModels.append(.fee(swappingFeeRowViewModel))
+        }
+
+        if let feeWarningRowViewModel = feeWarningRowViewModel {
             viewModels.append(.warning(feeWarningRowViewModel))
+        }
+
+        if let feeInfoRowViewModel = feeInfoRowViewModel {
+            viewModels.append(.warning(feeInfoRowViewModel))
         }
 
         return viewModels
     }
 
-    @Published private var swappingFeeRowViewModel = SwappingFeeRowViewModel(state: .idle)
+    @Published private var swappingFeeRowViewModel: SwappingFeeRowViewModel?
     @Published private var feeWarningRowViewModel: DefaultWarningRowViewModel?
+    @Published private var feeInfoRowViewModel: DefaultWarningRowViewModel?
 
     // MARK: - Dependencies
 
@@ -424,9 +435,9 @@ private extension SwappingViewModel {
     func updateFeeValue(state: ExchangeAvailabilityState) {
         switch state {
         case .idle, .requiredRefresh, .preview:
-            swappingFeeRowViewModel.update(state: .idle)
+            swappingFeeRowViewModel?.update(state: .idle)
         case .loading:
-            swappingFeeRowViewModel.update(state: .loading)
+            swappingFeeRowViewModel?.update(state: .loading)
         case .available(let result, let info):
             let source = exchangeManager.getExchangeItems().source
             let fee = result.fee.rounded(scale: 2, roundingMode: .up)
@@ -436,7 +447,7 @@ private extension SwappingViewModel {
                 let code = await AppSettings.shared.selectedCurrencyCode
 
                 await runOnMain {
-                    swappingFeeRowViewModel.update(
+                    swappingFeeRowViewModel?.update(
                         state: .fee(
                             fee: fee.groupedFormatted(maximumFractionDigits: source.decimalCount),
                             symbol: source.blockchain.symbol,
@@ -484,6 +495,23 @@ private extension SwappingViewModel {
     func setupView() {
         updateState(state: .idle)
         updateView(exchangeItems: exchangeManager.getExchangeItems())
+
+        swappingFeeRowViewModel = SwappingFeeRowViewModel(state: .idle) {
+            Binding<Bool>(root: self, default: false) { root in
+                root.feeInfoRowViewModel != nil
+            } set: { root, isOpen in
+                if isOpen {
+                    let percentFee = root.exchangeManager.getReferrerAccount()?.fee ?? 0
+                    let formattedFee = "\(percentFee.groupedFormatted())%"
+                    root.feeInfoRowViewModel = DefaultWarningRowViewModel(
+                        subtitle: Localization.swappingTangemFeeDisclaimer(formattedFee),
+                        leftView: .icon(Assets.heartMini)
+                    )
+                } else {
+                    root.feeInfoRowViewModel = nil
+                }
+            }
+        }
     }
 
     func bind() {
