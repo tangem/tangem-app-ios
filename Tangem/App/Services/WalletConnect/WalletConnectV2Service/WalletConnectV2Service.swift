@@ -64,6 +64,7 @@ final class WalletConnectV2Service {
         self.messageComposer = messageComposer
         self.wcHandlersService = wcHandlersService
 
+        AppLog.shared.debug("[WC 2.0] Initializing v2 Service. Configuring WC 2.0 library")
         Networking.configure(
             // [REDACTED_TODO_COMMENT]
             projectId: "c0e14e9fac0113e872980f2aae3354de",
@@ -108,6 +109,8 @@ final class WalletConnectV2Service {
     }
 
     private func loadSessions(for userWalletId: Data?) {
+        log("Saved pairings in WC lib \(pairApi.getPairings())")
+        log("Saved sessions in WC lib \(signApi.getSessions())")
         guard let userWalletId else { return }
 
         runTask { [weak self] in
