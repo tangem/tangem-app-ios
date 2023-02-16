@@ -343,6 +343,8 @@
 "story_web3_title" = "Поддержка DeFi";
 "swapping_error_wrapper" = "Ошибка: %@";
 "swapping_give_permission" = "Дать разрешение";
+"swapping_high_price_impact" = "Сильные колебания цены!";
+"swapping_high_price_impact_description" = "Обмен этой суммы выбранных токенов может вызвать значительные колебания цены и уменьшить получаемую сумму.";
 "swapping_insufficient_funds" = "Недостаточно средств";
 "swapping_not_enough_funds_for_fee" = "Недостаточно средств для оплаты на вашем %1$@ кошельке для создания транзакции. Сначала пополните свой %2$@ кошелек.";
 "swapping_pending_transaction_subtitle" = "Транзакция в процессе…";
@@ -496,5 +498,3 @@
 "welcome_unlock_card" = "Сканировать карту";
 "welcome_unlock_description" = "Используйте %@ или код доступа для входа в приложение";
 "welcome_unlock_title" = "C возвращением!";
-"swapping_high_price_impact" = "High price impact!";
-"swapping_high_price_impact_description" = "Swapping this amount of selected tokens will cause a significant price impact and reduce your outcome.";
