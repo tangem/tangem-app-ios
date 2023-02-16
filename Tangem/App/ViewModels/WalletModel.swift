@@ -257,7 +257,9 @@ class WalletModel: ObservableObject, Identifiable {
             blockchainNetwork.blockchain.canLoadTransactionHistory,
             let historyLoader = walletManager as? TransactionHistoryLoader
         else {
-            transactionHistoryState = .notSupported
+            DispatchQueue.main.async {
+                self.transactionHistoryState = .notSupported
+            }
             return .justWithError(output: ())
         }
 
@@ -268,6 +270,7 @@ class WalletModel: ObservableObject, Identifiable {
         transactionHistoryState = .loading
         let historyPublisher = historyLoader.loadTransactionHistory()
         txHistoryUpdateSubscription = historyPublisher
+            .receive(on: DispatchQueue.main)
             .sink { [weak self] completion in
                 if case .failure(let error) = completion {
                     AppLog.shared.debug("🔄 Failed to load transaction history. Error: \(error)")
