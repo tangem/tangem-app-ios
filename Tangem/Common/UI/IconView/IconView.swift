@@ -39,9 +39,14 @@ struct IconView: View {
                     .frame(size: size)
                     .cornerRadiusContinuous(5)
             case .failure:
-                Colors.Icon.informative
+                Circle()
+                    .fill(Color.clear)
                     .frame(size: size)
-                    .cornerRadiusContinuous(5)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: size.height / 2)
+                            .stroke(Colors.Icon.informative, lineWidth: 1)
+                    )
+                    .cornerRadius(size.height / 2)
             @unknown default:
                 EmptyView()
             }
@@ -72,7 +77,7 @@ struct IconView: View {
 struct IconView_Preview: PreviewProvider {
     static var previews: some View {
         IconView(
-            url: TokenIconURLBuilder(baseURL: CoinsResponse.baseURL).iconURL(id: "bitcoin", size: .small),
+            url: TokenIconURLBuilder(baseURL: CoinsResponse.baseURL).iconURL(id: "arbitrum-one", size: .small),
             size: CGSize(width: 40, height: 40)
         )
     }
