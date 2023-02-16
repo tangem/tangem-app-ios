@@ -496,3 +496,5 @@
 "welcome_unlock_card" = "Сканировать карту";
 "welcome_unlock_description" = "Используйте %@ или код доступа для входа в приложение";
 "welcome_unlock_title" = "C возвращением!";
+"swapping_high_price_impact" = "High price impact!";
+"swapping_high_price_impact_description" = "Swapping this amount of selected tokens will cause a significant price impact and reduce your outcome.";
