@@ -343,6 +343,8 @@
 "story_web3_title" = "DeFi Compatible";
 "swapping_error_wrapper" = "Error: %@";
 "swapping_give_permission" = "Give Permission";
+"swapping_high_price_impact" = "High price impact!";
+"swapping_high_price_impact_description" = "Swapping this amount of selected tokens will cause a significant price impact and reduce your outcome.";
 "swapping_insufficient_funds" = "Insufficient funds";
 "swapping_not_enough_funds_for_fee" = "Not enough funds for fee in your %1$@ wallet to create a transaction. Top up your %2$@ wallet first.";
 "swapping_pending_transaction_subtitle" = "Transaction in progress...";
@@ -496,5 +498,3 @@
 "welcome_unlock_card" = "Scan card";
 "welcome_unlock_description" = "Use %@ or scan a card to access the app";
 "welcome_unlock_title" = "Welcome back!";
-"swapping_high_price_impact" = "High price impact!";
-"swapping_high_price_impact_description" = "Swapping this amount of selected tokens will cause a significant price impact and reduce your outcome.";
