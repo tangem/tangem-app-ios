@@ -9,6 +9,7 @@
 import Combine
 import Foundation
 import class UIKit.UIPasteboard
+import BlockchainSdk
 
 protocol SingleWalletContentViewModelOutput: OpenCurrencySelectionDelegate {
     func openPushTx(for index: Int, walletModel: WalletModel)
@@ -23,7 +24,7 @@ class SingleWalletContentViewModel: ObservableObject {
     @Published var selectedAddressIndex: Int = 0
     @Published var singleWalletModel: WalletModel?
     @Published var totalBalanceButtons = [TotalBalanceButton]()
-    @Published var transactionListItems = [TransactionListItem]()
+    @Published var transactionHistoryState = TransactionsListView.State.loading
 
     var pendingTransactionViews: [PendingTxView] {
         guard let singleWalletModel else { return [] }
@@ -74,6 +75,7 @@ class SingleWalletContentViewModel: ObservableObject {
     private let userWalletModel: UserWalletModel
     private unowned let output: SingleWalletContentViewModelOutput
     private var bag = Set<AnyCancellable>()
+    private var transactionHistoryLoaderSubscription: AnyCancellable?
 
     private var exchangeServiceInitialized = false
 
@@ -147,7 +149,6 @@ class SingleWalletContentViewModel: ObservableObject {
             .switchToLatest()
             .receive(on: DispatchQueue.main)
             .sink(receiveValue: { [weak self] publish in
-                self?.updateTransactionHistoryList()
                 self?.objectWillChange.send()
             })
             .store(in: &bag)
@@ -167,6 +168,14 @@ class SingleWalletContentViewModel: ObservableObject {
                 Analytics.logSignInIfNeeded(balance: balance)
             }
             .store(in: &bag)
+
+        if canShowTransactionHistory {
+            singleWalletModel?.$transactionHistoryState
+                .sink(receiveValue: { [weak self] state in
+                    self?.updateTransactionHistoryState(state)
+                })
+                .store(in: &bag)
+        }
 
         if !canShowAddress {
             exchangeService.initializationPublisher
@@ -205,14 +214,25 @@ class SingleWalletContentViewModel: ObservableObject {
             .init(
                 title: Localization.walletButtonBuy,
                 icon: Assets.plusMini,
-                isLoading: false,
-                isDisabled: false,
                 action: { [weak self] in
                     Analytics.log(.buttonBuyMainScreen)
                     self?.output.openBuyCrypto()
                 }
             ),
         ]
+    }
+
+    private func updateTransactionHistoryState(_ newState: WalletModel.TransactionHistoryState) {
+        switch newState {
+        case .notSupported, .loading:
+            break
+        case .notLoaded:
+            transactionHistoryState = .loading
+        case .failedToLoad(let error):
+            transactionHistoryState = .error(error)
+        case .loaded:
+            updateTransactionHistoryList()
+        }
     }
 
     private func updateTransactionHistoryList() {
@@ -223,6 +243,7 @@ class SingleWalletContentViewModel: ObservableObject {
             return
         }
 
-        transactionListItems = TransactionHistoryMapper().makeTransactionListItems(from: singleWalletModel.transactions)
+        let txListItems = TransactionHistoryMapper().makeTransactionListItems(from: singleWalletModel.transactions)
+        transactionHistoryState = .loaded(txListItems)
     }
 }
