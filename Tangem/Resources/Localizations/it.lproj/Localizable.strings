@@ -496,3 +496,5 @@
 "welcome_unlock_card" = "Scan card";
 "welcome_unlock_description" = "Use %@ or scan a card to access the app";
 "welcome_unlock_title" = "Welcome back!";
+"swapping_high_price_impact" = "High price impact!";
+"swapping_high_price_impact_description" = "Swapping this amount of selected tokens will cause a significant price impact and reduce your outcome.";
