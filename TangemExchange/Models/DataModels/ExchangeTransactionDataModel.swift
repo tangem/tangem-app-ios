@@ -23,7 +23,7 @@ public struct ExchangeTransactionDataModel {
     public let sourceAmount: Decimal
     public let destinationAmount: Decimal
 
-    /// Value from 1inch to send in transaction
+    /// Value which should be sent in transaction
     public let value: Decimal
 
     /// A long value gas, usual in period from 21000 to 30000
