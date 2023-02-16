@@ -11,13 +11,15 @@ import UIKit
 import SwiftUI
 
 class AppPresenter {
+    @Injected(\.keysManager) private var keysManager: KeysManager
+
     static let shared = AppPresenter()
 
     private init() {}
 
-    func showChat(cardId: String? = nil, dataCollector: EmailDataCollector? = nil) {
-        let viewModel = SupportChatViewModel(cardId: cardId, dataCollector: dataCollector)
-        let view = SupportChatView(viewModel: viewModel)
+    func showSprinklChat() {
+        let viewModel = WebViewContainerViewModel.sprinklSupportChat(appID: keysManager.saltPay.sprinklrAppID)
+        let view = WebViewContainer(viewModel: viewModel)
         let controller = UIHostingController(rootView: view)
         show(controller)
     }
