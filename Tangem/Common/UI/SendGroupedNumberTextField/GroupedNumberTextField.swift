@@ -76,10 +76,10 @@ struct GroupedNumberTextField: View {
 
         // Update private `@State` for display not correct number, like 0,000
         textFieldText = numberString
-        
+
         // Format string to reduce digits
         var formattedValue = groupedNumberFormatter.format(from: numberString)
-        
+
         // Convert formatted string to correct decimal number
         formattedValue = formattedValue.replacingOccurrences(of: String(decimalSeparator), with: ".")
 
