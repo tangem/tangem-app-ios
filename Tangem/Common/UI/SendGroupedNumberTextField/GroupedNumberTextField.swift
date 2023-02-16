@@ -45,7 +45,7 @@ struct GroupedNumberTextField: View {
                 case .external(let value):
                     // If the decimalValue did updated from external place
                     // We have to update the private values
-                    let formattedNewValue = groupedNumberFormatter.format(from: value)
+                    let formattedNewValue = groupedNumberFormatter.format(from: value.description)
                     updateValues(with: formattedNewValue)
                 }
             }
