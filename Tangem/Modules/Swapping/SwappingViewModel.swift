@@ -393,8 +393,8 @@ private extension SwappingViewModel {
             let fiatValue = try await fiatRatesProvider.getFiat(for: destination, amount: value)
             await runOnMain {
                 receiveCurrencyViewModel?.update(fiatAmountState: .loaded(fiatValue))
-                checkForHighPriceImpact(destinationFiatAmount: fiatValue)
             }
+            try await checkForHighPriceImpact(destinationFiatAmount: fiatValue)
         }
     }
 
@@ -494,29 +494,27 @@ private extension SwappingViewModel {
         }
     }
 
-    func checkForHighPriceImpact(destinationFiatAmount: Decimal) {
+    func checkForHighPriceImpact(destinationFiatAmount: Decimal) async throws {
         guard let sendDecimalValue = sendDecimalValue?.value else {
             return
         }
 
-        Task {
-            let sourceFiatAmount = try await fiatRatesProvider.getFiat(
-                for: exchangeManager.getExchangeItems().source,
-                amount: sendDecimalValue
-            )
+        let sourceFiatAmount = try await fiatRatesProvider.getFiat(
+            for: exchangeManager.getExchangeItems().source,
+            amount: sendDecimalValue
+        )
 
-            let lostInPercents = (sourceFiatAmount / destinationFiatAmount - 1) * 100
+        let lostInPercents = (sourceFiatAmount / destinationFiatAmount - 1) * 100
 
-            await runOnMain {
-                if lostInPercents >= Constants.highPriceImpactWarningLimit {
-                    highPriceImpactWarningRowViewModel = DefaultWarningRowViewModel(
-                        title: Localization.swappingHighPriceImpact,
-                        subtitle: Localization.swappingHighPriceImpactDescription,
-                        leftView: .icon(Assets.warningIcon)
-                    )
-                } else {
-                    highPriceImpactWarningRowViewModel = nil
-                }
+        await runOnMain {
+            if lostInPercents >= Constants.highPriceImpactWarningLimit {
+                highPriceImpactWarningRowViewModel = DefaultWarningRowViewModel(
+                    title: Localization.swappingHighPriceImpact,
+                    subtitle: Localization.swappingHighPriceImpactDescription,
+                    leftView: .icon(Assets.warningIcon)
+                )
+            } else {
+                highPriceImpactWarningRowViewModel = nil
             }
         }
     }
