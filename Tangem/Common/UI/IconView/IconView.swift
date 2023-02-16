@@ -68,3 +68,12 @@ struct IconView: View {
             .cornerRadius(size.height / 2)
     }
 }
+
+struct IconView_Preview: PreviewProvider {
+    static var previews: some View {
+        IconView(
+            url: TokenIconURLBuilder(baseURL: CoinsResponse.baseURL).iconURL(id: "bitcoin", size: .small),
+            size: CGSize(width: 40, height: 40)
+        )
+    }
+}
