@@ -9,6 +9,7 @@
 import Combine
 import TangemExchange
 import TangemSdk
+import SwiftUI
 
 final class SwappingViewModel: ObservableObject {
     // MARK: - ViewState
@@ -19,6 +20,7 @@ final class SwappingViewModel: ObservableObject {
 
     @Published var sendDecimalValue: GroupedNumberTextField.DecimalValue?
     @Published var refreshWarningRowViewModel: DefaultWarningRowViewModel?
+    @Published var highPriceImpactWarningRowViewModel: DefaultWarningRowViewModel?
     @Published var permissionInfoRowViewModel: DefaultWarningRowViewModel?
 
     @Published var mainButtonIsEnabled: Bool = false
@@ -26,16 +28,26 @@ final class SwappingViewModel: ObservableObject {
     @Published var errorAlert: AlertBinder?
 
     var informationSectionViewModels: [InformationSectionViewModel] {
-        var viewModels: [InformationSectionViewModel] = [.fee(swappingFeeRowViewModel)]
-        if let feeWarningRowViewModel {
+        var viewModels: [InformationSectionViewModel] = []
+
+        if let swappingFeeRowViewModel = swappingFeeRowViewModel {
+            viewModels.append(.fee(swappingFeeRowViewModel))
+        }
+
+        if let feeWarningRowViewModel = feeWarningRowViewModel {
             viewModels.append(.warning(feeWarningRowViewModel))
+        }
+
+        if let feeInfoRowViewModel = feeInfoRowViewModel {
+            viewModels.append(.warning(feeInfoRowViewModel))
         }
 
         return viewModels
     }
 
-    @Published private var swappingFeeRowViewModel = SwappingFeeRowViewModel(state: .idle)
+    @Published private var swappingFeeRowViewModel: SwappingFeeRowViewModel?
     @Published private var feeWarningRowViewModel: DefaultWarningRowViewModel?
+    @Published private var feeInfoRowViewModel: DefaultWarningRowViewModel?
 
     // MARK: - Dependencies
 
@@ -382,6 +394,7 @@ private extension SwappingViewModel {
             await runOnMain {
                 receiveCurrencyViewModel?.update(fiatAmountState: .loaded(fiatValue))
             }
+            try await checkForHighPriceImpact(destinationFiatAmount: fiatValue)
         }
     }
 
@@ -424,9 +437,9 @@ private extension SwappingViewModel {
     func updateFeeValue(state: ExchangeAvailabilityState) {
         switch state {
         case .idle, .requiredRefresh, .preview:
-            swappingFeeRowViewModel.update(state: .idle)
+            swappingFeeRowViewModel?.update(state: .idle)
         case .loading:
-            swappingFeeRowViewModel.update(state: .loading)
+            swappingFeeRowViewModel?.update(state: .loading)
         case .available(let result, let info):
             let source = exchangeManager.getExchangeItems().source
             let fee = result.fee.rounded(scale: 2, roundingMode: .up)
@@ -436,7 +449,7 @@ private extension SwappingViewModel {
                 let code = await AppSettings.shared.selectedCurrencyCode
 
                 await runOnMain {
-                    swappingFeeRowViewModel.update(
+                    swappingFeeRowViewModel?.update(
                         state: .fee(
                             fee: fee.groupedFormatted(maximumFractionDigits: source.decimalCount),
                             symbol: source.blockchain.symbol,
@@ -481,9 +494,51 @@ private extension SwappingViewModel {
         }
     }
 
+    func checkForHighPriceImpact(destinationFiatAmount: Decimal) async throws {
+        guard let sendDecimalValue = sendDecimalValue?.value else {
+            return
+        }
+
+        let sourceFiatAmount = try await fiatRatesProvider.getFiat(
+            for: exchangeManager.getExchangeItems().source,
+            amount: sendDecimalValue
+        )
+
+        let lostInPercents = (sourceFiatAmount / destinationFiatAmount - 1) * 100
+
+        await runOnMain {
+            if lostInPercents >= Constants.highPriceImpactWarningLimit {
+                highPriceImpactWarningRowViewModel = DefaultWarningRowViewModel(
+                    title: Localization.swappingHighPriceImpact,
+                    subtitle: Localization.swappingHighPriceImpactDescription,
+                    leftView: .icon(Assets.warningIcon)
+                )
+            } else {
+                highPriceImpactWarningRowViewModel = nil
+            }
+        }
+    }
+
     func setupView() {
         updateState(state: .idle)
         updateView(exchangeItems: exchangeManager.getExchangeItems())
+
+        swappingFeeRowViewModel = SwappingFeeRowViewModel(state: .idle) { [weak self] in
+            Binding<Bool> {
+                self?.feeInfoRowViewModel != nil
+            } set: { isOpen in
+                if isOpen {
+                    let percentFee = self?.exchangeManager.getReferrerAccount()?.fee ?? 0
+                    let formattedFee = "\(percentFee.groupedFormatted())%"
+                    self?.feeInfoRowViewModel = DefaultWarningRowViewModel(
+                        subtitle: Localization.swappingTangemFeeDisclaimer(formattedFee),
+                        leftView: .icon(Assets.heartMini)
+                    )
+                } else {
+                    self?.feeInfoRowViewModel = nil
+                }
+            }
+        }
     }
 
     func bind() {
@@ -693,5 +748,11 @@ extension SwappingViewModel {
                 return .none
             }
         }
+    }
+}
+
+extension SwappingViewModel {
+    private enum Constants {
+        static let highPriceImpactWarningLimit: Decimal = 10
     }
 }
