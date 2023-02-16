@@ -13,6 +13,7 @@ struct SaltPayConfiguration: Decodable {
     let zendesk: ZendeskConfig
     let kycProvider: KYCProvider
     let credentials: NetworkProviderConfiguration.Credentials
+    let blockscoutCredentials: NetworkProviderConfiguration.Credentials
 }
 
 struct KYCProvider: Decodable {
