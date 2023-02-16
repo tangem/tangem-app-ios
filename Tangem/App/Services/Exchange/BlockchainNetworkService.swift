@@ -17,6 +17,8 @@ class BlockchainNetworkService {
     private var balances: [Amount.AmountType: Decimal] = [:]
     private var walletManager: WalletManager { walletModel.walletManager }
 
+    private var temporaryAddedTokens: Set<Token> = []
+
     init(walletModel: WalletModel, currencyMapper: CurrencyMapping) {
         self.walletModel = walletModel
         self.currencyMapper = currencyMapper
@@ -121,12 +123,7 @@ private extension BlockchainNetworkService {
     func getBalanceThroughUpdateWalletModel(amountType: Amount.AmountType) async throws -> Decimal {
         if let token = amountType.token {
             walletModel.addTokens([token])
-        }
-
-        defer {
-            if let token = amountType.token {
-                walletModel.removeToken(token)
-            }
+            temporaryAddedTokens.insert(token)
         }
 
         /// Think about it, because we unnecessary updates all tokens in walletModel
