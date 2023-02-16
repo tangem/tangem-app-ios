@@ -82,6 +82,7 @@ struct GroupedNumberTextField: View {
 
         // Convert formatted string to correct decimal number
         formattedValue = formattedValue.replacingOccurrences(of: String(decimalSeparator), with: ".")
+        formattedValue = formattedValue.replacingOccurrences(of: groupingSeparator, with: "")
 
         // We can't use here the NumberFormatter because it work with the NSNumber
         // And NSNumber is working wrong with ten zeros and one after decimalSeparator
