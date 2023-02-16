@@ -34,6 +34,8 @@ struct SwappingView: View {
             }
             .keyboardAdaptive()
             .scrollDismissesKeyboardCompat(true)
+            // For animate button below informationSection
+            .animation(.easeInOut, value: viewModel.informationSectionViewModels.count)
         }
         .navigationBarTitle(Text(Localization.swappingSwap), displayMode: .inline)
         .alert(item: $viewModel.errorAlert, content: { $0.alert })
