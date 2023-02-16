@@ -77,10 +77,19 @@ struct GroupedNumberTextField: View {
         // Update private `@State` for display not correct number, like 0,000
         textFieldText = numberString
 
-        // If string is correct number, update binding for work external updates
-        let formattedValue = groupedNumberFormatter.format(from: numberString)
-        if let value = groupedNumberFormatter.number(from: formattedValue) {
-            decimalValue = .internal(value.decimalValue)
+        // Format string to reduce digits
+        var formattedValue = groupedNumberFormatter.format(from: numberString)
+
+        // Convert formatted string to correct decimal number
+        formattedValue = formattedValue.replacingOccurrences(of: String(decimalSeparator), with: ".")
+        formattedValue = formattedValue.replacingOccurrences(of: groupingSeparator, with: "")
+
+        // We can't use here the NumberFormatter because it work with the NSNumber
+        // And NSNumber is working wrong with ten zeros and one after decimalSeparator
+        // Eg. NumberFormatter.number(from: "0.00000000001") will return "0.000000000009999999999999999"
+        // Like is NSNumber(floatLiteral: 0.00000000001) will return "0.000000000009999999999999999"
+        if let value = Decimal(string: formattedValue) {
+            decimalValue = .internal(value)
         } else if numberString.isEmpty {
             decimalValue = nil
         }
