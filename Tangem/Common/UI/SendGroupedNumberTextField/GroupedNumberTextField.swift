@@ -76,11 +76,16 @@ struct GroupedNumberTextField: View {
 
         // Update private `@State` for display not correct number, like 0,000
         textFieldText = numberString
+        
+        // Format string to reduce digits
+        var formattedValue = groupedNumberFormatter.format(from: numberString)
+        
+        // Convert formatted string to correct decimal number
+        formattedValue = formattedValue.replacingOccurrences(of: String(decimalSeparator), with: ".")
 
         // If string is correct number, update binding for work external updates
-        let formattedValue = groupedNumberFormatter.format(from: numberString)
-        if let value = groupedNumberFormatter.number(from: formattedValue) {
-            decimalValue = .internal(value.decimalValue)
+        if let value = Decimal(string: formattedValue) {
+            decimalValue = .internal(value)
         } else if numberString.isEmpty {
             decimalValue = nil
         }
