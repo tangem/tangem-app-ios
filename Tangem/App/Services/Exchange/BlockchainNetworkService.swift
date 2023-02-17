@@ -17,7 +17,7 @@ class BlockchainNetworkService {
     private var balances: [Amount.AmountType: Decimal] = [:]
     private var walletManager: WalletManager { walletModel.walletManager }
 
-    private var temporaryAddedTokens: Set<Token> = []
+    private var temporaryAddedToken: Token?
 
     init(walletModel: WalletModel, currencyMapper: CurrencyMapping) {
         self.walletModel = walletModel
@@ -50,6 +50,22 @@ extension BlockchainNetworkService: TangemExchange.BlockchainDataProvider {
         }
 
         return walletModel.wallet.address
+    }
+
+    func destinationDidChange(to currency: Currency) {
+        guard let token = currencyMapper.mapToToken(currency: currency),
+              // if token already added to walletModel do nothing
+              !walletModel.getTokens().contains(token) else {
+            return
+        }
+
+        // Remove tempopary tokens from wallet model
+        if let temporaryAddedToken = temporaryAddedToken {
+            walletModel.removeToken(temporaryAddedToken)
+        }
+
+        temporaryAddedToken = token
+        walletModel.addTokens([token])
     }
 
     func getBalance(for currency: Currency) async throws -> Decimal {
@@ -121,9 +137,10 @@ private extension BlockchainNetworkService {
     }
 
     func getBalanceThroughUpdateWalletModel(amountType: Amount.AmountType) async throws -> Decimal {
-        if let token = amountType.token {
-            walletModel.addTokens([token])
-            temporaryAddedTokens.insert(token)
+        guard let token = amountType.token,
+              walletModel.getTokens().contains(token) else {
+            AppLog.shared.debug("WalletModel can't load balance for amountType \(amountType)")
+            return 0
         }
 
         /// Think about it, because we unnecessary updates all tokens in walletModel
@@ -133,7 +150,7 @@ private extension BlockchainNetworkService {
             return balance
         }
 
-        AppLog.shared.debug("WalletModel haven't balance for coin")
+        AppLog.shared.debug("WalletModel haven't balance for token \(token)")
         return 0
     }
 }
