@@ -133,9 +133,9 @@ extension OnboardingCoordinator: WalletOnboardingRoutable {
         })
     }
 
-    func openSupportChat(type: SupportChatViewModel.SupportChatType) {
+    func openSupportChat(input: SupportChatInputModel) {
         Analytics.log(.chatScreenOpened)
-        supportChatViewModel = SupportChatViewModel(type: type)
+        supportChatViewModel = SupportChatViewModel(input: input)
     }
 }
 

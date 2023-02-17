@@ -13,7 +13,6 @@ import TangemSdk
 class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable> {
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
     @Injected(\.tangemSdkProvider) private var tangemSdkProvider: TangemSdkProviding
-    @Injected(\.keysManager) private var keysManager: KeysManager
 
     let navbarSize: CGSize = .init(width: UIScreen.main.bounds.width, height: 44)
     let resetAnimDuration: Double = 0.3
@@ -347,20 +346,16 @@ extension OnboardingViewModel {
     func openSupportChat() {
         guard let cardModel = input.cardInput.cardModel else { return }
         Analytics.log(.onboardingButtonChat)
+        let dataCollector = DetailsFeedbackDataCollector(
+            cardModel: cardModel,
+            userWalletEmailData: cardModel.emailData
+        )
 
-        switch cardModel.supportChatEnvironment {
-        case .tangem:
-            let dataCollector = DetailsFeedbackDataCollector(
-                cardModel: cardModel,
-                userWalletEmailData: cardModel.emailData
-            )
-
-            coordinator.openSupportChat(
-                type: .tangem(cardId: cardModel.cardId, dataCollector: dataCollector)
-            )
-        case .saltPay:
-            coordinator.openSupportChat(type: .saltPay)
-        }
+        coordinator.openSupportChat(input: .init(
+            environment: cardModel.supportChatEnvironment,
+            cardId: cardModel.cardId,
+            dataCollector: dataCollector
+        ))
     }
 }
 
