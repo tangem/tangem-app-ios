@@ -33,7 +33,6 @@ class DetailsCoordinator: CoordinatorObject {
     @Published var supportChatViewModel: SupportChatViewModel? = nil
     @Published var scanCardSettingsViewModel: ScanCardSettingsViewModel? = nil
     @Published var setupEnvironmentViewModel: EnvironmentSetupViewModel? = nil
-    @Published var webViewContainerViewModel: WebViewContainerViewModel?
 
     // MARK: - Helpers
 
@@ -100,9 +99,9 @@ extension DetailsCoordinator: DetailsRoutable {
         appSettingsCoordinator = coordinator
     }
 
-    func openSupportChat(type: SupportChatViewModel.SupportChatType) {
+    func openSupportChat(input: SupportChatInputModel) {
         Analytics.log(.chatScreenOpened)
-        supportChatViewModel = SupportChatViewModel(type: type)
+        supportChatViewModel = SupportChatViewModel(input: input)
     }
 
     func openInSafari(url: URL) {
