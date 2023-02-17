@@ -80,7 +80,7 @@ extension UserWalletConfig {
     }
 
     var supportChatEnvironment: SupportChatEnvironment {
-        .default
+        .tangem
     }
 
     var exchangeServiceEnvironment: ExchangeServiceEnvironment {
