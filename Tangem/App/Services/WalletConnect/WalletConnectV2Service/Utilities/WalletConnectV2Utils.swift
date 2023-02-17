@@ -49,9 +49,22 @@ struct WalletConnectV2Utils {
     func extractUnsupportedBlockchainNames(from namespaces: [String: ProposalNamespace]) -> [String] {
         var blockchains = [String]()
         for (namespace, proposal) in namespaces {
-            if namespace != evmNamespace, let chain = proposal.chains.first {
-                let blockchain = createBlockchain(for: chain)?.displayName ?? namespace.capitalizingFirstLetter()
-                blockchains.append(blockchain)
+            if namespace == evmNamespace {
+                let notSupportedEVMChainIds: [String] = proposal.chains.compactMap { chain in
+                    guard createBlockchain(for: chain) == nil else {
+                        return nil
+                    }
+                    
+                    return chain.absoluteString
+                }
+                
+                blockchains.append(contentsOf: notSupportedEVMChainIds)
+            } else {
+                let notEVMChainNames = proposal.chains.map { chain in
+                    return createBlockchain(for: chain)?.displayName ?? namespace.capitalizingFirstLetter()
+                }
+                
+                blockchains.append(contentsOf: notEVMChainNames)
             }
         }
 
