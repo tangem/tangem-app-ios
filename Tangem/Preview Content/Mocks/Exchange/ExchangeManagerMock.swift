@@ -18,6 +18,8 @@ struct ExchangeManagerMock: ExchangeManager {
 
     func getAvailabilityState() -> ExchangeAvailabilityState { .idle }
 
+    func getReferrerAccount() -> ExchangeReferrerAccount? { nil }
+
     func update(exchangeItems: ExchangeItems) {}
 
     func update(amount: Decimal?) {}

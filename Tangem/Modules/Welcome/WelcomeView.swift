@@ -28,13 +28,15 @@ struct WelcomeView: View {
     }
 
     var storiesView: some View {
-        StoriesView(viewModel: viewModel.storiesModel) { // [REDACTED_TODO_COMMENT]
-            viewModel.storiesModel.currentStoryPage(
-                isScanning: viewModel.isScanningCard,
-                scanCard: viewModel.scanCardTapped,
-                orderCard: viewModel.orderCard,
-                searchTokens: viewModel.openTokensList
-            )
+        StoriesView(viewModel: viewModel.storiesModel) { [weak viewModel] in
+            if let viewModel = viewModel {
+                viewModel.storiesModel.currentStoryPage(
+                    isScanning: viewModel.isScanningCard,
+                    scanCard: viewModel.scanCardTapped,
+                    orderCard: viewModel.orderCard,
+                    searchTokens: viewModel.openTokensList
+                )
+            }
         }
         .statusBar(hidden: true)
         .environment(\.colorScheme, viewModel.storiesModel.currentPage.colorScheme)
