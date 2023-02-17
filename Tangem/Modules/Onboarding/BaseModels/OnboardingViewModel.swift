@@ -345,17 +345,17 @@ extension OnboardingViewModel {
 
     func openSupportChat() {
         guard let cardModel = input.cardInput.cardModel else { return }
-
         Analytics.log(.onboardingButtonChat)
         let dataCollector = DetailsFeedbackDataCollector(
             cardModel: cardModel,
             userWalletEmailData: cardModel.emailData
         )
 
-        coordinator.openSupportChat(
+        coordinator.openSupportChat(input: .init(
+            environment: cardModel.supportChatEnvironment,
             cardId: cardModel.cardId,
             dataCollector: dataCollector
-        )
+        ))
     }
 }
 
