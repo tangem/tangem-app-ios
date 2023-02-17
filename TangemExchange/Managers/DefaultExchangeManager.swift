@@ -79,6 +79,10 @@ extension DefaultExchangeManager: ExchangeManager {
         return exchangeItems
     }
 
+    func getReferrerAccount() -> ExchangeReferrerAccount? {
+        return referrer
+    }
+
     func isEnoughAllowance() -> Bool {
         guard exchangeItems.source.isToken, let amount, amount > 0 else {
             return true
@@ -378,8 +382,8 @@ private extension DefaultExchangeManager {
             sourceAddress: walletAddress,
             destinationAddress: approvedData.tokenAddress,
             txData: approvedData.data,
-            sourceAmount: approvedData.value,
-            destinationAmount: 0,
+            sourceAmount: quoteData.fromTokenAmount,
+            destinationAmount: quoteData.toTokenAmount,
             value: approvedData.value,
             gasValue: quoteData.estimatedGas,
             gasPrice: approvedData.gasPrice
