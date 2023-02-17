@@ -10,7 +10,7 @@ import Foundation
 import BlockchainSdk
 
 struct SaltPayConfiguration: Decodable {
-    let sprinklrAppID: String
+    let sprinklr: SprinklrProvider
     let kycProvider: KYCProvider
     let credentials: NetworkProviderConfiguration.Credentials
 }
@@ -20,4 +20,9 @@ struct KYCProvider: Decodable {
     let externalIdParameterKey: String
     let sidParameterKey: String
     let sidValue: String
+}
+
+struct SprinklrProvider: Decodable {
+    let appID: String
+    let baseURL: String
 }
