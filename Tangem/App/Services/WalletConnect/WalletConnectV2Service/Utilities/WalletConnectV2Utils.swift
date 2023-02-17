@@ -50,7 +50,7 @@ struct WalletConnectV2Utils {
         var blockchains = [String]()
         for (namespace, proposal) in namespaces {
             if namespace == evmNamespace {
-                let notSupportedEVNChainIds: [String] = proposal.chains.compactMap { chain in
+                let notSupportedEVMChainIds: [String] = proposal.chains.compactMap { chain in
                     guard createBlockchain(for: chain) == nil else {
                         return nil
                     }
@@ -58,7 +58,7 @@ struct WalletConnectV2Utils {
                     return chain.absoluteString
                 }
                 
-                blockchains.append(contentsOf: notSupportedEVNChainIds)
+                blockchains.append(contentsOf: notSupportedEVMChainIds)
             } else {
                 let notEVMChainNames = proposal.chains.map { chain in
                     return createBlockchain(for: chain)?.displayName ?? namespace.capitalizingFirstLetter()
