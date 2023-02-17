@@ -21,8 +21,11 @@ struct WebViewContainerViewModel: Identifiable {
 
 extension WebViewContainerViewModel {
     static func sprinklSupportChat(provider: SprinklrProvider) -> WebViewContainerViewModel {
-        var url = URLComponents(string: provider.baseURL)!
-        url.queryItems = [
+        var url = URL(string: provider.baseURL)!
+        url = url.appendingPathComponent("page")
+
+        var urlComponents = URLComponents(string: url.absoluteString)
+        urlComponents?.queryItems = [
             URLQueryItem(name: "appId", value: provider.appID),
             URLQueryItem(name: "device", value: "MOBILE"),
             URLQueryItem(name: "enableClose", value: "true"),
@@ -30,7 +33,7 @@ extension WebViewContainerViewModel {
         ]
 
         return WebViewContainerViewModel(
-            url: url.url,
+            url: urlComponents?.url,
             title: Localization.chatButtonTitle,
             addLoadingIndicator: false,
             withCloseButton: true,
