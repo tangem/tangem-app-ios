@@ -43,6 +43,7 @@ class DefaultExchangeManager {
     // Cached addresses for check approving transactions
     private var pendingTransactions: [Currency: PendingTransactionState] = [:]
 
+    private var initialSourceCurrency: Currency
     private var bag: Set<AnyCancellable> = []
 
     init(
@@ -59,6 +60,7 @@ class DefaultExchangeManager {
         self.referrer = referrer
         self.exchangeItems = exchangeItems
         self.amount = amount
+        initialSourceCurrency = exchangeItems.source
 
         updateBalances()
     }
@@ -135,6 +137,13 @@ private extension DefaultExchangeManager {
     }
 
     func exchangeItemsDidChange() {
+        if exchangeItems.source != initialSourceCurrency {
+            blockchainDataProvider.destinationDidChange(to: exchangeItems.source)
+        } else if let destination = exchangeItems.destination,
+                  destination != initialSourceCurrency {
+            blockchainDataProvider.destinationDidChange(to: destination)
+        }
+
         updateState(.idle)
         updateBalances()
 
