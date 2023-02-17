@@ -11,10 +11,34 @@ import SwiftUI
 struct WebViewContainer: View {
     let viewModel: WebViewContainerViewModel
 
-    @State private var popupUrl: URL?
     @Environment(\.presentationMode) private var presentationMode
+    @State private var popupUrl: URL?
     @State private var isLoading: Bool = true
-
+    
+    var body: some View {
+        VStack {
+            if viewModel.withCloseButton {
+                NavigationView {
+                    content
+                        .navigationBarItems(leading:
+                            Button(Localization.commonClose) {
+                                presentationMode.wrappedValue.dismiss()
+                            }
+                            .animation(nil)
+                        )
+                }
+            } else {
+                content
+            }
+        }
+        .sheet(item: $popupUrl) { popupUrl in
+            NavigationView {
+                WebView(url: popupUrl, popupUrl: .constant(nil), isLoading: .constant(false))
+                    .navigationBarTitle("", displayMode: .inline)
+            }
+        }
+    }
+    
     private var webViewContent: some View {
         WebView(
             url: viewModel.url,
@@ -37,30 +61,6 @@ struct WebViewContainer: View {
 
             if isLoading, viewModel.addLoadingIndicator {
                 ActivityIndicatorView(color: .tangemGrayDark)
-            }
-        }
-    }
-
-    var body: some View {
-        VStack {
-            if viewModel.withCloseButton {
-                NavigationView {
-                    content
-                        .navigationBarItems(leading:
-                            Button(Localization.commonClose) {
-                                presentationMode.wrappedValue.dismiss()
-                            }
-                            .animation(nil)
-                        )
-                }
-            } else {
-                content
-            }
-        }
-        .sheet(item: $popupUrl) { popupUrl in
-            NavigationView {
-                WebView(url: popupUrl, popupUrl: .constant(nil), isLoading: .constant(false))
-                    .navigationBarTitle("", displayMode: .inline)
             }
         }
     }
