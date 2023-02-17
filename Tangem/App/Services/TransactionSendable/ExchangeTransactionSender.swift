@@ -41,18 +41,19 @@ extension ExchangeTransactionSender: TransactionSendable {
 
 private extension ExchangeTransactionSender {
     func buildTransaction(for info: ExchangeTransactionDataModel) throws -> Transaction {
-        let sourceAmount = info.sourceCurrency.convertFromWEI(value: info.value)
-
+        let sourceAmount = info.sourceCurrency.convertFromWEI(value: info.sourceAmount)
         let amount = createAmount(from: info.sourceCurrency, amount: sourceAmount)
         let fee = try createAmount(from: info.sourceBlockchain, amount: info.fee)
 
-        var transaction = try transactionCreator.createTransaction(
+        var transaction = Transaction(
             amount: amount,
             fee: fee,
             sourceAddress: info.sourceAddress,
             destinationAddress: info.destinationAddress,
             changeAddress: info.sourceAddress,
-            contractAddress: info.destinationAddress
+            contractAddress: info.destinationAddress,
+            date: Date(),
+            status: .unconfirmed
         )
 
         transaction.params = EthereumTransactionParams(data: info.txData, gasLimit: info.gasValue)
