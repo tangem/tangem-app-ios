@@ -356,11 +356,10 @@ extension OnboardingViewModel {
             )
 
             coordinator.openSupportChat(
-                cardId: cardModel.cardId,
-                dataCollector: dataCollector
+                type: .tangem(cardId: cardModel.cardId, dataCollector: dataCollector)
             )
         case .saltPay:
-            coordinator.openSprinklSupportChat(provider: keysManager.saltPay.sprinklr)
+            coordinator.openSupportChat(type: .saltPay)
         }
     }
 }
