@@ -91,12 +91,6 @@ class CommonUserWalletRepository: UserWalletRepository {
                 }
 
                 let saltPayUtil = SaltPayUtil()
-                let hasSaltPayBackup = self.backupService.hasUncompletedSaltPayBackup
-                let primaryCardId = self.backupService.primaryCard?.cardId ?? ""
-
-                if hasSaltPayBackup, response.card.cardId != primaryCardId {
-                    return .anyFail(error: SaltPayRegistratorError.emptyBackupCardScanned)
-                }
 
                 if saltPayUtil.isBackupCard(cardId: response.card.cardId) {
                     if response.card.wallets.isEmpty {
