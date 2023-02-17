@@ -28,16 +28,16 @@ extension Analytics {
             }
         }
 
-        var cardDidScanEvent: Analytics.Event {
+        var cardWasScannedParameterValue: Analytics.ParameterValue {
             switch self {
             case .welcome:
-                return .introductionProcessCardWasScanned
+                return .scanSourceIntroduction
             case .auth:
-                return .signInCardWasScanned
+                return .scanSourceSignIn
             case .main:
-                return .mainCardWasScanned
+                return .scanSourceMain
             case .myWallets:
-                return .myWalletsCardWasScanned
+                return .scanSourceMyWallets
             }
         }
     }
