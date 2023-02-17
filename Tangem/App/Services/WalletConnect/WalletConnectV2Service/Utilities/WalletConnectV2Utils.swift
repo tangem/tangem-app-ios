@@ -54,16 +54,16 @@ struct WalletConnectV2Utils {
                     guard createBlockchain(for: chain) == nil else {
                         return nil
                     }
-                    
+
                     return chain.absoluteString
                 }
-                
+
                 blockchains.append(contentsOf: notSupportedEVMChainIds)
             } else {
                 let notEVMChainNames = proposal.chains.map { chain in
                     return createBlockchain(for: chain)?.displayName ?? namespace.capitalizingFirstLetter()
                 }
-                
+
                 blockchains.append(contentsOf: notEVMChainNames)
             }
         }
