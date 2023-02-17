@@ -125,15 +125,17 @@ extension DetailsViewModel {
 
     func openSupportChat() {
         Analytics.log(.settingsButtonChat)
+
         let dataCollector = DetailsFeedbackDataCollector(
             cardModel: cardModel,
             userWalletEmailData: cardModel.emailData
         )
 
-        coordinator.openSupportChat(
+        coordinator.openSupportChat(input: .init(
+            environment: cardModel.supportChatEnvironment,
             cardId: cardModel.cardId,
             dataCollector: dataCollector
-        )
+        ))
     }
 
     func openDisclaimer() {
