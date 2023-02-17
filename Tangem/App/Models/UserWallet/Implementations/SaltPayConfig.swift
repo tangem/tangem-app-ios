@@ -187,7 +187,7 @@ extension SaltPayConfig: UserWalletConfig {
     }
 
     var supportChatEnvironment: SupportChatEnvironment {
-        .saltpay
+        .saltPay
     }
 
     var userWalletIdSeed: Data? {
