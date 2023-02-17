@@ -12,9 +12,9 @@ import SwiftUI
 
 struct WebView: UIViewRepresentable {
     var url: URL?
-    var popupUrl: Binding<URL?>
+    var popupUrl: Binding<URL?>?
     var urlActions: [String: (String) -> Void] = [:]
-    var isLoading: Binding<Bool>
+    var isLoading: Binding<Bool>?
     var contentInset: UIEdgeInsets?
 
     func makeUIView(context: Context) -> WKWebView {
@@ -45,10 +45,10 @@ struct WebView: UIViewRepresentable {
 
     class Coordinator: NSObject, WKNavigationDelegate, WKUIDelegate {
         let urlActions: [String: (String) -> Void]
-        var popupUrl: Binding<URL?>
-        var isLoading: Binding<Bool>
+        var popupUrl: Binding<URL?>?
+        var isLoading: Binding<Bool>?
 
-        init(urlActions: [String: (String) -> Void] = [:], popupUrl: Binding<URL?>, isLoading: Binding<Bool>) {
+        init(urlActions: [String: (String) -> Void] = [:], popupUrl: Binding<URL?>?, isLoading: Binding<Bool>?) {
             self.urlActions = urlActions
             self.popupUrl = popupUrl
             self.isLoading = isLoading
@@ -67,15 +67,15 @@ struct WebView: UIViewRepresentable {
         }
 
         func webView(_ webView: WKWebView, didCommit navigation: WKNavigation!) {
-            isLoading.wrappedValue = false
+            isLoading?.wrappedValue = false
         }
 
         func webView(_ webView: WKWebView, didFail navigation: WKNavigation!, withError error: Error) {
-            isLoading.wrappedValue = false
+            isLoading?.wrappedValue = false
         }
 
         func webView(_ webView: WKWebView, createWebViewWith configuration: WKWebViewConfiguration, for navigationAction: WKNavigationAction, windowFeatures: WKWindowFeatures) -> WKWebView? {
-            popupUrl.wrappedValue = navigationAction.request.url
+            popupUrl?.wrappedValue = navigationAction.request.url
             return nil
         }
     }
