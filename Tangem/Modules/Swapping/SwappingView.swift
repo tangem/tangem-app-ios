@@ -26,7 +26,7 @@ struct SwappingView: View {
 
                 permissionInfoSection
 
-                refreshWarningSection
+                warningSections
 
                 informationSection
 
@@ -34,6 +34,8 @@ struct SwappingView: View {
             }
             .keyboardAdaptive()
             .scrollDismissesKeyboardCompat(true)
+            // For animate button below informationSection
+            .animation(.easeInOut, value: viewModel.informationSectionViewModels.count)
         }
         .navigationBarTitle(Text(Localization.swappingSwap), displayMode: .inline)
         .alert(item: $viewModel.errorAlert, content: { $0.alert })
@@ -98,7 +100,12 @@ struct SwappingView: View {
     }
 
     @ViewBuilder
-    private var refreshWarningSection: some View {
+    private var warningSections: some View {
+        GroupedSection(viewModel.highPriceImpactWarningRowViewModel) {
+            DefaultWarningRow(viewModel: $0)
+        }
+        .verticalPadding(0)
+
         GroupedSection(viewModel.refreshWarningRowViewModel) {
             DefaultWarningRow(viewModel: $0)
         }
