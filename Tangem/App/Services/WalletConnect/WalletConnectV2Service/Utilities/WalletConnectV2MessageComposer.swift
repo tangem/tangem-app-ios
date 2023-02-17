@@ -69,7 +69,7 @@ struct WalletConnectV2MessageComposer: WalletConnectV2MessageComposable {
 
             return message
         case .wrongCardSelected:
-            return "Wrong card selected in Tangem App"
+            return Localization.walletConnectErrorWrongCardSelected
         case .unknown(let errorMessage):
             return Localization.walletConnectErrorWithFrameworkMessage(errorMessage)
         default:
