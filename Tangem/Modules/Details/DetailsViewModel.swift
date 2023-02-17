@@ -126,19 +126,16 @@ extension DetailsViewModel {
     func openSupportChat() {
         Analytics.log(.settingsButtonChat)
 
-        switch cardModel.supportChatEnvironment {
-        case .tangem:
-            let dataCollector = DetailsFeedbackDataCollector(
-                cardModel: cardModel,
-                userWalletEmailData: cardModel.emailData
-            )
+        let dataCollector = DetailsFeedbackDataCollector(
+            cardModel: cardModel,
+            userWalletEmailData: cardModel.emailData
+        )
 
-            coordinator.openSupportChat(
-                type: .tangem(cardId: cardModel.cardId, dataCollector: dataCollector)
-            )
-        case .saltPay:
-            coordinator.openSupportChat(type: .saltPay)
-        }
+        coordinator.openSupportChat(input: .init(
+            environment: cardModel.supportChatEnvironment,
+            cardId: cardModel.cardId,
+            dataCollector: dataCollector
+        ))
     }
 
     func openDisclaimer() {

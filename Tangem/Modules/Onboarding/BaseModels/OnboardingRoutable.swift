@@ -11,5 +11,5 @@ import Foundation
 protocol OnboardingRoutable: AnyObject {
     func onboardingDidFinish()
     func closeOnboarding()
-    func openSupportChat(type: SupportChatViewModel.SupportChatType)
+    func openSupportChat(input: SupportChatInputModel)
 }
