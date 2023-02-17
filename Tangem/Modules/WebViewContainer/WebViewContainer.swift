@@ -14,7 +14,7 @@ struct WebViewContainer: View {
     @Environment(\.presentationMode) private var presentationMode
     @State private var popupUrl: URL?
     @State private var isLoading: Bool = true
-    
+
     var body: some View {
         VStack {
             if viewModel.withCloseButton {
@@ -38,7 +38,7 @@ struct WebViewContainer: View {
             }
         }
     }
-    
+
     private var webViewContent: some View {
         WebView(
             url: viewModel.url,
