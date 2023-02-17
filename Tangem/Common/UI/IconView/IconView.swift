@@ -43,7 +43,7 @@ struct IconView: View {
                     .fill(Color.clear)
                     .frame(size: size)
                     .overlay(
-                        RoundedRectangle(cornerRadius: size.height / 2)
+                        Circle()
                             .stroke(Colors.Icon.informative, lineWidth: 1)
                     )
                     .cornerRadius(size.height / 2)
