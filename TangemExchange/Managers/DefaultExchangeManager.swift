@@ -42,8 +42,6 @@ class DefaultExchangeManager {
     private var tokenExchangeAllowanceLimit: Decimal?
     // Cached addresses for check approving transactions
     private var pendingTransactions: [Currency: PendingTransactionState] = [:]
-
-    private var initialSourceCurrency: Currency
     private var bag: Set<AnyCancellable> = []
 
     init(
@@ -60,7 +58,6 @@ class DefaultExchangeManager {
         self.referrer = referrer
         self.exchangeItems = exchangeItems
         self.amount = amount
-        initialSourceCurrency = exchangeItems.source
 
         updateBalances()
     }
