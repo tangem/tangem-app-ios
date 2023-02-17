@@ -17,7 +17,6 @@ class CommonUserWalletRepository: UserWalletRepository {
     @Injected(\.backupServiceProvider) private var backupServiceProvider: BackupServiceProviding
     @Injected(\.walletConnectService) private var walletConnectServiceProvider: WalletConnectService
     @Injected(\.saltPayRegistratorProvider) private var saltPayRegistratorProvider: SaltPayRegistratorProviding
-    @Injected(\.supportChatService) private var supportChatService: SupportChatServiceProtocol
     @Injected(\.failedScanTracker) var failedCardScanTracker: FailedScanTrackable
     @Injected(\.exchangeServiceConfigurator) var exchangeService: ExchangeServiceConfigurator
     @Injected(\.analyticsContext) var analyticsContext: AnalyticsContext
@@ -424,7 +423,6 @@ class CommonUserWalletRepository: UserWalletRepository {
         }
 
         tangemApiService.setAuthData(cardInfo.card.tangemApiAuthData)
-        supportChatService.initialize(with: cardModel.supportChatEnvironment)
         exchangeService.configure(for: cardModel.exchangeServiceEnvironment)
         walletConnectServiceProvider.initialize(with: cardModel)
     }
