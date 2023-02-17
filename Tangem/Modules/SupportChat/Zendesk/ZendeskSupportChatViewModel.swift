@@ -10,6 +10,7 @@ import ZendeskCoreSDK
 import MessagingSDK
 import ChatSDK
 import ChatProvidersSDK
+import SupportSDK
 import Foundation
 import UIKit
 import DeviceGuru
@@ -26,6 +27,8 @@ struct ZendeskSupportChatViewModel {
     ) {
         self.cardId = cardId
         self.dataCollector = dataCollector
+        
+        initialize()
     }
 
     private var messagingConfiguration: MessagingConfiguration {
@@ -40,6 +43,18 @@ struct ZendeskSupportChatViewModel {
         config.isOfflineFormEnabled = true
         config.preChatFormConfiguration = ChatFormConfiguration(name: .hidden, email: .hidden, phoneNumber: .hidden, department: .hidden)
         return config
+    }
+    
+    private func initialize() {
+        let config = keysManager.zendesk
+        Zendesk.initialize(
+            appId: config.zendeskAppId,
+            clientId: config.zendeskClientId,
+            zendeskUrl: config.zendeskUrl
+        )
+        Support.initialize(withZendesk: Zendesk.instance)
+        Zendesk.instance?.setIdentity(Identity.createAnonymous())
+        Chat.initialize(accountKey: config.zendeskAccountKey, appId: config.zendeskAppId)
     }
 
     func buildUI() throws -> UIViewController {
