@@ -15,8 +15,8 @@ class AppPresenter {
 
     private init() {}
 
-    func showSupportChat(type: SupportChatViewModel.SupportChatType) {
-        let viewModel = SupportChatViewModel(type: type)
+    func showSupportChat(input: SupportChatInputModel) {
+        let viewModel = SupportChatViewModel(input: input)
         let view = SupportChatView(viewModel: viewModel)
         let controller = UIHostingController(rootView: view)
         show(controller)

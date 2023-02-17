@@ -13,17 +13,22 @@ class SupportChatViewModel: ObservableObject, Identifiable {
     @Published var viewState: ViewState?
 
     @Injected(\.keysManager) private var keysManager: KeysManager
-    private let type: SupportChatType
 
-    init(type: SupportChatType) {
-        self.type = type
+    private let environment: SupportChatEnvironment
+    private let cardId: String?
+    private let dataCollector: EmailDataCollector?
+
+    init(input: SupportChatInputModel) {
+        environment = input.environment
+        cardId = input.cardId
+        dataCollector = input.dataCollector
 
         setupView()
     }
 
     func setupView() {
-        switch type {
-        case .tangem(let cardId, let dataCollector):
+        switch environment {
+        case .tangem:
             viewState = .zendesk(
                 ZendeskSupportChatViewModel(cardId: cardId, dataCollector: dataCollector)
             )
@@ -63,10 +68,5 @@ extension SupportChatViewModel {
     enum ViewState {
         case webView(_ url: URL)
         case zendesk(_ viewModel: ZendeskSupportChatViewModel)
-    }
-
-    enum SupportChatType {
-        case saltPay
-        case tangem(cardId: String?, dataCollector: EmailDataCollector?)
     }
 }
