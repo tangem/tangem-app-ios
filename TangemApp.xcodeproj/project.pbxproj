@@ -614,8 +614,8 @@
 		EF4661C62923B42A00346B6C /* ExchangeProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9C17C6A291AACFD00FDE4BC /* ExchangeProvider.swift */; };
 		EF4661C82923B42A00346B6C /* ExchangeDataModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9C17C6D291AB48D00FDE4BC /* ExchangeDataModel.swift */; };
 		EF4661CF2923B9CD00346B6C /* TangemExchangeFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF4661CE2923B9CD00346B6C /* TangemExchangeFactory.swift */; };
-		EF4661D02923CD4C00346B6C /* BlockchainDataProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF46618B2923AFA200346B6C /* BlockchainDataProvider.swift */; };
-		EF4661D22923E4C000346B6C /* BlockchainNetworkService.swift in Sources */ = {isa = PBXBuildFile; fileRef = E966EFB1291C4A5900504AD8 /* BlockchainNetworkService.swift */; };
+		EF4661D02923CD4C00346B6C /* WalletDataProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF46618B2923AFA200346B6C /* WalletDataProvider.swift */; };
+		EF4661D22923E4C000346B6C /* ExchangeBlockchainDataProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = E966EFB1291C4A5900504AD8 /* ExchangeBlockchainDataProvider.swift */; };
 		EF4661D42923E5BB00346B6C /* ExchangeItems.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF4661D32923E5BB00346B6C /* ExchangeItems.swift */; };
 		EF4661F12924CC6E00346B6C /* InfoTarget.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF4661EA2924CC6B00346B6C /* InfoTarget.swift */; };
 		EF4661F22924CC6E00346B6C /* LiquiditySourcesList.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF4661D72924CC6300346B6C /* LiquiditySourcesList.swift */; };
@@ -1499,7 +1499,7 @@
 		DCFE143D294B31C00053106B /* AppPresenter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppPresenter.swift; sourceTree = "<group>"; };
 		DFEC35A94293DE7EB96CEBC1 /* Pods-Tangem.debug(production).xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Tangem.debug(production).xcconfig"; path = "Target Support Files/Pods-Tangem/Pods-Tangem.debug(production).xcconfig"; sourceTree = "<group>"; };
 		E53081CA3060D2785F9D22F0 /* Pods-Tangem-TangemUITests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Tangem-TangemUITests.release.xcconfig"; path = "Target Support Files/Pods-Tangem-TangemUITests/Pods-Tangem-TangemUITests.release.xcconfig"; sourceTree = "<group>"; };
-		E966EFB1291C4A5900504AD8 /* BlockchainNetworkService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlockchainNetworkService.swift; sourceTree = "<group>"; };
+		E966EFB1291C4A5900504AD8 /* ExchangeBlockchainDataProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExchangeBlockchainDataProvider.swift; sourceTree = "<group>"; };
 		E9C17C5A29170FCD00FDE4BC /* Currency.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Currency.swift; sourceTree = "<group>"; };
 		E9C17C5C2919507D00FDE4BC /* ExchangeManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExchangeManager.swift; sourceTree = "<group>"; };
 		E9C17C5E291951BF00FDE4BC /* AnyPublisher+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AnyPublisher+.swift"; sourceTree = "<group>"; };
@@ -1553,7 +1553,7 @@
 		EF4535362976C1D80030639A /* FixedSpacer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FixedSpacer.swift; sourceTree = "<group>"; };
 		EF45E044293F74EB00C7090F /* UserCurrenciesProviderMock.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserCurrenciesProviderMock.swift; sourceTree = "<group>"; };
 		EF46618729237C9F00346B6C /* ProgressViewCompat.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProgressViewCompat.swift; sourceTree = "<group>"; };
-		EF46618B2923AFA200346B6C /* BlockchainDataProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlockchainDataProvider.swift; sourceTree = "<group>"; };
+		EF46618B2923AFA200346B6C /* WalletDataProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletDataProvider.swift; sourceTree = "<group>"; };
 		EF4661922923AFC400346B6C /* TangemExchange.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = TangemExchange.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		EF4661942923AFC400346B6C /* TangemExchange.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TangemExchange.h; sourceTree = "<group>"; };
 		EF4661952923AFC400346B6C /* TangemExchange.docc */ = {isa = PBXFileReference; lastKnownFileType = folder.documentationcatalog; path = TangemExchange.docc; sourceTree = "<group>"; };
@@ -3751,7 +3751,7 @@
 		EF4661B92923B00800346B6C /* Interfaces */ = {
 			isa = PBXGroup;
 			children = (
-				EF46618B2923AFA200346B6C /* BlockchainDataProvider.swift */,
+				EF46618B2923AFA200346B6C /* WalletDataProvider.swift */,
 				EF808433293F38CE000D91EA /* UserCurrenciesProviding.swift */,
 				DCAB5805295F45AA005D0F4A /* ExchangeLogger.swift */,
 			);
@@ -3778,7 +3778,7 @@
 		EF4661BE2923B35800346B6C /* Exchange */ = {
 			isa = PBXGroup;
 			children = (
-				E966EFB1291C4A5900504AD8 /* BlockchainNetworkService.swift */,
+				E966EFB1291C4A5900504AD8 /* ExchangeBlockchainDataProvider.swift */,
 				EF808439293F6708000D91EA /* SwappingDestinationService.swift */,
 				EF808435293F39D6000D91EA /* UserCurrenciesProvider.swift */,
 				EF808437293F3A6D000D91EA /* CurrencyMapper.swift */,
@@ -4993,7 +4993,7 @@
 				B09BB865259A075600B92000 /* TextInputField.swift in Sources */,
 				B037B1EE256E747F0022EFFF /* TwinsFinalizeWalletCreationTask.swift in Sources */,
 				B03AEEB029596DA400212267 /* WebSocket.swift in Sources */,
-				EF4661D22923E4C000346B6C /* BlockchainNetworkService.swift in Sources */,
+				EF4661D22923E4C000346B6C /* ExchangeBlockchainDataProvider.swift in Sources */,
 				DC0A5808282501CA0031BECC /* MoonPayKeys.swift in Sources */,
 				EF862714297182B6007EBFF9 /* SwappingSuccessCoordinator.swift in Sources */,
 				B00D7150258A1B6C00A9442C /* JsonUtils.swift in Sources */,
@@ -5586,7 +5586,7 @@
 				EF4661F22924CC6E00346B6C /* LiquiditySourcesList.swift in Sources */,
 				EF4661C02923B42A00346B6C /* OneInchExchangeProvider.swift in Sources */,
 				EF4661C42923B42A00346B6C /* Currency.swift in Sources */,
-				EF4661D02923CD4C00346B6C /* BlockchainDataProvider.swift in Sources */,
+				EF4661D02923CD4C00346B6C /* WalletDataProvider.swift in Sources */,
 				EF4661962923AFC400346B6C /* TangemExchange.docc in Sources */,
 				EF92E2BC29964CFE00DD9B06 /* ExchangeManagerRefreshType.swift in Sources */,
 				EF4662032924CC6E00346B6C /* OneInchBaseTarget.swift in Sources */,
