@@ -14,8 +14,7 @@ class StartupProcessor {
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
 
     func getStartupOption() -> StartupOption {
-        if backupServiceProvider.backupService.hasIncompletedBackup,
-           !backupServiceProvider.backupService.hasUncompletedSaltPayBackup {
+        if backupServiceProvider.backupService.hasIncompletedBackup {
             return .uncompletedBackup
         }
 
