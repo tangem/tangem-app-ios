@@ -18,7 +18,7 @@ class AppPresenter {
     private init() {}
 
     func showSprinklChat() {
-        let viewModel = WebViewContainerViewModel.sprinklSupportChat(appID: keysManager.saltPay.sprinklrAppID)
+        let viewModel = WebViewContainerViewModel.sprinklSupportChat(provider: keysManager.saltPay.sprinklr)
         let view = WebViewContainer(viewModel: viewModel)
         let controller = UIHostingController(rootView: view)
         show(controller)
