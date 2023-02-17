@@ -68,6 +68,8 @@ struct WalletConnectV2MessageComposer: WalletConnectV2MessageComposable {
             message += blockchainNames.joined(separator: ", ")
 
             return message
+        case .wrongCardSelected:
+            return Localization.walletConnectErrorWrongCardSelected
         case .unknown(let errorMessage):
             return Localization.walletConnectErrorWithFrameworkMessage(errorMessage)
         default:
