@@ -1,89 +1,20 @@
 //
-//  SafariView.swift
+//  WebView.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
-//  Copyright © 2020 Tangem AG. All rights reserved.
+//  Copyright © 2023 Tangem AG. All rights reserved.
 //
 
 import Foundation
-import SwiftUI
 import WebKit
-
-struct WebViewContainerViewModel: Identifiable {
-    let id = UUID()
-    var url: URL?
-    var title: String
-    var addLoadingIndicator = false
-    var withCloseButton = false
-    var withNavigationBar: Bool = true
-    var urlActions: [String: (String) -> Void] = [:]
-    var contentInset: UIEdgeInsets?
-}
-
-struct WebViewContainer: View {
-    let viewModel: WebViewContainerViewModel
-
-    @State private var popupUrl: URL?
-    @Environment(\.presentationMode) private var presentationMode
-    @State private var isLoading: Bool = true
-
-    private var webViewContent: some View {
-        WebView(
-            url: viewModel.url,
-            popupUrl: $popupUrl,
-            urlActions: viewModel.urlActions,
-            isLoading: $isLoading,
-            contentInset: viewModel.contentInset
-        )
-    }
-
-    private var content: some View {
-        ZStack {
-            if viewModel.withNavigationBar {
-                webViewContent
-                    .navigationBarTitle(Text(viewModel.title), displayMode: .inline)
-                    .background(Color.tangemBg.edgesIgnoringSafeArea(.all))
-            } else {
-                webViewContent
-            }
-
-            if isLoading, viewModel.addLoadingIndicator {
-                ActivityIndicatorView(color: .tangemGrayDark)
-            }
-        }
-    }
-
-    var body: some View {
-        VStack {
-            if viewModel.withCloseButton {
-                NavigationView {
-                    content
-                        .navigationBarItems(leading:
-                            Button(Localization.commonClose) {
-                                presentationMode.wrappedValue.dismiss()
-                            }
-                            .animation(nil)
-                        )
-                }
-            } else {
-                content
-            }
-        }
-        .sheet(item: $popupUrl) { popupUrl in
-            NavigationView {
-                WebView(url: popupUrl, popupUrl: .constant(nil), isLoading: .constant(false))
-                    .navigationBarTitle("", displayMode: .inline)
-            }
-        }
-    }
-}
+import SwiftUI
 
 struct WebView: UIViewRepresentable {
     var url: URL?
-    var popupUrl: Binding<URL?>
+    var popupUrl: Binding<URL?>?
     var urlActions: [String: (String) -> Void] = [:]
-    var isLoading: Binding<Bool>
+    var isLoading: Binding<Bool>?
     var contentInset: UIEdgeInsets?
 
     func makeUIView(context: Context) -> WKWebView {
@@ -114,10 +45,10 @@ struct WebView: UIViewRepresentable {
 
     class Coordinator: NSObject, WKNavigationDelegate, WKUIDelegate {
         let urlActions: [String: (String) -> Void]
-        var popupUrl: Binding<URL?>
-        var isLoading: Binding<Bool>
+        var popupUrl: Binding<URL?>?
+        var isLoading: Binding<Bool>?
 
-        init(urlActions: [String: (String) -> Void] = [:], popupUrl: Binding<URL?>, isLoading: Binding<Bool>) {
+        init(urlActions: [String: (String) -> Void] = [:], popupUrl: Binding<URL?>?, isLoading: Binding<Bool>?) {
             self.urlActions = urlActions
             self.popupUrl = popupUrl
             self.isLoading = isLoading
@@ -136,15 +67,15 @@ struct WebView: UIViewRepresentable {
         }
 
         func webView(_ webView: WKWebView, didCommit navigation: WKNavigation!) {
-            isLoading.wrappedValue = false
+            isLoading?.wrappedValue = false
         }
 
         func webView(_ webView: WKWebView, didFail navigation: WKNavigation!, withError error: Error) {
-            isLoading.wrappedValue = false
+            isLoading?.wrappedValue = false
         }
 
         func webView(_ webView: WKWebView, createWebViewWith configuration: WKWebViewConfiguration, for navigationAction: WKNavigationAction, windowFeatures: WKWindowFeatures) -> WKWebView? {
-            popupUrl.wrappedValue = navigationAction.request.url
+            popupUrl?.wrappedValue = navigationAction.request.url
             return nil
         }
     }
