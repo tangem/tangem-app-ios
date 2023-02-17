@@ -45,6 +45,7 @@ extension CommonKeysManager: KeysManager {
             // [REDACTED_TODO_COMMENT]
             quickNodeSolanaCredentials: .init(apiKey: keys.quiknodeApiKey, subdomain: keys.quiknodeSubdomain),
             quickNodeBscCredentials: .init(apiKey: keys.bscQuiknodeApiKey, subdomain: keys.bscQuiknodeSubdomain),
+            blockscoutCredentials: keys.saltPay.blockscoutCredentials,
             defaultNetworkProviderConfiguration: .init(logger: .verbose, urlSessionConfiguration: .standart),
             networkProviderConfigurations: [.saltPay: .init(logger: .verbose, credentials: keys.saltPay.credentials)]
         )
