@@ -31,9 +31,9 @@ extension Analytics {
         var cardWasScannedParameterValue: Analytics.ParameterValue {
             switch self {
             case .welcome:
-                return .scanSourceIntroduction
+                return .scanSourceWelcome
             case .auth:
-                return .scanSourceSignIn
+                return .scanSourceAuth
             case .main:
                 return .scanSourceMain
             case .myWallets:
