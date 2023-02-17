@@ -49,7 +49,6 @@ class DetailsViewModel: ObservableObject {
 
     // MARK: - Private
 
-    @Injected(\.keysManager) private var keysManager: KeysManager
     private var bag = Set<AnyCancellable>()
     private unowned let coordinator: DetailsRoutable
 
@@ -135,11 +134,10 @@ extension DetailsViewModel {
             )
 
             coordinator.openSupportChat(
-                cardId: cardModel.cardId,
-                dataCollector: dataCollector
+                type: .tangem(cardId: cardModel.cardId, dataCollector: dataCollector)
             )
         case .saltPay:
-            coordinator.openSprinklSupportChat(provider: keysManager.saltPay.sprinklr)
+            coordinator.openSupportChat(type: .saltPay)
         }
     }
 
