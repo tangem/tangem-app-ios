@@ -27,7 +27,7 @@ struct ZendeskSupportChatViewModel {
     ) {
         self.cardId = cardId
         self.dataCollector = dataCollector
-        
+
         initialize()
     }
 
@@ -44,7 +44,7 @@ struct ZendeskSupportChatViewModel {
         config.preChatFormConfiguration = ChatFormConfiguration(name: .hidden, email: .hidden, phoneNumber: .hidden, department: .hidden)
         return config
     }
-    
+
     private func initialize() {
         let config = keysManager.zendesk
         Zendesk.initialize(
