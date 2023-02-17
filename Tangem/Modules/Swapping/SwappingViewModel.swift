@@ -20,6 +20,7 @@ final class SwappingViewModel: ObservableObject {
 
     @Published var sendDecimalValue: GroupedNumberTextField.DecimalValue?
     @Published var refreshWarningRowViewModel: DefaultWarningRowViewModel?
+    @Published var highPriceImpactWarningRowViewModel: DefaultWarningRowViewModel?
     @Published var permissionInfoRowViewModel: DefaultWarningRowViewModel?
 
     @Published var mainButtonIsEnabled: Bool = false
@@ -393,6 +394,7 @@ private extension SwappingViewModel {
             await runOnMain {
                 receiveCurrencyViewModel?.update(fiatAmountState: .loaded(fiatValue))
             }
+            try await checkForHighPriceImpact(destinationFiatAmount: fiatValue)
         }
     }
 
@@ -492,23 +494,48 @@ private extension SwappingViewModel {
         }
     }
 
+    func checkForHighPriceImpact(destinationFiatAmount: Decimal) async throws {
+        guard let sendDecimalValue = sendDecimalValue?.value else {
+            return
+        }
+
+        let sourceFiatAmount = try await fiatRatesProvider.getFiat(
+            for: exchangeManager.getExchangeItems().source,
+            amount: sendDecimalValue
+        )
+
+        let lostInPercents = (sourceFiatAmount / destinationFiatAmount - 1) * 100
+
+        await runOnMain {
+            if lostInPercents >= Constants.highPriceImpactWarningLimit {
+                highPriceImpactWarningRowViewModel = DefaultWarningRowViewModel(
+                    title: Localization.swappingHighPriceImpact,
+                    subtitle: Localization.swappingHighPriceImpactDescription,
+                    leftView: .icon(Assets.warningIcon)
+                )
+            } else {
+                highPriceImpactWarningRowViewModel = nil
+            }
+        }
+    }
+
     func setupView() {
         updateState(state: .idle)
         updateView(exchangeItems: exchangeManager.getExchangeItems())
 
-        swappingFeeRowViewModel = SwappingFeeRowViewModel(state: .idle) {
-            Binding<Bool>(root: self, default: false) { root in
-                root.feeInfoRowViewModel != nil
-            } set: { root, isOpen in
+        swappingFeeRowViewModel = SwappingFeeRowViewModel(state: .idle) { [weak self] in
+            Binding<Bool> {
+                self?.feeInfoRowViewModel != nil
+            } set: { isOpen in
                 if isOpen {
-                    let percentFee = root.exchangeManager.getReferrerAccount()?.fee ?? 0
+                    let percentFee = self?.exchangeManager.getReferrerAccount()?.fee ?? 0
                     let formattedFee = "\(percentFee.groupedFormatted())%"
-                    root.feeInfoRowViewModel = DefaultWarningRowViewModel(
+                    self?.feeInfoRowViewModel = DefaultWarningRowViewModel(
                         subtitle: Localization.swappingTangemFeeDisclaimer(formattedFee),
                         leftView: .icon(Assets.heartMini)
                     )
                 } else {
-                    root.feeInfoRowViewModel = nil
+                    self?.feeInfoRowViewModel = nil
                 }
             }
         }
@@ -721,5 +748,11 @@ extension SwappingViewModel {
                 return .none
             }
         }
+    }
+}
+
+extension SwappingViewModel {
+    private enum Constants {
+        static let highPriceImpactWarningLimit: Decimal = 10
     }
 }
