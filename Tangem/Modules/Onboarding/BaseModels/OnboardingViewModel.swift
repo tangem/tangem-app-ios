@@ -360,7 +360,7 @@ extension OnboardingViewModel {
                 dataCollector: dataCollector
             )
         case .saltPay:
-            coordinator.openSprinklSupportChat(appID: keysManager.saltPay.sprinklrAppID)
+            coordinator.openSprinklSupportChat(provider: keysManager.saltPay.sprinklr)
         }
     }
 }
