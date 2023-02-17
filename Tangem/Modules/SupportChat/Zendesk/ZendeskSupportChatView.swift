@@ -1,16 +1,16 @@
 //
-//  ChatView.swift
+//  ZendeskSupportChatView.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
-//  Copyright © 2022 Tangem AG. All rights reserved.
+//  Copyright © 2023 Tangem AG. All rights reserved.
 //
 
-import Foundation
+import UIKit
 import SwiftUI
 
-struct SupportChatView: UIViewControllerRepresentable {
-    let viewModel: SupportChatViewModel
+struct ZendeskSupportChatView: UIViewControllerRepresentable {
+    let viewModel: ZendeskSupportChatViewModel
 
     func makeUIViewController(context: Context) -> UIViewController {
         guard let viewController = try? viewModel.buildUI() else {
