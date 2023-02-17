@@ -15,7 +15,6 @@ class WebSocket {
         case notConnected
         case connecting
         case connected
-        case disconnecting
     }
 
     let url: URL
@@ -57,7 +56,6 @@ class WebSocket {
         onDisconnect: ((Error?) -> Void)? = nil,
         onText: ((String) -> Void)? = nil
     ) {
-        AppLog.shared.debug("[WebSocket] Initializing new WebSocket for url: \(url)")
         self.url = url
         self.onConnect = onConnect
         self.onDisconnect = onDisconnect
@@ -89,7 +87,6 @@ class WebSocket {
     }
 
     deinit {
-        AppLog.shared.debug("[WebSocket] Deinitializing WebSocket with url: \(url)")
         session.invalidateAndCancel()
         pingTimer?.invalidate()
     }
@@ -138,10 +135,8 @@ class WebSocket {
         }
     }
 
-    private lazy var memoryAddress = Unmanaged.passUnretained(self).toOpaque()
-
     private func log(_ message: String) {
-        AppLog.shared.debug("[WebSocket] \(memoryAddress). ✉️ Message: \(message)")
+        AppLog.shared.debug("[WebSocket] ✉️ Message: \(message)")
     }
 
     private func receive() {
