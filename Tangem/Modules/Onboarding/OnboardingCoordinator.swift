@@ -138,9 +138,9 @@ extension OnboardingCoordinator: WalletOnboardingRoutable {
         supportChatViewModel = SupportChatViewModel(cardId: cardId, dataCollector: dataCollector)
     }
 
-    func openSprinklSupportChat(appID: String) {
+    func openSprinklSupportChat(provider: SprinklrProvider) {
         Analytics.log(.chatScreenOpened)
-        modalWebViewModel = WebViewContainerViewModel.sprinklSupportChat(appID: appID)
+        modalWebViewModel = WebViewContainerViewModel.sprinklSupportChat(provider: provider)
     }
 }
 
