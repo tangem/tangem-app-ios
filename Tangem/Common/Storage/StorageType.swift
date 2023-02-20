@@ -27,7 +27,7 @@ enum StorageType: String {
     case isMigratedToNewUserDefaults = "tangem_tap_migrate_to_new_defaults"
     case cardsStartedActivation = "tangem_cards_started_activation"
     case cardsFinishedActivation = "tangem_cards_finished_activation"
-    case userWalletIdsPendingRemovalFromStorage = "tangem-pending-user-wallet-ids-pending-removal-from-storage"
+    case userWalletIdsPendingRemovalFromStorage = "tangem_user_wallet_ids_pending_removal_from_storage"
     case didDisplayMainScreenStories = "tangem_tap_did_display_main_screen_stories"
     case termsOfServicesAccepted = "tangem_tap_terms_of_services_accepted"
     case askedToSaveUserWallets = "tangem_asked_to_save_user_wallets"
