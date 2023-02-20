@@ -602,9 +602,24 @@ extension CommonUserWalletRepository {
             clearUserWallets()
         }
 
+        if !AppSettings.shared.userWalletIdsPendingRemovalFromStorage.isEmpty {
+            removePendingWallets()
+        }
+
         let savedSelectedUserWalletId = AppSettings.shared.selectedUserWalletId
         selectedUserWalletId = savedSelectedUserWalletId.isEmpty ? nil : savedSelectedUserWalletId
 
         userWallets = savedUserWallets(withSensitiveData: false)
+    }
+
+    private func removePendingWallets() {
+        AppSettings.shared.userWalletIdsPendingRemovalFromStorage.forEach { userWalletId in
+            guard let userWallet = savedUserWallet(with: userWalletId) else {
+                return
+            }
+
+            delete(userWallet)
+        }
+        AppSettings.shared.userWalletIdsPendingRemovalFromStorage.removeAll()
     }
 }
