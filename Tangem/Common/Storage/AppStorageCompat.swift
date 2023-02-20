@@ -366,3 +366,15 @@ extension AppStorageCompat where Value == Set<FeatureToggle> {
         })
     }
 }
+
+extension AppStorageCompat where Value == [Data] {
+    init(wrappedValue: Value, _ key: Key, store: UserDefaults? = .init(suiteName: AppEnvironment.current.suiteName)) {
+        let store = (store ?? .standard)
+        let initialValue = store.value(forKey: key.rawValue) as? Value ?? wrappedValue
+        self.init(value: initialValue, store: store, key: key, transform: {
+            $0 as? Value
+        }, saveValue: { newValue in
+            store.setValue(newValue, forKey: key.rawValue)
+        })
+    }
+}
