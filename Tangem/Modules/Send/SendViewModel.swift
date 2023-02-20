@@ -332,11 +332,19 @@ class SendViewModel: ObservableObject {
                     .catch { [unowned self] error -> Just<[Amount]> in
                         AppLog.shared.error(error)
 
+                        let errorText: String
+                        if let ethError = error as? ETHError,
+                           case .gasRequiredExceedsAllowance = ethError {
+                            errorText = ethError.localizedDescription
+                        } else {
+                            errorText = WalletError.failedToGetFee.localizedDescription
+                        }
+
                         let ok = Alert.Button.default(Text(Localization.commonOk))
                         let retry = Alert.Button.default(Text(Localization.commonRetry)) { [unowned self] in
                             self.feeRetrySubject.send()
                         }
-                        let alert = Alert(title: Text(WalletError.failedToGetFee.localizedDescription), primaryButton: retry, secondaryButton: ok)
+                        let alert = Alert(title: Text(errorText), primaryButton: retry, secondaryButton: ok)
                         self.error = AlertBinder(alert: alert)
 
                         return Just([Amount]())
