@@ -31,7 +31,7 @@ struct TransactionHistoryMapper {
             destination: AddressFormatter(address: address).truncated(),
             timeFormatted: timeFormatter.string(from: date),
             date: date,
-            transferAmount: "\(direction.amountPrefix)\(transaction.amount.string(with: 8))",
+            transferAmount: "\(direction.amountPrefix)\(transaction.amount.string(with: 2))",
             canBePushed: false,
             direction: direction,
             status: .init(transaction.status)
