@@ -42,6 +42,10 @@ class SaltPayRegistrator {
         return urlComponents.url!
     }
 
+    var needsKYC: Bool {
+        registrationState?.kycStatus != .approved
+    }
+
     var kycDoneURL: String {
         "https://success.tangem.com"
     }
