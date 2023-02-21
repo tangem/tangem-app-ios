@@ -24,10 +24,11 @@ struct TransactionHistoryMapper {
         let direction: TransactionRecord.Direction = addresses.contains(where: {
             $0.value.caseInsensitiveCompare(transaction.destinationAddress) == .orderedSame
         }) ? .incoming : .outgoing
+        let address = direction == .incoming ? transaction.sourceAddress : transaction.destinationAddress
 
         return .init(
             amountType: transaction.amount.type,
-            destination: AddressFormatter(address: transaction.destinationAddress).truncated(),
+            destination: AddressFormatter(address: address).truncated(),
             timeFormatted: timeFormatter.string(from: date),
             date: date,
             transferAmount: "\(direction.amountPrefix)\(transaction.amount.string(with: 8))",
