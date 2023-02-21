@@ -17,7 +17,7 @@ struct IconView: View {
     // [REDACTED_TODO_COMMENT]
     private let forceKingfisher: Bool
 
-    init(url: URL?, size: CGSize = CGSize(width: 36, height: 36), forceKingfisher: Bool = false) {
+    init(url: URL?, size: CGSize = CGSize(width: 36, height: 36), forceKingfisher: Bool = true) {
         self.url = url
         self.size = size
         self.forceKingfisher = forceKingfisher
