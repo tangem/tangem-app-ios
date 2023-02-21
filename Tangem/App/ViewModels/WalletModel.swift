@@ -128,6 +128,7 @@ class WalletModel: ObservableObject, Identifiable {
     // MARK: - Update wallet model
 
     @discardableResult
+    /// Do not use with flatMap
     func update(silent: Bool) -> AnyPublisher<Void, Error> {
         // If updating already in process return updating Publisher
         if let updatePublisher = updatePublisher {
