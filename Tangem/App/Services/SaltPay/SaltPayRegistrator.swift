@@ -335,6 +335,7 @@ class SaltPayRegistrator {
             }
             .tryMap { hasGas in
                 if !hasGas {
+                    Analytics.log(.notEnoughGasError)
                     throw SaltPayRegistratorError.noGas
                 }
             }
@@ -363,6 +364,7 @@ class SaltPayRegistrator {
             })
             .tryMap { response in
                 guard response.passed == true else { // passed is false, show error
+                    Analytics.log(.cardNotPassedError)
                     throw SaltPayRegistratorError.cardNotPassed
                 }
 
