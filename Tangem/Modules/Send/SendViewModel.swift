@@ -650,7 +650,7 @@ class SendViewModel: ObservableObject {
 
         let isDemo = walletModel.isDemo
 
-        //[REDACTED_TODO_COMMENT]
+        // [REDACTED_TODO_COMMENT]
         let walletUpdatePublisher = walletModel
             .$state
             .tryMap { state -> WalletModel.State in
