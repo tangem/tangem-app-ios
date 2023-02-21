@@ -578,6 +578,7 @@ class WalletOnboardingViewModel: OnboardingTopupViewModel<WalletOnboardingStep, 
         case .kycWaiting:
             saltPayRegistratorProvider.registrator?.update()
         case .enterPin:
+            Analytics.log(.onboardingButtonSetPinCode)
             if saltPayRegistratorProvider.registrator?.setPin(pinText) ?? false {
                 Analytics.log(.pinCodeSet)
                 goToNextStep()
