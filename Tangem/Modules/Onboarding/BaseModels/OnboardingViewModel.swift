@@ -304,6 +304,8 @@ class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable>
                         Analytics.log(.claimScreenOpened)
                     case .enterPin:
                         Analytics.log(.pinScreenOpened)
+                    case .registerWallet:
+                        Analytics.log(.registerScreenOpened)
                     default:
                         break
                     }
