@@ -15,6 +15,7 @@ class TotalSumBalanceViewModel: ObservableObject {
 
     @Published var isLoading: Bool = true
     @Published var totalFiatValueString: NSAttributedString = .init(string: "")
+    @Published var hasError: Bool = false
 
     /// If we have a note or any single coin wallet that we should show this balance
     @Published var singleWalletBalance: String?
@@ -54,21 +55,12 @@ class TotalSumBalanceViewModel: ObservableObject {
     }
 
     private func bind() {
-        let hasEntriesWithoutDerivation = userWalletModel
-            .subscribeToEntriesWithoutDerivation()
-            .map { !$0.isEmpty }
-
-        Publishers.CombineLatest(totalBalanceManager.totalBalancePublisher(), hasEntriesWithoutDerivation)
-            .map { [unowned self] balance, hasEntriesWithoutDerivation -> NSAttributedString in
-                guard !hasEntriesWithoutDerivation,
-                      let value = balance.value,
-                      !value.hasError else {
-                    return dashAttributedString()
-                }
-
+        totalBalanceManager.totalBalancePublisher()
+            .compactMap { $0.value }
+            .map { [unowned self] balance -> NSAttributedString in
                 checkPositiveBalance()
                 updateForSingleCoinCard()
-                return addAttributeForBalance(value.balance, withCurrencyCode: value.currencyCode)
+                return addAttributeForBalance(balance)
             }
             .weakAssign(to: \.totalFiatValueString, on: self)
             .store(in: &bag)
@@ -78,20 +70,26 @@ class TotalSumBalanceViewModel: ObservableObject {
             .map { $0.isLoading }
             .weakAssignAnimated(to: \.isLoading, on: self)
             .store(in: &bag)
+
+        totalBalanceManager.totalBalancePublisher()
+            .compactMap { $0.value?.hasError }
+            .removeDuplicates()
+            .weakAssign(to: \.hasError, on: self)
+            .store(in: &bag)
     }
 
-    private func dashAttributedString() -> NSAttributedString {
-        NSAttributedString(string: "–", attributes: [.font: UIFont.systemFont(ofSize: 28, weight: .semibold)])
-    }
+    private func addAttributeForBalance(_ totalValue: TotalBalanceProvider.TotalBalance) -> NSAttributedString {
+        let formattedTotalFiatValue = totalValue.balanceFormatted
 
-    private func addAttributeForBalance(_ balance: Decimal, withCurrencyCode: String) -> NSAttributedString {
-        let formattedTotalFiatValue = balance.currencyFormatted(code: withCurrencyCode)
+        guard totalValue.balance != nil else {
+            return .init(string: formattedTotalFiatValue, attributes: [.font: UIFont.systemFont(ofSize: 28, weight: .semibold)])
+        }
 
         let attributedString = NSMutableAttributedString(string: formattedTotalFiatValue)
         let allStringRange = NSRange(location: 0, length: attributedString.length)
         attributedString.addAttribute(.font, value: UIFont.systemFont(ofSize: 28, weight: .semibold), range: allStringRange)
 
-        let decimalLocation = NSString(string: formattedTotalFiatValue).range(of: balance.decimalSeparator()).location
+        let decimalLocation = NSString(string: formattedTotalFiatValue).range(of: Decimal.decimalSeparator()).location
         if decimalLocation < (formattedTotalFiatValue.count - 1) {
             let locationAfterDecimal = decimalLocation + 1
             let symbolsAfterDecimal = formattedTotalFiatValue.count - locationAfterDecimal
