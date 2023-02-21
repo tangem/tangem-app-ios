@@ -36,7 +36,7 @@ extension Decimal {
         return formatter.string(from: self as NSDecimalNumber) ?? "\(self)"
     }
 
-    func decimalSeparator() -> String {
+    static func decimalSeparator() -> String {
         let formatter = NumberFormatter()
         formatter.locale = Locale.current
         formatter.numberStyle = .currency
