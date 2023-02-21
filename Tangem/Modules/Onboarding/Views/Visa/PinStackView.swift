@@ -14,6 +14,7 @@ struct PinStackView: View {
     @Binding var pinText: String
 
     @State private var pinInput: String = ""
+    @State private var firstResponder: Bool? = true
 
     var body: some View {
         ZStack {
@@ -29,6 +30,13 @@ struct PinStackView: View {
                         .cornerRadius(14)
                 }
             }
+            .contentShape(Rectangle())
+            .onTapGesture {
+                setFirstResponser(true)
+            }
+        }
+        .onAppear {
+            setFirstResponser(true)
         }
     }
 
@@ -43,8 +51,9 @@ struct PinStackView: View {
 
         CustomTextField(
             text: binding,
-            isResponder: Binding.constant(true),
-            actionButtonTapped: Binding.constant(true),
+            isResponder: $firstResponder,
+            actionButtonTapped: Binding.constant(false),
+            handleKeyboard: true,
             keyboard: .numberPad,
             placeholder: "",
             maxCount: maxDigits
@@ -59,6 +68,12 @@ struct PinStackView: View {
         }
 
         return ""
+    }
+
+    private func setFirstResponser(_ value: Bool) {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+            firstResponder = value
+        }
     }
 }
 
