@@ -351,6 +351,9 @@ extension OnboardingViewModel {
             userWalletEmailData: cardModel.emailData
         )
 
+        // Hide keyboard on set pin screen
+        UIApplication.shared.endEditing()
+
         coordinator.openSupportChat(input: .init(
             environment: cardModel.supportChatEnvironment,
             cardId: cardModel.cardId,
