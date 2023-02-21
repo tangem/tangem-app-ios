@@ -359,6 +359,7 @@
 "swapping_success_view_explorer_button_title" = "在瀏覽器中查看";
 "swapping_success_view_title" = "進行中";
 "swapping_swap" = "交換";
+"swapping_swap_action" = "交易";
 "swapping_swap_of_to" = "交易 %@ 至";
 "swapping_tangem_fee_disclaimer" = "此外，報價包括%s的 Tangem 費用。這有助於我們提供一流的產品";
 "swapping_token_list_other_tokens" = "其他代幣";
