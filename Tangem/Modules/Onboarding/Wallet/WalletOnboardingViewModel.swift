@@ -454,12 +454,8 @@ class WalletOnboardingViewModel: OnboardingTopupViewModel<WalletOnboardingStep, 
                     }
 
                     self.goToNextStep()
-                case .claim:
+                case .claim, .finished:
                     self.goToNextStep()
-                case .finished:
-                    if self.currentStep == .kycWaiting { // we have nothing to claim
-                        self.goToNextStep()
-                    }
                 case .kycRetry:
                     if case .wallet(let steps) = self.cardModel?.onboardingInput.steps { // rebuild steps from scratch
                         self.steps = steps
