@@ -90,11 +90,11 @@ private extension TotalBalanceProvider {
             return
         }
 
-        let totalBalance = mapToTotalBalance(currencyCode: currencyCode, walletModels)
+        let totalBalance = mapToTotalBalance(currencyCode: currencyCode, walletModels, hasEntriesWithoutDerivation)
         totalBalanceSubject.send(.loaded(totalBalance))
     }
 
-    func mapToTotalBalance(currencyCode: String, _ walletModels: [WalletModel]) -> TotalBalance {
+    func mapToTotalBalance(currencyCode: String, _ walletModels: [WalletModel], _ hasEntriesWithoutDerivation: Bool) -> TotalBalance {
         let tokenItemViewModels = getTokenItemViewModels(from: walletModels)
 
         var hasError = false
@@ -116,7 +116,7 @@ private extension TotalBalanceProvider {
         }
 
         // It is also empty when derivation is missing
-        if let balance {
+        if let balance, !hasEntriesWithoutDerivation {
             Analytics.logSignInIfNeeded(balance: balance)
             Analytics.logTopUpIfNeeded(balance: balance)
         }
