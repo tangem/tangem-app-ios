@@ -29,19 +29,19 @@ struct SwappingFeeRowView: View {
                     .style(Fonts.Regular.footnote, color: Colors.Text.primary1)
                     .skeletonable(isShown: viewModel.isLoading, size: CGSize(width: 100, height: 11))
 
-                Button {
-                    isDisclaimerOpened.toggle()
-                } label: {
-                    Assets.chevron.image
-                        .rotationEffect(.degrees(isDisclaimerOpened ? -90 : 90))
-                        .padding(.leading, 4)
-                        .padding(.vertical, 4)
-                }
+                Assets.chevron.image
+                    .rotationEffect(.degrees(isDisclaimerOpened ? -90 : 90))
+                    .padding(.leading, 4)
+                    .padding(.vertical, 4)
             }
         }
         .lineLimit(1)
         .padding(.vertical, 14)
         .background(Colors.Background.primary)
+        .contentShape(Rectangle())
+        .onTapGesture {
+            isDisclaimerOpened.toggle()
+        }
     }
 }
 
