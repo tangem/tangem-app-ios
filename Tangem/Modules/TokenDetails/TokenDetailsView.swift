@@ -116,7 +116,7 @@ struct TokenDetailsView: View {
     }
 
     @ViewBuilder
-    var leftButton: some View {
+    var exchangeButton: some View {
         switch viewModel.exchangeButtonState {
         case .single(let option):
             MainButton(
@@ -138,7 +138,7 @@ struct TokenDetailsView: View {
     }
 
     @ViewBuilder
-    var rightButton: some View {
+    var sendButton: some View {
         MainButton(
             title: Localization.walletButtonSend,
             icon: .leading(Assets.arrowRightMini),
