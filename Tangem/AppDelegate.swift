@@ -13,6 +13,8 @@ import AppsFlyerLib
 class AppDelegate: UIResponder, UIApplicationDelegate {
     var loadingView: UIView?
 
+    private lazy var servicesManager = ServicesManager()
+
     func addLoadingView() {
         if let window = UIApplication.shared.windows.first(where: { $0.isKeyWindow }) {
             let view = UIView(frame: window.bounds)
@@ -53,6 +55,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             ]
         }
 
+        servicesManager.initialize()
         return true
     }
 
