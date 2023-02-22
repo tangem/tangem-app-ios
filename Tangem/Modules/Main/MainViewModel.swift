@@ -31,6 +31,7 @@ class MainViewModel: ObservableObject {
     @Published var image: UIImage? = nil
     @Published var isLackDerivationWarningViewVisible: Bool = false
     @Published var isBackupAllowed: Bool = false
+    @Published var exchangeButtonState: ExchangeButtonState = .single(option: .buy)
 
     @Published var singleWalletContentViewModel: SingleWalletContentViewModel? {
         didSet {
@@ -214,6 +215,21 @@ class MainViewModel: ObservableObject {
                 self.objectWillChange.send()
             }
             .store(in: &bag)
+    }
+
+    func updateExchangeButtons() {
+        let exchangeOptions = ExchangeButtonType.allCases.filter {
+            switch $0 {
+            case .buy:
+                return true
+            case .sell:
+                return canSellCrypto
+            case .swap:
+                return false
+            }
+        }
+
+        exchangeButtonState = .init(options: exchangeOptions)
     }
 
     func updateIsBackupAllowed() {
