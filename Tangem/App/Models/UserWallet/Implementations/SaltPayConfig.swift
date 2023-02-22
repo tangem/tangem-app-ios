@@ -37,6 +37,8 @@ struct SaltPayConfig {
 
         var steps: [WalletOnboardingStep] = .init()
 
+        steps.append(.backupIntro)
+
         if !card.wallets.isEmpty, !backupServiceProvider.backupService.primaryCardIsSet {
             steps.append(.scanPrimaryCard)
         }
