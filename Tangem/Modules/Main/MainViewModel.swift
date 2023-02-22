@@ -221,7 +221,7 @@ class MainViewModel: ObservableObject {
         let exchangeOptions = ExchangeButtonType.allCases.filter {
             switch $0 {
             case .buy:
-                return true
+                return canBuyCrypto
             case .sell:
                 return canSellCrypto
             case .swap:
