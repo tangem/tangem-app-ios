@@ -218,7 +218,7 @@ class MainViewModel: ObservableObject {
     }
 
     func updateExchangeButtons() {
-        let exchangeOptions = ExchangeButtonType.allCases.filter {
+        var exchangeOptions = ExchangeButtonType.allCases.filter {
             switch $0 {
             case .buy:
                 return canBuyCrypto
@@ -227,6 +227,11 @@ class MainViewModel: ObservableObject {
             case .swap:
                 return false
             }
+        }
+        
+        // If options is empty, we must display buy button where button is disabled
+        if exchangeOptions.isEmpty {
+            exchangeOptions.append(.buy)
         }
 
         exchangeButtonState = .init(options: exchangeOptions)
