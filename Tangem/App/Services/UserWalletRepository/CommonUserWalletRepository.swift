@@ -595,6 +595,7 @@ extension CommonUserWalletRepository {
     func initialize() {
         // Removing UserWallet-related data from Keychain
         if AppSettings.shared.numberOfLaunches == 1 {
+            AppLog.shared.debug("Clean CommonUserWalletRepository")
             clearUserWallets()
         }
 
