@@ -255,6 +255,7 @@ class SaltPayRegistrator {
                 self?.isBusy = false
             } receiveValue: { [weak self] _ in
                 self?.registrationState?.pinSet = true
+                Analytics.log(.pinCodeSet)
                 self?.updateState()
             }
             .store(in: &bag)
