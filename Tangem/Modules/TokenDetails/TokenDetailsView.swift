@@ -137,6 +137,7 @@ struct TokenDetailsView: View {
         }
     }
 
+    @ViewBuilder
     var rightButton: some View {
         MainButton(
             title: Localization.walletButtonSend,
