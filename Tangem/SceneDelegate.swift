@@ -16,9 +16,11 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
     var window: UIWindow?
 
-    private let appCoordinator: AppCoordinator = .init()
+    private lazy var appCoordinator: AppCoordinator = .init()
 
     func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
+        appCoordinator.initialize()
+
         if !handleUrlContexts(connectionOptions.urlContexts) {
             handleActivities(connectionOptions.userActivities)
         }
