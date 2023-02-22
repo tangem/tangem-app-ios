@@ -293,6 +293,10 @@ class CommonUserWalletRepository: UserWalletRepository {
         }
     }
 
+    func updateSelection() {
+        initializeServicesForSelectedModel()
+    }
+
     func setSelectedUserWalletId(_ userWalletId: Data?, reason: UserWalletRepositorySelectionChangeReason) {
         setSelectedUserWalletId(userWalletId, unlockIfNeeded: true, reason: reason)
     }
