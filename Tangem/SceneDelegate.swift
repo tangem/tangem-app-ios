@@ -16,11 +16,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
     var window: UIWindow?
 
-    private lazy var appCoordinator: AppCoordinator = {
-        let coordinator = AppCoordinator()
-        coordinator.initialize()
-        return coordinator
-    }()
+    private lazy var appCoordinator = AppCoordinator()
 
     // This method can be called during app close, so we have to move out the one-time initialization code outside.
     func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
