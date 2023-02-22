@@ -359,6 +359,7 @@
 "swapping_success_view_explorer_button_title" = "Открыть в обозревателе";
 "swapping_success_view_title" = "В процессе";
 "swapping_swap" = "Обмен";
+"swapping_swap_action" = "Обменять";
 "swapping_swap_of_to" = "Обмен %@ на";
 "swapping_tangem_fee_disclaimer" = "Кроме того, котировки включают комиссию Tangem в размере %s. Это помогает нам предоставлять первоклассный продукт.";
 "swapping_token_list_other_tokens" = "Другие токены";
@@ -443,6 +444,7 @@
 "wallet_connect_error_unsupported_blockchains" = "Запрос на подключение через WalletConnect содержит неподдерживаемые блокчеины. Неподдерживаемые блокчеины:\n";
 "wallet_connect_error_unsupported_dapp" = "Cоединение с этим Dapp сервисом не может быть установлено из-за его технической реализации.";
 "wallet_connect_error_with_framework_message" = "Произошла непредвиденная ошибка. Сообщение ошибки: %@ Попробуйте, пожалуйста, позже. Если проблема будет продолжать возникать - обратитесь в службу поддержки.";
+"wallet_connect_error_wrong_card_selected" = "Неверная карта выбрана в приложении Tangem";
 "wallet_connect_failed_to_build_tx" = "Не удалось создать транзакцию из данных Dapp. Код: %@";
 "wallet_connect_generic_error_with_code" = "Произошла непредвиденная ошибка. Код ошибки: %li Попробуйте, пожалуйста, позже. Если проблема будет продолжать возникать - обратитесь в службу поддержки.";
 "wallet_connect_message_signed" = "Сообщение было успешно подписано и отправлено в Dapp";
