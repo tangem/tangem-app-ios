@@ -29,7 +29,9 @@ class AppCoordinator: CoordinatorObject {
     private let servicesManager: ServicesManager = .init()
     private var bag: Set<AnyCancellable> = []
 
-    init() {
+    init() {}
+
+    func initialize() {
         servicesManager.initialize()
         bind()
     }
