@@ -229,11 +229,6 @@ class MainViewModel: ObservableObject {
             }
         }
 
-        // If options is empty, we must display buy button where button is disabled
-        if exchangeOptions.isEmpty {
-            exchangeOptions.append(.buy)
-        }
-
         exchangeButtonState = .init(options: exchangeOptions)
     }
 
