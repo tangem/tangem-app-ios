@@ -209,17 +209,20 @@ class TokenDetailsViewModel: ObservableObject {
     }
 
     func updateExchangeButtons() {
-        guard FeatureProvider.isAvailable(.exchange) else { return }
-
-        let exchangeOptions = ExchangeButtonType.allCases.filter {
+        var exchangeOptions = ExchangeButtonType.allCases.filter {
             switch $0 {
             case .buy:
-                return true
+                return canBuyCrypto
             case .sell:
                 return canSellCrypto
             case .swap:
                 return canSwap
             }
+        }
+
+        // If options is empty, we must display buy button where button is disabled
+        if exchangeOptions.isEmpty {
+            exchangeOptions.append(.buy)
         }
 
         exchangeButtonState = .init(options: exchangeOptions)
