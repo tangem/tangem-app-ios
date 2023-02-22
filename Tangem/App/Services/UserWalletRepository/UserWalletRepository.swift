@@ -19,6 +19,7 @@ protocol UserWalletRepository: Initializable {
 
     func unlock(with method: UserWalletRepositoryUnlockMethod, completion: @escaping (UserWalletRepositoryResult?) -> Void)
     func setSelectedUserWalletId(_ userWalletId: Data?, reason: UserWalletRepositorySelectionChangeReason)
+    func updateSelection()
 
     func add(_ completion: @escaping (UserWalletRepositoryResult?) -> Void)
     func contains(_ userWallet: UserWallet) -> Bool
