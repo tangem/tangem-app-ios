@@ -210,7 +210,7 @@ class TokenDetailsViewModel: ObservableObject {
 
     func updateExchangeButtons() {
         guard FeatureProvider.isAvailable(.exchange) else { return }
-        
+
         let exchangeOptions = ExchangeButtonType.allCases.filter {
             switch $0 {
             case .buy:
