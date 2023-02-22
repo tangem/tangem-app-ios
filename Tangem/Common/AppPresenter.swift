@@ -19,6 +19,7 @@ class AppPresenter {
         let viewModel = SupportChatViewModel(input: input)
         let view = SupportChatView(viewModel: viewModel)
         let controller = UIHostingController(rootView: view)
+        Analytics.log(.chatScreenOpened)
         show(controller)
     }
 
