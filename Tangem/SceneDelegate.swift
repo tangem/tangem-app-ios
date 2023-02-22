@@ -16,19 +16,21 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
     var window: UIWindow?
 
-    private lazy var appCoordinator: AppCoordinator = .init()
+    private lazy var appCoordinator: AppCoordinator = {
+        let coordinator = AppCoordinator()
+        coordinator.initialize()
+        return coordinator
+    }()
 
+    // This method can be called during app close, so we have to move out the one-time initialization code outside.
     func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
-        appCoordinator.initialize()
-
         if !handleUrlContexts(connectionOptions.urlContexts) {
             handleActivities(connectionOptions.userActivities)
         }
 
-        appCoordinator.start(with: .init(newScan: nil))
-
         if let windowScene = scene as? UIWindowScene {
             let window = UIWindow(windowScene: windowScene)
+            appCoordinator.start(with: .init(newScan: nil))
             let appView = AppCoordinatorView(coordinator: appCoordinator)
             window.rootViewController = UIHostingController(rootView: appView)
             self.window = window
