@@ -28,8 +28,8 @@ struct TokenDetailsView: View {
 
     @ViewBuilder var bottomButtons: some View {
         HStack(alignment: .center) {
-            leftButton
-            rightButton
+            exchangeButton
+            sendButton
         }
     }
 
