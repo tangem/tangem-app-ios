@@ -584,7 +584,6 @@ class WalletOnboardingViewModel: OnboardingTopupViewModel<WalletOnboardingStep, 
         case .enterPin:
             Analytics.log(.onboardingButtonSetPinCode)
             if saltPayRegistratorProvider.registrator?.setPin(pinText) ?? false {
-                Analytics.log(.pinCodeSet)
                 goToNextStep()
             }
         case .registerWallet:
