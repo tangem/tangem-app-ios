@@ -730,7 +730,7 @@ extension SwappingViewModel {
         var title: String {
             switch self {
             case .swap:
-                return Localization.swappingSwap
+                return Localization.swappingSwapAction
             case .insufficientFunds:
                 return Localization.swappingInsufficientFunds
             case .givePermission:
