@@ -1,5 +1,5 @@
 //
-//  ExchangeButtonType.swift
+//  ExchangeButtonStateType.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -9,7 +9,7 @@
 import Foundation
 
 /// Type of main button view
-enum ExchangeButtonStateType: Hashable, CaseIterable {
+enum ExchangeButtonType: Hashable, CaseIterable {
     case buy
     case sell
     case swap
