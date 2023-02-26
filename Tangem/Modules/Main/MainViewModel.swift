@@ -218,8 +218,8 @@ class MainViewModel: ObservableObject {
     }
 
     func updateExchangeButtons() {
-        var exchangeOptions = ExchangeButtonType.allCases.filter {
-            switch $0 {
+        var exchangeOptions = ExchangeButtonType.allCases.filter { option in
+            switch option {
             case .buy:
                 return canBuyCrypto
             case .sell:
