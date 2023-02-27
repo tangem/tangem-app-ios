@@ -15,7 +15,7 @@ class WriteIssuerDataTask: CardSessionRunnable {
     private let keys: KeyPair
 
     private var signedPubKeyHash: Data!
-    private var command: WriteIssuerDataCommand? = nil
+    private var command: WriteIssuerDataCommand?
 
     init(pairPubKey: Data, keys: KeyPair) {
         self.pairPubKey = pairPubKey
@@ -34,7 +34,7 @@ class WriteIssuerDataTask: CardSessionRunnable {
         }
 
         let sign = SignHashCommand(hash: pairPubKey.sha256(), walletPublicKey: publicKey)
-        sign.run(in: session) { (result) in
+        sign.run(in: session) { result in
             switch result {
             case .success(let response):
                 self.signedPubKeyHash = response.signature
@@ -47,7 +47,7 @@ class WriteIssuerDataTask: CardSessionRunnable {
 
     private func readIssuerCounter(in session: CardSession, completion: @escaping CompletionResult<SuccessResponse>) {
         let readCommand = ReadIssuerDataCommand()
-        readCommand.run(in: session) { (result) in
+        readCommand.run(in: session) { result in
             switch result {
             case .success(let response):
                 self.writeIssuerData(in: session, counter: response.issuerDataCounter, completion: completion)
@@ -66,7 +66,6 @@ class WriteIssuerDataTask: CardSessionRunnable {
         let dataToSign = pairPubKey + signedPubKeyHash
         let newCounter = (counter ?? 0) + 1
 
-
         guard let hashes = try? FileHashHelper.prepareHash(for: cardId, fileData: dataToSign, fileCounter: newCounter, privateKey: keys.privateKey),
               let signature = hashes.finalizingSignature
         else {
@@ -74,11 +73,13 @@ class WriteIssuerDataTask: CardSessionRunnable {
             return
         }
 
-        command = WriteIssuerDataCommand(issuerData: dataToSign,
-                                         issuerDataSignature: signature,
-                                         issuerDataCounter: newCounter,
-                                         issuerPublicKey: keys.publicKey)
-        command!.run(in: session) { (result) in
+        command = WriteIssuerDataCommand(
+            issuerData: dataToSign,
+            issuerDataSignature: signature,
+            issuerDataCounter: newCounter,
+            issuerPublicKey: keys.publicKey
+        )
+        command!.run(in: session) { result in
             switch result {
             case .success(let response):
                 completion(.success(response))

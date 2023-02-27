@@ -47,18 +47,6 @@
 	<string>To share with chat support</string>
 	<key>NSFaceIDUsageDescription</key>
 	<string>Use Face ID to allow save your card in the app</string>
-	<key>NSUbiquitousContainers</key>
-	<dict>
-		<key>iCloud.com.tangem.TangemTap</key>
-		<dict>
-			<key>NSUbiquitousContainerIsDocumentScopePublic</key>
-			<true/>
-			<key>NSUbiquitousContainerName</key>
-			<string>TangemTap</string>
-			<key>NSUbiquitousContainerSupportedFolderLevels</key>
-			<string>Any</string>
-		</dict>
-	</dict>
 	<key>NSUserActivityTypes</key>
 	<array>
 		<string>ScanTangemCardIntent</string>

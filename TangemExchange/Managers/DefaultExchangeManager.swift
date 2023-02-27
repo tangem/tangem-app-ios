@@ -14,28 +14,23 @@ class DefaultExchangeManager {
 
     private let exchangeProvider: ExchangeProvider
     private let blockchainDataProvider: BlockchainDataProvider
+    private let logger: ExchangeLogger
+    private let referrer: ExchangeReferrerAccount?
 
     // MARK: - Internal
-
-    private lazy var refreshDataTimer = Timer.publish(every: 10, on: .main, in: .common).autoconnect()
 
     private var availabilityState: ExchangeAvailabilityState = .idle {
         didSet { delegate?.exchangeManager(self, didUpdate: availabilityState) }
     }
+
     private var exchangeItems: ExchangeItems {
         didSet { delegate?.exchangeManager(self, didUpdate: exchangeItems) }
-    }
-    private var tokenExchangeAllowanceLimit: Decimal? {
-        didSet { delegate?.exchangeManager(self, didUpdate: isEnoughAllowance()) }
     }
 
     private weak var delegate: ExchangeManagerDelegate?
     private var amount: Decimal?
     private var formattedAmount: String {
-        guard let amount else {
-            assertionFailure("Amount not set")
-            return ""
-        }
+        guard let amount else { return "" }
 
         return String(describing: exchangeItems.source.convertToWEI(value: amount))
     }
@@ -44,24 +39,28 @@ class DefaultExchangeManager {
         blockchainDataProvider.getWalletAddress(currency: exchangeItems.source)
     }
 
-    private var refreshDataTimerBag: AnyCancellable?
+    private var tokenExchangeAllowanceLimit: Decimal?
+    // Cached addresses for check approving transactions
+    private var pendingTransactions: [Currency: PendingTransactionState] = [:]
+
     private var bag: Set<AnyCancellable> = []
 
     init(
         exchangeProvider: ExchangeProvider,
-        blockchainInfoProvider: BlockchainDataProvider,
+        blockchainDataProvider: BlockchainDataProvider,
+        logger: ExchangeLogger,
+        referrer: ExchangeReferrerAccount?,
         exchangeItems: ExchangeItems,
         amount: Decimal? = nil
     ) {
         self.exchangeProvider = exchangeProvider
-        self.blockchainDataProvider = blockchainInfoProvider
+        self.blockchainDataProvider = blockchainDataProvider
+        self.logger = logger
+        self.referrer = referrer
         self.exchangeItems = exchangeItems
         self.amount = amount
 
-        updateSourceBalances()
-        Task {
-            await updateExchangeAmountAllowance()
-        }
+        updateBalances()
     }
 }
 
@@ -78,6 +77,10 @@ extension DefaultExchangeManager: ExchangeManager {
 
     func getExchangeItems() -> ExchangeItems {
         return exchangeItems
+    }
+
+    func getReferrerAccount() -> ExchangeReferrerAccount? {
+        return referrer
     }
 
     func isEnoughAllowance() -> Bool {
@@ -102,9 +105,23 @@ extension DefaultExchangeManager: ExchangeManager {
         amountDidChange()
     }
 
-    func refresh() {
+    func refresh(type: ExchangeManagerRefreshType) {
+        if let amount = amount, amount > 0 {
+            refreshValues(refreshType: type)
+        } else {
+            updateState(.idle)
+        }
+    }
+
+    func didSendApprovingTransaction(exchangeTxData: ExchangeTransactionDataModel) {
+        pendingTransactions[exchangeTxData.sourceCurrency] = .pending(destination: exchangeTxData.destinationAddress)
         tokenExchangeAllowanceLimit = nil
-        refreshValues(silent: false)
+
+        refresh(type: .full)
+    }
+
+    func didSendSwapTransaction(exchangeTxData: ExchangeTransactionDataModel) {
+        updateState(.idle)
     }
 }
 
@@ -112,30 +129,16 @@ extension DefaultExchangeManager: ExchangeManager {
 
 private extension DefaultExchangeManager {
     func amountDidChange() {
-        updateSourceBalances()
+        updateBalances()
 
-        if amount == nil || amount == 0 {
-            stopTimer()
-            updateState(.idle)
-            return
-        }
-
-        restartTimer()
-        refreshValues(silent: false)
+        refresh(type: .full)
     }
 
     func exchangeItemsDidChange() {
-        /// Set nil for previous token
+        updateState(.idle)
+        updateBalances()
+
         tokenExchangeAllowanceLimit = nil
-        updateSourceBalances()
-
-        guard (amount ?? 0) > 0 else {
-            stopTimer()
-            return
-        }
-
-        restartTimer()
-        refreshValues(silent: false)
     }
 }
 
@@ -143,38 +146,15 @@ private extension DefaultExchangeManager {
 
 private extension DefaultExchangeManager {
     func updateState(_ state: ExchangeAvailabilityState) {
-        self.availabilityState = state
-    }
-
-    func restartTimer() {
-        stopTimer()
-        startTimer()
-    }
-
-    func startTimer() {
-        refreshDataTimerBag = refreshDataTimer
-            .upstream
-            .sink { [weak self] _ in
-                self?.refreshValues(silent: true)
-            }
-    }
-
-    func stopTimer() {
-        refreshDataTimerBag?.cancel()
-        refreshDataTimer
-            .upstream
-            .connect()
-            .cancel()
+        availabilityState = state
     }
 }
 
 // MARK: - Requests
 
 private extension DefaultExchangeManager {
-    func refreshValues(silent: Bool) {
-        if !silent {
-            updateState(.loading)
-        }
+    func refreshValues(refreshType: ExchangeManagerRefreshType = .full) {
+        updateState(.loading(refreshType))
 
         Task {
             do {
@@ -183,27 +163,23 @@ private extension DefaultExchangeManager {
 
                 switch exchangeItems.source.currencyType {
                 case .coin:
+                    try await loadExchangeData(preview: preview)
+
+                case .token:
                     guard preview.isEnoughAmountForExchange else {
                         updateState(.preview(preview))
                         return
                     }
 
-                    let exchangeData = try await getExchangeTxDataModel()
-                    let info = try mapToExchangeTransactionInfo(exchangeData: exchangeData)
-                    let result = try await mapToSwappingResultDataModel(preview: preview, transaction: info)
-                    updateState(.available(result, info: info))
-                case .token:
                     await updateExchangeAmountAllowance()
 
-                    let approvedDataModel = try await getExchangeApprovedDataModel()
-                    let info = try mapToExchangeTransactionInfo(
-                        quoteData: quoteData,
-                        approvedData: approvedDataModel
-                    )
-                    let result = try await mapToSwappingResultDataModel(preview: preview, transaction: info)
-                    updateState(.available(result, info: info))
+                    // Check if permission required
+                    guard !isEnoughAllowance() else {
+                        try await loadExchangeData(preview: preview)
+                        return
+                    }
 
-                    updateState(.available(result, info: info))
+                    try await loadApproveData(preview: preview, quoteData: quoteData)
                 }
             } catch {
                 updateState(.requiredRefresh(occurredError: error))
@@ -211,11 +187,51 @@ private extension DefaultExchangeManager {
         }
     }
 
+    func loadExchangeData(preview: PreviewSwappingDataModel) async throws {
+        guard preview.isEnoughAmountForExchange else {
+            updateState(.preview(preview))
+            return
+        }
+
+        let exchangeData = try await getExchangeTxDataModel()
+        let info = try mapToExchangeTransactionInfo(exchangeData: exchangeData)
+        let result = try await mapToSwappingResultDataModel(preview: preview, transaction: info)
+        updateState(.available(result, info: info))
+    }
+
+    func loadApproveData(preview: PreviewSwappingDataModel, quoteData: QuoteDataModel) async throws {
+        // If approving transaction isn't send
+        if preview.hasPendingTransaction {
+            await updateExchangeAmountAllowance()
+
+            if isEnoughAllowance() {
+                /// If we get enough allowance
+                pendingTransactions[exchangeItems.source] = nil
+                refreshValues()
+            } else {
+                updateState(.preview(preview))
+            }
+
+            return
+        }
+
+        let approvedDataModel = try await getExchangeApprovedDataModel()
+        let info = try mapToExchangeTransactionInfo(
+            quoteData: quoteData,
+            approvedData: approvedDataModel
+        )
+
+        let result = try await mapToSwappingResultDataModel(preview: preview, transaction: info)
+        updateState(.available(result, info: info))
+    }
+
+    func hasPendingApprovingTransaction() async throws -> Bool {
+        pendingTransactions[exchangeItems.source] != nil
+    }
+
     func updateExchangeAmountAllowance() async {
-        /// If allowance limit already loaded use it
-        guard tokenExchangeAllowanceLimit == nil,
-              let walletAddress else {
-            delegate?.exchangeManager(self, didUpdate: isEnoughAllowance())
+        // If allowance limit already loaded just call delegate method
+        guard let walletAddress else {
             return
         }
 
@@ -224,6 +240,8 @@ private extension DefaultExchangeManager {
                 for: exchangeItems.source,
                 walletAddress: walletAddress
             )
+
+            logger.debug("Token \(exchangeItems.source) allowanceLimit \(tokenExchangeAllowanceLimit as Any)")
         } catch {
             tokenExchangeAllowanceLimit = nil
             updateState(.requiredRefresh(occurredError: error))
@@ -241,10 +259,6 @@ private extension DefaultExchangeManager {
         try await exchangeProvider.fetchApproveExchangeData(for: exchangeItems.source)
     }
 
-    func getApprovedSpenderAddress() async throws -> String {
-        try await exchangeProvider.fetchSpenderAddress(for: exchangeItems.source)
-    }
-
     func getExchangeTxDataModel() async throws -> ExchangeDataModel {
         guard let walletAddress else {
             throw ExchangeManagerError.walletAddressNotFound
@@ -253,20 +267,26 @@ private extension DefaultExchangeManager {
         return try await exchangeProvider.fetchExchangeData(
             items: exchangeItems,
             walletAddress: walletAddress,
-            amount: formattedAmount
+            amount: formattedAmount,
+            referrer: referrer
         )
     }
 
-    func updateSourceBalances() {
+    func updateBalances() {
         Task {
             let source = exchangeItems.source
             let balance = try await blockchainDataProvider.getBalance(for: source)
-            var fiatBalance: Decimal = 0
-            if let amount = amount {
-                fiatBalance = try await blockchainDataProvider.getFiat(for: source, amount: amount)
+
+            if let destination = exchangeItems.destination {
+                let balance = try await blockchainDataProvider.getBalance(for: destination)
+                if exchangeItems.destinationBalance != balance {
+                    exchangeItems.destinationBalance = balance
+                }
             }
 
-            exchangeItems.sourceBalance = ExchangeItems.Balance(balance: balance, fiatBalance: fiatBalance)
+            if exchangeItems.sourceBalance != balance {
+                exchangeItems.sourceBalance = balance
+            }
         }
     }
 }
@@ -281,14 +301,13 @@ private extension DefaultExchangeManager {
 
         let paymentAmount = exchangeItems.source.convertFromWEI(value: quoteData.fromTokenAmount)
         let expectedAmount = destination.convertFromWEI(value: quoteData.toTokenAmount)
-        let expectedFiatAmount = try await blockchainDataProvider.getFiat(for: destination, amount: expectedAmount)
-
-        let isEnoughAmountForExchange = exchangeItems.sourceBalance.balance >= paymentAmount
+        let hasPendingTransaction = try await hasPendingApprovingTransaction()
+        let isEnoughAmountForExchange = exchangeItems.sourceBalance >= paymentAmount
 
         return PreviewSwappingDataModel(
             expectedAmount: expectedAmount,
-            expectedFiatAmount: expectedFiatAmount,
             isPermissionRequired: !isEnoughAllowance(),
+            hasPendingTransaction: hasPendingTransaction,
             isEnoughAmountForExchange: isEnoughAmountForExchange
         )
     }
@@ -297,18 +316,13 @@ private extension DefaultExchangeManager {
         preview: PreviewSwappingDataModel,
         transaction: ExchangeTransactionDataModel
     ) async throws -> SwappingResultDataModel {
-        guard let amount = amount else {
-            throw ExchangeManagerError.amountNotFound
-        }
-
         let source = exchangeItems.source
-        let sourceBalance = exchangeItems.sourceBalance.balance
+        let sourceBalance = exchangeItems.sourceBalance
         let fee = transaction.fee
 
-        let fiatFee = try await blockchainDataProvider.getFiat(for: source.blockchain, amount: transaction.fee)
-
         let isEnoughAmountForFee: Bool
-        var paymentAmount = amount
+        var paymentAmount = transaction.sourceCurrency.convertFromWEI(value: transaction.sourceAmount)
+        let receivedAmount = transaction.destinationCurrency.convertFromWEI(value: transaction.destinationAmount)
         switch exchangeItems.source.currencyType {
         case .coin:
             paymentAmount += fee
@@ -321,10 +335,8 @@ private extension DefaultExchangeManager {
         let isEnoughAmountForExchange = sourceBalance >= paymentAmount
 
         return SwappingResultDataModel(
-            amount: preview.expectedAmount,
-            fiatAmount: preview.expectedFiatAmount,
+            amount: receivedAmount,
             fee: fee,
-            fiatFee: fiatFee,
             isEnoughAmountForExchange: isEnoughAmountForExchange,
             isEnoughAmountForFee: isEnoughAmountForFee,
             isPermissionRequired: !isEnoughAllowance()
@@ -343,7 +355,9 @@ private extension DefaultExchangeManager {
             sourceAddress: exchangeData.sourceAddress,
             destinationAddress: exchangeData.destinationAddress,
             txData: exchangeData.txData,
-            amount: exchangeData.sourceTokenAmount,
+            sourceAmount: exchangeData.sourceCurrencyAmount,
+            destinationAmount: exchangeData.destinationCurrencyAmount,
+            value: exchangeData.value,
             gasValue: exchangeData.gas,
             gasPrice: exchangeData.gasPrice
         )
@@ -368,9 +382,17 @@ private extension DefaultExchangeManager {
             sourceAddress: walletAddress,
             destinationAddress: approvedData.tokenAddress,
             txData: approvedData.data,
-            amount: approvedData.value,
+            sourceAmount: quoteData.fromTokenAmount,
+            destinationAmount: quoteData.toTokenAmount,
+            value: approvedData.value,
             gasValue: quoteData.estimatedGas,
             gasPrice: approvedData.gasPrice
         )
+    }
+}
+
+extension DefaultExchangeManager {
+    enum PendingTransactionState: Hashable {
+        case pending(destination: String)
     }
 }

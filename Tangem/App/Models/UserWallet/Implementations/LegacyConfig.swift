@@ -28,10 +28,12 @@ struct LegacyConfig {
     private var defaultToken: BlockchainSdk.Token? {
         guard let token = walletData?.token else { return nil }
 
-        return .init(name: token.name,
-                     symbol: token.symbol,
-                     contractAddress: token.contractAddress,
-                     decimalCount: token.decimals)
+        return .init(
+            name: token.name,
+            symbol: token.symbol,
+            contractAddress: token.contractAddress,
+            decimalCount: token.decimals
+        )
     }
 
     init(card: CardDTO, walletData: WalletData?) {
@@ -58,15 +60,23 @@ extension LegacyConfig: UserWalletConfig {
     }
 
     var onboardingSteps: OnboardingSteps {
+        var steps = [SingleCardOnboardingStep]()
+
+        if !AppSettings.shared.termsOfServicesAccepted.contains(tou.id) {
+            steps.append(.disclaimer)
+        }
+
         if card.wallets.isEmpty {
-            return .singleWallet([.createWallet] + userWalletSavingSteps + [.success])
+            steps.append(contentsOf: [.createWallet] + userWalletSavingSteps + [.success])
+        } else {
+            if !AppSettings.shared.cardsStartedActivation.contains(card.cardId) {
+                steps.append(contentsOf: userWalletSavingSteps)
+            } else {
+                steps.append(contentsOf: userWalletSavingSteps + [.success])
+            }
         }
 
-        if !AppSettings.shared.cardsStartedActivation.contains(card.cardId) {
-            return .singleWallet([])
-        }
-
-        return .singleWallet(userWalletSavingSteps + [.success])
+        return .singleWallet(steps)
     }
 
     var backupSteps: OnboardingSteps? {
@@ -90,12 +100,24 @@ extension LegacyConfig: UserWalletConfig {
     }
 
     var defaultBlockchains: [StorageEntry] {
-        guard let defaultBlockchain = defaultBlockchain else { return [] }
+        if let defaultBlockchain = defaultBlockchain {
+            let network = BlockchainNetwork(defaultBlockchain, derivationPath: nil)
+            let tokens = defaultToken.map { [$0] } ?? []
+            let entry = StorageEntry(blockchainNetwork: network, tokens: tokens)
+            return [entry]
+        } else {
+            guard isMultiwallet else { return [] }
 
-        let network = BlockchainNetwork(defaultBlockchain, derivationPath: nil)
-        let tokens = defaultToken.map { [$0] } ?? []
-        let entry = StorageEntry(blockchainNetwork: network, tokens: tokens)
-        return [entry]
+            let isTestnet = AppEnvironment.current.isTestnet
+            let blockchains = [
+                Blockchain.bitcoin(testnet: isTestnet),
+                Blockchain.ethereum(testnet: isTestnet),
+            ]
+
+            return blockchains.map {
+                StorageEntry(blockchainNetwork: .init($0), token: nil)
+            }
+        }
     }
 
     var persistentBlockchains: [StorageEntry]? {
@@ -133,6 +155,10 @@ extension LegacyConfig: UserWalletConfig {
 
     var userWalletIdSeed: Data? {
         card.wallets.first?.publicKey
+    }
+
+    var productType: Analytics.ProductType {
+        .other
     }
 
     func getFeatureAvailability(_ feature: UserWalletFeature) -> UserWalletFeature.Availability {
@@ -192,6 +218,10 @@ extension LegacyConfig: UserWalletConfig {
             return isMultiwallet ? .available : .hidden
         case .referralProgram:
             return .hidden
+        case .displayHashesCount:
+            return .available
+        case .transactionHistory:
+            return .hidden
         }
     }
 
@@ -203,9 +233,11 @@ extension LegacyConfig: UserWalletConfig {
                 partialResult[cardWallet.curve] = cardWallet.publicKey
             }
 
-            return try factory.makeMultipleWallet(walletPublicKeys: walletPublicKeys,
-                                                  entry: token,
-                                                  derivationStyle: card.derivationStyle)
+            return try factory.makeMultipleWallet(
+                walletPublicKeys: walletPublicKeys,
+                entry: token,
+                derivationStyle: card.derivationStyle
+            )
         } else {
             let blockchain = token.blockchainNetwork.blockchain
 
@@ -213,10 +245,12 @@ extension LegacyConfig: UserWalletConfig {
                 throw CommonError.noData
             }
 
-            return try factory.makeSingleWallet(walletPublicKey: walletPublicKey,
-                                                blockchain: blockchain,
-                                                token: token.tokens.first,
-                                                derivationStyle: card.derivationStyle)
+            return try factory.makeSingleWallet(
+                walletPublicKey: walletPublicKey,
+                blockchain: blockchain,
+                token: token.tokens.first,
+                derivationStyle: card.derivationStyle
+            )
         }
     }
 }
