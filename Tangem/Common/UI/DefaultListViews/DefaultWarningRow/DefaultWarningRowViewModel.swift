@@ -6,48 +6,44 @@
 //  Copyright © 2022 Tangem AG. All rights reserved.
 //
 
-import SwiftUI
+import Foundation
 
 struct DefaultWarningRowViewModel {
-    let icon: Image
     let title: String?
     let subtitle: String
-    private(set) var detailsType: DetailsType?
 
-    let action: (() -> ())?
+    private(set) var leftView: AdditionalViewType?
+    private(set) var rightView: AdditionalViewType?
+
+    let action: (() -> Void)?
 
     init(
-        icon: Image,
-        title: String?,
+        title: String? = nil,
         subtitle: String,
-        detailsType: DefaultWarningRowViewModel.DetailsType? = nil,
-        action: (() -> ())? = nil
+        leftView: DefaultWarningRowViewModel.AdditionalViewType? = nil,
+        rightView: DefaultWarningRowViewModel.AdditionalViewType? = nil,
+        action: (() -> Void)? = nil
     ) {
-        self.icon = icon
         self.title = title
         self.subtitle = subtitle
-        self.detailsType = detailsType
+        self.leftView = leftView
+        self.rightView = rightView
         self.action = action
     }
 
-    mutating func update(detailsType: DetailsType?) {
-        self.detailsType = detailsType
+    mutating func update(leftView: AdditionalViewType?) {
+        self.leftView = leftView
+    }
+
+    mutating func update(rightView: AdditionalViewType?) {
+        self.rightView = rightView
     }
 }
 
 extension DefaultWarningRowViewModel {
-    enum DetailsType: Hashable {
-        case icon(_ image: Image)
+    enum AdditionalViewType: Hashable {
+        case icon(_ image: ImageType)
         case loader
-
-        func hash(into hasher: inout Hasher) {
-            switch self {
-            case .loader:
-                hasher.combine("loader")
-            case .icon:
-                hasher.combine("icon")
-            }
-        }
     }
 }
 
@@ -55,7 +51,8 @@ extension DefaultWarningRowViewModel: Hashable {
     func hash(into hasher: inout Hasher) {
         hasher.combine(title)
         hasher.combine(subtitle)
-        hasher.combine(detailsType)
+        hasher.combine(leftView)
+        hasher.combine(rightView)
     }
 
     static func == (lhs: DefaultWarningRowViewModel, rhs: DefaultWarningRowViewModel) -> Bool {
