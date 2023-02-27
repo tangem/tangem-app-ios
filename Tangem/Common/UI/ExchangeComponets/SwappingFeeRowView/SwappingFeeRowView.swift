@@ -10,21 +10,34 @@ import SwiftUI
 
 struct SwappingFeeRowView: View {
     private let viewModel: SwappingFeeRowViewModel
+    @Binding private var isDisclaimerOpened: Bool
 
     init(viewModel: SwappingFeeRowViewModel) {
         self.viewModel = viewModel
+        _isDisclaimerOpened = viewModel.isDisclaimerOpened()
     }
 
     var body: some View {
-        HStack {
-            Text(Localization.sendFeeLabel)
+        HStack(spacing: 0) {
+            Text(Localization.sendNetworkFeeTitle)
                 .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
 
             Spacer()
 
-            Text(viewModel.formattedFee)
-                .style(Fonts.Regular.footnote, color: Colors.Text.primary1)
-                .skeletonable(isShown: viewModel.isLoading, size: CGSize(width: 100, height: 11))
+            if let formattedFee = viewModel.formattedFee {
+                Text(formattedFee)
+                    .style(Fonts.Regular.footnote, color: Colors.Text.primary1)
+                    .skeletonable(isShown: viewModel.isLoading, size: CGSize(width: 100, height: 11))
+
+                Button {
+                    isDisclaimerOpened.toggle()
+                } label: {
+                    Assets.chevron.image
+                        .rotationEffect(.degrees(isDisclaimerOpened ? -90 : 90))
+                        .padding(.leading, 4)
+                        .padding(.vertical, 4)
+                }
+            }
         }
         .lineLimit(1)
         .padding(.vertical, 14)
@@ -33,22 +46,28 @@ struct SwappingFeeRowView: View {
 }
 
 struct SwappingFeeRowView_Previews: PreviewProvider {
-    static let viewModel = SwappingFeeRowViewModel(
-        state: .fee(fee: "0.0000000000155", symbol: "MATIC", fiat: "$0.14")
-    )
+    struct ContentView: View {
+        @State private var isDisclaimerOpened: Bool = false
 
-    static let loadingViewModel = SwappingFeeRowViewModel(
-        state: .loading
-    )
+        var body: some View {
+            ZStack {
+                Colors.Background.secondary
+
+                GroupedSection([
+                    SwappingFeeRowViewModel(
+                        state: .fee(fee: "0.0000000000155", symbol: "MATIC", fiat: "$0.14"), isDisclaimerOpened: { $isDisclaimerOpened }
+                    ), SwappingFeeRowViewModel(
+                        state: .loading, isDisclaimerOpened: { $isDisclaimerOpened }
+                    ),
+                ]) {
+                    SwappingFeeRowView(viewModel: $0)
+                }
+                .padding()
+            }
+        }
+    }
 
     static var previews: some View {
-        ZStack {
-            Colors.Background.secondary
-
-            GroupedSection([viewModel, loadingViewModel]) {
-                SwappingFeeRowView(viewModel: $0)
-            }
-            .padding()
-        }
+        ContentView()
     }
 }
