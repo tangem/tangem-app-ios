@@ -51,7 +51,7 @@ class AppSettingsViewModel: ObservableObject {
 
         let isSavingWallet = AppSettings.shared.saveUserWallets
         self.isSavingWallet = isSavingWallet
-        self.isSavingAccessCodes = isSavingWallet && AppSettings.shared.saveAccessCodes
+        isSavingAccessCodes = isSavingWallet && AppSettings.shared.saveAccessCodes
         self.userWallet = userWallet
 
         updateView()
@@ -62,8 +62,10 @@ class AppSettingsViewModel: ObservableObject {
 
 private extension AppSettingsViewModel {
     func isSavingWalletRequestChange(saveWallet: Bool) {
-        Analytics.log(.saveUserWalletSwitcherChanged,
-                      params: [.state: Analytics.ParameterValue.state(for: saveWallet).rawValue])
+        Analytics.log(
+            .saveUserWalletSwitcherChanged,
+            params: [.state: Analytics.ParameterValue.state(for: saveWallet)]
+        )
 
         if saveWallet {
             unlockWithBiometry { [weak self] in
@@ -89,24 +91,27 @@ private extension AppSettingsViewModel {
     }
 
     func isSavingAccessCodesRequestChange(saveAccessCodes: Bool) {
-        Analytics.log(.saveAccessCodeSwitcherChanged,
-                      params: [.state: Analytics.ParameterValue.state(for: saveAccessCodes).rawValue])
+        Analytics.log(
+            .saveAccessCodeSwitcherChanged,
+            params: [.state: Analytics.ParameterValue.state(for: saveAccessCodes)]
+        )
 
         if saveAccessCodes {
-            self.setSaveAccessCodes(true)
+            setSaveAccessCodes(true)
         } else {
-            self.presentSavingAccessCodesDeleteAlert()
+            presentSavingAccessCodesDeleteAlert()
         }
     }
 
     func setupView() {
         if !isBiometryAvailable {
             warningViewModel = DefaultWarningRowViewModel(
-                icon: Assets.attention,
                 title: Localization.appSettingsWarningTitle,
                 subtitle: Localization.appSettingsWarningSubtitle,
-                action: openBiometrySettings
-            )
+                leftView: .icon(Assets.attention)
+            ) { [weak self] in
+                self?.openBiometrySettings()
+            }
         }
 
         savingWalletViewModel = DefaultToggleRowViewModel(
