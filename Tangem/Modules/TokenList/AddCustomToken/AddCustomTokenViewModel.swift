@@ -81,7 +81,7 @@ class AddCustomTokenViewModel: ObservableObject {
             $derivationsPicker.map { $0.selection }.removeDuplicates()
         )
         .debounce(for: 0.1, scheduler: RunLoop.main)
-        .sink { [unowned self] (newBlockchainName, _) in
+        .sink { [unowned self] newBlockchainName, _ in
             self.didChangeBlockchain(newBlockchainName)
         }
         .store(in: &bag)
@@ -98,10 +98,9 @@ class AddCustomTokenViewModel: ObservableObject {
             blockchain = try enteredBlockchain()
             derivationPath = try enteredDerivationPath()
 
-            if case let .token(_, blockchain) = tokenItem,
+            if case .token(_, let blockchain) = tokenItem,
                case .solana = blockchain,
-               !cardModel.longHashesSupported
-            {
+               !cardModel.longHashesSupported {
                 throw TokenCreationErrors.tokensNotSupported
             }
         } catch {
@@ -218,7 +217,7 @@ class AddCustomTokenViewModel: ObservableObject {
     private func enteredTokenItem() throws -> TokenItem {
         let blockchain = try enteredBlockchain()
 
-        if contractAddress.isEmpty && name.isEmpty && symbol.isEmpty && decimals.isEmpty {
+        if contractAddress.isEmpty, name.isEmpty, symbol.isEmpty, decimals.isEmpty {
             return .blockchain(blockchain)
         } else {
             let enteredContractAddress = try self.enteredContractAddress(in: blockchain)
@@ -230,7 +229,7 @@ class AddCustomTokenViewModel: ObservableObject {
             let maxDecimalNumber = 30
             guard
                 let decimals = Int(decimals),
-                0 <= decimals && decimals <= maxDecimalNumber
+                0 <= decimals, decimals <= maxDecimalNumber
             else {
                 throw TokenCreationErrors.invalidDecimals(precision: maxDecimalNumber)
             }
@@ -288,8 +287,7 @@ class AddCustomTokenViewModel: ObservableObject {
 
     private func enteredDerivationPath() throws -> DerivationPath? {
         if let blockchain = try? enteredBlockchain(),
-           !blockchain.isEvm
-        {
+           !blockchain.isEvm {
             return nil
         }
 
@@ -323,8 +321,7 @@ class AddCustomTokenViewModel: ObservableObject {
     private func findToken(contractAddress: String) -> AnyPublisher<[CoinModel], Never> {
         if let currentCurrencyModel = foundStandardToken,
            let token = currentCurrencyModel.items.first?.token,
-           token.contractAddress.caseInsensitiveCompare(contractAddress) == .orderedSame
-        {
+           token.contractAddress.caseInsensitiveCompare(contractAddress) == .orderedSame {
             return Just([currentCurrencyModel])
                 .eraseToAnyPublisher()
         }
@@ -415,16 +412,17 @@ class AddCustomTokenViewModel: ObservableObject {
             params[.derivationPath] = usedDerivationPath.rawPath
         }
 
-        if case let .token(token, blockchain) = tokenItem {
+        if case .token(let token, let blockchain) = tokenItem {
             params[.networkId] = blockchain.networkId
             params[.contractAddress] = token.contractAddress
         }
 
-        Analytics.log(.customTokenWasAdded, params: params)
+        Analytics.log(event: .customTokenWasAdded, params: params)
     }
 }
 
 // MARK: - Navigation
+
 extension AddCustomTokenViewModel {
     func closeModule() {
         coordinator.closeModule()
