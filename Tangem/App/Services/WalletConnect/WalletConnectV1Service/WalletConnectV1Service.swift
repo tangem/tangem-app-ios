@@ -264,10 +264,6 @@ extension WalletConnectV1Service: ServerDelegate {
             throw WalletConnectServiceError.unsupportedDApp
         }
 
-        guard cardModel.supportsWalletConnect else {
-            throw WalletConnectServiceError.notValidCard
-        }
-
         guard let blockchain = WalletConnectNetworkParserUtility.parse(
             dAppInfo: dAppInfo,
             isTestnet: AppEnvironment.current.isTestnet
