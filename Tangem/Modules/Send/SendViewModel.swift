@@ -650,32 +650,7 @@ class SendViewModel: ObservableObject {
 
         let isDemo = walletModel.isDemo
 
-        // [REDACTED_TODO_COMMENT]
-        let walletUpdatePublisher = walletModel
-            .$state
-            .tryMap { state -> WalletModel.State in
-                switch state {
-                case .failed(let error):
-                    throw error
-                case .noAccount(let message):
-                    throw message
-                default:
-                    return state
-                }
-            }
-            .filter { $0 == .idle }
-            .mapVoid()
-            .replaceError(with: ())
-            .setFailureType(to: Error.self)
-
-        walletModel.update(silent: false)
-
-        walletUpdatePublisher
-            .flatMap { [weak self] _ -> AnyPublisher<Void, Error> in
-                guard let self else { return .justWithError(output: ()) }
-
-                return self.walletModel.send(tx, signer: self.cardViewModel.signer)
-            }
+        walletModel.send(tx, signer: cardViewModel.signer)
             .receive(on: DispatchQueue.main)
             .sink(receiveCompletion: { [weak self] completion in
                 guard let self = self else { return }
