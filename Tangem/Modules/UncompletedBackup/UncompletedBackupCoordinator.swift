@@ -14,14 +14,17 @@ class UncompletedBackupCoordinator: CoordinatorObject {
     let popToRootAction: ParamsAction<PopToRootOptions>
 
     // MARK: - Root view model
+
     @Published private(set) var rootViewModel: UncompletedBackupViewModel?
 
     // MARK: - Child coordinators
+
     @Published var modalOnboardingCoordinator: OnboardingCoordinator?
 
     // MARK: - Child view models
 
     // MARK: - Helpers
+
     @Published var modalOnboardingCoordinatorKeeper: Bool = false
 
     required init(
@@ -33,7 +36,7 @@ class UncompletedBackupCoordinator: CoordinatorObject {
     }
 
     func start(with options: Options = .default) {
-        self.rootViewModel = .init(coordinator: self)
+        rootViewModel = .init(coordinator: self)
     }
 }
 
