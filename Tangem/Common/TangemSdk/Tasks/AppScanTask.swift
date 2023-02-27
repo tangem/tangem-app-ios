@@ -17,7 +17,7 @@ enum DefaultWalletData: Codable {
     case none
 
     var twinData: TwinData? {
-        if case let .twin(_, data) = self {
+        if case .twin(_, let data) = self {
             return data
         }
 
@@ -31,10 +31,12 @@ struct AppScanTaskResponse {
     let primaryCard: PrimaryCard?
 
     func getCardInfo() -> CardInfo {
-        return CardInfo(card: CardDTO(card: card),
-                        walletData: walletData,
-                        name: "",
-                        primaryCard: primaryCard)
+        return CardInfo(
+            card: CardDTO(card: card),
+            walletData: walletData,
+            name: "",
+            primaryCard: primaryCard
+        )
     }
 }
 
@@ -42,25 +44,25 @@ final class AppScanTask: CardSessionRunnable {
     let shouldAskForAccessCode: Bool
 
     private var walletData: DefaultWalletData = .none
-    private var primaryCard: PrimaryCard? = nil
-    private var linkingCommand: StartPrimaryCardLinkingTask? = nil
+    private var primaryCard: PrimaryCard?
+    private var linkingCommand: StartPrimaryCardLinkingTask?
 
     init(shouldAskForAccessCode: Bool = false) {
         self.shouldAskForAccessCode = shouldAskForAccessCode
     }
 
     deinit {
-        print("AppScanTask deinit")
+        AppLog.shared.debug("AppScanTask deinit")
     }
 
     /// read ->  readTwinData or note Data or derive wallet's keys -> appendWallets(createwallets+ scan)  -> attestation
     public func run(in session: CardSession, completion: @escaping CompletionResult<AppScanTaskResponse>) {
         if let legacyWalletData = session.environment.walletData,
            legacyWalletData.blockchain != "ANY" {
-            self.walletData = .legacy(legacyWalletData)
+            walletData = .legacy(legacyWalletData)
         }
 
-        self.appendWalletsIfNeeded(session: session, completion: completion)
+        appendWalletsIfNeeded(session: session, completion: completion)
     }
 
     private func readExtra(session: CardSession, completion: @escaping CompletionResult<AppScanTaskResponse>) {
@@ -81,7 +83,7 @@ final class AppScanTask: CardSessionRunnable {
             return
         }
 
-        self.runScanTask(session, completion)
+        runScanTask(session, completion)
     }
 
     private func readPrimaryIfNeeded(_ card: Card, _ session: CardSession, _ completion: @escaping CompletionResult<AppScanTaskResponse>) {
@@ -100,11 +102,11 @@ final class AppScanTask: CardSessionRunnable {
 
     private func readFile(_ card: Card, session: CardSession, completion: @escaping CompletionResult<AppScanTaskResponse>) {
         func exit() {
-            self.readPrimaryIfNeeded(card, session, completion)
+            readPrimaryIfNeeded(card, session, completion)
         }
 
         let readFileCommand = ReadFilesTask(fileName: "blockchainInfo", walletPublicKey: nil)
-        readFileCommand.run(in: session) { (result) in
+        readFileCommand.run(in: session) { result in
             switch result {
             case .success(let response):
                 guard let file = response.first,
@@ -117,10 +119,12 @@ final class AppScanTask: CardSessionRunnable {
                 }
 
                 let dataToVerify = Data(hexString: card.cardId) + file.data + fileCounter.bytes4
-                let isVerified: Bool = (try? CryptoUtils.verify(curve: .secp256k1,
-                                                                publicKey: card.issuer.publicKey,
-                                                                message: dataToVerify,
-                                                                signature: fileSignature)) ?? false
+                let isVerified: Bool = (try? CryptoUtils.verify(
+                    curve: .secp256k1,
+                    publicKey: card.issuer.publicKey,
+                    message: dataToVerify,
+                    signature: fileSignature
+                )) ?? false
 
                 guard isVerified else {
                     exit()
@@ -145,7 +149,7 @@ final class AppScanTask: CardSessionRunnable {
 
     private func readTwin(_ card: Card, session: CardSession, completion: @escaping CompletionResult<AppScanTaskResponse>) {
         let readIssuerDataCommand = ReadIssuerDataCommand()
-        readIssuerDataCommand.run(in: session) { (result) in
+        readIssuerDataCommand.run(in: session) { result in
             switch result {
             case .success(let response):
 
@@ -172,14 +176,16 @@ final class AppScanTask: CardSessionRunnable {
             }
         }
 
-        return TwinData(series: TwinCardSeries.series(for: card.cardId)!,
-                        pairPublicKey: pairPublicKey)
+        return TwinData(
+            series: TwinCardSeries.series(for: card.cardId)!,
+            pairPublicKey: pairPublicKey
+        )
     }
 
     private func appendWalletsIfNeeded(session: CardSession, completion: @escaping CompletionResult<AppScanTaskResponse>) {
         let card = session.environment.card!
 
-        let existingCurves: Set<EllipticCurve> = .init(card.wallets.map({ $0.curve }))
+        let existingCurves: Set<EllipticCurve> = .init(card.wallets.map { $0.curve })
         let mandatoryCurves: Set<EllipticCurve> = [.secp256k1, .ed25519]
         let missingCurves = mandatoryCurves.subtracting(existingCurves)
         let hasBackup = card.backupStatus?.isActive ?? false
@@ -225,7 +231,7 @@ final class AppScanTask: CardSessionRunnable {
         }
 
         guard !plainCard.wallets.isEmpty, plainCard.settings.isHDWalletAllowed else {
-            self.runScanTask(session, completion)
+            runScanTask(session, completion)
             return
         }
 
@@ -253,14 +259,14 @@ final class AppScanTask: CardSessionRunnable {
         }
 
         if derivations.isEmpty {
-            self.runScanTask(session, completion)
+            runScanTask(session, completion)
             return
         }
 
         var sdkConfig = session.environment.config
         sdkConfig.defaultDerivationPaths = derivations
         session.updateConfig(with: sdkConfig)
-        self.runScanTask(session, completion)
+        runScanTask(session, completion)
     }
 
     private func runScanTask(_ session: CardSession, _ completion: @escaping CompletionResult<AppScanTaskResponse>) {
@@ -284,9 +290,11 @@ final class AppScanTask: CardSessionRunnable {
         let cardDto = CardDTO(card: card)
         migrate(card: cardDto)
 
-        completion(.success(AppScanTaskResponse(card: card,
-                                                walletData: walletData,
-                                                primaryCard: primaryCard)))
+        completion(.success(AppScanTaskResponse(
+            card: card,
+            walletData: walletData,
+            primaryCard: primaryCard
+        )))
     }
 
     private func config(for card: CardDTO) -> UserWalletConfig {
