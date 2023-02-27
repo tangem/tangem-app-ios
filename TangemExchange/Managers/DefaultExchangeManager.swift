@@ -44,6 +44,7 @@ class DefaultExchangeManager {
     private var pendingTransactions: [Currency: PendingTransactionState] = [:]
 
     private var bag: Set<AnyCancellable> = []
+    private var refreshTask: Task<Void, Never>?
 
     init(
         exchangeProvider: ExchangeProvider,
@@ -106,6 +107,7 @@ extension DefaultExchangeManager: ExchangeManager {
     }
 
     func refresh(type: ExchangeManagerRefreshType) {
+        refreshTask?.cancel()
         if let amount = amount, amount > 0 {
             refreshValues(refreshType: type)
         } else {
@@ -156,10 +158,12 @@ private extension DefaultExchangeManager {
     func refreshValues(refreshType: ExchangeManagerRefreshType = .full) {
         updateState(.loading(refreshType))
 
-        Task {
+        refreshTask = Task {
             do {
                 let quoteData = try await getQuoteDataModel()
-                let preview = try await mapPreviewSwappingDataModel(from: quoteData)
+                let preview = try mapPreviewSwappingDataModel(from: quoteData)
+
+                try Task.checkCancellation()
 
                 switch exchangeItems.source.currencyType {
                 case .coin:
@@ -182,6 +186,10 @@ private extension DefaultExchangeManager {
                     try await loadApproveData(preview: preview, quoteData: quoteData)
                 }
             } catch {
+                if Task.isCancelled {
+                    return
+                }
+
                 updateState(.requiredRefresh(occurredError: error))
             }
         }
@@ -194,8 +202,14 @@ private extension DefaultExchangeManager {
         }
 
         let exchangeData = try await getExchangeTxDataModel()
+
+        try Task.checkCancellation()
+
         let info = try mapToExchangeTransactionInfo(exchangeData: exchangeData)
         let result = try await mapToSwappingResultDataModel(preview: preview, transaction: info)
+
+        try Task.checkCancellation()
+
         updateState(.available(result, info: info))
     }
 
@@ -223,10 +237,6 @@ private extension DefaultExchangeManager {
 
         let result = try await mapToSwappingResultDataModel(preview: preview, transaction: info)
         updateState(.available(result, info: info))
-    }
-
-    func hasPendingApprovingTransaction() async throws -> Bool {
-        pendingTransactions[exchangeItems.source] != nil
     }
 
     func updateExchangeAmountAllowance() async {
@@ -294,14 +304,14 @@ private extension DefaultExchangeManager {
 // MARK: - Mapping
 
 private extension DefaultExchangeManager {
-    func mapPreviewSwappingDataModel(from quoteData: QuoteDataModel) async throws -> PreviewSwappingDataModel {
+    func mapPreviewSwappingDataModel(from quoteData: QuoteDataModel) throws -> PreviewSwappingDataModel {
         guard let destination = exchangeItems.destination else {
             throw ExchangeManagerError.destinationNotFound
         }
 
         let paymentAmount = exchangeItems.source.convertFromWEI(value: quoteData.fromTokenAmount)
         let expectedAmount = destination.convertFromWEI(value: quoteData.toTokenAmount)
-        let hasPendingTransaction = try await hasPendingApprovingTransaction()
+        let hasPendingTransaction = pendingTransactions[exchangeItems.source] != nil
         let isEnoughAmountForExchange = exchangeItems.sourceBalance >= paymentAmount
 
         return PreviewSwappingDataModel(
