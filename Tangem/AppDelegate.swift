@@ -7,13 +7,13 @@
 //
 
 import UIKit
-import Firebase
 import AppsFlyerLib
-import Amplitude
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
     var loadingView: UIView?
+
+    private lazy var servicesManager = ServicesManager()
 
     func addLoadingView() {
         if let window = UIApplication.shared.windows.first(where: { $0.isKeyWindow }) {
@@ -35,7 +35,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     }
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
-        AppLog.shared.configure()
         // Override point for customization after application launch.
         UISwitch.appearance().onTintColor = .tangemBlue
         UITableView.appearance().backgroundColor = .clear
@@ -56,14 +55,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             ]
         }
 
-        if !AppEnvironment.current.isDebug {
-            configureFirebase()
-            configureAppsFlyer()
-            configureAmplitude()
-        }
-
-        AppSettings.shared.numberOfLaunches += 1
-        S2CTOUMigrator().migrate()
+        servicesManager.initialize()
         return true
     }
 
@@ -79,38 +71,5 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         guard AppEnvironment.current.isProduction else { return }
 
         AppsFlyerLib.shared().start()
-    }
-}
-
-private extension AppDelegate {
-    func configureFirebase() {
-        let plistName = "GoogleService-Info-\(AppEnvironment.current.rawValue.capitalizingFirstLetter())"
-
-        guard let filePath = Bundle.main.path(forResource: plistName, ofType: "plist"),
-              let options = FirebaseOptions(contentsOfFile: filePath) else {
-            assertionFailure("GoogleService-Info.plist not found")
-            return
-        }
-
-        FirebaseApp.configure(options: options)
-    }
-
-    func configureAppsFlyer() {
-        guard AppEnvironment.current.isProduction else {
-            return
-        }
-
-        do {
-            let keysManager = try CommonKeysManager()
-            AppsFlyerLib.shared().appsFlyerDevKey = keysManager.appsFlyer.appsFlyerDevKey
-            AppsFlyerLib.shared().appleAppID = keysManager.appsFlyer.appsFlyerAppID
-        } catch {
-            assertionFailure("CommonKeysManager not initialized with error: \(error.localizedDescription)")
-        }
-    }
-
-    func configureAmplitude() {
-        Amplitude.instance().trackingSessionEvents = true
-        Amplitude.instance().initializeApiKey(try! CommonKeysManager().amplitudeApiKey)
     }
 }
