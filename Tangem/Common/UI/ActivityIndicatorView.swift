@@ -28,9 +28,9 @@ struct ActivityIndicatorView: UIViewRepresentable {
     }
 
     init(settings: IndicatorSettings) {
-        self.isAnimating = true
-        self.style = settings.style
-        self.color = settings.color
+        isAnimating = true
+        style = settings.style
+        color = settings.color
     }
 
     func makeUIView(context: UIViewRepresentableContext<ActivityIndicatorView>) -> UIActivityIndicatorView {
@@ -43,5 +43,3 @@ struct ActivityIndicatorView: UIViewRepresentable {
         isAnimating ? uiView.startAnimating() : uiView.stopAnimating()
     }
 }
-
-
