@@ -40,7 +40,7 @@ class CommonRateAppService {
     }
 
     deinit {
-        print("RateAppService deinit")
+        AppLog.shared.debug("RateAppService deinit")
     }
 }
 

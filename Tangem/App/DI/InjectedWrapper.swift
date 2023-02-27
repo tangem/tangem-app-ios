@@ -8,7 +8,18 @@
 import Foundation
 
 @propertyWrapper
-struct Injected<T> {
+struct Injected<T, P> {
+    private let keyPath: KeyPath<InjectedValues, P>
+
+    var wrappedValue: T { InjectedValues[keyPath] as! T }
+
+    init(_ keyPath: KeyPath<InjectedValues, P>) {
+        self.keyPath = keyPath
+    }
+}
+
+@propertyWrapper
+struct InjectedWritable<T> {
     private let keyPath: WritableKeyPath<InjectedValues, T>
 
     var wrappedValue: T {

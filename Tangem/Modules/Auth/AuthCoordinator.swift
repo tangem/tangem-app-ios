@@ -14,15 +14,22 @@ class AuthCoordinator: CoordinatorObject {
     let popToRootAction: ParamsAction<PopToRootOptions>
 
     // MARK: - Root view model
+
     @Published private(set) var rootViewModel: AuthViewModel?
 
     // MARK: - Child coordinators
+
     @Published var mainCoordinator: MainCoordinator?
     @Published var pushedOnboardingCoordinator: OnboardingCoordinator?
 
     // MARK: - Child view models
+
     @Published var mailViewModel: MailViewModel?
-    @Published var disclaimerViewModel: DisclaimerViewModel?
+
+    // MARK: - Navigation bar state
+
+    // We should update navigationBar visibility state for the main module on iOS13
+    var navigationBarHidden: Bool { mainCoordinator == nil }
 
     required init(
         dismissAction: @escaping Action,
@@ -33,7 +40,7 @@ class AuthCoordinator: CoordinatorObject {
     }
 
     func start(with options: Options = .default) {
-        self.rootViewModel = .init(unlockOnStart: options.unlockOnStart, coordinator: self)
+        rootViewModel = .init(unlockOnStart: options.unlockOnStart, coordinator: self)
     }
 }
 
@@ -71,15 +78,5 @@ extension AuthCoordinator: AuthRoutable {
 
     func openMail(with dataCollector: EmailDataCollector, recipient: String) {
         mailViewModel = MailViewModel(dataCollector: dataCollector, recipient: recipient, emailType: .failedToScanCard)
-    }
-
-    func openDisclaimer(at url: URL, _ handler: @escaping (Bool) -> Void) {
-        disclaimerViewModel = DisclaimerViewModel(url: url, style: .sheet, coordinator: self, acceptanceHandler: handler)
-    }
-}
-
-extension AuthCoordinator: DisclaimerRoutable {
-    func dismissDisclaimer() {
-        self.disclaimerViewModel = nil
     }
 }

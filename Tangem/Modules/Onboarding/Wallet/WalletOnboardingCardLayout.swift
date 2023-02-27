@@ -23,32 +23,32 @@ enum WalletOnboardingCardLayout {
 
     func animSettings(at step: WalletOnboardingStep, in container: CGSize, fanStackCalculator: FanStackCalculator, animated: Bool) -> AnimatedViewSettings {
         switch (self, step) {
-        case (.origin, .welcome):
-            return WelcomeCardLayout.main.cardSettings(at: .welcome, in: container, animated: animated)
-        case (.firstBackup, .welcome):
-            return WelcomeCardLayout.supplementary.cardSettings(at: .welcome, in: container, animated: animated)
-        case (.secondBackup, .welcome):
-            var settings = WelcomeCardLayout.supplementary.cardSettings(at: .welcome, in: container, animated: animated)
-            settings.targetSettings.opacity = 0
-            return settings
         case (_, .selectBackupCards):
-            return .init(targetSettings: fanStackCalculator.settingsForCard(at: cardFanStackIndex),
-                         intermediateSettings: nil)
+            return .init(
+                targetSettings: fanStackCalculator.settingsForCard(at: cardFanStackIndex),
+                intermediateSettings: nil
+            )
         case (_, .claim), (_, .successClaim):
-            return .init(targetSettings: SingleCardOnboardingCardsLayout.main.cardAnimSettings(for: .topup, containerSize: container, animated: animated),
-                         intermediateSettings: nil)
+            return .init(
+                targetSettings: SingleCardOnboardingCardsLayout.main.cardAnimSettings(for: .topup, containerSize: container, animated: animated),
+                intermediateSettings: nil
+            )
         case (_, .success):
             return .zero
         case (.origin, _), (.firstBackup, _), (.secondBackup, _):
-            let targetSettings = CardAnimSettings(frame: frame(for: step, containerSize: container),
-                                                  offset: offset(at: step, in: container),
-                                                  scale: scale(at: step, in: container),
-                                                  opacity: opacity(at: step, in: container),
-                                                  zIndex: zIndex(at: step),
-                                                  rotationAngle: rotation(at: step, in: container))
+            let targetSettings = CardAnimSettings(
+                frame: frame(for: step, containerSize: container),
+                offset: offset(at: step, in: container),
+                scale: scale(at: step, in: container),
+                opacity: opacity(at: step, in: container),
+                zIndex: zIndex(at: step),
+                rotationAngle: rotation(at: step, in: container)
+            )
 
-            return .init(targetSettings: targetSettings,
-                         intermediateSettings: nil)
+            return .init(
+                targetSettings: targetSettings,
+                intermediateSettings: nil
+            )
         }
     }
 
@@ -82,7 +82,7 @@ enum WalletOnboardingCardLayout {
 
     func opacity(at step: WalletOnboardingStep, in container: CGSize) -> Double {
         switch (self, step) {
-        case (.secondBackup, .createWallet), (.secondBackup, .welcome), (_, .success): return 0
+        case (.secondBackup, .createWallet), (_, .success): return 0
         default:
             return 1
         }

@@ -9,7 +9,6 @@ import Foundation
 
 /// Provides access to injected dependencies.
 struct InjectedValues {
-
     /// This is only used as an accessor to the computed properties within extensions of `InjectedValues`.
     private static var current = InjectedValues()
 
@@ -24,4 +23,7 @@ struct InjectedValues {
         get { current[keyPath: keyPath] }
         set { current[keyPath: keyPath] = newValue }
     }
+
+    /// A static subscript accessor for  references dependencies.
+    static subscript<T>(_ keyPath: KeyPath<InjectedValues, T>) -> T { current[keyPath: keyPath] }
 }
