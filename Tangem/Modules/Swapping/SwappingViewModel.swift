@@ -499,15 +499,23 @@ private extension SwappingViewModel {
             return
         }
 
+        if sendDecimalValue.isZero {
+            // No need to calculate price impact with zero input
+            await runOnMain {
+                highPriceImpactWarningRowViewModel = nil
+            }
+            return
+        }
+
         let sourceFiatAmount = try await fiatRatesProvider.getFiat(
             for: exchangeManager.getExchangeItems().source,
             amount: sendDecimalValue
         )
 
-        let lostInPercents = (sourceFiatAmount / destinationFiatAmount - 1) * 100
+        let lossesInPercents = 100 - (destinationFiatAmount * 100) / sourceFiatAmount
 
         await runOnMain {
-            if lostInPercents >= Constants.highPriceImpactWarningLimit {
+            if lossesInPercents >= Constants.highPriceImpactWarningLimit {
                 highPriceImpactWarningRowViewModel = DefaultWarningRowViewModel(
                     title: Localization.swappingHighPriceImpact,
                     subtitle: Localization.swappingHighPriceImpactDescription,
