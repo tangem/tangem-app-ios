@@ -11,7 +11,6 @@ import SwiftUI
 import Combine
 
 struct SearchBar: UIViewRepresentable {
-
     @Binding var text: String
     var placeholder: String
 
@@ -19,7 +18,7 @@ struct SearchBar: UIViewRepresentable {
         @Binding var text: String
 
         @Published private var inputText = ""
-        private var cancellable: AnyCancellable? = nil
+        private var cancellable: AnyCancellable?
 
         init(text: Binding<String>) {
             _text = text
