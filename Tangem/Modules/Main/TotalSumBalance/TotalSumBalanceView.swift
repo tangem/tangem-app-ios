@@ -31,7 +31,7 @@ struct TotalSumBalanceView: View {
                             .lineLimit(1)
                             .font(.system(size: 13, weight: .medium))
 
-                        Assets.tangemArrowDown
+                        Assets.tangemArrowDown.image
                     }
                     .foregroundColor(.tangemGrayLight7)
                 }
@@ -41,16 +41,8 @@ struct TotalSumBalanceView: View {
 
             balanceView
 
-            if viewModel.hasError {
-                Text(Localization.mainProcessingFullAmount)
-                    .foregroundColor(Color.tangemWarning)
-                    .font(.system(size: 13, weight: .regular))
-                    .padding(.top, 2)
-            }
+            messageView
         }
-        .padding(16)
-        .background(Colors.Background.primary)
-        .cornerRadius(16)
     }
 
     private var balanceView: some View {
@@ -65,6 +57,16 @@ struct TotalSumBalanceView: View {
                     .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
                     .layoutPriority(1)
             }
+        }
+    }
+
+    @ViewBuilder
+    private var messageView: some View {
+        if viewModel.hasError {
+            Text(Localization.mainProcessingFullAmount)
+                .foregroundColor(Color.tangemWarning)
+                .font(.system(size: 13, weight: .regular))
+                .padding(.top, 2)
         }
     }
 }

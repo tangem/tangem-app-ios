@@ -8,7 +8,6 @@
 
 import Foundation
 import Combine
-
 import enum BlockchainSdk.Blockchain
 import struct BlockchainSdk.Token
 import struct TangemSdk.DerivationPath
@@ -46,13 +45,13 @@ extension CommonUserTokenListManager: UserTokenListManager {
 
     func update(_ type: CommonUserTokenListManager.UpdateType) {
         switch type {
-        case let .rewrite(entries):
+        case .rewrite(let entries):
             tokenItemsRepository.update(entries)
-        case let .append(entries):
+        case .append(let entries):
             tokenItemsRepository.append(entries)
-        case let .removeBlockchain(blockchain):
+        case .removeBlockchain(let blockchain):
             tokenItemsRepository.remove([blockchain])
-        case let .removeToken(token, network):
+        case .removeToken(let token, let network):
             tokenItemsRepository.remove([token], blockchainNetwork: network)
         }
 
@@ -93,7 +92,7 @@ private extension CommonUserTokenListManager {
         self.loadTokensCancellable = tangemApiService
             .loadTokens(for: userWalletId.hexString)
             .sink { [unowned self] completion in
-                guard case let .failure(error) = completion else { return }
+                guard case .failure(let error) = completion else { return }
 
                 if error.code == .notFound {
                     updateTokensOnServer(result: result)
@@ -106,8 +105,10 @@ private extension CommonUserTokenListManager {
             }
     }
 
-    func updateTokensOnServer(list: UserTokenList? = nil,
-                              result: @escaping (Result<UserTokenList, Error>) -> Void = { _ in }) {
+    func updateTokensOnServer(
+        list: UserTokenList? = nil,
+        result: @escaping (Result<UserTokenList, Error>) -> Void = { _ in }
+    ) {
         let listToUpdate = list ?? getUserTokenList()
 
         saveTokensCancellable = tangemApiService
@@ -116,7 +117,7 @@ private extension CommonUserTokenListManager {
                 switch completion {
                 case .finished:
                     result(.success(listToUpdate))
-                case let .failure(error):
+                case .failure(let error):
                     self.pendingTokensToUpdate = listToUpdate
                     result(.failure(error))
                 }
