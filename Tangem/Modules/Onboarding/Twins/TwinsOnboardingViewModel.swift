@@ -20,16 +20,14 @@ class TwinsOnboardingViewModel: OnboardingTopupViewModel<TwinsOnboardingStep, On
 
     var retwinMode: Bool = false
 
-    override var currentStep: TwinsOnboardingStep {
-        guard currentStepIndex < steps.count else {
-            return .welcome
-        }
+    override var disclaimerModel: DisclaimerViewModel? {
+        guard currentStep == .disclaimer else { return nil }
 
-        guard isInitialAnimPlayed else {
-            return .welcome
-        }
+        return super.disclaimerModel
+    }
 
-        return steps[currentStepIndex]
+    override var navbarTitle: String {
+        currentStep.navbarTitle
     }
 
     override var title: String? {
@@ -74,12 +72,13 @@ class TwinsOnboardingViewModel: OnboardingTopupViewModel<TwinsOnboardingStep, On
         return super.mainButtonTitle
     }
 
-    override var isOnboardingFinished: Bool {
-        if case .intro = currentStep, steps.count == 1 {
-            return true
+    override var supplementButtonColor: ButtonColorStyle {
+        switch currentStep {
+        case .disclaimer:
+            return .black
+        default:
+            return super.supplementButtonColor
         }
-
-        return super.isOnboardingFinished
     }
 
     override var isSupplementButtonVisible: Bool {
@@ -93,7 +92,7 @@ class TwinsOnboardingViewModel: OnboardingTopupViewModel<TwinsOnboardingStep, On
 
     var isCustomContentVisible: Bool {
         switch currentStep {
-        case .saveUserWallet:
+        case .saveUserWallet, .disclaimer:
             return true
         default:
             return false
@@ -115,6 +114,8 @@ class TwinsOnboardingViewModel: OnboardingTopupViewModel<TwinsOnboardingStep, On
         var settings = super.mainButtonSettings
 
         switch currentStep {
+        case .disclaimer:
+            return nil
         case .alert:
             settings?.isDisabled = !alertAccepted
         default: break
@@ -136,8 +137,8 @@ class TwinsOnboardingViewModel: OnboardingTopupViewModel<TwinsOnboardingStep, On
         let twinData = input.twinData!
 
         self.twinData = twinData
-        self.twinsService = .init(card: cardModel, twinData: twinData)
-        self.originalUserWallet = cardModel.userWallet
+        twinsService = .init(card: cardModel, twinData: twinData)
+        originalUserWallet = cardModel.userWallet
 
         super.init(input: input, coordinator: coordinator)
 
@@ -145,7 +146,7 @@ class TwinsOnboardingViewModel: OnboardingTopupViewModel<TwinsOnboardingStep, On
             updateCardBalanceText(for: walletModel)
         }
 
-        if case let .twins(steps) = input.steps {
+        if case .twins(let steps) = input.steps {
             self.steps = steps
 
             if case .topup = steps.first {
@@ -166,14 +167,28 @@ class TwinsOnboardingViewModel: OnboardingTopupViewModel<TwinsOnboardingStep, On
         loadSecondTwinImage()
     }
 
+    func onAppear() {
+        Analytics.log(.onboardingStarted)
+
+        if isInitialAnimPlayed {
+            return
+        }
+
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+            self.playInitialAnim()
+        }
+    }
+
     override func setupContainer(with size: CGSize) {
-        stackCalculator.setup(for: size, with: .init(topCardSize: TwinOnboardingCardLayout.first.frame(for: .first, containerSize: size),
-                                                     topCardOffset: .init(width: 0, height: 0.06 * size.height),
-                                                     cardsVerticalOffset: 20,
-                                                     scaleStep: 0.14,
-                                                     opacityStep: 0.65,
-                                                     numberOfCards: 2,
-                                                     maxCardsInStack: 2))
+        stackCalculator.setup(for: size, with: .init(
+            topCardSize: TwinOnboardingCardLayout.first.frame(for: .first, containerSize: size),
+            topCardOffset: .init(width: 0, height: 0.06 * size.height),
+            cardsVerticalOffset: 20,
+            scaleStep: 0.14,
+            opacityStep: 0.65,
+            numberOfCards: 2,
+            maxCardsInStack: 2
+        ))
         super.setupContainer(with: size)
     }
 
@@ -185,7 +200,6 @@ class TwinsOnboardingViewModel: OnboardingTopupViewModel<TwinsOnboardingStep, On
     }
 
     override func onOnboardingFinished(for cardId: String) {
-        Analytics.log(.twinSetupFinished)
         super.onOnboardingFinished(for: cardId)
 
         // remove pair cid
@@ -196,19 +210,18 @@ class TwinsOnboardingViewModel: OnboardingTopupViewModel<TwinsOnboardingStep, On
 
     override func mainButtonAction() {
         switch currentStep {
-        case .welcome:
-            fallthrough
+        case .disclaimer:
+            break
         case .intro:
             fallthrough
         case .done, .success, .alert:
             goToNextStep()
         case .first:
-            if !retwinMode {
-                if let cardId = cardModel?.cardId {
-                    AppSettings.shared.cardsStartedActivation.insert(cardId)
-                }
-                Analytics.log(.onboardingStarted)
+            if !retwinMode, let cardId = cardModel?.cardId {
+                AppSettings.shared.cardsStartedActivation.insert(cardId)
             }
+
+            Analytics.log(.twinSetupStarted)
 
             if twinsService.step.value != .first {
                 twinsService.resetSteps()
@@ -232,26 +245,15 @@ class TwinsOnboardingViewModel: OnboardingTopupViewModel<TwinsOnboardingStep, On
         }
     }
 
-    override func goToNextStep() {
-        super.goToNextStep()
-
-        switch currentStep {
-        case .done, .success:
-            withAnimation {
-                refreshButtonState = .doneCheckmark
-                fireConfetti()
-            }
-        default:
-            break
-        }
-    }
-
     override func supplementButtonAction() {
         switch currentStep {
         case .topup:
             withAnimation {
                 openQR()
             }
+        case .disclaimer:
+            disclaimerAccepted()
+            goToNextStep()
         default:
             break
         }
@@ -268,13 +270,13 @@ class TwinsOnboardingViewModel: OnboardingTopupViewModel<TwinsOnboardingStep, On
         case .second, .third:
             alert = AlertBuilder.makeOkGotItAlert(message: Localization.onboardingTwinExitWarning)
         default:
-            alert = AlertBuilder.makeExitAlert() { [weak self] in
+            alert = AlertBuilder.makeExitAlert { [weak self] in
                 guard let self else { return }
 
                 // This part is related only to the twin cards, because for other card types
                 // reset to factory settings goes not through onboarding screens. If back button
                 // appearance logic will change in future - recheck also this code and update it accordingly
-                if self.currentStep.isOnboardingFinished {
+                if self.isOnboardingFinished {
                     self.onboardingDidFinish()
                 } else {
                     self.closeOnboarding()
@@ -294,12 +296,32 @@ class TwinsOnboardingViewModel: OnboardingTopupViewModel<TwinsOnboardingStep, On
     }
 
     private func bind() {
-        Analytics.log(.twinSetupStarted)
         twinsService
             .isServiceBusy
             .receive(on: DispatchQueue.main)
             .sink { [weak self] isServiceBudy in
                 self?.isMainButtonBusy = isServiceBudy
+            }
+            .store(in: &bag)
+
+        $currentStepIndex
+            .removeDuplicates()
+            .delay(for: 0.1, scheduler: DispatchQueue.main)
+            .receiveValue { [weak self] index in
+                guard let steps = self?.steps,
+                      index < steps.count else { return }
+
+                let currentStep = steps[index]
+
+                switch currentStep {
+                case .done, .success:
+                    withAnimation {
+                        self?.refreshButtonState = .doneCheckmark
+                        self?.fireConfetti()
+                    }
+                default:
+                    break
+                }
             }
             .store(in: &bag)
     }
@@ -308,7 +330,7 @@ class TwinsOnboardingViewModel: OnboardingTopupViewModel<TwinsOnboardingStep, On
         stepUpdatesSubscription = twinsService.step
             .receive(on: DispatchQueue.main)
             .combineLatest(NotificationCenter.default.publisher(for: UIApplication.didBecomeActiveNotification))
-            .sink(receiveValue: { [unowned self] (newStep, _) in
+            .sink(receiveValue: { [unowned self] newStep, _ in
                 switch (self.currentStep, newStep) {
                 case (.first, .second), (.second, .third), (.third, .done):
                     if newStep == .done {
@@ -327,13 +349,15 @@ class TwinsOnboardingViewModel: OnboardingTopupViewModel<TwinsOnboardingStep, On
                         }
                     }
                 default:
-                    print("Wrong state while twinning cards: current - \(self.currentStep), new - \(newStep)")
+                    AppLog.shared.debug("Wrong state while twinning cards: current - \(self.currentStep), new - \(newStep)")
                 }
 
                 if let pairCardId = twinsService.twinPairCardId,
                    !retwinMode {
                     AppSettings.shared.cardsStartedActivation.insert(pairCardId)
                 }
+
+                self.logZeroBalanceAnalytics()
             })
     }
 
@@ -343,7 +367,7 @@ class TwinsOnboardingViewModel: OnboardingTopupViewModel<TwinsOnboardingStep, On
             .map { $0.image }
             .zip($cardImage.compactMap { $0 })
             .receive(on: DispatchQueue.main)
-            .sink { [weak self] (paired, main) in
+            .sink { [weak self] paired, main in
                 guard let self = self else { return }
 
                 self.firstTwinImage = main

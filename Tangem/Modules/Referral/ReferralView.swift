@@ -16,7 +16,7 @@ struct ReferralView: View {
         GeometryReader { geometry in
             ScrollView {
                 VStack(spacing: 0) {
-                    Assets.referralDude
+                    Assets.referralDude.image
                         .resizable()
                         .aspectRatio(contentMode: .fit)
                         .padding(.horizontal, 40)
@@ -31,7 +31,6 @@ struct ReferralView: View {
 
                     content
                         .padding(.bottom, max(geometry.safeAreaInsets.bottom, 10))
-
                 }
                 .frame(width: geometry.size.width)
                 .frame(minHeight: geometry.size.height + geometry.safeAreaInsets.bottom)
@@ -75,8 +74,9 @@ struct ReferralView: View {
                     Text(Localization.referralPointDiscountDescriptionPrefix + " ") +
                         Text(viewModel.discount).foregroundColor(Colors.Text.primary1) +
                         Text(" " + Localization.referralPointDiscountDescriptionSuffix)
-                })
-                .padding(.top, viewModel.isAlreadyReferral ? 20 : 38)
+                }
+            )
+            .padding(.top, viewModel.isAlreadyReferral ? 20 : 38)
 
             Spacer()
 
@@ -129,19 +129,25 @@ struct ReferralView: View {
                 Text(viewModel.numberOfWalletsBought)
                     .style(Fonts.Regular.subheadline, color: Colors.Text.primary1)
             }
-            .roundedBackground(with: Colors.Background.primary,
-                               padding: 16,
-                               radius: 14)
+            .roundedBackground(
+                with: Colors.Background.primary,
+                padding: 16,
+                radius: 14
+            )
             .padding(.top, 24)
 
             VStack(spacing: 8) {
                 Text(Localization.referralPromoCodeTitle)
-                    .style(Fonts.Bold.footnote,
-                           color: Colors.Text.tertiary)
+                    .style(
+                        Fonts.Bold.footnote,
+                        color: Colors.Text.tertiary
+                    )
 
                 Text(viewModel.promoCode)
-                    .style(Fonts.Regular.title1,
-                           color: Colors.Text.primary1)
+                    .style(
+                        Fonts.Regular.title1,
+                        color: Colors.Text.primary1
+                    )
                     .fixedSize(horizontal: false, vertical: true)
             }
             .frame(maxWidth: .infinity)
@@ -151,21 +157,29 @@ struct ReferralView: View {
             .cornerRadius(14)
 
             HStack(spacing: 12) {
-                TangemButton(title: Localization.commonCopy,
-                             systemImage: "square.on.square",
-                             iconPosition: .leading,
-                             iconPadding: 10,
-                             action: viewModel.copyPromoCode)
-                    .buttonStyle(TangemButtonStyle(colorStyle: .black,
-                                                   layout: .flexibleWidth))
+                TangemButton(
+                    title: Localization.commonCopy,
+                    systemImage: "square.on.square",
+                    iconPosition: .leading,
+                    iconPadding: 10,
+                    action: viewModel.copyPromoCode
+                )
+                .buttonStyle(TangemButtonStyle(
+                    colorStyle: .black,
+                    layout: .flexibleWidth
+                ))
 
-                TangemButton(title: Localization.commonShare,
-                             systemImage: "arrowshape.turn.up.forward",
-                             iconPosition: .leading,
-                             iconPadding: 10,
-                             action: showShareSheet)
-                    .buttonStyle(TangemButtonStyle(colorStyle: .black,
-                                                   layout: .flexibleWidth))
+                TangemButton(
+                    title: Localization.commonShare,
+                    systemImage: "arrowshape.turn.up.forward",
+                    iconPosition: .leading,
+                    iconPadding: 10,
+                    action: viewModel.sharePromoCode
+                )
+                .buttonStyle(TangemButtonStyle(
+                    colorStyle: .black,
+                    layout: .flexibleWidth
+                ))
             }
 
             tosButton
@@ -187,16 +201,13 @@ struct ReferralView: View {
                 }
             )
             .buttonStyle(
-                TangemButtonStyle(colorStyle: .black,
-                                  layout: .flexibleWidth,
-                                  isLoading: viewModel.isProcessingRequest)
+                TangemButtonStyle(
+                    colorStyle: .black,
+                    layout: .flexibleWidth,
+                    isLoading: viewModel.isProcessingRequest
+                )
             )
         }
-    }
-
-    private func showShareSheet() {
-        let av = UIActivityViewController(activityItems: [viewModel.shareLink], applicationActivities: nil)
-        UIApplication.topViewController?.present(av, animated: true, completion: nil)
     }
 }
 
@@ -205,18 +216,21 @@ struct ReferralView_Previews: PreviewProvider {
     static var previews: some View {
         NavigationView {
             ReferralView(
-                viewModel: ReferralViewModel(cardModel: demoCard.cardModel,
-                                             userWalletId: Data(),
-                                             coordinator: ReferralCoordinator())
+                viewModel: ReferralViewModel(
+                    cardModel: demoCard.cardModel,
+                    userWalletId: Data(),
+                    coordinator: ReferralCoordinator()
+                )
             )
         }
         .previewGroup(devices: [.iPhone7], withZoomed: false)
 
         NavigationView {
             ReferralView(
-                viewModel: ReferralViewModel(cardModel: demoCard.cardModel,
-                                             userWalletId: Data(hexString: "6772C99F8B400E6F59FFCE0C4A66193BFD49DE2D9738868DE36F5E16569BB4F9"),
-                                             coordinator: ReferralCoordinator()
+                viewModel: ReferralViewModel(
+                    cardModel: demoCard.cardModel,
+                    userWalletId: Data(hexString: "6772C99F8B400E6F59FFCE0C4A66193BFD49DE2D9738868DE36F5E16569BB4F9"),
+                    coordinator: ReferralCoordinator()
                 )
             )
         }
