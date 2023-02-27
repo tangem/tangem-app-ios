@@ -13,16 +13,20 @@ import BlockchainSdk
 struct CoinItemView: View {
     @ObservedObject var model: CoinItemViewModel
 
+    let arrowWidth: Double
+
     var icon: some View {
-        NetworkIcon(imageName: model.selectedPublisher ? model.imageNameSelected : model.imageName,
-                    isMainIndicatorVisible: model.isMain)
+        NetworkIcon(
+            imageName: model.selectedPublisher ? model.imageNameSelected : model.imageName,
+            isMainIndicatorVisible: model.isMain
+        )
     }
 
     @State private var size: CGSize = .zero
 
     var body: some View {
         HStack(spacing: 6) {
-            ArrowView(position: model.position, height: size.height)
+            ArrowView(position: model.position, width: arrowWidth, height: size.height)
 
             HStack(spacing: 0) {
                 icon
@@ -57,7 +61,7 @@ struct CoinItemView: View {
             .padding(.vertical, 8)
         }
         .contentShape(Rectangle())
-        .onTapGesture {  } // fix scroll/longpress conflict
+        .onTapGesture {} // fix scroll/longpress conflict
         .onLongPressGesture(perform: model.onCopy)
         .readSize(onChange: { self.size = $0 })
     }
@@ -66,21 +70,34 @@ struct CoinItemView: View {
 struct CurrencyItemView_Previews: PreviewProvider {
     static var previews: some View {
         VStack(spacing: 0) {
-            CoinItemView(model: CoinItemViewModel(tokenItem: .blockchain(.ethereum(testnet: false)),
-                                                  isReadonly: false,
-                                                  isSelected: .constant(false)))
+            CoinItemView(
+                model: CoinItemViewModel(
+                    tokenItem: .blockchain(.ethereum(testnet: false)),
+                    isReadonly: false,
+                    isSelected: .constant(false)
+                ),
+                arrowWidth: 46
+            )
 
-            CoinItemView(model: CoinItemViewModel(tokenItem: .blockchain(.ethereum(testnet: false)),
-                                                  isReadonly: false,
-                                                  isSelected: .constant(true),
-                                                  position: .last))
-
+            CoinItemView(
+                model: CoinItemViewModel(
+                    tokenItem: .blockchain(.ethereum(testnet: false)),
+                    isReadonly: false,
+                    isSelected: .constant(true),
+                    position: .last
+                ),
+                arrowWidth: 46
+            )
 
             StatefulPreviewWrapper(false) {
-                CoinItemView(model: CoinItemViewModel(tokenItem: .blockchain(.ethereum(testnet: false)),
-                                                      isReadonly: false,
-                                                      isSelected: $0))
-
+                CoinItemView(
+                    model: CoinItemViewModel(
+                        tokenItem: .blockchain(.ethereum(testnet: false)),
+                        isReadonly: false,
+                        isSelected: $0
+                    ),
+                    arrowWidth: 46
+                )
             }
 
             Spacer()
