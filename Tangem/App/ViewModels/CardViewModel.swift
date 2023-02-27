@@ -15,6 +15,7 @@ import SwiftUI
 
 class CardViewModel: Identifiable, ObservableObject {
     // MARK: Services
+
     @Injected(\.appWarningsService) private var warningsService: AppWarningsProviding
     @Injected(\.tangemSdkProvider) private var tangemSdkProvider: TangemSdkProviding
     @Injected(\.tangemApiService) var tangemApiService: TangemApiService
@@ -46,6 +47,10 @@ class CardViewModel: Identifiable, ObservableObject {
 
     var isMultiWallet: Bool {
         config.hasFeature(.multiCurrency)
+    }
+
+    var canDisplayHashesCount: Bool {
+        config.hasFeature(.displayHashesCount)
     }
 
     var emailData: [EmailCollectedData] {
@@ -107,8 +112,12 @@ class CardViewModel: Identifiable, ObservableObject {
         !config.getFeatureAvailability(.walletConnect).isHidden
     }
 
-    var cardTouURL: URL {
-        config.touURL
+    var cardDisclaimer: TOU {
+        config.tou
+    }
+
+    var embeddedEntry: StorageEntry? {
+        config.embeddedBlockchain
     }
 
     var supportsWalletConnect: Bool {
@@ -180,12 +189,16 @@ class CardViewModel: Identifiable, ObservableObject {
         config.hasFeature(.send)
     }
 
-    var cardAmountType: Amount.AmountType {
+    var cardAmountType: Amount.AmountType? {
         config.cardAmountType
     }
 
     var supportChatEnvironment: SupportChatEnvironment {
         config.supportChatEnvironment
+    }
+
+    var exchangeServiceEnvironment: ExchangeServiceEnvironment {
+        config.exchangeServiceEnvironment
     }
 
     var hasWallet: Bool {
@@ -198,6 +211,10 @@ class CardViewModel: Identifiable, ObservableObject {
 
     var canShowAddress: Bool {
         config.hasFeature(.receive)
+    }
+
+    var canShowTransactionHistory: Bool {
+        config.hasFeature(.transactionHistory)
     }
 
     var canShowSend: Bool {
@@ -216,33 +233,34 @@ class CardViewModel: Identifiable, ObservableObject {
     var backupInput: OnboardingInput? {
         guard let backupSteps = config.backupSteps else { return nil }
 
-        return OnboardingInput(steps: backupSteps,
-                               cardInput: .cardModel(self),
-                               welcomeStep: nil,
-                               twinData: nil,
-                               currentStepIndex: 0,
-                               isStandalone: true)
+        return OnboardingInput(
+            steps: backupSteps,
+            cardInput: .cardModel(self),
+            twinData: nil,
+            currentStepIndex: 0,
+            isStandalone: true
+        )
     }
 
     var onboardingInput: OnboardingInput {
-        OnboardingInput(steps: config.onboardingSteps,
-                        cardInput: .cardModel(self),
-                        welcomeStep: nil,
-                        twinData: cardInfo.walletData.twinData,
-                        currentStepIndex: 0)
+        OnboardingInput(
+            steps: config.onboardingSteps,
+            cardInput: .cardModel(self),
+            twinData: cardInfo.walletData.twinData,
+            currentStepIndex: 0
+        )
     }
 
     var twinInput: OnboardingInput? {
         guard config.hasFeature(.twinning) else { return nil }
 
-
         return OnboardingInput(
             steps: .twins(TwinsOnboardingStep.twinningSteps),
             cardInput: .cardModel(self),
-            welcomeStep: nil,
             twinData: cardInfo.walletData.twinData,
             currentStepIndex: 0,
-            isStandalone: true)
+            isStandalone: true
+        )
     }
 
     var resetToFactoryAvailability: UserWalletFeature.Availability {
@@ -259,6 +277,10 @@ class CardViewModel: Identifiable, ObservableObject {
         userWalletModel?.userWallet
     }
 
+    var productType: Analytics.ProductType {
+        config.productType
+    }
+
     private var isActive: Bool {
         if let selectedUserWalletId = userWalletRepository.selectedUserWalletId {
             return selectedUserWalletId == userWalletId
@@ -267,7 +289,7 @@ class CardViewModel: Identifiable, ObservableObject {
         }
     }
 
-    private var searchBlockchainsCancellable: AnyCancellable? = nil
+    private var searchBlockchainsCancellable: AnyCancellable?
     private var bag = Set<AnyCancellable>()
     private var signSubscription: AnyCancellable?
 
@@ -291,7 +313,7 @@ class CardViewModel: Identifiable, ObservableObject {
     ) {
         self.cardInfo = cardInfo
         self.config = config
-        self._signer = config.tangemSigner
+        _signer = config.tangemSigner
         createUserWalletModelIfNeeded(with: userWallet)
         updateCurrentSecurityOption()
         appendPersistentBlockchains()
@@ -329,7 +351,7 @@ class CardViewModel: Identifiable, ObservableObject {
             case .success:
                 self?.userWalletModel?.updateAndReloadWalletModels()
             case .failure:
-                print("Derivation error")
+                AppLog.shared.debug("Derivation error")
             }
         }
     }
@@ -339,9 +361,11 @@ class CardViewModel: Identifiable, ObservableObject {
     func changeSecurityOption(_ option: SecurityModeOption, completion: @escaping (Result<Void, Error>) -> Void) {
         switch option {
         case .accessCode:
-            tangemSdk.startSession(with: SetUserCodeCommand(accessCode: nil),
-                                   cardId: cardId,
-                                   initialMessage: Message(header: nil, body: Localization.initialMessageChangeAccessCodeBody)) { [weak self] result in
+            tangemSdk.startSession(
+                with: SetUserCodeCommand(accessCode: nil),
+                cardId: cardId,
+                initialMessage: Message(header: nil, body: Localization.initialMessageChangeAccessCodeBody)
+            ) { [weak self] result in
                 guard let self = self else { return }
 
                 switch result {
@@ -350,13 +374,21 @@ class CardViewModel: Identifiable, ObservableObject {
                     Analytics.log(.userCodeChanged)
                     completion(.success(()))
                 case .failure(let error):
-                    Analytics.logCardSdkError(error, for: .changeSecOptions, card: self.cardInfo.card, parameters: [.newSecOption: "Access Code"])
+                    AppLog.shared.error(
+                        error,
+                        params: [
+                            .newSecOption: .accessCode,
+                            .action: .changeSecOptions,
+                        ]
+                    )
                     completion(.failure(error))
                 }
             }
         case .longTap:
-            tangemSdk.startSession(with: SetUserCodeCommand.resetUserCodes,
-                                   cardId: cardId) { [weak self] result in
+            tangemSdk.startSession(
+                with: SetUserCodeCommand.resetUserCodes,
+                cardId: cardId
+            ) { [weak self] result in
                 guard let self = self else { return }
 
                 switch result {
@@ -364,14 +396,22 @@ class CardViewModel: Identifiable, ObservableObject {
                     self.onSecurityOptionChanged(isAccessCodeSet: false, isPasscodeSet: false)
                     completion(.success(()))
                 case .failure(let error):
-                    Analytics.logCardSdkError(error, for: .changeSecOptions, card: self.cardInfo.card, parameters: [.newSecOption: "Long tap"])
+                    AppLog.shared.error(
+                        error,
+                        params: [
+                            .newSecOption: .longTap,
+                            .action: .changeSecOptions,
+                        ]
+                    )
                     completion(.failure(error))
                 }
             }
         case .passCode:
-            tangemSdk.startSession(with: SetUserCodeCommand(passcode: nil),
-                                   cardId: cardId,
-                                   initialMessage: Message(header: nil, body: Localization.initialMessageChangePasscodeBody)) { [weak self] result in
+            tangemSdk.startSession(
+                with: SetUserCodeCommand(passcode: nil),
+                cardId: cardId,
+                initialMessage: Message(header: nil, body: Localization.initialMessageChangePasscodeBody)
+            ) { [weak self] result in
                 guard let self = self else { return }
 
                 switch result {
@@ -379,7 +419,13 @@ class CardViewModel: Identifiable, ObservableObject {
                     self.onSecurityOptionChanged(isAccessCodeSet: false, isPasscodeSet: true)
                     completion(.success(()))
                 case .failure(let error):
-                    Analytics.logCardSdkError(error, for: .changeSecOptions, card: self.cardInfo.card, parameters: [.newSecOption: "Pass code"])
+                    AppLog.shared.error(
+                        error,
+                        params: [
+                            .newSecOption: .passcode,
+                            .action: .changeSecOptions,
+                        ]
+                    )
                     completion(.failure(error))
                 }
             }
@@ -389,35 +435,43 @@ class CardViewModel: Identifiable, ObservableObject {
     // MARK: - Wallet
 
     func createWallet(_ completion: @escaping (Result<Void, Error>) -> Void) {
-        let card = self.cardInfo.card
-        tangemSdk.startSession(with: CreateWalletAndReadTask(with: config.defaultCurve),
-                               cardId: cardId,
-                               initialMessage: Message(header: nil,
-                                                       body: Localization.initialMessageCreateWalletBody)) { [weak self] result in
+        let card = cardInfo.card
+        tangemSdk.startSession(
+            with: CreateWalletAndReadTask(with: config.defaultCurve),
+            cardId: cardId,
+            initialMessage: Message(
+                header: nil,
+                body: Localization.initialMessageCreateWalletBody
+            )
+        ) { [weak self] result in
             switch result {
             case .success(let card):
                 self?.onWalletCreated(card)
                 completion(.success(()))
             case .failure(let error):
-                Analytics.logCardSdkError(error, for: .createWallet, card: card)
+                AppLog.shared.error(error, params: [.action: .createWallet])
                 completion(.failure(error))
             }
         }
     }
 
     func resetToFactory(completion: @escaping (Result<Void, TangemSdkError>) -> Void) {
-        let card = self.cardInfo.card
-        tangemSdk.startSession(with: ResetToFactorySettingsTask(),
-                               cardId: cardId,
-                               initialMessage: Message(header: nil,
-                                                       body: Localization.initialMessagePurgeWalletBody)) { [weak self] result in
+        let card = cardInfo.card
+        tangemSdk.startSession(
+            with: ResetToFactorySettingsTask(),
+            cardId: cardId,
+            initialMessage: Message(
+                header: nil,
+                body: Localization.initialMessagePurgeWalletBody
+            )
+        ) { [weak self] result in
             switch result {
             case .success:
                 Analytics.log(.factoryResetFinished)
                 self?.clearTwinPairKey()
                 completion(.success(()))
             case .failure(let error):
-                Analytics.logCardSdkError(error, for: .purgeWallet, card: card)
+                AppLog.shared.error(error, params: [.action: .purgeWallet])
                 completion(.failure(error))
             }
         }
@@ -486,12 +540,12 @@ class CardViewModel: Identifiable, ObservableObject {
     }
 
     func onTwinWalletCreated(_ walletData: DefaultWalletData) { // [REDACTED_TODO_COMMENT]
-        self.cardInfo.walletData = walletData
+        cardInfo.walletData = walletData
         onUpdate()
     }
 
     private func onUpdate() {
-        print("🔄 Updating CardViewModel with new Card")
+        AppLog.shared.debug("🔄 Updating CardViewModel with new Card")
         config = UserWalletConfigFactory(cardInfo).makeConfig()
         _signer = config.tangemSigner
         updateModel()
@@ -499,18 +553,10 @@ class CardViewModel: Identifiable, ObservableObject {
     }
 
     func clearTwinPairKey() { // [REDACTED_TODO_COMMENT]
-        if case let .twin(walletData, twinData) = cardInfo.walletData {
+        if case .twin(let walletData, let twinData) = cardInfo.walletData {
             let newData = TwinData(series: twinData.series)
             cardInfo.walletData = .twin(walletData, newData)
         }
-    }
-
-    func logSdkError(_ error: Error, action: Analytics.Action, parameters: [Analytics.ParameterKey: String] = [:]) {
-        Analytics.logCardSdkError(error.toTangemSdkError(), for: action, card: cardInfo.card, parameters: parameters)
-    }
-
-    func didScan() {
-        Analytics.logScan(card: cardInfo.card, config: config)
     }
 
     func getDisabledLocalizedReason(for feature: UserWalletFeature) -> String? {
@@ -539,7 +585,7 @@ class CardViewModel: Identifiable, ObservableObject {
     }
 
     private func updateModel() {
-        print("🔄 Updating Card view model")
+        AppLog.shared.debug("🔄 Updating Card view model")
         updateCurrentSecurityOption()
 
         setupWarnings()
@@ -616,8 +662,8 @@ class CardViewModel: Identifiable, ObservableObject {
 
         guard let ethWalletModel = ethWalletModel,
               let tokenFinder = ethWalletModel.walletManager as? TokenFinder else {
-            AppSettings.shared.searchedCards.append(self.cardId)
-            self.searchBlockchains()
+            AppSettings.shared.searchedCards.append(cardId)
+            searchBlockchains()
             return
         }
 
@@ -633,7 +679,7 @@ class CardViewModel: Identifiable, ObservableObject {
                     self.add(entries: [entry]) { _ in }
                 }
             case .failure(let error):
-                print(error)
+                AppLog.shared.error(error)
             }
 
             AppSettings.shared.searchedCards.append(self.cardId)
@@ -643,11 +689,11 @@ class CardViewModel: Identifiable, ObservableObject {
 
     private func updateCurrentSecurityOption() {
         if cardInfo.card.isAccessCodeSet {
-            self.currentSecurityOption = .accessCode
-        } else if (cardInfo.card.isPasscodeSet ?? false) {
-            self.currentSecurityOption = .passCode
+            currentSecurityOption = .accessCode
+        } else if cardInfo.card.isPasscodeSet ?? false {
+            currentSecurityOption = .passCode
         } else {
-            self.currentSecurityOption = .longTap
+            currentSecurityOption = .longTap
         }
     }
 
@@ -696,7 +742,7 @@ class CardViewModel: Identifiable, ObservableObject {
             return
         }
 
-        self.userWalletId = userWallet.userWalletId
+        userWalletId = userWallet.userWalletId
         userWalletModel = CommonUserWalletModel(config: config, userWallet: userWallet)
     }
 }
@@ -720,7 +766,7 @@ extension CardViewModel {
                 self?.userWalletModel?.append(entries: entries)
                 self?.userWalletModel?.updateAndReloadWalletModels()
                 completion(.success(()))
-            case let .failure(error):
+            case .failure(let error):
                 completion(.failure(error))
             }
         }
@@ -733,7 +779,7 @@ extension CardViewModel {
                 self?.userWalletModel?.update(entries: entries)
                 self?.userWalletModel?.updateAndReloadWalletModels()
                 completion(.success(()))
-            case let .failure(error):
+            case .failure(let error):
                 completion(.failure(error))
             }
         }
@@ -744,13 +790,13 @@ extension CardViewModel {
         let alreadySaved = userWalletModel?.getSavedEntries() ?? []
         derivationManager.deriveIfNeeded(entries: alreadySaved + entries, completion: { [weak self] result in
             switch result {
-            case let .success(response):
+            case .success(let response):
                 if let response {
                     self?.onDerived(response)
                 }
 
                 completion(.success(()))
-            case let .failure(error):
+            case .failure(let error):
                 completion(.failure(error))
             }
         })
@@ -772,3 +818,5 @@ extension CardViewModel {
         case loaded
     }
 }
+
+extension CardViewModel: WalletConnectUserWalletInfoProvider {}
