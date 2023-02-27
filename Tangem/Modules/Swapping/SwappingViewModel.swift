@@ -260,6 +260,14 @@ extension SwappingViewModel: ExchangeManagerDelegate {
 // MARK: - View updates
 
 private extension SwappingViewModel {
+    func resetViews() {
+        refreshWarningRowViewModel = nil
+        feeWarningRowViewModel = nil
+        permissionInfoRowViewModel = nil
+        highPriceImpactWarningRowViewModel = nil
+        swapButtonIsLoading = false
+    }
+
     func updateView(exchangeItems: ExchangeItems) {
         updateSendView(exchangeItems: exchangeItems)
         updateReceiveView(exchangeItems: exchangeItems)
@@ -336,9 +344,7 @@ private extension SwappingViewModel {
 
         switch state {
         case .idle:
-            refreshWarningRowViewModel = nil
-            feeWarningRowViewModel = nil
-            permissionInfoRowViewModel = nil
+            resetViews()
 
             receiveCurrencyViewModel?.update(cryptoAmountState: .loaded(0))
             receiveCurrencyViewModel?.update(fiatAmountState: .loaded(0))
@@ -499,7 +505,7 @@ private extension SwappingViewModel {
             return
         }
 
-        if sendDecimalValue.isZero {
+        if sendDecimalValue.isZero || destinationFiatAmount.isZero {
             // No need to calculate price impact with zero input
             await runOnMain {
                 highPriceImpactWarningRowViewModel = nil
@@ -558,6 +564,7 @@ private extension SwappingViewModel {
             .removeDuplicates()
             .debounce(for: 1, scheduler: DispatchQueue.main)
             .sink { [weak self] amount in
+                self?.resetViews()
                 self?.exchangeManager.update(amount: amount)
                 self?.updateSendFiatValue()
             }
