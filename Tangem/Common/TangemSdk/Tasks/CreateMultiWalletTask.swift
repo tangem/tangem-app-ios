@@ -39,12 +39,11 @@ class CreateMultiWalletTask: CardSessionRunnable {
                 completion(.failure(error))
             case .success(let createWalletResponse):
                 if index == self.curves.count - 1 {
-                    completion(.success(SuccessResponse(cardId: (createWalletResponse).cardId)))
+                    completion(.success(SuccessResponse(cardId: createWalletResponse.cardId)))
                 } else {
                     self.createWallet(at: index + 1, session: session, completion: completion)
                 }
             }
         }
     }
-
 }

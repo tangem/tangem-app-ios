@@ -6,7 +6,7 @@
 //  Copyright © 2022 Tangem AG. All rights reserved.
 //
 
-import SwiftUI
+import Foundation
 
 enum SocialNetwork: Hashable, CaseIterable, Identifiable {
     var id: Int { hashValue }
@@ -19,7 +19,7 @@ enum SocialNetwork: Hashable, CaseIterable, Identifiable {
     case youtube
     case linkedin
 
-    var icon: Image {
+    var icon: ImageType {
         switch self {
         case .telegram:
             return Assets.SocialNetwork.telegram
@@ -59,6 +59,25 @@ enum SocialNetwork: Hashable, CaseIterable, Identifiable {
             return URL(string: "https://youtube.com/channel/UCFGwLS7yggzVkP6ozte0m1w")
         case .linkedin:
             return URL(string: "https://www.linkedin.com/company/tangem")
+        }
+    }
+
+    var name: String {
+        switch self {
+        case .telegram:
+            return "Telegram"
+        case .twitter:
+            return "Twitter"
+        case .facebook:
+            return "Facebook"
+        case .instagram:
+            return "Instagram"
+        case .github:
+            return "GitHub"
+        case .youtube:
+            return "YouTube"
+        case .linkedin:
+            return "LinkedIn"
         }
     }
 }
