@@ -24,10 +24,12 @@ struct RoundedBackgroundModifier: ViewModifier {
 extension View {
     @ViewBuilder
     func roundedBackground(with color: Color, padding: CGFloat, radius: CGFloat) -> some View {
-        self.modifier(
-            RoundedBackgroundModifier(padding: padding,
-                                      backgroundColor: color,
-                                      cornerRadius: radius)
+        modifier(
+            RoundedBackgroundModifier(
+                padding: padding,
+                backgroundColor: color,
+                cornerRadius: radius
+            )
         )
     }
 }

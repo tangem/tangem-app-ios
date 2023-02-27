@@ -20,18 +20,18 @@ struct Discount {
     init?(_ discount: DiscountApplication) {
         // HACK: `code` property is not exposed through the DiscountApplication protocol
         if let discountCodeApplication = discount as? Storefront.DiscountCodeApplication {
-            self.code = discountCodeApplication.code
+            code = discountCodeApplication.code
         } else {
             return nil
         }
 
         switch discount.value {
         case let percentValue as Storefront.PricingPercentageValue:
-            self.value = .percent(Decimal(percentValue.percentage))
+            value = .percent(Decimal(percentValue.percentage))
         case let flatValue as Storefront.MoneyV2:
-            self.value = .flat(flatValue.amount)
+            value = .flat(flatValue.amount)
         default:
-            print("Unknown discount value")
+            AppLog.shared.debug("Unknown discount value")
             return nil
         }
     }
@@ -57,8 +57,7 @@ extension Discount {
 
 extension Storefront.DiscountCodeApplicationQuery {
     func discountFieldsFragment() {
-        self
-            .code()
+        code()
             .value { $0
                 .onMoneyV2 { $0
                     .amount()

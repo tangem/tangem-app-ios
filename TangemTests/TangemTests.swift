@@ -31,4 +31,27 @@ class TangemTests: XCTestCase {
             XCTAssertTrue(match != nil, "Demo Card ID \(demoCardId) is invalid")
         }
     }
+
+    func testSignificantFractionDigitRounder() throws {
+        let roundingMode: NSDecimalNumber.RoundingMode = .down
+
+        let pairs: [(Double, Double)] = [
+            (0.00, 0.00),
+            (0.00000001, 0.00000001),
+            (0.00002345, 0.00002),
+            (0.000029, 0.00002),
+            (0.000000000000000001, 0.000000000000000001),
+            (0.0000000000000000001, 0.00),
+            (1.00002345, 1.00),
+            (1.45002345, 1.45),
+        ]
+
+        let rounder = SignificantFractionDigitRounder(roundingMode: roundingMode)
+
+        for (value, expectedValue) in pairs {
+            let roundedValue = rounder.round(value: Decimal(floatLiteral: value))
+            let roundedDoubleValue = NSDecimalNumber(decimal: roundedValue).doubleValue
+            XCTAssertEqual(roundedDoubleValue, expectedValue, accuracy: 0.000000000000000001)
+        }
+    }
 }

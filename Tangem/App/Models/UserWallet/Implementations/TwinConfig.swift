@@ -52,6 +52,10 @@ extension TwinConfig: UserWalletConfig {
     var onboardingSteps: OnboardingSteps {
         var steps = [TwinsOnboardingStep]()
 
+        if !AppSettings.shared.termsOfServicesAccepted.contains(tou.id) {
+            steps.append(.disclaimer)
+        }
+
         if !AppSettings.shared.isTwinCardOnboardingWasDisplayed { // show intro only once
             AppSettings.shared.isTwinCardOnboardingWasDisplayed = true
             let twinPairNumber = twinData.series.pair.number
@@ -75,6 +79,7 @@ extension TwinConfig: UserWalletConfig {
                     steps.append(contentsOf: TwinsOnboardingStep.topupSteps)
                     return .twins(steps)
                 } else { // unknown twin, ready to use, go to main
+                    steps.append(contentsOf: userWalletSavingSteps)
                     return .twins(steps)
                 }
             }
@@ -130,6 +135,10 @@ extension TwinConfig: UserWalletConfig {
         TwinCardsUtils.makeCombinedWalletKey(for: card, pairData: twinData)
     }
 
+    var productType: Analytics.ProductType {
+        .twin
+    }
+
     func getFeatureAvailability(_ feature: UserWalletFeature) -> UserWalletFeature.Availability {
         switch feature {
         case .accessCode:
@@ -180,6 +189,10 @@ extension TwinConfig: UserWalletConfig {
             return .hidden
         case .swapping:
             return .hidden
+        case .displayHashesCount:
+            return .hidden
+        case .transactionHistory:
+            return .hidden
         }
     }
 
@@ -190,9 +203,11 @@ extension TwinConfig: UserWalletConfig {
         }
 
         let factory = WalletManagerFactoryProvider().factory
-        let twinManager = try factory.makeTwinWalletManager(walletPublicKey: walletPublicKey,
-                                                            pairKey: savedPairKey,
-                                                            isTestnet: AppEnvironment.current.isTestnet)
+        let twinManager = try factory.makeTwinWalletManager(
+            walletPublicKey: walletPublicKey,
+            pairKey: savedPairKey,
+            isTestnet: AppEnvironment.current.isTestnet
+        )
 
         return WalletModel(walletManager: twinManager, derivationStyle: card.derivationStyle)
     }
