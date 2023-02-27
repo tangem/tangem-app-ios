@@ -13,13 +13,18 @@ struct IconView: View {
     private let url: URL?
     private let size: CGSize
 
-    init(url: URL?, size: CGSize = CGSize(width: 36, height: 36)) {
+    // [REDACTED_TODO_COMMENT]
+    // [REDACTED_TODO_COMMENT]
+    private let forceKingfisher: Bool
+
+    init(url: URL?, size: CGSize = CGSize(width: 36, height: 36), forceKingfisher: Bool = false) {
         self.url = url
         self.size = size
+        self.forceKingfisher = forceKingfisher
     }
 
     var body: some View {
-        if #available(iOS 15.0, *) {
+        if #available(iOS 15.0, *), !forceKingfisher {
             cachedAsyncImage
         } else {
             kfImage
@@ -39,9 +44,14 @@ struct IconView: View {
                     .frame(size: size)
                     .cornerRadiusContinuous(5)
             case .failure:
-                Colors.Icon.informative
+                Circle()
+                    .fill(Color.clear)
                     .frame(size: size)
-                    .cornerRadiusContinuous(5)
+                    .overlay(
+                        Circle()
+                            .stroke(Colors.Icon.informative, lineWidth: 1)
+                    )
+                    .cornerRadius(size.height / 2)
             @unknown default:
                 EmptyView()
             }
@@ -66,5 +76,14 @@ struct IconView: View {
         SkeletonView()
             .frame(size: size)
             .cornerRadius(size.height / 2)
+    }
+}
+
+struct IconView_Preview: PreviewProvider {
+    static var previews: some View {
+        IconView(
+            url: TokenIconURLBuilder(baseURL: CoinsResponse.baseURL).iconURL(id: "arbitrum-one", size: .small),
+            size: CGSize(width: 40, height: 40)
+        )
     }
 }
