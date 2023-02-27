@@ -12,47 +12,69 @@ struct SendCurrencyViewModel: Identifiable {
     var id: Int { hashValue }
 
     // ViewState
-    private(set) var isLockedVisible: Bool
     private(set) var maximumFractionDigits: Int
+    private(set) var canChangeCurrency: Bool
+    private(set) var balance: State
+    private(set) var fiatValue: State
 
     let tokenIcon: SwappingTokenIconViewModel
 
     var balanceString: String {
-        Localization.commonBalance(balance.groupedFormatted())
+        let balance = balance.value ?? 0
+        return Localization.commonBalance(
+            balance.groupedFormatted(maximumFractionDigits: maximumFractionDigits)
+        )
     }
 
     var fiatValueString: String {
-        fiatValue.currencyFormatted(code: AppSettings.shared.selectedCurrencyCode)
+        let fiatValue = fiatValue.value ?? 0
+        return fiatValue.currencyFormatted(code: AppSettings.shared.selectedCurrencyCode)
     }
 
-    // Private
-    private let balance: Decimal
-    private var fiatValue: Decimal
-
     init(
-        balance: Decimal,
+        balance: State,
+        fiatValue: State,
         maximumFractionDigits: Int,
-        fiatValue: Decimal,
-        isLockedVisible: Bool = false,
+        canChangeCurrency: Bool,
         tokenIcon: SwappingTokenIconViewModel
     ) {
         self.balance = balance
-        self.maximumFractionDigits = maximumFractionDigits
         self.fiatValue = fiatValue
-        self.isLockedVisible = isLockedVisible
+        self.maximumFractionDigits = maximumFractionDigits
+        self.canChangeCurrency = canChangeCurrency
         self.tokenIcon = tokenIcon
     }
 
-    mutating func update(fiatValue: Decimal) {
+    func textFieldDidTapped() {
+        Analytics.log(.swapSendTokenBalanceClicked)
+    }
+
+    mutating func update(balance: State) {
+        self.balance = balance
+    }
+
+    mutating func update(fiatValue: State) {
         self.fiatValue = fiatValue
     }
 
     mutating func update(maximumFractionDigits: Int) {
         self.maximumFractionDigits = maximumFractionDigits
     }
+}
 
-    mutating func update(isLockedVisible: Bool) {
-        self.isLockedVisible = isLockedVisible
+extension SendCurrencyViewModel {
+    enum State: Hashable {
+        case loading
+        case loaded(_ value: Decimal)
+
+        var value: Decimal? {
+            switch self {
+            case .loaded(let value):
+                return value
+            default:
+                return nil
+            }
+        }
     }
 }
 
@@ -60,6 +82,8 @@ extension SendCurrencyViewModel: Hashable {
     func hash(into hasher: inout Hasher) {
         hasher.combine(balance)
         hasher.combine(fiatValue)
+        hasher.combine(maximumFractionDigits)
+        hasher.combine(canChangeCurrency)
         hasher.combine(tokenIcon)
     }
 }

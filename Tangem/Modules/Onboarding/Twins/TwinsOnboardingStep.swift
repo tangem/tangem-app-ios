@@ -23,7 +23,7 @@ extension SuccessStep {
 }
 
 enum TwinsOnboardingStep: Equatable {
-    case welcome
+    case disclaimer
     case intro(pairNumber: String)
     case first
     case second
@@ -75,11 +75,20 @@ enum TwinsOnboardingStep: Equatable {
         }
     }
 
+    var navbarTitle: String {
+        switch self {
+        case .disclaimer:
+            return Localization.disclaimerTitle
+        default:
+            return Localization.twinsRecreateToolbar
+        }
+    }
+
     func backgroundFrame(in container: CGSize) -> CGSize {
         switch self {
-        case .topup,  .done:
+        case .topup, .done:
             return defaultBackgroundFrameSize(in: container)
-        case .welcome:
+        case .disclaimer:
             return .zero
         default: return .init(width: 10, height: 10)
         }
@@ -87,8 +96,8 @@ enum TwinsOnboardingStep: Equatable {
 
     func backgroundCornerRadius(in container: CGSize) -> CGFloat {
         switch self {
-        case .topup,  .done: return defaultBackgroundCornerRadius
-        case .welcome: return 0
+        case .topup, .done: return defaultBackgroundCornerRadius
+        case .disclaimer: return 0
         default: return backgroundFrame(in: container).height / 2
         }
     }
@@ -99,14 +108,14 @@ enum TwinsOnboardingStep: Equatable {
 
     var backgroundOpacity: Double {
         switch self {
-        case .topup,  .done: return 1
+        case .topup, .done: return 1
         default: return 0
         }
     }
 }
 
 extension TwinsOnboardingStep: OnboardingProgressStepIndicatable {
-    var isOnboardingFinished: Bool {
+    var requiresConfetti: Bool {
         switch self {
         case .success, .done:
             return true
@@ -130,7 +139,6 @@ extension TwinsOnboardingStep: OnboardingProgressStepIndicatable {
     }
 }
 
-
 extension TwinsOnboardingStep: OnboardingTopupBalanceLayoutCalculator {}
 
 extension TwinsOnboardingStep: SuccessStep {}
@@ -138,7 +146,7 @@ extension TwinsOnboardingStep: SuccessStep {}
 extension TwinsOnboardingStep: OnboardingMessagesProvider {
     var title: String? {
         switch self {
-        case .welcome: return WelcomeStep.welcome.title
+        case .disclaimer: return ""
         case .intro: return Localization.twinsOnboardingSubtitle
         case .first, .third: return Localization.twinsRecreateTitleFormat("1")
         case .second: return Localization.twinsRecreateTitleFormat("2")
@@ -152,7 +160,7 @@ extension TwinsOnboardingStep: OnboardingMessagesProvider {
 
     var subtitle: String? {
         switch self {
-        case .welcome: return WelcomeStep.welcome.subtitle
+        case .disclaimer: return ""
         case .intro(let pairNumber): return Localization.twinsOnboardingDescriptionFormat(pairNumber)
         case .first, .second, .third: return Localization.onboardingTwinsInterruptWarning
         case .topup: return Localization.onboardingTopUpBody
@@ -172,7 +180,7 @@ extension TwinsOnboardingStep: OnboardingMessagesProvider {
 extension TwinsOnboardingStep: OnboardingButtonsInfoProvider {
     var mainButtonTitle: String {
         switch self {
-        case .welcome: return WelcomeStep.welcome.mainButtonTitle
+        case .disclaimer: return ""
         case .intro: return Localization.commonContinue
         case .first, .third: return Localization.twinsRecreateButtonFormat("1")
         case .second: return Localization.twinsRecreateButtonFormat("2")
@@ -186,7 +194,7 @@ extension TwinsOnboardingStep: OnboardingButtonsInfoProvider {
 
     var supplementButtonTitle: String {
         switch self {
-        case .welcome: return WelcomeStep.welcome.supplementButtonTitle
+        case .disclaimer: return Localization.commonAccept
         case .topup: return Localization.onboardingTopUpButtonShowWalletAddress
         default: return ""
         }
@@ -194,7 +202,7 @@ extension TwinsOnboardingStep: OnboardingButtonsInfoProvider {
 
     var isSupplementButtonVisible: Bool {
         switch self {
-        case .topup, .welcome: return true
+        case .topup, .disclaimer: return true
         default: return false
         }
     }
@@ -218,9 +226,4 @@ extension TwinsOnboardingStep: OnboardingButtonsInfoProvider {
             return nil
         }
     }
-}
-
-extension TwinsOnboardingStep: OnboardingInitialStepInfo {
-    static var initialStep: TwinsOnboardingStep { .welcome }
-    static var finalStep: TwinsOnboardingStep { .done }
 }
