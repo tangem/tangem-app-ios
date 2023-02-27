@@ -15,9 +15,9 @@ struct OnboardingCoordinatorView: CoordinatorView {
     var body: some View {
         ZStack {
             content
-                .transition(.withoutOpacity)
+                .navigationBarHidden(coordinator.navigationBarHidden)
                 .navigationBarTitle("", displayMode: .inline)
-                .navigationBarHidden(true)
+                .transition(.withoutOpacity)
                 .navigationLinks(links)
 
             sheets
@@ -68,8 +68,10 @@ struct OnboardingCoordinatorView: CoordinatorView {
             }
 
         NavHolder()
-            .bottomSheet(item: $coordinator.warningBankCardViewModel,
-                         viewModelSettings: .warning) {
+            .bottomSheet(
+                item: $coordinator.warningBankCardViewModel,
+                viewModelSettings: .warning
+            ) {
                 WarningBankCardView(viewModel: $0)
             }
 

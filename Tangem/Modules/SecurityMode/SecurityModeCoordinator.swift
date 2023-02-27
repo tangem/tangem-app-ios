@@ -13,9 +13,11 @@ class SecurityModeCoordinator: CoordinatorObject {
     var popToRootAction: ParamsAction<PopToRootOptions>
 
     // MARK: - Main view model
+
     @Published private(set) var securityModeViewModel: SecurityModeViewModel?
 
     // MARK: - Child view models
+
     @Published var cardOperationViewModel: CardOperationViewModel?
 
     required init(
@@ -39,11 +41,13 @@ extension SecurityModeCoordinator {
 
 extension SecurityModeCoordinator: SecurityModeRoutable {
     func openPinChange(with title: String, action: @escaping (@escaping (Result<Void, Error>) -> Void) -> Void) {
-        cardOperationViewModel = CardOperationViewModel(title: title,
-                                                        buttonTitle: Localization.commonContinue,
-                                                        alert: Localization.detailsSecurityManagementWarning,
-                                                        actionButtonPressed: action,
-                                                        coordinator: self)
+        cardOperationViewModel = CardOperationViewModel(
+            title: title,
+            buttonTitle: Localization.commonContinue,
+            alert: Localization.detailsSecurityManagementWarning,
+            actionButtonPressed: action,
+            coordinator: self
+        )
     }
 }
 
