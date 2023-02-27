@@ -15,10 +15,11 @@ class AppPresenter {
 
     private init() {}
 
-    func showChat(cardId: String? = nil, dataCollector: EmailDataCollector? = nil) {
-        let viewModel = SupportChatViewModel(cardId: cardId, dataCollector: dataCollector)
+    func showSupportChat(input: SupportChatInputModel) {
+        let viewModel = SupportChatViewModel(input: input)
         let view = SupportChatView(viewModel: viewModel)
         let controller = UIHostingController(rootView: view)
+        Analytics.log(.chatScreenOpened)
         show(controller)
     }
 
