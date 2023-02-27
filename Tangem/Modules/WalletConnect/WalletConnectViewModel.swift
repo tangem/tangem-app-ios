@@ -18,23 +18,18 @@ class WalletConnectViewModel: ObservableObject {
     @Published var showCameraDeniedAlert: Bool = false
     @Published var alert: AlertBinder?
     @Published var isServiceBusy: Bool = true
-    @Published var sessions: [WalletConnectSession] = []
+    @Published var v1Sessions: [WalletConnectSession] = []
 
-    private var hasWCInPasteboard: Bool {
-        guard let copiedValue = UIPasteboard.general.string else {
-            return false
-        }
+    @Published @MainActor var v2Sessions: [WalletConnectSavedSession] = []
 
-        let canHandle = walletConnectService.canHandle(url: copiedValue)
-        if canHandle {
-            self.copiedValue = copiedValue
-        }
-        return canHandle
+    @MainActor
+    var noActiveSessions: Bool {
+        v1Sessions.isEmpty && v2Sessions.isEmpty
     }
 
     private var cardModel: CardViewModel
     private var bag = Set<AnyCancellable>()
-    private var copiedValue: String?
+    private var pendingURI: WalletConnectRequestURI?
     private var scannedQRCode: CurrentValueSubject<String?, Never> = .init(nil)
 
     private unowned let coordinator: WalletConnectRoutable
@@ -45,14 +40,15 @@ class WalletConnectViewModel: ObservableObject {
     }
 
     deinit {
-        print("WalletConnectViewModel deinit")
+        AppLog.shared.debug("WalletConnectViewModel deinit")
     }
 
     func onAppear() {
+        Analytics.log(.walletConnectScreenOpened)
         bind()
     }
 
-    func disconnectSession(_ session: WalletConnectSession) {
+    func disconnectV1Session(_ session: WalletConnectSession) {
         Analytics.log(.buttonStopWalletConnectSession)
         walletConnectService.disconnectSession(with: session.id)
         withAnimation {
@@ -60,28 +56,65 @@ class WalletConnectViewModel: ObservableObject {
         }
     }
 
-    func pasteFromClipboard() {
-        guard let value = copiedValue else { return }
+    func disconnectV2Session(_ session: WalletConnectSavedSession) {
+        Analytics.log(.buttonStopWalletConnectSession)
+        Task { [weak self] in
+            await self?.walletConnectService.disconnectV2Session(with: session.id)
+            await runOnMain {
+                withAnimation {
+                    self?.objectWillChange.send()
+                }
+            }
+        }
+    }
 
-        scannedQRCode.send(value)
-        copiedValue = nil
+    func tryReadFromClipboard() -> WalletConnectRequestURI? {
+        guard let pasteboardValue = UIPasteboard.general.string,
+              let uri = WalletConnectURLParser().parse(pasteboardValue),
+              walletConnectService.canOpenSession(with: uri) else {
+            return nil
+        }
+
+        return uri
+    }
+
+    func pasteFromClipboard() {
+        guard let pendingURI else { return }
+
+        openSession(with: pendingURI)
+        self.pendingURI = nil
     }
 
     func openSession() {
+        Analytics.log(.buttonStartWalletConnectSession)
+
         if let disabledLocalizedReason = cardModel.getDisabledLocalizedReason(for: .walletConnect) {
             alert = AlertBuilder.makeDemoAlert(disabledLocalizedReason)
             return
         }
 
-        if hasWCInPasteboard {
+        pendingURI = tryReadFromClipboard()
+
+        if pendingURI != nil {
             isActionSheetVisible = true
         } else {
             openQRScanner()
         }
     }
 
+    private func openSession(with uri: WalletConnectRequestURI) {
+        guard walletConnectService.canOpenSession(with: uri) else {
+            alert = WalletConnectServiceError.failedToConnect.alertBinder
+            return
+        }
+
+        walletConnectService.openSession(with: uri)
+    }
+
     private func bind() {
         bag.removeAll()
+
+        subscribeToNewSessions()
 
         walletConnectService.canEstablishNewSessionPublisher
             .receive(on: DispatchQueue.main)
@@ -95,24 +128,36 @@ class WalletConnectViewModel: ObservableObject {
             .sink(receiveValue: { [weak self] in
                 guard let self = self else { return }
 
-                self.sessions = $0
+                self.v1Sessions = $0
+                AppLog.shared.debug("Loaded v1 sessions: \($0)")
             })
             .store(in: &bag)
 
         scannedQRCode
             .compactMap { $0 }
-            .sink { [weak self] qrCodeString in
-                guard let self = self else { return }
-
-                if !self.walletConnectService.handle(url: qrCodeString) {
-                    self.alert = WalletConnectServiceError.failedToConnect.alertBinder
-                }
+            .compactMap { WalletConnectURLParser().parse($0) }
+            .sink { [weak self] uri in
+                self?.openSession(with: uri)
             }
             .store(in: &bag)
+    }
+
+    private func subscribeToNewSessions() {
+        Task {
+            for await sessions in await walletConnectService.newSessions {
+                AppLog.shared.debug("Loaded v2 sessions: \(sessions)")
+                await MainActor.run {
+                    withAnimation {
+                        self.v2Sessions = sessions
+                    }
+                }
+            }
+        }
     }
 }
 
 // MARK: - Navigation
+
 extension WalletConnectViewModel {
     func openQRScanner() {
         if case .denied = AVCaptureDevice.authorizationStatus(for: .video) {
@@ -124,7 +169,8 @@ extension WalletConnectViewModel {
                 },
                 set: { [weak self] in
                     self?.scannedQRCode.send($0)
-                })
+                }
+            )
 
             coordinator.openQRScanner(with: binding)
         }
