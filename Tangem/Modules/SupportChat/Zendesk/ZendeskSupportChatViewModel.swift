@@ -1,33 +1,39 @@
 //
-//  SupportChatViewModel.swift
+//  ZendeskSupportChatViewModel.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
-//  Copyright © 2022 Tangem AG. All rights reserved.
+//  Copyright © 2023 Tangem AG. All rights reserved.
 //
 
 import ZendeskCoreSDK
 import MessagingSDK
 import ChatSDK
 import ChatProvidersSDK
+import SupportSDK
 import Foundation
 import UIKit
 import DeviceGuru
 
-class SupportChatViewModel: Identifiable {
-    let id: UUID = .init()
+struct ZendeskSupportChatViewModel {
+    @Injected(\.keysManager) private var keysManager: KeysManager
+
     let cardId: String?
     let dataCollector: EmailDataCollector?
 
-    init(cardId: String? = nil, dataCollector: EmailDataCollector? = nil) {
+    init(
+        cardId: String? = nil,
+        dataCollector: EmailDataCollector? = nil
+    ) {
         self.cardId = cardId
         self.dataCollector = dataCollector
+
+        initialize()
     }
 
-    private let chatBotName: String = "Tangem"
     private var messagingConfiguration: MessagingConfiguration {
         let messagingConfiguration = MessagingConfiguration()
-        messagingConfiguration.name = chatBotName
+        messagingConfiguration.name = "Tangem"
         return messagingConfiguration
     }
 
@@ -39,17 +45,29 @@ class SupportChatViewModel: Identifiable {
         return config
     }
 
+    private func initialize() {
+        let config = keysManager.zendesk
+        Zendesk.initialize(
+            appId: config.zendeskAppId,
+            clientId: config.zendeskClientId,
+            zendeskUrl: config.zendeskUrl
+        )
+        Support.initialize(withZendesk: Zendesk.instance)
+        Zendesk.instance?.setIdentity(Identity.createAnonymous())
+        Chat.initialize(accountKey: config.zendeskAccountKey, appId: config.zendeskAppId)
+    }
+
     func buildUI() throws -> UIViewController {
         let device = DeviceGuru().hardwareDescription() ?? ""
         let userWalletData = dataCollector?.dataForEmail ?? ""
 
-        Chat
-            .instance?
+        Chat.instance?
             .providers
             .profileProvider
             .setNote("\(device) \(cardId ?? "") \(userWalletData)")
-        let chatEngine = try! ChatEngine.engine()
-        let viewController = try! Messaging.instance.buildUI(engines: [chatEngine], configs: [chatConfiguration, messagingConfiguration])
+
+        let chatEngine = try ChatEngine.engine()
+        let viewController = try Messaging.instance.buildUI(engines: [chatEngine], configs: [chatConfiguration, messagingConfiguration])
         return viewController
     }
 }
