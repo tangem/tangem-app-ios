@@ -29,11 +29,6 @@ struct UserWalletListCoordinatorView: CoordinatorView {
     @ViewBuilder
     private var sheets: some View {
         NavHolder()
-            .sheet(item: $coordinator.disclaimerViewModel) {
-                DisclaimerView(viewModel: $0)
-            }
-
-        NavHolder()
             .sheet(item: $coordinator.mailViewModel) {
                 MailView(viewModel: $0)
             }

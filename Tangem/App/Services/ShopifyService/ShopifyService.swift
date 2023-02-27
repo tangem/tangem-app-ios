@@ -18,9 +18,7 @@ enum ShopifyError: Error {
 class ShopifyService: ShopifyProtocol {
     @Injected(\.keysManager) var keysManager: KeysManager
 
-    private lazy var client: Graph.Client = {
-        .init(shopDomain: shop.domain, apiKey: shop.storefrontApiKey, locale: Locale.current)
-    }()
+    private lazy var client: Graph.Client = .init(shopDomain: shop.domain, apiKey: shop.storefrontApiKey, locale: Locale.current)
 
     private let testApplePayPayments: Bool
     private var shop: ShopifyShop { keysManager.shopifyShop }
@@ -40,7 +38,7 @@ class ShopifyService: ShopifyProtocol {
 
     deinit {
         cancelTasks()
-        print("ShopifyService deinitialized")
+        AppLog.shared.debug("ShopifyService deinitialized")
     }
 
     private func runTask(_ task: Task) {
@@ -49,7 +47,7 @@ class ShopifyService: ShopifyProtocol {
     }
 
     func cancelTasks() {
-        print("Shopify: Cancelling tasks")
+        AppLog.shared.debug("Shopify: Cancelling tasks")
         tasks.forEach { $0.cancel() }
     }
 
@@ -75,7 +73,7 @@ class ShopifyService: ShopifyProtocol {
                 }
 
                 if let error = error {
-                    print("Failed to get shop info")
+                    AppLog.shared.debug("Failed to get shop info")
                     promise(.failure(error))
                     return
                 }
@@ -119,12 +117,13 @@ class ShopifyService: ShopifyProtocol {
                 }
 
                 if let error = error {
-                    print("Failed to get collections", error)
+                    AppLog.shared.debug("Failed to get collections")
+                    AppLog.shared.error(error)
                     promise(.failure(error))
                     return
                 }
 
-                print("Failed to get collections")
+                AppLog.shared.debug("Failed to get collections")
                 promise(.failure(ShopifyError.unknown))
             }
 
@@ -148,14 +147,14 @@ class ShopifyService: ShopifyProtocol {
                 return
             }
 
-            let retryHandler: Graph.RetryHandler<Storefront.QueryRoot>  = .init() { response, error in
+            let retryHandler: Graph.RetryHandler<Storefront.QueryRoot> = .init { response, error in
                 guard pollUntilOrder else { return false }
 
                 guard
                     let checkout = response?.node as? Storefront.Checkout,
                     let _ = checkout.order
                 else {
-                    print("Not ordered yet, continuing polling")
+                    AppLog.shared.debug("Not ordered yet, continuing polling")
                     return true
                 }
 
@@ -169,12 +168,13 @@ class ShopifyService: ShopifyProtocol {
                 }
 
                 if let error = error {
-                    print("Failed to get checkout", error)
+                    AppLog.shared.debug("Failed to get checkout")
+                    AppLog.shared.error(error)
                     promise(.failure(error))
                     return
                 }
 
-                print("Failed to get checkout")
+                AppLog.shared.debug("Failed to get checkout")
                 promise(.failure(ShopifyError.unknown))
             }
             self.runTask(task)
@@ -315,13 +315,14 @@ class ShopifyService: ShopifyProtocol {
     }
 
     // MARK: - Apple Pay
+
     func canUseApplePay() -> Bool {
         PKPaymentAuthorizationController.canMakePayments()
     }
 
     func startApplePaySession(checkoutID: GraphQL.ID) -> AnyPublisher<Checkout, Error> {
-        guard self.paySession == nil else {
-            print("Another pay session is in progress")
+        guard paySession == nil else {
+            AppLog.shared.debug("Another pay session is in progress")
             return Fail<Checkout, Error>(error: ShopifyError.applePayFailed)
                 .eraseToAnyPublisher()
         }
@@ -352,14 +353,15 @@ class ShopifyService: ShopifyProtocol {
 
 extension ShopifyService: PaySessionDelegate {
     func paySession(_ paySession: PaySession, didRequestShippingRatesFor address: PayPostalAddress, checkout: PayCheckout, provide: @escaping (PayCheckout?, [PayShippingRate]) -> Void) {
-        print("Apple Pay: Providing shipping rates...")
+        AppLog.shared.debug("Apple Pay: Providing shipping rates...")
 
         // Update the checkout with an incomplete address. Full address will be given to us after authorisation.
         updateAddress(Address(address), checkoutID: GraphQL.ID(rawValue: checkout.id), waitForShippingRates: true)
             .sink { completion in
                 switch completion {
                 case .failure(let error):
-                    print("Apple Pay: Failed to update shipping address", error)
+                    AppLog.shared.debug("Apple Pay: Failed to update shipping address")
+                    AppLog.shared.error(error)
                     provide(nil, [])
                 case .finished:
                     break
@@ -375,18 +377,19 @@ extension ShopifyService: PaySessionDelegate {
     // WARNING:
     // This method is only called for checkouts that DON'T require shipping
     func paySession(_ paySession: PaySession, didUpdateShippingAddress address: PayPostalAddress, checkout: PayCheckout, provide: @escaping (PayCheckout?) -> Void) {
-        print("Apple Pay: Did update shipping address...")
+        AppLog.shared.debug("Apple Pay: Did update shipping address...")
         provide(nil)
     }
 
     func paySession(_ paySession: PaySession, didSelectShippingRate shippingRate: PayShippingRate, checkout: PayCheckout, provide: @escaping (PayCheckout?) -> Void) {
-        print("Apple Pay: Updating shipping rates...")
+        AppLog.shared.debug("Apple Pay: Updating shipping rates...")
 
         updateShippingRate(handle: shippingRate.handle, checkoutID: GraphQL.ID(rawValue: checkout.id))
             .sink { completion in
                 switch completion {
                 case .failure(let error):
-                    print("Apple Pay: Failed to update shipping rate", error)
+                    AppLog.shared.debug("Apple Pay: Failed to update shipping rate")
+                    AppLog.shared.error(error)
                     provide(nil)
                 case .finished:
                     break
@@ -399,16 +402,16 @@ extension ShopifyService: PaySessionDelegate {
     }
 
     func paySession(_ paySession: PaySession, didAuthorizePayment authorization: PayAuthorization, checkout: PayCheckout, completeTransaction: @escaping (PaySession.TransactionStatus) -> Void) {
-        print("Apple Pay: Authorization granted, proceeding to checkout")
+        AppLog.shared.debug("Apple Pay: Authorization granted, proceeding to checkout")
 
         guard let email = authorization.shippingAddress.email else {
-            print("No email provided")
+            AppLog.shared.debug("No email provided")
             completeTransaction(.failure)
             return
         }
 
         guard let currencyCode = Storefront.CurrencyCode(rawValue: checkout.currencyCode) else {
-            print("Apple Pay: Invalid currency", checkout.currencyCode)
+            AppLog.shared.debug("Apple Pay: Invalid currency: \(checkout.currencyCode)")
             completeTransaction(.failure)
             return
         }
@@ -432,7 +435,7 @@ extension ShopifyService: PaySessionDelegate {
                 self.completeWithTokenizedPayment(payment, checkoutID: checkoutID)
             }
             .sink { [unowned self] completion in
-                print("Apple Pay: finished", completion)
+                AppLog.shared.debug("Apple Pay: finished with completion: \(completion)")
                 switch completion {
                 case .finished:
                     completeTransaction(.success)
@@ -444,7 +447,7 @@ extension ShopifyService: PaySessionDelegate {
 
                 self.paySessionPublisher = nil
             } receiveValue: { [unowned self] checkout in
-                print("Apple Pay: Finished with checkout", checkout)
+                AppLog.shared.debug("Apple Pay: Finished with checkout: \(checkout)")
                 self.paySessionPublisher?.send(checkout)
             }
             .store(in: &subscriptions)
@@ -452,7 +455,7 @@ extension ShopifyService: PaySessionDelegate {
 
     func paySessionDidFinish(_ paySession: PaySession) {
         self.paySession = nil
-        self.paySessionPublisher?.send(completion: .failure(ShopifyError.applePayFailed))
+        paySessionPublisher?.send(completion: .failure(ShopifyError.applePayFailed))
     }
 
     // MARK: - Updating checkout
@@ -470,20 +473,19 @@ extension ShopifyService: PaySessionDelegate {
             let checkout = payload?.checkout
 
             if let userErrors = payload?.checkoutUserErrors, !userErrors.isEmpty {
-                print("User errors:", userErrors)
+                AppLog.shared.debug("User errors: \(userErrors)")
                 return false
             }
 
-            if checkShippingRates && checkout?.availableShippingRates?.ready != true {
-                print("Shipping rates not ready, continue polling")
+            if checkShippingRates, checkout?.availableShippingRates?.ready != true {
+                AppLog.shared.debug("Shipping rates not ready, continue polling")
                 return true
             }
 
             if waitUntilReady,
                let checkoutReady = checkout?.ready,
-               !checkoutReady
-            {
-                print("Checkout is not ready, continue polling")
+               !checkoutReady {
+                AppLog.shared.debug("Checkout is not ready, continue polling")
                 return true
             }
 
@@ -510,7 +512,7 @@ extension ShopifyService: PaySessionDelegate {
                     let mutation = mutation,
                     let payload = payloadProvider(mutation)
                 else {
-                    print("No payload received")
+                    AppLog.shared.debug("No payload received")
                     promise(.failure(ShopifyError.unknown))
                     return
                 }
@@ -522,18 +524,19 @@ extension ShopifyService: PaySessionDelegate {
 
                 let userErrors = payload.checkoutUserErrors
                 if !userErrors.isEmpty {
-                    print("Checkout modification failed (\(description)):", userErrors)
+                    AppLog.shared.debug("Checkout modification failed (\(description)): \(userErrors)")
                     promise(.failure(ShopifyError.userError(errors: userErrors)))
                     return
                 }
 
                 if let error = error {
-                    print("Checkout modification failed (\(description)):", error)
+                    AppLog.shared.debug("Checkout modification failed (\(description))")
+                    AppLog.shared.error(error)
                     promise(.failure(error))
                     return
                 }
 
-                print("Checkout modification failed (\(description)):")
+                AppLog.shared.debug("Checkout modification failed (\(description)):")
                 promise(.failure(ShopifyError.unknown))
             }
 
@@ -541,5 +544,4 @@ extension ShopifyService: PaySessionDelegate {
         }
         .eraseToAnyPublisher()
     }
-
 }
