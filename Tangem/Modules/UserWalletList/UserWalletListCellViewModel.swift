@@ -89,7 +89,7 @@ class UserWalletListCellViewModel: ObservableObject {
                     self.hasError = false
                 case .loaded(let value):
                     self.isBalanceLoading = false
-                    self.balance = value.balance.currencyFormatted(code: value.currencyCode)
+                    self.balance = value.balanceFormatted
                     self.hasError = value.hasError
                 }
             }
@@ -98,7 +98,7 @@ class UserWalletListCellViewModel: ObservableObject {
 
     private func updateNumberOfTokens() {
         let blockchainsCount = userWalletModel.getSavedEntries().count
-        let allTokensCount = blockchainsCount + userWalletModel.getSavedEntries().reduce(0, { $0 + $1.tokens.count })
+        let allTokensCount = blockchainsCount + userWalletModel.getSavedEntries().reduce(0) { $0 + $1.tokens.count }
 
         numberOfTokens = Localization.tokenCount(allTokensCount)
     }
@@ -134,5 +134,5 @@ class UserWalletListCellViewModel: ObservableObject {
 }
 
 extension UserWalletListCellViewModel {
-    static private let defaultBalanceValue = "$0,000.00"
+    private static let defaultBalanceValue = "$0,000.00"
 }
