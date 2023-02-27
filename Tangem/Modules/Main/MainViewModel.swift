@@ -218,18 +218,13 @@ class MainViewModel: ObservableObject {
     }
 
     func updateExchangeButtons() {
-        let exchangeOptions = ExchangeButtonType.allCases.filter {
-            switch $0 {
-            case .buy:
-                return canBuyCrypto
-            case .sell:
-                return canSellCrypto
-            case .swap:
-                return false
-            }
-        }
-
-        exchangeButtonState = .init(options: exchangeOptions)
+        exchangeButtonState = .init(
+            options: ExchangeButtonType.build(
+                canBuyCrypto: canBuyCrypto,
+                canSellCrypto: canSellCrypto,
+                alwaysDisplayBuyOption: false
+            )
+        )
     }
 
     func updateIsBackupAllowed() {
