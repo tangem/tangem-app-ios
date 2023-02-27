@@ -19,8 +19,8 @@ struct TokenBalanceViewModel: Hashable, Identifiable {
     let token: Token
 
     init(token: Token, balance: String, fiatBalance: String) {
-        self.name = token.name
-        self.tokenName = token.symbol
+        name = token.name
+        tokenName = token.symbol
         self.balance = balance
         self.fiatBalance = fiatBalance
         self.token = token

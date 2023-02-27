@@ -13,27 +13,30 @@ struct WelcomeView: View {
 
     var body: some View {
         storiesView
-            .navigationBarHidden(viewModel.navigationBarHidden)
             .navigationBarTitle("", displayMode: .inline)
             .alert(item: $viewModel.error, content: { $0.alert })
             .onAppear(perform: viewModel.onAppear)
             .onDidAppear(viewModel.onDidAppear)
             .onDisappear(perform: viewModel.onDisappear)
             .background(
-                ScanTroubleshootingView(isPresented: $viewModel.showTroubleshootingView,
-                                        tryAgainAction: viewModel.tryAgain,
-                                        requestSupportAction: viewModel.requestSupport)
+                ScanTroubleshootingView(
+                    isPresented: $viewModel.showTroubleshootingView,
+                    tryAgainAction: viewModel.tryAgain,
+                    requestSupportAction: viewModel.requestSupport
+                )
             )
     }
 
     var storiesView: some View {
-        StoriesView(viewModel: viewModel.storiesModel) { // [REDACTED_TODO_COMMENT]
-            viewModel.storiesModel.currentStoryPage(
-                isScanning: viewModel.isScanningCard,
-                scanCard: viewModel.scanCard,
-                orderCard: viewModel.orderCard,
-                searchTokens: viewModel.openTokensList
-            )
+        StoriesView(viewModel: viewModel.storiesModel) { [weak viewModel] in
+            if let viewModel = viewModel {
+                viewModel.storiesModel.currentStoryPage(
+                    isScanning: viewModel.isScanningCard,
+                    scanCard: viewModel.scanCardTapped,
+                    orderCard: viewModel.orderCard,
+                    searchTokens: viewModel.openTokensList
+                )
+            }
         }
         .statusBar(hidden: true)
         .environment(\.colorScheme, viewModel.storiesModel.currentPage.colorScheme)

@@ -17,16 +17,17 @@ struct AuthView: View {
 
     var body: some View {
         unlockView
-            .navigationBarHidden(viewModel.navigationBarHidden)
             .navigationBarTitle("", displayMode: .inline)
             .alert(item: $viewModel.error, content: { $0.alert })
             .onAppear(perform: viewModel.onAppear)
             .onDidAppear(viewModel.onDidAppear)
             .onDisappear(perform: viewModel.onDisappear)
             .background(
-                ScanTroubleshootingView(isPresented: $viewModel.showTroubleshootingView,
-                                        tryAgainAction: viewModel.tryAgain,
-                                        requestSupportAction: viewModel.requestSupport)
+                ScanTroubleshootingView(
+                    isPresented: $viewModel.showTroubleshootingView,
+                    tryAgainAction: viewModel.tryAgain,
+                    requestSupportAction: viewModel.requestSupport
+                )
             )
     }
 
@@ -34,7 +35,7 @@ struct AuthView: View {
         VStack(spacing: 0) {
             Spacer()
 
-            Assets.tangemIconBig
+            Assets.tangemIconBig.image
                 .renderingMode(.template)
                 .resizable()
                 .aspectRatio(contentMode: .fit)

@@ -18,6 +18,6 @@ struct ModalSheetPreferenceKey: PreferenceKey {
 
 extension View {
     func updateModalPresentation(to newValue: Bool) -> some View {
-        self.preference(key: ModalSheetPreferenceKey.self, value: newValue)
+        preference(key: ModalSheetPreferenceKey.self, value: newValue)
     }
 }

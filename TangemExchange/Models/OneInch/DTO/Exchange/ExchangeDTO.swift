@@ -35,4 +35,3 @@ public struct TransactionData: Codable {
     // WEI
     public let gasPrice: String
 }
-

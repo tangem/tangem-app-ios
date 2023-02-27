@@ -14,9 +14,11 @@ class WalletConnectCoordinator: CoordinatorObject {
     var popToRootAction: ParamsAction<PopToRootOptions>
 
     // MARK: - Main view model
+
     @Published private(set) var walletConnectViewModel: WalletConnectViewModel? = nil
 
     // MARK: - Child view models
+
     @Published var qrScanViewModel: QRScanViewModel? = nil
 
     required init(dismissAction: @escaping Action, popToRootAction: @escaping ParamsAction<PopToRootOptions>) {

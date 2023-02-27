@@ -37,11 +37,13 @@ enum FeatureProvider {
 enum FeatureToggle: String, Hashable, CaseIterable {
     case exchange
     case referralProgram
+    case walletConnectV2
 
     var name: String {
         switch self {
         case .exchange: return "Exchange"
         case .referralProgram: return "Referral Program"
+        case .walletConnectV2: return "WalletConnect V2"
         }
     }
 
@@ -49,6 +51,7 @@ enum FeatureToggle: String, Hashable, CaseIterable {
         switch self {
         case .exchange: return .unspecified
         case .referralProgram: return .unspecified
+        case .walletConnectV2: return .unspecified
         }
     }
 }

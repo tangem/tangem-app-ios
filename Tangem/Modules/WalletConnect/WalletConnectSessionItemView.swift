@@ -30,7 +30,9 @@ struct WalletConnectSessionItemView: View {
 
 struct WalletConnectSessionItemView_Previews: PreviewProvider {
     static var previews: some View {
-        WalletConnectSessionItemView(dAppName: "DAppName 1",
-                                     disconnectEvent: { })
+        WalletConnectSessionItemView(
+            dAppName: "DAppName 1",
+            disconnectEvent: {}
+        )
     }
 }
