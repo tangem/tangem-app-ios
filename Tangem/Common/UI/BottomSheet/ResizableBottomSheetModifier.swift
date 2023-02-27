@@ -16,9 +16,10 @@ struct ResizableBottomSheetModifier<ContentView: ResizableSheetView>: ViewModifi
     private let viewModelSettings: BottomSheetSettings
     private let contentView: () -> ContentView
 
-    init(isPresented: Binding<Bool>,
-         viewModelSettings: BottomSheetSettings,
-         @ViewBuilder contentView: @escaping () -> ContentView
+    init(
+        isPresented: Binding<Bool>,
+        viewModelSettings: BottomSheetSettings,
+        @ViewBuilder contentView: @escaping () -> ContentView
     ) {
         _isPresented = isPresented
         self.viewModelSettings = viewModelSettings
@@ -49,8 +50,10 @@ struct ResizableBottomSheetModifier<ContentView: ResizableSheetView>: ViewModifi
         if isPresented {
             let view = contentView()
 
-            let wrappedView = BottomSheetWrappedView(content: view,
-                                                     settings: viewModelSettings) {
+            let wrappedView = BottomSheetWrappedView(
+                content: view,
+                settings: viewModelSettings
+            ) {
                 bottomSheetViewController?.dismiss(animated: true)
             }
 
@@ -60,8 +63,8 @@ struct ResizableBottomSheetModifier<ContentView: ResizableSheetView>: ViewModifi
             )
 
             bottomSheetViewController?.cornerRadius = viewModelSettings.cornerRadius
-            bottomSheetViewController?.backgroundColor = viewModelSettings.overlayColor.uiColor()
-            bottomSheetViewController?.contentBackgroundColor = viewModelSettings.contentBackgroundColor.uiColor()
+            bottomSheetViewController?.backgroundColor = viewModelSettings.overlayColor.uiColorFromRGB()
+            bottomSheetViewController?.contentBackgroundColor = viewModelSettings.contentBackgroundColor.uiColorFromRGB()
             bottomSheetViewController?.swipeDownToDismissEnabled = viewModelSettings.swipeDownToDismissEnabled
             bottomSheetViewController?.tapOutsideToDismissEnabled = viewModelSettings.tapOutsideToDismissEnabled
 

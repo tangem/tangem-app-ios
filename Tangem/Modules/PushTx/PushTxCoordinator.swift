@@ -14,9 +14,11 @@ class PushTxCoordinator: CoordinatorObject {
     var popToRootAction: ParamsAction<PopToRootOptions>
 
     // MARK: - Main view model
+
     @Published private(set) var pushTxViewModel: PushTxViewModel? = nil
 
     // MARK: - Child view models
+
     @Published var mailViewModel: MailViewModel? = nil
 
     required init(dismissAction: @escaping Action, popToRootAction: @escaping ParamsAction<PopToRootOptions>) {
@@ -25,10 +27,12 @@ class PushTxCoordinator: CoordinatorObject {
     }
 
     func start(with options: PushTxCoordinator.Options) {
-        pushTxViewModel = PushTxViewModel(transaction: options.tx,
-                                          blockchainNetwork: options.blockchainNetwork,
-                                          cardViewModel: options.cardModel,
-                                          coordinator: self)
+        pushTxViewModel = PushTxViewModel(
+            transaction: options.tx,
+            blockchainNetwork: options.blockchainNetwork,
+            cardViewModel: options.cardModel,
+            coordinator: self
+        )
     }
 }
 

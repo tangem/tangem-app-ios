@@ -18,7 +18,7 @@ class OneInchExchangeProvider {
     private var bag = Set<AnyCancellable>()
 
     init(exchangeService: OneInchAPIServicing) {
-        self.oneInchAPIProvider = exchangeService
+        oneInchAPIProvider = exchangeService
     }
 }
 
@@ -48,14 +48,16 @@ extension OneInchExchangeProvider: ExchangeProvider {
         }
     }
 
-    func fetchExchangeData(items: ExchangeItems, walletAddress: String, amount: String) async throws -> ExchangeDataModel {
+    func fetchExchangeData(items: ExchangeItems, walletAddress: String, amount: String, referrer: ExchangeReferrerAccount?) async throws -> ExchangeDataModel {
         let destination = items.destination
         let parameters = ExchangeParameters(
             fromTokenAddress: items.source.contractAddress ?? oneInchCoinContractAddress,
             toTokenAddress: destination?.contractAddress ?? oneInchCoinContractAddress,
             amount: amount,
             fromAddress: walletAddress,
-            slippage: defaultSlippage
+            slippage: defaultSlippage,
+            referrerAddress: referrer?.address,
+            fee: referrer?.fee.description
         )
 
         let result = await oneInchAPIProvider.swap(blockchain: items.source.blockchain, parameters: parameters)
