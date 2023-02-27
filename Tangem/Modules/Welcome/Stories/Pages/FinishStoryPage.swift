@@ -11,8 +11,8 @@ import SwiftUI
 struct FinishStoryPage: View {
     @Binding var progress: Double
     let isScanning: Bool
-    let scanCard: (() -> Void)
-    let orderCard: (() -> Void)
+    let scanCard: () -> Void
+    let orderCard: () -> Void
 
     var body: some View {
         VStack {
@@ -39,7 +39,7 @@ struct FinishStoryPage: View {
 
             Spacer()
 
-            Image("amazement")
+            Assets.Stories.amazement.image
                 .resizable()
                 .aspectRatio(contentMode: .fit)
                 .overlay(
@@ -71,7 +71,7 @@ struct FinishStoryPage: View {
 
 struct FinishStoryPage_Previews: PreviewProvider {
     static var previews: some View {
-        FinishStoryPage(progress: .constant(1), isScanning: false) { } orderCard: { }
+        FinishStoryPage(progress: .constant(1), isScanning: false) {} orderCard: {}
             .previewGroup(devices: [.iPhone7, .iPhone12ProMax], withZoomed: false)
             .environment(\.colorScheme, .dark)
     }

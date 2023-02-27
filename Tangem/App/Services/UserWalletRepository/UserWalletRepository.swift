@@ -10,7 +10,6 @@ import Foundation
 import Combine
 
 protocol UserWalletRepository: Initializable {
-    var delegate: UserWalletRepositoryDelegate? { get set }
     var models: [CardViewModel] { get }
     var selectedModel: CardViewModel? { get }
     var selectedUserWalletId: Data? { get }
@@ -20,16 +19,13 @@ protocol UserWalletRepository: Initializable {
 
     func unlock(with method: UserWalletRepositoryUnlockMethod, completion: @escaping (UserWalletRepositoryResult?) -> Void)
     func setSelectedUserWalletId(_ userWalletId: Data?, reason: UserWalletRepositorySelectionChangeReason)
+    func updateSelection()
 
     func add(_ completion: @escaping (UserWalletRepositoryResult?) -> Void)
     func contains(_ userWallet: UserWallet) -> Bool
     func save(_ userWallet: UserWallet)
     func delete(_ userWallet: UserWallet)
     func clear()
-}
-
-protocol UserWalletRepositoryDelegate: AnyObject {
-    func showTOS(at url: URL, _ completion: @escaping (Bool) -> Void)
 }
 
 private struct UserWalletRepositoryKey: InjectionKey {
@@ -48,6 +44,15 @@ enum UserWalletRepositoryResult {
     case onboarding(OnboardingInput)
     case troubleshooting
     case error(Error)
+
+    var isSuccess: Bool {
+        switch self {
+        case .success:
+            return true
+        default:
+            return false
+        }
+    }
 }
 
 enum UserWalletRepositoryEvent {
@@ -79,7 +84,7 @@ enum UserWalletRepositoryError: String, Error, LocalizedError {
     case duplicateWalletAdded
 
     var errorDescription: String? {
-        self.rawValue
+        rawValue
     }
 
     var alertBinder: AlertBinder {
