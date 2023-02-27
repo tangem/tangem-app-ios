@@ -457,7 +457,7 @@ class WalletOnboardingViewModel: OnboardingTopupViewModel<WalletOnboardingStep, 
                 case .claim:
                     self.goToNextStep()
                 case .finished:
-                    if self.currentStep == .kycWaiting { // we have nothing to claim
+                    if self.currentStep != .claim { // move to the next step only after the balance update
                         self.goToNextStep()
                     }
                 case .kycRetry:
@@ -539,8 +539,6 @@ class WalletOnboardingViewModel: OnboardingTopupViewModel<WalletOnboardingStep, 
                 if let disabledLocalizedReason = input.cardInput.cardModel?.getDisabledLocalizedReason(for: .backup) {
                     alert = AlertBuilder.makeDemoAlert(disabledLocalizedReason)
                 } else {
-                    Analytics.log(.backupStarted)
-
                     goToNextStep()
                 }
             }
@@ -582,8 +580,8 @@ class WalletOnboardingViewModel: OnboardingTopupViewModel<WalletOnboardingStep, 
         case .kycWaiting:
             saltPayRegistratorProvider.registrator?.update()
         case .enterPin:
+            Analytics.log(.onboardingButtonSetPinCode)
             if saltPayRegistratorProvider.registrator?.setPin(pinText) ?? false {
-                Analytics.log(.pinCodeSet)
                 goToNextStep()
             }
         case .registerWallet:
@@ -689,7 +687,10 @@ class WalletOnboardingViewModel: OnboardingTopupViewModel<WalletOnboardingStep, 
             case .success:
                 Analytics.log(.claimFinished)
                 self?.claimed = true
-                self?.onRefresh()
+                // Add a small delay because of too fast transactions
+                DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+                    self?.onRefresh()
+                }
             case .failure:
                 self?.resetRefreshButtonState()
             }
