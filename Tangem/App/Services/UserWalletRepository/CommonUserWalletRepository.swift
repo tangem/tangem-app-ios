@@ -293,6 +293,10 @@ class CommonUserWalletRepository: UserWalletRepository {
         }
     }
 
+    func updateSelection() {
+        initializeServicesForSelectedModel()
+    }
+
     func setSelectedUserWalletId(_ userWalletId: Data?, reason: UserWalletRepositorySelectionChangeReason) {
         setSelectedUserWalletId(userWalletId, unlockIfNeeded: true, reason: reason)
     }
@@ -591,6 +595,7 @@ extension CommonUserWalletRepository {
     func initialize() {
         // Removing UserWallet-related data from Keychain
         if AppSettings.shared.numberOfLaunches == 1 {
+            AppLog.shared.debug("Clean CommonUserWalletRepository")
             clearUserWallets()
         }
 
