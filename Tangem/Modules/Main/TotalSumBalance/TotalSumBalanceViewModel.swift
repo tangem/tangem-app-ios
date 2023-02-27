@@ -14,7 +14,7 @@ class TotalSumBalanceViewModel: ObservableObject {
     // MARK: - ViewState
 
     @Published var isLoading: Bool = true
-    @Published var totalFiatValueString: NSAttributedString = NSAttributedString(string: "")
+    @Published var totalFiatValueString: NSAttributedString = .init(string: "")
     @Published var hasError: Bool = false
 
     /// If we have a note or any single coin wallet that we should show this balance
@@ -44,7 +44,7 @@ class TotalSumBalanceViewModel: ObservableObject {
     }
 
     func updateForSingleCoinCard() {
-        guard let cardAmountType = self.cardAmountType else { return }
+        guard let cardAmountType = cardAmountType else { return }
         let walletModels = userWalletModel.getWalletModels()
 
         singleWalletBalance = walletModels.first?.allTokenItemViewModels().first(where: { $0.amountType == cardAmountType })?.balance
@@ -55,28 +55,14 @@ class TotalSumBalanceViewModel: ObservableObject {
     }
 
     private func bind() {
-        // Total balance main subscription
         totalBalanceManager.totalBalancePublisher()
             .compactMap { $0.value }
-            .map { [unowned self] balance in
+            .map { [unowned self] balance -> NSAttributedString in
                 checkPositiveBalance()
                 updateForSingleCoinCard()
-                return addAttributeForBalance(balance.balance, withCurrencyCode: balance.currencyCode)
+                return addAttributeForBalance(balance)
             }
             .weakAssign(to: \.totalFiatValueString, on: self)
-            .store(in: &bag)
-
-        let hasErrorInUpdate = totalBalanceManager.totalBalancePublisher()
-            .compactMap { $0.value?.hasError }
-
-        let hasEntriesWithoutDerivation = userWalletModel
-            .subscribeToEntriesWithoutDerivation()
-            .map { !$0.isEmpty }
-
-        Publishers.CombineLatest(hasErrorInUpdate, hasEntriesWithoutDerivation)
-            .map { $0 || $1 }
-            .removeDuplicates()
-            .weakAssign(to: \.hasError, on: self)
             .store(in: &bag)
 
         // Skeleton subscription
@@ -84,16 +70,26 @@ class TotalSumBalanceViewModel: ObservableObject {
             .map { $0.isLoading }
             .weakAssignAnimated(to: \.isLoading, on: self)
             .store(in: &bag)
+
+        totalBalanceManager.totalBalancePublisher()
+            .compactMap { $0.value?.hasError }
+            .removeDuplicates()
+            .weakAssign(to: \.hasError, on: self)
+            .store(in: &bag)
     }
 
-    private func addAttributeForBalance(_ balance: Decimal, withCurrencyCode: String) -> NSAttributedString {
-        let formattedTotalFiatValue = balance.currencyFormatted(code: withCurrencyCode)
+    private func addAttributeForBalance(_ totalValue: TotalBalanceProvider.TotalBalance) -> NSAttributedString {
+        let formattedTotalFiatValue = totalValue.balanceFormatted
+
+        guard totalValue.balance != nil else {
+            return .init(string: formattedTotalFiatValue, attributes: [.font: UIFont.systemFont(ofSize: 28, weight: .semibold)])
+        }
 
         let attributedString = NSMutableAttributedString(string: formattedTotalFiatValue)
         let allStringRange = NSRange(location: 0, length: attributedString.length)
         attributedString.addAttribute(.font, value: UIFont.systemFont(ofSize: 28, weight: .semibold), range: allStringRange)
 
-        let decimalLocation = NSString(string: formattedTotalFiatValue).range(of: balance.decimalSeparator()).location
+        let decimalLocation = NSString(string: formattedTotalFiatValue).range(of: Decimal.decimalSeparator()).location
         if decimalLocation < (formattedTotalFiatValue.count - 1) {
             let locationAfterDecimal = decimalLocation + 1
             let symbolsAfterDecimal = formattedTotalFiatValue.count - locationAfterDecimal

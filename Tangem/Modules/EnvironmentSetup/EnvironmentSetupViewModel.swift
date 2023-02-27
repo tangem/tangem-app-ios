@@ -25,13 +25,17 @@ final class EnvironmentSetupViewModel: ObservableObject {
         appSettingsTogglesViewModels = [
             DefaultToggleRowViewModel(
                 title: "Use testnet",
-                isOn: Binding<Bool>(get: { EnvironmentProvider.shared.isTestnet },
-                                    set: { EnvironmentProvider.shared.isTestnet = $0 })
+                isOn: Binding<Bool>(
+                    get: { EnvironmentProvider.shared.isTestnet },
+                    set: { EnvironmentProvider.shared.isTestnet = $0 }
+                )
             ),
             DefaultToggleRowViewModel(
                 title: "Use dev API",
-                isOn: Binding<Bool>(get: { EnvironmentProvider.shared.useDevApi },
-                                    set: { EnvironmentProvider.shared.useDevApi = $0 })
+                isOn: Binding<Bool>(
+                    get: { EnvironmentProvider.shared.useDevApi },
+                    set: { EnvironmentProvider.shared.useDevApi = $0 }
+                )
             ),
         ]
 

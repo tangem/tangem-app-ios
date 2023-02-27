@@ -73,15 +73,23 @@ extension GenericDemoConfig: UserWalletConfig {
     }
 
     var onboardingSteps: OnboardingSteps {
+        var steps = [WalletOnboardingStep]()
+
+        if !AppSettings.shared.termsOfServicesAccepted.contains(tou.id) {
+            steps.append(.disclaimer)
+        }
+
         if card.wallets.isEmpty {
-            return .wallet([.createWallet] + _backupSteps + userWalletSavingSteps + [.success])
+            steps.append(contentsOf: [.createWallet] + _backupSteps + userWalletSavingSteps + [.success])
         } else {
             if !AppSettings.shared.cardsStartedActivation.contains(card.cardId) {
-                return .wallet([])
+                steps.append(contentsOf: userWalletSavingSteps)
+            } else {
+                steps.append(contentsOf: _backupSteps + userWalletSavingSteps + [.success])
             }
-
-            return .wallet(_backupSteps + userWalletSavingSteps + [.success])
         }
+
+        return .wallet(steps)
     }
 
     var backupSteps: OnboardingSteps? {
@@ -96,7 +104,7 @@ extension GenericDemoConfig: UserWalletConfig {
     }
 
     var defaultBlockchains: [StorageEntry] {
-        if let persistentBlockchains = self.persistentBlockchains {
+        if let persistentBlockchains = persistentBlockchains {
             return persistentBlockchains
         }
 
@@ -160,6 +168,10 @@ extension GenericDemoConfig: UserWalletConfig {
         card.wallets.first?.publicKey
     }
 
+    var productType: Analytics.ProductType {
+        card.firmwareVersion.doubleValue >= 4.39 ? .demoWallet : .other
+    }
+
     func getFeatureAvailability(_ feature: UserWalletFeature) -> UserWalletFeature.Availability {
         switch feature {
         case .accessCode:
@@ -214,6 +226,10 @@ extension GenericDemoConfig: UserWalletConfig {
             return .hidden
         case .swapping:
             return .hidden
+        case .displayHashesCount:
+            return .available
+        case .transactionHistory:
+            return .hidden
         }
     }
 
@@ -230,14 +246,18 @@ extension GenericDemoConfig: UserWalletConfig {
                 partialResult[cardWallet.curve] = cardWallet.derivedKeys
             }
 
-            model = try factory.makeMultipleWallet(seedKeys: walletPublicKeys,
-                                                   entry: token,
-                                                   derivedKeys: derivedKeys,
-                                                   derivationStyle: card.derivationStyle)
+            model = try factory.makeMultipleWallet(
+                seedKeys: walletPublicKeys,
+                entry: token,
+                derivedKeys: derivedKeys,
+                derivationStyle: card.derivationStyle
+            )
         } else {
-            model = try factory.makeMultipleWallet(walletPublicKeys: walletPublicKeys,
-                                                   entry: token,
-                                                   derivationStyle: card.derivationStyle)
+            model = try factory.makeMultipleWallet(
+                walletPublicKeys: walletPublicKeys,
+                entry: token,
+                derivationStyle: card.derivationStyle
+            )
         }
 
         model.demoBalance = DemoUtil().getDemoBalance(for: model.wallet.blockchain)
@@ -245,12 +265,11 @@ extension GenericDemoConfig: UserWalletConfig {
     }
 }
 
-
 // MARK: - Private extensions
 
 fileprivate extension Card.BackupStatus {
     var backupCardsCount: Int? {
-        if case let .active(backupCards) = self {
+        if case .active(let backupCards) = self {
             return backupCards
         }
 

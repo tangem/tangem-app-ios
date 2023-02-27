@@ -21,7 +21,7 @@ class CoinItemViewModel: Identifiable, ObservableObject {
     @Published var selectedPublisher: Bool
 
     var isMain: Bool { tokenItem.isBlockchain }
-    var imageName: String { tokenItem.blockchain.iconName  }
+    var imageName: String { tokenItem.blockchain.iconName }
     var imageNameSelected: String { tokenItem.blockchain.iconNameFilled }
     var networkName: String { tokenItem.blockchain.displayName }
     var contractName: String? { tokenItem.contractName }
@@ -37,7 +37,7 @@ class CoinItemViewModel: Identifiable, ObservableObject {
         self.isSelected = isSelected
         self.isCopied = isCopied
         self.position = position
-        self.selectedPublisher = isSelected.wrappedValue
+        selectedPublisher = isSelected.wrappedValue
 
         $selectedPublisher
             .dropFirst()
@@ -49,7 +49,7 @@ class CoinItemViewModel: Identifiable, ObservableObject {
 
     func updateSelection(with isSelected: Binding<Bool>) {
         self.isSelected = isSelected
-        self.selectedPublisher = isSelected.wrappedValue
+        selectedPublisher = isSelected.wrappedValue
     }
 
     func onCopy() {

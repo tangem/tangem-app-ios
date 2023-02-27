@@ -13,14 +13,14 @@ class BottomSheetBaseController: UIViewController {
         get {
             .custom
         }
-        set { }
+        set {}
     }
 
     override var transitioningDelegate: UIViewControllerTransitioningDelegate? {
         get {
             bottomSheetTransitioningDelegate
         }
-        set { }
+        set {}
     }
 
     var cornerRadius: CGFloat = 8 {
@@ -35,7 +35,7 @@ class BottomSheetBaseController: UIViewController {
         }
     }
 
-    var contentBackgroundColor: UIColor = UIColor.white
+    var contentBackgroundColor: UIColor = .white
 
     var tapOutsideToDismissEnabled: Bool = true {
         didSet {

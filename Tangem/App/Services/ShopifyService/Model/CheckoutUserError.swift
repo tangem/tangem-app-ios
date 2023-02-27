@@ -10,8 +10,7 @@ import MobileBuySDK
 extension Storefront.CheckoutUserErrorQuery {
     @discardableResult
     func checkoutUserErrorFields() -> Storefront.CheckoutUserErrorQuery {
-        self
-            .field()
+        field()
             .message()
     }
 }
