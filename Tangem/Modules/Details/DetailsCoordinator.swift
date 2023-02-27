@@ -79,7 +79,6 @@ extension DetailsCoordinator: DetailsRoutable {
     }
 
     func openWalletConnect(with cardModel: CardViewModel) {
-        Analytics.log(.myWalletsScreenOpened)
         let coordinator = WalletConnectCoordinator()
         let options = WalletConnectCoordinator.Options(cardModel: cardModel)
         coordinator.start(with: options)
@@ -87,7 +86,7 @@ extension DetailsCoordinator: DetailsRoutable {
     }
 
     func openDisclaimer(at url: URL) {
-        disclaimerViewModel = .init(url: url, style: .navbar, coordinator: nil)
+        disclaimerViewModel = .init(url: url, style: .details)
     }
 
     func openScanCardSettings(with userWalletId: Data) {
@@ -100,9 +99,9 @@ extension DetailsCoordinator: DetailsRoutable {
         appSettingsCoordinator = coordinator
     }
 
-    func openSupportChat(cardId: String, dataCollector: EmailDataCollector) {
+    func openSupportChat(input: SupportChatInputModel) {
         Analytics.log(.chatScreenOpened)
-        supportChatViewModel = SupportChatViewModel(cardId: cardId, dataCollector: dataCollector)
+        supportChatViewModel = SupportChatViewModel(input: input)
     }
 
     func openInSafari(url: URL) {
@@ -121,6 +120,7 @@ extension DetailsCoordinator: DetailsRoutable {
         let coordinator = ReferralCoordinator(dismissAction: dismissAction)
         coordinator.start(with: .init(cardModel: cardModel, userWalletId: userWalletId))
         referralCoordinator = coordinator
+        Analytics.log(.referralScreenOpened)
     }
 }
 

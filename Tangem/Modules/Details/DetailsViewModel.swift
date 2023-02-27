@@ -44,7 +44,7 @@ class DetailsViewModel: ObservableObject {
     }
 
     deinit {
-        print("DetailsViewModel deinit")
+        AppLog.shared.debug("DetailsViewModel deinit")
     }
 
     // MARK: - Private
@@ -67,7 +67,7 @@ class DetailsViewModel: ObservableObject {
     func prepareBackup() {
         Analytics.log(.buttonCreateBackup)
         if let input = cardModel.backupInput {
-            self.openOnboarding(with: input)
+            openOnboarding(with: input)
         }
     }
 
@@ -80,7 +80,6 @@ class DetailsViewModel: ObservableObject {
 
 extension DetailsViewModel {
     func openOnboarding(with input: OnboardingInput) {
-        Analytics.log(.backupScreenOpened)
         coordinator.openOnboardingModal(with: input)
     }
 
@@ -89,15 +88,20 @@ extension DetailsViewModel {
 
         guard let emailConfig = cardModel.emailConfig else { return }
 
-        let dataCollector = DetailsFeedbackDataCollector(cardModel: cardModel,
-                                                         userWalletEmailData: cardModel.emailData)
+        let dataCollector = DetailsFeedbackDataCollector(
+            cardModel: cardModel,
+            userWalletEmailData: cardModel.emailData
+        )
 
-        coordinator.openMail(with: dataCollector,
-                             recipient: emailConfig.recipient,
-                             emailType: .appFeedback(subject: emailConfig.subject))
+        coordinator.openMail(
+            with: dataCollector,
+            recipient: emailConfig.recipient,
+            emailType: .appFeedback(subject: emailConfig.subject)
+        )
     }
 
     func openWalletConnect() {
+        Analytics.log(.buttonWalletConnect)
         coordinator.openWalletConnect(with: cardModel)
     }
 
@@ -120,16 +124,22 @@ extension DetailsViewModel {
     }
 
     func openSupportChat() {
-        Analytics.log(.buttonChat)
-        let dataCollector = DetailsFeedbackDataCollector(cardModel: cardModel,
-                                                         userWalletEmailData: cardModel.emailData)
+        Analytics.log(.settingsButtonChat)
 
-        coordinator.openSupportChat(cardId: cardModel.cardId,
-                                    dataCollector: dataCollector)
+        let dataCollector = DetailsFeedbackDataCollector(
+            cardModel: cardModel,
+            userWalletEmailData: cardModel.emailData
+        )
+
+        coordinator.openSupportChat(input: .init(
+            environment: cardModel.supportChatEnvironment,
+            cardId: cardModel.cardId,
+            dataCollector: dataCollector
+        ))
     }
 
     func openDisclaimer() {
-        coordinator.openDisclaimer(at: cardModel.cardTouURL)
+        coordinator.openDisclaimer(at: cardModel.cardDisclaimer.url)
     }
 
     func openSocialNetwork(network: SocialNetwork) {
@@ -137,7 +147,9 @@ extension DetailsViewModel {
             return
         }
 
-        Analytics.log(.buttonSocialNetwork)
+        Analytics.log(event: .buttonSocialNetwork, params: [
+            .network: network.name,
+        ])
         coordinator.openInSafari(url: url)
     }
 
@@ -199,11 +211,14 @@ extension DetailsViewModel {
     func setupSupportSectionModels() {
         supportSectionModels = [
             DefaultRowViewModel(title: Localization.detailsChat, action: openSupportChat),
-            DefaultRowViewModel(title: Localization.detailsRowTitleSendFeedback, action: openMail),
         ]
 
-        if cardModel.canParticipateInReferralProgram && FeatureProvider.isAvailable(.referralProgram) {
+        if cardModel.canParticipateInReferralProgram, FeatureProvider.isAvailable(.referralProgram) {
             supportSectionModels.append(DefaultRowViewModel(title: Localization.detailsReferralTitle, action: openReferral))
+        }
+
+        if cardModel.emailConfig != nil {
+            supportSectionModels.append(DefaultRowViewModel(title: Localization.detailsRowTitleSendFeedback, action: openMail))
         }
     }
 

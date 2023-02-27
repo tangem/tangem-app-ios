@@ -38,9 +38,9 @@ extension ApproveTarget: TargetType {
         switch self {
         case .spender:
             return .requestPlain
-        case let .transaction(params):
+        case .transaction(let params):
             return .requestParameters(params)
-        case let .allowance(params):
+        case .allowance(let params):
             return .requestParameters(params)
         }
     }

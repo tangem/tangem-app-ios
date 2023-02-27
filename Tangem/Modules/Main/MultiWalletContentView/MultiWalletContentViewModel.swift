@@ -38,12 +38,7 @@ class MultiWalletContentViewModel: ObservableObject {
 
     private lazy var totalBalanceManager = TotalBalanceProvider(
         userWalletModel: userWalletModel,
-        userWalletAmountType: nil,
-        totalBalanceAnalyticsService: TotalBalanceAnalyticsService(totalBalanceCardSupportInfo: totalBalanceCardSupportInfo)
-    )
-    private lazy var totalBalanceCardSupportInfo = TotalBalanceCardSupportInfo(
-        cardBatchId: cardModel.batchId,
-        cardNumber: cardModel.cardId
+        userWalletAmountType: nil
     )
 
     init(

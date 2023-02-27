@@ -15,15 +15,20 @@ class AppPresenter {
 
     private init() {}
 
-    func showChat(cardId: String? = nil, dataCollector: EmailDataCollector? = nil) {
-        let viewModel = SupportChatViewModel(cardId: cardId, dataCollector: dataCollector)
+    func showSupportChat(input: SupportChatInputModel) {
+        let viewModel = SupportChatViewModel(input: input)
         let view = SupportChatView(viewModel: viewModel)
         let controller = UIHostingController(rootView: view)
+        Analytics.log(.chatScreenOpened)
         show(controller)
     }
 
-    private func show(_ controller: UIViewController) {
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+    func showError(_ error: Error) {
+        show(error.alertController)
+    }
+
+    func show(_ controller: UIViewController, delay: TimeInterval = 0.3) {
+        DispatchQueue.main.asyncAfter(deadline: .now() + delay) {
             UIApplication.modalFromTop(controller)
         }
     }
