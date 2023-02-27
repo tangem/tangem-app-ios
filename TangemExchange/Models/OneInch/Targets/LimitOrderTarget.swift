@@ -38,9 +38,9 @@ extension LimitOrderTarget: TargetType {
             return "/limit-order/count"
         case .events:
             return "/limit-order/events"
-        case let .eventsForOrder(orderHash):
+        case .eventsForOrder(let orderHash):
             return "/limit-order/events/\(orderHash)"
-        case let .hasActiveOrdersWithPermit(walletAddress, tokenAddress):
+        case .hasActiveOrdersWithPermit(let walletAddress, let tokenAddress):
             return "/limit-order/has-active-orders-with-permit/\(walletAddress)/\(tokenAddress)"
         }
     }
@@ -56,16 +56,16 @@ extension LimitOrderTarget: TargetType {
 
     var task: Task {
         switch self {
-        case let .append(order):
+        case .append(let order):
             return .requestJSONEncodable(order)
-        case let .ordersForAddress(parameters):
+        case .ordersForAddress(let parameters):
             return .requestParameters(parameters)
-        case let .allOrders(parameters):
+        case .allOrders(let parameters):
             return .requestParameters(parameters)
-        case let .countOrders(parameters):
-            let statuses = "\(parameters.map({ $0.rawValue }).sorted())"
+        case .countOrders(let parameters):
+            let statuses = "\(parameters.map { $0.rawValue }.sorted())"
             return .requestParameters(parameters: ["statuses": statuses], encoding: URLEncoding())
-        case let .events(limit):
+        case .events(let limit):
             return .requestParameters(parameters: ["limit": limit], encoding: URLEncoding())
         case .eventsForOrder, .hasActiveOrdersWithPermit:
             return .requestPlain
