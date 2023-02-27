@@ -47,19 +47,15 @@ enum PreviewDeviceType: String, Identifiable, CaseIterable {
     }
 }
 
-
 extension View {
     func deviceForPreview(_ type: PreviewDeviceType) -> some View {
-        self
-            .previewDevice(PreviewDevice(rawValue: type.rawValue))
+        previewDevice(PreviewDevice(rawValue: type.rawValue))
             .previewDisplayName(type.rawValue)
-
     }
 
     func deviceForPreviewZoomed(_ type: PreviewDeviceType) -> some View {
         previewLayout(type.zoomedLayout)
             .previewDisplayName("\(type.rawValue) Zoomed")
-
     }
 }
 
