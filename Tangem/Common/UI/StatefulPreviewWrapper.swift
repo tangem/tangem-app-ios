@@ -18,7 +18,7 @@ struct StatefulPreviewWrapper<Value, Content: View>: View {
     }
 
     init(_ value: Value, content: @escaping (Binding<Value>) -> Content) {
-        self._value = State(wrappedValue: value)
+        _value = State(wrappedValue: value)
         self.content = content
     }
 }

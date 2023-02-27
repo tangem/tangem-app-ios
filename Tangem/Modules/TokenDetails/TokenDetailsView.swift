@@ -17,7 +17,7 @@ struct TokenDetailsView: View {
             PendingTxView(pendingTx: $0)
         }
 
-        let outgTx = viewModel.outgoingTransactions.enumerated().map { (index, pendingTx) in
+        let outgTx = viewModel.outgoingTransactions.enumerated().map { index, pendingTx in
             PendingTxView(pendingTx: pendingTx) {
                 viewModel.openPushTx(for: index)
             }
@@ -28,7 +28,7 @@ struct TokenDetailsView: View {
 
     @ViewBuilder
     var exchangeCryptoButton: some View {
-        if viewModel.canSellCrypto && viewModel.canBuyCrypto {
+        if viewModel.canSellCrypto, viewModel.canBuyCrypto {
             MainButton(
                 title: Localization.walletButtonTrade,
                 icon: .leading(Assets.exchangeMini),
@@ -36,12 +36,14 @@ struct TokenDetailsView: View {
                 action: viewModel.tradeCryptoAction
             )
             .actionSheet(isPresented: $viewModel.showTradeSheet, content: {
-                ActionSheet(title: Text(Localization.walletChooseTradeAction),
-                            buttons: [
-                                .default(Text(Localization.walletButtonBuy), action: viewModel.openBuyCryptoIfPossible),
-                                .default(Text(Localization.walletButtonSell), action: viewModel.openSellCrypto),
-                                .cancel(),
-                            ])
+                ActionSheet(
+                    title: Text(Localization.walletChooseTradeAction),
+                    buttons: [
+                        .default(Text(Localization.walletButtonBuy), action: viewModel.openBuyCryptoIfPossible),
+                        .default(Text(Localization.walletButtonSell), action: viewModel.openSellCrypto),
+                        .cancel(),
+                    ]
+                )
             })
         } else if viewModel.canSellCrypto {
             MainButton(
@@ -80,7 +82,6 @@ struct TokenDetailsView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
-
             Text(viewModel.title)
                 .font(Font.system(size: 36, weight: .bold, design: .default))
                 .padding(.horizontal, 16)
@@ -101,15 +102,16 @@ struct TokenDetailsView: View {
                         ForEach(self.pendingTransactionViews) { $0 }
 
                         if let walletModel = viewModel.walletModel {
-                            BalanceAddressView(walletModel: walletModel,
-                                               amountType: viewModel.amountType,
-                                               isRefreshing: viewModel.isRefreshing,
-                                               showExplorerURL: viewModel.showExplorerURL)
+                            BalanceAddressView(
+                                walletModel: walletModel,
+                                amountType: viewModel.amountType,
+                                isRefreshing: viewModel.isRefreshing,
+                                showExplorerURL: viewModel.showExplorerURL
+                            )
                         }
 
                         bottomButtons
                             .padding(.top, 16)
-
 
                         if let sendBlockedReason = viewModel.sendBlockedReason {
                             AlertCardView(title: "", message: sendBlockedReason)
@@ -134,9 +136,7 @@ struct TokenDetailsView: View {
             }
         }
         .edgesIgnoringSafeArea(.bottom)
-        .navigationBarHidden(false)
         .navigationBarTitle("", displayMode: .inline)
-        .navigationBarBackButtonHidden(false)
         .navigationBarItems(trailing: trailingButton)
         .background(Color.tangemBgGray.edgesIgnoringSafeArea(.all))
         .ignoresKeyboard()
@@ -176,12 +176,11 @@ struct TokenDetailsView: View {
 
         case .multi:
             MainButton(
-                title: Localization.walletButtonTrade,
+                title: Localization.walletButtonActions,
                 icon: .leading(Assets.exchangeIcon),
                 action: viewModel.openExchangeActionSheet
             )
             .actionSheet(item: $viewModel.exchangeActionSheet, content: { $0.sheet })
-
         }
     }
 }
@@ -189,11 +188,13 @@ struct TokenDetailsView: View {
 struct TokenDetailsView_Previews: PreviewProvider {
     static var previews: some View {
         NavigationView {
-            TokenDetailsView(viewModel: TokenDetailsViewModel(cardModel: PreviewCard.cardanoNote.cardModel,
-                                                              blockchainNetwork: PreviewCard.cardanoNote.blockchainNetwork!,
-                                                              amountType: .coin,
-                                                              coordinator: TokenDetailsCoordinator()))
-                .deviceForPreviewZoomed(.iPhone7)
+            TokenDetailsView(viewModel: TokenDetailsViewModel(
+                cardModel: PreviewCard.cardanoNote.cardModel,
+                blockchainNetwork: PreviewCard.cardanoNote.blockchainNetwork!,
+                amountType: .coin,
+                coordinator: TokenDetailsCoordinator()
+            ))
+            .deviceForPreviewZoomed(.iPhone7)
         }
     }
 }

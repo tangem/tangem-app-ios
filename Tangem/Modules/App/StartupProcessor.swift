@@ -14,14 +14,13 @@ class StartupProcessor {
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
 
     func getStartupOption() -> StartupOption {
-        if backupServiceProvider.backupService.hasIncompletedBackup,
-           !backupServiceProvider.backupService.hasUncompletedSaltPayBackup {
+        if backupServiceProvider.backupService.hasIncompletedBackup {
             return .uncompletedBackup
         }
 
-        if AppSettings.shared.saveUserWallets
-            && !userWalletRepository.isEmpty
-            && BiometricsUtil.isAvailable {
+        if AppSettings.shared.saveUserWallets,
+           !userWalletRepository.isEmpty,
+           BiometricsUtil.isAvailable {
             return .auth
         }
 

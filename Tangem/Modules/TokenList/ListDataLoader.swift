@@ -13,15 +13,18 @@ import BlockchainSdk
 
 class ListDataLoader {
     // MARK: Dependencies
+
     @Injected(\.tangemApiService) var tangemApiService: TangemApiService
 
     // MARK: Output
+
     @Published var items: [CoinModel] = []
 
     // Tells if all items have been loaded. (Used to hide/show activity spinner)
     private(set) var canFetchMore = true
 
     // MARK: Input
+
     private let networkIds: [String]
     private let exchangeable: Bool?
 
@@ -45,17 +48,14 @@ class ListDataLoader {
     }
 
     func reset(_ searchText: String) {
-        self.canFetchMore = true
-        self.items = []
-        self.currentPage = 0
-        self.lastSearchText = searchText
-        self.cachedSearch = [:]
+        canFetchMore = true
+        items = []
+        currentPage = 0
+        lastSearchText = searchText
+        cachedSearch = [:]
     }
 
     func fetch(_ searchText: String) {
-        if !searchText.isEmpty {
-            Analytics.log(.tokenSearched)
-        }
         cancellable = nil
 
         if lastSearchText != searchText {

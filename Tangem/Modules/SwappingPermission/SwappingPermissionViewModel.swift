@@ -12,7 +12,7 @@ import TangemSdk
 
 final class SwappingPermissionViewModel: ObservableObject, Identifiable {
     /// For SwiftUI sheet logic
-    let id: UUID = UUID()
+    let id: UUID = .init()
 
     // MARK: - ViewState
 
@@ -20,21 +20,23 @@ final class SwappingPermissionViewModel: ObservableObject, Identifiable {
     @Published var errorAlert: AlertBinder?
 
     var tokenSymbol: String {
-        transactionInfo.sourceCurrency.symbol
+        inputModel.transactionInfo.sourceCurrency.symbol
     }
 
     // MARK: - Dependencies
 
-    private let transactionInfo: ExchangeTransactionDataModel
+    private let inputModel: SwappingPermissionInputModel
     private let transactionSender: TransactionSendable
     private unowned let coordinator: SwappingPermissionRoutable
 
+    private var didBecomeActiveNotificationCancellable: AnyCancellable?
+
     init(
-        transactionInfo: ExchangeTransactionDataModel,
+        inputModel: SwappingPermissionInputModel,
         transactionSender: TransactionSendable,
         coordinator: SwappingPermissionRoutable
     ) {
-        self.transactionInfo = transactionInfo
+        self.inputModel = inputModel
         self.transactionSender = transactionSender
         self.coordinator = coordinator
 
@@ -42,19 +44,32 @@ final class SwappingPermissionViewModel: ObservableObject, Identifiable {
     }
 
     func didTapApprove() {
+        let info = inputModel.transactionInfo
+
+        Analytics.log(
+            event: .swapButtonPermissionApprove,
+            params: [
+                .sendToken: info.sourceCurrency.symbol,
+                .receiveToken: info.destinationCurrency.symbol,
+            ]
+        )
+
         Task {
             do {
-                try await transactionSender.sendTransaction(transactionInfo)
-                await didSendApproveTransaction()
+                _ = try await transactionSender.sendTransaction(info)
+                await didSendApproveTransaction(transactionInfo: info)
             } catch TangemSdkError.userCancelled {
                 // Do nothing
             } catch {
-                errorAlert = AlertBinder(title: Localization.commonError, message: error.localizedDescription)
+                await runOnMain {
+                    errorAlert = AlertBinder(title: Localization.commonError, message: error.localizedDescription)
+                }
             }
         }
     }
 
     func didTapCancel() {
+        Analytics.log(.swapButtonPermissionCancel)
         coordinator.userDidCancel()
     }
 }
@@ -63,8 +78,15 @@ final class SwappingPermissionViewModel: ObservableObject, Identifiable {
 
 extension SwappingPermissionViewModel {
     @MainActor
-    func didSendApproveTransaction() {
-        coordinator.didSendApproveTransaction()
+    func didSendApproveTransaction(transactionInfo: ExchangeTransactionDataModel) {
+        // We have to waiting close the nfc view to close this permission view
+        didBecomeActiveNotificationCancellable = NotificationCenter
+            .default
+            .publisher(for: UIApplication.didBecomeActiveNotification)
+            .delay(for: 0.3, scheduler: DispatchQueue.main)
+            .sink { [weak self] _ in
+                self?.coordinator.didSendApproveTransaction(transactionInfo: transactionInfo)
+            }
     }
 }
 
@@ -72,23 +94,29 @@ extension SwappingPermissionViewModel {
 
 private extension SwappingPermissionViewModel {
     func setupView() {
+        let transactionInfo = inputModel.transactionInfo
         /// Addresses have to the same width for both
         let walletAddress = AddressFormatter(address: transactionInfo.sourceAddress).truncated()
         let spenderAddress = AddressFormatter(address: transactionInfo.destinationAddress).truncated()
 
-        let fee = transactionInfo.fee.groupedFormatted(
-            maximumFractionDigits: transactionInfo.sourceCurrency.decimalCount
-        )
+        let fee = transactionInfo.fee.rounded(scale: 2, roundingMode: .up)
+        let fiatFee = inputModel.fiatFee.currencyFormatted(code: AppSettings.shared.selectedCurrencyCode)
+        let formattedFee = fee.groupedFormatted(maximumFractionDigits: transactionInfo.sourceBlockchain.decimalCount)
+        let feeLabel = "\(formattedFee) \(inputModel.transactionInfo.sourceBlockchain.symbol) (\(fiatFee))"
 
         contentRowViewModels = [
-            DefaultRowViewModel(title: Localization.swappingPermissionRowsAmount(tokenSymbol),
-                                detailsType: .icon(Assets.infinityMini)),
-            DefaultRowViewModel(title: Localization.swappingPermissionRowsYourWallet,
-                                detailsType: .text(String(walletAddress))),
-            DefaultRowViewModel(title: Localization.swappingPermissionRowsSpender,
-                                detailsType: .text(String(spenderAddress))),
-            DefaultRowViewModel(title: Localization.sendFeeLabel,
-                                detailsType: .text(fee)),
+            DefaultRowViewModel(
+                title: Localization.swappingPermissionRowsYourWallet,
+                detailsType: .text(String(walletAddress))
+            ),
+            DefaultRowViewModel(
+                title: Localization.swappingPermissionRowsSpender,
+                detailsType: .text(String(spenderAddress))
+            ),
+            DefaultRowViewModel(
+                title: Localization.sendFeeLabel,
+                detailsType: .text(feeLabel)
+            ),
         ]
     }
 }

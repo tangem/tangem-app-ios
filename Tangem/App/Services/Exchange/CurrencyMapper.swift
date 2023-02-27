@@ -59,9 +59,9 @@ struct CurrencyMapper: CurrencyMapping {
         let coinType = coinModel.items.first
 
         switch coinType {
-        case let .blockchain(blockchain):
+        case .blockchain(let blockchain):
             return mapToCurrency(blockchain: blockchain)
-        case let .token(token, blockchain):
+        case .token(let token, let blockchain):
             return mapToCurrency(token: token, blockchain: blockchain)
         case .none:
             assertionFailure("CoinModel haven't items")

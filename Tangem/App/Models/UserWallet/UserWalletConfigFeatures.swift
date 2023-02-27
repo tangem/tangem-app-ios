@@ -40,6 +40,8 @@ enum UserWalletFeature: Int, CaseIterable { // [REDACTED_TODO_COMMENT]
     case tokenSynchronization
 
     case swapping
+    case displayHashesCount
+    case transactionHistory
 }
 
 extension UserWalletFeature {
@@ -49,7 +51,7 @@ extension UserWalletFeature {
         case disabled(localizedReason: String? = nil)
 
         var disabledLocalizedReason: String? {
-            if case let .disabled(reason) = self, let reason = reason {
+            if case .disabled(let reason) = self, let reason = reason {
                 return reason
             }
 

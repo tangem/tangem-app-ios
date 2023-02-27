@@ -9,10 +9,9 @@
 import SwiftUI
 
 struct OnboardingTopupBalanceUpdater: View {
-
     let balance: String
     let frame: CGSize
-    let offset:  CGSize
+    let offset: CGSize
     let refreshAction: () -> Void
     let refreshButtonState: OnboardingCircleButton.State
     let refreshButtonSize: OnboardingCircleButton.Size
@@ -40,18 +39,18 @@ struct OnboardingTopupBalanceUpdater: View {
             }
             .offset(offset)
 
-            OnboardingCircleButton(refreshAction: refreshAction,
-                                   state: refreshButtonState,
-                                   size: refreshButtonSize)
-                .offset(x: 0, y: offset.height + frame.height / 2)
+            OnboardingCircleButton(
+                refreshAction: refreshAction,
+                state: refreshButtonState,
+                size: refreshButtonSize
+            )
+            .offset(x: 0, y: offset.height + frame.height / 2)
         }
         .opacity(opacity)
     }
-
 }
 
 struct OnboardingTopupBalanceView: View {
-
     let backgroundFrameSize: CGSize
     let cornerSize: CGFloat
     let backgroundOffset: CGSize
@@ -86,7 +85,6 @@ struct OnboardingTopupBalanceView: View {
             )
         }
     }
-
 }
 
 struct OnboardingTopupBalanceView_Previews: PreviewProvider {
@@ -98,9 +96,7 @@ struct OnboardingTopupBalanceView_Previews: PreviewProvider {
             balance: "0.00 BTC",
             balanceUpdaterFrame: CGSize(width: 100, height: 200),
             balanceUpdaterOffset: CGSize(width: 0, height: 40),
-            refreshAction: {
-
-            },
+            refreshAction: {},
             refreshButtonState: .refreshButton,
             refreshButtonSize: .medium,
             refreshButtonOpacity: 1

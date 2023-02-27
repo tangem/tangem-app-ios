@@ -9,7 +9,6 @@
 import SwiftUI
 
 struct CheckmarkSwitch: View {
-
     struct Settings {
         let shape: Shape
         let color: Color
@@ -18,19 +17,23 @@ struct CheckmarkSwitch: View {
         let isInteractable: Bool
 
         static func defaultCircled(interactable: Bool = true) -> Settings {
-            .init(shape: .circle,
-                  color: .tangemGreen,
-                  borderColor: .tangemGrayDark,
-                  checkmarkLineWidth: 2,
-                  isInteractable: interactable)
+            .init(
+                shape: .circle,
+                color: .tangemGreen,
+                borderColor: .tangemGrayDark,
+                checkmarkLineWidth: 2,
+                isInteractable: interactable
+            )
         }
 
         static func defaultRoundedRect(interactable: Bool = true) -> Settings {
-            .init(shape: .roundedRect(cornerRadius: 3),
-                  color: .tangemGreen,
-                  borderColor: .tangemGrayDark,
-                  checkmarkLineWidth: 2,
-                  isInteractable: interactable)
+            .init(
+                shape: .roundedRect(cornerRadius: 3),
+                color: .tangemGreen,
+                borderColor: .tangemGrayDark,
+                checkmarkLineWidth: 2,
+                isInteractable: interactable
+            )
         }
     }
 
@@ -42,7 +45,7 @@ struct CheckmarkSwitch: View {
             switch self {
             case .circle:
                 return containerSize.height / 2
-            case let .roundedRect(cornerRadius):
+            case .roundedRect(let cornerRadius):
                 return cornerRadius
             }
         }
@@ -66,10 +69,14 @@ struct CheckmarkSwitch: View {
                 Rectangle()
                     .foregroundColor(settings.color)
                     .cornerRadius(settings.shape.cornerRadius(in: geometry.size))
-                    .scaleEffect(.init(width: isChecked.wrappedValue ? 1.0 : 0.0001,
-                                       height: isChecked.wrappedValue ? 1.0 : 0.0001))
-                Checkmark(lineWidth: 2,
-                          filled: isChecked.wrappedValue)
+                    .scaleEffect(.init(
+                        width: isChecked.wrappedValue ? 1.0 : 0.0001,
+                        height: isChecked.wrappedValue ? 1.0 : 0.0001
+                    ))
+                Checkmark(
+                    lineWidth: 2,
+                    filled: isChecked.wrappedValue
+                )
             }
             .onTapGesture {
                 guard settings.isInteractable else { return }
@@ -83,31 +90,36 @@ struct CheckmarkSwitch: View {
 }
 
 struct CheckmarkSwitchPreview: View {
-
     @State var isEvenChecked: Bool = false
     @State var isOddChecked: Bool = true
 
     var body: some View {
         VStack {
-            CheckmarkSwitch(isChecked: $isOddChecked,
-                            settings: .defaultCircled())
-                .frame(size: .init(width: 26, height: 26))
-            CheckmarkSwitch(isChecked: $isEvenChecked,
-                            settings: .defaultCircled())
-                .frame(size: .init(width: 26, height: 26))
-            CheckmarkSwitch(isChecked: $isOddChecked,
-                            settings: .defaultRoundedRect())
-                .frame(size: .init(width: 26, height: 26))
-            CheckmarkSwitch(isChecked: $isEvenChecked,
-                            settings: .defaultRoundedRect())
-                .frame(size: .init(width: 26, height: 26))
+            CheckmarkSwitch(
+                isChecked: $isOddChecked,
+                settings: .defaultCircled()
+            )
+            .frame(size: .init(width: 26, height: 26))
+            CheckmarkSwitch(
+                isChecked: $isEvenChecked,
+                settings: .defaultCircled()
+            )
+            .frame(size: .init(width: 26, height: 26))
+            CheckmarkSwitch(
+                isChecked: $isOddChecked,
+                settings: .defaultRoundedRect()
+            )
+            .frame(size: .init(width: 26, height: 26))
+            CheckmarkSwitch(
+                isChecked: $isEvenChecked,
+                settings: .defaultRoundedRect()
+            )
+            .frame(size: .init(width: 26, height: 26))
         }
     }
-
 }
 
 struct CheckmarkSwitch_Previews: PreviewProvider {
-
     static var previews: some View {
         CheckmarkSwitchPreview()
     }

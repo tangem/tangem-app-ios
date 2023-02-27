@@ -14,9 +14,25 @@ func runTask(_ code: @escaping () async -> Void) -> Task<Void, Never> {
 }
 
 @discardableResult
+func runTask(_ code: @escaping () async throws -> Void) -> Task<Void, Error> {
+    Task {
+        try await code()
+    }
+}
+
+@discardableResult
 func runTask(_ code: @escaping () -> Void) -> Task<Void, Never> {
     Task {
         code()
+    }
+}
+
+@discardableResult
+func runTask<T: AnyObject>(in object: T, code: @escaping (T) async throws -> Void) -> Task<Void, Error> {
+    Task { [weak object] in
+        guard let object else { return }
+
+        try await code(object)
     }
 }
 

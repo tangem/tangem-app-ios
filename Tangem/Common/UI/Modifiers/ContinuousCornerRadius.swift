@@ -20,7 +20,7 @@ struct ContinuousCornerRadius: ViewModifier {
 extension View {
     @ViewBuilder
     func cornerRadiusContinuous(_ radius: CGFloat) -> some View {
-        self.modifier(
+        modifier(
             ContinuousCornerRadius(radius: radius)
         )
     }
