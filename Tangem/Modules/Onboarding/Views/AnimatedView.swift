@@ -13,13 +13,14 @@ struct AnimatedViewSettings: Equatable {
     var intermediateSettings: CardAnimSettings?
 
     static var zero: AnimatedViewSettings {
-        .init(targetSettings: .zero,
-              intermediateSettings: nil)
+        .init(
+            targetSettings: .zero,
+            intermediateSettings: nil
+        )
     }
 }
 
 struct AnimatedView<Content: View>: View {
-
     let content: Content
     let settings: Published<AnimatedViewSettings>.Publisher
 
@@ -125,11 +126,9 @@ struct AnimatedView<Content: View>: View {
             return currentSettings.targetSettings
         }
     }
-
 }
 
 fileprivate class AnimatedViewPreviewModel: ObservableObject {
-
     enum Step: String {
         case zero
         case first
@@ -148,8 +147,10 @@ fileprivate class AnimatedViewPreviewModel: ObservableObject {
         }
 
         var settings: AnimatedViewSettings {
-            .init(targetSettings: target,
-                  intermediateSettings: intermediateOffset)
+            .init(
+                targetSettings: target,
+                intermediateSettings: intermediateOffset
+            )
         }
 
         var target: CardAnimSettings {
@@ -157,41 +158,49 @@ fileprivate class AnimatedViewPreviewModel: ObservableObject {
             case .zero:
                 return .zero
             case .first:
-                return .init(frame: .init(width: 75, height: 75),
-                             offset: .init(width: 100, height: -100),
-                             scale: 1.0,
-                             opacity: 1,
-                             zIndex: 1,
-                             rotationAngle: .zero,
-                             animType: .noAnim,
-                             animDuration: 0.3)
+                return .init(
+                    frame: .init(width: 75, height: 75),
+                    offset: .init(width: 100, height: -100),
+                    scale: 1.0,
+                    opacity: 1,
+                    zIndex: 1,
+                    rotationAngle: .zero,
+                    animType: .noAnim,
+                    animDuration: 0.3
+                )
             case .second:
-                return .init(frame: .init(width: 75, height: 75),
-                             offset: .init(width: 100, height: 100),
-                             scale: 0.5,
-                             opacity: 0.4,
-                             zIndex: 1,
-                             rotationAngle: .init(degrees: 45),
-                             animType: .linear,
-                             animDuration: 0.3)
+                return .init(
+                    frame: .init(width: 75, height: 75),
+                    offset: .init(width: 100, height: 100),
+                    scale: 0.5,
+                    opacity: 0.4,
+                    zIndex: 1,
+                    rotationAngle: .init(degrees: 45),
+                    animType: .linear,
+                    animDuration: 0.3
+                )
             case .third:
-                return .init(frame: .init(width: 75, height: 75),
-                             offset: .init(width: -100, height: 100),
-                             scale: 0.7,
-                             opacity: 0.8,
-                             zIndex: 1,
-                             rotationAngle: .init(degrees: 135),
-                             animType: .linear,
-                             animDuration: 0.3)
+                return .init(
+                    frame: .init(width: 75, height: 75),
+                    offset: .init(width: -100, height: 100),
+                    scale: 0.7,
+                    opacity: 0.8,
+                    zIndex: 1,
+                    rotationAngle: .init(degrees: 135),
+                    animType: .linear,
+                    animDuration: 0.3
+                )
             case .fourth:
-                return .init(frame: .init(width: 75, height: 75),
-                             offset: .init(width: -100, height: -100),
-                             scale: 1,
-                             opacity: 1,
-                             zIndex: 1,
-                             rotationAngle: .init(degrees: 270),
-                             animType: .linear,
-                             animDuration: 0.3)
+                return .init(
+                    frame: .init(width: 75, height: 75),
+                    offset: .init(width: -100, height: -100),
+                    scale: 1,
+                    opacity: 1,
+                    zIndex: 1,
+                    rotationAngle: .init(degrees: 270),
+                    animType: .linear,
+                    animDuration: 0.3
+                )
             }
         }
 
@@ -200,41 +209,49 @@ fileprivate class AnimatedViewPreviewModel: ObservableObject {
             case .zero:
                 return .zero
             case .first:
-                return .init(frame: .init(width: 75, height: 75),
-                             offset: .init(width: -20, height: -40),
-                             scale: 0.6,
-                             opacity: 0.4,
-                             zIndex: 1,
-                             rotationAngle: .zero,
-                             animType: .linear,
-                             animDuration: 0.3)
+                return .init(
+                    frame: .init(width: 75, height: 75),
+                    offset: .init(width: -20, height: -40),
+                    scale: 0.6,
+                    opacity: 0.4,
+                    zIndex: 1,
+                    rotationAngle: .zero,
+                    animType: .linear,
+                    animDuration: 0.3
+                )
             case .second:
-                return .init(frame: .init(width: 75, height: 75),
-                             offset: .init(width: 150, height: 0),
-                             scale: 0.5,
-                             opacity: 0.4,
-                             zIndex: 1,
-                             rotationAngle: .init(degrees: 45),
-                             animType: .linear,
-                             animDuration: 0.3)
+                return .init(
+                    frame: .init(width: 75, height: 75),
+                    offset: .init(width: 150, height: 0),
+                    scale: 0.5,
+                    opacity: 0.4,
+                    zIndex: 1,
+                    rotationAngle: .init(degrees: 45),
+                    animType: .linear,
+                    animDuration: 0.3
+                )
             case .third:
-                return .init(frame: .init(width: 75, height: 75),
-                             offset: .init(width: 0, height: 30),
-                             scale: 0.7,
-                             opacity: 0.8,
-                             zIndex: 1,
-                             rotationAngle: .init(degrees: 135),
-                             animType: .linear,
-                             animDuration: 0.3)
+                return .init(
+                    frame: .init(width: 75, height: 75),
+                    offset: .init(width: 0, height: 30),
+                    scale: 0.7,
+                    opacity: 0.8,
+                    zIndex: 1,
+                    rotationAngle: .init(degrees: 135),
+                    animType: .linear,
+                    animDuration: 0.3
+                )
             case .fourth:
-                return .init(frame: .init(width: 75, height: 75),
-                             offset: .init(width: -30, height: 20),
-                             scale: 1,
-                             opacity: 1,
-                             zIndex: 1,
-                             rotationAngle: .init(degrees: 270),
-                             animType: .linear,
-                             animDuration: 0.3)
+                return .init(
+                    frame: .init(width: 75, height: 75),
+                    offset: .init(width: -30, height: 20),
+                    scale: 1,
+                    opacity: 1,
+                    zIndex: 1,
+                    rotationAngle: .init(degrees: 270),
+                    animType: .linear,
+                    animDuration: 0.3
+                )
             }
         }
     }
@@ -246,11 +263,9 @@ fileprivate class AnimatedViewPreviewModel: ObservableObject {
         step = step.next
         settings = step.settings
     }
-
 }
 
 fileprivate struct AnimatedViewPreview: View {
-
     @ObservedObject var viewModel: AnimatedViewPreviewModel
 
     var body: some View {
@@ -274,7 +289,6 @@ fileprivate struct AnimatedViewPreview: View {
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .background(Color.red.opacity(0.4))
         }
-        .navigationBarHidden(true)
     }
 }
 
