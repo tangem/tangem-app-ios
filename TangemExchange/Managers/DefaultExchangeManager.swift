@@ -19,9 +19,7 @@ class DefaultExchangeManager {
 
     // MARK: - Internal
 
-    private var availabilityState: ExchangeAvailabilityState = .idle {
-        didSet { delegate?.exchangeManager(self, didUpdate: availabilityState) }
-    }
+    private var availabilityState: ExchangeAvailabilityState = .idle
 
     private var exchangeItems: ExchangeItems {
         didSet { delegate?.exchangeManager(self, didUpdate: exchangeItems) }
@@ -149,6 +147,11 @@ private extension DefaultExchangeManager {
 private extension DefaultExchangeManager {
     func updateState(_ state: ExchangeAvailabilityState) {
         availabilityState = state
+        if Task.isCancelled {
+            // Task was cancelled so we don't need to update UI for staled refresh request
+            return
+        }
+        delegate?.exchangeManager(self, didUpdate: state)
     }
 }
 

@@ -66,6 +66,7 @@ final class SwappingViewModel: ObservableObject {
     // MARK: - Private
 
     private lazy var refreshDataTimer = Timer.publish(every: 1, on: .main, in: .common)
+    private var pendingValidatingAmount: Decimal?
     private var refreshDataTimerBag: AnyCancellable?
     private var bag: Set<AnyCancellable> = []
 
@@ -501,7 +502,11 @@ private extension SwappingViewModel {
     }
 
     func checkForHighPriceImpact(destinationFiatAmount: Decimal) async throws {
-        guard let sendDecimalValue = sendDecimalValue?.value else {
+        guard
+            let sendDecimalValue = sendDecimalValue?.value,
+            pendingValidatingAmount?.isEqual(to: sendDecimalValue) ?? false
+        else {
+            // Current send decimal value was changed during old update. We can ignore this check
             return
         }
 
@@ -564,6 +569,12 @@ private extension SwappingViewModel {
             .removeDuplicates()
             .debounce(for: 1, scheduler: DispatchQueue.main)
             .sink { [weak self] amount in
+                // [REDACTED_TODO_COMMENT]
+                // Currently sendDecimalValue is updating directly from UI
+                // but requesting update in exchange manager with 1 second delay.
+                // So when all necessary information already loaded in exchange manager
+                // we will face wrong send decimal value while checking high price impact.
+                self?.pendingValidatingAmount = amount
                 self?.resetViews()
                 self?.exchangeManager.update(amount: amount)
                 self?.updateSendFiatValue()
