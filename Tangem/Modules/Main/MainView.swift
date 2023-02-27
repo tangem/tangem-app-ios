@@ -21,14 +21,13 @@ struct MainView: View {
             ZStack {
                 RefreshableScrollView(onRefresh: { viewModel.onRefresh($0) }) {
                     VStack(spacing: 14) {
-                        CardView(image: viewModel.image,
-                                 width: geometry.size.width - 32,
-                                 cardSetLabel: viewModel.cardsCountLabel)
-                            .fixedSize(horizontal: false, vertical: true)
-
-                        if viewModel.isBackupAllowed {
-                            backupWarningView
-                        }
+                        CardView(
+                            image: viewModel.image,
+                            width: geometry.size.width - 32,
+                            cardSetLabel: viewModel.cardsCountLabel
+                        )
+                        .padding(.top, 8)
+                        .fixedSize(horizontal: false, vertical: true)
 
                         if viewModel.isLackDerivationWarningViewVisible {
                             ScanCardWarningView(action: viewModel.deriveEntriesWithoutDerivation)
@@ -40,6 +39,9 @@ struct MainView: View {
                         })
                         .padding(.horizontal, 16)
 
+                        if viewModel.isBackupAllowed {
+                            backupWarningView
+                        }
 
                         if let viewModel = viewModel.multiWalletContentViewModel {
                             MultiWalletContentView(viewModel: viewModel)
@@ -57,15 +59,16 @@ struct MainView: View {
                 }
             }
         }
-        .navigationBarBackButtonHidden(true)
+        .navigationBarBackButtonHidden(true) // Remove default back button. Because we don't have back transition. Has no effect on iOS13.
         .navigationBarTitle(Text(Localization.walletTitle), displayMode: .inline)
-        .navigationBarItems(leading: leadingNavigationButtons,
-                            trailing: settingsNavigationButton)
+        .navigationBarItems(
+            leading: leadingNavigationButtons,
+            trailing: settingsNavigationButton
+        )
         .background(Colors.Background.secondary.edgesIgnoringSafeArea(.all))
         .onAppear {
             viewModel.onAppear()
         }
-        .navigationBarHidden(false)
         .ignoresKeyboard()
         .alert(item: $viewModel.error) { $0.alert }
     }
@@ -80,32 +83,36 @@ struct MainView: View {
     }
 
     var userWalletListNavigationButton: some View {
-        Button(action: viewModel.didTapUserWalletListButton,
-               label: {
-                   Assets.wallets
-                       .foregroundColor(Color.black)
-                       .frame(width: 44, height: 44)
-                       .offset(x: -11, y: 0)
-               })
-               .buttonStyle(PlainButtonStyle())
-               .animation(nil)
+        Button(
+            action: viewModel.didTapUserWalletListButton,
+            label: {
+                Assets.wallets.image
+                    .foregroundColor(Color.black)
+                    .frame(width: 44, height: 44)
+                    .offset(x: -11, y: 0)
+            }
+        )
+        .buttonStyle(PlainButtonStyle())
+        .animation(nil)
     }
 
     var scanNavigationButton: some View {
-        Button(action: viewModel.onScan,
-               label: {
-                   Assets.scanWithPhone
-                       .foregroundColor(Color.black)
-                       .frame(width: 44, height: 44)
-                       .offset(x: -14, y: 0)
-               })
-               .buttonStyle(PlainButtonStyle())
-               .animation(nil)
+        Button(
+            action: viewModel.onScan,
+            label: {
+                Assets.scanWithPhone.image
+                    .foregroundColor(Color.black)
+                    .frame(width: 44, height: 44)
+                    .offset(x: -14, y: 0)
+            }
+        )
+        .buttonStyle(PlainButtonStyle())
+        .animation(nil)
     }
 
     var settingsNavigationButton: some View {
         Button(action: viewModel.openSettings) {
-            Image("verticalDots")
+            Assets.verticalDots.image
                 .foregroundColor(Color.tangemGrayDark6)
                 .frame(width: 44, height: 44)
                 .offset(x: 11)
@@ -130,10 +137,11 @@ struct MainView: View {
             action: viewModel.sendTapped
         )
         .actionSheet(isPresented: $viewModel.showSelectWalletSheet) {
-            ActionSheet(title: Text(Localization.walletChoiceWalletOptionTitle),
-                        message: nil,
-                        buttons: sendChoiceButtons + [ActionSheet.Button.cancel()])
-
+            ActionSheet(
+                title: Text(Localization.walletChoiceWalletOptionTitle),
+                message: nil,
+                buttons: sendChoiceButtons + [ActionSheet.Button.cancel()]
+            )
         }
     }
 
@@ -158,12 +166,14 @@ struct MainView: View {
                 action: viewModel.tradeCryptoAction
             )
             .actionSheet(isPresented: $viewModel.showTradeSheet, content: {
-                ActionSheet(title: Text(Localization.walletChooseTradeAction),
-                            buttons: [
-                                .default(Text(Localization.walletButtonBuy), action: viewModel.openBuyCryptoIfPossible),
-                                .default(Text(Localization.walletButtonSell), action: viewModel.openSellCrypto),
-                                .cancel(),
-                            ])
+                ActionSheet(
+                    title: Text(Localization.walletChooseTradeAction),
+                    buttons: [
+                        .default(Text(Localization.walletButtonBuy), action: viewModel.openBuyCryptoIfPossible),
+                        .default(Text(Localization.walletButtonSell), action: viewModel.openSellCrypto),
+                        .cancel(),
+                    ]
+                )
             })
         } else {
             MainButton(
@@ -190,6 +200,7 @@ struct MainView: View {
                 }
             }
             .padding(.horizontal, 16)
+            .padding(.bottom, 8)
         }
     }
 }
@@ -197,10 +208,12 @@ struct MainView: View {
 struct MainView_Previews: PreviewProvider {
     static var previews: some View {
         NavigationView {
-            MainView(viewModel: .init(cardModel: PreviewCard.stellar.cardModel,
-                                      userWalletModel: PreviewCard.stellar.cardModel.userWalletModel!,
-                                      cardImageProvider: CardImageProvider(),
-                                      coordinator: MainCoordinator()))
+            MainView(viewModel: .init(
+                cardModel: PreviewCard.stellar.cardModel,
+                userWalletModel: PreviewCard.stellar.cardModel.userWalletModel!,
+                cardImageProvider: CardImageProvider(),
+                coordinator: MainCoordinator()
+            ))
         }
         .previewGroup(devices: [.iPhone12ProMax])
         .navigationViewStyle(StackNavigationViewStyle())
