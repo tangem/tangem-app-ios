@@ -16,7 +16,6 @@ protocol RateAppService: AnyObject {
     func userReactToRateAppWarning(isPositive: Bool)
 }
 
-
 private struct RateAppServiceKey: InjectionKey {
     static var currentValue: RateAppService = CommonRateAppService()
 }
