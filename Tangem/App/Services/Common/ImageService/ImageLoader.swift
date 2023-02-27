@@ -21,13 +21,11 @@ class ImageLoader {
         case failed = "Failed to parse image from response"
 
         var errorDescription: String? {
-            self.rawValue
+            rawValue
         }
     }
 
-    static let service: ImageLoader = {
-        ImageLoader()
-    }()
+    static let service: ImageLoader = .init()
 
     private let session: URLSession
     private let cache: ImageCacheType = ImageCache()
@@ -55,7 +53,7 @@ class ImageLoader {
 
                 throw ImageLoaderError.failed
             }
-            .handleEvents(receiveOutput: { (image) in
+            .handleEvents(receiveOutput: { image in
                 guard let image = image.image else { return }
 
                 self.cache[url] = image
@@ -63,5 +61,4 @@ class ImageLoader {
             .replaceError(with: DownloadedImage(path: url, image: nil))
             .eraseToAnyPublisher()
     }
-
 }

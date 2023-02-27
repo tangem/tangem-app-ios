@@ -29,7 +29,7 @@ public struct ApproveTransactionParameters: Encodable {
 
     public func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
-        try container.encode(self.tokenAddress, forKey: .tokenAddress)
+        try container.encode(tokenAddress, forKey: .tokenAddress)
 
         switch amount {
         case .infinite:
