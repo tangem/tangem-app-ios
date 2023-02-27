@@ -131,13 +131,14 @@ class TokenListViewModel: ObservableObject {
 }
 
 // MARK: - Navigation
+
 extension TokenListViewModel {
     func closeModule() {
         coordinator.closeModule()
     }
 
     func openAddCustom() {
-        if let cardModel = self.cardModel {
+        if let cardModel = cardModel {
             Analytics.log(.buttonCustomToken)
             coordinator.openAddCustom(for: cardModel)
         }
@@ -153,6 +154,10 @@ private extension TokenListViewModel {
             .debounce(for: 0.5, scheduler: DispatchQueue.main)
             .removeDuplicates()
             .sink { [weak self] string in
+                if !string.isEmpty {
+                    Analytics.log(.tokenSearched)
+                }
+
                 self?.loader.fetch(string)
             }
             .store(in: &bag)
@@ -210,9 +215,9 @@ private extension TokenListViewModel {
     }
 
     func isSelected(_ tokenItem: TokenItem) -> Bool {
-        let isWaitingToBeAdded = self.pendingAdd.contains(tokenItem)
-        let isWaitingToBeRemoved = self.pendingRemove.contains(tokenItem)
-        let alreadyAdded = self.isAdded(tokenItem)
+        let isWaitingToBeAdded = pendingAdd.contains(tokenItem)
+        let isWaitingToBeRemoved = pendingRemove.contains(tokenItem)
+        let alreadyAdded = isAdded(tokenItem)
 
         if isWaitingToBeRemoved {
             return false
@@ -226,17 +231,18 @@ private extension TokenListViewModel {
             return
         }
         if selected,
-           case let .token(_, blockchain) = tokenItem,
+           case .token(_, let blockchain) = tokenItem,
            case .solana = blockchain,
-           !cardModel.longHashesSupported
-        {
+           !cardModel.longHashesSupported {
             let okButton = Alert.Button.default(Text(Localization.commonOk)) {
                 self.updateSelection(tokenItem)
             }
 
-            alert = AlertBinder(alert: Alert(title: Text(Localization.commonAttention),
-                                             message: Text(Localization.alertManageTokensUnsupportedMessage),
-                                             dismissButton: okButton))
+            alert = AlertBinder(alert: Alert(
+                title: Text(Localization.commonAttention),
+                message: Text(Localization.alertManageTokensUnsupportedMessage),
+                dismissButton: okButton
+            ))
 
             return
         }
@@ -297,12 +303,14 @@ private extension TokenListViewModel {
     }
 
     func mapToCoinViewModel(coinModel: CoinModel) -> CoinViewModel {
-        let currencyItems = coinModel.items.enumerated().map { (index, item) in
-            CoinItemViewModel(tokenItem: item,
-                              isReadonly: isReadonlyMode,
-                              isSelected: bindSelection(item),
-                              isCopied: bindCopy(),
-                              position: .init(with: index, total: coinModel.items.count))
+        let currencyItems = coinModel.items.enumerated().map { index, item in
+            CoinItemViewModel(
+                tokenItem: item,
+                isReadonly: isReadonlyMode,
+                isSelected: bindSelection(item),
+                isCopied: bindCopy(),
+                position: .init(with: index, total: coinModel.items.count)
+            )
         }
 
         return CoinViewModel(with: coinModel, items: currencyItems)
@@ -310,13 +318,13 @@ private extension TokenListViewModel {
 
     func showWarningDeleteAlertIfNeeded(isSelected: Bool, tokenItem: TokenItem) {
         guard !isSelected,
-              !self.pendingAdd.contains(tokenItem),
-              self.isTokenAvailable(tokenItem) else {
-            self.onSelect(isSelected, tokenItem)
+              !pendingAdd.contains(tokenItem),
+              isTokenAvailable(tokenItem) else {
+            onSelect(isSelected, tokenItem)
             return
         }
         if canManage(tokenItem) || canRemove(tokenItem: tokenItem) {
-            let title = Localization.tokenDetailsHideAlertTitle(tokenItem.blockchain.currencySymbol)
+            let title = Localization.tokenDetailsHideAlertTitle(tokenItem.currencySymbol)
 
             let cancelAction = { [unowned self] in
                 self.updateSelection(tokenItem)
@@ -327,10 +335,12 @@ private extension TokenListViewModel {
             }
 
             alert = AlertBinder(alert:
-                Alert(title: Text(title),
-                      message: Text(Localization.tokenDetailsHideAlertMessage),
-                      primaryButton: .destructive(Text(Localization.tokenDetailsHideAlertHide), action: hideAction),
-                      secondaryButton: .cancel(cancelAction))
+                Alert(
+                    title: Text(title),
+                    message: Text(Localization.tokenDetailsHideAlertMessage),
+                    primaryButton: .destructive(Text(Localization.tokenDetailsHideAlertHide), action: hideAction),
+                    secondaryButton: .cancel(cancelAction)
+                )
             )
         } else {
             guard let cardModel = cardModel else { return }
@@ -363,10 +373,9 @@ private extension TokenListViewModel {
 
         let network = cardModel.getBlockchainNetwork(for: tokenItem.blockchain, derivationPath: nil)
 
-        guard let walletModel = cardModel.walletModels.first(where: { $0.blockchainNetwork == network })  else {
+        guard let walletModel = cardModel.walletModels.first(where: { $0.blockchainNetwork == network }) else {
             return false
         }
-
 
         let cardTokens: [TokenItem] = walletModel
             .walletManager
@@ -374,34 +383,34 @@ private extension TokenListViewModel {
             .map { token in
                 TokenItem.token(token, network.blockchain)
             }
-            .filter({ !pendingRemove.contains($0) })
+            .filter { !pendingRemove.contains($0) }
 
         return cardTokens.isEmpty
     }
 
     func isTokenAvailable(_ tokenItem: TokenItem) -> Bool {
-        if case let .token(_, blockchain) = tokenItem,
+        if case .token(_, let blockchain) = tokenItem,
            case .solana = blockchain,
            let cardModel = cardModel,
-           !cardModel.longHashesSupported
-        {
+           !cardModel.longHashesSupported {
             return false
         }
         return true
     }
 
     func sendAnalyticsOnChangeTokenState(tokenIsSelected: Bool, tokenItem: TokenItem) {
-        Analytics.log(.tokenSwitcherChanged, params: [
+        Analytics.log(event: .tokenSwitcherChanged, params: [
             .state: Analytics.ParameterValue.state(for: tokenIsSelected).rawValue,
+            .token: tokenItem.currencySymbol,
         ])
     }
 
     func update(cardModel: CardViewModel, entries: inout [StorageEntry]) {
         pendingRemove.forEach { tokenItem in
             switch tokenItem {
-            case let .blockchain(blockchain):
+            case .blockchain(let blockchain):
                 entries.removeAll { $0.blockchainNetwork.blockchain == blockchain }
-            case let .token(token, blockchain):
+            case .token(let token, let blockchain):
                 if let index = entries.firstIndex(where: { $0.blockchainNetwork.blockchain == blockchain }) {
                     entries[index].tokens.removeAll { $0.id == token.id }
                 }
@@ -410,13 +419,13 @@ private extension TokenListViewModel {
 
         pendingAdd.forEach { tokenItem in
             switch tokenItem {
-            case let .blockchain(blockchain):
+            case .blockchain(let blockchain):
                 let network = cardModel.getBlockchainNetwork(for: blockchain, derivationPath: nil)
                 if !entries.contains(where: { $0.blockchainNetwork == network }) {
                     let entry = StorageEntry(blockchainNetwork: network, tokens: [])
                     entries.append(entry)
                 }
-            case let .token(token, blockchain):
+            case .token(let token, let blockchain):
                 let network = cardModel.getBlockchainNetwork(for: blockchain, derivationPath: nil)
 
                 if let entry = entries.firstIndex(where: { $0.blockchainNetwork == network }) {

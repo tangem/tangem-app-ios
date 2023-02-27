@@ -14,7 +14,7 @@ struct WarningBankCardView: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            Image("russia_flag")
+            Assets.russiaFlag.image
                 .padding(.top, 80)
                 .padding(.leading, 10)
 
@@ -49,6 +49,6 @@ struct WarningBankCardView: View {
 
 struct WarningBankCardView_Previews: PreviewProvider {
     static var previews: some View {
-        WarningBankCardView(viewModel: WarningBankCardViewModel(confirmCallback: { }, declineCallback: { }))
+        WarningBankCardView(viewModel: WarningBankCardViewModel(confirmCallback: {}, declineCallback: {}))
     }
 }
