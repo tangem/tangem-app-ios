@@ -35,6 +35,33 @@ enum ExchangeButtonType: Hashable, CaseIterable {
             return Assets.exchangeIcon
         }
     }
+
+    // MARK: - Helper
+
+    static func build(
+        canBuyCrypto: Bool,
+        canSellCrypto: Bool,
+        canSwap: Bool = false,
+        alwaysDisplayBuyOption: Bool = true
+    ) -> [ExchangeButtonType] {
+        var exchangeOptions = ExchangeButtonType.allCases.filter { option in
+            switch option {
+            case .buy:
+                return canBuyCrypto
+            case .sell:
+                return canSellCrypto
+            case .swap:
+                return false
+            }
+        }
+
+        // If options is empty, we must display buy button where button is disabled
+        if exchangeOptions.isEmpty, alwaysDisplayBuyOption {
+            exchangeOptions.append(.buy)
+        }
+
+        return exchangeOptions
+    }
 }
 
 /// State of main button view
