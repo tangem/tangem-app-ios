@@ -18,11 +18,16 @@ struct ExchangeManagerMock: ExchangeManager {
 
     func getAvailabilityState() -> ExchangeAvailabilityState { .idle }
 
+    func getReferrerAccount() -> ExchangeReferrerAccount? { nil }
+
     func update(exchangeItems: ExchangeItems) {}
 
     func update(amount: Decimal?) {}
 
     func isEnoughAllowance() -> Bool { true }
 
-    func refresh() {}
+    func refresh(type: ExchangeManagerRefreshType) {}
+
+    func didSendApprovingTransaction(exchangeTxData: ExchangeTransactionDataModel) {}
+    func didSendSwapTransaction(exchangeTxData: ExchangeTransactionDataModel) {}
 }

@@ -19,6 +19,9 @@ struct MultiWalletContentView: View {
         Group {
             if !viewModel.tokenListIsEmpty {
                 TotalSumBalanceView(viewModel: viewModel.totalSumBalanceViewModel)
+                    .padding(16)
+                    .background(Colors.Background.primary)
+                    .cornerRadius(16)
                     .padding(.horizontal, 16)
             }
 
@@ -55,7 +58,7 @@ struct MultiWalletContentView: View {
             ActivityIndicatorView(color: .gray)
                 .padding()
 
-        case let .loaded(viewModels):
+        case .loaded(let viewModels):
             LazyVStackCompat(alignment: .leading, spacing: 0) {
                 ForEach(viewModels) { item in
                     VStack(spacing: 0) {

@@ -12,36 +12,46 @@ import SwiftUI
 
 extension Error {
     var detailedError: Error {
-        if case let .underlying(uError, _) = self as? MoyaError,
-           case let .sessionTaskFailed(sessionError) = uError.asAFError {
+        if case .underlying(let uError, _) = self as? MoyaError,
+           case .sessionTaskFailed(let sessionError) = uError.asAFError {
             return sessionError
         }
         return self
     }
-}
 
-extension Error {
-    private var alertTitle: String {
-        Localization.commonError
-    }
-    private var okButtonTitle: String {
-        Localization.commonOk
-    }
     var alertBinder: AlertBinder {
-        return AlertBinder(alert: alert, error: self)
-    }
-
-    var alert: Alert {
-        return Alert(title: Text(alertTitle),
-                     message: Text(self.localizedDescription),
-                     dismissButton: Alert.Button.default(Text(okButtonTitle)))
+        toBindable().alertBinder
     }
 
     var alertController: UIAlertController {
-        let vc = UIAlertController(title: alertTitle, message: localizedDescription, preferredStyle: .alert)
-        vc.addAction(UIAlertAction(title: okButtonTitle, style: .destructive, handler: nil))
-        return vc
+        toBindable().alertController
+    }
+
+    private func toBindable() -> BindableError {
+        self as? BindableError ?? BindableErrorWrapper(self)
     }
 }
 
+// MARK: - BindableErrorWrapper
 
+fileprivate struct BindableErrorWrapper: BindableError {
+    private let error: Error
+
+    init(_ error: Error) {
+        self.error = error
+    }
+}
+
+extension BindableErrorWrapper: Error {
+    var localizedDescription: String { error.localizedDescription }
+}
+
+extension BindableErrorWrapper: LocalizedError {
+    var errorDescription: String? { (error as? LocalizedError)?.errorDescription }
+
+    var failureReason: String? { (error as? LocalizedError)?.failureReason }
+
+    var recoverySuggestion: String? { (error as? LocalizedError)?.recoverySuggestion }
+
+    var helpAnchor: String? { (error as? LocalizedError)?.helpAnchor }
+}
