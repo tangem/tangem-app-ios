@@ -42,6 +42,10 @@ class SaltPayRegistrator {
         return urlComponents.url!
     }
 
+    var needsKYC: Bool {
+        registrationState?.kycStatus != .approved
+    }
+
     var kycDoneURL: String {
         "https://success.tangem.com"
     }
@@ -251,6 +255,7 @@ class SaltPayRegistrator {
                 self?.isBusy = false
             } receiveValue: { [weak self] _ in
                 self?.registrationState?.pinSet = true
+                Analytics.log(.pinCodeSet)
                 self?.updateState()
             }
             .store(in: &bag)
@@ -331,6 +336,7 @@ class SaltPayRegistrator {
             }
             .tryMap { hasGas in
                 if !hasGas {
+                    Analytics.log(.notEnoughGasError)
                     throw SaltPayRegistratorError.noGas
                 }
             }
@@ -359,6 +365,7 @@ class SaltPayRegistrator {
             })
             .tryMap { response in
                 guard response.passed == true else { // passed is false, show error
+                    Analytics.log(.cardNotPassedError)
                     throw SaltPayRegistratorError.cardNotPassed
                 }
 
