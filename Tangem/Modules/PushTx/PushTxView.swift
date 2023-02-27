@@ -10,7 +10,6 @@ import SwiftUI
 import BlockchainSdk
 
 struct FilledInputView: View {
-
     let title: String
     let text: String
 
@@ -25,8 +24,6 @@ struct FilledInputView: View {
                 .foregroundColor(.tangemGrayDark6)
             Separator()
         }
-
-
     }
 }
 
@@ -92,11 +89,15 @@ struct PushTxView: View {
                             .font(Font.system(size: 14.0, weight: .medium, design: .default))
                             .foregroundColor(Color.tangemGrayDark6)
                             .padding(.vertical, 8.0)
-                        PickerView(contents: [Localization.sendFeePickerLow,
-                                              Localization.sendFeePickerNormal,
-                                              Localization.sendFeePickerPriority],
-                                   selection: $viewModel.selectedFeeLevel)
-                            .padding(.vertical, 8.0)
+                        PickerView(
+                            contents: [
+                                Localization.sendFeePickerLow,
+                                Localization.sendFeePickerNormal,
+                                Localization.sendFeePickerPriority,
+                            ],
+                            selection: $viewModel.selectedFeeLevel
+                        )
+                        .padding(.vertical, 8.0)
                         Text(viewModel.amountHint?.message ?? " ")
                             .font(.system(size: 13.0, weight: .medium, design: .default))
                             .foregroundColor((viewModel.amountHint?.isError ?? false) ?
@@ -109,26 +110,34 @@ struct PushTxView: View {
                     }
                     Spacer()
                     VStack(spacing: 8.0) {
-                        AmountView(label: Localization.sendAmountLabel,
-                                   labelColor: .tangemGrayDark6,
-                                   amountText: viewModel.amount)
+                        AmountView(
+                            label: Localization.sendAmountLabel,
+                            labelColor: .tangemGrayDark6,
+                            amountText: viewModel.amount
+                        )
 
-                        AmountView(label: Localization.pushPreviousFee,
-                                   labelColor: .tangemGrayDark,
-                                   amountText: viewModel.previousFee)
-                            .opacity(0.6)
-                        AmountView(label: Localization.pushAdditionalFee,
-                                   labelColor: .tangemGrayDark,
-                                   isLoading: viewModel.isFeeLoading,
-                                   amountText: viewModel.additionalFee)
+                        AmountView(
+                            label: Localization.pushPreviousFee,
+                            labelColor: .tangemGrayDark,
+                            amountText: viewModel.previousFee
+                        )
+                        .opacity(0.6)
+                        AmountView(
+                            label: Localization.pushAdditionalFee,
+                            labelColor: .tangemGrayDark,
+                            isLoading: viewModel.isFeeLoading,
+                            amountText: viewModel.additionalFee
+                        )
                         Separator()
 
-                        AmountView(label: Localization.sendTotalLabel,
-                                   labelColor: .tangemGrayDark6,
-                                   labelFont: .system(size: 20, weight: .bold, design: .default),
-                                   amountText: viewModel.sendTotal,
-                                   amountScaleFactor: 0.5,
-                                   amountLineLimit: 1)
+                        AmountView(
+                            label: Localization.sendTotalLabel,
+                            labelColor: .tangemGrayDark6,
+                            labelFont: .system(size: 20, weight: .bold, design: .default),
+                            amountText: viewModel.sendTotal,
+                            amountScaleFactor: 0.5,
+                            amountLineLimit: 1
+                        )
                         HStack {
                             Spacer()
                             Text(viewModel.sendTotalSubtitle)
@@ -144,30 +153,24 @@ struct PushTxView: View {
                     //                    .padding(.bottom, 16)
                     HStack(alignment: .center, spacing: 8.0) {
                         Spacer()
-                        MainButton(title: Localization.walletButtonSend,
-                                   icon: .leading(Assets.arrowRightMini),
-                                   isDisabled: !viewModel.isSendEnabled,
-                                   action: viewModel.onSend)
-                            .alert(item: $viewModel.sendError) { binder in
-                                if binder.error == nil {
-                                    return binder.alert
-                                }
-
-                                let errorDescription = String(binder.error?.localizedDescription.dropTrailingPeriod ?? "Unknown error")
-
-                                return Alert(title: Text(Localization.feedbackSubjectTxFailed),
-                                             message: Text(Localization.alertFailedToSendTransactionMessage(errorDescription)),
-                                             primaryButton: .default(Text(Localization.alertButtonSendFeedback), action: viewModel.openMail),
-                                             secondaryButton: .default(Text(Localization.commonNo)))
-                            }
+                        MainButton(
+                            title: Localization.walletButtonSend,
+                            icon: .leading(Assets.arrowRightMini),
+                            isDisabled: !viewModel.isSendEnabled,
+                            action: viewModel.onSend
+                        )
+                        .alert(item: $viewModel.sendError) { $0.alert }
                     }
                     .padding(.top, 16.0)
                 }
                 .padding()
-                .frame(minWidth: geometry.size.width,
-                       maxWidth: geometry.size.width,
-                       minHeight: geometry.size.height,
-                       maxHeight: .infinity, alignment: .top)
+                .frame(
+                    minWidth: geometry.size.width,
+                    maxWidth: geometry.size.width,
+                    minHeight: geometry.size.height,
+                    maxHeight: .infinity,
+                    alignment: .top
+                )
             }
         }
     }
@@ -175,11 +178,15 @@ struct PushTxView: View {
 
 struct PushTxView_Previews: PreviewProvider {
     static var previews: some View {
-        PushTxView(viewModel: .init(transaction: .dummyTx(blockchain: .bitcoin(testnet: false),
-                                                          type: .coin,
-                                                          destinationAddress: "tb1qrvkydv7322e7fl9v58eqvn87tx2jtlpqaetz2n"),
-                                    blockchainNetwork: PreviewCard.ethereum.blockchainNetwork!,
-                                    cardViewModel: PreviewCard.ethereum.cardModel,
-                                    coordinator: PushTxCoordinator()))
+        PushTxView(viewModel: .init(
+            transaction: .dummyTx(
+                blockchain: .bitcoin(testnet: false),
+                type: .coin,
+                destinationAddress: "tb1qrvkydv7322e7fl9v58eqvn87tx2jtlpqaetz2n"
+            ),
+            blockchainNetwork: PreviewCard.ethereum.blockchainNetwork!,
+            cardViewModel: PreviewCard.ethereum.cardModel,
+            coordinator: PushTxCoordinator()
+        ))
     }
 }

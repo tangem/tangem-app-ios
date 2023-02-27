@@ -15,7 +15,7 @@ protocol UserWalletConfig {
 
     var emailConfig: EmailConfig? { get }
 
-    var touURL: URL { get }
+    var tou: TOU { get }
 
     var cardsCount: Int { get }
 
@@ -47,11 +47,15 @@ protocol UserWalletConfig {
 
     var emailData: [EmailCollectedData] { get }
 
-    var cardAmountType: Amount.AmountType { get }
+    var cardAmountType: Amount.AmountType? { get }
 
     var userWalletIdSeed: Data? { get }
 
     var supportChatEnvironment: SupportChatEnvironment { get }
+
+    var exchangeServiceEnvironment: ExchangeServiceEnvironment { get }
+
+    var productType: Analytics.ProductType { get }
 
     func getFeatureAvailability(_ feature: UserWalletFeature) -> UserWalletFeature.Availability
 
@@ -71,16 +75,21 @@ extension UserWalletConfig {
         getFeatureAvailability(feature).isAvailable
     }
 
-    var cardAmountType: Amount.AmountType {
-        .coin
+    var cardAmountType: Amount.AmountType? {
+        return nil
     }
 
     var supportChatEnvironment: SupportChatEnvironment {
+        .tangem
+    }
+
+    var exchangeServiceEnvironment: ExchangeServiceEnvironment {
         .default
     }
 
-    var touURL: URL {
-        .init(string: "https://tangem.com/tangem_tos.html")!
+    var tou: TOU {
+        let url = URL(string: "https://tangem.com/tangem_tos.html")!
+        return TOU(id: url.absoluteString, url: url)
     }
 
     var emailConfig: EmailConfig? {
@@ -93,8 +102,14 @@ struct EmailConfig {
     let subject: String
 
     static var `default`: EmailConfig {
-        .init(recipient: "support@tangem.com",
-              subject: Localization.feedbackSubjectSupportTangem)
+        .init(
+            recipient: "support@tangem.com",
+            subject: Localization.feedbackSubjectSupportTangem
+        )
     }
 }
 
+struct TOU {
+    let id: String
+    let url: URL
+}
