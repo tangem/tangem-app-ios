@@ -77,7 +77,6 @@ struct HorizontalButtonStack: View {
                 }
             }
             .frame(width: geo.size.width, height: height)
-
         }
         .font(.system(size: 17))
         .foregroundColor(Color.white)
@@ -91,34 +90,46 @@ struct TwinButton_Previews: PreviewProvider {
     static var previews: some View {
         VStack(spacing: 16) {
             HorizontalButtonStack(buttons: [
-                .init(imageName: "arrow.up",
-                      title: "Topup",
-                      action: {},
-                      isDisabled: false),
-                .init(imageName: "arrow.down",
-                      title: "Sell crypto",
-                      action: {},
-                      isDisabled: false),
-                .init(imageName: "arrow.right",
-                      title: "Send",
-                      action: {},
-                      isDisabled: false),
+                .init(
+                    imageName: "arrow.up",
+                    title: "Topup",
+                    action: {},
+                    isDisabled: false
+                ),
+                .init(
+                    imageName: "arrow.down",
+                    title: "Sell crypto",
+                    action: {},
+                    isDisabled: false
+                ),
+                .init(
+                    imageName: "arrow.right",
+                    title: "Send",
+                    action: {},
+                    isDisabled: false
+                ),
             ])
             HorizontalButtonStack(buttons: [
-                .init(imageName: "arrow.up",
-                      title: "Topup",
-                      action: {},
-                      isDisabled: false),
-                .init(imageName: "arrow.right",
-                      title: "Send",
-                      action: {},
-                      isDisabled: true),
+                .init(
+                    imageName: "arrow.up",
+                    title: "Topup",
+                    action: {},
+                    isDisabled: false
+                ),
+                .init(
+                    imageName: "arrow.right",
+                    title: "Send",
+                    action: {},
+                    isDisabled: true
+                ),
             ])
             HorizontalButtonStack(buttons: [
-                .init(imageName: "arrow.right",
-                      title: "Send",
-                      action: {},
-                      isDisabled: true),
+                .init(
+                    imageName: "arrow.right",
+                    title: "Send",
+                    action: {},
+                    isDisabled: true
+                ),
             ])
         }
         .padding()
