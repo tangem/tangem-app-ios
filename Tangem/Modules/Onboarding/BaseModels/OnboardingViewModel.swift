@@ -34,11 +34,7 @@ class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable>
     var bag: Set<AnyCancellable> = []
 
     var currentStep: Step {
-        if currentStepIndex >= steps.count {
-            return Step.initialStep
-        }
-
-        return steps[currentStepIndex]
+        steps[currentStepIndex]
     }
 
     var currentProgress: CGFloat {
@@ -50,19 +46,11 @@ class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable>
     }
 
     var title: String? {
-        if !isInitialAnimPlayed, let welcomeStep = input.welcomeStep {
-            return welcomeStep.title
-        }
-
-        return currentStep.title
+        currentStep.title
     }
 
     var subtitle: String? {
-        if !isInitialAnimPlayed, let welcomteStep = input.welcomeStep {
-            return welcomteStep.subtitle
-        }
-
-        return currentStep.subtitle
+        currentStep.subtitle
     }
 
     var mainButtonSettings: MainButton.Settings? {
@@ -75,15 +63,11 @@ class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable>
     }
 
     var isOnboardingFinished: Bool {
-        currentStep.isOnboardingFinished
+        currentStep == steps.last
     }
 
     var mainButtonTitle: String {
-        if !isInitialAnimPlayed, let welcomeStep = input.welcomeStep {
-            return welcomeStep.mainButtonTitle
-        }
-
-        return currentStep.mainButtonTitle
+        currentStep.mainButtonTitle
     }
 
     var supplementButtonSettings: TangemButtonSettings? {
@@ -92,18 +76,22 @@ class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable>
             size: .wide,
             action: supplementButtonAction,
             isBusy: isSupplementButtonBusy,
-            isEnabled: true,
+            isEnabled: isSupplementButtonEnabled,
             isVisible: isSupplementButtonVisible,
-            color: .transparentWhite
+            color: supplementButtonColor
         )
     }
 
-    var supplementButtonTitle: String {
-        if !isInitialAnimPlayed, let welcomteStep = input.welcomeStep {
-            return welcomteStep.supplementButtonTitle
-        }
+    var isSupplementButtonEnabled: Bool {
+        return true
+    }
 
-        return currentStep.supplementButtonTitle
+    var supplementButtonColor: ButtonColorStyle {
+        .transparentWhite
+    }
+
+    var supplementButtonTitle: String {
+        currentStep.supplementButtonTitle
     }
 
     var isBackButtonVisible: Bool {
@@ -124,7 +112,15 @@ class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable>
 
     var isSupplementButtonVisible: Bool { currentStep.isSupplementButtonVisible }
 
-    lazy var userWalletStorageAgreementViewModel = UserWalletStorageAgreementViewModel(isStandalone: false, coordinator: self)
+    lazy var userWalletStorageAgreementViewModel = UserWalletStorageAgreementViewModel(coordinator: self)
+
+    var disclaimerModel: DisclaimerViewModel? {
+        guard let url = input.cardInput.cardModel?.cardDisclaimer.url else {
+            return nil
+        }
+
+        return .init(url: url, style: .onboarding)
+    }
 
     let input: OnboardingInput
 
@@ -185,6 +181,7 @@ class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable>
 
     func onOnboardingFinished(for cardId: String) {
         AppSettings.shared.cardsStartedActivation.remove(cardId)
+        Analytics.log(.onboardingFinished)
     }
 
     func backButtonAction() {}
@@ -193,7 +190,6 @@ class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable>
         if !confettiFired {
             shouldFireConfetti = true
             confettiFired = true
-            Analytics.log(.walletCreatedSuccessfully)
         }
     }
 
@@ -209,7 +205,7 @@ class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable>
             do {
                 try handleUserWalletOnFinish()
             } catch {
-                print("Failed to complete onboarding", error)
+                AppLog.shared.error(error)
                 return
             }
 
@@ -217,7 +213,7 @@ class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable>
                 self.onboardingDidFinish()
             }
 
-            self.onOnboardingFinished(for: self.input.cardInput.cardId)
+            onOnboardingFinished(for: input.cardInput.cardId)
 
             return
         }
@@ -232,7 +228,7 @@ class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable>
 
     func goToStep(_ step: Step) {
         guard let newIndex = steps.firstIndex(of: step) else {
-            print("Failed to find step", step)
+            AppLog.shared.debug("Failed to find step \(step)")
             return
         }
 
@@ -257,7 +253,7 @@ class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable>
         AppSettings.shared.saveUserWallets = agreed
         AppSettings.shared.saveAccessCodes = agreed
 
-        Analytics.log(.onboardingEnableBiometric, params: [.state: Analytics.ParameterValue.state(for: agreed).rawValue])
+        Analytics.log(.onboardingEnableBiometric, params: [.state: Analytics.ParameterValue.state(for: agreed)])
     }
 
     func handleUserWalletOnFinish() throws {
@@ -272,17 +268,32 @@ class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable>
         userWalletRepository.setSelectedUserWalletId(userWallet.userWalletId, reason: .inserted)
     }
 
+    func disclaimerAccepted() {
+        guard let id = input.cardInput.cardModel?.cardDisclaimer.id else {
+            return
+        }
+
+        AppSettings.shared.termsOfServicesAccepted.append(id)
+    }
+
     private func bindAnalytics() {
         $currentStepIndex
-            .dropFirst()
             .removeDuplicates()
+            .delay(for: 0.1, scheduler: DispatchQueue.main)
             .receiveValue { [weak self] index in
-                guard let self else { return }
+                guard let steps = self?.steps,
+                      index < steps.count else { return }
 
-                let currentStep = self.currentStep
+                let currentStep = steps[index]
 
                 if let walletStep = currentStep as? WalletOnboardingStep {
                     switch walletStep {
+                    case .createWallet:
+                        Analytics.log(.createWalletScreenOpened)
+                    case .backupIntro:
+                        Analytics.log(.backupScreenOpened)
+                    case .kycStart:
+                        Analytics.log(.kycStartScreenOpened)
                     case .kycProgress:
                         Analytics.log(.kycProgressScreenOpened)
                     case .kycRetry:
@@ -291,6 +302,31 @@ class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable>
                         Analytics.log(.kycWaitingScreenOpened)
                     case .claim:
                         Analytics.log(.claimScreenOpened)
+                    case .enterPin:
+                        Analytics.log(.pinScreenOpened)
+                    case .registerWallet:
+                        Analytics.log(.registerScreenOpened)
+                    case .selectBackupCards:
+                        Analytics.log(.backupStarted)
+                    default:
+                        break
+                    }
+                } else if let singleCardStep = currentStep as? SingleCardOnboardingStep {
+                    switch singleCardStep {
+                    case .createWallet:
+                        Analytics.log(.createWalletScreenOpened)
+                    case .topup:
+                        Analytics.log(.activationScreenOpened)
+                    default:
+                        break
+                    }
+                } else if let twinStep = currentStep as? TwinsOnboardingStep {
+                    switch twinStep {
+                    case .first:
+                        Analytics.log(.createWalletScreenOpened)
+                    case .topup:
+                        Analytics.log(.twinSetupFinished)
+                        Analytics.log(.activationScreenOpened)
                     default:
                         break
                     }
@@ -301,6 +337,7 @@ class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable>
 }
 
 // MARK: - Navigation
+
 extension OnboardingViewModel {
     func onboardingDidFinish() {
         coordinator.onboardingDidFinish()
@@ -312,31 +349,45 @@ extension OnboardingViewModel {
 
     func openSupportChat() {
         guard let cardModel = input.cardInput.cardModel else { return }
+        Analytics.log(.onboardingButtonChat)
+        let dataCollector = DetailsFeedbackDataCollector(
+            cardModel: cardModel,
+            userWalletEmailData: cardModel.emailData
+        )
 
-        let dataCollector = DetailsFeedbackDataCollector(cardModel: cardModel,
-                                                         userWalletEmailData: cardModel.emailData)
+        // Hide keyboard on set pin screen
+        UIApplication.shared.endEditing()
 
-        coordinator.openSupportChat(cardId: cardModel.cardId,
-                                    dataCollector: dataCollector)
+        coordinator.openSupportChat(input: .init(
+            environment: cardModel.supportChatEnvironment,
+            cardId: cardModel.cardId,
+            dataCollector: dataCollector
+        ))
     }
 }
 
 extension OnboardingViewModel: UserWalletStorageAgreementRoutable {
     func didAgreeToSaveUserWallets() {
         userWalletRepository.unlock(with: .biometry) { [weak self] result in
+            let biometryAccessGranted: Bool
             switch result {
             case .error(let error):
                 if let tangemSdkError = error as? TangemSdkError,
-                   case .userCancelled = tangemSdkError
-                {
+                   case .userCancelled = tangemSdkError {
                     return
                 }
-                print("Failed to get access to biometry", error)
+                AppLog.shared.error(error)
 
+                biometryAccessGranted = false
                 self?.didAskToSaveUserWallets(agreed: false)
             default:
+                biometryAccessGranted = true
                 self?.didAskToSaveUserWallets(agreed: true)
             }
+
+            Analytics.log(.allowBiometricID, params: [
+                .state: Analytics.ParameterValue.state(for: biometryAccessGranted),
+            ])
 
             self?.goToNextStep()
         }
