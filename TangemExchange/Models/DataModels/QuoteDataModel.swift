@@ -23,6 +23,6 @@ public struct QuoteDataModel {
 
         self.toTokenAmount = toTokenAmount
         self.fromTokenAmount = fromTokenAmount
-        self.estimatedGas = quoteData.estimatedGas
+        estimatedGas = quoteData.estimatedGas
     }
 }

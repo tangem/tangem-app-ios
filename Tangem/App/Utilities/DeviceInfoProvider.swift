@@ -11,7 +11,6 @@ import UIKit
 import DeviceGuru
 
 struct DeviceInfoProvider {
-
     enum Subject: CaseIterable {
         case deviceModel
         case osVersion
@@ -44,7 +43,6 @@ struct DeviceInfoProvider {
     }
 
     static func info(for subjects: [Subject] = Subject.allCases) -> String {
-        subjects.reduce(into: "\n", { $0 += $1.description })
+        subjects.reduce(into: "\n") { $0 += $1.description }
     }
-
 }
