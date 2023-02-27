@@ -12,7 +12,5 @@ import TangemSdk
 class BackupServiceProvider: BackupServiceProviding {
     @Injected(\.tangemSdkProvider) var sdkProvider: TangemSdkProviding
 
-    lazy var backupService: BackupService = {
-        .init(sdk: sdkProvider.sdk)
-    }()
+    lazy var backupService: BackupService = .init(sdk: sdkProvider.sdk)
 }

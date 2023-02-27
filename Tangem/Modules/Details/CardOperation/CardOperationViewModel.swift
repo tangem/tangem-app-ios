@@ -22,12 +22,14 @@ class CardOperationViewModel: ObservableObject {
     private unowned let coordinator: CardOperationRoutable
     private var bag: Set<AnyCancellable> = []
 
-    init(title: String,
-         buttonTitle: String = Localization.commonSaveChanges,
-         shouldPopToRoot: Bool = false,
-         alert: String,
-         actionButtonPressed: @escaping (@escaping (Result<Void, Error>) -> Void) -> Void,
-         coordinator: CardOperationRoutable) {
+    init(
+        title: String,
+        buttonTitle: String = Localization.commonSaveChanges,
+        shouldPopToRoot: Bool = false,
+        alert: String,
+        actionButtonPressed: @escaping (@escaping (Result<Void, Error>) -> Void) -> Void,
+        coordinator: CardOperationRoutable
+    ) {
         self.title = title
         self.buttonTitle = buttonTitle
         self.shouldPopToRoot = shouldPopToRoot
@@ -68,6 +70,7 @@ class CardOperationViewModel: ObservableObject {
 }
 
 // MARK: - Navigantion
+
 extension CardOperationViewModel {
     func popToRoot() {
         coordinator.popToRoot()

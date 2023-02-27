@@ -30,68 +30,70 @@ struct SendView: View {
                         Spacer()
                     }
                     .padding(.bottom)
-                    TextInputField(placeholder: self.addressHint,
-                                   text: self.$viewModel.destination,
-                                   suplementView: {
-                                       if !viewModel.isSellingCrypto {
-                                           CircleActionButton(action: { self.viewModel.pasteClipboardTapped() },
-                                                              backgroundColor: .tangemBgGray,
-                                                              imageName: self.viewModel.validatedClipboard == nil ? "doc.on.clipboard" : "doc.on.clipboard.fill",
-                                                              isSystemImage: true,
-                                                              imageColor: .tangemGrayDark6,
-                                                              isDisabled: self.viewModel.validatedClipboard == nil)
-                                               .accessibility(label: Text(self.viewModel.validatedClipboard == nil ? Localization.voiceOverNothingToPaste : Localization.voiceOverPasteFromClipboard))
-                                               .disabled(self.viewModel.validatedClipboard == nil)
-                                           CircleActionButton(
-                                               action: viewModel.openQRScanner,
-                                               backgroundColor: .tangemBgGray,
-                                               imageName: "qrcode.viewfinder",
-                                               isSystemImage: true,
-                                               imageColor: .tangemGrayDark6
-                                           )
-                                           .accessibility(label: Text(Localization.voiceOverScanQrWithAddress))
-                                           .cameraAccessDeniedAlert($viewModel.showCameraDeniedAlert)
-                                       }
-                                   },
-                                   message: self.viewModel.destinationHint?.message ?? " ",
-                                   isErrorMessage: self.viewModel.destinationHint?.isError ?? false)
-                        .disabled(viewModel.isSellingCrypto)
+                    TextInputField(
+                        placeholder: self.addressHint,
+                        text: self.$viewModel.destination,
+                        suplementView: {
+                            if !viewModel.isSellingCrypto {
+                                pasteAddressButton
+
+                                CircleActionButton(
+                                    action: viewModel.openQRScanner,
+                                    diameter: 34,
+                                    backgroundColor: Colors.Button.paste,
+                                    systemImageName: "qrcode.viewfinder",
+                                    imageColor: .white
+                                )
+                                .accessibility(label: Text(Localization.voiceOverScanQrWithAddress))
+                                .cameraAccessDeniedAlert($viewModel.showCameraDeniedAlert)
+                            }
+                        },
+                        message: self.viewModel.destinationHint?.message ?? " ",
+                        isErrorMessage: self.viewModel.destinationHint?.isError ?? false
+                    )
+                    .disabled(viewModel.isSellingCrypto)
 
                     if viewModel.isAdditionalInputEnabled {
                         if case .memo = viewModel.additionalInputFields {
-                            TextInputField(placeholder: Localization.sendExtrasHintMemo,
-                                           text: self.$viewModel.memo,
-                                           clearButtonMode: .whileEditing,
-                                           message: self.viewModel.memoHint?.message ?? "",
-                                           isErrorMessage: self.viewModel.memoHint?.isError ?? false)
-                                .transition(.opacity)
+                            TextInputField(
+                                placeholder: Localization.sendExtrasHintMemo,
+                                text: self.$viewModel.memo,
+                                clearButtonMode: .whileEditing,
+                                message: self.viewModel.memoHint?.message ?? "",
+                                isErrorMessage: self.viewModel.memoHint?.isError ?? false
+                            )
+                            .transition(.opacity)
                         }
 
                         if case .destinationTag = viewModel.additionalInputFields {
-                            TextInputField(placeholder: Localization.sendExtrasHintDestinationTag,
-                                           text: self.$viewModel.destinationTagStr,
-                                           keyboardType: .numberPad,
-                                           clearButtonMode: .whileEditing,
-                                           message: self.viewModel.destinationTagHint?.message ?? "",
-                                           isErrorMessage: self.viewModel.destinationTagHint?.isError ?? false)
-                                .transition(.opacity)
+                            TextInputField(
+                                placeholder: Localization.sendExtrasHintDestinationTag,
+                                text: self.$viewModel.destinationTagStr,
+                                keyboardType: .numberPad,
+                                clearButtonMode: .whileEditing,
+                                message: self.viewModel.destinationTagHint?.message ?? "",
+                                isErrorMessage: self.viewModel.destinationTagHint?.isError ?? false
+                            )
+                            .transition(.opacity)
                         }
                     }
 
                     Group {
                         HStack {
-                            CustomTextField(text: self.$viewModel.amountText,
-                                            isResponder:  Binding.constant(nil),
-                                            actionButtonTapped: self.$viewModel.maxAmountTapped,
-                                            defaultStringToClear: "0",
-                                            handleKeyboard: true,
-                                            actionButton: Localization.sendMaxAmountLabel,
-                                            keyboard: UIKeyboardType.decimalPad,
-                                            textColor: viewModel.isSellingCrypto ? UIColor.tangemGrayDark6.withAlphaComponent(0.6) : UIColor.tangemGrayDark6,
-                                            font: UIFont.systemFont(ofSize: 38.0, weight: .light),
-                                            placeholder: "",
-                                            decimalCount: self.viewModel.inputDecimalsCount)
-                                .disabled(viewModel.isSellingCrypto)
+                            CustomTextField(
+                                text: self.$viewModel.amountText,
+                                isResponder: Binding.constant(nil),
+                                actionButtonTapped: self.$viewModel.maxAmountTapped,
+                                defaultStringToClear: "0",
+                                handleKeyboard: true,
+                                actionButton: Localization.sendMaxAmountLabel,
+                                keyboard: UIKeyboardType.decimalPad,
+                                textColor: viewModel.isSellingCrypto ? UIColor.tangemGrayDark6.withAlphaComponent(0.6) : UIColor.tangemGrayDark6,
+                                font: UIFont.systemFont(ofSize: 38.0, weight: .light),
+                                placeholder: "",
+                                decimalCount: self.viewModel.inputDecimalsCount
+                            )
+                            .disabled(viewModel.isSellingCrypto)
 
                             Button(action: {
                                 self.viewModel.isFiatCalculation.toggle()
@@ -151,10 +153,14 @@ struct SendView: View {
                             if self.viewModel.isNetworkFeeBlockOpen || viewModel.isSellingCrypto {
                                 VStack(spacing: 16.0) {
                                     if self.viewModel.shoudShowFeeSelector {
-                                        PickerView(contents: [Localization.sendFeePickerLow,
-                                                              Localization.sendFeePickerNormal,
-                                                              Localization.sendFeePickerPriority],
-                                                   selection: self.$viewModel.selectedFeeLevel)
+                                        PickerView(
+                                            contents: [
+                                                Localization.sendFeePickerLow,
+                                                Localization.sendFeePickerNormal,
+                                                Localization.sendFeePickerPriority,
+                                            ],
+                                            selection: self.$viewModel.selectedFeeLevel
+                                        )
                                     }
                                     if self.viewModel.shoudShowFeeIncludeSelector {
                                         Toggle(isOn: self.$viewModel.isFeeIncluded) {
@@ -212,7 +218,6 @@ struct SendView: View {
                                 .minimumScaleFactor(0.5)
                                 .fixedSize(horizontal: false, vertical: true)
                                 .foregroundColor(Color.tangemGrayDark6)
-
                         }
                         if !viewModel.isSellingCrypto {
                             HStack {
@@ -233,18 +238,45 @@ struct SendView: View {
                     sendButton
                 }
                 .padding(16)
-                .frame(minWidth: geometry.size.width,
-                       maxWidth: geometry.size.width,
-                       minHeight: geometry.size.height,
-                       maxHeight: .infinity, alignment: .top)
+                .frame(
+                    minWidth: geometry.size.width,
+                    maxWidth: geometry.size.width,
+                    minHeight: geometry.size.height,
+                    maxHeight: .infinity,
+                    alignment: .top
+                )
             }
         }
-        .onAppear() {
+        .onAppear {
             self.viewModel.onAppear()
         }
         .onReceive(NotificationCenter.default.publisher(for: UIApplication.didBecomeActiveNotification)
             .receive(on: DispatchQueue.main)) { _ in
                 viewModel.onBecomingActive()
+        }
+    }
+
+    @ViewBuilder private var pasteAddressButton: some View {
+        if #available(iOS 16.0, *) {
+            PasteButton(payloadType: String.self) { strings in
+                DispatchQueue.main.async {
+                    viewModel.pasteClipboardTapped(strings)
+                }
+            }
+            .tint(Colors.Button.paste)
+            .labelStyle(.iconOnly)
+            .buttonBorderShape(.capsule)
+        } else {
+            CircleActionButton(
+                action: { viewModel.pasteClipboardTapped() },
+                diameter: 34,
+                backgroundColor: Colors.Button.paste,
+                systemImageName: viewModel.validatedClipboard == nil ? "doc.on.clipboard" : "doc.on.clipboard.fill",
+                imageColor: .white,
+                isDisabled: viewModel.validatedClipboard == nil
+            )
+            .accessibility(label: Text(self.viewModel.validatedClipboard == nil ? Localization.voiceOverNothingToPaste : Localization.voiceOverPasteFromClipboard))
+            .disabled(self.viewModel.validatedClipboard == nil)
         }
     }
 
@@ -256,40 +288,37 @@ struct SendView: View {
             action: viewModel.send
         )
         .padding(.top, 16.0)
-        .alert(item: $viewModel.error) { binder in
-            if binder.error == nil {
-                return binder.alert
-            }
-
-            let errorDescription = String(binder.error?.localizedDescription.dropTrailingPeriod ?? "Unknown error")
-
-            return Alert(title: Text(Localization.feedbackSubjectTxFailed),
-                         message: Text(Localization.alertFailedToSendTransactionMessage(errorDescription)),
-                         primaryButton: .default(Text(Localization.alertButtonRequestSupport), action: viewModel.openMail),
-                         secondaryButton: .default(Text(Localization.commonCancel)))
-        }
+        .alert(item: $viewModel.error) { $0.alert }
     }
 }
 
 struct ExtractView_Previews: PreviewProvider {
     static var previews: some View {
         Group {
-            SendView(viewModel: .init(amountToSend: Amount(with: PreviewCard.ethereum.blockchain!,
-                                                           type: .token(value: Token(name: "DAI", symbol: "DAI", contractAddress: "0xdwekdn32jfne", decimalCount: 18)),
-                                                           value: 0.0),
-                                      destination: "Target",
-                                      blockchainNetwork: PreviewCard.ethereum.blockchainNetwork!,
-                                      cardViewModel: PreviewCard.ethereum.cardModel,
-                                      coordinator: SendCoordinator()))
-                .previewLayout(.iphone7Zoomed)
+            SendView(viewModel: .init(
+                amountToSend: Amount(
+                    with: PreviewCard.ethereum.blockchain!,
+                    type: .token(value: Token(name: "DAI", symbol: "DAI", contractAddress: "0xdwekdn32jfne", decimalCount: 18)),
+                    value: 0.0
+                ),
+                destination: "Target",
+                blockchainNetwork: PreviewCard.ethereum.blockchainNetwork!,
+                cardViewModel: PreviewCard.ethereum.cardModel,
+                coordinator: SendCoordinator()
+            ))
+            .previewLayout(.iphone7Zoomed)
 
-            SendView(viewModel: .init(amountToSend: Amount(with: PreviewCard.ethereum.blockchain!,
-                                                           type: .token(value: Token(name: "DAI", symbol: "DAI", contractAddress: "0xdwekdn32jfne", decimalCount: 18)),
-                                                           value: 0.0),
-                                      blockchainNetwork: PreviewCard.ethereum.blockchainNetwork!,
-                                      cardViewModel: PreviewCard.ethereum.cardModel,
-                                      coordinator: SendCoordinator()))
-                .previewLayout(.iphone7Zoomed)
+            SendView(viewModel: .init(
+                amountToSend: Amount(
+                    with: PreviewCard.ethereum.blockchain!,
+                    type: .token(value: Token(name: "DAI", symbol: "DAI", contractAddress: "0xdwekdn32jfne", decimalCount: 18)),
+                    value: 0.0
+                ),
+                blockchainNetwork: PreviewCard.ethereum.blockchainNetwork!,
+                cardViewModel: PreviewCard.ethereum.cardModel,
+                coordinator: SendCoordinator()
+            ))
+            .previewLayout(.iphone7Zoomed)
         }
     }
 }

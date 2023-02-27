@@ -64,15 +64,16 @@ struct AnimatableOffsetModifier: AnimatableModifier {
 
     func body(content: Content) -> some View {
         content
-            .offset(x: curveX(normalizeProgress(progress)),
-                    y: curveY(normalizeProgress(progress)))
+            .offset(
+                x: curveX(normalizeProgress(progress)),
+                y: curveY(normalizeProgress(progress))
+            )
     }
 
     private func normalizeProgress(_ progress: Double) -> Double {
         normalize(progress: progress, start: start, end: end)
     }
 }
-
 
 // MARK: - Extensions
 
@@ -82,22 +83,21 @@ extension View {
         type: StoriesConstants.TextType,
         textBlockAppearance: StoriesConstants.TextBlockAppearance
     ) -> some View {
-        self
-            .modifier(AnimatableOffsetModifier(
-                progress: progress,
-                start: textBlockAppearance.time + type.timeOffset,
-                end: textBlockAppearance.time + type.timeOffset + StoriesConstants.textAppearanceDuration,
-                curveX: { _ in
-                    0
-                }, curveY: {
-                    40 * pow(2, -15 * $0)
-                }
-            ))
-            .modifier(AnimatableVisibilityModifier(
-                progress: progress,
-                start: textBlockAppearance.time + type.timeOffset,
-                end: .infinity
-            ))
+        modifier(AnimatableOffsetModifier(
+            progress: progress,
+            start: textBlockAppearance.time + type.timeOffset,
+            end: textBlockAppearance.time + type.timeOffset + StoriesConstants.textAppearanceDuration,
+            curveX: { _ in
+                0
+            }, curveY: {
+                40 * pow(2, -15 * $0)
+            }
+        ))
+        .modifier(AnimatableVisibilityModifier(
+            progress: progress,
+            start: textBlockAppearance.time + type.timeOffset,
+            end: .infinity
+        ))
     }
 
     func storyImageAppearanceModifier(
@@ -108,23 +108,23 @@ extension View {
         fastMovementEnd: Double,
         slowMovementSpeedCoefficient: Double
     ) -> some View {
-        self
-            .modifier(AnimatableScaleModifier(
-                progress: progress,
-                start: start,
-                end: 1) { progress in
-                    let fastMovementCurve: (Double) -> Double = {
-                        fastMovementStartCoefficient + pow(2, fastMovementSpeedCoefficient * $0)
-                    }
+        modifier(AnimatableScaleModifier(
+            progress: progress,
+            start: start,
+            end: 1
+        ) { progress in
+            let fastMovementCurve: (Double) -> Double = {
+                fastMovementStartCoefficient + pow(2, fastMovementSpeedCoefficient * $0)
+            }
 
-                    if progress <= fastMovementEnd {
-                        return fastMovementCurve(progress)
-                    } else {
-                        return
-                            fastMovementCurve(fastMovementEnd) -
-                            slowMovementSpeedCoefficient * (progress - fastMovementEnd) / (1 - fastMovementEnd)
-                    }
-                }
-            )
+            if progress <= fastMovementEnd {
+                return fastMovementCurve(progress)
+            } else {
+                return
+                    fastMovementCurve(fastMovementEnd) -
+                    slowMovementSpeedCoefficient * (progress - fastMovementEnd) / (1 - fastMovementEnd)
+            }
+        }
+        )
     }
 }

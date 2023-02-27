@@ -9,7 +9,6 @@
 import SwiftUI
 
 struct OnboardingStepIconView: View {
-
     enum State {
         case passed
         case current
@@ -82,6 +81,5 @@ struct OnboardingStepIconView_Previews: PreviewProvider {
             OnboardingStepIconView(image: Image("onboarding.topup"), state: .passed)
             OnboardingStepIconView(image: Image("onboarding.topup"), state: .future)
         }
-
     }
 }

@@ -31,7 +31,7 @@ struct WalletConnectRowView: View {
     var body: some View {
         Button(action: viewModel.action) {
             HStack(spacing: 12) {
-                Assets.walletConnect
+                Assets.walletConnect.image
                     .resizable()
                     .frame(width: 48, height: 48)
 
@@ -46,7 +46,7 @@ struct WalletConnectRowView: View {
 
                 Spacer()
 
-                Assets.chevron
+                Assets.chevron.image
             }
             .padding(.vertical, 16)
             .contentShape(Rectangle())

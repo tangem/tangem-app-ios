@@ -22,32 +22,31 @@ struct CheckoutLineItem {
 
 extension CheckoutLineItem {
     init(_ item: Storefront.CheckoutLineItem) {
-        self.id = item.id
-        self.title = item.title
-        self.sku = item.variant?.sku ?? ""
-        self.quantity = item.quantity
-        self.amount = item.variant?.priceV2.amount ?? Decimal()
+        id = item.id
+        title = item.title
+        sku = item.variant?.sku ?? ""
+        quantity = item.quantity
+        amount = item.variant?.priceV2.amount ?? Decimal()
     }
 
     init(_ item: Storefront.OrderLineItem) {
-        self.id = GraphQL.ID(rawValue: "")
-        self.title = item.title
-        self.sku = item.variant?.sku ?? ""
-        self.quantity = item.quantity
-        self.amount = item.variant?.priceV2.amount ?? Decimal()
+        id = GraphQL.ID(rawValue: "")
+        title = item.title
+        sku = item.variant?.sku ?? ""
+        quantity = item.quantity
+        amount = item.variant?.priceV2.amount ?? Decimal()
     }
 }
 
 extension Storefront.CheckoutLineItemQuery {
     @discardableResult
     func lineItemFieldsFragment() -> Storefront.CheckoutLineItemQuery {
-        self
-            .id()
+        id()
             .title()
             .quantity()
-            .variant() { $0
+            .variant { $0
                 .sku()
-                .priceV2() { $0
+                .priceV2 { $0
                     .amount()
                 }
             }
@@ -57,12 +56,11 @@ extension Storefront.CheckoutLineItemQuery {
 extension Storefront.OrderLineItemQuery {
     @discardableResult
     func lineItemFieldsFragment() -> Storefront.OrderLineItemQuery {
-        self
-            .title()
+        title()
             .quantity()
-            .variant() { $0
+            .variant { $0
                 .sku()
-                .priceV2() { $0
+                .priceV2 { $0
                     .amount()
                 }
             }

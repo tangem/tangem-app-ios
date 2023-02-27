@@ -14,6 +14,7 @@ import SwiftUI
 
 class WarningsService {
     @Injected(\.rateAppService) var rateAppChecker: RateAppService
+    @Injected(\.deprecationService) var deprecationService: DeprecationServicing
 
     var warningsUpdatePublisher: CurrentValueSubject<Void, Never> = .init(())
 
@@ -24,7 +25,7 @@ class WarningsService {
     init() {}
 
     deinit {
-        print("WarningsService deinit")
+        AppLog.shared.debug("WarningsService deinit")
     }
 }
 
@@ -81,7 +82,8 @@ private extension WarningsService {
         let main = WarningsContainer()
         let send = WarningsContainer()
 
-        for warningEvent in config.warningEvents  {
+        let deprecationWarnings = deprecationService.deprecationWarnings
+        for warningEvent in deprecationWarnings + config.warningEvents {
             if warningEvent.locationsToDisplay.contains(WarningsLocation.main) {
                 main.add(warningEvent.warning)
             }
@@ -89,11 +91,6 @@ private extension WarningsService {
             if warningEvent.locationsToDisplay.contains(WarningsLocation.send) {
                 send.add(warningEvent.warning)
             }
-        }
-
-        if rateAppChecker.shouldShowRateAppWarning {
-            Analytics.log(.displayRateAppWarning)
-            main.add(WarningEvent.rateApp.warning)
         }
 
         mainWarnings = main
@@ -114,7 +111,7 @@ private extension WarningsService {
         let canCountHashes = config.hasFeature(.signedHashesCounter)
 
         func didFinishCountingHashes() {
-            print("⚠️ Hashes counted")
+            AppLog.shared.debug("⚠️ Hashes counted")
         }
 
         guard !AppSettings.shared.validatedSignedHashesCards.contains(cardId) else {
@@ -150,7 +147,7 @@ private extension WarningsService {
             .subscribe(on: DispatchQueue.global())
             .receive(on: RunLoop.main)
             .handleEvents(receiveCancel: {
-                print("⚠️ Hash counter subscription cancelled")
+                AppLog.shared.debug("⚠️ Hash counter subscription cancelled")
             })
             .receiveCompletion { [weak self] completion in
                 switch completion {
