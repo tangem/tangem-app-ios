@@ -510,7 +510,7 @@ private extension SwappingViewModel {
             return
         }
 
-        if sendDecimalValue.isZero || destinationFiatAmount.isZero {
+        if sendDecimalValue.isZero {
             // No need to calculate price impact with zero input
             await runOnMain {
                 highPriceImpactWarningRowViewModel = nil
