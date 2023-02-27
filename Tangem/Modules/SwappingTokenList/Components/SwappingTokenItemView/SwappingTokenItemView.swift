@@ -9,6 +9,9 @@
 import SwiftUI
 
 struct SwappingTokenItemView: View {
+    static let iconSize = CGSize(width: 40, height: 40)
+    static let horizontalInteritemSpacing: CGFloat = 12
+
     private let viewModel: SwappingTokenItemViewModel
 
     init(viewModel: SwappingTokenItemViewModel) {
@@ -18,11 +21,10 @@ struct SwappingTokenItemView: View {
     var body: some View {
         Button(action: viewModel.itemDidTap) {
             HStack(spacing: 0) {
-                HStack(spacing: 12) {
+                HStack(spacing: Self.horizontalInteritemSpacing) {
                     IconView(
                         url: viewModel.iconURL,
-                        name: viewModel.name,
-                        size: CGSize(width: 40, height: 40)
+                        size: Self.iconSize
                     )
 
                     tokenInfoView
@@ -32,7 +34,7 @@ struct SwappingTokenItemView: View {
 
                 currencyView
             }
-            .padding(.vertical, 16)
+            .padding(.vertical, 12)
             .contentShape(Rectangle())
         }
     }
@@ -45,6 +47,7 @@ struct SwappingTokenItemView: View {
             Text(viewModel.symbol)
                 .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
         }
+        .lineLimit(1)
     }
 
     private var currencyView: some View {
@@ -65,20 +68,23 @@ struct SwappingTokenItemView: View {
 struct SwappingTokenItemView_Previews: PreviewProvider {
     static let viewModels = [
         SwappingTokenItemViewModel(
+            tokenId: "Bitcoin",
             iconURL: nil,
             name: "Bitcoin",
             symbol: "BTC",
+            balance: CurrencyAmount(value: 3.543, currency: .mock),
             fiatBalance: 1.23415 * 16345,
-            balance: 1.23415,
             itemDidTap: {}
         ), SwappingTokenItemViewModel(
+            tokenId: "Ethereum",
             iconURL: nil,
             name: "Ethereum",
             symbol: "ETH",
+            balance: CurrencyAmount(value: 3.543, currency: .mock),
             fiatBalance: 3.543 * 1341,
-            balance: 3.543,
             itemDidTap: {}
-        )]
+        ),
+    ]
 
     static var previews: some View {
         ZStack {

@@ -16,18 +16,15 @@ struct AuthCoordinatorView: CoordinatorView {
     }
 
     var body: some View {
-        NavigationView {
-            ZStack {
-                if let rootViewModel = coordinator.rootViewModel {
-                    AuthView(viewModel: rootViewModel)
-                        .navigationLinks(links)
-                }
-
-                sheets
+        ZStack {
+            if let rootViewModel = coordinator.rootViewModel {
+                AuthView(viewModel: rootViewModel)
+                    .navigationLinks(links)
             }
+
+            sheets
         }
-        .navigationViewStyle(.stack)
-        .accentColor(Colors.Text.primary1)
+        .navigationBarHidden(coordinator.navigationBarHidden)
     }
 
     @ViewBuilder
@@ -46,11 +43,6 @@ struct AuthCoordinatorView: CoordinatorView {
         NavHolder()
             .sheet(item: $coordinator.mailViewModel) {
                 MailView(viewModel: $0)
-            }
-
-        NavHolder()
-            .sheet(item: $coordinator.disclaimerViewModel) {
-                DisclaimerView(viewModel: $0)
             }
     }
 }

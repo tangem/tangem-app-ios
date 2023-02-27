@@ -19,10 +19,14 @@ struct SwappingView: View {
         ZStack {
             Colors.Background.secondary.edgesIgnoringSafeArea(.all)
 
+            logo1inch
+
             GroupedScrollView(spacing: 14) {
                 swappingViews
 
-                refreshWarningSection
+                permissionInfoSection
+
+                warningSections
 
                 informationSection
 
@@ -30,6 +34,8 @@ struct SwappingView: View {
             }
             .keyboardAdaptive()
             .scrollDismissesKeyboardCompat(true)
+            // For animate button below informationSection
+            .animation(.easeInOut, value: viewModel.informationSectionViewModels.count)
         }
         .navigationBarTitle(Text(Localization.swappingSwap), displayMode: .inline)
         .alert(item: $viewModel.errorAlert, content: { $0.alert })
@@ -44,11 +50,15 @@ struct SwappingView: View {
                         viewModel: sendCurrencyViewModel,
                         decimalValue: $viewModel.sendDecimalValue
                     )
+                    .didTapMaxAmount(viewModel.userDidTapMaxAmount)
+                    .didTapChangeCurrency {
+                        viewModel.userDidTapChangeCurrencyButton()
+                    }
                 }
 
                 if let receiveCurrencyViewModel = viewModel.receiveCurrencyViewModel {
                     ReceiveCurrencyView(viewModel: receiveCurrencyViewModel)
-                        .didTapTokenView {
+                        .didTapChangeCurrency {
                             viewModel.userDidTapChangeDestinationButton()
                         }
                 }
@@ -62,11 +72,11 @@ struct SwappingView: View {
     @ViewBuilder
     private var swappingButton: some View {
         Group {
-            if viewModel.isLoading {
+            if viewModel.swapButtonIsLoading {
                 ProgressViewCompat(color: Colors.Icon.informative)
             } else {
                 Button(action: viewModel.userDidTapSwapExchangeItemsButton) {
-                    Assets.swappingIcon
+                    Assets.swappingIcon.image
                         .resizable()
                         .frame(width: 20, height: 20)
                 }
@@ -82,7 +92,20 @@ struct SwappingView: View {
     }
 
     @ViewBuilder
-    private var refreshWarningSection: some View {
+    private var permissionInfoSection: some View {
+        GroupedSection(viewModel.permissionInfoRowViewModel) {
+            DefaultWarningRow(viewModel: $0)
+        }
+        .verticalPadding(0)
+    }
+
+    @ViewBuilder
+    private var warningSections: some View {
+        GroupedSection(viewModel.highPriceImpactWarningRowViewModel) {
+            DefaultWarningRow(viewModel: $0)
+        }
+        .verticalPadding(0)
+
         GroupedSection(viewModel.refreshWarningRowViewModel) {
             DefaultWarningRow(viewModel: $0)
         }
@@ -93,9 +116,9 @@ struct SwappingView: View {
     private var informationSection: some View {
         GroupedSection(viewModel.informationSectionViewModels) { item in
             switch item {
-            case let .fee(viewModel):
+            case .fee(let viewModel):
                 SwappingFeeRowView(viewModel: viewModel)
-            case let .warning(viewModel):
+            case .warning(let viewModel):
                 DefaultWarningRow(viewModel: viewModel)
             }
         }
@@ -111,15 +134,32 @@ struct SwappingView: View {
             action: viewModel.didTapMainButton
         )
     }
+
+    @ViewBuilder
+    private var logo1inch: some View {
+        VStack(spacing: 0) {
+            Spacer()
+
+            Assets.logo1inch.image
+        }
+        .padding(.bottom, UIApplication.safeAreaInsets.bottom + 10)
+        .edgesIgnoringSafeArea(.bottom)
+        .ignoresKeyboard()
+    }
 }
 
 struct SwappingView_Preview: PreviewProvider {
     static let viewModel = SwappingViewModel(
+        initialSourceCurrency: .mock,
         exchangeManager: ExchangeManagerMock(),
         swappingDestinationService: SwappingDestinationServiceMock(),
-        userCurrenciesProvider: UserCurrenciesProviderMock(),
         tokenIconURLBuilder: TokenIconURLBuilderMock(),
         transactionSender: TransactionSenderMock(),
+        fiatRatesProvider: FiatRatesProviderMock(),
+        userWalletModel: UserWalletModelMock(),
+        currencyMapper: CurrencyMapper(),
+        blockchainNetwork: PreviewCard.ethereum.blockchainNetwork!,
+
         coordinator: SwappingCoordinator()
     )
 
