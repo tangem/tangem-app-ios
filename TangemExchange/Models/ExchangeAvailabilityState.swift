@@ -10,7 +10,7 @@ import Foundation
 
 public enum ExchangeAvailabilityState {
     case idle
-    case loading
+    case loading(_ type: ExchangeManagerRefreshType)
     case preview(_ model: PreviewSwappingDataModel)
     case available(_ model: SwappingResultDataModel, info: ExchangeTransactionDataModel)
     case requiredRefresh(occurredError: Error)

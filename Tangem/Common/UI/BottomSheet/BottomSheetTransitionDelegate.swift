@@ -36,9 +36,11 @@ class BottomSheetTransitionDelegate: NSObject, UIViewControllerTransitioningDele
         super.init()
     }
 
-    func presentationController(forPresented presented: UIViewController,
-                                presenting: UIViewController?,
-                                source: UIViewController) -> UIPresentationController? {
+    func presentationController(
+        forPresented presented: UIViewController,
+        presenting: UIViewController?,
+        source: UIViewController
+    ) -> UIPresentationController? {
         let bottomSheetPresentationController = BottomSheetPresentationController(
             presentedViewController: presented,
             presenting: presenting ?? source,
