@@ -454,7 +454,7 @@ class WalletOnboardingViewModel: OnboardingTopupViewModel<WalletOnboardingStep, 
                     }
 
                     self.goToNextStep()
-                case .claim, .finished:
+                case .claim:
                     self.goToNextStep()
                 case .finished:
                     if self.currentStep != .claim { // move to the next step only after the balance update
