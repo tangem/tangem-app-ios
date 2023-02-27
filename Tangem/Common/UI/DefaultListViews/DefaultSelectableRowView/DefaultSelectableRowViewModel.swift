@@ -11,12 +11,12 @@ import SwiftUI
 struct DefaultSelectableRowViewModel {
     let title: String
     let subtitle: String?
-    @Binding var isSelected: Bool
+    let isSelected: () -> Binding<Bool>
 
-    init(title: String, subtitle: String?, isSelected: Binding<Bool>) {
+    init(title: String, subtitle: String?, isSelected: @escaping () -> Binding<Bool>) {
         self.title = title
         self.subtitle = subtitle
-        _isSelected = isSelected
+        self.isSelected = isSelected
     }
 }
 
@@ -24,7 +24,6 @@ extension DefaultSelectableRowViewModel: Hashable {
     func hash(into hasher: inout Hasher) {
         hasher.combine(title)
         hasher.combine(subtitle)
-        hasher.combine(isSelected)
     }
 
     static func == (lhs: DefaultSelectableRowViewModel, rhs: DefaultSelectableRowViewModel) -> Bool {

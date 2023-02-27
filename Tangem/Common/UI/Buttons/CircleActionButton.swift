@@ -10,12 +10,10 @@ import SwiftUI
 import Combine
 
 struct CircleActionButton: View {
-
-    var action: () -> Void = { }
+    var action: () -> Void = {}
     var diameter: CGFloat = 41
     let backgroundColor: Color
-    let imageName: String
-    let isSystemImage: Bool
+    let systemImageName: String
     let imageColor: Color
     var withVerification: Bool = false
     var isDisabled = false
@@ -23,9 +21,7 @@ struct CircleActionButton: View {
     @State private var isVerify = false
 
     var image: Image {
-        isSystemImage ?
-            Image(systemName: imageName) :
-            Image(imageName)
+        Image(systemName: systemImageName)
     }
 
     var body: some View {
@@ -72,10 +68,11 @@ struct CircleActionButton: View {
 
 struct CircleActionButton_Previews: PreviewProvider {
     static var previews: some View {
-        CircleActionButton(diameter: 40,
-                           backgroundColor: .tangemBgGray,
-                           imageName: "doc.on.clipboard",
-                           isSystemImage: true,
-                           imageColor: .tangemGrayDark6)
+        CircleActionButton(
+            diameter: 40,
+            backgroundColor: .tangemBgGray,
+            systemImageName: "doc.on.clipboard",
+            imageColor: .tangemGrayDark6
+        )
     }
 }

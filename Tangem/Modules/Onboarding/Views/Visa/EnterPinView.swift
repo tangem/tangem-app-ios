@@ -25,6 +25,7 @@ struct EnterPinView: View {
 
             Text(subtitle)
                 .style(Fonts.Regular.callout, color: Colors.Text.secondary)
+                .multilineTextAlignment(.center)
 
             PinStackView(maxDigits: maxDigits, pinText: $text)
                 .padding(.top, 22)

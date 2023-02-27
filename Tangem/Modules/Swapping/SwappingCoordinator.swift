@@ -21,65 +21,66 @@ class SwappingCoordinator: CoordinatorObject {
 
     // MARK: - Child coordinators
 
-    @Published var swappingTokenListViewModel: SwappingTokenListViewModel?
-    @Published var swappingPermissionViewModel: SwappingPermissionViewModel?
-    @Published var successSwappingViewModel: SuccessSwappingViewModel?
+    @Published var swappingSuccessCoordinator: SwappingSuccessCoordinator?
 
     // MARK: - Child view models
 
+    @Published var swappingTokenListViewModel: SwappingTokenListViewModel?
+    @Published var swappingPermissionViewModel: SwappingPermissionViewModel?
+
     // MARK: - Properties
 
-    private let factory = DependenciesFactory()
+    private let factory: SwappingModulesFactory
 
     required init(
+        factory: SwappingModulesFactory,
         dismissAction: @escaping Action,
         popToRootAction: @escaping ParamsAction<PopToRootOptions>
     ) {
+        self.factory = factory
         self.dismissAction = dismissAction
         self.popToRootAction = popToRootAction
     }
 
     func start(with options: Options) {
-        rootViewModel = SwappingConfigurator(factory: factory).createModule(input: options.input, coordinator: self)
+        rootViewModel = factory.makeSwappingViewModel(coordinator: self)
     }
 }
 
 // MARK: - Options
 
 extension SwappingCoordinator {
-    struct Options {
-        let input: SwappingConfigurator.InputModel
+    enum Options {
+        case `default`
     }
 }
 
 // MARK: - SwappingRoutable
 
 extension SwappingCoordinator: SwappingRoutable {
-    func presentSwappingTokenList(sourceCurrency: Currency, userCurrencies: [Currency]) {
-        swappingTokenListViewModel = SwappingTokenListViewModel(
-            sourceCurrency: sourceCurrency,
-            userCurrencies: userCurrencies,
-            tokenIconURLBuilder: factory.createTokenIconURLBuilder(),
-            currencyMapper: factory.createCurrencyMapper(),
-            coordinator: self
-        )
-    }
-
-    func presentPermissionView(transactionInfo: ExchangeTransactionDataModel, transactionSender: TransactionSendable) {
+    func presentSwappingTokenList(sourceCurrency: Currency) {
         UIApplication.shared.endEditing()
-        swappingPermissionViewModel = SwappingPermissionViewModel(
-            transactionInfo: transactionInfo,
-            transactionSender: transactionSender,
-            coordinator: self
-        )
+        Analytics.log(.swapСhooseTokenScreenOpened)
+        swappingTokenListViewModel = factory.makeSwappingTokenListViewModel(coordinator: self)
     }
 
-    func presentSuccessView(source: CurrencyAmount, result: CurrencyAmount) {
-        successSwappingViewModel = SuccessSwappingViewModel(
-            sourceCurrencyAmount: source,
-            resultCurrencyAmount: result,
-            coordinator: self
+    func presentPermissionView(inputModel: SwappingPermissionInputModel, transactionSender: TransactionSendable) {
+        UIApplication.shared.endEditing()
+        swappingPermissionViewModel = factory.makeSwappingPermissionViewModel(inputModel: inputModel, coordinator: self)
+    }
+
+    func presentSuccessView(inputModel: SwappingSuccessInputModel) {
+        UIApplication.shared.endEditing()
+        Analytics.log(.swapSwapInProgressScreenOpened)
+
+        let coordinator = SwappingSuccessCoordinator(
+            factory: factory,
+            dismissAction: dismissAction,
+            popToRootAction: popToRootAction
         )
+        coordinator.start(with: .init(inputModel: inputModel))
+
+        swappingSuccessCoordinator = coordinator
     }
 }
 
@@ -92,24 +93,16 @@ extension SwappingCoordinator: SwappingTokenListRoutable {
     }
 }
 
-// MARK: - SuccessSwappingRoutable
-
-extension SwappingCoordinator: SuccessSwappingRoutable {
-    func didTapMainButton() {
-        successSwappingViewModel = nil
-        dismiss()
-    }
-}
-
 // MARK: - SwappingPermissionRoutable
 
 extension SwappingCoordinator: SwappingPermissionRoutable {
-    func didSendApproveTransaction() {
+    func didSendApproveTransaction(transactionInfo: ExchangeTransactionDataModel) {
         swappingPermissionViewModel = nil
-        rootViewModel?.didSendApproveTransaction()
+        rootViewModel?.didSendApproveTransaction(transactionInfo: transactionInfo)
     }
 
     func userDidCancel() {
         swappingPermissionViewModel = nil
+        rootViewModel?.didClosePermissionSheet()
     }
 }
