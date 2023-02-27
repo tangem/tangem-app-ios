@@ -19,8 +19,12 @@ public struct ExchangeTransactionDataModel {
     /// Tx data which will be used as  etherium data in transaction
     public let txData: Data
 
-    /// Amount to send in WEI
-    public let amount: Decimal
+    /// Amount which will be swapped in WEI
+    public let sourceAmount: Decimal
+    public let destinationAmount: Decimal
+
+    /// Value which should be sent in transaction
+    public let value: Decimal
 
     /// A long value gas, usual in period from 21000 to 30000
     public let gasValue: Int
@@ -40,7 +44,9 @@ public struct ExchangeTransactionDataModel {
         sourceAddress: String,
         destinationAddress: String,
         txData: Data,
-        amount: Decimal,
+        sourceAmount: Decimal,
+        destinationAmount: Decimal,
+        value: Decimal,
         gasValue: Int,
         gasPrice: Int
     ) {
@@ -50,7 +56,9 @@ public struct ExchangeTransactionDataModel {
         self.sourceAddress = sourceAddress
         self.destinationAddress = destinationAddress
         self.txData = txData
-        self.amount = amount
+        self.sourceAmount = sourceAmount
+        self.destinationAmount = destinationAmount
+        self.value = value
         self.gasValue = gasValue
         self.gasPrice = gasPrice
     }
