@@ -18,9 +18,11 @@ public struct ExchangeDataModel {
     public let destinationAddress: String
 
     /// WEI
-    public let sourceTokenAmount: Decimal
+    public let value: Decimal
+
     /// WEI
-    public let destinationTokenAmount: Decimal
+    public let sourceCurrencyAmount: Decimal
+    public let destinationCurrencyAmount: Decimal
 
     /// Contract address
     public let sourceTokenAddress: String?
@@ -29,16 +31,18 @@ public struct ExchangeDataModel {
 
     public init(exchangeData: ExchangeData) throws {
         guard let gasPrice = Int(exchangeData.tx.gasPrice),
-              let fromTokenAmount = Decimal(string: exchangeData.fromTokenAmount),
-              let toTokenAmount = Decimal(string: exchangeData.toTokenAmount) else {
+              let sourceCurrencyAmount = Decimal(string: exchangeData.fromTokenAmount),
+              let destinationCurrencyAmount = Decimal(string: exchangeData.toTokenAmount),
+              let value = Decimal(string: exchangeData.tx.value) else {
             throw OneInchExchangeProvider.Errors.incorrectDataFormat
         }
 
-        self.gas = exchangeData.tx.gas
         self.gasPrice = gasPrice
-        self.sourceTokenAmount = fromTokenAmount
-        self.destinationTokenAmount = toTokenAmount
+        self.sourceCurrencyAmount = sourceCurrencyAmount
+        self.destinationCurrencyAmount = destinationCurrencyAmount
+        self.value = value
 
+        gas = exchangeData.tx.gas
         txData = Data(hexString: exchangeData.tx.data)
         sourceAddress = exchangeData.tx.from
         destinationAddress = exchangeData.tx.to
