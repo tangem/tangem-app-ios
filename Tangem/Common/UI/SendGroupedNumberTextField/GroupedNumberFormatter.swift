@@ -21,6 +21,7 @@ struct GroupedNumberFormatter {
     ) {
         self.numberFormatter = numberFormatter
 
+        numberFormatter.roundingMode = .down
         numberFormatter.numberStyle = .decimal
         numberFormatter.minimumFractionDigits = 0 // Just for case
         numberFormatter.maximumFractionDigits = maximumFractionDigits
