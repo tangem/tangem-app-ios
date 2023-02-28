@@ -100,12 +100,24 @@ extension LegacyConfig: UserWalletConfig {
     }
 
     var defaultBlockchains: [StorageEntry] {
-        guard let defaultBlockchain = defaultBlockchain else { return [] }
+        if let defaultBlockchain = defaultBlockchain {
+            let network = BlockchainNetwork(defaultBlockchain, derivationPath: nil)
+            let tokens = defaultToken.map { [$0] } ?? []
+            let entry = StorageEntry(blockchainNetwork: network, tokens: tokens)
+            return [entry]
+        } else {
+            guard isMultiwallet else { return [] }
 
-        let network = BlockchainNetwork(defaultBlockchain, derivationPath: nil)
-        let tokens = defaultToken.map { [$0] } ?? []
-        let entry = StorageEntry(blockchainNetwork: network, tokens: tokens)
-        return [entry]
+            let isTestnet = AppEnvironment.current.isTestnet
+            let blockchains = [
+                Blockchain.bitcoin(testnet: isTestnet),
+                Blockchain.ethereum(testnet: isTestnet),
+            ]
+
+            return blockchains.map {
+                StorageEntry(blockchainNetwork: .init($0), token: nil)
+            }
+        }
     }
 
     var persistentBlockchains: [StorageEntry]? {
