@@ -210,10 +210,11 @@ private extension SwappingViewModel {
 
     func openPermissionView() {
         let state = exchangeManager.getAvailabilityState()
+        let source = exchangeManager.getExchangeItems().source
 
         guard case .available(let result, let info) = state,
               result.isPermissionRequired,
-              fiatRatesProvider.hasRates(for: info.sourceCurrency) else {
+              fiatRatesProvider.hasRates(for: source) else {
             // If we don't have enough data disable button and refresh()
             mainButtonIsEnabled = false
             exchangeManager.refresh(type: .full)
