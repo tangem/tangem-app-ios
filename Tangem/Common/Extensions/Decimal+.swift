@@ -24,7 +24,7 @@ extension Decimal {
         return formatter.string(from: self as NSDecimalNumber) ?? "\(self) \(code)"
     }
 
-    func groupedFormatted(maximumFractionDigits: Int = 8) -> String {
+    func groupedFormatted(maximumFractionDigits: Int = AppConstants.maximumFractionDigitsForBalance) -> String {
         let formatter = GroupedNumberFormatter(maximumFractionDigits: maximumFractionDigits)
         return formatter.format(from: description)
     }
