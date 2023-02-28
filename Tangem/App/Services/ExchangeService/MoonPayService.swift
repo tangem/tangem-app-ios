@@ -124,20 +124,20 @@ extension MoonPayService: ExchangeService {
             return false
         }
 
-        if currencySymbol.uppercased() != "BUSD", blockchain != .binance(testnet: true) || blockchain != .binance(testnet: false) {
+        if currencySymbol.uppercased() == "BEP20", blockchain == .binance(testnet: true) || blockchain == .binance(testnet: false) {
             return false
         }
 
-        if currencySymbol.uppercased() != "USDT", blockchain != .ethereum(testnet: true) || blockchain != .ethereum(testnet: false) {
+        if currencySymbol.uppercased() == "USDT", blockchain == .ethereum(testnet: true) || blockchain == .ethereum(testnet: false) {
             return false
         }
 
         if
-            currencySymbol.uppercased() != "USDC",
-            blockchain != .ethereum(testnet: true) ||
-            blockchain != .ethereum(testnet: false) ||
-            blockchain != .polygon(testnet: true) ||
-            blockchain != .polygon(testnet: false) {
+            currencySymbol.uppercased() == "USDC",
+            blockchain == .ethereum(testnet: true) ||
+            blockchain == .ethereum(testnet: false) ||
+            blockchain == .polygon(testnet: true) ||
+            blockchain == .polygon(testnet: false) {
             return false
         }
 
