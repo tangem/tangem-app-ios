@@ -154,16 +154,17 @@ class SingleWalletContentViewModel: ObservableObject {
             .store(in: &bag)
 
         singleWalletModel?.$state
+            .filter { $0.isSuccesfullyLoaded }
+            .delay(for: 0.5, scheduler: DispatchQueue.main) // workaround willChange issue
             .sink { [weak self] state in
                 guard
                     let self,
-                    let singleWalletModel = self.singleWalletModel,
-                    !state.isLoading
+                    let singleWalletModel = self.singleWalletModel
                 else {
                     return
                 }
 
-                let balance = singleWalletModel.blockchainTokenItemViewModel().fiatValue
+                let balance = singleWalletModel.allTokenItemViewModels().map { $0.fiatValue }.reduce(0, +)
                 Analytics.logTopUpIfNeeded(balance: balance)
                 Analytics.logSignInIfNeeded(balance: balance)
             }
