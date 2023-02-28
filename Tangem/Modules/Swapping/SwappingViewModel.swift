@@ -449,8 +449,10 @@ private extension SwappingViewModel {
         switch state {
         case .idle, .requiredRefresh, .preview:
             swappingFeeRowViewModel?.update(state: .idle)
-        case .loading:
-            swappingFeeRowViewModel?.update(state: .loading)
+        case .loading(let type):
+            if type == .full {
+                swappingFeeRowViewModel?.update(state: .loading)
+            }
         case .available(let result, let info):
             let source = exchangeManager.getExchangeItems().source
             let fee = result.fee.rounded(scale: 2, roundingMode: .up)
@@ -477,7 +479,11 @@ private extension SwappingViewModel {
         case .idle:
             mainButtonIsEnabled = false
             mainButtonState = .swap
-        case .loading, .requiredRefresh:
+        case .loading(let type):
+            if type == .full {
+                mainButtonIsEnabled = false
+            }
+        case .requiredRefresh:
             mainButtonIsEnabled = false
         case .preview(let preview):
             mainButtonIsEnabled = preview.isEnoughAmountForExchange && !preview.hasPendingTransaction
