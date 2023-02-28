@@ -99,9 +99,9 @@ extension DetailsCoordinator: DetailsRoutable {
         appSettingsCoordinator = coordinator
     }
 
-    func openSupportChat(cardId: String, dataCollector: EmailDataCollector) {
+    func openSupportChat(input: SupportChatInputModel) {
         Analytics.log(.chatScreenOpened)
-        supportChatViewModel = SupportChatViewModel(cardId: cardId, dataCollector: dataCollector)
+        supportChatViewModel = SupportChatViewModel(input: input)
     }
 
     func openInSafari(url: URL) {
