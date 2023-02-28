@@ -17,7 +17,6 @@ class CommonUserWalletRepository: UserWalletRepository {
     @Injected(\.backupServiceProvider) private var backupServiceProvider: BackupServiceProviding
     @Injected(\.walletConnectService) private var walletConnectServiceProvider: WalletConnectService
     @Injected(\.saltPayRegistratorProvider) private var saltPayRegistratorProvider: SaltPayRegistratorProviding
-    @Injected(\.supportChatService) private var supportChatService: SupportChatServiceProtocol
     @Injected(\.failedScanTracker) var failedCardScanTracker: FailedScanTrackable
     @Injected(\.exchangeServiceConfigurator) var exchangeService: ExchangeServiceConfigurator
     @Injected(\.analyticsContext) var analyticsContext: AnalyticsContext
@@ -91,12 +90,6 @@ class CommonUserWalletRepository: UserWalletRepository {
                 }
 
                 let saltPayUtil = SaltPayUtil()
-                let hasSaltPayBackup = self.backupService.hasUncompletedSaltPayBackup
-                let primaryCardId = self.backupService.primaryCard?.cardId ?? ""
-
-                if hasSaltPayBackup, response.card.cardId != primaryCardId {
-                    return .anyFail(error: SaltPayRegistratorError.emptyBackupCardScanned)
-                }
 
                 if saltPayUtil.isBackupCard(cardId: response.card.cardId) {
                     if response.card.wallets.isEmpty {
@@ -300,6 +293,10 @@ class CommonUserWalletRepository: UserWalletRepository {
         }
     }
 
+    func updateSelection() {
+        initializeServicesForSelectedModel()
+    }
+
     func setSelectedUserWalletId(_ userWalletId: Data?, reason: UserWalletRepositorySelectionChangeReason) {
         setSelectedUserWalletId(userWalletId, unlockIfNeeded: true, reason: reason)
     }
@@ -430,7 +427,6 @@ class CommonUserWalletRepository: UserWalletRepository {
         }
 
         tangemApiService.setAuthData(cardInfo.card.tangemApiAuthData)
-        supportChatService.initialize(with: cardModel.supportChatEnvironment)
         exchangeService.configure(for: cardModel.exchangeServiceEnvironment)
         walletConnectServiceProvider.initialize(with: cardModel)
     }
@@ -599,6 +595,7 @@ extension CommonUserWalletRepository {
     func initialize() {
         // Removing UserWallet-related data from Keychain
         if AppSettings.shared.numberOfLaunches == 1 {
+            AppLog.shared.debug("Clean CommonUserWalletRepository")
             clearUserWallets()
         }
 
