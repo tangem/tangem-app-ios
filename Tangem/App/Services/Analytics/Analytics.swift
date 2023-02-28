@@ -33,7 +33,7 @@ class Analytics {
         }
 
         analyticsContext.removeValue(forKey: .scanSource, scope: .common)
-        logInternal(source.cardDidScanEvent)
+        logInternal(.cardWasScanned, params: [.scanSource: source.cardWasScannedParameterValue.rawValue])
 
         if let cardId = analyticsContext.contextData?.analyticsParams[.cardId],
            DemoUtil().isDemoCard(cardId: cardId) {
@@ -209,10 +209,7 @@ fileprivate extension Analytics.Event {
              .buttonScanCard,
              .buttonScanNewCard,
              .buttonCardSignIn,
-             .signInCardWasScanned,
-             .introductionProcessCardWasScanned,
-             .mainCardWasScanned,
-             .myWalletsCardWasScanned,
+             .cardWasScanned,
              .signedIn,
              .toppedUp,
              .purchased:
