@@ -221,16 +221,19 @@ private extension SwappingViewModel {
             return
         }
 
-        Task {
-            let fiatFee = try await fiatRatesProvider.getFiat(for: info.sourceBlockchain, amount: result.fee)
+        runTask(in: self) { obj in
+            let fiatFee = try await self.fiatRatesProvider.getFiat(for: info.sourceBlockchain, amount: result.fee)
+            let inputModel = SwappingPermissionInputModel(
+                fiatFee: fiatFee,
+                transactionInfo: info
+            )
 
-            await runOnMain { [unowned self] in
-                self.coordinator.presentPermissionView(
-                    inputModel: SwappingPermissionInputModel(
-                        fiatFee: fiatFee,
-                        transactionInfo: info
-                    ),
-                    transactionSender: self.transactionSender
+            obj.stopTimer()
+
+            await runOnMain {
+                obj.coordinator.presentPermissionView(
+                    inputModel: inputModel,
+                    transactionSender: obj.transactionSender
                 )
             }
         }
