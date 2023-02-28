@@ -275,9 +275,20 @@ final class WalletConnectV2Service {
     // MARK: - Message handling
 
     private func handle(_ request: Request) async {
+        func respond(with error: WalletConnectV2Error) async {
+            AppLog.shared.error(error)
+            let message = messageComposer.makeErrorMessage(with: error)
+            try? await signApi.respond(
+                topic: request.topic,
+                requestId: request.id,
+                response: .error(.init(code: 0, message: message))
+            )
+        }
+
         let logSuffix = " for request: \(request)"
         guard let session = await sessionsStorage.session(with: request.topic) else {
             log("Failed to find session in storage \(logSuffix)")
+            await respond(with: .wrongCardSelected)
             return
         }
 
@@ -285,20 +296,10 @@ final class WalletConnectV2Service {
 
         guard let targetBlockchain = utils.createBlockchain(for: request.chainId) else {
             log("Failed to create blockchain \(logSuffix)")
+            await respond(with: .missingBlockchains([request.chainId.absoluteString]))
             return
         }
 
-        func respond(with error: WalletConnectV2Error) async {
-            AppLog.shared.error(error)
-            let message = messageComposer.makeErrorMessage(with: error)
-            try? await signApi.respond(
-                topic: session.topic,
-                requestId: request.id,
-                response: .error(.init(code: 0, message: message))
-            )
-        }
-
-        let signer = infoProvider.signer
         do {
             let result = try await wcHandlersService.handle(
                 request,
