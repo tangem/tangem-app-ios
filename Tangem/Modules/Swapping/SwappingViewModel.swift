@@ -103,8 +103,7 @@ final class SwappingViewModel: ObservableObject {
 
     func userDidTapMaxAmount() {
         let sourceBalance = exchangeManager.getExchangeItems().sourceBalance
-        sendDecimalValue = .external(sourceBalance)
-        pendingValidatingAmount = sourceBalance
+        setupExternalSendValue(sourceBalance)
     }
 
     func userDidRequestChangeDestination(to currency: Currency) {
@@ -137,8 +136,7 @@ final class SwappingViewModel: ObservableObject {
         // If amount have been set we'll should to round and update it with new decimalCount
         if let amount = sendDecimalValue?.value {
             let roundedAmount = amount.rounded(scale: items.source.decimalCount, roundingMode: .plain)
-            sendDecimalValue = .external(roundedAmount)
-            pendingValidatingAmount = roundedAmount
+            setupExternalSendValue(roundedAmount)
 
             exchangeManager.update(amount: roundedAmount)
         }
@@ -178,6 +176,11 @@ final class SwappingViewModel: ObservableObject {
 
     func didTapWaringRefresh() {
         exchangeManager.refresh(type: .full)
+    }
+    
+    private func setupExternalSendValue(_ amount: Decimal) {
+        sendDecimalValue = .external(amount)
+        pendingValidatingAmount = amount
     }
 }
 
@@ -534,7 +537,7 @@ private extension SwappingViewModel {
             amount: sendDecimalValue
         )
 
-        let lossesInPercents = 100 - (destinationFiatAmount * 100) / sourceFiatAmount
+        let lossesInPercents = (1 - destinationFiatAmount / sourceFiatAmount) * 100
 
         await runOnMain {
             if lossesInPercents >= Constants.highPriceImpactWarningLimit {
