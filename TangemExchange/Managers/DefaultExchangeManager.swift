@@ -13,7 +13,7 @@ class DefaultExchangeManager {
     // MARK: - Dependencies
 
     private let exchangeProvider: ExchangeProvider
-    private let blockchainDataProvider: BlockchainDataProvider
+    private let walletDataProvider: WalletDataProvider
     private let logger: ExchangeLogger
     private let referrer: ExchangeReferrerAccount?
 
@@ -34,26 +34,25 @@ class DefaultExchangeManager {
     }
 
     private var walletAddress: String? {
-        blockchainDataProvider.getWalletAddress(currency: exchangeItems.source)
+        walletDataProvider.getWalletAddress(currency: exchangeItems.source)
     }
 
     private var tokenExchangeAllowanceLimit: Decimal?
     // Cached addresses for check approving transactions
     private var pendingTransactions: [Currency: PendingTransactionState] = [:]
-
     private var bag: Set<AnyCancellable> = []
     private var refreshTask: Task<Void, Never>?
 
     init(
         exchangeProvider: ExchangeProvider,
-        blockchainDataProvider: BlockchainDataProvider,
+        walletDataProvider: WalletDataProvider,
         logger: ExchangeLogger,
         referrer: ExchangeReferrerAccount?,
         exchangeItems: ExchangeItems,
         amount: Decimal? = nil
     ) {
         self.exchangeProvider = exchangeProvider
-        self.blockchainDataProvider = blockchainDataProvider
+        self.walletDataProvider = walletDataProvider
         self.logger = logger
         self.referrer = referrer
         self.exchangeItems = exchangeItems
@@ -289,10 +288,10 @@ private extension DefaultExchangeManager {
     func updateBalances() {
         Task {
             let source = exchangeItems.source
-            let balance = try await blockchainDataProvider.getBalance(for: source)
+            let balance = try await walletDataProvider.getBalance(for: source)
 
             if let destination = exchangeItems.destination {
-                let balance = try await blockchainDataProvider.getBalance(for: destination)
+                let balance = try await walletDataProvider.getBalance(for: destination)
                 if exchangeItems.destinationBalance != balance {
                     exchangeItems.destinationBalance = balance
                 }
@@ -342,7 +341,7 @@ private extension DefaultExchangeManager {
             paymentAmount += fee
             isEnoughAmountForFee = sourceBalance >= fee
         case .token:
-            let coinBalance = try await blockchainDataProvider.getBalance(for: source.blockchain)
+            let coinBalance = try await walletDataProvider.getBalance(for: source.blockchain)
             isEnoughAmountForFee = coinBalance >= fee
         }
 
