@@ -40,6 +40,8 @@ struct TotalSumBalanceView: View {
             .padding(.bottom, 4)
 
             balanceView
+
+            messageView
         }
     }
 
@@ -55,6 +57,16 @@ struct TotalSumBalanceView: View {
                     .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
                     .layoutPriority(1)
             }
+        }
+    }
+
+    @ViewBuilder
+    private var messageView: some View {
+        if viewModel.hasError {
+            Text(Localization.mainProcessingFullAmount)
+                .foregroundColor(Color.tangemWarning)
+                .font(.system(size: 13, weight: .regular))
+                .padding(.top, 2)
         }
     }
 }
