@@ -304,6 +304,10 @@ class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable>
                         Analytics.log(.claimScreenOpened)
                     case .enterPin:
                         Analytics.log(.pinScreenOpened)
+                    case .registerWallet:
+                        Analytics.log(.registerScreenOpened)
+                    case .selectBackupCards:
+                        Analytics.log(.backupStarted)
                     default:
                         break
                     }
@@ -345,17 +349,20 @@ extension OnboardingViewModel {
 
     func openSupportChat() {
         guard let cardModel = input.cardInput.cardModel else { return }
-
         Analytics.log(.onboardingButtonChat)
         let dataCollector = DetailsFeedbackDataCollector(
             cardModel: cardModel,
             userWalletEmailData: cardModel.emailData
         )
 
-        coordinator.openSupportChat(
+        // Hide keyboard on set pin screen
+        UIApplication.shared.endEditing()
+
+        coordinator.openSupportChat(input: .init(
+            environment: cardModel.supportChatEnvironment,
             cardId: cardModel.cardId,
             dataCollector: dataCollector
-        )
+        ))
     }
 }
 
