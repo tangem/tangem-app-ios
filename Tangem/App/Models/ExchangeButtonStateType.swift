@@ -50,7 +50,7 @@ enum ExchangeButtonType: Hashable, CaseIterable {
             case .sell:
                 return canSellCrypto
             case .swap:
-                return false
+                return canSwap
             }
         }
 
