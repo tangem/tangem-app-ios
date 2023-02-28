@@ -103,8 +103,41 @@ extension MoonPayService: ExchangeService {
         return availableToBuy.contains(currencySymbol.uppercased()) && canBuyCrypto
     }
 
+    /*
+     Binance Coin (BEP-20) - BNB
+     Binance USD (BEP-20) - BUSD
+     Bitcoin - BTC
+     Bitcoin Cash - BCH
+     Ethereum - ETH
+     Ethereum (Polygon) - ETH
+     Litecoin - LTC
+     Solana - SOL
+     Stellar - XLM
+     Tether (ERC-20) - USDT
+     USD Coin (ERC-20) - USDC
+     USD Coin (Polygon) - USDC
+
+     https://support.moonpay.com/hc/en-gb/articles/360013742837-Which-cryptocurrencies-can-I-sell-
+     */
     func canSell(_ currencySymbol: String, amountType: Amount.AmountType, blockchain: Blockchain) -> Bool {
         if currencySymbol.uppercased() == "BNB", blockchain == .bsc(testnet: true) || blockchain == .bsc(testnet: false) {
+            return false
+        }
+
+        if currencySymbol.uppercased() != "BUSD", blockchain != .binance(testnet: true) || blockchain != .binance(testnet: false) {
+            return false
+        }
+
+        if currencySymbol.uppercased() != "USDT", blockchain != .ethereum(testnet: true) || blockchain != .ethereum(testnet: false) {
+            return false
+        }
+
+        if
+            currencySymbol.uppercased() != "USDC",
+            blockchain != .ethereum(testnet: true) ||
+            blockchain != .ethereum(testnet: false) ||
+            blockchain != .polygon(testnet: true) ||
+            blockchain != .polygon(testnet: false) {
             return false
         }
 
