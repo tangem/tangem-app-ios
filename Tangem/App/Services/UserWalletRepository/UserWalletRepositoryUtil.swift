@@ -34,6 +34,7 @@ class UserWalletRepositoryUtil {
     func savedUserWallets(encryptionKeyByUserWalletId: [Data: SymmetricKey]) -> [UserWallet] {
         do {
             guard fileManager.fileExists(atPath: userWalletListPath().path) else {
+                AppLog.shared.debug("Detected empty saved user wallets")
                 return []
             }
 
@@ -108,6 +109,7 @@ class UserWalletRepositoryUtil {
                 try sensitiveDataEncoded.write(to: sensitiveDataPath, options: .atomic)
                 try excludeFromBackup(url: sensitiveDataPath)
             }
+            AppLog.shared.debug("User wallets were saved successfully")
         } catch {
             AppLog.shared.debug("Failed to save user wallets")
             AppLog.shared.error(error)

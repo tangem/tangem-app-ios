@@ -57,7 +57,12 @@ struct SaltPayConfig {
 
         switch registrator.state {
         case .needPin, .registration:
-            steps.append(contentsOf: [.enterPin, .registerWallet, .kycStart, .kycProgress, .kycWaiting])
+            steps.append(contentsOf: [.enterPin, .registerWallet])
+
+            if registrator.needsKYC {
+                steps.append(contentsOf: [.kycStart, .kycProgress, .kycWaiting])
+            }
+
         case .kycRetry:
             steps.append(contentsOf: [.kycRetry, .kycProgress, .kycWaiting])
         case .kycStart:
@@ -187,7 +192,7 @@ extension SaltPayConfig: UserWalletConfig {
     }
 
     var supportChatEnvironment: SupportChatEnvironment {
-        .saltpay
+        .saltPay
     }
 
     var userWalletIdSeed: Data? {
