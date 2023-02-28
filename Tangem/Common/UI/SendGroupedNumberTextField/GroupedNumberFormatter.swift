@@ -51,7 +51,8 @@ struct GroupedNumberFormatter {
         return string
     }
 
-    func format(from value: Decimal) -> String {
+    /// Use it only for number without floating point
+    private func format(from value: Decimal) -> String {
         guard let string = numberFormatter.string(from: value as NSDecimalNumber) else {
             assertionFailure("number \(value) can not formatted")
             return "\(value)"
