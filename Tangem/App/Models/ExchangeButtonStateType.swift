@@ -41,8 +41,7 @@ enum ExchangeButtonType: Hashable, CaseIterable {
     static func build(
         canBuyCrypto: Bool,
         canSellCrypto: Bool,
-        canSwap: Bool = false,
-        alwaysDisplayBuyOption: Bool = true
+        canSwap: Bool = false
     ) -> [ExchangeButtonType] {
         var exchangeOptions = ExchangeButtonType.allCases.filter { option in
             switch option {
@@ -56,7 +55,7 @@ enum ExchangeButtonType: Hashable, CaseIterable {
         }
 
         // If options is empty, we must display buy button where button is disabled
-        if exchangeOptions.isEmpty, alwaysDisplayBuyOption {
+        if exchangeOptions.isEmpty {
             exchangeOptions.append(.buy)
         }
 
