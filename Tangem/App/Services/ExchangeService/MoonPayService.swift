@@ -124,7 +124,7 @@ extension MoonPayService: ExchangeService {
             return false
         }
 
-        if currencySymbol.uppercased() == "BEP20", blockchain == .bsc(testnet: true) || blockchain == .bsc(testnet: false) {
+        if currencySymbol.uppercased() == "BUSD", blockchain == .bsc(testnet: true) || blockchain == .bsc(testnet: false) {
             return false
         }
 
