@@ -120,10 +120,6 @@ class CardViewModel: Identifiable, ObservableObject {
         config.embeddedBlockchain
     }
 
-    var supportsWalletConnect: Bool {
-        config.hasFeature(.walletConnect)
-    }
-
     var hasTokenSynchronization: Bool {
         config.hasFeature(.tokenSynchronization)
     }
