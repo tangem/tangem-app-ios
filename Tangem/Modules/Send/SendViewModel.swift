@@ -332,11 +332,19 @@ class SendViewModel: ObservableObject {
                     .catch { [unowned self] error -> Just<[Amount]> in
                         AppLog.shared.error(error)
 
+                        let errorText: String
+                        if let ethError = error as? ETHError,
+                           case .gasRequiredExceedsAllowance = ethError {
+                            errorText = ethError.localizedDescription
+                        } else {
+                            errorText = WalletError.failedToGetFee.localizedDescription
+                        }
+
                         let ok = Alert.Button.default(Text(Localization.commonOk))
                         let retry = Alert.Button.default(Text(Localization.commonRetry)) { [unowned self] in
                             self.feeRetrySubject.send()
                         }
-                        let alert = Alert(title: Text(WalletError.failedToGetFee.localizedDescription), primaryButton: retry, secondaryButton: ok)
+                        let alert = Alert(title: Text(errorText), primaryButton: retry, secondaryButton: ok)
                         self.error = AlertBinder(alert: alert)
 
                         return Just([Amount]())
@@ -641,12 +649,8 @@ class SendViewModel: ObservableObject {
         appDelegate.addLoadingView()
 
         let isDemo = walletModel.isDemo
-        walletModel.update(silent: true)
-            .flatMap { [weak self] _ -> AnyPublisher<Void, Error> in
-                guard let self else { return .justWithError(output: ()) }
 
-                return self.walletModel.send(tx, signer: self.cardViewModel.signer)
-            }
+        walletModel.send(tx, signer: cardViewModel.signer)
             .receive(on: DispatchQueue.main)
             .sink(receiveCompletion: { [weak self] completion in
                 guard let self = self else { return }
