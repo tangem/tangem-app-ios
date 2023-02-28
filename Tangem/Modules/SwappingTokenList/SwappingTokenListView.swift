@@ -23,10 +23,7 @@ struct SwappingTokenListView: View {
         NavigationView {
             GroupedScrollView(alignment: .center, spacing: 0) {
                 if #unavailable(iOS 15.0) {
-                    let horizontalInset: CGFloat = UIDevice.isIOS13 ? 8 : 16
                     SearchBar(text: $viewModel.searchText.value, placeholder: Localization.commonSearch)
-                        .padding(.horizontal, UIDevice.isIOS13 ? 0 : 8)
-                        .listRowInsets(.init(top: 8, leading: horizontalInset, bottom: 8, trailing: horizontalInset))
                 }
 
                 FixedSpacer(height: 12)
