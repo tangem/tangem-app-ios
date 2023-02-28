@@ -106,6 +106,7 @@ extension DefaultExchangeManager: ExchangeManager {
 
     func refresh(type: ExchangeManagerRefreshType) {
         refreshTask?.cancel()
+        refreshTask = nil
         if let amount = amount, amount > 0 {
             refreshValues(refreshType: type)
         } else {
