@@ -221,8 +221,7 @@ class MainViewModel: ObservableObject {
         exchangeButtonState = .init(
             options: ExchangeButtonType.build(
                 canBuyCrypto: canBuyCrypto,
-                canSellCrypto: canSellCrypto,
-                alwaysDisplayBuyOption: false
+                canSellCrypto: canSellCrypto
             )
         )
     }
