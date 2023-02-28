@@ -101,7 +101,9 @@ final class SwappingViewModel: ObservableObject {
     }
 
     func userDidTapMaxAmount() {
-        sendDecimalValue = .external(exchangeManager.getExchangeItems().sourceBalance)
+        let sourceBalance = exchangeManager.getExchangeItems().sourceBalance
+        sendDecimalValue = .external(sourceBalance)
+        pendingValidatingAmount = sourceBalance
     }
 
     func userDidRequestChangeDestination(to currency: Currency) {
@@ -135,6 +137,7 @@ final class SwappingViewModel: ObservableObject {
         if let amount = sendDecimalValue?.value {
             let roundedAmount = amount.rounded(scale: items.source.decimalCount, roundingMode: .plain)
             sendDecimalValue = .external(roundedAmount)
+            pendingValidatingAmount = roundedAmount
 
             exchangeManager.update(amount: roundedAmount)
         }
@@ -511,6 +514,7 @@ private extension SwappingViewModel {
         }
 
         if sendDecimalValue.isZero {
+            pendingValidatingAmount = nil
             // No need to calculate price impact with zero input
             await runOnMain {
                 highPriceImpactWarningRowViewModel = nil
@@ -535,6 +539,7 @@ private extension SwappingViewModel {
             } else {
                 highPriceImpactWarningRowViewModel = nil
             }
+            pendingValidatingAmount = nil
         }
     }
 
