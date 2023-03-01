@@ -130,14 +130,11 @@ class WalletConnectV1Service {
 
         AppLog.shared.error(error: error, params: action.map { [.walletConnectAction: $0.rawValue] } ?? [:])
 
-        if let wcError = error as? WalletConnectServiceError {
-            switch wcError {
-            case .switchChainNotSupported:
-                break
-            default:
-                AppPresenter.shared.show(WalletConnectUIBuilder.makeErrorAlert(error), delay: delay)
-            }
+        if let wcError = error as? WalletConnectServiceError, case .switchChainNotSupported = wcError {
+            return
         }
+
+        AppPresenter.shared.show(WalletConnectUIBuilder.makeErrorAlert(error), delay: delay)
     }
 
     private func resetSessionConnectTimer() {
@@ -262,10 +259,6 @@ extension WalletConnectV1Service: ServerDelegate {
     private func getWalletInfo(for dAppInfo: Session.DAppInfo) throws -> WalletInfo {
         guard DApps().isSupported(dAppInfo.peerMeta.url) else {
             throw WalletConnectServiceError.unsupportedDApp
-        }
-
-        guard cardModel.supportsWalletConnect else {
-            throw WalletConnectServiceError.notValidCard
         }
 
         guard let blockchain = WalletConnectNetworkParserUtility.parse(
