@@ -17,14 +17,16 @@ struct IconView: View {
     // [REDACTED_TODO_COMMENT]
     private let forceKingfisher: Bool
 
-    init(url: URL?, size: CGSize = CGSize(width: 36, height: 36), forceKingfisher: Bool = false) {
+    init(url: URL?, size: CGSize, forceKingfisher: Bool = false) {
         self.url = url
         self.size = size
         self.forceKingfisher = forceKingfisher
     }
 
     var body: some View {
-        if #available(iOS 15.0, *), !forceKingfisher {
+        if forceKingfisher {
+            kfImage
+        } else if #available(iOS 15.0, *) {
             cachedAsyncImage
         } else {
             kfImage
