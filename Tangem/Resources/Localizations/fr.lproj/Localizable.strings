@@ -360,6 +360,7 @@
 "swapping_success_view_explorer_button_title" = "View in Explorer";
 "swapping_success_view_title" = "In progress";
 "swapping_swap" = "Swap";
+"swapping_swap_action" = "Swap";
 "swapping_swap_of_to" = "Swap of %@ to";
 "swapping_tangem_fee_disclaimer" = "Additionally, quotes include Tangem fee of %s. This helps us deliver a top-of-the-line product.";
 "swapping_token_list_other_tokens" = "Other tokens";
@@ -382,7 +383,7 @@
 "transaction_history_empty_transactions" = "You don't have any transactions yet";
 "transaction_history_error_failed_to_load" = "Failed to load transactions";
 "transaction_history_title" = "Transactions";
-"transaction_history_tx_in_progress" = "In progress...";
+"transaction_history_tx_in_progress" = "In progress…";
 "twin_error_not_a_twin_card" = "You've scanned not a twin card. To create twin wallet you need to scan a Tangem Twin card";
 "twin_error_same_card" = "You've scanned the same card. To create a twin wallet you need to scan the card with number %li";
 "twin_error_wrong_twin" = "You've scanned wrong twin card. Please try another one";
