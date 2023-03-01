@@ -455,9 +455,8 @@ private extension SwappingViewModel {
             if type == .full {
                 swappingFeeRowViewModel?.update(state: .loading)
             }
-        case .available(let result, let info):
+        case .available(_, let info):
             let source = exchangeManager.getExchangeItems().source
-            let fee = result.fee.rounded(scale: 2, roundingMode: .up)
 
             Task {
                 let fiatFee = try await fiatRatesProvider.getFiat(for: info.sourceBlockchain, amount: info.fee)
@@ -466,7 +465,7 @@ private extension SwappingViewModel {
                 await runOnMain {
                     swappingFeeRowViewModel?.update(
                         state: .fee(
-                            fee: fee.groupedFormatted(maximumFractionDigits: source.decimalCount),
+                            fee: info.fee.groupedFormatted(),
                             symbol: source.blockchain.symbol,
                             fiat: fiatFee.currencyFormatted(code: code)
                         )
