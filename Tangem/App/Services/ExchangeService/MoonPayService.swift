@@ -86,8 +86,6 @@ fileprivate struct MoonpayCurrency: Decodable {
     }
 
     struct Metadata: Decodable {
-        let contractAddress: String?
-        let chainId: String?
         let networkCode: NetworkCode
     }
 
@@ -101,7 +99,7 @@ fileprivate struct MoonpayCurrency: Decodable {
     let metadata: Metadata?
 }
 
-fileprivate struct MoonpayAvailableToSell: Hashable {
+fileprivate struct MoonpaySupportedCurrency: Hashable {
     let currencyCode: String
     let networkCode: MoonpayCurrency.NetworkCode
 }
@@ -122,10 +120,10 @@ class MoonPayService {
         "USDC", "UTK", "VET", "WAXP", "WBTC", "XRP", "ZEC", "ZIL",
     ]
 
-    private var availableToSell: Set<MoonpayAvailableToSell> = [
-        MoonpayAvailableToSell(currencyCode: "BTC", networkCode: .bitcoin),
-        MoonpayAvailableToSell(currencyCode: "ETH", networkCode: .ethereum),
-        MoonpayAvailableToSell(currencyCode: "BCH", networkCode: .bnbChain),
+    private var availableToSell: Set<MoonpaySupportedCurrency> = [
+        MoonpaySupportedCurrency(currencyCode: "BTC", networkCode: .bitcoin),
+        MoonpaySupportedCurrency(currencyCode: "ETH", networkCode: .ethereum),
+        MoonpaySupportedCurrency(currencyCode: "BCH", networkCode: .bnbChain),
     ]
 
     private(set) var canBuyCrypto = true
@@ -272,7 +270,7 @@ extension MoonPayService: ExchangeService {
             }
             do {
                 var currenciesToBuy = Set<String>()
-                var currenciesToSell = Set<MoonpayAvailableToSell>()
+                var currenciesToSell = Set<MoonpaySupportedCurrency>()
                 let decodedResponse = try decoder.decode([MoonpayCurrency].self, from: currenciesOutput.data)
                 decodedResponse.forEach {
                     guard
@@ -295,7 +293,7 @@ extension MoonPayService: ExchangeService {
 
                     if let isSellSupported = $0.isSellSupported, isSellSupported, let metadata = $0.metadata {
                         currenciesToSell.insert(
-                            MoonpayAvailableToSell(currencyCode: $0.code.uppercased(), networkCode: metadata.networkCode)
+                            MoonpaySupportedCurrency(currencyCode: $0.code.uppercased(), networkCode: metadata.networkCode)
                         )
                     }
                 }
