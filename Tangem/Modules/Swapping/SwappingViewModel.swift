@@ -177,7 +177,7 @@ final class SwappingViewModel: ObservableObject {
     func didTapWaringRefresh() {
         exchangeManager.refresh(type: .full)
     }
-    
+
     private func setupExternalSendValue(_ amount: Decimal) {
         sendDecimalValue = .external(amount)
         pendingValidatingAmount = amount
@@ -218,11 +218,10 @@ private extension SwappingViewModel {
 
     func openPermissionView() {
         let state = exchangeManager.getAvailabilityState()
-        let source = exchangeManager.getExchangeItems().source
 
         guard case .available(let result, let info) = state,
               result.isPermissionRequired,
-              fiatRatesProvider.hasRates(for: source) else {
+              fiatRatesProvider.hasRates(for: info.sourceBlockchain) else {
             // If we don't have enough data disable button and refresh()
             mainButtonIsEnabled = false
             exchangeManager.refresh(type: .full)
@@ -231,7 +230,7 @@ private extension SwappingViewModel {
         }
 
         runTask(in: self) { obj in
-            let fiatFee = try await obj.fiatRatesProvider.getFiat(for: source, amount: info.fee)
+            let fiatFee = try await obj.fiatRatesProvider.getFiat(for: info.sourceBlockchain, amount: info.fee)
             let inputModel = SwappingPermissionInputModel(
                 fiatFee: fiatFee,
                 transactionInfo: info
@@ -461,7 +460,7 @@ private extension SwappingViewModel {
             let fee = result.fee.rounded(scale: 2, roundingMode: .up)
 
             Task {
-                let fiatFee = try await fiatRatesProvider.getFiat(for: info.sourceBlockchain, amount: result.fee)
+                let fiatFee = try await fiatRatesProvider.getFiat(for: info.sourceBlockchain, amount: info.fee)
                 let code = await AppSettings.shared.selectedCurrencyCode
 
                 await runOnMain {
