@@ -1,5 +1,5 @@
 //
-//  BlockchainNetworkService.swift
+//  ExchangeWalletDataProvider.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -10,44 +10,39 @@ import Foundation
 import BlockchainSdk
 import TangemExchange
 
-class BlockchainNetworkService {
-    private let walletModel: WalletModel
+class ExchangeWalletDataProvider {
+    private let wallet: Wallet
+    private let ethereumNetworkProvider: EthereumNetworkProvider
     private let currencyMapper: CurrencyMapping
 
     private var balances: [Amount.AmountType: Decimal] = [:]
-    private var walletManager: WalletManager { walletModel.walletManager }
+    private var walletAddress: String { wallet.address }
 
-    init(walletModel: WalletModel, currencyMapper: CurrencyMapping) {
-        self.walletModel = walletModel
+    init(
+        wallet: Wallet,
+        ethereumNetworkProvider: EthereumNetworkProvider,
+        currencyMapper: CurrencyMapping
+    ) {
+        self.wallet = wallet
+        self.ethereumNetworkProvider = ethereumNetworkProvider
         self.currencyMapper = currencyMapper
 
-        balances = walletModel.wallet.amounts.reduce(into: [:]) {
+        balances = wallet.amounts.reduce(into: [:]) {
             $0[$1.key] = $1.value.value.rounded(scale: $1.value.decimals, roundingMode: .down)
         }
     }
 }
 
-// MARK: - BlockchainDataProvider
+// MARK: - WalletDataProvider
 
-extension BlockchainNetworkService: TangemExchange.BlockchainDataProvider {
-    func updateWallet() async throws {
-        try await walletModel.update(silent: true).async()
-    }
-
-    func hasPendingTransaction(currency: Currency, to spenderAddress: String) -> Bool {
-        let outgoing = walletModel.wallet.pendingOutgoingTransactions
-
-        return outgoing.contains(where: { $0.destinationAddress == spenderAddress })
-    }
-
+extension ExchangeWalletDataProvider: WalletDataProvider {
     func getWalletAddress(currency: Currency) -> String? {
-        let blockchain = walletModel.blockchainNetwork.blockchain
-        guard blockchain.networkId == currency.blockchain.networkId else {
+        guard wallet.blockchain.networkId == currency.blockchain.networkId else {
             assertionFailure("Incorrect WalletModel")
             return nil
         }
 
-        return walletModel.wallet.address
+        return walletAddress
     }
 
     func getBalance(for currency: Currency) async throws -> Decimal {
@@ -78,7 +73,7 @@ extension BlockchainNetworkService: TangemExchange.BlockchainDataProvider {
     }
 
     func getBalance(for blockchain: ExchangeBlockchain) async throws -> Decimal {
-        guard walletModel.blockchainNetwork.blockchain.networkId == blockchain.networkId else {
+        guard wallet.blockchain.networkId == blockchain.networkId else {
             assertionFailure("Incorrect WalletModel")
             return 0
         }
@@ -95,7 +90,7 @@ extension BlockchainNetworkService: TangemExchange.BlockchainDataProvider {
 
 // MARK: - Private
 
-private extension BlockchainNetworkService {
+private extension ExchangeWalletDataProvider {
     func createAmount(from currency: Currency, amount: Decimal) -> Amount {
         if let token = currencyMapper.mapToToken(currency: currency) {
             return Amount(with: token, value: amount)
@@ -109,34 +104,20 @@ private extension BlockchainNetworkService {
         )
     }
 
-    func getFiatBalanceFromWalletModel(currency: Currency, amount: Decimal) -> Decimal? {
-        let amount = createAmount(from: currency, amount: amount)
-        if let fiat = walletModel.getFiat(for: amount, roundingType: .default(roundingMode: .plain)) {
-            return fiat
-        }
-
-        return nil
-    }
-
     func getBalanceThroughUpdateWalletModel(amountType: Amount.AmountType) async throws -> Decimal {
-        if let token = amountType.token {
-            walletModel.addTokens([token])
+        guard let token = amountType.token else {
+            AppLog.shared.debug("WalletModel can't load balance for amountType \(amountType)")
+            return 0
         }
 
-        defer {
-            if let token = amountType.token {
-                walletModel.removeToken(token)
-            }
-        }
+        let loadedBalances = try await ethereumNetworkProvider.getTokensBalance(walletAddress, tokens: [token]).async()
 
-        /// Think about it, because we unnecessary updates all tokens in walletModel
-        try await walletModel.update(silent: true).async()
-
-        if let balance = walletModel.getDecimalBalance(for: amountType) {
+        if let balance = loadedBalances[token] {
+            balances[amountType] = balance
             return balance
         }
 
-        AppLog.shared.debug("WalletModel haven't balance for coin")
+        AppLog.shared.debug("WalletModel haven't balance for token \(token)")
         return 0
     }
 }
