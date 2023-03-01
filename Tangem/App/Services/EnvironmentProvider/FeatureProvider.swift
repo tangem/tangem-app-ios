@@ -49,8 +49,8 @@ enum FeatureToggle: String, Hashable, CaseIterable {
 
     var releaseVersion: ReleaseVersion {
         switch self {
-        case .exchange: return .unspecified
-        case .referralProgram: return .unspecified
+        case .exchange: return .version("4.2")
+        case .referralProgram: return .version("4.2")
         case .walletConnectV2: return .unspecified
         }
     }
