@@ -41,7 +41,7 @@ fileprivate struct IpCheckResponse: Decodable {
     }
 }
 
-struct MoonpayCurrency: Decodable {
+fileprivate struct MoonpayCurrency: Decodable {
     enum CurrencyType: String, Decodable {
         case crypto
         case fiat
@@ -101,7 +101,7 @@ struct MoonpayCurrency: Decodable {
     let metadata: Metadata?
 }
 
-struct AvailableToSell: Hashable {
+fileprivate struct MoonpayAvailableToSell: Hashable {
     let currencyCode: String
     let networkCode: MoonpayCurrency.NetworkCode
 }
@@ -122,10 +122,10 @@ class MoonPayService {
         "USDC", "UTK", "VET", "WAXP", "WBTC", "XRP", "ZEC", "ZIL",
     ]
 
-    private var availableToSell: Set<AvailableToSell> = [
-        AvailableToSell(currencyCode: "BTC", networkCode: .bitcoin),
-        AvailableToSell(currencyCode: "ETH", networkCode: .ethereum),
-        AvailableToSell(currencyCode: "BCH", networkCode: .bnbChain),
+    private var availableToSell: Set<MoonpayAvailableToSell> = [
+        MoonpayAvailableToSell(currencyCode: "BTC", networkCode: .bitcoin),
+        MoonpayAvailableToSell(currencyCode: "ETH", networkCode: .ethereum),
+        MoonpayAvailableToSell(currencyCode: "BCH", networkCode: .bnbChain),
     ]
 
     private(set) var canBuyCrypto = true
@@ -272,7 +272,7 @@ extension MoonPayService: ExchangeService {
             }
             do {
                 var currenciesToBuy = Set<String>()
-                var currenciesToSell = Set<AvailableToSell>()
+                var currenciesToSell = Set<MoonpayAvailableToSell>()
                 let decodedResponse = try decoder.decode([MoonpayCurrency].self, from: currenciesOutput.data)
                 decodedResponse.forEach {
                     guard
@@ -295,7 +295,7 @@ extension MoonPayService: ExchangeService {
 
                     if let isSellSupported = $0.isSellSupported, isSellSupported, let metadata = $0.metadata {
                         currenciesToSell.insert(
-                            AvailableToSell(currencyCode: $0.code.uppercased(), networkCode: metadata.networkCode)
+                            MoonpayAvailableToSell(currencyCode: $0.code.uppercased(), networkCode: metadata.networkCode)
                         )
                     }
                 }
