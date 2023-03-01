@@ -209,8 +209,6 @@ class TokenDetailsViewModel: ObservableObject {
     }
 
     func updateExchangeButtons() {
-        guard FeatureProvider.isAvailable(.exchange) else { return }
-
         exchangeButtonState = .init(
             options: ExchangeButtonType.build(
                 canBuyCrypto: canBuyCrypto,
