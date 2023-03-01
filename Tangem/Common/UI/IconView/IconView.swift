@@ -65,7 +65,7 @@ struct IconView: View {
             .renderingMode(.original) // iOS 13 needs this to properly display an image inside a button label
             .cancelOnDisappear(true)
             .setProcessor(DownsamplingImageProcessor(size: size))
-            .placeholder { placeholder }
+            .placeholder { CircleImageTextView(name: "", color: .tangemSkeletonGray) }
             .fade(duration: 0.3)
             .cacheOriginalImage()
             .scaleFactor(UIScreen.main.scale)
