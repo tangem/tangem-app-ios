@@ -161,15 +161,18 @@ extension MoonPayService: ExchangeService {
     }
 
     func canSell(_ currencySymbol: String, amountType: Amount.AmountType, blockchain: Blockchain) -> Bool {
+        guard canSellCrypto else {
+            return false
+        }
+
         if currencySymbol.uppercased() == "BNB", blockchain == .bsc(testnet: true) || blockchain == .bsc(testnet: false) {
             return false
         }
 
-        guard let currency = availableToSell.first(where: { $0.currencyCode == currencySymbol.uppercased() }), canSellCrypto else {
-            return false
-        }
-
-        return currency.networkCode.blockchain(testnet: blockchain.isTestnet) == blockchain
+        return availableToSell.contains(where: {
+            $0.currencyCode == currencySymbol.uppercased() &&
+                $0.networkCode.blockchain(testnet: blockchain.isTestnet) == blockchain
+        })
     }
 
     func getBuyUrl(currencySymbol: String, amountType: Amount.AmountType, blockchain: Blockchain, walletAddress: String) -> URL? {
