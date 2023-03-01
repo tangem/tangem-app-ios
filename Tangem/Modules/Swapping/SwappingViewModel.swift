@@ -700,7 +700,7 @@ private extension SwappingViewModel {
 
     func updateRefreshWarningRowViewModel(message: String) {
         refreshWarningRowViewModel = DefaultWarningRowViewModel(
-            subtitle: message.capitalizingFirstLetter(),
+            subtitle: Localization.swappingErrorWrapper(message.capitalizingFirstLetter()),
             leftView: .icon(Assets.attention),
             rightView: .icon(Assets.refreshWarningIcon)
         ) { [weak self] in
