@@ -328,7 +328,9 @@ class SendViewModel: ObservableObject {
             .combineLatest($validatedDestination.compactMap { $0 }, feeRetrySubject)
             .flatMap { [unowned self] amount, dest, _ -> AnyPublisher<[Amount], Never> in
                 self.isFeeLoading = true
-                return self.walletModel.getFee(amount: amount, destination: dest)
+                return self.walletModel
+                    .getFee(amount: amount, destination: dest)
+                    .receive(on: DispatchQueue.main)
                     .catch { [unowned self] error -> Just<[Amount]> in
                         AppLog.shared.error(error)
 
@@ -348,7 +350,8 @@ class SendViewModel: ObservableObject {
                         self.error = AlertBinder(alert: alert)
 
                         return Just([Amount]())
-                    }.eraseToAnyPublisher()
+                    }
+                    .eraseToAnyPublisher()
             }
             .receive(on: RunLoop.main)
             .sink(receiveCompletion: { [unowned self] completion in
