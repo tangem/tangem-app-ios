@@ -177,7 +177,7 @@ final class SwappingViewModel: ObservableObject {
     func didTapWaringRefresh() {
         exchangeManager.refresh(type: .full)
     }
-    
+
     private func setupExternalSendValue(_ amount: Decimal) {
         sendDecimalValue = .external(amount)
         pendingValidatingAmount = amount
