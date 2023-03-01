@@ -38,6 +38,10 @@ extension FiatRatesProvider: FiatRatesProviding {
         let id = currency.isToken ? currency.id : currency.blockchain.id
         return rates[id] != nil
     }
+
+    func hasRates(for blockchain: ExchangeBlockchain) -> Bool {
+        return rates[blockchain.id] != nil
+    }
 }
 
 // MARK: - Private
