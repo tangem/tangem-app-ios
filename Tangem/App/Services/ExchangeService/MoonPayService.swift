@@ -12,6 +12,8 @@ import Alamofire
 import Combine
 import BlockchainSdk
 
+// MARK: - Models
+
 fileprivate enum QueryKey: String {
     case apiKey
     case currencyCode
@@ -39,10 +41,54 @@ fileprivate struct IpCheckResponse: Decodable {
     }
 }
 
-fileprivate struct MoonpayCurrency: Decodable {
+internal struct MoonpayCurrency: Decodable {
     enum CurrencyType: String, Decodable {
         case crypto
         case fiat
+    }
+
+    enum NetworkCode: String, Decodable {
+        case bitcoin
+        case bitcoinCash = "bitcoin_cash"
+        case ethereum
+        case bnbChain = "bnb_chain"
+        case stellar
+        case litecoin
+        case solana
+        case unknown
+
+        func blockchain(testnet: Bool) -> Blockchain? {
+            switch self {
+            case .unknown:
+                return nil
+            case .bitcoin:
+                return .bitcoin(testnet: testnet)
+            case .bitcoinCash:
+                return .bitcoinCash(testnet: testnet)
+            case .ethereum:
+                return .ethereum(testnet: testnet)
+            case .bnbChain:
+                return .binance(testnet: testnet)
+            case .solana:
+                return .solana(testnet: testnet)
+            case .litecoin:
+                return .litecoin
+            case .stellar:
+                return .stellar(testnet: testnet)
+            }
+        }
+
+        init(from decoder: Decoder) throws {
+            let container = try decoder.singleValueContainer()
+            let value = try container.decode(String.self)
+            self = NetworkCode(rawValue: value) ?? .unknown
+        }
+    }
+
+    struct Metadata: Decodable {
+        let contractAddress: String?
+        let chainId: String?
+        let networkCode: NetworkCode
     }
 
     let type: CurrencyType
@@ -52,7 +98,15 @@ fileprivate struct MoonpayCurrency: Decodable {
     let isSupportedInUS: Bool?
     let isSellSupported: Bool?
     let notAllowedUSStates: [String]?
+    let metadata: Metadata?
 }
+
+struct AvailableToSell: Hashable {
+    let currencyCode: String
+    let networkCode: MoonpayCurrency.NetworkCode
+}
+
+// MARK: - Service
 
 class MoonPayService {
     @Injected(\.keysManager) var keysManager: KeysManager
@@ -67,8 +121,11 @@ class MoonPayService {
         "OMG", "ONG", "ONT", "DOT", "QTUM", "RVN", "RFUEL", "KEY", "SRM", "SOL", "XLM", "STMX", "SNX", "KRT", "UST", "USDT", "XTZ", "RUNE", "SAND", "TOMO", "AVA", "TRX", "TUSD", "UNI",
         "USDC", "UTK", "VET", "WAXP", "WBTC", "XRP", "ZEC", "ZIL",
     ]
-    private var availableToSell: Set<String> = [
-        "BTC", "ETH", "BCH",
+
+    private var availableToSell: Set<AvailableToSell> = [
+        AvailableToSell(currencyCode: "BTC", networkCode: .bitcoin),
+        AvailableToSell(currencyCode: "ETH", networkCode: .ethereum),
+        AvailableToSell(currencyCode: "BCH", networkCode: .bnbChain),
     ]
 
     private(set) var canBuyCrypto = true
@@ -102,30 +159,17 @@ extension MoonPayService: ExchangeService {
 
         return availableToBuy.contains(currencySymbol.uppercased()) && canBuyCrypto
     }
-    
+
     func canSell(_ currencySymbol: String, amountType: Amount.AmountType, blockchain: Blockchain) -> Bool {
         if currencySymbol.uppercased() == "BNB", blockchain == .bsc(testnet: true) || blockchain == .bsc(testnet: false) {
             return false
         }
 
-        if currencySymbol.uppercased() == "BUSD", blockchain == .bsc(testnet: true) || blockchain == .bsc(testnet: false) {
+        guard let currency = availableToSell.first(where: { $0.currencyCode == currencySymbol.uppercased() }), canSellCrypto else {
             return false
         }
 
-        if currencySymbol.uppercased() == "USDT", blockchain == .ethereum(testnet: true) || blockchain == .ethereum(testnet: false) {
-            return false
-        }
-
-        if
-            currencySymbol.uppercased() == "USDC",
-            blockchain == .ethereum(testnet: true) ||
-            blockchain == .ethereum(testnet: false) ||
-            blockchain == .polygon(testnet: true) ||
-            blockchain == .polygon(testnet: false) {
-            return false
-        }
-
-        return availableToSell.contains(currencySymbol.uppercased()) && canSellCrypto
+        return currency.networkCode.blockchain(testnet: blockchain.isTestnet) == blockchain
     }
 
     func getBuyUrl(currencySymbol: String, amountType: Amount.AmountType, blockchain: Blockchain, walletAddress: String) -> URL? {
@@ -225,7 +269,7 @@ extension MoonPayService: ExchangeService {
             }
             do {
                 var currenciesToBuy = Set<String>()
-                var currenciesToSell = Set<String>()
+                var currenciesToSell = Set<AvailableToSell>()
                 let decodedResponse = try decoder.decode([MoonpayCurrency].self, from: currenciesOutput.data)
                 decodedResponse.forEach {
                     guard
@@ -246,8 +290,10 @@ extension MoonPayService: ExchangeService {
 
                     currenciesToBuy.insert($0.code.uppercased())
 
-                    if let isSellSupported = $0.isSellSupported, isSellSupported {
-                        currenciesToSell.insert($0.code.uppercased())
+                    if let isSellSupported = $0.isSellSupported, isSellSupported, let metadata = $0.metadata {
+                        currenciesToSell.insert(
+                            AvailableToSell(currencyCode: $0.code.uppercased(), networkCode: metadata.networkCode)
+                        )
                     }
                 }
                 self.availableToBuy = currenciesToBuy
