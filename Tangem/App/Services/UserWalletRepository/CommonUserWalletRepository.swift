@@ -298,8 +298,7 @@ class CommonUserWalletRepository: UserWalletRepository {
     }
 
     func logoutIfNeeded() {
-        let unlockedWallet = userWallets.first(where: { !$0.isLocked })
-        guard unlockedWallet == nil else {
+        if userWallets.contains(where: { !$0.isLocked }) {
             return
         }
 
@@ -352,7 +351,7 @@ class CommonUserWalletRepository: UserWalletRepository {
         }
     }
 
-    func delete(_ userWallet: UserWallet, logoutIfNeeded shouldAutologout: Bool) {
+    func delete(_ userWallet: UserWallet, logoutIfNeeded shouldAutoLogout: Bool) {
         let userWalletId = userWallet.userWalletId
         encryptionKeyByUserWalletId[userWalletId] = nil
         userWallets.removeAll { $0.userWalletId == userWalletId }
@@ -377,7 +376,7 @@ class CommonUserWalletRepository: UserWalletRepository {
                 setSelectedUserWalletId(nil, reason: .deleted)
             }
 
-            if shouldAutologout {
+            if shouldAutoLogout {
                 logoutIfNeeded()
             }
         }
