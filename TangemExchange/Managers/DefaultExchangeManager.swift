@@ -262,7 +262,9 @@ private extension DefaultExchangeManager {
     }
 
     func getQuoteDataModel() async throws -> QuoteDataModel {
-        try await exchangeProvider.fetchQuote(
+        let gasPrice = try await walletDataProvider.getGasPrice()
+        print(#function, "gasPrice", gasPrice)
+        return try await exchangeProvider.fetchQuote(
             items: exchangeItems,
             amount: formattedAmount,
             referrer: referrer
@@ -278,10 +280,13 @@ private extension DefaultExchangeManager {
             throw ExchangeManagerError.walletAddressNotFound
         }
 
+        let gasPrice = try await walletDataProvider.getGasPrice()
+        print(#function, "gasPrice", gasPrice)
         return try await exchangeProvider.fetchExchangeData(
             items: exchangeItems,
             walletAddress: walletAddress,
             amount: formattedAmount,
+            gasPrice: gasPrice,
             referrer: referrer
         )
     }
@@ -399,7 +404,7 @@ private extension DefaultExchangeManager {
             sourceAmount: quoteData.fromTokenAmount,
             destinationAmount: quoteData.toTokenAmount,
             value: approvedData.value,
-            gasValue: quoteData.estimatedGas,
+            gasValue: 726788, // quoteData.estimatedGas,
             gasPrice: approvedData.gasPrice
         )
     }
