@@ -660,9 +660,6 @@ private extension SwappingViewModel {
                 let sendResult = try await transactionSender.sendTransaction(info)
                 addDestinationTokenToUserWalletList()
                 exchangeManager.didSendSwapTransaction(exchangeTxData: info)
-
-                Analytics.log(.transactionSentBasic, params: [.commonSource: .transactionSourceSwap])
-
                 await runOnMain {
                     openSuccessView(result: result, transactionModel: info, transactionID: sendResult.hash)
                 }
