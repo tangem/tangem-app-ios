@@ -264,7 +264,8 @@ private extension DefaultExchangeManager {
     func getQuoteDataModel() async throws -> QuoteDataModel {
         try await exchangeProvider.fetchQuote(
             items: exchangeItems,
-            amount: formattedAmount
+            amount: formattedAmount,
+            referrer: referrer
         )
     }
 
