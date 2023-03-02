@@ -105,6 +105,7 @@ private extension CommonSwappingModulesFactory {
             transactionCreator: walletManager,
             transactionSender: walletManager,
             transactionSigner: signer,
+            ethereumGasLoader: walletManager as! EthereumGasLoader,
             currencyMapper: currencyMapper
         )
     }
