@@ -123,6 +123,7 @@ private extension CommonSwappingModulesFactory {
             wallet: walletModel.wallet,
             ethereumGasLoader: walletModel.walletManager as! EthereumGasLoader,
             ethereumNetworkProvider: walletModel.walletManager as! EthereumNetworkProvider,
+            ethereumGasLoader: walletModel.walletManager as! EthereumGasLoader,
             currencyMapper: currencyMapper
         )
     }
