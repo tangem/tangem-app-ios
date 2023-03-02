@@ -23,11 +23,13 @@ class ExchangeWalletDataProvider {
         wallet: Wallet,
         ethereumGasLoader: EthereumGasLoader,
         ethereumNetworkProvider: EthereumNetworkProvider,
+        ethereumGasLoader: EthereumGasLoader,
         currencyMapper: CurrencyMapping
     ) {
         self.wallet = wallet
         self.ethereumGasLoader = ethereumGasLoader
         self.ethereumNetworkProvider = ethereumNetworkProvider
+        self.ethereumGasLoader = ethereumGasLoader
         self.currencyMapper = currencyMapper
 
         balances = wallet.amounts.reduce(into: [:]) {
@@ -46,6 +48,11 @@ extension ExchangeWalletDataProvider: WalletDataProvider {
         }
 
         return walletAddress
+    }
+
+    func getGasPrice() async throws -> String {
+        let price = try await ethereumGasLoader.getGasPrice().async()
+        return price.description
     }
 
     func getBalance(for currency: Currency) async throws -> Decimal {
