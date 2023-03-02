@@ -10,6 +10,7 @@ import Foundation
 
 public protocol WalletDataProvider {
     func getWalletAddress(currency: Currency) -> String?
+    func getGasPrice() async throws -> String
 
     func getBalance(for currency: Currency) async throws -> Decimal
     func getBalance(for blockchain: ExchangeBlockchain) async throws -> Decimal
