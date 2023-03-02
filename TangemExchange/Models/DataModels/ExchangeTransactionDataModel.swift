@@ -26,7 +26,7 @@ public struct ExchangeTransactionDataModel {
     /// Value which should be sent in transaction
     public let value: Decimal
 
-    /// A long value gas, usual in period from 21000 to 30000
+    /// The gas limit value depends on the complexity of the transaction
     public let gasValue: Int
 
     /// Gas price in WEI which will be used for calculate estimated fee
