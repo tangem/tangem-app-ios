@@ -282,6 +282,7 @@ final class UserWalletListViewModel: ObservableObject, Identifiable {
             cardImageProvider: CardImageProvider()
         ) { [weak self] in
             if userWallet.isLocked {
+                Analytics.beginLoggingCardScan(source: .myWallets)
                 Analytics.log(.walletUnlockTapped)
             }
             self?.userWalletRepository.setSelectedUserWalletId(userWallet.userWalletId, reason: .userSelected)
