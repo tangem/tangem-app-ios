@@ -70,9 +70,6 @@ class AppSettings {
     @AppStorageCompat(StorageType.systemDeprecationWarningDismissDate)
     var systemDeprecationWarningDismissalDate: Date? = nil
 
-    @AppStorageCompat(StorageType.userWalletIdsPendingRemovalFromStorage)
-    var userWalletIdsPendingRemovalFromStorage: [Data] = []
-
     static let shared: AppSettings = .init()
 
     private init() {}
