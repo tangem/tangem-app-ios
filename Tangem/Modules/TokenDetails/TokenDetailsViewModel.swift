@@ -288,15 +288,6 @@ class TokenDetailsViewModel: ObservableObject {
         }
     }
 
-    func sendAnalyticsEvent(_ event: Analytics.Event) {
-        switch event {
-        case .userBoughtCrypto:
-            Analytics.log(event: event, params: [.currencyCode: blockchainNetwork.blockchain.currencySymbol])
-        default:
-            break
-        }
-    }
-
     private func bind() {
         AppLog.shared.debug("🔗 Token Details view model updates binding")
         card.objectWillChange
@@ -470,8 +461,13 @@ extension TokenDetailsViewModel {
 
         if let url = buyCryptoUrl {
             coordinator.openBuyCrypto(at: url, closeUrl: buyCryptoCloseUrl) { [weak self] _ in
-                self?.sendAnalyticsEvent(.userBoughtCrypto)
-                DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+                guard let self else { return }
+
+                let code = self.blockchainNetwork.blockchain.currencySymbol
+                Analytics.log(event: .userBoughtCrypto, params: [.currencyCode: code])
+                Analytics.log(event: .tokenBought, params: [.token: code])
+
+                DispatchQueue.main.asyncAfter(deadline: .now() + 1) { [weak self] in
                     self?.walletModel?.update(silent: true)
                 }
             }
