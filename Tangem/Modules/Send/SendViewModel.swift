@@ -680,8 +680,6 @@ class SendViewModel: ObservableObject {
                                 .blockchain: self.blockchainNetwork.blockchain.displayName,
                             ]
                         )
-
-                        Analytics.log(.transactionSentBasic, params: [.commonSource: self.isSellingCrypto ? .transactionSourceSell : .transactionSourceSend])
                     }
 
                     let alert = AlertBuilder.makeSuccessAlert(
