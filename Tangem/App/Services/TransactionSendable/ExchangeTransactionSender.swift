@@ -13,17 +13,20 @@ struct ExchangeTransactionSender {
     private let transactionCreator: TransactionCreator
     private let transactionSender: TransactionSender
     private let transactionSigner: TransactionSigner
+    private let ethereumGasLoader: EthereumGasLoader
     private let currencyMapper: CurrencyMapping
 
     init(
         transactionCreator: TransactionCreator,
         transactionSender: TransactionSender,
         transactionSigner: TransactionSigner,
+        ethereumGasLoader: EthereumGasLoader,
         currencyMapper: CurrencyMapping
     ) {
         self.transactionCreator = transactionCreator
         self.transactionSender = transactionSender
         self.transactionSigner = transactionSigner
+        self.ethereumGasLoader = ethereumGasLoader
         self.currencyMapper = currencyMapper
     }
 }
@@ -32,7 +35,9 @@ struct ExchangeTransactionSender {
 
 extension ExchangeTransactionSender: TransactionSendable {
     func sendTransaction(_ info: ExchangeTransactionDataModel) async throws -> TransactionSendResult {
-        let transaction = try buildTransaction(for: info)
+//        let limit = try await ethereumGasLoader.getGasPrice().async()
+
+        let transaction = try buildTransaction(for: info) // , gasLimit: Int(limit)
         return try await transactionSender.send(transaction, signer: transactionSigner).async()
     }
 }
@@ -40,7 +45,7 @@ extension ExchangeTransactionSender: TransactionSendable {
 // MARK: - Private
 
 private extension ExchangeTransactionSender {
-    func buildTransaction(for info: ExchangeTransactionDataModel) throws -> Transaction {
+    func buildTransaction(for info: ExchangeTransactionDataModel, gasLimit: Int = 0) throws -> Transaction {
         let sourceAmount = info.sourceCurrency.convertFromWEI(value: info.value)
         let amount = createAmount(from: info.sourceCurrency, amount: sourceAmount)
         let fee = try createAmount(from: info.sourceBlockchain, amount: info.fee)
@@ -56,8 +61,8 @@ private extension ExchangeTransactionSender {
             status: .unconfirmed
         )
 
-        let gasLimit = info.gasValue * 125 / 100
-        transaction.params = EthereumTransactionParams(data: info.txData)
+        let gasLimit = 11500000
+        transaction.params = EthereumTransactionParams(data: info.txData, gasLimit: gasLimit)
         return transaction
     }
 
