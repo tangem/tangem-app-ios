@@ -286,11 +286,8 @@ class TwinsOnboardingViewModel: OnboardingTopupViewModel<TwinsOnboardingStep, On
     }
 
     override func handleUserWalletOnFinish() throws {
-        if let originalUserWallet,
-           retwinMode,
-           AppSettings.shared.saveUserWallets {
-            AppSettings.shared.userWalletIdsPendingRemovalFromStorage.remove(originalUserWallet.userWalletId)
-            userWalletRepository.delete(originalUserWallet)
+        if retwinMode, AppSettings.shared.saveUserWallets {
+            userWalletRepository.logoutIfNeeded()
         } else {
             try super.handleUserWalletOnFinish()
         }
@@ -335,7 +332,7 @@ class TwinsOnboardingViewModel: OnboardingTopupViewModel<TwinsOnboardingStep, On
                 switch (self.currentStep, newStep) {
                 case (.first, .second):
                     if let originalUserWallet = originalUserWallet {
-                        AppSettings.shared.userWalletIdsPendingRemovalFromStorage.append(originalUserWallet.userWalletId)
+                        userWalletRepository.delete(originalUserWallet, logoutIfNeeded: false)
                     }
                     fallthrough
                 case (.second, .third), (.third, .done):
