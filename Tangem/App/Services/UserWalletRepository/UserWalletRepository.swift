@@ -25,7 +25,7 @@ protocol UserWalletRepository: Initializable {
     func add(_ completion: @escaping (UserWalletRepositoryResult?) -> Void)
     func contains(_ userWallet: UserWallet) -> Bool
     func save(_ userWallet: UserWallet)
-    func delete(_ userWallet: UserWallet, logoutIfNeeded shouldAutologout: Bool)
+    func delete(_ userWallet: UserWallet, logoutIfNeeded shouldAutoLogout: Bool)
     func clear()
 }
 
