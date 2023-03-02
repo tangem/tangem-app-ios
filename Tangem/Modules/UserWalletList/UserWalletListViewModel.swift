@@ -173,7 +173,7 @@ final class UserWalletListViewModel: ObservableObject, Identifiable {
             return
         }
 
-        userWalletRepository.delete(viewModel.userWallet)
+        userWalletRepository.delete(viewModel.userWallet, logoutIfNeeded: true)
     }
 
     private func setSelectedWallet(_ userWallet: UserWallet, reason: UserWalletRepositorySelectionChangeReason) {

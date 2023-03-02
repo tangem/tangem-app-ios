@@ -297,6 +297,15 @@ class CommonUserWalletRepository: UserWalletRepository {
         initializeServicesForSelectedModel()
     }
 
+    func logoutIfNeeded() {
+        let unlockedWallet = userWallets.first(where: { !$0.isLocked })
+        guard unlockedWallet == nil else {
+            return
+        }
+
+        lock(reason: .nothingToDisplay)
+    }
+
     func setSelectedUserWalletId(_ userWalletId: Data?, reason: UserWalletRepositorySelectionChangeReason) {
         setSelectedUserWalletId(userWalletId, unlockIfNeeded: true, reason: reason)
     }
@@ -343,7 +352,7 @@ class CommonUserWalletRepository: UserWalletRepository {
         }
     }
 
-    func delete(_ userWallet: UserWallet) {
+    func delete(_ userWallet: UserWallet, logoutIfNeeded shouldAutologout: Bool) {
         let userWalletId = userWallet.userWalletId
         encryptionKeyByUserWalletId[userWalletId] = nil
         userWallets.removeAll { $0.userWalletId == userWalletId }
@@ -363,11 +372,13 @@ class CommonUserWalletRepository: UserWalletRepository {
             if let firstUnlockedModel = unlockedModels.first {
                 setSelectedUserWalletId(firstUnlockedModel.userWalletId, reason: .deleted)
             } else if let firstModel = sortedModels.first {
-                lock(reason: .nothingToDisplay)
                 setSelectedUserWalletId(firstModel.userWalletId, unlockIfNeeded: false, reason: .deleted)
             } else {
-                lock(reason: .nothingToDisplay)
                 setSelectedUserWalletId(nil, reason: .deleted)
+            }
+
+            if shouldAutologout {
+                logoutIfNeeded()
             }
         }
 
@@ -599,24 +610,9 @@ extension CommonUserWalletRepository {
             clearUserWallets()
         }
 
-        if !AppSettings.shared.userWalletIdsPendingRemovalFromStorage.isEmpty {
-            removePendingWallets()
-        }
-
         let savedSelectedUserWalletId = AppSettings.shared.selectedUserWalletId
         selectedUserWalletId = savedSelectedUserWalletId.isEmpty ? nil : savedSelectedUserWalletId
 
         userWallets = savedUserWallets(withSensitiveData: false)
-    }
-
-    private func removePendingWallets() {
-        AppSettings.shared.userWalletIdsPendingRemovalFromStorage.forEach { userWalletId in
-            guard let userWallet = savedUserWallet(with: userWalletId) else {
-                return
-            }
-
-            delete(userWallet)
-        }
-        AppSettings.shared.userWalletIdsPendingRemovalFromStorage.removeAll()
     }
 }
