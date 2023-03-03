@@ -13,6 +13,7 @@ import TangemExchange
 class ExchangeWalletDataProvider {
     private let wallet: Wallet
     private let ethereumNetworkProvider: EthereumNetworkProvider
+    private let ethereumGasLoader: EthereumGasLoader
     private let currencyMapper: CurrencyMapping
 
     private var balances: [Amount.AmountType: Decimal] = [:]
@@ -20,10 +21,12 @@ class ExchangeWalletDataProvider {
 
     init(
         wallet: Wallet,
+        ethereumGasLoader: EthereumGasLoader,
         ethereumNetworkProvider: EthereumNetworkProvider,
         currencyMapper: CurrencyMapping
     ) {
         self.wallet = wallet
+        self.ethereumGasLoader = ethereumGasLoader
         self.ethereumNetworkProvider = ethereumNetworkProvider
         self.currencyMapper = currencyMapper
 
