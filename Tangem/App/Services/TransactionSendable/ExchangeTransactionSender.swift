@@ -35,14 +35,7 @@ struct ExchangeTransactionSender {
 
 extension ExchangeTransactionSender: TransactionSendable {
     func sendTransaction(_ info: ExchangeTransactionDataModel) async throws -> TransactionSendResult {
-        let limit = try await ethereumGasLoader.getGasLimit(
-            to: info.destinationAddress,
-            from: info.sourceAddress,
-            value: "0x0",
-            data: "0x" + info.txData.hexString
-        ).async()
-
-        let transaction = try buildTransaction(for: info, gasLimit: Int(limit))
+        let transaction = try await buildTransaction(for: info)
         return try await transactionSender.send(transaction, signer: transactionSigner).async()
     }
 }
@@ -50,9 +43,16 @@ extension ExchangeTransactionSender: TransactionSendable {
 // MARK: - Private
 
 private extension ExchangeTransactionSender {
-    func buildTransaction(for info: ExchangeTransactionDataModel, gasLimit: Int) throws -> Transaction {
+    func buildTransaction(for info: ExchangeTransactionDataModel) async throws -> Transaction {
         let sourceAmount = info.sourceCurrency.convertFromWEI(value: info.value)
         let amount = createAmount(from: info.sourceCurrency, amount: sourceAmount)
+        let gasLimit = try await ethereumGasLoader.getGasLimit(
+            to: info.destinationAddress,
+            from: info.sourceAddress,
+            value: amount.encodedForSend,
+            data: "0x\(info.txData.hexString)"
+        ).async()
+
         let fee = try createAmount(from: info.sourceBlockchain, amount: info.fee)
 
         var transaction = Transaction(
@@ -66,7 +66,7 @@ private extension ExchangeTransactionSender {
             status: .unconfirmed
         )
 
-        transaction.params = EthereumTransactionParams(data: info.txData, gasLimit: gasLimit)
+        transaction.params = EthereumTransactionParams(data: info.txData, gasLimit: Int(gasLimit))
         return transaction
     }
 
