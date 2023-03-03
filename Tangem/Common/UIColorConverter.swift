@@ -21,7 +21,7 @@ extension Color {
             return try convertToUIColor()
         } catch {
             assertionFailure((error as! ColorConversionError).reason)
-            return .black
+            return uiColorFromRGB() // Fallback for iOS 14 only
         }
     }
 }
