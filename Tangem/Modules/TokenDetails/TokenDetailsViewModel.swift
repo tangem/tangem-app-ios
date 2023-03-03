@@ -360,7 +360,6 @@ class TokenDetailsViewModel: ObservableObject {
             return
         }
 
-        let currencySymbol = amountType.token?.symbol ?? blockchainNetwork.blockchain.currencySymbol
         Analytics.log(event: .buttonRemoveToken, params: [Analytics.ParameterKey.token: currencySymbol])
 
         let item = CommonUserWalletModel.RemoveItem(amount: amountType, blockchainNetwork: walletModel.blockchainNetwork)
@@ -463,9 +462,8 @@ extension TokenDetailsViewModel {
             coordinator.openBuyCrypto(at: url, closeUrl: buyCryptoCloseUrl) { [weak self] _ in
                 guard let self else { return }
 
-                let code = self.blockchainNetwork.blockchain.currencySymbol
-                Analytics.log(event: .userBoughtCrypto, params: [.currencyCode: code])
-                Analytics.log(event: .tokenBought, params: [.token: code])
+                Analytics.log(event: .userBoughtCrypto, params: [.currencyCode: self.currencySymbol])
+                Analytics.log(event: .tokenBought, params: [.token: self.currencySymbol])
 
                 DispatchQueue.main.asyncAfter(deadline: .now() + 1) { [weak self] in
                     self?.walletModel?.update(silent: true)
