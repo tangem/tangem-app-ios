@@ -9,17 +9,17 @@
 import Foundation
 
 public struct EthereumGasDataModel {
-    public let currency: Currency
+    public let blockchain: ExchangeBlockchain
     public let gasPrice: Int
     public let gasLimit: Int
 
     /// Calculated estimated fee
     public var fee: Decimal {
-        currency.convertFromWEI(value: Decimal(gasPrice * gasLimit))
+        blockchain.convertFromWEI(value: Decimal(gasPrice * gasLimit))
     }
 
-    public init(currency: Currency, gasPrice: Int, gasLimit: Int) {
-        self.currency = currency
+    public init(blockchain: ExchangeBlockchain, gasPrice: Int, gasLimit: Int) {
+        self.blockchain = blockchain
         self.gasPrice = gasPrice
         self.gasLimit = gasLimit
     }
