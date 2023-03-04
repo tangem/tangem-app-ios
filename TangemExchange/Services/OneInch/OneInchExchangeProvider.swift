@@ -48,7 +48,7 @@ extension OneInchExchangeProvider: ExchangeProvider {
         }
     }
 
-    func fetchExchangeData(items: ExchangeItems, walletAddress: String, amount: String, gasPrice: String?, referrer: ExchangeReferrerAccount?) async throws -> ExchangeDataModel {
+    func fetchExchangeData(items: ExchangeItems, walletAddress: String, amount: String, referrer: ExchangeReferrerAccount?) async throws -> ExchangeDataModel {
         let destination = items.destination
         let parameters = ExchangeParameters(
             fromTokenAddress: items.source.contractAddress ?? oneInchCoinContractAddress,
@@ -57,8 +57,7 @@ extension OneInchExchangeProvider: ExchangeProvider {
             fromAddress: walletAddress,
             slippage: defaultSlippage,
             referrerAddress: referrer?.address,
-            fee: referrer?.fee.description,
-            gasPrice: gasPrice
+            fee: referrer?.fee.description
         )
 
         let result = await oneInchAPIProvider.swap(blockchain: items.source.blockchain, parameters: parameters)
