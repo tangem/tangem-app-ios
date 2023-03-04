@@ -32,7 +32,7 @@ struct ExchangeTransactionSender {
 
 extension ExchangeTransactionSender: TransactionSendable {
     func sendTransaction(_ info: ExchangeTransactionDataModel) async throws -> TransactionSendResult {
-        let transaction = try await buildTransaction(for: info)
+        let transaction = try buildTransaction(for: info)
         return try await transactionSender.send(transaction, signer: transactionSigner).async()
     }
 }
@@ -40,7 +40,7 @@ extension ExchangeTransactionSender: TransactionSendable {
 // MARK: - Private
 
 private extension ExchangeTransactionSender {
-    func buildTransaction(for info: ExchangeTransactionDataModel) async throws -> Transaction {
+    func buildTransaction(for info: ExchangeTransactionDataModel) throws -> Transaction {
         let sourceAmount = info.sourceCurrency.convertFromWEI(value: info.value)
         let amount = createAmount(from: info.sourceCurrency, amount: sourceAmount)
         let fee = try createAmount(from: info.sourceBlockchain, amount: info.fee)
