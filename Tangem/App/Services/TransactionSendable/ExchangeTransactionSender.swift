@@ -13,20 +13,17 @@ struct ExchangeTransactionSender {
     private let transactionCreator: TransactionCreator
     private let transactionSender: TransactionSender
     private let transactionSigner: TransactionSigner
-    private let ethereumGasLoader: EthereumGasLoader
     private let currencyMapper: CurrencyMapping
 
     init(
         transactionCreator: TransactionCreator,
         transactionSender: TransactionSender,
         transactionSigner: TransactionSigner,
-        ethereumGasLoader: EthereumGasLoader,
         currencyMapper: CurrencyMapping
     ) {
         self.transactionCreator = transactionCreator
         self.transactionSender = transactionSender
         self.transactionSigner = transactionSigner
-        self.ethereumGasLoader = ethereumGasLoader
         self.currencyMapper = currencyMapper
     }
 }
@@ -46,13 +43,6 @@ private extension ExchangeTransactionSender {
     func buildTransaction(for info: ExchangeTransactionDataModel) async throws -> Transaction {
         let sourceAmount = info.sourceCurrency.convertFromWEI(value: info.value)
         let amount = createAmount(from: info.sourceCurrency, amount: sourceAmount)
-        let gasLimit = try await ethereumGasLoader.getGasLimit(
-            to: info.destinationAddress,
-            from: info.sourceAddress,
-            value: amount.encodedForSend,
-            data: "0x\(info.txData.hexString)"
-        ).async()
-
         let fee = try createAmount(from: info.sourceBlockchain, amount: info.fee)
 
         var transaction = Transaction(
@@ -66,7 +56,7 @@ private extension ExchangeTransactionSender {
             status: .unconfirmed
         )
 
-        transaction.params = EthereumTransactionParams(data: info.txData, gasLimit: Int(gasLimit))
+        transaction.params = EthereumTransactionParams(data: info.txData, gasLimit: info.gas.gasLimit)
         return transaction
     }
 
