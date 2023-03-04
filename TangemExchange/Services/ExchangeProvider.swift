@@ -15,7 +15,6 @@ protocol ExchangeProvider {
         items: ExchangeItems,
         walletAddress: String,
         amount: String,
-        gasPrice: String?,
         referrer: ExchangeReferrerAccount?
     ) async throws -> ExchangeDataModel
 
