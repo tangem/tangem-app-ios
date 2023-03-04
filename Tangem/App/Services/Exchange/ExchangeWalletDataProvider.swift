@@ -12,8 +12,8 @@ import TangemExchange
 
 class ExchangeWalletDataProvider {
     private let wallet: Wallet
-    private let ethereumNetworkProvider: EthereumNetworkProvider
     private let ethereumGasLoader: EthereumGasLoader
+    private let ethereumNetworkProvider: EthereumNetworkProvider
     private let currencyMapper: CurrencyMapping
 
     private var balances: [Amount.AmountType: Decimal] = [:]
@@ -23,13 +23,11 @@ class ExchangeWalletDataProvider {
         wallet: Wallet,
         ethereumGasLoader: EthereumGasLoader,
         ethereumNetworkProvider: EthereumNetworkProvider,
-        ethereumGasLoader: EthereumGasLoader,
         currencyMapper: CurrencyMapping
     ) {
         self.wallet = wallet
         self.ethereumGasLoader = ethereumGasLoader
         self.ethereumNetworkProvider = ethereumNetworkProvider
-        self.ethereumGasLoader = ethereumGasLoader
         self.currencyMapper = currencyMapper
 
         balances = wallet.amounts.reduce(into: [:]) {
@@ -50,9 +48,23 @@ extension ExchangeWalletDataProvider: WalletDataProvider {
         return walletAddress
     }
 
-    func getGasPrice() async throws -> String {
+    func getGasModel(
+        from: String,
+        to: String,
+        data: Data,
+        sourceCurrency: Currency,
+        value: Decimal
+    ) async throws -> EthereumGasDataModel {
         let price = try await ethereumGasLoader.getGasPrice().async()
-        return price.description
+        let amount = createAmount(from: sourceCurrency, amount: value)
+        let limit = try await ethereumGasLoader.getGasLimit(
+            to: to,
+            from: from,
+            value: amount.encodedForSend,
+            data: "0x\(data.hexString)"
+        ).async()
+
+        return EthereumGasDataModel(currency: sourceCurrency, gasPrice: Int(price), gasLimit: Int(limit))
     }
 
     func getBalance(for currency: Currency) async throws -> Decimal {

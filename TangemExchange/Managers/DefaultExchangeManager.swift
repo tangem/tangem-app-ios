@@ -208,7 +208,7 @@ private extension DefaultExchangeManager {
 
         try Task.checkCancellation()
 
-        let info = try mapToExchangeTransactionInfo(exchangeData: exchangeData)
+        let info = try await mapToExchangeTransactionInfo(exchangeData: exchangeData)
         let result = try await mapToSwappingResultDataModel(preview: preview, transaction: info)
 
         try Task.checkCancellation()
@@ -233,7 +233,7 @@ private extension DefaultExchangeManager {
         }
 
         let approvedDataModel = try await getExchangeApprovedDataModel()
-        let info = try mapToExchangeTransactionInfo(
+        let info = try await mapToExchangeTransactionInfo(
             quoteData: quoteData,
             approvedData: approvedDataModel
         )
@@ -262,9 +262,7 @@ private extension DefaultExchangeManager {
     }
 
     func getQuoteDataModel() async throws -> QuoteDataModel {
-        let gasPrice = try await walletDataProvider.getGasPrice()
-        print(#function, "gasPrice", gasPrice)
-        return try await exchangeProvider.fetchQuote(
+        try await exchangeProvider.fetchQuote(
             items: exchangeItems,
             amount: formattedAmount,
             referrer: referrer
@@ -280,13 +278,10 @@ private extension DefaultExchangeManager {
             throw ExchangeManagerError.walletAddressNotFound
         }
 
-        let gasPrice = try await walletDataProvider.getGasPrice()
-        print(#function, "gasPrice", gasPrice)
         return try await exchangeProvider.fetchExchangeData(
             items: exchangeItems,
             walletAddress: walletAddress,
             amount: formattedAmount,
-            gasPrice: gasPrice,
             referrer: referrer
         )
     }
@@ -362,10 +357,19 @@ private extension DefaultExchangeManager {
         )
     }
 
-    func mapToExchangeTransactionInfo(exchangeData: ExchangeDataModel) throws -> ExchangeTransactionDataModel {
+    func mapToExchangeTransactionInfo(exchangeData: ExchangeDataModel) async throws -> ExchangeTransactionDataModel {
         guard let destination = exchangeItems.destination else {
             throw ExchangeManagerError.destinationNotFound
         }
+
+        let value = exchangeItems.source.convertFromWEI(value: exchangeData.value)
+        let gasModel = try await walletDataProvider.getGasModel(
+            from: exchangeData.sourceAddress,
+            to: exchangeData.sourceAddress,
+            data: exchangeData.txData,
+            sourceCurrency: exchangeItems.source,
+            value: value
+        )
 
         return ExchangeTransactionDataModel(
             sourceCurrency: exchangeItems.source,
@@ -376,16 +380,15 @@ private extension DefaultExchangeManager {
             txData: exchangeData.txData,
             sourceAmount: exchangeData.sourceCurrencyAmount,
             destinationAmount: exchangeData.destinationCurrencyAmount,
-            value: exchangeData.value,
-            gasValue: exchangeData.gas,
-            gasPrice: exchangeData.gasPrice
+            value: value,
+            gas: gasModel
         )
     }
 
     func mapToExchangeTransactionInfo(
         quoteData: QuoteDataModel,
         approvedData: ExchangeApprovedDataModel
-    ) throws -> ExchangeTransactionDataModel {
+    ) async throws -> ExchangeTransactionDataModel {
         guard let destination = exchangeItems.destination else {
             throw ExchangeManagerError.destinationNotFound
         }
@@ -393,6 +396,15 @@ private extension DefaultExchangeManager {
         guard let walletAddress = walletAddress else {
             throw ExchangeManagerError.walletAddressNotFound
         }
+
+        let value = exchangeItems.source.convertFromWEI(value: approvedData.value)
+        let gasModel = try await walletDataProvider.getGasModel(
+            from: walletAddress,
+            to: approvedData.tokenAddress,
+            data: approvedData.data,
+            sourceCurrency: exchangeItems.source,
+            value: value
+        )
 
         return ExchangeTransactionDataModel(
             sourceCurrency: exchangeItems.source,
@@ -404,8 +416,7 @@ private extension DefaultExchangeManager {
             sourceAmount: quoteData.fromTokenAmount,
             destinationAmount: quoteData.toTokenAmount,
             value: approvedData.value,
-            gasValue: 726788, // quoteData.estimatedGas,
-            gasPrice: approvedData.gasPrice
+            gas: gasModel
         )
     }
 }
