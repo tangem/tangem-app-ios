@@ -163,30 +163,18 @@ private extension DefaultExchangeManager {
 
         refreshTask = Task {
             do {
-                let quoteData = try await getQuoteDataModel()
-                let preview = try mapPreviewSwappingDataModel(from: quoteData)
+                guard isEnoughAmountForExchange() else {
+                    try await loadPreview()
+                    return
+                }
 
                 try Task.checkCancellation()
 
                 switch exchangeItems.source.currencyType {
                 case .coin:
-                    try await loadExchangeData(preview: preview)
-
+                    try await loadDataForCoinExchange()
                 case .token:
-                    guard preview.isEnoughAmountForExchange else {
-                        updateState(.preview(preview))
-                        return
-                    }
-
-                    await updateExchangeAmountAllowance()
-
-                    // Check if permission required
-                    guard !isEnoughAllowance() else {
-                        try await loadExchangeData(preview: preview)
-                        return
-                    }
-
-                    try await loadApproveData(preview: preview, quoteData: quoteData)
+                    try await loadDataForTokenExchange()
                 }
             } catch {
                 if Task.isCancelled {
@@ -198,47 +186,61 @@ private extension DefaultExchangeManager {
         }
     }
 
-    func loadExchangeData(preview: PreviewSwappingDataModel) async throws {
-        guard preview.isEnoughAmountForExchange else {
-            updateState(.preview(preview))
+    func loadDataForTokenExchange() async throws {
+        await updateExchangeAmountAllowance()
+
+        // If allowance is enough just load the data for swap this token
+        if isEnoughAllowance() {
+            try await loadDataForCoinExchange()
             return
         }
 
+        // If approving transaction was sent but allowance still zero
+        if hasPendingTransaction() {
+            await updateExchangeAmountAllowance()
+
+            if isEnoughAllowance() {
+                // If we got enough allowance
+                pendingTransactions[exchangeItems.source] = nil
+                refreshValues()
+            } else {
+                try await loadPreview()
+            }
+
+            return
+        }
+
+        try await loadApproveData()
+    }
+
+    func loadPreview() async throws {
+        let preview = try await mapPreviewSwappingDataModel(from: getQuoteDataModel())
+        updateState(.preview(preview))
+    }
+
+    func loadDataForCoinExchange() async throws {
         let exchangeData = try await getExchangeTxDataModel()
 
         try Task.checkCancellation()
 
         let info = try await mapToExchangeTransactionInfo(exchangeData: exchangeData)
-        let result = try await mapToSwappingResultDataModel(preview: preview, transaction: info)
+        let result = try await mapToSwappingResultDataModel(transaction: info)
 
         try Task.checkCancellation()
 
         updateState(.available(result, info: info))
     }
 
-    func loadApproveData(preview: PreviewSwappingDataModel, quoteData: QuoteDataModel) async throws {
-        // If approving transaction isn't send
-        if preview.hasPendingTransaction {
-            await updateExchangeAmountAllowance()
-
-            if isEnoughAllowance() {
-                /// If we get enough allowance
-                pendingTransactions[exchangeItems.source] = nil
-                refreshValues()
-            } else {
-                updateState(.preview(preview))
-            }
-
-            return
-        }
-
+    func loadApproveData() async throws {
+        // We need to load quoteData for "from" and "to" amounts
+        let quoteData = try await getQuoteDataModel()
         let approvedDataModel = try await getExchangeApprovedDataModel()
         let info = try await mapToExchangeTransactionInfo(
             quoteData: quoteData,
             approvedData: approvedDataModel
         )
 
-        let result = try await mapToSwappingResultDataModel(preview: preview, transaction: info)
+        let result = try await mapToSwappingResultDataModel(transaction: info)
         updateState(.available(result, info: info))
     }
 
@@ -303,6 +305,18 @@ private extension DefaultExchangeManager {
             }
         }
     }
+
+    func isEnoughAmountForExchange() -> Bool {
+        guard let sendValue = amount else {
+            return true
+        }
+
+        return exchangeItems.sourceBalance >= sendValue
+    }
+
+    func hasPendingTransaction() -> Bool {
+        pendingTransactions[exchangeItems.source] != nil
+    }
 }
 
 // MARK: - Mapping
@@ -313,23 +327,20 @@ private extension DefaultExchangeManager {
             throw ExchangeManagerError.destinationNotFound
         }
 
-        let paymentAmount = exchangeItems.source.convertFromWEI(value: quoteData.fromTokenAmount)
+//        let paymentAmount = exchangeItems.source.convertFromWEI(value: quoteData.fromTokenAmount)
+//        let isEnoughAmountForExchange = exchangeItems.sourceBalance >= paymentAmount
+
         let expectedAmount = destination.convertFromWEI(value: quoteData.toTokenAmount)
-        let hasPendingTransaction = pendingTransactions[exchangeItems.source] != nil
-        let isEnoughAmountForExchange = exchangeItems.sourceBalance >= paymentAmount
 
         return PreviewSwappingDataModel(
             expectedAmount: expectedAmount,
             isPermissionRequired: !isEnoughAllowance(),
-            hasPendingTransaction: hasPendingTransaction,
-            isEnoughAmountForExchange: isEnoughAmountForExchange
+            hasPendingTransaction: hasPendingTransaction(),
+            isEnoughAmountForExchange: isEnoughAmountForExchange()
         )
     }
 
-    func mapToSwappingResultDataModel(
-        preview: PreviewSwappingDataModel,
-        transaction: ExchangeTransactionDataModel
-    ) async throws -> SwappingResultDataModel {
+    func mapToSwappingResultDataModel(transaction: ExchangeTransactionDataModel) async throws -> SwappingResultDataModel {
         let source = exchangeItems.source
         let sourceBalance = exchangeItems.sourceBalance
         let fee = transaction.fee
