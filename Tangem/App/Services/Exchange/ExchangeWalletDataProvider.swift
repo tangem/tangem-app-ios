@@ -49,22 +49,22 @@ extension ExchangeWalletDataProvider: WalletDataProvider {
     }
 
     func getGasModel(
-        from: String,
-        to: String,
+        sourceAddress: String,
+        destinationAddress: String,
         data: Data,
-        sourceCurrency: Currency,
+        blockchain: ExchangeBlockchain,
         value: Decimal
     ) async throws -> EthereumGasDataModel {
         let price = try await ethereumGasLoader.getGasPrice().async()
-        let amount = createAmount(from: sourceCurrency, amount: value)
+        let amount = createAmount(from: blockchain, amount: value)
         let limit = try await ethereumGasLoader.getGasLimit(
-            to: to,
-            from: from,
+            to: destinationAddress,
+            from: sourceAddress,
             value: amount.encodedForSend,
             data: "0x\(data.hexString)"
         ).async()
 
-        return EthereumGasDataModel(currency: sourceCurrency, gasPrice: Int(price), gasLimit: Int(limit))
+        return EthereumGasDataModel(blockchain: blockchain, gasPrice: Int(price), gasLimit: Int(limit))
     }
 
     func getBalance(for currency: Currency) async throws -> Decimal {
@@ -123,6 +123,15 @@ private extension ExchangeWalletDataProvider {
             currencySymbol: currency.symbol,
             value: amount,
             decimals: currency.decimalCount
+        )
+    }
+
+    func createAmount(from blockchain: ExchangeBlockchain, amount: Decimal) -> Amount {
+        Amount(
+            type: .coin,
+            currencySymbol: blockchain.symbol,
+            value: amount,
+            decimals: blockchain.decimalCount
         )
     }
 
