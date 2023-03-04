@@ -364,10 +364,10 @@ private extension DefaultExchangeManager {
 
         let value = exchangeItems.source.convertFromWEI(value: exchangeData.value)
         let gasModel = try await walletDataProvider.getGasModel(
-            from: exchangeData.sourceAddress,
-            to: exchangeData.sourceAddress,
+            sourceAddress: exchangeData.sourceAddress,
+            destinationAddress: exchangeData.destinationAddress,
             data: exchangeData.txData,
-            sourceCurrency: exchangeItems.source,
+            blockchain: exchangeItems.source.blockchain,
             value: value
         )
 
@@ -399,10 +399,10 @@ private extension DefaultExchangeManager {
 
         let value = exchangeItems.source.convertFromWEI(value: approvedData.value)
         let gasModel = try await walletDataProvider.getGasModel(
-            from: walletAddress,
-            to: approvedData.tokenAddress,
+            sourceAddress: walletAddress,
+            destinationAddress: approvedData.tokenAddress,
             data: approvedData.data,
-            sourceCurrency: exchangeItems.source,
+            blockchain: exchangeItems.source.blockchain,
             value: value
         )
 
