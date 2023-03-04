@@ -11,10 +11,10 @@ import Foundation
 public protocol WalletDataProvider {
     func getWalletAddress(currency: Currency) -> String?
     func getGasModel(
-        from: String,
-        to: String,
+        sourceAddress: String,
+        destinationAddress: String,
         data: Data,
-        sourceCurrency: Currency,
+        blockchain: ExchangeBlockchain,
         value: Decimal
     ) async throws -> EthereumGasDataModel
 
