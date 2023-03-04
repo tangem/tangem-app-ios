@@ -13,7 +13,6 @@ public struct QuoteDataModel {
     public let toTokenAmount: Decimal
     /// WEI
     public let fromTokenAmount: Decimal
-    public let estimatedGas: Int
 
     public init(quoteData: QuoteData) throws {
         guard let toTokenAmount = Decimal(string: quoteData.toTokenAmount),
@@ -23,6 +22,5 @@ public struct QuoteDataModel {
 
         self.toTokenAmount = toTokenAmount
         self.fromTokenAmount = fromTokenAmount
-        estimatedGas = quoteData.estimatedGas
     }
 }
