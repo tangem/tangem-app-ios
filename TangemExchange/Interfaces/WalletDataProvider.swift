@@ -17,6 +17,7 @@ public protocol WalletDataProvider {
         blockchain: ExchangeBlockchain,
         value: Decimal
     ) async throws -> EthereumGasDataModel
+    func getGasPrice() async throws -> Int
 
     func getBalance(for currency: Currency) async throws -> Decimal
     func getBalance(for blockchain: ExchangeBlockchain) async throws -> Decimal
