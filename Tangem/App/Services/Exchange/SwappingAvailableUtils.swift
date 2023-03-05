@@ -15,7 +15,7 @@ struct SwappingAvailableUtils {
         .bsc,
         .polygon,
         .optimism,
-//        .arbitrum, [REDACTED_TODO_COMMENT]
+        .arbitrum,
         .gnosis,
         .avalanche,
         .fantom,
