@@ -191,25 +191,22 @@ private extension DefaultExchangeManager {
 
         // If allowance is enough just load the data for swap this token
         if isEnoughAllowance() {
+            if hasPendingTransaction() {
+                pendingTransactions[exchangeItems.source] = nil
+            }
+
             try await loadDataForCoinExchange()
             return
         }
 
         // If approving transaction was sent but allowance still zero
-        if hasPendingTransaction() {
-            await updateExchangeAmountAllowance()
-
-            if isEnoughAllowance() {
-                // If we got enough allowance
-                pendingTransactions[exchangeItems.source] = nil
-                refreshValues()
-            } else {
-                try await loadPreview()
-            }
+        if hasPendingTransaction(), !isEnoughAllowance() {
+            try await loadPreview()
 
             return
         }
 
+        // If haven't allowance and haven't pending transaction just load data for approve
         try await loadApproveData()
     }
 
@@ -322,18 +319,22 @@ private extension DefaultExchangeManager {
 // MARK: - Mapping
 
 private extension DefaultExchangeManager {
-    func mapPreviewSwappingDataModel(from quoteData: QuoteDataModel) throws -> PreviewSwappingDataModel {
+    func mapPreviewSwappingDataModel(from quoteData: QuoteDataModel) async throws -> PreviewSwappingDataModel {
         guard let destination = exchangeItems.destination else {
             throw ExchangeManagerError.destinationNotFound
         }
 
-//        let paymentAmount = exchangeItems.source.convertFromWEI(value: quoteData.fromTokenAmount)
-//        let isEnoughAmountForExchange = exchangeItems.sourceBalance >= paymentAmount
-
         let expectedAmount = destination.convertFromWEI(value: quoteData.toTokenAmount)
+        let gasPrice = try await walletDataProvider.getGasPrice()
+        let gasModel = EthereumGasDataModel(
+            blockchain: exchangeItems.source.blockchain,
+            gasPrice: gasPrice,
+            gasLimit: quoteData.estimatedGas
+        )
 
         return PreviewSwappingDataModel(
             expectedAmount: expectedAmount,
+            gasModel: gasModel,
             isPermissionRequired: !isEnoughAllowance(),
             hasPendingTransaction: hasPendingTransaction(),
             isEnoughAmountForExchange: isEnoughAmountForExchange()
