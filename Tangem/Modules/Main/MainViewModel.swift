@@ -105,7 +105,7 @@ class MainViewModel: ObservableObject {
         singleWalletContentViewModel?.singleWalletModel?.wallet
     }
 
-    var currenyCode: String {
+    var currencyCode: String {
         wallet?.blockchain.currencySymbol ?? .unknown
     }
 
@@ -360,15 +360,6 @@ class MainViewModel: ObservableObject {
         }
     }
 
-    func sendAnalyticsEvent(_ event: Analytics.Event) {
-        switch event {
-        case .userBoughtCrypto:
-            Analytics.log(event: event, params: [.currencyCode: currenyCode])
-        default:
-            break
-        }
-    }
-
     func prepareForBackup() {
         if let input = cardModel.backupInput {
             Analytics.log(.noticeBackupYourWalletTapped)
@@ -502,9 +493,12 @@ extension MainViewModel {
             coordinator.openBuyCrypto(at: url, closeUrl: buyCryptoCloseUrl) { [weak self] _ in
                 guard let self = self else { return }
 
-                self.sendAnalyticsEvent(.userBoughtCrypto)
-                DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
-                    self.userWalletModel.updateAndReloadWalletModels()
+                let code = self.currencyCode
+                Analytics.log(event: .userBoughtCrypto, params: [.currencyCode: code])
+                Analytics.log(event: .tokenBought, params: [.token: code])
+
+                DispatchQueue.main.asyncAfter(deadline: .now() + 1) { [weak self] in
+                    self?.userWalletModel.updateAndReloadWalletModels()
                 }
             }
         }
