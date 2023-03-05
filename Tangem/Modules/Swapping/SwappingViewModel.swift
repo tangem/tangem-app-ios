@@ -449,12 +449,29 @@ private extension SwappingViewModel {
 
     func updateFeeValue(state: ExchangeAvailabilityState) {
         switch state {
-        case .idle, .requiredRefresh, .preview:
+        case .idle, .requiredRefresh:
             swappingFeeRowViewModel?.update(state: .idle)
         case .loading(let type):
             if type == .full {
                 swappingFeeRowViewModel?.update(state: .loading)
             }
+        case .preview(let preview):
+            Task {
+                let gasModel = preview.gasModel
+                let fiatFee = try await fiatRatesProvider.getFiat(for: gasModel.blockchain, amount: gasModel.fee)
+                let code = await AppSettings.shared.selectedCurrencyCode
+
+                await runOnMain {
+                    swappingFeeRowViewModel?.update(
+                        state: .fee(
+                            fee: gasModel.fee.groupedFormatted(),
+                            symbol: gasModel.blockchain.symbol,
+                            fiat: fiatFee.currencyFormatted(code: code)
+                        )
+                    )
+                }
+            }
+
         case .available(_, let info):
             let source = exchangeManager.getExchangeItems().source
 
