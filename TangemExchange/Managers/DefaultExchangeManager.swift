@@ -325,16 +325,9 @@ private extension DefaultExchangeManager {
         }
 
         let expectedAmount = destination.convertFromWEI(value: quoteData.toTokenAmount)
-        let gasPrice = try await walletDataProvider.getGasPrice()
-        let gasModel = EthereumGasDataModel(
-            blockchain: exchangeItems.source.blockchain,
-            gasPrice: gasPrice,
-            gasLimit: quoteData.estimatedGas
-        )
 
         return PreviewSwappingDataModel(
             expectedAmount: expectedAmount,
-            gasModel: gasModel,
             isPermissionRequired: !isEnoughAllowance(),
             hasPendingTransaction: hasPendingTransaction(),
             isEnoughAmountForExchange: isEnoughAmountForExchange()
