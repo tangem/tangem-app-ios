@@ -48,6 +48,11 @@ extension ExchangeWalletDataProvider: WalletDataProvider {
         return walletAddress
     }
 
+    func getGasPrice() async throws -> Int {
+        let price = try await ethereumGasLoader.getGasPrice().async()
+        return Int(price)
+    }
+
     func getGasModel(
         sourceAddress: String,
         destinationAddress: String,
