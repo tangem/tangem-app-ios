@@ -191,6 +191,7 @@ private extension DefaultExchangeManager {
 
         // If allowance is enough just load the data for swap this token
         if isEnoughAllowance() {
+            // If we saved pending transaction just remove it
             if hasPendingTransaction() {
                 pendingTransactions[exchangeItems.source] = nil
             }
