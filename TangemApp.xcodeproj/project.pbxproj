@@ -760,7 +760,7 @@
 		EFBA18032989063A00C23955 /* MockExplorerURLService.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFBA18022989063A00C23955 /* MockExplorerURLService.swift */; };
 		EFBAABAE2927CCBA0065C6D4 /* GroupedNumberTextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFBAABAC2927CCBA0065C6D4 /* GroupedNumberTextField.swift */; };
 		EFBAABAF2927CCBA0065C6D4 /* GroupedNumberFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFBAABAD2927CCBA0065C6D4 /* GroupedNumberFormatter.swift */; };
-		EFBFA43729ACC4B9008FD598 /* ExchangeBlockchainDataProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFBFA43629ACC4B9008FD598 /* ExchangeBlockchainDataProvider.swift */; };
+		EFBFA43729ACC4B9008FD598 /* ExchangeWalletDataProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFBFA43629ACC4B9008FD598 /* ExchangeWalletDataProvider.swift */; };
 		EFBFD56F2979990900B20C2E /* FiatRatesProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFBFD56E2979990900B20C2E /* FiatRatesProvider.swift */; };
 		EFBFD5712979991100B20C2E /* FiatRatesProviding.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFBFD5702979991100B20C2E /* FiatRatesProviding.swift */; };
 		EFC46EFE29266982003928E3 /* SendCurrencyViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFC46EFD29266982003928E3 /* SendCurrencyViewModel.swift */; };
@@ -786,6 +786,7 @@
 		EFF034B128B6523F00F70FF7 /* CommonWalletListManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFF034B028B6523F00F70FF7 /* CommonWalletListManager.swift */; };
 		EFF253B3293DCAA900AEF302 /* SwappingFeeRowViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFF253B1293DCAA900AEF302 /* SwappingFeeRowViewModel.swift */; };
 		EFF253B4293DCAAA00AEF302 /* SwappingFeeRowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFF253B2293DCAA900AEF302 /* SwappingFeeRowView.swift */; };
+		EFF5BA8229B32A5C0070694A /* EthereumGasDataModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFF5BA8129B32A5C0070694A /* EthereumGasDataModel.swift */; };
 		EFFC860D28BCE87700F863CE /* TokenItemsRepositoryMigrator.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFFC860B28BCE87700F863CE /* TokenItemsRepositoryMigrator.swift */; };
 		EFFC860E28BCE87700F863CE /* LegacyCardMigrator.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFFC860C28BCE87700F863CE /* LegacyCardMigrator.swift */; };
 		EFFC861328BCF6C500F863CE /* StorageEntry.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFFC861228BCF6C500F863CE /* StorageEntry.swift */; };
@@ -1686,7 +1687,7 @@
 		EFBA18022989063A00C23955 /* MockExplorerURLService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockExplorerURLService.swift; sourceTree = "<group>"; };
 		EFBAABAC2927CCBA0065C6D4 /* GroupedNumberTextField.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GroupedNumberTextField.swift; sourceTree = "<group>"; };
 		EFBAABAD2927CCBA0065C6D4 /* GroupedNumberFormatter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GroupedNumberFormatter.swift; sourceTree = "<group>"; };
-		EFBFA43629ACC4B9008FD598 /* ExchangeBlockchainDataProvider.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ExchangeBlockchainDataProvider.swift; sourceTree = "<group>"; };
+		EFBFA43629ACC4B9008FD598 /* ExchangeWalletDataProvider.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ExchangeWalletDataProvider.swift; sourceTree = "<group>"; };
 		EFBFD56E2979990900B20C2E /* FiatRatesProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FiatRatesProvider.swift; sourceTree = "<group>"; };
 		EFBFD5702979991100B20C2E /* FiatRatesProviding.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FiatRatesProviding.swift; sourceTree = "<group>"; };
 		EFC46EFD29266982003928E3 /* SendCurrencyViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendCurrencyViewModel.swift; sourceTree = "<group>"; };
@@ -1707,6 +1708,7 @@
 		EFF034B028B6523F00F70FF7 /* CommonWalletListManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonWalletListManager.swift; sourceTree = "<group>"; };
 		EFF253B1293DCAA900AEF302 /* SwappingFeeRowViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SwappingFeeRowViewModel.swift; sourceTree = "<group>"; };
 		EFF253B2293DCAA900AEF302 /* SwappingFeeRowView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SwappingFeeRowView.swift; sourceTree = "<group>"; };
+		EFF5BA8129B32A5C0070694A /* EthereumGasDataModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EthereumGasDataModel.swift; sourceTree = "<group>"; };
 		EFF5CF1928C796B1000EE8DB /* Alpha.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Alpha.xcconfig; sourceTree = "<group>"; };
 		EFFC860B28BCE87700F863CE /* TokenItemsRepositoryMigrator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TokenItemsRepositoryMigrator.swift; sourceTree = "<group>"; };
 		EFFC860C28BCE87700F863CE /* LegacyCardMigrator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LegacyCardMigrator.swift; sourceTree = "<group>"; };
@@ -3700,7 +3702,7 @@
 		EF4661BE2923B35800346B6C /* Exchange */ = {
 			isa = PBXGroup;
 			children = (
-				EFBFA43629ACC4B9008FD598 /* ExchangeBlockchainDataProvider.swift */,
+				EFBFA43629ACC4B9008FD598 /* ExchangeWalletDataProvider.swift */,
 				EF808439293F6708000D91EA /* SwappingDestinationService.swift */,
 				EF808435293F39D6000D91EA /* UserCurrenciesProvider.swift */,
 				EF808437293F3A6D000D91EA /* CurrencyMapper.swift */,
@@ -4204,6 +4206,7 @@
 				EFD1644F2948A13B000E56C7 /* QuoteDataModel.swift */,
 				E9C17C6D291AB48D00FDE4BC /* ExchangeDataModel.swift */,
 				E9C17C6F291ABA8000FDE4BC /* ExchangeApprovedDataModel.swift */,
+				EFF5BA8129B32A5C0070694A /* EthereumGasDataModel.swift */,
 			);
 			path = DataModels;
 			sourceTree = "<group>";
@@ -5377,7 +5380,7 @@
 				EF9F908C299FA254006F638F /* ZendeskSupportChatViewModel.swift in Sources */,
 				659768172837B61000F9F04A /* TokenItemView.swift in Sources */,
 				DC0A582628252D140031BECC /* FailedScanTrackable.swift in Sources */,
-				EFBFA43729ACC4B9008FD598 /* ExchangeBlockchainDataProvider.swift in Sources */,
+				EFBFA43729ACC4B9008FD598 /* ExchangeWalletDataProvider.swift in Sources */,
 				5DDE22FA2609023B008657C6 /* WalletConnectViewModel.swift in Sources */,
 				B037A9C92652AEF000A2D394 /* WalletConnectTransactionHandler.swift in Sources */,
 				EF59038E290186DC00C527C9 /* LazyVStackCompat.swift in Sources */,
@@ -5526,6 +5529,7 @@
 				EF4661FE2924CC6E00346B6C /* ExchangeProviderError.swift in Sources */,
 				EF4662042924CC6E00346B6C /* PresetsConfiguration.swift in Sources */,
 				EF808434293F38CE000D91EA /* UserCurrenciesProviding.swift in Sources */,
+				EFF5BA8229B32A5C0070694A /* EthereumGasDataModel.swift in Sources */,
 				DCAB5806295F45AA005D0F4A /* ExchangeLogger.swift in Sources */,
 				EF29BEE2292E5DB400D7C782 /* ExchangeTransactionDataModel.swift in Sources */,
 				EF46620A2924CC6E00346B6C /* OneInchLimitOrderService.swift in Sources */,
@@ -5769,7 +5773,7 @@
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = "$(inherited)";
 				ASSETCATALOG_COMPILER_APPICON_NAME = "$(inherited)";
 				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = "$(inherited)";
-				CODE_SIGN_ENTITLEMENTS = "$ENTITLEMENTS_PATH";
+				CODE_SIGN_ENTITLEMENTS = $ENTITLEMENTS_PATH;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"Tangem/Preview Content\"";
@@ -5799,7 +5803,7 @@
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = "$(inherited)";
 				ASSETCATALOG_COMPILER_APPICON_NAME = "$(inherited)";
 				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = "$(inherited)";
-				CODE_SIGN_ENTITLEMENTS = "$ENTITLEMENTS_PATH";
+				CODE_SIGN_ENTITLEMENTS = $ENTITLEMENTS_PATH;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
@@ -5987,7 +5991,7 @@
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = "$(inherited)";
 				ASSETCATALOG_COMPILER_APPICON_NAME = "$(inherited)";
 				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = "$(inherited)";
-				CODE_SIGN_ENTITLEMENTS = "$ENTITLEMENTS_PATH";
+				CODE_SIGN_ENTITLEMENTS = $ENTITLEMENTS_PATH;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"Tangem/Preview Content\"";
@@ -6120,7 +6124,7 @@
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = "$(inherited)";
 				ASSETCATALOG_COMPILER_APPICON_NAME = "$(inherited)";
 				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = "$(inherited)";
-				CODE_SIGN_ENTITLEMENTS = "$ENTITLEMENTS_PATH";
+				CODE_SIGN_ENTITLEMENTS = $ENTITLEMENTS_PATH;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
@@ -7166,7 +7170,7 @@
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = "$(inherited)";
 				ASSETCATALOG_COMPILER_APPICON_NAME = "$(inherited)";
 				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = "$(inherited)";
-				CODE_SIGN_ENTITLEMENTS = "$ENTITLEMENTS_PATH";
+				CODE_SIGN_ENTITLEMENTS = $ENTITLEMENTS_PATH;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"Tangem/Preview Content\"";
@@ -7299,7 +7303,7 @@
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = "$(inherited)";
 				ASSETCATALOG_COMPILER_APPICON_NAME = "$(inherited)";
 				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = "$(inherited)";
-				CODE_SIGN_ENTITLEMENTS = "$ENTITLEMENTS_PATH";
+				CODE_SIGN_ENTITLEMENTS = $ENTITLEMENTS_PATH;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
