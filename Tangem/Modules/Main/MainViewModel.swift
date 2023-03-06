@@ -271,6 +271,28 @@ class MainViewModel: ObservableObject {
         coordinator.openUserWalletList()
     }
 
+    func didTapExchangeButtonAction(type: ExchangeButtonType) {
+        switch type {
+        case .buy:
+            openBuyCryptoIfPossible()
+        case .sell:
+            openSellCrypto()
+        case .swap:
+            break
+        }
+    }
+
+    func isAvailable(type: ExchangeButtonType) -> Bool {
+        switch type {
+        case .buy:
+            return canBuyCrypto
+        case .sell:
+            return canSellCrypto
+        case .swap:
+            return false
+        }
+    }
+
     func sendTapped() {
         guard let wallet else { return }
 
