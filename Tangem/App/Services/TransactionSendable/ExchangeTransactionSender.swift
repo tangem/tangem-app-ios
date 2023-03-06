@@ -41,9 +41,10 @@ extension ExchangeTransactionSender: TransactionSendable {
 
 private extension ExchangeTransactionSender {
     func buildTransaction(for info: ExchangeTransactionDataModel) throws -> Transaction {
-        let sourceAmount = info.sourceCurrency.convertFromWEI(value: info.value)
-        let amount = createAmount(from: info.sourceCurrency, amount: sourceAmount)
-        let fee = try createAmount(from: info.sourceBlockchain, amount: info.fee)
+        let gasModel = info.gas
+
+        let amount = createAmount(from: info.sourceCurrency, amount: info.value)
+        let fee = try createAmount(from: info.sourceBlockchain, amount: gasModel.fee)
 
         var transaction = Transaction(
             amount: amount,
@@ -56,7 +57,7 @@ private extension ExchangeTransactionSender {
             status: .unconfirmed
         )
 
-        transaction.params = EthereumTransactionParams(data: info.txData, gasLimit: info.gas.gasLimit)
+        transaction.params = EthereumTransactionParams(data: info.txData, gasLimit: gasModel.gasLimit)
         return transaction
     }
 
