@@ -74,6 +74,7 @@ extension Blockchain {
         case .polkadot: return "polkadot"
         case .kusama: return "kusama"
         case .tron: return "tron"
+        case .ton: return "ton"
         case .arbitrum: return "arbitrum-one"
         case .dash: return "dash"
         case .gnosis: return "xdai"
@@ -120,6 +121,7 @@ extension Blockchain {
         case .polkadot: return "polkadot"
         case .kusama: return "kusama"
         case .tron: return "tron"
+        case .ton: return "ton"
         case .arbitrum: return "arbitrum-one"
         case .dash: return "dash"
         case .gnosis: return "xdai"
@@ -178,6 +180,7 @@ extension Blockchain {
             .kusama,
             .fantom(testnet: false),
             .tron(testnet: false),
+            .ton(testnet: false),
             .arbitrum(testnet: false),
             .gnosis,
             .dash(testnet: false),
@@ -200,6 +203,7 @@ extension Blockchain {
             .fantom(testnet: true),
             .polkadot(testnet: true),
             .tron(testnet: true),
+            .ton(testnet: true),
             .arbitrum(testnet: true),
             .optimism(testnet: true),
         ]
