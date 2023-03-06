@@ -85,7 +85,7 @@ final class UserWalletListViewModel: ObservableObject, Identifiable {
     }
 
     func addUserWallet() {
-        Analytics.beginLoggingCardScan(source: .myWallets)
+        Analytics.beginLoggingCardScan(source: .myWallets(isNewCard: true))
 
         userWalletRepository.add { [weak self] result in
             guard
@@ -282,8 +282,7 @@ final class UserWalletListViewModel: ObservableObject, Identifiable {
             cardImageProvider: CardImageProvider()
         ) { [weak self] in
             if userWallet.isLocked {
-                Analytics.beginLoggingCardScan(source: .myWallets)
-                Analytics.log(.walletUnlockTapped)
+                Analytics.beginLoggingCardScan(source: .myWallets(isNewCard: false))
             }
             self?.userWalletRepository.setSelectedUserWalletId(userWallet.userWalletId, reason: .userSelected)
         } didEditUserWallet: { [weak self] in
