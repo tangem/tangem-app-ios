@@ -168,8 +168,6 @@ private extension DefaultExchangeManager {
                     return
                 }
 
-                try Task.checkCancellation()
-
                 switch exchangeItems.source.currencyType {
                 case .coin:
                     try await loadDataForCoinExchange()
@@ -188,6 +186,7 @@ private extension DefaultExchangeManager {
 
     func loadDataForTokenExchange() async throws {
         await updateExchangeAmountAllowance()
+        try Task.checkCancellation()
 
         // If allowance is enough just load the data for swap this token
         if isEnoughAllowance() {
@@ -222,6 +221,9 @@ private extension DefaultExchangeManager {
         try Task.checkCancellation()
 
         let info = try await mapToExchangeTransactionInfo(exchangeData: exchangeData)
+
+        try Task.checkCancellation()
+
         let result = try await mapToSwappingResultDataModel(transaction: info)
 
         try Task.checkCancellation()
@@ -231,12 +233,14 @@ private extension DefaultExchangeManager {
 
     func loadApproveData() async throws {
         // We need to load quoteData for "from" and "to" amounts
-        let quoteData = try await getQuoteDataModel()
-        let approvedDataModel = try await getExchangeApprovedDataModel()
+        async let quoteData = getQuoteDataModel()
+        async let approvedDataModel = getExchangeApprovedDataModel()
         let info = try await mapToExchangeTransactionInfo(
             quoteData: quoteData,
             approvedData: approvedDataModel
         )
+
+        try Task.checkCancellation()
 
         let result = try await mapToSwappingResultDataModel(transaction: info)
         updateState(.available(result, info: info))
@@ -320,7 +324,7 @@ private extension DefaultExchangeManager {
 // MARK: - Mapping
 
 private extension DefaultExchangeManager {
-    func mapPreviewSwappingDataModel(from quoteData: QuoteDataModel) async throws -> PreviewSwappingDataModel {
+    func mapPreviewSwappingDataModel(from quoteData: QuoteDataModel) throws -> PreviewSwappingDataModel {
         guard let destination = exchangeItems.destination else {
             throw ExchangeManagerError.destinationNotFound
         }

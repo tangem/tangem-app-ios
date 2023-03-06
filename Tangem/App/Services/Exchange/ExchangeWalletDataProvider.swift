@@ -55,16 +55,15 @@ extension ExchangeWalletDataProvider: WalletDataProvider {
         blockchain: ExchangeBlockchain,
         value: Decimal
     ) async throws -> EthereumGasDataModel {
-        let price = try await ethereumGasLoader.getGasPrice().async()
+        async let price = ethereumGasLoader.getGasPrice().async()
         let amount = createAmount(from: blockchain, amount: value)
-        let limit = try await ethereumGasLoader.getGasLimit(
+        async let limit = ethereumGasLoader.getGasLimit(
             to: destinationAddress,
             from: sourceAddress,
             value: amount.encodedForSend,
             data: "0x\(data.hexString)"
         ).async()
-
-        return EthereumGasDataModel(blockchain: blockchain, gasPrice: Int(price), gasLimit: Int(limit))
+        return try await EthereumGasDataModel(blockchain: blockchain, gasPrice: Int(price), gasLimit: Int(limit))
     }
 
     func getBalance(for currency: Currency) async throws -> Decimal {
