@@ -56,13 +56,13 @@ extension ExchangeWalletDataProvider: WalletDataProvider {
         value: Decimal
     ) async throws -> EthereumGasDataModel {
         async let price = ethereumGasLoader.getGasPrice().async()
-        let amount = createAmount(from: blockchain, amount: value)
         async let limit = ethereumGasLoader.getGasLimit(
             to: destinationAddress,
             from: sourceAddress,
-            value: amount.encodedForSend,
+            value: createAmount(from: blockchain, amount: value).encodedForSend,
             data: "0x\(data.hexString)"
         ).async()
+
         return try await EthereumGasDataModel(blockchain: blockchain, gasPrice: Int(price), gasLimit: Int(limit))
     }
 
