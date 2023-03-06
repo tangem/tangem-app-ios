@@ -45,7 +45,7 @@ struct GroupedNumberTextField: View {
                 case .external(let value):
                     // If the decimalValue did updated from external place
                     // We have to update the private values
-                    let formattedNewValue = groupedNumberFormatter.format(from: value.description)
+                    let formattedNewValue = groupedNumberFormatter.format(value)
                     updateValues(with: formattedNewValue)
                 }
             }
@@ -81,8 +81,8 @@ struct GroupedNumberTextField: View {
         var formattedValue = groupedNumberFormatter.format(from: numberString)
 
         // Convert formatted string to correct decimal number
-        formattedValue = formattedValue.replacingOccurrences(of: String(decimalSeparator), with: ".")
         formattedValue = formattedValue.replacingOccurrences(of: groupingSeparator, with: "")
+        formattedValue = formattedValue.replacingOccurrences(of: String(decimalSeparator), with: ".")
 
         // We can't use here the NumberFormatter because it work with the NSNumber
         // And NSNumber is working wrong with ten zeros and one after decimalSeparator
