@@ -164,8 +164,10 @@ struct MainView: View {
             MainButton(
                 title: option.title,
                 icon: .leading(Assets.arrowUpMini),
-                action: viewModel.openBuyCryptoIfPossible
-            )
+                isDisabled: viewModel.isAvailable(type: option)
+            ) {
+                viewModel.didTapExchangeButtonAction(type: option)
+            }
         case .multi:
             MainButton(
                 title: Localization.walletButtonActions,
