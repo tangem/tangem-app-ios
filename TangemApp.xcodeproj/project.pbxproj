@@ -699,7 +699,6 @@
 		EF7B9CF5286C7023004C33A9 /* CardSettingsCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF7B9CF4286C7023004C33A9 /* CardSettingsCoordinator.swift */; };
 		EF7B9CF7286C702E004C33A9 /* CardSettingsCoordinatorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF7B9CF6286C702E004C33A9 /* CardSettingsCoordinatorView.swift */; };
 		EF7BD11028B8B321001B2D59 /* CommonUserWalletModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF7BD10F28B8B321001B2D59 /* CommonUserWalletModel.swift */; };
-		EF80842E293DE3D9000D91EA /* ExchangeManagerUtil.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF80842D293DE3D9000D91EA /* ExchangeManagerUtil.swift */; };
 		EF808434293F38CE000D91EA /* UserCurrenciesProviding.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF808433293F38CE000D91EA /* UserCurrenciesProviding.swift */; };
 		EF808436293F39D6000D91EA /* UserCurrenciesProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF808435293F39D6000D91EA /* UserCurrenciesProvider.swift */; };
 		EF808438293F3A6D000D91EA /* CurrencyMapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF808437293F3A6D000D91EA /* CurrencyMapper.swift */; };
@@ -739,6 +738,7 @@
 		EF9F908C299FA254006F638F /* ZendeskSupportChatViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF9F908B299FA254006F638F /* ZendeskSupportChatViewModel.swift */; };
 		EF9F908E299FA31A006F638F /* ZendeskSupportChatView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF9F908D299FA31A006F638F /* ZendeskSupportChatView.swift */; };
 		EF9F9090299FAE84006F638F /* SupportChatInputModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF9F908F299FAE84006F638F /* SupportChatInputModel.swift */; };
+		EFA1CFFD29B0E8CE008B24C3 /* SwappingAvailableUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFA1CFFC29B0E8CE008B24C3 /* SwappingAvailableUtils.swift */; };
 		EFA580612893E4E200110DB0 /* LanguageCode.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFA580602893E4E200110DB0 /* LanguageCode.swift */; };
 		EFA580632893E6AA00110DB0 /* BiometricAuthorizationUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFA580622893E6AA00110DB0 /* BiometricAuthorizationUtils.swift */; };
 		EFA6B03F2953113E0090A92F /* OneInchError.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFA6B03E2953113E0090A92F /* OneInchError.swift */; };
@@ -1627,7 +1627,6 @@
 		EF7B9CF4286C7023004C33A9 /* CardSettingsCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardSettingsCoordinator.swift; sourceTree = "<group>"; };
 		EF7B9CF6286C702E004C33A9 /* CardSettingsCoordinatorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardSettingsCoordinatorView.swift; sourceTree = "<group>"; };
 		EF7BD10F28B8B321001B2D59 /* CommonUserWalletModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonUserWalletModel.swift; sourceTree = "<group>"; };
-		EF80842D293DE3D9000D91EA /* ExchangeManagerUtil.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExchangeManagerUtil.swift; sourceTree = "<group>"; };
 		EF808433293F38CE000D91EA /* UserCurrenciesProviding.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserCurrenciesProviding.swift; sourceTree = "<group>"; };
 		EF808435293F39D6000D91EA /* UserCurrenciesProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserCurrenciesProvider.swift; sourceTree = "<group>"; };
 		EF808437293F3A6D000D91EA /* CurrencyMapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CurrencyMapper.swift; sourceTree = "<group>"; };
@@ -1667,6 +1666,7 @@
 		EF9F908B299FA254006F638F /* ZendeskSupportChatViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ZendeskSupportChatViewModel.swift; sourceTree = "<group>"; };
 		EF9F908D299FA31A006F638F /* ZendeskSupportChatView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ZendeskSupportChatView.swift; sourceTree = "<group>"; };
 		EF9F908F299FAE84006F638F /* SupportChatInputModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SupportChatInputModel.swift; sourceTree = "<group>"; };
+		EFA1CFFC29B0E8CE008B24C3 /* SwappingAvailableUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwappingAvailableUtils.swift; sourceTree = "<group>"; };
 		EFA580602893E4E200110DB0 /* LanguageCode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LanguageCode.swift; sourceTree = "<group>"; };
 		EFA580622893E6AA00110DB0 /* BiometricAuthorizationUtils.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BiometricAuthorizationUtils.swift; sourceTree = "<group>"; };
 		EFA6B03E2953113E0090A92F /* OneInchError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OneInchError.swift; sourceTree = "<group>"; };
@@ -3641,7 +3641,6 @@
 		EF4661932923AFC400346B6C /* TangemExchange */ = {
 			isa = PBXGroup;
 			children = (
-				EF80842C293DE3CB000D91EA /* Utils */,
 				E9C17C62291A687D00FDE4BC /* Factory */,
 				EF4661B92923B00800346B6C /* Interfaces */,
 				EF46620E2924CE2A00346B6C /* Managers */,
@@ -3706,6 +3705,7 @@
 				EF808439293F6708000D91EA /* SwappingDestinationService.swift */,
 				EF808435293F39D6000D91EA /* UserCurrenciesProvider.swift */,
 				EF808437293F3A6D000D91EA /* CurrencyMapper.swift */,
+				EFA1CFFC29B0E8CE008B24C3 /* SwappingAvailableUtils.swift */,
 			);
 			path = Exchange;
 			sourceTree = "<group>";
@@ -3981,14 +3981,6 @@
 				EFFE2CE828B8E0B300B9F279 /* UserWalletModel.swift */,
 			);
 			path = UserWalletModel;
-			sourceTree = "<group>";
-		};
-		EF80842C293DE3CB000D91EA /* Utils */ = {
-			isa = PBXGroup;
-			children = (
-				EF80842D293DE3D9000D91EA /* ExchangeManagerUtil.swift */,
-			);
-			path = Utils;
 			sourceTree = "<group>";
 		};
 		EF80843B293F6967000D91EA /* Mocks */ = {
@@ -4989,6 +4981,7 @@
 				5D6784CE25EB92F300149995 /* TestnetTokensRepository.swift in Sources */,
 				EFC46EFE29266982003928E3 /* SendCurrencyViewModel.swift in Sources */,
 				B0FAD01226BAF35C00F45E88 /* FrameSizeModifier.swift in Sources */,
+				EFA1CFFD29B0E8CE008B24C3 /* SwappingAvailableUtils.swift in Sources */,
 				EFC46F01292669A0003928E3 /* ReceiveCurrencyViewModel.swift in Sources */,
 				DC3B49FA2893EEA600C207EA /* UserWalletConfigFeatures.swift in Sources */,
 				DAFD691627CDEB7F00B36C71 /* CombinedExchangeService.swift in Sources */,
@@ -5519,7 +5512,6 @@
 				EF4662032924CC6E00346B6C /* OneInchBaseTarget.swift in Sources */,
 				EF4662062924CC6E00346B6C /* ApproveTarget.swift in Sources */,
 				EF4661FF2924CC6E00346B6C /* ExchangeBlockchain.swift in Sources */,
-				EF80842E293DE3D9000D91EA /* ExchangeManagerUtil.swift in Sources */,
 				EF29BEF229349C2900D7C782 /* Data+.swift in Sources */,
 				EF4661F62924CC6E00346B6C /* LimitOrderParameters.swift in Sources */,
 				EF29BEE9292FBCE400D7C782 /* DefaultExchangeManager.swift in Sources */,
