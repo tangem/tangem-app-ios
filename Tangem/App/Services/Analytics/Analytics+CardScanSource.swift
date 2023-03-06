@@ -13,7 +13,7 @@ extension Analytics {
         case welcome
         case auth
         case main
-        case myWallets
+        case myWallets(isNewCard: Bool)
 
         var cardScanButtonEvent: Analytics.Event {
             switch self {
@@ -23,8 +23,12 @@ extension Analytics {
                 return .buttonCardSignIn
             case .main:
                 return .buttonScanCard
-            case .myWallets:
-                return .buttonScanNewCard
+            case .myWallets(let isNewCard):
+                if isNewCard {
+                    return .buttonScanNewCard
+                }
+
+                return .walletUnlockTapped
             }
         }
 
