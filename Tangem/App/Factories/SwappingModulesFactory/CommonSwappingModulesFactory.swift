@@ -105,6 +105,7 @@ private extension CommonSwappingModulesFactory {
             transactionCreator: walletManager,
             transactionSender: walletManager,
             transactionSigner: signer,
+            ethereumNetworkProvider: walletManager as! EthereumNetworkProvider,
             currencyMapper: currencyMapper
         )
     }
@@ -120,8 +121,8 @@ private extension CommonSwappingModulesFactory {
     var walletDataProvider: WalletDataProvider {
         ExchangeWalletDataProvider(
             wallet: walletModel.wallet,
-            ethereumGasLoader: walletModel.walletManager as! EthereumGasLoader,
-            ethereumNetworkProvider: walletModel.walletManager as! EthereumNetworkProvider,
+            ethereumGasLoader: walletManager as! EthereumGasLoader,
+            ethereumNetworkProvider: walletManager as! EthereumNetworkProvider,
             currencyMapper: currencyMapper
         )
     }
