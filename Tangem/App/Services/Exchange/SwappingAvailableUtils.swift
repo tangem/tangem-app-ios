@@ -21,8 +21,8 @@ struct SwappingAvailableUtils {
         .fantom,
     ]
 
-    func isSupportSwapping(blockchainNetworkId: String) -> Bool {
-        // toggleIsOn
+    func canSwap(blockchainNetworkId: String) -> Bool {
+        // Checking that toggle is on
         guard FeatureProvider.isAvailable(.exchange) else {
             return false
         }
