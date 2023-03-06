@@ -12,6 +12,7 @@ import TangemExchange
 
 class ExchangeWalletDataProvider {
     private let wallet: Wallet
+    private let ethereumGasLoader: EthereumGasLoader
     private let ethereumNetworkProvider: EthereumNetworkProvider
     private let currencyMapper: CurrencyMapping
 
@@ -20,10 +21,12 @@ class ExchangeWalletDataProvider {
 
     init(
         wallet: Wallet,
+        ethereumGasLoader: EthereumGasLoader,
         ethereumNetworkProvider: EthereumNetworkProvider,
         currencyMapper: CurrencyMapping
     ) {
         self.wallet = wallet
+        self.ethereumGasLoader = ethereumGasLoader
         self.ethereumNetworkProvider = ethereumNetworkProvider
         self.currencyMapper = currencyMapper
 
@@ -43,6 +46,24 @@ extension ExchangeWalletDataProvider: WalletDataProvider {
         }
 
         return walletAddress
+    }
+
+    func getGasModel(
+        sourceAddress: String,
+        destinationAddress: String,
+        data: Data,
+        blockchain: ExchangeBlockchain,
+        value: Decimal
+    ) async throws -> EthereumGasDataModel {
+        async let price = ethereumGasLoader.getGasPrice().async()
+        async let limit = ethereumGasLoader.getGasLimit(
+            to: destinationAddress,
+            from: sourceAddress,
+            value: createAmount(from: blockchain, amount: value).encodedForSend,
+            data: "0x\(data.hexString)"
+        ).async()
+
+        return try await EthereumGasDataModel(blockchain: blockchain, gasPrice: Int(price), gasLimit: Int(limit))
     }
 
     func getBalance(for currency: Currency) async throws -> Decimal {
@@ -101,6 +122,15 @@ private extension ExchangeWalletDataProvider {
             currencySymbol: currency.symbol,
             value: amount,
             decimals: currency.decimalCount
+        )
+    }
+
+    func createAmount(from blockchain: ExchangeBlockchain, amount: Decimal) -> Amount {
+        Amount(
+            type: .coin,
+            currencySymbol: blockchain.symbol,
+            value: amount,
+            decimals: blockchain.decimalCount
         )
     }
 
