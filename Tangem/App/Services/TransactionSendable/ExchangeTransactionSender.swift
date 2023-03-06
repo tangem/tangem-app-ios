@@ -13,17 +13,20 @@ struct ExchangeTransactionSender {
     private let transactionCreator: TransactionCreator
     private let transactionSender: TransactionSender
     private let transactionSigner: TransactionSigner
+    private let ethereumNetworkProvider: EthereumNetworkProvider
     private let currencyMapper: CurrencyMapping
 
     init(
         transactionCreator: TransactionCreator,
         transactionSender: TransactionSender,
         transactionSigner: TransactionSigner,
+        ethereumNetworkProvider: EthereumNetworkProvider,
         currencyMapper: CurrencyMapping
     ) {
         self.transactionCreator = transactionCreator
         self.transactionSender = transactionSender
         self.transactionSigner = transactionSigner
+        self.ethereumNetworkProvider = ethereumNetworkProvider
         self.currencyMapper = currencyMapper
     }
 }
@@ -32,7 +35,8 @@ struct ExchangeTransactionSender {
 
 extension ExchangeTransactionSender: TransactionSendable {
     func sendTransaction(_ info: ExchangeTransactionDataModel) async throws -> TransactionSendResult {
-        let transaction = try buildTransaction(for: info)
+        let nonce = try await ethereumNetworkProvider.getTxCount(info.sourceAddress).async()
+        let transaction = try buildTransaction(for: info, nonce: nonce)
         return try await transactionSender.send(transaction, signer: transactionSigner).async()
     }
 }
@@ -40,7 +44,7 @@ extension ExchangeTransactionSender: TransactionSendable {
 // MARK: - Private
 
 private extension ExchangeTransactionSender {
-    func buildTransaction(for info: ExchangeTransactionDataModel) throws -> Transaction {
+    func buildTransaction(for info: ExchangeTransactionDataModel, nonce: Int) throws -> Transaction {
         let gasModel = info.gas
 
         let amount = createAmount(from: info.sourceCurrency, amount: info.value)
@@ -57,7 +61,7 @@ private extension ExchangeTransactionSender {
             status: .unconfirmed
         )
 
-        transaction.params = EthereumTransactionParams(data: info.txData, gasLimit: gasModel.gasLimit)
+        transaction.params = EthereumTransactionParams(data: info.txData, gasLimit: gasModel.gasLimit, nonce: nonce)
         return transaction
     }
 
