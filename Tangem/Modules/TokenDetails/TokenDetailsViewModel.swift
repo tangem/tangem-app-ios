@@ -288,15 +288,6 @@ class TokenDetailsViewModel: ObservableObject {
         }
     }
 
-    func sendAnalyticsEvent(_ event: Analytics.Event) {
-        switch event {
-        case .userBoughtCrypto:
-            Analytics.log(event: event, params: [.currencyCode: blockchainNetwork.blockchain.currencySymbol])
-        default:
-            break
-        }
-    }
-
     private func bind() {
         AppLog.shared.debug("🔗 Token Details view model updates binding")
         card.objectWillChange
@@ -369,7 +360,6 @@ class TokenDetailsViewModel: ObservableObject {
             return
         }
 
-        let currencySymbol = amountType.token?.symbol ?? blockchainNetwork.blockchain.currencySymbol
         Analytics.log(event: .buttonRemoveToken, params: [Analytics.ParameterKey.token: currencySymbol])
 
         let item = CommonUserWalletModel.RemoveItem(amount: amountType, blockchainNetwork: walletModel.blockchainNetwork)
@@ -470,8 +460,12 @@ extension TokenDetailsViewModel {
 
         if let url = buyCryptoUrl {
             coordinator.openBuyCrypto(at: url, closeUrl: buyCryptoCloseUrl) { [weak self] _ in
-                self?.sendAnalyticsEvent(.userBoughtCrypto)
-                DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+                guard let self else { return }
+
+                Analytics.log(event: .userBoughtCrypto, params: [.currencyCode: self.currencySymbol])
+                Analytics.log(event: .tokenBought, params: [.token: self.currencySymbol])
+
+                DispatchQueue.main.asyncAfter(deadline: .now() + 1) { [weak self] in
                     self?.walletModel?.update(silent: true)
                 }
             }
@@ -539,10 +533,11 @@ extension TokenDetailsViewModel {
 
 private extension TokenDetailsViewModel {
     var canSwap: Bool {
-        FeatureProvider.isAvailable(.exchange) &&
-            !isCustomToken &&
+        !isCustomToken &&
             card.supportsSwapping &&
-            ExchangeManagerUtil().isNetworkAvailableForExchange(networkId: blockchainNetwork.blockchain.networkId)
+            SwappingAvailableUtils().canSwap(
+                blockchainNetworkId: blockchainNetwork.blockchain.networkId
+            )
     }
 
     var sourceCurrency: Currency? {
