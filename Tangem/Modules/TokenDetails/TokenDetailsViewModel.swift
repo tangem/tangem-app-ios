@@ -533,10 +533,11 @@ extension TokenDetailsViewModel {
 
 private extension TokenDetailsViewModel {
     var canSwap: Bool {
-        FeatureProvider.isAvailable(.exchange) &&
-            !isCustomToken &&
+        !isCustomToken &&
             card.supportsSwapping &&
-            ExchangeManagerUtil().isNetworkAvailableForExchange(networkId: blockchainNetwork.blockchain.networkId)
+            SwappingAvailableUtils().canSwap(
+                blockchainNetworkId: blockchainNetwork.blockchain.networkId
+            )
     }
 
     var sourceCurrency: Currency? {
