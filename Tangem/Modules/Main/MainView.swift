@@ -164,7 +164,7 @@ struct MainView: View {
             MainButton(
                 title: option.title,
                 icon: .leading(Assets.arrowUpMini),
-                isDisabled: viewModel.isAvailable(type: option)
+                isDisabled: !viewModel.isAvailable(type: option)
             ) {
                 viewModel.didTapExchangeButtonAction(type: option)
             }
