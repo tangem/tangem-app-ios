@@ -31,7 +31,9 @@ class MainViewModel: ObservableObject {
     @Published var image: UIImage? = nil
     @Published var isLackDerivationWarningViewVisible: Bool = false
     @Published var isBackupAllowed: Bool = false
+    
     @Published var exchangeButtonState: ExchangeButtonState = .single(option: .buy)
+    @Published var exchangeActionSheet: ActionSheetBinder?
 
     @Published var singleWalletContentViewModel: SingleWalletContentViewModel? {
         didSet {
@@ -271,6 +273,21 @@ class MainViewModel: ObservableObject {
         coordinator.openUserWalletList()
     }
 
+    func openExchangeActionSheet() {
+        Analytics.log(.buttonExchange)
+
+        var buttons: [ActionSheet.Button] = exchangeButtonState.options.map { action in
+            .default(Text(action.title)) { [weak self] in
+                self?.didTapExchangeButtonAction(type: action)
+            }
+        }
+
+        buttons.append(.cancel())
+
+        let sheet = ActionSheet(title: Text(""), buttons: buttons)
+        exchangeActionSheet = ActionSheetBinder(sheet: sheet)
+    }
+
     func didTapExchangeButtonAction(type: ExchangeButtonType) {
         switch type {
         case .buy:
@@ -368,12 +385,6 @@ class MainViewModel: ObservableObject {
         }
 
         warningsService.hideWarning(warning)
-    }
-
-    func tradeCryptoAction() {
-        Analytics.log(.buttonExchange)
-
-        showTradeSheet.toggle()
     }
 
     func extractSellCryptoRequest(from response: String) {
