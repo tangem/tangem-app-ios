@@ -172,18 +172,9 @@ struct MainView: View {
             MainButton(
                 title: Localization.walletButtonActions,
                 icon: .leading(Assets.exchangeMini),
-                action: viewModel.tradeCryptoAction
+                action: viewModel.openExchangeActionSheet
             )
-            .actionSheet(isPresented: $viewModel.showTradeSheet, content: {
-                ActionSheet(
-                    title: Text(Localization.walletChooseTradeAction),
-                    buttons: [
-                        .default(Text(Localization.walletButtonBuy), action: viewModel.openBuyCryptoIfPossible),
-                        .default(Text(Localization.walletButtonSell), action: viewModel.openSellCrypto),
-                        .cancel(),
-                    ]
-                )
-            })
+            .actionSheet(item: $viewModel.exchangeActionSheet, content: { $0.sheet })
         }
     }
 
