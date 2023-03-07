@@ -31,14 +31,6 @@ struct GroupedNumberFormatter {
         numberFormatter.maximumFractionDigits = maximumFractionDigits
     }
 
-    func format(_ decimal: Decimal) -> String {
-        guard let string = numberFormatter.string(for: decimal) else {
-            return ""
-        }
-
-        return format(from: string)
-    }
-
     func format(from string: String) -> String {
         // Exclude unnecessary logic
         guard !string.isEmpty else { return "" }
@@ -53,21 +45,21 @@ struct GroupedNumberFormatter {
 
         // If textFieldText is correct number, return formatted number
         if let value = numberFormatter.number(from: numberString) {
-            return format(from: value.decimalValue)
+            // numberFormatter.string use ONLY for integer values
+            // without decimals because formatter reduce fractions to 13 symbols
+            return numberFormatter.string(for: value.decimalValue) ?? ""
         }
 
         // Otherwise just return text
         return string
     }
 
-    /// Use it only for number without floating point
-    private func format(from value: Decimal) -> String {
-        guard let string = numberFormatter.string(from: value as NSDecimalNumber) else {
-            assertionFailure("number \(value) can not formatted")
-            return "\(value)"
-        }
-
-        return string
+    func format(from value: Decimal) -> String {
+        var number = value.description
+        print("value.description", value.description)
+        print("decimalSeparator", String(decimalSeparator))
+        number = number.replacingOccurrences(of: ".", with: String(decimalSeparator))
+        return format(from: number)
     }
 }
 
