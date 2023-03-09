@@ -1,16 +1,16 @@
 //
-//  GenericConfig.swift
+//  Wallet2Config.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
-//  Copyright © 2022 Tangem AG. All rights reserved.
+//  Copyright © 2023 Tangem AG. All rights reserved.
 //
 
 import Foundation
 import TangemSdk
 import BlockchainSdk
 
-struct GenericConfig {
+struct Wallet2Config {
     @Injected(\.backupServiceProvider) private var backupServiceProvider: BackupServiceProviding
 
     private let card: CardDTO
@@ -52,7 +52,7 @@ struct GenericConfig {
     }
 }
 
-extension GenericConfig: UserWalletConfig {
+extension Wallet2Config: UserWalletConfig {
     var cardSetLabel: String? {
         guard let backupCardsCount = card.backupStatus?.backupCardsCount else {
             return nil
@@ -70,7 +70,7 @@ extension GenericConfig: UserWalletConfig {
     }
 
     var cardName: String {
-        "Wallet"
+        "Wallet 2.0"
     }
 
     var defaultCurve: EllipticCurve? {
@@ -85,7 +85,7 @@ extension GenericConfig: UserWalletConfig {
         }
 
         if card.wallets.isEmpty {
-            steps.append(contentsOf: [.createWallet] + _backupSteps + userWalletSavingSteps + [.success])
+            steps.append(contentsOf: [.createWalletSelector, .seedPhraseIntro] + _backupSteps + userWalletSavingSteps + [.success])
         } else {
             if !AppSettings.shared.cardsStartedActivation.contains(card.cardId) {
                 steps.append(contentsOf: userWalletSavingSteps)
@@ -165,6 +165,7 @@ extension GenericConfig: UserWalletConfig {
     }
 
     var productType: Analytics.ProductType {
+        // [REDACTED_TODO_COMMENT]
         card.firmwareVersion.doubleValue >= 4.39 ? .wallet : .other
     }
 
@@ -231,7 +232,7 @@ extension GenericConfig: UserWalletConfig {
         case .transactionHistory:
             return .hidden
         case .seedPhrase:
-            return .hidden
+            return .available
         }
     }
 
