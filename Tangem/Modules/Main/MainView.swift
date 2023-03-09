@@ -164,24 +164,17 @@ struct MainView: View {
             MainButton(
                 title: option.title,
                 icon: .leading(Assets.arrowUpMini),
-                action: viewModel.openBuyCryptoIfPossible
-            )
+                isDisabled: !viewModel.isAvailable(type: option)
+            ) {
+                viewModel.didTapExchangeButtonAction(type: option)
+            }
         case .multi:
             MainButton(
                 title: Localization.walletButtonActions,
                 icon: .leading(Assets.exchangeMini),
-                action: viewModel.tradeCryptoAction
+                action: viewModel.openExchangeActionSheet
             )
-            .actionSheet(isPresented: $viewModel.showTradeSheet, content: {
-                ActionSheet(
-                    title: Text(Localization.walletChooseTradeAction),
-                    buttons: [
-                        .default(Text(Localization.walletButtonBuy), action: viewModel.openBuyCryptoIfPossible),
-                        .default(Text(Localization.walletButtonSell), action: viewModel.openSellCrypto),
-                        .cancel(),
-                    ]
-                )
-            })
+            .actionSheet(item: $viewModel.exchangeActionSheet, content: { $0.sheet })
         }
     }
 
