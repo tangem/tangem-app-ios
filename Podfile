@@ -6,7 +6,7 @@ use_frameworks!
 inhibit_all_warnings!
 
 def tangem_sdk_pod
-  pod 'TangemSdk', :git => 'https://github.com/Tangem/tangem-sdk-ios.git', :tag => 'develop-200'
+  pod 'TangemSdk', :git => 'https://github.com/Tangem/tangem-sdk-ios.git', :branch => 'IOS-3059_seed'
 #   pod 'TangemSdk', :path => '../tangem-sdk-ios'
 end
 
