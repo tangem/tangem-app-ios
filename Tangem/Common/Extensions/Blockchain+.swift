@@ -38,6 +38,7 @@ extension Blockchain {
         case "polkadot": self = .polkadot(testnet: isTestnet)
         case "kusama": self = .kusama
         case "tron": self = .tron(testnet: isTestnet)
+        case "the-open-network": self = .ton(testnet: isTestnet)
         case "arbitrum", "arbitrum-one": self = .arbitrum(testnet: isTestnet)
         case "dash": self = .dash(testnet: isTestnet)
         case "xdai", "gnosis": self = .gnosis
@@ -74,7 +75,7 @@ extension Blockchain {
         case .polkadot: return "polkadot"
         case .kusama: return "kusama"
         case .tron: return "tron"
-        case .ton: return "ton"
+        case .ton: return "the-open-network"
         case .arbitrum: return "arbitrum-one"
         case .dash: return "dash"
         case .gnosis: return "xdai"
@@ -121,7 +122,7 @@ extension Blockchain {
         case .polkadot: return "polkadot"
         case .kusama: return "kusama"
         case .tron: return "tron"
-        case .ton: return "ton"
+        case .ton: return "the-open-network"
         case .arbitrum: return "arbitrum-one"
         case .dash: return "dash"
         case .gnosis: return "xdai"
