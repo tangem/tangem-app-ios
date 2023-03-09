@@ -14,6 +14,9 @@ def blockchain_sdk_pods
   pod 'BlockchainSdk', :git => 'https://github.com/tangem/blockchain-sdk-swift.git', :tag => 'develop-219'
 #  pod 'BlockchainSdk', :path => '../blockchain-sdk-swift'
 
+  pod 'TangemWalletCore', :git => 'https://github.com/tangem/wallet-core-binaries-ios.git', :tag => '3.1.9-tangem1'
+  #  pod 'TangemWalletCore', :path => '../tangem-wallet-core'
+
   pod 'Solana.Swift', :git => 'https://github.com/tangem/Solana.Swift', :tag => 'add-external-signer-7'
   # pod 'Solana.Swift', :path => '../Solana.Swift'
 
@@ -40,6 +43,8 @@ target 'Tangem' do
   pod 'WalletConnectSwiftV2', :git => 'https://github.com/WalletConnect/WalletConnectSwiftV2', :tag => '1.1.0'
   pod 'Kingfisher', :git => 'https://github.com/onevcat/Kingfisher.git', :branch => 'version6-xcode13'
   pod 'Mobile-Buy-SDK' # Shopify
+  
+  pod 'SwiftProtobuf'
 
   # Helpers
   pod 'DeviceGuru', '8.0.0'
@@ -90,6 +95,12 @@ post_install do |installer|
       end
 
       config.build_settings['DEAD_CODE_STRIPPING'] = 'YES'
+  end
+  
+  installer.pods_project.targets.each do |target|
+    target.build_configurations.each do |config|
+      config.build_settings['BUILD_LIBRARY_FOR_DISTRIBUTION'] = 'YES'
+    end
   end
   
 	installer.pods_project.targets.each do |target|
