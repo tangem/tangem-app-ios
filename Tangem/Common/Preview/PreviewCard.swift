@@ -35,6 +35,7 @@ enum PreviewCard {
                     blockchairApiKeys: [],
                     blockcypherTokens: [],
                     infuraProjectId: "",
+                    useBlockBookUtxoApis: false,
                     nowNodesApiKey: "",
                     getBlockApiKey: "",
                     tronGridApiKey: "",
