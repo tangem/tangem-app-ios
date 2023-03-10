@@ -8,18 +8,27 @@
 
 import Foundation
 
+// Format
+// 1. String to String for text field
+//  1.1 Int decimal
+//  1.1
+// 2. String to Decimal for send value
+// 3. Decimal to String for external update
 struct GroupedNumberFormatter {
-    var maximumFractionDigits: Int { numberFormatter.maximumFractionDigits }
-    var decimalSeparator: Character { Character(numberFormatter.decimalSeparator) }
-    var groupingSeparator: String { numberFormatter.groupingSeparator }
+    public let roundingMode: NSDecimalNumber.RoundingMode
+    public var maximumFractionDigits: Int { numberFormatter.maximumFractionDigits }
+    public var decimalSeparator: Character { Character(numberFormatter.decimalSeparator) }
+    public var groupingSeparator: Character { Character(numberFormatter.groupingSeparator) }
 
     private let numberFormatter: NumberFormatter
 
     init(
         numberFormatter: NumberFormatter = NumberFormatter(),
-        maximumFractionDigits: Int
+        maximumFractionDigits: Int,
+        roundingMode: NSDecimalNumber.RoundingMode = .down
     ) {
         self.numberFormatter = numberFormatter
+        self.roundingMode = roundingMode
 
         numberFormatter.roundingMode = .down
         numberFormatter.numberStyle = .decimal
@@ -31,32 +40,58 @@ struct GroupedNumberFormatter {
         numberFormatter.maximumFractionDigits = maximumFractionDigits
     }
 
-    func format(from string: String) -> String {
+    // MARK: - Formatted
+
+    public func format(value: String) -> String {
         // Exclude unnecessary logic
-        guard !string.isEmpty else { return "" }
+        guard !value.isEmpty else {
+            return ""
+        }
+
+        guard var decimal = mapToDecimal(string: value) else {
+            assertionFailure("Value must be number")
+            return value
+        }
+
+        // Round to maximumFractionDigits
+        decimal.round(scale: maximumFractionDigits, roundingMode: roundingMode)
 
         // If string contains decimalSeparator will format it separately
-        if string.contains(decimalSeparator) {
-            return formatIntegerAndFractionSeparately(string: string)
+        if value.contains(decimalSeparator) {
+            return formatIntegerAndFractionSeparately(string: value)
         }
 
-        // Remove space separators for formatter correct work
-        let numberString = string.replacingOccurrences(of: " ", with: "")
-
-        // If textFieldText is correct number, return formatted number
-        if let value = numberFormatter.number(from: numberString) {
-            // numberFormatter.string use ONLY for integer values
-            // without decimals because formatter reduce fractions to 13 symbols
-            return numberFormatter.string(for: value.decimalValue) ?? ""
-        }
-
-        // Otherwise just return text
-        return string
+        return formatInteger(decimal: decimal)
     }
 
-    func format(from value: Decimal) -> String {
-        let stringNumber = value.description.replacingOccurrences(of: ".", with: String(decimalSeparator))
-        return format(from: stringNumber)
+    public func format(value: Decimal) -> String {
+        return format(value: mapToString(decimal: value))
+    }
+
+    // MARK: - Mapping
+
+    public func mapToString(decimal: Decimal) -> String {
+        var stringNumber = (decimal as NSDecimalNumber).stringValue
+        return stringNumber.replacingOccurrences(of: ".", with: String(decimalSeparator))
+    }
+
+    public func mapToDecimal(string: String) -> Decimal? {
+        var formattedValue = string
+
+        // Convert formatted string to correct decimal number
+        formattedValue = formattedValue.replacingOccurrences(of: String(groupingSeparator), with: "")
+        formattedValue = formattedValue.replacingOccurrences(of: String(decimalSeparator), with: ".")
+
+        // We can't use here the NumberFormatter because it work with the NSNumber
+        // And NSNumber is working wrong with ten zeros and one after decimalSeparator
+        // Eg. NumberFormatter.number(from: "0.00000000001") will return "0.000000000009999999999999999"
+        // Like is NSNumber(floatLiteral: 0.00000000001) will return "0.000000000009999999999999999"
+        if let value = Decimal(string: formattedValue) {
+            return value
+        }
+
+        assertionFailure("String isn't a correct Number")
+        return .zero
     }
 }
 
@@ -71,10 +106,6 @@ private extension GroupedNumberFormatter {
         let beforeComma = String(string[string.startIndex ..< commaIndex])
         var afterComma = string[commaIndex ..< string.endIndex]
 
-        guard let bodyNumber = numberFormatter.number(from: beforeComma) else {
-            return string
-        }
-
         // Check to maximumFractionDigits and reduce it if needed
         let maximumWithComma = maximumFractionDigits + 1
         if afterComma.count > maximumWithComma {
@@ -82,6 +113,16 @@ private extension GroupedNumberFormatter {
             afterComma = afterComma[afterComma.startIndex ... lastAcceptableIndex]
         }
 
-        return format(from: bodyNumber.decimalValue) + afterComma
+        return format(value: beforeComma) + afterComma
+    }
+
+    private func formatInteger(decimal: Decimal) -> String {
+        let string = mapToString(decimal: decimal)
+
+        // In this case the NumberFormatter works fine ONLY with integer values
+        // We can't trust it because it reduces fractions to 13 characters
+        assert(!string.contains(decimalSeparator))
+
+        return numberFormatter.string(from: decimal as NSDecimalNumber) ?? ""
     }
 }
