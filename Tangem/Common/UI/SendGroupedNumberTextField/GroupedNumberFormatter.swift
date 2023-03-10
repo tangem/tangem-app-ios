@@ -55,11 +55,8 @@ struct GroupedNumberFormatter {
     }
 
     func format(from value: Decimal) -> String {
-        var number = value.description
-        print("value.description", value.description)
-        print("decimalSeparator", String(decimalSeparator))
-        number = number.replacingOccurrences(of: ".", with: String(decimalSeparator))
-        return format(from: number)
+        let stringNumber = value.description.replacingOccurrences(of: ".", with: String(decimalSeparator))
+        return format(from: stringNumber)
     }
 }
 
