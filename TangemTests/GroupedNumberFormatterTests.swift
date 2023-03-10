@@ -29,7 +29,7 @@ class GroupedNumberFormatterTests: XCTestCase {
         XCTAssertEqual(numberFormatter.groupingSeparator, unbreakableSpace)
 
         data.forEach { input, expected in
-            let result = formatter.format(from: input)
+            let result = formatter.format(input)
             XCTAssertEqual(result, expected)
         }
     }
@@ -49,8 +49,93 @@ class GroupedNumberFormatterTests: XCTestCase {
         ]
 
         data.forEach { input, expected in
-            let result = formatter.format(from: input)
+            let result = formatter.format(input)
             XCTAssertEqual(result, expected)
+        }
+    }
+
+    func testDecimalToStringFormatter() {
+        let cases: [TestCase] = [
+            TestCase(
+                groupingSeparator: " ",
+                decimalSeparator: ",",
+                digits: 18,
+                decimal: "1000.123456789012345678",
+                string: "1 000,123456789012345678"
+            ),
+            TestCase(
+                groupingSeparator: ",",
+                decimalSeparator: ".",
+                digits: 18,
+                decimal: "1000.123456789012345678",
+                string: "1,000.123456789012345678"
+            ),
+            TestCase(
+                groupingSeparator: " ",
+                decimalSeparator: ".",
+                digits: 18,
+                decimal: "1000.123456789012345678",
+                string: "1 000.123456789012345678"
+            ),
+            TestCase(
+                groupingSeparator: " ",
+                decimalSeparator: ",",
+                digits: 8,
+                decimal: "1000.123456789012345678",
+                string: "1 000,12345678"
+            ),
+            TestCase(
+                groupingSeparator: ",",
+                decimalSeparator: ".",
+                digits: 8,
+                decimal: "1000.123456789012345678",
+                string: "1,000.12345678"
+            ),
+            TestCase(
+                groupingSeparator: " ",
+                decimalSeparator: ".",
+                digits: 8,
+                decimal: "1000.123456789012345678",
+                string: "1 000.12345678"
+            ),
+        ]
+
+        cases.forEach { testCase in
+            let numberFormatter = NumberFormatter()
+            numberFormatter.groupingSeparator = testCase.groupingSeparator
+            numberFormatter.decimalSeparator = testCase.decimalSeparator
+            let formatter = GroupedNumberFormatter(
+                numberFormatter: numberFormatter,
+                maximumFractionDigits: testCase.digits
+            )
+
+            let decimalToString = formatter.format(testCase.decimal)
+            XCTAssertEqual(decimalToString, testCase.string)
+        }
+    }
+}
+
+extension GroupedNumberFormatterTests {
+    struct TestCase {
+        let groupingSeparator: String
+        let decimalSeparator: String
+        let digits: Int
+        let decimal: Decimal
+        let string: String
+
+        init(
+            groupingSeparator: String,
+            decimalSeparator: String,
+            digits: Int,
+            decimal: String,
+            string: String
+        ) {
+            self.groupingSeparator = groupingSeparator
+            self.decimalSeparator = decimalSeparator
+            self.digits = digits
+            // I don't know why but just set decimal value isn't work
+            self.decimal = Decimal(string: decimal)!
+            self.string = string
         }
     }
 }
