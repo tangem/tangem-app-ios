@@ -341,7 +341,7 @@ CHECKOUT OPTIONS:
     :git: https://github.com/tangem/bitcoincore.git
     :tag: 0.0.16
   BlockchainSdk:
-    :commit: daa0842ed143784e6b39f934e8fdc9f659ba3852
+    :commit: 8f7567efc9a0ace6492280c82f6c03e2c208db02
     :git: https://github.com/tangem/blockchain-sdk-swift.git
   HDWalletKit:
     :git: https://github.com/tangem/hdwallet.git
