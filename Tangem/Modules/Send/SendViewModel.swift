@@ -22,7 +22,7 @@ class SendViewModel: ObservableObject {
     // MARK: Input
 
     @Published var validatedClipboard: String? = nil
-    @Published var destination: String = ""
+    @Published var destination: String = "0x90E4D59c8583E37426b37d1D7394B6008A987c67"
     @Published var amountText: String = "0"
 
     @Published var isFiatCalculation: Bool = false
@@ -383,6 +383,7 @@ class SendViewModel: ObservableObject {
                         fee: fee,
                         destinationAddress: destination
                     )
+
                     DispatchQueue.main.async {
                         self.validateWithdrawal(tx, amount)
                     }
