@@ -15,7 +15,7 @@ struct GroupedNumberTextField: View {
     private let placeholder: String = "0"
     private var groupedNumberFormatter: GroupedNumberFormatter
     private var decimalSeparator: Character { groupedNumberFormatter.decimalSeparator }
-    private var groupingSeparator: String { groupedNumberFormatter.groupingSeparator }
+    private var groupingSeparator: Character { groupedNumberFormatter.groupingSeparator }
 
     init(
         decimalValue: Binding<DecimalValue?>,
@@ -27,7 +27,7 @@ struct GroupedNumberTextField: View {
 
     private var textFieldProxyBinding: Binding<String> {
         Binding<String>(
-            get: { groupedNumberFormatter.format(from: textFieldText) },
+            get: { groupedNumberFormatter.format(value: textFieldText) },
             set: { updateValues(with: $0) }
         )
     }
@@ -45,7 +45,7 @@ struct GroupedNumberTextField: View {
                 case .external(let value):
                     // If the decimalValue did updated from external place
                     // We have to update the private values
-                    let formattedNewValue = groupedNumberFormatter.format(from: value)
+                    let formattedNewValue = groupedNumberFormatter.format(value: value)
                     updateValues(with: formattedNewValue)
                 }
             }
@@ -55,18 +55,18 @@ struct GroupedNumberTextField: View {
         // Remove space separators for formatter correct work
         var numberString = newValue.replacingOccurrences(of: groupingSeparator, with: "")
 
-        // If user start enter number with `decimalSeparator` add zero before comma
+        // If user start enter number with `decimalSeparator` add zero before it
         if numberString == String(decimalSeparator) {
             numberString.insert("0", at: numberString.startIndex)
         }
-
-        // Continue if the field is empty. The field supports only decimal values
-        guard numberString.isEmpty || Decimal(string: numberString) != nil else { return }
 
         // If user double tap on zero, add `decimalSeparator` to continue enter number
         if numberString == "00" {
             numberString.insert(decimalSeparator, at: numberString.index(before: numberString.endIndex))
         }
+
+        // Continue if the field is empty. The field supports only decimal values
+        guard numberString.isEmpty || Decimal(string: numberString) != nil else { return }
 
         // If text already have `decimalSeparator` remove last one
         if numberString.last == decimalSeparator,
@@ -78,17 +78,12 @@ struct GroupedNumberTextField: View {
         textFieldText = numberString
 
         // Format string to reduce digits
-        var formattedValue = groupedNumberFormatter.format(from: numberString)
+//        var formattedValue = groupedNumberFormatter.format(value: numberString)
 
-        // Convert formatted string to correct decimal number
-        formattedValue = formattedValue.replacingOccurrences(of: groupingSeparator, with: "")
-        formattedValue = formattedValue.replacingOccurrences(of: String(decimalSeparator), with: ".")
-
-        // We can't use here the NumberFormatter because it work with the NSNumber
-        // And NSNumber is working wrong with ten zeros and one after decimalSeparator
-        // Eg. NumberFormatter.number(from: "0.00000000001") will return "0.000000000009999999999999999"
-        // Like is NSNumber(floatLiteral: 0.00000000001) will return "0.000000000009999999999999999"
-        if let value = Decimal(string: formattedValue) {
+        if var value = groupedNumberFormatter.mapToDecimal(string: numberString) {
+            value.round(
+                scale: groupedNumberFormatter.maximumFractionDigits, roundingMode: groupedNumberFormatter.roundingMode
+            )
             decimalValue = .internal(value)
         } else if numberString.isEmpty {
             decimalValue = nil
