@@ -85,7 +85,7 @@ extension Wallet2Config: UserWalletConfig {
         }
 
         if card.wallets.isEmpty {
-            steps.append(contentsOf: [.createWalletSelector, .seedPhraseIntro] + _backupSteps + userWalletSavingSteps + [.success])
+            steps.append(contentsOf: [.createWalletSelector, .seedPhraseIntro, .seedPhraseGenerate] + _backupSteps + userWalletSavingSteps + [.success])
         } else {
             if !AppSettings.shared.cardsStartedActivation.contains(card.cardId) {
                 steps.append(contentsOf: userWalletSavingSteps)
