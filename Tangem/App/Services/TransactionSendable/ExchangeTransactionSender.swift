@@ -61,7 +61,13 @@ private extension ExchangeTransactionSender {
             status: .unconfirmed
         )
 
-        transaction.params = EthereumTransactionParams(data: info.txData, gasLimit: gasModel.gasLimit, nonce: nonce)
+        transaction.params = EthereumTransactionParams(
+            data: info.txData,
+            gasLimit: gasModel.gasLimit,
+            gasPrice: gasModel.gasPrice,
+            nonce: nonce
+        )
+
         return transaction
     }
 
