@@ -53,7 +53,7 @@ struct GroupedNumberTextField: View {
 
     private func updateValues(with newValue: String) {
         // Remove space separators for formatter correct work
-        var numberString = newValue.replacingOccurrences(of: groupingSeparator, with: "")
+        var numberString = newValue // .replacingOccurrences(of: groupingSeparator, with: "")
 
         // If user start enter number with `decimalSeparator` add zero before it
         if numberString == String(decimalSeparator) {
@@ -82,7 +82,8 @@ struct GroupedNumberTextField: View {
 
         if var value = groupedNumberFormatter.mapToDecimal(string: numberString) {
             value.round(
-                scale: groupedNumberFormatter.maximumFractionDigits, roundingMode: groupedNumberFormatter.roundingMode
+                scale: groupedNumberFormatter.maximumFractionDigits,
+                roundingMode: groupedNumberFormatter.roundingMode
             )
             decimalValue = .internal(value)
         } else if numberString.isEmpty {
