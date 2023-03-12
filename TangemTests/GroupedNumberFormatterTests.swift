@@ -29,7 +29,7 @@ class GroupedNumberFormatterTests: XCTestCase {
         XCTAssertEqual(numberFormatter.groupingSeparator, unbreakableSpace)
 
         data.forEach { input, expected in
-            let result = formatter.format(input)
+            let result = formatter.format(value: input)
             XCTAssertEqual(result, expected)
         }
     }
@@ -49,7 +49,7 @@ class GroupedNumberFormatterTests: XCTestCase {
         ]
 
         data.forEach { input, expected in
-            let result = formatter.format(input)
+            let result = formatter.format(value: input)
             XCTAssertEqual(result, expected)
         }
     }
@@ -109,8 +109,11 @@ class GroupedNumberFormatterTests: XCTestCase {
                 maximumFractionDigits: testCase.digits
             )
 
-            let decimalToString = formatter.format(testCase.decimal)
+            let decimalToString = formatter.format(value: testCase.decimal)
             XCTAssertEqual(decimalToString, testCase.string)
+
+            let stringToString = formatter.format(value: testCase.string)
+            XCTAssertEqual(stringToString, testCase.string)
         }
     }
 }
