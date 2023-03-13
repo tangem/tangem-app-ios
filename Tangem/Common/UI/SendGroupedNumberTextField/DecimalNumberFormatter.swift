@@ -1,5 +1,5 @@
 //
-//  GroupedNumberFormatter.swift
+//  DecimalNumberFormatter.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -8,13 +8,7 @@
 
 import Foundation
 
-// Format
-// 1. String to String for text field
-//  1.1 Int decimal
-//  1.1
-// 2. String to Decimal for send value
-// 3. Decimal to String for external update
-struct GroupedNumberFormatter {
+struct DecimalNumberFormatter {
     public let roundingMode: NSDecimalNumber.RoundingMode
     public var maximumFractionDigits: Int { numberFormatter.maximumFractionDigits }
     public var decimalSeparator: Character { Character(numberFormatter.decimalSeparator) }
@@ -71,16 +65,19 @@ struct GroupedNumberFormatter {
     // MARK: - Mapping
 
     public func mapToString(decimal: Decimal) -> String {
-        var stringNumber = (decimal as NSDecimalNumber).stringValue
+        let stringNumber = (decimal as NSDecimalNumber).stringValue
         return stringNumber.replacingOccurrences(of: ".", with: String(decimalSeparator))
     }
 
     public func mapToDecimal(string: String) -> Decimal? {
-        var formattedValue = string
+        if string.isEmpty {
+            return nil
+        }
 
         // Convert formatted string to correct decimal number
-        formattedValue = formattedValue.replacingOccurrences(of: String(groupingSeparator), with: "")
-        formattedValue = formattedValue.replacingOccurrences(of: String(decimalSeparator), with: ".")
+        let formattedValue = string
+            .replacingOccurrences(of: String(groupingSeparator), with: "")
+            .replacingOccurrences(of: String(decimalSeparator), with: ".")
 
         // We can't use here the NumberFormatter because it work with the NSNumber
         // And NSNumber is working wrong with ten zeros and one after decimalSeparator
@@ -97,7 +94,7 @@ struct GroupedNumberFormatter {
 
 // MARK: - Private
 
-private extension GroupedNumberFormatter {
+private extension DecimalNumberFormatter {
     func formatIntegerAndFractionSeparately(string: String) -> String {
         guard let commaIndex = string.firstIndex(of: decimalSeparator) else {
             return string
