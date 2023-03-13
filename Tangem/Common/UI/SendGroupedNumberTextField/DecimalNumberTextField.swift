@@ -1,5 +1,5 @@
 //
-//  GroupedNumberTextField.swift
+//  DecimalNumberTextField.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -8,26 +8,26 @@
 
 import SwiftUI
 
-struct GroupedNumberTextField: View {
+struct DecimalNumberTextField: View {
     @Binding private var decimalValue: DecimalValue?
     @State private var textFieldText: String = ""
 
     private let placeholder: String = "0"
-    private var groupedNumberFormatter: GroupedNumberFormatter
-    private var decimalSeparator: Character { groupedNumberFormatter.decimalSeparator }
-    private var groupingSeparator: Character { groupedNumberFormatter.groupingSeparator }
+    private var decimalNumberFormatter: DecimalNumberFormatter
+    private var decimalSeparator: Character { decimalNumberFormatter.decimalSeparator }
+    private var groupingSeparator: Character { decimalNumberFormatter.groupingSeparator }
 
     init(
         decimalValue: Binding<DecimalValue?>,
-        groupedNumberFormatter: GroupedNumberFormatter
+        decimalNumberFormatter: DecimalNumberFormatter
     ) {
         _decimalValue = decimalValue
-        self.groupedNumberFormatter = groupedNumberFormatter
+        self.decimalNumberFormatter = decimalNumberFormatter
     }
 
     private var textFieldProxyBinding: Binding<String> {
         Binding<String>(
-            get: { groupedNumberFormatter.format(value: textFieldText) },
+            get: { decimalNumberFormatter.format(value: textFieldText) },
             set: { updateValues(with: $0) }
         )
     }
@@ -45,7 +45,7 @@ struct GroupedNumberTextField: View {
                 case .external(let value):
                     // If the decimalValue did updated from external place
                     // We have to update the private values
-                    let formattedNewValue = groupedNumberFormatter.format(value: value)
+                    let formattedNewValue = decimalNumberFormatter.format(value: value)
                     updateValues(with: formattedNewValue)
                 }
             }
@@ -78,12 +78,12 @@ struct GroupedNumberTextField: View {
         textFieldText = numberString
 
         // Format string to reduce digits
-//        var formattedValue = groupedNumberFormatter.format(value: numberString)
+//        var formattedValue = decimalNumberFormatter.format(value: numberString)
 
-        if var value = groupedNumberFormatter.mapToDecimal(string: numberString) {
+        if var value = decimalNumberFormatter.mapToDecimal(string: numberString) {
             value.round(
-                scale: groupedNumberFormatter.maximumFractionDigits,
-                roundingMode: groupedNumberFormatter.roundingMode
+                scale: decimalNumberFormatter.maximumFractionDigits,
+                roundingMode: decimalNumberFormatter.roundingMode
             )
             decimalValue = .internal(value)
         } else if numberString.isEmpty {
@@ -94,24 +94,24 @@ struct GroupedNumberTextField: View {
 
 // MARK: - Setupable
 
-extension GroupedNumberTextField: Setupable {
+extension DecimalNumberTextField: Setupable {
     func maximumFractionDigits(_ digits: Int) -> Self {
-        map { $0.groupedNumberFormatter.update(maximumFractionDigits: digits) }
+        map { $0.decimalNumberFormatter.update(maximumFractionDigits: digits) }
     }
 }
 
-struct GroupedNumberTextField_Previews: PreviewProvider {
-    @State private static var decimalValue: GroupedNumberTextField.DecimalValue?
+struct DecimalNumberTextField_Previews: PreviewProvider {
+    @State private static var decimalValue: DecimalNumberTextField.DecimalValue?
 
     static var previews: some View {
-        GroupedNumberTextField(
+        DecimalNumberTextField(
             decimalValue: $decimalValue,
-            groupedNumberFormatter: GroupedNumberFormatter(maximumFractionDigits: 8)
+            decimalNumberFormatter: DecimalNumberFormatter(maximumFractionDigits: 8)
         )
     }
 }
 
-extension GroupedNumberTextField {
+extension DecimalNumberTextField {
     enum DecimalValue: Hashable {
         case `internal`(Decimal)
         case external(Decimal)
