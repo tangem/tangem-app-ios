@@ -43,8 +43,6 @@ target 'Tangem' do
   pod 'WalletConnectSwiftV2', :git => 'https://github.com/WalletConnect/WalletConnectSwiftV2', :tag => '1.1.0'
   pod 'Kingfisher', :git => 'https://github.com/onevcat/Kingfisher.git', :branch => 'version6-xcode13'
   pod 'Mobile-Buy-SDK' # Shopify
-  
-  pod 'SwiftProtobuf'
 
   # Helpers
   pod 'DeviceGuru', '8.0.0'
