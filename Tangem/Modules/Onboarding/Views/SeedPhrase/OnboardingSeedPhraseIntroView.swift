@@ -9,9 +9,9 @@
 import SwiftUI
 
 struct OnboardingSeedPhraseIntroView: View {
-    var readMoreAction: () -> Void
-    var generateSeedAction: () -> Void
-    var importWalletAction: () -> Void
+    let readMoreAction: () -> Void
+    let generateSeedAction: () -> Void
+    let importWalletAction: () -> Void
 
     var body: some View {
         VStack(spacing: 0) {
@@ -24,10 +24,10 @@ struct OnboardingSeedPhraseIntroView: View {
                     Fonts.Bold.caption2,
                     color: Colors.Icon.warning
                 )
-                .padding(.vertical, 5.5)
+                .padding(.vertical, 6)
                 .padding(.horizontal, 10)
                 .background(Colors.Icon.warning.opacity(0.12))
-                .cornerRadius(8)
+                .cornerRadiusContinuous(8)
                 .padding(.top, 28)
 
             Text(Localization.onboardingSeedIntroTitle)
@@ -44,7 +44,7 @@ struct OnboardingSeedPhraseIntroView: View {
                 )
                 .multilineTextAlignment(.center)
                 .lineSpacing(5)
-                .padding(.horizontal, 43.5)
+                .padding(.horizontal, 44)
                 .padding(.top, 14)
 
             Button(action: readMoreAction) {
