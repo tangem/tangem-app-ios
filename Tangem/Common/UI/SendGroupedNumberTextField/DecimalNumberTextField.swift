@@ -52,8 +52,7 @@ struct DecimalNumberTextField: View {
     }
 
     private func updateValues(with newValue: String) {
-        // Remove space separators for formatter correct work
-        var numberString = newValue // .replacingOccurrences(of: groupingSeparator, with: "")
+        var numberString = newValue
 
         // If user start enter number with `decimalSeparator` add zero before it
         if numberString == String(decimalSeparator) {
@@ -65,26 +64,18 @@ struct DecimalNumberTextField: View {
             numberString.insert(decimalSeparator, at: numberString.index(before: numberString.endIndex))
         }
 
-        // Continue if the field is empty. The field supports only decimal values
-        guard numberString.isEmpty || Decimal(string: numberString) != nil else { return }
-
         // If text already have `decimalSeparator` remove last one
         if numberString.last == decimalSeparator,
            numberString.prefix(numberString.count - 1).contains(decimalSeparator) {
             numberString.removeLast()
         }
 
+        numberString = decimalNumberFormatter.format(value: numberString)
+
         // Update private `@State` for display not correct number, like 0,000
         textFieldText = numberString
 
-        // Format string to reduce digits
-//        var formattedValue = decimalNumberFormatter.format(value: numberString)
-
-        if var value = decimalNumberFormatter.mapToDecimal(string: numberString) {
-            value.round(
-                scale: decimalNumberFormatter.maximumFractionDigits,
-                roundingMode: decimalNumberFormatter.roundingMode
-            )
+        if let value = decimalNumberFormatter.mapToDecimal(string: numberString) {
             decimalValue = .internal(value)
         } else if numberString.isEmpty {
             decimalValue = nil
