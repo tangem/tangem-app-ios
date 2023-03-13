@@ -43,7 +43,7 @@ extension CommonKeysManager: KeysManager {
             nowNodesApiKey: keys.nowNodesApiKey,
             getBlockApiKey: keys.getBlockApiKey,
             tronGridApiKey: keys.tronGridApiKey,
-            tonCenterApiKey: keys.toncenterApiKey.mainnet,
+            tonCenterApiKeys: .init(mainnetApiKey: keys.tonCenterApiKey.mainnet, testnetApiKey: keys.tonCenterApiKey.testnet),
             // [REDACTED_TODO_COMMENT]
             quickNodeSolanaCredentials: .init(apiKey: keys.quiknodeApiKey, subdomain: keys.quiknodeSubdomain),
             quickNodeBscCredentials: .init(apiKey: keys.bscQuiknodeApiKey, subdomain: keys.bscQuiknodeSubdomain),
@@ -89,7 +89,7 @@ extension CommonKeysManager {
         let infuraProjectId: String
         let nowNodesApiKey: String
         let getBlockApiKey: String
-        let toncenterApiKey: TonCenterApiKeys
+        let tonCenterApiKey: TonCenterApiKeys
         let appsFlyer: AppsFlyerConfig
         let amplitudeApiKey: String
         let tronGridApiKey: String
