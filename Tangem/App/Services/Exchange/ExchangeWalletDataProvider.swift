@@ -64,7 +64,7 @@ extension ExchangeWalletDataProvider: WalletDataProvider {
         ).async()
 
         // We are increasing the gas limit by 25% to be more confident that the transaction will be provider
-        
+
         return try await EthereumGasDataModel(
             blockchain: blockchain,
             gasPrice: Int(price),
