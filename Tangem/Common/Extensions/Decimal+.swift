@@ -25,7 +25,7 @@ extension Decimal {
     }
 
     func groupedFormatted(maximumFractionDigits: Int = AppConstants.maximumFractionDigitsForBalance) -> String {
-        let formatter = GroupedNumberFormatter(maximumFractionDigits: maximumFractionDigits)
+        let formatter = DecimalNumberFormatter(maximumFractionDigits: maximumFractionDigits)
         return formatter.format(value: self)
     }
 
