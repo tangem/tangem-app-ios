@@ -11,6 +11,7 @@
 		1090A8C136FD28AB1487A219 /* Pods_TangemExchange.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B672E94D2EF15619E2ACACCF /* Pods_TangemExchange.framework */; };
 		2D805ECA29ADE17100C030F7 /* ExchangeButtonStateType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D805EC929ADE17100C030F7 /* ExchangeButtonStateType.swift */; };
 		2DB43917296EBC6000CBBB1E /* AppsFlyerConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DB43916296EBC6000CBBB1E /* AppsFlyerConfig.swift */; };
+		2DC5DAAD29B782420039154A /* TonCenterApiKeys.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DC5DAAC29B782420039154A /* TonCenterApiKeys.swift */; };
 		4E9F52BB7AF0EBD7A190B919 /* Pods_Tangem.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1C666EA8F52ED921E4ABB020 /* Pods_Tangem.framework */; };
 		5D00FCC72617387E004626DE /* PersonalSignHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D00FCC62617387E004626DE /* PersonalSignHandler.swift */; };
 		5D00FCCC2617389E004626DE /* SignTransactionHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D00FCCB2617389E004626DE /* SignTransactionHandler.swift */; };
@@ -867,6 +868,7 @@
 		277C71B674F87AA333691137 /* Pods-TangemTests.release(production).xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TangemTests.release(production).xcconfig"; path = "Target Support Files/Pods-TangemTests/Pods-TangemTests.release(production).xcconfig"; sourceTree = "<group>"; };
 		2D805EC929ADE17100C030F7 /* ExchangeButtonStateType.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ExchangeButtonStateType.swift; sourceTree = "<group>"; };
 		2DB43916296EBC6000CBBB1E /* AppsFlyerConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppsFlyerConfig.swift; sourceTree = "<group>"; };
+		2DC5DAAC29B782420039154A /* TonCenterApiKeys.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TonCenterApiKeys.swift; sourceTree = "<group>"; };
 		2E6E9460A556E9A5EFC9E460 /* Pods-Tangem.release(alpha).xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Tangem.release(alpha).xcconfig"; path = "Target Support Files/Pods-Tangem/Pods-Tangem.release(alpha).xcconfig"; sourceTree = "<group>"; };
 		337086E709DA346114BFA173 /* Pods-TangemTests.debug(production).xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TangemTests.debug(production).xcconfig"; path = "Target Support Files/Pods-TangemTests/Pods-TangemTests.debug(production).xcconfig"; sourceTree = "<group>"; };
 		435995845DEFB05BC357CABF /* Pods-TangemExchangeTests.release(alpha).xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TangemExchangeTests.release(alpha).xcconfig"; path = "Target Support Files/Pods-TangemExchangeTests/Pods-TangemExchangeTests.release(alpha).xcconfig"; sourceTree = "<group>"; };
@@ -3181,6 +3183,7 @@
 		DC0A5804282501110031BECC /* KeysManager */ = {
 			isa = PBXGroup;
 			children = (
+				2DC5DAAC29B782420039154A /* TonCenterApiKeys.swift */,
 				DC0A5805282501530031BECC /* KeysManager.swift */,
 				2DB43916296EBC6000CBBB1E /* AppsFlyerConfig.swift */,
 				B0E1D174257DE75D00A3AB98 /* CommonKeysManager.swift */,
@@ -5228,6 +5231,7 @@
 				EF4BEF8128AB953E00C5D1BE /* CommonUserTokenListManager.swift in Sources */,
 				EFA9855329477DD300D1FCB3 /* ExchangeTransactionSender.swift in Sources */,
 				5DF612A024E6D6C8001BF301 /* PendingTxView.swift in Sources */,
+				2DC5DAAD29B782420039154A /* TonCenterApiKeys.swift in Sources */,
 				65C9FCB12864507600FDE63E /* MainViewModel.swift in Sources */,
 				B0C8A0D42562C86A00DEEAC7 /* View+PreviewDevice.swift in Sources */,
 				DC66BBFC285A389000CDF765 /* PopoverModifier.swift in Sources */,
