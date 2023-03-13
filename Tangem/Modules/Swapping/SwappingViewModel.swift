@@ -135,7 +135,7 @@ final class SwappingViewModel: ObservableObject {
 
         // If amount have been set we'll should to round and update it with new decimalCount
         if let amount = sendDecimalValue?.value {
-            let roundedAmount = amount.rounded(scale: items.source.decimalCount, roundingMode: .plain)
+            let roundedAmount = amount.rounded(scale: items.source.decimalCount, roundingMode: .down)
             setupExternalSendValue(roundedAmount)
 
             exchangeManager.update(amount: roundedAmount)

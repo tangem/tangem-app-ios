@@ -49,10 +49,11 @@ struct DecimalNumberFormatter {
 
         // Round to maximumFractionDigits
         decimal.round(scale: maximumFractionDigits, roundingMode: roundingMode)
+        let reducedValue = mapToString(decimal: decimal)
 
         // If string contains decimalSeparator will format it separately
-        if value.contains(decimalSeparator) {
-            return formatIntegerAndFractionSeparately(string: value)
+        if reducedValue.contains(decimalSeparator) {
+            return formatIntegerAndFractionSeparately(string: reducedValue)
         }
 
         return formatInteger(decimal: decimal)
@@ -103,9 +104,10 @@ private extension DecimalNumberFormatter {
         let beforeComma = String(string[string.startIndex ..< commaIndex])
         var afterComma = string[commaIndex ..< string.endIndex]
 
-        // Check to maximumFractionDigits and reduce it if needed
+        // Check to maximumFractionDigits
         let maximumWithComma = maximumFractionDigits + 1
         if afterComma.count > maximumWithComma {
+            assertionFailure("It had to be rounded")
             let lastAcceptableIndex = afterComma.index(afterComma.startIndex, offsetBy: maximumFractionDigits)
             afterComma = afterComma[afterComma.startIndex ... lastAcceptableIndex]
         }
