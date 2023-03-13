@@ -1,5 +1,5 @@
 //
-//  GroupedNumberFormatter.swift
+//  DecimalNumberFormatter.swift
 //  TangemTests
 //
 //  Created by [REDACTED_AUTHOR]
@@ -9,13 +9,12 @@
 import XCTest
 @testable import Tangem
 
-class GroupedNumberFormatterTests: XCTestCase {
+class DecimalNumberFormatterTests: XCTestCase {
     func testFormatterWithRussianLocale() {
         let numberFormatter = NumberFormatter()
         numberFormatter.locale = Locale(identifier: "ru_RU")
 
-        let formatter = GroupedNumberFormatter(numberFormatter: numberFormatter, maximumFractionDigits: 8)
-
+        let formatter = DecimalNumberFormatter(numberFormatter: numberFormatter, maximumFractionDigits: 8)
         let unbreakableSpace = "\u{00a0}"
 
         let data = [
@@ -38,7 +37,7 @@ class GroupedNumberFormatterTests: XCTestCase {
         let numberFormatter = NumberFormatter()
         numberFormatter.locale = Locale(identifier: "en_US")
 
-        let formatter = GroupedNumberFormatter(numberFormatter: numberFormatter, maximumFractionDigits: 8)
+        let formatter = DecimalNumberFormatter(numberFormatter: numberFormatter, maximumFractionDigits: 8)
 
         let data = [
             (input: "0.000", expected: "0.000"),
@@ -78,6 +77,13 @@ class GroupedNumberFormatterTests: XCTestCase {
                 string: "1 000.123456789012345678"
             ),
             TestCase(
+                groupingSeparator: ".",
+                decimalSeparator: ",",
+                digits: 18,
+                decimal: "1000.123456789012345678",
+                string: "1.000,123456789012345678"
+            ),
+            TestCase(
                 groupingSeparator: " ",
                 decimalSeparator: ",",
                 digits: 8,
@@ -98,13 +104,20 @@ class GroupedNumberFormatterTests: XCTestCase {
                 decimal: "1000.123456789012345678",
                 string: "1 000.12345678"
             ),
+            TestCase(
+                groupingSeparator: ".",
+                decimalSeparator: ",",
+                digits: 8,
+                decimal: "1000.123456789012345678",
+                string: "1.000,12345678"
+            ),
         ]
 
         cases.forEach { testCase in
             let numberFormatter = NumberFormatter()
             numberFormatter.groupingSeparator = testCase.groupingSeparator
             numberFormatter.decimalSeparator = testCase.decimalSeparator
-            let formatter = GroupedNumberFormatter(
+            let formatter = DecimalNumberFormatter(
                 numberFormatter: numberFormatter,
                 maximumFractionDigits: testCase.digits
             )
@@ -118,7 +131,7 @@ class GroupedNumberFormatterTests: XCTestCase {
     }
 }
 
-extension GroupedNumberFormatterTests {
+extension DecimalNumberFormatterTests {
     struct TestCase {
         let groupingSeparator: String
         let decimalSeparator: String
