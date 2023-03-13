@@ -18,7 +18,7 @@ final class SwappingViewModel: ObservableObject {
     @Published var receiveCurrencyViewModel: ReceiveCurrencyViewModel?
     @Published var swapButtonIsLoading: Bool = false
 
-    @Published var sendDecimalValue: GroupedNumberTextField.DecimalValue?
+    @Published var sendDecimalValue: DecimalNumberTextField.DecimalValue?
     @Published var refreshWarningRowViewModel: DefaultWarningRowViewModel?
     @Published var highPriceImpactWarningRowViewModel: DefaultWarningRowViewModel?
     @Published var permissionInfoRowViewModel: DefaultWarningRowViewModel?
