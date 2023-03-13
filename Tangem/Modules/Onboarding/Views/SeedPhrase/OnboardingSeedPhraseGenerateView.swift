@@ -31,13 +31,13 @@ struct OnboardingSeedPhraseGenerateView: View {
                 .padding(.horizontal, 54)
                 .padding(.top, 14)
 
-            HStack(alignment: .top, spacing: 24) {
+            HStack(alignment: .top, spacing: 8) {
                 wordsVerticalView(indexRange: 0 ..< (words.count / 2))
 
                 wordsVerticalView(indexRange: (words.count / 2) ..< words.count)
             }
             .padding(.top, 42)
-            .padding(.horizontal, 54)
+            .padding(.horizontal, 44)
 
             Spacer()
 
