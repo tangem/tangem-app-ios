@@ -14,7 +14,7 @@ public struct EthereumGasDataModel {
     public let gasLimit: Int
     public let fee: Decimal
 
-    public init(blockchain: ExchangeBlockchain, gasPrice: Int, gasLimit: Int, fee: Decimal = 0) {
+    public init(blockchain: ExchangeBlockchain, gasPrice: Int, gasLimit: Int, fee: Decimal) {
         self.blockchain = blockchain
         self.gasPrice = gasPrice
         self.gasLimit = gasLimit
