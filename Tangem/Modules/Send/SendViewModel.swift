@@ -22,7 +22,7 @@ class SendViewModel: ObservableObject {
     // MARK: Input
 
     @Published var validatedClipboard: String? = nil
-    @Published var destination: String = "0x90E4D59c8583E37426b37d1D7394B6008A987c67"
+    @Published var destination: String = ""
     @Published var amountText: String = "0"
 
     @Published var isFiatCalculation: Bool = false
