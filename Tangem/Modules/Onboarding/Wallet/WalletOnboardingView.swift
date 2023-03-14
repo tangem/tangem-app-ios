@@ -77,6 +77,12 @@ struct WalletOnboardingView: View {
                 title: viewModel.currentStep.title!,
                 subtitle: viewModel.currentStep.subtitle!
             )
+        case .seedPhraseIntro:
+            OnboardingSeedPhraseIntroView(
+                readMoreAction: viewModel.openReadMoreAboutSeedPhraseScreen,
+                generateSeedAction: viewModel.mainButtonAction,
+                importWalletAction: viewModel.supplementButtonAction
+            )
         default:
             EmptyView()
         }
@@ -255,9 +261,18 @@ struct WalletOnboardingView: View {
 }
 
 struct WalletOnboardingView_Previews: PreviewProvider {
+    static var previewWalletOnboardingInput: OnboardingInput {
+        .init(
+            steps: .wallet([.createWalletSelector, .seedPhraseIntro, .backupIntro, .selectBackupCards, .backupCards, .success]),
+            cardInput: .cardModel(PreviewCard.tangemWalletEmpty.cardModel),
+            twinData: nil,
+            currentStepIndex: 0
+        )
+    }
+
     static var previews: some View {
         NavigationView {
-            WalletOnboardingView(viewModel: .init(input: PreviewData.previewWalletOnboardingInput, coordinator: OnboardingCoordinator()))
+            WalletOnboardingView(viewModel: .init(input: previewWalletOnboardingInput, coordinator: OnboardingCoordinator()))
         }
     }
 }
