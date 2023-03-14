@@ -63,7 +63,13 @@ extension ExchangeWalletDataProvider: WalletDataProvider {
             data: "0x\(data.hexString)"
         ).async()
 
-        return try await EthereumGasDataModel(blockchain: blockchain, gasPrice: Int(price), gasLimit: Int(limit))
+        // We are increasing the gas limit by 25% to be more confident that the transaction will be provider
+
+        return try await EthereumGasDataModel(
+            blockchain: blockchain,
+            gasPrice: Int(price),
+            gasLimit: Int(limit * 125 / 100)
+        )
     }
 
     func getBalance(for currency: Currency) async throws -> Decimal {
