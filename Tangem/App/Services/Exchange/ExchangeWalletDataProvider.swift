@@ -212,12 +212,12 @@ private extension ExchangeWalletDataProvider {
         // We are increasing the gas limit by 25% to be more confident that the transaction will be provider
         let gasLimit = try await Int(limit * 125 / 100)
         let gasPrice = try await Int(price)
-        
+
         return try await EthereumGasDataModel(
             blockchain: blockchain,
             gasPrice: Int(price),
             gasLimit: Int(limit),
-            fee: blockchain.convertFromWEI(value: Decimal(gasLimi * gasPrice))
+            fee: blockchain.convertFromWEI(value: Decimal(gasLimit * gasPrice))
         )
     }
 }
