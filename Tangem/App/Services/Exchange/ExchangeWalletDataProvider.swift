@@ -68,7 +68,8 @@ extension ExchangeWalletDataProvider: WalletDataProvider {
                 destinationAddress: destinationAddress,
                 hexData: hexData,
                 blockchain: blockchain,
-                value: value
+                value: value,
+                increasedPolicy: .none
             )
 
             return try await EthereumGasDataModel(
@@ -84,7 +85,8 @@ extension ExchangeWalletDataProvider: WalletDataProvider {
                 destinationAddress: destinationAddress,
                 hexData: hexData,
                 blockchain: blockchain,
-                value: value
+                value: value,
+                increasedPolicy: .low
             )
         }
     }
@@ -179,7 +181,8 @@ private extension ExchangeWalletDataProvider {
         destinationAddress: String,
         hexData: String,
         blockchain: ExchangeBlockchain,
-        value: Decimal
+        value: Decimal,
+        increasedPolicy: IncreaseGasLimitPolicy
     ) async throws -> EthereumGasDataModel {
         let amount = createAmount(from: blockchain, amount: value)
 
@@ -191,7 +194,8 @@ private extension ExchangeWalletDataProvider {
             data: hexData
         ).async()
 
-        let fee = try await Int(limit) * Int(price)
+        let gasLimit = try await increasedPolicy.increased(value: Int(limit))
+        let fee = try await gasLimit * Int(price)
 
         return try await EthereumGasDataModel(
             blockchain: blockchain,
@@ -210,7 +214,7 @@ private extension ExchangeWalletDataProvider {
         async let limit = optimismGasLoader.getLayer1GasLimit(data: hexData).async()
 
         // We are increasing the gas limit by 25% to be more confident that the transaction will be provider
-        let gasLimit = try await Int(limit * 125 / 100)
+        let gasLimit = try await Int(limit)
         let gasPrice = try await Int(price)
 
         return try await EthereumGasDataModel(
@@ -219,5 +223,21 @@ private extension ExchangeWalletDataProvider {
             gasLimit: Int(limit),
             fee: blockchain.convertFromWEI(value: Decimal(gasLimit * gasPrice))
         )
+    }
+}
+
+extension ExchangeWalletDataProvider {
+    enum IncreaseGasLimitPolicy {
+        case none
+        case low
+
+        func increased(value: Int) -> Int {
+            switch self {
+            case .none:
+                return value
+            case .low:
+                return value * 125 / 100
+            }
+        }
     }
 }
