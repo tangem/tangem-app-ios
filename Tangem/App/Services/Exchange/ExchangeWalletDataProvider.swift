@@ -13,6 +13,7 @@ import TangemExchange
 class ExchangeWalletDataProvider {
     private let wallet: Wallet
     private let ethereumGasLoader: EthereumGasLoader
+    private let optimismGasLoader: OptimismGasLoader?
     private let ethereumNetworkProvider: EthereumNetworkProvider
     private let currencyMapper: CurrencyMapping
 
@@ -22,11 +23,13 @@ class ExchangeWalletDataProvider {
     init(
         wallet: Wallet,
         ethereumGasLoader: EthereumGasLoader,
+        optimismGasLoader: OptimismGasLoader?,
         ethereumNetworkProvider: EthereumNetworkProvider,
         currencyMapper: CurrencyMapping
     ) {
         self.wallet = wallet
         self.ethereumGasLoader = ethereumGasLoader
+        self.optimismGasLoader = optimismGasLoader
         self.ethereumNetworkProvider = ethereumNetworkProvider
         self.currencyMapper = currencyMapper
 
@@ -55,21 +58,35 @@ extension ExchangeWalletDataProvider: WalletDataProvider {
         blockchain: ExchangeBlockchain,
         value: Decimal
     ) async throws -> EthereumGasDataModel {
-        async let price = ethereumGasLoader.getGasPrice().async()
-        async let limit = ethereumGasLoader.getGasLimit(
-            to: destinationAddress,
-            from: sourceAddress,
-            value: createAmount(from: blockchain, amount: value).encodedForSend,
-            data: "0x\(data.hexString)"
-        ).async()
+        let hexData = data.hexString.addHexPrefix()
 
-        // We are increasing the gas limit by 25% to be more confident that the transaction will be provider
+        switch blockchain {
+        case .optimism:
+            async let l1GasModel = getOptimismGasModel(hexData: hexData, blockchain: blockchain)
+            async let l2GasModel = getEtheriumGasModel(
+                sourceAddress: sourceAddress,
+                destinationAddress: destinationAddress,
+                hexData: hexData,
+                blockchain: blockchain,
+                value: value
+            )
 
-        return try await EthereumGasDataModel(
-            blockchain: blockchain,
-            gasPrice: Int(price),
-            gasLimit: Int(limit * 125 / 100)
-        )
+            return try await EthereumGasDataModel(
+                blockchain: blockchain,
+                gasPrice: l2GasModel.gasPrice,
+                gasLimit: l2GasModel.gasLimit,
+                fee: l2GasModel.fee + l1GasModel.fee
+            )
+
+        default:
+            return try await getEtheriumGasModel(
+                sourceAddress: sourceAddress,
+                destinationAddress: destinationAddress,
+                hexData: hexData,
+                blockchain: blockchain,
+                value: value
+            )
+        }
     }
 
     func getBalance(for currency: Currency) async throws -> Decimal {
@@ -155,5 +172,52 @@ private extension ExchangeWalletDataProvider {
 
         AppLog.shared.debug("WalletModel haven't balance for token \(token)")
         return 0
+    }
+
+    func getEtheriumGasModel(
+        sourceAddress: String,
+        destinationAddress: String,
+        hexData: String,
+        blockchain: ExchangeBlockchain,
+        value: Decimal
+    ) async throws -> EthereumGasDataModel {
+        let amount = createAmount(from: blockchain, amount: value)
+
+        async let price = ethereumGasLoader.getGasPrice().async()
+        async let limit = ethereumGasLoader.getGasLimit(
+            to: destinationAddress,
+            from: sourceAddress,
+            value: amount.encodedForSend,
+            data: hexData
+        ).async()
+
+        let fee = try await Int(limit) * Int(price)
+
+        return try await EthereumGasDataModel(
+            blockchain: blockchain,
+            gasPrice: Int(price),
+            gasLimit: Int(limit),
+            fee: blockchain.convertFromWEI(value: Decimal(fee))
+        )
+    }
+
+    func getOptimismGasModel(hexData: String, blockchain: ExchangeBlockchain) async throws -> EthereumGasDataModel {
+        guard let optimismGasLoader = optimismGasLoader else {
+            throw CommonError.noData
+        }
+
+        async let price = optimismGasLoader.getLayer1GasPrice().async()
+        async let limit = optimismGasLoader.getLayer1GasLimit(data: hexData).async()
+
+        // We are increasing the gas limit by 25% to be more confident that the transaction will be provider
+        let gasLimit = try await Int(limit * 125 / 100)
+        let gasPrice = try await Int(price)
+        
+        return try await EthereumGasDataModel(
+            blockchain: blockchain,
+            gasPrice: Int(price),
+            gasLimit: Int(limit),
+            fee: blockchain.convertFromWEI(value: Decimal(gasLimi * gasPrice))
+        )
     }
 }
