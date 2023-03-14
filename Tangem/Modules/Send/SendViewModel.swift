@@ -187,7 +187,6 @@ class SendViewModel: ObservableObject {
         canFiatCalculation = false
         sendAmount = amountToSend.value.description
         amountText = sendAmount
-        bind()
     }
 
     private func getDescription(for amount: Amount?) -> String {
