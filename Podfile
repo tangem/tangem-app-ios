@@ -11,11 +11,11 @@ def tangem_sdk_pod
 end
 
 def blockchain_sdk_pods
-  pod 'BlockchainSdk', :git => 'https://github.com/tangem/blockchain-sdk-swift.git', :tag => 'develop-223'
+  pod 'BlockchainSdk', :git => 'https://github.com/tangem/blockchain-sdk-swift.git', :tag => 'develop-225'
 #  pod 'BlockchainSdk', :path => '../blockchain-sdk-swift'
-
+  
   pod 'TangemWalletCore', :git => 'https://github.com/tangem/wallet-core-binaries-ios.git', :tag => '3.1.9-tangem1'
-  #  pod 'TangemWalletCore', :path => '../wallet-core-binaries-ios'
+#  pod 'TangemWalletCore', :path => '../wallet-core-binaries-ios'
 
   pod 'Solana.Swift', :git => 'https://github.com/tangem/Solana.Swift', :tag => 'add-external-signer-7'
   # pod 'Solana.Swift', :path => '../Solana.Swift'
