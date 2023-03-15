@@ -182,7 +182,7 @@ private extension ExchangeWalletDataProvider {
         hexData: String,
         blockchain: ExchangeBlockchain,
         value: Decimal,
-        increasedPolicy: IncreaseGasLimitPolicy
+        increasedPolicy: GasLimitPolicy
     ) async throws -> EthereumGasDataModel {
         let amount = createAmount(from: blockchain, amount: value)
 
@@ -194,7 +194,7 @@ private extension ExchangeWalletDataProvider {
             data: hexData
         ).async()
 
-        let gasLimit = try await increasedPolicy.increased(value: Int(limit))
+        let gasLimit = try await increasedPolicy.value(for: Int(limit))
         let fee = try await gasLimit * Int(price)
 
         return try await EthereumGasDataModel(
@@ -213,7 +213,6 @@ private extension ExchangeWalletDataProvider {
         async let price = optimismGasLoader.getLayer1GasPrice().async()
         async let limit = optimismGasLoader.getLayer1GasLimit(data: hexData).async()
 
-        // We are increasing the gas limit by 25% to be more confident that the transaction will be provider
         let gasLimit = try await Int(limit)
         let gasPrice = try await Int(price)
 
@@ -227,7 +226,7 @@ private extension ExchangeWalletDataProvider {
 }
 
 extension ExchangeWalletDataProvider {
-    enum IncreaseGasLimitPolicy {
+    enum GasLimitPolicy {
         case none
         case low
 
