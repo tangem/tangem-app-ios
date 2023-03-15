@@ -230,7 +230,7 @@ extension ExchangeWalletDataProvider {
         case none
         case low
 
-        func increased(value: Int) -> Int {
+        func value(for value: Int) -> Int {
             switch self {
             case .none:
                 return value
