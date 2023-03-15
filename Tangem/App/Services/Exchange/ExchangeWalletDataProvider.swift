@@ -69,7 +69,7 @@ extension ExchangeWalletDataProvider: WalletDataProvider {
                 hexData: hexData,
                 blockchain: blockchain,
                 value: value,
-                increasedPolicy: .none
+                increasedPolicy: .noRaise
             )
 
             return try await EthereumGasDataModel(
@@ -86,7 +86,7 @@ extension ExchangeWalletDataProvider: WalletDataProvider {
                 hexData: hexData,
                 blockchain: blockchain,
                 value: value,
-                increasedPolicy: .low
+                increasedPolicy: .mediumRaise
             )
         }
     }
@@ -227,15 +227,21 @@ private extension ExchangeWalletDataProvider {
 
 extension ExchangeWalletDataProvider {
     enum GasLimitPolicy {
-        case none
-        case low
+        case noRaise
+        case lowRaise
+        case mediumRaise
+        case highRaise
 
         func value(for value: Int) -> Int {
             switch self {
-            case .none:
+            case .noRaise:
                 return value
-            case .low:
+            case .lowRaise:
+                return value * 110 / 100
+            case .mediumRaise:
                 return value * 125 / 100
+            case .highRaise:
+                return value * 150 / 100
             }
         }
     }
