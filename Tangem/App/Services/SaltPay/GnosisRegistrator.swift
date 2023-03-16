@@ -81,7 +81,7 @@ class GnosisRegistrator {
                           let fee = fees.normalFee else {
                         throw CommonError.noData
                     }
-                    
+
                     let transactionParams = EthereumTransactionParams(
                         gasLimit: params.gasLimit,
                         gasPrice: params.gasPrice,
@@ -94,7 +94,7 @@ class GnosisRegistrator {
                         fee: fee,
                         destinationAddress: self.settings.otpProcessorContractAddress
                     )
-                    
+
                     transaction.params = transactionParams
 
                     return transaction
@@ -149,7 +149,7 @@ class GnosisRegistrator {
                           let fee = fees.normalFee else {
                         throw CommonError.noData
                     }
-                    
+
                     let transactionParams = EthereumTransactionParams(
                         gasLimit: params.gasLimit,
                         gasPrice: params.gasPrice,
@@ -187,7 +187,7 @@ class GnosisRegistrator {
                           let fee = fees.normalFee else {
                         throw CommonError.noData
                     }
-                    
+
                     let transactionParams = EthereumTransactionParams(
                         gasLimit: params.gasLimit,
                         gasPrice: params.gasPrice,
