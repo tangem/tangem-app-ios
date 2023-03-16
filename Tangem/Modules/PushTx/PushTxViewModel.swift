@@ -61,7 +61,7 @@ class PushTxViewModel: ObservableObject {
 
     @Published var amountToSend: Amount
     @Published var selectedFeeLevel: Int = 1
-    @Published var fees: [Amount] = []
+    @Published var feeDataModel: FeeDataModel?
     @Published var selectedFee: Amount? = nil
 
     @Published var additionalFee: String = ""
@@ -192,18 +192,20 @@ class PushTxViewModel: ObservableObject {
 
         $selectedFeeLevel
             .map { [unowned self] feeLevel -> Amount? in
-                guard self.fees.count > feeLevel else {
+                let fees = self.feeDataModel?.asArray ?? []
+                guard fees.count > feeLevel else {
                     return nil
                 }
 
-                let fee = self.fees[feeLevel]
+                let fee = fees[feeLevel]
                 return fee
             }
             .weakAssign(to: \.selectedFee, on: self)
             .store(in: &bag)
 
-        $fees
+        $feeDataModel
             .dropFirst()
+            .map { $0?.asArray ?? [] }
             .map { [unowned self] values -> Amount? in
                 guard values.count > self.selectedFeeLevel else { return nil }
 
@@ -286,8 +288,8 @@ class PushTxViewModel: ObservableObject {
                     AppLog.shared.debug("Failed to load fee error: \(error.localizedDescription)")
                     self?.amountHint = .init(isError: true, message: error.localizedDescription)
                 }
-            }, receiveValue: { [weak self] fees in
-                self?.fees = fees
+            }, receiveValue: { [weak self] feeDataModel in
+                self?.feeDataModel = feeDataModel
             })
             .store(in: &bag)
     }
