@@ -27,7 +27,7 @@ class SendViewModel: ObservableObject {
 
     @Published var isFiatCalculation: Bool = false
     @Published var isFeeIncluded: Bool = false
-    @Published var selectedFeeLevel: FeeLevel = .normal
+    @Published var selectedFeeLevel: Int = 1
     @Published var maxAmountTapped: Bool = false
     @Published var feeDataModel: FeeDataModel?
 
@@ -325,37 +325,24 @@ class SendViewModel: ObservableObject {
             .dropFirst()
             .compactMap { $0 }
             .combineLatest($validatedDestination.compactMap { $0 }, feeRetrySubject)
-            .flatMap { [unowned self] amount, dest, _ -> AnyPublisher<[Amount], Never> in
+            .tryMap { [unowned self] amount, dest, _ in
                 self.isFeeLoading = true
                 return self.walletModel
                     .getFee(amount: amount, destination: dest)
-                    .receive(on: DispatchQueue.main)
-                    .catch { [unowned self] error -> Just<[Amount]> in
-                        AppLog.shared.error(error)
-
-                        let errorText: String
-                        if let ethError = error as? ETHError,
-                           case .gasRequiredExceedsAllowance = ethError {
-                            errorText = ethError.localizedDescription
-                        } else {
-                            errorText = WalletError.failedToGetFee.localizedDescription
-                        }
-
-                        let ok = Alert.Button.default(Text(Localization.commonOk))
-                        let retry = Alert.Button.default(Text(Localization.commonRetry)) { [unowned self] in
-                            self.feeRetrySubject.send()
-                        }
-                        let alert = Alert(title: Text(errorText), primaryButton: retry, secondaryButton: ok)
-                        self.error = AlertBinder(alert: alert)
-
-                        return Just([Amount]())
-                    }
-                    .eraseToAnyPublisher()
             }
+            .switchToLatest()
             .receive(on: RunLoop.main)
             .sink(receiveCompletion: { [unowned self] completion in
                 self.isFeeLoading = false
-                self.feeDataModel = nil
+
+                switch completion {
+                case .failure(let error):
+                    self.feeDataModel = nil
+                    showLoadingFeeErrorAlert(error: error)
+                case .finished:
+                    break
+                }
+
             }, receiveValue: { [unowned self] feeDataModel in
                 self.isFeeLoading = false
                 self.feeDataModel = feeDataModel
@@ -420,12 +407,14 @@ class SendViewModel: ObservableObject {
                     self.selectedFee = fee
                 case .multiple(let low, let normal, let priority):
                     switch level {
-                    case .low:
+                    case 0:
                         self.selectedFee = low
-                    case .normal:
+                    case 1:
                         self.selectedFee = normal
-                    case .priority:
+                    case 2:
                         self.selectedFee = priority
+                    default:
+                        self.selectedFee = nil
                     }
                 @unknown default:
                     self.selectedFee = nil
@@ -659,12 +648,12 @@ class SendViewModel: ObservableObject {
                 break
             }
         }
-        
+
         if let ethParameters = feeDataModel?.additionalParameters as? EthereumFeeParameters {
             tx.params = EthereumTransactionParams(
                 gasLimit: ethParameters.gasLimit,
                 gasPrice: ethParameters.gasPrice
-            ) 
+            )
         }
 
         let appDelegate = UIApplication.shared.delegate as! AppDelegate
@@ -802,6 +791,25 @@ private extension SendViewModel {
 
         return formatted
     }
+
+    func showLoadingFeeErrorAlert(error: Error) {
+        AppLog.shared.error(error)
+
+        let errorText: String
+        if let ethError = error as? ETHError,
+           case .gasRequiredExceedsAllowance = ethError {
+            errorText = ethError.localizedDescription
+        } else {
+            errorText = WalletError.failedToGetFee.localizedDescription
+        }
+
+        let ok = Alert.Button.default(Text(Localization.commonOk))
+        let retry = Alert.Button.default(Text(Localization.commonRetry)) { [unowned self] in
+            self.feeRetrySubject.send()
+        }
+        let alert = Alert(title: Text(errorText), primaryButton: retry, secondaryButton: ok)
+        self.error = AlertBinder(alert: alert)
+    }
 }
 
 // MARK: - Navigation
@@ -842,13 +850,5 @@ extension SendViewModel {
 
             coordinator.openQRScanner(with: binding)
         }
-    }
-}
-
-extension SendViewModel {
-    enum FeeLevel: Int, Hashable {
-        case low
-        case normal
-        case priority
     }
 }
