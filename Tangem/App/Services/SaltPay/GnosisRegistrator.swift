@@ -77,13 +77,25 @@ class GnosisRegistrator {
 
             return transactionProcessor.getFee(to: settings.otpProcessorContractAddress, data: "0x\(setSpedLimitData.hexString)", amount: nil)
                 .tryMap { fees -> Transaction in
-                    let params = EthereumTransactionParams(data: setSpedLimitData, nonce: self.transactionProcessor.initialNonce)
+                    guard let params = fees.additionalParameters as? EthereumFeeParameters,
+                          let fee = fees.normalFee else {
+                        throw CommonError.noData
+                    }
+                    
+                    let transactionParams = EthereumTransactionParams(
+                        gasLimit: params.gasLimit,
+                        gasPrice: params.gasPrice,
+                        data: setSpedLimitData,
+                        nonce: self.transactionProcessor.initialNonce
+                    )
+
                     var transaction = try self.walletManager.createTransaction(
                         amount: Amount.zeroCoin(for: self.settings.blockchain),
-                        fee: fees[1],
+                        fee: fee,
                         destinationAddress: self.settings.otpProcessorContractAddress
                     )
-                    transaction.params = params
+                    
+                    transaction.params = transactionParams
 
                     return transaction
                 }
@@ -101,13 +113,23 @@ class GnosisRegistrator {
 
         return transactionProcessor.getFee(to: settings.otpProcessorContractAddress, data: "0x\(initOTPData.hexString)", amount: nil)
             .tryMap { fees -> Transaction in
-                let params = EthereumTransactionParams(data: initOTPData, nonce: self.transactionProcessor.initialNonce + 1)
+                guard let params = fees.additionalParameters as? EthereumFeeParameters,
+                      let fee = fees.normalFee else {
+                    throw CommonError.noData
+                }
+
+                let transactionParams = EthereumTransactionParams(
+                    gasLimit: params.gasLimit,
+                    gasPrice: params.gasPrice,
+                    data: initOTPData,
+                    nonce: self.transactionProcessor.initialNonce + 1
+                )
                 var transaction = try self.walletManager.createTransaction(
                     amount: Amount.zeroCoin(for: self.settings.blockchain),
-                    fee: fees[1],
+                    fee: fee,
                     destinationAddress: self.settings.otpProcessorContractAddress
                 )
-                transaction.params = params
+                transaction.params = transactionParams
 
                 return transaction
             }
@@ -123,13 +145,23 @@ class GnosisRegistrator {
 
             return transactionProcessor.getFee(to: settings.otpProcessorContractAddress, data: "0x\(setWalletData.hexString)", amount: nil)
                 .tryMap { fees -> Transaction in
-                    let params = EthereumTransactionParams(data: setWalletData, nonce: self.transactionProcessor.initialNonce + 2)
+                    guard let params = fees.additionalParameters as? EthereumFeeParameters,
+                          let fee = fees.normalFee else {
+                        throw CommonError.noData
+                    }
+                    
+                    let transactionParams = EthereumTransactionParams(
+                        gasLimit: params.gasLimit,
+                        gasPrice: params.gasPrice,
+                        data: setWalletData,
+                        nonce: self.transactionProcessor.initialNonce + 2
+                    )
                     var transaction = try self.walletManager.createTransaction(
                         amount: Amount.zeroCoin(for: self.settings.blockchain),
-                        fee: fees[1],
+                        fee: fee,
                         destinationAddress: self.settings.otpProcessorContractAddress
                     )
-                    transaction.params = params
+                    transaction.params = transactionParams
 
                     return transaction
                 }
@@ -151,13 +183,24 @@ class GnosisRegistrator {
 
             return transactionProcessor.getFee(to: settings.token.contractAddress, data: "0x\(approveData.hexString)", amount: nil)
                 .tryMap { fees -> Transaction in
-                    let params = EthereumTransactionParams(data: approveData, nonce: self.transactionProcessor.initialNonce + 3)
+                    guard let params = fees.additionalParameters as? EthereumFeeParameters,
+                          let fee = fees.normalFee else {
+                        throw CommonError.noData
+                    }
+                    
+                    let transactionParams = EthereumTransactionParams(
+                        gasLimit: params.gasLimit,
+                        gasPrice: params.gasPrice,
+                        data: approveData,
+                        nonce: self.transactionProcessor.initialNonce + 3
+                    )
+
                     var transaction = try self.walletManager.createTransaction(
                         amount: zeroApproveAmount,
-                        fee: fees[1],
+                        fee: fee,
                         destinationAddress: ""
                     )
-                    transaction.params = params
+                    transaction.params = transactionParams
 
                     return transaction
                 }
@@ -180,9 +223,11 @@ class GnosisRegistrator {
                     let gasLimit = 300000 // [REDACTED_TODO_COMMENT]
                     let feeValue = Decimal(gasLimit * Int(gasPrice)) / settings.blockchain.decimalValue
                     let fee = Amount(with: settings.blockchain, value: feeValue)
+
                     let params = EthereumTransactionParams(
+                        gasLimit: BigUInt(gasLimit),
+                        gasPrice: gasPrice,
                         data: approveData,
-                        gasLimit: gasLimit,
                         nonce: self.transactionProcessor.initialNonce
                     )
                     var transaction = try self.walletManager.createTransaction(
