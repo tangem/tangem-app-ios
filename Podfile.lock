@@ -178,7 +178,7 @@ PODS:
   - stellar-ios-mac-sdk (2.2.5)
   - SwiftCBOR (0.4.5)
   - SwiftDate (6.3.1)
-  - SwiftProtobuf (1.19.0)
+  - SwiftProtobuf (1.21.0)
   - SwiftyJSON (5.0.1)
   - TangemSdk (3.3.4)
   - TangemWalletCore (3.1.9-tangem1):
@@ -237,7 +237,7 @@ DEPENDENCIES:
   - AppsFlyerFramework
   - BinanceChain (from `https://github.com/tangem/swiftbinancechain.git`, tag `0.0.9`)
   - BitcoinCore.swift (from `https://github.com/tangem/bitcoincore.git`, tag `0.0.16`)
-  - BlockchainSdk (from `https://github.com/tangem/blockchain-sdk-swift.git`, branch `IOS-3185-Optimism-fee`)
+  - BlockchainSdk (from `https://github.com/tangem/blockchain-sdk-swift.git`, tag `develop-229`)
   - DeviceGuru (= 8.0.0)
   - Firebase/Analytics
   - Firebase/Crashlytics
@@ -247,7 +247,7 @@ DEPENDENCIES:
   - Moya
   - Solana.Swift (from `https://github.com/tangem/Solana.Swift`, tag `add-external-signer-7`)
   - TangemSdk (from `https://github.com/Tangem/tangem-sdk-ios.git`, tag `develop-200`)
-  - TangemWalletCore (from `https://github.com/tangem/wallet-core-binaries-ios.git`, tag `3.1.9-tangem1`)
+  - TangemWalletCore (from `https://github.com/tangem/wallet-core-binaries-ios.git`, tag `3.1.9-tangem2`)
   - WalletConnectSwift (from `https://github.com/WalletConnect/WalletConnectSwift`, tag `1.7.0`)
   - WalletConnectSwiftV2 (from `https://github.com/WalletConnect/WalletConnectSwiftV2`, tag `1.1.0`)
   - web3swift (from `https://github.com/tangem/web3swift.git`, tag `2.2.11`)
@@ -311,8 +311,8 @@ EXTERNAL SOURCES:
     :git: https://github.com/tangem/bitcoincore.git
     :tag: 0.0.16
   BlockchainSdk:
-    :branch: IOS-3185-Optimism-fee
     :git: https://github.com/tangem/blockchain-sdk-swift.git
+    :tag: develop-229
   HDWalletKit:
     :git: https://github.com/tangem/hdwallet.git
     :tag: 0.3.12
@@ -327,7 +327,7 @@ EXTERNAL SOURCES:
     :tag: develop-200
   TangemWalletCore:
     :git: https://github.com/tangem/wallet-core-binaries-ios.git
-    :tag: 3.1.9-tangem1
+    :tag: 3.1.9-tangem2
   WalletConnectSwift:
     :git: https://github.com/WalletConnect/WalletConnectSwift
     :tag: 1.7.0
@@ -349,8 +349,8 @@ CHECKOUT OPTIONS:
     :git: https://github.com/tangem/bitcoincore.git
     :tag: 0.0.16
   BlockchainSdk:
-    :commit: 23d0082fa6dbb6443c52c441c4a60ccac5e6bfec
     :git: https://github.com/tangem/blockchain-sdk-swift.git
+    :tag: develop-229
   HDWalletKit:
     :git: https://github.com/tangem/hdwallet.git
     :tag: 0.3.12
@@ -365,7 +365,7 @@ CHECKOUT OPTIONS:
     :tag: develop-200
   TangemWalletCore:
     :git: https://github.com/tangem/wallet-core-binaries-ios.git
-    :tag: 3.1.9-tangem1
+    :tag: 3.1.9-tangem2
   WalletConnectSwift:
     :git: https://github.com/WalletConnect/WalletConnectSwift
     :tag: 1.7.0
@@ -414,7 +414,7 @@ SPEC CHECKSUMS:
   stellar-ios-mac-sdk: a6199f37910fc6481d17f317c11ccd3fdac542a1
   SwiftCBOR: ac340b74d3b2cf1f8884bb748bd09875848e3873
   SwiftDate: 72d28954e8e1c6c1c0f917ccc8005e4f83c7d4b2
-  SwiftProtobuf: 6ef3f0e422ef90d6605ca20b21a94f6c1324d6b3
+  SwiftProtobuf: afced68785854575756db965e9da52bbf3dc45e7
   SwiftyJSON: 2f33a42c6fbc52764d96f13368585094bfd8aa5e
   TangemSdk: 9ea2c230bd616787bdccc5fb3ab36925d06199d4
   TangemWalletCore: 87a4637456e46c2aa3d49a6a1dc07a8054783183
@@ -433,6 +433,6 @@ SPEC CHECKSUMS:
   ZendeskSupportProvidersSDK: 77a62fe6bacc05bb10ff20edce75612fa109fd61
   ZendeskSupportSDK: ba72e90e327635b5fde3d023a3de33242a6ee8ab
 
-PODFILE CHECKSUM: fb13608ef1c44b26089d36a907d50f4941eeee07
+PODFILE CHECKSUM: 992fd5b62e3af73af7c21736531cccab0498ab62
 
 COCOAPODS: 1.11.3
