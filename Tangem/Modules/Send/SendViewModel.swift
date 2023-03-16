@@ -27,9 +27,9 @@ class SendViewModel: ObservableObject {
 
     @Published var isFiatCalculation: Bool = false
     @Published var isFeeIncluded: Bool = false
-    @Published var selectedFeeLevel: Int = 1
+    @Published var selectedFeeLevel: FeeLevel = .normal
     @Published var maxAmountTapped: Bool = false
-    @Published var fees: [Amount] = []
+    @Published var feeDataModel: FeeDataModel?
 
     @ObservedObject var warnings = WarningsContainer() {
         didSet {
@@ -355,10 +355,10 @@ class SendViewModel: ObservableObject {
             .receive(on: RunLoop.main)
             .sink(receiveCompletion: { [unowned self] completion in
                 self.isFeeLoading = false
-                self.fees = []
-            }, receiveValue: { [unowned self] fees in
+                self.feeDataModel = nil
+            }, receiveValue: { [unowned self] feeDataModel in
                 self.isFeeLoading = false
-                self.fees = fees
+                self.feeDataModel = feeDataModel
             })
             .store(in: &bag)
 
@@ -410,13 +410,25 @@ class SendViewModel: ObservableObject {
 
         // MARK: Fee
 
-        $fees // handle fee selection
+        $feeDataModel // handle fee selection
             .combineLatest($selectedFeeLevel)
-            .sink { [unowned self] fees, level in
-                if fees.isEmpty {
+            .sink { [unowned self] feeDataModel, level in
+                switch feeDataModel?.feeType {
+                case .none:
                     self.selectedFee = nil
-                } else {
-                    self.selectedFee = fees.count > 1 ? fees[level] : fees.first!
+                case .single(let fee):
+                    self.selectedFee = fee
+                case .multiple(let low, let normal, let priority):
+                    switch level {
+                    case .low:
+                        self.selectedFee = low
+                    case .normal:
+                        self.selectedFee = normal
+                    case .priority:
+                        self.selectedFee = priority
+                    }
+                @unknown default:
+                    self.selectedFee = nil
                 }
             }
             .store(in: &bag)
@@ -647,6 +659,13 @@ class SendViewModel: ObservableObject {
                 break
             }
         }
+        
+        if let ethParameters = feeDataModel?.additionalParameters as? EthereumFeeParameters {
+            tx.params = EthereumTransactionParams(
+                gasLimit: ethParameters.gasLimit,
+                gasPrice: ethParameters.gasPrice
+            ) 
+        }
 
         let appDelegate = UIApplication.shared.delegate as! AppDelegate
         appDelegate.addLoadingView()
@@ -823,5 +842,13 @@ extension SendViewModel {
 
             coordinator.openQRScanner(with: binding)
         }
+    }
+}
+
+extension SendViewModel {
+    enum FeeLevel: Int, Hashable {
+        case low
+        case normal
+        case priority
     }
 }
