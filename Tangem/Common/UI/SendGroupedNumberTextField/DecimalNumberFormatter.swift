@@ -9,7 +9,6 @@
 import Foundation
 
 struct DecimalNumberFormatter {
-    public let roundingMode: NSDecimalNumber.RoundingMode
     public var maximumFractionDigits: Int { numberFormatter.maximumFractionDigits }
     public var decimalSeparator: Character { Character(numberFormatter.decimalSeparator) }
     public var groupingSeparator: Character { Character(numberFormatter.groupingSeparator) }
@@ -18,11 +17,9 @@ struct DecimalNumberFormatter {
 
     init(
         numberFormatter: NumberFormatter = NumberFormatter(),
-        maximumFractionDigits: Int,
-        roundingMode: NSDecimalNumber.RoundingMode = .down
+        maximumFractionDigits: Int
     ) {
         self.numberFormatter = numberFormatter
-        self.roundingMode = roundingMode
 
         numberFormatter.roundingMode = .down
         numberFormatter.numberStyle = .decimal
@@ -42,21 +39,12 @@ struct DecimalNumberFormatter {
             return ""
         }
 
-        guard var decimal = mapToDecimal(string: value) else {
-            assertionFailure("Value must be number")
-            return value
-        }
-
-        // Round to maximumFractionDigits
-        decimal.round(scale: maximumFractionDigits, roundingMode: roundingMode)
-        let reducedValue = mapToString(decimal: decimal)
-
         // If string contains decimalSeparator will format it separately
-        if reducedValue.contains(decimalSeparator) {
-            return formatIntegerAndFractionSeparately(string: reducedValue)
+        if value.contains(decimalSeparator) {
+            return formatIntegerAndFractionSeparately(string: value)
         }
 
-        return formatInteger(decimal: decimal)
+        return formatInteger(value: value)
     }
 
     public func format(value: Decimal) -> String {
@@ -104,10 +92,9 @@ private extension DecimalNumberFormatter {
         let beforeComma = String(string[string.startIndex ..< commaIndex])
         var afterComma = string[commaIndex ..< string.endIndex]
 
-        // Check to maximumFractionDigits
+        // Check to maximumFractionDigits and reduce if needed
         let maximumWithComma = maximumFractionDigits + 1
         if afterComma.count > maximumWithComma {
-            assertionFailure("It had to be rounded")
             let lastAcceptableIndex = afterComma.index(afterComma.startIndex, offsetBy: maximumFractionDigits)
             afterComma = afterComma[afterComma.startIndex ... lastAcceptableIndex]
         }
@@ -115,13 +102,15 @@ private extension DecimalNumberFormatter {
         return format(value: beforeComma) + afterComma
     }
 
-    private func formatInteger(decimal: Decimal) -> String {
-        let string = mapToString(decimal: decimal)
+    /// In this case the NumberFormatter works fine ONLY with integer values
+    /// We can't trust it because it reduces fractions to 13 characters
+    private func formatInteger(value: String) -> String {
+        assert(!value.contains(decimalSeparator))
 
-        // In this case the NumberFormatter works fine ONLY with integer values
-        // We can't trust it because it reduces fractions to 13 characters
-        assert(!string.contains(decimalSeparator))
+        if let decimal = mapToDecimal(string: value) {
+            return numberFormatter.string(from: decimal as NSDecimalNumber) ?? ""
+        }
 
-        return numberFormatter.string(from: decimal as NSDecimalNumber) ?? ""
+        return value
     }
 }
