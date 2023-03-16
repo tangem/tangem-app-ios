@@ -70,8 +70,6 @@ struct DecimalNumberTextField: View {
             numberString.removeLast()
         }
 
-        numberString = decimalNumberFormatter.format(value: numberString)
-
         // Update private `@State` for display not correct number, like 0,000
         textFieldText = numberString
 
