@@ -10,6 +10,7 @@ import Foundation
 import BlockchainSdk
 import Combine
 import WalletConnectSwift
+import BigInt
 
 class WalletConnectTransactionHandler: TangemWalletConnectRequestHandler {
     unowned var delegate: WalletConnectHandlerDelegate?
@@ -145,7 +146,12 @@ class WalletConnectTransactionHandler: TangemWalletConnectRequestHandler {
                             )
                             let contractDataString = transaction.data.drop0xPrefix
                             let wcTxData = Data(hexString: String(contractDataString))
-                            tx.params = EthereumTransactionParams(data: wcTxData, gasLimit: gasLimit, nonce: transaction.nonce?.hexToInteger)
+                            tx.params = EthereumTransactionParams(
+                                gasLimit: BigUInt(gasLimit),
+                                gasPrice: BigUInt(gasPrice),
+                                data: wcTxData,
+                                nonce: transaction.nonce?.hexToInteger
+                            )
                             promise(.success(tx))
                         } catch {
                             promise(.failure(error))
