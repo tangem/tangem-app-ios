@@ -12,9 +12,8 @@ import TangemExchange
 
 class ExchangeWalletDataProvider {
     private let wallet: Wallet
-    private let ethereumGasLoader: EthereumGasLoader
-    private let optimismGasLoader: OptimismGasLoader?
     private let ethereumNetworkProvider: EthereumNetworkProvider
+    private let ethereumTransactionProcessor: EthereumTransactionProcessor
     private let currencyMapper: CurrencyMapping
 
     private var balances: [Amount.AmountType: Decimal] = [:]
@@ -22,15 +21,13 @@ class ExchangeWalletDataProvider {
 
     init(
         wallet: Wallet,
-        ethereumGasLoader: EthereumGasLoader,
-        optimismGasLoader: OptimismGasLoader?,
         ethereumNetworkProvider: EthereumNetworkProvider,
+        ethereumTransactionProcessor: EthereumTransactionProcessor,
         currencyMapper: CurrencyMapping
     ) {
         self.wallet = wallet
-        self.ethereumGasLoader = ethereumGasLoader
-        self.optimismGasLoader = optimismGasLoader
         self.ethereumNetworkProvider = ethereumNetworkProvider
+        self.ethereumTransactionProcessor = ethereumTransactionProcessor
         self.currencyMapper = currencyMapper
 
         balances = wallet.amounts.reduce(into: [:]) {
@@ -58,37 +55,10 @@ extension ExchangeWalletDataProvider: WalletDataProvider {
         blockchain: ExchangeBlockchain,
         value: Decimal
     ) async throws -> EthereumGasDataModel {
-        let hexData = data.hexString.addHexPrefix()
-
-        switch blockchain {
-        case .optimism:
-            async let l1GasModel = getOptimismGasModel(hexData: hexData, blockchain: blockchain)
-            async let l2GasModel = getEtheriumGasModel(
-                sourceAddress: sourceAddress,
-                destinationAddress: destinationAddress,
-                hexData: hexData,
-                blockchain: blockchain,
-                value: value,
-                increasedPolicy: .noRaise
-            )
-
-            return try await EthereumGasDataModel(
-                blockchain: blockchain,
-                gasPrice: l2GasModel.gasPrice,
-                gasLimit: l2GasModel.gasLimit,
-                fee: l2GasModel.fee + l1GasModel.fee
-            )
-
-        default:
-            return try await getEtheriumGasModel(
-                sourceAddress: sourceAddress,
-                destinationAddress: destinationAddress,
-                hexData: hexData,
-                blockchain: blockchain,
-                value: value,
-                increasedPolicy: .mediumRaise
-            )
-        }
+        try await getFee(
+            blockchain: blockchain,
+            value: value, data: data, destination: destinationAddress, gasPolicy: .mediumRaise
+        )
     }
 
     func getBalance(for currency: Currency) async throws -> Decimal {
@@ -176,52 +146,42 @@ private extension ExchangeWalletDataProvider {
         return 0
     }
 
-    func getEtheriumGasModel(
-        sourceAddress: String,
-        destinationAddress: String,
-        hexData: String,
+    func getFee(
         blockchain: ExchangeBlockchain,
         value: Decimal,
-        increasedPolicy: GasLimitPolicy
+        data: Data,
+        destination: String,
+        gasPolicy: GasLimitPolicy
     ) async throws -> EthereumGasDataModel {
         let amount = createAmount(from: blockchain, amount: value)
+        let payload = EthereumDestinationPayload(targetAddress: destination, value: amount.encodedForSend, data: data)
+        let feeModel = try await ethereumTransactionProcessor.getFee(payload: payload).async()
 
-        async let price = ethereumGasLoader.getGasPrice().async()
-        async let limit = ethereumGasLoader.getGasLimit(
-            to: destinationAddress,
-            from: sourceAddress,
-            value: amount.encodedForSend,
-            data: hexData
-        ).async()
-
-        let gasLimit = try await increasedPolicy.value(for: Int(limit))
-        let fee = try await gasLimit * Int(price)
-
-        return try await EthereumGasDataModel(
-            blockchain: blockchain,
-            gasPrice: Int(price),
-            gasLimit: Int(limit),
-            fee: blockchain.convertFromWEI(value: Decimal(fee))
-        )
-    }
-
-    func getOptimismGasModel(hexData: String, blockchain: ExchangeBlockchain) async throws -> EthereumGasDataModel {
-        guard let optimismGasLoader = optimismGasLoader else {
+        guard let lowFeeModel = feeModel.lowFeeModel,
+              let ethFeeParameters = lowFeeModel.parameters as? EthereumFeeParameters else {
+            assertionFailure("feeModel don't contains EthereumFeeParameters")
             throw CommonError.noData
         }
 
-        async let price = optimismGasLoader.getLayer1GasPrice().async()
-        async let limit = optimismGasLoader.getLayer1GasLimit(data: hexData).async()
+        switch blockchain {
+        case .optimism:
+            return EthereumGasDataModel(
+                blockchain: blockchain,
+                gasPrice: Int(ethFeeParameters.gasPrice),
+                gasLimit: Int(ethFeeParameters.gasLimit),
+                fee: lowFeeModel.fee.value
+            )
+        default:
+            let gasLimit = gasPolicy.value(for: Int(ethFeeParameters.gasLimit))
+            let gasPrice = Int(ethFeeParameters.gasPrice)
 
-        let gasLimit = try await Int(limit)
-        let gasPrice = try await Int(price)
-
-        return try await EthereumGasDataModel(
-            blockchain: blockchain,
-            gasPrice: Int(price),
-            gasLimit: Int(limit),
-            fee: blockchain.convertFromWEI(value: Decimal(gasLimit * gasPrice))
-        )
+            return EthereumGasDataModel(
+                blockchain: blockchain,
+                gasPrice: Int(ethFeeParameters.gasPrice),
+                gasLimit: Int(ethFeeParameters.gasLimit),
+                fee: blockchain.convertFromWEI(value: Decimal(gasLimit * gasPrice))
+            )
+        }
     }
 }
 
