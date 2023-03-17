@@ -75,10 +75,14 @@ class GnosisRegistrator {
             let limitAmount = Amount(with: settings.token, value: value)
             let setSpedLimitData = try makeTxData(sig: Signatures.setSpendLimit, address: cardAddress, amount: limitAmount)
 
-            return transactionProcessor.getFee(to: settings.otpProcessorContractAddress, data: "0x\(setSpedLimitData.hexString)", amount: nil)
+            let payload = EthereumDestinationPayload(
+                targetAddress: settings.otpProcessorContractAddress,
+                data: setSpedLimitData
+            )
+            return transactionProcessor.getFee(payload: payload)
                 .tryMap { fees -> Transaction in
-                    guard let params = fees.additionalParameters as? EthereumFeeParameters,
-                          let fee = fees.normalFee else {
+                    guard let normalFee = fees.normalFeeModel,
+                          let params = normalFee.parameters as? EthereumFeeParameters else {
                         throw CommonError.noData
                     }
 
@@ -91,7 +95,7 @@ class GnosisRegistrator {
 
                     var transaction = try self.walletManager.createTransaction(
                         amount: Amount.zeroCoin(for: self.settings.blockchain),
-                        fee: fee,
+                        fee: normalFee.fee,
                         destinationAddress: self.settings.otpProcessorContractAddress
                     )
 
@@ -111,10 +115,14 @@ class GnosisRegistrator {
     func makeInitOtpTx(rootOTP: Data, rootOTPCounter: Int) -> AnyPublisher<CompiledEthereumTransaction, Error> {
         let initOTPData = Signatures.initOTP + rootOTP.prefix(16) + Data(count: 46) + rootOTPCounter.bytes2
 
-        return transactionProcessor.getFee(to: settings.otpProcessorContractAddress, data: "0x\(initOTPData.hexString)", amount: nil)
+        let payload = EthereumDestinationPayload(
+            targetAddress: settings.otpProcessorContractAddress,
+            data: initOTPData
+        )
+        return transactionProcessor.getFee(payload: payload)
             .tryMap { fees -> Transaction in
-                guard let params = fees.additionalParameters as? EthereumFeeParameters,
-                      let fee = fees.normalFee else {
+                guard let normalFee = fees.normalFeeModel,
+                      let params = normalFee.parameters as? EthereumFeeParameters else {
                     throw CommonError.noData
                 }
 
@@ -126,7 +134,7 @@ class GnosisRegistrator {
                 )
                 var transaction = try self.walletManager.createTransaction(
                     amount: Amount.zeroCoin(for: self.settings.blockchain),
-                    fee: fee,
+                    fee: normalFee.fee,
                     destinationAddress: self.settings.otpProcessorContractAddress
                 )
                 transaction.params = transactionParams
@@ -142,11 +150,14 @@ class GnosisRegistrator {
     func makeSetWalletTx() -> AnyPublisher<CompiledEthereumTransaction, Error> {
         do {
             let setWalletData = try makeTxData(sig: Signatures.setWallet, address: cardAddress, amount: nil)
-
-            return transactionProcessor.getFee(to: settings.otpProcessorContractAddress, data: "0x\(setWalletData.hexString)", amount: nil)
+            let payload = EthereumDestinationPayload(
+                targetAddress: settings.otpProcessorContractAddress,
+                data: setWalletData
+            )
+            return transactionProcessor.getFee(payload: payload)
                 .tryMap { fees -> Transaction in
-                    guard let params = fees.additionalParameters as? EthereumFeeParameters,
-                          let fee = fees.normalFee else {
+                    guard let normalFee = fees.normalFeeModel,
+                          let params = normalFee.parameters as? EthereumFeeParameters else {
                         throw CommonError.noData
                     }
 
@@ -158,7 +169,7 @@ class GnosisRegistrator {
                     )
                     var transaction = try self.walletManager.createTransaction(
                         amount: Amount.zeroCoin(for: self.settings.blockchain),
-                        fee: fee,
+                        fee: normalFee.fee,
                         destinationAddress: self.settings.otpProcessorContractAddress
                     )
                     transaction.params = transactionParams
@@ -181,10 +192,14 @@ class GnosisRegistrator {
         do {
             let approveData = try makeTxData(sig: Signatures.approve, address: settings.otpProcessorContractAddress, amount: approveAmount)
 
-            return transactionProcessor.getFee(to: settings.token.contractAddress, data: "0x\(approveData.hexString)", amount: nil)
+            let payload = EthereumDestinationPayload(
+                targetAddress: settings.token.contractAddress,
+                data: approveData
+            )
+            return transactionProcessor.getFee(payload: payload)
                 .tryMap { fees -> Transaction in
-                    guard let params = fees.additionalParameters as? EthereumFeeParameters,
-                          let fee = fees.normalFee else {
+                    guard let normalFee = fees.normalFeeModel,
+                          let params = normalFee.parameters as? EthereumFeeParameters else {
                         throw CommonError.noData
                     }
 
@@ -197,7 +212,7 @@ class GnosisRegistrator {
 
                     var transaction = try self.walletManager.createTransaction(
                         amount: zeroApproveAmount,
-                        fee: fee,
+                        fee: normalFee.fee,
                         destinationAddress: ""
                     )
                     transaction.params = transactionParams
