@@ -29,7 +29,7 @@ class SendViewModel: ObservableObject {
     @Published var isFeeIncluded: Bool = false
     @Published var selectedFeeLevel: Int = 1
     @Published var maxAmountTapped: Bool = false
-    @Published var feeDataModel: FeeDataModel?
+    @Published var feeDataModel: FeeType?
 
     @ObservedObject var warnings = WarningsContainer() {
         didSet {
@@ -85,7 +85,7 @@ class SendViewModel: ObservableObject {
     @Published var sendFee: String = " "
     @Published var sendTotalSubtitle: String = " "
 
-    @Published var selectedFee: Amount? = nil
+    @Published var selectedFee: FeeType.FeeModel? = nil
     @Published var transaction: BlockchainSdk.Transaction? = nil
     @Published var canFiatCalculation: Bool = true
     @Published var isFeeLoading: Bool = false
@@ -200,7 +200,7 @@ class SendViewModel: ObservableObject {
     private func fillTotalBlockWithDefaults() {
         let dummyAmount = Amount(with: amountToSend, value: 0)
 
-        updateFee(amount: selectedFee)
+        updateFee(amount: selectedFee?.fee)
         sendAmount = getDescription(for: dummyAmount)
         sendTotal = getDescription(for: dummyAmount)
         sendTotalSubtitle = " "
@@ -356,7 +356,7 @@ class SendViewModel: ObservableObject {
                 $isFeeIncluded
             )
             .sink { [unowned self] amount, destination, fee, isFeeIncluded in
-                guard let amount = amount, let destination = destination, let fee = fee else {
+                guard let amount = amount, let destination = destination, let fee = fee?.fee else {
                     if (destination?.isEmpty == false) || destination == nil {
                         self.transaction = nil
                     }
@@ -400,7 +400,7 @@ class SendViewModel: ObservableObject {
         $feeDataModel // handle fee selection
             .combineLatest($selectedFeeLevel)
             .sink { [unowned self] feeDataModel, level in
-                switch feeDataModel?.feeType {
+                switch feeDataModel {
                 case .none:
                     self.selectedFee = nil
                 case .single(let fee):
@@ -425,7 +425,7 @@ class SendViewModel: ObservableObject {
         $selectedFee // update fee label
             .uiPublisher
             .sink { [unowned self] newAmount in
-                self.updateFee(amount: newAmount)
+                self.updateFee(amount: newAmount?.fee)
             }
             .store(in: &bag)
 
@@ -649,7 +649,7 @@ class SendViewModel: ObservableObject {
             }
         }
 
-        if let ethParameters = feeDataModel?.additionalParameters as? EthereumFeeParameters {
+        if let ethParameters = selectedFee?.parameters as? EthereumFeeParameters {
             tx.params = EthereumTransactionParams(
                 gasLimit: ethParameters.gasLimit,
                 gasPrice: ethParameters.gasPrice
