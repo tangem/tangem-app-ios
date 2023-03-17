@@ -61,7 +61,7 @@ class PushTxViewModel: ObservableObject {
 
     @Published var amountToSend: Amount
     @Published var selectedFeeLevel: Int = 1
-    @Published var feeDataModel: FeeDataModel?
+    @Published var feeDataModel: FeeType?
     @Published var selectedFee: Amount? = nil
 
     @Published var additionalFee: String = ""
