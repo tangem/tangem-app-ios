@@ -154,8 +154,10 @@ private extension ExchangeWalletDataProvider {
         gasPolicy: GasLimitPolicy
     ) async throws -> EthereumGasDataModel {
         let amount = createAmount(from: blockchain, amount: value)
-        let payload = EthereumDestinationPayload(targetAddress: destination, value: amount.encodedForSend, data: data)
-        let feeModel = try await ethereumTransactionProcessor.getFee(payload: payload).async()
+
+        let feeModel = try await ethereumTransactionProcessor.getFee(
+            destination: destination, value: amount.encodedForSend, data: data
+        ).async()
 
         guard let lowFeeModel = feeModel.lowFeeModel,
               let ethFeeParameters = lowFeeModel.parameters as? EthereumFeeParameters else {
