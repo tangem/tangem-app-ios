@@ -91,7 +91,7 @@ extension ExchangeWalletDataProvider: WalletDataProvider {
             return balance
         }
 
-        var balance = try await getBalanceThroughUpdateWalletModel(amountType: amountType)
+        var balance = try await getBalanceFromNetwork(amountType: amountType)
         balance.round(scale: currency.decimalCount, roundingMode: .down)
 
         balances[amountType] = balance
@@ -109,7 +109,7 @@ extension ExchangeWalletDataProvider: WalletDataProvider {
             return balance
         }
 
-        let balance = try await getBalanceThroughUpdateWalletModel(amountType: .coin)
+        let balance = try await getBalanceFromNetwork(amountType: .coin)
         balances[.coin] = balance
         return balance
     }
@@ -140,20 +140,30 @@ private extension ExchangeWalletDataProvider {
         )
     }
 
-    func getBalanceThroughUpdateWalletModel(amountType: Amount.AmountType) async throws -> Decimal {
-        guard let token = amountType.token else {
-            AppLog.shared.debug("WalletModel can't load balance for amountType \(amountType)")
-            return 0
-        }
-
-        let loadedBalances = try await ethereumNetworkProvider.getTokensBalance(walletAddress, tokens: [token]).async()
-
-        if let balance = loadedBalances[token] {
+    func getBalanceFromNetwork(amountType: Amount.AmountType) async throws -> Decimal {
+        switch amountType {
+        case .coin:
+            let balance = try await ethereumNetworkProvider.getBalance(walletAddress).async()
             balances[amountType] = balance
             return balance
-        }
 
-        AppLog.shared.debug("WalletModel haven't balance for token \(token)")
+        case .token(let token):
+            let loadedBalances = try await ethereumNetworkProvider.getTokensBalance(
+                walletAddress, tokens: [token]
+            ).async()
+
+            if let balance = loadedBalances[token] {
+                balances[amountType] = balance
+                return balance
+            }
+
+        case .reserve:
+            throw CommonError.notImplemented
+        @unknown default:
+            throw CommonError.notImplemented
+        }
+        
+        AppLog.shared.debug("WalletModel haven't balance for amountType \(amountType)")
         return 0
     }
 }
