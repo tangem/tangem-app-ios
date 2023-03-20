@@ -21,6 +21,7 @@ enum WalletOnboardingStep: Equatable {
     case createWalletSelector
     case seedPhraseIntro
     case seedPhraseGenerate
+    case seedPhraseImport
 
     // visa only
     case enterPin
@@ -54,6 +55,8 @@ enum WalletOnboardingStep: Equatable {
             return Localization.walletTitle
         case .seedPhraseIntro, .seedPhraseGenerate:
             return Localization.walletButtonCreateWallet
+        case .seedPhraseImport:
+            return Localization.onboardingSeedIntroButtonImport
         }
     }
 
@@ -122,7 +125,7 @@ extension WalletOnboardingStep: OnboardingMessagesProvider, SuccessStep {
             return Localization.onboardingTitlePin
         case .createWalletSelector:
             return Localization.onboardingCreateWalletOptionsTitle
-        case .seedPhraseIntro, .seedPhraseGenerate:
+        case .seedPhraseIntro, .seedPhraseGenerate, .seedPhraseImport:
             return nil
         }
     }
@@ -152,7 +155,7 @@ extension WalletOnboardingStep: OnboardingMessagesProvider, SuccessStep {
             return Localization.onboardingSubtitleSuccessClaim
         case .createWalletSelector:
             return Localization.onboardingCreateWalletOptionsMessage
-        case .seedPhraseIntro, .seedPhraseGenerate:
+        case .seedPhraseIntro, .seedPhraseGenerate, .seedPhraseImport:
             return nil
         }
     }
