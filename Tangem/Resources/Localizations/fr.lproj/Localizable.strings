@@ -56,6 +56,7 @@
 "common_done" = "Exécuté";
 "common_error" = "Erreur";
 "common_explorer_format" = "%@ explorer";
+"common_import" = "Import";
 "common_no" = "No";
 "common_ok" = "OK";
 "common_origin_card" = "Primary Card";
@@ -203,6 +204,7 @@
 "onboarding_saltpay_title_one_backup_card" = "Backup card ready";
 "onboarding_saltpay_title_prepare_origin" = "Prepare the SaltPay card";
 "onboarding_seed_button_read_more" = "Read more about seed phrases";
+"onboarding_seed_import_message" = "To import your wallet, enter your secret recovery phrase in the fields below or scan a QR-code";
 "onboarding_seed_intro_button_generate" = "Generate seed phrase";
 "onboarding_seed_intro_button_import" = "Import Wallet";
 "onboarding_seed_intro_message" = "Seed phrase is a series of words that gives an ability to recover the wallet. Unlike the card generated keys, seed phrase is unprotected and can be copied and stolen. Use this option at your own risk.";
