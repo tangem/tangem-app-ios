@@ -59,15 +59,16 @@ class Analytics {
     }
 
     static func logTopUpIfNeeded(balance: Decimal) {
-        let previousBalance = analyticsContext.value(forKey: .balance, scope: .userWallet) as? Double
-        let balanceToSave = NSDecimalNumber(decimal: balance).doubleValue
+        let previousBalanceString = analyticsContext.value(forKey: .balance, scope: .userWallet) as? String
+        let previousBalance = previousBalanceString.flatMap { BalanceState(rawValue: $0) }
+
         // Send only first topped up event. Do not send the event to analytics on following topup events.
-        if balance > 0, previousBalance == 0 {
+        if balance > 0, previousBalance == .zero {
             logInternal(.toppedUp)
-            analyticsContext.set(value: balanceToSave, forKey: .balance, scope: .userWallet)
+            analyticsContext.set(value: BalanceState.positive.rawValue, forKey: .balance, scope: .userWallet)
         } else if previousBalance == nil { // Do not save in a withdrawal case
             // Register the first app launch with the zero balance.
-            analyticsContext.set(value: balanceToSave, forKey: .balance, scope: .userWallet)
+            analyticsContext.set(value: BalanceState.zero.rawValue, forKey: .balance, scope: .userWallet)
         }
     }
 
