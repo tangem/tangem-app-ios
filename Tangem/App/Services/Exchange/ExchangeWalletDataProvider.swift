@@ -162,7 +162,7 @@ private extension ExchangeWalletDataProvider {
         @unknown default:
             throw CommonError.notImplemented
         }
-        
+
         AppLog.shared.debug("WalletModel haven't balance for amountType \(amountType)")
         return 0
     }
