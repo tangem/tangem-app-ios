@@ -68,7 +68,8 @@ class Analytics {
             analyticsContext.set(value: BalanceState.positive.rawValue, forKey: .balance, scope: .userWallet)
         } else if previousBalance == nil { // Do not save in a withdrawal case
             // Register the first app launch with the zero balance.
-            analyticsContext.set(value: BalanceState.zero.rawValue, forKey: .balance, scope: .userWallet)
+            let balanceToSave = balance > 0 ? BalanceState.positive : BalanceState.zero
+            analyticsContext.set(value: balanceToSave.rawValue, forKey: .balance, scope: .userWallet)
         }
     }
 
