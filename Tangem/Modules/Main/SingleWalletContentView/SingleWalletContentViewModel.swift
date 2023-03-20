@@ -164,7 +164,7 @@ class SingleWalletContentViewModel: ObservableObject {
                     return
                 }
 
-                let balance = singleWalletModel.allTokenItemViewModels().map { $0.fiatValue }.reduce(0, +)
+                let balance = singleWalletModel.totalBalance
                 Analytics.logTopUpIfNeeded(balance: balance)
                 Analytics.logSignInIfNeeded(balance: balance)
             }
