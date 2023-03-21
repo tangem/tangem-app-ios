@@ -165,13 +165,13 @@ private extension ExchangeWalletDataProvider {
     ) async throws -> EthereumGasDataModel {
         let amount = createAmount(from: blockchain, amount: value)
 
-        let feeModel = try await ethereumTransactionProcessor.getFee(
+        let fees = try await ethereumTransactionProcessor.getFee(
             destination: destination, value: amount.encodedForSend, data: data
         ).async()
 
-        guard let lowFeeModel = feeModel.first,
+        guard let lowFeeModel = fees.first,
               let ethFeeParameters = lowFeeModel.parameters as? EthereumFeeParameters else {
-            assertionFailure("feeModel don't contains EthereumFeeParameters")
+            assertionFailure("LowFeeModel don't contains EthereumFeeParameters")
             throw CommonError.noData
         }
 
