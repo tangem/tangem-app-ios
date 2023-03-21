@@ -787,7 +787,7 @@ class WalletOnboardingViewModel: OnboardingTopupViewModel<WalletOnboardingStep, 
                     self?.isMainButtonBusy = false
                 case .finished:
                     if let userWalletId = self?.cardModel?.userWalletId {
-                        self?.analyticsContext.fillContextId(with: userWalletId)
+                        self?.analyticsContext.updateContext(with: userWalletId)
                         Analytics.logTopUpIfNeeded(balance: 0)
                     }
 
