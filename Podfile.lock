@@ -246,8 +246,8 @@ DEPENDENCIES:
   - Mobile-Buy-SDK
   - Moya
   - Solana.Swift (from `https://github.com/tangem/Solana.Swift`, tag `add-external-signer-7`)
-  - TangemSdk (from `https://github.com/Tangem/tangem-sdk-ios.git`, branch `IOS-3059_seed`)
-  - TangemWalletCore (from `https://github.com/tangem/wallet-core-binaries-ios.git`, tag `3.1.9-tangem1`)
+  - TangemSdk (from `https://github.com/Tangem/tangem-sdk-ios.git`, branch `develop-206`)
+  - TangemWalletCore (from `https://github.com/tangem/wallet-core-binaries-ios.git`, tag `3.1.9-tangem2`)
   - WalletConnectSwift (from `https://github.com/WalletConnect/WalletConnectSwift`, tag `1.7.0`)
   - WalletConnectSwiftV2 (from `https://github.com/WalletConnect/WalletConnectSwiftV2`, tag `1.1.0`)
   - web3swift (from `https://github.com/tangem/web3swift.git`, tag `2.2.12`)
@@ -323,11 +323,11 @@ EXTERNAL SOURCES:
     :git: https://github.com/tangem/Solana.Swift
     :tag: add-external-signer-7
   TangemSdk:
-    :branch: IOS-3059_seed
+    :branch: develop-206
     :git: https://github.com/Tangem/tangem-sdk-ios.git
   TangemWalletCore:
     :git: https://github.com/tangem/wallet-core-binaries-ios.git
-    :tag: 3.1.9-tangem1
+    :tag: 3.1.9-tangem2
   WalletConnectSwift:
     :git: https://github.com/WalletConnect/WalletConnectSwift
     :tag: 1.7.0
@@ -361,11 +361,11 @@ CHECKOUT OPTIONS:
     :git: https://github.com/tangem/Solana.Swift
     :tag: add-external-signer-7
   TangemSdk:
-    :commit: ccf272ae5a9e9f7fa26f0491688bd9d74e69ee81
+    :commit: 00fceec0bb8c7dac2fe067b95977479add359a7e
     :git: https://github.com/Tangem/tangem-sdk-ios.git
   TangemWalletCore:
     :git: https://github.com/tangem/wallet-core-binaries-ios.git
-    :tag: 3.1.9-tangem1
+    :tag: 3.1.9-tangem2
   WalletConnectSwift:
     :git: https://github.com/WalletConnect/WalletConnectSwift
     :tag: 1.7.0
@@ -433,6 +433,6 @@ SPEC CHECKSUMS:
   ZendeskSupportProvidersSDK: 77a62fe6bacc05bb10ff20edce75612fa109fd61
   ZendeskSupportSDK: ba72e90e327635b5fde3d023a3de33242a6ee8ab
 
-PODFILE CHECKSUM: 2973077e3214737eed6bc5e53a6bff814cf93438
+PODFILE CHECKSUM: adeb8ac1f327a1c1d7c6ada8ec941f36cf453171
 
 COCOAPODS: 1.11.3
