@@ -180,7 +180,7 @@ PODS:
   - SwiftDate (6.3.1)
   - SwiftProtobuf (1.21.0)
   - SwiftyJSON (5.0.1)
-  - TangemSdk (3.3.4)
+  - TangemSdk (3.4.0)
   - TangemWalletCore (3.1.9-tangem1):
     - SwiftProtobuf
   - TweetNacl (1.0.2)
@@ -237,7 +237,7 @@ DEPENDENCIES:
   - AppsFlyerFramework
   - BinanceChain (from `https://github.com/tangem/swiftbinancechain.git`, tag `0.0.9`)
   - BitcoinCore.swift (from `https://github.com/tangem/bitcoincore.git`, tag `0.0.16`)
-  - BlockchainSdk (from `https://github.com/tangem/blockchain-sdk-swift.git`, tag `develop-231`)
+  - BlockchainSdk (from `https://github.com/tangem/blockchain-sdk-swift.git`, tag `IOS-3199_refactor_extensions`)
   - DeviceGuru (= 8.0.0)
   - Firebase/Analytics
   - Firebase/Crashlytics
@@ -246,11 +246,11 @@ DEPENDENCIES:
   - Mobile-Buy-SDK
   - Moya
   - Solana.Swift (from `https://github.com/tangem/Solana.Swift`, tag `add-external-signer-7`)
-  - TangemSdk (from `https://github.com/Tangem/tangem-sdk-ios.git`, branch `IOS-3059_seed`)
+  - TangemSdk (from `https://github.com/Tangem/tangem-sdk-ios.git`, branch `develop-206`)
   - TangemWalletCore (from `https://github.com/tangem/wallet-core-binaries-ios.git`, tag `3.1.9-tangem2`)
   - WalletConnectSwift (from `https://github.com/WalletConnect/WalletConnectSwift`, tag `1.7.0`)
   - WalletConnectSwiftV2 (from `https://github.com/WalletConnect/WalletConnectSwiftV2`, tag `1.1.0`)
-  - web3swift (from `https://github.com/tangem/web3swift.git`, tag `2.2.11`)
+  - web3swift (from `https://github.com/tangem/web3swift.git`, tag `2.2.12`)
   - ZendeskChatSDK (~> 2.12.0)
   - ZendeskSupportSDK (~> 5.5.0)
 
@@ -312,7 +312,7 @@ EXTERNAL SOURCES:
     :tag: 0.0.16
   BlockchainSdk:
     :git: https://github.com/tangem/blockchain-sdk-swift.git
-    :tag: develop-231
+    :tag: IOS-3199_refactor_extensions
   HDWalletKit:
     :git: https://github.com/tangem/hdwallet.git
     :tag: 0.3.12
@@ -323,7 +323,7 @@ EXTERNAL SOURCES:
     :git: https://github.com/tangem/Solana.Swift
     :tag: add-external-signer-7
   TangemSdk:
-    :branch: IOS-3059_seed
+    :branch: develop-206
     :git: https://github.com/Tangem/tangem-sdk-ios.git
   TangemWalletCore:
     :git: https://github.com/tangem/wallet-core-binaries-ios.git
@@ -336,7 +336,7 @@ EXTERNAL SOURCES:
     :tag: 1.1.0
   web3swift:
     :git: https://github.com/tangem/web3swift.git
-    :tag: 2.2.11
+    :tag: 2.2.12
 
 CHECKOUT OPTIONS:
   AlertToast:
@@ -350,7 +350,7 @@ CHECKOUT OPTIONS:
     :tag: 0.0.16
   BlockchainSdk:
     :git: https://github.com/tangem/blockchain-sdk-swift.git
-    :tag: develop-231
+    :tag: IOS-3199_refactor_extensions
   HDWalletKit:
     :git: https://github.com/tangem/hdwallet.git
     :tag: 0.3.12
@@ -361,7 +361,7 @@ CHECKOUT OPTIONS:
     :git: https://github.com/tangem/Solana.Swift
     :tag: add-external-signer-7
   TangemSdk:
-    :commit: c0931ed4641fff572f9a579f509ea714b000f327
+    :commit: 00fceec0bb8c7dac2fe067b95977479add359a7e
     :git: https://github.com/Tangem/tangem-sdk-ios.git
   TangemWalletCore:
     :git: https://github.com/tangem/wallet-core-binaries-ios.git
@@ -374,7 +374,7 @@ CHECKOUT OPTIONS:
     :tag: 1.1.0
   web3swift:
     :git: https://github.com/tangem/web3swift.git
-    :tag: 2.2.11
+    :tag: 2.2.12
 
 SPEC CHECKSUMS:
   Alamofire: d368e1ff8a298e6dde360e35a3e68e6c610e7204
@@ -416,7 +416,7 @@ SPEC CHECKSUMS:
   SwiftDate: 72d28954e8e1c6c1c0f917ccc8005e4f83c7d4b2
   SwiftProtobuf: afced68785854575756db965e9da52bbf3dc45e7
   SwiftyJSON: 2f33a42c6fbc52764d96f13368585094bfd8aa5e
-  TangemSdk: 9ea2c230bd616787bdccc5fb3ab36925d06199d4
+  TangemSdk: d628b627e16634b97c2536f265bdcddc9734c617
   TangemWalletCore: 87a4637456e46c2aa3d49a6a1dc07a8054783183
   TweetNacl: 3abf4d1d2082b0114e7a67410e300892448951e6
   WalletConnectSwift: 6309bf3011b0b30e3e9d1e7449535302a9240f71
@@ -433,6 +433,6 @@ SPEC CHECKSUMS:
   ZendeskSupportProvidersSDK: 77a62fe6bacc05bb10ff20edce75612fa109fd61
   ZendeskSupportSDK: ba72e90e327635b5fde3d023a3de33242a6ee8ab
 
-PODFILE CHECKSUM: d28b9b2b897986af829f7c6848681f6adeeb6c42
+PODFILE CHECKSUM: adeb8ac1f327a1c1d7c6ada8ec941f36cf453171
 
 COCOAPODS: 1.11.3
