@@ -215,7 +215,7 @@ class SingleWalletContentViewModel: ObservableObject {
                 title: Localization.walletButtonBuy,
                 icon: Assets.plusMini,
                 action: { [weak self] in
-                    Analytics.log(.buttonBuyMainScreen)
+                    Analytics.log(.buttonBuy)
                     self?.output.openBuyCrypto()
                 }
             ),
