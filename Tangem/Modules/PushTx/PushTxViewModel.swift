@@ -39,7 +39,7 @@ class PushTxViewModel: ObservableObject {
         cardViewModel.walletModels.first(where: { $0.blockchainNetwork == blockchainNetwork })!
     }
 
-    var previousFeeAmount: Amount { transaction.fee }
+    var previousFeeAmount: Amount { transaction.fee.amount }
 
     var previousTotalAmount: Amount {
         previousFeeAmount + transaction.amount
@@ -61,8 +61,8 @@ class PushTxViewModel: ObservableObject {
 
     @Published var amountToSend: Amount
     @Published var selectedFeeLevel: Int = 1
-    @Published var feeDataModel: FeeType?
-    @Published var selectedFee: Amount? = nil
+    @Published var fees: [Fee] = []
+    @Published var selectedFee: Fee? = nil
 
     @Published var additionalFee: String = ""
     @Published var sendTotal: String = ""
@@ -186,27 +186,25 @@ class PushTxViewModel: ObservableObject {
             .sink { [unowned self] isFiat in
                 self.fillPreviousTxInfo(isFiat: isFiat)
                 self.fillTotalBlock(tx: self.newTransaction, isFiat: isFiat)
-                self.updateFeeLabel(fee: self.selectedFee, isFiat: isFiat)
+                self.updateFeeLabel(amount: self.selectedFee?.amount, isFiat: isFiat)
             }
             .store(in: &bag)
 
         $selectedFeeLevel
-            .map { [unowned self] feeLevel -> Amount? in
-                let fees = self.feeDataModel?.asArray ?? []
-                guard fees.count > feeLevel else {
+            .map { [unowned self] feeLevel in
+                guard self.fees.count > feeLevel else {
                     return nil
                 }
 
-                let fee = fees[feeLevel]
+                let fee = self.fees[feeLevel]
                 return fee
             }
             .weakAssign(to: \.selectedFee, on: self)
             .store(in: &bag)
 
-        $feeDataModel
+        $fees
             .dropFirst()
-            .map { $0?.asArray ?? [] }
-            .map { [unowned self] values -> Amount? in
+            .map { [unowned self] values in
                 guard values.count > self.selectedFeeLevel else { return nil }
 
                 return values[self.selectedFeeLevel]
@@ -217,7 +215,7 @@ class PushTxViewModel: ObservableObject {
         $isFeeIncluded
             .dropFirst()
             .map { [unowned self] isFeeIncluded in
-                self.updateAmount(isFeeIncluded: isFeeIncluded, selectedFee: self.selectedFee)
+                self.updateAmount(isFeeIncluded: isFeeIncluded, selectedFee: self.selectedFee?.amount)
                 self.shouldAmountBlink = true
             }
             .sink(receiveValue: { _ in })
@@ -226,7 +224,7 @@ class PushTxViewModel: ObservableObject {
         $selectedFee
             .dropFirst()
             .combineLatest($isFeeIncluded)
-            .map { [unowned self] fee, isFeeIncluded -> (BlockchainSdk.Transaction?, Amount?) in
+            .map { [unowned self] fee, isFeeIncluded -> (BlockchainSdk.Transaction?, Fee?) in
                 var errorMessage: String?
                 defer {
                     self.amountHint = errorMessage == nil ? nil : .init(isError: true, message: errorMessage!)
@@ -237,12 +235,12 @@ class PushTxViewModel: ObservableObject {
                     return (nil, fee)
                 }
 
-                guard fee > self.transaction.fee else {
+                guard fee.amount > self.transaction.fee.amount else {
                     errorMessage = BlockchainSdkError.feeForPushTxNotEnough.localizedDescription
                     return (nil, fee)
                 }
 
-                let newAmount = isFeeIncluded ? self.transaction.amount + self.previousFeeAmount - fee : self.transaction.amount
+                let newAmount = isFeeIncluded ? self.transaction.amount + self.previousFeeAmount - fee.amount : self.transaction.amount
 
                 var tx: BlockchainSdk.Transaction?
 
@@ -256,7 +254,7 @@ class PushTxViewModel: ObservableObject {
                     errorMessage = error.localizedDescription
                 }
 
-                self.updateAmount(isFeeIncluded: isFeeIncluded, selectedFee: fee)
+                self.updateAmount(isFeeIncluded: isFeeIncluded, selectedFee: fee.amount)
                 return (tx, fee)
             }
             .sink(receiveValue: { [unowned self] txFee in
@@ -265,7 +263,7 @@ class PushTxViewModel: ObservableObject {
                 self.newTransaction = tx
                 self.isSendEnabled = tx != nil
                 self.fillTotalBlock(tx: tx, isFiat: self.isFiatCalculation)
-                self.updateFeeLabel(fee: fee)
+                self.updateFeeLabel(amount: fee?.amount)
 
             })
             .store(in: &bag)
@@ -288,8 +286,8 @@ class PushTxViewModel: ObservableObject {
                     AppLog.shared.debug("Failed to load fee error: \(error.localizedDescription)")
                     self?.amountHint = .init(isError: true, message: error.localizedDescription)
                 }
-            }, receiveValue: { [weak self] feeDataModel in
-                self?.feeDataModel = feeDataModel
+            }, receiveValue: { [weak self] fees in
+                self?.fees = fees
             })
             .store(in: &bag)
     }
@@ -300,9 +298,9 @@ class PushTxViewModel: ObservableObject {
         previousFee = getDescription(for: previousFeeAmount, isFiat: isFiat)
     }
 
-    private func updateFeeLabel(fee: Amount?, isFiat: Bool? = nil) {
+    private func updateFeeLabel(amount: Amount?, isFiat: Bool? = nil) {
         let isFiat = isFiat ?? isFiatCalculation
-        if let fee = fee {
+        if let fee = amount {
             additionalFee = getDescription(for: fee - previousFeeAmount, isFiat: isFiat)
         } else {
             additionalFee = getDescription(for: Amount.zeroCoin(for: blockchainNetwork.blockchain), isFiat: isFiat)
@@ -317,7 +315,7 @@ class PushTxViewModel: ObservableObject {
     }
 
     private func fillTotalBlock(tx: BlockchainSdk.Transaction? = nil, isFiat: Bool) {
-        guard let fee = tx?.fee else {
+        guard let fee = tx?.fee.amount else {
             sendTotal = emptyValue
             sendTotalSubtitle = emptyValue
             return
