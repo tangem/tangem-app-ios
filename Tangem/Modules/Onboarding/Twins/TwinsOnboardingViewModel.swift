@@ -356,7 +356,7 @@ class TwinsOnboardingViewModel: OnboardingTopupViewModel<TwinsOnboardingStep, On
                     }
 
                     if let userWalletId = self.cardModel?.userWalletId {
-                        self.analyticsContext.fillContextId(with: userWalletId)
+                        self.analyticsContext.updateContext(with: userWalletId)
                         Analytics.logTopUpIfNeeded(balance: 0)
                     }
                 }
