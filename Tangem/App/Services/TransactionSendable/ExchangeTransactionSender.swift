@@ -49,7 +49,9 @@ private extension ExchangeTransactionSender {
         let gasModel = info.gas
 
         let amount = createAmount(from: info.sourceCurrency, amount: info.value)
-        let fee = try createAmount(from: info.sourceBlockchain, amount: gasModel.fee)
+        let feeAmount = try createAmount(from: info.sourceBlockchain, amount: gasModel.fee)
+        let feeParameters = EthereumFeeParameters(gasLimit: BigUInt(gasModel.gasLimit), gasPrice: BigUInt(gasModel.gasPrice))
+        let fee = Fee(feeAmount, parameters: feeParameters)
 
         var transaction = Transaction(
             amount: amount,
@@ -63,8 +65,6 @@ private extension ExchangeTransactionSender {
         )
 
         transaction.params = EthereumTransactionParams(
-            gasLimit: BigUInt(gasModel.gasLimit),
-            gasPrice: BigUInt(gasModel.gasPrice),
             data: info.txData,
             nonce: nonce
         )
