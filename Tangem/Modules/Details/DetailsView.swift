@@ -41,6 +41,7 @@ struct DetailsView: View {
         .background(Colors.Background.secondary.edgesIgnoringSafeArea(.all))
         .alert(item: $viewModel.error) { $0.alert }
         .navigationBarTitle(Text(Localization.detailsTitle), displayMode: .inline)
+        .onAppear(perform: viewModel.onAppear)
     }
 
     // MARK: - Wallet Connect Section
