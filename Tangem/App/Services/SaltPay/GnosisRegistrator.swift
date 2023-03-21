@@ -78,20 +78,13 @@ class GnosisRegistrator {
             return transactionProcessor
                 .getFee(destination: settings.otpProcessorContractAddress, data: setSpedLimitData)
                 .tryMap { fees -> Transaction in
-                    let normalFee = fees[1]
-
-                    let transactionParams = EthereumTransactionParams(
-                        data: setSpedLimitData,
-                        nonce: self.transactionProcessor.initialNonce
-                    )
-
+                    let params = EthereumTransactionParams(data: setSpedLimitData, nonce: self.transactionProcessor.initialNonce)
                     var transaction = try self.walletManager.createTransaction(
                         amount: Amount.zeroCoin(for: self.settings.blockchain),
-                        fee: normalFee,
+                        fee: fees[1],
                         destinationAddress: self.settings.otpProcessorContractAddress
                     )
-
-                    transaction.params = transactionParams
+                    transaction.params = params
 
                     return transaction
                 }
@@ -110,18 +103,13 @@ class GnosisRegistrator {
         return transactionProcessor
             .getFee(destination: settings.otpProcessorContractAddress, data: initOTPData)
             .tryMap { fees -> Transaction in
-                let normalFee = fees[1]
-
-                let transactionParams = EthereumTransactionParams(
-                    data: initOTPData,
-                    nonce: self.transactionProcessor.initialNonce + 1
-                )
+                let params = EthereumTransactionParams(data: initOTPData, nonce: self.transactionProcessor.initialNonce + 1)
                 var transaction = try self.walletManager.createTransaction(
                     amount: Amount.zeroCoin(for: self.settings.blockchain),
-                    fee: normalFee,
+                    fee: fees[1],
                     destinationAddress: self.settings.otpProcessorContractAddress
                 )
-                transaction.params = transactionParams
+                transaction.params = params
 
                 return transaction
             }
@@ -138,18 +126,13 @@ class GnosisRegistrator {
             return transactionProcessor
                 .getFee(destination: settings.otpProcessorContractAddress, data: setWalletData)
                 .tryMap { fees -> Transaction in
-                    let normalFee = fees[1]
-
-                    let transactionParams = EthereumTransactionParams(
-                        data: setWalletData,
-                        nonce: self.transactionProcessor.initialNonce + 2
-                    )
+                    let params = EthereumTransactionParams(data: setWalletData, nonce: self.transactionProcessor.initialNonce + 2)
                     var transaction = try self.walletManager.createTransaction(
                         amount: Amount.zeroCoin(for: self.settings.blockchain),
-                        fee: normalFee,
+                        fee: fees[1],
                         destinationAddress: self.settings.otpProcessorContractAddress
                     )
-                    transaction.params = transactionParams
+                    transaction.params = params
 
                     return transaction
                 }
