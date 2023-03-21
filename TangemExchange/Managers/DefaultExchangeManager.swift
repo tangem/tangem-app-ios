@@ -185,7 +185,7 @@ private extension DefaultExchangeManager {
     }
 
     func loadDataForTokenExchange() async throws {
-        await updateExchangeAmountAllowance()
+        try await updateExchangeAmountAllowance()
         try Task.checkCancellation()
 
         // If allowance is enough just load the data for swap this token
@@ -246,23 +246,17 @@ private extension DefaultExchangeManager {
         updateState(.available(result, info: info))
     }
 
-    func updateExchangeAmountAllowance() async {
-        // If allowance limit already loaded just call delegate method
-        guard let walletAddress else {
-            return
+    func updateExchangeAmountAllowance() async throws {
+        guard let walletAddress = walletAddress else {
+            throw ExchangeManagerError.walletAddressNotFound
         }
 
-        do {
-            tokenExchangeAllowanceLimit = try await exchangeProvider.fetchAmountAllowance(
-                for: exchangeItems.source,
-                walletAddress: walletAddress
-            )
+        tokenExchangeAllowanceLimit = try await exchangeProvider.fetchAmountAllowance(
+            for: exchangeItems.source,
+            walletAddress: walletAddress
+        )
 
-            logger.debug("Token \(exchangeItems.source) allowanceLimit \(tokenExchangeAllowanceLimit as Any)")
-        } catch {
-            tokenExchangeAllowanceLimit = nil
-            updateState(.requiredRefresh(occurredError: error))
-        }
+        logger.debug("Token \(exchangeItems.source) allowanceLimit \(tokenExchangeAllowanceLimit as Any)")
     }
 
     func getQuoteDataModel() async throws -> QuoteDataModel {
