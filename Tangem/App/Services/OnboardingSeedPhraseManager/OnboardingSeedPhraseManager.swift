@@ -8,7 +8,9 @@
 
 import TangemSdk
 
-protocol OnboardingSeedPhraseManager {
+typealias OnboardingSeedPhraseManager = OnboardingSeedPhraseGenerator
+
+protocol OnboardingSeedPhraseGenerator {
     var seedPhrase: [String] { get }
     @discardableResult
     func generateSeedPhrase() throws -> [String]
@@ -25,9 +27,11 @@ extension InjectedValues {
     }
 }
 
-class CommonOnboardingSeedPhraseManager: OnboardingSeedPhraseManager {
+class CommonOnboardingSeedPhraseManager {
     private var mnemonic: Mnemonic?
+}
 
+extension CommonOnboardingSeedPhraseManager: OnboardingSeedPhraseGenerator {
     var seedPhrase: [String] {
         guard let mnemonic = mnemonic else {
             return []
