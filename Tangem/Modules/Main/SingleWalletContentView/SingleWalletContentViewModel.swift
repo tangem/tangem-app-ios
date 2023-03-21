@@ -166,7 +166,6 @@ class SingleWalletContentViewModel: ObservableObject {
 
                 let balance = singleWalletModel.totalBalance
                 Analytics.logTopUpIfNeeded(balance: balance)
-                Analytics.logSignInIfNeeded(balance: balance)
             }
             .store(in: &bag)
 
@@ -216,7 +215,7 @@ class SingleWalletContentViewModel: ObservableObject {
                 title: Localization.walletButtonBuy,
                 icon: Assets.plusMini,
                 action: { [weak self] in
-                    Analytics.log(.buttonBuyMainScreen)
+                    Analytics.log(.buttonBuy)
                     self?.output.openBuyCrypto()
                 }
             ),
