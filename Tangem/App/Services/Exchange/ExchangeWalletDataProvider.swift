@@ -169,7 +169,7 @@ private extension ExchangeWalletDataProvider {
             destination: destination, value: amount.encodedForSend, data: data
         ).async()
 
-        guard let lowFeeModel = feeModel.lowFeeModel,
+        guard let lowFeeModel = feeModel.first,
               let ethFeeParameters = lowFeeModel.parameters as? EthereumFeeParameters else {
             assertionFailure("feeModel don't contains EthereumFeeParameters")
             throw CommonError.noData
@@ -181,7 +181,7 @@ private extension ExchangeWalletDataProvider {
                 blockchain: blockchain,
                 gasPrice: Int(ethFeeParameters.gasPrice),
                 gasLimit: Int(ethFeeParameters.gasLimit),
-                fee: lowFeeModel.fee.value
+                fee: lowFeeModel.amount.value
             )
         default:
             let gasLimit = gasPolicy.value(for: Int(ethFeeParameters.gasLimit))

@@ -77,16 +77,16 @@ extension CommonWalletConnectEthTransactionBuilder: WalletConnectEthTransactionB
 
         walletModel.update(silent: false)
 
-        let gasAmount = try await Amount(
-            with: blockchain,
-            type: .coin,
-            value: Decimal(gasLimit * gasPrice) / blockchain.decimalValue
-        )
+        let feeValue = try await Decimal(gasLimit * gasPrice) / blockchain.decimalValue
+        let gasAmount = Amount(with: blockchain, value: feeValue)
+        let feeParameters = try await EthereumFeeParameters(gasLimit: BigUInt(gasLimit), gasPrice: BigUInt(gasPrice))
+        let fee = Fee(gasAmount, parameters: feeParameters)
+
         let _ = try await walletUpdate
 
         var transaction = try walletModel.walletManager.createTransaction(
             amount: valueAmount,
-            fee: gasAmount,
+            fee: fee,
             sourceAddress: wcTransaction.from,
             destinationAddress: wcTransaction.to
         )
@@ -94,9 +94,7 @@ extension CommonWalletConnectEthTransactionBuilder: WalletConnectEthTransactionB
         let contractDataString = wcTransaction.data.drop0xPrefix
         let wcTxData = Data(hexString: String(contractDataString))
 
-        transaction.params = try await EthereumTransactionParams(
-            gasLimit: BigUInt(gasLimit),
-            gasPrice: BigUInt(gasPrice),
+        transaction.params = EthereumTransactionParams(
             data: wcTxData,
             nonce: wcTransaction.nonce?.hexToInteger
         )
