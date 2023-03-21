@@ -487,6 +487,8 @@ class SendViewModel: ObservableObject {
     }
 
     func onAppear() {
+        Analytics.log(.sendScreenOpened)
+
         if #unavailable(iOS 16) {
             validateClipboard()
         }
@@ -686,16 +688,12 @@ class SendViewModel: ObservableObject {
                     self.error = SendError(error, openMailAction: self.openMail).alertBinder
                 } else {
                     if !isDemo {
-                        let event: Analytics.Event = self.isSellingCrypto ? .userSoldCrypto : .transactionSent
-                        Analytics.log(
-                            event: event,
-                            params: [
-                                .currencyCode: self.blockchainNetwork.blockchain.currencySymbol,
-                                .blockchain: self.blockchainNetwork.blockchain.displayName,
-                            ]
-                        )
-
-                        Analytics.log(.transactionSentBasic, params: [.commonSource: self.isSellingCrypto ? .transactionSourceSell : .transactionSourceSend])
+                        let sourceValue: Analytics.ParameterValue = self.isSellingCrypto ? .transactionSourceSell : .transactionSourceSend
+                        Analytics.log(event: .transactionSent, params: [
+                            .commonSource: sourceValue.rawValue,
+                            .currencyCode: self.blockchainNetwork.blockchain.currencySymbol,
+                            .blockchain: self.blockchainNetwork.blockchain.displayName,
+                        ])
                     }
 
                     let alert = AlertBuilder.makeSuccessAlert(
