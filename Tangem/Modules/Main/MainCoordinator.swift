@@ -292,7 +292,6 @@ extension MainCoordinator: UserWalletListCoordinatorOutput {
 
         let dismissAction: Action = { [weak self] in
             self?.modalOnboardingCoordinator = nil
-            Analytics.log(.onboardingFinished)
             self?.userWalletRepository.updateSelection()
         }
 
