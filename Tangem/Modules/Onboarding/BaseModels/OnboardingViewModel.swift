@@ -180,7 +180,10 @@ class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable>
     }
 
     func onOnboardingFinished(for cardId: String) {
-        AppSettings.shared.cardsStartedActivation.remove(cardId)
+        if AppSettings.shared.cardsStartedActivation.contains(cardId) {
+            Analytics.log(.onboardingFinished)
+            AppSettings.shared.cardsStartedActivation.remove(cardId)
+        }
     }
 
     func backButtonAction() {}
