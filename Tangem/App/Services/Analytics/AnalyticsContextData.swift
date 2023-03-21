@@ -35,7 +35,7 @@ extension AnalyticsContextData {
         baseCurrency = embeddedEntry?.tokens.first?.symbol ?? embeddedEntry?.blockchainNetwork.blockchain.currencySymbol
     }
 
-    func copyWith(userWalletId: Data) -> Self {
+    func copy(with userWalletId: Data) -> Self {
         return .init(
             id: userWalletId.sha256().hexString,
             productType: productType,
