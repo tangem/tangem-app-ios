@@ -175,8 +175,6 @@ class CommonUserWalletRepository: UserWalletRepository {
     }
 
     private func scanInternal() -> AnyPublisher<AppScanTaskResponse, TangemSdkError> {
-        Analytics.log(.readyToScan)
-
         let oldConfig = sdkProvider.sdk.config
         var config = TangemSdkConfigFactory().makeDefaultConfig()
 
