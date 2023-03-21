@@ -29,7 +29,7 @@ class SendViewModel: ObservableObject {
     @Published var isFeeIncluded: Bool = false
     @Published var selectedFeeLevel: Int = 1
     @Published var maxAmountTapped: Bool = false
-    @Published var feeDataModel: FeeType?
+    @Published var fees: [Fee] = []
 
     @ObservedObject var warnings = WarningsContainer() {
         didSet {
@@ -85,7 +85,7 @@ class SendViewModel: ObservableObject {
     @Published var sendFee: String = " "
     @Published var sendTotalSubtitle: String = " "
 
-    @Published var selectedFee: FeeType.FeeModel? = nil
+    @Published var selectedFee: Fee? = nil
     @Published var transaction: BlockchainSdk.Transaction? = nil
     @Published var canFiatCalculation: Bool = true
     @Published var isFeeLoading: Bool = false
@@ -200,7 +200,7 @@ class SendViewModel: ObservableObject {
     private func fillTotalBlockWithDefaults() {
         let dummyAmount = Amount(with: amountToSend, value: 0)
 
-        updateFee(amount: selectedFee?.fee)
+        updateFee(amount: selectedFee?.amount)
         sendAmount = getDescription(for: dummyAmount)
         sendTotal = getDescription(for: dummyAmount)
         sendTotalSubtitle = " "
@@ -325,27 +325,20 @@ class SendViewModel: ObservableObject {
             .dropFirst()
             .compactMap { $0 }
             .combineLatest($validatedDestination.compactMap { $0 }, feeRetrySubject)
-            .tryMap { [unowned self] amount, dest, _ in
+            .flatMap { [unowned self] amount, dest, _ -> AnyPublisher<[Fee], Never> in
                 self.isFeeLoading = true
                 return self.walletModel
                     .getFee(amount: amount, destination: dest)
+                    .catch { [unowned self] error in
+                        self.showLoadingFeeErrorAlert(error: error)
+                        return Just([Fee]())
+                    }
+                    .eraseToAnyPublisher()
             }
-            .switchToLatest()
             .receive(on: RunLoop.main)
-            .sink(receiveCompletion: { [unowned self] completion in
+            .sink(receiveValue: { [unowned self] fees in
                 self.isFeeLoading = false
-
-                switch completion {
-                case .failure(let error):
-                    self.feeDataModel = nil
-                    showLoadingFeeErrorAlert(error: error)
-                case .finished:
-                    break
-                }
-
-            }, receiveValue: { [unowned self] feeDataModel in
-                self.isFeeLoading = false
-                self.feeDataModel = feeDataModel
+                self.fees = fees
             })
             .store(in: &bag)
 
@@ -355,8 +348,8 @@ class SendViewModel: ObservableObject {
                 $selectedFee,
                 $isFeeIncluded
             )
-            .sink { [unowned self] amount, destination, fee, isFeeIncluded in
-                guard let amount = amount, let destination = destination, let fee = fee?.fee else {
+            .sink { [unowned self] amount, destination, selectedFee, isFeeIncluded in
+                guard let amount = amount, let destination = destination, let selectedFee else {
                     if (destination?.isEmpty == false) || destination == nil {
                         self.transaction = nil
                     }
@@ -365,8 +358,8 @@ class SendViewModel: ObservableObject {
 
                 do {
                     let tx = try self.walletModel.walletManager.createTransaction(
-                        amount: isFeeIncluded ? amount - fee : amount,
-                        fee: fee,
+                        amount: isFeeIncluded ? amount - selectedFee.amount : amount,
+                        fee: selectedFee,
                         destinationAddress: destination
                     )
 
@@ -397,27 +390,13 @@ class SendViewModel: ObservableObject {
 
         // MARK: Fee
 
-        $feeDataModel // handle fee selection
+        $fees // handle fee selection
             .combineLatest($selectedFeeLevel)
-            .sink { [unowned self] feeDataModel, level in
-                switch feeDataModel {
-                case .none:
+            .sink { [unowned self] fees, level in
+                if fees.isEmpty {
                     self.selectedFee = nil
-                case .single(let fee):
-                    self.selectedFee = fee
-                case .multiple(let low, let normal, let priority):
-                    switch level {
-                    case 0:
-                        self.selectedFee = low
-                    case 1:
-                        self.selectedFee = normal
-                    case 2:
-                        self.selectedFee = priority
-                    default:
-                        self.selectedFee = nil
-                    }
-                @unknown default:
-                    self.selectedFee = nil
+                } else {
+                    self.selectedFee = fees.count > 1 ? fees[level] : fees.first!
                 }
             }
             .store(in: &bag)
@@ -425,7 +404,7 @@ class SendViewModel: ObservableObject {
         $selectedFee // update fee label
             .uiPublisher
             .sink { [unowned self] newAmount in
-                self.updateFee(amount: newAmount?.fee)
+                self.updateFee(amount: newAmount?.amount)
             }
             .store(in: &bag)
 
@@ -649,13 +628,6 @@ class SendViewModel: ObservableObject {
             }
         }
 
-        if let ethParameters = selectedFee?.parameters as? EthereumFeeParameters {
-            tx.params = EthereumTransactionParams(
-                gasLimit: ethParameters.gasLimit,
-                gasPrice: ethParameters.gasPrice
-            )
-        }
-
         let appDelegate = UIApplication.shared.delegate as! AppDelegate
         appDelegate.addLoadingView()
 
@@ -723,7 +695,7 @@ class SendViewModel: ObservableObject {
 
 private extension SendViewModel {
     func updateViewWith(transaction: BlockchainSdk.Transaction) {
-        let totalAmount = transaction.amount + transaction.fee
+        let totalAmount = transaction.amount + transaction.fee.amount
         let totalInFiatFormatted = totalAndFeeInFiatFormatted(
             from: transaction,
             currencyCode: AppSettings.shared.selectedCurrencyCode
@@ -733,7 +705,7 @@ private extension SendViewModel {
             sendAmount = walletModel.getFiatFormatted(for: transaction.amount, roundingType: .default(roundingMode: .plain)) ?? ""
             sendTotal = totalInFiatFormatted.total
 
-            if transaction.amount.type == transaction.fee.type {
+            if transaction.amount.type == transaction.fee.amount.type {
                 sendTotalSubtitle = Localization.sendTotalSubtitleFormat(totalAmount.description)
             } else {
                 sendTotalSubtitle = Localization.sendTotalSubtitleAssetFormat(
@@ -743,7 +715,7 @@ private extension SendViewModel {
             }
         } else {
             sendAmount = transaction.amount.description
-            sendTotal = (transaction.amount + transaction.fee).description
+            sendTotal = (transaction.amount + transaction.fee.amount).description
 
             if totalInFiatFormatted.total.isEmpty {
                 sendTotalSubtitle = "–"
@@ -755,13 +727,13 @@ private extension SendViewModel {
             }
         }
 
-        updateFee(amount: transaction.fee)
+        updateFee(amount: transaction.fee.amount)
     }
 
     func totalAndFeeInFiatFormatted(from transaction: BlockchainSdk.Transaction, currencyCode: String) -> (total: String, fee: String) {
         guard let famount = walletModel.getFiat(for: transaction.amount, roundingType: .shortestFraction(roundingMode: .plain)),
-              let ffee = walletModel.getFiat(for: transaction.fee, roundingType: .shortestFraction(roundingMode: .plain)),
-              let feeFormatted = walletModel.getFiatFormatted(for: transaction.fee, roundingType: .shortestFraction(roundingMode: .plain)) else {
+              let ffee = walletModel.getFiat(for: transaction.fee.amount, roundingType: .shortestFraction(roundingMode: .plain)),
+              let feeFormatted = walletModel.getFiatFormatted(for: transaction.fee.amount, roundingType: .shortestFraction(roundingMode: .plain)) else {
             return (total: "", fee: "")
         }
 
