@@ -661,7 +661,7 @@ private extension SwappingViewModel {
                 addDestinationTokenToUserWalletList()
                 exchangeManager.didSendSwapTransaction(exchangeTxData: info)
 
-                Analytics.log(.transactionSentBasic, params: [.commonSource: .transactionSourceSwap])
+                Analytics.log(.transactionSent, params: [.commonSource: .transactionSourceSwap])
 
                 await runOnMain {
                     openSuccessView(result: result, transactionModel: info, transactionID: sendResult.hash)
