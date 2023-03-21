@@ -553,28 +553,43 @@ class SendViewModel: ObservableObject {
     }
 
     func validateWithdrawal(_ transaction: BlockchainSdk.Transaction, _ totalAmount: Amount) {
-        if let validator = walletModel.walletManager as? WithdrawalValidator,
-           let warning = validator.validate(transaction),
-           error == nil {
-            let alert = Alert(
-                title: Text(Localization.commonWarning),
-                message: Text(warning.warningMessage),
-                primaryButton: Alert.Button.default(
-                    Text(warning.reduceMessage),
-                    action: {
-                        let newAmount = totalAmount - warning.suggestedReduceAmount
-                        self.amountText = self.isFiatCalculation ? self.walletModel.getFiat(for: newAmount, roundingType: .default(roundingMode: .down))?.description ?? "0" :
-                            newAmount.value.description
-                    }
-                ),
-                secondaryButton: Alert.Button.cancel(
-                    Text(warning.ignoreMessage),
-                    action: {}
-                )
-            )
-            UIApplication.shared.endEditing()
-            error = AlertBinder(alert: alert)
+        guard
+            let validator = walletModel.walletManager as? WithdrawalValidator,
+            let warning = validator.validate(transaction),
+            error == nil
+        else {
+            return
         }
+
+        let title = Text(Localization.commonWarning)
+        let message = Text(warning.warningMessage)
+
+        let reduceAmountButton = Alert.Button.default(
+            Text(warning.reduceMessage),
+            action: {
+                let newAmount = totalAmount - warning.suggestedReduceAmount
+
+                let newAmountValue: Decimal?
+                if self.isFiatCalculation {
+                    newAmountValue = self.walletModel.getFiat(for: newAmount, roundingType: .default(roundingMode: .down))
+                } else {
+                    newAmountValue = newAmount.value
+                }
+                self.amountText = newAmountValue?.description ?? "0"
+            }
+        )
+
+        let ignoreButton = Alert.Button.cancel(Text(warning.ignoreMessage))
+
+        let alert = Alert(
+            title: title,
+            message: message,
+            primaryButton: reduceAmountButton,
+            secondaryButton: ignoreButton
+        )
+
+        UIApplication.shared.endEditing()
+        error = AlertBinder(alert: alert)
     }
 
     // MARK: Validation end -
