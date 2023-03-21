@@ -202,7 +202,7 @@ class TwinsOnboardingViewModel: OnboardingTopupViewModel<TwinsOnboardingStep, On
 
         // remove pair cid
         if let pairCardId = twinsService.twinPairCardId {
-            super.onOnboardingFinished(for: pairCardId)
+            AppSettings.shared.cardsStartedActivation.remove(pairCardId)
         }
     }
 
