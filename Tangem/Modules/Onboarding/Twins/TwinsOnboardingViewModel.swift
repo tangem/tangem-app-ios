@@ -350,12 +350,16 @@ class TwinsOnboardingViewModel: OnboardingTopupViewModel<TwinsOnboardingStep, On
                     AppLog.shared.debug("Wrong state while twinning cards: current - \(self.currentStep), new - \(newStep)")
                 }
 
-                if let pairCardId = twinsService.twinPairCardId,
-                   !retwinMode {
-                    AppSettings.shared.cardsStartedActivation.insert(pairCardId)
-                }
+                if !retwinMode {
+                    if let pairCardId = twinsService.twinPairCardId {
+                        AppSettings.shared.cardsStartedActivation.insert(pairCardId)
+                    }
 
-                self.logZeroBalanceAnalytics()
+                    if let userWalletId = self.cardModel?.userWalletId {
+                        self.analyticsContext.fillContextId(with: userWalletId)
+                        Analytics.logTopUpIfNeeded(balance: 0)
+                    }
+                }
             })
     }
 
