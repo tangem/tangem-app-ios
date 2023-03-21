@@ -166,8 +166,6 @@ class SingleCardOnboardingViewModel: OnboardingTopupViewModel<SingleCardOnboardi
     }
 
     func onAppear() {
-        Analytics.log(.onboardingStarted)
-
         playInitialAnim()
     }
 

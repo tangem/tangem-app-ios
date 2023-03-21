@@ -13,7 +13,6 @@ struct AnalyticsContextData {
     let id: String
     let productType: Analytics.ProductType
     let batchId: String
-    let cardId: String
     let firmware: String
     let baseCurrency: String?
 
@@ -30,7 +29,6 @@ struct AnalyticsContextData {
 extension AnalyticsContextData {
     init(card: CardDTO, productType: Analytics.ProductType, userWalletId: Data, embeddedEntry: StorageEntry?) {
         id = userWalletId.sha256().hexString
-        cardId = card.cardId
         self.productType = productType
         batchId = card.batchId
         firmware = card.firmwareVersion.stringValue

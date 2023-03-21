@@ -166,7 +166,6 @@ class SingleWalletContentViewModel: ObservableObject {
 
                 let balance = singleWalletModel.totalBalance
                 Analytics.logTopUpIfNeeded(balance: balance)
-                Analytics.logSignInIfNeeded(balance: balance)
             }
             .store(in: &bag)
 
