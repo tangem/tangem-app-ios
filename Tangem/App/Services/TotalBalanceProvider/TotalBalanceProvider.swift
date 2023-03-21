@@ -122,7 +122,6 @@ private extension TotalBalanceProvider {
 
         // It is also empty when derivation is missing
         if let balance, !hasEntriesWithoutDerivation {
-            Analytics.logSignInIfNeeded(balance: balance)
             Analytics.logTopUpIfNeeded(balance: balance)
         }
 

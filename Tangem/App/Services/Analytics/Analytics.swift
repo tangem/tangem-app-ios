@@ -34,29 +34,9 @@ class Analytics {
 
         analyticsContext.removeValue(forKey: .scanSource, scope: .common)
         logInternal(.cardWasScanned, params: [.commonSource: source.cardWasScannedParameterValue.rawValue])
-
-        if let cardId = analyticsContext.contextData?.analyticsParams[.cardId],
-           DemoUtil().isDemoCard(cardId: cardId) {
-            log(event: .demoActivated, params: [.cardId: cardId])
-        }
     }
 
     // MARK: - Others
-
-    static func logSignInIfNeeded(balance: Decimal) {
-        let isSignedIn = analyticsContext.value(forKey: .signedIn, scope: .userWallet) as? Bool ?? false
-        if isSignedIn {
-            return
-        }
-
-        analyticsContext.set(value: true, forKey: .signedIn, scope: .userWallet)
-
-        let params: [ParameterKey: String] = [
-            .state: ParameterValue.state(for: balance).rawValue,
-        ]
-
-        logInternal(.signedIn, params: params)
-    }
 
     static func logTopUpIfNeeded(balance: Decimal) {
         let hasPreviousPositiveBalance = analyticsContext.value(forKey: .balance, scope: .userWallet) as? Bool
@@ -211,7 +191,6 @@ fileprivate extension Analytics.Event {
              .buttonScanNewCard,
              .buttonCardSignIn,
              .cardWasScanned,
-             .signedIn,
              .toppedUp,
              .purchased:
             return false
