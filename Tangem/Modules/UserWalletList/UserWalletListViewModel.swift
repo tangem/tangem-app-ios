@@ -43,7 +43,6 @@ final class UserWalletListViewModel: ObservableObject, Identifiable {
     ) {
         self.coordinator = coordinator
 
-        Analytics.log(.myWalletsScreenOpened)
         selectedUserWalletId = userWalletRepository.selectedUserWalletId
         updateModels()
 
@@ -174,6 +173,10 @@ final class UserWalletListViewModel: ObservableObject, Identifiable {
         }
 
         userWalletRepository.delete(viewModel.userWallet)
+    }
+
+    func onAppear() {
+        Analytics.log(.myWalletsScreenOpened)
     }
 
     private func setSelectedWallet(_ userWallet: UserWallet, reason: UserWalletRepositorySelectionChangeReason) {
