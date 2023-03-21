@@ -363,8 +363,6 @@ class WalletOnboardingViewModel: OnboardingTopupViewModel<WalletOnboardingStep, 
     }
 
     func onAppear() {
-        Analytics.log(.onboardingStarted)
-
         if isInitialAnimPlayed {
             return
         }
