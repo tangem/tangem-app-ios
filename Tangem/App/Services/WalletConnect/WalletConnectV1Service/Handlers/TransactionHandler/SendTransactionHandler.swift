@@ -56,7 +56,7 @@ class SendTransactionHandler: WalletConnectTransactionHandler {
                     return
                 }
 
-                Analytics.log(.transactionSentBasic, params: [.commonSource: .transactionSourceWalletConnect])
+                Analytics.log(.transactionSent, params: [.commonSource: .transactionSourceWalletConnect])
 
                 self.delegate?.send(try! Response(url: request.url, value: txHash, id: request.id!), for: self.action)
             }
