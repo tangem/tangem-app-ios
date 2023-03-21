@@ -148,7 +148,6 @@ extension OnboardingCoordinator: OnboardingRoutable {
                 return
             }
 
-            Analytics.log(.onboardingFinished) // should be called only for real onboardings
             openMain(with: card)
         case .root:
             popToRoot()
