@@ -27,8 +27,8 @@ class TestnetBuyCryptoService {
 
         var subs: AnyCancellable!
         subs = walletManager.getFee(amount: amountToSend, destination: destinationAddress)
-            .flatMap { feeModel -> AnyPublisher<TransactionSendResult, Error> in
-                guard let fee = feeModel.first,
+            .flatMap { fees -> AnyPublisher<TransactionSendResult, Error> in
+                guard let fee = fees.first,
                       fee.amount.value <= walletManager.wallet.amounts[.coin]?.value ?? 0 else {
                     return .anyFail(error: Localization.testnetErrorNotEnoughEtherMessage)
                 }
