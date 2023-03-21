@@ -30,6 +30,9 @@ extension Analytics {
         case transactionSourceWalletConnect = "WalletConnect"
         case transactionSourceSell = "Sell"
 
+        case signInTypeCard = "Card"
+        case signInTypeBiometrics = "Biometric"
+
         // MARK: - Actions
 
         case scan = "tap_scan_task"
