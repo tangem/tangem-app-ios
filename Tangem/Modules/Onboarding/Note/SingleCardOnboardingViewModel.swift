@@ -275,7 +275,7 @@ class SingleCardOnboardingViewModel: OnboardingTopupViewModel<SingleCardOnboardi
             self.cardModel?.appendDefaultBlockchains()
 
             if let userWalletId = self.cardModel?.userWalletId {
-                self.analyticsContext.fillContextId(with: userWalletId)
+                self.analyticsContext.updateContext(with: userWalletId)
                 Analytics.logTopUpIfNeeded(balance: 0)
             }
 
