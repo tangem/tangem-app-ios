@@ -274,7 +274,10 @@ class SingleCardOnboardingViewModel: OnboardingTopupViewModel<SingleCardOnboardi
 
             self.cardModel?.appendDefaultBlockchains()
 
-            self.logZeroBalanceAnalytics()
+            if let userWalletId = self.cardModel?.userWalletId {
+                self.analyticsContext.fillContextId(with: userWalletId)
+                Analytics.logTopUpIfNeeded(balance: 0)
+            }
 
             self.cardModel?.userWalletModel?.updateAndReloadWalletModels()
             self.walletCreatedWhileOnboarding = true
