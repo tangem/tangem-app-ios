@@ -12,7 +12,7 @@ protocol AnalyticsContext {
     var contextData: AnalyticsContextData? { get }
 
     func setupContext(with: AnalyticsContextData)
-    func fillContextId(with userWalletId: Data)
+    func updateContext(with userWalletId: Data)
 
     func clearContext()
 
