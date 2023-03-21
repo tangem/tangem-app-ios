@@ -54,7 +54,6 @@ class WelcomeViewModel: ObservableObject {
         guard !isScanningCard else { return }
 
         openShop()
-        Analytics.log(.getACard, params: [.source: Analytics.ParameterValue.welcome])
         Analytics.log(.buttonBuyCards)
     }
 
@@ -100,6 +99,7 @@ class WelcomeViewModel: ObservableObject {
             case .error(let error):
                 self.error = error.alertBinder
             case .success(let cardModel):
+                Analytics.log(.signedIn, params: [.signInType: .signInTypeCard])
                 self.openMain(with: cardModel)
             }
         }
