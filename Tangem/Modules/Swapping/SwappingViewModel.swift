@@ -18,7 +18,7 @@ final class SwappingViewModel: ObservableObject {
     @Published var receiveCurrencyViewModel: ReceiveCurrencyViewModel?
     @Published var swapButtonIsLoading: Bool = false
 
-    @Published var sendDecimalValue: GroupedNumberTextField.DecimalValue?
+    @Published var sendDecimalValue: DecimalNumberTextField.DecimalValue?
     @Published var refreshWarningRowViewModel: DefaultWarningRowViewModel?
     @Published var highPriceImpactWarningRowViewModel: DefaultWarningRowViewModel?
     @Published var permissionInfoRowViewModel: DefaultWarningRowViewModel?
@@ -135,7 +135,7 @@ final class SwappingViewModel: ObservableObject {
 
         // If amount have been set we'll should to round and update it with new decimalCount
         if let amount = sendDecimalValue?.value {
-            let roundedAmount = amount.rounded(scale: items.source.decimalCount, roundingMode: .plain)
+            let roundedAmount = amount.rounded(scale: items.source.decimalCount, roundingMode: .down)
             setupExternalSendValue(roundedAmount)
 
             exchangeManager.update(amount: roundedAmount)
@@ -559,6 +559,8 @@ private extension SwappingViewModel {
             Binding<Bool> {
                 self?.feeInfoRowViewModel != nil
             } set: { isOpen in
+                UIApplication.shared.endEditing()
+
                 if isOpen {
                     let percentFee = self?.exchangeManager.getReferrerAccount()?.fee ?? 0
                     let formattedFee = "\(percentFee.groupedFormatted())%"
