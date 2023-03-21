@@ -474,7 +474,7 @@ extension MainViewModel {
     }
 
     func openBuyCrypto() {
-        Analytics.log(.buttonBuyMainScreen)
+        Analytics.log(.buttonBuy)
 
         if let disabledLocalizedReason = cardModel.getDisabledLocalizedReason(for: .exchange) {
             error = AlertBuilder.makeDemoAlert(disabledLocalizedReason)
