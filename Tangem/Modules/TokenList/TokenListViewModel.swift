@@ -114,6 +114,10 @@ class TokenListViewModel: ObservableObject {
     }
 
     func onAppear() {
+        if !isReadonlyMode {
+            Analytics.log(.manageTokensScreenOpened)
+        }
+
         loader.reset(enteredSearchText.value)
     }
 
