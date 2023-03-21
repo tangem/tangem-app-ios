@@ -78,21 +78,16 @@ class GnosisRegistrator {
             return transactionProcessor
                 .getFee(destination: settings.otpProcessorContractAddress, data: setSpedLimitData)
                 .tryMap { fees -> Transaction in
-                    guard let normalFee = fees.normalFeeModel,
-                          let params = normalFee.parameters as? EthereumFeeParameters else {
-                        throw CommonError.noData
-                    }
+                    let normalFee = fees[1]
 
                     let transactionParams = EthereumTransactionParams(
-                        gasLimit: params.gasLimit,
-                        gasPrice: params.gasPrice,
                         data: setSpedLimitData,
                         nonce: self.transactionProcessor.initialNonce
                     )
 
                     var transaction = try self.walletManager.createTransaction(
                         amount: Amount.zeroCoin(for: self.settings.blockchain),
-                        fee: normalFee.fee,
+                        fee: normalFee,
                         destinationAddress: self.settings.otpProcessorContractAddress
                     )
 
@@ -115,20 +110,15 @@ class GnosisRegistrator {
         return transactionProcessor
             .getFee(destination: settings.otpProcessorContractAddress, data: initOTPData)
             .tryMap { fees -> Transaction in
-                guard let normalFee = fees.normalFeeModel,
-                      let params = normalFee.parameters as? EthereumFeeParameters else {
-                    throw CommonError.noData
-                }
+                let normalFee = fees[1]
 
                 let transactionParams = EthereumTransactionParams(
-                    gasLimit: params.gasLimit,
-                    gasPrice: params.gasPrice,
                     data: initOTPData,
                     nonce: self.transactionProcessor.initialNonce + 1
                 )
                 var transaction = try self.walletManager.createTransaction(
                     amount: Amount.zeroCoin(for: self.settings.blockchain),
-                    fee: normalFee.fee,
+                    fee: normalFee,
                     destinationAddress: self.settings.otpProcessorContractAddress
                 )
                 transaction.params = transactionParams
@@ -148,20 +138,15 @@ class GnosisRegistrator {
             return transactionProcessor
                 .getFee(destination: settings.otpProcessorContractAddress, data: setWalletData)
                 .tryMap { fees -> Transaction in
-                    guard let normalFee = fees.normalFeeModel,
-                          let params = normalFee.parameters as? EthereumFeeParameters else {
-                        throw CommonError.noData
-                    }
+                    let normalFee = fees[1]
 
                     let transactionParams = EthereumTransactionParams(
-                        gasLimit: params.gasLimit,
-                        gasPrice: params.gasPrice,
                         data: setWalletData,
                         nonce: self.transactionProcessor.initialNonce + 2
                     )
                     var transaction = try self.walletManager.createTransaction(
                         amount: Amount.zeroCoin(for: self.settings.blockchain),
-                        fee: normalFee.fee,
+                        fee: normalFee,
                         destinationAddress: self.settings.otpProcessorContractAddress
                     )
                     transaction.params = transactionParams
@@ -187,21 +172,16 @@ class GnosisRegistrator {
             return transactionProcessor
                 .getFee(destination: settings.token.contractAddress, data: approveData)
                 .tryMap { fees -> Transaction in
-                    guard let normalFee = fees.normalFeeModel,
-                          let params = normalFee.parameters as? EthereumFeeParameters else {
-                        throw CommonError.noData
-                    }
+                    let normalFee = fees[1]
 
                     let transactionParams = EthereumTransactionParams(
-                        gasLimit: params.gasLimit,
-                        gasPrice: params.gasPrice,
                         data: approveData,
                         nonce: self.transactionProcessor.initialNonce + 3
                     )
 
                     var transaction = try self.walletManager.createTransaction(
                         amount: zeroApproveAmount,
-                        fee: normalFee.fee,
+                        fee: normalFee,
                         destinationAddress: ""
                     )
                     transaction.params = transactionParams
@@ -226,14 +206,16 @@ class GnosisRegistrator {
                 .tryMap { [settings] gasPrice -> Transaction in
                     let gasLimit = 300000 // [REDACTED_TODO_COMMENT]
                     let feeValue = Decimal(gasLimit * Int(gasPrice)) / settings.blockchain.decimalValue
-                    let fee = Amount(with: settings.blockchain, value: feeValue)
+                    let feeAmount = Amount(with: settings.blockchain, value: feeValue)
 
                     let params = EthereumTransactionParams(
-                        gasLimit: BigUInt(gasLimit),
-                        gasPrice: gasPrice,
                         data: approveData,
                         nonce: self.transactionProcessor.initialNonce
                     )
+
+                    let feeParameters = EthereumFeeParameters(gasLimit: BigUInt(gasLimit), gasPrice: gasPrice)
+                    let fee = Fee(feeAmount, parameters: feeParameters)
+
                     var transaction = try self.walletManager.createTransaction(
                         amount: zeroApproveAmount,
                         fee: fee,
