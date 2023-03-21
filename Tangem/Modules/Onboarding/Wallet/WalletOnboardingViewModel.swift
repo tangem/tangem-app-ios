@@ -786,6 +786,11 @@ class WalletOnboardingViewModel: OnboardingTopupViewModel<WalletOnboardingStep, 
                     AppLog.shared.error(error, params: [.action: .preparePrimary])
                     self?.isMainButtonBusy = false
                 case .finished:
+                    if let userWalletId = self?.cardModel?.userWalletId {
+                        self?.analyticsContext.fillContextId(with: userWalletId)
+                        Analytics.logTopUpIfNeeded(balance: 0)
+                    }
+
                     Analytics.log(.walletCreatedSuccessfully)
                 }
                 self?.stepPublisher = nil
