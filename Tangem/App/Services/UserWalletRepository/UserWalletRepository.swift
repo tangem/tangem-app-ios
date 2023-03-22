@@ -81,8 +81,9 @@ enum UserWalletRepositoryUnlockMethod {
     case card(userWallet: UserWallet?)
 }
 
-enum UserWalletRepositoryError: String, Error, LocalizedError {
+enum UserWalletRepositoryError: String, Error, LocalizedError, BindableError {
     case duplicateWalletAdded
+    case biometricsChanged
 
     var errorDescription: String? {
         rawValue
@@ -92,6 +93,8 @@ enum UserWalletRepositoryError: String, Error, LocalizedError {
         switch self {
         case .duplicateWalletAdded:
             return .init(title: "", message: Localization.userWalletListErrorWalletAlreadySaved)
+        case .biometricsChanged:
+            return .init(title: Localization.commonAttention, message: Localization.keyInvalidatedWarningDescription)
         }
     }
 }
