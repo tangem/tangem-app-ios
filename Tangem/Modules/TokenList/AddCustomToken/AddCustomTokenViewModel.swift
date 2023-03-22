@@ -130,6 +130,7 @@ class AddCustomTokenViewModel: ObservableObject {
     }
 
     func onAppear() {
+        Analytics.log(.customTokenScreenOpened)
         updateBlockchains(getBlockchains(withTokenSupport: true))
         updateDerivationPaths()
     }
