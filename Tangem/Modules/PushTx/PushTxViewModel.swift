@@ -177,7 +177,7 @@ class PushTxViewModel: ObservableObject {
             .sink { [unowned self] isFiat in
                 self.fillPreviousTxInfo(isFiat: isFiat)
                 self.fillTotalBlock(tx: self.newTransaction, isFiat: isFiat)
-                self.updateFeeLabel(amount: self.selectedFee?.amount, isFiat: isFiat)
+                self.updateFeeLabel(fee: self.selectedFee?.amount, isFiat: isFiat)
             }
             .store(in: &bag)
 
@@ -254,7 +254,7 @@ class PushTxViewModel: ObservableObject {
                 self.newTransaction = tx
                 self.isSendEnabled = tx != nil
                 self.fillTotalBlock(tx: tx, isFiat: self.isFiatCalculation)
-                self.updateFeeLabel(amount: fee?.amount)
+                self.updateFeeLabel(fee: fee?.amount)
 
             })
             .store(in: &bag)
@@ -289,9 +289,9 @@ class PushTxViewModel: ObservableObject {
         previousFee = getDescription(for: previousFeeAmount, isFiat: isFiat)
     }
 
-    private func updateFeeLabel(amount: Amount?, isFiat: Bool? = nil) {
+    private func updateFeeLabel(fee: Amount?, isFiat: Bool? = nil) {
         let isFiat = isFiat ?? isFiatCalculation
-        if let fee = amount {
+        if let fee = fee {
             additionalFee = getDescription(for: fee - previousFeeAmount, isFiat: isFiat)
         } else {
             additionalFee = getDescription(for: Amount.zeroCoin(for: blockchainNetwork.blockchain), isFiat: isFiat)
