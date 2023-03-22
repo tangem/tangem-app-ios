@@ -175,8 +175,6 @@ class CommonUserWalletRepository: UserWalletRepository {
     }
 
     private func scanInternal() -> AnyPublisher<AppScanTaskResponse, TangemSdkError> {
-        Analytics.log(.readyToScan)
-
         let oldConfig = sdkProvider.sdk.config
         var config = TangemSdkConfigFactory().makeDefaultConfig()
 
@@ -421,16 +419,14 @@ class CommonUserWalletRepository: UserWalletRepository {
     }
 
     private func initializeServices(for cardModel: CardViewModel, cardInfo: CardInfo) {
-        if let userWalletId = cardModel.userWalletId {
-            let contextData = AnalyticsContextData(
-                card: cardInfo.card,
-                productType: cardModel.productType,
-                userWalletId: userWalletId,
-                embeddedEntry: cardModel.embeddedEntry
-            )
+        let contextData = AnalyticsContextData(
+            card: cardInfo.card,
+            productType: cardModel.productType,
+            userWalletId: cardModel.userWalletId,
+            embeddedEntry: cardModel.embeddedEntry
+        )
 
-            analyticsContext.setupContext(with: contextData)
-        }
+        analyticsContext.setupContext(with: contextData)
 
         if let primaryCard = cardInfo.primaryCard {
             backupServiceProvider.backupService.setPrimaryCard(primaryCard)
