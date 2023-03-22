@@ -89,6 +89,10 @@ class WalletModel: ObservableObject, Identifiable {
     var isDemo: Bool { demoBalance != nil }
     var demoBalance: Decimal?
 
+    var totalBalance: Decimal {
+        allTokenItemViewModels().map { $0.fiatValue }.reduce(0, +)
+    }
+
     let walletManager: WalletManager
 
     private let derivationStyle: DerivationStyle?
