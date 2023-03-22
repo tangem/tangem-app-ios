@@ -12,19 +12,9 @@ typealias OnboardingSeedPhraseManager = OnboardingSeedPhraseGenerator
 
 protocol OnboardingSeedPhraseGenerator {
     var seedPhrase: [String] { get }
+    
     @discardableResult
     func generateSeedPhrase() throws -> [String]
-}
-
-private struct OnboardingSeedPhraseManagerKey: InjectionKey {
-    static var currentValue: OnboardingSeedPhraseManager = CommonOnboardingSeedPhraseManager()
-}
-
-extension InjectedValues {
-    var onboardingSeedPhraseManager: OnboardingSeedPhraseManager {
-        get { Self[OnboardingSeedPhraseManagerKey.self] }
-        set { Self[OnboardingSeedPhraseManagerKey.self] = newValue }
-    }
 }
 
 class CommonOnboardingSeedPhraseManager {
@@ -32,13 +22,7 @@ class CommonOnboardingSeedPhraseManager {
 }
 
 extension CommonOnboardingSeedPhraseManager: OnboardingSeedPhraseGenerator {
-    var seedPhrase: [String] {
-        guard let mnemonic = mnemonic else {
-            return []
-        }
-
-        return mnemonic.mnemonicComponents
-    }
+    var seedPhrase: [String] { mnemonic?.mnemonicComponents ?? [] }
 
     @discardableResult
     func generateSeedPhrase() throws -> [String] {
