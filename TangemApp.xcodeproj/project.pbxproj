@@ -243,6 +243,8 @@
 		B05F1E66299CB81D00E27E32 /* TransactionViewPlaceholder.swift in Sources */ = {isa = PBXBuildFile; fileRef = B05F1E65299CB81D00E27E32 /* TransactionViewPlaceholder.swift */; };
 		B06015E529730C3D00D0F809 /* WalletConnectUIDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B06015E429730C3D00D0F809 /* WalletConnectUIDelegate.swift */; };
 		B0606E122684A946004004ED /* BlinkingModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0606E112684A946004004ED /* BlinkingModifier.swift */; };
+		B0625A2229CB3C6500EDD245 /* OnboardingSeedPhraseInputProcessor.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0625A2129CB3C6500EDD245 /* OnboardingSeedPhraseInputProcessor.swift */; };
+		B0625A2529CB3D2700EDD245 /* OnboardingSeedPhraseImportViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0625A2429CB3D2700EDD245 /* OnboardingSeedPhraseImportViewModel.swift */; };
 		B064284629BF451F00A8AA20 /* OnboardingSeedPhraseImportView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B064284529BF451F00A8AA20 /* OnboardingSeedPhraseImportView.swift */; };
 		B068A7E725678A8800D28CD2 /* TwinCardsUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = B068A7E625678A8800D28CD2 /* TwinCardsUtils.swift */; };
 		B06917E0270444CE0000E6C1 /* OnboardingWalletInfoPager.swift in Sources */ = {isa = PBXBuildFile; fileRef = B06917DF270444CE0000E6C1 /* OnboardingWalletInfoPager.swift */; };
@@ -1143,6 +1145,8 @@
 		B05F1E65299CB81D00E27E32 /* TransactionViewPlaceholder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransactionViewPlaceholder.swift; sourceTree = "<group>"; };
 		B06015E429730C3D00D0F809 /* WalletConnectUIDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletConnectUIDelegate.swift; sourceTree = "<group>"; };
 		B0606E112684A946004004ED /* BlinkingModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlinkingModifier.swift; sourceTree = "<group>"; };
+		B0625A2129CB3C6500EDD245 /* OnboardingSeedPhraseInputProcessor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingSeedPhraseInputProcessor.swift; sourceTree = "<group>"; };
+		B0625A2429CB3D2700EDD245 /* OnboardingSeedPhraseImportViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingSeedPhraseImportViewModel.swift; sourceTree = "<group>"; };
 		B064284529BF451F00A8AA20 /* OnboardingSeedPhraseImportView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingSeedPhraseImportView.swift; sourceTree = "<group>"; };
 		B066822426564ADB00CB86CF /* Intents.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Intents.framework; path = System/Library/Frameworks/Intents.framework; sourceTree = SDKROOT; };
 		B066822F26564ADB00CB86CF /* IntentsUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = IntentsUI.framework; path = System/Library/Frameworks/IntentsUI.framework; sourceTree = SDKROOT; };
@@ -2518,6 +2522,15 @@
 			path = TransactionHistory;
 			sourceTree = "<group>";
 		};
+		B0625A2329CB3D1000EDD245 /* OnboardingSeedPhraseImportView */ = {
+			isa = PBXGroup;
+			children = (
+				B064284529BF451F00A8AA20 /* OnboardingSeedPhraseImportView.swift */,
+				B0625A2429CB3D2700EDD245 /* OnboardingSeedPhraseImportViewModel.swift */,
+			);
+			path = OnboardingSeedPhraseImportView;
+			sourceTree = "<group>";
+		};
 		B068A7E525678A6E00D28CD2 /* Utilities */ = {
 			isa = PBXGroup;
 			children = (
@@ -2918,10 +2931,11 @@
 		B0FC72E929B798FA001930D4 /* SeedPhrase */ = {
 			isa = PBXGroup;
 			children = (
+				B0625A2329CB3D1000EDD245 /* OnboardingSeedPhraseImportView */,
 				B0FC72EA29B7991A001930D4 /* OnboardingSeedPhraseIntroView.swift */,
 				B06ADFD729B9CEEC00E92E5E /* OnboardingSeedPhraseGenerateView.swift */,
-				B064284529BF451F00A8AA20 /* OnboardingSeedPhraseImportView.swift */,
 				B06A827F29C81E3A00B6160E /* SeedPhraseTextView.swift */,
+				B0625A2129CB3C6500EDD245 /* OnboardingSeedPhraseInputProcessor.swift */,
 			);
 			path = SeedPhrase;
 			sourceTree = "<group>";
@@ -5141,6 +5155,7 @@
 				EF08A0F1283D2382008BD923 /* CoinsListRequestModel.swift in Sources */,
 				EF130EBC28E1D34500D37EFC /* MultiWalletContentView.swift in Sources */,
 				DC295B5D2862E6DE006CB7B6 /* BackUpWarningView.swift in Sources */,
+				B0625A2529CB3D2700EDD245 /* OnboardingSeedPhraseImportViewModel.swift in Sources */,
 				DC66BC10285C405C00CDF765 /* CoordinatorObject.swift in Sources */,
 				EF4B41BB2864491B003911F6 /* TangemSkeletonModifier.swift in Sources */,
 				B020FFBE25DE895E00EF422C /* FileLogger.swift in Sources */,
@@ -5513,6 +5528,7 @@
 				DC66BC0A285B755800CDF765 /* PushTxRoutable.swift in Sources */,
 				EF0F99AC289028F8008B01DF /* AppSettingsViewModel.swift in Sources */,
 				DCBC944F2993FE720050BC35 /* Analytics+ParameterValue.swift in Sources */,
+				B0625A2229CB3C6500EDD245 /* OnboardingSeedPhraseInputProcessor.swift in Sources */,
 				B0CA52F929C04FA10076E2EF /* TonCenterApiKeys.swift in Sources */,
 				EF692A492951E7C8001F4B8A /* Localizable+Generated.swift in Sources */,
 			);
