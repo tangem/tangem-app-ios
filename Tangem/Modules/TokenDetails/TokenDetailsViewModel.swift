@@ -462,7 +462,6 @@ extension TokenDetailsViewModel {
             coordinator.openBuyCrypto(at: url, closeUrl: buyCryptoCloseUrl) { [weak self] _ in
                 guard let self else { return }
 
-                Analytics.log(event: .userBoughtCrypto, params: [.currencyCode: self.currencySymbol])
                 Analytics.log(event: .tokenBought, params: [.token: self.currencySymbol])
 
                 DispatchQueue.main.asyncAfter(deadline: .now() + 1) { [weak self] in
