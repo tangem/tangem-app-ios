@@ -10,7 +10,7 @@ import TangemSdk
 import SwiftUI
 import Combine
 
-typealias OnboardingSeedPhraseManager = OnboardingSeedPhraseGenerator & SeedPhraseInputProcessor
+typealias OnboardingSeedPhraseManager = OnboardingSeedPhraseGenerator & OnboardingSeedPhraseInputProcessor
 
 protocol OnboardingSeedPhraseGenerator {
     var seedPhrase: [String] { get }
@@ -29,12 +29,12 @@ extension InjectedValues {
         set { Self[OnboardingSeedPhraseManagerKey.self] = newValue }
     }
 
-    var seedPhraseInputProcessor: SeedPhraseInputProcessor { Self[OnboardingSeedPhraseManagerKey.self] }
+    var seedPhraseInputProcessor: OnboardingSeedPhraseInputProcessor { Self[OnboardingSeedPhraseManagerKey.self] }
 
     var seedPhraseGenerator: OnboardingSeedPhraseGenerator { Self[OnboardingSeedPhraseManagerKey.self] }
 }
 
-protocol SeedPhraseInputProcessor {
+protocol OnboardingSeedPhraseInputProcessor {
     var inputTextPublisher: Published<NSAttributedString>.Publisher { get }
     var isValidSeedPhrasePublisher: Published<Bool>.Publisher { get }
     var inputErrorPublisher: Published<String?>.Publisher { get }
@@ -83,7 +83,7 @@ extension CommonOnboardingSeedPhraseManager: OnboardingSeedPhraseGenerator {
     }
 }
 
-extension CommonOnboardingSeedPhraseManager: SeedPhraseInputProcessor {
+extension CommonOnboardingSeedPhraseManager: OnboardingSeedPhraseInputProcessor {
     var inputTextPublisher: Published<NSAttributedString>.Publisher { $userInputSubject }
 
     var isValidSeedPhrasePublisher: Published<Bool>.Publisher { $isSeedPhraseValid }
