@@ -20,7 +20,7 @@ enum WalletOnboardingStep: Equatable {
     // Wallet 2.0
     case createWalletSelector
     case seedPhraseIntro
-    case seedPhraseGenerate
+    case seedPhraseGeneration
     case seedPhraseImport
 
     // visa only
@@ -53,7 +53,7 @@ enum WalletOnboardingStep: Equatable {
             return Localization.onboardingGettingStarted
         case .createWalletSelector:
             return Localization.walletTitle
-        case .seedPhraseIntro, .seedPhraseGenerate:
+        case .seedPhraseIntro, .seedPhraseGeneration:
             return Localization.walletButtonCreateWallet
         case .seedPhraseImport:
             return Localization.onboardingSeedIntroButtonImport
@@ -125,7 +125,7 @@ extension WalletOnboardingStep: OnboardingMessagesProvider, SuccessStep {
             return Localization.onboardingTitlePin
         case .createWalletSelector:
             return Localization.onboardingCreateWalletOptionsTitle
-        case .seedPhraseIntro, .seedPhraseGenerate, .seedPhraseImport:
+        case .seedPhraseIntro, .seedPhraseGeneration, .seedPhraseImport:
             return nil
         }
     }
@@ -155,7 +155,7 @@ extension WalletOnboardingStep: OnboardingMessagesProvider, SuccessStep {
             return Localization.onboardingSubtitleSuccessClaim
         case .createWalletSelector:
             return Localization.onboardingCreateWalletOptionsMessage
-        case .seedPhraseIntro, .seedPhraseGenerate, .seedPhraseImport:
+        case .seedPhraseIntro, .seedPhraseGeneration, .seedPhraseImport:
             return nil
         }
     }
