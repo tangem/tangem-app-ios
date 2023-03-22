@@ -382,8 +382,6 @@ class WalletOnboardingViewModel: OnboardingTopupViewModel<WalletOnboardingStep, 
     }
 
     func onAppear() {
-        Analytics.log(.onboardingStarted)
-
         if isInitialAnimPlayed {
             return
         }
@@ -432,8 +430,7 @@ class WalletOnboardingViewModel: OnboardingTopupViewModel<WalletOnboardingStep, 
         }
 
         if let cardModel = cardModel,
-           let backup = cardModel.backupInput, backup.steps.stepsCount > 0,
-           !AppSettings.shared.cardsStartedActivation.contains(cardModel.cardId) {
+           let backup = cardModel.backupInput, backup.steps.stepsCount > 0 {
             AppSettings.shared.cardsStartedActivation.insert(cardModel.cardId)
         }
 
@@ -749,11 +746,7 @@ class WalletOnboardingViewModel: OnboardingTopupViewModel<WalletOnboardingStep, 
     }
 
     private func back() {
-        if isFromMain {
-            onboardingDidFinish()
-        } else {
-            closeOnboarding()
-        }
+        closeOnboarding()
 
         backupService.discardIncompletedBackup()
     }
@@ -816,9 +809,9 @@ class WalletOnboardingViewModel: OnboardingTopupViewModel<WalletOnboardingStep, 
         Analytics.log(.buttonCreateWallet)
 
         isMainButtonBusy = true
-        if !input.isStandalone {
-            AppSettings.shared.cardsStartedActivation.insert(input.cardInput.cardId)
-        }
+
+        AppSettings.shared.cardsStartedActivation.insert(input.cardInput.cardId)
+
         stepPublisher = preparePrimaryCardPublisher()
             .combineLatest(NotificationCenter.didBecomeActivePublisher)
             .first()
@@ -829,6 +822,11 @@ class WalletOnboardingViewModel: OnboardingTopupViewModel<WalletOnboardingStep, 
                     AppLog.shared.error(error, params: [.action: .preparePrimary])
                     self?.isMainButtonBusy = false
                 case .finished:
+                    if let userWalletId = self?.cardModel?.userWalletId {
+                        self?.analyticsContext.updateContext(with: userWalletId)
+                        Analytics.logTopUpIfNeeded(balance: 0)
+                    }
+
                     Analytics.log(.walletCreatedSuccessfully)
                 }
                 self?.stepPublisher = nil
