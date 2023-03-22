@@ -6,34 +6,7 @@
 //  Copyright © 2023 Tangem AG. All rights reserved.
 //
 
-import Combine
 import SwiftUI
-
-class OnboardingSeedPhraseImportViewModel: ObservableObject {
-    @Published var isSeedPhraseValid: Bool = false
-    @Published var inputError: String? = nil
-    let inputProcessor: OnboardingSeedPhraseInputProcessor
-    let importButtonAction: () -> Void
-
-    private var importButtonSubscription: AnyCancellable?
-    private var errorSubscription: AnyCancellable?
-
-    init(inputProcessor: OnboardingSeedPhraseInputProcessor, importButtonAction: @escaping () -> Void) {
-        self.inputProcessor = inputProcessor
-        self.importButtonAction = importButtonAction
-        bind()
-    }
-
-    private func bind() {
-        importButtonSubscription = inputProcessor.isValidSeedPhrasePublisher
-            .receive(on: DispatchQueue.main)
-            .assign(to: \.isSeedPhraseValid, on: self)
-
-        errorSubscription = inputProcessor.inputErrorPublisher
-            .receive(on: DispatchQueue.main)
-            .assign(to: \.inputError, on: self)
-    }
-}
 
 struct OnboardingSeedPhraseImportView: View {
     @ObservedObject var viewModel: OnboardingSeedPhraseImportViewModel
@@ -79,8 +52,8 @@ struct OnboardingSeedPhraseImportView: View {
 }
 
 struct OnboardingSeedPhraseImportView_Previews: PreviewProvider {
-    private static let manager = CommonOnboardingSeedPhraseManager()
-    private static let viewModel = OnboardingSeedPhraseImportViewModel(inputProcessor: manager, importButtonAction: {})
+    private static let processor = DefaultOnboardinSeedPhraseInputProcessor()
+    private static let viewModel = OnboardingSeedPhraseImportViewModel(inputProcessor: processor, importButtonAction: {})
 
     static var previews: some View {
         OnboardingSeedPhraseImportView(viewModel: viewModel)
