@@ -329,13 +329,16 @@ class SendViewModel: ObservableObject {
                 self.isFeeLoading = true
                 return self.walletModel
                     .getFee(amount: amount, destination: dest)
+                    .receive(on: DispatchQueue.main)
                     .catch { [unowned self] error in
+                        AppLog.shared.error(error)
                         self.showLoadingFeeErrorAlert(error: error)
                         return Just([Fee]())
                     }
                     .eraseToAnyPublisher()
             }
             .receive(on: RunLoop.main)
+            .eraseToAnyPublisher()
             .sink(receiveValue: { [unowned self] fees in
                 self.isFeeLoading = false
                 self.fees = fees
@@ -778,8 +781,6 @@ private extension SendViewModel {
     }
 
     func showLoadingFeeErrorAlert(error: Error) {
-        AppLog.shared.error(error)
-
         let errorText: String
         if let ethError = error as? ETHError,
            case .gasRequiredExceedsAllowance = ethError {
