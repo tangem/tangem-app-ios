@@ -59,10 +59,6 @@ class DefaultOnboardinSeedPhraseInputProcessor: OnboardingSeedPhraseInputProcess
         prepare(input: input, editingWord: "").result
     }
 
-    func process(_ input: String) {
-        process(input, editingWord: "")
-    }
-
     func process(_ input: String, editingWord: String) {
         let preparationResult = prepare(input: input, editingWord: editingWord)
         userInputSubject = preparationResult.result
@@ -70,13 +66,13 @@ class DefaultOnboardinSeedPhraseInputProcessor: OnboardingSeedPhraseInputProcess
     }
 
     func validate(_ input: String) {
-        let parsedWords = parse(mnemonicString: input)
-        validate(parsedWords: parsedWords)
+        let words = parse(userInput: input)
+        validate(words: words)
     }
 
     private func prepare(input: String, editingWord: String) -> PreparationResult {
-        let parsed = parse(mnemonicString: input)
-        return prepare(words: parsed, editingWord: editingWord)
+        let words = parse(userInput: input)
+        return prepare(words: words, editingWord: editingWord)
     }
 
     private func validate(preparationResult: PreparationResult) {
@@ -85,13 +81,13 @@ class DefaultOnboardinSeedPhraseInputProcessor: OnboardingSeedPhraseInputProcess
             isSeedPhraseValid = false
             return
         }
-        validate(parsedWords: preparationResult.parsedWords)
+        validate(words: preparationResult.parsedWords)
     }
 
-    private func validate(parsedWords: [String]) {
+    private func validate(words: [String]) {
         do {
             inputError = nil
-            try BIP39().validate(mnemonicComponents: parsedWords)
+            try BIP39().validate(mnemonicComponents: words)
             isSeedPhraseValid = true
         } catch {
             processValidationError(error)
@@ -112,12 +108,9 @@ class DefaultOnboardinSeedPhraseInputProcessor: OnboardingSeedPhraseInputProcess
                 containsInvalidWords = true
             }
 
-            var color = isValidWord ? defaultTextColor : invalidTextColor
-            if editingWord == parsedWord {
-                color = defaultTextColor
-            }
+            let wordColor = (isValidWord || editingWord == parsedWord) ? defaultTextColor : invalidTextColor
             let string = NSMutableAttributedString()
-            string.append(NSAttributedString(string: parsedWord, attributes: [.foregroundColor: color, .font: defaultTextFont]))
+            string.append(NSAttributedString(string: parsedWord, attributes: [.foregroundColor: wordColor, .font: defaultTextFont]))
             string.append(NSAttributedString(string: separator, attributes: [.foregroundColor: defaultTextColor, .font: defaultTextFont]))
             mutableStr.append(string)
         }
@@ -125,18 +118,18 @@ class DefaultOnboardinSeedPhraseInputProcessor: OnboardingSeedPhraseInputProcess
         return PreparationResult(result: mutableStr, parsedWords: words, containsInvalidWords: containsInvalidWords)
     }
 
-    private func parse(mnemonicString: String) -> [String] {
+    private func parse(userInput: String) -> [String] {
         // Regular expression for parsing any letter in any language
         let regex = try! NSRegularExpression(pattern: "\\p{L}+")
-        let range = NSRange(location: 0, length: mnemonicString.count)
-        let matches = regex.matches(in: mnemonicString, range: range)
+        let range = NSRange(location: 0, length: userInput.count)
+        let matches = regex.matches(in: userInput, range: range)
         let components = matches.compactMap { result -> String? in
             guard result.numberOfRanges > 0,
-                  let stringRange = Range(result.range(at: 0), in: mnemonicString) else {
+                  let stringRange = Range(result.range(at: 0), in: userInput) else {
                 return nil
             }
 
-            return String(mnemonicString[stringRange]).trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+            return String(userInput[stringRange]).trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
         }
 
         return components
@@ -149,12 +142,10 @@ class DefaultOnboardinSeedPhraseInputProcessor: OnboardingSeedPhraseInputProcess
         }
 
         switch mnemonicError {
-        case .invalidEntropyLength, .invalidWordCount, .invalidWordsFile, .mnenmonicCreationFailed, .normalizationFailed:
+        case .invalidEntropyLength, .invalidWordCount, .invalidWordsFile, .mnenmonicCreationFailed, .normalizationFailed, .wrongWordCount:
             break
         case .invalidCheksum:
             inputError = "Invalid checksum. Please check words order"
-        case .wrongWordCount:
-            return
         case .unsupportedLanguage, .invalidWords:
             inputError = "Invalid seed phrase, please check your spelling"
         @unknown default:
