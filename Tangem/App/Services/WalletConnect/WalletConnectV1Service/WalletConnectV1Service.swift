@@ -159,11 +159,9 @@ extension WalletConnectV1Service: WalletConnectHandlerDataSource {
 extension WalletConnectV1Service: WalletConnectHandlerDelegate {
     func send(_ response: Response, for action: WalletConnectAction) {
         server.send(response)
-        Analytics.log(event: .wcSuccessResponse, params: [.walletConnectAction: action.rawValue])
     }
 
     func sendInvalid(_ request: Request) {
-        Analytics.log(event: .wcInvalidRequest, params: [.walletConnectRequest: request.jsonString])
         server.send(.invalid(request))
     }
 
@@ -203,7 +201,6 @@ extension WalletConnectV1Service {
 
             self.sessions.remove(at: index)
             self.save()
-            Analytics.log(event: .wcSessionDisconnected, params: [.walletConnectDappUrl: session.session.dAppInfo.peerMeta.url.absoluteString])
             Analytics.log(.sessionDisconnected)
         }
     }
@@ -378,7 +375,6 @@ extension WalletConnectV1Service: ServerDelegate {
                 if let wallet = self.wallet { // new session only if wallet exists
                     self.sessions.append(WalletConnectSession(wallet: wallet, session: session, status: .connected))
                     self.save()
-                    Analytics.log(event: .wcNewSession, params: [.walletConnectDappUrl: session.dAppInfo.peerMeta.url.absoluteString])
                 }
             }
 
