@@ -57,7 +57,10 @@ extension ExchangeWalletDataProvider: WalletDataProvider {
     ) async throws -> EthereumGasDataModel {
         try await getFee(
             blockchain: blockchain,
-            value: value, data: data, destination: destinationAddress, gasPolicy: .mediumRaise
+            value: value,
+            data: data,
+            destination: destinationAddress,
+            gasPolicy: .mediumRaise
         )
     }
 
@@ -166,7 +169,9 @@ private extension ExchangeWalletDataProvider {
         let amount = createAmount(from: blockchain, amount: value)
 
         let fees = try await ethereumTransactionProcessor.getFee(
-            destination: destination, value: amount.encodedForSend, data: data
+            destination: destination,
+            value: amount.encodedForSend,
+            data: data
         ).async()
 
         guard let lowFeeModel = fees.first,
