@@ -579,15 +579,10 @@ class SendViewModel: ObservableObject {
             }
         )
 
-        let ignoreButton: Alert.Button?
-        if let ignoreMessage = warning.ignoreMessage {
-            ignoreButton = Alert.Button.cancel(Text(ignoreMessage))
-        } else {
-            ignoreButton = nil
-        }
-
         let alert: Alert
-        if let ignoreButton {
+        if let ignoreMessage = warning.ignoreMessage {
+            let ignoreButton = Alert.Button.cancel(Text(ignoreMessage))
+
             alert = Alert(
                 title: title,
                 message: message,
