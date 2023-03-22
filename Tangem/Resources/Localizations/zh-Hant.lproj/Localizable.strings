@@ -140,6 +140,7 @@
 "initial_message_create_wallet_body" = "要創建錢包，請完全按照上圖所示連接手機和卡";
 "initial_message_purge_wallet_body" = "要重置為出廠設置，請完全按照上圖所示連接手機和卡片";
 "initial_message_sign_body" = "要簽名，請完全按照上圖所示連接手機和卡";
+"key_invalidated_warning_description" = "You have updated biometrics, scan your card to enter";
 "mail_error_no_accounts_body" = "請設置一個帳戶以發送電子郵件";
 "mail_error_no_accounts_title" = "沒有郵件帳戶";
 "main_manage_tokens" = "管理代幣";
