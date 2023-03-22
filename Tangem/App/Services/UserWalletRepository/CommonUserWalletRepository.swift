@@ -466,6 +466,13 @@ class CommonUserWalletRepository: UserWalletRepository {
                 case .failure(let error):
                     completion(.error(error))
                 case .success(let keys):
+                    if keys.isEmpty {
+                        // self.userWallets = []
+                        // AccessCodeRepository().clear()
+                        completion(.error(UserWalletRepositoryError.biometricsChanged))
+                        return
+                    }
+
                     self.encryptionKeyByUserWalletId = keys
                     self.userWallets = self.savedUserWallets(withSensitiveData: true)
                     self.loadModels()
