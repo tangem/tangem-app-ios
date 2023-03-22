@@ -42,8 +42,6 @@ extension CommonOnboardingSeedPhraseManager: OnboardingSeedPhraseManager {
     }
 
     func generateSeedMnemonic(using input: String) throws -> Mnemonic {
-        let mnemonic = try Mnemonic(with: input)
-        self.mnemonic = mnemonic
-        return mnemonic
+        return try Mnemonic(with: input)
     }
 }
