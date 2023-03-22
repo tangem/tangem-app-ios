@@ -166,6 +166,10 @@ extension DetailsViewModel {
 
         coordinator.openReferral(with: cardModel, userWalletId: userWalletId)
     }
+
+    func onAppear() {
+        Analytics.log(.settingsScreenOpened)
+    }
 }
 
 // MARK: - Private
