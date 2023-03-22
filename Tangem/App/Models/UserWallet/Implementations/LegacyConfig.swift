@@ -44,11 +44,7 @@ struct LegacyConfig {
 
 extension LegacyConfig: UserWalletConfig {
     var cardSetLabel: String? {
-        if isMultiwallet {
-            return Localization.cardLabelCardCount(1)
-        } else {
-            return nil
-        }
+        isMultiwallet ? Localization.cardLabelCardCount(1) : nil
     }
 
     var cardsCount: Int {
