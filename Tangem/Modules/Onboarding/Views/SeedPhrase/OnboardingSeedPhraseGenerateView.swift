@@ -15,17 +15,11 @@ struct OnboardingSeedPhraseGenerateView: View {
     var body: some View {
         VStack(spacing: 0) {
             Text(Localization.onboardingSeedGenerateTitle)
-                .style(
-                    Fonts.Bold.title1,
-                    color: Colors.Text.primary1
-                )
+                .style(Fonts.Bold.title1, color: Colors.Text.primary1)
                 .padding(.top, 40)
 
             Text(Localization.onboardingSeedGenerateMessage)
-                .style(
-                    Fonts.Regular.callout,
-                    color: Colors.Text.secondary
-                )
+                .style(Fonts.Regular.callout, color: Colors.Text.secondary)
                 .multilineTextAlignment(.center)
                 .lineSpacing(3)
                 .padding(.horizontal, 54)
@@ -56,17 +50,10 @@ struct OnboardingSeedPhraseGenerateView: View {
         VStack(alignment: .leading, spacing: 18) {
             ForEach(indexRange, id: \.self) { index in
                 HStack(alignment: .center) {
-                    Text("\(index + 1).")
-                        .style(
-                            Fonts.Regular.subheadline,
-                            color: Colors.Text.tertiary
-                        )
-
-                    Text("\(words[index])")
-                        .style(
-                            Fonts.Bold.subheadline,
-                            color: Colors.Text.primary1
-                        )
+                    Text("\(index + 1).\t")
+                        .style(Fonts.Regular.subheadline, color: Colors.Text.tertiary) +
+                        Text("\(words[index])")
+                        .style(Fonts.Bold.subheadline, color: Colors.Text.primary1)
 
                     Spacer()
                 }
