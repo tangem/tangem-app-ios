@@ -89,10 +89,10 @@ extension WelcomeCoordinator: WelcomeRoutable {
         let options = OnboardingCoordinator.Options(input: input, destination: .main)
         coordinator.start(with: options)
         pushedOnboardingCoordinator = coordinator
+        Analytics.log(.onboardingStarted)
     }
 
     func openMain(with cardModel: CardViewModel) {
-        Analytics.log(.screenOpened)
         let coordinator = MainCoordinator(popToRootAction: popToRootAction)
         let options = MainCoordinator.Options(cardModel: cardModel)
         coordinator.start(with: options)
