@@ -12,13 +12,13 @@ import SwiftUI
 class OnboardingSeedPhraseImportViewModel: ObservableObject {
     @Published var isSeedPhraseValid: Bool = false
     @Published var inputError: String? = nil
-    let inputProcessor: SeedPhraseInputProcessor
+    let inputProcessor: OnboardingSeedPhraseInputProcessor
     let importButtonAction: () -> Void
 
     private var importButtonSubscription: AnyCancellable?
     private var errorSubscription: AnyCancellable?
 
-    init(inputProcessor: SeedPhraseInputProcessor, importButtonAction: @escaping () -> Void) {
+    init(inputProcessor: OnboardingSeedPhraseInputProcessor, importButtonAction: @escaping () -> Void) {
         self.inputProcessor = inputProcessor
         self.importButtonAction = importButtonAction
         bind()
