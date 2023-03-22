@@ -42,21 +42,22 @@ protocol SeedPhraseInputProcessor {
     var defaultTextFont: UIFont { get }
     func setupProcessor()
     func prepare(input: String) -> NSAttributedString
-    func prepare(input: String, editingWord: String) -> NSAttributedString
     func process(_ input: String)
     func process(_ input: String, editingWord: String)
     func validate(input: String)
 }
 
 class CommonOnboardingSeedPhraseManager {
-    private var mnemonic: Mnemonic?
+    let defaultTextColor: UIColor = Colors.Text.primary1.uiColorFromRGB()
+    let invalidTextColor: UIColor = Colors.Text.warning.uiColorFromRGB()
+    let defaultTextFont: UIFont = UIFonts.Regular.body
 
     @Published private var userInputSubject: NSAttributedString = .init(string: "")
     @Published private var isSeedPhraseValid: Bool = false
     @Published private var inputError: String? = nil
 
-    var dict: [String] = []
-    var keyedDict: [Character: [String]] = [:]
+    private var keyedDict: [Character: [String]] = [:]
+    private var mnemonic: Mnemonic?
 }
 
 extension CommonOnboardingSeedPhraseManager: OnboardingSeedPhraseGenerator {
@@ -89,24 +90,15 @@ extension CommonOnboardingSeedPhraseManager: SeedPhraseInputProcessor {
 
     var inputErrorPublisher: Published<String?>.Publisher { $inputError }
 
-    var defaultTextColor: UIColor {
-        Colors.Text.primary1.uiColorFromRGB()
-    }
-
-    var defaultTextFont: UIFont {
-        UIFonts.Regular.body
-    }
-
     func setupProcessor() {
         // Add setup of dict language when other languages will be added to SDK
-        dict = BIP39.Wordlist.en.words
-        keyedDict = .init(grouping: dict, by: { $0.first ?? " " })
+        // After adding new language need to check how it will work with it.
+        keyedDict = .init(grouping: BIP39.Wordlist.en.words, by: { $0.first ?? " " })
         userInputSubject = .init(string: "")
-        AppLog.shared.debug(dict)
     }
 
     func prepare(input: String) -> NSAttributedString {
-        prepare(input: input, editingWord: "")
+        prepare(input: input, editingWord: "").result
     }
 
     func process(_ input: String) {
@@ -114,19 +106,33 @@ extension CommonOnboardingSeedPhraseManager: SeedPhraseInputProcessor {
     }
 
     func process(_ input: String, editingWord: String) {
-        userInputSubject = prepare(input: input, editingWord: editingWord)
-        validate(input: input)
+        let preparationResult = prepare(input: input, editingWord: editingWord)
+        userInputSubject = preparationResult.result
+        validate(preparationResult: preparationResult)
     }
 
-    func prepare(input: String, editingWord: String) -> NSAttributedString {
+    func validate(input: String) {
+        let parsedWords = parse(mnemonicString: input)
+        validate(parsedWords: parsedWords)
+    }
+
+    private func prepare(input: String, editingWord: String) -> PreparationResult {
         let parsed = parse(mnemonicString: input)
         return prepare(words: parsed, editingWord: editingWord)
     }
 
-    func validate(input: String) {
+    private func validate(preparationResult: PreparationResult) {
+        if preparationResult.containsInvalidWords {
+            processValidationError(MnemonicError.invalidWords(words: []))
+            isSeedPhraseValid = false
+            return
+        }
+        validate(parsedWords: preparationResult.parsedWords)
+    }
+
+    private func validate(parsedWords: [String]) {
         do {
             inputError = nil
-            let parsedWords = parse(mnemonicString: input)
             try BIP39().validate(mnemonicComponents: parsedWords)
             isSeedPhraseValid = true
         } catch {
@@ -136,15 +142,23 @@ extension CommonOnboardingSeedPhraseManager: SeedPhraseInputProcessor {
         }
     }
 
-    private func prepare(words: [String], editingWord: String) -> NSAttributedString {
+    private func prepare(words: [String], editingWord: String) -> PreparationResult {
         let mutableStr = NSMutableAttributedString()
-        let invalidWordColor = Colors.Text.warning.uiColorFromRGB()
         let separator = " "
+        var containsInvalidWords = false
 
         for i in 0 ..< words.count {
             let parsedWord = words[i]
-            let isValidWord = dict.contains(parsedWord)
-            var color = isValidWord ? defaultTextColor : invalidWordColor
+            guard let firstChar = parsedWord.first else {
+                continue
+            }
+
+            let isValidWord = keyedDict[firstChar]?.contains(parsedWord) ?? false
+            if !isValidWord {
+                containsInvalidWords = true
+            }
+
+            var color = isValidWord ? defaultTextColor : invalidTextColor
             if editingWord == parsedWord {
                 color = defaultTextColor
             }
@@ -154,11 +168,12 @@ extension CommonOnboardingSeedPhraseManager: SeedPhraseInputProcessor {
             mutableStr.append(string)
         }
 
-        return mutableStr
+        return PreparationResult(result: mutableStr, parsedWords: words, containsInvalidWords: containsInvalidWords)
     }
 
     private func parse(mnemonicString: String) -> [String] {
         do {
+            // Regular expression for parsing any letter in any language
             let regex = try NSRegularExpression(pattern: "\\p{L}+")
             let range = NSRange(location: 0, length: mnemonicString.count)
             let matches = regex.matches(in: mnemonicString, range: range)
@@ -193,12 +208,18 @@ extension CommonOnboardingSeedPhraseManager: SeedPhraseInputProcessor {
             inputError = "Invalid checksum. Please check words order"
         case .wrongWordCount:
             return
-        case .unsupportedLanguage:
-            inputError = "Currently input language is not supported"
-        case .invalidWords:
+        case .unsupportedLanguage, .invalidWords:
             inputError = "Invalid seed phrase, please check your spelling"
         @unknown default:
             break
         }
+    }
+}
+
+extension CommonOnboardingSeedPhraseManager {
+    private struct PreparationResult {
+        let result: NSAttributedString
+        let parsedWords: [String]
+        let containsInvalidWords: Bool
     }
 }
