@@ -325,6 +325,7 @@ class MainViewModel: ObservableObject {
     }
 
     func onAppear() {
+        Analytics.log(.mainScreenOpened)
         updateIsBackupAllowed()
     }
 
@@ -358,13 +359,10 @@ class MainViewModel: ObservableObject {
         case .okGotIt:
             handleOkGotItButtonAction()
         case .rateApp:
-            Analytics.log(.positiveRateAppFeedback)
             rateAppService.userReactToRateAppWarning(isPositive: true)
         case .dismiss:
-            Analytics.log(.dismissRateAppWarning)
             rateAppService.dismissRateAppWarning()
         case .reportProblem:
-            Analytics.log(.negativeRateAppFeedback)
             rateAppService.userReactToRateAppWarning(isPositive: false)
             openMail(with: .negativeFeedback)
         case .learnMore:
@@ -509,7 +507,7 @@ extension MainViewModel {
     }
 
     func openBuyCrypto() {
-        Analytics.log(.buttonBuyMainScreen)
+        Analytics.log(.buttonBuy)
 
         if let disabledLocalizedReason = cardModel.getDisabledLocalizedReason(for: .exchange) {
             error = AlertBuilder.makeDemoAlert(disabledLocalizedReason)
@@ -527,7 +525,6 @@ extension MainViewModel {
                 guard let self = self else { return }
 
                 let code = self.currencyCode
-                Analytics.log(event: .userBoughtCrypto, params: [.currencyCode: code])
                 Analytics.log(event: .tokenBought, params: [.token: code])
 
                 DispatchQueue.main.asyncAfter(deadline: .now() + 1) { [weak self] in
