@@ -39,113 +39,130 @@ struct SeedPhraseTextView: UIViewRepresentable {
         }
 
         func textView(_ textView: UITextView, shouldChangeTextIn range: NSRange, replacementText text: String) -> Bool {
-            print("TextView should change text in range")
-
-            func setupText(_ input: String, editingWord: String = "") {
-                print("Going to process text")
-//                textView.attributedText = inputProcessor.prepare(input: input, editingWord: editingWord)
-                inputProcessor.process(input, editingWord: editingWord)
-                print("Text processed")
-            }
-
             isUserTypingText = true
             isInputValidated = false
             let currentSelectedRange = textView.selectedRange
             let oldText = textView.text!
             let oldTextRange = Range(range, in: oldText)!
 
+            // If user inserting text from clipboard
             if text.count > 1 {
+                // Prepare new text, replace invalid symbols with spaces
                 let preparedString = inputProcessor.prepare(input: text)
 
-                let newText = oldText.replacingCharacters(in: oldTextRange, with: preparedString.string)
-                setupText(newText)
-//                inputProcessor.process(newText)
-//                textView.attributedText = inputProcessor.prepare(input: newText)
+                // Create final text with prepared copied text. Adding space to prevent joining previous word and first word
+                // in prepared text if carret is placed at the end of the word before pasting
+                let newText = oldText.replacingCharacters(in: oldTextRange, with: " " + preparedString.string)
+                inputProcessor.process(newText)
+
+                // Before changing caret position we need to indicate that this text was already processed
                 isInputValidated = true
                 let newSelectedRange = NSRange(location: range.lowerBound + preparedString.string.count, length: 0)
-                DispatchQueue.main.async {
-                    textView.selectedRange = newSelectedRange
-                }
 
-                print("Returning after text processing")
+                textView.selectedRange = newSelectedRange
                 return false
             }
 
             let lastChar: Character = text.last ?? ","
             let isNewCharSingleSpace = lastChar == " "
-            guard lastChar.isLetter || lastChar == "," || lastChar == "." || lastChar.isWhitespace else {
-                print("Returning after text processing")
+            let isNewCharLetter = lastChar.isLetter
+            // All other symbols are invalid for seed phrase, so we can skip them
+            guard isValidReplacement(text.last) else {
                 return false
             }
 
-            guard range.lowerBound == textView.text.count || textView.text.isEmpty else {
-                let replacedText = textView.text.replacingCharacters(in: oldTextRange, with: text)
-                textView.text = replacedText
+            if range.lowerBound == textView.text.count || textView.text.isEmpty {
+                // Adding new character to the end of the line or this is first charater.
 
-                let firstPos = textView.closestPosition(to: .zero)
+                let currentText = textView.text ?? ""
 
-                var word = ""
-                var nextWord = ""
-                let textPosition = textView.position(from: firstPos!, offset: range.lowerBound)!
-                let newCaretPosition = textView.position(from: firstPos!, offset: range.lowerBound + text.count)
-                if let wordRange = textView.tokenizer.rangeEnclosingPosition(textPosition, with: .word, inDirection: UITextDirection(rawValue: 1)),
-                   let foundWord = textView.text(in: wordRange) {
-                    word = foundWord
+                // If new character is letter we can add it to the end of line and validate input.
+                if isNewCharLetter {
+                    inputProcessor.validate(input: currentText + text)
+                    return true
                 }
 
-                if let newCaretPosition,
-                   let nextWordRange = textView.tokenizer.rangeEnclosingPosition(newCaretPosition, with: .word, inDirection: .storage(.forward)),
-                   let foundWord = textView.text(in: nextWordRange) {
-                    nextWord = foundWord
-                }
-
-                setupText(textView.text, editingWord: nextWord.isEmpty && !word.isEmpty ? word : nextWord)
-//                textView.attributedText = inputProcessor.prepare(input: textView.text, editingWord: nextWord.isEmpty && !word.isEmpty ? word : nextWord)
-//                inputProcessor.process(textView.text, editingWord: nextWord.isEmpty && !word.isEmpty ? word : nextWord)
-
-                isInputValidated = true
-                let newCaretLocation: Int
-                if text.isEmpty {
-                    newCaretLocation = currentSelectedRange.lowerBound == 0 ? 0 : currentSelectedRange.lowerBound - 1
-                } else if word.isEmpty, isNewCharSingleSpace {
-                    newCaretLocation = currentSelectedRange.lowerBound
-                } else {
-                    newCaretLocation = currentSelectedRange.lowerBound + text.count
-                }
-
-                textView.selectedRange = NSRange(location: newCaretLocation, length: 0)
-                isInputValidated = false
-                print("Returning after text processing")
-                return false
-            }
-
-            let currentText = textView.text ?? ""
-            if lastChar.isNewline {
-                if currentText.isEmpty || currentText.last?.isPunctuation ?? false {
-                    print("Returning after text processing")
+                // No need to add a punctuation or a whitespace when input is empty.
+                if currentText.isEmpty {
                     return false
                 }
-                setupText(textView.text + " ")
-//                textView.attributedText = inputProcessor.prepare(input: textView.attributedText.string + " ")
-//                inputProcessor.process(textView.attributedText.string + " ")
+
+                inputProcessor.process(currentText + " ")
                 isInputValidated = true
 
-                print("Returning after text processing")
-                return false
-            }
-            if lastChar.isPunctuation || lastChar.isWhitespace {
-                setupText(textView.text + text)
-                //                textView.attributedText = inputProcessor.prepare(input: textView.attributedText.string + text)
-                //                inputProcessor.process(textView.attributedText.string + text)
-                isInputValidated = true
-
-                print("Returning after text processing")
                 return false
             }
 
-            inputProcessor.validate(input: textView.text + text)
-            print("Returning after text processing")
-            return true
+            // When user trying to edit text not at the end of line.
+            // This includes character removal from the end of line
+            // because textView replacing last character with void.
+            let replacedText = textView.text.replacingCharacters(in: oldTextRange, with: text)
+            textView.text = replacedText
+
+            let firstPos = textView.closestPosition(to: .zero)
+
+            var word = ""
+            var nextWord = ""
+
+            // Start position of text to be replaced. We need this position to find word which is editing
+            let textPosition = textView.position(from: firstPos!, offset: range.lowerBound)!
+
+            // Caret position after replacing text
+            let newCaretPosition = textView.position(from: firstPos!, offset: range.lowerBound + text.count)
+
+            // Next, we need to find words that should change their colour to the default colour when editing,
+            // if they have been marked as misspelled words
+            // Try to find the word in the left direction. If caret is placed at the end of the word
+            // we need to search to the left side of the caret
+            if let wordRange = textView.tokenizer.rangeEnclosingPosition(textPosition, with: .word, inDirection: .storage(.backward)),
+               let foundWord = textView.text(in: wordRange) {
+                word = foundWord
+            }
+
+            // Try to find the word in the right direction. If caret is placed at the begining of the word
+            // we need to search to the right side of the caret
+            if let newCaretPosition,
+               let nextWordRange = textView.tokenizer.rangeEnclosingPosition(newCaretPosition, with: .word, inDirection: .storage(.forward)),
+               let foundWord = textView.text(in: nextWordRange) {
+                nextWord = foundWord
+            }
+
+            // If we didn't found the word to the right of the caret but did found word to the left of the caret
+            // we can use left side word, otherwise use the right side word. If the right side word is empty
+            // then processor will ignore empty string
+            inputProcessor.process(textView.text, editingWord: nextWord.isEmpty && !word.isEmpty ? word : nextWord)
+
+            // Input was already validated so no need to validate it again after moving caret to a new position
+            isInputValidated = true
+            let newCaretLocation: Int
+
+            // We need to select new position for carret, because textView moving caret to an end of a line
+            // when setup new attributed string/
+            if text.isEmpty {
+                newCaretLocation = currentSelectedRange.lowerBound == 0 ? 0 : currentSelectedRange.lowerBound - 1
+            } else if word.isEmpty, isNewCharSingleSpace {
+                newCaretLocation = currentSelectedRange.lowerBound
+            } else {
+                newCaretLocation = currentSelectedRange.lowerBound + text.count
+            }
+
+            textView.selectedRange = NSRange(location: newCaretLocation, length: 0)
+
+            // Reset input validation flag so when user trying to move caret updated input will be validated
+            // E.g. when user typed two words, make a mistate at the begining of the second word
+            // remove wrong character and occasionaly removed space, if after that user move caret text won't be validated
+            isInputValidated = false
+            return false
+        }
+
+        private func isValidReplacement(_ char: Character?) -> Bool {
+            guard let char else {
+                // Nil value indicates that user is trying to erase symbol which is valid replacement
+                return true
+            }
+
+            // , and . is usefull for custom keyboards that adds this punctuation symbols on sides of spacebar
+            return char.isLetter || char == "," || char == "." || char.isWhitespace
         }
     }
 
@@ -170,12 +187,7 @@ struct SeedPhraseTextView: UIViewRepresentable {
         textView.smartInsertDeleteType = .no
         textView.textColor = inputProcessor.defaultTextColor
         textView.font = inputProcessor.defaultTextFont
-        context.coordinator.textUpdateSubscription = inputProcessor.inputTextPublisher
-            .print("Receive new text. Assigning to textView")
-            .sink(receiveValue: {
-                textView.attributedText = $0
-            })
-//            .assign(to: \.attributedText, on: textView)
+        context.coordinator.textUpdateSubscription = inputProcessor.inputTextPublisher.assign(to: \.attributedText, on: textView)
 
         var toolbarItems = [UIBarButtonItem]()
         toolbarItems = [
