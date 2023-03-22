@@ -12,11 +12,11 @@ import Combine
 struct SeedPhraseTextView: UIViewRepresentable {
     class Coordinator: NSObject, UITextViewDelegate {
         var textUpdateSubscription: AnyCancellable?
-        let inputProcessor: SeedPhraseInputProcessor
+        let inputProcessor: OnboardingSeedPhraseInputProcessor
         var isUserTypingText = false
         var isInputValidated = false
 
-        init(inputProcessor: SeedPhraseInputProcessor) {
+        init(inputProcessor: OnboardingSeedPhraseInputProcessor) {
             self.inputProcessor = inputProcessor
         }
 
@@ -166,9 +166,9 @@ struct SeedPhraseTextView: UIViewRepresentable {
         }
     }
 
-    private let inputProcessor: SeedPhraseInputProcessor
+    private let inputProcessor: OnboardingSeedPhraseInputProcessor
 
-    init(inputProcessor: SeedPhraseInputProcessor) {
+    init(inputProcessor: OnboardingSeedPhraseInputProcessor) {
         self.inputProcessor = inputProcessor
     }
 
