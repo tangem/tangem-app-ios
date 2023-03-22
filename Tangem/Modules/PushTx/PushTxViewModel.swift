@@ -147,15 +147,6 @@ class PushTxViewModel: ObservableObject {
                     self.sendError = SendError(error, openMailAction: openMail).alertBinder
                 } else {
                     walletModel.startUpdatingTimer()
-
-                    Analytics.log(
-                        event: .transactionIsPushed,
-                        params: [
-                            .currencyCode: self.blockchainNetwork.blockchain.currencySymbol,
-                            .blockchain: self.blockchainNetwork.blockchain.displayName,
-                        ]
-                    )
-
                     callback()
                 }
 
