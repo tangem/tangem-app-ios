@@ -487,6 +487,8 @@ class SendViewModel: ObservableObject {
     }
 
     func onAppear() {
+        Analytics.log(.sendScreenOpened)
+
         if #unavailable(iOS 16) {
             validateClipboard()
         }
@@ -566,8 +568,14 @@ class SendViewModel: ObservableObject {
             Text(warning.reduceMessage),
             action: {
                 let newAmount = totalAmount - warning.suggestedReduceAmount
-                self.amountText = self.isFiatCalculation ? self.walletModel.getFiat(for: newAmount, roundingType: .default(roundingMode: .down))?.description ?? "0" :
-                    newAmount.value.description
+
+                let newAmountValue: Decimal?
+                if self.isFiatCalculation {
+                    newAmountValue = self.walletModel.getFiat(for: newAmount, roundingType: .default(roundingMode: .down))
+                } else {
+                    newAmountValue = newAmount.value
+                }
+                self.amountText = newAmountValue?.description ?? "0"
             }
         )
 
@@ -690,16 +698,12 @@ class SendViewModel: ObservableObject {
                     self.error = SendError(error, openMailAction: self.openMail).alertBinder
                 } else {
                     if !isDemo {
-                        let event: Analytics.Event = self.isSellingCrypto ? .userSoldCrypto : .transactionSent
-                        Analytics.log(
-                            event: event,
-                            params: [
-                                .currencyCode: self.blockchainNetwork.blockchain.currencySymbol,
-                                .blockchain: self.blockchainNetwork.blockchain.displayName,
-                            ]
-                        )
-
-                        Analytics.log(.transactionSentBasic, params: [.commonSource: self.isSellingCrypto ? .transactionSourceSell : .transactionSourceSend])
+                        let sourceValue: Analytics.ParameterValue = self.isSellingCrypto ? .transactionSourceSell : .transactionSourceSend
+                        Analytics.log(event: .transactionSent, params: [
+                            .commonSource: sourceValue.rawValue,
+                            .currencyCode: self.blockchainNetwork.blockchain.currencySymbol,
+                            .blockchain: self.blockchainNetwork.blockchain.displayName,
+                        ])
                     }
 
                     let alert = AlertBuilder.makeSuccessAlert(
