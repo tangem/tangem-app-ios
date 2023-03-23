@@ -18,20 +18,9 @@ protocol OnboardingSeedPhraseManager {
     func generateSeedMnemonic(using input: String) throws -> Mnemonic
 }
 
-class CommonOnboardingSeedPhraseManager {
-    let defaultTextColor: UIColor = Colors.Text.primary1.uiColorFromRGB()
-    let invalidTextColor: UIColor = Colors.Text.warning.uiColorFromRGB()
-    let defaultTextFont: UIFont = UIFonts.Regular.body
-
-    @Published private var userInputSubject: NSAttributedString = .init(string: "")
-    @Published private var isSeedPhraseValid: Bool = false
-    @Published private var inputError: String? = nil
-
-    private var dictionary: Set<String> = []
+class CommonOnboardingSeedPhraseManager: OnboardingSeedPhraseManager {
     private var mnemonic: Mnemonic?
-}
 
-extension CommonOnboardingSeedPhraseManager: OnboardingSeedPhraseManager {
     var seedPhrase: [String] { mnemonic?.mnemonicComponents ?? [] }
 
     @discardableResult
