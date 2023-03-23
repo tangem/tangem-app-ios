@@ -92,6 +92,17 @@ class UserWalletEncryptionKeyStorage {
         }
     }
 
+    func refreshEncryptionKey(_ key: SymmetricKey, for userWalletId: Data) {
+        do {
+            try biometricsStorage.delete(encryptionKeyStorageKey(for: userWalletId))
+            let encryptionKeyData = key.dataRepresentationWithHexConversion
+            try biometricsStorage.store(encryptionKeyData, forKey: encryptionKeyStorageKey(for: userWalletId))
+        } catch {
+            AppLog.shared.debug("Failed to refresh an encryption key")
+            AppLog.shared.error(error)
+        }
+    }
+
     func clear() {
         do {
             let userWalletIds = try userWalletIds()
