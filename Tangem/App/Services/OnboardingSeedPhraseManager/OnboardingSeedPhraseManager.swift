@@ -8,20 +8,16 @@
 
 import TangemSdk
 
-typealias OnboardingSeedPhraseManager = OnboardingSeedPhraseGenerator
-
-protocol OnboardingSeedPhraseGenerator {
+protocol OnboardingSeedPhraseManager {
     var seedPhrase: [String] { get }
-    
+
     @discardableResult
     func generateSeedPhrase() throws -> [String]
 }
 
-class CommonOnboardingSeedPhraseManager {
+class CommonOnboardingSeedPhraseManager: OnboardingSeedPhraseManager {
     private var mnemonic: Mnemonic?
-}
 
-extension CommonOnboardingSeedPhraseManager: OnboardingSeedPhraseGenerator {
     var seedPhrase: [String] { mnemonic?.mnemonicComponents ?? [] }
 
     @discardableResult
