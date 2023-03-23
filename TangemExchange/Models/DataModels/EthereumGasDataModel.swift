@@ -12,15 +12,12 @@ public struct EthereumGasDataModel {
     public let blockchain: ExchangeBlockchain
     public let gasPrice: Int
     public let gasLimit: Int
+    public let fee: Decimal
 
-    /// Calculated estimated fee
-    public var fee: Decimal {
-        blockchain.convertFromWEI(value: Decimal(gasPrice * gasLimit))
-    }
-
-    public init(blockchain: ExchangeBlockchain, gasPrice: Int, gasLimit: Int) {
+    public init(blockchain: ExchangeBlockchain, gasPrice: Int, gasLimit: Int, fee: Decimal) {
         self.blockchain = blockchain
         self.gasPrice = gasPrice
         self.gasLimit = gasLimit
+        self.fee = fee
     }
 }
