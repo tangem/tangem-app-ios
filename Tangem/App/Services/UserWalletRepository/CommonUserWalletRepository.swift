@@ -466,9 +466,10 @@ class CommonUserWalletRepository: UserWalletRepository {
                 case .failure(let error):
                     completion(.error(error))
                 case .success(let keys):
-                    if keys.isEmpty {
-                        // self.userWallets = []
-                        // AccessCodeRepository().clear()
+                    if keys.count != self.userWallets.count {
+                        if keys.isEmpty { // clean to prevent double tap
+                            AccessCodeRepository().clear()
+                        }
                         completion(.error(UserWalletRepositoryError.biometricsChanged))
                         return
                     }
@@ -519,7 +520,8 @@ class CommonUserWalletRepository: UserWalletRepository {
                 }
 
                 self.encryptionKeyByUserWalletId[scannedUserWallet.userWalletId] = encryptionKey.symmetricKey
-
+                // We have to refresh a key on every scan because we are unable to check presence of the key
+                self.encryptionKeyStorage.refreshEncryptionKey(encryptionKey.symmetricKey, for: scannedUserWallet.userWalletId)
                 if self.models.isEmpty {
                     self.loadModels()
                 }
