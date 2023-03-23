@@ -393,7 +393,7 @@ class WalletModel: ObservableObject, Identifiable {
             .eraseToAnyPublisher()
     }
 
-    func getFee(amount: Amount, destination: String) -> AnyPublisher<[Amount], Error> {
+    func getFee(amount: Amount, destination: String) -> AnyPublisher<[Fee], Error> {
         if isDemo {
             let demoFees = DemoUtil().getDemoFee(for: walletManager.wallet.blockchain)
             return .justWithError(output: demoFees)
