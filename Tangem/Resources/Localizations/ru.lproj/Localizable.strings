@@ -371,7 +371,7 @@
 "swapping_swap" = "Обмен";
 "swapping_swap_action" = "Обменять";
 "swapping_swap_of_to" = "Обмен %@ на";
-"swapping_tangem_fee_disclaimer" = "Кроме того, котировки включают комиссию Tangem в размере %s. Это помогает нам предоставлять первоклассный продукт.";
+"swapping_tangem_fee_disclaimer" = "Котировки включают дополнительную комиссию Tangem в размере [%s]. Это помогает нам предоставлять первоклассный продукт.";
 "swapping_token_list_other_tokens" = "Другие токены";
 "swapping_token_list_title" = "Выберите токен";
 "swapping_token_list_your_tokens" = "Ваши токены";
