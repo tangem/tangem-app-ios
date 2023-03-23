@@ -180,7 +180,7 @@ PODS:
   - SwiftDate (6.3.1)
   - SwiftProtobuf (1.21.0)
   - SwiftyJSON (5.0.1)
-  - TangemSdk (3.3.4)
+  - TangemSdk (3.4.0)
   - TangemWalletCore (3.1.9-tangem1):
     - SwiftProtobuf
   - TweetNacl (1.0.2)
@@ -246,11 +246,11 @@ DEPENDENCIES:
   - Mobile-Buy-SDK
   - Moya
   - Solana.Swift (from `https://github.com/tangem/Solana.Swift`, tag `add-external-signer-7`)
-  - TangemSdk (from `https://github.com/Tangem/tangem-sdk-ios.git`, tag `develop-200`)
+  - TangemSdk (from `https://github.com/Tangem/tangem-sdk-ios.git`, tag `develop-207`)
   - TangemWalletCore (from `https://github.com/tangem/wallet-core-binaries-ios.git`, tag `3.1.9-tangem2`)
   - WalletConnectSwift (from `https://github.com/WalletConnect/WalletConnectSwift`, tag `1.7.0`)
   - WalletConnectSwiftV2 (from `https://github.com/WalletConnect/WalletConnectSwiftV2`, tag `1.1.0`)
-  - web3swift (from `https://github.com/tangem/web3swift.git`, tag `2.2.11`)
+  - web3swift (from `https://github.com/tangem/web3swift.git`, tag `2.2.12`)
   - ZendeskChatSDK (~> 2.12.0)
   - ZendeskSupportSDK (~> 5.5.0)
 
@@ -323,7 +323,7 @@ EXTERNAL SOURCES:
     :tag: add-external-signer-7
   TangemSdk:
     :git: https://github.com/Tangem/tangem-sdk-ios.git
-    :tag: develop-200
+    :tag: develop-207
   TangemWalletCore:
     :git: https://github.com/tangem/wallet-core-binaries-ios.git
     :tag: 3.1.9-tangem2
@@ -335,7 +335,7 @@ EXTERNAL SOURCES:
     :tag: 1.1.0
   web3swift:
     :git: https://github.com/tangem/web3swift.git
-    :tag: 2.2.11
+    :tag: 2.2.12
 
 CHECKOUT OPTIONS:
   AlertToast:
@@ -358,7 +358,7 @@ CHECKOUT OPTIONS:
     :tag: add-external-signer-7
   TangemSdk:
     :git: https://github.com/Tangem/tangem-sdk-ios.git
-    :tag: develop-200
+    :tag: develop-207
   TangemWalletCore:
     :git: https://github.com/tangem/wallet-core-binaries-ios.git
     :tag: 3.1.9-tangem2
@@ -370,7 +370,7 @@ CHECKOUT OPTIONS:
     :tag: 1.1.0
   web3swift:
     :git: https://github.com/tangem/web3swift.git
-    :tag: 2.2.11
+    :tag: 2.2.12
 
 SPEC CHECKSUMS:
   Alamofire: d368e1ff8a298e6dde360e35a3e68e6c610e7204
@@ -412,7 +412,7 @@ SPEC CHECKSUMS:
   SwiftDate: 72d28954e8e1c6c1c0f917ccc8005e4f83c7d4b2
   SwiftProtobuf: afced68785854575756db965e9da52bbf3dc45e7
   SwiftyJSON: 2f33a42c6fbc52764d96f13368585094bfd8aa5e
-  TangemSdk: 9ea2c230bd616787bdccc5fb3ab36925d06199d4
+  TangemSdk: d628b627e16634b97c2536f265bdcddc9734c617
   TangemWalletCore: 87a4637456e46c2aa3d49a6a1dc07a8054783183
   TweetNacl: 3abf4d1d2082b0114e7a67410e300892448951e6
   WalletConnectSwift: 6309bf3011b0b30e3e9d1e7449535302a9240f71
@@ -429,6 +429,6 @@ SPEC CHECKSUMS:
   ZendeskSupportProvidersSDK: 77a62fe6bacc05bb10ff20edce75612fa109fd61
   ZendeskSupportSDK: ba72e90e327635b5fde3d023a3de33242a6ee8ab
 
-PODFILE CHECKSUM: d8a68379924cc21e9cc6708d13d023088c99b78f
+PODFILE CHECKSUM: 508abc873a29591cab524a7f48a129e40b8363d3
 
 COCOAPODS: 1.11.3
