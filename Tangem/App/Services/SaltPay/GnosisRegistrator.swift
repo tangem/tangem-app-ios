@@ -75,7 +75,8 @@ class GnosisRegistrator {
             let limitAmount = Amount(with: settings.token, value: value)
             let setSpedLimitData = try makeTxData(sig: Signatures.setSpendLimit, address: cardAddress, amount: limitAmount)
 
-            return transactionProcessor.getFee(to: settings.otpProcessorContractAddress, data: "0x\(setSpedLimitData.hexString)", amount: nil)
+            return transactionProcessor
+                .getFee(destination: settings.otpProcessorContractAddress, data: setSpedLimitData)
                 .tryMap { fees -> Transaction in
                     let params = EthereumTransactionParams(data: setSpedLimitData, nonce: self.transactionProcessor.initialNonce)
                     var transaction = try self.walletManager.createTransaction(
@@ -99,7 +100,8 @@ class GnosisRegistrator {
     func makeInitOtpTx(rootOTP: Data, rootOTPCounter: Int) -> AnyPublisher<CompiledEthereumTransaction, Error> {
         let initOTPData = Signatures.initOTP + rootOTP.prefix(16) + Data(count: 46) + rootOTPCounter.bytes2
 
-        return transactionProcessor.getFee(to: settings.otpProcessorContractAddress, data: "0x\(initOTPData.hexString)", amount: nil)
+        return transactionProcessor
+            .getFee(destination: settings.otpProcessorContractAddress, data: initOTPData)
             .tryMap { fees -> Transaction in
                 let params = EthereumTransactionParams(data: initOTPData, nonce: self.transactionProcessor.initialNonce + 1)
                 var transaction = try self.walletManager.createTransaction(
@@ -121,7 +123,8 @@ class GnosisRegistrator {
         do {
             let setWalletData = try makeTxData(sig: Signatures.setWallet, address: cardAddress, amount: nil)
 
-            return transactionProcessor.getFee(to: settings.otpProcessorContractAddress, data: "0x\(setWalletData.hexString)", amount: nil)
+            return transactionProcessor
+                .getFee(destination: settings.otpProcessorContractAddress, data: setWalletData)
                 .tryMap { fees -> Transaction in
                     let params = EthereumTransactionParams(data: setWalletData, nonce: self.transactionProcessor.initialNonce + 2)
                     var transaction = try self.walletManager.createTransaction(
@@ -149,15 +152,22 @@ class GnosisRegistrator {
         do {
             let approveData = try makeTxData(sig: Signatures.approve, address: settings.otpProcessorContractAddress, amount: approveAmount)
 
-            return transactionProcessor.getFee(to: settings.token.contractAddress, data: "0x\(approveData.hexString)", amount: nil)
+            return transactionProcessor
+                .getFee(destination: settings.token.contractAddress, data: approveData)
                 .tryMap { fees -> Transaction in
-                    let params = EthereumTransactionParams(data: approveData, nonce: self.transactionProcessor.initialNonce + 3)
+                    let normalFee = fees[1]
+
+                    let transactionParams = EthereumTransactionParams(
+                        data: approveData,
+                        nonce: self.transactionProcessor.initialNonce + 3
+                    )
+
                     var transaction = try self.walletManager.createTransaction(
                         amount: zeroApproveAmount,
-                        fee: fees[1],
+                        fee: normalFee,
                         destinationAddress: ""
                     )
-                    transaction.params = params
+                    transaction.params = transactionParams
 
                     return transaction
                 }
@@ -179,12 +189,16 @@ class GnosisRegistrator {
                 .tryMap { [settings] gasPrice -> Transaction in
                     let gasLimit = 300000 // [REDACTED_TODO_COMMENT]
                     let feeValue = Decimal(gasLimit * Int(gasPrice)) / settings.blockchain.decimalValue
-                    let fee = Amount(with: settings.blockchain, value: feeValue)
+                    let feeAmount = Amount(with: settings.blockchain, value: feeValue)
+
                     let params = EthereumTransactionParams(
                         data: approveData,
-                        gasLimit: gasLimit,
                         nonce: self.transactionProcessor.initialNonce
                     )
+
+                    let feeParameters = EthereumFeeParameters(gasLimit: BigUInt(gasLimit), gasPrice: gasPrice)
+                    let fee = Fee(feeAmount, parameters: feeParameters)
+
                     var transaction = try self.walletManager.createTransaction(
                         amount: zeroApproveAmount,
                         fee: fee,
