@@ -466,10 +466,9 @@ class CommonUserWalletRepository: UserWalletRepository {
                 case .failure(let error):
                     completion(.error(error))
                 case .success(let keys):
-                    if keys.count != self.userWallets.count {
-                        if keys.isEmpty { // clean to prevent double tap
-                            AccessCodeRepository().clear()
-                        }
+                    if keys.isEmpty {
+                        // clean to prevent double tap
+                        AccessCodeRepository().clear()
                         completion(.error(UserWalletRepositoryError.biometricsChanged))
                         return
                     }
@@ -547,7 +546,7 @@ class CommonUserWalletRepository: UserWalletRepository {
                 self.setSelectedUserWalletId(savedUserWallet.userWalletId, reason: .userSelected)
                 self.initializeServicesForSelectedModel()
                 self.selectedModel?.userWalletModel?.initialUpdate()
-                self.isLocked = self.userWallets.contains { $0.isLocked }
+                self.isLocked = false
 
                 self.sendEvent(.updated(userWalletModel: userWalletModel))
 
