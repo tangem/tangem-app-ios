@@ -246,7 +246,7 @@ DEPENDENCIES:
   - Mobile-Buy-SDK
   - Moya
   - Solana.Swift (from `https://github.com/tangem/Solana.Swift`, tag `add-external-signer-7`)
-  - TangemSdk (from `https://github.com/Tangem/tangem-sdk-ios.git`, tag `develop-207`)
+  - TangemSdk (from `../tangem-sdk-ios`)
   - TangemWalletCore (from `https://github.com/tangem/wallet-core-binaries-ios.git`, tag `3.1.9-tangem2`)
   - WalletConnectSwift (from `https://github.com/WalletConnect/WalletConnectSwift`, tag `1.7.0`)
   - WalletConnectSwiftV2 (from `https://github.com/WalletConnect/WalletConnectSwiftV2`, tag `1.1.0`)
@@ -323,8 +323,7 @@ EXTERNAL SOURCES:
     :git: https://github.com/tangem/Solana.Swift
     :tag: add-external-signer-7
   TangemSdk:
-    :git: https://github.com/Tangem/tangem-sdk-ios.git
-    :tag: develop-207
+    :path: "../tangem-sdk-ios"
   TangemWalletCore:
     :git: https://github.com/tangem/wallet-core-binaries-ios.git
     :tag: 3.1.9-tangem2
@@ -360,9 +359,6 @@ CHECKOUT OPTIONS:
   Solana.Swift:
     :git: https://github.com/tangem/Solana.Swift
     :tag: add-external-signer-7
-  TangemSdk:
-    :git: https://github.com/Tangem/tangem-sdk-ios.git
-    :tag: develop-207
   TangemWalletCore:
     :git: https://github.com/tangem/wallet-core-binaries-ios.git
     :tag: 3.1.9-tangem2
@@ -433,6 +429,6 @@ SPEC CHECKSUMS:
   ZendeskSupportProvidersSDK: 77a62fe6bacc05bb10ff20edce75612fa109fd61
   ZendeskSupportSDK: ba72e90e327635b5fde3d023a3de33242a6ee8ab
 
-PODFILE CHECKSUM: 7e181f7d767a54f7d66ffe1337a3c29a95ac07b3
+PODFILE CHECKSUM: 5f2ce94688f8c1cfccf700a7dafb36e12373eb17
 
 COCOAPODS: 1.11.3
