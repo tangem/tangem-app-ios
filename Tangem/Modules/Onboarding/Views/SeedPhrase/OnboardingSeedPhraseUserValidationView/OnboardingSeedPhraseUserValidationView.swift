@@ -25,6 +25,7 @@ struct OnboardingSeedPhraseUserValidationView: View {
                     .style(Fonts.Regular.callout, color: Colors.Text.secondary)
                     .multilineTextAlignment(.center)
                     .padding(.top, 14)
+                    .padding(.horizontal, 32)
 
                 WordInputView(
                     wordNumber: 2,
