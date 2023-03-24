@@ -734,7 +734,7 @@ private extension SendViewModel {
             sendTotal = (transaction.amount + transaction.fee.amount).description
 
             if totalInFiatFormatted.total.isEmpty {
-                sendTotalSubtitle = "–"
+                sendTotalSubtitle = " "
             } else {
                 sendTotalSubtitle = Localization.sendTotalSubtitleFiatFormat(
                     totalInFiatFormatted.total,
