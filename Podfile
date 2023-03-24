@@ -29,7 +29,7 @@ def blockchain_sdk_pods
   pod 'web3swift', :git => 'https://github.com/tangem/web3swift.git', :tag => '2.2.12'
   # pod 'web3swift', :path => '../web3swift'
   
-  pod 'BitcoinCore.swift', :git => 'https://github.com/tangem/bitcoincore.git', :tag => '0.0.18'
+  pod 'BitcoinCore.swift', :git => 'https://github.com/tangem/bitcoincore.git', :tag => '0.0.19'
   # pod 'BitcoinCore.swift', :path => '../bitcoincore'
 end
 
