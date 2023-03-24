@@ -140,6 +140,7 @@
 "initial_message_create_wallet_body" = "To create the wallet tap the card as shown above and do not remove until the end of the operation";
 "initial_message_purge_wallet_body" = "To reset to factory settings tap the card as shown above and do not remove until the end of the operation";
 "initial_message_sign_body" = "To sign tap the card as shown above and do not remove until the end of the operation";
+"key_invalidated_warning_description" = "You have updated biometrics, scan your card to enter";
 "mail_error_no_accounts_body" = "Please, set up an account to send email";
 "mail_error_no_accounts_title" = "No Mail accounts";
 "main_manage_tokens" = "Manage tokens";
