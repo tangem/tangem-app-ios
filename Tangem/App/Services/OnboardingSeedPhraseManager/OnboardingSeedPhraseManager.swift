@@ -12,6 +12,7 @@ import TangemSdk
 
 protocol OnboardingSeedPhraseManager {
     var seedPhrase: [String] { get }
+    var mnemonic: Mnemonic? { get }
 
     @discardableResult
     func generateSeedPhrase() throws -> [String]
@@ -19,7 +20,7 @@ protocol OnboardingSeedPhraseManager {
 }
 
 class CommonOnboardingSeedPhraseManager: OnboardingSeedPhraseManager {
-    private var mnemonic: Mnemonic?
+    private(set) var mnemonic: Mnemonic?
 
     var seedPhrase: [String] { mnemonic?.mnemonicComponents ?? [] }
 
