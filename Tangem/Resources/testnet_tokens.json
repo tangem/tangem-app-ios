@@ -500,6 +500,17 @@
                 }
             ]
         },
+        {
+            "id": "kava",
+            "symbol": "KAVA",
+            "name": "KAVA",
+            "networks":
+            [
+                {
+                    "networkId": "kava/test"
+                }
+            ]
+        },
     ],
     "total": 0,
     "imageHost": "https://s3.eu-central-1.amazonaws.com/tangem.api/coins/"
