@@ -9,9 +9,17 @@
 import Foundation
 import Combine
 import Moya
+import BlockchainSdk
 
 class CommonTangemApiService {
-    private let provider = TangemProvider<TangemApiTarget>(plugins: [CachePolicyPlugin()])
+    private let provider = TangemProvider<TangemApiTarget>(plugins: [
+        CachePolicyPlugin(),
+        NetworkLoggerPlugin(configuration: .init(
+            output: NetworkLoggerPlugin.tangemSdkLoggerOutput,
+            logOptions: .verbose
+        )),
+    ])
+
     private var bag: Set<AnyCancellable> = []
 
     private let fallbackRegionCode = Locale.current.regionCode?.lowercased() ?? ""
