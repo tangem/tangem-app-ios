@@ -566,14 +566,19 @@ class SendViewModel: ObservableObject {
             }
         )
 
-        let ignoreButton = Alert.Button.cancel(Text(warning.ignoreMessage))
+        let alert: Alert
+        if let ignoreMessage = warning.ignoreMessage {
+            let ignoreButton = Alert.Button.cancel(Text(ignoreMessage))
 
-        let alert = Alert(
-            title: title,
-            message: message,
-            primaryButton: reduceAmountButton,
-            secondaryButton: ignoreButton
-        )
+            alert = Alert(
+                title: title,
+                message: message,
+                primaryButton: reduceAmountButton,
+                secondaryButton: ignoreButton
+            )
+        } else {
+            alert = Alert(title: title, message: message, dismissButton: reduceAmountButton)
+        }
 
         UIApplication.shared.endEditing()
         error = AlertBinder(alert: alert)
