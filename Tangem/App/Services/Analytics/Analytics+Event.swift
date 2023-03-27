@@ -142,7 +142,7 @@ extension Analytics {
         case swapScreenOpenedSwap = "[Swap] Swap Screen Opened"
         case swapSendTokenBalanceClicked = "[Swap] Send Token Balance Clicked"
         case swapReceiveTokenClicked = "[Swap] Receive Token Clicked"
-        case swapChooseTokenScreenOpened = "[Swap] Choose Token screen opened"
+        case swapChooseTokenScreenOpened = "[Swap] Choose Token Screen Opened"
         case swapSearchedTokenClicked = "[Swap] Searched Token Clicked"
         case swapButtonSwap = "[Swap] Button - Swap"
         case swapButtonGivePermission = "[Swap] Button - Give permission"
