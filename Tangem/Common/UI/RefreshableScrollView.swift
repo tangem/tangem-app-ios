@@ -26,8 +26,6 @@ struct RefreshableScrollView<Content: View>: View {
     var body: some View {
         if #available(iOS 16.0, *) {
             refreshableScrollView
-        } else if #available(iOS 15.0, *) {
-            refreshableList
         } else {
             scrollViewWithHacks
         }
@@ -38,24 +36,6 @@ struct RefreshableScrollView<Content: View>: View {
         ScrollView(.vertical, showsIndicators: false) {
             self.content
         }
-        .refreshable {
-            await withCheckedContinuation { continuation in
-                onRefresh {
-                    continuation.resume()
-                }
-            }
-        }
-    }
-
-    @available(iOS 15.0, *)
-    private var refreshableList: some View {
-        List {
-            self.content
-                .listRowSeparatorTint(.clear)
-                .listRowBackground(Color.clear)
-                .listRowInsets(.init())
-        }
-        .listStyle(.plain)
         .refreshable {
             await withCheckedContinuation { continuation in
                 onRefresh {
