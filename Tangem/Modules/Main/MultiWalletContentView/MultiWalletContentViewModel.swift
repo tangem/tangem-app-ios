@@ -33,13 +33,9 @@ class MultiWalletContentViewModel: ObservableObject {
 
     private let cardModel: CardViewModel
     private let userWalletModel: UserWalletModel
+    private let totalBalanceManager: TotalBalanceProviding
     private let userTokenListManager: UserTokenListManager
     private var bag = Set<AnyCancellable>()
-
-    private lazy var totalBalanceManager = TotalBalanceProvider(
-        userWalletModel: userWalletModel,
-        userWalletAmountType: nil
-    )
 
     init(
         cardModel: CardViewModel,
@@ -49,6 +45,7 @@ class MultiWalletContentViewModel: ObservableObject {
     ) {
         self.cardModel = cardModel
         self.userWalletModel = userWalletModel
+        totalBalanceManager = userWalletModel.totalBalanceProvider
         self.userTokenListManager = userTokenListManager
         self.output = output
 
