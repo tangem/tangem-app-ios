@@ -9,12 +9,12 @@
 import Foundation
 
 enum AnalyticsStorageKey: String {
-    case balance
+    case hasPositiveBalance
     case scanSource
 
     var isPermanent: Bool {
         switch self {
-        case .balance:
+        case .hasPositiveBalance:
             return true
         case .scanSource:
             return false
