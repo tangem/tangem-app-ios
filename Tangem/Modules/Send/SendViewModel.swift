@@ -301,7 +301,10 @@ class SendViewModel: ObservableObject {
 //                return true
 //            }
             .sink { [unowned self] newAmountString, isFiat in
-                guard let decimals = Decimal(string: newAmountString.replacingOccurrences(of: ",", with: ".")) else {
+                guard
+                    let decimals = Decimal(string: newAmountString.replacingOccurrences(of: ",", with: ".")),
+                    decimals > 0
+                else {
                     self.amountHint = nil
                     self.validatedAmount = nil
                     return
@@ -739,7 +742,7 @@ private extension SendViewModel {
             sendTotal = (transaction.amount + transaction.fee.amount).description
 
             if totalInFiatFormatted.total.isEmpty {
-                sendTotalSubtitle = "–"
+                sendTotalSubtitle = " "
             } else {
                 sendTotalSubtitle = Localization.sendTotalSubtitleFiatFormat(
                     totalInFiatFormatted.total,
