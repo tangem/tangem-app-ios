@@ -45,6 +45,7 @@ enum UserWalletRepositoryResult {
     case onboarding(OnboardingInput)
     case troubleshooting
     case error(Error)
+    case partial(CardViewModel, Error)
 
     var isSuccess: Bool {
         switch self {
