@@ -1,5 +1,5 @@
 //
-//  OnboardingSeedPhraseManager.swift
+//  SeedPhraseManager.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -8,14 +8,14 @@
 
 import TangemSdk
 
-protocol OnboardingSeedPhraseManager {
+protocol SeedPhraseManager {
     var seedPhrase: [String] { get }
 
     @discardableResult
     func generateSeedPhrase() throws -> [String]
 }
 
-class CommonOnboardingSeedPhraseManager: OnboardingSeedPhraseManager {
+class CommonSeedPhraseManager: SeedPhraseManager {
     private var mnemonic: Mnemonic?
 
     var seedPhrase: [String] { mnemonic?.mnemonicComponents ?? [] }
