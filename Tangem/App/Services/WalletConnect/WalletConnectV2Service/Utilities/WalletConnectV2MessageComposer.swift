@@ -36,7 +36,7 @@ struct WalletConnectV2MessageComposer: WalletConnectV2MessageComposable {
     }
 
     func makeMessage(for transaction: Transaction, walletModel: WalletModel, dApp: WalletConnectSavedSession.DAppInfo) -> String {
-        let totalAmount = transaction.amount + transaction.fee
+        let totalAmount = transaction.amount + transaction.fee.amount
         let balance = walletModel.wallet.amounts[.coin] ?? .zeroCoin(for: walletModel.wallet.blockchain)
         let message: String = {
             var m = ""
