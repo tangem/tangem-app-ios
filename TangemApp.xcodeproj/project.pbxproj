@@ -4738,6 +4738,7 @@
 		};
 		DAD2B95229B60131000282F7 /* Sort strings */ = {
 			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
 			buildActionMask = 2147483647;
 			files = (
 			);
