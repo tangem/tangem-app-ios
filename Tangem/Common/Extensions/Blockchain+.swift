@@ -46,6 +46,7 @@ extension Blockchain {
         case "ethereumfair": self = .ethereumFair
         case "sxdai": self = .saltPay // [REDACTED_TODO_COMMENT]
         case "the-open-network": self = .ton(testnet: isTestnet)
+        case "kava": self = .kava(testnet: isTestnet)
         case "kaspa": self = .kaspa
         default:
             AppLog.shared.debug("⚠️⚠️⚠️ Failed to map network ID \"\(stringId)\"")
@@ -84,6 +85,7 @@ extension Blockchain {
         case .ethereumFair: return "ethereumfair"
         case .saltPay: return "sxdai"
         case .ton: return "the-open-network"
+        case .kava: return "kava"
         case .kaspa: return "kaspa"
         @unknown default:
             fatalError()
@@ -134,6 +136,7 @@ extension Blockchain {
         case .ethereumFair: return "ethereumfair"
         case .saltPay: return "sxdai"
         case .ton: return "the-open-network"
+        case .kava: return "kava"
         case .kaspa: return "kaspa"
         @unknown default:
             fatalError()
@@ -193,6 +196,7 @@ extension Blockchain {
             .dash(testnet: false),
             .optimism(testnet: false),
             .ton(testnet: false),
+            .kava(testnet: false),
             .kaspa,
         ]
     }()
@@ -215,6 +219,7 @@ extension Blockchain {
             .arbitrum(testnet: true),
             .optimism(testnet: true),
             .ton(testnet: true),
+            .kava(testnet: true),
         ]
     }()
 }
