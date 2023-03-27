@@ -12,12 +12,12 @@ import Combine
 class OnboardingSeedPhraseImportViewModel: ObservableObject {
     @Published var isSeedPhraseValid: Bool = false
     @Published var inputError: String? = nil
-    let inputProcessor: OnboardingSeedPhraseInputProcessor
+    let inputProcessor: SeedPhraseInputProcessor
     let importButtonAction: () -> Void
 
     private var bag: Set<AnyCancellable> = []
 
-    init(inputProcessor: OnboardingSeedPhraseInputProcessor, importButtonAction: @escaping () -> Void) {
+    init(inputProcessor: SeedPhraseInputProcessor, importButtonAction: @escaping () -> Void) {
         self.inputProcessor = inputProcessor
         self.importButtonAction = importButtonAction
         bind()
