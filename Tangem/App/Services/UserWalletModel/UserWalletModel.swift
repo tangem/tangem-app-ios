@@ -12,6 +12,7 @@ import Combine
 protocol UserWalletModel {
     /// Public until managers factory
     var userTokenListManager: UserTokenListManager { get }
+    var totalBalanceProvider: TotalBalanceProviding { get }
     var userWallet: UserWallet { get }
 
     func updateUserWalletModel(with config: UserWalletConfig)
