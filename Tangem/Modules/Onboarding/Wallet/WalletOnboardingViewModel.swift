@@ -15,6 +15,7 @@ class WalletOnboardingViewModel: OnboardingTopupViewModel<WalletOnboardingStep, 
     @Injected(\.backupServiceProvider) private var backupServiceProvider: BackupServiceProviding
     @Injected(\.tangemSdkProvider) private var tangemSdkProvider: TangemSdkProviding
     @Injected(\.saltPayRegistratorProvider) private var saltPayRegistratorProvider: SaltPayRegistratorProviding
+    private let seedPhraseManager: SeedPhraseManager = CommonSeedPhraseManager()
 
     @Published var thirdCardSettings: AnimatedViewSettings = .zero
     @Published var canDisplayCardImage: Bool = false
@@ -53,6 +54,8 @@ class WalletOnboardingViewModel: OnboardingTopupViewModel<WalletOnboardingStep, 
         currentStep.navbarTitle
     }
 
+    // MARK: - Title settings
+
     override var title: String? {
         switch currentStep {
         case .selectBackupCards:
@@ -79,6 +82,8 @@ class WalletOnboardingViewModel: OnboardingTopupViewModel<WalletOnboardingStep, 
         }
         return super.title
     }
+
+    // MARK: - Subtitle
 
     override var subtitle: String? {
         switch currentStep {
@@ -129,6 +134,8 @@ class WalletOnboardingViewModel: OnboardingTopupViewModel<WalletOnboardingStep, 
         default: return super.subtitle
         }
     }
+
+    // MARK: - Main Button setup
 
     override var mainButtonSettings: MainButton.Settings? {
         var icon: MainButton.Icon?
@@ -187,6 +194,8 @@ class WalletOnboardingViewModel: OnboardingTopupViewModel<WalletOnboardingStep, 
         }
     }
 
+    // MARK: - Supplement Button settings
+
     override var isSupplementButtonVisible: Bool {
         if currentStep == .backupIntro {
             if input.isStandalone {
@@ -222,6 +231,8 @@ class WalletOnboardingViewModel: OnboardingTopupViewModel<WalletOnboardingStep, 
         }
     }
 
+    // MARK: -
+
     var infoText: String? {
         currentStep.infoText
     }
@@ -246,7 +257,7 @@ class WalletOnboardingViewModel: OnboardingTopupViewModel<WalletOnboardingStep, 
 
     var isCustomContentVisible: Bool {
         switch currentStep {
-        case .saveUserWallet, .enterPin, .registerWallet, .kycStart, .kycRetry, .kycProgress, .kycWaiting, .disclaimer, .seedPhraseIntro:
+        case .saveUserWallet, .enterPin, .registerWallet, .kycStart, .kycRetry, .kycProgress, .kycWaiting, .disclaimer, .seedPhraseIntro, .seedPhraseGeneration:
             return true
         default: return false
         }
@@ -254,7 +265,7 @@ class WalletOnboardingViewModel: OnboardingTopupViewModel<WalletOnboardingStep, 
 
     var isButtonsVisible: Bool {
         switch currentStep {
-        case .saveUserWallet, .kycProgress, .seedPhraseIntro: return false
+        case .saveUserWallet, .kycProgress, .seedPhraseIntro, .seedPhraseGeneration: return false
         default: return true
         }
     }
@@ -284,6 +295,10 @@ class WalletOnboardingViewModel: OnboardingTopupViewModel<WalletOnboardingStep, 
         }
 
         return currentStep == .backupCards
+    }
+
+    var seedPhrase: [String] {
+        seedPhraseManager.seedPhrase
     }
 
     private var primaryCardStackIndex: Int {
@@ -536,12 +551,14 @@ class WalletOnboardingViewModel: OnboardingTopupViewModel<WalletOnboardingStep, 
         }
     }
 
+    // MARK: - Main button action
+
     override func mainButtonAction() {
         switch currentStep {
         case .createWallet, .createWalletSelector:
             createWallet()
         case .seedPhraseIntro:
-            goToNextStep()
+            generateSeedPhrase()
         case .scanPrimaryCard:
             readPrimaryCard()
         case .backupIntro:
@@ -564,6 +581,8 @@ class WalletOnboardingViewModel: OnboardingTopupViewModel<WalletOnboardingStep, 
             break
         }
     }
+
+    // MARK: - Supplement button action
 
     override func supplementButtonAction() {
         switch currentStep {
@@ -988,6 +1007,15 @@ class WalletOnboardingViewModel: OnboardingTopupViewModel<WalletOnboardingStep, 
 extension WalletOnboardingViewModel {
     func openReadMoreAboutSeedPhraseScreen() {
         coordinator.openWebView(with: AppConstants.seedPhraseReadMoreURL)
+    }
+
+    private func generateSeedPhrase() {
+        do {
+            try seedPhraseManager.generateSeedPhrase()
+            goToNextStep()
+        } catch {
+            alert = error.alertBinder
+        }
     }
 }
 
