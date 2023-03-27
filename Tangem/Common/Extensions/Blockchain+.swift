@@ -87,8 +87,6 @@ extension Blockchain {
         case .ton: return "the-open-network"
         case .kava: return "kava"
         case .kaspa: return "kaspa"
-        @unknown default:
-            fatalError()
         }
     }
 
@@ -138,8 +136,6 @@ extension Blockchain {
         case .ton: return "the-open-network"
         case .kava: return "kava"
         case .kaspa: return "kaspa"
-        @unknown default:
-            fatalError()
         }
     }
 
