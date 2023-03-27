@@ -9,6 +9,7 @@
 import Foundation
 import Combine
 import TangemSdk
+import BlockchainSdk
 import Moya
 
 protocol PaymentologyApiService: AnyObject {
@@ -20,7 +21,10 @@ protocol PaymentologyApiService: AnyObject {
 
 class CommonPaymentologyApiService {
     private let provider = TangemProvider<PaymentologyApiTarget>( /* stubClosure: MoyaProvider.delayedStub(1.0), */
-        plugins: [NetworkLoggerPlugin(configuration: .init(logOptions: .verbose))]
+        plugins: [NetworkLoggerPlugin(configuration: .init(
+            output: NetworkLoggerPlugin.tangemSdkLoggerOutput,
+            logOptions: .verbose
+        ))]
     )
 
     deinit {
