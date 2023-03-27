@@ -141,6 +141,7 @@
 "initial_message_create_wallet_body" = "To create the wallet tap the card as shown above and do not remove until the end of the operation";
 "initial_message_purge_wallet_body" = "To reset to factory settings tap the card as shown above and do not remove until the end of the operation";
 "initial_message_sign_body" = "To sign tap the card as shown above and do not remove until the end of the operation";
+"key_invalidated_warning_description" = "You have updated biometrics, scan your card to enter";
 "mail_error_no_accounts_body" = "Please, set up an account to send email";
 "mail_error_no_accounts_title" = "No Mail accounts";
 "main_manage_tokens" = "Manage tokens";
@@ -374,7 +375,7 @@
 "swapping_swap" = "Swap";
 "swapping_swap_action" = "Swap";
 "swapping_swap_of_to" = "Swap of %@ to";
-"swapping_tangem_fee_disclaimer" = "Additionally, quotes include Tangem fee of %s. This helps us deliver a top-of-the-line product.";
+"swapping_tangem_fee_disclaimer" = "Quotes include an additional Tangem commission of %@. This helps us deliver a top-of-the-line product.";
 "swapping_token_list_other_tokens" = "Other tokens";
 "swapping_token_list_title" = "Choose token";
 "swapping_token_list_your_tokens" = "Your tokens";
