@@ -1,5 +1,5 @@
 //
-//  OnboardingSeedPhraseInputProcessor.swift
+//  SeedPhraseInputProcessor.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -9,7 +9,7 @@
 import Combine
 import TangemSdk
 
-protocol OnboardingSeedPhraseInputProcessor {
+protocol SeedPhraseInputProcessor {
     var inputText: String { get }
     var inputTextPublisher: Published<NSAttributedString>.Publisher { get }
     var isSeedPhraseValidPublisher: Published<Bool>.Publisher { get }
@@ -23,13 +23,13 @@ protocol OnboardingSeedPhraseInputProcessor {
     func validate(_ input: String)
 }
 
-extension OnboardingSeedPhraseInputProcessor {
+extension SeedPhraseInputProcessor {
     func process(_ input: String) {
         process(input, editingWord: "")
     }
 }
 
-class DefaultOnboardinSeedPhraseInputProcessor: OnboardingSeedPhraseInputProcessor {
+class DefaultSeedPhraseInputProcessor: SeedPhraseInputProcessor {
     let defaultTextColor: UIColor = Colors.Text.primary1.uiColorFromRGB()
     let invalidTextColor: UIColor = Colors.Text.warning.uiColorFromRGB()
     let defaultTextFont: UIFont = UIFonts.Regular.body
@@ -154,7 +154,7 @@ class DefaultOnboardinSeedPhraseInputProcessor: OnboardingSeedPhraseInputProcess
     }
 }
 
-extension DefaultOnboardinSeedPhraseInputProcessor {
+extension DefaultSeedPhraseInputProcessor {
     private struct PreparationResult {
         let result: NSAttributedString
         let parsedWords: [String]
