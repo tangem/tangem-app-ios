@@ -214,8 +214,8 @@ class MainViewModel: ObservableObject {
 
         AppSettings.shared.$saveUserWallets
             .dropFirst()
-            .sink { _ in
-                self.objectWillChange.send()
+            .sink { [weak self] _ in
+                self?.objectWillChange.send()
             }
             .store(in: &bag)
     }
