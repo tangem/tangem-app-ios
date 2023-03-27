@@ -38,6 +38,7 @@ enum PreviewCard {
                     useBlockBookUtxoApis: false,
                     nowNodesApiKey: "",
                     getBlockApiKey: "",
+                    kaspaSecondaryApiUrl: nil,
                     tronGridApiKey: "",
                     tonCenterApiKeys: .init(mainnetApiKey: "", testnetApiKey: ""),
                     quickNodeSolanaCredentials: .init(apiKey: "", subdomain: ""),
