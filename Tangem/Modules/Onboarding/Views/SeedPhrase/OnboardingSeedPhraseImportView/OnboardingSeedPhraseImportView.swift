@@ -52,7 +52,7 @@ struct OnboardingSeedPhraseImportView: View {
 }
 
 struct OnboardingSeedPhraseImportView_Previews: PreviewProvider {
-    private static let processor = DefaultOnboardinSeedPhraseInputProcessor()
+    private static let processor = DefaultSeedPhraseInputProcessor()
     private static let viewModel = OnboardingSeedPhraseImportViewModel(inputProcessor: processor, importButtonAction: {})
 
     static var previews: some View {
