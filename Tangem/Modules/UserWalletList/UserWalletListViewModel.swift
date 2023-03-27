@@ -75,11 +75,12 @@ final class UserWalletListViewModel: ObservableObject, Identifiable {
         Analytics.log(.buttonUnlockAllWithFaceID)
 
         userWalletRepository.unlock(with: .biometry) { [weak self] result in
-            if case .error = result {
-                return
+            switch result {
+            case .error(let error):
+                self?.error = error.alertBinder
+            default:
+                self?.updateModels()
             }
-
-            self?.updateModels()
         }
     }
 
