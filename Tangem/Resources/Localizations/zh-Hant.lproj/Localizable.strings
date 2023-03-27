@@ -183,6 +183,9 @@
 "onboarding_button_what_does_it_mean" = "它是如何運作的？";
 "onboarding_create_wallet_body" = "讓我們生成您卡上的所有密鑰並創建一個安全的錢包";
 "onboarding_create_wallet_button_create_wallet" = "創建錢包";
+"onboarding_create_wallet_options_button_options" = "Other options";
+"onboarding_create_wallet_options_message" = "Your keys will be securely generated inside the card. No seed phrase or any ability to export and steal them.";
+"onboarding_create_wallet_options_title" = "Generate keys privately";
 "onboarding_done_body" = "您的卡已激活並可以使用";
 "onboarding_done_header" = "成功!";
 "onboarding_exit_alert_message" = "這此情況，您必須要重新開始";
@@ -200,6 +203,14 @@
 "onboarding_saltpay_title_no_backup_card" = "沒有備份卡片";
 "onboarding_saltpay_title_one_backup_card" = "備份卡片已準備完成";
 "onboarding_saltpay_title_prepare_origin" = "準備SaltPay卡";
+"onboarding_seed_button_read_more" = "Read more about seed phrases";
+"onboarding_seed_generate_message" = "Write down these 12 words in the order given below and store them in a secret, safe place";
+"onboarding_seed_generate_title" = "Your recovery phrase";
+"onboarding_seed_intro_button_generate" = "Generate seed phrase";
+"onboarding_seed_intro_button_import" = "Import wallet";
+"onboarding_seed_intro_message" = "Seed phrase is a series of words that gives an ability to recover the wallet. Unlike the card generated keys, seed phrase is unprotected and can be copied and stolen. Use this option at your own risk.";
+"onboarding_seed_intro_title" = "Use seed phrase";
+"onboarding_seed_phrase_intro_legacy" = "Legacy";
 "onboarding_subtitle_backup_card" = "您最多可以再備份兩張其他空白錢包";
 "onboarding_subtitle_claim" = "要開始，只需將 wxDAI 獲取到您的錢包";
 "onboarding_subtitle_claim_progress" = "這會花上幾秒";
