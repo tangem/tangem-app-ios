@@ -1,5 +1,5 @@
 //
-//  OnboardingSeedPhraseManager.swift
+//  SeedPhraseManager.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -10,7 +10,7 @@ import SwiftUI
 import Combine
 import TangemSdk
 
-protocol OnboardingSeedPhraseManager {
+protocol SeedPhraseManager {
     var seedPhrase: [String] { get }
     var mnemonic: Mnemonic? { get }
 
@@ -19,7 +19,7 @@ protocol OnboardingSeedPhraseManager {
     func generateSeedMnemonic(using input: String) throws -> Mnemonic
 }
 
-class CommonOnboardingSeedPhraseManager: OnboardingSeedPhraseManager {
+class CommonSeedPhraseManager: SeedPhraseManager {
     private(set) var mnemonic: Mnemonic?
 
     var seedPhrase: [String] { mnemonic?.mnemonicComponents ?? [] }
