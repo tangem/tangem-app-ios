@@ -16,7 +16,7 @@ class WalletOnboardingViewModel: OnboardingTopupViewModel<WalletOnboardingStep, 
     @Injected(\.tangemSdkProvider) private var tangemSdkProvider: TangemSdkProviding
     @Injected(\.saltPayRegistratorProvider) private var saltPayRegistratorProvider: SaltPayRegistratorProviding
     private let seedPhraseManager: SeedPhraseManager = CommonSeedPhraseManager()
-    private let seedPhraseInputProcessor: OnboardingSeedPhraseInputProcessor = DefaultOnboardinSeedPhraseInputProcessor()
+    private let seedPhraseInputProcessor: SeedPhraseInputProcessor = DefaultSeedPhraseInputProcessor()
 
     @Published var thirdCardSettings: AnimatedViewSettings = .zero
     @Published var canDisplayCardImage: Bool = false

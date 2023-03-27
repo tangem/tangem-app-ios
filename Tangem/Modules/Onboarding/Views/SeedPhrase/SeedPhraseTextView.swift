@@ -10,9 +10,9 @@ import SwiftUI
 import Combine
 
 struct SeedPhraseTextView: UIViewRepresentable {
-    private let inputProcessor: OnboardingSeedPhraseInputProcessor
+    private let inputProcessor: SeedPhraseInputProcessor
 
-    init(inputProcessor: OnboardingSeedPhraseInputProcessor) {
+    init(inputProcessor: SeedPhraseInputProcessor) {
         self.inputProcessor = inputProcessor
     }
 
@@ -68,11 +68,11 @@ struct SeedPhraseTextView: UIViewRepresentable {
 extension SeedPhraseTextView {
     class Coordinator: NSObject, UITextViewDelegate {
         var textUpdateSubscription: AnyCancellable?
-        let inputProcessor: OnboardingSeedPhraseInputProcessor
+        let inputProcessor: SeedPhraseInputProcessor
         var isUserTypingText = false
         var isInputValidated = false
 
-        init(inputProcessor: OnboardingSeedPhraseInputProcessor) {
+        init(inputProcessor: SeedPhraseInputProcessor) {
             self.inputProcessor = inputProcessor
         }
 
