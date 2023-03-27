@@ -186,10 +186,10 @@ extension SeedPhraseTextView {
 
             // Input was already validated so no need to validate it again after moving caret to a new position
             isInputValidated = true
-            let newCaretLocation: Int
 
             // We need to select new position for carret, because textView moving caret to an end of a line
             // when setup new attributed string/
+            let newCaretLocation: Int
             if text.isEmpty {
                 newCaretLocation = currentSelectedRange.lowerBound == 0 ? 0 : currentSelectedRange.lowerBound - 1
             } else if word.isEmpty, lastChar.isWhitespace {
