@@ -243,29 +243,20 @@ final class UserWalletListViewModel: ObservableObject, Identifiable {
 
         let cellModel = mapToUserWalletListCellViewModel(userWalletModel: userWalletModel)
 
-        if isMultiCurrency(userWalletModel: userWalletModel) {
+        if cardModel.isMultiWallet {
             multiCurrencyModels.append(cellModel)
         } else {
             singleCurrencyModels.append(cellModel)
         }
     }
 
-    private func isMultiCurrency(userWalletModel: UserWalletModel) -> Bool {
-        let config = UserWalletConfigFactory(userWalletModel.userWallet.cardInfo()).makeConfig()
-        return isMultiCurrency(config: config)
-    }
-
-    private func isMultiCurrency(config: UserWalletConfig) -> Bool {
-        return config.hasFeature(.multiCurrency)
-    }
-
     private func mapToUserWalletListCellViewModel(userWalletModel: UserWalletModel) -> UserWalletListCellViewModel {
         let userWallet = userWalletModel.userWallet
         let config = UserWalletConfigFactory(userWallet.cardInfo()).makeConfig()
-        let isMultiCurrency = isMultiCurrency(config: config)
+        let isMultiWallet = config.hasFeature(.multiCurrency)
 
         let subtitle: String = {
-            if isMultiCurrency {
+            if isMultiWallet {
                 return Localization.cardLabelCardCount(config.cardsCount)
             } else {
                 return config.embeddedBlockchain?.blockchainNetwork.blockchain.displayName ?? ""
@@ -275,7 +266,7 @@ final class UserWalletListViewModel: ObservableObject, Identifiable {
         return UserWalletListCellViewModel(
             userWalletModel: userWalletModel,
             subtitle: subtitle,
-            isMultiWallet: isMultiCurrency,
+            isMultiWallet: isMultiWallet,
             isUserWalletLocked: userWallet.isLocked,
             isSelected: selectedUserWalletId == userWallet.userWalletId,
             totalBalanceProvider: userWalletModel.totalBalanceProvider,
