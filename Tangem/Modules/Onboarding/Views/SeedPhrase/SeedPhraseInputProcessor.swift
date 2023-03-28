@@ -21,7 +21,7 @@ protocol SeedPhraseInputProcessor {
 
     func setupProcessor()
     func prepare(_ input: String) -> NSAttributedString
-    func process(_ input: String, editingWord: String)
+    func process(_ input: String, editingWord: String, isEndTypingWord: Bool)
     func insertSuggestion(_ word: String)
     func validate(_ input: String)
     func updateSuggestions(for inputWord: String, in range: NSRange?)
@@ -31,6 +31,14 @@ protocol SeedPhraseInputProcessor {
 extension SeedPhraseInputProcessor {
     func process(_ input: String) {
         process(input, editingWord: "")
+    }
+
+    func process(_ input: String, editingWord: String) {
+        process(input, editingWord: editingWord, isEndTypingWord: false)
+    }
+
+    func process(_ input: String, isEndTypingWord: Bool) {
+        process(input, editingWord: "", isEndTypingWord: isEndTypingWord)
     }
 }
 
@@ -68,11 +76,11 @@ class DefaultSeedPhraseInputProcessor: SeedPhraseInputProcessor {
     }
 
     func prepare(_ input: String) -> NSAttributedString {
-        prepare(input: input, editingWord: "").result
+        prepare(input: input, editingWord: "", isEndTypingWord: true).result
     }
 
-    func process(_ input: String, editingWord: String) {
-        let preparationResult = prepare(input: input, editingWord: editingWord)
+    func process(_ input: String, editingWord: String, isEndTypingWord: Bool) {
+        let preparationResult = prepare(input: input, editingWord: editingWord, isEndTypingWord: isEndTypingWord)
         userInputSubject = preparationResult.result
         validate(preparationResult: preparationResult)
     }
@@ -96,7 +104,7 @@ class DefaultSeedPhraseInputProcessor: SeedPhraseInputProcessor {
             newInput = currentInput + word
         }
 
-        process(newInput)
+        process(newInput, isEndTypingWord: true)
         suggestionCaretPosition = NSRange(location: range.lowerBound + word.count + 1, length: 0)
         clearSuggestions()
     }
@@ -116,9 +124,9 @@ class DefaultSeedPhraseInputProcessor: SeedPhraseInputProcessor {
         rangeForSuggestingWord = nil
     }
 
-    private func prepare(input: String, editingWord: String) -> PreparationResult {
+    private func prepare(input: String, editingWord: String, isEndTypingWord: Bool) -> PreparationResult {
         let words = parse(userInput: input)
-        return prepare(words: words, editingWord: editingWord)
+        return prepare(words: words, editingWord: editingWord, isEndTypingWord: isEndTypingWord)
     }
 
     private func validate(preparationResult: PreparationResult) {
@@ -142,7 +150,7 @@ class DefaultSeedPhraseInputProcessor: SeedPhraseInputProcessor {
         }
     }
 
-    private func prepare(words: [String], editingWord: String) -> PreparationResult {
+    private func prepare(words: [String], editingWord: String, isEndTypingWord: Bool) -> PreparationResult {
         let mutableStr = NSMutableAttributedString()
         let separator = " "
         var containsInvalidWords = false
@@ -157,7 +165,9 @@ class DefaultSeedPhraseInputProcessor: SeedPhraseInputProcessor {
             let wordColor = (isValidWord || editingWord == parsedWord) ? defaultTextColor : invalidTextColor
             let string = NSMutableAttributedString()
             string.append(NSAttributedString(string: parsedWord, attributes: [.foregroundColor: wordColor, .font: defaultTextFont]))
-            string.append(NSAttributedString(string: separator, attributes: [.foregroundColor: defaultTextColor, .font: defaultTextFont]))
+            if (i == words.count - 1 && isEndTypingWord) || i < words.count - 1 {
+                string.append(NSAttributedString(string: separator, attributes: [.foregroundColor: defaultTextColor, .font: defaultTextFont]))
+            }
             mutableStr.append(string)
         }
 
