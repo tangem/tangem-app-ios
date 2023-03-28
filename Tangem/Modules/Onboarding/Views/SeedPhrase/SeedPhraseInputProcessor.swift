@@ -17,17 +17,19 @@ protocol SeedPhraseInputProcessor {
     var defaultTextColor: UIColor { get }
     var defaultTextFont: UIFont { get }
 
-    func setupProcessor()
-    func prepare(_ input: String) -> NSAttributedString
-    func process(_ input: String, editingWord: String)
-    func validate(_ input: String)
+//    func prepare(_ input: String) -> NSAttributedString
+//    func process(_ input: String, editingWord: String)
+//    func validate(_ input: String)
+    func validate(newInput: String) -> NSAttributedString
+    func prepare(copiedText: String) -> NSAttributedString
+    func userTypingText()
 }
 
-extension SeedPhraseInputProcessor {
-    func process(_ input: String) {
-        process(input, editingWord: "")
-    }
-}
+// extension SeedPhraseInputProcessor {
+//    func process(_ input: String) {
+//        process(input, editingWord: "")
+//    }
+// }
 
 class DefaultSeedPhraseInputProcessor: SeedPhraseInputProcessor {
     let defaultTextColor: UIColor = Colors.Text.primary1.uiColorFromRGB()
@@ -48,53 +50,91 @@ class DefaultSeedPhraseInputProcessor: SeedPhraseInputProcessor {
 
     var inputErrorPublisher: Published<String?>.Publisher { $inputError }
 
-    func setupProcessor() {
-        // Add setup of dict language when other languages will be added to SDK
-        // After adding new language need to check how it will work with it.
+    init() {
         dictionary = Set(BIP39.Wordlist.en.words)
         userInputSubject = .init(string: "")
     }
 
-    func prepare(_ input: String) -> NSAttributedString {
-        prepare(input: input, editingWord: "").result
-    }
+//    func prepare(_ input: String) -> NSAttributedString {
+//        prepare(input: input, editingWord: "").result
+//    }
+//
+//    func process(_ input: String, editingWord: String) {
+//        let preparationResult = prepare(input: input, editingWord: editingWord)
+//        userInputSubject = preparationResult.result
+//        validate(preparationResult: preparationResult)
+//    }
+//
+//    func validate(_ input: String) {
+//        let words = parse(userInput: input)
+//        validate(words: words)
+//    }
 
-    func process(_ input: String, editingWord: String) {
-        let preparationResult = prepare(input: input, editingWord: editingWord)
-        userInputSubject = preparationResult.result
-        validate(preparationResult: preparationResult)
-    }
-
-    func validate(_ input: String) {
-        let words = parse(userInput: input)
-        validate(words: words)
-    }
-
-    private func prepare(input: String, editingWord: String) -> PreparationResult {
-        let words = parse(userInput: input)
-        return prepare(words: words, editingWord: editingWord)
-    }
-
-    private func validate(preparationResult: PreparationResult) {
-        if preparationResult.containsInvalidWords {
-            processValidationError(MnemonicError.invalidWords(words: []))
-            isSeedPhraseValid = false
-            return
-        }
-        validate(words: preparationResult.parsedWords)
-    }
-
-    private func validate(words: [String]) {
-        do {
+    func validate(newInput: String) -> NSAttributedString {
+        if newInput.isEmpty {
             inputError = nil
+            return NSAttributedString(string: "")
+        }
+        let words = newInput.split(separator: " ").map { String($0) }
+        let preparationResult = prepare(words: words, editingWord: "")
+        do {
             try BIP39().validate(mnemonicComponents: words)
             isSeedPhraseValid = true
         } catch {
-            processValidationError(error)
-            AppLog.shared.error(error)
+            if preparationResult.containsInvalidWords {
+                processValidationError(MnemonicError.invalidWords(words: []))
+            } else {
+                processValidationError(error)
+            }
             isSeedPhraseValid = false
         }
+        return preparationResult.result
     }
+
+    func prepare(copiedText: String) -> NSAttributedString {
+        do {
+            let mnemonic = try Mnemonic(with: copiedText)
+            return prepare(words: mnemonic.mnemonicComponents, editingWord: "").result
+        } catch {
+            processValidationError(error)
+            let parsed = parse(input: copiedText)
+            return prepare(words: parsed, editingWord: "").result
+        }
+    }
+
+    func userTypingText() {
+        isSeedPhraseValid = false
+    }
+
+    private func parse(input: String) -> [String] {
+        input.split(separator: " ").map { String($0) }
+    }
+
+//    private func prepare(input: String, editingWord: String) -> PreparationResult {
+//        let words = parse(userInput: input)
+//        return prepare(words: words, editingWord: editingWord)
+//    }
+
+//    private func validate(preparationResult: PreparationResult) {
+//        if preparationResult.containsInvalidWords {
+//            processValidationError(MnemonicError.invalidWords(words: []))
+//            isSeedPhraseValid = false
+//            return
+//        }
+//        validate(words: preparationResult.parsedWords)
+//    }
+
+//    private func validate(words: [String]) {
+//        do {
+//            inputError = nil
+//            try BIP39().validate(mnemonicComponents: words)
+//            isSeedPhraseValid = true
+//        } catch {
+//            processValidationError(error)
+//            AppLog.shared.error(error)
+//            isSeedPhraseValid = false
+//        }
+//    }
 
     private func prepare(words: [String], editingWord: String) -> PreparationResult {
         let mutableStr = NSMutableAttributedString()
@@ -143,7 +183,7 @@ class DefaultSeedPhraseInputProcessor: SeedPhraseInputProcessor {
 
         switch mnemonicError {
         case .invalidEntropyLength, .invalidWordCount, .invalidWordsFile, .mnenmonicCreationFailed, .normalizationFailed, .wrongWordCount:
-            break
+            inputError = nil
         case .invalidCheksum:
             inputError = "Invalid checksum. Please check words order"
         case .unsupportedLanguage, .invalidWords:
