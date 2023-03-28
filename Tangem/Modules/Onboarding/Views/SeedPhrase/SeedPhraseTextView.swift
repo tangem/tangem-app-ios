@@ -99,7 +99,7 @@ extension SeedPhraseTextView {
         }
 
         func textViewDidEndEditing(_ textView: UITextView) {
-            _ = inputProcessor.process(textView.attributedText.string)
+            _ = inputProcessor.process(textView.attributedText.string, isEndTypingWord: true)
         }
 
         func textViewDidChangeSelection(_ textView: UITextView) {
@@ -151,7 +151,7 @@ extension SeedPhraseTextView {
                 // Create final text with prepared copied text. Adding space to prevent joining previous word and first word
                 // in prepared text if carret is placed at the end of the word before pasting
                 let newText = oldText.replacingCharacters(in: oldTextRange, with: " " + preparedString.string)
-                inputProcessor.process(newText)
+                inputProcessor.process(newText, isEndTypingWord: true)
 
                 // Before changing caret position we need to indicate that this text was already processed
                 isInputValidated = true
@@ -167,7 +167,7 @@ extension SeedPhraseTextView {
                 return false
             }
 
-            let isEndTypingWord = isValidPunctuationChar(lastChar)
+            let isEndTypingWord = isValidPunctuationChar(text.last)
             let firstPos = textView.beginningOfDocument
             if range.lowerBound == textView.text.count || textView.text.isEmpty {
                 // Adding new character to the end of the line or this is first charater.
@@ -184,10 +184,10 @@ extension SeedPhraseTextView {
 
                     if let stringEndPos = textView.position(from: firstPos, offset: range.lowerBound) {
                         let searchResult = findWordToTheLeft(from: stringEndPos)
-                        if searchResult.word.isEmpty {
-                            inputProcessor.updateSuggestions(for: text, in: NSRange(location: textView.selectedRange.location, length: 1))
+                        if let range = searchResult.range, !searchResult.word.isEmpty {
+                            inputProcessor.updateSuggestions(for: searchResult.word + text, in: NSRange(location: range.location, length: range.length + 1))
                         } else {
-                            inputProcessor.updateSuggestions(for: searchResult.word, in: searchResult.range)
+                            inputProcessor.updateSuggestions(for: text, in: NSRange(location: textView.selectedRange.location, length: 1))
                         }
 //                        inputProcessor.process(replacedText, editingWord: searchResult.word)
                     }
@@ -195,7 +195,7 @@ extension SeedPhraseTextView {
                     inputProcessor.validate(currentText + text)
                     return true
                 } else if !currentText.isEmpty {
-                    inputProcessor.process(currentText + " ")
+                    inputProcessor.process(currentText + " ", isEndTypingWord: true)
                     clearSuggestions()
                 }
 
@@ -244,9 +244,9 @@ extension SeedPhraseTextView {
             // If we didn't found the word to the right of the caret but did found word to the left of the caret
             // we can use left side word, otherwise use the right side word. If the right side word is empty
             // then processor will ignore empty string
-            inputProcessor.process(textView.text, editingWord: nextWord.isEmpty && !word.isEmpty ? word : nextWord)
+            inputProcessor.process(textView.text, editingWord: nextWord.isEmpty && !word.isEmpty ? word : nextWord, isEndTypingWord: isEndTypingWord)
 
-            if word.isEmpty || nextWord.isEmpty || lastChar.isWhitespace {
+            if leftSideWordRange != nil, !isEndTypingWord {
                 inputProcessor.updateSuggestions(for: word, in: leftSideWordRange)
             }
 
@@ -283,8 +283,12 @@ extension SeedPhraseTextView {
             // All other symbols are invalid for seed phrase, so we can skip them
             return char.isLetter || isValidPunctuationChar(char)
         }
-        
-        private func isValidPunctuationChar(_ char: Character) -> Bool {
+
+        private func isValidPunctuationChar(_ char: Character?) -> Bool {
+            guard let char else {
+                return false
+            }
+
             return char == "," || char == "." || char.isWhitespace
         }
     }
