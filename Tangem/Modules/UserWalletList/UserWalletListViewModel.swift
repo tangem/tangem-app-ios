@@ -193,41 +193,24 @@ final class UserWalletListViewModel: ObservableObject, Identifiable {
     }
 
     private func updateModels() {
-        let oldModels = multiCurrencyModels + singleCurrencyModels
-        let totalBalanceProviders = Dictionary(oldModels.map {
-            ($0.userWalletId, $0.totalBalanceProvider)
-        }, uniquingKeysWith: { v1, _ in
-            v1
-        })
-
         multiCurrencyModels = userWalletRepository.models
             .filter { $0.isMultiWallet }
             .compactMap { $0.userWalletModel }
-            .map {
-                mapToUserWalletListCellViewModel(userWalletModel: $0, totalBalanceProvider: totalBalanceProviders[$0.userWallet.userWalletId])
-            }
+            .map { mapToUserWalletListCellViewModel(userWalletModel: $0) }
 
         singleCurrencyModels = userWalletRepository.models
             .filter { !$0.isMultiWallet }
             .compactMap { $0.userWalletModel }
-            .map {
-                mapToUserWalletListCellViewModel(userWalletModel: $0, totalBalanceProvider: totalBalanceProviders[$0.userWallet.userWalletId])
-            }
+            .map { mapToUserWalletListCellViewModel(userWalletModel: $0) }
     }
 
     private func update(userWalletModel: UserWalletModel) {
         let userWalletId = userWalletModel.userWallet.userWalletId
 
         if let index = multiCurrencyModels.firstIndex(where: { $0.userWalletId == userWalletId }) {
-            multiCurrencyModels[index] = mapToUserWalletListCellViewModel(
-                userWalletModel: userWalletModel,
-                totalBalanceProvider: multiCurrencyModels[index].totalBalanceProvider
-            )
+            multiCurrencyModels[index] = mapToUserWalletListCellViewModel(userWalletModel: userWalletModel)
         } else if let index = singleCurrencyModels.firstIndex(where: { $0.userWalletId == userWalletId }) {
-            singleCurrencyModels[index] = mapToUserWalletListCellViewModel(
-                userWalletModel: userWalletModel,
-                totalBalanceProvider: singleCurrencyModels[index].totalBalanceProvider
-            )
+            singleCurrencyModels[index] = mapToUserWalletListCellViewModel(userWalletModel: userWalletModel)
         }
     }
 
@@ -265,7 +248,7 @@ final class UserWalletListViewModel: ObservableObject, Identifiable {
         }
     }
 
-    private func mapToUserWalletListCellViewModel(userWalletModel: UserWalletModel, totalBalanceProvider: TotalBalanceProviding? = nil) -> UserWalletListCellViewModel {
+    private func mapToUserWalletListCellViewModel(userWalletModel: UserWalletModel) -> UserWalletListCellViewModel {
         let userWallet = userWalletModel.userWallet
         let config = UserWalletConfigFactory(userWallet.cardInfo()).makeConfig()
         let subtitle: String = {
@@ -282,7 +265,7 @@ final class UserWalletListViewModel: ObservableObject, Identifiable {
             isMultiWallet: config.hasFeature(.multiCurrency),
             isUserWalletLocked: userWallet.isLocked,
             isSelected: selectedUserWalletId == userWallet.userWalletId,
-            totalBalanceProvider: totalBalanceProvider ?? TotalBalanceProvider(userWalletModel: userWalletModel, userWalletAmountType: config.cardAmountType),
+            totalBalanceProvider: userWalletModel.totalBalanceProvider,
             cardImageProvider: CardImageProvider()
         ) { [weak self] in
             if userWallet.isLocked {
