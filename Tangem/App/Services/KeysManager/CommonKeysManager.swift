@@ -42,6 +42,7 @@ extension CommonKeysManager: KeysManager {
             useBlockBookUtxoApis: FeatureProvider.isAvailable(.blockBookUtxoApis),
             nowNodesApiKey: keys.nowNodesApiKey,
             getBlockApiKey: keys.getBlockApiKey,
+            kaspaSecondaryApiUrl: keys.kaspaSecondaryApiUrl,
             tronGridApiKey: keys.tronGridApiKey,
             tonCenterApiKeys: .init(mainnetApiKey: keys.tonCenterApiKey.mainnet, testnetApiKey: keys.tonCenterApiKey.testnet),
             // [REDACTED_TODO_COMMENT]
@@ -89,6 +90,7 @@ extension CommonKeysManager {
         let infuraProjectId: String
         let nowNodesApiKey: String
         let getBlockApiKey: String
+        let kaspaSecondaryApiUrl: String
         let tonCenterApiKey: TonCenterApiKeys
         let appsFlyer: AppsFlyerConfig
         let amplitudeApiKey: String
