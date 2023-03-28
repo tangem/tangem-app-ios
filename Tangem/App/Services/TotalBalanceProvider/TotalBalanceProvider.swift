@@ -97,12 +97,14 @@ private extension TotalBalanceProvider {
     func mapToTotalBalance(currencyCode: String, _ walletModels: [WalletModel], _ hasEntriesWithoutDerivation: Bool) -> TotalBalance {
         let tokenItemViewModels = getTokenItemViewModels(from: walletModels)
 
-        var hasError = false
         var balance: Decimal? = 0.0
 
+        var hasCustomTokenError = false
+        var hasBlockchainError = false
         for token in tokenItemViewModels {
             if !token.state.isSuccesfullyLoaded {
                 balance = nil
+                hasBlockchainError = true
                 break
             }
 
@@ -112,7 +114,7 @@ private extension TotalBalanceProvider {
             if token.rate.isEmpty {
                 // Just show wawning for custom tokens
                 if token.isCustom {
-                    hasError = true
+                    hasCustomTokenError = true
                 } else {
                     balance = nil
                     break
@@ -125,6 +127,19 @@ private extension TotalBalanceProvider {
             Analytics.logTopUpIfNeeded(balance: balance)
         }
 
+        let balanceParameter: Analytics.ParameterValue
+        if hasBlockchainError {
+            balanceParameter = .blockchainError
+        } else if hasCustomTokenError {
+            balanceParameter = .customToken
+        } else if let balance = balance, !balance.isZero {
+            balanceParameter = .full
+        } else {
+            balanceParameter = .empty
+        }
+        Analytics.log(.balanceLoaded, params: [.balance: balanceParameter])
+
+        let hasError = hasCustomTokenError
         return TotalBalance(balance: balance, currencyCode: currencyCode, hasError: hasError)
     }
 
