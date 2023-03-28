@@ -16,11 +16,16 @@ protocol SeedPhraseInputProcessor {
     var inputErrorPublisher: Published<String?>.Publisher { get }
     var defaultTextColor: UIColor { get }
     var defaultTextFont: UIFont { get }
+    var suggestionsPublisher: Published<[String]>.Publisher { get }
+    var suggestionCaretPositionPublisher: Published<NSRange?>.Publisher { get }
 
     func setupProcessor()
     func prepare(_ input: String) -> NSAttributedString
     func process(_ input: String, editingWord: String)
+    func insertSuggestion(_ word: String)
     func validate(_ input: String)
+    func updateSuggestions(for inputWord: String, in range: NSRange?)
+    func clearSuggestions()
 }
 
 extension SeedPhraseInputProcessor {
@@ -34,11 +39,14 @@ class DefaultSeedPhraseInputProcessor: SeedPhraseInputProcessor {
     let invalidTextColor: UIColor = Colors.Text.warning.uiColorFromRGB()
     let defaultTextFont: UIFont = UIFonts.Regular.body
 
+    @Published private var suggestions: [String] = []
     @Published private var userInputSubject: NSAttributedString = .init(string: "")
     @Published private var isSeedPhraseValid: Bool = false
     @Published private var inputError: String? = nil
+    @Published private var suggestionCaretPosition: NSRange? = nil
 
     private var dictionary: Set<String> = []
+    private var rangeForSuggestingWord: NSRange?
 
     var inputText: String { userInputSubject.string }
 
@@ -47,6 +55,10 @@ class DefaultSeedPhraseInputProcessor: SeedPhraseInputProcessor {
     var isSeedPhraseValidPublisher: Published<Bool>.Publisher { $isSeedPhraseValid }
 
     var inputErrorPublisher: Published<String?>.Publisher { $inputError }
+
+    var suggestionsPublisher: Published<[String]>.Publisher { $suggestions }
+
+    var suggestionCaretPositionPublisher: Published<NSRange?>.Publisher { $suggestionCaretPosition }
 
     func setupProcessor() {
         // Add setup of dict language when other languages will be added to SDK
@@ -68,6 +80,40 @@ class DefaultSeedPhraseInputProcessor: SeedPhraseInputProcessor {
     func validate(_ input: String) {
         let words = parse(userInput: input)
         validate(words: words)
+    }
+
+    func insertSuggestion(_ word: String) {
+        let currentInput = userInputSubject.string
+
+        guard let range = rangeForSuggestingWord else {
+            return
+        }
+
+        let newInput: String
+        if let replacementRange = Range(range, in: currentInput) {
+            newInput = currentInput.replacingCharacters(in: replacementRange, with: word)
+        } else {
+            newInput = currentInput + word
+        }
+
+        process(newInput)
+        suggestionCaretPosition = NSRange(location: range.lowerBound + word.count + 1, length: 0)
+        clearSuggestions()
+    }
+
+    func updateSuggestions(for inputWord: String, in range: NSRange?) {
+        if inputWord.isEmpty {
+            clearSuggestions()
+            return
+        }
+
+        rangeForSuggestingWord = range
+        suggestions = dictionary.filter { $0.starts(with: inputWord) }
+    }
+
+    func clearSuggestions() {
+        suggestions = []
+        rangeForSuggestingWord = nil
     }
 
     private func prepare(input: String, editingWord: String) -> PreparationResult {
