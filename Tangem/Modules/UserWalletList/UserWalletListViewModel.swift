@@ -76,7 +76,7 @@ final class UserWalletListViewModel: ObservableObject, Identifiable {
 
         userWalletRepository.unlock(with: .biometry) { [weak self] result in
             switch result {
-            case .error(let error):
+            case .error(let error), .partial(_, let error):
                 self?.error = error.alertBinder
             default:
                 self?.updateModels()
@@ -108,7 +108,7 @@ final class UserWalletListViewModel: ObservableObject, Identifiable {
                 } else {
                     self.error = error.alertBinder
                 }
-            case .success(let cardModel):
+            case .success(let cardModel), .partial(let cardModel, _):
                 self.add(cardModel: cardModel)
             }
         }
