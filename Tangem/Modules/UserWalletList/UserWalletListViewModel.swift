@@ -236,12 +236,10 @@ final class UserWalletListViewModel: ObservableObject, Identifiable {
 
     func add(cardModel: CardViewModel) {
         guard
-            let userWalletModel = cardModel.userWalletModel
+            let cellModel = cardModel.userWalletModel.map({ mapToUserWalletListCellViewModel(userWalletModel: $0) })
         else {
             return
         }
-
-        let cellModel = mapToUserWalletListCellViewModel(userWalletModel: userWalletModel)
 
         if cardModel.isMultiWallet {
             multiCurrencyModels.append(cellModel)
