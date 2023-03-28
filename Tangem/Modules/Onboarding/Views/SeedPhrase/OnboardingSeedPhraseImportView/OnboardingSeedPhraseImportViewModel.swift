@@ -12,6 +12,7 @@ import Combine
 class OnboardingSeedPhraseImportViewModel: ObservableObject {
     @Published var isSeedPhraseValid: Bool = false
     @Published var inputError: String? = nil
+    @Published var suggestions: [String] = []
     let inputProcessor: SeedPhraseInputProcessor
     let importButtonAction: () -> Void
 
@@ -23,6 +24,11 @@ class OnboardingSeedPhraseImportViewModel: ObservableObject {
         bind()
     }
 
+    func tappedSuggestion(at index: Int) {
+        AppLog.shared.debug("[Seed onboarding] Tap on suggestion bubble: \(suggestions[index])")
+        inputProcessor.insertSuggestion(suggestions[index])
+    }
+
     private func bind() {
         inputProcessor.isSeedPhraseValidPublisher
             .receive(on: DispatchQueue.main)
@@ -32,6 +38,11 @@ class OnboardingSeedPhraseImportViewModel: ObservableObject {
         inputProcessor.inputErrorPublisher
             .receive(on: DispatchQueue.main)
             .assign(to: \.inputError, on: self)
+            .store(in: &bag)
+
+        inputProcessor.suggestionsPublisher
+            .receive(on: DispatchQueue.main)
+            .weakAssign(to: \.suggestions, on: self)
             .store(in: &bag)
     }
 }
