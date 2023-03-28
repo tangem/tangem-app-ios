@@ -22,7 +22,7 @@ class MultiWalletContentViewModel: ObservableObject {
 
     lazy var totalSumBalanceViewModel = TotalSumBalanceViewModel(
         userWalletModel: userWalletModel,
-        totalBalanceManager: totalBalanceManager,
+        totalBalanceManager: userWalletModel.totalBalanceProvider,
         cardAmountType: nil,
         tapOnCurrencySymbol: output
     )
@@ -33,7 +33,6 @@ class MultiWalletContentViewModel: ObservableObject {
 
     private let cardModel: CardViewModel
     private let userWalletModel: UserWalletModel
-    private let totalBalanceManager: TotalBalanceProviding
     private let userTokenListManager: UserTokenListManager
     private var bag = Set<AnyCancellable>()
 
@@ -45,7 +44,6 @@ class MultiWalletContentViewModel: ObservableObject {
     ) {
         self.cardModel = cardModel
         self.userWalletModel = userWalletModel
-        totalBalanceManager = userWalletModel.totalBalanceProvider
         self.userTokenListManager = userTokenListManager
         self.output = output
 
