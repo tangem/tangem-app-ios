@@ -288,14 +288,10 @@ class WalletOnboardingViewModel: OnboardingTopupViewModel<WalletOnboardingStep, 
         )
     }()
 
-    lazy var importSeedPhraseModel: OnboardingSeedPhraseImportViewModel? = {
-        seedPhraseInputProcessor.setupProcessor()
-
-        return .init(
-            inputProcessor: seedPhraseInputProcessor,
-            importButtonAction: generateSeedPhraseFromInput
-        )
-    }()
+    lazy var importSeedPhraseModel: OnboardingSeedPhraseImportViewModel? = .init(
+        inputProcessor: seedPhraseInputProcessor,
+        importButtonAction: generateSeedPhraseFromInput
+    )
 
     var canShowThirdCardImage: Bool {
         !isSaltPayOnboarding
