@@ -31,7 +31,19 @@ struct SeedPhraseTextView: UIViewRepresentable {
         textView.smartInsertDeleteType = .no
         textView.textColor = inputProcessor.defaultTextColor
         textView.font = inputProcessor.defaultTextFont
-        context.coordinator.textUpdateSubscription = inputProcessor.inputTextPublisher.assign(to: \.attributedText, on: textView)
+        let coordinator = context.coordinator
+        coordinator.textUpdateSubscription = inputProcessor.inputTextPublisher
+            .dropFirst()
+            .sink(receiveValue: { [weak coordinator] newText in
+                coordinator?.isInputValidated = true
+                textView.attributedText = newText
+            })
+        context.coordinator.caretPosUpdateSubscription = inputProcessor.suggestionCaretPositionPublisher
+            .compactMap { $0 }
+            .sink(receiveValue: { newPos in
+                textView.selectedRange = newPos
+            })
+//            .weakAssign(to: \.attributedText, on: textView)
 
         var toolbarItems = [UIBarButtonItem]()
         toolbarItems = [
@@ -62,12 +74,17 @@ struct SeedPhraseTextView: UIViewRepresentable {
         return Coordinator(inputProcessor: inputProcessor)
     }
 
-    func updateUIView(_ uiView: UITextView, context: UIViewRepresentableContext<SeedPhraseTextView>) {}
+    func updateUIView(_ uiView: UITextView, context: UIViewRepresentableContext<SeedPhraseTextView>) {
+        DispatchQueue.main.async {
+            uiView.becomeFirstResponder()
+        }
+    }
 }
 
 extension SeedPhraseTextView {
     class Coordinator: NSObject, UITextViewDelegate {
         var textUpdateSubscription: AnyCancellable?
+        var caretPosUpdateSubscription: AnyCancellable?
         let inputProcessor: SeedPhraseInputProcessor
         var isUserTypingText = false
         var isInputValidated = false
@@ -89,6 +106,7 @@ extension SeedPhraseTextView {
             if !isInputValidated, !isUserTypingText {
                 inputProcessor.process(textView.text)
                 isInputValidated = true
+                inputProcessor.clearSuggestions()
             } else {
                 isUserTypingText = false
             }
@@ -100,12 +118,33 @@ extension SeedPhraseTextView {
             let currentSelectedRange = textView.selectedRange
             let oldText = textView.text ?? ""
 
+            func clearSuggestions() {
+                inputProcessor.clearSuggestions()
+            }
+
+            func getWordRange(at position: UITextPosition, within textRange: UITextRange) -> NSRange {
+                let location = textView.offset(from: textView.beginningOfDocument, to: textRange.start)
+                let length = textView.offset(from: textRange.start, to: textRange.end)
+                return NSRange(location: location, length: length)
+            }
+
+            func findWordToTheLeft(from position: UITextPosition) -> (word: String, range: NSRange?) {
+                if let wordRange = textView.tokenizer.rangeEnclosingPosition(position, with: .word, inDirection: .storage(.backward)),
+                   let foundWord = textView.text(in: wordRange) {
+                    return (foundWord, getWordRange(at: position, within: wordRange))
+                }
+
+                return ("", nil)
+            }
+
             guard let oldTextRange = Range(range, in: oldText) else {
+                clearSuggestions()
                 return true
             }
 
             // If user inserting text from clipboard
             if text.count > 1 {
+                clearSuggestions()
                 // Prepare new text, replace invalid symbols with spaces
                 let preparedString = inputProcessor.prepare(text)
 
@@ -124,28 +163,47 @@ extension SeedPhraseTextView {
 
             let lastChar: Character = text.last ?? ","
             guard isValidReplacement(text.last) else {
+                clearSuggestions()
                 return false
             }
 
+            let isEndTypingWord = isValidPunctuationChar(lastChar)
+            let firstPos = textView.beginningOfDocument
             if range.lowerBound == textView.text.count || textView.text.isEmpty {
                 // Adding new character to the end of the line or this is first charater.
 
                 let currentText = textView.text ?? ""
-
                 // If new character is letter we can add it to the end of line and validate input.
                 if lastChar.isLetter {
+//                    var replacedText = textView.text.replacingCharacters(in: oldTextRange, with: text)
+//                    if replacedText.last?.isWhitespace ?? false {
+//                        replacedText.removeLast()
+//                    }
+//
+//                    textView.text = replacedText
+
+                    if let stringEndPos = textView.position(from: firstPos, offset: range.lowerBound) {
+                        let searchResult = findWordToTheLeft(from: stringEndPos)
+                        if searchResult.word.isEmpty {
+                            inputProcessor.updateSuggestions(for: text, in: NSRange(location: textView.selectedRange.location, length: 1))
+                        } else {
+                            inputProcessor.updateSuggestions(for: searchResult.word, in: searchResult.range)
+                        }
+//                        inputProcessor.process(replacedText, editingWord: searchResult.word)
+                    }
+
                     inputProcessor.validate(currentText + text)
                     return true
+                } else if !currentText.isEmpty {
+                    inputProcessor.process(currentText + " ")
+                    clearSuggestions()
                 }
 
-                // No need to add a punctuation or a whitespace when input is empty.
-                if currentText.isEmpty {
-                    return false
-                }
-
-                inputProcessor.process(currentText + " ")
+                // No need to add a punctuation or a whitespace when text view is empty.
+//                if currentText.isEmpty {
+//                    return false
+//                }
                 isInputValidated = true
-
                 return false
             }
 
@@ -156,33 +214,41 @@ extension SeedPhraseTextView {
             textView.text = replacedText
 
             var word = ""
+            var leftSideWordRange: NSRange?
             var nextWord = ""
 
-            // Start position of text to be replaced. We need this position to find word which is editing
-            if let firstPos = textView.closestPosition(to: .zero) {
-                // Next, we need to find words that should change their colour to the default colour when editing,
-                // if they have been marked as misspelled words
-                // Try to find the word in the left direction. If caret is placed at the end of the word
-                // we need to search to the left side of the caret
-                if let textPosition = textView.position(from: firstPos, offset: range.lowerBound),
-                   let wordRange = textView.tokenizer.rangeEnclosingPosition(textPosition, with: .word, inDirection: .storage(.backward)),
-                   let foundWord = textView.text(in: wordRange) {
-                    word = foundWord
-                }
-
-                // Try to find the word in the right direction. If caret is placed at the begining of the word
-                // we need to search to the right side of the caret
-                if let newCaretPosition = textView.position(from: firstPos, offset: range.lowerBound + text.count), // Caret position after replacing text
-                   let nextWordRange = textView.tokenizer.rangeEnclosingPosition(newCaretPosition, with: .word, inDirection: .storage(.forward)),
-                   let foundWord = textView.text(in: nextWordRange) {
-                    nextWord = foundWord
-                }
+            ////             Start position of text to be replaced. We need this position to find word which is editing
+//            if let firstPos = textView.closestPosition(to: .zero) {
+            // Next, we need to find words that should change their colour to the default colour when editing,
+            // if they have been marked as misspelled words
+            // Try to find the word in the left direction. If caret is placed at the end of the word
+            // we need to search to the left side of the caret
+            if let textPosition = textView.position(from: firstPos, offset: range.lowerBound),
+               let wordRange = textView.tokenizer.rangeEnclosingPosition(textPosition, with: .word, inDirection: .storage(.backward)),
+               let foundWord = textView.text(in: wordRange) {
+                word = foundWord
+                let location = textView.offset(from: firstPos, to: wordRange.start)
+                let length = textView.offset(from: wordRange.start, to: wordRange.end)
+                leftSideWordRange = NSRange(location: location, length: length)
             }
+
+            // Try to find the word in the right direction. If caret is placed at the begining of the word
+            // we need to search to the right side of the caret
+            if let newCaretPosition = textView.position(from: firstPos, offset: range.lowerBound + text.count), // Caret position after replacing text
+               let nextWordRange = textView.tokenizer.rangeEnclosingPosition(newCaretPosition, with: .word, inDirection: .storage(.forward)),
+               let foundWord = textView.text(in: nextWordRange) {
+                nextWord = foundWord
+            }
+//            }
 
             // If we didn't found the word to the right of the caret but did found word to the left of the caret
             // we can use left side word, otherwise use the right side word. If the right side word is empty
             // then processor will ignore empty string
             inputProcessor.process(textView.text, editingWord: nextWord.isEmpty && !word.isEmpty ? word : nextWord)
+
+            if word.isEmpty || nextWord.isEmpty || lastChar.isWhitespace {
+                inputProcessor.updateSuggestions(for: word, in: leftSideWordRange)
+            }
 
             // Input was already validated so no need to validate it again after moving caret to a new position
             isInputValidated = true
@@ -215,7 +281,11 @@ extension SeedPhraseTextView {
 
             // , and . is usefull for custom keyboards that adds this punctuation symbols on sides of spacebar
             // All other symbols are invalid for seed phrase, so we can skip them
-            return char.isLetter || char == "," || char == "." || char.isWhitespace
+            return char.isLetter || isValidPunctuationChar(char)
+        }
+        
+        private func isValidPunctuationChar(_ char: Character) -> Bool {
+            return char == "," || char == "." || char.isWhitespace
         }
     }
 }
