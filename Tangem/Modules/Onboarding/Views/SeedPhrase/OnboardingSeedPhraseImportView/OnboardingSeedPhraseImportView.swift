@@ -8,6 +8,35 @@
 
 import SwiftUI
 
+struct SeedPhraseSuggestionsView: View {
+    let suggestions: [String]
+    let tappedSuggestion: (Int) -> Void
+
+    @ViewBuilder
+    private func bubble(with text: String, index: Int) -> some View {
+        Button {
+            tappedSuggestion(index)
+        } label: {
+            Text(text)
+                .style(Fonts.Regular.footnote, color: Colors.Text.primary2)
+                .padding(.horizontal, 14)
+                .padding(.vertical, 6)
+                .background(Colors.Icon.primary1)
+                .cornerRadiusContinuous(10)
+        }
+    }
+
+    var body: some View {
+        ScrollView(.horizontal) {
+            HStack(spacing: 8) {
+                ForEach(0 ..< suggestions.count, id: \.self) { index in
+                    bubble(with: suggestions[index], index: index)
+                }
+            }
+        }
+    }
+}
+
 struct OnboardingSeedPhraseImportView: View {
     @ObservedObject var viewModel: OnboardingSeedPhraseImportViewModel
 
@@ -36,6 +65,8 @@ struct OnboardingSeedPhraseImportView: View {
 
             Spacer()
 
+            SeedPhraseSuggestionsView(suggestions: viewModel.suggestions, tappedSuggestion: viewModel.tappedSuggestion(at:))
+
             MainButton(
                 title: Localization.commonImport,
                 icon: .leading(Assets.tangemIcon),
@@ -44,7 +75,7 @@ struct OnboardingSeedPhraseImportView: View {
                 isDisabled: !viewModel.isSeedPhraseValid,
                 action: viewModel.importButtonAction
             )
-            .padding(.bottom, 16)
+            .padding(.vertical, 16)
             .keyboardAdaptive()
         }
         .padding(.horizontal, 16)
