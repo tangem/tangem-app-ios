@@ -45,5 +45,6 @@ extension Analytics {
         case receiveToken = "Receive Token"
         case commonSource = "Source"
         case signInType = "Sign in type"
+        case balance = "Balance"
     }
 }
