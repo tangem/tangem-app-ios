@@ -7,11 +7,11 @@ inhibit_all_warnings!
 
 def tangem_sdk_pod
   pod 'TangemSdk', :git => 'https://github.com/Tangem/tangem-sdk-ios.git', :tag => 'develop-209'
-#pod 'TangemSdk', :path => '../tangem-sdk-ios'
+#   pod 'TangemSdk', :path => '../tangem-sdk-ios'
 end
 
 def blockchain_sdk_pods
-  pod 'BlockchainSdk', :git => 'https://github.com/tangem/blockchain-sdk-swift.git', :tag => 'develop-245'
+  pod 'BlockchainSdk', :git => 'https://github.com/tangem/blockchain-sdk-swift.git', :tag => 'develop-246'
 #  pod 'BlockchainSdk', :path => '../blockchain-sdk-swift'
   
   pod 'TangemWalletCore', :git => 'https://github.com/tangem/wallet-core-binaries-ios.git', :tag => '3.1.9-tangem2'
