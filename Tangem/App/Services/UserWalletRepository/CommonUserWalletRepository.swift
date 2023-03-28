@@ -39,7 +39,7 @@ class CommonUserWalletRepository: UserWalletRepository {
 
     private(set) var models = [CardViewModel]()
 
-    private(set) var isLocked: Bool = true
+    var isLocked: Bool { userWallets.contains { $0.isLocked } }
 
     private var userWallets: [UserWallet] = []
 
@@ -71,8 +71,7 @@ class CommonUserWalletRepository: UserWalletRepository {
             .filter { [weak self] in
                 guard let self else { return false }
 
-                let allWalletsLocked = self.userWallets.allSatisfy { $0.isLocked }
-                return !self.isLocked || !allWalletsLocked
+                return !self.isLocked
             }
             .receive(on: RunLoop.main)
             .sink { [weak self] in
@@ -406,7 +405,6 @@ class CommonUserWalletRepository: UserWalletRepository {
     }
 
     private func discardSensitiveData() {
-        isLocked = true
         encryptionKeyByUserWalletId = [:]
         models = []
         userWallets = savedUserWallets(withSensitiveData: false)
@@ -478,10 +476,13 @@ class CommonUserWalletRepository: UserWalletRepository {
                     self.loadModels()
                     self.initializeServicesForSelectedModel()
                     self.selectedModel?.userWalletModel?.initialUpdate()
-                    self.isLocked = false
 
                     if let selectedModel = self.selectedModel {
-                        completion(.success(selectedModel))
+                        if keys.count == self.userWallets.count {
+                            completion(.success(selectedModel))
+                        } else {
+                            completion(.partial(selectedModel, UserWalletRepositoryError.biometricsChanged))
+                        }
                     } else {
                         completion(nil) // [REDACTED_TODO_COMMENT]
                     }
@@ -499,7 +500,6 @@ class CommonUserWalletRepository: UserWalletRepository {
                     case .success(let cardModel) = result,
                     AppSettings.shared.saveUserWallets
                 else {
-                    self?.isLocked = false
                     completion(result)
                     return
                 }
@@ -546,7 +546,6 @@ class CommonUserWalletRepository: UserWalletRepository {
                 self.setSelectedUserWalletId(savedUserWallet.userWalletId, reason: .userSelected)
                 self.initializeServicesForSelectedModel()
                 self.selectedModel?.userWalletModel?.initialUpdate()
-                self.isLocked = false
 
                 self.sendEvent(.updated(userWalletModel: userWalletModel))
 
