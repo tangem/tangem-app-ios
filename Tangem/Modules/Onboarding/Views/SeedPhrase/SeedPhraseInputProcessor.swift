@@ -215,11 +215,9 @@ class SeedPhraseInputProcessor {
         case .invalidEntropyLength, .invalidWordCount, .invalidWordsFile, .mnenmonicCreationFailed, .normalizationFailed, .wrongWordCount:
             inputError = nil
         case .invalidCheksum:
-            inputError = "Invalid checksum. Please check words order"
+            inputError = Localization.onboardingSeedMnemonicInvalidChecksum
         case .unsupportedLanguage, .invalidWords:
-            inputError = "Invalid seed phrase, please check your spelling"
-        @unknown default:
-            break
+            inputError = Localization.onboardingSeedMnemonicWrongWords
         }
     }
 }
