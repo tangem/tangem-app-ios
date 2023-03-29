@@ -35,7 +35,7 @@ class SeedPhraseInputProcessor {
             validatedSeedPhrase = nil
             return NSAttributedString(string: "")
         }
-        let words = newInput.split(separator: " ").map { String($0) }
+        let words = parse(input: newInput)
         let preparationResult = processInput(words: words)
         do {
             try BIP39().validate(mnemonicComponents: words)
