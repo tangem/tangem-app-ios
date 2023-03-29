@@ -80,6 +80,7 @@ class DefaultSeedPhraseInputProcessor: SeedPhraseInputProcessor {
         do {
             try BIP39().validate(mnemonicComponents: words)
             isSeedPhraseValid = true
+            inputError = nil
         } catch {
             if preparationResult.containsInvalidWords {
                 processValidationError(MnemonicError.invalidWords(words: []))
@@ -96,7 +97,6 @@ class DefaultSeedPhraseInputProcessor: SeedPhraseInputProcessor {
             let mnemonic = try Mnemonic(with: copiedText)
             return prepare(words: mnemonic.mnemonicComponents, editingWord: "").result
         } catch {
-            processValidationError(error)
             let parsed = parse(input: copiedText)
             return prepare(words: parsed, editingWord: "").result
         }
