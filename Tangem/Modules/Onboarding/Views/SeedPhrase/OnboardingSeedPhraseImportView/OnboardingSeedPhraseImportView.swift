@@ -56,12 +56,10 @@ struct OnboardingSeedPhraseImportView: View {
                 .frame(maxHeight: 154)
                 .padding(.top, 20)
 
-            if let errorMessage = viewModel.inputError {
-                Text(errorMessage)
-                    .style(Fonts.Regular.footnote, color: Colors.Text.warning)
-                    .padding(.top, 8)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-            }
+            Text(viewModel.inputError ?? " ")
+                .style(Fonts.Regular.footnote, color: Colors.Text.warning)
+                .padding(.top, 8)
+                .frame(maxWidth: .infinity, alignment: .leading)
 
             Spacer()
 
