@@ -10,7 +10,7 @@ import SwiftUI
 import Combine
 
 struct SeedPhraseTextView: UIViewRepresentable {
-    private let inputProcessor: SeedPhraseInputProcessor
+    private unowned var inputProcessor: SeedPhraseInputProcessor
 
     init(inputProcessor: SeedPhraseInputProcessor) {
         self.inputProcessor = inputProcessor
@@ -67,9 +67,9 @@ struct SeedPhraseTextView: UIViewRepresentable {
 
 extension SeedPhraseTextView {
     class Coordinator: NSObject, UITextViewDelegate {
-        let inputProcessor: SeedPhraseInputProcessor
-
         private weak var textView: UITextView?
+        private unowned var inputProcessor: SeedPhraseInputProcessor
+
         private var textViewDidUpdateTextSubject = PassthroughSubject<Void, Never>()
         private var bag: Set<AnyCancellable> = []
 
@@ -77,37 +77,24 @@ extension SeedPhraseTextView {
             self.inputProcessor = inputProcessor
         }
 
+        @objc
+        func hideKeyboard() {
+            UIApplication.shared.endEditing()
+        }
+
         func setupTextView(_ textView: UITextView) {
             bag.removeAll()
 
             self.textView = textView
 
+            // We can't use textView.publisher(\.text) because it was not implemented properly
+            // so all changes are published only after editing ended.
             textViewDidUpdateTextSubject
                 .debounce(for: 1, scheduler: DispatchQueue.main)
                 .sink { [weak self] in
                     self?.validateInput()
                 }
                 .store(in: &bag)
-        }
-
-        func validateInput() {
-            validateNewInput(textView?.text)
-        }
-
-        func validateNewInput(_ newInput: String?) {
-            guard let newInput, let textView = textView else {
-                return
-            }
-
-            let validatedInput = inputProcessor.validate(newInput: newInput)
-            let currentCaretPos = textView.selectedRange
-            textView.attributedText = validatedInput
-            textView.selectedRange = currentCaretPos
-        }
-
-        @objc
-        func hideKeyboard() {
-            UIApplication.shared.endEditing()
         }
 
         func textViewDidEndEditing(_ textView: UITextView) {
@@ -121,24 +108,31 @@ extension SeedPhraseTextView {
                 textViewDidUpdateTextSubject.send(())
             }
 
+            // If user typed or pasted something we can safely invalidate all previous results
             inputProcessor.resetValidation()
-            let oldText = textView.text ?? ""
-            guard let oldTextRange = Range(range, in: oldText) else {
-                return true
-            }
 
             if text.count > 1 {
+                let oldText = textView.text ?? ""
+                guard let oldTextRange = Range(range, in: oldText) else {
+                    return true
+                }
+
+                // Prepare new copied text
                 let preparedCopiedText = inputProcessor.prepare(copiedText: text)
                 let newText = oldText.replacingCharacters(in: oldTextRange, with: " " + preparedCopiedText.string)
                 let processedText = inputProcessor.validate(newInput: newText)
 
+                // Calculating new caret position after pasting new text
                 let newSelectedRange = NSRange(location: range.lowerBound + preparedCopiedText.string.count, length: 0)
                 textView.attributedText = processedText
 
                 textView.selectedRange = newSelectedRange
+                // Because we updating text manually we need to update caret position and prevent inserting text by system
                 return false
             }
 
+            // We need to reset typing attributes after inserting space or erasing character, because all new input will
+            // have same style as at the caret position.
             if text == " " || text.isEmpty {
                 textView.typingAttributes = [
                     .foregroundColor: inputProcessor.defaultTextColor,
@@ -147,6 +141,21 @@ extension SeedPhraseTextView {
             }
 
             return true
+        }
+
+        private func validateInput() {
+            validateNewInput(textView?.text)
+        }
+
+        private func validateNewInput(_ newInput: String?) {
+            guard let newInput, let textView = textView else {
+                return
+            }
+
+            let validatedInput = inputProcessor.validate(newInput: newInput)
+            let currentCaretPos = textView.selectedRange
+            textView.attributedText = validatedInput
+            textView.selectedRange = currentCaretPos
         }
     }
 }
