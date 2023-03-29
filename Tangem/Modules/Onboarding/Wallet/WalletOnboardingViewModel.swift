@@ -15,8 +15,7 @@ class WalletOnboardingViewModel: OnboardingTopupViewModel<WalletOnboardingStep, 
     @Injected(\.backupServiceProvider) private var backupServiceProvider: BackupServiceProviding
     @Injected(\.tangemSdkProvider) private var tangemSdkProvider: TangemSdkProviding
     @Injected(\.saltPayRegistratorProvider) private var saltPayRegistratorProvider: SaltPayRegistratorProviding
-    private let seedPhraseManager: SeedPhraseManager = CommonSeedPhraseManager()
-    private let seedPhraseInputProcessor: SeedPhraseInputProcessor = DefaultSeedPhraseInputProcessor()
+    private let seedPhraseManager = SeedPhraseManager()
 
     @Published var thirdCardSettings: AnimatedViewSettings = .zero
     @Published var canDisplayCardImage: Bool = false
@@ -288,14 +287,10 @@ class WalletOnboardingViewModel: OnboardingTopupViewModel<WalletOnboardingStep, 
         )
     }()
 
-    lazy var importSeedPhraseModel: OnboardingSeedPhraseImportViewModel? = {
-        seedPhraseInputProcessor.setupProcessor()
-
-        return .init(
-            inputProcessor: seedPhraseInputProcessor,
-            importButtonAction: generateSeedPhraseFromInput
-        )
-    }()
+    lazy var importSeedPhraseModel: OnboardingSeedPhraseImportViewModel? = .init(
+        inputProcessor: SeedPhraseInputProcessor()) { [weak self] mnemonic in
+            self?.createWallet(using: mnemonic)
+        }
 
     lazy var validationUserSeedPhraseModel: OnboardingSeedPhraseUserValidationViewModel? = {
         let words = seedPhraseManager.seedPhrase
@@ -1064,19 +1059,9 @@ extension WalletOnboardingViewModel {
         }
     }
 
-    private func generateSeedPhraseFromInput() {
-        do {
-            let input = seedPhraseInputProcessor.inputText
-            let mnemonic = try seedPhraseManager.generateSeedMnemonic(using: input)
-            createWallet(using: mnemonic)
-        } catch {
-            alert = error.alertBinder
-        }
-    }
-
     private func createWallet(using mnemonic: Mnemonic) {
         do {
-            let _ = try mnemonic.generateSeed()
+            _ = try mnemonic.generateSeed()
             // [REDACTED_TODO_COMMENT]
         } catch {
             alert = error.alertBinder
