@@ -47,7 +47,7 @@ class OnboardingSeedPhraseImportViewModel: ObservableObject {
             .weakAssign(to: \.isSeedPhraseValid, on: self)
             .store(in: &bag)
 
-        inputProcessor.inputErrorPublisher
+        inputProcessor.$inputError
             .receive(on: DispatchQueue.main)
             .weakAssign(to: \.inputError, on: self)
             .store(in: &bag)
