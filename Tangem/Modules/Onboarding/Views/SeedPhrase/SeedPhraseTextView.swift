@@ -94,7 +94,7 @@ extension SeedPhraseTextView {
             self.textView = textView
 
             textViewDidUpdateTextSubject
-                .debounce(for: 0.5, scheduler: DispatchQueue.main)
+                .debounce(for: 1, scheduler: DispatchQueue.main)
                 .sink { [weak self] in
                     self?.validateInput()
                 }
@@ -154,7 +154,6 @@ extension SeedPhraseTextView {
             inputProcessor.userTypingText()
 //            isUserTypingText = true
 //            isInputValidated = false
-            let currentSelectedRange = textView.selectedRange
             let oldText = textView.text ?? ""
             guard let oldTextRange = Range(range, in: oldText) else {
                 return true
