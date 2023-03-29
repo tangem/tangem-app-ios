@@ -9,40 +9,6 @@
 import Combine
 import TangemSdk
 
-//<<<<<<< HEAD
-//protocol SeedPhraseInputProcessor {
-//    var inputText: String { get }
-//    var inputTextPublisher: Published<NSAttributedString>.Publisher { get }
-//    var isSeedPhraseValidPublisher: Published<Bool>.Publisher { get }
-//    var inputErrorPublisher: Published<String?>.Publisher { get }
-//    var defaultTextColor: UIColor { get }
-//    var defaultTextFont: UIFont { get }
-//    var suggestionsPublisher: Published<[String]>.Publisher { get }
-//    var suggestionCaretPositionPublisher: Published<NSRange?>.Publisher { get }
-//
-//    func setupProcessor()
-//    func prepare(_ input: String) -> NSAttributedString
-//    func process(_ input: String, editingWord: String, isEndTypingWord: Bool)
-//    func insertSuggestion(_ word: String)
-//    func validate(_ input: String)
-//    func updateSuggestions(for inputWord: String, in range: NSRange?)
-//    func clearSuggestions()
-//}
-//
-//extension SeedPhraseInputProcessor {
-//    func process(_ input: String) {
-//        process(input, editingWord: "")
-//    }
-//
-//    func process(_ input: String, editingWord: String) {
-//        process(input, editingWord: editingWord, isEndTypingWord: false)
-//    }
-//
-//    func process(_ input: String, isEndTypingWord: Bool) {
-//        process(input, editingWord: "", isEndTypingWord: isEndTypingWord)
-//    }
-//}
-
 class SeedPhraseInputProcessor {
     let defaultTextColor: UIColor = Colors.Text.primary1.uiColorFromRGB()
     let invalidTextColor: UIColor = Colors.Text.warning.uiColorFromRGB()
@@ -51,7 +17,7 @@ class SeedPhraseInputProcessor {
     @Published private(set) var validatedSeedPhrase: String?
     @Published private(set) var inputError: String? = nil
     @Published private(set) var suggestions: [String] = []
-    @Published private(set) var suggestionCaretPosition: NSRange? = nil
+    @Published private(set) var suggestionToInsertPublisher: PassthroughSubject<(word: String, range: NSRange), Never> = .init()
 
     var isSeedPhraseValidPublisher: AnyPublisher<Bool, Never> {
         $validatedSeedPhrase
@@ -62,65 +28,10 @@ class SeedPhraseInputProcessor {
     private var dictionary: Set<String> = []
     private var rangeForSuggestingWord: NSRange?
 
-    
-//    var isSeedPhraseValidPublisher: Published<Bool>.Publisher { $isSeedPhraseValid }
-
-//    var suggestionsPublisher: Published<[String]>.Publisher { $suggestions }
-//    var suggestionCaretPositionPublisher: Published<NSRange?>.Publisher { $suggestionCaretPosition }
-
     init() {
         dictionary = Set(BIP39.Wordlist.en.words)
     }
 
-//    func prepare(_ input: String) -> NSAttributedString {
-//        prepare(input: input, editingWord: "", isEndTypingWord: true).result
-//    }
-//
-//    func process(_ input: String, editingWord: String, isEndTypingWord: Bool) {
-//        let preparationResult = prepare(input: input, editingWord: editingWord, isEndTypingWord: isEndTypingWord)
-//        userInputSubject = preparationResult.result
-//        validate(preparationResult: preparationResult)
-//    }
-//
-//    func validate(_ input: String) {
-//        let words = parse(userInput: input)
-//        validate(words: words)
-//    }
-//
-  
-//
-//    func updateSuggestions(for inputWord: String, in range: NSRange?) {
-//        if inputWord.isEmpty {
-//            clearSuggestions()
-//            return
-//        }
-//
-//        rangeForSuggestingWord = range
-//        suggestions = dictionary.filter { $0.starts(with: inputWord) }
-//    }
-//
-//    func clearSuggestions() {
-//        suggestions = []
-//        rangeForSuggestingWord = nil
-//    }
-//
-//    private func prepare(input: String, editingWord: String, isEndTypingWord: Bool) -> PreparationResult {
-//        let words = parse(userInput: input)
-//        return prepare(words: words, editingWord: editingWord, isEndTypingWord: isEndTypingWord)
-//    }
-//
-//    private func validate(preparationResult: PreparationResult) {
-//        if preparationResult.containsInvalidWords {
-//            processValidationError(MnemonicError.invalidWords(words: []))
-//            isSeedPhraseValid = false
-//            return
-//        }
-//        validate(words: preparationResult.parsedWords)
-//    }
-//
-//    private func validate(words: [String]) {
-//        do {
-//=======
     func validate(newInput: String) -> NSAttributedString {
         if newInput.isEmpty {
             inputError = nil
@@ -154,27 +65,33 @@ class SeedPhraseInputProcessor {
         }
     }
 
-   func resetValidation() {
+    func resetValidation() {
         validatedSeedPhrase = nil
     }
-    
+
+    func updateSuggestions(for inputWord: String, in range: NSRange?) {
+        if inputWord.isEmpty {
+            clearSuggestions()
+            return
+        }
+
+        rangeForSuggestingWord = range
+        suggestions = dictionary.filter { $0.starts(with: inputWord) && $0.count != inputWord.count }
+    }
+
     func insertSuggestion(_ word: String) {
-//        let currentInput = userInputSubject.string
-//        
-//        guard let range = rangeForSuggestingWord else {
-//            return
-//        }
-//        
-//        let newInput: String
-//        if let replacementRange = Range(range, in: currentInput) {
-//            newInput = currentInput.replacingCharacters(in: replacementRange, with: word)
-//        } else {
-//            newInput = currentInput + word
-//        }
-//        
-//        process(newInput, isEndTypingWord: true)
-//        suggestionCaretPosition = NSRange(location: range.lowerBound + word.count + 1, length: 0)
-//        clearSuggestions()
+        guard let range = rangeForSuggestingWord else {
+            clearSuggestions()
+            return
+        }
+        
+        suggestionToInsertPublisher.send((word: word, range: range))
+        clearSuggestions()
+    }
+
+    func clearSuggestions() {
+        suggestions = []
+        rangeForSuggestingWord = nil
     }
 
     private func parse(input: String) -> [String] {
@@ -196,9 +113,7 @@ class SeedPhraseInputProcessor {
             let wordColor = isValidWord ? defaultTextColor : invalidTextColor
             let string = NSMutableAttributedString()
             string.append(NSAttributedString(string: parsedWord, attributes: [.foregroundColor: wordColor, .font: defaultTextFont]))
-//            if (i == words.count - 1 && isEndTypingWord) || i < words.count - 1 {
-                string.append(NSAttributedString(string: separator, attributes: [.foregroundColor: defaultTextColor, .font: defaultTextFont]))
-//            }
+            string.append(NSAttributedString(string: separator, attributes: [.foregroundColor: defaultTextColor, .font: defaultTextFont]))
             mutableStr.append(string)
         }
 
