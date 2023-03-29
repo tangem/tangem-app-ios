@@ -15,7 +15,7 @@ class WalletOnboardingViewModel: OnboardingTopupViewModel<WalletOnboardingStep, 
     @Injected(\.backupServiceProvider) private var backupServiceProvider: BackupServiceProviding
     @Injected(\.tangemSdkProvider) private var tangemSdkProvider: TangemSdkProviding
     @Injected(\.saltPayRegistratorProvider) private var saltPayRegistratorProvider: SaltPayRegistratorProviding
-    private let seedPhraseManager: SeedPhraseManager = CommonSeedPhraseManager()
+    private let seedPhraseManager = SeedPhraseManager()
 
     @Published var thirdCardSettings: AnimatedViewSettings = .zero
     @Published var canDisplayCardImage: Bool = false
@@ -288,7 +288,7 @@ class WalletOnboardingViewModel: OnboardingTopupViewModel<WalletOnboardingStep, 
     }()
 
     lazy var importSeedPhraseModel: OnboardingSeedPhraseImportViewModel? = .init(
-        inputProcessor: DefaultSeedPhraseInputProcessor()) { [weak self] mnemonic in
+        inputProcessor: SeedPhraseInputProcessor()) { [weak self] mnemonic in
             self?.generateSeedPhrase(using: mnemonic)
         }
 
