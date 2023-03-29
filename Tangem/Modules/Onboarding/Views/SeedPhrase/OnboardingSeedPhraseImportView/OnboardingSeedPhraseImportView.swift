@@ -42,18 +42,21 @@ struct OnboardingSeedPhraseImportView: View {
                 style: .primary,
                 isLoading: false,
                 isDisabled: !viewModel.isSeedPhraseValid,
-                action: viewModel.importButtonAction
+                action: viewModel.importSeedPhrase
             )
             .padding(.bottom, 16)
             .keyboardAdaptive()
         }
+        .alert(item: $viewModel.errorAlert, content: { alertBinder in
+            alertBinder.alert
+        })
         .padding(.horizontal, 16)
     }
 }
 
 struct OnboardingSeedPhraseImportView_Previews: PreviewProvider {
     private static let processor = DefaultSeedPhraseInputProcessor()
-    private static let viewModel = OnboardingSeedPhraseImportViewModel(inputProcessor: processor, importButtonAction: {})
+    private static let viewModel = OnboardingSeedPhraseImportViewModel(inputProcessor: processor, outputHandler: { _ in })
 
     static var previews: some View {
         OnboardingSeedPhraseImportView(viewModel: viewModel)
