@@ -212,6 +212,8 @@
 "onboarding_seed_intro_button_import" = "Import wallet";
 "onboarding_seed_intro_message" = "Seed phrase is a series of words that gives an ability to recover the wallet. Unlike the card generated keys, seed phrase is unprotected and can be copied and stolen. Use this option at your own risk.";
 "onboarding_seed_intro_title" = "Use seed phrase";
+"onboarding_seed_mnemonic_invalid_checksum" = "Invalid seed phrase. Please check words order";
+"onboarding_seed_mnemonic_wrong_words" = "Invalid seed phrase. Please check your spelling";
 "onboarding_seed_phrase_intro_legacy" = "Legacy";
 "onboarding_subtitle_backup_card" = "You can backup your keys up to two other blank wallet cards";
 "onboarding_subtitle_claim" = "To get started, simply claim wxDAI to your wallet";
