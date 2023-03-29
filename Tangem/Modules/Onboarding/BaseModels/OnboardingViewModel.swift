@@ -370,19 +370,19 @@ extension OnboardingViewModel {
 
 extension OnboardingViewModel: UserWalletStorageAgreementRoutable {
     func didAgreeToSaveUserWallets() {
-        userWalletRepository.unlock(with: .biometry) { [weak self] result in
+        BiometricsUtil.requestAccess(localizedReason: Localization.biometryTouchIdReason) { [weak self] result in
             let biometryAccessGranted: Bool
             switch result {
-            case .error(let error):
-                if let tangemSdkError = error as? TangemSdkError,
-                   case .userCancelled = tangemSdkError {
+            case .failure(let error):
+                if error.isUserCancelled {
                     return
                 }
+
                 AppLog.shared.error(error)
 
                 biometryAccessGranted = false
                 self?.didAskToSaveUserWallets(agreed: false)
-            default:
+            case .success:
                 biometryAccessGranted = true
                 self?.didAskToSaveUserWallets(agreed: true)
             }
