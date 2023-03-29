@@ -88,6 +88,10 @@ struct WalletOnboardingView: View {
                 words: viewModel.seedPhrase,
                 continueAction: viewModel.mainButtonAction
             )
+        case .seedPhraseImport:
+            if let model = viewModel.importSeedPhraseModel {
+                OnboardingSeedPhraseImportView(viewModel: model)
+            }
         default:
             EmptyView()
         }
