@@ -15,7 +15,7 @@ class WalletOnboardingViewModel: OnboardingTopupViewModel<WalletOnboardingStep, 
     @Injected(\.backupServiceProvider) private var backupServiceProvider: BackupServiceProviding
     @Injected(\.tangemSdkProvider) private var tangemSdkProvider: TangemSdkProviding
     @Injected(\.saltPayRegistratorProvider) private var saltPayRegistratorProvider: SaltPayRegistratorProviding
-    private let seedPhraseManager: SeedPhraseManager = CommonSeedPhraseManager()
+    private let seedPhraseManager = SeedPhraseManager()
 
     @Published var thirdCardSettings: AnimatedViewSettings = .zero
     @Published var canDisplayCardImage: Bool = false
@@ -257,7 +257,7 @@ class WalletOnboardingViewModel: OnboardingTopupViewModel<WalletOnboardingStep, 
 
     var isCustomContentVisible: Bool {
         switch currentStep {
-        case .saveUserWallet, .enterPin, .registerWallet, .kycStart, .kycRetry, .kycProgress, .kycWaiting, .disclaimer, .seedPhraseIntro, .seedPhraseGeneration:
+        case .saveUserWallet, .enterPin, .registerWallet, .kycStart, .kycRetry, .kycProgress, .kycWaiting, .disclaimer, .seedPhraseIntro, .seedPhraseGeneration, .seedPhraseImport:
             return true
         default: return false
         }
@@ -265,10 +265,12 @@ class WalletOnboardingViewModel: OnboardingTopupViewModel<WalletOnboardingStep, 
 
     var isButtonsVisible: Bool {
         switch currentStep {
-        case .saveUserWallet, .kycProgress, .seedPhraseIntro, .seedPhraseGeneration: return false
+        case .saveUserWallet, .kycProgress, .seedPhraseIntro, .seedPhraseGeneration, .seedPhraseImport: return false
         default: return true
         }
     }
+
+    // MARK: - Other View related stuff
 
     lazy var kycModel: WebViewContainerViewModel? = {
         guard let registrator = saltPayRegistratorProvider.registrator else { return nil }
@@ -285,6 +287,11 @@ class WalletOnboardingViewModel: OnboardingTopupViewModel<WalletOnboardingStep, 
         )
     }()
 
+    lazy var importSeedPhraseModel: OnboardingSeedPhraseImportViewModel? = .init(
+        inputProcessor: SeedPhraseInputProcessor()) { [weak self] mnemonic in
+            self?.generateSeedPhrase(using: mnemonic)
+        }
+
     var canShowThirdCardImage: Bool {
         !isSaltPayOnboarding
     }
@@ -297,9 +304,13 @@ class WalletOnboardingViewModel: OnboardingTopupViewModel<WalletOnboardingStep, 
         return currentStep == .backupCards
     }
 
+    // MARK: - Seed phrase
+
     var seedPhrase: [String] {
         seedPhraseManager.seedPhrase
     }
+
+    // MARK: - Private properties
 
     private var primaryCardStackIndex: Int {
         switch backupServiceState {
@@ -349,6 +360,8 @@ class WalletOnboardingViewModel: OnboardingTopupViewModel<WalletOnboardingStep, 
     private var saltPayAmountType: Amount.AmountType {
         .token(value: GnosisRegistrator.Settings.main.token)
     }
+
+    // MARK: - Initializer
 
     override init(input: OnboardingInput, coordinator: OnboardingCoordinator) {
         super.init(input: input, coordinator: coordinator)
@@ -590,6 +603,8 @@ class WalletOnboardingViewModel: OnboardingTopupViewModel<WalletOnboardingStep, 
             break
         case .createWalletSelector:
             goToStep(.seedPhraseIntro)
+        case .seedPhraseIntro:
+            goToStep(.seedPhraseImport)
         case .backupIntro:
             Analytics.log(.backupSkipped)
             if steps.contains(.saveUserWallet) {
@@ -1013,6 +1028,15 @@ extension WalletOnboardingViewModel {
         do {
             try seedPhraseManager.generateSeedPhrase()
             goToNextStep()
+        } catch {
+            alert = error.alertBinder
+        }
+    }
+
+    private func generateSeedPhrase(using mnemonic: Mnemonic) {
+        do {
+            _ = try mnemonic.generateSeed()
+            // [REDACTED_TODO_COMMENT]
         } catch {
             alert = error.alertBinder
         }
