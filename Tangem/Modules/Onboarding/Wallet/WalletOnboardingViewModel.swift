@@ -16,7 +16,6 @@ class WalletOnboardingViewModel: OnboardingTopupViewModel<WalletOnboardingStep, 
     @Injected(\.tangemSdkProvider) private var tangemSdkProvider: TangemSdkProviding
     @Injected(\.saltPayRegistratorProvider) private var saltPayRegistratorProvider: SaltPayRegistratorProviding
     private let seedPhraseManager: SeedPhraseManager = CommonSeedPhraseManager()
-    private let seedPhraseInputProcessor: SeedPhraseInputProcessor = DefaultSeedPhraseInputProcessor()
 
     @Published var thirdCardSettings: AnimatedViewSettings = .zero
     @Published var canDisplayCardImage: Bool = false
@@ -289,9 +288,9 @@ class WalletOnboardingViewModel: OnboardingTopupViewModel<WalletOnboardingStep, 
     }()
 
     lazy var importSeedPhraseModel: OnboardingSeedPhraseImportViewModel? = .init(
-        inputProcessor: seedPhraseInputProcessor,
-        importButtonAction: generateSeedPhraseFromInput
-    )
+        inputProcessor: DefaultSeedPhraseInputProcessor()) { [weak self] mnemonic in
+            self?.generateSeedPhrase(using: mnemonic)
+        }
 
     var canShowThirdCardImage: Bool {
         !isSaltPayOnboarding
@@ -1034,10 +1033,8 @@ extension WalletOnboardingViewModel {
         }
     }
 
-    private func generateSeedPhraseFromInput() {
+    private func generateSeedPhrase(using mnemonic: Mnemonic) {
         do {
-            let input = seedPhraseInputProcessor.inputText
-            let mnemonic = try seedPhraseManager.generateSeedMnemonic(using: input)
             _ = try mnemonic.generateSeed()
             // [REDACTED_TODO_COMMENT]
         } catch {
