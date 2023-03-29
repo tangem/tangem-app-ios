@@ -15,8 +15,12 @@ class CommonUserWalletModel {
 
     /// Public until managers factory
     let userTokenListManager: UserTokenListManager
-    private let walletListManager: WalletListManager
+    lazy var totalBalanceProvider: TotalBalanceProviding = TotalBalanceProvider(
+        userWalletModel: self,
+        userWalletAmountType: config.cardAmountType
+    )
 
+    private let walletListManager: WalletListManager
     private var didPerformInitialUpdate = false
     private var reloadAllWalletModelsBag: AnyCancellable?
 
