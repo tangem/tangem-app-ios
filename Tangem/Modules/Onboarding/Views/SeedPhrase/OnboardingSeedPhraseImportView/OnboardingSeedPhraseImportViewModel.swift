@@ -28,13 +28,11 @@ class OnboardingSeedPhraseImportViewModel: ObservableObject {
     }
 
     func tappedSuggestion(at index: Int) {
-        AppLog.shared.debug("[Seed onboarding] Tap on suggestion bubble: \(suggestions[index])")
         inputProcessor.insertSuggestion(suggestions[index])
     }
-    
+
     func importSeedPhrase() {
         guard let validatedPhrase = inputProcessor.validatedSeedPhrase else {
-            errorAlert = "Failed to create seed phrase: no valid input".alertBinder
             return
         }
 
