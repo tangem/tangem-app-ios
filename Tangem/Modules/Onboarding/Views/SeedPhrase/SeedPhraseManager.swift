@@ -10,15 +10,7 @@ import SwiftUI
 import Combine
 import TangemSdk
 
-protocol SeedPhraseManager {
-    var seedPhrase: [String] { get }
-
-    @discardableResult
-    func generateSeedPhrase() throws -> [String]
-    func generateSeedMnemonic(using input: String) throws -> Mnemonic
-}
-
-class CommonSeedPhraseManager: SeedPhraseManager {
+class SeedPhraseManager {
     private var mnemonic: Mnemonic?
 
     var seedPhrase: [String] { mnemonic?.mnemonicComponents ?? [] }
@@ -28,9 +20,5 @@ class CommonSeedPhraseManager: SeedPhraseManager {
         let mnemonic = try Mnemonic(with: .bits128, wordList: .en)
         self.mnemonic = mnemonic
         return mnemonic.mnemonicComponents
-    }
-
-    func generateSeedMnemonic(using input: String) throws -> Mnemonic {
-        return try Mnemonic(with: input)
     }
 }
