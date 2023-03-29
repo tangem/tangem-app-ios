@@ -8,19 +8,22 @@
 
 import Foundation
 import Combine
+import TangemSdk
 
 class OnboardingSeedPhraseImportViewModel: ObservableObject {
     @Published var isSeedPhraseValid: Bool = false
     @Published var inputError: String? = nil
     @Published var suggestions: [String] = []
+    @Published var errorAlert: AlertBinder? = nil
+
     let inputProcessor: SeedPhraseInputProcessor
-    let importButtonAction: () -> Void
+    let outputHandler: (Mnemonic) -> Void
 
     private var bag: Set<AnyCancellable> = []
 
-    init(inputProcessor: SeedPhraseInputProcessor, importButtonAction: @escaping () -> Void) {
+    init(inputProcessor: SeedPhraseInputProcessor, outputHandler: @escaping (Mnemonic) -> Void) {
         self.inputProcessor = inputProcessor
-        self.importButtonAction = importButtonAction
+        self.outputHandler = outputHandler
         bind()
     }
 
@@ -28,19 +31,34 @@ class OnboardingSeedPhraseImportViewModel: ObservableObject {
         AppLog.shared.debug("[Seed onboarding] Tap on suggestion bubble: \(suggestions[index])")
         inputProcessor.insertSuggestion(suggestions[index])
     }
+    
+    func importSeedPhrase() {
+        guard let validatedPhrase = inputProcessor.validatedSeedPhrase else {
+            errorAlert = "Failed to create seed phrase: no valid input".alertBinder
+            return
+        }
+
+        do {
+            let mnemonic = try Mnemonic(with: validatedPhrase)
+            outputHandler(mnemonic)
+        } catch {
+            AppLog.shared.debug("[Seed Phrase] Failed to generate seed phrase using input. Error: \(error)")
+            errorAlert = error.alertBinder
+        }
+    }
 
     private func bind() {
         inputProcessor.isSeedPhraseValidPublisher
             .receive(on: DispatchQueue.main)
-            .assign(to: \.isSeedPhraseValid, on: self)
+            .weakAssign(to: \.isSeedPhraseValid, on: self)
             .store(in: &bag)
 
-        inputProcessor.inputErrorPublisher
+        inputProcessor.$inputError
             .receive(on: DispatchQueue.main)
-            .assign(to: \.inputError, on: self)
+            .weakAssign(to: \.inputError, on: self)
             .store(in: &bag)
 
-        inputProcessor.suggestionsPublisher
+        inputProcessor.$suggestions
             .receive(on: DispatchQueue.main)
             .weakAssign(to: \.suggestions, on: self)
             .store(in: &bag)
