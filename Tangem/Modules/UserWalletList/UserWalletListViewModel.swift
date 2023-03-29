@@ -251,18 +251,20 @@ final class UserWalletListViewModel: ObservableObject, Identifiable {
     private func mapToUserWalletListCellViewModel(userWalletModel: UserWalletModel) -> UserWalletListCellViewModel {
         let userWallet = userWalletModel.userWallet
         let config = UserWalletConfigFactory(userWallet.cardInfo()).makeConfig()
-        let subtitle: String = {
-            if let embeddedBlockchain = config.embeddedBlockchain {
-                return embeddedBlockchain.blockchainNetwork.blockchain.displayName
-            }
+        let isMultiWallet = config.hasFeature(.multiCurrency)
 
-            return Localization.cardLabelCardCount(config.cardsCount)
+        let subtitle: String = {
+            if isMultiWallet {
+                return Localization.cardLabelCardCount(config.cardsCount)
+            } else {
+                return config.embeddedBlockchain?.blockchainNetwork.blockchain.displayName ?? ""
+            }
         }()
 
         return UserWalletListCellViewModel(
             userWalletModel: userWalletModel,
             subtitle: subtitle,
-            isMultiWallet: config.hasFeature(.multiCurrency),
+            isMultiWallet: isMultiWallet,
             isUserWalletLocked: userWallet.isLocked,
             isSelected: selectedUserWalletId == userWallet.userWalletId,
             totalBalanceProvider: userWalletModel.totalBalanceProvider,
