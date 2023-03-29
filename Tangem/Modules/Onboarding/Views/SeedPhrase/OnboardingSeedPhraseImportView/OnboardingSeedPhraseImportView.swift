@@ -55,8 +55,10 @@ struct OnboardingSeedPhraseImportView: View {
 }
 
 struct OnboardingSeedPhraseImportView_Previews: PreviewProvider {
-    private static let processor = DefaultSeedPhraseInputProcessor()
-    private static let viewModel = OnboardingSeedPhraseImportViewModel(inputProcessor: processor, outputHandler: { _ in })
+    private static let viewModel = OnboardingSeedPhraseImportViewModel(
+        inputProcessor: SeedPhraseInputProcessor(),
+        outputHandler: { _ in }
+    )
 
     static var previews: some View {
         OnboardingSeedPhraseImportView(viewModel: viewModel)
