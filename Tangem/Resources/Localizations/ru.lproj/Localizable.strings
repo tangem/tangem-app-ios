@@ -212,6 +212,8 @@
 "onboarding_seed_intro_button_import" = "Импорт кошелька";
 "onboarding_seed_intro_message" = "Секретная фраза — это набор слов, который дает возможность восстановить кошелек. В отличие от ключей, сгенерированных картой, seed-фраза не защищена и может быть скопирована и украдена. Используйте этот вариант на свой страх и риск.";
 "onboarding_seed_intro_title" = "Использовать секретную фразу";
+"onboarding_seed_mnemonic_invalid_checksum" = "Неверная секретная фраза. Пожалуйста, проверьте порядок слов";
+"onboarding_seed_mnemonic_wrong_words" = "Неверная секретная фраза. Пожалуйста, проверьте орфографию";
 "onboarding_seed_phrase_intro_legacy" = "Устаревший";
 "onboarding_seed_user_validation_message" = "Чтобы проверить, правильно ли вы записали секретную фразу, введите 2-е, 7-е и 11-е слова.";
 "onboarding_seed_user_validation_title" = "Итак, проверим";
