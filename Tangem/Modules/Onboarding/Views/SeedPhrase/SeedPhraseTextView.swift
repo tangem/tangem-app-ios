@@ -121,7 +121,7 @@ extension SeedPhraseTextView {
                 textViewDidUpdateTextSubject.send(())
             }
 
-            inputProcessor.userTypingText()
+            inputProcessor.resetValidation()
             let oldText = textView.text ?? ""
             guard let oldTextRange = Range(range, in: oldText) else {
                 return true
