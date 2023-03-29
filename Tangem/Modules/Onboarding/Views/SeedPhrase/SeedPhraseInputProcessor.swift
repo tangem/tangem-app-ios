@@ -9,27 +9,10 @@
 import Combine
 import TangemSdk
 
-protocol SeedPhraseInputProcessor {
-    var validatedSeedPhrase: String? { get }
-    var isSeedPhraseValidPublisher: AnyPublisher<Bool, Never> { get }
-    var inputErrorPublisher: Published<String?>.Publisher { get }
-    var defaultTextColor: UIColor { get }
-    var defaultTextFont: UIFont { get }
-
-    func validate(newInput: String) -> NSAttributedString
-    func prepare(copiedText: String) -> NSAttributedString
-    func resetValidation()
-}
-
-class DefaultSeedPhraseInputProcessor: SeedPhraseInputProcessor {
+class SeedPhraseInputProcessor {
     let defaultTextColor: UIColor = Colors.Text.primary1.uiColorFromRGB()
     let invalidTextColor: UIColor = Colors.Text.warning.uiColorFromRGB()
     let defaultTextFont: UIFont = UIFonts.Regular.body
-
-    @Published private var inputError: String? = nil
-    @Published private(set) var validatedSeedPhrase: String?
-
-    private var dictionary: Set<String> = []
 
     var isSeedPhraseValidPublisher: AnyPublisher<Bool, Never> {
         $validatedSeedPhrase
@@ -37,7 +20,10 @@ class DefaultSeedPhraseInputProcessor: SeedPhraseInputProcessor {
             .eraseToAnyPublisher()
     }
 
-    var inputErrorPublisher: Published<String?>.Publisher { $inputError }
+    @Published private(set) var inputError: String? = nil
+    @Published private(set) var validatedSeedPhrase: String?
+
+    private var dictionary: Set<String> = []
 
     init() {
         dictionary = Set(BIP39.Wordlist.en.words)
@@ -125,7 +111,7 @@ class DefaultSeedPhraseInputProcessor: SeedPhraseInputProcessor {
     }
 }
 
-extension DefaultSeedPhraseInputProcessor {
+extension SeedPhraseInputProcessor {
     private struct ProcessedInput {
         let attributedText: NSAttributedString
         let invalidWords: [String]
