@@ -2572,14 +2572,6 @@
 			path = ImageService;
 			sourceTree = "<group>";
 		};
-		B06ADFD929BAF94400E92E5E /* SeedPhraseManager */ = {
-			isa = PBXGroup;
-			children = (
-				B06ADFDA29BAFA4600E92E5E /* SeedPhraseManager.swift */,
-			);
-			path = SeedPhraseManager;
-			sourceTree = "<group>";
-		};
 		B072A728257A118200C5029C /* Config */ = {
 			isa = PBXGroup;
 			children = (
@@ -2935,6 +2927,7 @@
 				B0FC72EA29B7991A001930D4 /* OnboardingSeedPhraseIntroView.swift */,
 				B06ADFD729B9CEEC00E92E5E /* OnboardingSeedPhraseGenerateView.swift */,
 				B06A827F29C81E3A00B6160E /* SeedPhraseTextView.swift */,
+				B06ADFDA29BAFA4600E92E5E /* SeedPhraseManager.swift */,
 				B0625A2129CB3C6500EDD245 /* SeedPhraseInputProcessor.swift */,
 			);
 			path = SeedPhrase;
@@ -3143,7 +3136,6 @@
 				DC0A5816282526B50031BECC /* RateAppService */,
 				B0431B422919F93200F84DEF /* Referral */,
 				DC0A5809282522D00031BECC /* OnboardingStepsSetupService */,
-				B06ADFD929BAF94400E92E5E /* SeedPhraseManager */,
 				B09E51882981044D0042998A /* DeprecationService */,
 				DC0A5804282501110031BECC /* KeysManager */,
 				DC0A57FF28243D050031BECC /* ExchangeService */,
