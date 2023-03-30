@@ -305,10 +305,10 @@ private extension SwappingViewModel {
             sendCurrencyViewModel?.update(fiatValue: .loading)
         }
 
-        Task {
-            let fiatValue = try await fiatRatesProvider.getFiat(for: source, amount: decimalValue)
+        runTask(in: self) { obj in
+            let fiatValue = try await obj.fiatRatesProvider.getFiat(for: source, amount: decimalValue)
             await runOnMain {
-                sendCurrencyViewModel?.update(fiatValue: .loaded(fiatValue))
+                obj.sendCurrencyViewModel?.update(fiatValue: .loaded(fiatValue))
             }
         }
     }
@@ -402,12 +402,12 @@ private extension SwappingViewModel {
         guard let destination = exchangeManager.getExchangeItems().destination else { return }
         receiveCurrencyViewModel?.update(fiatAmountState: .loading)
 
-        Task {
-            let fiatValue = try await fiatRatesProvider.getFiat(for: destination, amount: value)
+        runTask(in: self) { obj in
+            let fiatValue = try await obj.fiatRatesProvider.getFiat(for: destination, amount: value)
             await runOnMain {
-                receiveCurrencyViewModel?.update(fiatAmountState: .loaded(fiatValue))
+                obj.receiveCurrencyViewModel?.update(fiatAmountState: .loaded(fiatValue))
             }
-            try await checkForHighPriceImpact(destinationFiatAmount: fiatValue)
+            try await obj.checkForHighPriceImpact(destinationFiatAmount: fiatValue)
         }
     }
 
@@ -458,12 +458,12 @@ private extension SwappingViewModel {
         case .available(_, let info):
             let source = exchangeManager.getExchangeItems().source
 
-            Task {
-                let fiatFee = try await fiatRatesProvider.getFiat(for: info.sourceBlockchain, amount: info.fee)
+            runTask(in: self) { obj in
+                let fiatFee = try await obj.fiatRatesProvider.getFiat(for: info.sourceBlockchain, amount: info.fee)
                 let code = await AppSettings.shared.selectedCurrencyCode
 
                 await runOnMain {
-                    swappingFeeRowViewModel?.update(
+                    obj.swappingFeeRowViewModel?.update(
                         state: .fee(
                             fee: info.fee.groupedFormatted(),
                             symbol: source.blockchain.symbol,
@@ -603,13 +603,13 @@ private extension SwappingViewModel {
             return
         }
 
-        Task {
-            var items = exchangeManager.getExchangeItems()
+        runTask(in: self) { obj in
+            var items = obj.exchangeManager.getExchangeItems()
 
             do {
-                items.destination = try await swappingDestinationService.getDestination(source: items.source)
-                exchangeManager.update(exchangeItems: items)
-                exchangeManager.refresh(type: .full)
+                items.destination = try await obj.swappingDestinationService.getDestination(source: items.source)
+                obj.exchangeManager.update(exchangeItems: items)
+                obj.exchangeManager.refresh(type: .full)
             } catch {
                 AppLog.shared.debug("Destination load handle error")
                 AppLog.shared.error(error)
@@ -657,22 +657,22 @@ private extension SwappingViewModel {
             ]
         )
 
-        Task {
+        runTask(in: self) { obj in
             do {
-                let sendResult = try await transactionSender.sendTransaction(info)
-                addDestinationTokenToUserWalletList()
-                exchangeManager.didSendSwapTransaction(exchangeTxData: info)
+                let sendResult = try await obj.transactionSender.sendTransaction(info)
+                obj.addDestinationTokenToUserWalletList()
+                obj.exchangeManager.didSendSwapTransaction(exchangeTxData: info)
 
                 Analytics.log(.transactionSent, params: [.commonSource: .transactionSourceSwap])
 
                 await runOnMain {
-                    openSuccessView(result: result, transactionModel: info, transactionID: sendResult.hash)
+                    obj.openSuccessView(result: result, transactionModel: info, transactionID: sendResult.hash)
                 }
             } catch TangemSdkError.userCancelled {
-                restartTimer()
+                obj.restartTimer()
             } catch {
                 await runOnMain {
-                    errorAlert = AlertBinder(title: Localization.commonError, message: error.localizedDescription)
+                    obj.errorAlert = AlertBinder(title: Localization.commonError, message: error.localizedDescription)
                 }
             }
         }
