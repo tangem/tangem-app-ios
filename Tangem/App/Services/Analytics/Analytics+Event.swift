@@ -12,6 +12,7 @@ extension Analytics {
     enum Event: String {
         case signedIn = "[Basic] Signed in"
         case toppedUp = "[Basic] Topped up"
+        case walletOpened = "[Basic] Wallet Opened"
         case balanceLoaded = "[Basic] Balance Loaded"
         case cardWasScanned = "[Basic] Card Was Scanned"
         case transactionSent = "[Basic] Transaction sent"
