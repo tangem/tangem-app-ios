@@ -215,6 +215,7 @@
 "onboarding_seed_mnemonic_invalid_checksum" = "Неверная секретная фраза. Пожалуйста, проверьте порядок слов";
 "onboarding_seed_mnemonic_wrong_words" = "Неверная секретная фраза. Пожалуйста, проверьте орфографию";
 "onboarding_seed_phrase_intro_legacy" = "Устаревший";
+"onboarding_seed_screenshot_alert" = "Небезопасно делать скриншот секретной фразы";
 "onboarding_seed_user_validation_message" = "Чтобы проверить, правильно ли вы записали секретную фразу, введите 2-е, 7-е и 11-е слова.";
 "onboarding_seed_user_validation_title" = "Итак, проверим";
 "onboarding_subtitle_backup_card" = "Вы можете сделать резервную копию своих ключей на одной или двух других пустых картах Wallet";
