@@ -56,6 +56,7 @@
 "common_done" = "Готово";
 "common_error" = "Ошибка";
 "common_explorer_format" = "%@ обозреватель";
+"common_import" = "Импортировать";
 "common_no" = "Нет";
 "common_ok" = "Ок";
 "common_origin_card" = "Основная карта";
@@ -206,11 +207,16 @@
 "onboarding_seed_button_read_more" = "Читать про сид-фразу";
 "onboarding_seed_generate_message" = "Запишите эти 12 слов в указанном ниже порядке и храните их в секретном, безопасном месте";
 "onboarding_seed_generate_title" = "Ваша фраза для восстановления";
+"onboarding_seed_import_message" = "Чтобы импортировать кошелек, введите секретную фразу в поля ниже или отсканируйте QR-код.";
 "onboarding_seed_intro_button_generate" = "Cоздать секретную фразу";
 "onboarding_seed_intro_button_import" = "Импорт кошелька";
 "onboarding_seed_intro_message" = "Секретная фраза — это набор слов, который дает возможность восстановить кошелек. В отличие от ключей, сгенерированных картой, seed-фраза не защищена и может быть скопирована и украдена. Используйте этот вариант на свой страх и риск.";
 "onboarding_seed_intro_title" = "Использовать секретную фразу";
+"onboarding_seed_mnemonic_invalid_checksum" = "Неверная секретная фраза. Пожалуйста, проверьте порядок слов";
+"onboarding_seed_mnemonic_wrong_words" = "Неверная секретная фраза. Пожалуйста, проверьте орфографию";
 "onboarding_seed_phrase_intro_legacy" = "Устаревший";
+"onboarding_seed_user_validation_message" = "Чтобы проверить, правильно ли вы записали секретную фразу, введите 2-е, 7-е и 11-е слова";
+"onboarding_seed_user_validation_title" = "Итак, проверим";
 "onboarding_subtitle_backup_card" = "Вы можете сделать резервную копию своих ключей на одной или двух других пустых картах Wallet";
 "onboarding_subtitle_claim" = "Для начала работы просто запросите начисление wxDAI на свой кошелек";
 "onboarding_subtitle_claim_progress" = "Это займет несколько секунд";
