@@ -11,7 +11,7 @@ import SwiftUI
 struct SeedPhraseSuggestionsView: View {
     let suggestions: [String]
     let tappedSuggestion: (Int) -> Void
-    
+
     @ViewBuilder
     private func bubble(with text: String, index: Int) -> some View {
         Button {
@@ -25,7 +25,7 @@ struct SeedPhraseSuggestionsView: View {
                 .cornerRadiusContinuous(10)
         }
     }
-    
+
     var body: some View {
         ScrollView(.horizontal, showsIndicators: false) {
             HStack(spacing: 8) {
@@ -39,11 +39,10 @@ struct SeedPhraseSuggestionsView: View {
 }
 
 struct SeedPhraseSuggestionsView_Preview: PreviewProvider {
-    
     static var previews: some View {
         SeedPhraseSuggestionsView(
             suggestions: [
-                "tree", "banana", "tangem", "index", "wallet", "caret", "collection", "engine"
+                "tree", "banana", "tangem", "index", "wallet", "caret", "collection", "engine",
             ],
             tappedSuggestion: { _ in }
         )
