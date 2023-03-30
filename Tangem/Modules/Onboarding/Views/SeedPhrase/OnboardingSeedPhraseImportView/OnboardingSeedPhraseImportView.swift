@@ -34,6 +34,7 @@ struct SeedPhraseSuggestionsView: View {
                 }
             }
         }
+        .frame(minHeight: 30)
     }
 }
 
