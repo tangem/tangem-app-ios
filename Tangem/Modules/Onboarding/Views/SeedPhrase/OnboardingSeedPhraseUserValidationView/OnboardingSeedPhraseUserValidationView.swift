@@ -29,21 +29,21 @@ struct OnboardingSeedPhraseUserValidationView: View {
 
                 WordInputView(
                     wordNumber: 2,
-                    hasError: viewModel.firstInputWithError,
+                    hasError: viewModel.firstInputHasError,
                     text: $viewModel.firstInputText
                 )
                 .padding(.top, 38)
 
                 WordInputView(
                     wordNumber: 7,
-                    hasError: viewModel.secondInputWithError,
+                    hasError: viewModel.secondInputHasError,
                     text: $viewModel.secondInputText
                 )
                 .padding(.top, 20)
 
                 WordInputView(
                     wordNumber: 11,
-                    hasError: viewModel.thirdInputWithError,
+                    hasError: viewModel.thirdInputHasError,
                     text: $viewModel.thirdInputText
                 )
                 .padding(.top, 20)
