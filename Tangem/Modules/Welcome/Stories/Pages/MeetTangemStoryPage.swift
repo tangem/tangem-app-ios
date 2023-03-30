@@ -22,7 +22,7 @@ struct MeetTangemStoryPage: View {
         Localization.storyMeetStore,
         Localization.storyMeetSend,
         Localization.storyMeetPay,
-        Localization.storyMeetExchange,
+        // Localization.storyMeetExchange,
         Localization.storyMeetBorrow,
         Localization.storyMeetLend,
         Localization.storyMeetLend,
