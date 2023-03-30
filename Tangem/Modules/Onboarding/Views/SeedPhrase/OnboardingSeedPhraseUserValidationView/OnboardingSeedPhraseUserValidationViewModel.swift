@@ -20,9 +20,9 @@ class OnboardingSeedPhraseUserValidationViewModel: ObservableObject {
     @Published var firstInputText = ""
     @Published var secondInputText = ""
     @Published var thirdInputText = ""
-    @Published var firstInputWithError = false
-    @Published var secondInputWithError = false
-    @Published var thirdInputWithError = false
+    @Published var firstInputHasError = false
+    @Published var secondInputHasError = false
+    @Published var thirdInputHasError = false
 
     @Published var isCreateWalletButtonEnabled = false
 
@@ -40,9 +40,9 @@ class OnboardingSeedPhraseUserValidationViewModel: ObservableObject {
     }
 
     private func bind() {
-        subscribeToInputUpdates(to: \.$firstInputText, errorKeyParh: \.firstInputWithError, targetWord: input.secondWord, on: self)
-        subscribeToInputUpdates(to: \.$secondInputText, errorKeyParh: \.secondInputWithError, targetWord: input.seventhWord, on: self)
-        subscribeToInputUpdates(to: \.$thirdInputText, errorKeyParh: \.thirdInputWithError, targetWord: input.eleventhWord, on: self)
+        subscribeToInputUpdates(to: \.$firstInputText, errorKeyParh: \.firstInputHasError, targetWord: input.secondWord, on: self)
+        subscribeToInputUpdates(to: \.$secondInputText, errorKeyParh: \.secondInputHasError, targetWord: input.seventhWord, on: self)
+        subscribeToInputUpdates(to: \.$thirdInputText, errorKeyParh: \.thirdInputHasError, targetWord: input.eleventhWord, on: self)
     }
 
     private func subscribeToInputUpdates(
