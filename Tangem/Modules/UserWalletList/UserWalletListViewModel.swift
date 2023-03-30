@@ -81,7 +81,9 @@ final class UserWalletListViewModel: ObservableObject, Identifiable {
             default:
                 self?.updateModels()
                 // Need to update balance in each wallet
-                self?.userWalletRepository.models.forEach { $0.userWalletModel?.initialUpdate() }
+                self?.userWalletRepository.models.forEach {
+                    $0.userWalletModel?.initialUpdate()
+                }
             }
         }
     }

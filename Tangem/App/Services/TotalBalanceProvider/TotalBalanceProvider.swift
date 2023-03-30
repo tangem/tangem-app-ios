@@ -50,7 +50,7 @@ private extension TotalBalanceProvider {
                     return
                 }
                 
-                let hasLoading = !walletModels.filter { $0.state.isLoading }.isEmpty
+                let hasLoading = walletModels.contains { $0.state.isLoading }
 
                 // We should wait for balance loading to complete
                 if hasLoading {
