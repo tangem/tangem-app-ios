@@ -45,6 +45,11 @@ private extension TotalBalanceProvider {
             .combineLatest(AppSettings.shared.$selectedCurrencyCode, hasEntriesWithoutDerivationPublisher)
             .receive(on: DispatchQueue.main)
             .sink { [weak self] walletModels, currencyCode, hasEntriesWithoutDerivation in
+                // Exclude wrong updating total balance to 0
+                if walletModels.isEmpty {
+                    return
+                }
+
                 let hasLoading = !walletModels.filter { $0.state.isLoading }.isEmpty
 
                 // We should wait for balance loading to complete
