@@ -31,6 +31,14 @@ class OnboardingSeedPhraseImportViewModel: ObservableObject {
         inputProcessor.insertSuggestion(suggestions[index])
     }
 
+    func onAppear() {
+        UIScrollView.appearance().keyboardDismissMode = .none
+    }
+
+    func onDisappear() {
+        UIScrollView.appearance().keyboardDismissMode = AppConstants.defaultScrollViewKeyboardDismissMode
+    }
+
     func importSeedPhrase() {
         guard let validatedPhrase = inputProcessor.validatedSeedPhrase else {
             return
