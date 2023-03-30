@@ -8,16 +8,8 @@
 
 import TangemSdk
 
-protocol SeedPhraseManager {
-    var seedPhrase: [String] { get }
-
-    @discardableResult
-    func generateSeedPhrase() throws -> [String]
-}
-
-class CommonSeedPhraseManager: SeedPhraseManager {
-    private var mnemonic: Mnemonic?
-
+class SeedPhraseManager {
+    private(set) var mnemonic: Mnemonic?
     var seedPhrase: [String] { mnemonic?.mnemonicComponents ?? [] }
 
     @discardableResult
