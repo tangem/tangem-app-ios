@@ -25,11 +25,11 @@ class SeedPhraseInputProcessor {
             .eraseToAnyPublisher()
     }
 
-    private var dictionary: Set<String> = []
+    private let dictionary: NSOrderedSet
     private var rangeForSuggestingWord: NSRange?
 
     init() {
-        dictionary = Set(BIP39.Wordlist.en.words)
+        dictionary = NSOrderedSet(array: BIP39.Wordlist.en.words)
     }
 
     func validate(newInput: String) -> NSAttributedString {
@@ -38,6 +38,7 @@ class SeedPhraseInputProcessor {
             validatedSeedPhrase = nil
             return NSAttributedString(string: "")
         }
+
         let words = parse(input: newInput)
         let preparationResult = processInput(words: words)
         do {
@@ -76,7 +77,12 @@ class SeedPhraseInputProcessor {
         }
 
         rangeForSuggestingWord = range
-        suggestions = dictionary.filter { $0.starts(with: inputWord) && $0.count != inputWord.count }
+        suggestions = dictionary.compactMap {
+            guard let dictWord = $0 as? String else { return nil }
+
+            let isValidSuggestion = dictWord.starts(with: inputWord) && dictWord.count != inputWord.count
+            return isValidSuggestion ? dictWord : nil
+        }
     }
 
     func insertSuggestion(_ word: String) {
@@ -84,7 +90,7 @@ class SeedPhraseInputProcessor {
             clearSuggestions()
             return
         }
-        
+
         suggestionToInsertPublisher.send((word: word, range: range))
         clearSuggestions()
     }
