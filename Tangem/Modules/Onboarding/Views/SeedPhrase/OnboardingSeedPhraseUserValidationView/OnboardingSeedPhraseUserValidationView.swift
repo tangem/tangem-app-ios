@@ -106,7 +106,6 @@ fileprivate struct WordInputView: View {
                 isEnabled: true
             )
             .padding(.vertical, 12)
-            .padding(.trailing, 10)
 
             if isResponder ?? false {
                 Button(action: { text.wrappedValue = "" }) {
