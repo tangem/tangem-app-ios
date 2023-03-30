@@ -109,20 +109,11 @@ extension SeedPhraseTextView {
                     self?.insertWord(word, in: range)
                 }
                 .store(in: &bag)
-
-            inputProcessor.$suggestionCaretPosition
-                .compactMap { $0 }
-                .sink(receiveValue: { newPos in
-                    textView.selectedRange = newPos
-                })
-                .store(in: &bag)
         }
 
         func textViewDidEndEditing(_ textView: UITextView) {
             validateInput()
         }
-
-        func textViewDidChange(_ textView: UITextView) {}
 
         func textView(_ textView: UITextView, shouldChangeTextIn range: NSRange, replacementText text: String) -> Bool {
             defer {
@@ -152,26 +143,38 @@ extension SeedPhraseTextView {
                 return false
             }
 
+            // If removing characters or if it is a letter we should check for suggestion
+            // Text will be empty if user removes characters
             var needToClearSuggestions = true
             if text.isEmpty || (text.last?.isLetter ?? false) {
+                // Save caret position and attributed text before inserting new character
+                // to give system ability to manually replace characters and do validation
+                // with debounce after text update.
                 let oldCaretPosition = textView.selectedRange
-                let withNewInput = textView.text.replacingCharacters(in: oldTextRange, with: text)
-                let newCaretPosition = NSRange(location: oldCaretPosition.location + (text.isEmpty ? -1 : text.count), length: 0)
                 let oldAttributedText = textView.attributedText
 
-                textView.text = withNewInput
+                let textWithNewInput = textView.text.replacingCharacters(in: oldTextRange, with: text)
+                let newCaretPosition = NSRange(location: oldCaretPosition.location + (text.isEmpty ? -1 : text.count), length: 0)
+
+                textView.text = textWithNewInput
                 textView.selectedRange = newCaretPosition
-                let firstPos = textView.beginningOfDocument
 
                 if let currentTextRange = textView.selectedTextRange {
+                    // We need to search in both directions from current caret position.
                     let leftSideWordRange = textView.tokenizer.rangeEnclosingPosition(currentTextRange.start, with: .word, inDirection: .storage(.backward))
                     let rightSideWordRange = textView.tokenizer.rangeEnclosingPosition(currentTextRange.start, with: .word, inDirection: .storage(.forward))
 
+                    // If we have word on the left side, but doesn't have word on the right side
+                    // we can provide suggestion for user.
+                    // If we have word on right side this means that caret is locating
+                    // either in the middle of the word or at the beginning of the word.
+                    // In such cases we shouldn't provide suggestion for user.
                     if let leftSideWordRange, rightSideWordRange == nil, let word = textView.text(in: leftSideWordRange) {
                         needToClearSuggestions = false
 
-                        let location = textView.offset(from: firstPos, to: leftSideWordRange.start)
+                        let location = textView.offset(from: textView.beginningOfDocument, to: leftSideWordRange.start)
                         let length = textView.offset(from: leftSideWordRange.start, to: leftSideWordRange.end)
+                        // This word range will be used to replace the text if user selects suggestion
                         let wordRange = NSRange(location: location, length: length)
 
                         inputProcessor.updateSuggestions(for: word, in: wordRange)
@@ -212,8 +215,6 @@ extension SeedPhraseTextView {
             textView.attributedText = validatedInput
             textView.selectedRange = currentCaretPos
         }
-
-        private func updateSuggestionsIfNeeded() {}
 
         private func insertWord(_ word: String, in range: NSRange) {
             guard
