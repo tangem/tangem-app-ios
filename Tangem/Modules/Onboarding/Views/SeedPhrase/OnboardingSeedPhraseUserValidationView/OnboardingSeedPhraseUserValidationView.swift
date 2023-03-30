@@ -29,22 +29,22 @@ struct OnboardingSeedPhraseUserValidationView: View {
 
                 WordInputView(
                     wordNumber: 2,
-                    isWithError: viewModel.isFirstInputWithError,
-                    textBinding: $viewModel.firstInputText
+                    hasError: viewModel.firstInputWithError,
+                    text: $viewModel.firstInputText
                 )
                 .padding(.top, 38)
 
                 WordInputView(
                     wordNumber: 7,
-                    isWithError: viewModel.isSecondInputWithError,
-                    textBinding: $viewModel.secondInputText
+                    hasError: viewModel.secondInputWithError,
+                    text: $viewModel.secondInputText
                 )
                 .padding(.top, 20)
 
                 WordInputView(
                     wordNumber: 11,
-                    isWithError: viewModel.isThirdInputWithError,
-                    textBinding: $viewModel.thirdInputText
+                    hasError: viewModel.thirdInputWithError,
+                    text: $viewModel.thirdInputText
                 )
                 .padding(.top, 20)
 
@@ -78,45 +78,54 @@ struct OnboardingSeedPhraseUserValidationView: View {
 
 fileprivate struct WordInputView: View {
     let wordNumber: Int
-    let isWithError: Bool
-    let textBinding: Binding<String>
+    let hasError: Bool
+    let text: Binding<String>
 
     @State private var isResponder: Bool? = nil
 
     var body: some View {
-        ZStack(alignment: .leading) {
+        HStack(alignment: .center, spacing: 0) {
             Text("\(wordNumber).")
                 .style(
                     Fonts.Regular.body,
-                    color: isWithError ? Colors.Text.warning : Colors.Text.tertiary
+                    color: hasError ? Colors.Text.warning : Colors.Text.tertiary
                 )
+                .frame(width: 38, alignment: .leading)
                 .padding(.leading, 16)
+
             CustomTextField(
-                text: textBinding,
+                text: text,
                 isResponder: $isResponder,
                 actionButtonTapped: .constant(false),
                 clearsOnBeginEditing: false,
                 handleKeyboard: true,
-                clearButtonMode: .whileEditing,
-                textColor: isWithError ? Colors.Text.warning.uiColorFromRGB() : Colors.Text.primary1.uiColorFromRGB(),
+                clearButtonMode: .never,
+                textColor: hasError ? Colors.Text.warning.uiColorFromRGB() : Colors.Text.primary1.uiColorFromRGB(),
                 font: UIFonts.Regular.body,
                 placeholder: "",
                 isEnabled: true
             )
-            .padding(.vertical, 11)
-            .padding(.leading, 54)
+            .padding(.vertical, 12)
             .padding(.trailing, 10)
+
+            if isResponder ?? false {
+                Button(action: { text.wrappedValue = "" }) {
+                    Assets.clear.image
+                        .foregroundColor(Colors.Icon.informative)
+                        .padding(.horizontal, 16)
+                }
+            }
         }
         .frame(minHeight: 46)
         .overlay(
             RoundedRectangle(cornerRadius: 14)
-                .stroke(isWithError ? Colors.Icon.warning : .clear, lineWidth: 1)
-                .onTapGesture {
-                    isResponder = true
-                }
+                .stroke(hasError ? Colors.Icon.warning : .clear, lineWidth: 1)
         )
         .background(Colors.Field.focused)
-        .cornerRadius(14)
+        .cornerRadiusContinuous(14)
+        .simultaneousGesture(TapGesture().onEnded {
+            isResponder = true
+        })
     }
 }
 
