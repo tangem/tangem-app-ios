@@ -17,12 +17,12 @@ class OnboardingSeedPhraseUserValidationViewModel: ObservableObject {
         let createWalletAction: () -> Void
     }
 
-    @Published var firstInputText: String = ""
-    @Published var secondInputText: String = ""
-    @Published var thirdInputText: String = ""
-    @Published var isFirstInputWithError: Bool = false
-    @Published var isSecondInputWithError: Bool = false
-    @Published var isThirdInputWithError: Bool = false
+    @Published var firstInputText = ""
+    @Published var secondInputText = ""
+    @Published var thirdInputText = ""
+    @Published var firstInputWithError = false
+    @Published var secondInputWithError = false
+    @Published var thirdInputWithError = false
 
     @Published var isCreateWalletButtonEnabled = false
 
@@ -40,9 +40,9 @@ class OnboardingSeedPhraseUserValidationViewModel: ObservableObject {
     }
 
     private func bind() {
-        subscribeToInputUpdates(to: \.$firstInputText, errorKeyParh: \.isFirstInputWithError, targetWord: input.secondWord, on: self)
-        subscribeToInputUpdates(to: \.$secondInputText, errorKeyParh: \.isSecondInputWithError, targetWord: input.seventhWord, on: self)
-        subscribeToInputUpdates(to: \.$thirdInputText, errorKeyParh: \.isThirdInputWithError, targetWord: input.eleventhWord, on: self)
+        subscribeToInputUpdates(to: \.$firstInputText, errorKeyParh: \.firstInputWithError, targetWord: input.secondWord, on: self)
+        subscribeToInputUpdates(to: \.$secondInputText, errorKeyParh: \.secondInputWithError, targetWord: input.seventhWord, on: self)
+        subscribeToInputUpdates(to: \.$thirdInputText, errorKeyParh: \.thirdInputWithError, targetWord: input.eleventhWord, on: self)
     }
 
     private func subscribeToInputUpdates(
@@ -71,23 +71,8 @@ class OnboardingSeedPhraseUserValidationViewModel: ObservableObject {
     }
 
     private func updateButtonState() {
-        let isContainErrors = isFirstInputWithError && isSecondInputWithError && isThirdInputWithError
-        isCreateWalletButtonEnabled = !isContainErrors && isAllWordsValid()
-    }
-
-    private func isAllWordsValid() -> Bool {
-        if firstInputText != input.secondWord {
-            return false
-        }
-
-        if secondInputText != input.seventhWord {
-            return false
-        }
-
-        if thirdInputText != input.eleventhWord {
-            return false
-        }
-
-        return true
+        isCreateWalletButtonEnabled = firstInputText == input.secondWord &&
+            secondInputText == input.seventhWord &&
+            thirdInputText == input.eleventhWord
     }
 }
