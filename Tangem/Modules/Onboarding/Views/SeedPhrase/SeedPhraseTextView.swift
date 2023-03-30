@@ -62,11 +62,7 @@ struct SeedPhraseTextView: UIViewRepresentable {
         return Coordinator(inputProcessor: inputProcessor)
     }
 
-    func updateUIView(_ uiView: UITextView, context: UIViewRepresentableContext<SeedPhraseTextView>) {
-        DispatchQueue.main.async {
-            uiView.becomeFirstResponder()
-        }
-    }
+    func updateUIView(_ uiView: UITextView, context: UIViewRepresentableContext<SeedPhraseTextView>) {}
 }
 
 extension SeedPhraseTextView {
