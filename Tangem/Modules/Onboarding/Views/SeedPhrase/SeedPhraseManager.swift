@@ -9,7 +9,7 @@
 import TangemSdk
 
 class SeedPhraseManager {
-    var mnemonic: Mnemonic?
+    private(set) var mnemonic: Mnemonic?
     var seedPhrase: [String] { mnemonic?.mnemonicComponents ?? [] }
 
     @discardableResult
