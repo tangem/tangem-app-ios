@@ -457,6 +457,8 @@ class WalletOnboardingViewModel: OnboardingTopupViewModel<WalletOnboardingStep, 
                 }
             }
             .store(in: &bag)
+
+        subscribeToScreenshots()
     }
 
     private func bindSaltPayIfNeeded() {
@@ -1066,6 +1068,23 @@ extension WalletOnboardingViewModel {
         } catch {
             alert = error.alertBinder
         }
+    }
+
+    private func subscribeToScreenshots() {
+        NotificationCenter.default.publisher(for: UIApplication.userDidTakeScreenshotNotification)
+            .filter { [weak self] _ in
+                guard let self else { return false }
+                switch self.currentStep {
+                case .seedPhraseGeneration, .seedPhraseUserValidation, .seedPhraseImport:
+                    return true
+                default:
+                    return false
+                }
+            }
+            .sink { [weak self] _ in
+                self?.alert = AlertBuilder.makeOkGotItAlert(message: Localization.onboardingSeedScreenshotAlert)
+            }
+            .store(in: &bag)
     }
 }
 
