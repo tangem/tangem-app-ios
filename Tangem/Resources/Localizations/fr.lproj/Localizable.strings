@@ -56,6 +56,7 @@
 "common_done" = "Exécuté";
 "common_error" = "Erreur";
 "common_explorer_format" = "%@ explorer";
+"common_import" = "Import";
 "common_no" = "No";
 "common_ok" = "OK";
 "common_origin_card" = "Primary Card";
@@ -206,11 +207,16 @@
 "onboarding_seed_button_read_more" = "Read more about seed phrases";
 "onboarding_seed_generate_message" = "Write down these 12 words in the order given below and store them in a secret, safe place";
 "onboarding_seed_generate_title" = "Your recovery phrase";
+"onboarding_seed_import_message" = "To import your wallet, enter your secret recovery phrase in the fields below or scan a QR-code";
 "onboarding_seed_intro_button_generate" = "Generate seed phrase";
 "onboarding_seed_intro_button_import" = "Import wallet";
 "onboarding_seed_intro_message" = "Seed phrase is a series of words that gives an ability to recover the wallet. Unlike the card generated keys, seed phrase is unprotected and can be copied and stolen. Use this option at your own risk.";
 "onboarding_seed_intro_title" = "Use seed phrase";
+"onboarding_seed_mnemonic_invalid_checksum" = "Invalid seed phrase. Please check words order";
+"onboarding_seed_mnemonic_wrong_words" = "Invalid seed phrase. Please check your spelling";
 "onboarding_seed_phrase_intro_legacy" = "Legacy";
+"onboarding_seed_user_validation_message" = "To check whether you’ve written down your seed phrase correctly, please enter the 2nd, 7th and 11th words";
+"onboarding_seed_user_validation_title" = "So, let’s check";
 "onboarding_subtitle_backup_card" = "You can backup your keys up to two other blank wallet cards";
 "onboarding_subtitle_claim" = "To get started, simply claim wxDAI to your wallet";
 "onboarding_subtitle_claim_progress" = "It will take a few seconds";
