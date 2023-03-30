@@ -86,7 +86,7 @@ private extension TotalBalanceProvider {
 
     func updateTotalBalance(with currencyCode: String, _ walletModels: [WalletModel], _ hasEntriesWithoutDerivation: Bool) {
         guard !hasEntriesWithoutDerivation else {
-            totalBalanceSubject.send(.loaded(.init(balance: nil, currencyCode: currencyCode, hasError: false)))
+            totalBalanceSubject.send(.loaded(.init(balance: nil, currencyCode: currencyCode, error: nil)))
             return
         }
 
@@ -127,20 +127,15 @@ private extension TotalBalanceProvider {
             Analytics.logTopUpIfNeeded(balance: balance)
         }
 
-        let balanceParameter: Analytics.ParameterValue
-        if hasBlockchainError {
-            balanceParameter = .blockchainError
-        } else if hasCustomTokenError {
-            balanceParameter = .customToken
-        } else if let balance = balance, !balance.isZero {
-            balanceParameter = .full
+        let error: TotalBalance.TotalBalanceError?
+        if hasCustomTokenError {
+            error = .customToken
+        } else if hasBlockchainError {
+            error = .blockchainError
         } else {
-            balanceParameter = .empty
+            error = nil
         }
-        Analytics.log(.balanceLoaded, params: [.balance: balanceParameter])
-
-        let hasError = hasCustomTokenError
-        return TotalBalance(balance: balance, currencyCode: currencyCode, hasError: hasError)
+        return TotalBalance(balance: balance, currencyCode: currencyCode, error: error)
     }
 
     func getTokenItemViewModels(from walletModels: [WalletModel]) -> [TokenItemViewModel] {
@@ -158,7 +153,7 @@ extension TotalBalanceProvider {
     struct TotalBalance {
         let balance: Decimal?
         let currencyCode: String
-        let hasError: Bool
+        let error: TotalBalanceError?
 
         var balanceFormatted: String {
             if let balance {
@@ -167,5 +162,12 @@ extension TotalBalanceProvider {
                 return "–"
             }
         }
+    }
+}
+
+extension TotalBalanceProvider.TotalBalance {
+    enum TotalBalanceError {
+        case customToken
+        case blockchainError
     }
 }
