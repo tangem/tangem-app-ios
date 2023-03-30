@@ -113,6 +113,7 @@ extension SeedPhraseTextView {
 
         func textViewDidEndEditing(_ textView: UITextView) {
             validateInput()
+            inputProcessor.clearSuggestions()
         }
 
         func textView(_ textView: UITextView, shouldChangeTextIn range: NSRange, replacementText text: String) -> Bool {
