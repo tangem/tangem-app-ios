@@ -32,9 +32,10 @@ struct OnboardingSeedPhraseImportView: View {
                 .padding(.top, 8)
                 .frame(maxWidth: .infinity, alignment: .leading)
 
-            Spacer()
-
             SeedPhraseSuggestionsView(suggestions: viewModel.suggestions, tappedSuggestion: viewModel.tappedSuggestion(at:))
+                .padding(.top, 26)
+
+            Spacer()
 
             MainButton(
                 title: Localization.commonImport,
