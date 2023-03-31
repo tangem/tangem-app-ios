@@ -166,8 +166,8 @@ final class SwappingViewModel: ObservableObject {
         }
     }
 
-    func didSendApproveTransaction(transactionInfo: SwappingTransactionData) {
-        swappingManager.didSendApprovingTransaction(swappingTxData: transactionInfo)
+    func didSendApproveTransaction(transactionData: SwappingTransactionData) {
+        swappingManager.didSendApprovingTransaction(swappingTxData: transactionData)
     }
 
     func didClosePermissionSheet() {
@@ -219,9 +219,9 @@ private extension SwappingViewModel {
     func openPermissionView() {
         let state = swappingManager.getAvailabilityState()
 
-        guard case .available(let result, let info) = state,
+        guard case .available(let result, let data) = state,
               result.isPermissionRequired,
-              fiatRatesProvider.hasRates(for: info.sourceBlockchain) else {
+              fiatRatesProvider.hasRates(for: data.sourceBlockchain) else {
             // If we don't have enough data disable button and refresh()
             mainButtonIsEnabled = false
             swappingManager.refresh(type: .full)
@@ -230,10 +230,10 @@ private extension SwappingViewModel {
         }
 
         runTask(in: self) { obj in
-            let fiatFee = try await obj.fiatRatesProvider.getFiat(for: info.sourceBlockchain, amount: info.fee)
+            let fiatFee = try await obj.fiatRatesProvider.getFiat(for: data.sourceBlockchain, amount: data.fee)
             let inputModel = SwappingPermissionInputModel(
                 fiatFee: fiatFee,
-                transactionInfo: info
+                transactionData: data
             )
 
             obj.stopTimer()
