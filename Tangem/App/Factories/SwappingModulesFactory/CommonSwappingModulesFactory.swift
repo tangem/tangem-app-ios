@@ -38,7 +38,7 @@ extension CommonSwappingModulesFactory: SwappingModulesFactory {
     func makeSwappingViewModel(coordinator: SwappingRoutable) -> SwappingViewModel {
         SwappingViewModel(
             initialSourceCurrency: source,
-            swappingManager: swappingManager(source: source, destination: destination),
+            swappingManager: makeSwappingManager(source: source, destination: destination),
             swappingDestinationService: swappingDestinationService,
             tokenIconURLBuilder: tokenIconURLBuilder,
             transactionSender: transactionSender,
@@ -132,8 +132,8 @@ private extension CommonSwappingModulesFactory {
         )
     }
 
-    func swappingManager(source: Currency, destination: Currency?) -> SwappingManager {
-        TangemSwappingFactory().createSwappingManager(
+    func makeSwappingManager(source: Currency, destination: Currency?) -> SwappingManager {
+        TangemSwappingFactory().makeSwappingManager(
             walletDataProvider: walletDataProvider,
             referrer: referrer,
             source: source,
