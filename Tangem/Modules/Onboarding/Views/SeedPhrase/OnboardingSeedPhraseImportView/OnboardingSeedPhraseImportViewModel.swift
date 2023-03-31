@@ -13,6 +13,7 @@ import TangemSdk
 class OnboardingSeedPhraseImportViewModel: ObservableObject {
     @Published var isSeedPhraseValid: Bool = false
     @Published var inputError: String? = nil
+    @Published var suggestions: [String] = []
     @Published var errorAlert: AlertBinder? = nil
 
     let inputProcessor: SeedPhraseInputProcessor
@@ -26,9 +27,20 @@ class OnboardingSeedPhraseImportViewModel: ObservableObject {
         bind()
     }
 
+    func suggestionTapped(at index: Int) {
+        inputProcessor.insertSuggestion(suggestions[index])
+    }
+
+    func onAppear() {
+        UIScrollView.appearance().keyboardDismissMode = .none
+    }
+
+    func onDisappear() {
+        UIScrollView.appearance().keyboardDismissMode = AppConstants.defaultScrollViewKeyboardDismissMode
+    }
+
     func importSeedPhrase() {
         guard let validatedPhrase = inputProcessor.validatedSeedPhrase else {
-            errorAlert = "Failed to create seed phrase: no valid input".alertBinder
             return
         }
 
@@ -50,6 +62,11 @@ class OnboardingSeedPhraseImportViewModel: ObservableObject {
         inputProcessor.$inputError
             .receive(on: DispatchQueue.main)
             .weakAssign(to: \.inputError, on: self)
+            .store(in: &bag)
+
+        inputProcessor.$suggestions
+            .receive(on: DispatchQueue.main)
+            .weakAssign(to: \.suggestions, on: self)
             .store(in: &bag)
     }
 }
