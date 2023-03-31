@@ -8,19 +8,23 @@
 
 import SwiftUI
 
-struct DefaultSelectableRowView: View {
-    private var viewModel: DefaultSelectableRowViewModel
+struct DefaultSelectableRowView<ID: Hashable>: View {
+    private var viewModel: DefaultSelectableRowViewModel<ID>
+    private var isSelected: Binding<ID>?
 
-    /// `@Binding isSelected` must be here to push changes at the place where this object was created
-    @Binding private var isSelected: Bool
+    private var isSelectedProxy: Binding<Bool> {
+        .init(
+            get: { isSelected?.wrappedValue == viewModel.id },
+            set: { _ in isSelected?.wrappedValue = viewModel.id }
+        )
+    }
 
-    init(viewModel: DefaultSelectableRowViewModel) {
+    init(viewModel: DefaultSelectableRowViewModel<ID>) {
         self.viewModel = viewModel
-        _isSelected = viewModel.isSelected()
     }
 
     var body: some View {
-        Button(action: { isSelected.toggle() }) {
+        Button(action: { isSelectedProxy.wrappedValue.toggle() }) {
             HStack(alignment: .center) {
                 VStack(alignment: .leading, spacing: 6) {
                     Text(viewModel.title)
@@ -36,9 +40,7 @@ struct DefaultSelectableRowView: View {
 
                 Spacer(minLength: 12)
 
-                CheckIconView(isSelected: $isSelected)
-                    // Off default behavior with fade animation
-                    .animation(nil, value: isSelected)
+                CheckIconView(isSelected: isSelectedProxy.wrappedValue)
             }
             .padding(.vertical, 12)
             .contentShape(Rectangle())
@@ -46,18 +48,30 @@ struct DefaultSelectableRowView: View {
     }
 }
 
-struct DefaultSelectableRowViewPreview: PreviewProvider {
+// MARK: - SelectableView
+
+extension DefaultSelectableRowView: SelectableView, Setupable {
+    typealias SelectionValue = ID
+
+    func isSelected(_ isSelected: Binding<ID>) -> Self {
+        map { $0.isSelected = isSelected }
+    }
+}
+
+struct DefaultSelectableRowView_Preview: PreviewProvider {
     struct ContainerView: View {
         @State private var isSelected: Bool = false
 
-        var body: some View {
-            DefaultSelectableRowView(
-                viewModel: DefaultSelectableRowViewModel(
-                    title: "Long Tap",
-                    subtitle: "This mechanism protects against proximity attacks on a card. It will enforce a delay.",
-                    isSelected: { $isSelected }
-                )
+        var viewModel: DefaultSelectableRowViewModel<Int> {
+            DefaultSelectableRowViewModel(
+                id: 1,
+                title: "Long Tap",
+                subtitle: Date().timeIntervalSince1970.description
             )
+        }
+
+        var body: some View {
+            DefaultSelectableRowView(viewModel: viewModel)
         }
     }
 
