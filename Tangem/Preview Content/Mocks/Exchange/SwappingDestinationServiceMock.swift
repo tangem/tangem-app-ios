@@ -6,7 +6,7 @@
 //  Copyright © 2022 Tangem AG. All rights reserved.
 //
 
-import TangemExchange
+import TangemSwapping
 
 struct SwappingDestinationServiceMock: SwappingDestinationServicing {
     func getDestination(source: Currency) async throws -> Currency {

@@ -7,13 +7,10 @@
 //
 
 import Combine
-import TangemExchange
+import TangemSwapping
 import TangemSdk
 
 final class SwappingPermissionViewModel: ObservableObject, Identifiable {
-    /// For SwiftUI sheet logic
-    let id: UUID = .init()
-
     // MARK: - ViewState
 
     @Published var contentRowViewModels: [DefaultRowViewModel] = []
@@ -26,14 +23,14 @@ final class SwappingPermissionViewModel: ObservableObject, Identifiable {
     // MARK: - Dependencies
 
     private let inputModel: SwappingPermissionInputModel
-    private let transactionSender: TransactionSendable
+    private let transactionSender: SwappingTransactionSender
     private unowned let coordinator: SwappingPermissionRoutable
 
     private var didBecomeActiveNotificationCancellable: AnyCancellable?
 
     init(
         inputModel: SwappingPermissionInputModel,
-        transactionSender: TransactionSendable,
+        transactionSender: SwappingTransactionSender,
         coordinator: SwappingPermissionRoutable
     ) {
         self.inputModel = inputModel
@@ -78,7 +75,7 @@ final class SwappingPermissionViewModel: ObservableObject, Identifiable {
 
 extension SwappingPermissionViewModel {
     @MainActor
-    func didSendApproveTransaction(transactionInfo: ExchangeTransactionDataModel) {
+    func didSendApproveTransaction(transactionInfo: SwappingTransactionData) {
         // We have to waiting close the nfc view to close this permission view
         didBecomeActiveNotificationCancellable = NotificationCenter
             .default
