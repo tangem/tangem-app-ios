@@ -90,7 +90,7 @@ class UserWalletListCellViewModel: ObservableObject {
                 case .loaded(let value):
                     self.isBalanceLoading = false
                     self.balance = value.balanceFormatted
-                    self.hasError = (value.error == .customToken)
+                    self.hasError = value.hasError
                 }
             }
             .store(in: &bag)
