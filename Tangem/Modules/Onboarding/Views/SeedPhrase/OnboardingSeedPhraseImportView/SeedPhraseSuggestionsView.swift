@@ -23,12 +23,13 @@ struct SeedPhraseSuggestionsView: View {
                 .padding(.vertical, 6)
                 .background(Colors.Icon.primary1)
                 .cornerRadiusContinuous(10)
+                .padding(.all, 4)
         }
     }
 
     var body: some View {
         ScrollView(.horizontal, showsIndicators: false) {
-            HStack(spacing: 8) {
+            HStack(spacing: 0) {
                 ForEach(0 ..< suggestions.count, id: \.self) { index in
                     suggestionBubble(with: suggestions[index], index: index)
                 }
