@@ -257,7 +257,7 @@ class WalletOnboardingViewModel: OnboardingTopupViewModel<WalletOnboardingStep, 
 
     var isCustomContentVisible: Bool {
         switch currentStep {
-        case .saveUserWallet, .enterPin, .registerWallet, .kycStart, .kycRetry, .kycProgress, .kycWaiting, .disclaimer, .seedPhraseIntro, .seedPhraseGeneration, .seedPhraseImport:
+        case .saveUserWallet, .enterPin, .registerWallet, .kycStart, .kycRetry, .kycProgress, .kycWaiting, .disclaimer, .seedPhraseIntro, .seedPhraseGeneration, .seedPhraseUserValidation, .seedPhraseImport:
             return true
         default: return false
         }
@@ -265,7 +265,7 @@ class WalletOnboardingViewModel: OnboardingTopupViewModel<WalletOnboardingStep, 
 
     var isButtonsVisible: Bool {
         switch currentStep {
-        case .saveUserWallet, .kycProgress, .seedPhraseIntro, .seedPhraseGeneration, .seedPhraseImport: return false
+        case .saveUserWallet, .kycProgress, .seedPhraseIntro, .seedPhraseGeneration, .seedPhraseUserValidation, .seedPhraseImport: return false
         default: return true
         }
     }
@@ -289,8 +289,32 @@ class WalletOnboardingViewModel: OnboardingTopupViewModel<WalletOnboardingStep, 
 
     lazy var importSeedPhraseModel: OnboardingSeedPhraseImportViewModel? = .init(
         inputProcessor: SeedPhraseInputProcessor()) { [weak self] mnemonic in
-            self?.generateSeedPhrase(using: mnemonic)
+            self?.createWallet(using: mnemonic)
         }
+
+    lazy var validationUserSeedPhraseModel: OnboardingSeedPhraseUserValidationViewModel? = {
+        let words = seedPhraseManager.seedPhrase
+        assert(words.count == 12)
+        guard words.count == 12 else {
+            alert = MnemonicError.invalidWordCount.alertBinder
+            return nil
+        }
+
+        return OnboardingSeedPhraseUserValidationViewModel(validationInput: .init(
+            secondWord: words[1],
+            seventhWord: words[6],
+            eleventhWord: words[10],
+            createWalletAction: { [weak self] in
+                assert(self?.seedPhraseManager.mnemonic != nil, "Missing mnemonic O_o")
+                guard let mnemonic = self?.seedPhraseManager.mnemonic else {
+                    self?.alert = MnemonicError.mnenmonicCreationFailed.alertBinder
+                    return
+                }
+
+                self?.createWallet(using: mnemonic)
+            }
+        ))
+    }()
 
     var canShowThirdCardImage: Bool {
         !isSaltPayOnboarding
@@ -572,6 +596,8 @@ class WalletOnboardingViewModel: OnboardingTopupViewModel<WalletOnboardingStep, 
             createWallet()
         case .seedPhraseIntro:
             generateSeedPhrase()
+        case .seedPhraseGeneration:
+            goToStep(.seedPhraseUserValidation)
         case .scanPrimaryCard:
             readPrimaryCard()
         case .backupIntro:
@@ -1033,7 +1059,7 @@ extension WalletOnboardingViewModel {
         }
     }
 
-    private func generateSeedPhrase(using mnemonic: Mnemonic) {
+    private func createWallet(using mnemonic: Mnemonic) {
         do {
             _ = try mnemonic.generateSeed()
             // [REDACTED_TODO_COMMENT]
