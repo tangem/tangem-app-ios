@@ -91,7 +91,7 @@ private extension TotalBalanceProvider {
 
     func updateTotalBalance(with currencyCode: String, _ walletModels: [WalletModel], _ hasEntriesWithoutDerivation: Bool) {
         guard !hasEntriesWithoutDerivation else {
-            totalBalanceSubject.send(.loaded(.init(balance: nil, currencyCode: currencyCode, error: nil)))
+            totalBalanceSubject.send(.loaded(.init(balance: nil, currencyCode: currencyCode, hasError: false)))
             return
         }
 
@@ -102,14 +102,12 @@ private extension TotalBalanceProvider {
     func mapToTotalBalance(currencyCode: String, _ walletModels: [WalletModel], _ hasEntriesWithoutDerivation: Bool) -> TotalBalance {
         let tokenItemViewModels = getTokenItemViewModels(from: walletModels)
 
+        var hasError = false
         var balance: Decimal? = 0.0
 
-        var hasCustomTokenError = false
-        var hasBlockchainError = false
         for token in tokenItemViewModels {
             if !token.state.isSuccesfullyLoaded {
                 balance = nil
-                hasBlockchainError = true
                 break
             }
 
@@ -119,7 +117,7 @@ private extension TotalBalanceProvider {
             if token.rate.isEmpty {
                 // Just show wawning for custom tokens
                 if token.isCustom {
-                    hasCustomTokenError = true
+                    hasError = true
                 } else {
                     balance = nil
                     break
@@ -132,15 +130,7 @@ private extension TotalBalanceProvider {
             Analytics.logTopUpIfNeeded(balance: balance)
         }
 
-        let error: TotalBalance.TotalBalanceError?
-        if hasCustomTokenError {
-            error = .customToken
-        } else if hasBlockchainError {
-            error = .blockchainError
-        } else {
-            error = nil
-        }
-        return TotalBalance(balance: balance, currencyCode: currencyCode, error: error)
+        return TotalBalance(balance: balance, currencyCode: currencyCode, hasError: hasError)
     }
 
     func getTokenItemViewModels(from walletModels: [WalletModel]) -> [TokenItemViewModel] {
@@ -158,7 +148,7 @@ extension TotalBalanceProvider {
     struct TotalBalance {
         let balance: Decimal?
         let currencyCode: String
-        let error: TotalBalanceError?
+        let hasError: Bool
 
         var balanceFormatted: String {
             if let balance {
@@ -167,12 +157,5 @@ extension TotalBalanceProvider {
                 return "–"
             }
         }
-    }
-}
-
-extension TotalBalanceProvider.TotalBalance {
-    enum TotalBalanceError {
-        case customToken
-        case blockchainError
     }
 }
