@@ -14,7 +14,7 @@ struct SwappingAvailableUtils {
         .ethereum,
         .bsc,
         .polygon,
-        // .optimism,
+        .optimism,
         .arbitrum,
         .gnosis,
         .avalanche,

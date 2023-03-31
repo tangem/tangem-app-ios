@@ -38,11 +38,11 @@ struct DemoUtil {
         }
     }
 
-    func getDemoFee(for blockchain: Blockchain) -> [Amount] {
+    func getDemoFee(for blockchain: Blockchain) -> [Fee] {
         [
-            Amount(with: blockchain, value: 0.00001),
-            Amount(with: blockchain, value: 0.00002),
-            Amount(with: blockchain, value: 0.00003),
+            Fee(Amount(with: blockchain, value: 0.00001)),
+            Fee(Amount(with: blockchain, value: 0.00002)),
+            Fee(Amount(with: blockchain, value: 0.00003)),
         ]
     }
 }
