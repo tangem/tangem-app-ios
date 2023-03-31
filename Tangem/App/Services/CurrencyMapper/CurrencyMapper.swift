@@ -7,20 +7,12 @@
 //
 
 import BlockchainSdk
-import TangemExchange
-
-protocol CurrencyMapping {
-    func mapToCurrency(token: Token, blockchain: Blockchain) -> Currency?
-    func mapToCurrency(blockchain: Blockchain) -> Currency?
-    func mapToCurrency(coinModel: CoinModel) -> Currency?
-
-    func mapToToken(currency: Currency) -> Token?
-}
+import TangemSwapping
 
 struct CurrencyMapper: CurrencyMapping {
     func mapToCurrency(token: Token, blockchain: Blockchain) -> Currency? {
-        guard let exchangeBlockchain = ExchangeBlockchain(networkId: blockchain.networkId) else {
-            assertionFailure("ExchangeBlockchain don't support")
+        guard let swappingBlockchain = SwappingBlockchain(networkId: blockchain.networkId) else {
+            assertionFailure("SwappingBlockchain don't support")
             return nil
         }
 
@@ -31,7 +23,7 @@ struct CurrencyMapper: CurrencyMapping {
 
         return Currency(
             id: id,
-            blockchain: exchangeBlockchain,
+            blockchain: swappingBlockchain,
             name: token.name,
             symbol: token.symbol,
             decimalCount: token.decimalCount,
@@ -40,14 +32,14 @@ struct CurrencyMapper: CurrencyMapping {
     }
 
     func mapToCurrency(blockchain: Blockchain) -> Currency? {
-        guard let exchangeBlockchain = ExchangeBlockchain(networkId: blockchain.networkId) else {
-            assertionFailure("ExchangeBlockchain don't support")
+        guard let swappingBlockchain = SwappingBlockchain(networkId: blockchain.networkId) else {
+            assertionFailure("SwappingBlockchain don't support")
             return nil
         }
 
         return Currency(
             id: blockchain.id,
-            blockchain: exchangeBlockchain,
+            blockchain: swappingBlockchain,
             name: blockchain.displayName,
             symbol: blockchain.currencySymbol,
             decimalCount: blockchain.decimalCount,
