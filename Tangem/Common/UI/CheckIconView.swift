@@ -9,11 +9,7 @@
 import SwiftUI
 
 struct CheckIconView: View {
-    @Binding private var isSelected: Bool
-
-    init(isSelected: Binding<Bool>) {
-        _isSelected = isSelected
-    }
+    let isSelected: Bool
 
     var body: some View {
         Assets.check.image
@@ -22,5 +18,16 @@ struct CheckIconView: View {
             /// Need to cover empty place if unchecking
             .opacity(isSelected ? 1 : 0)
             .frame(width: 20, height: 20)
+    }
+}
+
+struct CheckIconView_Preview: PreviewProvider {
+    static var previews: some View {
+        VStack {
+            CheckIconView(isSelected: true)
+
+            CheckIconView(isSelected: false)
+        }
+        .background(Color.white)
     }
 }
