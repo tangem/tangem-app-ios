@@ -118,8 +118,8 @@ private extension CommonSwappingModulesFactory {
         CommonExplorerURLService()
     }
 
-    var walletDataProvider: WalletDataProvider {
-        ExchangeWalletDataProvider(
+    var walletDataProvider: SwappingWalletDataProvider {
+        ExchangeSwappingWalletDataProvider(
             wallet: walletModel.wallet,
             ethereumNetworkProvider: walletManager as! EthereumNetworkProvider,
             ethereumTransactionProcessor: walletManager as! EthereumTransactionProcessor,
