@@ -1,5 +1,5 @@
 //
-//  ExchangeWalletDataProvider.swift
+//  ExchangeSwappingWalletDataProvider.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -10,7 +10,7 @@ import Foundation
 import BlockchainSdk
 import TangemExchange
 
-class ExchangeWalletDataProvider {
+class ExchangeSwappingWalletDataProvider {
     private let wallet: Wallet
     private let ethereumNetworkProvider: EthereumNetworkProvider
     private let ethereumTransactionProcessor: EthereumTransactionProcessor
@@ -36,9 +36,9 @@ class ExchangeWalletDataProvider {
     }
 }
 
-// MARK: - WalletDataProvider
+// MARK: - SwappingWalletDataProvider
 
-extension ExchangeWalletDataProvider: WalletDataProvider {
+extension ExchangeSwappingWalletDataProvider: SwappingWalletDataProvider {
     func getWalletAddress(currency: Currency) -> String? {
         guard wallet.blockchain.networkId == currency.blockchain.networkId else {
             assertionFailure("Incorrect WalletModel")
@@ -109,7 +109,7 @@ extension ExchangeWalletDataProvider: WalletDataProvider {
 
 // MARK: - Private
 
-private extension ExchangeWalletDataProvider {
+private extension ExchangeSwappingWalletDataProvider {
     func createAmount(from currency: Currency, amount: Decimal) -> Amount {
         if let token = currencyMapper.mapToToken(currency: currency) {
             return Amount(with: token, value: amount)
@@ -202,7 +202,7 @@ private extension ExchangeWalletDataProvider {
     }
 }
 
-extension ExchangeWalletDataProvider {
+extension ExchangeSwappingWalletDataProvider {
     enum GasLimitPolicy {
         case noRaise
         case lowRaise
