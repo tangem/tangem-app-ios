@@ -17,6 +17,13 @@ enum WalletOnboardingStep: Equatable {
     case backupCards
     case saveUserWallet
 
+    // Wallet 2.0
+    case createWalletSelector
+    case seedPhraseIntro
+    case seedPhraseGeneration
+    case seedPhraseUserValidation
+    case seedPhraseImport
+
     // visa only
     case enterPin
     case registerWallet
@@ -45,6 +52,12 @@ enum WalletOnboardingStep: Equatable {
             return Localization.onboardingNavbarKycProgress
         case .claim, .successClaim:
             return Localization.onboardingGettingStarted
+        case .createWalletSelector:
+            return Localization.walletTitle
+        case .seedPhraseIntro, .seedPhraseGeneration, .seedPhraseUserValidation:
+            return Localization.walletButtonCreateWallet
+        case .seedPhraseImport:
+            return Localization.onboardingSeedIntroButtonImport
         }
     }
 
@@ -111,6 +124,10 @@ extension WalletOnboardingStep: OnboardingMessagesProvider, SuccessStep {
             return Localization.onboardingTitleKycWaiting
         case .enterPin:
             return Localization.onboardingTitlePin
+        case .createWalletSelector:
+            return Localization.onboardingCreateWalletOptionsTitle
+        case .seedPhraseIntro, .seedPhraseGeneration, .seedPhraseImport, .seedPhraseUserValidation:
+            return nil
         }
     }
 
@@ -137,6 +154,10 @@ extension WalletOnboardingStep: OnboardingMessagesProvider, SuccessStep {
             return Localization.onboardingSubtitleClaim
         case .successClaim:
             return Localization.onboardingSubtitleSuccessClaim
+        case .createWalletSelector:
+            return Localization.onboardingCreateWalletOptionsMessage
+        case .seedPhraseIntro, .seedPhraseGeneration, .seedPhraseImport, .seedPhraseUserValidation:
+            return nil
         }
     }
 
@@ -151,12 +172,13 @@ extension WalletOnboardingStep: OnboardingMessagesProvider, SuccessStep {
 extension WalletOnboardingStep: OnboardingButtonsInfoProvider {
     var mainButtonTitle: String {
         switch self {
-        case .createWallet: return Localization.walletButtonCreateWallet
+        case .createWallet, .createWalletSelector: return Localization.walletButtonCreateWallet
         case .scanPrimaryCard: return Localization.onboardingButtonScanOriginCard
         case .backupIntro: return Localization.onboardingButtonBackupNow
         case .selectBackupCards: return Localization.onboardingButtonAddBackupCard
         case .saveUserWallet: return BiometricAuthorizationUtils.allowButtonTitle
         case .success: return Localization.onboardingButtonContinueWallet
+        case .seedPhraseIntro: return Localization.onboardingSeedIntroButtonGenerate
         default: return ""
         }
     }
@@ -173,6 +195,8 @@ extension WalletOnboardingStep: OnboardingButtonsInfoProvider {
         case .kycStart, .kycRetry: return Localization.onboardingButtonKycStart
         case .claim: return Localization.onboardingButtonClaim
         case .successClaim: return Localization.onboardingButtonContinueWallet
+        case .createWalletSelector: return Localization.onboardingCreateWalletOptionsButtonOptions
+        case .seedPhraseIntro: return Localization.onboardingSeedIntroButtonImport
         default: return ""
         }
     }
