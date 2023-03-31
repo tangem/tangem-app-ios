@@ -1,16 +1,16 @@
 //
-//  ExchangeTransactionSender.swift
+//  CommonSwappingTransactionSender.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
 //  Copyright © 2022 Tangem AG. All rights reserved.
 //
 
-import TangemExchange
+import TangemSwapping
 import BlockchainSdk
 import BigInt
 
-struct ExchangeTransactionSender {
+struct CommonSwappingTransactionSender {
     private let transactionCreator: TransactionCreator
     private let transactionSender: TransactionSender
     private let transactionSigner: TransactionSigner
@@ -32,10 +32,10 @@ struct ExchangeTransactionSender {
     }
 }
 
-// MARK: - TransactionSendable
+// MARK: - SwappingTransactionSender
 
-extension ExchangeTransactionSender: TransactionSendable {
-    func sendTransaction(_ info: ExchangeTransactionDataModel) async throws -> TransactionSendResult {
+extension CommonSwappingTransactionSender: SwappingTransactionSender {
+    func sendTransaction(_ info: SwappingTransactionData) async throws -> TransactionSendResult {
         let nonce = try await ethereumNetworkProvider.getTxCount(info.sourceAddress).async()
         let transaction = try buildTransaction(for: info, nonce: nonce)
         return try await transactionSender.send(transaction, signer: transactionSigner).async()
@@ -44,8 +44,8 @@ extension ExchangeTransactionSender: TransactionSendable {
 
 // MARK: - Private
 
-private extension ExchangeTransactionSender {
-    func buildTransaction(for info: ExchangeTransactionDataModel, nonce: Int) throws -> Transaction {
+private extension CommonSwappingTransactionSender {
+    func buildTransaction(for info: SwappingTransactionData, nonce: Int) throws -> Transaction {
         let gasModel = info.gas
 
         let amount = createAmount(from: info.sourceCurrency, amount: info.value)
@@ -85,8 +85,8 @@ private extension ExchangeTransactionSender {
         )
     }
 
-    func createAmount(from exchangeBlockchain: ExchangeBlockchain, amount: Decimal) throws -> Amount {
-        guard let blockchain = Blockchain(from: exchangeBlockchain.networkId) else {
+    func createAmount(from swappingBlockchain: SwappingBlockchain, amount: Decimal) throws -> Amount {
+        guard let blockchain = Blockchain(from: swappingBlockchain.networkId) else {
             throw CommonError.noData
         }
 
