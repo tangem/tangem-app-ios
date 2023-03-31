@@ -883,7 +883,6 @@
 		0758D5CE3B148FA2D17A1BCB /* Pods-TangemSwapping.debug(beta).xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TangemSwapping.debug(beta).xcconfig"; path = "Target Support Files/Pods-TangemSwapping/Pods-TangemSwapping.debug(beta).xcconfig"; sourceTree = "<group>"; };
 		0B84078BDCE12201E8EFCA10 /* Pods-TangemTests.debug(alpha).xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TangemTests.debug(alpha).xcconfig"; path = "Target Support Files/Pods-TangemTests/Pods-TangemTests.debug(alpha).xcconfig"; sourceTree = "<group>"; };
 		16E1D1853BDA9B86630D5DA5 /* Pods-Tangem.debug(production).xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Tangem.debug(production).xcconfig"; path = "Target Support Files/Pods-Tangem/Pods-Tangem.debug(production).xcconfig"; sourceTree = "<group>"; };
-		18378F00E197D67167BCB60D /* Pods-TangemExchangeTests.debug(beta).xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TangemExchangeTests.debug(beta).xcconfig"; path = "Target Support Files/Pods-TangemExchangeTests/Pods-TangemExchangeTests.debug(beta).xcconfig"; sourceTree = "<group>"; };
 		1C666EA8F52ED921E4ABB020 /* Pods_Tangem.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Tangem.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		277C71B674F87AA333691137 /* Pods-TangemTests.release(production).xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TangemTests.release(production).xcconfig"; path = "Target Support Files/Pods-TangemTests/Pods-TangemTests.release(production).xcconfig"; sourceTree = "<group>"; };
 		2D805EC929ADE17100C030F7 /* ExchangeButtonStateType.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ExchangeButtonStateType.swift; sourceTree = "<group>"; };
@@ -894,7 +893,6 @@
 		2F4DDDB21AB56D4CB2EF3C14 /* Pods_TangemSwapping.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_TangemSwapping.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		337086E709DA346114BFA173 /* Pods-TangemTests.debug(production).xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TangemTests.debug(production).xcconfig"; path = "Target Support Files/Pods-TangemTests/Pods-TangemTests.debug(production).xcconfig"; sourceTree = "<group>"; };
 		3DF1282935702523D6567351 /* Pods-TangemSwappingTests.release(alpha).xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TangemSwappingTests.release(alpha).xcconfig"; path = "Target Support Files/Pods-TangemSwappingTests/Pods-TangemSwappingTests.release(alpha).xcconfig"; sourceTree = "<group>"; };
-		435995845DEFB05BC357CABF /* Pods-TangemExchangeTests.release(alpha).xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TangemExchangeTests.release(alpha).xcconfig"; path = "Target Support Files/Pods-TangemExchangeTests/Pods-TangemExchangeTests.release(alpha).xcconfig"; sourceTree = "<group>"; };
 		474E303AB13F7612485E1066 /* Pods_TangemSwappingTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_TangemSwappingTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		4FB933E910A029675F4BD391 /* Pods-Tangem-TangemUITests.release(beta).xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Tangem-TangemUITests.release(beta).xcconfig"; path = "Target Support Files/Pods-Tangem-TangemUITests/Pods-Tangem-TangemUITests.release(beta).xcconfig"; sourceTree = "<group>"; };
 		5D00FCC62617387E004626DE /* PersonalSignHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PersonalSignHandler.swift; sourceTree = "<group>"; };
@@ -1047,7 +1045,6 @@
 		5DFCE54B274BDEE200C1B1A0 /* ResetToFactorySettingsTask.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ResetToFactorySettingsTask.swift; sourceTree = "<group>"; };
 		5DFE855624EF051400194106 /* Error+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Error+.swift"; sourceTree = "<group>"; };
 		624D650C73053CE3384BD68D /* Pods-Tangem-TangemUITests.release(production).xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Tangem-TangemUITests.release(production).xcconfig"; path = "Target Support Files/Pods-Tangem-TangemUITests/Pods-Tangem-TangemUITests.release(production).xcconfig"; sourceTree = "<group>"; };
-		6366DB1B2ADA5408113A19F1 /* Pods-TangemExchange.release(beta).xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TangemExchange.release(beta).xcconfig"; path = "Target Support Files/Pods-TangemExchange/Pods-TangemExchange.release(beta).xcconfig"; sourceTree = "<group>"; };
 		652B0135282C0A7800F2E27A /* TotalSumBalanceView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TotalSumBalanceView.swift; sourceTree = "<group>"; };
 		652B013928319F9000F2E27A /* TotalSumBalanceViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TotalSumBalanceViewModel.swift; sourceTree = "<group>"; };
 		65339CE3289918E7006429EA /* ChangeObserver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChangeObserver.swift; sourceTree = "<group>"; };
@@ -1077,21 +1074,14 @@
 		6F4E464E7FE182E8B68D0A8B /* Pods-TangemSwappingTests.debug(alpha).xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TangemSwappingTests.debug(alpha).xcconfig"; path = "Target Support Files/Pods-TangemSwappingTests/Pods-TangemSwappingTests.debug(alpha).xcconfig"; sourceTree = "<group>"; };
 		7E83521FF842CADD70DD6F69 /* Pods-Tangem-TangemUITests.debug(alpha).xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Tangem-TangemUITests.debug(alpha).xcconfig"; path = "Target Support Files/Pods-Tangem-TangemUITests/Pods-Tangem-TangemUITests.debug(alpha).xcconfig"; sourceTree = "<group>"; };
 		7F52AF147814AD58DF57572E /* Pods-TangemSwappingTests.release(beta).xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TangemSwappingTests.release(beta).xcconfig"; path = "Target Support Files/Pods-TangemSwappingTests/Pods-TangemSwappingTests.release(beta).xcconfig"; sourceTree = "<group>"; };
-		81620749AFB64A41025EFA4B /* Pods-TangemExchangeTests.release(beta).xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TangemExchangeTests.release(beta).xcconfig"; path = "Target Support Files/Pods-TangemExchangeTests/Pods-TangemExchangeTests.release(beta).xcconfig"; sourceTree = "<group>"; };
-		82B2F72D1CD16801356B2CB4 /* Pods-TangemExchange.debug(beta).xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TangemExchange.debug(beta).xcconfig"; path = "Target Support Files/Pods-TangemExchange/Pods-TangemExchange.debug(beta).xcconfig"; sourceTree = "<group>"; };
 		84AFEF5CDBA4B7CF84B00E9B /* Pods-Tangem-TangemUITests.debug(production).xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Tangem-TangemUITests.debug(production).xcconfig"; path = "Target Support Files/Pods-Tangem-TangemUITests/Pods-Tangem-TangemUITests.debug(production).xcconfig"; sourceTree = "<group>"; };
 		86C99B2814058AE8B1AE624F /* Pods-Tangem.release(beta).xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Tangem.release(beta).xcconfig"; path = "Target Support Files/Pods-Tangem/Pods-Tangem.release(beta).xcconfig"; sourceTree = "<group>"; };
 		882530E7021EC32A167AA0E9 /* Pods-Tangem-TangemUITests.release(alpha).xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Tangem-TangemUITests.release(alpha).xcconfig"; path = "Target Support Files/Pods-Tangem-TangemUITests/Pods-Tangem-TangemUITests.release(alpha).xcconfig"; sourceTree = "<group>"; };
-		88D1B8EDD05B390543766104 /* Pods-TangemExchange.release(production).xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TangemExchange.release(production).xcconfig"; path = "Target Support Files/Pods-TangemExchange/Pods-TangemExchange.release(production).xcconfig"; sourceTree = "<group>"; };
 		8995F72727F0C1290F53FDF1 /* Pods-Tangem.debug(beta).xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Tangem.debug(beta).xcconfig"; path = "Target Support Files/Pods-Tangem/Pods-Tangem.debug(beta).xcconfig"; sourceTree = "<group>"; };
 		8F74954E350A00E020EBFD2F /* Pods-TangemSwapping.debug(production).xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TangemSwapping.debug(production).xcconfig"; path = "Target Support Files/Pods-TangemSwapping/Pods-TangemSwapping.debug(production).xcconfig"; sourceTree = "<group>"; };
-		96C41EF66F9D7106FE1DBEE3 /* Pods-TangemExchangeTests.debug(production).xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TangemExchangeTests.debug(production).xcconfig"; path = "Target Support Files/Pods-TangemExchangeTests/Pods-TangemExchangeTests.debug(production).xcconfig"; sourceTree = "<group>"; };
 		995147B0B5554EEBDD42724E /* Pods_Tangem_TangemUITests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Tangem_TangemUITests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		9D3F1EAD088B937260BA3234 /* Pods-TangemSwappingTests.debug(production).xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TangemSwappingTests.debug(production).xcconfig"; path = "Target Support Files/Pods-TangemSwappingTests/Pods-TangemSwappingTests.debug(production).xcconfig"; sourceTree = "<group>"; };
-		9F25E22C038E5556BD4E61CB /* Pods-TangemExchangeTests.release(production).xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TangemExchangeTests.release(production).xcconfig"; path = "Target Support Files/Pods-TangemExchangeTests/Pods-TangemExchangeTests.release(production).xcconfig"; sourceTree = "<group>"; };
 		A5D75BC00C54E5AF34B6A6F8 /* Pods-TangemSwappingTests.release(production).xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TangemSwappingTests.release(production).xcconfig"; path = "Target Support Files/Pods-TangemSwappingTests/Pods-TangemSwappingTests.release(production).xcconfig"; sourceTree = "<group>"; };
-		AB55298743DA46B5D6496B9F /* Pods-TangemExchangeTests.debug(alpha).xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TangemExchangeTests.debug(alpha).xcconfig"; path = "Target Support Files/Pods-TangemExchangeTests/Pods-TangemExchangeTests.debug(alpha).xcconfig"; sourceTree = "<group>"; };
-		ACBE3139B0B8AC7567FB5117 /* Pods-TangemExchange.debug(production).xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TangemExchange.debug(production).xcconfig"; path = "Target Support Files/Pods-TangemExchange/Pods-TangemExchange.debug(production).xcconfig"; sourceTree = "<group>"; };
 		B004C40D298AA9E00029C14A /* WalletConnectV2SendTransactionHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletConnectV2SendTransactionHandler.swift; sourceTree = "<group>"; };
 		B008E13929802157006E0E31 /* WebSocketError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebSocketError.swift; sourceTree = "<group>"; };
 		B008E13B29802612006E0E31 /* WebSocketConnectionDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebSocketConnectionDelegate.swift; sourceTree = "<group>"; };
@@ -1290,7 +1280,6 @@
 		BC752C0E621F081EB1C1BA02 /* Pods-Tangem-TangemUITests.debug(beta).xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Tangem-TangemUITests.debug(beta).xcconfig"; path = "Target Support Files/Pods-Tangem-TangemUITests/Pods-Tangem-TangemUITests.debug(beta).xcconfig"; sourceTree = "<group>"; };
 		BE98496DC2B8AC3BC422EBE9 /* Pods-TangemSwappingTests.debug(beta).xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TangemSwappingTests.debug(beta).xcconfig"; path = "Target Support Files/Pods-TangemSwappingTests/Pods-TangemSwappingTests.debug(beta).xcconfig"; sourceTree = "<group>"; };
 		C0938DB797AEFA6AC3F3F298 /* Pods-TangemTests.release(beta).xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TangemTests.release(beta).xcconfig"; path = "Target Support Files/Pods-TangemTests/Pods-TangemTests.release(beta).xcconfig"; sourceTree = "<group>"; };
-		C49297C75DEC76251C7C2B1D /* Pods-TangemExchange.debug(alpha).xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TangemExchange.debug(alpha).xcconfig"; path = "Target Support Files/Pods-TangemExchange/Pods-TangemExchange.debug(alpha).xcconfig"; sourceTree = "<group>"; };
 		CFC9B0DBC8A3F550C6D9D735 /* Pods-TangemSwapping.release(beta).xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TangemSwapping.release(beta).xcconfig"; path = "Target Support Files/Pods-TangemSwapping/Pods-TangemSwapping.release(beta).xcconfig"; sourceTree = "<group>"; };
 		DA129DD2292B4A3D004291EC /* UserWalletListCellViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserWalletListCellViewModel.swift; sourceTree = "<group>"; };
 		DA129DD4292B8EBB004291EC /* UserWalletEncryptionKeyFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserWalletEncryptionKeyFactory.swift; sourceTree = "<group>"; };
@@ -1769,7 +1758,6 @@
 		EFFC861228BCF6C500F863CE /* StorageEntry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StorageEntry.swift; sourceTree = "<group>"; };
 		EFFE2CE828B8E0B300B9F279 /* UserWalletModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserWalletModel.swift; sourceTree = "<group>"; };
 		EFFE2CEB28B8E1B000B9F279 /* DerivationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DerivationManager.swift; sourceTree = "<group>"; };
-		FA846930773F70CA1BAF859E /* Pods-TangemExchange.release(alpha).xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TangemExchange.release(alpha).xcconfig"; path = "Target Support Files/Pods-TangemExchange/Pods-TangemExchange.release(alpha).xcconfig"; sourceTree = "<group>"; };
 		FD2D8AD00AD214610646E95B /* Pods-Tangem.debug(alpha).xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Tangem.debug(alpha).xcconfig"; path = "Target Support Files/Pods-Tangem/Pods-Tangem.debug(alpha).xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -2065,7 +2053,10 @@
 				EFE23AC9292CB84600A3C554 /* IconView */,
 				EF4662322924DFAF00346B6C /* GroupedScrollView */,
 				EF46620F2924DEEE00346B6C /* DefaultListViews */,
-				EF46623C2924F1F700346B6C /* ExchangeComponets */,
+				EFF253B0293DCAA900AEF302 /* SwappingFeeRowView */,
+				EF92413729354C6500C28551 /* SwappingTokenIconView */,
+				EFC46EFF29266996003928E3 /* ReceiveCurrencyView */,
+				EFC46EFC29266978003928E3 /* SendCurrencyView */,
 				EFEBCE2929265CEA00B0C886 /* TokenIconView */,
 				EF661E3028C0ACD0005769E5 /* ScanCardWarningView */,
 				EF9CFC3A2890233100329BE0 /* DefaultListViews */,
@@ -3003,18 +2994,6 @@
 				624D650C73053CE3384BD68D /* Pods-Tangem-TangemUITests.release(production).xcconfig */,
 				4FB933E910A029675F4BD391 /* Pods-Tangem-TangemUITests.release(beta).xcconfig */,
 				882530E7021EC32A167AA0E9 /* Pods-Tangem-TangemUITests.release(alpha).xcconfig */,
-				ACBE3139B0B8AC7567FB5117 /* Pods-TangemExchange.debug(production).xcconfig */,
-				82B2F72D1CD16801356B2CB4 /* Pods-TangemExchange.debug(beta).xcconfig */,
-				C49297C75DEC76251C7C2B1D /* Pods-TangemExchange.debug(alpha).xcconfig */,
-				88D1B8EDD05B390543766104 /* Pods-TangemExchange.release(production).xcconfig */,
-				6366DB1B2ADA5408113A19F1 /* Pods-TangemExchange.release(beta).xcconfig */,
-				FA846930773F70CA1BAF859E /* Pods-TangemExchange.release(alpha).xcconfig */,
-				96C41EF66F9D7106FE1DBEE3 /* Pods-TangemExchangeTests.debug(production).xcconfig */,
-				18378F00E197D67167BCB60D /* Pods-TangemExchangeTests.debug(beta).xcconfig */,
-				AB55298743DA46B5D6496B9F /* Pods-TangemExchangeTests.debug(alpha).xcconfig */,
-				9F25E22C038E5556BD4E61CB /* Pods-TangemExchangeTests.release(production).xcconfig */,
-				81620749AFB64A41025EFA4B /* Pods-TangemExchangeTests.release(beta).xcconfig */,
-				435995845DEFB05BC357CABF /* Pods-TangemExchangeTests.release(alpha).xcconfig */,
 				337086E709DA346114BFA173 /* Pods-TangemTests.debug(production).xcconfig */,
 				B387C3A7C191EB3CBEAF3C7A /* Pods-TangemTests.debug(beta).xcconfig */,
 				0B84078BDCE12201E8EFCA10 /* Pods-TangemTests.debug(alpha).xcconfig */,
@@ -3912,17 +3891,6 @@
 			path = WalletConnectRow;
 			sourceTree = "<group>";
 		};
-		EF46623C2924F1F700346B6C /* ExchangeComponets */ = {
-			isa = PBXGroup;
-			children = (
-				EFF253B0293DCAA900AEF302 /* SwappingFeeRowView */,
-				EF92413729354C6500C28551 /* SwappingTokenIconView */,
-				EFC46EFF29266996003928E3 /* ReceiveCurrencyView */,
-				EFC46EFC29266978003928E3 /* SendCurrencyView */,
-			);
-			path = ExchangeComponets;
-			sourceTree = "<group>";
-		};
 		EF4BEF8428ACF0FD00C5D1BE /* UserTokenListManager */ = {
 			isa = PBXGroup;
 			children = (
@@ -4112,18 +4080,7 @@
 			children = (
 				DCF838BB2903101C00162A32 /* registration_mock.json */,
 				EFA6B04A2955A3930090A92F /* Common */,
-				EF80843C293F6976000D91EA /* Exchange */,
 				B0332D2F292519D000553AD9 /* Referral */,
-				EF8D780E2981458500B67418 /* UserTokenListManagerMock.swift */,
-				EF8D781029818E6100B67418 /* UserWalletModelMock.swift */,
-				EF5F1BAB29D1A2BE0093307B /* TotalBalanceProviderMock.swift */,
-			);
-			path = Mocks;
-			sourceTree = "<group>";
-		};
-		EF80843C293F6976000D91EA /* Exchange */ = {
-			isa = PBXGroup;
-			children = (
 				EF808446293F6C27000D91EA /* TokenIconURLBuilderMock.swift */,
 				EF80843D293F698F000D91EA /* SwappingManagerMock.swift */,
 				EF80843F293F69C7000D91EA /* Currency+Mock.swift */,
@@ -4132,8 +4089,11 @@
 				EFA9854E2947787F00D1FCB3 /* TransactionSenderMock.swift */,
 				EFA9855429478AF200D1FCB3 /* SwappingTransactionData+Mock.swift */,
 				EFBA18022989063A00C23955 /* MockExplorerURLService.swift */,
+				EF8D780E2981458500B67418 /* UserTokenListManagerMock.swift */,
+				EF8D781029818E6100B67418 /* UserWalletModelMock.swift */,
+				EF5F1BAB29D1A2BE0093307B /* TotalBalanceProviderMock.swift */,
 			);
-			path = Exchange;
+			path = Mocks;
 			sourceTree = "<group>";
 		};
 		EF808441293F6B43000D91EA /* TokenIconURLBuilder */ = {
