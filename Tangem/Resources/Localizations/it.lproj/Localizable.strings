@@ -215,7 +215,7 @@
 "onboarding_seed_mnemonic_invalid_checksum" = "Invalid seed phrase. Please check words order";
 "onboarding_seed_mnemonic_wrong_words" = "Invalid seed phrase. Please check your spelling";
 "onboarding_seed_phrase_intro_legacy" = "Legacy";
-"onboarding_seed_screenshot_alert" = "It isn't safe to take a screenshot of seed phrase";
+"onboarding_seed_screenshot_alert" = "We do not recommend storing the passphrase as a screenshot due to the high risk of loss or hacking";
 "onboarding_seed_user_validation_message" = "To check whether you’ve written down your seed phrase correctly, please enter the 2nd, 7th and 11th words";
 "onboarding_seed_user_validation_title" = "So, let’s check";
 "onboarding_subtitle_backup_card" = "You can backup your keys up to two other blank wallet cards";
