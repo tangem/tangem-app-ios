@@ -80,6 +80,10 @@ final class UserWalletListViewModel: ObservableObject, Identifiable {
                 self?.error = error.alertBinder
             default:
                 self?.updateModels()
+                // updateModels doesn't update balances, do it manually
+                self?.userWalletRepository.models.forEach {
+                    $0.userWalletModel?.initialUpdate()
+                }
             }
         }
     }
