@@ -20,4 +20,6 @@ enum AppConstants {
     static let messageForWalletID = "UserWalletID"
     static let messageForTokensKey = "TokensSymmetricKey"
     static let maximumFractionDigitsForBalance = 8
+
+    static let defaultScrollViewKeyboardDismissMode = UIScrollView.KeyboardDismissMode.onDrag
 }
