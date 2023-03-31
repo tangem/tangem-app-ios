@@ -7,12 +7,8 @@
 //
 
 import Foundation
-import TangemExchange
 import BlockchainSdk
-
-protocol SwappingDestinationServicing {
-    func getDestination(source: Currency) async throws -> Currency
-}
+import TangemSwapping
 
 struct SwappingDestinationService {
     @Injected(\.tangemApiService) private var tangemApiService: TangemApiService
