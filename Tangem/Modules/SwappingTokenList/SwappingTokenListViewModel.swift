@@ -8,12 +8,9 @@
 
 import Combine
 import SwiftUI
-import TangemExchange
+import TangemSwapping
 
 final class SwappingTokenListViewModel: ObservableObject, Identifiable {
-    /// For SwiftUI sheet logic
-    let id = UUID()
-
     @Injected(\.tangemApiService) private var tangemApiService: TangemApiService
 
     // MARK: - ViewState
