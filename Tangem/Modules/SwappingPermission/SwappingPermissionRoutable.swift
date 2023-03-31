@@ -9,6 +9,6 @@
 import TangemSwapping
 
 protocol SwappingPermissionRoutable: AnyObject {
-    func didSendApproveTransaction(transactionInfo: SwappingTransactionData)
+    func didSendApproveTransaction(transactionData: SwappingTransactionData)
     func userDidCancel()
 }
