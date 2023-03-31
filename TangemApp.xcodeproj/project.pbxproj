@@ -614,10 +614,10 @@
 		EF4535372976C1D80030639A /* FixedSpacer.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF4535362976C1D80030639A /* FixedSpacer.swift */; };
 		EF45E045293F74EB00C7090F /* UserCurrenciesProviderMock.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF45E044293F74EB00C7090F /* UserCurrenciesProviderMock.swift */; };
 		EF46618829237C9F00346B6C /* ProgressViewCompat.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF46618729237C9F00346B6C /* ProgressViewCompat.swift */; };
-		EF4661962923AFC400346B6C /* TangemExchange.docc in Sources */ = {isa = PBXBuildFile; fileRef = EF4661952923AFC400346B6C /* TangemExchange.docc */; };
+		EF4661962923AFC400346B6C /* TangemSwapping.docc in Sources */ = {isa = PBXBuildFile; fileRef = EF4661952923AFC400346B6C /* TangemSwapping.docc */; };
 		EF46619C2923AFC500346B6C /* TangemSwapping.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EF4661922923AFC400346B6C /* TangemSwapping.framework */; };
 		EF4661A32923AFC500346B6C /* TangemSwappingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF4661A22923AFC500346B6C /* TangemSwappingTests.swift */; };
-		EF4661A42923AFC500346B6C /* TangemExchange.h in Headers */ = {isa = PBXBuildFile; fileRef = EF4661942923AFC400346B6C /* TangemExchange.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EF4661A42923AFC500346B6C /* TangemSwapping.h in Headers */ = {isa = PBXBuildFile; fileRef = EF4661942923AFC400346B6C /* TangemSwapping.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		EF4661A72923AFC500346B6C /* TangemSwapping.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EF4661922923AFC400346B6C /* TangemSwapping.framework */; };
 		EF4661A82923AFC500346B6C /* TangemSwapping.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = EF4661922923AFC400346B6C /* TangemSwapping.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		EF4661BF2923B41F00346B6C /* SwappingManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9C17C5C2919507D00FDE4BC /* SwappingManager.swift */; };
@@ -770,7 +770,7 @@
 		EFA9854B294775B500D1FCB3 /* SwappingPreviewData.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFA9854A294775B500D1FCB3 /* SwappingPreviewData.swift */; };
 		EFA9854F2947787F00D1FCB3 /* TransactionSenderMock.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFA9854E2947787F00D1FCB3 /* TransactionSenderMock.swift */; };
 		EFA9855329477DD300D1FCB3 /* CommonSwappingTransactionSender.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFA9855229477DD300D1FCB3 /* CommonSwappingTransactionSender.swift */; };
-		EFA9855529478AF200D1FCB3 /* ExchangeTransactionInfo+Mock.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFA9855429478AF200D1FCB3 /* ExchangeTransactionInfo+Mock.swift */; };
+		EFA9855529478AF200D1FCB3 /* SwappingTransactionData+Mock.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFA9855429478AF200D1FCB3 /* SwappingTransactionData+Mock.swift */; };
 		EFAF63E92927CA63004B3227 /* Setupable.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFAF63E82927CA63004B3227 /* Setupable.swift */; };
 		EFB4C1322837C51700E991C1 /* TextHint.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFB4C1312837C51700E991C1 /* TextHint.swift */; };
 		EFBA17E42987B0B500C23955 /* BlockchainNetworkNavigationTitleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFBA17E32987B0B500C23955 /* BlockchainNetworkNavigationTitleView.swift */; };
@@ -1566,8 +1566,8 @@
 		EF46618729237C9F00346B6C /* ProgressViewCompat.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProgressViewCompat.swift; sourceTree = "<group>"; };
 		EF46618B2923AFA200346B6C /* SwappingWalletDataProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwappingWalletDataProvider.swift; sourceTree = "<group>"; };
 		EF4661922923AFC400346B6C /* TangemSwapping.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = TangemSwapping.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		EF4661942923AFC400346B6C /* TangemExchange.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TangemExchange.h; sourceTree = "<group>"; };
-		EF4661952923AFC400346B6C /* TangemExchange.docc */ = {isa = PBXFileReference; lastKnownFileType = folder.documentationcatalog; path = TangemExchange.docc; sourceTree = "<group>"; };
+		EF4661942923AFC400346B6C /* TangemSwapping.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TangemSwapping.h; sourceTree = "<group>"; };
+		EF4661952923AFC400346B6C /* TangemSwapping.docc */ = {isa = PBXFileReference; lastKnownFileType = folder.documentationcatalog; path = TangemSwapping.docc; sourceTree = "<group>"; };
 		EF46619B2923AFC400346B6C /* TangemSwappingTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = TangemSwappingTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		EF4661A22923AFC500346B6C /* TangemSwappingTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TangemSwappingTests.swift; sourceTree = "<group>"; };
 		EF4661CE2923B9CD00346B6C /* TangemSwappingFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TangemSwappingFactory.swift; sourceTree = "<group>"; };
@@ -1730,7 +1730,7 @@
 		EFA9854E2947787F00D1FCB3 /* TransactionSenderMock.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransactionSenderMock.swift; sourceTree = "<group>"; };
 		EFA9855029477DA100D1FCB3 /* SwappingTransactionSender.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwappingTransactionSender.swift; sourceTree = "<group>"; };
 		EFA9855229477DD300D1FCB3 /* CommonSwappingTransactionSender.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonSwappingTransactionSender.swift; sourceTree = "<group>"; };
-		EFA9855429478AF200D1FCB3 /* ExchangeTransactionInfo+Mock.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ExchangeTransactionInfo+Mock.swift"; sourceTree = "<group>"; };
+		EFA9855429478AF200D1FCB3 /* SwappingTransactionData+Mock.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SwappingTransactionData+Mock.swift"; sourceTree = "<group>"; };
 		EFAF63E82927CA63004B3227 /* Setupable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Setupable.swift; sourceTree = "<group>"; };
 		EFB4C1312837C51700E991C1 /* TextHint.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextHint.swift; sourceTree = "<group>"; };
 		EFBA17E32987B0B500C23955 /* BlockchainNetworkNavigationTitleView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlockchainNetworkNavigationTitleView.swift; sourceTree = "<group>"; };
@@ -3741,8 +3741,8 @@
 				EF4661B82923B00100346B6C /* Services */,
 				EF4661BA2923B02C00346B6C /* Models */,
 				EF29BEF029349C1A00D7C782 /* Extensions */,
-				EF4661942923AFC400346B6C /* TangemExchange.h */,
-				EF4661952923AFC400346B6C /* TangemExchange.docc */,
+				EF4661942923AFC400346B6C /* TangemSwapping.h */,
+				EF4661952923AFC400346B6C /* TangemSwapping.docc */,
 			);
 			path = TangemSwapping;
 			sourceTree = "<group>";
@@ -4130,7 +4130,7 @@
 				EF8F2351294098C80046F4C0 /* SwappingDestinationServiceMock.swift */,
 				EF45E044293F74EB00C7090F /* UserCurrenciesProviderMock.swift */,
 				EFA9854E2947787F00D1FCB3 /* TransactionSenderMock.swift */,
-				EFA9855429478AF200D1FCB3 /* ExchangeTransactionInfo+Mock.swift */,
+				EFA9855429478AF200D1FCB3 /* SwappingTransactionData+Mock.swift */,
 				EFBA18022989063A00C23955 /* MockExplorerURLService.swift */,
 			);
 			path = Exchange;
@@ -4469,7 +4469,7 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				EF4661A42923AFC500346B6C /* TangemExchange.h in Headers */,
+				EF4661A42923AFC500346B6C /* TangemSwapping.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -4930,7 +4930,7 @@
 				B0BA7BC526C4F96B00D7066F /* NonDismissableModalView.swift in Sources */,
 				DC3F54AB28EB1D6700BC9A6D /* CustomContentView.swift in Sources */,
 				DC0A582928252FEB0031BECC /* TokenItemsRepository.swift in Sources */,
-				EFA9855529478AF200D1FCB3 /* ExchangeTransactionInfo+Mock.swift in Sources */,
+				EFA9855529478AF200D1FCB3 /* SwappingTransactionData+Mock.swift in Sources */,
 				DAC53CFC27BE63830027147D /* AweStoryPage.swift in Sources */,
 				DAA5E30F28D2137C003C0E80 /* UserWalletListView.swift in Sources */,
 				B09BB861259A075600B92000 /* NavigationBar.swift in Sources */,
@@ -5661,7 +5661,7 @@
 				EF5F1BD129D6D0510093307B /* SwappingToken.swift in Sources */,
 				EF4661C42923B42A00346B6C /* Currency.swift in Sources */,
 				EF4661D02923CD4C00346B6C /* SwappingWalletDataProvider.swift in Sources */,
-				EF4661962923AFC400346B6C /* TangemExchange.docc in Sources */,
+				EF4661962923AFC400346B6C /* TangemSwapping.docc in Sources */,
 				EF92E2BC29964CFE00DD9B06 /* SwappingManagerRefreshType.swift in Sources */,
 				EF4662032924CC6E00346B6C /* OneInchBaseTarget.swift in Sources */,
 				EF4662062924CC6E00346B6C /* ApproveTarget.swift in Sources */,
