@@ -77,10 +77,10 @@ private extension AppSettingsViewModel {
     }
 
     func unlockWithBiometry(completion: @escaping (_ success: Bool) -> Void) {
-        userWalletRepository.unlock(with: .biometry) { [weak self] result in
+        BiometricsUtil.requestAccess(localizedReason: Localization.biometryTouchIdReason) { [weak self] result in
             guard let self else { return }
 
-            if case .error = result {
+            if case .failure = result {
                 self.updateView()
                 completion(false)
             } else {

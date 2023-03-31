@@ -8,6 +8,7 @@
 
 import TangemExchange
 import BlockchainSdk
+import BigInt
 
 struct ExchangeTransactionSender {
     private let transactionCreator: TransactionCreator
@@ -48,7 +49,9 @@ private extension ExchangeTransactionSender {
         let gasModel = info.gas
 
         let amount = createAmount(from: info.sourceCurrency, amount: info.value)
-        let fee = try createAmount(from: info.sourceBlockchain, amount: gasModel.fee)
+        let feeAmount = try createAmount(from: info.sourceBlockchain, amount: gasModel.fee)
+        let feeParameters = EthereumFeeParameters(gasLimit: BigUInt(gasModel.gasLimit), gasPrice: BigUInt(gasModel.gasPrice))
+        let fee = Fee(feeAmount, parameters: feeParameters)
 
         var transaction = Transaction(
             amount: amount,
@@ -61,7 +64,11 @@ private extension ExchangeTransactionSender {
             status: .unconfirmed
         )
 
-        transaction.params = EthereumTransactionParams(data: info.txData, gasLimit: gasModel.gasLimit, nonce: nonce)
+        transaction.params = EthereumTransactionParams(
+            data: info.txData,
+            nonce: nonce
+        )
+
         return transaction
     }
 
