@@ -7,7 +7,7 @@
 //
 
 import Foundation
-import TangemExchange
+import TangemSwapping
 
 extension Currency {
     static let mock = Currency(
