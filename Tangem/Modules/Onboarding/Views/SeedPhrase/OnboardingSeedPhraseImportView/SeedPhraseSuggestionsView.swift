@@ -33,6 +33,7 @@ struct SeedPhraseSuggestionsView: View {
                     suggestionBubble(with: suggestions[index], index: index)
                 }
             }
+            .padding(.horizontal, 16)
         }
         .frame(minHeight: 30)
     }
