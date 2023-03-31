@@ -33,7 +33,7 @@ final class SwappingTokenListViewModel: ObservableObject, Identifiable {
 
     private let tokenIconURLBuilder: TokenIconURLBuilding
     private let currencyMapper: CurrencyMapping
-    private let walletDataProvider: WalletDataProvider
+    private let walletDataProvider: SwappingWalletDataProvider
     private let fiatRatesProvider: FiatRatesProviding
     private unowned let coordinator: SwappingTokenListRoutable
 
@@ -47,7 +47,7 @@ final class SwappingTokenListViewModel: ObservableObject, Identifiable {
         userCurrenciesProvider: UserCurrenciesProviding,
         tokenIconURLBuilder: TokenIconURLBuilding,
         currencyMapper: CurrencyMapping,
-        walletDataProvider: WalletDataProvider,
+        walletDataProvider: SwappingWalletDataProvider,
         fiatRatesProvider: FiatRatesProviding,
         coordinator: SwappingTokenListRoutable
     ) {
