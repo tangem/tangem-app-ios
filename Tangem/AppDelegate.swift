@@ -38,7 +38,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         // Override point for customization after application launch.
         UISwitch.appearance().onTintColor = .tangemBlue
         UITableView.appearance().backgroundColor = .clear
-        UIScrollView.appearance().keyboardDismissMode = .onDrag
+        UIScrollView.appearance().keyboardDismissMode = AppConstants.defaultScrollViewKeyboardDismissMode
 
         if #available(iOS 14.0, *) {
             UINavigationBar.appearance().tintColor = UIColor(Colors.Text.primary1)
@@ -54,6 +54,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                 .foregroundColor: UIColor(named: "TextPrimary1") ?? UIColor.black,
             ]
         }
+        // test 
 
         servicesManager.initialize()
         return true
