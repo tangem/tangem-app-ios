@@ -72,16 +72,9 @@ class TotalSumBalanceViewModel: ObservableObject {
             .store(in: &bag)
 
         totalBalanceManager.totalBalancePublisher()
-            .compactMap { $0.value?.error == .customToken }
+            .compactMap { $0.value?.hasError }
             .removeDuplicates()
             .weakAssign(to: \.hasError, on: self)
-            .store(in: &bag)
-
-        totalBalanceManager.totalBalancePublisher()
-            .compactMap(\.value)
-            .sink { [weak self] totalBalance in
-                self?.logTotalBalanceUpdateResult(totalBalance)
-            }
             .store(in: &bag)
     }
 
@@ -114,23 +107,5 @@ class TotalSumBalanceViewModel: ObservableObject {
         guard userWalletModel.getWalletModels().contains(where: { !$0.wallet.isEmpty }) else { return }
 
         rateAppService.registerPositiveBalanceDate()
-    }
-
-    private func logTotalBalanceUpdateResult(_ totalBalance: TotalBalanceProvider.TotalBalance) {
-        let balanceParameter: Analytics.ParameterValue
-        if let error = totalBalance.error {
-            switch error {
-            case .customToken:
-                balanceParameter = .customToken
-            case .blockchainError:
-                balanceParameter = .blockchainError
-            }
-        } else if let balance = totalBalance.balance, !balance.isZero {
-            balanceParameter = .full
-        } else {
-            balanceParameter = .empty
-        }
-
-        Analytics.log(.balanceLoaded, params: [.balance: balanceParameter])
     }
 }
