@@ -206,7 +206,7 @@ struct BottomSheetContainer_Previews: PreviewProvider {
 
             if !isShowing {
                 item = SwappingPermissionViewModel(
-                    inputModel: SwappingPermissionInputModel(fiatFee: 1.45, transactionInfo: .mock),
+                    inputModel: SwappingPermissionInputModel(fiatFee: 1.45, transactionData: .mock),
                     transactionSender: TransactionSenderMock(),
                     coordinator: SwappingCoordinator()
                 )
