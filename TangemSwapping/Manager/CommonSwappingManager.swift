@@ -220,30 +220,30 @@ private extension CommonSwappingManager {
 
         try Task.checkCancellation()
 
-        let info = try await mapToSwappingTransactionInfo(swappingData: swappingData)
+        let data = try await mapToSwappingTransactionData(swappingData: swappingData)
 
         try Task.checkCancellation()
 
-        let result = try await mapToSwappingResultData(transaction: info)
+        let result = try await mapToSwappingResultData(transaction: data)
 
         try Task.checkCancellation()
 
-        updateState(.available(result, info: info))
+        updateState(.available(result, data: data))
     }
 
     func loadApproveData() async throws {
         // We need to load quoteData for "from" and "to" amounts
         async let quoteData = getSwappingQuoteDataModel()
         async let approvedDataModel = getSwappingApprovedDataModel()
-        let info = try await mapToSwappingTransactionInfo(
+        let data = try await mapToSwappingTransactionData(
             quoteData: quoteData,
             approvedData: approvedDataModel
         )
 
         try Task.checkCancellation()
 
-        let result = try await mapToSwappingResultData(transaction: info)
-        updateState(.available(result, info: info))
+        let result = try await mapToSwappingResultData(transaction: data)
+        updateState(.available(result, data: data))
     }
 
     func updateSwappingAmountAllowance() async throws {
@@ -361,7 +361,7 @@ private extension CommonSwappingManager {
         )
     }
 
-    func mapToSwappingTransactionInfo(swappingData: SwappingDataModel) async throws -> SwappingTransactionData {
+    func mapToSwappingTransactionData(swappingData: SwappingDataModel) async throws -> SwappingTransactionData {
         guard let destination = swappingItems.destination else {
             throw SwappingManagerError.destinationNotFound
         }
@@ -389,7 +389,7 @@ private extension CommonSwappingManager {
         )
     }
 
-    func mapToSwappingTransactionInfo(
+    func mapToSwappingTransactionData(
         quoteData: SwappingQuoteDataModel,
         approvedData: SwappingApprovedDataModel
     ) async throws -> SwappingTransactionData {
