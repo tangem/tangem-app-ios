@@ -1,16 +1,16 @@
 //
-//  SupportedExchangeBlockchain.swift
+//  SupportedSwappingBlockchain.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
 //  Copyright © 2023 Tangem AG. All rights reserved.
 //
 
-import TangemExchange
+import TangemSwapping
 import BlockchainSdk
 
 struct SwappingAvailableUtils {
-    private let supportedBlockchains: [ExchangeBlockchain] = [
+    private let supportedBlockchains: [SwappingBlockchain] = [
         .ethereum,
         .bsc,
         .polygon,
@@ -27,7 +27,7 @@ struct SwappingAvailableUtils {
             return false
         }
 
-        guard let blockchain = ExchangeBlockchain(networkId: blockchainNetworkId) else {
+        guard let blockchain = SwappingBlockchain(networkId: blockchainNetworkId) else {
             return false
         }
 
