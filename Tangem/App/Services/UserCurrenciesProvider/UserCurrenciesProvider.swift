@@ -6,35 +6,36 @@
 //  Copyright © 2022 Tangem AG. All rights reserved.
 //
 
-import TangemExchange
+import TangemSwapping
 
 struct UserCurrenciesProvider {
     private let walletModel: WalletModel
+    private let currencyMapper: CurrencyMapping
 
-    init(walletModel: WalletModel) {
+    init(walletModel: WalletModel, currencyMapper: CurrencyMapping) {
         self.walletModel = walletModel
+        self.currencyMapper = currencyMapper
     }
 }
 
 // MARK: - UserCurrenciesProviding
 
 extension UserCurrenciesProvider: UserCurrenciesProviding {
-    func getCurrencies(blockchain exchangeBlockchain: ExchangeBlockchain) -> [Currency] {
+    func getCurrencies(blockchain swappingBlockchain: SwappingBlockchain) -> [Currency] {
         let blockchain = walletModel.blockchainNetwork.blockchain
 
-        guard blockchain.networkId == exchangeBlockchain.networkId else {
+        guard blockchain.networkId == swappingBlockchain.networkId else {
             assertionFailure("incorrect blockchain in WalletModel")
             return []
         }
 
-        let mapper = CurrencyMapper()
         var currencies: [Currency] = []
-        if let coinCurrency = mapper.mapToCurrency(blockchain: blockchain) {
+        if let coinCurrency = currencyMapper.mapToCurrency(blockchain: blockchain) {
             currencies.append(coinCurrency)
         }
 
         currencies += walletModel.getTokens().compactMap {
-            mapper.mapToCurrency(token: $0, blockchain: blockchain)
+            currencyMapper.mapToCurrency(token: $0, blockchain: blockchain)
         }
 
         return currencies
