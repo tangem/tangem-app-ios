@@ -55,6 +55,7 @@ struct OnboardingTextButtonView: View {
                 }
             }
 
+            // [REDACTED_TODO_COMMENT]
             if let settings = buttonsSettings.supplement {
                 //            if buttonsSettings.containSupplementButton {
                 TangemButton(title: settings.title) {
