@@ -10,5 +10,5 @@ import TangemSwapping
 import BlockchainSdk
 
 public protocol SwappingTransactionSender {
-    func sendTransaction(_ info: SwappingTransactionData) async throws -> TransactionSendResult
+    func sendTransaction(_ data: SwappingTransactionData) async throws -> TransactionSendResult
 }
