@@ -40,7 +40,7 @@ struct OnboardingSeedPhraseImportView: View {
                 .padding(.horizontal, 16)
 
                 SeedPhraseSuggestionsView(suggestions: viewModel.suggestions, suggestionTapped: viewModel.suggestionTapped(at:))
-                    .padding(.top, 26)
+                    .padding(.top, 22)
 
                 Color.clear
                     .frame(minHeight: containerSize.height - contentSize.height)
