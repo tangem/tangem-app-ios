@@ -96,9 +96,9 @@ extension SwappingCoordinator: SwappingTokenListRoutable {
 // MARK: - SwappingPermissionRoutable
 
 extension SwappingCoordinator: SwappingPermissionRoutable {
-    func didSendApproveTransaction(transactionInfo: SwappingTransactionData) {
+    func didSendApproveTransaction(transactionData: SwappingTransactionData) {
         swappingPermissionViewModel = nil
-        rootViewModel?.didSendApproveTransaction(transactionInfo: transactionInfo)
+        rootViewModel?.didSendApproveTransaction(transactionData: transactionData)
     }
 
     func userDidCancel() {
