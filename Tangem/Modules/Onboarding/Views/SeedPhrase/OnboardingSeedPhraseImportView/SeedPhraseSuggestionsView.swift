@@ -10,12 +10,12 @@ import SwiftUI
 
 struct SeedPhraseSuggestionsView: View {
     let suggestions: [String]
-    let tappedSuggestion: (Int) -> Void
+    let suggestionTapped: (Int) -> Void
 
     @ViewBuilder
-    private func bubble(with text: String, index: Int) -> some View {
+    private func suggestionBubble(with text: String, index: Int) -> some View {
         Button {
-            tappedSuggestion(index)
+            suggestionTapped(index)
         } label: {
             Text(text)
                 .style(Fonts.Regular.footnote, color: Colors.Text.primary2)
@@ -30,7 +30,7 @@ struct SeedPhraseSuggestionsView: View {
         ScrollView(.horizontal, showsIndicators: false) {
             HStack(spacing: 8) {
                 ForEach(0 ..< suggestions.count, id: \.self) { index in
-                    bubble(with: suggestions[index], index: index)
+                    suggestionBubble(with: suggestions[index], index: index)
                 }
             }
         }
@@ -44,7 +44,7 @@ struct SeedPhraseSuggestionsView_Preview: PreviewProvider {
             suggestions: [
                 "tree", "banana", "tangem", "index", "wallet", "caret", "collection", "engine",
             ],
-            tappedSuggestion: { _ in }
+            suggestionTapped: { _ in }
         )
     }
 }
