@@ -27,7 +27,7 @@ class OnboardingSeedPhraseImportViewModel: ObservableObject {
         bind()
     }
 
-    func tappedSuggestion(at index: Int) {
+    func suggestionTapped(at index: Int) {
         inputProcessor.insertSuggestion(suggestions[index])
     }
 
