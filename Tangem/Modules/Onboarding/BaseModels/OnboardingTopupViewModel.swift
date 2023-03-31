@@ -90,8 +90,14 @@ class OnboardingTopupViewModel<Step: OnboardingStep, Coordinator: OnboardingTopu
 
                     self.resetRefreshButtonState()
                 case .failed(let error):
-                    self.alert = error.alertBinder
                     self.resetRefreshButtonState()
+
+                    // Need check is display alert yet, because not to present an error if it is already shown
+                    guard self.alert == nil else {
+                        return
+                    }
+
+                    self.alert = error.alertBinder
                 case .loading, .created, .noDerivation:
                     return
                 }
