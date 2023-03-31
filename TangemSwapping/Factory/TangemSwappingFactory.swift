@@ -12,7 +12,7 @@ import Foundation
 public struct TangemSwappingFactory {
     public init() {}
 
-    public func createSwappingManager(
+    public func makeSwappingManager(
         walletDataProvider: SwappingWalletDataProvider,
         referrer: SwappingReferrerAccount? = nil,
         source: Currency,
