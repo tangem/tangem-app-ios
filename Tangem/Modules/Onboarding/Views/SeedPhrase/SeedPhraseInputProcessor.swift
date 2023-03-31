@@ -14,19 +14,22 @@ class SeedPhraseInputProcessor {
     let invalidTextColor: UIColor = Colors.Text.warning.uiColorFromRGB()
     let defaultTextFont: UIFont = UIFonts.Regular.body
 
+    @Published private(set) var validatedSeedPhrase: String?
+    @Published private(set) var inputError: String? = nil
+    @Published private(set) var suggestions: [String] = []
+    @Published private(set) var suggestionToInsertPublisher: PassthroughSubject<(word: String, range: NSRange), Never> = .init()
+
     var isSeedPhraseValidPublisher: AnyPublisher<Bool, Never> {
         $validatedSeedPhrase
             .map { $0 != nil }
             .eraseToAnyPublisher()
     }
 
-    @Published private(set) var inputError: String? = nil
-    @Published private(set) var validatedSeedPhrase: String?
-
-    private var dictionary: Set<String> = []
+    private let dictionary: NSOrderedSet
+    private var rangeForSuggestingWord: NSRange?
 
     init() {
-        dictionary = Set(BIP39.Wordlist.en.words)
+        dictionary = NSOrderedSet(array: BIP39.Wordlist.en.words)
     }
 
     func validate(newInput: String) -> NSAttributedString {
@@ -35,6 +38,7 @@ class SeedPhraseInputProcessor {
             validatedSeedPhrase = nil
             return NSAttributedString(string: "")
         }
+
         let words = parse(input: newInput)
         let preparationResult = processInput(words: words)
         do {
@@ -64,6 +68,36 @@ class SeedPhraseInputProcessor {
 
     func resetValidation() {
         validatedSeedPhrase = nil
+    }
+
+    func updateSuggestions(for inputWord: String, in range: NSRange?) {
+        if inputWord.isEmpty {
+            clearSuggestions()
+            return
+        }
+
+        rangeForSuggestingWord = range
+        suggestions = dictionary.compactMap {
+            guard let dictWord = $0 as? String else { return nil }
+
+            let isValidSuggestion = dictWord.starts(with: inputWord) && dictWord.count != inputWord.count
+            return isValidSuggestion ? dictWord : nil
+        }
+    }
+
+    func insertSuggestion(_ word: String) {
+        guard let range = rangeForSuggestingWord else {
+            clearSuggestions()
+            return
+        }
+
+        suggestionToInsertPublisher.send((word: word, range: range))
+        clearSuggestions()
+    }
+
+    func clearSuggestions() {
+        suggestions = []
+        rangeForSuggestingWord = nil
     }
 
     private func parse(input: String) -> [String] {
