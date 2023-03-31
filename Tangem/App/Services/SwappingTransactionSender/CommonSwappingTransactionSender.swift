@@ -35,9 +35,9 @@ struct CommonSwappingTransactionSender {
 // MARK: - SwappingTransactionSender
 
 extension CommonSwappingTransactionSender: SwappingTransactionSender {
-    func sendTransaction(_ info: SwappingTransactionData) async throws -> TransactionSendResult {
-        let nonce = try await ethereumNetworkProvider.getTxCount(info.sourceAddress).async()
-        let transaction = try buildTransaction(for: info, nonce: nonce)
+    func sendTransaction(_ data: SwappingTransactionData) async throws -> TransactionSendResult {
+        let nonce = try await ethereumNetworkProvider.getTxCount(data.sourceAddress).async()
+        let transaction = try buildTransaction(for: data, nonce: nonce)
         return try await transactionSender.send(transaction, signer: transactionSigner).async()
     }
 }
@@ -45,27 +45,27 @@ extension CommonSwappingTransactionSender: SwappingTransactionSender {
 // MARK: - Private
 
 private extension CommonSwappingTransactionSender {
-    func buildTransaction(for info: SwappingTransactionData, nonce: Int) throws -> Transaction {
-        let gasModel = info.gas
+    func buildTransaction(for data: SwappingTransactionData, nonce: Int) throws -> Transaction {
+        let gasModel = data.gas
 
-        let amount = createAmount(from: info.sourceCurrency, amount: info.value)
-        let feeAmount = try createAmount(from: info.sourceBlockchain, amount: gasModel.fee)
+        let amount = createAmount(from: data.sourceCurrency, amount: data.value)
+        let feeAmount = try createAmount(from: data.sourceBlockchain, amount: gasModel.fee)
         let feeParameters = EthereumFeeParameters(gasLimit: BigUInt(gasModel.gasLimit), gasPrice: BigUInt(gasModel.gasPrice))
         let fee = Fee(feeAmount, parameters: feeParameters)
 
         var transaction = Transaction(
             amount: amount,
             fee: fee,
-            sourceAddress: info.sourceAddress,
-            destinationAddress: info.destinationAddress,
-            changeAddress: info.sourceAddress,
-            contractAddress: info.destinationAddress,
+            sourceAddress: data.sourceAddress,
+            destinationAddress: data.destinationAddress,
+            changeAddress: data.sourceAddress,
+            contractAddress: data.destinationAddress,
             date: Date(),
             status: .unconfirmed
         )
 
         transaction.params = EthereumTransactionParams(
-            data: info.txData,
+            data: data.txData,
             nonce: nonce
         )
 
