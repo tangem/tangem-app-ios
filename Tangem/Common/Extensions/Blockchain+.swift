@@ -45,6 +45,9 @@ extension Blockchain {
         case "ethereum-pow-iou": self = .ethereumPoW(testnet: isTestnet)
         case "ethereumfair": self = .ethereumFair
         case "sxdai": self = .saltPay // [REDACTED_TODO_COMMENT]
+        case "the-open-network": self = .ton(testnet: isTestnet)
+        case "kava": self = .kava(testnet: isTestnet)
+        case "kaspa": self = .kaspa
         default:
             AppLog.shared.debug("⚠️⚠️⚠️ Failed to map network ID \"\(stringId)\"")
             return nil
@@ -81,6 +84,9 @@ extension Blockchain {
         case .ethereumPoW: return "ethereum-pow-iou"
         case .ethereumFair: return "ethereumfair"
         case .saltPay: return "sxdai"
+        case .ton: return "the-open-network"
+        case .kava: return "kava"
+        case .kaspa: return "kaspa"
         }
     }
 
@@ -127,6 +133,9 @@ extension Blockchain {
         case .ethereumPoW: return "ethereum-pow-iou"
         case .ethereumFair: return "ethereumfair"
         case .saltPay: return "sxdai"
+        case .ton: return "the-open-network"
+        case .kava: return "kava"
+        case .kaspa: return "kaspa"
         }
     }
 
@@ -182,6 +191,9 @@ extension Blockchain {
             .gnosis,
             .dash(testnet: false),
             .optimism(testnet: false),
+            .ton(testnet: false),
+            .kava(testnet: false),
+            .kaspa,
         ]
     }()
 
@@ -202,6 +214,8 @@ extension Blockchain {
             .tron(testnet: true),
             .arbitrum(testnet: true),
             .optimism(testnet: true),
+            .ton(testnet: true),
+            .kava(testnet: true),
         ]
     }()
 }
