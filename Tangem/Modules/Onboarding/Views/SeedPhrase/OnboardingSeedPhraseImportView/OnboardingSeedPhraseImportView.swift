@@ -36,7 +36,7 @@ struct OnboardingSeedPhraseImportView: View {
                     .padding(.top, 8)
                     .frame(maxWidth: .infinity, alignment: .leading)
 
-                SeedPhraseSuggestionsView(suggestions: viewModel.suggestions, tappedSuggestion: viewModel.tappedSuggestion(at:))
+                SeedPhraseSuggestionsView(suggestions: viewModel.suggestions, suggestionTapped: viewModel.suggestionTapped(at:))
                     .padding(.top, 26)
 
                 Color.clear
