@@ -7,9 +7,9 @@
 //
 
 import Foundation
-import TangemExchange
+import TangemSwapping
 
 struct UserCurrenciesProviderMock: UserCurrenciesProviding {
-    func getCurrencies(blockchain: ExchangeBlockchain) -> [Currency] { [.mock] }
+    func getCurrencies(blockchain: SwappingBlockchain) -> [Currency] { [.mock] }
     func add(currency: Currency) {}
 }
