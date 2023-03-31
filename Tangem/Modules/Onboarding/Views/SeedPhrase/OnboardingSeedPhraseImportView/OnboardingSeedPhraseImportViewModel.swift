@@ -27,8 +27,16 @@ class OnboardingSeedPhraseImportViewModel: ObservableObject {
         bind()
     }
 
-    func tappedSuggestion(at index: Int) {
+    func suggestionTapped(at index: Int) {
         inputProcessor.insertSuggestion(suggestions[index])
+    }
+
+    func onAppear() {
+        UIScrollView.appearance().keyboardDismissMode = .none
+    }
+
+    func onDisappear() {
+        UIScrollView.appearance().keyboardDismissMode = AppConstants.defaultScrollViewKeyboardDismissMode
     }
 
     func importSeedPhrase() {
