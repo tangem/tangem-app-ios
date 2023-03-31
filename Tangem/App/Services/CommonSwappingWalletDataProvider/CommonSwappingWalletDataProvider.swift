@@ -1,5 +1,5 @@
 //
-//  ExchangeSwappingWalletDataProvider.swift
+//  CommonSwappingWalletDataProvider.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -8,9 +8,9 @@
 
 import Foundation
 import BlockchainSdk
-import TangemExchange
+import TangemSwapping
 
-class ExchangeSwappingWalletDataProvider {
+class CommonSwappingWalletDataProvider {
     private let wallet: Wallet
     private let ethereumNetworkProvider: EthereumNetworkProvider
     private let ethereumTransactionProcessor: EthereumTransactionProcessor
@@ -38,7 +38,7 @@ class ExchangeSwappingWalletDataProvider {
 
 // MARK: - SwappingWalletDataProvider
 
-extension ExchangeSwappingWalletDataProvider: SwappingWalletDataProvider {
+extension CommonSwappingWalletDataProvider: SwappingWalletDataProvider {
     func getWalletAddress(currency: Currency) -> String? {
         guard wallet.blockchain.networkId == currency.blockchain.networkId else {
             assertionFailure("Incorrect WalletModel")
@@ -52,7 +52,7 @@ extension ExchangeSwappingWalletDataProvider: SwappingWalletDataProvider {
         sourceAddress: String,
         destinationAddress: String,
         data: Data,
-        blockchain: ExchangeBlockchain,
+        blockchain: SwappingBlockchain,
         value: Decimal
     ) async throws -> EthereumGasDataModel {
         try await getFee(
@@ -91,7 +91,7 @@ extension ExchangeSwappingWalletDataProvider: SwappingWalletDataProvider {
         return balance
     }
 
-    func getBalance(for blockchain: ExchangeBlockchain) async throws -> Decimal {
+    func getBalance(for blockchain: SwappingBlockchain) async throws -> Decimal {
         guard wallet.blockchain.networkId == blockchain.networkId else {
             assertionFailure("Incorrect WalletModel")
             return 0
@@ -109,7 +109,7 @@ extension ExchangeSwappingWalletDataProvider: SwappingWalletDataProvider {
 
 // MARK: - Private
 
-private extension ExchangeSwappingWalletDataProvider {
+private extension CommonSwappingWalletDataProvider {
     func createAmount(from currency: Currency, amount: Decimal) -> Amount {
         if let token = currencyMapper.mapToToken(currency: currency) {
             return Amount(with: token, value: amount)
@@ -123,7 +123,7 @@ private extension ExchangeSwappingWalletDataProvider {
         )
     }
 
-    func createAmount(from blockchain: ExchangeBlockchain, amount: Decimal) -> Amount {
+    func createAmount(from blockchain: SwappingBlockchain, amount: Decimal) -> Amount {
         Amount(
             type: .coin,
             currencySymbol: blockchain.symbol,
@@ -160,7 +160,7 @@ private extension ExchangeSwappingWalletDataProvider {
     }
 
     func getFee(
-        blockchain: ExchangeBlockchain,
+        blockchain: SwappingBlockchain,
         value: Decimal,
         data: Data,
         destination: String,
@@ -202,7 +202,7 @@ private extension ExchangeSwappingWalletDataProvider {
     }
 }
 
-extension ExchangeSwappingWalletDataProvider {
+extension CommonSwappingWalletDataProvider {
     enum GasLimitPolicy {
         case noRaise
         case lowRaise
