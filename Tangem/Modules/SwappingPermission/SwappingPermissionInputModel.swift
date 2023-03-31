@@ -11,5 +11,5 @@ import Foundation
 
 struct SwappingPermissionInputModel {
     let fiatFee: Decimal
-    let transactionInfo: SwappingTransactionData
+    let transactionData: SwappingTransactionData
 }
