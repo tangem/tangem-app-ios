@@ -328,7 +328,11 @@ final class WalletConnectV2Service {
 
 extension WalletConnectV2Service: WalletConnectV2WalletModelProvider {
     func getModel(with address: String, in blockchain: BlockchainSdk.Blockchain) throws -> WalletModel {
-        guard let model = infoProvider.walletModels.first(where: { $0.wallet.blockchain == blockchain && $0.wallet.address == address }) else {
+        guard
+            let model = infoProvider.walletModels.first(where: {
+                $0.wallet.blockchain == blockchain && $0.wallet.address.caseInsensitiveCompare(address) == .orderedSame
+            })
+        else {
             log("Failed to find wallet for \(blockchain) with address \(address)")
             throw WalletConnectV2Error.walletModelNotFound(blockchain)
         }
