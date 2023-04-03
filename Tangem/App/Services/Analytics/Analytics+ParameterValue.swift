@@ -16,6 +16,8 @@ extension Analytics {
         case off = "Off"
         case full = "Full"
         case empty = "Empty"
+        case customToken = "Custom Token"
+        case blockchainError = "Blockchain Error"
         case multicurrency = "Multicurrency"
         case accessCode = "Access Code"
         case longTap = "Long tap"
