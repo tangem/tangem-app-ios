@@ -13,7 +13,8 @@ import Combine
 class SecurityModeViewModel: ObservableObject {
     // MARK: ViewState
 
-    @Published var securityViewModels: [DefaultSelectableRowViewModel] = []
+    @Published var securityViewModels: [DefaultSelectableRowViewModel<SecurityModeOption>] = []
+    @Published var currentSecurityOption: SecurityModeOption
     @Published var error: AlertBinder?
     @Published var isLoading: Bool = false
 
@@ -22,8 +23,6 @@ class SecurityModeViewModel: ObservableObject {
     }
 
     // MARK: Private
-
-    @Published private var currentSecurityOption: SecurityModeOption
 
     private let cardModel: CardViewModel
     private var bag = Set<AnyCancellable>()
@@ -61,16 +60,6 @@ class SecurityModeViewModel: ObservableObject {
         }
     }
 
-    func isSelected(option: SecurityModeOption) -> Binding<Bool> {
-        Binding<Bool>(root: self, default: false) { root in
-            root.currentSecurityOption == option
-        } set: { root, isSelected in
-            if isSelected {
-                root.currentSecurityOption = option
-            }
-        }
-    }
-
     private func bind() {
         cardModel.$currentSecurityOption
             .sink { [weak self] option in
@@ -82,11 +71,9 @@ class SecurityModeViewModel: ObservableObject {
     private func updateView() {
         securityViewModels = cardModel.availableSecurityOptions.map { option in
             DefaultSelectableRowViewModel(
+                id: option,
                 title: option.title,
-                subtitle: option.description,
-                isSelected: { [weak self] in
-                    self?.isSelected(option: option) ?? .constant(false)
-                }
+                subtitle: option.description
             )
         }
     }
