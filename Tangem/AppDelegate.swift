@@ -54,7 +54,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                 .foregroundColor: UIColor(named: "TextPrimary1") ?? UIColor.black,
             ]
         }
-        // test 
 
         servicesManager.initialize()
         return true
