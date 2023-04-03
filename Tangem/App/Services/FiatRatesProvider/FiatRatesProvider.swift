@@ -28,7 +28,7 @@ extension FiatRatesProvider: FiatRatesProviding {
         return rates[id] != nil
     }
 
-    func hasRates(for blockchain: ExchangeBlockchain) -> Bool {
+    func hasRates(for blockchain: TangemSwapping.SwappingBlockchain) -> Bool {
         return rates[blockchain.currencyID] != nil
     }
 
@@ -41,7 +41,7 @@ extension FiatRatesProvider: FiatRatesProviding {
         return nil
     }
 
-    func getSyncFiat(for blockchain: ExchangeBlockchain, amount: Decimal) -> Decimal? {
+    func getSyncFiat(for blockchain: TangemSwapping.SwappingBlockchain, amount: Decimal) -> Decimal? {
         if let rate = rates[blockchain.currencyID] {
             return mapToFiat(amount: amount, rate: rate)
         }
