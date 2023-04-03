@@ -14,6 +14,8 @@ struct TransactionSenderMock: SwappingTransactionSender {
 }
 
 struct FiatRatesProviderMock: FiatRatesProviding {
+    func getSyncFiat(for currency: TangemSwapping.Currency, amount: Decimal) -> Decimal? { .zero }
+    func getSyncFiat(for blockchain: TangemSwapping.SwappingBlockchain, amount: Decimal) -> Decimal? { .zero }
     func getFiat(for currency: TangemSwapping.Currency, amount: Decimal) async throws -> Decimal { .zero }
     func getFiat(for blockchain: TangemSwapping.SwappingBlockchain, amount: Decimal) async throws -> Decimal { .zero }
     func hasRates(for currency: Currency) -> Bool { false }
