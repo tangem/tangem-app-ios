@@ -18,6 +18,7 @@ class TotalBalanceProvider {
     private var refreshSubscription: AnyCancellable?
     private let userWalletAmountType: Amount.AmountType?
     private var bag: Set<AnyCancellable> = .init()
+    private var updateSubscription: AnyCancellable?
 
     init(userWalletModel: UserWalletModel, userWalletAmountType: Amount.AmountType?) {
         self.userWalletModel = userWalletModel
@@ -45,10 +46,13 @@ private extension TotalBalanceProvider {
             .combineLatest(AppSettings.shared.$selectedCurrencyCode, hasEntriesWithoutDerivationPublisher)
             .receive(on: DispatchQueue.main)
             .sink { [weak self] walletModels, currencyCode, hasEntriesWithoutDerivation in
+                self?.updateSubscription = nil
                 // Exclude wrong updating total balance to 0
                 if walletModels.isEmpty {
                     return
                 }
+
+                self?.subscribeToUpdates(walletModels, hasEntriesWithoutDerivation)
 
                 let hasLoading = !walletModels.filter { $0.state.isLoading }.isEmpty
 
@@ -61,23 +65,19 @@ private extension TotalBalanceProvider {
                 self?.updateTotalBalance(with: currencyCode, walletModels, hasEntriesWithoutDerivation)
             }
             .store(in: &bag)
+    }
 
+    private func subscribeToUpdates(_ walletModels: [WalletModel], _ hasEntriesWithoutDerivation: Bool) {
         // Subscription to handle balance loading completion
-        userWalletModel.subscribeToWalletModels()
-            .filter { !$0.isEmpty }
-            .combineLatest(hasEntriesWithoutDerivationPublisher)
-            .receive(on: DispatchQueue.main)
-            .flatMap { walletModels, hasEntriesWithoutDerivation -> AnyPublisher<([WalletModel], Bool), Never> in
-                Publishers.MergeMany(
-                    walletModels.map { $0
-                        .walletDidChange
-                        .filter { !$0.isLoading } // subscribe to all the walletDidChange events
-                        // This delay has been added because `walletDidChange` pushed the changes on `willSet`
-                        .delay(for: 0.1, scheduler: DispatchQueue.main)
-                    })
-                    .map { _ in (walletModels, hasEntriesWithoutDerivation) }
-                    .eraseToAnyPublisher()
-            }
+
+        updateSubscription = Publishers.MergeMany(
+            walletModels.map { $0
+                .walletDidChange
+                .filter { !$0.isLoading } // subscribe to all the walletDidChange events
+                // This delay has been added because `walletDidChange` pushed the changes on `willSet`
+                .delay(for: 0.1, scheduler: DispatchQueue.main)
+            })
+            .map { _ in (walletModels, hasEntriesWithoutDerivation) }
             .debounce(for: 0.2, scheduler: DispatchQueue.main) // Hide skeleton with delay
             .filter { walletModels, _ in
                 // We can still have loading items
@@ -86,7 +86,6 @@ private extension TotalBalanceProvider {
             .sink { [weak self] walletModels, hasEntriesWithoutDerivation in
                 self?.updateTotalBalance(with: AppSettings.shared.selectedCurrencyCode, walletModels, hasEntriesWithoutDerivation)
             }
-            .store(in: &bag)
     }
 
     func updateTotalBalance(with currencyCode: String, _ walletModels: [WalletModel], _ hasEntriesWithoutDerivation: Bool) {
