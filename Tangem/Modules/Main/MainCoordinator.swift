@@ -82,6 +82,8 @@ class MainCoordinator: CoordinatorObject {
             return
         }
 
+        Analytics.log(.walletOpened)
+
         mainViewModel = MainViewModel(
             cardModel: options.cardModel,
             userWalletModel: userWalletModel,
