@@ -54,8 +54,8 @@ target 'Tangem' do
   
   # Analytics
   pod 'Amplitude', '~> 8.8.0'
-  pod 'Firebase/Crashlytics', '~> 10.6.0'
-  pod 'Firebase/Analytics', '~> 10.6.0'
+  pod 'Firebase/Crashlytics'
+  pod 'Firebase/Analytics'
   pod 'AppsFlyerFramework'
   
   target 'TangemTests' do
