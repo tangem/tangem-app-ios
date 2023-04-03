@@ -227,7 +227,7 @@ private extension SwappingViewModel {
 
         guard case .available(let result, let data) = state,
               result.isPermissionRequired,
-              let fiatFee = fiatRatesProvider.getSyncFiat(for: info.sourceBlockchain, amount: info.fee) else {
+              let fiatFee = fiatRatesProvider.getSyncFiat(for: data.sourceBlockchain, amount: data.fee) else {
             // If we don't have enough data disable button and refresh()
             mainButtonIsEnabled = false
             swappingManager.refresh(type: .full)
@@ -235,10 +235,7 @@ private extension SwappingViewModel {
             return
         }
 
-        let inputModel = SwappingPermissionInputModel(
-            fiatFee: fiatFee,
-            transactionInfo: info
-        )
+        let inputModel = SwappingPermissionInputModel(fiatFee: fiatFee, transactionData: data)
 
         stopTimer()
         coordinator.presentPermissionView(inputModel: inputModel, transactionSender: transactionSender)
