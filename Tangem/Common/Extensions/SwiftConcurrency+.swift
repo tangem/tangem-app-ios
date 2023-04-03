@@ -59,3 +59,9 @@ extension Task where Success == Never, Failure == Never {
         try await Task.sleep(nanoseconds: duration)
     }
 }
+
+extension Task {
+    func store(in container: inout Set<Self>) {
+        container.insert(self)
+    }
+}
