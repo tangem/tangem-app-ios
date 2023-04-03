@@ -23,6 +23,32 @@ class FiatRatesProvider {
 // MARK: - FiatRatesProviding
 
 extension FiatRatesProvider: FiatRatesProviding {
+    func hasRates(for currency: Currency) -> Bool {
+        let id = currency.isToken ? currency.id : currency.blockchain.currencyID
+        return rates[id] != nil
+    }
+
+    func hasRates(for blockchain: ExchangeBlockchain) -> Bool {
+        return rates[blockchain.currencyID] != nil
+    }
+
+    func getSyncFiat(for currency: Currency, amount: Decimal) -> Decimal? {
+        let id = currency.isToken ? currency.id : currency.blockchain.currencyID
+        if let rate = rates[id] {
+            return mapToFiat(amount: amount, rate: rate)
+        }
+
+        return nil
+    }
+
+    func getSyncFiat(for blockchain: ExchangeBlockchain, amount: Decimal) -> Decimal? {
+        if let rate = rates[blockchain.currencyID] {
+            return mapToFiat(amount: amount, rate: rate)
+        }
+
+        return nil
+    }
+
     func getFiat(for currency: Currency, amount: Decimal) async throws -> Decimal {
         let id = currency.isToken ? currency.id : currency.blockchain.currencyID
         let rate = try await getFiatRate(currencyId: id)
@@ -32,15 +58,6 @@ extension FiatRatesProvider: FiatRatesProviding {
     func getFiat(for blockchain: ExchangeBlockchain, amount: Decimal) async throws -> Decimal {
         let rate = try await getFiatRate(currencyId: blockchain.currencyID)
         return mapToFiat(amount: amount, rate: rate)
-    }
-
-    func hasRates(for currency: Currency) -> Bool {
-        let id = currency.isToken ? currency.id : currency.blockchain.currencyID
-        return rates[id] != nil
-    }
-
-    func hasRates(for blockchain: ExchangeBlockchain) -> Bool {
-        return rates[blockchain.currencyID] != nil
     }
 }
 
