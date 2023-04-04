@@ -77,8 +77,6 @@ func runTask<T>(withTimeout timeout: TimeInterval, _ code: @escaping () async ->
             switch taskError {
             case .timeout:
                 timeoutHandler()
-            default:
-                break
             }
 
             throw taskError
@@ -101,18 +99,10 @@ func runTask<T>(withTimeout timeout: TimeInterval, _ code: @escaping () async ->
             throw TaskError.timeout
         }
 
-        let result: T
-        do {
-            guard let groupFirstResult = try await group.next() else {
-                throw TaskError.emptyTaskGroup
-            }
-
-            result = groupFirstResult
-        } catch {
-            group.cancelAll()
-            throw error
-        }
-
+        // We can safely force-unwrap, because `group.next()` can return nil only when tasks weren't added to the group
+        // Group will receive the first finished result, even if group schedules waiting for the next result after the first
+        // task or all tasks execution finished.
+        let result: T = try await group.next()!
         group.cancelAll()
 
         return result
@@ -121,10 +111,13 @@ func runTask<T>(withTimeout timeout: TimeInterval, _ code: @escaping () async ->
 
 enum TaskError: Error {
     case timeout
-    case emptyTaskGroup
 }
 
 extension Task where Success == Never, Failure == Never {
+    /// Like `Task.sleep` but with cancellation support.
+    ///
+    /// - Parameter seconds: Sleep this number of seconds. The actual time the sleep ends can be later.
+    /// - Parameter cancellationCheckInterval: The interval in nanoseconds between cancellation checks. Default value is 0.1 second
     static func sleepCancellable(seconds: TimeInterval, cancellationCheckInterval: UInt64 = 100_000) async throws {
         try await sleepCancellable(until: Date().addingTimeInterval(seconds))
     }
