@@ -43,7 +43,10 @@ private extension TotalBalanceProvider {
 
         // Subscription to handle token changes
         userWalletModel.subscribeToWalletModels()
-            .combineLatest(AppSettings.shared.$selectedCurrencyCode, hasEntriesWithoutDerivationPublisher)
+            .combineLatest(
+                AppSettings.shared.$selectedCurrencyCode.delay(for: 0.3, scheduler: DispatchQueue.main),
+                hasEntriesWithoutDerivationPublisher
+            )
             .receive(on: DispatchQueue.main)
             .sink { [weak self] walletModels, currencyCode, hasEntriesWithoutDerivation in
                 self?.updateSubscription = nil
