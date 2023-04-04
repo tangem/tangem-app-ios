@@ -7,7 +7,7 @@
 //
 
 import Combine
-import TangemExchange
+import TangemSwapping
 import TangemSdk
 import SwiftUI
 
@@ -52,10 +52,10 @@ final class SwappingViewModel: ObservableObject {
     // MARK: - Dependencies
 
     private let initialSourceCurrency: Currency
-    private let exchangeManager: ExchangeManager
+    private let swappingManager: SwappingManager
     private let swappingDestinationService: SwappingDestinationServicing
     private let tokenIconURLBuilder: TokenIconURLBuilding
-    private let transactionSender: TransactionSendable
+    private let transactionSender: SwappingTransactionSender
     private let fiatRatesProvider: FiatRatesProviding
     private let userWalletModel: UserWalletModel
     private let currencyMapper: CurrencyMapping
@@ -75,10 +75,10 @@ final class SwappingViewModel: ObservableObject {
 
     init(
         initialSourceCurrency: Currency,
-        exchangeManager: ExchangeManager,
+        swappingManager: SwappingManager,
         swappingDestinationService: SwappingDestinationServicing,
         tokenIconURLBuilder: TokenIconURLBuilding,
-        transactionSender: TransactionSendable,
+        transactionSender: SwappingTransactionSender,
         fiatRatesProvider: FiatRatesProviding,
         userWalletModel: UserWalletModel,
         currencyMapper: CurrencyMapping,
@@ -86,7 +86,7 @@ final class SwappingViewModel: ObservableObject {
         coordinator: SwappingRoutable
     ) {
         self.initialSourceCurrency = initialSourceCurrency
-        self.exchangeManager = exchangeManager
+        self.swappingManager = swappingManager
         self.swappingDestinationService = swappingDestinationService
         self.tokenIconURLBuilder = tokenIconURLBuilder
         self.transactionSender = transactionSender
@@ -99,7 +99,7 @@ final class SwappingViewModel: ObservableObject {
         Analytics.log(event: .swapScreenOpenedSwap, params: [.token: initialSourceCurrency.symbol])
         setupView()
         bind()
-        exchangeManager.setDelegate(self)
+        swappingManager.setDelegate(self)
         loadDestinationIfNeeded()
     }
 
@@ -108,12 +108,12 @@ final class SwappingViewModel: ObservableObject {
     }
 
     func userDidTapMaxAmount() {
-        let sourceBalance = exchangeManager.getExchangeItems().sourceBalance
+        let sourceBalance = swappingManager.getSwappingItems().sourceBalance
         setupExternalSendValue(sourceBalance)
     }
 
     func userDidRequestChangeDestination(to currency: Currency) {
-        var items = exchangeManager.getExchangeItems()
+        var items = swappingManager.getSwappingItems()
 
         if items.source == initialSourceCurrency {
             items.destination = currency
@@ -121,13 +121,13 @@ final class SwappingViewModel: ObservableObject {
             items.source = currency
         }
 
-        exchangeManager.update(exchangeItems: items)
-        exchangeManager.refresh(type: .full)
+        swappingManager.update(swappingItems: items)
+        swappingManager.refresh(type: .full)
     }
 
-    func userDidTapSwapExchangeItemsButton() {
+    func userDidTapSwapSwappingItemsButton() {
         Analytics.log(.swapButtonSwipe)
-        var items = exchangeManager.getExchangeItems()
+        var items = swappingManager.getSwappingItems()
 
         guard let destination = items.destination else {
             return
@@ -137,14 +137,14 @@ final class SwappingViewModel: ObservableObject {
 
         items.source = destination
         items.destination = source
-        exchangeManager.update(exchangeItems: items)
+        swappingManager.update(swappingItems: items)
 
         // If amount have been set we'll should to round and update it with new decimalCount
         if let amount = sendDecimalValue?.value {
             let roundedAmount = amount.rounded(scale: items.source.decimalCount, roundingMode: .down)
             setupExternalSendValue(roundedAmount)
 
-            exchangeManager.update(amount: roundedAmount)
+            swappingManager.update(amount: roundedAmount)
         }
     }
 
@@ -172,8 +172,8 @@ final class SwappingViewModel: ObservableObject {
         }
     }
 
-    func didSendApproveTransaction(transactionInfo: ExchangeTransactionDataModel) {
-        exchangeManager.didSendApprovingTransaction(exchangeTxData: transactionInfo)
+    func didSendApproveTransaction(transactionData: SwappingTransactionData) {
+        swappingManager.didSendApprovingTransaction(swappingTxData: transactionData)
     }
 
     func didClosePermissionSheet() {
@@ -181,7 +181,7 @@ final class SwappingViewModel: ObservableObject {
     }
 
     func didTapWaringRefresh() {
-        exchangeManager.refresh(type: .full)
+        swappingManager.refresh(type: .full)
     }
 
     private func setupExternalSendValue(_ amount: Decimal) {
@@ -198,19 +198,19 @@ private extension SwappingViewModel {
     }
 
     func openSuccessView(
-        result: SwappingResultDataModel,
-        transactionModel: ExchangeTransactionDataModel,
+        result: SwappingResultData,
+        transactionData: SwappingTransactionData,
         transactionID: String
     ) {
-        let amount = transactionModel.sourceCurrency.convertFromWEI(value: transactionModel.sourceAmount)
+        let amount = transactionData.sourceCurrency.convertFromWEI(value: transactionData.sourceAmount)
         let source = CurrencyAmount(
             value: amount,
-            currency: transactionModel.sourceCurrency
+            currency: transactionData.sourceCurrency
         )
 
         let result = CurrencyAmount(
             value: result.amount,
-            currency: transactionModel.destinationCurrency
+            currency: transactionData.destinationCurrency
         )
 
         let inputModel = SwappingSuccessInputModel(
@@ -223,38 +223,35 @@ private extension SwappingViewModel {
     }
 
     func openPermissionView() {
-        let state = exchangeManager.getAvailabilityState()
+        let state = swappingManager.getAvailabilityState()
 
-        guard case .available(let result, let info) = state,
+        guard case .available(let result, let data) = state,
               result.isPermissionRequired,
-              let fiatFee = fiatRatesProvider.getSyncFiat(for: info.sourceBlockchain, amount: info.fee) else {
+              let fiatFee = fiatRatesProvider.getSyncFiat(for: data.sourceBlockchain, amount: data.fee) else {
             // If we don't have enough data disable button and refresh()
             mainButtonIsEnabled = false
-            exchangeManager.refresh(type: .full)
+            swappingManager.refresh(type: .full)
 
             return
         }
 
-        let inputModel = SwappingPermissionInputModel(
-            fiatFee: fiatFee,
-            transactionInfo: info
-        )
+        let inputModel = SwappingPermissionInputModel(fiatFee: fiatFee, transactionData: data)
 
         stopTimer()
         coordinator.presentPermissionView(inputModel: inputModel, transactionSender: transactionSender)
     }
 }
 
-// MARK: - ExchangeManagerDelegate
+// MARK: - SwappingManagerDelegate
 
-extension SwappingViewModel: ExchangeManagerDelegate {
-    func exchangeManager(_ manager: ExchangeManager, didUpdate exchangeItems: ExchangeItems) {
+extension SwappingViewModel: SwappingManagerDelegate {
+    func swappingManager(_ manager: SwappingManager, didUpdate swappingItems: SwappingItems) {
         DispatchQueue.main.async {
-            self.updateView(exchangeItems: exchangeItems)
+            self.updateView(swappingItems: swappingItems)
         }
     }
 
-    func exchangeManager(_ manager: ExchangeManager, didUpdate availabilityState: ExchangeAvailabilityState) {
+    func swappingManager(_ manager: SwappingManager, didUpdate availabilityState: SwappingAvailabilityState) {
         DispatchQueue.main.async {
             self.updateState(state: availabilityState)
         }
@@ -272,16 +269,16 @@ private extension SwappingViewModel {
         swapButtonIsLoading = false
     }
 
-    func updateView(exchangeItems: ExchangeItems) {
-        updateSendView(exchangeItems: exchangeItems)
-        updateReceiveView(exchangeItems: exchangeItems)
+    func updateView(swappingItems: SwappingItems) {
+        updateSendView(swappingItems: swappingItems)
+        updateReceiveView(swappingItems: swappingItems)
     }
 
-    func updateSendView(exchangeItems: ExchangeItems) {
-        let source = exchangeItems.source
+    func updateSendView(swappingItems: SwappingItems) {
+        let source = swappingItems.source
 
         sendCurrencyViewModel = SendCurrencyViewModel(
-            balance: .loaded(exchangeItems.sourceBalance),
+            balance: .loaded(swappingItems.sourceBalance),
             fiatValue: .loading,
             maximumFractionDigits: source.decimalCount,
             canChangeCurrency: source != initialSourceCurrency,
@@ -297,7 +294,7 @@ private extension SwappingViewModel {
             return
         }
 
-        let source = exchangeManager.getExchangeItems().source
+        let source = swappingManager.getSwappingItems().source
         if !fiatRatesProvider.hasRates(for: source) {
             sendCurrencyViewModel?.update(fiatValue: .loading)
         }
@@ -314,13 +311,13 @@ private extension SwappingViewModel {
         .store(in: &workingTasks)
     }
 
-    func updateReceiveView(exchangeItems: ExchangeItems) {
-        let destination = exchangeItems.destination
+    func updateReceiveView(swappingItems: SwappingItems) {
+        let destination = swappingItems.destination
 
         let cryptoAmountState: ReceiveCurrencyViewModel.State
         let fiatAmountState: ReceiveCurrencyViewModel.State
 
-        switch exchangeManager.getAvailabilityState() {
+        switch swappingManager.getAvailabilityState() {
         case .idle, .requiredRefresh:
             cryptoAmountState = .loaded(0)
             fiatAmountState = .loaded(0)
@@ -338,7 +335,7 @@ private extension SwappingViewModel {
         }
 
         receiveCurrencyViewModel = ReceiveCurrencyViewModel(
-            balance: exchangeItems.destinationBalance,
+            balance: swappingItems.destinationBalance,
             canChangeCurrency: destination != initialSourceCurrency,
             cryptoAmountState: cryptoAmountState,
             fiatAmountState: fiatAmountState,
@@ -346,7 +343,7 @@ private extension SwappingViewModel {
         )
     }
 
-    func updateState(state: ExchangeAvailabilityState) {
+    func updateState(state: SwappingAvailabilityState) {
         updateFeeValue(state: state)
         updateMainButton(state: state)
 
@@ -400,7 +397,7 @@ private extension SwappingViewModel {
     func updateReceiveCurrencyValue(value: Decimal) {
         receiveCurrencyViewModel?.update(cryptoAmountState: .loaded(value))
 
-        guard let destination = exchangeManager.getExchangeItems().destination else { return }
+        guard let destination = swappingManager.getSwappingItems().destination else { return }
         receiveCurrencyViewModel?.update(fiatAmountState: .loading)
 
         Task {
@@ -423,7 +420,7 @@ private extension SwappingViewModel {
         if isPermissionRequired {
             permissionInfoRowViewModel = DefaultWarningRowViewModel(
                 title: Localization.swappingGivePermission,
-                subtitle: Localization.swappingPermissionSubheader(exchangeManager.getExchangeItems().source.symbol),
+                subtitle: Localization.swappingPermissionSubheader(swappingManager.getSwappingItems().source.symbol),
                 leftView: .icon(Assets.swappingLock)
             )
         } else {
@@ -447,7 +444,7 @@ private extension SwappingViewModel {
         if isEnoughAmountForFee {
             feeWarningRowViewModel = nil
         } else {
-            let sourceBlockchain = exchangeManager.getExchangeItems().source.blockchain
+            let sourceBlockchain = swappingManager.getSwappingItems().source.blockchain
             feeWarningRowViewModel = DefaultWarningRowViewModel(
                 subtitle: Localization.swappingNotEnoughFundsForFee(sourceBlockchain.symbol, sourceBlockchain.symbol),
                 leftView: .icon(Assets.attention)
@@ -455,7 +452,7 @@ private extension SwappingViewModel {
         }
     }
 
-    func updateFeeValue(state: ExchangeAvailabilityState) {
+    func updateFeeValue(state: SwappingAvailabilityState) {
         switch state {
         case .idle, .requiredRefresh, .preview:
             swappingFeeRowViewModel?.update(state: .idle)
@@ -464,7 +461,7 @@ private extension SwappingViewModel {
                 swappingFeeRowViewModel?.update(state: .loading)
             }
         case .available(_, let info):
-            let source = exchangeManager.getExchangeItems().source
+            let source = swappingManager.getSwappingItems().source
 
             Task {
                 let fiatFee = try await fiatRatesProvider.getFiat(for: info.sourceBlockchain, amount: info.fee)
@@ -486,7 +483,7 @@ private extension SwappingViewModel {
         }
     }
 
-    func updateMainButton(state: ExchangeAvailabilityState) {
+    func updateMainButton(state: SwappingAvailabilityState) {
         switch state {
         case .idle:
             mainButtonIsEnabled = false
@@ -498,9 +495,9 @@ private extension SwappingViewModel {
         case .requiredRefresh:
             mainButtonIsEnabled = false
         case .preview(let preview):
-            mainButtonIsEnabled = preview.isEnoughAmountForExchange && !preview.hasPendingTransaction
+            mainButtonIsEnabled = preview.isEnoughAmountForSwapping && !preview.hasPendingTransaction
 
-            if !preview.isEnoughAmountForExchange {
+            if !preview.isEnoughAmountForSwapping {
                 mainButtonState = .insufficientFunds
             } else if preview.hasPendingTransaction {
                 mainButtonState = .swap
@@ -511,9 +508,9 @@ private extension SwappingViewModel {
             }
 
         case .available(let model, _):
-            mainButtonIsEnabled = model.isEnoughAmountForExchange && model.isEnoughAmountForFee
+            mainButtonIsEnabled = model.isEnoughAmountForSwapping && model.isEnoughAmountForFee
 
-            if !model.isEnoughAmountForExchange {
+            if !model.isEnoughAmountForSwapping {
                 mainButtonState = .insufficientFunds
             } else if model.isPermissionRequired {
                 mainButtonState = .givePermission
@@ -542,7 +539,7 @@ private extension SwappingViewModel {
         }
 
         let sourceFiatAmount = try await fiatRatesProvider.getFiat(
-            for: exchangeManager.getExchangeItems().source,
+            for: swappingManager.getSwappingItems().source,
             amount: sendDecimalValue
         )
 
@@ -564,7 +561,7 @@ private extension SwappingViewModel {
 
     func setupView() {
         updateState(state: .idle)
-        updateView(exchangeItems: exchangeManager.getExchangeItems())
+        updateView(swappingItems: swappingManager.getSwappingItems())
 
         swappingFeeRowViewModel = SwappingFeeRowViewModel(state: .idle) { [weak self] in
             Binding<Bool> {
@@ -573,7 +570,7 @@ private extension SwappingViewModel {
                 UIApplication.shared.endEditing()
 
                 if isOpen {
-                    let percentFee = self?.exchangeManager.getReferrerAccount()?.fee ?? 0
+                    let percentFee = self?.swappingManager.getReferrerAccount()?.fee ?? 0
                     let formattedFee = "\(percentFee.groupedFormatted())%"
                     self?.feeInfoRowViewModel = DefaultWarningRowViewModel(
                         subtitle: Localization.swappingTangemFeeDisclaimer(formattedFee),
@@ -597,30 +594,30 @@ private extension SwappingViewModel {
             .sink { [weak self] amount in
                 // [REDACTED_TODO_COMMENT]
                 // Currently sendDecimalValue is updating directly from UI
-                // but requesting update in exchange manager with 1 second delay.
-                // So when all necessary information already loaded in exchange manager
+                // but requesting update in swapping manager with 1 second delay.
+                // So when all necessary information already loaded in swapping manager
                 // we will face wrong send decimal value while checking high price impact.
                 self?.pendingValidatingAmount = amount
                 self?.resetViews()
-                self?.exchangeManager.update(amount: amount)
+                self?.swappingManager.update(amount: amount)
                 self?.updateSendFiatValue()
             }
             .store(in: &bag)
     }
 
     func loadDestinationIfNeeded() {
-        guard exchangeManager.getExchangeItems().destination == nil else {
-            AppLog.shared.debug("Exchange item destination has already set")
+        guard swappingManager.getSwappingItems().destination == nil else {
+            AppLog.shared.debug("Swapping item destination has already set")
             return
         }
 
         Task {
-            var items = exchangeManager.getExchangeItems()
+            var items = swappingManager.getSwappingItems()
 
             do {
                 items.destination = try await swappingDestinationService.getDestination(source: items.source)
-                exchangeManager.update(exchangeItems: items)
-                exchangeManager.refresh(type: .full)
+                swappingManager.update(swappingItems: items)
+                swappingManager.refresh(type: .full)
             } catch {
                 AppLog.shared.debug("Destination load handle error")
                 AppLog.shared.error(error)
@@ -655,7 +652,7 @@ private extension SwappingViewModel {
     }
 
     func swapItems() {
-        let state = exchangeManager.getAvailabilityState()
+        let state = swappingManager.getAvailabilityState()
         guard case .available(let result, let info) = state else {
             return
         }
@@ -676,12 +673,12 @@ private extension SwappingViewModel {
                 try Task.checkCancellation()
 
                 addDestinationTokenToUserWalletList()
-                exchangeManager.didSendSwapTransaction(exchangeTxData: info)
+                swappingManager.didSendSwapTransaction(swappingTxData: info)
 
                 Analytics.log(.transactionSent, params: [.commonSource: .transactionSourceSwap])
 
                 await runOnMain {
-                    openSuccessView(result: result, transactionModel: info, transactionID: sendResult.hash)
+                    openSuccessView(result: result, transactionData: info, transactionID: sendResult.hash)
                 }
             } catch TangemSdkError.userCancelled {
                 restartTimer()
@@ -695,16 +692,16 @@ private extension SwappingViewModel {
     }
 
     func processingError(error: Error) {
-        AppLog.shared.debug("DefaultExchangeManager catch error: ")
+        AppLog.shared.debug("DefaultSwappingManager catch error: ")
         AppLog.shared.error(error)
 
         switch error {
-        case let error as ExchangeManagerError:
+        case let error as SwappingManagerError:
             switch error {
             case .walletAddressNotFound, .destinationNotFound, .amountNotFound:
                 updateRefreshWarningRowViewModel(message: error.localizedDescription)
             }
-        case let error as ExchangeProviderError:
+        case let error as SwappingProviderError:
             switch error {
             case .requestError(let error):
                 updateRefreshWarningRowViewModel(message: error.detailedError.localizedDescription)
@@ -729,7 +726,7 @@ private extension SwappingViewModel {
     }
 
     func addDestinationTokenToUserWalletList() {
-        guard let destination = exchangeManager.getExchangeItems().destination,
+        guard let destination = swappingManager.getSwappingItems().destination,
               let token = currencyMapper.mapToToken(currency: destination) else {
             return
         }
@@ -765,7 +762,7 @@ private extension SwappingViewModel {
                 let timeElapsed = (date.timeIntervalSince1970 - timeStarted).rounded()
                 if Int(timeElapsed) % 10 == 0 {
                     AppLog.shared.debug("[Swap] Timer call autoupdate")
-                    self?.exchangeManager.refresh(type: .refreshRates)
+                    self?.swappingManager.refresh(type: .refreshRates)
                 }
             }
     }
