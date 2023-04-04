@@ -13,9 +13,19 @@ class FiatRatesProvider {
     @Injected(\.tangemApiService) private var tangemApiService: TangemApiService
 
     /// Collect rates for calculate fiat balance
-    private var rates: [String: Decimal]
+    private var rates: [String: Decimal] {
+        didSet {
+            rates.forEach { key, value in
+                walletModel.rates.updateValue(value, forKey: key)
+            }
+        }
+    }
 
-    init(rates: [String: Decimal]) {
+    // [REDACTED_TODO_COMMENT]
+    private let walletModel: WalletModel
+
+    init(walletModel: WalletModel, rates: [String: Decimal]) {
+        self.walletModel = walletModel
         self.rates = rates
     }
 }
