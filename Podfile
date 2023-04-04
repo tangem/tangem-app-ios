@@ -68,10 +68,10 @@ target 'Tangem' do
   end
 end
 
-target 'TangemExchange' do 
+target 'TangemSwapping' do 
   pod 'Moya'
 
-  target 'TangemExchangeTests' do
+  target 'TangemSwappingTests' do
     inherit! :search_paths
     # Pods for testing
   end
