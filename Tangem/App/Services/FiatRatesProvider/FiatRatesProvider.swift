@@ -7,7 +7,7 @@
 //
 
 import Foundation
-import TangemExchange
+import TangemSwapping
 
 class FiatRatesProvider {
     @Injected(\.tangemApiService) private var tangemApiService: TangemApiService
@@ -28,7 +28,7 @@ extension FiatRatesProvider: FiatRatesProviding {
         return rates[id] != nil
     }
 
-    func hasRates(for blockchain: ExchangeBlockchain) -> Bool {
+    func hasRates(for blockchain: TangemSwapping.SwappingBlockchain) -> Bool {
         return rates[blockchain.currencyID] != nil
     }
 
@@ -41,7 +41,7 @@ extension FiatRatesProvider: FiatRatesProviding {
         return nil
     }
 
-    func getSyncFiat(for blockchain: ExchangeBlockchain, amount: Decimal) -> Decimal? {
+    func getSyncFiat(for blockchain: TangemSwapping.SwappingBlockchain, amount: Decimal) -> Decimal? {
         if let rate = rates[blockchain.currencyID] {
             return mapToFiat(amount: amount, rate: rate)
         }
@@ -55,7 +55,7 @@ extension FiatRatesProvider: FiatRatesProviding {
         return mapToFiat(amount: amount, rate: rate)
     }
 
-    func getFiat(for blockchain: ExchangeBlockchain, amount: Decimal) async throws -> Decimal {
+    func getFiat(for blockchain: SwappingBlockchain, amount: Decimal) async throws -> Decimal {
         let rate = try await getFiatRate(currencyId: blockchain.currencyID)
         return mapToFiat(amount: amount, rate: rate)
     }
@@ -69,7 +69,7 @@ private extension FiatRatesProvider {
         return try await getFiatRate(currencyId: id)
     }
 
-    func getFiatRateFor(for blockchain: ExchangeBlockchain) async throws -> Decimal {
+    func getFiatRateFor(for blockchain: SwappingBlockchain) async throws -> Decimal {
         try await getFiatRate(currencyId: blockchain.currencyID)
     }
 
