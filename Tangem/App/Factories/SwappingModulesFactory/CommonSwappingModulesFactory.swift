@@ -111,7 +111,7 @@ private extension CommonSwappingModulesFactory {
     }
 
     var fiatRatesProvider: FiatRatesProviding {
-        FiatRatesProvider(rates: walletModel.rates)
+        FiatRatesProvider(walletModel: walletModel, rates: walletModel.rates)
     }
 
     var explorerURLService: ExplorerURLService {
