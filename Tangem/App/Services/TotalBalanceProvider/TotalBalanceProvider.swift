@@ -43,16 +43,17 @@ private extension TotalBalanceProvider {
 
         // Subscription to handle token changes
         userWalletModel.subscribeToWalletModels()
-            .combineLatest(AppSettings.shared.$selectedCurrencyCode, hasEntriesWithoutDerivationPublisher)
+            .combineLatest(
+                AppSettings.shared.$selectedCurrencyCode.delay(for: 0.3, scheduler: DispatchQueue.main),
+                hasEntriesWithoutDerivationPublisher
+            )
             .receive(on: DispatchQueue.main)
             .sink { [weak self] walletModels, currencyCode, hasEntriesWithoutDerivation in
                 self?.updateSubscription = nil
-                // Exclude wrong updating total balance to 0
-                if walletModels.isEmpty {
-                    return
-                }
 
-                self?.subscribeToUpdates(walletModels, hasEntriesWithoutDerivation)
+                if !walletModels.isEmpty {
+                    self?.subscribeToUpdates(walletModels, hasEntriesWithoutDerivation)
+                }
 
                 let hasLoading = !walletModels.filter { $0.state.isLoading }.isEmpty
 
@@ -102,7 +103,7 @@ private extension TotalBalanceProvider {
         let tokenItemViewModels = getTokenItemViewModels(from: walletModels)
 
         var hasError = false
-        var balance: Decimal? = 0.0
+        var balance: Decimal?
 
         for token in tokenItemViewModels {
             if !token.state.isSuccesfullyLoaded {
