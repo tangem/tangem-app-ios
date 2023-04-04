@@ -54,7 +54,7 @@ enum FeatureToggle: String, Hashable, CaseIterable {
         case .exchange: return .version("4.2")
         case .referralProgram: return .version("4.2")
         case .walletConnectV2: return .unspecified
-        case .blockBookUtxoApis: return .unspecified
+        case .blockBookUtxoApis: return .version("4.3")
         }
     }
 }
