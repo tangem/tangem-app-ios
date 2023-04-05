@@ -91,7 +91,7 @@ final class WalletConnectV2Service {
         runTask(withTimeout: 20) { [weak self] in
             await self?.pairClient(with: uri)
             self?.canEstablishNewSessionSubject.send(true)
-        } timeoutHandler: { [weak self] in
+        } onTimeout: { [weak self] in
             self?.displayErrorUI(WalletConnectV2Error.sessionConnetionTimeout)
             self?.canEstablishNewSessionSubject.send(true)
         }
