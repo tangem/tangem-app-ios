@@ -63,7 +63,6 @@ class SingleWalletContentViewModel: ObservableObject {
 
     lazy var totalSumBalanceViewModel = TotalSumBalanceViewModel(
         userWalletModel: userWalletModel,
-        totalBalanceManager: userWalletModel.totalBalanceProvider,
         cardAmountType: cardModel.cardAmountType,
         tapOnCurrencySymbol: output
     )
