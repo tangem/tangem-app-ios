@@ -76,6 +76,25 @@ class MultiWalletContentViewModel: ObservableObject {
 
 private extension MultiWalletContentViewModel {
     func bind() {
+        /// Subscribe for update wallets for each changes in `WalletModel`
+        userWalletModel.subscribeToWalletModels()
+            .map { walletModels in
+                walletModels
+                    .map { $0.walletDidChange }
+                    .combineLatest()
+                    .map { _ in walletModels }
+            }
+            .switchToLatest()
+            .map { [weak self] _ -> [TokenItemViewModel] in
+                self?.collectTokenItemViewModels() ?? []
+            }
+            .removeDuplicates()
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] viewModels in
+                self?.updateView(viewModels: viewModels)
+            }
+            .store(in: &bag)
+
         let entriesWithoutDerivation = userWalletModel
             .subscribeToEntriesWithoutDerivation()
             .dropFirst()
@@ -83,20 +102,9 @@ private extension MultiWalletContentViewModel {
 
         let newWalletModels = userWalletModel.subscribeToWalletModels()
             .dropFirst()
-            .share()
 
-        let walletModelsDidChange = newWalletModels
-            .filter { !$0.isEmpty }
-            .map { wallets -> AnyPublisher<Void, Never> in
-                Publishers.MergeMany(wallets.map { $0.walletDidChange })
-                    .mapVoid()
-                    .eraseToAnyPublisher()
-            }
-            .switchToLatest()
-
-        Publishers.Merge3(
+        Publishers.Merge(
             newWalletModels.mapVoid(),
-            walletModelsDidChange.mapVoid(),
             entriesWithoutDerivation.mapVoid()
         )
         .receive(on: DispatchQueue.global())
