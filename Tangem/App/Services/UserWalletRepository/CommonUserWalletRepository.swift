@@ -252,6 +252,17 @@ class CommonUserWalletRepository: UserWalletRepository {
             .store(in: &bag)
     }
 
+    // [REDACTED_TODO_COMMENT]
+    func save(_ cardViewModel: CardViewModel) {
+        if !models.contains(where: { $0.userWallet?.userWalletId == cardViewModel.userWallet?.userWalletId }) {
+            models.append(cardViewModel)
+        }
+
+        if let userWallet = cardViewModel.userWallet {
+            save(userWallet)
+        }
+    }
+
     func save(_ userWallet: UserWallet) {
         if models.isEmpty && !userWallets.isEmpty {
             loadModels()
