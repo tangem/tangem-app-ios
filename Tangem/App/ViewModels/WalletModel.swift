@@ -15,12 +15,7 @@ import BlockchainSdk
 class WalletModel: ObservableObject, Identifiable {
     @Injected(\.tangemApiService) private var tangemApiService: TangemApiService
 
-    lazy var walletDidChange: AnyPublisher<WalletModel.State, Never> = {
-        Publishers.CombineLatest($state.dropFirst(), $rates.dropFirst())
-            .map { $0.0 } // Move on latest value state
-            .share()
-            .eraseToAnyPublisher()
-    }()
+    var walletDidChange: PassthroughSubject<WalletModel.State, Never> = .init()
 
     @Published var state: State = .created
     @Published var transactionHistoryState: TransactionHistoryState = .notLoaded
@@ -118,6 +113,7 @@ class WalletModel: ObservableObject, Identifiable {
     func bind() {
         AppSettings.shared
             .$selectedCurrencyCode
+            .delay(for: 0.3, scheduler: DispatchQueue.main)
             .dropFirst()
             .receive(on: updateQueue)
             .setFailureType(to: Error.self)
@@ -126,6 +122,15 @@ class WalletModel: ObservableObject, Identifiable {
             }
             .receive(on: updateQueue)
             .receiveValue { [weak self] in self?.updateRatesIfNeeded($0) }
+            .store(in: &bag)
+
+        $state.dropFirst()
+            .combineLatest($rates.dropFirst())
+            .map { $0.0 } // Move on latest value state
+            .delay(for: 0.3, scheduler: DispatchQueue.main)
+            .receiveValue { [weak self] value in
+                self?.walletDidChange.send(value)
+            }
             .store(in: &bag)
     }
 
