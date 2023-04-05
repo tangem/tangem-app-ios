@@ -23,6 +23,9 @@ protocol UserWalletRepository: Initializable {
     func logoutIfNeeded()
 
     func add(_ completion: @escaping (UserWalletRepositoryResult?) -> Void)
+    // use this method for saving. [REDACTED_TODO_COMMENT]
+    func save(_ cardViewModel: CardViewModel)
+    // use this method for updating. [REDACTED_TODO_COMMENT]
     func contains(_ userWallet: UserWallet) -> Bool
     func save(_ userWallet: UserWallet)
     func delete(_ userWallet: UserWallet, logoutIfNeeded shouldAutoLogout: Bool)
