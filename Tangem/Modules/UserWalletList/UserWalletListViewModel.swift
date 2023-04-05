@@ -271,7 +271,6 @@ final class UserWalletListViewModel: ObservableObject, Identifiable {
             isMultiWallet: isMultiWallet,
             isUserWalletLocked: userWallet.isLocked,
             isSelected: selectedUserWalletId == userWallet.userWalletId,
-            totalBalanceProvider: userWalletModel.totalBalanceProvider,
             cardImageProvider: CardImageProvider()
         ) { [weak self] in
             if userWallet.isLocked {
