@@ -22,7 +22,6 @@ class MultiWalletContentViewModel: ObservableObject {
 
     lazy var totalSumBalanceViewModel = TotalSumBalanceViewModel(
         userWalletModel: userWalletModel,
-        totalBalanceManager: userWalletModel.totalBalanceProvider,
         cardAmountType: nil,
         tapOnCurrencySymbol: output
     )
