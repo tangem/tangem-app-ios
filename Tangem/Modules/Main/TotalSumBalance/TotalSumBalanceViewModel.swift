@@ -26,18 +26,16 @@ class TotalSumBalanceViewModel: ObservableObject {
     private unowned let tapOnCurrencySymbol: OpenCurrencySelectionDelegate
     private let cardAmountType: Amount.AmountType?
     private let userWalletModel: UserWalletModel
-    private let totalBalanceManager: TotalBalanceProviding
+    private var totalBalanceManager: TotalBalanceProviding { userWalletModel.totalBalanceProvider }
 
     private var bag: Set<AnyCancellable> = []
 
     init(
         userWalletModel: UserWalletModel,
-        totalBalanceManager: TotalBalanceProviding,
         cardAmountType: Amount.AmountType?,
         tapOnCurrencySymbol: OpenCurrencySelectionDelegate
     ) {
         self.userWalletModel = userWalletModel
-        self.totalBalanceManager = totalBalanceManager
         self.cardAmountType = cardAmountType
         self.tapOnCurrencySymbol = tapOnCurrencySymbol
         bind()
