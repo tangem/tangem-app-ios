@@ -69,14 +69,14 @@ extension Task {
 }
 
 @discardableResult
-func runTask<T>(withTimeout timeout: TimeInterval, _ code: @escaping () async -> T, timeoutHandler: @escaping () -> Void = {}) -> Task<T, Error> {
+func runTask<T>(withTimeout timeout: TimeInterval, _ code: @escaping () async -> T, onTimeout: @escaping () -> Void = {}) -> Task<T, Error> {
     Task.detached {
         do {
             return try await runTask(withTimeout: timeout, code)
         } catch let taskError as TaskError {
             switch taskError {
             case .timeout:
-                timeoutHandler()
+                onTimeout()
             }
 
             throw taskError
@@ -93,7 +93,7 @@ func runTask<T>(withTimeout timeout: TimeInterval, _ code: @escaping () async ->
         }
 
         group.addTask {
-            try await Task.sleepCancellable(seconds: timeout)
+            try await Task.sleepCancellable(forSeconds: timeout)
 
             try Task.checkCancellation()
             throw TaskError.timeout
@@ -114,22 +114,21 @@ enum TaskError: Error {
 }
 
 extension Task where Success == Never, Failure == Never {
+    static var defaultCancellationCheckInterval: UInt64 { 100_000 }
+    
     /// Like `Task.sleep` but with cancellation support.
     ///
     /// - Parameter seconds: Sleep this number of seconds. The actual time the sleep ends can be later.
-    /// - Parameter cancellationCheckInterval: The interval in nanoseconds between cancellation checks. Default value is 0.1 second
-    static func sleepCancellable(seconds: TimeInterval, cancellationCheckInterval: UInt64 = 100_000) async throws {
-        try await sleepCancellable(until: Date().addingTimeInterval(seconds))
+    /// - Parameter cancellationCheckInterval: The interval in nanoseconds between cancellation checks.
+    static func sleepCancellable(forSeconds seconds: TimeInterval, cancellationCheckInterval: UInt64 = defaultCancellationCheckInterval) async throws {
+        try await sleepCancellable(until: Date().addingTimeInterval(seconds), cancellationCheckInterval: cancellationCheckInterval)
     }
 
     /// Like `Task.sleep` but with cancellation support.
     ///
     /// - Parameter deadline: Sleep at least until this time. The actual time the sleep ends can be later.
     /// - Parameter cancellationCheckInterval: The interval in nanoseconds between cancellation checks.
-    static func sleepCancellable(
-        until deadline: Date,
-        cancellationCheckInterval: UInt64 = 100_000
-    ) async throws {
+    static func sleepCancellable(until deadline: Date, cancellationCheckInterval: UInt64 = defaultCancellationCheckInterval) async throws {
         while Date() < deadline {
             if Task.isCancelled {
                 break
