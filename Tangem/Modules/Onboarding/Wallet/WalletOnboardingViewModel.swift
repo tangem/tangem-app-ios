@@ -598,6 +598,7 @@ class WalletOnboardingViewModel: OnboardingTopupViewModel<WalletOnboardingStep, 
             createWallet()
         case .seedPhraseIntro:
             generateSeedPhrase()
+            Analytics.log(.onboarindgSeedButtonGenerateSeedPhrase)
         case .seedPhraseGeneration:
             goToStep(.seedPhraseUserValidation)
         case .scanPrimaryCard:
@@ -630,8 +631,10 @@ class WalletOnboardingViewModel: OnboardingTopupViewModel<WalletOnboardingStep, 
         case .createWallet:
             break
         case .createWalletSelector:
+            Analytics.log(.onboardingSeedButtonOtherCreateWalletOptions)
             goToStep(.seedPhraseIntro)
         case .seedPhraseIntro:
+            Analytics.log(.onboardingSeedButtonImportWallet)
             goToStep(.seedPhraseImport)
         case .backupIntro:
             Analytics.log(.backupSkipped)
@@ -775,6 +778,8 @@ class WalletOnboardingViewModel: OnboardingTopupViewModel<WalletOnboardingStep, 
 
     override func backButtonAction() {
         switch currentStep {
+        case .seedPhraseUserValidation:
+            goToStep(.seedPhraseGeneration)
         case .backupCards:
             if backupServiceState == .finalizingPrimaryCard {
                 fallthrough
@@ -1050,6 +1055,7 @@ class WalletOnboardingViewModel: OnboardingTopupViewModel<WalletOnboardingStep, 
 extension WalletOnboardingViewModel {
     func openReadMoreAboutSeedPhraseScreen() {
         coordinator.openWebView(with: AppConstants.seedPhraseReadMoreURL)
+        Analytics.log(.onboardingSeedButtonReadMore)
     }
 
     private func generateSeedPhrase() {
@@ -1083,6 +1089,7 @@ extension WalletOnboardingViewModel {
             }
             .sink { [weak self] _ in
                 self?.alert = AlertBuilder.makeOkGotItAlert(message: Localization.onboardingSeedScreenshotAlert)
+                Analytics.log(.onboardingSeedScreenCapture)
             }
             .store(in: &bag)
     }
