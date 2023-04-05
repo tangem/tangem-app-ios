@@ -57,7 +57,7 @@ func runOnMain(_ code: () -> Void) {
 
 extension Task where Success == Never, Failure == Never {
     static func sleep(seconds: Double) async throws {
-        let duration = UInt64(seconds * 1_000_000_000)
+        let duration = UInt64(seconds * nanoMultiplier)
         try await Task.sleep(nanoseconds: duration)
     }
 }
@@ -114,27 +114,29 @@ enum TaskError: Error {
 }
 
 extension Task where Success == Never, Failure == Never {
-    static var defaultCancellationCheckInterval: UInt64 { 100_000 }
-    
+    static var defaultCancellationCheckInterval: TimeInterval { 0.1 }
+    static var nanoMultiplier: Double { 1_000_000_000 }
+
     /// Like `Task.sleep` but with cancellation support.
     ///
     /// - Parameter seconds: Sleep this number of seconds. The actual time the sleep ends can be later.
-    /// - Parameter cancellationCheckInterval: The interval in nanoseconds between cancellation checks.
-    static func sleepCancellable(forSeconds seconds: TimeInterval, cancellationCheckInterval: UInt64 = defaultCancellationCheckInterval) async throws {
+    /// - Parameter cancellationCheckInterval: The interval in seconds between cancellation checks.
+    static func sleepCancellable(forSeconds seconds: TimeInterval, cancellationCheckInterval: TimeInterval = defaultCancellationCheckInterval) async throws {
         try await sleepCancellable(until: Date().addingTimeInterval(seconds), cancellationCheckInterval: cancellationCheckInterval)
     }
 
     /// Like `Task.sleep` but with cancellation support.
     ///
     /// - Parameter deadline: Sleep at least until this time. The actual time the sleep ends can be later.
-    /// - Parameter cancellationCheckInterval: The interval in nanoseconds between cancellation checks.
-    static func sleepCancellable(until deadline: Date, cancellationCheckInterval: UInt64 = defaultCancellationCheckInterval) async throws {
+    /// - Parameter cancellationCheckInterval: The interval in seconds between cancellation checks.
+    static func sleepCancellable(until deadline: Date, cancellationCheckInterval: TimeInterval = defaultCancellationCheckInterval) async throws {
+        let cancellationCheckIntervalUint64 = UInt64(cancellationCheckInterval * nanoMultiplier)
         while Date() < deadline {
             if Task.isCancelled {
                 break
             }
             // Sleep for a while between cancellation checks.
-            try await Task.sleep(nanoseconds: cancellationCheckInterval)
+            try await Task.sleep(nanoseconds: cancellationCheckIntervalUint64)
         }
     }
 }
