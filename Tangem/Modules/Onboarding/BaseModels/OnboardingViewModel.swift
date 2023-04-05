@@ -261,12 +261,13 @@ class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable>
     func handleUserWalletOnFinish() throws {
         guard
             AppSettings.shared.saveUserWallets,
-            let userWallet = input.cardInput.cardModel?.userWallet
+            let cardModel = input.cardInput.cardModel,
+            let userWallet = cardModel.userWallet
         else {
             return
         }
 
-        userWalletRepository.save(userWallet)
+        userWalletRepository.save(cardModel)
         userWalletRepository.setSelectedUserWalletId(userWallet.userWalletId, reason: .inserted)
     }
 
