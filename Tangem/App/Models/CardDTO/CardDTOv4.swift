@@ -24,33 +24,6 @@ struct CardDTOv4: Codable {
     public internal(set) var backupStatus: Card.BackupStatus?
     public internal(set) var wallets: [Wallet] = []
     public internal(set) var attestation: Attestation = .empty
-
-    init(card: Card) {
-        cardId = card.cardId
-        batchId = card.batchId
-        cardPublicKey = card.cardPublicKey
-        firmwareVersion = card.firmwareVersion
-        manufacturer = card.manufacturer
-        issuer = card.issuer
-        settings = .init(settings: card.settings)
-        linkedTerminalStatus = card.linkedTerminalStatus
-        isAccessCodeSet = card.isAccessCodeSet
-        isPasscodeSet = card.isPasscodeSet
-        supportedCurves = card.supportedCurves
-        backupStatus = card.backupStatus
-        wallets = card.wallets.map {
-            .init(
-                publicKey: $0.publicKey,
-                chainCode: $0.chainCode,
-                curve: $0.curve,
-                settings: $0.settings,
-                index: $0.index,
-                proof: $0.proof,
-                hasBackup: $0.hasBackup
-            )
-        }
-        attestation = card.attestation
-    }
 }
 
 extension CardDTOv4 {
@@ -65,19 +38,6 @@ extension CardDTOv4 {
         public let isFilesAllowed: Bool
         public let isHDWalletAllowed: Bool
         public let isBackupAllowed: Bool
-
-        init(settings: Card.Settings) {
-            securityDelay = settings.securityDelay
-            maxWalletsCount = settings.maxWalletsCount
-            isSettingAccessCodeAllowed = settings.isSettingAccessCodeAllowed
-            isSettingPasscodeAllowed = settings.isSettingPasscodeAllowed
-            isResettingUserCodesAllowed = settings.isRemovingUserCodesAllowed
-            isLinkedTerminalEnabled = settings.isLinkedTerminalEnabled
-            supportedEncryptionModes = settings.supportedEncryptionModes
-            isFilesAllowed = settings.isFilesAllowed
-            isHDWalletAllowed = settings.isHDWalletAllowed
-            isBackupAllowed = settings.isBackupAllowed
-        }
     }
 }
 
