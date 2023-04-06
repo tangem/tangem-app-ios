@@ -168,7 +168,7 @@ extension LegacyConfig: UserWalletConfig {
         case .passcode:
             return .disabled()
         case .longTap:
-            return card.settings.isResettingUserCodesAllowed ? .available : .hidden
+            return card.settings.isRemovingUserCodesAllowed ? .available : .hidden
         case .send:
             if card.firmwareVersion.doubleValue >= 2.28
                 || card.settings.securityDelay <= 15000 {
