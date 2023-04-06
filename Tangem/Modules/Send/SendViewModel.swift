@@ -651,6 +651,10 @@ class SendViewModel: ObservableObject {
                 } else if let memoText = validatedMemo {
                     tx.params = StellarTransactionParams(memo: .text(memoText))
                 }
+            case .ton:
+                if let memo = validatedMemo {
+                    tx.params = TONTransactionParams(memo: memo)
+                }
             default:
                 break
             }
