@@ -44,7 +44,7 @@ extension Card {
             "isSettingPasscodeAllowed" : true,
             "maxWalletsCount" : 36,
             "isOverwritingIssuerExtraDataRestricted" : false,
-            "isResettingUserCodesAllowed" : true,
+            "isRemovingUserCodesAllowed" : true,
             "isLinkedTerminalEnabled" : true,
             "securityDelay" : 3000,
             "isSettingAccessCodeAllowed" : false,
