@@ -9,7 +9,7 @@
 import Foundation
 import TangemSdk
 
-struct CardDTOv4: Codable {
+struct CardDTOv4: Decodable {
     public let cardId: String
     public let batchId: String
     public let cardPublicKey: Data
@@ -27,7 +27,7 @@ struct CardDTOv4: Codable {
 }
 
 extension CardDTOv4 {
-    struct Settings: Codable {
+    struct Settings: Decodable {
         public let securityDelay: Int
         public let maxWalletsCount: Int
         public internal(set) var isSettingAccessCodeAllowed: Bool
@@ -43,7 +43,7 @@ extension CardDTOv4 {
 
 extension CardDTOv4 {
     /// Describing wallets created on card
-    struct Wallet: Codable {
+    struct Wallet: Decodable {
         /// Wallet's public key.  For `secp256k1`, the key can be compressed or uncompressed. Use `Secp256k1Key` for any conversions.
         public let publicKey: Data
         /// Optional chain code for BIP32 derivation.
