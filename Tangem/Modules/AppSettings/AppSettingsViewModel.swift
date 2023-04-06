@@ -29,7 +29,7 @@ class AppSettingsViewModel: ObservableObject {
     // MARK: Properties
 
     private var bag: Set<AnyCancellable> = []
-    private let userWallet: UserWallet
+    private let userWallet: CardViewModel
     private var isBiometryAvailable: Bool = true
 
     private var isSavingWallet: Bool {
@@ -46,7 +46,7 @@ class AppSettingsViewModel: ObservableObject {
         }
     }
 
-    init(userWallet: UserWallet, coordinator: AppSettingsRoutable) {
+    init(userWallet: CardViewModel, coordinator: AppSettingsRoutable) {
         self.coordinator = coordinator
 
         let isSavingWallet = AppSettings.shared.saveUserWallets
