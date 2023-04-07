@@ -11,8 +11,8 @@ import TangemSdk
 import BlockchainSdk
 
 /// V3 Config
-struct LegacyConfig {
-    private let card: CardDTO
+struct LegacyConfig: CardContainer {
+    let card: CardDTO
     private let walletData: WalletData?
 
     private var defaultBlockchain: Blockchain? {
@@ -57,35 +57,6 @@ extension LegacyConfig: UserWalletConfig {
 
     var defaultCurve: EllipticCurve? {
         defaultBlockchain?.curve
-    }
-
-    var onboardingSteps: OnboardingSteps {
-        var steps = [SingleCardOnboardingStep]()
-
-        if !AppSettings.shared.termsOfServicesAccepted.contains(tou.id) {
-            steps.append(.disclaimer)
-        }
-
-        if card.wallets.isEmpty {
-            steps.append(contentsOf: [.createWallet] + userWalletSavingSteps + [.success])
-        } else {
-            if !AppSettings.shared.cardsStartedActivation.contains(card.cardId) {
-                steps.append(contentsOf: userWalletSavingSteps)
-            } else {
-                steps.append(contentsOf: userWalletSavingSteps + [.success])
-            }
-        }
-
-        return .singleWallet(steps)
-    }
-
-    var backupSteps: OnboardingSteps? {
-        nil
-    }
-
-    var userWalletSavingSteps: [SingleCardOnboardingStep] {
-        guard needUserWalletSavingSteps else { return [] }
-        return [.saveUserWallet]
     }
 
     var supportedBlockchains: Set<Blockchain> {
@@ -256,3 +227,7 @@ extension LegacyConfig: UserWalletConfig {
         }
     }
 }
+
+// MARK: - SingleCardOnboardingStepsBuilderFactory
+
+extension LegacyConfig: SingleCardOnboardingStepsBuilderFactory {}
