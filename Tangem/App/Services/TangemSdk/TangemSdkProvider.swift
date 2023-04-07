@@ -11,8 +11,4 @@ import TangemSdk
 
 class TangemSdkProvider: TangemSdkProviding {
     var sdk: TangemSdk = .init()
-
-    func setup(with config: Config) {
-        sdk.config = config
-    }
 }
