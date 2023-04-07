@@ -12,7 +12,6 @@ import TangemSdk
 
 class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable> {
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
-    @Injected(\.tangemSdkProvider) private var tangemSdkProvider: TangemSdkProviding
 
     let navbarSize: CGSize = .init(width: UIScreen.main.bounds.width, height: 44)
     let resetAnimDuration: Double = 0.3

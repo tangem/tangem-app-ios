@@ -9,8 +9,6 @@
 import TangemSdk
 
 struct DerivationManager {
-    @Injected(\.tangemSdkProvider) private var tangemSdkProvider: TangemSdkProviding
-
     private let config: UserWalletConfig
     private let cardInfo: CardInfo
 
@@ -63,7 +61,8 @@ struct DerivationManager {
             }
         }
 
-        tangemSdkProvider.sdk.startSession(with: DeriveMultipleWalletPublicKeysTask(derivations), cardId: cardId) { result in
+        let sdk = config.makeTangemSdk()
+        sdk.startSession(with: DeriveMultipleWalletPublicKeysTask(derivations), cardId: cardId) { result in
             switch result {
             case .success(let response):
                 completion(.success(response))
