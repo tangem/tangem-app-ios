@@ -24,6 +24,7 @@ struct TangemSdkConfigFactory {
         config.filter.issuerFilter = .deny(["TTM BANK"])
         config.allowUntrustedCards = true
         config.biometricsLocalizedReason = Localization.biometryTouchIdReason
+
         return config
     }
 }
