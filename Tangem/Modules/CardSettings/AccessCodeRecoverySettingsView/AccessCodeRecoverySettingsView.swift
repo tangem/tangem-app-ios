@@ -25,9 +25,7 @@ struct AccessCodeRecoverySettingsView: View {
 
             saveChangesButton
         }
-        .alert(item: $viewModel.errorAlert, content: {
-            $0.alert
-        })
+        .alert(item: $viewModel.errorAlert, content: { $0.alert })
         .navigationBarTitle(Text(Localization.cardSettingsAccessCodeRecoveryTitle), displayMode: .inline)
         .background(Colors.Background.secondary.edgesIgnoringSafeArea(.all))
     }
