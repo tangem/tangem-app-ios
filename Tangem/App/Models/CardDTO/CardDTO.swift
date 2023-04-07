@@ -102,6 +102,7 @@ extension CardDTO {
         public let isFilesAllowed: Bool
         public let isHDWalletAllowed: Bool
         public let isBackupAllowed: Bool
+        public let isKeysImportAllowed: Bool
 
         init(settings: Card.Settings) {
             securityDelay = settings.securityDelay
@@ -114,6 +115,7 @@ extension CardDTO {
             isFilesAllowed = settings.isFilesAllowed
             isHDWalletAllowed = settings.isHDWalletAllowed
             isBackupAllowed = settings.isBackupAllowed
+            isKeysImportAllowed = settings.isKeysImportAllowed
         }
 
         init(settingsV4: CardDTOv4.Settings) {
@@ -127,6 +129,7 @@ extension CardDTO {
             isFilesAllowed = settingsV4.isFilesAllowed
             isHDWalletAllowed = settingsV4.isHDWalletAllowed
             isBackupAllowed = settingsV4.isBackupAllowed
+            isKeysImportAllowed = false
         }
     }
 }
