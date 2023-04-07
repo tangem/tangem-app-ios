@@ -12,8 +12,6 @@ import TangemSdk
 import BlockchainSdk
 
 class TwinsWalletCreationUtil {
-    @Injected(\.tangemSdkProvider) private var tangemSdkProvider: TangemSdkProviding
-
     static let twinFileName = "TwinPublicKey"
 
     var twinPairCardId: String?
@@ -76,7 +74,8 @@ class TwinsWalletCreationUtil {
         Analytics.log(.buttonCreateWallet)
 
         let task = TwinsCreateWalletTask(firstTwinCardId: nil, fileToWrite: nil)
-        tangemSdkProvider.sdk.startSession(with: task, cardId: firstTwinCid, initialMessage: initialMessage(for: firstTwinCid)) { result in
+        let sdk = TwinTangemSdkFactory(isAccessCodeSet: false).makeTangemSdk()
+        sdk.startSession(with: task, cardId: firstTwinCid, initialMessage: initialMessage(for: firstTwinCid)) { result in
             switch result {
             case .success(let response):
                 self.card.clearTwinPairKey()
@@ -104,7 +103,8 @@ class TwinsWalletCreationUtil {
         //		switch twinFileToWrite(publicKey: firstTwinKey) {
         //		case .success(let file):
         let task = TwinsCreateWalletTask(firstTwinCardId: firstTwinCid, fileToWrite: firstTwinKey)
-        tangemSdkProvider.sdk.startSession(with: task, /* cardId: secondTwinCid, */ initialMessage: Message(header: "Scan card #\(series.pair.number)") /* initialMessage(for: secondTwinCid) */ ) { result in
+        let sdk = TwinTangemSdkFactory(isAccessCodeSet: false).makeTangemSdk()
+        sdk.startSession(with: task, /* cardId: secondTwinCid, */ initialMessage: Message(header: "Scan card #\(series.pair.number)") /* initialMessage(for: secondTwinCid) */ ) { result in
             switch result {
             case .success(let response):
                 self.secondTwinPublicKey = response.createWalletResponse.wallet.publicKey
@@ -130,7 +130,8 @@ class TwinsWalletCreationUtil {
         //		switch twinFileToWrite(publicKey: secondTwinKey) {
         //		case .success(let file):
         let task = TwinsFinalizeWalletCreationTask(fileToWrite: secondTwinKey)
-        tangemSdkProvider.sdk.startSession(with: task, cardId: firstTwinCid, initialMessage: initialMessage(for: firstTwinCid)) { [weak self] result in
+        let sdk = TwinTangemSdkFactory(isAccessCodeSet: false).makeTangemSdk()
+        sdk.startSession(with: task, cardId: firstTwinCid, initialMessage: initialMessage(for: firstTwinCid)) { [weak self] result in
             guard let self = self else { return }
 
             switch result {
