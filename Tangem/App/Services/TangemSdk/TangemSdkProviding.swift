@@ -11,8 +11,6 @@ import TangemSdk
 
 protocol TangemSdkProviding {
     var sdk: TangemSdk { get }
-
-    func setup(with config: Config)
 }
 
 private struct TangemSdkProviderKey: InjectionKey {
