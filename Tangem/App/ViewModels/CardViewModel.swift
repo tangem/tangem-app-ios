@@ -494,7 +494,7 @@ class CardViewModel: Identifiable, ObservableObject {
     // MARK: - Update
 
     func onWalletCreated(_ card: Card) {
-        cardInfo.card.wallets = card.wallets
+        cardInfo.card.updateWallets(with: card.wallets)
         onUpdate()
         userWalletModel?.initialUpdate()
     }
