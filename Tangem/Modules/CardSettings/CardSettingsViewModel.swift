@@ -114,7 +114,7 @@ private extension CardSettingsViewModel {
 
         setupSecurityOptions()
 
-        if cardModel.canChangeAccessCodeRecoverySettings {
+        if cardModel.canChangeAccessCodeRecoverySettings, FeatureProvider.isAvailable(.accessCodeRecoverySettings) {
             accessCodeRecoverySection = DefaultRowViewModel(
                 title: Localization.cardSettingsAccessCodeRecoveryTitle,
                 detailsType: .text(cardModel.accessCodeRecoveryEnabled ? Localization.commonEnabled : Localization.commonDisabled),
