@@ -12,9 +12,7 @@ import CryptoKit
 import TangemSdk
 
 class CommonUserWalletRepository: UserWalletRepository {
-    @Injected(\.tangemSdkProvider) private var sdkProvider: TangemSdkProviding
     @Injected(\.tangemApiService) private var tangemApiService: TangemApiService
-    @Injected(\.backupServiceProvider) private var backupServiceProvider: BackupServiceProviding
     @Injected(\.walletConnectService) private var walletConnectServiceProvider: WalletConnectService
     @Injected(\.saltPayRegistratorProvider) private var saltPayRegistratorProvider: SaltPayRegistratorProviding
     @Injected(\.failedScanTracker) var failedCardScanTracker: FailedScanTrackable
@@ -46,10 +44,6 @@ class CommonUserWalletRepository: UserWalletRepository {
     private var encryptionKeyByUserWalletId: [Data: SymmetricKey] = [:]
 
     private let encryptionKeyStorage = UserWalletEncryptionKeyStorage()
-
-    private var backupService: BackupService {
-        backupServiceProvider.backupService
-    }
 
     private let eventSubject = PassthroughSubject<UserWalletRepositoryEvent, Never>()
 
@@ -133,8 +127,8 @@ class CommonUserWalletRepository: UserWalletRepository {
                 self.didScan(card: cardDTO, walletData: response.walletData)
                 let cardModel = self.processScan(response.getCardInfo())
                 Analytics.endLoggingCardScan()
-                let onboardingInput = cardModel.onboardingInput
-                if onboardingInput.steps.needOnboarding {
+
+                if let onboardingInput = cardModel.onboardingInput {
                     cardModel.userWalletModel?.updateAndReloadWalletModels()
 
                     return Just(UserWalletRepositoryResult.onboarding(onboardingInput))
@@ -174,24 +168,18 @@ class CommonUserWalletRepository: UserWalletRepository {
     }
 
     private func scanInternal() -> AnyPublisher<AppScanTaskResponse, TangemSdkError> {
-        let oldConfig = sdkProvider.sdk.config
         var config = TangemSdkConfigFactory().makeDefaultConfig()
 
         if AppSettings.shared.saveUserWallets {
             config.accessCodeRequestPolicy = .alwaysWithBiometrics
-        } else {
-            resetServices()
         }
 
-        sdkProvider.setup(with: config)
+        let sdk = TangemSdkBaseFactory().makeTangemSdk(with: config)
 
         sendEvent(.scan(isScanning: true))
 
-        return sdkProvider.sdk
+        return sdk
             .startSessionPublisher(with: AppScanTask())
-            .handleEvents(receiveCompletion: { [weak self] error in
-                self?.sdkProvider.setup(with: oldConfig)
-            })
             .eraseToAnyPublisher()
     }
 
@@ -436,11 +424,6 @@ class CommonUserWalletRepository: UserWalletRepository {
         )
 
         analyticsContext.setupContext(with: contextData)
-
-        if let primaryCard = cardInfo.primaryCard {
-            backupServiceProvider.backupService.setPrimaryCard(primaryCard)
-        }
-
         tangemApiService.setAuthData(cardInfo.card.tangemApiAuthData)
         exchangeService.configure(for: cardModel.exchangeServiceEnvironment)
         walletConnectServiceProvider.initialize(with: cardModel)
@@ -460,7 +443,6 @@ class CommonUserWalletRepository: UserWalletRepository {
         // (that would open onboarding) and then immediately close it.
         if !AppSettings.shared.saveUserWallets {
             cardModel.userWalletModel?.initialUpdate() // [REDACTED_TODO_COMMENT]
-            cardModel.updateSdkConfig()
         }
 
         return cardModel
@@ -590,9 +572,6 @@ class CommonUserWalletRepository: UserWalletRepository {
         let cardInfo = selectedModel.cardInfo
         resetServices()
         initializeServices(for: selectedModel, cardInfo: cardInfo)
-
-        // Updating the config file every time selected UserWallet is changed WHEN wallets are being saved.
-        selectedModel.updateSdkConfig()
     }
 
     private func sendEvent(_ event: UserWalletRepositoryEvent) {
