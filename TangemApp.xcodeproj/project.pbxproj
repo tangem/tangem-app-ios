@@ -322,7 +322,6 @@
 		B0C87B432566461600F861DE /* TwinCardsFileCoder.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0C87B422566461600F861DE /* TwinCardsFileCoder.swift */; };
 		B0C87B482566492000F861DE /* TwinData.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0C87B472566492000F861DE /* TwinData.swift */; };
 		B0C8A0D42562C86A00DEEAC7 /* View+PreviewDevice.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0C8A0D32562C86A00DEEAC7 /* View+PreviewDevice.swift */; };
-		B0CA52F929C04FA10076E2EF /* TonCenterApiKeys.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0CA52F829C04FA10076E2EF /* TonCenterApiKeys.swift */; };
 		B0CAFA8D26C6C0FE001238DA /* QRCodeGenerator.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0CAFA8C26C6C0FE001238DA /* QRCodeGenerator.swift */; };
 		B0CC818325CD63FB006D49B9 /* Token+.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0CC818225CD63FB006D49B9 /* Token+.swift */; };
 		B0CCA7222568FD0F009325E3 /* TwinsCreateWalletTask.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0CCA7212568FD0F009325E3 /* TwinsCreateWalletTask.swift */; };
@@ -5587,7 +5586,6 @@
 				EF0F99AC289028F8008B01DF /* AppSettingsViewModel.swift in Sources */,
 				DCBC944F2993FE720050BC35 /* Analytics+ParameterValue.swift in Sources */,
 				B0625A2229CB3C6500EDD245 /* SeedPhraseInputProcessor.swift in Sources */,
-				B0CA52F929C04FA10076E2EF /* TonCenterApiKeys.swift in Sources */,
 				EF692A492951E7C8001F4B8A /* Localizable+Generated.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
