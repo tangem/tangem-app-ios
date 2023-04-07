@@ -11,44 +11,10 @@ import TangemSdk
 import BlockchainSdk
 
 struct GenericConfig {
-    @Injected(\.backupServiceProvider) private var backupServiceProvider: BackupServiceProviding
-
-    private let card: CardDTO
-
-    private var _backupSteps: [WalletOnboardingStep] {
-        if card.backupStatus?.isActive == true {
-            return []
-        }
-
-        if !card.settings.isBackupAllowed {
-            return []
-        }
-
-        var steps: [WalletOnboardingStep] = .init()
-
-        steps.append(.backupIntro)
-
-        if !card.wallets.isEmpty, !backupServiceProvider.backupService.primaryCardIsSet {
-            steps.append(.scanPrimaryCard)
-        }
-
-        if backupServiceProvider.backupService.addedBackupCardsCount < BackupService.maxBackupCardsCount {
-            steps.append(.selectBackupCards)
-        }
-
-        steps.append(.backupCards)
-
-        return steps
-    }
-
-    var userWalletSavingSteps: [WalletOnboardingStep] {
-        guard needUserWalletSavingSteps else { return [] }
-        return [.saveUserWallet]
-    }
+    let card: CardDTO
 
     init(card: CardDTO) {
         self.card = card
-        backupServiceProvider.backupService.skipCompatibilityChecks = false
     }
 }
 
@@ -75,31 +41,6 @@ extension GenericConfig: UserWalletConfig {
 
     var defaultCurve: EllipticCurve? {
         return nil
-    }
-
-    var onboardingSteps: OnboardingSteps {
-        var steps = [WalletOnboardingStep]()
-
-        if !AppSettings.shared.termsOfServicesAccepted.contains(tou.id) {
-            steps.append(.disclaimer)
-        }
-
-        if card.wallets.isEmpty {
-            // Check is card supports seed phrase, if so add seed phrase steps
-            steps.append(contentsOf: [.createWallet] + _backupSteps + userWalletSavingSteps + [.success])
-        } else {
-            if !AppSettings.shared.cardsStartedActivation.contains(card.cardId) {
-                steps.append(contentsOf: userWalletSavingSteps)
-            } else {
-                steps.append(contentsOf: _backupSteps + userWalletSavingSteps + [.success])
-            }
-        }
-
-        return .wallet(steps)
-    }
-
-    var backupSteps: OnboardingSteps? {
-        .wallet(_backupSteps + [.success])
     }
 
     var supportedBlockchains: Set<Blockchain> {
@@ -264,6 +205,10 @@ extension GenericConfig: UserWalletConfig {
         }
     }
 }
+
+// MARK: - WalletOnboardingStepsBuilderFactory
+
+extension GenericConfig: WalletOnboardingStepsBuilderFactory {}
 
 // MARK: - Private extensions
 

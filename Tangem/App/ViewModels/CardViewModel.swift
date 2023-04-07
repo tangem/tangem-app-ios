@@ -17,7 +17,6 @@ class CardViewModel: Identifiable, ObservableObject {
     // MARK: Services
 
     @Injected(\.appWarningsService) private var warningsService: AppWarningsProviding
-    @Injected(\.tangemSdkProvider) private var tangemSdkProvider: TangemSdkProviding
     @Injected(\.tangemApiService) var tangemApiService: TangemApiService
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
 
@@ -140,7 +139,7 @@ class CardViewModel: Identifiable, ObservableObject {
 
     private(set) var cardInfo: CardInfo
     private let stateUpdateQueue = DispatchQueue(label: "state_update_queue")
-    private var tangemSdk: TangemSdk { tangemSdkProvider.sdk }
+    private var tangemSdk: TangemSdk { config.makeTangemSdk() }
     private var config: UserWalletConfig
 
     var availableSecurityOptions: [SecurityModeOption] {
@@ -226,37 +225,41 @@ class CardViewModel: Identifiable, ObservableObject {
         config.supportedBlockchains
     }
 
-    var backupInput: OnboardingInput? {
-        guard let backupSteps = config.backupSteps else { return nil }
-
-        return OnboardingInput(
-            steps: backupSteps,
-            cardInput: .cardModel(self),
-            twinData: nil,
-            currentStepIndex: 0,
-            isStandalone: true
-        )
-    }
-
-    var onboardingInput: OnboardingInput {
-        OnboardingInput(
-            steps: config.onboardingSteps,
+    var onboardingInput: OnboardingInput? {
+        let factory = OnboardingInputFactory(
             cardInput: .cardModel(self),
             twinData: cardInfo.walletData.twinData,
-            currentStepIndex: 0
+            primaryCard: cardInfo.primaryCard,
+            backupServiceFactory: config,
+            onboardingStepsBuilderFactory: config
         )
+
+        return factory.makeOnboardingInput()
+    }
+
+    var backupInput: OnboardingInput? {
+        let factory = OnboardingInputFactory(
+            cardInput: .cardModel(self),
+            twinData: nil,
+            primaryCard: cardInfo.primaryCard,
+            backupServiceFactory: config,
+            onboardingStepsBuilderFactory: config
+        )
+
+        return factory.makeBackupInput()
     }
 
     var twinInput: OnboardingInput? {
-        guard config.hasFeature(.twinning) else { return nil }
+        guard let twinData = cardInfo.walletData.twinData else {
+            return nil
+        }
 
-        return OnboardingInput(
-            steps: .twins(TwinsOnboardingStep.twinningSteps),
+        let factory = TwinInputFactory(
             cardInput: .cardModel(self),
-            twinData: cardInfo.walletData.twinData,
-            currentStepIndex: 0,
-            isStandalone: true
+            twinData: twinData,
+            backupServiceFactory: config
         )
+        return factory.makeTwinInput()
     }
 
     var resetToFactoryAvailability: UserWalletFeature.Availability {
@@ -559,27 +562,6 @@ class CardViewModel: Identifiable, ObservableObject {
         config.getFeatureAvailability(feature).disabledLocalizedReason
     }
 
-    func updateSdkConfig() {
-        var config = config.sdkConfig
-        config.accessCodeRequestPolicy = accessCodeRequestPolicy()
-
-        tangemSdkProvider.setup(with: config)
-    }
-
-    private func accessCodeRequestPolicy() -> AccessCodeRequestPolicy {
-        let hasCode = card.isAccessCodeSet
-
-        if !AppSettings.shared.saveUserWallets {
-            return hasCode ? .always : .default
-        }
-
-        if hasCode {
-            return AppSettings.shared.saveAccessCodes ? .alwaysWithBiometrics : .always
-        }
-
-        return .default
-    }
-
     private func updateModel() {
         AppLog.shared.debug("🔄 Updating Card view model")
         updateCurrentSecurityOption()
@@ -694,17 +676,6 @@ class CardViewModel: Identifiable, ObservableObject {
     }
 
     private func bind() {
-        AppSettings.shared.$saveUserWallets
-            .combineLatest(AppSettings.shared.$saveAccessCodes)
-            .sink { [weak self] _ in
-                guard let self else { return }
-
-                if self.isActive {
-                    self.updateSdkConfig()
-                }
-            }
-            .store(in: &bag)
-
         bindSigner()
     }
 
