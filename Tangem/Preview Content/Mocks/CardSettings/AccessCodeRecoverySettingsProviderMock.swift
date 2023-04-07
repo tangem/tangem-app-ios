@@ -10,9 +10,9 @@ import Foundation
 
 class AccessCodeRecoverySettingsProviderMock: AccessCodeRecoverySettingsProvider {
     private(set) var accessCodeRecoveryEnabled: Bool = true
-    
+
     private var shouldShowError = false
-    
+
     func setAccessCodeRecovery(to enabled: Bool, _ completionHandler: @escaping (Result<Void, Error>) -> Void) {
         DispatchQueue.main.asyncAfter(deadline: .now() + 4) {
             self.shouldShowError.toggle()
