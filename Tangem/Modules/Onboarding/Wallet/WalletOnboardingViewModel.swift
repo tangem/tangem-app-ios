@@ -289,7 +289,6 @@ class WalletOnboardingViewModel: OnboardingTopupViewModel<WalletOnboardingStep, 
 
     lazy var importSeedPhraseModel: OnboardingSeedPhraseImportViewModel? = .init(
         inputProcessor: SeedPhraseInputProcessor()) { [weak self] mnemonic in
-            print("************Import seed phrase: \(mnemonic.mnemonic)")
             self?.createWallet(using: mnemonic)
         }
 
@@ -1069,7 +1068,6 @@ extension WalletOnboardingViewModel {
     private func createWallet(using mnemonic: Mnemonic) {
         do {
             let seed = try mnemonic.generateSeed()
-            print("************Should create wallet from seed: \(seed.hexString)")
             createWalletOnPrimaryCard(using: seed)
         } catch {
             alert = error.alertBinder
