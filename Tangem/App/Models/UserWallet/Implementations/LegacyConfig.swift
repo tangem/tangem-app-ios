@@ -195,6 +195,8 @@ extension LegacyConfig: UserWalletConfig {
             return .hidden
         case .seedPhrase:
             return .hidden
+        case .accessCodeRecoverySettings:
+            return .hidden
         }
     }
 
