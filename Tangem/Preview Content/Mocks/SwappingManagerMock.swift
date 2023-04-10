@@ -20,7 +20,7 @@ struct SwappingManagerMock: SwappingManager {
 
     func getReferrerAccount() -> SwappingReferrerAccount? { nil }
 
-    func update(swappingItems swappingItems: SwappingItems) {}
+    func update(swappingItems: SwappingItems) {}
 
     func update(amount: Decimal?) {}
 
@@ -28,6 +28,6 @@ struct SwappingManagerMock: SwappingManager {
 
     func refresh(type: SwappingManagerRefreshType) {}
 
-    func didSendApprovingTransaction(swappingTxData swappingTxData: SwappingTransactionData) {}
-    func didSendSwapTransaction(swappingTxData swappingTxData: SwappingTransactionData) {}
+    func didSendApprovingTransaction(swappingTxData: SwappingTransactionData) {}
+    func didSendSwapTransaction(swappingTxData: SwappingTransactionData) {}
 }
