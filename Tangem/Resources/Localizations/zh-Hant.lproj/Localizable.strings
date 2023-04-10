@@ -31,6 +31,10 @@
 "app_settings_warning_subtitle" = "轉到設置以在 Tangem 應用程序中啟用生物識別身份驗證";
 "app_settings_warning_title" = "啟用生物識別驗證";
 "biometry_touch_id_reason" = "Touch ID 用於將您的卡片保存在應用程序中";
+"card_settings_access_code_recovery_disabled_description" = "You will not be able to reset access code with this card";
+"card_settings_access_code_recovery_enabled_description" = "You will be able to reset access code with this card";
+"card_settings_access_code_recovery_footer" = "Enable to reset your wallet access code by using this card";
+"card_settings_access_code_recovery_title" = "Access code recovery";
 "card_settings_action_sheet_reset" = "重置";
 "card_settings_action_sheet_title" = "您確定要這麼做嗎？";
 "card_settings_change_access_code" = "更改訪問密碼";
@@ -52,8 +56,10 @@
 "common_continue" = "繼續";
 "common_copy" = "複製";
 "common_delete" = "刪除";
+"common_disabled" = "Disabled";
 "common_disconnect" = "斷開連接";
 "common_done" = "完成";
+"common_enabled" = "Enabled";
 "common_error" = "錯誤";
 "common_explorer_format" = "%@ explorer";
 "common_import" = "Import";
