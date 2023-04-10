@@ -104,6 +104,10 @@ class CardViewModel: Identifiable, ObservableObject {
         config.hasFeature(.twinning)
     }
 
+    var canChangeAccessCodeRecoverySettings: Bool {
+        config.hasFeature(.accessCodeRecoverySettings)
+    }
+
     var hasBackupCards: Bool {
         cardInfo.card.backupStatus?.isActive ?? false
     }
@@ -816,3 +820,17 @@ extension CardViewModel {
 }
 
 extension CardViewModel: WalletConnectUserWalletInfoProvider {}
+
+extension CardViewModel: AccessCodeRecoverySettingsProvider {
+    var accessCodeRecoveryEnabled: Bool {
+        // [REDACTED_TODO_COMMENT]
+        card.settings.isRemovingUserCodesAllowed
+    }
+
+    func setAccessCodeRecovery(to enabled: Bool, _ completionHandler: @escaping (Result<Void, Error>) -> Void) {
+        // [REDACTED_TODO_COMMENT]
+        DispatchQueue.global(qos: .background).asyncAfter(deadline: .now() + 5) {
+            completionHandler(.failure("Can't update access code recovery settings"))
+        }
+    }
+}
