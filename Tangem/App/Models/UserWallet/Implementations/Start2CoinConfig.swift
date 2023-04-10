@@ -144,6 +144,8 @@ extension Start2CoinConfig: UserWalletConfig {
             return .hidden
         case .seedPhrase:
             return .hidden
+        case .accessCodeRecoverySettings:
+            return .hidden
         }
     }
 
