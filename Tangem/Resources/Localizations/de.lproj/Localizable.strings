@@ -31,6 +31,10 @@
 "app_settings_warning_subtitle" = "Go to settings to enable biometric authentication in the Tangem app";
 "app_settings_warning_title" = "Enable biometric authentication";
 "biometry_touch_id_reason" = "Touch ID is used to save your cards in the app";
+"card_settings_access_code_recovery_disabled_description" = "You will not be able to reset access code with this card";
+"card_settings_access_code_recovery_enabled_description" = "You will be able to reset access code with this card";
+"card_settings_access_code_recovery_footer" = "Enable to reset your wallet access code by using this card";
+"card_settings_access_code_recovery_title" = "Access code recovery";
 "card_settings_action_sheet_reset" = "Reset";
 "card_settings_action_sheet_title" = "Are you sure you want to do this?";
 "card_settings_change_access_code" = "Change Access Code";
@@ -52,8 +56,10 @@
 "common_continue" = "Continue";
 "common_copy" = "Copy";
 "common_delete" = "Entfernen";
+"common_disabled" = "Disabled";
 "common_disconnect" = "Disconnect";
 "common_done" = "Erledigt";
+"common_enabled" = "Enabled";
 "common_error" = "Fehler";
 "common_explorer_format" = "%@ explorer";
 "common_import" = "Import";
