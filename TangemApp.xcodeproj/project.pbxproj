@@ -3192,6 +3192,39 @@
 			path = Pages;
 			sourceTree = "<group>";
 		};
+		DC064F8429E4105E008C3315 /* TangemSdkFactories */ = {
+			isa = PBXGroup;
+			children = (
+				DC7D39FE29E02BC6007BCD23 /* AccessCodeRequestPolicyFactory.swift */,
+				DCF8972C28ACF8CA002A85F6 /* TangemSdkConfigFactory.swift */,
+				DC064F8629E410D2008C3315 /* BackupService */,
+				DC064F8529E410C1008C3315 /* TangemSdk */,
+			);
+			path = TangemSdkFactories;
+			sourceTree = "<group>";
+		};
+		DC064F8529E410C1008C3315 /* TangemSdk */ = {
+			isa = PBXGroup;
+			children = (
+				DC7D39FC29E024A2007BCD23 /* TangemSdkFactory.swift */,
+				DC7D39FA29E02000007BCD23 /* TangemSdkBaseFactory.swift */,
+				DC7D3A0429E06334007BCD23 /* GenericTangemSdkFactory.swift */,
+				DC7D3A0229E0619C007BCD23 /* SaltPayTangemSdkFactory.swift */,
+				DC7D3A0A29E07828007BCD23 /* TwinTangemSdkFactory.swift */,
+			);
+			path = TangemSdk;
+			sourceTree = "<group>";
+		};
+		DC064F8629E410D2008C3315 /* BackupService */ = {
+			isa = PBXGroup;
+			children = (
+				DC13D03F29DF2D470003895C /* BackupServiceFactory.swift */,
+				DC7D3A0629E06365007BCD23 /* GenericBackupServiceFactory.swift */,
+				DC7D3A0029E06147007BCD23 /* SaltPayBackupServiceFactory.swift */,
+			);
+			path = BackupService;
+			sourceTree = "<group>";
+		};
 		DC0A57D32822A3AE0031BECC /* DI */ = {
 			isa = PBXGroup;
 			children = (
@@ -3249,19 +3282,9 @@
 		DC0A57E02822A5A10031BECC /* TangemSdk */ = {
 			isa = PBXGroup;
 			children = (
-				DC13D03F29DF2D470003895C /* BackupServiceFactory.swift */,
 				DC0A57E12822A5C50031BECC /* TangemSdkProviding.swift */,
 				DC0A57E32822A5D00031BECC /* TangemSdkProvider.swift */,
-				DCF8972C28ACF8CA002A85F6 /* TangemSdkConfigFactory.swift */,
-				DC7D39FA29E02000007BCD23 /* TangemSdkBaseFactory.swift */,
-				DC7D39FC29E024A2007BCD23 /* TangemSdkFactory.swift */,
-				DC7D39FE29E02BC6007BCD23 /* AccessCodeRequestPolicyFactory.swift */,
-				DC7D3A0029E06147007BCD23 /* SaltPayBackupServiceFactory.swift */,
-				DC7D3A0229E0619C007BCD23 /* SaltPayTangemSdkFactory.swift */,
-				DC7D3A0429E06334007BCD23 /* GenericTangemSdkFactory.swift */,
-				DC7D3A0629E06365007BCD23 /* GenericBackupServiceFactory.swift */,
 				DC7D3A0829E065E3007BCD23 /* BackupHelper.swift */,
-				DC7D3A0A29E07828007BCD23 /* TwinTangemSdkFactory.swift */,
 			);
 			path = TangemSdk;
 			sourceTree = "<group>";
@@ -4201,6 +4224,7 @@
 		EF9241302934C22300C28551 /* Factories */ = {
 			isa = PBXGroup;
 			children = (
+				DC064F8429E4105E008C3315 /* TangemSdkFactories */,
 				EF8D7812298281EE00B67418 /* SwappingModulesFactory */,
 				DA129DD4292B8EBB004291EC /* UserWalletEncryptionKeyFactory.swift */,
 				DC22535828A4FD9C0094F30C /* UserWalletConfigFactory.swift */,
