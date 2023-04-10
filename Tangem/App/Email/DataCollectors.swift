@@ -13,10 +13,14 @@ import BlockchainSdk
 protocol EmailDataCollector {
     var dataForEmail: String { get }
     var attachment: Data? { get }
+
+    func attachmentUrls(_ closure: @escaping ([URL?]) -> Void)
 }
 
 extension EmailDataCollector {
     var attachment: Data? { nil }
+
+    func attachmentUrls(_ closure: @escaping ([URL?]) -> Void) {}
 
     fileprivate func formatData(_ data: [EmailCollectedData], appendDeviceInfo: Bool = true) -> String {
         data.reduce("") { $0 + $1.type.title + $1.data + "\n" } + (appendDeviceInfo ? DeviceInfoProvider.info() : "")
@@ -174,6 +178,13 @@ struct DetailsFeedbackDataCollector: EmailDataCollector {
         FileLogger().logData
     }
 
+    func attachmentUrls(_ closure: @escaping ([URL?]) -> Void) {
+        infoSerialQueue.async {
+            try? dataForEmail.data(using: .utf8)?.write(to: infoFileURL)
+            closure([FileLogger().scanLogsFileURL, infoFileURL])
+        }
+    }
+
     var dataForEmail: String {
         var dataToFormat = userWalletEmailData
 
@@ -230,6 +241,12 @@ struct DetailsFeedbackDataCollector: EmailDataCollector {
 
     private let cardModel: CardViewModel
     private let userWalletEmailData: [EmailCollectedData]
+
+    private var infoFileURL: URL {
+        FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask)[0].appendingPathComponent("infoWallet.txt")
+    }
+
+    private let infoSerialQueue = DispatchQueue(label: "com.tangem.info_collector_data.queue")
 
     init(cardModel: CardViewModel, userWalletEmailData: [EmailCollectedData]) {
         self.cardModel = cardModel
