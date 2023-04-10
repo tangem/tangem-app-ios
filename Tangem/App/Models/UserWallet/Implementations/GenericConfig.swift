@@ -176,6 +176,8 @@ extension GenericConfig: UserWalletConfig {
             // Something like `isSeedPhraseAllowed` will be checked here...
             // The actual implementation is not yet described in the firmware
             return .hidden
+        case .accessCodeRecoverySettings:
+            return card.firmwareVersion >= .keysImportAvailable ? .available : .hidden
         }
     }
 
