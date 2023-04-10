@@ -21,6 +21,7 @@ class CardSettingsViewModel: ObservableObject {
 
     @Published var cardInfoSection: [DefaultRowViewModel] = []
     @Published var securityModeSection: [DefaultRowViewModel] = []
+    @Published var accessCodeRecoverySection: DefaultRowViewModel?
     @Published var resetToFactoryViewModel: DefaultRowViewModel?
 
     var isResetToFactoryAvailable: Bool {
@@ -113,6 +114,14 @@ private extension CardSettingsViewModel {
 
         setupSecurityOptions()
 
+        if cardModel.canChangeAccessCodeRecoverySettings, FeatureProvider.isAvailable(.accessCodeRecoverySettings) {
+            accessCodeRecoverySection = DefaultRowViewModel(
+                title: Localization.cardSettingsAccessCodeRecoveryTitle,
+                detailsType: .text(cardModel.accessCodeRecoveryEnabled ? Localization.commonEnabled : Localization.commonDisabled),
+                action: openAccessCodeSettings
+            )
+        }
+
         if isResetToFactoryAvailable {
             resetToFactoryViewModel = DefaultRowViewModel(
                 title: Localization.cardSettingsResetCardToFactory,
@@ -188,5 +197,9 @@ extension CardSettingsViewModel {
         } else {
             coordinator.openResetCardToFactoryWarning(cardModel: cardModel)
         }
+    }
+
+    func openAccessCodeSettings() {
+        coordinator.openAccessCodeRecoverySettings(using: cardModel)
     }
 }
