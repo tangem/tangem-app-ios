@@ -12,11 +12,14 @@ import ChatSDK
 import ChatProvidersSDK
 import SupportSDK
 import Foundation
+import SwiftUI
 import UIKit
 import DeviceGuru
 
-struct ZendeskSupportChatViewModel {
+final class ZendeskSupportChatViewModel: ObservableObject {
     @Injected(\.keysManager) private var keysManager: KeysManager
+
+    @Published var showingUserActionMenu: Bool = false
 
     let cardId: String?
     let dataCollector: EmailDataCollector?
@@ -53,7 +56,13 @@ struct ZendeskSupportChatViewModel {
             zendeskUrl: config.zendeskUrl
         )
         Support.initialize(withZendesk: Zendesk.instance)
-        Zendesk.instance?.setIdentity(Identity.createAnonymous())
+
+        if let cardId = cardId {
+            Zendesk.instance?.setIdentity(Identity.createJwt(token: cardId))
+        } else {
+            Zendesk.instance?.setIdentity(Identity.createAnonymous())
+        }
+
         Chat.initialize(accountKey: config.zendeskAccountKey, appId: config.zendeskAppId)
     }
 
@@ -70,4 +79,16 @@ struct ZendeskSupportChatViewModel {
         let viewController = try Messaging.instance.buildUI(engines: [chatEngine], configs: [chatConfiguration, messagingConfiguration])
         return viewController
     }
+
+    func sendLogFileIntoChat() {
+        dataCollector?.attachmentUrls { result in
+            result.forEach {
+                guard let attachmentUrl = $0 else { return }
+                Chat.chatProvider?.sendFile(url: attachmentUrl)
+            }
+        }
+    }
+
+    @objc
+    func leftBarButtonItemDidTouch(_ sender: UIBarButtonItem) {}
 }
