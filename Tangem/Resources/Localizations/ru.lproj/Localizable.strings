@@ -31,6 +31,10 @@
 "app_settings_warning_subtitle" = "Перейдите в настройки, чтобы включить биометрическую аутентификацию в приложении Tangem";
 "app_settings_warning_title" = "Включите биометрическую аутентификацию";
 "biometry_touch_id_reason" = "Touch ID используется для сохранения карт в приложении";
+"card_settings_access_code_recovery_disabled_description" = "Вы не сможете сбросить код доступа с помощью этой карты";
+"card_settings_access_code_recovery_enabled_description" = "Вы сможете сбросить код доступа с помощью этой карты";
+"card_settings_access_code_recovery_footer" = "Позволяет сбросить код доступа к кошельку с помощью этой карты";
+"card_settings_access_code_recovery_title" = "Восстановление кода доступа";
 "card_settings_action_sheet_reset" = "Сбросить";
 "card_settings_action_sheet_title" = "Вы уверены, что хотите это сделать?";
 "card_settings_change_access_code" = "Смена кода доступа";
@@ -52,8 +56,10 @@
 "common_continue" = "Продолжить";
 "common_copy" = "Копировать";
 "common_delete" = "Удалить";
+"common_disabled" = "Отключено";
 "common_disconnect" = "Отключить";
 "common_done" = "Готово";
+"common_enabled" = "Включено";
 "common_error" = "Ошибка";
 "common_explorer_format" = "%@ обозреватель";
 "common_import" = "Импортировать";
