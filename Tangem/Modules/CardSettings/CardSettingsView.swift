@@ -26,6 +26,12 @@ struct CardSettingsView: View {
                     DefaultFooterView(viewModel.securityModeFooterMessage)
                 }
 
+                GroupedSection(viewModel.accessCodeRecoverySection) {
+                    DefaultRowView(viewModel: $0)
+                } footer: {
+                    DefaultFooterView(Localization.cardSettingsAccessCodeRecoveryFooter)
+                }
+
                 GroupedSection(viewModel.resetToFactoryViewModel) {
                     DefaultRowView(viewModel: $0)
                 } footer: {

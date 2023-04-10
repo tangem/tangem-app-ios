@@ -40,6 +40,7 @@ enum FeatureToggle: String, Hashable, CaseIterable {
     case walletConnectV2
     case blockBookUtxoApis
     case importSeedPhrase
+    case accessCodeRecoverySettings
 
     var name: String {
         switch self {
@@ -48,6 +49,7 @@ enum FeatureToggle: String, Hashable, CaseIterable {
         case .walletConnectV2: return "WalletConnect V2"
         case .blockBookUtxoApis: return "Block Book UTXO APIs (NOWNodes, GetBlock)"
         case .importSeedPhrase: return "Import seed phrase (Firmware 6.11 and above)"
+        case .accessCodeRecoverySettings: return "Access Code Recovery Settings"
         }
     }
 
@@ -58,6 +60,7 @@ enum FeatureToggle: String, Hashable, CaseIterable {
         case .walletConnectV2: return .unspecified
         case .blockBookUtxoApis: return .version("4.3")
         case .importSeedPhrase: return .unspecified
+        case .accessCodeRecoverySettings: return .unspecified
         }
     }
 }
