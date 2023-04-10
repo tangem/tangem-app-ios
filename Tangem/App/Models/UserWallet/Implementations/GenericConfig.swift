@@ -243,6 +243,8 @@ extension GenericConfig: UserWalletConfig {
             return .hidden
         case .seedPhrase:
             return card.settings.isKeysImportAllowed ? .available : .hidden
+        case .accessCodeRecoverySettings:
+            return card.firmwareVersion >= .keysImportAvailable ? .available : .hidden
         }
     }
 
