@@ -13,6 +13,7 @@ import BlockchainSdk
 struct PreviewData {
     static var previewNoteCardOnboardingInput: OnboardingInput {
         OnboardingInput(
+            tangemSdk: .init(),
             backupService: .init(sdk: .init()),
             steps: .singleWallet([.createWallet, .success]),
             cardInput: .cardModel(PreviewCard.ethEmptyNote.cardModel),
@@ -22,6 +23,7 @@ struct PreviewData {
 
     static var previewTwinOnboardingInput: OnboardingInput {
         .init(
+            tangemSdk: .init(),
             backupService: .init(sdk: .init()),
             steps: .twins([
                 .intro(pairNumber: "0128"),
@@ -38,6 +40,7 @@ struct PreviewData {
 
     static var previewWalletOnboardingInput: OnboardingInput {
         .init(
+            tangemSdk: .init(),
             backupService: .init(sdk: .init()),
             steps: .wallet([.createWallet, .backupIntro, .selectBackupCards, .backupCards, .success]),
             cardInput: .cardModel(PreviewCard.tangemWalletEmpty.cardModel),
