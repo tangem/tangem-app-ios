@@ -55,12 +55,21 @@ class AppSettingsViewModel: ObservableObject {
         self.userWallet = userWallet
 
         updateView()
+        bind()
     }
 }
 
 // MARK: - Private
 
 private extension AppSettingsViewModel {
+    func bind() {
+        NotificationCenter.default.publisher(for: UIApplication.didBecomeActiveNotification)
+            .sink { [weak self] _ in
+                self?.updateView()
+            }
+            .store(in: &bag)
+    }
+
     func isSavingWalletRequestChange(saveWallet: Bool) {
         Analytics.log(
             .saveUserWalletSwitcherChanged,
