@@ -88,7 +88,13 @@ final class WalletConnectV2Service {
 
     func openSession(with uri: WalletConnectV2URI) {
         canEstablishNewSessionSubject.send(false)
-        pairClient(with: uri)
+        runTask(withTimeout: 20) { [weak self] in
+            await self?.pairClient(with: uri)
+            self?.canEstablishNewSessionSubject.send(true)
+        } onTimeout: { [weak self] in
+            self?.displayErrorUI(WalletConnectV2Error.sessionConnetionTimeout)
+            self?.canEstablishNewSessionSubject.send(true)
+        }
     }
 
     func disconnectSession(with id: Int) async {
@@ -115,16 +121,14 @@ final class WalletConnectV2Service {
         }
     }
 
-    private func pairClient(with url: WalletConnectURI) {
+    private func pairClient(with url: WalletConnectURI) async {
         log("Trying to pair client: \(url)")
-        runTask { [weak self] in
-            do {
-                try await self?.pairApi.pair(uri: url)
-                self?.log("Established pair for \(url)")
-            } catch {
-                AppLog.shared.error("[WC 2.0] Failed to connect to \(url) with error: \(error)")
-            }
-            self?.canEstablishNewSessionSubject.send(true)
+        do {
+            try await pairApi.pair(uri: url)
+            try Task.checkCancellation()
+            log("Established pair for \(url)")
+        } catch {
+            AppLog.shared.error("[WC 2.0] Failed to connect to \(url) with error: \(error)")
         }
     }
 
@@ -264,7 +268,7 @@ final class WalletConnectV2Service {
     private func sessionRejected(with proposal: Session.Proposal) {
         runTask { [weak self] in
             do {
-                try await self?.signApi.reject(proposalId: proposal.id, reason: .userRejectedChains)
+                try await self?.signApi.reject(proposalId: proposal.id, reason: .userRejected)
                 self?.log("User reject WC connection")
             } catch {
                 AppLog.shared.error("[WC 2.0] Failed to reject WC connection with error: \(error)")
