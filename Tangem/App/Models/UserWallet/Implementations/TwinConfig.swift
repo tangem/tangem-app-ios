@@ -68,11 +68,11 @@ extension TwinConfig: UserWalletConfig {
     var tangemSigner: TangemSigner {
         guard let walletPublicKey = card.wallets.first?.publicKey,
               let pairWalletPublicKey = twinData.pairPublicKey else {
-            return .init(with: card.cardId)
+            return .init(with: card.cardId, sdk: makeTangemSdk())
         }
 
         let twinKey = TwinKey(key1: walletPublicKey, key2: pairWalletPublicKey)
-        return .init(with: twinKey)
+        return .init(with: twinKey, sdk: makeTangemSdk())
     }
 
     var emailData: [EmailCollectedData] {
