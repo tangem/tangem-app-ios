@@ -8,9 +8,11 @@
 
 import Foundation
 import Combine
+import SwiftUI
 
 class SupportChatViewModel: ObservableObject, Identifiable {
     @Published var viewState: ViewState?
+    @Binding var showSheet: Bool
 
     @Injected(\.keysManager) private var keysManager: KeysManager
 
@@ -18,10 +20,12 @@ class SupportChatViewModel: ObservableObject, Identifiable {
     private let cardId: String?
     private let dataCollector: EmailDataCollector?
 
-    init(input: SupportChatInputModel) {
+    init(input: SupportChatInputModel, showSheet: Binding<Bool> = .constant(false)) {
         environment = input.environment
         cardId = input.cardId
         dataCollector = input.dataCollector
+
+        _showSheet = showSheet
 
         setupView()
     }
@@ -30,7 +34,10 @@ class SupportChatViewModel: ObservableObject, Identifiable {
         switch environment {
         case .tangem:
             viewState = .zendesk(
-                ZendeskSupportChatViewModel(cardId: cardId, dataCollector: dataCollector)
+                ZendeskSupportChatViewModel(
+                    cardId: cardId,
+                    dataCollector: dataCollector
+                )
             )
         case .saltPay:
             let provider = keysManager.saltPay.sprinklr
