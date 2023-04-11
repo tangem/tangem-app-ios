@@ -6,6 +6,8 @@
 //  Copyright © 2022 Tangem AG. All rights reserved.
 //
 
+import Foundation
+
 @discardableResult
 func runTask(_ code: @escaping () async -> Void) -> Task<Void, Never> {
     Task {
@@ -55,7 +57,7 @@ func runOnMain(_ code: () -> Void) {
 
 extension Task where Success == Never, Failure == Never {
     static func sleep(seconds: Double) async throws {
-        let duration = UInt64(seconds * 1_000_000_000)
+        let duration = UInt64(seconds * nanoMultiplier)
         try await Task.sleep(nanoseconds: duration)
     }
 }
@@ -63,5 +65,78 @@ extension Task where Success == Never, Failure == Never {
 extension Task {
     func store(in container: inout Set<Self>) {
         container.insert(self)
+    }
+}
+
+@discardableResult
+func runTask<T>(withTimeout timeout: TimeInterval, _ code: @escaping () async -> T, onTimeout: @escaping () -> Void = {}) -> Task<T, Error> {
+    Task.detached {
+        do {
+            return try await runTask(withTimeout: timeout, code)
+        } catch let taskError as TaskError {
+            switch taskError {
+            case .timeout:
+                onTimeout()
+            }
+
+            throw taskError
+        } catch {
+            throw error
+        }
+    }
+}
+
+func runTask<T>(withTimeout timeout: TimeInterval, _ code: @escaping () async -> T) async throws -> T {
+    try await withThrowingTaskGroup(of: T.self) { group in
+        group.addTask {
+            await code()
+        }
+
+        group.addTask {
+            try await Task.sleepCancellable(forSeconds: timeout)
+
+            try Task.checkCancellation()
+            throw TaskError.timeout
+        }
+
+        // We can safely force-unwrap, because `group.next()` can return nil only when tasks weren't added to the group
+        // Group will receive the first finished result, even if group schedules waiting for the next result after the first
+        // task or all tasks execution finished.
+        let result: T = try await group.next()!
+        group.cancelAll()
+
+        return result
+    }
+}
+
+enum TaskError: Error {
+    case timeout
+}
+
+extension Task where Success == Never, Failure == Never {
+    static var defaultCancellationCheckInterval: TimeInterval { 0.1 }
+    static var nanoMultiplier: Double { 1_000_000_000 }
+
+    /// Like `Task.sleep` but with cancellation support.
+    ///
+    /// - Parameter seconds: Sleep this number of seconds. The actual time the sleep ends can be later.
+    /// - Parameter cancellationCheckInterval: The interval in seconds between cancellation checks.
+    static func sleepCancellable(forSeconds seconds: TimeInterval, cancellationCheckInterval: TimeInterval = defaultCancellationCheckInterval) async throws {
+        try await sleepCancellable(until: Date().addingTimeInterval(seconds), cancellationCheckInterval: cancellationCheckInterval)
+    }
+
+    /// Like `Task.sleep` but with cancellation support.
+    ///
+    /// - Parameter deadline: Sleep at least until this time. The actual time the sleep ends can be later.
+    /// - Parameter cancellationCheckInterval: The interval in seconds between cancellation checks.
+    static func sleepCancellable(until deadline: Date, cancellationCheckInterval: TimeInterval = defaultCancellationCheckInterval) async throws {
+        let cancellationCheckIntervalUint64 = UInt64(cancellationCheckInterval * nanoMultiplier)
+        while Date() < deadline {
+            if Task.isCancelled {
+                break
+            }
+            // Sleep for a while between cancellation checks.
+            try await Task.sleep(nanoseconds: cancellationCheckIntervalUint64)
+        }
     }
 }
