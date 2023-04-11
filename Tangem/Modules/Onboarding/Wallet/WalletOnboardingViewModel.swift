@@ -938,7 +938,7 @@ class WalletOnboardingViewModel: OnboardingTopupViewModel<WalletOnboardingStep, 
                         Analytics.logTopUpIfNeeded(balance: 0)
                     }
 
-                    Analytics.log(.walletCreatedSuccessfully, params: [.walletCreationType: self.walletCreationType.analyticsValue])
+                    Analytics.log(.walletCreatedSuccessfully, params: [.creationType: self.walletCreationType.analyticsValue])
                 }
                 self.stepPublisher = nil
             },
