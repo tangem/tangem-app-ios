@@ -10,10 +10,6 @@ import Foundation
 import TangemSdk
 
 class TangemSdkBaseFactory {
-    // MARK: - Dependencies
-
-    // [REDACTED_USERNAME](\.tangemSdkProvider) private var tangemSdkProvider: TangemSdkProviding
-
     func makeTangemSdk(with config: Config) -> TangemSdk {
         let sdk = TangemSdk()
         sdk.config = config
