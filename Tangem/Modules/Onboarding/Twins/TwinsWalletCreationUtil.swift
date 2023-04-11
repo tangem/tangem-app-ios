@@ -44,6 +44,7 @@ class TwinsWalletCreationUtil {
     private(set) var step = CurrentValueSubject<CreationStep, Never>(.first)
     private(set) var occuredError = PassthroughSubject<Error, Never>()
     private(set) var isServiceBusy = CurrentValueSubject<Bool, Never>(false)
+    private let sdk: TangemSdk = TwinTangemSdkFactory(isAccessCodeSet: false).makeTangemSdk()
 
     init(card: CardViewModel, twinData: TwinData) {
         self.card = card
@@ -74,7 +75,6 @@ class TwinsWalletCreationUtil {
         Analytics.log(.buttonCreateWallet)
 
         let task = TwinsCreateWalletTask(firstTwinCardId: nil, fileToWrite: nil)
-        let sdk = TwinTangemSdkFactory(isAccessCodeSet: false).makeTangemSdk()
         sdk.startSession(with: task, cardId: firstTwinCid, initialMessage: initialMessage(for: firstTwinCid)) { result in
             switch result {
             case .success(let response):
@@ -103,7 +103,6 @@ class TwinsWalletCreationUtil {
         //		switch twinFileToWrite(publicKey: firstTwinKey) {
         //		case .success(let file):
         let task = TwinsCreateWalletTask(firstTwinCardId: firstTwinCid, fileToWrite: firstTwinKey)
-        let sdk = TwinTangemSdkFactory(isAccessCodeSet: false).makeTangemSdk()
         sdk.startSession(with: task, /* cardId: secondTwinCid, */ initialMessage: Message(header: "Scan card #\(series.pair.number)") /* initialMessage(for: secondTwinCid) */ ) { result in
             switch result {
             case .success(let response):
@@ -130,7 +129,6 @@ class TwinsWalletCreationUtil {
         //		switch twinFileToWrite(publicKey: secondTwinKey) {
         //		case .success(let file):
         let task = TwinsFinalizeWalletCreationTask(fileToWrite: secondTwinKey)
-        let sdk = TwinTangemSdkFactory(isAccessCodeSet: false).makeTangemSdk()
         sdk.startSession(with: task, cardId: firstTwinCid, initialMessage: initialMessage(for: firstTwinCid)) { [weak self] result in
             guard let self = self else { return }
 
