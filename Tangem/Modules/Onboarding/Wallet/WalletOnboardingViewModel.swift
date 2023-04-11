@@ -311,6 +311,7 @@ class WalletOnboardingViewModel: OnboardingTopupViewModel<WalletOnboardingStep, 
                     return
                 }
 
+                self?.walletCreationType = .seedImport
                 self?.createWallet(using: mnemonic)
             }
         ))
@@ -378,6 +379,7 @@ class WalletOnboardingViewModel: OnboardingTopupViewModel<WalletOnboardingStep, 
 
     @Published private var previewBackupCardsAdded: Int = 0
     @Published private var previewBackupState: BackupService.State = .finalizingPrimaryCard
+    private var walletCreationType: WalletCreationType = .privateKey
 
     private var tangemSdk: TangemSdk { tangemSdkProvider.sdk }
     private var backupService: BackupService { backupServiceProvider.backupService }
@@ -924,21 +926,21 @@ class WalletOnboardingViewModel: OnboardingTopupViewModel<WalletOnboardingStep, 
         .mapVoid()
         .sink(
             receiveCompletion: { [weak self] completion in
+                guard let self else { return }
+
                 switch completion {
                 case .failure(let error):
                     AppLog.shared.error(error, params: [.action: .preparePrimary])
-                    self?.isMainButtonBusy = false
+                    self.isMainButtonBusy = false
                 case .finished:
-                    if let userWalletId = self?.cardModel?.userWalletId {
-                        self?.analyticsContext.updateContext(with: userWalletId)
+                    if let userWalletId = self.cardModel?.userWalletId {
+                        self.analyticsContext.updateContext(with: userWalletId)
                         Analytics.logTopUpIfNeeded(balance: 0)
                     }
 
-                    // [REDACTED_TODO_COMMENT]
-                    // [REDACTED_INFO]
-                    Analytics.log(.walletCreatedSuccessfully)
+                    Analytics.log(.walletCreatedSuccessfully, params: [.walletCreationType: self.walletCreationType.analyticsValue])
                 }
-                self?.stepPublisher = nil
+                self.stepPublisher = nil
             },
             receiveValue: processPrimaryCardScan
         )
@@ -1065,6 +1067,7 @@ extension WalletOnboardingViewModel {
     private func generateSeedPhrase() {
         do {
             try seedPhraseManager.generateSeedPhrase()
+            walletCreationType = .newSeed
             goToNextStep()
         } catch {
             alert = error.alertBinder
@@ -1096,6 +1099,22 @@ extension WalletOnboardingViewModel {
                 Analytics.log(.onboardingSeedScreenCapture)
             }
             .store(in: &bag)
+    }
+}
+
+extension WalletOnboardingViewModel {
+    enum WalletCreationType {
+        case privateKey
+        case newSeed
+        case seedImport
+
+        var analyticsValue: Analytics.ParameterValue {
+            switch self {
+            case .privateKey: return .walletCreationTypePrivateKey
+            case .newSeed: return .walletCreationTypeNewSeed
+            case .seedImport: return .walletCreationTypeSeedImport
+            }
+        }
     }
 }
 
