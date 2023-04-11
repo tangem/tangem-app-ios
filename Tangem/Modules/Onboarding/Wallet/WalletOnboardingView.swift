@@ -276,7 +276,7 @@ struct WalletOnboardingView: View {
 struct WalletOnboardingView_Previews: PreviewProvider {
     static var previewWalletOnboardingInput: OnboardingInput {
         .init(
-            backupService: .init(sdk: .init()), steps: .wallet([.createWalletSelector, .seedPhraseIntro, .seedPhraseGeneration, .backupIntro, .selectBackupCards, .backupCards, .success]),
+            tangemSdk: .init(), backupService: .init(sdk: .init()), steps: .wallet([.createWalletSelector, .seedPhraseIntro, .seedPhraseGeneration, .backupIntro, .selectBackupCards, .backupCards, .success]),
             cardInput: .cardModel(PreviewCard.tangemWalletEmpty.cardModel),
             twinData: nil
         )
