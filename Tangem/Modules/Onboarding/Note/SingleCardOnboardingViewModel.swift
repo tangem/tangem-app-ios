@@ -270,7 +270,7 @@ class SingleCardOnboardingViewModel: OnboardingTopupViewModel<SingleCardOnboardi
         } receiveValue: { [weak self] _, _ in
             guard let self = self else { return }
 
-            Analytics.log(.walletCreatedSuccessfully)
+            Analytics.log(.walletCreatedSuccessfully, params: [.walletCreationType: .walletCreationTypePrivateKey])
 
             self.cardModel?.appendDefaultBlockchains()
 
