@@ -12,7 +12,7 @@ import BlockchainSdk
 
 struct GenericConfig {
     let card: CardDTO
-    
+
     init(card: CardDTO) {
         self.card = card
     }
