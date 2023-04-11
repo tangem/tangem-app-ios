@@ -96,9 +96,9 @@ extension GenericConfig: UserWalletConfig {
 
     var tangemSigner: TangemSigner {
         if let backupStatus = card.backupStatus, backupStatus.isActive {
-            return .init(with: nil)
+            return .init(with: nil, sdk: makeTangemSdk())
         } else {
-            return .init(with: card.cardId)
+            return .init(with: card.cardId, sdk: makeTangemSdk())
         }
     }
 
