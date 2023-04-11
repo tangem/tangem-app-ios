@@ -25,16 +25,8 @@ struct ZendeskSupportChatView: UIViewControllerRepresentable {
 
         let coordinator = Coordinator(rootViewController: viewController)
         coordinator.viewModel = viewModel
-
-        viewController.navigationItem.setLeftBarButton(
-            UIBarButtonItem(
-                image: Assets.compass.uiImage,
-                style: .plain,
-                target: coordinator,
-                action: #selector(Coordinator.leftBarButtonItemDidTouch(_:))
-            ),
-            animated: true
-        )
+        coordinator.viewModel.setNeedDisplayError = coordinator.setNeedDisplay(error:)
+        coordinator.viewModel.chatDidLoadState = coordinator.setNeedUpdateBar(state:)
 
         return coordinator
     }
@@ -55,10 +47,12 @@ struct ZendeskSupportChatView: UIViewControllerRepresentable {
             )
 
             alertController.addAction(
-                .init(title: "Оценить пользователя", style: .default, handler: { _ in
+                .init(title: "Оценить оператора", style: .default, handler: { _ in
                     self.userRateButtonDidTouch()
                 })
             )
+
+            alertController.addAction(.init(title: "Cancel", style: .cancel))
 
             present(alertController, animated: true)
         }
@@ -74,12 +68,36 @@ struct ZendeskSupportChatView: UIViewControllerRepresentable {
             )
 
             alertController.addAction(
-                .init(title: "Не нравится", style: .destructive, handler: { _ in
+                .init(title: "Не нравится", style: .default, handler: { _ in
                     self.viewModel.rateUser(isPositive: false)
                 })
             )
 
+            alertController.addAction(.init(title: "Cancel", style: .cancel))
+
             present(alertController, animated: true)
+        }
+
+        func setNeedDisplay(error: ZendeskSupportChatViewModel.DisplayError) {
+            let alertController = UIAlertController(title: "", message: nil, preferredStyle: .alert)
+            alertController.addAction(.init(title: "Cancel", style: .cancel))
+            present(alertController, animated: true)
+        }
+
+        func setNeedUpdateBar(state: Bool) {
+            if state {
+                viewControllers.first?.navigationItem.setLeftBarButton(
+                    UIBarButtonItem(
+                        image: Assets.compass.uiImage,
+                        style: .plain,
+                        target: self,
+                        action: #selector(Coordinator.leftBarButtonItemDidTouch(_:))
+                    ),
+                    animated: true
+                )
+            } else {
+                viewControllers.first?.navigationItem.setLeftBarButtonItems([], animated: false)
+            }
         }
     }
 }
