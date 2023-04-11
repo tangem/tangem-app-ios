@@ -46,6 +46,10 @@ struct GenericConfig {
         return [.saveUserWallet]
     }
 
+    private var seedPhraseSteps: [WalletOnboardingStep] {
+        [.seedPhraseIntro, .seedPhraseGeneration, .seedPhraseUserValidation, .seedPhraseImport]
+    }
+
     init(card: CardDTO) {
         self.card = card
         backupServiceProvider.backupService.skipCompatibilityChecks = false
@@ -86,7 +90,13 @@ extension GenericConfig: UserWalletConfig {
 
         if card.wallets.isEmpty {
             // Check is card supports seed phrase, if so add seed phrase steps
-            steps.append(contentsOf: [.createWallet] + _backupSteps + userWalletSavingSteps + [.success])
+            let initialSteps: [WalletOnboardingStep]
+            if FeatureProvider.isAvailable(.importSeedPhrase), hasFeature(.seedPhrase) {
+                initialSteps = [.createWalletSelector] + seedPhraseSteps
+            } else {
+                initialSteps = [.createWallet]
+            }
+            steps.append(contentsOf: initialSteps + _backupSteps + userWalletSavingSteps + [.success])
         } else {
             if !AppSettings.shared.cardsStartedActivation.contains(card.cardId) {
                 steps.append(contentsOf: userWalletSavingSteps)
@@ -232,9 +242,7 @@ extension GenericConfig: UserWalletConfig {
         case .transactionHistory:
             return .hidden
         case .seedPhrase:
-            // Something like `isSeedPhraseAllowed` will be checked here...
-            // The actual implementation is not yet described in the firmware
-            return .hidden
+            return card.settings.isKeysImportAllowed ? .available : .hidden
         case .accessCodeRecoverySettings:
             return card.firmwareVersion >= .keysImportAvailable ? .available : .hidden
         }
