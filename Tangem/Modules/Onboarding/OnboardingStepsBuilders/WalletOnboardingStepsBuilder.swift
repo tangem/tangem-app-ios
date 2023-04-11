@@ -67,7 +67,13 @@ extension WalletOnboardingStepsBuilder: OnboardingStepsBuilder {
 
         if card.wallets.isEmpty {
             // Check is card supports seed phrase, if so add seed phrase steps
-            steps.append(contentsOf: [.createWallet] + backupSteps + userWalletSavingSteps + [.success])
+            let initialSteps: [WalletOnboardingStep]
+            if FeatureProvider.isAvailable(.importSeedPhrase), card.settings.isKeysImportAllowed {
+                initialSteps = [.createWalletSelector] + [.seedPhraseIntro, .seedPhraseGeneration, .seedPhraseUserValidation, .seedPhraseImport]
+            } else {
+                initialSteps = [.createWallet]
+            }
+            steps.append(contentsOf: initialSteps + backupSteps + userWalletSavingSteps + [.success])
         } else {
             if !AppSettings.shared.cardsStartedActivation.contains(card.cardId) {
                 steps.append(contentsOf: userWalletSavingSteps)
@@ -80,6 +86,6 @@ extension WalletOnboardingStepsBuilder: OnboardingStepsBuilder {
     }
 
     func buildBackupSteps() -> OnboardingSteps? {
-        .wallet(backupSteps)
+        .wallet(backupSteps + [.success])
     }
 }
