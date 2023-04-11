@@ -100,7 +100,7 @@ extension GenericDemoConfig: UserWalletConfig {
     }
 
     var tangemSigner: TangemSigner {
-        .init(with: card.cardId)
+        .init(with: card.cardId, sdk: makeTangemSdk())
     }
 
     var emailData: [EmailCollectedData] {
