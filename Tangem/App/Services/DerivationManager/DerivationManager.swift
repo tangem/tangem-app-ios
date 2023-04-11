@@ -11,6 +11,7 @@ import TangemSdk
 struct DerivationManager {
     private let config: UserWalletConfig
     private let cardInfo: CardInfo
+    private let sdk: TangemSdk
 
     private var cardId: String? {
         if config.cardsCount == 1 {
@@ -23,6 +24,7 @@ struct DerivationManager {
     init(config: UserWalletConfig, cardInfo: CardInfo) {
         self.config = config
         self.cardInfo = cardInfo
+        sdk = config.makeTangemSdk()
     }
 
     func deriveIfNeeded(entries: [StorageEntry], completion: @escaping (Result<DerivationResult?, TangemSdkError>) -> Void) {
@@ -61,7 +63,6 @@ struct DerivationManager {
             }
         }
 
-        let sdk = config.makeTangemSdk()
         sdk.startSession(with: DeriveMultipleWalletPublicKeysTask(derivations), cardId: cardId) { result in
             switch result {
             case .success(let response):
