@@ -37,7 +37,7 @@ PODS:
     - ScaleCodec
     - Sodium
     - Solana.Swift
-    - stellar-ios-mac-sdk (= 2.2.5)
+    - stellar-ios-mac-sdk (= 2.3.2)
     - SwiftCBOR (= 0.4.5)
     - SwiftProtobuf
     - SwiftyJSON
@@ -188,7 +188,7 @@ PODS:
     - Starscream (~> 4.0.0)
     - TweetNacl (~> 1.0.2)
   - Starscream (4.0.4)
-  - stellar-ios-mac-sdk (2.2.5)
+  - stellar-ios-mac-sdk (2.3.2)
   - SwiftCBOR (0.4.5)
   - SwiftDate (6.3.1)
   - SwiftProtobuf (1.21.0)
@@ -250,7 +250,7 @@ DEPENDENCIES:
   - AppsFlyerFramework
   - BinanceChain (from `https://github.com/tangem/swiftbinancechain.git`, tag `0.0.9`)
   - BitcoinCore.swift (from `https://github.com/tangem/bitcoincore.git`, tag `0.0.19`)
-  - BlockchainSdk (from `https://github.com/tangem/blockchain-sdk-swift.git`, tag `develop-251`)
+  - BlockchainSdk (from `https://github.com/tangem/blockchain-sdk-swift.git`, tag `develop-260`)
   - DeviceGuru (= 8.0.0)
   - Firebase/Analytics
   - Firebase/Crashlytics
@@ -259,7 +259,7 @@ DEPENDENCIES:
   - Mobile-Buy-SDK
   - Moya
   - Solana.Swift (from `https://github.com/tangem/Solana.Swift`, tag `add-external-signer-7`)
-  - TangemSdk (from `https://github.com/Tangem/tangem-sdk-ios.git`, tag `develop-211`)
+  - TangemSdk (from `https://github.com/Tangem/tangem-sdk-ios.git`, tag `develop-216`)
   - TangemWalletCore (from `https://github.com/tangem/wallet-core-binaries-ios.git`, tag `3.1.9-tangem2`)
   - WalletConnectSwift (from `https://github.com/WalletConnect/WalletConnectSwift`, tag `1.7.0`)
   - WalletConnectSwiftV2 (from `https://github.com/WalletConnect/WalletConnectSwiftV2`, tag `1.1.0`)
@@ -328,7 +328,7 @@ EXTERNAL SOURCES:
     :tag: 0.0.19
   BlockchainSdk:
     :git: https://github.com/tangem/blockchain-sdk-swift.git
-    :tag: develop-251
+    :tag: develop-260
   HDWalletKit:
     :git: https://github.com/tangem/hdwallet.git
     :tag: 0.3.12
@@ -340,7 +340,7 @@ EXTERNAL SOURCES:
     :tag: add-external-signer-7
   TangemSdk:
     :git: https://github.com/Tangem/tangem-sdk-ios.git
-    :tag: develop-211
+    :tag: develop-216
   TangemWalletCore:
     :git: https://github.com/tangem/wallet-core-binaries-ios.git
     :tag: 3.1.9-tangem2
@@ -366,7 +366,7 @@ CHECKOUT OPTIONS:
     :tag: 0.0.19
   BlockchainSdk:
     :git: https://github.com/tangem/blockchain-sdk-swift.git
-    :tag: develop-251
+    :tag: develop-260
   HDWalletKit:
     :git: https://github.com/tangem/hdwallet.git
     :tag: 0.3.12
@@ -378,7 +378,7 @@ CHECKOUT OPTIONS:
     :tag: add-external-signer-7
   TangemSdk:
     :git: https://github.com/Tangem/tangem-sdk-ios.git
-    :tag: develop-211
+    :tag: develop-216
   TangemWalletCore:
     :git: https://github.com/tangem/wallet-core-binaries-ios.git
     :tag: 3.1.9-tangem2
@@ -402,7 +402,7 @@ SPEC CHECKSUMS:
   BigInt: f668a80089607f521586bbe29513d708491ef2f7
   BinanceChain: b77d4c0e496efbf13bdb1f428621480fd52f4ba1
   BitcoinCore.swift: 64ac4e69d9a6ef917bcbb0c23f1324cf57a822fb
-  BlockchainSdk: 2d3e2d380e5b5451ddc771349106b734c55efd44
+  BlockchainSdk: 595295c1d028307a0473d7ef4641589eed7e5c78
   CryptoSwift: c4f2debceb38bf44c80659afe009f71e23e4a082
   DeviceGuru: 0362f13097207ca1fe246e92df2ba1d3978b2293
   Firebase: 0219acf760880eeec8ce479895bd7767466d9f81
@@ -430,7 +430,7 @@ SPEC CHECKSUMS:
   Sodium: 23d11554ecd556196d313cf6130d406dfe7ac6da
   Solana.Swift: 81d52fee263fded11b0d4e7859863ae489fe753e
   Starscream: 5178aed56b316f13fa3bc55694e583d35dd414d9
-  stellar-ios-mac-sdk: a6199f37910fc6481d17f317c11ccd3fdac542a1
+  stellar-ios-mac-sdk: d8ab1ff49ac48e25ac3097da4deebcef77af6047
   SwiftCBOR: ac340b74d3b2cf1f8884bb748bd09875848e3873
   SwiftDate: 72d28954e8e1c6c1c0f917ccc8005e4f83c7d4b2
   SwiftProtobuf: afced68785854575756db965e9da52bbf3dc45e7
@@ -452,6 +452,6 @@ SPEC CHECKSUMS:
   ZendeskSupportProvidersSDK: 77a62fe6bacc05bb10ff20edce75612fa109fd61
   ZendeskSupportSDK: ba72e90e327635b5fde3d023a3de33242a6ee8ab
 
-PODFILE CHECKSUM: 214fc6762849e8c3764dc977ec3016e75d24e71a
+PODFILE CHECKSUM: 4b38f4867054622df5a436026a5701a5c79299b3
 
 COCOAPODS: 1.11.3
