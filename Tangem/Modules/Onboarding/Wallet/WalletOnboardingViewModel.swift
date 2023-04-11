@@ -860,25 +860,7 @@ class WalletOnboardingViewModel: OnboardingTopupViewModel<WalletOnboardingStep, 
 
         AppSettings.shared.cardsStartedActivation.insert(input.cardInput.cardId)
 
-        stepPublisher = preparePrimaryCardPublisher()
-            .combineLatest(NotificationCenter.didBecomeActivePublisher)
-            .first()
-            .mapVoid()
-            .sink(receiveCompletion: { [weak self] completion in
-                switch completion {
-                case .failure(let error):
-                    AppLog.shared.error(error, params: [.action: .preparePrimary])
-                    self?.isMainButtonBusy = false
-                case .finished:
-                    if let userWalletId = self?.cardModel?.userWalletId {
-                        self?.analyticsContext.updateContext(with: userWalletId)
-                        Analytics.logTopUpIfNeeded(balance: 0)
-                    }
-
-                    Analytics.log(.walletCreatedSuccessfully)
-                }
-                self?.stepPublisher = nil
-            }, receiveValue: processPrimaryCardScan)
+        createWalletOnPrimaryCard()
     }
 
     private func readPrimaryCard() {
@@ -902,12 +884,12 @@ class WalletOnboardingViewModel: OnboardingTopupViewModel<WalletOnboardingStep, 
             )
     }
 
-    private func preparePrimaryCardPublisher() -> AnyPublisher<Void, Error> {
+    private func createWalletOnPrimaryCard(using seed: Data? = nil) {
         let cardId = input.cardInput.cardId
-        let task = PreparePrimaryCardTask()
+        let task = PreparePrimaryCardTask(seed: seed)
         prepareTask = task
 
-        return Deferred {
+        stepPublisher = Deferred {
             Future { [weak self] promise in
                 guard let self = self else { return }
 
@@ -937,7 +919,29 @@ class WalletOnboardingViewModel: OnboardingTopupViewModel<WalletOnboardingStep, 
                 }
             }
         }
-        .eraseToAnyPublisher()
+        .combineLatest(NotificationCenter.didBecomeActivePublisher)
+        .first()
+        .mapVoid()
+        .sink(
+            receiveCompletion: { [weak self] completion in
+                switch completion {
+                case .failure(let error):
+                    AppLog.shared.error(error, params: [.action: .preparePrimary])
+                    self?.isMainButtonBusy = false
+                case .finished:
+                    if let userWalletId = self?.cardModel?.userWalletId {
+                        self?.analyticsContext.updateContext(with: userWalletId)
+                        Analytics.logTopUpIfNeeded(balance: 0)
+                    }
+
+                    // [REDACTED_TODO_COMMENT]
+                    // [REDACTED_INFO]
+                    Analytics.log(.walletCreatedSuccessfully)
+                }
+                self?.stepPublisher = nil
+            },
+            receiveValue: processPrimaryCardScan
+        )
     }
 
     private func readPrimaryCardPublisher() -> AnyPublisher<Void, Error> {
@@ -1069,8 +1073,8 @@ extension WalletOnboardingViewModel {
 
     private func createWallet(using mnemonic: Mnemonic) {
         do {
-            _ = try mnemonic.generateSeed()
-            // [REDACTED_TODO_COMMENT]
+            let seed = try mnemonic.generateSeed()
+            createWalletOnPrimaryCard(using: seed)
         } catch {
             alert = error.alertBinder
         }
