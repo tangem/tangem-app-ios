@@ -12,11 +12,18 @@ import TangemSdk
 class TangemSdkBaseFactory {
     // MARK: - Dependencies
 
-    @Injected(\.tangemSdkProvider) private var tangemSdkProvider: TangemSdkProviding
+    // [REDACTED_USERNAME](\.tangemSdkProvider) private var tangemSdkProvider: TangemSdkProviding
 
     func makeTangemSdk(with config: Config) -> TangemSdk {
-        let sdk = tangemSdkProvider.sdk
+        let sdk = TangemSdk()
         sdk.config = config
         return sdk
+    }
+}
+
+extension TangemSdkBaseFactory: TangemSdkFactory {
+    func makeTangemSdk() -> TangemSdk {
+        let config = TangemSdkConfigFactory().makeDefaultConfig()
+        return makeTangemSdk(with: config)
     }
 }
