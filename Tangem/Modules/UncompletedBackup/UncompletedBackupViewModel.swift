@@ -63,7 +63,11 @@ final class UncompletedBackupViewModel: ObservableObject {
             ? SaltPayBackupServiceFactory(cardId: cardId, isAccessCodeSet: false)
             : GenericBackupServiceFactory(isAccessCodeSet: false)
 
-        let factory = ResumeBackupInputFactory(cardId: cardId, backupServiceFactory: backupServiceFactory)
+        let factory = ResumeBackupInputFactory(
+            cardId: cardId,
+            tangemSdkFactory: TangemSdkBaseFactory(),
+            backupServiceFactory: backupServiceFactory
+        )
         openBackup(with: factory.makeBackupInput())
     }
 
