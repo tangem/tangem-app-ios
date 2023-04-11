@@ -12,7 +12,7 @@ import BlockchainSdk
 
 struct GenericConfig {
     let card: CardDTO
-
+    
     init(card: CardDTO) {
         self.card = card
     }
@@ -173,9 +173,7 @@ extension GenericConfig: UserWalletConfig {
         case .transactionHistory:
             return .hidden
         case .seedPhrase:
-            // Something like `isSeedPhraseAllowed` will be checked here...
-            // The actual implementation is not yet described in the firmware
-            return .hidden
+            return card.settings.isKeysImportAllowed ? .available : .hidden
         case .accessCodeRecoverySettings:
             return card.firmwareVersion >= .keysImportAvailable ? .available : .hidden
         }
