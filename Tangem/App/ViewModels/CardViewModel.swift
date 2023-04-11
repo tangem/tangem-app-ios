@@ -143,7 +143,7 @@ class CardViewModel: Identifiable, ObservableObject {
 
     private(set) var cardInfo: CardInfo
     private let stateUpdateQueue = DispatchQueue(label: "state_update_queue")
-    private var tangemSdk: TangemSdk { config.makeTangemSdk() }
+    var tangemSdk: TangemSdk { config.makeTangemSdk() }
     private var config: UserWalletConfig
 
     var availableSecurityOptions: [SecurityModeOption] {
