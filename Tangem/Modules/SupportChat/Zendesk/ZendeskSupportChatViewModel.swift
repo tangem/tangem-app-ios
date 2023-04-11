@@ -102,7 +102,7 @@ final class ZendeskSupportChatViewModel: ObservableObject {
         }
     }
 
-    func rateUser(isPositive: Bool) {
+    func sendRateUser(isPositive: Bool) {
         Chat.chatProvider?.sendChatRating(isPositive ? .good : .bad, completion: { [weak self] result in
             switch result {
             case .success:
