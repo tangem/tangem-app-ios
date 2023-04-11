@@ -19,8 +19,6 @@ import DeviceGuru
 final class ZendeskSupportChatViewModel: ObservableObject {
     @Injected(\.keysManager) private var keysManager: KeysManager
 
-    @Published var showingUserActionMenu: Bool = false
-
     let cardId: String?
     let dataCollector: EmailDataCollector?
 
@@ -89,6 +87,7 @@ final class ZendeskSupportChatViewModel: ObservableObject {
         }
     }
 
-    @objc
-    func leftBarButtonItemDidTouch(_ sender: UIBarButtonItem) {}
+    func rateUser(isPositive: Bool) {
+        Chat.chatProvider?.sendChatRating(isPositive ? .good : .bad)
+    }
 }
