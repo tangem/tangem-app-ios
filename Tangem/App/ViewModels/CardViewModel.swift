@@ -234,7 +234,7 @@ class CardViewModel: Identifiable, ObservableObject {
             cardInput: .cardModel(self),
             twinData: cardInfo.walletData.twinData,
             primaryCard: cardInfo.primaryCard,
-            backupServiceFactory: config,
+            sdkFactory: config,
             onboardingStepsBuilderFactory: config
         )
 
@@ -246,7 +246,7 @@ class CardViewModel: Identifiable, ObservableObject {
             cardInput: .cardModel(self),
             twinData: nil,
             primaryCard: cardInfo.primaryCard,
-            backupServiceFactory: config,
+            sdkFactory: config,
             onboardingStepsBuilderFactory: config
         )
 
@@ -261,7 +261,7 @@ class CardViewModel: Identifiable, ObservableObject {
         let factory = TwinInputFactory(
             cardInput: .cardModel(self),
             twinData: twinData,
-            backupServiceFactory: config
+            sdkFactory: config
         )
         return factory.makeTwinInput()
     }
