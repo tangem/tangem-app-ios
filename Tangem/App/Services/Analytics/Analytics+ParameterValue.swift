@@ -35,6 +35,10 @@ extension Analytics {
         case signInTypeCard = "Card"
         case signInTypeBiometrics = "Biometric"
 
+        case walletCreationTypePrivateKey = "Private key"
+        case walletCreationTypeNewSeed = "New seed"
+        case walletCreationTypeSeedImport = "Seed import"
+
         // MARK: - Actions
 
         case scan = "tap_scan_task"
