@@ -90,6 +90,12 @@ private extension CardSettingsViewModel {
                 self?.setupSecurityOptions()
             }
             .store(in: &bag)
+
+        cardModel.$accessCodeRecoveryEnabled
+            .receiveValue { [weak self] enabled in
+                self?.setupAccessCodeRecoveryModel(enabled: enabled)
+            }
+            .store(in: &bag)
     }
 
     func prepareTwinOnboarding() {
@@ -113,14 +119,7 @@ private extension CardSettingsViewModel {
         }
 
         setupSecurityOptions()
-
-        if cardModel.canChangeAccessCodeRecoverySettings, FeatureProvider.isAvailable(.accessCodeRecoverySettings) {
-            accessCodeRecoverySection = DefaultRowViewModel(
-                title: Localization.cardSettingsAccessCodeRecoveryTitle,
-                detailsType: .text(cardModel.accessCodeRecoveryEnabled ? Localization.commonEnabled : Localization.commonDisabled),
-                action: openAccessCodeSettings
-            )
-        }
+        setupAccessCodeRecoveryModel(enabled: cardModel.accessCodeRecoveryEnabled)
 
         if isResetToFactoryAvailable {
             resetToFactoryViewModel = DefaultRowViewModel(
@@ -144,6 +143,16 @@ private extension CardSettingsViewModel {
                     detailsType: isChangeAccessCodeLoading ? .loader : .none,
                     action: openChangeAccessCodeWarningView
                 )
+            )
+        }
+    }
+
+    func setupAccessCodeRecoveryModel(enabled: Bool) {
+        if cardModel.canChangeAccessCodeRecoverySettings, FeatureProvider.isAvailable(.accessCodeRecoverySettings) {
+            accessCodeRecoverySection = DefaultRowViewModel(
+                title: Localization.cardSettingsAccessCodeRecoveryTitle,
+                detailsType: .text(enabled ? Localization.commonEnabled : Localization.commonDisabled),
+                action: openAccessCodeSettings
             )
         }
     }
