@@ -113,7 +113,9 @@ private extension AppSettingsViewModel {
     }
 
     func setupView() {
-        if !isBiometryAvailable {
+        if isBiometryAvailable {
+            warningViewModel = nil
+        } else {
             warningViewModel = DefaultWarningRowViewModel(
                 title: Localization.appSettingsWarningTitle,
                 subtitle: Localization.appSettingsWarningSubtitle,
