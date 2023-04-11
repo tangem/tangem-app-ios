@@ -135,7 +135,7 @@ class TwinsWalletCreationUtil {
 
             switch result {
             case .success(let response):
-                Analytics.log(.walletCreatedSuccessfully, params: [.walletCreationType: .walletCreationTypePrivateKey])
+                Analytics.log(.walletCreatedSuccessfully, params: [.creationType: .walletCreationTypePrivateKey])
 
                 self.card.onTwinWalletCreated(response.walletData)
                 self.card.appendDefaultBlockchains()
