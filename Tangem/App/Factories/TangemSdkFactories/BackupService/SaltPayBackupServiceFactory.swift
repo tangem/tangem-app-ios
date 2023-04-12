@@ -23,8 +23,7 @@ class SaltPayBackupServiceFactory: BackupServiceFactory {
 
         // This filter should be applied to backup only.
         let util = SaltPayUtil()
-        var cardIds = util.backupCardIds
-        cardIds.append(cardId)
+        let cardIds = util.backupCardIds + [cardId]
         sdk.config.filter.cardIdFilter = .allow(Set(cardIds), ranges: util.backupCardRanges)
         sdk.config.filter.localizedDescription = Localization.errorSaltpayWrongBackupCard
 
