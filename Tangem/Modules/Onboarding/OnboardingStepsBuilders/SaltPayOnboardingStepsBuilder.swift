@@ -44,7 +44,7 @@ class SaltPayOnboardingStepsBuilder {
             steps.append(.scanPrimaryCard)
         }
 
-        if backupService.addedBackupCardsCount < BackupService.maxBackupCardsCount {
+        if backupService.addedBackupCardsCount < 1 {
             steps.append(.selectBackupCards)
         }
 
