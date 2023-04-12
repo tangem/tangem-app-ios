@@ -17,6 +17,7 @@ struct CardDTO: Codable {
     public let manufacturer: Card.Manufacturer
     public let issuer: Card.Issuer
     public internal(set) var settings: Settings
+    public internal(set) var userSettings: UserSettings
     public let linkedTerminalStatus: Card.LinkedTerminalStatus
     public internal(set) var isAccessCodeSet: Bool
     public internal(set) var isPasscodeSet: Bool?
@@ -33,6 +34,7 @@ struct CardDTO: Codable {
         manufacturer = card.manufacturer
         issuer = card.issuer
         settings = .init(settings: card.settings)
+        userSettings = .init(isUserCodeRecoveryAllowed: card.userSettings.isUserCodeRecoveryAllowed)
         linkedTerminalStatus = card.linkedTerminalStatus
         isAccessCodeSet = card.isAccessCodeSet
         isPasscodeSet = card.isPasscodeSet
@@ -50,6 +52,7 @@ struct CardDTO: Codable {
         manufacturer = cardDTOv4.manufacturer
         issuer = cardDTOv4.issuer
         settings = .init(settingsV4: cardDTOv4.settings)
+        userSettings = .init(isUserCodeRecoveryAllowed: cardDTOv4.firmwareVersion >= .backupAvailable)
         linkedTerminalStatus = cardDTOv4.linkedTerminalStatus
         isAccessCodeSet = cardDTOv4.isAccessCodeSet
         isPasscodeSet = cardDTOv4.isPasscodeSet
@@ -161,6 +164,13 @@ extension CardDTO {
         public var hasBackup: Bool
         /// Derived keys according to `Config.defaultDerivationPaths`
         public var derivedKeys: [DerivationPath: ExtendedPublicKey] = [:]
+    }
+}
+
+extension CardDTO {
+    struct UserSettings: Codable {
+        /// Is allowed to recover user codes
+        public internal(set) var isUserCodeRecoveryAllowed: Bool
     }
 }
 
