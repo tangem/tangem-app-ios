@@ -44,6 +44,10 @@
 "card_settings_security_mode_footer" = "Selected application protection method";
 "card_settings_title" = "Card Settings";
 "chat_button_title" = "Support";
+"chat_user_action_rate_user" = "Rate operator";
+"chat_user_action_send_log" = "Send logs";
+"chat_user_actions_title" = "Please select an action";
+"chat_user_rate_operator_title" = "Please rate the work of the operator";
 "common_accept" = "Accept";
 "common_attention" = "Attention";
 "common_back" = "Back";
@@ -58,11 +62,13 @@
 "common_delete" = "Delete";
 "common_disabled" = "Disabled";
 "common_disconnect" = "Disconnect";
+"common_dislike" = "Dislike";
 "common_done" = "Done";
 "common_enabled" = "Enabled";
 "common_error" = "Error";
 "common_explorer_format" = "%@ explorer";
 "common_import" = "Import";
+"common_like" = "Like";
 "common_no" = "No";
 "common_ok" = "OK";
 "common_origin_card" = "Primary Card";
