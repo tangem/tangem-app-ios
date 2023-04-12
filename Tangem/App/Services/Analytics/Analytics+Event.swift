@@ -154,6 +154,21 @@ extension Analytics {
         case swapButtonSwipe = "[Swap] Button - Swipe"
         case swapSwapInProgressScreenOpened = "[Swap] Swap in Progress Screen Opened"
 
+        // MARK: - Seed phrase
+
+        case onboardingSeedButtonOtherCreateWalletOptions = "[Onboarding / Create Wallet] Button - Other Options"
+        case onboarindgSeedButtonGenerateSeedPhrase = "[Onboarding / Seed Phrase] Button - Generate Seed Phrase"
+        case onboardingSeedButtonImportWallet = "[Onboarding / Seed Phrase] Button - Import Wallet"
+        case onboardingSeedButtonReadMore = "[Onboarding / Seed Phrase] Button - Read More"
+        case onboardingSeedButtonImport = "[Onboarding / Seed Phrase] Button - Import"
+
+        case onboardingSeedIntroScreenOpened = "[Onboarding / Seed Phrase] Seed Intro Screen Opened"
+        case onboardingSeedGenerationScreenOpened = "[Onboarding / Seed Phrase] Seed Generation Screen Opened"
+        case onboardingSeedCheckingScreenOpened = "[Onboarding / Seed Phrase] Seed Checking Screen Opened"
+        case onboardingSeedImportScreenOpened = "[Onboarding / Seed Phrase] Import Seed Phrase Screen Opened"
+
+        case onboardingSeedScreenCapture = "[Onboarding / Seed Phrase] Screen capture"
+
         fileprivate static var nfcError: String {
             "nfc_error"
         }
