@@ -22,6 +22,7 @@ class CardViewModel: Identifiable, ObservableObject {
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
 
     @Published private(set) var currentSecurityOption: SecurityModeOption = .longTap
+    @Published private(set) var accessCodeRecoveryEnabled: Bool
 
     var signer: TangemSigner { _signer }
 
@@ -314,6 +315,7 @@ class CardViewModel: Identifiable, ObservableObject {
         self.cardInfo = cardInfo
         self.config = config
         _signer = config.tangemSigner
+        accessCodeRecoveryEnabled = cardInfo.card.userSettings.isUserCodeRecoveryAllowed
         createUserWalletModelIfNeeded(with: userWallet)
         updateCurrentSecurityOption()
         appendPersistentBlockchains()
@@ -821,16 +823,20 @@ extension CardViewModel {
 
 extension CardViewModel: WalletConnectUserWalletInfoProvider {}
 
-extension CardViewModel: AccessCodeRecoverySettingsProvider {
-    var accessCodeRecoveryEnabled: Bool {
-        // [REDACTED_TODO_COMMENT]
-        card.settings.isRemovingUserCodesAllowed
-    }
+// MARK: Access code recovery settings provider
 
-    func setAccessCodeRecovery(to enabled: Bool, _ completionHandler: @escaping (Result<Void, Error>) -> Void) {
-        // [REDACTED_TODO_COMMENT]
-        DispatchQueue.global(qos: .background).asyncAfter(deadline: .now() + 5) {
-            completionHandler(.failure("Can't update access code recovery settings"))
+extension CardViewModel: AccessCodeRecoverySettingsProvider {
+    func setAccessCodeRecovery(to enabled: Bool, _ completionHandler: @escaping (Result<Void, TangemSdkError>) -> Void) {
+        tangemSdk.setUserCodeRecoveryAllowed(enabled, cardId: cardId) { [weak self] result in
+            guard let self else { return }
+            switch result {
+            case .success:
+                self.cardInfo.card.userSettings.isUserCodeRecoveryAllowed = enabled
+                self.accessCodeRecoveryEnabled = enabled
+                completionHandler(.success(()))
+            case .failure(let error):
+                completionHandler(.failure(error))
+            }
         }
     }
 }
