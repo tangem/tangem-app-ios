@@ -40,7 +40,7 @@ extension TwinOnboardingStepsBulder: OnboardingStepsBuilder {
         }
 
         if !AppSettings.shared.isTwinCardOnboardingWasDisplayed { // show intro only once
-            AppSettings.shared.isTwinCardOnboardingWasDisplayed = true
+            AppSettings.shared.isTwinCardOnboardingWasDisplayed = true // [REDACTED_TODO_COMMENT]
             let twinPairNumber = twinData.series.pair.number
             steps.append(.intro(pairNumber: "#\(twinPairNumber)"))
         }
