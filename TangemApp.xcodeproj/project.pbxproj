@@ -502,7 +502,6 @@
 		DC5118692860B3E1004FB954 /* PreviewCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC5118682860B3E1004FB954 /* PreviewCard.swift */; };
 		DC51187A2860B704004FB954 /* AppCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC5118792860B704004FB954 /* AppCoordinator.swift */; };
 		DC51187C2860B728004FB954 /* AppCoordinatorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC51187B2860B728004FB954 /* AppCoordinatorView.swift */; };
-		DC56EF81289CE06A00C0940A /* DummyConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC56EF80289CE06A00C0940A /* DummyConfig.swift */; };
 		DC59CB0029AE050C00EC14E1 /* Atomic.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC59CAFF29AE050C00EC14E1 /* Atomic.swift */; };
 		DC5DBBC9289B951600C21E35 /* DemoUtil.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC5DBBC8289B951600C21E35 /* DemoUtil.swift */; };
 		DC5E32C628EDC7FC00D6096A /* PaymentologyApiTarget.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC5E32C528EDC7FC00D6096A /* PaymentologyApiTarget.swift */; };
@@ -1445,7 +1444,6 @@
 		DC5118682860B3E1004FB954 /* PreviewCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreviewCard.swift; sourceTree = "<group>"; };
 		DC5118792860B704004FB954 /* AppCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppCoordinator.swift; sourceTree = "<group>"; };
 		DC51187B2860B728004FB954 /* AppCoordinatorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppCoordinatorView.swift; sourceTree = "<group>"; };
-		DC56EF80289CE06A00C0940A /* DummyConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DummyConfig.swift; sourceTree = "<group>"; };
 		DC59CAFF29AE050C00EC14E1 /* Atomic.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Atomic.swift; sourceTree = "<group>"; };
 		DC5DBBC8289B951600C21E35 /* DemoUtil.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DemoUtil.swift; sourceTree = "<group>"; };
 		DC5E32C528EDC7FC00D6096A /* PaymentologyApiTarget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PaymentologyApiTarget.swift; sourceTree = "<group>"; };
@@ -3596,7 +3594,6 @@
 				DC7127AE2897ECBB00F60F71 /* NoteConfig.swift */,
 				DC7127B02897ECDF00F60F71 /* LegacyConfig.swift */,
 				DC7127B22897ECEE00F60F71 /* GenericConfig.swift */,
-				DC56EF80289CE06A00C0940A /* DummyConfig.swift */,
 				DC22535428A4F5730094F30C /* NoteDemoConfig.swift */,
 				DC22535628A4F5BF0094F30C /* GenericDemoConfig.swift */,
 			);
@@ -5464,7 +5461,6 @@
 				65B4DEE22885719C001524CF /* BottomSheetWrappedView.swift in Sources */,
 				B04CD3482912AA61001EA84A /* IconWithMessagePlaceholderView.swift in Sources */,
 				DA23788427B24222009795A8 /* Checkout.swift in Sources */,
-				DC56EF81289CE06A00C0940A /* DummyConfig.swift in Sources */,
 				EF5F1BAC29D1A2BE0093307B /* TotalBalanceProviderMock.swift in Sources */,
 				EF8D7814298281F700B67418 /* SwappingModulesFactory.swift in Sources */,
 				DC5E32CD28EDD94300D6096A /* Responses.swift in Sources */,
