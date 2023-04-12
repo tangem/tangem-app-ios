@@ -25,6 +25,8 @@ final class ZendeskSupportChatViewModel: ObservableObject {
     var setNeedDisplayError: ((DisplayError) -> Void)?
     var chatDidLoadState: ((Bool) -> Void)?
 
+    private var observationToken: ChatProvidersSDK.ObservationToken?
+
     init(
         cardId: String? = nil,
         dataCollector: EmailDataCollector? = nil
@@ -67,7 +69,7 @@ final class ZendeskSupportChatViewModel: ObservableObject {
 
         Chat.initialize(accountKey: config.zendeskAccountKey, appId: config.zendeskAppId)
 
-        let _ = Chat.chatProvider?.observeChatState { [weak self] state in
+        observationToken = Chat.chatProvider?.observeChatState { [weak self] state in
             self?.chatDidLoadState?(state.chatSessionStatus == .started)
         }
     }
