@@ -39,7 +39,7 @@ class AccessCodeRecoverySettingsViewModel: ObservableObject {
 
             switch result {
             case .success:
-                break
+                Analytics.log(.cardSettingsAccessCodeRecoveryChanged, params: [.status: self.accessCodeRecoveryEnabled ? .enabled : .disabled])
             case .failure(let error):
                 if error.isUserCancelled {
                     break
