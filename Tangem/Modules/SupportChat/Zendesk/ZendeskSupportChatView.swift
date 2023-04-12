@@ -63,13 +63,13 @@ struct ZendeskSupportChatView: UIViewControllerRepresentable {
 
             alertController.addAction(
                 .init(title: "Нравится", style: .default, handler: { _ in
-                    self.viewModel.rateUser(isPositive: true)
+                    self.viewModel.sendRateUser(isPositive: true)
                 })
             )
 
             alertController.addAction(
                 .init(title: "Не нравится", style: .default, handler: { _ in
-                    self.viewModel.rateUser(isPositive: false)
+                    self.viewModel.sendRateUser(isPositive: false)
                 })
             )
 
