@@ -311,6 +311,7 @@ class WalletOnboardingViewModel: OnboardingTopupViewModel<WalletOnboardingStep, 
                     return
                 }
 
+                self?.walletCreationType = .seedImport
                 self?.createWallet(using: mnemonic)
             }
         ))
@@ -378,6 +379,7 @@ class WalletOnboardingViewModel: OnboardingTopupViewModel<WalletOnboardingStep, 
 
     @Published private var previewBackupCardsAdded: Int = 0
     @Published private var previewBackupState: BackupService.State = .finalizingPrimaryCard
+    private var walletCreationType: WalletCreationType = .privateKey
 
     private var tangemSdk: TangemSdk { tangemSdkProvider.sdk }
     private var backupService: BackupService { backupServiceProvider.backupService }
@@ -598,6 +600,7 @@ class WalletOnboardingViewModel: OnboardingTopupViewModel<WalletOnboardingStep, 
             createWallet()
         case .seedPhraseIntro:
             generateSeedPhrase()
+            Analytics.log(.onboarindgSeedButtonGenerateSeedPhrase)
         case .seedPhraseGeneration:
             goToStep(.seedPhraseUserValidation)
         case .scanPrimaryCard:
@@ -630,8 +633,10 @@ class WalletOnboardingViewModel: OnboardingTopupViewModel<WalletOnboardingStep, 
         case .createWallet:
             break
         case .createWalletSelector:
+            Analytics.log(.onboardingSeedButtonOtherCreateWalletOptions)
             goToStep(.seedPhraseIntro)
         case .seedPhraseIntro:
+            Analytics.log(.onboardingSeedButtonImportWallet)
             goToStep(.seedPhraseImport)
         case .backupIntro:
             Analytics.log(.backupSkipped)
@@ -775,6 +780,8 @@ class WalletOnboardingViewModel: OnboardingTopupViewModel<WalletOnboardingStep, 
 
     override func backButtonAction() {
         switch currentStep {
+        case .seedPhraseUserValidation:
+            goToStep(.seedPhraseGeneration)
         case .backupCards:
             if backupServiceState == .finalizingPrimaryCard {
                 fallthrough
@@ -919,21 +926,21 @@ class WalletOnboardingViewModel: OnboardingTopupViewModel<WalletOnboardingStep, 
         .mapVoid()
         .sink(
             receiveCompletion: { [weak self] completion in
+                guard let self else { return }
+
                 switch completion {
                 case .failure(let error):
                     AppLog.shared.error(error, params: [.action: .preparePrimary])
-                    self?.isMainButtonBusy = false
+                    self.isMainButtonBusy = false
                 case .finished:
-                    if let userWalletId = self?.cardModel?.userWalletId {
-                        self?.analyticsContext.updateContext(with: userWalletId)
+                    if let userWalletId = self.cardModel?.userWalletId {
+                        self.analyticsContext.updateContext(with: userWalletId)
                         Analytics.logTopUpIfNeeded(balance: 0)
                     }
 
-                    // [REDACTED_TODO_COMMENT]
-                    // [REDACTED_INFO]
-                    Analytics.log(.walletCreatedSuccessfully)
+                    Analytics.log(.walletCreatedSuccessfully, params: [.creationType: self.walletCreationType.analyticsValue])
                 }
-                self?.stepPublisher = nil
+                self.stepPublisher = nil
             },
             receiveValue: processPrimaryCardScan
         )
@@ -1054,11 +1061,13 @@ class WalletOnboardingViewModel: OnboardingTopupViewModel<WalletOnboardingStep, 
 extension WalletOnboardingViewModel {
     func openReadMoreAboutSeedPhraseScreen() {
         coordinator.openWebView(with: AppConstants.seedPhraseReadMoreURL)
+        Analytics.log(.onboardingSeedButtonReadMore)
     }
 
     private func generateSeedPhrase() {
         do {
             try seedPhraseManager.generateSeedPhrase()
+            walletCreationType = .newSeed
             goToNextStep()
         } catch {
             alert = error.alertBinder
@@ -1087,8 +1096,25 @@ extension WalletOnboardingViewModel {
             }
             .sink { [weak self] _ in
                 self?.alert = AlertBuilder.makeOkGotItAlert(message: Localization.onboardingSeedScreenshotAlert)
+                Analytics.log(.onboardingSeedScreenCapture)
             }
             .store(in: &bag)
+    }
+}
+
+extension WalletOnboardingViewModel {
+    enum WalletCreationType {
+        case privateKey
+        case newSeed
+        case seedImport
+
+        var analyticsValue: Analytics.ParameterValue {
+            switch self {
+            case .privateKey: return .walletCreationTypePrivateKey
+            case .newSeed: return .walletCreationTypeNewSeed
+            case .seedImport: return .walletCreationTypeSeedImport
+            }
+        }
     }
 }
 
