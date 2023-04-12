@@ -38,49 +38,49 @@ struct ZendeskSupportChatView: UIViewControllerRepresentable {
 
         @objc
         func leftBarButtonItemDidTouch(_ sender: UIBarButtonItem) {
-            let alertController = UIAlertController(title: "Выберите действие", message: nil, preferredStyle: .actionSheet)
+            let alertController = UIAlertController(title: Localization.chatUserActionsTitle, message: nil, preferredStyle: .actionSheet)
 
             alertController.addAction(
-                .init(title: "Отправить логи", style: .default, handler: { _ in
+                .init(title: Localization.chatUserActionSendLog, style: .default, handler: { _ in
                     self.viewModel.sendLogFileIntoChat()
                 })
             )
 
             alertController.addAction(
-                .init(title: "Оценить оператора", style: .default, handler: { _ in
+                .init(title: Localization.chatUserActionRateUser, style: .default, handler: { _ in
                     self.userRateButtonDidTouch()
                 })
             )
 
-            alertController.addAction(.init(title: "Cancel", style: .cancel))
+            alertController.addAction(.init(title: Localization.commonCancel, style: .cancel))
 
             present(alertController, animated: true)
         }
 
         @objc
         func userRateButtonDidTouch() {
-            let alertController = UIAlertController(title: "Оцените оператора", message: nil, preferredStyle: .actionSheet)
+            let alertController = UIAlertController(title: Localization.chatUserRateOperatorTitle, message: nil, preferredStyle: .actionSheet)
 
             alertController.addAction(
-                .init(title: "Нравится", style: .default, handler: { _ in
+                .init(title: Localization.commonLike, style: .default, handler: { _ in
                     self.viewModel.sendRateUser(isPositive: true)
                 })
             )
 
             alertController.addAction(
-                .init(title: "Не нравится", style: .default, handler: { _ in
+                .init(title: Localization.commonDislike, style: .default, handler: { _ in
                     self.viewModel.sendRateUser(isPositive: false)
                 })
             )
 
-            alertController.addAction(.init(title: "Cancel", style: .cancel))
+            alertController.addAction(.init(title: Localization.commonCancel, style: .cancel))
 
             present(alertController, animated: true)
         }
 
         func setNeedDisplay(error: ZendeskSupportChatViewModel.DisplayError) {
             let alertController = UIAlertController(title: "", message: nil, preferredStyle: .alert)
-            alertController.addAction(.init(title: "Cancel", style: .cancel))
+            alertController.addAction(.init(title: Localization.commonCancel, style: .cancel))
             present(alertController, animated: true)
         }
 
@@ -88,7 +88,7 @@ struct ZendeskSupportChatView: UIViewControllerRepresentable {
             if state {
                 viewControllers.first?.navigationItem.setLeftBarButton(
                     UIBarButtonItem(
-                        image: Assets.compass.uiImage,
+                        image: Assets.chatSettings.uiImage,
                         style: .plain,
                         target: self,
                         action: #selector(Coordinator.leftBarButtonItemDidTouch(_:))
