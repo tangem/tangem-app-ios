@@ -11,7 +11,7 @@ import TangemSdk
 
 protocol AccessCodeRecoverySettingsProvider {
     var accessCodeRecoveryEnabled: Bool { get }
-    func setAccessCodeRecovery(to enabled: Bool, _ completionHandler: @escaping (Result<Void, Error>) -> Void)
+    func setAccessCodeRecovery(to enabled: Bool, _ completionHandler: @escaping (Result<Void, TangemSdkError>) -> Void)
 }
 
 class AccessCodeRecoverySettingsViewModel: ObservableObject {
@@ -41,7 +41,7 @@ class AccessCodeRecoverySettingsViewModel: ObservableObject {
             case .success:
                 break
             case .failure(let error):
-                if case TangemSdkError.userCancelled = error {
+                if error.isUserCancelled {
                     break
                 }
 
