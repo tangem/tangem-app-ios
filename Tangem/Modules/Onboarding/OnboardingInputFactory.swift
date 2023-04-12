@@ -40,17 +40,17 @@ class OnboardingInputFactory {
         let stepsBuilder = onboardingStepsBuilderFactory.makeOnboardingStepsBuilder(backupService: backupService)
         let steps = stepsBuilder.buildOnboardingSteps()
 
-        if steps.needOnboarding {
-            return .init(
-                tangemSdk: sdkFactory.makeTangemSdk(),
-                backupService: backupService,
-                steps: steps,
-                cardInput: cardInput,
-                twinData: twinData
-            )
+        guard steps.needOnboarding else {
+            return nil
         }
 
-        return nil
+        return .init(
+            tangemSdk: sdkFactory.makeTangemSdk(),
+            backupService: backupService,
+            steps: steps,
+            cardInput: cardInput,
+            twinData: twinData
+        )
     }
 
     func makeBackupInput() -> OnboardingInput? {
@@ -97,7 +97,7 @@ class TwinInputFactory {
             backupService: sdkFactory.makeBackupService(),
             steps: .twins(TwinsOnboardingStep.twinningSteps),
             cardInput: cardInput,
-            twinData: nil,
+            twinData: twinData,
             isStandalone: true
         )
     }
