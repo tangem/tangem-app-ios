@@ -44,6 +44,10 @@
 "card_settings_security_mode_footer" = "Выбранный способ защиты приложения";
 "card_settings_title" = "Настройки карты";
 "chat_button_title" = "Чат";
+"chat_user_action_rate_user" = "Оценить оператора";
+"chat_user_action_send_log" = "Отправить логи";
+"chat_user_actions_title" = "Пожалуйста, выберите действие";
+"chat_user_rate_operator_title" = "Пожалуйста, оцените работу оператора";
 "common_accept" = "Принять";
 "common_attention" = "Внимание";
 "common_back" = "Назад";
@@ -58,11 +62,13 @@
 "common_delete" = "Удалить";
 "common_disabled" = "Отключено";
 "common_disconnect" = "Отключить";
+"common_dislike" = "Не нравится";
 "common_done" = "Готово";
 "common_enabled" = "Включено";
 "common_error" = "Ошибка";
 "common_explorer_format" = "%@ обозреватель";
 "common_import" = "Импортировать";
+"common_like" = "Нравится";
 "common_no" = "Нет";
 "common_ok" = "Ок";
 "common_origin_card" = "Основная карта";
