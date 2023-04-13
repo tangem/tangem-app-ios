@@ -205,6 +205,10 @@ class WalletOnboardingViewModel: OnboardingTopupViewModel<WalletOnboardingStep, 
             if isSaltPayOnboarding {
                 return false
             }
+
+            if !(cardModel?.canSkipBackup ?? true) {
+                return false
+            }
         }
 
         return super.isSupplementButtonVisible
@@ -860,8 +864,6 @@ class WalletOnboardingViewModel: OnboardingTopupViewModel<WalletOnboardingStep, 
 
         isMainButtonBusy = true
 
-        AppSettings.shared.cardsStartedActivation.insert(input.cardInput.cardId)
-
         createWalletOnPrimaryCard()
     }
 
@@ -887,6 +889,8 @@ class WalletOnboardingViewModel: OnboardingTopupViewModel<WalletOnboardingStep, 
     }
 
     private func createWalletOnPrimaryCard(using seed: Data? = nil) {
+        AppSettings.shared.cardsStartedActivation.insert(input.cardInput.cardId)
+
         let cardId = input.cardInput.cardId
         let task = PreparePrimaryCardTask(seed: seed)
         prepareTask = task
