@@ -169,6 +169,11 @@ extension Analytics {
 
         case onboardingSeedScreenCapture = "[Onboarding / Seed Phrase] Screen capture"
 
+        // MARK: - Card settings
+
+        case cardSettingsButtonAccessCodeRecovery = "[Settings / Card Settings] Button - Access Code Recovery"
+        case cardSettingsAccessCodeRecoveryChanged = "[Settings / Card Settings] Access Code Recovery Changed"
+
         fileprivate static var nfcError: String {
             "nfc_error"
         }
