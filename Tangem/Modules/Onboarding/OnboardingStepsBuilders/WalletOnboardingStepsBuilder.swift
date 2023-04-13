@@ -33,7 +33,7 @@ class WalletOnboardingStepsBuilder {
             return []
         }
 
-        var steps: [WalletOnboardingStep] = .init()
+        var steps: [WalletOnboardingStep] = []
 
         steps.append(.backupIntro)
 
