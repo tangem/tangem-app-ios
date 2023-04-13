@@ -98,10 +98,13 @@ extension GenericConfig: UserWalletConfig {
             }
             steps.append(contentsOf: initialSteps + _backupSteps + userWalletSavingSteps + [.success])
         } else {
-            if !AppSettings.shared.cardsStartedActivation.contains(card.cardId) {
-                steps.append(contentsOf: userWalletSavingSteps)
-            } else {
+            let isBackupActive = card.backupStatus?.isActive ?? false
+            let isBackupMandatory = card.firmwareVersion >= .keysImportAvailable
+
+            if AppSettings.shared.cardsStartedActivation.contains(card.cardId) || (isBackupMandatory && !isBackupActive) {
                 steps.append(contentsOf: _backupSteps + userWalletSavingSteps + [.success])
+            } else {
+                steps.append(contentsOf: userWalletSavingSteps)
             }
         }
 
