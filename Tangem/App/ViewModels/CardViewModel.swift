@@ -101,6 +101,10 @@ class CardViewModel: Identifiable, ObservableObject {
         !config.getFeatureAvailability(.backup).isHidden
     }
 
+    var canSkipBackup: Bool {
+        card.firmwareVersion < .keysImportAvailable
+    }
+
     var canTwin: Bool {
         config.hasFeature(.twinning)
     }
