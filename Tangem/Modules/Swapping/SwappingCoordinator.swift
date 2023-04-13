@@ -73,6 +73,11 @@ extension SwappingCoordinator: SwappingRoutable {
         UIApplication.shared.endEditing()
         Analytics.log(.swapSwapInProgressScreenOpened)
 
+        let dismissAction = { [weak self] in
+            self?.swappingSuccessCoordinator = nil
+            self?.dismiss()
+        }
+
         let coordinator = SwappingSuccessCoordinator(
             factory: factory,
             dismissAction: dismissAction,
