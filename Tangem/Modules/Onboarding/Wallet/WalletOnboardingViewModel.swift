@@ -379,8 +379,8 @@ class WalletOnboardingViewModel: OnboardingTopupViewModel<WalletOnboardingStep, 
     @Published private var previewBackupState: BackupService.State = .finalizingPrimaryCard
     private var walletCreationType: WalletCreationType = .privateKey
 
-    private var tangemSdk: TangemSdk
-    private var backupService: BackupService
+    private let tangemSdk: TangemSdk
+    private let backupService: BackupService
 
     private var saltPayAmountType: Amount.AmountType {
         .token(value: GnosisRegistrator.Settings.main.token)
