@@ -39,6 +39,9 @@ extension Analytics {
         case walletCreationTypeNewSeed = "New seed"
         case walletCreationTypeSeedImport = "Seed import"
 
+        case enabled = "Enabled"
+        case disabled = "Disabled"
+
         // MARK: - Actions
 
         case scan = "tap_scan_task"
