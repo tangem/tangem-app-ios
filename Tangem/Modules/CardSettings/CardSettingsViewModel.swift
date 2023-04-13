@@ -209,6 +209,7 @@ extension CardSettingsViewModel {
     }
 
     func openAccessCodeSettings() {
+        Analytics.log(.cardSettingsButtonAccessCodeRecovery)
         coordinator.openAccessCodeRecoverySettings(using: cardModel)
     }
 }
