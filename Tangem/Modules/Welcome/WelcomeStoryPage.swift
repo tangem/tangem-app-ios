@@ -18,7 +18,7 @@ enum WelcomeStoryPage: Int, Identifiable, CaseIterable {
     case awe
     case backup
     case currencies
-    case web3
+    // case web3
     case finish
 
     var colorScheme: ColorScheme {

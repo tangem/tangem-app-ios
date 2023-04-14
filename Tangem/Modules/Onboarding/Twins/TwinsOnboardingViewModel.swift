@@ -168,8 +168,6 @@ class TwinsOnboardingViewModel: OnboardingTopupViewModel<TwinsOnboardingStep, On
     }
 
     func onAppear() {
-        Analytics.log(.onboardingStarted)
-
         if isInitialAnimPlayed {
             return
         }
@@ -204,7 +202,7 @@ class TwinsOnboardingViewModel: OnboardingTopupViewModel<TwinsOnboardingStep, On
 
         // remove pair cid
         if let pairCardId = twinsService.twinPairCardId {
-            super.onOnboardingFinished(for: pairCardId)
+            AppSettings.shared.cardsStartedActivation.remove(pairCardId)
         }
     }
 
@@ -286,10 +284,8 @@ class TwinsOnboardingViewModel: OnboardingTopupViewModel<TwinsOnboardingStep, On
     }
 
     override func handleUserWalletOnFinish() throws {
-        if let originalUserWallet,
-           retwinMode,
-           AppSettings.shared.saveUserWallets {
-            userWalletRepository.delete(originalUserWallet)
+        if retwinMode, AppSettings.shared.saveUserWallets {
+            userWalletRepository.logoutIfNeeded()
         } else {
             try super.handleUserWalletOnFinish()
         }
@@ -332,7 +328,12 @@ class TwinsOnboardingViewModel: OnboardingTopupViewModel<TwinsOnboardingStep, On
             .combineLatest(NotificationCenter.default.publisher(for: UIApplication.didBecomeActiveNotification))
             .sink(receiveValue: { [unowned self] newStep, _ in
                 switch (self.currentStep, newStep) {
-                case (.first, .second), (.second, .third), (.third, .done):
+                case (.first, .second):
+                    if let originalUserWallet = originalUserWallet {
+                        userWalletRepository.delete(originalUserWallet, logoutIfNeeded: false)
+                    }
+                    fallthrough
+                case (.second, .third), (.third, .done):
                     if newStep == .done {
                         if input.isStandalone {
                             self.fireConfetti()
@@ -352,12 +353,16 @@ class TwinsOnboardingViewModel: OnboardingTopupViewModel<TwinsOnboardingStep, On
                     AppLog.shared.debug("Wrong state while twinning cards: current - \(self.currentStep), new - \(newStep)")
                 }
 
-                if let pairCardId = twinsService.twinPairCardId,
-                   !retwinMode {
-                    AppSettings.shared.cardsStartedActivation.insert(pairCardId)
-                }
+                if !retwinMode {
+                    if let pairCardId = twinsService.twinPairCardId {
+                        AppSettings.shared.cardsStartedActivation.insert(pairCardId)
+                    }
 
-                self.logZeroBalanceAnalytics()
+                    if let userWalletId = self.cardModel?.userWalletId {
+                        self.analyticsContext.updateContext(with: userWalletId)
+                        Analytics.logTopUpIfNeeded(balance: 0)
+                    }
+                }
             })
     }
 
