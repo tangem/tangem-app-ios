@@ -75,7 +75,9 @@ extension SwappingCoordinator: SwappingRoutable {
 
         let dismissAction = { [weak self] in
             self?.swappingSuccessCoordinator = nil
-            self?.dismiss()
+            DispatchQueue.main.async {
+                self?.dismiss()
+            }
         }
 
         let coordinator = SwappingSuccessCoordinator(
