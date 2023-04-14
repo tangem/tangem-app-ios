@@ -48,6 +48,7 @@ extension Blockchain {
         case "the-open-network": self = .ton(testnet: isTestnet)
         case "kava": self = .kava(testnet: isTestnet)
         case "kaspa": self = .kaspa
+        case "ravencoin": self = .ravencoin(testnet: isTestnet)
         default:
             AppLog.shared.debug("⚠️⚠️⚠️ Failed to map network ID \"\(stringId)\"")
             return nil
@@ -87,6 +88,7 @@ extension Blockchain {
         case .ton: return "the-open-network"
         case .kava: return "kava"
         case .kaspa: return "kaspa"
+        case .ravencoin: return "ravencoin"
         }
     }
 
@@ -136,6 +138,7 @@ extension Blockchain {
         case .ton: return "the-open-network"
         case .kava: return "kava"
         case .kaspa: return "kaspa"
+        case .ravencoin: return "ravencoin"
         }
     }
 
@@ -194,6 +197,7 @@ extension Blockchain {
             .ton(testnet: false),
             .kava(testnet: false),
             .kaspa,
+            .ravencoin(testnet: false),
         ]
     }()
 
@@ -216,6 +220,7 @@ extension Blockchain {
             .optimism(testnet: true),
             .ton(testnet: true),
             .kava(testnet: true),
+            .ravencoin(testnet: true),
         ]
     }()
 }
