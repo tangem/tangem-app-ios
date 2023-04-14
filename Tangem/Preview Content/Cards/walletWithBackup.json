@@ -29,7 +29,7 @@
         "securityDelay" : 15000,
         "isBackupAllowed" : true,
         "isSettingAccessCodeAllowed" : true,
-        "isResettingUserCodesAllowed" : false,
+        "isRemovingUserCodesAllowed" : false,
         
         "isSelectBlockchainAllowed" : true,
         "isHDWalletAllowed" : true,
