@@ -154,6 +154,10 @@ extension SaltPayConfig: UserWalletConfig {
         return .wallet(_backupSteps)
     }
 
+    var canSkipBackup: Bool {
+        false
+    }
+
     var userWalletSavingSteps: [WalletOnboardingStep] {
         guard needUserWalletSavingSteps else { return [] }
         return [.saveUserWallet]

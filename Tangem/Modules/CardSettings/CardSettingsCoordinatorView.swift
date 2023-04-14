@@ -22,6 +22,9 @@ struct CardSettingsCoordinatorView: CoordinatorView {
                     .navigation(item: $coordinator.resetToFactoryViewModel) {
                         ResetToFactoryView(viewModel: $0)
                     }
+                    .navigation(item: $coordinator.accessCodeRecoverySettingsViewModel) {
+                        AccessCodeRecoverySettingsView(viewModel: $0)
+                    }
             }
 
             sheets
