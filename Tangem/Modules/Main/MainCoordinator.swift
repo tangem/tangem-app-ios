@@ -82,6 +82,8 @@ class MainCoordinator: CoordinatorObject {
             return
         }
 
+        Analytics.log(.walletOpened)
+
         mainViewModel = MainViewModel(
             cardModel: options.cardModel,
             userWalletModel: userWalletModel,
@@ -115,7 +117,7 @@ extension MainCoordinator: MainRoutable {
     }
 
     func openBuyCrypto(at url: URL, closeUrl: String, action: @escaping (String) -> Void) {
-        Analytics.log(.topUpScreenOpened)
+        Analytics.log(.topupScreenOpened)
         pushedWebViewModel = WebViewContainerViewModel(
             url: url,
             title: Localization.walletButtonBuy,
@@ -148,7 +150,6 @@ extension MainCoordinator: MainRoutable {
     }
 
     func openSend(amountToSend: Amount, blockchainNetwork: BlockchainNetwork, cardViewModel: CardViewModel) {
-        Analytics.log(.sendScreenOpened)
         let coordinator = SendCoordinator { [weak self] in
             self?.sendCoordinator = nil
         }
@@ -196,7 +197,6 @@ extension MainCoordinator: MainRoutable {
     }
 
     func openSettings(cardModel: CardViewModel) {
-        Analytics.log(.settingsScreenOpened)
         let dismissAction: Action = { [weak self] in
             self?.detailsCoordinator = nil
         }
@@ -230,7 +230,6 @@ extension MainCoordinator: MainRoutable {
     }
 
     func openTokensList(with cardModel: CardViewModel) {
-        Analytics.log(.manageTokensScreenOpened)
         let dismissAction: Action = { [weak self] in
             self?.tokenListCoordinator = nil
         }
@@ -304,6 +303,7 @@ extension MainCoordinator: UserWalletListCoordinatorOutput {
 
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) {
             self.modalOnboardingCoordinator = coordinator
+            Analytics.log(.onboardingStarted)
         }
     }
 }
