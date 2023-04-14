@@ -39,6 +39,7 @@ struct ReceiveCurrencyView: View {
             if let balanceString = viewModel.balanceString {
                 Text(balanceString)
                     .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
+                    .fixedSize(horizontal: false, vertical: true)
             }
         }
     }
@@ -69,6 +70,7 @@ struct ReceiveCurrencyView: View {
                     .style(Fonts.Regular.title1, color: Colors.Text.primary1)
                     .minimumScaleFactor(0.5)
                     .lineLimit(1)
+                    .fixedSize(horizontal: false, vertical: true)
             }
 
             switch viewModel.fiatAmountState {
@@ -81,6 +83,7 @@ struct ReceiveCurrencyView: View {
                     .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
                     .minimumScaleFactor(0.5)
                     .lineLimit(1)
+                    .fixedSize(horizontal: false, vertical: true)
             }
         }
     }
