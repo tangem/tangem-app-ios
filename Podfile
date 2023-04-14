@@ -6,12 +6,12 @@ use_frameworks!
 inhibit_all_warnings!
 
 def tangem_sdk_pod
-  pod 'TangemSdk', :git => 'https://github.com/Tangem/tangem-sdk-ios.git', :tag => 'develop-211'
+  pod 'TangemSdk', :git => 'https://github.com/Tangem/tangem-sdk-ios.git', :tag => 'develop-217'
 #   pod 'TangemSdk', :path => '../tangem-sdk-ios'
 end
 
 def blockchain_sdk_pods
-  pod 'BlockchainSdk', :git => 'https://github.com/tangem/blockchain-sdk-swift.git', :tag => 'develop-251-hotfix-ton-memo-2'
+  pod 'BlockchainSdk', :git => 'https://github.com/tangem/blockchain-sdk-swift.git', :tag => 'develop-266'
 #  pod 'BlockchainSdk', :path => '../blockchain-sdk-swift'
   
   pod 'TangemWalletCore', :git => 'https://github.com/tangem/wallet-core-binaries-ios.git', :tag => '3.1.9-tangem2'
@@ -68,10 +68,10 @@ target 'Tangem' do
   end
 end
 
-target 'TangemExchange' do 
+target 'TangemSwapping' do 
   pod 'Moya'
 
-  target 'TangemExchangeTests' do
+  target 'TangemSwappingTests' do
     inherit! :search_paths
     # Pods for testing
   end
