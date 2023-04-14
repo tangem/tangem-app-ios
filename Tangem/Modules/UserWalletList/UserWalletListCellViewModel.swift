@@ -24,7 +24,6 @@ class UserWalletListCellViewModel: ObservableObject {
     let didTapUserWallet: () -> Void
     let didEditUserWallet: () -> Void
     let didDeleteUserWallet: () -> Void
-    let totalBalanceProvider: TotalBalanceProviding
     let imageHeight = 30.0
 
     var userWallet: UserWallet { userWalletModel.userWallet }
@@ -41,7 +40,6 @@ class UserWalletListCellViewModel: ObservableObject {
         isMultiWallet: Bool,
         isUserWalletLocked: Bool,
         isSelected: Bool,
-        totalBalanceProvider: TotalBalanceProviding,
         cardImageProvider: CardImageProviding,
         didTapUserWallet: @escaping () -> Void,
         didEditUserWallet: @escaping () -> Void,
@@ -51,7 +49,6 @@ class UserWalletListCellViewModel: ObservableObject {
         self.subtitle = subtitle
         self.isMultiWallet = isMultiWallet
         self.isSelected = isSelected
-        self.totalBalanceProvider = totalBalanceProvider
         self.cardImageProvider = cardImageProvider
         self.didTapUserWallet = didTapUserWallet
         self.didEditUserWallet = didEditUserWallet
@@ -80,7 +77,7 @@ class UserWalletListCellViewModel: ObservableObject {
     }
 
     private func bind() {
-        totalBalanceProvider.totalBalancePublisher()
+        userWalletModel.totalBalanceProvider.totalBalancePublisher()
             .sink { [unowned self] loadingValue in
                 switch loadingValue {
                 case .loading:
