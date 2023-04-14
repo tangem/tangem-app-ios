@@ -39,7 +39,7 @@ class PushTxViewModel: ObservableObject {
         cardViewModel.walletModels.first(where: { $0.blockchainNetwork == blockchainNetwork })!
     }
 
-    var previousFeeAmount: Amount { transaction.fee }
+    var previousFeeAmount: Amount { transaction.fee.amount }
 
     var previousTotalAmount: Amount {
         previousFeeAmount + transaction.amount
@@ -61,8 +61,8 @@ class PushTxViewModel: ObservableObject {
 
     @Published var amountToSend: Amount
     @Published var selectedFeeLevel: Int = 1
-    @Published var fees: [Amount] = []
-    @Published var selectedFee: Amount? = nil
+    @Published var fees: [Fee] = []
+    @Published var selectedFee: Fee? = nil
 
     @Published var additionalFee: String = ""
     @Published var sendTotal: String = ""
@@ -147,15 +147,6 @@ class PushTxViewModel: ObservableObject {
                     self.sendError = SendError(error, openMailAction: openMail).alertBinder
                 } else {
                     walletModel.startUpdatingTimer()
-
-                    Analytics.log(
-                        event: .transactionIsPushed,
-                        params: [
-                            .currencyCode: self.blockchainNetwork.blockchain.currencySymbol,
-                            .blockchain: self.blockchainNetwork.blockchain.displayName,
-                        ]
-                    )
-
                     callback()
                 }
 
@@ -186,12 +177,12 @@ class PushTxViewModel: ObservableObject {
             .sink { [unowned self] isFiat in
                 self.fillPreviousTxInfo(isFiat: isFiat)
                 self.fillTotalBlock(tx: self.newTransaction, isFiat: isFiat)
-                self.updateFeeLabel(fee: self.selectedFee, isFiat: isFiat)
+                self.updateFeeLabel(fee: self.selectedFee?.amount, isFiat: isFiat)
             }
             .store(in: &bag)
 
         $selectedFeeLevel
-            .map { [unowned self] feeLevel -> Amount? in
+            .map { [unowned self] feeLevel in
                 guard self.fees.count > feeLevel else {
                     return nil
                 }
@@ -204,7 +195,7 @@ class PushTxViewModel: ObservableObject {
 
         $fees
             .dropFirst()
-            .map { [unowned self] values -> Amount? in
+            .map { [unowned self] values in
                 guard values.count > self.selectedFeeLevel else { return nil }
 
                 return values[self.selectedFeeLevel]
@@ -215,7 +206,7 @@ class PushTxViewModel: ObservableObject {
         $isFeeIncluded
             .dropFirst()
             .map { [unowned self] isFeeIncluded in
-                self.updateAmount(isFeeIncluded: isFeeIncluded, selectedFee: self.selectedFee)
+                self.updateAmount(isFeeIncluded: isFeeIncluded, selectedFee: self.selectedFee?.amount)
                 self.shouldAmountBlink = true
             }
             .sink(receiveValue: { _ in })
@@ -224,7 +215,7 @@ class PushTxViewModel: ObservableObject {
         $selectedFee
             .dropFirst()
             .combineLatest($isFeeIncluded)
-            .map { [unowned self] fee, isFeeIncluded -> (BlockchainSdk.Transaction?, Amount?) in
+            .map { [unowned self] fee, isFeeIncluded -> (BlockchainSdk.Transaction?, Fee?) in
                 var errorMessage: String?
                 defer {
                     self.amountHint = errorMessage == nil ? nil : .init(isError: true, message: errorMessage!)
@@ -235,12 +226,12 @@ class PushTxViewModel: ObservableObject {
                     return (nil, fee)
                 }
 
-                guard fee > self.transaction.fee else {
+                guard fee.amount > self.transaction.fee.amount else {
                     errorMessage = BlockchainSdkError.feeForPushTxNotEnough.localizedDescription
                     return (nil, fee)
                 }
 
-                let newAmount = isFeeIncluded ? self.transaction.amount + self.previousFeeAmount - fee : self.transaction.amount
+                let newAmount = isFeeIncluded ? self.transaction.amount + self.previousFeeAmount - fee.amount : self.transaction.amount
 
                 var tx: BlockchainSdk.Transaction?
 
@@ -254,7 +245,7 @@ class PushTxViewModel: ObservableObject {
                     errorMessage = error.localizedDescription
                 }
 
-                self.updateAmount(isFeeIncluded: isFeeIncluded, selectedFee: fee)
+                self.updateAmount(isFeeIncluded: isFeeIncluded, selectedFee: fee.amount)
                 return (tx, fee)
             }
             .sink(receiveValue: { [unowned self] txFee in
@@ -263,7 +254,7 @@ class PushTxViewModel: ObservableObject {
                 self.newTransaction = tx
                 self.isSendEnabled = tx != nil
                 self.fillTotalBlock(tx: tx, isFiat: self.isFiatCalculation)
-                self.updateFeeLabel(fee: fee)
+                self.updateFeeLabel(fee: fee?.amount)
 
             })
             .store(in: &bag)
@@ -315,7 +306,7 @@ class PushTxViewModel: ObservableObject {
     }
 
     private func fillTotalBlock(tx: BlockchainSdk.Transaction? = nil, isFiat: Bool) {
-        guard let fee = tx?.fee else {
+        guard let fee = tx?.fee.amount else {
             sendTotal = emptyValue
             sendTotalSubtitle = emptyValue
             return
