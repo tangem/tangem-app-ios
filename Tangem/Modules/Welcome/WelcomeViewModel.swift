@@ -54,7 +54,6 @@ class WelcomeViewModel: ObservableObject {
         guard !isScanningCard else { return }
 
         openShop()
-        Analytics.log(.getACard, params: [.source: Analytics.ParameterValue.welcome])
         Analytics.log(.buttonBuyCards)
     }
 
@@ -99,7 +98,8 @@ class WelcomeViewModel: ObservableObject {
                 self.openOnboarding(with: input)
             case .error(let error):
                 self.error = error.alertBinder
-            case .success(let cardModel):
+            case .success(let cardModel), .partial(let cardModel, _): // partial unlock is impossible in this case
+                Analytics.log(.signedIn, params: [.signInType: .signInTypeCard])
                 self.openMain(with: cardModel)
             }
         }
