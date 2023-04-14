@@ -38,7 +38,7 @@ class AppSettingsCoordinator: CoordinatorObject {
 
 extension AppSettingsCoordinator {
     enum Options {
-        case `default`(userWallet: UserWallet)
+        case `default`(userWallet: CardViewModel)
     }
 }
 
