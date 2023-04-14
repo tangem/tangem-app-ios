@@ -441,7 +441,7 @@
 "voice_over_scan_qr_with_address" = "Scan, QR, code with address";
 "voice_over_share_address" = "Share address";
 "voice_over_show_address_qr" = "Show address, QR, code";
-"wallet_address_button_explore" = "Adresse erkunden";
+"wallet_address_button_explore" = "Transaction history";
 "wallet_balance_blockchain_unreachable" = "Network is unreachable";
 "wallet_balance_loading" = "Die Bilanz wird aufgeladen…";
 "wallet_balance_missing_derivation" = "Scan the card";
