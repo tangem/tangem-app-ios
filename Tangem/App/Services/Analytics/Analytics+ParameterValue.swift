@@ -16,6 +16,8 @@ extension Analytics {
         case off = "Off"
         case full = "Full"
         case empty = "Empty"
+        case customToken = "Custom Token"
+        case blockchainError = "Blockchain Error"
         case multicurrency = "Multicurrency"
         case accessCode = "Access Code"
         case longTap = "Long tap"
@@ -24,6 +26,14 @@ extension Analytics {
         case scanSourceMain = "Main"
         case scanSourceAuth = "Sign In"
         case scanSourceMyWallets = "My Wallets"
+
+        case transactionSourceSend = "Send"
+        case transactionSourceSwap = "Swap"
+        case transactionSourceWalletConnect = "WalletConnect"
+        case transactionSourceSell = "Sell"
+
+        case signInTypeCard = "Card"
+        case signInTypeBiometrics = "Biometric"
 
         // MARK: - Actions
 

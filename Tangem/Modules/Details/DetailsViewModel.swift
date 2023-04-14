@@ -117,10 +117,8 @@ extension DetailsViewModel {
     }
 
     func openAppSettings() {
-        guard let userWallet = cardModel.userWallet else { return }
-
         Analytics.log(.buttonAppSettings)
-        coordinator.openAppSettings(userWallet: userWallet)
+        coordinator.openAppSettings(userWallet: cardModel)
     }
 
     func openSupportChat() {
@@ -165,6 +163,10 @@ extension DetailsViewModel {
         }
 
         coordinator.openReferral(with: cardModel, userWalletId: userWalletId)
+    }
+
+    func onAppear() {
+        Analytics.log(.settingsScreenOpened)
     }
 }
 
