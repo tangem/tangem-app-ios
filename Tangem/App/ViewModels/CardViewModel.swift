@@ -120,10 +120,6 @@ class CardViewModel: Identifiable, ObservableObject {
         config.embeddedBlockchain
     }
 
-    var supportsWalletConnect: Bool {
-        config.hasFeature(.walletConnect)
-    }
-
     var hasTokenSynchronization: Bool {
         config.hasFeature(.tokenSynchronization)
     }
@@ -134,7 +130,7 @@ class CardViewModel: Identifiable, ObservableObject {
 
     // Temp for WC. Migrate to userWalletId?
     var secp256k1SeedKey: Data? {
-        cardInfo.card.wallets.first(where: { $0.curve == .secp256k1 })?.publicKey
+        cardInfo.card.wallets.last(where: { $0.curve == .secp256k1 })?.publicKey
     }
 
     private(set) var userWalletId: Data?

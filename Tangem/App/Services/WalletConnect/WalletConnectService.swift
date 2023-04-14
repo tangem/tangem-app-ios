@@ -43,7 +43,7 @@ extension CommonWalletConnectService: WalletConnectService {
     }
 
     func initialize(with cardModel: CardViewModel) {
-        guard cardModel.supportsWalletConnect else {
+        guard cardModel.shouldShowWC else {
             return
         }
 
