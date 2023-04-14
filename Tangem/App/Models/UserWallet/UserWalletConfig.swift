@@ -33,6 +33,8 @@ protocol UserWalletConfig {
 
     var backupSteps: OnboardingSteps? { get }
 
+    var canSkipBackup: Bool { get }
+
     /// All blockchains supported by this user wallet.
     var supportedBlockchains: Set<Blockchain> { get }
 
@@ -94,6 +96,10 @@ extension UserWalletConfig {
 
     var emailConfig: EmailConfig? {
         .default
+    }
+
+    var canSkipBackup: Bool {
+        true
     }
 }
 
