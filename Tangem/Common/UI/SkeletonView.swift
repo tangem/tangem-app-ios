@@ -45,6 +45,7 @@ public struct SkeletonView: View {
             startPoint: gradientPoints.start,
             endPoint: gradientPoints.end
         )
+        .animation(isAppeared ? activeAnimation : stopAnimation, value: gradientPoints)
         .opacity(0.8)
         .onAppear {
             guard !isAppeared else {
@@ -52,10 +53,7 @@ public struct SkeletonView: View {
             }
 
             isAppeared = true
-
-            withAnimation(activeAnimation) {
-                gradientPoints = Constants.animationPoints
-            }
+            gradientPoints = Constants.animationPoints
         }
         .onDisappear {
             guard isAppeared else {
@@ -63,10 +61,7 @@ public struct SkeletonView: View {
             }
 
             isAppeared = false
-
-            withAnimation(stopAnimation) {
-                gradientPoints = Constants.idlePoints
-            }
+            gradientPoints = Constants.idlePoints
         }
     }
 }
@@ -87,7 +82,7 @@ private extension SkeletonView {
 
 // MARK: Helper extensions
 
-struct LinearGradientPoints: Animatable {
+struct LinearGradientPoints: Equatable, Animatable {
     let start: UnitPoint
     let end: UnitPoint
 }
