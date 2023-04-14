@@ -7,7 +7,7 @@
 //
 
 import Foundation
-import TangemExchange
+import TangemSwapping
 
 class FiatRatesProvider {
     @Injected(\.tangemApiService) private var tangemApiService: TangemApiService
@@ -33,24 +33,41 @@ class FiatRatesProvider {
 // MARK: - FiatRatesProviding
 
 extension FiatRatesProvider: FiatRatesProviding {
+    func hasRates(for currency: Currency) -> Bool {
+        let id = currency.isToken ? currency.id : currency.blockchain.currencyID
+        return rates[id] != nil
+    }
+
+    func hasRates(for blockchain: TangemSwapping.SwappingBlockchain) -> Bool {
+        return rates[blockchain.currencyID] != nil
+    }
+
+    func getSyncFiat(for currency: Currency, amount: Decimal) -> Decimal? {
+        let id = currency.isToken ? currency.id : currency.blockchain.currencyID
+        if let rate = rates[id] {
+            return mapToFiat(amount: amount, rate: rate)
+        }
+
+        return nil
+    }
+
+    func getSyncFiat(for blockchain: TangemSwapping.SwappingBlockchain, amount: Decimal) -> Decimal? {
+        if let rate = rates[blockchain.currencyID] {
+            return mapToFiat(amount: amount, rate: rate)
+        }
+
+        return nil
+    }
+
     func getFiat(for currency: Currency, amount: Decimal) async throws -> Decimal {
         let id = currency.isToken ? currency.id : currency.blockchain.currencyID
         let rate = try await getFiatRate(currencyId: id)
         return mapToFiat(amount: amount, rate: rate)
     }
 
-    func getFiat(for blockchain: ExchangeBlockchain, amount: Decimal) async throws -> Decimal {
+    func getFiat(for blockchain: SwappingBlockchain, amount: Decimal) async throws -> Decimal {
         let rate = try await getFiatRate(currencyId: blockchain.currencyID)
         return mapToFiat(amount: amount, rate: rate)
-    }
-
-    func hasRates(for currency: Currency) -> Bool {
-        let id = currency.isToken ? currency.id : currency.blockchain.currencyID
-        return rates[id] != nil
-    }
-
-    func hasRates(for blockchain: ExchangeBlockchain) -> Bool {
-        return rates[blockchain.currencyID] != nil
     }
 }
 
@@ -62,7 +79,7 @@ private extension FiatRatesProvider {
         return try await getFiatRate(currencyId: id)
     }
 
-    func getFiatRateFor(for blockchain: ExchangeBlockchain) async throws -> Decimal {
+    func getFiatRateFor(for blockchain: SwappingBlockchain) async throws -> Decimal {
         try await getFiatRate(currencyId: blockchain.currencyID)
     }
 
