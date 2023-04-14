@@ -102,7 +102,7 @@ class CardViewModel: Identifiable, ObservableObject {
     }
 
     var canSkipBackup: Bool {
-        card.firmwareVersion < .keysImportAvailable
+        config.canSkipBackup
     }
 
     var canTwin: Bool {
@@ -527,6 +527,7 @@ class CardViewModel: Identifiable, ObservableObject {
     func onDerived(_ response: DerivationResult) {
         for updatedWallet in response {
             for derivedKey in updatedWallet.value {
+                print("\(derivedKey.key.rawPath)\n\(derivedKey.value.publicKey.hexString)")
                 cardInfo.card.wallets[updatedWallet.key]?.derivedKeys[derivedKey.key] = derivedKey.value
             }
         }
