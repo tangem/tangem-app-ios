@@ -12,5 +12,6 @@ extension Analytics {
         case firebase
         case amplitude
         case appsflyer
+        case crashlytics
     }
 }
