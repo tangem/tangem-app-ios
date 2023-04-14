@@ -8,7 +8,7 @@
 
 import Foundation
 import Combine
-import TangemExchange
+import TangemSwapping
 import UIKit
 
 class SwappingCoordinator: CoordinatorObject {
@@ -64,7 +64,7 @@ extension SwappingCoordinator: SwappingRoutable {
         swappingTokenListViewModel = factory.makeSwappingTokenListViewModel(coordinator: self)
     }
 
-    func presentPermissionView(inputModel: SwappingPermissionInputModel, transactionSender: TransactionSendable) {
+    func presentPermissionView(inputModel: SwappingPermissionInputModel, transactionSender: SwappingTransactionSender) {
         UIApplication.shared.endEditing()
         swappingPermissionViewModel = factory.makeSwappingPermissionViewModel(inputModel: inputModel, coordinator: self)
     }
@@ -72,6 +72,13 @@ extension SwappingCoordinator: SwappingRoutable {
     func presentSuccessView(inputModel: SwappingSuccessInputModel) {
         UIApplication.shared.endEditing()
         Analytics.log(.swapSwapInProgressScreenOpened)
+
+        let dismissAction = { [weak self] in
+            self?.swappingSuccessCoordinator = nil
+            DispatchQueue.main.async {
+                self?.dismiss()
+            }
+        }
 
         let coordinator = SwappingSuccessCoordinator(
             factory: factory,
@@ -96,9 +103,9 @@ extension SwappingCoordinator: SwappingTokenListRoutable {
 // MARK: - SwappingPermissionRoutable
 
 extension SwappingCoordinator: SwappingPermissionRoutable {
-    func didSendApproveTransaction(transactionInfo: ExchangeTransactionDataModel) {
+    func didSendApproveTransaction(transactionData: SwappingTransactionData) {
         swappingPermissionViewModel = nil
-        rootViewModel?.didSendApproveTransaction(transactionInfo: transactionInfo)
+        rootViewModel?.didSendApproveTransaction(transactionData: transactionData)
     }
 
     func userDidCancel() {
