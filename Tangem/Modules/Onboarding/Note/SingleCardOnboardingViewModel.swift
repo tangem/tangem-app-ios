@@ -166,8 +166,6 @@ class SingleCardOnboardingViewModel: OnboardingTopupViewModel<SingleCardOnboardi
     }
 
     func onAppear() {
-        Analytics.log(.onboardingStarted)
-
         playInitialAnim()
     }
 
@@ -239,6 +237,8 @@ class SingleCardOnboardingViewModel: OnboardingTopupViewModel<SingleCardOnboardi
     private func createWallet() {
         guard let cardModel else { return }
 
+        AppSettings.shared.cardsStartedActivation.insert(cardModel.cardId)
+
         Analytics.log(.buttonCreateWallet)
 
         isMainButtonBusy = true
@@ -274,11 +274,10 @@ class SingleCardOnboardingViewModel: OnboardingTopupViewModel<SingleCardOnboardi
 
             self.cardModel?.appendDefaultBlockchains()
 
-            if let cardId = self.cardModel?.cardId {
-                AppSettings.shared.cardsStartedActivation.insert(cardId)
+            if let userWalletId = self.cardModel?.userWalletId {
+                self.analyticsContext.updateContext(with: userWalletId)
+                Analytics.logTopUpIfNeeded(balance: 0)
             }
-
-            self.logZeroBalanceAnalytics()
 
             self.cardModel?.userWalletModel?.updateAndReloadWalletModels()
             self.walletCreatedWhileOnboarding = true
