@@ -46,10 +46,21 @@ final class AuthViewModel: ObservableObject {
         openMail()
     }
 
-    func unlockWithBiometry() {
+    func unlockWithBiometryButtonTapped() {
         Analytics.log(.buttonBiometricSignIn)
+        unlockWithBiometry()
+    }
+
+    func unlockWithBiometry() {
         userWalletRepository.unlock(with: .biometry) { [weak self] result in
             self?.didFinishUnlocking(result)
+
+            switch result {
+            case .success, .partial:
+                Analytics.log(.signedIn, params: [.signInType: .signInTypeBiometrics])
+            default:
+                break
+            }
         }
     }
 
@@ -59,6 +70,13 @@ final class AuthViewModel: ObservableObject {
 
         userWalletRepository.unlock(with: .card(userWallet: nil)) { [weak self] result in
             self?.didFinishUnlocking(result)
+
+            switch result {
+            case .success, .partial:
+                Analytics.log(.signedIn, params: [.signInType: .signInTypeCard])
+            default:
+                break
+            }
         }
     }
 
@@ -103,7 +121,7 @@ final class AuthViewModel: ObservableObject {
             } else {
                 self.error = error.alertBinder
             }
-        case .success(let cardModel):
+        case .success(let cardModel), .partial(let cardModel, _):
             openMain(with: cardModel)
         }
     }
