@@ -128,7 +128,7 @@ extension Start2CoinConfig: UserWalletConfig {
         case .passcode:
             return .hidden
         case .longTap:
-            return card.settings.isResettingUserCodesAllowed ? .available : .hidden
+            return card.settings.isRemovingUserCodesAllowed ? .available : .hidden
         case .longHashes:
             return .hidden
         case .backup:
@@ -168,6 +168,8 @@ extension Start2CoinConfig: UserWalletConfig {
         case .transactionHistory:
             return .hidden
         case .seedPhrase:
+            return .hidden
+        case .accessCodeRecoverySettings:
             return .hidden
         }
     }
