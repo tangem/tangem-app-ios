@@ -60,7 +60,7 @@ extension SwappingCoordinator {
 extension SwappingCoordinator: SwappingRoutable {
     func presentSwappingTokenList(sourceCurrency: Currency) {
         UIApplication.shared.endEditing()
-        Analytics.log(.swapСhooseTokenScreenOpened)
+        Analytics.log(.swapChooseTokenScreenOpened)
         swappingTokenListViewModel = factory.makeSwappingTokenListViewModel(coordinator: self)
     }
 
