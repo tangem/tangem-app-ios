@@ -71,7 +71,7 @@ struct SwappingPermissionView: View {
 
 struct SwappingPermissionView_Preview: PreviewProvider {
     static let viewModel = SwappingPermissionViewModel(
-        inputModel: SwappingPermissionInputModel(fiatFee: 1.45, transactionInfo: .mock),
+        inputModel: SwappingPermissionInputModel(fiatFee: 1.45, transactionData: .mock),
         transactionSender: TransactionSenderMock(),
         coordinator: SwappingCoordinator()
     )
