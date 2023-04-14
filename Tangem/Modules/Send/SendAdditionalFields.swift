@@ -17,7 +17,7 @@ enum SendAdditionalFields {
 
     static func fields(for blockchain: Blockchain) -> SendAdditionalFields {
         switch blockchain {
-        case .stellar, .binance:
+        case .stellar, .binance, .ton:
             return .memo
         case .xrp:
             return .destinationTag
