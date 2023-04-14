@@ -202,10 +202,6 @@ class WalletOnboardingViewModel: OnboardingTopupViewModel<WalletOnboardingStep, 
                 return false
             }
 
-            if isSaltPayOnboarding {
-                return false
-            }
-
             if !(cardModel?.canSkipBackup ?? true) {
                 return false
             }
