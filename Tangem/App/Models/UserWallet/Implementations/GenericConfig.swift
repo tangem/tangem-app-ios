@@ -99,8 +99,7 @@ extension GenericConfig: UserWalletConfig {
             steps.append(contentsOf: initialSteps + _backupSteps + userWalletSavingSteps + [.success])
         } else {
             let isBackupActive = card.backupStatus?.isActive ?? false
-            let isBackupMandatory = card.firmwareVersion >= .keysImportAvailable
-            let forceBackup = isBackupMandatory && !isBackupActive
+            let forceBackup = !canSkipBackup && !isBackupActive
 
             if AppSettings.shared.cardsStartedActivation.contains(card.cardId) || forceBackup {
                 steps.append(contentsOf: _backupSteps + userWalletSavingSteps + [.success])
