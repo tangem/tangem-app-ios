@@ -54,8 +54,8 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "EF46619A2923AFC400346B6C"
-               BuildableName = "TangemExchangeTests.xctest"
-               BlueprintName = "TangemExchangeTests"
+               BuildableName = "TangemSwappingTests.xctest"
+               BlueprintName = "TangemSwappingTests"
                ReferencedContainer = "container:TangemApp.xcodeproj">
             </BuildableReference>
          </TestableReference>
