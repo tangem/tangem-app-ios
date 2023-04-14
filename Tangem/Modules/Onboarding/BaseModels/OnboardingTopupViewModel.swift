@@ -13,6 +13,7 @@ import BlockchainSdk
 class OnboardingTopupViewModel<Step: OnboardingStep, Coordinator: OnboardingTopupRoutable>: OnboardingViewModel<Step, Coordinator> {
     @Injected(\.exchangeService) var exchangeService: ExchangeService
     @Injected(\.tangemApiService) private var tangemApiService: TangemApiService
+    @Injected(\.analyticsContext) var analyticsContext: AnalyticsContext
 
     @Published var refreshButtonState: OnboardingCircleButton.State = .refreshButton
     @Published var cardBalance: String = ""
@@ -81,6 +82,7 @@ class OnboardingTopupViewModel<Step: OnboardingStep, Coordinator: OnboardingTopu
                     if shouldGoToNextStep,
                        !walletModel.isEmptyIncludingPendingIncomingTxs,
                        !(walletModel.wallet.amounts[type]?.isZero ?? true) {
+                        Analytics.logTopUpIfNeeded(balance: walletModel.totalBalance)
                         self.goToNextStep()
                         self.walletModelUpdateCancellable = nil
                         return
@@ -88,8 +90,14 @@ class OnboardingTopupViewModel<Step: OnboardingStep, Coordinator: OnboardingTopu
 
                     self.resetRefreshButtonState()
                 case .failed(let error):
-                    self.alert = error.alertBinder
                     self.resetRefreshButtonState()
+
+                    // Need check is display alert yet, because not to present an error if it is already shown
+                    guard self.alert == nil else {
+                        return
+                    }
+
+                    self.alert = error.alertBinder
                 case .loading, .created, .noDerivation:
                     return
                 }
@@ -118,10 +126,6 @@ class OnboardingTopupViewModel<Step: OnboardingStep, Coordinator: OnboardingTopu
         withAnimation {
             self.refreshButtonState = .refreshButton
         }
-    }
-
-    func logZeroBalanceAnalytics() {
-        Analytics.logTopUpIfNeeded(balance: 0)
     }
 }
 
