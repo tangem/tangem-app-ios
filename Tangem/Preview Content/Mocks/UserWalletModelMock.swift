@@ -15,6 +15,8 @@ struct UserWalletModelMock: UserWalletModel {
         UserWallet(userWalletId: Data(), name: "", card: .init(card: .card), associatedCardIds: [], walletData: .none, artwork: nil, isHDWalletAllowed: false)
     }
 
+    var totalBalanceProvider: TotalBalanceProviding { TotalBalanceProviderMock() }
+
     func updateUserWalletModel(with config: UserWalletConfig) {}
 
     func updateUserWallet(_ userWallet: UserWallet) {}

@@ -10,7 +10,6 @@ import Foundation
 
 extension Analytics {
     enum ParameterKey: String {
-        case cardId
         case blockchain
         case firmware = "Firmware"
         case action
@@ -44,6 +43,8 @@ extension Analytics {
         case productType = "Product Type"
         case sendToken = "Send Token"
         case receiveToken = "Receive Token"
-        case scanSource = "Source"
+        case commonSource = "Source"
+        case signInType = "Sign in type"
+        case balance = "Balance"
     }
 }

@@ -15,7 +15,7 @@ protocol DetailsRoutable: AnyObject {
     func openCurrencySelection()
     func openDisclaimer(at url: URL)
     func openScanCardSettings(with userWalletId: Data)
-    func openAppSettings(userWallet: UserWallet)
+    func openAppSettings(userWallet: CardViewModel)
     func openSupportChat(input: SupportChatInputModel)
     func openInSafari(url: URL)
     func openEnvironmentSetup()
