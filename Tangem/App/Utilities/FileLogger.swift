@@ -22,7 +22,7 @@ class FileLogger: TangemSdkLogger {
 
     private lazy var dateFormatter: DateFormatter = {
         let formatter = DateFormatter()
-        formatter.dateFormat = "HH:mm:ss:SSS"
+        formatter.dateFormat = "yyyy-MM-dd HH:mm:ss:SSS"
         return formatter
     }()
 
@@ -30,7 +30,7 @@ class FileLogger: TangemSdkLogger {
         guard Log.filter(level) else { return }
 
         loggerSerialQueue.async {
-            let formattedMessage = "\(level.emoji) \(self.dateFormatter.string(from: Date())):\(level.prefix) \(message)"
+            let formattedMessage = "\(level.emoji) \(self.dateFormatter.string(from: Date())):\(level.prefix) \(message)\n"
             let messageData = formattedMessage.data(using: .utf8)!
 
             if let handler = try? FileHandle(forWritingTo: self.scanLogsFileURL) {
