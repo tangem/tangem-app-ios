@@ -130,6 +130,7 @@ class AddCustomTokenViewModel: ObservableObject {
     }
 
     func onAppear() {
+        Analytics.log(.customTokenScreenOpened)
         updateBlockchains(getBlockchains(withTokenSupport: true))
         updateDerivationPaths()
     }
@@ -194,7 +195,7 @@ class AddCustomTokenViewModel: ObservableObject {
         } else {
             evmDerivationPaths = evmBlockchains
                 .compactMap {
-                    guard let derivationPath = cardModel.getBlockchainNetwork(for: $0, derivationPath: nil).derivationPath else {
+                    guard let derivationPath = $0.derivationPath() else {
                         return nil
                     }
 
