@@ -29,7 +29,7 @@ class SendViewModel: ObservableObject {
     @Published var isFeeIncluded: Bool = false
     @Published var selectedFeeLevel: Int = 1
     @Published var maxAmountTapped: Bool = false
-    @Published var fees: [Amount] = []
+    @Published var fees: [Fee] = []
 
     @ObservedObject var warnings = WarningsContainer() {
         didSet {
@@ -85,7 +85,7 @@ class SendViewModel: ObservableObject {
     @Published var sendFee: String = " "
     @Published var sendTotalSubtitle: String = " "
 
-    @Published var selectedFee: Amount? = nil
+    @Published var selectedFee: Fee? = nil
     @Published var transaction: BlockchainSdk.Transaction? = nil
     @Published var canFiatCalculation: Bool = true
     @Published var isFeeLoading: Bool = false
@@ -187,7 +187,6 @@ class SendViewModel: ObservableObject {
         canFiatCalculation = false
         sendAmount = amountToSend.value.description
         amountText = sendAmount
-        bind()
     }
 
     private func getDescription(for amount: Amount?) -> String {
@@ -201,7 +200,7 @@ class SendViewModel: ObservableObject {
     private func fillTotalBlockWithDefaults() {
         let dummyAmount = Amount(with: amountToSend, value: 0)
 
-        updateFee(amount: selectedFee)
+        updateFee(amount: selectedFee?.amount)
         sendAmount = getDescription(for: dummyAmount)
         sendTotal = getDescription(for: dummyAmount)
         sendTotalSubtitle = " "
@@ -302,7 +301,10 @@ class SendViewModel: ObservableObject {
 //                return true
 //            }
             .sink { [unowned self] newAmountString, isFiat in
-                guard let decimals = Decimal(string: newAmountString.replacingOccurrences(of: ",", with: ".")) else {
+                guard
+                    let decimals = Decimal(string: newAmountString.replacingOccurrences(of: ",", with: ".")),
+                    decimals > 0
+                else {
                     self.amountHint = nil
                     self.validatedAmount = nil
                     return
@@ -326,35 +328,21 @@ class SendViewModel: ObservableObject {
             .dropFirst()
             .compactMap { $0 }
             .combineLatest($validatedDestination.compactMap { $0 }, feeRetrySubject)
-            .flatMap { [unowned self] amount, dest, _ -> AnyPublisher<[Amount], Never> in
+            .flatMap { [unowned self] amount, dest, _ -> AnyPublisher<[Fee], Never> in
                 self.isFeeLoading = true
-                return self.walletModel.getFee(amount: amount, destination: dest)
-                    .catch { [unowned self] error -> Just<[Amount]> in
+                return self.walletModel
+                    .getFee(amount: amount, destination: dest)
+                    .receive(on: DispatchQueue.main)
+                    .catch { [unowned self] error in
                         AppLog.shared.error(error)
-
-                        let errorText: String
-                        if let ethError = error as? ETHError,
-                           case .gasRequiredExceedsAllowance = ethError {
-                            errorText = ethError.localizedDescription
-                        } else {
-                            errorText = WalletError.failedToGetFee.localizedDescription
-                        }
-
-                        let ok = Alert.Button.default(Text(Localization.commonOk))
-                        let retry = Alert.Button.default(Text(Localization.commonRetry)) { [unowned self] in
-                            self.feeRetrySubject.send()
-                        }
-                        let alert = Alert(title: Text(errorText), primaryButton: retry, secondaryButton: ok)
-                        self.error = AlertBinder(alert: alert)
-
-                        return Just([Amount]())
-                    }.eraseToAnyPublisher()
+                        self.showLoadingFeeErrorAlert(error: error)
+                        return Just([Fee]())
+                    }
+                    .eraseToAnyPublisher()
             }
             .receive(on: RunLoop.main)
-            .sink(receiveCompletion: { [unowned self] completion in
-                self.isFeeLoading = false
-                self.fees = []
-            }, receiveValue: { [unowned self] fees in
+            .eraseToAnyPublisher()
+            .sink(receiveValue: { [unowned self] fees in
                 self.isFeeLoading = false
                 self.fees = fees
             })
@@ -366,8 +354,8 @@ class SendViewModel: ObservableObject {
                 $selectedFee,
                 $isFeeIncluded
             )
-            .sink { [unowned self] amount, destination, fee, isFeeIncluded in
-                guard let amount = amount, let destination = destination, let fee = fee else {
+            .sink { [unowned self] amount, destination, selectedFee, isFeeIncluded in
+                guard let amount = amount, let destination = destination, let selectedFee else {
                     if (destination?.isEmpty == false) || destination == nil {
                         self.transaction = nil
                     }
@@ -376,10 +364,11 @@ class SendViewModel: ObservableObject {
 
                 do {
                     let tx = try self.walletModel.walletManager.createTransaction(
-                        amount: isFeeIncluded ? amount - fee : amount,
-                        fee: fee,
+                        amount: isFeeIncluded ? amount - selectedFee.amount : amount,
+                        fee: selectedFee,
                         destinationAddress: destination
                     )
+
                     DispatchQueue.main.async {
                         self.validateWithdrawal(tx, amount)
                     }
@@ -421,7 +410,7 @@ class SendViewModel: ObservableObject {
         $selectedFee // update fee label
             .uiPublisher
             .sink { [unowned self] newAmount in
-                self.updateFee(amount: newAmount)
+                self.updateFee(amount: newAmount?.amount)
             }
             .store(in: &bag)
 
@@ -451,7 +440,7 @@ class SendViewModel: ObservableObject {
                 if memo.isEmpty { return }
 
                 switch blockchainNetwork.blockchain {
-                case .binance:
+                case .binance, .ton:
                     self.validatedMemo = memo
                 case .stellar:
                     if let memoId = UInt64(memo) {
@@ -485,6 +474,8 @@ class SendViewModel: ObservableObject {
     }
 
     func onAppear() {
+        Analytics.log(.sendScreenOpened)
+
         if #unavailable(iOS 16) {
             validateClipboard()
         }
@@ -549,28 +540,48 @@ class SendViewModel: ObservableObject {
     }
 
     func validateWithdrawal(_ transaction: BlockchainSdk.Transaction, _ totalAmount: Amount) {
-        if let validator = walletModel.walletManager as? WithdrawalValidator,
-           let warning = validator.validate(transaction),
-           error == nil {
-            let alert = Alert(
-                title: Text(Localization.commonWarning),
-                message: Text(warning.warningMessage),
-                primaryButton: Alert.Button.default(
-                    Text(warning.reduceMessage),
-                    action: {
-                        let newAmount = totalAmount - warning.suggestedReduceAmount
-                        self.amountText = self.isFiatCalculation ? self.walletModel.getFiat(for: newAmount, roundingType: .default(roundingMode: .down))?.description ?? "0" :
-                            newAmount.value.description
-                    }
-                ),
-                secondaryButton: Alert.Button.cancel(
-                    Text(warning.ignoreMessage),
-                    action: {}
-                )
-            )
-            UIApplication.shared.endEditing()
-            error = AlertBinder(alert: alert)
+        guard
+            let validator = walletModel.walletManager as? WithdrawalValidator,
+            let warning = validator.validate(transaction),
+            error == nil
+        else {
+            return
         }
+
+        let title = Text(Localization.commonWarning)
+        let message = Text(warning.warningMessage)
+
+        let reduceAmountButton = Alert.Button.default(
+            Text(warning.reduceMessage),
+            action: {
+                let newAmount = totalAmount - warning.suggestedReduceAmount
+
+                let newAmountValue: Decimal?
+                if self.isFiatCalculation {
+                    newAmountValue = self.walletModel.getFiat(for: newAmount, roundingType: .default(roundingMode: .down))
+                } else {
+                    newAmountValue = newAmount.value
+                }
+                self.amountText = newAmountValue?.description ?? "0"
+            }
+        )
+
+        let alert: Alert
+        if let ignoreMessage = warning.ignoreMessage {
+            let ignoreButton = Alert.Button.cancel(Text(ignoreMessage))
+
+            alert = Alert(
+                title: title,
+                message: message,
+                primaryButton: reduceAmountButton,
+                secondaryButton: ignoreButton
+            )
+        } else {
+            alert = Alert(title: title, message: message, dismissButton: reduceAmountButton)
+        }
+
+        UIApplication.shared.endEditing()
+        error = AlertBinder(alert: alert)
     }
 
     // MARK: Validation end -
@@ -640,6 +651,10 @@ class SendViewModel: ObservableObject {
                 } else if let memoText = validatedMemo {
                     tx.params = StellarTransactionParams(memo: .text(memoText))
                 }
+            case .ton:
+                if let memo = validatedMemo {
+                    tx.params = TONTransactionParams(memo: memo)
+                }
             default:
                 break
             }
@@ -669,14 +684,12 @@ class SendViewModel: ObservableObject {
                     self.error = SendError(error, openMailAction: self.openMail).alertBinder
                 } else {
                     if !isDemo {
-                        let event: Analytics.Event = self.isSellingCrypto ? .userSoldCrypto : .transactionSent
-                        Analytics.log(
-                            event: event,
-                            params: [
-                                .currencyCode: self.blockchainNetwork.blockchain.currencySymbol,
-                                .blockchain: self.blockchainNetwork.blockchain.displayName,
-                            ]
-                        )
+                        let sourceValue: Analytics.ParameterValue = self.isSellingCrypto ? .transactionSourceSell : .transactionSourceSend
+                        Analytics.log(event: .transactionSent, params: [
+                            .commonSource: sourceValue.rawValue,
+                            .currencyCode: self.blockchainNetwork.blockchain.currencySymbol,
+                            .blockchain: self.blockchainNetwork.blockchain.displayName,
+                        ])
                     }
 
                     let alert = AlertBuilder.makeSuccessAlert(
@@ -710,7 +723,7 @@ class SendViewModel: ObservableObject {
 
 private extension SendViewModel {
     func updateViewWith(transaction: BlockchainSdk.Transaction) {
-        let totalAmount = transaction.amount + transaction.fee
+        let totalAmount = transaction.amount + transaction.fee.amount
         let totalInFiatFormatted = totalAndFeeInFiatFormatted(
             from: transaction,
             currencyCode: AppSettings.shared.selectedCurrencyCode
@@ -720,7 +733,7 @@ private extension SendViewModel {
             sendAmount = walletModel.getFiatFormatted(for: transaction.amount, roundingType: .default(roundingMode: .plain)) ?? ""
             sendTotal = totalInFiatFormatted.total
 
-            if transaction.amount.type == transaction.fee.type {
+            if transaction.amount.type == transaction.fee.amount.type {
                 sendTotalSubtitle = Localization.sendTotalSubtitleFormat(totalAmount.description)
             } else {
                 sendTotalSubtitle = Localization.sendTotalSubtitleAssetFormat(
@@ -730,10 +743,10 @@ private extension SendViewModel {
             }
         } else {
             sendAmount = transaction.amount.description
-            sendTotal = (transaction.amount + transaction.fee).description
+            sendTotal = (transaction.amount + transaction.fee.amount).description
 
             if totalInFiatFormatted.total.isEmpty {
-                sendTotalSubtitle = "–"
+                sendTotalSubtitle = " "
             } else {
                 sendTotalSubtitle = Localization.sendTotalSubtitleFiatFormat(
                     totalInFiatFormatted.total,
@@ -742,13 +755,13 @@ private extension SendViewModel {
             }
         }
 
-        updateFee(amount: transaction.fee)
+        updateFee(amount: transaction.fee.amount)
     }
 
     func totalAndFeeInFiatFormatted(from transaction: BlockchainSdk.Transaction, currencyCode: String) -> (total: String, fee: String) {
         guard let famount = walletModel.getFiat(for: transaction.amount, roundingType: .shortestFraction(roundingMode: .plain)),
-              let ffee = walletModel.getFiat(for: transaction.fee, roundingType: .shortestFraction(roundingMode: .plain)),
-              let feeFormatted = walletModel.getFiatFormatted(for: transaction.fee, roundingType: .shortestFraction(roundingMode: .plain)) else {
+              let ffee = walletModel.getFiat(for: transaction.fee.amount, roundingType: .shortestFraction(roundingMode: .plain)),
+              let feeFormatted = walletModel.getFiatFormatted(for: transaction.fee.amount, roundingType: .shortestFraction(roundingMode: .plain)) else {
             return (total: "", fee: "")
         }
 
@@ -777,6 +790,23 @@ private extension SendViewModel {
         }
 
         return formatted
+    }
+
+    func showLoadingFeeErrorAlert(error: Error) {
+        let errorText: String
+        if let ethError = error as? ETHError,
+           case .gasRequiredExceedsAllowance = ethError {
+            errorText = ethError.localizedDescription
+        } else {
+            errorText = WalletError.failedToGetFee.localizedDescription
+        }
+
+        let ok = Alert.Button.default(Text(Localization.commonOk))
+        let retry = Alert.Button.default(Text(Localization.commonRetry)) { [unowned self] in
+            self.feeRetrySubject.send()
+        }
+        let alert = Alert(title: Text(errorText), primaryButton: retry, secondaryButton: ok)
+        self.error = AlertBinder(alert: alert)
     }
 }
 

@@ -6,13 +6,16 @@ use_frameworks!
 inhibit_all_warnings!
 
 def tangem_sdk_pod
-  pod 'TangemSdk', :git => 'https://github.com/Tangem/tangem-sdk-ios.git', :tag => 'develop-200'
+  pod 'TangemSdk', :git => 'https://github.com/Tangem/tangem-sdk-ios.git', :tag => 'develop-211'
 #   pod 'TangemSdk', :path => '../tangem-sdk-ios'
 end
 
 def blockchain_sdk_pods
-  pod 'BlockchainSdk', :git => 'https://github.com/tangem/blockchain-sdk-swift.git', :tag => 'develop-212-hotfix'
+  pod 'BlockchainSdk', :git => 'https://github.com/tangem/blockchain-sdk-swift.git', :tag => 'develop-251-hotfix-ton-memo-2'
 #  pod 'BlockchainSdk', :path => '../blockchain-sdk-swift'
+  
+  pod 'TangemWalletCore', :git => 'https://github.com/tangem/wallet-core-binaries-ios.git', :tag => '3.1.9-tangem2'
+#  pod 'TangemWalletCore', :path => '../wallet-core-binaries-ios'
 
   pod 'Solana.Swift', :git => 'https://github.com/tangem/Solana.Swift', :tag => 'add-external-signer-7'
   # pod 'Solana.Swift', :path => '../Solana.Swift'
@@ -23,10 +26,10 @@ def blockchain_sdk_pods
   pod 'HDWalletKit', :git => 'https://github.com/tangem/hdwallet.git', :tag => '0.3.12'
   # pod 'HDWalletKit', :path => '../HDWallet'
   
-  pod 'web3swift', :git => 'https://github.com/tangem/web3swift.git', :tag => '2.2.11'
+  pod 'web3swift', :git => 'https://github.com/tangem/web3swift.git', :tag => '2.2.12'
   # pod 'web3swift', :path => '../web3swift'
   
-  pod 'BitcoinCore.swift', :git => 'https://github.com/tangem/bitcoincore.git', :tag => '0.0.16'
+  pod 'BitcoinCore.swift', :git => 'https://github.com/tangem/bitcoincore.git', :tag => '0.0.19'
   # pod 'BitcoinCore.swift', :path => '../bitcoincore'
 end
 
@@ -90,6 +93,12 @@ post_install do |installer|
       end
 
       config.build_settings['DEAD_CODE_STRIPPING'] = 'YES'
+  end
+  
+  installer.pods_project.targets.each do |target|
+    target.build_configurations.each do |config|
+      config.build_settings['BUILD_LIBRARY_FOR_DISTRIBUTION'] = 'YES'
+    end
   end
   
 	installer.pods_project.targets.each do |target|
