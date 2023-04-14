@@ -12,6 +12,8 @@ protocol AnalyticsContext {
     var contextData: AnalyticsContextData? { get }
 
     func setupContext(with: AnalyticsContextData)
+    func updateContext(with userWalletId: Data)
+
     func clearContext()
 
     func value(forKey: AnalyticsStorageKey, scope: AnalyticsContextScope) -> Any?
