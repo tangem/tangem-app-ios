@@ -54,7 +54,7 @@ extension TokenDetailsCoordinator {
 
 extension TokenDetailsCoordinator: TokenDetailsRoutable {
     func openBuyCrypto(at url: URL, closeUrl: String, action: @escaping (String) -> Void) {
-        Analytics.log(.topUpScreenOpened)
+        Analytics.log(.topupScreenOpened)
         pushedWebViewModel = WebViewContainerViewModel(
             url: url,
             title: Localization.walletButtonBuy,
@@ -87,7 +87,6 @@ extension TokenDetailsCoordinator: TokenDetailsRoutable {
     }
 
     func openSend(amountToSend: Amount, blockchainNetwork: BlockchainNetwork, cardViewModel: CardViewModel) {
-        Analytics.log(.sendScreenOpened)
         let coordinator = SendCoordinator { [weak self] in
             self?.sendCoordinator = nil
         }

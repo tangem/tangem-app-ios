@@ -137,6 +137,14 @@ extension OnboardingCoordinator: WalletOnboardingRoutable {
         Analytics.log(.chatScreenOpened)
         supportChatViewModel = SupportChatViewModel(input: input)
     }
+
+    func openWebView(with url: URL) {
+        modalWebViewModel = WebViewContainerViewModel(
+            url: url,
+            title: "",
+            addLoadingIndicator: true
+        )
+    }
 }
 
 extension OnboardingCoordinator: OnboardingRoutable {
@@ -161,7 +169,6 @@ extension OnboardingCoordinator: OnboardingRoutable {
     }
 
     private func openMain(with cardModel: CardViewModel) {
-        Analytics.log(.screenOpened)
         let coordinator = MainCoordinator(popToRootAction: popToRootAction)
         let options = MainCoordinator.Options(cardModel: cardModel)
         coordinator.start(with: options)

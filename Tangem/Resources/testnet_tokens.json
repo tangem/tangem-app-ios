@@ -148,6 +148,17 @@
             ]
         },
         {
+            "id": "the-open-network",
+            "symbol": "TON",
+            "name": "The Open Network",
+            "networks":
+            [
+                {
+                    "networkId": "the-open-network/test"
+                }
+            ]
+        },
+        {
             "id": "tether",
             "symbol": "USDT",
             "name": "Tether USD",
@@ -486,6 +497,17 @@
                     "networkId": "fantom/test",
                     "contractAddress": "0xf1277d1Ed8AD466beddF92ef448A132661956621",
                     "decimalCount": 18
+                }
+            ]
+        },
+        {
+            "id": "kava",
+            "symbol": "KAVA",
+            "name": "KAVA",
+            "networks":
+            [
+                {
+                    "networkId": "kava/test"
                 }
             ]
         },
