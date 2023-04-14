@@ -56,6 +56,7 @@
 "common_done" = "完成";
 "common_error" = "錯誤";
 "common_explorer_format" = "%@ explorer";
+"common_import" = "Import";
 "common_no" = "否";
 "common_ok" = "OK";
 "common_origin_card" = "主卡片";
@@ -114,7 +115,7 @@
 "details_row_title_send_feedback" = "發送反饋";
 "details_row_title_signed_hashes" = "簽署";
 "details_security_management_warning" = "如果您忘記密碼，您將無法使用您的資金。無法恢復代碼";
-"details_title" = "細節";
+"details_title" = "更多";
 "disclaimer_error_loading" = "檢查您的網路連接或切換到其他網絡";
 "disclaimer_title" = "服務條款";
 "error_saltpay_wrong_backup_card" = "此卡不適用於 SaltPay 備份";
@@ -125,7 +126,7 @@
 "feedback_preface_rate_negative" = "告訴我們您缺少哪些功能，我們會盡力幫助您";
 "feedback_preface_scan_failed" = "請告訴我們你有什麼卡";
 "feedback_preface_support" = "嗨! 幫助團隊，";
-"feedback_preface_tx_failed" = "請告訴我們更多有關您的問題的信息。提供任何小細節都會帶來幫助";
+"feedback_preface_tx_failed" = "請告訴我們更多有關您的問題。提供任何細節都會帶來幫助";
 "feedback_subject_rate_negative" = "我的建議";
 "feedback_subject_scan_failed" = "無法掃卡";
 "feedback_subject_support" = "反饋";
@@ -140,6 +141,7 @@
 "initial_message_create_wallet_body" = "要創建錢包，請完全按照上圖所示連接手機和卡";
 "initial_message_purge_wallet_body" = "要重置為出廠設置，請完全按照上圖所示連接手機和卡片";
 "initial_message_sign_body" = "要簽名，請完全按照上圖所示連接手機和卡";
+"key_invalidated_warning_description" = "You have updated biometrics, scan your card to enter";
 "mail_error_no_accounts_body" = "請設置一個帳戶以發送電子郵件";
 "mail_error_no_accounts_title" = "沒有郵件帳戶";
 "main_manage_tokens" = "管理代幣";
@@ -182,6 +184,9 @@
 "onboarding_button_what_does_it_mean" = "它是如何運作的？";
 "onboarding_create_wallet_body" = "讓我們生成您卡上的所有密鑰並創建一個安全的錢包";
 "onboarding_create_wallet_button_create_wallet" = "創建錢包";
+"onboarding_create_wallet_options_button_options" = "Other options";
+"onboarding_create_wallet_options_message" = "Your keys will be securely generated inside the card. No seed phrase or any ability to export and steal them.";
+"onboarding_create_wallet_options_title" = "Generate keys privately";
 "onboarding_done_body" = "您的卡已激活並可以使用";
 "onboarding_done_header" = "成功!";
 "onboarding_exit_alert_message" = "這此情況，您必須要重新開始";
@@ -199,6 +204,20 @@
 "onboarding_saltpay_title_no_backup_card" = "沒有備份卡片";
 "onboarding_saltpay_title_one_backup_card" = "備份卡片已準備完成";
 "onboarding_saltpay_title_prepare_origin" = "準備SaltPay卡";
+"onboarding_seed_button_read_more" = "Read more about seed phrases";
+"onboarding_seed_generate_message" = "Write down these 12 words in the order given below and store them in a secret, safe place";
+"onboarding_seed_generate_title" = "Your recovery phrase";
+"onboarding_seed_import_message" = "To import your wallet, enter your secret recovery phrase in the field below";
+"onboarding_seed_intro_button_generate" = "Generate seed phrase";
+"onboarding_seed_intro_button_import" = "Import wallet";
+"onboarding_seed_intro_message" = "Seed phrase is a series of words that gives an ability to recover the wallet. Unlike the card generated keys, seed phrase is unprotected and can be copied and stolen. Use this option at your own risk.";
+"onboarding_seed_intro_title" = "Use seed phrase";
+"onboarding_seed_mnemonic_invalid_checksum" = "Invalid seed phrase. Please check words order";
+"onboarding_seed_mnemonic_wrong_words" = "Invalid seed phrase. Please check your spelling";
+"onboarding_seed_phrase_intro_legacy" = "Legacy";
+"onboarding_seed_screenshot_alert" = "We do not recommend storing the passphrase as a screenshot due to the high risk of loss or hacking";
+"onboarding_seed_user_validation_message" = "To check whether you’ve written down your seed phrase correctly, please enter the 2nd, 7th and 11th words";
+"onboarding_seed_user_validation_title" = "So, let’s check";
 "onboarding_subtitle_backup_card" = "您最多可以再備份兩張其他空白錢包";
 "onboarding_subtitle_claim" = "要開始，只需將 wxDAI 獲取到您的錢包";
 "onboarding_subtitle_claim_progress" = "這會花上幾秒";
@@ -238,9 +257,9 @@
 "onboarding_topup_title" = "啟動錢包";
 "onboarding_twin_exit_warning" = "結對過程已部分完成。你現在不能退出";
 "onboarding_twins_interrupt_warning" = "如果創建錢包的過程以任何方式中斷，您將得重新開始";
-"onboarding_wallet_info_subtitle_first" = "您最多可以備份另外兩張空白的 Tangem 錢包卡。";
+"onboarding_wallet_info_subtitle_first" = "您最多可以額外備份兩張空白的 Tangem冷錢包";
 "onboarding_wallet_info_subtitle_fourth" = "可以使用其中一張備用卡恢復訪問密碼";
-"onboarding_wallet_info_subtitle_second" = "所有備用卡都可以使用相同的密鑰作為全功能使用。";
+"onboarding_wallet_info_subtitle_second" = "所有備用卡都可以使用相同的密鑰作為全功能使用";
 "onboarding_wallet_info_subtitle_third" = "您將能夠設置訪問密碼來保護您的錢包";
 "onboarding_wallet_info_title_first" = "備援錢包";
 "onboarding_wallet_info_title_fourth" = "訪問密碼還原";
@@ -255,7 +274,7 @@
 "referral_error_failed_to_participate" = "無法處理您的請求。原因：%@。請稍後再試。無如果問題仍然存在—請隨時聯繫服務人員";
 "referral_friends_bought_title" = "您的朋友買";
 "referral_point_currencies_description_prefix" = "會得到";
-"referral_point_currencies_description_suffix" = "對於你的朋友在你的 %1$@ 網絡地址%2$@ 上購買的每個錢包";
+"referral_point_currencies_description_suffix" = "對於你的朋友在你的 %1$@ 網絡地址%2$@上購買的每個錢包";
 "referral_point_currencies_title" = "你";
 "referral_point_discount_description_prefix" = "得到";
 "referral_point_discount_description_suffix" = "當在 tangem.com購買卡片";
@@ -344,6 +363,8 @@
 "story_web3_title" = "兼容DeFi";
 "swapping_error_wrapper" = "錯誤： %@";
 "swapping_give_permission" = "賦予權限";
+"swapping_high_price_impact" = "價格影響高!";
+"swapping_high_price_impact_description" = "在此代幣交換的數量將對價格產生重大影響，並降低您收到的數量";
 "swapping_insufficient_funds" = "餘額不足";
 "swapping_not_enough_funds_for_fee" = "您的 %1$@ 錢包中沒有足夠的資金來創建交易。首先為您的 %2$@ 錢包充值";
 "swapping_pending_transaction_subtitle" = "交易進行中...";
@@ -358,7 +379,9 @@
 "swapping_success_view_explorer_button_title" = "在瀏覽器中查看";
 "swapping_success_view_title" = "進行中";
 "swapping_swap" = "交換";
+"swapping_swap_action" = "交易";
 "swapping_swap_of_to" = "交易 %@ 至";
+"swapping_tangem_fee_disclaimer" = "此外，報價包括%@的 Tangem 費用。這有助於我們提供一流的產品";
 "swapping_token_list_other_tokens" = "其他代幣";
 "swapping_token_list_title" = "選擇代幣";
 "swapping_token_list_your_tokens" = "您的代幣";
@@ -379,7 +402,7 @@
 "transaction_history_empty_transactions" = "您還沒有任何交易";
 "transaction_history_error_failed_to_load" = "無法加載交易";
 "transaction_history_title" = "交易";
-"transaction_history_tx_in_progress" = "進行中...";
+"transaction_history_tx_in_progress" = "進行中…";
 "twin_error_not_a_twin_card" = "您掃描的不是雙胞胎卡。要創建雙胞胎錢包，您需要掃描 Tangem Twin 卡";
 "twin_error_same_card" = "您掃描了同一張卡片。要創建雙錢包，您需要掃描編號為 %li 的卡";
 "twin_error_wrong_twin" = "你掃描錯了胞胎卡。請嘗試另一個";
@@ -441,11 +464,12 @@
 "wallet_connect_error_unsupported_blockchains" = "會話請求包含不支持 WalletConnect 連接的區塊鏈。不支持的區塊鏈：\n";
 "wallet_connect_error_unsupported_dapp" = "由於技術問題，無法與此 Dapp 建立連接";
 "wallet_connect_error_with_framework_message" = "我們遇到了未知錯誤。錯誤信息：%@。如果問題仍然存在-請隨時聯繫我們的客服人員";
+"wallet_connect_error_wrong_card_selected" = "在 Tangem App 中選擇了錯誤的卡";
 "wallet_connect_failed_to_build_tx" = "無法從 Dapp 數據創建交易。代碼： %@";
 "wallet_connect_generic_error_with_code" = "我們遇到了未知錯誤。錯誤代碼：%li。如果問題仍然存在-請隨時聯繫我們的支持人員";
 "wallet_connect_message_signed" = "消息已成功簽名並發送至Dapp";
 "wallet_connect_network_not_found_format" = "沒有 %@ 網路，請先加入後再試一次";
-"wallet_connect_no_sessions_message" = "沒有打開中的WalletConnect連接";
+"wallet_connect_no_sessions_message" = "沒有已連結的WalletConnect";
 "wallet_connect_no_sessions_title" = "Ooops, 沒有連接";
 "wallet_connect_paste_from_clipboard" = "從剪貼板貼上";
 "wallet_connect_personal_sign_message" = "給 %1$@ 的消息：%2$@";

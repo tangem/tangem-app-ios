@@ -114,6 +114,10 @@ class TokenListViewModel: ObservableObject {
     }
 
     func onAppear() {
+        if !isReadonlyMode {
+            Analytics.log(.manageTokensScreenOpened)
+        }
+
         loader.reset(enteredSearchText.value)
     }
 
@@ -178,8 +182,8 @@ private extension TokenListViewModel {
         let loader = ListDataLoader(networkIds: networkIds)
 
         loader.$items
-            .map { [unowned self] items -> [CoinViewModel] in
-                items.compactMap { self.mapToCoinViewModel(coinModel: $0) }
+            .map { [weak self] items -> [CoinViewModel] in
+                items.compactMap { self?.mapToCoinViewModel(coinModel: $0) }
             }
             .receive(on: DispatchQueue.main)
             .weakAssign(to: \.coinViewModels, on: self)
