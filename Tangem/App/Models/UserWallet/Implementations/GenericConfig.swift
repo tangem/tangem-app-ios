@@ -98,10 +98,13 @@ extension GenericConfig: UserWalletConfig {
             }
             steps.append(contentsOf: initialSteps + _backupSteps + userWalletSavingSteps + [.success])
         } else {
-            if !AppSettings.shared.cardsStartedActivation.contains(card.cardId) {
-                steps.append(contentsOf: userWalletSavingSteps)
-            } else {
+            let isBackupActive = card.backupStatus?.isActive ?? false
+            let forceBackup = !canSkipBackup && !isBackupActive
+
+            if AppSettings.shared.cardsStartedActivation.contains(card.cardId) || forceBackup {
                 steps.append(contentsOf: _backupSteps + userWalletSavingSteps + [.success])
+            } else {
+                steps.append(contentsOf: userWalletSavingSteps)
             }
         }
 
@@ -110,6 +113,10 @@ extension GenericConfig: UserWalletConfig {
 
     var backupSteps: OnboardingSteps? {
         .wallet(_backupSteps + [.success])
+    }
+
+    var canSkipBackup: Bool {
+        card.firmwareVersion < .keysImportAvailable
     }
 
     var supportedBlockchains: Set<Blockchain> {
