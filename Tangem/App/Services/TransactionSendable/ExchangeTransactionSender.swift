@@ -8,22 +8,26 @@
 
 import TangemExchange
 import BlockchainSdk
+import BigInt
 
 struct ExchangeTransactionSender {
     private let transactionCreator: TransactionCreator
     private let transactionSender: TransactionSender
     private let transactionSigner: TransactionSigner
+    private let ethereumNetworkProvider: EthereumNetworkProvider
     private let currencyMapper: CurrencyMapping
 
     init(
         transactionCreator: TransactionCreator,
         transactionSender: TransactionSender,
         transactionSigner: TransactionSigner,
+        ethereumNetworkProvider: EthereumNetworkProvider,
         currencyMapper: CurrencyMapping
     ) {
         self.transactionCreator = transactionCreator
         self.transactionSender = transactionSender
         self.transactionSigner = transactionSigner
+        self.ethereumNetworkProvider = ethereumNetworkProvider
         self.currencyMapper = currencyMapper
     }
 }
@@ -32,7 +36,8 @@ struct ExchangeTransactionSender {
 
 extension ExchangeTransactionSender: TransactionSendable {
     func sendTransaction(_ info: ExchangeTransactionDataModel) async throws -> TransactionSendResult {
-        let transaction = try buildTransaction(for: info)
+        let nonce = try await ethereumNetworkProvider.getTxCount(info.sourceAddress).async()
+        let transaction = try buildTransaction(for: info, nonce: nonce)
         return try await transactionSender.send(transaction, signer: transactionSigner).async()
     }
 }
@@ -40,22 +45,30 @@ extension ExchangeTransactionSender: TransactionSendable {
 // MARK: - Private
 
 private extension ExchangeTransactionSender {
-    func buildTransaction(for info: ExchangeTransactionDataModel) throws -> Transaction {
-        let sourceAmount = info.sourceCurrency.convertFromWEI(value: info.value)
+    func buildTransaction(for info: ExchangeTransactionDataModel, nonce: Int) throws -> Transaction {
+        let gasModel = info.gas
 
-        let amount = createAmount(from: info.sourceCurrency, amount: sourceAmount)
-        let fee = try createAmount(from: info.sourceBlockchain, amount: info.fee)
+        let amount = createAmount(from: info.sourceCurrency, amount: info.value)
+        let feeAmount = try createAmount(from: info.sourceBlockchain, amount: gasModel.fee)
+        let feeParameters = EthereumFeeParameters(gasLimit: BigUInt(gasModel.gasLimit), gasPrice: BigUInt(gasModel.gasPrice))
+        let fee = Fee(feeAmount, parameters: feeParameters)
 
-        var transaction = try transactionCreator.createTransaction(
+        var transaction = Transaction(
             amount: amount,
             fee: fee,
             sourceAddress: info.sourceAddress,
             destinationAddress: info.destinationAddress,
             changeAddress: info.sourceAddress,
-            contractAddress: info.destinationAddress
+            contractAddress: info.destinationAddress,
+            date: Date(),
+            status: .unconfirmed
         )
 
-        transaction.params = EthereumTransactionParams(data: info.txData, gasLimit: info.gasValue)
+        transaction.params = EthereumTransactionParams(
+            data: info.txData,
+            nonce: nonce
+        )
+
         return transaction
     }
 

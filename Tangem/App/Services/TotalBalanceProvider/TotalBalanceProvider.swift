@@ -18,6 +18,7 @@ class TotalBalanceProvider {
     private var refreshSubscription: AnyCancellable?
     private let userWalletAmountType: Amount.AmountType?
     private var bag: Set<AnyCancellable> = .init()
+    private var updateSubscription: AnyCancellable?
 
     init(userWalletModel: UserWalletModel, userWalletAmountType: Amount.AmountType?) {
         self.userWalletModel = userWalletModel
@@ -42,9 +43,18 @@ private extension TotalBalanceProvider {
 
         // Subscription to handle token changes
         userWalletModel.subscribeToWalletModels()
-            .combineLatest(AppSettings.shared.$selectedCurrencyCode, hasEntriesWithoutDerivationPublisher)
+            .combineLatest(
+                AppSettings.shared.$selectedCurrencyCode.delay(for: 0.3, scheduler: DispatchQueue.main),
+                hasEntriesWithoutDerivationPublisher
+            )
             .receive(on: DispatchQueue.main)
             .sink { [weak self] walletModels, currencyCode, hasEntriesWithoutDerivation in
+                self?.updateSubscription = nil
+
+                if !walletModels.isEmpty {
+                    self?.subscribeToUpdates(walletModels, hasEntriesWithoutDerivation)
+                }
+
                 let hasLoading = !walletModels.filter { $0.state.isLoading }.isEmpty
 
                 // We should wait for balance loading to complete
@@ -56,23 +66,19 @@ private extension TotalBalanceProvider {
                 self?.updateTotalBalance(with: currencyCode, walletModels, hasEntriesWithoutDerivation)
             }
             .store(in: &bag)
+    }
 
+    private func subscribeToUpdates(_ walletModels: [WalletModel], _ hasEntriesWithoutDerivation: Bool) {
         // Subscription to handle balance loading completion
-        userWalletModel.subscribeToWalletModels()
-            .filter { !$0.isEmpty }
-            .combineLatest(hasEntriesWithoutDerivationPublisher)
-            .receive(on: DispatchQueue.main)
-            .flatMap { walletModels, hasEntriesWithoutDerivation -> AnyPublisher<([WalletModel], Bool), Never> in
-                Publishers.MergeMany(
-                    walletModels.map { $0
-                        .walletDidChange
-                        .filter { !$0.isLoading } // subscribe to all the walletDidChange events
-                        // This delay has been added because `walletDidChange` pushed the changes on `willSet`
-                        .delay(for: 0.1, scheduler: DispatchQueue.main)
-                    })
-                    .map { _ in (walletModels, hasEntriesWithoutDerivation) }
-                    .eraseToAnyPublisher()
-            }
+
+        updateSubscription = Publishers.MergeMany(
+            walletModels.map { $0
+                .walletDidChange
+                .filter { !$0.isLoading } // subscribe to all the walletDidChange events
+                // This delay has been added because `walletDidChange` pushed the changes on `willSet`
+                .delay(for: 0.1, scheduler: DispatchQueue.main)
+            })
+            .map { _ in (walletModels, hasEntriesWithoutDerivation) }
             .debounce(for: 0.2, scheduler: DispatchQueue.main) // Hide skeleton with delay
             .filter { walletModels, _ in
                 // We can still have loading items
@@ -81,7 +87,6 @@ private extension TotalBalanceProvider {
             .sink { [weak self] walletModels, hasEntriesWithoutDerivation in
                 self?.updateTotalBalance(with: AppSettings.shared.selectedCurrencyCode, walletModels, hasEntriesWithoutDerivation)
             }
-            .store(in: &bag)
     }
 
     func updateTotalBalance(with currencyCode: String, _ walletModels: [WalletModel], _ hasEntriesWithoutDerivation: Bool) {
@@ -98,7 +103,7 @@ private extension TotalBalanceProvider {
         let tokenItemViewModels = getTokenItemViewModels(from: walletModels)
 
         var hasError = false
-        var balance: Decimal? = 0.0
+        var balance: Decimal?
 
         for token in tokenItemViewModels {
             if !token.state.isSuccesfullyLoaded {
@@ -109,15 +114,19 @@ private extension TotalBalanceProvider {
             let currentValue = balance ?? 0
             balance = currentValue + token.fiatValue
 
-            // Just show wawning for custom tokens
-            if token.rate.isEmpty, token.isCustom {
-                hasError = true
+            if token.rate.isEmpty {
+                // Just show wawning for custom tokens
+                if token.isCustom {
+                    hasError = true
+                } else {
+                    balance = nil
+                    break
+                }
             }
         }
 
         // It is also empty when derivation is missing
         if let balance, !hasEntriesWithoutDerivation {
-            Analytics.logSignInIfNeeded(balance: balance)
             Analytics.logTopUpIfNeeded(balance: balance)
         }
 
