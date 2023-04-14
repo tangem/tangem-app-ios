@@ -33,41 +33,21 @@ class Analytics {
         }
 
         analyticsContext.removeValue(forKey: .scanSource, scope: .common)
-        logInternal(.cardWasScanned, params: [.scanSource: source.cardWasScannedParameterValue.rawValue])
-
-        if let cardId = analyticsContext.contextData?.analyticsParams[.cardId],
-           DemoUtil().isDemoCard(cardId: cardId) {
-            log(event: .demoActivated, params: [.cardId: cardId])
-        }
+        logInternal(.cardWasScanned, params: [.commonSource: source.cardWasScannedParameterValue.rawValue])
     }
 
     // MARK: - Others
 
-    static func logSignInIfNeeded(balance: Decimal) {
-        let isSignedIn = analyticsContext.value(forKey: .signedIn, scope: .userWallet) as? Bool ?? false
-        if isSignedIn {
-            return
-        }
-
-        analyticsContext.set(value: true, forKey: .signedIn, scope: .userWallet)
-
-        let params: [ParameterKey: String] = [
-            .state: ParameterValue.state(for: balance).rawValue,
-        ]
-
-        logInternal(.signedIn, params: params)
-    }
-
     static func logTopUpIfNeeded(balance: Decimal) {
-        let previousBalance = analyticsContext.value(forKey: .balance, scope: .userWallet) as? Decimal
+        let hasPreviousPositiveBalance = analyticsContext.value(forKey: .hasPositiveBalance, scope: .userWallet) as? Bool
 
         // Send only first topped up event. Do not send the event to analytics on following topup events.
-        if balance > 0, previousBalance == 0 {
+        if balance > 0, hasPreviousPositiveBalance == false {
             logInternal(.toppedUp)
-            analyticsContext.set(value: balance, forKey: .balance, scope: .userWallet)
-        } else if previousBalance == nil { // Do not save in a withdrawal case
-            // Register the first app launch with the zero balance.
-            analyticsContext.set(value: balance, forKey: .balance, scope: .userWallet)
+            analyticsContext.set(value: true, forKey: .hasPositiveBalance, scope: .userWallet)
+        } else if hasPreviousPositiveBalance == nil { // Do not save in a withdrawal case
+            // Register the first app launch with balance.
+            analyticsContext.set(value: balance > 0, forKey: .hasPositiveBalance, scope: .userWallet)
         }
     }
 
@@ -154,7 +134,7 @@ class Analytics {
     private static func logInternal(
         _ event: Event,
         params: [ParameterKey: String] = [:],
-        analyticsSystems: [Analytics.AnalyticsSystem] = [.firebase, .appsflyer, .amplitude]
+        analyticsSystems: [Analytics.AnalyticsSystem] = [.firebase, .appsflyer, .amplitude, .crashlytics]
     ) {
         if AppEnvironment.current.isXcodePreview {
             return
@@ -166,15 +146,16 @@ class Analytics {
             params.merge(contextualParams, uniquingKeysWith: { _, new in new })
         }
 
+        let key = event.rawValue
+        let values = params.firebaseParams
+
         for system in analyticsSystems {
             switch system {
-            case .appsflyer, .firebase:
-                let key = event.rawValue
-                let values = params.firebaseParams
-
-                FirebaseAnalytics.Analytics.logEvent(key, parameters: values)
+            case .appsflyer:
                 AppsFlyerLib.shared().logEvent(key, withValues: values)
-
+            case .firebase:
+                FirebaseAnalytics.Analytics.logEvent(key, parameters: values)
+            case .crashlytics:
                 let message = "\(key).\(values)"
                 Crashlytics.crashlytics().log(message)
             case .amplitude:
@@ -210,7 +191,6 @@ fileprivate extension Analytics.Event {
              .buttonScanNewCard,
              .buttonCardSignIn,
              .cardWasScanned,
-             .signedIn,
              .toppedUp,
              .purchased:
             return false
