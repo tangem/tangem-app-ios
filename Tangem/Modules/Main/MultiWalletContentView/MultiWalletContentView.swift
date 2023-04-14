@@ -32,6 +32,7 @@ struct MultiWalletContentView: View {
                 action: viewModel.openTokensList
             )
             .padding(.horizontal, 16)
+            .animation(nil)
         }
     }
 
@@ -67,9 +68,11 @@ struct MultiWalletContentView: View {
                                 .padding(.horizontal, 16)
                                 .padding(.vertical, 15)
                                 .contentShape(Rectangle())
+                                .animation(nil)
                         }
                         .buttonStyle(TangemTokenButtonStyle())
                         .disabled(item.state == .noDerivation)
+                        .animation(nil)
 
                         if viewModels.last != item {
                             Separator(height: 1, padding: 0, color: .tangemBgGray2)
@@ -79,6 +82,7 @@ struct MultiWalletContentView: View {
                     .animation(nil)
                 }
             }
+            .animation(nil)
         }
     }
 }
