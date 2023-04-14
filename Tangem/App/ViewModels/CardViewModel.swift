@@ -22,6 +22,7 @@ class CardViewModel: Identifiable, ObservableObject {
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
 
     @Published private(set) var currentSecurityOption: SecurityModeOption = .longTap
+    @Published private(set) var accessCodeRecoveryEnabled: Bool
 
     var signer: TangemSigner { _signer }
 
@@ -100,8 +101,16 @@ class CardViewModel: Identifiable, ObservableObject {
         !config.getFeatureAvailability(.backup).isHidden
     }
 
+    var canSkipBackup: Bool {
+        config.canSkipBackup
+    }
+
     var canTwin: Bool {
         config.hasFeature(.twinning)
+    }
+
+    var canChangeAccessCodeRecoverySettings: Bool {
+        config.hasFeature(.accessCodeRecoverySettings)
     }
 
     var hasBackupCards: Bool {
@@ -310,6 +319,7 @@ class CardViewModel: Identifiable, ObservableObject {
         self.cardInfo = cardInfo
         self.config = config
         _signer = config.tangemSigner
+        accessCodeRecoveryEnabled = cardInfo.card.userSettings.isUserCodeRecoveryAllowed
         createUserWalletModelIfNeeded(with: userWallet)
         updateCurrentSecurityOption()
         appendPersistentBlockchains()
@@ -494,7 +504,7 @@ class CardViewModel: Identifiable, ObservableObject {
     // MARK: - Update
 
     func onWalletCreated(_ card: Card) {
-        cardInfo.card.wallets = card.wallets
+        cardInfo.card.updateWallets(with: card.wallets)
         onUpdate()
         userWalletModel?.initialUpdate()
     }
@@ -816,3 +826,21 @@ extension CardViewModel {
 }
 
 extension CardViewModel: WalletConnectUserWalletInfoProvider {}
+
+// MARK: Access code recovery settings provider
+
+extension CardViewModel: AccessCodeRecoverySettingsProvider {
+    func setAccessCodeRecovery(to enabled: Bool, _ completionHandler: @escaping (Result<Void, TangemSdkError>) -> Void) {
+        tangemSdk.setUserCodeRecoveryAllowed(enabled, cardId: cardId) { [weak self] result in
+            guard let self else { return }
+            switch result {
+            case .success:
+                self.cardInfo.card.userSettings.isUserCodeRecoveryAllowed = enabled
+                self.accessCodeRecoveryEnabled = enabled
+                completionHandler(.success(()))
+            case .failure(let error):
+                completionHandler(.failure(error))
+            }
+        }
+    }
+}
