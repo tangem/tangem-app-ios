@@ -100,8 +100,9 @@ extension GenericConfig: UserWalletConfig {
         } else {
             let isBackupActive = card.backupStatus?.isActive ?? false
             let isBackupMandatory = card.firmwareVersion >= .keysImportAvailable
+            let forceBackup = isBackupMandatory && !isBackupActive
 
-            if AppSettings.shared.cardsStartedActivation.contains(card.cardId) || (isBackupMandatory && !isBackupActive) {
+            if AppSettings.shared.cardsStartedActivation.contains(card.cardId) || forceBackup {
                 steps.append(contentsOf: _backupSteps + userWalletSavingSteps + [.success])
             } else {
                 steps.append(contentsOf: userWalletSavingSteps)
@@ -113,6 +114,10 @@ extension GenericConfig: UserWalletConfig {
 
     var backupSteps: OnboardingSteps? {
         .wallet(_backupSteps + [.success])
+    }
+
+    var canSkipBackup: Bool {
+        card.firmwareVersion < .keysImportAvailable
     }
 
     var supportedBlockchains: Set<Blockchain> {
