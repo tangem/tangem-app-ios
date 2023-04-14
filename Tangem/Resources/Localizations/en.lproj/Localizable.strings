@@ -56,6 +56,7 @@
 "common_done" = "Done";
 "common_error" = "Error";
 "common_explorer_format" = "%@ explorer";
+"common_import" = "Import";
 "common_no" = "No";
 "common_ok" = "OK";
 "common_origin_card" = "Primary Card";
@@ -140,6 +141,7 @@
 "initial_message_create_wallet_body" = "To create the wallet tap the card as shown above and do not remove until the end of the operation";
 "initial_message_purge_wallet_body" = "To reset to factory settings tap the card as shown above and do not remove until the end of the operation";
 "initial_message_sign_body" = "To sign tap the card as shown above and do not remove until the end of the operation";
+"key_invalidated_warning_description" = "You have updated biometrics, scan your card to enter";
 "mail_error_no_accounts_body" = "Please, set up an account to send email";
 "mail_error_no_accounts_title" = "No Mail accounts";
 "main_manage_tokens" = "Manage tokens";
@@ -182,6 +184,9 @@
 "onboarding_button_what_does_it_mean" = "How does it work?";
 "onboarding_create_wallet_body" = "Let's generate all the keys on your card and create a secure wallet";
 "onboarding_create_wallet_button_create_wallet" = "Create wallet";
+"onboarding_create_wallet_options_button_options" = "Other options";
+"onboarding_create_wallet_options_message" = "Your keys will be securely generated inside the card. No seed phrase or any ability to export and steal them.";
+"onboarding_create_wallet_options_title" = "Generate keys privately";
 "onboarding_done_body" = "Your card is activated and ready to be used";
 "onboarding_done_header" = "Success!";
 "onboarding_exit_alert_message" = "In this case, you will need to start from the beginning.";
@@ -199,6 +204,20 @@
 "onboarding_saltpay_title_no_backup_card" = "No backup card";
 "onboarding_saltpay_title_one_backup_card" = "Backup card ready";
 "onboarding_saltpay_title_prepare_origin" = "Prepare the SaltPay card";
+"onboarding_seed_button_read_more" = "Read more about seed phrases";
+"onboarding_seed_generate_message" = "Write down these 12 words in the order given below and store them in a secret, safe place";
+"onboarding_seed_generate_title" = "Your recovery phrase";
+"onboarding_seed_import_message" = "To import your wallet, enter your secret recovery phrase in the field below";
+"onboarding_seed_intro_button_generate" = "Generate seed phrase";
+"onboarding_seed_intro_button_import" = "Import wallet";
+"onboarding_seed_intro_message" = "Seed phrase is a series of words that gives an ability to recover the wallet. Unlike the card generated keys, seed phrase is unprotected and can be copied and stolen. Use this option at your own risk.";
+"onboarding_seed_intro_title" = "Use seed phrase";
+"onboarding_seed_mnemonic_invalid_checksum" = "Invalid seed phrase. Please check words order";
+"onboarding_seed_mnemonic_wrong_words" = "Invalid seed phrase. Please check your spelling";
+"onboarding_seed_phrase_intro_legacy" = "Legacy";
+"onboarding_seed_screenshot_alert" = "We do not recommend storing the passphrase as a screenshot due to the high risk of loss or hacking";
+"onboarding_seed_user_validation_message" = "To check whether you’ve written down your seed phrase correctly, please enter the 2nd, 7th and 11th words";
+"onboarding_seed_user_validation_title" = "So, let’s check";
 "onboarding_subtitle_backup_card" = "You can backup your keys up to two other blank wallet cards";
 "onboarding_subtitle_claim" = "To get started, simply claim wxDAI to your wallet";
 "onboarding_subtitle_claim_progress" = "It will take a few seconds";
@@ -360,8 +379,9 @@
 "swapping_success_view_explorer_button_title" = "View in Explorer";
 "swapping_success_view_title" = "In progress";
 "swapping_swap" = "Swap";
+"swapping_swap_action" = "Swap";
 "swapping_swap_of_to" = "Swap of %@ to";
-"swapping_tangem_fee_disclaimer" = "Additionally, quotes include Tangem fee of %s. This helps us deliver a top-of-the-line product.";
+"swapping_tangem_fee_disclaimer" = "Quotes include an additional Tangem commission of %@. This helps us deliver a top-of-the-line product.";
 "swapping_token_list_other_tokens" = "Other tokens";
 "swapping_token_list_title" = "Choose token";
 "swapping_token_list_your_tokens" = "Your tokens";
@@ -382,7 +402,7 @@
 "transaction_history_empty_transactions" = "You don't have any transactions yet";
 "transaction_history_error_failed_to_load" = "Failed to load transactions";
 "transaction_history_title" = "Transactions";
-"transaction_history_tx_in_progress" = "In progress...";
+"transaction_history_tx_in_progress" = "In progress…";
 "twin_error_not_a_twin_card" = "You've scanned not a twin card. To create twin wallet you need to scan a Tangem Twin card";
 "twin_error_same_card" = "You've scanned the same card. To create a twin wallet you need to scan the card with number %li";
 "twin_error_wrong_twin" = "You've scanned wrong twin card. Please try another one";
