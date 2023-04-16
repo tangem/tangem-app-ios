@@ -25,7 +25,6 @@ struct ZendeskSupportChatView: UIViewControllerRepresentable {
 
         let coordinator = Coordinator(rootViewController: viewController)
         coordinator.viewModel = viewModel
-        coordinator.viewModel.setNeedDisplayError = coordinator.setNeedDisplay(error:)
         coordinator.viewModel.chatDidLoadState = coordinator.setNeedUpdateBar(state:)
 
         return coordinator
@@ -75,12 +74,6 @@ struct ZendeskSupportChatView: UIViewControllerRepresentable {
 
             alertController.addAction(.init(title: Localization.commonCancel, style: .cancel))
 
-            present(alertController, animated: true)
-        }
-
-        func setNeedDisplay(error: ZendeskSupportChatViewModel.DisplayError) {
-            let alertController = UIAlertController(title: "", message: nil, preferredStyle: .alert)
-            alertController.addAction(.init(title: Localization.commonCancel, style: .cancel))
             present(alertController, animated: true)
         }
 
