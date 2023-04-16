@@ -16,13 +16,12 @@ import SwiftUI
 import UIKit
 import DeviceGuru
 
-final class ZendeskSupportChatViewModel: ObservableObject {
+final class ZendeskSupportChatViewModel {
     @Injected(\.keysManager) private var keysManager: KeysManager
 
     let cardId: String?
     let dataCollector: EmailDataCollector?
 
-    var setNeedDisplayError: ((DisplayError) -> Void)?
     var chatDidLoadState: ((Bool) -> Void)?
 
     private var observationToken: ChatProvidersSDK.ObservationToken?
@@ -61,11 +60,7 @@ final class ZendeskSupportChatViewModel: ObservableObject {
 
         Support.initialize(withZendesk: Zendesk.instance)
 
-        if let cardId = cardId {
-            Zendesk.instance?.setIdentity(Identity.createJwt(token: cardId))
-        } else {
-            Zendesk.instance?.setIdentity(Identity.createAnonymous())
-        }
+        Zendesk.instance?.setIdentity(Identity.createAnonymous())
 
         Chat.initialize(accountKey: config.zendeskAccountKey, appId: config.zendeskAppId)
 
@@ -89,36 +84,15 @@ final class ZendeskSupportChatViewModel: ObservableObject {
     }
 
     func sendLogFileIntoChat() {
-        dataCollector?.attachmentUrls { [weak self] result in
-            result.forEach {
+        dataCollector?.attachmentUrls { urls in
+            urls.forEach {
                 guard let attachmentUrl = $0 else { return }
-                Chat.chatProvider?.sendFile(url: attachmentUrl, completion: { result in
-                    switch result {
-                    case .success:
-                        break
-                    case .failure:
-                        self?.setNeedDisplayError?(.errorSendingFile)
-                    }
-                })
+                Chat.chatProvider?.sendFile(url: attachmentUrl)
             }
         }
     }
 
     func sendRateUser(isPositive: Bool) {
-        Chat.chatProvider?.sendChatRating(isPositive ? .good : .bad, completion: { [weak self] result in
-            switch result {
-            case .success:
-                break
-            case .failure:
-                self?.setNeedDisplayError?(.errorSendingRate)
-            }
-        })
-    }
-}
-
-extension ZendeskSupportChatViewModel {
-    enum DisplayError: Error {
-        case errorSendingFile
-        case errorSendingRate
+        Chat.chatProvider?.sendChatRating(isPositive ? .good : .bad)
     }
 }
