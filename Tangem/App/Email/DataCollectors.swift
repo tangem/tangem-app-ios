@@ -10,17 +10,20 @@ import Foundation
 import TangemSdk
 import BlockchainSdk
 
+struct EmailDataAttachmentUnion {
+    let filename: String
+    let url: URL?
+    let data: Data?
+}
+
 protocol EmailDataCollector {
     var dataForEmail: String { get }
-    var attachment: Data? { get }
 
-    func attachmentUrls(_ completion: @escaping ([URL?]) -> Void)
+    func attachmentUrls(_ completion: @escaping ([EmailDataAttachmentUnion]) -> Void)
 }
 
 extension EmailDataCollector {
-    var attachment: Data? { nil }
-
-    func attachmentUrls(_ completion: @escaping ([URL?]) -> Void) {}
+    func attachmentUrls(_ completion: @escaping ([EmailDataAttachmentUnion]) -> Void) {}
 
     fileprivate func formatData(_ data: [EmailCollectedData], appendDeviceInfo: Bool = true) -> String {
         data.reduce("") { $0 + $1.type.title + $1.data + "\n" } + (appendDeviceInfo ? DeviceInfoProvider.info() : "")
@@ -114,6 +117,17 @@ struct SendScreenDataCollector: EmailDataCollector {
         self.amountText = amountText
         self.lastError = lastError
     }
+
+    func attachmentUrls(_ completion: @escaping ([EmailDataAttachmentUnion]) -> Void) {
+        DispatchQueue.global().async {
+            completion(
+                [
+                    .init(filename: "scanLogs.txt", url: FileLogger().scanLogsFileURL, data: FileLogger().logData),
+                    .init(filename: "dataForEmail.txt", url: nil, data: dataForEmail.data(using: .utf8)),
+                ]
+            )
+        }
+    }
 }
 
 struct PushScreenDataCollector: EmailDataCollector {
@@ -171,6 +185,17 @@ struct PushScreenDataCollector: EmailDataCollector {
         self.pushingTxHash = pushingTxHash
         self.lastError = lastError
     }
+
+    func attachmentUrls(_ completion: @escaping ([EmailDataAttachmentUnion]) -> Void) {
+        DispatchQueue.global().async {
+            completion(
+                [
+                    .init(filename: "scanLogs.txt", url: FileLogger().scanLogsFileURL, data: FileLogger().logData),
+                    .init(filename: "dataForEmail.txt", url: nil, data: dataForEmail.data(using: .utf8)),
+                ]
+            )
+        }
+    }
 }
 
 struct DetailsFeedbackDataCollector: EmailDataCollector {
@@ -178,10 +203,15 @@ struct DetailsFeedbackDataCollector: EmailDataCollector {
         FileLogger().logData
     }
 
-    func attachmentUrls(_ completion: @escaping ([URL?]) -> Void) {
+    func attachmentUrls(_ completion: @escaping ([EmailDataAttachmentUnion]) -> Void) {
         DispatchQueue.global().async {
             try? dataForEmail.data(using: .utf8)?.write(to: infoFileURL)
-            completion([FileLogger().scanLogsFileURL, infoFileURL])
+            completion(
+                [
+                    .init(filename: "scanLogs.txt", url: FileLogger().scanLogsFileURL, data: FileLogger().logData),
+                    .init(filename: "dataForEmail.txt", url: infoFileURL, data: dataForEmail.data(using: .utf8)),
+                ]
+            )
         }
     }
 
@@ -243,7 +273,7 @@ struct DetailsFeedbackDataCollector: EmailDataCollector {
     private let userWalletEmailData: [EmailCollectedData]
 
     private var infoFileURL: URL {
-        FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask)[0].appendingPathComponent("infoWallet.txt")
+        FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask)[0].appendingPathComponent("dataForEmail.txt")
     }
 
     init(cardModel: CardViewModel, userWalletEmailData: [EmailCollectedData]) {
