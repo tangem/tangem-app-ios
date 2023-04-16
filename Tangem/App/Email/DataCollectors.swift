@@ -14,13 +14,13 @@ protocol EmailDataCollector {
     var dataForEmail: String { get }
     var attachment: Data? { get }
 
-    func attachmentUrls(_ closure: @escaping ([URL?]) -> Void)
+    func attachmentUrls(_ completion: @escaping ([URL?]) -> Void)
 }
 
 extension EmailDataCollector {
     var attachment: Data? { nil }
 
-    func attachmentUrls(_ closure: @escaping ([URL?]) -> Void) {}
+    func attachmentUrls(_ completion: @escaping ([URL?]) -> Void) {}
 
     fileprivate func formatData(_ data: [EmailCollectedData], appendDeviceInfo: Bool = true) -> String {
         data.reduce("") { $0 + $1.type.title + $1.data + "\n" } + (appendDeviceInfo ? DeviceInfoProvider.info() : "")
