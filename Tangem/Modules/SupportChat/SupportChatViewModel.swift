@@ -8,7 +8,6 @@
 
 import Foundation
 import Combine
-import SwiftUI
 
 class SupportChatViewModel: ObservableObject, Identifiable {
     @Published var viewState: ViewState?
