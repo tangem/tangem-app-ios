@@ -39,17 +39,13 @@ struct ZendeskSupportChatView: UIViewControllerRepresentable {
         func leftBarButtonItemDidTouch(_ sender: UIBarButtonItem) {
             let alertController = UIAlertController(title: Localization.chatUserActionsTitle, message: nil, preferredStyle: .actionSheet)
 
-            alertController.addAction(
-                .init(title: Localization.chatUserActionSendLog, style: .default, handler: { _ in
-                    self.viewModel.sendLogFileIntoChat()
-                })
-            )
+            alertController.addAction(.init(title: Localization.chatUserActionSendLog, style: .default) { _ in
+                self.viewModel.sendLogFileIntoChat()
+            })
 
-            alertController.addAction(
-                .init(title: Localization.chatUserActionRateUser, style: .default, handler: { _ in
-                    self.userRateButtonDidTouch()
-                })
-            )
+            alertController.addAction(.init(title: Localization.chatUserActionRateUser, style: .default) { _ in
+                self.userRateButtonDidTouch()
+            })
 
             alertController.addAction(.init(title: Localization.commonCancel, style: .cancel))
 
@@ -60,17 +56,13 @@ struct ZendeskSupportChatView: UIViewControllerRepresentable {
         func userRateButtonDidTouch() {
             let alertController = UIAlertController(title: Localization.chatUserRateOperatorTitle, message: nil, preferredStyle: .actionSheet)
 
-            alertController.addAction(
-                .init(title: Localization.commonLike, style: .default, handler: { _ in
-                    self.viewModel.sendRateUser(isPositive: true)
-                })
-            )
+            alertController.addAction(.init(title: Localization.commonLike, style: .default) { _ in
+                self.viewModel.sendRateUser(isPositive: true)
+            })
 
-            alertController.addAction(
-                .init(title: Localization.commonDislike, style: .default, handler: { _ in
-                    self.viewModel.sendRateUser(isPositive: false)
-                })
-            )
+            alertController.addAction(.init(title: Localization.commonDislike, style: .default) { _ in
+                self.viewModel.sendRateUser(isPositive: false)
+            })
 
             alertController.addAction(.init(title: Localization.commonCancel, style: .cancel))
 
