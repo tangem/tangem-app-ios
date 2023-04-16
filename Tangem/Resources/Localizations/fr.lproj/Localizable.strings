@@ -44,6 +44,10 @@
 "card_settings_security_mode_footer" = "Selected application protection method";
 "card_settings_title" = "Card Settings";
 "chat_button_title" = "Support";
+"chat_user_action_rate_user" = "Rate operator";
+"chat_user_action_send_log" = "Send logs";
+"chat_user_actions_title" = "Please select an action";
+"chat_user_rate_operator_title" = "Please, rate the work of the operator";
 "common_accept" = "J'accepte";
 "common_attention" = "Attention";
 "common_back" = "Back";
@@ -58,11 +62,13 @@
 "common_delete" = "Supprimer";
 "common_disabled" = "Disabled";
 "common_disconnect" = "Disconnect";
+"common_dislike" = "Dislike";
 "common_done" = "Exécuté";
 "common_enabled" = "Enabled";
 "common_error" = "Erreur";
 "common_explorer_format" = "%@ explorer";
 "common_import" = "Import";
+"common_like" = "Like";
 "common_no" = "No";
 "common_ok" = "OK";
 "common_origin_card" = "Primary Card";
@@ -198,6 +204,7 @@
 "onboarding_exit_alert_message" = "In this case, you will need to start from the beginning.";
 "onboarding_exit_alert_title" = "Do you want to exit the activation process?";
 "onboarding_getting_started" = "Getting started";
+"onboarding_linking_error_card_with_wallets" = "Another wallet has already been created on the card you're trying to add. Do you want to reset it and use the card for a new wallet?";
 "onboarding_navbar_kyc_progress" = "Verify your identity";
 "onboarding_navbar_pin" = "Pin code";
 "onboarding_navbar_register_wallet" = "Connect";
@@ -387,7 +394,7 @@
 "swapping_swap" = "Swap";
 "swapping_swap_action" = "Swap";
 "swapping_swap_of_to" = "Swap of %@ to";
-"swapping_tangem_fee_disclaimer" = "Quotes include an additional Tangem commission of %@. This helps us deliver a top-of-the-line product.";
+"swapping_tangem_fee_disclaimer" = "Quotes include an additional Tangem commission of %@. This helps us deliver a top-of-the-line product";
 "swapping_token_list_other_tokens" = "Other tokens";
 "swapping_token_list_title" = "Choose token";
 "swapping_token_list_your_tokens" = "Your tokens";
