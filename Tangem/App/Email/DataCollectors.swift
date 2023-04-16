@@ -178,10 +178,10 @@ struct DetailsFeedbackDataCollector: EmailDataCollector {
         FileLogger().logData
     }
 
-    func attachmentUrls(_ closure: @escaping ([URL?]) -> Void) {
-        infoSerialQueue.async {
+    func attachmentUrls(_ completion: @escaping ([URL?]) -> Void) {
+        DispatchQueue.global().async {
             try? dataForEmail.data(using: .utf8)?.write(to: infoFileURL)
-            closure([FileLogger().scanLogsFileURL, infoFileURL])
+            completion([FileLogger().scanLogsFileURL, infoFileURL])
         }
     }
 
@@ -245,8 +245,6 @@ struct DetailsFeedbackDataCollector: EmailDataCollector {
     private var infoFileURL: URL {
         FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask)[0].appendingPathComponent("infoWallet.txt")
     }
-
-    private let infoSerialQueue = DispatchQueue(label: "com.tangem.info_collector_data.queue")
 
     init(cardModel: CardViewModel, userWalletEmailData: [EmailCollectedData]) {
         self.cardModel = cardModel
