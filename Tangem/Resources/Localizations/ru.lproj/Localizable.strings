@@ -204,6 +204,7 @@
 "onboarding_exit_alert_message" = "В этом случае вам будет необходимо начать процесс заново.";
 "onboarding_exit_alert_title" = "Вы хотите выйти из процесса активации?";
 "onboarding_getting_started" = "Подготовка";
+"onboarding_linking_error_card_with_wallets" = "Другой кошелек уже был создан на карте, которую вы пытаетесь добавить. Хотите сбросить его и использовать карту для бэкапа?";
 "onboarding_navbar_kyc_progress" = "Подтвердите свою личность";
 "onboarding_navbar_pin" = "Код доступа";
 "onboarding_navbar_register_wallet" = "Подключиться";
