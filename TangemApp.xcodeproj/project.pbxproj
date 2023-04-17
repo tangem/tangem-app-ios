@@ -550,7 +550,7 @@
 		DC7D39F329E00290007BCD23 /* SingleCardOnboardingStepsBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC7D39F229E00290007BCD23 /* SingleCardOnboardingStepsBuilder.swift */; };
 		DC7D39F729E00635007BCD23 /* TwinOnboardingStepsBulder.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC7D39F629E00635007BCD23 /* TwinOnboardingStepsBulder.swift */; };
 		DC7D39F929E007FF007BCD23 /* Start2CoinOnboardingStepsBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC7D39F829E007FF007BCD23 /* Start2CoinOnboardingStepsBuilder.swift */; };
-		DC7D39FB29E02000007BCD23 /* TangemSdkBaseFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC7D39FA29E02000007BCD23 /* TangemSdkBaseFactory.swift */; };
+		DC7D39FB29E02000007BCD23 /* TangemSdkDefaultFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC7D39FA29E02000007BCD23 /* TangemSdkDefaultFactory.swift */; };
 		DC7D39FD29E024A2007BCD23 /* TangemSdkFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC7D39FC29E024A2007BCD23 /* TangemSdkFactory.swift */; };
 		DC7D39FF29E02BC6007BCD23 /* AccessCodeRequestPolicyFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC7D39FE29E02BC6007BCD23 /* AccessCodeRequestPolicyFactory.swift */; };
 		DC7D3A0129E06147007BCD23 /* SaltPayBackupServiceFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC7D3A0029E06147007BCD23 /* SaltPayBackupServiceFactory.swift */; };
@@ -1491,7 +1491,7 @@
 		DC7D39F229E00290007BCD23 /* SingleCardOnboardingStepsBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SingleCardOnboardingStepsBuilder.swift; sourceTree = "<group>"; };
 		DC7D39F629E00635007BCD23 /* TwinOnboardingStepsBulder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TwinOnboardingStepsBulder.swift; sourceTree = "<group>"; };
 		DC7D39F829E007FF007BCD23 /* Start2CoinOnboardingStepsBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Start2CoinOnboardingStepsBuilder.swift; sourceTree = "<group>"; };
-		DC7D39FA29E02000007BCD23 /* TangemSdkBaseFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TangemSdkBaseFactory.swift; sourceTree = "<group>"; };
+		DC7D39FA29E02000007BCD23 /* TangemSdkDefaultFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TangemSdkDefaultFactory.swift; sourceTree = "<group>"; };
 		DC7D39FC29E024A2007BCD23 /* TangemSdkFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TangemSdkFactory.swift; sourceTree = "<group>"; };
 		DC7D39FE29E02BC6007BCD23 /* AccessCodeRequestPolicyFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccessCodeRequestPolicyFactory.swift; sourceTree = "<group>"; };
 		DC7D3A0029E06147007BCD23 /* SaltPayBackupServiceFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SaltPayBackupServiceFactory.swift; sourceTree = "<group>"; };
@@ -3201,7 +3201,7 @@
 			isa = PBXGroup;
 			children = (
 				DC7D39FC29E024A2007BCD23 /* TangemSdkFactory.swift */,
-				DC7D39FA29E02000007BCD23 /* TangemSdkBaseFactory.swift */,
+				DC7D39FA29E02000007BCD23 /* TangemSdkDefaultFactory.swift */,
 				DC7D3A0429E06334007BCD23 /* GenericTangemSdkFactory.swift */,
 				DC7D3A0229E0619C007BCD23 /* SaltPayTangemSdkFactory.swift */,
 				DC7D3A0A29E07828007BCD23 /* TwinTangemSdkFactory.swift */,
@@ -5607,7 +5607,7 @@
 				5DFB499824E54A340037E76F /* BalanceView.swift in Sources */,
 				65B4DEE02885334F001524CF /* View+BottomSheet.swift in Sources */,
 				DC66BBF8285A211F00CDF765 /* MainRoutable.swift in Sources */,
-				DC7D39FB29E02000007BCD23 /* TangemSdkBaseFactory.swift in Sources */,
+				DC7D39FB29E02000007BCD23 /* TangemSdkDefaultFactory.swift in Sources */,
 				EF5903A829092BC600C527C9 /* FeatureProvider.swift in Sources */,
 				EF9F908C299FA254006F638F /* ZendeskSupportChatViewModel.swift in Sources */,
 				659768172837B61000F9F04A /* TokenItemView.swift in Sources */,

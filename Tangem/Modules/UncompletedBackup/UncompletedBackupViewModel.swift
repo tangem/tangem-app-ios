@@ -65,7 +65,7 @@ final class UncompletedBackupViewModel: ObservableObject {
 
         let factory = ResumeBackupInputFactory(
             cardId: cardId,
-            tangemSdkFactory: TangemSdkBaseFactory(),
+            tangemSdkFactory: TangemSdkDefaultFactory(),
             backupServiceFactory: backupServiceFactory
         )
         openBackup(with: factory.makeBackupInput())
