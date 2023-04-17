@@ -225,7 +225,7 @@ extension GenericDemoConfig: UserWalletConfig {
         case .referralProgram:
             return .disabled(localizedReason: Localization.alertDemoFeatureDisabled)
         case .swapping:
-            return .hidden
+            return .disabled(localizedReason: Localization.alertDemoFeatureDisabled)
         case .displayHashesCount:
             return .available
         case .transactionHistory:

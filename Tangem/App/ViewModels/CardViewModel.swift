@@ -133,8 +133,8 @@ class CardViewModel: Identifiable, ObservableObject {
         config.hasFeature(.tokenSynchronization)
     }
 
-    var supportsSwapping: Bool {
-        config.hasFeature(.swapping)
+    var canShowSwapping: Bool {
+        !config.getFeatureAvailability(.swapping).isHidden
     }
 
     // Temp for WC. Migrate to userWalletId?
