@@ -441,7 +441,7 @@
 "voice_over_scan_qr_with_address" = "Сканировать QR код с адресом";
 "voice_over_share_address" = "Поделиться адресом";
 "voice_over_show_address_qr" = "Показать QR код с адресом";
-"wallet_address_button_explore" = "Проверить адрес";
+"wallet_address_button_explore" = "История транзакций";
 "wallet_balance_blockchain_unreachable" = "Сеть недоступна";
 "wallet_balance_loading" = "Баланс загружается…";
 "wallet_balance_missing_derivation" = "Отсканируйте карту";
