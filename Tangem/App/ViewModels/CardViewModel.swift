@@ -144,7 +144,7 @@ class CardViewModel: Identifiable, ObservableObject {
 
     private(set) var cardInfo: CardInfo
     private let stateUpdateQueue = DispatchQueue(label: "state_update_queue")
-    var tangemSdk: TangemSdk { config.makeTangemSdk() }
+    private var tangemSdk: TangemSdk? = nil
     private var config: UserWalletConfig
 
     var availableSecurityOptions: [SecurityModeOption] {
@@ -364,6 +364,8 @@ class CardViewModel: Identifiable, ObservableObject {
     // MARK: - Security
 
     func changeSecurityOption(_ option: SecurityModeOption, completion: @escaping (Result<Void, Error>) -> Void) {
+        let tangemSdk = config.makeTangemSdk()
+        self.tangemSdk = tangemSdk
         switch option {
         case .accessCode:
             tangemSdk.startSession(
@@ -440,6 +442,9 @@ class CardViewModel: Identifiable, ObservableObject {
     // MARK: - Wallet
 
     func createWallet(_ completion: @escaping (Result<Void, Error>) -> Void) {
+        let tangemSdk = config.makeTangemSdk()
+        self.tangemSdk = tangemSdk
+
         let card = cardInfo.card
         tangemSdk.startSession(
             with: CreateWalletAndReadTask(with: config.defaultCurve),
@@ -461,6 +466,9 @@ class CardViewModel: Identifiable, ObservableObject {
     }
 
     func resetToFactory(completion: @escaping (Result<Void, TangemSdkError>) -> Void) {
+        let tangemSdk = config.makeTangemSdk()
+        self.tangemSdk = tangemSdk
+
         let card = cardInfo.card
         tangemSdk.startSession(
             with: ResetToFactorySettingsTask(),
@@ -798,6 +806,9 @@ extension CardViewModel: WalletConnectUserWalletInfoProvider {}
 
 extension CardViewModel: AccessCodeRecoverySettingsProvider {
     func setAccessCodeRecovery(to enabled: Bool, _ completionHandler: @escaping (Result<Void, TangemSdkError>) -> Void) {
+        let tangemSdk = config.makeTangemSdk()
+        self.tangemSdk = tangemSdk
+        
         tangemSdk.setUserCodeRecoveryAllowed(enabled, cardId: cardId) { [weak self] result in
             guard let self else { return }
             switch result {
