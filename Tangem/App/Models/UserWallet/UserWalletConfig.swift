@@ -27,6 +27,7 @@ protocol UserWalletConfig: OnboardingStepsBuilderFactory, BackupServiceFactory, 
 
     var warningEvents: [WarningEvent] { get }
 
+    var canSkipBackup: Bool { get }
     /// All blockchains supported by this user wallet.
     var supportedBlockchains: Set<Blockchain> { get }
 
@@ -80,6 +81,10 @@ extension UserWalletConfig {
 
     var emailConfig: EmailConfig? {
         .default
+    }
+
+    var canSkipBackup: Bool {
+        true
     }
 }
 
