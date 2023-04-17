@@ -65,7 +65,6 @@ struct MailView: UIViewControllerRepresentable {
         var messageBody = "\n" + viewModel.emailType.emailPreface
         messageBody.append("\n\n\n")
         messageBody.append(viewModel.emailType.dataCollectionMessage + "\n")
-        messageBody.append(viewModel.dataCollector.dataForEmail)
         vc.setMessageBody(messageBody, isHTML: false)
 
         viewModel.dataCollector.attachmentUrls { attachments in
