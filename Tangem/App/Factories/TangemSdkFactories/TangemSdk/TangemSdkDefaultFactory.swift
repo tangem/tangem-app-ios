@@ -1,5 +1,5 @@
 //
-//  TangemSdkBaseFactory.swift
+//  TangemSdkDefaultFactory.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -9,7 +9,7 @@
 import Foundation
 import TangemSdk
 
-class TangemSdkBaseFactory {
+class TangemSdkDefaultFactory {
     func makeTangemSdk(with config: Config) -> TangemSdk {
         let sdk = TangemSdk()
         sdk.config = config
@@ -17,7 +17,7 @@ class TangemSdkBaseFactory {
     }
 }
 
-extension TangemSdkBaseFactory: TangemSdkFactory {
+extension TangemSdkDefaultFactory: TangemSdkFactory {
     func makeTangemSdk() -> TangemSdk {
         let config = TangemSdkConfigFactory().makeDefaultConfig()
         return makeTangemSdk(with: config)
