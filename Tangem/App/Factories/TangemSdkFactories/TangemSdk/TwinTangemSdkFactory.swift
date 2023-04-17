@@ -20,7 +20,7 @@ class TwinTangemSdkFactory: TangemSdkFactory {
         var config = TangemSdkConfigFactory().makeDefaultConfig()
         config.accessCodeRequestPolicy = AccessCodeRequestPolicyFactory().makePolicy(isAccessCodeSet: isAccessCodeSet)
         config.cardIdDisplayFormat = .lastLunh(4)
-        let sdk = TangemSdkBaseFactory().makeTangemSdk(with: config)
+        let sdk = TangemSdkDefaultFactory().makeTangemSdk(with: config)
         return sdk
     }
 }
