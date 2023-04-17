@@ -49,7 +49,7 @@ class CommonUserWalletRepository: UserWalletRepository {
 
     private let minimizedAppTimer = MinimizedAppTimer(interval: 5 * 60)
 
-    private var sdk: TangemSdk? = nil
+    private var sdk: TangemSdk?
 
     private var bag: Set<AnyCancellable> = .init()
 
