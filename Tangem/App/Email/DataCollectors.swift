@@ -123,7 +123,7 @@ struct SendScreenDataCollector: EmailDataCollector {
             completion(
                 [
                     .init(filename: "scanLogs.txt", url: FileLogger().scanLogsFileURL, data: FileLogger().logData),
-                    .init(filename: "dataForEmail.txt", url: nil, data: dataForEmail.data(using: .utf8)),
+                    .init(filename: "infoLogs.txt", url: nil, data: dataForEmail.data(using: .utf8)),
                 ]
             )
         }
@@ -191,7 +191,7 @@ struct PushScreenDataCollector: EmailDataCollector {
             completion(
                 [
                     .init(filename: "scanLogs.txt", url: FileLogger().scanLogsFileURL, data: FileLogger().logData),
-                    .init(filename: "dataForEmail.txt", url: nil, data: dataForEmail.data(using: .utf8)),
+                    .init(filename: "infoLogs.txt", url: nil, data: dataForEmail.data(using: .utf8)),
                 ]
             )
         }
@@ -209,7 +209,7 @@ struct DetailsFeedbackDataCollector: EmailDataCollector {
             completion(
                 [
                     .init(filename: "scanLogs.txt", url: FileLogger().scanLogsFileURL, data: FileLogger().logData),
-                    .init(filename: "dataForEmail.txt", url: infoFileURL, data: dataForEmail.data(using: .utf8)),
+                    .init(filename: "infoLogs.txt", url: infoFileURL, data: dataForEmail.data(using: .utf8)),
                 ]
             )
         }
@@ -273,7 +273,7 @@ struct DetailsFeedbackDataCollector: EmailDataCollector {
     private let userWalletEmailData: [EmailCollectedData]
 
     private var infoFileURL: URL {
-        FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask)[0].appendingPathComponent("dataForEmail.txt")
+        FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask)[0].appendingPathComponent("infoLogs.txt")
     }
 
     init(cardModel: CardViewModel, userWalletEmailData: [EmailCollectedData]) {
