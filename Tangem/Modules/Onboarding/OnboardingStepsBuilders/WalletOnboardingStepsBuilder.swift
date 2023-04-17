@@ -75,10 +75,14 @@ extension WalletOnboardingStepsBuilder: OnboardingStepsBuilder {
             }
             steps.append(contentsOf: initialSteps + backupSteps + userWalletSavingSteps + [.success])
         } else {
-            if !AppSettings.shared.cardsStartedActivation.contains(card.cardId) {
-                steps.append(contentsOf: userWalletSavingSteps)
-            } else {
+            let isBackupActive = card.backupStatus?.isActive ?? false
+            let supportsKeyImport = card.firmwareVersion >= .keysImportAvailable
+            let forceBackup = supportsKeyImport && !isBackupActive
+
+            if AppSettings.shared.cardsStartedActivation.contains(card.cardId) || forceBackup {
                 steps.append(contentsOf: backupSteps + userWalletSavingSteps + [.success])
+            } else {
+                steps.append(contentsOf: userWalletSavingSteps)
             }
         }
 
@@ -89,3 +93,5 @@ extension WalletOnboardingStepsBuilder: OnboardingStepsBuilder {
         .wallet(backupSteps + [.success])
     }
 }
+
+
