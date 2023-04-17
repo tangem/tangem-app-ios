@@ -95,11 +95,9 @@ extension GenericConfig: UserWalletConfig {
     }
 
     var tangemSigner: TangemSigner {
-        if let backupStatus = card.backupStatus, backupStatus.isActive {
-            return .init(with: nil, sdk: makeTangemSdk())
-        } else {
-            return .init(with: card.cardId, sdk: makeTangemSdk())
-        }
+        let shouldSkipCardId = card.backupStatus?.isActive ?? false
+        let cardId = shouldSkipCardId ? nil : card.cardId
+        return .init(with: cardId, sdk: makeTangemSdk())
     }
 
     var userWalletIdSeed: Data? {

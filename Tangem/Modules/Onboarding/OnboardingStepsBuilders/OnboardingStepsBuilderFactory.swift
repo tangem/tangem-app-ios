@@ -15,7 +15,7 @@ protocol OnboardingStepsBuilderFactory {
 
 // MARK: - Wallets
 
-protocol WalletOnboardingStepsBuilderFactory: OnboardingStepsBuilderFactory, CardContainer {}
+typealias WalletOnboardingStepsBuilderFactory = OnboardingStepsBuilderFactory & CardContainer
 
 extension UserWalletConfig where Self: WalletOnboardingStepsBuilderFactory {
     func makeOnboardingStepsBuilder(backupService: BackupService) -> OnboardingStepsBuilder {
