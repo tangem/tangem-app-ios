@@ -49,15 +49,7 @@ class CommonUserWalletRepository: UserWalletRepository {
 
     private let minimizedAppTimer = MinimizedAppTimer(interval: 5 * 60)
 
-    private lazy var sdk: TangemSdk = {
-        var config = TangemSdkConfigFactory().makeDefaultConfig()
-
-        if AppSettings.shared.saveUserWallets {
-            config.accessCodeRequestPolicy = .alwaysWithBiometrics
-        }
-
-        return TangemSdkBaseFactory().makeTangemSdk(with: config)
-    }()
+    private var sdk: TangemSdk? = nil
 
     private var bag: Set<AnyCancellable> = .init()
 
@@ -184,8 +176,8 @@ class CommonUserWalletRepository: UserWalletRepository {
             config.accessCodeRequestPolicy = .alwaysWithBiometrics
         }
 
-        let sdk = TangemSdkBaseFactory().makeTangemSdk(with: config)
-
+        let sdk = TangemSdkDefaultFactory().makeTangemSdk(with: config)
+        self.sdk = sdk
         sendEvent(.scan(isScanning: true))
 
         return sdk
