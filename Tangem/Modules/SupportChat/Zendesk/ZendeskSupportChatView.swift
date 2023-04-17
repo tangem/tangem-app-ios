@@ -16,9 +16,8 @@ struct ZendeskSupportChatView: UIViewControllerRepresentable {
         guard let viewController = try? viewModel.buildUI() else {
             return UINavigationController(rootViewController: UIViewController(nibName: nil, bundle: nil))
         }
-
         return UINavigationController(rootViewController: viewController)
     }
 
-    func updateUIViewController(_ uiViewController: UIViewController, context: Context) {}
+    func updateUIViewController(_ uiViewController: UIViewControllerType, context: Context) {}
 }
