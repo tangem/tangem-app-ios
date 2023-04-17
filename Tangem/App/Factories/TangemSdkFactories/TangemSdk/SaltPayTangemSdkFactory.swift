@@ -20,7 +20,7 @@ class SaltPayTangemSdkFactory: TangemSdkFactory {
         var config = TangemSdkConfigFactory().makeDefaultConfig()
         config.cardIdDisplayFormat = .none
         config.accessCodeRequestPolicy = AccessCodeRequestPolicyFactory().makePolicy(isAccessCodeSet: isAccessCodeSet)
-        let sdk = TangemSdkBaseFactory().makeTangemSdk(with: config)
+        let sdk = TangemSdkDefaultFactory().makeTangemSdk(with: config)
         return sdk
     }
 }
