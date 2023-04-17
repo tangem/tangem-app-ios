@@ -93,5 +93,3 @@ extension WalletOnboardingStepsBuilder: OnboardingStepsBuilder {
         .wallet(backupSteps + [.success])
     }
 }
-
-
