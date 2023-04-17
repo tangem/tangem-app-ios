@@ -148,7 +148,7 @@ class CardViewModel: Identifiable, ObservableObject {
 
     private(set) var cardInfo: CardInfo
     private let stateUpdateQueue = DispatchQueue(label: "state_update_queue")
-    private var tangemSdk: TangemSdk? = nil
+    private var tangemSdk: TangemSdk?
     private var config: UserWalletConfig
 
     var availableSecurityOptions: [SecurityModeOption] {
@@ -368,7 +368,7 @@ class CardViewModel: Identifiable, ObservableObject {
     // MARK: - Security
 
     func changeSecurityOption(_ option: SecurityModeOption, completion: @escaping (Result<Void, Error>) -> Void) {
-        let tangemSdk = config.makeTangemSdk()
+        let tangemSdk = makeTangemSdk()
         self.tangemSdk = tangemSdk
         switch option {
         case .accessCode:
@@ -446,7 +446,7 @@ class CardViewModel: Identifiable, ObservableObject {
     // MARK: - Wallet
 
     func createWallet(_ completion: @escaping (Result<Void, Error>) -> Void) {
-        let tangemSdk = config.makeTangemSdk()
+        let tangemSdk = makeTangemSdk()
         self.tangemSdk = tangemSdk
 
         let card = cardInfo.card
@@ -470,7 +470,7 @@ class CardViewModel: Identifiable, ObservableObject {
     }
 
     func resetToFactory(completion: @escaping (Result<Void, TangemSdkError>) -> Void) {
-        let tangemSdk = config.makeTangemSdk()
+        let tangemSdk = makeTangemSdk()
         self.tangemSdk = tangemSdk
 
         let card = cardInfo.card
@@ -810,9 +810,9 @@ extension CardViewModel: WalletConnectUserWalletInfoProvider {}
 
 extension CardViewModel: AccessCodeRecoverySettingsProvider {
     func setAccessCodeRecovery(to enabled: Bool, _ completionHandler: @escaping (Result<Void, TangemSdkError>) -> Void) {
-        let tangemSdk = config.makeTangemSdk()
+        let tangemSdk = makeTangemSdk()
         self.tangemSdk = tangemSdk
-        
+
         tangemSdk.setUserCodeRecoveryAllowed(enabled, cardId: cardId) { [weak self] result in
             guard let self else { return }
             switch result {
@@ -824,5 +824,12 @@ extension CardViewModel: AccessCodeRecoverySettingsProvider {
                 completionHandler(.failure(error))
             }
         }
+    }
+}
+
+// [REDACTED_TODO_COMMENT]
+extension CardViewModel: TangemSdkFactory {
+    func makeTangemSdk() -> TangemSdk {
+        config.makeTangemSdk()
     }
 }
