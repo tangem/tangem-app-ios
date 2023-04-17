@@ -113,7 +113,7 @@ extension DetailsViewModel {
         }
 
         Analytics.log(.buttonCardSettings)
-        coordinator.openScanCardSettings(with: userWalletId, sdk: cardModel.tangemSdk) // [REDACTED_TODO_COMMENT]
+        coordinator.openScanCardSettings(with: userWalletId, sdk: cardModel.makeTangemSdk()) // [REDACTED_TODO_COMMENT]
     }
 
     func openAppSettings() {
