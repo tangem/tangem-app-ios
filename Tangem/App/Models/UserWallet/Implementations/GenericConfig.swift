@@ -43,6 +43,10 @@ extension GenericConfig: UserWalletConfig {
         return nil
     }
 
+    var canSkipBackup: Bool {
+        card.firmwareVersion < .keysImportAvailable
+    }
+
     var supportedBlockchains: Set<Blockchain> {
         let allBlockchains = AppEnvironment.current.isTestnet ? Blockchain.supportedTestnetBlockchains
             : Blockchain.supportedBlockchains
