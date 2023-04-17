@@ -19,7 +19,7 @@ class GenericTangemSdkFactory: TangemSdkFactory {
     func makeTangemSdk() -> TangemSdk {
         var config = TangemSdkConfigFactory().makeDefaultConfig()
         config.accessCodeRequestPolicy = AccessCodeRequestPolicyFactory().makePolicy(isAccessCodeSet: isAccessCodeSet)
-        let sdk = TangemSdkBaseFactory().makeTangemSdk(with: config)
+        let sdk = TangemSdkDefaultFactory().makeTangemSdk(with: config)
         return sdk
     }
 }
