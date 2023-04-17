@@ -22,8 +22,6 @@ final class ZendeskSupportChatViewModel {
     let cardId: String?
     let dataCollector: EmailDataCollector?
 
-//    var chatDidLoadState: ((Bool) -> Void)?
-
     private var chatViewController: UIViewController!
     private var observationToken: ChatProvidersSDK.ObservationToken?
 
