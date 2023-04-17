@@ -120,6 +120,6 @@ extension SaltPayOnboardingStepsBuilder: OnboardingStepsBuilder {
     }
 
     func buildBackupSteps() -> OnboardingSteps? {
-        .wallet(backupSteps + [.success])
+        .wallet(backupSteps)
     }
 }
