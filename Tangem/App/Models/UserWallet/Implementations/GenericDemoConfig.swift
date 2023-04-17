@@ -223,7 +223,7 @@ extension GenericDemoConfig: UserWalletConfig {
         case .tokenSynchronization:
             return .hidden
         case .referralProgram:
-            return .hidden
+            return .disabled(localizedReason: Localization.alertDemoFeatureDisabled)
         case .swapping:
             return .hidden
         case .displayHashesCount:
