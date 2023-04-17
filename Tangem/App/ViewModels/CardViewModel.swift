@@ -228,7 +228,7 @@ class CardViewModel: Identifiable, ObservableObject {
 
     var canParticipateInReferralProgram: Bool {
         // [REDACTED_TODO_COMMENT]
-        config.hasFeature(.referralProgram)
+        !config.getFeatureAvailability(.referralProgram).isHidden
     }
 
     var supportedBlockchains: Set<Blockchain> {
