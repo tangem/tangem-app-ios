@@ -52,6 +52,10 @@ extension SaltPayConfig: UserWalletConfig {
         defaultBlockchain.curve
     }
 
+    var canSkipBackup: Bool {
+        false
+    }
+
     var supportedBlockchains: Set<Blockchain> {
         [defaultBlockchain]
     }
