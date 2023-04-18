@@ -8,6 +8,7 @@
 
 import Foundation
 import UIKit
+import TangemSdk
 
 class DetailsCoordinator: CoordinatorObject {
     var dismissAction: Action
@@ -89,8 +90,8 @@ extension DetailsCoordinator: DetailsRoutable {
         disclaimerViewModel = .init(url: url, style: .details)
     }
 
-    func openScanCardSettings(with userWalletId: Data) {
-        scanCardSettingsViewModel = ScanCardSettingsViewModel(expectedUserWalletId: userWalletId, coordinator: self)
+    func openScanCardSettings(with userWalletId: Data, sdk: TangemSdk) {
+        scanCardSettingsViewModel = ScanCardSettingsViewModel(expectedUserWalletId: userWalletId, sdk: sdk, coordinator: self)
     }
 
     func openAppSettings(userWallet: CardViewModel) {
