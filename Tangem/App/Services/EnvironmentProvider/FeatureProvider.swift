@@ -15,11 +15,10 @@ enum FeatureProvider {
             return isAvailableForReleaseVersion(toggle)
         }
 
-        guard let state = FeaturesStorage().availableFeatures[toggle] else {
-            return isAvailableForReleaseVersion(toggle)
-        }
-
+        let state = FeaturesStorage().availableFeatures[toggle]
         switch state {
+        case .none:
+            return isAvailableForReleaseVersion(toggle)
         case .default:
             assertionFailure("Default state shouldn't be saved in storage")
             return isAvailableForReleaseVersion(toggle)
