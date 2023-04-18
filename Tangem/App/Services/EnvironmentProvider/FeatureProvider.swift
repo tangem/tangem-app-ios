@@ -10,7 +10,7 @@ import Foundation
 
 /// Use this provider to check the availability of your feature
 enum FeatureProvider {
-    static func isAvailable(_ toggle: FeatureToggle) -> Bool {
+    static func isAvailable(_ toggle: Feature) -> Bool {
         if AppEnvironment.current.isProduction {
             return isAvailableForReleaseVersion(toggle)
         }
@@ -30,7 +30,7 @@ enum FeatureProvider {
     }
 
     /// Return `true` if the feature is should be released or has already been released in current app version
-    static func isAvailableForReleaseVersion(_ toggle: FeatureToggle) -> Bool {
+    static func isAvailableForReleaseVersion(_ toggle: Feature) -> Bool {
         guard let appVersion: String = InfoDictionaryUtils.version.value(),
               let releaseVersion = toggle.releaseVersion.version,
               appVersion >= releaseVersion else {
