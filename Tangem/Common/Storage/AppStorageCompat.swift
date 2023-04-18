@@ -346,7 +346,7 @@ extension AppStorageCompat where Value == [String] {
     }
 }
 
-extension AppStorageCompat where Value == [FeatureToggle: FeatureState] {
+extension AppStorageCompat where Value == [Feature: FeatureState] {
     /// Creates a property that can read and write to an integer user default.
     ///
     /// - Parameters:
@@ -363,7 +363,7 @@ extension AppStorageCompat where Value == [FeatureToggle: FeatureState] {
             let dictionary = (value as? [String: String]) ?? [:]
 
             return dictionary.reduce(into: [:]) { result, element in
-                if let toggle = FeatureToggle(rawValue: element.key),
+                if let toggle = Feature(rawValue: element.key),
                    let state = FeatureState(rawValue: element.value) {
                     result[toggle] = state
                 }
