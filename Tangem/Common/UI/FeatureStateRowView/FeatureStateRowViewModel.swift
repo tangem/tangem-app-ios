@@ -1,5 +1,5 @@
 //
-//  FeatureToggleRowViewModel.swift
+//  FeatureStateRowViewModel.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -9,8 +9,8 @@
 import Foundation
 import SwiftUI
 
-struct FeatureToggleRowViewModel {
-    let toggle: FeatureToggle
+struct FeatureStateRowViewModel {
+    let toggle: Feature
     let isEnabledByDefault: Bool
     let state: Binding<FeatureState>
 
@@ -23,12 +23,12 @@ struct FeatureToggleRowViewModel {
     }
 }
 
-extension FeatureToggleRowViewModel: Identifiable {
+extension FeatureStateRowViewModel: Identifiable {
     var id: Int { hashValue }
 }
 
-extension FeatureToggleRowViewModel: Hashable {
-    static func == (lhs: FeatureToggleRowViewModel, rhs: FeatureToggleRowViewModel) -> Bool {
+extension FeatureStateRowViewModel: Hashable {
+    static func == (lhs: FeatureStateRowViewModel, rhs: FeatureStateRowViewModel) -> Bool {
         lhs.hashValue == rhs.hashValue
     }
 
