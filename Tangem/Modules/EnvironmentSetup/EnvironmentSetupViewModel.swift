@@ -13,13 +13,12 @@ final class EnvironmentSetupViewModel: ObservableObject {
     // MARK: - ViewState
 
     @Published var appSettingsTogglesViewModels: [DefaultToggleRowViewModel] = []
-    @Published var togglesViewModels: [FeatureStateRowViewModel] = []
-
+    @Published var featureStateViewModels: [FeatureStateRowViewModel] = []
     @Published var alert: AlertBinder?
 
     // MARK: - Dependencies
 
-    private let featureToggleStorage = FeaturesStorage()
+    private let featuresStorage = FeaturesStorage()
     private var bag: Set<AnyCancellable> = []
 
     init() {
@@ -31,7 +30,7 @@ final class EnvironmentSetupViewModel: ObservableObject {
             DefaultToggleRowViewModel(
                 title: "Use testnet",
                 isOn: Binding<Bool>(
-                    root: featureToggleStorage,
+                    root: featuresStorage,
                     default: false,
                     get: { $0.isTestnet },
                     set: { $0.isTestnet = $1 }
@@ -40,7 +39,7 @@ final class EnvironmentSetupViewModel: ObservableObject {
             DefaultToggleRowViewModel(
                 title: "Use dev API",
                 isOn: Binding<Bool>(
-                    root: featureToggleStorage,
+                    root: featuresStorage,
                     default: false,
                     get: { $0.useDevApi },
                     set: { $0.useDevApi = $1 }
@@ -48,12 +47,12 @@ final class EnvironmentSetupViewModel: ObservableObject {
             ),
         ]
 
-        togglesViewModels = Feature.allCases.reversed().map { toggle in
+        featureStateViewModels = Feature.allCases.reversed().map { toggle in
             FeatureStateRowViewModel(
                 toggle: toggle,
                 isEnabledByDefault: FeatureProvider.isAvailableForReleaseVersion(toggle),
                 state: Binding<FeatureState>(
-                    root: featureToggleStorage,
+                    root: featuresStorage,
                     default: .default,
                     get: { $0.availableFeatures[toggle] ?? .default },
                     set: { obj, state in
