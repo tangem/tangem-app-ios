@@ -56,12 +56,12 @@ final class EnvironmentSetupViewModel: ObservableObject {
                     root: featureToggleStorage,
                     default: .default,
                     get: { $0.availableFeatures[toggle] ?? .default },
-                    set: { root, state in
+                    set: { obj, state in
                         switch state {
                         case .default:
-                            root.availableFeatures.removeValue(forKey: toggle)
+                            obj.availableFeatures.removeValue(forKey: toggle)
                         case .on, .off:
-                            root.availableFeatures[toggle] = state
+                            obj.availableFeatures[toggle] = state
                         }
                     }
                 )
