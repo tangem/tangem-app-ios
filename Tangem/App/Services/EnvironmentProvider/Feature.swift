@@ -1,5 +1,5 @@
 //
-//  FeatureToggle.swift
+//  Feature.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -8,7 +8,7 @@
 
 import Foundation
 
-enum FeatureToggle: String, Hashable, CaseIterable {
+enum Feature: String, Hashable, CaseIterable {
     case exchange
     case referralProgram
     case walletConnectV2
@@ -39,7 +39,7 @@ enum FeatureToggle: String, Hashable, CaseIterable {
     }
 }
 
-extension FeatureToggle {
+extension Feature {
     enum ReleaseVersion: Hashable {
         /// This case is for an unterminated release date
         case unspecified
