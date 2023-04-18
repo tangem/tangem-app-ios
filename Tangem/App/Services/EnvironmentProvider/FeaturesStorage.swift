@@ -15,7 +15,7 @@ class FeaturesStorage {
     var isTestnet: Bool = false
 
     @AppStorageCompat(FeaturesStorageKeys.availableFeatures)
-    var availableFeatures: [FeatureToggle: FeatureState] = [:]
+    var availableFeatures: [Feature: FeatureState] = [:]
 
     @AppStorageCompat(FeaturesStorageKeys.useDevApi)
     var useDevApi = false
