@@ -11,7 +11,7 @@ import SwiftUI
 
 struct FeatureToggleRowViewModel {
     let toggle: FeatureToggle
-    let isEnableByDefault: Bool
+    let isEnabledByDefault: Bool
     let state: Binding<FeatureState>
 
     var releaseVersionInfo: String {
@@ -19,7 +19,7 @@ struct FeatureToggleRowViewModel {
     }
 
     var stateByDefault: String {
-        isEnableByDefault ? "Enabled" : "Disabled"
+        isEnabledByDefault ? "Enabled" : "Disabled"
     }
 }
 
