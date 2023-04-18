@@ -12,8 +12,6 @@ import TangemSdk
 import BlockchainSdk
 
 class WalletOnboardingViewModel: OnboardingTopupViewModel<WalletOnboardingStep, OnboardingCoordinator>, ObservableObject {
-    @Injected(\.backupServiceProvider) private var backupServiceProvider: BackupServiceProviding
-    @Injected(\.tangemSdkProvider) private var tangemSdkProvider: TangemSdkProviding
     @Injected(\.saltPayRegistratorProvider) private var saltPayRegistratorProvider: SaltPayRegistratorProviding
     private let seedPhraseManager = SeedPhraseManager()
 
@@ -381,8 +379,9 @@ class WalletOnboardingViewModel: OnboardingTopupViewModel<WalletOnboardingStep, 
     @Published private var previewBackupState: BackupService.State = .finalizingPrimaryCard
     private var walletCreationType: WalletCreationType = .privateKey
 
-    private var tangemSdk: TangemSdk { tangemSdkProvider.sdk }
-    private var backupService: BackupService { backupServiceProvider.backupService }
+    private let tangemSdk: TangemSdk
+    private let backupService: BackupService
+
     private var saltPayAmountType: Amount.AmountType {
         .token(value: GnosisRegistrator.Settings.main.token)
     }
@@ -390,6 +389,9 @@ class WalletOnboardingViewModel: OnboardingTopupViewModel<WalletOnboardingStep, 
     // MARK: - Initializer
 
     override init(input: OnboardingInput, coordinator: OnboardingCoordinator) {
+        tangemSdk = input.tangemSdk
+        backupService = input.backupService
+
         super.init(input: input, coordinator: coordinator)
 
         if case .wallet(let steps) = input.steps {
@@ -503,7 +505,7 @@ class WalletOnboardingViewModel: OnboardingTopupViewModel<WalletOnboardingStep, 
                 switch newState {
                 case .kycStart:
                     if self.currentStep == .kycWaiting {
-                        if case .wallet(let steps) = self.cardModel?.onboardingInput.steps { // rebuild steps from scratch
+                        if case .wallet(let steps) = self.cardModel?.onboardingInput?.steps { // rebuild steps from scratch
                             self.steps = steps
                             self.currentStepIndex = 0
                         }
@@ -518,7 +520,7 @@ class WalletOnboardingViewModel: OnboardingTopupViewModel<WalletOnboardingStep, 
                         self.goToNextStep()
                     }
                 case .kycRetry:
-                    if case .wallet(let steps) = self.cardModel?.onboardingInput.steps { // rebuild steps from scratch
+                    if case .wallet(let steps) = self.cardModel?.onboardingInput?.steps { // rebuild steps from scratch
                         self.steps = steps
                         self.currentStepIndex = 0
                     }
