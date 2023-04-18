@@ -496,7 +496,7 @@ extension TokenDetailsViewModel {
     }
 
     func openSwapping() {
-        if let disabledLocalizedReason = card.getDisabledLocalizedReason(for: .referralProgram) {
+        if let disabledLocalizedReason = card.getDisabledLocalizedReason(for: .swapping) {
             alert = AlertBuilder.makeDemoAlert(disabledLocalizedReason)
             return
         }
