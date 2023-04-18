@@ -46,7 +46,7 @@ struct FeatureToggleRowView_Preview: PreviewProvider {
             FeatureToggleRowView(
                 viewModel: FeatureToggleRowViewModel(
                     toggle: .exchange,
-                    isEnableByDefault: true,
+                    isEnabledByDefault: true,
                     state: $state
                 )
             )
