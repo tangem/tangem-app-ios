@@ -51,7 +51,7 @@ final class EnvironmentSetupViewModel: ObservableObject {
         togglesViewModels = FeatureToggle.allCases.reversed().map { toggle in
             FeatureToggleRowViewModel(
                 toggle: toggle,
-                isEnableByDefault: FeatureProvider.isAvailableForReleaseVersion(toggle),
+                isEnabledByDefault: FeatureProvider.isAvailableForReleaseVersion(toggle),
                 state: Binding<FeatureState>(
                     root: featureToggleStorage,
                     default: .default,
