@@ -13,7 +13,7 @@ final class EnvironmentSetupViewModel: ObservableObject {
     // MARK: - ViewState
 
     @Published var appSettingsTogglesViewModels: [DefaultToggleRowViewModel] = []
-    @Published var togglesViewModels: [FeatureToggleRowViewModel] = []
+    @Published var togglesViewModels: [FeatureStateRowViewModel] = []
 
     @Published var alert: AlertBinder?
 
@@ -48,8 +48,8 @@ final class EnvironmentSetupViewModel: ObservableObject {
             ),
         ]
 
-        togglesViewModels = FeatureToggle.allCases.reversed().map { toggle in
-            FeatureToggleRowViewModel(
+        togglesViewModels = Feature.allCases.reversed().map { toggle in
+            FeatureStateRowViewModel(
                 toggle: toggle,
                 isEnabledByDefault: FeatureProvider.isAvailableForReleaseVersion(toggle),
                 state: Binding<FeatureState>(
