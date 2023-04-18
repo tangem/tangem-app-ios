@@ -1,5 +1,5 @@
 //
-//  FeatureToggleRowView.swift
+//  FeatureStateRowView.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -9,8 +9,8 @@
 import Foundation
 import SwiftUI
 
-struct FeatureToggleRowView: View {
-    let viewModel: FeatureToggleRowViewModel
+struct FeatureStateRowView: View {
+    let viewModel: FeatureStateRowViewModel
 
     var body: some View {
         VStack(alignment: .leading) {
@@ -39,12 +39,12 @@ struct FeatureToggleRowView: View {
     }
 }
 
-struct FeatureToggleRowView_Preview: PreviewProvider {
+struct FeatureStateRowView_Preview: PreviewProvider {
     struct ContentView: View {
         @State private var state: FeatureState = .default
         var body: some View {
-            FeatureToggleRowView(
-                viewModel: FeatureToggleRowViewModel(
+            FeatureStateRowView(
+                viewModel: FeatureStateRowViewModel(
                     toggle: .exchange,
                     isEnabledByDefault: true,
                     state: $state
