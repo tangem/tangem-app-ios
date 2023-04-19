@@ -17,7 +17,6 @@ class CardViewModel: Identifiable, ObservableObject {
     // MARK: Services
 
     @Injected(\.appWarningsService) private var warningsService: AppWarningsProviding
-    @Injected(\.tangemSdkProvider) private var tangemSdkProvider: TangemSdkProviding
     @Injected(\.tangemApiService) var tangemApiService: TangemApiService
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
 
@@ -133,8 +132,8 @@ class CardViewModel: Identifiable, ObservableObject {
         config.hasFeature(.tokenSynchronization)
     }
 
-    var supportsSwapping: Bool {
-        config.hasFeature(.swapping)
+    var canShowSwapping: Bool {
+        !config.getFeatureAvailability(.swapping).isHidden
     }
 
     // Temp for WC. Migrate to userWalletId?
@@ -149,7 +148,7 @@ class CardViewModel: Identifiable, ObservableObject {
 
     private(set) var cardInfo: CardInfo
     private let stateUpdateQueue = DispatchQueue(label: "state_update_queue")
-    private var tangemSdk: TangemSdk { tangemSdkProvider.sdk }
+    private var tangemSdk: TangemSdk?
     private var config: UserWalletConfig
 
     var availableSecurityOptions: [SecurityModeOption] {
@@ -228,44 +227,48 @@ class CardViewModel: Identifiable, ObservableObject {
 
     var canParticipateInReferralProgram: Bool {
         // [REDACTED_TODO_COMMENT]
-        config.hasFeature(.referralProgram)
+        !config.getFeatureAvailability(.referralProgram).isHidden
     }
 
     var supportedBlockchains: Set<Blockchain> {
         config.supportedBlockchains
     }
 
-    var backupInput: OnboardingInput? {
-        guard let backupSteps = config.backupSteps else { return nil }
-
-        return OnboardingInput(
-            steps: backupSteps,
-            cardInput: .cardModel(self),
-            twinData: nil,
-            currentStepIndex: 0,
-            isStandalone: true
-        )
-    }
-
-    var onboardingInput: OnboardingInput {
-        OnboardingInput(
-            steps: config.onboardingSteps,
+    var onboardingInput: OnboardingInput? {
+        let factory = OnboardingInputFactory(
             cardInput: .cardModel(self),
             twinData: cardInfo.walletData.twinData,
-            currentStepIndex: 0
+            primaryCard: cardInfo.primaryCard,
+            sdkFactory: config,
+            onboardingStepsBuilderFactory: config
         )
+
+        return factory.makeOnboardingInput()
+    }
+
+    var backupInput: OnboardingInput? {
+        let factory = OnboardingInputFactory(
+            cardInput: .cardModel(self),
+            twinData: nil,
+            primaryCard: cardInfo.primaryCard,
+            sdkFactory: config,
+            onboardingStepsBuilderFactory: config
+        )
+
+        return factory.makeBackupInput()
     }
 
     var twinInput: OnboardingInput? {
-        guard config.hasFeature(.twinning) else { return nil }
+        guard let twinData = cardInfo.walletData.twinData else {
+            return nil
+        }
 
-        return OnboardingInput(
-            steps: .twins(TwinsOnboardingStep.twinningSteps),
+        let factory = TwinInputFactory(
             cardInput: .cardModel(self),
-            twinData: cardInfo.walletData.twinData,
-            currentStepIndex: 0,
-            isStandalone: true
+            twinData: twinData,
+            sdkFactory: config
         )
+        return factory.makeTwinInput()
     }
 
     var resetToFactoryAvailability: UserWalletFeature.Availability {
@@ -297,6 +300,7 @@ class CardViewModel: Identifiable, ObservableObject {
     private var searchBlockchainsCancellable: AnyCancellable?
     private var bag = Set<AnyCancellable>()
     private var signSubscription: AnyCancellable?
+    private var derivationManager: DerivationManager?
 
     private var _signer: TangemSigner {
         didSet {
@@ -365,6 +369,8 @@ class CardViewModel: Identifiable, ObservableObject {
     // MARK: - Security
 
     func changeSecurityOption(_ option: SecurityModeOption, completion: @escaping (Result<Void, Error>) -> Void) {
+        let tangemSdk = makeTangemSdk()
+        self.tangemSdk = tangemSdk
         switch option {
         case .accessCode:
             tangemSdk.startSession(
@@ -441,6 +447,9 @@ class CardViewModel: Identifiable, ObservableObject {
     // MARK: - Wallet
 
     func createWallet(_ completion: @escaping (Result<Void, Error>) -> Void) {
+        let tangemSdk = makeTangemSdk()
+        self.tangemSdk = tangemSdk
+
         let card = cardInfo.card
         tangemSdk.startSession(
             with: CreateWalletAndReadTask(with: config.defaultCurve),
@@ -462,6 +471,9 @@ class CardViewModel: Identifiable, ObservableObject {
     }
 
     func resetToFactory(completion: @escaping (Result<Void, TangemSdkError>) -> Void) {
+        let tangemSdk = makeTangemSdk()
+        self.tangemSdk = tangemSdk
+
         let card = cardInfo.card
         tangemSdk.startSession(
             with: ResetToFactorySettingsTask(),
@@ -567,27 +579,6 @@ class CardViewModel: Identifiable, ObservableObject {
 
     func getDisabledLocalizedReason(for feature: UserWalletFeature) -> String? {
         config.getFeatureAvailability(feature).disabledLocalizedReason
-    }
-
-    func updateSdkConfig() {
-        var config = config.sdkConfig
-        config.accessCodeRequestPolicy = accessCodeRequestPolicy()
-
-        tangemSdkProvider.setup(with: config)
-    }
-
-    private func accessCodeRequestPolicy() -> AccessCodeRequestPolicy {
-        let hasCode = card.isAccessCodeSet
-
-        if !AppSettings.shared.saveUserWallets {
-            return hasCode ? .always : .default
-        }
-
-        if hasCode {
-            return AppSettings.shared.saveAccessCodes ? .alwaysWithBiometrics : .always
-        }
-
-        return .default
     }
 
     private func updateModel() {
@@ -704,17 +695,6 @@ class CardViewModel: Identifiable, ObservableObject {
     }
 
     private func bind() {
-        AppSettings.shared.$saveUserWallets
-            .combineLatest(AppSettings.shared.$saveAccessCodes)
-            .sink { [weak self] _ in
-                guard let self else { return }
-
-                if self.isActive {
-                    self.updateSdkConfig()
-                }
-            }
-            .store(in: &bag)
-
         bindSigner()
     }
 
@@ -793,6 +773,7 @@ extension CardViewModel {
 
     func derive(entries: [StorageEntry], completion: @escaping (Result<Void, Error>) -> Void) {
         let derivationManager = DerivationManager(config: config, cardInfo: cardInfo)
+        self.derivationManager = derivationManager
         let alreadySaved = userWalletModel?.getSavedEntries() ?? []
         derivationManager.deriveIfNeeded(entries: alreadySaved + entries, completion: { [weak self] result in
             switch result {
@@ -805,6 +786,8 @@ extension CardViewModel {
             case .failure(let error):
                 completion(.failure(error))
             }
+
+            self?.derivationManager = nil
         })
     }
 
@@ -831,6 +814,9 @@ extension CardViewModel: WalletConnectUserWalletInfoProvider {}
 
 extension CardViewModel: AccessCodeRecoverySettingsProvider {
     func setAccessCodeRecovery(to enabled: Bool, _ completionHandler: @escaping (Result<Void, TangemSdkError>) -> Void) {
+        let tangemSdk = makeTangemSdk()
+        self.tangemSdk = tangemSdk
+
         tangemSdk.setUserCodeRecoveryAllowed(enabled, cardId: cardId) { [weak self] result in
             guard let self else { return }
             switch result {
@@ -842,5 +828,12 @@ extension CardViewModel: AccessCodeRecoverySettingsProvider {
                 completionHandler(.failure(error))
             }
         }
+    }
+}
+
+// [REDACTED_TODO_COMMENT]
+extension CardViewModel: TangemSdkFactory {
+    func makeTangemSdk() -> TangemSdk {
+        config.makeTangemSdk()
     }
 }
