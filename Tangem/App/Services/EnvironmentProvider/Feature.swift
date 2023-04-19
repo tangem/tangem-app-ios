@@ -15,7 +15,7 @@ enum Feature: String, Hashable, CaseIterable {
     case blockBookUtxoApis
     case importSeedPhrase
     case accessCodeRecoverySettings
-    case offMaxFirmwareVersion
+    case disableFirmwareVersionLimit
 
     var name: String {
         switch self {
@@ -25,7 +25,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .blockBookUtxoApis: return "Block Book UTXO APIs (NOWNodes, GetBlock)"
         case .importSeedPhrase: return "Import seed phrase (Firmware 6.11 and above)"
         case .accessCodeRecoverySettings: return "Access Code Recovery Settings"
-        case .offMaxFirmwareVersion: return "Turn off max firmware version"
+        case .disableFirmwareVersionLimit: return "Disable firmware version limit"
         }
     }
 
@@ -37,7 +37,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .blockBookUtxoApis: return .version("4.3")
         case .importSeedPhrase: return .unspecified
         case .accessCodeRecoverySettings: return .unspecified
-        case .offMaxFirmwareVersion: return .unspecified
+        case .disableFirmwareVersionLimit: return .unspecified
         }
     }
 }
