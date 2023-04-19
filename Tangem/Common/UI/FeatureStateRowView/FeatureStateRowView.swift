@@ -15,21 +15,21 @@ struct FeatureStateRowView: View {
     var body: some View {
         VStack(alignment: .leading) {
             VStack(alignment: .leading, spacing: 4) {
-                Text(viewModel.toggle.name)
+                Text(viewModel.feature.name)
                     .style(Fonts.Bold.body, color: Colors.Text.primary1)
 
                 VStack(alignment: .leading, spacing: 2) {
                     Text("Release version: \(viewModel.releaseVersionInfo)")
                         .style(Fonts.Regular.caption1, color: Colors.Text.secondary)
 
-                    Text("State by default: \(viewModel.stateByDefault)")
+                    Text("Default state: \(viewModel.defaultState)")
                         .style(Fonts.Regular.caption1, color: Colors.Text.secondary)
                 }
             }
 
             Picker("", selection: viewModel.state) {
                 ForEach(FeatureState.allCases) {
-                    Text($0.rawValue).tag($0)
+                    Text($0.name).tag($0)
                 }
             }
             .labelsHidden()
@@ -45,8 +45,8 @@ struct FeatureStateRowView_Preview: PreviewProvider {
         var body: some View {
             FeatureStateRowView(
                 viewModel: FeatureStateRowViewModel(
-                    toggle: .exchange,
-                    isEnabledByDefault: true,
+                    feature: .exchange,
+                    enabledByDefault: true,
                     state: $state
                 )
             )
