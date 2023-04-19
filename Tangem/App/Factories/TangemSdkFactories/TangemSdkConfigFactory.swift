@@ -22,7 +22,7 @@ struct TangemSdkConfigFactory {
         ])
 
         config.filter.issuerFilter = .deny(["TTM BANK"])
-        if FeatureProvider.isAvailable(.maxFirmwareVersion) {
+        if !FeatureProvider.isAvailable(.offMaxFirmwareVersion) {
             config.filter.maxFirmwareVersion = FirmwareVersion(major: 4, minor: 52)
         }
         config.allowUntrustedCards = true
