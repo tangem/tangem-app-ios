@@ -197,7 +197,7 @@ extension Blockchain {
             .ton(testnet: false),
             .kava(testnet: false),
             .kaspa,
-            .ravencoin(testnet: false),
+           // .ravencoin(testnet: false),
         ]
     }()
 
@@ -220,7 +220,7 @@ extension Blockchain {
             .optimism(testnet: true),
             .ton(testnet: true),
             .kava(testnet: true),
-            .ravencoin(testnet: true),
+           // .ravencoin(testnet: true),
         ]
     }()
 }
