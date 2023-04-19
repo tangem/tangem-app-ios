@@ -18,7 +18,7 @@ final class EnvironmentSetupViewModel: ObservableObject {
 
     // MARK: - Dependencies
 
-    private let featuresStorage = FeaturesStorage()
+    private let featureStorage = FeatureStorage()
     private var bag: Set<AnyCancellable> = []
 
     init() {
@@ -30,7 +30,7 @@ final class EnvironmentSetupViewModel: ObservableObject {
             DefaultToggleRowViewModel(
                 title: "Use testnet",
                 isOn: Binding<Bool>(
-                    root: featuresStorage,
+                    root: featureStorage,
                     default: false,
                     get: { $0.isTestnet },
                     set: { $0.isTestnet = $1 }
@@ -39,7 +39,7 @@ final class EnvironmentSetupViewModel: ObservableObject {
             DefaultToggleRowViewModel(
                 title: "Use dev API",
                 isOn: Binding<Bool>(
-                    root: featuresStorage,
+                    root: featureStorage,
                     default: false,
                     get: { $0.useDevApi },
                     set: { $0.useDevApi = $1 }
@@ -47,20 +47,20 @@ final class EnvironmentSetupViewModel: ObservableObject {
             ),
         ]
 
-        featureStateViewModels = Feature.allCases.reversed().map { toggle in
+        featureStateViewModels = Feature.allCases.reversed().map { feature in
             FeatureStateRowViewModel(
-                toggle: toggle,
-                isEnabledByDefault: FeatureProvider.isAvailableForReleaseVersion(toggle),
+                feature: feature,
+                enabledByDefault: FeatureProvider.isAvailableForReleaseVersion(feature),
                 state: Binding<FeatureState>(
-                    root: featuresStorage,
+                    root: featureStorage,
                     default: .default,
-                    get: { $0.availableFeatures[toggle] ?? .default },
+                    get: { $0.availableFeatures[feature] ?? .default },
                     set: { obj, state in
                         switch state {
                         case .default:
-                            obj.availableFeatures.removeValue(forKey: toggle)
+                            obj.availableFeatures.removeValue(forKey: feature)
                         case .on, .off:
-                            obj.availableFeatures[toggle] = state
+                            obj.availableFeatures[feature] = state
                         }
                     }
                 )
