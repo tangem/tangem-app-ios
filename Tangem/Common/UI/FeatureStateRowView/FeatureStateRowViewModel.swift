@@ -10,16 +10,16 @@ import Foundation
 import SwiftUI
 
 struct FeatureStateRowViewModel {
-    let toggle: Feature
-    let isEnabledByDefault: Bool
+    let feature: Feature
+    let enabledByDefault: Bool
     let state: Binding<FeatureState>
 
     var releaseVersionInfo: String {
-        toggle.releaseVersion.version ?? "unspecified"
+        feature.releaseVersion.version ?? "Unspecified"
     }
 
-    var stateByDefault: String {
-        isEnabledByDefault ? "Enabled" : "Disabled"
+    var defaultState: String {
+        enabledByDefault ? "Enabled" : "Disabled"
     }
 }
 
@@ -33,7 +33,7 @@ extension FeatureStateRowViewModel: Hashable {
     }
 
     func hash(into hasher: inout Hasher) {
-        hasher.combine(toggle)
+        hasher.combine(feature)
         hasher.combine(state.wrappedValue)
     }
 }
