@@ -25,6 +25,7 @@ struct TangemSdkConfigFactory {
         config.filter.maxFirmwareVersion = FirmwareVersion(major: 4, minor: 52)
         config.allowUntrustedCards = true
         config.biometricsLocalizedReason = Localization.biometryTouchIdReason
+
         return config
     }
 }
