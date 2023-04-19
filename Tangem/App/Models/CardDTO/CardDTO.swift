@@ -64,10 +64,13 @@ struct CardDTO: Codable {
                 chainCode: $0.chainCode,
                 curve: $0.curve,
                 settings: $0.settings,
+                totalSignedHashes: $0.totalSignedHashes,
+                remainingSignatures: $0.remainingSignatures,
                 index: $0.index,
                 proof: $0.proof,
                 isImported: cardDTOv4.firmwareVersion < .keysImportAvailable ? false : nil,
-                hasBackup: $0.hasBackup
+                hasBackup: $0.hasBackup,
+                derivedKeys: $0.derivedKeys
             )
         }
         attestation = cardDTOv4.attestation
@@ -84,10 +87,13 @@ struct CardDTO: Codable {
                 chainCode: $0.chainCode,
                 curve: $0.curve,
                 settings: $0.settings,
+                totalSignedHashes: $0.totalSignedHashes,
+                remainingSignatures: $0.remainingSignatures,
                 index: $0.index,
                 proof: $0.proof,
                 isImported: $0.isImported,
-                hasBackup: $0.hasBackup
+                hasBackup: $0.hasBackup,
+                derivedKeys: $0.derivedKeys
             )
         }
     }
