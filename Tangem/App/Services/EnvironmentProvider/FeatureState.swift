@@ -9,9 +9,13 @@
 import Foundation
 
 enum FeatureState: String, Hashable, Identifiable, CaseIterable, Codable {
-    var id: String { rawValue }
-
     case `default`
     case off
     case on
+
+    var id: String { rawValue }
+
+    var name: String {
+        rawValue.capitalized
+    }
 }
