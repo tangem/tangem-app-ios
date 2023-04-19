@@ -132,8 +132,8 @@ class CardViewModel: Identifiable, ObservableObject {
         config.hasFeature(.tokenSynchronization)
     }
 
-    var supportsSwapping: Bool {
-        config.hasFeature(.swapping)
+    var canShowSwapping: Bool {
+        !config.getFeatureAvailability(.swapping).isHidden
     }
 
     // Temp for WC. Migrate to userWalletId?
@@ -227,7 +227,7 @@ class CardViewModel: Identifiable, ObservableObject {
 
     var canParticipateInReferralProgram: Bool {
         // [REDACTED_TODO_COMMENT]
-        config.hasFeature(.referralProgram)
+        !config.getFeatureAvailability(.referralProgram).isHidden
     }
 
     var supportedBlockchains: Set<Blockchain> {
@@ -300,6 +300,7 @@ class CardViewModel: Identifiable, ObservableObject {
     private var searchBlockchainsCancellable: AnyCancellable?
     private var bag = Set<AnyCancellable>()
     private var signSubscription: AnyCancellable?
+    private var derivationManager: DerivationManager?
 
     private var _signer: TangemSigner {
         didSet {
@@ -772,6 +773,7 @@ extension CardViewModel {
 
     func derive(entries: [StorageEntry], completion: @escaping (Result<Void, Error>) -> Void) {
         let derivationManager = DerivationManager(config: config, cardInfo: cardInfo)
+        self.derivationManager = derivationManager
         let alreadySaved = userWalletModel?.getSavedEntries() ?? []
         derivationManager.deriveIfNeeded(entries: alreadySaved + entries, completion: { [weak self] result in
             switch result {
@@ -784,6 +786,8 @@ extension CardViewModel {
             case .failure(let error):
                 completion(.failure(error))
             }
+
+            self?.derivationManager = nil
         })
     }
 
