@@ -41,13 +41,13 @@ extension AppEnvironment {
     }
 
     var apiBaseUrl: URL {
-        FeaturesStorage().useDevApi ?
+        FeatureStorage().useDevApi ?
             URL(string: "https://devapi.tangem-tech.com/v1")! :
             URL(string: "https://api.tangem-tech.com/v1")!
     }
 
     var isTestnet: Bool {
-        FeaturesStorage().isTestnet
+        FeatureStorage().isTestnet
     }
 
     var isDebug: Bool {
