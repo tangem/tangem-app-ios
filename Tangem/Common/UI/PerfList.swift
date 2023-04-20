@@ -19,40 +19,25 @@ struct PerfList<Content: View>: View {
     }
 
     var body: some View {
-        if #available(iOS 14.0, *) {
-            ScrollView {
-                LazyVStack {
-                    content()
-                }
-            }
-            .scrollDismissesKeyboardCompat(dismissKeyboardOnScroll)
-        } else {
-            List {
+        ScrollView {
+            LazyVStack {
                 content()
             }
-            .listStyle(PlainListStyle())
         }
+        .scrollDismissesKeyboardCompat(dismissKeyboardOnScroll)
     }
 }
 
 struct PerfListDivider: View {
     var body: some View {
-        if #available(iOS 14.0, *) {
-            Divider()
-                .padding([.leading])
-        } else {
-            EmptyView()
-        }
+        Divider()
+            .padding([.leading])
     }
 }
 
 extension View {
     @ViewBuilder
     func perfListPadding() -> some View {
-        if #available(iOS 14.0, *) {
-            self.padding(.horizontal)
-        } else {
-            self
-        }
+        padding(.horizontal)
     }
 }
