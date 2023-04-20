@@ -194,7 +194,7 @@ PODS:
   - SwiftProtobuf (1.21.0)
   - SwiftyJSON (5.0.1)
   - TangemSdk (3.4.0)
-  - TangemWalletCore (3.1.9-tangem1):
+  - TangemWalletCore (3.1.9-tangem4):
     - SwiftProtobuf
   - TweetNacl (1.0.2)
   - WalletConnectSwift (1.7.0):
@@ -259,8 +259,8 @@ DEPENDENCIES:
   - Mobile-Buy-SDK
   - Moya
   - Solana.Swift (from `https://github.com/tangem/Solana.Swift`, tag `add-external-signer-7`)
-  - TangemSdk (from `https://github.com/Tangem/tangem-sdk-ios.git`, tag `develop-219`)
-  - TangemWalletCore (from `https://github.com/tangem/wallet-core-binaries-ios.git`, tag `3.1.9-tangem3`)
+  - TangemSdk (from `https://github.com/Tangem/tangem-sdk-ios.git`, tag `develop-223`)
+  - TangemWalletCore (from `../wallet-core-binaries-ios`)
   - WalletConnectSwift (from `https://github.com/WalletConnect/WalletConnectSwift`, tag `1.7.0`)
   - WalletConnectSwiftV2 (from `https://github.com/WalletConnect/WalletConnectSwiftV2`, tag `1.1.0`)
   - web3swift (from `https://github.com/tangem/web3swift.git`, tag `2.2.12`)
@@ -340,10 +340,9 @@ EXTERNAL SOURCES:
     :tag: add-external-signer-7
   TangemSdk:
     :git: https://github.com/Tangem/tangem-sdk-ios.git
-    :tag: develop-219
+    :tag: develop-223
   TangemWalletCore:
-    :git: https://github.com/tangem/wallet-core-binaries-ios.git
-    :tag: 3.1.9-tangem3
+    :path: "../wallet-core-binaries-ios"
   WalletConnectSwift:
     :git: https://github.com/WalletConnect/WalletConnectSwift
     :tag: 1.7.0
@@ -378,10 +377,7 @@ CHECKOUT OPTIONS:
     :tag: add-external-signer-7
   TangemSdk:
     :git: https://github.com/Tangem/tangem-sdk-ios.git
-    :tag: develop-219
-  TangemWalletCore:
-    :git: https://github.com/tangem/wallet-core-binaries-ios.git
-    :tag: 3.1.9-tangem3
+    :tag: develop-223
   WalletConnectSwift:
     :git: https://github.com/WalletConnect/WalletConnectSwift
     :tag: 1.7.0
@@ -436,7 +432,7 @@ SPEC CHECKSUMS:
   SwiftProtobuf: afced68785854575756db965e9da52bbf3dc45e7
   SwiftyJSON: 2f33a42c6fbc52764d96f13368585094bfd8aa5e
   TangemSdk: d628b627e16634b97c2536f265bdcddc9734c617
-  TangemWalletCore: 87a4637456e46c2aa3d49a6a1dc07a8054783183
+  TangemWalletCore: 6b22addb1602027213db024a34355fe248651f94
   TweetNacl: 3abf4d1d2082b0114e7a67410e300892448951e6
   WalletConnectSwift: 6309bf3011b0b30e3e9d1e7449535302a9240f71
   WalletConnectSwiftV2: 2a1098c28f083a5084979222ba6d62c29f870e31
@@ -452,6 +448,6 @@ SPEC CHECKSUMS:
   ZendeskSupportProvidersSDK: 77a62fe6bacc05bb10ff20edce75612fa109fd61
   ZendeskSupportSDK: ba72e90e327635b5fde3d023a3de33242a6ee8ab
 
-PODFILE CHECKSUM: fd909017c58f635bdfd85162d5451277182f4125
+PODFILE CHECKSUM: 23d249cd561fdaba55150c82d4ace9e53898604d
 
-COCOAPODS: 1.11.3
+COCOAPODS: 1.12.1
