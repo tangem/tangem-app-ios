@@ -198,6 +198,7 @@
 "onboarding_exit_alert_message" = "In this case, you will need to start from the beginning.";
 "onboarding_exit_alert_title" = "Do you want to exit the activation process?";
 "onboarding_getting_started" = "Getting started";
+"onboarding_linking_error_card_with_wallets" = "Another wallet has already been created on the card you're trying to add. Do you want to reset it and use the card for a new wallet?";
 "onboarding_navbar_kyc_progress" = "Verify your identity";
 "onboarding_navbar_pin" = "Pin code";
 "onboarding_navbar_register_wallet" = "Connect";
