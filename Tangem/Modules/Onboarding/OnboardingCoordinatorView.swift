@@ -50,10 +50,15 @@ struct OnboardingCoordinatorView: CoordinatorView {
             .sheet(item: $coordinator.buyCryptoModel) {
                 WebViewContainer(viewModel: $0)
             }
-
-        NavHolder()
             .sheet(item: $coordinator.accessCodeModel) {
                 OnboardingAccessCodeView(viewModel: $0)
+            }
+            .sheet(item: $coordinator.supportChatViewModel) {
+                SupportChatView(viewModel: $0)
+                    .edgesIgnoringSafeArea(.vertical)
+            }
+            .sheet(item: $coordinator.modalWebViewModel) {
+                WebViewContainer(viewModel: $0)
             }
 
         NavHolder()
@@ -62,22 +67,11 @@ struct OnboardingCoordinatorView: CoordinatorView {
             }
 
         NavHolder()
-            .sheet(item: $coordinator.supportChatViewModel) {
-                SupportChatView(viewModel: $0)
-                    .edgesIgnoringSafeArea(.vertical)
-            }
-
-        NavHolder()
             .bottomSheet(
                 item: $coordinator.warningBankCardViewModel,
                 viewModelSettings: .warning
             ) {
                 WarningBankCardView(viewModel: $0)
-            }
-
-        NavHolder()
-            .sheet(item: $coordinator.modalWebViewModel) {
-                WebViewContainer(viewModel: $0)
             }
     }
 }
