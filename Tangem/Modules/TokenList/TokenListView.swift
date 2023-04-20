@@ -18,10 +18,9 @@ struct TokenListView: View {
         ZStack {
             PerfList {
                 if #available(iOS 15.0, *) {} else {
-                    let horizontalInset: CGFloat = UIDevice.isIOS13 ? 8 : 16
                     SearchBar(text: $viewModel.enteredSearchText.value, placeholder: Localization.commonSearch)
-                        .padding(.horizontal, UIDevice.isIOS13 ? 0 : 8)
-                        .listRowInsets(.init(top: 8, leading: horizontalInset, bottom: 8, trailing: horizontalInset))
+                        .padding(.horizontal, 8)
+                        .listRowInsets(.init(top: 8, leading: 16, bottom: 8, trailing: 16))
                 }
 
                 if viewModel.shouldShowAlert {
@@ -58,7 +57,7 @@ struct TokenListView: View {
 
             overlay
         }
-        .navigationBarTitle(Text(viewModel.titleKey), displayMode: UIDevice.isIOS13 ? .inline : .automatic)
+        .navigationBarTitle(Text(viewModel.titleKey), displayMode: .automatic)
         .navigationBarItems(trailing: addCustomView)
         .alert(item: $viewModel.alert, content: { $0.alert })
         .toast(isPresenting: $viewModel.showToast) {
@@ -68,7 +67,6 @@ struct TokenListView: View {
         .background(Color.clear.edgesIgnoringSafeArea(.all))
         .onAppear { viewModel.onAppear() }
         .onDisappear { viewModel.onDisappear() }
-        .keyboardAdaptive()
     }
 
     @ViewBuilder private var addCustomView: some View {
