@@ -587,7 +587,7 @@ class WalletOnboardingViewModel: OnboardingTopupViewModel<WalletOnboardingStep, 
 
     override func goToNextStep() {
         switch currentStep {
-        case .createWalletSelector:
+        case .createWallet, .createWalletSelector, .seedPhraseUserValidation, .seedPhraseImport:
             goToStep(.backupIntro)
         default:
             super.goToNextStep()
