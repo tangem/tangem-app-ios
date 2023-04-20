@@ -13,6 +13,7 @@ enum Feature: String, Hashable, CaseIterable {
     case walletConnectV2
     case importSeedPhrase
     case accessCodeRecoverySettings
+    case disableFirmwareVersionLimit
 
     var name: String {
         switch self {
@@ -20,6 +21,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .walletConnectV2: return "WalletConnect V2"
         case .importSeedPhrase: return "Import seed phrase (Firmware 6.11 and above)"
         case .accessCodeRecoverySettings: return "Access Code Recovery Settings"
+        case .disableFirmwareVersionLimit: return "Disable firmware version limit"
         }
     }
 
@@ -29,6 +31,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .walletConnectV2: return .unspecified
         case .importSeedPhrase: return .unspecified
         case .accessCodeRecoverySettings: return .unspecified
+        case .disableFirmwareVersionLimit: return .unspecified
         }
     }
 }
