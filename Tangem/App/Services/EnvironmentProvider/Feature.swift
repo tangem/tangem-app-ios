@@ -10,7 +10,6 @@ import Foundation
 
 enum Feature: String, Hashable, CaseIterable {
     case exchange
-    case referralProgram
     case walletConnectV2
     case importSeedPhrase
     case accessCodeRecoverySettings
@@ -18,7 +17,6 @@ enum Feature: String, Hashable, CaseIterable {
     var name: String {
         switch self {
         case .exchange: return "Exchange"
-        case .referralProgram: return "Referral Program"
         case .walletConnectV2: return "WalletConnect V2"
         case .importSeedPhrase: return "Import seed phrase (Firmware 6.11 and above)"
         case .accessCodeRecoverySettings: return "Access Code Recovery Settings"
@@ -28,7 +26,6 @@ enum Feature: String, Hashable, CaseIterable {
     var releaseVersion: ReleaseVersion {
         switch self {
         case .exchange: return .version("4.2")
-        case .referralProgram: return .version("4.2")
         case .walletConnectV2: return .unspecified
         case .importSeedPhrase: return .unspecified
         case .accessCodeRecoverySettings: return .unspecified
