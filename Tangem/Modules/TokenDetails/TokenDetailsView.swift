@@ -92,7 +92,7 @@ struct TokenDetailsView: View {
         .navigationBarTitle("", displayMode: .inline)
         .navigationBarItems(trailing: trailingButton)
         .background(Color.tangemBgGray.edgesIgnoringSafeArea(.all))
-        .ignoresKeyboard()
+        .ignoresSafeArea(.keyboard)
         .onAppear(perform: viewModel.onAppear)
         //        .onReceive(NotificationCenter.default.publisher(for: UIApplication.willEnterForegroundNotification)
         //            .filter {_ in !navigation.detailsToSend
