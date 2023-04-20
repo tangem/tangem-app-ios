@@ -220,7 +220,7 @@ extension DetailsViewModel {
             DefaultRowViewModel(title: Localization.detailsChat, action: openSupportChat),
         ]
 
-        if cardModel.canParticipateInReferralProgram, FeatureProvider.isAvailable(.referralProgram) {
+        if cardModel.canParticipateInReferralProgram {
             supportSectionModels.append(DefaultRowViewModel(title: Localization.detailsReferralTitle, action: openReferral))
         }
 
