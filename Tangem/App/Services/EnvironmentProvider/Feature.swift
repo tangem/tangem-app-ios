@@ -14,6 +14,7 @@ enum Feature: String, Hashable, CaseIterable {
     case importSeedPhrase
     case accessCodeRecoverySettings
     case disableFirmwareVersionLimit
+    case abilityChooseCommissionRate
 
     var name: String {
         switch self {
@@ -22,6 +23,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .importSeedPhrase: return "Import seed phrase (Firmware 6.11 and above)"
         case .accessCodeRecoverySettings: return "Access Code Recovery Settings"
         case .disableFirmwareVersionLimit: return "Disable firmware version limit"
+        case .abilityChooseCommissionRate: return "Ability Choose Commission Rate"
         }
     }
 
@@ -32,6 +34,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .importSeedPhrase: return .unspecified
         case .accessCodeRecoverySettings: return .unspecified
         case .disableFirmwareVersionLimit: return .unspecified
+        case .abilityChooseCommissionRate: return .unspecified
         }
     }
 }
