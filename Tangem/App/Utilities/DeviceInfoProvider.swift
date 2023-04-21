@@ -8,7 +8,6 @@
 
 import Foundation
 import UIKit
-import DeviceGuru
 
 struct DeviceInfoProvider {
     enum Subject: CaseIterable {
@@ -24,21 +23,22 @@ struct DeviceInfoProvider {
             }
         }
 
-        var description: String {
+        var payload: String {
             let device = UIDevice.current
-            let devGuru = DeviceGuru()
-            var str = title
             switch self {
             case .deviceModel:
-                str += devGuru.hardwareDescription() ?? device.model
+                return device.iPhoneModel?.name ?? device.model
             case .osVersion:
-                str += device.systemName + " " + device.systemVersion
+                return [device.systemName, device.systemVersion].joined(separator: " ")
             case .appVersion:
-                let bundle = Bundle.main
-                str += (bundle.infoDictionary?["CFBundleShortVersionString"] as? String ?? "") + " (\(bundle.infoDictionary?["CFBundleVersion"] as? String ?? ""))"
+                return [InfoDictionaryUtils.version, InfoDictionaryUtils.bundleVersion]
+                    .compactMap { $0.value() }
+                    .joined(separator: " ")
             }
-            str += "\n"
-            return str
+        }
+
+        var description: String {
+            return "\(title)\(payload)\n"
         }
     }
 
