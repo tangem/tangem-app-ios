@@ -15,14 +15,6 @@ struct DeviceInfoProvider {
         case osVersion
         case appVersion
 
-        var title: String {
-            switch self {
-            case .deviceModel: return "Phone model: "
-            case .osVersion: return "OS version: "
-            case .appVersion: return "App version: "
-            }
-        }
-
         var payload: String {
             let device = UIDevice.current
             switch self {
@@ -31,18 +23,25 @@ struct DeviceInfoProvider {
             case .osVersion:
                 return [device.systemName, device.systemVersion].joined(separator: " ")
             case .appVersion:
-                return [InfoDictionaryUtils.version, InfoDictionaryUtils.bundleVersion]
-                    .compactMap { $0.value() }
-                    .joined(separator: " ")
+                return [
+                    InfoDictionaryUtils.version.value() ?? "",
+                    "(\(InfoDictionaryUtils.bundleVersion.value() ?? ""))",
+                ]
+                .joined(separator: " ")
             }
         }
 
         var description: String {
-            return "\(title)\(payload)\n"
+            switch self {
+            case .deviceModel: return "Phone model: \(payload)"
+            case .osVersion: return "OS version: \(payload)"
+            case .appVersion: return "App version: \(payload)"
+            }
         }
     }
 
     static func info(for subjects: [Subject] = Subject.allCases) -> String {
-        subjects.reduce(into: "\n") { $0 += $1.description }
+        let info = subjects.map { $0.description }.joined(separator: "\n")
+        return "\n\(info)\n"
     }
 }
