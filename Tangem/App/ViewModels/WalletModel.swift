@@ -486,12 +486,12 @@ extension WalletModel {
         wallet.getShareString(for: wallet.addresses[index].value)
     }
 
-    func exploreURL(for index: Int) -> URL? {
+    func exploreURL(for index: Int, amountType: Amount.AmountType?) -> URL? {
         if isDemo {
             return nil
         }
 
-        return wallet.getExploreURL(for: wallet.addresses[index].value)
+        return wallet.getExploreURL(for: wallet.addresses[index].value, token: amountType?.token)
     }
 
     func getDecimalBalance(for type: Amount.AmountType) -> Decimal? {
