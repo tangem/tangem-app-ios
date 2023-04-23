@@ -1060,17 +1060,10 @@ class WalletOnboardingViewModel: OnboardingTopupViewModel<WalletOnboardingStep, 
     private func processLinkingError(_ error: Error) {
         AppLog.shared.error(error, params: [.action: .addbackup])
 
-        guard let tangemSdkError = error as? TangemSdkError else {
-            return
-        }
-
-        switch tangemSdkError {
-        case .backupFailedNotEmptyWallets:
-            if backupService.primaryCard?.firmwareVersion >= .keysImportAvailable {
-                requestResetCard()
-            }
-        default:
-            break
+        if backupService.primaryCard?.firmwareVersion >= .keysImportAvailable,
+           let tangemSdkError = error as? TangemSdkError,
+           case .backupFailedNotEmptyWallets = tangemSdkError {
+            requestResetCard()
         }
     }
 
@@ -1079,18 +1072,27 @@ class WalletOnboardingViewModel: OnboardingTopupViewModel<WalletOnboardingStep, 
             title: Localization.commonAttention,
             message: Localization.onboardingLinkingErrorCardWithWallets,
             primaryButton: .destructive(Text(Localization.cardSettingsActionSheetReset), action: resetCard),
-            secondaryButton: .cancel()
+            secondaryButton: Alert.Button.cancel {
+                Analytics.log(.backupResetCardNotification, params: [.option: .cancel])
+            }
         )
     }
 
     private func resetCard() {
+        Analytics.log(.backupResetCardNotification, params: [.option: .reset])
+        isMainButtonBusy = true
         tangemSdk.startSession(with: ResetToFactorySettingsTask()) { [weak self] result in
             switch result {
             case .failure(let error):
+                if error.isUserCancelled {
+                    break
+                }
+
                 self?.alert = error.alertBinder
             case .success:
                 break
             }
+            self?.isMainButtonBusy = false
         }
     }
 }
