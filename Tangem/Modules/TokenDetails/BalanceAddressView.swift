@@ -136,7 +136,7 @@ struct BalanceAddressView: View {
                                 .fixedSize(horizontal: false, vertical: true)
 
                             ExploreButton(
-                                url: walletModel.exploreURL(for: selectedAddressIndex),
+                                url: walletModel.exploreURL(for: selectedAddressIndex, amountType: amountType),
                                 showExplorerURL: showExplorerURL
                             )
 
