@@ -61,7 +61,7 @@ struct AddressDetailView: View {
                         .foregroundColor(Color.tangemGrayDark)
 
                     ExploreButton(
-                        url: walletModel.exploreURL(for: selectedAddressIndex),
+                        url: walletModel.exploreURL(for: selectedAddressIndex, amountType: nil),
                         showExplorerURL: showExplorerURL
                     )
                 }
