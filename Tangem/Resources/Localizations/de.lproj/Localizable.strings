@@ -394,7 +394,7 @@
 "swapping_swap" = "Swap";
 "swapping_swap_action" = "Swap";
 "swapping_swap_of_to" = "Swap of %@ to";
-"swapping_tangem_fee_disclaimer" = "Quotes include an additional Tangem commission of %@. This helps us deliver a top-of-the-line product";
+"swapping_tangem_fee_disclaimer" = "Quotes include an additional Tangem commission of %@. This helps us deliver a top-of-the-line product.";
 "swapping_token_list_other_tokens" = "Other tokens";
 "swapping_token_list_title" = "Choose token";
 "swapping_token_list_your_tokens" = "Your tokens";
