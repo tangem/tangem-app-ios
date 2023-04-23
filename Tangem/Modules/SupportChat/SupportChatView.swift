@@ -18,6 +18,7 @@ struct SupportChatView: View {
             WebView(url: url)
         case .zendesk(let zendeskViewModel):
             ZendeskSupportChatView(viewModel: zendeskViewModel)
+                .actionSheet(item: $viewModel.showSupportActionSheet, content: { $0.sheet })
         case .none:
             EmptyView()
         }
