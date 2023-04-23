@@ -14,7 +14,6 @@ import SupportSDK
 import Foundation
 import SwiftUI
 import UIKit
-import DeviceGuru
 
 final class ZendeskSupportChatViewModel: ObservableObject {
     @Injected(\.keysManager) private var keysManager: KeysManager
@@ -84,7 +83,7 @@ final class ZendeskSupportChatViewModel: ObservableObject {
     }
 
     func buildUI() throws -> UIViewController {
-        let device = DeviceGuru().hardwareDescription() ?? ""
+        let device = UIDevice.current.iPhoneModel?.name ?? ""
 
         Chat.instance?
             .providers
