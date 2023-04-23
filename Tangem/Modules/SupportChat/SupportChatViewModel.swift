@@ -33,7 +33,6 @@ class SupportChatViewModel: ObservableObject, Identifiable {
         case .tangem:
             viewState = .zendesk(
                 ZendeskSupportChatViewModel(
-                    cardId: cardId,
                     dataCollector: dataCollector,
                     showSupportChatSheet: { [weak self] sheet in
                         DispatchQueue.main.async {
