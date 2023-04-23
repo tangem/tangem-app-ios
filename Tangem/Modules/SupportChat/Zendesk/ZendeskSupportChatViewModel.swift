@@ -19,7 +19,6 @@ import DeviceGuru
 final class ZendeskSupportChatViewModel: ObservableObject {
     @Injected(\.keysManager) private var keysManager: KeysManager
 
-    let cardId: String?
     let dataCollector: EmailDataCollector?
 
     private var chatViewController: UIViewController?
@@ -28,11 +27,9 @@ final class ZendeskSupportChatViewModel: ObservableObject {
     private var showSupportChatSheet: ((ActionSheet) -> Void)?
 
     init(
-        cardId: String? = nil,
         dataCollector: EmailDataCollector? = nil,
         showSupportChatSheet: ((ActionSheet) -> Void)?
     ) {
-        self.cardId = cardId
         self.dataCollector = dataCollector
         self.showSupportChatSheet = showSupportChatSheet
 
@@ -92,7 +89,7 @@ final class ZendeskSupportChatViewModel: ObservableObject {
         Chat.instance?
             .providers
             .profileProvider
-            .setNote("\(device) \(cardId ?? "")")
+            .setNote("\(device)")
 
         let chatEngine = try ChatEngine.engine()
         chatViewController = try Messaging.instance.buildUI(engines: [chatEngine], configs: [chatConfiguration, messagingConfiguration])
