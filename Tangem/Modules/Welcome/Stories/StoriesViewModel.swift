@@ -155,6 +155,10 @@ class StoriesViewModel: ObservableObject {
     }
 
     private func resumeTimer() {
+        if timerIsRunning() {
+            return
+        }
+
         let remainingProgress = 1 - currentProgress
         let remainingStoryDuration = currentPage.duration * remainingProgress
         let currentStoryTime = currentPage.duration * currentProgress
