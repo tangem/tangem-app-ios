@@ -13,7 +13,6 @@ import ChatProvidersSDK
 import SupportSDK
 import Foundation
 import UIKit
-import DeviceGuru
 
 struct ZendeskSupportChatViewModel {
     @Injected(\.keysManager) private var keysManager: KeysManager
@@ -58,7 +57,7 @@ struct ZendeskSupportChatViewModel {
     }
 
     func buildUI() throws -> UIViewController {
-        let device = DeviceGuru().hardwareDescription() ?? ""
+        let device = UIDevice.current.iPhoneModel?.name ?? ""
         let userWalletData = dataCollector?.dataForEmail ?? ""
 
         Chat.instance?
