@@ -16,21 +16,25 @@ import SwiftUI
 import UIKit
 import DeviceGuru
 
-final class ZendeskSupportChatViewModel {
+final class ZendeskSupportChatViewModel: ObservableObject {
     @Injected(\.keysManager) private var keysManager: KeysManager
 
     let cardId: String?
     let dataCollector: EmailDataCollector?
 
-    private var chatViewController: UIViewController!
+    private var chatViewController: UIViewController?
     private var observationToken: ChatProvidersSDK.ObservationToken?
+
+    private var showSupportChatSheet: ((ActionSheet) -> Void)?
 
     init(
         cardId: String? = nil,
-        dataCollector: EmailDataCollector? = nil
+        dataCollector: EmailDataCollector? = nil,
+        showSupportChatSheet: ((ActionSheet) -> Void)?
     ) {
         self.cardId = cardId
         self.dataCollector = dataCollector
+        self.showSupportChatSheet = showSupportChatSheet
 
         initialize()
     }
@@ -67,7 +71,7 @@ final class ZendeskSupportChatViewModel {
             guard let self = self else { return }
 
             if state.chatSessionStatus == .started {
-                self.chatViewController.navigationItem.setLeftBarButton(
+                self.chatViewController?.navigationItem.setLeftBarButton(
                     UIBarButtonItem(
                         image: Assets.chatSettings.uiImage,
                         style: .plain,
@@ -84,20 +88,21 @@ final class ZendeskSupportChatViewModel {
 
     func buildUI() throws -> UIViewController {
         let device = DeviceGuru().hardwareDescription() ?? ""
-        let userWalletData = dataCollector?.dataForEmail ?? ""
 
         Chat.instance?
             .providers
             .profileProvider
-            .setNote("\(device) \(cardId ?? "") \(userWalletData)")
+            .setNote("\(device) \(cardId ?? "")")
 
         let chatEngine = try ChatEngine.engine()
         chatViewController = try Messaging.instance.buildUI(engines: [chatEngine], configs: [chatConfiguration, messagingConfiguration])
 
-        return chatViewController
+        return chatViewController ?? UIViewController()
     }
 
-    func sendLogFileIntoChat() {
+    // MARK: - Private Implementation
+
+    private func sendLogFileIntoChat() {
         dataCollector?.attachmentUrls { attachments in
             attachments.forEach {
                 guard let attachmentUrl = $0.url else { return }
@@ -106,16 +111,44 @@ final class ZendeskSupportChatViewModel {
         }
     }
 
-    func sendRateUser(isPositive: Bool) {
+    private func sendRateUser(_ isPositive: Bool) {
         Chat.chatProvider?.sendChatRating(isPositive ? .good : .bad)
+    }
+
+    private func makeActionSheetChatUserMenuActions() -> ActionSheet {
+        let buttonCancel: ActionSheet.Button = .default(Text(Localization.commonCancel))
+        let buttonSendLog: ActionSheet.Button = .default(Text(Localization.chatUserActionSendLog), action: sendLogFileIntoChat)
+        let buttonRateOperator: ActionSheet.Button = .default(Text(Localization.chatUserActionRateUser), action: { [unowned self] in
+            self.showSupportChatSheet?(self.makeActionSheetChatRateOperatorActions())
+        })
+
+        let sheet = ActionSheet(
+            title: Text(Localization.chatUserActionsTitle),
+            buttons: [buttonSendLog, buttonRateOperator, buttonCancel]
+        )
+
+        return sheet
+    }
+
+    private func makeActionSheetChatRateOperatorActions() -> ActionSheet {
+        let buttonCancel: ActionSheet.Button = .default(Text(Localization.commonCancel))
+        let buttonLike: ActionSheet.Button = .default(Text(Localization.commonLike), action: { [unowned self] in
+            self.sendRateUser(true)
+        })
+        let buttonDislike: ActionSheet.Button = .default(Text(Localization.commonDislike), action: { [unowned self] in
+            self.sendRateUser(false)
+        })
+
+        let sheet = ActionSheet(
+            title: Text(Localization.chatUserRateOperatorTitle),
+            buttons: [buttonLike, buttonDislike, buttonCancel]
+        )
+
+        return sheet
     }
 
     @objc
     func leftBarButtonItemDidTouch(_ sender: UIBarButtonItem) {
-        AppPresenter.shared.showSupportChatMenuActions { [weak self] in
-            self?.sendLogFileIntoChat()
-        } rateOperatorAnswer: { [weak self] answer in
-            self?.sendRateUser(isPositive: answer)
-        }
+        showSupportChatSheet?(makeActionSheetChatUserMenuActions())
     }
 }
