@@ -21,7 +21,7 @@ struct WelcomeCoordinatorView: CoordinatorView {
 
             sheets
         }
-        .navigationBarHidden(coordinator.navigationBarHidden)
+        .navigationBarHidden(true)
     }
 
     @ViewBuilder
