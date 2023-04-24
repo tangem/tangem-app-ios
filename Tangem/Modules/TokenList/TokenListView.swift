@@ -16,47 +16,49 @@ struct TokenListView: View {
 
     var body: some View {
         ZStack {
-            PerfList {
-                if #available(iOS 15.0, *) {} else {
-                    SearchBar(text: $viewModel.enteredSearchText.value, placeholder: Localization.commonSearch)
-                        .padding(.horizontal, 8)
-                        .listRowInsets(.init(top: 8, leading: 16, bottom: 8, trailing: 16))
-                }
+            ScrollView {
+                LazyVStack {
+                    if #available(iOS 15.0, *) {} else {
+                        SearchBar(text: $viewModel.enteredSearchText.value, placeholder: Localization.commonSearch)
+                            .padding(.horizontal, 8)
+                            .listRowInsets(.init(top: 8, leading: 16, bottom: 8, trailing: 16))
+                    }
 
-                if viewModel.shouldShowAlert {
-                    Text(Localization.alertManageTokensAddressesMessage)
-                        .font(.system(size: 13, weight: .medium, design: .default))
-                        .multilineTextAlignment(.center)
-                        .foregroundColor(Color(hex: "#848488"))
-                        .cornerRadius(10)
-                        .listRowInsets(.init(top: 8, leading: 16, bottom: 8, trailing: 16))
-                        .perfListPadding()
-                }
+                    if viewModel.shouldShowAlert {
+                        Text(Localization.alertManageTokensAddressesMessage)
+                            .font(.system(size: 13, weight: .medium, design: .default))
+                            .multilineTextAlignment(.center)
+                            .foregroundColor(Color(hex: "#848488"))
+                            .cornerRadius(10)
+                            .listRowInsets(.init(top: 8, leading: 16, bottom: 8, trailing: 16))
+                            .padding(.horizontal)
+                    }
 
-                PerfListDivider()
+                    divider
 
-                ForEach(viewModel.coinViewModels) {
-                    CoinView(model: $0)
-                        .buttonStyle(PlainButtonStyle()) // fix ios13 list item selection
-                        .perfListPadding()
+                    ForEach(viewModel.coinViewModels) {
+                        CoinView(model: $0)
+                            .padding(.horizontal)
 
-                    PerfListDivider()
-                }
+                        divider
+                    }
 
-                if viewModel.hasNextPage {
-                    HStack(alignment: .center) {
-                        ActivityIndicatorView(color: .gray)
-                            .onAppear(perform: viewModel.fetch)
+                    if viewModel.hasNextPage {
+                        HStack(alignment: .center) {
+                            ActivityIndicatorView(color: .gray)
+                                .onAppear(perform: viewModel.fetch)
+                        }
+                    }
+
+                    if !viewModel.isReadonlyMode {
+                        Color.clear.frame(width: 10, height: 58, alignment: .center)
                     }
                 }
 
-                if !viewModel.isReadonlyMode {
-                    Color.clear.frame(width: 10, height: 58, alignment: .center)
-                }
+                overlay
             }
-
-            overlay
         }
+        .scrollDismissesKeyboardCompat(true)
         .navigationBarTitle(Text(viewModel.titleKey), displayMode: .automatic)
         .navigationBarItems(trailing: addCustomView)
         .alert(item: $viewModel.alert, content: { $0.alert })
@@ -67,6 +69,11 @@ struct TokenListView: View {
         .background(Color.clear.edgesIgnoringSafeArea(.all))
         .onAppear { viewModel.onAppear() }
         .onDisappear { viewModel.onDisappear() }
+    }
+
+    private var divider: some View {
+        Divider()
+            .padding([.leading])
     }
 
     @ViewBuilder private var addCustomView: some View {
