@@ -198,6 +198,7 @@
 "onboarding_exit_alert_message" = "這此情況，您必須要重新開始";
 "onboarding_exit_alert_title" = "您想要離開啟用程序嗎?";
 "onboarding_getting_started" = "開始";
+"onboarding_linking_error_card_with_wallets" = "Another wallet has already been created on the card you're trying to add. Do you want to reset it and use the card for a new wallet?";
 "onboarding_navbar_kyc_progress" = "驗證身分";
 "onboarding_navbar_pin" = "PIN 碼";
 "onboarding_navbar_register_wallet" = "連接";
