@@ -212,7 +212,7 @@ struct DetailsFeedbackDataCollector: EmailDataCollector {
                 walletModel.addressNames.enumerated().forEach {
                     let namePrefix = $0.element + " - "
                     addresses += namePrefix + walletModel.displayAddress(for: $0.offset) + suffix
-                    explorerLinks += namePrefix + (walletModel.exploreURL(for: $0.offset, amountType: nil)?.absoluteString ?? "") + suffix
+                    explorerLinks += namePrefix + (walletModel.exploreURL(for: $0.offset)?.absoluteString ?? "") + suffix
                 }
                 explorerLinks.removeLast(suffix.count)
                 addresses.removeLast(suffix.count)
@@ -221,7 +221,7 @@ struct DetailsFeedbackDataCollector: EmailDataCollector {
                 dataToFormat.append(EmailCollectedData(type: .wallet(.explorerLink), data: explorerLinks))
             } else if walletModel.addressNames.count == 1 {
                 dataToFormat.append(EmailCollectedData(type: .wallet(.walletAddress), data: walletModel.displayAddress(for: 0)))
-                dataToFormat.append(EmailCollectedData(type: .wallet(.explorerLink), data: walletModel.exploreURL(for: 0, amountType: nil)?.absoluteString ?? ""))
+                dataToFormat.append(EmailCollectedData(type: .wallet(.explorerLink), data: walletModel.exploreURL(for: 0)?.absoluteString ?? ""))
             }
         }
 
