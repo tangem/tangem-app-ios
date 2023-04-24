@@ -29,11 +29,6 @@ class WelcomeCoordinator: CoordinatorObject {
 
     @Published var mailViewModel: MailViewModel? = nil
 
-    // MARK: - Navigation bar state
-
-    // We should update navigationBar visibility state for the main module on iOS13
-    var navigationBarHidden: Bool { mainCoordinator == nil }
-
     // MARK: - Private
 
     private var welcomeLifecycleSubscription: AnyCancellable?
