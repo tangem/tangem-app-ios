@@ -16,7 +16,7 @@ class FileLogger: TangemSdkLogger {
 
     private let loggerSerialQueue = DispatchQueue(label: "com.tangem.filelogger.queue")
     private let dashSeparator = "------------------------"
-    private let logsStoreDurationDays = 7
+    private let numberOfDaysUntilExpiration = 7
 
     private var scanLogsFileURL: URL {
         FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask)[0].appendingPathComponent("scanLogs.txt")
@@ -63,7 +63,7 @@ class FileLogger: TangemSdkLogger {
         guard
             let fileAttributes = try? fileManager.attributesOfItem(atPath: scanLogsFileURL.relativePath),
             let creationDate = fileAttributes[.creationDate] as? Date,
-            let expirationDate = calendar.date(byAdding: .minute, value: logsStoreDurationDays, to: creationDate),
+            let expirationDate = calendar.date(byAdding: .day, value: numberOfDaysUntilExpiration, to: creationDate),
             expirationDate < Date()
         else {
             return
