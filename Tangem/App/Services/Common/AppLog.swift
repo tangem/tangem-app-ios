@@ -13,12 +13,15 @@ import TangemSwapping
 class AppLog {
     static let shared = AppLog()
 
+    private let consoleLogger = ConsoleLogger()
+    private let fileLogger = FileLogger()
+
     private init() {}
 
     var sdkLogConfig: Log.Config {
         .custom(
             logLevel: Log.Level.allCases,
-            loggers: [FileLogger(), ConsoleLogger()]
+            loggers: [fileLogger, consoleLogger]
         )
     }
 
@@ -32,6 +35,11 @@ class AppLog {
 
     func error(_ error: Error) {
         self.error(error: error, params: [:])
+    }
+
+    func logAppLaunch(_ currentLaunch: Int) {
+        consoleLogger.log("Current launch number: \(currentLaunch)", level: .debug)
+        fileLogger.logAppLaunch(currentLaunch)
     }
 }
 
