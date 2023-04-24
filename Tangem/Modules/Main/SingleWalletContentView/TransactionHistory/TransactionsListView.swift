@@ -211,6 +211,7 @@ struct TransactionsListView_Previews: PreviewProvider {
             ]
         ),
     ]
+
     static var previews: some View {
         PerfList {
             TransactionsListView(state: .loaded([]))
