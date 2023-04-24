@@ -51,7 +51,16 @@ class SendViewModel: ObservableObject {
     }
 
     var shoudShowFeeIncludeSelector: Bool {
-        amountToSend.type == .coin && !isSellingCrypto
+        if isSellingCrypto {
+            return false
+        }
+
+        switch amountToSend.type {
+        case .coin, .reserve:
+            return true
+        case .token:
+            return !blockchainNetwork.blockchain.tokenTransactionFeePaidInNetworkCurrency
+        }
     }
 
     var shouldShowNetworkBlock: Bool {
