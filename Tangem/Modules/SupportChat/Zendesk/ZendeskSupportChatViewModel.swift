@@ -15,7 +15,7 @@ import Foundation
 import SwiftUI
 import UIKit
 
-final class ZendeskSupportChatViewModel: ObservableObject {
+final class ZendeskSupportChatViewModel {
     @Injected(\.keysManager) private var keysManager: KeysManager
 
     let dataCollector: EmailDataCollector?
@@ -114,9 +114,7 @@ final class ZendeskSupportChatViewModel: ObservableObject {
     private func makeActionSheetChatUserMenuActions() -> ActionSheet {
         let buttonCancel: ActionSheet.Button = .default(Text(Localization.commonCancel))
         let buttonSendLog: ActionSheet.Button = .default(Text(Localization.chatUserActionSendLog), action: sendLogFileIntoChat)
-        let buttonRateOperator: ActionSheet.Button = .default(Text(Localization.chatUserActionRateUser), action: { [unowned self] in
-            self.showSupportChatSheet?(self.makeActionSheetChatRateOperatorActions())
-        })
+        let buttonRateOperator: ActionSheet.Button = .default(Text(Localization.chatUserActionRateUser), action: showActionSheetChatRateOperatorActions)
 
         let sheet = ActionSheet(
             title: Text(Localization.chatUserActionsTitle),
@@ -126,13 +124,13 @@ final class ZendeskSupportChatViewModel: ObservableObject {
         return sheet
     }
 
-    private func makeActionSheetChatRateOperatorActions() -> ActionSheet {
+    private func showActionSheetChatRateOperatorActions() {
         let buttonCancel: ActionSheet.Button = .default(Text(Localization.commonCancel))
-        let buttonLike: ActionSheet.Button = .default(Text(Localization.commonLike), action: { [unowned self] in
-            self.sendRateUser(true)
+        let buttonLike: ActionSheet.Button = .default(Text(Localization.commonLike), action: { [weak self] in
+            self?.sendRateUser(true)
         })
-        let buttonDislike: ActionSheet.Button = .default(Text(Localization.commonDislike), action: { [unowned self] in
-            self.sendRateUser(false)
+        let buttonDislike: ActionSheet.Button = .default(Text(Localization.commonDislike), action: { [weak self] in
+            self?.sendRateUser(false)
         })
 
         let sheet = ActionSheet(
@@ -140,7 +138,7 @@ final class ZendeskSupportChatViewModel: ObservableObject {
             buttons: [buttonLike, buttonDislike, buttonCancel]
         )
 
-        return sheet
+        showSupportChatSheet?(sheet)
     }
 
     @objc
