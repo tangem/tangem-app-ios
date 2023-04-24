@@ -111,7 +111,7 @@ final class ZendeskSupportChatViewModel {
         Chat.chatProvider?.sendChatRating(isPositive ? .good : .bad)
     }
 
-    private func makeActionSheetChatUserMenuActions() -> ActionSheet {
+    private func showActionSheetChatUserMenuActions() {
         let buttonCancel: ActionSheet.Button = .default(Text(Localization.commonCancel))
         let buttonSendLog: ActionSheet.Button = .default(Text(Localization.chatUserActionSendLog), action: sendLogFileIntoChat)
         let buttonRateOperator: ActionSheet.Button = .default(Text(Localization.chatUserActionRateUser), action: showActionSheetChatRateOperatorActions)
@@ -121,7 +121,7 @@ final class ZendeskSupportChatViewModel {
             buttons: [buttonSendLog, buttonRateOperator, buttonCancel]
         )
 
-        return sheet
+        showSupportChatSheet?(sheet)
     }
 
     private func showActionSheetChatRateOperatorActions() {
@@ -143,6 +143,6 @@ final class ZendeskSupportChatViewModel {
 
     @objc
     func leftBarButtonItemDidTouch(_ sender: UIBarButtonItem) {
-        showSupportChatSheet?(makeActionSheetChatUserMenuActions())
+        showActionSheetChatUserMenuActions()
     }
 }
