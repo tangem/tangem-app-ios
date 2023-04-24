@@ -55,7 +55,6 @@ struct ShopView: View {
                 }
             }
         }
-        // .navigationBarTitle("", displayMode: .inline) // Don't remove it, otherwise navigation title will NOT hide on iOS 13
         .background(Color(UIColor.tangemBgGray).edgesIgnoringSafeArea(.all))
         .onAppear(perform: viewModel.didAppear)
         .alert(item: $viewModel.error) { $0.alert }
