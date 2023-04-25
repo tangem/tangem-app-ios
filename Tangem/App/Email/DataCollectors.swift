@@ -10,29 +10,59 @@ import Foundation
 import TangemSdk
 import BlockchainSdk
 
-struct EmailDataAttachmentUnion {
-    let filename: String
-    let url: URL?
-    let data: Data?
-}
-
-protocol EmailDataCollector {
-    var dataForEmail: String { get }
-
-    func attachmentUrls() -> [EmailDataAttachmentUnion]
-}
+protocol EmailDataCollector: LogFileProvider {}
 
 extension EmailDataCollector {
-    func attachmentUrls() -> [EmailDataAttachmentUnion] { [] }
+    var fileName: String {
+        "infoLogs.txt"
+    }
 
-    fileprivate func formatData(_ data: [EmailCollectedData], appendDeviceInfo: Bool = true) -> String {
-        data.reduce("") { $0 + $1.type.title + $1.data + "\n" } + (appendDeviceInfo ? DeviceInfoProvider.info() : "")
+    func prepareLogFile() -> URL {
+        let url = FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask)[0].appendingPathComponent(fileName)
+        try? logData?.write(to: url)
+        return url
+    }
+}
+
+class LogsComposer {
+    private let providers: [LogFileProvider]
+
+    init(providers: [LogFileProvider]) {
+        self.providers = providers
+    }
+
+    convenience init(infoProvider: LogFileProvider) {
+        let providers = [infoProvider, AppLog.shared.fileLogger]
+        self.init(providers: providers)
+    }
+
+    convenience init() {
+        self.init(providers: [AppLog.shared.fileLogger])
+    }
+
+    func getLogFiles() -> [URL] {
+        return providers.map { $0.prepareLogFile() }
+    }
+
+    func getLogsData() -> [String: Data] {
+        return providers.reduce(into: [:]) { result, provider in
+            if let logData = provider.logData {
+                result[provider.fileName] = logData
+            }
+        }
+    }
+}
+
+fileprivate extension EmailDataCollector {
+    func formatData(_ collectedInfo: [EmailCollectedData], appendDeviceInfo: Bool = true) -> Data? {
+        let collectedString = collectedInfo.reduce("") { $0 + $1.type.title + $1.data + "\n" } + (appendDeviceInfo ? DeviceInfoProvider.info() : "")
+        return collectedString.data(using: .utf8)
     }
 }
 
 struct NegativeFeedbackDataCollector: EmailDataCollector {
-    var dataForEmail: String {
-        return formatData(userWalletEmailData)
+    var logData: Data? {
+        formatData(userWalletEmailData)
     }
 
     private let userWalletEmailData: [EmailCollectedData]
@@ -43,7 +73,7 @@ struct NegativeFeedbackDataCollector: EmailDataCollector {
 }
 
 struct SendScreenDataCollector: EmailDataCollector {
-    var dataForEmail: String {
+    var logData: Data? {
         var data = userWalletEmailData
         data.append(.separator(.dashes))
 
@@ -113,18 +143,10 @@ struct SendScreenDataCollector: EmailDataCollector {
         self.amountText = amountText
         self.lastError = lastError
     }
-
-    func attachmentUrls() -> [EmailDataAttachmentUnion] {
-        let fileLogger = FileLogger()
-        return [
-            .init(filename: "scanLogs.txt", url: fileLogger.scanLogsFileURL, data: fileLogger.logData),
-            .init(filename: "infoLogs.txt", url: nil, data: dataForEmail.data(using: .utf8)),
-        ]
-    }
 }
 
 struct PushScreenDataCollector: EmailDataCollector {
-    var dataForEmail: String {
+    var logData: Data? {
         var data = userWalletEmailData
         data.append(.separator(.dashes))
         switch amountToSend.type {
@@ -174,18 +196,10 @@ struct PushScreenDataCollector: EmailDataCollector {
         self.pushingTxHash = pushingTxHash
         self.lastError = lastError
     }
-
-    func attachmentUrls() -> [EmailDataAttachmentUnion] {
-        let fileLogger = FileLogger()
-        return [
-            .init(filename: "scanLogs.txt", url: fileLogger.scanLogsFileURL, data: fileLogger.logData),
-            .init(filename: "infoLogs.txt", url: nil, data: dataForEmail.data(using: .utf8)),
-        ]
-    }
 }
 
 struct DetailsFeedbackDataCollector: EmailDataCollector {
-    var dataForEmail: String {
+    var logData: Data? {
         var dataToFormat = userWalletEmailData
 
         for walletModel in cardModel.walletModels {
@@ -241,10 +255,6 @@ struct DetailsFeedbackDataCollector: EmailDataCollector {
 
     private let cardModel: CardViewModel
     private let userWalletEmailData: [EmailCollectedData]
-
-    private var infoFileURL: URL {
-        FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask)[0].appendingPathComponent("infoLogs.txt")
-    }
 
     init(cardModel: CardViewModel, userWalletEmailData: [EmailCollectedData]) {
         self.cardModel = cardModel
