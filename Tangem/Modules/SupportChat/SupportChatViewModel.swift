@@ -16,24 +16,19 @@ class SupportChatViewModel: ObservableObject, Identifiable {
 
     @Injected(\.keysManager) private var keysManager: KeysManager
 
-    private let environment: SupportChatEnvironment
-    private let cardId: String?
-    private let dataCollector: EmailDataCollector?
+    private let input: SupportChatInputModel
 
     init(input: SupportChatInputModel) {
-        environment = input.environment
-        cardId = input.cardId
-        dataCollector = input.dataCollector
-
+        self.input = input
         setupView()
     }
 
     func setupView() {
-        switch environment {
+        switch input.environment {
         case .tangem:
             viewState = .zendesk(
                 ZendeskSupportChatViewModel(
-                    dataCollector: dataCollector,
+                    logsComposer: input.logsComposer,
                     showSupportChatSheet: { [weak self] sheet in
                         DispatchQueue.main.async {
                             self?.showSupportActionSheet = ActionSheetBinder(sheet: sheet)
