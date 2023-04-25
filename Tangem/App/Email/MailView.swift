@@ -67,10 +67,8 @@ struct MailView: UIViewControllerRepresentable {
         messageBody.append(viewModel.emailType.dataCollectionMessage + "\n")
         vc.setMessageBody(messageBody, isHTML: false)
 
-        viewModel.dataCollector.attachmentUrls().forEach {
-            guard let data = $0.data else { return }
-
-            vc.addAttachmentData(data, mimeType: "text/plain", fileName: $0.filename)
+        viewModel.logsComposer.getLogsData().forEach {
+            vc.addAttachmentData($0.value, mimeType: "text/plain", fileName: $0.key)
         }
 
         return vc
