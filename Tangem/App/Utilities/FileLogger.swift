@@ -9,17 +9,16 @@
 import Foundation
 import TangemSdk
 
+protocol LogFileProvider {
+    var fileName: String { get }
+    var logData: Data? { get }
+    func prepareLogFile() -> URL
+}
+
 class FileLogger: TangemSdkLogger {
-    var logData: Data? {
-        try? Data(contentsOf: scanLogsFileURL)
-    }
-
-    var scanLogsFileURL: URL {
-        FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask)[0].appendingPathComponent("scanLogs.txt")
-    }
-
     private let loggerSerialQueue = DispatchQueue(label: "com.tangem.filelogger.queue")
     private let numberOfDaysUntilExpiration = 7
+    private lazy var logFileURL = FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask)[0].appendingPathComponent(fileName)
 
     private lazy var dateFormatter: DateFormatter = {
         let formatter = DateFormatter()
@@ -34,12 +33,12 @@ class FileLogger: TangemSdkLogger {
             let formattedMessage = "\n\(level.emoji) \(self.dateFormatter.string(from: Date())):\(level.prefix) \(message)"
             let messageData = formattedMessage.data(using: .utf8)!
 
-            if let handler = try? FileHandle(forWritingTo: self.scanLogsFileURL) {
+            if let handler = try? FileHandle(forWritingTo: self.logFileURL) {
                 handler.seekToEndOfFile()
                 handler.write(messageData)
                 handler.closeFile()
             } else {
-                try? messageData.write(to: self.scanLogsFileURL)
+                try? messageData.write(to: self.logFileURL)
             }
         }
     }
@@ -62,5 +61,19 @@ class FileLogger: TangemSdkLogger {
         } catch {
             AppLog.shared.debug("Failed to delete log file. Error: \(error)")
         }
+    }
+}
+
+extension FileLogger: LogFileProvider {
+    var fileName: String {
+        "scanLogs.txt"
+    }
+
+    var logData: Data? {
+        try? Data(contentsOf: logFileURL)
+    }
+
+    func prepareLogFile() -> URL {
+        return logFileURL
     }
 }
