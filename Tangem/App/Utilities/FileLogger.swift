@@ -9,12 +9,6 @@
 import Foundation
 import TangemSdk
 
-protocol LogFileProvider {
-    var fileName: String { get }
-    var logData: Data? { get }
-    func prepareLogFile() -> URL
-}
-
 class FileLogger: TangemSdkLogger {
     private let loggerSerialQueue = DispatchQueue(label: "com.tangem.filelogger.queue")
     private let numberOfDaysUntilExpiration = 7
