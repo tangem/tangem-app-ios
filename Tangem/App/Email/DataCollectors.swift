@@ -19,11 +19,11 @@ struct EmailDataAttachmentUnion {
 protocol EmailDataCollector {
     var dataForEmail: String { get }
 
-    func attachmentUrls(_ completion: @escaping ([EmailDataAttachmentUnion]) -> Void)
+    func attachmentUrls() -> [EmailDataAttachmentUnion]
 }
 
 extension EmailDataCollector {
-    func attachmentUrls(_ completion: @escaping ([EmailDataAttachmentUnion]) -> Void) {}
+    func attachmentUrls() -> [EmailDataAttachmentUnion] { [] }
 
     fileprivate func formatData(_ data: [EmailCollectedData], appendDeviceInfo: Bool = true) -> String {
         data.reduce("") { $0 + $1.type.title + $1.data + "\n" } + (appendDeviceInfo ? DeviceInfoProvider.info() : "")
@@ -43,10 +43,6 @@ struct NegativeFeedbackDataCollector: EmailDataCollector {
 }
 
 struct SendScreenDataCollector: EmailDataCollector {
-    var attachment: Data? {
-        FileLogger().logData
-    }
-
     var dataForEmail: String {
         var data = userWalletEmailData
         data.append(.separator(.dashes))
@@ -118,23 +114,16 @@ struct SendScreenDataCollector: EmailDataCollector {
         self.lastError = lastError
     }
 
-    func attachmentUrls(_ completion: @escaping ([EmailDataAttachmentUnion]) -> Void) {
-        DispatchQueue.global().async {
-            completion(
-                [
-                    .init(filename: "scanLogs.txt", url: FileLogger().scanLogsFileURL, data: FileLogger().logData),
-                    .init(filename: "infoLogs.txt", url: nil, data: dataForEmail.data(using: .utf8)),
-                ]
-            )
-        }
+    func attachmentUrls() -> [EmailDataAttachmentUnion] {
+        let fileLogger = FileLogger()
+        return [
+            .init(filename: "scanLogs.txt", url: fileLogger.scanLogsFileURL, data: fileLogger.logData),
+            .init(filename: "infoLogs.txt", url: nil, data: dataForEmail.data(using: .utf8)),
+        ]
     }
 }
 
 struct PushScreenDataCollector: EmailDataCollector {
-    var attachment: Data? {
-        FileLogger().logData
-    }
-
     var dataForEmail: String {
         var data = userWalletEmailData
         data.append(.separator(.dashes))
@@ -186,35 +175,16 @@ struct PushScreenDataCollector: EmailDataCollector {
         self.lastError = lastError
     }
 
-    func attachmentUrls(_ completion: @escaping ([EmailDataAttachmentUnion]) -> Void) {
-        DispatchQueue.global().async {
-            completion(
-                [
-                    .init(filename: "scanLogs.txt", url: FileLogger().scanLogsFileURL, data: FileLogger().logData),
-                    .init(filename: "infoLogs.txt", url: nil, data: dataForEmail.data(using: .utf8)),
-                ]
-            )
-        }
+    func attachmentUrls() -> [EmailDataAttachmentUnion] {
+        let fileLogger = FileLogger()
+        return [
+            .init(filename: "scanLogs.txt", url: fileLogger.scanLogsFileURL, data: fileLogger.logData),
+            .init(filename: "infoLogs.txt", url: nil, data: dataForEmail.data(using: .utf8)),
+        ]
     }
 }
 
 struct DetailsFeedbackDataCollector: EmailDataCollector {
-    var attachment: Data? {
-        FileLogger().logData
-    }
-
-    func attachmentUrls(_ completion: @escaping ([EmailDataAttachmentUnion]) -> Void) {
-        DispatchQueue.global().async {
-            try? dataForEmail.data(using: .utf8)?.write(to: infoFileURL)
-            completion(
-                [
-                    .init(filename: "scanLogs.txt", url: FileLogger().scanLogsFileURL, data: FileLogger().logData),
-                    .init(filename: "infoLogs.txt", url: infoFileURL, data: dataForEmail.data(using: .utf8)),
-                ]
-            )
-        }
-    }
-
     var dataForEmail: String {
         var dataToFormat = userWalletEmailData
 
@@ -279,5 +249,15 @@ struct DetailsFeedbackDataCollector: EmailDataCollector {
     init(cardModel: CardViewModel, userWalletEmailData: [EmailCollectedData]) {
         self.cardModel = cardModel
         self.userWalletEmailData = userWalletEmailData
+    }
+
+    func attachmentUrls() -> [EmailDataAttachmentUnion] {
+        let fileLogger = FileLogger()
+        try? dataForEmail.data(using: .utf8)?.write(to: infoFileURL)
+
+        return [
+            .init(filename: "scanLogs.txt", url: fileLogger.scanLogsFileURL, data: fileLogger.logData),
+            .init(filename: "infoLogs.txt", url: infoFileURL, data: dataForEmail.data(using: .utf8)),
+        ]
     }
 }
