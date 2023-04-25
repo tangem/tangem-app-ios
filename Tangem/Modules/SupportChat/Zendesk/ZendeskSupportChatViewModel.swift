@@ -99,11 +99,10 @@ final class ZendeskSupportChatViewModel {
     // MARK: - Private Implementation
 
     private func sendLogFileIntoChat() {
-        dataCollector?.attachmentUrls { attachments in
-            attachments.forEach {
-                guard let attachmentUrl = $0.url else { return }
-                Chat.chatProvider?.sendFile(url: attachmentUrl)
-            }
+        dataCollector?.attachmentUrls().forEach {
+            guard let attachmentUrl = $0.url else { return }
+
+            Chat.chatProvider?.sendFile(url: attachmentUrl)
         }
     }
 
