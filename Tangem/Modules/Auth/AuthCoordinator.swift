@@ -72,6 +72,7 @@ extension AuthCoordinator: AuthRoutable {
     }
 
     func openMail(with dataCollector: EmailDataCollector, recipient: String) {
-        mailViewModel = MailViewModel(dataCollector: dataCollector, recipient: recipient, emailType: .failedToScanCard)
+        let logsComposer = LogsComposer(infoProvider: dataCollector)
+        mailViewModel = MailViewModel(logsComposer: logsComposer, recipient: recipient, emailType: .failedToScanCard)
     }
 }
