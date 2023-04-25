@@ -13,7 +13,7 @@ import TangemSwapping
 class AppLog {
     static let shared = AppLog()
 
-    private let fileLogger = FileLogger()
+    let fileLogger = FileLogger()
 
     private init() {}
 
