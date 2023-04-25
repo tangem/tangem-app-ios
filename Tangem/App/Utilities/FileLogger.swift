@@ -14,11 +14,11 @@ class FileLogger: TangemSdkLogger {
         try? Data(contentsOf: scanLogsFileURL)
     }
 
-    private let loggerSerialQueue = DispatchQueue(label: "com.tangem.filelogger.queue")
-
-    private var scanLogsFileURL: URL {
+    var scanLogsFileURL: URL {
         FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask)[0].appendingPathComponent("scanLogs.txt")
     }
+
+    private let loggerSerialQueue = DispatchQueue(label: "com.tangem.filelogger.queue")
 
     private lazy var dateFormatter: DateFormatter = {
         let formatter = DateFormatter()
