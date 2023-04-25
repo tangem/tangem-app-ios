@@ -15,7 +15,6 @@ class FileLogger: TangemSdkLogger {
     }
 
     private let loggerSerialQueue = DispatchQueue(label: "com.tangem.filelogger.queue")
-    private let dashSeparator = "------------------------"
     private let numberOfDaysUntilExpiration = 7
 
     private var scanLogsFileURL: URL {
@@ -36,10 +35,30 @@ class FileLogger: TangemSdkLogger {
     }
 
     public func logAppLaunch(_ currentLaunch: Int) {
-        removeLogFileIfNeeded()
+        let dashSeparator = String(repeating: "-", count: 25)
         let launchNumberMessage = "\(dashSeparator) New session. Current launch number: \(currentLaunch) \(dashSeparator)"
         let deviceInfoMessage = "\(dashSeparator) \(DeviceInfoProvider.Subject.allCases.map { $0.description }.joined(separator: ", ")) \(dashSeparator)"
         appendToLog("\n\(launchNumberMessage)\n\(deviceInfoMessage)\n\n")
+    }
+    
+    func removeLogFileIfNeeded() {
+        let fileManager = FileManager.default
+        let calendar = Calendar.current
+        
+        guard
+            let fileAttributes = try? fileManager.attributesOfItem(atPath: scanLogsFileURL.relativePath),
+            let creationDate = fileAttributes[.creationDate] as? Date,
+            let expirationDate = calendar.date(byAdding: .day, value: numberOfDaysUntilExpiration, to: creationDate),
+            expirationDate < Date()
+        else {
+            return
+        }
+        
+        do {
+            try fileManager.removeItem(at: scanLogsFileURL)
+        } catch {
+            AppLog.shared.debug("Failed to delete log file. Error: \(error)")
+        }
     }
 
     private func appendToLog(_ message: String) {
@@ -53,26 +72,6 @@ class FileLogger: TangemSdkLogger {
             } else {
                 try? messageData.write(to: self.scanLogsFileURL)
             }
-        }
-    }
-
-    private func removeLogFileIfNeeded() {
-        let fileManager = FileManager.default
-        let calendar = Calendar.current
-
-        guard
-            let fileAttributes = try? fileManager.attributesOfItem(atPath: scanLogsFileURL.relativePath),
-            let creationDate = fileAttributes[.creationDate] as? Date,
-            let expirationDate = calendar.date(byAdding: .day, value: numberOfDaysUntilExpiration, to: creationDate),
-            expirationDate < Date()
-        else {
-            return
-        }
-
-        do {
-            try fileManager.removeItem(at: scanLogsFileURL)
-        } catch {
-            AppLog.shared.debug("Failed to delete log file. Error: \(error)")
         }
     }
 }
