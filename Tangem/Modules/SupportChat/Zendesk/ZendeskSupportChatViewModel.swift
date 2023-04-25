@@ -18,7 +18,7 @@ import UIKit
 final class ZendeskSupportChatViewModel {
     @Injected(\.keysManager) private var keysManager: KeysManager
 
-    let dataCollector: EmailDataCollector?
+    let logsComposer: LogsComposer
 
     private var chatViewController: UIViewController?
     private var observationToken: ChatProvidersSDK.ObservationToken?
@@ -26,10 +26,10 @@ final class ZendeskSupportChatViewModel {
     private var showSupportChatSheet: ((ActionSheet) -> Void)?
 
     init(
-        dataCollector: EmailDataCollector? = nil,
+        logsComposer: LogsComposer,
         showSupportChatSheet: ((ActionSheet) -> Void)?
     ) {
-        self.dataCollector = dataCollector
+        self.logsComposer = logsComposer
         self.showSupportChatSheet = showSupportChatSheet
 
         initialize()
@@ -99,10 +99,8 @@ final class ZendeskSupportChatViewModel {
     // MARK: - Private Implementation
 
     private func sendLogFileIntoChat() {
-        dataCollector?.attachmentUrls().forEach {
-            guard let attachmentUrl = $0.url else { return }
-
-            Chat.chatProvider?.sendFile(url: attachmentUrl)
+        logsComposer.getLogFiles().forEach {
+            Chat.chatProvider?.sendFile(url: $0)
         }
     }
 
