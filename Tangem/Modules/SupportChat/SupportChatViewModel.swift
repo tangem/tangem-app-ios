@@ -8,9 +8,11 @@
 
 import Foundation
 import Combine
+import SwiftUI
 
 class SupportChatViewModel: ObservableObject, Identifiable {
     @Published var viewState: ViewState?
+    @Published var showSupportActionSheet: ActionSheetBinder?
 
     @Injected(\.keysManager) private var keysManager: KeysManager
 
@@ -30,7 +32,14 @@ class SupportChatViewModel: ObservableObject, Identifiable {
         switch environment {
         case .tangem:
             viewState = .zendesk(
-                ZendeskSupportChatViewModel(cardId: cardId, dataCollector: dataCollector)
+                ZendeskSupportChatViewModel(
+                    dataCollector: dataCollector,
+                    showSupportChatSheet: { [weak self] sheet in
+                        DispatchQueue.main.async {
+                            self?.showSupportActionSheet = ActionSheetBinder(sheet: sheet)
+                        }
+                    }
+                )
             )
         case .saltPay:
             let provider = keysManager.saltPay.sprinklr
