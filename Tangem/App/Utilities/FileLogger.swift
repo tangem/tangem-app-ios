@@ -40,11 +40,11 @@ class FileLogger: TangemSdkLogger {
         let deviceInfoMessage = "\(dashSeparator) \(DeviceInfoProvider.Subject.allCases.map { $0.description }.joined(separator: ", ")) \(dashSeparator)"
         appendToLog("\n\(launchNumberMessage)\n\(deviceInfoMessage)\n\n")
     }
-    
+
     func removeLogFileIfNeeded() {
         let fileManager = FileManager.default
         let calendar = Calendar.current
-        
+
         guard
             let fileAttributes = try? fileManager.attributesOfItem(atPath: scanLogsFileURL.relativePath),
             let creationDate = fileAttributes[.creationDate] as? Date,
@@ -53,7 +53,7 @@ class FileLogger: TangemSdkLogger {
         else {
             return
         }
-        
+
         do {
             try fileManager.removeItem(at: scanLogsFileURL)
         } catch {
