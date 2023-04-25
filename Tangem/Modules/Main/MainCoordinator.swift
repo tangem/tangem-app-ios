@@ -64,9 +64,7 @@ class MainCoordinator: CoordinatorObject {
                     }
 
                     let options = Options(cardModel: selectedModel)
-                    DispatchQueue.main.async { // fix ios13 freeze
-                        self.start(with: options)
-                    }
+                    self.start(with: options)
                 case .inserted(let userWallet):
                     self.lastInsertedUserWalletId = userWallet.userWalletId
                 default:
