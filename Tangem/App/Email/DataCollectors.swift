@@ -260,14 +260,4 @@ struct DetailsFeedbackDataCollector: EmailDataCollector {
         self.cardModel = cardModel
         self.userWalletEmailData = userWalletEmailData
     }
-
-    func attachmentUrls() -> [EmailDataAttachmentUnion] {
-        let fileLogger = FileLogger()
-        try? dataForEmail.data(using: .utf8)?.write(to: infoFileURL)
-
-        return [
-            .init(filename: "scanLogs.txt", url: fileLogger.scanLogsFileURL, data: fileLogger.logData),
-            .init(filename: "infoLogs.txt", url: infoFileURL, data: dataForEmail.data(using: .utf8)),
-        ]
-    }
 }

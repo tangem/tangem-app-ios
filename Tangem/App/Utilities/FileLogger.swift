@@ -48,7 +48,7 @@ class FileLogger: TangemSdkLogger {
         let calendar = Calendar.current
 
         guard
-            let fileAttributes = try? fileManager.attributesOfItem(atPath: scanLogsFileURL.relativePath),
+            let fileAttributes = try? fileManager.attributesOfItem(atPath: logFileURL.relativePath),
             let creationDate = fileAttributes[.creationDate] as? Date,
             let expirationDate = calendar.date(byAdding: .day, value: numberOfDaysUntilExpiration, to: creationDate),
             expirationDate < Date()
@@ -57,7 +57,7 @@ class FileLogger: TangemSdkLogger {
         }
 
         do {
-            try fileManager.removeItem(at: scanLogsFileURL)
+            try fileManager.removeItem(at: logFileURL)
         } catch {
             AppLog.shared.debug("Failed to delete log file. Error: \(error)")
         }
