@@ -27,6 +27,7 @@ class AppLog {
 
     func configure() {
         Log.config = sdkLogConfig
+        fileLogger.removeLogFileIfNeeded()
     }
 
     func debug<T>(_ message: @autoclosure () -> T) {
