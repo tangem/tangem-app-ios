@@ -134,7 +134,6 @@
 "error_wrong_wallet_tapped" = "Вы использовали карту от другого кошелька. Приложите карту, связанную с этим кошельком.";
 "exchange_receive_view_header" = "Вы получаете";
 "exchange_send_view_header" = "Вы отправляете";
-"feedback_data_collection_message" = "Информация ниже не является обязательной. Вы можете стереть её, если хотите.";
 "feedback_preface_rate_negative" = "Расскажите, каких функций вам не хватает, и мы постараемся вам помочь.";
 "feedback_preface_scan_failed" = "Скажите, пожалуйста, какая у вас карта?";
 "feedback_preface_support" = "Привет, команда поддержки,";
