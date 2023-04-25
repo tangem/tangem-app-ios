@@ -44,8 +44,10 @@ class AppLog {
     }
 
     func logAppLaunch(_ currentLaunch: Int) {
-        debug("Current launch number: \(currentLaunch)")
-        fileLogger.logAppLaunch(currentLaunch)
+        let dashSeparator = String(repeating: "-", count: 25)
+        let launchNumberMessage = "\(dashSeparator) New session. Current launch number: \(currentLaunch) \(dashSeparator)"
+        let deviceInfoMessage = "\(dashSeparator) \(DeviceInfoProvider.Subject.allCases.map { $0.description }.joined(separator: ", ")) \(dashSeparator)"
+        debug("\n\(launchNumberMessage)\n\(deviceInfoMessage)\n\n")
     }
 }
 
