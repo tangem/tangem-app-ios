@@ -63,8 +63,7 @@ struct MailView: UIViewControllerRepresentable {
         vc.setToRecipients([viewModel.recipient])
         vc.setSubject(viewModel.emailType.emailSubject)
         var messageBody = "\n" + viewModel.emailType.emailPreface
-        messageBody.append("\n\n\n")
-        messageBody.append(viewModel.emailType.dataCollectionMessage + "\n")
+        messageBody.append("\n\n")
         vc.setMessageBody(messageBody, isHTML: false)
 
         viewModel.logsComposer.getLogsData().forEach {
