@@ -19,6 +19,7 @@ class FileLogger: TangemSdkLogger {
     }
 
     private let loggerSerialQueue = DispatchQueue(label: "com.tangem.filelogger.queue")
+    private let numberOfDaysUntilExpiration = 7
 
     private lazy var dateFormatter: DateFormatter = {
         let formatter = DateFormatter()
@@ -30,7 +31,7 @@ class FileLogger: TangemSdkLogger {
         guard Log.filter(level) else { return }
 
         loggerSerialQueue.async {
-            let formattedMessage = "\(level.emoji) \(self.dateFormatter.string(from: Date())):\(level.prefix) \(message)\n"
+            let formattedMessage = "\n\(level.emoji) \(self.dateFormatter.string(from: Date())):\(level.prefix) \(message)"
             let messageData = formattedMessage.data(using: .utf8)!
 
             if let handler = try? FileHandle(forWritingTo: self.scanLogsFileURL) {
@@ -40,6 +41,26 @@ class FileLogger: TangemSdkLogger {
             } else {
                 try? messageData.write(to: self.scanLogsFileURL)
             }
+        }
+    }
+
+    func removeLogFileIfNeeded() {
+        let fileManager = FileManager.default
+        let calendar = Calendar.current
+
+        guard
+            let fileAttributes = try? fileManager.attributesOfItem(atPath: scanLogsFileURL.relativePath),
+            let creationDate = fileAttributes[.creationDate] as? Date,
+            let expirationDate = calendar.date(byAdding: .day, value: numberOfDaysUntilExpiration, to: creationDate),
+            expirationDate < Date()
+        else {
+            return
+        }
+
+        do {
+            try fileManager.removeItem(at: scanLogsFileURL)
+        } catch {
+            AppLog.shared.debug("Failed to delete log file. Error: \(error)")
         }
     }
 }
