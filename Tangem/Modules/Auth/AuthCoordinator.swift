@@ -26,11 +26,6 @@ class AuthCoordinator: CoordinatorObject {
 
     @Published var mailViewModel: MailViewModel?
 
-    // MARK: - Navigation bar state
-
-    // We should update navigationBar visibility state for the main module on iOS13
-    var navigationBarHidden: Bool { mainCoordinator == nil }
-
     required init(
         dismissAction: @escaping Action,
         popToRootAction: @escaping ParamsAction<PopToRootOptions>
