@@ -149,17 +149,3 @@ struct AddCustomTokenView_Previews: PreviewProvider {
         AddCustomTokenView(viewModel: .init(cardModel: PreviewCard.tangemWalletEmpty.cardModel, coordinator: TokenListCoordinator()))
     }
 }
-
-fileprivate struct TaskCompat: ViewModifier {
-    func body(content: async() -> Void) -> some View {
-        if #available(iOS 15, *) {
-            content
-                .task {
-                    await content()
-                }
-        } else {
-            content
-                .tas
-        }
-    }
-}
