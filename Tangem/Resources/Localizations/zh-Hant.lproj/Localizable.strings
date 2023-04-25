@@ -134,7 +134,6 @@
 "error_wrong_wallet_tapped" = "您使用了另一個錢包中的卡。點按與此錢包關聯的卡片";
 "exchange_receive_view_header" = "您收到";
 "exchange_send_view_header" = "您發送";
-"feedback_data_collection_message" = "以下信息是可選的。如果不想共享，可以將其刪除";
 "feedback_preface_rate_negative" = "告訴我們您缺少哪些功能，我們會盡力幫助您";
 "feedback_preface_scan_failed" = "請告訴我們你有什麼卡";
 "feedback_preface_support" = "嗨! 幫助團隊，";
