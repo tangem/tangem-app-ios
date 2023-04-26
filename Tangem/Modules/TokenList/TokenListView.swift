@@ -54,9 +54,9 @@ struct TokenListView: View {
                         Color.clear.frame(width: 10, height: 58, alignment: .center)
                     }
                 }
-
-                overlay
             }
+
+            overlay
         }
         .scrollDismissesKeyboardCompat(true)
         .navigationBarTitle(Text(viewModel.titleKey), displayMode: .automatic)
