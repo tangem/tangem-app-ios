@@ -32,7 +32,7 @@ struct TokenListView: View {
         .onAppear { viewModel.onAppear() }
         .onDisappear { viewModel.onDisappear() }
     }
-    
+
     private var list: some View {
         ScrollView {
             LazyVStack {
