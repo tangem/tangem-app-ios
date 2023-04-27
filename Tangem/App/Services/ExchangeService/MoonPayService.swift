@@ -80,7 +80,7 @@ fileprivate struct MoonpayCurrency: Decodable {
             case .tron:
                 return .tron(testnet: testnet)
             case .polygon:
-                return .polygon(testnet: testnet)010
+                return .polygon(testnet: testnet)
             }
         }
 
@@ -92,6 +92,7 @@ fileprivate struct MoonpayCurrency: Decodable {
     }
 
     struct Metadata: Decodable {
+        let contractAddress: String?
         let networkCode: NetworkCode
     }
 
@@ -106,8 +107,8 @@ fileprivate struct MoonpayCurrency: Decodable {
 }
 
 fileprivate struct MoonpaySupportedCurrency: Hashable {
-    let currencyCode: String
     let networkCode: MoonpayCurrency.NetworkCode
+    let contractAddress: String?
 }
 
 // MARK: - Service
@@ -127,9 +128,9 @@ class MoonPayService {
     ]
 
     private var availableToSell: Set<MoonpaySupportedCurrency> = [
-        MoonpaySupportedCurrency(currencyCode: "BTC", networkCode: .bitcoin),
-        MoonpaySupportedCurrency(currencyCode: "ETH", networkCode: .ethereum),
-        MoonpaySupportedCurrency(currencyCode: "BCH", networkCode: .bnbChain),
+        MoonpaySupportedCurrency(networkCode: .bitcoin, contractAddress: nil),
+        MoonpaySupportedCurrency(networkCode: .ethereum, contractAddress: nil),
+        MoonpaySupportedCurrency(networkCode: .bnbChain, contractAddress: nil),
     ]
 
     private(set) var canBuyCrypto = true
@@ -169,13 +170,15 @@ extension MoonPayService: ExchangeService {
             return false
         }
 
-        if currencySymbol.uppercased() == "BNB", blockchain == .bsc(testnet: true) || blockchain == .bsc(testnet: false) {
-            return false
-        }
-
         return availableToSell.contains(where: {
-            $0.currencyCode == currencySymbol.uppercased() &&
-                $0.networkCode.blockchain(testnet: blockchain.isTestnet) == blockchain
+            switch amountType {
+            case .coin:
+                return $0.networkCode.blockchain(testnet: blockchain.isTestnet) == blockchain
+            case .token(let value):
+                return $0.contractAddress == value.contractAddress
+            case .reserve:
+                return false
+            }
         })
     }
 
@@ -299,10 +302,7 @@ extension MoonPayService: ExchangeService {
 
                     if let isSellSupported = $0.isSellSupported, isSellSupported, let metadata = $0.metadata {
                         currenciesToSell.insert(
-                            MoonpaySupportedCurrency(
-                                currencyCode: CurrencyCodeTransform.transformCurrency(code: $0.code),
-                                networkCode: metadata.networkCode
-                            )
+                            MoonpaySupportedCurrency(networkCode: metadata.networkCode, contractAddress: metadata.contractAddress)
                         )
                     }
                 }
@@ -316,22 +316,6 @@ extension MoonPayService: ExchangeService {
             self.initialized = true
         }
         .store(in: &bag)
-    }
-}
-
-extension MoonPayService {
-    /// Use for find deviation currency code deviation ex. usdt, usdt_trx, usdt_polygon or usdc, usdc_polygon
-    private enum CurrencyCodeTransform: String, CaseIterable {
-        case usdt
-        case usdc
-
-        static func transformCurrency(code: String) -> String {
-            if let transformation = CurrencyCodeTransform.allCases.first(where: { $0.rawValue.hasPrefix(code) }) {
-                return transformation.rawValue.uppercased()
-            } else {
-                return code.uppercased()
-            }
-        }
     }
 }
 
