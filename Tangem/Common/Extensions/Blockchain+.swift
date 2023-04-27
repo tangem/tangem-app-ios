@@ -207,8 +207,6 @@ extension Blockchain {
             .kava(testnet: false),
             .kaspa,
             .ravencoin(testnet: false),
-            .terraV1, // [REDACTED_TODO_COMMENT]
-            .terraV2, // [REDACTED_TODO_COMMENT]
         ]
     }()
 
