@@ -991,7 +991,7 @@ class WalletOnboardingViewModel: OnboardingTopupViewModel<WalletOnboardingStep, 
             .first()
             .sink(receiveCompletion: { [weak self] completion in
                 if case .failure(let error) = completion {
-                    AppLog.shared.error(error, params: [.action: .addbackup])
+                    self?.processLinkingError(error)
                     self?.isMainButtonBusy = false
                 }
                 self?.stepPublisher = nil
@@ -1055,6 +1055,45 @@ class WalletOnboardingViewModel: OnboardingTopupViewModel<WalletOnboardingStep, 
 
         let repository = CommonTokenItemsRepository(key: UserWalletId(with: seed).stringValue)
         repository.append(config.defaultBlockchains)
+    }
+
+    private func processLinkingError(_ error: Error) {
+        AppLog.shared.error(error, params: [.action: .addbackup])
+
+        if backupService.primaryCard?.firmwareVersion >= .keysImportAvailable,
+           let tangemSdkError = error as? TangemSdkError,
+           case .backupFailedNotEmptyWallets = tangemSdkError {
+            requestResetCard()
+        }
+    }
+
+    private func requestResetCard() {
+        alert = AlertBuilder.makeAlert(
+            title: Localization.commonAttention,
+            message: Localization.onboardingLinkingErrorCardWithWallets,
+            primaryButton: .destructive(Text(Localization.cardSettingsActionSheetReset), action: resetCard),
+            secondaryButton: Alert.Button.cancel {
+                Analytics.log(.backupResetCardNotification, params: [.option: .cancel])
+            }
+        )
+    }
+
+    private func resetCard() {
+        Analytics.log(.backupResetCardNotification, params: [.option: .reset])
+        isMainButtonBusy = true
+        tangemSdk.startSession(with: ResetToFactorySettingsTask()) { [weak self] result in
+            switch result {
+            case .failure(let error):
+                if error.isUserCancelled {
+                    break
+                }
+
+                self?.alert = error.alertBinder
+            case .success:
+                break
+            }
+            self?.isMainButtonBusy = false
+        }
     }
 }
 
