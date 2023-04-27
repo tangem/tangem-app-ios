@@ -55,6 +55,8 @@ fileprivate struct MoonpayCurrency: Decodable {
         case stellar
         case litecoin
         case solana
+        case tron
+        case polygon
         case unknown
 
         func blockchain(testnet: Bool) -> Blockchain? {
@@ -75,6 +77,10 @@ fileprivate struct MoonpayCurrency: Decodable {
                 return .litecoin
             case .stellar:
                 return .stellar(testnet: testnet)
+            case .tron:
+                return .tron(testnet: testnet)
+            case .polygon:
+                return .polygon(testnet: testnet)010
             }
         }
 
@@ -293,7 +299,10 @@ extension MoonPayService: ExchangeService {
 
                     if let isSellSupported = $0.isSellSupported, isSellSupported, let metadata = $0.metadata {
                         currenciesToSell.insert(
-                            MoonpaySupportedCurrency(currencyCode: $0.code.uppercased(), networkCode: metadata.networkCode)
+                            MoonpaySupportedCurrency(
+                                currencyCode: CurrencyCodeTransform.transformCurrency(code: $0.code),
+                                networkCode: metadata.networkCode
+                            )
                         )
                     }
                 }
@@ -307,6 +316,22 @@ extension MoonPayService: ExchangeService {
             self.initialized = true
         }
         .store(in: &bag)
+    }
+}
+
+extension MoonPayService {
+    /// Use for find deviation currency code deviation ex. usdt, usdt_trx, usdt_polygon or usdc, usdc_polygon
+    private enum CurrencyCodeTransform: String, CaseIterable {
+        case usdt
+        case usdc
+
+        static func transformCurrency(code: String) -> String {
+            if let transformation = CurrencyCodeTransform.allCases.first(where: { $0.rawValue.hasPrefix(code) }) {
+                return transformation.rawValue.uppercased()
+            } else {
+                return code.uppercased()
+            }
+        }
     }
 }
 
