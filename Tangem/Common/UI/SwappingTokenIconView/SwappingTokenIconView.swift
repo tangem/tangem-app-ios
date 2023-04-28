@@ -34,7 +34,7 @@ struct SwappingTokenIconView: View {
             HStack(alignment: .top, spacing: 4) {
                 mainContent
 
-                Assets.chevronDownMini.image
+                Assets.chevron.image
                     .resizable()
                     .frame(size: chevronIconSize)
                     .offset(y: chevronYOffset)
