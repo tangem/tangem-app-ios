@@ -10,7 +10,7 @@ import SwiftUI
 import BlockchainSdk
 import Combine
 import TangemSdk
-import TangemExchange
+import TangemSwapping
 
 class TokenDetailsViewModel: ObservableObject {
     @Injected(\.exchangeService) private var exchangeService: ExchangeService
@@ -504,10 +504,10 @@ extension TokenDetailsViewModel {
             return
         }
 
-        var referrer: ExchangeReferrerAccount?
+        var referrer: SwappingReferrerAccount?
 
         if let account = keysManager.swapReferrerAccount {
-            referrer = ExchangeReferrerAccount(address: account.address, fee: account.fee)
+            referrer = SwappingReferrerAccount(address: account.address, fee: account.fee)
         }
 
         let input = CommonSwappingModulesFactory.InputModel(
