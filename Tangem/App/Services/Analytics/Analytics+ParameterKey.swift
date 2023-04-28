@@ -46,5 +46,7 @@ extension Analytics {
         case commonSource = "Source"
         case signInType = "Sign in type"
         case balance = "Balance"
+        case creationType = "Creation type"
+        case status = "Status"
     }
 }
