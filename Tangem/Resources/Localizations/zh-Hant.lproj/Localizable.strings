@@ -87,6 +87,7 @@
 "common_success" = "成功";
 "common_terms_and_conditions" = "條款和條件";
 "common_understand" = "我了解";
+"common_unreachable" = "Unreachable";
 "common_warning" = "警告";
 "common_yes" = "是";
 "contract_address_copied_message" = "已複製代幣地址";
