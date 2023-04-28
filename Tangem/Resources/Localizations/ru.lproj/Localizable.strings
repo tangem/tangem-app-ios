@@ -87,6 +87,7 @@
 "common_success" = "Успешно";
 "common_terms_and_conditions" = "условия участия";
 "common_understand" = "Я понял";
+"common_unreachable" = "Недоступно";
 "common_warning" = "Предупреждение";
 "common_yes" = "Да";
 "contract_address_copied_message" = "Адрес контракта скопирован!";
