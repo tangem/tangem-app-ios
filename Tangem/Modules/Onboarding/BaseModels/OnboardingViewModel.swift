@@ -311,6 +311,14 @@ class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable>
                         Analytics.log(.registerScreenOpened)
                     case .selectBackupCards:
                         Analytics.log(.backupStarted)
+                    case .seedPhraseIntro:
+                        Analytics.log(.onboardingSeedIntroScreenOpened)
+                    case .seedPhraseGeneration:
+                        Analytics.log(.onboardingSeedGenerationScreenOpened)
+                    case .seedPhraseUserValidation:
+                        Analytics.log(.onboardingSeedCheckingScreenOpened)
+                    case .seedPhraseImport:
+                        Analytics.log(.onboardingSeedImportScreenOpened)
                     default:
                         break
                     }
