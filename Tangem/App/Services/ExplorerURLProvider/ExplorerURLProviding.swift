@@ -6,8 +6,9 @@
 //  Copyright © 2023 Tangem AG. All rights reserved.
 //
 
-import TangemExchange
+import TangemSwapping
+import Foundation
 
 protocol ExplorerURLService {
-    func getExplorerURL(for blockchain: ExchangeBlockchain, transactionID: String) -> URL?
+    func getExplorerURL(for blockchain: SwappingBlockchain, transactionID: String) -> URL?
 }
