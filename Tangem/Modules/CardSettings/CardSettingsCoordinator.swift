@@ -24,6 +24,7 @@ class CardSettingsCoordinator: CoordinatorObject {
 
     @Published var securityManagementCoordinator: SecurityModeCoordinator?
     @Published var modalOnboardingCoordinator: OnboardingCoordinator?
+    @Published var accessCodeRecoverySettingsViewModel: AccessCodeRecoverySettingsViewModel?
 
     // MARK: - Helpers
 
@@ -76,6 +77,10 @@ extension CardSettingsCoordinator: CardSettingsRoutable {
             cardModel: cardModel,
             coordinator: self
         )
+    }
+
+    func openAccessCodeRecoverySettings(using provider: AccessCodeRecoverySettingsProvider) {
+        accessCodeRecoverySettingsViewModel = .init(settingsProvider: provider)
     }
 }
 
