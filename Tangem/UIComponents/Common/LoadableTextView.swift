@@ -9,15 +9,6 @@
 import SwiftUI
 
 struct LoadableTextView: View {
-    enum State: Hashable, Identifiable {
-        var id: Int { hashValue }
-
-        case initialized
-        case noData
-        case loading
-        case loaded(text: String)
-    }
-
     let state: State
     let font: Font
     let textColor: Color
@@ -34,7 +25,7 @@ struct LoadableTextView: View {
             Text(" ")
                 .frame(size: loaderSize)
         case .noData:
-            Text("-")
+            Text("–")
                 .style(font, color: textColor)
                 .frame(minHeight: loaderSize.height)
         case .loading:
@@ -47,6 +38,17 @@ struct LoadableTextView: View {
                 .lineLimit(lineLimit)
                 .frame(minHeight: loaderSize.height)
         }
+    }
+}
+
+extension LoadableTextView {
+    enum State: Hashable, Identifiable {
+        var id: Int { hashValue }
+
+        case initialized
+        case noData
+        case loading
+        case loaded(text: String)
     }
 }
 
