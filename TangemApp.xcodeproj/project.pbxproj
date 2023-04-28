@@ -237,6 +237,7 @@
 		B05A13A129FB971900FB511A /* TokenItemComponentModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B05A13A029FB971900FB511A /* TokenItemComponentModel.swift */; };
 		B05A13A329FB975400FB511A /* LoadableTextView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B05A13A229FB975400FB511A /* LoadableTextView.swift */; };
 		B05A13A829FBB98700FB511A /* TokenItemInfoProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = B05A13A729FBB98700FB511A /* TokenItemInfoProvider.swift */; };
+		B05A13AC29FBEAA500FB511A /* ButtonWithLeadingIcon.swift in Sources */ = {isa = PBXBuildFile; fileRef = B05A13AB29FBEAA500FB511A /* ButtonWithLeadingIcon.swift */; };
 		B05A645625E0F57B00F154B7 /* ScanTroublehootingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B05A645525E0F57B00F154B7 /* ScanTroublehootingView.swift */; };
 		B05A859729937E2400E87C6E /* TransactionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B05A859629937E2400E87C6E /* TransactionView.swift */; };
 		B05D063229DEA11E0031C6AB /* AccessCodeRecoverySettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B05D063129DEA11E0031C6AB /* AccessCodeRecoverySettingsView.swift */; };
@@ -1173,6 +1174,7 @@
 		B05A13A029FB971900FB511A /* TokenItemComponentModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenItemComponentModel.swift; sourceTree = "<group>"; };
 		B05A13A229FB975400FB511A /* LoadableTextView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoadableTextView.swift; sourceTree = "<group>"; };
 		B05A13A729FBB98700FB511A /* TokenItemInfoProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenItemInfoProvider.swift; sourceTree = "<group>"; };
+		B05A13AB29FBEAA500FB511A /* ButtonWithLeadingIcon.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ButtonWithLeadingIcon.swift; sourceTree = "<group>"; };
 		B05A645525E0F57B00F154B7 /* ScanTroublehootingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScanTroublehootingView.swift; sourceTree = "<group>"; };
 		B05A859629937E2400E87C6E /* TransactionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransactionView.swift; sourceTree = "<group>"; };
 		B05D063129DEA11E0031C6AB /* AccessCodeRecoverySettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccessCodeRecoverySettingsView.swift; sourceTree = "<group>"; };
@@ -2822,6 +2824,7 @@
 			children = (
 				B05A13A229FB975400FB511A /* LoadableTextView.swift */,
 				B0B335DD29FA959B00E2082E /* TokenIconComponent.swift */,
+				B05A13AB29FBEAA500FB511A /* ButtonWithLeadingIcon.swift */,
 			);
 			path = Common;
 			sourceTree = "<group>";
@@ -5229,6 +5232,7 @@
 				DAC53CF827BE63830027147D /* StoriesTangemLogo.swift in Sources */,
 				DC5E32CF28EEAC3200D6096A /* SaltPayUtil.swift in Sources */,
 				DC295B4C2861D7CF006CB7B6 /* WalletConnectCoordinator.swift in Sources */,
+				B05A13AC29FBEAA500FB511A /* ButtonWithLeadingIcon.swift in Sources */,
 				DC0A5801282500460031BECC /* SellCryptoRequest.swift in Sources */,
 				EF6EDD7E296C0D40001B21A3 /* CommonIncomingActionManager.swift in Sources */,
 				5D09381425E6CB2D0049B8F0 /* HorizontalButtonStack.swift in Sources */,
