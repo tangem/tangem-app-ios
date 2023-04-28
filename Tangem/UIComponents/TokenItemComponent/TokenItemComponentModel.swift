@@ -11,13 +11,6 @@ import BlockchainSdk
 
 typealias WalletModelId = Int
 
-protocol TokenItemInfoProvider: AnyObject {
-    var walletStatePublisher: AnyPublisher<WalletModel.State, Never> { get }
-    var pendingTransactionPublisher: AnyPublisher<(WalletModelId, Bool), Never> { get }
-
-    func balance(for amountType: Amount.AmountType) -> Decimal
-}
-
 protocol PriceChangeProvider: AnyObject {
     var priceChangePublisher: AnyPublisher<Void, Never> { get }
 
