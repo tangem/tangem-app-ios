@@ -46,6 +46,10 @@ struct GenericConfig {
         return [.saveUserWallet]
     }
 
+    private var seedPhraseSteps: [WalletOnboardingStep] {
+        [.seedPhraseIntro, .seedPhraseGeneration, .seedPhraseUserValidation, .seedPhraseImport]
+    }
+
     init(card: CardDTO) {
         self.card = card
         backupServiceProvider.backupService.skipCompatibilityChecks = false
@@ -86,12 +90,21 @@ extension GenericConfig: UserWalletConfig {
 
         if card.wallets.isEmpty {
             // Check is card supports seed phrase, if so add seed phrase steps
-            steps.append(contentsOf: [.createWallet] + _backupSteps + userWalletSavingSteps + [.success])
-        } else {
-            if !AppSettings.shared.cardsStartedActivation.contains(card.cardId) {
-                steps.append(contentsOf: userWalletSavingSteps)
+            let initialSteps: [WalletOnboardingStep]
+            if FeatureProvider.isAvailable(.importSeedPhrase), hasFeature(.seedPhrase) {
+                initialSteps = [.createWalletSelector] + seedPhraseSteps
             } else {
+                initialSteps = [.createWallet]
+            }
+            steps.append(contentsOf: initialSteps + _backupSteps + userWalletSavingSteps + [.success])
+        } else {
+            let isBackupActive = card.backupStatus?.isActive ?? false
+            let forceBackup = !canSkipBackup && !isBackupActive
+
+            if AppSettings.shared.cardsStartedActivation.contains(card.cardId) || forceBackup {
                 steps.append(contentsOf: _backupSteps + userWalletSavingSteps + [.success])
+            } else {
+                steps.append(contentsOf: userWalletSavingSteps)
             }
         }
 
@@ -100,6 +113,10 @@ extension GenericConfig: UserWalletConfig {
 
     var backupSteps: OnboardingSteps? {
         .wallet(_backupSteps + [.success])
+    }
+
+    var canSkipBackup: Bool {
+        card.firmwareVersion < .keysImportAvailable
     }
 
     var supportedBlockchains: Set<Blockchain> {
@@ -180,7 +197,7 @@ extension GenericConfig: UserWalletConfig {
         case .passcode:
             return .hidden
         case .longTap:
-            return card.settings.isResettingUserCodesAllowed ? .available : .hidden
+            return card.settings.isRemovingUserCodesAllowed ? .available : .hidden
         case .send:
             return .available
         case .longHashes:
@@ -232,9 +249,9 @@ extension GenericConfig: UserWalletConfig {
         case .transactionHistory:
             return .hidden
         case .seedPhrase:
-            // Something like `isSeedPhraseAllowed` will be checked here...
-            // The actual implementation is not yet described in the firmware
-            return .hidden
+            return card.settings.isKeysImportAllowed ? .available : .hidden
+        case .accessCodeRecoverySettings:
+            return card.firmwareVersion >= .keysImportAvailable ? .available : .hidden
         }
     }
 

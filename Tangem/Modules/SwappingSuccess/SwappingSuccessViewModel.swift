@@ -7,7 +7,8 @@
 //
 
 import Combine
-import TangemExchange
+import TangemSwapping
+import Foundation
 
 final class SwappingSuccessViewModel: ObservableObject {
     // MARK: - ViewState
