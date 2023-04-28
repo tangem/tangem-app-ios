@@ -133,7 +133,7 @@ class FakeTokenItemInfoProvider: TokenItemInfoProvider, PriceChangeProvider, Obs
         case .idle:
             walletStateSubject.send(.loading)
         case .noDerivation:
-            walletStateSubject.send(.noAccount(message: "You can create account using link below. Go and find it"))
+            walletStateSubject.send(.noAccount(message: "You need to topup account to use it"))
         case .noAccount:
             walletStateSubject.send(.created)
         case .failed:
