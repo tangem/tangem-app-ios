@@ -6,9 +6,10 @@
 //  Copyright © 2023 Tangem AG. All rights reserved.
 //
 
-import TangemExchange
+import TangemSwapping
+import Foundation
 
 struct SwappingPermissionInputModel {
     let fiatFee: Decimal
-    let transactionInfo: ExchangeTransactionDataModel
+    let transactionData: SwappingTransactionData
 }
