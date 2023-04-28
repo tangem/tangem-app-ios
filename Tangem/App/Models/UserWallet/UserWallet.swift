@@ -10,7 +10,7 @@ import Foundation
 import CryptoKit
 import TangemSdk
 
-struct UserWallet: Identifiable, Codable {
+struct UserWallet: Identifiable, Encodable {
     var id = UUID()
     let userWalletId: Data
     var name: String
@@ -23,7 +23,7 @@ struct UserWallet: Identifiable, Codable {
 
 extension UserWallet {
     struct SensitiveInformation: Codable {
-        let wallets: [Card.Wallet]
+        let wallets: [CardDTO.Wallet]
     }
 }
 
@@ -47,5 +47,24 @@ extension UserWallet {
             artwork: cardArtwork,
             primaryCard: nil
         )
+    }
+}
+
+extension UserWallet: Decodable {
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        id = try container.decode(UUID.self, forKey: .id)
+        userWalletId = try container.decode(Data.self, forKey: .userWalletId)
+        name = try container.decode(String.self, forKey: .name)
+        associatedCardIds = try container.decode(Set<String>.self, forKey: .associatedCardIds)
+        walletData = try container.decode(DefaultWalletData.self, forKey: .walletData)
+        artwork = try container.decodeIfPresent(ArtworkInfo.self, forKey: .artwork)
+        isHDWalletAllowed = try container.decode(Bool.self, forKey: .isHDWalletAllowed)
+
+        if let cardDTOv4 = try? container.decode(CardDTOv4.self, forKey: .card) {
+            card = .init(cardDTOv4: cardDTOv4)
+        } else {
+            card = try container.decode(CardDTO.self, forKey: .card)
+        }
     }
 }
