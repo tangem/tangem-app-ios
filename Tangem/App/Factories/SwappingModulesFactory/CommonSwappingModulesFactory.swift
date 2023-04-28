@@ -7,7 +7,7 @@
 //
 
 import Foundation
-import TangemExchange
+import TangemSwapping
 import BlockchainSdk
 
 struct CommonSwappingModulesFactory {
@@ -15,8 +15,8 @@ struct CommonSwappingModulesFactory {
     private let walletModel: WalletModel
     private let sender: TransactionSender
     private let signer: TransactionSigner
-    private let logger: ExchangeLogger
-    private let referrer: ExchangeReferrerAccount?
+    private let logger: SwappingLogger
+    private let referrer: SwappingReferrerAccount?
     private let source: Currency
     private let destination: Currency?
 
@@ -38,7 +38,7 @@ extension CommonSwappingModulesFactory: SwappingModulesFactory {
     func makeSwappingViewModel(coordinator: SwappingRoutable) -> SwappingViewModel {
         SwappingViewModel(
             initialSourceCurrency: source,
-            exchangeManager: exchangeManager(source: source, destination: destination),
+            swappingManager: makeSwappingManager(source: source, destination: destination),
             swappingDestinationService: swappingDestinationService,
             tokenIconURLBuilder: tokenIconURLBuilder,
             transactionSender: transactionSender,
@@ -98,10 +98,15 @@ private extension CommonSwappingModulesFactory {
 
     var tokenIconURLBuilder: TokenIconURLBuilding { TokenIconURLBuilder(baseURL: CoinsResponse.baseURL) }
 
-    var userCurrenciesProvider: UserCurrenciesProviding { UserCurrenciesProvider(walletModel: walletModel) }
+    var userCurrenciesProvider: UserCurrenciesProviding {
+        UserCurrenciesProvider(
+            walletModel: walletModel,
+            currencyMapper: currencyMapper
+        )
+    }
 
-    var transactionSender: TransactionSendable {
-        ExchangeTransactionSender(
+    var transactionSender: SwappingTransactionSender {
+        CommonSwappingTransactionSender(
             transactionCreator: walletManager,
             transactionSender: walletManager,
             transactionSigner: signer,
@@ -118,8 +123,8 @@ private extension CommonSwappingModulesFactory {
         CommonExplorerURLService()
     }
 
-    var walletDataProvider: WalletDataProvider {
-        ExchangeWalletDataProvider(
+    var walletDataProvider: SwappingWalletDataProvider {
+        CommonSwappingWalletDataProvider(
             wallet: walletModel.wallet,
             ethereumNetworkProvider: walletManager as! EthereumNetworkProvider,
             ethereumTransactionProcessor: walletManager as! EthereumTransactionProcessor,
@@ -127,8 +132,8 @@ private extension CommonSwappingModulesFactory {
         )
     }
 
-    func exchangeManager(source: Currency, destination: Currency?) -> ExchangeManager {
-        TangemExchangeFactory().createExchangeManager(
+    func makeSwappingManager(source: Currency, destination: Currency?) -> SwappingManager {
+        TangemSwappingFactory().makeSwappingManager(
             walletDataProvider: walletDataProvider,
             referrer: referrer,
             source: source,
@@ -144,8 +149,8 @@ extension CommonSwappingModulesFactory {
         let walletModel: WalletModel
         let sender: TransactionSender
         let signer: TransactionSigner
-        let logger: ExchangeLogger
-        let referrer: ExchangeReferrerAccount?
+        let logger: SwappingLogger
+        let referrer: SwappingReferrerAccount?
         let source: Currency
         let destination: Currency?
 
@@ -154,8 +159,8 @@ extension CommonSwappingModulesFactory {
             walletModel: WalletModel,
             sender: TransactionSender,
             signer: TransactionSigner,
-            logger: ExchangeLogger,
-            referrer: ExchangeReferrerAccount?,
+            logger: SwappingLogger,
+            referrer: SwappingReferrerAccount?,
             source: Currency,
             destination: Currency? = nil
         ) {
