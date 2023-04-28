@@ -7,33 +7,30 @@
 //
 
 import Combine
-import TangemExchange
+import TangemSwapping
 import TangemSdk
 
 final class SwappingPermissionViewModel: ObservableObject, Identifiable {
-    /// For SwiftUI sheet logic
-    let id: UUID = .init()
-
     // MARK: - ViewState
 
     @Published var contentRowViewModels: [DefaultRowViewModel] = []
     @Published var errorAlert: AlertBinder?
 
     var tokenSymbol: String {
-        inputModel.transactionInfo.sourceCurrency.symbol
+        inputModel.transactionData.sourceCurrency.symbol
     }
 
     // MARK: - Dependencies
 
     private let inputModel: SwappingPermissionInputModel
-    private let transactionSender: TransactionSendable
+    private let transactionSender: SwappingTransactionSender
     private unowned let coordinator: SwappingPermissionRoutable
 
     private var didBecomeActiveNotificationCancellable: AnyCancellable?
 
     init(
         inputModel: SwappingPermissionInputModel,
-        transactionSender: TransactionSendable,
+        transactionSender: SwappingTransactionSender,
         coordinator: SwappingPermissionRoutable
     ) {
         self.inputModel = inputModel
@@ -44,20 +41,20 @@ final class SwappingPermissionViewModel: ObservableObject, Identifiable {
     }
 
     func didTapApprove() {
-        let info = inputModel.transactionInfo
+        let data = inputModel.transactionData
 
         Analytics.log(
             event: .swapButtonPermissionApprove,
             params: [
-                .sendToken: info.sourceCurrency.symbol,
-                .receiveToken: info.destinationCurrency.symbol,
+                .sendToken: data.sourceCurrency.symbol,
+                .receiveToken: data.destinationCurrency.symbol,
             ]
         )
 
         Task {
             do {
-                _ = try await transactionSender.sendTransaction(info)
-                await didSendApproveTransaction(transactionInfo: info)
+                _ = try await transactionSender.sendTransaction(data)
+                await didSendApproveTransaction(transactionData: data)
             } catch TangemSdkError.userCancelled {
                 // Do nothing
             } catch {
@@ -78,14 +75,14 @@ final class SwappingPermissionViewModel: ObservableObject, Identifiable {
 
 extension SwappingPermissionViewModel {
     @MainActor
-    func didSendApproveTransaction(transactionInfo: ExchangeTransactionDataModel) {
+    func didSendApproveTransaction(transactionData: SwappingTransactionData) {
         // We have to waiting close the nfc view to close this permission view
         didBecomeActiveNotificationCancellable = NotificationCenter
             .default
             .publisher(for: UIApplication.didBecomeActiveNotification)
             .delay(for: 0.3, scheduler: DispatchQueue.main)
             .sink { [weak self] _ in
-                self?.coordinator.didSendApproveTransaction(transactionInfo: transactionInfo)
+                self?.coordinator.didSendApproveTransaction(transactionData: transactionData)
             }
     }
 }
@@ -94,14 +91,14 @@ extension SwappingPermissionViewModel {
 
 private extension SwappingPermissionViewModel {
     func setupView() {
-        let transactionInfo = inputModel.transactionInfo
+        let transactionData = inputModel.transactionData
         /// Addresses have to the same width for both
-        let walletAddress = AddressFormatter(address: transactionInfo.sourceAddress).truncated()
-        let spenderAddress = AddressFormatter(address: transactionInfo.destinationAddress).truncated()
+        let walletAddress = AddressFormatter(address: transactionData.sourceAddress).truncated()
+        let spenderAddress = AddressFormatter(address: transactionData.destinationAddress).truncated()
 
         let fiatFee = inputModel.fiatFee.currencyFormatted(code: AppSettings.shared.selectedCurrencyCode)
-        let formattedFee = transactionInfo.fee.groupedFormatted()
-        let feeLabel = "\(formattedFee) \(inputModel.transactionInfo.sourceBlockchain.symbol) (\(fiatFee))"
+        let formattedFee = transactionData.fee.groupedFormatted()
+        let feeLabel = "\(formattedFee) \(inputModel.transactionData.sourceBlockchain.symbol) (\(fiatFee))"
 
         contentRowViewModels = [
             DefaultRowViewModel(
