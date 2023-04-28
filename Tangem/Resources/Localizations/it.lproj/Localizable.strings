@@ -87,6 +87,7 @@
 "common_success" = "Con successo";
 "common_terms_and_conditions" = "terms and conditions";
 "common_understand" = "I understand";
+"common_unreachable" = "Unreachable";
 "common_warning" = "Avviso";
 "common_yes" = "Yes";
 "contract_address_copied_message" = "Contract address copied!";
