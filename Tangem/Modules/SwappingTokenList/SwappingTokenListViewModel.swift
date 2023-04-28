@@ -8,12 +8,9 @@
 
 import Combine
 import SwiftUI
-import TangemExchange
+import TangemSwapping
 
 final class SwappingTokenListViewModel: ObservableObject, Identifiable {
-    /// For SwiftUI sheet logic
-    let id = UUID()
-
     @Injected(\.tangemApiService) private var tangemApiService: TangemApiService
 
     // MARK: - ViewState
@@ -33,7 +30,7 @@ final class SwappingTokenListViewModel: ObservableObject, Identifiable {
 
     private let tokenIconURLBuilder: TokenIconURLBuilding
     private let currencyMapper: CurrencyMapping
-    private let walletDataProvider: WalletDataProvider
+    private let walletDataProvider: SwappingWalletDataProvider
     private let fiatRatesProvider: FiatRatesProviding
     private unowned let coordinator: SwappingTokenListRoutable
 
@@ -47,7 +44,7 @@ final class SwappingTokenListViewModel: ObservableObject, Identifiable {
         userCurrenciesProvider: UserCurrenciesProviding,
         tokenIconURLBuilder: TokenIconURLBuilding,
         currencyMapper: CurrencyMapping,
-        walletDataProvider: WalletDataProvider,
+        walletDataProvider: SwappingWalletDataProvider,
         fiatRatesProvider: FiatRatesProviding,
         coordinator: SwappingTokenListRoutable
     ) {
