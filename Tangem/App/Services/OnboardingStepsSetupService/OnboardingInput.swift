@@ -16,6 +16,7 @@ struct OnboardingInput { // [REDACTED_TODO_COMMENT]
     let cardInput: CardInput
     let twinData: TwinData?
     var isStandalone = false
+    var userWalletToDelete: UserWallet? // for twins. [REDACTED_TODO_COMMENT]
 }
 
 extension OnboardingInput {
