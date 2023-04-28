@@ -175,7 +175,7 @@ extension MoonPayService: ExchangeService {
             case .coin:
                 return $0.networkCode.blockchain(testnet: blockchain.isTestnet) == blockchain
             case .token(let value):
-                return $0.contractAddress?.lowercased() == value.contractAddress.lowercased()
+                return $0.contractAddress?.caseInsensitiveCompare(value.contractAddress) == .orderedSame
             case .reserve:
                 return false
             }
