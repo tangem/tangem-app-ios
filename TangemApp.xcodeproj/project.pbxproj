@@ -2740,7 +2740,6 @@
 			children = (
 				B0B335CE29FA7FC100E2082E /* Common */,
 				B0958BA229F6A789007CD76D /* TokenItemComponent */,
-				B0B335DD29FA959B00E2082E /* TokenIconComponent.swift */,
 			);
 			path = UIComponents;
 			sourceTree = "<group>";
@@ -2822,6 +2821,7 @@
 			isa = PBXGroup;
 			children = (
 				B05A13A229FB975400FB511A /* LoadableTextView.swift */,
+				B0B335DD29FA959B00E2082E /* TokenIconComponent.swift */,
 			);
 			path = Common;
 			sourceTree = "<group>";
