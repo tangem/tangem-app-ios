@@ -21,16 +21,24 @@ struct SwappingAvailableUtils {
         .fantom,
     ]
 
-    func canSwap(blockchainNetworkId: String) -> Bool {
+    func canSwap(amountType: Amount.AmountType, blockchain: Blockchain) -> Bool {
         // Checking that toggle is on
         guard FeatureProvider.isAvailable(.exchange) else {
             return false
         }
 
-        guard let blockchain = SwappingBlockchain(networkId: blockchainNetworkId) else {
+        let networkId = blockchain.networkId
+        guard let blockchain = SwappingBlockchain(networkId: networkId) else {
             return false
         }
 
-        return supportedBlockchains.contains(blockchain)
+        switch amountType {
+        case .coin:
+            return supportedBlockchains.contains(blockchain)
+        case .token(let token):
+            return token.isCustom == false && token.exchangeable == true
+        default:
+            return false
+        }
     }
 }
