@@ -22,6 +22,7 @@ enum WalletConnectV2Error: LocalizedError {
     case missingTransaction
     case transactionSentButNotFoundInManager
     case wrongCardSelected
+    case sessionConnetionTimeout
 
     case unknown(String)
 
@@ -40,6 +41,7 @@ enum WalletConnectV2Error: LocalizedError {
         case .missingTransaction: return 8011
         case .transactionSentButNotFoundInManager: return 8012
         case .wrongCardSelected: return 8013
+        case .sessionConnetionTimeout: return 8014
 
         case .unknown: return 8999
         }
