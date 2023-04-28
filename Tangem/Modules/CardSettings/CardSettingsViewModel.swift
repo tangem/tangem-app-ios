@@ -21,6 +21,7 @@ class CardSettingsViewModel: ObservableObject {
 
     @Published var cardInfoSection: [DefaultRowViewModel] = []
     @Published var securityModeSection: [DefaultRowViewModel] = []
+    @Published var accessCodeRecoverySection: DefaultRowViewModel?
     @Published var resetToFactoryViewModel: DefaultRowViewModel?
 
     var isResetToFactoryAvailable: Bool {
@@ -89,6 +90,12 @@ private extension CardSettingsViewModel {
                 self?.setupSecurityOptions()
             }
             .store(in: &bag)
+
+        cardModel.$accessCodeRecoveryEnabled
+            .receiveValue { [weak self] enabled in
+                self?.setupAccessCodeRecoveryModel(enabled: enabled)
+            }
+            .store(in: &bag)
     }
 
     func prepareTwinOnboarding() {
@@ -112,6 +119,7 @@ private extension CardSettingsViewModel {
         }
 
         setupSecurityOptions()
+        setupAccessCodeRecoveryModel(enabled: cardModel.accessCodeRecoveryEnabled)
 
         if isResetToFactoryAvailable {
             resetToFactoryViewModel = DefaultRowViewModel(
@@ -135,6 +143,16 @@ private extension CardSettingsViewModel {
                     detailsType: isChangeAccessCodeLoading ? .loader : .none,
                     action: openChangeAccessCodeWarningView
                 )
+            )
+        }
+    }
+
+    func setupAccessCodeRecoveryModel(enabled: Bool) {
+        if cardModel.canChangeAccessCodeRecoverySettings, FeatureProvider.isAvailable(.accessCodeRecoverySettings) {
+            accessCodeRecoverySection = DefaultRowViewModel(
+                title: Localization.cardSettingsAccessCodeRecoveryTitle,
+                detailsType: .text(enabled ? Localization.commonEnabled : Localization.commonDisabled),
+                action: openAccessCodeSettings
             )
         }
     }
@@ -188,5 +206,10 @@ extension CardSettingsViewModel {
         } else {
             coordinator.openResetCardToFactoryWarning(cardModel: cardModel)
         }
+    }
+
+    func openAccessCodeSettings() {
+        Analytics.log(.cardSettingsButtonAccessCodeRecovery)
+        coordinator.openAccessCodeRecoverySettings(using: cardModel)
     }
 }

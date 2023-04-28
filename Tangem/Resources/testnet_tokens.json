@@ -503,7 +503,7 @@
         {
             "id": "kava",
             "symbol": "KAVA",
-            "name": "KAVA",
+            "name": "Kava Evm",
             "networks":
             [
                 {
@@ -511,6 +511,18 @@
                 }
             ]
         },
+        {
+            "id": "ravencoin",
+            "symbol": "RVN",
+            "name": "Ravencoin",
+            "networks":
+            [
+                {
+                    "networkId": "ravencoin/test"
+                }
+            ]
+        },
+        
     ],
     "total": 0,
     "imageHost": "https://s3.eu-central-1.amazonaws.com/tangem.api/coins/"
