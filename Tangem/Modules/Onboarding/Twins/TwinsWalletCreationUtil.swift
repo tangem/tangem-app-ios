@@ -95,7 +95,7 @@ class TwinsWalletCreationUtil {
         }
 
         let task = TwinsCreateWalletTask(firstTwinCardId: firstTwinCid, fileToWrite: firstTwinKey)
-        sdk.startSession(with: task, initialMessage: Message(header: "Scan card #\(series.pair.number)") /* initialMessage(for: secondTwinCid) */ ) { result in
+        sdk.startSession(with: task, initialMessage: Message(header: "Scan card #\(series.pair.number)")) { result in
             switch result {
             case .success(let response):
                 self.secondTwinPublicKey = response.createWalletResponse.wallet.publicKey
