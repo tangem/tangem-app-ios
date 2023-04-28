@@ -12,7 +12,12 @@ import BlockchainSdk
 class PreparePrimaryCardTask: CardSessionRunnable {
     var shouldAskForAccessCode: Bool { false }
 
+    private let seed: Data?
     private var linkingCommand: StartPrimaryCardLinkingTask?
+
+    init(seed: Data?) {
+        self.seed = seed
+    }
 
     deinit {
         AppLog.shared.debug("PreparePrimaryCardTask deinit")
@@ -41,7 +46,7 @@ class PreparePrimaryCardTask: CardSessionRunnable {
         let requiredCurves: [EllipticCurve] = card.settings.maxWalletsCount > 1 ? [.secp256k1, .ed25519] : [.secp256k1]
         let curves = requiredCurves.filter { !existingCurves.contains($0) }
 
-        let createWalletsTask = CreateMultiWalletTask(curves: curves)
+        let createWalletsTask = CreateMultiWalletTask(curves: curves, seed: seed)
         createWalletsTask.run(in: session) { result in
             switch result {
             case .success:
