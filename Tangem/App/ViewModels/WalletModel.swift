@@ -457,8 +457,10 @@ extension WalletModel {
             switch roundingType {
             case .shortestFraction(let roundingMode):
                 return SignificantFractionDigitRounder(roundingMode: roundingMode).round(value: fiatValue)
-            case .default(let roundingMode):
-                return max(fiatValue, 0.01).rounded(scale: 2, roundingMode: roundingMode)
+            case .default(let roundingMode, let scale):
+                let minDefaultValue = Decimal(1) / pow(10, scale)
+                return max(fiatValue, minDefaultValue)
+                    .rounded(scale: scale, roundingMode: roundingMode)
             }
         }
         return nil
