@@ -72,6 +72,8 @@ struct WalletConnectV2MessageComposer: WalletConnectV2MessageComposable {
             return Localization.walletConnectErrorWrongCardSelected
         case .unknown(let errorMessage):
             return Localization.walletConnectErrorWithFrameworkMessage(errorMessage)
+        case .sessionConnetionTimeout:
+            return Localization.walletConnectErrorTimeout
         default:
             return Localization.walletConnectGenericErrorWithCode(error.code)
         }
