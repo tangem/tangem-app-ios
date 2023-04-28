@@ -150,7 +150,7 @@ extension TwinConfig: UserWalletConfig {
 
             return .disabled()
         case .longTap:
-            return card.settings.isResettingUserCodesAllowed ? .available : .hidden
+            return card.settings.isRemovingUserCodesAllowed ? .available : .hidden
         case .send:
             return .available
         case .longHashes:
@@ -194,6 +194,8 @@ extension TwinConfig: UserWalletConfig {
         case .transactionHistory:
             return .hidden
         case .seedPhrase:
+            return .hidden
+        case .accessCodeRecoverySettings:
             return .hidden
         }
     }
