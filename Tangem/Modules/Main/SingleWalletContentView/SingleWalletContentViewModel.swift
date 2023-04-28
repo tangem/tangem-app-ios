@@ -23,7 +23,7 @@ class SingleWalletContentViewModel: ObservableObject {
 
     @Published var selectedAddressIndex: Int = 0
     @Published var singleWalletModel: WalletModel?
-    @Published var totalBalanceButtons = [TotalBalanceButton]()
+    @Published var totalBalanceButtons = [ButtonWithIconInfo]()
     @Published var transactionHistoryState = TransactionsListView.State.loading
 
     var pendingTransactionViews: [PendingTxView] {
