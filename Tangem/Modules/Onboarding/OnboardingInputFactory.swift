@@ -78,15 +78,18 @@ class OnboardingInputFactory {
 
 class TwinInputFactory {
     private let cardInput: OnboardingInput.CardInput
+    private let userWalletToDelete: UserWallet? // Delete on retwin
     private let twinData: TwinData
     private let sdkFactory: TangemSdkFactory & BackupServiceFactory
 
     init(
         cardInput: OnboardingInput.CardInput,
+        userWalletToDelete: UserWallet?,
         twinData: TwinData,
         sdkFactory: TangemSdkFactory & BackupServiceFactory
     ) {
         self.cardInput = cardInput
+        self.userWalletToDelete = userWalletToDelete
         self.twinData = twinData
         self.sdkFactory = sdkFactory
     }
@@ -98,7 +101,8 @@ class TwinInputFactory {
             steps: .twins(TwinsOnboardingStep.twinningSteps),
             cardInput: cardInput,
             twinData: twinData,
-            isStandalone: true
+            isStandalone: true,
+            userWalletToDelete: userWalletToDelete
         )
     }
 }
