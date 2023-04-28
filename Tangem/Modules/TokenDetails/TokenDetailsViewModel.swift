@@ -537,10 +537,10 @@ extension TokenDetailsViewModel {
 
 private extension TokenDetailsViewModel {
     var canSwap: Bool {
-        !isCustomToken &&
-            card.canShowSwapping &&
+        card.canShowSwapping &&
             SwappingAvailableUtils().canSwap(
-                blockchainNetworkId: blockchainNetwork.blockchain.networkId
+                amountType: amountType,
+                blockchain: blockchainNetwork.blockchain
             )
     }
 
