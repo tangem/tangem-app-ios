@@ -49,7 +49,7 @@ class StoriesViewModel: ObservableObject {
 
     @ViewBuilder
     func currentStoryPage(
-        isScanning: Bool,
+        isScanning: Binding<Bool>,
         scanCard: @escaping () -> Void,
         orderCard: @escaping () -> Void,
         searchTokens: @escaping () -> Void
