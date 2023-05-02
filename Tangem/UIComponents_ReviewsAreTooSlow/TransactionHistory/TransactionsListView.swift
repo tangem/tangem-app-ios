@@ -46,6 +46,7 @@ struct TransactionsListView: View {
                         Assets.compass.image
                             .foregroundColor(Colors.Icon.informative)
 
+                        #warning("[REDACTED_TODO_COMMENT]")
                         Text("Explore")
                             .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
                     }
