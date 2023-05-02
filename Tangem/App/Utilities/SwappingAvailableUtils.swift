@@ -36,7 +36,8 @@ struct SwappingAvailableUtils {
         case .coin:
             return supportedBlockchains.contains(blockchain)
         case .token(let token):
-            return token.isCustom == false && token.exchangeable == true
+            // If exchangeable == nil then swap is available for old users
+            return !token.isCustom && (token.exchangeable ?? true)
         default:
             return false
         }
