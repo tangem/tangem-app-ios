@@ -17,6 +17,7 @@ struct TransactionListItem: Hashable, Identifiable {
 
 struct TransactionsListView: View {
     let state: State
+    var explorerTapAction: (() -> Void)?
 
     var body: some View {
         VStack {
@@ -36,7 +37,20 @@ struct TransactionsListView: View {
                     Fonts.Bold.footnote,
                     color: Colors.Text.tertiary
                 )
+
             Spacer()
+
+            if let explorerTapAction {
+                Button(action: explorerTapAction) {
+                    HStack {
+                        Assets.compass.image
+                            .foregroundColor(Colors.Icon.informative)
+
+                        Text("Explore")
+                            .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
+                    }
+                }
+            }
         }
     }
 
@@ -225,7 +239,9 @@ struct TransactionsListView_Previews: PreviewProvider {
 
         ScrollView {
             LazyVStack {
-                TransactionsListView(state: .loaded(listItems))
+                TransactionsListView(state: .loaded(listItems)) {
+                    print("EXPLORER TAPPED")
+                }
             }
         }
         .padding(.horizontal, 16)
