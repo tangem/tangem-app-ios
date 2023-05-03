@@ -50,6 +50,8 @@ extension Blockchain {
         case "kaspa": self = .kaspa
         case "ravencoin": self = .ravencoin(testnet: isTestnet)
         case "cosmos": self = .cosmos(testnet: isTestnet)
+        case "terra", "terra-luna": self = .terraV1
+        case "terra-2", "terra-luna-2": self = .terraV2
         default:
             AppLog.shared.debug("⚠️⚠️⚠️ Failed to map network ID \"\(stringId)\"")
             return nil
@@ -91,6 +93,8 @@ extension Blockchain {
         case .kaspa: return "kaspa"
         case .ravencoin: return "ravencoin"
         case .cosmos: return "cosmos"
+        case .terraV1: return "terra-luna"
+        case .terraV2: return "terra-luna-2"
         }
     }
 
@@ -142,6 +146,8 @@ extension Blockchain {
         case .kaspa: return "kaspa"
         case .ravencoin: return "ravencoin"
         case .cosmos: return "cosmos"
+        case .terraV1: return "terra"
+        case .terraV2: return "terra-2"
         }
     }
 
