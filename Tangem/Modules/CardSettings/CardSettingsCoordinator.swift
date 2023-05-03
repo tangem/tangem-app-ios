@@ -75,10 +75,10 @@ extension CardSettingsCoordinator: CardSettingsRoutable {
         securityManagementCoordinator = coordinator
     }
 
-    func openResetCardToFactoryWarning(cardModel: CardViewModel) {
+    func openResetCardToFactoryWarning(with input: ResetToFactoryViewModelInput) {
         Analytics.log(.buttonFactoryReset)
         resetToFactoryViewModel = ResetToFactoryViewModel(
-            cardModel: cardModel,
+            input: input,
             coordinator: self
         )
     }
