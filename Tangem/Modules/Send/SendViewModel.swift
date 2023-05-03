@@ -51,7 +51,16 @@ class SendViewModel: ObservableObject {
     }
 
     var shoudShowFeeIncludeSelector: Bool {
-        amountToSend.type == .coin && !isSellingCrypto
+        if isSellingCrypto {
+            return false
+        }
+
+        switch amountToSend.type {
+        case .coin, .reserve:
+            return true
+        case .token:
+            return !blockchainNetwork.blockchain.tokenTransactionFeePaidInNetworkCurrency
+        }
     }
 
     var shouldShowNetworkBlock: Bool {
@@ -440,7 +449,7 @@ class SendViewModel: ObservableObject {
                 if memo.isEmpty { return }
 
                 switch blockchainNetwork.blockchain {
-                case .binance, .ton, .cosmos:
+                case .binance, .ton, .cosmos, .terraV1, .terraV2:
                     self.validatedMemo = memo
                 case .stellar:
                     if let memoId = UInt64(memo) {
@@ -655,7 +664,7 @@ class SendViewModel: ObservableObject {
                 if let memo = validatedMemo {
                     tx.params = TONTransactionParams(memo: memo)
                 }
-            case .cosmos:
+            case .cosmos, .terraV1, .terraV2:
                 if let memo = validatedMemo {
                     tx.params = CosmosTransactionParams(memo: memo)
                 }
