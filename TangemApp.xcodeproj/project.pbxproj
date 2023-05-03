@@ -168,6 +168,7 @@
 		65D87499287DA0F6009D0448 /* BottomSheetSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65D87498287DA0F6009D0448 /* BottomSheetSettings.swift */; };
 		7411665441ED861CCD6B1A0C /* Pods_Tangem.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 90762CF1A18C0BF597E3E4DD /* Pods_Tangem.framework */; };
 		B003BDAA2A0291C200B282F7 /* TokenIconInfoBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = B003BDA92A0291C200B282F7 /* TokenIconInfoBuilder.swift */; };
+		B003BDAC2A029C4300B282F7 /* BalanceConverter.swift in Sources */ = {isa = PBXBuildFile; fileRef = B003BDAB2A029C4300B282F7 /* BalanceConverter.swift */; };
 		B004C40E298AA9E00029C14A /* WalletConnectV2SendTransactionHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = B004C40D298AA9E00029C14A /* WalletConnectV2SendTransactionHandler.swift */; };
 		B008E13A29802157006E0E31 /* WebSocketError.swift in Sources */ = {isa = PBXBuildFile; fileRef = B008E13929802157006E0E31 /* WebSocketError.swift */; };
 		B008E13C29802612006E0E31 /* WebSocketConnectionDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B008E13B29802612006E0E31 /* WebSocketConnectionDelegate.swift */; };
@@ -1102,6 +1103,7 @@
 		A8A58343726C3E405BBB7A03 /* Pods-TangemTests.release(production).xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TangemTests.release(production).xcconfig"; path = "Target Support Files/Pods-TangemTests/Pods-TangemTests.release(production).xcconfig"; sourceTree = "<group>"; };
 		ADDBC9E43D315C358E078BC8 /* Pods_TangemSwapping.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_TangemSwapping.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		B003BDA92A0291C200B282F7 /* TokenIconInfoBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenIconInfoBuilder.swift; sourceTree = "<group>"; };
+		B003BDAB2A029C4300B282F7 /* BalanceConverter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BalanceConverter.swift; sourceTree = "<group>"; };
 		B004C40D298AA9E00029C14A /* WalletConnectV2SendTransactionHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletConnectV2SendTransactionHandler.swift; sourceTree = "<group>"; };
 		B008E13929802157006E0E31 /* WebSocketError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebSocketError.swift; sourceTree = "<group>"; };
 		B008E13B29802612006E0E31 /* WebSocketConnectionDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebSocketConnectionDelegate.swift; sourceTree = "<group>"; };
@@ -2655,6 +2657,7 @@
 				DA6C752329225F9B0070EEFD /* MinimizedAppTimer.swift */,
 				B0E0AF5C2996488100E52F7B /* TransactionHistoryMapper.swift */,
 				EFA1CFFC29B0E8CE008B24C3 /* SwappingAvailableUtils.swift */,
+				B003BDAB2A029C4300B282F7 /* BalanceConverter.swift */,
 			);
 			path = Utilities;
 			sourceTree = "<group>";
@@ -5488,6 +5491,7 @@
 				DC3B49F62893E51B00C207EA /* UserWalletConfig.swift in Sources */,
 				5D242A5F273C1F24008F79B5 /* Publisher+.swift in Sources */,
 				5D24A12A24FF98F1002A3BCA /* NetworkLoggerConfiguration+.swift in Sources */,
+				B003BDAC2A029C4300B282F7 /* BalanceConverter.swift in Sources */,
 				EF0B173529F2CDF4002A3C6D /* UIDevice+IPhoneModel.swift in Sources */,
 				EFC7FE9429D6D89F00C39E42 /* SwappingDestinationServicing.swift in Sources */,
 				B0EBBB222924C42E00020EC2 /* ReferralParticipationRequestBody.swift in Sources */,
