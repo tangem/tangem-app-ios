@@ -24,7 +24,6 @@ class WalletOnboardingViewModel: OnboardingTopupViewModel<WalletOnboardingStep, 
     private var accessCode: String?
     private var cardIds: [String]?
     private var stepPublisher: AnyCancellable?
-    private var prepareTask: PreparePrimaryCardTask?
     private var claimed: Bool = false
 
     private var cardIdDisplayFormat: CardIdDisplayFormat {
@@ -379,7 +378,6 @@ class WalletOnboardingViewModel: OnboardingTopupViewModel<WalletOnboardingStep, 
     @Published private var previewBackupState: BackupService.State = .finalizingPrimaryCard
     private var walletCreationType: WalletCreationType = .privateKey
 
-    private let tangemSdk: TangemSdk
     private let backupService: BackupService
 
     private var saltPayAmountType: Amount.AmountType {
@@ -389,7 +387,6 @@ class WalletOnboardingViewModel: OnboardingTopupViewModel<WalletOnboardingStep, 
     // MARK: - Initializer
 
     override init(input: OnboardingInput, coordinator: OnboardingCoordinator) {
-        tangemSdk = input.tangemSdk
         backupService = input.backupService
 
         super.init(input: input, coordinator: coordinator)
@@ -505,7 +502,7 @@ class WalletOnboardingViewModel: OnboardingTopupViewModel<WalletOnboardingStep, 
                 switch newState {
                 case .kycStart:
                     if self.currentStep == .kycWaiting {
-                        if case .wallet(let steps) = self.cardModel?.onboardingInput?.steps { // rebuild steps from scratch
+                        if case .wallet(let steps) = self.rebuildSteps() { // rebuild steps from scratch
                             self.steps = steps
                             self.currentStepIndex = 0
                         }
@@ -520,7 +517,7 @@ class WalletOnboardingViewModel: OnboardingTopupViewModel<WalletOnboardingStep, 
                         self.goToNextStep()
                     }
                 case .kycRetry:
-                    if case .wallet(let steps) = self.cardModel?.onboardingInput?.steps { // rebuild steps from scratch
+                    if case .wallet(let steps) = self.rebuildSteps() { // rebuild steps from scratch
                         self.steps = steps
                         self.currentStepIndex = 0
                     }
@@ -529,6 +526,14 @@ class WalletOnboardingViewModel: OnboardingTopupViewModel<WalletOnboardingStep, 
                 }
             })
             .store(in: &bag)
+    }
+
+    private func rebuildSteps() -> OnboardingSteps? {
+        guard let stepPublisher = input.stepsBuilder else {
+            return nil
+        }
+
+        return stepPublisher.buildOnboardingSteps()
     }
 
     private func loadImageForRestoredbackup(cardId: String, cardPublicKey: Data) {
@@ -887,65 +892,30 @@ class WalletOnboardingViewModel: OnboardingTopupViewModel<WalletOnboardingStep, 
     }
 
     private func createWalletOnPrimaryCard(using seed: Data? = nil) {
+        guard let cardInteractor = input.cardInteractor else { return }
+
         AppSettings.shared.cardsStartedActivation.insert(input.cardInput.cardId)
 
-        let cardId = input.cardInput.cardId
-        let task = PreparePrimaryCardTask(seed: seed)
-        prepareTask = task
+        cardInteractor.prepareCard(seed: seed) { [weak self] result in
+            guard let self else { return }
 
-        stepPublisher = Deferred {
-            Future { [weak self] promise in
-                guard let self = self else { return }
+            switch result {
+            case .success(let cardInfo):
+                self.initializeUserWallet(from: cardInfo)
 
-                self.tangemSdk.startSession(
-                    with: task,
-                    cardId: cardId,
-                    initialMessage: Message(
-                        header: nil,
-                        body: Localization.initialMessageCreateWalletBody
-                    )
-                ) { [weak self] result in
-                    switch result {
-                    case .success(let result):
-                        self?.addDefaultTokens(for: result.card)
+                if let primaryCard = cardInfo.primaryCard {
+                    self.backupService.setPrimaryCard(primaryCard)
+                }
 
-                        if let cardModel = self?.input.cardInput.cardModel {
-                            cardModel.onWalletCreated(result.card)
-                        }
-
-                        self?.backupService.setPrimaryCard(result.primaryCard)
-                        promise(.success(()))
-                    case .failure(let error):
-                        promise(.failure(error))
-                    }
-
-                    self?.prepareTask = nil
+                Analytics.log(.walletCreatedSuccessfully, params: [.creationType: self.walletCreationType.analyticsValue])
+            case .failure(let error):
+                if !error.toTangemSdkError().isUserCancelled {
+                    AppLog.shared.error(error, params: [.action: .preparePrimary])
                 }
             }
+
+            self.isMainButtonBusy = false
         }
-        .combineLatest(NotificationCenter.didBecomeActivePublisher)
-        .first()
-        .mapVoid()
-        .sink(
-            receiveCompletion: { [weak self] completion in
-                guard let self else { return }
-
-                switch completion {
-                case .failure(let error):
-                    AppLog.shared.error(error, params: [.action: .preparePrimary])
-                    self.isMainButtonBusy = false
-                case .finished:
-                    if let userWalletId = self.cardModel?.userWalletId {
-                        self.analyticsContext.updateContext(with: userWalletId)
-                        Analytics.logTopUpIfNeeded(balance: 0)
-                    }
-
-                    Analytics.log(.walletCreatedSuccessfully, params: [.creationType: self.walletCreationType.analyticsValue])
-                }
-                self.stepPublisher = nil
-            },
-            receiveValue: processPrimaryCardScan
-        )
     }
 
     private func readPrimaryCardPublisher() -> AnyPublisher<Void, Error> {
@@ -1014,10 +984,7 @@ class WalletOnboardingViewModel: OnboardingTopupViewModel<WalletOnboardingStep, 
                         case .success(let updatedCard):
                             if updatedCard.cardId == self.backupService.primaryCard?.cardId {
                                 self.input.cardInput.cardModel?.onBackupCreated(updatedCard)
-                            } else { // add tokens for backup cards
-                                self.addDefaultTokens(for: updatedCard)
                             }
-
                             promise(.success(()))
                         case .failure(let error):
                             promise(.failure(error))
@@ -1048,15 +1015,6 @@ class WalletOnboardingViewModel: OnboardingTopupViewModel<WalletOnboardingStep, 
         }
     }
 
-    private func addDefaultTokens(for card: Card) {
-        let config = UserWalletConfigFactory(CardInfo(card: CardDTO(card: card), walletData: .none, name: "")).makeConfig()
-
-        guard let seed = config.userWalletIdSeed else { return }
-
-        let repository = CommonTokenItemsRepository(key: UserWalletId(with: seed).stringValue)
-        repository.append(config.defaultBlockchains)
-    }
-
     private func processLinkingError(_ error: Error) {
         AppLog.shared.error(error, params: [.action: .addbackup])
 
@@ -1079,9 +1037,12 @@ class WalletOnboardingViewModel: OnboardingTopupViewModel<WalletOnboardingStep, 
     }
 
     private func resetCard() {
+        guard let cardInteractor = input.cardInteractor else { return }
+
         Analytics.log(.backupResetCardNotification, params: [.option: .reset])
         isMainButtonBusy = true
-        tangemSdk.startSession(with: ResetToFactorySettingsTask()) { [weak self] result in
+
+        cardInteractor.resetCard { [weak self] result in
             switch result {
             case .failure(let error):
                 if error.isUserCancelled {
