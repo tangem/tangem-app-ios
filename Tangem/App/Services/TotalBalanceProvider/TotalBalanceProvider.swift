@@ -133,7 +133,7 @@ private extension TotalBalanceProvider {
         return TotalBalance(balance: balance, currencyCode: currencyCode, hasError: hasError)
     }
 
-    func getTokenItemViewModels(from walletModels: [WalletModel]) -> [TokenItemViewModel] {
+    func getTokenItemViewModels(from walletModels: [WalletModel]) -> [LegacyTokenItemViewModel] {
         walletModels
             .flatMap { $0.allTokenItemViewModels() }
             .filter { model in
