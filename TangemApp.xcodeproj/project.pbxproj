@@ -1998,6 +1998,7 @@
 				DC7DA81A2844EED800AD6DBD /* Modules */,
 				5DFCCB6324C371AC0014A293 /* Common */,
 				B0CC817C25CD626A006D49B9 /* Resources */,
+				DAB591402A00CD0700984294 /* UIComponents_ReviewsAreTooSlow */,
 				EF2EFDE02865BFE800798051 /* Configurations */,
 				5D3F77C524BF56D800E8695B /* AppDelegate.swift */,
 				B046EE172578D38E00EA38A5 /* SceneDelegate.swift */,
@@ -3130,6 +3131,14 @@
 			path = UserWalletList;
 			sourceTree = "<group>";
 		};
+		DAB591402A00CD0700984294 /* UIComponents_ReviewsAreTooSlow */ = {
+			isa = PBXGroup;
+			children = (
+				B05A859329937D2400E87C6E /* TransactionHistory */,
+			);
+			path = UIComponents_ReviewsAreTooSlow;
+			sourceTree = "<group>";
+		};
 		DAB5E331297E8CBF00A4E9CF /* Rounding */ = {
 			isa = PBXGroup;
 			children = (
@@ -3716,7 +3725,6 @@
 		EF130EB828E1D32400D37EFC /* SingleWalletContentView */ = {
 			isa = PBXGroup;
 			children = (
-				B05A859329937D2400E87C6E /* TransactionHistory */,
 				B0A596552992A5B700C7C512 /* TotalBalanceButton.swift */,
 				EF130EB928E1D33000D37EFC /* SingleWalletContentView.swift */,
 				EF130EB328E1C47C00D37EFC /* SingleWalletContentViewModel.swift */,
