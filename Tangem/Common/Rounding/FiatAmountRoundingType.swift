@@ -1,5 +1,5 @@
 //
-//  AmountRoundingType.swift
+//  FiatAmountRoundingType.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -8,7 +8,7 @@
 
 import Foundation
 
-enum AmountRoundingType {
+enum FiatAmountRoundingType {
     case shortestFraction(roundingMode: NSDecimalNumber.RoundingMode)
-    case `default`(roundingMode: NSDecimalNumber.RoundingMode)
+    case `default`(roundingMode: NSDecimalNumber.RoundingMode, scale: Int = 2)
 }
