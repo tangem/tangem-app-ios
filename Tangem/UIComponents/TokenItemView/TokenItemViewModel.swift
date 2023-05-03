@@ -1,5 +1,5 @@
 //
-//  TokenItemComponentModel.swift
+//  TokenItemViewModel.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -11,16 +11,8 @@ import BlockchainSdk
 
 typealias WalletModelId = Int
 
-protocol PriceChangeProvider: AnyObject {
-    var priceChangePublisher: AnyPublisher<Void, Never> { get }
-
-    func change(for currencyCode: String, in blockchain: Blockchain) -> Double
-}
-
-final class TokenItemComponentModel: ObservableObject, Identifiable {
-    let id: Int
-    let imageURL: URL?
-    let blockchainIconName: String?
+final class TokenItemViewModel: ObservableObject, Identifiable {
+    let id: WalletModelId
 
     @Published var balanceCrypto: LoadableTextView.State = .loading
     @Published var balanceFiat: LoadableTextView.State = .loading
@@ -29,12 +21,13 @@ final class TokenItemComponentModel: ObservableObject, Identifiable {
     @Published var networkUnreachable: Bool = false
     @Published var hasPendingTransactions: Bool = false
 
-    var name: String {
-        tokenIcon.name
-    }
+    var name: String { tokenIcon.name }
+    var imageURL: URL? { tokenIcon.imageURL }
+    var blockchainIconName: String? { tokenIcon.blockchainIconName }
 
     private let tokenIcon: TokenIconInfo
     private let amountType: Amount.AmountType
+    private let tokenTapped: (WalletModelId) -> Void
     private unowned let infoProvider: TokenItemInfoProvider
     private unowned let priceChangeProvider: PriceChangeProvider
 
@@ -50,6 +43,7 @@ final class TokenItemComponentModel: ObservableObject, Identifiable {
         id: Int,
         tokenIcon: TokenIconInfo,
         amountType: Amount.AmountType,
+        tokenTapped: @escaping (WalletModelId) -> Void,
         infoProvider: TokenItemInfoProvider,
         priceChangeProvider: PriceChangeProvider,
         cryptoFormattingOptions: BalanceFormattingOptions
@@ -57,14 +51,16 @@ final class TokenItemComponentModel: ObservableObject, Identifiable {
         self.id = id
         self.tokenIcon = tokenIcon
         self.amountType = amountType
+        self.tokenTapped = tokenTapped
         self.infoProvider = infoProvider
         self.priceChangeProvider = priceChangeProvider
         self.cryptoFormattingOptions = cryptoFormattingOptions
 
-        imageURL = tokenIcon.imageURL
-        blockchainIconName = tokenIcon.blockchainIconName
-
         bind()
+    }
+
+    func tapAction() {
+        tokenTapped(id)
     }
 
     private func bind() {
