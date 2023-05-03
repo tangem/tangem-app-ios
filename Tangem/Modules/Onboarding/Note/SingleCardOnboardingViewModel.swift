@@ -235,59 +235,33 @@ class SingleCardOnboardingViewModel: OnboardingTopupViewModel<SingleCardOnboardi
     }
 
     private func createWallet() {
-        guard let cardModel else { return }
+        guard let cardInteractor = input.cardInteractor else { return }
 
-        AppSettings.shared.cardsStartedActivation.insert(cardModel.cardId)
-
+        AppSettings.shared.cardsStartedActivation.insert(input.cardInput.cardId)
         Analytics.log(.buttonCreateWallet)
-
         isMainButtonBusy = true
 
-        var subscription: AnyCancellable?
+        cardInteractor.prepareCard(seed: nil) { [weak self] result in
+            guard let self else { return }
 
-        subscription = Deferred {
-            Future { (promise: @escaping Future<Void, Error>.Promise) in
-                cardModel.createWallet { result in
-                    switch result {
-                    case .success:
-                        promise(.success(()))
-                    case .failure(let error):
-                        promise(.failure(error))
-                    }
+            switch result {
+            case .success(let cardInfo):
+                self.initializeUserWallet(from: cardInfo)
+                self.walletCreatedWhileOnboarding = true
+
+                Analytics.log(.walletCreatedSuccessfully, params: [.creationType: .walletCreationTypePrivateKey])
+
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                    self.goToNextStep()
+                }
+
+            case .failure(let error):
+                if !error.toTangemSdkError().isUserCancelled {
+                    AppLog.shared.error(error, params: [.action: .createWallet])
                 }
             }
+
+            self.isMainButtonBusy = false
         }
-        .receive(on: DispatchQueue.main)
-        .combineLatest(NotificationCenter.didBecomeActivePublisher)
-        .first()
-        .sink { [weak self] completion in
-            if case .failure(let error) = completion {
-                self?.isMainButtonBusy = false
-                AppLog.shared.debug("Failed to create wallet")
-                AppLog.shared.error(error)
-            }
-            subscription.map { _ = self?.bag.remove($0) }
-        } receiveValue: { [weak self] _, _ in
-            guard let self = self else { return }
-
-            Analytics.log(.walletCreatedSuccessfully, params: [.creationType: .walletCreationTypePrivateKey])
-
-            self.cardModel?.appendDefaultBlockchains()
-
-            if let userWalletId = self.cardModel?.userWalletId {
-                self.analyticsContext.updateContext(with: userWalletId)
-                Analytics.logTopUpIfNeeded(balance: 0)
-            }
-
-            self.cardModel?.userWalletModel?.updateAndReloadWalletModels()
-            self.walletCreatedWhileOnboarding = true
-
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                self.isMainButtonBusy = false
-                self.goToNextStep()
-            }
-        }
-
-        subscription?.store(in: &bag)
     }
 }
