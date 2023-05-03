@@ -457,8 +457,8 @@ extension WalletModel {
             switch roundingType {
             case .shortestFraction(let roundingMode):
                 return SignificantFractionDigitRounder(roundingMode: roundingMode).round(value: fiatValue)
-            case .default(let roundingMode):
-                return max(fiatValue, 0.01).rounded(scale: 2, roundingMode: roundingMode)
+            case .default(let roundingMode, let scale):
+                return max(fiatValue, Decimal(1) / pow(10, scale)).rounded(scale: scale, roundingMode: roundingMode)
             }
         }
         return nil
@@ -504,7 +504,7 @@ extension WalletModel {
 
     func getFiatBalance(for type: Amount.AmountType) -> String {
         let amount = wallet.amounts[type] ?? Amount(with: wallet.blockchain, type: type, value: .zero)
-        return getFiatFormatted(for: amount, roundingType: .default(roundingMode: .plain)) ?? "–"
+        return getFiatFormatted(for: amount, roundingType: .defaultFiat(roundingMode: .plain)) ?? "–"
     }
 
     func isCustom(_ amountType: Amount.AmountType) -> Bool {
@@ -570,7 +570,7 @@ extension WalletModel {
             balance: balanceViewModel.balance,
             fiatBalance: balanceViewModel.fiatBalance,
             rate: getRateFormatted(for: amountType),
-            fiatValue: getFiat(for: wallet.amounts[amountType], roundingType: .default(roundingMode: .plain)) ?? 0,
+            fiatValue: getFiat(for: wallet.amounts[amountType], roundingType: .defaultFiat(roundingMode: .plain)) ?? 0,
             blockchainNetwork: blockchainNetwork,
             amountType: amountType,
             hasTransactionInProgress: wallet.hasPendingTx(for: amountType),
@@ -588,7 +588,7 @@ extension WalletModel {
                 balance: balanceViewModel.balance,
                 fiatBalance: balanceViewModel.fiatBalance,
                 rate: getRateFormatted(for: amountType),
-                fiatValue: getFiat(for: wallet.amounts[amountType], roundingType: .default(roundingMode: .plain)) ?? 0,
+                fiatValue: getFiat(for: wallet.amounts[amountType], roundingType: .defaultFiat(roundingMode: .plain)) ?? 0,
                 blockchainNetwork: blockchainNetwork,
                 amountType: amountType,
                 hasTransactionInProgress: wallet.hasPendingTx(for: amountType),
