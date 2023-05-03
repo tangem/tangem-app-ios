@@ -204,7 +204,11 @@ extension CardSettingsViewModel {
         if cardModel.canTwin {
             prepareTwinOnboarding()
         } else {
-            coordinator.openResetCardToFactoryWarning(cardModel: cardModel)
+            let input = ResetToFactoryViewModelInput(
+                cardInteractor: cardModel.cardInteractor,
+                hasBackupCards: cardModel.hasBackupCards
+            )
+            coordinator.openResetCardToFactoryWarning(with: input)
         }
     }
 
