@@ -80,7 +80,7 @@ class SendViewModel: ObservableObject {
     }
 
     var isFiatConvertingAvailable: Bool {
-        !isSellingCrypto && walletModel.getFiat(for: amountToSend, roundingType: .default(roundingMode: .down)) != nil
+        !isSellingCrypto && walletModel.getFiat(for: amountToSend, roundingType: .defaultFiat(roundingMode: .down)) != nil
     }
 
     @Published var isNetworkFeeBlockOpen: Bool = false
@@ -132,7 +132,7 @@ class SendViewModel: ObservableObject {
 
     var walletTotalBalanceDecimals: String {
         let amount = walletModel.wallet.amounts[amountToSend.type]
-        return isFiatCalculation ? walletModel.getFiat(for: amount, roundingType: .default(roundingMode: .down))?.description ?? ""
+        return isFiatCalculation ? walletModel.getFiat(for: amount, roundingType: .defaultFiat(roundingMode: .down))?.description ?? ""
             : amount?.value.description ?? ""
     }
 
@@ -200,7 +200,7 @@ class SendViewModel: ObservableObject {
 
     private func getDescription(for amount: Amount?) -> String {
         if isFiatCalculation {
-            return walletModel.getFiatFormatted(for: amount, roundingType: .default(roundingMode: .down)) ?? ""
+            return walletModel.getFiatFormatted(for: amount, roundingType: .defaultFiat(roundingMode: .down)) ?? ""
         }
 
         return amount?.description ?? ""
@@ -280,7 +280,7 @@ class SendViewModel: ObservableObject {
 
                 let currencyId = self.walletModel.currencyId(for: self.amountToSend.type)
 
-                if let converted = value ? self.walletModel.getFiat(for: decimals, currencyId: currencyId, roundingType: .default(roundingMode: .down))
+                if let converted = value ? self.walletModel.getFiat(for: decimals, currencyId: currencyId, roundingType: .defaultFiat(roundingMode: .down))
                     : self.walletModel.getCrypto(for: Amount(with: self.amountToSend, value: decimals)) {
                     self.amountText = converted.description
                 } else {
@@ -567,7 +567,7 @@ class SendViewModel: ObservableObject {
 
                 let newAmountValue: Decimal?
                 if self.isFiatCalculation {
-                    newAmountValue = self.walletModel.getFiat(for: newAmount, roundingType: .default(roundingMode: .down))
+                    newAmountValue = self.walletModel.getFiat(for: newAmount, roundingType: .defaultFiat(roundingMode: .down))
                 } else {
                     newAmountValue = newAmount.value
                 }
@@ -743,7 +743,7 @@ private extension SendViewModel {
         )
 
         if isFiatCalculation {
-            sendAmount = walletModel.getFiatFormatted(for: transaction.amount, roundingType: .default(roundingMode: .plain)) ?? ""
+            sendAmount = walletModel.getFiatFormatted(for: transaction.amount, roundingType: .defaultFiat(roundingMode: .plain)) ?? ""
             sendTotal = totalInFiatFormatted.total
 
             if transaction.amount.type == transaction.fee.amount.type {
@@ -793,7 +793,7 @@ private extension SendViewModel {
         let formatted: String
 
         if isFiatCalculation {
-            formatted = walletModel.getFiatFormatted(for: amount, roundingType: .default(roundingMode: .plain)) ?? ""
+            formatted = walletModel.getFiatFormatted(for: amount, roundingType: .defaultFiat(roundingMode: .plain)) ?? ""
         } else {
             formatted = amount.description
         }
