@@ -148,8 +148,7 @@ class FakeTokenItemInfoProvider: TokenItemInfoProvider, PriceChangeProvider, Obs
 
     private func makeId(for amount: Amount) -> Int {
         var hasher = Hasher()
-        let type = amount.type
-        hasher.combine(type)
+        hasher.combine(amount.type)
         hasher.combine(amount.currencySymbol)
         return hasher.finalize()
     }
