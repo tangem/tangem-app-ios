@@ -39,8 +39,8 @@ extension GenericConfig: UserWalletConfig {
         "Wallet"
     }
 
-    var defaultCurve: EllipticCurve? {
-        return nil
+    var mandatoryCurves: [EllipticCurve] {
+        [.secp256k1, .ed25519]
     }
 
     var canSkipBackup: Bool {
