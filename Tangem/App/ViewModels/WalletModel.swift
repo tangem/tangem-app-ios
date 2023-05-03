@@ -435,18 +435,18 @@ extension WalletModel {
         return Localization.addressQrCodeMessageFormat(currencyName, symbol, wallet.blockchain.displayName)
     }
 
-    func getFiatFormatted(for amount: Amount?, roundingType: AmountRoundingType) -> String? {
+    func getFiatFormatted(for amount: Amount?, roundingType: FiatAmountRoundingType) -> String? {
         return getFiat(for: amount, roundingType: roundingType)?.currencyFormatted(code: AppSettings.shared.selectedCurrencyCode)
     }
 
-    func getFiat(for amount: Amount?, roundingType: AmountRoundingType) -> Decimal? {
+    func getFiat(for amount: Amount?, roundingType: FiatAmountRoundingType) -> Decimal? {
         if let amount = amount {
             return getFiat(for: amount.value, currencyId: currencyId(for: amount.type), roundingType: roundingType)
         }
         return nil
     }
 
-    func getFiat(for value: Decimal, currencyId: String?, roundingType: AmountRoundingType) -> Decimal? {
+    func getFiat(for value: Decimal, currencyId: String?, roundingType: FiatAmountRoundingType) -> Decimal? {
         if let currencyId = currencyId,
            let rate = rates[currencyId] {
             let fiatValue = value * rate
@@ -457,8 +457,8 @@ extension WalletModel {
             switch roundingType {
             case .shortestFraction(let roundingMode):
                 return SignificantFractionDigitRounder(roundingMode: roundingMode).round(value: fiatValue)
-            case .default(let roundingMode):
-                return max(fiatValue, 0.01).rounded(scale: 2, roundingMode: roundingMode)
+            case .default(let roundingMode, let scale):
+                return max(fiatValue, Decimal(1) / pow(10, scale)).rounded(scale: scale, roundingMode: roundingMode)
             }
         }
         return nil
