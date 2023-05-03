@@ -11,7 +11,7 @@ import Foundation
 protocol CardSettingsRoutable: AnyObject {
     func openOnboarding(with input: OnboardingInput, hasOtherCards: Bool)
     func openSecurityMode(cardModel: CardViewModel)
-    func openResetCardToFactoryWarning(cardModel: CardViewModel)
+    func openResetCardToFactoryWarning(with input: ResetToFactoryViewModelInput)
     func openAccessCodeRecoverySettings(using provider: AccessCodeRecoverySettingsProvider)
     func dismiss()
     func popToRoot()
