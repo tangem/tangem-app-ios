@@ -12,6 +12,7 @@ import TangemSdk
 
 class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable> {
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
+    @Injected(\.analyticsContext) var analyticsContext: AnalyticsContext
 
     let navbarSize: CGSize = .init(width: UIScreen.main.bounds.width, height: 44)
     let resetAnimDuration: Double = 0.3
@@ -154,7 +155,13 @@ class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable>
         let config = UserWalletConfigFactory(cardInfo).makeConfig()
         let userWallet = CardViewModel(cardInfo: cardInfo, config: config)
         userWallet.appendDefaultBlockchains()
-        userWallet.userWalletModel?.updateAndReloadWalletModels()
+        userWallet.userWalletModel?.initialUpdate()
+
+        if let userWalletId = self.cardModel?.userWalletId {
+            self.analyticsContext.updateContext(with: userWalletId)
+            Analytics.logTopUpIfNeeded(balance: 0)
+        }
+
         cardModel = userWallet
     }
 

@@ -44,12 +44,20 @@ class OnboardingInputFactory {
             return nil
         }
 
+        let tangemSdk = sdkFactory.makeTangemSdk()
+        var cardInteractor: CardInteractor?
+
+        if case .cardInfo(let info) = cardInput {
+            cardInteractor = .init(tangemSdk: tangemSdk, cardInfo: info)
+        }
+
         return .init(
-            tangemSdk: sdkFactory.makeTangemSdk(),
             backupService: backupService,
+            cardInteractor: cardInteractor,
             steps: steps,
             cardInput: cardInput,
-            twinData: twinData
+            twinData: twinData,
+            stepsBuilder: stepsBuilder // for saltpay
         )
     }
 
@@ -66,8 +74,8 @@ class OnboardingInputFactory {
         }
 
         return .init(
-            tangemSdk: sdkFactory.makeTangemSdk(),
             backupService: backupService,
+            cardInteractor: nil,
             steps: steps,
             cardInput: cardInput,
             twinData: nil,
@@ -96,8 +104,8 @@ class TwinInputFactory {
 
     func makeTwinInput() -> OnboardingInput {
         return .init(
-            tangemSdk: sdkFactory.makeTangemSdk(),
             backupService: sdkFactory.makeBackupService(),
+            cardInteractor: nil,
             steps: .twins(TwinsOnboardingStep.twinningSteps),
             cardInput: cardInput,
             twinData: twinData,
@@ -120,8 +128,8 @@ class ResumeBackupInputFactory {
 
     func makeBackupInput() -> OnboardingInput {
         return .init(
-            tangemSdk: tangemSdkFactory.makeTangemSdk(),
             backupService: backupServiceFactory.makeBackupService(),
+            cardInteractor: nil,
             steps: .wallet(WalletOnboardingStep.resumeBackupSteps),
             cardInput: .cardId(cardId),
             twinData: nil,
