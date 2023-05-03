@@ -562,11 +562,11 @@ extension WalletModel {
         }
     }
 
-    func blockchainTokenItemViewModel() -> TokenItemViewModel {
+    func blockchainTokenItemViewModel() -> LegacyTokenItemViewModel {
         let amountType = Amount.AmountType.coin
         let balanceViewModel = balanceViewModel()
 
-        return TokenItemViewModel(
+        return LegacyTokenItemViewModel(
             state: state,
             name: balanceViewModel.name,
             balance: balanceViewModel.balance,
@@ -580,11 +580,11 @@ extension WalletModel {
         )
     }
 
-    func allTokenItemViewModels() -> [TokenItemViewModel] {
+    func allTokenItemViewModels() -> [LegacyTokenItemViewModel] {
         let tokenViewModels = tokenBalanceViewModels().map { balanceViewModel in
             let amountType = Amount.AmountType.token(value: balanceViewModel.token)
 
-            return TokenItemViewModel(
+            return LegacyTokenItemViewModel(
                 state: state,
                 name: balanceViewModel.name,
                 balance: balanceViewModel.balance,
