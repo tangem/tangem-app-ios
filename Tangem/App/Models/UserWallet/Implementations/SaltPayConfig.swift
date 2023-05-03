@@ -48,8 +48,8 @@ extension SaltPayConfig: UserWalletConfig {
         "SaltPay"
     }
 
-    var defaultCurve: EllipticCurve? {
-        defaultBlockchain.curve
+    var mandatoryCurves: [EllipticCurve] {
+        [defaultBlockchain.curve]
     }
 
     var canSkipBackup: Bool {
