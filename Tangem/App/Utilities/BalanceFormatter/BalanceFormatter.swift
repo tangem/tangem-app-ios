@@ -9,9 +9,13 @@
 import Foundation
 
 struct BalanceFormatter {
-    @Injected(\.ratesProvider) var ratesProvider: RatesProvider
-
-    func string(for value: Decimal, formattingOptions: BalanceFormattingOptions) -> String {
+    /// Format crypto balance using `BalanceFormattingOptions`
+    /// - Note: Balance will be rounded using `roundingType` from `formattingOptions`
+    /// - Parameters:
+    ///   - value: Balance that should be rounded and formated
+    ///   - formattingOptions: Options for number formatter and rounding
+    /// - Returns: Formatted balance string
+    func formatCryptoBalance(_ value: Decimal, formattingOptions: BalanceFormattingOptions) -> String {
         let symbol = formattingOptions.currencyCode
         let formatter = NumberFormatter()
         formatter.locale = Locale.current
@@ -26,9 +30,13 @@ struct BalanceFormatter {
         return formatter.string(from: valueToFormat as NSDecimalNumber) ?? "\(valueToFormat) \(symbol)"
     }
 
-    func convertToFiat(value: Decimal, from cryptoCurrencyCode: String, formattingOptions: BalanceFormattingOptions) async throws -> String {
-        let rate = try await ratesProvider.rate(crypto: cryptoCurrencyCode, fiat: formattingOptions.currencyCode)
-        let fiatValue = value * rate
+    /// Format fiat balance using `BalanceFormattingOptions`
+    /// - Note: Balance will be rounded using `roundingType` from `formattingOptions`
+    /// - Parameters:
+    ///   - value: Balance that should be rounded and formated
+    ///   - formattingOptions: Options for number formatter and rounding
+    /// - Returns: Formatted balance string
+    func formatFiatBalance(_ value: Decimal, formattingOptions: BalanceFormattingOptions) -> String {
         let code = formattingOptions.currencyCode
         let formatter = NumberFormatter()
         formatter.locale = Locale.current
@@ -42,7 +50,7 @@ struct BalanceFormatter {
             formatter.currencySymbol = "₽"
         }
 
-        let valueToFormat = roundDecimal(fiatValue, with: formattingOptions.roundingType)
+        let valueToFormat = roundDecimal(value, with: formattingOptions.roundingType)
         return formatter.string(from: valueToFormat as NSDecimalNumber) ?? "\(valueToFormat) \(code)"
     }
 
