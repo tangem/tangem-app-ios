@@ -122,7 +122,7 @@ final class TokenItemViewModel: ObservableObject, Identifiable {
     private func updateBalances() {
         let formatter = BalanceFormatter()
         let balance = infoProvider.balance(for: amountType)
-        let formattedBalance = formatter.string(for: balance, formattingOptions: cryptoFormattingOptions)
+        let formattedBalance = formatter.formatCryptoBalance(balance, formattingOptions: cryptoFormattingOptions)
         balanceCrypto = .loaded(text: formattedBalance)
 
         balanceUpdateTask?.cancel()
@@ -131,11 +131,12 @@ final class TokenItemViewModel: ObservableObject, Identifiable {
 
             let formattedFiat: String
             do {
-                formattedFiat = try await formatter.convertToFiat(
+                let fiatBalance = try await BalanceConverter().convertToFiat(
                     value: balance,
                     from: cryptoFormattingOptions.currencyCode,
-                    formattingOptions: self.fiatFormattingOptions
+                    to: self.fiatFormattingOptions.currencyCode
                 )
+                formattedFiat = formatter.formatFiatBalance(fiatBalance, formattingOptions: self.fiatFormattingOptions)
             } catch {
                 formattedFiat = "-"
             }
