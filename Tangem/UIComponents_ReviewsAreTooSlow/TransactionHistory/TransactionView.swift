@@ -107,5 +107,6 @@ struct TransactionView_Previews: PreviewProvider {
             TransactionView(transactionRecord: outgoingInProgressRecord)
             TransactionView(transactionRecord: outgoingConfirmedRecord)
         }
+        .padding()
     }
 }
