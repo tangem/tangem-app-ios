@@ -87,7 +87,6 @@ public enum IPhoneModel {
         case "iPhone15,2": self = .iPhone14Pro
         case "iPhone15,3": self = .iPhone14ProMax
         default:
-            assertionFailure("IPhoneModel doesn't contains a model with identifier: \(identifier)")
             return nil
         }
     }
