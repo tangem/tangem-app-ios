@@ -22,13 +22,11 @@ struct SwappingPermissionView: View {
             infoButton
         }
         .background(Colors.Background.secondary)
-        .alert(item: $viewModel.errorAlert, content: { $0.alert })
+        .alert(item: $viewModel.errorAlert) { $0.alert }
     }
 
     private var infoButton: some View {
-        Button(action: {
-            viewModel.didTapInfoButton()
-        }) {
+        Button(action: viewModel.didTapInfoButton) {
             Assets.infoIconMini.image
                 .padding(.trailing, 16)
         }
@@ -37,6 +35,8 @@ struct SwappingPermissionView: View {
     private var mainContent: some View {
         VStack(spacing: 16) {
             headerView
+
+//            legacyContent
 
             content
 
@@ -58,12 +58,30 @@ struct SwappingPermissionView: View {
         }
     }
 
-    private var content: some View {
+    private var legacyContent: some View {
         GroupedSection(viewModel.contentRowViewModels) {
             DefaultRowView(viewModel: $0)
                 .truncationMode(.middle)
         }
         .padding(.horizontal, 16)
+    }
+
+    private var content: some View {
+        VStack(spacing: 0) {
+            GroupedSection(viewModel.menuRowViewModel) {
+                DefaultMenuRowView(viewModel: $0, selection: $viewModel.selectedAction)
+            } footer: {
+                DefaultFooterView("Before scanning the card you will need to enter the correct access code.")
+            }
+            .padding(.horizontal, 16)
+
+            GroupedSection(viewModel.feeRowViewModel) {
+                DefaultRowView(viewModel: $0)
+            } footer: {
+                DefaultFooterView("Before scanning the card you will need to enter the correct access code.")
+            }
+            .padding(.horizontal, 16)
+        }
     }
 
     private var buttons: some View {
