@@ -18,5 +18,6 @@ struct DefaultFooterView: View {
     var body: some View {
         Text(title)
             .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
+            .fixedSize(horizontal: false, vertical: true)
     }
 }
