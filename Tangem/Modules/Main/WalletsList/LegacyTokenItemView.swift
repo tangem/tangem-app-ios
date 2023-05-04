@@ -1,5 +1,5 @@
 //
-//  TokenItemView.swift
+//  LegacyTokenItemView.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -8,8 +8,8 @@
 
 import SwiftUI
 
-struct TokenItemView: View {
-    let item: TokenItemViewModel
+struct LegacyTokenItemView: View {
+    let item: LegacyTokenItemViewModel
 
     private var accentColor: Color {
         if item.state.failureDescription != nil {
