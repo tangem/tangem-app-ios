@@ -1,5 +1,5 @@
 //
-//  TokenItemViewModel.swift
+//  LegacyTokenItemViewModel.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -11,7 +11,7 @@ import BlockchainSdk
 import TangemSdk
 import SwiftUI
 
-struct TokenItemViewModel: Identifiable, Hashable, Equatable, Comparable {
+struct LegacyTokenItemViewModel: Identifiable, Hashable, Equatable, Comparable {
     var id: Int { hashValue }
 
     let state: WalletModel.State
@@ -101,7 +101,7 @@ struct TokenItemViewModel: Identifiable, Hashable, Equatable, Comparable {
         state.isLoading
     }
 
-    static func < (lhs: TokenItemViewModel, rhs: TokenItemViewModel) -> Bool {
+    static func < (lhs: LegacyTokenItemViewModel, rhs: LegacyTokenItemViewModel) -> Bool {
         if lhs.fiatValue == 0, rhs.fiatValue == 0 {
             return lhs.name < rhs.name
         }
@@ -109,13 +109,13 @@ struct TokenItemViewModel: Identifiable, Hashable, Equatable, Comparable {
         return lhs.fiatValue > rhs.fiatValue
     }
 
-    static func == (lhs: TokenItemViewModel, rhs: TokenItemViewModel) -> Bool {
+    static func == (lhs: LegacyTokenItemViewModel, rhs: LegacyTokenItemViewModel) -> Bool {
         lhs.id == rhs.id
     }
 }
 
-extension TokenItemViewModel {
-    static let `default` = TokenItemViewModel(
+extension LegacyTokenItemViewModel {
+    static let `default` = LegacyTokenItemViewModel(
         state: .created,
         blockchainNetwork: .init(.bitcoin(testnet: false)),
         amountType: .coin,
