@@ -42,7 +42,8 @@ extension OneInchSwappingProvider: SwappingProvider {
 
         switch allowanceResult {
         case .success(let allowanceInfo):
-            return Decimal(string: allowanceInfo.allowance) ?? 0
+            let allowance = Decimal(string: allowanceInfo.allowance) ?? 0
+            return currency.convertFromWEI(value: allowance)
         case .failure(let error):
             throw error
         }
