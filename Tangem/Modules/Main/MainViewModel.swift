@@ -593,7 +593,7 @@ extension MainViewModel: MultiWalletContentViewModelOutput {
         coordinator.openTokensList(with: cardModel)
     }
 
-    func openTokenDetails(_ tokenItem: TokenItemViewModel) {
+    func openTokenDetails(_ tokenItem: LegacyTokenItemViewModel) {
         coordinator.openTokenDetails(
             cardModel: cardModel,
             blockchainNetwork: tokenItem.blockchainNetwork,
