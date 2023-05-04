@@ -10,5 +10,9 @@ import Foundation
 
 enum AmountRoundingType {
     case shortestFraction(roundingMode: NSDecimalNumber.RoundingMode)
-    case `default`(roundingMode: NSDecimalNumber.RoundingMode, scale: Int = 2)
+    case `default`(roundingMode: NSDecimalNumber.RoundingMode, scale: Int)
+
+    static func defaultFiat(roundingMode: NSDecimalNumber.RoundingMode) -> AmountRoundingType {
+        .default(roundingMode: roundingMode, scale: 2)
+    }
 }
