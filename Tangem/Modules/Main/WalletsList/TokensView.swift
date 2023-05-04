@@ -10,9 +10,9 @@ import SwiftUI
 import BlockchainSdk
 
 struct TokensView: View {
-    var items: [TokenItemViewModel]
+    var items: [LegacyTokenItemViewModel]
 
-    var action: (TokenItemViewModel) -> Void
+    var action: (LegacyTokenItemViewModel) -> Void
 
     var body: some View {
         if items.isEmpty {
@@ -30,7 +30,7 @@ struct TokensView: View {
                     Button {
                         action(item)
                     } label: {
-                        TokenItemView(item: item)
+                        LegacyTokenItemView(item: item)
                             .padding(.horizontal, 16)
                             .padding(.vertical, 15)
                             .contentShape(Rectangle())
@@ -55,7 +55,7 @@ struct TokensView_Previews: PreviewProvider {
         ZStack {
             Color.tangemBgGray
             TokensView(items: [
-                TokenItemViewModel(
+                LegacyTokenItemViewModel(
                     state: .idle,
                     name: "Ethereum ",
                     balance: "0.00000348501 BTC",
@@ -67,7 +67,7 @@ struct TokensView_Previews: PreviewProvider {
                     hasTransactionInProgress: false,
                     isCustom: false
                 ),
-                TokenItemViewModel(
+                LegacyTokenItemViewModel(
                     state: .idle,
                     name: "Ethereum ",
                     balance: "0.00000348501 BTC",
@@ -79,7 +79,7 @@ struct TokensView_Previews: PreviewProvider {
                     hasTransactionInProgress: false,
                     isCustom: true
                 ),
-                TokenItemViewModel(
+                LegacyTokenItemViewModel(
                     state: .loading,
                     name: "Ethereum smart contract token",
                     balance: "0.00000348573986753845001 BTC",
@@ -91,7 +91,7 @@ struct TokensView_Previews: PreviewProvider {
                     hasTransactionInProgress: false,
                     isCustom: false
                 ),
-                TokenItemViewModel(
+                LegacyTokenItemViewModel(
                     state: .failed(error: "The internet connection appears to be offline. Very very very long error description. Very very very long error description. Very very very long error description. Very very very long error description. Very very very long error description. Very very very long error description"),
                     name: "Ethereum smart contract token",
                     balance: " ",
@@ -103,7 +103,7 @@ struct TokensView_Previews: PreviewProvider {
                     hasTransactionInProgress: false,
                     isCustom: false
                 ),
-                TokenItemViewModel(
+                LegacyTokenItemViewModel(
                     state: .idle,
                     name: "Bitcoin token",
                     balance: "10 BTCA",
