@@ -21,6 +21,7 @@ class CommonSwappingManager {
 
     private var swappingItems: SwappingItems
     private var amount: Decimal?
+    private var approvePolicy: SwappingApprovePolicy = .unlimited
     private var swappingAllowanceLimit: [Currency: Decimal] = [:]
     // Cached addresses for check approving transactions
     private var pendingTransactions: [Currency: PendingTransactionState] = [:]
@@ -90,6 +91,10 @@ extension CommonSwappingManager: SwappingManager {
 
     func update(amount: Decimal?) {
         self.amount = amount
+    }
+
+    func update(approvePolicy: SwappingApprovePolicy) {
+        self.approvePolicy = approvePolicy
     }
 
     func refreshBalances() async -> SwappingItems {
@@ -215,7 +220,10 @@ private extension CommonSwappingManager {
     }
 
     func getSwappingApprovedDataModel() async throws -> SwappingApprovedDataModel {
-        try await swappingProvider.fetchApproveSwappingData(for: swappingItems.source)
+        try await swappingProvider.fetchApproveSwappingData(
+            for: swappingItems.source,
+            approvePolicy: approvePolicy
+        )
     }
 
     func getSwappingTxDataModel() async throws -> SwappingDataModel {
