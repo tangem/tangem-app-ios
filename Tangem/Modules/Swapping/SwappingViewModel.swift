@@ -8,8 +8,8 @@
 
 import Combine
 import TangemSwapping
-import TangemSdk
-import SwiftUI
+import UIKit
+import enum TangemSdk.TangemSdkError
 
 final class SwappingViewModel: ObservableObject {
     // MARK: - ViewState
@@ -52,7 +52,7 @@ final class SwappingViewModel: ObservableObject {
     // MARK: - Dependencies
 
     private let initialSourceCurrency: Currency
-    private let swappingManager: SwappingManager
+    private let swappingInteractor: SwappingInteractor
     private let swappingDestinationService: SwappingDestinationServicing
     private let tokenIconURLBuilder: TokenIconURLBuilding
     private let transactionSender: SwappingTransactionSender
@@ -60,22 +60,18 @@ final class SwappingViewModel: ObservableObject {
     private let userWalletModel: UserWalletModel
     private let currencyMapper: CurrencyMapping
     private let blockchainNetwork: BlockchainNetwork
-
     private unowned let coordinator: SwappingRoutable
 
     // MARK: - Private
 
-    private lazy var refreshDataTimer = Timer.publish(every: 1, on: .main, in: .common)
-    // [REDACTED_TODO_COMMENT]
-    private var pendingValidatingAmount: Decimal?
+    private lazy var refreshDataTimer = Timer.publish(every: 10, on: .main, in: .common)
     private var refreshDataTimerBag: AnyCancellable?
     private var bag: Set<AnyCancellable> = []
-
     private var workingTasks: Set<Task<Void, Error>> = []
 
     init(
         initialSourceCurrency: Currency,
-        swappingManager: SwappingManager,
+        swappingInteractor: SwappingInteractor,
         swappingDestinationService: SwappingDestinationServicing,
         tokenIconURLBuilder: TokenIconURLBuilding,
         transactionSender: SwappingTransactionSender,
@@ -83,10 +79,11 @@ final class SwappingViewModel: ObservableObject {
         userWalletModel: UserWalletModel,
         currencyMapper: CurrencyMapping,
         blockchainNetwork: BlockchainNetwork,
+
         coordinator: SwappingRoutable
     ) {
         self.initialSourceCurrency = initialSourceCurrency
-        self.swappingManager = swappingManager
+        self.swappingInteractor = swappingInteractor
         self.swappingDestinationService = swappingDestinationService
         self.tokenIconURLBuilder = tokenIconURLBuilder
         self.transactionSender = transactionSender
@@ -99,7 +96,6 @@ final class SwappingViewModel: ObservableObject {
         Analytics.log(event: .swapScreenOpenedSwap, params: [.token: initialSourceCurrency.symbol])
         setupView()
         bind()
-        swappingManager.setDelegate(self)
         loadDestinationIfNeeded()
     }
 
@@ -108,12 +104,14 @@ final class SwappingViewModel: ObservableObject {
     }
 
     func userDidTapMaxAmount() {
-        let sourceBalance = swappingManager.getSwappingItems().sourceBalance
-        setupExternalSendValue(sourceBalance)
+        let sourceBalance = swappingInteractor.getSwappingItems().sourceBalance
+        sendDecimalValue = .external(sourceBalance)
+        updateSendFiatValue(amount: sourceBalance)
+        swappingInteractor.update(amount: sourceBalance)
     }
 
     func userDidRequestChangeDestination(to currency: Currency) {
-        var items = swappingManager.getSwappingItems()
+        var items = swappingInteractor.getSwappingItems()
 
         if items.source == initialSourceCurrency {
             items.destination = currency
@@ -121,13 +119,15 @@ final class SwappingViewModel: ObservableObject {
             items.source = currency
         }
 
-        swappingManager.update(swappingItems: items)
-        swappingManager.refresh(type: .full)
+        Task { [items] in
+            await update(swappingItems: items, shouldRefresh: true)
+        }
+        .store(in: &workingTasks)
     }
 
     func userDidTapSwapSwappingItemsButton() {
         Analytics.log(.swapButtonSwipe)
-        var items = swappingManager.getSwappingItems()
+        var items = swappingInteractor.getSwappingItems()
 
         guard let destination = items.destination else {
             return
@@ -137,15 +137,21 @@ final class SwappingViewModel: ObservableObject {
 
         items.source = destination
         items.destination = source
-        swappingManager.update(swappingItems: items)
 
-        // If amount have been set we'll should to round and update it with new decimalCount
-        if let amount = sendDecimalValue?.value {
-            let roundedAmount = amount.rounded(scale: items.source.decimalCount, roundingMode: .down)
-            setupExternalSendValue(roundedAmount)
-
-            swappingManager.update(amount: roundedAmount)
+        Task { [items] in
+            await update(swappingItems: items, shouldRefresh: false)
         }
+        .store(in: &workingTasks)
+
+        // If we have amount then we should round and update it with new decimalCount
+        guard let amount = sendDecimalValue?.value else {
+            return
+        }
+
+        let roundedAmount = amount.rounded(scale: items.source.decimalCount, roundingMode: .down)
+        sendDecimalValue = .external(roundedAmount)
+        updateSendFiatValue(amount: roundedAmount)
+        swappingInteractor.update(amount: roundedAmount)
     }
 
     func userDidTapChangeCurrencyButton() {
@@ -173,7 +179,7 @@ final class SwappingViewModel: ObservableObject {
     }
 
     func didSendApproveTransaction(transactionData: SwappingTransactionData) {
-        swappingManager.didSendApprovingTransaction(swappingTxData: transactionData)
+        swappingInteractor.didSendApprovingTransaction(swappingTxData: transactionData)
     }
 
     func didClosePermissionSheet() {
@@ -181,12 +187,7 @@ final class SwappingViewModel: ObservableObject {
     }
 
     func didTapWaringRefresh() {
-        swappingManager.refresh(type: .full)
-    }
-
-    private func setupExternalSendValue(_ amount: Decimal) {
-        sendDecimalValue = .external(amount)
-        pendingValidatingAmount = amount
+        swappingInteractor.refresh(type: .full)
     }
 }
 
@@ -223,14 +224,14 @@ private extension SwappingViewModel {
     }
 
     func openPermissionView() {
-        let state = swappingManager.getAvailabilityState()
+        let state = swappingInteractor.getAvailabilityState()
 
         guard case .available(let result, let data) = state,
               result.isPermissionRequired,
               let fiatFee = fiatRatesProvider.getSyncFiat(for: data.sourceBlockchain, amount: data.fee) else {
             // If we don't have enough data disable button and refresh()
             mainButtonIsEnabled = false
-            swappingManager.refresh(type: .full)
+            swappingInteractor.refresh(type: .full)
 
             return
         }
@@ -239,22 +240,6 @@ private extension SwappingViewModel {
 
         stopTimer()
         coordinator.presentPermissionView(inputModel: inputModel, transactionSender: transactionSender)
-    }
-}
-
-// MARK: - SwappingManagerDelegate
-
-extension SwappingViewModel: SwappingManagerDelegate {
-    func swappingManager(_ manager: SwappingManager, didUpdate swappingItems: SwappingItems) {
-        DispatchQueue.main.async {
-            self.updateView(swappingItems: swappingItems)
-        }
-    }
-
-    func swappingManager(_ manager: SwappingManager, didUpdate availabilityState: SwappingAvailabilityState) {
-        DispatchQueue.main.async {
-            self.updateState(state: availabilityState)
-        }
     }
 }
 
@@ -285,22 +270,22 @@ private extension SwappingViewModel {
             tokenIcon: mapToSwappingTokenIconViewModel(currency: source)
         )
 
-        updateSendFiatValue()
+        updateSendFiatValue(amount: sendDecimalValue?.value)
     }
 
-    func updateSendFiatValue() {
-        guard let decimalValue = sendDecimalValue?.value else {
+    func updateSendFiatValue(amount: Decimal?) {
+        guard let amount = amount else {
             sendCurrencyViewModel?.update(fiatValue: .loaded(0))
             return
         }
 
-        let source = swappingManager.getSwappingItems().source
+        let source = swappingInteractor.getSwappingItems().source
         if !fiatRatesProvider.hasRates(for: source) {
             sendCurrencyViewModel?.update(fiatValue: .loading)
         }
 
         Task {
-            let fiatValue = try await fiatRatesProvider.getFiat(for: source, amount: decimalValue)
+            let fiatValue = try await fiatRatesProvider.getFiat(for: source, amount: amount)
 
             try Task.checkCancellation()
 
@@ -317,7 +302,7 @@ private extension SwappingViewModel {
         let cryptoAmountState: ReceiveCurrencyViewModel.State
         let fiatAmountState: ReceiveCurrencyViewModel.State
 
-        switch swappingManager.getAvailabilityState() {
+        switch swappingInteractor.getAvailabilityState() {
         case .idle, .requiredRefresh:
             cryptoAmountState = .loaded(0)
             fiatAmountState = .loaded(0)
@@ -397,7 +382,7 @@ private extension SwappingViewModel {
     func updateReceiveCurrencyValue(value: Decimal) {
         receiveCurrencyViewModel?.update(cryptoAmountState: .loaded(value))
 
-        guard let destination = swappingManager.getSwappingItems().destination else { return }
+        guard let destination = swappingInteractor.getSwappingItems().destination else { return }
         receiveCurrencyViewModel?.update(fiatAmountState: .loading)
 
         Task {
@@ -420,7 +405,7 @@ private extension SwappingViewModel {
         if isPermissionRequired {
             permissionInfoRowViewModel = DefaultWarningRowViewModel(
                 title: Localization.swappingGivePermission,
-                subtitle: Localization.swappingPermissionSubheader(swappingManager.getSwappingItems().source.symbol),
+                subtitle: Localization.swappingPermissionSubheader(swappingInteractor.getSwappingItems().source.symbol),
                 leftView: .icon(Assets.swappingLock)
             )
         } else {
@@ -444,7 +429,7 @@ private extension SwappingViewModel {
         if isEnoughAmountForFee {
             feeWarningRowViewModel = nil
         } else {
-            let sourceBlockchain = swappingManager.getSwappingItems().source.blockchain
+            let sourceBlockchain = swappingInteractor.getSwappingItems().source.blockchain
             feeWarningRowViewModel = DefaultWarningRowViewModel(
                 subtitle: Localization.swappingNotEnoughFundsForFee(sourceBlockchain.symbol, sourceBlockchain.symbol),
                 leftView: .icon(Assets.attention)
@@ -461,7 +446,7 @@ private extension SwappingViewModel {
                 swappingFeeRowViewModel?.update(state: .loading)
             }
         case .available(_, let info):
-            let source = swappingManager.getSwappingItems().source
+            let source = swappingInteractor.getSwappingItems().source
 
             Task {
                 let fiatFee = try await fiatRatesProvider.getFiat(for: info.sourceBlockchain, amount: info.fee)
@@ -520,17 +505,23 @@ private extension SwappingViewModel {
         }
     }
 
+    func updateRefreshWarningRowViewModel(message: String) {
+        refreshWarningRowViewModel = DefaultWarningRowViewModel(
+            subtitle: Localization.swappingErrorWrapper(message.capitalizingFirstLetter()),
+            leftView: .icon(Assets.attention),
+            rightView: .icon(Assets.refreshWarningIcon)
+        ) { [weak self] in
+            self?.didTapWaringRefresh()
+        }
+    }
+
     func checkForHighPriceImpact(destinationFiatAmount: Decimal) async throws {
-        guard
-            let sendDecimalValue = sendDecimalValue?.value,
-            pendingValidatingAmount?.isEqual(to: sendDecimalValue) ?? false
-        else {
+        guard let sendDecimalValue = sendDecimalValue?.value else {
             // Current send decimal value was changed during old update. We can ignore this check
             return
         }
 
         if sendDecimalValue.isZero {
-            pendingValidatingAmount = nil
             // No need to calculate price impact with zero input
             await runOnMain {
                 highPriceImpactWarningRowViewModel = nil
@@ -539,7 +530,7 @@ private extension SwappingViewModel {
         }
 
         let sourceFiatAmount = try await fiatRatesProvider.getFiat(
-            for: swappingManager.getSwappingItems().source,
+            for: swappingInteractor.getSwappingItems().source,
             amount: sendDecimalValue
         )
 
@@ -555,22 +546,19 @@ private extension SwappingViewModel {
             } else {
                 highPriceImpactWarningRowViewModel = nil
             }
-            pendingValidatingAmount = nil
         }
     }
 
     func setupView() {
-        updateState(state: .idle)
-        updateView(swappingItems: swappingManager.getSwappingItems())
-
+        updateView(swappingItems: swappingInteractor.getSwappingItems())
         swappingFeeRowViewModel = SwappingFeeRowViewModel(state: .idle) { [weak self] in
-            Binding<Bool> {
+            .init {
                 self?.feeInfoRowViewModel != nil
             } set: { isOpen in
                 UIApplication.shared.endEditing()
 
                 if isOpen {
-                    let percentFee = self?.swappingManager.getReferrerAccount()?.fee ?? 0
+                    let percentFee = self?.swappingInteractor.getReferrerAccountFee() ?? 0
                     let formattedFee = "\(percentFee.groupedFormatted())%"
                     self?.feeInfoRowViewModel = DefaultWarningRowViewModel(
                         subtitle: Localization.swappingTangemFeeDisclaimer(formattedFee),
@@ -586,45 +574,31 @@ private extension SwappingViewModel {
     func bind() {
         $sendDecimalValue
             .dropFirst()
-            // If value == nil anyway continue chain
+            .removeDuplicates { $0?.value == $1?.value }
+            // If value == nil then continue chain also
             .filter { $0?.isInternal ?? true }
-            .map { $0?.value }
-            .removeDuplicates()
+            .handleEvents(receiveOutput: { [weak self] amount in
+                self?.swappingInteractor.cancelRefresh()
+                self?.updateSendFiatValue(amount: amount?.value)
+                self?.stopTimer()
+            })
             .debounce(for: 1, scheduler: DispatchQueue.main)
             .sink { [weak self] amount in
-                // [REDACTED_TODO_COMMENT]
-                // Currently sendDecimalValue is updating directly from UI
-                // but requesting update in swapping manager with 1 second delay.
-                // So when all necessary information already loaded in swapping manager
-                // we will face wrong send decimal value while checking high price impact.
-                self?.pendingValidatingAmount = amount
                 self?.resetViews()
-                self?.swappingManager.update(amount: amount)
-                self?.updateSendFiatValue()
+                self?.swappingInteractor.update(amount: amount?.value)
+
+                if let amount, amount.value > 0 {
+                    self?.startTimer()
+                }
             }
             .store(in: &bag)
-    }
 
-    func loadDestinationIfNeeded() {
-        guard swappingManager.getSwappingItems().destination == nil else {
-            AppLog.shared.debug("Swapping item destination has already set")
-            return
-        }
-
-        Task {
-            var items = swappingManager.getSwappingItems()
-
-            do {
-                items.destination = try await swappingDestinationService.getDestination(source: items.source)
-                swappingManager.update(swappingItems: items)
-                swappingManager.refresh(type: .full)
-            } catch {
-                AppLog.shared.debug("Destination load handle error")
-                AppLog.shared.error(error)
-                items.destination = nil
+        swappingInteractor.state
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] state in
+                self?.updateState(state: state)
             }
-        }
-        .store(in: &workingTasks)
+            .store(in: &bag)
     }
 
     func mapToSwappingTokenIconViewModel(currency: Currency?) -> SwappingTokenIconViewModel {
@@ -650,9 +624,47 @@ private extension SwappingViewModel {
             )
         }
     }
+}
+
+// MARK: - Methods
+
+private extension SwappingViewModel {
+    func update(swappingItems: SwappingItems, shouldRefresh: Bool) async {
+        let updatedItems = await swappingInteractor.update(swappingItems: swappingItems)
+
+        await runOnMain {
+            updateView(swappingItems: updatedItems)
+        }
+
+        if shouldRefresh {
+            swappingInteractor.refresh(type: .full)
+        }
+    }
+
+    func loadDestinationIfNeeded() {
+        guard swappingInteractor.getSwappingItems().destination == nil else {
+            AppLog.shared.debug("Swapping item destination has already set")
+            return
+        }
+
+        Task {
+            var items = swappingInteractor.getSwappingItems()
+
+            do {
+                items.destination = try await swappingDestinationService.getDestination(source: items.source)
+                await update(swappingItems: items, shouldRefresh: true)
+
+            } catch {
+                AppLog.shared.debug("Destination load handle error")
+                AppLog.shared.error(error)
+                items.destination = nil
+            }
+        }
+        .store(in: &workingTasks)
+    }
 
     func swapItems() {
-        let state = swappingManager.getAvailabilityState()
+        let state = swappingInteractor.getAvailabilityState()
         guard case .available(let result, let info) = state else {
             return
         }
@@ -673,7 +685,7 @@ private extension SwappingViewModel {
                 try Task.checkCancellation()
 
                 addDestinationTokenToUserWalletList()
-                swappingManager.didSendSwapTransaction(swappingTxData: info)
+                swappingInteractor.didSendSwapTransaction(swappingTxData: info)
 
                 Analytics.log(.transactionSent, params: [.commonSource: .transactionSourceSwap])
 
@@ -715,18 +727,8 @@ private extension SwappingViewModel {
         }
     }
 
-    func updateRefreshWarningRowViewModel(message: String) {
-        refreshWarningRowViewModel = DefaultWarningRowViewModel(
-            subtitle: Localization.swappingErrorWrapper(message.capitalizingFirstLetter()),
-            leftView: .icon(Assets.attention),
-            rightView: .icon(Assets.refreshWarningIcon)
-        ) { [weak self] in
-            self?.didTapWaringRefresh()
-        }
-    }
-
     func addDestinationTokenToUserWalletList() {
-        guard let destination = swappingManager.getSwappingItems().destination,
+        guard let destination = swappingInteractor.getSwappingItems().destination,
               let token = currencyMapper.mapToToken(currency: destination) else {
             return
         }
@@ -735,9 +737,11 @@ private extension SwappingViewModel {
         userWalletModel.append(entries: [entry])
         userWalletModel.updateWalletModels()
     }
+}
 
-    // MARK: - Timer
+// MARK: - Timer
 
+private extension SwappingViewModel {
     func restartTimer() {
         stopTimer()
         startTimer()
@@ -753,17 +757,11 @@ private extension SwappingViewModel {
 
     func startTimer() {
         AppLog.shared.debug("[Swap] Start timer")
-        let timeStarted = Date().timeIntervalSince1970
         refreshDataTimerBag = refreshDataTimer
             .autoconnect()
             .sink { [weak self] date in
-                // [REDACTED_TODO_COMMENT]
-
-                let timeElapsed = (date.timeIntervalSince1970 - timeStarted).rounded()
-                if Int(timeElapsed) % 10 == 0 {
-                    AppLog.shared.debug("[Swap] Timer call autoupdate")
-                    self?.swappingManager.refresh(type: .refreshRates)
-                }
+                AppLog.shared.debug("[Swap] Timer call autoupdate")
+                self?.swappingInteractor.refresh(type: .refreshRates)
             }
     }
 }
