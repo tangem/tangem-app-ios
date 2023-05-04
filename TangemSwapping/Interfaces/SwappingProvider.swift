@@ -18,6 +18,6 @@ protocol SwappingProvider {
         referrer: SwappingReferrerAccount?
     ) async throws -> SwappingDataModel
 
-    func fetchApproveSwappingData(for currency: Currency) async throws -> SwappingApprovedDataModel
+    func fetchApproveSwappingData(for currency: Currency, approvePolicy: SwappingApprovePolicy) async throws -> SwappingApprovedDataModel
     func fetchSpenderAddress(for currency: Currency) async throws -> String
 }
