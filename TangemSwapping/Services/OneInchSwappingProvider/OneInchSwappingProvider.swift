@@ -91,12 +91,21 @@ extension OneInchSwappingProvider: SwappingProvider {
 
     // MARK: - Approve API
 
-    func fetchApproveSwappingData(for currency: Currency) async throws -> SwappingApprovedDataModel {
+    func fetchApproveSwappingData(for currency: Currency, approvePolicy: SwappingApprovePolicy) async throws -> SwappingApprovedDataModel {
         guard let contractAddress = currency.contractAddress else {
             throw Errors.noData
         }
 
-        let parameters = ApproveTransactionParameters(tokenAddress: contractAddress, amount: .infinite)
+        let parameters: ApproveTransactionParameters
+
+        switch approvePolicy {
+        case .amount(let amount):
+            let amount = currency.convertToWEI(value: amount)
+            parameters = .init(tokenAddress: contractAddress, amount: .specified(value: amount))
+        case .unlimited:
+            parameters = .init(tokenAddress: contractAddress, amount: .infinite)
+        }
+
         let txResponse = await oneInchAPIProvider.approveTransaction(
             blockchain: currency.blockchain,
             approveTransactionParameters: parameters

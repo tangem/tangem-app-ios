@@ -54,6 +54,16 @@ extension SwappingInteractor {
         refresh(type: .full)
     }
 
+    func update(approvePolicy: SwappingApprovePolicy) {
+        guard swappingManager.getSwappingItems().source.isToken else {
+            assertionFailure("Don't call this method if source currency isn't a token")
+            return
+        }
+
+        swappingManager.update(approvePolicy: approvePolicy)
+        refresh(type: .full)
+    }
+
     func refresh(type: SwappingManagerRefreshType) {
         AppLog.shared.debug("[Swap] SwappingInteractor received the request for refresh with \(type)")
 
