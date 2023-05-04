@@ -8,51 +8,46 @@
 
 import SwiftUI
 
-struct NotificationView: View {
+// MARK: - View
+
+public struct NotificationView: View {
     // MARK: - Properties
 
-    private(set) var mainIcon: ImageType
-    private(set) var title: String
-    private(set) var description: String?
-    private(set) var moreIcon: ImageType?
-
-    private(set) var tapAroundAction: (() -> Void)?
-    private(set) var tapMoreAction: (() -> Void)?
+    private(set) var viewModel: NotificationViewModel
 
     // MARK: - SetupUI
 
-    var body: some View {
+    public var body: some View {
         Button {
-            tapAroundAction?()
+            viewModel.tapAroundAction?()
         } label: {
             HStack(alignment: .center, spacing: 0) {
-                mainIcon.image
+                viewModel.input.mainIcon.image
                     .frame(width: 20, height: 20)
 
                 VStack(alignment: .leading, spacing: 2) {
-                    Text(title)
+                    Text(viewModel.input.title)
                         .font(.system(size: 15, weight: .medium))
 
-                    if let description = description {
+                    if let description = viewModel.input.description {
                         Text(description)
                             .font(.system(size: 13, weight: .regular))
                             .foregroundColor(Color.gray)
                             .foregroundColor(Color.tangemTextGray)
                     }
                 }
-                .fixedSize(horizontal: false, vertical: true)
                 .padding(.leading, 10)
 
                 Spacer()
 
-                if let moreIcon = moreIcon {
+                if let moreIcon = viewModel.input.moreIcon {
                     Button {
-                        tapMoreAction?()
+                        viewModel.tapMoreAction?()
                     } label: {
                         moreIcon.image
                             .frame(width: 20, height: 20)
                     }
-                    .disabled(tapMoreAction == nil)
+                    .disabled(viewModel.tapMoreAction == nil)
                     .buttonStyle(PlainButtonStyle())
                 }
             }
@@ -66,21 +61,36 @@ struct NotificationView: View {
     }
 }
 
+// MARK: - ViewModel
+
+public struct NotificationViewModel: Identifiable {
+    public struct Input {
+        private(set) var mainIcon: ImageType
+        private(set) var title: String
+        private(set) var description: String?
+        private(set) var moreIcon: ImageType?
+    }
+
+    public let id = UUID()
+
+    private(set) var input: Input
+    private(set) var tapAroundAction: (() -> Void)?
+    private(set) var tapMoreAction: (() -> Void)?
+}
+
 // MARK: - Previews
 
 struct NotificationView_Previews: PreviewProvider {
     static var previews: some View {
         NotificationView(
-            mainIcon: Assets.attention,
-            title: "NotificationView title",
-            description: "NotificationView description",
-            moreIcon: Assets.search,
-            tapAroundAction: {
-                print("tapAroundAction")
-            },
-            tapMoreAction: {
-                print("tapMoreAction")
-            }
+            viewModel: .init(
+                input: .init(
+                    mainIcon: Assets.attention,
+                    title: "NotificationView title",
+                    description: "NotificationView description",
+                    moreIcon: Assets.search
+                )
+            )
         )
         .padding(.horizontal, 0)
     }
