@@ -10,13 +10,14 @@ import Foundation
 import TangemSwapping
 
 struct SwappingManagerMock: SwappingManager {
-    func setDelegate(_ delegate: TangemSwapping.SwappingManagerDelegate) {}
+    func getAmount() -> Decimal? { 0.1 }
+
+    func refreshBalances() async -> SwappingItems { getSwappingItems() }
+    func refresh(type: TangemSwapping.SwappingManagerRefreshType) async -> TangemSwapping.SwappingAvailabilityState { .idle }
 
     func getSwappingItems() -> TangemSwapping.SwappingItems {
         SwappingItems(source: .mock, destination: .mock)
     }
-
-    func getAvailabilityState() -> SwappingAvailabilityState { .idle }
 
     func getReferrerAccount() -> SwappingReferrerAccount? { nil }
 
@@ -26,8 +27,5 @@ struct SwappingManagerMock: SwappingManager {
 
     func isEnoughAllowance() -> Bool { true }
 
-    func refresh(type: SwappingManagerRefreshType) {}
-
     func didSendApprovingTransaction(swappingTxData: SwappingTransactionData) {}
-    func didSendSwapTransaction(swappingTxData: SwappingTransactionData) {}
 }
