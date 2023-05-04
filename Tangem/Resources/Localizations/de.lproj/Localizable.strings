@@ -185,7 +185,7 @@
 "onboarding_button_backup_origin" = "Scan the primary card";
 "onboarding_button_claim" = "Claim";
 "onboarding_button_continue_wallet" = "Continue to my wallet";
-"onboarding_button_finalize_backup" = "Finalize the backup process";
+"onboarding_button_finalize_backup" = "Finalize the backup";
 "onboarding_button_kyc_start" = "Verify via Utorg";
 "onboarding_button_kyc_waiting" = "Refresh";
 "onboarding_button_pin" = "Set PIN code";
