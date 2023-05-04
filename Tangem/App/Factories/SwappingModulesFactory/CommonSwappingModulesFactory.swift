@@ -20,7 +20,6 @@ class CommonSwappingModulesFactory {
     private let source: Currency
     private let destination: Currency?
 
-    // [REDACTED_TODO_COMMENT]
     private lazy var swappingInteractor = makeSwappingInteractor(source: source, destination: destination)
 
     init(inputModel: InputModel) {
@@ -46,9 +45,6 @@ extension CommonSwappingModulesFactory: SwappingModulesFactory {
             tokenIconURLBuilder: tokenIconURLBuilder,
             transactionSender: transactionSender,
             fiatRatesProvider: fiatRatesProvider,
-            userWalletModel: userWalletModel,
-            currencyMapper: currencyMapper,
-            blockchainNetwork: walletModel.blockchainNetwork,
             coordinator: coordinator
         )
     }
@@ -137,7 +133,12 @@ private extension CommonSwappingModulesFactory {
 
     func makeSwappingInteractor(source: Currency, destination: Currency?) -> SwappingInteractor {
         let swappingManager = makeSwappingManager(source: source, destination: destination)
-        return SwappingInteractor(swappingManager: swappingManager)
+        return SwappingInteractor(
+            swappingManager: swappingManager,
+            userWalletModel: userWalletModel,
+            currencyMapper: currencyMapper,
+            blockchainNetwork: walletModel.blockchainNetwork
+        )
     }
 
     func makeSwappingManager(source: Currency, destination: Currency?) -> SwappingManager {
