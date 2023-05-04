@@ -23,5 +23,5 @@ public protocol SwappingManager {
     func refresh(type: SwappingManagerRefreshType) async -> SwappingAvailabilityState
 
     /// Call it to save transaction in pending list
-    func didSendApprovingTransaction(swappingTxData: SwappingTransactionData)
+    func didSendApproveTransaction(swappingTxData: SwappingTransactionData)
 }
