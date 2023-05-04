@@ -20,7 +20,7 @@ struct SensitiveInformationModifier: ViewModifier {
     }
 }
 
-extension Text {
+extension View {
     @ViewBuilder
     func showSensitiveInformation(_ showSensitiveInformation: Bool) -> some View {
         modifier(
@@ -43,7 +43,7 @@ fileprivate struct SensitiveInformationTestView: View {
             HStack {
                 Text("$1 000 000,00")
                     .showSensitiveInformation(showBalance)
-                    .font(.system(.largeTitle))
+                    .style(Fonts.Bold.largeTitle, color: Colors.Text.primary1)
                     .border(Color.red)
 
                 Spacer()
@@ -55,8 +55,11 @@ fileprivate struct SensitiveInformationTestView: View {
 
 struct SensitiveInformation_Previews: PreviewProvider {
     static var previews: some View {
-        SensitiveInformationTestView()
-            .padding()
-            .previewLayout(.fixed(width: 300, height: 200))
+        ForEach(ColorScheme.allCases, id: \.self) {
+            SensitiveInformationTestView()
+                .padding()
+                .previewLayout(.fixed(width: 300, height: 200))
+                .preferredColorScheme($0)
+        }
     }
 }
