@@ -45,6 +45,8 @@ class PreparePrimaryCardTask: CardSessionRunnable {
             sdkConfig.defaultDerivationPaths = derivations
             session.updateConfig(with: sdkConfig)
         }
+
+        createMultiWallet(in: session, completion: completion)
     }
 
     private func createMultiWallet(in session: CardSession, completion: @escaping CompletionResult<PreparePrimaryCardTaskResponse>) {
