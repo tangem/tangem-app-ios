@@ -106,7 +106,7 @@ extension CommonSwappingManager: SwappingManager {
         return await refreshValues(refreshType: type)
     }
 
-    func didSendApprovingTransaction(swappingTxData: SwappingTransactionData) {
+    func didSendApproveTransaction(swappingTxData: SwappingTransactionData) {
         pendingTransactions[swappingTxData.sourceCurrency] = .pending(destination: swappingTxData.destinationAddress)
         swappingAllowanceLimit[swappingTxData.sourceCurrency] = nil
     }
