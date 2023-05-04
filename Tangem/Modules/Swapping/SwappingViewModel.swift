@@ -57,9 +57,6 @@ final class SwappingViewModel: ObservableObject {
     private let tokenIconURLBuilder: TokenIconURLBuilding
     private let transactionSender: SwappingTransactionSender
     private let fiatRatesProvider: FiatRatesProviding
-    private let userWalletModel: UserWalletModel
-    private let currencyMapper: CurrencyMapping
-    private let blockchainNetwork: BlockchainNetwork
     private unowned let coordinator: SwappingRoutable
 
     // MARK: - Private
@@ -76,10 +73,6 @@ final class SwappingViewModel: ObservableObject {
         tokenIconURLBuilder: TokenIconURLBuilding,
         transactionSender: SwappingTransactionSender,
         fiatRatesProvider: FiatRatesProviding,
-        userWalletModel: UserWalletModel,
-        currencyMapper: CurrencyMapping,
-        blockchainNetwork: BlockchainNetwork,
-
         coordinator: SwappingRoutable
     ) {
         self.initialSourceCurrency = initialSourceCurrency
@@ -88,9 +81,6 @@ final class SwappingViewModel: ObservableObject {
         self.tokenIconURLBuilder = tokenIconURLBuilder
         self.transactionSender = transactionSender
         self.fiatRatesProvider = fiatRatesProvider
-        self.userWalletModel = userWalletModel
-        self.currencyMapper = currencyMapper
-        self.blockchainNetwork = blockchainNetwork
         self.coordinator = coordinator
 
         Analytics.log(event: .swapScreenOpenedSwap, params: [.token: initialSourceCurrency.symbol])
@@ -179,7 +169,7 @@ final class SwappingViewModel: ObservableObject {
     }
 
     func didSendApproveTransaction(transactionData: SwappingTransactionData) {
-        swappingInteractor.didSendApprovingTransaction(swappingTxData: transactionData)
+        swappingInteractor.didSendApproveTransaction(swappingTxData: transactionData)
     }
 
     func didClosePermissionSheet() {
@@ -550,6 +540,7 @@ private extension SwappingViewModel {
     }
 
     func setupView() {
+        updateState(state: .idle)
         updateView(swappingItems: swappingInteractor.getSwappingItems())
         swappingFeeRowViewModel = SwappingFeeRowViewModel(state: .idle) { [weak self] in
             .init {
@@ -594,6 +585,7 @@ private extension SwappingViewModel {
             .store(in: &bag)
 
         swappingInteractor.state
+            .dropFirst()
             .receive(on: DispatchQueue.main)
             .sink { [weak self] state in
                 self?.updateState(state: state)
@@ -684,9 +676,7 @@ private extension SwappingViewModel {
 
                 try Task.checkCancellation()
 
-                addDestinationTokenToUserWalletList()
                 swappingInteractor.didSendSwapTransaction(swappingTxData: info)
-
                 Analytics.log(.transactionSent, params: [.commonSource: .transactionSourceSwap])
 
                 await runOnMain {
@@ -725,17 +715,6 @@ private extension SwappingViewModel {
         default:
             updateRefreshWarningRowViewModel(message: Localization.commonError)
         }
-    }
-
-    func addDestinationTokenToUserWalletList() {
-        guard let destination = swappingInteractor.getSwappingItems().destination,
-              let token = currencyMapper.mapToToken(currency: destination) else {
-            return
-        }
-
-        let entry = StorageEntry(blockchainNetwork: blockchainNetwork, token: token)
-        userWalletModel.append(entries: [entry])
-        userWalletModel.updateWalletModels()
     }
 }
 
