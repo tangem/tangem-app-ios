@@ -29,5 +29,5 @@ struct SwappingManagerMock: SwappingManager {
     func refreshBalances() async -> SwappingItems { getSwappingItems() }
     func refresh(type: TangemSwapping.SwappingManagerRefreshType) async -> TangemSwapping.SwappingAvailabilityState { .idle }
 
-    func didSendApprovingTransaction(swappingTxData: SwappingTransactionData) {}
+    func didSendApproveTransaction(swappingTxData: SwappingTransactionData) {}
 }
