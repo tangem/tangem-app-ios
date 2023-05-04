@@ -151,14 +151,16 @@ struct SwappingView: View {
 struct SwappingView_Preview: PreviewProvider {
     static let viewModel = SwappingViewModel(
         initialSourceCurrency: .mock,
-        swappingInteractor: .init(swappingManager: SwappingManagerMock()),
+        swappingInteractor: .init(
+            swappingManager: SwappingManagerMock(),
+            userWalletModel: UserWalletModelMock(),
+            currencyMapper: CurrencyMapper(),
+            blockchainNetwork: PreviewCard.ethereum.blockchainNetwork!
+        ),
         swappingDestinationService: SwappingDestinationServiceMock(),
         tokenIconURLBuilder: TokenIconURLBuilderMock(),
         transactionSender: TransactionSenderMock(),
         fiatRatesProvider: FiatRatesProviderMock(),
-        userWalletModel: UserWalletModelMock(),
-        currencyMapper: CurrencyMapper(),
-        blockchainNetwork: PreviewCard.ethereum.blockchainNetwork!,
         coordinator: SwappingCoordinator()
     )
 

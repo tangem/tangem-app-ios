@@ -18,13 +18,24 @@ class SwappingInteractor {
     // MARK: - Dependencies
 
     private let swappingManager: SwappingManager
+    private let userWalletModel: UserWalletModel
+    private let currencyMapper: CurrencyMapping
+    private let blockchainNetwork: BlockchainNetwork
 
     // MARK: - Private
 
     private var updateStateTask: Task<Void, Error>?
 
-    init(swappingManager: SwappingManager) {
+    init(
+        swappingManager: SwappingManager,
+        userWalletModel: UserWalletModel,
+        currencyMapper: CurrencyMapping,
+        blockchainNetwork: BlockchainNetwork
+    ) {
         self.swappingManager = swappingManager
+        self.userWalletModel = userWalletModel
+        self.currencyMapper = currencyMapper
+        self.blockchainNetwork = blockchainNetwork
     }
 }
 
@@ -44,12 +55,14 @@ extension SwappingInteractor {
     }
 
     func update(swappingItems: SwappingItems) async -> SwappingItems {
+        AppLog.shared.debug("[Swap] SwappingInteractor will update swappingItems to \(swappingItems)")
         updateState(.idle)
         swappingManager.update(swappingItems: swappingItems)
         return await swappingManager.refreshBalances()
     }
 
     func update(amount: Decimal?) {
+        AppLog.shared.debug("[Swap] SwappingInteractor will update amount to \(amount as Any)")
         swappingManager.update(amount: amount)
         refresh(type: .full)
     }
@@ -90,22 +103,34 @@ extension SwappingInteractor {
         updateStateTask = nil
     }
 
-    func didSendApprovingTransaction(swappingTxData: SwappingTransactionData) {
-        swappingManager.didSendApprovingTransaction(swappingTxData: swappingTxData)
+    func didSendApproveTransaction(swappingTxData: SwappingTransactionData) {
+        swappingManager.didSendApproveTransaction(swappingTxData: swappingTxData)
         refresh(type: .full)
     }
 
     func didSendSwapTransaction(swappingTxData: SwappingTransactionData) {
         updateState(.idle)
+        addDestinationTokenToUserWalletList()
     }
 }
 
 // MARK: - Private
 
-extension SwappingInteractor {
+private extension SwappingInteractor {
     func updateState(_ state: SwappingAvailabilityState) {
-        AppLog.shared.debug("[Swap] SwappingInteractor will update state to \(state)")
+        AppLog.shared.debug("[Swap] SwappingInteractor update state to \(state)")
 
         self.state.send(state)
+    }
+
+    func addDestinationTokenToUserWalletList() {
+        guard let destination = getSwappingItems().destination,
+              let token = currencyMapper.mapToToken(currency: destination) else {
+            return
+        }
+
+        let entry = StorageEntry(blockchainNetwork: blockchainNetwork, token: token)
+        userWalletModel.append(entries: [entry])
+        userWalletModel.updateWalletModels()
     }
 }
