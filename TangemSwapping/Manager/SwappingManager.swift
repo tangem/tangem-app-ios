@@ -16,6 +16,7 @@ public protocol SwappingManager {
 
     func update(swappingItems: SwappingItems)
     func update(amount: Decimal?)
+    func update(approvePolicy: SwappingApprovePolicy)
 
     @discardableResult
     func refreshBalances() async -> SwappingItems
