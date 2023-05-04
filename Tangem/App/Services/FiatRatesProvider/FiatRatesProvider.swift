@@ -15,8 +15,12 @@ class FiatRatesProvider {
     /// Collect rates for calculate fiat balance
     private var rates: [String: Decimal] {
         didSet {
-            rates.forEach { key, value in
-                walletModel.rates.updateValue(value, forKey: key)
+            // We get "UI from background error" here
+            // because "walletModel.rates" uses the @Published wrapper
+            DispatchQueue.main.async {
+                self.rates.forEach { key, value in
+                    self.walletModel.rates.updateValue(value, forKey: key)
+                }
             }
         }
     }
