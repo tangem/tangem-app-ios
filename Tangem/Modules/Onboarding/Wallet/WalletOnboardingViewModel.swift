@@ -502,7 +502,7 @@ class WalletOnboardingViewModel: OnboardingTopupViewModel<WalletOnboardingStep, 
                 switch newState {
                 case .kycStart:
                     if self.currentStep == .kycWaiting {
-                        if case .wallet(let steps) = self.rebuildSteps() { // rebuild steps from scratch
+                        if case .wallet(let steps) = self.rebuildSteps() {
                             self.steps = steps
                             self.currentStepIndex = 0
                         }
@@ -517,7 +517,7 @@ class WalletOnboardingViewModel: OnboardingTopupViewModel<WalletOnboardingStep, 
                         self.goToNextStep()
                     }
                 case .kycRetry:
-                    if case .wallet(let steps) = self.rebuildSteps() { // rebuild steps from scratch
+                    if case .wallet(let steps) = self.rebuildSteps() {
                         self.steps = steps
                         self.currentStepIndex = 0
                     }
