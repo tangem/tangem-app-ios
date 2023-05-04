@@ -10,8 +10,28 @@ import Combine
 import TangemSwapping
 import TangemSdk
 
+public enum SwappingApprovePolicy: DefaultMenuRowViewModelAction {
+    case unlimited
+    case amount(Decimal)
+
+    public var id: Int { hashValue }
+
+    public var title: String {
+        switch self {
+        case .amount(let amount):
+            return "Current transaction"
+        case .unlimited:
+            return "Unlimited"
+        }
+    }
+}
+
 final class SwappingPermissionViewModel: ObservableObject, Identifiable {
     // MARK: - ViewState
+
+    @Published var menuRowViewModel: DefaultMenuRowViewModel<SwappingApprovePolicy>?
+    @Published var selectedAction: SwappingApprovePolicy = .unlimited
+    @Published var feeRowViewModel: DefaultRowViewModel?
 
     @Published var contentRowViewModels: [DefaultRowViewModel] = []
     @Published var errorAlert: AlertBinder?
@@ -38,6 +58,7 @@ final class SwappingPermissionViewModel: ObservableObject, Identifiable {
         self.coordinator = coordinator
 
         setupView()
+        setupLegacyView()
     }
 
     func didTapInfoButton() {
@@ -97,7 +118,7 @@ extension SwappingPermissionViewModel {
 // MARK: - Private
 
 private extension SwappingPermissionViewModel {
-    func setupView() {
+    func setupLegacyView() {
         let transactionData = inputModel.transactionData
         /// Addresses have to the same width for both
         let walletAddress = AddressFormatter(address: transactionData.sourceAddress).truncated()
@@ -121,5 +142,26 @@ private extension SwappingPermissionViewModel {
                 detailsType: .text(feeLabel)
             ),
         ]
+    }
+
+    func setupView() {
+        let transactionData = inputModel.transactionData
+
+        menuRowViewModel = .init(
+            title: "Amount \(tokenSymbol)",
+            actions: [
+                SwappingApprovePolicy.unlimited,
+                SwappingApprovePolicy.amount(transactionData.sourceAmount),
+            ]
+        )
+
+        let fiatFee = inputModel.fiatFee.currencyFormatted(code: AppSettings.shared.selectedCurrencyCode)
+        let formattedFee = transactionData.fee.groupedFormatted()
+        let feeLabel = "\(formattedFee) \(inputModel.transactionData.sourceBlockchain.symbol) (\(fiatFee))"
+
+        feeRowViewModel = DefaultRowViewModel(
+            title: Localization.sendFeeLabel,
+            detailsType: .text(feeLabel)
+        )
     }
 }
