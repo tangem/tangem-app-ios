@@ -142,10 +142,11 @@ class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable>
         isFromMain = input.isStandalone
         isNavBarVisible = input.isStandalone
 
+        let loadImageInput = input.cardInput.imageLoadInput
         loadImage(
-            supportsOnlineImage: input.cardInput.cardModel?.supportsOnlineImage ?? false,
-            cardId: input.cardInput.cardModel?.cardId,
-            cardPublicKey: input.cardInput.cardModel?.cardPublicKey
+            supportsOnlineImage: loadImageInput.supportsOnlineImage,
+            cardId: loadImageInput.cardId,
+            cardPublicKey: loadImageInput.cardPublicKey
         )
 
         bindAnalytics()
@@ -373,7 +374,7 @@ class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable>
 
 extension OnboardingViewModel {
     func onboardingDidFinish() {
-        coordinator.onboardingDidFinish()
+        coordinator.onboardingDidFinish(userWallet: cardModel)
     }
 
     func closeOnboarding() {
