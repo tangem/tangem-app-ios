@@ -39,3 +39,17 @@ extension UserWalletConfig where Self: SingleCardOnboardingStepsBuilderFactory {
         )
     }
 }
+
+
+// MARK: - Note cards
+
+protocol NoteCardOnboardingStepsBuilderFactory: OnboardingStepsBuilderFactory, CardContainer {}
+
+extension UserWalletConfig where Self: NoteCardOnboardingStepsBuilderFactory {
+    func makeOnboardingStepsBuilder(backupService: BackupService) -> OnboardingStepsBuilder {
+        return NoteOnboardingStepsBuilder(
+            card: card,
+            touId: tou.id
+        )
+    }
+}
