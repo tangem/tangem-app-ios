@@ -27,10 +27,12 @@ public struct BottomSheetInfoView: View {
             VStack(alignment: .center, spacing: 10) {
                 Text(viewModel.input.title)
                     .style(Fonts.Bold.title1, color: Colors.Text.primary1)
+                    .multilineTextAlignment(.center)
 
                 if let description = viewModel.input.description {
                     Text(description)
                         .style(Fonts.Bold.subheadline, color: Colors.Text.secondary)
+                        .multilineTextAlignment(.center)
                 }
             }
             .padding(.horizontal, 16)
