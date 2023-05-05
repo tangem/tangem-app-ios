@@ -265,6 +265,7 @@ class CardViewModel: Identifiable, ObservableObject {
 
         let factory = TwinInputFactory(
             cardInput: .cardModel(self),
+            userWalletToDelete: userWallet,
             twinData: twinData,
             sdkFactory: config
         )
@@ -486,7 +487,6 @@ class CardViewModel: Identifiable, ObservableObject {
             switch result {
             case .success:
                 Analytics.log(.factoryResetFinished)
-                self?.clearTwinPairKey()
                 completion(.success(()))
             case .failure(let error):
                 AppLog.shared.error(error, params: [.action: .purgeWallet])
@@ -557,24 +557,12 @@ class CardViewModel: Identifiable, ObservableObject {
         onUpdate()
     }
 
-    func onTwinWalletCreated(_ walletData: DefaultWalletData) { // [REDACTED_TODO_COMMENT]
-        cardInfo.walletData = walletData
-        onUpdate()
-    }
-
     private func onUpdate() {
         AppLog.shared.debug("🔄 Updating CardViewModel with new Card")
         config = UserWalletConfigFactory(cardInfo).makeConfig()
         _signer = config.tangemSigner
         updateModel()
         updateUserWallet()
-    }
-
-    func clearTwinPairKey() { // [REDACTED_TODO_COMMENT]
-        if case .twin(let walletData, let twinData) = cardInfo.walletData {
-            let newData = TwinData(series: twinData.series)
-            cardInfo.walletData = .twin(walletData, newData)
-        }
     }
 
     func getDisabledLocalizedReason(for feature: UserWalletFeature) -> String? {
