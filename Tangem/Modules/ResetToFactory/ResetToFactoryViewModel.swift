@@ -17,7 +17,7 @@ class ResetToFactoryViewModel: ObservableObject {
     private let cardInteractor: CardResettable
     private unowned let coordinator: ResetToFactoryViewRoutable
 
-    init(input: ResetToFactoryViewModelInput, coordinator: ResetToFactoryViewRoutable) {
+    init(input: ResetToFactoryViewModel.Input, coordinator: ResetToFactoryViewRoutable) {
         cardInteractor = input.cardInteractor
         self.coordinator = coordinator
 

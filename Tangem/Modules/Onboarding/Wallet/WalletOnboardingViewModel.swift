@@ -529,11 +529,11 @@ class WalletOnboardingViewModel: OnboardingTopupViewModel<WalletOnboardingStep, 
     }
 
     private func rebuildSteps() -> OnboardingSteps? {
-        guard let stepPublisher = input.stepsBuilder else {
+        guard let stepsBuilder = input.stepsBuilder else {
             return nil
         }
 
-        return stepPublisher.buildOnboardingSteps()
+        return stepsBuilder.buildOnboardingSteps()
     }
 
     private func loadImageForRestoredbackup(cardId: String, cardPublicKey: Data) {
