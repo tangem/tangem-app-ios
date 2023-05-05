@@ -30,7 +30,7 @@ struct WelcomeView: View {
         StoriesView(viewModel: viewModel.storiesModel) { [weak viewModel] in
             if let viewModel = viewModel {
                 viewModel.storiesModel.currentStoryPage(
-                    isScanning: viewModel.isScanningCard,
+                    isScanning: $viewModel.isScanningCard,
                     scanCard: viewModel.scanCardTapped,
                     orderCard: viewModel.orderCard,
                     searchTokens: viewModel.openTokensList
