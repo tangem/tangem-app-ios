@@ -402,12 +402,6 @@ class WalletOnboardingViewModel: OnboardingTopupViewModel<WalletOnboardingStep, 
             canDisplayCardImage = true
         }
 
-        if case .cardId(let cardId) = input.cardInput { // saved backup
-            DispatchQueue.main.async {
-                self.loadImageForRestoredbackup(cardId: cardId, cardPublicKey: Data())
-            }
-        }
-
         bindSaltPayIfNeeded()
 
         bind()
@@ -887,7 +881,9 @@ class WalletOnboardingViewModel: OnboardingTopupViewModel<WalletOnboardingStep, 
                     }
                     self?.stepPublisher = nil
                 },
-                receiveValue: processPrimaryCardScan
+                receiveValue: { [weak self] in
+                    self?.processPrimaryCardScan()
+                }
             )
     }
 
@@ -908,6 +904,7 @@ class WalletOnboardingViewModel: OnboardingTopupViewModel<WalletOnboardingStep, 
                 }
 
                 Analytics.log(.walletCreatedSuccessfully, params: [.creationType: self.walletCreationType.analyticsValue])
+                self.processPrimaryCardScan()
             case .failure(let error):
                 if !error.toTangemSdkError().isUserCancelled {
                     AppLog.shared.error(error, params: [.action: .preparePrimary])
