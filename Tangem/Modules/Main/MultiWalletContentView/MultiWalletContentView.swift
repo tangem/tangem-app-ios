@@ -63,7 +63,7 @@ struct MultiWalletContentView: View {
                 ForEach(viewModels) { item in
                     VStack(spacing: 0) {
                         Button(action: { viewModel.tokenItemDidTap(item) }) {
-                            TokenItemView(item: item)
+                            LegacyTokenItemView(item: item)
                                 .padding(.horizontal, 16)
                                 .padding(.vertical, 15)
                                 .contentShape(Rectangle())
