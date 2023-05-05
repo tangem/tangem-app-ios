@@ -10,14 +10,14 @@ import Combine
 import BlockchainSdk
 
 protocol MultiWalletContentViewModelOutput: OpenCurrencySelectionDelegate {
-    func openTokenDetails(_ tokenItem: TokenItemViewModel)
+    func openTokenDetails(_ tokenItem: LegacyTokenItemViewModel)
     func openTokensList()
 }
 
 class MultiWalletContentViewModel: ObservableObject {
     // MARK: - ViewState
 
-    @Published var contentState: LoadingValue<[TokenItemViewModel]> = .loading
+    @Published var contentState: LoadingValue<[LegacyTokenItemViewModel]> = .loading
     @Published var tokenListIsEmpty: Bool = true
 
     lazy var totalSumBalanceViewModel = TotalSumBalanceViewModel(
@@ -67,7 +67,7 @@ class MultiWalletContentViewModel: ObservableObject {
         output.openTokensList()
     }
 
-    func tokenItemDidTap(_ itemViewModel: TokenItemViewModel) {
+    func tokenItemDidTap(_ itemViewModel: LegacyTokenItemViewModel) {
         output.openTokenDetails(itemViewModel)
     }
 }
@@ -78,14 +78,13 @@ private extension MultiWalletContentViewModel {
     func bind() {
         /// Subscribe for update wallets for each changes in `WalletModel`
         userWalletModel.subscribeToWalletModels()
-            .map { walletModels in
-                walletModels
-                    .map { $0.walletDidChange }
-                    .combineLatest()
-                    .map { _ in walletModels }
+            .flatMap { walletModels in
+                Publishers
+                    .MergeMany(walletModels.map { $0.walletDidChange })
+                    .filter { !$0.isLoading }
             }
-            .switchToLatest()
-            .map { [weak self] _ -> [TokenItemViewModel] in
+            .receive(on: DispatchQueue.global())
+            .map { [weak self] _ -> [LegacyTokenItemViewModel] in
                 self?.collectTokenItemViewModels() ?? []
             }
             .removeDuplicates()
@@ -108,7 +107,7 @@ private extension MultiWalletContentViewModel {
             entriesWithoutDerivation.mapVoid()
         )
         .receive(on: DispatchQueue.global())
-        .map { [weak self] _ -> [TokenItemViewModel] in
+        .map { [weak self] _ -> [LegacyTokenItemViewModel] in
             /// `unowned` will be crashed when the wallet which currently open is deleted from the list of saved wallet
             self?.collectTokenItemViewModels() ?? []
         }
@@ -120,7 +119,7 @@ private extension MultiWalletContentViewModel {
         .store(in: &bag)
     }
 
-    func updateView(viewModels: [TokenItemViewModel]) {
+    func updateView(viewModels: [LegacyTokenItemViewModel]) {
         if tokenListIsEmpty != viewModels.isEmpty {
             tokenListIsEmpty = viewModels.isEmpty
         }
@@ -128,7 +127,7 @@ private extension MultiWalletContentViewModel {
         contentState = .loaded(viewModels)
     }
 
-    func collectTokenItemViewModels() -> [TokenItemViewModel] {
+    func collectTokenItemViewModels() -> [LegacyTokenItemViewModel] {
         let entries = userWalletModel.getSavedEntries()
         let walletModels = userWalletModel.getWalletModels()
         return entries.reduce([]) { result, entry in
@@ -140,10 +139,10 @@ private extension MultiWalletContentViewModel {
         }
     }
 
-    func mapToTokenItemViewModels(entry: StorageEntry) -> [TokenItemViewModel] {
+    func mapToTokenItemViewModels(entry: StorageEntry) -> [LegacyTokenItemViewModel] {
         let network = entry.blockchainNetwork
-        var items: [TokenItemViewModel] = [
-            TokenItemViewModel(
+        var items: [LegacyTokenItemViewModel] = [
+            LegacyTokenItemViewModel(
                 state: .noDerivation,
                 name: network.blockchain.displayName,
                 blockchainNetwork: network,
@@ -153,7 +152,7 @@ private extension MultiWalletContentViewModel {
         ]
 
         items += entry.tokens.map { token in
-            TokenItemViewModel(
+            LegacyTokenItemViewModel(
                 state: .noDerivation,
                 name: token.name,
                 blockchainNetwork: network,
