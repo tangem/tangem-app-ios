@@ -315,6 +315,7 @@
 		B0C87B432566461600F861DE /* TwinCardsFileCoder.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0C87B422566461600F861DE /* TwinCardsFileCoder.swift */; };
 		B0C87B482566492000F861DE /* TwinData.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0C87B472566492000F861DE /* TwinData.swift */; };
 		B0C8A0D42562C86A00DEEAC7 /* View+PreviewDevice.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0C8A0D32562C86A00DEEAC7 /* View+PreviewDevice.swift */; };
+		B0C9D2842A03A640001A2D6D /* seaportTypedData.json in Resources */ = {isa = PBXBuildFile; fileRef = B0C9D2832A03A3C1001A2D6D /* seaportTypedData.json */; };
 		B0CAFA8D26C6C0FE001238DA /* QRCodeGenerator.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0CAFA8C26C6C0FE001238DA /* QRCodeGenerator.swift */; };
 		B0CC818325CD63FB006D49B9 /* Token+.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0CC818225CD63FB006D49B9 /* Token+.swift */; };
 		B0CCA7222568FD0F009325E3 /* TwinsCreateWalletTask.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0CCA7212568FD0F009325E3 /* TwinsCreateWalletTask.swift */; };
@@ -1245,6 +1246,7 @@
 		B0C87B422566461600F861DE /* TwinCardsFileCoder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TwinCardsFileCoder.swift; sourceTree = "<group>"; };
 		B0C87B472566492000F861DE /* TwinData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TwinData.swift; sourceTree = "<group>"; };
 		B0C8A0D32562C86A00DEEAC7 /* View+PreviewDevice.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "View+PreviewDevice.swift"; sourceTree = "<group>"; };
+		B0C9D2832A03A3C1001A2D6D /* seaportTypedData.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = seaportTypedData.json; sourceTree = "<group>"; };
 		B0CA52F829C04FA10076E2EF /* TonCenterApiKeys.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TonCenterApiKeys.swift; sourceTree = "<group>"; };
 		B0CAFA8C26C6C0FE001238DA /* QRCodeGenerator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QRCodeGenerator.swift; sourceTree = "<group>"; };
 		B0CC818225CD63FB006D49B9 /* Token+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Token+.swift"; sourceTree = "<group>"; };
@@ -1879,6 +1881,7 @@
 			isa = PBXGroup;
 			children = (
 				5D20811527D23E5B00D8A970 /* simpleDecode.json */,
+				B0C9D2832A03A3C1001A2D6D /* seaportTypedData.json */,
 				5D20811727D23F8200D8A970 /* simpleDecode2.json */,
 				5D20811927D23FE500D8A970 /* simpleDecode3.json */,
 				5D20811B27D2405200D8A970 /* hashEncode.json */,
@@ -4561,6 +4564,7 @@
 				5D3F77D424BF56DC00E8695B /* Sources */,
 				5D3F77D524BF56DC00E8695B /* Frameworks */,
 				5D3F77D624BF56DC00E8695B /* Resources */,
+				1E2572E9962E28A14134600C /* [CP] Embed Pods Frameworks */,
 			);
 			buildRules = (
 			);
@@ -4732,6 +4736,7 @@
 				5D20811827D23F8200D8A970 /* simpleDecode2.json in Resources */,
 				5D20811A27D23FE500D8A970 /* simpleDecode3.json in Resources */,
 				5D20812027D240B200D8A970 /* hashEncodev4.json in Resources */,
+				B0C9D2842A03A640001A2D6D /* seaportTypedData.json in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -4774,6 +4779,23 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-Tangem/Pods-Tangem-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		1E2572E9962E28A14134600C /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-TangemTests/Pods-TangemTests-frameworks-${CONFIGURATION}-input-files.xcfilelist",
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-TangemTests/Pods-TangemTests-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-TangemTests/Pods-TangemTests-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
 		30930018AFA63248A3F8D56A /* [CP] Check Pods Manifest.lock */ = {
@@ -6004,7 +6026,7 @@
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = "$(inherited)";
 				ASSETCATALOG_COMPILER_APPICON_NAME = "$(inherited)";
 				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = "$(inherited)";
-				CODE_SIGN_ENTITLEMENTS = $ENTITLEMENTS_PATH;
+				CODE_SIGN_ENTITLEMENTS = "$ENTITLEMENTS_PATH";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEPLOYMENT_POSTPROCESSING = NO;
@@ -6036,7 +6058,7 @@
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = "$(inherited)";
 				ASSETCATALOG_COMPILER_APPICON_NAME = "$(inherited)";
 				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = "$(inherited)";
-				CODE_SIGN_ENTITLEMENTS = $ENTITLEMENTS_PATH;
+				CODE_SIGN_ENTITLEMENTS = "$ENTITLEMENTS_PATH";
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
@@ -6226,7 +6248,7 @@
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = "$(inherited)";
 				ASSETCATALOG_COMPILER_APPICON_NAME = "$(inherited)";
 				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = "$(inherited)";
-				CODE_SIGN_ENTITLEMENTS = $ENTITLEMENTS_PATH;
+				CODE_SIGN_ENTITLEMENTS = "$ENTITLEMENTS_PATH";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEPLOYMENT_POSTPROCESSING = NO;
@@ -6361,7 +6383,7 @@
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = "$(inherited)";
 				ASSETCATALOG_COMPILER_APPICON_NAME = "$(inherited)";
 				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = "$(inherited)";
-				CODE_SIGN_ENTITLEMENTS = $ENTITLEMENTS_PATH;
+				CODE_SIGN_ENTITLEMENTS = "$ENTITLEMENTS_PATH";
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
@@ -7427,7 +7449,7 @@
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = "$(inherited)";
 				ASSETCATALOG_COMPILER_APPICON_NAME = "$(inherited)";
 				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = "$(inherited)";
-				CODE_SIGN_ENTITLEMENTS = $ENTITLEMENTS_PATH;
+				CODE_SIGN_ENTITLEMENTS = "$ENTITLEMENTS_PATH";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEPLOYMENT_POSTPROCESSING = NO;
@@ -7562,7 +7584,7 @@
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = "$(inherited)";
 				ASSETCATALOG_COMPILER_APPICON_NAME = "$(inherited)";
 				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = "$(inherited)";
-				CODE_SIGN_ENTITLEMENTS = $ENTITLEMENTS_PATH;
+				CODE_SIGN_ENTITLEMENTS = "$ENTITLEMENTS_PATH";
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
