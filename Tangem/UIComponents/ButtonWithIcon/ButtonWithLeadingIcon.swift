@@ -12,7 +12,7 @@ struct ButtonWithLeadingIcon: View {
     let title: String
     let icon: Image
     let action: () -> Void
-    
+
     var body: some View {
         Button(action: action) {
             HStack(spacing: 0) {
@@ -21,7 +21,7 @@ struct ButtonWithLeadingIcon: View {
                     .resizable()
                     .frame(width: 20, height: 20)
                     .foregroundColor(Colors.Icon.primary1)
-                
+
                 if !title.isEmpty {
                     Text(title)
                         .style(Fonts.Bold.subheadline, color: Colors.Text.primary1)
