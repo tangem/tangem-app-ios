@@ -54,6 +54,7 @@ extension CardInteractor: CardPreparable {
                 completion(.failure(error))
             }
 
+            self?.cancellable = nil
             self?.commandBag = nil
         }, receiveValue: { [weak self] newCardInfo in
             self?.cardInfo = newCardInfo
