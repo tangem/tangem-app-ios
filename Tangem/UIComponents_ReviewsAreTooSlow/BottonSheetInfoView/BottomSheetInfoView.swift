@@ -16,7 +16,7 @@ public struct BottomSheetInfoView: View {
     // MARK: - SetupUI
 
     public var body: some View {
-        VStack(alignment: .center, spacing: 0) {
+        VStack(spacing: 0) {
             Spacer(minLength: 44)
 
             viewModel.input.icon.image
@@ -26,47 +26,29 @@ public struct BottomSheetInfoView: View {
 
             VStack(alignment: .center, spacing: 10) {
                 Text(viewModel.input.title)
-                    .font(.system(size: 28, weight: .semibold))
-                    .padding(.horizontal, 34)
+                    .style(Fonts.Bold.title1, color: Colors.Text.primary1)
 
                 if let description = viewModel.input.description {
                     Text(description)
-                        .font(.system(size: 13, weight: .regular))
-                        .foregroundColor(Color.gray)
-                        .foregroundColor(Color.tangemTextGray)
-                        .padding(.horizontal, 34)
+                        .style(Fonts.Bold.subheadline, color: Colors.Text.secondary)
                 }
             }
             .padding(.horizontal, 16)
 
             Spacer(minLength: 40)
 
-            if let titleButton = viewModel.input.titleButton {
+            if let buttonTitle = viewModel.input.buttonTitle {
                 MainButton(
-                    title: titleButton,
+                    title: buttonTitle,
                     style: .secondary,
-                    action: viewModel.tapButtonAction ?? {}
+                    action: viewModel.buttonTapAction ?? {}
                 )
-                .disabled(viewModel.tapButtonAction == nil)
+                .disabled(viewModel.buttonTapAction == nil)
                 .buttonStyle(PlainButtonStyle())
                 .padding(.horizontal, 16)
             }
         }
     }
-}
-
-public struct BottomSheetInfoViewModel: Identifiable {
-    public struct Input {
-        private(set) var icon: ImageType
-        private(set) var title: String
-        private(set) var description: String?
-        private(set) var titleButton: String?
-    }
-
-    public let id: UUID = .init()
-
-    private(set) var input: Input
-    private(set) var tapButtonAction: (() -> Void)?
 }
 
 // MARK: - Previews
@@ -78,9 +60,6 @@ struct BottomSheetInfoView_Previews: PreviewProvider {
 
         var body: some View {
             ZStack {
-                Color.green
-                    .edgesIgnoringSafeArea(.all)
-
                 Button("Bottom sheet isShowing \((item != nil).description)") {
                     toggleItem()
                 }
@@ -103,8 +82,9 @@ struct BottomSheetInfoView_Previews: PreviewProvider {
                         icon: Assets.attention,
                         title: "Backup your card",
                         description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
-                        titleButton: "test"
-                    )
+                        buttonTitle: "test"
+                    ),
+                    buttonTapAction: nil
                 )
             } else {
                 item = nil
