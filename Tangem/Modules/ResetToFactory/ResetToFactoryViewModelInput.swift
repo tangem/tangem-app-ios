@@ -8,7 +8,9 @@
 
 import Foundation
 
-struct ResetToFactoryViewModelInput {
-    let cardInteractor: CardResettable
-    let hasBackupCards: Bool
+extension ResetToFactoryViewModel {
+    struct Input {
+        let cardInteractor: CardResettable
+        let hasBackupCards: Bool
+    }
 }
