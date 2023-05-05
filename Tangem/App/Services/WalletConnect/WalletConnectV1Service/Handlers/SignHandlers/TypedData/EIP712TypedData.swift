@@ -53,9 +53,22 @@ public extension EIP712TypedData {
         depSet.remove(primaryType)
         let sorted = [primaryType] + Array(depSet).sorted()
         let encoded = sorted.map { type in
-            let param = types[type]!.map { "\($0.type) \($0.name)" }.joined(separator: ",")
+            let typeInfo = types[type]!
+//            let sortedWithPrimitives = typeInfo.sorted(by: {
+//                if isPrimitiveType($0.type) {
+//                    return true
+//                }
+//
+//                if isPrimitiveType($1.type) {
+//                    return true
+//                }
+//
+//                return $0.type < $1.type
+//            })
+            let param = typeInfo.map { "\($0.type) \($0.name)" }.joined(separator: ",")
             return "\(type)(\(param))"
         }.joined()
+        print("Encoded type: \(encoded)")
         return encoded.data(using: .utf8) ?? Data()
     }
 
@@ -71,6 +84,23 @@ public extension EIP712TypedData {
             values.append(typeHashValue)
             if let valueTypes = types[type] {
                 try valueTypes.forEach { field in
+                    print("Preparing field: \(field.type) with name: \(field.name)")
+//                    if isPrimitiveType(field.type) {
+//                        if let value = makeABIValue(data: data[field.name], type: field.type) {
+//                            values.append(value)
+//                        }
+//                    } else {
+//                        var typeToEncode = field.type
+//                        let arraySuffix = "[]"
+//                        let isArray = typeToEncode.hasSuffix(arraySuffix)
+//                        if isArray {
+//                            typeToEncode.removeLast(arraySuffix.count)
+//                        }
+//                        if let _ = types[typeToEncode], let json = data[field.name] {
+//                            let nestEncoded = encodeData(data: json, type: typeToEncode)
+//                            values.append(try ABIValue(nestEncoded.sha3(.keccak256), type: .bytes(32)))
+//                        }
+//                    }
                     if let _ = types[field.type],
                        let json = data[field.name] {
                         let nestEncoded = encodeData(data: json, type: field.type)
@@ -90,12 +120,16 @@ public extension EIP712TypedData {
 
 private extension EIP712TypedData {
     /// Helper func for `encodeData`
-    private func makeABIValue(data: JSON?, type: String) -> ABIValue? {
+    func makeABIValue(data: JSON?, type: String) -> ABIValue? {
         let isArrayType = type.contains("[")
         if isArrayType,
            let values = data?.arrayValue {
             let valueType = String(type.prefix(while: { $0 != "[" }))
-            let abiValues = values.compactMap { makeABIValue(data: $0, type: valueType) }
+            let abiValues = values.compactMap {
+//                makeABIValue(data: $0, type: valueType)
+                
+                ABIValue(hashStruct(data: $0, type: valueType), type: .)
+            }
             return .array(abiValues)
         } else if type == "string",
                   let value = data?.stringValue,
@@ -145,7 +179,7 @@ private extension EIP712TypedData {
     }
 
     /// Helper func for encoding uint / int types
-    private func parseIntSize(type: String, prefix: String) -> Int {
+    func parseIntSize(type: String, prefix: String) -> Int {
         guard type.starts(with: prefix),
               let size = Int(type.dropFirst(prefix.count)) else {
             return -1
@@ -170,10 +204,32 @@ private extension EIP712TypedData {
         }
         found.insert(primaryType)
         for type in primaryTypes {
-            findDependencies(primaryType: type.type, dependencies: found)
+            var typeName = type.type
+            if isPrimitiveType(typeName) {
+                continue
+            }
+
+            let arraySuffix = "[]"
+            if typeName.hasSuffix(arraySuffix) {
+                typeName.removeLast(arraySuffix.count)
+            }
+
+            findDependencies(primaryType: typeName, dependencies: found)
                 .forEach { found.insert($0) }
         }
         return found
+    }
+
+    func isPrimitiveType(_ type: String) -> Bool {
+        let primitiveTypes = [
+            "address", "uint", "int", "bool", "bytes", "string",
+        ]
+
+        if primitiveTypes.contains(where: { type.starts(with: $0) }) {
+            return true
+        }
+
+        return false
     }
 }
 
