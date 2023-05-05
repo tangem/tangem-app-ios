@@ -240,9 +240,8 @@ class CardViewModel: Identifiable, ObservableObject {
 
     var backupInput: OnboardingInput? {
         let factory = OnboardingInputFactory(
-            cardInput: .cardModel(self),
-            twinData: nil,
-            primaryCard: cardInfo.primaryCard,
+            cardInfo: cardInfo,
+            cardModel: self,
             sdkFactory: config,
             onboardingStepsBuilderFactory: config
         )
