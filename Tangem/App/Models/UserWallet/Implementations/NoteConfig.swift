@@ -157,6 +157,6 @@ extension NoteConfig: UserWalletConfig {
     }
 }
 
-// MARK: - SingleCardOnboardingStepsBuilderFactory
+// MARK: - NoteCardOnboardingStepsBuilderFactory
 
-extension NoteConfig: SingleCardOnboardingStepsBuilderFactory {}
+extension NoteConfig: NoteCardOnboardingStepsBuilderFactory {}
