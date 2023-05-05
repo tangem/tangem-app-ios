@@ -34,9 +34,7 @@ class TwinsWalletCreationUtil {
 
     private let twinFileEncoder: TwinCardFileEncoder = TwinCardTlvFileEncoder()
     private var firstTwinCid: String = ""
-    // private var secondTwinCid: String = ""
     private var twinData: TwinData
-    private let card: CardViewModel
 
     private var firstTwinPublicKey: Data?
     private var secondTwinPublicKey: Data?
@@ -46,10 +44,9 @@ class TwinsWalletCreationUtil {
     private(set) var isServiceBusy = CurrentValueSubject<Bool, Never>(false)
     private let sdk: TangemSdk = TwinTangemSdkFactory(isAccessCodeSet: false).makeTangemSdk()
 
-    init(card: CardViewModel, twinData: TwinData) {
-        self.card = card
+    init(cardId: String, twinData: TwinData) {
         self.twinData = twinData
-        firstTwinCid = card.cardId
+        firstTwinCid = cardId
     }
 
     func executeCurrentStep() {
@@ -62,7 +59,7 @@ class TwinsWalletCreationUtil {
         case .third:
             writeSecondPublicKeyToFirst()
         case .done:
-            step.send(.done)
+            break
         }
     }
 
@@ -78,10 +75,7 @@ class TwinsWalletCreationUtil {
         sdk.startSession(with: task, cardId: firstTwinCid, initialMessage: initialMessage(for: firstTwinCid)) { result in
             switch result {
             case .success(let response):
-                self.card.clearTwinPairKey()
                 self.firstTwinPublicKey = response.createWalletResponse.wallet.publicKey
-                self.card.onWalletCreated(response.card)
-                self.card.appendDefaultBlockchains()
                 self.step.send(.second)
             case .failure(let error):
                 self.occuredError.send(error)
@@ -100,10 +94,8 @@ class TwinsWalletCreationUtil {
             return
         }
 
-        //		switch twinFileToWrite(publicKey: firstTwinKey) {
-        //		case .success(let file):
         let task = TwinsCreateWalletTask(firstTwinCardId: firstTwinCid, fileToWrite: firstTwinKey)
-        sdk.startSession(with: task, /* cardId: secondTwinCid, */ initialMessage: Message(header: "Scan card #\(series.pair.number)") /* initialMessage(for: secondTwinCid) */ ) { result in
+        sdk.startSession(with: task, initialMessage: Message(header: "Scan card #\(series.pair.number)")) { result in
             switch result {
             case .success(let response):
                 self.secondTwinPublicKey = response.createWalletResponse.wallet.publicKey
@@ -114,9 +106,6 @@ class TwinsWalletCreationUtil {
             }
             self.isServiceBusy.send(false)
         }
-        //		case .failure(let error):
-        //			occuredError.send(error)
-        //		}
     }
 
     private func writeSecondPublicKeyToFirst() {
@@ -126,8 +115,6 @@ class TwinsWalletCreationUtil {
             return
         }
 
-        //		switch twinFileToWrite(publicKey: secondTwinKey) {
-        //		case .success(let file):
         let task = TwinsFinalizeWalletCreationTask(fileToWrite: secondTwinKey)
         sdk.startSession(with: task, cardId: firstTwinCid, initialMessage: initialMessage(for: firstTwinCid)) { [weak self] result in
             guard let self = self else { return }
@@ -136,19 +123,12 @@ class TwinsWalletCreationUtil {
             case .success(let response):
                 Analytics.log(.walletCreatedSuccessfully, params: [.creationType: .walletCreationTypePrivateKey])
 
-                self.card.onTwinWalletCreated(response.walletData)
-                self.card.appendDefaultBlockchains()
-                self.card.userWalletModel?.updateAndReloadWalletModels { [weak self] in
-                    self?.step.send(.done)
-                }
+                self.step.send(.done(response.getCardInfo()))
             case .failure(let error):
                 self.occuredError.send(error)
             }
             self.isServiceBusy.send(false)
         }
-        //		case .failure(let error):
-        //			occuredError.send(error)
-        //		}
     }
 
     private func twinFileToWrite(publicKey: Data) -> Result<Data, Error> {
@@ -173,6 +153,6 @@ extension TwinsWalletCreationUtil {
         case first
         case second
         case third
-        case done
+        case done(CardInfo)
     }
 }
