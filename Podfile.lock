@@ -191,6 +191,12 @@ PODS:
   - TangemSdk (3.4.0)
   - TangemWalletCore (3.1.9-tangem1):
     - SwiftProtobuf
+  - TrustWalletCore (3.1.31):
+    - TrustWalletCore/Core (= 3.1.31)
+  - TrustWalletCore/Core (3.1.31):
+    - TrustWalletCore/Types
+  - TrustWalletCore/Types (3.1.31):
+    - SwiftProtobuf
   - TweetNacl (1.0.2)
   - WalletConnectSwift (1.7.0):
     - CryptoSwift (~> 1.5)
@@ -255,6 +261,7 @@ DEPENDENCIES:
   - Solana.Swift (from `https://github.com/tangem/Solana.Swift`, tag `add-external-signer-7`)
   - TangemSdk (from `https://github.com/Tangem/tangem-sdk-ios.git`, tag `develop-225`)
   - TangemWalletCore (from `https://github.com/tangem/wallet-core-binaries-ios.git`, tag `3.1.9-tangem3`)
+  - TrustWalletCore
   - WalletConnectSwift (from `https://github.com/WalletConnect/WalletConnectSwift`, tag `1.7.0`)
   - WalletConnectSwiftV2 (from `https://github.com/WalletConnect/WalletConnectSwiftV2`, tag `1.1.0`)
   - web3swift (from `https://github.com/tangem/web3swift.git`, tag `2.2.12`)
@@ -297,6 +304,7 @@ SPEC REPOS:
     - SwiftDate
     - SwiftProtobuf
     - SwiftyJSON
+    - TrustWalletCore
     - TweetNacl
     - XCGLogger
     - ZendeskChatProvidersSDK
@@ -429,6 +437,7 @@ SPEC CHECKSUMS:
   SwiftyJSON: 2f33a42c6fbc52764d96f13368585094bfd8aa5e
   TangemSdk: d628b627e16634b97c2536f265bdcddc9734c617
   TangemWalletCore: 87a4637456e46c2aa3d49a6a1dc07a8054783183
+  TrustWalletCore: 693c601ecc0ecdb2cc282958603f260c4defc636
   TweetNacl: 3abf4d1d2082b0114e7a67410e300892448951e6
   WalletConnectSwift: 6309bf3011b0b30e3e9d1e7449535302a9240f71
   WalletConnectSwiftV2: 2a1098c28f083a5084979222ba6d62c29f870e31
