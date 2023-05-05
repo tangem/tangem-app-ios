@@ -1,5 +1,5 @@
 //
-//  TokenIconComponent.swift
+//  TokenIcon.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -9,7 +9,7 @@
 import SwiftUI
 import Kingfisher
 
-struct TokenIconComponent: View {
+struct TokenIcon: View {
     let name: String
     let imageURL: URL?
     let blockchainIconName: String?
@@ -19,16 +19,7 @@ struct TokenIconComponent: View {
     var networkIconBorderWidth: Double = 2
 
     var body: some View {
-        KFImage(imageURL)
-            .setProcessor(DownsamplingImageProcessor(size: size))
-            .placeholder { placeholder }
-            .fade(duration: 0.3)
-            .cacheOriginalImage()
-            .scaleFactor(UIScreen.main.scale)
-            .resizable()
-            .scaledToFit()
-            .cornerRadius(5)
-            .frame(size: size)
+        IconView(url: imageURL, size: size)
             .overlay(networkIcon.offset(x: 4, y: -4), alignment: .topTrailing)
     }
 
@@ -47,16 +38,11 @@ struct TokenIconComponent: View {
             )
         }
     }
-
-    @ViewBuilder
-    private var placeholder: some View {
-        CircleImageTextView(name: name, color: .tangemGrayLight4)
-    }
 }
 
-struct TokenIconComponent_Preview: PreviewProvider {
+struct TokenIcon_Preview: PreviewProvider {
     static let coins = [
-        (id: "bitcoin", iconName: nil),
+        (id: "bitcoin", iconName: "bitcoin"),
         (id: "ethereum", iconName: nil),
         (id: "tether", iconName: "ethereum"),
         (id: "usd-coin", iconName: "ethereum"),
@@ -74,7 +60,7 @@ struct TokenIconComponent_Preview: PreviewProvider {
         ScrollView {
             VStack {
                 ForEach(coins, id: \.id) { coin in
-                    TokenIconComponent(
+                    TokenIcon(
                         name: coin.id, imageURL: TokenIconURLBuilder(baseURL: CoinsResponse.baseURL).iconURL(id: coin.id, size: .large),
                         blockchainIconName: coin.iconName
                     )
