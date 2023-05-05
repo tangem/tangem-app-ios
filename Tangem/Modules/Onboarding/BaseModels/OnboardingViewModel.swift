@@ -127,9 +127,17 @@ class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable>
     private(set) var containerSize: CGSize = .zero
     unowned let coordinator: Coordinator
 
+    var cardModel: CardViewModel?
+
     init(input: OnboardingInput, coordinator: Coordinator) {
         self.input = input
         self.coordinator = coordinator
+
+        // [REDACTED_TODO_COMMENT]
+        if let cardModel = input.cardInput.cardModel {
+            self.cardModel = cardModel
+        }
+
         isFromMain = input.isStandalone
         isNavBarVisible = input.isStandalone
 
@@ -140,6 +148,27 @@ class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable>
         )
 
         bindAnalytics()
+    }
+
+    func initializeUserWallet(from cardInfo: CardInfo) {
+        let config = UserWalletConfigFactory(cardInfo).makeConfig()
+        let userWallet = CardViewModel(cardInfo: cardInfo, config: config)
+        userWallet.appendDefaultBlockchains()
+        userWallet.userWalletModel?.updateAndReloadWalletModels()
+        cardModel = userWallet
+    }
+
+    func handleUserWalletOnFinish() throws {
+        guard
+            AppSettings.shared.saveUserWallets,
+            let cardModel = cardModel,
+            let userWallet = cardModel.userWallet
+        else {
+            return
+        }
+
+        userWalletRepository.save(cardModel)
+        userWalletRepository.setSelectedUserWalletId(userWallet.userWalletId, reason: .inserted)
     }
 
     func loadImage(supportsOnlineImage: Bool, cardId: String?, cardPublicKey: Data?) {
@@ -255,19 +284,6 @@ class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable>
         AppSettings.shared.saveAccessCodes = agreed
 
         Analytics.log(.onboardingEnableBiometric, params: [.state: Analytics.ParameterValue.state(for: agreed)])
-    }
-
-    func handleUserWalletOnFinish() throws {
-        guard
-            AppSettings.shared.saveUserWallets,
-            let cardModel = input.cardInput.cardModel,
-            let userWallet = cardModel.userWallet
-        else {
-            return
-        }
-
-        userWalletRepository.save(cardModel)
-        userWalletRepository.setSelectedUserWalletId(userWallet.userWalletId, reason: .inserted)
     }
 
     func disclaimerAccepted() {
