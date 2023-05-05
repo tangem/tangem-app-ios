@@ -702,6 +702,7 @@ class SendViewModel: ObservableObject {
                             .commonSource: sourceValue.rawValue,
                             .basicCurrency: self.blockchainNetwork.blockchain.currencySymbol,
                             .blockchain: self.blockchainNetwork.blockchain.displayName,
+                            .feeType: analyticsFeeType.rawValue,
                         ])
                     }
 
@@ -735,6 +736,20 @@ class SendViewModel: ObservableObject {
 // MARK: - Private
 
 private extension SendViewModel {
+    var analyticsFeeType: Analytics.ParameterValue {
+        if shoudShowFeeSelector {
+            let feeLevels: [Analytics.ParameterValue] = [
+                .transactionFeeMin,
+                .transactionFeeNormal,
+                .transactionFeeMax,
+            ]
+
+            return feeLevels[selectedFeeLevel]
+        } else {
+            return .transactionFeeFixed
+        }
+    }
+
     func updateViewWith(transaction: BlockchainSdk.Transaction) {
         let totalAmount = transaction.amount + transaction.fee.amount
         let totalInFiatFormatted = totalAndFeeInFiatFormatted(
