@@ -134,9 +134,8 @@ class CommonUserWalletRepository: UserWalletRepository {
                 Analytics.endLoggingCardScan()
 
                 let factory = OnboardingInputFactory(
-                    cardInput: .cardInfo(cardInfo),
-                    twinData: cardInfo.walletData.twinData,
-                    primaryCard: cardInfo.primaryCard,
+                    cardInfo: cardInfo,
+                    cardModel: nil,
                     sdkFactory: config,
                     onboardingStepsBuilderFactory: config
                 )
