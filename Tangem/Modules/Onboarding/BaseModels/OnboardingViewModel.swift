@@ -157,8 +157,8 @@ class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable>
         userWallet.appendDefaultBlockchains()
         userWallet.userWalletModel?.initialUpdate()
 
-        if let userWalletId = self.cardModel?.userWalletId {
-            self.analyticsContext.updateContext(with: userWalletId)
+        if let userWalletId = cardModel?.userWalletId {
+            analyticsContext.updateContext(with: userWalletId)
             Analytics.logTopUpIfNeeded(balance: 0)
         }
 
