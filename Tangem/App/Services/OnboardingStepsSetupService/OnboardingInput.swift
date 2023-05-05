@@ -45,5 +45,36 @@ extension OnboardingInput {
                 return cardId
             }
         }
+
+        var imageLoadInput: ImageLoadInput {
+            switch self {
+            case .cardInfo(let cardInfo):
+                let config = UserWalletConfigFactory(cardInfo).makeConfig()
+                return .init(
+                    supportsOnlineImage: config.hasFeature(.onlineImage),
+                    cardId: cardInfo.card.cardId,
+                    cardPublicKey: cardInfo.card.cardPublicKey
+                )
+            case .cardModel(let cardModel):
+                return .init(
+                    supportsOnlineImage: cardModel.supportsOnlineImage,
+                    cardId: cardModel.cardId,
+                    cardPublicKey: cardModel.cardPublicKey
+                )
+            case .cardId(let cardId):
+                return .init(
+                    supportsOnlineImage: true,
+                    cardId: cardId,
+                    cardPublicKey: Data()
+                ) // we assume that cash exists
+            }
+        }
+    }
+
+    // [REDACTED_TODO_COMMENT]
+    struct ImageLoadInput {
+        let supportsOnlineImage: Bool
+        let cardId: String
+        let cardPublicKey: Data
     }
 }
