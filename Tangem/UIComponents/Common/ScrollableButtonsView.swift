@@ -14,7 +14,7 @@ struct ScrollableButtonsView: View {
     /// go to the edge of the scree
     let itemsHorizontalOffset: CGFloat
     let buttonsInfo: [ButtonWithIconInfo]
-    
+
     var body: some View {
         ScrollView(.horizontal, showsIndicators: false) {
             HStack(spacing: 8) {
@@ -46,7 +46,7 @@ struct ScrollableButtonsView_Previews: PreviewProvider {
                     ButtonWithIconInfo(title: "", icon: Assets.horizontalDots, action: {}),
                 ]
             )
-            
+
             ScrollableButtonsView(
                 itemsHorizontalOffset: 0,
                 buttonsInfo: [
@@ -58,16 +58,15 @@ struct ScrollableButtonsView_Previews: PreviewProvider {
                     ButtonWithIconInfo(title: "", icon: Assets.horizontalDots, action: {}),
                 ]
             )
-            
+
             ScrollableButtonsView(
                 itemsHorizontalOffset: 0,
                 buttonsInfo: [
                     ButtonWithIconInfo(title: "Buy", icon: Assets.plusMini, action: {}),
-                    ButtonWithIconInfo(title: "Send", icon: Assets.arrowUpMini, action: {})
+                    ButtonWithIconInfo(title: "Send", icon: Assets.arrowUpMini, action: {}),
                 ]
             )
         }
         .padding(.horizontal, 16)
-
     }
 }
