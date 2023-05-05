@@ -22,36 +22,34 @@ class FakeTokenItemInfoProvider: TokenItemInfoProvider, PriceChangeProvider, Obs
     let blockchain = Blockchain.ethereum(testnet: false)
 
     private var amountsIndex = 0
+    private var previouslyTappedModelId: Int?
     private var bag = Set<AnyCancellable>()
 
-    private(set) lazy var viewModels: [TokenItemComponentModel] = {
+    private(set) lazy var viewModels: [TokenItemViewModel] = {
         [
             .init(
                 id: makeId(for: amounts[amountsIndex][.coin]!),
                 tokenIcon: coinInfo,
                 amountType: .coin,
+                tokenTapped: modelTapped(with:),
                 infoProvider: self,
                 priceChangeProvider: self,
                 cryptoFormattingOptions: .makeDefaultCryptoFormattingOptions(for: blockchain.currencySymbol)
             ),
             .init(
                 id: makeId(for: amounts[amountsIndex][.token(value: wxDaiToken)]!),
-                tokenIcon: .init(
-                    with: .token(value: wxDaiToken),
-                    blockchain: blockchain
-                ),
+                tokenIcon: makeTokenIconInfo(for: wxDaiToken),
                 amountType: .token(value: wxDaiToken),
+                tokenTapped: modelTapped(with:),
                 infoProvider: self,
                 priceChangeProvider: self,
                 cryptoFormattingOptions: .makeDefaultCryptoFormattingOptions(for: wxDaiToken.symbol)
             ),
             .init(
                 id: makeId(for: amounts[amountsIndex][.token(value: tetherToken)]!),
-                tokenIcon: .init(
-                    with: .token(value: tetherToken),
-                    blockchain: blockchain
-                ),
+                tokenIcon: makeTokenIconInfo(for: tetherToken),
                 amountType: .token(value: tetherToken),
+                tokenTapped: modelTapped(with:),
                 infoProvider: self,
                 priceChangeProvider: self,
                 cryptoFormattingOptions: .makeDefaultCryptoFormattingOptions(for: tetherToken.symbol)
@@ -59,7 +57,11 @@ class FakeTokenItemInfoProvider: TokenItemInfoProvider, PriceChangeProvider, Obs
         ]
     }()
 
-    private var coinInfo: TokenIconInfo { TokenIconInfo(with: .coin, blockchain: blockchain) }
+    private var coinInfo: TokenIconInfo {
+        TokenIconInfoBuilder()
+            .build(for: .coin, in: blockchain)
+    }
+
     private var wxDaiToken: Token {
         Token(
             name: "Wrapped XDAI",
@@ -101,8 +103,6 @@ class FakeTokenItemInfoProvider: TokenItemInfoProvider, PriceChangeProvider, Obs
         0
     }
 
-    private var previouslyTappedModelId: Int?
-
     func modelTapped(with id: Int) {
         if let previouslyTappedModelId = previouslyTappedModelId {
             pendingTransactionNotifier.send((previouslyTappedModelId, false))
@@ -141,10 +141,14 @@ class FakeTokenItemInfoProvider: TokenItemInfoProvider, PriceChangeProvider, Obs
         }
     }
 
+    private func makeTokenIconInfo(for token: Token) -> TokenIconInfo {
+        return TokenIconInfoBuilder()
+            .build(for: .token(value: token), in: blockchain)
+    }
+
     private func makeId(for amount: Amount) -> Int {
         var hasher = Hasher()
-        let type = amount.type
-        hasher.combine(type)
+        hasher.combine(amount.type)
         hasher.combine(amount.currencySymbol)
         return hasher.finalize()
     }
