@@ -20,7 +20,6 @@ extension Analytics {
         case walletConnectAction = "wallet_connect_action"
         case walletConnectRequest = "wallet_connect_request"
         case walletConnectDappUrl = "wallet_connect_dapp_url"
-        case currencyCode = "currency_code"
         case source
         case tokenName = "token_name"
         case type
