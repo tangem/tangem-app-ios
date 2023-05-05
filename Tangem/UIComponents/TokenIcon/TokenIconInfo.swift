@@ -7,7 +7,6 @@
 //
 
 import Foundation
-import BlockchainSdk
 
 struct TokenIconInfo: Hashable {
     let name: String
