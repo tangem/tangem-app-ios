@@ -1,5 +1,5 @@
 //
-//  SingleCardOnboardingStepsBuilder.swift
+//  NoteOnboardingStepsBuilder.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -9,7 +9,7 @@
 import Foundation
 import TangemSdk
 
-class SingleCardOnboardingStepsBuilder {
+class NoteOnboardingStepsBuilder {
     private let card: CardDTO
     private let touId: String
 
@@ -29,7 +29,7 @@ class SingleCardOnboardingStepsBuilder {
     }
 }
 
-extension SingleCardOnboardingStepsBuilder: OnboardingStepsBuilder {
+extension NoteOnboardingStepsBuilder: OnboardingStepsBuilder {
     func buildOnboardingSteps() -> OnboardingSteps {
         var steps = [SingleCardOnboardingStep]()
 
@@ -38,12 +38,12 @@ extension SingleCardOnboardingStepsBuilder: OnboardingStepsBuilder {
         }
 
         if card.wallets.isEmpty {
-            steps.append(contentsOf: [.createWallet] + userWalletSavingSteps + [.success])
+            steps.append(contentsOf: [.createWallet] + userWalletSavingSteps + [.topup, .successTopup])
         } else {
             if !AppSettings.shared.cardsStartedActivation.contains(card.cardId) {
                 steps.append(contentsOf: userWalletSavingSteps)
             } else {
-                steps.append(contentsOf: userWalletSavingSteps + [.success])
+                steps.append(contentsOf: userWalletSavingSteps + [.topup, .successTopup])
             }
         }
 

@@ -8,23 +8,23 @@
 
 import Foundation
 
-struct TotalBalanceButton {
+struct ButtonWithIconInfo {
     let title: String
     let icon: ImageType
     let action: () -> Void
 }
 
-extension TotalBalanceButton: Hashable {
+extension ButtonWithIconInfo: Hashable {
     func hash(into hasher: inout Hasher) {
         hasher.combine(title)
         hasher.combine(icon)
     }
 
-    static func == (lhs: TotalBalanceButton, rhs: TotalBalanceButton) -> Bool {
+    static func == (lhs: ButtonWithIconInfo, rhs: ButtonWithIconInfo) -> Bool {
         lhs.hashValue == rhs.hashValue
     }
 }
 
-extension TotalBalanceButton: Identifiable {
+extension ButtonWithIconInfo: Identifiable {
     var id: Int { hashValue }
 }
