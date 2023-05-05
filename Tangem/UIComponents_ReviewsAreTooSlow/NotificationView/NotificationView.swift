@@ -19,7 +19,7 @@ public struct NotificationView: View {
 
     public var body: some View {
         Button {
-            viewModel.tapAroundAction?()
+            viewModel.primaryTapAction?()
         } label: {
             HStack(alignment: .center, spacing: 0) {
                 viewModel.input.mainIcon.image
@@ -27,13 +27,11 @@ public struct NotificationView: View {
 
                 VStack(alignment: .leading, spacing: 2) {
                     Text(viewModel.input.title)
-                        .font(.system(size: 15, weight: .medium))
+                        .style(Fonts.Bold.footnote, color: Colors.Text.primary1)
 
                     if let description = viewModel.input.description {
                         Text(description)
-                            .font(.system(size: 13, weight: .regular))
-                            .foregroundColor(Color.gray)
-                            .foregroundColor(Color.tangemTextGray)
+                            .style(Fonts.Bold.caption1, color: Colors.Text.tertiary)
                     }
                 }
                 .padding(.leading, 10)
@@ -42,12 +40,12 @@ public struct NotificationView: View {
 
                 if let moreIcon = viewModel.input.moreIcon {
                     Button {
-                        viewModel.tapMoreAction?()
+                        viewModel.secondaryTapAction?()
                     } label: {
                         moreIcon.image
                             .frame(width: 20, height: 20)
                     }
-                    .disabled(viewModel.tapMoreAction == nil)
+                    .disabled(viewModel.secondaryTapAction == nil)
                     .buttonStyle(PlainButtonStyle())
                 }
             }
@@ -55,27 +53,10 @@ public struct NotificationView: View {
             .padding(.vertical, 8)
             .background(Colors.Button.secondary)
             .contentShape(Rectangle())
-            .cornerRadius(16)
+            .cornerRadiusContinuous(16)
         }
         .buttonStyle(.plain)
     }
-}
-
-// MARK: - ViewModel
-
-public struct NotificationViewModel: Identifiable {
-    public struct Input {
-        private(set) var mainIcon: ImageType
-        private(set) var title: String
-        private(set) var description: String?
-        private(set) var moreIcon: ImageType?
-    }
-
-    public let id = UUID()
-
-    private(set) var input: Input
-    private(set) var tapAroundAction: (() -> Void)?
-    private(set) var tapMoreAction: (() -> Void)?
 }
 
 // MARK: - Previews
@@ -89,7 +70,9 @@ struct NotificationView_Previews: PreviewProvider {
                     title: "NotificationView title",
                     description: "NotificationView description",
                     moreIcon: Assets.search
-                )
+                ),
+                primaryTapAction: nil,
+                secondaryTapAction: nil
             )
         )
         .padding(.horizontal, 0)
