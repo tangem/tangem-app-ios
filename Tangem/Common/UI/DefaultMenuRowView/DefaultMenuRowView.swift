@@ -33,17 +33,21 @@ struct DefaultMenuRowView<Action: DefaultMenuRowViewModelAction>: View {
     private var menuView: some View {
         Menu {
             ForEach(viewModel.actions) { action in
-                Button(action.title) {
-                    withAnimation(nil) {
-                        selection = action
+                Button {
+                    selection = action
+                } label: {
+                    Label {
+                        Text(action.title)
+                            .style(Fonts.Regular.body, color: Colors.Text.primary1)
+                    } icon: {
+                        if selection == action {
+                            Assets.check.image
+                                .renderingMode(.template)
+                                .foregroundColor(Colors.Icon.primary1)
+                        }
                     }
                 }
-                .font(Fonts.Regular.body)
-                .foregroundColor(Colors.Text.primary1)
-                .buttonStyle(.borderless)
-                //                Text(action.title)
-                //                    .style(Fonts.Regular.body, color: Colors.Text.primary1)
-//                .tag(action)
+                .buttonStyle(.plain)
             }
         } label: {
             HStack(spacing: 0) {
@@ -51,39 +55,13 @@ struct DefaultMenuRowView<Action: DefaultMenuRowViewModelAction>: View {
                     .style(Fonts.Regular.body, color: Colors.Text.primary1)
 
                 Assets.chevronDownMaxi.image
+                    .resizable()
                     .renderingMode(.template)
+                    .frame(width: 24, height: 24)
                     .foregroundColor(Colors.Icon.primary1)
             }
-//            .animation(nil)
         }
-        .menuStyle(MyMenuStyle())
-        .frame(idealWidth: 24)
-    }
-
-    private var pickerView: some View {
-        Picker(selection: $selection) {
-            ForEach(viewModel.actions) { action in
-                Text(action.title)
-                    .style(Fonts.Regular.body, color: Colors.Text.primary1)
-                    .tag(action)
-            }
-        } label: {
-            Text(selection.title)
-                .style(Fonts.Regular.body, color: Colors.Text.primary1)
-                .lineLimit(1)
-                .animation(nil, value: selection)
-        }
-        .pickerStyle(.menu)
-        .frame(height: 24)
-//        .border(Color.red)
-        .animation(nil, value: selection)
-    }
-}
-
-struct MyMenuStyle: MenuStyle {
-    func makeBody(configuration: Configuration) -> some View {
-        Menu(configuration)
-            .animation(nil)
+        .animation(.none)
     }
 }
 

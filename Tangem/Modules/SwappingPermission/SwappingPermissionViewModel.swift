@@ -8,23 +8,8 @@
 
 import Combine
 import TangemSwapping
-import TangemSdk
-
-public enum SwappingApprovePolicy: DefaultMenuRowViewModelAction {
-    case unlimited
-    case amount(Decimal)
-
-    public var id: Int { hashValue }
-
-    public var title: String {
-        switch self {
-        case .amount(let amount):
-            return "Current transaction"
-        case .unlimited:
-            return "Unlimited"
-        }
-    }
-}
+import UIKit
+import enum TangemSdk.TangemSdkError
 
 final class SwappingPermissionViewModel: ObservableObject, Identifiable {
     // MARK: - ViewState
@@ -57,8 +42,11 @@ final class SwappingPermissionViewModel: ObservableObject, Identifiable {
         self.transactionSender = transactionSender
         self.coordinator = coordinator
 
-        setupView()
-        setupLegacyView()
+        if FeatureProvider.isAvailable(.abilityChooseApproveAmount) {
+            setupView()
+        } else {
+            setupLegacyView()
+        }
     }
 
     func didTapInfoButton() {
@@ -163,5 +151,18 @@ private extension SwappingPermissionViewModel {
             title: Localization.sendFeeLabel,
             detailsType: .text(feeLabel)
         )
+    }
+}
+
+extension SwappingApprovePolicy: DefaultMenuRowViewModelAction {
+    public var id: Int { hashValue }
+
+    public var title: String {
+        switch self {
+        case .amount:
+            return "Current transaction"
+        case .unlimited:
+            return "Unlimited"
+        }
     }
 }
