@@ -36,9 +36,11 @@ struct SwappingPermissionView: View {
         VStack(spacing: 16) {
             headerView
 
-//            legacyContent
-
-            content
+            if FeatureProvider.isAvailable(.abilityChooseApproveAmount) {
+                content
+            } else {
+                legacyContent
+            }
 
             buttons
         }
@@ -108,7 +110,7 @@ struct SwappingPermissionView_Preview: PreviewProvider {
     static let viewModel = SwappingPermissionViewModel(
         inputModel: SwappingPermissionInputModel(fiatFee: 1.45, transactionData: .mock),
         transactionSender: TransactionSenderMock(),
-        coordinator: SwappingCoordinator()
+        coordinator: SwappingPermissionRoutableMock()
     )
 
     static var previews: some View {
