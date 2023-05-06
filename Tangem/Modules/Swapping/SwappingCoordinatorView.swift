@@ -32,7 +32,7 @@ struct SwappingCoordinatorView: CoordinatorView {
                 SwappingTokenListView(viewModel: $0)
             }
 
-        if #available(iOS 15, *) {
+        if #available(iOS 15, *), !FeatureProvider.isAvailable(.abilityChooseApproveAmount) {
             NavHolder()
                 .bottomSheet(item: $coordinator.swappingPermissionViewModel) {
                     SwappingPermissionView(viewModel: $0)
