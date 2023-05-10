@@ -75,27 +75,21 @@ public extension EIP712TypedData {
         do {
             let encodedType = try encodeType(primaryType: type)
             encodedData.append(encodedType)
+
             if let valueTypes = types[type] {
                 try valueTypes.forEach { field in
-                    let encoder = ABIEncoder()
                     let typeToEncode = extractArrayTypeIfNeeded(from: field.type)
+
                     if isPrimitiveType(typeToEncode) {
-                        if let value = makeABIValue(data: data[field.name], type: field.type) {
-                            try encoder.encode(value)
-                            encodedData.append(encoder.data)
+                        /// We need to pass to `encodePrimitiveData` `field.type` instead of `typeToEncode` to properly handle array of primitives
+                        guard let encodedPrimitive = try encodePrimitiveData(json: data[field.name], with: field.type) else {
+                            return
                         }
-                    } else {
-                        if let json = data[field.name] {
-                            if let jsonArray = json.arrayValue {
-                                let hashedStructs = jsonArray.compactMap { hashStruct(data: $0, type: typeToEncode) }
-                                var concatenated = Data()
-                                concatenated = hashedStructs.reduce(into: concatenated) { $0.append($1) }
-                                encodedData.append(concatenated.sha3(.keccak256))
-                            } else {
-                                let hashed = hashStruct(data: json, type: typeToEncode)
-                                encodedData.append(hashed)
-                            }
-                        }
+
+                        encodedData.append(encodedPrimitive)
+                    } else if let json = data[field.name] {
+                        let encodedStruct = encodeStructData(json: json, with: typeToEncode)
+                        encodedData.append(encodedStruct)
                     }
                 }
             }
@@ -217,6 +211,27 @@ private extension EIP712TypedData {
         }
 
         return false
+    }
+
+    func encodePrimitiveData(json: JSON?, with type: String) throws -> Data? {
+        guard let value = makeABIValue(data: json, type: type) else {
+            return nil
+        }
+
+        let encoder = ABIEncoder()
+        try encoder.encode(value)
+        return encoder.data
+    }
+
+    func encodeStructData(json: JSON, with type: String) -> Data {
+        guard let jsonArray = json.arrayValue else {
+            return hashStruct(data: json, type: type)
+        }
+
+        let hashedStructs = jsonArray.compactMap { hashStruct(data: $0, type: type) }
+        var concatenated = Data()
+        concatenated = hashedStructs.reduce(into: concatenated) { $0.append($1) }
+        return concatenated.sha3(.keccak256)
     }
 }
 
