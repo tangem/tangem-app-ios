@@ -153,15 +153,13 @@ class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable>
     }
 
     func initializeUserWallet(from cardInfo: CardInfo) {
-        let config = UserWalletConfigFactory(cardInfo).makeConfig()
-        let userWallet = CardViewModel(cardInfo: cardInfo, config: config)
-        userWallet.appendDefaultBlockchains()
-        userWallet.userWalletModel?.initialUpdate()
+        guard let userWallet = CardViewModel(cardInfo: cardInfo) else { return }
 
-        if let userWalletId = cardModel?.userWalletId {
-            analyticsContext.updateContext(with: userWalletId)
-            Analytics.logTopUpIfNeeded(balance: 0)
-        }
+        userWallet.appendDefaultBlockchains()
+        userWallet.initialUpdate()
+
+        analyticsContext.updateContext(with: userWallet.userWalletId.value)
+        Analytics.logTopUpIfNeeded(balance: 0)
 
         cardModel = userWallet
     }
@@ -169,14 +167,13 @@ class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable>
     func handleUserWalletOnFinish() throws {
         guard
             AppSettings.shared.saveUserWallets,
-            let cardModel = cardModel,
-            let userWallet = cardModel.userWallet
+            let cardModel = cardModel
         else {
             return
         }
 
         userWalletRepository.save(cardModel)
-        userWalletRepository.setSelectedUserWalletId(userWallet.userWalletId, reason: .inserted)
+        userWalletRepository.setSelectedUserWalletId(cardModel.userWalletId.value, reason: .inserted)
     }
 
     func loadImage(supportsOnlineImage: Bool, cardId: String?, cardPublicKey: Data?) {
