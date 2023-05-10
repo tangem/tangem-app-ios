@@ -20,8 +20,8 @@ protocol CardResettable: AnyObject {
 
 class CardInteractor {
     private let tangemSdk: TangemSdk
-    private var cardInfo: CardInfo
-    private var commandBag: (any CardSessionRunnable)?
+    private var cardInfo: CardInfo?
+    private var runnableBag: (any CardSessionRunnable)?
     private var cancellable: AnyCancellable?
 
     internal init(tangemSdk: TangemSdk, cardInfo: CardInfo) {
@@ -32,10 +32,15 @@ class CardInteractor {
 
 extension CardInteractor: CardPreparable {
     func prepareCard(seed: Data?, completion: @escaping (Result<CardInfo, TangemSdkError>) -> Void) {
+        guard let cardInfo else {
+            completion(.failure(CardInteractionError.emptyCard.toTangemSdkError()))
+            return
+        }
+
         let config = UserWalletConfigFactory(cardInfo).makeConfig()
         let task = PreparePrimaryCardTask(curves: config.mandatoryCurves, seed: seed)
         let initialMessage = Message(header: nil, body: Localization.initialMessageCreateWalletBody)
-        commandBag = task
+        runnableBag = task
 
         cancellable = tangemSdk.startSessionPublisher(
             with: task,
@@ -55,7 +60,7 @@ extension CardInteractor: CardPreparable {
             }
 
             self?.cancellable = nil
-            self?.commandBag = nil
+            self?.runnableBag = nil
         }, receiveValue: { [weak self] newCardInfo in
             self?.cardInfo = newCardInfo
             completion(.success(newCardInfo))
@@ -65,9 +70,14 @@ extension CardInteractor: CardPreparable {
 
 extension CardInteractor: CardResettable {
     func resetCard(completion: @escaping (Result<Void, TangemSdkError>) -> Void) {
+        guard let cardInfo else {
+            completion(.failure(CardInteractionError.emptyCard.toTangemSdkError()))
+            return
+        }
+        
         let initialMessage = Message(header: nil, body: Localization.initialMessagePurgeWalletBody)
         let task = ResetToFactorySettingsTask()
-        commandBag = task
+        runnableBag = task
 
         tangemSdk.startSession(
             with: task,
@@ -76,12 +86,19 @@ extension CardInteractor: CardResettable {
         ) { [weak self] result in
             switch result {
             case .success:
+                self?.cardInfo = nil
                 completion(.success(()))
             case .failure(let error):
                 completion(.failure(error))
             }
 
-            self?.commandBag = nil
+            self?.runnableBag = nil
         }
+    }
+}
+
+extension CardInteractor {
+    enum CardInteractionError: Error {
+        case emptyCard
     }
 }
