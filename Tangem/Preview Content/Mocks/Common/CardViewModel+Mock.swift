@@ -10,8 +10,6 @@ import Foundation
 
 extension CardViewModel {
     static let mock = CardViewModel(
-        cardInfo: CardInfo(card: .init(card: .card), walletData: .none, name: "", artwork: .noArtwork, primaryCard: nil),
-        config: GenericConfig(card: .init(card: .card)),
-        userWallet: nil
+        cardInfo: CardInfo(card: .init(card: .card), walletData: .none, name: "", artwork: .noArtwork, primaryCard: nil)
     )
 }
