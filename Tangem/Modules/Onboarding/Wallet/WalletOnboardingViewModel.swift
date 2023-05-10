@@ -521,9 +521,9 @@ class WalletOnboardingViewModel: OnboardingTopupViewModel<WalletOnboardingStep, 
             return
         }
 
-        let rebuildedSteps = stepsBuilder.buildOnboardingSteps()
+        let newSteps = stepsBuilder.buildOnboardingSteps()
 
-        if case .wallet(let steps) = rebuildedSteps {
+        if case .wallet(let steps) = newSteps {
             self.steps = steps
             self.currentStepIndex = 0
         }
