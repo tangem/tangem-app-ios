@@ -13,7 +13,7 @@ import BlockchainSdk
 class TotalBalanceProvider {
     @Injected(\.tangemApiService) private var tangemApiService: TangemApiService
 
-    private let userWalletModel: UserWalletModel
+    private unowned let userWalletModel: UserWalletModel
     private let totalBalanceSubject = CurrentValueSubject<LoadingValue<TotalBalance>, Never>(.loading)
     private var refreshSubscription: AnyCancellable?
     private let userWalletAmountType: Amount.AmountType?
