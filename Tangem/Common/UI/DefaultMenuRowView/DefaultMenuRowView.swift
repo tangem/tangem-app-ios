@@ -19,49 +19,32 @@ struct DefaultMenuRowView<Action: DefaultMenuRowViewModelAction>: View {
     }
 
     var body: some View {
-        HStack {
+        HStack(alignment: .center, spacing: 0) {
             Text(viewModel.title)
                 .style(Fonts.Regular.body, color: Colors.Text.primary1)
 
             Spacer()
 
-            menuView
+            pickerView
         }
-        .padding(.vertical, 14)
+        .padding(.vertical, 12)
     }
 
-    private var menuView: some View {
-        Menu {
-            ForEach(viewModel.actions) { action in
-                Button {
-                    selection = action
-                } label: {
-                    Label {
-                        Text(action.title)
-                            .style(Fonts.Regular.body, color: Colors.Text.primary1)
-                    } icon: {
-                        if selection == action {
-                            Assets.check.image
-                                .renderingMode(.template)
-                                .foregroundColor(Colors.Icon.primary1)
-                        }
-                    }
-                }
-                .buttonStyle(.plain)
-            }
-        } label: {
-            HStack(spacing: 0) {
+    private var pickerView: some View {
+        OptionPicker(selection: $selection, options: viewModel.actions) {
+            HStack(spacing: 8) {
                 Text(selection.title)
                     .style(Fonts.Regular.body, color: Colors.Text.primary1)
+                    .animation(.none, value: selection.title)
 
-                Assets.chevronDownMaxi.image
-                    .resizable()
+                Assets.chevronDownMini.image
                     .renderingMode(.template)
-                    .frame(width: 24, height: 24)
                     .foregroundColor(Colors.Icon.primary1)
             }
+        } content: { action in
+            Text(action.title)
+                .style(Fonts.Regular.body, color: Colors.Text.primary1)
         }
-        .animation(.none)
     }
 }
 
