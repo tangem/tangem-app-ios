@@ -24,6 +24,14 @@ class EIP712TypedDataTests: XCTestCase {
         return typedData
     }
 
+    func testSeaportData() throws {
+        let fileName = "seaportTypedData"
+        let jsonTypedData = try typedData(for: fileName)
+        let hashToTest = jsonTypedData.signHash
+        let expectedResult = "54140d99a864932cbc40fd8a2d1d1706c3923a79c183a3b151e929ac468064db"
+        XCTAssertEqual(hashToTest.hex.lowercased(), expectedResult)
+    }
+
     func testDecode() {
         XCTAssertNoThrow(try typedData(for: "simpleDecode"))
     }
@@ -59,7 +67,7 @@ class EIP712TypedDataTests: XCTestCase {
     func testEncodeType() throws {
         let typedData = try typedData(for: "simpleDecode")
         let result = "Mail(Person from,Person to,string contents)Person(string name,address wallet)"
-        XCTAssertEqual(typedData.encodeType(primaryType: "Mail"), result.data(using: .utf8)!)
+        XCTAssertEqual(typedData.makeTypeData(primaryType: "Mail"), result.data(using: .utf8)!)
     }
 
     func testEncodedTypeHash() throws {
