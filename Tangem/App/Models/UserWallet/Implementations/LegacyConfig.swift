@@ -55,8 +55,18 @@ extension LegacyConfig: UserWalletConfig {
         "Tangem Card"
     }
 
-    var defaultCurve: EllipticCurve? {
-        defaultBlockchain?.curve
+    var mandatoryCurves: [EllipticCurve] {
+        if let defaultBlockchain {
+            return [defaultBlockchain.curve]
+        }
+
+        // old white multiwallet
+        if card.settings.maxWalletsCount > 1 {
+            return [.secp256k1, .ed25519]
+        }
+
+        // should not be the case
+        return []
     }
 
     var supportedBlockchains: Set<Blockchain> {
