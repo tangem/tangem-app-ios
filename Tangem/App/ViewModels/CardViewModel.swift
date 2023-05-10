@@ -25,6 +25,10 @@ class CardViewModel: Identifiable, ObservableObject {
 
     var signer: TangemSigner { _signer }
 
+    var cardInteractor: CardInteractor {
+        .init(tangemSdk: config.makeTangemSdk(), cardInfo: cardInfo)
+    }
+
     var cardId: String { cardInfo.card.cardId }
 
     var card: CardDTO {
@@ -234,23 +238,10 @@ class CardViewModel: Identifiable, ObservableObject {
         config.supportedBlockchains
     }
 
-    var onboardingInput: OnboardingInput? {
-        let factory = OnboardingInputFactory(
-            cardInput: .cardModel(self),
-            twinData: cardInfo.walletData.twinData,
-            primaryCard: cardInfo.primaryCard,
-            sdkFactory: config,
-            onboardingStepsBuilderFactory: config
-        )
-
-        return factory.makeOnboardingInput()
-    }
-
     var backupInput: OnboardingInput? {
         let factory = OnboardingInputFactory(
-            cardInput: .cardModel(self),
-            twinData: nil,
-            primaryCard: cardInfo.primaryCard,
+            cardInfo: cardInfo,
+            cardModel: self,
             sdkFactory: config,
             onboardingStepsBuilderFactory: config
         )
@@ -447,54 +438,6 @@ class CardViewModel: Identifiable, ObservableObject {
 
     // MARK: - Wallet
 
-    func createWallet(_ completion: @escaping (Result<Void, Error>) -> Void) {
-        let tangemSdk = makeTangemSdk()
-        self.tangemSdk = tangemSdk
-
-        let card = cardInfo.card
-        tangemSdk.startSession(
-            with: CreateWalletAndReadTask(with: config.defaultCurve),
-            cardId: cardId,
-            initialMessage: Message(
-                header: nil,
-                body: Localization.initialMessageCreateWalletBody
-            )
-        ) { [weak self] result in
-            switch result {
-            case .success(let card):
-                self?.onWalletCreated(card)
-                completion(.success(()))
-            case .failure(let error):
-                AppLog.shared.error(error, params: [.action: .createWallet])
-                completion(.failure(error))
-            }
-        }
-    }
-
-    func resetToFactory(completion: @escaping (Result<Void, TangemSdkError>) -> Void) {
-        let tangemSdk = makeTangemSdk()
-        self.tangemSdk = tangemSdk
-
-        let card = cardInfo.card
-        tangemSdk.startSession(
-            with: ResetToFactorySettingsTask(),
-            cardId: cardId,
-            initialMessage: Message(
-                header: nil,
-                body: Localization.initialMessagePurgeWalletBody
-            )
-        ) { [weak self] result in
-            switch result {
-            case .success:
-                Analytics.log(.factoryResetFinished)
-                completion(.success(()))
-            case .failure(let error):
-                AppLog.shared.error(error, params: [.action: .purgeWallet])
-                completion(.failure(error))
-            }
-        }
-    }
-
     func getBlockchainNetwork(for blockchain: Blockchain, derivationPath: DerivationPath?) -> BlockchainNetwork {
         if let derivationPath = derivationPath {
             return BlockchainNetwork(blockchain, derivationPath: derivationPath)
@@ -514,12 +457,6 @@ class CardViewModel: Identifiable, ObservableObject {
     }
 
     // MARK: - Update
-
-    func onWalletCreated(_ card: Card) {
-        cardInfo.card.updateWallets(with: card.wallets)
-        onUpdate()
-        userWalletModel?.initialUpdate()
-    }
 
     func onSecurityOptionChanged(isAccessCodeSet: Bool, isPasscodeSet: Bool) {
         cardInfo.card.isAccessCodeSet = isAccessCodeSet
