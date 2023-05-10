@@ -9,7 +9,7 @@
 import Foundation
 
 protocol OnboardingRoutable: AnyObject {
-    func onboardingDidFinish()
+    func onboardingDidFinish(userWallet: CardViewModel?)
     func closeOnboarding()
     func openSupportChat(input: SupportChatInputModel)
     func openWebView(with url: URL)
