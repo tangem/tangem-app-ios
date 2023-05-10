@@ -59,8 +59,6 @@ target 'Tangem' do
   
   target 'TangemTests' do
     inherit! :search_paths
-    
-    pod 'TrustWalletCore'
     # Pods for testing
   end
 
