@@ -13,7 +13,6 @@ import BlockchainSdk
 class OnboardingTopupViewModel<Step: OnboardingStep, Coordinator: OnboardingTopupRoutable>: OnboardingViewModel<Step, Coordinator> {
     @Injected(\.exchangeService) var exchangeService: ExchangeService
     @Injected(\.tangemApiService) private var tangemApiService: TangemApiService
-    @Injected(\.analyticsContext) var analyticsContext: AnalyticsContext
 
     @Published var refreshButtonState: OnboardingCircleButton.State = .refreshButton
     @Published var cardBalance: String = ""
