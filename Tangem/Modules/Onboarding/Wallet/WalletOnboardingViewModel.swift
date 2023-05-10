@@ -496,10 +496,7 @@ class WalletOnboardingViewModel: OnboardingTopupViewModel<WalletOnboardingStep, 
                 switch newState {
                 case .kycStart:
                     if self.currentStep == .kycWaiting {
-                        if case .wallet(let steps) = self.rebuildSteps() {
-                            self.steps = steps
-                            self.currentStepIndex = 0
-                        }
+                        self.rebuildSteps()
                         return
                     }
 
@@ -511,10 +508,7 @@ class WalletOnboardingViewModel: OnboardingTopupViewModel<WalletOnboardingStep, 
                         self.goToNextStep()
                     }
                 case .kycRetry:
-                    if case .wallet(let steps) = self.rebuildSteps() {
-                        self.steps = steps
-                        self.currentStepIndex = 0
-                    }
+                    self.rebuildSteps()
                 default:
                     break
                 }
@@ -522,12 +516,17 @@ class WalletOnboardingViewModel: OnboardingTopupViewModel<WalletOnboardingStep, 
             .store(in: &bag)
     }
 
-    private func rebuildSteps() -> OnboardingSteps? {
+    private func rebuildSteps() {
         guard let stepsBuilder = input.stepsBuilder else {
-            return nil
+            return
         }
 
-        return stepsBuilder.buildOnboardingSteps()
+        let rebuildedSteps = stepsBuilder.buildOnboardingSteps()
+
+        if case .wallet(let steps) = rebuildedSteps {
+            self.steps = steps
+            self.currentStepIndex = 0
+        }
     }
 
     private func loadImageForRestoredbackup(cardId: String, cardPublicKey: Data) {
