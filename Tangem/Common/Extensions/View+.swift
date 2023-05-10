@@ -59,4 +59,8 @@ extension View {
             self
         }
     }
+
+    func style(_ font: Font, color: Color) -> some View {
+        self.font(font).foregroundColor(color)
+    }
 }
