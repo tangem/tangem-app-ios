@@ -238,7 +238,6 @@
 		B05A13A129FB971900FB511A /* TokenItemViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B05A13A029FB971900FB511A /* TokenItemViewModel.swift */; };
 		B05A13A329FB975400FB511A /* LoadableTextView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B05A13A229FB975400FB511A /* LoadableTextView.swift */; };
 		B05A13A829FBB98700FB511A /* TokenItemInfoProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = B05A13A729FBB98700FB511A /* TokenItemInfoProvider.swift */; };
-		B05A13AC29FBEAA500FB511A /* ButtonWithLeadingIcon.swift in Sources */ = {isa = PBXBuildFile; fileRef = B05A13AB29FBEAA500FB511A /* ButtonWithLeadingIcon.swift */; };
 		B05A13AE29FBED3000FB511A /* ScrollableButtonsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B05A13AD29FBED3000FB511A /* ScrollableButtonsView.swift */; };
 		B05A645625E0F57B00F154B7 /* ScanTroublehootingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B05A645525E0F57B00F154B7 /* ScanTroublehootingView.swift */; };
 		B05A859729937E2400E87C6E /* TransactionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B05A859629937E2400E87C6E /* TransactionView.swift */; };
@@ -268,6 +267,7 @@
 		B08ACD8A25D2BC47007387BD /* TokenListViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B08ACD8925D2BC47007387BD /* TokenListViewModel.swift */; };
 		B08B8CEB26D6276000D4BB7B /* PreviewData.swift in Sources */ = {isa = PBXBuildFile; fileRef = B08B8CEA26D6276000D4BB7B /* PreviewData.swift */; };
 		B08E26AF29D5580E00346C43 /* SeedPhraseSuggestionsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B08E26AE29D5580E00346C43 /* SeedPhraseSuggestionsView.swift */; };
+		B09310582A0B76C100F6043A /* ButtonWithLeadingIcon.swift in Sources */ = {isa = PBXBuildFile; fileRef = B09310572A0B76C100F6043A /* ButtonWithLeadingIcon.swift */; };
 		B09536FE26D3D2460040A90D /* DisclaimerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B09536FD26D3D2460040A90D /* DisclaimerView.swift */; };
 		B0958BA429F6A796007CD76D /* TokenItemView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0958BA329F6A796007CD76D /* TokenItemView.swift */; };
 		B098DD4C29C46EC300D2D55B /* UIFonts.swift in Sources */ = {isa = PBXBuildFile; fileRef = B098DD4B29C46EC300D2D55B /* UIFonts.swift */; };
@@ -327,6 +327,7 @@
 		B0C87B432566461600F861DE /* TwinCardsFileCoder.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0C87B422566461600F861DE /* TwinCardsFileCoder.swift */; };
 		B0C87B482566492000F861DE /* TwinData.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0C87B472566492000F861DE /* TwinData.swift */; };
 		B0C8A0D42562C86A00DEEAC7 /* View+PreviewDevice.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0C8A0D32562C86A00DEEAC7 /* View+PreviewDevice.swift */; };
+		B0C9D2842A03A640001A2D6D /* seaportTypedData.json in Resources */ = {isa = PBXBuildFile; fileRef = B0C9D2832A03A3C1001A2D6D /* seaportTypedData.json */; };
 		B0CAFA8D26C6C0FE001238DA /* QRCodeGenerator.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0CAFA8C26C6C0FE001238DA /* QRCodeGenerator.swift */; };
 		B0CC818325CD63FB006D49B9 /* Token+.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0CC818225CD63FB006D49B9 /* Token+.swift */; };
 		B0CCA7222568FD0F009325E3 /* TwinsCreateWalletTask.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0CCA7212568FD0F009325E3 /* TwinsCreateWalletTask.swift */; };
@@ -1182,7 +1183,6 @@
 		B05A13A029FB971900FB511A /* TokenItemViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenItemViewModel.swift; sourceTree = "<group>"; };
 		B05A13A229FB975400FB511A /* LoadableTextView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoadableTextView.swift; sourceTree = "<group>"; };
 		B05A13A729FBB98700FB511A /* TokenItemInfoProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenItemInfoProvider.swift; sourceTree = "<group>"; };
-		B05A13AB29FBEAA500FB511A /* ButtonWithLeadingIcon.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ButtonWithLeadingIcon.swift; sourceTree = "<group>"; };
 		B05A13AD29FBED3000FB511A /* ScrollableButtonsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScrollableButtonsView.swift; sourceTree = "<group>"; };
 		B05A645525E0F57B00F154B7 /* ScanTroublehootingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScanTroublehootingView.swift; sourceTree = "<group>"; };
 		B05A859629937E2400E87C6E /* TransactionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransactionView.swift; sourceTree = "<group>"; };
@@ -1214,6 +1214,7 @@
 		B08ACD8925D2BC47007387BD /* TokenListViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenListViewModel.swift; sourceTree = "<group>"; };
 		B08B8CEA26D6276000D4BB7B /* PreviewData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreviewData.swift; sourceTree = "<group>"; };
 		B08E26AE29D5580E00346C43 /* SeedPhraseSuggestionsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SeedPhraseSuggestionsView.swift; sourceTree = "<group>"; };
+		B09310572A0B76C100F6043A /* ButtonWithLeadingIcon.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ButtonWithLeadingIcon.swift; sourceTree = "<group>"; };
 		B09536FD26D3D2460040A90D /* DisclaimerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DisclaimerView.swift; sourceTree = "<group>"; };
 		B0958BA329F6A796007CD76D /* TokenItemView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenItemView.swift; sourceTree = "<group>"; };
 		B098DD4B29C46EC300D2D55B /* UIFonts.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIFonts.swift; sourceTree = "<group>"; };
@@ -1274,6 +1275,7 @@
 		B0C87B422566461600F861DE /* TwinCardsFileCoder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TwinCardsFileCoder.swift; sourceTree = "<group>"; };
 		B0C87B472566492000F861DE /* TwinData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TwinData.swift; sourceTree = "<group>"; };
 		B0C8A0D32562C86A00DEEAC7 /* View+PreviewDevice.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "View+PreviewDevice.swift"; sourceTree = "<group>"; };
+		B0C9D2832A03A3C1001A2D6D /* seaportTypedData.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = seaportTypedData.json; sourceTree = "<group>"; };
 		B0CA52F829C04FA10076E2EF /* TonCenterApiKeys.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TonCenterApiKeys.swift; sourceTree = "<group>"; };
 		B0CAFA8C26C6C0FE001238DA /* QRCodeGenerator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QRCodeGenerator.swift; sourceTree = "<group>"; };
 		B0CC818225CD63FB006D49B9 /* Token+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Token+.swift"; sourceTree = "<group>"; };
@@ -1913,6 +1915,7 @@
 			isa = PBXGroup;
 			children = (
 				5D20811527D23E5B00D8A970 /* simpleDecode.json */,
+				B0C9D2832A03A3C1001A2D6D /* seaportTypedData.json */,
 				5D20811727D23F8200D8A970 /* simpleDecode2.json */,
 				5D20811927D23FE500D8A970 /* simpleDecode3.json */,
 				5D20811B27D2405200D8A970 /* hashEncode.json */,
@@ -2622,7 +2625,7 @@
 			isa = PBXGroup;
 			children = (
 				B0A596552992A5B700C7C512 /* ButtonWithIconInfo.swift */,
-				B05A13AB29FBEAA500FB511A /* ButtonWithLeadingIcon.swift */,
+				B09310572A0B76C100F6043A /* ButtonWithLeadingIcon.swift */,
 			);
 			path = ButtonWithIcon;
 			sourceTree = "<group>";
@@ -2861,7 +2864,6 @@
 			isa = PBXGroup;
 			children = (
 				B05A13A229FB975400FB511A /* LoadableTextView.swift */,
-				B0B335DD29FA959B00E2082E /* TokenIconComponent.swift */,
 				B05A13AD29FBED3000FB511A /* ScrollableButtonsView.swift */,
 			);
 			path = Common;
@@ -3842,8 +3844,6 @@
 		EF130EB828E1D32400D37EFC /* SingleWalletContentView */ = {
 			isa = PBXGroup;
 			children = (
-				B05A859329937D2400E87C6E /* TransactionHistory */,
-				B0A596552992A5B700C7C512 /* TotalBalanceButton.swift */,
 				EF130EB928E1D33000D37EFC /* SingleWalletContentView.swift */,
 				EF130EB328E1C47C00D37EFC /* SingleWalletContentViewModel.swift */,
 			);
@@ -4858,6 +4858,7 @@
 				5D20811827D23F8200D8A970 /* simpleDecode2.json in Resources */,
 				5D20811A27D23FE500D8A970 /* simpleDecode3.json in Resources */,
 				5D20812027D240B200D8A970 /* hashEncodev4.json in Resources */,
+				B0C9D2842A03A640001A2D6D /* seaportTypedData.json in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -5283,7 +5284,6 @@
 				DAC53CF827BE63830027147D /* StoriesTangemLogo.swift in Sources */,
 				DC5E32CF28EEAC3200D6096A /* SaltPayUtil.swift in Sources */,
 				DC295B4C2861D7CF006CB7B6 /* WalletConnectCoordinator.swift in Sources */,
-				B05A13AC29FBEAA500FB511A /* ButtonWithLeadingIcon.swift in Sources */,
 				DC0A5801282500460031BECC /* SellCryptoRequest.swift in Sources */,
 				EF6EDD7E296C0D40001B21A3 /* CommonIncomingActionManager.swift in Sources */,
 				5D09381425E6CB2D0049B8F0 /* HorizontalButtonStack.swift in Sources */,
@@ -5547,6 +5547,7 @@
 				EF053DF32938D4BC006FD13A /* UserWalletListOutput.swift in Sources */,
 				65B435FE2844BF7200DEAE1B /* AttributedTextView.swift in Sources */,
 				5D49035227BE9D550072C642 /* Data+.swift in Sources */,
+				B09310582A0B76C100F6043A /* ButtonWithLeadingIcon.swift in Sources */,
 				DAC53CFE27BE63830027147D /* MeetTangemStoryPage.swift in Sources */,
 				B0BA7BC726C4F9A300D7066F /* OnboardingCircleButton.swift in Sources */,
 				B04BA23126F07ECE0036784C /* OnboardingTextButtonView.swift in Sources */,
