@@ -21,7 +21,7 @@ public struct NotificationView: View {
         Button {
             viewModel.primaryTapAction?()
         } label: {
-            HStack(alignment: .center, spacing: 0) {
+            HStack(spacing: 0) {
                 viewModel.input.mainIcon.image
                     .frame(width: 20, height: 20)
 

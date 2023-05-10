@@ -24,7 +24,7 @@ public struct BottomSheetInfoView: View {
 
             Spacer(minLength: 28)
 
-            VStack(alignment: .center, spacing: 10) {
+            VStack(spacing: 10) {
                 Text(viewModel.input.title)
                     .style(Fonts.Bold.title1, color: Colors.Text.primary1)
                     .multilineTextAlignment(.center)
