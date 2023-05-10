@@ -75,7 +75,7 @@ extension SaltPayUtil {
 
     var backupCardRanges: [CardIdRange] {
         [
-            .init(start: "AC05000000000003", end: "AC05000000023997")!, // start and end batches must be equal
+            .init(start: "AC05000000000003", end: "AC05000000015993")!, // start and end batches must be equal
             .init(start: "FF04000000000000", end: "FF04999999999999")!, // start and end batches must be equal
         ]
     }
