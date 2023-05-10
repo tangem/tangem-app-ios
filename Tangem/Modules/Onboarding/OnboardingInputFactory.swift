@@ -44,14 +44,11 @@ class OnboardingInputFactory {
         let tangemSdk = sdkFactory.makeTangemSdk()
         let cardInteractor = CardInteractor(tangemSdk: tangemSdk, cardInfo: cardInfo)
 
-        let cardModel = tryGetCardViewModel()
-        let cardInput: OnboardingInput.CardInput = cardModel.map { .cardModel($0) } ?? .cardInfo(cardInfo)
-
         return .init(
             backupService: backupService,
             cardInteractor: cardInteractor,
             steps: steps,
-            cardInput: cardInput,
+            cardInput: makeCardInput(),
             twinData: cardInfo.walletData.twinData,
             stepsBuilder: stepsBuilder // for saltpay
         )
@@ -81,19 +78,19 @@ class OnboardingInputFactory {
         )
     }
 
-    private func tryGetCardViewModel() -> CardViewModel? {
+    private func makeCardInput() -> OnboardingInput.CardInput {
         if let cardModel {
-            return cardModel
+            return .cardModel(cardModel)
         }
 
         if !cardInfo.card.wallets.isEmpty {
             let config = UserWalletConfigFactory(cardInfo).makeConfig()
             let userWallet = CardViewModel(cardInfo: cardInfo, config: config)
             userWallet.userWalletModel?.initialUpdate()
-            return userWallet
+            return .cardModel(userWallet)
         }
 
-        return nil
+        return .cardInfo(cardInfo)
     }
 }
 
