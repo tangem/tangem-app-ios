@@ -48,8 +48,8 @@ extension Start2CoinConfig: UserWalletConfig {
         "Start2Coin"
     }
 
-    var defaultCurve: EllipticCurve? {
-        defaultBlockchain.curve
+    var mandatoryCurves: [EllipticCurve] {
+        [.secp256k1]
     }
 
     var supportedBlockchains: Set<Blockchain> {
