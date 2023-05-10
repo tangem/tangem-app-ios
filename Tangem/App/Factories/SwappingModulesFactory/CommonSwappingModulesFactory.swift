@@ -10,7 +10,7 @@ import Foundation
 import TangemSwapping
 import BlockchainSdk
 
-struct CommonSwappingModulesFactory {
+class CommonSwappingModulesFactory {
     private let userWalletModel: UserWalletModel
     private let walletModel: WalletModel
     private let sender: TransactionSender
@@ -19,6 +19,8 @@ struct CommonSwappingModulesFactory {
     private let referrer: SwappingReferrerAccount?
     private let source: Currency
     private let destination: Currency?
+
+    private lazy var swappingInteractor = makeSwappingInteractor(source: source, destination: destination)
 
     init(inputModel: InputModel) {
         userWalletModel = inputModel.userWalletModel
@@ -38,14 +40,11 @@ extension CommonSwappingModulesFactory: SwappingModulesFactory {
     func makeSwappingViewModel(coordinator: SwappingRoutable) -> SwappingViewModel {
         SwappingViewModel(
             initialSourceCurrency: source,
-            swappingManager: makeSwappingManager(source: source, destination: destination),
+            swappingInteractor: swappingInteractor,
             swappingDestinationService: swappingDestinationService,
             tokenIconURLBuilder: tokenIconURLBuilder,
             transactionSender: transactionSender,
             fiatRatesProvider: fiatRatesProvider,
-            userWalletModel: userWalletModel,
-            currencyMapper: currencyMapper,
-            blockchainNetwork: walletModel.blockchainNetwork,
             coordinator: coordinator
         )
     }
@@ -129,6 +128,16 @@ private extension CommonSwappingModulesFactory {
             ethereumNetworkProvider: walletManager as! EthereumNetworkProvider,
             ethereumTransactionProcessor: walletManager as! EthereumTransactionProcessor,
             currencyMapper: currencyMapper
+        )
+    }
+
+    func makeSwappingInteractor(source: Currency, destination: Currency?) -> SwappingInteractor {
+        let swappingManager = makeSwappingManager(source: source, destination: destination)
+        return SwappingInteractor(
+            swappingManager: swappingManager,
+            userWalletModel: userWalletModel,
+            currencyMapper: currencyMapper,
+            blockchainNetwork: walletModel.blockchainNetwork
         )
     }
 
