@@ -66,7 +66,7 @@ extension OnboardingInput {
                     supportsOnlineImage: true,
                     cardId: cardId,
                     cardPublicKey: Data()
-                ) // we assume that cashe exists
+                ) // we assume that cache exists
             }
         }
     }
