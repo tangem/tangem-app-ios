@@ -348,11 +348,6 @@ class TwinsOnboardingViewModel: OnboardingTopupViewModel<TwinsOnboardingStep, On
                     if let pairCardId = twinsService.twinPairCardId {
                         AppSettings.shared.cardsStartedActivation.insert(pairCardId)
                     }
-
-                    if let userWalletId = self.cardModel?.userWalletId {
-                        self.analyticsContext.updateContext(with: userWalletId)
-                        Analytics.logTopUpIfNeeded(balance: 0)
-                    }
                 }
             })
     }
