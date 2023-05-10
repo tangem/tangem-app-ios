@@ -39,8 +39,8 @@ extension TwinConfig: UserWalletConfig {
         "Twin"
     }
 
-    var defaultCurve: EllipticCurve? {
-        defaultBlockchain.curve
+    var mandatoryCurves: [EllipticCurve] {
+        [.secp256k1]
     }
 
     var supportedBlockchains: Set<Blockchain> {
