@@ -702,7 +702,7 @@ class SendViewModel: ObservableObject {
                             .commonSource: sourceValue.rawValue,
                             .currencyCode: self.blockchainNetwork.blockchain.currencySymbol,
                             .blockchain: self.blockchainNetwork.blockchain.displayName,
-                            .feeType: analyticsFeeType.rawValue,
+                            .feeType: self.analyticsFeeType.rawValue,
                         ])
                     }
 
