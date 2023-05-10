@@ -44,11 +44,9 @@ extension ScanCardSettingsViewModel {
     }
 
     private func processSuccessScan(for cardInfo: CardInfo) {
-        let cardModel = CardViewModel(cardInfo: cardInfo, config: UserWalletConfigFactory(cardInfo).makeConfig())
-        guard
-            let userWalletId = cardModel.userWalletId,
-            userWalletId == expectedUserWalletId
-        else {
+        guard let cardModel = CardViewModel(cardInfo: cardInfo) else { return }
+
+        guard cardModel.userWalletId.value == expectedUserWalletId else {
             showErrorAlert(error: AppError.wrongCardWasTapped)
             return
         }
