@@ -34,7 +34,7 @@ public struct EIP712TypedData: Codable {
 public extension EIP712TypedData {
     /// Type hash for the primaryType of an `EIP712TypedData`
     var typeHash: Data {
-        let data = encodeType(primaryType: primaryType)
+        let data = makeTypeData(primaryType: primaryType)
         return data.sha3(.keccak256)
     }
 
@@ -47,74 +47,62 @@ public extension EIP712TypedData {
         return data.sha3(.keccak256)
     }
 
-    /// Encode a type of struct
-    func encodeType(primaryType: String) -> Data {
+    func makeTypeData(primaryType: String) -> Data {
         var depSet = findDependencies(primaryType: primaryType)
         depSet.remove(primaryType)
         let sorted = [primaryType] + Array(depSet).sorted()
-        let encoded = sorted.map { type in
-            let typeInfo = types[type]!
-//            let sortedWithPrimitives = typeInfo.sorted(by: {
-//                if isPrimitiveType($0.type) {
-//                    return true
-//                }
-//
-//                if isPrimitiveType($1.type) {
-//                    return true
-//                }
-//
-//                return $0.type < $1.type
-//            })
-            let param = typeInfo.map { "\($0.type) \($0.name)" }.joined(separator: ",")
+        let fullType = sorted.map { type in
+            let param = types[type]!.map { "\($0.type) \($0.name)" }.joined(separator: ",")
             return "\(type)(\(param))"
         }.joined()
-        print("Encoded type: \(encoded)")
-        return encoded.data(using: .utf8) ?? Data()
+        return fullType.data(using: .utf8) ?? Data()
+    }
+
+    /// Encode a type of struct
+    func encodeType(primaryType: String) throws -> Data {
+        let encoder = ABIEncoder()
+        let typeHash = makeTypeData(primaryType: primaryType).sha3(.keccak256)
+        let typeHashValue = try ABIValue(typeHash, type: .bytes(32))
+        try encoder.encode(typeHashValue)
+        return encoder.data
     }
 
     /// Encode an instance of struct
     ///
     /// Implemented with `ABIEncoder` and `ABIValue`
     func encodeData(data: JSON, type: String) -> Data {
-        let encoder = ABIEncoder()
-        var values: [ABIValue] = []
+        var encodedData = Data()
         do {
-            let typeHash = encodeType(primaryType: type).sha3(.keccak256)
-            let typeHashValue = try ABIValue(typeHash, type: .bytes(32))
-            values.append(typeHashValue)
+            let encodedType = try encodeType(primaryType: type)
+            encodedData.append(encodedType)
             if let valueTypes = types[type] {
                 try valueTypes.forEach { field in
-                    print("Preparing field: \(field.type) with name: \(field.name)")
-//                    if isPrimitiveType(field.type) {
-//                        if let value = makeABIValue(data: data[field.name], type: field.type) {
-//                            values.append(value)
-//                        }
-//                    } else {
-//                        var typeToEncode = field.type
-//                        let arraySuffix = "[]"
-//                        let isArray = typeToEncode.hasSuffix(arraySuffix)
-//                        if isArray {
-//                            typeToEncode.removeLast(arraySuffix.count)
-//                        }
-//                        if let _ = types[typeToEncode], let json = data[field.name] {
-//                            let nestEncoded = encodeData(data: json, type: typeToEncode)
-//                            values.append(try ABIValue(nestEncoded.sha3(.keccak256), type: .bytes(32)))
-//                        }
-//                    }
-                    if let _ = types[field.type],
-                       let json = data[field.name] {
-                        let nestEncoded = encodeData(data: json, type: field.type)
-                        values.append(try ABIValue(nestEncoded.sha3(.keccak256), type: .bytes(32)))
-                    } else if let value = makeABIValue(data: data[field.name], type: field.type) {
-                        values.append(value)
+                    let encoder = ABIEncoder()
+                    let typeToEncode = extractArrayTypeIfNeeded(from: field.type)
+                    if isPrimitiveType(typeToEncode) {
+                        if let value = makeABIValue(data: data[field.name], type: field.type) {
+                            try encoder.encode(value)
+                            encodedData.append(encoder.data)
+                        }
+                    } else {
+                        if let json = data[field.name] {
+                            if let jsonArray = json.arrayValue {
+                                let hashedStructs = jsonArray.compactMap { hashStruct(data: $0, type: typeToEncode) }
+                                var concatenated = Data()
+                                concatenated = hashedStructs.reduce(into: concatenated) { $0.append($1) }
+                                encodedData.append(concatenated.sha3(.keccak256))
+                            } else {
+                                let hashed = hashStruct(data: json, type: typeToEncode)
+                                encodedData.append(hashed)
+                            }
+                        }
                     }
                 }
             }
-            try encoder.encode(tuple: values)
         } catch {
             AppLog.shared.error(error)
         }
-        return encoder.data
+        return encodedData
     }
 }
 
@@ -122,14 +110,9 @@ private extension EIP712TypedData {
     /// Helper func for `encodeData`
     func makeABIValue(data: JSON?, type: String) -> ABIValue? {
         let isArrayType = type.contains("[")
-        if isArrayType,
-           let values = data?.arrayValue {
+        if isArrayType, let values = data?.arrayValue {
             let valueType = String(type.prefix(while: { $0 != "[" }))
-            let abiValues = values.compactMap {
-//                makeABIValue(data: $0, type: valueType)
-                
-                ABIValue(hashStruct(data: $0, type: valueType), type: .)
-            }
+            let abiValues = values.compactMap { makeABIValue(data: $0, type: valueType) }
             return .array(abiValues)
         } else if type == "string",
                   let value = data?.stringValue,
@@ -204,20 +187,24 @@ private extension EIP712TypedData {
         }
         found.insert(primaryType)
         for type in primaryTypes {
-            var typeName = type.type
+            let typeName = extractArrayTypeIfNeeded(from: type.type)
             if isPrimitiveType(typeName) {
                 continue
             }
-
-            let arraySuffix = "[]"
-            if typeName.hasSuffix(arraySuffix) {
-                typeName.removeLast(arraySuffix.count)
-            }
-
             findDependencies(primaryType: typeName, dependencies: found)
                 .forEach { found.insert($0) }
         }
         return found
+    }
+
+    func extractArrayTypeIfNeeded(from type: String) -> String {
+        var clearedType = type
+        let arraySuffix = "[]"
+        if clearedType.hasSuffix(arraySuffix) {
+            clearedType.removeLast(arraySuffix.count)
+        }
+
+        return clearedType
     }
 
     func isPrimitiveType(_ type: String) -> Bool {
