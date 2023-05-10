@@ -551,9 +551,9 @@
 		DC7127AF2897ECBB00F60F71 /* NoteConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC7127AE2897ECBB00F60F71 /* NoteConfig.swift */; };
 		DC7127B12897ECDF00F60F71 /* LegacyConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC7127B02897ECDF00F60F71 /* LegacyConfig.swift */; };
 		DC7127B32897ECEE00F60F71 /* GenericConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC7127B22897ECEE00F60F71 /* GenericConfig.swift */; };
-		DC7254922A050C200003FE1B /* NoteOnboardingStepsBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC7254912A050C200003FE1B /* NoteOnboardingStepsBuilder.swift */; };
 		DC72548C2A02B97A0003FE1B /* ResetToFactoryViewModelInput.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC72548B2A02B97A0003FE1B /* ResetToFactoryViewModelInput.swift */; };
 		DC72548E2A02BB810003FE1B /* CardInteractorMocks.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC72548D2A02BB810003FE1B /* CardInteractorMocks.swift */; };
+		DC7254922A050C200003FE1B /* NoteOnboardingStepsBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC7254912A050C200003FE1B /* NoteOnboardingStepsBuilder.swift */; };
 		DC74BC2F28EF060600B49850 /* UserWalletId.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC74BC2E28EF060600B49850 /* UserWalletId.swift */; };
 		DC7AC968292BD64D00580668 /* config_alpha.json in Resources */ = {isa = PBXBuildFile; fileRef = DC7AC967292BD64D00580668 /* config_alpha.json */; };
 		DC7AC96A292BE2C900580668 /* TangemTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D3F77DC24BF56DC00E8695B /* TangemTests.swift */; };
@@ -745,7 +745,6 @@
 		EF7B9CF1286C6BE2004C33A9 /* CardSettingsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF7B9CF0286C6BE2004C33A9 /* CardSettingsViewModel.swift */; };
 		EF7B9CF5286C7023004C33A9 /* CardSettingsCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF7B9CF4286C7023004C33A9 /* CardSettingsCoordinator.swift */; };
 		EF7B9CF7286C702E004C33A9 /* CardSettingsCoordinatorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF7B9CF6286C702E004C33A9 /* CardSettingsCoordinatorView.swift */; };
-		EF7BD11028B8B321001B2D59 /* CommonUserWalletModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF7BD10F28B8B321001B2D59 /* CommonUserWalletModel.swift */; };
 		EF808436293F39D6000D91EA /* UserCurrenciesProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF808435293F39D6000D91EA /* UserCurrenciesProvider.swift */; };
 		EF808438293F3A6D000D91EA /* CurrencyMapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF808437293F3A6D000D91EA /* CurrencyMapper.swift */; };
 		EF80843A293F6708000D91EA /* SwappingDestinationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF808439293F6708000D91EA /* SwappingDestinationService.swift */; };
@@ -1507,9 +1506,9 @@
 		DC7127AE2897ECBB00F60F71 /* NoteConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoteConfig.swift; sourceTree = "<group>"; };
 		DC7127B02897ECDF00F60F71 /* LegacyConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LegacyConfig.swift; sourceTree = "<group>"; };
 		DC7127B22897ECEE00F60F71 /* GenericConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GenericConfig.swift; sourceTree = "<group>"; };
-		DC7254912A050C200003FE1B /* NoteOnboardingStepsBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoteOnboardingStepsBuilder.swift; sourceTree = "<group>"; };
 		DC72548B2A02B97A0003FE1B /* ResetToFactoryViewModelInput.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ResetToFactoryViewModelInput.swift; sourceTree = "<group>"; };
 		DC72548D2A02BB810003FE1B /* CardInteractorMocks.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardInteractorMocks.swift; sourceTree = "<group>"; };
+		DC7254912A050C200003FE1B /* NoteOnboardingStepsBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoteOnboardingStepsBuilder.swift; sourceTree = "<group>"; };
 		DC74BC2E28EF060600B49850 /* UserWalletId.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserWalletId.swift; sourceTree = "<group>"; };
 		DC7AC967292BD64D00580668 /* config_alpha.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; name = config_alpha.json; path = "tangem-app-config/config_alpha.json"; sourceTree = SOURCE_ROOT; };
 		DC7D39EE29DFFBDC007BCD23 /* OnboardingStepsBuilderFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingStepsBuilderFactory.swift; sourceTree = "<group>"; };
@@ -1725,7 +1724,6 @@
 		EF7B9CF2286C6C7A004C33A9 /* CardSettingsRoutable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardSettingsRoutable.swift; sourceTree = "<group>"; };
 		EF7B9CF4286C7023004C33A9 /* CardSettingsCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardSettingsCoordinator.swift; sourceTree = "<group>"; };
 		EF7B9CF6286C702E004C33A9 /* CardSettingsCoordinatorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardSettingsCoordinatorView.swift; sourceTree = "<group>"; };
-		EF7BD10F28B8B321001B2D59 /* CommonUserWalletModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonUserWalletModel.swift; sourceTree = "<group>"; };
 		EF808433293F38CE000D91EA /* UserCurrenciesProviding.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserCurrenciesProviding.swift; sourceTree = "<group>"; };
 		EF808435293F39D6000D91EA /* UserCurrenciesProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserCurrenciesProvider.swift; sourceTree = "<group>"; };
 		EF808437293F3A6D000D91EA /* CurrencyMapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CurrencyMapper.swift; sourceTree = "<group>"; };
@@ -4276,7 +4274,6 @@
 		EF7BD10E28B8B318001B2D59 /* UserWalletModel */ = {
 			isa = PBXGroup;
 			children = (
-				EF7BD10F28B8B321001B2D59 /* CommonUserWalletModel.swift */,
 				EFFE2CE828B8E0B300B9F279 /* UserWalletModel.swift */,
 			);
 			path = UserWalletModel;
@@ -5386,7 +5383,6 @@
 				B0AA865426DC90FF00287F80 /* WelcomeViewModel.swift in Sources */,
 				DA6C752429225F9B0070EEFD /* MinimizedAppTimer.swift in Sources */,
 				DA28D57D290AAE2000F0C335 /* ScrollView+.swift in Sources */,
-				EF7BD11028B8B321001B2D59 /* CommonUserWalletModel.swift in Sources */,
 				5D69E0E325016A10005CFFF4 /* TapSwitchTogglColoredToggleStyleeStyle.swift in Sources */,
 				B05D063229DEA11E0031C6AB /* AccessCodeRecoverySettingsView.swift in Sources */,
 				DC7127AD2897ECA100F60F71 /* TwinConfig.swift in Sources */,
