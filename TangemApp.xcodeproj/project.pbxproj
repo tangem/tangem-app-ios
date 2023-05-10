@@ -2846,7 +2846,7 @@
 			isa = PBXGroup;
 			children = (
 				B05A13A229FB975400FB511A /* LoadableTextView.swift */,
-				B0B335DD29FA959B00E2082E /* TokenIconComponent.swift */,
+				B0B335DD29FA959B00E2082E /* TokenIcon.swift */,
 				B05A13AB29FBEAA500FB511A /* ButtonWithLeadingIcon.swift */,
 			);
 			path = Common;
@@ -4668,7 +4668,6 @@
 				5D3F77D424BF56DC00E8695B /* Sources */,
 				5D3F77D524BF56DC00E8695B /* Frameworks */,
 				5D3F77D624BF56DC00E8695B /* Resources */,
-				1E2572E9962E28A14134600C /* [CP] Embed Pods Frameworks */,
 			);
 			buildRules = (
 			);
@@ -4883,23 +4882,6 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-Tangem/Pods-Tangem-frameworks.sh\"\n";
-			showEnvVarsInLog = 0;
-		};
-		1E2572E9962E28A14134600C /* [CP] Embed Pods Frameworks */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-TangemTests/Pods-TangemTests-frameworks-${CONFIGURATION}-input-files.xcfilelist",
-			);
-			name = "[CP] Embed Pods Frameworks";
-			outputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-TangemTests/Pods-TangemTests-frameworks-${CONFIGURATION}-output-files.xcfilelist",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-TangemTests/Pods-TangemTests-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
 		30930018AFA63248A3F8D56A /* [CP] Check Pods Manifest.lock */ = {
