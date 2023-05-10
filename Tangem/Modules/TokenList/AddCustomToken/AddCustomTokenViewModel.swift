@@ -301,7 +301,7 @@ class AddCustomTokenViewModel: ObservableObject {
             return
         }
 
-        let cardTokenItems = cardModel.userWalletModel?.userTokenListManager.getEntriesFromRepository() ?? []
+        let cardTokenItems = cardModel.userTokenListManager.getEntriesFromRepository() ?? []
 
         let checkingContractAddress = !contractAddress.isEmpty
         let derivationPath = try? enteredDerivationPath()
