@@ -15,21 +15,7 @@ public struct BottomSheetInfoViewModel: Identifiable {
         let description: String?
         let buttonTitle: String?
     }
-
-    // MARK: - Properties
-
-    public let id: UUID = .init()
-
-    private let input: Input
-    public let buttonTapAction: (() -> Void)?
-
-    // MARK: - Init
-
-    public init(input: Input, buttonTapAction: (() -> Void)?) {
-        self.input = input
-        self.buttonTapAction = buttonTapAction
-    }
-
+    
     // MARK: - Access
 
     public var icon: ImageType {
@@ -46,5 +32,19 @@ public struct BottomSheetInfoViewModel: Identifiable {
 
     public var buttonTitle: String? {
         input.buttonTitle
+    }
+
+    // MARK: - Properties
+
+    public let id: UUID = .init()
+    public let buttonTapAction: (() -> Void)?
+    
+    private let input: Input
+
+    // MARK: - Init
+
+    public init(input: Input, buttonTapAction: (() -> Void)?) {
+        self.input = input
+        self.buttonTapAction = buttonTapAction
     }
 }

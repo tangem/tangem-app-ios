@@ -11,7 +11,7 @@ import SwiftUI
 public struct BottomSheetInfoView: View {
     // MARK: - Properties
 
-    private(set) var viewModel: BottomSheetInfoViewModel
+    public let viewModel: BottomSheetInfoViewModel
 
     // MARK: - SetupUI
 
