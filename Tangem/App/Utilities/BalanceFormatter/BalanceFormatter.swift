@@ -58,6 +58,11 @@ struct BalanceFormatter {
         return formatter.string(from: valueToFormat as NSDecimalNumber) ?? "\(valueToFormat) \(code)"
     }
 
+    /// Format fiat balance string for main page with different font for integer and fractional parts
+    /// - Parameters:
+    ///   - fiatBalance: Fiat balance should be formatted and with currency symbol. Use `formatFiatBalance(Decimal, BalanceFormattingOptions)
+    ///   - formattingOptions: Fonts for integer and fractional parts
+    /// - Returns: Formatted string for main screen
     func formatTotalBalanceForMain(fiatBalance: String, formattingOptions: TotalBalanceFormattingOptions) -> NSAttributedString {
         let attributedString = NSMutableAttributedString(string: fiatBalance)
         let allStringRange = NSRange(location: 0, length: attributedString.length)
