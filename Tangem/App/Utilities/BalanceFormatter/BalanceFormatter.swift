@@ -36,7 +36,11 @@ struct BalanceFormatter {
     ///   - value: Balance that should be rounded and formated
     ///   - formattingOptions: Options for number formatter and rounding
     /// - Returns: Formatted balance string
-    func formatFiatBalance(_ value: Decimal, formattingOptions: BalanceFormattingOptions) -> String {
+    func formatFiatBalance(_ value: Decimal?, formattingOptions: BalanceFormattingOptions) -> String {
+        guard let balance = value else {
+            return "–"
+        }
+
         let code = formattingOptions.currencyCode
         let formatter = NumberFormatter()
         formatter.locale = Locale.current
@@ -50,8 +54,30 @@ struct BalanceFormatter {
             formatter.currencySymbol = "₽"
         }
 
-        let valueToFormat = roundDecimal(value, with: formattingOptions.roundingType)
+        let valueToFormat = roundDecimal(balance, with: formattingOptions.roundingType)
         return formatter.string(from: valueToFormat as NSDecimalNumber) ?? "\(valueToFormat) \(code)"
+    }
+
+    func formatTotalBalanceForMain(fiatBalance: String, formattingOptions: TotalBalanceFormattingOptions) -> NSAttributedString {
+        let attributedString = NSMutableAttributedString(string: fiatBalance)
+        let allStringRange = NSRange(location: 0, length: attributedString.length)
+        attributedString.addAttribute(.font, value: formattingOptions.integerPartFont, range: allStringRange)
+
+        let formatter = NumberFormatter()
+        formatter.locale = Locale.current
+        formatter.numberStyle = .currency
+        let decimalSeparator = formatter.decimalSeparator ?? ""
+
+        let decimalLocation = NSString(string: fiatBalance).range(of: decimalSeparator).location
+        if decimalLocation < (fiatBalance.count - 1) {
+            let locationAfterDecimal = decimalLocation + 1
+            let symbolsAfterDecimal = fiatBalance.count - locationAfterDecimal
+            let rangeAfterDecimal = NSRange(location: locationAfterDecimal, length: symbolsAfterDecimal)
+
+            attributedString.addAttribute(.font, value: formattingOptions.fractionalPartFont, range: rangeAfterDecimal)
+        }
+
+        return attributedString
     }
 
     private func roundDecimal(_ value: Decimal, with roundingType: AmountRoundingType?) -> Decimal {
