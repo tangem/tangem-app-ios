@@ -34,7 +34,7 @@ public struct EIP712TypedData: Codable {
 public extension EIP712TypedData {
     /// Type hash for the primaryType of an `EIP712TypedData`
     var typeHash: Data {
-        let data = encodeType(primaryType: primaryType)
+        let data = makeTypeData(primaryType: primaryType)
         return data.sha3(.keccak256)
     }
 
@@ -47,53 +47,64 @@ public extension EIP712TypedData {
         return data.sha3(.keccak256)
     }
 
-    /// Encode a type of struct
-    func encodeType(primaryType: String) -> Data {
+    func makeTypeData(primaryType: String) -> Data {
         var depSet = findDependencies(primaryType: primaryType)
         depSet.remove(primaryType)
         let sorted = [primaryType] + Array(depSet).sorted()
-        let encoded = sorted.map { type in
+        let fullType = sorted.map { type in
             let param = types[type]!.map { "\($0.type) \($0.name)" }.joined(separator: ",")
             return "\(type)(\(param))"
         }.joined()
-        return encoded.data(using: .utf8) ?? Data()
+        return fullType.data(using: .utf8) ?? Data()
+    }
+
+    /// Encode a type of struct
+    func encodeType(primaryType: String) throws -> Data {
+        let encoder = ABIEncoder()
+        let typeHash = makeTypeData(primaryType: primaryType).sha3(.keccak256)
+        let typeHashValue = try ABIValue(typeHash, type: .bytes(32))
+        try encoder.encode(typeHashValue)
+        return encoder.data
     }
 
     /// Encode an instance of struct
     ///
     /// Implemented with `ABIEncoder` and `ABIValue`
     func encodeData(data: JSON, type: String) -> Data {
-        let encoder = ABIEncoder()
-        var values: [ABIValue] = []
+        var encodedData = Data()
         do {
-            let typeHash = encodeType(primaryType: type).sha3(.keccak256)
-            let typeHashValue = try ABIValue(typeHash, type: .bytes(32))
-            values.append(typeHashValue)
+            let encodedType = try encodeType(primaryType: type)
+            encodedData.append(encodedType)
+
             if let valueTypes = types[type] {
                 try valueTypes.forEach { field in
-                    if let _ = types[field.type],
-                       let json = data[field.name] {
-                        let nestEncoded = encodeData(data: json, type: field.type)
-                        values.append(try ABIValue(nestEncoded.sha3(.keccak256), type: .bytes(32)))
-                    } else if let value = makeABIValue(data: data[field.name], type: field.type) {
-                        values.append(value)
+                    let typeToEncode = extractArrayTypeIfNeeded(from: field.type)
+
+                    if isPrimitiveType(typeToEncode) {
+                        /// We need to pass to `encodePrimitiveData` `field.type` instead of `typeToEncode` to properly handle array of primitives
+                        guard let encodedPrimitive = try encodePrimitiveData(json: data[field.name], with: field.type) else {
+                            return
+                        }
+
+                        encodedData.append(encodedPrimitive)
+                    } else if let json = data[field.name] {
+                        let encodedStruct = encodeStructData(json: json, with: typeToEncode)
+                        encodedData.append(encodedStruct)
                     }
                 }
             }
-            try encoder.encode(tuple: values)
         } catch {
             AppLog.shared.error(error)
         }
-        return encoder.data
+        return encodedData
     }
 }
 
 private extension EIP712TypedData {
     /// Helper func for `encodeData`
-    private func makeABIValue(data: JSON?, type: String) -> ABIValue? {
+    func makeABIValue(data: JSON?, type: String) -> ABIValue? {
         let isArrayType = type.contains("[")
-        if isArrayType,
-           let values = data?.arrayValue {
+        if isArrayType, let values = data?.arrayValue {
             let valueType = String(type.prefix(while: { $0 != "[" }))
             let abiValues = values.compactMap { makeABIValue(data: $0, type: valueType) }
             return .array(abiValues)
@@ -145,7 +156,7 @@ private extension EIP712TypedData {
     }
 
     /// Helper func for encoding uint / int types
-    private func parseIntSize(type: String, prefix: String) -> Int {
+    func parseIntSize(type: String, prefix: String) -> Int {
         guard type.starts(with: prefix),
               let size = Int(type.dropFirst(prefix.count)) else {
             return -1
@@ -170,10 +181,57 @@ private extension EIP712TypedData {
         }
         found.insert(primaryType)
         for type in primaryTypes {
-            findDependencies(primaryType: type.type, dependencies: found)
+            let typeName = extractArrayTypeIfNeeded(from: type.type)
+            if isPrimitiveType(typeName) {
+                continue
+            }
+            findDependencies(primaryType: typeName, dependencies: found)
                 .forEach { found.insert($0) }
         }
         return found
+    }
+
+    func extractArrayTypeIfNeeded(from type: String) -> String {
+        var clearedType = type
+        let arraySuffix = "[]"
+        if clearedType.hasSuffix(arraySuffix) {
+            clearedType.removeLast(arraySuffix.count)
+        }
+
+        return clearedType
+    }
+
+    func isPrimitiveType(_ type: String) -> Bool {
+        let primitiveTypes = [
+            "address", "uint", "int", "bool", "bytes", "string",
+        ]
+
+        if primitiveTypes.contains(where: { type.starts(with: $0) }) {
+            return true
+        }
+
+        return false
+    }
+
+    func encodePrimitiveData(json: JSON?, with type: String) throws -> Data? {
+        guard let value = makeABIValue(data: json, type: type) else {
+            return nil
+        }
+
+        let encoder = ABIEncoder()
+        try encoder.encode(value)
+        return encoder.data
+    }
+
+    func encodeStructData(json: JSON, with type: String) -> Data {
+        guard let jsonArray = json.arrayValue else {
+            return hashStruct(data: json, type: type)
+        }
+
+        let hashedStructs = jsonArray.compactMap { hashStruct(data: $0, type: type) }
+        var concatenated = Data()
+        concatenated = hashedStructs.reduce(into: concatenated) { $0.append($1) }
+        return concatenated.sha3(.keccak256)
     }
 }
 
