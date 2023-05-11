@@ -155,9 +155,9 @@ extension SwappingApprovePolicy: DefaultMenuRowViewModelAction {
     public var title: String {
         switch self {
         case .amount:
-            return "Current transaction"
+            return Localization.swappingPermissionCurrentTransaction
         case .unlimited:
-            return "Unlimited"
+            return Localization.swappingPermissionUnlimited
         }
     }
 }
