@@ -1,5 +1,5 @@
 //
-//  SwappingPermissionView.swift
+//  SwappingApproveView.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -8,10 +8,10 @@
 
 import SwiftUI
 
-struct SwappingPermissionView: View {
-    @ObservedObject private var viewModel: SwappingPermissionViewModel
+struct SwappingApproveView: View {
+    @ObservedObject private var viewModel: SwappingApproveViewModel
 
-    init(viewModel: SwappingPermissionViewModel) {
+    init(viewModel: SwappingApproveViewModel) {
         self.viewModel = viewModel
     }
 
@@ -57,11 +57,21 @@ struct SwappingPermissionView: View {
     }
 
     private var content: some View {
-        GroupedSection(viewModel.contentRowViewModels) {
-            DefaultRowView(viewModel: $0)
-                .truncationMode(.middle)
+        VStack(spacing: 0) {
+            GroupedSection(viewModel.menuRowViewModel) {
+                DefaultMenuRowView(viewModel: $0, selection: $viewModel.selectedAction)
+            } footer: {
+                DefaultFooterView("Before scanning the card you will need to enter the correct access code.")
+            }
+            .padding(.horizontal, 16)
+
+            GroupedSection(viewModel.feeRowViewModel) {
+                DefaultRowView(viewModel: $0)
+            } footer: {
+                DefaultFooterView("Before scanning the card you will need to enter the correct access code.")
+            }
+            .padding(.horizontal, 16)
         }
-        .padding(.horizontal, 16)
     }
 
     private var buttons: some View {
@@ -84,14 +94,14 @@ struct SwappingPermissionView: View {
     }
 }
 
-struct SwappingPermissionView_Preview: PreviewProvider {
-    static let viewModel = SwappingPermissionViewModel(
+struct SwappingApproveView_Preview: PreviewProvider {
+    static let viewModel = SwappingApproveViewModel(
         inputModel: SwappingPermissionInputModel(fiatFee: 1.45, transactionData: .mock),
         transactionSender: TransactionSenderMock(),
-        coordinator: SwappingPermissionRoutableMock()
+        coordinator: SwappingApproveRoutableMock()
     )
 
     static var previews: some View {
-        SwappingPermissionView(viewModel: viewModel)
+        SwappingApproveView(viewModel: viewModel)
     }
 }
