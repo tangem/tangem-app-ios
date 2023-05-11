@@ -385,11 +385,13 @@
 "swapping_pending_transaction_subtitle" = "Transaction in progress...";
 "swapping_pending_transaction_title" = "Waiting";
 "swapping_permission_buttons_approve" = "Approve";
+"swapping_permission_current_transaction" = "Current transaction";
 "swapping_permission_header" = "Give Permission";
 "swapping_permission_rows_amount" = "Amount %@";
 "swapping_permission_rows_spender" = "Spender";
 "swapping_permission_rows_your_wallet" = "Your Wallet";
 "swapping_permission_subheader" = "To continue you need to allow 1inch smart contracts to use your %@";
+"swapping_permission_unlimited" = "Unlimited";
 "swapping_permit_and_swap" = "Permit and Swap";
 "swapping_success_view_explorer_button_title" = "View in Explorer";
 "swapping_success_view_title" = "In progress";
