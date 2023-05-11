@@ -19,17 +19,17 @@ public struct BottomSheetInfoView: View {
         VStack(spacing: 0) {
             Spacer(minLength: 44)
 
-            viewModel.input.icon.image
+            viewModel.icon.image
                 .frame(width: 40, height: 40)
 
             Spacer(minLength: 28)
 
             VStack(spacing: 10) {
-                Text(viewModel.input.title)
+                Text(viewModel.title)
                     .style(Fonts.Bold.title1, color: Colors.Text.primary1)
                     .multilineTextAlignment(.center)
 
-                if let description = viewModel.input.description {
+                if let description = viewModel.description {
                     Text(description)
                         .style(Fonts.Bold.subheadline, color: Colors.Text.secondary)
                         .multilineTextAlignment(.center)
@@ -39,7 +39,7 @@ public struct BottomSheetInfoView: View {
 
             Spacer(minLength: 40)
 
-            if let buttonTitle = viewModel.input.buttonTitle {
+            if let buttonTitle = viewModel.buttonTitle {
                 MainButton(
                     title: buttonTitle,
                     style: .secondary,
