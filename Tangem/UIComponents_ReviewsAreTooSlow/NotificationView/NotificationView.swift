@@ -13,7 +13,7 @@ import SwiftUI
 public struct NotificationView: View {
     // MARK: - Properties
 
-    private(set) var viewModel: NotificationViewModel
+    public var viewModel: NotificationViewModel
 
     // MARK: - SetupUI
 
