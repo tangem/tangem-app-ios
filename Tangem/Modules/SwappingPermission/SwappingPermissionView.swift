@@ -22,11 +22,13 @@ struct SwappingPermissionView: View {
             infoButton
         }
         .background(Colors.Background.secondary)
-        .alert(item: $viewModel.errorAlert) { $0.alert }
+        .alert(item: $viewModel.errorAlert, content: { $0.alert })
     }
 
     private var infoButton: some View {
-        Button(action: viewModel.didTapInfoButton) {
+        Button(action: {
+            viewModel.didTapInfoButton()
+        }) {
             Assets.infoIconMini.image
                 .padding(.trailing, 16)
         }
