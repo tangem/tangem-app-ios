@@ -18,6 +18,7 @@ final class SwappingApproveViewModel: ObservableObject, Identifiable {
     @Published var selectedAction: SwappingApprovePolicy = .unlimited
     @Published var feeRowViewModel: DefaultRowViewModel?
     @Published var isLoading: Bool = false
+    @Published var isDisabled: Bool = false
     @Published var errorAlert: AlertBinder?
 
     var tokenSymbol: String {
@@ -33,6 +34,13 @@ final class SwappingApproveViewModel: ObservableObject, Identifiable {
     private unowned let coordinator: SwappingApproveRoutable
 
     private var didBecomeActiveNotificationCancellable: AnyCancellable?
+    private var bag: Set<AnyCancellable> = []
+
+    private var feeLabel: String {
+        let fiatFee = inputModel.fiatFee.currencyFormatted(code: AppSettings.shared.selectedCurrencyCode)
+        let formattedFee = inputModel.transactionData.fee.groupedFormatted()
+        return "\(formattedFee) \(inputModel.transactionData.sourceBlockchain.symbol) (\(fiatFee))"
+    }
 
     init(
         inputModel: SwappingPermissionInputModel,
@@ -44,6 +52,7 @@ final class SwappingApproveViewModel: ObservableObject, Identifiable {
         self.coordinator = coordinator
 
         setupView()
+        bind()
     }
 
     func didTapInfoButton() {
@@ -104,20 +113,37 @@ extension SwappingApproveViewModel {
 // MARK: - Private
 
 private extension SwappingApproveViewModel {
-    func setupView() {
-        let transactionData = inputModel.transactionData
+    func bind() {
+        // [REDACTED_TODO_COMMENT]
+        $selectedAction
+            .dropFirst()
+            .handleEvents(receiveOutput: { [weak self] _ in
+                self?.feeRowViewModel?.update(detailsType: .loader)
+                self?.isLoading = true
+                self?.isDisabled = true
+            })
+            .delay(for: 1, scheduler: DispatchQueue.main)
+            .sink { [weak self] _ in
+                self?.updateFeeAmount()
+                self?.isLoading = false
+                self?.isDisabled = false
+            }
+            .store(in: &bag)
+    }
 
+    func updateFeeAmount() {
+        // [REDACTED_TODO_COMMENT]
+        feeRowViewModel?.update(detailsType: .text(feeLabel))
+    }
+
+    func setupView() {
         menuRowViewModel = .init(
             title: Localization.swappingPermissionRowsAmount(tokenSymbol),
             actions: [
                 SwappingApprovePolicy.unlimited,
-                SwappingApprovePolicy.amount(transactionData.sourceAmount),
+                SwappingApprovePolicy.amount(inputModel.transactionData.sourceAmount),
             ]
         )
-
-        let fiatFee = inputModel.fiatFee.currencyFormatted(code: AppSettings.shared.selectedCurrencyCode)
-        let formattedFee = transactionData.fee.groupedFormatted()
-        let feeLabel = "\(formattedFee) \(inputModel.transactionData.sourceBlockchain.symbol) (\(fiatFee))"
 
         feeRowViewModel = DefaultRowViewModel(
             title: Localization.sendFeeLabel,
