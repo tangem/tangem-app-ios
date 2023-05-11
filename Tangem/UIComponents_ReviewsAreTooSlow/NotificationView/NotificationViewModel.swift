@@ -9,13 +9,6 @@
 import Foundation
 
 public struct NotificationViewModel: Identifiable {
-    public struct Input {
-        let mainIcon: ImageType
-        let title: String
-        let description: String?
-        let detailIcon: ImageType?
-    }
-    
     // MARK: - Access
 
     public var mainIcon: ImageType {
@@ -39,7 +32,7 @@ public struct NotificationViewModel: Identifiable {
     public let id = UUID()
     public let primaryTapAction: (() -> Void)?
     public let secondaryTapAction: (() -> Void)?
-    
+
     private let input: Input
 
     // MARK: - Init
@@ -48,5 +41,14 @@ public struct NotificationViewModel: Identifiable {
         self.input = input
         self.primaryTapAction = primaryTapAction
         self.secondaryTapAction = secondaryTapAction
+    }
+}
+
+public extension NotificationViewModel {
+    struct Input {
+        let mainIcon: ImageType
+        let title: String
+        let description: String?
+        let detailIcon: ImageType?
     }
 }
