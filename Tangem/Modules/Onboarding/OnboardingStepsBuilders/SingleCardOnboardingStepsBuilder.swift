@@ -38,12 +38,12 @@ extension SingleCardOnboardingStepsBuilder: OnboardingStepsBuilder {
         }
 
         if card.wallets.isEmpty {
-            steps.append(contentsOf: [.createWallet] + userWalletSavingSteps + [.topup, .successTopup])
+            steps.append(contentsOf: [.createWallet] + userWalletSavingSteps + [.success])
         } else {
             if !AppSettings.shared.cardsStartedActivation.contains(card.cardId) {
                 steps.append(contentsOf: userWalletSavingSteps)
             } else {
-                steps.append(contentsOf: userWalletSavingSteps + [.topup, .successTopup])
+                steps.append(contentsOf: userWalletSavingSteps + [.success])
             }
         }
 
