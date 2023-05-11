@@ -62,7 +62,7 @@ struct SwappingApproveView: View {
                 DefaultMenuRowView(viewModel: $0, selection: $viewModel.selectedAction)
             } footer: {
                 // [REDACTED_TODO_COMMENT]
-                DefaultFooterView(Localization.swappingPermissionHeader)
+                DefaultFooterView(Localization.swappingPermissionSubheader(viewModel.tokenSymbol))
             }
             .padding(.horizontal, 16)
 
@@ -70,7 +70,7 @@ struct SwappingApproveView: View {
                 DefaultRowView(viewModel: $0)
             } footer: {
                 // [REDACTED_TODO_COMMENT]
-                DefaultFooterView(Localization.swappingPermissionHeader)
+                DefaultFooterView(Localization.swappingPermissionSubheader(viewModel.tokenSymbol))
             }
             .padding(.horizontal, 16)
         }
@@ -82,7 +82,6 @@ struct SwappingApproveView: View {
                 title: Localization.swappingPermissionButtonsApprove,
                 icon: .trailing(Assets.tangemIcon),
                 isLoading: viewModel.isLoading,
-                isDisabled: viewModel.isDisabled,
                 action: viewModel.didTapApprove
             )
 
