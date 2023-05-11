@@ -39,8 +39,8 @@ extension NoteConfig: UserWalletConfig {
         "Note"
     }
 
-    var defaultCurve: EllipticCurve? {
-        defaultBlockchain.curve
+    var mandatoryCurves: [EllipticCurve] {
+        [defaultBlockchain.curve]
     }
 
     var supportedBlockchains: Set<Blockchain> {
@@ -157,6 +157,6 @@ extension NoteConfig: UserWalletConfig {
     }
 }
 
-// MARK: - SingleCardOnboardingStepsBuilderFactory
+// MARK: - NoteCardOnboardingStepsBuilderFactory
 
-extension NoteConfig: SingleCardOnboardingStepsBuilderFactory {}
+extension NoteConfig: NoteCardOnboardingStepsBuilderFactory {}
