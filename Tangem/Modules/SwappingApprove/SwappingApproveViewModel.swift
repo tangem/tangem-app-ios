@@ -1,5 +1,5 @@
 //
-//  SwappingPermissionViewModel.swift
+//  SwappingApproveViewModel.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -11,42 +11,39 @@ import TangemSwapping
 import UIKit
 import enum TangemSdk.TangemSdkError
 
-final class SwappingPermissionViewModel: ObservableObject, Identifiable {
+final class SwappingApproveViewModel: ObservableObject, Identifiable {
     // MARK: - ViewState
 
     @Published var menuRowViewModel: DefaultMenuRowViewModel<SwappingApprovePolicy>?
     @Published var selectedAction: SwappingApprovePolicy = .unlimited
     @Published var feeRowViewModel: DefaultRowViewModel?
-
-    @Published var contentRowViewModels: [DefaultRowViewModel] = []
+    @Published var isLoading: Bool = false
     @Published var errorAlert: AlertBinder?
 
     var tokenSymbol: String {
-        inputModel.transactionData.sourceCurrency.symbol
+        sourceCurrency.symbol
     }
 
     // MARK: - Dependencies
 
+    // [REDACTED_TODO_COMMENT]
     private let inputModel: SwappingPermissionInputModel
+    private var sourceCurrency: Currency { inputModel.transactionData.sourceCurrency }
     private let transactionSender: SwappingTransactionSender
-    private unowned let coordinator: SwappingPermissionRoutable
+    private unowned let coordinator: SwappingApproveRoutable
 
     private var didBecomeActiveNotificationCancellable: AnyCancellable?
 
     init(
         inputModel: SwappingPermissionInputModel,
         transactionSender: SwappingTransactionSender,
-        coordinator: SwappingPermissionRoutable
+        coordinator: SwappingApproveRoutable
     ) {
         self.inputModel = inputModel
         self.transactionSender = transactionSender
         self.coordinator = coordinator
 
-        if FeatureProvider.isAvailable(.abilityChooseApproveAmount) {
-            setupView()
-        } else {
-            setupLegacyView()
-        }
+        setupView()
     }
 
     func didTapInfoButton() {
@@ -57,6 +54,7 @@ final class SwappingPermissionViewModel: ObservableObject, Identifiable {
     }
 
     func didTapApprove() {
+        // [REDACTED_TODO_COMMENT]
         let data = inputModel.transactionData
 
         Analytics.log(
@@ -89,7 +87,7 @@ final class SwappingPermissionViewModel: ObservableObject, Identifiable {
 
 // MARK: - Navigation
 
-extension SwappingPermissionViewModel {
+extension SwappingApproveViewModel {
     @MainActor
     func didSendApproveTransaction(transactionData: SwappingTransactionData) {
         // We have to waiting close the nfc view to close this permission view
@@ -105,33 +103,7 @@ extension SwappingPermissionViewModel {
 
 // MARK: - Private
 
-private extension SwappingPermissionViewModel {
-    func setupLegacyView() {
-        let transactionData = inputModel.transactionData
-        /// Addresses have to the same width for both
-        let walletAddress = AddressFormatter(address: transactionData.sourceAddress).truncated()
-        let spenderAddress = AddressFormatter(address: transactionData.destinationAddress).truncated()
-
-        let fiatFee = inputModel.fiatFee.currencyFormatted(code: AppSettings.shared.selectedCurrencyCode)
-        let formattedFee = transactionData.fee.groupedFormatted()
-        let feeLabel = "\(formattedFee) \(inputModel.transactionData.sourceBlockchain.symbol) (\(fiatFee))"
-
-        contentRowViewModels = [
-            DefaultRowViewModel(
-                title: Localization.swappingPermissionRowsYourWallet,
-                detailsType: .text(String(walletAddress))
-            ),
-            DefaultRowViewModel(
-                title: Localization.swappingPermissionRowsSpender,
-                detailsType: .text(String(spenderAddress))
-            ),
-            DefaultRowViewModel(
-                title: Localization.sendFeeLabel,
-                detailsType: .text(feeLabel)
-            ),
-        ]
-    }
-
+private extension SwappingApproveViewModel {
     func setupView() {
         let transactionData = inputModel.transactionData
 
@@ -151,5 +123,18 @@ private extension SwappingPermissionViewModel {
             title: Localization.sendFeeLabel,
             detailsType: .text(feeLabel)
         )
+    }
+}
+
+extension SwappingApprovePolicy: DefaultMenuRowViewModelAction {
+    public var id: Int { hashValue }
+
+    public var title: String {
+        switch self {
+        case .amount:
+            return "Current transaction"
+        case .unlimited:
+            return "Unlimited"
+        }
     }
 }
