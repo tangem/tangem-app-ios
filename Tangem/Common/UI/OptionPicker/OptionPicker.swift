@@ -29,6 +29,8 @@ struct OptionPicker<Content: View, Label: View, Option: Hashable & Identifiable>
 
     var body: some View {
         label()
+            // We can't use Menu's label because it added
+            // unnecessary animation when the selection updated
             .overlay(
                 Menu {
                     Picker(selection: $selection, label: EmptyView()) {
@@ -39,6 +41,7 @@ struct OptionPicker<Content: View, Label: View, Option: Hashable & Identifiable>
                     }
                     .labelsHidden()
                 } label: {
+                    // We can't use EmptyView() here because we should cover tappable area
                     Color.clear
                 }
             )
