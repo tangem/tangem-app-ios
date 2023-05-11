@@ -15,23 +15,7 @@ public struct NotificationViewModel: Identifiable {
         let description: String?
         let detailIcon: ImageType?
     }
-
-    // MARK: - Properties
-
-    public let id = UUID()
-
-    private let input: Input
-    public let primaryTapAction: (() -> Void)?
-    public let secondaryTapAction: (() -> Void)?
-
-    // MARK: - Init
-
-    public init(input: Input, primaryTapAction: (() -> Void)?, secondaryTapAction: (() -> Void)?) {
-        self.input = input
-        self.primaryTapAction = primaryTapAction
-        self.secondaryTapAction = secondaryTapAction
-    }
-
+    
     // MARK: - Access
 
     public var mainIcon: ImageType {
@@ -48,5 +32,21 @@ public struct NotificationViewModel: Identifiable {
 
     public var detailIcon: ImageType? {
         input.detailIcon
+    }
+
+    // MARK: - Properties
+
+    public let id = UUID()
+    public let primaryTapAction: (() -> Void)?
+    public let secondaryTapAction: (() -> Void)?
+    
+    private let input: Input
+
+    // MARK: - Init
+
+    public init(input: Input, primaryTapAction: (() -> Void)?, secondaryTapAction: (() -> Void)?) {
+        self.input = input
+        self.primaryTapAction = primaryTapAction
+        self.secondaryTapAction = secondaryTapAction
     }
 }
