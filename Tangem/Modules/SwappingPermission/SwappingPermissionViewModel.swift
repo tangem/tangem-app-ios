@@ -153,16 +153,3 @@ private extension SwappingPermissionViewModel {
         )
     }
 }
-
-extension SwappingApprovePolicy: DefaultMenuRowViewModelAction {
-    public var id: Int { hashValue }
-
-    public var title: String {
-        switch self {
-        case .amount:
-            return "Current transaction"
-        case .unlimited:
-            return "Unlimited"
-        }
-    }
-}
