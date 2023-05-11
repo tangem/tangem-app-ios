@@ -69,7 +69,7 @@ struct NotificationView_Previews: PreviewProvider {
                     mainIcon: Assets.attention,
                     title: "NotificationView title",
                     description: "NotificationView description",
-                    moreIcon: Assets.search
+                    detailIcon: Assets.search
                 ),
                 primaryTapAction: nil,
                 secondaryTapAction: nil
