@@ -12,6 +12,7 @@ import TangemSdk
 
 class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable> {
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
+    @Injected(\.analyticsContext) var analyticsContext: AnalyticsContext
 
     let navbarSize: CGSize = .init(width: UIScreen.main.bounds.width, height: 44)
     let resetAnimDuration: Double = 0.3
@@ -141,10 +142,11 @@ class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable>
         isFromMain = input.isStandalone
         isNavBarVisible = input.isStandalone
 
+        let loadImageInput = input.cardInput.imageLoadInput
         loadImage(
-            supportsOnlineImage: input.cardInput.cardModel?.supportsOnlineImage ?? false,
-            cardId: input.cardInput.cardModel?.cardId,
-            cardPublicKey: input.cardInput.cardModel?.cardPublicKey
+            supportsOnlineImage: loadImageInput.supportsOnlineImage,
+            cardId: loadImageInput.cardId,
+            cardPublicKey: loadImageInput.cardPublicKey
         )
 
         bindAnalytics()
@@ -154,7 +156,13 @@ class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable>
         let config = UserWalletConfigFactory(cardInfo).makeConfig()
         let userWallet = CardViewModel(cardInfo: cardInfo, config: config)
         userWallet.appendDefaultBlockchains()
-        userWallet.userWalletModel?.updateAndReloadWalletModels()
+        userWallet.userWalletModel?.initialUpdate()
+
+        if let userWalletId = cardModel?.userWalletId {
+            analyticsContext.updateContext(with: userWalletId)
+            Analytics.logTopUpIfNeeded(balance: 0)
+        }
+
         cardModel = userWallet
     }
 
@@ -366,7 +374,7 @@ class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable>
 
 extension OnboardingViewModel {
     func onboardingDidFinish() {
-        coordinator.onboardingDidFinish()
+        coordinator.onboardingDidFinish(userWallet: cardModel)
     }
 
     func closeOnboarding() {

@@ -127,20 +127,38 @@ class CommonUserWalletRepository: UserWalletRepository {
 
                 let cardDTO = CardDTO(card: response.card)
                 self.didScan(card: cardDTO, walletData: response.walletData)
-                let cardModel = self.processScan(response.getCardInfo())
+                let cardInfo = response.getCardInfo()
+                self.resetServices()
+
+                let config = UserWalletConfigFactory(cardInfo).makeConfig()
                 Analytics.endLoggingCardScan()
 
-                if let onboardingInput = cardModel.onboardingInput {
-                    cardModel.userWalletModel?.updateAndReloadWalletModels()
+                let factory = OnboardingInputFactory(
+                    cardInfo: cardInfo,
+                    cardModel: nil,
+                    sdkFactory: config,
+                    onboardingStepsBuilderFactory: config
+                )
 
+                if let onboardingInput = factory.makeOnboardingInput() {
                     return Just(UserWalletRepositoryResult.onboarding(onboardingInput))
                         .setFailureType(to: Error.self)
                         .eraseToAnyPublisher()
-                }
+                } else {
+                    let cardModel = CardViewModel(cardInfo: cardInfo, config: config)
+                    initializeServices(for: cardModel, cardInfo: cardInfo)
 
-                return Just(.success(cardModel))
-                    .setFailureType(to: Error.self)
-                    .eraseToAnyPublisher()
+                    // Updating the config file every time a card is scanned when wallets are NOT being saved.
+                    // This is done to avoid unnecessary changes in SDK config when the user scans an empty card
+                    // (that would open onboarding) and then immediately close it.
+                    if !AppSettings.shared.saveUserWallets {
+                        cardModel.userWalletModel?.initialUpdate() // [REDACTED_TODO_COMMENT]
+                    }
+
+                    return Just(.success(cardModel))
+                        .setFailureType(to: Error.self)
+                        .eraseToAnyPublisher()
+                }
             }
             .catch { [weak self] error -> Just<UserWalletRepositoryResult?> in
                 guard let self else {
@@ -429,25 +447,6 @@ class CommonUserWalletRepository: UserWalletRepository {
         tangemApiService.setAuthData(cardInfo.card.tangemApiAuthData)
         exchangeService.configure(for: cardModel.exchangeServiceEnvironment)
         walletConnectServiceProvider.initialize(with: cardModel)
-    }
-
-    private func processScan(_ cardInfo: CardInfo) -> CardViewModel {
-        resetServices()
-
-        // [REDACTED_TODO_COMMENT]
-        let config = UserWalletConfigFactory(cardInfo).makeConfig()
-        let cardModel = CardViewModel(cardInfo: cardInfo, config: config)
-
-        initializeServices(for: cardModel, cardInfo: cardInfo)
-
-        // Updating the config file every time a card is scanned when wallets are NOT being saved.
-        // This is done to avoid unnecessary changes in SDK config when the user scans an empty card
-        // (that would open onboarding) and then immediately close it.
-        if !AppSettings.shared.saveUserWallets {
-            cardModel.userWalletModel?.initialUpdate() // [REDACTED_TODO_COMMENT]
-        }
-
-        return cardModel
     }
 
     private func unlockWithBiometry(completion: @escaping (UserWalletRepositoryResult?) -> Void) {
