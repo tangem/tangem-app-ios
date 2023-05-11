@@ -22,14 +22,14 @@ public struct NotificationView: View {
             viewModel.primaryTapAction?()
         } label: {
             HStack(spacing: 0) {
-                viewModel.input.mainIcon.image
+                viewModel.mainIcon.image
                     .frame(width: 20, height: 20)
 
                 VStack(alignment: .leading, spacing: 2) {
-                    Text(viewModel.input.title)
+                    Text(viewModel.title)
                         .style(Fonts.Bold.footnote, color: Colors.Text.primary1)
 
-                    if let description = viewModel.input.description {
+                    if let description = viewModel.description {
                         Text(description)
                             .style(Fonts.Bold.caption1, color: Colors.Text.tertiary)
                     }
@@ -38,11 +38,11 @@ public struct NotificationView: View {
 
                 Spacer()
 
-                if let moreIcon = viewModel.input.moreIcon {
+                if let detailIcon = viewModel.detailIcon {
                     Button {
                         viewModel.secondaryTapAction?()
                     } label: {
-                        moreIcon.image
+                        detailIcon.image
                             .frame(width: 20, height: 20)
                     }
                     .disabled(viewModel.secondaryTapAction == nil)
