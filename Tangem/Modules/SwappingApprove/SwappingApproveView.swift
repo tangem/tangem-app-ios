@@ -61,14 +61,16 @@ struct SwappingApproveView: View {
             GroupedSection(viewModel.menuRowViewModel) {
                 DefaultMenuRowView(viewModel: $0, selection: $viewModel.selectedAction)
             } footer: {
-                DefaultFooterView("Before scanning the card you will need to enter the correct access code.")
+                // [REDACTED_TODO_COMMENT]
+                DefaultFooterView(Localization.swappingPermissionHeader)
             }
             .padding(.horizontal, 16)
 
             GroupedSection(viewModel.feeRowViewModel) {
                 DefaultRowView(viewModel: $0)
             } footer: {
-                DefaultFooterView("Before scanning the card you will need to enter the correct access code.")
+                // [REDACTED_TODO_COMMENT]
+                DefaultFooterView(Localization.swappingPermissionHeader)
             }
             .padding(.horizontal, 16)
         }
@@ -79,6 +81,8 @@ struct SwappingApproveView: View {
             MainButton(
                 title: Localization.swappingPermissionButtonsApprove,
                 icon: .trailing(Assets.tangemIcon),
+                isLoading: viewModel.isLoading,
+                isDisabled: viewModel.isDisabled,
                 action: viewModel.didTapApprove
             )
 
