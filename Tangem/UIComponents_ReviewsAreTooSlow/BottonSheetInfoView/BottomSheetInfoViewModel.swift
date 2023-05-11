@@ -9,13 +9,6 @@
 import Foundation
 
 public struct BottomSheetInfoViewModel: Identifiable {
-    public struct Input {
-        let icon: ImageType
-        let title: String
-        let description: String?
-        let buttonTitle: String?
-    }
-    
     // MARK: - Access
 
     public var icon: ImageType {
@@ -38,7 +31,7 @@ public struct BottomSheetInfoViewModel: Identifiable {
 
     public let id: UUID = .init()
     public let buttonTapAction: (() -> Void)?
-    
+
     private let input: Input
 
     // MARK: - Init
@@ -46,5 +39,14 @@ public struct BottomSheetInfoViewModel: Identifiable {
     public init(input: Input, buttonTapAction: (() -> Void)?) {
         self.input = input
         self.buttonTapAction = buttonTapAction
+    }
+}
+
+public extension BottomSheetInfoViewModel {
+    struct Input {
+        let icon: ImageType
+        let title: String
+        let description: String?
+        let buttonTitle: String?
     }
 }
