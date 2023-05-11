@@ -146,7 +146,7 @@ class CommonUserWalletRepository: UserWalletRepository {
                         .eraseToAnyPublisher()
                 } else {
                     let cardModel = CardViewModel(cardInfo: cardInfo, config: config)
-                    initializeServices(for: cardModel, cardInfo: cardInfo)
+                    self.initializeServices(for: cardModel, cardInfo: cardInfo)
 
                     // Updating the config file every time a card is scanned when wallets are NOT being saved.
                     // This is done to avoid unnecessary changes in SDK config when the user scans an empty card
