@@ -136,7 +136,7 @@ private extension SwappingPermissionViewModel {
         let transactionData = inputModel.transactionData
 
         menuRowViewModel = .init(
-            title: "Amount \(tokenSymbol)",
+            title: Localization.swappingPermissionRowsAmount(tokenSymbol),
             actions: [
                 SwappingApprovePolicy.unlimited,
                 SwappingApprovePolicy.amount(transactionData.sourceAmount),
