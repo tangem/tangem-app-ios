@@ -12,3 +12,8 @@ class SwappingPermissionRoutableMock: SwappingPermissionRoutable {
     func didSendApproveTransaction(transactionData: TangemSwapping.SwappingTransactionData) {}
     func userDidCancel() {}
 }
+
+class SwappingApproveRoutableMock: SwappingApproveRoutable {
+    func didSendApproveTransaction(transactionData: TangemSwapping.SwappingTransactionData) {}
+    func userDidCancel() {}
+}
