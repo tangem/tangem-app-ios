@@ -18,7 +18,6 @@ final class SwappingApproveViewModel: ObservableObject, Identifiable {
     @Published var selectedAction: SwappingApprovePolicy = .unlimited
     @Published var feeRowViewModel: DefaultRowViewModel?
     @Published var isLoading: Bool = false
-    @Published var isDisabled: Bool = false
     @Published var errorAlert: AlertBinder?
 
     var tokenSymbol: String {
@@ -120,13 +119,11 @@ private extension SwappingApproveViewModel {
             .handleEvents(receiveOutput: { [weak self] _ in
                 self?.feeRowViewModel?.update(detailsType: .loader)
                 self?.isLoading = true
-                self?.isDisabled = true
             })
-            .delay(for: 1, scheduler: DispatchQueue.main)
+            .delay(for: 3, scheduler: DispatchQueue.main)
             .sink { [weak self] _ in
                 self?.updateFeeAmount()
                 self?.isLoading = false
-                self?.isDisabled = false
             }
             .store(in: &bag)
     }
