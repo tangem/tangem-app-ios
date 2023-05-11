@@ -27,6 +27,7 @@ struct UserWalletConfigFactory {
         case .none:
             let isSaltPay = SaltPayUtil().isSaltPayCard(batchId: cardInfo.card.batchId, cardId: cardInfo.card.cardId)
 
+            // old multiwallet
             if cardInfo.card.firmwareVersion <= .backupAvailable {
                 return LegacyConfig(card: cardInfo.card, walletData: nil)
             }
