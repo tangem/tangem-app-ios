@@ -385,11 +385,13 @@
 "swapping_pending_transaction_subtitle" = "交易進行中...";
 "swapping_pending_transaction_title" = "等待中";
 "swapping_permission_buttons_approve" = "允許";
+"swapping_permission_current_transaction" = "Current transaction";
 "swapping_permission_header" = "賦予權限";
 "swapping_permission_rows_amount" = "數量 %@";
 "swapping_permission_rows_spender" = "花費者";
 "swapping_permission_rows_your_wallet" = "您的錢包";
 "swapping_permission_subheader" = "要繼續，您需要允許 1inch 智能合約使用您的 %@";
+"swapping_permission_unlimited" = "Unlimited";
 "swapping_permit_and_swap" = "許可和交換";
 "swapping_success_view_explorer_button_title" = "在瀏覽器中查看";
 "swapping_success_view_title" = "進行中";
