@@ -8,6 +8,10 @@
 
 /* Begin PBXBuildFile section */
 		068390D11B726EAFF947C74D /* Pods_TangemTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9007851926D769366ABB833A /* Pods_TangemTests.framework */; };
+		2D535E702A0CB4D20081EB76 /* NotificationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D535E6B2A0CB4D20081EB76 /* NotificationView.swift */; };
+		2D535E712A0CB4D20081EB76 /* NotificationViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D535E6C2A0CB4D20081EB76 /* NotificationViewModel.swift */; };
+		2D535E722A0CB4D20081EB76 /* BottomSheetInfoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D535E6E2A0CB4D20081EB76 /* BottomSheetInfoView.swift */; };
+		2D535E732A0CB4D20081EB76 /* BottomSheetInfoViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D535E6F2A0CB4D20081EB76 /* BottomSheetInfoViewModel.swift */; };
 		2D805ECA29ADE17100C030F7 /* ExchangeButtonStateType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D805EC929ADE17100C030F7 /* ExchangeButtonStateType.swift */; };
 		2DB43917296EBC6000CBBB1E /* AppsFlyerConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DB43916296EBC6000CBBB1E /* AppsFlyerConfig.swift */; };
 		2DC5DAAD29B782420039154A /* TonCenterApiKeys.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DC5DAAC29B782420039154A /* TonCenterApiKeys.swift */; };
@@ -309,6 +313,7 @@
 		B0BA7BC526C4F96B00D7066F /* NonDismissableModalView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0BA7BC426C4F96B00D7066F /* NonDismissableModalView.swift */; };
 		B0BA7BC726C4F9A300D7066F /* OnboardingCircleButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0BA7BC626C4F9A300D7066F /* OnboardingCircleButton.swift */; };
 		B0BA7BCB26C5684E00D7066F /* AddressQrBottomSheetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0BA7BCA26C5684E00D7066F /* AddressQrBottomSheetView.swift */; };
+		B0BF631B2A0D1C6F009EB975 /* TotalBalanceFormattingOptions.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0BF631A2A0D1C6F009EB975 /* TotalBalanceFormattingOptions.swift */; };
 		B0C171CE264C173400E4BA5C /* CameraAccessDeniedModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0C171CD264C173400E4BA5C /* CameraAccessDeniedModifier.swift */; };
 		B0C4A1D32671F3FC00DCB921 /* TestnetBuyCryptoService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0C4A1D22671F3FB00DCB921 /* TestnetBuyCryptoService.swift */; };
 		B0C4F76B26F0896E0086D815 /* SingleCardOnboardingCardsLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0C4F76A26F0896E0086D815 /* SingleCardOnboardingCardsLayout.swift */; };
@@ -615,6 +620,10 @@
 		EF08A0F1283D2382008BD923 /* CoinsListRequestModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF08A0F0283D2382008BD923 /* CoinsListRequestModel.swift */; };
 		EF09A309297A9B3F00B869A1 /* BottomSheetContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF09A308297A9B3F00B869A1 /* BottomSheetContainer.swift */; };
 		EF0B173529F2CDF4002A3C6D /* UIDevice+IPhoneModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF0B173429F2CDF4002A3C6D /* UIDevice+IPhoneModel.swift */; };
+		EF0DC1072A0BD7F8007E3DA7 /* OptionPicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF0DC1062A0BD7F8007E3DA7 /* OptionPicker.swift */; };
+		EF0DC11B2A0CE29E007E3DA7 /* SwappingApproveView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF0DC1162A0CE29E007E3DA7 /* SwappingApproveView.swift */; };
+		EF0DC11C2A0CE29E007E3DA7 /* SwappingApproveViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF0DC1172A0CE29E007E3DA7 /* SwappingApproveViewModel.swift */; };
+		EF0DC11D2A0CE29E007E3DA7 /* SwappingApproveRoutable.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF0DC1182A0CE29E007E3DA7 /* SwappingApproveRoutable.swift */; };
 		EF0F99AA289028F8008B01DF /* AppSettingsCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF0F99A5289028F8008B01DF /* AppSettingsCoordinator.swift */; };
 		EF0F99AB289028F8008B01DF /* AppSettingsCoordinatorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF0F99A6289028F8008B01DF /* AppSettingsCoordinatorView.swift */; };
 		EF0F99AC289028F8008B01DF /* AppSettingsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF0F99A7289028F8008B01DF /* AppSettingsViewModel.swift */; };
@@ -700,6 +709,8 @@
 		EF4BEFDF28AD3EE500C5D1BE /* ContentState.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF4BEFDE28AD3EE500C5D1BE /* ContentState.swift */; };
 		EF4BEFE128AD423C00C5D1BE /* TangemAPIError.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF4BEFE028AD423C00C5D1BE /* TangemAPIError.swift */; };
 		EF50A5B1288976140081C5BB /* View+ConditionalModifiers.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF50A5B0288976140081C5BB /* View+ConditionalModifiers.swift */; };
+		EF56B3D12A03AFDB002CCE27 /* DefaultMenuRowViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF56B3CF2A03AFDA002CCE27 /* DefaultMenuRowViewModel.swift */; };
+		EF56B3D22A03AFDB002CCE27 /* DefaultMenuRowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF56B3D02A03AFDA002CCE27 /* DefaultMenuRowView.swift */; };
 		EF59039A29091CFB00C527C9 /* EnvironmentSetupView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF59039529091CFB00C527C9 /* EnvironmentSetupView.swift */; };
 		EF5903A42909285E00C527C9 /* FeaturesStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF5903A32909285E00C527C9 /* FeaturesStorage.swift */; };
 		EF5903A829092BC600C527C9 /* FeatureProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF5903A729092BC600C527C9 /* FeatureProvider.swift */; };
@@ -760,6 +771,7 @@
 		EF8D780F2981458500B67418 /* UserTokenListManagerMock.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF8D780E2981458500B67418 /* UserTokenListManagerMock.swift */; };
 		EF8D781129818E6100B67418 /* UserWalletModelMock.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF8D781029818E6100B67418 /* UserWalletModelMock.swift */; };
 		EF8D7814298281F700B67418 /* SwappingModulesFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF8D7813298281F700B67418 /* SwappingModulesFactory.swift */; };
+		EF8EF52F2A0668D6007B52C4 /* SwappingPermissionRoutableMock.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF8EF52E2A0668D6007B52C4 /* SwappingPermissionRoutableMock.swift */; };
 		EF8F2352294098C80046F4C0 /* SwappingDestinationServiceMock.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF8F2351294098C80046F4C0 /* SwappingDestinationServiceMock.swift */; };
 		EF92412F2934BB8000C28551 /* MainButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF92412E2934BB8000C28551 /* MainButton.swift */; };
 		EF9241322934C25400C28551 /* CommonSwappingModulesFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF9241312934C25400C28551 /* CommonSwappingModulesFactory.swift */; };
@@ -920,6 +932,10 @@
 		1A8B8160D490F1D209E13D73 /* Pods-TangemSwappingTests.debug(alpha).xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TangemSwappingTests.debug(alpha).xcconfig"; path = "Target Support Files/Pods-TangemSwappingTests/Pods-TangemSwappingTests.debug(alpha).xcconfig"; sourceTree = "<group>"; };
 		237ACDF8B2D838E0662A7DE4 /* Pods-Tangem-TangemUITests.debug(production).xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Tangem-TangemUITests.debug(production).xcconfig"; path = "Target Support Files/Pods-Tangem-TangemUITests/Pods-Tangem-TangemUITests.debug(production).xcconfig"; sourceTree = "<group>"; };
 		2875C875BFA3A1A1BAFFD016 /* Pods-TangemTests.debug(alpha).xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TangemTests.debug(alpha).xcconfig"; path = "Target Support Files/Pods-TangemTests/Pods-TangemTests.debug(alpha).xcconfig"; sourceTree = "<group>"; };
+		2D535E6B2A0CB4D20081EB76 /* NotificationView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NotificationView.swift; sourceTree = "<group>"; };
+		2D535E6C2A0CB4D20081EB76 /* NotificationViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NotificationViewModel.swift; sourceTree = "<group>"; };
+		2D535E6E2A0CB4D20081EB76 /* BottomSheetInfoView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BottomSheetInfoView.swift; sourceTree = "<group>"; };
+		2D535E6F2A0CB4D20081EB76 /* BottomSheetInfoViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BottomSheetInfoViewModel.swift; sourceTree = "<group>"; };
 		2D805EC929ADE17100C030F7 /* ExchangeButtonStateType.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ExchangeButtonStateType.swift; sourceTree = "<group>"; };
 		2DB43916296EBC6000CBBB1E /* AppsFlyerConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppsFlyerConfig.swift; sourceTree = "<group>"; };
 		2DC5DAAC29B782420039154A /* TonCenterApiKeys.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TonCenterApiKeys.swift; sourceTree = "<group>"; };
@@ -1258,6 +1274,7 @@
 		B0BA7BC426C4F96B00D7066F /* NonDismissableModalView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NonDismissableModalView.swift; sourceTree = "<group>"; };
 		B0BA7BC626C4F9A300D7066F /* OnboardingCircleButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingCircleButton.swift; sourceTree = "<group>"; };
 		B0BA7BCA26C5684E00D7066F /* AddressQrBottomSheetView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddressQrBottomSheetView.swift; sourceTree = "<group>"; };
+		B0BF631A2A0D1C6F009EB975 /* TotalBalanceFormattingOptions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TotalBalanceFormattingOptions.swift; sourceTree = "<group>"; };
 		B0C171CD264C173400E4BA5C /* CameraAccessDeniedModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraAccessDeniedModifier.swift; sourceTree = "<group>"; };
 		B0C4A1D22671F3FB00DCB921 /* TestnetBuyCryptoService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestnetBuyCryptoService.swift; sourceTree = "<group>"; };
 		B0C4F76A26F0896E0086D815 /* SingleCardOnboardingCardsLayout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SingleCardOnboardingCardsLayout.swift; sourceTree = "<group>"; };
@@ -1579,6 +1596,10 @@
 		EF08A0F0283D2382008BD923 /* CoinsListRequestModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoinsListRequestModel.swift; sourceTree = "<group>"; };
 		EF09A308297A9B3F00B869A1 /* BottomSheetContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BottomSheetContainer.swift; sourceTree = "<group>"; };
 		EF0B173429F2CDF4002A3C6D /* UIDevice+IPhoneModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIDevice+IPhoneModel.swift"; sourceTree = "<group>"; };
+		EF0DC1062A0BD7F8007E3DA7 /* OptionPicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OptionPicker.swift; sourceTree = "<group>"; };
+		EF0DC1162A0CE29E007E3DA7 /* SwappingApproveView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwappingApproveView.swift; sourceTree = "<group>"; };
+		EF0DC1172A0CE29E007E3DA7 /* SwappingApproveViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwappingApproveViewModel.swift; sourceTree = "<group>"; };
+		EF0DC1182A0CE29E007E3DA7 /* SwappingApproveRoutable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwappingApproveRoutable.swift; sourceTree = "<group>"; };
 		EF0F99A5289028F8008B01DF /* AppSettingsCoordinator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AppSettingsCoordinator.swift; sourceTree = "<group>"; };
 		EF0F99A6289028F8008B01DF /* AppSettingsCoordinatorView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AppSettingsCoordinatorView.swift; sourceTree = "<group>"; };
 		EF0F99A7289028F8008B01DF /* AppSettingsViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AppSettingsViewModel.swift; sourceTree = "<group>"; };
@@ -1676,6 +1697,8 @@
 		EF5267EC2927809300FC25A8 /* SwappingCoordinatorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwappingCoordinatorView.swift; sourceTree = "<group>"; };
 		EF5267EE2927809300FC25A8 /* SwappingViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwappingViewModel.swift; sourceTree = "<group>"; };
 		EF5267EF2927809300FC25A8 /* SwappingRoutable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwappingRoutable.swift; sourceTree = "<group>"; };
+		EF56B3CF2A03AFDA002CCE27 /* DefaultMenuRowViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DefaultMenuRowViewModel.swift; sourceTree = "<group>"; };
+		EF56B3D02A03AFDA002CCE27 /* DefaultMenuRowView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DefaultMenuRowView.swift; sourceTree = "<group>"; };
 		EF59039529091CFB00C527C9 /* EnvironmentSetupView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EnvironmentSetupView.swift; sourceTree = "<group>"; };
 		EF5903A32909285E00C527C9 /* FeaturesStorage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeaturesStorage.swift; sourceTree = "<group>"; };
 		EF5903A729092BC600C527C9 /* FeatureProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeatureProvider.swift; sourceTree = "<group>"; };
@@ -1741,6 +1764,7 @@
 		EF8D780E2981458500B67418 /* UserTokenListManagerMock.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserTokenListManagerMock.swift; sourceTree = "<group>"; };
 		EF8D781029818E6100B67418 /* UserWalletModelMock.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserWalletModelMock.swift; sourceTree = "<group>"; };
 		EF8D7813298281F700B67418 /* SwappingModulesFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwappingModulesFactory.swift; sourceTree = "<group>"; };
+		EF8EF52E2A0668D6007B52C4 /* SwappingPermissionRoutableMock.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwappingPermissionRoutableMock.swift; sourceTree = "<group>"; };
 		EF8F2351294098C80046F4C0 /* SwappingDestinationServiceMock.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwappingDestinationServiceMock.swift; sourceTree = "<group>"; };
 		EF92412E2934BB8000C28551 /* MainButton.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MainButton.swift; sourceTree = "<group>"; };
 		EF9241312934C25400C28551 /* CommonSwappingModulesFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonSwappingModulesFactory.swift; sourceTree = "<group>"; };
@@ -1875,6 +1899,24 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		2D535E6A2A0CB4D20081EB76 /* NotificationView */ = {
+			isa = PBXGroup;
+			children = (
+				2D535E6B2A0CB4D20081EB76 /* NotificationView.swift */,
+				2D535E6C2A0CB4D20081EB76 /* NotificationViewModel.swift */,
+			);
+			path = NotificationView;
+			sourceTree = "<group>";
+		};
+		2D535E6D2A0CB4D20081EB76 /* BottonSheetInfoView */ = {
+			isa = PBXGroup;
+			children = (
+				2D535E6E2A0CB4D20081EB76 /* BottomSheetInfoView.swift */,
+				2D535E6F2A0CB4D20081EB76 /* BottomSheetInfoViewModel.swift */,
+			);
+			path = BottonSheetInfoView;
+			sourceTree = "<group>";
+		};
 		2E5061A84512B23CCB5F2E17 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
@@ -2119,6 +2161,8 @@
 		5D958E1224F513C1006BD932 /* UI */ = {
 			isa = PBXGroup;
 			children = (
+				EF0DC1052A0BD7E6007E3DA7 /* OptionPicker */,
+				EF56B3CE2A03AFDA002CCE27 /* DefaultMenuRowView */,
 				EFD32AE529ED93EB0026353E /* FeatureStateRowView */,
 				EF6EDD8A296D6B3B001B21A3 /* SendGroupedNumberTextField */,
 				EFE23AC9292CB84600A3C554 /* IconView */,
@@ -2892,6 +2936,7 @@
 			children = (
 				B0B335D129FA89EE00E2082E /* BalanceFormatter.swift */,
 				B0B335E229FA9EB800E2082E /* BalanceFormattingOptions.swift */,
+				B0BF631A2A0D1C6F009EB975 /* TotalBalanceFormattingOptions.swift */,
 			);
 			path = BalanceFormatter;
 			sourceTree = "<group>";
@@ -3261,6 +3306,8 @@
 		DAB591402A00CD0700984294 /* UIComponents_ReviewsAreTooSlow */ = {
 			isa = PBXGroup;
 			children = (
+				2D535E6D2A0CB4D20081EB76 /* BottonSheetInfoView */,
+				2D535E6A2A0CB4D20081EB76 /* NotificationView */,
 				B05A859329937D2400E87C6E /* TransactionHistory */,
 				DA8BBF952A0248E300B085DC /* SensitiveInformation */,
 			);
@@ -3738,6 +3785,7 @@
 				EF09A307297A9A7D00B869A1 /* BottomSheetContainer */,
 				EF5267DF2927805B00FC25A8 /* Swapping */,
 				EF11DD9429378A6E0044B33C /* SwappingTokenList */,
+				EF0DC1132A0CE291007E3DA7 /* SwappingApprove */,
 				EFE23AB1292B8D0800A3C554 /* SwappingPermission */,
 				EFE23ABE292CB6E800A3C554 /* SwappingTokenList */,
 				EFE23AAA292B810300A3C554 /* SwappingSuccess */,
@@ -3812,6 +3860,24 @@
 				EF09A308297A9B3F00B869A1 /* BottomSheetContainer.swift */,
 			);
 			path = BottomSheetContainer;
+			sourceTree = "<group>";
+		};
+		EF0DC1052A0BD7E6007E3DA7 /* OptionPicker */ = {
+			isa = PBXGroup;
+			children = (
+				EF0DC1062A0BD7F8007E3DA7 /* OptionPicker.swift */,
+			);
+			path = OptionPicker;
+			sourceTree = "<group>";
+		};
+		EF0DC1132A0CE291007E3DA7 /* SwappingApprove */ = {
+			isa = PBXGroup;
+			children = (
+				EF0DC1162A0CE29E007E3DA7 /* SwappingApproveView.swift */,
+				EF0DC1172A0CE29E007E3DA7 /* SwappingApproveViewModel.swift */,
+				EF0DC1182A0CE29E007E3DA7 /* SwappingApproveRoutable.swift */,
+			);
+			path = SwappingApprove;
 			sourceTree = "<group>";
 		};
 		EF11DD9429378A6E0044B33C /* SwappingTokenList */ = {
@@ -4125,6 +4191,15 @@
 			path = Swapping;
 			sourceTree = "<group>";
 		};
+		EF56B3CE2A03AFDA002CCE27 /* DefaultMenuRowView */ = {
+			isa = PBXGroup;
+			children = (
+				EF56B3CF2A03AFDA002CCE27 /* DefaultMenuRowViewModel.swift */,
+				EF56B3D02A03AFDA002CCE27 /* DefaultMenuRowView.swift */,
+			);
+			path = DefaultMenuRowView;
+			sourceTree = "<group>";
+		};
 		EF59039229091CCE00C527C9 /* EnvironmentSetup */ = {
 			isa = PBXGroup;
 			children = (
@@ -4309,6 +4384,7 @@
 				EF8D780E2981458500B67418 /* UserTokenListManagerMock.swift */,
 				EF8D781029818E6100B67418 /* UserWalletModelMock.swift */,
 				EF5F1BAB29D1A2BE0093307B /* TotalBalanceProviderMock.swift */,
+				EF8EF52E2A0668D6007B52C4 /* SwappingPermissionRoutableMock.swift */,
 			);
 			path = Mocks;
 			sourceTree = "<group>";
@@ -4686,6 +4762,8 @@
 				EF4661A62923AFC500346B6C /* PBXTargetDependency */,
 			);
 			name = Tangem;
+			packageProductDependencies = (
+			);
 			productName = "Tangem Tap";
 			productReference = 5D3F77C224BF56D800E8695B /* Tangem.app */;
 			productType = "com.apple.product-type.application";
@@ -4812,6 +4890,8 @@
 				"zh-Hant",
 			);
 			mainGroup = 5D3F77B924BF56D800E8695B;
+			packageReferences = (
+			);
 			productRefGroup = 5D3F77C324BF56D800E8695B /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -5193,6 +5273,7 @@
 				652B013A28319F9000F2E27A /* TotalSumBalanceViewModel.swift in Sources */,
 				DC89B71029FAD00E000F1A80 /* CardInteractor.swift in Sources */,
 				B05A859729937E2400E87C6E /* TransactionView.swift in Sources */,
+				EF0DC11C2A0CE29E007E3DA7 /* SwappingApproveViewModel.swift in Sources */,
 				5D51037927C539B60025EA55 /* ABIError.swift in Sources */,
 				DC7127AB2897EC6B00F60F71 /* Start2CoinConfig.swift in Sources */,
 				EF9241322934C25400C28551 /* CommonSwappingModulesFactory.swift in Sources */,
@@ -5227,6 +5308,7 @@
 				DC66BC00285B3FD900CDF765 /* OnboardingTopupRoutable.swift in Sources */,
 				EFBA17E62987B0C200C23955 /* BlockchainNetworkNavigationTitleViewModel.swift in Sources */,
 				B04BA23426F0837C0036784C /* OnboardingTopupLayoutCalculator.swift in Sources */,
+				2D535E712A0CB4D20081EB76 /* NotificationViewModel.swift in Sources */,
 				DC5DBBC9289B951600C21E35 /* DemoUtil.swift in Sources */,
 				DA23788327B24222009795A8 /* ShippingRate.swift in Sources */,
 				5D6784E425EBC94B00149995 /* Blockchain+.swift in Sources */,
@@ -5259,6 +5341,7 @@
 				DC0A5808282501CA0031BECC /* MoonPayKeys.swift in Sources */,
 				B05A13A129FB971900FB511A /* TokenItemViewModel.swift in Sources */,
 				EF862714297182B6007EBFF9 /* SwappingSuccessCoordinator.swift in Sources */,
+				EF56B3D12A03AFDB002CCE27 /* DefaultMenuRowViewModel.swift in Sources */,
 				B00D7150258A1B6C00A9442C /* JsonUtils.swift in Sources */,
 				5DFE855724EF051400194106 /* Error+.swift in Sources */,
 				DC261CB6292CF6B700875E64 /* UncompletedBackupViewModel.swift in Sources */,
@@ -5445,6 +5528,7 @@
 				5DFCCB7624C381A70014A293 /* SendViewModel.swift in Sources */,
 				DCE5C66E28898BB6000C7F67 /* CommonTangemApiService.swift in Sources */,
 				5DF2522724F914E30015B429 /* AppScanTask.swift in Sources */,
+				B0BF631B2A0D1C6F009EB975 /* TotalBalanceFormattingOptions.swift in Sources */,
 				DC3B49F42893E50700C207EA /* UserWallet.swift in Sources */,
 				5DD6DF21251E018A00F2693E /* AlertCardView.swift in Sources */,
 				DC66BC06285B6C7300CDF765 /* SendCoordinatorView.swift in Sources */,
@@ -5461,6 +5545,7 @@
 				B0F920CC25932DCF007C176C /* WarningListView.swift in Sources */,
 				5DBBAB0B24D853B600E78F1C /* Color+.swift in Sources */,
 				EF11DD9C29378A6F0044B33C /* SwappingTokenListViewModel.swift in Sources */,
+				EF0DC1072A0BD7F8007E3DA7 /* OptionPicker.swift in Sources */,
 				B0C87B482566492000F861DE /* TwinData.swift in Sources */,
 				5D00FCC72617387E004626DE /* PersonalSignHandler.swift in Sources */,
 				B0FAD00E26BAC51F00F45E88 /* CircledCheckmarkView.swift in Sources */,
@@ -5480,6 +5565,7 @@
 				B03ACAC92567CFFF00F5D269 /* CardView.swift in Sources */,
 				EFDDE5242A03F2A200899812 /* SwappingInteractor.swift in Sources */,
 				B05A13A329FB975400FB511A /* LoadableTextView.swift in Sources */,
+				EFDDE5242A03F2A200899812 /* SwappingInteractor.swift in Sources */,
 				DC295B4A2861C4CB006CB7B6 /* DetailsCoordinatorView.swift in Sources */,
 				B02B74AA29879CC5006473F2 /* WalletConnectV2Factory.swift in Sources */,
 				B09BB86D259A080900B92000 /* SendAdditionalFields.swift in Sources */,
@@ -5625,10 +5711,12 @@
 				EF80843A293F6708000D91EA /* SwappingDestinationService.swift in Sources */,
 				DC295B402861C27D006CB7B6 /* TokenDetailsCoordinator.swift in Sources */,
 				B004C40E298AA9E00029C14A /* WalletConnectV2SendTransactionHandler.swift in Sources */,
+				EF0DC11D2A0CE29E007E3DA7 /* SwappingApproveRoutable.swift in Sources */,
 				5D78D118261DFEBA00F98B18 /* PurgeWalletsAndReadResponse.swift in Sources */,
 				EF0F99E128917003008B01DF /* SocialNetwork.swift in Sources */,
 				B0468CE72954A0D300F2E728 /* WalletConnectV2DefaultSocketFactory.swift in Sources */,
 				B0AA865226DC90E600287F80 /* WelcomeView.swift in Sources */,
+				EF0DC11B2A0CE29E007E3DA7 /* SwappingApproveView.swift in Sources */,
 				5D225CB92524B721001564A3 /* Analytics.swift in Sources */,
 				EFBFD56F2979990900B20C2E /* FiatRatesProvider.swift in Sources */,
 				DC66BC16285C529600CDF765 /* SendRoutable.swift in Sources */,
@@ -5720,6 +5808,7 @@
 				5DE2038E24EE8A510044EF46 /* ActivityIndicatorView.swift in Sources */,
 				B05A13AE29FBED3000FB511A /* ScrollableButtonsView.swift in Sources */,
 				DC66BC08285B6E6400CDF765 /* DetailsRoutable.swift in Sources */,
+				2D535E702A0CB4D20081EB76 /* NotificationView.swift in Sources */,
 				DAB88FF92938B17100100725 /* UserWalletListSeparatorView.swift in Sources */,
 				B031AAB126C1443E00015003 /* Confetti.swift in Sources */,
 				EF11DD8A293789C60044B33C /* SwappingSuccessRoutable.swift in Sources */,
@@ -5738,6 +5827,7 @@
 				EFEC5F782970369D009C0E5F /* SwappingTransactionSender.swift in Sources */,
 				B0E1D175257DE75D00A3AB98 /* CommonKeysManager.swift in Sources */,
 				5D84DBEF270EEADA0013A813 /* TwinIntroBackgroundView.swift in Sources */,
+				EF8EF52F2A0668D6007B52C4 /* SwappingPermissionRoutableMock.swift in Sources */,
 				5D80ED472550186A0008DEF0 /* View+.swift in Sources */,
 				DA129DD3292B4A3D004291EC /* UserWalletListCellViewModel.swift in Sources */,
 				6563B8B92858B92A009A8A7D /* SupportChatView.swift in Sources */,
@@ -5780,6 +5870,7 @@
 				EFEC5F74296FF2BA009C0E5F /* FocusedDecimalNumberTextField.swift in Sources */,
 				DA23788527B24222009795A8 /* CheckoutLineItem.swift in Sources */,
 				B0C4F77126F08C4D0086D815 /* TwinsOnboardingCardLayout.swift in Sources */,
+				2D535E722A0CB4D20081EB76 /* BottomSheetInfoView.swift in Sources */,
 				B008E13A29802157006E0E31 /* WebSocketError.swift in Sources */,
 				5D51037127C5360E0025EA55 /* ABIType.swift in Sources */,
 				65A1910A2833EA900023355D /* TokensView.swift in Sources */,
@@ -5813,6 +5904,7 @@
 				DA4C84CE27DA2D6D00B76F91 /* StoriesConstants.swift in Sources */,
 				DAA5E31228D2137C003C0E80 /* UserWalletEncryptionKeyStorage.swift in Sources */,
 				5DF612A224E6E0ED001BF301 /* AddressFormatter.swift in Sources */,
+				2D535E732A0CB4D20081EB76 /* BottomSheetInfoViewModel.swift in Sources */,
 				5D384B9424FD51C000C2C92C /* DetailsViewModel.swift in Sources */,
 				DC295B502861D9B3006CB7B6 /* SecurityModeCoordinatorView.swift in Sources */,
 				EFF253B3293DCAA900AEF302 /* SwappingFeeRowViewModel.swift in Sources */,
@@ -5826,6 +5918,7 @@
 				DC51187C2860B728004FB954 /* AppCoordinatorView.swift in Sources */,
 				B0F62C5025DE4EC9005C8BA0 /* MailView.swift in Sources */,
 				DA23788027B24222009795A8 /* CheckoutUserError.swift in Sources */,
+				EF56B3D22A03AFDB002CCE27 /* DefaultMenuRowView.swift in Sources */,
 				EF6CB17E292E1190001335EA /* EnvironmentSetupViewModel.swift in Sources */,
 				EF0F99AB289028F8008B01DF /* AppSettingsCoordinatorView.swift in Sources */,
 				DC7D3A0529E06334007BCD23 /* GenericTangemSdkFactory.swift in Sources */,
