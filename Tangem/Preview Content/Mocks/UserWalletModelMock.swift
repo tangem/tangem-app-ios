@@ -33,7 +33,7 @@ class UserWalletModelMock: UserWalletModel {
 
     func append(entries: [StorageEntry]) {}
 
-    func remove(item: RemoveItem) {}
+    func remove(amountType: Amount.AmountType, blockchainNetwork: BlockchainNetwork) {}
 
     func initialUpdate() {}
 
