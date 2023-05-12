@@ -149,13 +149,5 @@ extension TotalBalanceProvider {
         let balance: Decimal?
         let currencyCode: String
         let hasError: Bool
-
-        var balanceFormatted: String {
-            if let balance {
-                return balance.currencyFormatted(code: currencyCode)
-            } else {
-                return "–"
-            }
-        }
     }
 }
