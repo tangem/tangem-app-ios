@@ -74,7 +74,7 @@ extension CardInteractor: CardResettable {
             completion(.failure(CardInteractionError.emptyCard.toTangemSdkError()))
             return
         }
-        
+
         let initialMessage = Message(header: nil, body: Localization.initialMessagePurgeWalletBody)
         let task = ResetToFactorySettingsTask()
         runnableBag = task
