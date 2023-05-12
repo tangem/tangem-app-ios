@@ -28,11 +28,4 @@ extension Decimal {
         let formatter = DecimalNumberFormatter(maximumFractionDigits: maximumFractionDigits)
         return formatter.format(value: self)
     }
-
-    static func decimalSeparator() -> String {
-        let formatter = NumberFormatter()
-        formatter.locale = Locale.current
-        formatter.numberStyle = .currency
-        return formatter.decimalSeparator
-    }
 }
