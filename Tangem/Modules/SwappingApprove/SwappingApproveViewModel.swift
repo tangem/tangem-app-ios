@@ -15,7 +15,7 @@ final class SwappingApproveViewModel: ObservableObject, Identifiable {
     // MARK: - ViewState
 
     @Published var menuRowViewModel: DefaultMenuRowViewModel<SwappingApprovePolicy>?
-    @Published var selectedAction: SwappingApprovePolicy = .unlimited
+    @Published var selectedAction: SwappingApprovePolicy
     @Published var feeRowViewModel: DefaultRowViewModel?
 
     @Published var isLoading: Bool = false
@@ -55,6 +55,7 @@ final class SwappingApproveViewModel: ObservableObject, Identifiable {
         self.fiatRatesProvider = fiatRatesProvider
         self.coordinator = coordinator
 
+        self.selectedAction = swappingInteractor.getSwappingApprovePolicy()
         setupView()
         bind()
     }
