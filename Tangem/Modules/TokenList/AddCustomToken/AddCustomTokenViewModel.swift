@@ -15,7 +15,7 @@ import enum TangemSdk.TangemSdkError
 class AddCustomTokenViewModel: ObservableObject {
     @Injected(\.tangemApiService) var tangemApiService: TangemApiService
 
-    weak var cardModel: CardViewModel!
+    unowned var cardModel: CardViewModel
 
     @Published var name = ""
     @Published var symbol = ""
@@ -301,7 +301,7 @@ class AddCustomTokenViewModel: ObservableObject {
             return
         }
 
-        let cardTokenItems = cardModel.userTokenListManager.getEntriesFromRepository() ?? []
+        let cardTokenItems = cardModel.userTokenListManager.getEntriesFromRepository()
 
         let checkingContractAddress = !contractAddress.isEmpty
         let derivationPath = try? enteredDerivationPath()
