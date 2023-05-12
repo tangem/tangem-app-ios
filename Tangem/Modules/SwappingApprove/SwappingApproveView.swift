@@ -39,7 +39,7 @@ struct SwappingApproveView: View {
 
                 Button(action: viewModel.didTapInfoButton) {
                     Assets.infoIconMini.image
-                        .padding(.trailing, 16)
+                        .padding(.horizontal, 16)
                 }
             }
 
