@@ -61,16 +61,14 @@ struct SwappingApproveView: View {
             GroupedSection(viewModel.menuRowViewModel) {
                 DefaultMenuRowView(viewModel: $0, selection: $viewModel.selectedAction)
             } footer: {
-                // [REDACTED_TODO_COMMENT]
-                DefaultFooterView(Localization.swappingPermissionSubheader(viewModel.tokenSymbol))
+                DefaultFooterView(Localization.swappingPermissionPolicyTypeFooter)
             }
             .padding(.horizontal, 16)
 
             GroupedSection(viewModel.feeRowViewModel) {
                 DefaultRowView(viewModel: $0)
             } footer: {
-                // [REDACTED_TODO_COMMENT]
-                DefaultFooterView(Localization.swappingPermissionSubheader(viewModel.tokenSymbol))
+                DefaultFooterView(Localization.swappingPermissionFeeFooter)
             }
             .padding(.horizontal, 16)
         }
