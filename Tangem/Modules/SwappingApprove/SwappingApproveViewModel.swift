@@ -3,7 +3,7 @@
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
-//  Copyright © 2022 Tangem AG. All rights reserved.
+//  Copyright © 2023 Tangem AG. All rights reserved.
 //
 
 import Combine
@@ -17,37 +17,42 @@ final class SwappingApproveViewModel: ObservableObject, Identifiable {
     @Published var menuRowViewModel: DefaultMenuRowViewModel<SwappingApprovePolicy>?
     @Published var selectedAction: SwappingApprovePolicy = .unlimited
     @Published var feeRowViewModel: DefaultRowViewModel?
+
     @Published var isLoading: Bool = false
+    @Published var mainButtonIsDisabled: Bool = false
     @Published var errorAlert: AlertBinder?
 
     var tokenSymbol: String {
-        sourceCurrency.symbol
+        swappingInteractor.getSwappingItems().source.symbol
     }
 
     // MARK: - Dependencies
 
-    // [REDACTED_TODO_COMMENT]
-    private let inputModel: SwappingPermissionInputModel
-    private var sourceCurrency: Currency { inputModel.transactionData.sourceCurrency }
     private let transactionSender: SwappingTransactionSender
+    private let swappingInteractor: SwappingInteractor
+    private let fiatRatesProvider: FiatRatesProviding
     private unowned let coordinator: SwappingApproveRoutable
 
     private var didBecomeActiveNotificationCancellable: AnyCancellable?
     private var bag: Set<AnyCancellable> = []
+    private var transactionData: SwappingTransactionData? {
+        guard case .available(_, let data) = swappingInteractor.getAvailabilityState() else {
+            AppLog.shared.debug("TransactionData for approve isn't found")
+            return nil
+        }
 
-    private var feeLabel: String {
-        let fiatFee = inputModel.fiatFee.currencyFormatted(code: AppSettings.shared.selectedCurrencyCode)
-        let formattedFee = inputModel.transactionData.fee.groupedFormatted()
-        return "\(formattedFee) \(inputModel.transactionData.sourceBlockchain.symbol) (\(fiatFee))"
+        return data
     }
 
     init(
-        inputModel: SwappingPermissionInputModel,
         transactionSender: SwappingTransactionSender,
+        swappingInteractor: SwappingInteractor,
+        fiatRatesProvider: FiatRatesProviding,
         coordinator: SwappingApproveRoutable
     ) {
-        self.inputModel = inputModel
         self.transactionSender = transactionSender
+        self.swappingInteractor = swappingInteractor
+        self.fiatRatesProvider = fiatRatesProvider
         self.coordinator = coordinator
 
         setupView()
@@ -62,8 +67,11 @@ final class SwappingApproveViewModel: ObservableObject, Identifiable {
     }
 
     func didTapApprove() {
-        // [REDACTED_TODO_COMMENT]
-        let data = inputModel.transactionData
+        guard let data = transactionData else {
+            AppLog.shared.debug("TransactionData for approve isn't found")
+            showNoDataErrorAlert()
+            return
+        }
 
         Analytics.log(
             event: .swapButtonPermissionApprove,
@@ -113,39 +121,102 @@ extension SwappingApproveViewModel {
 
 private extension SwappingApproveViewModel {
     func bind() {
-        // [REDACTED_TODO_COMMENT]
+        swappingInteractor.state
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] state in
+                switch state {
+                case .idle, .preview:
+                    self?.feeRowViewModel?.update(detailsType: .text("0.0"))
+                    self?.isLoading = false
+                    self?.mainButtonIsDisabled = true
+                case .loading:
+                    self?.feeRowViewModel?.update(detailsType: .loader)
+                    self?.isLoading = true
+                    self?.mainButtonIsDisabled = false
+                case .available(_, let data):
+                    self?.updateFeeAmount(for: data)
+                    self?.isLoading = false
+                    self?.mainButtonIsDisabled = false
+                case .requiredRefresh(let error):
+                    self?.errorAlert = AlertBinder(title: Localization.commonError, message: error.localizedDescription)
+                    self?.isLoading = false
+                    self?.mainButtonIsDisabled = true
+                }
+            }
+            .store(in: &bag)
+
         $selectedAction
             .dropFirst()
-            .handleEvents(receiveOutput: { [weak self] _ in
-                self?.feeRowViewModel?.update(detailsType: .loader)
-                self?.isLoading = true
-            })
-            .delay(for: 3, scheduler: DispatchQueue.main)
-            .sink { [weak self] _ in
-                self?.updateFeeAmount()
-                self?.isLoading = false
+            .sink { [weak self] action in
+                self?.swappingInteractor.update(approvePolicy: action)
             }
             .store(in: &bag)
     }
 
-    func updateFeeAmount() {
-        // [REDACTED_TODO_COMMENT]
-        feeRowViewModel?.update(detailsType: .text(feeLabel))
+    func format(fee: Decimal, fiatFee: Decimal) -> String {
+        let feeFormatted = fee.groupedFormatted()
+        let fiatFeeFormatted = fiatFee.currencyFormatted(code: AppSettings.shared.selectedCurrencyCode)
+
+        return "\(feeFormatted) \(tokenSymbol) (\(fiatFeeFormatted))"
+    }
+
+    func updateFeeAmount(for transactionData: SwappingTransactionData) {
+        Task {
+            do {
+                let fee = transactionData.fee
+                let fiatFee = try await fiatRatesProvider.getFiat(for: transactionData.sourceBlockchain, amount: fee)
+                let fullFeeString = format(fee: fee, fiatFee: fiatFee)
+                await runOnMain {
+                    feeRowViewModel?.update(detailsType: .text(fullFeeString))
+                }
+            } catch {
+                AppLog.shared.error(error)
+
+                await runOnMain {
+                    feeRowViewModel?.update(detailsType: .text("0.0"))
+                }
+            }
+        }
     }
 
     func setupView() {
+        guard let transactionData = transactionData else {
+            AppLog.shared.debug("TransactionData for approve isn't found")
+            return
+        }
+
         menuRowViewModel = .init(
             title: Localization.swappingPermissionRowsAmount(tokenSymbol),
             actions: [
                 SwappingApprovePolicy.unlimited,
-                SwappingApprovePolicy.amount(inputModel.transactionData.sourceAmount),
+                SwappingApprovePolicy.amount(transactionData.sourceAmount),
             ]
         )
 
-        feeRowViewModel = DefaultRowViewModel(
-            title: Localization.sendFeeLabel,
-            detailsType: .text(feeLabel)
-        )
+        let fee = transactionData.fee
+        let sourceBlockchain = transactionData.sourceBlockchain
+
+        if fiatRatesProvider.hasRates(for: sourceBlockchain),
+           let fiatFee = fiatRatesProvider.getSyncFiat(for: sourceBlockchain, amount: fee) {
+            let feeLabel = format(fee: fee, fiatFee: fiatFee)
+            feeRowViewModel = DefaultRowViewModel(
+                title: Localization.sendFeeLabel,
+                detailsType: .text(feeLabel)
+            )
+        } else {
+            feeRowViewModel = DefaultRowViewModel(
+                title: Localization.sendFeeLabel,
+                detailsType: .loader
+            )
+
+            updateFeeAmount(for: transactionData)
+        }
+    }
+
+    func showNoDataErrorAlert() {
+        errorAlert = AlertBuilder.makeOkErrorAlert(message: CommonError.noData.localizedDescription) { [weak self] in
+            self?.coordinator.userDidCancel()
+        }
     }
 }
 
