@@ -16,23 +16,6 @@ struct SwappingApproveView: View {
     }
 
     var body: some View {
-        ZStack(alignment: .topTrailing) {
-            mainContent
-
-            infoButton
-        }
-        .background(Colors.Background.secondary)
-        .alert(item: $viewModel.errorAlert) { $0.alert }
-    }
-
-    private var infoButton: some View {
-        Button(action: viewModel.didTapInfoButton) {
-            Assets.infoIconMini.image
-                .padding(.trailing, 16)
-        }
-    }
-
-    private var mainContent: some View {
         VStack(spacing: 16) {
             headerView
 
@@ -42,12 +25,23 @@ struct SwappingApproveView: View {
         }
         .padding(.top, 8)
         .padding(.bottom, 4)
+        .background(Colors.Background.secondary)
+        .alert(item: $viewModel.errorAlert) { $0.alert }
     }
 
     private var headerView: some View {
         VStack(spacing: 16) {
-            Text(Localization.swappingPermissionHeader)
-                .style(Fonts.Bold.callout, color: Colors.Text.primary1)
+            ZStack(alignment: .trailing) {
+                Text(Localization.swappingPermissionHeader)
+                    .style(Fonts.Bold.callout, color: Colors.Text.primary1)
+                    .frame(maxWidth: .infinity)
+                    .multilineTextAlignment(.center)
+
+                Button(action: viewModel.didTapInfoButton) {
+                    Assets.infoIconMini.image
+                        .padding(.trailing, 16)
+                }
+            }
 
             Text(Localization.swappingPermissionSubheader(viewModel.tokenSymbol))
                 .style(Fonts.Regular.subheadline, color: Colors.Text.secondary)
@@ -89,7 +83,7 @@ struct SwappingApproveView: View {
                 action: viewModel.didTapCancel
             )
         }
-        /// This fixed text font in the cancel button, it shrink with no reason
+        // This fix for text's font in the cancel button, it shrink with no reason
         .minimumScaleFactor(1)
         .padding(.horizontal, 16)
     }
