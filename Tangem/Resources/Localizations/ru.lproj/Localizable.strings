@@ -385,8 +385,10 @@
 "swapping_pending_transaction_subtitle" = "Транзакция в процессе…";
 "swapping_pending_transaction_title" = "Подождите";
 "swapping_permission_buttons_approve" = "Подтвердить";
-"swapping_permission_current_transaction" = "Одна транзакция";
+"swapping_permission_current_transaction" = "Текущая транзакция";
+"swapping_permission_fee_footer" = "Комиссия сети за одобрение токена будет взиматься за подтверждение того, что именно вы разрешаете использовать ваш токен для обмена.";
 "swapping_permission_header" = "Дать разрешение";
+"swapping_permission_policy_type_footer" = "Укажите лимит доступа к выбранному токену";
 "swapping_permission_rows_amount" = "Количество %@";
 "swapping_permission_rows_spender" = "Отправитель";
 "swapping_permission_rows_your_wallet" = "Ваш кошелек";
