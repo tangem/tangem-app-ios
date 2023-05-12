@@ -12,6 +12,10 @@ import TangemSwapping
 struct SwappingManagerMock: SwappingManager {
     func getAmount() -> Decimal? { 0.1 }
 
+    func getSwappingApprovePolicy() -> SwappingApprovePolicy {
+        .unlimited
+    }
+
     func getSwappingItems() -> TangemSwapping.SwappingItems {
         SwappingItems(source: .mock, destination: .mock)
     }

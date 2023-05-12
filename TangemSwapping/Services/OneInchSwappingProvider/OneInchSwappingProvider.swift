@@ -100,7 +100,6 @@ extension OneInchSwappingProvider: SwappingProvider {
 
         switch approvePolicy {
         case .amount(let amount):
-            let amount = currency.convertToWEI(value: amount)
             parameters = .init(tokenAddress: contractAddress, amount: .specified(value: amount))
         case .unlimited:
             parameters = .init(tokenAddress: contractAddress, amount: .infinite)
