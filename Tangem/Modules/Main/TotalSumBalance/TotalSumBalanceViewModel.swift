@@ -77,26 +77,9 @@ class TotalSumBalanceViewModel: ObservableObject {
     }
 
     private func addAttributeForBalance(_ totalValue: TotalBalanceProvider.TotalBalance) -> NSAttributedString {
-        let formattedTotalFiatValue = totalValue.balanceFormatted
-
-        guard totalValue.balance != nil else {
-            return .init(string: formattedTotalFiatValue, attributes: [.font: UIFont.systemFont(ofSize: 28, weight: .semibold)])
-        }
-
-        let attributedString = NSMutableAttributedString(string: formattedTotalFiatValue)
-        let allStringRange = NSRange(location: 0, length: attributedString.length)
-        attributedString.addAttribute(.font, value: UIFont.systemFont(ofSize: 28, weight: .semibold), range: allStringRange)
-
-        let decimalLocation = NSString(string: formattedTotalFiatValue).range(of: Decimal.decimalSeparator()).location
-        if decimalLocation < (formattedTotalFiatValue.count - 1) {
-            let locationAfterDecimal = decimalLocation + 1
-            let symbolsAfterDecimal = formattedTotalFiatValue.count - locationAfterDecimal
-            let rangeAfterDecimal = NSRange(location: locationAfterDecimal, length: symbolsAfterDecimal)
-
-            attributedString.addAttribute(.font, value: UIFont.systemFont(ofSize: 20, weight: .semibold), range: rangeAfterDecimal)
-        }
-
-        return attributedString
+        let balanceFormatter = BalanceFormatter()
+        let formattedTotalFiatValue = balanceFormatter.formatFiatBalance(totalValue.balance, formattingOptions: .defaultFiatFormattingOptions)
+        return balanceFormatter.formatTotalBalanceForMain(fiatBalance: formattedTotalFiatValue, formattingOptions: .defaultOptions)
     }
 
     private func checkPositiveBalance() {
