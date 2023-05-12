@@ -27,6 +27,7 @@ class SwappingCoordinator: CoordinatorObject {
 
     @Published var swappingTokenListViewModel: SwappingTokenListViewModel?
     @Published var swappingPermissionViewModel: SwappingPermissionViewModel?
+    @Published var swappingApproveViewModel: SwappingApproveViewModel?
 
     // MARK: - Properties
 
@@ -66,7 +67,12 @@ extension SwappingCoordinator: SwappingRoutable {
 
     func presentPermissionView(inputModel: SwappingPermissionInputModel, transactionSender: SwappingTransactionSender) {
         UIApplication.shared.endEditing()
-        swappingPermissionViewModel = factory.makeSwappingPermissionViewModel(inputModel: inputModel, coordinator: self)
+
+        if FeatureProvider.isAvailable(.abilityChooseApproveAmount) {
+            swappingApproveViewModel = factory.makeSwappingApproveViewModel(inputModel: inputModel, coordinator: self)
+        } else {
+            swappingPermissionViewModel = factory.makeSwappingPermissionViewModel(inputModel: inputModel, coordinator: self)
+        }
     }
 
     func presentSuccessView(inputModel: SwappingSuccessInputModel) {
@@ -100,16 +106,18 @@ extension SwappingCoordinator: SwappingTokenListRoutable {
     }
 }
 
-// MARK: - SwappingPermissionRoutable
+// MARK: - SwappingPermissionRoutable, SwappingApproveRoutable
 
-extension SwappingCoordinator: SwappingPermissionRoutable {
+extension SwappingCoordinator: SwappingPermissionRoutable, SwappingApproveRoutable {
     func didSendApproveTransaction(transactionData: SwappingTransactionData) {
         swappingPermissionViewModel = nil
+        swappingApproveViewModel = nil
         rootViewModel?.didSendApproveTransaction(transactionData: transactionData)
     }
 
     func userDidCancel() {
         swappingPermissionViewModel = nil
+        swappingApproveViewModel = nil
         rootViewModel?.didClosePermissionSheet()
     }
 }
