@@ -10,7 +10,6 @@ import BlockchainSdk
 import Combine
 
 protocol UserWalletModel: AnyObject {
-    /// Public until managers factory
     var userTokenListManager: UserTokenListManager { get }
     var totalBalanceProvider: TotalBalanceProviding { get }
     var userWallet: UserWallet { get }
@@ -25,7 +24,7 @@ protocol UserWalletModel: AnyObject {
     func canManage(amountType: Amount.AmountType, blockchainNetwork: BlockchainNetwork) -> Bool
     func update(entries: [StorageEntry])
     func append(entries: [StorageEntry])
-    func remove(item: RemoveItem)
+    func remove(amountType: Amount.AmountType, blockchainNetwork: BlockchainNetwork)
 
     /// Update if the wallet model hasn't initial updates
     func initialUpdate()
@@ -41,9 +40,4 @@ extension UserWalletModel {
     func updateAndReloadWalletModels() {
         updateAndReloadWalletModels(silent: false, completion: {})
     }
-}
-
-struct RemoveItem {
-    let amount: Amount.AmountType
-    let blockchainNetwork: BlockchainNetwork
 }
