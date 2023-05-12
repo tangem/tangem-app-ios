@@ -386,7 +386,9 @@
 "swapping_pending_transaction_title" = "等待中";
 "swapping_permission_buttons_approve" = "允許";
 "swapping_permission_current_transaction" = "Current transaction";
+"swapping_permission_fee_footer" = "The token approval network fee will be charged to confirm that you are the one allowing your token to be used for the exchange.";
 "swapping_permission_header" = "賦予權限";
+"swapping_permission_policy_type_footer" = "Specify the approve limit for the selected token";
 "swapping_permission_rows_amount" = "數量 %@";
 "swapping_permission_rows_spender" = "花費者";
 "swapping_permission_rows_your_wallet" = "您的錢包";
