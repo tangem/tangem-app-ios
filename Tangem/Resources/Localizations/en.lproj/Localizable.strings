@@ -386,7 +386,9 @@
 "swapping_pending_transaction_title" = "Waiting";
 "swapping_permission_buttons_approve" = "Approve";
 "swapping_permission_current_transaction" = "Current transaction";
+"swapping_permission_fee_footer" = "The token approval network fee will be charged to confirm that you are the one allowing your token to be used for the exchange.";
 "swapping_permission_header" = "Give Permission";
+"swapping_permission_policy_type_footer" = "Specify the approve limit for the selected token";
 "swapping_permission_rows_amount" = "Amount %@";
 "swapping_permission_rows_spender" = "Spender";
 "swapping_permission_rows_your_wallet" = "Your Wallet";
