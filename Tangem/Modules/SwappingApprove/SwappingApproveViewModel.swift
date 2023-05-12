@@ -70,7 +70,6 @@ final class SwappingApproveViewModel: ObservableObject, Identifiable {
     func didTapApprove() {
         guard let data = transactionData else {
             AppLog.shared.debug("TransactionData for approve isn't found")
-            showNoDataErrorAlert()
             return
         }
 
@@ -205,18 +204,13 @@ private extension SwappingApproveViewModel {
                 detailsType: .text(feeLabel)
             )
         } else {
+            // If we don't have the rates then load it asynchronously
             feeRowViewModel = DefaultRowViewModel(
                 title: Localization.sendFeeLabel,
                 detailsType: .loader
             )
 
             updateFeeAmount(for: transactionData)
-        }
-    }
-
-    func showNoDataErrorAlert() {
-        errorAlert = AlertBuilder.makeOkErrorAlert(message: CommonError.noData.localizedDescription) { [weak self] in
-            self?.coordinator.userDidCancel()
         }
     }
 }
