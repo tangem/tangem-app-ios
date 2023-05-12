@@ -142,26 +142,15 @@ class CommonUserWalletRepository: UserWalletRepository {
 
                 if let cardModel = CardViewModel(cardInfo: cardInfo) {
                     self.initializeServices(for: cardModel, cardInfo: cardInfo)
-
-                    // Updating the config file every time a card is scanned when wallets are NOT being saved.
-                    // This is done to avoid unnecessary changes in SDK config when the user scans an empty card
-                    // (that would open onboarding) and then immediately close it.
-                    if !AppSettings.shared.saveUserWallets {
-                        cardModel.initialUpdate() // [REDACTED_TODO_COMMENT]
-                    }
-
-                    return Just(.success(cardModel))
-                        .setFailureType(to: Error.self)
-                        .eraseToAnyPublisher()
-                } else {
-                    if let onboardingInput = factory.makeOnboardingInput() {
-                        return Just(UserWalletRepositoryResult.onboarding(onboardingInput))
-                            .setFailureType(to: Error.self)
-                            .eraseToAnyPublisher()
-                    }
-
-                    return Fail(error: "Unknown error").eraseToAnyPublisher()
+                    cardModel.initialUpdate()
+                    return .justWithError(output: .success(cardModel))
                 }
+
+                if let onboardingInput = factory.makeOnboardingInput() {
+                    return .justWithError(output: .onboarding(onboardingInput))
+                }
+
+                return .anyFail(error: "Unknown error")
             }
             .catch { [weak self] error -> Just<UserWalletRepositoryResult?> in
                 guard let self else {
