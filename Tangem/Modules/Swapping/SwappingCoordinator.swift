@@ -69,7 +69,7 @@ extension SwappingCoordinator: SwappingRoutable {
         UIApplication.shared.endEditing()
 
         if FeatureProvider.isAvailable(.abilityChooseApproveAmount) {
-            swappingApproveViewModel = factory.makeSwappingApproveViewModel(inputModel: inputModel, coordinator: self)
+            swappingApproveViewModel = factory.makeSwappingApproveViewModel(coordinator: self)
         } else {
             swappingPermissionViewModel = factory.makeSwappingPermissionViewModel(inputModel: inputModel, coordinator: self)
         }
