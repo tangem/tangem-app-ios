@@ -158,7 +158,7 @@ class CardViewModel: Identifiable, ObservableObject {
     private var tangemSdk: TangemSdk?
     private var config: UserWalletConfig
     private var didPerformInitialUpdate = false
-    private var reloadAllWalletModelsBag: AnyCancellable?
+    private var reloadAllWalletModelsSubscription: AnyCancellable?
 
     var availableSecurityOptions: [SecurityModeOption] {
         var options: [SecurityModeOption] = []
@@ -765,11 +765,9 @@ extension CardViewModel: UserWalletModel {
     }
 
     func updateAndReloadWalletModels(silent: Bool, completion: @escaping () -> Void) {
-        didPerformInitialUpdate = true
-
         updateWalletModels()
 
-        reloadAllWalletModelsBag = walletListManager
+        reloadAllWalletModelsSubscription = walletListManager
             .reloadWalletModels(silent: silent)
             .receive(on: RunLoop.main)
             .receiveCompletion { _ in
@@ -789,18 +787,19 @@ extension CardViewModel: UserWalletModel {
         userTokenListManager.update(.append(entries))
     }
 
-    func remove(item: RemoveItem) {
-        guard walletListManager.canRemove(amountType: item.amount, blockchainNetwork: item.blockchainNetwork) else {
-            assertionFailure("\(item.blockchainNetwork.blockchain) can't be remove")
+    func remove(amountType: Amount.AmountType, blockchainNetwork: BlockchainNetwork) {
+        guard walletListManager.canRemove(amountType: amountType, blockchainNetwork: blockchainNetwork) else {
+            assertionFailure("\(blockchainNetwork.blockchain) can't be remove")
             return
         }
 
-        switch item.amount {
+        switch amountType {
         case .coin:
-            removeBlockchain(item.blockchainNetwork)
+            removeBlockchain(blockchainNetwork)
         case .token(let token):
-            removeToken(token, in: item.blockchainNetwork)
-        case .reserve: break
+            removeToken(token, in: blockchainNetwork)
+        case .reserve:
+            break
         }
     }
 }
