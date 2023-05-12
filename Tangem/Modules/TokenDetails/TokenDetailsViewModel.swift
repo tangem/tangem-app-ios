@@ -362,8 +362,7 @@ class TokenDetailsViewModel: ObservableObject {
 
         Analytics.log(event: .buttonRemoveToken, params: [Analytics.ParameterKey.token: currencySymbol])
 
-        let item = RemoveItem(amount: amountType, blockchainNetwork: walletModel.blockchainNetwork)
-        card.remove(item: item)
+        card.remove(amountType: amountType, blockchainNetwork: walletModel.blockchainNetwork)
         dismiss()
     }
 
