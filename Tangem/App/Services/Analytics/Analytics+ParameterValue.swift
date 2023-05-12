@@ -32,6 +32,11 @@ extension Analytics {
         case transactionSourceWalletConnect = "WalletConnect"
         case transactionSourceSell = "Sell"
 
+        case transactionFeeFixed = "Fixed"
+        case transactionFeeMin = "Min"
+        case transactionFeeNormal = "Normal"
+        case transactionFeeMax = "Max"
+
         case signInTypeCard = "Card"
         case signInTypeBiometrics = "Biometric"
 
