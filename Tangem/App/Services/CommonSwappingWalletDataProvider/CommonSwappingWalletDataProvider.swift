@@ -53,14 +53,15 @@ extension CommonSwappingWalletDataProvider: SwappingWalletDataProvider {
         destinationAddress: String,
         data: Data,
         blockchain: SwappingBlockchain,
-        value: Decimal
+        value: Decimal,
+        gasPolicy: SwappingGasLimitPolicy
     ) async throws -> EthereumGasDataModel {
         try await getFee(
             blockchain: blockchain,
             value: value,
             data: data,
             destination: destinationAddress,
-            gasPolicy: .mediumRaise
+            gasPolicy: gasPolicy
         )
     }
 
@@ -164,7 +165,7 @@ private extension CommonSwappingWalletDataProvider {
         value: Decimal,
         data: Data,
         destination: String,
-        gasPolicy: GasLimitPolicy
+        gasPolicy: SwappingGasLimitPolicy
     ) async throws -> EthereumGasDataModel {
         let amount = createAmount(from: blockchain, amount: value)
 
@@ -198,28 +199,6 @@ private extension CommonSwappingWalletDataProvider {
                 gasLimit: Int(ethFeeParameters.gasLimit),
                 fee: blockchain.convertFromWEI(value: Decimal(gasLimit * gasPrice))
             )
-        }
-    }
-}
-
-extension CommonSwappingWalletDataProvider {
-    enum GasLimitPolicy {
-        case noRaise
-        case lowRaise
-        case mediumRaise
-        case highRaise
-
-        func value(for value: Int) -> Int {
-            switch self {
-            case .noRaise:
-                return value
-            case .lowRaise:
-                return value * 110 / 100
-            case .mediumRaise:
-                return value * 125 / 100
-            case .highRaise:
-                return value * 150 / 100
-            }
         }
     }
 }
