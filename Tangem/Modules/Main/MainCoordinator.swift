@@ -75,16 +75,10 @@ class MainCoordinator: CoordinatorObject {
     }
 
     func start(with options: MainCoordinator.Options) {
-        guard let userWalletModel = options.cardModel.userWalletModel else {
-            assertionFailure("UserWalletModel not created")
-            return
-        }
-
         Analytics.log(.walletOpened)
 
         mainViewModel = MainViewModel(
             cardModel: options.cardModel,
-            userWalletModel: userWalletModel,
             cardImageProvider: CardImageProvider(supportsOnlineImage: options.cardModel.supportsOnlineImage),
             coordinator: self
         )
