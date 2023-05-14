@@ -21,7 +21,7 @@ class MultiWalletContentViewModel: ObservableObject {
     @Published var tokenListIsEmpty: Bool = true
 
     lazy var totalSumBalanceViewModel = TotalSumBalanceViewModel(
-        userWalletModel: userWalletModel,
+        userWalletModel: cardModel,
         cardAmountType: nil,
         tapOnCurrencySymbol: output
     )
@@ -31,34 +31,31 @@ class MultiWalletContentViewModel: ObservableObject {
     private unowned let output: MultiWalletContentViewModelOutput
 
     private let cardModel: CardViewModel
-    private let userWalletModel: UserWalletModel
     private let userTokenListManager: UserTokenListManager
     private var bag = Set<AnyCancellable>()
 
     init(
         cardModel: CardViewModel,
-        userWalletModel: UserWalletModel,
         userTokenListManager: UserTokenListManager,
         output: MultiWalletContentViewModelOutput
     ) {
         self.cardModel = cardModel
-        self.userWalletModel = userWalletModel
         self.userTokenListManager = userTokenListManager
         self.output = output
 
-        tokenListIsEmpty = userWalletModel.getSavedEntries().isEmpty
+        tokenListIsEmpty = cardModel.getSavedEntries().isEmpty
         bind()
 
-        userWalletModel.updateWalletModels()
+        cardModel.updateWalletModels()
     }
 
     func onRefresh(silent: Bool = true, done: @escaping () -> Void) {
         if cardModel.hasTokenSynchronization {
             userTokenListManager.updateLocalRepositoryFromServer { [weak self] _ in
-                self?.userWalletModel.updateAndReloadWalletModels(silent: silent, completion: done)
+                self?.cardModel.updateAndReloadWalletModels(silent: silent, completion: done)
             }
         } else {
-            userWalletModel.updateAndReloadWalletModels(silent: silent, completion: done)
+            cardModel.updateAndReloadWalletModels(silent: silent, completion: done)
         }
     }
 
@@ -77,7 +74,7 @@ class MultiWalletContentViewModel: ObservableObject {
 private extension MultiWalletContentViewModel {
     func bind() {
         /// Subscribe for update wallets for each changes in `WalletModel`
-        userWalletModel.subscribeToWalletModels()
+        cardModel.subscribeToWalletModels()
             .flatMap { walletModels in
                 Publishers
                     .MergeMany(walletModels.map { $0.walletDidChange })
@@ -94,12 +91,12 @@ private extension MultiWalletContentViewModel {
             }
             .store(in: &bag)
 
-        let entriesWithoutDerivation = userWalletModel
+        let entriesWithoutDerivation = cardModel
             .subscribeToEntriesWithoutDerivation()
             .dropFirst()
             .removeDuplicates()
 
-        let newWalletModels = userWalletModel.subscribeToWalletModels()
+        let newWalletModels = cardModel.subscribeToWalletModels()
             .dropFirst()
 
         Publishers.Merge(
@@ -128,8 +125,8 @@ private extension MultiWalletContentViewModel {
     }
 
     func collectTokenItemViewModels() -> [LegacyTokenItemViewModel] {
-        let entries = userWalletModel.getSavedEntries()
-        let walletModels = userWalletModel.getWalletModels()
+        let entries = cardModel.getSavedEntries()
+        let walletModels = cardModel.getWalletModels()
         return entries.reduce([]) { result, entry in
             if let walletModel = walletModels.first(where: { $0.blockchainNetwork == entry.blockchainNetwork }) {
                 return result + walletModel.allTokenItemViewModels()
