@@ -31,6 +31,8 @@
 "app_settings_warning_subtitle" = "Go to settings to enable biometric authentication in the Tangem app";
 "app_settings_warning_title" = "Enable biometric authentication";
 "biometry_touch_id_reason" = "Touch ID is used to save your cards in the app";
+"button_title_by_balance" = "By balance";
+"button_title_group" = "Group";
 "card_settings_access_code_recovery_disabled_description" = "Disable this option if you don't want this card to be used to reset access codes on other cards in this wallet. Please note that this will also prevent you from resetting the access code on this card.";
 "card_settings_access_code_recovery_enabled_description" = "Allows you to use this card to reset access code on other cards in this wallet";
 "card_settings_access_code_recovery_footer" = "Disable the ability to reset the access code on this card or other cards in this wallet";
@@ -52,6 +54,7 @@
 "common_attention" = "Attention";
 "common_back" = "Back";
 "common_balance" = "Saldo: %@";
+"common_buy" = "Buy";
 "common_camera_alert_button_settings" = "Impostazioni";
 "common_camera_denied_alert_message" = "Non hai fornito l'accesso alla tua videocamera, modifica le tue impostazioni sulla privacy";
 "common_camera_denied_alert_title" = "Accesso alla videocamera negato";
@@ -59,6 +62,7 @@
 "common_close" = "Close";
 "common_continue" = "Continue";
 "common_copy" = "Copy";
+"common_copy_address" = "Copy address";
 "common_delete" = "Rimuovere";
 "common_disabled" = "Disabled";
 "common_disconnect" = "Disconnect";
@@ -66,6 +70,7 @@
 "common_done" = "Fatto";
 "common_enabled" = "Enabled";
 "common_error" = "Errore";
+"common_exchange" = "Exchange";
 "common_explorer_format" = "%@ explorer";
 "common_import" = "Import";
 "common_like" = "Like";
@@ -73,15 +78,19 @@
 "common_ok" = "OK";
 "common_origin_card" = "Primary Card";
 "common_push" = "Push";
+"common_receive" = "Receive";
 "common_reject" = "Reject";
 "common_retry" = "Retry";
 "common_save_changes" = "Mantieni le modifiche";
 "common_search" = "Search";
 "common_select_action" = "Select action";
+"common_sell" = "Sell";
+"common_send" = "Invia";
 "common_server_unavailable" = "The server is not available, please try again later";
 "common_share" = "Share";
 "common_sign" = "Sign";
 "common_sign_and_send" = "Sign and send";
+"common_stake" = "Stake";
 "common_start" = "Start";
 "common_submit" = "Submit";
 "common_success" = "Con successo";
