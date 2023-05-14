@@ -42,10 +42,10 @@ struct FlexyButtonWithLeadingIcon: View {
 struct FlexyButtonWithLeadingIcon_Previews: PreviewProvider {
     static var previews: some View {
         VStack {
-            ButtonWithLeadingIcon(title: "Buy", icon: Assets.plusMini.image, action: {})
-            ButtonWithLeadingIcon(title: "Exchange", icon: Assets.exchangeMini.image, action: {})
-            ButtonWithLeadingIcon(title: "Organize tokens", icon: Assets.sliders.image, action: {})
-            ButtonWithLeadingIcon(title: "", icon: Assets.horizontalDots.image, action: {})
+            FlexyButtonWithLeadingIcon(title: "Buy", icon: Assets.plusMini.image, action: {})
+            FlexyButtonWithLeadingIcon(title: "Exchange", icon: Assets.exchangeMini.image, action: {})
+            FlexyButtonWithLeadingIcon(title: "Organize tokens", icon: Assets.sliders.image, action: {})
+            FlexyButtonWithLeadingIcon(title: "", icon: Assets.horizontalDots.image, action: {})
         }
     }
 }
