@@ -13,7 +13,7 @@ import BlockchainSdk
 
 protocol WalletConnectUserWalletInfoProvider {
     var name: String { get }
-    var userWalletId: Data? { get }
+    var userWalletId: UserWalletId { get }
     var walletModels: [WalletModel] { get }
     var signer: TangemSigner { get }
 }
@@ -81,7 +81,7 @@ final class WalletConnectV2Service {
         pairApi = Pair.instance
         signApi = Sign.instance
 
-        loadSessions(for: infoProvider.userWalletId)
+        loadSessions(for: infoProvider.userWalletId.value)
         setupSessionSubscriptions()
         setupMessagesSubscriptions()
     }
@@ -146,15 +146,12 @@ final class WalletConnectV2Service {
         signApi.sessionSettlePublisher
             .receive(on: DispatchQueue.main)
             .asyncMap { [weak self] session in
-                guard
-                    let self,
-                    let userWalletId = self.infoProvider.userWalletId
-                else { return }
+                guard let self else { return }
 
                 self.log("Session established: \(session)")
                 let savedSession = WalletConnectV2Utils().createSavedSession(
                     from: session,
-                    with: userWalletId.hexString,
+                    with: self.infoProvider.userWalletId.stringValue,
                     and: self.infoProvider.walletModels
                 )
 
