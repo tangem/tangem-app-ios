@@ -9,15 +9,7 @@
 import Foundation
 
 class UserWalletFactory {
-    func userWallet(from cardInfo: CardInfo, config: UserWalletConfig) -> UserWallet? {
-        guard
-            let userWalletId = UserWalletIdFactory().userWalletId(from: cardInfo)
-        else {
-            return nil
-        }
-
-        let walletData: DefaultWalletData = cardInfo.walletData
-
+    func userWallet(from cardInfo: CardInfo, config: UserWalletConfig, userWalletId: UserWalletId) -> UserWallet {
         let name: String
         if !cardInfo.name.isEmpty {
             name = cardInfo.name
@@ -30,36 +22,9 @@ class UserWalletFactory {
             name: name,
             card: cardInfo.card,
             associatedCardIds: [cardInfo.card.cardId],
-            walletData: walletData,
-            artwork: nil,
+            walletData: cardInfo.walletData,
+            artwork: cardInfo.artwork.artworkInfo,
             isHDWalletAllowed: cardInfo.card.settings.isHDWalletAllowed
-        )
-    }
-
-    func userWallet(from cardViewModel: CardViewModel) -> UserWallet? {
-        guard
-            let userWalletId = cardViewModel.userWalletId
-        else {
-            return nil
-        }
-
-        let walletData: DefaultWalletData = cardViewModel.walletData
-
-        let name: String
-        if !cardViewModel.name.isEmpty {
-            name = cardViewModel.name
-        } else {
-            name = cardViewModel.defaultName
-        }
-
-        return UserWallet(
-            userWalletId: userWalletId,
-            name: name,
-            card: cardViewModel.card,
-            associatedCardIds: [cardViewModel.card.cardId],
-            walletData: walletData,
-            artwork: cardViewModel.artworkInfo,
-            isHDWalletAllowed: cardViewModel.card.settings.isHDWalletAllowed
         )
     }
 }
