@@ -31,6 +31,10 @@ extension FiatRatesProvider: FiatRatesProviding {
         let id = currency.isToken ? currency.id : currency.blockchain.currencyID
         return rates[id] != nil
     }
+    
+    func hasRates(for blockchain: TangemSwapping.SwappingBlockchain) -> Bool {
+        return rates[blockchain.currencyID] != nil
+    }
 
     func getSyncFiat(for currency: Currency, amount: Decimal) -> Decimal? {
         let id = currency.isToken ? currency.id : currency.blockchain.currencyID
