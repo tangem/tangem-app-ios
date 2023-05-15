@@ -107,6 +107,8 @@ private extension FiatRatesProvider {
         rates[currencyId] = value
 
         DispatchQueue.main.async {
+            // We get "UI from background warning" here
+            // because "walletModel.rates" work with @Published wrapper
             self.rates.forEach { key, value in
                 self.walletModel.rates.updateValue(value, forKey: key)
             }
