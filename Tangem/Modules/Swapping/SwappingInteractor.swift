@@ -80,6 +80,11 @@ extension SwappingInteractor {
         swappingManager.update(approvePolicy: approvePolicy)
         refresh(type: .full)
     }
+    
+    func update(gasPricePolicy: SwappingGasPricePolicy) {
+        swappingManager.update(gasPricePolicy: gasPricePolicy)
+        refresh(type: .refreshRates)
+    }
 
     func refresh(type: SwappingManagerRefreshType) {
         AppLog.shared.debug("[Swap] SwappingInteractor received the request for refresh with \(type)")
