@@ -15,7 +15,7 @@
 		2D805ECA29ADE17100C030F7 /* ExchangeButtonStateType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D805EC929ADE17100C030F7 /* ExchangeButtonStateType.swift */; };
 		2DB43917296EBC6000CBBB1E /* AppsFlyerConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DB43916296EBC6000CBBB1E /* AppsFlyerConfig.swift */; };
 		2DC5DAAD29B782420039154A /* TonCenterApiKeys.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DC5DAAC29B782420039154A /* TonCenterApiKeys.swift */; };
-		2DDF918C2A113C6C00B31113 /* ItemTokenLongTapMenu.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DDF918B2A113C6C00B31113 /* ItemTokenLongTapMenu.swift */; };
+		2DDF91912A128BDF00B31113 /* TokenItemMenuActions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DDF91902A128BDF00B31113 /* TokenItemMenuActions.swift */; };
 		5D00FCC72617387E004626DE /* PersonalSignHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D00FCC62617387E004626DE /* PersonalSignHandler.swift */; };
 		5D00FCCC2617389E004626DE /* SignTransactionHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D00FCCB2617389E004626DE /* SignTransactionHandler.swift */; };
 		5D00FCD1261738C5004626DE /* WalletConnectEthTransaction.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D00FCD0261738C5004626DE /* WalletConnectEthTransaction.swift */; };
@@ -940,7 +940,7 @@
 		2D805EC929ADE17100C030F7 /* ExchangeButtonStateType.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ExchangeButtonStateType.swift; sourceTree = "<group>"; };
 		2DB43916296EBC6000CBBB1E /* AppsFlyerConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppsFlyerConfig.swift; sourceTree = "<group>"; };
 		2DC5DAAC29B782420039154A /* TonCenterApiKeys.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TonCenterApiKeys.swift; sourceTree = "<group>"; };
-		2DDF918B2A113C6C00B31113 /* ItemTokenLongTapMenu.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ItemTokenLongTapMenu.swift; sourceTree = "<group>"; };
+		2DDF91902A128BDF00B31113 /* TokenItemMenuActions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TokenItemMenuActions.swift; sourceTree = "<group>"; };
 		3A37E80DF75687F125EDA4D1 /* Pods-TangemSwapping.release(production).xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TangemSwapping.release(production).xcconfig"; path = "Target Support Files/Pods-TangemSwapping/Pods-TangemSwapping.release(production).xcconfig"; sourceTree = "<group>"; };
 		3C9182C6C925702F336B218E /* Pods-TangemTests.release(alpha).xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TangemTests.release(alpha).xcconfig"; path = "Target Support Files/Pods-TangemTests/Pods-TangemTests.release(alpha).xcconfig"; sourceTree = "<group>"; };
 		4552F5633786F1E20D40E88E /* Pods-TangemSwappingTests.debug(production).xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TangemSwappingTests.debug(production).xcconfig"; path = "Target Support Files/Pods-TangemSwappingTests/Pods-TangemSwappingTests.debug(production).xcconfig"; sourceTree = "<group>"; };
@@ -1919,12 +1919,12 @@
 			path = BottonSheetInfoView;
 			sourceTree = "<group>";
 		};
-		2DDF918A2A113C5A00B31113 /* ItemTokenLongTapMenu */ = {
+		2DDF918F2A128BDF00B31113 /* TokenItemMenuActions */ = {
 			isa = PBXGroup;
 			children = (
-				2DDF918B2A113C6C00B31113 /* ItemTokenLongTapMenu.swift */,
+				2DDF91902A128BDF00B31113 /* TokenItemMenuActions.swift */,
 			);
-			path = ItemTokenLongTapMenu;
+			path = TokenItemMenuActions;
 			sourceTree = "<group>";
 		};
 		2E5061A84512B23CCB5F2E17 /* Frameworks */ = {
@@ -2835,7 +2835,7 @@
 		B0958BA529F6B698007CD76D /* UIComponents */ = {
 			isa = PBXGroup;
 			children = (
-				2DDF918A2A113C5A00B31113 /* ItemTokenLongTapMenu */,
+				2DDF918F2A128BDF00B31113 /* TokenItemMenuActions */,
 				B05A13AF29FBF16300FB511A /* ButtonWithIcon */,
 				B0B335CE29FA7FC100E2082E /* Common */,
 				B003BDA82A0291A200B282F7 /* TokenIcon */,
@@ -5484,6 +5484,7 @@
 				DCD9CBA329F7F4D800440C93 /* LogsComposer.swift in Sources */,
 				B06015E529730C3D00D0F809 /* WalletConnectUIDelegate.swift in Sources */,
 				B0C4F77326F08CB50086D815 /* OnboardingCardFrameCalculator.swift in Sources */,
+				2DDF91912A128BDF00B31113 /* TokenItemMenuActions.swift in Sources */,
 				5DD24B41274FAC2400BF80BE /* WalletManagerFactoryProvider.swift in Sources */,
 				B0AA865426DC90FF00287F80 /* WelcomeViewModel.swift in Sources */,
 				DA6C752429225F9B0070EEFD /* MinimizedAppTimer.swift in Sources */,
@@ -5858,7 +5859,6 @@
 				B0B335D229FA89EE00E2082E /* BalanceFormatter.swift in Sources */,
 				DC7D39FB29E02000007BCD23 /* TangemSdkDefaultFactory.swift in Sources */,
 				EF5903A829092BC600C527C9 /* FeatureProvider.swift in Sources */,
-				2DDF918C2A113C6C00B31113 /* ItemTokenLongTapMenu.swift in Sources */,
 				EF9F908C299FA254006F638F /* ZendeskSupportChatViewModel.swift in Sources */,
 				659768172837B61000F9F04A /* LegacyTokenItemView.swift in Sources */,
 				DC0A582628252D140031BECC /* FailedScanTrackable.swift in Sources */,
