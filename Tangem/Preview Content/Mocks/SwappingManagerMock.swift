@@ -28,6 +28,8 @@ struct SwappingManagerMock: SwappingManager {
 
     func update(approvePolicy: SwappingApprovePolicy) {}
 
+    func update(gasPricePolicy: SwappingGasPricePolicy) {}
+
     func isEnoughAllowance() -> Bool { true }
 
     func refreshBalances() async -> SwappingItems { getSwappingItems() }
