@@ -11,18 +11,19 @@ import SwiftUI
 public struct ItemTokenLongTapMenuView: View {
     // MARK: - Properties
 
-    let actions: [Action]
-    let didTapAction: ((Action) -> Void)?
+    let actions: [TokenItemMenuActions]
+    let didTapAction: (TokenItemMenuActions) -> Void
 
     // MARK: - Setup UI
 
     public var body: some View {
         ForEach(actions, id: \.hashValue) { action in
             Button {
-                didTapAction?(action)
+                didTapAction(action)
             } label: {
                 HStack {
                     Text(action.title)
+
                     action.icon.image
                 }
             }
@@ -32,52 +33,50 @@ public struct ItemTokenLongTapMenuView: View {
 
 // MARK: - Action Type
 
-public extension ItemTokenLongTapMenuView {
-    enum Action: CaseIterable {
-        case copyAddress
-        case receive
-        case sell
-        case buy
-        case send
-        case exchange
-        case stake
+public enum TokenItemMenuActions {
+    case copyAddress
+    case receive
+    case sell
+    case buy
+    case send
+    case exchange
+    case stake
 
-        public var title: String {
-            switch self {
-            case .copyAddress:
-                return Localization.commonCopyAddress
-            case .receive:
-                return Localization.commonReceive
-            case .sell:
-                return Localization.commonSell
-            case .buy:
-                return Localization.commonBuy
-            case .send:
-                return Localization.commonSend
-            case .exchange:
-                return Localization.commonExchange
-            case .stake:
-                return Localization.commonStake
-            }
+    public var title: String {
+        switch self {
+        case .copyAddress:
+            return Localization.commonCopyAddress
+        case .receive:
+            return Localization.commonReceive
+        case .sell:
+            return Localization.commonSell
+        case .buy:
+            return Localization.commonBuy
+        case .send:
+            return Localization.commonSend
+        case .exchange:
+            return Localization.commonExchange
+        case .stake:
+            return Localization.commonStake
         }
+    }
 
-        public var icon: ImageType {
-            switch self {
-            case .copyAddress:
-                return Assets.TokenItemContextMenu.menuCopy
-            case .receive:
-                return Assets.TokenItemContextMenu.menuArrowDownMini
-            case .sell:
-                return Assets.TokenItemContextMenu.menuArrowRightUpMini
-            case .buy:
-                return Assets.TokenItemContextMenu.menuPlusMini
-            case .send:
-                return Assets.TokenItemContextMenu.menuArrowUpMini
-            case .exchange:
-                return Assets.TokenItemContextMenu.menuExchangeMini
-            case .stake:
-                return Assets.TokenItemContextMenu.menuStaking
-            }
+    public var icon: ImageType {
+        switch self {
+        case .copyAddress:
+            return Assets.TokenItemContextMenu.menuCopy
+        case .receive:
+            return Assets.TokenItemContextMenu.menuArrowDownMini
+        case .sell:
+            return Assets.TokenItemContextMenu.menuArrowRightUpMini
+        case .buy:
+            return Assets.TokenItemContextMenu.menuPlusMini
+        case .send:
+            return Assets.TokenItemContextMenu.menuArrowUpMini
+        case .exchange:
+            return Assets.TokenItemContextMenu.menuExchangeMini
+        case .stake:
+            return Assets.TokenItemContextMenu.menuStaking
         }
     }
 }
