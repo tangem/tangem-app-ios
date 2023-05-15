@@ -12,7 +12,8 @@ public struct TogglableGroupButtonWithIcon: View {
     public var body: some View {
         HStack {
             byBalanceButton
-            gourpButton
+
+            groupButton
         }
     }
 
@@ -23,7 +24,7 @@ public struct TogglableGroupButtonWithIcon: View {
         ) {}
     }
 
-    private var gourpButton: some View {
+    private var groupButton: some View {
         FlexyButtonWithLeadingIcon(
             title: Localization.buttonTitleGroup,
             icon: Assets.group.image
