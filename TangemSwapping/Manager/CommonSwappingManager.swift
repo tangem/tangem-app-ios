@@ -73,6 +73,10 @@ extension CommonSwappingManager: SwappingManager {
         return referrer
     }
 
+    func getSwappingApprovePolicy() -> SwappingApprovePolicy {
+        return approvePolicy
+    }
+
     func isEnoughAllowance() -> Bool {
         guard swappingItems.source.isToken, let amount, amount > 0 else {
             return true
