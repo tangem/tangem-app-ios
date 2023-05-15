@@ -18,8 +18,8 @@ final class SwappingApproveViewModel: ObservableObject, Identifiable {
     @Published var selectedAction: SwappingApprovePolicy
     @Published var feeRowViewModel: DefaultRowViewModel?
 
-    @Published var isLoading: Bool = false
-    @Published var mainButtonIsDisabled: Bool = false
+    @Published var isLoading = false
+    @Published var mainButtonIsDisabled = false
     @Published var errorAlert: AlertBinder?
 
     var tokenSymbol: String {
@@ -124,24 +124,7 @@ private extension SwappingApproveViewModel {
         swappingInteractor.state
             .receive(on: DispatchQueue.main)
             .sink { [weak self] state in
-                switch state {
-                case .idle, .preview:
-                    self?.feeRowViewModel?.update(detailsType: .text("0.0"))
-                    self?.isLoading = false
-                    self?.mainButtonIsDisabled = true
-                case .loading:
-                    self?.feeRowViewModel?.update(detailsType: .loader)
-                    self?.isLoading = true
-                    self?.mainButtonIsDisabled = false
-                case .available(_, let data):
-                    self?.updateFeeAmount(for: data)
-                    self?.isLoading = false
-                    self?.mainButtonIsDisabled = false
-                case .requiredRefresh(let error):
-                    self?.errorAlert = AlertBinder(title: Localization.commonError, message: error.localizedDescription)
-                    self?.isLoading = false
-                    self?.mainButtonIsDisabled = true
-                }
+                self?.updateView(for: state)
             }
             .store(in: &bag)
 
@@ -153,30 +136,49 @@ private extension SwappingApproveViewModel {
             .store(in: &bag)
     }
 
-    func format(fee: Decimal, fiatFee: Decimal) -> String {
-        let feeFormatted = fee.groupedFormatted()
-        let fiatFeeFormatted = fiatFee.currencyFormatted(code: AppSettings.shared.selectedCurrencyCode)
-
-        return "\(feeFormatted) \(tokenSymbol) (\(fiatFeeFormatted))"
-    }
-
     func updateFeeAmount(for transactionData: SwappingTransactionData) {
         Task {
             do {
                 let fee = transactionData.fee
                 let fiatFee = try await fiatRatesProvider.getFiat(for: transactionData.sourceBlockchain, amount: fee)
-                let fullFeeString = format(fee: fee, fiatFee: fiatFee)
+                
                 await runOnMain {
-                    feeRowViewModel?.update(detailsType: .text(fullFeeString))
+                    updateFeeRowViewModel(fee: fee, fiatFee: fiatFee)
                 }
             } catch {
                 AppLog.shared.error(error)
 
                 await runOnMain {
-                    feeRowViewModel?.update(detailsType: .text("0.0"))
+                    updateFeeRowViewModel(fee: 0, fiatFee: 0)
                 }
             }
         }
+    }
+    
+    func updateView(for state: SwappingAvailabilityState) {
+        switch state {
+        case .idle, .preview:
+            updateFeeRowViewModel(fee: 0, fiatFee: 0)
+            isLoading = false
+            mainButtonIsDisabled = true
+        case .loading:
+            feeRowViewModel?.update(detailsType: .loader)
+            isLoading = true
+            mainButtonIsDisabled = false
+        case .available(_, let data):
+            updateFeeAmount(for: data)
+            isLoading = false
+            mainButtonIsDisabled = false
+        case .requiredRefresh(let error):
+            errorAlert = AlertBinder(title: Localization.commonError, message: error.localizedDescription)
+            isLoading = false
+            mainButtonIsDisabled = true
+        }
+    }
+    
+    func updateFeeRowViewModel(fee: Decimal, fiatFee: Decimal) {
+        let fiatFeeFormatted = format(fee: fee, fiatFee: fiatFee)
+        feeRowViewModel?.update(detailsType: .text(fiatFeeFormatted))
     }
 
     func setupView() {
@@ -198,10 +200,10 @@ private extension SwappingApproveViewModel {
 
         if fiatRatesProvider.hasRates(for: sourceBlockchain),
            let fiatFee = fiatRatesProvider.getSyncFiat(for: sourceBlockchain, amount: fee) {
-            let feeLabel = format(fee: fee, fiatFee: fiatFee)
+            let fiatFeeFormatted = format(fee: fee, fiatFee: fiatFee)
             feeRowViewModel = DefaultRowViewModel(
                 title: Localization.sendFeeLabel,
-                detailsType: .text(feeLabel)
+                detailsType: .text(fiatFeeFormatted)
             )
         } else {
             // If we don't have the rates then load it asynchronously
@@ -212,6 +214,13 @@ private extension SwappingApproveViewModel {
 
             updateFeeAmount(for: transactionData)
         }
+    }
+    
+    func format(fee: Decimal, fiatFee: Decimal) -> String {
+        let feeFormatted = fee.groupedFormatted()
+        let fiatFeeFormatted = fiatFee.currencyFormatted(code: AppSettings.shared.selectedCurrencyCode)
+
+        return "\(feeFormatted) \(tokenSymbol) (\(fiatFeeFormatted))"
     }
 }
 
