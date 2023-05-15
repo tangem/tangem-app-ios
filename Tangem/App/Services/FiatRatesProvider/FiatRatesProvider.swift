@@ -13,17 +13,7 @@ class FiatRatesProvider {
     @Injected(\.tangemApiService) private var tangemApiService: TangemApiService
 
     /// Collect rates for calculate fiat balance
-    private var rates: [String: Decimal] {
-        didSet {
-            // We get "UI from background warning" here
-            // because "walletModel.rates" work with @Published wrapper
-            DispatchQueue.main.async {
-                self.rates.forEach { key, value in
-                    self.walletModel.rates.updateValue(value, forKey: key)
-                }
-            }
-        }
-    }
+    @Atomic private var rates: [String: Decimal]
 
     // [REDACTED_TODO_COMMENT]
     private let walletModel: WalletModel
@@ -99,7 +89,7 @@ private extension FiatRatesProvider {
             throw CommonError.noData
         }
 
-        rates[currencyId] = currencyRate
+        updateRate(for: currencyId, with: currencyRate)
 
         return currencyRate
     }
@@ -111,5 +101,17 @@ private extension FiatRatesProvider {
         }
 
         return max(fiatValue, 0.01).rounded(scale: 2, roundingMode: .plain)
+    }
+
+    func updateRate(for currencyId: String, with value: Decimal) {
+        rates[currencyId] = value
+
+        DispatchQueue.main.async {
+            // We get "UI from background warning" here
+            // because "walletModel.rates" work with @Published wrapper
+            self.rates.forEach { key, value in
+                self.walletModel.rates.updateValue(value, forKey: key)
+            }
+        }
     }
 }
