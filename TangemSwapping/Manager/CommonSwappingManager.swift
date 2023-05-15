@@ -77,6 +77,10 @@ extension CommonSwappingManager: SwappingManager {
     func getSwappingApprovePolicy() -> SwappingApprovePolicy {
         return approvePolicy
     }
+    
+    func getSwappingGasPricePolicy() -> SwappingGasPricePolicy {
+        return gasPricePolicy
+    }
 
     func isEnoughAllowance() -> Bool {
         guard swappingItems.source.isToken, let amount, amount > 0 else {
@@ -334,8 +338,7 @@ private extension CommonSwappingManager {
             destinationAddress: swappingData.destinationAddress,
             data: swappingData.txData,
             blockchain: swappingItems.source.blockchain,
-            value: value,
-            gasPolicy: gasPricePolicy
+            value: value
         )
 
         return SwappingTransactionData(
@@ -370,8 +373,7 @@ private extension CommonSwappingManager {
             destinationAddress: approvedData.tokenAddress,
             data: approvedData.data,
             blockchain: swappingItems.source.blockchain,
-            value: value,
-            gasPolicy: gasPricePolicy
+            value: value
         )
 
         return SwappingTransactionData(
