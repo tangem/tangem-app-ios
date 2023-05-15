@@ -13,6 +13,7 @@ public protocol SwappingManager {
     func getSwappingItems() -> SwappingItems
     func getReferrerAccount() -> SwappingReferrerAccount?
     func getSwappingApprovePolicy() -> SwappingApprovePolicy
+    func getSwappingGasPricePolicy() -> SwappingGasPricePolicy
     func isEnoughAllowance() -> Bool
 
     func update(swappingItems: SwappingItems)
