@@ -141,7 +141,7 @@ private extension SwappingApproveViewModel {
             do {
                 let fee = transactionData.fee
                 let fiatFee = try await fiatRatesProvider.getFiat(for: transactionData.sourceBlockchain, amount: fee)
-                
+
                 await runOnMain {
                     updateFeeRowViewModel(fee: fee, fiatFee: fiatFee)
                 }
@@ -154,7 +154,7 @@ private extension SwappingApproveViewModel {
             }
         }
     }
-    
+
     func updateView(for state: SwappingAvailabilityState) {
         switch state {
         case .idle, .preview:
@@ -175,7 +175,7 @@ private extension SwappingApproveViewModel {
             mainButtonIsDisabled = true
         }
     }
-    
+
     func updateFeeRowViewModel(fee: Decimal, fiatFee: Decimal) {
         let fiatFeeFormatted = format(fee: fee, fiatFee: fiatFee)
         feeRowViewModel?.update(detailsType: .text(fiatFeeFormatted))
@@ -215,7 +215,7 @@ private extension SwappingApproveViewModel {
             updateFeeAmount(for: transactionData)
         }
     }
-    
+
     func format(fee: Decimal, fiatFee: Decimal) -> String {
         let feeFormatted = fee.groupedFormatted()
         let fiatFeeFormatted = fiatFee.currencyFormatted(code: AppSettings.shared.selectedCurrencyCode)
