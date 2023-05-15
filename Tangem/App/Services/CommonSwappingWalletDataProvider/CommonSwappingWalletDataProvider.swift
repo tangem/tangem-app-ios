@@ -54,7 +54,7 @@ extension CommonSwappingWalletDataProvider: SwappingWalletDataProvider {
         data: Data,
         blockchain: SwappingBlockchain,
         value: Decimal,
-        gasPolicy: SwappingGasLimitPolicy
+        gasPolicy: SwappingGasPricePolicy
     ) async throws -> EthereumGasDataModel {
         try await getFee(
             blockchain: blockchain,
@@ -165,7 +165,7 @@ private extension CommonSwappingWalletDataProvider {
         value: Decimal,
         data: Data,
         destination: String,
-        gasPolicy: SwappingGasLimitPolicy
+        gasPolicy: SwappingGasPricePolicy
     ) async throws -> EthereumGasDataModel {
         let amount = createAmount(from: blockchain, amount: value)
 
@@ -190,8 +190,8 @@ private extension CommonSwappingWalletDataProvider {
                 fee: lowFeeModel.amount.value
             )
         default:
-            let gasLimit = gasPolicy.value(for: Int(ethFeeParameters.gasLimit))
-            let gasPrice = Int(ethFeeParameters.gasPrice)
+            let gasLimit = Int(ethFeeParameters.gasLimit) * 125 / 100
+            let gasPrice = gasPolicy.value(for: Int(ethFeeParameters.gasPrice))
 
             return EthereumGasDataModel(
                 blockchain: blockchain,
