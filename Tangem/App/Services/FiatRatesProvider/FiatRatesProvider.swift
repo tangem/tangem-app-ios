@@ -13,13 +13,7 @@ class FiatRatesProvider {
     @Injected(\.tangemApiService) private var tangemApiService: TangemApiService
 
     /// Collect rates for calculate fiat balance
-    private var rates: [String: Decimal] {
-        didSet {
-            rates.forEach { key, value in
-                walletModel.rates.updateValue(value, forKey: key)
-            }
-        }
-    }
+    @Atomic private var rates: [String: Decimal]
 
     // [REDACTED_TODO_COMMENT]
     private let walletModel: WalletModel
@@ -36,10 +30,6 @@ extension FiatRatesProvider: FiatRatesProviding {
     func hasRates(for currency: Currency) -> Bool {
         let id = currency.isToken ? currency.id : currency.blockchain.currencyID
         return rates[id] != nil
-    }
-
-    func hasRates(for blockchain: TangemSwapping.SwappingBlockchain) -> Bool {
-        return rates[blockchain.currencyID] != nil
     }
 
     func getSyncFiat(for currency: Currency, amount: Decimal) -> Decimal? {
@@ -95,7 +85,7 @@ private extension FiatRatesProvider {
             throw CommonError.noData
         }
 
-        rates[currencyId] = currencyRate
+        updateRate(for: currencyId, with: currencyRate)
 
         return currencyRate
     }
@@ -107,5 +97,13 @@ private extension FiatRatesProvider {
         }
 
         return max(fiatValue, 0.01).rounded(scale: 2, roundingMode: .plain)
+    }
+
+    func updateRate(for currencyId: String, with value: Decimal) {
+        rates[currencyId] = value
+
+        rates.forEach { key, value in
+            walletModel.rates.updateValue(value, forKey: key)
+        }
     }
 }
