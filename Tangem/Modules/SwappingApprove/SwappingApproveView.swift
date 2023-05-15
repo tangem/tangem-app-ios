@@ -74,6 +74,7 @@ struct SwappingApproveView: View {
                 title: Localization.swappingPermissionButtonsApprove,
                 icon: .trailing(Assets.tangemIcon),
                 isLoading: viewModel.isLoading,
+                isDisabled: viewModel.mainButtonIsDisabled,
                 action: viewModel.didTapApprove
             )
 
@@ -91,8 +92,14 @@ struct SwappingApproveView: View {
 
 struct SwappingApproveView_Preview: PreviewProvider {
     static let viewModel = SwappingApproveViewModel(
-        inputModel: SwappingPermissionInputModel(fiatFee: 1.45, transactionData: .mock),
         transactionSender: TransactionSenderMock(),
+        swappingInteractor: .init(
+            swappingManager: SwappingManagerMock(),
+            userWalletModel: UserWalletModelMock(),
+            currencyMapper: CurrencyMapper(),
+            blockchainNetwork: PreviewCard.ethereum.blockchainNetwork!
+        ),
+        fiatRatesProvider: FiatRatesProviderMock(),
         coordinator: SwappingApproveRoutableMock()
     )
 
