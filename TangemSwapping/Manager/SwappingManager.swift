@@ -12,6 +12,7 @@ public protocol SwappingManager {
     func getAmount() -> Decimal?
     func getSwappingItems() -> SwappingItems
     func getReferrerAccount() -> SwappingReferrerAccount?
+    func getSwappingApprovePolicy() -> SwappingApprovePolicy
     func isEnoughAllowance() -> Bool
 
     func update(swappingItems: SwappingItems)
