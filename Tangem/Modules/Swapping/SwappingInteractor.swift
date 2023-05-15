@@ -54,6 +54,10 @@ extension SwappingInteractor {
         swappingManager.getReferrerAccount()?.fee
     }
 
+    func getSwappingApprovePolicy() -> SwappingApprovePolicy {
+        swappingManager.getSwappingApprovePolicy()
+    }
+
     func update(swappingItems: SwappingItems) async -> SwappingItems {
         AppLog.shared.debug("[Swap] SwappingInteractor will update swappingItems to \(swappingItems)")
         updateState(.idle)
