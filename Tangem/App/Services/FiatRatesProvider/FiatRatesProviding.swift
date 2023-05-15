@@ -11,6 +11,7 @@ import TangemSwapping
 
 protocol FiatRatesProviding {
     func hasRates(for currency: Currency) -> Bool
+    func hasRates(for blockchain: TangemSwapping.SwappingBlockchain) -> Bool
 
     func getSyncFiat(for currency: Currency, amount: Decimal) -> Decimal?
     func getSyncFiat(for blockchain: TangemSwapping.SwappingBlockchain, amount: Decimal) -> Decimal?
