@@ -612,7 +612,7 @@
 		EF07082F2A16476F0072AA0E /* CommonSwappingFeeFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF07082E2A16476F0072AA0E /* CommonSwappingFeeFormatter.swift */; };
 		EF08A0EF283D1914008BD923 /* Moya+.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF08A0EE283D1914008BD923 /* Moya+.swift */; };
 		EF08A0F1283D2382008BD923 /* CoinsListRequestModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF08A0F0283D2382008BD923 /* CoinsListRequestModel.swift */; };
-		EF09A309297A9B3F00B869A1 /* BottomSheetContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF09A308297A9B3F00B869A1 /* BottomSheetContainer.swift */; };
+		EF09A309297A9B3F00B869A1 /* SUIBottomSheetContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF09A308297A9B3F00B869A1 /* SUIBottomSheetContainer.swift */; };
 		EF0B173529F2CDF4002A3C6D /* UIDevice+IPhoneModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF0B173429F2CDF4002A3C6D /* UIDevice+IPhoneModel.swift */; };
 		EF0DC1072A0BD7F8007E3DA7 /* OptionPicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF0DC1062A0BD7F8007E3DA7 /* OptionPicker.swift */; };
 		EF0DC11B2A0CE29E007E3DA7 /* SwappingApproveView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF0DC1162A0CE29E007E3DA7 /* SwappingApproveView.swift */; };
@@ -733,6 +733,8 @@
 		EF661E2F28BF41D6005769E5 /* Intents.intentdefinition in Sources */ = {isa = PBXBuildFile; fileRef = EF661E2928BF41D6005769E5 /* Intents.intentdefinition */; };
 		EF661E3228C0ACD1005769E5 /* ScanCardWarningView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF661E3128C0ACD0005769E5 /* ScanCardWarningView.swift */; };
 		EF661E3528C0ADC6005769E5 /* CommonError.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF661E3428C0ADC6005769E5 /* CommonError.swift */; };
+		EF666C262A2DF9EF0044986F /* SUIBottomSheetModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF666C252A2DF9EF0044986F /* SUIBottomSheetModifier.swift */; };
+		EF666C282A2DFA1C0044986F /* View+SUIBottomSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF666C272A2DFA1C0044986F /* View+SUIBottomSheet.swift */; };
 		EF692A482951E7C8001F4B8A /* XCAssets+Generated.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF692A462951E7C8001F4B8A /* XCAssets+Generated.swift */; };
 		EF692A492951E7C8001F4B8A /* Localizable+Generated.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF692A472951E7C8001F4B8A /* Localizable+Generated.swift */; };
 		EF6CB17C292E1080001335EA /* SwappingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF6CB17B292E1080001335EA /* SwappingView.swift */; };
@@ -1584,7 +1586,7 @@
 		EF07082E2A16476F0072AA0E /* CommonSwappingFeeFormatter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonSwappingFeeFormatter.swift; sourceTree = "<group>"; };
 		EF08A0EE283D1914008BD923 /* Moya+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Moya+.swift"; sourceTree = "<group>"; };
 		EF08A0F0283D2382008BD923 /* CoinsListRequestModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoinsListRequestModel.swift; sourceTree = "<group>"; };
-		EF09A308297A9B3F00B869A1 /* BottomSheetContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BottomSheetContainer.swift; sourceTree = "<group>"; };
+		EF09A308297A9B3F00B869A1 /* SUIBottomSheetContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SUIBottomSheetContainer.swift; sourceTree = "<group>"; };
 		EF0B173429F2CDF4002A3C6D /* UIDevice+IPhoneModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIDevice+IPhoneModel.swift"; sourceTree = "<group>"; };
 		EF0DC1062A0BD7F8007E3DA7 /* OptionPicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OptionPicker.swift; sourceTree = "<group>"; };
 		EF0DC1162A0CE29E007E3DA7 /* SwappingApproveView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwappingApproveView.swift; sourceTree = "<group>"; };
@@ -1718,6 +1720,8 @@
 		EF661E2D28BF41D6005769E5 /* fr */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = fr; path = fr.lproj/Intents.strings; sourceTree = "<group>"; };
 		EF661E3128C0ACD0005769E5 /* ScanCardWarningView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ScanCardWarningView.swift; sourceTree = "<group>"; };
 		EF661E3428C0ADC6005769E5 /* CommonError.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CommonError.swift; sourceTree = "<group>"; };
+		EF666C252A2DF9EF0044986F /* SUIBottomSheetModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SUIBottomSheetModifier.swift; sourceTree = "<group>"; };
+		EF666C272A2DFA1C0044986F /* View+SUIBottomSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "View+SUIBottomSheet.swift"; sourceTree = "<group>"; };
 		EF692A462951E7C8001F4B8A /* XCAssets+Generated.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "XCAssets+Generated.swift"; sourceTree = "<group>"; };
 		EF692A472951E7C8001F4B8A /* Localizable+Generated.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Localizable+Generated.swift"; sourceTree = "<group>"; };
 		EF6CB17B292E1080001335EA /* SwappingView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SwappingView.swift; sourceTree = "<group>"; };
@@ -2168,6 +2172,7 @@
 		5D958E1224F513C1006BD932 /* UI */ = {
 			isa = PBXGroup;
 			children = (
+				EF666C242A2DF9D60044986F /* SUIBottomSheet */,
 				EFC6846E2A0FA86200660690 /* SelectableSwappingFeeRow */,
 				EF0DC1052A0BD7E6007E3DA7 /* OptionPicker */,
 				EF56B3CE2A03AFDA002CCE27 /* DefaultMenuRowView */,
@@ -3767,7 +3772,6 @@
 			isa = PBXGroup;
 			children = (
 				EF9F907B299CFCB1006F638F /* WebViewContainer */,
-				EF09A307297A9A7D00B869A1 /* BottomSheetContainer */,
 				EF5267DF2927805B00FC25A8 /* Swapping */,
 				EF11DD9429378A6E0044B33C /* SwappingTokenList */,
 				EF0DC1132A0CE291007E3DA7 /* SwappingApprove */,
@@ -3846,14 +3850,6 @@
 				EF08A0EE283D1914008BD923 /* Moya+.swift */,
 			);
 			path = Extensions;
-			sourceTree = "<group>";
-		};
-		EF09A307297A9A7D00B869A1 /* BottomSheetContainer */ = {
-			isa = PBXGroup;
-			children = (
-				EF09A308297A9B3F00B869A1 /* BottomSheetContainer.swift */,
-			);
-			path = BottomSheetContainer;
 			sourceTree = "<group>";
 		};
 		EF0DC1052A0BD7E6007E3DA7 /* OptionPicker */ = {
@@ -4308,6 +4304,16 @@
 				EFC6846C2A0FA3C600660690 /* BindingValue.swift */,
 			);
 			path = Types;
+			sourceTree = "<group>";
+		};
+		EF666C242A2DF9D60044986F /* SUIBottomSheet */ = {
+			isa = PBXGroup;
+			children = (
+				EF666C252A2DF9EF0044986F /* SUIBottomSheetModifier.swift */,
+				EF09A308297A9B3F00B869A1 /* SUIBottomSheetContainer.swift */,
+				EF666C272A2DFA1C0044986F /* View+SUIBottomSheet.swift */,
+			);
+			path = SUIBottomSheet;
 			sourceTree = "<group>";
 		};
 		EF692A452951E600001F4B8A /* Generated */ = {
@@ -5267,6 +5273,7 @@
 				DAA5E30E28D2137C003C0E80 /* UserWalletListHeaderView.swift in Sources */,
 				B0A9E939259213E7007B6D36 /* WarningsService.swift in Sources */,
 				DC295B3E2861C1AD006CB7B6 /* LegacyMainCoordinatorView.swift in Sources */,
+				EF666C282A2DFA1C0044986F /* View+SUIBottomSheet.swift in Sources */,
 				65B4DEC92881AAD1001524CF /* BottomSheetPresentationController.swift in Sources */,
 				B098DD4C29C46EC300D2D55B /* UIFonts.swift in Sources */,
 				652B013A28319F9000F2E27A /* TotalSumBalanceViewModel.swift in Sources */,
@@ -5470,6 +5477,7 @@
 				B085154F26D77C2400E1A836 /* TwinsOnboardingViewModel.swift in Sources */,
 				DCD9CBA329F7F4D800440C93 /* LogsComposer.swift in Sources */,
 				B06015E529730C3D00D0F809 /* WalletConnectUIDelegate.swift in Sources */,
+				EF666C262A2DF9EF0044986F /* SUIBottomSheetModifier.swift in Sources */,
 				B0C4F77326F08CB50086D815 /* OnboardingCardFrameCalculator.swift in Sources */,
 				5DD24B41274FAC2400BF80BE /* WalletManagerFactoryProvider.swift in Sources */,
 				B0AA865426DC90FF00287F80 /* WelcomeViewModel.swift in Sources */,
@@ -5785,7 +5793,7 @@
 				EF11DD9D29378A6F0044B33C /* SwappingTokenItemViewModel.swift in Sources */,
 				EF9C52B3287C77A10015D540 /* CardSettingsRoutable.swift in Sources */,
 				EF0F99AD289028F8008B01DF /* AppSettingsView.swift in Sources */,
-				EF09A309297A9B3F00B869A1 /* BottomSheetContainer.swift in Sources */,
+				EF09A309297A9B3F00B869A1 /* SUIBottomSheetContainer.swift in Sources */,
 				B053759126CA3EFA0090FCFC /* CheckmarkSwitch.swift in Sources */,
 				DCDBDA062A27C16C0000EBA2 /* LockedUserWallet.swift in Sources */,
 				DC13D04329DF31A60003895C /* WalletOnboardingStepsBuilder.swift in Sources */,
