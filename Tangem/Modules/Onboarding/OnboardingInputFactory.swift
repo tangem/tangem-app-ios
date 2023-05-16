@@ -83,10 +83,8 @@ class OnboardingInputFactory {
             return .cardModel(cardModel)
         }
 
-        if !cardInfo.card.wallets.isEmpty {
-            let config = UserWalletConfigFactory(cardInfo).makeConfig()
-            let userWallet = CardViewModel(cardInfo: cardInfo, config: config)
-            userWallet.userWalletModel?.initialUpdate()
+        if let userWallet = CardViewModel(cardInfo: cardInfo) {
+            userWallet.initialUpdate()
             return .cardModel(userWallet)
         }
 
