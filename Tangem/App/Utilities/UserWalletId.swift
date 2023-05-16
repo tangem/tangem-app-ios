@@ -9,7 +9,7 @@
 import Foundation
 import CryptoKit
 
-struct UserWalletId {
+struct UserWalletId: Equatable {
     let value: Data
 
     var stringValue: String { value.hexString }
