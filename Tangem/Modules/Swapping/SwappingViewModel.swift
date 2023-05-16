@@ -49,8 +49,6 @@ final class SwappingViewModel: ObservableObject {
         return viewModels
     }
 
-    @Published var normalIsSelected = true
-
     @Published private var swappingFeeRowViewModel: SwappingFeeRowViewModel?
     @Published private var feeWarningRowViewModel: DefaultWarningRowViewModel?
     @Published private var feeOptionsViewModels: [SelectableSwappingFeeRowViewModel] = []
@@ -589,16 +587,16 @@ private extension SwappingViewModel {
                 title: Localization.sendFeePickerNormal,
                 subtitle: info.gas.fee.description,
                 isSelected: .init(
-                    get: { self.normalIsSelected },
-                    set: { _ in self.normalIsSelected = true }
+                    get: { true },
+                    set: { _ in }
                 )
             ),
             SelectableSwappingFeeRowViewModel(
                 title: Localization.sendFeePickerPriority,
                 subtitle: info.gas.fee.description,
                 isSelected: .init(
-                    get: { !self.normalIsSelected },
-                    set: { _ in self.normalIsSelected = false }
+                    get: { false },
+                    set: { _ in }
                 )
             ),
         ]
