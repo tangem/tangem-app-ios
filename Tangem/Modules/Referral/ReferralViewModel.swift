@@ -142,18 +142,17 @@ class ReferralViewModel: ObservableObject {
     private func saveToStorageIfNeeded(_ referralToken: ReferralProgramInfo.Token, for blockchain: Blockchain) {
         let network = cardModel.getBlockchainNetwork(for: blockchain, derivationPath: nil)
         guard
-            let storageToken = convertToStorageToken(from: referralToken),
-            let userWalletModel = cardModel.userWalletModel
+            let storageToken = convertToStorageToken(from: referralToken)
         else {
             return
         }
 
-        var savedEntries = userWalletModel.getSavedEntries()
+        var savedEntries = cardModel.getSavedEntries()
 
         if let savedNetworkIndex = savedEntries.firstIndex(where: { $0.blockchainNetwork == network }),
            !savedEntries[savedNetworkIndex].tokens.contains(where: { $0 == storageToken }) {
             savedEntries[savedNetworkIndex].tokens.append(storageToken)
-            cardModel.userWalletModel?.update(entries: savedEntries)
+            cardModel.update(entries: savedEntries)
         }
     }
 
