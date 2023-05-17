@@ -8,6 +8,7 @@
 
 import SwiftUI
 
+// [REDACTED_TODO_COMMENT]
 public struct TogglableGroupButtonWithIcon: View {
     public var body: some View {
         HStack {
