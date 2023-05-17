@@ -9,28 +9,18 @@
 import Foundation
 import SwiftUI
 
-struct SwappingFeeRowViewModel: Identifiable {
+struct SwappingFeeRowViewModel: Identifiable, Hashable {
     var id: Int { hashValue }
     var state: State
-    let isDisclaimerOpened: () -> Binding<Bool>
+    let isDisclaimerOpened: BindingValue<Bool>
 
-    init(state: State, isDisclaimerOpened: @escaping () -> Binding<Bool>) {
+    init(state: State, isDisclaimerOpened: BindingValue<Bool>) {
         self.state = state
         self.isDisclaimerOpened = isDisclaimerOpened
     }
 
     mutating func update(state: State) {
         self.state = state
-    }
-}
-
-extension SwappingFeeRowViewModel: Hashable {
-    static func == (lhs: SwappingFeeRowViewModel, rhs: SwappingFeeRowViewModel) -> Bool {
-        lhs.id == rhs.id
-    }
-
-    func hash(into hasher: inout Hasher) {
-        hasher.combine(state)
     }
 }
 
