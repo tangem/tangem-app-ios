@@ -43,10 +43,25 @@ struct SwappingFeeRowView: View {
                 .frame(width: 100, height: 11)
                 .cornerRadiusContinuous(3)
 
-        case .fee:
+        case .fee(let fee):
             HStack(spacing: 4) {
-                Text(viewModel.state.formattedFee ?? "")
+                Text(fee)
                     .style(Fonts.Regular.footnote, color: Colors.Text.primary1)
+
+                Assets.chevronDownMini.image
+                    .renderingMode(.template)
+                    .foregroundColor(Colors.Icon.informative)
+                    .rotationEffect(.degrees(viewModel.isDisclaimerOpened.value ? -180 : 0))
+            }
+        case .policy(let title, let fiat):
+            HStack(spacing: 4) {
+                HStack(spacing: 0) {
+                    Text(title)
+                        .style(Fonts.Bold.footnote, color: Colors.Text.primary1)
+
+                    Text(" (\(fiat))")
+                        .style(Fonts.Regular.footnote, color: Colors.Text.primary1)
+                }
 
                 Assets.chevronDownMini.image
                     .renderingMode(.template)
@@ -67,7 +82,7 @@ struct SwappingFeeRowView_Previews: PreviewProvider {
 
                 GroupedSection([
                     SwappingFeeRowViewModel(
-                        state: .fee(fee: "0.0000000000155", symbol: "MATIC", fiat: "$0.14"),
+                        state: .fee(fee: "0.0000000000155 MATIC ($0.14)"),
                         isDisclaimerOpened: $isDisclaimerOpened.asBindingValue
                     ),
                     SwappingFeeRowViewModel(
