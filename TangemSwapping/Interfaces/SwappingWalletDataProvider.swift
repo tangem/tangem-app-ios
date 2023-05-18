@@ -10,14 +10,13 @@ import Foundation
 
 public protocol SwappingWalletDataProvider {
     func getWalletAddress(currency: Currency) -> String?
-    func getGasModel(
-        sourceAddress: String,
-        destinationAddress: String,
-        data: Data,
+
+    func getEthereumFeeOptions(
         blockchain: SwappingBlockchain,
         value: Decimal,
-        gasPolicy: SwappingGasPricePolicy
-    ) async throws -> EthereumGasDataModel
+        data: Data,
+        destinationAddress: String
+    ) async throws -> [EthereumGasDataModel]
 
     func getBalance(for currency: Currency) async throws -> Decimal
     func getBalance(for blockchain: SwappingBlockchain) async throws -> Decimal
