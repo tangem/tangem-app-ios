@@ -25,11 +25,16 @@ class TestnetTokensRepository {
     private func readTestnetList() -> AnyPublisher<CoinsResponse, Error> {
         Just(())
             .receive(on: DispatchQueue.global())
-            .tryMap { testnet in
-                try JsonUtils.readBundleFile(
-                    with: Constants.testFilename,
-                    type: CoinsResponse.self
-                )
+            .tryMap { _ in
+                do {
+                    return try JsonUtils.readBundleFile(
+                        with: Constants.testFilename,
+                        type: CoinsResponse.self
+                    )
+                } catch {
+                    Log.error("Unable to read testnet mock file due to error: \"\(error)\"")
+                    throw error
+                }
             }
             .eraseToAnyPublisher()
     }
