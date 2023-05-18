@@ -470,10 +470,7 @@
 "wallet_balance_tx_in_progress" = "Die Transaktion läuft…";
 "wallet_balance_verified" = "Verifizierte Bilanz";
 "wallet_button_actions" = "Actions";
-"wallet_button_buy" = "Buy";
 "wallet_button_create_wallet" = "ein Wallet erstellen";
-"wallet_button_sell" = "Sell";
-"wallet_button_send" = "Absenden";
 "wallet_button_trade" = "Exchange";
 "wallet_choice_wallet_option_title" = "Choice wallet option";
 "wallet_choose_trade_action" = "Do you want to buy or sell crypto?";
