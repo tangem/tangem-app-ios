@@ -546,12 +546,10 @@ private extension SwappingViewModel {
         swappingFeeRowViewModel = SwappingFeeRowViewModel(
             state: .idle,
             isDisclaimerOpened: .init(
-                root: self,
-                default: false,
-                get: { $0.isDisclaimerOpened },
-                set: { root, isOpen in
+                get: { [weak self] in self?.isDisclaimerOpened ?? false },
+                set: { [weak self] isOpen in
                     UIApplication.shared.endEditing()
-                    root.isDisclaimerOpened = isOpen
+                    self?.isDisclaimerOpened = isOpen
                 }
             )
         )
