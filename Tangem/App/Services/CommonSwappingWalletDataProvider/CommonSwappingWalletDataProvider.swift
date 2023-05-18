@@ -48,20 +48,17 @@ extension CommonSwappingWalletDataProvider: SwappingWalletDataProvider {
         return walletAddress
     }
 
-    func getGasModel(
-        sourceAddress: String,
-        destinationAddress: String,
-        data: Data,
+    func getEthereumFeeOptions(
         blockchain: SwappingBlockchain,
         value: Decimal,
-        gasPolicy: SwappingGasPricePolicy
-    ) async throws -> EthereumGasDataModel {
-        try await getFee(
+        data: Data,
+        destinationAddress: String
+    ) async throws -> [EthereumGasDataModel] {
+        try await getFeeOptions(
             blockchain: blockchain,
             value: value,
             data: data,
-            destination: destinationAddress,
-            gasPolicy: gasPolicy
+            destination: destinationAddress
         )
     }
 
@@ -160,13 +157,12 @@ private extension CommonSwappingWalletDataProvider {
         return 0
     }
 
-    func getFee(
+    func getFeeOptions(
         blockchain: SwappingBlockchain,
         value: Decimal,
         data: Data,
-        destination: String,
-        gasPolicy: SwappingGasPricePolicy
-    ) async throws -> EthereumGasDataModel {
+        destination: String
+    ) async throws -> [EthereumGasDataModel] {
         let amount = createAmount(from: blockchain, amount: value)
 
         let fees = try await ethereumTransactionProcessor.getFee(
@@ -175,30 +171,42 @@ private extension CommonSwappingWalletDataProvider {
             data: data
         ).async()
 
-        guard let lowFeeModel = fees.first,
-              let ethFeeParameters = lowFeeModel.parameters as? EthereumFeeParameters else {
+        guard let fee = fees.first,
+              let parameters = fee.parameters as? EthereumFeeParameters else {
             assertionFailure("LowFeeModel don't contains EthereumFeeParameters")
             throw CommonError.noData
         }
 
         switch blockchain {
         case .optimism:
-            return EthereumGasDataModel(
+            return [EthereumGasDataModel(
                 blockchain: blockchain,
-                gasPrice: Int(ethFeeParameters.gasPrice),
-                gasLimit: Int(ethFeeParameters.gasLimit),
-                fee: lowFeeModel.amount.value
-            )
+                gasPrice: Int(parameters.gasPrice),
+                gasLimit: Int(parameters.gasLimit),
+                fee: fee.amount.value,
+                policy: .normal
+            )]
         default:
-            let gasLimit = Int(ethFeeParameters.gasLimit) * 125 / 100
-            let gasPrice = gasPolicy.value(for: Int(ethFeeParameters.gasPrice))
-
-            return EthereumGasDataModel(
-                blockchain: blockchain,
-                gasPrice: Int(ethFeeParameters.gasPrice),
-                gasLimit: Int(ethFeeParameters.gasLimit),
-                fee: blockchain.convertFromWEI(value: Decimal(gasLimit * gasPrice))
-            )
+            return SwappingGasPricePolicy.allCases.map { policy in
+                mapToEthereumGasDataModel(blockchain: blockchain, parameters: parameters, policy: policy)
+            }
         }
+    }
+
+    func mapToEthereumGasDataModel(
+        blockchain: SwappingBlockchain,
+        parameters: EthereumFeeParameters,
+        policy: SwappingGasPricePolicy
+    ) -> EthereumGasDataModel {
+        let gasLimit = Int(parameters.gasLimit) * 125 / 100
+        let gasPrice = policy.value(for: Int(parameters.gasPrice))
+
+        return EthereumGasDataModel(
+            blockchain: blockchain,
+            gasPrice: gasPrice,
+            gasLimit: gasLimit,
+            fee: blockchain.convertFromWEI(value: Decimal(gasLimit * gasPrice)),
+            policy: policy
+        )
     }
 }
