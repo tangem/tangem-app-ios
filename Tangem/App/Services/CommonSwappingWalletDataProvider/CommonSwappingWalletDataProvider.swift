@@ -48,7 +48,7 @@ extension CommonSwappingWalletDataProvider: SwappingWalletDataProvider {
         return walletAddress
     }
 
-    func getEthereumFeeOptions(
+    func getFeeOptions(
         blockchain: SwappingBlockchain,
         value: Decimal,
         data: Data,
@@ -171,26 +171,48 @@ private extension CommonSwappingWalletDataProvider {
             data: data
         ).async()
 
+        if blockchain == .optimism {
+            // According to unusual the Optimism's fee calculation
+            // we have to use fee's calculation from BlockchainSDK
+            return try getFeeOptionsForOptimism(fees: fees)
+        }
+
         guard let fee = fees.first,
               let parameters = fee.parameters as? EthereumFeeParameters else {
             assertionFailure("LowFeeModel don't contains EthereumFeeParameters")
             throw CommonError.noData
         }
 
-        switch blockchain {
-        case .optimism:
-            return [EthereumGasDataModel(
-                blockchain: blockchain,
-                gasPrice: Int(parameters.gasPrice),
-                gasLimit: Int(parameters.gasLimit),
-                fee: fee.amount.value,
-                policy: .normal
-            )]
-        default:
-            return SwappingGasPricePolicy.allCases.map { policy in
-                mapToEthereumGasDataModel(blockchain: blockchain, parameters: parameters, policy: policy)
-            }
+        return SwappingGasPricePolicy.allCases.map { policy in
+            mapToEthereumGasDataModel(blockchain: blockchain, parameters: parameters, policy: policy)
         }
+    }
+
+    func getFeeOptionsForOptimism(fees: [Fee]) throws -> [EthereumGasDataModel] {
+        guard let normalFee = fees.first,
+              let priorityFee = fees.last,
+              let normalParameters = normalFee.parameters as? EthereumFeeParameters,
+              let priorityParameters = priorityFee.parameters as? EthereumFeeParameters else {
+            assertionFailure("LowFeeModel don't contains EthereumFeeParameters")
+            throw CommonError.noData
+        }
+
+        return [
+            EthereumGasDataModel(
+                blockchain: .optimism,
+                gasPrice: Int(normalParameters.gasPrice),
+                gasLimit: Int(normalParameters.gasLimit),
+                fee: normalFee.amount.value,
+                policy: .normal
+            ),
+            EthereumGasDataModel(
+                blockchain: .optimism,
+                gasPrice: Int(priorityParameters.gasPrice),
+                gasLimit: Int(priorityParameters.gasLimit),
+                fee: priorityFee.amount.value,
+                policy: .priority
+            ),
+        ]
     }
 
     func mapToEthereumGasDataModel(
@@ -198,6 +220,7 @@ private extension CommonSwappingWalletDataProvider {
         parameters: EthereumFeeParameters,
         policy: SwappingGasPricePolicy
     ) -> EthereumGasDataModel {
+        // Default increasing the gas limit. Just in case
         let gasLimit = Int(parameters.gasLimit) * 125 / 100
         let gasPrice = policy.value(for: Int(parameters.gasPrice))
 
