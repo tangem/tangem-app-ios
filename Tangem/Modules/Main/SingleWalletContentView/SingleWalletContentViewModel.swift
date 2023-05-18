@@ -205,7 +205,7 @@ class SingleWalletContentViewModel: ObservableObject {
 
         totalBalanceButtons = [
             .init(
-                title: Localization.walletButtonBuy,
+                title: Localization.commonBuy,
                 icon: Assets.plusMini,
                 action: { [weak self] in
                     Analytics.log(.buttonBuy)
