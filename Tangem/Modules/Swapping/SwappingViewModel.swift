@@ -38,6 +38,10 @@ final class SwappingViewModel: ObservableObject {
             viewModels.append(.warning(feeWarningRowViewModel))
         }
 
+        feeOptionsViewModels.forEach {
+            viewModels.append(.feePolicy($0))
+        }
+
         if let feeInfoRowViewModel = feeInfoRowViewModel {
             viewModels.append(.warning(feeInfoRowViewModel))
         }
@@ -47,6 +51,7 @@ final class SwappingViewModel: ObservableObject {
 
     @Published private var swappingFeeRowViewModel: SwappingFeeRowViewModel?
     @Published private var feeWarningRowViewModel: DefaultWarningRowViewModel?
+    @Published private var feeOptionsViewModels: [SelectableSwappingFeeRowViewModel] = []
     @Published private var feeInfoRowViewModel: DefaultWarningRowViewModel?
 
     // MARK: - Dependencies
@@ -542,24 +547,59 @@ private extension SwappingViewModel {
     func setupView() {
         updateState(state: .idle)
         updateView(swappingItems: swappingInteractor.getSwappingItems())
-        swappingFeeRowViewModel = SwappingFeeRowViewModel(state: .idle) { [weak self] in
-            .init {
+        swappingFeeRowViewModel = SwappingFeeRowViewModel(
+            state: .idle,
+            isDisclaimerOpened: .init(get: { [weak self] in
                 self?.feeInfoRowViewModel != nil
-            } set: { isOpen in
+            }, set: { [weak self] isOpen in
                 UIApplication.shared.endEditing()
+                self?.updateFeeDisclaimer(isOpen: isOpen)
+            })
+        )
+    }
 
-                if isOpen {
-                    let percentFee = self?.swappingInteractor.getReferrerAccountFee() ?? 0
-                    let formattedFee = "\(percentFee.groupedFormatted())%"
-                    self?.feeInfoRowViewModel = DefaultWarningRowViewModel(
-                        subtitle: Localization.swappingTangemFeeDisclaimer(formattedFee),
-                        leftView: .icon(Assets.heartMini)
-                    )
-                } else {
-                    self?.feeInfoRowViewModel = nil
-                }
-            }
+    func updateFeeDisclaimer(isOpen: Bool) {
+        // [REDACTED_TODO_COMMENT]
+        if FeatureProvider.isAvailable(.abilityChooseCommissionRate),
+           isOpen,
+           case .available(_, let data) = swappingInteractor.getAvailabilityState() {
+            feeOptionsViewModels = makeFeeOptionsViewModels(info: data)
+        } else {
+            feeOptionsViewModels = []
         }
+
+        feeInfoRowViewModel = isOpen ? makeDefaultWarningRowViewModel() : nil
+    }
+
+    func makeDefaultWarningRowViewModel() -> DefaultWarningRowViewModel {
+        let percentFee = swappingInteractor.getReferrerAccountFee() ?? 0
+        let formattedFee = "\(percentFee.groupedFormatted())%"
+        return DefaultWarningRowViewModel(
+            subtitle: Localization.swappingTangemFeeDisclaimer(formattedFee),
+            leftView: .icon(Assets.heartMini)
+        )
+    }
+
+    func makeFeeOptionsViewModels(info: SwappingTransactionData) -> [SelectableSwappingFeeRowViewModel] {
+        // [REDACTED_TODO_COMMENT]
+        return [
+            SelectableSwappingFeeRowViewModel(
+                title: Localization.sendFeePickerNormal,
+                subtitle: info.gas.fee.description,
+                isSelected: .init(
+                    get: { true },
+                    set: { _ in }
+                )
+            ),
+            SelectableSwappingFeeRowViewModel(
+                title: Localization.sendFeePickerPriority,
+                subtitle: info.gas.fee.description,
+                isSelected: .init(
+                    get: { false },
+                    set: { _ in }
+                )
+            ),
+        ]
     }
 
     func bind() {
@@ -751,6 +791,7 @@ extension SwappingViewModel {
 
         case fee(SwappingFeeRowViewModel)
         case warning(DefaultWarningRowViewModel)
+        case feePolicy(SelectableSwappingFeeRowViewModel)
     }
 
     enum MainButtonState: Hashable, Identifiable {
