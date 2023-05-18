@@ -78,7 +78,7 @@ extension OnboardingCoordinator: OnboardingTopupRoutable {
     func openCryptoShop(at url: URL, closeUrl: String, action: @escaping (String) -> Void) {
         buyCryptoModel = .init(
             url: url,
-            title: Localization.walletButtonBuy,
+            title: Localization.commonBuy,
             addLoadingIndicator: true,
             withCloseButton: true,
             urlActions: [closeUrl: { [weak self] response in
