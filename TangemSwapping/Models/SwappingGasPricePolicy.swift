@@ -8,7 +8,7 @@
 
 import Foundation
 
-public enum SwappingGasPricePolicy {
+public enum SwappingGasPricePolicy: Hashable, CaseIterable {
     case normal
     case priority
 
@@ -17,7 +17,7 @@ public enum SwappingGasPricePolicy {
         case .normal:
             return value
         case .priority:
-            return value * 125 / 100
+            return value * 150 / 100
         }
     }
 }
