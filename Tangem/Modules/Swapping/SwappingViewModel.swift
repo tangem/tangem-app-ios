@@ -200,15 +200,16 @@ private extension SwappingViewModel {
     }
 
     func openSuccessView(transactionData: SwappingTransactionData, transactionID: String) {
-        let amount = transactionData.sourceCurrency.convertFromWEI(value: transactionData.sourceAmount)
+        let sourceAmount = transactionData.sourceCurrency.convertFromWEI(value: transactionData.sourceAmount)
+        let resultAmount = transactionData.destinationCurrency.convertFromWEI(value: transactionData.destinationAmount)
 
         let source = CurrencyAmount(
-            value: amount,
+            value: sourceAmount,
             currency: transactionData.sourceCurrency
         )
 
         let result = CurrencyAmount(
-            value: transactionData.destinationAmount,
+            value: resultAmount,
             currency: transactionData.destinationCurrency
         )
 
@@ -385,7 +386,7 @@ private extension SwappingViewModel {
 
         guard let destination = swappingInteractor.getSwappingItems().destination else { return }
 
-        // If rates has to be loaded
+        // If rates will be loaded
         if !fiatRatesProvider.hasRates(for: destination) {
             receiveCurrencyViewModel?.update(fiatAmountState: .loading)
         }
@@ -453,7 +454,7 @@ private extension SwappingViewModel {
         case .available(let model):
             updateFeeRowViewModel(transactionData: model.transactionData)
             if FeatureProvider.isAvailable(.abilityChooseCommissionRate) {
-                updateFeeOptionsViewModels(options: model.gasOptions)
+                updateFeeOptionsViewModels(data: model.transactionData, options: model.gasOptions)
             }
         }
     }
@@ -601,7 +602,7 @@ private extension SwappingViewModel {
         .store(in: &workingTasks)
     }
 
-    func updateFeeOptionsViewModels(options: [EthereumGasDataModel]) {
+    func updateFeeOptionsViewModels(data: SwappingTransactionData, options: [EthereumGasDataModel]) {
         feeOptionsViewModels = options.map { gasModel in
             let subtitle = try? swappingFeeFormatter.syncFormat(
                 fee: gasModel.fee,
@@ -612,9 +613,7 @@ private extension SwappingViewModel {
                 title: gasModel.policy.title,
                 subtitle: subtitle ?? "No Data",
                 isSelected: .init(
-                    get: { [weak self] in
-                        self?.swappingInteractor.getSwappingGasPricePolicy() == gasModel.policy
-                    },
+                    get: { data.gas.policy == gasModel.policy },
                     set: { [weak self] isSelected in
                         if isSelected {
                             self?.swappingInteractor.update(gasPricePolicy: gasModel.policy)
