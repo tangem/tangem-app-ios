@@ -49,7 +49,7 @@
 "chat_user_action_rate_user" = "請評價";
 "chat_user_action_send_log" = "發送logs";
 "chat_user_actions_title" = "請選擇一個操作";
-"chat_user_rate_operator_title" = "請評價我們的服務";
+"chat_user_rate_agent_title" = "請評價我們的服務";
 "common_accept" = "接受";
 "common_attention" = "注意";
 "common_back" = "返回";
@@ -470,10 +470,7 @@
 "wallet_balance_tx_in_progress" = "交易進行中";
 "wallet_balance_verified" = "檢視餘額";
 "wallet_button_actions" = "動作";
-"wallet_button_buy" = "購買";
 "wallet_button_create_wallet" = "創造錢包";
-"wallet_button_sell" = "銷售";
-"wallet_button_send" = "發送";
 "wallet_button_trade" = "交易";
 "wallet_choice_wallet_option_title" = "選擇錢包選項";
 "wallet_choose_trade_action" = "您想要購買或賣出交易貨幣?";
