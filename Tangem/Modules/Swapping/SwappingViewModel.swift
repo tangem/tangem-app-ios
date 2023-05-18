@@ -38,12 +38,14 @@ final class SwappingViewModel: ObservableObject {
             viewModels.append(.warning(feeWarningRowViewModel))
         }
 
-        feeOptionsViewModels.forEach {
-            viewModels.append(.feePolicy($0))
-        }
+        if isDisclaimerOpened {
+            feeOptionsViewModels.forEach {
+                viewModels.append(.feePolicy($0))
+            }
 
-        if let feeInfoRowViewModel = feeInfoRowViewModel {
-            viewModels.append(.warning(feeInfoRowViewModel))
+            if let feeInfoRowViewModel = feeInfoRowViewModel {
+                viewModels.append(.warning(feeInfoRowViewModel))
+            }
         }
 
         return viewModels
@@ -53,6 +55,7 @@ final class SwappingViewModel: ObservableObject {
     @Published private var feeWarningRowViewModel: DefaultWarningRowViewModel?
     @Published private var feeOptionsViewModels: [SelectableSwappingFeeRowViewModel] = []
     @Published private var feeInfoRowViewModel: DefaultWarningRowViewModel?
+    @Published private var isDisclaimerOpened: Bool = false
 
     // MARK: - Dependencies
 
@@ -62,6 +65,7 @@ final class SwappingViewModel: ObservableObject {
     private let tokenIconURLBuilder: TokenIconURLBuilding
     private let transactionSender: SwappingTransactionSender
     private let fiatRatesProvider: FiatRatesProviding
+    private let swappingFeeFormatter: SwappingFeeFormatter
     private unowned let coordinator: SwappingRoutable
 
     // MARK: - Private
@@ -78,6 +82,7 @@ final class SwappingViewModel: ObservableObject {
         tokenIconURLBuilder: TokenIconURLBuilding,
         transactionSender: SwappingTransactionSender,
         fiatRatesProvider: FiatRatesProviding,
+        swappingFeeFormatter: SwappingFeeFormatter,
         coordinator: SwappingRoutable
     ) {
         self.initialSourceCurrency = initialSourceCurrency
@@ -86,6 +91,7 @@ final class SwappingViewModel: ObservableObject {
         self.tokenIconURLBuilder = tokenIconURLBuilder
         self.transactionSender = transactionSender
         self.fiatRatesProvider = fiatRatesProvider
+        self.swappingFeeFormatter = swappingFeeFormatter
         self.coordinator = coordinator
 
         Analytics.log(event: .swapScreenOpenedSwap, params: [.token: initialSourceCurrency.symbol])
@@ -193,19 +199,16 @@ private extension SwappingViewModel {
         coordinator.presentSwappingTokenList(sourceCurrency: initialSourceCurrency)
     }
 
-    func openSuccessView(
-        result: SwappingResultData,
-        transactionData: SwappingTransactionData,
-        transactionID: String
-    ) {
+    func openSuccessView(transactionData: SwappingTransactionData, transactionID: String) {
         let amount = transactionData.sourceCurrency.convertFromWEI(value: transactionData.sourceAmount)
+
         let source = CurrencyAmount(
             value: amount,
             currency: transactionData.sourceCurrency
         )
 
         let result = CurrencyAmount(
-            value: result.amount,
+            value: transactionData.destinationAmount,
             currency: transactionData.destinationCurrency
         )
 
@@ -221,9 +224,12 @@ private extension SwappingViewModel {
     func openPermissionView() {
         let state = swappingInteractor.getAvailabilityState()
 
-        guard case .available(let result, let data) = state,
-              result.isPermissionRequired,
-              let fiatFee = fiatRatesProvider.getSyncFiat(for: data.sourceBlockchain, amount: data.fee) else {
+        guard case .available(let model) = state,
+              model.isPermissionRequired,
+              let fiatFee = fiatRatesProvider.getSyncFiat(
+                  for: model.transactionData.sourceBlockchain,
+                  amount: model.transactionData.fee
+              ) else {
             // If we don't have enough data disable button and refresh()
             mainButtonIsEnabled = false
             swappingInteractor.refresh(type: .full)
@@ -231,7 +237,7 @@ private extension SwappingViewModel {
             return
         }
 
-        let inputModel = SwappingPermissionInputModel(fiatFee: fiatFee, transactionData: data)
+        let inputModel = SwappingPermissionInputModel(fiatFee: fiatFee, transactionData: model.transactionData)
 
         stopTimer()
         coordinator.presentPermissionView(inputModel: inputModel, transactionSender: transactionSender)
@@ -308,10 +314,10 @@ private extension SwappingViewModel {
             cryptoAmountState = .loaded(result.expectedAmount)
             fiatAmountState = .loading
             updateReceiveCurrencyValue(value: result.expectedAmount)
-        case .available(let result, _):
-            cryptoAmountState = .loaded(result.amount)
+        case .available(let model):
+            cryptoAmountState = .loaded(model.amount)
             fiatAmountState = .loading
-            updateReceiveCurrencyValue(value: result.amount)
+            updateReceiveCurrencyValue(value: model.amount)
         }
 
         receiveCurrencyViewModel = ReceiveCurrencyViewModel(
@@ -354,14 +360,14 @@ private extension SwappingViewModel {
             updateRequiredPermission(isPermissionRequired: result.isPermissionRequired)
             updatePendingApprovingTransaction(hasPendingTransaction: result.hasPendingTransaction)
 
-        case .available(let result, _):
+        case .available(let model):
             refreshWarningRowViewModel = nil
             swapButtonIsLoading = false
 
             restartTimer()
-            updateReceiveCurrencyValue(value: result.amount)
-            updateRequiredPermission(isPermissionRequired: result.isPermissionRequired)
-            updateEnoughAmountForFee(isEnoughAmountForFee: result.isEnoughAmountForFee)
+            updateReceiveCurrencyValue(value: model.amount)
+            updateRequiredPermission(isPermissionRequired: model.isPermissionRequired)
+            updateEnoughAmountForFee(isEnoughAmountForFee: model.isEnoughAmountForFee)
 
         case .requiredRefresh(let error):
             swapButtonIsLoading = false
@@ -378,7 +384,11 @@ private extension SwappingViewModel {
         receiveCurrencyViewModel?.update(cryptoAmountState: .loaded(value))
 
         guard let destination = swappingInteractor.getSwappingItems().destination else { return }
-        receiveCurrencyViewModel?.update(fiatAmountState: .loading)
+
+        // If rates has to be loaded
+        if !fiatRatesProvider.hasRates(for: destination) {
+            receiveCurrencyViewModel?.update(fiatAmountState: .loading)
+        }
 
         Task {
             let fiatValue = try await fiatRatesProvider.getFiat(for: destination, amount: value)
@@ -440,26 +450,11 @@ private extension SwappingViewModel {
             if type == .full {
                 swappingFeeRowViewModel?.update(state: .loading)
             }
-        case .available(_, let info):
-            let source = swappingInteractor.getSwappingItems().source
-
-            Task {
-                let fiatFee = try await fiatRatesProvider.getFiat(for: info.sourceBlockchain, amount: info.fee)
-                let code = await AppSettings.shared.selectedCurrencyCode
-
-                try Task.checkCancellation()
-
-                await runOnMain {
-                    swappingFeeRowViewModel?.update(
-                        state: .fee(
-                            fee: info.fee.groupedFormatted(),
-                            symbol: source.blockchain.symbol,
-                            fiat: fiatFee.currencyFormatted(code: code)
-                        )
-                    )
-                }
+        case .available(let model):
+            updateFeeRowViewModel(transactionData: model.transactionData)
+            if FeatureProvider.isAvailable(.abilityChooseCommissionRate) {
+                updateFeeOptionsViewModels(options: model.gasOptions)
             }
-            .store(in: &workingTasks)
         }
     }
 
@@ -487,7 +482,7 @@ private extension SwappingViewModel {
                 mainButtonState = .swap
             }
 
-        case .available(let model, _):
+        case .available(let model):
             mainButtonIsEnabled = model.isEnoughAmountForSwapping && model.isEnoughAmountForFee
 
             if !model.isEnoughAmountForSwapping {
@@ -549,26 +544,18 @@ private extension SwappingViewModel {
         updateView(swappingItems: swappingInteractor.getSwappingItems())
         swappingFeeRowViewModel = SwappingFeeRowViewModel(
             state: .idle,
-            isDisclaimerOpened: .init(get: { [weak self] in
-                self?.feeInfoRowViewModel != nil
-            }, set: { [weak self] isOpen in
-                UIApplication.shared.endEditing()
-                self?.updateFeeDisclaimer(isOpen: isOpen)
-            })
+            isDisclaimerOpened: .init(
+                root: self,
+                default: false,
+                get: { $0.isDisclaimerOpened },
+                set: { root, isOpen in
+                    UIApplication.shared.endEditing()
+                    root.isDisclaimerOpened = isOpen
+                }
+            )
         )
-    }
 
-    func updateFeeDisclaimer(isOpen: Bool) {
-        // [REDACTED_TODO_COMMENT]
-        if FeatureProvider.isAvailable(.abilityChooseCommissionRate),
-           isOpen,
-           case .available(_, let data) = swappingInteractor.getAvailabilityState() {
-            feeOptionsViewModels = makeFeeOptionsViewModels(info: data)
-        } else {
-            feeOptionsViewModels = []
-        }
-
-        feeInfoRowViewModel = isOpen ? makeDefaultWarningRowViewModel() : nil
+        feeInfoRowViewModel = makeDefaultWarningRowViewModel()
     }
 
     func makeDefaultWarningRowViewModel() -> DefaultWarningRowViewModel {
@@ -580,26 +567,62 @@ private extension SwappingViewModel {
         )
     }
 
-    func makeFeeOptionsViewModels(info: SwappingTransactionData) -> [SelectableSwappingFeeRowViewModel] {
-        // [REDACTED_TODO_COMMENT]
-        return [
-            SelectableSwappingFeeRowViewModel(
-                title: Localization.sendFeePickerNormal,
-                subtitle: info.gas.fee.description,
-                isSelected: .init(
-                    get: { true },
-                    set: { _ in }
+    func updateFeeRowViewModel(transactionData: SwappingTransactionData) {
+        Task {
+            if FeatureProvider.isAvailable(.abilityChooseCommissionRate) {
+                let fiatFee = try await fiatRatesProvider.getFiat(
+                    for: transactionData.sourceBlockchain,
+                    amount: transactionData.fee
                 )
-            ),
-            SelectableSwappingFeeRowViewModel(
-                title: Localization.sendFeePickerPriority,
-                subtitle: info.gas.fee.description,
-                isSelected: .init(
-                    get: { false },
-                    set: { _ in }
+
+                try Task.checkCancellation()
+                let currencyCode = await AppSettings.shared.selectedCurrencyCode
+
+                await runOnMain {
+                    swappingFeeRowViewModel?.update(
+                        state: .policy(
+                            title: transactionData.gas.policy.title,
+                            fiat: fiatFee.currencyFormatted(code: currencyCode)
+                        )
+                    )
+                }
+            } else {
+                let formattedFee = try await swappingFeeFormatter.format(
+                    fee: transactionData.fee,
+                    blockchain: transactionData.sourceBlockchain
                 )
-            ),
-        ]
+                try Task.checkCancellation()
+
+                await runOnMain {
+                    swappingFeeRowViewModel?.update(state: .fee(fee: formattedFee))
+                }
+            }
+        }
+        .store(in: &workingTasks)
+    }
+
+    func updateFeeOptionsViewModels(options: [EthereumGasDataModel]) {
+        feeOptionsViewModels = options.map { gasModel in
+            let subtitle = try? swappingFeeFormatter.syncFormat(
+                fee: gasModel.fee,
+                blockchain: gasModel.blockchain
+            )
+
+            return SelectableSwappingFeeRowViewModel(
+                title: gasModel.policy.title,
+                subtitle: subtitle ?? "No Data",
+                isSelected: .init(
+                    get: { [weak self] in
+                        self?.swappingInteractor.getSwappingGasPricePolicy() == gasModel.policy
+                    },
+                    set: { [weak self] isSelected in
+                        if isSelected {
+                            self?.swappingInteractor.update(gasPricePolicy: gasModel.policy)
+                        }
+                    }
+                )
+            )
+        }
     }
 
     func bind() {
@@ -697,30 +720,32 @@ private extension SwappingViewModel {
 
     func swapItems() {
         let state = swappingInteractor.getAvailabilityState()
-        guard case .available(let result, let info) = state else {
+        guard case .available(let model) = state else {
             return
         }
+
+        let transactionData = model.transactionData
 
         stopTimer()
         Analytics.log(
             event: .swapButtonSwap,
             params: [
-                .sendToken: info.sourceCurrency.symbol,
-                .receiveToken: info.destinationCurrency.symbol,
+                .sendToken: transactionData.sourceCurrency.symbol,
+                .receiveToken: transactionData.destinationCurrency.symbol,
             ]
         )
 
         Task {
             do {
-                let sendResult = try await transactionSender.sendTransaction(info)
+                let sendResult = try await transactionSender.sendTransaction(transactionData)
 
                 try Task.checkCancellation()
 
-                swappingInteractor.didSendSwapTransaction(swappingTxData: info)
+                swappingInteractor.didSendSwapTransaction(swappingTxData: transactionData)
                 Analytics.log(.transactionSent, params: [.commonSource: .transactionSourceSwap])
 
                 await runOnMain {
-                    openSuccessView(result: result, transactionData: info, transactionID: sendResult.hash)
+                    openSuccessView(transactionData: transactionData, transactionID: sendResult.hash)
                 }
             } catch TangemSdkError.userCancelled {
                 restartTimer()
@@ -740,7 +765,7 @@ private extension SwappingViewModel {
         switch error {
         case let error as SwappingManagerError:
             switch error {
-            case .walletAddressNotFound, .destinationNotFound, .amountNotFound:
+            case .walletAddressNotFound, .destinationNotFound, .amountNotFound, .gasModelNotFound:
                 updateRefreshWarningRowViewModel(message: error.localizedDescription)
             }
         case let error as SwappingProviderError:
@@ -829,5 +854,16 @@ extension SwappingViewModel {
 extension SwappingViewModel {
     private enum Constants {
         static let highPriceImpactWarningLimit: Decimal = 10
+    }
+}
+
+extension SwappingGasPricePolicy {
+    var title: String {
+        switch self {
+        case .normal:
+            return Localization.sendFeePickerNormal
+        case .priority:
+            return Localization.sendFeePickerPriority
+        }
     }
 }
