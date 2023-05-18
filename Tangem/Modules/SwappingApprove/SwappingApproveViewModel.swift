@@ -219,6 +219,7 @@ private extension SwappingApproveViewModel {
     func format(fee: Decimal, fiatFee: Decimal) -> String {
         let feeFormatted = fee.groupedFormatted()
         let fiatFeeFormatted = fiatFee.currencyFormatted(code: AppSettings.shared.selectedCurrencyCode)
+        let tokenSymbol = swappingInteractor.getSwappingItems().source.blockchain.symbol
 
         return "\(feeFormatted) \(tokenSymbol) (\(fiatFeeFormatted))"
     }
