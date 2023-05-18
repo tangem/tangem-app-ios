@@ -49,7 +49,7 @@
 "chat_user_action_rate_user" = "請評價";
 "chat_user_action_send_log" = "發送logs";
 "chat_user_actions_title" = "請選擇一個操作";
-"chat_user_rate_operator_title" = "請評價我們的服務";
+"chat_user_rate_agent_title" = "請評價我們的服務";
 "common_accept" = "接受";
 "common_attention" = "注意";
 "common_back" = "返回";
