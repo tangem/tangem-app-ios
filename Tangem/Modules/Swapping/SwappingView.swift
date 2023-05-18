@@ -120,6 +120,8 @@ struct SwappingView: View {
                 SwappingFeeRowView(viewModel: viewModel)
             case .warning(let viewModel):
                 DefaultWarningRow(viewModel: viewModel)
+            case .feePolicy(let viewModel):
+                SelectableSwappingFeeRowView(viewModel: viewModel)
             }
         }
         .verticalPadding(0)
