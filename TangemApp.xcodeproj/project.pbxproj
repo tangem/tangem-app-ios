@@ -745,7 +745,6 @@
 		EF661E2F28BF41D6005769E5 /* Intents.intentdefinition in Sources */ = {isa = PBXBuildFile; fileRef = EF661E2928BF41D6005769E5 /* Intents.intentdefinition */; };
 		EF661E3228C0ACD1005769E5 /* ScanCardWarningView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF661E3128C0ACD0005769E5 /* ScanCardWarningView.swift */; };
 		EF661E3528C0ADC6005769E5 /* CommonError.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF661E3428C0ADC6005769E5 /* CommonError.swift */; };
-		EF692A3D2950C37F001F4B8A /* SwappingResultData.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF692A3C2950C37F001F4B8A /* SwappingResultData.swift */; };
 		EF692A482951E7C8001F4B8A /* XCAssets+Generated.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF692A462951E7C8001F4B8A /* XCAssets+Generated.swift */; };
 		EF692A492951E7C8001F4B8A /* Localizable+Generated.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF692A472951E7C8001F4B8A /* Localizable+Generated.swift */; };
 		EF6CB17C292E1080001335EA /* SwappingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF6CB17B292E1080001335EA /* SwappingView.swift */; };
@@ -1743,7 +1742,6 @@
 		EF661E2D28BF41D6005769E5 /* fr */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = fr; path = fr.lproj/Intents.strings; sourceTree = "<group>"; };
 		EF661E3128C0ACD0005769E5 /* ScanCardWarningView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ScanCardWarningView.swift; sourceTree = "<group>"; };
 		EF661E3428C0ADC6005769E5 /* CommonError.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CommonError.swift; sourceTree = "<group>"; };
-		EF692A3C2950C37F001F4B8A /* SwappingResultData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwappingResultData.swift; sourceTree = "<group>"; };
 		EF692A462951E7C8001F4B8A /* XCAssets+Generated.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "XCAssets+Generated.swift"; sourceTree = "<group>"; };
 		EF692A472951E7C8001F4B8A /* Localizable+Generated.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Localizable+Generated.swift"; sourceTree = "<group>"; };
 		EF6CB17B292E1080001335EA /* SwappingView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SwappingView.swift; sourceTree = "<group>"; };
@@ -4082,7 +4080,6 @@
 				EFDDE5252A04379300899812 /* SwappingApprovePolicy.swift */,
 				EF0708252A0FADB60072AA0E /* SwappingGasPricePolicy.swift */,
 				EFA9854A294775B500D1FCB3 /* SwappingPreviewData.swift */,
-				EF692A3C2950C37F001F4B8A /* SwappingResultData.swift */,
 				EF29BEE1292E5DB400D7C782 /* SwappingTransactionData.swift */,
 				EF0708292A1638890072AA0E /* SwappingAvailabilityModel.swift */,
 				EF92E2AF29952BB800DD9B06 /* SwappingReferrerAccount.swift */,
@@ -6036,7 +6033,6 @@
 				EF4662022924CC6E00346B6C /* HealthCheck.swift in Sources */,
 				EF5F1BC429D6CED50093307B /* SwappingTokenData.swift in Sources */,
 				EF5F1BBB29D6CD770093307B /* ApproveSpender.swift in Sources */,
-				EF692A3D2950C37F001F4B8A /* SwappingResultData.swift in Sources */,
 				EF92E2B029952BB800DD9B06 /* SwappingReferrerAccount.swift in Sources */,
 				EF29BEE4292E5DC400D7C782 /* OneInchSwappingProviderErrors.swift in Sources */,
 				EF78433B29431903007E57D1 /* SwappingManagerError.swift in Sources */,
