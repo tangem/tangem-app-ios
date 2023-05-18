@@ -57,7 +57,7 @@ extension SwappingInteractor {
     func getSwappingApprovePolicy() -> SwappingApprovePolicy {
         swappingManager.getSwappingApprovePolicy()
     }
-    
+
     func getSwappingGasPricePolicy() -> SwappingGasPricePolicy {
         swappingManager.getSwappingGasPricePolicy()
     }
@@ -84,10 +84,10 @@ extension SwappingInteractor {
         swappingManager.update(approvePolicy: approvePolicy)
         refresh(type: .full)
     }
-    
+
     func update(gasPricePolicy: SwappingGasPricePolicy) {
         swappingManager.update(gasPricePolicy: gasPricePolicy)
-        refresh(type: .refreshRates)
+        updateState(with: gasPricePolicy)
     }
 
     func refresh(type: SwappingManagerRefreshType) {
@@ -134,6 +134,37 @@ private extension SwappingInteractor {
         AppLog.shared.debug("[Swap] SwappingInteractor update state to \(state)")
 
         self.state.send(state)
+    }
+
+    func updateState(with gasPricePolicy: SwappingGasPricePolicy) {
+        guard case .available(let model) = getAvailabilityState(),
+              let gas = model.gasOptions.first(where: { $0.policy == gasPricePolicy }) else {
+            return
+        }
+
+        let transactionData = model.transactionData
+        let newData = SwappingTransactionData(
+            sourceCurrency: transactionData.sourceCurrency,
+            sourceBlockchain: transactionData.sourceBlockchain,
+            destinationCurrency: transactionData.destinationCurrency,
+            sourceAddress: transactionData.sourceAddress,
+            destinationAddress: transactionData.destinationAddress,
+            txData: transactionData.txData,
+            sourceAmount: transactionData.sourceAmount,
+            destinationAmount: transactionData.destinationAmount,
+            value: transactionData.value,
+            gas: gas
+        )
+
+        let availabilityModel = SwappingAvailabilityModel(
+            isEnoughAmountForSwapping: model.isEnoughAmountForSwapping,
+            isEnoughAmountForFee: model.isEnoughAmountForFee,
+            isPermissionRequired: model.isPermissionRequired,
+            transactionData: newData,
+            gasOptions: model.gasOptions
+        )
+
+        updateState(.available(availabilityModel))
     }
 
     func addDestinationTokenToUserWalletList() {
