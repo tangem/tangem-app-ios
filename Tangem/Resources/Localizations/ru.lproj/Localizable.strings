@@ -470,10 +470,7 @@
 "wallet_balance_tx_in_progress" = "Транзакция подтверждается…";
 "wallet_balance_verified" = "Подтвержденный баланс";
 "wallet_button_actions" = "Действия";
-"wallet_button_buy" = "Купить";
 "wallet_button_create_wallet" = "Создать кошелек";
-"wallet_button_sell" = "Продать";
-"wallet_button_send" = "Отправить";
 "wallet_button_trade" = "Обменять";
 "wallet_choice_wallet_option_title" = "Что отправить?";
 "wallet_choose_trade_action" = "Вы хотите купить или продать криптовалюту?";
