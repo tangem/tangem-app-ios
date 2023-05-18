@@ -132,7 +132,7 @@ struct TokenDetailsView: View {
     @ViewBuilder
     var sendButton: some View {
         MainButton(
-            title: Localization.walletButtonSend,
+            title: Localization.commonSend,
             icon: .leading(Assets.arrowRightMini),
             isDisabled: !viewModel.canSend,
             action: viewModel.openSend
