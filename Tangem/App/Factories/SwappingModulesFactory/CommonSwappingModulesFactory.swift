@@ -72,6 +72,15 @@ extension CommonSwappingModulesFactory: SwappingModulesFactory {
         )
     }
 
+    func makeSwappingApproveViewModel(coordinator: SwappingApproveRoutable) -> SwappingApproveViewModel {
+        SwappingApproveViewModel(
+            transactionSender: transactionSender,
+            swappingInteractor: swappingInteractor,
+            fiatRatesProvider: fiatRatesProvider,
+            coordinator: coordinator
+        )
+    }
+
     func makeSwappingSuccessViewModel(
         inputModel: SwappingSuccessInputModel,
         coordinator: SwappingSuccessRoutable
