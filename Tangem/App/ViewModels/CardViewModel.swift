@@ -759,6 +759,12 @@ extension CardViewModel: UserWalletModel {
         }
     }
 
+    func updateAppearanceIfNeeded(_ appearance: CardAppearance) {
+        guard cardInfo.appearance != appearance else { return }
+
+        cardInfo.appearance = appearance
+    }
+
     func updateWalletModels() {
         // Update walletModel list for current storage state
         walletListManager.updateWalletModels()
