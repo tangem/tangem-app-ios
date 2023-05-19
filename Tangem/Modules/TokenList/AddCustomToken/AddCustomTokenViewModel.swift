@@ -21,6 +21,7 @@ class AddCustomTokenViewModel: ObservableObject {
     @Published var symbol = ""
     @Published var contractAddress = ""
     @Published var decimals = ""
+    @Published var customDerivationPath = ""
 
     @Published var blockchainsPicker: PickerModel = .empty
     @Published var derivationsPicker: PickerModel = .empty
@@ -39,6 +40,10 @@ class AddCustomTokenViewModel: ObservableObject {
         cardHasDifferentDerivationPaths && blockchainHasDifferentDerivationPaths
     }
 
+    var showCustomDerivationPath: Bool {
+        derivationsPicker.selection == customDerivationItemID
+    }
+
     @Published private var cardHasDifferentDerivationPaths: Bool = true
     @Published private var blockchainHasDifferentDerivationPaths: Bool = true
 
@@ -52,6 +57,9 @@ class AddCustomTokenViewModel: ObservableObject {
     private var derivationPathByBlockchainName: [String: DerivationPath] = [:]
     private var foundStandardToken: CoinModel?
     private unowned let coordinator: AddCustomTokenRoutable
+
+    private let defaultDerivationItemID = "default-derivation"
+    private let customDerivationItemID = "custom-derivation"
 
     init(cardModel: CardViewModel, coordinator: AddCustomTokenRoutable) {
         self.coordinator = coordinator
@@ -76,12 +84,13 @@ class AddCustomTokenViewModel: ObservableObject {
             }
             .store(in: &bag)
 
-        Publishers.CombineLatest(
+        Publishers.CombineLatest3(
             $blockchainsPicker.map { $0.selection }.removeDuplicates(),
-            $derivationsPicker.map { $0.selection }.removeDuplicates()
+            $derivationsPicker.map { $0.selection }.removeDuplicates(),
+            $customDerivationPath.removeDuplicates()
         )
         .debounce(for: 0.1, scheduler: RunLoop.main)
-        .sink { [unowned self] _, _ in
+        .sink { [unowned self] _ in
             self.didChangeBlockchain()
         }
         .store(in: &bag)
@@ -177,7 +186,10 @@ class AddCustomTokenViewModel: ObservableObject {
     }
 
     private func updateDerivationPaths() {
-        let defaultItem = (Localization.customTokenDerivationPathDefault, "")
+        let defaultItem = (Localization.customTokenDerivationPathDefault, defaultDerivationItemID)
+
+        #warning("L10N")
+        let customItem = ("Custom", customDerivationItemID)
 
         let derivations: [(String, String)]
         if !cardModel.hdWalletsSupported {
@@ -202,7 +214,7 @@ class AddCustomTokenViewModel: ObservableObject {
         let uniqueDerivations = Set(derivations.map(\.1))
         self.cardHasDifferentDerivationPaths = uniqueDerivations.count > 1
         let newDerivationSelection = self.derivationsPicker.selection
-        self.derivationsPicker = .init(items: [defaultItem] + derivations, selection: newDerivationSelection)
+        self.derivationsPicker = .init(items: [defaultItem, customItem] + derivations, selection: newDerivationSelection)
     }
 
     private func enteredTokenItem() throws -> TokenItem {
@@ -256,6 +268,17 @@ class AddCustomTokenViewModel: ObservableObject {
         }
     }
 
+    private func validateDerivationPath() throws {
+        guard customDerivationItemID == derivationsPicker.selection else {
+            return
+        }
+
+        let derivationPath = try? DerivationPath(rawPath: customDerivationPath)
+        if derivationPath == nil {
+            throw DerivationPathError.invalidDerivationPath
+        }
+    }
+
     private func enteredBlockchain() throws -> Blockchain {
         guard let blockchain = blockchainByName[blockchainsPicker.selection] else {
             throw TokenCreationErrors.blockchainNotSelected
@@ -277,8 +300,17 @@ class AddCustomTokenViewModel: ObservableObject {
     }
 
     private func enteredDerivationPath() throws -> DerivationPath? {
-        let blockchainName = derivationsPicker.selection
-        return derivationPathByBlockchainName[blockchainName]
+        let derivationItemID = derivationsPicker.selection
+
+        switch derivationItemID {
+        case defaultDerivationItemID:
+            return nil
+        case customDerivationItemID:
+            return try? DerivationPath(rawPath: customDerivationPath)
+        default:
+            // ID is a blockchain name
+            return derivationPathByBlockchainName[derivationItemID]
+        }
     }
 
     private func checkLocalStorage() throws {
@@ -366,14 +398,16 @@ class AddCustomTokenViewModel: ObservableObject {
         warningContainer.removeAll()
 
         do {
+            try validateDerivationPath()
             try checkLocalStorage()
             try validateEnteredContractAddress()
         } catch {
-            let tokenSearchError = error as? TokenSearchError
-            addButtonDisabled = tokenSearchError?.preventsFromAdding ?? false
+            let dynamicValidationError = error as? DynamicValidationError
+            addButtonDisabled = dynamicValidationError?.preventsFromAdding ?? false
 
-            if let tokenSearchError = tokenSearchError {
-                warningContainer.add(tokenSearchError.appWarning)
+            if let localizedError = error as? LocalizedError {
+                let warning = AppWarning(title: Localization.commonWarning, message: localizedError.localizedDescription, priority: .warning)
+                warningContainer.add(warning)
             }
         }
     }
@@ -406,6 +440,10 @@ extension AddCustomTokenViewModel {
     }
 }
 
+fileprivate protocol DynamicValidationError {
+    var preventsFromAdding: Bool { get }
+}
+
 private extension AddCustomTokenViewModel {
     enum TokenCreationErrors: LocalizedError {
         case blockchainNotSelected
@@ -433,7 +471,7 @@ private extension AddCustomTokenViewModel {
         }
     }
 
-    enum TokenSearchError: LocalizedError {
+    enum TokenSearchError: DynamicValidationError, LocalizedError {
         case alreadyAdded
         case failedToFindToken
 
@@ -454,9 +492,24 @@ private extension AddCustomTokenViewModel {
                 return Localization.customTokenValidationErrorAlreadyAdded
             }
         }
+    }
 
-        var appWarning: AppWarning {
-            return AppWarning(title: Localization.commonWarning, message: errorDescription ?? "", priority: .warning)
+    enum DerivationPathError: DynamicValidationError, LocalizedError {
+        case invalidDerivationPath
+
+        var preventsFromAdding: Bool {
+            switch self {
+            case .invalidDerivationPath:
+                return true
+            }
+        }
+
+        var errorDescription: String? {
+            switch self {
+            case .invalidDerivationPath:
+                #warning("L10n")
+                return "The derivation path you've entered is not valid"
+            }
         }
     }
 }
