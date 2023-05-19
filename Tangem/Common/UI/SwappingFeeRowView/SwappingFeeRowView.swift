@@ -10,11 +10,9 @@ import SwiftUI
 
 struct SwappingFeeRowView: View {
     private let viewModel: SwappingFeeRowViewModel
-    @Binding private var isDisclaimerOpened: Bool
 
     init(viewModel: SwappingFeeRowViewModel) {
         self.viewModel = viewModel
-        _isDisclaimerOpened = viewModel.isDisclaimerOpened()
     }
 
     var body: some View {
@@ -31,7 +29,7 @@ struct SwappingFeeRowView: View {
         .background(Colors.Background.primary)
         .contentShape(Rectangle())
         .onTapGesture {
-            isDisclaimerOpened.toggle()
+            viewModel.isDisclaimerOpened.toggle()
         }
     }
 
@@ -53,7 +51,7 @@ struct SwappingFeeRowView: View {
                 Assets.chevronDownMini.image
                     .renderingMode(.template)
                     .foregroundColor(Colors.Icon.informative)
-                    .rotationEffect(.degrees(isDisclaimerOpened ? -180 : 0))
+                    .rotationEffect(.degrees(viewModel.isDisclaimerOpened.value ? -180 : 0))
             }
         }
     }
@@ -69,9 +67,12 @@ struct SwappingFeeRowView_Previews: PreviewProvider {
 
                 GroupedSection([
                     SwappingFeeRowViewModel(
-                        state: .fee(fee: "0.0000000000155", symbol: "MATIC", fiat: "$0.14"), isDisclaimerOpened: { $isDisclaimerOpened }
-                    ), SwappingFeeRowViewModel(
-                        state: .loading, isDisclaimerOpened: { $isDisclaimerOpened }
+                        state: .fee(fee: "0.0000000000155", symbol: "MATIC", fiat: "$0.14"),
+                        isDisclaimerOpened: $isDisclaimerOpened.asBindingValue
+                    ),
+                    SwappingFeeRowViewModel(
+                        state: .loading,
+                        isDisclaimerOpened: $isDisclaimerOpened.asBindingValue
                     ),
                 ]) {
                     SwappingFeeRowView(viewModel: $0)
