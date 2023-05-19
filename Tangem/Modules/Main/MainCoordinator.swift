@@ -75,16 +75,10 @@ class MainCoordinator: CoordinatorObject {
     }
 
     func start(with options: MainCoordinator.Options) {
-        guard let userWalletModel = options.cardModel.userWalletModel else {
-            assertionFailure("UserWalletModel not created")
-            return
-        }
-
         Analytics.log(.walletOpened)
 
         mainViewModel = MainViewModel(
             cardModel: options.cardModel,
-            userWalletModel: userWalletModel,
             cardImageProvider: CardImageProvider(supportsOnlineImage: options.cardModel.supportsOnlineImage),
             coordinator: self
         )
@@ -118,7 +112,7 @@ extension MainCoordinator: MainRoutable {
         Analytics.log(.topupScreenOpened)
         pushedWebViewModel = WebViewContainerViewModel(
             url: url,
-            title: Localization.walletButtonBuy,
+            title: Localization.commonBuy,
             addLoadingIndicator: true,
             urlActions: [
                 closeUrl: { [weak self] response in
@@ -133,7 +127,7 @@ extension MainCoordinator: MainRoutable {
         Analytics.log(.withdrawScreenOpened)
         pushedWebViewModel = WebViewContainerViewModel(
             url: url,
-            title: Localization.walletButtonSell,
+            title: Localization.commonSell,
             addLoadingIndicator: true,
             urlActions: [sellRequestUrl: action]
         )
