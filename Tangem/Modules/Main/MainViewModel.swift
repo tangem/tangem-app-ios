@@ -89,7 +89,6 @@ class MainViewModel: ObservableObject {
         }
     }
 
-    private var userWalletModel: UserWalletModel
     private let cardImageProvider: CardImageProviding
     private var bag = Set<AnyCancellable>()
     private var isProcessingNewCard = false
@@ -175,12 +174,10 @@ class MainViewModel: ObservableObject {
 
     init(
         cardModel: CardViewModel,
-        userWalletModel: UserWalletModel,
         cardImageProvider: CardImageProviding,
         coordinator: MainRoutable
     ) {
         self.cardModel = cardModel
-        self.userWalletModel = userWalletModel
         self.cardImageProvider = cardImageProvider
         self.coordinator = coordinator
 
@@ -204,7 +201,7 @@ class MainViewModel: ObservableObject {
             }
             .store(in: &bag)
 
-        userWalletModel.subscribeToEntriesWithoutDerivation()
+        cardModel.subscribeToEntriesWithoutDerivation()
             .receive(on: DispatchQueue.main)
             .removeDuplicates()
             .sink { [unowned self] entries in
@@ -407,14 +404,12 @@ class MainViewModel: ObservableObject {
         if cardModel.isMultiWallet {
             multiWalletContentViewModel = MultiWalletContentViewModel(
                 cardModel: cardModel,
-                userWalletModel: userWalletModel,
-                userTokenListManager: userWalletModel.userTokenListManager,
+                userTokenListManager: cardModel.userTokenListManager,
                 output: self
             )
         } else {
             singleWalletContentViewModel = SingleWalletContentViewModel(
                 cardModel: cardModel,
-                userWalletModel: userWalletModel,
                 output: self
             )
         }
@@ -528,7 +523,7 @@ extension MainViewModel {
                 Analytics.log(event: .tokenBought, params: [.token: code])
 
                 DispatchQueue.main.asyncAfter(deadline: .now() + 1) { [weak self] in
-                    self?.userWalletModel.updateAndReloadWalletModels()
+                    self?.cardModel.updateAndReloadWalletModels()
                 }
             }
         }
