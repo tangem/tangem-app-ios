@@ -11,8 +11,8 @@ import Foundation
 class UserWalletFactory {
     func userWallet(from cardInfo: CardInfo, config: UserWalletConfig, userWalletId: UserWalletId) -> UserWallet {
         let name: String
-        if !cardInfo.name.isEmpty {
-            name = cardInfo.name
+        if !cardInfo.appearance.name.isEmpty {
+            name = cardInfo.appearance.name
         } else {
             name = config.cardName
         }
@@ -23,7 +23,7 @@ class UserWalletFactory {
             card: cardInfo.card,
             associatedCardIds: [cardInfo.card.cardId],
             walletData: cardInfo.walletData,
-            artwork: cardInfo.artwork.artworkInfo,
+            artwork: cardInfo.appearance.artwork.artworkInfo,
             isHDWalletAllowed: cardInfo.card.settings.isHDWalletAllowed
         )
     }
