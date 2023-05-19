@@ -37,6 +37,8 @@ class UserWalletModelMock: UserWalletModel {
 
     func initialUpdate() {}
 
+    func updateAppearanceIfNeeded(_ appearance: CardAppearance) {}
+
     func updateWalletModels() {}
 
     func updateAndReloadWalletModels(silent: Bool, completion: @escaping () -> Void) {}
