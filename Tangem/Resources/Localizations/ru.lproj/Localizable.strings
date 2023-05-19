@@ -83,6 +83,7 @@
 "common_retry" = "Повторить";
 "common_save_changes" = "Сохранить изменения";
 "common_search" = "Искать";
+"common_seed_phrase" = "Секретная фраза";
 "common_select_action" = "Выберите действие";
 "common_sell" = "Продать";
 "common_send" = "Отправить";
@@ -454,7 +455,6 @@
 "user_wallet_list_title" = "Мои кошельки";
 "user_wallet_list_unlock_all" = "Разблокировать все с %@";
 "voice_over_close_network_fee_settings" = "Закрыть настройки комиссии";
-"voice_over_copy_address" = "Скопировать адрес";
 "voice_over_nothing_to_paste" = "Нечего вставить из буфера обмена";
 "voice_over_open_card_details" = "Открыть детали карты";
 "voice_over_open_network_fee_settings" = "Открыть настройки комиссии";
@@ -471,7 +471,6 @@
 "wallet_balance_verified" = "Подтвержденный баланс";
 "wallet_button_actions" = "Действия";
 "wallet_button_create_wallet" = "Создать кошелек";
-"wallet_button_trade" = "Обменять";
 "wallet_choice_wallet_option_title" = "Что отправить?";
 "wallet_choose_trade_action" = "Вы хотите купить или продать криптовалюту?";
 "wallet_connect_alert_sign_message" = "Запрос на подпись сообщения.\n\n%@";
