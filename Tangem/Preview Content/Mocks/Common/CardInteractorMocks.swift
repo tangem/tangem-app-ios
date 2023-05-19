@@ -14,9 +14,8 @@ class CardPreparableMock: CardPreparable {
         DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
             let cardInfo = CardInfo(
                 card: .init(card: .card),
+                appearance: .init(name: "", artwork: .noArtwork),
                 walletData: .none,
-                name: "",
-                artwork: .noArtwork,
                 primaryCard: nil
             )
             completion(.success(cardInfo))
