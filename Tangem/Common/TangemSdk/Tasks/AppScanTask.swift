@@ -33,8 +33,8 @@ struct AppScanTaskResponse {
     func getCardInfo() -> CardInfo {
         return CardInfo(
             card: CardDTO(card: card),
+            appearance: .init(name: ""),
             walletData: walletData,
-            name: "",
             primaryCard: primaryCard
         )
     }
@@ -269,7 +269,11 @@ final class AppScanTask: CardSessionRunnable {
     }
 
     private func config(for card: CardDTO) -> UserWalletConfig {
-        let cardInfo = CardInfo(card: card, walletData: walletData, name: "")
+        let cardInfo = CardInfo(
+            card: card,
+            appearance: .init(name: ""),
+            walletData: walletData
+        )
         return UserWalletConfigFactory(cardInfo).makeConfig()
     }
 
