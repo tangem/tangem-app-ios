@@ -42,9 +42,8 @@ extension UserWallet {
 
         return CardInfo(
             card: card,
+            appearance: .init(name: name, artwork: cardArtwork),
             walletData: walletData,
-            name: name,
-            artwork: cardArtwork,
             primaryCard: nil
         )
     }
