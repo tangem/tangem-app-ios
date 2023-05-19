@@ -154,7 +154,6 @@ class CardViewModel: Identifiable, ObservableObject {
     )
 
     private(set) var cardInfo: CardInfo
-    private let stateUpdateQueue = DispatchQueue(label: "state_update_queue")
     private var tangemSdk: TangemSdk?
     private var config: UserWalletConfig
     private var didPerformInitialUpdate = false
