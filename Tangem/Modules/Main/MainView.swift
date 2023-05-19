@@ -131,7 +131,7 @@ struct MainView: View {
 
     var sendButton: some View {
         MainButton(
-            title: Localization.walletButtonSend,
+            title: Localization.commonSend,
             icon: .leading(Assets.arrowRightMini),
             isDisabled: !viewModel.canSend,
             action: viewModel.sendTapped
@@ -204,7 +204,6 @@ struct MainView_Previews: PreviewProvider {
         NavigationView {
             MainView(viewModel: .init(
                 cardModel: PreviewCard.stellar.cardModel,
-                userWalletModel: PreviewCard.stellar.cardModel.userWalletModel!,
                 cardImageProvider: CardImageProvider(),
                 coordinator: MainCoordinator()
             ))

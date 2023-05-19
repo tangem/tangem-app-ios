@@ -72,13 +72,12 @@ class TokenListViewModel: ObservableObject {
     }
 
     func saveChanges() {
-        guard let cardModel = cardModel,
-              let userWalletModel = cardModel.userWalletModel else {
+        guard let cardModel = cardModel else {
             closeModule()
             return
         }
 
-        var alreadySaved = userWalletModel.userTokenListManager.getEntriesFromRepository()
+        var alreadySaved = cardModel.userTokenListManager.getEntriesFromRepository()
 
         DispatchQueue.global().async {
             self.update(cardModel: cardModel, entries: &alreadySaved)
