@@ -131,7 +131,7 @@ final class ZendeskSupportChatViewModel {
         })
 
         let sheet = ActionSheet(
-            title: Text(Localization.chatUserRateOperatorTitle),
+            title: Text(Localization.chatUserRateAgentTitle),
             buttons: [buttonLike, buttonDislike, buttonCancel]
         )
 
