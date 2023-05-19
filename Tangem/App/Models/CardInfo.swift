@@ -12,9 +12,8 @@ import BlockchainSdk
 
 struct CardInfo {
     var card: CardDTO
+    var appearance: CardAppearance
     var walletData: DefaultWalletData
-    var name: String
-    var artwork: CardArtwork = .notLoaded
     var primaryCard: PrimaryCard?
 
     var cardIdFormatted: String {

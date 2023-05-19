@@ -373,6 +373,7 @@
 		B0FE0B3529712C170046EE2C /* WalletConnectV2Utils.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0FE0B3429712C170046EE2C /* WalletConnectV2Utils.swift */; };
 		B0FE0B37297138CC0046EE2C /* WalletConnectSavedSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0FE0B36297138CC0046EE2C /* WalletConnectSavedSession.swift */; };
 		B0FE0B3A297140D10046EE2C /* WalletConnectV2Error.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0FE0B39297140D10046EE2C /* WalletConnectV2Error.swift */; };
+		B6F4037C2A17B6CF00C617FE /* CardAppearance.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6F4037B2A17B6CF00C617FE /* CardAppearance.swift */; };
 		BC3BCAF910DB455D23661425 /* Pods_TangemSwapping.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = ADDBC9E43D315C358E078BC8 /* Pods_TangemSwapping.framework */; };
 		CA4CE122EA06BFF58F298C1F /* Pods_TangemSwappingTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 18DFAA500D7B2AF19B3D48B8 /* Pods_TangemSwappingTests.framework */; };
 		DA129DD3292B4A3D004291EC /* UserWalletListCellViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA129DD2292B4A3D004291EC /* UserWalletListCellViewModel.swift */; };
@@ -1342,6 +1343,7 @@
 		B0FE0B3429712C170046EE2C /* WalletConnectV2Utils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletConnectV2Utils.swift; sourceTree = "<group>"; };
 		B0FE0B36297138CC0046EE2C /* WalletConnectSavedSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletConnectSavedSession.swift; sourceTree = "<group>"; };
 		B0FE0B39297140D10046EE2C /* WalletConnectV2Error.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletConnectV2Error.swift; sourceTree = "<group>"; };
+		B6F4037B2A17B6CF00C617FE /* CardAppearance.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardAppearance.swift; sourceTree = "<group>"; };
 		C4BE60E299B34DA900B0012A /* Pods-TangemTests.debug(production).xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TangemTests.debug(production).xcconfig"; path = "Target Support Files/Pods-TangemTests/Pods-TangemTests.debug(production).xcconfig"; sourceTree = "<group>"; };
 		C7773ED75216777DBEDA50DB /* Pods-Tangem-TangemUITests.debug(alpha).xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Tangem-TangemUITests.debug(alpha).xcconfig"; path = "Target Support Files/Pods-Tangem-TangemUITests/Pods-Tangem-TangemUITests.debug(alpha).xcconfig"; sourceTree = "<group>"; };
 		D2313A69E005802F0E551C08 /* Pods-Tangem.release(alpha).xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Tangem.release(alpha).xcconfig"; path = "Target Support Files/Pods-Tangem/Pods-Tangem.release(alpha).xcconfig"; sourceTree = "<group>"; };
@@ -2047,6 +2049,7 @@
 				B0EC11FF267386FC00137059 /* TransactionRecord.swift */,
 				5D96BD2727F60AC5000AA797 /* BlockchainNetwork.swift */,
 				5D4B8BC227EDD601002CE87C /* CardInfo.swift */,
+				B6F4037B2A17B6CF00C617FE /* CardAppearance.swift */,
 				5D5332B025F9091900D32CA5 /* TokenItem.swift */,
 				2D805EC929ADE17100C030F7 /* ExchangeButtonStateType.swift */,
 			);
@@ -5494,6 +5497,7 @@
 				5DFCE54C274BDEE200C1B1A0 /* ResetToFactorySettingsTask.swift in Sources */,
 				5DDFC2072812B7AB005976FE /* RatesResponse.swift in Sources */,
 				EF808438293F3A6D000D91EA /* CurrencyMapper.swift in Sources */,
+				B6F4037C2A17B6CF00C617FE /* CardAppearance.swift in Sources */,
 				B0D76D4525D4E4560073FA98 /* AddCustomTokenView.swift in Sources */,
 				5D6784C325EB8EF000149995 /* CommonTokenItemsRepository.swift in Sources */,
 				EFEC653D292E1B9400AE8521 /* SwappingRoutable.swift in Sources */,
