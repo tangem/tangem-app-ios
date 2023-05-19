@@ -32,7 +32,13 @@ class PreparePrimaryCardTask: CardSessionRunnable {
         }
 
         if card.settings.isHDWalletAllowed {
-            let config = UserWalletConfigFactory(CardInfo(card: CardDTO(card: card), walletData: .none, name: "")).makeConfig()
+            let config = UserWalletConfigFactory(
+                CardInfo(
+                    card: CardDTO(card: card),
+                    appearance: .init(name: ""),
+                    walletData: .none
+                )
+            ).makeConfig()
             let blockchainNetworks = config.defaultBlockchains.map { $0.blockchainNetwork }
 
             let derivations: [EllipticCurve: [DerivationPath]] = blockchainNetworks.reduce(into: [:]) { result, network in
