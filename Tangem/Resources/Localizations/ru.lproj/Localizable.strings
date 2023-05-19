@@ -46,10 +46,10 @@
 "card_settings_security_mode_footer" = "Выбранный способ защиты приложения";
 "card_settings_title" = "Настройки карты";
 "chat_button_title" = "Чат";
-"chat_user_action_rate_user" = "Оценить оператора";
+"chat_user_action_rate_user" = "Оценить агента";
 "chat_user_action_send_log" = "Отправить логи";
 "chat_user_actions_title" = "Пожалуйста, выберите действие";
-"chat_user_rate_operator_title" = "Пожалуйста, оцените работу оператора";
+"chat_user_rate_agent_title" = "Пожалуйста, оцените работу агента";
 "common_accept" = "Принять";
 "common_attention" = "Внимание";
 "common_back" = "Назад";
@@ -90,7 +90,7 @@
 "common_share" = "Поделиться";
 "common_sign" = "Подписать";
 "common_sign_and_send" = "Подписать и отправить";
-"common_stake" = "Stake";
+"common_stake" = "Стейкинг";
 "common_start" = "Начать";
 "common_submit" = "Отправить";
 "common_success" = "Успешно";
@@ -470,10 +470,7 @@
 "wallet_balance_tx_in_progress" = "Транзакция подтверждается…";
 "wallet_balance_verified" = "Подтвержденный баланс";
 "wallet_button_actions" = "Действия";
-"wallet_button_buy" = "Купить";
 "wallet_button_create_wallet" = "Создать кошелек";
-"wallet_button_sell" = "Продать";
-"wallet_button_send" = "Отправить";
 "wallet_button_trade" = "Обменять";
 "wallet_choice_wallet_option_title" = "Что отправить?";
 "wallet_choose_trade_action" = "Вы хотите купить или продать криптовалюту?";
