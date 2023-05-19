@@ -29,7 +29,13 @@ struct AddCustomTokenView: View {
 
                     if viewModel.showDerivationPaths {
                         PickerInputWithTitle(title: Localization.customTokenDerivationPathInputTitle, model: $viewModel.derivationsPicker)
-                            .cornerRadius(10, corners: [.bottomLeft, .bottomRight])
+                            .cornerRadius(viewModel.showCustomDerivationPath ? 0 : 10, corners: [.bottomLeft, .bottomRight])
+
+                        if viewModel.showCustomDerivationPath {
+                            #warning("l10n")
+                            TextInputWithTitle(title: "Custom derivation", placeholder: "m/44'/0'/0'/0/0", text: $viewModel.customDerivationPath, keyboardType: .default, isEnabled: true, isLoading: false)
+                                .cornerRadius(10, corners: [.bottomLeft, .bottomRight])
+                        }
                     }
                 }
 
