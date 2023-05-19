@@ -83,6 +83,7 @@
 "common_retry" = "Retry";
 "common_save_changes" = "Mantieni le modifiche";
 "common_search" = "Search";
+"common_seed_phrase" = "Seed phrase";
 "common_select_action" = "Select action";
 "common_sell" = "Sell";
 "common_send" = "Invia";
@@ -454,7 +455,6 @@
 "user_wallet_list_title" = "My Wallets";
 "user_wallet_list_unlock_all" = "Unlock all with %@";
 "voice_over_close_network_fee_settings" = "Close network fee settings";
-"voice_over_copy_address" = "Copy address";
 "voice_over_nothing_to_paste" = "Nothing to paste from clipboard";
 "voice_over_open_card_details" = "Open card details";
 "voice_over_open_network_fee_settings" = "Open network fee settings";
@@ -471,7 +471,6 @@
 "wallet_balance_verified" = "Saldo verificato";
 "wallet_button_actions" = "Actions";
 "wallet_button_create_wallet" = "Crea portafoglio";
-"wallet_button_trade" = "Exchange";
 "wallet_choice_wallet_option_title" = "Choice wallet option";
 "wallet_choose_trade_action" = "Do you want to buy or sell crypto?";
 "wallet_connect_alert_sign_message" = "Requesting to sign a message.\n\n%@";
