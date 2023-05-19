@@ -72,10 +72,7 @@ class CardSettingsViewModel: ObservableObject {
     }
 
     func didResetCard() {
-        if let userWallet = cardModel.userWallet {
-            deleteWallet(userWallet)
-        }
-
+        deleteWallet(cardModel.userWallet)
         navigateAwayAfterReset()
     }
 }
