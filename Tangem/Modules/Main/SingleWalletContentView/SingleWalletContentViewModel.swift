@@ -62,13 +62,12 @@ class SingleWalletContentViewModel: ObservableObject {
     }
 
     lazy var totalSumBalanceViewModel = TotalSumBalanceViewModel(
-        userWalletModel: userWalletModel,
+        userWalletModel: cardModel,
         cardAmountType: cardModel.cardAmountType,
         tapOnCurrencySymbol: output
     )
 
     private let cardModel: CardViewModel
-    private let userWalletModel: UserWalletModel
     private unowned let output: SingleWalletContentViewModelOutput
     private var bag = Set<AnyCancellable>()
     private var transactionHistoryLoaderSubscription: AnyCancellable?
@@ -77,22 +76,20 @@ class SingleWalletContentViewModel: ObservableObject {
 
     init(
         cardModel: CardViewModel,
-        userWalletModel: UserWalletModel,
         output: SingleWalletContentViewModelOutput
     ) {
         self.cardModel = cardModel
-        self.userWalletModel = userWalletModel
         self.output = output
 
         /// Initial set to `singleWalletModel`
-        singleWalletModel = userWalletModel.getWalletModels().first
+        singleWalletModel = cardModel.getWalletModels().first
 
         makeActionButtons()
         bind()
     }
 
     func onRefresh(done: @escaping () -> Void) {
-        userWalletModel.updateAndReloadWalletModels(completion: done)
+        cardModel.updateAndReloadWalletModels(completion: done)
     }
 
     func openQR() {
@@ -121,7 +118,7 @@ class SingleWalletContentViewModel: ObservableObject {
 
     private func bind() {
         /// Subscribe for update `singleWalletModel` for each changes in `WalletModel`
-        userWalletModel.subscribeToWalletModels()
+        cardModel.subscribeToWalletModels()
             .map { walletModels in
                 walletModels
                     .map { $0.objectWillChange }
@@ -136,7 +133,7 @@ class SingleWalletContentViewModel: ObservableObject {
             .store(in: &bag)
 
         /// Subscription to handle transaction updates, such as new transactions from send screen.
-        userWalletModel.subscribeToWalletModels()
+        cardModel.subscribeToWalletModels()
             .map { walletModels in
                 walletModels
                     .map { $0.walletManager.walletPublisher }
@@ -208,7 +205,7 @@ class SingleWalletContentViewModel: ObservableObject {
 
         totalBalanceButtons = [
             .init(
-                title: Localization.walletButtonBuy,
+                title: Localization.commonBuy,
                 icon: Assets.plusMini,
                 action: { [weak self] in
                     Analytics.log(.buttonBuy)
