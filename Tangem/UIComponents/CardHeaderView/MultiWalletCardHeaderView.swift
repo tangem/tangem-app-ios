@@ -78,7 +78,8 @@ struct CardHeaderView_Previews: PreviewProvider {
 
         var body: some View {
             ZStack {
-                Color.gray
+                Colors.Background.secondary
+                    .edgesIgnoringSafeArea(.all)
 
                 VStack(spacing: 16) {
                     ForEach(
@@ -99,6 +100,5 @@ struct CardHeaderView_Previews: PreviewProvider {
 
     static var previews: some View {
         CardHeaderPreview()
-            .background(Colors.Background.secondary)
     }
 }
