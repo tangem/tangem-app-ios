@@ -62,7 +62,7 @@
 "common_close" = "關閉";
 "common_continue" = "繼續";
 "common_copy" = "複製";
-"common_copy_address" = "Copy address";
+"common_copy_address" = "複製地址";
 "common_delete" = "刪除";
 "common_disabled" = "禁用";
 "common_disconnect" = "斷開連接";
@@ -455,7 +455,6 @@
 "user_wallet_list_title" = "我的錢包";
 "user_wallet_list_unlock_all" = "用 %@ 解鎖全部";
 "voice_over_close_network_fee_settings" = "關閉網費設置";
-"voice_over_copy_address" = "複製地址";
 "voice_over_nothing_to_paste" = "沒有可從剪貼板粘貼的內容";
 "voice_over_open_card_details" = "開啟卡片細節";
 "voice_over_open_network_fee_settings" = "開啟網路費設定";
@@ -472,7 +471,6 @@
 "wallet_balance_verified" = "檢視餘額";
 "wallet_button_actions" = "動作";
 "wallet_button_create_wallet" = "創造錢包";
-"wallet_button_trade" = "交易";
 "wallet_choice_wallet_option_title" = "選擇錢包選項";
 "wallet_choose_trade_action" = "您想要購買或賣出交易貨幣?";
 "wallet_connect_alert_sign_message" = "請求籤署消息。%@";
