@@ -109,9 +109,11 @@
 "custom_token_creation_error_invalid_derivation_path" = "Derivation path is invalid";
 "custom_token_creation_error_network_not_selected" = "Please select the network";
 "custom_token_creation_error_wrong_decimals" = "Decimal number must be a valid integer, no higher than %li";
+"custom_token_custom_derivation" = "Custom derivation";
 "custom_token_decimals_input_title" = "Decimals";
 "custom_token_derivation_path_default" = "Default";
 "custom_token_derivation_path_input_title" = "BIP44 coin type";
+"custom_token_invalid_derivation_path" = "The derivation path you've entered is not valid";
 "custom_token_name_input_placeholder" = "E.g. USD Coin";
 "custom_token_name_input_title" = "Name";
 "custom_token_network_input_not_selected" = "Not selected";
