@@ -279,7 +279,7 @@ class CommonUserWalletRepository: UserWalletRepository {
         let userWalletModel: UserWalletModel?
         if let index = models.firstIndex(where: { $0.userWalletId.value == userWallet.userWalletId }) {
             userWalletModel = models[index]
-            userWalletModel?.updateAppearanceIfNeeded(.init(userWallet: userWallet))
+            userWalletModel?.updateWalletName(userWallet.name)
         } else if let newModel = CardViewModel(userWallet: userWallet) {
             newModel.initialUpdate()
             models.append(newModel)
