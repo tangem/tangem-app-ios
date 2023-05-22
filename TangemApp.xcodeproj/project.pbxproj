@@ -17,6 +17,7 @@
 		2DC5DAAD29B782420039154A /* TonCenterApiKeys.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DC5DAAC29B782420039154A /* TonCenterApiKeys.swift */; };
 		2DDF91892A113B3B00B31113 /* TogglableGroupButtonWithIcon.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DDF91882A113B3B00B31113 /* TogglableGroupButtonWithIcon.swift */; };
 		2DDF918E2A11683A00B31113 /* FlexyButtonLeadingIcon.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DDF918D2A11683A00B31113 /* FlexyButtonLeadingIcon.swift */; };
+		2DDF91942A14DA2700B31113 /* TokenItemMenuActions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DDF91932A14DA2700B31113 /* TokenItemMenuActions.swift */; };
 		5D00FCC72617387E004626DE /* PersonalSignHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D00FCC62617387E004626DE /* PersonalSignHandler.swift */; };
 		5D00FCCC2617389E004626DE /* SignTransactionHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D00FCCB2617389E004626DE /* SignTransactionHandler.swift */; };
 		5D00FCD1261738C5004626DE /* WalletConnectEthTransaction.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D00FCD0261738C5004626DE /* WalletConnectEthTransaction.swift */; };
@@ -946,6 +947,7 @@
 		2DC5DAAC29B782420039154A /* TonCenterApiKeys.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TonCenterApiKeys.swift; sourceTree = "<group>"; };
 		2DDF91882A113B3B00B31113 /* TogglableGroupButtonWithIcon.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TogglableGroupButtonWithIcon.swift; sourceTree = "<group>"; };
 		2DDF918D2A11683A00B31113 /* FlexyButtonLeadingIcon.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FlexyButtonLeadingIcon.swift; sourceTree = "<group>"; };
+		2DDF91932A14DA2700B31113 /* TokenItemMenuActions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TokenItemMenuActions.swift; sourceTree = "<group>"; };
 		3A37E80DF75687F125EDA4D1 /* Pods-TangemSwapping.release(production).xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TangemSwapping.release(production).xcconfig"; path = "Target Support Files/Pods-TangemSwapping/Pods-TangemSwapping.release(production).xcconfig"; sourceTree = "<group>"; };
 		3C9182C6C925702F336B218E /* Pods-TangemTests.release(alpha).xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TangemTests.release(alpha).xcconfig"; path = "Target Support Files/Pods-TangemTests/Pods-TangemTests.release(alpha).xcconfig"; sourceTree = "<group>"; };
 		4552F5633786F1E20D40E88E /* Pods-TangemSwappingTests.debug(production).xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TangemSwappingTests.debug(production).xcconfig"; path = "Target Support Files/Pods-TangemSwappingTests/Pods-TangemSwappingTests.debug(production).xcconfig"; sourceTree = "<group>"; };
@@ -1935,6 +1937,14 @@
 			path = TogglableGroupButtonWithIcon;
 			sourceTree = "<group>";
 		};
+		2DDF91922A14DA2700B31113 /* TokenItemMenuActions */ = {
+			isa = PBXGroup;
+			children = (
+				2DDF91932A14DA2700B31113 /* TokenItemMenuActions.swift */,
+			);
+			path = TokenItemMenuActions;
+			sourceTree = "<group>";
+		};
 		2E5061A84512B23CCB5F2E17 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
@@ -2845,6 +2855,7 @@
 		B0958BA529F6B698007CD76D /* UIComponents */ = {
 			isa = PBXGroup;
 			children = (
+				2DDF91922A14DA2700B31113 /* TokenItemMenuActions */,
 				2DDF91872A113B1A00B31113 /* TogglableGroupButtonWithIcon */,
 				B05A13AF29FBF16300FB511A /* ButtonWithIcon */,
 				B0B335CE29FA7FC100E2082E /* Common */,
@@ -5346,6 +5357,7 @@
 				5DD95B8C24FA959C00E6B9D0 /* VerticalAlignment+.swift in Sources */,
 				DC194D2628EC6A76007FBC99 /* SaltPayRegistratorProvider.swift in Sources */,
 				B008E13C29802612006E0E31 /* WebSocketConnectionDelegate.swift in Sources */,
+				2DDF91942A14DA2700B31113 /* TokenItemMenuActions.swift in Sources */,
 				EF5A5ACF28D86089002544AC /* TotalBalanceProvider.swift in Sources */,
 				EFAF63E92927CA63004B3227 /* Setupable.swift in Sources */,
 				5D6784D925EBA1D800149995 /* TokenItems+Array.swift in Sources */,
