@@ -83,6 +83,7 @@
 "common_retry" = "Повторить";
 "common_save_changes" = "Сохранить изменения";
 "common_search" = "Искать";
+"common_seed_phrase" = "Секретная фраза";
 "common_select_action" = "Выберите действие";
 "common_sell" = "Продать";
 "common_send" = "Отправить";
