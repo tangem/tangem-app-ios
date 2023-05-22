@@ -59,7 +59,7 @@ final class FakeCardHeaderPreviewProvider: ObservableObject {
             cardImage: Assets.Cards.wallet,
             isWalletImported: true,
             tapAction: { provider in
-                provider.cardName = provider.cardName == "POW" ? "Plain Old Wallet" : "POD"
+                provider.cardName = provider.cardName == "POW" ? "Plain Old Wallet" : "POW"
                 switch provider.balance {
                 case .loading:
                     provider.balance = .loaded(TotalBalanceProvider.TotalBalance(
