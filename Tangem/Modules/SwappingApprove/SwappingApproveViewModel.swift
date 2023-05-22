@@ -36,12 +36,12 @@ final class SwappingApproveViewModel: ObservableObject, Identifiable {
     private var didBecomeActiveNotificationCancellable: AnyCancellable?
     private var bag: Set<AnyCancellable> = []
     private var transactionData: SwappingTransactionData? {
-        guard case .available(_, let data) = swappingInteractor.getAvailabilityState() else {
+        guard case .available(let model) = swappingInteractor.getAvailabilityState() else {
             AppLog.shared.debug("TransactionData for approve isn't found")
             return nil
         }
 
-        return data
+        return model.transactionData
     }
 
     init(
@@ -165,8 +165,8 @@ private extension SwappingApproveViewModel {
             feeRowViewModel?.update(detailsType: .loader)
             isLoading = true
             mainButtonIsDisabled = false
-        case .available(_, let data):
-            updateFeeAmount(for: data)
+        case .available(let model):
+            updateFeeAmount(for: model.transactionData)
             isLoading = false
             mainButtonIsDisabled = false
         case .requiredRefresh(let error):
@@ -219,6 +219,7 @@ private extension SwappingApproveViewModel {
     func format(fee: Decimal, fiatFee: Decimal) -> String {
         let feeFormatted = fee.groupedFormatted()
         let fiatFeeFormatted = fiatFee.currencyFormatted(code: AppSettings.shared.selectedCurrencyCode)
+        let tokenSymbol = swappingInteractor.getSwappingItems().source.blockchain.symbol
 
         return "\(feeFormatted) \(tokenSymbol) (\(fiatFeeFormatted))"
     }
