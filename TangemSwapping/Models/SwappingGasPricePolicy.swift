@@ -12,7 +12,7 @@ public enum SwappingGasPricePolicy: Hashable, CaseIterable {
     case normal
     case priority
 
-    public func value(for value: Int) -> Int {
+    public func increased(value: Int) -> Int {
         switch self {
         case .normal:
             return value
