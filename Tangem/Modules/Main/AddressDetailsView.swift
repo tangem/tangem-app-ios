@@ -76,7 +76,7 @@ struct AddressDetailView: View {
                     withVerification: true,
                     isDisabled: false
                 )
-                .accessibility(label: Text(Localization.voiceOverCopyAddress))
+                .accessibility(label: Text(Localization.commonCopyAddress))
 
                 CircleActionButton(
                     action: showQr,
