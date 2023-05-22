@@ -49,7 +49,7 @@ class AddCustomTokenViewModel: ObservableObject {
 
     private var selectedBlockchainSupportsTokens: Bool {
         let blockchain = try? enteredBlockchain()
-        return blockchain?.canHandleTokens ?? true
+        return blockchain?.canHandleTokens ?? false
     }
 
     private var bag: Set<AnyCancellable> = []
