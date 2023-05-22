@@ -48,13 +48,13 @@ extension CommonSwappingWalletDataProvider: SwappingWalletDataProvider {
         return walletAddress
     }
 
-    func getFeeOptions(
+    func getGasOptions(
         blockchain: SwappingBlockchain,
         value: Decimal,
         data: Data,
         destinationAddress: String
     ) async throws -> [EthereumGasDataModel] {
-        try await getFeeOptions(
+        try await getGasOptions(
             blockchain: blockchain,
             value: value,
             data: data,
@@ -157,7 +157,7 @@ private extension CommonSwappingWalletDataProvider {
         return 0
     }
 
-    func getFeeOptions(
+    func getGasOptions(
         blockchain: SwappingBlockchain,
         value: Decimal,
         data: Data,
