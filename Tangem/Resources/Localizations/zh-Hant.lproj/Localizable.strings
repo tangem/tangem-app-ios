@@ -109,9 +109,11 @@
 "custom_token_creation_error_invalid_derivation_path" = "衍生路徑錯誤";
 "custom_token_creation_error_network_not_selected" = "請選擇網路";
 "custom_token_creation_error_wrong_decimals" = "十進制數必須是有效整數，不大於 %li";
+"custom_token_custom_derivation" = "Custom derivation";
 "custom_token_decimals_input_title" = "小數點";
 "custom_token_derivation_path_default" = "默認";
 "custom_token_derivation_path_input_title" = "BIP44 幣種";
+"custom_token_invalid_derivation_path" = "The derivation path you've entered is not valid";
 "custom_token_name_input_placeholder" = "如 USD Coin";
 "custom_token_name_input_title" = "名稱";
 "custom_token_network_input_not_selected" = "未選擇";
