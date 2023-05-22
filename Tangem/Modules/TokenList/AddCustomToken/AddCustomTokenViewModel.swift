@@ -37,7 +37,7 @@ class AddCustomTokenViewModel: ObservableObject {
     }
 
     var showDerivationPaths: Bool {
-        cardHasDifferentDerivationPaths && blockchainHasDifferentDerivationPaths
+        cardHasDifferentDerivationPaths
     }
 
     var showCustomDerivationPath: Bool {
@@ -45,7 +45,6 @@ class AddCustomTokenViewModel: ObservableObject {
     }
 
     @Published private var cardHasDifferentDerivationPaths: Bool = true
-    @Published private var blockchainHasDifferentDerivationPaths: Bool = true
 
     private var selectedBlockchainSupportsTokens: Bool {
         let blockchain = try? enteredBlockchain()
@@ -387,8 +386,6 @@ class AddCustomTokenViewModel: ObservableObject {
     }
 
     private func didChangeBlockchain() {
-        blockchainHasDifferentDerivationPaths = true
-
         validate()
     }
 
