@@ -24,5 +24,5 @@ struct FiatRatesProviderMock: FiatRatesProviding {
 
 struct SwappingFeeFormatterMock: SwappingFeeFormatter {
     func format(fee: Decimal, blockchain: SwappingBlockchain) async throws -> String { "" }
-    func syncFormat(fee: Decimal, blockchain: SwappingBlockchain) throws -> String { "" }
+    func format(fee: Decimal, blockchain: SwappingBlockchain) throws -> String { "" }
 }
