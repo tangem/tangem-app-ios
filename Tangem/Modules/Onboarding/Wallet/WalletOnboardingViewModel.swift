@@ -25,6 +25,7 @@ class WalletOnboardingViewModel: OnboardingTopupViewModel<WalletOnboardingStep, 
     private var cardIds: [String]?
     private var stepPublisher: AnyCancellable?
     private var claimed: Bool = false
+    private var resetCardInteractor: CardResettable?
 
     private var cardIdDisplayFormat: CardIdDisplayFormat {
         isSaltPayOnboarding ? .none : .lastMasked(4)
@@ -887,11 +888,11 @@ class WalletOnboardingViewModel: OnboardingTopupViewModel<WalletOnboardingStep, 
     }
 
     private func createWalletOnPrimaryCard(using seed: Data? = nil) {
-        guard let cardInteractor = input.cardInteractor else { return }
+        guard let cardInitializer = input.cardInitializer else { return }
 
         AppSettings.shared.cardsStartedActivation.insert(input.cardInput.cardId)
 
-        cardInteractor.prepareCard(seed: seed) { [weak self] result in
+        cardInitializer.initializeCard(seed: seed) { [weak self] result in
             guard let self else { return }
 
             switch result {
@@ -1016,29 +1017,36 @@ class WalletOnboardingViewModel: OnboardingTopupViewModel<WalletOnboardingStep, 
 
         if backupService.primaryCard?.firmwareVersion >= .keysImportAvailable,
            let tangemSdkError = error as? TangemSdkError,
-           case .backupFailedNotEmptyWallets = tangemSdkError {
-            requestResetCard()
+           case .backupFailedNotEmptyWallets(let cardId) = tangemSdkError {
+            requestResetCard(with: cardId)
         }
     }
 
-    private func requestResetCard() {
+    private func requestResetCard(with cardId: String) {
         alert = AlertBuilder.makeAlert(
             title: Localization.commonAttention,
             message: Localization.onboardingLinkingErrorCardWithWallets,
-            primaryButton: .destructive(Text(Localization.cardSettingsActionSheetReset), action: resetCard),
+            primaryButton: .destructive(Text(Localization.cardSettingsActionSheetReset), action: { [weak self] in
+                self?.resetCard(with: cardId)
+            }),
             secondaryButton: Alert.Button.cancel {
                 Analytics.log(.backupResetCardNotification, params: [.option: .cancel])
             }
         )
     }
 
-    private func resetCard() {
-        guard let cardInteractor = input.cardInteractor else { return }
-
+    private func resetCard(with cardId: String) {
         Analytics.log(.backupResetCardNotification, params: [.option: .reset])
         isMainButtonBusy = true
 
-        cardInteractor.resetCard { [weak self] result in
+        let interactor = CardInteractor(
+            tangemSdk: TangemSdkDefaultFactory().makeTangemSdk(),
+            cardId: cardId
+        )
+
+        resetCardInteractor = interactor
+
+        interactor.resetCard { [weak self] result in
             switch result {
             case .failure(let error):
                 if error.isUserCancelled {
