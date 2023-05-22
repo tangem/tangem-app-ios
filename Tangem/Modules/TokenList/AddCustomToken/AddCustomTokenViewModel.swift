@@ -220,7 +220,7 @@ class AddCustomTokenViewModel: ObservableObject {
     private func enteredTokenItem() throws -> TokenItem {
         let blockchain = try enteredBlockchain()
 
-        if contractAddress.isEmpty, name.isEmpty, symbol.isEmpty, decimals.isEmpty {
+        if !blockchain.canHandleTokens || (contractAddress.isEmpty && name.isEmpty && symbol.isEmpty && decimals.isEmpty) {
             return .blockchain(blockchain)
         } else {
             let enteredContractAddress = try self.enteredContractAddress(in: blockchain)
