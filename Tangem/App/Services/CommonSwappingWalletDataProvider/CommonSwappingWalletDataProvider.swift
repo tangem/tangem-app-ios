@@ -174,7 +174,7 @@ private extension CommonSwappingWalletDataProvider {
         if blockchain == .optimism {
             // According to unusual the Optimism's fee calculation
             // we have to use fee's calculation from BlockchainSDK
-            return try getFeeOptionsForOptimism(fees: fees)
+            return try getGasOptionsForOptimism(fees: fees)
         }
 
         guard let fee = fees.first,
@@ -188,7 +188,7 @@ private extension CommonSwappingWalletDataProvider {
         }
     }
 
-    func getFeeOptionsForOptimism(fees: [Fee]) throws -> [EthereumGasDataModel] {
+    func getGasOptionsForOptimism(fees: [Fee]) throws -> [EthereumGasDataModel] {
         guard let normalFee = fees.first,
               let priorityFee = fees.last,
               let normalParameters = normalFee.parameters as? EthereumFeeParameters,
