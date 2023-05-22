@@ -758,10 +758,8 @@ extension CardViewModel: UserWalletModel {
         }
     }
 
-    func updateAppearanceIfNeeded(_ appearance: CardAppearance) {
-        guard cardInfo.appearance != appearance else { return }
-
-        cardInfo.appearance = appearance
+    func updateWalletName(_ name: String) {
+        cardInfo.name = name
     }
 
     func updateWalletModels() {
