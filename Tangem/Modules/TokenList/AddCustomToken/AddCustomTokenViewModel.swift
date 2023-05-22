@@ -188,8 +188,7 @@ class AddCustomTokenViewModel: ObservableObject {
     private func updateDerivationPaths() {
         let defaultItem = (Localization.customTokenDerivationPathDefault, defaultDerivationItemID)
 
-        #warning("L10N")
-        let customItem = ("Custom", customDerivationItemID)
+        let customItem = (Localization.customTokenCustomDerivation, customDerivationItemID)
 
         let derivations: [(String, String)]
         if !cardModel.hdWalletsSupported {
@@ -507,8 +506,7 @@ private extension AddCustomTokenViewModel {
         var errorDescription: String? {
             switch self {
             case .invalidDerivationPath:
-                #warning("L10n")
-                return "The derivation path you've entered is not valid"
+                return Localization.customTokenInvalidDerivationPath
             }
         }
     }
