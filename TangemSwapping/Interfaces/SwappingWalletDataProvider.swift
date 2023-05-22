@@ -11,7 +11,7 @@ import Foundation
 public protocol SwappingWalletDataProvider {
     func getWalletAddress(currency: Currency) -> String?
 
-    func getFeeOptions(
+    func getGasOptions(
         blockchain: SwappingBlockchain,
         value: Decimal,
         data: Data,
