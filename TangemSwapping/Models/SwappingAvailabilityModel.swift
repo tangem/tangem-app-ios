@@ -15,7 +15,7 @@ public struct SwappingAvailabilityModel {
     public let transactionData: SwappingTransactionData
     public let gasOptions: [EthereumGasDataModel]
 
-    public var amount: Decimal {
+    public var destinationAmount: Decimal {
         transactionData.destinationCurrency.convertFromWEI(
             value: transactionData.destinationAmount
         )
