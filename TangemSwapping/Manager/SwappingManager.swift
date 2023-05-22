@@ -13,11 +13,13 @@ public protocol SwappingManager {
     func getSwappingItems() -> SwappingItems
     func getReferrerAccount() -> SwappingReferrerAccount?
     func getSwappingApprovePolicy() -> SwappingApprovePolicy
+    func getSwappingGasPricePolicy() -> SwappingGasPricePolicy
     func isEnoughAllowance() -> Bool
 
     func update(swappingItems: SwappingItems)
     func update(amount: Decimal?)
     func update(approvePolicy: SwappingApprovePolicy)
+    func update(gasPricePolicy: SwappingGasPricePolicy)
 
     @discardableResult
     func refreshBalances() async -> SwappingItems
