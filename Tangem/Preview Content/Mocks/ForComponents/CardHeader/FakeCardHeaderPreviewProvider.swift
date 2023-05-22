@@ -52,7 +52,7 @@ final class FakeCardHeaderPreviewProvider: ObservableObject {
                 }
             }
         ),
-        
+
         CardInfoProvider(
             cardName: "Plain Old Wallet",
             numberOfCards: 2,
