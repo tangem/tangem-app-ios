@@ -42,12 +42,17 @@ extension CardInteractor: CardPreparable {
         let initialMessage = Message(header: nil, body: Localization.initialMessageCreateWalletBody)
         runnableBag = task
 
+        let didBecomeActivePublisher = NotificationCenter.didBecomeActivePublisher
+            .mapError { $0.toTangemSdkError() }
+            .mapVoid()
+            .first()
+
         cancellable = tangemSdk.startSessionPublisher(
             with: task,
             cardId: cardInfo.card.cardId,
             initialMessage: initialMessage
         )
-        .combineLatest(NotificationCenter.didBecomeActivePublisher.mapError { $0.toTangemSdkError() }.mapVoid())
+        .combineLatest(didBecomeActivePublisher)
         .map { [cardInfo] response, _ -> CardInfo in
             var mutableCardInfo = cardInfo
             mutableCardInfo.card = CardDTO(card: response.card)
@@ -55,15 +60,20 @@ extension CardInteractor: CardPreparable {
             return mutableCardInfo
         }
         .sink(receiveCompletion: { [weak self] completionResult in
-            if case .failure(let error) = completionResult {
+            self?.runnableBag = nil
+            self?.cancellable = nil
+
+            switch completionResult {
+            case .finished:
+                // empty cardInfo is an impossible case
+                if let cardInfo = self?.cardInfo {
+                    completion(.success(cardInfo))
+                }
+            case .failure(let error):
                 completion(.failure(error))
             }
-
-            self?.cancellable = nil
-            self?.runnableBag = nil
         }, receiveValue: { [weak self] newCardInfo in
             self?.cardInfo = newCardInfo
-            completion(.success(newCardInfo))
         })
     }
 }
