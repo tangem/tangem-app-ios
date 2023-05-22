@@ -207,11 +207,7 @@ class CommonUserWalletRepository: UserWalletRepository {
     func didScan(card: CardDTO, walletData: DefaultWalletData) {
         let cardId = card.cardId
 
-        let cardInfo = CardInfo(
-            card: card,
-            appearance: .init(name: ""),
-            walletData: walletData
-        )
+        let cardInfo = CardInfo(card: card, walletData: walletData, name: "")
 
         guard
             let userWalletId = UserWalletIdFactory().userWalletId(from: cardInfo)?.value,

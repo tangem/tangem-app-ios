@@ -25,11 +25,7 @@ enum PreviewCard {
 
     var cardModel: CardViewModel {
         let card = CardDTO(card: card)
-        let ci = CardInfo(
-            card: card,
-            appearance: .init(name: "Name"),
-            walletData: walletData
-        )
+        let ci = CardInfo(card: card, walletData: walletData, name: "Name")
         let vm = CardViewModel(cardInfo: ci)!
         if let blockchain = blockchain {
             let factory = WalletManagerFactory(
