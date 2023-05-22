@@ -91,7 +91,7 @@ class CardViewModel: Identifiable, ObservableObject {
     }
 
     var name: String {
-        cardInfo.appearance.name
+        cardInfo.name
     }
 
     var defaultName: String {
