@@ -36,8 +36,7 @@ struct AddCustomTokenView: View {
                             .cornerRadius(viewModel.showCustomDerivationPath ? 0 : 10, corners: [.bottomLeft, .bottomRight])
 
                         if viewModel.showCustomDerivationPath {
-                            #warning("l10n")
-                            TextInputWithTitle(title: "Custom derivation", placeholder: "m/44'/0'/0'/0/0", text: $viewModel.customDerivationPath, keyboardType: .default, isEnabled: true, isLoading: false)
+                            TextInputWithTitle(title: Localization.customTokenCustomDerivation, placeholder: "m/44'/0'/0'/0/0", text: $viewModel.customDerivationPath, keyboardType: .default, isEnabled: true, isLoading: false)
                                 .cornerRadius(10, corners: [.bottomLeft, .bottomRight])
                         }
                     }
