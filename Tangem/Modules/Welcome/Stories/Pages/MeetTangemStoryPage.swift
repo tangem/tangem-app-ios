@@ -27,7 +27,7 @@ struct MeetTangemStoryPage: View {
         Localization.storyMeetLend,
         Localization.storyMeetLend,
         // Duplicate the last word to make it last longer
-//        Localization.storyMeetStake, // no stake for now
+        // Localization.commonStake, // no stake for now
         "",
     ]
 
