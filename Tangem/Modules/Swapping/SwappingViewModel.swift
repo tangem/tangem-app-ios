@@ -38,7 +38,7 @@ final class SwappingViewModel: ObservableObject {
             viewModels.append(.warning(feeWarningRowViewModel))
         }
 
-        if isDisclaimerOpened {
+        if isShowingDisclaimer {
             feeOptionsViewModels.forEach {
                 viewModels.append(.feePolicy($0))
             }
@@ -55,7 +55,7 @@ final class SwappingViewModel: ObservableObject {
     @Published private var feeWarningRowViewModel: DefaultWarningRowViewModel?
     @Published private var feeOptionsViewModels: [SelectableSwappingFeeRowViewModel] = []
     @Published private var feeInfoRowViewModel: DefaultWarningRowViewModel?
-    @Published private var isDisclaimerOpened: Bool = false
+    @Published private var isShowingDisclaimer: Bool = false
 
     // MARK: - Dependencies
 
@@ -201,7 +201,7 @@ private extension SwappingViewModel {
 
     func openSuccessView(transactionData: SwappingTransactionData, transactionID: String) {
         let sourceAmount = transactionData.sourceCurrency.convertFromWEI(value: transactionData.sourceAmount)
-        let resultAmount = transactionData.destinationCurrency.convertFromWEI(value: transactionData.destinationAmount)
+        let destinationAmount = transactionData.destinationCurrency.convertFromWEI(value: transactionData.destinationAmount)
 
         let source = CurrencyAmount(
             value: sourceAmount,
@@ -209,7 +209,7 @@ private extension SwappingViewModel {
         )
 
         let result = CurrencyAmount(
-            value: resultAmount,
+            value: destinationAmount,
             currency: transactionData.destinationCurrency
         )
 
@@ -316,9 +316,9 @@ private extension SwappingViewModel {
             fiatAmountState = .loading
             updateReceiveCurrencyValue(value: result.expectedAmount)
         case .available(let model):
-            cryptoAmountState = .loaded(model.amount)
+            cryptoAmountState = .loaded(model.destinationAmount)
             fiatAmountState = .loading
-            updateReceiveCurrencyValue(value: model.amount)
+            updateReceiveCurrencyValue(value: model.destinationAmount)
         }
 
         receiveCurrencyViewModel = ReceiveCurrencyViewModel(
@@ -366,7 +366,7 @@ private extension SwappingViewModel {
             swapButtonIsLoading = false
 
             restartTimer()
-            updateReceiveCurrencyValue(value: model.amount)
+            updateReceiveCurrencyValue(value: model.destinationAmount)
             updateRequiredPermission(isPermissionRequired: model.isPermissionRequired)
             updateEnoughAmountForFee(isEnoughAmountForFee: model.isEnoughAmountForFee)
 
@@ -545,11 +545,11 @@ private extension SwappingViewModel {
         updateView(swappingItems: swappingInteractor.getSwappingItems())
         swappingFeeRowViewModel = SwappingFeeRowViewModel(
             state: .idle,
-            isDisclaimerOpened: .init(
-                get: { [weak self] in self?.isDisclaimerOpened ?? false },
+            isShowingDisclaimer: .init(
+                get: { [weak self] in self?.isShowingDisclaimer ?? false },
                 set: { [weak self] isOpen in
                     UIApplication.shared.endEditing()
-                    self?.isDisclaimerOpened = isOpen
+                    self?.isShowingDisclaimer = isOpen
                 }
             )
         )
@@ -602,7 +602,7 @@ private extension SwappingViewModel {
 
     func updateFeeOptionsViewModels(data: SwappingTransactionData, options: [EthereumGasDataModel]) {
         feeOptionsViewModels = options.map { gasModel in
-            let subtitle = try? swappingFeeFormatter.syncFormat(
+            let subtitle = try? swappingFeeFormatter.format(
                 fee: gasModel.fee,
                 blockchain: gasModel.blockchain
             )
