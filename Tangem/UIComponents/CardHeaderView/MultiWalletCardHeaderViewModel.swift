@@ -7,15 +7,7 @@
 //
 
 import Foundation
-import SwiftUI
 import Combine
-
-protocol MultiWalletCardHeaderInfoProvider: AnyObject {
-    var cardNamePublisher: AnyPublisher<String, Never> { get }
-    var numberOfCardsPublisher: AnyPublisher<Int, Never> { get }
-    var isWalletImported: Bool { get }
-    var cardImage: ImageType? { get }
-}
 
 final class MultiWalletCardHeaderViewModel: ObservableObject {
     let isWalletImported: Bool
