@@ -320,7 +320,11 @@ class CardViewModel: Identifiable, ObservableObject {
         self.cardInfo = cardInfo
         self.config = config
         userWalletId = UserWalletId(with: userWalletIdSeed)
-        userTokenListManager = CommonUserTokenListManager(config: config, userWalletId: userWalletId.value)
+        userTokenListManager = CommonUserTokenListManager(
+            hasTokenSynchronization: config.hasFeature(.tokenSynchronization),
+            userWalletId: userWalletId.value
+        )
+
         walletListManager = CommonWalletListManager(
             config: config,
             userTokenListManager: userTokenListManager
@@ -498,6 +502,7 @@ class CardViewModel: Identifiable, ObservableObject {
     private func onUpdate() {
         AppLog.shared.debug("🔄 Updating CardViewModel with new Card")
         config = UserWalletConfigFactory(cardInfo).makeConfig()
+        walletListManager.update(config: config)
         _signer = config.tangemSigner
         updateModel()
         userWalletRepository.save(userWallet)
