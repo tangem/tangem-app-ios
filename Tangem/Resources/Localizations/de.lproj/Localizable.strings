@@ -83,6 +83,7 @@
 "common_retry" = "Retry";
 "common_save_changes" = "Änderungen speichern";
 "common_search" = "Search";
+"common_seed_phrase" = "Seed phrase";
 "common_select_action" = "Select action";
 "common_sell" = "Sell";
 "common_send" = "Absenden";
