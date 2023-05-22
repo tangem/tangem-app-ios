@@ -133,7 +133,7 @@ final class UserWalletListViewModel: ObservableObject, Identifiable {
         Analytics.log(.buttonEditWalletTapped)
 
         let alert = UIAlertController(title: Localization.userWalletListRenamePopupTitle, message: nil, preferredStyle: .alert)
-        let cancelAction = UIAlertAction(title: Localization.commonCancel, style: .cancel) { _ in }
+        let cancelAction = UIAlertAction(title: Localization.commonCancel, style: .cancel)
         alert.addAction(cancelAction)
 
         var nameTextField: UITextField?
