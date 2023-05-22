@@ -22,21 +22,25 @@ struct CommonSwappingFeeFormatter {
 extension CommonSwappingFeeFormatter: SwappingFeeFormatter {
     func format(fee: Decimal, blockchain: SwappingBlockchain) async throws -> String {
         let fiatFee = try await fiatRatesProvider.getFiat(for: blockchain, amount: fee)
-
-        let feeFormatted = fee.groupedFormatted()
-        let fiatFeeFormatted = await fiatFee.currencyFormatted(code: AppSettings.shared.selectedCurrencyCode)
-
-        return "\(feeFormatted) \(blockchain.symbol) (\(fiatFeeFormatted))"
+        return format(fee: fee, symbol: blockchain.symbol, fiatFee: fiatFee)
     }
 
-    func syncFormat(fee: Decimal, blockchain: SwappingBlockchain) throws -> String {
+    func format(fee: Decimal, blockchain: SwappingBlockchain) throws -> String {
         guard let fiatFee = fiatRatesProvider.getSyncFiat(for: blockchain, amount: fee) else {
             throw CommonError.noData
         }
 
+        return format(fee: fee, symbol: blockchain.symbol, fiatFee: fiatFee)
+    }
+}
+
+// MARK: - Private
+
+private extension CommonSwappingFeeFormatter {
+    func format(fee: Decimal, symbol: String, fiatFee: Decimal) -> String {
         let feeFormatted = fee.groupedFormatted()
         let fiatFeeFormatted = fiatFee.currencyFormatted(code: AppSettings.shared.selectedCurrencyCode)
 
-        return "\(feeFormatted) \(blockchain.symbol) (\(fiatFeeFormatted))"
+        return "\(feeFormatted) \(symbol) (\(fiatFeeFormatted))"
     }
 }
