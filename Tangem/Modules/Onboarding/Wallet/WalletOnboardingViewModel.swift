@@ -25,7 +25,6 @@ class WalletOnboardingViewModel: OnboardingTopupViewModel<WalletOnboardingStep, 
     private var cardIds: [String]?
     private var stepPublisher: AnyCancellable?
     private var claimed: Bool = false
-    private var resetCardInteractor: CardResettable?
 
     private var cardIdDisplayFormat: CardIdDisplayFormat {
         isSaltPayOnboarding ? .none : .lastMasked(4)
@@ -1039,14 +1038,12 @@ class WalletOnboardingViewModel: OnboardingTopupViewModel<WalletOnboardingStep, 
         Analytics.log(.backupResetCardNotification, params: [.option: .reset])
         isMainButtonBusy = true
 
-        let interactor = CardInteractor(
+        var interactor: CardResettable? = CardInteractor(
             tangemSdk: TangemSdkDefaultFactory().makeTangemSdk(),
             cardId: cardId
         )
 
-        resetCardInteractor = interactor
-
-        interactor.resetCard { [weak self] result in
+        interactor?.resetCard { [weak self] result in
             switch result {
             case .failure(let error):
                 if error.isUserCancelled {
@@ -1057,7 +1054,9 @@ class WalletOnboardingViewModel: OnboardingTopupViewModel<WalletOnboardingStep, 
             case .success:
                 break
             }
+
             self?.isMainButtonBusy = false
+            interactor = nil // for retaining
         }
     }
 }
