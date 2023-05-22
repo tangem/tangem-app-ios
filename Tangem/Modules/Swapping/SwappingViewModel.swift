@@ -609,7 +609,7 @@ private extension SwappingViewModel {
 
             return SelectableSwappingFeeRowViewModel(
                 title: gasModel.policy.title,
-                subtitle: subtitle ?? "No Data",
+                subtitle: subtitle ?? Localization.commonNoData,
                 isSelected: .init(
                     get: { data.gas.policy == gasModel.policy },
                     set: { [weak self] isSelected in
