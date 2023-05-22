@@ -12,11 +12,11 @@ import SwiftUI
 struct SwappingFeeRowViewModel: Identifiable, Hashable {
     var id: Int { hashValue }
     private(set) var state: State
-    let isDisclaimerOpened: BindingValue<Bool>
+    let isShowingDisclaimer: BindingValue<Bool>
 
-    init(state: State, isDisclaimerOpened: BindingValue<Bool>) {
+    init(state: State, isShowingDisclaimer: BindingValue<Bool>) {
         self.state = state
-        self.isDisclaimerOpened = isDisclaimerOpened
+        self.isShowingDisclaimer = isShowingDisclaimer
     }
 
     mutating func update(state: State) {

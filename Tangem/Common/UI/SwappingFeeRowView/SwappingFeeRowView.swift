@@ -29,7 +29,7 @@ struct SwappingFeeRowView: View {
         .background(Colors.Background.primary)
         .contentShape(Rectangle())
         .onTapGesture {
-            viewModel.isDisclaimerOpened.toggle()
+            viewModel.isShowingDisclaimer.toggle()
         }
     }
 
@@ -51,7 +51,7 @@ struct SwappingFeeRowView: View {
                 Assets.chevronDownMini.image
                     .renderingMode(.template)
                     .foregroundColor(Colors.Icon.informative)
-                    .rotationEffect(.degrees(viewModel.isDisclaimerOpened.value ? -180 : 0))
+                    .rotationEffect(.degrees(viewModel.isShowingDisclaimer.value ? -180 : 0))
             }
         case .policy(let title, let fiat):
             HStack(spacing: 4) {
@@ -66,7 +66,7 @@ struct SwappingFeeRowView: View {
                 Assets.chevronDownMini.image
                     .renderingMode(.template)
                     .foregroundColor(Colors.Icon.informative)
-                    .rotationEffect(.degrees(viewModel.isDisclaimerOpened.value ? -180 : 0))
+                    .rotationEffect(.degrees(viewModel.isShowingDisclaimer.value ? -180 : 0))
             }
         }
     }
@@ -74,7 +74,7 @@ struct SwappingFeeRowView: View {
 
 struct SwappingFeeRowView_Previews: PreviewProvider {
     struct ContentView: View {
-        @State private var isDisclaimerOpened: Bool = false
+        @State private var isShowingDisclaimer: Bool = false
 
         var body: some View {
             ZStack {
@@ -83,11 +83,11 @@ struct SwappingFeeRowView_Previews: PreviewProvider {
                 GroupedSection([
                     SwappingFeeRowViewModel(
                         state: .fee(fee: "0.0000000000155 MATIC ($0.14)"),
-                        isDisclaimerOpened: $isDisclaimerOpened.asBindingValue
+                        isShowingDisclaimer: $isShowingDisclaimer.asBindingValue
                     ),
                     SwappingFeeRowViewModel(
                         state: .loading,
-                        isDisclaimerOpened: $isDisclaimerOpened.asBindingValue
+                        isShowingDisclaimer: $isShowingDisclaimer.asBindingValue
                     ),
                 ]) {
                     SwappingFeeRowView(viewModel: $0)
