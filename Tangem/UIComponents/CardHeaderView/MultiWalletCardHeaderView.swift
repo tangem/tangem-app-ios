@@ -37,8 +37,8 @@ struct MultiWalletCardHeaderView: View {
                         .multilineTextAlignment(.leading)
                         .scaledToFit()
                         .minimumScaleFactor(0.5)
+                        .showSensitiveInformation(viewModel.showSensitiveInformation)
                         .skeletonable(isShown: viewModel.isLoadingBalance, size: .init(width: 102, height: 24), radius: 6)
-                        .showSensitiveInformation(true)
                         .style(Fonts.Bold.title1, color: Colors.Text.primary1)
                         .frame(width: balanceTextWidth(containerWidth: proxy.size.width), height: 34, alignment: .leading)
 
