@@ -26,7 +26,7 @@ class CardViewModel: Identifiable, ObservableObject {
     var signer: TangemSigner { _signer }
 
     var cardInteractor: CardInteractor {
-        .init(tangemSdk: config.makeTangemSdk(), cardInfo: cardInfo)
+        .init(tangemSdk: config.makeTangemSdk(), cardId: cardId)
     }
 
     var cardId: String { cardInfo.card.cardId }
@@ -479,7 +479,7 @@ class CardViewModel: Identifiable, ObservableObject {
 
     func onDerived(_ response: DerivationResult) {
         for updatedWallet in response {
-            for derivedKey in updatedWallet.value {
+            for derivedKey in updatedWallet.value.keys {
                 cardInfo.card.wallets[updatedWallet.key]?.derivedKeys[derivedKey.key] = derivedKey.value
             }
         }
