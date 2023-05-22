@@ -37,7 +37,7 @@ class UserWalletModelMock: UserWalletModel {
 
     func initialUpdate() {}
 
-    func updateAppearanceIfNeeded(_ appearance: CardAppearance) {}
+    func updateWalletName(_ name: String) {}
 
     func updateWalletModels() {}
 
