@@ -109,9 +109,11 @@
 "custom_token_creation_error_invalid_derivation_path" = "Путь деривации некорректен";
 "custom_token_creation_error_network_not_selected" = "Пожалуйста, выберите сеть";
 "custom_token_creation_error_wrong_decimals" = "Количество знаков после запятой должно быть корректным числом не больше %li";
+"custom_token_custom_derivation" = "Своя деривация";
 "custom_token_decimals_input_title" = "Знаков после запятой";
 "custom_token_derivation_path_default" = "По умолчанию";
 "custom_token_derivation_path_input_title" = "Деривация по BIP44";
+"custom_token_invalid_derivation_path" = "Введенный путь деривации некорректен";
 "custom_token_name_input_placeholder" = "Например, USD Coin";
 "custom_token_name_input_title" = "Название токена";
 "custom_token_network_input_not_selected" = "Не выбрано";
