@@ -28,7 +28,7 @@ protocol UserWalletModel: AnyObject {
 
     /// Update if the wallet model hasn't initial updates
     func initialUpdate()
-    func updateAppearanceIfNeeded(_ appearance: CardAppearance)
+    func updateWalletName(_ name: String)
     func updateWalletModels()
     func updateAndReloadWalletModels(silent: Bool, completion: @escaping () -> Void)
 }
