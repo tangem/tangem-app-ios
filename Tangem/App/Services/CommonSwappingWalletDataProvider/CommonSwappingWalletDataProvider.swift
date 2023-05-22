@@ -222,7 +222,7 @@ private extension CommonSwappingWalletDataProvider {
     ) -> EthereumGasDataModel {
         // Default increasing the gas limit. Just in case
         let gasLimit = Int(parameters.gasLimit) * 125 / 100
-        let gasPrice = policy.value(for: Int(parameters.gasPrice))
+        let gasPrice = policy.increased(value: Int(parameters.gasPrice))
 
         return EthereumGasDataModel(
             blockchain: blockchain,
