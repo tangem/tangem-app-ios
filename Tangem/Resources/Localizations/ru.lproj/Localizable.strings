@@ -75,6 +75,7 @@
 "common_import" = "Импортировать";
 "common_like" = "Нравится";
 "common_no" = "Нет";
+"common_no_data" = "Нет данных";
 "common_ok" = "Ок";
 "common_origin_card" = "Основная карта";
 "common_push" = "Ускорить";
