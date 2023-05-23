@@ -14,7 +14,7 @@ final class MultiWalletCardHeaderViewModel: ObservableObject {
     let cardImage: ImageType?
 
     @Published private(set) var cardName: String = ""
-    @Published private(set) var numberOfCardsText: String = ""
+    @Published private(set) var numberOfCards: String = ""
     @Published private(set) var balance: NSAttributedString = .init(string: "")
     @Published var isLoadingBalance: Bool = true
     @Published var showSensitiveInformation: Bool = true
@@ -47,7 +47,7 @@ final class MultiWalletCardHeaderViewModel: ObservableObject {
         cardInfoProvider.numberOfCardsPublisher
             .receive(on: DispatchQueue.main)
             .sink { [weak self] numberOfCards in
-                self?.numberOfCardsText = Localization.cardLabelCardCount(numberOfCards)
+                self?.numberOfCards = Localization.cardLabelCardCount(numberOfCards)
             }
             .store(in: &bag)
 
@@ -59,9 +59,10 @@ final class MultiWalletCardHeaderViewModel: ObservableObject {
                     self?.isLoadingBalance = true
                 case .loaded(let balance):
                     self?.isLoadingBalance = false
+                    
                     let balanceFormatter = BalanceFormatter()
-                    let fiatBalanceString = balanceFormatter.formatFiatBalance(balance.balance, formattingOptions: .defaultFiatFormattingOptions)
-                    self?.balance = balanceFormatter.formatTotalBalanceForMain(fiatBalance: fiatBalanceString, formattingOptions: .defaultOptions)
+                    let fiatBalanceFormatted = balanceFormatter.formatFiatBalance(balance.balance, formattingOptions: .defaultFiatFormattingOptions)
+                    self?.balance = balanceFormatter.formatTotalBalanceForMain(fiatBalance: fiatBalanceFormatted, formattingOptions: .defaultOptions)
                 }
             }
             .store(in: &bag)
