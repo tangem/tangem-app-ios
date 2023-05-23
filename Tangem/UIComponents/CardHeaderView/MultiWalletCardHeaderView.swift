@@ -29,7 +29,7 @@ struct MultiWalletCardHeaderView: View {
                         .skeletonable(isShown: viewModel.isLoadingBalance, size: .init(width: 102, height: 24), radius: 6)
                         .style(Fonts.Bold.title1, color: Colors.Text.primary1)
                         .frame(height: 34)
-                        
+
                     HStack(spacing: 6) {
                         Text(viewModel.numberOfCards)
 
@@ -60,14 +60,14 @@ struct MultiWalletCardHeaderView: View {
         .background(Colors.Background.primary)
         .cornerRadiusContinuous(14)
     }
-    
+
     private func leadingContentWidth(containerWidth: CGFloat) -> CGFloat {
         var trailingOffset: CGFloat = 0
-        
+
         if viewModel.isWithCardImage {
             trailingOffset = imageSize.width + horizontalSpacing
         }
-        
+
         return containerWidth - trailingOffset
     }
 }
