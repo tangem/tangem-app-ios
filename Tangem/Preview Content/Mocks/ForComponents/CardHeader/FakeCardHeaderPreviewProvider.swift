@@ -36,7 +36,7 @@ final class FakeCardHeaderPreviewProvider: ObservableObject {
         CardInfoProvider(
             cardName: "Wallet 2 Twins",
             numberOfCards: 2,
-            cardImage: Assets.Cards.wallet2Duo,
+            cardImage: Assets.Cards.wallet2Double,
             isWalletImported: true,
             tapAction: { provider in
                 provider.cardName = provider.cardName == "Wallet Hannah" ? "Wallet Jane" : "Wallet Hannah"
@@ -54,12 +54,12 @@ final class FakeCardHeaderPreviewProvider: ObservableObject {
         ),
 
         CardInfoProvider(
-            cardName: "Plain Old Wallet",
+            cardName: "Plain Old Wallet wallet wallet wallet wallet wallet wallet",
             numberOfCards: 2,
             cardImage: Assets.Cards.wallet,
             isWalletImported: true,
             tapAction: { provider in
-                provider.cardName = provider.cardName == "POW" ? "Plain Old Wallet" : "POW"
+                provider.cardName = provider.cardName == "POWwwwwwww" ? "Plain Old Wallet wallet wallet wallet wallet wallet wallet" : "POWwwwwwww"
                 switch provider.balance {
                 case .loading:
                     provider.balance = .loaded(TotalBalanceProvider.TotalBalance(
@@ -94,6 +94,25 @@ final class FakeCardHeaderPreviewProvider: ObservableObject {
 
         CardInfoProvider(
             cardName: "BTC bird",
+            numberOfCards: 1,
+            cardImage: nil,
+            isWalletImported: false,
+            tapAction: { provider in
+                switch provider.balance {
+                case .loading:
+                    provider.balance = .loaded(TotalBalanceProvider.TotalBalance(
+                        balance: 454.2114313,
+                        currencyCode: "USD",
+                        hasError: false
+                    ))
+                case .loaded:
+                    provider.balance = .loading
+                }
+            }
+        ),
+        
+        CardInfoProvider(
+            cardName: "BTC bird kookee kookee kookoo-kooroo-kookoo kookoo-kooroo-kookoo kookee kookee",
             numberOfCards: 1,
             cardImage: nil,
             isWalletImported: false,
