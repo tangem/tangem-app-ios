@@ -59,7 +59,7 @@ final class MultiWalletCardHeaderViewModel: ObservableObject {
                     self?.isLoadingBalance = true
                 case .loaded(let balance):
                     self?.isLoadingBalance = false
-                    
+
                     let balanceFormatter = BalanceFormatter()
                     let fiatBalanceFormatted = balanceFormatter.formatFiatBalance(balance.balance, formattingOptions: .defaultFiatFormattingOptions)
                     self?.balance = balanceFormatter.formatTotalBalanceForMain(fiatBalance: fiatBalanceFormatted, formattingOptions: .defaultOptions)
