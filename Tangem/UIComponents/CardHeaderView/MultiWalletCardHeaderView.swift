@@ -14,18 +14,6 @@ struct MultiWalletCardHeaderView: View {
     private let imageSize: CGSize = .init(width: 120, height: 106)
     private let horizontalSpacing: CGFloat = 6
 
-    private var balanceTextTrailingOffset: CGFloat {
-        if viewModel.isWithCardImage {
-            return imageSize.width + horizontalSpacing
-        }
-
-        return 0
-    }
-
-    private func balanceTextWidth(containerWidth: CGFloat) -> CGFloat {
-        containerWidth - balanceTextTrailingOffset
-    }
-
     var body: some View {
         GeometryReader { proxy in
             HStack(spacing: 0) {
@@ -40,10 +28,10 @@ struct MultiWalletCardHeaderView: View {
                         .showSensitiveInformation(viewModel.showSensitiveInformation)
                         .skeletonable(isShown: viewModel.isLoadingBalance, size: .init(width: 102, height: 24), radius: 6)
                         .style(Fonts.Bold.title1, color: Colors.Text.primary1)
-                        .frame(width: balanceTextWidth(containerWidth: proxy.size.width), height: 34, alignment: .leading)
-
+                        .frame(height: 34)
+                        
                     HStack(spacing: 6) {
-                        Text(viewModel.numberOfCardsText)
+                        Text(viewModel.numberOfCards)
 
                         if viewModel.isWalletImported {
                             Text("•")
@@ -54,6 +42,8 @@ struct MultiWalletCardHeaderView: View {
                     .style(Fonts.Regular.caption2, color: Colors.Text.disabled)
                     .fixedSize()
                 }
+                .lineLimit(1)
+                .frame(width: leadingContentWidth(containerWidth: proxy.size.width), alignment: .leading)
                 .padding(.vertical, 12)
 
                 if let cardImage = viewModel.cardImage {
@@ -69,6 +59,16 @@ struct MultiWalletCardHeaderView: View {
         .padding(.horizontal, 14)
         .background(Colors.Background.primary)
         .cornerRadiusContinuous(14)
+    }
+    
+    private func leadingContentWidth(containerWidth: CGFloat) -> CGFloat {
+        var trailingOffset: CGFloat = 0
+        
+        if viewModel.isWithCardImage {
+            trailingOffset = imageSize.width + horizontalSpacing
+        }
+        
+        return containerWidth - trailingOffset
     }
 }
 
