@@ -110,7 +110,7 @@ final class FakeCardHeaderPreviewProvider: ObservableObject {
                 }
             }
         ),
-        
+
         CardInfoProvider(
             cardName: "BTC bird kookee kookee kookoo-kooroo-kookoo kookoo-kooroo-kookoo kookee kookee",
             numberOfCards: 1,
@@ -120,7 +120,7 @@ final class FakeCardHeaderPreviewProvider: ObservableObject {
                 switch provider.balance {
                 case .loading:
                     provider.balance = .loaded(TotalBalanceProvider.TotalBalance(
-                        balance: 454.2114313,
+                        balance: 4567575476468896456534878754.2114313,
                         currencyCode: "USD",
                         hasError: false
                     ))
