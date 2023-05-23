@@ -9,46 +9,47 @@
 import SwiftUI
 
 extension Text {
-    init(_ astring: NSAttributedString) {
+    // Taken from https://swiftui-lab.com/attributed-strings-with-swiftui/
+    init(_ attributedString: NSAttributedString) {
         self.init("")
 
-        astring.enumerateAttributes(in: NSRange(location: 0, length: astring.length), options: []) { attrs, range, _ in
+        attributedString.enumerateAttributes(in: NSRange(location: 0, length: attributedString.length), options: []) { attributes, range, _ in
 
-            var t = Text(astring.attributedSubstring(from: range).string)
+            var text = Text(attributedString.attributedSubstring(from: range).string)
 
-            if let color = attrs[NSAttributedString.Key.foregroundColor] as? UIColor {
-                t = t.foregroundColor(Color(color))
+            if let color = attributes[NSAttributedString.Key.foregroundColor] as? UIColor {
+                text = text.foregroundColor(Color(color))
             }
 
-            if let font = attrs[NSAttributedString.Key.font] as? UIFont {
-                t = t.font(.init(font))
+            if let font = attributes[NSAttributedString.Key.font] as? UIFont {
+                text = text.font(.init(font))
             }
 
-            if let kern = attrs[NSAttributedString.Key.kern] as? CGFloat {
-                t = t.kerning(kern)
+            if let kern = attributes[NSAttributedString.Key.kern] as? CGFloat {
+                text = text.kerning(kern)
             }
 
-            if let striked = attrs[NSAttributedString.Key.strikethroughStyle] as? NSNumber, striked != 0 {
-                if let strikeColor = (attrs[NSAttributedString.Key.strikethroughColor] as? UIColor) {
-                    t = t.strikethrough(true, color: Color(strikeColor))
+            if let striked = attributes[NSAttributedString.Key.strikethroughStyle] as? NSNumber, striked != 0 {
+                if let strikeColor = (attributes[NSAttributedString.Key.strikethroughColor] as? UIColor) {
+                    text = text.strikethrough(true, color: Color(strikeColor))
                 } else {
-                    t = t.strikethrough(true)
+                    text = text.strikethrough(true)
                 }
             }
 
-            if let baseline = attrs[NSAttributedString.Key.baselineOffset] as? NSNumber {
-                t = t.baselineOffset(CGFloat(baseline.floatValue))
+            if let baseline = attributes[NSAttributedString.Key.baselineOffset] as? NSNumber {
+                text = text.baselineOffset(CGFloat(baseline.floatValue))
             }
 
-            if let underline = attrs[NSAttributedString.Key.underlineStyle] as? NSNumber, underline != 0 {
-                if let underlineColor = (attrs[NSAttributedString.Key.underlineColor] as? UIColor) {
-                    t = t.underline(true, color: Color(underlineColor))
+            if let underline = attributes[NSAttributedString.Key.underlineStyle] as? NSNumber, underline != 0 {
+                if let underlineColor = (attributes[NSAttributedString.Key.underlineColor] as? UIColor) {
+                    text = text.underline(true, color: Color(underlineColor))
                 } else {
-                    t = t.underline(true)
+                    text = text.underline(true)
                 }
             }
 
-            self = self + t
+            self = self + text
         }
     }
 }
