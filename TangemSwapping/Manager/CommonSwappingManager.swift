@@ -28,8 +28,11 @@ class CommonSwappingManager {
     private var pendingTransactions: [Currency: PendingTransactionState] = [:]
     private var bag: Set<AnyCancellable> = []
 
-    private var formattedAmount: String {
-        guard let amount else { return "" }
+    private var formattedAmount: String? {
+        guard let amount = amount else {
+            logger.debug("[Swap] Amount isn't set")
+            return nil
+        }
 
         return String(describing: swappingItems.source.convertToWEI(value: amount))
     }
@@ -236,7 +239,11 @@ private extension CommonSwappingManager {
     }
 
     func getSwappingQuoteDataModel() async throws -> SwappingQuoteDataModel {
-        try await swappingProvider.fetchQuote(
+        guard let formattedAmount = formattedAmount else {
+            throw SwappingManagerError.amountNotFound
+        }
+        
+        return try await swappingProvider.fetchQuote(
             items: swappingItems,
             amount: formattedAmount,
             referrer: referrer
@@ -253,6 +260,10 @@ private extension CommonSwappingManager {
     func getSwappingTxDataModel() async throws -> SwappingDataModel {
         guard let walletAddress else {
             throw SwappingManagerError.walletAddressNotFound
+        }
+        
+        guard let formattedAmount = formattedAmount else {
+            throw SwappingManagerError.amountNotFound
         }
 
         return try await swappingProvider.fetchSwappingData(
