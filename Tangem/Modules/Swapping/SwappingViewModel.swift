@@ -624,9 +624,10 @@ private extension SwappingViewModel {
 
     func bind() {
         $sendDecimalValue
-            .dropFirst()
             .removeDuplicates { $0?.value == $1?.value }
-            // If value == nil then continue chain also
+            // We skip the first nil value from the text field
+            .dropFirst()
+            // If value == nil then continue chain to reset states to idle
             .filter { $0?.isInternal ?? true }
             .handleEvents(receiveOutput: { [weak self] amount in
                 self?.swappingInteractor.cancelRefresh()
