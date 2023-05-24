@@ -1,5 +1,5 @@
 //
-//  CardView.swift
+//  LegacyCardView.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -8,7 +8,7 @@
 
 import SwiftUI
 
-struct CardView: View {
+struct LegacyCardView: View {
     var image: UIImage?
     var width: CGFloat
     var cardSetLabel: String?
@@ -51,6 +51,6 @@ struct CardView: View {
 
 struct CardView_Previews: PreviewProvider {
     static var previews: some View {
-        CardView(image: UIImage(named: "twin"), width: UIScreen.main.bounds.width, cardSetLabel: "1 of 3")
+        LegacyCardView(image: UIImage(named: "twin"), width: UIScreen.main.bounds.width, cardSetLabel: "1 of 3")
     }
 }
