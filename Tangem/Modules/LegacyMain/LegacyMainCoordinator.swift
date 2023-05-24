@@ -1,5 +1,5 @@
 //
-//  MainCoordinator.swift
+//  LegacyMainCoordinator.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -10,7 +10,7 @@ import Foundation
 import BlockchainSdk
 import Combine
 
-class MainCoordinator: CoordinatorObject {
+class LegacyMainCoordinator: CoordinatorObject {
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
 
     var dismissAction: Action
@@ -18,7 +18,7 @@ class MainCoordinator: CoordinatorObject {
 
     // MARK: - Main view model
 
-    @Published private(set) var mainViewModel: MainViewModel? = nil
+    @Published private(set) var mainViewModel: LegacyMainViewModel? = nil
 
     // MARK: - Child coordinators
 
@@ -74,10 +74,10 @@ class MainCoordinator: CoordinatorObject {
             .store(in: &bag)
     }
 
-    func start(with options: MainCoordinator.Options) {
+    func start(with options: LegacyMainCoordinator.Options) {
         Analytics.log(.walletOpened)
 
-        mainViewModel = MainViewModel(
+        mainViewModel = LegacyMainViewModel(
             cardModel: options.cardModel,
             cardImageProvider: CardImageProvider(supportsOnlineImage: options.cardModel.supportsOnlineImage),
             coordinator: self
@@ -85,7 +85,7 @@ class MainCoordinator: CoordinatorObject {
     }
 }
 
-extension MainCoordinator {
+extension LegacyMainCoordinator {
     struct Options {
         let cardModel: CardViewModel
 
@@ -95,7 +95,7 @@ extension MainCoordinator {
     }
 }
 
-extension MainCoordinator: MainRoutable {
+extension LegacyMainCoordinator: LegacyMainRoutable {
     func openOnboardingModal(with input: OnboardingInput) {
         let dismissAction: Action = { [weak self] in
             self?.modalOnboardingCoordinator = nil
@@ -281,7 +281,7 @@ extension MainCoordinator: MainRoutable {
     func openSwapping(input: CommonSwappingModulesFactory.InputModel) {}
 }
 
-extension MainCoordinator: UserWalletListCoordinatorOutput {
+extension LegacyMainCoordinator: UserWalletListCoordinatorOutput {
     func dismissAndOpenOnboarding(with input: OnboardingInput) {
         userWalletListCoordinator = nil
 
