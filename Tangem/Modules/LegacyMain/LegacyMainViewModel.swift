@@ -12,7 +12,7 @@ import Foundation
 import SwiftUI
 import TangemSdk
 
-class MainViewModel: ObservableObject {
+class LegacyMainViewModel: ObservableObject {
     // MARK: - Dependencies
 
     @Injected(\.exchangeService) private var exchangeService: ExchangeService
@@ -35,7 +35,7 @@ class MainViewModel: ObservableObject {
     @Published var exchangeButtonState: ExchangeButtonState = .single(option: .buy)
     @Published var exchangeActionSheet: ActionSheetBinder?
 
-    @Published var singleWalletContentViewModel: SingleWalletContentViewModel? {
+    @Published var singleWalletContentViewModel: LegacySingleWalletContentViewModel? {
         didSet {
             singleWalletContentViewModel?.objectWillChange
                 .receive(on: DispatchQueue.main)
@@ -48,7 +48,7 @@ class MainViewModel: ObservableObject {
         }
     }
 
-    @Published var multiWalletContentViewModel: MultiWalletContentViewModel? {
+    @Published var multiWalletContentViewModel: LegacyMultiWalletContentViewModel? {
         didSet {
             multiWalletContentViewModel?.objectWillChange
                 .receive(on: DispatchQueue.main)
@@ -96,7 +96,7 @@ class MainViewModel: ObservableObject {
 
     private lazy var testnetBuyCryptoService = TestnetBuyCryptoService()
 
-    private unowned let coordinator: MainRoutable
+    private unowned let coordinator: LegacyMainRoutable
 
     public var canSend: Bool {
         singleWalletContentViewModel?.canSend ?? false
@@ -175,7 +175,7 @@ class MainViewModel: ObservableObject {
     init(
         cardModel: CardViewModel,
         cardImageProvider: CardImageProviding,
-        coordinator: MainRoutable
+        coordinator: LegacyMainRoutable
     ) {
         self.cardModel = cardModel
         self.cardImageProvider = cardImageProvider
@@ -402,13 +402,13 @@ class MainViewModel: ObservableObject {
         loadImage()
 
         if cardModel.isMultiWallet {
-            multiWalletContentViewModel = MultiWalletContentViewModel(
+            multiWalletContentViewModel = LegacyMultiWalletContentViewModel(
                 cardModel: cardModel,
                 userTokenListManager: cardModel.userTokenListManager,
                 output: self
             )
         } else {
-            singleWalletContentViewModel = SingleWalletContentViewModel(
+            singleWalletContentViewModel = LegacySingleWalletContentViewModel(
                 cardModel: cardModel,
                 output: self
             )
@@ -445,7 +445,7 @@ class MainViewModel: ObservableObject {
     }
 }
 
-extension MainViewModel {
+extension LegacyMainViewModel {
     enum EmailFeedbackCase: Int, Identifiable {
         case negativeFeedback
         case scanTroubleshooting
@@ -463,7 +463,7 @@ extension MainViewModel {
 
 // MARK: - Navigation
 
-extension MainViewModel {
+extension LegacyMainViewModel {
     func openSettings() {
         coordinator.openSettings(cardModel: cardModel)
     }
@@ -557,7 +557,7 @@ extension MainViewModel {
 
 // MARK: - SingleWalletContentViewModelOutput
 
-extension MainViewModel: SingleWalletContentViewModelOutput {
+extension LegacyMainViewModel: LegacySingleWalletContentViewModelOutput {
     func openPushTx(for index: Int, walletModel: WalletModel) {
         let tx = walletModel.wallet.pendingOutgoingTransactions[index]
         coordinator.openPushTx(for: tx, blockchainNetwork: walletModel.blockchainNetwork, card: cardModel)
@@ -583,7 +583,7 @@ extension MainViewModel: SingleWalletContentViewModelOutput {
 
 // MARK: - MultiWalletContentViewModelOutput
 
-extension MainViewModel: MultiWalletContentViewModelOutput {
+extension LegacyMainViewModel: LegacyMultiWalletContentViewModelOutput {
     func openTokensList() {
         coordinator.openTokensList(with: cardModel)
     }
