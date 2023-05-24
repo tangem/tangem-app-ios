@@ -64,7 +64,7 @@ extension View {
 // MARK: - Environment values defaults
 
 private enum Defaults {
-    static var bodyViewVerticalOffset: CGFloat { 44 }
+    static var bodyViewVerticalOffset: CGFloat { 44.0 }
     static var fractionalWidthForPageSwitch: CGFloat { 0.3 }
     static var pageSwitchAnimation: Animation { .interactiveSpring(response: 0.30) }
 }
