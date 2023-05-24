@@ -51,6 +51,10 @@ class AddCustomTokenViewModel: ObservableObject {
         return blockchain?.canHandleTokens ?? false
     }
 
+    private var supportedBlockchains: Set<Blockchain> {
+        return cardModel.supportedBlockchains
+    }
+
     private var bag: Set<AnyCancellable> = []
     private var blockchainByName: [String: Blockchain] = [:]
     private var derivationPathByBlockchainName: [String: DerivationPath] = [:]
@@ -139,7 +143,7 @@ class AddCustomTokenViewModel: ObservableObject {
 
     func onAppear() {
         Analytics.log(.customTokenScreenOpened)
-        updateBlockchains(getBlockchains())
+        updateBlockchains(supportedBlockchains)
         updateDerivationPaths()
     }
 
@@ -180,10 +184,6 @@ class AddCustomTokenViewModel: ObservableObject {
         self.blockchainsPicker = .init(items: newBlockchains, selection: newBlockchainName, isEnabled: blockchains.count > 1)
     }
 
-    private func getBlockchains() -> Set<Blockchain> {
-        return cardModel.supportedBlockchains
-    }
-
     private func updateDerivationPaths() {
         let defaultItem = (Localization.customTokenDerivationPathDefault, defaultDerivationItemID)
 
@@ -193,7 +193,7 @@ class AddCustomTokenViewModel: ObservableObject {
         if !cardModel.hdWalletsSupported {
             derivations = []
         } else {
-            derivations = getBlockchains()
+            derivations = supportedBlockchains
                 .compactMap {
                     guard let derivationPath = $0.derivationPath() else {
                         return nil
@@ -342,7 +342,7 @@ class AddCustomTokenViewModel: ObservableObject {
                 .eraseToAnyPublisher()
         }
 
-        let networkIds = getBlockchains().map { $0.networkId }
+        let networkIds = supportedBlockchains.map { $0.networkId }
         let requestModel = CoinsListRequestModel(
             contractAddress: contractAddress,
             networkIds: networkIds
@@ -363,7 +363,7 @@ class AddCustomTokenViewModel: ObservableObject {
             partialResult.union(currencyModel.items.map { $0.blockchain })
         }
 
-        let blockchains = getBlockchains()
+        let blockchains = supportedBlockchains
         updateBlockchains(blockchains, newSelectedBlockchain: currencyModelBlockchains.first)
 
         self.foundStandardToken = currencyModels.first
