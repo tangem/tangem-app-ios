@@ -201,7 +201,7 @@ class AddCustomTokenViewModel: ObservableObject {
 
                     let derivationPathFormatted = derivationPath.rawPath
                     let blockchainName = $0.codingKey
-                    let description = "\($0.displayName)\n(\(derivationPathFormatted))"
+                    let description = "\($0.displayName) (\(derivationPathFormatted))"
                     return (description, blockchainName)
                 }
                 .sorted {
