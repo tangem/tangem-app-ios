@@ -12,6 +12,6 @@ public enum SwappingAvailabilityState {
     case idle
     case loading(_ type: SwappingManagerRefreshType)
     case preview(_ model: SwappingPreviewData)
-    case available(_ model: SwappingResultData, data: SwappingTransactionData)
+    case available(_ model: SwappingAvailabilityModel)
     case requiredRefresh(occurredError: Error)
 }
