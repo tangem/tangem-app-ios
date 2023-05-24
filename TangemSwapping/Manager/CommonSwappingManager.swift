@@ -242,7 +242,7 @@ private extension CommonSwappingManager {
         guard let formattedAmount = formattedAmount else {
             throw SwappingManagerError.amountNotFound
         }
-        
+
         return try await swappingProvider.fetchQuote(
             items: swappingItems,
             amount: formattedAmount,
@@ -261,7 +261,7 @@ private extension CommonSwappingManager {
         guard let walletAddress else {
             throw SwappingManagerError.walletAddressNotFound
         }
-        
+
         guard let formattedAmount = formattedAmount else {
             throw SwappingManagerError.amountNotFound
         }
