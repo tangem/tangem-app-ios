@@ -46,9 +46,9 @@ class ShopViewModel: ObservableObject {
     private var initialized = false
     private unowned let coordinator: ShopViewRoutable
 
-    init(preorderDate: Date?, coordinator: ShopViewRoutable) {
+    init(preorderDeliveryDate: Date?, coordinator: ShopViewRoutable) {
         self.coordinator = coordinator
-        preorderDeliveryDate = preorderDeliveryDate(from: preorderDate)
+        self.preorderDeliveryDate = self.preorderDeliveryDate(from: preorderDeliveryDate)
     }
 
     deinit {
