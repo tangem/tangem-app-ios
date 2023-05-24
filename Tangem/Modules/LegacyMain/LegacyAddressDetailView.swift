@@ -1,5 +1,5 @@
 //
-//  BalanceView.swift
+//  LegacyAddressDetailView.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -9,7 +9,7 @@
 import Foundation
 import SwiftUI
 
-struct AddressDetailView: View {
+struct LegacyAddressDetailView: View {
     @Binding var selectedAddressIndex: Int
 
     let walletModel: WalletModel
@@ -108,7 +108,7 @@ struct AddressDetailView_Previews: PreviewProvider {
     static var previews: some View {
         ZStack {
             Color.tangemBgGray
-            AddressDetailView(
+            LegacyAddressDetailView(
                 selectedAddressIndex: .constant(0),
                 walletModel: PreviewCard.v4.cardModel.walletModels.first!,
                 copyAddress: {},
