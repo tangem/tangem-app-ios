@@ -979,7 +979,7 @@ class WalletOnboardingViewModel: OnboardingTopupViewModel<WalletOnboardingStep, 
                         switch result {
                         case .success(let updatedCard):
                             if updatedCard.cardId == self.backupService.primaryCard?.cardId {
-                                self.input.cardInput.cardModel?.onBackupCreated(updatedCard)
+                                self.cardModel?.onBackupCreated(updatedCard)
                             }
                             promise(.success(()))
                         case .failure(let error):
