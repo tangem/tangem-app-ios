@@ -11,7 +11,7 @@ import TangemSdk
 
 struct OnboardingInput { // [REDACTED_TODO_COMMENT]
     let backupService: BackupService
-    let cardInteractor: (CardPreparable & CardResettable)?
+    let cardInitializer: CardInitializable?
     let steps: OnboardingSteps
     let cardInput: CardInput
     let twinData: TwinData?
