@@ -1,5 +1,5 @@
 //
-//  MainCoordinatorView.swift
+//  LegacyMainCoordinatorView.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -9,13 +9,13 @@
 import Foundation
 import SwiftUI
 
-struct MainCoordinatorView: CoordinatorView {
-    @ObservedObject var coordinator: MainCoordinator
+struct LegacyMainCoordinatorView: CoordinatorView {
+    @ObservedObject var coordinator: LegacyMainCoordinator
 
     var body: some View {
         ZStack {
             if let model = coordinator.mainViewModel {
-                MainView(viewModel: model)
+                LegacyMainView(viewModel: model)
                     .navigationLinks(links)
             }
 
