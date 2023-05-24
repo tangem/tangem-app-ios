@@ -176,8 +176,67 @@ private struct BodyAnimationModifier: Animatable, ViewModifier {
 // MARK: - Previews
 
 struct CardsInfoPagerView_Previews: PreviewProvider {
+    private struct CardsInfoPagerPreview: View {
+        @ObservedObject
+        var headerPreviewProvider: FakeCardHeaderPreviewProvider = .init()
+
+        @ObservedObject
+        var pagePreviewProvider: CardsInfoPagerPreviewProvider = .init()
+
+        @State
+        private var selectedIndex = 0
+
+        var body: some View {
+            ZStack {
+                Colors.Background.secondary
+                    .ignoresSafeArea()
+                CardsInfoPagerView(
+                    data: zip(headerPreviewProvider.models.indices, pagePreviewProvider.models.indices).map(\.0),
+                    selectedIndex: $selectedIndex,
+                    headerFactory: { index in
+                        MultiWalletCardHeaderView(viewModel: headerPreviewProvider.models[index])
+                            .padding(.horizontal)
+                            .cornerRadius(14)
+                            .debugBorder(color: .red)
+                    },
+                    bodyFactory: { index in
+                        DummyCardInfoPageView(viewModel: pagePreviewProvider.models[index])
+                            .debugBorder(color: .green)
+                    }
+                )
+            }
+        }
+    }
+
+    private struct DummyCardInfoPageView: View {
+        @ObservedObject
+        var viewModel: CardInfoPagePreviewViewModel
+
+        var body: some View {
+            List(viewModel.cellViewModels, id: \.title) { cellViewModel in
+                DummyCardInfoPageCellView(viewModel: cellViewModel)
+            }
+        }
+    }
+
+    private struct DummyCardInfoPageCellView: View {
+        @ObservedObject
+        var viewModel: CardInfoPageCellPreviewViewModel
+
+        var body: some View {
+            VStack {
+                Text(viewModel.title)
+                    .font(.caption)
+                    .fontWeight(.bold)
+                    .lineLimit(1)
+                    .allowsTightening(true)
+                Button("Press me!") { viewModel.tapCount += 1 }
+            }
+            .infinityFrame()
+        }
+    }
+
     static var previews: some View {
-        // [REDACTED_TODO_COMMENT]
-        EmptyView()
+        CardsInfoPagerPreview()
     }
 }
