@@ -160,7 +160,7 @@ struct ShopView: View {
     @ViewBuilder
     private var buyButtons: some View {
         if viewModel.canUseApplePay {
-            ApplePayButton {
+            ApplePayButton(type: viewModel.preorderDeliveryDate == nil ? .buy : .order) {
                 viewModel.openApplePayCheckout()
             }
             .frame(height: 46)
