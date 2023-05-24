@@ -20,9 +20,7 @@ struct AddCustomTokenView: View {
 
                     if viewModel.canEnterTokenDetails {
                         TextInputWithTitle(title: Localization.customTokenContractAddressInputTitle, placeholder: "0x0000000000000000000000000000000000000000", text: $viewModel.contractAddress, keyboardType: .default, isEnabled: true, isLoading: viewModel.isLoading)
-                    }
 
-                    if viewModel.canEnterTokenDetails {
                         TextInputWithTitle(title: Localization.customTokenNameInputTitle, placeholder: Localization.customTokenNameInputPlaceholder, text: $viewModel.name, keyboardType: .default, isEnabled: viewModel.canEnterTokenDetails, isLoading: false)
 
                         TextInputWithTitle(title: Localization.customTokenTokenSymbolInputTitle, placeholder: Localization.customTokenTokenSymbolInputPlaceholder, text: $viewModel.symbol, keyboardType: .default, isEnabled: viewModel.canEnterTokenDetails, isLoading: false)
