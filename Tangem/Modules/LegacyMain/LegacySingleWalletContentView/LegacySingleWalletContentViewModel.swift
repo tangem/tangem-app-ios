@@ -11,14 +11,14 @@ import Foundation
 import class UIKit.UIPasteboard
 import BlockchainSdk
 
-protocol SingleWalletContentViewModelOutput: OpenCurrencySelectionDelegate {
+protocol LegacySingleWalletContentViewModelOutput: OpenCurrencySelectionDelegate {
     func openPushTx(for index: Int, walletModel: WalletModel)
     func openQR(shareAddress: String, address: String, qrNotice: String)
     func openBuyCrypto()
     func showExplorerURL(url: URL?, walletModel: WalletModel)
 }
 
-class SingleWalletContentViewModel: ObservableObject {
+class LegacySingleWalletContentViewModel: ObservableObject {
     @Injected(\.exchangeService) var exchangeService: ExchangeService
 
     @Published var selectedAddressIndex: Int = 0
@@ -26,16 +26,16 @@ class SingleWalletContentViewModel: ObservableObject {
     @Published var totalBalanceButtons = [ButtonWithIconInfo]()
     @Published var transactionHistoryState = TransactionsListView.State.loading
 
-    var pendingTransactionViews: [PendingTxView] {
+    var pendingTransactionViews: [LegacyPendingTxView] {
         guard let singleWalletModel else { return [] }
 
         let incTxViews = singleWalletModel.incomingPendingTransactions
-            .map { PendingTxView(pendingTx: $0) }
+            .map { LegacyPendingTxView(pendingTx: $0) }
 
         let outgTxViews = singleWalletModel.outgoingPendingTransactions
             .enumerated()
-            .map { index, pendingTx -> PendingTxView in
-                PendingTxView(pendingTx: pendingTx) { [weak self] in
+            .map { index, pendingTx -> LegacyPendingTxView in
+                LegacyPendingTxView(pendingTx: pendingTx) { [weak self] in
                     if let singleWalletModel = self?.singleWalletModel {
                         self?.output.openPushTx(for: index, walletModel: singleWalletModel)
                     }
@@ -68,7 +68,7 @@ class SingleWalletContentViewModel: ObservableObject {
     )
 
     private let cardModel: CardViewModel
-    private unowned let output: SingleWalletContentViewModelOutput
+    private unowned let output: LegacySingleWalletContentViewModelOutput
     private var bag = Set<AnyCancellable>()
     private var transactionHistoryLoaderSubscription: AnyCancellable?
 
@@ -76,7 +76,7 @@ class SingleWalletContentViewModel: ObservableObject {
 
     init(
         cardModel: CardViewModel,
-        output: SingleWalletContentViewModelOutput
+        output: LegacySingleWalletContentViewModelOutput
     ) {
         self.cardModel = cardModel
         self.output = output
