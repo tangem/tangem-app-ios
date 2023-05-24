@@ -50,7 +50,7 @@ struct LegacyTokensView: View {
     }
 }
 
-struct TokensView_Previews: PreviewProvider {
+struct LegacyTokensView_Previews: PreviewProvider {
     static var previews: some View {
         ZStack {
             Color.tangemBgGray
