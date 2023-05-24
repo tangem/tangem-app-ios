@@ -2128,7 +2128,6 @@
 				5DFCCB6324C371AC0014A293 /* Common */,
 				B0958BA529F6B698007CD76D /* UIComponents */,
 				B0CC817C25CD626A006D49B9 /* Resources */,
-				DAB591402A00CD0700984294 /* UIComponents_ReviewsAreTooSlow */,
 				EF2EFDE02865BFE800798051 /* Configurations */,
 				5D3F77C524BF56D800E8695B /* AppDelegate.swift */,
 				B046EE172578D38E00EA38A5 /* SceneDelegate.swift */,
@@ -2900,14 +2899,18 @@
 		B0958BA529F6B698007CD76D /* UIComponents */ = {
 			isa = PBXGroup;
 			children = (
-				B0120A942A0E0FAB00F485F1 /* Extensions */,
-				B09310592A0BC03100F6043A /* CardHeaderView */,
-				2DDF91922A14DA2700B31113 /* TokenItemMenuActions */,
-				2DDF91872A113B1A00B31113 /* TogglableGroupButtonWithIcon */,
+				2D535E6D2A0CB4D20081EB76 /* BottonSheetInfoView */,
 				B05A13AF29FBF16300FB511A /* ButtonWithIcon */,
+				B09310592A0BC03100F6043A /* CardHeaderView */,
 				B0B335CE29FA7FC100E2082E /* Common */,
+				B0120A942A0E0FAB00F485F1 /* Extensions */,
+				2D535E6A2A0CB4D20081EB76 /* NotificationView */,
+				DA8BBF952A0248E300B085DC /* SensitiveInformation */,
+				2DDF91872A113B1A00B31113 /* TogglableGroupButtonWithIcon */,
 				B003BDA82A0291A200B282F7 /* TokenIcon */,
+				2DDF91922A14DA2700B31113 /* TokenItemMenuActions */,
 				B0958BA229F6A789007CD76D /* TokenItemView */,
+				B05A859329937D2400E87C6E /* TransactionHistory */,
 			);
 			path = UIComponents;
 			sourceTree = "<group>";
@@ -3381,17 +3384,6 @@
 				DAA5E30A28D2137C003C0E80 /* UserWalletEncryptionKeyStorage.swift */,
 			);
 			path = UserWalletList;
-			sourceTree = "<group>";
-		};
-		DAB591402A00CD0700984294 /* UIComponents_ReviewsAreTooSlow */ = {
-			isa = PBXGroup;
-			children = (
-				2D535E6D2A0CB4D20081EB76 /* BottonSheetInfoView */,
-				2D535E6A2A0CB4D20081EB76 /* NotificationView */,
-				B05A859329937D2400E87C6E /* TransactionHistory */,
-				DA8BBF952A0248E300B085DC /* SensitiveInformation */,
-			);
-			path = UIComponents_ReviewsAreTooSlow;
 			sourceTree = "<group>";
 		};
 		DAB5E331297E8CBF00A4E9CF /* Rounding */ = {
