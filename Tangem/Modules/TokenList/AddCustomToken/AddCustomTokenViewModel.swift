@@ -218,7 +218,8 @@ class AddCustomTokenViewModel: ObservableObject {
     private func enteredTokenItem() throws -> TokenItem {
         let blockchain = try enteredBlockchain()
 
-        if !blockchain.canHandleTokens || (contractAddress.isEmpty && name.isEmpty && symbol.isEmpty && decimals.isEmpty) {
+        let missingTokenInformation = contractAddress.isEmpty && name.isEmpty && symbol.isEmpty && decimals.isEmpty
+        if !blockchain.canHandleTokens || missingTokenInformation {
             return .blockchain(blockchain)
         } else {
             let enteredContractAddress = try self.enteredContractAddress(in: blockchain)
