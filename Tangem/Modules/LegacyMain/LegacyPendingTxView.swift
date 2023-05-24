@@ -1,5 +1,5 @@
 //
-//  PendingTxView.swift
+//  LegacyPendingTxView.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -9,7 +9,7 @@
 import Foundation
 import SwiftUI
 
-struct PendingTxView: View, Identifiable {
+struct LegacyPendingTxView: View, Identifiable {
     var id: Int { pendingTx.id }
     let pendingTx: TransactionRecord
     var pushAction: (() -> Void)?
@@ -83,9 +83,9 @@ struct PendingTxView_Previews: PreviewProvider {
         ZStack {
             Color.tangemBgGray
             VStack {
-                PendingTxView(pendingTx: TransactionRecord(amountType: .coin, destination: "0x2314719083467891237649123675478612354", timeFormatted: "05:06", transferAmount: "0.00000002 BTC", canBePushed: false, direction: .incoming, status: .inProgress))
-                PendingTxView(pendingTx: TransactionRecord(amountType: .coin, destination: "0x2314719083467891237649123675478612354", timeFormatted: "05:06", transferAmount: "0.00000002 BTC", canBePushed: false, direction: .outgoing, status: .inProgress))
-                PendingTxView(pendingTx: TransactionRecord(amountType: .coin, destination: "0x2314719083467891237649123675478612354", timeFormatted: "05:06", transferAmount: "0.2 BTC", canBePushed: true, direction: .outgoing, status: .inProgress))
+                LegacyPendingTxView(pendingTx: TransactionRecord(amountType: .coin, destination: "0x2314719083467891237649123675478612354", timeFormatted: "05:06", transferAmount: "0.00000002 BTC", canBePushed: false, direction: .incoming, status: .inProgress))
+                LegacyPendingTxView(pendingTx: TransactionRecord(amountType: .coin, destination: "0x2314719083467891237649123675478612354", timeFormatted: "05:06", transferAmount: "0.00000002 BTC", canBePushed: false, direction: .outgoing, status: .inProgress))
+                LegacyPendingTxView(pendingTx: TransactionRecord(amountType: .coin, destination: "0x2314719083467891237649123675478612354", timeFormatted: "05:06", transferAmount: "0.2 BTC", canBePushed: true, direction: .outgoing, status: .inProgress))
             }
             .padding(.horizontal, 16)
         }
