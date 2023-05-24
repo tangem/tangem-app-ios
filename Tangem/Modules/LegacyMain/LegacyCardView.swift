@@ -49,7 +49,7 @@ struct LegacyCardView: View {
     }
 }
 
-struct CardView_Previews: PreviewProvider {
+struct LegacyCardView_Previews: PreviewProvider {
     static var previews: some View {
         LegacyCardView(image: UIImage(named: "twin"), width: UIScreen.main.bounds.width, cardSetLabel: "1 of 3")
     }
