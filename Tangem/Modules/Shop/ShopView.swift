@@ -98,17 +98,6 @@ struct ShopView: View {
     private var purchaseForm: some View {
         VStack(spacing: 0) {
             HStack {
-                Assets.Shop.box.image
-                Text(Localization.shopShipping)
-                Spacer()
-                Text(Localization.shopFree)
-            }
-            .padding(.horizontal)
-            .padding(.vertical, sectionRowVerticalPadding)
-
-            Separator(height: 0.5, padding: 0)
-
-            HStack {
                 Assets.Shop.ticket.image
                 TextField(Localization.shopIHaveAPromoCode, text: $viewModel.discountCode) { editing in
                     if !editing {
