@@ -203,6 +203,8 @@ struct CardsInfoPagerView_Previews: PreviewProvider {
                     }
                 )
             }
+            .fractionalWidthForPageSwitch(0.45)
+            .bodyViewVerticalOffset(64.0)
         }
     }
 
