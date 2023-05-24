@@ -81,7 +81,7 @@ struct CardsInfoPagerView<
             .animation(pageSwitchAnimation, value: horizontalTranslation)
             .gesture(makeDragGesture(with: proxy))
         }
-        .edgesIgnoringSafeArea(.bottom) // Prevents weird jumps in long lists
+        .edgesIgnoringSafeArea(.bottom)
     }
 
     private func makeDragGesture(with proxy: GeometryProxy) -> some Gesture {
