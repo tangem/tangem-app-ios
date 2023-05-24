@@ -30,11 +30,6 @@ struct Clamp<T> where T: Comparable {
     }
 }
 
-@_specialize(where T == Int)
-@_specialize(where T == Float)
-@_specialize(where T == Double)
-@_specialize(where T == CGFloat)
-@inline(__always)
 func clamp<T>(_ value: T, min minValue: T, max maxValue: T) -> T where T: Comparable {
     return min(max(value, minValue), maxValue)
 }
