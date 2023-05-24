@@ -12,13 +12,13 @@ import BlockchainSdk
 struct TokenDetailsView: View {
     @ObservedObject var viewModel: TokenDetailsViewModel
 
-    var pendingTransactionViews: [PendingTxView] {
+    var pendingTransactionViews: [LegacyPendingTxView] {
         let incTx = viewModel.incomingTransactions.map {
-            PendingTxView(pendingTx: $0)
+            LegacyPendingTxView(pendingTx: $0)
         }
 
         let outgTx = viewModel.outgoingTransactions.enumerated().map { index, pendingTx in
-            PendingTxView(pendingTx: pendingTx) {
+            LegacyPendingTxView(pendingTx: pendingTx) {
                 viewModel.openPushTx(for: index)
             }
         }
