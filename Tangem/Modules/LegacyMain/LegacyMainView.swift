@@ -199,7 +199,7 @@ struct LegacyMainView: View {
     }
 }
 
-struct MainView_Previews: PreviewProvider {
+struct LegacyMainView_Previews: PreviewProvider {
     static var previews: some View {
         NavigationView {
             LegacyMainView(viewModel: .init(
