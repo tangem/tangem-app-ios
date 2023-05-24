@@ -46,9 +46,11 @@ class ShopViewModel: ObservableObject {
     private var initialized = false
     private unowned let coordinator: ShopViewRoutable
 
-    init(preorderDeliveryDate: Date?, coordinator: ShopViewRoutable) {
+    init(coordinator: ShopViewRoutable) {
         self.coordinator = coordinator
-        self.preorderDeliveryDate = self.preorderDeliveryDate(from: preorderDeliveryDate)
+
+        let lastPreorderDeliveryDate = DateComponents(calendar: Calendar(identifier: .gregorian), year: 2023, month: 6, day: 10).date!
+        preorderDeliveryDate = preorderDeliveryDate(from: lastPreorderDeliveryDate)
     }
 
     deinit {
@@ -274,21 +276,17 @@ class ShopViewModel: ObservableObject {
         }
     }
 
-    private func preorderDeliveryDate(from preorderDate: Date?) -> String? {
-        guard let preorderDate else {
-            return nil
-        }
-
+    private func preorderDeliveryDate(from lastPreorderDeliveryDate: Date) -> String? {
         let today = Date()
         let calendar = Calendar.current
-        let canPreorder = calendar.compare(today, to: preorderDate, toGranularity: .day) == .orderedAscending
+        let canPreorder = calendar.compare(today, to: lastPreorderDeliveryDate, toGranularity: .day) == .orderedAscending
         guard canPreorder else {
             return nil
         }
 
         let dateFormatter = DateFormatter()
         dateFormatter.dateFormat = "d MMMM"
-        return dateFormatter.string(from: preorderDate)
+        return dateFormatter.string(from: lastPreorderDeliveryDate)
     }
 }
 
