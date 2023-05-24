@@ -191,7 +191,7 @@ struct ShopView: View {
 
 struct ShopView_Previews: PreviewProvider {
     static var previews: some View {
-        ShopView(viewModel: .init(preorderDeliveryDate: nil, coordinator: ShopCoordinator()))
+        ShopView(viewModel: .init(coordinator: ShopCoordinator()))
             .previewGroup(devices: [.iPhone7, .iPhone12ProMax], withZoomed: false)
     }
 }
