@@ -48,14 +48,7 @@ class ShopViewModel: ObservableObject {
 
     init(preorderDate: Date?, coordinator: ShopViewRoutable) {
         self.coordinator = coordinator
-
-        if let preorderDate {
-            let dateFormatter = DateFormatter()
-            dateFormatter.dateFormat = "d MMMM"
-            preorderDeliveryDate = dateFormatter.string(from: preorderDate)
-        } else {
-            preorderDeliveryDate = nil
-        }
+        preorderDeliveryDate = preorderDeliveryDate(from: preorderDate)
     }
 
     deinit {
@@ -279,6 +272,23 @@ class ShopViewModel: ObservableObject {
         } else {
             totalAmountWithoutDiscount = nil
         }
+    }
+
+    private func preorderDeliveryDate(from preorderDate: Date?) -> String? {
+        guard let preorderDate else {
+            return nil
+        }
+
+        let today = Date()
+        let calendar = Calendar.current
+        let canPreorder = calendar.compare(today, to: preorderDate, toGranularity: .day) == .orderedAscending
+        guard canPreorder else {
+            return nil
+        }
+
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "d MMMM"
+        return dateFormatter.string(from: preorderDate)
     }
 }
 
