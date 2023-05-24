@@ -197,11 +197,9 @@ struct CardsInfoPagerView_Previews: PreviewProvider {
                         MultiWalletCardHeaderView(viewModel: headerPreviewProvider.models[index])
                             .padding(.horizontal)
                             .cornerRadius(14)
-                            .debugBorder(color: .red)
                     },
                     bodyFactory: { index in
                         DummyCardInfoPageView(viewModel: pagePreviewProvider.models[index])
-                            .debugBorder(color: .green)
                     }
                 )
             }
