@@ -27,7 +27,7 @@ struct CardsInfoPagerView<
     @GestureState
     private var horizontalTranslation: CGFloat = .zero
 
-    /// - Warning: Won't be resetted back to 0 after successful (non-cancelled) page flip, use with caution.
+    /// - Warning: Won't be reset back to 0 after successful (non-cancelled) page switch, use with caution.
     @State
     private var pageSwitchProgress: CGFloat = .zero
 
