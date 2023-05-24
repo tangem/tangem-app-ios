@@ -297,7 +297,7 @@ class AddCustomTokenViewModel: ObservableObject {
         return contractAddress
     }
 
-    private func enteredDerivationPath() throws -> DerivationPath? {
+    private func enteredDerivationPath() -> DerivationPath? {
         let derivationItemID = derivationsPicker.selection
 
         switch derivationItemID {
@@ -319,7 +319,7 @@ class AddCustomTokenViewModel: ObservableObject {
         let cardTokenItems = cardModel.userTokenListManager.getEntriesFromRepository()
 
         let checkingContractAddress = !contractAddress.isEmpty
-        let derivationPath = try? enteredDerivationPath()
+        let derivationPath = enteredDerivationPath()
 
         let blockchainNetwork = cardModel.getBlockchainNetwork(for: blockchain, derivationPath: derivationPath)
 
