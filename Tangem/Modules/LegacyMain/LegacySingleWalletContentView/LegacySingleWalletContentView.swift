@@ -8,10 +8,10 @@
 
 import SwiftUI
 
-struct SingleWalletContentView: View {
-    @ObservedObject private var viewModel: SingleWalletContentViewModel
+struct LegacySingleWalletContentView: View {
+    @ObservedObject private var viewModel: LegacySingleWalletContentViewModel
 
-    init(viewModel: SingleWalletContentViewModel) {
+    init(viewModel: LegacySingleWalletContentViewModel) {
         self.viewModel = viewModel
     }
 
@@ -24,7 +24,7 @@ struct SingleWalletContentView: View {
                 walletView
 
                 if let walletModel = viewModel.singleWalletModel {
-                    AddressDetailView(
+                    LegacyAddressDetailView(
                         selectedAddressIndex: $viewModel.selectedAddressIndex,
                         walletModel: walletModel,
                         copyAddress: viewModel.copyAddress,
