@@ -1,5 +1,5 @@
 //
-//  MultiWalletContentViewModel.swift
+//  LegacyMultiWalletContentViewModel.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -9,12 +9,12 @@
 import Combine
 import BlockchainSdk
 
-protocol MultiWalletContentViewModelOutput: OpenCurrencySelectionDelegate {
+protocol LegacyMultiWalletContentViewModelOutput: OpenCurrencySelectionDelegate {
     func openTokenDetails(_ tokenItem: LegacyTokenItemViewModel)
     func openTokensList()
 }
 
-class MultiWalletContentViewModel: ObservableObject {
+class LegacyMultiWalletContentViewModel: ObservableObject {
     // MARK: - ViewState
 
     @Published var contentState: LoadingValue<[LegacyTokenItemViewModel]> = .loading
@@ -28,7 +28,7 @@ class MultiWalletContentViewModel: ObservableObject {
 
     // MARK: Private
 
-    private unowned let output: MultiWalletContentViewModelOutput
+    private unowned let output: LegacyMultiWalletContentViewModelOutput
 
     private let cardModel: CardViewModel
     private let userTokenListManager: UserTokenListManager
@@ -37,7 +37,7 @@ class MultiWalletContentViewModel: ObservableObject {
     init(
         cardModel: CardViewModel,
         userTokenListManager: UserTokenListManager,
-        output: MultiWalletContentViewModelOutput
+        output: LegacyMultiWalletContentViewModelOutput
     ) {
         self.cardModel = cardModel
         self.userTokenListManager = userTokenListManager
@@ -71,7 +71,7 @@ class MultiWalletContentViewModel: ObservableObject {
 
 // MARK: - Private
 
-private extension MultiWalletContentViewModel {
+private extension LegacyMultiWalletContentViewModel {
     func bind() {
         /// Subscribe for update wallets for each changes in `WalletModel`
         cardModel.subscribeToWalletModels()

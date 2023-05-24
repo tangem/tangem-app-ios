@@ -1,5 +1,5 @@
 //
-//  MainView.swift
+//  LegacyMainView.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -13,15 +13,15 @@ import BlockchainSdk
 import Combine
 import MessageUI
 
-struct MainView: View {
-    @ObservedObject var viewModel: MainViewModel
+struct LegacyMainView: View {
+    @ObservedObject var viewModel: LegacyMainViewModel
 
     var body: some View {
         GeometryReader { geometry in
             ZStack {
                 RefreshableScrollView(onRefresh: { viewModel.onRefresh($0) }) {
                     VStack(spacing: 14) {
-                        CardView(
+                        LegacyCardView(
                             image: viewModel.image,
                             width: geometry.size.width - 32,
                             cardSetLabel: viewModel.cardsCountLabel
@@ -44,9 +44,9 @@ struct MainView: View {
                         }
 
                         if let viewModel = viewModel.multiWalletContentViewModel {
-                            MultiWalletContentView(viewModel: viewModel)
+                            LegacyMultiWalletContentView(viewModel: viewModel)
                         } else if let viewModel = viewModel.singleWalletContentViewModel {
-                            SingleWalletContentView(viewModel: viewModel)
+                            LegacySingleWalletContentView(viewModel: viewModel)
                         }
 
                         Color.clear.frame(width: 10, height: 58, alignment: .center)
@@ -199,13 +199,13 @@ struct MainView: View {
     }
 }
 
-struct MainView_Previews: PreviewProvider {
+struct LegacyMainView_Previews: PreviewProvider {
     static var previews: some View {
         NavigationView {
-            MainView(viewModel: .init(
+            LegacyMainView(viewModel: .init(
                 cardModel: PreviewCard.stellar.cardModel,
                 cardImageProvider: CardImageProvider(),
-                coordinator: MainCoordinator()
+                coordinator: LegacyMainCoordinator()
             ))
         }
         .previewGroup(devices: [.iPhone12ProMax])
