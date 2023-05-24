@@ -104,7 +104,7 @@ struct LegacyAddressDetailView: View {
     }
 }
 
-struct AddressDetailView_Previews: PreviewProvider {
+struct LegacyAddressDetailView_Previews: PreviewProvider {
     static var previews: some View {
         ZStack {
             Color.tangemBgGray
