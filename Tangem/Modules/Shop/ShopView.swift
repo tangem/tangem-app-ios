@@ -113,11 +113,9 @@ struct ShopView: View {
             }
             .padding(.horizontal)
             .padding(.vertical, sectionRowVerticalPadding)
-        }
-        .background(Color.white.cornerRadius(sectionCornerRadius))
-        .padding(.bottom, 8)
 
-        VStack {
+            Separator(height: 0.5, padding: 0)
+
             HStack {
                 Text(Localization.shopTotal)
 
@@ -144,6 +142,18 @@ struct ShopView: View {
         }
         .background(Color.white.cornerRadius(sectionCornerRadius))
         .padding(.bottom, 8)
+
+        if let preorderDeliveryDate = viewModel.preorderDeliveryDate {
+            VStack {
+                soldOutText(preorderDeliveryDate)
+                    .style(Fonts.Regular.subheadline, color: Colors.Text.tertiary)
+                    .fixedSize(horizontal: false, vertical: true)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding()
+            }
+            .background(Color.white.cornerRadius(sectionCornerRadius))
+            .padding(.bottom, 8)
+        }
     }
 
     @ViewBuilder
@@ -170,11 +180,18 @@ struct ShopView: View {
             .buttonStyle(TangemButtonStyle(colorStyle: .black, layout: .flexibleWidth))
         }
     }
+
+    private func soldOutText(_ preorderDeliveryDate: String) -> Text {
+        Text(Localization.shopSoldOutDescriptionPrefix) +
+            Text(" ") +
+            Text(preorderDeliveryDate).foregroundColor(Colors.Text.primary1) +
+            Text(Localization.shopSoldOutDescriptionSuffix)
+    }
 }
 
 struct ShopView_Previews: PreviewProvider {
     static var previews: some View {
-        ShopView(viewModel: .init(coordinator: ShopCoordinator()))
+        ShopView(viewModel: .init(preorderDate: nil, coordinator: ShopCoordinator()))
             .previewGroup(devices: [.iPhone7, .iPhone12ProMax], withZoomed: false)
     }
 }

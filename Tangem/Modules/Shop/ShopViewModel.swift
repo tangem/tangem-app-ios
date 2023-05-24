@@ -38,14 +38,24 @@ class ShopViewModel: ObservableObject {
 
     @Published var error: AlertBinder?
 
+    var preorderDeliveryDate: String?
+
     private var shopifyProductVariants: [ProductVariant] = []
     private var currentVariantID: GraphQL.ID = .init(rawValue: "")
     private var checkoutByVariantID: [GraphQL.ID: Checkout] = [:]
     private var initialized = false
     private unowned let coordinator: ShopViewRoutable
 
-    init(coordinator: ShopViewRoutable) {
+    init(preorderDate: Date?, coordinator: ShopViewRoutable) {
         self.coordinator = coordinator
+
+        if let preorderDate {
+            let dateFormatter = DateFormatter()
+            dateFormatter.dateFormat = "d MMMM"
+            preorderDeliveryDate = dateFormatter.string(from: preorderDate)
+        } else {
+            preorderDeliveryDate = nil
+        }
     }
 
     deinit {
