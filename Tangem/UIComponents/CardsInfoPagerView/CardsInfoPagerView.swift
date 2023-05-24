@@ -213,7 +213,7 @@ struct CardsInfoPagerView_Previews: PreviewProvider {
         var viewModel: CardInfoPagePreviewViewModel
 
         var body: some View {
-            List(viewModel.cellViewModels, id: \.title) { cellViewModel in
+            List(viewModel.cellViewModels, id: \.id) { cellViewModel in
                 DummyCardInfoPageCellView(viewModel: cellViewModel)
             }
         }
