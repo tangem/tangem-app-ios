@@ -175,7 +175,7 @@ struct ShopView: View {
             Button {
                 viewModel.openWebCheckout()
             } label: {
-                Text(Localization.shopBuyNow)
+                Text(viewModel.preorderDeliveryDate == nil ? Localization.shopBuyNow : Localization.shopPreOrderNow)
             }
             .buttonStyle(TangemButtonStyle(colorStyle: .black, layout: .flexibleWidth))
         }
