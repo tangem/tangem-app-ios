@@ -78,7 +78,7 @@ struct LegacyPendingTxView: View, Identifiable {
     }
 }
 
-struct PendingTxView_Previews: PreviewProvider {
+struct LegacyPendingTxView_Previews: PreviewProvider {
     static var previews: some View {
         ZStack {
             Color.tangemBgGray
