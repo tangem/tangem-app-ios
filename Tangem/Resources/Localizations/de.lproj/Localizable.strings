@@ -75,6 +75,7 @@
 "common_import" = "Import";
 "common_like" = "Like";
 "common_no" = "No";
+"common_no_data" = "No data";
 "common_ok" = "OK";
 "common_origin_card" = "Primary Card";
 "common_push" = "Push";
