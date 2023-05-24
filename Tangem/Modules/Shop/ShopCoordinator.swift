@@ -37,7 +37,8 @@ class ShopCoordinator: CoordinatorObject {
         if let webShopUrl = ShopWebHelper().webShopUrl {
             self.webShopUrl = webShopUrl
         } else {
-            shopViewModel = ShopViewModel(coordinator: self)
+            let preorderDate = DateComponents(calendar: Calendar(identifier: .gregorian), year: 2023, month: 6, day: 10).date!
+            shopViewModel = ShopViewModel(preorderDate: preorderDate, coordinator: self)
         }
     }
 }
