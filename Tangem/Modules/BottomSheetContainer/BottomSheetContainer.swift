@@ -210,7 +210,7 @@ struct BottomSheetContainer_Previews: PreviewProvider {
                 item = SwappingPermissionViewModel(
                     inputModel: SwappingPermissionInputModel(fiatFee: 1.45, transactionData: .mock),
                     transactionSender: TransactionSenderMock(),
-                    coordinator: SwappingCoordinator()
+                    coordinator: SwappingPermissionRoutableMock()
                 )
             } else {
                 item = nil
