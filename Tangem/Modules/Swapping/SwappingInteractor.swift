@@ -127,11 +127,13 @@ extension SwappingInteractor {
             case .priority: return .transactionFeeMax
             }
         }()
-
-        Analytics.log(
-            .transactionSent,
-            params: [.commonSource: .transactionSourceSwap, .feeType: feeType]
-        )
+        
+        Analytics.log(event: .transactionSent, params: [
+            .commonSource: Analytics.ParameterValue.transactionSourceSwap.rawValue,
+            .currencyCode: swappingTxData.sourceCurrency.symbol,
+            .blockchain: swappingTxData.sourceBlockchain.name,
+            .feeType: feeType.rawValue,
+        ])
     }
 }
 
