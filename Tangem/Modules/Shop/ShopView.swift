@@ -143,7 +143,7 @@ struct ShopView: View {
         .background(Color.white.cornerRadius(sectionCornerRadius))
         .padding(.bottom, 8)
 
-        if let preorderDeliveryDate = viewModel.preorderDeliveryDate {
+        if let preorderDeliveryDate = viewModel.preorderDeliveryDateFormatted {
             VStack {
                 soldOutText(preorderDeliveryDate)
                     .style(Fonts.Regular.subheadline, color: Colors.Text.tertiary)
