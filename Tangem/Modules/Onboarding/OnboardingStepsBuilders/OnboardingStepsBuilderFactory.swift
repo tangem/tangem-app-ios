@@ -40,7 +40,6 @@ extension UserWalletConfig where Self: SingleCardOnboardingStepsBuilderFactory {
     }
 }
 
-
 // MARK: - Note cards
 
 protocol NoteCardOnboardingStepsBuilderFactory: OnboardingStepsBuilderFactory, CardContainer {}
