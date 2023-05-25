@@ -362,8 +362,7 @@ class TokenDetailsViewModel: ObservableObject {
 
         Analytics.log(event: .buttonRemoveToken, params: [Analytics.ParameterKey.token: currencySymbol])
 
-        let item = CommonUserWalletModel.RemoveItem(amount: amountType, blockchainNetwork: walletModel.blockchainNetwork)
-        card.userWalletModel?.remove(item: item)
+        card.remove(amountType: amountType, blockchainNetwork: walletModel.blockchainNetwork)
         dismiss()
     }
 
@@ -502,7 +501,6 @@ extension TokenDetailsViewModel {
         }
 
         guard FeatureProvider.isAvailable(.exchange),
-              let userWalletModel = card.userWalletModel,
               let walletModel = walletModel,
               let source = sourceCurrency
         else {
@@ -516,7 +514,7 @@ extension TokenDetailsViewModel {
         }
 
         let input = CommonSwappingModulesFactory.InputModel(
-            userWalletModel: userWalletModel,
+            userWalletModel: card,
             walletModel: walletModel,
             sender: walletModel.walletManager,
             signer: card.signer,
