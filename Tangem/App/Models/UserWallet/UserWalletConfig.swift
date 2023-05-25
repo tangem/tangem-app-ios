@@ -21,7 +21,7 @@ protocol UserWalletConfig: OnboardingStepsBuilderFactory, BackupServiceFactory, 
 
     var cardName: String { get }
 
-    var defaultCurve: EllipticCurve? { get }
+    var mandatoryCurves: [EllipticCurve] { get }
 
     var tangemSigner: TangemSigner { get }
 
