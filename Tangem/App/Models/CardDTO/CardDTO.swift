@@ -76,10 +76,6 @@ struct CardDTO: Codable {
         attestation = cardDTOv4.attestation
     }
 
-    mutating func updateWallets(with newWallets: [Card.Wallet]) {
-        wallets = mapWallets(newWallets)
-    }
-
     private func mapWallets(_ cardWallets: [Card.Wallet]) -> [CardDTO.Wallet] {
         return cardWallets.map {
             .init(
@@ -93,7 +89,7 @@ struct CardDTO: Codable {
                 proof: $0.proof,
                 isImported: $0.isImported,
                 hasBackup: $0.hasBackup,
-                derivedKeys: $0.derivedKeys
+                derivedKeys: $0.derivedKeys.keys
             )
         }
     }

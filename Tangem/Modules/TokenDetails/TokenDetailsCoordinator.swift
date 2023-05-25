@@ -57,7 +57,7 @@ extension TokenDetailsCoordinator: TokenDetailsRoutable {
         Analytics.log(.topupScreenOpened)
         pushedWebViewModel = WebViewContainerViewModel(
             url: url,
-            title: Localization.walletButtonBuy,
+            title: Localization.commonBuy,
             addLoadingIndicator: true,
             urlActions: [
                 closeUrl: { [weak self] response in
@@ -72,7 +72,7 @@ extension TokenDetailsCoordinator: TokenDetailsRoutable {
         Analytics.log(.withdrawScreenOpened)
         pushedWebViewModel = WebViewContainerViewModel(
             url: url,
-            title: Localization.walletButtonSell,
+            title: Localization.commonSell,
             addLoadingIndicator: true,
             urlActions: [sellRequestUrl: action]
         )
