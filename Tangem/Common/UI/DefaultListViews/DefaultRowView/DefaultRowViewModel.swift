@@ -12,7 +12,7 @@ import SwiftUI
 // [REDACTED_TODO_COMMENT]
 struct DefaultRowViewModel {
     let title: String
-    let detailsType: DetailsType?
+    private(set) var detailsType: DetailsType?
     let action: (() -> Void)?
 
     /// - Parameters:
@@ -27,6 +27,10 @@ struct DefaultRowViewModel {
         self.title = title
         self.detailsType = detailsType
         self.action = action
+    }
+
+    mutating func update(detailsType: DetailsType?) {
+        self.detailsType = detailsType
     }
 }
 
