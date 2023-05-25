@@ -113,9 +113,11 @@ extension SwappingApproveViewModel {
             }
         }()
 
-        Analytics.log(.transactionSent, params: [
-            .commonSource: .transactionSourceSwap,
-            .permissionType: permissionType,
+        Analytics.log(event: .transactionSent, params: [
+            .commonSource: Analytics.ParameterValue.transactionSourceSwap.rawValue,
+            .currencyCode: transactionData.sourceCurrency.symbol,
+            .blockchain: transactionData.sourceBlockchain.name,
+            .permissionType: permissionType.rawValue,
         ])
 
         // We have to waiting close the nfc view to close this permission view
