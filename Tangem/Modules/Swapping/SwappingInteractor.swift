@@ -120,6 +120,18 @@ extension SwappingInteractor {
     func didSendSwapTransaction(swappingTxData: SwappingTransactionData) {
         updateState(.idle)
         addDestinationTokenToUserWalletList()
+
+        let feeType: Analytics.ParameterValue = {
+            switch swappingManager.getSwappingGasPricePolicy() {
+            case .normal: return .transactionFeeNormal
+            case .priority: return .transactionFeeMax
+            }
+        }()
+
+        Analytics.log(
+            .transactionSent,
+            params: [.commonSource: .transactionSourceSwap, .feeType: feeType]
+        )
     }
 }
 
