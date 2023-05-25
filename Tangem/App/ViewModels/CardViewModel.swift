@@ -26,7 +26,7 @@ class CardViewModel: Identifiable, ObservableObject {
     var signer: TangemSigner { _signer }
 
     var cardInteractor: CardInteractor {
-        .init(tangemSdk: config.makeTangemSdk(), cardInfo: cardInfo)
+        .init(tangemSdk: config.makeTangemSdk(), cardId: cardId)
     }
 
     var cardId: String { cardInfo.card.cardId }
@@ -154,7 +154,6 @@ class CardViewModel: Identifiable, ObservableObject {
     )
 
     private(set) var cardInfo: CardInfo
-    private let stateUpdateQueue = DispatchQueue(label: "state_update_queue")
     private var tangemSdk: TangemSdk?
     private var config: UserWalletConfig
     private var didPerformInitialUpdate = false
@@ -320,7 +319,11 @@ class CardViewModel: Identifiable, ObservableObject {
         self.cardInfo = cardInfo
         self.config = config
         userWalletId = UserWalletId(with: userWalletIdSeed)
-        userTokenListManager = CommonUserTokenListManager(config: config, userWalletId: userWalletId.value)
+        userTokenListManager = CommonUserTokenListManager(
+            hasTokenSynchronization: config.hasFeature(.tokenSynchronization),
+            userWalletId: userWalletId.value
+        )
+
         walletListManager = CommonWalletListManager(
             config: config,
             userTokenListManager: userTokenListManager
@@ -476,7 +479,7 @@ class CardViewModel: Identifiable, ObservableObject {
 
     func onDerived(_ response: DerivationResult) {
         for updatedWallet in response {
-            for derivedKey in updatedWallet.value {
+            for derivedKey in updatedWallet.value.keys {
                 cardInfo.card.wallets[updatedWallet.key]?.derivedKeys[derivedKey.key] = derivedKey.value
             }
         }
@@ -498,6 +501,7 @@ class CardViewModel: Identifiable, ObservableObject {
     private func onUpdate() {
         AppLog.shared.debug("🔄 Updating CardViewModel with new Card")
         config = UserWalletConfigFactory(cardInfo).makeConfig()
+        walletListManager.update(config: config)
         _signer = config.tangemSigner
         updateModel()
         userWalletRepository.save(userWallet)
@@ -757,6 +761,10 @@ extension CardViewModel: UserWalletModel {
         } else {
             updateAndReloadWalletModels()
         }
+    }
+
+    func updateWalletName(_ name: String) {
+        cardInfo.name = name
     }
 
     func updateWalletModels() {

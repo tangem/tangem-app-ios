@@ -140,14 +140,12 @@ class CommonUserWalletRepository: UserWalletRepository {
                     onboardingStepsBuilderFactory: config
                 )
 
-                if let cardModel = CardViewModel(cardInfo: cardInfo) {
+                if let onboardingInput = factory.makeOnboardingInput() {
+                    return .justWithError(output: .onboarding(onboardingInput))
+                } else if let cardModel = CardViewModel(cardInfo: cardInfo) {
                     self.initializeServices(for: cardModel, cardInfo: cardInfo)
                     cardModel.initialUpdate()
                     return .justWithError(output: .success(cardModel))
-                }
-
-                if let onboardingInput = factory.makeOnboardingInput() {
-                    return .justWithError(output: .onboarding(onboardingInput))
                 }
 
                 return .anyFail(error: "Unknown error")
@@ -279,6 +277,7 @@ class CommonUserWalletRepository: UserWalletRepository {
         let userWalletModel: UserWalletModel?
         if let index = models.firstIndex(where: { $0.userWalletId.value == userWallet.userWalletId }) {
             userWalletModel = models[index]
+            userWalletModel?.updateWalletName(userWallet.name)
         } else if let newModel = CardViewModel(userWallet: userWallet) {
             newModel.initialUpdate()
             models.append(newModel)
