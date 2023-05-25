@@ -9,14 +9,14 @@
 import Foundation
 import SwiftUI
 
-struct SwappingFeeRowViewModel: Identifiable {
+struct SwappingFeeRowViewModel: Identifiable, Hashable {
     var id: Int { hashValue }
-    var state: State
-    let isDisclaimerOpened: () -> Binding<Bool>
+    private(set) var state: State
+    let isShowingDisclaimer: BindingValue<Bool>
 
-    init(state: State, isDisclaimerOpened: @escaping () -> Binding<Bool>) {
+    init(state: State, isShowingDisclaimer: BindingValue<Bool>) {
         self.state = state
-        self.isDisclaimerOpened = isDisclaimerOpened
+        self.isShowingDisclaimer = isShowingDisclaimer
     }
 
     mutating func update(state: State) {
@@ -24,21 +24,12 @@ struct SwappingFeeRowViewModel: Identifiable {
     }
 }
 
-extension SwappingFeeRowViewModel: Hashable {
-    static func == (lhs: SwappingFeeRowViewModel, rhs: SwappingFeeRowViewModel) -> Bool {
-        lhs.id == rhs.id
-    }
-
-    func hash(into hasher: inout Hasher) {
-        hasher.combine(state)
-    }
-}
-
 extension SwappingFeeRowViewModel {
     enum State: Hashable {
         case idle
         case loading
-        case fee(fee: String, symbol: String, fiat: String)
+        case fee(fee: String)
+        case policy(title: String, fiat: String)
 
         var isLoading: Bool {
             if case .loading = self {
@@ -46,15 +37,6 @@ extension SwappingFeeRowViewModel {
             }
 
             return false
-        }
-
-        var formattedFee: String? {
-            switch self {
-            case .idle, .loading:
-                return nil
-            case .fee(let fee, let symbol, let fiat):
-                return "\(fee) \(symbol) (\(fiat))"
-            }
         }
     }
 }
