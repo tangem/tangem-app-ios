@@ -36,8 +36,8 @@ enum Feature: String, Hashable, CaseIterable {
         case .importSeedPhrase: return .unspecified
         case .accessCodeRecoverySettings: return .unspecified
         case .disableFirmwareVersionLimit: return .unspecified
-        case .abilityChooseCommissionRate: return .unspecified
-        case .abilityChooseApproveAmount: return .unspecified
+        case .abilityChooseCommissionRate: return .version("4.6")
+        case .abilityChooseApproveAmount: return .version("4.6")
         }
     }
 }
