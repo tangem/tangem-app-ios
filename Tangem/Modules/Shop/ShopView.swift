@@ -159,7 +159,7 @@ struct ShopView: View {
     @ViewBuilder
     private var buyButtons: some View {
         if viewModel.canUseApplePay {
-            ApplePayButton(type: viewModel.preorderDeliveryDate == nil ? .buy : .order) {
+            ApplePayButton(type: viewModel.applePayButtonType) {
                 viewModel.openApplePayCheckout()
             }
             .frame(height: 46)
@@ -175,7 +175,7 @@ struct ShopView: View {
             Button {
                 viewModel.openWebCheckout()
             } label: {
-                Text(viewModel.preorderDeliveryDate == nil ? Localization.shopBuyNow : Localization.shopPreOrderNow)
+                Text(viewModel.buyButtonText)
             }
             .buttonStyle(TangemButtonStyle(colorStyle: .black, layout: .flexibleWidth))
         }
