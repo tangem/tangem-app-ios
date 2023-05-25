@@ -8,12 +8,6 @@
 
 import SwiftUI
 
-extension Text {
-    func style(_ font: Font, color: Color) -> Text {
-        self.font(font).foregroundColor(color)
-    }
-}
-
 extension TextField {
     func style(_ font: Font, color: Color) -> some View {
         self.font(font).foregroundColor(color)
