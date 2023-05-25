@@ -147,7 +147,7 @@ struct BalanceAddressView: View {
                                     title: Localization.commonCopy,
                                     withVerification: true
                                 )
-                                .accessibility(label: Text(Localization.voiceOverCopyAddress))
+                                .accessibility(label: Text(Localization.commonCopyAddress))
 
                                 RoundedRectButton(
                                     action: { showShareSheet() },

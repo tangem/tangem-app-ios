@@ -20,7 +20,7 @@ class OnboardingCoordinator: CoordinatorObject {
 
     // MARK: - Child coordinators
 
-    @Published var mainCoordinator: MainCoordinator? = nil
+    @Published var mainCoordinator: LegacyMainCoordinator? = nil
 
     // MARK: - Child view models
 
@@ -78,7 +78,7 @@ extension OnboardingCoordinator: OnboardingTopupRoutable {
     func openCryptoShop(at url: URL, closeUrl: String, action: @escaping (String) -> Void) {
         buyCryptoModel = .init(
             url: url,
-            title: Localization.walletButtonBuy,
+            title: Localization.commonBuy,
             addLoadingIndicator: true,
             withCloseButton: true,
             urlActions: [closeUrl: { [weak self] response in
@@ -143,15 +143,15 @@ extension OnboardingCoordinator: WalletOnboardingRoutable {
 }
 
 extension OnboardingCoordinator: OnboardingRoutable {
-    func onboardingDidFinish() {
+    func onboardingDidFinish(userWallet: CardViewModel?) {
         switch options.destination {
         case .main:
-            guard let card = options.input.cardInput.cardModel else {
-                closeOnboarding()
+            if let userWallet {
+                openMain(with: userWallet)
                 return
             }
 
-            openMain(with: card)
+            closeOnboarding()
         case .root:
             popToRoot()
         case .dismiss:
@@ -164,8 +164,8 @@ extension OnboardingCoordinator: OnboardingRoutable {
     }
 
     private func openMain(with cardModel: CardViewModel) {
-        let coordinator = MainCoordinator(popToRootAction: popToRootAction)
-        let options = MainCoordinator.Options(cardModel: cardModel)
+        let coordinator = LegacyMainCoordinator(popToRootAction: popToRootAction)
+        let options = LegacyMainCoordinator.Options(cardModel: cardModel)
         coordinator.start(with: options)
         mainCoordinator = coordinator
     }
