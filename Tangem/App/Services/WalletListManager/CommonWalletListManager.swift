@@ -12,7 +12,7 @@ import Combine
 class CommonWalletListManager {
     @Injected(\.tangemApiService) private var tangemApiService: TangemApiService
 
-    private let config: UserWalletConfig
+    private var config: UserWalletConfig
     private let userTokenListManager: UserTokenListManager
 
     /// Bool flag for migration custom token to token form our API
@@ -29,6 +29,10 @@ class CommonWalletListManager {
 // MARK: - WalletListManager
 
 extension CommonWalletListManager: WalletListManager {
+    func update(config: UserWalletConfig) {
+        self.config = config
+    }
+
     func getWalletModels() -> [WalletModel] {
         walletModels.value
     }
