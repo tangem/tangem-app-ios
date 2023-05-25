@@ -9,6 +9,7 @@
 import Foundation
 import Combine
 import MobileBuySDK
+import PassKit
 import SwiftUI
 
 class ShopViewModel: ObservableObject {
@@ -37,6 +38,14 @@ class ShopViewModel: ObservableObject {
     @Published var order: Order?
 
     @Published var error: AlertBinder?
+
+    var applePayButtonType: PKPaymentButtonType {
+        preorderDeliveryDate == nil ? .buy : .order
+    }
+
+    var buyButtonText: String {
+        preorderDeliveryDate == nil ? Localization.shopBuyNow : Localization.shopPreOrderNow
+    }
 
     var preorderDeliveryDate: String?
 
