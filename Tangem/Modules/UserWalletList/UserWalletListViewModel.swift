@@ -82,7 +82,7 @@ final class UserWalletListViewModel: ObservableObject, Identifiable {
                 self?.updateModels()
                 // updateModels doesn't update balances, do it manually
                 self?.userWalletRepository.models.forEach {
-                    $0.userWalletModel?.initialUpdate()
+                    $0.initialUpdate()
                 }
             }
         }
@@ -133,7 +133,7 @@ final class UserWalletListViewModel: ObservableObject, Identifiable {
         Analytics.log(.buttonEditWalletTapped)
 
         let alert = UIAlertController(title: Localization.userWalletListRenamePopupTitle, message: nil, preferredStyle: .alert)
-        let cancelAction = UIAlertAction(title: Localization.commonCancel, style: .cancel) { _ in }
+        let cancelAction = UIAlertAction(title: Localization.commonCancel, style: .cancel)
         alert.addAction(cancelAction)
 
         var nameTextField: UITextField?
@@ -199,12 +199,10 @@ final class UserWalletListViewModel: ObservableObject, Identifiable {
     private func updateModels() {
         multiCurrencyModels = userWalletRepository.models
             .filter { $0.isMultiWallet }
-            .compactMap { $0.userWalletModel }
             .map { mapToUserWalletListCellViewModel(userWalletModel: $0) }
 
         singleCurrencyModels = userWalletRepository.models
             .filter { !$0.isMultiWallet }
-            .compactMap { $0.userWalletModel }
             .map { mapToUserWalletListCellViewModel(userWalletModel: $0) }
     }
 
@@ -239,11 +237,7 @@ final class UserWalletListViewModel: ObservableObject, Identifiable {
     }
 
     func add(cardModel: CardViewModel) {
-        guard
-            let cellModel = cardModel.userWalletModel.map({ mapToUserWalletListCellViewModel(userWalletModel: $0) })
-        else {
-            return
-        }
+        let cellModel = mapToUserWalletListCellViewModel(userWalletModel: cardModel)
 
         if cardModel.isMultiWallet {
             multiCurrencyModels.append(cellModel)
