@@ -49,5 +49,7 @@ extension Analytics {
         case creationType = "Creation type"
         case status = "Status"
         case option
+        case feeType = "Fee Type"
+        case permissionType = "Permission Type"
     }
 }
