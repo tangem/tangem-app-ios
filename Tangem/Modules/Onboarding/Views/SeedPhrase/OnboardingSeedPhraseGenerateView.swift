@@ -49,10 +49,11 @@ struct OnboardingSeedPhraseGenerateView: View {
     private func wordsVerticalView(indexRange: Range<Int>) -> some View {
         VStack(alignment: .leading, spacing: 18) {
             ForEach(indexRange, id: \.self) { index in
-                HStack(alignment: .center) {
+                HStack(alignment: .center, spacing: 0) {
                     Text("\(index + 1).\t")
-                        .style(Fonts.Regular.subheadline, color: Colors.Text.tertiary) +
-                        Text("\(words[index])")
+                        .style(Fonts.Regular.subheadline, color: Colors.Text.tertiary)
+
+                    Text("\(words[index])")
                         .style(Fonts.Bold.subheadline, color: Colors.Text.primary1)
 
                     Spacer()
