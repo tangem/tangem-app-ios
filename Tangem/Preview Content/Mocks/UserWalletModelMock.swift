@@ -9,17 +9,13 @@
 import Combine
 import BlockchainSdk
 
-struct UserWalletModelMock: UserWalletModel {
+class UserWalletModelMock: UserWalletModel {
     var userTokenListManager: UserTokenListManager { UserTokenListManagerMock() }
     var userWallet: UserWallet {
         UserWallet(userWalletId: Data(), name: "", card: .init(card: .card), associatedCardIds: [], walletData: .none, artwork: nil, isHDWalletAllowed: false)
     }
 
     var totalBalanceProvider: TotalBalanceProviding { TotalBalanceProviderMock() }
-
-    func updateUserWalletModel(with config: UserWalletConfig) {}
-
-    func updateUserWallet(_ userWallet: UserWallet) {}
 
     func getWalletModels() -> [WalletModel] { [] }
 
@@ -37,9 +33,11 @@ struct UserWalletModelMock: UserWalletModel {
 
     func append(entries: [StorageEntry]) {}
 
-    func remove(item: CommonUserWalletModel.RemoveItem) {}
+    func remove(amountType: Amount.AmountType, blockchainNetwork: BlockchainNetwork) {}
 
     func initialUpdate() {}
+
+    func updateWalletName(_ name: String) {}
 
     func updateWalletModels() {}
 
