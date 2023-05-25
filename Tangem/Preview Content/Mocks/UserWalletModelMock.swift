@@ -37,6 +37,8 @@ class UserWalletModelMock: UserWalletModel {
 
     func initialUpdate() {}
 
+    func updateWalletName(_ name: String) {}
+
     func updateWalletModels() {}
 
     func updateAndReloadWalletModels(silent: Bool, completion: @escaping () -> Void) {}
