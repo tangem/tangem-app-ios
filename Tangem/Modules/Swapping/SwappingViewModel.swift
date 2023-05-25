@@ -740,7 +740,6 @@ private extension SwappingViewModel {
                 try Task.checkCancellation()
 
                 swappingInteractor.didSendSwapTransaction(swappingTxData: transactionData)
-                Analytics.log(.transactionSent, params: [.commonSource: .transactionSourceSwap])
 
                 await runOnMain {
                     openSuccessView(transactionData: transactionData, transactionID: sendResult.hash)
