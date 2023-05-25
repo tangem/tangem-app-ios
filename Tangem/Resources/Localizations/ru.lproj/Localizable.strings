@@ -357,12 +357,13 @@
 "send_transaction_success" = "Транзакция успешно подписана и отправлена в блокчейн. Баланс будет обновлен через некоторое время";
 "send_validation_invalid_address" = "Неверный адрес";
 "shop_buy_now" = "Купить сейчас";
-"shop_free" = "Бесплатно";
 "shop_i_have_a_promo_code" = "У меня есть промо-код…";
 "shop_one_wallet" = "Tangem Wallet";
 "shop_other_payment_methods" = "Другие способы оплаты";
 "shop_placing_order" = "Оформление заказа";
-"shop_shipping" = "Доставка";
+"shop_pre_order_now" = "Сделать предзаказ";
+"shop_sold_out_description_prefix" = "Все распродано, но не огорчайтесь! Мы уже производим новые партии Tangem Wallet. Чтобы получить ваш кошелек скорее, оформите предзаказ сейчас. Отправка заказов начнется";
+"shop_sold_out_description_suffix" = "!";
 "shop_total" = "Итого";
 "shop_web_checkout_title" = "Ваш заказ";
 "solana_rent_warning" = "Сеть Solana взимает арендную плату в размере %1$@ каждые 2 дня. Аккаунты, которые не могут позволить себе арендную плату, удаляются из сети. Пополните свой счет более чем на %2$@, чтобы не платить арендную плату.";
