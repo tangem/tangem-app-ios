@@ -39,8 +39,8 @@ extension NoteConfig: UserWalletConfig {
         "Note"
     }
 
-    var defaultCurve: EllipticCurve? {
-        defaultBlockchain.curve
+    var mandatoryCurves: [EllipticCurve] {
+        [defaultBlockchain.curve]
     }
 
     var supportedBlockchains: Set<Blockchain> {
