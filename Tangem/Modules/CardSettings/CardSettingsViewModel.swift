@@ -72,10 +72,7 @@ class CardSettingsViewModel: ObservableObject {
     }
 
     func didResetCard() {
-        if let userWallet = cardModel.userWallet {
-            deleteWallet(userWallet)
-        }
-
+        deleteWallet(cardModel.userWallet)
         navigateAwayAfterReset()
     }
 }
@@ -204,7 +201,11 @@ extension CardSettingsViewModel {
         if cardModel.canTwin {
             prepareTwinOnboarding()
         } else {
-            coordinator.openResetCardToFactoryWarning(cardModel: cardModel)
+            let input = ResetToFactoryViewModel.Input(
+                cardInteractor: cardModel.cardInteractor,
+                hasBackupCards: cardModel.hasBackupCards
+            )
+            coordinator.openResetCardToFactoryWarning(with: input)
         }
     }
 
