@@ -50,5 +50,6 @@ extension Analytics {
         case status = "Status"
         case option
         case feeType = "Fee Type"
+        case permissionType = "Permission Type"
     }
 }
