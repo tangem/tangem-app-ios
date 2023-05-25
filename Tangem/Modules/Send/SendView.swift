@@ -282,7 +282,7 @@ struct SendView: View {
 
     @ViewBuilder private var sendButton: some View {
         MainButton(
-            title: Localization.walletButtonSend,
+            title: Localization.commonSend,
             icon: .leading(Assets.arrowRightMini),
             isDisabled: !viewModel.isSendEnabled,
             action: viewModel.send
