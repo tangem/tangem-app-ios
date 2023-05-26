@@ -13,28 +13,35 @@ struct LearnAndEarnStoryPage: View {
     let learn: () -> Void
 
     var body: some View {
-        VStack {
-            StoriesTangemLogo()
-                .padding()
-
-            VStack(spacing: 12) {
-                #warning("L10n")
-                Text("Learn and get a bonus")
-                    .font(.system(size: 43, weight: .bold))
-                    .minimumScaleFactor(0.5)
-                    .foregroundColor(.white)
-
-                #warning("L10n")
-                Text("Complete the training, get the opportunity to buy Tangem wallet with a discount and receive 1inch tokens on your wallet")
-                    .font(.system(size: 16))
-                    .foregroundColor(.gray)
+        ZStack(alignment: .bottom) {
+            VStack {
+                StoriesTangemLogo()
+                    .padding()
+                
+                VStack(spacing: 12) {
+#warning("L10n")
+                    Text("Learn and get a bonus")
+                        .font(.system(size: 43, weight: .bold))
+                        .minimumScaleFactor(0.5)
+                        .foregroundColor(.white)
+                    
+#warning("L10n")
+                    Text("Complete the training, get the opportunity to buy Tangem wallet with a discount and receive 1inch tokens on your wallet")
+                        .font(.system(size: 16))
+                        .foregroundColor(.gray)
+                }
+                .multilineTextAlignment(.center)
+                .padding(.horizontal)
+                .fixedSize(horizontal: false, vertical: true)
+                
+                Spacer()
+                
+                Assets.LearnAndEarn._1inchLogoBig.image
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
             }
-            .multilineTextAlignment(.center)
-            .padding(.horizontal)
-            .fixedSize(horizontal: false, vertical: true)
-
-            Spacer()
-
+            .ignoresSafeArea(edges: .bottom)
+            
             #warning("L10n")
             MainButton(
                 title: "Learn",
