@@ -8,10 +8,10 @@
 
 import SwiftUI
 
-struct MultiWalletContentView: View {
-    @ObservedObject private var viewModel: MultiWalletContentViewModel
+struct LegacyMultiWalletContentView: View {
+    @ObservedObject private var viewModel: LegacyMultiWalletContentViewModel
 
-    init(viewModel: MultiWalletContentViewModel) {
+    init(viewModel: LegacyMultiWalletContentViewModel) {
         self.viewModel = viewModel
     }
 
