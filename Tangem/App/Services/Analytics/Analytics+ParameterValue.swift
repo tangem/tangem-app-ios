@@ -49,6 +49,9 @@ extension Analytics {
         case reset = "Reset"
         case cancel = "Cancel"
 
+        case oneTransactionApprove = "Transaction"
+        case unlimitedApprove = "Unlimited"
+
         // MARK: - Actions
 
         case scan = "tap_scan_task"
