@@ -1,5 +1,5 @@
 //
-//  TokensView.swift
+//  LegacyTokensView.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -9,7 +9,7 @@
 import SwiftUI
 import BlockchainSdk
 
-struct TokensView: View {
+struct LegacyTokensView: View {
     var items: [LegacyTokenItemViewModel]
 
     var action: (LegacyTokenItemViewModel) -> Void
@@ -50,11 +50,11 @@ struct TokensView: View {
     }
 }
 
-struct TokensView_Previews: PreviewProvider {
+struct LegacyTokensView_Previews: PreviewProvider {
     static var previews: some View {
         ZStack {
             Color.tangemBgGray
-            TokensView(items: [
+            LegacyTokensView(items: [
                 LegacyTokenItemViewModel(
                     state: .idle,
                     name: "Ethereum ",
