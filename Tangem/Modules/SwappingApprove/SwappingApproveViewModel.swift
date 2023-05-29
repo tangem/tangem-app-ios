@@ -106,6 +106,20 @@ final class SwappingApproveViewModel: ObservableObject, Identifiable {
 extension SwappingApproveViewModel {
     @MainActor
     func didSendApproveTransaction(transactionData: SwappingTransactionData) {
+        let permissionType: Analytics.ParameterValue = {
+            switch swappingInteractor.getSwappingApprovePolicy() {
+            case .amount: return .oneTransactionApprove
+            case .unlimited: return .unlimitedApprove
+            }
+        }()
+
+        Analytics.log(event: .transactionSent, params: [
+            .commonSource: Analytics.ParameterValue.transactionSourceSwap.rawValue,
+            .currencyCode: transactionData.sourceCurrency.symbol,
+            .blockchain: transactionData.sourceBlockchain.name,
+            .permissionType: permissionType.rawValue,
+        ])
+
         // We have to waiting close the nfc view to close this permission view
         didBecomeActiveNotificationCancellable = NotificationCenter
             .default
