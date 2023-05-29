@@ -130,7 +130,7 @@ extension SwappingInteractor {
         
         Analytics.log(event: .transactionSent, params: [
             .commonSource: Analytics.ParameterValue.transactionSourceSwap.rawValue,
-            .currencyCode: swappingTxData.sourceCurrency.symbol,
+            .token: swappingTxData.sourceCurrency.symbol,
             .blockchain: swappingTxData.sourceBlockchain.name,
             .feeType: feeType.rawValue,
         ])
