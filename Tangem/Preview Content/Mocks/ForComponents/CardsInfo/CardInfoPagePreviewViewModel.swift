@@ -5,8 +5,7 @@
 import Foundation
 
 final class CardInfoPagePreviewViewModel: ObservableObject {
-    @Published
-    var cellViewModels: [CardInfoPageCellPreviewViewModel] = []
+    @Published var cellViewModels: [CardInfoPageCellPreviewViewModel] = []
 
     init() {
         initializeModels()
