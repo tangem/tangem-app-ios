@@ -30,18 +30,14 @@ struct CardsInfoPagerView<
     @Binding private var selectedIndex: Int
 
     @GestureState private var nextIndexToSelect: Int?
-
     @GestureState private var hasNextIndexToSelect = true
-
     @GestureState private var horizontalTranslation: CGFloat = .zero
 
     /// - Warning: Won't be reset back to 0 after successful (non-cancelled) page switch, use with caution.
     @State private var pageSwitchProgress: CGFloat = .zero
 
     private var contentViewVerticalOffset: CGFloat = Constants.contentViewVerticalOffset
-
     private var pageSwitchThreshold: CGFloat = Constants.pageSwitchThreshold
-
     private var pageSwitchAnimation: Animation = Constants.pageSwitchAnimation
 
     private var lowerBound: Int { 0 }
