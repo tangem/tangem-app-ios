@@ -14,6 +14,12 @@ struct CardsInfoPagerView<
     typealias HeaderFactory = (_ element: Data.Element) -> Header
     typealias ContentFactory = (_ element: Data.Element) -> Body
 
+    private enum Constants {
+        static var contentViewVerticalOffset: CGFloat { 44.0 }
+        static var pageSwitchThreshold: CGFloat { 0.5 }
+        static var pageSwitchAnimation: Animation { .interactiveSpring(response: 0.30) }
+    }
+
     private let data: Data
     private let idProvider: KeyPath<Data.Element, ID>
     private let headerFactory: HeaderFactory
@@ -30,11 +36,11 @@ struct CardsInfoPagerView<
     /// - Warning: Won't be reset back to 0 after successful (non-cancelled) page switch, use with caution.
     @State private var pageSwitchProgress: CGFloat = .zero
 
-    @Environment(\.contentViewVerticalOffset) private var contentViewVerticalOffset
+    private var contentViewVerticalOffset: CGFloat = Constants.contentViewVerticalOffset
 
-    @Environment(\.pageSwitchThreshold) private var pageSwitchThreshold
+    private var pageSwitchThreshold: CGFloat = Constants.pageSwitchThreshold
 
-    @Environment(\.pageSwitchAnimation) private var pageSwitchAnimation
+    private var pageSwitchAnimation: Animation = Constants.pageSwitchAnimation
 
     private var lowerBound: Int { 0 }
     private var upperBound: Int { data.count - 1 }
@@ -170,6 +176,22 @@ private struct BodyAnimationModifier: Animatable, ViewModifier {
     }
 }
 
+// MARK: - Setupable protocol conformance
+
+extension CardsInfoPagerView: Setupable {
+    func pageSwitchAnimation(_ animation: Animation) -> Self {
+        map { $0.pageSwitchAnimation = animation }
+    }
+
+    func pageSwitchThreshold(_ threshold: CGFloat) -> Self {
+        map { $0.pageSwitchThreshold = threshold }
+    }
+
+    func contentViewVerticalOffset(_ offset: CGFloat) -> Self {
+        map { $0.contentViewVerticalOffset = offset }
+    }
+}
+
 // MARK: - Previews
 
 struct CardsInfoPagerView_Previews: PreviewProvider {
@@ -197,9 +219,9 @@ struct CardsInfoPagerView_Previews: PreviewProvider {
                         DummyCardInfoPageView(viewModel: pagePreviewProvider.models[index])
                     }
                 )
+                .pageSwitchThreshold(0.4)
+                .contentViewVerticalOffset(64.0)
             }
-            .pageSwitchThreshold(0.45)
-            .contentViewVerticalOffset(64.0)
         }
     }
 
