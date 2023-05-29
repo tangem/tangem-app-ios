@@ -6,39 +6,39 @@ import SwiftUI
 
 // MARK: - Body vertical offset
 
-private enum BodyViewVerticalOffsetEnvironmentKey: EnvironmentKey {
-    static var defaultValue: CGFloat { Defaults.bodyViewVerticalOffset }
+private enum ContentViewVerticalOffsetEnvironmentKey: EnvironmentKey {
+    static var defaultValue: CGFloat { Defaults.contentViewVerticalOffset }
 }
 
 extension EnvironmentValues {
-    var bodyViewVerticalOffset: CGFloat {
-        get { self[BodyViewVerticalOffsetEnvironmentKey.self] }
-        set { self[BodyViewVerticalOffsetEnvironmentKey.self] = newValue }
+    var contentViewVerticalOffset: CGFloat {
+        get { self[ContentViewVerticalOffsetEnvironmentKey.self] }
+        set { self[ContentViewVerticalOffsetEnvironmentKey.self] = newValue }
     }
 }
 
 extension View {
-    func bodyViewVerticalOffset(_ offset: CGFloat) -> some View {
-        environment(\.bodyViewVerticalOffset, offset)
+    func contentViewVerticalOffset(_ offset: CGFloat) -> some View {
+        environment(\.contentViewVerticalOffset, offset)
     }
 }
 
 // MARK: - Fractional width for page switch
 
-private enum FractionalWidthForPageSwitchEnvironmentKey: EnvironmentKey {
-    static var defaultValue: CGFloat { Defaults.fractionalWidthForPageSwitch }
+private enum PageSwitchThresholdEnvironmentKey: EnvironmentKey {
+    static var defaultValue: CGFloat { Defaults.pageSwitchThreshold }
 }
 
 extension EnvironmentValues {
-    var fractionalWidthForPageSwitch: CGFloat {
-        get { self[FractionalWidthForPageSwitchEnvironmentKey.self] }
-        set { self[FractionalWidthForPageSwitchEnvironmentKey.self] = clamp(newValue, min: 0.0, max: 1.0) }
+    var pageSwitchThreshold: CGFloat {
+        get { self[PageSwitchThresholdEnvironmentKey.self] }
+        set { self[PageSwitchThresholdEnvironmentKey.self] = clamp(newValue, min: 0.0, max: 1.0) }
     }
 }
 
 extension View {
-    func fractionalWidthForPageSwitch(_ width: CGFloat) -> some View {
-        environment(\.fractionalWidthForPageSwitch, width)
+    func pageSwitchThreshold(_ width: CGFloat) -> some View {
+        environment(\.pageSwitchThreshold, width)
     }
 }
 
@@ -64,7 +64,7 @@ extension View {
 // MARK: - Environment values defaults
 
 private enum Defaults {
-    static var bodyViewVerticalOffset: CGFloat { 44.0 }
-    static var fractionalWidthForPageSwitch: CGFloat { 0.3 }
+    static var contentViewVerticalOffset: CGFloat { 44.0 }
+    static var pageSwitchThreshold: CGFloat { 0.3 }
     static var pageSwitchAnimation: Animation { .interactiveSpring(response: 0.30) }
 }
