@@ -109,15 +109,21 @@ struct CardsInfoPagerView<
                 state = value.translation.width
             }
             .updating($nextIndexToSelect) { value, state, _ in
+                // The `content` part of the page must be updated exactly in the middle of the
+                // current gesture/animation, therefore `nextPageThreshold` equals 0.5 here
                 state = nextIndexToSelectFiltered(
                     translation: value.translation.width,
-                    totalWidth: proxy.size.width
+                    totalWidth: proxy.size.width,
+                    nextPageThreshold: 0.5
                 )
             }
             .updating($hasNextIndexToSelect) { value, state, _ in
+                // The `content` part of the page must be updated exactly in the middle of the
+                // current gesture/animation, therefore `nextPageThreshold` equals 0.5 here
                 state = nextIndexToSelectFiltered(
                     translation: value.translation.width,
-                    totalWidth: proxy.size.width
+                    totalWidth: proxy.size.width,
+                    nextPageThreshold: 0.5
                 ) != nil
             }
             .onChanged { value in
@@ -126,25 +132,46 @@ struct CardsInfoPagerView<
             .onEnded { value in
                 let newIndex = nextIndexToSelectClamped(
                     translation: value.translation.width,
-                    totalWidth: proxy.size.width
+                    totalWidth: proxy.size.width,
+                    nextPageThreshold: pageSwitchThreshold
                 )
                 pageSwitchProgress = newIndex == selectedIndex ? 0.0 : 1.0
                 selectedIndex = newIndex
             }
     }
 
-    private func nextIndexToSelectClamped(translation: CGFloat, totalWidth: CGFloat) -> Int {
-        let nextIndex = nextIndexToSelect(translation: translation, totalWidth: totalWidth)
+    private func nextIndexToSelectClamped(
+        translation: CGFloat,
+        totalWidth: CGFloat,
+        nextPageThreshold: CGFloat
+    ) -> Int {
+        let nextIndex = nextIndexToSelect(
+            translation: translation,
+            totalWidth: totalWidth,
+            nextPageThreshold: nextPageThreshold
+        )
         return clamp(nextIndex, min: lowerBound, max: upperBound)
     }
 
-    private func nextIndexToSelectFiltered(translation: CGFloat, totalWidth: CGFloat) -> Int? {
-        let nextIndex = nextIndexToSelect(translation: translation, totalWidth: totalWidth)
+    private func nextIndexToSelectFiltered(
+        translation: CGFloat,
+        totalWidth: CGFloat,
+        nextPageThreshold: CGFloat
+    ) -> Int? {
+        let nextIndex = nextIndexToSelect(
+            translation: translation,
+            totalWidth: totalWidth,
+            nextPageThreshold: nextPageThreshold
+        )
         return lowerBound ... upperBound ~= nextIndex ? nextIndex : nil
     }
 
-    private func nextIndexToSelect(translation: CGFloat, totalWidth: CGFloat) -> Int {
-        let gestureProgress = translation / (totalWidth * pageSwitchThreshold * 2.0)
+    private func nextIndexToSelect(
+        translation: CGFloat,
+        totalWidth: CGFloat,
+        nextPageThreshold: CGFloat
+    ) -> Int {
+        let gestureProgress = translation / (totalWidth * nextPageThreshold * 2.0)
         let indexDiff = Int(gestureProgress.rounded())
         return selectedIndex - indexDiff
     }
