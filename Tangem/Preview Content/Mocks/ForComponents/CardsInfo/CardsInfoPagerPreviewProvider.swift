@@ -5,8 +5,7 @@
 import Foundation
 
 final class CardsInfoPagerPreviewProvider: ObservableObject {
-    @Published
-    var models: [CardInfoPagePreviewViewModel] = []
+    @Published var models: [CardInfoPagePreviewViewModel] = []
 
     init() {
         initializeModels()
