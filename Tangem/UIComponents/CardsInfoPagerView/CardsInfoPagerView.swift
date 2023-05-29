@@ -23,7 +23,7 @@ struct CardsInfoPagerView<
     }
 
     private let data: Data
-    private let idProvider: KeyPath<Data.Element, ID>
+    private let idProvider: KeyPath<(Data.Index, Data.Element), ID>
     private let headerFactory: HeaderFactory
     private let contentFactory: ContentFactory
 
@@ -58,7 +58,7 @@ struct CardsInfoPagerView<
 
     init(
         data: Data,
-        id idProvider: KeyPath<Data.Element, ID>,
+        id idProvider: KeyPath<(Data.Index, Data.Element), ID>,
         selectedIndex: Binding<Int>,
         @ViewBuilder headerFactory: @escaping HeaderFactory,
         @ViewBuilder contentFactory: @escaping ContentFactory
@@ -74,7 +74,7 @@ struct CardsInfoPagerView<
         GeometryReader { proxy in
             VStack(alignment: .leading, spacing: 0.0) {
                 HStack(spacing: Constants.headerInteritemSpacing) {
-                    ForEach(data, id: idProvider) { element in
+                    ForEach(Array(zip(data.indices, data)), id: idProvider) { _, element in
                         headerFactory(element)
                             .frame(width: proxy.size.width - Constants.headerItemHorizontalOffset * 2.0)
                     }
@@ -87,15 +87,21 @@ struct CardsInfoPagerView<
                 // The third offset is responsible for the next/previous cell peek
                 .offset(x: headerItemPeekHorizontalOffset)
 
-                contentFactory(data[nextIndexToSelect ?? selectedIndex])
-                    .modifier(
-                        BodyAnimationModifier(
-                            progress: pageSwitchProgress,
-                            verticalOffset: contentViewVerticalOffset,
-                            hasNextIndexToSelect: hasNextIndexToSelect
-                        )
+                ZStack {
+                    let currentPageIndex = nextIndexToSelect ?? selectedIndex
+                    ForEach(Array(zip(data.indices, data)), id: idProvider) { elementIndex, element in
+                        contentFactory(element)
+                            .opacity(elementIndex == currentPageIndex ? 1.0 : 0.0)
+                    }
+                }
+                .modifier(
+                    BodyAnimationModifier(
+                        progress: pageSwitchProgress,
+                        verticalOffset: contentViewVerticalOffset,
+                        hasNextIndexToSelect: hasNextIndexToSelect
                     )
-                    .frame(width: proxy.size.width)
+                )
+                .frame(width: proxy.size.width)
             }
             .animation(pageSwitchAnimation, value: horizontalTranslation)
             .gesture(makeDragGesture(with: proxy))
@@ -188,7 +194,7 @@ extension CardsInfoPagerView where Data.Element: Identifiable, Data.Element.ID =
     ) {
         self.init(
             data: data,
-            id: \.id,
+            id: \.1.id,
             selectedIndex: selectedIndex,
             headerFactory: headerFactory,
             contentFactory: contentFactory
