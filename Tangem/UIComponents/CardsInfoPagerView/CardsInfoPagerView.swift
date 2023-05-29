@@ -15,30 +15,22 @@ struct CardsInfoPagerView<
     private let headerFactory: HeaderFactory
     private let contentFactory: ContentFactory
 
-    @Binding
-    private var selectedIndex: Int
+    @Binding private var selectedIndex: Int
 
-    @GestureState
-    private var nextIndexToSelect: Int?
+    @GestureState private var nextIndexToSelect: Int?
 
-    @GestureState
-    private var hasNextIndexToSelect = true
+    @GestureState private var hasNextIndexToSelect = true
 
-    @GestureState
-    private var horizontalTranslation: CGFloat = .zero
+    @GestureState private var horizontalTranslation: CGFloat = .zero
 
     /// - Warning: Won't be reset back to 0 after successful (non-cancelled) page switch, use with caution.
-    @State
-    private var pageSwitchProgress: CGFloat = .zero
+    @State private var pageSwitchProgress: CGFloat = .zero
 
-    @Environment(\.contentViewVerticalOffset)
-    private var contentViewVerticalOffset
+    @Environment(\.contentViewVerticalOffset) private var contentViewVerticalOffset
 
-    @Environment(\.pageSwitchThreshold)
-    private var pageSwitchThreshold
+    @Environment(\.pageSwitchThreshold) private var pageSwitchThreshold
 
-    @Environment(\.pageSwitchAnimation)
-    private var pageSwitchAnimation
+    @Environment(\.pageSwitchAnimation) private var pageSwitchAnimation
 
     private var lowerBound: Int { 0 }
     private var upperBound: Int { data.count - 1 }
@@ -68,6 +60,7 @@ struct CardsInfoPagerView<
                 }
                 .layoutPriority(1.0)
                 .offset(x: horizontalTranslation - CGFloat(selectedIndex) * proxy.size.width)
+
                 contentFactory(data[nextIndexToSelect ?? selectedIndex])
                     .modifier(
                         BodyAnimationModifier(
@@ -177,19 +170,17 @@ private struct BodyAnimationModifier: Animatable, ViewModifier {
 
 struct CardsInfoPagerView_Previews: PreviewProvider {
     private struct CardsInfoPagerPreview: View {
-        @ObservedObject
-        var headerPreviewProvider: FakeCardHeaderPreviewProvider = .init()
+        @ObservedObject var headerPreviewProvider: FakeCardHeaderPreviewProvider = .init()
 
-        @ObservedObject
-        var pagePreviewProvider: CardsInfoPagerPreviewProvider = .init()
+        @ObservedObject var pagePreviewProvider: CardsInfoPagerPreviewProvider = .init()
 
-        @State
-        private var selectedIndex = 0
+        @State private var selectedIndex = 0
 
         var body: some View {
             ZStack {
                 Colors.Background.secondary
                     .ignoresSafeArea()
+
                 CardsInfoPagerView(
                     data: zip(headerPreviewProvider.models.indices, pagePreviewProvider.models.indices).map(\.0),
                     selectedIndex: $selectedIndex,
@@ -209,8 +200,7 @@ struct CardsInfoPagerView_Previews: PreviewProvider {
     }
 
     private struct DummyCardInfoPageView: View {
-        @ObservedObject
-        var viewModel: CardInfoPagePreviewViewModel
+        @ObservedObject var viewModel: CardInfoPagePreviewViewModel
 
         var body: some View {
             List(viewModel.cellViewModels, id: \.id) { cellViewModel in
@@ -220,8 +210,7 @@ struct CardsInfoPagerView_Previews: PreviewProvider {
     }
 
     private struct DummyCardInfoPageCellView: View {
-        @ObservedObject
-        var viewModel: CardInfoPageCellPreviewViewModel
+        @ObservedObject var viewModel: CardInfoPageCellPreviewViewModel
 
         var body: some View {
             VStack {
@@ -230,6 +219,7 @@ struct CardsInfoPagerView_Previews: PreviewProvider {
                     .fontWeight(.bold)
                     .lineLimit(1)
                     .allowsTightening(true)
+
                 Button("Press me!") { viewModel.tapCount += 1 }
             }
             .infinityFrame()
