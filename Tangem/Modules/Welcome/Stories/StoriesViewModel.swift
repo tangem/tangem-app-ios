@@ -13,6 +13,10 @@ class StoriesViewModel: ObservableObject {
     @Published var currentPage: WelcomeStoryPage
     @Published var currentProgress = 0.0
 
+    var currentPageIndex: Int {
+        pages.firstIndex(of: currentPage) ?? 0
+    }
+
     let pages: [WelcomeStoryPage]
     private var timerSubscription: AnyCancellable?
     private var timerStartDate: Date?
@@ -25,7 +29,11 @@ class StoriesViewModel: ObservableObject {
     private let minimumSwipeDistance = 100.0
 
     init() {
-        let pages: [WelcomeStoryPage] = WelcomeStoryPage.allCases
+        var pages: [WelcomeStoryPage] = WelcomeStoryPage.allCases
+        if !FeatureProvider.isAvailable(.learnToEarn) {
+            pages.remove(.learn)
+        }
+
         self.pages = pages
 
         currentPage = pages[0]
@@ -128,7 +136,18 @@ class StoriesViewModel: ObservableObject {
     }
 
     private func move(forward: Bool) {
-        currentPage = WelcomeStoryPage(rawValue: currentPage.rawValue + (forward ? 1 : -1)) ?? pages.first!
+        guard let currentPageIndex = pages.firstIndex(of: currentPage) else { return }
+
+        let nextPageIndex = currentPageIndex + (forward ? 1 : -1)
+
+        let nextPage: WelcomeStoryPage
+        if nextPageIndex < 0 || nextPageIndex > (pages.count - 1) {
+            nextPage = pages.first!
+        } else {
+            nextPage = pages[nextPageIndex]
+        }
+
+        currentPage = nextPage
         restartTimer()
         if currentPage != pages.first {
             AppSettings.shared.didDisplayMainScreenStories = true
