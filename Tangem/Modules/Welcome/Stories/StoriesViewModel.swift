@@ -10,10 +10,10 @@ import Combine
 import SwiftUI
 
 class StoriesViewModel: ObservableObject {
-    @Published var currentPage: WelcomeStoryPage = WelcomeStoryPage.allCases[0]
+    @Published var currentPage: WelcomeStoryPage
     @Published var currentProgress = 0.0
 
-    let pages: [WelcomeStoryPage] = WelcomeStoryPage.allCases
+    let pages: [WelcomeStoryPage]
     private var timerSubscription: AnyCancellable?
     private var timerStartDate: Date?
     private var longTapTimerSubscription: AnyCancellable?
@@ -23,6 +23,13 @@ class StoriesViewModel: ObservableObject {
 
     private let longTapDuration = 0.25
     private let minimumSwipeDistance = 100.0
+
+    init() {
+        let pages: [WelcomeStoryPage] = WelcomeStoryPage.allCases
+        self.pages = pages
+
+        currentPage = pages[0]
+    }
 
     func onAppear() {
         NotificationCenter.default.publisher(for: UIApplication.willResignActiveNotification)
