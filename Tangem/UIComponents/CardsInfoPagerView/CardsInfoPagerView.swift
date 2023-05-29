@@ -15,6 +15,8 @@ struct CardsInfoPagerView<
     typealias ContentFactory = (_ element: Data.Element) -> Body
 
     private enum Constants {
+        static var headerInteritemSpacing: CGFloat { 8.0 }
+        static var headerItemHorizontalOffset: CGFloat { headerInteritemSpacing * 2.0 }
         static var contentViewVerticalOffset: CGFloat { 44.0 }
         static var pageSwitchThreshold: CGFloat { 0.5 }
         static var pageSwitchAnimation: Animation { .interactiveSpring(response: 0.30) }
@@ -45,6 +47,15 @@ struct CardsInfoPagerView<
     private var lowerBound: Int { 0 }
     private var upperBound: Int { data.count - 1 }
 
+    private var headerItemPeekHorizontalOffset: CGFloat {
+        var offset = 0.0
+        // Semantically, this is the same as `UICollectionViewFlowLayout.sectionInset` from UIKit
+        offset += Constants.headerItemHorizontalOffset * CGFloat(selectedIndex + 1)
+        // Semantically, this is the same as `UICollectionViewFlowLayout.minimumInteritemSpacing` from UIKit
+        offset += Constants.headerInteritemSpacing * CGFloat(selectedIndex)
+        return offset
+    }
+
     init(
         data: Data,
         id idProvider: KeyPath<Data.Element, ID>,
@@ -62,14 +73,19 @@ struct CardsInfoPagerView<
     var body: some View {
         GeometryReader { proxy in
             VStack(alignment: .leading, spacing: 0.0) {
-                HStack(spacing: 0.0) {
+                HStack(spacing: Constants.headerInteritemSpacing) {
                     ForEach(data, id: idProvider) { element in
                         headerFactory(element)
-                            .frame(width: proxy.size.width)
+                            .frame(width: proxy.size.width - Constants.headerItemHorizontalOffset * 2.0)
                     }
                 }
                 .layoutPriority(1.0)
-                .offset(x: horizontalTranslation - CGFloat(selectedIndex) * proxy.size.width)
+                // The first offset determines which page is shown
+                .offset(x: -CGFloat(selectedIndex) * proxy.size.width)
+                // The second offset translates the page based on swipe
+                .offset(x: horizontalTranslation)
+                // The third offset is responsible for the next/previous cell peek
+                .offset(x: headerItemPeekHorizontalOffset)
 
                 contentFactory(data[nextIndexToSelect ?? selectedIndex])
                     .modifier(
@@ -212,7 +228,6 @@ struct CardsInfoPagerView_Previews: PreviewProvider {
                     selectedIndex: $selectedIndex,
                     headerFactory: { index in
                         MultiWalletCardHeaderView(viewModel: headerPreviewProvider.models[index])
-                            .padding(.horizontal)
                             .cornerRadius(14.0)
                     },
                     contentFactory: { index in
