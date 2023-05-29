@@ -115,7 +115,7 @@ extension SwappingApproveViewModel {
 
         Analytics.log(event: .transactionSent, params: [
             .commonSource: Analytics.ParameterValue.transactionSourceSwap.rawValue,
-            .currencyCode: transactionData.sourceCurrency.symbol,
+            .token: transactionData.sourceCurrency.symbol,
             .blockchain: transactionData.sourceBlockchain.name,
             .permissionType: permissionType.rawValue,
         ])
