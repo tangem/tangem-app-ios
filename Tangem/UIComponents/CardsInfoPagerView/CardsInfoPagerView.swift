@@ -8,12 +8,12 @@ struct CardsInfoPagerView<
     Data, ID, Header, Body
 >: View where Data: RandomAccessCollection, ID: Hashable, Header: View, Body: View, Data.Index == Int {
     typealias HeaderFactory = (_ element: Data.Element) -> Header
-    typealias BodyFactory = (_ element: Data.Element) -> Body
+    typealias ContentFactory = (_ element: Data.Element) -> Body
 
     private let data: Data
     private let idProvider: KeyPath<Data.Element, ID>
     private let headerFactory: HeaderFactory
-    private let bodyFactory: BodyFactory
+    private let contentFactory: ContentFactory
 
     @Binding
     private var selectedIndex: Int
@@ -31,11 +31,11 @@ struct CardsInfoPagerView<
     @State
     private var pageSwitchProgress: CGFloat = .zero
 
-    @Environment(\.bodyViewVerticalOffset)
-    private var bodyViewVerticalOffset
+    @Environment(\.contentViewVerticalOffset)
+    private var contentViewVerticalOffset
 
-    @Environment(\.fractionalWidthForPageSwitch)
-    private var fractionalWidthForPageSwitch
+    @Environment(\.pageSwitchThreshold)
+    private var pageSwitchThreshold
 
     @Environment(\.pageSwitchAnimation)
     private var pageSwitchAnimation
@@ -48,13 +48,13 @@ struct CardsInfoPagerView<
         id idProvider: KeyPath<Data.Element, ID>,
         selectedIndex: Binding<Int>,
         @ViewBuilder headerFactory: @escaping HeaderFactory,
-        @ViewBuilder bodyFactory: @escaping BodyFactory
+        @ViewBuilder contentFactory: @escaping ContentFactory
     ) {
         self.data = data
         self.idProvider = idProvider
         _selectedIndex = selectedIndex
         self.headerFactory = headerFactory
-        self.bodyFactory = bodyFactory
+        self.contentFactory = contentFactory
     }
 
     var body: some View {
@@ -68,11 +68,11 @@ struct CardsInfoPagerView<
                 }
                 .layoutPriority(1.0)
                 .offset(x: horizontalTranslation - CGFloat(selectedIndex) * proxy.size.width)
-                bodyFactory(data[nextIndexToSelect ?? selectedIndex])
+                contentFactory(data[nextIndexToSelect ?? selectedIndex])
                     .modifier(
                         BodyAnimationModifier(
                             progress: pageSwitchProgress,
-                            verticalOffset: bodyViewVerticalOffset,
+                            verticalOffset: contentViewVerticalOffset,
                             hasNextIndexToSelect: hasNextIndexToSelect
                         )
                     )
@@ -125,7 +125,7 @@ struct CardsInfoPagerView<
     }
 
     private func nextIndexToSelect(translation: CGFloat, totalWidth: CGFloat) -> Int {
-        let gestureProgress = translation / (totalWidth * fractionalWidthForPageSwitch * 2.0)
+        let gestureProgress = translation / (totalWidth * pageSwitchThreshold * 2.0)
         let indexDiff = Int(gestureProgress.rounded())
         return selectedIndex - indexDiff
     }
@@ -138,14 +138,14 @@ extension CardsInfoPagerView where Data.Element: Identifiable, Data.Element.ID =
         data: Data,
         selectedIndex: Binding<Int>,
         @ViewBuilder headerFactory: @escaping HeaderFactory,
-        @ViewBuilder bodyFactory: @escaping BodyFactory
+        @ViewBuilder contentFactory: @escaping ContentFactory
     ) {
         self.init(
             data: data,
             id: \.id,
             selectedIndex: selectedIndex,
             headerFactory: headerFactory,
-            bodyFactory: bodyFactory
+            contentFactory: contentFactory
         )
     }
 }
@@ -198,13 +198,13 @@ struct CardsInfoPagerView_Previews: PreviewProvider {
                             .padding(.horizontal)
                             .cornerRadius(14.0)
                     },
-                    bodyFactory: { index in
+                    contentFactory: { index in
                         DummyCardInfoPageView(viewModel: pagePreviewProvider.models[index])
                     }
                 )
             }
-            .fractionalWidthForPageSwitch(0.45)
-            .bodyViewVerticalOffset(64.0)
+            .pageSwitchThreshold(0.45)
+            .contentViewVerticalOffset(64.0)
         }
     }
 
