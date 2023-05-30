@@ -9,11 +9,7 @@
 import Foundation
 import SwiftUI
 
-enum WelcomeStoryPage: Int, Identifiable, CaseIterable {
-    var id: Int {
-        rawValue
-    }
-
+enum WelcomeStoryPage: CaseIterable {
     case learn
     case meetTangem
     case awe
