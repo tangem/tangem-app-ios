@@ -7,4 +7,6 @@
 
 import Foundation
 
-protocol LearnRoutable: AnyObject {}
+protocol LearnRoutable: AnyObject {
+    func closeModule()
+}
