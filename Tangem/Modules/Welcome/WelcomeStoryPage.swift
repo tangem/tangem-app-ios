@@ -9,7 +9,7 @@
 import Foundation
 import SwiftUI
 
-enum WelcomeStoryPage: Int, Identifiable, CaseIterable, Equatable {
+enum WelcomeStoryPage: Int, Identifiable, CaseIterable {
     var id: Int {
         rawValue
     }
