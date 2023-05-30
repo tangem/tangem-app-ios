@@ -25,13 +25,17 @@ class StoriesViewModel: ObservableObject {
     private var currentDragLocation: CGPoint?
     private var bag: Set<AnyCancellable> = []
 
+    private let showLearnPage: Bool
     private let longTapDuration = 0.25
     private let minimumSwipeDistance = 100.0
 
     init() {
+        showLearnPage = FeatureProvider.isAvailable(.learnToEarn)
+
         var pages: [WelcomeStoryPage] = WelcomeStoryPage.allCases
-        if !FeatureProvider.isAvailable(.learnToEarn) {
-            pages.remove(.learn)
+        if !showLearnPage,
+           let learnIndex = pages.firstIndex(of: .learn) {
+            pages.remove(at: learnIndex)
         }
 
         self.pages = pages
@@ -79,7 +83,7 @@ class StoriesViewModel: ObservableObject {
         case WelcomeStoryPage.learn:
             LearnAndEarnStoryPage(learn: searchTokens)
         case WelcomeStoryPage.meetTangem:
-            MeetTangemStoryPage(progress: progressBinding, immediatelyShowTangemLogo: true, immediatelyShowButtons: AppSettings.shared.didDisplayMainScreenStories, isScanning: isScanning, scanCard: scanCard, orderCard: orderCard)
+            MeetTangemStoryPage(progress: progressBinding, immediatelyShowTangemLogo: showLearnPage, immediatelyShowButtons: AppSettings.shared.didDisplayMainScreenStories, isScanning: isScanning, scanCard: scanCard, orderCard: orderCard)
         case WelcomeStoryPage.awe:
             AweStoryPage(progress: progressBinding, isScanning: isScanning, scanCard: scanCard, orderCard: orderCard)
         case WelcomeStoryPage.backup:
