@@ -401,8 +401,6 @@ extension LegacyMainViewModel {
 
         cardModel.setupWarnings()
     }
-
-    private func handleWarningOkGotItAction() {}
 }
 
 private extension LegacyMainViewModel {
