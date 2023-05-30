@@ -57,6 +57,10 @@ extension CommonKeysManager: KeysManager {
         keys.shopifyShop
     }
 
+    var tangemComAuthorization: String? {
+        keys.tangemComAuthorization
+    }
+
     var zendesk: ZendeskConfig {
         keys.zendesk
     }
@@ -99,6 +103,7 @@ extension CommonKeysManager {
         let bscQuiknodeApiKey: String
         let bscQuiknodeSubdomain: String
         let shopifyShop: ShopifyShop
+        let tangemComAuthorization: String?
         let zendesk: ZendeskConfig
         let saltPay: SaltPayConfiguration
         let swapReferrerAccount: SwapReferrerAccount?
