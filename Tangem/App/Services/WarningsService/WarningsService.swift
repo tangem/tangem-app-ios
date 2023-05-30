@@ -36,7 +36,7 @@ class WarningsService {
         if AppEnvironment.current.isProduction {
             return
         }
-        
+
         testnetSubscription = featureStorage.$isTestnet
             .sink { [weak self] isTestnet in
                 if isTestnet {
