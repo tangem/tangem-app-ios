@@ -29,6 +29,7 @@ extension Analytics {
 
         case transactionSourceSend = "Send"
         case transactionSourceSwap = "Swap"
+        case transactionSourceApprove = "Approve"
         case transactionSourceWalletConnect = "WalletConnect"
         case transactionSourceSell = "Sell"
 
