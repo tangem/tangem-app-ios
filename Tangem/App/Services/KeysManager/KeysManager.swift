@@ -16,6 +16,7 @@ protocol KeysManager {
     var mercuryoSecret: String { get }
     var blockchainConfig: BlockchainSdkConfig { get }
     var shopifyShop: ShopifyShop { get }
+    var tangemComAuthorization: String? { get }
     var zendesk: ZendeskConfig { get }
     var saltPay: SaltPayConfiguration { get }
     var infuraProjectId: String { get }
