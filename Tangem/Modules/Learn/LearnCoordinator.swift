@@ -43,4 +43,8 @@ extension LearnCoordinator {
 
 // MARK: - LearnRoutable
 
-extension LearnCoordinator: LearnRoutable {}
+extension LearnCoordinator: LearnRoutable {
+    func closeModule() {
+        dismissAction()
+    }
+}

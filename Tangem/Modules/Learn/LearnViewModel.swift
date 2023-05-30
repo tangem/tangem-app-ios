@@ -22,12 +22,24 @@ final class LearnViewModel: ObservableObject {
     }
 
     var urlActions: [String: (String) -> Void] {
+        let baseUrl = AppEnvironment.current.tangemComBaseUrl.absoluteString
+
         var result: [String: (String) -> Void] = [:]
-        result["https://devweb.tangem.com/promotion-program/ready-for-existed-card-award"] = handleAward
+        result["\(baseUrl)/promotion-program/code-created"] = handleCodeCreated
+        result["\(baseUrl)/promotion-program/close"] = handleClose
         return result
     }
 
-    let url = URL(string: "https://devweb.tangem.com/promotion-program/")!
+    var url: URL {
+        var urlComponents = URLComponents(url: AppEnvironment.current.tangemComBaseUrl, resolvingAgainstBaseURL: false)!
+        urlComponents.path = "/promotion-program/"
+
+        var queryItems = [URLQueryItem]()
+        queryItems.append(URLQueryItem(name: "type", value: "new-card"))
+        urlComponents.queryItems = queryItems
+
+        return urlComponents.url!
+    }
 
     // MARK: - Dependencies
 
@@ -37,7 +49,20 @@ final class LearnViewModel: ObservableObject {
         self.coordinator = coordinator
     }
 
-    func handleAward(url: String) {
+    func handleCodeCreated(url: String) {
+        guard
+            let urlComponents = URLComponents(string: url),
+            let queryItem = urlComponents.queryItems?.first(where: { $0.name == "code" }),
+            let code = queryItem.value
+        else {
+            return
+        }
+
         print(url)
+        print(code)
+    }
+
+    func handleClose(url: String) {
+        coordinator.closeModule()
     }
 }
