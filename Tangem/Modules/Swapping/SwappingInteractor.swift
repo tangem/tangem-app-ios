@@ -127,7 +127,7 @@ extension SwappingInteractor {
             case .priority: return .transactionFeeMax
             }
         }()
-        
+
         Analytics.log(event: .transactionSent, params: [
             .commonSource: Analytics.ParameterValue.transactionSourceSwap.rawValue,
             .token: swappingTxData.sourceCurrency.symbol,
