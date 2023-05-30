@@ -33,6 +33,7 @@ struct WelcomeView: View {
                     isScanning: $viewModel.isScanningCard,
                     scanCard: viewModel.scanCardTapped,
                     orderCard: viewModel.orderCard,
+                    learn: viewModel.learn,
                     searchTokens: viewModel.openTokensList
                 )
             }
