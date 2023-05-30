@@ -16,7 +16,6 @@ class LegacyMainViewModel: ObservableObject {
     // MARK: - Dependencies
 
     @Injected(\.exchangeService) private var exchangeService: ExchangeService
-    @Injected(\.appWarningsService) private var warningsService: AppWarningsProviding
     @Injected(\.failedScanTracker) var failedCardScanTracker: FailedScanTrackable
     @Injected(\.rateAppService) private var rateAppService: RateAppService
     @Injected(\.tangemApiService) private var tangemApiService: TangemApiService
@@ -182,7 +181,7 @@ class LegacyMainViewModel: ObservableObject {
         self.coordinator = coordinator
 
         bind()
-        cardModel.setupWarnings()
+        setupWarnings()
         updateContent()
         updateExchangeButtons()
     }
@@ -194,13 +193,6 @@ class LegacyMainViewModel: ObservableObject {
     // MARK: - Functions
 
     func bind() {
-        warningsService.warningsUpdatePublisher
-            .sink { [unowned self] in
-                AppLog.shared.debug("⚠️ Main view model fetching warnings")
-                self.warnings = self.warningsService.warnings(for: .main)
-            }
-            .store(in: &bag)
-
         cardModel.subscribeToEntriesWithoutDerivation()
             .receive(on: DispatchQueue.main)
             .removeDuplicates()
@@ -331,8 +323,23 @@ class LegacyMainViewModel: ObservableObject {
         cardModel.deriveEntriesWithoutDerivation()
     }
 
-    // MARK: - Warning action handler
+    func extractSellCryptoRequest(from response: String) {
+        if let request = exchangeService.extractSellCryptoRequest(from: response) {
+            openSendToSell(with: request)
+        }
+    }
 
+    func prepareForBackup() {
+        if let input = cardModel.backupInput {
+            Analytics.log(.noticeBackupYourWalletTapped)
+            openOnboarding(with: input)
+        }
+    }
+}
+
+// MARK: - Warnings related
+
+extension LegacyMainViewModel {
     func warningButtonAction(at index: Int, priority: WarningPriority, button: WarningButton) {
         guard let warning = warnings.warning(at: index, with: priority) else { return }
 
@@ -371,7 +378,7 @@ class LegacyMainViewModel: ObservableObject {
                     secondaryButton: .default(Text(Localization.commonUnderstand)) { [weak self] in
                         withAnimation {
                             registerValidatedSignedHashesCard()
-                            self?.warningsService.hideWarning(warning)
+                            self?.cardModel.warningsService.hideWarning(warning)
                         }
                     }
                 ))
@@ -379,22 +386,26 @@ class LegacyMainViewModel: ObservableObject {
             }
         }
 
-        warningsService.hideWarning(warning)
+        cardModel.warningsService.hideWarning(warning)
     }
 
-    func extractSellCryptoRequest(from response: String) {
-        if let request = exchangeService.extractSellCryptoRequest(from: response) {
-            openSendToSell(with: request)
-        }
+    private func setupWarnings() {
+        cardModel.warningsService.warningsUpdatePublisher
+            .sink { [weak self] in
+                guard let self else { return }
+
+                AppLog.shared.debug("⚠️ Main view model fetching warnings")
+                self.warnings = self.cardModel.warningsService.warnings(for: .main)
+            }
+            .store(in: &bag)
+
+        cardModel.setupWarnings()
     }
 
-    func prepareForBackup() {
-        if let input = cardModel.backupInput {
-            Analytics.log(.noticeBackupYourWalletTapped)
-            openOnboarding(with: input)
-        }
-    }
+    private func handleWarningOkGotItAction() {}
+}
 
+private extension LegacyMainViewModel {
     // MARK: - Private functions
 
     private func updateContent() {
