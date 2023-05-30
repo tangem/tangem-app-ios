@@ -113,6 +113,10 @@ extension WelcomeViewModel {
         coordinator.openMail(with: failedCardScanTracker, recipient: EmailConfig.default.recipient)
     }
 
+    func learn() {
+        coordinator.openLearning()
+    }
+
     func openTokensList() {
         // For some reason the button can be tapped even after we've this flag to FALSE to disable it
         guard !isScanningCard else { return }
