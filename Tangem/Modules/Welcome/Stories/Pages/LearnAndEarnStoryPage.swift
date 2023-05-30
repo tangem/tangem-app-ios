@@ -8,38 +8,6 @@
 
 import SwiftUI
 
-#warning("[REDACTED_TODO_COMMENT]")
-fileprivate struct OneInchGradientView: View {
-    let startColorName: String
-    let endColorName: String
-    let radius: Double
-
-    var body: some View {
-        RadialGradient(
-            colors: [Color(startColorName).opacity(0.9), Color(endColorName).opacity(0)],
-            center: .center,
-            startRadius: 0,
-            endRadius: radius
-        )
-    }
-}
-
-struct OneInchBlueGradientView: View {
-    let radius: Double
-
-    var body: some View {
-        OneInchGradientView(startColorName: "OneInchBlueGradientStart", endColorName: "OneInchBlueGradientStop", radius: radius)
-    }
-}
-
-struct OneInchRedGradientView: View {
-    let radius: Double
-
-    var body: some View {
-        OneInchGradientView(startColorName: "OneInchRedGradientStart", endColorName: "OneInchRedGradientStop", radius: radius)
-    }
-}
-
 struct LearnAndEarnStoryPage: View {
     let learn: () -> Void
 

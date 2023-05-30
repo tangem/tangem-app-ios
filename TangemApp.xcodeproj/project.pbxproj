@@ -412,6 +412,7 @@
 		DA6C752C292909B20070EEFD /* UserWalletRepositoryUtil.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA6C752B292909B20070EEFD /* UserWalletRepositoryUtil.swift */; };
 		DA71FCA62A20D08500C8D1F7 /* LearnAndEarnStoryPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA71FCA52A20D08500C8D1F7 /* LearnAndEarnStoryPage.swift */; };
 		DA8BBF972A0248E300B085DC /* SensitiveInformationModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA8BBF962A0248E300B085DC /* SensitiveInformationModifier.swift */; };
+		DA91770E2A25DD3F006CD67B /* OneInchGradientViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA91770D2A25DD3F006CD67B /* OneInchGradientViews.swift */; };
 		DAA0559928744E2400E4F7B9 /* MercuryoService.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAA0559828744E2400E4F7B9 /* MercuryoService.swift */; };
 		DAA153BC2876CBFC002254D1 /* GeoResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAA153BB2876CBFC002254D1 /* GeoResponse.swift */; };
 		DAA5E30028D21369003C0E80 /* UserWalletStorageAgreementRoutable.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAA5E2FC28D21368003C0E80 /* UserWalletStorageAgreementRoutable.swift */; };
@@ -1399,6 +1400,7 @@
 		DA6C752B292909B20070EEFD /* UserWalletRepositoryUtil.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserWalletRepositoryUtil.swift; sourceTree = "<group>"; };
 		DA71FCA52A20D08500C8D1F7 /* LearnAndEarnStoryPage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LearnAndEarnStoryPage.swift; sourceTree = "<group>"; };
 		DA8BBF962A0248E300B085DC /* SensitiveInformationModifier.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SensitiveInformationModifier.swift; sourceTree = "<group>"; };
+		DA91770D2A25DD3F006CD67B /* OneInchGradientViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OneInchGradientViews.swift; sourceTree = "<group>"; };
 		DAA0559828744E2400E4F7B9 /* MercuryoService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MercuryoService.swift; sourceTree = "<group>"; };
 		DAA153BB2876CBFC002254D1 /* GeoResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GeoResponse.swift; sourceTree = "<group>"; };
 		DAA5E2FC28D21368003C0E80 /* UserWalletStorageAgreementRoutable.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UserWalletStorageAgreementRoutable.swift; sourceTree = "<group>"; };
@@ -2260,6 +2262,7 @@
 				65B435FD2844BF7100DEAE1B /* AttributedTextView.swift */,
 				DC295B3928615D03006CB7B6 /* NavHolder.swift */,
 				EF4535362976C1D80030639A /* FixedSpacer.swift */,
+				DA91770D2A25DD3F006CD67B /* OneInchGradientViews.swift */,
 			);
 			path = UI;
 			sourceTree = "<group>";
@@ -5674,6 +5677,7 @@
 				B02B74AA29879CC5006473F2 /* WalletConnectV2Factory.swift in Sources */,
 				B09BB86D259A080900B92000 /* SendAdditionalFields.swift in Sources */,
 				B02B74B82987A628006473F2 /* WalletConnectV2SignTypedData.swift in Sources */,
+				DA91770E2A25DD3F006CD67B /* OneInchGradientViews.swift in Sources */,
 				B09536FE26D3D2460040A90D /* DisclaimerView.swift in Sources */,
 				5D09383225E7A9820049B8F0 /* Wallet+.swift in Sources */,
 				5D39516125597DB1002CC452 /* BalanceViewModel.swift in Sources */,
