@@ -51,14 +51,12 @@ struct LearnAndEarnStoryPage: View {
                         .padding()
 
                     VStack(spacing: 12) {
-                        #warning("L10n")
-                        Text("Learn and get a bonus")
+                        Text(Localization.storyLearnTitle)
                             .font(.system(size: 43, weight: .bold))
                             .minimumScaleFactor(0.5)
                             .foregroundColor(.white)
 
-                        #warning("L10n")
-                        Text("Complete the training, get the opportunity to buy Tangem wallet with a discount and receive 1inch tokens on your wallet")
+                        Text(Localization.storyLearnDescription)
                             .font(.system(size: 16))
                             .foregroundColor(.gray)
                             .padding(.horizontal)
@@ -74,9 +72,8 @@ struct LearnAndEarnStoryPage: View {
                         .aspectRatio(contentMode: .fit)
                 }
 
-                #warning("L10n")
                 MainButton(
-                    title: "Learn",
+                    title: Localization.storyLearnLearn,
                     style: .primary,
                     isLoading: false,
                     action: learn
