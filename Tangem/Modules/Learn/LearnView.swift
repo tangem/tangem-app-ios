@@ -15,9 +15,7 @@ struct LearnView: View {
     }
 
     var body: some View {
-        VStack {
-            Text("Hello, World!")
-        }
+        WebView(url: viewModel.url, headers: viewModel.headers, urlActions: viewModel.urlActions)
     }
 }
 
