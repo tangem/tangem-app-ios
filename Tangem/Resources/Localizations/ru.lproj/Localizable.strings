@@ -169,6 +169,8 @@
 "key_invalidated_warning_description" = "Вы обновили данные биометрии, отсканируйте свою карту для входа";
 "mail_error_no_accounts_body" = "Пожалуйста, настройте учетную запись для отправки электронной почты";
 "mail_error_no_accounts_title" = "Нет настроенных почтовых аккаунтов";
+"main_learn_subtitle" = "You have completed the training and can get your 1inch tokens";
+"main_learn_title" = "Get a bonus";
 "main_manage_tokens" = "Управление токенами";
 "main_no_backup_warning_subtitle" = "Чтобы защитить свои активы, мы советуем вам выполнить эту процедуру";
 "main_no_backup_warning_title" = "Бэкап кошелька не был произведен";
