@@ -39,6 +39,10 @@ struct LegacyMainView: View {
                         })
                         .padding(.horizontal, 16)
 
+                        if viewModel.canLearnAndEarn {
+                            learnAlertView
+                        }
+
                         if viewModel.isBackupAllowed {
                             backupWarningView
                         }
@@ -120,6 +124,11 @@ struct LegacyMainView: View {
         .buttonStyle(PlainButtonStyle())
         .animation(nil)
         .accessibility(label: Text(Localization.voiceOverOpenCardDetails))
+    }
+
+    var learnAlertView: some View {
+        LearnAndEarnAlertView(tapAction: viewModel.learnAndEarn)
+            .padding(.horizontal, 16)
     }
 
     var backupWarningView: some View {
