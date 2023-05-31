@@ -12,7 +12,7 @@ struct CardsInfoPagerView<
     Data, ID, Header, Body
 >: View where Data: RandomAccessCollection, ID: Hashable, Header: View, Body: View, Data.Index == Int {
     typealias HeaderFactory = (_ element: Data.Element) -> Header
-    typealias ContentFactory = (_ element: Data.Element) -> Body
+    typealias ContentFactory = (_ element: Data.Element, _ viewProvider: HeaderPlaceholderViewProvider) -> Body
 
     private enum Constants {
         static var headerInteritemSpacing: CGFloat { 8.0 }
@@ -20,6 +20,7 @@ struct CardsInfoPagerView<
         static var contentViewVerticalOffset: CGFloat { 44.0 }
         static var pageSwitchThreshold: CGFloat { 0.5 }
         static var pageSwitchAnimation: Animation { .interactiveSpring(response: 0.30) }
+        static var topEdgeClipsHeaderView: Bool { false }
     }
 
     private let data: Data
@@ -29,16 +30,22 @@ struct CardsInfoPagerView<
 
     @Binding private var selectedIndex: Int
 
+    @Namespace private var namespace
+
     @GestureState private var nextIndexToSelect: Int?
     @GestureState private var hasNextIndexToSelect = true
+    @GestureState private var headerSticksToContent = true
     @GestureState private var horizontalTranslation: CGFloat = .zero
 
     /// - Warning: Won't be reset back to 0 after successful (non-cancelled) page switch, use with caution.
     @State private var pageSwitchProgress: CGFloat = .zero
+    @State private var headerHeight: CGFloat = .zero
+    @State private var isHeaderPlaceholderVisible = true
 
     private var contentViewVerticalOffset: CGFloat = Constants.contentViewVerticalOffset
     private var pageSwitchThreshold: CGFloat = Constants.pageSwitchThreshold
     private var pageSwitchAnimation: Animation = Constants.pageSwitchAnimation
+    private var topEdgeClipsHeaderView: Bool = Constants.topEdgeClipsHeaderView
 
     private var lowerBound: Int { 0 }
     private var upperBound: Int { data.count - 1 }
@@ -50,6 +57,19 @@ struct CardsInfoPagerView<
         // Semantically, this is the same as `UICollectionViewFlowLayout.minimumInteritemSpacing` from UIKit
         offset += Constants.headerInteritemSpacing * CGFloat(selectedIndex)
         return offset
+    }
+
+    var body: some View {
+        GeometryReader { proxy in
+            ZStack(alignment: .topLeading) {
+                makeContent(with: proxy)
+
+                makeHeader(with: proxy)
+                    .gesture(makeDragGesture(with: proxy))
+            }
+            .animation(pageSwitchAnimation, value: horizontalTranslation)
+            .environment(\.cardsInfoPageHeaderPlaceholderHeight, headerHeight)
+        }
     }
 
     init(
@@ -66,43 +86,62 @@ struct CardsInfoPagerView<
         self.contentFactory = contentFactory
     }
 
-    var body: some View {
-        GeometryReader { proxy in
-            VStack(alignment: .leading, spacing: 0.0) {
-                HStack(spacing: Constants.headerInteritemSpacing) {
-                    ForEach(Array(zip(data.indices, data)), id: idProvider) { _, element in
-                        headerFactory(element)
-                            .frame(width: proxy.size.width - Constants.headerItemHorizontalOffset * 2.0)
-                    }
-                }
-                .layoutPriority(1.0)
-                // The first offset determines which page is shown
-                .offset(x: -CGFloat(selectedIndex) * proxy.size.width)
-                // The second offset translates the page based on swipe
-                .offset(x: horizontalTranslation)
-                // The third offset is responsible for the next/previous cell peek
-                .offset(x: headerItemPeekHorizontalOffset)
+    private func makeHeaderPlaceholder(forContentAtIndex index: Int) -> CardsInfoPageHeaderPlaceholderView {
+        return CardsInfoPageHeaderPlaceholderView(
+            namespace: namespace,
+            matchedGeometryEffectId: String(describing: index),
+            isHeaderPlaceholderVisible: $isHeaderPlaceholderVisible
+        )
+    }
 
-                ZStack {
-                    let currentPageIndex = nextIndexToSelect ?? selectedIndex
-                    ForEach(Array(zip(data.indices, data)), id: idProvider) { elementIndex, element in
-                        contentFactory(element)
-                            .opacity(elementIndex == currentPageIndex ? 1.0 : 0.0)
-                    }
-                }
-                .modifier(
-                    BodyAnimationModifier(
-                        progress: pageSwitchProgress,
-                        verticalOffset: contentViewVerticalOffset,
-                        hasNextIndexToSelect: hasNextIndexToSelect
-                    )
-                )
-                .frame(width: proxy.size.width)
+    private func makeHeader(with proxy: GeometryProxy) -> some View {
+        // [REDACTED_TODO_COMMENT]
+        HStack(spacing: Constants.headerInteritemSpacing) {
+            ForEach(data.indexed(), id: idProvider) { index, element in
+                headerFactory(element)
+                    .frame(width: proxy.size.width - Constants.headerItemHorizontalOffset * 2.0)
+                    .readSize { headerHeight = $0.height } // All headers are expected to have the same height
             }
-            .animation(pageSwitchAnimation, value: horizontalTranslation)
-            .gesture(makeDragGesture(with: proxy))
         }
-        .edgesIgnoringSafeArea(.bottom)
+        // The first offset determines which page is shown
+        .offset(x: -CGFloat(selectedIndex) * proxy.size.width)
+        // The second offset translates the page based on swipe
+        .offset(x: horizontalTranslation)
+        // The third offset is responsible for the next/previous cell peek
+        .offset(x: headerItemPeekHorizontalOffset)
+        .infinityFrame(alignment: .topLeading)
+        // A dummy random id is used when the drag gesture is active - this effectively disables
+        // `matchedGeometryEffect` behavior unwanted during ongoing drag gesture
+        .matchedGeometryEffect(
+            id: headerSticksToContent ? String(describing: selectedIndex) : UUID().uuidString,
+            in: namespace,
+            isSource: false
+        )
+        // `topEdgeClipsHeaderView` is a stateless property, so we can use
+        // conditional modifiers like `if` without performance penalty
+        .if(topEdgeClipsHeaderView) { $0.clipped() }
+        .isHidden(!isHeaderPlaceholderVisible)
+    }
+
+    private func makeContent(with proxy: GeometryProxy) -> some View {
+        // [REDACTED_TODO_COMMENT]
+        ZStack(alignment: .topLeading) {
+            let currentPageIndex = nextIndexToSelect ?? selectedIndex
+            ForEach(data.indexed(), id: idProvider) { index, element in
+                let headerPlaceholder = makeHeaderPlaceholder(forContentAtIndex: index)
+                let viewProvider = HeaderPlaceholderViewProvider(headerPlaceholder)
+                contentFactory(element, viewProvider)
+                    .isHidden(index != currentPageIndex)
+            }
+        }
+        .frame(size: proxy.size)
+        .modifier(
+            BodyAnimationModifier(
+                progress: pageSwitchProgress,
+                verticalOffset: contentViewVerticalOffset,
+                hasNextIndexToSelect: hasNextIndexToSelect
+            )
+        )
     }
 
     private func makeDragGesture(with proxy: GeometryProxy) -> some Gesture {
@@ -127,6 +166,9 @@ struct CardsInfoPagerView<
                     totalWidth: proxy.size.width,
                     nextPageThreshold: 0.5
                 ) != nil
+            }
+            .updating($headerSticksToContent) { _, state, _ in
+                state = false
             }
             .onChanged { value in
                 pageSwitchProgress = abs(value.translation.width / proxy.size.width)
@@ -200,6 +242,16 @@ extension CardsInfoPagerView where Data.Element: Identifiable, Data.Element.ID =
 
 // MARK: - Auxiliary types
 
+/// A dumb wrapper to hide a concrete type of header placeholder view.
+struct HeaderPlaceholderViewProvider {
+    var view: some View { placeholderView }
+    private let placeholderView: CardsInfoPageHeaderPlaceholderView
+
+    fileprivate init(_ placeholderView: CardsInfoPageHeaderPlaceholderView) {
+        self.placeholderView = placeholderView
+    }
+}
+
 private struct BodyAnimationModifier: Animatable, ViewModifier {
     var progress: CGFloat
     let verticalOffset: CGFloat
@@ -232,8 +284,16 @@ extension CardsInfoPagerView: Setupable {
         map { $0.pageSwitchThreshold = threshold }
     }
 
+    /// Maximum vertical offset for the `content` part of the page during
+    /// gesture-driven or animation-driven page switch
     func contentViewVerticalOffset(_ offset: CGFloat) -> Self {
         map { $0.contentViewVerticalOffset = offset }
+    }
+
+    /// Should be enabled if `CardsInfoPagerView` has some padding at the top edge (i.e. when
+    /// `CardsInfoPagerView` isn't pinned to the `safeAreaLayoutGuide.topAnchor` in terms of UIKit).
+    func topEdgeClipsHeaderView(_ topEdgeClipsHeaderView: Bool) -> Self {
+        map { $0.topEdgeClipsHeaderView = topEdgeClipsHeaderView }
     }
 }
 
@@ -253,14 +313,17 @@ struct CardsInfoPagerView_Previews: PreviewProvider {
                     .ignoresSafeArea()
 
                 CardsInfoPagerView(
-                    data: zip(headerPreviewProvider.models.indices, pagePreviewProvider.models.indices).map(\.0),
+                    data: Array(pagePreviewProvider.models.indices), // [REDACTED_TODO_COMMENT]
                     selectedIndex: $selectedIndex,
                     headerFactory: { index in
                         MultiWalletCardHeaderView(viewModel: headerPreviewProvider.models[index])
                             .cornerRadius(14.0)
                     },
-                    contentFactory: { index in
-                        DummyCardInfoPageView(viewModel: pagePreviewProvider.models[index])
+                    contentFactory: { index, viewProvider in
+                        DummyCardInfoPageView(
+                            viewModel: pagePreviewProvider.models[index],
+                            headerPlaceholder: viewProvider.view
+                        )
                     }
                 )
                 .pageSwitchThreshold(0.4)
@@ -269,13 +332,20 @@ struct CardsInfoPagerView_Previews: PreviewProvider {
         }
     }
 
-    private struct DummyCardInfoPageView: View {
+    private struct DummyCardInfoPageView<HeaderPlaceholder>: View where HeaderPlaceholder: View {
         @ObservedObject var viewModel: CardInfoPagePreviewViewModel
 
+        let headerPlaceholder: HeaderPlaceholder
+
         var body: some View {
-            List(viewModel.cellViewModels, id: \.id) { cellViewModel in
-                DummyCardInfoPageCellView(viewModel: cellViewModel)
+            List {
+                headerPlaceholder
+
+                ForEach(viewModel.cellViewModels, id: \.id) { cellViewModel in
+                    DummyCardInfoPageCellView(viewModel: cellViewModel)
+                }
             }
+            .listStyle(.plain)
         }
     }
 
