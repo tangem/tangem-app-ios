@@ -169,6 +169,8 @@
 "key_invalidated_warning_description" = "您已更新生物識別登入，掃描您的卡進入";
 "mail_error_no_accounts_body" = "請設置一個帳戶以發送電子郵件";
 "mail_error_no_accounts_title" = "沒有郵件帳戶";
+"main_learn_subtitle" = "You have completed the training and can get your 1inch tokens";
+"main_learn_title" = "Get a bonus";
 "main_manage_tokens" = "管理代幣";
 "main_no_backup_warning_subtitle" = "為了保護您的資產，我們建議您執行此程序";
 "main_no_backup_warning_title" = "您的錢包尚未備份";
