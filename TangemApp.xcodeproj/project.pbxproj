@@ -411,6 +411,7 @@
 		DA6C7528292613D00070EEFD /* UserWalletIdFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA6C7527292613D00070EEFD /* UserWalletIdFactory.swift */; };
 		DA6C752C292909B20070EEFD /* UserWalletRepositoryUtil.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA6C752B292909B20070EEFD /* UserWalletRepositoryUtil.swift */; };
 		DA71FCA62A20D08500C8D1F7 /* LearnAndEarnStoryPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA71FCA52A20D08500C8D1F7 /* LearnAndEarnStoryPage.swift */; };
+		DA74441E2A27739200F926A9 /* LearnAndEarnAlertView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA74441D2A27739100F926A9 /* LearnAndEarnAlertView.swift */; };
 		DA8BBF972A0248E300B085DC /* SensitiveInformationModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA8BBF962A0248E300B085DC /* SensitiveInformationModifier.swift */; };
 		DA91770E2A25DD3F006CD67B /* OneInchGradientViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA91770D2A25DD3F006CD67B /* OneInchGradientViews.swift */; };
 		DAA0559928744E2400E4F7B9 /* MercuryoService.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAA0559828744E2400E4F7B9 /* MercuryoService.swift */; };
@@ -1399,6 +1400,7 @@
 		DA6C7527292613D00070EEFD /* UserWalletIdFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserWalletIdFactory.swift; sourceTree = "<group>"; };
 		DA6C752B292909B20070EEFD /* UserWalletRepositoryUtil.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserWalletRepositoryUtil.swift; sourceTree = "<group>"; };
 		DA71FCA52A20D08500C8D1F7 /* LearnAndEarnStoryPage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LearnAndEarnStoryPage.swift; sourceTree = "<group>"; };
+		DA74441D2A27739100F926A9 /* LearnAndEarnAlertView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LearnAndEarnAlertView.swift; sourceTree = "<group>"; };
 		DA8BBF962A0248E300B085DC /* SensitiveInformationModifier.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SensitiveInformationModifier.swift; sourceTree = "<group>"; };
 		DA91770D2A25DD3F006CD67B /* OneInchGradientViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OneInchGradientViews.swift; sourceTree = "<group>"; };
 		DAA0559828744E2400E4F7B9 /* MercuryoService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MercuryoService.swift; sourceTree = "<group>"; };
@@ -3826,6 +3828,7 @@
 				5DF612A324E6E3E2001BF301 /* LegacyAddressDetailView.swift */,
 				5DD6DF20251E018A00F2693E /* AlertCardView.swift */,
 				B03ACAC82567CFFF00F5D269 /* LegacyCardView.swift */,
+				DA74441D2A27739100F926A9 /* LearnAndEarnAlertView.swift */,
 			);
 			path = LegacyMain;
 			sourceTree = "<group>";
@@ -5461,6 +5464,7 @@
 				EF74F50D289BF5AE001034D2 /* Fonts.swift in Sources */,
 				DC13D04029DF2D470003895C /* BackupServiceFactory.swift in Sources */,
 				5D341CCA27E4C5650028D8FC /* CoinItemViewModel.swift in Sources */,
+				DA74441E2A27739200F926A9 /* LearnAndEarnAlertView.swift in Sources */,
 				DAB5E335297E8CBF00A4E9CF /* SignificantFractionDigitRounder.swift in Sources */,
 				DAB1E62627B4E40D00C1F510 /* ShopOrderView.swift in Sources */,
 				B0FE0B37297138CC0046EE2C /* WalletConnectSavedSession.swift in Sources */,
