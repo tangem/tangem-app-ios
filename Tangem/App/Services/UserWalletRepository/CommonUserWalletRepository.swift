@@ -143,6 +143,7 @@ class CommonUserWalletRepository: UserWalletRepository {
                 if let onboardingInput = factory.makeOnboardingInput() {
                     return .justWithError(output: .onboarding(onboardingInput))
                 } else if let cardModel = CardViewModel(cardInfo: cardInfo) {
+                    self.models.append(cardModel)
                     self.initializeServices(for: cardModel, cardInfo: cardInfo)
                     cardModel.initialUpdate()
                     return .justWithError(output: .success(cardModel))
