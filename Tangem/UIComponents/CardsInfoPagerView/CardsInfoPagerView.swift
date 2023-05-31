@@ -14,15 +14,6 @@ struct CardsInfoPagerView<
     typealias HeaderFactory = (_ element: Data.Element) -> Header
     typealias ContentFactory = (_ element: Data.Element, _ viewProvider: HeaderPlaceholderViewProvider) -> Body
 
-    private enum Constants {
-        static var headerInteritemSpacing: CGFloat { 8.0 }
-        static var headerItemHorizontalOffset: CGFloat { headerInteritemSpacing * 2.0 }
-        static var contentViewVerticalOffset: CGFloat { 44.0 }
-        static var pageSwitchThreshold: CGFloat { 0.5 }
-        static var pageSwitchAnimation: Animation { .interactiveSpring(response: 0.30) }
-        static var topEdgeClipsHeaderView: Bool { false }
-    }
-
     private let data: Data
     private let idProvider: KeyPath<(Data.Index, Data.Element), ID>
     private let headerFactory: HeaderFactory
@@ -240,6 +231,30 @@ extension CardsInfoPagerView where Data.Element: Identifiable, Data.Element.ID =
     }
 }
 
+// MARK: - Setupable protocol conformance
+
+extension CardsInfoPagerView: Setupable {
+    func pageSwitchAnimation(_ animation: Animation) -> Self {
+        map { $0.pageSwitchAnimation = animation }
+    }
+
+    func pageSwitchThreshold(_ threshold: CGFloat) -> Self {
+        map { $0.pageSwitchThreshold = threshold }
+    }
+
+    /// Maximum vertical offset for the `content` part of the page during
+    /// gesture-driven or animation-driven page switch
+    func contentViewVerticalOffset(_ offset: CGFloat) -> Self {
+        map { $0.contentViewVerticalOffset = offset }
+    }
+
+    /// Should be enabled if `CardsInfoPagerView` has some padding at the top edge (i.e. when
+    /// `CardsInfoPagerView` isn't pinned to the `safeAreaLayoutGuide.topAnchor` in terms of UIKit).
+    func topEdgeClipsHeaderView(_ topEdgeClipsHeaderView: Bool) -> Self {
+        map { $0.topEdgeClipsHeaderView = topEdgeClipsHeaderView }
+    }
+}
+
 // MARK: - Auxiliary types
 
 /// A dumb wrapper to hide a concrete type of header placeholder view.
@@ -273,27 +288,16 @@ private struct BodyAnimationModifier: Animatable, ViewModifier {
     }
 }
 
-// MARK: - Setupable protocol conformance
+// MARK: - Constants
 
-extension CardsInfoPagerView: Setupable {
-    func pageSwitchAnimation(_ animation: Animation) -> Self {
-        map { $0.pageSwitchAnimation = animation }
-    }
-
-    func pageSwitchThreshold(_ threshold: CGFloat) -> Self {
-        map { $0.pageSwitchThreshold = threshold }
-    }
-
-    /// Maximum vertical offset for the `content` part of the page during
-    /// gesture-driven or animation-driven page switch
-    func contentViewVerticalOffset(_ offset: CGFloat) -> Self {
-        map { $0.contentViewVerticalOffset = offset }
-    }
-
-    /// Should be enabled if `CardsInfoPagerView` has some padding at the top edge (i.e. when
-    /// `CardsInfoPagerView` isn't pinned to the `safeAreaLayoutGuide.topAnchor` in terms of UIKit).
-    func topEdgeClipsHeaderView(_ topEdgeClipsHeaderView: Bool) -> Self {
-        map { $0.topEdgeClipsHeaderView = topEdgeClipsHeaderView }
+private extension CardsInfoPagerView {
+    private enum Constants {
+        static var headerInteritemSpacing: CGFloat { 8.0 }
+        static var headerItemHorizontalOffset: CGFloat { headerInteritemSpacing * 2.0 }
+        static var contentViewVerticalOffset: CGFloat { 44.0 }
+        static var pageSwitchThreshold: CGFloat { 0.5 }
+        static var pageSwitchAnimation: Animation { .interactiveSpring(response: 0.30) }
+        static var topEdgeClipsHeaderView: Bool { false }
     }
 }
 
