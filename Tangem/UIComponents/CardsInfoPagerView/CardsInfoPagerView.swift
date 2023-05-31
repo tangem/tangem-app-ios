@@ -1,5 +1,5 @@
 //
-//  EnvironmentValues+CardsInfoPagerView.swift
+//  CardsInfoPagerView.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
