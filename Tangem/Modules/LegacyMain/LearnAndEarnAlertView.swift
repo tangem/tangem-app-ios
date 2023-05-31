@@ -15,7 +15,7 @@ struct LearnAndEarnAlertView: View {
         Button {
             tapAction()
         } label: {
-            HStack(alignment: .center, spacing: 0) {
+            HStack(spacing: 0) {
                 Assets.LearnAndEarn.oneInchLogoSmall.image
                     .padding(.vertical, 8)
 
