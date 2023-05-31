@@ -1,5 +1,5 @@
 //
-//  LearnCoordinator.swift
+//  PromotionCoordinator.swift
 //
 //
 //  Created by [REDACTED_AUTHOR]
@@ -8,13 +8,13 @@
 import Foundation
 import Combine
 
-class LearnCoordinator: CoordinatorObject {
+class PromotionCoordinator: CoordinatorObject {
     let dismissAction: Action
     let popToRootAction: ParamsAction<PopToRootOptions>
 
     // MARK: - Root view model
 
-    @Published private(set) var rootViewModel: LearnViewModel?
+    @Published private(set) var rootViewModel: PromotionViewModel?
 
     // MARK: - Child coordinators
 
@@ -29,13 +29,13 @@ class LearnCoordinator: CoordinatorObject {
     }
 
     func start(with options: Options) {
-        rootViewModel = LearnViewModel(coordinator: self)
+        rootViewModel = PromotionViewModel(coordinator: self)
     }
 }
 
 // MARK: - Options
 
-extension LearnCoordinator {
+extension PromotionCoordinator {
     enum Options {
         case `default`
     }
@@ -43,7 +43,7 @@ extension LearnCoordinator {
 
 // MARK: - LearnRoutable
 
-extension LearnCoordinator: LearnRoutable {
+extension PromotionCoordinator: PromotionRoutable {
     func closeModule() {
         dismissAction()
     }
