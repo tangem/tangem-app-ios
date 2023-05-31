@@ -16,9 +16,7 @@ struct LearnAndEarnAlertView: View {
             tapAction()
         } label: {
             HStack(alignment: .center, spacing: 0) {
-                Image("1inch-logo-small")
-                    .frame(width: 42, height: 42)
-                    .cornerRadius(21)
+                Assets.LearnAndEarn.oneInchLogoSmall.image
                     .padding(.vertical, 8)
 
                 VStack(alignment: .leading, spacing: 2) {
@@ -31,13 +29,13 @@ struct LearnAndEarnAlertView: View {
                         .foregroundColor(Color.white.opacity(0.7))
                 }
                 .fixedSize(horizontal: false, vertical: true)
-                .padding(.leading, 12)
+                .padding(.leading, 10)
 
                 Spacer()
 
                 Assets.chevron.image
-//                .foregroundColor(Color.white.opacity(0.7))
-                    .foregroundColor(Color.red.opacity(0.7))
+                    .renderingMode(.template)
+                    .foregroundColor(Color.white.opacity(0.7))
             }
             .padding(.horizontal, 16)
             .padding(.vertical, 10)
