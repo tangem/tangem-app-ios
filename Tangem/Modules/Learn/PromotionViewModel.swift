@@ -1,5 +1,5 @@
 //
-//  LearnViewModel.swift
+//  PromotionViewModel.swift
 //
 //
 //  Created by [REDACTED_AUTHOR]
@@ -8,7 +8,7 @@
 import Combine
 import SwiftUI
 
-final class LearnViewModel: ObservableObject {
+final class PromotionViewModel: ObservableObject {
     @Injected(\.keysManager) var keysManager: KeysManager
 
     // MARK: - ViewState
@@ -47,9 +47,9 @@ final class LearnViewModel: ObservableObject {
 
     // MARK: - Dependencies
 
-    private unowned let coordinator: LearnRoutable
+    private unowned let coordinator: PromotionRoutable
 
-    init(coordinator: LearnRoutable) {
+    init(coordinator: PromotionRoutable) {
         self.coordinator = coordinator
     }
 
