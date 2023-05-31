@@ -25,20 +25,24 @@ final class LearnViewModel: ObservableObject {
         let baseUrl = AppEnvironment.current.tangemComBaseUrl.absoluteString
 
         var result: [String: (String) -> Void] = [:]
-        result["\(baseUrl)/promotion-program/code-created"] = handleCodeCreated
-        result["\(baseUrl)/promotion-program/close"] = handleClose
+        result["\(baseUrl)/\(urlPath)/code-created"] = handleCodeCreated
+        result["\(baseUrl)/\(urlPath)/close"] = handleClose
         return result
     }
 
     var url: URL {
         var urlComponents = URLComponents(url: AppEnvironment.current.tangemComBaseUrl, resolvingAgainstBaseURL: false)!
-        urlComponents.path = "/promotion-program/"
+        urlComponents.path = "/\(urlPath)/"
 
         var queryItems = [URLQueryItem]()
         queryItems.append(URLQueryItem(name: "type", value: "new-card"))
         urlComponents.queryItems = queryItems
 
         return urlComponents.url!
+    }
+
+    private var urlPath: String {
+        "promotion-test"
     }
 
     // MARK: - Dependencies
