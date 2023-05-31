@@ -31,6 +31,7 @@ class LegacyMainViewModel: ObservableObject {
     @Published var image: UIImage? = nil
     @Published var isLackDerivationWarningViewVisible: Bool = false
     @Published var isBackupAllowed: Bool = false
+    @Published var canLearnAndEarn: Bool = false
 
     @Published var exchangeButtonState: ExchangeButtonState = .single(option: .buy)
     @Published var exchangeActionSheet: ActionSheetBinder?
@@ -386,6 +387,10 @@ class LegacyMainViewModel: ObservableObject {
         if let request = exchangeService.extractSellCryptoRequest(from: response) {
             openSendToSell(with: request)
         }
+    }
+
+    func learnAndEarn() {
+        print("LEARN AND EARN")
     }
 
     func prepareForBackup() {
