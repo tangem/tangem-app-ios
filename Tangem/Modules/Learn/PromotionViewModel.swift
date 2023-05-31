@@ -10,8 +10,7 @@ import SwiftUI
 
 final class PromotionViewModel: ObservableObject {
     @Injected(\.keysManager) var keysManager: KeysManager
-
-    // MARK: - ViewState
+    @Injected(\.promotionService) var promotionService: PromotionServiceProtocol
 
     var headers: [String: String] {
         var result: [String: String] = [:]
@@ -36,6 +35,9 @@ final class PromotionViewModel: ObservableObject {
 
         var queryItems = [URLQueryItem]()
         queryItems.append(URLQueryItem(name: "type", value: "new-card"))
+        if let promoCode = promotionService.promoCode {
+            queryItems.append(URLQueryItem(name: "code", value: promoCode))
+        }
         urlComponents.queryItems = queryItems
 
         return urlComponents.url!
@@ -62,8 +64,7 @@ final class PromotionViewModel: ObservableObject {
             return
         }
 
-        print(url)
-        print(code)
+        promotionService.setPromoCode(code)
     }
 
     func handleClose(url: String) {
