@@ -22,11 +22,11 @@ struct LearnAndEarnAlertView: View {
                     .padding(.vertical, 8)
 
                 VStack(alignment: .leading, spacing: 2) {
-                    Text("Get a bonus")
+                    Text(Localization.mainLearnTitle)
                         .font(.system(size: 15, weight: .medium))
                         .foregroundColor(Color.white)
 
-                    Text("You have completed the training and can get your 1inch tokens")
+                    Text(Localization.mainLearnSubtitle)
                         .font(.system(size: 13, weight: .regular))
                         .foregroundColor(Color.white.opacity(0.7))
                 }
