@@ -698,7 +698,7 @@ class SendViewModel: ObservableObject {
                         let sourceValue: Analytics.ParameterValue = self.isSellingCrypto ? .transactionSourceSell : .transactionSourceSend
                         Analytics.log(event: .transactionSent, params: [
                             .commonSource: sourceValue.rawValue,
-                            .currencyCode: self.blockchainNetwork.blockchain.currencySymbol,
+                            .token: tx.amount.currencySymbol,
                             .blockchain: self.blockchainNetwork.blockchain.displayName,
                             .feeType: self.analyticsFeeType.rawValue,
                         ])
