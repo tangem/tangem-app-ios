@@ -115,7 +115,7 @@ extension SwappingInteractor {
     func didSendApproveTransaction(swappingTxData: SwappingTransactionData) {
         swappingManager.didSendApproveTransaction(swappingTxData: swappingTxData)
         refresh(type: .full)
-        
+
         let permissionType: Analytics.ParameterValue = {
             switch getSwappingApprovePolicy() {
             case .amount: return .oneTransactionApprove
@@ -195,7 +195,7 @@ private extension SwappingInteractor {
         userWalletModel.append(entries: [entry])
         userWalletModel.updateWalletModels()
     }
-    
+
     func getAnalyticsFeeType() -> Analytics.ParameterValue {
         switch swappingManager.getSwappingGasPricePolicy() {
         case .normal: return .transactionFeeNormal
