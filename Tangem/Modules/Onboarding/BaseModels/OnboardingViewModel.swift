@@ -115,7 +115,7 @@ class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable>
     lazy var userWalletStorageAgreementViewModel = UserWalletStorageAgreementViewModel(coordinator: self)
 
     var disclaimerModel: DisclaimerViewModel? {
-        guard let url = input.cardInput.cardModel?.cardDisclaimer.url else {
+        guard let url = input.cardInput.disclaimer?.url else {
             return nil
         }
 
@@ -292,7 +292,7 @@ class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable>
     }
 
     func disclaimerAccepted() {
-        guard let id = input.cardInput.cardModel?.cardDisclaimer.id else {
+        guard let id = input.cardInput.disclaimer?.id else {
             return
         }
 
@@ -379,18 +379,18 @@ extension OnboardingViewModel {
     }
 
     func openSupportChat() {
-        guard let cardModel = input.cardInput.cardModel else { return }
         Analytics.log(.onboardingButtonChat)
-        let dataCollector = DetailsFeedbackDataCollector(
-            cardModel: cardModel,
-            userWalletEmailData: cardModel.emailData
-        )
 
         // Hide keyboard on set pin screen
         UIApplication.shared.endEditing()
 
+        let dataCollector = DetailsFeedbackDataCollector(
+            walletModels: cardModel?.walletModels ?? [],
+            userWalletEmailData: input.cardInput.emailData
+        )
+
         coordinator.openSupportChat(input: .init(
-            environment: cardModel.supportChatEnvironment,
+            environment: input.cardInput.supportChatEnvironment,
             logsComposer: .init(infoProvider: dataCollector)
         ))
     }
