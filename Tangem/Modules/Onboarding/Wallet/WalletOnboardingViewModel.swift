@@ -609,7 +609,7 @@ class WalletOnboardingViewModel: OnboardingTopupViewModel<WalletOnboardingStep, 
             if NFCUtils.isPoorNfcQualityDevice {
                 alert = AlertBuilder.makeOldDeviceAlert()
             } else {
-                if let disabledLocalizedReason = input.cardInput.cardModel?.getDisabledLocalizedReason(for: .backup) {
+                if let disabledLocalizedReason = input.cardInput.demoBackupDisabledLocalizedReason {
                     alert = AlertBuilder.makeDemoAlert(disabledLocalizedReason)
                 } else {
                     goToNextStep()
