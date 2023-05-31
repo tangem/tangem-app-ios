@@ -1,5 +1,5 @@
 //
-//  LearnCoordinatorView.swift
+//  PromotionCoordinatorView.swift
 //
 //
 //  Created by [REDACTED_AUTHOR]
@@ -7,17 +7,17 @@
 
 import SwiftUI
 
-struct LearnCoordinatorView: CoordinatorView {
-    @ObservedObject var coordinator: LearnCoordinator
+struct PromotionCoordinatorView: CoordinatorView {
+    @ObservedObject var coordinator: PromotionCoordinator
 
-    init(coordinator: LearnCoordinator) {
+    init(coordinator: PromotionCoordinator) {
         self.coordinator = coordinator
     }
 
     var body: some View {
         ZStack {
             if let rootViewModel = coordinator.rootViewModel {
-                LearnView(viewModel: rootViewModel)
+                PromotionView(viewModel: rootViewModel)
                     .navigationLinks(links)
             }
 
