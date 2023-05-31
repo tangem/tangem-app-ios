@@ -115,24 +115,32 @@ extension SwappingInteractor {
     func didSendApproveTransaction(swappingTxData: SwappingTransactionData) {
         swappingManager.didSendApproveTransaction(swappingTxData: swappingTxData)
         refresh(type: .full)
+        
+        let permissionType: Analytics.ParameterValue = {
+            switch getSwappingApprovePolicy() {
+            case .amount: return .oneTransactionApprove
+            case .unlimited: return .unlimitedApprove
+            }
+        }()
+
+        Analytics.log(event: .transactionSent, params: [
+            .commonSource: Analytics.ParameterValue.transactionSourceApprove.rawValue,
+            .feeType: getAnalyticsFeeType().rawValue,
+            .token: swappingTxData.sourceCurrency.symbol,
+            .blockchain: swappingTxData.sourceBlockchain.name,
+            .permissionType: permissionType.rawValue,
+        ])
     }
 
     func didSendSwapTransaction(swappingTxData: SwappingTransactionData) {
         updateState(.idle)
         addDestinationTokenToUserWalletList()
 
-        let feeType: Analytics.ParameterValue = {
-            switch swappingManager.getSwappingGasPricePolicy() {
-            case .normal: return .transactionFeeNormal
-            case .priority: return .transactionFeeMax
-            }
-        }()
-        
         Analytics.log(event: .transactionSent, params: [
             .commonSource: Analytics.ParameterValue.transactionSourceSwap.rawValue,
-            .currencyCode: swappingTxData.sourceCurrency.symbol,
+            .token: swappingTxData.sourceCurrency.symbol,
             .blockchain: swappingTxData.sourceBlockchain.name,
-            .feeType: feeType.rawValue,
+            .feeType: getAnalyticsFeeType().rawValue,
         ])
     }
 }
@@ -186,5 +194,12 @@ private extension SwappingInteractor {
         let entry = StorageEntry(blockchainNetwork: blockchainNetwork, token: token)
         userWalletModel.append(entries: [entry])
         userWalletModel.updateWalletModels()
+    }
+    
+    func getAnalyticsFeeType() -> Analytics.ParameterValue {
+        switch swappingManager.getSwappingGasPricePolicy() {
+        case .normal: return .transactionFeeNormal
+        case .priority: return .transactionFeeMax
+        }
     }
 }
