@@ -403,11 +403,11 @@
 		DA4C84CD27DA2D6D00B76F91 /* AnimatableModifiers.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA4C84CB27DA2D6D00B76F91 /* AnimatableModifiers.swift */; };
 		DA4C84CE27DA2D6D00B76F91 /* StoriesConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA4C84CC27DA2D6D00B76F91 /* StoriesConstants.swift */; };
 		DA5970EC27FC1C1B0050387C /* TangemApiTarget.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA5970EB27FC1C1B0050387C /* TangemApiTarget.swift */; };
-		DA5CD0962A25F4F2008FD876 /* LearnView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA5CD0912A25F4F2008FD876 /* LearnView.swift */; };
-		DA5CD0972A25F4F2008FD876 /* LearnRoutable.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA5CD0922A25F4F2008FD876 /* LearnRoutable.swift */; };
-		DA5CD0982A25F4F2008FD876 /* LearnViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA5CD0932A25F4F2008FD876 /* LearnViewModel.swift */; };
-		DA5CD0992A25F4F2008FD876 /* LearnCoordinatorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA5CD0942A25F4F2008FD876 /* LearnCoordinatorView.swift */; };
-		DA5CD09A2A25F4F2008FD876 /* LearnCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA5CD0952A25F4F2008FD876 /* LearnCoordinator.swift */; };
+		DA5CD0962A25F4F2008FD876 /* PromotionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA5CD0912A25F4F2008FD876 /* PromotionView.swift */; };
+		DA5CD0972A25F4F2008FD876 /* PromotionRoutable.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA5CD0922A25F4F2008FD876 /* PromotionRoutable.swift */; };
+		DA5CD0982A25F4F2008FD876 /* PromotionViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA5CD0932A25F4F2008FD876 /* PromotionViewModel.swift */; };
+		DA5CD0992A25F4F2008FD876 /* PromotionCoordinatorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA5CD0942A25F4F2008FD876 /* PromotionCoordinatorView.swift */; };
+		DA5CD09A2A25F4F2008FD876 /* PromotionCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA5CD0952A25F4F2008FD876 /* PromotionCoordinator.swift */; };
 		DA5FAD8627B2791C00EE53AE /* ApplePayButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA5FAD8527B2791C00EE53AE /* ApplePayButton.swift */; };
 		DA5FAD8A27B27F7F00EE53AE /* SheetDragHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA5FAD8927B27F7F00EE53AE /* SheetDragHandler.swift */; };
 		DA64C36D27CCAD7E005B5E9A /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = DA64C36F27CCAD7E005B5E9A /* InfoPlist.strings */; };
@@ -1392,11 +1392,11 @@
 		DA4C84CB27DA2D6D00B76F91 /* AnimatableModifiers.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AnimatableModifiers.swift; sourceTree = "<group>"; };
 		DA4C84CC27DA2D6D00B76F91 /* StoriesConstants.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StoriesConstants.swift; sourceTree = "<group>"; };
 		DA5970EB27FC1C1B0050387C /* TangemApiTarget.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TangemApiTarget.swift; sourceTree = "<group>"; };
-		DA5CD0912A25F4F2008FD876 /* LearnView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LearnView.swift; sourceTree = "<group>"; };
-		DA5CD0922A25F4F2008FD876 /* LearnRoutable.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LearnRoutable.swift; sourceTree = "<group>"; };
-		DA5CD0932A25F4F2008FD876 /* LearnViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LearnViewModel.swift; sourceTree = "<group>"; };
-		DA5CD0942A25F4F2008FD876 /* LearnCoordinatorView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LearnCoordinatorView.swift; sourceTree = "<group>"; };
-		DA5CD0952A25F4F2008FD876 /* LearnCoordinator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LearnCoordinator.swift; sourceTree = "<group>"; };
+		DA5CD0912A25F4F2008FD876 /* PromotionView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PromotionView.swift; sourceTree = "<group>"; };
+		DA5CD0922A25F4F2008FD876 /* PromotionRoutable.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PromotionRoutable.swift; sourceTree = "<group>"; };
+		DA5CD0932A25F4F2008FD876 /* PromotionViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PromotionViewModel.swift; sourceTree = "<group>"; };
+		DA5CD0942A25F4F2008FD876 /* PromotionCoordinatorView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PromotionCoordinatorView.swift; sourceTree = "<group>"; };
+		DA5CD0952A25F4F2008FD876 /* PromotionCoordinator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PromotionCoordinator.swift; sourceTree = "<group>"; };
 		DA5FAD8527B2791C00EE53AE /* ApplePayButton.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ApplePayButton.swift; sourceTree = "<group>"; };
 		DA5FAD8927B27F7F00EE53AE /* SheetDragHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SheetDragHandler.swift; sourceTree = "<group>"; };
 		DA64C36E27CCAD7E005B5E9A /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
@@ -3369,11 +3369,11 @@
 		DA91770F2A25F14A006CD67B /* Learn */ = {
 			isa = PBXGroup;
 			children = (
-				DA5CD0952A25F4F2008FD876 /* LearnCoordinator.swift */,
-				DA5CD0942A25F4F2008FD876 /* LearnCoordinatorView.swift */,
-				DA5CD0912A25F4F2008FD876 /* LearnView.swift */,
-				DA5CD0932A25F4F2008FD876 /* LearnViewModel.swift */,
-				DA5CD0922A25F4F2008FD876 /* LearnRoutable.swift */,
+				DA5CD0952A25F4F2008FD876 /* PromotionCoordinator.swift */,
+				DA5CD0942A25F4F2008FD876 /* PromotionCoordinatorView.swift */,
+				DA5CD0912A25F4F2008FD876 /* PromotionView.swift */,
+				DA5CD0932A25F4F2008FD876 /* PromotionViewModel.swift */,
+				DA5CD0922A25F4F2008FD876 /* PromotionRoutable.swift */,
 			);
 			path = Learn;
 			sourceTree = "<group>";
@@ -5482,7 +5482,7 @@
 				EF50A5B1288976140081C5BB /* View+ConditionalModifiers.swift in Sources */,
 				DABA435427BFB63D00718AC6 /* WelcomeStoryPage.swift in Sources */,
 				DAC53CF727BE63830027147D /* StoriesProgressView.swift in Sources */,
-				DA5CD0982A25F4F2008FD876 /* LearnViewModel.swift in Sources */,
+				DA5CD0982A25F4F2008FD876 /* PromotionViewModel.swift in Sources */,
 				B03A9339259877790061FB2D /* WarningsContainer.swift in Sources */,
 				B0EC1200267386FC00137059 /* TransactionRecord.swift in Sources */,
 				EF74F50D289BF5AE001034D2 /* Fonts.swift in Sources */,
@@ -5543,7 +5543,7 @@
 				5D80ED422550172A0008DEF0 /* UIApplication+.swift in Sources */,
 				B04126EF29CC322D00A8BB43 /* OnboardingSeedPhraseUserValidationViewModel.swift in Sources */,
 				5D6784CE25EB92F300149995 /* TestnetTokensRepository.swift in Sources */,
-				DA5CD09A2A25F4F2008FD876 /* LearnCoordinator.swift in Sources */,
+				DA5CD09A2A25F4F2008FD876 /* PromotionCoordinator.swift in Sources */,
 				EFC46EFE29266982003928E3 /* SendCurrencyViewModel.swift in Sources */,
 				B0FAD01226BAF35C00F45E88 /* FrameSizeModifier.swift in Sources */,
 				EFA1CFFD29B0E8CE008B24C3 /* SwappingAvailableUtils.swift in Sources */,
@@ -5580,7 +5580,7 @@
 				B0B86CFF2A1B594000AB1475 /* MultiWalletCardHeaderInfoProvider.swift in Sources */,
 				B0B335DC29FA948F00E2082E /* FakeTokenItemInfoProvider.swift in Sources */,
 				B06CF2932993BF77000C7D93 /* TransactionsListView.swift in Sources */,
-				DA5CD0972A25F4F2008FD876 /* LearnRoutable.swift in Sources */,
+				DA5CD0972A25F4F2008FD876 /* PromotionRoutable.swift in Sources */,
 				5DFCE54C274BDEE200C1B1A0 /* ResetToFactorySettingsTask.swift in Sources */,
 				5DDFC2072812B7AB005976FE /* RatesResponse.swift in Sources */,
 				EF808438293F3A6D000D91EA /* CurrencyMapper.swift in Sources */,
@@ -5594,7 +5594,7 @@
 				B018F304259204A200D8F89A /* WarningEvent.swift in Sources */,
 				B04CD33E29122C64001EA84A /* ReferralViewModel.swift in Sources */,
 				DCBC944B2993F3420050BC35 /* AnalyticsStorageKey.swift in Sources */,
-				DA5CD0962A25F4F2008FD876 /* LearnView.swift in Sources */,
+				DA5CD0962A25F4F2008FD876 /* PromotionView.swift in Sources */,
 				DC6244F428A0CA6300AD3EA8 /* SaltPayConfig.swift in Sources */,
 				65B4DED6288357DC001524CF /* BottomSheetBaseController.swift in Sources */,
 				EF6EDD81296C0D61001B21A3 /* OrderedWeakObjectsCollection.swift in Sources */,
@@ -5872,7 +5872,7 @@
 				B0FE0B3A297140D10046EE2C /* WalletConnectV2Error.swift in Sources */,
 				B0E1564D26B941AF005B33E4 /* SingleCardOnboardingViewModel.swift in Sources */,
 				B09BB85F259A075600B92000 /* TangemButton.swift in Sources */,
-				DA5CD0992A25F4F2008FD876 /* LearnCoordinatorView.swift in Sources */,
+				DA5CD0992A25F4F2008FD876 /* PromotionCoordinatorView.swift in Sources */,
 				DA2D04D327BB9B07006F1E69 /* ShopOrderProgressView.swift in Sources */,
 				DCF2369129924C0900FE1855 /* AnalyticsContext.swift in Sources */,
 				DAC53CFF27BE63830027147D /* FinishStoryPage.swift in Sources */,
