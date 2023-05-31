@@ -112,7 +112,6 @@ extension SwappingCoordinator: SwappingPermissionRoutable, SwappingApproveRoutab
     func didSendApproveTransaction(transactionData: SwappingTransactionData) {
         swappingPermissionViewModel = nil
         swappingApproveViewModel = nil
-        rootViewModel?.didSendApproveTransaction(transactionData: transactionData)
     }
 
     func userDidCancel() {
