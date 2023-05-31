@@ -377,6 +377,9 @@
 "story_currencies_title" = "千種虛擬貨幣";
 "story_finish_description" = "隨時隨地使用它，不需要接線或電池，只需要你的卡片和手機";
 "story_finish_title" = "適合每個人的冷錢包";
+"story_learn_description" = "Complete the training, get the opportunity to buy Tangem wallet with a discount and receive 1inch tokens on your wallet";
+"story_learn_learn" = "Learn";
+"story_learn_title" = "Learn and get a bonus";
 "story_meet_borrow" = "借入";
 "story_meet_buy" = "購買";
 "story_meet_exchange" = "交易";
