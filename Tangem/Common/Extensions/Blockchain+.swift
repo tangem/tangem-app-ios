@@ -213,6 +213,7 @@ extension Blockchain {
             .cosmos(testnet: false),
             .terraV1,
             .terraV2,
+            .cronos,
         ]
     }()
 
