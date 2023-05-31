@@ -38,3 +38,11 @@ struct OneInchRedGradientView: View {
         OneInchGradientView(startColor: Colors.Old.OneInch.redGradientStart, stopColor: Colors.Old.OneInch.redGradientStop, radius: radius)
     }
 }
+
+struct OneInchPinkGradientView: View {
+    let radius: Double
+
+    var body: some View {
+        OneInchGradientView(startColor: Colors.Old.OneInch.pinkGradientStart, stopColor: Colors.Old.OneInch.pinkGradientStop, radius: radius)
+    }
+}
