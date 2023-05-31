@@ -1,0 +1,40 @@
+//
+//  OneInchGradientViews.swift
+//  Tangem
+//
+//  Created by [REDACTED_AUTHOR]
+//  Copyright © 2023 Tangem AG. All rights reserved.
+//
+
+import SwiftUI
+
+fileprivate struct OneInchGradientView: View {
+    let startColor: Color
+    let stopColor: Color
+    let radius: Double
+
+    var body: some View {
+        RadialGradient(
+            colors: [startColor.opacity(0.9), stopColor.opacity(0)],
+            center: .center,
+            startRadius: 0,
+            endRadius: radius
+        )
+    }
+}
+
+struct OneInchBlueGradientView: View {
+    let radius: Double
+
+    var body: some View {
+        OneInchGradientView(startColor: Colors.Old.OneInch.blueGradientStart, stopColor: Colors.Old.OneInch.blueGradientStop, radius: radius)
+    }
+}
+
+struct OneInchRedGradientView: View {
+    let radius: Double
+
+    var body: some View {
+        OneInchGradientView(startColor: Colors.Old.OneInch.redGradientStart, stopColor: Colors.Old.OneInch.redGradientStop, radius: radius)
+    }
+}
