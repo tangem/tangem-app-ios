@@ -24,7 +24,7 @@ class WelcomeCoordinator: CoordinatorObject {
     @Published var pushedOnboardingCoordinator: OnboardingCoordinator? = nil
     @Published var shopCoordinator: ShopCoordinator? = nil
     @Published var tokenListCoordinator: TokenListCoordinator? = nil
-    @Published var learningCoordinator: LearnCoordinator? = nil
+    @Published var learningCoordinator: PromotionCoordinator? = nil
 
     // MARK: - Child view models
 
@@ -106,7 +106,7 @@ extension WelcomeCoordinator: WelcomeRoutable {
             self?.learningCoordinator = nil
         }
 
-        let coordinator = LearnCoordinator(dismissAction: dismissAction)
+        let coordinator = PromotionCoordinator(dismissAction: dismissAction)
         coordinator.start(with: .default)
         learningCoordinator = coordinator
     }
