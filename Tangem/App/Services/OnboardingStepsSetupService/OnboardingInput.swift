@@ -26,6 +26,54 @@ extension OnboardingInput {
         case cardModel(_ cardModel: CardViewModel)
         case cardId(_ cardId: String)
 
+        var emailData: [EmailCollectedData] {
+            switch self {
+            case .cardInfo(let cardInfo):
+                let factory = UserWalletConfigFactory(cardInfo)
+                return factory.makeConfig().emailData
+            case .cardModel(let cardModel):
+                return cardModel.emailData
+            case .cardId:
+                return []
+            }
+        }
+
+        var supportChatEnvironment: SupportChatEnvironment {
+            switch self {
+            case .cardInfo(let cardInfo):
+                let factory = UserWalletConfigFactory(cardInfo)
+                return factory.makeConfig().supportChatEnvironment
+            case .cardModel(let cardModel):
+                return cardModel.supportChatEnvironment
+            case .cardId:
+                return .tangem
+            }
+        }
+
+        var demoBackupDisabledLocalizedReason: String? {
+            switch self {
+            case .cardInfo(let cardInfo):
+                let factory = UserWalletConfigFactory(cardInfo)
+                return factory.makeConfig().getFeatureAvailability(.backup).disabledLocalizedReason
+            case .cardModel(let cardModel):
+                return cardModel.getDisabledLocalizedReason(for: .backup)
+            case .cardId:
+                return nil
+            }
+        }
+
+        var disclaimer: TOU? {
+            switch self {
+            case .cardInfo(let cardInfo):
+                let factory = UserWalletConfigFactory(cardInfo)
+                return factory.makeConfig().tou
+            case .cardModel(let cardModel):
+                return cardModel.cardDisclaimer
+            case .cardId:
+                return nil
+            }
+        }
+
         var cardModel: CardViewModel? {
             switch self {
             case .cardModel(let cardModel):
