@@ -611,6 +611,7 @@
 		DCD2D5BA2A1BA5A800AB00B6 /* CardInitializer.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCD2D5B92A1BA5A800AB00B6 /* CardInitializer.swift */; };
 		DCD9CBA329F7F4D800440C93 /* LogsComposer.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCD9CBA229F7F4D800440C93 /* LogsComposer.swift */; };
 		DCD9CBA529F7F4EF00440C93 /* LogFileProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCD9CBA429F7F4EF00440C93 /* LogFileProvider.swift */; };
+		DCDBDA062A27C16C0000EBA2 /* LockedUserWallet.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCDBDA052A27C16C0000EBA2 /* LockedUserWallet.swift */; };
 		DCE3379928F2A4580029A6F5 /* SaltPayConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCE3379828F2A4580029A6F5 /* SaltPayConfiguration.swift */; };
 		DCE5C66C28898B7F000C7F67 /* TangemApiService.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCE5C66B28898B7F000C7F67 /* TangemApiService.swift */; };
 		DCE5C66E28898BB6000C7F67 /* CommonTangemApiService.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCE5C66D28898BB6000C7F67 /* CommonTangemApiService.swift */; };
@@ -1595,6 +1596,7 @@
 		DCD2D5B92A1BA5A800AB00B6 /* CardInitializer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardInitializer.swift; sourceTree = "<group>"; };
 		DCD9CBA229F7F4D800440C93 /* LogsComposer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LogsComposer.swift; sourceTree = "<group>"; };
 		DCD9CBA429F7F4EF00440C93 /* LogFileProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LogFileProvider.swift; sourceTree = "<group>"; };
+		DCDBDA052A27C16C0000EBA2 /* LockedUserWallet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LockedUserWallet.swift; sourceTree = "<group>"; };
 		DCE3379828F2A4580029A6F5 /* SaltPayConfiguration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SaltPayConfiguration.swift; sourceTree = "<group>"; };
 		DCE5C66B28898B7F000C7F67 /* TangemApiService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TangemApiService.swift; sourceTree = "<group>"; };
 		DCE5C66D28898BB6000C7F67 /* CommonTangemApiService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonTangemApiService.swift; sourceTree = "<group>"; };
@@ -3532,6 +3534,7 @@
 				DC0A5843282BFDFC0031BECC /* UserWalletRepository.swift */,
 				5D9DCAEA25517FB50059799C /* CommonUserWalletRepository.swift */,
 				DA6C752B292909B20070EEFD /* UserWalletRepositoryUtil.swift */,
+				DCDBDA052A27C16C0000EBA2 /* LockedUserWallet.swift */,
 			);
 			path = UserWalletRepository;
 			sourceTree = "<group>";
@@ -5902,6 +5905,7 @@
 				EF09A309297A9B3F00B869A1 /* BottomSheetContainer.swift in Sources */,
 				B053759126CA3EFA0090FCFC /* CheckmarkSwitch.swift in Sources */,
 				DC936B6B28F3F8140023C75D /* SaltPayRegistratorError.swift in Sources */,
+				DCDBDA062A27C16C0000EBA2 /* LockedUserWallet.swift in Sources */,
 				DC13D04329DF31A60003895C /* WalletOnboardingStepsBuilder.swift in Sources */,
 				EFFC860D28BCE87700F863CE /* TokenItemsRepositoryMigrator.swift in Sources */,
 				DCAB57FE295ECA55005D0F4A /* SendError.swift in Sources */,
