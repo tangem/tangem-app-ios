@@ -476,9 +476,17 @@ class CommonUserWalletRepository: UserWalletRepository {
             .sink { [weak self] result in
                 guard
                     let self,
-                    case .success(let cardModel) = result,
-                    AppSettings.shared.saveUserWallets
+                    case .success(let cardModel) = result
                 else {
+                    completion(result)
+                    return
+                }
+
+                // begin update if scan from stories
+                if !AppSettings.shared.saveUserWallets {
+                    if case .success(let cardModel) = result {
+                        cardModel.initialUpdate()
+                    }
                     completion(result)
                     return
                 }
