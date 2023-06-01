@@ -11,7 +11,7 @@ import Foundation
 protocol PromotionServiceProtocol {
     var promoCode: String? { get }
 
-    func setPromoCode(_ promoCode: String)
+    func setPromoCode(_ promoCode: String?)
 }
 
 private struct PromotionServiceKey: InjectionKey {
