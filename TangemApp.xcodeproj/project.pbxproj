@@ -449,7 +449,6 @@
 		DAE6F76D2800011400411F45 /* AppError.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAE6F76C2800011400411F45 /* AppError.swift */; };
 		DAFD691627CDEB7F00B36C71 /* CombinedExchangeService.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAFD691527CDEB7F00B36C71 /* CombinedExchangeService.swift */; };
 		DC01329E299A786700B95145 /* testnet_tokens.json in Resources */ = {isa = PBXBuildFile; fileRef = 5DE552F527B418B400D7ADCD /* testnet_tokens.json */; };
-		DC01329F299A7B8E00B95145 /* registration_mock.json in Resources */ = {isa = PBXBuildFile; fileRef = DCF838BB2903101C00162A32 /* registration_mock.json */; };
 		DC0132A0299A7B8E00B95145 /* notReferralMock.json in Resources */ = {isa = PBXBuildFile; fileRef = B0332D3229251A4A00553AD9 /* notReferralMock.json */; };
 		DC0132A1299A7B8E00B95145 /* referralMock.json in Resources */ = {isa = PBXBuildFile; fileRef = B0332D3329251A4A00553AD9 /* referralMock.json */; };
 		DC0A57D72822A3C80031BECC /* InjectionKey.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC0A57D42822A3C80031BECC /* InjectionKey.swift */; };
@@ -1561,7 +1560,6 @@
 		DCE7E02B287BF92400063EEC /* SwitchChainHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwitchChainHandler.swift; sourceTree = "<group>"; };
 		DCF2369029924C0900FE1855 /* AnalyticsContext.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalyticsContext.swift; sourceTree = "<group>"; };
 		DCF23692299257EB00FE1855 /* AnalyticsContextData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalyticsContextData.swift; sourceTree = "<group>"; };
-		DCF838BB2903101C00162A32 /* registration_mock.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = registration_mock.json; sourceTree = "<group>"; };
 		DCF8972C28ACF8CA002A85F6 /* TangemSdkConfigFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TangemSdkConfigFactory.swift; sourceTree = "<group>"; };
 		DCFCA17428F4232F0037586C /* Array+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Array+.swift"; sourceTree = "<group>"; };
 		DCFE143D294B31C00053106B /* AppPresenter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppPresenter.swift; sourceTree = "<group>"; };
@@ -4368,7 +4366,6 @@
 			children = (
 				B0B335DA29FA945300E2082E /* ForComponents */,
 				B0DCD02729DFF03A00C36C84 /* CardSettings */,
-				DCF838BB2903101C00162A32 /* registration_mock.json */,
 				EFA6B04A2955A3930090A92F /* Common */,
 				B0332D2F292519D000553AD9 /* Referral */,
 				EF808446293F6C27000D91EA /* TokenIconURLBuilderMock.swift */,
@@ -4917,7 +4914,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				DC01329F299A7B8E00B95145 /* registration_mock.json in Resources */,
 				DC0132A0299A7B8E00B95145 /* notReferralMock.json in Resources */,
 				DC0132A1299A7B8E00B95145 /* referralMock.json in Resources */,
 				DC01329E299A786700B95145 /* testnet_tokens.json in Resources */,
