@@ -10,7 +10,12 @@ import Combine
 import BlockchainSdk
 
 class UserWalletModelMock: UserWalletModel {
+    var isMultiWallet: Bool { false }
+
+    var userWalletId: UserWalletId { .init(with: Data()) }
+
     var userTokenListManager: UserTokenListManager { UserTokenListManagerMock() }
+
     var userWallet: UserWallet {
         UserWallet(userWalletId: Data(), name: "", card: .init(card: .card), associatedCardIds: [], walletData: .none, artwork: nil, isHDWalletAllowed: false)
     }
