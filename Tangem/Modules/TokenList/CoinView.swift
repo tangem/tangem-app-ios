@@ -55,10 +55,10 @@ struct CoinView: View {
                                 ForEach(0..<itemsCount, id: \.id) { index in
                                     if isItemsOverflows, index == (maxNetworkItemsInRow - 1) {
                                         Text("+\(model.items.count - maxNetworkItemsInRow + 1)")
-                                            .style(Fonts.Regular.caption2, color: Colors.Icon.informative)
+                                            .style(Fonts.Bold.caption2, color: Colors.Icon.informative)
                                             .frame(size: .init(width: 20, height: 20))
                                             .background(Colors.Button.secondary)
-                                            .cornerRadiusContinuous(11)
+                                            .cornerRadiusContinuous(10)
                                     } else {
                                         CoinItemView(model: model.items[index], arrowWidth: iconWidth).icon
                                     }
