@@ -39,9 +39,7 @@ class LegacyMainViewModel: ObservableObject {
             singleWalletContentViewModel?.objectWillChange
                 .receive(on: DispatchQueue.main)
                 .sink(receiveValue: { [unowned self] in
-                    withAnimation {
-                        self.objectWillChange.send()
-                    }
+                    self.objectWillChange.send()
                 })
                 .store(in: &bag)
         }
@@ -52,9 +50,7 @@ class LegacyMainViewModel: ObservableObject {
             multiWalletContentViewModel?.objectWillChange
                 .receive(on: DispatchQueue.main)
                 .sink(receiveValue: { [unowned self] in
-                    withAnimation {
-                        self.objectWillChange.send()
-                    }
+                    self.objectWillChange.send()
                 })
                 .store(in: &bag)
         }
