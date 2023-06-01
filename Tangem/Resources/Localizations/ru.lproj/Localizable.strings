@@ -377,6 +377,9 @@
 "story_currencies_title" = "Тысячи криптовалют";
 "story_finish_description" = "Используйте его на ходу, в любом месте, в любое время. Без проводов и батареек. Как только понадобится крипта, просто приложите карту к телефону.";
 "story_finish_title" = "Кошелек для каждого";
+"story_learn_description" = "Complete the training, get the opportunity to buy Tangem wallet with a discount and receive 1inch tokens on your wallet";
+"story_learn_learn" = "Learn";
+"story_learn_title" = "Learn and get a bonus";
 "story_meet_borrow" = "Занимайте";
 "story_meet_buy" = "Покупайте";
 "story_meet_exchange" = "Обменивайте";
