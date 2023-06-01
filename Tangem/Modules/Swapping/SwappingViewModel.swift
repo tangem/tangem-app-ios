@@ -179,10 +179,6 @@ final class SwappingViewModel: ObservableObject {
         }
     }
 
-    func didSendApproveTransaction(transactionData: SwappingTransactionData) {
-        swappingInteractor.didSendApproveTransaction(swappingTxData: transactionData)
-    }
-
     func didClosePermissionSheet() {
         restartTimer()
     }
