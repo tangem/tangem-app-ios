@@ -22,7 +22,7 @@ class CommonUserWalletRepository: UserWalletRepository {
     var selectedModel: CardViewModel? {
         return models.first {
             $0.userWalletId.value == selectedUserWalletId
-        }
+        } as? CardViewModel
     }
 
     var selectedUserWalletId: Data?
@@ -35,7 +35,7 @@ class CommonUserWalletRepository: UserWalletRepository {
         eventSubject.eraseToAnyPublisher()
     }
 
-    private(set) var models = [CardViewModel]()
+    private(set) var models = [UserWalletModel]()
 
     var isLocked: Bool { userWallets.contains { $0.isLocked } }
 
@@ -144,7 +144,6 @@ class CommonUserWalletRepository: UserWalletRepository {
                     return .justWithError(output: .onboarding(onboardingInput))
                 } else if let cardModel = CardViewModel(cardInfo: cardInfo) {
                     self.initializeServices(for: cardModel, cardInfo: cardInfo)
-                    cardModel.initialUpdate()
                     return .justWithError(output: .success(cardModel))
                 }
 
@@ -515,7 +514,7 @@ class CommonUserWalletRepository: UserWalletRepository {
                 }
 
                 guard
-                    let cardModel = self.models.first(where: { $0.userWalletId.value == savedUserWallet.userWalletId })
+                    let cardModel = self.models.first(where: { $0.userWalletId.value == savedUserWallet.userWalletId }) as? CardViewModel
                 else {
                     return
                 }
@@ -532,8 +531,12 @@ class CommonUserWalletRepository: UserWalletRepository {
     }
 
     private func loadModels() {
-        let models = userWallets.compactMap {
-            CardViewModel(userWallet: $0)
+        let models: [UserWalletModel] = userWallets.map { userWalletStorageItem in
+            if let userWallet = CardViewModel(userWallet: userWalletStorageItem) {
+                return userWallet
+            } else {
+                return LockedUserWallet(with: userWalletStorageItem)
+            }
         }
 
         self.models = models
