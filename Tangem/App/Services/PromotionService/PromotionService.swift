@@ -27,15 +27,20 @@ extension PromotionService: PromotionServiceProtocol {
         return promoCode
     }
 
-    func setPromoCode(_ promoCode: String) {
-        guard let promoCodeData = promoCode.data(using: .utf8) else { return }
-
+    func setPromoCode(_ promoCode: String?) {
         do {
             let secureStorage = SecureStorage()
-            try secureStorage.store(promoCodeData, forKey: promoCodeStorageKey)
+
+            if let promoCode {
+                guard let promoCodeData = promoCode.data(using: .utf8) else { return }
+
+                try secureStorage.store(promoCodeData, forKey: promoCodeStorageKey)
+            } else {
+                try secureStorage.delete(promoCodeStorageKey)
+            }
         } catch {
             AppLog.shared.error(error)
-            AppLog.shared.error("Failed to save promo code")
+            AppLog.shared.error("Failed to update promo code")
         }
     }
 }
