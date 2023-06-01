@@ -462,7 +462,6 @@
 		DC0A5806282501530031BECC /* KeysManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC0A5805282501530031BECC /* KeysManager.swift */; };
 		DC0A5808282501CA0031BECC /* MoonPayKeys.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC0A5807282501CA0031BECC /* MoonPayKeys.swift */; };
 		DC0A5818282526E30031BECC /* RateAppService.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC0A5817282526E30031BECC /* RateAppService.swift */; };
-		DC0A582328252B450031BECC /* AppWarningsProviding.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC0A582228252B450031BECC /* AppWarningsProviding.swift */; };
 		DC0A582628252D140031BECC /* FailedScanTrackable.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC0A582528252D140031BECC /* FailedScanTrackable.swift */; };
 		DC0A582928252FEB0031BECC /* TokenItemsRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC0A582828252FEB0031BECC /* TokenItemsRepository.swift */; };
 		DC0A582E282BCBEB0031BECC /* ShopifyProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC0A582D282BCBEB0031BECC /* ShopifyProtocol.swift */; };
@@ -1428,7 +1427,6 @@
 		DC0A5805282501530031BECC /* KeysManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeysManager.swift; sourceTree = "<group>"; };
 		DC0A5807282501CA0031BECC /* MoonPayKeys.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MoonPayKeys.swift; sourceTree = "<group>"; };
 		DC0A5817282526E30031BECC /* RateAppService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RateAppService.swift; sourceTree = "<group>"; };
-		DC0A582228252B450031BECC /* AppWarningsProviding.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppWarningsProviding.swift; sourceTree = "<group>"; };
 		DC0A582528252D140031BECC /* FailedScanTrackable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FailedScanTrackable.swift; sourceTree = "<group>"; };
 		DC0A582828252FEB0031BECC /* TokenItemsRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenItemsRepository.swift; sourceTree = "<group>"; };
 		DC0A582D282BCBEB0031BECC /* ShopifyProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShopifyProtocol.swift; sourceTree = "<group>"; };
@@ -3564,7 +3562,6 @@
 			isa = PBXGroup;
 			children = (
 				B018F3022592046C00D8F89A /* Warnings */,
-				DC0A582228252B450031BECC /* AppWarningsProviding.swift */,
 				B0A9E938259213E7007B6D36 /* WarningsService.swift */,
 			);
 			path = WarningsService;
@@ -5395,7 +5392,6 @@
 				DA5970EC27FC1C1B0050387C /* TangemApiTarget.swift in Sources */,
 				DC0A5818282526E30031BECC /* RateAppService.swift in Sources */,
 				B0CAFA8D26C6C0FE001238DA /* QRCodeGenerator.swift in Sources */,
-				DC0A582328252B450031BECC /* AppWarningsProviding.swift in Sources */,
 				DA129DD5292B8EBB004291EC /* UserWalletEncryptionKeyFactory.swift in Sources */,
 				DA23788227B24222009795A8 /* Discount.swift in Sources */,
 				5D09383725EAB45C0049B8F0 /* LegacyTokenItemViewModel.swift in Sources */,
