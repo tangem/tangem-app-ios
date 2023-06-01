@@ -40,6 +40,7 @@ struct CoinView: View {
                             + Text(symbolFormatted)
                             .foregroundColor(Color(hex: "#A9A9AD")!)
                     }
+                    .frame(maxWidth: .infinity, alignment: .leading)
                     .lineLimit(1)
                     .font(.system(size: 17, weight: .medium, design: .default))
 
@@ -111,8 +112,8 @@ struct CurrencyView_Previews: PreviewProvider {
             StatefulPreviewWrapper(false) {
                 CoinView(model: CoinViewModel(
                     imageURL: nil,
-                    name: "Tether",
-                    symbol: "USDT",
+                    name: "Babananas United",
+                    symbol: "BABASDT",
                     items: itemsList(count: 15, isSelected: $0)
                 ))
             }
@@ -121,7 +122,16 @@ struct CurrencyView_Previews: PreviewProvider {
                 CoinView(model: CoinViewModel(
                     imageURL: nil,
                     name: "Binance USD",
-                    symbol: "BUSD",
+                    symbol: "BUS",
+                    items: itemsList(count: 10, isSelected: $0)
+                ))
+            }
+
+            StatefulPreviewWrapper(false) {
+                CoinView(model: CoinViewModel(
+                    imageURL: nil,
+                    name: "Binance USD very-very-long-name",
+                    symbol: "BUS",
                     items: itemsList(count: 10, isSelected: $0)
                 ))
             }
