@@ -169,6 +169,8 @@
 "key_invalidated_warning_description" = "You have updated biometrics, scan your card to enter";
 "mail_error_no_accounts_body" = "Please, set up an account to send email";
 "mail_error_no_accounts_title" = "No Mail accounts";
+"main_learn_subtitle" = "You have completed the training and can get your 1inch tokens";
+"main_learn_title" = "Get a bonus";
 "main_manage_tokens" = "Manage tokens";
 "main_no_backup_warning_subtitle" = "To protect your assets, we advise you to carry out this procedure";
 "main_no_backup_warning_title" = "Your wallet has not been backed up";
