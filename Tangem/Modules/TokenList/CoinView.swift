@@ -16,6 +16,17 @@ struct CoinView: View {
 
     let iconWidth: Double = 46
 
+    @State private var isExpanded = false
+
+    private let maxNetworkItemsInRow = 10
+
+    private var isItemsOverflows: Bool {
+        model.items.count > maxNetworkItemsInRow
+    }
+
+    private var itemsCount: Int { isItemsOverflows ? maxNetworkItemsInRow : model.items.count }
+    private var symbolFormatted: String { " (\(model.symbol))" }
+
     var body: some View {
         VStack(spacing: 10) {
             HStack(spacing: 0) {
@@ -41,8 +52,16 @@ struct CoinView: View {
                             Spacer()
                         } else {
                             HStack(spacing: 5) {
-                                ForEach(model.items) {
-                                    CoinItemView(model: $0, arrowWidth: iconWidth).icon
+                                ForEach(0..<itemsCount, id: \.id) { index in
+                                    if isItemsOverflows, index == (maxNetworkItemsInRow - 1) {
+                                        Text("+\(model.items.count - maxNetworkItemsInRow + 1)")
+                                            .style(Fonts.Regular.caption2, color: Colors.Icon.informative)
+                                            .frame(size: .init(width: 20, height: 20))
+                                            .background(Colors.Button.secondary)
+                                            .cornerRadiusContinuous(11)
+                                    } else {
+                                        CoinItemView(model: model.items[index], arrowWidth: iconWidth).icon
+                                    }
                                 }
                             }
                         }
@@ -68,9 +87,6 @@ struct CoinView: View {
         .animation(nil) // Disable animations on scroll reuse
     }
 
-    private var symbolFormatted: String { " (\(model.symbol))" }
-    @State private var isExpanded = false
-
     private var chevronView: some View {
         Image(systemName: "chevron.down")
             .font(.system(size: 17, weight: .medium, design: .default))
@@ -88,59 +104,39 @@ struct CurrencyView_Previews: PreviewProvider {
                     imageURL: nil,
                     name: "Tether",
                     symbol: "USDT",
-                    items: [
-                        CoinItemViewModel(
-                            tokenItem: .blockchain(.ethereum(testnet: false)),
-                            isReadonly: false,
-                            isSelected: $0,
-                            position: .first
-                        ),
-                        CoinItemViewModel(
-                            tokenItem: .blockchain(.ethereum(testnet: false)),
-                            isReadonly: false,
-                            isSelected: $0,
-                            position: .middle
-                        ),
-                        CoinItemViewModel(
-                            tokenItem: .blockchain(.ethereum(testnet: false)),
-                            isReadonly: false,
-                            isSelected: $0,
-                            position: .last
-                        ),
-                    ]
+                    items: itemsList(count: 11, isSelected: $0)
                 ))
             }
 
             StatefulPreviewWrapper(false) {
                 CoinView(model: CoinViewModel(
                     imageURL: nil,
-                    name: "Very Long Name of The Token",
-                    symbol: "VLNOFT",
-                    items: [
-                        CoinItemViewModel(
-                            tokenItem: .blockchain(.ethereum(testnet: false)),
-                            isReadonly: false,
-                            isSelected: $0,
-                            position: .first
-                        ),
-                        CoinItemViewModel(
-                            tokenItem: .blockchain(.ethereum(testnet: false)),
-                            isReadonly: false,
-                            isSelected: $0,
-                            position: .middle
-                        ),
-                        CoinItemViewModel(
-                            tokenItem: .blockchain(.ethereum(testnet: false)),
-                            isReadonly: false,
-                            isSelected: $0,
-                            position: .last
-                        ),
-                    ]
+                    name: "Tether",
+                    symbol: "USDT",
+                    items: itemsList(count: 15, isSelected: $0)
+                ))
+            }
+
+            StatefulPreviewWrapper(false) {
+                CoinView(model: CoinViewModel(
+                    imageURL: nil,
+                    name: "Binance USD",
+                    symbol: "BUSD",
+                    items: itemsList(count: 10, isSelected: $0)
                 ))
             }
 
             Spacer()
         }
         .padding()
+    }
+
+    private static func itemsList(count: Int, isSelected: Binding<Bool>) -> [CoinItemViewModel] {
+        Array(repeating: CoinItemViewModel(
+            tokenItem: .blockchain(.ethereum(testnet: false)),
+            isReadonly: false,
+            isSelected: isSelected,
+            position: .first
+        ), count: count)
     }
 }
