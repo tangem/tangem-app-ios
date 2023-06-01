@@ -14,9 +14,9 @@ class CombinedExchangeService {
     private let sellService: ExchangeService
 
     private let mercuryoService: MercuryoService
-    private let utorgService: UtorgService
+    private let utorgService: UtorgService?
 
-    init(mercuryoService: MercuryoService, utorgService: UtorgService, sellService: ExchangeService) {
+    init(mercuryoService: MercuryoService, utorgService: UtorgService?, sellService: ExchangeService) {
         buyService = mercuryoService
         self.mercuryoService = mercuryoService
         self.utorgService = utorgService
@@ -60,6 +60,6 @@ extension CombinedExchangeService: ExchangeService {
     func initialize() {
         mercuryoService.initialize()
         sellService.initialize()
-        utorgService.initialize()
+        utorgService?.initialize()
     }
 }
