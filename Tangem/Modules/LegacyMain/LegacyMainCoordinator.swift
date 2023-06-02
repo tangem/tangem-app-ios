@@ -38,6 +38,7 @@ class LegacyMainCoordinator: CoordinatorObject {
     @Published var addressQrBottomSheetContentViewModel: AddressQrBottomSheetContentViewModel? = nil
     @Published var warningBankCardViewModel: WarningBankCardViewModel? = nil
     @Published var userWalletListCoordinator: UserWalletListCoordinator?
+    @Published var learningCoordinator: PromotionCoordinator?
 
     // MARK: - Helpers
 
@@ -279,6 +280,17 @@ extension LegacyMainCoordinator: LegacyMainRoutable {
 
     /// Because `MainRoutable` inherits `TokenDetailsRoutable`. Todo: Remove it dependency
     func openSwapping(input: CommonSwappingModulesFactory.InputModel) {}
+
+    func openLearning(cardPublicKey: String, cardId: String, walletId: String) {
+        let dismissAction: Action = { [weak self] in
+            self?.learningCoordinator = nil
+        }
+
+        let coordinator = PromotionCoordinator(dismissAction: dismissAction)
+        let options: PromotionCoordinator.Options = .oldUser(cardPublicKey: cardPublicKey, cardId: cardId, walletId: walletId)
+        coordinator.start(with: options)
+        learningCoordinator = coordinator
+    }
 }
 
 extension LegacyMainCoordinator: UserWalletListCoordinatorOutput {
