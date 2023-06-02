@@ -26,6 +26,11 @@ protocol TangemApiService: AnyObject, Initializable {
         with userWalletId: String
     ) async throws -> ReferralProgramInfo
 
+    func validateNewUserPromotionEligibility(walletId: String, code: String) async throws -> PromotionValidationResult
+    func validateOldUserPromotionEligibility(walletId: String, programName: String) async throws -> PromotionValidationResult
+    func awardNewUser(walletId: String, address: String, code: String) async throws -> PromotionAwardResult
+    func awardOldUser(walletId: String, address: String, programName: String) async throws -> PromotionAwardResult
+
     func setAuthData(_ authData: TangemApiTarget.AuthData)
 }
 
