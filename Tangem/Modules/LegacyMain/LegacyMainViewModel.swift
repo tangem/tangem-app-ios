@@ -22,6 +22,7 @@ class LegacyMainViewModel: ObservableObject {
     @Injected(\.tangemApiService) private var tangemApiService: TangemApiService
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
     @Injected(\.deprecationService) private var deprecationService: DeprecationServicing
+    @Injected(\.promotionService) var promotionService: PromotionServiceProtocol
 
     // MARK: - Published variables
 
@@ -387,6 +388,11 @@ class LegacyMainViewModel: ObservableObject {
 
     func learnAndEarn() {
         print("LEARN AND EARN")
+        coordinator.openLearning(
+            cardPublicKey: cardModel.cardPublicKey.hex,
+            cardId: cardModel.cardId,
+            walletId: cardModel.userWalletId.stringValue
+        )
     }
 
     func prepareForBackup() {
