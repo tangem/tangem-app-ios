@@ -222,7 +222,7 @@ private extension SwappingViewModel {
         let state = swappingInteractor.getAvailabilityState()
 
         guard case .available(let model) = state,
-              model.isPermissionRequired,
+              model.restrictions.isPermissionRequired,
               let fiatFee = fiatRatesProvider.getSyncFiat(
                   for: model.transactionData.sourceBlockchain,
                   amount: model.transactionData.fee
@@ -363,8 +363,10 @@ private extension SwappingViewModel {
 
             restartTimer()
             updateReceiveCurrencyValue(value: model.destinationAmount)
-            updateRequiredPermission(isPermissionRequired: model.isPermissionRequired)
-            updateEnoughAmountForFee(isEnoughAmountForFee: model.isEnoughAmountForFee)
+            updateRequiredPermission(isPermissionRequired: model.restrictions.isPermissionRequired)
+
+            let policy = swappingInteractor.getSwappingGasPricePolicy()
+            updateEnoughAmountForFee(isEnoughAmountForFee: model.isEnoughAmountForFee(for: policy))
 
         case .requiredRefresh(let error):
             swapButtonIsLoading = false
@@ -480,11 +482,15 @@ private extension SwappingViewModel {
             }
 
         case .available(let model):
-            mainButtonIsEnabled = model.isEnoughAmountForSwapping && model.isEnoughAmountForFee
+            let policy = swappingInteractor.getSwappingGasPricePolicy()
+            let isEnoughAmountForSwapping = model.isEnoughAmountForFee(for: policy)
+            let isEnoughAmountForFee = model.isEnoughAmountForFee(for: policy)
 
-            if !model.isEnoughAmountForSwapping {
+            mainButtonIsEnabled = isEnoughAmountForSwapping && isEnoughAmountForFee
+
+            if !isEnoughAmountForSwapping {
                 mainButtonState = .insufficientFunds
-            } else if model.isPermissionRequired {
+            } else if model.restrictions.isPermissionRequired {
                 mainButtonState = .givePermission
             } else {
                 mainButtonState = .swap
