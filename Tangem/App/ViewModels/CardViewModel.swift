@@ -13,6 +13,12 @@ import Combine
 import Alamofire
 import SwiftUI
 
+#warning("[REDACTED_TODO_COMMENT]")
+protocol StorageEntryAdding {
+    func getBlockchainNetwork(for blockchain: Blockchain, derivationPath: DerivationPath?) -> BlockchainNetwork
+    func add(entry: StorageEntry, completion: @escaping (Result<String, Error>) -> Void)
+}
+
 class CardViewModel: Identifiable, ObservableObject {
     // MARK: Services
 
@@ -681,6 +687,34 @@ extension CardViewModel {
 
             self?.derivationManager = nil
         })
+    }
+}
+
+extension CardViewModel: StorageEntryAdding {
+    func add(entry: StorageEntry, completion: @escaping (Result<String, Error>) -> Void) {
+        add(entries: [entry]) { [weak self] result in
+            guard let self else { return }
+
+            if case .failure(let error) = result {
+                completion(.failure(error))
+                return
+            }
+
+            let address = walletModels
+                .first {
+                    $0.blockchainNetwork == entry.blockchainNetwork
+                }
+                .map {
+                    $0.wallet.address
+                }
+
+            guard let address else {
+                completion(.failure(WalletError.empty))
+                return
+            }
+
+            completion(.success(address))
+        }
     }
 }
 

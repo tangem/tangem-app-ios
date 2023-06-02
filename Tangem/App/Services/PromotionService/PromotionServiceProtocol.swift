@@ -13,6 +13,7 @@ protocol PromotionServiceProtocol {
     var promoCode: String? { get }
 
     func setPromoCode(_ promoCode: String?)
+    func getReward(userWalletId: String, storageEntryAdding: StorageEntryAdding) throws
 }
 
 private struct PromotionServiceKey: InjectionKey {
