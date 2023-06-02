@@ -373,29 +373,38 @@ private extension CommonSwappingManager {
         transactionData: SwappingTransactionData,
         gasOptions: [EthereumGasDataModel]
     ) async throws -> SwappingAvailabilityModel {
+        let amount = transactionData.sourceCurrency.convertFromWEI(value: transactionData.sourceAmount)
         let sourceBalance = swappingItems.sourceBalance
-        let fee = transactionData.fee
+        let coinBalance = try await walletDataProvider.getBalance(for: swappingItems.source.blockchain)
 
-        let isEnoughAmountForFee: Bool
-        var paymentAmount = transactionData.sourceCurrency.convertFromWEI(value: transactionData.sourceAmount)
-
-        switch swappingItems.source.currencyType {
-        case .coin:
-            paymentAmount += fee
-            isEnoughAmountForFee = sourceBalance >= fee
-        case .token:
-            let coinBalance = try await walletDataProvider.getBalance(for: transactionData.sourceBlockchain)
-            isEnoughAmountForFee = coinBalance >= fee
+        let isEnoughAmountForFee: [SwappingGasPricePolicy: Bool] = gasOptions.reduce(into: [:]) { result, option in
+            switch swappingItems.source.currencyType {
+            case .coin:
+                result[option.policy] = sourceBalance >= option.fee
+            case .token:
+                result[option.policy] = coinBalance >= option.fee
+            }
         }
 
-        let isEnoughAmountForSwapping = sourceBalance >= paymentAmount
+        let isEnoughAmountForSwapping: [SwappingGasPricePolicy: Bool] = gasOptions.reduce(into: [:]) { result, option in
+            switch swappingItems.source.currencyType {
+            case .coin:
+                result[option.policy] = sourceBalance >= amount + option.fee
+            case .token:
+                result[option.policy] = sourceBalance >= amount
+            }
+        }
 
-        return SwappingAvailabilityModel(
+        let restrictions = SwappingAvailabilityModel.Restrictions(
             isEnoughAmountForSwapping: isEnoughAmountForSwapping,
             isEnoughAmountForFee: isEnoughAmountForFee,
-            isPermissionRequired: !isEnoughAllowance(),
+            isPermissionRequired: !isEnoughAllowance()
+        )
+
+        return SwappingAvailabilityModel(
             transactionData: transactionData,
-            gasOptions: gasOptions
+            gasOptions: gasOptions,
+            restrictions: restrictions
         )
     }
 }
