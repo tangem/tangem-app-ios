@@ -13,11 +13,11 @@ final class PromotionViewModel: ObservableObject {
     @Injected(\.promotionService) var promotionService: PromotionServiceProtocol
 
     var headers: [String: String] {
-        var result: [String: String] = [:]
+        var headers: [String: String] = [:]
         if let tangemComAuthorization = keysManager.tangemComAuthorization {
-            result["Authorization"] = "Basic \(tangemComAuthorization)"
+            headers["Authorization"] = "Basic \(tangemComAuthorization)"
         }
-        return result
+        return headers
     }
 
     var urlActions: [String: (String) -> Void] {
