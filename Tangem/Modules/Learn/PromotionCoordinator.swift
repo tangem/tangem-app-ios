@@ -29,7 +29,7 @@ class PromotionCoordinator: CoordinatorObject {
     }
 
     func start(with options: Options) {
-        rootViewModel = PromotionViewModel(coordinator: self)
+        rootViewModel = PromotionViewModel(options: options, coordinator: self)
     }
 }
 
@@ -38,6 +38,8 @@ class PromotionCoordinator: CoordinatorObject {
 extension PromotionCoordinator {
     enum Options {
         case `default`
+        case newUser
+        case oldUser(cardPublicKey: String, cardId: String, walletId: String)
     }
 }
 
