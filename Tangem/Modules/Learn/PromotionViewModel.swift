@@ -23,21 +23,37 @@ final class PromotionViewModel: ObservableObject {
     var urlActions: [String: (String) -> Void] {
         let baseUrl = AppEnvironment.current.tangemComBaseUrl.absoluteString
 
-        var result: [String: (String) -> Void] = [:]
-        result["\(baseUrl)/\(urlPath)/code-created"] = handleCodeCreated
-        result["\(baseUrl)/\(urlPath)/close"] = handleClose
-        return result
+        var actions: [String: (String) -> Void] = [:]
+        actions["\(baseUrl)/\(urlPath)/code-created"] = handleCodeCreated
+        actions["\(baseUrl)/\(urlPath)/close"] = handleClose
+        actions["\(baseUrl)/\(urlPath)/ready-for-existed-card-award"] = handleReadyForAward // [REDACTED_TODO_COMMENT]
+        actions["\(baseUrl)/\(urlPath)/ready-for-existing-card-award"] = handleReadyForAward
+
+        return actions
     }
 
     var url: URL {
         var urlComponents = URLComponents(url: AppEnvironment.current.tangemComBaseUrl, resolvingAgainstBaseURL: false)!
         urlComponents.path = "/\(urlPath)/"
 
-        var queryItems = [URLQueryItem]()
-        queryItems.append(URLQueryItem(name: "type", value: "new-card"))
-        if let promoCode = promotionService.promoCode {
-            queryItems.append(URLQueryItem(name: "code", value: promoCode))
+        var queryItems: [URLQueryItem] = []
+
+        switch options {
+        case .newUser:
+            queryItems.append(URLQueryItem(name: "type", value: "new-card"))
+            if let promoCode = promotionService.promoCode {
+                queryItems.append(URLQueryItem(name: "code", value: promoCode))
+            }
+        case .oldUser(let cardPublicKey, let cardId, let walletId):
+            queryItems.append(URLQueryItem(name: "type", value: "existing-card"))
+            queryItems.append(URLQueryItem(name: "cardPublicKey", value: cardPublicKey))
+            queryItems.append(URLQueryItem(name: "cardId", value: cardId))
+            queryItems.append(URLQueryItem(name: "walletId", value: walletId))
+            queryItems.append(URLQueryItem(name: "programName", value: promotionService.programName))
+        case .default:
+            break
         }
+
         urlComponents.queryItems = queryItems
 
         return urlComponents.url!
@@ -47,11 +63,14 @@ final class PromotionViewModel: ObservableObject {
         "promotion-test"
     }
 
+    private let options: PromotionCoordinator.Options
+
     // MARK: - Dependencies
 
     private unowned let coordinator: PromotionRoutable
 
-    init(coordinator: PromotionRoutable) {
+    init(options: PromotionCoordinator.Options, coordinator: PromotionRoutable) {
+        self.options = options
         self.coordinator = coordinator
     }
 
@@ -65,6 +84,10 @@ final class PromotionViewModel: ObservableObject {
         }
 
         promotionService.setPromoCode(code)
+    }
+
+    func handleReadyForAward(url: String) {
+        coordinator.closeModule()
     }
 
     func handleClose(url: String) {
