@@ -14,6 +14,7 @@ struct CardInfoPagePreviewView<HeaderPlaceholder>: View where HeaderPlaceholder:
     let headerPlaceholder: HeaderPlaceholder
 
     var body: some View {
+        // [REDACTED_TODO_COMMENT]
         List {
             headerPlaceholder
                 .listRowSeparatorHidden(backgroundColor: Constants.backgroundColor)
