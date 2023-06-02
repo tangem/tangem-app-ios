@@ -305,9 +305,7 @@ private extension CardsInfoPagerView {
 
 struct CardsInfoPagerView_Previews: PreviewProvider {
     private struct CardsInfoPagerPreview: View {
-        @ObservedObject var headerPreviewProvider: FakeCardHeaderPreviewProvider = .init()
-
-        @ObservedObject var pagePreviewProvider: CardsInfoPagerPreviewProvider = .init()
+        @ObservedObject private var previewProvider = CardsInfoPagerPreviewProvider()
 
         @State private var selectedIndex = 0
 
@@ -317,15 +315,15 @@ struct CardsInfoPagerView_Previews: PreviewProvider {
                     .ignoresSafeArea()
 
                 CardsInfoPagerView(
-                    data: Array(pagePreviewProvider.models.indices), // [REDACTED_TODO_COMMENT]
+                    data: previewProvider.pages,
                     selectedIndex: $selectedIndex,
-                    headerFactory: { index in
-                        MultiWalletCardHeaderView(viewModel: headerPreviewProvider.models[index])
+                    headerFactory: { pageViewModel in
+                        MultiWalletCardHeaderView(viewModel: pageViewModel.header)
                             .cornerRadius(14.0)
                     },
-                    contentFactory: { index, viewProvider in
-                        DummyCardInfoPageView(
-                            viewModel: pagePreviewProvider.models[index],
+                    contentFactory: { pageViewModel, viewProvider in
+                        CardInfoPagePreviewView(
+                            viewModel: pageViewModel,
                             headerPlaceholder: viewProvider.view
                         )
                     }
@@ -333,40 +331,6 @@ struct CardsInfoPagerView_Previews: PreviewProvider {
                 .pageSwitchThreshold(0.4)
                 .contentViewVerticalOffset(64.0)
             }
-        }
-    }
-
-    private struct DummyCardInfoPageView<HeaderPlaceholder>: View where HeaderPlaceholder: View {
-        @ObservedObject var viewModel: CardInfoPagePreviewViewModel
-
-        let headerPlaceholder: HeaderPlaceholder
-
-        var body: some View {
-            List {
-                headerPlaceholder
-
-                ForEach(viewModel.cellViewModels, id: \.id) { cellViewModel in
-                    DummyCardInfoPageCellView(viewModel: cellViewModel)
-                }
-            }
-            .listStyle(.plain)
-        }
-    }
-
-    private struct DummyCardInfoPageCellView: View {
-        @ObservedObject var viewModel: CardInfoPageCellPreviewViewModel
-
-        var body: some View {
-            VStack {
-                Text(viewModel.title)
-                    .font(.caption)
-                    .fontWeight(.bold)
-                    .lineLimit(1)
-                    .allowsTightening(true)
-
-                Button("Press me!") { viewModel.tapCount += 1 }
-            }
-            .infinityFrame()
         }
     }
 
