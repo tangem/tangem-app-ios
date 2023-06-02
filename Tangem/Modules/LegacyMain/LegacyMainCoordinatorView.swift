@@ -68,6 +68,9 @@ struct LegacyMainCoordinatorView: CoordinatorView {
             .sheet(item: $coordinator.userWalletListCoordinator) {
                 UserWalletListCoordinatorView(coordinator: $0)
             }
+            .sheet(item: $coordinator.learningCoordinator) {
+                PromotionCoordinatorView(coordinator: $0)
+            }
 
         NavHolder()
             .bottomSheet(

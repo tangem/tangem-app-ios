@@ -20,7 +20,7 @@ struct PromotionView: View {
 }
 
 struct PromotionView_Preview: PreviewProvider {
-    static let viewModel = PromotionViewModel(coordinator: PromotionCoordinator())
+    static let viewModel = PromotionViewModel(options: .default, coordinator: PromotionCoordinator())
 
     static var previews: some View {
         PromotionView(viewModel: viewModel)
