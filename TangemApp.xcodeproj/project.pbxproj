@@ -412,6 +412,7 @@
 		DA5FAD8627B2791C00EE53AE /* ApplePayButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA5FAD8527B2791C00EE53AE /* ApplePayButton.swift */; };
 		DA5FAD8A27B27F7F00EE53AE /* SheetDragHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA5FAD8927B27F7F00EE53AE /* SheetDragHandler.swift */; };
 		DA64C36D27CCAD7E005B5E9A /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = DA64C36F27CCAD7E005B5E9A /* InfoPlist.strings */; };
+		DA682F962A29D08F0083CA79 /* PromotionNetworkModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA682F952A29D08F0083CA79 /* PromotionNetworkModels.swift */; };
 		DA6C7522292224E00070EEFD /* UserWalletEncryptionKey.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA6C7521292224E00070EEFD /* UserWalletEncryptionKey.swift */; };
 		DA6C752429225F9B0070EEFD /* MinimizedAppTimer.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA6C752329225F9B0070EEFD /* MinimizedAppTimer.swift */; };
 		DA6C7528292613D00070EEFD /* UserWalletIdFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA6C7527292613D00070EEFD /* UserWalletIdFactory.swift */; };
@@ -1405,6 +1406,7 @@
 		DA5FAD8927B27F7F00EE53AE /* SheetDragHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SheetDragHandler.swift; sourceTree = "<group>"; };
 		DA64C36E27CCAD7E005B5E9A /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		DA64C37027CCAD7F005B5E9A /* ru */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ru; path = ru.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		DA682F952A29D08F0083CA79 /* PromotionNetworkModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PromotionNetworkModels.swift; sourceTree = "<group>"; };
 		DA69F557298BB3AC004A5A93 /* zh-Hant */ = {isa = PBXFileReference; lastKnownFileType = text.plist.stringsdict; name = "zh-Hant"; path = "zh-Hant.lproj/Localizable.stringsdict"; sourceTree = "<group>"; };
 		DA69F558298BB3AC004A5A93 /* zh-Hant */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hant"; path = "zh-Hant.lproj/Localizable.strings"; sourceTree = "<group>"; };
 		DA69F559298BB3AC004A5A93 /* zh-Hant */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hant"; path = "zh-Hant.lproj/InfoPlist.strings"; sourceTree = "<group>"; };
@@ -3369,6 +3371,7 @@
 			children = (
 				DA7444222A27889600F926A9 /* PromotionService.swift */,
 				DA7444232A27889600F926A9 /* PromotionServiceProtocol.swift */,
+				DA682F952A29D08F0083CA79 /* PromotionNetworkModels.swift */,
 			);
 			path = PromotionService;
 			sourceTree = "<group>";
@@ -5486,6 +5489,7 @@
 				B05A13A129FB971900FB511A /* TokenItemViewModel.swift in Sources */,
 				EF862714297182B6007EBFF9 /* SwappingSuccessCoordinator.swift in Sources */,
 				EFC684702A0FA88600660690 /* SelectableSwappingFeeRowView.swift in Sources */,
+				DA682F962A29D08F0083CA79 /* PromotionNetworkModels.swift in Sources */,
 				EF56B3D12A03AFDB002CCE27 /* DefaultMenuRowViewModel.swift in Sources */,
 				B00D7150258A1B6C00A9442C /* JsonUtils.swift in Sources */,
 				5DFE855724EF051400194106 /* Error+.swift in Sources */,
