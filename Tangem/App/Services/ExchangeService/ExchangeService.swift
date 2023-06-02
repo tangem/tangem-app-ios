@@ -26,7 +26,7 @@ protocol ExchangeService: AnyObject, Initializable {
 private struct ExchangeServiceKey: InjectionKey {
     static var currentValue: ExternalExchangeService = CombinedExchangeService(
         mercuryoService: MercuryoService(),
-        utorgService: nil,
+        utorgService: nil, // Remove optional from the ExternalExchangeService and set the utorgSID in the CommonKeysManager tore-integrate Utorg
         sellService: MoonPayService()
     )
 }
