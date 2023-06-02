@@ -11,7 +11,7 @@ import Combine
 import TangemSdk
 import BlockchainSdk
 
-class WalletOnboardingViewModel: OnboardingTopupViewModel<WalletOnboardingStep, OnboardingCoordinator>, ObservableObject {
+class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep, OnboardingCoordinator>, ObservableObject {
     private let seedPhraseManager = SeedPhraseManager()
 
     @Published var thirdCardSettings: AnimatedViewSettings = .zero
