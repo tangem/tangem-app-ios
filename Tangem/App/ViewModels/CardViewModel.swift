@@ -16,9 +16,10 @@ import SwiftUI
 class CardViewModel: Identifiable, ObservableObject {
     // MARK: Services
 
-    @Injected(\.appWarningsService) private var warningsService: AppWarningsProviding
     @Injected(\.tangemApiService) var tangemApiService: TangemApiService
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
+
+    let warningsService = WarningsService()
 
     @Published private(set) var currentSecurityOption: SecurityModeOption = .longTap
     @Published private(set) var accessCodeRecoveryEnabled: Bool
@@ -203,14 +204,6 @@ class CardViewModel: Identifiable, ObservableObject {
 
     var cardAmountType: Amount.AmountType? {
         config.cardAmountType
-    }
-
-    var supportChatEnvironment: SupportChatEnvironment {
-        config.supportChatEnvironment
-    }
-
-    var exchangeServiceEnvironment: ExchangeServiceEnvironment {
-        config.exchangeServiceEnvironment
     }
 
     var hasWallet: Bool {
