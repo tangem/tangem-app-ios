@@ -388,11 +388,20 @@ class LegacyMainViewModel: ObservableObject {
 
     func learnAndEarn() {
         print("LEARN AND EARN")
-        coordinator.openLearning(
-            cardPublicKey: cardModel.cardPublicKey.hex,
-            cardId: cardModel.cardId,
-            walletId: cardModel.userWalletId.stringValue
-        )
+//        coordinator.openLearning(
+//            cardPublicKey: cardModel.cardPublicKey.hex,
+//            cardId: cardModel.cardId,
+//            walletId: cardModel.userWalletId.stringValue
+//        )
+
+        do {
+            try promotionService.getReward(
+                userWalletId: cardModel.userWalletId.stringValue,
+                storageEntryAdding: cardModel
+            )
+        } catch {
+            print(error)
+        }
     }
 
     func prepareForBackup() {
