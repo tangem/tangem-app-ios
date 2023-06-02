@@ -10,9 +10,9 @@ import TangemSdk
 import BlockchainSdk
 
 class PromotionService {
+    let programName = "1inch"
     private let promoCodeStorageKey = "promo_code"
-    private let programName = "1inch"
-    
+
     #warning("[REDACTED_TODO_COMMENT]")
     private let awardBlockchain: Blockchain = .polygon(testnet: false)
     private let awardTokenAddress: String = "0x9c2c5fd7b07e95ee044ddeba0e97a665f142394f"
