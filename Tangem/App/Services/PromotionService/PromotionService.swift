@@ -10,6 +10,8 @@ import TangemSdk
 import BlockchainSdk
 
 class PromotionService {
+    @Injected(\.tangemApiService) private var tangemApiService: TangemApiService
+
     let programName = "1inch"
     private let promoCodeStorageKey = "promo_code"
 
@@ -47,6 +49,36 @@ extension PromotionService: PromotionServiceProtocol {
         } catch {
             AppLog.shared.error(error)
             AppLog.shared.error("Failed to update promo code")
+        }
+    }
+
+    func getReward(userWalletId: String, storageEntryAdding: StorageEntryAdding) throws {
+        let blockchain: Blockchain = .tron(testnet: false)
+        let derivationPath: DerivationPath? = blockchain.derivationPath()
+        let blockchainNetwork = storageEntryAdding.getBlockchainNetwork(for: blockchain, derivationPath: derivationPath)
+        let token: Token = .init(name: "USDT", symbol: "USDT", contractAddress: "TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t", decimalCount: 6, id: "tether")
+
+        let entry = StorageEntry(blockchainNetwork: blockchainNetwork, token: token)
+        storageEntryAdding.add(entry: entry) { result in
+            print(result)
+        }
+
+        return ()
+
+        runTask { [weak self] in
+            guard let self else { return }
+
+            if let promoCode {
+                fatalError("promocode \(promoCode) exists")
+            } else {
+                // OLD USER
+
+                let result = try await tangemApiService.validateOldUserPromotionEligibility(walletId: userWalletId, programName: programName)
+                print(result)
+
+                let address = "a"
+                try await tangemApiService.awardOldUser(walletId: userWalletId, address: address, programName: programName)
+            }
         }
     }
 }
