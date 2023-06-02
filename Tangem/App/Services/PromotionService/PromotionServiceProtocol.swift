@@ -9,6 +9,7 @@
 import Foundation
 
 protocol PromotionServiceProtocol {
+    var programName: String { get }
     var promoCode: String? { get }
 
     func setPromoCode(_ promoCode: String?)
