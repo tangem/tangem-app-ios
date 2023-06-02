@@ -161,22 +161,6 @@ struct WalletOnboardingView: View {
                                 }
                             }
 
-                            let backgroundFrame = viewModel.isInitialAnimPlayed ? currentStep.cardBackgroundFrame(containerSize: size) : .zero
-                            let backgroundOffset = viewModel.isInitialAnimPlayed ? currentStep.backgroundOffset(in: size) : .zero
-
-                            OnboardingTopupBalanceView(
-                                backgroundFrameSize: backgroundFrame,
-                                cornerSize: currentStep.cardBackgroundCornerRadius(containerSize: size),
-                                backgroundOffset: backgroundOffset,
-                                balance: viewModel.cardBalance,
-                                balanceUpdaterFrame: backgroundFrame,
-                                balanceUpdaterOffset: backgroundOffset,
-                                refreshAction: {},
-                                refreshButtonState: viewModel.refreshButtonState,
-                                refreshButtonSize: .medium,
-                                refreshButtonOpacity: currentStep.balanceStackOpacity
-                            )
-
                             OnboardingCircleButton(
                                 refreshAction: {},
                                 state: currentStep.successCircleState,
