@@ -34,18 +34,20 @@ final class SwappingViewModel: ObservableObject {
             viewModels.append(.fee(swappingFeeRowViewModel))
         }
 
-        if let feeWarningRowViewModel = feeWarningRowViewModel {
-            viewModels.append(.warning(feeWarningRowViewModel))
-        }
-
         if isShowingDisclaimer {
             feeOptionsViewModels.forEach {
                 viewModels.append(.feePolicy($0))
             }
 
+            if let feeWarningRowViewModel = feeWarningRowViewModel {
+                viewModels.append(.warning(feeWarningRowViewModel))
+            }
+
             if let feeInfoRowViewModel = feeInfoRowViewModel {
                 viewModels.append(.warning(feeInfoRowViewModel))
             }
+        } else if let feeWarningRowViewModel = feeWarningRowViewModel {
+            viewModels.append(.warning(feeWarningRowViewModel))
         }
 
         return viewModels
