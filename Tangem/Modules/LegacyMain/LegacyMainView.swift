@@ -39,7 +39,7 @@ struct LegacyMainView: View {
                         })
                         .padding(.horizontal, 16)
 
-                        if viewModel.canLearnAndEarn {
+                        if viewModel.canOpenPromotion {
                             learnAlertView
                         }
 
