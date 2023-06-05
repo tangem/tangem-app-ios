@@ -24,7 +24,7 @@ class WelcomeCoordinator: CoordinatorObject {
     @Published var pushedOnboardingCoordinator: OnboardingCoordinator? = nil
     @Published var shopCoordinator: ShopCoordinator? = nil
     @Published var tokenListCoordinator: TokenListCoordinator? = nil
-    @Published var learningCoordinator: PromotionCoordinator? = nil
+    @Published var promotionCoordinator: PromotionCoordinator? = nil
 
     // MARK: - Child view models
 
@@ -40,7 +40,7 @@ class WelcomeCoordinator: CoordinatorObject {
         publishers.append($mailViewModel.dropFirst().map { $0 == nil }.eraseToAnyPublisher())
         publishers.append($shopCoordinator.dropFirst().map { $0 == nil }.eraseToAnyPublisher())
         publishers.append($tokenListCoordinator.dropFirst().map { $0 == nil }.eraseToAnyPublisher())
-        publishers.append($learningCoordinator.dropFirst().map { $0 == nil }.eraseToAnyPublisher())
+        publishers.append($promotionCoordinator.dropFirst().map { $0 == nil }.eraseToAnyPublisher())
 
         return Publishers.MergeMany(publishers)
             .eraseToAnyPublisher()
@@ -101,14 +101,14 @@ extension WelcomeCoordinator: WelcomeRoutable {
         mailViewModel = MailViewModel(logsComposer: logsComposer, recipient: recipient, emailType: .failedToScanCard)
     }
 
-    func openLearning() {
+    func openPromotion() {
         let dismissAction: Action = { [weak self] in
-            self?.learningCoordinator = nil
+            self?.promotionCoordinator = nil
         }
 
         let coordinator = PromotionCoordinator(dismissAction: dismissAction)
         coordinator.start(with: .default)
-        learningCoordinator = coordinator
+        promotionCoordinator = coordinator
     }
 
     func openTokensList() {
