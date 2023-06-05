@@ -16,7 +16,6 @@ class LegacyMainViewModel: ObservableObject {
     // MARK: - Dependencies
 
     @Injected(\.exchangeService) private var exchangeService: ExchangeService
-    @Injected(\.appWarningsService) private var warningsService: AppWarningsProviding
     @Injected(\.failedScanTracker) var failedCardScanTracker: FailedScanTrackable
     @Injected(\.rateAppService) private var rateAppService: RateAppService
     @Injected(\.tangemApiService) private var tangemApiService: TangemApiService
@@ -183,7 +182,7 @@ class LegacyMainViewModel: ObservableObject {
         canOpenPromotion = true
 
         bind()
-        cardModel.setupWarnings()
+        setupWarnings()
         updateContent()
         updateExchangeButtons()
     }
@@ -195,13 +194,6 @@ class LegacyMainViewModel: ObservableObject {
     // MARK: - Functions
 
     func bind() {
-        warningsService.warningsUpdatePublisher
-            .sink { [unowned self] in
-                AppLog.shared.debug("⚠️ Main view model fetching warnings")
-                self.warnings = self.warningsService.warnings(for: .main)
-            }
-            .store(in: &bag)
-
         cardModel.subscribeToEntriesWithoutDerivation()
             .receive(on: DispatchQueue.main)
             .removeDuplicates()
@@ -332,57 +324,6 @@ class LegacyMainViewModel: ObservableObject {
         cardModel.deriveEntriesWithoutDerivation()
     }
 
-    // MARK: - Warning action handler
-
-    func warningButtonAction(at index: Int, priority: WarningPriority, button: WarningButton) {
-        guard let warning = warnings.warning(at: index, with: priority) else { return }
-
-        func registerValidatedSignedHashesCard() {
-            AppSettings.shared.validatedSignedHashesCards.append(cardModel.cardId)
-        }
-
-        func handleOkGotItButtonAction() {
-            switch warning.event {
-            case .numberOfSignedHashesIncorrect:
-                registerValidatedSignedHashesCard()
-            case .systemDeprecationTemporary:
-                deprecationService.didDismissSystemDeprecationWarning()
-            default:
-                return
-            }
-        }
-
-        // [REDACTED_TODO_COMMENT]
-        switch button {
-        case .okGotIt:
-            handleOkGotItButtonAction()
-        case .rateApp:
-            rateAppService.userReactToRateAppWarning(isPositive: true)
-        case .dismiss:
-            rateAppService.dismissRateAppWarning()
-        case .reportProblem:
-            rateAppService.userReactToRateAppWarning(isPositive: false)
-            openMail(with: .negativeFeedback)
-        case .learnMore:
-            if case .multiWalletSignedHashes = warning.event {
-                error = AlertBinder(alert: Alert(
-                    title: Text(warning.title),
-                    message: Text(Localization.alertSignedHashesMessage),
-                    primaryButton: .cancel(),
-                    secondaryButton: .default(Text(Localization.commonUnderstand)) { [weak self] in
-                        withAnimation {
-                            registerValidatedSignedHashesCard()
-                            self?.warningsService.hideWarning(warning)
-                        }
-                    }
-                ))
-                return
-            }
-        }
-
-        warningsService.hideWarning(warning)
-    }
-
     func extractSellCryptoRequest(from response: String) {
         if let request = exchangeService.extractSellCryptoRequest(from: response) {
             openSendToSell(with: request)
@@ -422,7 +363,75 @@ class LegacyMainViewModel: ObservableObject {
             openOnboarding(with: input)
         }
     }
+}
 
+// MARK: - Warnings related
+
+extension LegacyMainViewModel {
+    func warningButtonAction(at index: Int, priority: WarningPriority, button: WarningButton) {
+        guard let warning = warnings.warning(at: index, with: priority) else { return }
+
+        func registerValidatedSignedHashesCard() {
+            AppSettings.shared.validatedSignedHashesCards.append(cardModel.cardId)
+        }
+
+        func handleOkGotItButtonAction() {
+            switch warning.event {
+            case .numberOfSignedHashesIncorrect:
+                registerValidatedSignedHashesCard()
+            case .systemDeprecationTemporary:
+                deprecationService.didDismissSystemDeprecationWarning()
+            default:
+                return
+            }
+        }
+
+        // [REDACTED_TODO_COMMENT]
+        switch button {
+        case .okGotIt:
+            handleOkGotItButtonAction()
+        case .rateApp:
+            rateAppService.userReactToRateAppWarning(isPositive: true)
+        case .dismiss:
+            rateAppService.dismissRateAppWarning()
+        case .reportProblem:
+            rateAppService.userReactToRateAppWarning(isPositive: false)
+            openMail(with: .negativeFeedback)
+        case .learnMore:
+            if case .multiWalletSignedHashes = warning.event {
+                error = AlertBinder(alert: Alert(
+                    title: Text(warning.title),
+                    message: Text(Localization.alertSignedHashesMessage),
+                    primaryButton: .cancel(),
+                    secondaryButton: .default(Text(Localization.commonUnderstand)) { [weak self] in
+                        withAnimation {
+                            registerValidatedSignedHashesCard()
+                            self?.cardModel.warningsService.hideWarning(warning)
+                        }
+                    }
+                ))
+                return
+            }
+        }
+
+        cardModel.warningsService.hideWarning(warning)
+    }
+
+    private func setupWarnings() {
+        cardModel.warningsService.warningsUpdatePublisher
+            .sink { [weak self] in
+                guard let self else { return }
+
+                AppLog.shared.debug("⚠️ Main view model fetching warnings")
+                self.warnings = self.cardModel.warningsService.warnings(for: .main)
+            }
+            .store(in: &bag)
+
+        cardModel.setupWarnings()
+    }
+}
+
+private extension LegacyMainViewModel {
     // MARK: - Private functions
 
     private func updateContent() {
