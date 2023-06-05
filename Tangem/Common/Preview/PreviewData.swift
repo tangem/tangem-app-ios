@@ -14,7 +14,7 @@ struct PreviewData {
     static var previewNoteCardOnboardingInput: OnboardingInput {
         OnboardingInput(
             backupService: .init(sdk: .init()),
-            cardInteractor: nil,
+            cardInitializer: nil,
             steps: .singleWallet([.createWallet, .success]),
             cardInput: .cardModel(PreviewCard.ethEmptyNote.cardModel),
             twinData: nil
@@ -24,7 +24,7 @@ struct PreviewData {
     static var previewTwinOnboardingInput: OnboardingInput {
         .init(
             backupService: .init(sdk: .init()),
-            cardInteractor: nil,
+            cardInitializer: nil,
             steps: .twins([
                 .intro(pairNumber: "0128"),
                 .first,
@@ -41,7 +41,7 @@ struct PreviewData {
     static var previewWalletOnboardingInput: OnboardingInput {
         .init(
             backupService: .init(sdk: .init()),
-            cardInteractor: nil,
+            cardInitializer: nil,
             steps: .wallet([.createWallet, .backupIntro, .selectBackupCards, .backupCards, .success]),
             cardInput: .cardModel(PreviewCard.tangemWalletEmpty.cardModel),
             twinData: nil

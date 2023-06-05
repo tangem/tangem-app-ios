@@ -10,6 +10,8 @@ import BlockchainSdk
 import Combine
 
 protocol UserWalletModel: AnyObject {
+    var isMultiWallet: Bool { get }
+    var userWalletId: UserWalletId { get }
     var userTokenListManager: UserTokenListManager { get }
     var totalBalanceProvider: TotalBalanceProviding { get }
     var userWallet: UserWallet { get }
@@ -28,6 +30,7 @@ protocol UserWalletModel: AnyObject {
 
     /// Update if the wallet model hasn't initial updates
     func initialUpdate()
+    func updateWalletName(_ name: String)
     func updateWalletModels()
     func updateAndReloadWalletModels(silent: Bool, completion: @escaping () -> Void)
 }
