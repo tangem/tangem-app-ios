@@ -173,7 +173,7 @@ struct DetailsFeedbackDataCollector: EmailDataCollector {
     var logData: Data? {
         var dataToFormat = userWalletEmailData
 
-        for walletModel in cardModel.walletModels {
+        for walletModel in walletModels {
             dataToFormat.append(.separator(.dashes))
             dataToFormat.append(EmailCollectedData(type: .card(.blockchain), data: walletModel.wallet.blockchain.displayName))
 
@@ -224,11 +224,11 @@ struct DetailsFeedbackDataCollector: EmailDataCollector {
         return formatData(dataToFormat)
     }
 
-    private let cardModel: CardViewModel
+    private let walletModels: [WalletModel]
     private let userWalletEmailData: [EmailCollectedData]
 
-    init(cardModel: CardViewModel, userWalletEmailData: [EmailCollectedData]) {
-        self.cardModel = cardModel
+    init(walletModels: [WalletModel], userWalletEmailData: [EmailCollectedData]) {
+        self.walletModels = walletModels
         self.userWalletEmailData = userWalletEmailData
     }
 }

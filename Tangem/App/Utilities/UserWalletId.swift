@@ -13,7 +13,9 @@ struct UserWalletId: Equatable {
     let value: Data
 
     var stringValue: String { value.hexString }
+}
 
+extension UserWalletId {
     init(with walletPublicKey: Data) {
         let keyHash = walletPublicKey.sha256()
         let key = SymmetricKey(data: keyHash)

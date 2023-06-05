@@ -12,4 +12,5 @@ public enum SwappingManagerError: Error {
     case walletAddressNotFound
     case destinationNotFound
     case amountNotFound
+    case gasModelNotFound
 }
