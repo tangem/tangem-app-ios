@@ -85,7 +85,7 @@ class WalletModel: ObservableObject, Identifiable {
     var demoBalance: Decimal?
 
     var totalBalance: Decimal {
-        allTokenItemViewModels().map { $0.fiatValue }.reduce(0, +)
+        legacyMultiCurrencyViewModel().map { $0.fiatValue }.reduce(0, +)
     }
 
     let walletManager: WalletManager
@@ -535,40 +535,42 @@ extension WalletModel {
 // MARK: - ViewModelBuilder helpers
 
 extension WalletModel {
-    func balanceViewModel() -> BalanceViewModel {
-        BalanceViewModel(
-            isToken: false,
+    func legacySingleCurrencyViewModel() -> BalanceViewModel {
+        let token = walletManager.cardTokens.map {
+            let type = Amount.AmountType.token(value: $0)
+            return TokenBalanceViewModel(
+                name: $0.name,
+                balance: getBalance(for: type),
+                fiatBalance: getFiatBalance(for: type)
+            )
+        }.first
+
+        return BalanceViewModel(
             hasTransactionInProgress: wallet.hasPendingTx,
             state: state,
             name: wallet.blockchain.displayName,
             fiatBalance: getFiatBalance(for: .coin),
             balance: getBalance(for: .coin),
-            secondaryBalance: "",
-            secondaryFiatBalance: "",
-            secondaryName: ""
+            tokenBalanceViewModel: token
         )
     }
 
-    func tokenBalanceViewModels() -> [TokenBalanceViewModel] {
-        walletManager.cardTokens.map {
-            let type = Amount.AmountType.token(value: $0)
-            return TokenBalanceViewModel(
-                token: $0,
-                balance: getBalance(for: type),
-                fiatBalance: getFiatBalance(for: type)
-            )
+    func legacyMultiCurrencyViewModel() -> [LegacyTokenItemViewModel] {
+        let tokenViewModels = walletManager.cardTokens.map {
+            mapToken($0)
         }
+
+        return [mapBlockchain()] + tokenViewModels
     }
 
-    func blockchainTokenItemViewModel() -> LegacyTokenItemViewModel {
-        let amountType = Amount.AmountType.coin
-        let balanceViewModel = balanceViewModel()
+    private func mapBlockchain() -> LegacyTokenItemViewModel {
+        let amountType: Amount.AmountType = .coin
 
         return LegacyTokenItemViewModel(
             state: state,
-            name: balanceViewModel.name,
-            balance: balanceViewModel.balance,
-            fiatBalance: balanceViewModel.fiatBalance,
+            name: wallet.blockchain.displayName,
+            balance: getBalance(for: amountType),
+            fiatBalance: getFiatBalance(for: .coin),
             rate: getRateFormatted(for: amountType),
             fiatValue: getFiat(for: wallet.amounts[amountType], roundingType: .defaultFiat(roundingMode: .plain)) ?? 0,
             blockchainNetwork: blockchainNetwork,
@@ -578,28 +580,23 @@ extension WalletModel {
         )
     }
 
-    func allTokenItemViewModels() -> [LegacyTokenItemViewModel] {
-        let tokenViewModels = tokenBalanceViewModels().map { balanceViewModel in
-            let amountType = Amount.AmountType.token(value: balanceViewModel.token)
+    private func mapToken(_ token: BlockchainSdk.Token) -> LegacyTokenItemViewModel {
+        let amountType: Amount.AmountType = .token(value: token)
 
-            return LegacyTokenItemViewModel(
-                state: state,
-                name: balanceViewModel.name,
-                balance: balanceViewModel.balance,
-                fiatBalance: balanceViewModel.fiatBalance,
-                rate: getRateFormatted(for: amountType),
-                fiatValue: getFiat(for: wallet.amounts[amountType], roundingType: .defaultFiat(roundingMode: .plain)) ?? 0,
-                blockchainNetwork: blockchainNetwork,
-                amountType: amountType,
-                hasTransactionInProgress: wallet.hasPendingTx(for: amountType),
-                isCustom: isCustom(amountType)
-            )
-        }
-
-        return [blockchainTokenItemViewModel()] + tokenViewModels
+        return LegacyTokenItemViewModel(
+            state: state,
+            name: token.name,
+            balance: getBalance(for: amountType),
+            fiatBalance: getFiatBalance(for: amountType),
+            rate: getRateFormatted(for: amountType),
+            fiatValue: getFiat(for: wallet.amounts[amountType], roundingType: .defaultFiat(roundingMode: .plain)) ?? 0,
+            blockchainNetwork: blockchainNetwork,
+            amountType: amountType,
+            isCustom: isCustom(amountType)
+        )
     }
 
-    func getRateFormatted(for amountType: Amount.AmountType) -> String {
+    private func getRateFormatted(for amountType: Amount.AmountType) -> String {
         guard let currencyId = currencyId(for: amountType),
               let rate = rates[currencyId] else {
             return ""
