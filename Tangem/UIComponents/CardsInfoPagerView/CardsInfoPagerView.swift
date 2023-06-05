@@ -103,7 +103,7 @@ struct CardsInfoPagerView<
                     contentOffsetBinding: $verticalContentOffset
                 )
                 contentFactory(element, scrollViewConnector)
-                    .isHidden(index != currentPageIndex)
+                    .hidden(index != currentPageIndex)
             }
         }
         .frame(size: proxy.size)
