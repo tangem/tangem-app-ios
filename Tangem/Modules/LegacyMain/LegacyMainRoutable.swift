@@ -19,7 +19,7 @@ protocol LegacyMainRoutable: TokenDetailsRoutable {
     func openMail(with dataCollector: EmailDataCollector, emailType: EmailType, recipient: String)
     func openQR(shareAddress: String, address: String, qrNotice: String)
     func openUserWalletList()
-    func openLearning(cardPublicKey: String, cardId: String, walletId: String)
+    func openPromotion(cardPublicKey: String, cardId: String, walletId: String)
 }
 
 protocol OpenCurrencySelectionDelegate: AnyObject {
