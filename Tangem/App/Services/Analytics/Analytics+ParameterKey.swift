@@ -20,9 +20,7 @@ extension Analytics {
         case walletConnectAction = "wallet_connect_action"
         case walletConnectRequest = "wallet_connect_request"
         case walletConnectDappUrl = "wallet_connect_dapp_url"
-        case currencyCode = "currency_code"
         case source
-        case tokenName = "token_name"
         case type
         case currency = "Currency Type" // fiat
         case success
@@ -50,5 +48,6 @@ extension Analytics {
         case status = "Status"
         case option
         case feeType = "Fee Type"
+        case permissionType = "Permission Type"
     }
 }

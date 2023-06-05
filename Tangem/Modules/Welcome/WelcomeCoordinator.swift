@@ -20,7 +20,7 @@ class WelcomeCoordinator: CoordinatorObject {
 
     // MARK: - Child coordinators
 
-    @Published var mainCoordinator: MainCoordinator? = nil
+    @Published var mainCoordinator: LegacyMainCoordinator? = nil
     @Published var pushedOnboardingCoordinator: OnboardingCoordinator? = nil
     @Published var shopCoordinator: ShopCoordinator? = nil
     @Published var tokenListCoordinator: TokenListCoordinator? = nil
@@ -88,8 +88,8 @@ extension WelcomeCoordinator: WelcomeRoutable {
     }
 
     func openMain(with cardModel: CardViewModel) {
-        let coordinator = MainCoordinator(popToRootAction: popToRootAction)
-        let options = MainCoordinator.Options(cardModel: cardModel)
+        let coordinator = LegacyMainCoordinator(popToRootAction: popToRootAction)
+        let options = LegacyMainCoordinator.Options(cardModel: cardModel)
         coordinator.start(with: options)
         mainCoordinator = coordinator
     }
