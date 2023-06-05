@@ -11,8 +11,6 @@ import SwiftUI
 struct CardInfoPageTransactionDefaultCellPreviewView: View {
     @ObservedObject var viewModel: CardInfoPageTransactionDefaultCellPreviewViewModel
 
-    let contentColor: Color
-
     var body: some View {
         VStack {
             Text(viewModel.title)
@@ -24,7 +22,5 @@ struct CardInfoPageTransactionDefaultCellPreviewView: View {
             Button("Press me!", action: viewModel.onTap)
         }
         .frame(height: 68.0)
-        .infinityFrame()
-        .background(contentColor)
     }
 }
