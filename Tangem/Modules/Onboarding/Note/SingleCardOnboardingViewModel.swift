@@ -235,13 +235,13 @@ class SingleCardOnboardingViewModel: OnboardingTopupViewModel<SingleCardOnboardi
     }
 
     private func createWallet() {
-        guard let cardInteractor = input.cardInteractor else { return }
+        guard let cardInitializer = input.cardInitializer else { return }
 
         AppSettings.shared.cardsStartedActivation.insert(input.cardInput.cardId)
         Analytics.log(.buttonCreateWallet)
         isMainButtonBusy = true
 
-        cardInteractor.prepareCard(seed: nil) { [weak self] result in
+        cardInitializer.initializeCard(seed: nil) { [weak self] result in
             guard let self else { return }
 
             switch result {
