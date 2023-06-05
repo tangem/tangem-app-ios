@@ -16,7 +16,7 @@ struct CardInfoPagePreviewView: View {
     private let coordinateSpaceName = UUID()
 
     var body: some View {
-        ScrollView {
+        ScrollView(showsIndicators: false) {
             LazyVStack(spacing: 0.0) {
                 scrollViewConnector.placeholderView
 
