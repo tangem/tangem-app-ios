@@ -52,31 +52,25 @@ extension PromotionService: PromotionServiceProtocol {
         }
     }
 
-    func getReward(userWalletId: String, storageEntryAdding: StorageEntryAdding) throws {
+    func getReward(userWalletId: String, storageEntryAdding: StorageEntryAdding) async throws {
         let derivationPath: DerivationPath? = awardBlockchain.derivationPath()
         let blockchainNetwork = storageEntryAdding.getBlockchainNetwork(for: awardBlockchain, derivationPath: derivationPath)
 
         let entry = StorageEntry(blockchainNetwork: blockchainNetwork, token: awardToken)
-        storageEntryAdding.add(entry: entry) { result in
+
+
+        let address = try await storageEntryAdding.add(entry: entry)
+        print(address)
+
+        if let promoCode {
+            fatalError("promocode \(promoCode) exists")
+        } else {
+            // OLD USER
+
+            let result = try await tangemApiService.validateOldUserPromotionEligibility(walletId: userWalletId, programName: programName)
             print(result)
-        }
 
-        return ()
-
-        runTask { [weak self] in
-            guard let self else { return }
-
-            if let promoCode {
-                fatalError("promocode \(promoCode) exists")
-            } else {
-                // OLD USER
-
-                let result = try await tangemApiService.validateOldUserPromotionEligibility(walletId: userWalletId, programName: programName)
-                print(result)
-
-                let address = "a"
-                try await tangemApiService.awardOldUser(walletId: userWalletId, address: address, programName: programName)
-            }
+            try await tangemApiService.awardOldUser(walletId: userWalletId, address: address, programName: programName)
         }
     }
 }
