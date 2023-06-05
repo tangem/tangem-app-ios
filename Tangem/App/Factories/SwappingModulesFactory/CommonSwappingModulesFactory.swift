@@ -45,6 +45,7 @@ extension CommonSwappingModulesFactory: SwappingModulesFactory {
             tokenIconURLBuilder: tokenIconURLBuilder,
             transactionSender: transactionSender,
             fiatRatesProvider: fiatRatesProvider,
+            swappingFeeFormatter: swappingFeeFormatter,
             coordinator: coordinator
         )
     }
@@ -125,6 +126,10 @@ private extension CommonSwappingModulesFactory {
 
     var fiatRatesProvider: FiatRatesProviding {
         FiatRatesProvider(walletModel: walletModel, rates: walletModel.rates)
+    }
+
+    var swappingFeeFormatter: SwappingFeeFormatter {
+        CommonSwappingFeeFormatter(fiatRatesProvider: fiatRatesProvider)
     }
 
     var explorerURLService: ExplorerURLService {
