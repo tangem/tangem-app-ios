@@ -20,6 +20,12 @@ extension SwappingTransactionData {
         sourceAmount: 123_000_000_000_000,
         destinationAmount: 300_000_000_000_000,
         value: 0,
-        gas: EthereumGasDataModel(blockchain: .ethereum, gasPrice: 1_000_000_000, gasLimit: 310_000, fee: 0.005678)
+        gas: EthereumGasDataModel(
+            blockchain: .ethereum,
+            gasPrice: 1_000_000_000,
+            gasLimit: 310_000,
+            fee: 0.005678,
+            policy: .normal
+        )
     )
 }
