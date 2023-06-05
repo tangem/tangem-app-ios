@@ -114,7 +114,7 @@ extension WelcomeViewModel {
     }
 
     func learn() {
-        coordinator.openLearning()
+        coordinator.openPromotion()
     }
 
     func openTokensList() {
