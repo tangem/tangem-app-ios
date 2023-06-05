@@ -8,55 +8,56 @@
 
 import SwiftUI
 
-struct CardInfoPagePreviewView<HeaderPlaceholder>: View where HeaderPlaceholder: View {
+struct CardInfoPagePreviewView: View {
     @ObservedObject var viewModel: CardInfoPagePreviewViewModel
 
-    let headerPlaceholder: HeaderPlaceholder
+    let scrollViewConnector: CardsInfoPagerScrollViewConnector
+
+    private let coordinateSpaceName = UUID()
 
     var body: some View {
-        // [REDACTED_TODO_COMMENT]
-        List {
-            headerPlaceholder
-                .listRowSeparatorHidden(backgroundColor: Constants.backgroundColor)
-                .listRowBackground(Constants.backgroundColor)
+        ScrollView {
+            LazyVStack(spacing: 0.0) {
+                scrollViewConnector.placeholderView
 
-            Spacer()
-                .listRowSeparatorHidden(backgroundColor: Constants.backgroundColor)
-                .listRowBackground(Constants.backgroundColor)
+                Spacer(minLength: Constants.spacerHeight)
 
-            ForEach(viewModel.sections, id: \.id) { section in
-                switch section.items {
-                case .transaction(let cellViewModels):
-                    Section {
-                        ForEach(cellViewModels.indexed(), id: \.1.id) { index, sectionItem in
-                            prepareCell(
-                                cell: makeCell(sectionItem: sectionItem),
-                                forDisplayAtIndex: index,
-                                sectionItemsCount: cellViewModels.count
-                            )
+                ForEach(viewModel.sections, id: \.id) { section in
+                    switch section.items {
+                    case .transaction(let cellViewModels):
+                        Section {
+                            ForEach(cellViewModels.indexed(), id: \.1.id) { index, sectionItem in
+                                prepareCell(
+                                    cell: makeCell(sectionItem: sectionItem),
+                                    forDisplayAtIndex: index,
+                                    sectionItemsCount: cellViewModels.count
+                                )
+                            }
+                        }
+                    case .warning(let cellViewModels):
+                        Section {
+                            ForEach(cellViewModels.indexed(), id: \.1.id) { index, sectionItem in
+                                prepareCell(
+                                    cell: makeCell(sectionItem: sectionItem),
+                                    forDisplayAtIndex: index,
+                                    sectionItemsCount: cellViewModels.count
+                                )
+                            }
                         }
                     }
-                case .warning(let cellViewModels):
-                    Section {
-                        ForEach(cellViewModels.indexed(), id: \.1.id) { index, sectionItem in
-                            prepareCell(
-                                cell: makeCell(sectionItem: sectionItem),
-                                forDisplayAtIndex: index,
-                                sectionItemsCount: cellViewModels.count
-                            )
-                        }
-                    }
-                }
 
-                // Do not append spacing after the last section
-                if section.id != viewModel.sections.last?.id {
-                    Spacer()
-                        .listRowSeparatorHidden(backgroundColor: Constants.backgroundColor)
-                        .listRowBackground(Constants.backgroundColor)
+                    // Do not append spacing after the last section
+                    if section.id != viewModel.sections.last?.id {
+                        Spacer(minLength: Constants.spacerHeight)
+                    }
                 }
             }
+            .readContentOffset(
+                to: scrollViewConnector.contentOffsetBinding,
+                inCoordinateSpace: .named(coordinateSpaceName)
+            )
         }
-        .listStyle(.plain)
+        .coordinateSpace(name: coordinateSpaceName)
     }
 
     @ViewBuilder
@@ -65,15 +66,9 @@ struct CardInfoPagePreviewView<HeaderPlaceholder>: View where HeaderPlaceholder:
     ) -> some View {
         switch sectionItem {
         case .iconAndTitle(let viewModel):
-            CardInfoPageWarningIconAndTitleCellPreviewView(
-                viewModel: viewModel,
-                contentColor: Constants.contentColor
-            )
+            CardInfoPageWarningIconAndTitleCellPreviewView(viewModel: viewModel)
         case .iconOnly(let viewModel):
-            CardInfoPageWarningIconOnlyCellPreviewView(
-                viewModel: viewModel,
-                contentColor: Constants.contentColor
-            )
+            CardInfoPageWarningIconOnlyCellPreviewView(viewModel: viewModel)
         }
     }
 
@@ -83,10 +78,7 @@ struct CardInfoPagePreviewView<HeaderPlaceholder>: View where HeaderPlaceholder:
     ) -> some View {
         switch sectionItem {
         case .default(let viewModel):
-            CardInfoPageTransactionDefaultCellPreviewView(
-                viewModel: viewModel,
-                contentColor: Constants.contentColor
-            )
+            CardInfoPageTransactionDefaultCellPreviewView(viewModel: viewModel)
         }
     }
 
@@ -97,20 +89,11 @@ struct CardInfoPagePreviewView<HeaderPlaceholder>: View where HeaderPlaceholder:
         sectionItemsCount itemsCount: Int
     ) -> some View {
         let corners = corners(forCellAtIndex: index, sectionItemsCount: itemsCount)
-        Group {
-            if #available(iOS 15.0, *) {
-                cell
-                    .listRowBackground(Constants.backgroundColor)
-                    .listRowInsets(.init(horizontal: Constants.horizontalOffset, vertical: 0.0))
-                    .cornerRadius(Constants.cornerRadius, corners: corners)
-            } else {
-                cell
-                    .frame(width: UIScreen.main.bounds.width - Constants.horizontalOffset * 2.0)
-                    .cornerRadius(Constants.cornerRadius, corners: corners)
-                    .infinityFrame(alignment: .center)
-            }
-        }
-        .listRowSeparatorHidden(backgroundColor: Constants.backgroundColor)
+        cell
+            .infinityFrame()
+            .background(Constants.contentColor)
+            .cornerRadius(Constants.cornerRadius, corners: corners)
+            .padding(.horizontal, Constants.cellPadding)
     }
 
     private func corners(
@@ -134,33 +117,9 @@ struct CardInfoPagePreviewView<HeaderPlaceholder>: View where HeaderPlaceholder:
 
 private extension CardInfoPagePreviewView {
     private enum Constants {
-        static var backgroundColor: Color { Colors.Background.secondary }
         static var contentColor: Color { Colors.Background.primary }
-        static var horizontalOffset: CGFloat { 20.0 }
         static var cornerRadius: CGFloat { 14.0 }
-    }
-}
-
-// MARK: - Convenience extensions
-
-private extension View {
-    func listRowSeparatorHidden(backgroundColor: Color) -> some View {
-        modifier(ListRowSeparatorHiddenViewModifier(backgroundColor: backgroundColor))
-    }
-}
-
-private struct ListRowSeparatorHiddenViewModifier: ViewModifier {
-    var backgroundColor: Color
-
-    func body(content: Content) -> some View {
-        if #available(iOS 15.0, *) {
-            content
-                .listRowSeparator(.hidden)
-        } else {
-            // Based on https://stackoverflow.com/a/67055499
-            content
-                .listRowInsets(EdgeInsets(top: -1.0, leading: 0.0, bottom: 0.0, trailing: 0.0))
-                .background(backgroundColor)
-        }
+        static var spacerHeight: CGFloat { 16.0 }
+        static var cellPadding: CGFloat { 16.0 }
     }
 }
