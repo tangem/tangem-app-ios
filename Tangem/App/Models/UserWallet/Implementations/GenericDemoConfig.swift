@@ -147,8 +147,6 @@ extension GenericDemoConfig: UserWalletConfig {
             return .disabled(localizedReason: Localization.alertDemoFeatureDisabled)
         case .multiCurrency:
             return .available
-        case .tokensSearch:
-            return .hidden
         case .resetToFactory:
             return .disabled(localizedReason: Localization.alertDemoFeatureDisabled)
         case .receive:
