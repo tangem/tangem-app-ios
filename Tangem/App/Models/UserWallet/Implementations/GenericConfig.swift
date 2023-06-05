@@ -148,8 +148,6 @@ extension GenericConfig: UserWalletConfig {
             return .available
         case .multiCurrency:
             return .available
-        case .tokensSearch:
-            return .hidden
         case .resetToFactory:
             return .available
         case .receive:
