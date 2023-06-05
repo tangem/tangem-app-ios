@@ -87,7 +87,7 @@ final class PromotionViewModel: ObservableObject {
     }
 
     func handleReadyForAward(url: String) {
-        coordinator.closeModule()
+        coordinator.startAwardProcess()
     }
 
     func handleClose(url: String) {
