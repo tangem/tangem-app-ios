@@ -183,11 +183,7 @@ class CardViewModel: Identifiable, ObservableObject {
     }
 
     var walletModels: [WalletModel] {
-        getWalletModels()
-    }
-
-    var wallets: [Wallet] {
-        walletModels.map { $0.wallet }
+        walletListManager.getWalletModels()
     }
 
     var canSetLongTap: Bool {
@@ -516,7 +512,7 @@ class CardViewModel: Identifiable, ObservableObject {
 
         searchBlockchainsCancellable = nil
 
-        let currentBlockhains = wallets.map { $0.blockchain }
+        let currentBlockhains = walletModels.map { $0.blockchainNetwork.blockchain }
         let unused: [StorageEntry] = config.supportedBlockchains
             .subtracting(currentBlockhains)
             .map { StorageEntry(blockchainNetwork: .init($0, derivationPath: nil), tokens: []) }
@@ -719,10 +715,6 @@ extension CardViewModel: TangemSdkFactory {
 extension CardViewModel: UserWalletModel {
     func getSavedEntries() -> [StorageEntry] {
         userTokenListManager.getEntriesFromRepository()
-    }
-
-    func getWalletModels() -> [WalletModel] {
-        walletListManager.getWalletModels()
     }
 
     func subscribeToWalletModels() -> AnyPublisher<[WalletModel], Never> {
