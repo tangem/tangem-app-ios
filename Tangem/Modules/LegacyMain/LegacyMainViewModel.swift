@@ -394,13 +394,17 @@ class LegacyMainViewModel: ObservableObject {
 //            walletId: cardModel.userWalletId.stringValue
 //        )
 
-        do {
-            try promotionService.getReward(
-                userWalletId: cardModel.userWalletId.stringValue,
-                storageEntryAdding: cardModel
-            )
-        } catch {
-            print(error)
+        runTask { [weak self] in
+            guard let self else { return }
+
+            do {
+                try await promotionService.getReward(
+                    userWalletId: cardModel.userWalletId.stringValue,
+                    storageEntryAdding: cardModel
+                )
+            } catch {
+                print(error)
+            }
         }
     }
 
