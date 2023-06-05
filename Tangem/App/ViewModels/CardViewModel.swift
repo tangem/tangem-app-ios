@@ -282,7 +282,6 @@ class CardViewModel: Identifiable, ObservableObject {
         }
     }
 
-    private var searchBlockchainsCancellable: AnyCancellable?
     private var bag = Set<AnyCancellable>()
     private var signSubscription: AnyCancellable?
     private var derivationManager: DerivationManager?
@@ -505,96 +504,6 @@ class CardViewModel: Identifiable, ObservableObject {
         updateCurrentSecurityOption()
 
         setupWarnings()
-    }
-
-    private func searchBlockchains() {
-        guard config.hasFeature(.tokensSearch) else { return }
-
-        searchBlockchainsCancellable = nil
-
-        let currentBlockhains = walletModels.map { $0.blockchainNetwork.blockchain }
-        let unused: [StorageEntry] = config.supportedBlockchains
-            .subtracting(currentBlockhains)
-            .map { StorageEntry(blockchainNetwork: .init($0, derivationPath: nil), tokens: []) }
-
-        let models = unused.compactMap {
-            try? config.makeWalletModel(for: $0)
-        }
-
-        if models.isEmpty {
-            return
-        }
-
-        searchBlockchainsCancellable = Publishers.MergeMany(
-            models.map { $0.update(silent: false) }
-        )
-        .collect()
-        .receiveCompletion { [weak self] _ in
-            guard let self = self else { return }
-
-            let notEmptyWallets = models.filter { !$0.wallet.isEmpty }
-            if !notEmptyWallets.isEmpty {
-                let entries = notEmptyWallets.map {
-                    StorageEntry(blockchainNetwork: $0.blockchainNetwork, tokens: [])
-                }
-
-                // [REDACTED_TODO_COMMENT]
-                self.add(entries: entries) { _ in }
-            }
-        }
-    }
-
-    private func searchTokens() {
-        guard config.hasFeature(.tokensSearch),
-              !AppSettings.shared.searchedCards.contains(cardId) else {
-            return
-        }
-
-        guard let ethBlockchain = config.supportedBlockchains.first(where: {
-            if case .ethereum = $0 {
-                return true
-            }
-
-            return false
-        }) else {
-            return
-        }
-
-        var shouldAddWalletManager = false
-        let network = getBlockchainNetwork(for: ethBlockchain, derivationPath: nil)
-        var ethWalletModel = walletModels.first(where: { $0.blockchainNetwork == network })
-
-        if ethWalletModel == nil {
-            shouldAddWalletManager = true
-            let entry = StorageEntry(blockchainNetwork: network, tokens: [])
-            ethWalletModel = try? config.makeWalletModel(for: entry)
-        }
-
-        guard let ethWalletModel = ethWalletModel,
-              let tokenFinder = ethWalletModel.walletManager as? TokenFinder else {
-            AppSettings.shared.searchedCards.append(cardId)
-            searchBlockchains()
-            return
-        }
-
-        tokenFinder.findErc20Tokens(knownTokens: []) { [weak self] result in
-            guard let self = self else { return }
-
-            switch result {
-            case .success(let tokensAdded):
-                if tokensAdded, shouldAddWalletManager {
-                    let tokens = ethWalletModel.walletManager.cardTokens
-                    let entry = StorageEntry(blockchainNetwork: network, tokens: tokens)
-                    // [REDACTED_TODO_COMMENT]
-                    self.add(entries: [entry]) { _ in }
-                }
-            case .failure(let error):
-                AppLog.shared.error(error)
-            }
-
-            AppSettings.shared.searchedCards.append(self.cardId)
-            self.searchBlockchains()
-        }
     }
 
     private func updateCurrentSecurityOption() {
