@@ -116,8 +116,6 @@ extension Start2CoinConfig: UserWalletConfig {
             return .hidden
         case .multiCurrency:
             return .hidden
-        case .tokensSearch:
-            return .hidden
         case .resetToFactory:
             return .hidden
         case .receive:
