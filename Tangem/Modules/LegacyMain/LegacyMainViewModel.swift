@@ -391,12 +391,14 @@ class LegacyMainViewModel: ObservableObject {
 
     func learnAndEarn() {
         print("LEARN AND EARN")
-//        coordinator.openLearning(
-//            cardPublicKey: cardModel.cardPublicKey.hex,
-//            cardId: cardModel.cardId,
-//            walletId: cardModel.userWalletId.stringValue
-//        )
+        coordinator.openLearning(
+            cardPublicKey: cardModel.cardPublicKey.hex,
+            cardId: cardModel.cardId,
+            walletId: cardModel.userWalletId.stringValue
+        )
+    }
 
+    func startAwardProcess() {
         runTask { [weak self] in
             guard let self else { return }
 
