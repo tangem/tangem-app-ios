@@ -15,7 +15,7 @@ struct Clamp<T> where T: Comparable {
     private let maxValue: T
 
     var wrappedValue: T {
-        get { callAsFunction() }
+        get { clamp(value, min: minValue, max: maxValue) }
         set { value = newValue }
     }
 
@@ -27,10 +27,6 @@ struct Clamp<T> where T: Comparable {
         value = wrappedValue
         self.minValue = minValue
         self.maxValue = maxValue
-    }
-
-    func callAsFunction() -> T {
-        clamp(value, min: minValue, max: maxValue)
     }
 }
 
