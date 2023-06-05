@@ -25,8 +25,8 @@ class CommonUserTokenListManager {
     private var saveTokensCancellable: AnyCancellable?
     private let hasTokenSynchronization: Bool
 
-    init(config: UserWalletConfig, userWalletId: Data) {
-        self.hasTokenSynchronization = config.hasFeature(.tokenSynchronization)
+    init(hasTokenSynchronization: Bool, userWalletId: Data) {
+        self.hasTokenSynchronization = hasTokenSynchronization
         self.userWalletId = userWalletId
 
         tokenItemsRepository = CommonTokenItemsRepository(key: userWalletId.hexString)
