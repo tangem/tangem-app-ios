@@ -407,6 +407,8 @@ class LegacyMainViewModel: ObservableObject {
                     userWalletId: cardModel.userWalletId.stringValue,
                     storageEntryAdding: cardModel
                 )
+
+                self.error = AlertBuilder.makeSuccessAlert(message: "Your 1inch tokens will be credited to your wallet address within 2 days.")
             } catch {
                 print(error)
                 self.error = error.alertBinder
