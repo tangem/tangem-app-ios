@@ -179,6 +179,9 @@ class LegacyMainViewModel: ObservableObject {
         self.cardImageProvider = cardImageProvider
         self.coordinator = coordinator
 
+        #warning("[REDACTED_TODO_COMMENT]")
+        canLearnAndEarn = true
+
         bind()
         cardModel.setupWarnings()
         updateContent()
