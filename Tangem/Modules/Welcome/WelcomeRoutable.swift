@@ -9,7 +9,7 @@
 import Foundation
 
 protocol WelcomeRoutable: AnyObject {
-    func openLearning()
+    func openPromotion()
     func openTokensList()
     func openMail(with dataCollector: EmailDataCollector, recipient: String)
     func openShop()
