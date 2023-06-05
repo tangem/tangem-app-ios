@@ -9,7 +9,7 @@
 import SwiftUI
 
 extension View {
-    @available(*, deprecated, message: "Use bottomSheetUI method with SUIBottomSheetModifier")
+    @available(*, deprecated, message: "Use bottomSheet method with SUIBottomSheetModifier")
     func bottomSheet<Content: View>(
         isPresented: Binding<Bool>,
         viewModelSettings: BottomSheetSettings,
@@ -18,7 +18,7 @@ extension View {
         modifier(BottomSheetModifier(isPresented: isPresented, viewModelSettings: viewModelSettings, contentView: contentView))
     }
 
-    @available(*, deprecated, message: "Use bottomSheetUI method with SUIBottomSheetModifier")
+    @available(*, deprecated, message: "Use bottomSheet method with SUIBottomSheetModifier")
     func bottomSheet<Item: Identifiable, Content: View>(
         item: Binding<Item?>,
         viewModelSettings: BottomSheetSettings,
