@@ -105,9 +105,7 @@ final class UserWalletListViewModel: ObservableObject, Identifiable {
             case .onboarding(let input):
                 self.openOnboarding(with: input)
             case .error(let error):
-                if let saltPayError = error as? SaltPayRegistratorError {
-                    self.error = saltPayError.alertBinder
-                } else if let userWalletRepositoryError = error as? UserWalletRepositoryError {
+                if let userWalletRepositoryError = error as? UserWalletRepositoryError {
                     self.error = userWalletRepositoryError.alertBinder
                 } else {
                     self.error = error.alertBinder
@@ -133,7 +131,7 @@ final class UserWalletListViewModel: ObservableObject, Identifiable {
         Analytics.log(.buttonEditWalletTapped)
 
         let alert = UIAlertController(title: Localization.userWalletListRenamePopupTitle, message: nil, preferredStyle: .alert)
-        let cancelAction = UIAlertAction(title: Localization.commonCancel, style: .cancel) { _ in }
+        let cancelAction = UIAlertAction(title: Localization.commonCancel, style: .cancel)
         alert.addAction(cancelAction)
 
         var nameTextField: UITextField?
