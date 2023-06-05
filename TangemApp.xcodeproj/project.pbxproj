@@ -3386,7 +3386,7 @@
 			path = SensitiveInformation;
 			sourceTree = "<group>";
 		};
-		DA91770F2A25F14A006CD67B /* Learn */ = {
+		DA91770F2A25F14A006CD67B /* Promotion */ = {
 			isa = PBXGroup;
 			children = (
 				DA5CD0952A25F4F2008FD876 /* PromotionCoordinator.swift */,
@@ -3396,7 +3396,7 @@
 				DA5CD0922A25F4F2008FD876 /* PromotionRoutable.swift */,
 				DAFCB3332A2DC9C00011276D /* PromotionOutput.swift */,
 			);
-			path = Learn;
+			path = Promotion;
 			sourceTree = "<group>";
 		};
 		DAA153BA2876CBE2002254D1 /* Geo */ = {
@@ -3940,7 +3940,7 @@
 				5DDE22F32609020E008657C6 /* WalletConnect */,
 				DAA5E30428D2137C003C0E80 /* UserWalletList */,
 				DAA5E2FB28D21368003C0E80 /* UserWalletStorageAggreement */,
-				DA91770F2A25F14A006CD67B /* Learn */,
+				DA91770F2A25F14A006CD67B /* Promotion */,
 			);
 			path = Modules;
 			sourceTree = "<group>";
