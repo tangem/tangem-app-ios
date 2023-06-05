@@ -53,17 +53,10 @@ extension PromotionService: PromotionServiceProtocol {
     }
 
     func getReward(userWalletId: String, storageEntryAdding: StorageEntryAdding) async throws {
-        let derivationPath: DerivationPath? = awardBlockchain.derivationPath()
-        let blockchainNetwork = storageEntryAdding.getBlockchainNetwork(for: awardBlockchain, derivationPath: derivationPath)
-
-        let entry = StorageEntry(blockchainNetwork: blockchainNetwork, token: awardToken)
-
-
-        let address = try await storageEntryAdding.add(entry: entry)
-        print(address)
-
         if let promoCode {
             let result = try await tangemApiService.validateNewUserPromotionEligibility(walletId: userWalletId, code: promoCode)
+
+            guard let address = try await rewardAddress(storageEntryAdding: storageEntryAdding) else { return }
 
             try await tangemApiService.awardNewUser(walletId: userWalletId, address: address, code: promoCode)
         } else {
@@ -72,7 +65,28 @@ extension PromotionService: PromotionServiceProtocol {
             let result = try await tangemApiService.validateOldUserPromotionEligibility(walletId: userWalletId, programName: programName)
             print(result)
 
+            guard let address = try await rewardAddress(storageEntryAdding: storageEntryAdding) else { return }
+
             try await tangemApiService.awardOldUser(walletId: userWalletId, address: address, programName: programName)
+        }
+    }
+}
+
+extension PromotionService {
+    private func rewardAddress(storageEntryAdding: StorageEntryAdding) async throws -> String? {
+        let derivationPath: DerivationPath? = awardBlockchain.derivationPath()
+        let blockchainNetwork = storageEntryAdding.getBlockchainNetwork(for: awardBlockchain, derivationPath: derivationPath)
+
+        let entry = StorageEntry(blockchainNetwork: blockchainNetwork, token: awardToken)
+
+        do {
+            return try await storageEntryAdding.add(entry: entry)
+        } catch {
+            if error.toTangemSdkError().isUserCancelled {
+                return nil
+            } else {
+                throw error
+            }
         }
     }
 }
