@@ -63,7 +63,9 @@ extension PromotionService: PromotionServiceProtocol {
         print(address)
 
         if let promoCode {
-            fatalError("promocode \(promoCode) exists")
+            let result = try await tangemApiService.validateNewUserPromotionEligibility(walletId: userWalletId, code: promoCode)
+
+            try await tangemApiService.awardNewUser(walletId: userWalletId, address: address, code: promoCode)
         } else {
             // OLD USER
 
