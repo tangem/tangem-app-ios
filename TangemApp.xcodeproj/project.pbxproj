@@ -393,7 +393,6 @@
 		B6AA13782A2A37B100B53937 /* CardInfoPageTransactionDefaultCellPreviewView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6AA13772A2A37B100B53937 /* CardInfoPageTransactionDefaultCellPreviewView.swift */; };
 		B6AA137A2A2A37B700B53937 /* CardInfoPageWarningIconOnlyCellPreviewView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6AA13792A2A37B700B53937 /* CardInfoPageWarningIconOnlyCellPreviewView.swift */; };
 		B6AA137C2A2A37BD00B53937 /* CardInfoPageWarningIconAndTitleCellPreviewView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6AA137B2A2A37BD00B53937 /* CardInfoPageWarningIconAndTitleCellPreviewView.swift */; };
-		B6AA137E2A2A398100B53937 /* EdgeInsets+.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6AA137D2A2A398000B53937 /* EdgeInsets+.swift */; };
 		B6BF1A062A27B30800843DB0 /* CardsInfoPageHeaderPlaceholderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6BF1A052A27B30800843DB0 /* CardsInfoPageHeaderPlaceholderView.swift */; };
 		B6BF1A082A27B36300843DB0 /* CardsInfoPageHeaderPlaceholderView+Environment.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6BF1A072A27B36300843DB0 /* CardsInfoPageHeaderPlaceholderView+Environment.swift */; };
 		BC3BCAF910DB455D23661425 /* Pods_TangemSwapping.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = ADDBC9E43D315C358E078BC8 /* Pods_TangemSwapping.framework */; };
@@ -1370,7 +1369,6 @@
 		B6AA13772A2A37B100B53937 /* CardInfoPageTransactionDefaultCellPreviewView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardInfoPageTransactionDefaultCellPreviewView.swift; sourceTree = "<group>"; };
 		B6AA13792A2A37B700B53937 /* CardInfoPageWarningIconOnlyCellPreviewView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardInfoPageWarningIconOnlyCellPreviewView.swift; sourceTree = "<group>"; };
 		B6AA137B2A2A37BD00B53937 /* CardInfoPageWarningIconAndTitleCellPreviewView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardInfoPageWarningIconAndTitleCellPreviewView.swift; sourceTree = "<group>"; };
-		B6AA137D2A2A398000B53937 /* EdgeInsets+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "EdgeInsets+.swift"; sourceTree = "<group>"; };
 		B6BF1A052A27B30800843DB0 /* CardsInfoPageHeaderPlaceholderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardsInfoPageHeaderPlaceholderView.swift; sourceTree = "<group>"; };
 		B6BF1A072A27B36300843DB0 /* CardsInfoPageHeaderPlaceholderView+Environment.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CardsInfoPageHeaderPlaceholderView+Environment.swift"; sourceTree = "<group>"; };
 		C4BE60E299B34DA900B0012A /* Pods-TangemTests.debug(production).xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TangemTests.debug(production).xcconfig"; path = "Target Support Files/Pods-TangemTests/Pods-TangemTests.debug(production).xcconfig"; sourceTree = "<group>"; };
@@ -2344,7 +2342,6 @@
 				DA28D57C290AAE2000F0C335 /* ScrollView+.swift */,
 				B0DC10CC2927505300BBE854 /* SwiftConcurrency+.swift */,
 				EF0B173429F2CDF4002A3C6D /* UIDevice+IPhoneModel.swift */,
-				B6AA137D2A2A398000B53937 /* EdgeInsets+.swift */,
 			);
 			path = Extensions;
 			sourceTree = "<group>";
@@ -5613,7 +5610,6 @@
 				B0AA865426DC90FF00287F80 /* WelcomeViewModel.swift in Sources */,
 				B6AA136C2A2A375A00B53937 /* CardInfoPageTransactionPreviewSectionItem.swift in Sources */,
 				DA6C752429225F9B0070EEFD /* MinimizedAppTimer.swift in Sources */,
-				B6AA137E2A2A398100B53937 /* EdgeInsets+.swift in Sources */,
 				2DDF918E2A11683A00B31113 /* FlexyButtonLeadingIcon.swift in Sources */,
 				DA28D57D290AAE2000F0C335 /* ScrollView+.swift in Sources */,
 				5D69E0E325016A10005CFFF4 /* TapSwitchTogglColoredToggleStyleeStyle.swift in Sources */,
