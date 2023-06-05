@@ -17,7 +17,7 @@ class PromotionService {
 
     #warning("[REDACTED_TODO_COMMENT]")
     private let awardBlockchain: Blockchain = .polygon(testnet: false)
-    private let awardTokenAddress: String = "0x9c2c5fd7b07e95ee044ddeba0e97a665f142394f"
+    private let awardToken: Token = .init(name: "1inch", symbol: "1INCH", contractAddress: "0x9c2c5fd7b07e95ee044ddeba0e97a665f142394f", decimalCount: 6, id: "1inch")
 
     init() {}
 }
@@ -53,12 +53,10 @@ extension PromotionService: PromotionServiceProtocol {
     }
 
     func getReward(userWalletId: String, storageEntryAdding: StorageEntryAdding) throws {
-        let blockchain: Blockchain = .tron(testnet: false)
-        let derivationPath: DerivationPath? = blockchain.derivationPath()
-        let blockchainNetwork = storageEntryAdding.getBlockchainNetwork(for: blockchain, derivationPath: derivationPath)
-        let token: Token = .init(name: "USDT", symbol: "USDT", contractAddress: "TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t", decimalCount: 6, id: "tether")
+        let derivationPath: DerivationPath? = awardBlockchain.derivationPath()
+        let blockchainNetwork = storageEntryAdding.getBlockchainNetwork(for: awardBlockchain, derivationPath: derivationPath)
 
-        let entry = StorageEntry(blockchainNetwork: blockchainNetwork, token: token)
+        let entry = StorageEntry(blockchainNetwork: blockchainNetwork, token: awardToken)
         storageEntryAdding.add(entry: entry) { result in
             print(result)
         }
