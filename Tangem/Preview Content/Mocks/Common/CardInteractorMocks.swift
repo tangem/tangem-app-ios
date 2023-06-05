@@ -9,8 +9,8 @@
 import Foundation
 import TangemSdk
 
-class CardPreparableMock: CardPreparable {
-    func prepareCard(seed: Data?, completion: @escaping (Result<CardInfo, TangemSdkError>) -> Void) {
+class CardInitializerMock: CardInitializable {
+    func initializeCard(seed: Data?, completion: @escaping (Result<CardInfo, TangemSdkError>) -> Void) {
         DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
             let cardInfo = CardInfo(
                 card: .init(card: .card),
@@ -32,11 +32,7 @@ class CardResettableMock: CardResettable {
     }
 }
 
-class CardInteractorMock: CardPreparable, CardResettable {
-    func prepareCard(seed: Data?, completion: @escaping (Result<CardInfo, TangemSdkError>) -> Void) {
-        CardPreparableMock().prepareCard(seed: seed, completion: completion)
-    }
-
+class CardInteractorMock: CardResettable {
     func resetCard(completion: @escaping (Result<Void, TangemSdkError>) -> Void) {
         CardResettableMock().resetCard(completion: completion)
     }
