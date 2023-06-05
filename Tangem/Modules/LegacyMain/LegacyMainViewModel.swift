@@ -407,6 +407,7 @@ class LegacyMainViewModel: ObservableObject {
                 )
             } catch {
                 print(error)
+                self.error = error.alertBinder
             }
         }
     }
