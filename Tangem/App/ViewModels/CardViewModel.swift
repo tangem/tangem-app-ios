@@ -17,6 +17,7 @@ import SwiftUI
 protocol StorageEntryAdding {
     func getBlockchainNetwork(for blockchain: Blockchain, derivationPath: DerivationPath?) -> BlockchainNetwork
     func add(entry: StorageEntry, completion: @escaping (Result<String, Error>) -> Void)
+    func add(entry: StorageEntry) async throws -> String
 }
 
 class CardViewModel: Identifiable, ObservableObject {
@@ -691,6 +692,16 @@ extension CardViewModel {
 }
 
 extension CardViewModel: StorageEntryAdding {
+    func add(entry: StorageEntry) async throws -> String {
+        try await withCheckedThrowingContinuation { [weak self] continuation in
+            guard let self = self else { return }
+
+            self.add(entry: entry) { result in
+                continuation.resume(with: result)
+            }
+        }
+    }
+
     func add(entry: StorageEntry, completion: @escaping (Result<String, Error>) -> Void) {
         add(entries: [entry]) { [weak self] result in
             guard let self else { return }
