@@ -14,33 +14,10 @@ import SwiftUI
 struct CardsInfoPageHeaderPlaceholderView: View {
     @Environment(\.cardsInfoPageHeaderPlaceholderHeight) private var headerPlaceholderHeight
 
-    private let namespace: Namespace.ID
-    private let matchedGeometryEffectId: String
-    private let isHeaderPlaceholderVisible: Binding<Bool>
-
     var body: some View {
         Color.clear
             .frame(idealWidth: .infinity)
             .frame(height: headerPlaceholderHeight)
-            .matchedGeometryEffect(id: matchedGeometryEffectId, in: namespace, isSource: true)
-            .onAppear {
-                // [REDACTED_TODO_COMMENT]
-                isHeaderPlaceholderVisible.wrappedValue = true
-            }
-            .onDisappear {
-                // [REDACTED_TODO_COMMENT]
-                isHeaderPlaceholderVisible.wrappedValue = false
-            }
             .listRowInsets(EdgeInsets())
-    }
-
-    init(
-        namespace: Namespace.ID,
-        matchedGeometryEffectId: String,
-        isHeaderPlaceholderVisible: Binding<Bool>
-    ) {
-        self.namespace = namespace
-        self.matchedGeometryEffectId = matchedGeometryEffectId
-        self.isHeaderPlaceholderVisible = isHeaderPlaceholderVisible
     }
 }

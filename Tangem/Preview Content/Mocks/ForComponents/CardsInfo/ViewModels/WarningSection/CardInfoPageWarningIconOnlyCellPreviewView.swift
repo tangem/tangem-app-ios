@@ -11,8 +11,6 @@ import SwiftUI
 struct CardInfoPageWarningIconOnlyCellPreviewView: View {
     @ObservedObject var viewModel: CardInfoPageWarningIconOnlyCellPreviewViewModel
 
-    let contentColor: Color
-
     var body: some View {
         HStack {
             if let icon = viewModel.icon {
@@ -24,6 +22,5 @@ struct CardInfoPageWarningIconOnlyCellPreviewView: View {
         }
         .padding()
         .infinityFrame(alignment: .topLeading)
-        .background(contentColor)
     }
 }
