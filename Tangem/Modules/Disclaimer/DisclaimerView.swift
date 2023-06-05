@@ -14,7 +14,6 @@ struct DisclaimerView: View {
     var body: some View {
         ZStack(alignment: .bottom) {
             WebViewContainer(viewModel: viewModel.webViewModel)
-                .padding(.bottom, 64)
 
             bottomView
         }
