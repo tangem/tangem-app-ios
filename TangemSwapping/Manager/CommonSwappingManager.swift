@@ -22,13 +22,17 @@ class CommonSwappingManager {
     private var swappingItems: SwappingItems
     private var amount: Decimal?
     private var approvePolicy: SwappingApprovePolicy = .unlimited
+    private var gasPricePolicy: SwappingGasPricePolicy = .normal
     private var swappingAllowanceLimit: [Currency: Decimal] = [:]
     // Cached addresses for check approving transactions
     private var pendingTransactions: [Currency: PendingTransactionState] = [:]
     private var bag: Set<AnyCancellable> = []
 
-    private var formattedAmount: String {
-        guard let amount else { return "" }
+    private var formattedAmount: String? {
+        guard let amount = amount else {
+            logger.debug("[Swap] Amount isn't set")
+            return nil
+        }
 
         return String(describing: swappingItems.source.convertToWEI(value: amount))
     }
@@ -77,6 +81,10 @@ extension CommonSwappingManager: SwappingManager {
         return approvePolicy
     }
 
+    func getSwappingGasPricePolicy() -> SwappingGasPricePolicy {
+        return gasPricePolicy
+    }
+
     func isEnoughAllowance() -> Bool {
         guard swappingItems.source.isToken, let amount, amount > 0 else {
             return true
@@ -99,6 +107,10 @@ extension CommonSwappingManager: SwappingManager {
 
     func update(approvePolicy: SwappingApprovePolicy) {
         self.approvePolicy = approvePolicy
+    }
+
+    func update(gasPricePolicy: SwappingGasPricePolicy) {
+        self.gasPricePolicy = gasPricePolicy
     }
 
     func refreshBalances() async -> SwappingItems {
@@ -175,30 +187,41 @@ private extension CommonSwappingManager {
 
         try Task.checkCancellation()
 
-        let data = try await mapToSwappingTransactionData(swappingData: swappingData)
+        let gasOptions = try await getGasOptions(swappingData: swappingData)
 
         try Task.checkCancellation()
 
-        let result = try await mapToSwappingResultData(transaction: data)
+        guard let gas = gasOptions.first(where: { $0.policy == gasPricePolicy }) else {
+            throw SwappingManagerError.gasModelNotFound
+        }
+
+        let data = try mapToSwappingTransactionData(swappingData: swappingData, gas: gas)
+        let availabilityModel = try await mapToSwappingAvailabilityModel(transactionData: data, gasOptions: gasOptions)
 
         try Task.checkCancellation()
 
-        return .available(result, data: data)
+        return .available(availabilityModel)
     }
 
     func loadApproveData() async throws -> SwappingAvailabilityState {
         // We need to load quoteData for "from" and "to" amounts
         async let quoteData = getSwappingQuoteDataModel()
-        async let approvedDataModel = getSwappingApprovedDataModel()
-        let data = try await mapToSwappingTransactionData(
-            quoteData: quoteData,
-            approvedData: approvedDataModel
-        )
+        async let approvedData = getSwappingApprovedDataModel()
+
+        let gasOptions = try await getGasOptions(quoteData: quoteData, approvedData: approvedData)
 
         try Task.checkCancellation()
 
-        let result = try await mapToSwappingResultData(transaction: data)
-        return .available(result, data: data)
+        guard let gas = gasOptions.first(where: { $0.policy == gasPricePolicy }) else {
+            throw SwappingManagerError.gasModelNotFound
+        }
+
+        let data = try await mapToSwappingTransactionData(quoteData: quoteData, approvedData: approvedData, gas: gas)
+        let availabilityModel = try await mapToSwappingAvailabilityModel(transactionData: data, gasOptions: gasOptions)
+
+        try Task.checkCancellation()
+
+        return .available(availabilityModel)
     }
 
     func updateSwappingAmountAllowance() async throws {
@@ -216,7 +239,11 @@ private extension CommonSwappingManager {
     }
 
     func getSwappingQuoteDataModel() async throws -> SwappingQuoteDataModel {
-        try await swappingProvider.fetchQuote(
+        guard let formattedAmount = formattedAmount else {
+            throw SwappingManagerError.amountNotFound
+        }
+
+        return try await swappingProvider.fetchQuote(
             items: swappingItems,
             amount: formattedAmount,
             referrer: referrer
@@ -233,6 +260,10 @@ private extension CommonSwappingManager {
     func getSwappingTxDataModel() async throws -> SwappingDataModel {
         guard let walletAddress else {
             throw SwappingManagerError.walletAddressNotFound
+        }
+
+        guard let formattedAmount = formattedAmount else {
+            throw SwappingManagerError.amountNotFound
         }
 
         return try await swappingProvider.fetchSwappingData(
@@ -290,47 +321,12 @@ private extension CommonSwappingManager {
         )
     }
 
-    func mapToSwappingResultData(transaction: SwappingTransactionData) async throws -> SwappingResultData {
-        let source = swappingItems.source
-        let sourceBalance = swappingItems.sourceBalance
-        let fee = transaction.fee
-
-        let isEnoughAmountForFee: Bool
-        var paymentAmount = transaction.sourceCurrency.convertFromWEI(value: transaction.sourceAmount)
-        let receivedAmount = transaction.destinationCurrency.convertFromWEI(value: transaction.destinationAmount)
-        switch swappingItems.source.currencyType {
-        case .coin:
-            paymentAmount += fee
-            isEnoughAmountForFee = sourceBalance >= fee
-        case .token:
-            let coinBalance = try await walletDataProvider.getBalance(for: source.blockchain)
-            isEnoughAmountForFee = coinBalance >= fee
-        }
-
-        let isEnoughAmountForSwapping = sourceBalance >= paymentAmount
-
-        return SwappingResultData(
-            amount: receivedAmount,
-            fee: fee,
-            isEnoughAmountForSwapping: isEnoughAmountForSwapping,
-            isEnoughAmountForFee: isEnoughAmountForFee,
-            isPermissionRequired: !isEnoughAllowance()
-        )
-    }
-
-    func mapToSwappingTransactionData(swappingData: SwappingDataModel) async throws -> SwappingTransactionData {
+    func mapToSwappingTransactionData(swappingData: SwappingDataModel, gas: EthereumGasDataModel) throws -> SwappingTransactionData {
         guard let destination = swappingItems.destination else {
             throw SwappingManagerError.destinationNotFound
         }
 
         let value = swappingItems.source.convertFromWEI(value: swappingData.value)
-        let gasModel = try await walletDataProvider.getGasModel(
-            sourceAddress: swappingData.sourceAddress,
-            destinationAddress: swappingData.destinationAddress,
-            data: swappingData.txData,
-            blockchain: swappingItems.source.blockchain,
-            value: value
-        )
 
         return SwappingTransactionData(
             sourceCurrency: swappingItems.source,
@@ -342,14 +338,15 @@ private extension CommonSwappingManager {
             sourceAmount: swappingData.sourceCurrencyAmount,
             destinationAmount: swappingData.destinationCurrencyAmount,
             value: value,
-            gas: gasModel
+            gas: gas
         )
     }
 
     func mapToSwappingTransactionData(
         quoteData: SwappingQuoteDataModel,
-        approvedData: SwappingApprovedDataModel
-    ) async throws -> SwappingTransactionData {
+        approvedData: SwappingApprovedDataModel,
+        gas: EthereumGasDataModel
+    ) throws -> SwappingTransactionData {
         guard let destination = swappingItems.destination else {
             throw SwappingManagerError.destinationNotFound
         }
@@ -357,15 +354,6 @@ private extension CommonSwappingManager {
         guard let walletAddress = walletAddress else {
             throw SwappingManagerError.walletAddressNotFound
         }
-
-        let value = swappingItems.source.convertFromWEI(value: approvedData.value)
-        let gasModel = try await walletDataProvider.getGasModel(
-            sourceAddress: walletAddress,
-            destinationAddress: approvedData.tokenAddress,
-            data: approvedData.data,
-            blockchain: swappingItems.source.blockchain,
-            value: value
-        )
 
         return SwappingTransactionData(
             sourceCurrency: swappingItems.source,
@@ -377,7 +365,64 @@ private extension CommonSwappingManager {
             sourceAmount: quoteData.fromTokenAmount,
             destinationAmount: quoteData.toTokenAmount,
             value: approvedData.value,
-            gas: gasModel
+            gas: gas
+        )
+    }
+
+    func mapToSwappingAvailabilityModel(
+        transactionData: SwappingTransactionData,
+        gasOptions: [EthereumGasDataModel]
+    ) async throws -> SwappingAvailabilityModel {
+        let sourceBalance = swappingItems.sourceBalance
+        let fee = transactionData.fee
+
+        let isEnoughAmountForFee: Bool
+        var paymentAmount = transactionData.sourceCurrency.convertFromWEI(value: transactionData.sourceAmount)
+
+        switch swappingItems.source.currencyType {
+        case .coin:
+            paymentAmount += fee
+            isEnoughAmountForFee = sourceBalance >= fee
+        case .token:
+            let coinBalance = try await walletDataProvider.getBalance(for: transactionData.sourceBlockchain)
+            isEnoughAmountForFee = coinBalance >= fee
+        }
+
+        let isEnoughAmountForSwapping = sourceBalance >= paymentAmount
+
+        return SwappingAvailabilityModel(
+            isEnoughAmountForSwapping: isEnoughAmountForSwapping,
+            isEnoughAmountForFee: isEnoughAmountForFee,
+            isPermissionRequired: !isEnoughAllowance(),
+            transactionData: transactionData,
+            gasOptions: gasOptions
+        )
+    }
+}
+
+// MARK: - Fee calculation
+
+private extension CommonSwappingManager {
+    func getGasOptions(swappingData: SwappingDataModel) async throws -> [EthereumGasDataModel] {
+        let value = swappingItems.source.convertFromWEI(value: swappingData.value)
+        return try await walletDataProvider.getGasOptions(
+            blockchain: swappingItems.source.blockchain,
+            value: value,
+            data: swappingData.txData,
+            destinationAddress: swappingData.destinationAddress
+        )
+    }
+
+    func getGasOptions(
+        quoteData: SwappingQuoteDataModel,
+        approvedData: SwappingApprovedDataModel
+    ) async throws -> [EthereumGasDataModel] {
+        let value = swappingItems.source.convertFromWEI(value: approvedData.value)
+        return try await walletDataProvider.getGasOptions(
+            blockchain: swappingItems.source.blockchain,
+            value: value,
+            data: approvedData.data,
+            destinationAddress: approvedData.tokenAddress
         )
     }
 }
