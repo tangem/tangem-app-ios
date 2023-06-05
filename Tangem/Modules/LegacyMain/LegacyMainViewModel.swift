@@ -32,7 +32,7 @@ class LegacyMainViewModel: ObservableObject {
     @Published var image: UIImage? = nil
     @Published var isLackDerivationWarningViewVisible: Bool = false
     @Published var isBackupAllowed: Bool = false
-    @Published var canLearnAndEarn: Bool = false
+    @Published var canOpenPromotion: Bool = false
 
     @Published var exchangeButtonState: ExchangeButtonState = .single(option: .buy)
     @Published var exchangeActionSheet: ActionSheetBinder?
@@ -180,7 +180,7 @@ class LegacyMainViewModel: ObservableObject {
         self.coordinator = coordinator
 
         #warning("[REDACTED_TODO_COMMENT]")
-        canLearnAndEarn = true
+        canOpenPromotion = true
 
         bind()
         cardModel.setupWarnings()
@@ -391,7 +391,7 @@ class LegacyMainViewModel: ObservableObject {
 
     func learnAndEarn() {
         print("LEARN AND EARN")
-        coordinator.openLearning(
+        coordinator.openPromotion(
             cardPublicKey: cardModel.cardPublicKey.hex,
             cardId: cardModel.cardId,
             walletId: cardModel.userWalletId.stringValue
