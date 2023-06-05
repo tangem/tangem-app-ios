@@ -29,6 +29,7 @@ extension Analytics {
 
         case transactionSourceSend = "Send"
         case transactionSourceSwap = "Swap"
+        case transactionSourceApprove = "Approve"
         case transactionSourceWalletConnect = "WalletConnect"
         case transactionSourceSell = "Sell"
 
@@ -48,6 +49,9 @@ extension Analytics {
         case disabled = "Disabled"
         case reset = "Reset"
         case cancel = "Cancel"
+
+        case oneTransactionApprove = "Transaction"
+        case unlimitedApprove = "Unlimited"
 
         // MARK: - Actions
 

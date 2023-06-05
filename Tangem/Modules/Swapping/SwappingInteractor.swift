@@ -81,6 +81,11 @@ extension SwappingInteractor {
         refresh(type: .full)
     }
 
+    func update(gasPricePolicy: SwappingGasPricePolicy) {
+        swappingManager.update(gasPricePolicy: gasPricePolicy)
+        updateState(with: gasPricePolicy)
+    }
+
     func refresh(type: SwappingManagerRefreshType) {
         AppLog.shared.debug("[Swap] SwappingInteractor received the request for refresh with \(type)")
 
@@ -110,11 +115,33 @@ extension SwappingInteractor {
     func didSendApproveTransaction(swappingTxData: SwappingTransactionData) {
         swappingManager.didSendApproveTransaction(swappingTxData: swappingTxData)
         refresh(type: .full)
+
+        let permissionType: Analytics.ParameterValue = {
+            switch getSwappingApprovePolicy() {
+            case .amount: return .oneTransactionApprove
+            case .unlimited: return .unlimitedApprove
+            }
+        }()
+
+        Analytics.log(event: .transactionSent, params: [
+            .commonSource: Analytics.ParameterValue.transactionSourceApprove.rawValue,
+            .feeType: getAnalyticsFeeType().rawValue,
+            .token: swappingTxData.sourceCurrency.symbol,
+            .blockchain: swappingTxData.sourceBlockchain.name,
+            .permissionType: permissionType.rawValue,
+        ])
     }
 
     func didSendSwapTransaction(swappingTxData: SwappingTransactionData) {
         updateState(.idle)
         addDestinationTokenToUserWalletList()
+
+        Analytics.log(event: .transactionSent, params: [
+            .commonSource: Analytics.ParameterValue.transactionSourceSwap.rawValue,
+            .token: swappingTxData.sourceCurrency.symbol,
+            .blockchain: swappingTxData.sourceBlockchain.name,
+            .feeType: getAnalyticsFeeType().rawValue,
+        ])
     }
 }
 
@@ -127,6 +154,37 @@ private extension SwappingInteractor {
         self.state.send(state)
     }
 
+    func updateState(with gasPricePolicy: SwappingGasPricePolicy) {
+        guard case .available(let model) = getAvailabilityState(),
+              let gas = model.gasOptions.first(where: { $0.policy == gasPricePolicy }) else {
+            return
+        }
+
+        let transactionData = model.transactionData
+        let newData = SwappingTransactionData(
+            sourceCurrency: transactionData.sourceCurrency,
+            sourceBlockchain: transactionData.sourceBlockchain,
+            destinationCurrency: transactionData.destinationCurrency,
+            sourceAddress: transactionData.sourceAddress,
+            destinationAddress: transactionData.destinationAddress,
+            txData: transactionData.txData,
+            sourceAmount: transactionData.sourceAmount,
+            destinationAmount: transactionData.destinationAmount,
+            value: transactionData.value,
+            gas: gas
+        )
+
+        let availabilityModel = SwappingAvailabilityModel(
+            isEnoughAmountForSwapping: model.isEnoughAmountForSwapping,
+            isEnoughAmountForFee: model.isEnoughAmountForFee,
+            isPermissionRequired: model.isPermissionRequired,
+            transactionData: newData,
+            gasOptions: model.gasOptions
+        )
+
+        updateState(.available(availabilityModel))
+    }
+
     func addDestinationTokenToUserWalletList() {
         guard let destination = getSwappingItems().destination,
               let token = currencyMapper.mapToToken(currency: destination) else {
@@ -136,5 +194,12 @@ private extension SwappingInteractor {
         let entry = StorageEntry(blockchainNetwork: blockchainNetwork, token: token)
         userWalletModel.append(entries: [entry])
         userWalletModel.updateWalletModels()
+    }
+
+    func getAnalyticsFeeType() -> Analytics.ParameterValue {
+        switch swappingManager.getSwappingGasPricePolicy() {
+        case .normal: return .transactionFeeNormal
+        case .priority: return .transactionFeeMax
+        }
     }
 }

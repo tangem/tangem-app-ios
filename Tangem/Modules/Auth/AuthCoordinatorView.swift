@@ -31,7 +31,7 @@ struct AuthCoordinatorView: CoordinatorView {
     private var links: some View {
         NavHolder()
             .navigation(item: $coordinator.mainCoordinator) {
-                MainCoordinatorView(coordinator: $0)
+                LegacyMainCoordinatorView(coordinator: $0)
             }
             .navigation(item: $coordinator.pushedOnboardingCoordinator) {
                 OnboardingCoordinatorView(coordinator: $0)

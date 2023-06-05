@@ -11,13 +11,12 @@ import TangemSdk
 
 struct OnboardingInput { // [REDACTED_TODO_COMMENT]
     let backupService: BackupService
-    let cardInteractor: (CardPreparable & CardResettable)?
+    let cardInitializer: CardInitializable?
     let steps: OnboardingSteps
     let cardInput: CardInput
     let twinData: TwinData?
     var isStandalone = false
     var userWalletToDelete: UserWallet? // for twins. [REDACTED_TODO_COMMENT]
-    var stepsBuilder: OnboardingStepsBuilder? // for saltpay
 }
 
 extension OnboardingInput {
@@ -25,6 +24,42 @@ extension OnboardingInput {
         case cardInfo(_ cardInfo: CardInfo)
         case cardModel(_ cardModel: CardViewModel)
         case cardId(_ cardId: String)
+
+        var emailData: [EmailCollectedData] {
+            switch self {
+            case .cardInfo(let cardInfo):
+                let factory = UserWalletConfigFactory(cardInfo)
+                return factory.makeConfig().emailData
+            case .cardModel(let cardModel):
+                return cardModel.emailData
+            case .cardId:
+                return []
+            }
+        }
+
+        var demoBackupDisabledLocalizedReason: String? {
+            switch self {
+            case .cardInfo(let cardInfo):
+                let factory = UserWalletConfigFactory(cardInfo)
+                return factory.makeConfig().getFeatureAvailability(.backup).disabledLocalizedReason
+            case .cardModel(let cardModel):
+                return cardModel.getDisabledLocalizedReason(for: .backup)
+            case .cardId:
+                return nil
+            }
+        }
+
+        var disclaimer: TOU? {
+            switch self {
+            case .cardInfo(let cardInfo):
+                let factory = UserWalletConfigFactory(cardInfo)
+                return factory.makeConfig().tou
+            case .cardModel(let cardModel):
+                return cardModel.cardDisclaimer
+            case .cardId:
+                return nil
+            }
+        }
 
         var cardModel: CardViewModel? {
             switch self {
