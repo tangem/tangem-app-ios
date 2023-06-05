@@ -15,8 +15,6 @@ import stellarsdk
 import AVFoundation
 
 class SendViewModel: ObservableObject {
-    @Injected(\.appWarningsService) private var warningsService: AppWarningsProviding
-
     @Published var showCameraDeniedAlert = false
 
     // MARK: Input
@@ -721,7 +719,7 @@ class SendViewModel: ObservableObject {
     func warningButtonAction(at index: Int, priority: WarningPriority, button: WarningButton) {
         guard let warning = warnings.warning(at: index, with: priority) else { return }
 
-        warningsService.hideWarning(warning)
+        cardViewModel.warningsService.hideWarning(warning)
     }
 
     func openSystemSettings() {
@@ -729,7 +727,7 @@ class SendViewModel: ObservableObject {
     }
 
     private func setupWarnings() {
-        warnings = warningsService.warnings(for: .send)
+        warnings = cardViewModel.warningsService.warnings(for: .send)
     }
 }
 
