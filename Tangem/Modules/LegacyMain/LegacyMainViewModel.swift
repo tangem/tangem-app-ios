@@ -403,7 +403,7 @@ class LegacyMainViewModel: ObservableObject {
             guard let self else { return }
 
             do {
-                try await promotionService.getReward(
+                try await promotionService.claimReward(
                     userWalletId: cardModel.userWalletId.stringValue,
                     storageEntryAdding: cardModel
                 )
