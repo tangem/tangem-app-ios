@@ -169,6 +169,24 @@ class LegacyMainViewModel: ObservableObject {
         AppSettings.shared.saveUserWallets
     }
 
+    var learnAndEarnTitle: String {
+        if let _ = promotionService.promoCode {
+            #warning("L10n")
+            return "Learn & Earn"
+        } else {
+            return Localization.mainLearnTitle
+        }
+    }
+
+    var learnAndEarnSubtitle: String {
+        if let _ = promotionService.promoCode {
+            #warning("L10n")
+            return "Complete the training and get 10 1inch tokens on your wallet"
+        } else {
+            return Localization.mainLearnSubtitle
+        }
+    }
+
     init(
         cardModel: CardViewModel,
         cardImageProvider: CardImageProviding,
