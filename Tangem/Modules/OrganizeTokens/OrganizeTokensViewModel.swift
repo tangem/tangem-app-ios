@@ -10,17 +10,10 @@ import Combine
 import SwiftUI
 
 final class OrganizeTokensViewModel: ObservableObject {
-    struct ListSection {
-        var title: String
-        var items: [ListItem]
-    }
-
-    struct ListItem {}
-    
     let headerViewModel: OrganizeTokensHeaderViewModel
 
     @Published
-    var sections: [ListSection]
+    var sections: [OrganizeTokensListSection]
 
     private unowned let coordinator: OrganizeTokensRoutable
 
