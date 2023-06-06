@@ -332,11 +332,22 @@ class LegacyMainViewModel: ObservableObject {
 
     func learnAndEarn() {
         print("LEARN AND EARN")
-        coordinator.openPromotion(
-            cardPublicKey: cardModel.cardPublicKey.hex,
-            cardId: cardModel.cardId,
-            walletId: cardModel.userWalletId.stringValue
-        )
+        runTask { [weak self] in
+            guard let self else { return }
+
+            do {
+                try await promotionService.checkIfCanGetAward(userWalletId: cardModel.userWalletId.stringValue)
+
+                coordinator.openPromotion(
+                    cardPublicKey: cardModel.cardPublicKey.hex,
+                    cardId: cardModel.cardId,
+                    walletId: cardModel.userWalletId.stringValue
+                )
+            } catch {
+                print(error)
+                self.error = error.alertBinder
+            }
+        }
     }
 
     func startAwardProcess() {
