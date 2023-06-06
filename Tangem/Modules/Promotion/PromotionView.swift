@@ -15,7 +15,10 @@ struct PromotionView: View {
     }
 
     var body: some View {
-        WebView(url: viewModel.url, headers: viewModel.headers, urlActions: viewModel.urlActions)
+        NavigationView {
+            WebView(url: viewModel.url, headers: viewModel.headers, urlActions: viewModel.urlActions)
+                .navigationBarItems(leading: Button(Localization.commonClose, action: viewModel.close))
+        }
     }
 }
 
