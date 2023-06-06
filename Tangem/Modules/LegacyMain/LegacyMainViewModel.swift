@@ -364,7 +364,7 @@ class LegacyMainViewModel: ObservableObject {
                     self.startAwardProcess()
                 }
             } catch {
-                print(error)
+                AppLog.shared.error(error)
                 if let apiError = error as? TangemAPIError,
                    case .promotionCodeNotFound = apiError.code {
                     #warning("L10n")
@@ -391,7 +391,7 @@ class LegacyMainViewModel: ObservableObject {
                 #warning("l10n")
                 self.error = AlertBuilder.makeSuccessAlert(message: "Your 1inch tokens will be credited to your wallet address within 2 days.")
             } catch {
-                print(error)
+                AppLog.shared.error(error)
                 self.error = error.alertBinder
             }
 
