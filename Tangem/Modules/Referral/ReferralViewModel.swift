@@ -63,7 +63,7 @@ class ReferralViewModel: ObservableObject {
 
         let token = award.token
 
-        guard let address = cardModel.wallets.first(where: { $0.blockchain == blockchain })?.address else {
+        guard let address = cardModel.walletModels.first(where: { $0.blockchainNetwork.blockchain == blockchain })?.wallet.address else {
             requestDerivation(for: blockchain, with: token)
             return
         }
