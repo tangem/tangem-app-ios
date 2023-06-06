@@ -119,7 +119,7 @@ class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable>
             return nil
         }
 
-        return .init(url: url, style: .onboarding)
+        return .init(url: url, style: .tos(offset: 32))
     }
 
     let input: OnboardingInput
