@@ -1,5 +1,5 @@
 //
-//  SUIBottomSheetContainer.swift
+//  BottomSheetContainer.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -9,14 +9,14 @@
 import Foundation
 import SwiftUI
 
-struct SUIBottomSheetContainer<ContentView: View>: View {
+struct BottomSheetContainer<ContentView: View>: View {
     @ObservedObject private var stateObject: StateObject
     private let settings: Settings
     private let content: () -> ContentView
 
     // MARK: - Internal
 
-    private let indicatorSize = CGSize(width: 40, height: 4)
+    private let indicatorSize = CGSize(width: 32, height: 4)
     private var opacity: CGFloat {
         max(0, settings.backgroundOpacity * stateObject.dragPercentage)
     }
@@ -55,7 +55,6 @@ struct SUIBottomSheetContainer<ContentView: View>: View {
         .edgesIgnoringSafeArea(.all)
         .animation(.default, value: opacity)
         .animation(.interactiveSpring(), value: stateObject.isDragging)
-//        .animation(.linear(duration: settings.animationDuration), value: stateObject.offset)
     }
 
     private var sheetView: some View {
@@ -76,7 +75,7 @@ struct SUIBottomSheetContainer<ContentView: View>: View {
     private var indicator: some View {
         ZStack {
             Capsule(style: .continuous)
-                .fill(Color.secondary)
+                .fill(Colors.Icon.inactive)
                 .frame(size: indicatorSize)
                 .padding(.vertical, 10)
         }
@@ -139,7 +138,7 @@ struct SUIBottomSheetContainer<ContentView: View>: View {
 
 // MARK: - Settings
 
-extension SUIBottomSheetContainer {
+extension BottomSheetContainer {
     struct Settings {
         let cornerRadius: CGFloat
         let backgroundColor: Color
@@ -165,7 +164,7 @@ extension SUIBottomSheetContainer {
 
 // MARK: - StateObject
 
-extension SUIBottomSheetContainer {
+extension BottomSheetContainer {
     class StateObject: ObservableObject {
         @Published var contentHeight: CGFloat = UIScreen.main.bounds.height / 2
         @Published var isDragging: Bool = false
@@ -184,7 +183,7 @@ extension SUIBottomSheetContainer {
 
 // MARK: - Previews
 
-struct SUIBottomSheetContainer_Previews: PreviewProvider {
+struct BottomSheetContainer_Previews: PreviewProvider {
     struct StatableContainer: View {
         @ObservedObject private var coordinator = BottomSheetCoordinator()
 
