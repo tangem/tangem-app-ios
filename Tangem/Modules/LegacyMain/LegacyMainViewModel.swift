@@ -349,7 +349,6 @@ class LegacyMainViewModel: ObservableObject {
     }
 
     func learnAndEarn() {
-        print("LEARN AND EARN")
         runTask { [weak self] in
             guard let self else { return }
 
@@ -388,6 +387,7 @@ class LegacyMainViewModel: ObservableObject {
                     storageEntryAdding: cardModel
                 )
 
+                #warning("l10n")
                 self.error = AlertBuilder.makeSuccessAlert(message: "Your 1inch tokens will be credited to your wallet address within 2 days.")
             } catch {
                 print(error)
