@@ -25,7 +25,6 @@ final class PromotionViewModel: ObservableObject {
 
         var actions: [String: (String) -> Void] = [:]
         actions["\(baseUrl)/\(urlPath)/code-created"] = handleCodeCreated
-        actions["\(baseUrl)/\(urlPath)/close"] = handleClose
         actions["\(baseUrl)/\(urlPath)/ready-for-existed-card-award"] = handleReadyForAward // [REDACTED_TODO_COMMENT]
         actions["\(baseUrl)/\(urlPath)/ready-for-existing-card-award"] = handleReadyForAward
 
@@ -99,7 +98,7 @@ final class PromotionViewModel: ObservableObject {
         coordinator.startAwardProcess()
     }
 
-    func handleClose(url: String) {
+    func close() {
         coordinator.closeModule()
     }
 }
