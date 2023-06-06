@@ -1,5 +1,5 @@
 //
-//  View+SUIBottomSheet.swift
+//  View+BottomSheet.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -17,12 +17,12 @@ extension View {
     @ViewBuilder
     func bottomSheet<Item: Identifiable, ContentView: View>(
         item: Binding<Item?>,
-        settings: SUIBottomSheetContainer<ContentView>.Settings = .init(),
-        stateObject: SUIBottomSheetContainer<ContentView>.StateObject = .init(),
+        settings: BottomSheetContainer<ContentView>.Settings = .init(),
+        stateObject: BottomSheetContainer<ContentView>.StateObject = .init(),
         @ViewBuilder sheetContent: @escaping (Item) -> ContentView
     ) -> some View {
         modifier(
-            SUIBottomSheetModifier(
+            BottomSheetModifier(
                 item: item,
                 stateObject: stateObject,
                 settings: settings,
