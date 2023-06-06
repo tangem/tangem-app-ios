@@ -485,7 +485,7 @@ private extension SwappingViewModel {
 
         case .available(let model):
             let policy = swappingInteractor.getSwappingGasPricePolicy()
-            let isEnoughAmountForSwapping = model.isEnoughAmountForFee(for: policy)
+            let isEnoughAmountForSwapping = model.isEnoughAmountForSwapping(for: policy)
             let isEnoughAmountForFee = model.isEnoughAmountForFee(for: policy)
 
             mainButtonIsEnabled = isEnoughAmountForSwapping && isEnoughAmountForFee
