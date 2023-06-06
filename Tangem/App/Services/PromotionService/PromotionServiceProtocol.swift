@@ -16,7 +16,7 @@ protocol PromotionServiceProtocol {
 
     func setPromoCode(_ promoCode: String?)
     func checkIfCanGetAward(userWalletId: String) async throws
-    func claimReward(userWalletId: String, storageEntryAdding: StorageEntryAdding) async throws
+    func claimReward(userWalletId: String, storageEntryAdding: StorageEntryAdding) async throws -> Bool
 }
 
 private struct PromotionServiceKey: InjectionKey {
