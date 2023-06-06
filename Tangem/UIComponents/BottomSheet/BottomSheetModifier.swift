@@ -1,5 +1,5 @@
 //
-//  SUIBottomSheetModifier.swift
+//  BottomSheetModifier.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -10,15 +10,15 @@ import SwiftUI
 
 /// How it works?
 /// - When we get `item` we following next steps:
-/// 1. Create `SUIBottomSheetContainer` with external `content`
+/// 1. Create `BottomSheetContainer` with external `content`
 /// 2. Create `UIHostingController` with `rootView` as `sheetContainer`
 /// 3. Show `UIController` without animation
 /// 4. Show `sheetContainer` with animation
 /// - When we should dismiss `bottomSheet` this steps:
 /// 1. Hide `sheetContainer` with animation
 /// 2. After completion we close `UIController`
-struct SUIBottomSheetModifier<Item: Identifiable, ContentView: View>: ViewModifier {
-    typealias Sheet = SUIBottomSheetContainer<ContentView>
+struct BottomSheetModifier<Item: Identifiable, ContentView: View>: ViewModifier {
+    typealias Sheet = BottomSheetContainer<ContentView>
 
     @Binding private var item: Item?
 
@@ -58,7 +58,7 @@ struct SUIBottomSheetModifier<Item: Identifiable, ContentView: View>: ViewModifi
     }
 
     func updateUIController(item: Item) -> UIHostingController<Sheet> {
-        let sheet = SUIBottomSheetContainer(stateObject: stateObject, settings: settings) {
+        let sheet = BottomSheetContainer(stateObject: stateObject, settings: settings) {
             sheetContent(item)
         }
 
