@@ -65,8 +65,8 @@ extension PromotionService: PromotionServiceProtocol {
         }
     }
 
-    func claimReward(userWalletId: String, storageEntryAdding: StorageEntryAdding) async throws {
-        guard let address = try await rewardAddress(storageEntryAdding: storageEntryAdding) else { return }
+    func claimReward(userWalletId: String, storageEntryAdding: StorageEntryAdding) async throws -> Bool {
+        guard let address = try await rewardAddress(storageEntryAdding: storageEntryAdding) else { return false }
 
         if let promoCode {
             let _ = try await tangemApiService.awardNewUser(walletId: userWalletId, address: address, code: promoCode)
@@ -75,6 +75,8 @@ extension PromotionService: PromotionServiceProtocol {
         }
 
         markCurrentProgramAsAwarded(true)
+
+        return true
     }
 }
 
