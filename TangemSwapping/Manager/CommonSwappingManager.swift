@@ -377,21 +377,17 @@ private extension CommonSwappingManager {
         let sourceBalance = swappingItems.sourceBalance
         let coinBalance = try await walletDataProvider.getBalance(for: swappingItems.source.blockchain)
 
-        let isEnoughAmountForFee: [SwappingGasPricePolicy: Bool] = gasOptions.reduce(into: [:]) { result, option in
-            switch swappingItems.source.currencyType {
-            case .coin:
-                result[option.policy] = sourceBalance >= option.fee
-            case .token:
-                result[option.policy] = coinBalance >= option.fee
-            }
-        }
+        var isEnoughAmountForFee: [SwappingGasPricePolicy: Bool] = [:]
+        var isEnoughAmountForSwapping: [SwappingGasPricePolicy: Bool] = [:]
 
-        let isEnoughAmountForSwapping: [SwappingGasPricePolicy: Bool] = gasOptions.reduce(into: [:]) { result, option in
+        for option in gasOptions {
             switch swappingItems.source.currencyType {
             case .coin:
-                result[option.policy] = sourceBalance >= amount + option.fee
+                isEnoughAmountForFee[option.policy] = sourceBalance >= option.fee
+                isEnoughAmountForSwapping[option.policy] = sourceBalance >= amount + option.fee
             case .token:
-                result[option.policy] = sourceBalance >= amount
+                isEnoughAmountForFee[option.policy] = coinBalance >= option.fee
+                isEnoughAmountForSwapping[option.policy] = sourceBalance >= amount
             }
         }
 
