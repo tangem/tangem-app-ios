@@ -16,10 +16,15 @@ struct OrganizeTokensView: View {
     }
 
     var body: some View {
-        ScrollView(showsIndicators: false) {}
-        VStack {
-            // TokenIcon
-            Text("Hello, World!")
+        ScrollView(showsIndicators: false) {
+            LazyHStack {
+                ForEach(viewModel.sections) { section in
+                    OrganizeTokensSectionView()
+                    ForEach(section.items) { item in
+                        OrganizeTokensSectionItemView(viewModel: item)
+                    }
+                }
+            }
         }
     }
 }
