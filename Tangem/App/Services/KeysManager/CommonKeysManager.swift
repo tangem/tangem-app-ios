@@ -80,6 +80,10 @@ extension CommonKeysManager: KeysManager {
     var swapReferrerAccount: SwapReferrerAccount? {
         keys.swapReferrerAccount
     }
+
+    var walletConnectProjectId: String {
+        keys.walletConnectProjectId
+    }
 }
 
 extension CommonKeysManager {
@@ -106,5 +110,6 @@ extension CommonKeysManager {
         let tangemComAuthorization: String?
         let zendesk: ZendeskConfig
         let swapReferrerAccount: SwapReferrerAccount?
+        let walletConnectProjectId: String
     }
 }
