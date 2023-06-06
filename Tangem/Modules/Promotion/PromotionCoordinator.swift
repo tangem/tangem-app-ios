@@ -23,7 +23,7 @@ class PromotionCoordinator: CoordinatorObject {
     // MARK: - Child view models
 
     required init(
-        output: PromotionOutput,
+        output: PromotionOutput?,
         dismissAction: @escaping Action,
         popToRootAction: @escaping ParamsAction<PopToRootOptions>
     ) {
