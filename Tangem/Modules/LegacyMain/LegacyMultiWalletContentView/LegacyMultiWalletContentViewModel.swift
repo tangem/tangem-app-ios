@@ -129,7 +129,7 @@ private extension LegacyMultiWalletContentViewModel {
         let walletModels = cardModel.walletModels
         return entries.reduce([]) { result, entry in
             if let walletModel = walletModels.first(where: { $0.blockchainNetwork == entry.blockchainNetwork }) {
-                return result + walletModel.allTokenItemViewModels()
+                return result + walletModel.legacyMultiCurrencyViewModel()
             }
 
             return result + mapToTokenItemViewModels(entry: entry)
