@@ -69,23 +69,4 @@ extension View {
     func hidden(_ shouldHide: Bool) -> some View {
         opacity(shouldHide ? 0.0 : 1.0)
     }
-
-    func infinityFrame(alignment: Alignment = .center) -> some View {
-        modifier(InfinityFrameViewModifier(alignment: alignment))
-    }
-}
-
-private struct InfinityFrameViewModifier: ViewModifier {
-    var alignment: Alignment
-
-    func body(content: Content) -> some View {
-        content
-            .frame(
-                minWidth: 0.0,
-                maxWidth: .infinity,
-                minHeight: 0.0,
-                maxHeight: .infinity,
-                alignment: alignment
-            )
-    }
 }
