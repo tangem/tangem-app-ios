@@ -363,7 +363,13 @@ class LegacyMainViewModel: ObservableObject {
                 )
             } catch {
                 print(error)
-                self.error = error.alertBinder
+                if let apiError = error as? TangemAPIError,
+                   case .promotionCodeNotFound = apiError.code {
+                    #warning("L10n")
+                    self.error = AlertBinder(title: Localization.commonError, message: "There was no purchase of a wallet for your promotional code after education, which means you cannot receive a bonus. Buy Tangem wallet, scan it in the app, and take a bonus.")
+                } else {
+                    self.error = error.alertBinder
+                }
             }
         }
     }
