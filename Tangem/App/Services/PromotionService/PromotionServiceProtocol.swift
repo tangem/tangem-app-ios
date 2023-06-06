@@ -13,6 +13,7 @@ protocol PromotionServiceProtocol {
     var promoCode: String? { get }
 
     func setPromoCode(_ promoCode: String?)
+    func checkIfCanGetAward(userWalletId: String) async throws
     func claimReward(userWalletId: String, storageEntryAdding: StorageEntryAdding) async throws
 }
 
