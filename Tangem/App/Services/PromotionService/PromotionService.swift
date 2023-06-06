@@ -52,16 +52,20 @@ extension PromotionService: PromotionServiceProtocol {
         }
     }
 
-    func claimReward(userWalletId: String, storageEntryAdding: StorageEntryAdding) async throws {
+    func checkIfCanGetAward(userWalletId: String) async throws {
         if let promoCode {
             let _ = try await tangemApiService.validateNewUserPromotionEligibility(walletId: userWalletId, code: promoCode)
+        } else {
+            let _ = try await tangemApiService.validateOldUserPromotionEligibility(walletId: userWalletId, programName: programName)
+        }
+    }
 
+    func claimReward(userWalletId: String, storageEntryAdding: StorageEntryAdding) async throws {
+        if let promoCode {
             guard let address = try await rewardAddress(storageEntryAdding: storageEntryAdding) else { return }
 
             let _ = try await tangemApiService.awardNewUser(walletId: userWalletId, address: address, code: promoCode)
         } else {
-            let _ = try await tangemApiService.validateOldUserPromotionEligibility(walletId: userWalletId, programName: programName)
-
             guard let address = try await rewardAddress(storageEntryAdding: storageEntryAdding) else { return }
 
             let _ = try await tangemApiService.awardOldUser(walletId: userWalletId, address: address, programName: programName)
