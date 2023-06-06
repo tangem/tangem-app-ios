@@ -383,13 +383,15 @@ class LegacyMainViewModel: ObservableObject {
             guard let self else { return }
 
             do {
-                try await promotionService.claimReward(
+                let awarded = try await promotionService.claimReward(
                     userWalletId: cardModel.userWalletId.stringValue,
                     storageEntryAdding: cardModel
                 )
 
-                #warning("l10n")
-                self.error = AlertBuilder.makeSuccessAlert(message: "Your 1inch tokens will be credited to your wallet address within 2 days.")
+                if awarded {
+                    #warning("l10n")
+                    self.error = AlertBuilder.makeSuccessAlert(message: "Your 1inch tokens will be credited to your wallet address within 2 days.")
+                }
             } catch {
                 AppLog.shared.error(error)
                 self.error = error.alertBinder
