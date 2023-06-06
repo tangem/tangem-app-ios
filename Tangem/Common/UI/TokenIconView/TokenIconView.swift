@@ -63,8 +63,19 @@ struct TokenIconView: View {
 }
 
 struct TokenIconView_Preview: PreviewProvider {
-    static let viewModel = TokenIconViewModel(tokenItem: .blockchain(.gnosis))
     static var previews: some View {
-        TokenIconView(viewModel: viewModel)
+        VStack {
+            TokenIconView(
+                viewModel: TokenIconViewModel(
+                    tokenItem: .blockchain(.gnosis)
+                )
+            )
+
+            TokenIconView(
+                viewModel: TokenIconViewModel(
+                    tokenItem: .blockchain(.optimism(testnet: false))
+                )
+            )
+        }
     }
 }
