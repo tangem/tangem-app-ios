@@ -1,5 +1,5 @@
 //
-//  View+BottomSheet.swift
+//  View+LegacyBottomSheet.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -9,16 +9,16 @@
 import SwiftUI
 
 extension View {
-    @available(*, deprecated, message: "Use bottomSheet method with SUIBottomSheetModifier")
+    @available(*, deprecated, message: "Use bottomSheet method with BottomSheetModifier")
     func bottomSheet<Content: View>(
         isPresented: Binding<Bool>,
         viewModelSettings: BottomSheetSettings,
         @ViewBuilder contentView: @escaping () -> Content
     ) -> some View {
-        modifier(BottomSheetModifier(isPresented: isPresented, viewModelSettings: viewModelSettings, contentView: contentView))
+        modifier(LegacyBottomSheetModifier(isPresented: isPresented, viewModelSettings: viewModelSettings, contentView: contentView))
     }
 
-    @available(*, deprecated, message: "Use bottomSheet method with SUIBottomSheetModifier")
+    @available(*, deprecated, message: "Use bottomSheet method with BottomSheetModifier")
     func bottomSheet<Item: Identifiable, Content: View>(
         item: Binding<Item?>,
         viewModelSettings: BottomSheetSettings,
