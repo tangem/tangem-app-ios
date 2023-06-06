@@ -106,7 +106,8 @@ extension PromotionService {
             guard let data = try storage.get(programsWithSuccessfullAwardsStorageKey) else { return [] }
             return try JSONDecoder().decode(Set<String>.self, from: data)
         } catch {
-            print("Failed to get awarded programs", error)
+            AppLog.shared.error(error)
+            AppLog.shared.debug("Failed to get awarded programs")
             return []
         }
     }
@@ -129,7 +130,8 @@ extension PromotionService {
             let storage = SecureStorage()
             try storage.store(data, forKey: programsWithSuccessfullAwardsStorageKey)
         } catch {
-            print("Failed to set awarded programs", error)
+            AppLog.shared.error(error)
+            AppLog.shared.debug("Failed to set awarded programs")
         }
     }
 }
