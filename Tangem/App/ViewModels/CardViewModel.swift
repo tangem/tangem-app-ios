@@ -13,13 +13,6 @@ import Combine
 import Alamofire
 import SwiftUI
 
-#warning("[REDACTED_TODO_COMMENT]")
-protocol StorageEntryAdding {
-    func getBlockchainNetwork(for blockchain: Blockchain, derivationPath: DerivationPath?) -> BlockchainNetwork
-    func add(entry: StorageEntry, completion: @escaping (Result<String, Error>) -> Void)
-    func add(entry: StorageEntry) async throws -> String
-}
-
 class CardViewModel: Identifiable, ObservableObject {
     // MARK: Services
 
