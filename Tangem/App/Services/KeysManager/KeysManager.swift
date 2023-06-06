@@ -20,6 +20,7 @@ protocol KeysManager {
     var infuraProjectId: String { get }
     var swapReferrerAccount: SwapReferrerAccount? { get }
     var utorgSID: String { get }
+    var walletConnectProjectId: String { get }
 }
 
 private struct KeysManagerKey: InjectionKey {
