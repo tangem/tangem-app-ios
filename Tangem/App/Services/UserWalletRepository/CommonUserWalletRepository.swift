@@ -558,5 +558,6 @@ extension CommonUserWalletRepository {
         selectedUserWalletId = savedSelectedUserWalletId.isEmpty ? nil : savedSelectedUserWalletId
 
         userWallets = savedUserWallets(withSensitiveData: false)
+        AppLog.shared.debug("CommonUserWalletRepository initialized")
     }
 }
