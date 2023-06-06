@@ -196,8 +196,7 @@ class LegacyMainViewModel: ObservableObject {
         self.cardImageProvider = cardImageProvider
         self.coordinator = coordinator
 
-        #warning("[REDACTED_TODO_COMMENT]")
-        canOpenPromotion = true
+        canOpenPromotion = promotionService.promotionAvailable()
 
         bind()
         setupWarnings()
@@ -374,6 +373,8 @@ class LegacyMainViewModel: ObservableObject {
                     self.error = error.alertBinder
                 }
             }
+
+            self.canOpenPromotion = promotionService.promotionAvailable()
         }
     }
 
@@ -393,6 +394,8 @@ class LegacyMainViewModel: ObservableObject {
                 print(error)
                 self.error = error.alertBinder
             }
+
+            self.canOpenPromotion = promotionService.promotionAvailable()
         }
     }
 
