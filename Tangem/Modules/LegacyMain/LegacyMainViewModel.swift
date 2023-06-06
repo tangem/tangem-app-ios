@@ -356,11 +356,15 @@ class LegacyMainViewModel: ObservableObject {
             do {
                 try await promotionService.checkIfCanGetAward(userWalletId: cardModel.userWalletId.stringValue)
 
-                coordinator.openPromotion(
-                    cardPublicKey: cardModel.cardPublicKey.hex,
-                    cardId: cardModel.cardId,
-                    walletId: cardModel.userWalletId.stringValue
-                )
+                if promotionService.promoCode == nil {
+                    coordinator.openPromotion(
+                        cardPublicKey: cardModel.cardPublicKey.hex,
+                        cardId: cardModel.cardId,
+                        walletId: cardModel.userWalletId.stringValue
+                    )
+                } else {
+                    self.startAwardProcess()
+                }
             } catch {
                 print(error)
                 if let apiError = error as? TangemAPIError,
