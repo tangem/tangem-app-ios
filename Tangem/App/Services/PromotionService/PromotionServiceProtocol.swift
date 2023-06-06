@@ -12,6 +12,8 @@ protocol PromotionServiceProtocol {
     var programName: String { get }
     var promoCode: String? { get }
 
+    func promotionAvailable() -> Bool
+
     func setPromoCode(_ promoCode: String?)
     func checkIfCanGetAward(userWalletId: String) async throws
     func claimReward(userWalletId: String, storageEntryAdding: StorageEntryAdding) async throws

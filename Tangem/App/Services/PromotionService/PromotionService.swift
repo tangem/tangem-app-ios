@@ -14,6 +14,7 @@ class PromotionService {
 
     let programName = "1inch"
     private let promoCodeStorageKey = "promo_code"
+    private let programsWithSuccessfullAwardsStorageKey = "programs_with_successfull_awards"
 
     #warning("[REDACTED_TODO_COMMENT]")
     private let awardBlockchain: Blockchain = .polygon(testnet: false)
@@ -33,6 +34,10 @@ extension PromotionService: PromotionServiceProtocol {
         }
 
         return promoCode
+    }
+
+    func promotionAvailable() -> Bool {
+        FeatureProvider.isAvailable(.learnToEarn) && !currentProgramWasAwarded()
     }
 
     func setPromoCode(_ promoCode: String?) {
@@ -70,6 +75,8 @@ extension PromotionService: PromotionServiceProtocol {
 
             let _ = try await tangemApiService.awardOldUser(walletId: userWalletId, address: address, programName: programName)
         }
+
+        markCurrentProgramAsAwarded(true)
     }
 }
 
@@ -88,6 +95,43 @@ extension PromotionService {
             } else {
                 throw error
             }
+        }
+    }
+
+    private func currentProgramWasAwarded() -> Bool {
+        awardedProgramNames().contains(programName)
+    }
+
+    private func awardedProgramNames() -> Set<String> {
+        do {
+            let storage = SecureStorage()
+            guard let data = try storage.get(programsWithSuccessfullAwardsStorageKey) else { return [] }
+            return try JSONDecoder().decode(Set<String>.self, from: data)
+        } catch {
+            print("Failed to get awarded programs", error)
+            return []
+        }
+    }
+
+    private func markCurrentProgramAsAwarded(_ hasBeenAwarded: Bool) {
+        let awardedProgramNames = awardedProgramNames()
+
+        var newAwardedProgramNames = awardedProgramNames
+        if hasBeenAwarded {
+            newAwardedProgramNames.insert(programName)
+        } else {
+            newAwardedProgramNames.remove(programName)
+        }
+
+        guard awardedProgramNames != newAwardedProgramNames else { return }
+
+        do {
+            let data = try JSONEncoder().encode(newAwardedProgramNames)
+
+            let storage = SecureStorage()
+            try storage.store(data, forKey: programsWithSuccessfullAwardsStorageKey)
+        } catch {
+            print("Failed to set awarded programs", error)
         }
     }
 }
