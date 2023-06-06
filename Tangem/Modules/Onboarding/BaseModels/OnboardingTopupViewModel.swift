@@ -21,7 +21,7 @@ class OnboardingTopupViewModel<Step: OnboardingStep, Coordinator: OnboardingTopu
     var walletModelUpdateCancellable: AnyCancellable?
 
     var buyCryptoURL: URL? {
-        if let wallet = cardModel?.wallets.first {
+        if let wallet = cardModel?.walletModels.first?.wallet {
             return exchangeService.getBuyUrl(
                 currencySymbol: wallet.blockchain.currencySymbol,
                 amountType: .coin,
