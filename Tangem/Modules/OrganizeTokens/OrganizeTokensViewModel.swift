@@ -9,11 +9,6 @@
 import Combine
 import SwiftUI
 
-// For SwiftUI previews only
-#if targetEnvironment(simulator)
-import struct BlockchainSdk.Token
-#endif
-
 final class OrganizeTokensViewModel: ObservableObject {
     let headerViewModel: OrganizeTokensHeaderViewModel
 
@@ -35,38 +30,42 @@ final class OrganizeTokensViewModel: ObservableObject {
                 isDraggable: true,
                 items: [
                     .init(
-                        tokenName: "Bitcoin",
-                        tokenTotalSum: "222.00 $",
+                        tokenIcon: TokenIconInfoBuilder().build(
+                            for: .coin,
+                            in: .bitcoin(testnet: false)
+                        ),
+                        balance: .loading,
                         isDraggable: true,
-                        tokenIconViewModel: .init(
-                            tokenItem: .blockchain(.bitcoin(testnet: false))
-                        )
+                        networkUnreachable: false,
+                        hasPendingTransactions: false
                     ),
-
                     .init(
-                        tokenName: "DAI",
-                        tokenTotalSum: "222.00 $",
-                        isDraggable: false,
-                        tokenIconViewModel: .init(
-                            tokenItem: .token(
-                                Token(
+                        tokenIcon: TokenIconInfoBuilder().build(
+                            for: .token(
+                                value: .init(
                                     name: "DAI",
                                     symbol: "DAI",
                                     contractAddress: "0xdwekdn32jfne",
                                     decimalCount: 18
-                                ),
-                                .cosmos(testnet: false)
-                            )
-                        )
+                                )
+                            ),
+                            in: .dash(testnet: false)
+                        ),
+                        balance: .noData,
+                        isDraggable: false,
+                        networkUnreachable: false,
+                        hasPendingTransactions: false
                     ),
-
                     .init(
-                        tokenName: "ExtraLongTokenName_ExtraLongTokenName_ExtraLongTokenName",
-                        tokenTotalSum: "22222222222222222222222222222222222222222222222222.00 $",
+                        tokenIcon: .init(
+                            name: "ExtraLongTokenName_ExtraLongTokenName_ExtraLongTokenName",
+                            blockchainIconName: nil,
+                            imageURL: nil
+                        ),
+                        balance: .loaded(text: "22222222222222222222222222222222222222222222.00 $"),
                         isDraggable: true,
-                        tokenIconViewModel: .init(
-                            tokenItem: .blockchain(.ethereumPoW(testnet: false))
-                        )
+                        networkUnreachable: false,
+                        hasPendingTransactions: false
                     ),
                 ]
             ),
@@ -76,38 +75,42 @@ final class OrganizeTokensViewModel: ObservableObject {
                 isDraggable: false,
                 items: [
                     .init(
-                        tokenName: "Bitcoin",
-                        tokenTotalSum: "222.00 $",
+                        tokenIcon: TokenIconInfoBuilder().build(
+                            for: .coin,
+                            in: .ethereum(testnet: false)
+                        ),
+                        balance: .loading,
                         isDraggable: true,
-                        tokenIconViewModel: .init(
-                            tokenItem: .blockchain(.bitcoin(testnet: false))
-                        )
+                        networkUnreachable: true,
+                        hasPendingTransactions: false
                     ),
-
                     .init(
-                        tokenName: "DAI",
-                        tokenTotalSum: "222.00 $",
-                        isDraggable: false,
-                        tokenIconViewModel: .init(
-                            tokenItem: .token(
-                                Token(
+                        tokenIcon: TokenIconInfoBuilder().build(
+                            for: .token(
+                                value: .init(
                                     name: "DAI",
                                     symbol: "DAI",
                                     contractAddress: "0xdwekdn32jfne",
                                     decimalCount: 18
-                                ),
-                                .cosmos(testnet: false)
-                            )
-                        )
+                                )
+                            ),
+                            in: .dash(testnet: false)
+                        ),
+                        balance: .noData,
+                        isDraggable: false,
+                        networkUnreachable: false,
+                        hasPendingTransactions: true
                     ),
-
                     .init(
-                        tokenName: "ExtraLongTokenName_ExtraLongTokenName_ExtraLongTokenName",
-                        tokenTotalSum: "22222222222222222222222222222222222222222222222222.00 $",
+                        tokenIcon: .init(
+                            name: "ExtraLongTokenName_ExtraLongTokenName_ExtraLongTokenName",
+                            blockchainIconName: nil,
+                            imageURL: nil
+                        ),
+                        balance: .loaded(text: "22222222222222222222222222222222222222222222.00 $"),
                         isDraggable: true,
-                        tokenIconViewModel: .init(
-                            tokenItem: .blockchain(.ethereumPoW(testnet: false))
-                        )
+                        networkUnreachable: false,
+                        hasPendingTransactions: false
                     ),
                 ]
             ),
