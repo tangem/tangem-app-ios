@@ -9,17 +9,29 @@
 import SwiftUI
 
 struct OrganizeTokensHeaderView: View {
+    @ObservedObject var viewModel: OrganizeTokensHeaderViewModel
+
     var body: some View {
         HStack(spacing: 8.0) {
-            FlexySizeSelectedButtonWithLeadingIcon(
-                title: Localization.organizeTokensSortByBalance,
-                icon: Assets.OrganizeTokens.byBalanceSortIcon.image
-            ) {}
+            if viewModel.isLeadingButtonSelected {
+                FlexySizeSelectedButtonWithLeadingIcon(
+                    title: viewModel.leadingButtonTitle,
+                    icon: Assets.OrganizeTokens.byBalanceSortIcon.image,
+                    action: viewModel.onLeadingButtonTap
+                )
+            } else {
+                FlexySizeDeselectedButtonWithLeadingIcon(
+                    title: viewModel.leadingButtonTitle,
+                    icon: Assets.OrganizeTokens.byBalanceSortIcon.image,
+                    action: viewModel.onLeadingButtonTap
+                )
+            }
 
             FlexySizeSelectedButtonWithLeadingIcon(
-                title: Localization.organizeTokensGroup,
-                icon: Assets.OrganizeTokens.makeGroupIcon.image
-            ) {}
+                title: viewModel.trailingButtonTitle,
+                icon: Assets.OrganizeTokens.makeGroupIcon.image,
+                action: viewModel.onTrailingButtonTap
+            )
         }
     }
 }
@@ -28,6 +40,8 @@ struct OrganizeTokensHeaderView: View {
 
 struct OrganizeTokensHeaderView_Previews: PreviewProvider {
     static var previews: some View {
-        OrganizeTokensHeaderView()
+        OrganizeTokensHeaderView(
+            viewModel: .init()
+        )
     }
 }
