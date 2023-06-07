@@ -97,6 +97,16 @@ class Analytics {
         logInternal(event, params: params)
     }
 
+    static func log(
+        event: Event,
+        params: [ParameterKey: String],
+        analyticsSystems: [Analytics.AnalyticsSystem] = [.firebase, .appsflyer, .amplitude, .crashlytics]
+    ) {
+        assert(event.canBeLoggedDirectly)
+
+        logInternal(event, params: params, analyticsSystems: analyticsSystems)
+    }
+
     // MARK: - Private
 
     fileprivate static func log(error: Error, params: [ParameterKey: String] = [:]) {
