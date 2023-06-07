@@ -232,7 +232,6 @@
 "onboarding_seed_user_validation_message" = "To check whether you’ve written down your secret phrase correctly, please enter the 2nd, 7th and 11th words";
 "onboarding_seed_user_validation_title" = "So, let’s check";
 "onboarding_subtitle_backup_card" = "You can backup your keys up to two other blank wallet cards";
-"onboarding_subtitle_claim" = "To get started, simply claim wxDAI to your wallet";
 "onboarding_subtitle_no_backup_cards" = "To start the backup process add up to two backup cards.";
 "onboarding_subtitle_one_backup_card" = "You can add one more card or finalize the backup process";
 "onboarding_subtitle_scan_backup_card_format" = "Prepare the backup card with number %@";
