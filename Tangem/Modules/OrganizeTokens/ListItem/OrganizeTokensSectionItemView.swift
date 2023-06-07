@@ -8,32 +8,24 @@
 
 import SwiftUI
 
-// For SwiftUI previews only
-#if targetEnvironment(simulator)
-import struct BlockchainSdk.Token
-#endif
-
 struct OrganizeTokensSectionItemView: View {
     let viewModel: OrganizeTokensListItemViewModel
 
     var body: some View {
         HStack(spacing: 12.0) {
-            TokenIconView(
-                viewModel: viewModel.tokenIconViewModel,
-                size: .init(bothDimensions: 36.0)
+            TokenItemViewLeadingComponent(
+                name: viewModel.name,
+                imageURL: viewModel.imageURL,
+                blockchainIconName: viewModel.blockchainIconName,
+                networkUnreachable: viewModel.networkUnreachable
             )
-            .layoutPriority(1.0)
 
-            VStack(alignment: .leading, spacing: 2.0) {
-                Group {
-                    Text(viewModel.tokenName)
-                        .style(Fonts.Bold.subheadline, color: Colors.Text.primary1)
-
-                    Text(viewModel.tokenTotalSum)
-                        .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
-                }
-                .lineLimit(1)
-            }
+            TokenItemViewMiddleComponent(
+                name: viewModel.name,
+                balance: viewModel.balance,
+                hasPendingTransactions: viewModel.hasPendingTransactions,
+                networkUnreachable: viewModel.networkUnreachable
+            )
 
             Spacer(minLength: 0.0)
 
@@ -61,42 +53,48 @@ struct OrganizeTokensSectionItemView_Previews: PreviewProvider {
             Group {
                 OrganizeTokensSectionItemView(
                     viewModel: .init(
-                        tokenName: "Bitcoin",
-                        tokenTotalSum: "222.00 $",
+                        tokenIcon: TokenIconInfoBuilder().build(
+                            for: .coin,
+                            in: .bitcoin(testnet: false)
+                        ),
+                        balance: .loading,
                         isDraggable: true,
-                        tokenIconViewModel: .init(
-                            tokenItem: .blockchain(.bitcoin(testnet: false))
-                        )
+                        networkUnreachable: false,
+                        hasPendingTransactions: false
                     )
                 )
 
                 OrganizeTokensSectionItemView(
                     viewModel: .init(
-                        tokenName: "DAI",
-                        tokenTotalSum: "222.00 $",
-                        isDraggable: false,
-                        tokenIconViewModel: .init(
-                            tokenItem: .token(
-                                Token(
+                        tokenIcon: TokenIconInfoBuilder().build(
+                            for: .token(
+                                value: .init(
                                     name: "DAI",
                                     symbol: "DAI",
                                     contractAddress: "0xdwekdn32jfne",
                                     decimalCount: 18
-                                ),
-                                .cosmos(testnet: false)
-                            )
-                        )
+                                )
+                            ),
+                            in: .dash(testnet: false)
+                        ),
+                        balance: .noData,
+                        isDraggable: false,
+                        networkUnreachable: false,
+                        hasPendingTransactions: false
                     )
                 )
 
                 OrganizeTokensSectionItemView(
                     viewModel: .init(
-                        tokenName: "ExtraLongTokenName_ExtraLongTokenName_ExtraLongTokenName",
-                        tokenTotalSum: "22222222222222222222222222222222222222222222222222.00 $",
+                        tokenIcon: .init(
+                            name: "ExtraLongTokenName_ExtraLongTokenName_ExtraLongTokenName",
+                            blockchainIconName: nil,
+                            imageURL: nil
+                        ),
+                        balance: .loaded(text: "22222222222222222222222222222222222222222222.00 $"),
                         isDraggable: true,
-                        tokenIconViewModel: .init(
-                            tokenItem: .blockchain(.ethereumPoW(testnet: false))
-                        )
+                        networkUnreachable: false,
+                        hasPendingTransactions: false
                     )
                 )
             }
