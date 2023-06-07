@@ -51,6 +51,7 @@
 "chat_user_actions_title" = "請選擇一個操作";
 "chat_user_rate_agent_title" = "請評價我們的服務";
 "common_accept" = "接受";
+"common_apply" = "Apply";
 "common_attention" = "注意";
 "common_back" = "返回";
 "common_balance" = "餘額: %@";
@@ -231,6 +232,7 @@
 "onboarding_seed_user_validation_message" = "為了檢查您是否正確輸入了助記詞，請輸入第 2、7 和 11 個單詞";
 "onboarding_seed_user_validation_title" = "那麼，讓我們檢查一下";
 "onboarding_subtitle_backup_card" = "您最多可以再備份兩張其他空白錢包";
+"onboarding_subtitle_claim" = "要開始，只需將 wxDAI 獲取到您的錢包";
 "onboarding_subtitle_no_backup_cards" = "要開始備份過程，最多可添加兩張備份卡。";
 "onboarding_subtitle_one_backup_card" = "您可以再添加一張卡或完成備份過程";
 "onboarding_subtitle_scan_backup_card_format" = "準備編號為 %@ 的備份卡";
@@ -243,6 +245,7 @@
 "onboarding_title" = "啟用卡片";
 "onboarding_title_backup_card" = "備援錢包";
 "onboarding_title_backup_card_format" = "備份卡 #%li";
+"onboarding_title_claim" = "獲取%@";
 "onboarding_title_no_backup_cards" = "沒有備用卡";
 "onboarding_title_one_backup_card" = "添加了一張備用卡";
 "onboarding_title_scan_origin_card" = "準備好你的卡片";
@@ -262,6 +265,9 @@
 "onboarding_wallet_info_title_fourth" = "訪問密碼還原";
 "onboarding_wallet_info_title_second" = "相同的卡片";
 "onboarding_wallet_info_title_third" = "訪問密碼";
+"organize_tokens_group" = "Group";
+"organize_tokens_sort_by_balance" = "By balance";
+"organize_tokens_title" = "Organize tokens";
 "push_additional_fee" = "額外費用";
 "push_previous_fee" = "先前費用";
 "push_tx_address_hint" = "先前交易總額包括費用";
@@ -484,6 +490,7 @@
 "wallet_connect_tx_not_found" = "未能找到交易哈希";
 "wallet_currency_subtitle" = "%@ 網路";
 "wallet_error_no_account" = "帳號尚未被創造";
+"wallet_network_group_title" = "%s network";
 "wallet_pending_tx_receiving" = "接收中";
 "wallet_pending_tx_receiving_address_format" = "來自%@";
 "wallet_pending_tx_sending" = "發送中";
