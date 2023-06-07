@@ -7,11 +7,14 @@
 //
 
 import SwiftUI
-import struct BlockchainSdk.Token
 
-// [REDACTED_TODO_COMMENT]
+// For SwiftUI previews only
+#if targetEnvironment(simulator)
+import struct BlockchainSdk.Token
+#endif
+
 struct OrganizeTokensSectionItemView: View {
-    let viewModel: OrganizeTokensListSection.ListItemViewModel
+    let viewModel: OrganizeTokensListItemViewModel
 
     var body: some View {
         HStack(spacing: 12.0) {
@@ -37,6 +40,11 @@ struct OrganizeTokensSectionItemView: View {
             if viewModel.isDraggable {
                 Assets.OrganizeTokens.itemDragAndDropIcon
                     .image
+                    .renderingMode(.template)
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+                    .frame(size: .init(bothDimensions: 20.0))
+                    .foregroundColor(Colors.Icon.informative)
                     .layoutPriority(1.0)
             }
         }

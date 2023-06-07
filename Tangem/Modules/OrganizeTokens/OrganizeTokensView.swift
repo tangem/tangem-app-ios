@@ -17,22 +17,38 @@ struct OrganizeTokensView: View {
 
     var body: some View {
         ScrollView(showsIndicators: false) {
-            LazyHStack {
-                ForEach(viewModel.sections) { section in
-                    OrganizeTokensSectionView()
-                    ForEach(section.items) { item in
-                        OrganizeTokensSectionItemView(viewModel: item)
-                    }
+            LazyVStack(spacing: 0.0) {
+                ForEach(viewModel.sections) { sectionViewModel in
+                    Section(
+                        content: {
+                            ForEach(sectionViewModel.items) { itemViewModel in
+                                OrganizeTokensSectionItemView(viewModel: itemViewModel)
+                            }
+                        },
+                        header: {
+                            OrganizeTokensSectionView(viewModel: sectionViewModel)
+                        }
+                    )
                 }
             }
         }
     }
 }
 
+// MARK: - Previews
+
 struct OrganizeTokensView_Preview: PreviewProvider {
     static let viewModel = OrganizeTokensViewModel(coordinator: OrganizeTokensCoordinator())
 
     static var previews: some View {
-        OrganizeTokensView(viewModel: viewModel)
+        VStack {
+            Group {
+                OrganizeTokensView(viewModel: viewModel)
+            }
+            .background(Colors.Background.primary)
+        }
+        .padding()
+        .previewLayout(.sizeThatFits)
+        .background(Colors.Background.secondary)
     }
 }
