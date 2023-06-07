@@ -8,25 +8,73 @@
 
 import SwiftUI
 
-struct ButtonWithLeadingIcon: View {
+struct FixedSizeButtonWithLeadingIcon: View {
     let title: String
     let icon: Image
-    var foregroundColor = Colors.Text.primary1
-    var maintainsIdealSize = true
+    let action: () -> Void
+
+    var body: some View {
+        ButtonWithLeadingIconContentView(
+            title: title,
+            icon: icon,
+            maintainsIdealSize: true,
+            action: action
+        )
+        .foregroundColor(Colors.Text.primary1)
+    }
+}
+
+struct FlexySizeSelectedButtonWithLeadingIcon: View {
+    let title: String
+    let icon: Image
+    let action: () -> Void
+
+    var body: some View {
+        ButtonWithLeadingIconContentView(
+            title: title,
+            icon: icon,
+            maintainsIdealSize: false,
+            action: action
+        )
+        .foregroundColor(Colors.Text.primary1)
+    }
+}
+
+struct FlexySizeDeselectedButtonWithLeadingIcon: View {
+    let title: String
+    let icon: Image
+    let action: () -> Void
+
+    var body: some View {
+        ButtonWithLeadingIconContentView(
+            title: title,
+            icon: icon,
+            maintainsIdealSize: false,
+            action: action
+        )
+        .foregroundColor(Colors.Text.secondary)
+    }
+}
+
+// MARK: - Private implementation
+
+private struct ButtonWithLeadingIconContentView: View {
+    let title: String
+    let icon: Image
+    let maintainsIdealSize: Bool
     let action: () -> Void
 
     var body: some View {
         Button(action: action) {
-            HStack(spacing: 4.0) {
+            HStack(spacing: 4) {
                 icon
                     .renderingMode(.template)
                     .resizable()
-                    .frame(width: 20, height: 20)
-                    .foregroundColor(foregroundColor)
+                    .frame(size: .init(bothDimensions: 20))
 
                 if !title.isEmpty {
                     Text(title)
-                        .style(Fonts.Bold.subheadline, color: foregroundColor)
+                        .font(Fonts.Bold.subheadline)
                         .lineLimit(1)
                         .fixedSize(horizontal: maintainsIdealSize, vertical: maintainsIdealSize)
                 }
@@ -46,63 +94,54 @@ struct ButtonWithLeadingIcon: View {
 struct ButtonWithLeadingIcon_Previews: PreviewProvider {
     static var previews: some View {
         VStack {
-            ButtonWithLeadingIcon(
+            FixedSizeButtonWithLeadingIcon(
                 title: "Buy",
                 icon: Assets.plusMini.image
             ) {}
 
-            ButtonWithLeadingIcon(
+            FixedSizeButtonWithLeadingIcon(
                 title: "Exchange",
                 icon: Assets.exchangeMini.image
             ) {}
 
-            ButtonWithLeadingIcon(
+            FixedSizeButtonWithLeadingIcon(
                 title: "Organize tokens",
-                icon: Assets.sliders.image,
-                foregroundColor: .red
+                icon: Assets.sliders.image
             ) {}
 
-            ButtonWithLeadingIcon(
+            FixedSizeButtonWithLeadingIcon(
                 title: "",
                 icon: Assets.horizontalDots.image
             ) {}
 
-            ButtonWithLeadingIcon(
+            FixedSizeButtonWithLeadingIcon(
                 title: "LongTitle_LongTitle_LongTitle_LongTitle_LongTitle",
-                icon: Assets.horizontalDots.image,
-                foregroundColor: .blue
+                icon: Assets.infoIconMini.image
             ) {}
 
-            ButtonWithLeadingIcon(
+            FlexySizeDeselectedButtonWithLeadingIcon(
                 title: "Buy",
-                icon: Assets.plusMini.image,
-                maintainsIdealSize: false
+                icon: Assets.plusMini.image
             ) {}
 
-            ButtonWithLeadingIcon(
+            FlexySizeSelectedButtonWithLeadingIcon(
                 title: "Exchange",
-                icon: Assets.exchangeMini.image,
-                maintainsIdealSize: false
+                icon: Assets.exchangeMini.image
             ) {}
 
-            ButtonWithLeadingIcon(
+            FlexySizeDeselectedButtonWithLeadingIcon(
                 title: "Organize tokens",
-                icon: Assets.sliders.image,
-                foregroundColor: .red,
-                maintainsIdealSize: false
+                icon: Assets.sliders.image
             ) {}
 
-            ButtonWithLeadingIcon(
+            FlexySizeSelectedButtonWithLeadingIcon(
                 title: "",
-                icon: Assets.horizontalDots.image,
-                maintainsIdealSize: false
+                icon: Assets.horizontalDots.image
             ) {}
 
-            ButtonWithLeadingIcon(
+            FlexySizeDeselectedButtonWithLeadingIcon(
                 title: "LongTitle_LongTitle_LongTitle_LongTitle_LongTitle",
-                icon: Assets.horizontalDots.image,
-                foregroundColor: .blue,
-                maintainsIdealSize: false
+                icon: Assets.infoIconMini.image
             ) {}
         }
     }
