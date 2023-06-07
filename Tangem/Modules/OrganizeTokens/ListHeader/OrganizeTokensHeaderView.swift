@@ -11,18 +11,14 @@ import SwiftUI
 struct OrganizeTokensHeaderView: View {
     var body: some View {
         HStack(spacing: 8.0) {
-            ButtonWithLeadingIcon(
+            FlexySizeSelectedButtonWithLeadingIcon(
                 title: Localization.organizeTokensSortByBalance,
-                icon: Assets.OrganizeTokens.byBalanceSortIcon.image,
-                foregroundColor: Colors.Text.primary1,  // [REDACTED_TODO_COMMENT]
-                maintainsIdealSize: false
+                icon: Assets.OrganizeTokens.byBalanceSortIcon.image
             ) {}
 
-            ButtonWithLeadingIcon(
+            FlexySizeSelectedButtonWithLeadingIcon(
                 title: Localization.organizeTokensGroup,
-                icon: Assets.OrganizeTokens.makeGroupIcon.image,
-                foregroundColor: Colors.Text.primary1,  // [REDACTED_TODO_COMMENT]
-                maintainsIdealSize: false
+                icon: Assets.OrganizeTokens.makeGroupIcon.image
             ) {}
         }
     }
