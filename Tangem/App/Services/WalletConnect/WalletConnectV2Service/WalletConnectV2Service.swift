@@ -135,8 +135,8 @@ final class WalletConnectV2Service {
     private func setupSessionSubscriptions() {
         signApi.sessionProposalPublisher
             .receive(on: DispatchQueue.main)
-            .sink { [weak self] sessionProposal in
-                self?.log("Session proposal: \(sessionProposal)")
+            .sink { [weak self] sessionProposal, context in
+                self?.log("Session proposal: \(sessionProposal) with verify context: \(String(describing: context))")
                 self?.validateProposal(sessionProposal)
             }
             .store(in: &sessionSubscriptions)
@@ -179,10 +179,10 @@ final class WalletConnectV2Service {
     private func setupMessagesSubscriptions() {
         signApi.sessionRequestPublisher
             .receive(on: DispatchQueue.main)
-            .asyncMap { [weak self] request in
+            .asyncMap { [weak self] request, context in
                 guard let self else { return }
 
-                self.log("Receive message request: \(request)")
+                self.log("Receive message request: \(request) with verify context: \(String(describing: context))")
                 await self.handle(request)
             }
             .sink()
