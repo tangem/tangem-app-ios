@@ -13,24 +13,31 @@ struct OrganizeTokensHeaderView: View {
 
     var body: some View {
         HStack(spacing: 8.0) {
-            if viewModel.isLeadingButtonSelected {
+            Group {
+                if viewModel.isLeadingButtonSelected {
+                    FlexySizeSelectedButtonWithLeadingIcon(
+                        title: viewModel.leadingButtonTitle,
+                        icon: Assets.OrganizeTokens.byBalanceSortIcon.image,
+                        action: viewModel.onLeadingButtonTap
+                    )
+                } else {
+                    FlexySizeDeselectedButtonWithLeadingIcon(
+                        title: viewModel.leadingButtonTitle,
+                        icon: Assets.OrganizeTokens.byBalanceSortIcon.image,
+                        action: viewModel.onLeadingButtonTap
+                    )
+                }
+
                 FlexySizeSelectedButtonWithLeadingIcon(
-                    title: viewModel.leadingButtonTitle,
-                    icon: Assets.OrganizeTokens.byBalanceSortIcon.image,
-                    action: viewModel.onLeadingButtonTap
-                )
-            } else {
-                FlexySizeDeselectedButtonWithLeadingIcon(
-                    title: viewModel.leadingButtonTitle,
-                    icon: Assets.OrganizeTokens.byBalanceSortIcon.image,
-                    action: viewModel.onLeadingButtonTap
+                    title: viewModel.trailingButtonTitle,
+                    icon: Assets.OrganizeTokens.makeGroupIcon.image,
+                    action: viewModel.onTrailingButtonTap
                 )
             }
-
-            FlexySizeSelectedButtonWithLeadingIcon(
-                title: viewModel.trailingButtonTitle,
-                icon: Assets.OrganizeTokens.makeGroupIcon.image,
-                action: viewModel.onTrailingButtonTap
+            .background(
+                Colors.Background
+                    .primary
+                    .cornerRadiusContinuous(10.0)
             )
         }
     }
