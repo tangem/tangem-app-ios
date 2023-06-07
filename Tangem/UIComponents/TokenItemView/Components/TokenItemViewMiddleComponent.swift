@@ -10,7 +10,7 @@ import SwiftUI
 
 struct TokenItemViewMiddleComponent: View {
     let name: String
-    let balanceCrypto: LoadableTextView.State
+    let balance: LoadableTextView.State
     let hasPendingTransactions: Bool
     let networkUnreachable: Bool
 
@@ -30,7 +30,7 @@ struct TokenItemViewMiddleComponent: View {
 
             if !networkUnreachable {
                 LoadableTextView(
-                    state: balanceCrypto,
+                    state: balance,
                     font: Fonts.Regular.footnote,
                     textColor: Colors.Text.tertiary,
                     loaderSize: .init(width: 52, height: 12),
