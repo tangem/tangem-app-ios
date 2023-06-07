@@ -51,6 +51,7 @@
 "chat_user_actions_title" = "Please select an action";
 "chat_user_rate_agent_title" = "Please, rate the work of the agent";
 "common_accept" = "J'accepte";
+"common_apply" = "Apply";
 "common_attention" = "Attention";
 "common_back" = "Back";
 "common_balance" = "Solde : %@";
@@ -231,6 +232,7 @@
 "onboarding_seed_user_validation_message" = "To check whether you’ve written down your secret phrase correctly, please enter the 2nd, 7th and 11th words";
 "onboarding_seed_user_validation_title" = "So, let’s check";
 "onboarding_subtitle_backup_card" = "You can backup your keys up to two other blank wallet cards";
+"onboarding_subtitle_claim" = "To get started, simply claim wxDAI to your wallet";
 "onboarding_subtitle_no_backup_cards" = "To start the backup process add up to two backup cards.";
 "onboarding_subtitle_one_backup_card" = "You can add one more card or finalize the backup process";
 "onboarding_subtitle_scan_backup_card_format" = "Prepare the backup card with number %@";
@@ -243,6 +245,7 @@
 "onboarding_title" = "Activating card";
 "onboarding_title_backup_card" = "Backup your wallet";
 "onboarding_title_backup_card_format" = "Backup card #%li";
+"onboarding_title_claim" = "Claim %@";
 "onboarding_title_no_backup_cards" = "No backup cards";
 "onboarding_title_one_backup_card" = "One backup card added";
 "onboarding_title_scan_origin_card" = "Prepare your card";
@@ -262,6 +265,9 @@
 "onboarding_wallet_info_title_fourth" = "Access code restore";
 "onboarding_wallet_info_title_second" = "Identical cards";
 "onboarding_wallet_info_title_third" = "Access code";
+"organize_tokens_group" = "Group";
+"organize_tokens_sort_by_balance" = "By balance";
+"organize_tokens_title" = "Organize tokens";
 "push_additional_fee" = "Additional fee";
 "push_previous_fee" = "Previous fee";
 "push_tx_address_hint" = "Previous transaction total including fee";
@@ -484,6 +490,7 @@
 "wallet_connect_tx_not_found" = "Failed to find transaction hash";
 "wallet_currency_subtitle" = "%@ network";
 "wallet_error_no_account" = "Compte n'est pas créé";
+"wallet_network_group_title" = "%s network";
 "wallet_pending_tx_receiving" = "Réception";
 "wallet_pending_tx_receiving_address_format" = "de %@";
 "wallet_pending_tx_sending" = "Envoi";
