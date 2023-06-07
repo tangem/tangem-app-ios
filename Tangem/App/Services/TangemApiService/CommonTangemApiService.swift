@@ -165,6 +165,8 @@ extension CommonTangemApiService: TangemApiService {
             .subscribe(on: DispatchQueue.global())
             .weakAssign(to: \._geoIpRegionCode, on: self)
             .store(in: &bag)
+
+        AppLog.shared.debug("CommonTangemApiService initialized")
     }
 
     func setAuthData(_ authData: TangemApiTarget.AuthData) {
