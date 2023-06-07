@@ -24,13 +24,12 @@ protocol WalletConnectV2WalletModelProvider: AnyObject {
 
 final class WalletConnectV2Service {
     @Injected(\.walletConnectSessionsStorage) private var sessionsStorage: WalletConnectSessionsStorage
+    @Injected(\.keysManager) private var keysManager: KeysManager
 
     private let factory = WalletConnectV2DefaultSocketFactory()
     private let uiDelegate: WalletConnectUIDelegate
     private let messageComposer: WalletConnectV2MessageComposable
     private let wcHandlersService: WalletConnectV2HandlersServicing
-    private let pairApi: PairingInteracting
-    private let signApi: SignClient
     private let infoProvider: WalletConnectUserWalletInfoProvider
 
     private var canEstablishNewSessionSubject: CurrentValueSubject<Bool, Never> = .init(true)
@@ -53,6 +52,9 @@ final class WalletConnectV2Service {
         }
     }
 
+    private lazy var pairApi: PairingInteracting = Pair.instance
+    private lazy var signApi: SignClient = Sign.instance
+
     init(
         with infoProvider: WalletConnectUserWalletInfoProvider,
         uiDelegate: WalletConnectUIDelegate,
@@ -65,21 +67,17 @@ final class WalletConnectV2Service {
         self.wcHandlersService = wcHandlersService
 
         Networking.configure(
-            // [REDACTED_TODO_COMMENT]
-            projectId: "c0e14e9fac0113e872980f2aae3354de",
+            projectId: keysManager.walletConnectProjectId,
             socketFactory: factory,
             socketConnectionType: .automatic
         )
         Pair.configure(metadata: AppMetadata(
             // Not sure that we really need this name, but currently it is hard to recognize what card is connected in dApp
             name: "Tangem \(infoProvider.name)",
-            description: "NFC crypto wallet",
+            description: "Tangem is a card-shaped self-custodial cold hardware wallet",
             url: "tangem.com",
             icons: ["https://user-images.githubusercontent.com/24321494/124071202-72a00900-da58-11eb-935a-dcdab21de52b.png"]
         ))
-
-        pairApi = Pair.instance
-        signApi = Sign.instance
 
         loadSessions(for: infoProvider.userWalletId.value)
         setupSessionSubscriptions()
