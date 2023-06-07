@@ -49,5 +49,6 @@ extension Analytics {
         case option
         case feeType = "Fee Type"
         case permissionType = "Permission Type"
+        case host
     }
 }
