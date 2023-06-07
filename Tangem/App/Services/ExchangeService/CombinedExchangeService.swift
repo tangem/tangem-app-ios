@@ -61,5 +61,6 @@ extension CombinedExchangeService: ExchangeService {
         mercuryoService.initialize()
         sellService.initialize()
         utorgService?.initialize()
+        AppLog.shared.debug("CombinedExchangeService initialized")
     }
 }
