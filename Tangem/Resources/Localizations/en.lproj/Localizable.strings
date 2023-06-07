@@ -260,6 +260,9 @@
 "onboarding_wallet_info_title_fourth" = "Access code restore";
 "onboarding_wallet_info_title_second" = "Identical cards";
 "onboarding_wallet_info_title_third" = "Access code";
+"organize_tokens_group" = "organize_tokens_group";
+"organize_tokens_sort_by_balance" = "organize_tokens_sort_by_balance";
+"organize_tokens_title" = "organize_tokens_title";
 "push_additional_fee" = "Additional fee";
 "push_previous_fee" = "Previous fee";
 "push_tx_address_hint" = "Previous transaction total including fee";
