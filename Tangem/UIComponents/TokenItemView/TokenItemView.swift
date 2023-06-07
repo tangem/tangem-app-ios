@@ -23,7 +23,7 @@ struct TokenItemView: View {
 
                 TokenItemViewMiddleComponent(
                     name: viewModel.name,
-                    balanceCrypto: viewModel.balanceCrypto,
+                    balance: viewModel.balanceCrypto,
                     hasPendingTransactions: viewModel.hasPendingTransactions,
                     networkUnreachable: viewModel.networkUnreachable
                 )
