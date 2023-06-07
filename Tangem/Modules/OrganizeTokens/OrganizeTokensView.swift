@@ -8,7 +8,6 @@
 
 import SwiftUI
 
-// [REDACTED_TODO_COMMENT]
 struct OrganizeTokensView: View {
     @ObservedObject private var viewModel: OrganizeTokensViewModel
 
@@ -27,14 +26,15 @@ struct OrganizeTokensView: View {
             Group {
                 tokenList
 
-                topButtonsContainerView
+                tokenListHeader
 
-                bottomButtonsContainerView
+                tokenListFooter
             }
             .padding(.horizontal, 16.0)
         }
         .background(
-            Colors.Background.secondary
+            Colors.Background
+                .secondary
                 .ignoresSafeArea(edges: [.vertical])
         )
     }
@@ -63,24 +63,31 @@ struct OrganizeTokensView: View {
         }
     }
 
-    private var topButtonsContainerView: some View {
+    private var tokenListHeader: some View {
         OrganizeTokensHeaderView(viewModel: viewModel.headerViewModel)
             .readSize { scrollViewTopContentInset = $0.height + 16.0 }
             .infinityFrame(alignment: .top)
     }
 
-    private var bottomButtonsContainerView: some View {
+    private var tokenListFooter: some View {
         HStack(spacing: 8.0) {
-            MainButton(
-                title: Localization.commonCancel,
-                style: .secondary,
-                action: viewModel.onCancelButtonTap
-            )
+            Group {
+                MainButton(
+                    title: Localization.commonCancel,
+                    style: .secondary,
+                    action: viewModel.onCancelButtonTap
+                )
 
-            MainButton(
-                title: Localization.commonApply,
-                style: .primary,
-                action: viewModel.onApplyButtonTap
+                MainButton(
+                    title: Localization.commonApply,
+                    style: .primary,
+                    action: viewModel.onApplyButtonTap
+                )
+            }
+            .background(
+                Colors.Background
+                    .primary
+                    .cornerRadiusContinuous(14.0)
             )
         }
         .readSize { scrollViewBottomContentInset = $0.height + 16.0}
