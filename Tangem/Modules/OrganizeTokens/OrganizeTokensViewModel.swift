@@ -18,11 +18,12 @@ final class OrganizeTokensViewModel: ObservableObject {
     private unowned let coordinator: OrganizeTokensRoutable
 
     init(
-        coordinator: OrganizeTokensRoutable
+        coordinator: OrganizeTokensRoutable,
+        sections: [OrganizeTokensListSectionViewModel]
     ) {
         self.coordinator = coordinator
+        self.sections = sections
         headerViewModel = OrganizeTokensHeaderViewModel()
-        sections = []
     }
 
     func onCancelButtonTap() {
