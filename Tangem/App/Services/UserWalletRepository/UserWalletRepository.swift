@@ -10,7 +10,7 @@ import Foundation
 import Combine
 
 protocol UserWalletRepository: Initializable {
-    var models: [CardViewModel] { get }
+    var models: [UserWalletModel] { get }
     var selectedModel: CardViewModel? { get }
     var selectedUserWalletId: Data? { get }
     var isEmpty: Bool { get }
