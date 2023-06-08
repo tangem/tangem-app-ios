@@ -1,5 +1,5 @@
 //
-//  TokenDetailsCoordinator.swift
+//  LegacyTokenDetailsCoordinator.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -9,13 +9,13 @@
 import Foundation
 import BlockchainSdk
 
-class TokenDetailsCoordinator: CoordinatorObject {
+class LegacyTokenDetailsCoordinator: CoordinatorObject {
     var dismissAction: Action
     var popToRootAction: ParamsAction<PopToRootOptions>
 
     // MARK: - Main view model
 
-    @Published private(set) var tokenDetailsViewModel: TokenDetailsViewModel? = nil
+    @Published private(set) var tokenDetailsViewModel: LegacyTokenDetailsViewModel? = nil
 
     // MARK: - Child coordinators
 
@@ -34,8 +34,8 @@ class TokenDetailsCoordinator: CoordinatorObject {
         self.popToRootAction = popToRootAction
     }
 
-    func start(with options: TokenDetailsCoordinator.Options) {
-        tokenDetailsViewModel = TokenDetailsViewModel(
+    func start(with options: LegacyTokenDetailsCoordinator.Options) {
+        tokenDetailsViewModel = LegacyTokenDetailsViewModel(
             cardModel: options.cardModel,
             blockchainNetwork: options.blockchainNetwork,
             amountType: options.amountType,
@@ -44,7 +44,7 @@ class TokenDetailsCoordinator: CoordinatorObject {
     }
 }
 
-extension TokenDetailsCoordinator {
+extension LegacyTokenDetailsCoordinator {
     struct Options {
         let cardModel: CardViewModel
         let blockchainNetwork: BlockchainNetwork
@@ -52,7 +52,7 @@ extension TokenDetailsCoordinator {
     }
 }
 
-extension TokenDetailsCoordinator: TokenDetailsRoutable {
+extension LegacyTokenDetailsCoordinator: LegacyTokenDetailsRoutable {
     func openBuyCrypto(at url: URL, closeUrl: String, action: @escaping (String) -> Void) {
         Analytics.log(.topupScreenOpened)
         pushedWebViewModel = WebViewContainerViewModel(
