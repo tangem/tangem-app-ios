@@ -6,11 +6,15 @@
 //  Copyright © 2023 Tangem AG. All rights reserved.
 //
 
-import Foundation
+import Combine
 
 protocol PromotionServiceProtocol {
     var programName: String { get }
     var promoCode: String? { get }
+
+    var readyForAwardPublisher: AnyPublisher<Void, Never> { get }
+
+    func didBecomeReadyForAward()
 
     func promotionAvailable() -> Bool
 
