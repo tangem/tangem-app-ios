@@ -17,16 +17,16 @@ class CommonUserTokenListManager {
 
     private(set) var didPerformInitialLoading: Bool = false
 
-    private var userWalletId: Data
-    private var tokenItemsRepository: TokenItemsRepository
+    private let userWalletId: Data
+    private let tokenItemsRepository: TokenItemsRepository
 
     private var pendingTokensToUpdate: UserTokenList?
     private var loadTokensCancellable: AnyCancellable?
     private var saveTokensCancellable: AnyCancellable?
     private let hasTokenSynchronization: Bool
 
-    init(config: UserWalletConfig, userWalletId: Data) {
-        self.hasTokenSynchronization = config.hasFeature(.tokenSynchronization)
+    init(hasTokenSynchronization: Bool, userWalletId: Data) {
+        self.hasTokenSynchronization = hasTokenSynchronization
         self.userWalletId = userWalletId
 
         tokenItemsRepository = CommonTokenItemsRepository(key: userWalletId.hexString)
@@ -36,13 +36,6 @@ class CommonUserTokenListManager {
 // MARK: - UserTokenListManager
 
 extension CommonUserTokenListManager: UserTokenListManager {
-    func update(userWalletId: Data) {
-        guard self.userWalletId != userWalletId else { return }
-
-        self.userWalletId = userWalletId
-        tokenItemsRepository = CommonTokenItemsRepository(key: userWalletId.hexString)
-    }
-
     func update(_ type: CommonUserTokenListManager.UpdateType) {
         switch type {
         case .rewrite(let entries):
