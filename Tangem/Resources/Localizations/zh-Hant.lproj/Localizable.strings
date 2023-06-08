@@ -244,7 +244,6 @@
 "onboarding_title" = "啟用卡片";
 "onboarding_title_backup_card" = "備援錢包";
 "onboarding_title_backup_card_format" = "備份卡 #%li";
-"onboarding_title_claim" = "獲取%@";
 "onboarding_title_no_backup_cards" = "沒有備用卡";
 "onboarding_title_one_backup_card" = "添加了一張備用卡";
 "onboarding_title_scan_origin_card" = "準備好你的卡片";
@@ -392,6 +391,7 @@
 "swapping_token_list_title" = "選擇代幣";
 "swapping_token_list_your_tokens" = "您的代幣";
 "swapping_token_not_available" = "無法使用";
+"test-key" = "Test key value";
 "testnet_address_topuped" = "交易簽署並發送到測試網。稍等片刻後再重新加載餘額";
 "testnet_error_failed_create_tx" = "無法為代幣創建充值交易。稍後再試";
 "testnet_error_not_enough_ether_message" = "ETH 錢包餘額不足。您需要先充值ETH錢包";
