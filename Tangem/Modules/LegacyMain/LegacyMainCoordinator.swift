@@ -286,7 +286,7 @@ extension LegacyMainCoordinator: LegacyMainRoutable {
             self?.promotionCoordinator = nil
         }
 
-        let coordinator = PromotionCoordinator(output: self, dismissAction: dismissAction, popToRootAction: { _ in })
+        let coordinator = PromotionCoordinator(dismissAction: dismissAction, popToRootAction: { _ in })
         let options: PromotionCoordinator.Options = .oldUser(cardPublicKey: cardPublicKey, cardId: cardId, walletId: walletId)
         coordinator.start(with: options)
         promotionCoordinator = coordinator
@@ -310,11 +310,5 @@ extension LegacyMainCoordinator: UserWalletListCoordinatorOutput {
             self.modalOnboardingCoordinator = coordinator
             Analytics.log(.onboardingStarted)
         }
-    }
-}
-
-extension LegacyMainCoordinator: PromotionOutput {
-    func startAwardProcess() {
-        mainViewModel?.startAwardProcess()
     }
 }
