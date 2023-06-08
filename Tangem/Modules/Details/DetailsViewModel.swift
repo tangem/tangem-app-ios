@@ -89,7 +89,7 @@ extension DetailsViewModel {
         guard let emailConfig = cardModel.emailConfig else { return }
 
         let dataCollector = DetailsFeedbackDataCollector(
-            cardModel: cardModel,
+            walletModels: cardModel.walletModels,
             userWalletEmailData: cardModel.emailData
         )
 
@@ -106,14 +106,8 @@ extension DetailsViewModel {
     }
 
     func openCardSettings() {
-        guard let userWalletId = cardModel.userWalletId else {
-            // This shouldn't be the case, because currently user can't reach this screen
-            // with card that doesn't have a wallet.
-            return
-        }
-
         Analytics.log(.buttonCardSettings)
-        coordinator.openScanCardSettings(with: userWalletId, sdk: cardModel.makeTangemSdk()) // [REDACTED_TODO_COMMENT]
+        coordinator.openScanCardSettings(with: cardModel.userWalletId.value, sdk: cardModel.makeTangemSdk()) // [REDACTED_TODO_COMMENT]
     }
 
     func openAppSettings() {
@@ -125,7 +119,7 @@ extension DetailsViewModel {
         Analytics.log(.settingsButtonChat)
 
         let dataCollector = DetailsFeedbackDataCollector(
-            cardModel: cardModel,
+            walletModels: cardModel.walletModels,
             userWalletEmailData: cardModel.emailData
         )
 
@@ -160,13 +154,7 @@ extension DetailsViewModel {
             return
         }
 
-        guard let userWalletId = cardModel.userWalletId else {
-            // This shouldn't be the case, because currently user can't reach this screen
-            // with card that doesn't have a wallet.
-            return
-        }
-
-        coordinator.openReferral(with: cardModel, userWalletId: userWalletId)
+        coordinator.openReferral(with: cardModel, userWalletId: cardModel.userWalletId.value)
     }
 
     func onAppear() {
