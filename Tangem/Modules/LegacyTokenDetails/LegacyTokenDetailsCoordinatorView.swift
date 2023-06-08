@@ -1,5 +1,5 @@
 //
-//  TokenDetailsCoordinatorView.swift
+//  LegacyTokenDetailsCoordinatorView.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -9,13 +9,13 @@
 import Foundation
 import SwiftUI
 
-struct TokenDetailsCoordinatorView: CoordinatorView {
-    @ObservedObject var coordinator: TokenDetailsCoordinator
+struct LegacyTokenDetailsCoordinatorView: CoordinatorView {
+    @ObservedObject var coordinator: LegacyTokenDetailsCoordinator
 
     var body: some View {
         ZStack {
             if let model = coordinator.tokenDetailsViewModel {
-                TokenDetailsView(viewModel: model)
+                LegacyTokenDetailsView(viewModel: model)
                     .navigationLinks(links)
             }
 
