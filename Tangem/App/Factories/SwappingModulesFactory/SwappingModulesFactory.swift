@@ -11,10 +11,13 @@ import TangemSwapping
 protocol SwappingModulesFactory {
     func makeSwappingViewModel(coordinator: SwappingRoutable) -> SwappingViewModel
     func makeSwappingTokenListViewModel(coordinator: SwappingTokenListRoutable) -> SwappingTokenListViewModel
+    func makeSwappingApproveViewModel(coordinator: SwappingApproveRoutable) -> SwappingApproveViewModel
+
     func makeSwappingPermissionViewModel(
         inputModel: SwappingPermissionInputModel,
         coordinator: SwappingPermissionRoutable
     ) -> SwappingPermissionViewModel
+
     func makeSwappingSuccessViewModel(
         inputModel: SwappingSuccessInputModel,
         coordinator: SwappingSuccessRoutable
