@@ -9,8 +9,13 @@
 import Foundation
 
 struct OrganizeTokensListSectionViewModel: Hashable, Identifiable {
+    enum SectionStyle: Hashable {
+        case invisible
+        case fixed(title: String)
+        case draggable(title: String)
+    }
+
     var id = UUID()
-    var title: String
-    var isDraggable: Bool
+    var style: SectionStyle
     var items: [OrganizeTokensListItemViewModel]
 }
