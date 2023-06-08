@@ -8,6 +8,5 @@
 import Foundation
 
 protocol PromotionRoutable: AnyObject {
-    func startAwardProcess()
     func closeModule()
 }

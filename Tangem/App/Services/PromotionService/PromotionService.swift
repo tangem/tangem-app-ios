@@ -6,11 +6,16 @@
 //  Copyright © 2023 Tangem AG. All rights reserved.
 //
 
+import Combine
 import TangemSdk
 import BlockchainSdk
 
 class PromotionService {
     @Injected(\.tangemApiService) private var tangemApiService: TangemApiService
+
+    var readyForAwardPublisher: AnyPublisher<Void, Never> {
+        readyForAwardSubject.eraseToAnyPublisher()
+    }
 
     let programName = "1inch"
     private let promoCodeStorageKey = "promo_code"
@@ -19,6 +24,8 @@ class PromotionService {
     #warning("[REDACTED_TODO_COMMENT]")
     private let awardBlockchain: Blockchain = .polygon(testnet: false)
     private let awardToken: Token = .init(name: "1inch", symbol: "1INCH", contractAddress: "0x9c2c5fd7b07e95ee044ddeba0e97a665f142394f", decimalCount: 6, id: "1inch")
+
+    private let readyForAwardSubject = PassthroughSubject<Void, Never>()
 
     init() {}
 }
@@ -34,6 +41,10 @@ extension PromotionService: PromotionServiceProtocol {
         }
 
         return promoCode
+    }
+
+    func didBecomeReadyForAward() {
+        readyForAwardSubject.send(())
     }
 
     func promotionAvailable() -> Bool {
