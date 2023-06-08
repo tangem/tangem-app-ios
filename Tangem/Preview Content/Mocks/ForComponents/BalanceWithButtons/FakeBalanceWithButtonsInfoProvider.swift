@@ -24,7 +24,7 @@ class FakeBalanceWithButtonsInfoProvider {
         FakeTokenBalanceProvider(
             buttons: [],
             delay: 0,
-            cryptoBalanceInfo: .init(balance: 10312324312321514.435432, currencyCode: "BTC")
+            cryptoBalanceInfo: .init(balance: 1031232431232151004.435432, currencyCode: "BTC")
         ),
         FakeTokenBalanceProvider(
             buttons: [
