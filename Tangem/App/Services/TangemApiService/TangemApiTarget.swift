@@ -77,7 +77,7 @@ struct TangemApiTarget: TargetType {
             return .requestPlain
         case .participateInReferralProgram(let requestData):
             return .requestURLEncodable(requestData)
-        case .promotion(let programName):
+        case .promotion(let programName, _):
             return .requestParameters(parameters: ["programName": programName], encoding: URLEncoding.default)
         case .validateNewUserPromotionEligibility(let walletId, let code):
             return .requestParameters(parameters: [
@@ -121,7 +121,7 @@ extension TangemApiTarget {
         case participateInReferralProgram(userInfo: ReferralParticipationRequestBody)
 
         // Promotion
-        case promotion(programName: String)
+        case promotion(programName: String, timeout: TimeInterval?)
         case validateNewUserPromotionEligibility(walletId: String, code: String)
         case validateOldUserPromotionEligibility(walletId: String, programName: String)
         case awardNewUser(walletId: String, address: String, code: String)
@@ -148,6 +148,17 @@ extension TangemApiTarget: CachePolicyProvider {
             return .reloadIgnoringLocalAndRemoteCacheData
         default:
             return .useProtocolCachePolicy
+        }
+    }
+}
+
+extension TangemApiTarget: TimeoutIntervalProvider {
+    var timeoutInterval: TimeInterval? {
+        switch type {
+        case .promotion(_, let timeout):
+            return timeout
+        default:
+            return nil
         }
     }
 }
