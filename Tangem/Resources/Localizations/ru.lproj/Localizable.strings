@@ -244,7 +244,6 @@
 "onboarding_title" = "Активация карты";
 "onboarding_title_backup_card" = "Создайте резервную копию вашей карты";
 "onboarding_title_backup_card_format" = "Резервная карта #%li";
-"onboarding_title_claim" = "Запросить %@";
 "onboarding_title_no_backup_cards" = "Нет резервных карт";
 "onboarding_title_one_backup_card" = "Добавлена ​​одна резервная карта";
 "onboarding_title_scan_origin_card" = "Подготовьте свою карту";
@@ -392,6 +391,7 @@
 "swapping_token_list_title" = "Выберите токен";
 "swapping_token_list_your_tokens" = "Ваши токены";
 "swapping_token_not_available" = "не доступен";
+"test-key" = "Test key value";
 "testnet_address_topuped" = "Транзакция успешно подписана и отправлена ​​в тестовую сеть. Подождите некоторое время и обновите баланс";
 "testnet_error_failed_create_tx" = "Не удалось создать транзакцию пополнения для токена. Попробуйте позже";
 "testnet_error_not_enough_ether_message" = "Недостаточно средств на балансе ETH кошелька. Вам нужно сначала пополнить ETH кошелек";
