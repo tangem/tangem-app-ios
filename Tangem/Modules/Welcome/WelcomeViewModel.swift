@@ -113,7 +113,7 @@ extension WelcomeViewModel {
         coordinator.openMail(with: failedCardScanTracker, recipient: EmailConfig.default.recipient)
     }
 
-    func learn() {
+    func openPromotion() {
         coordinator.openPromotion()
     }
 
