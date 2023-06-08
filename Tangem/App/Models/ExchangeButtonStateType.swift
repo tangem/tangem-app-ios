@@ -17,9 +17,9 @@ enum ExchangeButtonType: Hashable, CaseIterable {
     var title: String {
         switch self {
         case .buy:
-            return Localization.walletButtonBuy
+            return Localization.commonBuy
         case .sell:
-            return Localization.walletButtonSell
+            return Localization.commonSell
         case .swap:
             return Localization.swappingSwapAction
         }
