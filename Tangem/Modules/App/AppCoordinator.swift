@@ -29,6 +29,8 @@ class AppCoordinator: CoordinatorObject {
     private var bag: Set<AnyCancellable> = []
 
     init() {
+        // We can't move it into ServicesManager because of locked keychain during preheating
+        userWalletRepository.initialize()
         bind()
     }
 
