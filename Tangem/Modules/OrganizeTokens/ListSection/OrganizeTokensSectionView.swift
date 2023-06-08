@@ -9,17 +9,18 @@
 import SwiftUI
 
 struct OrganizeTokensSectionView: View {
-    let viewModel: OrganizeTokensListSectionViewModel
+    let title: String
+    let isDraggable: Bool
 
     var body: some View {
         HStack(spacing: 12.0) {
-            Text(viewModel.title)
+            Text(title)
                 .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
                 .lineLimit(1)
 
             Spacer(minLength: 0.0)
 
-            if viewModel.isDraggable {
+            if isDraggable {
                 Assets.OrganizeTokens.groupDragAndDropIcon
                     .image
                     .renderingMode(.template)
@@ -41,19 +42,13 @@ struct OrganizeTokensSectionView_Previews: PreviewProvider {
         VStack {
             Group {
                 OrganizeTokensSectionView(
-                    viewModel: .init(
-                        title: "Bitcoin network",
-                        isDraggable: true,
-                        items: []
-                    )
+                    title: "Bitcoin network",
+                    isDraggable: true
                 )
 
                 OrganizeTokensSectionView(
-                    viewModel: .init(
-                        title: "Bitcoin network",
-                        isDraggable: false,
-                        items: []
-                    )
+                    title: "Bitcoin network",
+                    isDraggable: false
                 )
             }
             .background(Colors.Background.primary)
