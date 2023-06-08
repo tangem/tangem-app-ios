@@ -44,18 +44,42 @@ struct OrganizeTokensView: View {
             Spacer(minLength: scrollViewTopContentInset)
 
             LazyVStack(spacing: 0.0) {
-                ForEach(viewModel.sections) { sectionViewModel in
+                let parametersProvider = OrganizeTokensListCornerRadiusParametersProvider(
+                    sections: viewModel.sections
+                )
+
+                ForEach(indexed: viewModel.sections.indexed()) { sectionIndex, sectionViewModel in
                     Section(
                         content: {
-                            ForEach(sectionViewModel.items) { itemViewModel in
+                            ForEach(indexed: sectionViewModel.items.indexed()) { itemIndex, itemViewModel in
+                                let indexPath = IndexPath(item: itemIndex, section: sectionIndex)
                                 OrganizeTokensSectionItemView(viewModel: itemViewModel)
+                                    .background(Colors.Background.primary)
+                                    .cornerRadius(
+                                        parametersProvider.cornerRadius(forItemAtIndexPath: indexPath),
+                                        corners: parametersProvider.rectCorners(forItemAtIndexPath: indexPath)
+                                    )
                             }
                         },
                         header: {
-                            OrganizeTokensSectionView(viewModel: sectionViewModel)
+                            Group {
+                                switch sectionViewModel.style {
+                                case .invisible:
+                                    EmptyView()
+                                case .fixed(let title):
+                                    OrganizeTokensSectionView(title: title, isDraggable: false)
+                                case .draggable(let title):
+                                    OrganizeTokensSectionView(title: title, isDraggable: true)
+
+                                }
+                            }
+                            .background(Colors.Background.primary)
+                            .cornerRadius(
+                                parametersProvider.cornerRadius(forSectionAtIndex: sectionIndex),
+                                corners: parametersProvider.rectCorners(forSectionAtIndex: sectionIndex)
+                            )
                         }
                     )
-                    .background(Colors.Background.primary)
                 }
             }
 
