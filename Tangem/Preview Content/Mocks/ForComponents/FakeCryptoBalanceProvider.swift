@@ -43,11 +43,11 @@ class FakeTokenBalanceProvider: BalanceProvider, ActionButtonsProvider {
     }
 
     private func sendInfo() {
-        if self.cryptoBalanceInfo.balance == -1 {
-            self.valueSubject.send(.failedToLoad(error: "Failed to load balance. Network unreachable"))
-            self.buttonsSubject.send(self.disabledButtons())
+        if cryptoBalanceInfo.balance == -1 {
+            valueSubject.send(.failedToLoad(error: "Failed to load balance. Network unreachable"))
+            buttonsSubject.send(disabledButtons())
         } else {
-            self.valueSubject.send(.loaded(self.cryptoBalanceInfo))
+            valueSubject.send(.loaded(cryptoBalanceInfo))
         }
     }
 
