@@ -14,12 +14,14 @@ struct BalanceFormattingOptions {
     let currencyCode: String
     let roundingType: AmountRoundingType?
 
-    static let defaultFiatFormattingOptions = BalanceFormattingOptions(
-        minFractionDigits: 2,
-        maxFractionDigits: 2,
-        currencyCode: AppSettings.shared.selectedCurrencyCode,
-        roundingType: nil
-    )
+    static var defaultFiatFormattingOptions: BalanceFormattingOptions {
+        .init(
+            minFractionDigits: 2,
+            maxFractionDigits: 2,
+            currencyCode: AppSettings.shared.selectedCurrencyCode,
+            roundingType: nil
+        )
+    }
 
     static func makeDefaultCryptoFormattingOptions(for currencyCode: String, maxFractionDigits: Int = 8, withRounding roundingMode: NSDecimalNumber.RoundingMode = .down) -> BalanceFormattingOptions {
         BalanceFormattingOptions(
