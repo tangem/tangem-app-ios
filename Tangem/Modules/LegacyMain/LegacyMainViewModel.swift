@@ -21,6 +21,7 @@ class LegacyMainViewModel: ObservableObject {
     @Injected(\.tangemApiService) private var tangemApiService: TangemApiService
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
     @Injected(\.deprecationService) private var deprecationService: DeprecationServicing
+    @Injected(\.promotionService) var promotionService: PromotionServiceProtocol
 
     // MARK: - Published variables
 
@@ -30,7 +31,7 @@ class LegacyMainViewModel: ObservableObject {
     @Published var image: UIImage? = nil
     @Published var isLackDerivationWarningViewVisible: Bool = false
     @Published var isBackupAllowed: Bool = false
-    @Published var canLearnAndEarn: Bool = false
+    @Published var canOpenPromotion: Bool = false
 
     @Published var exchangeButtonState: ExchangeButtonState = .single(option: .buy)
     @Published var exchangeActionSheet: ActionSheetBinder?
@@ -168,6 +169,24 @@ class LegacyMainViewModel: ObservableObject {
         AppSettings.shared.saveUserWallets
     }
 
+    var learnAndEarnTitle: String {
+        if let _ = promotionService.promoCode {
+            #warning("L10n")
+            return "Learn & Earn"
+        } else {
+            return Localization.mainLearnTitle
+        }
+    }
+
+    var learnAndEarnSubtitle: String {
+        if let _ = promotionService.promoCode {
+            #warning("L10n")
+            return "Complete the training and get 10 1inch tokens on your wallet"
+        } else {
+            return Localization.mainLearnSubtitle
+        }
+    }
+
     init(
         cardModel: CardViewModel,
         cardImageProvider: CardImageProviding,
@@ -176,6 +195,8 @@ class LegacyMainViewModel: ObservableObject {
         self.cardModel = cardModel
         self.cardImageProvider = cardImageProvider
         self.coordinator = coordinator
+
+        canOpenPromotion = promotionService.promotionAvailable()
 
         bind()
         setupWarnings()
@@ -202,6 +223,12 @@ class LegacyMainViewModel: ObservableObject {
             .dropFirst()
             .sink { [weak self] _ in
                 self?.objectWillChange.send()
+            }
+            .store(in: &bag)
+
+        promotionService.readyForAwardPublisher
+            .sink { [weak self] in
+                self?.startAwardProcess()
             }
             .store(in: &bag)
     }
@@ -327,7 +354,57 @@ class LegacyMainViewModel: ObservableObject {
     }
 
     func learnAndEarn() {
-        print("LEARN AND EARN")
+        runTask { [weak self] in
+            guard let self else { return }
+
+            do {
+                try await promotionService.checkIfCanGetAward(userWalletId: cardModel.userWalletId.stringValue)
+
+                if promotionService.promoCode == nil {
+                    coordinator.openPromotion(
+                        cardPublicKey: cardModel.cardPublicKey.hex,
+                        cardId: cardModel.cardId,
+                        walletId: cardModel.userWalletId.stringValue
+                    )
+                } else {
+                    self.startAwardProcess()
+                }
+            } catch {
+                AppLog.shared.error(error)
+                if let apiError = error as? TangemAPIError,
+                   case .promotionCodeNotFound = apiError.code {
+                    #warning("L10n")
+                    self.error = AlertBinder(title: Localization.commonError, message: "There was no purchase of a wallet for your promotional code after education, which means you cannot receive a bonus. Buy Tangem wallet, scan it in the app, and take a bonus.")
+                } else {
+                    self.error = error.alertBinder
+                }
+            }
+
+            self.canOpenPromotion = promotionService.promotionAvailable()
+        }
+    }
+
+    func startAwardProcess() {
+        runTask { [weak self] in
+            guard let self else { return }
+
+            do {
+                let awarded = try await promotionService.claimReward(
+                    userWalletId: cardModel.userWalletId.stringValue,
+                    storageEntryAdding: cardModel
+                )
+
+                if awarded {
+                    #warning("l10n")
+                    self.error = AlertBuilder.makeSuccessAlert(message: "Your 1inch tokens will be credited to your wallet address within 2 days.")
+                }
+            } catch {
+                AppLog.shared.error(error)
+                self.error = error.alertBinder
+            }
+
+            self.canOpenPromotion = promotionService.promotionAvailable()
+        }
     }
 
     func prepareForBackup() {
