@@ -286,7 +286,7 @@ extension LegacyMainCoordinator: LegacyMainRoutable {
             self?.promotionCoordinator = nil
         }
 
-        let coordinator = PromotionCoordinator(dismissAction: dismissAction, popToRootAction: { _ in })
+        let coordinator = PromotionCoordinator(dismissAction: dismissAction)
         let options: PromotionCoordinator.Options = .oldUser(cardPublicKey: cardPublicKey, cardId: cardId, walletId: walletId)
         coordinator.start(with: options)
         promotionCoordinator = coordinator
