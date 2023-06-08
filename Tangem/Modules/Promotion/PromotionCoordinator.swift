@@ -12,8 +12,6 @@ class PromotionCoordinator: CoordinatorObject {
     let dismissAction: Action
     let popToRootAction: ParamsAction<PopToRootOptions>
 
-    private weak var output: PromotionOutput?
-
     // MARK: - Root view model
 
     @Published private(set) var rootViewModel: PromotionViewModel?
@@ -23,11 +21,9 @@ class PromotionCoordinator: CoordinatorObject {
     // MARK: - Child view models
 
     required init(
-        output: PromotionOutput?,
         dismissAction: @escaping Action,
         popToRootAction: @escaping ParamsAction<PopToRootOptions>
     ) {
-        self.output = output
         self.dismissAction = dismissAction
         self.popToRootAction = popToRootAction
     }
@@ -50,11 +46,6 @@ extension PromotionCoordinator {
 // MARK: - LearnRoutable
 
 extension PromotionCoordinator: PromotionRoutable {
-    func startAwardProcess() {
-        output?.startAwardProcess()
-        dismissAction()
-    }
-
     func closeModule() {
         dismissAction()
     }
