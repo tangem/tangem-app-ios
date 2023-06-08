@@ -20,6 +20,8 @@ class LegacyTokenDetailsViewModel: ObservableObject {
     @Published var alert: AlertBinder? = nil
     @Published var showTradeSheet: Bool = false
     @Published var isRefreshing: Bool = false
+    @Published var exchangeButtonIsLoading: Bool = false
+    @Published var canSwap: Bool = false
 
     @Published var exchangeButtonState: ExchangeButtonState = .single(option: .buy)
     @Published var exchangeActionSheet: ActionSheetBinder?
@@ -175,6 +177,7 @@ class LegacyTokenDetailsViewModel: ObservableObject {
     private var bag = Set<AnyCancellable>()
     private var rentWarningSubscription: AnyCancellable?
     private var refreshCancellable: AnyCancellable?
+
     private lazy var testnetBuyCryptoService: TestnetBuyCryptoService = .init()
     private unowned let coordinator: LegacyTokenDetailsRoutable
 
@@ -205,7 +208,51 @@ class LegacyTokenDetailsViewModel: ObservableObject {
         walletModel = card.walletModels.first(where: { $0.blockchainNetwork == blockchainNetwork })
 
         bind()
-        updateExchangeButtons()
+        updateSwapAvailability()
+    }
+
+    func updateSwapAvailability() {
+        guard card.canShowSwapping else {
+            canSwap = false
+            updateExchangeButtons()
+            return
+        }
+
+        // For a coin we can check it locally
+        if amountType == .coin {
+            canSwap = SwappingAvailableUtils().canSwap(amountType: .coin, blockchain: blockchainNetwork.blockchain)
+            updateExchangeButtons()
+            return
+        }
+
+        exchangeButtonIsLoading = true
+
+        let networkId = blockchainNetwork.blockchain.networkId
+        let currencyId = amountType.token?.id ?? blockchainNetwork.blockchain.id
+
+        tangemApiService
+            .loadCoins(requestModel: CoinsListRequestModel(networkIds: [networkId], ids: [currencyId]))
+            .sink { [weak self] completion in
+                if case .failure = completion {
+                    self?.canSwap = false
+                }
+            } receiveValue: { [weak self] models in
+                let coin = models.first(where: { $0.id == currencyId })
+                let tokenItem = coin?.items.first(where: { $0.id == currencyId })
+
+                switch tokenItem {
+                case .none:
+                    self?.canSwap = false
+                case .token(let token, let blockchain):
+                    self?.canSwap = SwappingAvailableUtils().canSwap(amountType: .token(value: token), blockchain: blockchain)
+                case .blockchain(let blockchain):
+                    self?.canSwap = SwappingAvailableUtils().canSwap(amountType: .coin, blockchain: blockchain)
+                }
+
+                self?.exchangeButtonIsLoading = false
+                self?.updateExchangeButtons()
+            }
+            .store(in: &bag)
     }
 
     func updateExchangeButtons() {
@@ -534,14 +581,6 @@ extension LegacyTokenDetailsViewModel {
 // MARK: - Swapping preparing
 
 private extension LegacyTokenDetailsViewModel {
-    var canSwap: Bool {
-        card.canShowSwapping &&
-            SwappingAvailableUtils().canSwap(
-                amountType: amountType,
-                blockchain: blockchainNetwork.blockchain
-            )
-    }
-
     var sourceCurrency: Currency? {
         let blockchain = blockchainNetwork.blockchain
         let mapper = CurrencyMapper()
