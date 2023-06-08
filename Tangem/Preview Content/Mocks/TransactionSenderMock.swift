@@ -21,3 +21,8 @@ struct FiatRatesProviderMock: FiatRatesProviding {
     func hasRates(for currency: Currency) -> Bool { false }
     func hasRates(for blockchain: SwappingBlockchain) -> Bool { false }
 }
+
+struct SwappingFeeFormatterMock: SwappingFeeFormatter {
+    func format(fee: Decimal, blockchain: SwappingBlockchain) async throws -> String { "" }
+    func format(fee: Decimal, blockchain: SwappingBlockchain) throws -> String { "" }
+}

@@ -81,7 +81,7 @@ struct ResetToFactoryView: View {
 
 struct ResetToFactoryView_Previews: PreviewProvider {
     static let viewModel = ResetToFactoryViewModel(
-        cardModel: .mock,
+        input: .init(cardInteractor: CardResettableMock(), hasBackupCards: false),
         coordinator: CardSettingsCoordinator()
     )
 
