@@ -160,6 +160,25 @@ extension CommonTangemApiService: TangemApiService {
         return try JSONDecoder().decode(ReferralProgramInfo.self, from: filteredResponse.data)
     }
 
+    func promotion(programName: String, timeout: TimeInterval?) async throws -> PromotionParameters {
+        let defaultProvider = provider
+
+        let configuration = defaultProvider.session.sessionConfiguration
+        if let timeout {
+            configuration.timeoutIntervalForRequest = timeout
+        }
+
+        let provider = TangemProvider<TangemApiTarget>(
+            stubClosure: defaultProvider.stubClosure,
+            plugins: defaultProvider.plugins,
+            configuration: configuration
+        )
+
+        let type: TangemApiTarget.TargetType = .promotion(programName: programName)
+        let target = TangemApiTarget(type: type, authData: authData)
+        return try await provider.asyncRequest(for: target).mapAPIResponse()
+    }
+
     @discardableResult
     func validateNewUserPromotionEligibility(walletId: String, code: String) async throws -> PromotionValidationResult {
         try await request(for: .validateNewUserPromotionEligibility(walletId: walletId, code: code))
