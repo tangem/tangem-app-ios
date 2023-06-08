@@ -47,8 +47,20 @@ extension PromotionService: PromotionServiceProtocol {
         readyForAwardSubject.send(())
     }
 
-    func promotionAvailable() -> Bool {
-        FeatureProvider.isAvailable(.learnToEarn) && !currentProgramWasAwarded()
+    func promotionAvailable() async -> Bool {
+        guard
+            FeatureProvider.isAvailable(.learnToEarn),
+            !currentProgramWasAwarded()
+        else {
+            return false
+        }
+
+        let timeout: TimeInterval = 5
+        do {
+            return try await promotionIsHappeningRightNow(timeout: timeout)
+        } catch {
+            return false
+        }
     }
 
     func setPromoCode(_ promoCode: String?) {
