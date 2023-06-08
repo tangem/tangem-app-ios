@@ -26,6 +26,8 @@ protocol TangemApiService: AnyObject, Initializable {
         with userWalletId: String
     ) async throws -> ReferralProgramInfo
 
+    func promotion(programName: String, timeout: TimeInterval?) async throws -> PromotionParameters
+
     @discardableResult
     func validateNewUserPromotionEligibility(walletId: String, code: String) async throws -> PromotionValidationResult
     @discardableResult
