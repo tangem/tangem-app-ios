@@ -225,6 +225,12 @@ class LegacyMainViewModel: ObservableObject {
                 self?.objectWillChange.send()
             }
             .store(in: &bag)
+
+        promotionService.readyForAwardPublisher
+            .sink { [weak self] in
+                self?.startAwardProcess()
+            }
+            .store(in: &bag)
     }
 
     func updateExchangeButtons() {
