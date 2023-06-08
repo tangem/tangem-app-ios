@@ -8,7 +8,6 @@
 
 import Foundation
 
-/// Public factory for work with swapping
 public struct TangemSwappingFactory {
     public init() {}
 
