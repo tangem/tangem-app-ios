@@ -50,6 +50,9 @@ extension Blockchain {
         case "kaspa": self = .kaspa
         case "ravencoin": self = .ravencoin(testnet: isTestnet)
         case "cosmos": self = .cosmos(testnet: isTestnet)
+        case "terra", "terra-luna": self = .terraV1
+        case "terra-2", "terra-luna-2": self = .terraV2
+        case "crypto-com-chain", "cronos": self = .cronos
         default:
             AppLog.shared.debug("⚠️⚠️⚠️ Failed to map network ID \"\(stringId)\"")
             return nil
@@ -91,6 +94,9 @@ extension Blockchain {
         case .kaspa: return "kaspa"
         case .ravencoin: return "ravencoin"
         case .cosmos: return "cosmos"
+        case .terraV1: return "terra-luna"
+        case .terraV2: return "terra-luna-2"
+        case .cronos: return "crypto-com-chain"
         }
     }
 
@@ -142,6 +148,9 @@ extension Blockchain {
         case .kaspa: return "kaspa"
         case .ravencoin: return "ravencoin"
         case .cosmos: return "cosmos"
+        case .terraV1: return "terra"
+        case .terraV2: return "terra-2"
+        case .cronos: return "cronos"
         }
     }
 
@@ -201,6 +210,10 @@ extension Blockchain {
             .kava(testnet: false),
             .kaspa,
             .ravencoin(testnet: false),
+            .cosmos(testnet: false),
+            .terraV1,
+            .terraV2,
+            .cronos,
         ]
     }()
 
@@ -224,6 +237,7 @@ extension Blockchain {
             .ton(testnet: true),
             .kava(testnet: true),
             .ravencoin(testnet: true),
+            .cosmos(testnet: true),
         ]
     }()
 }
