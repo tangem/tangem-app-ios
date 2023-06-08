@@ -14,6 +14,7 @@ class StoriesViewModel: ObservableObject {
 
     @Published var currentPage: WelcomeStoryPage = .meetTangem
     @Published var currentProgress = 0.0
+    @Published var checkingPromotionAvailability = true
 
     var currentPageIndex: Int {
         pages.firstIndex(of: currentPage) ?? 0
@@ -32,17 +33,29 @@ class StoriesViewModel: ObservableObject {
     private let minimumSwipeDistance = 100.0
 
     init() {
-        showLearnPage = promotionService.promotionAvailable()
+        runTask { [weak self] in
+            guard let self else { return }
 
-        var pages: [WelcomeStoryPage] = WelcomeStoryPage.allCases
-        if !showLearnPage,
-           let learnIndex = pages.firstIndex(of: .learn) {
-            pages.remove(at: learnIndex)
+            let promotionAvailable = await promotionService.promotionAvailable()
+
+            DispatchQueue.main.async { [weak self] in
+                guard let self else { return }
+
+                showLearnPage = promotionAvailable
+
+                var pages: [WelcomeStoryPage] = WelcomeStoryPage.allCases
+                if !showLearnPage,
+                   let learnIndex = pages.firstIndex(of: .learn) {
+                    pages.remove(at: learnIndex)
+                }
+
+                self.pages = pages
+
+                currentPage = pages[0]
+
+                checkingPromotionAvailability = false
+            }
         }
-
-        self.pages = pages
-
-        currentPage = pages[0]
     }
 
     func onAppear() {
