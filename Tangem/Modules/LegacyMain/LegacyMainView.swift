@@ -49,8 +49,10 @@ struct LegacyMainView: View {
 
                         if let viewModel = viewModel.multiWalletContentViewModel {
                             LegacyMultiWalletContentView(viewModel: viewModel)
+                                .animation(nil)
                         } else if let viewModel = viewModel.singleWalletContentViewModel {
                             LegacySingleWalletContentView(viewModel: viewModel)
+                                .animation(nil)
                         }
 
                         Color.clear.frame(width: 10, height: 58, alignment: .center)
