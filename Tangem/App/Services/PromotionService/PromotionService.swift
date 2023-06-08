@@ -92,6 +92,15 @@ extension PromotionService: PromotionServiceProtocol {
 }
 
 extension PromotionService {
+    private func promotionIsHappeningRightNow(timeout: TimeInterval) async throws -> Bool {
+        let parameters = try await tangemApiService.promotion(programName: programName, timeout: timeout)
+        let startDate = Date(timeIntervalSince1970: parameters.startTimestamp / 1000)
+        let endDate = Date(timeIntervalSince1970: parameters.endTimestamp / 1000)
+
+        let now = Date()
+        return startDate <= now && now <= endDate
+    }
+
     private func rewardAddress(storageEntryAdding: StorageEntryAdding) async throws -> String? {
         let derivationPath: DerivationPath? = awardBlockchain.derivationPath()
         let blockchainNetwork = storageEntryAdding.getBlockchainNetwork(for: awardBlockchain, derivationPath: derivationPath)
