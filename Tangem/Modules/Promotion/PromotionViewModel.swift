@@ -95,7 +95,8 @@ final class PromotionViewModel: ObservableObject {
     }
 
     func handleReadyForAward(url: String) {
-        coordinator.startAwardProcess()
+        promotionService.didBecomeReadyForAward()
+        coordinator.closeModule()
     }
 
     func close() {
