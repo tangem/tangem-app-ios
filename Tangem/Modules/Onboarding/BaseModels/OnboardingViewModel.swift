@@ -12,6 +12,7 @@ import TangemSdk
 
 class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable> {
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
+    @Injected(\.analyticsContext) var analyticsContext: AnalyticsContext
 
     let navbarSize: CGSize = .init(width: UIScreen.main.bounds.width, height: 44)
     let resetAnimDuration: Double = 0.3
@@ -114,7 +115,7 @@ class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable>
     lazy var userWalletStorageAgreementViewModel = UserWalletStorageAgreementViewModel(coordinator: self)
 
     var disclaimerModel: DisclaimerViewModel? {
-        guard let url = input.cardInput.cardModel?.cardDisclaimer.url else {
+        guard let url = input.cardInput.disclaimer?.url else {
             return nil
         }
 
@@ -141,34 +142,38 @@ class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable>
         isFromMain = input.isStandalone
         isNavBarVisible = input.isStandalone
 
+        let loadImageInput = input.cardInput.imageLoadInput
         loadImage(
-            supportsOnlineImage: input.cardInput.cardModel?.supportsOnlineImage ?? false,
-            cardId: input.cardInput.cardModel?.cardId,
-            cardPublicKey: input.cardInput.cardModel?.cardPublicKey
+            supportsOnlineImage: loadImageInput.supportsOnlineImage,
+            cardId: loadImageInput.cardId,
+            cardPublicKey: loadImageInput.cardPublicKey
         )
 
         bindAnalytics()
     }
 
     func initializeUserWallet(from cardInfo: CardInfo) {
-        let config = UserWalletConfigFactory(cardInfo).makeConfig()
-        let userWallet = CardViewModel(cardInfo: cardInfo, config: config)
+        guard let userWallet = CardViewModel(cardInfo: cardInfo) else { return }
+
         userWallet.appendDefaultBlockchains()
-        userWallet.userWalletModel?.updateAndReloadWalletModels()
+        userWallet.initialUpdate()
+
+        analyticsContext.updateContext(with: userWallet.userWalletId.value)
+        Analytics.logTopUpIfNeeded(balance: 0)
+
         cardModel = userWallet
     }
 
     func handleUserWalletOnFinish() throws {
         guard
             AppSettings.shared.saveUserWallets,
-            let cardModel = cardModel,
-            let userWallet = cardModel.userWallet
+            let cardModel = cardModel
         else {
             return
         }
 
         userWalletRepository.save(cardModel)
-        userWalletRepository.setSelectedUserWalletId(userWallet.userWalletId, reason: .inserted)
+        userWalletRepository.setSelectedUserWalletId(cardModel.userWalletId.value, reason: .inserted)
     }
 
     func loadImage(supportsOnlineImage: Bool, cardId: String?, cardPublicKey: Data?) {
@@ -287,7 +292,7 @@ class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable>
     }
 
     func disclaimerAccepted() {
-        guard let id = input.cardInput.cardModel?.cardDisclaimer.id else {
+        guard let id = input.cardInput.disclaimer?.id else {
             return
         }
 
@@ -366,7 +371,7 @@ class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable>
 
 extension OnboardingViewModel {
     func onboardingDidFinish() {
-        coordinator.onboardingDidFinish()
+        coordinator.onboardingDidFinish(userWallet: cardModel)
     }
 
     func closeOnboarding() {
@@ -374,18 +379,18 @@ extension OnboardingViewModel {
     }
 
     func openSupportChat() {
-        guard let cardModel = input.cardInput.cardModel else { return }
         Analytics.log(.onboardingButtonChat)
-        let dataCollector = DetailsFeedbackDataCollector(
-            cardModel: cardModel,
-            userWalletEmailData: cardModel.emailData
-        )
 
         // Hide keyboard on set pin screen
         UIApplication.shared.endEditing()
 
+        let dataCollector = DetailsFeedbackDataCollector(
+            walletModels: cardModel?.walletModels ?? [],
+            userWalletEmailData: input.cardInput.emailData
+        )
+
         coordinator.openSupportChat(input: .init(
-            environment: cardModel.supportChatEnvironment,
+            environment: input.cardInput.supportChatEnvironment,
             logsComposer: .init(infoProvider: dataCollector)
         ))
     }
