@@ -26,9 +26,7 @@ enum PreviewCard {
     var cardModel: CardViewModel {
         let card = CardDTO(card: card)
         let ci = CardInfo(card: card, walletData: walletData, name: "Name")
-        let config = UserWalletConfigFactory(ci).makeConfig()
-        let vm = CardViewModel(cardInfo: ci, config: config)
-        let walletModels: [WalletModel]
+        let vm = CardViewModel(cardInfo: ci)!
         if let blockchain = blockchain {
             let factory = WalletManagerFactory(
                 config: .init(
@@ -46,9 +44,6 @@ enum PreviewCard {
                 )
             )
             let walletManager = try! factory.makeWalletManager(blockchain: blockchain, walletPublicKey: publicKey)
-            walletModels = [WalletModel(walletManager: walletManager, derivationStyle: .legacy)]
-        } else {
-            walletModels = []
         }
 
         // [REDACTED_TODO_COMMENT]
