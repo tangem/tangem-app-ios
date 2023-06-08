@@ -13,7 +13,7 @@ import BlockchainSdk
 class TotalBalanceProvider {
     @Injected(\.tangemApiService) private var tangemApiService: TangemApiService
 
-    private let userWalletModel: UserWalletModel
+    private unowned let userWalletModel: UserWalletModel
     private let totalBalanceSubject = CurrentValueSubject<LoadingValue<TotalBalance>, Never>(.loading)
     private var refreshSubscription: AnyCancellable?
     private let userWalletAmountType: Amount.AmountType?
@@ -133,7 +133,7 @@ private extension TotalBalanceProvider {
         return TotalBalance(balance: balance, currencyCode: currencyCode, hasError: hasError)
     }
 
-    func getTokenItemViewModels(from walletModels: [WalletModel]) -> [TokenItemViewModel] {
+    func getTokenItemViewModels(from walletModels: [WalletModel]) -> [LegacyTokenItemViewModel] {
         walletModels
             .flatMap { $0.allTokenItemViewModels() }
             .filter { model in
@@ -149,13 +149,5 @@ extension TotalBalanceProvider {
         let balance: Decimal?
         let currencyCode: String
         let hasError: Bool
-
-        var balanceFormatted: String {
-            if let balance {
-                return balance.currencyFormatted(code: currencyCode)
-            } else {
-                return "–"
-            }
-        }
     }
 }

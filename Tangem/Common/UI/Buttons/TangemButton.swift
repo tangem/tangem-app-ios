@@ -108,7 +108,7 @@ struct TangemButton_Previews: PreviewProvider {
 
             HStack {
                 TangemButton(
-                    title: Localization.walletButtonSend,
+                    title: Localization.commonSend,
                     image: "scan"
                 ) {}
                     .buttonStyle(TangemButtonStyle(
@@ -117,7 +117,7 @@ struct TangemButton_Previews: PreviewProvider {
                     ))
 
                 TangemButton.vertical(
-                    title: Localization.walletButtonBuy,
+                    title: Localization.commonBuy,
                     systemImage: "arrow.up"
                 ) {}
                     .buttonStyle(TangemButtonStyle(layout: .smallVertical))

@@ -15,7 +15,7 @@ class PushTxViewModel: ObservableObject {
 
     var previousTotal: String {
         isFiatCalculation ?
-            walletModel.getFiat(for: previousTotalAmount, roundingType: .default(roundingMode: .down))?.description ?? "" :
+            walletModel.getFiat(for: previousTotalAmount, roundingType: .defaultFiat(roundingMode: .down))?.description ?? "" :
             previousTotalAmount.value.description
     }
 
@@ -25,7 +25,7 @@ class PushTxViewModel: ObservableObject {
 
     var walletTotalBalanceDecimals: String {
         let amount = walletModel.wallet.amounts[amountToSend.type]
-        return isFiatCalculation ? walletModel.getFiat(for: amount, roundingType: .default(roundingMode: .down))?.description ?? ""
+        return isFiatCalculation ? walletModel.getFiat(for: amount, roundingType: .defaultFiat(roundingMode: .down))?.description ?? ""
             : amount?.value.description ?? ""
     }
 
@@ -74,7 +74,7 @@ class PushTxViewModel: ObservableObject {
     let blockchainNetwork: BlockchainNetwork
     var transaction: BlockchainSdk.Transaction
 
-    lazy var amountDecimal: String = "\(walletModel.getFiat(for: amountToSend, roundingType: .default(roundingMode: .down)) ?? 0)"
+    lazy var amountDecimal: String = "\(walletModel.getFiat(for: amountToSend, roundingType: .defaultFiat(roundingMode: .down)) ?? 0)"
     lazy var amount: String = transaction.amount.description
     lazy var previousFee: String = transaction.fee.description
 
@@ -156,7 +156,7 @@ class PushTxViewModel: ObservableObject {
 
     private func getDescription(for amount: Amount?, isFiat: Bool) -> String {
         isFiat ?
-            walletModel.getFiatFormatted(for: amount, roundingType: .default(roundingMode: .down)) ?? "" :
+            walletModel.getFiatFormatted(for: amount, roundingType: .defaultFiat(roundingMode: .down)) ?? "" :
             amount?.description ?? emptyValue
     }
 
@@ -285,7 +285,7 @@ class PushTxViewModel: ObservableObject {
 
     private func fillPreviousTxInfo(isFiat: Bool) {
         amount = getDescription(for: amountToSend, isFiat: isFiat)
-        amountDecimal = isFiat ? walletModel.getFiat(for: amountToSend, roundingType: .default(roundingMode: .down))?.description ?? "" : amountToSend.value.description
+        amountDecimal = isFiat ? walletModel.getFiat(for: amountToSend, roundingType: .defaultFiat(roundingMode: .down))?.description ?? "" : amountToSend.value.description
         previousFee = getDescription(for: previousFeeAmount, isFiat: isFiat)
     }
 
@@ -315,7 +315,7 @@ class PushTxViewModel: ObservableObject {
         let totalAmount = transaction.amount + fee
         var totalFiatAmount: Decimal?
 
-        if let fiatAmount = walletModel.getFiat(for: amountToSend, roundingType: .default(roundingMode: .down)), let fiatFee = walletModel.getFiat(for: fee, roundingType: .default(roundingMode: .down)) {
+        if let fiatAmount = walletModel.getFiat(for: amountToSend, roundingType: .defaultFiat(roundingMode: .down)), let fiatFee = walletModel.getFiat(for: fee, roundingType: .defaultFiat(roundingMode: .down)) {
             totalFiatAmount = fiatAmount + fiatFee
         }
 
@@ -333,7 +333,7 @@ class PushTxViewModel: ObservableObject {
             sendTotal = (amountToSend + fee).description
             sendTotalSubtitle = totalFiatAmountFormatted == nil ? emptyValue : Localization.sendTotalSubtitleFiatFormat(
                 totalFiatAmountFormatted!,
-                walletModel.getFiatFormatted(for: fee, roundingType: .default(roundingMode: .down))!
+                walletModel.getFiatFormatted(for: fee, roundingType: .defaultFiat(roundingMode: .down))!
             )
         }
     }

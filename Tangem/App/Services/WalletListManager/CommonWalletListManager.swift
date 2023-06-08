@@ -30,7 +30,6 @@ class CommonWalletListManager {
 
 extension CommonWalletListManager: WalletListManager {
     func update(config: UserWalletConfig) {
-        AppLog.shared.debug("🔄 Updating WalletListManager with new config")
         self.config = config
     }
 

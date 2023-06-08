@@ -31,7 +31,7 @@ extension FiatRatesProvider: FiatRatesProviding {
         let id = currency.isToken ? currency.id : currency.blockchain.currencyID
         return rates[id] != nil
     }
-    
+
     func hasRates(for blockchain: TangemSwapping.SwappingBlockchain) -> Bool {
         return rates[blockchain.currencyID] != nil
     }
@@ -106,8 +106,12 @@ private extension FiatRatesProvider {
     func updateRate(for currencyId: String, with value: Decimal) {
         rates[currencyId] = value
 
-        rates.forEach { key, value in
-            walletModel.rates.updateValue(value, forKey: key)
+        DispatchQueue.main.async {
+            // We get "UI from background warning" here
+            // because "walletModel.rates" work with @Published wrapper
+            self.rates.forEach { key, value in
+                self.walletModel.rates.updateValue(value, forKey: key)
+            }
         }
     }
 }
