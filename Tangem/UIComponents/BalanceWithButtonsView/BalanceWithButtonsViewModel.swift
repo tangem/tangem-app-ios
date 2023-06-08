@@ -51,9 +51,7 @@ final class BalanceWithButtonsViewModel: ObservableObject, Identifiable {
         buttonsProvider.buttonsPublisher
             .receive(on: DispatchQueue.main)
             .sink { [weak self] buttons in
-                guard let self else { return }
-
-                self.buttons = buttons
+                self?.buttons = buttons
             }
             .store(in: &bag)
     }
