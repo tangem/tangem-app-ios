@@ -120,6 +120,8 @@ struct SwappingView: View {
                 SwappingFeeRowView(viewModel: viewModel)
             case .warning(let viewModel):
                 DefaultWarningRow(viewModel: viewModel)
+            case .feePolicy(let viewModel):
+                SelectableSwappingFeeRowView(viewModel: viewModel)
             }
         }
         .verticalPadding(0)
@@ -151,15 +153,17 @@ struct SwappingView: View {
 struct SwappingView_Preview: PreviewProvider {
     static let viewModel = SwappingViewModel(
         initialSourceCurrency: .mock,
-        swappingManager: SwappingManagerMock(),
+        swappingInteractor: .init(
+            swappingManager: SwappingManagerMock(),
+            userWalletModel: UserWalletModelMock(),
+            currencyMapper: CurrencyMapper(),
+            blockchainNetwork: PreviewCard.ethereum.blockchainNetwork!
+        ),
         swappingDestinationService: SwappingDestinationServiceMock(),
         tokenIconURLBuilder: TokenIconURLBuilderMock(),
         transactionSender: TransactionSenderMock(),
         fiatRatesProvider: FiatRatesProviderMock(),
-        userWalletModel: UserWalletModelMock(),
-        currencyMapper: CurrencyMapper(),
-        blockchainNetwork: PreviewCard.ethereum.blockchainNetwork!,
-
+        swappingFeeFormatter: SwappingFeeFormatterMock(),
         coordinator: SwappingCoordinator()
     )
 
