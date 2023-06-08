@@ -106,8 +106,7 @@ extension WelcomeCoordinator: WelcomeRoutable {
             self?.promotionCoordinator = nil
         }
 
-        // Do not remove the default values, it results in an infinite loop
-        let coordinator = PromotionCoordinator(output: nil, dismissAction: dismissAction, popToRootAction: { _ in })
+        let coordinator = PromotionCoordinator(dismissAction: dismissAction)
         coordinator.start(with: .newUser)
         promotionCoordinator = coordinator
     }
