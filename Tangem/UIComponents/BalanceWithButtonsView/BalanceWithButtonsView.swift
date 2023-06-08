@@ -19,6 +19,9 @@ struct BalanceWithButtonsView: View {
                     .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
 
                 Text(viewModel.fiatBalance)
+                    .multilineTextAlignment(.leading)
+                    .scaledToFit()
+                    .minimumScaleFactor(0.5)
                     .skeletonable(isShown: viewModel.isLoadingFiatBalance, size: .init(width: 102, height: 24), radius: 6)
                     .frame(height: 34)
 
