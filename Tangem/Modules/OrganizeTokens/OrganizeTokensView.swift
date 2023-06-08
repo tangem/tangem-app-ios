@@ -89,7 +89,8 @@ struct OrganizeTokensView: View {
 
     private var tokenListHeader: some View {
         OrganizeTokensHeaderView(viewModel: viewModel.headerViewModel)
-            .readSize { scrollViewTopContentInset = $0.height + 16.0 }
+            .readSize { scrollViewTopContentInset = $0.height + 10.0 + 8.0 }
+            .padding(.top, 8.0)
             .infinityFrame(alignment: .top)
     }
 
@@ -114,7 +115,7 @@ struct OrganizeTokensView: View {
                     .cornerRadiusContinuous(14.0)
             )
         }
-        .readSize { scrollViewBottomContentInset = $0.height + 16.0}
+        .readSize { scrollViewBottomContentInset = $0.height + 10.0 }
         .infinityFrame(alignment: .bottom)
     }
 }
