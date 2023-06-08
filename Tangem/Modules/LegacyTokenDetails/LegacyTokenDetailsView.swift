@@ -114,6 +114,7 @@ struct LegacyTokenDetailsView: View {
             MainButton(
                 title: option.title,
                 icon: .leading(option.icon),
+                isLoading: viewModel.exchangeButtonIsLoading,
                 isDisabled: !viewModel.isAvailable(type: option)
             ) {
                 viewModel.didTapExchangeButtonAction(type: option)
@@ -123,6 +124,7 @@ struct LegacyTokenDetailsView: View {
             MainButton(
                 title: Localization.walletButtonActions,
                 icon: .leading(Assets.exchangeIcon),
+                isLoading: viewModel.exchangeButtonIsLoading,
                 action: viewModel.openExchangeActionSheet
             )
             .actionSheet(item: $viewModel.exchangeActionSheet, content: { $0.sheet })
