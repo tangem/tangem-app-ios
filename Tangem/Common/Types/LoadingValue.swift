@@ -8,10 +8,11 @@
 
 import Foundation
 
-/// A simple enum to wrap a value to two states
+/// Enum to wrap a value loading process
 enum LoadingValue<Value> {
     case loading
     case loaded(_ value: Value)
+    case failedToLoad(error: Error)
 
     var isLoading: Bool {
         if case .loading = self {
@@ -24,6 +25,14 @@ enum LoadingValue<Value> {
     var value: Value? {
         if case .loaded(let value) = self {
             return value
+        }
+
+        return nil
+    }
+
+    var error: Error? {
+        if case .failedToLoad(let error) = self {
+            return error
         }
 
         return nil
