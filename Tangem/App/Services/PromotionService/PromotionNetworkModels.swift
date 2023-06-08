@@ -8,6 +8,11 @@
 
 import Foundation
 
+struct PromotionParameters: Decodable {
+    let startTimestamp: Double
+    let endTimestamp: Double
+}
+
 struct PromotionValidationResult: Decodable {
     let valid: Bool
 }
