@@ -196,12 +196,11 @@ class LegacyMainViewModel: ObservableObject {
         self.cardImageProvider = cardImageProvider
         self.coordinator = coordinator
 
-        canOpenPromotion = promotionService.promotionAvailable()
-
         bind()
         setupWarnings()
         updateContent()
         updateExchangeButtons()
+        updatePromotionButton()
     }
 
     deinit {
@@ -240,6 +239,15 @@ class LegacyMainViewModel: ObservableObject {
                 canSellCrypto: canSellCrypto
             )
         )
+    }
+
+    @MainActor
+    func updatePromotionButton() {
+        runTask { [weak self] in
+            guard let self else { return }
+
+            canOpenPromotion = await promotionService.promotionAvailable()
+        }
     }
 
     func updateIsBackupAllowed() {
@@ -380,7 +388,7 @@ class LegacyMainViewModel: ObservableObject {
                 }
             }
 
-            self.canOpenPromotion = promotionService.promotionAvailable()
+            updatePromotionButton()
         }
     }
 
@@ -403,7 +411,7 @@ class LegacyMainViewModel: ObservableObject {
                 self.error = error.alertBinder
             }
 
-            self.canOpenPromotion = promotionService.promotionAvailable()
+            updatePromotionButton()
         }
     }
 
