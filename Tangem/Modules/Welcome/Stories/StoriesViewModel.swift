@@ -73,7 +73,7 @@ class StoriesViewModel: ObservableObject {
         isScanning: Binding<Bool>,
         scanCard: @escaping () -> Void,
         orderCard: @escaping () -> Void,
-        learn: @escaping () -> Void,
+        openPromotion: @escaping () -> Void,
         searchTokens: @escaping () -> Void
     ) -> some View {
         let progressBinding = Binding<Double> { [weak self] in
@@ -84,7 +84,7 @@ class StoriesViewModel: ObservableObject {
 
         switch currentPage {
         case WelcomeStoryPage.learn:
-            LearnAndEarnStoryPage(learn: learn)
+            LearnAndEarnStoryPage(learn: openPromotion)
         case WelcomeStoryPage.meetTangem:
             MeetTangemStoryPage(progress: progressBinding, immediatelyShowTangemLogo: showLearnPage, immediatelyShowButtons: AppSettings.shared.didDisplayMainScreenStories, isScanning: isScanning, scanCard: scanCard, orderCard: orderCard)
         case WelcomeStoryPage.awe:
