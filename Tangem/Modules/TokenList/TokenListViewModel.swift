@@ -72,13 +72,12 @@ class TokenListViewModel: ObservableObject {
     }
 
     func saveChanges() {
-        guard let cardModel = cardModel,
-              let userWalletModel = cardModel.userWalletModel else {
+        guard let cardModel = cardModel else {
             closeModule()
             return
         }
 
-        var alreadySaved = userWalletModel.userTokenListManager.getEntriesFromRepository()
+        var alreadySaved = cardModel.userTokenListManager.getEntriesFromRepository()
 
         DispatchQueue.global().async {
             self.update(cardModel: cardModel, entries: &alreadySaved)
@@ -411,11 +410,13 @@ private extension TokenListViewModel {
 
     func update(cardModel: CardViewModel, entries: inout [StorageEntry]) {
         pendingRemove.forEach { tokenItem in
+            let blockchainNetwork = cardModel.getBlockchainNetwork(for: tokenItem.blockchain, derivationPath: nil)
+
             switch tokenItem {
-            case .blockchain(let blockchain):
-                entries.removeAll { $0.blockchainNetwork.blockchain == blockchain }
-            case .token(let token, let blockchain):
-                if let index = entries.firstIndex(where: { $0.blockchainNetwork.blockchain == blockchain }) {
+            case .blockchain:
+                entries.removeAll { $0.blockchainNetwork == blockchainNetwork }
+            case .token(let token, _):
+                if let index = entries.firstIndex(where: { $0.blockchainNetwork == blockchainNetwork }) {
                     entries[index].tokens.removeAll { $0.id == token.id }
                 }
             }
