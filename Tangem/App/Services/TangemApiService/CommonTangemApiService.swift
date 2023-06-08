@@ -14,6 +14,7 @@ import BlockchainSdk
 class CommonTangemApiService {
     private let provider = TangemProvider<TangemApiTarget>(plugins: [
         CachePolicyPlugin(),
+        TimeoutIntervalPlugin(),
         NetworkLoggerPlugin(configuration: .init(
             output: NetworkLoggerPlugin.tangemSdkLoggerOutput,
             logOptions: .verbose
@@ -161,22 +162,7 @@ extension CommonTangemApiService: TangemApiService {
     }
 
     func promotion(programName: String, timeout: TimeInterval?) async throws -> PromotionParameters {
-        let defaultProvider = provider
-
-        let configuration = defaultProvider.session.sessionConfiguration
-        if let timeout {
-            configuration.timeoutIntervalForRequest = timeout
-        }
-
-        let provider = TangemProvider<TangemApiTarget>(
-            stubClosure: defaultProvider.stubClosure,
-            plugins: defaultProvider.plugins,
-            configuration: configuration
-        )
-
-        let type: TangemApiTarget.TargetType = .promotion(programName: programName)
-        let target = TangemApiTarget(type: type, authData: authData)
-        return try await provider.asyncRequest(for: target).mapAPIResponse()
+        try await request(for: .promotion(programName: programName, timeout: timeout))
     }
 
     @discardableResult
