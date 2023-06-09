@@ -28,15 +28,13 @@ struct OrganizeTokensListCornerRadiusParametersProvider {
         forItemAtIndexPath indexPath: IndexPath
     ) -> CGFloat {
         if indexPath.section == sections.count - 1,
-            indexPath.item == sections[indexPath.section].items.count - 1
-        {
+           indexPath.item == sections[indexPath.section].items.count - 1 {
             return 14.0
         }
 
         if case .invisible = sections[indexPath.section].style,
-            indexPath.section == 0,
-            indexPath.item == 0
-        {
+           indexPath.section == 0,
+           indexPath.item == 0 {
             return 14.0
         }
 
@@ -49,16 +47,14 @@ struct OrganizeTokensListCornerRadiusParametersProvider {
         var rectCorners = UIRectCorner()
 
         if indexPath.section == sections.count - 1,
-           indexPath.item == sections[indexPath.section].items.count - 1
-        {
+           indexPath.item == sections[indexPath.section].items.count - 1 {
             rectCorners.insert(.bottomLeft)
             rectCorners.insert(.bottomRight)
         }
 
         if case .invisible = sections[indexPath.section].style,
            indexPath.section == 0,
-           indexPath.item == 0
-        {
+           indexPath.item == 0 {
             rectCorners.insert(.topLeft)
             rectCorners.insert(.topRight)
         }
