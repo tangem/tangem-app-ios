@@ -78,6 +78,14 @@ final class EnvironmentSetupViewModel: ObservableObject {
         updateAwardedProgramNames()
     }
 
+    func copyCurrentPromoCode() {
+        guard let promoCode = promotionService.promoCode else { return }
+
+        UIPasteboard.general.string = promoCode
+
+        UINotificationFeedbackGenerator().notificationOccurred(.success)
+    }
+
     func resetCurrentPromoCode() {
         promotionService.setPromoCode(nil)
         updateCurrentPromoCode()
