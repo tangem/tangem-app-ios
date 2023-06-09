@@ -17,8 +17,14 @@ struct OrganizeTokensView: View {
     @available(iOS, introduced: 13.0, deprecated: 15.0, message: "Replace with native .safeAreaInset()")
     @State private var scrollViewTopContentInset = 0.0
 
-    init(viewModel: OrganizeTokensViewModel) {
+    private let contentSizeBinding: Binding<CGSize>
+
+    init(
+        viewModel: OrganizeTokensViewModel,
+        contentSizeBinding: Binding<CGSize> = .constant(.zero)
+    ) {
         self.viewModel = viewModel
+        self.contentSizeBinding = contentSizeBinding
     }
 
     var body: some View {
@@ -81,6 +87,7 @@ struct OrganizeTokensView: View {
                     )
                 }
             }
+            .readSize { contentSizeBinding.wrappedValue = adjustedContentSize(from: $0) }
 
             Spacer(minLength: scrollViewBottomContentInset)
         }
@@ -116,6 +123,13 @@ struct OrganizeTokensView: View {
         }
         .readSize { scrollViewBottomContentInset = $0.height + 10.0 }
         .infinityFrame(alignment: .bottom)
+    }
+
+    private func adjustedContentSize(from originalContentSize: CGSize) -> CGSize {
+        return CGSize(
+            width: originalContentSize.width,
+            height: scrollViewTopContentInset + scrollViewBottomContentInset + originalContentSize.height
+        )
     }
 }
 
