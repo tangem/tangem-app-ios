@@ -31,12 +31,13 @@ class StoriesViewModel: ObservableObject {
     private var showLearnPage: Bool = false
     private let longTapDuration = 0.25
     private let minimumSwipeDistance = 100.0
+    private let promotionCheckTimeout: TimeInterval = 5
 
     init() {
         runTask { [weak self] in
             guard let self else { return }
 
-            let promotionAvailable = await promotionService.promotionAvailable()
+            let promotionAvailable = await promotionService.promotionAvailable(timeout: promotionCheckTimeout)
 
             DispatchQueue.main.async { [weak self] in
                 guard let self else { return }
