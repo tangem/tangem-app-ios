@@ -40,6 +40,8 @@ extension TangemAPIError {
         case promotionCodeAlreadyUsed = 103
         case promotionWalletAlreadyAwarded = 104
         case promotionCardAlreadyAwarded = 105
+        case promotionProgramNotFound = 106
+        case promotionProgramEnded = 107
 
         // Misc
         case notFound = 404
@@ -47,7 +49,7 @@ extension TangemAPIError {
         /// The description for local errors, for server errors description will be gotten from api
         var description: String? {
             switch self {
-            case .notFound, .promotionCodeNotFound, .promotionCodeNotApplied, .promotionCodeAlreadyUsed, .promotionWalletAlreadyAwarded, .promotionCardAlreadyAwarded:
+            case .notFound, .promotionCodeNotFound, .promotionCodeNotApplied, .promotionCodeAlreadyUsed, .promotionWalletAlreadyAwarded, .promotionCardAlreadyAwarded, .promotionProgramNotFound, .promotionProgramEnded:
                 return nil
             case .decode:
                 return "Decoding error"
