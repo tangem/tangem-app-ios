@@ -8,6 +8,7 @@
 
 import Foundation
 
+// [REDACTED_TODO_COMMENT]
 struct OrganizeTokensListItemViewModel: Hashable, Identifiable {
     var id = UUID()
 
