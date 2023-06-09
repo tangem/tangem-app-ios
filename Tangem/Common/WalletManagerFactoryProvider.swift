@@ -15,7 +15,9 @@ class WalletManagerFactoryProvider {
 
     lazy var factory: WalletManagerFactory = .init(
         config: keysManager.blockchainConfig,
-        exceptionHandler: Analytics.BlockchainExceptionHandler()
+        makeExceptionHandler: { input in
+            Analytics.BlockchainExceptionHandler(blockchain: input.blockchain)
+        }
     )
 
     init() {}
