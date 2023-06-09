@@ -11,11 +11,12 @@ import Combine
 protocol PromotionServiceProtocol {
     var programName: String { get }
     var promoCode: String? { get }
-    var promotionAvailable: Bool { get async }
 
     var readyForAwardPublisher: AnyPublisher<Void, Never> { get }
 
     func didBecomeReadyForAward()
+
+    func promotionAvailable() async -> Bool
 
     func setPromoCode(_ promoCode: String?)
     func checkIfCanGetAward(userWalletId: String) async throws
