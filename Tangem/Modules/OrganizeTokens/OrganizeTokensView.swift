@@ -123,9 +123,37 @@ struct OrganizeTokensView: View {
 // MARK: - Previews
 
 struct OrganizeTokensView_Preview: PreviewProvider {
-    static let viewModel = OrganizeTokensViewModel(coordinator: OrganizeTokensCoordinator())
+    private static let previewProvider = OrganizeTokensPreviewProvider()
 
     static var previews: some View {
-        OrganizeTokensView(viewModel: viewModel)
+        let viewModels = [
+            previewProvider.singleSmallSection(),
+            previewProvider.singleMediumSection(),
+            previewProvider.multipleSections(),
+        ]
+
+        ScrollView {
+            VStack {
+                Group {
+                    ForEach(viewModels.indexed(), id: \.0.self) { index, sections in
+                        OrganizeTokensView(
+                            viewModel: .init(
+                                coordinator: OrganizeTokensCoordinator(),
+                                sections: sections
+                            )
+                        )
+
+                        if index != viewModels.count - 1 {
+                            Divider()
+                        }
+                    }
+                }
+                .frame(maxHeight: 600.0)
+                .background(Colors.Background.primary)
+            }
+            .padding()
+            .previewLayout(.sizeThatFits)
+            .background(Colors.Background.secondary.ignoresSafeArea())
+        }
     }
 }
