@@ -36,7 +36,7 @@ class StoriesViewModel: ObservableObject {
         runTask { [weak self] in
             guard let self else { return }
 
-            let promotionAvailable = await promotionService.promotionAvailable()
+            let promotionAvailable = await promotionService.promotionAvailable
 
             DispatchQueue.main.async { [weak self] in
                 guard let self else { return }
