@@ -45,14 +45,23 @@ struct EnvironmentSetupView: View {
             Text("PROMOTION PROGRAM")
                 .font(.headline)
 
-            VStack {
-                Text("Current promo code: \(viewModel.currentPromoCode)")
+            VStack(spacing: 15) {
+                HStack {
+                    Text("Current promo code: \(viewModel.currentPromoCode)")
+
+                    Button {
+                        viewModel.copyCurrentPromoCode()
+                    } label: {
+                        Image(systemName: "doc.on.doc")
+                            .foregroundColor(Color.blue)
+                    }
+                }
 
                 Button("Reset promo codes", action: viewModel.resetCurrentPromoCode)
                     .foregroundColor(Color.red)
             }
 
-            VStack {
+            VStack(spacing: 15) {
                 Text("Awarded program names: \(viewModel.awardedProgramNames)")
 
                 Button("Reset awarded programs", action: viewModel.resetAwardedProgramNames)
