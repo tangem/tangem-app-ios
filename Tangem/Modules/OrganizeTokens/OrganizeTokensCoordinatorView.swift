@@ -8,6 +8,7 @@
 
 import SwiftUI
 
+// [REDACTED_TODO_COMMENT]
 struct OrganizeTokensCoordinatorView: CoordinatorView {
     @ObservedObject var coordinator: OrganizeTokensCoordinator
 
