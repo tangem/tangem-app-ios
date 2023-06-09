@@ -44,7 +44,6 @@ class DisclaimerViewModel: Identifiable {
 extension DisclaimerViewModel {
     enum Style {
         case onboarding
-        case tos
         case details
 
         var bottomOverlayHeight: CGFloat {
@@ -53,16 +52,14 @@ extension DisclaimerViewModel {
                 return 40
             case .onboarding:
                 return 170
-            case .tos:
-                return 170
             }
         }
 
         var bottomOverlayOffset: CGFloat {
             switch self {
-            case .tos:
+            case .onboarding:
                 return 64
-            default:
+            case .details:
                 return .zero
             }
         }
