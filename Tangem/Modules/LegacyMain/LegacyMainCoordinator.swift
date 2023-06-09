@@ -59,15 +59,15 @@ class LegacyMainCoordinator: CoordinatorObject {
                 switch event {
                 case .selected(let userWallet, _):
                     guard !userWallet.isLocked,
-                          let selectedModel = self.userWalletRepository.selectedModel
+                          let selectedModel = userWalletRepository.selectedModel
                     else {
                         return
                     }
 
                     let options = Options(cardModel: selectedModel)
-                    self.start(with: options)
+                    start(with: options)
                 case .inserted(let userWallet):
-                    self.lastInsertedUserWalletId = userWallet.userWalletId
+                    lastInsertedUserWalletId = userWallet.userWalletId
                 default:
                     break
                 }
