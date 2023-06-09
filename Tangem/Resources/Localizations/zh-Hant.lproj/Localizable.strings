@@ -51,6 +51,7 @@
 "chat_user_actions_title" = "請選擇一個操作";
 "chat_user_rate_agent_title" = "請評價我們的服務";
 "common_accept" = "接受";
+"common_apply" = "Apply";
 "common_attention" = "注意";
 "common_back" = "返回";
 "common_balance" = "餘額: %@";
@@ -262,6 +263,10 @@
 "onboarding_wallet_info_title_fourth" = "訪問密碼還原";
 "onboarding_wallet_info_title_second" = "相同的卡片";
 "onboarding_wallet_info_title_third" = "訪問密碼";
+"organize_tokens_group" = "Group";
+"organize_tokens_sort_by_balance" = "By balance";
+"organize_tokens_title" = "Organize tokens";
+"organize_tokens_ungroup" = "Ungroup";
 "push_additional_fee" = "額外費用";
 "push_previous_fee" = "先前費用";
 "push_tx_address_hint" = "先前交易總額包括費用";
@@ -484,6 +489,7 @@
 "wallet_connect_tx_not_found" = "未能找到交易哈希";
 "wallet_currency_subtitle" = "%@ 網路";
 "wallet_error_no_account" = "帳號尚未被創造";
+"wallet_network_group_title" = "%s network";
 "wallet_pending_tx_receiving" = "接收中";
 "wallet_pending_tx_receiving_address_format" = "來自%@";
 "wallet_pending_tx_sending" = "發送中";
