@@ -9,13 +9,28 @@
 import Foundation
 import BlockchainSdk
 import Firebase
+import SwiftDate
 
 extension Analytics {
     struct BlockchainExceptionHandler: ExternalExceptionHandler {
-        func log(exception message: String, for host: String) {
+        
+        // MARK: - Properties
+
+        private(set) var blockchain: Blockchain
+
+        // MARK: - Implementation
+
+        func errorSwitchApi(exceptionHost: String, selectedHost: String?, code: Int, message: String) {
             Analytics.log(
                 event: .blockchainSdkException,
-                params: [.host: host, .errorDescription: message],
+                params: [
+                    .blockchain: blockchain.currencySymbol,
+                    .region: Locale.current.regionCode?.lowercased() ?? "",
+                    .exceptionHost: exceptionHost,
+                    .selectedHost: selectedHost ?? "",
+                    .errorCode: "\(code)",
+                    .errorDescription: message,
+                ],
                 analyticsSystems: [.crashlytics]
             )
         }
