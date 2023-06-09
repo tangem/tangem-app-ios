@@ -1,5 +1,5 @@
 //
-//  TokenDetailsViewModel.swift
+//  LegacyTokenDetailsViewModel.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -12,7 +12,7 @@ import Combine
 import TangemSdk
 import TangemSwapping
 
-class TokenDetailsViewModel: ObservableObject {
+class LegacyTokenDetailsViewModel: ObservableObject {
     @Injected(\.exchangeService) private var exchangeService: ExchangeService
     @Injected(\.tangemApiService) private var tangemApiService: TangemApiService
     @Injected(\.keysManager) private var keysManager: KeysManager
@@ -176,7 +176,7 @@ class TokenDetailsViewModel: ObservableObject {
     private var rentWarningSubscription: AnyCancellable?
     private var refreshCancellable: AnyCancellable?
     private lazy var testnetBuyCryptoService: TestnetBuyCryptoService = .init()
-    private unowned let coordinator: TokenDetailsRoutable
+    private unowned let coordinator: LegacyTokenDetailsRoutable
 
     private var currencySymbol: String {
         amountType.token?.symbol ?? blockchainNetwork.blockchain.currencySymbol
@@ -196,7 +196,7 @@ class TokenDetailsViewModel: ObservableObject {
         amountType.token?.isCustom == true
     }
 
-    init(cardModel: CardViewModel, blockchainNetwork: BlockchainNetwork, amountType: Amount.AmountType, coordinator: TokenDetailsRoutable) {
+    init(cardModel: CardViewModel, blockchainNetwork: BlockchainNetwork, amountType: Amount.AmountType, coordinator: LegacyTokenDetailsRoutable) {
         card = cardModel
         self.blockchainNetwork = blockchainNetwork
         self.amountType = amountType
@@ -411,7 +411,7 @@ extension Int: Identifiable {
 
 // MARK: - Navigation
 
-extension TokenDetailsViewModel {
+extension LegacyTokenDetailsViewModel {
     func openSend() {
         guard let amountToSend = wallet?.amounts[amountType] else { return }
 
@@ -533,7 +533,7 @@ extension TokenDetailsViewModel {
 
 // MARK: - Swapping preparing
 
-private extension TokenDetailsViewModel {
+private extension LegacyTokenDetailsViewModel {
     var canSwap: Bool {
         card.canShowSwapping &&
             SwappingAvailableUtils().canSwap(
