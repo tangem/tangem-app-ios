@@ -671,21 +671,21 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep, Onboa
 
             switch result {
             case .success(let cardInfo):
-                self.initializeUserWallet(from: cardInfo)
+                initializeUserWallet(from: cardInfo)
 
                 if let primaryCard = cardInfo.primaryCard {
-                    self.backupService.setPrimaryCard(primaryCard)
+                    backupService.setPrimaryCard(primaryCard)
                 }
 
-                Analytics.log(.walletCreatedSuccessfully, params: [.creationType: self.walletCreationType.analyticsValue])
-                self.processPrimaryCardScan()
+                Analytics.log(.walletCreatedSuccessfully, params: [.creationType: walletCreationType.analyticsValue])
+                processPrimaryCardScan()
             case .failure(let error):
                 if !error.toTangemSdkError().isUserCancelled {
                     AppLog.shared.error(error, params: [.action: .preparePrimary])
                 }
             }
 
-            self.isMainButtonBusy = false
+            isMainButtonBusy = false
         }
     }
 
@@ -694,7 +694,7 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep, Onboa
             Future { [weak self] promise in
                 guard let self = self else { return }
 
-                self.backupService.readPrimaryCard(cardId: self.input.cardInput.cardId) { result in
+                backupService.readPrimaryCard(cardId: input.cardInput.cardId) { result in
                     switch result {
                     case .success:
                         promise(.success(()))
@@ -718,7 +718,7 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep, Onboa
         stepPublisher =
             Deferred {
                 Future { [unowned self] promise in
-                    self.backupService.addBackupCard { result in
+                    backupService.addBackupCard { result in
                         switch result {
                         case .success:
                             promise(.success(()))
@@ -750,7 +750,7 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep, Onboa
         stepPublisher =
             Deferred {
                 Future { [unowned self] promise in
-                    self.backupService.proceedBackup { result in
+                    backupService.proceedBackup { result in
                         switch result {
                         case .success(let updatedCard):
                             if updatedCard.cardId == self.backupService.primaryCard?.cardId {
@@ -867,7 +867,7 @@ extension WalletOnboardingViewModel {
         NotificationCenter.default.publisher(for: UIApplication.userDidTakeScreenshotNotification)
             .filter { [weak self] _ in
                 guard let self else { return false }
-                switch self.currentStep {
+                switch currentStep {
                 case .seedPhraseGeneration, .seedPhraseUserValidation, .seedPhraseImport:
                     return true
                 default:
@@ -914,6 +914,6 @@ extension NotificationCenter {
     }
 }
 
-fileprivate extension BackupService {
+private extension BackupService {
     var allCardIds: [String] { [primaryCard?.cardId].compactMap { $0 } + backupCardIds }
 }
