@@ -13,7 +13,6 @@ class DisclaimerViewModel: Identifiable {
     let id: UUID = .init()
 
     var showNavBarTitle: Bool { style == .details }
-
     var bottomOverlayHeight: CGFloat { style.bottomOverlayHeight }
 
     private let style: Style
