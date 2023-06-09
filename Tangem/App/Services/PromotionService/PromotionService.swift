@@ -101,6 +101,27 @@ extension PromotionService: PromotionServiceProtocol {
 
         return true
     }
+
+    func awardedProgramNames() -> Set<String> {
+        do {
+            let storage = SecureStorage()
+            guard let data = try storage.get(programsWithSuccessfullAwardsStorageKey) else { return [] }
+            return try JSONDecoder().decode(Set<String>.self, from: data)
+        } catch {
+            AppLog.shared.error(error)
+            AppLog.shared.debug("Failed to get awarded programs")
+            return []
+        }
+    }
+
+    func resetAwardedPrograms() {
+        if AppEnvironment.current.isProduction {
+            AppLog.shared.debug("Trying to reset awarded programs in production. Not allowed")
+            fatalError("Trying to reset awarded programs in production. Not allowed")
+        }
+
+        saveAwardedProgramNames([])
+    }
 }
 
 extension PromotionService {
@@ -134,18 +155,6 @@ extension PromotionService {
         awardedProgramNames().contains(programName)
     }
 
-    private func awardedProgramNames() -> Set<String> {
-        do {
-            let storage = SecureStorage()
-            guard let data = try storage.get(programsWithSuccessfullAwardsStorageKey) else { return [] }
-            return try JSONDecoder().decode(Set<String>.self, from: data)
-        } catch {
-            AppLog.shared.error(error)
-            AppLog.shared.debug("Failed to get awarded programs")
-            return []
-        }
-    }
-
     private func markCurrentProgramAsAwarded(_ hasBeenAwarded: Bool) {
         let awardedProgramNames = awardedProgramNames()
 
@@ -158,8 +167,12 @@ extension PromotionService {
 
         guard awardedProgramNames != newAwardedProgramNames else { return }
 
+        saveAwardedProgramNames(newAwardedProgramNames)
+    }
+
+    private func saveAwardedProgramNames(_ programNames: Set<String>) {
         do {
-            let data = try JSONEncoder().encode(newAwardedProgramNames)
+            let data = try JSONEncoder().encode(programNames)
 
             let storage = SecureStorage()
             try storage.store(data, forKey: programsWithSuccessfullAwardsStorageKey)
