@@ -58,6 +58,10 @@ extension SwappingInteractor {
         swappingManager.getSwappingApprovePolicy()
     }
 
+    func getSwappingGasPricePolicy() -> SwappingGasPricePolicy {
+        swappingManager.getSwappingGasPricePolicy()
+    }
+
     func update(swappingItems: SwappingItems) async -> SwappingItems {
         AppLog.shared.debug("[Swap] SwappingInteractor will update swappingItems to \(swappingItems)")
         updateState(.idle)
@@ -175,11 +179,9 @@ private extension SwappingInteractor {
         )
 
         let availabilityModel = SwappingAvailabilityModel(
-            isEnoughAmountForSwapping: model.isEnoughAmountForSwapping,
-            isEnoughAmountForFee: model.isEnoughAmountForFee,
-            isPermissionRequired: model.isPermissionRequired,
             transactionData: newData,
-            gasOptions: model.gasOptions
+            gasOptions: model.gasOptions,
+            restrictions: model.restrictions
         )
 
         updateState(.available(availabilityModel))
