@@ -437,7 +437,7 @@ extension AddCustomTokenViewModel {
     }
 }
 
-fileprivate protocol DynamicValidationError {
+private protocol DynamicValidationError {
     var preventsFromAdding: Bool { get }
 }
 

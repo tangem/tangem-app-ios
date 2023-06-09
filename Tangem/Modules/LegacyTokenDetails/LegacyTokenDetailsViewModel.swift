@@ -391,13 +391,13 @@ class LegacyTokenDetailsViewModel: ObservableObject {
             } receiveValue: { [weak self] rentAmount, minimalBalanceForRentExemption in
                 guard
                     let self = self,
-                    let amount = self.walletModel?.wallet.amounts[.coin],
+                    let amount = walletModel?.wallet.amounts[.coin],
                     amount < minimalBalanceForRentExemption
                 else {
                     self?.solanaRentWarning = nil
                     return
                 }
-                self.solanaRentWarning = Localization.solanaRentWarning(rentAmount.description, minimalBalanceForRentExemption.description)
+                solanaRentWarning = Localization.solanaRentWarning(rentAmount.description, minimalBalanceForRentExemption.description)
             }
             .store(in: &bag)
     }
@@ -509,7 +509,7 @@ extension LegacyTokenDetailsViewModel {
             coordinator.openBuyCrypto(at: url, closeUrl: buyCryptoCloseUrl) { [weak self] _ in
                 guard let self else { return }
 
-                Analytics.log(event: .tokenBought, params: [.token: self.currencySymbol])
+                Analytics.log(event: .tokenBought, params: [.token: currencySymbol])
 
                 DispatchQueue.main.asyncAfter(deadline: .now() + 1) { [weak self] in
                     self?.walletModel?.update(silent: true)
