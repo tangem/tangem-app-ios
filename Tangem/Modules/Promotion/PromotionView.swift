@@ -18,6 +18,7 @@ struct PromotionView: View {
     var body: some View {
         NavigationView {
             WebView(url: viewModel.url, headers: viewModel.headers, urlActions: viewModel.urlActions)
+                .ignoresSafeArea()
                 .navigationBarItems(leading: Button(Localization.commonClose, action: viewModel.close))
         }
     }
