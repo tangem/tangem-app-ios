@@ -52,7 +52,7 @@ struct LegacyTokenDetailsView: View {
             GeometryReader { geometry in
                 RefreshableScrollView(onRefresh: { viewModel.onRefresh($0) }) {
                     VStack(spacing: 8.0) {
-                        ForEach(self.pendingTransactionViews) { $0 }
+                        ForEach(pendingTransactionViews) { $0 }
 
                         if let walletModel = viewModel.walletModel {
                             BalanceAddressView(
