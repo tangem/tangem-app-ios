@@ -3038,6 +3038,7 @@
 		B0B335DA29FA945300E2082E /* ForComponents */ = {
 			isa = PBXGroup;
 			children = (
+				B6805B702A32F89E0015EC96 /* OrganizeTokens */,
 				B0120A912A0E0F3000F485F1 /* CardHeader */,
 				B64505482A1E2A32002B10B6 /* CardsInfo */,
 				B0B335DB29FA948F00E2082E /* FakeTokenItemInfoProvider.swift */,
