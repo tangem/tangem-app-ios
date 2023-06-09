@@ -15,11 +15,11 @@ import Amplitude
 class ServicesManager {
     @Injected(\.exchangeService) private var exchangeService: ExchangeService
     @Injected(\.tangemApiService) private var tangemApiService: TangemApiService
-    @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
 
     private var bag = Set<AnyCancellable>()
 
     func initialize() {
+        AppLog.shared.debug("Start services initializing")
         AppLog.shared.configure()
 
         if !AppEnvironment.current.isDebug {
@@ -35,7 +35,6 @@ class ServicesManager {
 
         exchangeService.initialize()
         tangemApiService.initialize()
-        userWalletRepository.initialize()
     }
 
     private func configureFirebase() {
