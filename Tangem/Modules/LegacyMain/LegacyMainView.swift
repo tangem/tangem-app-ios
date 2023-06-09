@@ -39,7 +39,7 @@ struct LegacyMainView: View {
                         })
                         .padding(.horizontal, 16)
 
-                        if viewModel.canLearnAndEarn {
+                        if viewModel.canOpenPromotion {
                             learnAlertView
                         }
 
@@ -49,8 +49,10 @@ struct LegacyMainView: View {
 
                         if let viewModel = viewModel.multiWalletContentViewModel {
                             LegacyMultiWalletContentView(viewModel: viewModel)
+                                .animation(nil)
                         } else if let viewModel = viewModel.singleWalletContentViewModel {
                             LegacySingleWalletContentView(viewModel: viewModel)
+                                .animation(nil)
                         }
 
                         Color.clear.frame(width: 10, height: 58, alignment: .center)
@@ -127,7 +129,7 @@ struct LegacyMainView: View {
     }
 
     var learnAlertView: some View {
-        LearnAndEarnAlertView(tapAction: viewModel.learnAndEarn)
+        LearnAndEarnAlertView(title: viewModel.learnAndEarnTitle, subtitle: viewModel.learnAndEarnSubtitle, tapAction: viewModel.learnAndEarn)
             .padding(.horizontal, 16)
     }
 
