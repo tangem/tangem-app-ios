@@ -24,7 +24,7 @@ class LegacyMainCoordinator: CoordinatorObject {
 
     @Published var sendCoordinator: SendCoordinator? = nil
     @Published var pushTxCoordinator: PushTxCoordinator? = nil
-    @Published var tokenDetailsCoordinator: TokenDetailsCoordinator? = nil
+    @Published var tokenDetailsCoordinator: LegacyTokenDetailsCoordinator? = nil
     @Published var detailsCoordinator: DetailsCoordinator? = nil
     @Published var tokenListCoordinator: TokenListCoordinator? = nil
     @Published var modalOnboardingCoordinator: OnboardingCoordinator? = nil
@@ -207,8 +207,8 @@ extension LegacyMainCoordinator: LegacyMainRoutable {
             self?.tokenDetailsCoordinator = nil
         }
 
-        let coordinator = TokenDetailsCoordinator(dismissAction: dismissAction)
-        let options = TokenDetailsCoordinator.Options(
+        let coordinator = LegacyTokenDetailsCoordinator(dismissAction: dismissAction)
+        let options = LegacyTokenDetailsCoordinator.Options(
             cardModel: cardModel,
             blockchainNetwork: blockchainNetwork,
             amountType: amountType
