@@ -55,8 +55,8 @@ class BottomSheetViewController<Content: View>: BottomSheetBaseController {
             .receive(on: RunLoop.main)
             .sink(receiveValue: { [weak self] info in
                 guard let self = self else { return }
-                self.bottomConstraint.constant = -info.0
-                self.view.superview?.layoutIfNeeded()
+                bottomConstraint.constant = -info.0
+                view.superview?.layoutIfNeeded()
             })
     }
 

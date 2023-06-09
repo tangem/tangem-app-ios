@@ -62,9 +62,9 @@ class WelcomeCoordinator: CoordinatorObject {
                 guard let self else { return }
 
                 if viewDismissed {
-                    self.welcomeViewModel?.becomeActive()
+                    welcomeViewModel?.becomeActive()
                 } else {
-                    self.welcomeViewModel?.resignActve()
+                    welcomeViewModel?.resignActve()
                 }
             }
     }
