@@ -582,6 +582,44 @@ extension CardViewModel {
     }
 }
 
+extension CardViewModel: StorageEntryAdding {
+    func add(entry: StorageEntry) async throws -> String {
+        try await withCheckedThrowingContinuation { [weak self] continuation in
+            guard let self = self else { return }
+
+            self.add(entry: entry) { result in
+                continuation.resume(with: result)
+            }
+        }
+    }
+
+    func add(entry: StorageEntry, completion: @escaping (Result<String, Error>) -> Void) {
+        add(entries: [entry]) { [weak self] result in
+            guard let self else { return }
+
+            if case .failure(let error) = result {
+                completion(.failure(error))
+                return
+            }
+
+            let address = walletModels
+                .first {
+                    $0.blockchainNetwork == entry.blockchainNetwork
+                }
+                .map {
+                    $0.wallet.address
+                }
+
+            guard let address else {
+                completion(.failure(WalletError.empty))
+                return
+            }
+
+            completion(.success(address))
+        }
+    }
+}
+
 extension CardViewModel {
     enum WalletsBalanceState {
         case inProgress
