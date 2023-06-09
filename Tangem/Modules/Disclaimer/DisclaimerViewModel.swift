@@ -12,14 +12,7 @@ class DisclaimerViewModel: Identifiable {
     let webViewModel: WebViewContainerViewModel
     let id: UUID = .init()
 
-    var showNavBarTitle: Bool {
-        switch style {
-        case .details:
-            return true
-        default:
-            return false
-        }
-    }
+    var showNavBarTitle: Bool { style == .details }
 
     var bottomOverlayHeight: CGFloat { style.bottomOverlayHeight }
 
