@@ -17,25 +17,6 @@ class PromotionService {
         readyForAwardSubject.eraseToAnyPublisher()
     }
 
-    var promotionAvailable: Bool {
-        get async {
-            guard
-                FeatureProvider.isAvailable(.learnToEarn),
-                !currentProgramWasAwarded()
-            else {
-                return false
-            }
-
-            let timeout: TimeInterval = 5
-            do {
-                return try await promotionIsHappeningRightNow(timeout: timeout)
-            } catch {
-                AppLog.shared.debug("Failed to get promotion details \(error.localizedDescription)")
-                return false
-            }
-        }
-    }
-
     let programName = "1inch"
     private let promoCodeStorageKey = "promo_code"
     private let programsWithSuccessfullAwardsStorageKey = "programs_with_successfull_awards"
@@ -64,6 +45,22 @@ extension PromotionService: PromotionServiceProtocol {
 
     func didBecomeReadyForAward() {
         readyForAwardSubject.send(())
+    }
+
+    func promotionAvailable() async -> Bool {
+        guard
+            FeatureProvider.isAvailable(.learnToEarn),
+            !currentProgramWasAwarded()
+        else {
+            return false
+        }
+
+        let timeout: TimeInterval = 5
+        do {
+            return try await promotionIsHappeningRightNow(timeout: timeout)
+        } catch {
+            return false
+        }
     }
 
     func setPromoCode(_ promoCode: String?) {
