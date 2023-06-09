@@ -48,55 +48,18 @@ struct OrganizeTokensSectionItemView: View {
 // MARK: - Previews
 
 struct OrganizeTokensSectionItemView_Previews: PreviewProvider {
+    private static let previewProvider = OrganizeTokensPreviewProvider()
+
     static var previews: some View {
         VStack {
             Group {
-                OrganizeTokensSectionItemView(
-                    viewModel: .init(
-                        tokenIcon: TokenIconInfoBuilder().build(
-                            for: .coin,
-                            in: .bitcoin(testnet: false)
-                        ),
-                        balance: .loading,
-                        isDraggable: true,
-                        networkUnreachable: false,
-                        hasPendingTransactions: false
-                    )
-                )
+                let viewModels = previewProvider
+                    .singleMediumSection()
+                    .flatMap(\.items)
 
-                OrganizeTokensSectionItemView(
-                    viewModel: .init(
-                        tokenIcon: TokenIconInfoBuilder().build(
-                            for: .token(
-                                value: .init(
-                                    name: "DAI",
-                                    symbol: "DAI",
-                                    contractAddress: "0xdwekdn32jfne",
-                                    decimalCount: 18
-                                )
-                            ),
-                            in: .dash(testnet: false)
-                        ),
-                        balance: .noData,
-                        isDraggable: false,
-                        networkUnreachable: false,
-                        hasPendingTransactions: false
-                    )
-                )
-
-                OrganizeTokensSectionItemView(
-                    viewModel: .init(
-                        tokenIcon: .init(
-                            name: "ExtraLongTokenName_ExtraLongTokenName_ExtraLongTokenName",
-                            blockchainIconName: nil,
-                            imageURL: nil
-                        ),
-                        balance: .loaded(text: "22222222222222222222222222222222222222222222.00 $"),
-                        isDraggable: true,
-                        networkUnreachable: false,
-                        hasPendingTransactions: false
-                    )
-                )
+                ForEach(viewModels) { viewModel in
+                    OrganizeTokensSectionItemView(viewModel: viewModel)
+                }
             }
             .background(Colors.Background.primary)
         }
