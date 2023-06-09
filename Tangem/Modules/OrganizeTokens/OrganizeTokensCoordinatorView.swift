@@ -19,8 +19,11 @@ struct OrganizeTokensCoordinatorView: CoordinatorView {
     var body: some View {
         ZStack {
             if let rootViewModel = coordinator.rootViewModel {
-                OrganizeTokensView(viewModel: rootViewModel)
-                    .navigationLinks(links)
+                OrganizeTokensView(
+                    viewModel: rootViewModel,
+                    contentSizeBinding: .constant(.zero)
+                )
+                .navigationLinks(links)
             }
 
             sheets
