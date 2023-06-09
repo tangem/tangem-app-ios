@@ -266,6 +266,7 @@
 "organize_tokens_group" = "Group";
 "organize_tokens_sort_by_balance" = "By balance";
 "organize_tokens_title" = "Organize tokens";
+"organize_tokens_ungroup" = "Ungroup";
 "push_additional_fee" = "Additional fee";
 "push_previous_fee" = "Previous fee";
 "push_tx_address_hint" = "Previous transaction total including fee";
@@ -391,7 +392,6 @@
 "swapping_token_list_title" = "Choose token";
 "swapping_token_list_your_tokens" = "Your tokens";
 "swapping_token_not_available" = "not available";
-"test-key" = "Test key value";
 "testnet_address_topuped" = "Transaction signed and sent to testnet. Wait for a while and reload balance";
 "testnet_error_failed_create_tx" = "Failed to create topup transaction for token. Try again later";
 "testnet_error_not_enough_ether_message" = "Not enough funds on ETH wallet balance. You need to topup ETH wallet first";
