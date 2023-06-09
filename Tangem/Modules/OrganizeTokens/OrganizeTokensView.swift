@@ -70,7 +70,6 @@ struct OrganizeTokensView: View {
                                     OrganizeTokensSectionView(title: title, isDraggable: false)
                                 case .draggable(let title):
                                     OrganizeTokensSectionView(title: title, isDraggable: true)
-
                                 }
                             }
                             .background(Colors.Background.primary)
