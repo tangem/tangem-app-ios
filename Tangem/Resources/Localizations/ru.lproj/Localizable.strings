@@ -266,6 +266,7 @@
 "organize_tokens_group" = "Группировка";
 "organize_tokens_sort_by_balance" = "По балансу";
 "organize_tokens_title" = "Сортировка токенов";
+"organize_tokens_ungroup" = "Разгруппировать";
 "push_additional_fee" = "Дополнительная комиссия";
 "push_previous_fee" = "Предыдущая комиссия";
 "push_tx_address_hint" = "Сумма за предыдущую транзакцию, включая комиссию";
@@ -391,7 +392,6 @@
 "swapping_token_list_title" = "Выберите токен";
 "swapping_token_list_your_tokens" = "Ваши токены";
 "swapping_token_not_available" = "не доступен";
-"test-key" = "Test key value";
 "testnet_address_topuped" = "Транзакция успешно подписана и отправлена ​​в тестовую сеть. Подождите некоторое время и обновите баланс";
 "testnet_error_failed_create_tx" = "Не удалось создать транзакцию пополнения для токена. Попробуйте позже";
 "testnet_error_not_enough_ether_message" = "Недостаточно средств на балансе ETH кошелька. Вам нужно сначала пополнить ETH кошелек";
