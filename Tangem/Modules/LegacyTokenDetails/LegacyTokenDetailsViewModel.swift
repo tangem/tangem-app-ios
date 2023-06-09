@@ -236,6 +236,8 @@ class LegacyTokenDetailsViewModel: ObservableObject {
                 if case .failure = completion {
                     self?.canSwap = false
                 }
+
+                self?.exchangeButtonIsLoading = false
             } receiveValue: { [weak self] models in
                 let coin = models.first(where: { $0.id == currencyId })
                 let tokenItem = coin?.items.first(where: { $0.id == currencyId })
@@ -249,7 +251,6 @@ class LegacyTokenDetailsViewModel: ObservableObject {
                     self?.canSwap = SwappingAvailableUtils().canSwap(amountType: .coin, blockchain: blockchain)
                 }
 
-                self?.exchangeButtonIsLoading = false
                 self?.updateExchangeButtons()
             }
             .store(in: &bag)
