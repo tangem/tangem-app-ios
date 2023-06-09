@@ -9,6 +9,7 @@
 import Foundation
 import Combine
 
+// [REDACTED_TODO_COMMENT]
 class OrganizeTokensCoordinator: CoordinatorObject {
     let dismissAction: Action
     let popToRootAction: ParamsAction<PopToRootOptions>
