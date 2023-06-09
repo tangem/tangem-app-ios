@@ -246,7 +246,7 @@ class LegacyMainViewModel: ObservableObject {
         runTask { [weak self] in
             guard let self else { return }
 
-            canOpenPromotion = await promotionService.promotionAvailable()
+            canOpenPromotion = await promotionService.promotionAvailable(timeout: nil)
         }
     }
 

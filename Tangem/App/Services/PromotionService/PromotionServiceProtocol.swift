@@ -6,6 +6,7 @@
 //  Copyright © 2023 Tangem AG. All rights reserved.
 //
 
+import Foundation
 import Combine
 
 protocol PromotionServiceProtocol {
@@ -16,7 +17,7 @@ protocol PromotionServiceProtocol {
 
     func didBecomeReadyForAward()
 
-    func promotionAvailable() async -> Bool
+    func promotionAvailable(timeout: TimeInterval?) async -> Bool
 
     func setPromoCode(_ promoCode: String?)
     func checkIfCanGetAward(userWalletId: String) async throws
