@@ -10,11 +10,17 @@ import Combine
 import SwiftUI
 
 final class EnvironmentSetupViewModel: ObservableObject {
+    @Injected(\.promotionService) var promotionService: PromotionServiceProtocol
+
     // MARK: - ViewState
 
     @Published var appSettingsTogglesViewModels: [DefaultToggleRowViewModel] = []
     @Published var featureStateViewModels: [FeatureStateRowViewModel] = []
     @Published var alert: AlertBinder?
+
+    // Promotion
+    @Published var currentPromoCode: String = ""
+    @Published var awardedProgramNames: String = ""
 
     // MARK: - Dependencies
 
@@ -66,6 +72,20 @@ final class EnvironmentSetupViewModel: ObservableObject {
                 )
             )
         }
+
+        updateCurrentPromoCode()
+
+        updateAwardedProgramNames()
+    }
+
+    func resetCurrentPromoCode() {
+        promotionService.setPromoCode(nil)
+        updateCurrentPromoCode()
+    }
+
+    func resetAwardedProgramNames() {
+        promotionService.resetAwardedPrograms()
+        updateAwardedProgramNames()
     }
 
     func showExitAlert() {
@@ -75,5 +95,18 @@ final class EnvironmentSetupViewModel: ObservableObject {
             secondaryButton: .cancel()
         )
         self.alert = AlertBinder(alert: alert)
+    }
+
+    private func updateCurrentPromoCode() {
+        currentPromoCode = promotionService.promoCode ?? "[none]"
+    }
+
+    private func updateAwardedProgramNames() {
+        let awardedProgramNames = promotionService.awardedProgramNames()
+        if awardedProgramNames.isEmpty {
+            self.awardedProgramNames = "[none]"
+        } else {
+            self.awardedProgramNames = promotionService.awardedProgramNames().joined(separator: ", ")
+        }
     }
 }
