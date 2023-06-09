@@ -19,7 +19,6 @@ struct StoriesView<Content: View>: View {
     var body: some View {
         if viewModel.checkingPromotionAvailability {
             Color.black
-                .overlay(ActivityIndicatorView(color: .white))
                 .ignoresSafeArea()
         } else {
             contentView
