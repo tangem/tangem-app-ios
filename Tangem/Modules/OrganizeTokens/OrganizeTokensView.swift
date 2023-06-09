@@ -28,21 +28,25 @@ struct OrganizeTokensView: View {
     }
 
     var body: some View {
-        ZStack {
-            Group {
-                tokenList
+        NavigationView {
+            ZStack {
+                Group {
+                    tokenList
 
-                tokenListHeader
+                    tokenListHeader
 
-                tokenListFooter
+                    tokenListFooter
+                }
+                .padding(.horizontal, 16.0)
             }
-            .padding(.horizontal, 16.0)
+            .background(
+                Colors.Background
+                    .secondary
+                    .ignoresSafeArea(edges: [.vertical])
+            )
+            .navigationTitle(Localization.organizeTokensTitle)
+            .navigationBarTitleDisplayMode(.inline)
         }
-        .background(
-            Colors.Background
-                .secondary
-                .ignoresSafeArea(edges: [.vertical])
-        )
     }
 
     private var tokenList: some View {
@@ -140,33 +144,23 @@ struct OrganizeTokensView_Preview: PreviewProvider {
 
     static var previews: some View {
         let viewModels = [
-            previewProvider.singleSmallSection(),
-            previewProvider.singleMediumSection(),
             previewProvider.multipleSections(),
+            previewProvider.singleMediumSection(),
+            previewProvider.singleSmallSection(),
         ]
 
-        ScrollView {
-            VStack {
-                Group {
-                    ForEach(viewModels.indexed(), id: \.0.self) { index, sections in
-                        OrganizeTokensView(
-                            viewModel: .init(
-                                coordinator: OrganizeTokensCoordinator(),
-                                sections: sections
-                            )
-                        )
-
-                        if index != viewModels.count - 1 {
-                            Divider()
-                        }
-                    }
-                }
-                .frame(maxHeight: 600.0)
-                .background(Colors.Background.primary)
+        Group {
+            ForEach(viewModels.indexed(), id: \.0.self) { index, sections in
+                OrganizeTokensView(
+                    viewModel: .init(
+                        coordinator: OrganizeTokensCoordinator(),
+                        sections: sections
+                    )
+                )
             }
-            .padding()
-            .previewLayout(.sizeThatFits)
-            .background(Colors.Background.secondary.ignoresSafeArea())
         }
+        .background(Colors.Background.primary)
+        .previewLayout(.sizeThatFits)
+        .background(Colors.Background.secondary.ignoresSafeArea())
     }
 }
