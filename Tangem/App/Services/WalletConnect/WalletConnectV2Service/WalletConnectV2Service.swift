@@ -146,14 +146,14 @@ final class WalletConnectV2Service {
             .asyncMap { [weak self] session in
                 guard let self else { return }
 
-                self.log("Session established: \(session)")
+                log("Session established: \(session)")
                 let savedSession = WalletConnectV2Utils().createSavedSession(
                     from: session,
-                    with: self.infoProvider.userWalletId.stringValue,
-                    and: self.infoProvider.walletModels
+                    with: infoProvider.userWalletId.stringValue,
+                    and: infoProvider.walletModels
                 )
 
-                await self.sessionsStorage.save(savedSession)
+                await sessionsStorage.save(savedSession)
             }
             .sink()
             .store(in: &sessionSubscriptions)
@@ -163,14 +163,14 @@ final class WalletConnectV2Service {
             .asyncMap { [weak self] topic, reason in
                 guard let self else { return }
 
-                self.log("Receive Delete session message with topic: \(topic). Delete reason: \(reason)")
+                log("Receive Delete session message with topic: \(topic). Delete reason: \(reason)")
 
-                guard let session = await self.sessionsStorage.session(with: topic) else {
+                guard let session = await sessionsStorage.session(with: topic) else {
                     return
                 }
 
-                self.log("Session with topic (\(topic)) was found. Deleting session from storage...")
-                await self.sessionsStorage.remove(session)
+                log("Session with topic (\(topic)) was found. Deleting session from storage...")
+                await sessionsStorage.remove(session)
             }
             .sink()
             .store(in: &sessionSubscriptions)
@@ -182,8 +182,8 @@ final class WalletConnectV2Service {
             .asyncMap { [weak self] request, context in
                 guard let self else { return }
 
-                self.log("Receive message request: \(request) with verify context: \(String(describing: context))")
-                await self.handle(request)
+                log("Receive message request: \(request) with verify context: \(String(describing: context))")
+                await handle(request)
             }
             .sink()
             .store(in: &messagesSubscriptions)
@@ -248,13 +248,13 @@ final class WalletConnectV2Service {
             guard let self else { return }
 
             do {
-                self.log("Namespaces to approve for session connection: \(namespaces)")
-                try await self.signApi.approve(proposalId: id, namespaces: namespaces)
+                log("Namespaces to approve for session connection: \(namespaces)")
+                try await signApi.approve(proposalId: id, namespaces: namespaces)
             } catch let error as WalletConnectV2Error {
                 self.displayErrorUI(error)
             } catch {
                 let mappedError = WalletConnectV2ErrorMappingUtils().mapWCv2Error(error)
-                self.displayErrorUI(mappedError)
+                displayErrorUI(mappedError)
                 AppLog.shared.error("[WC 2.0] Failed to approve Session with error: \(error)")
             }
         }
