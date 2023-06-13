@@ -22,7 +22,7 @@ final class BalanceWithButtonsViewModel: ObservableObject, Identifiable {
 
     private var fiatUpdatingTask: Task<Void, Never>?
     private var bag = Set<AnyCancellable>()
-    
+
     init(balanceProvider: BalanceProvider?, buttonsProvider: ActionButtonsProvider?) {
         self.balanceProvider = balanceProvider
         self.buttonsProvider = buttonsProvider

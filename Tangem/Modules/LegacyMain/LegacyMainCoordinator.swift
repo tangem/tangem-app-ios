@@ -207,6 +207,10 @@ extension LegacyMainCoordinator: LegacyMainRoutable {
             self?.tokenDetailsCoordinator = nil
         }
 
+        if FeatureProvider.isAvailable(.tokenDetailsV2) {
+
+        }
+
         let coordinator = LegacyTokenDetailsCoordinator(dismissAction: dismissAction)
         let options = LegacyTokenDetailsCoordinator.Options(
             cardModel: cardModel,
