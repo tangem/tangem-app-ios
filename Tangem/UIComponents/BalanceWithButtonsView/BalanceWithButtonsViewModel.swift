@@ -17,13 +17,13 @@ final class BalanceWithButtonsViewModel: ObservableObject, Identifiable {
 
     @Published var buttons: [ButtonWithIconInfo] = []
 
-    private let balanceProvider: BalanceProvider
-    private let buttonsProvider: ActionButtonsProvider
+    private weak var balanceProvider: BalanceProvider?
+    private weak var buttonsProvider: ActionButtonsProvider?
 
     private var fiatUpdatingTask: Task<Void, Never>?
     private var bag = Set<AnyCancellable>()
-
-    init(balanceProvider: BalanceProvider, buttonsProvider: ActionButtonsProvider) {
+    
+    init(balanceProvider: BalanceProvider?, buttonsProvider: ActionButtonsProvider?) {
         self.balanceProvider = balanceProvider
         self.buttonsProvider = buttonsProvider
 
@@ -31,7 +31,7 @@ final class BalanceWithButtonsViewModel: ObservableObject, Identifiable {
     }
 
     private func bind() {
-        balanceProvider.balancePublisher
+        balanceProvider?.balancePublisher
             .receive(on: DispatchQueue.main)
             .sink(receiveValue: { [weak self] balanceState in
                 switch balanceState {
@@ -48,7 +48,7 @@ final class BalanceWithButtonsViewModel: ObservableObject, Identifiable {
             })
             .store(in: &bag)
 
-        buttonsProvider.buttonsPublisher
+        buttonsProvider?.buttonsPublisher
             .receive(on: DispatchQueue.main)
             .sink { [weak self] buttons in
                 self?.buttons = buttons
