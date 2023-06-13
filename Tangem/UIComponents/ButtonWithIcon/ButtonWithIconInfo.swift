@@ -21,6 +21,13 @@ struct ButtonWithIconInfo {
         self.disabled = disabled
     }
 
+    init(buttonType: ActionButtonType, action: @escaping () -> Void, disabled: Bool) {
+        title = buttonType.title
+        icon = buttonType.icon
+        self.action = action
+        self.disabled = disabled
+    }
+
     /// Initializer with enabled button
     init(title: String, icon: ImageType, action: @escaping () -> Void) {
         self.init(title: title, icon: icon, action: action, disabled: false)
