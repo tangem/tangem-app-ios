@@ -49,7 +49,8 @@ struct SendView: View {
                             }
                         },
                         message: viewModel.destinationHint?.message ?? " ",
-                        isErrorMessage: viewModel.destinationHint?.isError ?? false
+                        isErrorMessage: viewModel.destinationHint?.isError ?? false,
+                        onPaste: viewModel.onPaste
                     )
                     .disabled(viewModel.isSellingCrypto)
 
