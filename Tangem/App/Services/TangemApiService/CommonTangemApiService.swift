@@ -199,7 +199,7 @@ extension CommonTangemApiService: TangemApiService {
     }
 }
 
-fileprivate extension Response {
+private extension Response {
     func mapAPIResponse<D: Decodable>() throws -> D {
         let filteredResponse = try filterSuccessfulStatusCodes()
 
