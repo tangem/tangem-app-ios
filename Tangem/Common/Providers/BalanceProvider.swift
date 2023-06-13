@@ -9,7 +9,7 @@
 import Foundation
 import Combine
 
-protocol BalanceProvider {
+protocol BalanceProvider: AnyObject {
     var balancePublisher: AnyPublisher<LoadingValue<BalanceInfo>, Never> { get }
 }
 
