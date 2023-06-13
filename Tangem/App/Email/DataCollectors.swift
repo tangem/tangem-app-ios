@@ -24,7 +24,7 @@ extension EmailDataCollector {
     }
 }
 
-fileprivate extension EmailDataCollector {
+private extension EmailDataCollector {
     func formatData(_ collectedInfo: [EmailCollectedData], appendDeviceInfo: Bool = true) -> Data? {
         let collectedString = collectedInfo.reduce("") { $0 + $1.type.title + $1.data + "\n" } + (appendDeviceInfo ? DeviceInfoProvider.info() : "")
         return collectedString.data(using: .utf8)
