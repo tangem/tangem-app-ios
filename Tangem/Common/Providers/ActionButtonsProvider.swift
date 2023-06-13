@@ -9,6 +9,6 @@
 import Foundation
 import Combine
 
-protocol ActionButtonsProvider {
+protocol ActionButtonsProvider: AnyObject {
     var buttonsPublisher: AnyPublisher<[ButtonWithIconInfo], Never> { get }
 }
