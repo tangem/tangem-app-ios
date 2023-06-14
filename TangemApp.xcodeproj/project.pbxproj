@@ -25,8 +25,8 @@
 		5D09380A25E6AEB10049B8F0 /* BalanceAddressView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D09380925E6AEB10049B8F0 /* BalanceAddressView.swift */; };
 		5D09380F25E6BDB00049B8F0 /* RoundedRectButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D09380E25E6BDB00049B8F0 /* RoundedRectButton.swift */; };
 		5D09381425E6CB2D0049B8F0 /* HorizontalButtonStack.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D09381325E6CB2D0049B8F0 /* HorizontalButtonStack.swift */; };
-		5D09382825E7A2D80049B8F0 /* TokenDetailsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D09382725E7A2D80049B8F0 /* TokenDetailsView.swift */; };
-		5D09382D25E7A2EA0049B8F0 /* TokenDetailsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D09382C25E7A2EA0049B8F0 /* TokenDetailsViewModel.swift */; };
+		5D09382825E7A2D80049B8F0 /* LegacyTokenDetailsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D09382725E7A2D80049B8F0 /* LegacyTokenDetailsView.swift */; };
+		5D09382D25E7A2EA0049B8F0 /* LegacyTokenDetailsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D09382C25E7A2EA0049B8F0 /* LegacyTokenDetailsViewModel.swift */; };
 		5D09383225E7A9820049B8F0 /* Wallet+.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D09383125E7A9820049B8F0 /* Wallet+.swift */; };
 		5D09383725EAB45C0049B8F0 /* LegacyTokenItemViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D09383625EAB45C0049B8F0 /* LegacyTokenItemViewModel.swift */; };
 		5D09383C25EAE7FD0049B8F0 /* PersistentStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D09383B25EAE7FD0049B8F0 /* PersistentStorage.swift */; };
@@ -524,8 +524,8 @@
 		DC295B3A28615D03006CB7B6 /* NavHolder.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC295B3928615D03006CB7B6 /* NavHolder.swift */; };
 		DC295B3C2861C19C006CB7B6 /* LegacyMainCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC295B3B2861C19C006CB7B6 /* LegacyMainCoordinator.swift */; };
 		DC295B3E2861C1AD006CB7B6 /* LegacyMainCoordinatorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC295B3D2861C1AD006CB7B6 /* LegacyMainCoordinatorView.swift */; };
-		DC295B402861C27D006CB7B6 /* TokenDetailsCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC295B3F2861C27D006CB7B6 /* TokenDetailsCoordinator.swift */; };
-		DC295B422861C444006CB7B6 /* TokenDetailsCoordinatorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC295B412861C444006CB7B6 /* TokenDetailsCoordinatorView.swift */; };
+		DC295B402861C27D006CB7B6 /* LegacyTokenDetailsCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC295B3F2861C27D006CB7B6 /* LegacyTokenDetailsCoordinator.swift */; };
+		DC295B422861C444006CB7B6 /* LegacyTokenDetailsCoordinatorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC295B412861C444006CB7B6 /* LegacyTokenDetailsCoordinatorView.swift */; };
 		DC295B482861C4BE006CB7B6 /* DetailsCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC295B472861C4BE006CB7B6 /* DetailsCoordinator.swift */; };
 		DC295B4A2861C4CB006CB7B6 /* DetailsCoordinatorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC295B492861C4CB006CB7B6 /* DetailsCoordinatorView.swift */; };
 		DC295B4C2861D7CF006CB7B6 /* WalletConnectCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC295B4B2861D7CF006CB7B6 /* WalletConnectCoordinator.swift */; };
@@ -574,7 +574,7 @@
 		DC66BC12285C433800CDF765 /* AddCustomTokenRoutable.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC66BC11285C433800CDF765 /* AddCustomTokenRoutable.swift */; };
 		DC66BC14285C44AD00CDF765 /* TokenListRoutable.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC66BC13285C44AD00CDF765 /* TokenListRoutable.swift */; };
 		DC66BC16285C529600CDF765 /* SendRoutable.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC66BC15285C529600CDF765 /* SendRoutable.swift */; };
-		DC66BC18285C65C900CDF765 /* TokenDetailsRoutable.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC66BC17285C65C900CDF765 /* TokenDetailsRoutable.swift */; };
+		DC66BC18285C65C900CDF765 /* LegacyTokenDetailsRoutable.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC66BC17285C65C900CDF765 /* LegacyTokenDetailsRoutable.swift */; };
 		DC7127AB2897EC6B00F60F71 /* Start2CoinConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC7127AA2897EC6B00F60F71 /* Start2CoinConfig.swift */; };
 		DC7127AD2897ECA100F60F71 /* TwinConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC7127AC2897ECA100F60F71 /* TwinConfig.swift */; };
 		DC7127AF2897ECBB00F60F71 /* NoteConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC7127AE2897ECBB00F60F71 /* NoteConfig.swift */; };
@@ -979,8 +979,8 @@
 		5D09380925E6AEB10049B8F0 /* BalanceAddressView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BalanceAddressView.swift; sourceTree = "<group>"; };
 		5D09380E25E6BDB00049B8F0 /* RoundedRectButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RoundedRectButton.swift; sourceTree = "<group>"; };
 		5D09381325E6CB2D0049B8F0 /* HorizontalButtonStack.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HorizontalButtonStack.swift; sourceTree = "<group>"; };
-		5D09382725E7A2D80049B8F0 /* TokenDetailsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenDetailsView.swift; sourceTree = "<group>"; };
-		5D09382C25E7A2EA0049B8F0 /* TokenDetailsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenDetailsViewModel.swift; sourceTree = "<group>"; };
+		5D09382725E7A2D80049B8F0 /* LegacyTokenDetailsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LegacyTokenDetailsView.swift; sourceTree = "<group>"; };
+		5D09382C25E7A2EA0049B8F0 /* LegacyTokenDetailsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LegacyTokenDetailsViewModel.swift; sourceTree = "<group>"; };
 		5D09383125E7A9820049B8F0 /* Wallet+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Wallet+.swift"; sourceTree = "<group>"; };
 		5D09383625EAB45C0049B8F0 /* LegacyTokenItemViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LegacyTokenItemViewModel.swift; sourceTree = "<group>"; };
 		5D09383B25EAE7FD0049B8F0 /* PersistentStorage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PersistentStorage.swift; sourceTree = "<group>"; };
@@ -1518,8 +1518,8 @@
 		DC295B3928615D03006CB7B6 /* NavHolder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NavHolder.swift; sourceTree = "<group>"; };
 		DC295B3B2861C19C006CB7B6 /* LegacyMainCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LegacyMainCoordinator.swift; sourceTree = "<group>"; };
 		DC295B3D2861C1AD006CB7B6 /* LegacyMainCoordinatorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LegacyMainCoordinatorView.swift; sourceTree = "<group>"; };
-		DC295B3F2861C27D006CB7B6 /* TokenDetailsCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenDetailsCoordinator.swift; sourceTree = "<group>"; };
-		DC295B412861C444006CB7B6 /* TokenDetailsCoordinatorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenDetailsCoordinatorView.swift; sourceTree = "<group>"; };
+		DC295B3F2861C27D006CB7B6 /* LegacyTokenDetailsCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LegacyTokenDetailsCoordinator.swift; sourceTree = "<group>"; };
+		DC295B412861C444006CB7B6 /* LegacyTokenDetailsCoordinatorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LegacyTokenDetailsCoordinatorView.swift; sourceTree = "<group>"; };
 		DC295B472861C4BE006CB7B6 /* DetailsCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DetailsCoordinator.swift; sourceTree = "<group>"; };
 		DC295B492861C4CB006CB7B6 /* DetailsCoordinatorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DetailsCoordinatorView.swift; sourceTree = "<group>"; };
 		DC295B4B2861D7CF006CB7B6 /* WalletConnectCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletConnectCoordinator.swift; sourceTree = "<group>"; };
@@ -1568,7 +1568,7 @@
 		DC66BC11285C433800CDF765 /* AddCustomTokenRoutable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddCustomTokenRoutable.swift; sourceTree = "<group>"; };
 		DC66BC13285C44AD00CDF765 /* TokenListRoutable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenListRoutable.swift; sourceTree = "<group>"; };
 		DC66BC15285C529600CDF765 /* SendRoutable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendRoutable.swift; sourceTree = "<group>"; };
-		DC66BC17285C65C900CDF765 /* TokenDetailsRoutable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenDetailsRoutable.swift; sourceTree = "<group>"; };
+		DC66BC17285C65C900CDF765 /* LegacyTokenDetailsRoutable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LegacyTokenDetailsRoutable.swift; sourceTree = "<group>"; };
 		DC7127AA2897EC6B00F60F71 /* Start2CoinConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Start2CoinConfig.swift; sourceTree = "<group>"; };
 		DC7127AC2897ECA100F60F71 /* TwinConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TwinConfig.swift; sourceTree = "<group>"; };
 		DC7127AE2897ECBB00F60F71 /* NoteConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoteConfig.swift; sourceTree = "<group>"; };
@@ -2313,17 +2313,17 @@
 			path = SecurityMode;
 			sourceTree = "<group>";
 		};
-		5DA7C00A25F8FA5200B6E309 /* TokenDetails */ = {
+		5DA7C00A25F8FA5200B6E309 /* LegacyTokenDetails */ = {
 			isa = PBXGroup;
 			children = (
 				5D09380925E6AEB10049B8F0 /* BalanceAddressView.swift */,
-				5D09382C25E7A2EA0049B8F0 /* TokenDetailsViewModel.swift */,
-				5D09382725E7A2D80049B8F0 /* TokenDetailsView.swift */,
-				DC66BC17285C65C900CDF765 /* TokenDetailsRoutable.swift */,
-				DC295B3F2861C27D006CB7B6 /* TokenDetailsCoordinator.swift */,
-				DC295B412861C444006CB7B6 /* TokenDetailsCoordinatorView.swift */,
+				5D09382C25E7A2EA0049B8F0 /* LegacyTokenDetailsViewModel.swift */,
+				5D09382725E7A2D80049B8F0 /* LegacyTokenDetailsView.swift */,
+				DC66BC17285C65C900CDF765 /* LegacyTokenDetailsRoutable.swift */,
+				DC295B3F2861C27D006CB7B6 /* LegacyTokenDetailsCoordinator.swift */,
+				DC295B412861C444006CB7B6 /* LegacyTokenDetailsCoordinatorView.swift */,
 			);
-			path = TokenDetails;
+			path = LegacyTokenDetails;
 			sourceTree = "<group>";
 		};
 		5DBAFD1627E085330008B882 /* Coins */ = {
@@ -3965,7 +3965,7 @@
 				5DFCCB7224C3817E0014A293 /* Send */,
 				6563B8B72858B912009A8A7D /* SupportChat */,
 				5D384B9224FD51B200C2C92C /* Details */,
-				5DA7C00A25F8FA5200B6E309 /* TokenDetails */,
+				5DA7C00A25F8FA5200B6E309 /* LegacyTokenDetails */,
 				B08ACD8025D2BC2A007387BD /* TokenList */,
 				5D011A222530776A00758010 /* Disclaimer */,
 				B0E1564926B9417E005B33E4 /* Onboarding */,
@@ -5343,7 +5343,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "PATH=$PATH:/opt/homebrew/bin\n\n# check if directory exists then add it to path\nif [ -d ~/.mint/bin ]; then\n    echo \"Adding ~/.mint/bin to PATH\"\n    export PATH=~/.mint/bin:$PATH\nelse\n  echo \"~/.mint/bin folder is missing\"\nfi\n\n# check if swiftgen tool can be found.\nif [ ${ENABLE_PREVIEWS} == \"NO\" ]; then \n    echo \"🚀 Running SwiftFormat\"\n    mint run swiftformat@0.50.7 . --config .swiftformat\nfi\n";
+			shellScript = "PATH=$PATH:/opt/homebrew/bin\n\n# check if directory exists then add it to path\nif [ -d ~/.mint/bin ]; then\n    echo \"Adding ~/.mint/bin to PATH\"\n    export PATH=~/.mint/bin:$PATH\nelse\n  echo \"~/.mint/bin folder is missing\"\nfi\n\n# check if swiftgen tool can be found.\nif [ ${ENABLE_PREVIEWS} == \"NO\" ]; then \n    echo \"🚀 Running SwiftFormat\"\n    mint run swiftformat@0.51.11 . --config .swiftformat\nfi\n";
 		};
 		EFD32AE229DF1DCB0026353E /* Strip Binary Symbols */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -5377,7 +5377,7 @@
 				EF808436293F39D6000D91EA /* UserCurrenciesProvider.swift in Sources */,
 				DCE5C66C28898B7F000C7F67 /* TangemApiService.swift in Sources */,
 				5DDFC2042812B72C005976FE /* Currency.swift in Sources */,
-				5D09382825E7A2D80049B8F0 /* TokenDetailsView.swift in Sources */,
+				5D09382825E7A2D80049B8F0 /* LegacyTokenDetailsView.swift in Sources */,
 				EFA6B04029532D520090A92F /* CircleActionButton.swift in Sources */,
 				B0C4F77B26F0A05C0086D815 /* BlankCard.swift in Sources */,
 				B06ADFD829B9CEEC00E92E5E /* OnboardingSeedPhraseGenerateView.swift in Sources */,
@@ -5400,7 +5400,7 @@
 				DC66BBED2859B68100CDF765 /* ShopCoordinator.swift in Sources */,
 				B0DCD02929DFF04B00C36C84 /* AccessCodeRecoverySettingsProviderMock.swift in Sources */,
 				B06917E0270444CE0000E6C1 /* OnboardingWalletInfoPager.swift in Sources */,
-				DC295B422861C444006CB7B6 /* TokenDetailsCoordinatorView.swift in Sources */,
+				DC295B422861C444006CB7B6 /* LegacyTokenDetailsCoordinatorView.swift in Sources */,
 				B0ADFD40298A70FF00EF2869 /* WalletConnectV2SignTransactionHandler.swift in Sources */,
 				B0BA7BC526C4F96B00D7066F /* NonDismissableModalView.swift in Sources */,
 				DC0A582928252FEB0031BECC /* TokenItemsRepository.swift in Sources */,
@@ -5870,7 +5870,7 @@
 				B0B8670626DF60E7008DAA67 /* CardStackAnimator.swift in Sources */,
 				EF08A0EF283D1914008BD923 /* Moya+.swift in Sources */,
 				B6AA13702A2A377C00B53937 /* CardInfoPageWarningPreviewSectionItem.swift in Sources */,
-				5D09382D25E7A2EA0049B8F0 /* TokenDetailsViewModel.swift in Sources */,
+				5D09382D25E7A2EA0049B8F0 /* LegacyTokenDetailsViewModel.swift in Sources */,
 				DCD2D5BA2A1BA5A800AB00B6 /* CardInitializer.swift in Sources */,
 				DCF23693299257EB00FE1855 /* AnalyticsContextData.swift in Sources */,
 				B687E9492A2D881C00BFF604 /* View+ReadContentOffset.swift in Sources */,
@@ -5914,7 +5914,7 @@
 				B0A9E93F25921D21007B6D36 /* WarningView.swift in Sources */,
 				EF661E2F28BF41D6005769E5 /* Intents.intentdefinition in Sources */,
 				EF80843A293F6708000D91EA /* SwappingDestinationService.swift in Sources */,
-				DC295B402861C27D006CB7B6 /* TokenDetailsCoordinator.swift in Sources */,
+				DC295B402861C27D006CB7B6 /* LegacyTokenDetailsCoordinator.swift in Sources */,
 				B004C40E298AA9E00029C14A /* WalletConnectV2SendTransactionHandler.swift in Sources */,
 				EF0DC11D2A0CE29E007E3DA7 /* SwappingApproveRoutable.swift in Sources */,
 				5D78D118261DFEBA00F98B18 /* PurgeWalletsAndReadResponse.swift in Sources */,
@@ -5952,7 +5952,7 @@
 				EF59039A29091CFB00C527C9 /* EnvironmentSetupView.swift in Sources */,
 				B05209BE261F1FF3000DD204 /* RoundedCorner.swift in Sources */,
 				5D09380F25E6BDB00049B8F0 /* RoundedRectButton.swift in Sources */,
-				DC66BC18285C65C900CDF765 /* TokenDetailsRoutable.swift in Sources */,
+				DC66BC18285C65C900CDF765 /* LegacyTokenDetailsRoutable.swift in Sources */,
 				B0DC10D42927564000BBE854 /* PreviewCards.swift in Sources */,
 				DA5FAD8627B2791C00EE53AE /* ApplePayButton.swift in Sources */,
 				DC295B3C2861C19C006CB7B6 /* LegacyMainCoordinator.swift in Sources */,
