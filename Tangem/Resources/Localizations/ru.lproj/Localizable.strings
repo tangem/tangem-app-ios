@@ -39,7 +39,7 @@
 "card_settings_action_sheet_title" = "Вы уверены, что хотите это сделать?";
 "card_settings_change_access_code" = "Смена кода доступа";
 "card_settings_change_access_code_footer" = "Код доступа будет изменен только на данной карте";
-"card_settings_reset_card_to_factory" = "Сброс к заводским настройкам";
+"card_settings_reset_card_to_factory" = "Заводские настройки";
 "card_settings_security_mode" = "Тип безопасности";
 "card_settings_security_mode_footer" = "Выбранный способ защиты приложения";
 "card_settings_title" = "Настройки карты";
@@ -49,6 +49,7 @@
 "chat_user_actions_title" = "Пожалуйста, выберите действие";
 "chat_user_rate_agent_title" = "Пожалуйста, оцените работу агента";
 "common_accept" = "Принять";
+"common_apply" = "Применить";
 "common_attention" = "Внимание";
 "common_back" = "Назад";
 "common_balance" = "Баланс: %@";
@@ -260,6 +261,10 @@
 "onboarding_wallet_info_title_fourth" = "Восстановление кода доступа";
 "onboarding_wallet_info_title_second" = "Идентичные карты";
 "onboarding_wallet_info_title_third" = "Код доступа";
+"organize_tokens_group" = "Группировка";
+"organize_tokens_sort_by_balance" = "По балансу";
+"organize_tokens_title" = "Сортировка токенов";
+"organize_tokens_ungroup" = "Разгруппировать";
 "push_additional_fee" = "Дополнительная комиссия";
 "push_previous_fee" = "Предыдущая комиссия";
 "push_tx_address_hint" = "Сумма за предыдущую транзакцию, включая комиссию";
@@ -482,6 +487,7 @@
 "wallet_connect_tx_not_found" = "Не удалось найти хэш транзакции";
 "wallet_currency_subtitle" = "Сеть %@";
 "wallet_error_no_account" = "Аккаунт не создан";
+"wallet_network_group_title" = "Сеть %s";
 "wallet_pending_tx_receiving" = "Получение";
 "wallet_pending_tx_receiving_address_format" = "от %@";
 "wallet_pending_tx_sending" = "Отправка";

@@ -101,9 +101,9 @@ final class UserWalletListViewModel: ObservableObject, Identifiable {
 
             switch result {
             case .troubleshooting:
-                self.showTroubleshootingView = true
+                showTroubleshootingView = true
             case .onboarding(let input):
-                self.openOnboarding(with: input)
+                openOnboarding(with: input)
             case .error(let error):
                 if let userWalletRepositoryError = error as? UserWalletRepositoryError {
                     self.error = userWalletRepositoryError.alertBinder
@@ -111,7 +111,7 @@ final class UserWalletListViewModel: ObservableObject, Identifiable {
                     self.error = error.alertBinder
                 }
             case .success(let cardModel), .partial(let cardModel, _):
-                self.add(cardModel: cardModel)
+                add(cardModel: cardModel)
             }
         }
     }
