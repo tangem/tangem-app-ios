@@ -32,12 +32,7 @@ struct OrganizeTokensListItemView: View {
             if viewModel.isDraggable {
                 Assets.OrganizeTokens.itemDragAndDropIcon
                     .image
-                    .renderingMode(.template)
-                    .resizable()
-                    .aspectRatio(contentMode: .fit)
-                    .frame(size: .init(bothDimensions: 20.0))
                     .foregroundColor(Colors.Icon.informative)
-                    .layoutPriority(1.0)
             }
         }
         .padding(.horizontal, 14.0)
