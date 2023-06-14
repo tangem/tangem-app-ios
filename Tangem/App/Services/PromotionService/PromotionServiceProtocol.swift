@@ -17,7 +17,7 @@ protocol PromotionServiceProtocol {
 
     func didBecomeReadyForAward()
 
-    func promotionAvailable(timeout: TimeInterval?) async -> Bool
+    func promotionAvailability(timeout: TimeInterval?) async -> PromotionAvailability
 
     func setPromoCode(_ promoCode: String?)
     func checkIfCanGetAward(userWalletId: String) async throws

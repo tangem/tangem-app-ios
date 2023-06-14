@@ -92,6 +92,7 @@ class LegacyMainViewModel: ObservableObject {
     private var imageLoadingSubscription: AnyCancellable?
 
     private lazy var testnetBuyCryptoService = TestnetBuyCryptoService()
+    private var promotionAwardAmount: Decimal?
 
     private unowned let coordinator: LegacyMainRoutable
 
@@ -182,8 +183,17 @@ class LegacyMainViewModel: ObservableObject {
         if let _ = promotionService.promoCode {
             return Localization.mainLearnSubtitle
         } else {
+            let formatter = NumberFormatter()
+            formatter.maximumFractionDigits = 0
+            guard
+                let promotionAwardAmount,
+                let formattedAmount = formatter.string(from: promotionAwardAmount as NSNumber)
+            else {
+                return Localization.commonError
+            }
+
             #warning("L10n")
-            return "Complete the training and get 10 1inch tokens on your wallet"
+            return "Complete the training and get \(formattedAmount) 1inch tokens on your wallet"
         }
     }
 
@@ -246,7 +256,9 @@ class LegacyMainViewModel: ObservableObject {
         runTask { [weak self] in
             guard let self else { return }
 
-            canOpenPromotion = await promotionService.promotionAvailable(timeout: nil)
+            let promotionAvailability = await promotionService.promotionAvailability(timeout: nil)
+            promotionAwardAmount = promotionAvailability.awardAmount
+            canOpenPromotion = promotionAvailability.isAvailable
         }
     }
 
