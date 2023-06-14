@@ -33,97 +33,94 @@ extension Card {
     private static let cardJson =
         """
         {
-          "linkedTerminalStatus" : "none",
-          "supportedCurves" : [
-            "secp256k1",
-            "ed25519",
-            "secp256r1"
-          ],
-          "cardPublicKey" : "0400D05BCAC34B58AA48BF998FB68667A3112262275200431EA235EC4616A15287B5D21F15E45740AB6B829F415950DBC7A68493DCF5FD270C8CAAB0E975E9A0D9",
-          "settings" : {
-            "isSettingPasscodeAllowed" : true,
-            "maxWalletsCount" : 36,
-            "isOverwritingIssuerExtraDataRestricted" : false,
-            "isRemovingUserCodesAllowed" : true,
-            "isLinkedTerminalEnabled" : true,
-            "securityDelay" : 3000,
-            "isSettingAccessCodeAllowed" : false,
-            "supportedEncryptionModes" : [
-              "strong",
-              "fast",
-              "none"
+            "backupStatus" : {
+                "status" : "noBackup"
+            },
+            "isAccessCodeSet" : false,
+            "linkedTerminalStatus" : "none",
+            "cardPublicKey" : "026D5FACEA9BAB187A770AB31A9D7F330A7BFA25898A853E537200755A6770FB7D",
+            "settings" : {
+                "maxWalletsCount" : 20,
+                "isRemovingUserCodesAllowed" : true,
+                "isLinkedTerminalEnabled" : true,
+                "isFilesAllowed" : true,
+                "supportedEncryptionModes" : [
+                    "strong",
+                    "fast",
+                    "none"
+                ],
+                "securityDelay" : 15000,
+                "isBackupAllowed" : true,
+                "isSettingAccessCodeAllowed" : false,
+                "isHDWalletAllowed" : true,
+                "isKeysImportAllowed" : false,
+                "isSettingPasscodeAllowed" : false
+            },
+            "supportedCurves" : [
+                "secp256k1",
+                "ed25519",
+                "secp256r1",
+                "bls12381_G2",
+                "bls12381_G2_AUG",
+                "bls12381_G2_POP",
+                "bip0340"
             ],
-            "isPermanentWallet" : true,
-            "isSelectBlockchainAllowed" : true,
-            "isIssuerDataProtectedAgainstReplay" : true,
-            "isHDWalletAllowed" : true,
-            "isFilesAllowed" : true,
-            "isBackupAllowed" : true
-          },
-          "issuer" : {
-            "name" : "TANGEM AG",
-            "publicKey" : "0456E7C3376329DFAE7388DF1695670386103C92486A87644FA9E512C9CF4E92FE970EFDFBB7A35446F2A937505E6C70D78E965533B31C252B607F3C6B3112B603"
-          },
-          "firmwareVersion" : {
-            "minor" : 12,
-            "patch" : 0,
-            "major" : 4,
-            "stringValue" : "4.12r",
-            "type" : "r"
-          },
-          "batchId" : "CB79",
-          "attestation" : {
-            "cardKeyAttestation" : "verified",
-            "walletKeysAttestation" : "verified",
-            "firmwareAttestation" : "skipped",
-            "cardUniquenessAttestation" : "skipped"
-          },
-          "manufacturer" : {
-            "name" : "TANGEM",
-            "manufactureDate" : "2021-04-01",
-            "signature" : "1671A9AB2D9D5B99177E841C8DC35842452A095088CD01B48D753631571AAB21EEAC0F96BC87142268C32EFB3AF8A8C80DB55BE6D1970FAFBC72E00F896F69EA"
-          },
-          "cardId" : "CB79000000018201",
-          "wallets" : [
-            {
-              "publicKey" : "FA3F41EE40DAB4DB96B4AD5BEC697A552EEB1AACF2C6A10B1B37A9A724608533",
-              "totalSignedHashes" : 1,
-              "curve" : "ed25519",
-              "settings" : {
-                "isPermanent" : false
-              },
-              "index" : 0,
-              "hasBackup" : false,
-              "derivedKeys" : []
+            "issuer" : {
+                "name" : "TANGEM AG",
+                "publicKey" : "0356E7C3376329DFAE7388DF1695670386103C92486A87644FA9E512C9CF4E92FE"
             },
-            {
-              "publicKey" : "0440C533E007D029C1F345CA70A9F6016EC7A95C775B6320AE84248F20B647FBBD90FF56A2D9C3A1984279ED2367274A49079789E130444541C2F15907D5570B49",
-              "totalSignedHashes" : 0,
-              "curve" : "secp256k1",
-              "settings" : {
-                "isPermanent" : true
-              },
-              "index" : 1,
-              "hasBackup" : false,
-              "derivedKeys" : []
+            "firmwareVersion" : {
+                "minor" : 52,
+                "patch" : 0,
+                "major" : 4,
+                "stringValue" : "4.52r",
+                "type" : "r"
             },
-            {
-              "publicKey" : "04DDFACEF55A95EAB2CDCC8E86CE779342D2E2A53CF8F0F20BF2B248336AE3EEA6DD62D1F4C5420A71D6212073B136034CDC878DAD3AE3FDFA3360E6FE6184F470",
-              "totalSignedHashes" : 0,
-              "curve" : "secp256r1",
-              "settings" : {
-                "isPermanent" : true
-              },
-              "index" : 2,
-              "hasBackup" : false,
-              "derivedKeys" : []
+            "batchId" : "AC07",
+            "isPasscodeSet" : false,
+            "manufacturer" : {
+                "name" : "TANGEM",
+                "manufactureDate" : "2022-06-02",
+                "signature" : "7FA19C0FEDBF642092B677DA50206C97E5496B109DF5A204D512D87652527DBF511111A1C99980C38C9D45B4EE2522DA4AEFC741CAF477CD3A43EA097D59A000"
+            },
+            "attestation" : {
+                "cardKeyAttestation" : "verified",
+                "walletKeysAttestation" : "skipped",
+                "firmwareAttestation" : "skipped",
+                "cardUniquenessAttestation" : "skipped"
+            },
+            "cardId" : "AC07000000035437",
+            "wallets" : [
+                {
+                    "totalSignedHashes" : 76,
+                    "isImported" : false,
+                    "index" : 0,
+                    "hasBackup" : false,
+                    "derivedKeys" : { },
+                    "curve" : "secp256k1",
+                    "publicKey" : "03A50DB351AD9F53F45EC7C579CD4E4ABB47AF5FA50B2D4B59D1E09D99032618B7",
+                    "chainCode" : "D9CC34ED5768C8D3141E2832AEE4ABEA43B5E0E9927C6D2700B6611F4A770014",
+                    "settings" : {
+                        "isPermanent" : false
+                    }
+                },
+                {
+                    "totalSignedHashes" : 8,
+                    "isImported" : false,
+                    "index" : 1,
+                    "hasBackup" : false,
+                    "derivedKeys" : { },
+                    "curve" : "ed25519",
+                    "publicKey" : "4A2DC3075B8716D3A9B7F64C6CE8FAD48AD26445E0EAEBD2A5D98B026CFBE921",
+                    "chainCode" : "73068F1FC995705019AE36F2CA841BBD710EBDBAD02385CD447750A4C14335F9",
+                    "settings" : {
+                        "isPermanent" : false
+                    }
+                }
+            ],
+            "userSettings" : {
+                "isUserCodeRecoveryAllowed" : true
             }
-          ],
-          "isPasscodeSet" : true,
-          "isAccessCodeSet" : true,
-          "backupStatus" : {
-              "status" : "noBackup"
-          }
         }
         """
 }
