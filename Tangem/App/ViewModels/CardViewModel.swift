@@ -371,7 +371,7 @@ class CardViewModel: Identifiable, ObservableObject {
 
                 switch result {
                 case .success:
-                    self.onSecurityOptionChanged(isAccessCodeSet: true, isPasscodeSet: false)
+                    onSecurityOptionChanged(isAccessCodeSet: true, isPasscodeSet: false)
                     Analytics.log(.userCodeChanged)
                     completion(.success(()))
                 case .failure(let error):
@@ -394,7 +394,7 @@ class CardViewModel: Identifiable, ObservableObject {
 
                 switch result {
                 case .success:
-                    self.onSecurityOptionChanged(isAccessCodeSet: false, isPasscodeSet: false)
+                    onSecurityOptionChanged(isAccessCodeSet: false, isPasscodeSet: false)
                     completion(.success(()))
                 case .failure(let error):
                     AppLog.shared.error(
@@ -417,7 +417,7 @@ class CardViewModel: Identifiable, ObservableObject {
 
                 switch result {
                 case .success:
-                    self.onSecurityOptionChanged(isAccessCodeSet: false, isPasscodeSet: true)
+                    onSecurityOptionChanged(isAccessCodeSet: false, isPasscodeSet: true)
                     completion(.success(()))
                 case .failure(let error):
                     AppLog.shared.error(
@@ -587,7 +587,7 @@ extension CardViewModel: StorageEntryAdding {
         try await withCheckedThrowingContinuation { [weak self] continuation in
             guard let self = self else { return }
 
-            self.add(entry: entry) { result in
+            add(entry: entry) { result in
                 continuation.resume(with: result)
             }
         }
@@ -640,8 +640,8 @@ extension CardViewModel: AccessCodeRecoverySettingsProvider {
             guard let self else { return }
             switch result {
             case .success:
-                self.cardInfo.card.userSettings.isUserCodeRecoveryAllowed = enabled
-                self.accessCodeRecoveryEnabled = enabled
+                cardInfo.card.userSettings.isUserCodeRecoveryAllowed = enabled
+                accessCodeRecoveryEnabled = enabled
                 completionHandler(.success(()))
             case .failure(let error):
                 completionHandler(.failure(error))
