@@ -218,7 +218,7 @@ class LegacyTokenDetailsViewModel: ObservableObject {
             return
         }
 
-        guard !isCustomToken else {
+        if isCustomToken {
             canSwap = false
             updateExchangeButtons()
             return
