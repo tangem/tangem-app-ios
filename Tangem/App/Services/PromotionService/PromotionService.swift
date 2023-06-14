@@ -10,19 +10,12 @@ import Combine
 import TangemSdk
 import BlockchainSdk
 
-struct PromotionAvailability {
-    let isAvailable: Bool
-    let awardAmount: Decimal
-}
-
 class PromotionService {
     @Injected(\.tangemApiService) private var tangemApiService: TangemApiService
 
     var readyForAwardPublisher: AnyPublisher<Void, Never> {
         readyForAwardSubject.eraseToAnyPublisher()
     }
-
-//    var awardAmount:
 
     let programName = "1inch"
     private let promoCodeStorageKey = "promo_code"
@@ -50,19 +43,19 @@ extension PromotionService: PromotionServiceProtocol {
         readyForAwardSubject.send(())
     }
 
-    func promotionAvailable(timeout: TimeInterval?) async -> Bool {
+    func promotionAvailability(timeout: TimeInterval?) async -> PromotionAvailability {
         guard
             FeatureProvider.isAvailable(.learnToEarn),
             !currentProgramWasAwarded()
         else {
-            return false
+            return PromotionAvailability(isAvailable: false, awardAmount: .zero)
         }
 
         let timeout: TimeInterval = 5
         do {
-            return try await promotionIsHappeningRightNow(timeout: timeout)
+            return try await fetchPromotionAvailability(timeout: timeout)
         } catch {
-            return false
+            return PromotionAvailability(isAvailable: false, awardAmount: .zero)
         }
     }
 
@@ -128,10 +121,19 @@ extension PromotionService: PromotionServiceProtocol {
 }
 
 extension PromotionService {
-    private func promotionIsHappeningRightNow(timeout: TimeInterval) async throws -> Bool {
+    private func fetchPromotionAvailability(timeout: TimeInterval) async throws -> PromotionAvailability {
         let promotion = try await tangemApiService.promotion(programName: programName, timeout: timeout)
 
-        return promotion.status == .active
+        let isAvailable = (promotion.status == .active)
+
+        let awardAmount: Double
+        if promoCode != nil {
+            awardAmount = promotion.awardForNewCard
+        } else {
+            awardAmount = promotion.awardForOldCard
+        }
+
+        return PromotionAvailability(isAvailable: isAvailable, awardAmount: Decimal(floatLiteral: awardAmount))
     }
 
     private func rewardAddress(storageEntryAdding: StorageEntryAdding) async throws -> String? {
