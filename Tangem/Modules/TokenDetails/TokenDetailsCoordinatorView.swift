@@ -17,8 +17,8 @@ struct TokenDetailsCoordinatorView: CoordinatorView {
 
     var body: some View {
         ZStack {
-            if let rootViewModel = coordinator.rootViewModel {
-                TokenDetailsView(viewModel: rootViewModel)
+            if let viewModel = coordinator.tokenDetailsViewModel {
+                TokenDetailsView(viewModel: viewModel)
                     .navigationLinks(links)
             }
 
@@ -28,11 +28,20 @@ struct TokenDetailsCoordinatorView: CoordinatorView {
 
     @ViewBuilder
     private var links: some View {
-        EmptyView()
+        NavHolder()
+            .navigation(item: $coordinator.swappingCoordinator) {
+                SwappingCoordinatorView(coordinator: $0)
+            }
+            .navigation(item: $coordinator.pushedWebViewModel) {
+                WebViewContainer(viewModel: $0)
+            }
     }
 
     @ViewBuilder
     private var sheets: some View {
-        EmptyView()
+        NavHolder()
+            .sheet(item: $coordinator.sendCoordinator) {
+                SendCoordinatorView(coordinator: $0)
+            }
     }
 }

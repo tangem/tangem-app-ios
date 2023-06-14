@@ -13,30 +13,13 @@ struct TokenDetailsView: View {
 
     var body: some View {
         RefreshableScrollView(onRefresh: viewModel.onRefresh) {
-            VStack {
+            VStack(spacing: 14) {
                 BalanceWithButtonsView(viewModel: viewModel.balanceWithButtonsModel)
-                Text("Hello, World!")
             }
         }
-    }
-}
-
-class TokenDetailsRoutableMock: TokenDetailsRoutable {
-    func openReceiveScreen() {}
-}
-
-struct TokenDetailsView_Preview: PreviewProvider {
-//    static let viewModel = TokenDetailsViewModel(coordinator: TokenDetailsCoordinator())
-
-    static var previews: some View {
-        EmptyView()
-//        TokenDetailsView(viewModel: TokenDetailsViewModel(
-//            cardModel: PreviewCard.ethereum.cardModel,
-//            walletModel: .init(walletManager: ., derivationStyle: <#T##DerivationStyle?#>),
-//            blockchainNetwork: .init(.ethereum(testnet: false)),
-//            amountType: .coin,
-//            coordinator: TokenDetailsRoutableMock()
-//        ))
-//        TokenDetailsView(viewModel: viewModel)
+        .padding(.horizontal, 16)
+        .edgesIgnoringSafeArea(.bottom)
+        .navigationBarTitle("", displayMode: .inline)
+        .background(Colors.Background.secondary.edgesIgnoringSafeArea(.all))
     }
 }
