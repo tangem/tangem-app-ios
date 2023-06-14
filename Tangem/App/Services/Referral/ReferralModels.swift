@@ -29,16 +29,7 @@ extension ReferralProgramInfo {
 
     struct Award: Decodable {
         let amount: Decimal
-        let token: Token
-    }
-
-    struct Token: Decodable {
-        let id: String
-        let name: String
-        let symbol: String
-        let networkId: String
-        let contractAddress: String?
-        let decimalCount: Int?
+        let token: AwardToken
     }
 
     struct Discount: Decodable {
