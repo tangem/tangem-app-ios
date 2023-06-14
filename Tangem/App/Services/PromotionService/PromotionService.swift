@@ -10,12 +10,19 @@ import Combine
 import TangemSdk
 import BlockchainSdk
 
+struct PromotionAvailability {
+    let isAvailable: Bool
+    let awardAmount: Decimal
+}
+
 class PromotionService {
     @Injected(\.tangemApiService) private var tangemApiService: TangemApiService
 
     var readyForAwardPublisher: AnyPublisher<Void, Never> {
         readyForAwardSubject.eraseToAnyPublisher()
     }
+
+//    var awardAmount:
 
     let programName = "1inch"
     private let promoCodeStorageKey = "promo_code"
