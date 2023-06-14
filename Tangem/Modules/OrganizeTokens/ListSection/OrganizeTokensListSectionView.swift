@@ -23,10 +23,6 @@ struct OrganizeTokensListSectionView: View {
             if isDraggable {
                 Assets.OrganizeTokens.groupDragAndDropIcon
                     .image
-                    .renderingMode(.template)
-                    .resizable()
-                    .aspectRatio(contentMode: .fit)
-                    .frame(size: .init(bothDimensions: 20.0))
                     .foregroundColor(Colors.Icon.informative)
             }
         }
