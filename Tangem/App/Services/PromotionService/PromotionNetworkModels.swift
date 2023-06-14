@@ -9,8 +9,18 @@
 import Foundation
 
 struct PromotionParameters: Decodable {
-    let startTimestamp: Double
-    let endTimestamp: Double
+    let status: Status
+    let awardForNewCard: Double
+    let awardForOldCard: Double
+    let awardPaymentToken: ReferralProgramInfo.Token
+}
+
+extension PromotionParameters {
+    enum Status: String, Decodable {
+        case active
+        case pending
+        case finished
+    }
 }
 
 struct PromotionValidationResult: Decodable {
