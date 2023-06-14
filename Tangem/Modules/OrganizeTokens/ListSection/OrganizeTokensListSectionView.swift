@@ -33,7 +33,7 @@ struct OrganizeTokensListSectionView: View {
 
 // MARK: - Previews
 
-struct OrganizeTokensSectionView_Previews: PreviewProvider {
+struct OrganizeTokensListSectionView_Previews: PreviewProvider {
     static var previews: some View {
         VStack {
             Group {
