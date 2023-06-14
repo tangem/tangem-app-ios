@@ -12,7 +12,7 @@ struct PromotionParameters: Decodable {
     let status: Status
     let awardForNewCard: Double
     let awardForOldCard: Double
-    let awardPaymentToken: ReferralProgramInfo.Token
+    let awardPaymentToken: AwardToken
 }
 
 extension PromotionParameters {
