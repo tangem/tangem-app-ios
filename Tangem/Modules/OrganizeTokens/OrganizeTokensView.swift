@@ -58,7 +58,7 @@ struct OrganizeTokensView: View {
                         content: {
                             ForEach(indexed: sectionViewModel.items.indexed()) { itemIndex, itemViewModel in
                                 let indexPath = IndexPath(item: itemIndex, section: sectionIndex)
-                                OrganizeTokensSectionItemView(viewModel: itemViewModel)
+                                OrganizeTokensListItemView(viewModel: itemViewModel)
                                     .background(Colors.Background.primary)
                                     .cornerRadius(
                                         parametersProvider.cornerRadius(forItemAtIndexPath: indexPath),
@@ -72,9 +72,9 @@ struct OrganizeTokensView: View {
                                 case .invisible:
                                     EmptyView()
                                 case .fixed(let title):
-                                    OrganizeTokensSectionView(title: title, isDraggable: false)
+                                    OrganizeTokensListSectionView(title: title, isDraggable: false)
                                 case .draggable(let title):
-                                    OrganizeTokensSectionView(title: title, isDraggable: true)
+                                    OrganizeTokensListSectionView(title: title, isDraggable: true)
                                 }
                             }
                             .background(Colors.Background.primary)

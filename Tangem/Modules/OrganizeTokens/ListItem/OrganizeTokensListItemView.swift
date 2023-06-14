@@ -1,5 +1,5 @@
 //
-//  OrganizeTokensSectionItemView.swift
+//  OrganizeTokensListItemView.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -8,7 +8,7 @@
 
 import SwiftUI
 
-struct OrganizeTokensSectionItemView: View {
+struct OrganizeTokensListItemView: View {
     let viewModel: OrganizeTokensListItemViewModel
 
     var body: some View {
@@ -58,7 +58,7 @@ struct OrganizeTokensSectionItemView_Previews: PreviewProvider {
                     .flatMap(\.items)
 
                 ForEach(viewModels) { viewModel in
-                    OrganizeTokensSectionItemView(viewModel: viewModel)
+                    OrganizeTokensListItemView(viewModel: viewModel)
                 }
             }
             .background(Colors.Background.primary)
