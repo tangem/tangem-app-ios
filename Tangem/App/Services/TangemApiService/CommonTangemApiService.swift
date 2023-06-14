@@ -160,6 +160,10 @@ extension CommonTangemApiService: TangemApiService {
         return try JSONDecoder().decode(ReferralProgramInfo.self, from: filteredResponse.data)
     }
 
+    func shops(name: String) async throws -> ShopDetails {
+        try await request(for: .shops(name: name))
+    }
+
     @discardableResult
     func validateNewUserPromotionEligibility(walletId: String, code: String) async throws -> PromotionValidationResult {
         try await request(for: .validateNewUserPromotionEligibility(walletId: walletId, code: code))
