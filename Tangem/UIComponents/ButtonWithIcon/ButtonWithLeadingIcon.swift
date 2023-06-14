@@ -63,6 +63,7 @@ private struct ButtonWithLeadingIconContentView: View {
     let icon: Image
     let maintainsIdealSize: Bool
     let action: () -> Void
+    let disabled: Bool
 
     var body: some View {
         Button(action: action) {
@@ -71,6 +72,7 @@ private struct ButtonWithLeadingIconContentView: View {
                     .renderingMode(.template)
                     .resizable()
                     .frame(size: .init(bothDimensions: 20))
+                    .foregroundColor(iconColor)
 
                 if !title.isEmpty {
                     Text(title)
@@ -82,10 +84,23 @@ private struct ButtonWithLeadingIconContentView: View {
             .frame(maxWidth: maintainsIdealSize ? nil : .infinity)
             .padding(.horizontal, 14)
             .padding(.vertical, 8)
-            .background(Colors.Button.secondary)
+            .background(backgroundColor)
         }
+        .disabled(disabled)
         .cornerRadiusContinuous(10)
         .buttonStyle(.borderless)
+    }
+
+    private var textColor: Color {
+        disabled ? Colors.Text.disabled : Colors.Text.primary1
+    }
+
+    private var iconColor: Color {
+        disabled ? Colors.Icon.inactive : Colors.Icon.primary1
+    }
+
+    private var backgroundColor: Color {
+        disabled ? Colors.Button.disabled : Colors.Button.secondary
     }
 }
 
@@ -143,6 +158,10 @@ struct ButtonWithLeadingIcon_Previews: PreviewProvider {
                 title: "LongTitle_LongTitle_LongTitle_LongTitle_LongTitle",
                 icon: Assets.infoIconMini.image
             ) {}
+            ButtonWithLeadingIcon(title: "Buy", icon: Assets.plusMini.image, action: {}, disabled: false)
+            ButtonWithLeadingIcon(title: "Exchange", icon: Assets.exchangeMini.image, action: {}, disabled: true)
+            ButtonWithLeadingIcon(title: "Organize tokens", icon: Assets.sliders.image, action: {}, disabled: false)
+            ButtonWithLeadingIcon(title: "", icon: Assets.horizontalDots.image, action: {}, disabled: true)
         }
     }
 }
