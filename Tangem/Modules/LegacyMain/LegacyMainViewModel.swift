@@ -390,7 +390,7 @@ class LegacyMainViewModel: ObservableObject {
             } catch {
                 AppLog.shared.error(error)
                 if let apiError = error as? TangemAPIError,
-                   case .promotionCodeNotFound = apiError.code {
+                   case .promotionCodeNotApplied = apiError.code {
                     self.error = AlertBinder(title: Localization.commonError, message: Localization.mainPromotionNoPurchase)
                 } else {
                     self.error = error.alertBinder
