@@ -103,8 +103,8 @@ struct OrganizeTokensView: View {
 
     private var tokenListHeader: some View {
         OrganizeTokensHeaderView(viewModel: viewModel.headerViewModel)
-            .readSize { size in
-                scrollViewTopContentInset = size.height + Constants.overlayViewAdditionalVerticalInset + 8.0
+            .readGeometry(transform: \.size.height) { height in
+                scrollViewTopContentInset = height + Constants.overlayViewAdditionalVerticalInset + 8.0
             }
             .padding(.top, 8.0)
             .infinityFrame(alignment: .top)
@@ -144,9 +144,9 @@ struct OrganizeTokensView: View {
             .frame(height: 100.0)
             .infinityFrame(alignment: .bottom)
         )
-        .readSize { size in
-        .readGeometry(to: $tokenListFooterFrameMinY, transform: \.frame.minY)
-            scrollViewBottomContentInset = size.height + Constants.overlayViewAdditionalVerticalInset
+        .readGeometry { geometryInfo in
+            tokenListFooterFrameMinY = geometryInfo.frame.minY
+            scrollViewBottomContentInset = geometryInfo.size.height + Constants.overlayViewAdditionalVerticalInset
         }
         .infinityFrame(alignment: .bottom)
     }
