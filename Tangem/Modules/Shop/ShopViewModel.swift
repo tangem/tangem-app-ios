@@ -35,6 +35,7 @@ class ShopViewModel: ObservableObject {
     @Published var loadingProducts = false
     @Published var totalAmountWithoutDiscount: String? = nil
     @Published var totalAmount = ""
+    @Published var canOrder = true
     @Published var pollingForOrder = false
     @Published var order: Order?
 
@@ -48,8 +49,6 @@ class ShopViewModel: ObservableObject {
     var buyButtonText: String {
         canOrder ? Localization.shopBuyNow : Localization.shopPreOrderNow
     }
-
-    var canOrder = true
 
     private var shopifyProductVariants: [ProductVariant] = []
     private var currentVariantID: GraphQL.ID = .init(rawValue: "")
