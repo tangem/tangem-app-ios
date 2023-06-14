@@ -49,7 +49,8 @@ struct OrganizeTokensView: View {
 
             LazyVStack(spacing: 0.0) {
                 let parametersProvider = OrganizeTokensListCornerRadiusParametersProvider(
-                    sections: viewModel.sections
+                    sections: viewModel.sections,
+                    cornerRadius: Constants.cornerRadius
                 )
 
                 ForEach(indexed: viewModel.sections.indexed()) { sectionIndex, sectionViewModel in
@@ -117,7 +118,7 @@ struct OrganizeTokensView: View {
             .background(
                 Colors.Background
                     .primary
-                    .cornerRadiusContinuous(14.0)
+                    .cornerRadiusContinuous(Constants.cornerRadius)
             )
         }
         .readSize { size in
@@ -131,6 +132,7 @@ struct OrganizeTokensView: View {
 
 private extension OrganizeTokensView {
     enum Constants {
+        static let cornerRadius = 14.0
         static let overlayViewAdditionalVerticalInset = 10.0
     }
 }
