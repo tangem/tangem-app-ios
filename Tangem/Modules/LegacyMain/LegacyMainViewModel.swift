@@ -41,7 +41,7 @@ class LegacyMainViewModel: ObservableObject {
             singleWalletContentViewModel?.objectWillChange
                 .receive(on: DispatchQueue.main)
                 .sink(receiveValue: { [unowned self] in
-                    self.objectWillChange.send()
+                    objectWillChange.send()
                 })
                 .store(in: &bag)
         }
@@ -52,7 +52,7 @@ class LegacyMainViewModel: ObservableObject {
             multiWalletContentViewModel?.objectWillChange
                 .receive(on: DispatchQueue.main)
                 .sink(receiveValue: { [unowned self] in
-                    self.objectWillChange.send()
+                    objectWillChange.send()
                 })
                 .store(in: &bag)
         }
@@ -214,7 +214,7 @@ class LegacyMainViewModel: ObservableObject {
             .receive(on: DispatchQueue.main)
             .removeDuplicates()
             .sink { [unowned self] entries in
-                self.updateLackDerivationWarningView(entries: entries)
+                updateLackDerivationWarningView(entries: entries)
             }
             .store(in: &bag)
 
@@ -375,7 +375,7 @@ class LegacyMainViewModel: ObservableObject {
                         walletId: cardModel.userWalletId.stringValue
                     )
                 } else {
-                    self.startAwardProcess()
+                    startAwardProcess()
                 }
             } catch {
                 AppLog.shared.error(error)
@@ -404,7 +404,7 @@ class LegacyMainViewModel: ObservableObject {
 
                 if awarded {
                     #warning("l10n")
-                    self.error = AlertBuilder.makeSuccessAlert(message: "Your 1inch tokens will be credited to your wallet address within 2 days.")
+                    error = AlertBuilder.makeSuccessAlert(message: "Your 1inch tokens will be credited to your wallet address within 2 days.")
                 }
             } catch {
                 AppLog.shared.error(error)
@@ -481,7 +481,7 @@ extension LegacyMainViewModel {
                 guard let self else { return }
 
                 AppLog.shared.debug("⚠️ Main view model fetching warnings")
-                self.warnings = self.cardModel.warningsService.warnings(for: .main)
+                warnings = cardModel.warningsService.warnings(for: .main)
             }
             .store(in: &bag)
 
@@ -614,7 +614,7 @@ extension LegacyMainViewModel {
             coordinator.openBuyCrypto(at: url, closeUrl: buyCryptoCloseUrl) { [weak self] _ in
                 guard let self = self else { return }
 
-                let code = self.currencyCode
+                let code = currencyCode
                 Analytics.log(event: .tokenBought, params: [.token: code])
 
                 DispatchQueue.main.asyncAfter(deadline: .now() + 1) { [weak self] in
