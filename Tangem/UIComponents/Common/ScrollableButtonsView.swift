@@ -22,7 +22,8 @@ struct ScrollableButtonsView: View {
                     FixedSizeButtonWithLeadingIcon(
                         title: button.title,
                         icon: button.icon.image,
-                        action: button.action
+                        action: button.action,
+                        disabled: button.disabled
                     )
                 }
             }
@@ -38,12 +39,12 @@ struct ScrollableButtonsView_Previews: PreviewProvider {
             ScrollableButtonsView(
                 itemsHorizontalOffset: 16,
                 buttonsInfo: [
-                    ButtonWithIconInfo(title: "Buy", icon: Assets.plusMini, action: {}),
-                    ButtonWithIconInfo(title: "Send", icon: Assets.arrowUpMini, action: {}),
-                    ButtonWithIconInfo(title: "Receive", icon: Assets.arrowDownMini, action: {}),
-                    ButtonWithIconInfo(title: "Exchange", icon: Assets.exchangeMini, action: {}),
-                    ButtonWithIconInfo(title: "Organize tokens", icon: Assets.sliders, action: {}),
-                    ButtonWithIconInfo(title: "", icon: Assets.horizontalDots, action: {}),
+                    ButtonWithIconInfo(title: "Buy", icon: Assets.plusMini, action: {}, disabled: true),
+                    ButtonWithIconInfo(title: "Send", icon: Assets.arrowUpMini, action: {}, disabled: true),
+                    ButtonWithIconInfo(title: "Receive", icon: Assets.arrowDownMini, action: {}, disabled: true),
+                    ButtonWithIconInfo(title: "Exchange", icon: Assets.exchangeMini, action: {}, disabled: false),
+                    ButtonWithIconInfo(title: "Organize tokens", icon: Assets.sliders, action: {}, disabled: false),
+                    ButtonWithIconInfo(title: "", icon: Assets.horizontalDots, action: {}, disabled: true),
                 ]
             )
 
