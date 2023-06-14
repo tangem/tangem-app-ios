@@ -241,7 +241,7 @@ extension StoriesViewModel: WelcomeViewLifecycleListener {
     }
 }
 
-fileprivate extension CGPoint {
+private extension CGPoint {
     func distance(to other: CGPoint) -> CGFloat {
         return sqrt(pow(x - other.x, 2) + pow(y - other.y, 2))
     }
