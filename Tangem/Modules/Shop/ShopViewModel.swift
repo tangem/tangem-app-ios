@@ -18,6 +18,7 @@ class ShopViewModel: ObservableObject {
     }
 
     @Injected(\.shopifyService) private var shopifyService: ShopifyProtocol
+    @Injected(\.tangemApiService) private var tangemApiService: TangemApiService
 
     var bag = Set<AnyCancellable>()
 
@@ -48,7 +49,7 @@ class ShopViewModel: ObservableObject {
         canOrder ? Localization.shopBuyNow : Localization.shopPreOrderNow
     }
 
-    var canOrder = false
+    var canOrder = true
 
     private var shopifyProductVariants: [ProductVariant] = []
     private var currentVariantID: GraphQL.ID = .init(rawValue: "")
@@ -58,6 +59,7 @@ class ShopViewModel: ObservableObject {
 
     init(coordinator: ShopViewRoutable) {
         self.coordinator = coordinator
+        updateOrderAvailability()
     }
 
     deinit {
@@ -154,6 +156,18 @@ class ShopViewModel: ObservableObject {
                 didSelectBundle(selectedBundle)
             }
             .store(in: &bag)
+    }
+
+    private func updateOrderAvailability() {
+        runTask { [weak self] in
+            guard let self else { return }
+
+            let canOrder = try await tangemApiService.shops(name: "shopify").canOrder
+
+            DispatchQueue.main.async {
+                self.canOrder = canOrder
+            }
+        }
     }
 
     private func didSelectBundle(_ bundle: Bundle) {
