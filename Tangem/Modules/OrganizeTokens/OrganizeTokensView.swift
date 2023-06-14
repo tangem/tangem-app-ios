@@ -28,10 +28,10 @@ struct OrganizeTokensView: View {
                     tokenList
 
                     tokenListHeader
-
-                    tokenListFooter
                 }
-                .padding(.horizontal, 16.0)
+                .padding(.horizontal, Constants.contentHorizontalInset)
+
+                tokenListFooter
             }
             .background(
                 Colors.Background
@@ -121,6 +121,18 @@ struct OrganizeTokensView: View {
                     .cornerRadiusContinuous(Constants.cornerRadius)
             )
         }
+        .padding(.horizontal, Constants.contentHorizontalInset)
+        .background(
+            LinearGradient(
+                colors: [Colors.Background.fadeStart, Colors.Background.fadeEnd],
+                startPoint: .top,
+                endPoint: .bottom
+            )
+            .allowsHitTesting(false)
+            .ignoresSafeArea()
+            .frame(height: 100.0)
+            .infinityFrame(alignment: .bottom)
+        )
         .readSize { size in
             scrollViewBottomContentInset = size.height + Constants.overlayViewAdditionalVerticalInset
         }
@@ -134,6 +146,7 @@ private extension OrganizeTokensView {
     enum Constants {
         static let cornerRadius = 14.0
         static let overlayViewAdditionalVerticalInset = 10.0
+        static let contentHorizontalInset = 16.0
     }
 }
 
