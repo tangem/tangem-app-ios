@@ -35,8 +35,7 @@ struct OrganizeTokensListItemView: View {
                     .foregroundColor(Colors.Icon.informative)
             }
         }
-        .padding(.horizontal, 14.0)
-        .frame(height: 68.0)
+        .padding(14.0)
     }
 }
 
