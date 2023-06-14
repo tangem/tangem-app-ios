@@ -21,9 +21,6 @@ class PromotionService {
     private let promoCodeStorageKey = "promo_code"
     private let programsWithSuccessfullAwardsStorageKey = "programs_with_successfull_awards"
 
-    private var awardBlockchain: Blockchain?
-    private var awardToken: Token?
-
     private let readyForAwardSubject = PassthroughSubject<Void, Never>()
 
     init() {}
@@ -130,8 +127,8 @@ extension PromotionService {
         return promotion.status == .active
     }
 
-    private func getPromotion(timeout: TimeInterval) async throws -> PromotionParameters {
-        let promotion = try await tangemApiService.promotion(programName: programName, timeout: timeout)
+    private func rewardAddress(storageEntryAdding: StorageEntryAdding) async throws -> String? {
+        let promotion = try await tangemApiService.promotion(programName: programName, timeout: nil)
 
         guard
             let awardBlockchain = Blockchain(from: promotion.awardPaymentToken.networkId),
@@ -139,15 +136,6 @@ extension PromotionService {
         else {
             throw TangemAPIError(code: .decode)
         }
-
-        self.awardBlockchain = awardBlockchain
-        self.awardToken = awardToken
-
-        return promotion
-    }
-
-    private func rewardAddress(storageEntryAdding: StorageEntryAdding) async throws -> String? {
-        guard let awardBlockchain, let awardToken else { return nil }
 
         let derivationPath: DerivationPath? = awardBlockchain.derivationPath()
         let blockchainNetwork = storageEntryAdding.getBlockchainNetwork(for: awardBlockchain, derivationPath: derivationPath)
