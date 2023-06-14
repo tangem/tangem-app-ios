@@ -18,6 +18,7 @@ class ShopViewModel: ObservableObject {
     }
 
     @Injected(\.shopifyService) private var shopifyService: ShopifyProtocol
+    @Injected(\.tangemApiService) private var tangemApiService: TangemApiService
 
     var bag = Set<AnyCancellable>()
 
@@ -34,20 +35,20 @@ class ShopViewModel: ObservableObject {
     @Published var loadingProducts = false
     @Published var totalAmountWithoutDiscount: String? = nil
     @Published var totalAmount = ""
+    @Published var canOrder = true
     @Published var pollingForOrder = false
     @Published var order: Order?
 
     @Published var error: AlertBinder?
 
     var applePayButtonType: PKPaymentButtonType {
-        preorderDeliveryDateFormatted == nil ? .buy : .order
+        // We're using `.order` as a pre-order button. In reality you can't buy the product
+        canOrder ? .buy : .order
     }
 
     var buyButtonText: String {
-        preorderDeliveryDateFormatted == nil ? Localization.shopBuyNow : Localization.shopPreOrderNow
+        canOrder ? Localization.shopBuyNow : Localization.shopPreOrderNow
     }
-
-    let preorderDeliveryDateFormatted: String?
 
     private var shopifyProductVariants: [ProductVariant] = []
     private var currentVariantID: GraphQL.ID = .init(rawValue: "")
@@ -57,8 +58,7 @@ class ShopViewModel: ObservableObject {
 
     init(coordinator: ShopViewRoutable) {
         self.coordinator = coordinator
-
-        preorderDeliveryDateFormatted = Self.preorderDeliveryDateFormatted()
+        updateOrderAvailability()
     }
 
     deinit {
@@ -155,6 +155,20 @@ class ShopViewModel: ObservableObject {
                 didSelectBundle(selectedBundle)
             }
             .store(in: &bag)
+    }
+
+    private func updateOrderAvailability() {
+        runTask { [weak self] in
+            guard let self else { return }
+
+            let canOrder = try await tangemApiService.shops(name: "shopify").canOrder
+
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) {
+                withAnimation {
+                    self.canOrder = canOrder
+                }
+            }
+        }
     }
 
     private func didSelectBundle(_ bundle: Bundle) {
@@ -282,21 +296,6 @@ class ShopViewModel: ObservableObject {
         } else {
             totalAmountWithoutDiscount = nil
         }
-    }
-
-    private static func preorderDeliveryDateFormatted() -> String? {
-        let lastKnownPreorderDeliveryDate = DateComponents(calendar: Calendar(identifier: .gregorian), year: 2023, month: 6, day: 10).date!
-
-        let today = Date()
-        let calendar = Calendar.current
-        let canPreorder = calendar.compare(today, to: lastKnownPreorderDeliveryDate, toGranularity: .day) == .orderedAscending
-        guard canPreorder else {
-            return nil
-        }
-
-        let dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = "d MMMM"
-        return dateFormatter.string(from: lastKnownPreorderDeliveryDate)
     }
 }
 
