@@ -172,16 +172,15 @@ class LegacyMainViewModel: ObservableObject {
 
     var learnAndEarnTitle: String {
         if let _ = promotionService.promoCode {
-            return Localization.mainLearnTitle
+            return Localization.mainGetBonusTitle
         } else {
-            #warning("L10n")
-            return "Learn & Earn"
+            return Localization.mainLearnTitle
         }
     }
 
     var learnAndEarnSubtitle: String {
         if let _ = promotionService.promoCode {
-            return Localization.mainLearnSubtitle
+            return Localization.mainGetBonusSubtitle
         } else {
             let formatter = NumberFormatter()
             formatter.maximumFractionDigits = 0
@@ -192,8 +191,7 @@ class LegacyMainViewModel: ObservableObject {
                 return Localization.commonError
             }
 
-            #warning("L10n")
-            return "Complete the training and get \(formattedAmount) 1inch tokens on your wallet"
+            return Localization.mainLearnSubtitle(formattedAmount)
         }
     }
 
@@ -393,8 +391,7 @@ class LegacyMainViewModel: ObservableObject {
                 AppLog.shared.error(error)
                 if let apiError = error as? TangemAPIError,
                    case .promotionCodeNotFound = apiError.code {
-                    #warning("L10n")
-                    self.error = AlertBinder(title: Localization.commonError, message: "There was no purchase of a wallet for your promotional code after education, which means you cannot receive a bonus. Buy Tangem wallet, scan it in the app, and take a bonus.")
+                    self.error = AlertBinder(title: Localization.commonError, message: Localization.mainPromotionNoPurchase)
                 } else {
                     self.error = error.alertBinder
                 }
@@ -415,8 +412,7 @@ class LegacyMainViewModel: ObservableObject {
                 )
 
                 if awarded {
-                    #warning("l10n")
-                    error = AlertBuilder.makeSuccessAlert(message: "Your 1inch tokens will be credited to your wallet address within 2 days.")
+                    error = AlertBuilder.makeSuccessAlert(message: Localization.mainPromotionCredited)
                 }
             } catch {
                 AppLog.shared.error(error)
