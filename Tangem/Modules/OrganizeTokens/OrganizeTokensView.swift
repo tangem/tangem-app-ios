@@ -17,6 +17,10 @@ struct OrganizeTokensView: View {
     @available(iOS, introduced: 13.0, deprecated: 15.0, message: "Use native .safeAreaInset() instead")
     @State private var scrollViewTopContentInset = 0.0
 
+    @State private var tokenListFooterFrameMinY: CGFloat = 0.0
+    @State private var tokenListContentFrameMaxY: CGFloat = 0.0
+    @State private var isTokenListFooterGradientHidden = true
+
     init(viewModel: OrganizeTokensViewModel) {
         self.viewModel = viewModel
     }
@@ -86,8 +90,14 @@ struct OrganizeTokensView: View {
                     )
                 }
             }
+            .readGeometry(to: $tokenListContentFrameMaxY, transform: \.frame.maxY)
 
             Spacer(minLength: scrollViewBottomContentInset)
+        }
+        .onChange(of: tokenListContentFrameMaxY) { newValue in
+            withAnimation {
+                isTokenListFooterGradientHidden = newValue < tokenListFooterFrameMinY
+            }
         }
     }
 
@@ -129,11 +139,13 @@ struct OrganizeTokensView: View {
                 endPoint: .bottom
             )
             .allowsHitTesting(false)
+            .hidden(isTokenListFooterGradientHidden)
             .ignoresSafeArea()
             .frame(height: 100.0)
             .infinityFrame(alignment: .bottom)
         )
         .readSize { size in
+        .readGeometry(to: $tokenListFooterFrameMinY, transform: \.frame.minY)
             scrollViewBottomContentInset = size.height + Constants.overlayViewAdditionalVerticalInset
         }
         .infinityFrame(alignment: .bottom)
