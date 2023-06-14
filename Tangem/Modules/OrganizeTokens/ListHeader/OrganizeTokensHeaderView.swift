@@ -14,26 +14,17 @@ struct OrganizeTokensHeaderView: View {
     var body: some View {
         HStack(spacing: 8.0) {
             Group {
-                Group {
-                    if viewModel.isSortByBalanceEnabled {
-                        FlexySizeSelectedButtonWithLeadingIcon(
-                            title: viewModel.sortByBalanceButtonTitle,
-                            icon: Assets.OrganizeTokens.byBalanceSortIcon.image,
-                            action: viewModel.toggleSortState
-                        )
-                    } else {
-                        FlexySizeDeselectedButtonWithLeadingIcon(
-                            title: viewModel.sortByBalanceButtonTitle,
-                            icon: Assets.OrganizeTokens.byBalanceSortIcon.image,
-                            action: viewModel.toggleSortState
-                        )
-                    }
-                }
-                .transition(.opacity.animation(.default))
+                FlexySizeButtonWithLeadingIcon(
+                    title: viewModel.sortByBalanceButtonTitle,
+                    icon: Assets.OrganizeTokens.byBalanceSortIcon.image,
+                    isSelected: viewModel.isSortByBalanceEnabled,
+                    action: viewModel.toggleSortState
+                )
 
-                FlexySizeSelectedButtonWithLeadingIcon(
+                FlexySizeButtonWithLeadingIcon(
                     title: viewModel.groupingButtonTitle,
                     icon: Assets.OrganizeTokens.makeGroupIcon.image,
+                    isSelected: true,
                     action: viewModel.toggleGroupState
                 )
             }
