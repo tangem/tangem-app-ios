@@ -144,7 +144,7 @@ extension CommonTangemApiService: TangemApiService {
     }
 
     func participateInReferralProgram(
-        using token: ReferralProgramInfo.Token,
+        using token: AwardToken,
         for address: String,
         with userWalletId: String
     ) async throws -> ReferralProgramInfo {
