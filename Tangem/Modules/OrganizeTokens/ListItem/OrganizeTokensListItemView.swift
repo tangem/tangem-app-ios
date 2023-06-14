@@ -42,7 +42,7 @@ struct OrganizeTokensListItemView: View {
 
 // MARK: - Previews
 
-struct OrganizeTokensSectionItemView_Previews: PreviewProvider {
+struct OrganizeTokensListItemView_Previews: PreviewProvider {
     private static let previewProvider = OrganizeTokensPreviewProvider()
 
     static var previews: some View {
