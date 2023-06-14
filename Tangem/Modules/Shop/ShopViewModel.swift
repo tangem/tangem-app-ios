@@ -40,14 +40,15 @@ class ShopViewModel: ObservableObject {
     @Published var error: AlertBinder?
 
     var applePayButtonType: PKPaymentButtonType {
-        preorderDeliveryDateFormatted == nil ? .buy : .order
+        // We're using `.order` as a pre-order button. In reality you can't buy the product
+        canOrder ? .buy : .order
     }
 
     var buyButtonText: String {
-        preorderDeliveryDateFormatted == nil ? Localization.shopBuyNow : Localization.shopPreOrderNow
+        canOrder ? Localization.shopBuyNow : Localization.shopPreOrderNow
     }
 
-    let preorderDeliveryDateFormatted: String?
+    var canOrder = false
 
     private var shopifyProductVariants: [ProductVariant] = []
     private var currentVariantID: GraphQL.ID = .init(rawValue: "")
@@ -57,8 +58,6 @@ class ShopViewModel: ObservableObject {
 
     init(coordinator: ShopViewRoutable) {
         self.coordinator = coordinator
-
-        preorderDeliveryDateFormatted = Self.preorderDeliveryDateFormatted()
     }
 
     deinit {
@@ -282,21 +281,6 @@ class ShopViewModel: ObservableObject {
         } else {
             totalAmountWithoutDiscount = nil
         }
-    }
-
-    private static func preorderDeliveryDateFormatted() -> String? {
-        let lastKnownPreorderDeliveryDate = DateComponents(calendar: Calendar(identifier: .gregorian), year: 2023, month: 6, day: 10).date!
-
-        let today = Date()
-        let calendar = Calendar.current
-        let canPreorder = calendar.compare(today, to: lastKnownPreorderDeliveryDate, toGranularity: .day) == .orderedAscending
-        guard canPreorder else {
-            return nil
-        }
-
-        let dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = "d MMMM"
-        return dateFormatter.string(from: lastKnownPreorderDeliveryDate)
     }
 }
 
