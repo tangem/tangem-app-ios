@@ -11,10 +11,10 @@ import SwiftUI
 struct OrganizeTokensView: View {
     @ObservedObject private var viewModel: OrganizeTokensViewModel
 
-    @available(iOS, introduced: 13.0, deprecated: 15.0, message: "Use native .safeAreaInset() instead")
+    @available(iOS, introduced: 13.0, deprecated: 15.0, message: "Use native 'safeAreaInset()' instead")
     @State private var scrollViewBottomContentInset = 0.0
 
-    @available(iOS, introduced: 13.0, deprecated: 15.0, message: "Use native .safeAreaInset() instead")
+    @available(iOS, introduced: 13.0, deprecated: 15.0, message: "Use native 'safeAreaInset()' instead")
     @State private var scrollViewTopContentInset = 0.0
 
     @State private var tokenListFooterFrameMinY: CGFloat = 0.0
