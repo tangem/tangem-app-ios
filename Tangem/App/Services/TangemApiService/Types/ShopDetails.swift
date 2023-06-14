@@ -1,5 +1,5 @@
 //
-//  Shops.swift
+//  ShopDetails.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -8,6 +8,6 @@
 
 import Foundation
 
-struct ShopParameters: Decodable {
+struct ShopDetails: Decodable {
     let canOrder: Bool
 }
