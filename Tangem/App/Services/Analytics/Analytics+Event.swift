@@ -77,6 +77,8 @@ extension Analytics {
         case buttonPaste = "[Token / Send] Button - Paste"
         case buttonQRCode = "[Token / Send] Button - QR Code"
         case buttonSwapCurrency = "[Token / Send] Button - Swap Currency"
+        case addressEntered = "[Token / Send] Address Entered"
+        case selectedCurrency = "[Token / Send] Selected Currency"
         case topupScreenOpened = "[Token / Topup] Top Up Screen Opened"
         case p2PScreenOpened = "[Token / Topup] P2P Screen Opened"
         case withdrawScreenOpened = "[Token / Withdraw] Withdraw Screen Opened"
