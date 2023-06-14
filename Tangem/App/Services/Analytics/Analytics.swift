@@ -85,6 +85,17 @@ class Analytics {
         ], uniquingKeysWith: { $1 }))
     }
 
+    static func logDestinationAddress(isAddressValid: Bool, source: DestinationAddressSource) {
+        let validationResult: Analytics.ParameterValue = isAddressValid ? .destinationAddressValidationSuccess : .destinationAddressValidationFail
+        Analytics.log(
+            .addressEntered,
+            params: [
+                .commonSource: source.parameterValue,
+                .destinationAddressValidationResult: validationResult,
+            ]
+        )
+    }
+
     // MARK: - Common
 
     static func log(_ event: Event, params: [ParameterKey: ParameterValue] = [:]) {
