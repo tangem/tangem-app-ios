@@ -124,17 +124,17 @@ class ReferralViewModel: ObservableObject {
         cardModel.add(entries: [storageEntry]) { [weak self] result in
             guard let self else { return }
 
-            self.isProcessingRequest = false
+            isProcessingRequest = false
             switch result {
             case .success:
-                runTask(self.participateInReferralProgram)
+                runTask(participateInReferralProgram)
             case .failure(let error):
                 if case .userCancelled = error.toTangemSdkError() {
                     return
                 }
 
                 AppLog.shared.error(error)
-                self.errorAlert = error.alertBinder
+                errorAlert = error.alertBinder
             }
         }
     }
