@@ -182,7 +182,7 @@ struct ShopView: View {
     @ViewBuilder
     private var applePayButton: some View {
         // Note that applePayButtonType has different values depending on canOrder
-        // The button is not updated otherwise and it is not possible to change the type of the button on the fly
+        // The button is not updated otherwise and it is not possible to change the type of PKPaymentButton on the fly
         if viewModel.canOrder {
             ApplePayButton(type: viewModel.applePayButtonType, action: viewModel.openApplePayCheckout)
         } else {
