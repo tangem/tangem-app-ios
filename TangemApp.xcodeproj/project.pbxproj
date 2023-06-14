@@ -384,6 +384,7 @@
 		B61B14CD2A25DD33001AF997 /* Lock.swift in Sources */ = {isa = PBXBuildFile; fileRef = B61B14CC2A25DD33001AF997 /* Lock.swift */; };
 		B63127D42A2F52E2007C124C /* OrganizeTokensListSectionViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B63127D32A2F52E2007C124C /* OrganizeTokensListSectionViewModel.swift */; };
 		B63127D82A2F83DF007C124C /* OrganizeTokensListItemViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B63127D72A2F83DF007C124C /* OrganizeTokensListItemViewModel.swift */; };
+		B63457772A3A097C00E164C5 /* View+ReadGeometry.swift in Sources */ = {isa = PBXBuildFile; fileRef = B63457762A3A097C00E164C5 /* View+ReadGeometry.swift */; };
 		B65591ED2A2FF1B20066A13B /* OrganizeTokensHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B65591EC2A2FF1B20066A13B /* OrganizeTokensHeaderView.swift */; };
 		B675A1E62A1E05F700F624B6 /* CardsInfoPagerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B675A1E52A1E05F700F624B6 /* CardsInfoPagerView.swift */; };
 		B675A1EA2A1E068D00F624B6 /* Clamp.swift in Sources */ = {isa = PBXBuildFile; fileRef = B675A1E92A1E068D00F624B6 /* Clamp.swift */; };
@@ -1393,6 +1394,7 @@
 		B61B14CC2A25DD33001AF997 /* Lock.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Lock.swift; sourceTree = "<group>"; };
 		B63127D32A2F52E2007C124C /* OrganizeTokensListSectionViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OrganizeTokensListSectionViewModel.swift; sourceTree = "<group>"; };
 		B63127D72A2F83DF007C124C /* OrganizeTokensListItemViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OrganizeTokensListItemViewModel.swift; sourceTree = "<group>"; };
+		B63457762A3A097C00E164C5 /* View+ReadGeometry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "View+ReadGeometry.swift"; sourceTree = "<group>"; };
 		B65591EC2A2FF1B20066A13B /* OrganizeTokensHeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OrganizeTokensHeaderView.swift; sourceTree = "<group>"; };
 		B675A1E52A1E05F700F624B6 /* CardsInfoPagerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardsInfoPagerView.swift; sourceTree = "<group>"; };
 		B675A1E92A1E068D00F624B6 /* Clamp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Clamp.swift; sourceTree = "<group>"; };
@@ -2387,6 +2389,7 @@
 				5D06E03F250A5D54004218D0 /* NSRegualrExpression+.swift */,
 				5D80ED462550186A0008DEF0 /* View+.swift */,
 				B04FBC3926CB98F000B397CE /* View+SizeReader.swift */,
+				B63457762A3A097C00E164C5 /* View+ReadGeometry.swift */,
 				B687E9482A2D881C00BFF604 /* View+ReadContentOffset.swift */,
 				B0C8A0D32562C86A00DEEAC7 /* View+PreviewDevice.swift */,
 				B6E8BBFA2A2F209B0012E7D3 /* View+InfinityFrame.swift */,
@@ -6279,6 +6282,7 @@
 				EF0F99AB289028F8008B01DF /* AppSettingsCoordinatorView.swift in Sources */,
 				DC7D3A0529E06334007BCD23 /* GenericTangemSdkFactory.swift in Sources */,
 				DAE6F76D2800011400411F45 /* AppError.swift in Sources */,
+				B63457772A3A097C00E164C5 /* View+ReadGeometry.swift in Sources */,
 				B6E932CE2A2F3A310068D466 /* OrganizeTokensListItemView.swift in Sources */,
 				B0431B47291A905A00F84DEF /* RoundedBackgroundModifier.swift in Sources */,
 				B6E8BBFB2A2F209B0012E7D3 /* View+InfinityFrame.swift in Sources */,
