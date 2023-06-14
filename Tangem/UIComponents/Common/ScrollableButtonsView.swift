@@ -22,9 +22,9 @@ struct ScrollableButtonsView: View {
                     FixedSizeButtonWithLeadingIcon(
                         title: button.title,
                         icon: button.icon.image,
-                        action: button.action,
-                        disabled: button.disabled
+                        action: button.action
                     )
+                    .disabled(button.disabled)
                 }
             }
             .padding(.horizontal, itemsHorizontalOffset)
