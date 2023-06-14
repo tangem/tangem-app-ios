@@ -15,26 +15,26 @@ struct OrganizeTokensHeaderView: View {
         HStack(spacing: 8.0) {
             Group {
                 Group {
-                    if viewModel.isLeadingButtonSelected {
+                    if viewModel.isSortByBalanceEnabled {
                         FlexySizeSelectedButtonWithLeadingIcon(
-                            title: viewModel.leadingButtonTitle,
+                            title: viewModel.sortByBalanceButtonTitle,
                             icon: Assets.OrganizeTokens.byBalanceSortIcon.image,
-                            action: viewModel.onLeadingButtonTap
+                            action: viewModel.toggleSortState
                         )
                     } else {
                         FlexySizeDeselectedButtonWithLeadingIcon(
-                            title: viewModel.leadingButtonTitle,
+                            title: viewModel.sortByBalanceButtonTitle,
                             icon: Assets.OrganizeTokens.byBalanceSortIcon.image,
-                            action: viewModel.onLeadingButtonTap
+                            action: viewModel.toggleSortState
                         )
                     }
                 }
                 .transition(.opacity.animation(.default))
 
                 FlexySizeSelectedButtonWithLeadingIcon(
-                    title: viewModel.trailingButtonTitle,
+                    title: viewModel.groupingButtonTitle,
                     icon: Assets.OrganizeTokens.makeGroupIcon.image,
-                    action: viewModel.onTrailingButtonTap
+                    action: viewModel.toggleGroupState
                 )
             }
             .background(
