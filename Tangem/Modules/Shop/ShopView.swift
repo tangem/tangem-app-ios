@@ -159,11 +159,9 @@ struct ShopView: View {
     @ViewBuilder
     private var buyButtons: some View {
         if viewModel.canUseApplePay {
-            ApplePayButton(type: viewModel.applePayButtonType) {
-                viewModel.openApplePayCheckout()
-            }
-            .frame(height: 46)
-            .cornerRadius(applePayCornerRadius)
+            applePayButton
+                .frame(height: 46)
+                .cornerRadius(applePayCornerRadius)
 
             Button {
                 viewModel.openWebCheckout()
@@ -178,6 +176,17 @@ struct ShopView: View {
                 Text(viewModel.buyButtonText)
             }
             .buttonStyle(TangemButtonStyle(colorStyle: .black, layout: .flexibleWidth))
+        }
+    }
+
+    @ViewBuilder
+    private var applePayButton: some View {
+        // Note that applePayButtonType has different values depending on canOrder
+        // The button is not updated otherwise and it is not possible to change the type of the button on the fly
+        if viewModel.canOrder {
+            ApplePayButton(type: viewModel.applePayButtonType, action: viewModel.openApplePayCheckout)
+        } else {
+            ApplePayButton(type: viewModel.applePayButtonType, action: viewModel.openApplePayCheckout)
         }
     }
 }
