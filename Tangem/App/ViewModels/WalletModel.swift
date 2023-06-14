@@ -168,7 +168,7 @@ class WalletModel: ObservableObject, Identifiable {
                     return .anyFail(error: CommonError.objectReleased)
                 }
 
-                return self.loadRates()
+                return loadRates()
                     .map { (result, $0) }
                     .eraseToAnyPublisher()
             }
@@ -177,26 +177,26 @@ class WalletModel: ObservableObject, Identifiable {
                 guard let self, case .failure(let error) = completion else { return }
 
                 AppLog.shared.error(error)
-                self.updateRatesIfNeeded([:])
-                self.updateState(.failed(error: error.localizedDescription))
-                self.updatePublisher?.send(completion: .failure(error))
-                self.updatePublisher = nil
+                updateRatesIfNeeded([:])
+                updateState(.failed(error: error.localizedDescription))
+                updatePublisher?.send(completion: .failure(error))
+                updatePublisher = nil
 
             } receiveValue: { [weak self] updatedResult, rates in
                 guard let self else { return }
 
-                self.updateRatesIfNeeded(rates)
+                updateRatesIfNeeded(rates)
 
                 switch updatedResult {
                 case .noAccount(let message):
-                    self.updateState(.noAccount(message: message))
+                    updateState(.noAccount(message: message))
                 case .success:
-                    self.updateState(.idle)
+                    updateState(.idle)
                 }
 
-                self.updatePublisher?.send(())
-                self.updatePublisher?.send(completion: .finished)
-                self.updatePublisher = nil
+                updatePublisher?.send(())
+                updatePublisher?.send(completion: .finished)
+                updatePublisher = nil
             }
 
         return newUpdatePublisher.eraseToAnyPublisher()
