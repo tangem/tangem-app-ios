@@ -9,7 +9,7 @@
 import Foundation
 import BlockchainSdk
 
-protocol LegacyMainRoutable: TokenDetailsRoutable {
+protocol LegacyMainRoutable: LegacyTokenDetailsRoutable {
     func close(newScan: Bool)
     func openSettings(cardModel: CardViewModel)
     func openTokenDetails(cardModel: CardViewModel, blockchainNetwork: BlockchainNetwork, amountType: Amount.AmountType)
