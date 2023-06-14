@@ -126,12 +126,9 @@ extension PromotionService: PromotionServiceProtocol {
 
 extension PromotionService {
     private func promotionIsHappeningRightNow(timeout: TimeInterval) async throws -> Bool {
-        let parameters = try await tangemApiService.promotion(programName: programName, timeout: timeout)
-        let startDate = Date(timeIntervalSince1970: parameters.startTimestamp / 1000)
-        let endDate = Date(timeIntervalSince1970: parameters.endTimestamp / 1000)
+        let promotion = try await tangemApiService.promotion(programName: programName, timeout: timeout)
 
-        let now = Date()
-        return startDate <= now && now <= endDate
+        return promotion.status == .active
     }
 
     private func rewardAddress(storageEntryAdding: StorageEntryAdding) async throws -> String? {
