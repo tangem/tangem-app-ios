@@ -1,5 +1,5 @@
 //
-//  OrganizeTokensSectionView.swift
+//  OrganizeTokensListSectionView.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -8,7 +8,7 @@
 
 import SwiftUI
 
-struct OrganizeTokensSectionView: View {
+struct OrganizeTokensListSectionView: View {
     let title: String
     let isDraggable: Bool
 
@@ -41,12 +41,12 @@ struct OrganizeTokensSectionView_Previews: PreviewProvider {
     static var previews: some View {
         VStack {
             Group {
-                OrganizeTokensSectionView(
+                OrganizeTokensListSectionView(
                     title: "Bitcoin network",
                     isDraggable: true
                 )
 
-                OrganizeTokensSectionView(
+                OrganizeTokensListSectionView(
                     title: "Bitcoin network",
                     isDraggable: false
                 )
