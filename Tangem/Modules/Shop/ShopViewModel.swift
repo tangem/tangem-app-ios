@@ -163,8 +163,10 @@ class ShopViewModel: ObservableObject {
 
             let canOrder = try await tangemApiService.shops(name: "shopify").canOrder
 
-            DispatchQueue.main.async {
-                self.canOrder = canOrder
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) {
+                withAnimation {
+                    self.canOrder = canOrder
+                }
             }
         }
     }
