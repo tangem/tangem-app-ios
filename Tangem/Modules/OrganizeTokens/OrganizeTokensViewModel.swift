@@ -26,6 +26,17 @@ final class OrganizeTokensViewModel: ObservableObject {
         headerViewModel = OrganizeTokensHeaderViewModel()
     }
 
+    func move(
+        itemInSection sectionIndex: Int,
+        fromSourceIndex sourceIndex: Int,
+        toDestinationIndex destinationIndex: Int
+    ) {
+        var section = sections[sectionIndex]
+        let offsetDiff = sourceIndex > destinationIndex ? 0 : 1
+        section.items.move(fromOffsets: IndexSet(integer: sourceIndex), toOffset: destinationIndex + offsetDiff)
+        sections[sectionIndex] = section
+    }
+
     func onCancelButtonTap() {
         // [REDACTED_TODO_COMMENT]
     }
