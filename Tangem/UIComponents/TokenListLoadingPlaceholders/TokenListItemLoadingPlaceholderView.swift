@@ -86,7 +86,6 @@ struct TokenListItemLoadingPlaceholderView: View {
 
                 SkeletonView()
                     .frame(width: 52.0, height: 12.0)
-
             }
             .cornerRadiusContinuous(3)
         }
@@ -116,7 +115,7 @@ struct TokenListItemLoadingPlaceholderView_Previews: PreviewProvider {
             Colors.Background
                 .secondary
                 .ignoresSafeArea()
-            
+
             VStack {
                 TokenListItemLoadingPlaceholderView(
                     iconDimension: iconDimension,
