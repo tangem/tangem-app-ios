@@ -356,7 +356,6 @@
 		B0CFD6CB2A027E2E009DF4D5 /* PriceChangeProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0CFD6CA2A027E2E009DF4D5 /* PriceChangeProvider.swift */; };
 		B0D1271E26AEF341008DC75C /* WalletConnectNetworkParserUtility.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0D1271D26AEF341008DC75C /* WalletConnectNetworkParserUtility.swift */; };
 		B0D1AC322906719300584E6C /* Analytics+Event.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0D1AC312906719300584E6C /* Analytics+Event.swift */; };
-		B0D2218C2A38C4BC004E3247 /* SwapAvailabilityService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0D2218B2A38C4BC004E3247 /* SwapAvailabilityService.swift */; };
 		B0D34E6F2626CEEB00625AC5 /* WalletConnectSignHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0D34E6E2626CEEB00625AC5 /* WalletConnectSignHandler.swift */; };
 		B0D34E772626DF2F00625AC5 /* WalletConnectRequestHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0D34E762626DF2F00625AC5 /* WalletConnectRequestHandler.swift */; };
 		B0D76D4525D4E4560073FA98 /* AddCustomTokenView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0D76D4425D4E4560073FA98 /* AddCustomTokenView.swift */; };
@@ -1359,7 +1358,6 @@
 		B0CFD6CA2A027E2E009DF4D5 /* PriceChangeProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PriceChangeProvider.swift; sourceTree = "<group>"; };
 		B0D1271D26AEF341008DC75C /* WalletConnectNetworkParserUtility.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletConnectNetworkParserUtility.swift; sourceTree = "<group>"; };
 		B0D1AC312906719300584E6C /* Analytics+Event.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Analytics+Event.swift"; sourceTree = "<group>"; };
-		B0D2218B2A38C4BC004E3247 /* SwapAvailabilityService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwapAvailabilityService.swift; sourceTree = "<group>"; };
 		B0D34E6E2626CEEB00625AC5 /* WalletConnectSignHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletConnectSignHandler.swift; sourceTree = "<group>"; };
 		B0D34E762626DF2F00625AC5 /* WalletConnectRequestHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletConnectRequestHandler.swift; sourceTree = "<group>"; };
 		B0D76D4425D4E4560073FA98 /* AddCustomTokenView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddCustomTokenView.swift; sourceTree = "<group>"; };
@@ -3228,14 +3226,6 @@
 			path = Analytics;
 			sourceTree = "<group>";
 		};
-		B0D2218A2A38C4A7004E3247 /* SwapAvailabilityService */ = {
-			isa = PBXGroup;
-			children = (
-				B0D2218B2A38C4BC004E3247 /* SwapAvailabilityService.swift */,
-			);
-			path = SwapAvailabilityService;
-			sourceTree = "<group>";
-		};
 		B0D34E6D2626CED500625AC5 /* SignHandlers */ = {
 			isa = PBXGroup;
 			children = (
@@ -3703,7 +3693,6 @@
 		DC0A57DA2822A4DC0031BECC /* Services */ = {
 			isa = PBXGroup;
 			children = (
-				B0D2218A2A38C4A7004E3247 /* SwapAvailabilityService */,
 				DA7444212A27889600F926A9 /* PromotionService */,
 				EF07082D2A1647560072AA0E /* SwappingFeeFormatter */,
 				B0B335D329FA89FA00E2082E /* RatesProvider */,
@@ -6062,7 +6051,6 @@
 				DA5FAD8627B2791C00EE53AE /* ApplePayButton.swift in Sources */,
 				DC295B3C2861C19C006CB7B6 /* LegacyMainCoordinator.swift in Sources */,
 				EFBAABAF2927CCBA0065C6D4 /* DecimalNumberFormatter.swift in Sources */,
-				B0D2218C2A38C4BC004E3247 /* SwapAvailabilityService.swift in Sources */,
 				EF0FF8712866021B00B7CEAF /* AppEnvironment.swift in Sources */,
 				EFE23AB9292B8D1800A3C554 /* SwappingPermissionView.swift in Sources */,
 				DC7D39FF29E02BC6007BCD23 /* AccessCodeRequestPolicyFactory.swift in Sources */,
