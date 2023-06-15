@@ -10,11 +10,6 @@ import Moya
 import TangemSdk
 
 struct TangemApiTarget: TargetType {
-    static var useRealPromo = false
-    static var promotionSuffix =
-        "\(Int.random(in: 0 ... 100_000_000))"
-//        "2"
-
     let type: TargetType
     let authData: AuthData?
 
@@ -86,23 +81,23 @@ struct TangemApiTarget: TargetType {
             return .requestParameters(parameters: ["programName": programName], encoding: URLEncoding.default)
         case .validateNewUserPromotionEligibility(let walletId, let code):
             return .requestParameters(parameters: [
-                "walletId": Self.useRealPromo ? walletId : TangemApiTarget.promotionSuffix,
+                "walletId": walletId,
                 "code": code,
             ], encoding: JSONEncoding.default)
         case .validateOldUserPromotionEligibility(let walletId, let programName):
             return .requestParameters(parameters: [
-                "walletId": Self.useRealPromo ? walletId : TangemApiTarget.promotionSuffix,
+                "walletId": walletId,
                 "programName": programName,
             ], encoding: JSONEncoding.default)
         case .awardNewUser(let walletId, let address, let code):
             return .requestParameters(parameters: [
-                "walletId": Self.useRealPromo ? walletId : TangemApiTarget.promotionSuffix,
+                "walletId": walletId,
                 "address": address,
                 "code": code,
             ], encoding: JSONEncoding.default)
         case .awardOldUser(let walletId, let address, let programName):
             return .requestParameters(parameters: [
-                "walletId": Self.useRealPromo ? walletId : TangemApiTarget.promotionSuffix,
+                "walletId": walletId,
                 "address": address,
                 "programName": programName,
             ], encoding: JSONEncoding.default)
@@ -139,7 +134,7 @@ extension TangemApiTarget {
 
         var headers: [String: String] {
             [
-                "card_id": cardId + (TangemApiTarget.useRealPromo ? "" : TangemApiTarget.promotionSuffix),
+                "card_id": cardId,
                 "card_public_key": cardPublicKey.hexString,
             ]
         }
