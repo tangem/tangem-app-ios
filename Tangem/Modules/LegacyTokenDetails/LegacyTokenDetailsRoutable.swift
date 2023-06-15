@@ -1,5 +1,5 @@
 //
-//  TokenDetailsRoutable.swift
+//  LegacyTokenDetailsRoutable.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -9,7 +9,7 @@
 import Foundation
 import BlockchainSdk
 
-protocol TokenDetailsRoutable: AnyObject {
+protocol LegacyTokenDetailsRoutable: AnyObject {
     func openBuyCrypto(at url: URL, closeUrl: String, action: @escaping (String) -> Void)
     func openSellCrypto(at url: URL, sellRequestUrl: String, action: @escaping (String) -> Void)
     func openExplorer(at url: URL, blockchainDisplayName: String)
