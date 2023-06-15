@@ -371,7 +371,7 @@ class CardViewModel: Identifiable, ObservableObject {
 
                 switch result {
                 case .success:
-                    self.onSecurityOptionChanged(isAccessCodeSet: true, isPasscodeSet: false)
+                    onSecurityOptionChanged(isAccessCodeSet: true, isPasscodeSet: false)
                     Analytics.log(.userCodeChanged)
                     completion(.success(()))
                 case .failure(let error):
@@ -394,7 +394,7 @@ class CardViewModel: Identifiable, ObservableObject {
 
                 switch result {
                 case .success:
-                    self.onSecurityOptionChanged(isAccessCodeSet: false, isPasscodeSet: false)
+                    onSecurityOptionChanged(isAccessCodeSet: false, isPasscodeSet: false)
                     completion(.success(()))
                 case .failure(let error):
                     AppLog.shared.error(
@@ -417,7 +417,7 @@ class CardViewModel: Identifiable, ObservableObject {
 
                 switch result {
                 case .success:
-                    self.onSecurityOptionChanged(isAccessCodeSet: false, isPasscodeSet: true)
+                    onSecurityOptionChanged(isAccessCodeSet: false, isPasscodeSet: true)
                     completion(.success(()))
                 case .failure(let error):
                     AppLog.shared.error(
@@ -582,6 +582,44 @@ extension CardViewModel {
     }
 }
 
+extension CardViewModel: StorageEntryAdding {
+    func add(entry: StorageEntry) async throws -> String {
+        try await withCheckedThrowingContinuation { [weak self] continuation in
+            guard let self = self else { return }
+
+            add(entry: entry) { result in
+                continuation.resume(with: result)
+            }
+        }
+    }
+
+    func add(entry: StorageEntry, completion: @escaping (Result<String, Error>) -> Void) {
+        add(entries: [entry]) { [weak self] result in
+            guard let self else { return }
+
+            if case .failure(let error) = result {
+                completion(.failure(error))
+                return
+            }
+
+            let address = walletModels
+                .first {
+                    $0.blockchainNetwork == entry.blockchainNetwork
+                }
+                .map {
+                    $0.wallet.address
+                }
+
+            guard let address else {
+                completion(.failure(WalletError.empty))
+                return
+            }
+
+            completion(.success(address))
+        }
+    }
+}
+
 extension CardViewModel {
     enum WalletsBalanceState {
         case inProgress
@@ -602,8 +640,8 @@ extension CardViewModel: AccessCodeRecoverySettingsProvider {
             guard let self else { return }
             switch result {
             case .success:
-                self.cardInfo.card.userSettings.isUserCodeRecoveryAllowed = enabled
-                self.accessCodeRecoveryEnabled = enabled
+                cardInfo.card.userSettings.isUserCodeRecoveryAllowed = enabled
+                accessCodeRecoveryEnabled = enabled
                 completionHandler(.success(()))
             case .failure(let error):
                 completionHandler(.failure(error))
