@@ -39,70 +39,26 @@ enum ActionButtonType {
     }
 }
 
-struct ExchangeCryptoUtility {
-    @Injected(\.exchangeService) private var exchangeService: ExchangeService
-
-    private let blockchain: Blockchain
-    private let address: String
-    private let amountType: Amount.AmountType
-
-    init(blockchain: Blockchain, address: String, amountType: Amount.AmountType) {
-        self.blockchain = blockchain
-        self.address = address
-        self.amountType = amountType
-    }
-
-    var buyAvailable: Bool { buyURL != nil }
-    var sellAvailable: Bool { sellURL != nil }
-
-    var buyURL: URL? {
-        if blockchain.isTestnet {
-            return blockchain.testnetFaucetURL
-        }
-
-        switch amountType {
-        case .coin:
-            return exchangeService.getBuyUrl(currencySymbol: blockchain.currencySymbol, amountType: amountType, blockchain: blockchain, walletAddress: address)
-        case .token(let token):
-            return exchangeService.getBuyUrl(currencySymbol: token.symbol, amountType: amountType, blockchain: blockchain, walletAddress: address)
-        case .reserve:
-            return nil
-        }
-    }
-
-    var sellURL: URL? {
-        switch amountType {
-        case .coin:
-            return exchangeService.getSellUrl(currencySymbol: blockchain.currencySymbol, amountType: amountType, blockchain: blockchain, walletAddress: address)
-        case .token(let token):
-            return exchangeService.getSellUrl(currencySymbol: token.symbol, amountType: amountType, blockchain: blockchain, walletAddress: address)
-        case .reserve:
-            return nil
-        }
-    }
-}
-
 final class TokenDetailsViewModel: ObservableObject {
-    @Injected(\.exchangeService) private var exchangeService: ExchangeService
     @Injected(\.keysManager) private var keysManager: KeysManager
 
-    var balanceWithButtonsModel: BalanceWithButtonsViewModel!
+    @Published var alert: AlertBinder? = nil
+
+    @Published private var balance: LoadingValue<BalanceInfo> = .loading
+    @Published private var actionButtons: [ButtonWithIconInfo] = []
+
+    private(set) var balanceWithButtonsModel: BalanceWithButtonsViewModel!
 
     private unowned let coordinator: TokenDetailsRoutable
-
     private let swappingUtils = SwappingAvailableUtils()
+    private let exchangeUtility: ExchangeCryptoUtility
 
     private let cardModel: CardViewModel
     private let walletModel: WalletModel
     private let blockchainNetwork: BlockchainNetwork
     private let amountType: Amount.AmountType
 
-    private let exchangeUtility: ExchangeCryptoUtility
-
-    @Published var alert: AlertBinder? = nil
-
-    @Published private var balance: LoadingValue<BalanceInfo> = .loading
-    @Published private var actionButtons: [ButtonWithIconInfo] = []
+    private lazy var testnetBuyCryptoService: TestnetBuyCryptoService = .init()
 
     private var availableActions: [ActionButtonType] = []
     private var bag = Set<AnyCancellable>()
@@ -130,6 +86,10 @@ final class TokenDetailsViewModel: ObservableObject {
 
     private var blockchain: Blockchain { blockchainNetwork.blockchain }
 
+    private var currencySymbol: String {
+        amountType.token?.symbol ?? blockchainNetwork.blockchain.currencySymbol
+    }
+
     init(
         cardModel: CardViewModel,
         walletModel: WalletModel,
@@ -142,19 +102,27 @@ final class TokenDetailsViewModel: ObservableObject {
         self.cardModel = cardModel
         self.blockchainNetwork = blockchainNetwork
         self.amountType = amountType
-        exchangeUtility = .init(blockchain: blockchainNetwork.blockchain, address: walletModel.wallet.address, amountType: amountType)
 
+        exchangeUtility = .init(blockchain: blockchainNetwork.blockchain, address: walletModel.wallet.address, amountType: amountType)
         balanceWithButtonsModel = .init(balanceProvider: self, buttonsProvider: self)
-        bind()
-        setupActionButtons()
-        loadSwappingState()
-        updateActionButtons()
+
+        prepareSelf()
     }
 
     func onRefresh(_ done: @escaping () -> Void) {
         DispatchQueue.main.asyncAfter(deadline: .now() + 5) {
             done()
         }
+    }
+}
+
+// MARK: - Setup functions
+private extension TokenDetailsViewModel {
+    private func prepareSelf() {
+        bind()
+        setupActionButtons()
+        loadSwappingState()
+        updateActionButtons()
     }
 
     private func setupActionButtons() {
@@ -195,12 +163,10 @@ final class TokenDetailsViewModel: ObservableObject {
         case .created, .loading:
             balance = .loading
         case .idle:
-            balance = .loaded(
-                .init(
-                    balance: walletModel.getDecimalBalance(for: amountType) ?? 0,
-                    currencyCode: walletModel.wallet.amounts[amountType]?.currencySymbol ?? blockchain.currencySymbol
-                )
-            )
+            balance = .loaded(.init(
+                balance: walletModel.getDecimalBalance(for: amountType) ?? 0,
+                currencyCode: currencySymbol
+            ))
         case .noAccount(let message), .failed(let message):
             balance = .failedToLoad(error: message)
         case .noDerivation:
@@ -209,7 +175,7 @@ final class TokenDetailsViewModel: ObservableObject {
     }
 
     private func updateActionButtons() {
-        var buttons = availableActions.map { type in
+        let buttons = availableActions.map { type in
             let action = action(for: type)
             let isDisabled = isButtonDisabled(type: type)
 
@@ -262,30 +228,34 @@ final class TokenDetailsViewModel: ObservableObject {
     }
 }
 
-extension TokenDetailsViewModel {
+// MARK: - Navigation functions
+
+private extension TokenDetailsViewModel {
     func openBuy() {
-//        if let disabledLocalizedReason = cardModel.getDisabledLocalizedReason(for: .exchange) {
-//            alert = AlertBuilder.makeDemoAlert(disabledLocalizedReason)
-//            return
-//        }
-//
-//        if let token = amountType.token,
-//           blockchainNetwork.blockchain == .ethereum(testnet: true) {
-//            testnetBuyCryptoService.buyCrypto(.erc20Token(token, walletManager: walletModel.walletManager, signer: card.signer))
-//            return
-//        }
-//
-//        if let url = buyCryptoUrl {
-//            coordinator.openBuyCrypto(at: url, closeUrl: buyCryptoCloseUrl) { [weak self] _ in
-//                guard let self else { return }
-//
-//                Analytics.log(event: .tokenBought, params: [.token: currencySymbol])
-//
-//                DispatchQueue.main.asyncAfter(deadline: .now() + 1) { [weak self] in
-//                    self?.walletModel?.update(silent: true)
-//                }
-//            }
-//        }
+        if let disabledLocalizedReason = cardModel.getDisabledLocalizedReason(for: .exchange) {
+            alert = AlertBuilder.makeDemoAlert(disabledLocalizedReason)
+            return
+        }
+
+        if let token = amountType.token, blockchain == .ethereum(testnet: true) {
+            testnetBuyCryptoService.buyCrypto(.erc20Token(
+                token,
+                walletManager: walletModel.walletManager,
+                signer: cardModel.signer
+            ))
+            return
+        }
+
+        guard let url = exchangeUtility.buyURL else { return }
+
+        coordinator.openBuyCrypto(at: url, closeUrl: exchangeUtility.buyCryptoCloseURL) { [weak self] _ in
+            guard let self else { return }
+            Analytics.log(event: .tokenBought, params: [.token: currencySymbol])
+
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+                self.walletModel.update(silent: true)
+            }
+        }
     }
 
     func openSend() {
@@ -350,9 +320,8 @@ extension TokenDetailsViewModel {
             return
         }
 
-        let sellCryptoRequestURL = exchangeService.sellRequestUrl.removeLatestSlash()
-        coordinator.openSellCrypto(at: url, sellRequestUrl: sellCryptoRequestURL) { [weak self] response in
-            if let request = self?.exchangeService.extractSellCryptoRequest(from: response) {
+        coordinator.openSellCrypto(at: url, sellRequestUrl: exchangeUtility.sellCryptoCloseURL) { [weak self] response in
+            if let request = self?.exchangeUtility.extractSellCryptoRequest(from: response) {
                 self?.openSendToSell(with: request)
             }
         }
