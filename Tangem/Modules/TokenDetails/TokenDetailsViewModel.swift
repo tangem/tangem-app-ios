@@ -6,41 +6,15 @@
 //  Copyright © 2023 Tangem AG. All rights reserved.
 //
 
+import SwiftUI
 import Combine
 import TangemSdk
 import BlockchainSdk
 import TangemSwapping
 
-enum ActionButtonType {
-    case buy
-    case send
-    case receive
-    case exchange
-    case sell
-
-    var title: String {
-        switch self {
-        case .buy: return Localization.commonBuy
-        case .send: return Localization.commonSend
-        case .receive: return Localization.commonReceive
-        case .exchange: return Localization.commonExchange
-        case .sell: return Localization.commonSell
-        }
-    }
-
-    var icon: ImageType {
-        switch self {
-        case .buy: return Assets.plusMini
-        case .send: return Assets.arrowUpMini
-        case .receive: return Assets.arrowDownMini
-        case .exchange: return Assets.exchangeMini
-        case .sell: return Assets.dollarMini
-        }
-    }
-}
-
 final class TokenDetailsViewModel: ObservableObject {
     @Injected(\.keysManager) private var keysManager: KeysManager
+    @Injected(\.tangemApiService) private var tangemApiService: TangemApiService
 
     @Published var alert: AlertBinder? = nil
 
@@ -60,8 +34,9 @@ final class TokenDetailsViewModel: ObservableObject {
 
     private lazy var testnetBuyCryptoService: TestnetBuyCryptoService = .init()
 
-    private var availableActions: [ActionButtonType] = []
+    private var availableActions: [TokenActionType] = []
     private var bag = Set<AnyCancellable>()
+    private var refreshCancellable: AnyCancellable?
 
     private var canSend: Bool {
         guard cardModel.canSend else {
@@ -109,14 +84,71 @@ final class TokenDetailsViewModel: ObservableObject {
         prepareSelf()
     }
 
+    func onAppear() {
+        Analytics.log(.detailsScreenOpened)
+        // [REDACTED_TODO_COMMENT]
+    }
+
     func onRefresh(_ done: @escaping () -> Void) {
-        DispatchQueue.main.asyncAfter(deadline: .now() + 5) {
-            done()
+        Analytics.log(.refreshed)
+
+        refreshCancellable = walletModel
+            .update(silent: false)
+            .receive(on: DispatchQueue.main)
+            .sink { _ in
+                AppLog.shared.debug("♻️ Token wallet model loading state changed")
+                withAnimation(.default.delay(0.2)) {
+                    done()
+                }
+            } receiveValue: { _ in }
+    }
+}
+
+// MARK: - Hide token
+
+extension TokenDetailsViewModel {
+    func hideTokenButtonAction() {
+        if walletModel.canRemove(amountType: amountType) {
+            showHideWarningAlert()
+        } else {
+            showUnableToHideAlert()
         }
+    }
+
+    private func showUnableToHideAlert() {
+        let message = Localization.tokenDetailsUnableHideAlertMessage(
+            currencySymbol,
+            blockchain.displayName
+        )
+
+        alert = AlertBuilder.makeAlert(
+            title: Localization.tokenDetailsUnableHideAlertTitle(currencySymbol),
+            message: message,
+            primaryButton: .default(Text(Localization.commonOk))
+        )
+    }
+
+    private func showHideWarningAlert() {
+        alert = AlertBuilder.makeAlert(
+            title: Localization.tokenDetailsHideAlertTitle(currencySymbol),
+            message: Localization.tokenDetailsHideAlertMessage,
+            primaryButton: .destructive(Text(Localization.tokenDetailsHideAlertHide)) { [weak self] in
+                self?.hideToken()
+            },
+            secondaryButton: .cancel()
+        )
+    }
+
+    private func hideToken() {
+        Analytics.log(event: .buttonRemoveToken, params: [Analytics.ParameterKey.token: currencySymbol])
+
+        cardModel.remove(amountType: amountType, blockchainNetwork: walletModel.blockchainNetwork)
+        dismiss()
     }
 }
 
 // MARK: - Setup functions
+
 private extension TokenDetailsViewModel {
     private func prepareSelf() {
         bind()
@@ -126,23 +158,9 @@ private extension TokenDetailsViewModel {
     }
 
     private func setupActionButtons() {
-        let canExchange = cardModel.canExchangeCrypto
-        let canBuy = exchangeUtility.buyAvailable
-        let canSell = exchangeUtility.sellAvailable
+        let listBuilder = TokenActionListBuilder()
 
-        var availableActions: [ActionButtonType] = []
-        availableActions.append(contentsOf: [.send, .receive])
-
-        if canExchange {
-            if canBuy {
-                availableActions.insert(.buy, at: 0)
-            }
-            if canSell {
-                availableActions.append(.sell)
-            }
-        }
-
-        self.availableActions = availableActions
+        availableActions = listBuilder.buildActions(for: cardModel, exchangeUtility: exchangeUtility)
     }
 
     private func bind() {
@@ -153,7 +171,6 @@ private extension TokenDetailsViewModel {
             } receiveValue: { [weak self] newState in
                 self?.updateBalance(walletModelState: newState)
                 self?.updateActionButtons()
-                AppLog.shared.debug("Wallet model new state: \(newState)")
             }
             .store(in: &bag)
     }
@@ -170,14 +187,15 @@ private extension TokenDetailsViewModel {
         case .noAccount(let message), .failed(let message):
             balance = .failedToLoad(error: message)
         case .noDerivation:
-            balance = .failedToLoad(error: Localization.customTokenCustomDerivation)
+            // User can't reach this screen without derived keys
+            balance = .failedToLoad(error: "")
         }
     }
 
     private func updateActionButtons() {
         let buttons = availableActions.map { type in
             let action = action(for: type)
-            let isDisabled = isButtonDisabled(type: type)
+            let isDisabled = isButtonDisabled(with: type)
 
             return ButtonWithIconInfo(buttonType: type, action: action, disabled: isDisabled)
         }
@@ -186,30 +204,31 @@ private extension TokenDetailsViewModel {
     }
 
     private func loadSwappingState() {
-        guard
-            FeatureProvider.isAvailable(.exchange),
-            cardModel.canShowSwapping,
-            swappingUtils.isSwapAvailable(for: blockchain)
-        else {
+        guard cardModel.canShowSwapping else {
             return
         }
 
         var swappingSubscription: AnyCancellable?
         swappingSubscription = swappingUtils
-            .canSwap(amount: amountType, blockchain: blockchain)
+            .canSwapPublisher(amountType: amountType, blockchain: blockchain)
             .receive(on: DispatchQueue.main)
             .sink { completion in
                 swappingSubscription = nil
                 AppLog.shared.debug("Load swapping availability state completion: \(completion)")
             } receiveValue: { [weak self] isSwapAvailable in
-                if isSwapAvailable, let receiveIndex = self?.availableActions.firstIndex(of: .receive) {
+                guard isSwapAvailable else { return }
+
+                if let receiveIndex = self?.availableActions.firstIndex(of: .receive) {
                     self?.availableActions.insert(.exchange, at: receiveIndex + 1)
-                    self?.updateActionButtons()
+                } else {
+                    self?.availableActions.append(.exchange)
                 }
+
+                self?.updateActionButtons()
             }
     }
 
-    private func isButtonDisabled(type: ActionButtonType) -> Bool {
+    private func isButtonDisabled(with type: TokenActionType) -> Bool {
         guard case .send = type else {
             return false
         }
@@ -217,9 +236,9 @@ private extension TokenDetailsViewModel {
         return !canSend
     }
 
-    private func action(for buttonType: ActionButtonType) -> () -> Void {
+    private func action(for buttonType: TokenActionType) -> () -> Void {
         switch buttonType {
-        case .buy: return openBuy
+        case .buy: return openBuyCryptoIfPossible
         case .send: return openSend
         case .receive: return openReceive
         case .exchange: return openExchange
@@ -231,6 +250,21 @@ private extension TokenDetailsViewModel {
 // MARK: - Navigation functions
 
 private extension TokenDetailsViewModel {
+    func openReceive() {}
+    
+    func openBuyCryptoIfPossible() {
+        Analytics.log(.buttonBuy)
+        if tangemApiService.geoIpRegionCode == LanguageCode.ru {
+            coordinator.openBankWarning {
+                self.openBuy()
+            } declineCallback: {
+                self.coordinator.openP2PTutorial()
+            }
+        } else {
+            openBuy()
+        }
+    }
+
     func openBuy() {
         if let disabledLocalizedReason = cardModel.getDisabledLocalizedReason(for: .exchange) {
             alert = AlertBuilder.makeDemoAlert(disabledLocalizedReason)
@@ -269,25 +303,15 @@ private extension TokenDetailsViewModel {
         )
     }
 
-    func openReceive() {}
-
     func openExchange() {
         if let disabledLocalizedReason = cardModel.getDisabledLocalizedReason(for: .swapping) {
             alert = AlertBuilder.makeDemoAlert(disabledLocalizedReason)
             return
         }
 
-        let mapper = CurrencyMapper()
-
-        let sourceCurrency: Currency?
-        switch amountType {
-        case .token(let token):
-            sourceCurrency = mapper.mapToCurrency(token: token, blockchain: blockchain)
-        default:
-            sourceCurrency = mapper.mapToCurrency(blockchain: blockchain)
-        }
-
-        guard let source = sourceCurrency else { return }
+        guard
+            let sourceCurrency = CurrencyMapper().mapToCurrency(amountType: amountType, in: blockchain)
+        else { return }
 
         var referrer: SwappingReferrerAccount?
 
@@ -302,7 +326,7 @@ private extension TokenDetailsViewModel {
             signer: cardModel.signer,
             logger: AppLog.shared,
             referrer: referrer,
-            source: source
+            source: sourceCurrency
         )
 
         coordinator.openSwapping(input: input)
@@ -335,6 +359,10 @@ private extension TokenDetailsViewModel {
             blockchainNetwork: blockchainNetwork,
             cardViewModel: cardModel
         )
+    }
+
+    func dismiss() {
+        coordinator.dismiss()
     }
 }
 
