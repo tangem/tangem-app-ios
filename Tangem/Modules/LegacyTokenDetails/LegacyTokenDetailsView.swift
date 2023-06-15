@@ -1,5 +1,5 @@
 //
-//  TokenDetailsView.swift
+//  LegacyTokenDetailsView.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -9,8 +9,8 @@
 import SwiftUI
 import BlockchainSdk
 
-struct TokenDetailsView: View {
-    @ObservedObject var viewModel: TokenDetailsViewModel
+struct LegacyTokenDetailsView: View {
+    @ObservedObject var viewModel: LegacyTokenDetailsViewModel
 
     var pendingTransactionViews: [LegacyPendingTxView] {
         let incTx = viewModel.incomingTransactions.map {
@@ -52,7 +52,7 @@ struct TokenDetailsView: View {
             GeometryReader { geometry in
                 RefreshableScrollView(onRefresh: { viewModel.onRefresh($0) }) {
                     VStack(spacing: 8.0) {
-                        ForEach(self.pendingTransactionViews) { $0 }
+                        ForEach(pendingTransactionViews) { $0 }
 
                         if let walletModel = viewModel.walletModel {
                             BalanceAddressView(
@@ -114,6 +114,7 @@ struct TokenDetailsView: View {
             MainButton(
                 title: option.title,
                 icon: .leading(option.icon),
+                isLoading: viewModel.exchangeButtonIsLoading,
                 isDisabled: !viewModel.isAvailable(type: option)
             ) {
                 viewModel.didTapExchangeButtonAction(type: option)
@@ -123,6 +124,7 @@ struct TokenDetailsView: View {
             MainButton(
                 title: Localization.walletButtonActions,
                 icon: .leading(Assets.exchangeIcon),
+                isLoading: viewModel.exchangeButtonIsLoading,
                 action: viewModel.openExchangeActionSheet
             )
             .actionSheet(item: $viewModel.exchangeActionSheet, content: { $0.sheet })
@@ -143,11 +145,11 @@ struct TokenDetailsView: View {
 struct TokenDetailsView_Previews: PreviewProvider {
     static var previews: some View {
         NavigationView {
-            TokenDetailsView(viewModel: TokenDetailsViewModel(
+            LegacyTokenDetailsView(viewModel: LegacyTokenDetailsViewModel(
                 cardModel: PreviewCard.cardanoNote.cardModel,
                 blockchainNetwork: PreviewCard.cardanoNote.blockchainNetwork!,
                 amountType: .coin,
-                coordinator: TokenDetailsCoordinator()
+                coordinator: LegacyTokenDetailsCoordinator()
             ))
             .deviceForPreviewZoomed(.iPhone7)
         }
