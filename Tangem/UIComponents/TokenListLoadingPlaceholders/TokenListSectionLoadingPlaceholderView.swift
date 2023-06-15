@@ -11,7 +11,7 @@ import SwiftUI
 struct TokenListSectionLoadingPlaceholderView: View {
     var body: some View {
         ZStack {
-            HStack() {
+            HStack {
                 SkeletonView()
                     .frame(width: 90.0, height: 18.0)
                     .cornerRadiusContinuous(3)
