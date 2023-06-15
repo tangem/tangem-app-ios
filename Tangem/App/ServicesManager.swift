@@ -11,6 +11,7 @@ import Combine
 import Firebase
 import AppsFlyerLib
 import Amplitude
+import BlockchainSdk
 
 class ServicesManager {
     @Injected(\.exchangeService) private var exchangeService: ExchangeService
@@ -67,6 +68,11 @@ class ServicesManager {
         Amplitude.instance().trackingSessionEvents = true
         Amplitude.instance().initializeApiKey(try! CommonKeysManager().amplitudeApiKey)
     }
+    
+    private func configureBlockchainSdkExceptionHandler() {
+        ExceptionHandlerr.shared.append(output: Analytics.BlockchainExceptionHandler())
+    }
+    
 }
 
 protocol Initializable {
