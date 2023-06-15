@@ -49,7 +49,7 @@ final class PromotionViewModel: ObservableObject {
             queryItems.append(URLQueryItem(name: "cardPublicKey", value: cardPublicKey))
             queryItems.append(URLQueryItem(name: "cardId", value: cardId))
             queryItems.append(URLQueryItem(name: "walletId", value: walletId))
-            queryItems.append(URLQueryItem(name: "programName", value: promotionService.programName))
+            queryItems.append(URLQueryItem(name: "programName", value: promotionService.currentProgramName))
         case .default:
             break
         }
