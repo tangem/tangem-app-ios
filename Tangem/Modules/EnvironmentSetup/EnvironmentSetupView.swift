@@ -62,9 +62,9 @@ struct EnvironmentSetupView: View {
             }
 
             VStack(spacing: 15) {
-                Text("Awarded program names: \(viewModel.awardedProgramNames)")
+                Text("Finished program names: \(viewModel.finishedPromotionNames)")
 
-                Button("Reset awarded programs", action: viewModel.resetAwardedProgramNames)
+                Button("Reset finished programs", action: viewModel.resetFinishedPromotionNames)
                     .foregroundColor(Color.red)
             }
         }
