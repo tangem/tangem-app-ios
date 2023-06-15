@@ -166,9 +166,8 @@ private extension TokenDetailsViewModel {
     private func bind() {
         walletModel.$state
             .receive(on: DispatchQueue.main)
-            .sink { completion in
-                AppLog.shared.debug(completion)
-            } receiveValue: { [weak self] newState in
+            .sink { _ in } receiveValue: { [weak self] newState in
+                AppLog.shared.debug("Token details receive new wallet model state: \(newState)")
                 self?.updateBalance(walletModelState: newState)
                 self?.updateActionButtons()
             }
