@@ -59,8 +59,7 @@ struct TokenListItemLoadingPlaceholderView: View {
 
             Circle()
                 .frame(size: .init(bothDimensions: dimension))
-                .offset(x: tokenPlaceholderOffset)
-                .offset(y: -tokenPlaceholderOffset)
+                .offset(x: tokenPlaceholderOffset, y: -tokenPlaceholderOffset)
                 .blendMode(.destinationOut)
         }
         .compositingGroup()
@@ -75,8 +74,7 @@ struct TokenListItemLoadingPlaceholderView: View {
         SkeletonView()
             .frame(size: .init(bothDimensions: dimension))
             .cornerRadius(iconDimension / 2.0)
-            .offset(x: tokenPlaceholderOffset)
-            .offset(y: -tokenPlaceholderOffset)
+            .offset(x: tokenPlaceholderOffset, y: -tokenPlaceholderOffset)
     }
 
     @ViewBuilder
