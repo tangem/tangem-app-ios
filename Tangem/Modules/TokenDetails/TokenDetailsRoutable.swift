@@ -16,8 +16,8 @@ protocol TokenDetailsRoutable: AnyObject {
 //    func openExplorer(at url: URL, blockchainDisplayName: String)
     func openSend(amountToSend: Amount, blockchainNetwork: BlockchainNetwork, cardViewModel: CardViewModel)
     func openSendToSell(amountToSend: Amount, destination: String, blockchainNetwork: BlockchainNetwork, cardViewModel: CardViewModel)
-//    func openBankWarning(confirmCallback: @escaping () -> Void, declineCallback: @escaping () -> Void)
-//    func openP2PTutorial()
+    func openBankWarning(confirmCallback: @escaping () -> Void, declineCallback: @escaping () -> Void)
+    func openP2PTutorial()
     func openSwapping(input: CommonSwappingModulesFactory.InputModel)
-//    func dismiss()
+    func dismiss()
 }
