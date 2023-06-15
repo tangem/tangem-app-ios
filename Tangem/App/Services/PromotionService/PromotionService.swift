@@ -125,6 +125,10 @@ extension PromotionService {
         let promotion = try await tangemApiService.promotion(programName: programName, timeout: timeout)
 
         let isAvailable = (promotion.status == .active)
+        
+        if promotion.status == .finished {
+            markCurrentProgramAsAwarded(true)
+        }
 
         let awardAmount: Double
         if promoCode != nil {
