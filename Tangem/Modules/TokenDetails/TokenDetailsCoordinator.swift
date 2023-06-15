@@ -26,6 +26,8 @@ class TokenDetailsCoordinator: CoordinatorObject {
     // MARK: - Child view models
 
     @Published var pushedWebViewModel: WebViewContainerViewModel? = nil
+    @Published var warningBankCardViewModel: WarningBankCardViewModel? = nil
+    @Published var modalWebViewModel: WebViewContainerViewModel? = nil
 
     required init(
         dismissAction: @escaping Action,
@@ -113,6 +115,31 @@ extension TokenDetailsCoordinator: TokenDetailsRoutable {
         )
         coordinator.start(with: options)
         sendCoordinator = coordinator
+    }
+
+    func openBankWarning(confirmCallback: @escaping () -> Void, declineCallback: @escaping () -> Void) {
+        let delay = 0.6
+        warningBankCardViewModel = .init(confirmCallback: { [weak self] in
+            self?.warningBankCardViewModel = nil
+            DispatchQueue.main.asyncAfter(deadline: .now() + delay) {
+                confirmCallback()
+            }
+        }, declineCallback: { [weak self] in
+            self?.warningBankCardViewModel = nil
+            DispatchQueue.main.asyncAfter(deadline: .now() + delay) {
+                declineCallback()
+            }
+        })
+    }
+
+    func openP2PTutorial() {
+        modalWebViewModel = WebViewContainerViewModel(
+            url: URL(string: "https://tangem.com/howtobuy.html")!,
+            title: "",
+            addLoadingIndicator: true,
+            withCloseButton: false,
+            urlActions: [:]
+        )
     }
 
     func openSwapping(input: CommonSwappingModulesFactory.InputModel) {
