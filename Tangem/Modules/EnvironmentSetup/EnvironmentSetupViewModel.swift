@@ -20,7 +20,7 @@ final class EnvironmentSetupViewModel: ObservableObject {
 
     // Promotion
     @Published var currentPromoCode: String = ""
-    @Published var awardedProgramNames: String = ""
+    @Published var finishedPromotionNames: String = ""
 
     // MARK: - Dependencies
 
@@ -75,7 +75,7 @@ final class EnvironmentSetupViewModel: ObservableObject {
 
         updateCurrentPromoCode()
 
-        updateAwardedProgramNames()
+        updateFinishedPromotionNames()
     }
 
     func copyCurrentPromoCode() {
@@ -91,9 +91,9 @@ final class EnvironmentSetupViewModel: ObservableObject {
         updateCurrentPromoCode()
     }
 
-    func resetAwardedProgramNames() {
-        promotionService.resetAwardedPrograms()
-        updateAwardedProgramNames()
+    func resetFinishedPromotionNames() {
+        promotionService.resetFinishedPromotions()
+        updateFinishedPromotionNames()
     }
 
     func showExitAlert() {
@@ -109,12 +109,12 @@ final class EnvironmentSetupViewModel: ObservableObject {
         currentPromoCode = promotionService.promoCode ?? "[none]"
     }
 
-    private func updateAwardedProgramNames() {
-        let awardedProgramNames = promotionService.awardedProgramNames()
-        if awardedProgramNames.isEmpty {
-            self.awardedProgramNames = "[none]"
+    private func updateFinishedPromotionNames() {
+        let finishedPromotionNames = promotionService.finishedPromotionNames()
+        if finishedPromotionNames.isEmpty {
+            self.finishedPromotionNames = "[none]"
         } else {
-            self.awardedProgramNames = promotionService.awardedProgramNames().joined(separator: ", ")
+            self.finishedPromotionNames = promotionService.finishedPromotionNames().joined(separator: ", ")
         }
     }
 }
