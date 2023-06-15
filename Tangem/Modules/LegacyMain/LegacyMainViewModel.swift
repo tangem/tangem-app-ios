@@ -255,8 +255,10 @@ class LegacyMainViewModel: ObservableObject {
             guard let self else { return }
 
             let promotionAvailability = await promotionService.promotionAvailability(timeout: nil)
-            promotionAwardAmount = promotionAvailability.awardAmount
-            canOpenPromotion = promotionAvailability.isAvailable
+            DispatchQueue.main.async {
+                self.promotionAwardAmount = promotionAvailability.awardAmount
+                self.canOpenPromotion = promotionAvailability.isAvailable
+            }
         }
     }
 
