@@ -42,15 +42,15 @@ class LegacyTokenDetailsViewModel: ObservableObject {
         walletModel?.outgoingPendingTransactions.filter { $0.amountType == amountType } ?? []
     }
 
-    private var canBuyCrypto: Bool {
+    var canBuyCrypto: Bool {
         card.canExchangeCrypto && buyCryptoUrl != nil
     }
 
-    private var canSellCrypto: Bool {
+    var canSellCrypto: Bool {
         card.canExchangeCrypto && sellCryptoUrl != nil
     }
 
-    private var buyCryptoUrl: URL? {
+    var buyCryptoUrl: URL? {
         if let wallet = wallet {
             if blockchainNetwork.blockchain.isTestnet {
                 return blockchainNetwork.blockchain.testnetFaucetURL
@@ -69,15 +69,15 @@ class LegacyTokenDetailsViewModel: ObservableObject {
         return nil
     }
 
-    private var buyCryptoCloseUrl: String {
+    var buyCryptoCloseUrl: String {
         exchangeService.successCloseUrl.removeLatestSlash()
     }
 
-    private var sellCryptoRequestUrl: String {
+    var sellCryptoRequestUrl: String {
         exchangeService.sellRequestUrl.removeLatestSlash()
     }
 
-    private var sellCryptoUrl: URL? {
+    var sellCryptoUrl: URL? {
         if let wallet = wallet {
             let address = wallet.address
             switch amountType {
