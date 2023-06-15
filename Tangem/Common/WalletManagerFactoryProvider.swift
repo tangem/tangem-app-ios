@@ -13,12 +13,7 @@ import BlockchainSdk
 class WalletManagerFactoryProvider {
     @Injected(\.keysManager) private var keysManager: KeysManager
 
-    lazy var factory: WalletManagerFactory = .init(
-        config: keysManager.blockchainConfig,
-        makeExceptionHandler: { input in
-            Analytics.BlockchainExceptionHandler(blockchain: input.blockchain)
-        }
-    )
+    lazy var factory: WalletManagerFactory = .init(config: keysManager.blockchainConfig)
 
     init() {}
 }
