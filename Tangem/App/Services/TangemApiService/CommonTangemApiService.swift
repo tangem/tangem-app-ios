@@ -45,28 +45,26 @@ extension CommonTangemApiService: TangemApiService {
     }
 
     func loadTokens(for key: String) -> AnyPublisher<UserTokenList, TangemAPIError> {
-//        let target = TangemApiTarget(type: .getUserWalletTokens(key: key), authData: authData)
-//
-//        return provider
-//            .requestPublisher(target)
-//            .filterSuccessfulStatusCodes()
-//            .map(UserTokenList.self)
-//            .mapTangemAPIError()
-//            .retry(3)
-//            .eraseToAnyPublisher()
-        return Just(UserTokenList(tokens: [])).setFailureType(to: TangemAPIError.self).eraseToAnyPublisher()
+        let target = TangemApiTarget(type: .getUserWalletTokens(key: key), authData: authData)
+
+        return provider
+            .requestPublisher(target)
+            .filterSuccessfulStatusCodes()
+            .map(UserTokenList.self)
+            .mapTangemAPIError()
+            .retry(3)
+            .eraseToAnyPublisher()
     }
 
     func saveTokens(list: UserTokenList, for key: String) -> AnyPublisher<Void, TangemAPIError> {
-//        let target = TangemApiTarget(type: .saveUserWalletTokens(key: key, list: list), authData: authData)
-//
-//        return provider
-//            .requestPublisher(target)
-//            .filterSuccessfulStatusCodes()
-//            .mapTangemAPIError()
-//            .mapVoid()
-//            .eraseToAnyPublisher()
-        return .anyFail(error: TangemAPIError(code: .decode)).eraseToAnyPublisher()
+        let target = TangemApiTarget(type: .saveUserWalletTokens(key: key, list: list), authData: authData)
+
+        return provider
+            .requestPublisher(target)
+            .filterSuccessfulStatusCodes()
+            .mapTangemAPIError()
+            .mapVoid()
+            .eraseToAnyPublisher()
     }
 
     func loadCoins(requestModel: CoinsListRequestModel) -> AnyPublisher<[CoinModel], Error> {
