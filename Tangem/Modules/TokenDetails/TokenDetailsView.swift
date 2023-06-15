@@ -21,5 +21,6 @@ struct TokenDetailsView: View {
         .edgesIgnoringSafeArea(.bottom)
         .navigationBarTitle("", displayMode: .inline)
         .background(Colors.Background.secondary.edgesIgnoringSafeArea(.all))
+        .alert(item: $viewModel.alert) { $0.alert }
     }
 }
