@@ -118,10 +118,7 @@ struct LegacyMainView: View {
 
     var settingsNavigationButton: some View {
         Button(action: viewModel.openSettings) {
-            Assets.verticalDots.image
-                .foregroundColor(Color.tangemGrayDark6)
-                .frame(width: 44, height: 44)
-                .offset(x: 11)
+            NavbarDotsImage()
         }
         .buttonStyle(PlainButtonStyle())
         .animation(nil)
