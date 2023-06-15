@@ -10,7 +10,7 @@ import Foundation
 import Combine
 
 protocol PromotionServiceProtocol {
-    var programName: String { get }
+    var currentProgramName: String { get }
     var promoCode: String? { get }
 
     var readyForAwardPublisher: AnyPublisher<Void, Never> { get }
@@ -23,8 +23,8 @@ protocol PromotionServiceProtocol {
     func checkIfCanGetAward(userWalletId: String) async throws
     func claimReward(userWalletId: String, storageEntryAdding: StorageEntryAdding) async throws -> Bool
 
-    func awardedProgramNames() -> Set<String>
-    func resetAwardedPrograms()
+    func finishedPromotionNames() -> Set<String>
+    func resetFinishedPromotions()
 }
 
 private struct PromotionServiceKey: InjectionKey {
