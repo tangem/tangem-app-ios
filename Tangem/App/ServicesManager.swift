@@ -29,6 +29,8 @@ class ServicesManager {
             configureAmplitude()
         }
 
+        configureBlockchainSdkExceptionHandler()
+
         let currentLaunches = AppSettings.shared.numberOfLaunches + 1
         AppSettings.shared.numberOfLaunches = currentLaunches
         AppLog.shared.logAppLaunch(currentLaunches)
@@ -68,11 +70,10 @@ class ServicesManager {
         Amplitude.instance().trackingSessionEvents = true
         Amplitude.instance().initializeApiKey(try! CommonKeysManager().amplitudeApiKey)
     }
-    
+
     private func configureBlockchainSdkExceptionHandler() {
-        ExceptionHandlerr.shared.append(output: Analytics.BlockchainExceptionHandler())
+        ExceptionHandler.shared.append(output: Analytics.BlockchainExceptionHandler())
     }
-    
 }
 
 protocol Initializable {
