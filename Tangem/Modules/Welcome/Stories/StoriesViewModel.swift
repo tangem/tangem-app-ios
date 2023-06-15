@@ -10,14 +10,16 @@ import Combine
 import SwiftUI
 
 class StoriesViewModel: ObservableObject {
-    @Published var currentPage: WelcomeStoryPage
+    @Injected(\.promotionService) var promotionService: PromotionServiceProtocol
+
+    @Published var currentPage: WelcomeStoryPage = .meetTangem
     @Published var currentProgress = 0.0
 
     var currentPageIndex: Int {
         pages.firstIndex(of: currentPage) ?? 0
     }
 
-    let pages: [WelcomeStoryPage]
+    private(set) var pages: [WelcomeStoryPage] = []
     private var timerSubscription: AnyCancellable?
     private var timerStartDate: Date?
     private var longTapTimerSubscription: AnyCancellable?
@@ -25,12 +27,12 @@ class StoriesViewModel: ObservableObject {
     private var currentDragLocation: CGPoint?
     private var bag: Set<AnyCancellable> = []
 
-    private let showLearnPage: Bool
+    private var showLearnPage: Bool = false
     private let longTapDuration = 0.25
     private let minimumSwipeDistance = 100.0
 
     init() {
-        showLearnPage = FeatureProvider.isAvailable(.learnToEarn)
+        showLearnPage = promotionService.promotionAvailable()
 
         var pages: [WelcomeStoryPage] = WelcomeStoryPage.allCases
         if !showLearnPage,
@@ -71,6 +73,7 @@ class StoriesViewModel: ObservableObject {
         isScanning: Binding<Bool>,
         scanCard: @escaping () -> Void,
         orderCard: @escaping () -> Void,
+        openPromotion: @escaping () -> Void,
         searchTokens: @escaping () -> Void
     ) -> some View {
         let progressBinding = Binding<Double> { [weak self] in
@@ -81,7 +84,7 @@ class StoriesViewModel: ObservableObject {
 
         switch currentPage {
         case WelcomeStoryPage.learn:
-            LearnAndEarnStoryPage(learn: searchTokens)
+            LearnAndEarnStoryPage(learn: openPromotion)
         case WelcomeStoryPage.meetTangem:
             MeetTangemStoryPage(progress: progressBinding, immediatelyShowTangemLogo: showLearnPage, immediatelyShowButtons: AppSettings.shared.didDisplayMainScreenStories, isScanning: isScanning, scanCard: scanCard, orderCard: orderCard)
         case WelcomeStoryPage.awe:
@@ -224,7 +227,7 @@ extension StoriesViewModel: WelcomeViewLifecycleListener {
     }
 }
 
-fileprivate extension CGPoint {
+private extension CGPoint {
     func distance(to other: CGPoint) -> CGFloat {
         return sqrt(pow(x - other.x, 2) + pow(y - other.y, 2))
     }
