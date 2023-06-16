@@ -14,12 +14,16 @@ struct TokenIconView: View {
     private let viewModel: TokenIconViewModel
     private let size: CGSize
 
-    private let networkIconSize = CGSize(width: 16, height: 16)
-    private let networkIconBorderWidth: Double = 2
+    private let networkIconSize: CGSize
+    private let networkIconBorderWidth: Double
+    private let networkIconOffset: CGSize
 
-    init(viewModel: TokenIconViewModel, size: CGSize = CGSize(width: 40, height: 40)) {
+    init(viewModel: TokenIconViewModel, sizeSettings: SizeSettings = .tokenItem) {
         self.viewModel = viewModel
-        self.size = size
+        size = sizeSettings.iconSize
+        networkIconSize = sizeSettings.networkIconSize
+        networkIconBorderWidth = sizeSettings.networkIconBorderWidth
+        networkIconOffset = sizeSettings.networkIconOffset
     }
 
     var body: some View {
@@ -33,7 +37,7 @@ struct TokenIconView: View {
             .scaledToFit()
             .cornerRadius(5)
             .frame(size: size)
-            .overlay(networkIcon.offset(x: 4, y: -4), alignment: .topTrailing)
+            .overlay(networkIcon.offset(networkIconOffset), alignment: .topTrailing)
     }
 
     @ViewBuilder
@@ -54,13 +58,56 @@ struct TokenIconView: View {
 
     @ViewBuilder
     private var placeholder: some View {
-        CircleImageTextView(name: viewModel.name, color: .tangemGrayLight4)
+        CircleImageTextView(name: viewModel.name, color: Colors.Icon.inactive)
+    }
+}
+
+extension TokenIconView {
+    enum SizeSettings {
+        case tokenItem
+        case receive
+
+        var iconSize: CGSize {
+            switch self {
+            case .tokenItem: return .init(width: 40, height: 40)
+            case .receive: return .init(width: 80, height: 80)
+            }
+        }
+
+        var networkIconSize: CGSize {
+            switch self {
+            case .tokenItem: return .init(width: 16, height: 16)
+            case .receive: return .init(width: 32, height: 32)
+            }
+        }
+
+        var networkIconBorderWidth: Double {
+            switch self {
+            case .tokenItem: return 2
+            case .receive: return 4
+            }
+        }
+
+        var networkIconOffset: CGSize {
+            switch self {
+            case .tokenItem: return .init(width: 4, height: -4)
+            case .receive: return .init(width: 9, height: -9)
+            }
+        }
     }
 }
 
 struct TokenIconView_Preview: PreviewProvider {
     static let viewModel = TokenIconViewModel(tokenItem: .blockchain(.gnosis))
+    static let tokenViewModel = TokenIconViewModel(id: "stellar", name: "Stellar", style: .token(Tokens.ethereumFill.name))
     static var previews: some View {
-        TokenIconView(viewModel: viewModel)
+        VStack(spacing: 16) {
+            TokenIconView(viewModel: viewModel)
+
+            TokenIconView(
+                viewModel: tokenViewModel,
+                sizeSettings: .receive
+            )
+        }
     }
 }
