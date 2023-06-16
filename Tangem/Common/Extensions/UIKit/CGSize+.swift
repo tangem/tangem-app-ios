@@ -53,3 +53,9 @@ extension CGSize {
         left = left - right
     }
 }
+
+extension CGSize {
+    init(bothDimensions value: CGFloat) {
+        self.init(width: value, height: value)
+    }
+}
