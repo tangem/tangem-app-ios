@@ -249,16 +249,12 @@ class LegacyMainViewModel: ObservableObject {
         )
     }
 
-    @MainActor
     func updatePromotionButton() {
         runTask { [weak self] in
             guard let self else { return }
 
             let promotionAvailability = await promotionService.promotionAvailability(timeout: nil)
-            DispatchQueue.main.async {
-                self.promotionAwardAmount = promotionAvailability.awardAmount
-                self.canOpenPromotion = promotionAvailability.isAvailable
-            }
+            didFinishCheckingPromotion(promotionAvailability: promotionAvailability)
         }
     }
 
@@ -547,6 +543,12 @@ private extension LegacyMainViewModel {
                     self?.image = uiImage
                 }
             })
+    }
+
+    @MainActor
+    private func didFinishCheckingPromotion(promotionAvailability: PromotionAvailability) {
+        promotionAwardAmount = promotionAvailability.awardAmount
+        canOpenPromotion = promotionAvailability.isAvailable
     }
 }
 
