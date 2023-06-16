@@ -52,5 +52,6 @@ extension Analytics {
         case permissionType = "Permission Type"
         case destinationAddressValidationResult = "Validation"
         case memo = "Memo"
+        case walletsCount = "Wallets Count"
     }
 }
