@@ -250,7 +250,7 @@ private extension TokenDetailsViewModel {
 
 private extension TokenDetailsViewModel {
     func openReceive() {}
-    
+
     func openBuyCryptoIfPossible() {
         Analytics.log(.buttonBuy)
         if tangemApiService.geoIpRegionCode == LanguageCode.ru {
