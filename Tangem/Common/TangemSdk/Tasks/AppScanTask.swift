@@ -66,7 +66,10 @@ final class AppScanTask: CardSessionRunnable {
     }
 
     private func readExtra(session: CardSession, completion: @escaping CompletionResult<AppScanTaskResponse>) {
-        let card = session.environment.card!
+        guard let card = session.environment.card else {
+            completion(.failure(.missingPreflightRead))
+            return
+        }
 
         if TwinCardSeries.series(for: card.cardId) != nil {
             readTwin(card, session: session, completion: completion)
