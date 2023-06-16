@@ -38,24 +38,7 @@ class StoriesViewModel: ObservableObject {
             guard let self else { return }
 
             let promotionAvailable = await promotionService.promotionAvailability(timeout: promotionCheckTimeout).isAvailable
-
-            DispatchQueue.main.async { [weak self] in
-                guard let self else { return }
-
-                showLearnPage = promotionAvailable
-
-                var pages: [WelcomeStoryPage] = WelcomeStoryPage.allCases
-                if !showLearnPage,
-                   let learnIndex = pages.firstIndex(of: .learn) {
-                    pages.remove(at: learnIndex)
-                }
-
-                self.pages = pages
-
-                currentPage = pages[0]
-
-                checkingPromotionAvailability = false
-            }
+            await didFinishCheckingPromotion(promotionAvailable: promotionAvailable)
         }
     }
 
@@ -154,6 +137,23 @@ class StoriesViewModel: ObservableObject {
         currentDragLocation = nil
         longTapTimerSubscription = nil
         longTapDetected = false
+    }
+
+    @MainActor
+    private func didFinishCheckingPromotion(promotionAvailable: Bool) {
+        showLearnPage = promotionAvailable
+
+        var pages: [WelcomeStoryPage] = WelcomeStoryPage.allCases
+        if !showLearnPage,
+           let learnIndex = pages.firstIndex(of: .learn) {
+            pages.remove(at: learnIndex)
+        }
+
+        self.pages = pages
+
+        currentPage = pages[0]
+
+        checkingPromotionAvailability = false
     }
 
     private func move(forward: Bool) {
