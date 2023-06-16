@@ -14,6 +14,7 @@ struct SizePreferenceKey: PreferenceKey {
 }
 
 extension View {
+    @available(*, deprecated, message: "Use 'readGeometry(inCoordinateSpace:transform:onChange:)' instead")
     func readSize(onChange: @escaping (CGSize) -> Void) -> some View {
         background(
             GeometryReader { geometryProxy in
