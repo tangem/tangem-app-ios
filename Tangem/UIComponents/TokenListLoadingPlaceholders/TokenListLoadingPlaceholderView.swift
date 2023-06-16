@@ -9,20 +9,16 @@
 import SwiftUI
 
 struct TokenListLoadingPlaceholderView: View {
-    let iconDimension: CGFloat
-
     var body: some View {
         VStack(spacing: 0.0) {
             TokenListSectionLoadingPlaceholderView()
 
             TokenListItemLoadingPlaceholderView(
-                iconDimension: iconDimension,
-                hasTokenPlaceholder: false
+                style: .tokenList(hasNetworkItemPlaceholder: false)
             )
 
             TokenListItemLoadingPlaceholderView(
-                iconDimension: iconDimension,
-                hasTokenPlaceholder: true
+                style: .tokenList(hasNetworkItemPlaceholder: true)
             )
         }
     }
@@ -37,7 +33,7 @@ struct TokenListLoadingPlaceholderView_Previews: PreviewProvider {
                 .secondary
                 .ignoresSafeArea()
 
-            TokenListLoadingPlaceholderView(iconDimension: 40.0)
+            TokenListLoadingPlaceholderView()
                 .cornerRadiusContinuous(14.0)
                 .padding()
                 .infinityFrame(alignment: .top)
