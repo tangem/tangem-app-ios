@@ -9,8 +9,12 @@
 import SwiftUI
 
 struct TokenListItemLoadingPlaceholderView: View {
-    let iconDimension: CGFloat
-    let hasTokenPlaceholder: Bool
+    enum Style {
+        case tokenList(hasNetworkItemPlaceholder: Bool)
+        case transactionHistory
+    }
+
+    let style: Style
 
     var body: some View {
         ZStack {
@@ -23,17 +27,38 @@ struct TokenListItemLoadingPlaceholderView: View {
 
                 trailingComponent
             }
+            .frame(height: height)
             .padding(.horizontal, 14.0)
-            .padding(.vertical, 16.0)
         }
         .background(Colors.Background.primary)
     }
 
-    private var tokenPlaceholderOffset: CGFloat {
-        // Values are from Figma mockups
-        let iconPlaceholderDimensionToTokenPlaceholderOffsetRatio = 4.0 / 36.0
-        return iconDimension * iconPlaceholderDimensionToTokenPlaceholderOffsetRatio
+    private var iconDimension: CGFloat {
+        switch style {
+        case .tokenList:
+            return 36.0
+        case .transactionHistory:
+            return 40.0
+        }
     }
+
+    private var height: CGFloat {
+        switch style {
+        case .tokenList:
+            return 68.0
+        case .transactionHistory:
+            return 56.0
+        }
+    }
+
+    private var hasNetworkItemPlaceholder: Bool {
+        if case .tokenList(let hasNetworkItemPlaceholder) = style {
+            return hasNetworkItemPlaceholder
+        }
+        return false
+    }
+
+    private var networkItemPlaceholderOffset: CGFloat { 4 }
 
     @ViewBuilder
     private var leadingComponent: some View {
@@ -41,10 +66,10 @@ struct TokenListItemLoadingPlaceholderView: View {
             .frame(size: .init(bothDimensions: iconDimension))
             .cornerRadius(iconDimension / 2.0)
 
-        if hasTokenPlaceholder {
+        if hasNetworkItemPlaceholder {
             iconPlaceholder
                 .mask(leadingComponentMask)
-                .overlay(leadingComponentTokenPlaceholder, alignment: .topTrailing)
+                .overlay(leadingComponentNetworkItemPlaceholder, alignment: .topTrailing)
         } else {
             iconPlaceholder
         }
@@ -52,16 +77,14 @@ struct TokenListItemLoadingPlaceholderView: View {
 
     @ViewBuilder
     private var leadingComponentMask: some View {
-        // Values are from Figma mockups
-        let iconPlaceholderDimensionToMaskDimensionRatio = 16.0 / 36.0
-        let dimension = iconDimension * iconPlaceholderDimensionToMaskDimensionRatio
+        let dimension = 16.0
 
         ZStack {
             Circle()
 
             Circle()
                 .frame(size: .init(bothDimensions: dimension))
-                .offset(x: tokenPlaceholderOffset, y: -tokenPlaceholderOffset)
+                .offset(x: networkItemPlaceholderOffset, y: -networkItemPlaceholderOffset)
                 .infinityFrame(alignment: .topTrailing)
                 .blendMode(.destinationOut)
         }
@@ -69,15 +92,13 @@ struct TokenListItemLoadingPlaceholderView: View {
     }
 
     @ViewBuilder
-    private var leadingComponentTokenPlaceholder: some View {
-        // Values are from Figma mockups
-        let iconPlaceholderDimensionToTokenPlaceholderDimensionRatio = 14.0 / 36.0
-        let dimension = iconDimension * iconPlaceholderDimensionToTokenPlaceholderDimensionRatio
+    private var leadingComponentNetworkItemPlaceholder: some View {
+        let dimension = 14.0
 
         SkeletonView()
             .frame(size: .init(bothDimensions: dimension))
             .cornerRadius(iconDimension / 2.0)
-            .offset(x: tokenPlaceholderOffset, y: -tokenPlaceholderOffset)
+            .offset(x: networkItemPlaceholderOffset, y: -networkItemPlaceholderOffset)
     }
 
     @ViewBuilder
@@ -111,8 +132,6 @@ struct TokenListItemLoadingPlaceholderView: View {
 // MARK: - Previews
 
 struct TokenListItemLoadingPlaceholderView_Previews: PreviewProvider {
-    static let iconDimension = 36.0
-
     static var previews: some View {
         ZStack {
             Colors.Background
@@ -121,13 +140,15 @@ struct TokenListItemLoadingPlaceholderView_Previews: PreviewProvider {
 
             VStack {
                 TokenListItemLoadingPlaceholderView(
-                    iconDimension: iconDimension,
-                    hasTokenPlaceholder: false
+                    style: .tokenList(hasNetworkItemPlaceholder: false)
                 )
 
                 TokenListItemLoadingPlaceholderView(
-                    iconDimension: iconDimension,
-                    hasTokenPlaceholder: true
+                    style: .tokenList(hasNetworkItemPlaceholder: true)
+                )
+
+                TokenListItemLoadingPlaceholderView(
+                    style: .transactionHistory
                 )
             }
             .infinityFrame(alignment: .top)
