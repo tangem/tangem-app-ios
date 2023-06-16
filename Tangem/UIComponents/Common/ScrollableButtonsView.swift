@@ -19,12 +19,12 @@ struct ScrollableButtonsView: View {
         ScrollView(.horizontal, showsIndicators: false) {
             HStack(spacing: 8) {
                 ForEach(buttonsInfo) { button in
-                    ButtonWithLeadingIcon(
+                    FixedSizeButtonWithLeadingIcon(
                         title: button.title,
                         icon: button.icon.image,
-                        action: button.action,
-                        disabled: button.disabled
+                        action: button.action
                     )
+                    .disabled(button.disabled)
                 }
             }
             .padding(.horizontal, itemsHorizontalOffset)
