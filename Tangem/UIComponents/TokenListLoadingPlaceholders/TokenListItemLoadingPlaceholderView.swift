@@ -97,7 +97,7 @@ struct TokenListItemLoadingPlaceholderView: View {
 
         SkeletonView()
             .frame(size: .init(bothDimensions: dimension))
-            .cornerRadius(iconDimension / 2.0)
+            .cornerRadius(dimension / 2.0)
             .offset(x: networkItemPlaceholderOffset, y: -networkItemPlaceholderOffset)
     }
 
