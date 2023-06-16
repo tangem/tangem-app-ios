@@ -90,7 +90,7 @@ struct TokenListItemLoadingPlaceholderView: View {
                 SkeletonView()
                     .frame(width: 52.0, height: 12.0)
             }
-            .cornerRadiusContinuous(3)
+            .cornerRadiusContinuous(3.0)
         }
     }
 
@@ -103,7 +103,7 @@ struct TokenListItemLoadingPlaceholderView: View {
                 SkeletonView()
             }
             .frame(width: 40.0, height: 12.0)
-            .cornerRadiusContinuous(3)
+            .cornerRadiusContinuous(3.0)
         }
     }
 }
