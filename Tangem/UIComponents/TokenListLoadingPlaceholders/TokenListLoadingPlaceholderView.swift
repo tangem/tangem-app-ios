@@ -37,12 +37,10 @@ struct TokenListLoadingPlaceholderView_Previews: PreviewProvider {
                 .secondary
                 .ignoresSafeArea()
 
-            TokenListLoadingPlaceholderView(
-                iconDimension: 40.0
-            )
-            .cornerRadiusContinuous(14.0)
-            .padding()
-            .infinityFrame(alignment: .top)
+            TokenListLoadingPlaceholderView(iconDimension: 40.0)
+                .cornerRadiusContinuous(14.0)
+                .padding()
+                .infinityFrame(alignment: .top)
         }
     }
 }
