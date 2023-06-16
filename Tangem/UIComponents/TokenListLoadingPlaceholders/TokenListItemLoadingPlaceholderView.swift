@@ -30,7 +30,9 @@ struct TokenListItemLoadingPlaceholderView: View {
     }
 
     private var tokenPlaceholderOffset: CGFloat {
-        iconDimension / 2.0 - 3.0
+        // Values are from Figma mockups
+        let iconPlaceholderDimensionToTokenPlaceholderOffsetRatio = 4.0 / 36.0
+        return iconDimension * iconPlaceholderDimensionToTokenPlaceholderOffsetRatio
     }
 
     @ViewBuilder
@@ -42,7 +44,7 @@ struct TokenListItemLoadingPlaceholderView: View {
         if hasTokenPlaceholder {
             iconPlaceholder
                 .mask(leadingComponentMask)
-                .overlay(leadingComponentTokenPlaceholder)
+                .overlay(leadingComponentTokenPlaceholder, alignment: .topTrailing)
         } else {
             iconPlaceholder
         }
@@ -51,7 +53,7 @@ struct TokenListItemLoadingPlaceholderView: View {
     @ViewBuilder
     private var leadingComponentMask: some View {
         // Values are from Figma mockups
-        let iconPlaceholderDimensionToMaskDimensionRatio = 19.0 / 36.0
+        let iconPlaceholderDimensionToMaskDimensionRatio = 16.0 / 36.0
         let dimension = iconDimension * iconPlaceholderDimensionToMaskDimensionRatio
 
         ZStack {
@@ -60,6 +62,7 @@ struct TokenListItemLoadingPlaceholderView: View {
             Circle()
                 .frame(size: .init(bothDimensions: dimension))
                 .offset(x: tokenPlaceholderOffset, y: -tokenPlaceholderOffset)
+                .infinityFrame(alignment: .topTrailing)
                 .blendMode(.destinationOut)
         }
         .compositingGroup()
