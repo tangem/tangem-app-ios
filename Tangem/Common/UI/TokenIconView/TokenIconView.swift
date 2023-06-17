@@ -54,13 +54,28 @@ struct TokenIconView: View {
 
     @ViewBuilder
     private var placeholder: some View {
-        CircleImageTextView(name: viewModel.name, color: .tangemGrayLight4)
+        CircleImageTextView(
+            name: viewModel.name,
+            color: .tangemGrayLight4,
+            size: size
+        )
     }
 }
 
 struct TokenIconView_Preview: PreviewProvider {
-    static let viewModel = TokenIconViewModel(tokenItem: .blockchain(.gnosis))
     static var previews: some View {
-        TokenIconView(viewModel: viewModel)
+        VStack {
+            TokenIconView(
+                viewModel: TokenIconViewModel(
+                    tokenItem: .blockchain(.gnosis)
+                )
+            )
+
+            TokenIconView(
+                viewModel: TokenIconViewModel(
+                    tokenItem: .blockchain(.optimism(testnet: false))
+                )
+            )
+        }
     }
 }
