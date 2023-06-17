@@ -50,9 +50,10 @@ struct TokenDetailsCoordinatorView: CoordinatorView {
         NavHolder()
             .bottomSheet(
                 item: $coordinator.warningBankCardViewModel,
-                viewModelSettings: .warning
-            ) {
-                WarningBankCardView(viewModel: $0)
-            }
+                sheetContent: {
+                    WarningBankCardView(viewModel: $0)
+                        .padding(.bottom, 10)
+                }
+            )
     }
 }
