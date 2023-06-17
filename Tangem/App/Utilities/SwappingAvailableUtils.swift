@@ -58,6 +58,10 @@ struct SwappingAvailableUtils {
         case .coin:
             return .justWithError(output: true)
         case .token(let token):
+            if token.isCustom {
+                return .justWithError(output: false)
+            }
+
             let networkId = swapBlockchain.networkId
             let currencyId = token.id ?? blockchain.id
 
@@ -69,7 +73,7 @@ struct SwappingAvailableUtils {
 
                     if case .token(let token, _) = tokenItem {
                         // If exchangeable == nil then swap is available for old users
-                        return !token.isCustom && (token.exchangeable ?? true)
+                        return token.exchangeable ?? true
                     }
 
                     return false
