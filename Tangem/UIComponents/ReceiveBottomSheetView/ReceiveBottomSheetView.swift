@@ -46,40 +46,47 @@ struct ReceiveBottomSheetView: View {
         }
     }
 
-    @State private var containerSize: CGSize = .zero
+    @State private var containerWidth: CGFloat = 0
 
     private var qrCodeWidthMultiplier: CGFloat { 0.7 }
     private var addressWidthMultiplier: CGFloat { 0.67 }
 
     @ViewBuilder
     private var addressPager: some View {
-        VStack {
-            PagerView(
+        VStack(spacing: 0) {
+            BottomSheetPagerView(
                 0 ..< viewModel.addressInfos.count,
                 indexUpdateNotifier: viewModel.addressIndexUpdateNotifier,
-                currentIndex: $viewModel.currentIndex
+                currentIndex: $viewModel.currentIndex,
+                width: containerWidth
             ) { index in
-                VStack {
+                VStack(spacing: 28) {
                     Text(viewModel.headerForAddress(at: index))
                         .multilineTextAlignment(.center)
                         .style(Fonts.Bold.title3, color: Colors.Text.primary1)
+                        .padding(.horizontal, 60)
 
-                    Image(uiImage: viewModel.qrImageForAddress(at: 0))
+                    Image(uiImage: viewModel.qrImageForAddress(at: index))
                         .resizable()
-                        .aspectRatio(1.0, contentMode: .fill)
-                        .frame(size: containerSize * qrCodeWidthMultiplier)
-                        .readSize { size in
-                            containerSize = size
-                        }
+                        .aspectRatio(1.0, contentMode: .fit)
+                        .frame(width: containerWidth * qrCodeWidthMultiplier)
 
                     Text(viewModel.addressInfos[index].address)
-                        .frame(width: containerSize.width * addressWidthMultiplier)
+                        .lineLimit(1)
+                        .multilineTextAlignment(.center)
+                        .style(Fonts.Bold.callout, color: Colors.Text.primary1)
+                        .frame(width: containerWidth * addressWidthMultiplier)
+                        .truncationMode(/*@START_MENU_TOKEN@*/.middle/*@END_MENU_TOKEN@*/)
                 }
             }
+            .padding(.top, 28)
+            .frame(width: containerWidth)
 
             Text(viewModel.warningMessageFull)
                 .multilineTextAlignment(.center)
                 .padding(.horizontal, 44)
+                .padding(.top, 12)
+                .style(Fonts.Bold.caption1, color: Colors.Text.tertiary)
 
             HStack(spacing: 12) {
                 MainButton(
@@ -97,10 +104,91 @@ struct ReceiveBottomSheetView: View {
                 )
             }
             .padding(.horizontal, 16)
-            .padding(.top, 28)
+            .padding(.top, 12)
             .padding(.bottom, 8)
         }
-        .background(Colors.Background.primary.edgesIgnoringSafeArea(.all))
+        .readGeometry(to: $containerWidth, transform: \.size.width)
+    }
+}
+
+struct BottomSheetPagerView<Data, Content>: View
+where Data: RandomAccessCollection, Data.Element: Hashable, Content: View {
+    let indexUpdateNotifier: PassthroughSubject<Void, Never>
+    // the source data to render, can be a range, an array, or any other collection of Hashable
+    private let data: Data
+    // the index currently displayed page
+    @Binding var currentIndex: Int
+    // maps data to page views
+    private let content: (Data.Element) -> Content
+
+    // keeps track of how much did user swipe left or right
+    @GestureState private var translation: CGFloat = 0
+
+//    [REDACTED_USERNAME] private var containerSize: CGSize = .zero
+    private let width: CGFloat
+
+    // the custom init is here to allow for @ViewBuilder for
+    // defining content mapping
+    init(
+        _ data: Data,
+        indexUpdateNotifier: PassthroughSubject<Void, Never>,
+        currentIndex: Binding<Int>,
+        width: CGFloat,
+        @ViewBuilder content: @escaping (Data.Element) -> Content
+    ) {
+        self.data = data
+        self.indexUpdateNotifier = indexUpdateNotifier
+        _currentIndex = currentIndex
+        self.width = width
+        self.content = content
+    }
+
+    var body: some View {
+        VStack(spacing: 28) {
+            HStack(alignment: .top, spacing: 0) {
+                // render all the content, making sure that each page fills
+                // the entire PagerView
+                ForEach(data, id: \.self) { elem in
+                    content(elem)
+                        .frame(width: width)
+                }
+            }
+            .frame(width: width, alignment: .leading)
+            // the first offset determines which page is shown
+            .offset(x: -CGFloat(currentIndex) * width)
+            // the second offset translates the page based on swipe
+            .offset(x: translation)
+            .animation(.easeOut(duration: 0.3), value: currentIndex)
+            .animation(.easeOut(duration: 0.2), value: translation)
+            .gesture(
+                data.count <= 1 ? nil :
+                DragGesture().updating($translation) { value, state, _ in
+                    state = value.translation.width
+                }.onEnded { value in
+                    // determine how much was the page swiped to decide if the current page
+                    // should change (and if it's going to be to the left or right)
+                    // 1.25 is the parameter that defines how much does the user need to swipe
+                    // for the page to change. 1.0 would require swiping all the way to the edge
+                    // of the screen to change the page.
+                    let offset = value.translation.width / width * 2
+                    let newIndex = (CGFloat(currentIndex) - offset).rounded()
+                    currentIndex = min(max(Int(newIndex), 0), data.count - 1)
+                    indexUpdateNotifier.send()
+                }
+            )
+
+            if data.count > 1 {
+                HStack(spacing: 6) {
+                    ForEach(0 ..< data.count, id: \.id) { index in
+                        Circle()
+                            .foregroundColor((index == currentIndex) ? Colors.Icon.primary1 : Colors.Icon.informative)
+                            .animation(.easeOut(duration: 0.5), value: currentIndex)
+                            .frame(width: 7, height: 7)
+                    }
+                }
+                .frame(width: width, height: 20, alignment: .center)
+            }
+        }
     }
 }
 
@@ -202,10 +290,27 @@ class ReceiveBottomSheetViewModel: ObservableObject, Identifiable {
     }
 }
 
-class FakeReceiveBottomSheetInfoProvider {}
-
 struct ReceiveBottomSheet_Previews: PreviewProvider {
-    static var sheetViewModel: ReceiveBottomSheetViewModel {
+    static var btcAddressBottomSheet: ReceiveBottomSheetViewModel {
+        ReceiveBottomSheetViewModel(
+            tokenInfoExtractor: .init(
+                type: .coin,
+                blockchain: .bitcoin(testnet: false)
+            ),
+            addressInfos: [
+                .init(
+                    address: "bc1qeguhvlnxu4lwg48p5sfhxqxz679v3l5fma9u0c",
+                    type: .default
+                ),
+                .init(
+                    address: "18VEbRSEASi1npnXnoJ6pVVBrhT5zE6qRz",
+                    type: .legacy
+                ),
+            ]
+        )
+    }
+
+    static var singleAddressBottomSheet: ReceiveBottomSheetViewModel {
         ReceiveBottomSheetViewModel(
             tokenInfoExtractor: .init(
                 type: .ethTetherMock,
@@ -213,37 +318,61 @@ struct ReceiveBottomSheet_Previews: PreviewProvider {
             ),
             addressInfos: [
                 .init(
-                    address: "0x0b3f868e0be5597d5db7feb59e1cadbb0fdda50a",
+                    address: "0xEF08EA3531D219EDE813FB521e6D89220198bcB1",
                     type: .default
-                ),
-                .init(
-                    address: "legacy0x0b3f868e0be5597d5db7feb59e1cadbb0fdda50a",
-                    type: .legacy
-                ),
+                )
             ]
         )
     }
 
     static var previews: some View {
         NavigationView {
-            StatefulPreviewWrapper(
-                Optional(
-                    sheetViewModel
-                )
-            ) { viewModel in
-                VStack {
-                    Button("Show sheet") {
-                        viewModel.wrappedValue = nil
-                        viewModel.wrappedValue = sheetViewModel
-                    }
-                    .padding()
-
-                    NavHolder()
-                        .bottomSheet(item: viewModel) { model in
-                            ReceiveBottomSheetView(viewModel: model)
+            VStack {
+                StatefulPreviewWrapper(
+                    Optional(
+                        btcAddressBottomSheet
+                    )
+                ) { viewModel in
+                    VStack {
+                        Button("BTC address bottom sheet") {
+                            viewModel.wrappedValue = nil
+                            viewModel.wrappedValue = btcAddressBottomSheet
                         }
+                        .padding()
+
+                        NavHolder()
+                            .bottomSheet(
+                                item: viewModel,
+                                settings: .init(backgroundColor: Colors.Background.primary)
+                            ) { model in
+                                ReceiveBottomSheetView(viewModel: model)
+                            }
+                    }
+                }
+
+                StatefulPreviewWrapper(
+                    Optional(
+                        singleAddressBottomSheet
+                    )
+                ) { viewModel in
+                    VStack {
+                        Button("Single address bottom sheet") {
+                            viewModel.wrappedValue = nil
+                            viewModel.wrappedValue = singleAddressBottomSheet
+                        }
+                        .padding()
+
+                        NavHolder()
+                            .bottomSheet(
+                                item: viewModel,
+                                settings: .init(backgroundColor: Colors.Background.primary)
+                            ) { model in
+                                ReceiveBottomSheetView(viewModel: model)
+                            }
+                    }
                 }
             }
+
             .navigationBarItems(trailing: menu)
         }
     }
