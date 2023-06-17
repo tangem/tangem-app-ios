@@ -55,7 +55,7 @@ struct ReceiveBottomSheetView: View {
     private var addressPager: some View {
         VStack {
             PagerView(
-                0..<viewModel.addressInfos.count,
+                0 ..< viewModel.addressInfos.count,
                 indexUpdateNotifier: viewModel.addressIndexUpdateNotifier,
                 currentIndex: $viewModel.currentIndex
             ) { index in
@@ -77,21 +77,21 @@ struct ReceiveBottomSheetView: View {
                 }
             }
 
-            Text("Send only BTC to this address. Sending any other currency will result in its irreversible loss.")
+            Text(viewModel.warningMessageFull)
                 .multilineTextAlignment(.center)
                 .padding(.horizontal, 44)
 
             HStack(spacing: 12) {
                 MainButton(
                     title: Localization.commonCopy,
-                    icon: .leading(Assets.compass),
+                    icon: .leading(Assets.copy),
                     style: .secondary,
                     action: viewModel.copyToClipboard
                 )
 
                 MainButton(
                     title: Localization.commonShare,
-                    icon: .leading(Assets.scan),
+                    icon: .leading(Assets.share),
                     style: .secondary,
                     action: viewModel.share
                 )
@@ -147,24 +147,36 @@ class ReceiveBottomSheetViewModel: ObservableObject, Identifiable {
     // From WalletModel
     let addressInfos: [ReceiveAddressInfo]
 
-    @Published var isUserUnderstandNetwork: Bool = false
+    @Published var isUserUnderstandNetwork: Bool = true
     @Published var currentIndex: Int = 0
 
     let addressIndexUpdateNotifier = PassthroughSubject<Void, Never>()
+
+    var warningMessageFull: String {
+        Localization.receiveBottomSheetWarningMessageFull(tokenInfoExtractor.currencySymbol)
+    }
 
     private let tokenInfoExtractor: TokenInfoExtractor
 
     init(tokenInfoExtractor: TokenInfoExtractor, addressInfos: [ReceiveAddressInfo]) {
         self.tokenInfoExtractor = tokenInfoExtractor
-        self.tokenIconViewModel = tokenInfoExtractor.iconViewModel
+        tokenIconViewModel = tokenInfoExtractor.iconViewModel
         self.addressInfos = addressInfos
 
-        networkWarningMessage = "\(tokenInfoExtractor.name) (\(tokenInfoExtractor.currencySymbol)) on \(tokenInfoExtractor.networkName) network"
+        networkWarningMessage = Localization.receiveBottomSheetWarningMessage(
+            tokenInfoExtractor.name,
+            tokenInfoExtractor.currencySymbol,
+            tokenInfoExtractor.networkName
+        )
     }
 
     func headerForAddress(at index: Int) -> String {
         let info = addressInfos[index]
-        return "\(info.type.rawValue.capitalizingFirstLetter()) \(tokenInfoExtractor.currencySymbol) address on \(tokenInfoExtractor.networkName) Network"
+        return Localization.receiveBottomSheetTitle(
+            info.type.rawValue.capitalizingFirstLetter(),
+            tokenInfoExtractor.currencySymbol,
+            tokenInfoExtractor.networkName
+        )
     }
 
     func qrImageForAddress(at index: Int) -> UIImage {
@@ -190,9 +202,7 @@ class ReceiveBottomSheetViewModel: ObservableObject, Identifiable {
     }
 }
 
-class FakeReceiveBottomSheetInfoProvider {
-
-}
+class FakeReceiveBottomSheetInfoProvider {}
 
 struct ReceiveBottomSheet_Previews: PreviewProvider {
     static var sheetViewModel: ReceiveBottomSheetViewModel {
@@ -202,11 +212,14 @@ struct ReceiveBottomSheet_Previews: PreviewProvider {
                 blockchain: .polygon(testnet: false)
             ),
             addressInfos: [
-                .init(address: "0x0b3f868e0be5597d5db7feb59e1cadbb0fdda50a",
-                      type: .default),
-                .init(address: "legacy0x0b3f868e0be5597d5db7feb59e1cadbb0fdda50a",
-                      type: .legacy),
-
+                .init(
+                    address: "0x0b3f868e0be5597d5db7feb59e1cadbb0fdda50a",
+                    type: .default
+                ),
+                .init(
+                    address: "legacy0x0b3f868e0be5597d5db7feb59e1cadbb0fdda50a",
+                    type: .legacy
+                ),
             ]
         )
     }
