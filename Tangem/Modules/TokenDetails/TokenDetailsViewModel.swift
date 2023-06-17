@@ -70,6 +70,7 @@ final class TokenDetailsViewModel: ObservableObject {
         walletModel: WalletModel,
         blockchainNetwork: BlockchainNetwork,
         amountType: Amount.AmountType,
+        exchangeUtility: ExchangeCryptoUtility,
         coordinator: TokenDetailsRoutable
     ) {
         self.coordinator = coordinator
@@ -77,8 +78,8 @@ final class TokenDetailsViewModel: ObservableObject {
         self.cardModel = cardModel
         self.blockchainNetwork = blockchainNetwork
         self.amountType = amountType
+        self.exchangeUtility = exchangeUtility
 
-        exchangeUtility = .init(blockchain: blockchainNetwork.blockchain, address: walletModel.wallet.address, amountType: amountType)
         balanceWithButtonsModel = .init(balanceProvider: self, buttonsProvider: self)
 
         prepareSelf()
@@ -196,7 +197,7 @@ private extension TokenDetailsViewModel {
             let action = action(for: type)
             let isDisabled = isButtonDisabled(with: type)
 
-            return ButtonWithIconInfo(buttonType: type, action: action, disabled: isDisabled)
+            return ButtonWithIconInfo(title: type.title, icon: type.icon, action: action, disabled: isDisabled)
         }
 
         actionButtons = buttons
@@ -250,7 +251,7 @@ private extension TokenDetailsViewModel {
 
 private extension TokenDetailsViewModel {
     func openReceive() {}
-    
+
     func openBuyCryptoIfPossible() {
         Analytics.log(.buttonBuy)
         if tangemApiService.geoIpRegionCode == LanguageCode.ru {
