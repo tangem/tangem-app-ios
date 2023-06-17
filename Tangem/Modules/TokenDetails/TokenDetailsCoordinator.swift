@@ -38,11 +38,18 @@ class TokenDetailsCoordinator: CoordinatorObject {
     }
 
     func start(with options: Options) {
+        let exchangeUtility = ExchangeCryptoUtility(
+            blockchain: options.blockchainNetwork.blockchain,
+            address: options.walletModel.wallet.address,
+            amountType: options.amountType
+        )
+
         tokenDetailsViewModel = .init(
             cardModel: options.cardModel,
             walletModel: options.walletModel,
             blockchainNetwork: options.blockchainNetwork,
             amountType: options.amountType,
+            exchangeUtility: exchangeUtility,
             coordinator: self
         )
     }
