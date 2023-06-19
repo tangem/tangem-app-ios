@@ -12,7 +12,7 @@ import SwiftUI
 
 public extension Wallet {
     func canSend(amountType: Amount.AmountType) -> Bool {
-        if hasPendingTx {
+        if hasPendingTransactions {
             return false
         }
 
@@ -35,5 +35,15 @@ public extension Wallet {
         }
 
         return true
+    }
+
+    private var hasPendingTransactions: Bool {
+        // For bitcoin we check only Outgoing transaction
+        // because we will not use unconfirmed utx
+        if case .bitcoin = blockchain {
+            return !pendingIncomingTransactions.isEmpty
+        }
+
+        return hasPendingTx
     }
 }
