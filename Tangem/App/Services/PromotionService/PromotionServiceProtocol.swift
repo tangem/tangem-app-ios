@@ -13,11 +13,14 @@ protocol PromotionServiceProtocol {
     var currentProgramName: String { get }
     var promoCode: String? { get }
 
+    var awardAmount: String { get }
+    var promotionAvailable: Bool { get }
+
     var readyForAwardPublisher: AnyPublisher<Void, Never> { get }
 
     func didBecomeReadyForAward()
 
-    func promotionAvailability(timeout: TimeInterval?) async -> PromotionAvailability
+    func checkPromotion(timeout: TimeInterval?) async
 
     func setPromoCode(_ promoCode: String?)
     func checkIfCanGetAward(userWalletId: String) async throws
