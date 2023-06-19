@@ -16,7 +16,6 @@ struct PagerWithDots<Data, Content>: View
 
     // the index currently displayed page
     @State private var currentIndex: Int = 0
-    @State private var translationAnimDisabled = false
     // keeps track of how much did user swipe left or right
     @GestureState private var translation: CGFloat = 0
 
@@ -24,17 +23,17 @@ struct PagerWithDots<Data, Content>: View
     private let data: Data
     // maps data to page views
     private let content: (Data.Element) -> Content
-    private let width: CGFloat
+    private let pageWidth: CGFloat
 
     init(
         _ data: Data,
         indexUpdateNotifier: PassthroughSubject<Int, Never>,
-        width: CGFloat,
+        pageWidth: CGFloat,
         @ViewBuilder content: @escaping (Data.Element) -> Content
     ) {
         self.data = data
         self.indexUpdateNotifier = indexUpdateNotifier
-        self.width = width
+        self.pageWidth = pageWidth
         self.content = content
     }
 
@@ -45,12 +44,12 @@ struct PagerWithDots<Data, Content>: View
                 // the entire PagerView
                 ForEach(data, id: \.id) { elem in
                     content(elem)
-                        .frame(width: width)
+                        .frame(width: pageWidth)
                 }
             }
-            .frame(width: width, alignment: .leading)
+            .frame(width: pageWidth, alignment: .leading)
             // the first offset determines which page is shown
-            .offset(x: -CGFloat(currentIndex) * width)
+            .offset(x: -CGFloat(currentIndex) * pageWidth)
             // the second offset translates the page based on swipe
             .offset(x: translation)
             .animation(.easeOut(duration: 0.3), value: currentIndex)
@@ -58,15 +57,13 @@ struct PagerWithDots<Data, Content>: View
             .gesture(
                 data.count <= 1 ? nil :
                     DragGesture()
-                    .onChanged { value in
-                    }
                     .updating($translation) { value, state, _ in
                         state = value.translation.width
                     }
                     .onEnded { value in
                         // determine how much was the page swiped to decide if the current page
                         // should change (and if it's going to be to the left or right)
-                        let offset = (value.translation.width / width * 1.5).rounded()
+                        let offset = (value.translation.width / pageWidth * 1.5).rounded()
                         let newIndex = (CGFloat(currentIndex) - offset)
                         currentIndex = min(max(Int(newIndex), 0), data.count - 1)
                         indexUpdateNotifier.send(currentIndex)
@@ -82,7 +79,7 @@ struct PagerWithDots<Data, Content>: View
                             .frame(width: 7, height: 7)
                     }
                 }
-                .frame(width: width, height: 20, alignment: .center)
+                .frame(width: pageWidth, height: 20, alignment: .center)
             }
         }
     }
@@ -132,7 +129,7 @@ struct PagerWithDots_Previews: PreviewProvider {
                 PagerWithDots(
                     data,
                     indexUpdateNotifier: notifier,
-                    width: proxy.size.width
+                    pageWidth: proxy.size.width
                 ) { data in
                     VStack(spacing: 16) {
                         Text(data.title)
