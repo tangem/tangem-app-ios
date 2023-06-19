@@ -27,7 +27,6 @@ struct ReceiveBottomSheetView: View {
         .toast(isPresenting: $viewModel.showToast, alert: {
             AlertToast(type: .complete(Colors.Icon.accent), title: Localization.walletNotificationAddressCopied)
         })
-        .animation(.easeInOut, value: viewModel.isUserUnderstandsAddressNetworkRequirements)
     }
 
     @ViewBuilder
@@ -59,7 +58,7 @@ struct ReceiveBottomSheetView: View {
             PagerWithDots(
                 viewModel.addressInfos,
                 indexUpdateNotifier: viewModel.addressIndexUpdateNotifier,
-                width: containerWidth
+                pageWidth: containerWidth
             ) { info in
                 VStack(spacing: 28) {
                     Text(viewModel.headerForAddress(with: info))
