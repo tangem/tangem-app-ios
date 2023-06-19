@@ -88,10 +88,10 @@ extension CommonWalletListManager: WalletListManager {
                 let displayName = entry.blockchainNetwork.blockchain.displayName
 
                 do {
-                    let walletModel = try config.makeWalletModel(for: entry)
+                    let walletModels = try config.makeWalletModel(for: entry)
                     AppLog.shared.debug("✅ Make WalletModel for \(displayName) success")
-                    return walletModel
-                } catch WalletModelsFactory.Errors.noDerivation {
+                    return walletModels
+                } catch WalletModelsFactoryError.noDerivation {
                     AppLog.shared.debug("‼️ Make WalletModel for \(displayName) not derivation")
                     nonDeriveEntries.append(entry)
                 } catch {
@@ -101,6 +101,7 @@ extension CommonWalletListManager: WalletListManager {
 
                 return nil
             }
+            .flatMap { $0 }
 
         walletModels.removeAll { walletModel in
             if !entries.contains(where: { $0.blockchainNetwork == walletModel.blockchainNetwork }) {
