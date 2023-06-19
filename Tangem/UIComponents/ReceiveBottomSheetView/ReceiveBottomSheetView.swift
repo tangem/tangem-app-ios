@@ -137,7 +137,7 @@ struct ReceiveBottomSheet_Previews: PreviewProvider {
         ReceiveBottomSheetViewModel(
             tokenInfoExtractor: .init(
                 type: .ethTetherMock,
-                blockchain: .polygon(testnet: false)
+                blockchain: .ethereum(testnet: false)
             ),
             addressInfos: [
                 .init(
