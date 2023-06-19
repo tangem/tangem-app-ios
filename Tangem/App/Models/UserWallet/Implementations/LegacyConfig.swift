@@ -210,32 +210,13 @@ extension LegacyConfig: UserWalletConfig {
         }
     }
 
-    func makeWalletModel(for token: StorageEntry) throws -> WalletModel {
-        let factory = WalletModelsFactory()
-
+    func makeWalletModel(for token: StorageEntry) throws -> [WalletModel] {
         if isMultiwallet {
-            let walletPublicKeys: [EllipticCurve: Data] = card.wallets.reduce(into: [:]) { partialResult, cardWallet in
-                partialResult[cardWallet.curve] = cardWallet.publicKey
-            }
-
-            return try factory.makeMultipleWallet(
-                walletPublicKeys: walletPublicKeys,
-                entry: token,
-                derivationStyle: card.derivationStyle
-            )
+            let factory = MultiWalletModelsFactory(isHDWalletAllowed: false, derivationStyle: nil)
+            return try factory.makeWalletModels(for: token, keys: card.wallets)
         } else {
-            let blockchain = token.blockchainNetwork.blockchain
-
-            guard let walletPublicKey = card.wallets.first(where: { $0.curve == blockchain.curve })?.publicKey else {
-                throw CommonError.noData
-            }
-
-            return try factory.makeSingleWallet(
-                walletPublicKey: walletPublicKey,
-                blockchain: blockchain,
-                token: token.tokens.first,
-                derivationStyle: card.derivationStyle
-            )
+            let factory = SingleWalletModelsFactory()
+            return try factory.makeWalletModels(for: token, keys: card.wallets)
         }
     }
 }
