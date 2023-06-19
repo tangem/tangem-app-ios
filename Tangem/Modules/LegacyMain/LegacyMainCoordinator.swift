@@ -24,7 +24,8 @@ class LegacyMainCoordinator: CoordinatorObject {
 
     @Published var sendCoordinator: SendCoordinator? = nil
     @Published var pushTxCoordinator: PushTxCoordinator? = nil
-    @Published var tokenDetailsCoordinator: LegacyTokenDetailsCoordinator? = nil
+    @Published var legacyTokenDetailsCoordinator: LegacyTokenDetailsCoordinator? = nil
+    @Published var tokenDetailsCoordinator: TokenDetailsCoordinator? = nil
     @Published var detailsCoordinator: DetailsCoordinator? = nil
     @Published var tokenListCoordinator: TokenListCoordinator? = nil
     @Published var modalOnboardingCoordinator: OnboardingCoordinator? = nil
@@ -204,7 +205,24 @@ extension LegacyMainCoordinator: LegacyMainRoutable {
     func openTokenDetails(cardModel: CardViewModel, blockchainNetwork: BlockchainNetwork, amountType: Amount.AmountType) {
         Analytics.log(.tokenIsTapped)
         let dismissAction: Action = { [weak self] in
+            self?.legacyTokenDetailsCoordinator = nil
             self?.tokenDetailsCoordinator = nil
+        }
+
+        if FeatureProvider.isAvailable(.tokenDetailsV2) {
+            guard let walletModel = cardModel.walletModels.first(where: { $0.blockchainNetwork == blockchainNetwork }) else {
+                return
+            }
+
+            let coordinator = TokenDetailsCoordinator(dismissAction: dismissAction)
+            coordinator.start(with: .init(
+                cardModel: cardModel,
+                walletModel: walletModel,
+                blockchainNetwork: blockchainNetwork,
+                amountType: amountType
+            ))
+            tokenDetailsCoordinator = coordinator
+            return
         }
 
         let coordinator = LegacyTokenDetailsCoordinator(dismissAction: dismissAction)
@@ -214,7 +232,7 @@ extension LegacyMainCoordinator: LegacyMainRoutable {
             amountType: amountType
         )
         coordinator.start(with: options)
-        tokenDetailsCoordinator = coordinator
+        legacyTokenDetailsCoordinator = coordinator
     }
 
     func openCurrencySelection(autoDismiss: Bool) {
