@@ -53,11 +53,16 @@ final class AuthViewModel: ObservableObject {
 
     func unlockWithBiometry() {
         userWalletRepository.unlock(with: .biometry) { [weak self] result in
-            self?.didFinishUnlocking(result)
+            guard let self else { return }
+
+            didFinishUnlocking(result)
 
             switch result {
             case .success, .partial:
-                Analytics.log(.signedIn, params: [.signInType: .signInTypeBiometrics])
+                Analytics.log(event: .signedIn, params: [
+                    .signInType: Analytics.ParameterValue.signInTypeBiometrics.rawValue,
+                    .walletsCount: "\(userWalletRepository.count)",
+                ])
             default:
                 break
             }
@@ -69,11 +74,16 @@ final class AuthViewModel: ObservableObject {
         Analytics.beginLoggingCardScan(source: .auth)
 
         userWalletRepository.unlock(with: .card(userWallet: nil)) { [weak self] result in
-            self?.didFinishUnlocking(result)
+            guard let self else { return }
+
+            didFinishUnlocking(result)
 
             switch result {
             case .success, .partial:
-                Analytics.log(.signedIn, params: [.signInType: .signInTypeCard])
+                Analytics.log(event: .signedIn, params: [
+                    .signInType: Analytics.ParameterValue.signInTypeCard.rawValue,
+                    .walletsCount: "\(userWalletRepository.count)",
+                ])
             default:
                 break
             }
