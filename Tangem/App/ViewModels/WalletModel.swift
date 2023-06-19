@@ -88,9 +88,10 @@ class WalletModel: ObservableObject, Identifiable {
         legacyMultiCurrencyViewModel().map { $0.fiatValue }.reduce(0, +)
     }
 
-    let walletManager: WalletManager
+    let walletManager: WalletManager // [REDACTED_TODO_COMMENT]
+    let amountType: Amount.AmountType
+    let isCustom: Bool
 
-    private let derivationStyle: DerivationStyle?
     private var latestUpdateTime: Date?
     private var updatePublisher: PassthroughSubject<Void, Error>?
     private var updateTimer: AnyCancellable?
@@ -103,9 +104,14 @@ class WalletModel: ObservableObject, Identifiable {
         AppLog.shared.debug("🗑 WalletModel deinit")
     }
 
-    init(walletManager: WalletManager, derivationStyle: DerivationStyle?) {
+    init(
+        walletManager: WalletManager,
+        amountType: Amount.AmountType,
+        isCustom: Bool
+    ) {
         self.walletManager = walletManager
-        self.derivationStyle = derivationStyle
+        self.amountType = amountType
+        self.isCustom = isCustom
 
         bind()
     }
@@ -506,30 +512,6 @@ extension WalletModel {
         let amount = wallet.amounts[type] ?? Amount(with: wallet.blockchain, type: type, value: .zero)
         return getFiatFormatted(for: amount, roundingType: .defaultFiat(roundingMode: .plain)) ?? "–"
     }
-
-    func isCustom(_ amountType: Amount.AmountType) -> Bool {
-        if state.isLoading {
-            return false
-        }
-
-        guard let derivationStyle = derivationStyle else {
-            return false
-        }
-
-        let defaultDerivation = wallet.blockchain.derivationPath(for: derivationStyle)
-        let currentDerivation = blockchainNetwork.derivationPath
-
-        if currentDerivation != defaultDerivation {
-            return true
-        }
-
-        switch amountType {
-        case .coin, .reserve:
-            return false
-        case .token(let token):
-            return token.id == nil
-        }
-    }
 }
 
 // MARK: - ViewModelBuilder helpers
@@ -576,7 +558,7 @@ extension WalletModel {
             blockchainNetwork: blockchainNetwork,
             amountType: amountType,
             hasTransactionInProgress: wallet.hasPendingTx(for: amountType),
-            isCustom: isCustom(amountType)
+            isCustom: isCustom
         )
     }
 
@@ -592,7 +574,7 @@ extension WalletModel {
             fiatValue: getFiat(for: wallet.amounts[amountType], roundingType: .defaultFiat(roundingMode: .plain)) ?? 0,
             blockchainNetwork: blockchainNetwork,
             amountType: amountType,
-            isCustom: isCustom(amountType)
+            isCustom: isCustom
         )
     }
 

@@ -179,30 +179,18 @@ extension GenericConfig: UserWalletConfig {
         }
     }
 
-    func makeWalletModel(for token: StorageEntry) throws -> WalletModel {
-        let walletPublicKeys: [EllipticCurve: Data] = card.wallets.reduce(into: [:]) { partialResult, cardWallet in
-            partialResult[cardWallet.curve] = cardWallet.publicKey
-        }
+    func makeWalletModel(for token: StorageEntry) throws -> [WalletModel] {
+        let factory = MultiWalletModelsFactory(
+            isHDWalletAllowed: card.settings.isHDWalletAllowed,
+            derivationStyle: card.derivationStyle
+        )
 
-        let factory = WalletModelsFactory()
-        if card.settings.isHDWalletAllowed {
-            let derivedKeys: [EllipticCurve: [DerivationPath: ExtendedPublicKey]] = card.wallets.reduce(into: [:]) { partialResult, cardWallet in
-                partialResult[cardWallet.curve] = cardWallet.derivedKeys
-            }
+        let models = try factory.makeWalletModels(
+            for: token,
+            keys: card.wallets
+        )
 
-            return try factory.makeMultipleWallet(
-                seedKeys: walletPublicKeys,
-                entry: token,
-                derivedKeys: derivedKeys,
-                derivationStyle: card.derivationStyle
-            )
-        } else {
-            return try factory.makeMultipleWallet(
-                walletPublicKeys: walletPublicKeys,
-                entry: token,
-                derivationStyle: card.derivationStyle
-            )
-        }
+        return models
     }
 }
 
