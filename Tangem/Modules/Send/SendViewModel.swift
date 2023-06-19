@@ -157,6 +157,7 @@ class SendViewModel: ObservableObject {
     private var blockchainNetwork: BlockchainNetwork
 
     private var lastClipboardChangeCount: Int?
+    private var lastDestinationAddressSource: Analytics.DestinationAddressSource?
 
     private unowned let coordinator: SendRoutable
 
@@ -174,6 +175,10 @@ class SendViewModel: ObservableObject {
         fillTotalBlockWithDefaults()
         bind()
         setupWarnings()
+    }
+
+    deinit {
+        AppLog.shared.debug("SendViewModel deinit")
     }
 
     convenience init(
@@ -466,7 +471,9 @@ class SendViewModel: ObservableObject {
             .sink { [unowned self] qrCodeString in
                 let withoutPrefix = qrCodeString.remove(contentsOf: walletModel.wallet.blockchain.qrPrefixes)
                 let splitted = withoutPrefix.split(separator: "?")
+                lastDestinationAddressSource = .qrCode
                 destination = splitted.first.map { String($0) } ?? withoutPrefix
+
                 if splitted.count > 1 {
                     let queryItems = splitted[1].lowercased().split(separator: "&")
                     for queryItem in queryItems {
@@ -534,7 +541,9 @@ class SendViewModel: ObservableObject {
             return
         }
 
-        if validateAddress(destination) {
+        let isAddressValid = validateAddress(destination)
+
+        if isAddressValid {
             validatedDestination = destination
             setAdditionalInputVisibility(for: destination)
         } else {
@@ -543,6 +552,11 @@ class SendViewModel: ObservableObject {
                 message: Localization.sendValidationInvalidAddress
             )
             setAdditionalInputVisibility(for: nil)
+        }
+
+        if let lastDestinationAddressSource { // ignore typing
+            Analytics.logDestinationAddress(isAddressValid: isAddressValid, source: lastDestinationAddressSource)
+            self.lastDestinationAddressSource = nil
         }
     }
 
@@ -596,6 +610,7 @@ class SendViewModel: ObservableObject {
     func pasteClipboardTapped() {
         Analytics.log(.buttonPaste)
         if let validatedClipboard = validatedClipboard {
+            lastDestinationAddressSource = .pasteButton
             destination = validatedClipboard
         }
     }
@@ -603,7 +618,8 @@ class SendViewModel: ObservableObject {
     func pasteClipboardTapped(_ strings: [String]) {
         Analytics.log(.buttonPaste)
 
-        if let string = strings.first, validateAddress(string) {
+        if let string = strings.first {
+            lastDestinationAddressSource = .pasteButton
             destination = string
         } else {
             let notificationGenerator = UINotificationFeedbackGenerator()
@@ -701,6 +717,11 @@ class SendViewModel: ObservableObject {
                             .token: tx.amount.currencySymbol,
                             .blockchain: blockchainNetwork.blockchain.displayName,
                             .feeType: analyticsFeeType.rawValue,
+                            .memo: retrieveAnalyticsMemoValue().rawValue,
+                        ])
+
+                        Analytics.log(.selectedCurrency, params: [
+                            .commonType: isFiatCalculation ? .selectedCurrencyApp : .selectedCurrencyToken,
                         ])
                     }
 
@@ -724,6 +745,10 @@ class SendViewModel: ObservableObject {
 
     func openSystemSettings() {
         UIApplication.openSystemSettings()
+    }
+
+    func onPaste() {
+        lastDestinationAddressSource = .pasteMenu
     }
 
     private func setupWarnings() {
@@ -833,6 +858,15 @@ private extension SendViewModel {
         }
         let alert = Alert(title: Text(errorText), primaryButton: retry, secondaryButton: ok)
         self.error = AlertBinder(alert: alert)
+    }
+
+    func retrieveAnalyticsMemoValue() -> Analytics.ParameterValue {
+        guard !additionalInputFields.isEmpty else {
+            return .null
+        }
+
+        let hasEnteredData = validatedMemoId != nil || validatedMemo != nil || validatedXrpDestinationTag != nil
+        return hasEnteredData ? .full : .empty
     }
 }
 
