@@ -143,9 +143,9 @@ struct ShopView: View {
         .background(Color.white.cornerRadius(sectionCornerRadius))
         .padding(.bottom, 8)
 
-        if let preorderDeliveryDate = viewModel.preorderDeliveryDateFormatted {
+        if !viewModel.canOrder {
             VStack {
-                soldOutText(preorderDeliveryDate)
+                Text(Localization.shopSoldOutDescription)
                     .style(Fonts.Regular.subheadline, color: Colors.Text.tertiary)
                     .fixedSize(horizontal: false, vertical: true)
                     .frame(maxWidth: .infinity, alignment: .leading)
@@ -159,11 +159,9 @@ struct ShopView: View {
     @ViewBuilder
     private var buyButtons: some View {
         if viewModel.canUseApplePay {
-            ApplePayButton(type: viewModel.applePayButtonType) {
-                viewModel.openApplePayCheckout()
-            }
-            .frame(height: 46)
-            .cornerRadius(applePayCornerRadius)
+            applePayButton
+                .frame(height: 46)
+                .cornerRadius(applePayCornerRadius)
 
             Button {
                 viewModel.openWebCheckout()
@@ -181,11 +179,15 @@ struct ShopView: View {
         }
     }
 
-    private func soldOutText(_ preorderDeliveryDate: String) -> Text {
-        Text(Localization.shopSoldOutDescriptionPrefix) +
-            Text(" ") +
-            Text(preorderDeliveryDate).foregroundColor(Colors.Text.primary1) +
-            Text(Localization.shopSoldOutDescriptionSuffix)
+    @ViewBuilder
+    private var applePayButton: some View {
+        // Note that applePayButtonType has different values depending on canOrder
+        // The button is not updated otherwise and it is not possible to change the type of PKPaymentButton on the fly
+        if viewModel.canOrder {
+            ApplePayButton(type: viewModel.applePayButtonType, action: viewModel.openApplePayCheckout)
+        } else {
+            ApplePayButton(type: viewModel.applePayButtonType, action: viewModel.openApplePayCheckout)
+        }
     }
 }
 
