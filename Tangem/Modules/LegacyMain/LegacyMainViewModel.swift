@@ -92,7 +92,6 @@ class LegacyMainViewModel: ObservableObject {
     private var imageLoadingSubscription: AnyCancellable?
 
     private lazy var testnetBuyCryptoService = TestnetBuyCryptoService()
-    private var promotionAwardAmount: Decimal?
 
     private unowned let coordinator: LegacyMainRoutable
 
@@ -182,16 +181,7 @@ class LegacyMainViewModel: ObservableObject {
         if let _ = promotionService.promoCode {
             return Localization.mainGetBonusSubtitle
         } else {
-            let formatter = NumberFormatter()
-            formatter.maximumFractionDigits = 0
-            guard
-                let promotionAwardAmount,
-                let formattedAmount = formatter.string(from: promotionAwardAmount as NSNumber)
-            else {
-                return Localization.commonError
-            }
-
-            return Localization.mainLearnSubtitle(formattedAmount)
+            return Localization.mainLearnSubtitle(promotionService.awardAmount)
         }
     }
 
@@ -253,8 +243,8 @@ class LegacyMainViewModel: ObservableObject {
         runTask { [weak self] in
             guard let self else { return }
 
-            let promotionAvailability = await promotionService.promotionAvailability(timeout: nil)
-            didFinishCheckingPromotion(promotionAvailability: promotionAvailability)
+            await promotionService.checkPromotion(timeout: nil)
+            didFinishCheckingPromotion()
         }
     }
 
@@ -546,9 +536,8 @@ private extension LegacyMainViewModel {
     }
 
     @MainActor
-    private func didFinishCheckingPromotion(promotionAvailability: PromotionAvailability) {
-        promotionAwardAmount = promotionAvailability.awardAmount
-        canOpenPromotion = promotionAvailability.isAvailable
+    private func didFinishCheckingPromotion() {
+        canOpenPromotion = promotionService.promotionAvailable
     }
 }
 
