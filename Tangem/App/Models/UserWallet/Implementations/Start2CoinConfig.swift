@@ -152,7 +152,7 @@ extension Start2CoinConfig: UserWalletConfig {
             throw CommonError.noData
         }
 
-        let factory = WalletModelFactory()
+        let factory = WalletModelsFactory()
         return try factory.makeSingleWallet(
             walletPublicKey: walletPublicKey,
             blockchain: defaultBlockchain,
