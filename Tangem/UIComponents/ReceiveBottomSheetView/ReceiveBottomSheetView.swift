@@ -9,9 +9,12 @@
 import SwiftUI
 import Combine
 import BlockchainSdk
+import AlertToast
 
 struct ReceiveBottomSheetView: View {
     @ObservedObject var viewModel: ReceiveBottomSheetViewModel
+
+    @State private var containerWidth: CGFloat = 0
 
     var body: some View {
         VStack {
@@ -21,6 +24,9 @@ struct ReceiveBottomSheetView: View {
                 networkUnderstandingConfirmation
             }
         }
+        .toast(isPresenting: $viewModel.showToast, alert: {
+            AlertToast(type: .complete(Color.tangemGreen), title: Localization.contractAddressCopiedMessage)
+        })
         .animation(.easeInOut, value: viewModel.isUserUnderstandNetwork)
     }
 
@@ -46,37 +52,31 @@ struct ReceiveBottomSheetView: View {
         }
     }
 
-    @State private var containerWidth: CGFloat = 0
-
-    private var qrCodeWidthMultiplier: CGFloat { 0.7 }
-    private var addressWidthMultiplier: CGFloat { 0.67 }
-
     @ViewBuilder
     private var addressPager: some View {
         VStack(spacing: 0) {
             BottomSheetPagerView(
-                0 ..< viewModel.addressInfos.count,
+                viewModel.addressInfos,
                 indexUpdateNotifier: viewModel.addressIndexUpdateNotifier,
-                currentIndex: $viewModel.currentIndex,
                 width: containerWidth
-            ) { index in
+            ) { info in
                 VStack(spacing: 28) {
-                    Text(viewModel.headerForAddress(at: index))
+                    Text(viewModel.headerForAddress(with: info))
                         .multilineTextAlignment(.center)
                         .style(Fonts.Bold.title3, color: Colors.Text.primary1)
                         .padding(.horizontal, 60)
 
-                    Image(uiImage: viewModel.qrImageForAddress(at: index))
+                    Image(uiImage: info.addressQRImage)
                         .resizable()
                         .aspectRatio(1.0, contentMode: .fit)
-                        .frame(width: containerWidth * qrCodeWidthMultiplier)
+                        .padding(.horizontal, 56)
 
-                    Text(viewModel.addressInfos[index].address)
+                    Text(info.address)
                         .lineLimit(1)
                         .multilineTextAlignment(.center)
                         .style(Fonts.Bold.callout, color: Colors.Text.primary1)
-                        .frame(width: containerWidth * addressWidthMultiplier)
-                        .truncationMode(/*@START_MENU_TOKEN@*/.middle/*@END_MENU_TOKEN@*/)
+                        .padding(.horizontal, 60)
+                        .truncationMode(.middle)
                 }
             }
             .padding(.top, 28)
@@ -112,33 +112,32 @@ struct ReceiveBottomSheetView: View {
 }
 
 struct BottomSheetPagerView<Data, Content>: View
-where Data: RandomAccessCollection, Data.Element: Hashable, Content: View {
-    let indexUpdateNotifier: PassthroughSubject<Void, Never>
-    // the source data to render, can be a range, an array, or any other collection of Hashable
-    private let data: Data
-    // the index currently displayed page
-    @Binding var currentIndex: Int
-    // maps data to page views
-    private let content: (Data.Element) -> Content
+    where Data: RandomAccessCollection, Data.Element: Hashable, Data.Element: Identifiable, Content: View {
 
+    let indexUpdateNotifier: PassthroughSubject<Int, Never>
+
+    // the index currently displayed page
+    @State private var currentIndex: Int = 0
+    @State private var translationAnimDisabled = false
     // keeps track of how much did user swipe left or right
     @GestureState private var translation: CGFloat = 0
 
-//    [REDACTED_USERNAME] private var containerSize: CGSize = .zero
+    // the source data to render, can be a range, an array, or any other collection of Hashable
+    private let data: Data
+    // maps data to page views
+    private let content: (Data.Element) -> Content
     private let width: CGFloat
 
     // the custom init is here to allow for @ViewBuilder for
     // defining content mapping
     init(
         _ data: Data,
-        indexUpdateNotifier: PassthroughSubject<Void, Never>,
-        currentIndex: Binding<Int>,
+        indexUpdateNotifier: PassthroughSubject<Int, Never>,
         width: CGFloat,
         @ViewBuilder content: @escaping (Data.Element) -> Content
     ) {
         self.data = data
         self.indexUpdateNotifier = indexUpdateNotifier
-        _currentIndex = currentIndex
         self.width = width
         self.content = content
     }
@@ -148,7 +147,7 @@ where Data: RandomAccessCollection, Data.Element: Hashable, Content: View {
             HStack(alignment: .top, spacing: 0) {
                 // render all the content, making sure that each page fills
                 // the entire PagerView
-                ForEach(data, id: \.self) { elem in
+                ForEach(data, id: \.id) { elem in
                     content(elem)
                         .frame(width: width)
                 }
@@ -159,22 +158,23 @@ where Data: RandomAccessCollection, Data.Element: Hashable, Content: View {
             // the second offset translates the page based on swipe
             .offset(x: translation)
             .animation(.easeOut(duration: 0.3), value: currentIndex)
-            .animation(.easeOut(duration: 0.2), value: translation)
+            .animation(.easeOut(duration: 0.3), value: translation)
             .gesture(
                 data.count <= 1 ? nil :
-                DragGesture().updating($translation) { value, state, _ in
-                    state = value.translation.width
-                }.onEnded { value in
-                    // determine how much was the page swiped to decide if the current page
-                    // should change (and if it's going to be to the left or right)
-                    // 1.25 is the parameter that defines how much does the user need to swipe
-                    // for the page to change. 1.0 would require swiping all the way to the edge
-                    // of the screen to change the page.
-                    let offset = value.translation.width / width * 2
-                    let newIndex = (CGFloat(currentIndex) - offset).rounded()
-                    currentIndex = min(max(Int(newIndex), 0), data.count - 1)
-                    indexUpdateNotifier.send()
-                }
+                    DragGesture()
+                    .onChanged { value in
+                    }
+                    .updating($translation) { value, state, _ in
+                        state = value.translation.width
+                    }
+                    .onEnded { value in
+                        // determine how much was the page swiped to decide if the current page
+                        // should change (and if it's going to be to the left or right)
+                        let offset = (value.translation.width / width * 1.5).rounded()
+                        let newIndex = (CGFloat(currentIndex) - offset)
+                        currentIndex = min(max(Int(newIndex), 0), data.count - 1)
+                        indexUpdateNotifier.send(currentIndex)
+                    }
             )
 
             if data.count > 1 {
@@ -196,6 +196,7 @@ struct ReceiveAddressInfo: Identifiable, Hashable {
     var id: String { type.rawValue }
     let address: String
     let type: AddressType
+    let addressQRImage: UIImage
 }
 
 struct TokenInfoExtractor {
@@ -226,25 +227,25 @@ struct TokenInfoExtractor {
 }
 
 class ReceiveBottomSheetViewModel: ObservableObject, Identifiable {
-    let id = UUID()
+    @Published var isUserUnderstandNetwork: Bool = true
+    @Published var showToast: Bool = false
 
     let tokenIconViewModel: TokenIconViewModel
 
+    let addressInfos: [ReceiveAddressInfo]
     let networkWarningMessage: String
 
-    // From WalletModel
-    let addressInfos: [ReceiveAddressInfo]
+    let id = UUID()
+    let addressIndexUpdateNotifier = PassthroughSubject<Int, Never>()
 
-    @Published var isUserUnderstandNetwork: Bool = true
-    @Published var currentIndex: Int = 0
+    private let tokenInfoExtractor: TokenInfoExtractor
 
-    let addressIndexUpdateNotifier = PassthroughSubject<Void, Never>()
+    private var currentIndex = 0
+    private var indexUpdateSubscription: AnyCancellable?
 
     var warningMessageFull: String {
         Localization.receiveBottomSheetWarningMessageFull(tokenInfoExtractor.currencySymbol)
     }
-
-    private let tokenInfoExtractor: TokenInfoExtractor
 
     init(tokenInfoExtractor: TokenInfoExtractor, addressInfos: [ReceiveAddressInfo]) {
         self.tokenInfoExtractor = tokenInfoExtractor
@@ -256,37 +257,38 @@ class ReceiveBottomSheetViewModel: ObservableObject, Identifiable {
             tokenInfoExtractor.currencySymbol,
             tokenInfoExtractor.networkName
         )
+
+        bind()
     }
 
-    func headerForAddress(at index: Int) -> String {
-        let info = addressInfos[index]
-        return Localization.receiveBottomSheetTitle(
+    func headerForAddress(with info: ReceiveAddressInfo) -> String {
+        Localization.receiveBottomSheetTitle(
             info.type.rawValue.capitalizingFirstLetter(),
             tokenInfoExtractor.currencySymbol,
             tokenInfoExtractor.networkName
         )
     }
 
-    func qrImageForAddress(at index: Int) -> UIImage {
-        QrCodeGenerator.generateQRCode(from: addressInfos[index].address)
-    }
-
     func understandNetworkRequirements() {
-        withAnimation {
-            isUserUnderstandNetwork.toggle()
-        }
+        isUserUnderstandNetwork.toggle()
     }
 
     func copyToClipboard() {
         Analytics.log(.buttonCopyAddress)
         UIPasteboard.general.string = addressInfos[currentIndex].address
+        showToast = true
     }
 
     func share() {
         Analytics.log(.buttonShareAddress)
         let address = addressInfos[currentIndex].address
         let av = UIActivityViewController(activityItems: [address], applicationActivities: nil)
-        UIApplication.shared.windows.first?.rootViewController?.present(av, animated: true, completion: nil)
+        UIApplication.modalFromTop(av)
+    }
+
+    private func bind() {
+        indexUpdateSubscription = addressIndexUpdateNotifier
+            .weakAssign(to: \.currentIndex, on: self)
     }
 }
 
@@ -300,11 +302,13 @@ struct ReceiveBottomSheet_Previews: PreviewProvider {
             addressInfos: [
                 .init(
                     address: "bc1qeguhvlnxu4lwg48p5sfhxqxz679v3l5fma9u0c",
-                    type: .default
+                    type: .default,
+                    addressQRImage: QrCodeGenerator.generateQRCode(from: "bc1qeguhvlnxu4lwg48p5sfhxqxz679v3l5fma9u0c")
                 ),
                 .init(
                     address: "18VEbRSEASi1npnXnoJ6pVVBrhT5zE6qRz",
-                    type: .legacy
+                    type: .legacy,
+                    addressQRImage: QrCodeGenerator.generateQRCode(from: "18VEbRSEASi1npnXnoJ6pVVBrhT5zE6qRz")
                 ),
             ]
         )
@@ -319,8 +323,9 @@ struct ReceiveBottomSheet_Previews: PreviewProvider {
             addressInfos: [
                 .init(
                     address: "0xEF08EA3531D219EDE813FB521e6D89220198bcB1",
-                    type: .default
-                )
+                    type: .default,
+                    addressQRImage: QrCodeGenerator.generateQRCode(from: "0xEF08EA3531D219EDE813FB521e6D89220198bcB1")
+                ),
             ]
         )
     }
