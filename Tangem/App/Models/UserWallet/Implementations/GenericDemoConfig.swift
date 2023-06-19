@@ -183,7 +183,7 @@ extension GenericDemoConfig: UserWalletConfig {
             partialResult[cardWallet.curve] = cardWallet.publicKey
         }
 
-        let factory = WalletModelFactory()
+        let factory = WalletModelsFactory()
         let model: WalletModel
 
         if card.settings.isHDWalletAllowed {
