@@ -29,6 +29,10 @@ class CommonUserWalletRepository: UserWalletRepository {
         userWallets.isEmpty
     }
 
+    var count: Int {
+        userWallets.count
+    }
+
     var eventProvider: AnyPublisher<UserWalletRepositoryEvent, Never> {
         eventSubject.eraseToAnyPublisher()
     }
