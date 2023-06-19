@@ -541,7 +541,7 @@
 		DC22535728A4F5BF0094F30C /* GenericDemoConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC22535628A4F5BF0094F30C /* GenericDemoConfig.swift */; };
 		DC22535928A4FD9C0094F30C /* UserWalletConfigFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC22535828A4FD9C0094F30C /* UserWalletConfigFactory.swift */; };
 		DC22535B28A4FDE90094F30C /* WarningEventsFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC22535A28A4FDE90094F30C /* WarningEventsFactory.swift */; };
-		DC22535D28A514030094F30C /* WalletModelFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC22535C28A514030094F30C /* WalletModelFactory.swift */; };
+		DC22535D28A514030094F30C /* WalletModelsFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC22535C28A514030094F30C /* WalletModelsFactory.swift */; };
 		DC234CC429F12E3D00082063 /* AppStorageCompat.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC234CC329F12E3D00082063 /* AppStorageCompat.swift */; };
 		DC261C9F292CD3B800875E64 /* GoogleService-Info-Beta.plist in Resources */ = {isa = PBXBuildFile; fileRef = DC261C9C292CD3B800875E64 /* GoogleService-Info-Beta.plist */; };
 		DC261CA0292CD3B800875E64 /* GoogleService-Info-Alpha.plist in Resources */ = {isa = PBXBuildFile; fileRef = DC261C9D292CD3B800875E64 /* GoogleService-Info-Alpha.plist */; };
@@ -1572,7 +1572,7 @@
 		DC22535628A4F5BF0094F30C /* GenericDemoConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GenericDemoConfig.swift; sourceTree = "<group>"; };
 		DC22535828A4FD9C0094F30C /* UserWalletConfigFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserWalletConfigFactory.swift; sourceTree = "<group>"; };
 		DC22535A28A4FDE90094F30C /* WarningEventsFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WarningEventsFactory.swift; sourceTree = "<group>"; };
-		DC22535C28A514030094F30C /* WalletModelFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletModelFactory.swift; sourceTree = "<group>"; };
+		DC22535C28A514030094F30C /* WalletModelsFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletModelsFactory.swift; sourceTree = "<group>"; };
 		DC234CC329F12E3D00082063 /* AppStorageCompat.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AppStorageCompat.swift; sourceTree = "<group>"; };
 		DC261C9C292CD3B800875E64 /* GoogleService-Info-Beta.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; name = "GoogleService-Info-Beta.plist"; path = "tangem-app-config/ios/GoogleService-Info-Beta.plist"; sourceTree = SOURCE_ROOT; };
 		DC261C9D292CD3B800875E64 /* GoogleService-Info-Alpha.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; name = "GoogleService-Info-Alpha.plist"; path = "tangem-app-config/ios/GoogleService-Info-Alpha.plist"; sourceTree = SOURCE_ROOT; };
@@ -4799,7 +4799,7 @@
 				EF8D7812298281EE00B67418 /* SwappingModulesFactory */,
 				DA129DD4292B8EBB004291EC /* UserWalletEncryptionKeyFactory.swift */,
 				DC22535828A4FD9C0094F30C /* UserWalletConfigFactory.swift */,
-				DC22535C28A514030094F30C /* WalletModelFactory.swift */,
+				DC22535C28A514030094F30C /* WalletModelsFactory.swift */,
 				DC858A3828AA48B000D58EE7 /* CardEmailDataFactory.swift */,
 				DA6C7527292613D00070EEFD /* UserWalletIdFactory.swift */,
 			);
@@ -5901,7 +5901,7 @@
 				EFA580632893E6AA00110DB0 /* BiometricAuthorizationUtils.swift in Sources */,
 				DAA5E30228D21369003C0E80 /* UserWalletStorageAgreementView.swift in Sources */,
 				B6E932C62A2F2D860068D466 /* OrganizeTokensCoordinatorView.swift in Sources */,
-				DC22535D28A514030094F30C /* WalletModelFactory.swift in Sources */,
+				DC22535D28A514030094F30C /* WalletModelsFactory.swift in Sources */,
 				B069B6DB268AFEBA004E7928 /* BnbSignHandler.swift in Sources */,
 				EF8F2352294098C80046F4C0 /* SwappingDestinationServiceMock.swift in Sources */,
 				EF7B9CF5286C7023004C33A9 /* CardSettingsCoordinator.swift in Sources */,

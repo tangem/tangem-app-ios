@@ -211,7 +211,7 @@ extension LegacyConfig: UserWalletConfig {
     }
 
     func makeWalletModel(for token: StorageEntry) throws -> WalletModel {
-        let factory = WalletModelFactory()
+        let factory = WalletModelsFactory()
 
         if isMultiwallet {
             let walletPublicKeys: [EllipticCurve: Data] = card.wallets.reduce(into: [:]) { partialResult, cardWallet in
