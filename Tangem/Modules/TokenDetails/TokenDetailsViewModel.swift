@@ -251,8 +251,8 @@ private extension TokenDetailsViewModel {
 
 private extension TokenDetailsViewModel {
     func openReceive() {
-        let infos = walletModel.wallet.walletAddresses.map { type, address in
-            ReceiveAddressInfo(address: address.value, type: type, addressQRImage: QrCodeGenerator.generateQRCode(from: address.value))
+        let infos = walletModel.wallet.addresses.map { address in
+            ReceiveAddressInfo(address: address.value, type: address.type, addressQRImage: QrCodeGenerator.generateQRCode(from: address.value))
         }
         coordinator.openReceiveScreen(amountType: amountType, blockchain: blockchain, addressInfos: infos)
     }
