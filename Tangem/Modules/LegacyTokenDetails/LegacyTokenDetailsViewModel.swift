@@ -218,6 +218,12 @@ class LegacyTokenDetailsViewModel: ObservableObject {
             return
         }
 
+        if isCustomToken {
+            canSwap = false
+            updateExchangeButtons()
+            return
+        }
+
         // For a coin we can check it locally
         if amountType == .coin {
             canSwap = SwappingAvailableUtils().canSwap(amountType: .coin, blockchain: blockchainNetwork.blockchain)
