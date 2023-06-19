@@ -1,5 +1,5 @@
 //
-//  WalletModelFactory.swift
+//  WalletModelsFactory.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -10,7 +10,7 @@ import Foundation
 import TangemSdk
 import BlockchainSdk
 
-class WalletModelFactory {
+class WalletModelsFactory {
     func makeSingleWallet(
         walletPublicKey: Data,
         blockchain: Blockchain,
@@ -78,7 +78,7 @@ class WalletModelFactory {
     }
 }
 
-extension WalletModelFactory {
+extension WalletModelsFactory {
     enum Errors: Error {
         case entryHasNotDerivationPath
         case noDerivation
