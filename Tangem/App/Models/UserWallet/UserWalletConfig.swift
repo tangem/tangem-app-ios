@@ -50,7 +50,7 @@ protocol UserWalletConfig: OnboardingStepsBuilderFactory, BackupServiceFactory, 
 
     func getFeatureAvailability(_ feature: UserWalletFeature) -> UserWalletFeature.Availability
 
-    func makeWalletModel(for token: StorageEntry) throws -> WalletModel
+    func makeWalletModel(for token: StorageEntry) throws -> [WalletModel]
 }
 
 extension UserWalletConfig {

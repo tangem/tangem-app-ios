@@ -147,18 +147,9 @@ extension Start2CoinConfig: UserWalletConfig {
         }
     }
 
-    func makeWalletModel(for token: StorageEntry) throws -> WalletModel {
-        guard let walletPublicKey = card.wallets.first(where: { $0.curve == defaultBlockchain.curve })?.publicKey else {
-            throw CommonError.noData
-        }
-
-        let factory = WalletModelsFactory()
-        return try factory.makeSingleWallet(
-            walletPublicKey: walletPublicKey,
-            blockchain: defaultBlockchain,
-            token: nil,
-            derivationStyle: card.derivationStyle
-        )
+    func makeWalletModel(for token: StorageEntry) throws -> [WalletModel] {
+        let factory = SingleWalletModelsFactory()
+        return try factory.makeWalletModels(for: token, keys: card.wallets)
     }
 
     func makeOnboardingStepsBuilder(backupService: BackupService) -> OnboardingStepsBuilder {
