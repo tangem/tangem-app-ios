@@ -334,8 +334,7 @@
 "shop_other_payment_methods" = "其他付款方式";
 "shop_placing_order" = "下訂";
 "shop_pre_order_now" = "Pre-order now";
-"shop_sold_out_description_prefix" = "Sold out, but don't worry! We are working very hard to get more for you! Make sure to place a pre-order here. Deliveries start on";
-"shop_sold_out_description_suffix" = "!";
+"shop_sold_out_description" = "Due to the high volume of orders we are receiving shipping may be delayed up to 5 weeks depending on your location";
 "shop_total" = "總計";
 "shop_web_checkout_title" = "你的訂單";
 "solana_rent_warning" = "Solana 網絡每 2 天收取 %1$@ 的費用。無法付此費用的帳戶將從網絡中清除。向您的帳戶存入超過 %2$@ 即可免費使用";
