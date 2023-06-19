@@ -33,6 +33,8 @@ struct TangemApiTarget: TargetType {
             return "/referral/\(userWalletId)"
         case .participateInReferralProgram:
             return "/referral"
+        case .shops:
+            return "/shops"
         case .validateNewUserPromotionEligibility:
             return "/promotion/code/validate"
         case .validateOldUserPromotionEligibility:
@@ -46,7 +48,7 @@ struct TangemApiTarget: TargetType {
 
     var method: Moya.Method {
         switch type {
-        case .rates, .currencies, .coins, .geo, .getUserWalletTokens, .loadReferralProgramInfo:
+        case .rates, .currencies, .coins, .geo, .getUserWalletTokens, .loadReferralProgramInfo, .shops:
             return .get
         case .saveUserWalletTokens:
             return .put
@@ -75,6 +77,13 @@ struct TangemApiTarget: TargetType {
             return .requestPlain
         case .participateInReferralProgram(let requestData):
             return .requestURLEncodable(requestData)
+        case .shops(let name):
+            return .requestParameters(
+                parameters: [
+                    "name": name,
+                ],
+                encoding: URLEncoding.default
+            )
         case .validateNewUserPromotionEligibility(let walletId, let code):
             return .requestParameters(parameters: [
                 "walletId": walletId,
@@ -115,6 +124,7 @@ extension TangemApiTarget {
         case saveUserWalletTokens(key: String, list: UserTokenList)
         case loadReferralProgramInfo(userWalletId: String)
         case participateInReferralProgram(userInfo: ReferralParticipationRequestBody)
+        case shops(name: String)
 
         // Promotion
         case validateNewUserPromotionEligibility(walletId: String, code: String)
