@@ -49,7 +49,7 @@ class ReceiveBottomSheetViewModel: ObservableObject, Identifiable {
 
     func headerForAddress(with info: ReceiveAddressInfo) -> String {
         Localization.receiveBottomSheetTitle(
-            info.type.rawValue.capitalizingFirstLetter(),
+            addressInfos.count > 1 ? info.type.rawValue.capitalizingFirstLetter() : "",
             tokenInfoExtractor.currencySymbol,
             tokenInfoExtractor.networkName
         )
