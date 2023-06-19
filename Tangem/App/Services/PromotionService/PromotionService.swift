@@ -53,7 +53,22 @@ extension PromotionService: PromotionServiceProtocol {
 
         let timeout: TimeInterval = 5
         do {
-            return try await fetchPromotionAvailability(timeout: timeout)
+            let promotion = try await tangemApiService.promotion(programName: currentProgramName, timeout: timeout)
+
+            let isAvailable = (promotion.status == .active)
+
+            if promotion.status == .finished {
+                markCurrentPromotionAsFinished(true)
+            }
+
+            let awardAmount: Double
+            if promoCode != nil {
+                awardAmount = promotion.awardForNewCard
+            } else {
+                awardAmount = promotion.awardForOldCard
+            }
+
+            return PromotionAvailability(isAvailable: isAvailable, awardAmount: Decimal(floatLiteral: awardAmount))
         } catch {
             return PromotionAvailability(isAvailable: false, awardAmount: .zero)
         }
@@ -121,25 +136,6 @@ extension PromotionService: PromotionServiceProtocol {
 }
 
 extension PromotionService {
-    private func fetchPromotionAvailability(timeout: TimeInterval) async throws -> PromotionAvailability {
-        let promotion = try await tangemApiService.promotion(programName: currentProgramName, timeout: timeout)
-
-        let isAvailable = (promotion.status == .active)
-
-        if promotion.status == .finished {
-            markCurrentPromotionAsFinished(true)
-        }
-
-        let awardAmount: Double
-        if promoCode != nil {
-            awardAmount = promotion.awardForNewCard
-        } else {
-            awardAmount = promotion.awardForOldCard
-        }
-
-        return PromotionAvailability(isAvailable: isAvailable, awardAmount: Decimal(floatLiteral: awardAmount))
-    }
-
     private func rewardAddress(storageEntryAdding: StorageEntryAdding) async throws -> String? {
         let promotion = try await tangemApiService.promotion(programName: currentProgramName, timeout: nil)
 
