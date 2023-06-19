@@ -21,6 +21,9 @@ class PromotionService {
     private let promoCodeStorageKey = "promo_code"
     private let finishedPromotionNamesStorageKey = "finished_promotion_names"
 
+    var awardAmount: String = ""
+    var promotionAvailable: Bool = false
+
     private let readyForAwardSubject = PassthroughSubject<Void, Never>()
 
     init() {}
@@ -43,35 +46,46 @@ extension PromotionService: PromotionServiceProtocol {
         readyForAwardSubject.send(())
     }
 
-    func promotionAvailability(timeout: TimeInterval?) async -> PromotionAvailability {
-        guard
-            FeatureProvider.isAvailable(.learnToEarn),
-            !currentPromotionIsFinished()
-        else {
-            return PromotionAvailability(isAvailable: false, awardAmount: .zero)
+    func checkPromotion(timeout: TimeInterval?) async {
+        let promotionAvailable: Bool
+        let award: Double?
+
+        if !FeatureProvider.isAvailable(.learnToEarn) || currentPromotionIsFinished() {
+            promotionAvailable = false
+            award = nil
+        } else {
+            do {
+                let promotion = try await tangemApiService.promotion(programName: currentProgramName, timeout: timeout)
+
+                promotionAvailable = (promotion.status == .active)
+
+                if promotion.status == .finished {
+                    markCurrentPromotionAsFinished(true)
+                }
+
+                if promoCode != nil {
+                    award = promotion.awardForNewCard
+                } else {
+                    award = promotion.awardForOldCard
+                }
+            } catch {
+                promotionAvailable = false
+                award = nil
+            }
         }
 
-        let timeout: TimeInterval = 5
-        do {
-            let promotion = try await tangemApiService.promotion(programName: currentProgramName, timeout: timeout)
+        let formatter = NumberFormatter()
+        formatter.maximumFractionDigits = 0
 
-            let isAvailable = (promotion.status == .active)
-
-            if promotion.status == .finished {
-                markCurrentPromotionAsFinished(true)
-            }
-
-            let awardAmount: Double
-            if promoCode != nil {
-                awardAmount = promotion.awardForNewCard
-            } else {
-                awardAmount = promotion.awardForOldCard
-            }
-
-            return PromotionAvailability(isAvailable: isAvailable, awardAmount: Decimal(floatLiteral: awardAmount))
-        } catch {
-            return PromotionAvailability(isAvailable: false, awardAmount: .zero)
+        let awardAmount: String
+        if let award,
+           let formattedAmount = formatter.string(from: award as NSNumber) {
+            awardAmount = formattedAmount
+        } else {
+            awardAmount = ""
         }
+        self.awardAmount = awardAmount
+        self.promotionAvailable = promotionAvailable
     }
 
     func setPromoCode(_ promoCode: String?) {
