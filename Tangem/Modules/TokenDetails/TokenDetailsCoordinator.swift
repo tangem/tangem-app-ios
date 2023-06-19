@@ -28,6 +28,7 @@ class TokenDetailsCoordinator: CoordinatorObject {
     @Published var pushedWebViewModel: WebViewContainerViewModel? = nil
     @Published var warningBankCardViewModel: WarningBankCardViewModel? = nil
     @Published var modalWebViewModel: WebViewContainerViewModel? = nil
+    @Published var receiveBottomSheetViewModel: ReceiveBottomSheetViewModel? = nil
 
     required init(
         dismissAction: @escaping Action,
@@ -69,7 +70,10 @@ extension TokenDetailsCoordinator {
 // MARK: - TokenDetailsRoutable
 
 extension TokenDetailsCoordinator: TokenDetailsRoutable {
-    func openReceiveScreen() {}
+    func openReceiveScreen(amountType: Amount.AmountType, blockchain: Blockchain, addressInfos: [ReceiveAddressInfo]) {
+        let infoExtractor = TokenInfoExtractor(type: amountType, blockchain: blockchain)
+        receiveBottomSheetViewModel = .init(tokenInfoExtractor: infoExtractor, addressInfos: addressInfos)
+    }
 
     func openBuyCrypto(at url: URL, closeUrl: String, action: @escaping (String) -> Void) {
         Analytics.log(.topupScreenOpened)
