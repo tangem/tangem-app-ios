@@ -37,8 +37,8 @@ class StoriesViewModel: ObservableObject {
         runTask { [weak self] in
             guard let self else { return }
 
-            let promotionAvailable = await promotionService.promotionAvailability(timeout: promotionCheckTimeout).isAvailable
-            await didFinishCheckingPromotion(promotionAvailable: promotionAvailable)
+            await promotionService.checkPromotion(timeout: promotionCheckTimeout)
+            await didFinishCheckingPromotion()
         }
     }
 
@@ -140,8 +140,8 @@ class StoriesViewModel: ObservableObject {
     }
 
     @MainActor
-    private func didFinishCheckingPromotion(promotionAvailable: Bool) {
-        showLearnPage = promotionAvailable
+    private func didFinishCheckingPromotion() {
+        showLearnPage = promotionService.promotionAvailable
 
         var pages: [WelcomeStoryPage] = WelcomeStoryPage.allCases
         if !showLearnPage,
