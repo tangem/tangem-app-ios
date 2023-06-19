@@ -491,6 +491,7 @@
 "wallet_currency_subtitle" = "Сеть %@";
 "wallet_error_no_account" = "Аккаунт не создан";
 "wallet_network_group_title" = "Сеть %s";
+"wallet_notification_address_copied" = "Адрес скопирован в буфер обмена";
 "wallet_pending_tx_receiving" = "Получение";
 "wallet_pending_tx_receiving_address_format" = "от %@";
 "wallet_pending_tx_sending" = "Отправка";
