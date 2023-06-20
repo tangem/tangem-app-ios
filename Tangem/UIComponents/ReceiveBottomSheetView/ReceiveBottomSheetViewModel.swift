@@ -22,27 +22,27 @@ class ReceiveBottomSheetViewModel: ObservableObject, Identifiable {
     let id = UUID()
     let addressIndexUpdateNotifier = PassthroughSubject<Int, Never>()
 
-    private let tokenInfoExtractor: TokenInfoExtractor
+    private let tokenItem: TokenItem
 
     private var currentIndex = 0
     private var indexUpdateSubscription: AnyCancellable?
 
     var warningMessageFull: String {
-        Localization.receiveBottomSheetWarningMessageFull(tokenInfoExtractor.currencySymbol)
+        Localization.receiveBottomSheetWarningMessageFull(tokenItem.currencySymbol)
     }
 
-    init(tokenInfoExtractor: TokenInfoExtractor, addressInfos: [ReceiveAddressInfo]) {
-        self.tokenInfoExtractor = tokenInfoExtractor
-        tokenIconViewModel = tokenInfoExtractor.iconViewModel
+    init(tokenItem: TokenItem, addressInfos: [ReceiveAddressInfo]) {
+        self.tokenItem = tokenItem
+        tokenIconViewModel = .init(tokenItem: tokenItem)
         self.addressInfos = addressInfos
 
         networkWarningMessage = Localization.receiveBottomSheetWarningMessage(
-            tokenInfoExtractor.name,
-            tokenInfoExtractor.currencySymbol,
-            tokenInfoExtractor.networkName
+            tokenItem.name,
+            tokenItem.currencySymbol,
+            tokenItem.networkName
         )
 
-        isUserUnderstandsAddressNetworkRequirements = AppSettings.shared.understandsAddressNetworkRequirements.contains(tokenInfoExtractor.networkName)
+        isUserUnderstandsAddressNetworkRequirements = AppSettings.shared.understandsAddressNetworkRequirements.contains(tokenItem.networkName)
 
         bind()
     }
@@ -50,14 +50,14 @@ class ReceiveBottomSheetViewModel: ObservableObject, Identifiable {
     func headerForAddress(with info: ReceiveAddressInfo) -> String {
         Localization.receiveBottomSheetTitle(
             addressInfos.count > 1 ? info.type.rawValue.capitalizingFirstLetter() : "",
-            tokenInfoExtractor.currencySymbol,
-            tokenInfoExtractor.networkName
+            tokenItem.currencySymbol,
+            tokenItem.networkName
         )
     }
 
     func understandNetworkRequirements() {
-        AppSettings.shared.understandsAddressNetworkRequirements.append(tokenInfoExtractor.networkName)
-        isUserUnderstandsAddressNetworkRequirements.toggle()
+        AppSettings.shared.understandsAddressNetworkRequirements.append(tokenItem.networkName)
+        isUserUnderstandsAddressNetworkRequirements = true
     }
 
     func copyToClipboard() {
@@ -69,6 +69,7 @@ class ReceiveBottomSheetViewModel: ObservableObject, Identifiable {
     func share() {
         Analytics.log(.buttonShareAddress)
         let address = addressInfos[currentIndex].address
+        // [REDACTED_TODO_COMMENT]
         let av = UIActivityViewController(activityItems: [address], applicationActivities: nil)
         UIApplication.modalFromTop(av)
     }
