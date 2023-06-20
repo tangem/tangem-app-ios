@@ -147,6 +147,7 @@ class CardViewModel: Identifiable, ObservableObject {
     let userWalletId: UserWalletId
 
     private let walletListManager: WalletListManager
+    private let keysRepository: KeysRepository
     let userTokenListManager: UserTokenListManager
 
     lazy var totalBalanceProvider: TotalBalanceProviding = TotalBalanceProvider(
@@ -306,6 +307,7 @@ class CardViewModel: Identifiable, ObservableObject {
 
         self.cardInfo = cardInfo
         self.config = config
+        keysRepository = CommonKeysRepository(with: cardInfo.card.wallets)
         userWalletId = UserWalletId(with: userWalletIdSeed)
         userTokenListManager = CommonUserTokenListManager(
             hasTokenSynchronization: config.hasFeature(.tokenSynchronization),
@@ -314,7 +316,8 @@ class CardViewModel: Identifiable, ObservableObject {
 
         walletListManager = CommonWalletListManager(
             config: config,
-            userTokenListManager: userTokenListManager
+            userTokenListManager: userTokenListManager,
+            keysProvider: keysRepository
         )
 
         _signer = config.tangemSigner
@@ -472,7 +475,9 @@ class CardViewModel: Identifiable, ObservableObject {
             }
         }
 
-        onUpdate()
+        // [REDACTED_TODO_COMMENT]
+        keysRepository.update(keys: cardInfo.card.wallets)
+        userWalletRepository.save(userWallet)
     }
 
     func onBackupCreated(_ card: Card) {
@@ -489,7 +494,6 @@ class CardViewModel: Identifiable, ObservableObject {
     private func onUpdate() {
         AppLog.shared.debug("🔄 Updating CardViewModel with new Card")
         config = UserWalletConfigFactory(cardInfo).makeConfig()
-        walletListManager.update(config: config)
         _signer = config.tangemSigner
         updateModel()
         userWalletRepository.save(userWallet)
