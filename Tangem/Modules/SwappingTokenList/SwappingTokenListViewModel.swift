@@ -28,6 +28,7 @@ final class SwappingTokenListViewModel: ObservableObject, Identifiable {
 
     // MARK: - Dependencies
 
+    private let userCurrenciesProvider: UserCurrenciesProviding
     private let tokenIconURLBuilder: TokenIconURLBuilding
     private let currencyMapper: CurrencyMapping
     private let walletDataProvider: SwappingWalletDataProvider
@@ -35,7 +36,7 @@ final class SwappingTokenListViewModel: ObservableObject, Identifiable {
     private unowned let coordinator: SwappingTokenListRoutable
 
     private let sourceCurrency: Currency
-    private let userCurrencies: [Currency]
+    private var userCurrencies: [Currency] = []
     private var bag: Set<AnyCancellable> = []
     private lazy var dataLoader: ListDataLoader = setupLoader()
 
@@ -49,7 +50,7 @@ final class SwappingTokenListViewModel: ObservableObject, Identifiable {
         coordinator: SwappingTokenListRoutable
     ) {
         self.sourceCurrency = sourceCurrency
-        userCurrencies = userCurrenciesProvider.getCurrencies(blockchain: sourceCurrency.blockchain)
+        self.userCurrenciesProvider = userCurrenciesProvider
         self.tokenIconURLBuilder = tokenIconURLBuilder
         self.currencyMapper = currencyMapper
         self.walletDataProvider = walletDataProvider
@@ -77,9 +78,10 @@ private extension SwappingTokenListViewModel {
     }
 
     func setupUserItemsSection() {
-        let currencies = userCurrencies.filter { sourceCurrency != $0 }
-
         runTask(in: self) { obj in
+            obj.userCurrencies = await obj.userCurrenciesProvider.getCurrencies(blockchain: obj.sourceCurrency.blockchain)
+            let currencies = obj.userCurrencies.filter { obj.sourceCurrency != $0 }
+
             var items: [SwappingTokenItemViewModel] = []
 
             for currency in currencies {
