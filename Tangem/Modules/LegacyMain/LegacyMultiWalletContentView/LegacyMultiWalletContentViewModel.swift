@@ -129,11 +129,26 @@ private extension LegacyMultiWalletContentViewModel {
         let walletModels = cardModel.walletModels
         return entries.reduce([]) { result, entry in
             if let walletModel = walletModels.first(where: { $0.blockchainNetwork == entry.blockchainNetwork }) {
-                return result + walletModel.legacyMultiCurrencyViewModel()
+                return result + [mapToTokenItemViewModel(walletModel)]
             }
 
             return result + mapToTokenItemViewModels(entry: entry)
         }
+    }
+
+    func mapToTokenItemViewModel(_ walletModel: WalletModel) -> LegacyTokenItemViewModel {
+        LegacyTokenItemViewModel(
+            state: walletModel.state,
+            name: walletModel.name,
+            balance: walletModel.balance,
+            fiatBalance: walletModel.fiatBalance,
+            rate: walletModel.rate,
+            fiatValue: walletModel.fiatValue,
+            blockchainNetwork: walletModel.blockchainNetwork,
+            amountType: walletModel.amountType,
+            hasTransactionInProgress: walletModel.isMainToken ? walletModel.hasPendingTx : false,
+            isCustom: walletModel.isCustom
+        )
     }
 
     func mapToTokenItemViewModels(entry: StorageEntry) -> [LegacyTokenItemViewModel] {
