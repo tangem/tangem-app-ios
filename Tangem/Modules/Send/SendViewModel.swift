@@ -119,7 +119,7 @@ class SendViewModel: ObservableObject {
     let cardViewModel: CardViewModel
 
     var walletModel: WalletModel {
-        return cardViewModel.walletModels.first(where: { $0.blockchainNetwork == blockchainNetwork })!
+        return cardViewModel.walletModels.first(where: { $0.amountType == amountToSend.type })!
     }
 
     var bag = Set<AnyCancellable>()
@@ -281,9 +281,7 @@ class SendViewModel: ObservableObject {
                     return
                 }
 
-                let currencyId = walletModel.currencyId(for: amountToSend.type)
-
-                if let converted = value ? walletModel.getFiat(for: decimals, currencyId: currencyId, roundingType: .defaultFiat(roundingMode: .down))
+                if let converted = value ? walletModel.getFiat(for: decimals, currencyId: walletModel.currencyId, roundingType: .defaultFiat(roundingMode: .down))
                     : walletModel.getCrypto(for: Amount(with: amountToSend, value: decimals)) {
                     amountText = converted.description
                 } else {

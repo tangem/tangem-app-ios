@@ -14,25 +14,27 @@ class CommonWalletListManager {
 
     private var config: UserWalletConfig
     private let userTokenListManager: UserTokenListManager
+    private let keysProvider: KeysProvider
 
     /// Bool flag for migration custom token to token form our API
     private var migrated = false
     private var walletModels = CurrentValueSubject<[WalletModel], Never>([])
     private var entriesWithoutDerivation = CurrentValueSubject<[StorageEntry], Never>([])
 
-    init(config: UserWalletConfig, userTokenListManager: UserTokenListManager) {
+    init(
+        config: UserWalletConfig,
+        userTokenListManager: UserTokenListManager,
+        keysProvider: KeysProvider
+    ) {
         self.config = config
         self.userTokenListManager = userTokenListManager
+        self.keysProvider = keysProvider
     }
 }
 
 // MARK: - WalletListManager
 
 extension CommonWalletListManager: WalletListManager {
-    func update(config: UserWalletConfig) {
-        self.config = config
-    }
-
     func getWalletModels() -> [WalletModel] {
         walletModels.value
     }
@@ -64,6 +66,7 @@ extension CommonWalletListManager: WalletListManager {
                 entry.tokens.forEach { token in
                     if !walletModel.getTokens().contains(token) {
                         walletModel.addTokens(entry.tokens)
+                        walletModel.setNeedsUpdate()
                     }
                 }
 
@@ -88,7 +91,8 @@ extension CommonWalletListManager: WalletListManager {
                 let displayName = entry.blockchainNetwork.blockchain.displayName
 
                 do {
-                    let walletModels = try config.makeWalletModel(for: entry)
+                    let walletModelsFactory = try config.makeWalletModelsFactory()
+                    let walletModels = try walletModelsFactory.makeWalletModels(for: entry, keys: keysProvider.keys)
                     AppLog.shared.debug("✅ Make WalletModel for \(displayName) success")
                     return walletModels
                 } catch WalletModelsFactoryError.noDerivation {
@@ -147,6 +151,37 @@ extension CommonWalletListManager: WalletListManager {
     func removeToken(_ token: Token, blockchainNetwork: BlockchainNetwork) {
         getWalletModels().first(where: { $0.blockchainNetwork == blockchainNetwork })?.removeToken(token)
         updateWalletModels()
+    }
+
+    func getTokens() -> [Token] {
+        walletManager.cardTokens
+    }
+
+    func addTokens(_ tokens: [Token]) {
+        tokens.forEach {
+            if walletManager.cardTokens.contains($0) {
+                walletManager.removeToken($0)
+            }
+        }
+
+        walletManager.addTokens(tokens)
+    }
+
+    func canRemove(amountType: Amount.AmountType) -> Bool {
+        if amountType == .coin, !walletManager.cardTokens.isEmpty {
+            return false
+        }
+
+        return true
+    }
+
+    func removeToken(_ token: Token) {
+        guard canRemove(amountType: .token(value: token)) else {
+            assertionFailure("Delete token isn't possible")
+            return
+        }
+
+        walletManager.removeToken(token)
     }
 }
 
@@ -246,12 +281,8 @@ private extension CommonWalletListManager {
     }
 
     func log(walletModels: [WalletModel]) {
-        let printList = walletModels.map { walletModel in
-            var text = "blockchain: \(walletModel.blockchainNetwork.blockchain.displayName)"
-            if !walletModel.getTokens().isEmpty {
-                text += " with tokens: \(walletModel.getTokens().map { $0.name }.joined(separator: ", "))"
-            }
-            return text
+        let printList = walletModels.map {
+            return "\($0.name)"
         }
 
         AppLog.shared.debug("✅ Actual List of WalletModels [\(printList.joined(separator: ", "))]")
