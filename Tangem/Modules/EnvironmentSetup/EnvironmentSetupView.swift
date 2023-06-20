@@ -31,11 +31,43 @@ struct EnvironmentSetupView: View {
                 } header: {
                     DefaultHeaderView("Feature toggles")
                 }
+
+                promotionProgramControls
             }
         }
         .navigationBarTitle(Text("Environment setup"))
         .navigationBarItems(trailing: exitButton)
         .alert(item: $viewModel.alert) { $0.alert }
+    }
+
+    private var promotionProgramControls: some View {
+        VStack(spacing: 30) {
+            Text("PROMOTION PROGRAM")
+                .font(.headline)
+
+            VStack(spacing: 15) {
+                HStack {
+                    Text("Current promo code: \(viewModel.currentPromoCode)")
+
+                    Button {
+                        viewModel.copyCurrentPromoCode()
+                    } label: {
+                        Image(systemName: "doc.on.doc")
+                            .foregroundColor(Color.blue)
+                    }
+                }
+
+                Button("Reset promo codes", action: viewModel.resetCurrentPromoCode)
+                    .foregroundColor(Color.red)
+            }
+
+            VStack(spacing: 15) {
+                Text("Finished program names: \(viewModel.finishedPromotionNames)")
+
+                Button("Reset finished programs", action: viewModel.resetFinishedPromotionNames)
+                    .foregroundColor(Color.red)
+            }
+        }
     }
 
     private var exitButton: some View {

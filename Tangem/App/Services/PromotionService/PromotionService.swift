@@ -17,13 +17,12 @@ class PromotionService {
         readyForAwardSubject.eraseToAnyPublisher()
     }
 
-    let programName = "1inch"
+    let currentProgramName = "1inch"
     private let promoCodeStorageKey = "promo_code"
-    private let programsWithSuccessfullAwardsStorageKey = "programs_with_successfull_awards"
+    private let finishedPromotionNamesStorageKey = "finished_promotion_names"
 
-    #warning("[REDACTED_TODO_COMMENT]")
-    private let awardBlockchain: Blockchain = .polygon(testnet: false)
-    private let awardToken: Token = .init(name: "1inch", symbol: "1INCH", contractAddress: "0x9c2c5fd7b07e95ee044ddeba0e97a665f142394f", decimalCount: 6, id: "1inch")
+    var awardAmount: String = ""
+    var promotionAvailable: Bool = false
 
     private let readyForAwardSubject = PassthroughSubject<Void, Never>()
 
@@ -47,8 +46,46 @@ extension PromotionService: PromotionServiceProtocol {
         readyForAwardSubject.send(())
     }
 
-    func promotionAvailable() -> Bool {
-        FeatureProvider.isAvailable(.learnToEarn) && !currentProgramWasAwarded()
+    func checkPromotion(timeout: TimeInterval?) async {
+        let promotionAvailable: Bool
+        let award: Double?
+
+        if !FeatureProvider.isAvailable(.learnToEarn) || currentPromotionIsFinished() {
+            promotionAvailable = false
+            award = nil
+        } else {
+            do {
+                let promotion = try await tangemApiService.promotion(programName: currentProgramName, timeout: timeout)
+
+                promotionAvailable = (promotion.status == .active)
+
+                if promotion.status == .finished {
+                    markCurrentPromotionAsFinished(true)
+                }
+
+                if promoCode != nil {
+                    award = promotion.awardForNewCard
+                } else {
+                    award = promotion.awardForOldCard
+                }
+            } catch {
+                promotionAvailable = false
+                award = nil
+            }
+        }
+
+        let formatter = NumberFormatter()
+        formatter.maximumFractionDigits = 0
+
+        let awardAmount: String
+        if let award,
+           let formattedAmount = formatter.string(from: award as NSNumber) {
+            awardAmount = formattedAmount
+        } else {
+            awardAmount = ""
+        }
+        self.awardAmount = awardAmount
+        self.promotionAvailable = promotionAvailable
     }
 
     func setPromoCode(_ promoCode: String?) {
@@ -72,7 +109,7 @@ extension PromotionService: PromotionServiceProtocol {
         if let promoCode {
             try await tangemApiService.validateNewUserPromotionEligibility(walletId: userWalletId, code: promoCode)
         } else {
-            try await tangemApiService.validateOldUserPromotionEligibility(walletId: userWalletId, programName: programName)
+            try await tangemApiService.validateOldUserPromotionEligibility(walletId: userWalletId, programName: currentProgramName)
         }
     }
 
@@ -82,17 +119,47 @@ extension PromotionService: PromotionServiceProtocol {
         if let promoCode {
             try await tangemApiService.awardNewUser(walletId: userWalletId, address: address, code: promoCode)
         } else {
-            try await tangemApiService.awardOldUser(walletId: userWalletId, address: address, programName: programName)
+            try await tangemApiService.awardOldUser(walletId: userWalletId, address: address, programName: currentProgramName)
         }
 
-        markCurrentProgramAsAwarded(true)
+        markCurrentPromotionAsFinished(true)
 
         return true
+    }
+
+    func finishedPromotionNames() -> Set<String> {
+        do {
+            let storage = SecureStorage()
+            guard let data = try storage.get(finishedPromotionNamesStorageKey) else { return [] }
+            return try JSONDecoder().decode(Set<String>.self, from: data)
+        } catch {
+            AppLog.shared.error(error)
+            AppLog.shared.debug("Failed to get finished promotions")
+            return []
+        }
+    }
+
+    func resetFinishedPromotions() {
+        if AppEnvironment.current.isProduction {
+            AppLog.shared.debug("Trying to reset finished promotions in production. Not allowed")
+            fatalError("Trying to reset finished promotions in production. Not allowed")
+        }
+
+        saveFinishedPromotions([])
     }
 }
 
 extension PromotionService {
     private func rewardAddress(storageEntryAdding: StorageEntryAdding) async throws -> String? {
+        let promotion = try await tangemApiService.promotion(programName: currentProgramName, timeout: nil)
+
+        guard
+            let awardBlockchain = Blockchain(from: promotion.awardPaymentToken.networkId),
+            let awardToken = promotion.awardPaymentToken.storageToken
+        else {
+            throw TangemAPIError(code: .decode)
+        }
+
         let derivationPath: DerivationPath? = awardBlockchain.derivationPath()
         let blockchainNetwork = storageEntryAdding.getBlockchainNetwork(for: awardBlockchain, derivationPath: derivationPath)
 
@@ -109,42 +176,34 @@ extension PromotionService {
         }
     }
 
-    private func currentProgramWasAwarded() -> Bool {
-        awardedProgramNames().contains(programName)
+    private func currentPromotionIsFinished() -> Bool {
+        finishedPromotionNames().contains(currentProgramName)
     }
 
-    private func awardedProgramNames() -> Set<String> {
-        do {
-            let storage = SecureStorage()
-            guard let data = try storage.get(programsWithSuccessfullAwardsStorageKey) else { return [] }
-            return try JSONDecoder().decode(Set<String>.self, from: data)
-        } catch {
-            AppLog.shared.error(error)
-            AppLog.shared.debug("Failed to get awarded programs")
-            return []
-        }
-    }
+    private func markCurrentPromotionAsFinished(_ finished: Bool) {
+        let finishedPromotionNames = finishedPromotionNames()
 
-    private func markCurrentProgramAsAwarded(_ hasBeenAwarded: Bool) {
-        let awardedProgramNames = awardedProgramNames()
-
-        var newAwardedProgramNames = awardedProgramNames
-        if hasBeenAwarded {
-            newAwardedProgramNames.insert(programName)
+        var newFinishedPromotionNames = finishedPromotionNames
+        if finished {
+            newFinishedPromotionNames.insert(currentProgramName)
         } else {
-            newAwardedProgramNames.remove(programName)
+            newFinishedPromotionNames.remove(currentProgramName)
         }
 
-        guard awardedProgramNames != newAwardedProgramNames else { return }
+        guard finishedPromotionNames != newFinishedPromotionNames else { return }
 
+        saveFinishedPromotions(newFinishedPromotionNames)
+    }
+
+    private func saveFinishedPromotions(_ programNames: Set<String>) {
         do {
-            let data = try JSONEncoder().encode(newAwardedProgramNames)
+            let data = try JSONEncoder().encode(programNames)
 
             let storage = SecureStorage()
-            try storage.store(data, forKey: programsWithSuccessfullAwardsStorageKey)
+            try storage.store(data, forKey: finishedPromotionNamesStorageKey)
         } catch {
             AppLog.shared.error(error)
-            AppLog.shared.debug("Failed to set awarded programs")
+            AppLog.shared.debug("Failed to set finished programs")
         }
     }
 }
