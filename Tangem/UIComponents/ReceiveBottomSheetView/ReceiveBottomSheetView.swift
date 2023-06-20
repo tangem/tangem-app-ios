@@ -7,8 +7,6 @@
 //
 
 import SwiftUI
-import Combine
-import BlockchainSdk
 import AlertToast
 
 struct ReceiveBottomSheetView: View {
@@ -73,7 +71,6 @@ struct ReceiveBottomSheetView: View {
 
                     Text(info.address)
                         .lineLimit(1)
-                        .multilineTextAlignment(.center)
                         .style(Fonts.Bold.callout, color: Colors.Text.primary1)
                         .padding(.horizontal, 60)
                         .truncationMode(.middle)
@@ -114,10 +111,7 @@ struct ReceiveBottomSheetView: View {
 struct ReceiveBottomSheet_Previews: PreviewProvider {
     static var btcAddressBottomSheet: ReceiveBottomSheetViewModel {
         ReceiveBottomSheetViewModel(
-            tokenInfoExtractor: .init(
-                type: .coin,
-                blockchain: .bitcoin(testnet: false)
-            ),
+            tokenItem: .blockchain(.bitcoin(testnet: false)),
             addressInfos: [
                 .init(
                     address: "bc1qeguhvlnxu4lwg48p5sfhxqxz679v3l5fma9u0c",
@@ -135,10 +129,7 @@ struct ReceiveBottomSheet_Previews: PreviewProvider {
 
     static var singleAddressBottomSheet: ReceiveBottomSheetViewModel {
         ReceiveBottomSheetViewModel(
-            tokenInfoExtractor: .init(
-                type: .ethTetherMock,
-                blockchain: .ethereum(testnet: false)
-            ),
+            tokenItem: .token(.tetherMock, .polygon(testnet: false)),
             addressInfos: [
                 .init(
                     address: "0xEF08EA3531D219EDE813FB521e6D89220198bcB1",
