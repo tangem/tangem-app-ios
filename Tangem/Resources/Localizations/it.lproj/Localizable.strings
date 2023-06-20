@@ -272,6 +272,9 @@
 "push_additional_fee" = "Additional fee";
 "push_previous_fee" = "Previous fee";
 "push_tx_address_hint" = "Previous transaction total including fee";
+"receive_bottom_sheet_title" = "%1$@ %2$@ address on %3$@ network";
+"receive_bottom_sheet_warning_message" = "%1$@ (%2$@) on %3$@ network";
+"receive_bottom_sheet_warning_message_full" = "Send only %@ to this address. Sending any other currency will result in its irreversible loss.";
 "referral_button_participate" = "Participate";
 "referral_error_failed_to_load_info" = "Failed to load the information about the referral program. Please try again later.";
 "referral_error_failed_to_load_info_with_reason" = "Failed to load the information about the referral program. Error code: %@. Please try again later.";
@@ -491,6 +494,7 @@
 "wallet_currency_subtitle" = "%@ network";
 "wallet_error_no_account" = "Conto non creato";
 "wallet_network_group_title" = "%s network";
+"wallet_notification_address_copied" = "L'indirizzo è stato copiato con successo";
 "wallet_pending_tx_receiving" = "Riceviu";
 "wallet_pending_tx_receiving_address_format" = "da %@";
 "wallet_pending_tx_sending" = "Inviau";
