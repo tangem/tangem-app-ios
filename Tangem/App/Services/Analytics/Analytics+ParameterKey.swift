@@ -42,6 +42,7 @@ extension Analytics {
         case sendToken = "Send Token"
         case receiveToken = "Receive Token"
         case commonSource = "Source"
+        case commonType = "Type"
         case signInType = "Sign in type"
         case balance = "Balance"
         case creationType = "Creation type"
@@ -49,6 +50,9 @@ extension Analytics {
         case option
         case feeType = "Fee Type"
         case permissionType = "Permission Type"
+        case destinationAddressValidationResult = "Validation"
+        case memo = "Memo"
+        case walletsCount = "Wallets Count"
         case exceptionHost = "exception_host"
         case selectedHost = "selected_host"
         case region
