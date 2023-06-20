@@ -6,10 +6,13 @@
 //  Copyright © 2023 Tangem AG. All rights reserved.
 //
 
+import Combine
 import TangemSwapping
 import BlockchainSdk
 
 struct SwappingAvailableUtils {
+    @Injected(\.tangemApiService) private var tangemApiService: TangemApiService
+
     private let supportedBlockchains: [SwappingBlockchain] = [
         .ethereum,
         .bsc,
@@ -27,8 +30,7 @@ struct SwappingAvailableUtils {
             return false
         }
 
-        let networkId = blockchain.networkId
-        guard let blockchain = SwappingBlockchain(networkId: networkId) else {
+        guard let blockchain = makeSwappingBlockchain(from: blockchain) else {
             return false
         }
 
@@ -41,5 +43,49 @@ struct SwappingAvailableUtils {
         default:
             return false
         }
+    }
+
+    func canSwapPublisher(amountType: Amount.AmountType, blockchain: Blockchain) -> AnyPublisher<Bool, Error> {
+        guard
+            FeatureProvider.isAvailable(.exchange),
+            let swapBlockchain = makeSwappingBlockchain(from: blockchain),
+            supportedBlockchains.contains(swapBlockchain)
+        else {
+            return .justWithError(output: false)
+        }
+
+        switch amountType {
+        case .coin:
+            return .justWithError(output: true)
+        case .token(let token):
+            if token.isCustom {
+                return .justWithError(output: false)
+            }
+
+            let networkId = swapBlockchain.networkId
+            let currencyId = token.id ?? blockchain.id
+
+            return tangemApiService
+                .loadCoins(requestModel: .init(networkIds: [networkId], ids: [currencyId]))
+                .map { models in
+                    let coin = models.first(where: { $0.id == currencyId })
+                    let tokenItem = coin?.items.first(where: { $0.id == currencyId })
+
+                    if case .token(let token, _) = tokenItem {
+                        // If exchangeable == nil then swap is available for old users
+                        return token.exchangeable ?? true
+                    }
+
+                    return false
+                }
+                .eraseToAnyPublisher()
+        default:
+            return .justWithError(output: false)
+        }
+    }
+
+    private func makeSwappingBlockchain(from blockchain: Blockchain) -> SwappingBlockchain? {
+        let networkId = blockchain.networkId
+        return SwappingBlockchain(networkId: networkId)
     }
 }
