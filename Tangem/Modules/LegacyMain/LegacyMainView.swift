@@ -126,7 +126,7 @@ struct LegacyMainView: View {
     }
 
     var learnAlertView: some View {
-        LearnAndEarnAlertView(title: viewModel.learnAndEarnTitle, subtitle: viewModel.learnAndEarnSubtitle, tapAction: viewModel.learnAndEarn)
+        LearnAndEarnAlertView(title: viewModel.learnAndEarnTitle, subtitle: viewModel.learnAndEarnSubtitle, inProgress: viewModel.promotionRequestInProgress, tapAction: viewModel.learnAndEarn)
             .padding(.horizontal, 16)
     }
 
