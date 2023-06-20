@@ -210,13 +210,11 @@ extension LegacyConfig: UserWalletConfig {
         }
     }
 
-    func makeWalletModel(for token: StorageEntry) throws -> [WalletModel] {
+    func makeWalletModelsFactory() throws -> WalletModelsFactory {
         if isMultiwallet {
-            let factory = MultiWalletModelsFactory(isHDWalletAllowed: false, derivationStyle: nil)
-            return try factory.makeWalletModels(for: token, keys: card.wallets)
+            return MultiWalletModelsFactory(isHDWalletAllowed: false, derivationStyle: nil)
         } else {
-            let factory = SingleWalletModelsFactory()
-            return try factory.makeWalletModels(for: token, keys: card.wallets)
+            return SingleWalletModelsFactory()
         }
     }
 }
