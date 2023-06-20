@@ -32,6 +32,7 @@ class LegacyMainViewModel: ObservableObject {
     @Published var isLackDerivationWarningViewVisible: Bool = false
     @Published var isBackupAllowed: Bool = false
     @Published var canOpenPromotion: Bool = false
+    @Published var promotionRequestInProgress = false
 
     @Published var exchangeButtonState: ExchangeButtonState = .single(option: .buy)
     @Published var exchangeActionSheet: ActionSheetBinder?
@@ -354,6 +355,8 @@ class LegacyMainViewModel: ObservableObject {
     }
 
     func learnAndEarn() {
+        promotionRequestInProgress = true
+
         runTask { [weak self] in
             guard let self else { return }
 
@@ -502,6 +505,8 @@ private extension LegacyMainViewModel {
     }
 
     private func didBecomeReadyForAward() {
+        promotionRequestInProgress = true
+
         runTask { [weak self] in
             guard let self else { return }
 
@@ -544,6 +549,7 @@ private extension LegacyMainViewModel {
     @MainActor
     private func didFinishCheckingPromotion() {
         canOpenPromotion = promotionService.promotionAvailable
+        promotionRequestInProgress = false
     }
 }
 
