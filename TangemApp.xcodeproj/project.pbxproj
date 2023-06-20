@@ -578,6 +578,7 @@
 		DC3DCADD2A40AB9D00F72554 /* SingleWalletModelsFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC3DCADC2A40AB9D00F72554 /* SingleWalletModelsFactory.swift */; };
 		DC3DCADF2A40B81900F72554 /* SingleDemoWalletModelsFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC3DCADE2A40B81900F72554 /* SingleDemoWalletModelsFactory.swift */; };
 		DC3DCAE12A40BDAF00F72554 /* TwinWalletModelsFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC3DCAE02A40BDAF00F72554 /* TwinWalletModelsFactory.swift */; };
+		DC3DCAE52A41FA6A00F72554 /* KeysRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC3DCAE42A41FA6A00F72554 /* KeysRepository.swift */; };
 		DC4665A929895BA100EF97A5 /* WalletConnectURLParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC4665A829895BA100EF97A5 /* WalletConnectURLParser.swift */; };
 		DC4BF175298A4B810052EC19 /* IncomingActionsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC4BF174298A4B810052EC19 /* IncomingActionsTests.swift */; };
 		DC51185C2860925A004FB954 /* WalletConnectRoutable.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC51185B2860925A004FB954 /* WalletConnectRoutable.swift */; };
@@ -1614,6 +1615,7 @@
 		DC3DCADC2A40AB9D00F72554 /* SingleWalletModelsFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SingleWalletModelsFactory.swift; sourceTree = "<group>"; };
 		DC3DCADE2A40B81900F72554 /* SingleDemoWalletModelsFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SingleDemoWalletModelsFactory.swift; sourceTree = "<group>"; };
 		DC3DCAE02A40BDAF00F72554 /* TwinWalletModelsFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TwinWalletModelsFactory.swift; sourceTree = "<group>"; };
+		DC3DCAE42A41FA6A00F72554 /* KeysRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeysRepository.swift; sourceTree = "<group>"; };
 		DC4665A829895BA100EF97A5 /* WalletConnectURLParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletConnectURLParser.swift; sourceTree = "<group>"; };
 		DC4BF174298A4B810052EC19 /* IncomingActionsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IncomingActionsTests.swift; sourceTree = "<group>"; };
 		DC51185B2860925A004FB954 /* WalletConnectRoutable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletConnectRoutable.swift; sourceTree = "<group>"; };
@@ -4001,6 +4003,7 @@
 				B0C4A1D22671F3FB00DCB921 /* TestnetBuyCryptoService.swift */,
 				5D6784CD25EB92F300149995 /* TestnetTokensRepository.swift */,
 				DCAB57FF295EE820005D0F4A /* AppLog.swift */,
+				DC3DCAE42A41FA6A00F72554 /* KeysRepository.swift */,
 			);
 			path = Common;
 			sourceTree = "<group>";
@@ -5958,6 +5961,7 @@
 				B0B335D929FA8A3200E2082E /* RatesProvider.swift in Sources */,
 				EF08A0F1283D2382008BD923 /* CoinsListRequestModel.swift in Sources */,
 				EF130EBC28E1D34500D37EFC /* LegacyMultiWalletContentView.swift in Sources */,
+				DC3DCAE52A41FA6A00F72554 /* KeysRepository.swift in Sources */,
 				DC295B5D2862E6DE006CB7B6 /* BackUpWarningView.swift in Sources */,
 				B0625A2529CB3D2700EDD245 /* OnboardingSeedPhraseImportViewModel.swift in Sources */,
 				DC66BC10285C405C00CDF765 /* CoordinatorObject.swift in Sources */,
