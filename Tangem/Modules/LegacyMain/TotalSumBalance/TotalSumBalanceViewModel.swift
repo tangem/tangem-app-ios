@@ -44,7 +44,7 @@ class TotalSumBalanceViewModel: ObservableObject {
     func updateForSingleCoinCard() {
         guard let cardAmountType = cardAmountType else { return }
 
-        singleWalletBalance = userWalletModel.walletModels.first?.legacyMultiCurrencyViewModel().first(where: { $0.amountType == cardAmountType })?.balance
+        singleWalletBalance = userWalletModel.walletModels.first(where: { $0.amountType == cardAmountType })?.balance
     }
 
     func didTapOnCurrencySymbol() {

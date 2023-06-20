@@ -56,11 +56,11 @@ struct BalanceAddressView: View {
     }
 
     var balance: String {
-        walletModel.getBalance(for: amountType)
+        walletModel.balance
     }
 
     var fiatBalance: String {
-        walletModel.getFiatBalance(for: amountType)
+        walletModel.fiatBalance
     }
 
     var isSkeletonShown: Bool {
@@ -164,7 +164,7 @@ struct BalanceAddressView: View {
             .frame(height: 86)
             .padding(.bottom, 16)
 
-            Text(walletModel.getQRReceiveMessage(for: amountType))
+            Text(walletModel.qrReceiveMessage)
                 .font(.system(size: 16, weight: .regular))
                 .multilineTextAlignment(.center)
                 .foregroundColor(.tangemGrayDark)
