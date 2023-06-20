@@ -129,7 +129,7 @@ class WalletConnectTransactionHandler: TangemWalletConnectRequestHandler {
                             valueAmount.description,
                             gasAmount.description,
                             totalAmount.description,
-                            walletModel.getBalance(for: .coin)
+                            walletModel.balance
                         )
                         if balance < totalAmount {
                             m += "\n\n" + Localization.walletConnectCreateTxNotEnoughFunds
