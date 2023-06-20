@@ -27,6 +27,7 @@ struct CardsInfoPagerView<
 
     /// - Warning: Won't be reset back to 0 after successful (non-cancelled) page switch, use with caution.
     @State private var pageSwitchProgress: CGFloat = .zero
+    @available(iOS, introduced: 13.0, deprecated: 15.0, message: "Replace with native .safeAreaInset()")
     @State private var headerHeight: CGFloat = .zero
     @State private var verticalContentOffset: CGPoint = .zero
 
