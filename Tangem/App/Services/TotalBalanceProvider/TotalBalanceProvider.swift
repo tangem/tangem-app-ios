@@ -100,7 +100,11 @@ private extension TotalBalanceProvider {
     }
 
     func mapToTotalBalance(currencyCode: String, _ walletModels: [WalletModel], _ hasEntriesWithoutDerivation: Bool) -> TotalBalance {
-        let tokenItemViewModels = getTokenItemViewModels(from: walletModels)
+        let tokenItemViewModels = walletModels.filter { model in
+            guard let amountType = userWalletAmountType else { return true }
+
+            return model.amountType == amountType
+        }
 
         var hasError = false
         var balance: Decimal?
@@ -131,16 +135,6 @@ private extension TotalBalanceProvider {
         }
 
         return TotalBalance(balance: balance, currencyCode: currencyCode, hasError: hasError)
-    }
-
-    func getTokenItemViewModels(from walletModels: [WalletModel]) -> [LegacyTokenItemViewModel] {
-        walletModels
-            .flatMap { $0.legacyMultiCurrencyViewModel() }
-            .filter { model in
-                guard let amountType = userWalletAmountType else { return true }
-
-                return model.amountType == amountType
-            }
     }
 }
 
