@@ -140,9 +140,8 @@ extension NoteDemoConfig: UserWalletConfig {
         }
     }
 
-    func makeWalletModel(for token: StorageEntry) throws -> [WalletModel] {
-        let factory = SingleDemoWalletModelsFactory()
-        return try factory.makeWalletModels(for: token, keys: card.wallets)
+    func makeWalletModelsFactory() throws -> WalletModelsFactory {
+        return SingleDemoWalletModelsFactory()
     }
 }
 
