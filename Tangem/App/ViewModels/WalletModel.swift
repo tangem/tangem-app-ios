@@ -21,6 +21,57 @@ class WalletModel: ObservableObject, Identifiable {
     @Published var transactionHistoryState: TransactionHistoryState = .notLoaded
     @Published var rates: [String: Decimal] = [:]
 
+    var name: String {
+        switch amountType {
+        case .coin, .reserve:
+            return wallet.blockchain.displayName
+        case .token(let token):
+            return token.name
+        }
+    }
+
+    var isMainToken: Bool {
+        switch amountType {
+        case .coin, .reserve:
+            return true
+        case .token:
+            return false
+        }
+    }
+
+    var balance: String {
+        wallet.amounts[amountType].map { $0.string(with: 8) } ?? ""
+    }
+
+    var isZeroAmount: Bool {
+        wallet.amounts[amountType]?.isZero ?? true
+    }
+
+    var fiatBalance: String {
+        let amount = wallet.amounts[amountType] ?? Amount(with: wallet.blockchain, type: amountType, value: .zero)
+        return getFiatFormatted(for: amount, roundingType: .defaultFiat(roundingMode: .plain)) ?? "–"
+    }
+
+    var fiatValue: Decimal {
+        getFiat(for: wallet.amounts[amountType], roundingType: .defaultFiat(roundingMode: .plain)) ?? 0
+    }
+
+    var rate: String {
+        guard let currencyId = currencyId(for: amountType),
+              let rate = rates[currencyId] else {
+            return ""
+        }
+
+        return rate.currencyFormatted(
+            code: AppSettings.shared.selectedCurrencyCode,
+            maximumFractionDigits: 2
+        )
+    }
+
+    var hasPendingTx: Bool {
+        wallet.hasPendingTx(for: amountType)
+    }
+
     var wallet: Wallet { walletManager.wallet }
 
     var addressNames: [String] {
@@ -81,12 +132,26 @@ class WalletModel: ObservableObject, Identifiable {
         return .init(wallet.blockchain, derivationPath: wallet.publicKey.derivationPath)
     }
 
+    var currencyId: String? {
+        currencyId(for: amountType)
+    }
+
+    var qrReceiveMessage: String {
+        // [REDACTED_TODO_COMMENT]
+        let symbol = wallet.amounts[amountType]?.currencySymbol ?? wallet.blockchain.currencySymbol
+
+        let currencyName: String
+        if case .token(let token) = amountType {
+            currencyName = token.name
+        } else {
+            currencyName = wallet.blockchain.displayName
+        }
+
+        return Localization.addressQrCodeMessageFormat(currencyName, symbol, wallet.blockchain.displayName)
+    }
+
     var isDemo: Bool { demoBalance != nil }
     var demoBalance: Decimal?
-
-    var totalBalance: Decimal {
-        legacyMultiCurrencyViewModel().map { $0.fiatValue }.reduce(0, +)
-    }
 
     let walletManager: WalletManager // [REDACTED_TODO_COMMENT]
     let amountType: Amount.AmountType
@@ -331,41 +396,6 @@ class WalletModel: ObservableObject, Identifiable {
         }
     }
 
-    // MARK: - Manage tokens
-
-    func getTokens() -> [Token] {
-        walletManager.cardTokens
-    }
-
-    func addTokens(_ tokens: [Token]) {
-        latestUpdateTime = nil
-
-        tokens.forEach {
-            if walletManager.cardTokens.contains($0) {
-                walletManager.removeToken($0)
-            }
-        }
-
-        walletManager.addTokens(tokens)
-    }
-
-    func canRemove(amountType: Amount.AmountType) -> Bool {
-        if amountType == .coin, !walletManager.cardTokens.isEmpty {
-            return false
-        }
-
-        return true
-    }
-
-    func removeToken(_ token: Token) {
-        guard canRemove(amountType: .token(value: token)) else {
-            assertionFailure("Delete token isn't possible")
-            return
-        }
-
-        walletManager.removeToken(token)
-    }
-
     func startUpdatingTimer() {
         latestUpdateTime = nil
         AppLog.shared.debug("⏰ Starting updating timer for Wallet model")
@@ -381,6 +411,10 @@ class WalletModel: ObservableObject, Identifiable {
             self?.update(silent: false)
             self?.updateTimer?.cancel()
         }
+    }
+
+    func setNeedsUpdate() {
+        latestUpdateTime = nil
     }
 
     func send(_ tx: Transaction, signer: TangemSigner) -> AnyPublisher<Void, Error> {
@@ -417,28 +451,13 @@ class WalletModel: ObservableObject, Identifiable {
 // MARK: - Helpers
 
 extension WalletModel {
-    func currencyId(for amount: Amount.AmountType) -> String? {
+    private func currencyId(for amount: Amount.AmountType) -> String? {
         switch amount {
         case .coin, .reserve:
             return walletManager.wallet.blockchain.currencyId
         case .token(let token):
             return token.id
         }
-    }
-
-    func getQRReceiveMessage(for amountType: Amount.AmountType? = nil) -> String {
-        let type: Amount.AmountType = amountType ?? wallet.amounts.keys.first(where: { $0.isToken }) ?? .coin
-        // [REDACTED_TODO_COMMENT]
-        let symbol = wallet.amounts[type]?.currencySymbol ?? wallet.blockchain.currencySymbol
-
-        let currencyName: String
-        if case .token(let token) = amountType {
-            currencyName = token.name
-        } else {
-            currencyName = wallet.blockchain.displayName
-        }
-
-        return Localization.addressQrCodeMessageFormat(currencyName, symbol, wallet.blockchain.displayName)
     }
 
     func getFiatFormatted(for amount: Amount?, roundingType: AmountRoundingType) -> String? {
@@ -502,92 +521,6 @@ extension WalletModel {
 
     func getDecimalBalance(for type: Amount.AmountType) -> Decimal? {
         return wallet.amounts[type]?.value
-    }
-
-    func getBalance(for type: Amount.AmountType) -> String {
-        return wallet.amounts[type].map { $0.string(with: 8) } ?? ""
-    }
-
-    func getFiatBalance(for type: Amount.AmountType) -> String {
-        let amount = wallet.amounts[type] ?? Amount(with: wallet.blockchain, type: type, value: .zero)
-        return getFiatFormatted(for: amount, roundingType: .defaultFiat(roundingMode: .plain)) ?? "–"
-    }
-}
-
-// MARK: - ViewModelBuilder helpers
-
-extension WalletModel {
-    func legacySingleCurrencyViewModel() -> BalanceViewModel {
-        let token = walletManager.cardTokens.map {
-            let type = Amount.AmountType.token(value: $0)
-            return TokenBalanceViewModel(
-                name: $0.name,
-                balance: getBalance(for: type),
-                fiatBalance: getFiatBalance(for: type)
-            )
-        }.first
-
-        return BalanceViewModel(
-            hasTransactionInProgress: wallet.hasPendingTx,
-            state: state,
-            name: wallet.blockchain.displayName,
-            fiatBalance: getFiatBalance(for: .coin),
-            balance: getBalance(for: .coin),
-            tokenBalanceViewModel: token
-        )
-    }
-
-    func legacyMultiCurrencyViewModel() -> [LegacyTokenItemViewModel] {
-        let tokenViewModels = walletManager.cardTokens.map {
-            mapToken($0)
-        }
-
-        return [mapBlockchain()] + tokenViewModels
-    }
-
-    private func mapBlockchain() -> LegacyTokenItemViewModel {
-        let amountType: Amount.AmountType = .coin
-
-        return LegacyTokenItemViewModel(
-            state: state,
-            name: wallet.blockchain.displayName,
-            balance: getBalance(for: amountType),
-            fiatBalance: getFiatBalance(for: .coin),
-            rate: getRateFormatted(for: amountType),
-            fiatValue: getFiat(for: wallet.amounts[amountType], roundingType: .defaultFiat(roundingMode: .plain)) ?? 0,
-            blockchainNetwork: blockchainNetwork,
-            amountType: amountType,
-            hasTransactionInProgress: wallet.hasPendingTx(for: amountType),
-            isCustom: isCustom
-        )
-    }
-
-    private func mapToken(_ token: BlockchainSdk.Token) -> LegacyTokenItemViewModel {
-        let amountType: Amount.AmountType = .token(value: token)
-
-        return LegacyTokenItemViewModel(
-            state: state,
-            name: token.name,
-            balance: getBalance(for: amountType),
-            fiatBalance: getFiatBalance(for: amountType),
-            rate: getRateFormatted(for: amountType),
-            fiatValue: getFiat(for: wallet.amounts[amountType], roundingType: .defaultFiat(roundingMode: .plain)) ?? 0,
-            blockchainNetwork: blockchainNetwork,
-            amountType: amountType,
-            isCustom: isCustom
-        )
-    }
-
-    private func getRateFormatted(for amountType: Amount.AmountType) -> String {
-        guard let currencyId = currencyId(for: amountType),
-              let rate = rates[currencyId] else {
-            return ""
-        }
-
-        return rate.currencyFormatted(
-            code: AppSettings.shared.selectedCurrencyCode,
-            maximumFractionDigits: 2
-        )
     }
 }
 
