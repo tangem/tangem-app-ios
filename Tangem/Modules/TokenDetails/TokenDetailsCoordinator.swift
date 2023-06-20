@@ -71,8 +71,14 @@ extension TokenDetailsCoordinator {
 
 extension TokenDetailsCoordinator: TokenDetailsRoutable {
     func openReceiveScreen(amountType: Amount.AmountType, blockchain: Blockchain, addressInfos: [ReceiveAddressInfo]) {
-        let infoExtractor = TokenInfoExtractor(type: amountType, blockchain: blockchain)
-        receiveBottomSheetViewModel = .init(tokenInfoExtractor: infoExtractor, addressInfos: addressInfos)
+        let tokenItem: TokenItem
+        switch amountType {
+        case .token(let token):
+            tokenItem = .token(token, blockchain)
+        default:
+            tokenItem = .blockchain(blockchain)
+        }
+        receiveBottomSheetViewModel = .init(tokenItem: tokenItem, addressInfos: addressInfos)
     }
 
     func openBuyCrypto(at url: URL, closeUrl: String, action: @escaping (String) -> Void) {
