@@ -178,18 +178,11 @@ extension GenericDemoConfig: UserWalletConfig {
         }
     }
 
-    func makeWalletModel(for token: StorageEntry) throws -> [WalletModel] {
-        let factory = MultiDemoWalletModelsFactory(
+    func makeWalletModelsFactory() throws -> WalletModelsFactory {
+        return MultiDemoWalletModelsFactory(
             isHDWalletAllowed: card.settings.isHDWalletAllowed,
             derivationStyle: card.derivationStyle
         )
-
-        let models = try factory.makeWalletModels(
-            for: token,
-            keys: card.wallets
-        )
-
-        return models
     }
 }
 
