@@ -374,7 +374,7 @@ class LegacyMainViewModel: ObservableObject {
                         walletId: cardModel.userWalletId.stringValue
                     )
                 } else {
-                    try await startAwardProcess()
+                    try await startPromotionAwardProcess()
                 }
             } catch {
                 handlePromotionError(error)
@@ -515,7 +515,7 @@ private extension LegacyMainViewModel {
             guard let self else { return }
 
             do {
-                try await startAwardProcess()
+                try await startPromotionAwardProcess()
             } catch {
                 handlePromotionError(error)
             }
@@ -537,7 +537,7 @@ private extension LegacyMainViewModel {
         showAlert(alert)
     }
 
-    private func startAwardProcess() async throws {
+    private func startPromotionAwardProcess() async throws {
         let awarded = try await promotionService.claimReward(
             userWalletId: cardModel.userWalletId.stringValue,
             storageEntryAdding: cardModel
