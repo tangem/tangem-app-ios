@@ -526,12 +526,15 @@ private extension LegacyMainViewModel {
 
     private func handlePromotionError(_ error: Error) {
         AppLog.shared.error(error)
+
+        let alert: AlertBinder
         if let apiError = error as? TangemAPIError,
            case .promotionCodeNotApplied = apiError.code {
-            self.error = AlertBinder(title: Localization.commonError, message: Localization.mainPromotionNoPurchase)
+            alert = AlertBinder(title: Localization.commonError, message: Localization.mainPromotionNoPurchase)
         } else {
-            self.error = error.alertBinder
+            alert = error.alertBinder
         }
+        showAlert(alert)
     }
 
     private func startAwardProcess() async throws {
@@ -541,7 +544,7 @@ private extension LegacyMainViewModel {
         )
 
         if awarded {
-            error = AlertBuilder.makeSuccessAlert(message: Localization.mainPromotionCredited)
+            showAlert(AlertBuilder.makeSuccessAlert(message: Localization.mainPromotionCredited))
         }
     }
 
@@ -554,6 +557,11 @@ private extension LegacyMainViewModel {
     private func didFinishCheckingPromotion() {
         canOpenPromotion = promotionService.promotionAvailable
         promotionRequestInProgress = false
+    }
+
+    @MainActor
+    private func showAlert(_ alert: AlertBinder) {
+        error = alert
     }
 }
 
