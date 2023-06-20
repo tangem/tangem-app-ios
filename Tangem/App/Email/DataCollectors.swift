@@ -188,13 +188,7 @@ struct DetailsFeedbackDataCollector: EmailDataCollector {
                 dataToFormat.append(EmailCollectedData(type: .wallet(.outputsCount), data: outputsDescription))
             }
 
-            let tokens = walletModel.walletManager.cardTokens
-
-            if !tokens.isEmpty {
-                dataToFormat.append(EmailCollectedData(type: .token(.tokens), data: ""))
-            }
-
-            for token in tokens {
+            if let token = walletModel.amountType.token {
                 dataToFormat.append(EmailCollectedData(type: .token(.id), data: token.id ?? "[custom token]"))
                 dataToFormat.append(EmailCollectedData(type: .token(.name), data: token.name))
                 dataToFormat.append(EmailCollectedData(type: .token(.contractAddress), data: token.contractAddress))

@@ -26,6 +26,28 @@ class LegacySingleWalletContentViewModel: ObservableObject {
     @Published var totalBalanceButtons = [ButtonWithIconInfo]()
     @Published var transactionHistoryState = TransactionsListView.State.loading
 
+    var balanceViewModel: BalanceViewModel? {
+        guard let walletModel = singleWalletModel else { return nil }
+
+        let tokenModel = cardModel.walletModels.first(where: { !$0.isMainToken })
+            .map {
+                TokenBalanceViewModel(
+                    name: $0.name,
+                    balance: $0.balance,
+                    fiatBalance: $0.fiatBalance
+                )
+            }
+
+        return BalanceViewModel(
+            hasTransactionInProgress: walletModel.hasPendingTx,
+            state: walletModel.state,
+            name: walletModel.name,
+            fiatBalance: walletModel.fiatBalance,
+            balance: walletModel.balance,
+            tokenBalanceViewModel: tokenModel
+        )
+    }
+
     var pendingTransactionViews: [LegacyPendingTxView] {
         guard let singleWalletModel else { return [] }
 
@@ -97,7 +119,7 @@ class LegacySingleWalletContentViewModel: ObservableObject {
 
         let shareAddress = walletModel.shareAddressString(for: selectedAddressIndex)
         let address = walletModel.displayAddress(for: selectedAddressIndex)
-        let qrNotice = walletModel.getQRReceiveMessage()
+        let qrNotice = walletModel.qrReceiveMessage
 
         output.openQR(shareAddress: shareAddress, address: address, qrNotice: qrNotice)
         Analytics.log(.tokenButtonShowTheWalletAddress)
@@ -157,8 +179,7 @@ class LegacySingleWalletContentViewModel: ObservableObject {
                     return
                 }
 
-                let balance = singleWalletModel.totalBalance
-                Analytics.logTopUpIfNeeded(balance: balance)
+                Analytics.logTopUpIfNeeded(balance: singleWalletModel.fiatValue)
             }
             .store(in: &bag)
 
@@ -192,11 +213,12 @@ class LegacySingleWalletContentViewModel: ObservableObject {
 
         guard
             let walletModel = singleWalletModel,
-            let token = walletModel.getTokens().first,
+            let tokenModel = cardModel.walletModels.first(where: { !$0.isMainToken }),
+            let tokenSymbol = tokenModel.amountType.token?.symbol,
             exchangeServiceInitialized,
             exchangeService.canBuy(
-                token.symbol,
-                amountType: .token(value: token),
+                tokenSymbol,
+                amountType: tokenModel.amountType,
                 blockchain: walletModel.blockchainNetwork.blockchain
             )
         else {
