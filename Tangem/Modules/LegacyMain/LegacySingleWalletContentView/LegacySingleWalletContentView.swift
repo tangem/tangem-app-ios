@@ -85,13 +85,13 @@ struct LegacySingleWalletContentView: View {
 
     @ViewBuilder
     private var walletView: some View {
-        if let singleWalletModel = viewModel.singleWalletModel {
-            switch singleWalletModel.state {
+        if let balanceViewModel = viewModel.balanceViewModel {
+            switch balanceViewModel.state {
             case .created, .noDerivation:
                 EmptyView()
 
             case .idle, .loading, .failed:
-                BalanceView(balanceViewModel: singleWalletModel.legacySingleCurrencyViewModel())
+                BalanceView(balanceViewModel: balanceViewModel)
                     .padding(.horizontal, 16.0)
 
             case .noAccount(let message):
