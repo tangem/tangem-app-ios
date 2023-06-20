@@ -55,5 +55,11 @@ struct TokenDetailsCoordinatorView: CoordinatorView {
                         .padding(.bottom, 10)
                 }
             )
+            .bottomSheet(
+                item: $coordinator.receiveBottomSheetViewModel,
+                settings: .init(backgroundColor: Colors.Background.primary)
+            ) {
+                ReceiveBottomSheetView(viewModel: $0)
+            }
     }
 }
