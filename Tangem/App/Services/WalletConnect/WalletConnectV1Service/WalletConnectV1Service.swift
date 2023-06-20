@@ -338,9 +338,19 @@ extension WalletConnectV1Service: ServerDelegate {
         }
 
         let onSelectChainRequested = { [cardModel] in
-            let availableChains = cardModel.walletModels
-                .filter { $0.blockchainNetwork.blockchain.isEvm }
-                .map { $0.wallet }
+
+            var unuqueEVMWalletModels = [WalletModel]()
+
+            cardModel.walletModels.forEach { walletModel in
+                guard walletModel.blockchainNetwork.blockchain.isEvm,
+                      !unuqueEVMWalletModels.contains(where: { $0.blockchainNetwork == walletModel.blockchainNetwork }) else {
+                    return
+                }
+
+                unuqueEVMWalletModels.append(walletModel)
+            }
+
+            let availableChains = unuqueEVMWalletModels.map { $0.wallet }
 
             AppPresenter.shared.show(
                 WalletConnectUIBuilder.makeChainsSheet(

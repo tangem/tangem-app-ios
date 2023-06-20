@@ -205,7 +205,7 @@ class LegacyTokenDetailsViewModel: ObservableObject {
         self.amountType = amountType
         self.coordinator = coordinator
 
-        walletModel = card.walletModels.first(where: { $0.blockchainNetwork == blockchainNetwork })
+        walletModel = card.walletModels.first(where: { $0.amountType == amountType })
 
         bind()
         updateSwapAvailability()
@@ -324,6 +324,7 @@ class LegacyTokenDetailsViewModel: ObservableObject {
             return
         }
 
+        
         if walletModel.canRemove(amountType: amountType) {
             showWarningDeleteAlert()
         } else {
