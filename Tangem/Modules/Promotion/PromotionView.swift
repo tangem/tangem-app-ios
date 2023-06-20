@@ -1,8 +1,9 @@
 //
 //  LearnView.swift
-//
+//  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
+//  Copyright © 2023 Tangem AG. All rights reserved.
 //
 
 import SwiftUI
@@ -17,6 +18,7 @@ struct PromotionView: View {
     var body: some View {
         NavigationView {
             WebView(url: viewModel.url, headers: viewModel.headers, urlActions: viewModel.urlActions)
+                .ignoresSafeArea()
                 .navigationBarItems(leading: Button(Localization.commonClose, action: viewModel.close))
         }
     }
