@@ -21,10 +21,14 @@ protocol TangemApiService: AnyObject, Initializable {
 
     func loadReferralProgramInfo(for userWalletId: String) async throws -> ReferralProgramInfo
     func participateInReferralProgram(
-        using token: ReferralProgramInfo.Token,
+        using token: AwardToken,
         for address: String,
         with userWalletId: String
     ) async throws -> ReferralProgramInfo
+
+    func shops(name: String) async throws -> ShopDetails
+
+    func promotion(programName: String, timeout: TimeInterval?) async throws -> PromotionParameters
 
     @discardableResult
     func validateNewUserPromotionEligibility(walletId: String, code: String) async throws -> PromotionValidationResult

@@ -8,58 +8,175 @@
 
 import SwiftUI
 
-struct ButtonWithLeadingIcon: View {
+struct FixedSizeButtonWithLeadingIcon: View {
     let title: String
     let icon: Image
     let action: () -> Void
-    let disabled: Bool
 
     var body: some View {
-        Button(action: action) {
-            HStack(spacing: 0) {
-                icon
-                    .renderingMode(.template)
-                    .resizable()
-                    .frame(width: 20, height: 20)
-                    .foregroundColor(iconColor)
-
-                if !title.isEmpty {
-                    Text(title)
-                        .style(Fonts.Bold.subheadline, color: textColor)
-                        .lineLimit(1)
-                        .padding(.leading, 4)
-                        .fixedSize(horizontal: true, vertical: true)
-                }
-            }
-            .padding(.horizontal, 14)
-            .padding(.vertical, 8)
-            .background(backgroundColor)
-        }
-        .disabled(disabled)
-        .cornerRadiusContinuous(10)
-        .buttonStyle(BorderlessButtonStyle())
+        let colorConfiguration = ButtonWithLeadingIconContentView.ColorConfiguration(
+            textColor: textColor,
+            iconColor: iconColor,
+            backgroundColor: backgroundColor
+        )
+        ButtonWithLeadingIconContentView(
+            title: title,
+            icon: icon,
+            colorConfiguration: colorConfiguration,
+            maintainsIdealSize: true,
+            action: action
+        )
     }
 
+    @Environment(\.isEnabled) private var isEnabled
+
     private var textColor: Color {
-        disabled ? Colors.Text.disabled : Colors.Text.primary1
+        isEnabled ? Colors.Text.primary1 : Colors.Text.disabled
     }
 
     private var iconColor: Color {
-        disabled ? Colors.Icon.inactive : Colors.Icon.primary1
+        isEnabled ? Colors.Icon.primary1 : Colors.Icon.inactive
     }
 
     private var backgroundColor: Color {
-        disabled ? Colors.Button.disabled : Colors.Button.secondary
+        isEnabled ? Colors.Button.secondary : Colors.Button.disabled
     }
 }
 
+struct FlexySizeButtonWithLeadingIcon: View {
+    let title: String
+    let icon: Image
+    let isSelected: Bool
+    let action: () -> Void
+
+    var body: some View {
+        let colorConfiguration = ButtonWithLeadingIconContentView.ColorConfiguration(
+            textColor: isSelected ? Colors.Text.primary1 : Colors.Text.secondary,
+            iconColor: isSelected ? Colors.Text.primary1 : Colors.Text.secondary,
+            backgroundColor: Colors.Background.primary
+        )
+        ButtonWithLeadingIconContentView(
+            title: title,
+            icon: icon,
+            colorConfiguration: colorConfiguration,
+            maintainsIdealSize: false,
+            action: action
+        )
+    }
+}
+
+// MARK: - Private implementation
+
+private struct ButtonWithLeadingIconContentView: View {
+    struct ColorConfiguration {
+        let textColor: Color
+        let iconColor: Color
+        let backgroundColor: Color
+    }
+
+    let title: String
+    let icon: Image
+    let colorConfiguration: ColorConfiguration
+    let maintainsIdealSize: Bool
+    let action: () -> Void
+
+    var body: some View {
+        Button(action: action) {
+            HStack(spacing: 4) {
+                icon
+                    .renderingMode(.template)
+                    .resizable()
+                    .frame(size: .init(bothDimensions: 20))
+                    .foregroundColor(colorConfiguration.iconColor)
+
+                if !title.isEmpty {
+                    Text(title)
+                        .style(Fonts.Bold.subheadline, color: colorConfiguration.textColor)
+                        .lineLimit(1)
+                        .fixedSize(horizontal: maintainsIdealSize, vertical: maintainsIdealSize)
+                }
+            }
+            .frame(maxWidth: maintainsIdealSize ? nil : .infinity)
+            .padding(.horizontal, 14)
+            .padding(.vertical, 8)
+            .background(colorConfiguration.backgroundColor)
+        }
+        .cornerRadiusContinuous(10)
+        .buttonStyle(.borderless)
+    }
+}
+
+// MARK: - Previews
+
 struct ButtonWithLeadingIcon_Previews: PreviewProvider {
     static var previews: some View {
-        VStack {
-            ButtonWithLeadingIcon(title: "Buy", icon: Assets.plusMini.image, action: {}, disabled: false)
-            ButtonWithLeadingIcon(title: "Exchange", icon: Assets.exchangeMini.image, action: {}, disabled: true)
-            ButtonWithLeadingIcon(title: "Organize tokens", icon: Assets.sliders.image, action: {}, disabled: false)
-            ButtonWithLeadingIcon(title: "", icon: Assets.horizontalDots.image, action: {}, disabled: true)
+        ZStack {
+            Color.gray
+                .opacity(0.1)
+                .ignoresSafeArea()
+
+            VStack {
+                FixedSizeButtonWithLeadingIcon(
+                    title: "Buy",
+                    icon: Assets.plusMini.image
+                ) {}
+
+                FixedSizeButtonWithLeadingIcon(
+                    title: "Exchange",
+                    icon: Assets.exchangeMini.image,
+                    action: {}
+                )
+                .disabled(true)
+
+                FixedSizeButtonWithLeadingIcon(
+                    title: "Organize tokens",
+                    icon: Assets.sliders.image
+                ) {}
+
+                FixedSizeButtonWithLeadingIcon(
+                    title: "",
+                    icon: Assets.horizontalDots.image,
+                    action: {}
+                )
+                .disabled(true)
+
+                FixedSizeButtonWithLeadingIcon(
+                    title: "LongTitle_LongTitle_LongTitle_LongTitle_LongTitle",
+                    icon: Assets.infoIconMini.image
+                ) {}
+
+                FlexySizeButtonWithLeadingIcon(
+                    title: "Buy",
+                    icon: Assets.plusMini.image,
+                    isSelected: false
+                ) {}
+
+                FlexySizeButtonWithLeadingIcon(
+                    title: "Exchange",
+                    icon: Assets.exchangeMini.image,
+                    isSelected: true
+                ) {}
+
+                FlexySizeButtonWithLeadingIcon(
+                    title: "Organize tokens",
+                    icon: Assets.sliders.image,
+                    isSelected: false
+                ) {}
+
+                FlexySizeButtonWithLeadingIcon(
+                    title: "",
+                    icon: Assets.horizontalDots.image,
+                    isSelected: true
+                ) {}
+
+                FlexySizeButtonWithLeadingIcon(
+                    title: "LongTitle_LongTitle_LongTitle_LongTitle_LongTitle",
+                    icon: Assets.infoIconMini.image,
+                    isSelected: false
+                ) {}
+            }
+            .padding(.horizontal)
+            .infinityFrame()
         }
     }
 }

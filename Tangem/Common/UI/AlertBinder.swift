@@ -107,7 +107,7 @@ enum AlertBuilder {
         ))
     }
 
-    static func makeAlert(title: String, message: String, primaryButton: Alert.Button, secondaryButton: Alert.Button?) -> AlertBinder {
+    static func makeAlert(title: String, message: String, primaryButton: Alert.Button, secondaryButton: Alert.Button? = nil) -> AlertBinder {
         if let secondaryButton {
             return .init(alert: Alert(
                 title: Text(title),
