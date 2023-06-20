@@ -32,6 +32,7 @@ class LegacyMainViewModel: ObservableObject {
     @Published var isLackDerivationWarningViewVisible: Bool = false
     @Published var isBackupAllowed: Bool = false
     @Published var canOpenPromotion: Bool = false
+    @Published var promotionRequestInProgress: Bool = false
 
     @Published var exchangeButtonState: ExchangeButtonState = .single(option: .buy)
     @Published var exchangeActionSheet: ActionSheetBinder?
@@ -171,8 +172,7 @@ class LegacyMainViewModel: ObservableObject {
 
     var learnAndEarnTitle: String {
         if let _ = promotionService.promoCode {
-            #warning("L10n")
-            return "Learn & Earn"
+            return Localization.mainGetBonusTitle
         } else {
             return Localization.mainLearnTitle
         }
@@ -180,10 +180,9 @@ class LegacyMainViewModel: ObservableObject {
 
     var learnAndEarnSubtitle: String {
         if let _ = promotionService.promoCode {
-            #warning("L10n")
-            return "Complete the training and get 10 1inch tokens on your wallet"
+            return Localization.mainGetBonusSubtitle
         } else {
-            return Localization.mainLearnSubtitle
+            return Localization.mainLearnSubtitle(promotionService.awardAmount)
         }
     }
 
@@ -196,12 +195,11 @@ class LegacyMainViewModel: ObservableObject {
         self.cardImageProvider = cardImageProvider
         self.coordinator = coordinator
 
-        canOpenPromotion = promotionService.promotionAvailable()
-
         bind()
         setupWarnings()
         updateContent()
         updateExchangeButtons()
+        updatePromotionButton()
     }
 
     deinit {
@@ -240,6 +238,15 @@ class LegacyMainViewModel: ObservableObject {
                 canSellCrypto: canSellCrypto
             )
         )
+    }
+
+    func updatePromotionButton() {
+        runTask { [weak self] in
+            guard let self else { return }
+
+            await promotionService.checkPromotion(timeout: nil)
+            didFinishCheckingPromotion()
+        }
     }
 
     func updateIsBackupAllowed() {
@@ -354,6 +361,12 @@ class LegacyMainViewModel: ObservableObject {
     }
 
     func learnAndEarn() {
+        if promotionRequestInProgress {
+            return
+        }
+
+        promotionRequestInProgress = true
+
         runTask { [weak self] in
             guard let self else { return }
 
@@ -372,15 +385,14 @@ class LegacyMainViewModel: ObservableObject {
             } catch {
                 AppLog.shared.error(error)
                 if let apiError = error as? TangemAPIError,
-                   case .promotionCodeNotFound = apiError.code {
-                    #warning("L10n")
-                    self.error = AlertBinder(title: Localization.commonError, message: "There was no purchase of a wallet for your promotional code after education, which means you cannot receive a bonus. Buy Tangem wallet, scan it in the app, and take a bonus.")
+                   case .promotionCodeNotApplied = apiError.code {
+                    self.error = AlertBinder(title: Localization.commonError, message: Localization.mainPromotionNoPurchase)
                 } else {
                     self.error = error.alertBinder
                 }
             }
 
-            canOpenPromotion = promotionService.promotionAvailable()
+            updatePromotionButton()
         }
     }
 
@@ -395,15 +407,14 @@ class LegacyMainViewModel: ObservableObject {
                 )
 
                 if awarded {
-                    #warning("l10n")
-                    error = AlertBuilder.makeSuccessAlert(message: "Your 1inch tokens will be credited to your wallet address within 2 days.")
+                    error = AlertBuilder.makeSuccessAlert(message: Localization.mainPromotionCredited)
                 }
             } catch {
                 AppLog.shared.error(error)
                 self.error = error.alertBinder
             }
 
-            canOpenPromotion = promotionService.promotionAvailable()
+            updatePromotionButton()
         }
     }
 
@@ -529,6 +540,12 @@ private extension LegacyMainViewModel {
                     self?.image = uiImage
                 }
             })
+    }
+
+    @MainActor
+    private func didFinishCheckingPromotion() {
+        canOpenPromotion = promotionService.promotionAvailable
+        promotionRequestInProgress = false
     }
 }
 
