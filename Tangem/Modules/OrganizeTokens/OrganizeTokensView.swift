@@ -11,13 +11,18 @@ import SwiftUI
 struct OrganizeTokensView: View {
     @ObservedObject private var viewModel: OrganizeTokensViewModel
 
+
     @Environment(\.displayScale) private var displayScale
 
-    @available(iOS, introduced: 13.0, deprecated: 15.0, message: "Replace with native .safeAreaInset()")
+    @available(iOS, introduced: 13.0, deprecated: 15.0, message: "Use native 'safeAreaInset()' instead")
     @State private var scrollViewBottomContentInset = 0.0
 
-    @available(iOS, introduced: 13.0, deprecated: 15.0, message: "Replace with native .safeAreaInset()")
+    @available(iOS, introduced: 13.0, deprecated: 15.0, message: "Use native 'safeAreaInset()' instead")
     @State private var scrollViewTopContentInset = 0.0
+
+    @State private var tokenListFooterFrameMinY: CGFloat = 0.0
+    @State private var tokenListContentFrameMaxY: CGFloat = 0.0
+    @State private var isTokenListFooterGradientHidden = true
 
     @GestureState
     private var hasActiveDrag = false
@@ -64,10 +69,10 @@ struct OrganizeTokensView: View {
                     tokenList
 
                     tokenListHeader
-
-                    tokenListFooter
                 }
-                .padding(.horizontal, 16.0)
+                .padding(.horizontal, Constants.contentHorizontalInset)
+
+                tokenListFooter
             }
             .background(
                 Colors.Background
@@ -87,7 +92,8 @@ struct OrganizeTokensView: View {
 
                     LazyVStack(spacing: 0.0) {
                         let parametersProvider = OrganizeTokensListCornerRadiusParametersProvider(
-                            sections: viewModel.sections
+                            sections: viewModel.sections,
+                            cornerRadius: Constants.cornerRadius
                         )
 
                         ForEach(indexed: viewModel.sections.indexed()) { sectionIndex, sectionViewModel in
@@ -220,11 +226,18 @@ struct OrganizeTokensView: View {
                 toDestinationIndex: newValue.item
             )
         }
+        .onChange(of: tokenListContentFrameMaxY) { newValue in
+            withAnimation {
+                isTokenListFooterGradientHidden = newValue < tokenListFooterFrameMinY
+            }
+        }
     }
 
     private var tokenListHeader: some View {
         OrganizeTokensHeaderView(viewModel: viewModel.headerViewModel)
-            .readSize { scrollViewTopContentInset = $0.height + 10.0 + 8.0 }
+            .readGeometry(transform: \.size.height) { height in
+                scrollViewTopContentInset = height + Constants.overlayViewAdditionalVerticalInset + 8.0
+            }
             .padding(.top, 8.0)
             .infinityFrame(alignment: .top)
     }
@@ -247,10 +260,26 @@ struct OrganizeTokensView: View {
             .background(
                 Colors.Background
                     .primary
-                    .cornerRadiusContinuous(14.0)
+                    .cornerRadiusContinuous(Constants.cornerRadius)
             )
         }
-        .readSize { scrollViewBottomContentInset = $0.height + 10.0 }
+        .padding(.horizontal, Constants.contentHorizontalInset)
+        .background(
+            LinearGradient(
+                colors: [Colors.Background.fadeStart, Colors.Background.fadeEnd],
+                startPoint: .top,
+                endPoint: .bottom
+            )
+            .allowsHitTesting(false)
+            .hidden(isTokenListFooterGradientHidden)
+            .ignoresSafeArea()
+            .frame(height: 100.0)
+            .infinityFrame(alignment: .bottom)
+        )
+        .readGeometry { geometryInfo in
+            tokenListFooterFrameMinY = geometryInfo.frame.minY
+            scrollViewBottomContentInset = geometryInfo.size.height + Constants.overlayViewAdditionalVerticalInset
+        }
         .infinityFrame(alignment: .bottom)
     }
 
@@ -349,6 +378,16 @@ struct OrganizeTokensView: View {
                 .offset(y: dragAndDropSourceCellFrame?.origin.y ?? 0.0)
                 .offset(y: dragGestureTranslation.height)
         }
+    }
+}
+
+// MARK: - Constants
+
+private extension OrganizeTokensView {
+    enum Constants {
+        static let cornerRadius = 14.0
+        static let overlayViewAdditionalVerticalInset = 10.0
+        static let contentHorizontalInset = 16.0
     }
 }
 
