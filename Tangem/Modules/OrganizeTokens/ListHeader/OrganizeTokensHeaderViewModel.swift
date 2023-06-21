@@ -9,27 +9,27 @@
 import Foundation
 
 final class OrganizeTokensHeaderViewModel: ObservableObject {
-    @Published var isLeadingButtonSelected = true
+    @Published var isSortByBalanceEnabled = true
 
-    var leadingButtonTitle: String {
+    var sortByBalanceButtonTitle: String {
         return Localization.organizeTokensSortByBalance
     }
 
-    @Published var isTrailingButtonSelected = true
+    @Published var isGroupingEnabled = true
 
-    var trailingButtonTitle: String {
-        return isTrailingButtonSelected
+    var groupingButtonTitle: String {
+        return isGroupingEnabled
             ? Localization.organizeTokensGroup
             : Localization.organizeTokensUngroup
     }
 
-    func onLeadingButtonTap() {
-        isLeadingButtonSelected.toggle()
+    func toggleSortState() {
+        isSortByBalanceEnabled.toggle()
         // [REDACTED_TODO_COMMENT]
     }
 
-    func onTrailingButtonTap() {
-        isTrailingButtonSelected.toggle()
+    func toggleGroupState() {
+        isGroupingEnabled.toggle()
         // [REDACTED_TODO_COMMENT]
     }
 }
