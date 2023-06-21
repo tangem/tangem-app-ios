@@ -152,7 +152,7 @@ extension Start2CoinConfig: UserWalletConfig {
             throw CommonError.noData
         }
 
-        let factory = WalletModelFactory()
+        let factory = WalletModelsFactory()
         return try factory.makeSingleWallet(
             walletPublicKey: walletPublicKey,
             blockchain: defaultBlockchain,
@@ -168,7 +168,7 @@ extension Start2CoinConfig: UserWalletConfig {
 
 // MARK: - TOU
 
-fileprivate struct TOUBuilder {
+private struct TOUBuilder {
     func makeTOU(for cardId: String) -> TOU {
         let regionCode = regionCode(for: cardId)
         let url = TOUItem.makeFrom(languageCode: Locale.current.languageCode, regionCode: regionCode).url
@@ -192,7 +192,7 @@ fileprivate struct TOUBuilder {
     }
 }
 
-fileprivate enum TOUItem: CaseIterable {
+private enum TOUItem: CaseIterable {
     case deAt
     case deCh
     case enCh
