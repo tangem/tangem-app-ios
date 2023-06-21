@@ -265,22 +265,24 @@ struct OrganizeTokensView: View {
             )
         }
         .padding(.horizontal, Constants.contentHorizontalInset)
-        .background(
-            LinearGradient(
-                colors: [Colors.Background.fadeStart, Colors.Background.fadeEnd],
-                startPoint: .top,
-                endPoint: .bottom
-            )
-            .allowsHitTesting(false)
-            .hidden(isTokenListFooterGradientHidden)
-            .ignoresSafeArea()
-            .frame(height: 100.0)
-            .infinityFrame(alignment: .bottom)
-        )
+        .background(tokenListFooterGradientOverlay)
         .readGeometry { geometryInfo in
             tokenListFooterFrameMinY = geometryInfo.frame.minY
             scrollViewBottomContentInset = geometryInfo.size.height + Constants.overlayViewAdditionalVerticalInset
         }
+        .infinityFrame(alignment: .bottom)
+    }
+
+    private var tokenListFooterGradientOverlay: some View {
+        LinearGradient(
+            colors: [Colors.Background.fadeStart, Colors.Background.fadeEnd],
+            startPoint: .top,
+            endPoint: .bottom
+        )
+        .allowsHitTesting(false)
+        .hidden(isTokenListFooterGradientHidden)
+        .ignoresSafeArea()
+        .frame(height: 100.0)
         .infinityFrame(alignment: .bottom)
     }
 
