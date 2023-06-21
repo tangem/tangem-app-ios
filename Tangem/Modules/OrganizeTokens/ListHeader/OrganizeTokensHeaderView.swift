@@ -14,27 +14,18 @@ struct OrganizeTokensHeaderView: View {
     var body: some View {
         HStack(spacing: 8.0) {
             Group {
-                Group {
-                    if viewModel.isLeadingButtonSelected {
-                        FlexySizeSelectedButtonWithLeadingIcon(
-                            title: viewModel.leadingButtonTitle,
-                            icon: Assets.OrganizeTokens.byBalanceSortIcon.image,
-                            action: viewModel.onLeadingButtonTap
-                        )
-                    } else {
-                        FlexySizeDeselectedButtonWithLeadingIcon(
-                            title: viewModel.leadingButtonTitle,
-                            icon: Assets.OrganizeTokens.byBalanceSortIcon.image,
-                            action: viewModel.onLeadingButtonTap
-                        )
-                    }
-                }
-                .transition(.opacity.animation(.default))
+                FlexySizeButtonWithLeadingIcon(
+                    title: viewModel.sortByBalanceButtonTitle,
+                    icon: Assets.OrganizeTokens.byBalanceSortIcon.image,
+                    isSelected: viewModel.isSortByBalanceEnabled,
+                    action: viewModel.toggleSortState
+                )
 
-                FlexySizeSelectedButtonWithLeadingIcon(
-                    title: viewModel.trailingButtonTitle,
+                FlexySizeButtonWithLeadingIcon(
+                    title: viewModel.groupingButtonTitle,
                     icon: Assets.OrganizeTokens.makeGroupIcon.image,
-                    action: viewModel.onTrailingButtonTap
+                    isSelected: true,
+                    action: viewModel.toggleGroupState
                 )
             }
             .background(
