@@ -1,5 +1,5 @@
 //
-//  OrganizeTokensListSection.swift
+//  OrganizeTokensListSectionViewModel.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]

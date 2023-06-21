@@ -183,7 +183,7 @@ extension GenericDemoConfig: UserWalletConfig {
             partialResult[cardWallet.curve] = cardWallet.publicKey
         }
 
-        let factory = WalletModelFactory()
+        let factory = WalletModelsFactory()
         let model: WalletModel
 
         if card.settings.isHDWalletAllowed {
@@ -216,7 +216,7 @@ extension GenericDemoConfig: WalletOnboardingStepsBuilderFactory {}
 
 // MARK: - Private extensions
 
-fileprivate extension Card.BackupStatus {
+private extension Card.BackupStatus {
     var backupCardsCount: Int? {
         if case .active(let backupCards) = self {
             return backupCards

@@ -81,14 +81,17 @@ class UserWalletListCellViewModel: ObservableObject {
             .sink { [unowned self] loadingValue in
                 switch loadingValue {
                 case .loading:
-                    self.isBalanceLoading = true
-                    self.balance = Self.defaultBalanceValue
-                    self.hasError = false
+                    isBalanceLoading = true
+                    balance = Self.defaultBalanceValue
+                    hasError = false
                 case .loaded(let value):
-                    self.isBalanceLoading = false
+                    isBalanceLoading = false
                     let balanceFormatter = BalanceFormatter()
-                    self.balance = balanceFormatter.formatFiatBalance(value.balance, formattingOptions: .defaultFiatFormattingOptions)
-                    self.hasError = value.hasError
+                    balance = balanceFormatter.formatFiatBalance(value.balance, formattingOptions: .defaultFiatFormattingOptions)
+                    hasError = value.hasError
+                case .failedToLoad:
+                    // State related to new design. So it won't occur in legacy version. Will be removed after integration of new design
+                    break
                 }
             }
             .store(in: &bag)
@@ -113,7 +116,7 @@ class UserWalletListCellViewModel: ObservableObject {
             .sink { [weak self] loadResult in
                 guard let self else { return }
 
-                self.image = self.scaleImage(loadResult.uiImage, newHeight: self.imageHeight * UIScreen.main.scale)
+                image = scaleImage(loadResult.uiImage, newHeight: imageHeight * UIScreen.main.scale)
             }
             .store(in: &bag)
     }

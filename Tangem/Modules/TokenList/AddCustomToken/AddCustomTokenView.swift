@@ -62,7 +62,7 @@ struct AddCustomTokenView: View {
 }
 
 // [REDACTED_TODO_COMMENT]
-fileprivate struct TextInputWithTitle: View {
+private struct TextInputWithTitle: View {
     var title: String
     var placeholder: String
     var text: Binding<String>
@@ -92,7 +92,7 @@ fileprivate struct TextInputWithTitle: View {
     }
 }
 
-fileprivate struct PickerInputWithTitle: View {
+private struct PickerInputWithTitle: View {
     var title: String
     var height: CGFloat = 60
     var backgroundColor: Color = .white
@@ -128,7 +128,7 @@ fileprivate struct PickerInputWithTitle: View {
 
 // MARK: - Modifiers
 
-fileprivate struct PickerAlignmentModifier: ViewModifier {
+private struct PickerAlignmentModifier: ViewModifier {
     func body(content: Content) -> some View {
         if #available(iOS 16, *) {
             content
@@ -139,7 +139,7 @@ fileprivate struct PickerAlignmentModifier: ViewModifier {
     }
 }
 
-fileprivate struct PickerStyleModifier: ViewModifier {
+private struct PickerStyleModifier: ViewModifier {
     func body(content: Content) -> some View {
         if #available(iOS 15, *) {
             content
