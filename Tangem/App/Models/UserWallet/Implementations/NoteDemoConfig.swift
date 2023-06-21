@@ -147,7 +147,7 @@ extension NoteDemoConfig: UserWalletConfig {
             throw CommonError.noData
         }
 
-        let factory = WalletModelFactory()
+        let factory = WalletModelsFactory()
         let model = try factory.makeSingleWallet(
             walletPublicKey: walletPublicKey,
             blockchain: blockchain,

@@ -9,6 +9,8 @@
 import Foundation
 
 struct BalanceFormatter {
+    static var defaultEmptyBalanceString: String { "–" }
+
     /// Format crypto balance using `BalanceFormattingOptions`
     /// - Note: Balance will be rounded using `roundingType` from `formattingOptions`
     /// - Parameters:
@@ -38,7 +40,7 @@ struct BalanceFormatter {
     /// - Returns: Formatted balance string
     func formatFiatBalance(_ value: Decimal?, formattingOptions: BalanceFormattingOptions) -> String {
         guard let balance = value else {
-            return "–"
+            return Self.defaultEmptyBalanceString
         }
 
         let code = formattingOptions.currencyCode
