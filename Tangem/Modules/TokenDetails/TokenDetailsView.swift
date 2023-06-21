@@ -11,20 +11,65 @@ import SwiftUI
 struct TokenDetailsView: View {
     @ObservedObject var viewModel: TokenDetailsViewModel
 
+    @State private var contentOffset: CGPoint = .zero
+
+    private let tokenIconSizeSettings: TokenIconView.SizeSettings = .tokenDetails
+    private let headerTopPadding: CGFloat = 14
+    private let coorditateSpaceName = "token_details_scroll_space"
+
+    private var tokenIconViewModel: TokenIconViewModel {
+        TokenIconViewModel(id: viewModel.tokenItem.id, name: viewModel.tokenItem.name, style: .blockchain)
+    }
+
+    private var toolbarIconOpacity: Double {
+        let iconSize = tokenIconSizeSettings.iconSize
+        let startAppearingOffset = headerTopPadding + iconSize.height
+
+        if contentOffset.y < startAppearingOffset {
+            return 0
+        }
+
+        let fullAppearanceDistance = iconSize.height / 2
+        let fullAppearanceOffset = startAppearingOffset + fullAppearanceDistance
+
+        if fullAppearanceOffset < contentOffset.y {
+            return 1
+        }
+
+        let reducedOffset = contentOffset.y - startAppearingOffset
+        let currentOpacity = reducedOffset / fullAppearanceDistance
+        return currentOpacity
+    }
+
     var body: some View {
         RefreshableScrollView(onRefresh: viewModel.onRefresh) {
             VStack(spacing: 14) {
+                TokenDetailsHeaderView(viewModel: viewModel.tokenDetailsHeaderModel)
+
                 BalanceWithButtonsView(viewModel: viewModel.balanceWithButtonsModel)
             }
+            .padding(.top, headerTopPadding)
+            .readContentOffset(
+                to: $contentOffset,
+                inCoordinateSpace: .named(coorditateSpaceName)
+            )
         }
         .padding(.horizontal, 16)
         .edgesIgnoringSafeArea(.bottom)
-        .navigationBarTitle("", displayMode: .inline)
-        .navigationBarItems(trailing: navbarTrailingButton)
         .background(Colors.Background.secondary.edgesIgnoringSafeArea(.all))
         .ignoresSafeArea(.keyboard)
         .onAppear(perform: viewModel.onAppear)
         .alert(item: $viewModel.alert) { $0.alert }
+        .coordinateSpace(name: coorditateSpaceName)
+        .toolbar(content: {
+            ToolbarItem(placement: .principal) {
+                TokenIconView(viewModel: tokenIconViewModel, sizeSettings: .tokenDetailsToolbar)
+                    .opacity(toolbarIconOpacity)
+            }
+
+            ToolbarItem(placement: .navigationBarTrailing) { navbarTrailingButton }
+        })
+        .navigationBarTitleDisplayMode(.inline)
     }
 
     @ViewBuilder
