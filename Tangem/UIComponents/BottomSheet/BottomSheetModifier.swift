@@ -64,6 +64,7 @@ struct BottomSheetModifier<Item: Identifiable, ContentView: View>: ViewModifier 
 
         let controller = UIHostingController<Sheet>(rootView: sheet)
         controller.modalPresentationStyle = .overFullScreen
+        controller.overrideUserInterfaceStyle = UIApplication.topViewController?.overrideUserInterfaceStyle ?? .unspecified
         controller.view.backgroundColor = .clear
 
         stateObject.viewDidHidden = {

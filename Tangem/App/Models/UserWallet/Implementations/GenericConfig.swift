@@ -184,7 +184,7 @@ extension GenericConfig: UserWalletConfig {
             partialResult[cardWallet.curve] = cardWallet.publicKey
         }
 
-        let factory = WalletModelFactory()
+        let factory = WalletModelsFactory()
         if card.settings.isHDWalletAllowed {
             let derivedKeys: [EllipticCurve: [DerivationPath: ExtendedPublicKey]] = card.wallets.reduce(into: [:]) { partialResult, cardWallet in
                 partialResult[cardWallet.curve] = cardWallet.derivedKeys
@@ -212,7 +212,7 @@ extension GenericConfig: WalletOnboardingStepsBuilderFactory {}
 
 // MARK: - Private extensions
 
-fileprivate extension Card.BackupStatus {
+private extension Card.BackupStatus {
     var backupCardsCount: Int? {
         if case .active(let backupCards) = self {
             return backupCards

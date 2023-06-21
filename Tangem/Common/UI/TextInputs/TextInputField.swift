@@ -16,8 +16,9 @@ struct TextInputField<SupplementView: View>: View {
     let suplementView: SupplementView
     let message: String?
     let isErrorMessage: Bool
+    let onPaste: () -> Void
 
-    init(placeholder: String, text: Binding<String>, keyboardType: UIKeyboardType = .default, clearButtonMode: UITextField.ViewMode = .never, @ViewBuilder suplementView: () -> SupplementView, message: String?, isErrorMessage: Bool) {
+    init(placeholder: String, text: Binding<String>, keyboardType: UIKeyboardType = .default, clearButtonMode: UITextField.ViewMode = .never, @ViewBuilder suplementView: () -> SupplementView, message: String?, isErrorMessage: Bool, onPaste: @escaping () -> Void = {}) {
         self.placeholder = placeholder
         self.text = text
         self.keyboardType = keyboardType
@@ -25,6 +26,7 @@ struct TextInputField<SupplementView: View>: View {
         self.suplementView = suplementView()
         self.message = message
         self.isErrorMessage = isErrorMessage
+        self.onPaste = onPaste
     }
 
     var body: some View {
@@ -43,7 +45,8 @@ struct TextInputField<SupplementView: View>: View {
                         clearButtonMode: clearButtonMode,
                         textColor: UIColor.tangemGrayDark6,
                         font: UIFont.systemFont(ofSize: 16.0, weight: .regular),
-                        placeholder: placeholder
+                        placeholder: placeholder,
+                        onPaste: onPaste
                     )
                 }
                 Spacer()
@@ -67,7 +70,7 @@ struct TextInputField<SupplementView: View>: View {
 }
 
 extension TextInputField where SupplementView == EmptyView {
-    init(placeholder: String, text: Binding<String>, keyboardType: UIKeyboardType = .default, clearButtonMode: UITextField.ViewMode, message: String?, isErrorMessage: Bool) {
+    init(placeholder: String, text: Binding<String>, keyboardType: UIKeyboardType = .default, clearButtonMode: UITextField.ViewMode, message: String?, isErrorMessage: Bool, onPaste: @escaping () -> Void = {}) {
         self.placeholder = placeholder
         self.text = text
         self.keyboardType = keyboardType
@@ -75,6 +78,7 @@ extension TextInputField where SupplementView == EmptyView {
         suplementView = EmptyView()
         self.message = message
         self.isErrorMessage = isErrorMessage
+        self.onPaste = onPaste
     }
 }
 
@@ -86,7 +90,8 @@ struct TextInputField_Previews: PreviewProvider {
             text: $text,
             suplementView: {},
             message: nil,
-            isErrorMessage: false
+            isErrorMessage: false,
+            onPaste: {}
         )
     }
 }

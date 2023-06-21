@@ -118,10 +118,7 @@ struct LegacyMainView: View {
 
     var settingsNavigationButton: some View {
         Button(action: viewModel.openSettings) {
-            Assets.verticalDots.image
-                .foregroundColor(Color.tangemGrayDark6)
-                .frame(width: 44, height: 44)
-                .offset(x: 11)
+            NavbarDotsImage()
         }
         .buttonStyle(PlainButtonStyle())
         .animation(nil)
@@ -129,7 +126,7 @@ struct LegacyMainView: View {
     }
 
     var learnAlertView: some View {
-        LearnAndEarnAlertView(title: viewModel.learnAndEarnTitle, subtitle: viewModel.learnAndEarnSubtitle, tapAction: viewModel.learnAndEarn)
+        LearnAndEarnAlertView(title: viewModel.learnAndEarnTitle, subtitle: viewModel.learnAndEarnSubtitle, inProgress: viewModel.promotionRequestInProgress, tapAction: viewModel.learnAndEarn)
             .padding(.horizontal, 16)
     }
 
