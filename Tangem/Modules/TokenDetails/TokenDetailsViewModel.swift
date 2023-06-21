@@ -250,7 +250,12 @@ private extension TokenDetailsViewModel {
 // MARK: - Navigation functions
 
 private extension TokenDetailsViewModel {
-    func openReceive() {}
+    func openReceive() {
+        let infos = walletModel.wallet.addresses.map { address in
+            ReceiveAddressInfo(address: address.value, type: address.type, addressQRImage: QrCodeGenerator.generateQRCode(from: address.value))
+        }
+        coordinator.openReceiveScreen(amountType: amountType, blockchain: blockchain, addressInfos: infos)
+    }
 
     func openBuyCryptoIfPossible() {
         Analytics.log(.buttonBuy)
