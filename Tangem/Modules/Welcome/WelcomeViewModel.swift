@@ -93,14 +93,17 @@ class WelcomeViewModel: ObservableObject {
 
             switch result {
             case .troubleshooting:
-                self.showTroubleshootingView = true
+                showTroubleshootingView = true
             case .onboarding(let input):
-                self.openOnboarding(with: input)
+                openOnboarding(with: input)
             case .error(let error):
                 self.error = error.alertBinder
             case .success(let cardModel), .partial(let cardModel, _): // partial unlock is impossible in this case
-                Analytics.log(.signedIn, params: [.signInType: .signInTypeCard])
-                self.openMain(with: cardModel)
+                Analytics.log(event: .signedIn, params: [
+                    .signInType: Analytics.ParameterValue.signInTypeCard.rawValue,
+                    .walletsCount: "\(userWalletRepository.count)",
+                ])
+                openMain(with: cardModel)
             }
         }
     }
