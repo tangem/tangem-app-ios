@@ -444,6 +444,8 @@ private extension SwappingViewModel {
     }
 
     func updateFeeValue(state: SwappingAvailabilityState) {
+        feeOptionsViewModels.removeAll()
+
         switch state {
         case .idle, .requiredRefresh, .preview:
             swappingFeeRowViewModel?.update(state: .idle)
