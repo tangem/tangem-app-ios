@@ -78,6 +78,9 @@ struct LegacyMultiWalletContentView: View {
                     }
                 }
             }
+        case .failedToLoad:
+            // State related to new design. So it won't occur in legacy version. Will be removed after integration of new design
+            EmptyView()
         }
     }
 }

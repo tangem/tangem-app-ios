@@ -91,7 +91,7 @@ extension CommonWalletListManager: WalletListManager {
                     let walletModel = try config.makeWalletModel(for: entry)
                     AppLog.shared.debug("✅ Make WalletModel for \(displayName) success")
                     return walletModel
-                } catch WalletModelFactory.Errors.noDerivation {
+                } catch WalletModelsFactory.Errors.noDerivation {
                     AppLog.shared.debug("‼️ Make WalletModel for \(displayName) not derivation")
                     nonDeriveEntries.append(entry)
                 } catch {
@@ -157,7 +157,7 @@ private extension CommonWalletListManager {
                     return .just
                 }
 
-                return self.updateWalletModelsPublisher(silent: silent)
+                return updateWalletModelsPublisher(silent: silent)
             }
             .eraseToAnyPublisher()
     }
