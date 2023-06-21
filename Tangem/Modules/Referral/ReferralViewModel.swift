@@ -63,7 +63,8 @@ class ReferralViewModel: ObservableObject {
 
         let token = award.token
 
-        guard let address = cardModel.walletModels.first(where: { $0.blockchainNetwork.blockchain == blockchain })?.wallet.address else {
+        let network = cardModel.getBlockchainNetwork(for: blockchain, derivationPath: nil)
+        guard let address = cardModel.walletModels.first(where: { $0.blockchainNetwork == network })?.wallet.address else {
             requestDerivation(for: blockchain, with: token)
             return
         }
@@ -111,9 +112,9 @@ class ReferralViewModel: ObservableObject {
         }
     }
 
-    private func requestDerivation(for blockchain: Blockchain, with referralToken: ReferralProgramInfo.Token) {
+    private func requestDerivation(for blockchain: Blockchain, with referralToken: AwardToken) {
         let network = cardModel.getBlockchainNetwork(for: blockchain, derivationPath: nil)
-        let token = convertToStorageToken(from: referralToken)
+        let token = referralToken.storageToken
 
         let storageEntry = StorageEntry(blockchainNetwork: network, token: token)
         if let model = cardModel.walletModels.first(where: { $0.blockchainNetwork == network }),
@@ -124,25 +125,25 @@ class ReferralViewModel: ObservableObject {
         cardModel.add(entries: [storageEntry]) { [weak self] result in
             guard let self else { return }
 
-            self.isProcessingRequest = false
+            isProcessingRequest = false
             switch result {
             case .success:
-                runTask(self.participateInReferralProgram)
+                runTask(participateInReferralProgram)
             case .failure(let error):
                 if case .userCancelled = error.toTangemSdkError() {
                     return
                 }
 
                 AppLog.shared.error(error)
-                self.errorAlert = error.alertBinder
+                errorAlert = error.alertBinder
             }
         }
     }
 
-    private func saveToStorageIfNeeded(_ referralToken: ReferralProgramInfo.Token, for blockchain: Blockchain) {
+    private func saveToStorageIfNeeded(_ referralToken: AwardToken, for blockchain: Blockchain) {
         let network = cardModel.getBlockchainNetwork(for: blockchain, derivationPath: nil)
         guard
-            let storageToken = convertToStorageToken(from: referralToken)
+            let storageToken = referralToken.storageToken
         else {
             return
         }
@@ -154,23 +155,6 @@ class ReferralViewModel: ObservableObject {
             savedEntries[savedNetworkIndex].tokens.append(storageToken)
             cardModel.update(entries: savedEntries)
         }
-    }
-
-    private func convertToStorageToken(from token: ReferralProgramInfo.Token) -> Token? {
-        guard
-            let contractAddress = token.contractAddress,
-            let decimalCount = token.decimalCount
-        else {
-            return nil
-        }
-
-        return Token(
-            name: token.name,
-            symbol: token.symbol,
-            contractAddress: contractAddress,
-            decimalCount: decimalCount,
-            id: token.id
-        )
     }
 }
 
