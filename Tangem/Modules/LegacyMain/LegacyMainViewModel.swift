@@ -31,7 +31,7 @@ class LegacyMainViewModel: ObservableObject {
     @Published var image: UIImage? = nil
     @Published var isLackDerivationWarningViewVisible: Bool = false
     @Published var isBackupAllowed: Bool = false
-    @Published var canOpenPromotion: Bool = false
+    @Published var promotionAvailable: Bool = false
     @Published var promotionRequestInProgress: Bool = false
 
     @Published var exchangeButtonState: ExchangeButtonState = .single(option: .buy)
@@ -199,7 +199,10 @@ class LegacyMainViewModel: ObservableObject {
         setupWarnings()
         updateContent()
         updateExchangeButtons()
-        updatePromotionButton()
+
+        runTask { [weak self] in
+            await self?.updatePromotionState()
+        }
     }
 
     deinit {
@@ -226,7 +229,7 @@ class LegacyMainViewModel: ObservableObject {
 
         promotionService.readyForAwardPublisher
             .sink { [weak self] in
-                self?.startAwardProcess()
+                self?.didBecomeReadyForAward()
             }
             .store(in: &bag)
     }
@@ -238,15 +241,6 @@ class LegacyMainViewModel: ObservableObject {
                 canSellCrypto: canSellCrypto
             )
         )
-    }
-
-    func updatePromotionButton() {
-        runTask { [weak self] in
-            guard let self else { return }
-
-            await promotionService.checkPromotion(timeout: nil)
-            didFinishCheckingPromotion()
-        }
     }
 
     func updateIsBackupAllowed() {
@@ -380,41 +374,13 @@ class LegacyMainViewModel: ObservableObject {
                         walletId: cardModel.userWalletId.stringValue
                     )
                 } else {
-                    startAwardProcess()
+                    try await startPromotionAwardProcess()
                 }
             } catch {
-                AppLog.shared.error(error)
-                if let apiError = error as? TangemAPIError,
-                   case .promotionCodeNotApplied = apiError.code {
-                    self.error = AlertBinder(title: Localization.commonError, message: Localization.mainPromotionNoPurchase)
-                } else {
-                    self.error = error.alertBinder
-                }
+                handlePromotionError(error)
             }
 
-            updatePromotionButton()
-        }
-    }
-
-    func startAwardProcess() {
-        runTask { [weak self] in
-            guard let self else { return }
-
-            do {
-                let awarded = try await promotionService.claimReward(
-                    userWalletId: cardModel.userWalletId.stringValue,
-                    storageEntryAdding: cardModel
-                )
-
-                if awarded {
-                    error = AlertBuilder.makeSuccessAlert(message: Localization.mainPromotionCredited)
-                }
-            } catch {
-                AppLog.shared.error(error)
-                self.error = error.alertBinder
-            }
-
-            updatePromotionButton()
+            await updatePromotionState()
         }
     }
 
@@ -542,10 +508,60 @@ private extension LegacyMainViewModel {
             })
     }
 
+    private func didBecomeReadyForAward() {
+        promotionRequestInProgress = true
+
+        runTask { [weak self] in
+            guard let self else { return }
+
+            do {
+                try await startPromotionAwardProcess()
+            } catch {
+                handlePromotionError(error)
+            }
+
+            await updatePromotionState()
+        }
+    }
+
+    private func handlePromotionError(_ error: Error) {
+        AppLog.shared.error(error)
+
+        let alert: AlertBinder
+        if let apiError = error as? TangemAPIError,
+           case .promotionCodeNotApplied = apiError.code {
+            alert = AlertBinder(title: Localization.commonError, message: Localization.mainPromotionNoPurchase)
+        } else {
+            alert = error.alertBinder
+        }
+        showAlert(alert)
+    }
+
+    private func startPromotionAwardProcess() async throws {
+        let awarded = try await promotionService.claimReward(
+            userWalletId: cardModel.userWalletId.stringValue,
+            storageEntryAdding: cardModel
+        )
+
+        if awarded {
+            showAlert(AlertBuilder.makeSuccessAlert(message: Localization.mainPromotionCredited))
+        }
+    }
+
+    private func updatePromotionState() async {
+        await promotionService.checkPromotion(timeout: nil)
+        didFinishCheckingPromotion()
+    }
+
     @MainActor
     private func didFinishCheckingPromotion() {
-        canOpenPromotion = promotionService.promotionAvailable
+        promotionAvailable = promotionService.promotionAvailable
         promotionRequestInProgress = false
+    }
+
+    @MainActor
+    private func showAlert(_ alert: AlertBinder) {
+        error = alert
     }
 }
 
