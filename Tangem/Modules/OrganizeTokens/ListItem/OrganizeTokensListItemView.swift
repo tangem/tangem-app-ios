@@ -1,5 +1,5 @@
 //
-//  OrganizeTokensSectionItemView.swift
+//  OrganizeTokensListItemView.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -8,7 +8,7 @@
 
 import SwiftUI
 
-struct OrganizeTokensSectionItemView: View {
+struct OrganizeTokensListItemView: View {
     let viewModel: OrganizeTokensListItemViewModel
 
     var body: some View {
@@ -32,22 +32,16 @@ struct OrganizeTokensSectionItemView: View {
             if viewModel.isDraggable {
                 Assets.OrganizeTokens.itemDragAndDropIcon
                     .image
-                    .renderingMode(.template)
-                    .resizable()
-                    .aspectRatio(contentMode: .fit)
-                    .frame(size: .init(bothDimensions: 20.0))
                     .foregroundColor(Colors.Icon.informative)
-                    .layoutPriority(1.0)
             }
         }
-        .padding(.horizontal, 14.0)
-        .frame(height: 68.0)
+        .padding(14.0)
     }
 }
 
 // MARK: - Previews
 
-struct OrganizeTokensSectionItemView_Previews: PreviewProvider {
+struct OrganizeTokensListItemView_Previews: PreviewProvider {
     private static let previewProvider = OrganizeTokensPreviewProvider()
 
     static var previews: some View {
@@ -58,7 +52,7 @@ struct OrganizeTokensSectionItemView_Previews: PreviewProvider {
                     .flatMap(\.items)
 
                 ForEach(viewModels) { viewModel in
-                    OrganizeTokensSectionItemView(viewModel: viewModel)
+                    OrganizeTokensListItemView(viewModel: viewModel)
                 }
             }
             .background(Colors.Background.primary)
