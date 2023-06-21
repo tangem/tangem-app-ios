@@ -11,6 +11,7 @@ import SwiftUI
 struct LearnAndEarnAlertView: View {
     let title: String
     let subtitle: String
+    let inProgress: Bool
     let tapAction: () -> Void
 
     var body: some View {
@@ -20,6 +21,8 @@ struct LearnAndEarnAlertView: View {
             HStack(spacing: 0) {
                 Assets.LearnAndEarn.oneInchLogoSmall.image
                     .padding(.vertical, 8)
+                    .opacity(inProgress ? 0.2 : 1)
+                    .overlay(progressOverlay)
 
                 VStack(alignment: .leading, spacing: 2) {
                     Text(title)
@@ -64,12 +67,19 @@ struct LearnAndEarnAlertView: View {
         }
         .buttonStyle(PlainButtonStyle())
     }
+
+    @ViewBuilder
+    private var progressOverlay: some View {
+        if inProgress {
+            ActivityIndicatorView(isAnimating: true, style: .medium, color: .white)
+        }
+    }
 }
 
 struct LearnAndEarnAlertView_Previews: PreviewProvider {
     static var previews: some View {
         VStack {
-            LearnAndEarnAlertView(title: "TITLE", subtitle: "Subtitle Subtitle Subtitle Subtitle Subtitle Subtitle Subtitle ", tapAction: {})
+            LearnAndEarnAlertView(title: "TITLE", subtitle: "Subtitle Subtitle Subtitle Subtitle Subtitle Subtitle Subtitle ", inProgress: false, tapAction: {})
         }
         .padding()
         .frame(maxWidth: .infinity, maxHeight: .infinity)
