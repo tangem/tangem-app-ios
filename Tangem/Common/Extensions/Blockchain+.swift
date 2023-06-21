@@ -36,6 +36,7 @@ extension Blockchain {
         case "fantom": self = .fantom(testnet: isTestnet)
         case "polkadot": self = .polkadot(testnet: isTestnet)
         case "kusama": self = .kusama
+        case "aleph-zero": self = .azero(testnet: isTestnet)
         case "tron": self = .tron(testnet: isTestnet)
         case "arbitrum", "arbitrum-one": self = .arbitrum(testnet: isTestnet)
         case "dash": self = .dash(testnet: isTestnet)
@@ -79,6 +80,7 @@ extension Blockchain {
         case .fantom: return "fantom"
         case .polkadot: return "polkadot"
         case .kusama: return "kusama"
+        case .azero: return "aleph-zero"
         case .tron: return "tron"
         case .arbitrum: return "arbitrum-one"
         case .dash: return "dash"
@@ -132,6 +134,7 @@ extension Blockchain {
         case .fantom: return "fantom"
         case .polkadot: return "polkadot"
         case .kusama: return "kusama"
+        case .azero: return "aleph-zero"
         case .tron: return "tron"
         case .arbitrum: return "arbitrum-one"
         case .dash: return "dash"
@@ -197,6 +200,7 @@ extension Blockchain {
             .solana(testnet: false),
             .polkadot(testnet: false),
             .kusama,
+            .azero(testnet: false),
             .fantom(testnet: false),
             .tron(testnet: false),
             .arbitrum(testnet: false),
@@ -228,6 +232,7 @@ extension Blockchain {
             .solana(testnet: true),
             .fantom(testnet: true),
             .polkadot(testnet: true),
+            .azero(testnet: true),
             .tron(testnet: true),
             .arbitrum(testnet: true),
             .optimism(testnet: true),
