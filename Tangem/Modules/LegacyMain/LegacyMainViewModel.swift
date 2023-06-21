@@ -31,7 +31,7 @@ class LegacyMainViewModel: ObservableObject {
     @Published var image: UIImage? = nil
     @Published var isLackDerivationWarningViewVisible: Bool = false
     @Published var isBackupAllowed: Bool = false
-    @Published var canOpenPromotion: Bool = false
+    @Published var promotionAvailable: Bool = false
     @Published var promotionRequestInProgress: Bool = false
 
     @Published var exchangeButtonState: ExchangeButtonState = .single(option: .buy)
@@ -201,7 +201,7 @@ class LegacyMainViewModel: ObservableObject {
         updateExchangeButtons()
 
         runTask { [weak self] in
-            await self?.updatePromotionButton()
+            await self?.updatePromotionState()
         }
     }
 
@@ -380,7 +380,7 @@ class LegacyMainViewModel: ObservableObject {
                 handlePromotionError(error)
             }
 
-            await updatePromotionButton()
+            await updatePromotionState()
         }
     }
 
@@ -520,7 +520,7 @@ private extension LegacyMainViewModel {
                 handlePromotionError(error)
             }
 
-            await updatePromotionButton()
+            await updatePromotionState()
         }
     }
 
@@ -548,14 +548,14 @@ private extension LegacyMainViewModel {
         }
     }
 
-    private func updatePromotionButton() async {
+    private func updatePromotionState() async {
         await promotionService.checkPromotion(timeout: nil)
         didFinishCheckingPromotion()
     }
 
     @MainActor
     private func didFinishCheckingPromotion() {
-        canOpenPromotion = promotionService.promotionAvailable
+        promotionAvailable = promotionService.promotionAvailable
         promotionRequestInProgress = false
     }
 
