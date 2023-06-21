@@ -14,6 +14,7 @@ class StoriesViewModel: ObservableObject {
 
     @Published var currentPage: WelcomeStoryPage = .meetTangem
     @Published var currentProgress = 0.0
+    @Published var checkingPromotionAvailability = true
 
     var currentPageIndex: Int {
         pages.firstIndex(of: currentPage) ?? 0
@@ -30,19 +31,15 @@ class StoriesViewModel: ObservableObject {
     private var showLearnPage: Bool = false
     private let longTapDuration = 0.25
     private let minimumSwipeDistance = 100.0
+    private let promotionCheckTimeout: TimeInterval = 5
 
     init() {
-        showLearnPage = promotionService.promotionAvailable()
+        runTask { [weak self] in
+            guard let self else { return }
 
-        var pages: [WelcomeStoryPage] = WelcomeStoryPage.allCases
-        if !showLearnPage,
-           let learnIndex = pages.firstIndex(of: .learn) {
-            pages.remove(at: learnIndex)
+            await promotionService.checkPromotion(timeout: promotionCheckTimeout)
+            await didFinishCheckingPromotion()
         }
-
-        self.pages = pages
-
-        currentPage = pages[0]
     }
 
     func onAppear() {
@@ -142,6 +139,23 @@ class StoriesViewModel: ObservableObject {
         longTapDetected = false
     }
 
+    @MainActor
+    private func didFinishCheckingPromotion() {
+        showLearnPage = promotionService.promotionAvailable
+
+        var pages: [WelcomeStoryPage] = WelcomeStoryPage.allCases
+        if !showLearnPage,
+           let learnIndex = pages.firstIndex(of: .learn) {
+            pages.remove(at: learnIndex)
+        }
+
+        self.pages = pages
+
+        currentPage = pages[0]
+
+        checkingPromotionAvailability = false
+    }
+
     private func move(forward: Bool) {
         guard let currentPageIndex = pages.firstIndex(of: currentPage) else { return }
 
@@ -227,7 +241,7 @@ extension StoriesViewModel: WelcomeViewLifecycleListener {
     }
 }
 
-fileprivate extension CGPoint {
+private extension CGPoint {
     func distance(to other: CGPoint) -> CGFloat {
         return sqrt(pow(x - other.x, 2) + pow(y - other.y, 2))
     }
