@@ -14,6 +14,7 @@ import BlockchainSdk
 class CommonTangemApiService {
     private let provider = TangemProvider<TangemApiTarget>(plugins: [
         CachePolicyPlugin(),
+        TimeoutIntervalPlugin(),
         NetworkLoggerPlugin(configuration: .init(
             output: NetworkLoggerPlugin.tangemSdkLoggerOutput,
             logOptions: .verbose
@@ -141,7 +142,7 @@ extension CommonTangemApiService: TangemApiService {
     }
 
     func participateInReferralProgram(
-        using token: ReferralProgramInfo.Token,
+        using token: AwardToken,
         for address: String,
         with userWalletId: String
     ) async throws -> ReferralProgramInfo {
@@ -158,6 +159,14 @@ extension CommonTangemApiService: TangemApiService {
         let response = try await provider.asyncRequest(for: target)
         let filteredResponse = try response.filterSuccessfulStatusAndRedirectCodes()
         return try JSONDecoder().decode(ReferralProgramInfo.self, from: filteredResponse.data)
+    }
+
+    func shops(name: String) async throws -> ShopDetails {
+        try await request(for: .shops(name: name))
+    }
+
+    func promotion(programName: String, timeout: TimeInterval?) async throws -> PromotionParameters {
+        try await request(for: .promotion(programName: programName, timeout: timeout))
     }
 
     @discardableResult
@@ -199,7 +208,7 @@ extension CommonTangemApiService: TangemApiService {
     }
 }
 
-fileprivate extension Response {
+private extension Response {
     func mapAPIResponse<D: Decodable>() throws -> D {
         let filteredResponse = try filterSuccessfulStatusCodes()
 

@@ -42,12 +42,29 @@ class CachePolicyPlugin: PluginType {
     }
 }
 
+protocol TimeoutIntervalProvider {
+    var timeoutInterval: TimeInterval? { get }
+}
+
+class TimeoutIntervalPlugin: PluginType {
+    func prepare(_ request: URLRequest, target: TargetType) -> URLRequest {
+        if let timeoutIntervalProvider = target as? TimeoutIntervalProvider,
+           let timeoutInterval = timeoutIntervalProvider.timeoutInterval {
+            var mutableRequest = request
+            mutableRequest.timeoutInterval = timeoutInterval
+            return mutableRequest
+        }
+
+        return request
+    }
+}
+
 extension MoyaProvider {
     func asyncRequest(for target: Target) async throws -> Response {
         try await withCheckedThrowingContinuation { [weak self] continuation in
             guard let self = self else { return }
 
-            self.request(target) { result in
+            request(target) { result in
                 switch result {
                 case .success(let responseValue):
                     continuation.resume(returning: responseValue)
