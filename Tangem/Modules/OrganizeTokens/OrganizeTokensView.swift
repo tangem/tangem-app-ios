@@ -11,7 +11,6 @@ import SwiftUI
 struct OrganizeTokensView: View {
     @ObservedObject private var viewModel: OrganizeTokensViewModel
 
-
     @Environment(\.displayScale) private var displayScale
 
     @available(iOS, introduced: 13.0, deprecated: 15.0, message: "Use native 'safeAreaInset()' instead")
@@ -120,9 +119,9 @@ struct OrganizeTokensView: View {
                                         case .invisible:
                                             EmptyView()
                                         case .fixed(let title):
-                                            OrganizeTokensSectionView(title: title, isDraggable: false)
+                                            OrganizeTokensListSectionView(title: title, isDraggable: false)
                                         case .draggable(let title):
-                                            OrganizeTokensSectionView(title: title, isDraggable: true)
+                                            OrganizeTokensListSectionView(title: title, isDraggable: true)
                                         }
                                     }
                                     .background(Colors.Background.primary)
@@ -134,6 +133,7 @@ struct OrganizeTokensView: View {
                             )
                         }
                     }
+                    .readGeometry(to: $tokenListContentFrameMaxY, transform: \.frame.maxY)
                     .coordinateSpace(name: scrollViewContentCoordinateSpaceName)
                     .overlay(makeDragAndDropSourceCellSnapshot(), alignment: .top)
                     .onTouchesBegan { location in
@@ -204,7 +204,8 @@ struct OrganizeTokensView: View {
             }
 
             let parametersProvider = OrganizeTokensListCornerRadiusParametersProvider(
-                sections: viewModel.sections
+                sections: viewModel.sections,
+                cornerRadius: Constants.cornerRadius
             )
             dragAndDropSourceCellSnapshot = makeCell(
                 viewModel: viewModel.sections[value.section].items[value.item],
@@ -289,7 +290,7 @@ struct OrganizeTokensView: View {
         indexPath: IndexPath,
         parametersProvider: OrganizeTokensListCornerRadiusParametersProvider
     ) -> some View {
-        OrganizeTokensSectionItemView(viewModel: viewModel)
+        OrganizeTokensListItemView(viewModel: viewModel)
             .background(Colors.Background.primary)
             .cornerRadius(
                 parametersProvider.cornerRadius(forItemAtIndexPath: indexPath),
