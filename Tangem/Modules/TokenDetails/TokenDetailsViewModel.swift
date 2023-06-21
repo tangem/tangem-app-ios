@@ -22,6 +22,7 @@ final class TokenDetailsViewModel: ObservableObject {
     @Published private var actionButtons: [ButtonWithIconInfo] = []
 
     private(set) var balanceWithButtonsModel: BalanceWithButtonsViewModel!
+    private(set) lazy var tokenDetailsHeaderModel: TokenDetailsHeaderViewModel = .init(tokenItem: tokenItem)
 
     private unowned let coordinator: TokenDetailsRoutable
     private let swappingUtils = SwappingAvailableUtils()
@@ -37,6 +38,15 @@ final class TokenDetailsViewModel: ObservableObject {
     private var availableActions: [TokenActionType] = []
     private var bag = Set<AnyCancellable>()
     private var refreshCancellable: AnyCancellable?
+
+    var tokenItem: TokenItem {
+        switch amountType {
+        case .token(let token):
+            return .token(token, blockchain)
+        default:
+            return .blockchain(blockchain)
+        }
+    }
 
     private var canSend: Bool {
         guard cardModel.canSend else {
