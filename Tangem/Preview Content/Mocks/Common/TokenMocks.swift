@@ -29,4 +29,14 @@ extension Token {
             id: "sushi"
         )
     }
+
+    static var inverseBTCBlaBlaBlaMock: Token {
+        Token(
+            name: "Inverse BTC Flexible Leverage Index",
+            symbol: "IBTC-FLI-P",
+            contractAddress: "0x130ce4e4f76c2265f94a961d70618562de0bb8d2",
+            decimalCount: 18,
+            id: "inverse-btc-flexible-leverage-index"
+        )
+    }
 }
