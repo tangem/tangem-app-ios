@@ -17,7 +17,9 @@ struct LocalizationIconParser {
             throw "Not supported localized string"
         }
 
-        return (components[0].trimmingCharacters(in: .whitespaces),
-                components[1].trimmingCharacters(in: .whitespaces))
+        return (
+            components[0].trimmingCharacters(in: .whitespaces),
+            components[1].trimmingCharacters(in: .whitespaces)
+        )
     }
 }
