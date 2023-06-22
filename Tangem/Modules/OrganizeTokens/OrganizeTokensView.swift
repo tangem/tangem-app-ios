@@ -173,14 +173,11 @@ struct OrganizeTokensView: View {
         .onChange(of: dragAndDropSourceIndexPath) { [oldValue = dragAndDropSourceIndexPath] newValue in
             guard newValue == nil, let oldValue else { return }
 
-            dragAndDropController.onDragEnd()
+            dragAndDropInitialIndexPath = nil
+            dragAndDropSourceCellFrame = nil
 
-            // `DispatchQueue.main.async` used here to modify state during view update
-            DispatchQueue.main.async {
-                dragAndDropInitialIndexPath = nil
-                dragAndDropSourceCellFrame = nil
-                viewModel.onDragEnd(forSourceIndexPath: oldValue)
-            }
+            dragAndDropController.onDragEnd()
+            viewModel.onDragEnd(forSourceIndexPath: oldValue)
         }
     }
 
@@ -296,12 +293,12 @@ struct OrganizeTokensView: View {
 
                     state = sourceIndexPath
 
-                    dragAndDropController.onDragStart()
+                    dragAndDropInitialIndexPath = nil // effectively consumes `self.dragAndDropInitialIndexPath`
+                    dragAndDropSourceViewModelIdentifier = viewModel.viewModelIdentifier(for: sourceIndexPath)
 
-                    // `DispatchQueue.main.async` used here to modify state during view update
+                    // `DispatchQueue.main.async` used here to allow publishing changes during view update
                     DispatchQueue.main.async {
-                        dragAndDropInitialIndexPath = nil // effectively consumes `self.dragAndDropInitialIndexPath`
-                        dragAndDropSourceViewModelIdentifier = viewModel.viewModelIdentifier(for: sourceIndexPath)
+                        dragAndDropController.onDragStart()
                         viewModel.onDragStart(atSourceIndexPath: sourceIndexPath)
                     }
                 }
