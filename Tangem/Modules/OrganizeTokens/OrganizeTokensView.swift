@@ -134,7 +134,7 @@ struct OrganizeTokensView: View {
                         alignment: .top
                     )
                     .coordinateSpace(name: scrollViewContentCoordinateSpaceName)
-                    .onTouchesBegan { dragAndDropInitialIndexPath = dragAndDropController.indexPath(forLocation: $0) }
+                    .onTouchesBegan(onTouchesBegan(atLocation:))
                     .readGeometry(to: $tokenListContentFrameMaxY, transform: \.frame.maxY)
 
                     Spacer(minLength: scrollViewBottomContentInset)
@@ -296,7 +296,7 @@ struct OrganizeTokensView: View {
 
                     dragAndDropInitialIndexPath = nil // effectively consumes `self.dragAndDropInitialIndexPath`
                     dragAndDropSourceCellFrame = dragAndDropController.frame(forItemAtIndexPath: sourceIndexPath)
-                    dragAndDropSourceViewModelIdentifier = viewModel.viewModelIdentifier(for: sourceIndexPath)
+                    dragAndDropSourceViewModelIdentifier = viewModel.viewModelIdentifier(at: sourceIndexPath)
 
                     // `DispatchQueue.main.async` used here to allow publishing changes during view update
                     DispatchQueue.main.async {
@@ -328,6 +328,15 @@ struct OrganizeTokensView: View {
                     }
                 }
             }
+    }
+
+    private func onTouchesBegan(atLocation location: CGPoint) {
+        if let initialIndexPath = dragAndDropController.indexPath(forLocation: location),
+           viewModel.canStartDragAndDropSession(at: initialIndexPath) {
+            dragAndDropInitialIndexPath = initialIndexPath
+        } else {
+            dragAndDropInitialIndexPath = nil
+        }
     }
 
     // MARK: - View factories
