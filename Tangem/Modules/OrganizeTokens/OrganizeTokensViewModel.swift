@@ -77,11 +77,10 @@ final class OrganizeTokensViewModel: ObservableObject {
         beginDragAndDropSession(forSectionWithIdentifier: sections[indexPath.section].id)
     }
 
-    func onDragEnd(forSourceIndexPath indexPath: IndexPath) {
-        // Process further only if a section is currently being dragged
-        guard indexPath.item == itemIndexSentinelValueForSectionIndexPath else { return }
+    func onDragEnd(forSourceIndexPath indexPath: IndexPath) {}
 
-        endDragAndDropSessionForCurrentlyDraggedSection()
+    func onDragAnimationCompletion() {
+        endDragAndDropSessionForCurrentlyDraggedSectionIfNeeded()
     }
 
     func onCancelButtonTap() {
@@ -112,7 +111,7 @@ final class OrganizeTokensViewModel: ObservableObject {
         currentlyDraggedSectionItems.removeAll()
     }
 
-    private func endDragAndDropSessionForCurrentlyDraggedSection() {
+    private func endDragAndDropSessionForCurrentlyDraggedSectionIfNeeded() {
         currentlyDraggedSectionIdentifier.map(endDragAndDropSession(forSectionWithIdentifier:))
         currentlyDraggedSectionIdentifier = nil
     }
