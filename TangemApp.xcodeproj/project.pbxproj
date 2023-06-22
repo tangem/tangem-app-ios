@@ -485,6 +485,7 @@
 		DA91770E2A25DD3F006CD67B /* OneInchGradientViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA91770D2A25DD3F006CD67B /* OneInchGradientViews.swift */; };
 		DAA0559928744E2400E4F7B9 /* MercuryoService.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAA0559828744E2400E4F7B9 /* MercuryoService.swift */; };
 		DAA153BC2876CBFC002254D1 /* GeoResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAA153BB2876CBFC002254D1 /* GeoResponse.swift */; };
+		DAA428D22A44731A008939B8 /* TangemRichTextFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAA428D12A44731A008939B8 /* TangemRichTextFormatter.swift */; };
 		DAA5E30028D21369003C0E80 /* UserWalletStorageAgreementRoutable.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAA5E2FC28D21368003C0E80 /* UserWalletStorageAgreementRoutable.swift */; };
 		DAA5E30128D21369003C0E80 /* UserWalletStorageAgreementViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAA5E2FD28D21368003C0E80 /* UserWalletStorageAgreementViewModel.swift */; };
 		DAA5E30228D21369003C0E80 /* UserWalletStorageAgreementView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAA5E2FE28D21368003C0E80 /* UserWalletStorageAgreementView.swift */; };
@@ -1527,6 +1528,7 @@
 		DA91770D2A25DD3F006CD67B /* OneInchGradientViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OneInchGradientViews.swift; sourceTree = "<group>"; };
 		DAA0559828744E2400E4F7B9 /* MercuryoService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MercuryoService.swift; sourceTree = "<group>"; };
 		DAA153BB2876CBFC002254D1 /* GeoResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GeoResponse.swift; sourceTree = "<group>"; };
+		DAA428D12A44731A008939B8 /* TangemRichTextFormatter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TangemRichTextFormatter.swift; sourceTree = "<group>"; };
 		DAA5E2FC28D21368003C0E80 /* UserWalletStorageAgreementRoutable.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UserWalletStorageAgreementRoutable.swift; sourceTree = "<group>"; };
 		DAA5E2FD28D21368003C0E80 /* UserWalletStorageAgreementViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UserWalletStorageAgreementViewModel.swift; sourceTree = "<group>"; };
 		DAA5E2FE28D21368003C0E80 /* UserWalletStorageAgreementView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UserWalletStorageAgreementView.swift; sourceTree = "<group>"; };
@@ -2912,6 +2914,7 @@
 				B0E0AF5C2996488100E52F7B /* TransactionHistoryMapper.swift */,
 				EFA1CFFC29B0E8CE008B24C3 /* SwappingAvailableUtils.swift */,
 				B003BDAB2A029C4300B282F7 /* BalanceConverter.swift */,
+				DAA428D12A44731A008939B8 /* TangemRichTextFormatter.swift */,
 			);
 			path = Utilities;
 			sourceTree = "<group>";
@@ -5745,6 +5748,7 @@
 				EF7B9CF1286C6BE2004C33A9 /* CardSettingsViewModel.swift in Sources */,
 				EF94A89C29927C50008F2C3F /* CachedAsyncImage.swift in Sources */,
 				EF8D781129818E6100B67418 /* UserWalletModelMock.swift in Sources */,
+				DAA428D22A44731A008939B8 /* TangemRichTextFormatter.swift in Sources */,
 				EF032C532955C725006C1FF3 /* CheckIconView.swift in Sources */,
 				DC0A57D82822A3C80031BECC /* InjectedValues.swift in Sources */,
 				B09BB87E259A095B00B92000 /* WarningsPriority+Colors.swift in Sources */,
