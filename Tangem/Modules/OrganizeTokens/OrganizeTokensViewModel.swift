@@ -42,11 +42,8 @@ final class OrganizeTokensViewModel: ObservableObject {
             .first { $0.id == identifier }
     }
 
-    func viewModelIdentifier(for indexPath: IndexPath) -> UUID? {
-        if indexPath.item == itemIndexSentinelValueForSectionIndexPath {
-            return sections[indexPath.section].id
-        }
-        return sections[indexPath.section].items[indexPath.item].id
+    func viewModelIdentifier(at indexPath: IndexPath) -> UUID? {
+        return sectionViewModel(at: indexPath)?.id ?? itemViewModel(at: indexPath).id
     }
 
     func move(
@@ -68,6 +65,10 @@ final class OrganizeTokensViewModel: ObservableObject {
                 toOffset: destinationIndexPath.item + diff
             )
         }
+    }
+
+    func canStartDragAndDropSession(at indexPath: IndexPath) -> Bool {
+        return sectionViewModel(at: indexPath)?.isDraggable ?? itemViewModel(at: indexPath).isDraggable
     }
 
     func onDragStart(atSourceIndexPath indexPath: IndexPath) {
@@ -118,6 +119,16 @@ final class OrganizeTokensViewModel: ObservableObject {
 
     private func index(forSectionWithIdentifier identifier: UUID) -> Int? {
         return sections.firstIndex { $0.id == identifier }
+    }
+
+    private func itemViewModel(at indexPath: IndexPath) -> OrganizeTokensListItemViewModel {
+        return sections[indexPath.section].items[indexPath.item]
+    }
+
+    private func sectionViewModel(at indexPath: IndexPath) -> OrganizeTokensListSectionViewModel? {
+        guard indexPath.item == itemIndexSentinelValueForSectionIndexPath else { return nil }
+
+        return sections[indexPath.section]
     }
 }
 
