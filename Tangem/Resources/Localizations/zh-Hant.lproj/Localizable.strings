@@ -70,6 +70,8 @@
 "common_enabled" = "啟用";
 "common_error" = "錯誤";
 "common_exchange" = "交易";
+"common_explore" = "Explore";
+"common_explore_transaction_history" = "Explore transaction history";
 "common_explorer_format" = "%@ explorer";
 "common_import" = "導入";
 "common_like" = "喜歡";
@@ -412,7 +414,8 @@
 "token_details_unable_hide_alert_title" = "無法隱藏 %@";
 "token_item_no_rate" = "無費用";
 "transaction_history_empty_transactions" = "您還沒有任何交易";
-"transaction_history_error_failed_to_load" = "無法加載交易";
+"transaction_history_error_failed_to_load" = "Failed to load transaction history.\nClick on reload button to update the information.";
+"transaction_history_not_supported_description" = "Transaction history is currently not supported for this blockchain. But don't worry, we're working on it! In the meantime you can check it in the explorer.";
 "transaction_history_title" = "交易";
 "transaction_history_tx_in_progress" = "進行中…";
 "twin_error_not_a_twin_card" = "您掃描的不是雙胞胎卡。要創建雙胞胎錢包，您需要掃描 Tangem Twin 卡";
