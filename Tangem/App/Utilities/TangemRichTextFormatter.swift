@@ -30,8 +30,9 @@ struct TangemRichTextFormatter {
             originalString = originalString.replacingOccurrences(of: boldTextFormatted, with: boldText)
             attributedString.setAttributedString(NSAttributedString(string: originalString))
 
+            // UIKit's .semibold corresponds SwiftUI bold font
+            let boldFont = UIFont.systemFont(ofSize: fontSize, weight: .semibold)
             let boldTextRange = NSRange(location: match.range.location, length: match.range.length - 2 * formatterTagLength)
-            let boldFont = UIFont.systemFont(ofSize: fontSize, weight: .bold)
             attributedString.addAttribute(.font, value: boldFont, range: boldTextRange)
         }
 
