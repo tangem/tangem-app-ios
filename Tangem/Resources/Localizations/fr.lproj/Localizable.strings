@@ -344,9 +344,7 @@
 "solana_rent_warning" = "Solana network charges a rent of %1$@ every 2 days. Accounts that can't afford the rent are purged from the network. Deposit your account with more than %2$@ to use it for free.";
 "story_awe_description" = "Store your crypto assets secure while keeping private keys contained in your card";
 "story_awe_title" = "Revolutionary Hardware Wallet";
-"story_backup_description_1" = "Up to";
-"story_backup_description_2_bold" = "3 physical cards";
-"story_backup_description_3" = "to one wallet";
+"story_backup_description" = "Up to **3 physical cards** to one wallet";
 "story_backup_title" = "Ultra Secure Backup";
 "story_currencies_description" = "A hardware wallet for your Bitcoin, Ethereum and many more currencies simultaneously – all in one card";
 "story_currencies_title" = "Thousands of Currencies";
