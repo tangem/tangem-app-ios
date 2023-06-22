@@ -14,10 +14,10 @@ struct OrganizeTokensView: View {
     @StateObject private var dragAndDropController = OrganizeTokensDragAndDropController()
 
     @available(iOS, introduced: 13.0, deprecated: 15.0, message: "Replace with native .safeAreaInset()")
-    @State private var scrollViewBottomContentInset = 0.0
+    @State private var scrollViewBottomContentInset: CGFloat = 0.0
 
     @available(iOS, introduced: 13.0, deprecated: 15.0, message: "Replace with native .safeAreaInset()")
-    @State private var scrollViewTopContentInset = 0.0
+    @State private var scrollViewTopContentInset: CGFloat = 0.0
 
     @State private var tokenListFooterFrameMinY: CGFloat = 0.0
     @State private var tokenListContentFrameMaxY: CGFloat = 0.0
@@ -183,56 +183,24 @@ struct OrganizeTokensView: View {
     }
 
     private var tokenListHeader: some View {
-        OrganizeTokensHeaderView(viewModel: viewModel.headerViewModel)
-            .readGeometry(transform: \.size.height) { height in
-                scrollViewTopContentInset = height + Constants.overlayViewAdditionalVerticalInset + 8.0
-            }
-            .padding(.top, 8.0)
-            .padding(.horizontal, Constants.contentHorizontalInset)
-            .infinityFrame(alignment: .top)
+        OrganizeTokensListHeader(
+            viewModel: viewModel.headerViewModel,
+            scrollViewTopContentInset: $scrollViewTopContentInset,
+            contentHorizontalInset: Constants.contentHorizontalInset,
+            overlayViewAdditionalVerticalInset: Constants.overlayViewAdditionalVerticalInset
+        )
     }
 
     private var tokenListFooter: some View {
-        HStack(spacing: 8.0) {
-            Group {
-                MainButton(
-                    title: Localization.commonCancel,
-                    style: .secondary,
-                    action: viewModel.onCancelButtonTap
-                )
-
-                MainButton(
-                    title: Localization.commonApply,
-                    style: .primary,
-                    action: viewModel.onApplyButtonTap
-                )
-            }
-            .background(
-                Colors.Background
-                    .primary
-                    .cornerRadiusContinuous(Constants.cornerRadius)
-            )
-        }
-        .padding(.horizontal, Constants.contentHorizontalInset)
-        .background(tokenListFooterGradientOverlay)
-        .readGeometry { geometryInfo in
-            tokenListFooterFrameMinY = geometryInfo.frame.minY
-            scrollViewBottomContentInset = geometryInfo.size.height + Constants.overlayViewAdditionalVerticalInset
-        }
-        .infinityFrame(alignment: .bottom)
-    }
-
-    private var tokenListFooterGradientOverlay: some View {
-        LinearGradient(
-            colors: [Colors.Background.fadeStart, Colors.Background.fadeEnd],
-            startPoint: .top,
-            endPoint: .bottom
+        OrganizeTokensListFooter(
+            viewModel: viewModel,
+            tokenListFooterFrameMinY: $tokenListFooterFrameMinY,
+            scrollViewBottomContentInset: $scrollViewBottomContentInset,
+            isTokenListFooterGradientHidden: isTokenListFooterGradientHidden,
+            cornerRadius: Constants.cornerRadius,
+            contentHorizontalInset: Constants.contentHorizontalInset,
+            overlayViewAdditionalVerticalInset: Constants.overlayViewAdditionalVerticalInset
         )
-        .allowsHitTesting(false)
-        .hidden(isTokenListFooterGradientHidden)
-        .ignoresSafeArea()
-        .frame(height: 100.0)
-        .infinityFrame(alignment: .bottom)
     }
 
     init(
