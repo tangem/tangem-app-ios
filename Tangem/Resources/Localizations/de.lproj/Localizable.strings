@@ -73,6 +73,7 @@
 "common_explorer_format" = "%@ explorer";
 "common_import" = "Import";
 "common_like" = "Like";
+"common_main_network" = "Main network";
 "common_no" = "No";
 "common_no_data" = "No data";
 "common_ok" = "OK";
@@ -405,6 +406,7 @@
 "token_details_hide_token" = "Hide token";
 "token_details_send_blocked_fee_format" = "%1$@ is a token in the %2$@ network. To make a %3$@ transaction you need to deposit some %4$@ (%5$@) to cover the network fee.";
 "token_details_send_blocked_tx_format" = "Please wait for %@ transaction to complete to be able to send funds";
+"token_details_token_type_subtitle" = "%1$@ token in %%image%% %2$@ network";
 "token_details_transaction_length_warning" = "iPhone 7/7+ cannot sign a transaction on this network due to system restrictions. Please use a different phone to complete this operation";
 "token_details_unable_hide_alert_message" = "The %1$@ token is the main currency on the %2$@ network and cannot be hidden as long as you have other tokens on this network in the list.";
 "token_details_unable_hide_alert_title" = "Unable to hide %@";
