@@ -77,8 +77,6 @@ final class OrganizeTokensViewModel: ObservableObject {
         beginDragAndDropSession(forSectionWithIdentifier: sections[indexPath.section].id)
     }
 
-    func onDragEnd(at indexPath: IndexPath) {}
-
     func onDragAnimationCompletion() {
         endDragAndDropSessionForCurrentlyDraggedSectionIfNeeded()
     }
