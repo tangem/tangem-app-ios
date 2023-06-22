@@ -134,10 +134,7 @@ struct OrganizeTokensView: View {
                         alignment: .top
                     )
                     .coordinateSpace(name: scrollViewContentCoordinateSpaceName)
-                    .onTouchesBegan { location in
-                        dragAndDropInitialIndexPath = dragAndDropController.indexPath(forLocation: location)
-                        dragAndDropSourceCellFrame = dragAndDropController.frame(forItemAtIndexPath: dragAndDropInitialIndexPath)
-                    }
+                    .onTouchesBegan { dragAndDropInitialIndexPath = dragAndDropController.indexPath(forLocation: $0) }
                     .readGeometry(to: $tokenListContentFrameMaxY, transform: \.frame.maxY)
 
                     Spacer(minLength: scrollViewBottomContentInset)
@@ -171,9 +168,8 @@ struct OrganizeTokensView: View {
             viewModel.move(fromSourceIndexPath: oldValue, toDestinationIndexPath: newValue)
         }
         .onChange(of: dragAndDropSourceIndexPath) { [oldValue = dragAndDropSourceIndexPath] newValue in
-            guard newValue == nil, let oldValue else { return }
+            guard let oldValue, newValue == nil else { return }
 
-            dragAndDropInitialIndexPath = nil
             dragAndDropSourceCellFrame = nil
 
             dragAndDropController.onDragEnd()
@@ -294,6 +290,7 @@ struct OrganizeTokensView: View {
                     state = sourceIndexPath
 
                     dragAndDropInitialIndexPath = nil // effectively consumes `self.dragAndDropInitialIndexPath`
+                    dragAndDropSourceCellFrame = dragAndDropController.frame(forItemAtIndexPath: sourceIndexPath)
                     dragAndDropSourceViewModelIdentifier = viewModel.viewModelIdentifier(for: sourceIndexPath)
 
                     // `DispatchQueue.main.async` used here to allow publishing changes during view update
