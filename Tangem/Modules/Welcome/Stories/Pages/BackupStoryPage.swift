@@ -14,6 +14,8 @@ struct BackupStoryPage: View {
     let scanCard: () -> Void
     let orderCard: () -> Void
 
+    private let descriptionFontSize: CGFloat = 24
+
     var body: some View {
         VStack {
             StoriesTangemLogo()
@@ -27,15 +29,12 @@ struct BackupStoryPage: View {
                     .padding(.horizontal)
                     .storyTextAppearanceModifier(progress: progress, type: .title, textBlockAppearance: .almostImmediate)
 
-                Group {
-                    Text(Localization.storyBackupDescription1) + Text(" ") +
-                        Text(Localization.storyBackupDescription2Bold).bold() + Text(" ") + Text(Localization.storyBackupDescription3)
-                }
-                .font(.system(size: 24))
-                .multilineTextAlignment(.center)
-                .foregroundColor(.gray)
-                .padding(.horizontal)
-                .storyTextAppearanceModifier(progress: progress, type: .description, textBlockAppearance: .almostImmediate)
+                Text(TangemRichTextFormatter().format(Localization.storyBackupDescription, fontSize: descriptionFontSize))
+                    .font(.system(size: descriptionFontSize))
+                    .multilineTextAlignment(.center)
+                    .foregroundColor(.gray)
+                    .padding(.horizontal)
+                    .storyTextAppearanceModifier(progress: progress, type: .description, textBlockAppearance: .almostImmediate)
             }
             .fixedSize(horizontal: false, vertical: true)
 
