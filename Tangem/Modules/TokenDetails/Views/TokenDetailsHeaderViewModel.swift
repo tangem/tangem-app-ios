@@ -49,11 +49,11 @@ class TokenDetailsHeaderViewModel {
             let components = try parser.parse(localizedString)
 
             if tokenTypePrefix.isEmpty {
-                networkPrefix = components.prefix.trimmingCharacters(in: .whitespaces).capitalizingFirstLetter()
+                networkPrefix = components.prefix.capitalizingFirstLetter()
             } else {
                 networkPrefix = components.prefix
             }
-            networkSuffix = components.suffix.trimmingCharacters(in: .whitespaces)
+            networkSuffix = components.suffix
         } catch {
             networkPrefix = localizedString
             networkSuffix = nil
