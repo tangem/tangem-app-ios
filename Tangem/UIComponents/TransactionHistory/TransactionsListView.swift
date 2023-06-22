@@ -17,16 +17,15 @@ struct TransactionListItem: Hashable, Identifiable {
 
 struct TransactionsListView: View {
     let state: State
-    var explorerTapAction: (() -> Void)?
+    let exploreAction: (() -> Void)
+    let reloadButtonAction: (() -> Void)
+    let buyButtonAction: (() -> Void)
 
     var body: some View {
-        VStack {
-            header
-
-            content
-        }
-        .padding(.top, 13)
-        .padding([.horizontal, .bottom], 16)
+        content
+            .frame(maxWidth: .infinity)
+            .background(Colors.Background.primary)
+            .cornerRadiusContinuous(14)
     }
 
     @ViewBuilder
@@ -40,16 +39,13 @@ struct TransactionsListView: View {
 
             Spacer()
 
-            if let explorerTapAction {
-                Button(action: explorerTapAction) {
-                    HStack {
-                        Assets.compass.image
-                            .foregroundColor(Colors.Icon.informative)
+            Button(action: exploreAction) {
+                HStack {
+                    Assets.compass.image
+                        .foregroundColor(Colors.Icon.informative)
 
-                        #warning("[REDACTED_TODO_COMMENT]")
-                        Text("Explore")
-                            .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
-                    }
+                    Text(Localization.commonExplore)
+                        .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
                 }
             }
         }
@@ -64,31 +60,61 @@ struct TransactionsListView: View {
             errorContent
         case .loading:
             loadingContent
+        case .notSupported:
+            notSupportedContent
         }
     }
 
     @ViewBuilder
     private var loadingContent: some View {
-        VStack(spacing: 10) {
+        VStack(spacing: 12) {
+            header
+                .padding(.horizontal, 16)
+
             ForEach(0 ... 2) { _ in
-                TransactionViewPlaceholder()
+                TokenListItemLoadingPlaceholderView(style: .transactionHistory)
             }
-            .padding(.vertical, 8)
         }
-        .padding(.vertical, 12)
+        .padding(.top, 12)
+        .padding(.bottom, 16)
     }
 
     @ViewBuilder
     private var errorContent: some View {
         VStack {
+            Assets.fileExclamationMark.image
+                .foregroundColor(Colors.Icon.informative)
+
             Text(Localization.transactionHistoryErrorFailedToLoad)
+                .multilineTextAlignment(.center)
                 .style(
                     Fonts.Bold.footnote,
                     color: Colors.Text.tertiary
                 )
         }
-        .padding(.top, 93)
+        .padding(.top, 28)
         .padding(.bottom, 126)
+    }
+
+    @ViewBuilder
+    private var notSupportedContent: some View {
+        VStack(spacing: 20) {
+            Assets.compassBig.image
+                .foregroundColor(Colors.Icon.informative)
+
+            Text(Localization.transactionHistoryNotSupportedDescription)
+                .multilineTextAlignment(.center)
+                .lineSpacing(3.5)
+                .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
+                .padding(.horizontal, 36)
+
+            FixedSizeButtonWithLeadingIcon(
+                title: Localization.commonExploreTransactionHistory,
+                icon: Assets.arrowRightUpMini.image,
+                action: exploreAction
+            )
+        }
+        .padding(.vertical, 28)
     }
 
     @ViewBuilder
@@ -96,7 +122,6 @@ struct TransactionsListView: View {
         if transactionItems.isEmpty {
             VStack(spacing: 20) {
                 Assets.coinSlot.image
-                    .renderingMode(.template)
                     .foregroundColor(Colors.Icon.informative)
 
                 Text(Localization.transactionHistoryEmptyTransactions)
@@ -105,22 +130,26 @@ struct TransactionsListView: View {
             .padding(.top, 53)
             .padding(.bottom, 70)
         } else {
-            ForEach(transactionItems, id: \.id) { item in
-                Section {
-                    VStack(spacing: 10) {
-                        ForEach(item.items, id: \.id) { record in
-                            TransactionView(transactionRecord: record)
+            VStack {
+                header
+
+                ForEach(transactionItems, id: \.id) { item in
+                    Section {
+                        VStack(spacing: 10) {
+                            ForEach(item.items, id: \.id) { record in
+                                TransactionView(transactionRecord: record)
+                            }
                         }
-                    }
-                } header: {
-                    HStack {
-                        Text(item.header)
-                            .style(
-                                Fonts.Regular.footnote,
-                                color: Colors.Text.tertiary
-                            )
-                            .padding(.vertical, 12)
-                        Spacer()
+                    } header: {
+                        HStack {
+                            Text(item.header)
+                                .style(
+                                    Fonts.Regular.footnote,
+                                    color: Colors.Text.tertiary
+                                )
+                                .padding(.vertical, 12)
+                            Spacer()
+                        }
                     }
                 }
             }
@@ -133,6 +162,7 @@ extension TransactionsListView {
         case loading
         case error(Error)
         case loaded([TransactionListItem])
+        case notSupported
     }
 }
 
@@ -229,20 +259,23 @@ struct TransactionsListView_Previews: PreviewProvider {
 
     static var previews: some View {
         ScrollView {
-            LazyVStack {
-                TransactionsListView(state: .loaded([]))
-                TransactionsListView(state: .error(""))
-                TransactionsListView(state: .loading)
+            LazyVStack(spacing: 16) {
+                TransactionsListView(state: .notSupported, exploreAction: {}, reloadButtonAction: {}, buyButtonAction: {})
+
+                TransactionsListView(state: .loading, exploreAction: {}, reloadButtonAction: {}, buyButtonAction: {})
+
+                TransactionsListView(state: .loaded([]), exploreAction: {}, reloadButtonAction: {}, buyButtonAction: {})
+
+                TransactionsListView(state: .error(""), exploreAction: {}, reloadButtonAction: {}, buyButtonAction: {})
+
             }
+            .padding(.horizontal, 16)
         }
-        .background(Colors.Background.secondary)
-        .padding(.horizontal, 16)
+        .background(Colors.Background.secondary.edgesIgnoringSafeArea(.all))
 
         ScrollView {
             LazyVStack {
-                TransactionsListView(state: .loaded(listItems)) {
-                    print("EXPLORER TAPPED")
-                }
+                TransactionsListView(state: .loaded(listItems), exploreAction: {}, reloadButtonAction: {}, buyButtonAction: {})
             }
         }
         .padding(.horizontal, 16)
