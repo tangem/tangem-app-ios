@@ -60,24 +60,6 @@ final class OrganizeTokensDragAndDropController: ObservableObject {
         return nil
     }
 
-    // Maybe not so memory-efficient, but definitely safer than manual clearing of `frames` cache
-    private func isValidIndexPath(_ indexPath: IndexPath) -> Bool {
-        guard let dataSource else {
-            assertionFailure("DataSource required, but not set for \(self)")
-            return false
-        }
-
-        let isSectionValid = 0 ..< dataSource.numberOfSections(for: self) ~= indexPath.section
-        let listViewKind = dataSource.controller(self, listViewKindForIndexPath: indexPath)
-
-        switch listViewKind {
-        case .cell:
-            return isSectionValid && 0 ..< dataSource.controller(self, numberOfRowsInSection: indexPath.section) ~= indexPath.item
-        case .sectionHeader:
-            return isSectionValid
-        }
-    }
-
     func saveFrame(_ frame: CGRect, forItemAtIndexPath indexPath: IndexPath) {
         frames[indexPath] = frame
     }
@@ -88,7 +70,7 @@ final class OrganizeTokensDragAndDropController: ObservableObject {
 
     func indexPath(forLocation location: CGPoint) -> IndexPath? {
         return frames
-            .first { isValidIndexPath($0.key) && $0.value.contains(location) }
+            .first { isIndexPathValid($0.key) && $0.value.contains(location) }
             .map(\.key)
     }
 
@@ -178,6 +160,24 @@ final class OrganizeTokensDragAndDropController: ObservableObject {
         }
 
         return neighboringSectionsIndexPaths
+    }
+
+    // Maybe not so memory-efficient, but definitely safer than manual clearing of `frames` cache
+    private func isIndexPathValid(_ indexPath: IndexPath) -> Bool {
+        guard let dataSource else {
+            assertionFailure("DataSource required, but not set for \(self)")
+            return false
+        }
+
+        let isSectionValid = 0 ..< dataSource.numberOfSections(for: self) ~= indexPath.section
+        let listViewKind = dataSource.controller(self, listViewKindForIndexPath: indexPath)
+
+        switch listViewKind {
+        case .cell:
+            return isSectionValid && 0 ..< dataSource.controller(self, numberOfRowsInSection: indexPath.section) ~= indexPath.item
+        case .sectionHeader:
+            return isSectionValid
+        }
     }
 }
 
