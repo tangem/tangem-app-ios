@@ -14,8 +14,7 @@ final class OrganizeTokensViewModel: ObservableObject {
 
     let headerViewModel: OrganizeTokensHeaderViewModel
 
-    @Published
-    var sections: [OrganizeTokensListSectionViewModel]
+    @Published var sections: [OrganizeTokensListSectionViewModel]
 
     private unowned let coordinator: OrganizeTokensRoutable
 
@@ -71,14 +70,14 @@ final class OrganizeTokensViewModel: ObservableObject {
         return sectionViewModel(at: indexPath)?.isDraggable ?? itemViewModel(at: indexPath).isDraggable
     }
 
-    func onDragStart(atSourceIndexPath indexPath: IndexPath) {
+    func onDragStart(at indexPath: IndexPath) {
         // Process further only if a section is currently being dragged
         guard indexPath.item == itemIndexSentinelValueForSectionIndexPath else { return }
 
         beginDragAndDropSession(forSectionWithIdentifier: sections[indexPath.section].id)
     }
 
-    func onDragEnd(forSourceIndexPath indexPath: IndexPath) {}
+    func onDragEnd(at indexPath: IndexPath) {}
 
     func onDragAnimationCompletion() {
         endDragAndDropSessionForCurrentlyDraggedSectionIfNeeded()
