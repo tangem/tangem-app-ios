@@ -73,6 +73,7 @@
 "common_explorer_format" = "%@ explorer";
 "common_import" = "導入";
 "common_like" = "喜歡";
+"common_main_network" = "Main network";
 "common_no" = "否";
 "common_no_data" = "No data";
 "common_ok" = "OK";
@@ -405,6 +406,7 @@
 "token_details_hide_token" = "隱藏代幣";
 "token_details_send_blocked_fee_format" = "%1$@ 是 %2$@ 網絡中的代幣， 要進行 %3$@ 交易，您需要存入一些 %4$@ (%5$@) 以支付網絡費用";
 "token_details_send_blocked_tx_format" = "請等待 %@ 交易完成才能發送資金";
+"token_details_token_type_subtitle" = "%1$@ token in %%image%% %2$@ network";
 "token_details_transaction_length_warning" = "由於系統限制，iPhone 7/7+ 無法在此網絡上簽署交易。 請使用不同的手機完成此操作";
 "token_details_unable_hide_alert_message" = "%1$@ 代幣是 %2$@ 網絡上的主要貨幣，只要列表中還有該網絡上的其他代幣，它就無法被隱藏。";
 "token_details_unable_hide_alert_title" = "無法隱藏 %@";
