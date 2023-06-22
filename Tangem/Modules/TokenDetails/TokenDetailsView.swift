@@ -25,20 +25,14 @@ struct TokenDetailsView: View {
         let iconSize = tokenIconSizeSettings.iconSize
         let startAppearingOffset = headerTopPadding + iconSize.height
 
-        if contentOffset.y < startAppearingOffset {
-            return 0
-        }
-
         let fullAppearanceDistance = iconSize.height / 2
         let fullAppearanceOffset = startAppearingOffset + fullAppearanceDistance
 
-        if fullAppearanceOffset < contentOffset.y {
-            return 1
-        }
-
-        let reducedOffset = contentOffset.y - startAppearingOffset
-        let currentOpacity = reducedOffset / fullAppearanceDistance
-        return currentOpacity
+        return clamp(
+            (contentOffset.y - startAppearingOffset) / (fullAppearanceOffset - startAppearingOffset),
+            min: 0,
+            max: 1
+        )
     }
 
     var body: some View {
