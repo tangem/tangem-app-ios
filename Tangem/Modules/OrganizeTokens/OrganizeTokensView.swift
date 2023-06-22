@@ -173,7 +173,7 @@ struct OrganizeTokensView: View {
             dragAndDropSourceCellFrame = nil
 
             dragAndDropController.onDragEnd()
-            viewModel.onDragEnd(forSourceIndexPath: oldValue)
+            viewModel.onDragEnd(at: oldValue)
         }
         .onChange(of: dragAndDropSourceViewModelIdentifier) { [oldValue = dragAndDropSourceViewModelIdentifier] newValue in
             guard oldValue != nil, newValue == nil else { return }
@@ -301,7 +301,7 @@ struct OrganizeTokensView: View {
                     // `DispatchQueue.main.async` used here to allow publishing changes during view update
                     DispatchQueue.main.async {
                         dragAndDropController.onDragStart()
-                        viewModel.onDragStart(atSourceIndexPath: sourceIndexPath)
+                        viewModel.onDragStart(at: sourceIndexPath)
                     }
                 }
             }
