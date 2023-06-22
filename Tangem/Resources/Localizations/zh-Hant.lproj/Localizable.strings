@@ -344,9 +344,7 @@
 "solana_rent_warning" = "Solana 網絡每 2 天收取 %1$@ 的費用。無法付此費用的帳戶將從網絡中清除。向您的帳戶存入超過 %2$@ 即可免費使用";
 "story_awe_description" = "安全地存儲您的加密貨幣，同時將私鑰保存在您的卡中";
 "story_awe_title" = "創新式的硬體錢包";
-"story_backup_description_1" = "最多";
-"story_backup_description_2_bold" = "3張實體卡片";
-"story_backup_description_3" = "到一個錢包";
+"story_backup_description" = "最多 **3張實體卡片** 到一個錢包";
 "story_backup_title" = "更多的安全備份";
 "story_currencies_description" = "一個冷錢包，可同時將您的比特幣、以太幣和其他幣種-全部存在一張卡中";
 "story_currencies_title" = "千種虛擬貨幣";
