@@ -168,7 +168,7 @@ class AddCustomTokenViewModel: ObservableObject {
             ($0.codingKey, $0)
         })
         self.derivationPathByBlockchainName = Dictionary(uniqueKeysWithValues: blockchains.compactMap {
-            guard let derivationPath = $0.derivationPath() else { return nil }
+            guard let derivationPath = $0.derivationPaths(for: .v1)[.default] else { return nil }
             return ($0.codingKey, derivationPath)
         })
 
@@ -195,7 +195,7 @@ class AddCustomTokenViewModel: ObservableObject {
         } else {
             derivations = supportedBlockchains
                 .compactMap {
-                    guard let derivationPath = $0.derivationPath() else {
+                    guard let derivationPath = $0.derivationPaths(for: .v1)[.default] else {
                         return nil
                     }
 
@@ -291,7 +291,9 @@ class AddCustomTokenViewModel: ObservableObject {
             return contractAddress // skip validation for binance
         }
 
-        guard blockchain.validate(address: contractAddress) else {
+        let validator = AddressServiceFactory(blockchain: blockchain).makeAddressService()
+
+        guard validator.validate(contractAddress) else {
             throw TokenCreationErrors.invalidContractAddress
         }
 
@@ -415,7 +417,7 @@ class AddCustomTokenViewModel: ObservableObject {
         ]
 
         if let derivationStyle = cardModel.derivationStyle,
-           let usedDerivationPath = derivationPath ?? tokenItem.blockchain.derivationPath(for: derivationStyle)
+           let usedDerivationPath = derivationPath ?? tokenItem.blockchain.derivationPaths(for: derivationStyle)[.default]
         {
             params[.derivationPath] = usedDerivationPath.rawPath
         }
