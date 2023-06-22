@@ -175,6 +175,11 @@ struct OrganizeTokensView: View {
             dragAndDropController.onDragEnd()
             viewModel.onDragEnd(forSourceIndexPath: oldValue)
         }
+        .onChange(of: dragAndDropSourceViewModelIdentifier) { [oldValue = dragAndDropSourceViewModelIdentifier] newValue in
+            guard oldValue != nil, newValue == nil else { return }
+
+            viewModel.onDragAnimationCompletion()
+        }
     }
 
     private var tokenListHeader: some View {
