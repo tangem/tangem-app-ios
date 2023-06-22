@@ -168,12 +168,9 @@ struct OrganizeTokensView: View {
             viewModel.move(fromSourceIndexPath: oldValue, toDestinationIndexPath: newValue)
         }
         .onChange(of: dragAndDropSourceIndexPath) { [oldValue = dragAndDropSourceIndexPath] newValue in
-            guard let oldValue, newValue == nil else { return }
+            guard oldValue != nil, newValue == nil else { return }
 
             dragAndDropSourceCellFrame = nil
-
-            dragAndDropController.onDragEnd()
-            viewModel.onDragEnd(at: oldValue)
         }
         .onChange(of: dragAndDropSourceViewModelIdentifier) { [oldValue = dragAndDropSourceViewModelIdentifier] newValue in
             guard oldValue != nil, newValue == nil else { return }
