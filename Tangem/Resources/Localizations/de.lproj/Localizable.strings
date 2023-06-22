@@ -70,6 +70,8 @@
 "common_enabled" = "Enabled";
 "common_error" = "Fehler";
 "common_exchange" = "Exchange";
+"common_explore" = "Explore";
+"common_explore_transaction_history" = "Explore transaction history";
 "common_explorer_format" = "%@ explorer";
 "common_import" = "Import";
 "common_like" = "Like";
@@ -412,7 +414,8 @@
 "token_details_unable_hide_alert_title" = "Unable to hide %@";
 "token_item_no_rate" = "No rate";
 "transaction_history_empty_transactions" = "You don't have any transactions yet";
-"transaction_history_error_failed_to_load" = "Failed to load transactions";
+"transaction_history_error_failed_to_load" = "Failed to load transaction history.\nClick on reload button to update the information.";
+"transaction_history_not_supported_description" = "Transaction history is currently not supported for this blockchain. But don't worry, we're working on it! In the meantime you can check it in the explorer.";
 "transaction_history_title" = "Transactions";
 "transaction_history_tx_in_progress" = "In progress…";
 "twin_error_not_a_twin_card" = "You've scanned not a twin card. To create twin wallet you need to scan a Tangem Twin card";
