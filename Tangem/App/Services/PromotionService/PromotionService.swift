@@ -145,12 +145,13 @@ extension PromotionService {
 
         guard
             let awardBlockchain = Blockchain(from: promotion.awardPaymentToken.networkId),
-            let awardToken = promotion.awardPaymentToken.storageToken
+            let awardToken = promotion.awardPaymentToken.storageToken,
+            let derivationStyle = storageEntryAdding.derivationStyle
         else {
             throw TangemAPIError(code: .decode)
         }
 
-        let derivationPath: DerivationPath? = awardBlockchain.derivationPaths(for: .v1)[.default]
+        let derivationPath: DerivationPath? = awardBlockchain.derivationPaths(for: derivationStyle)[.default]
         let blockchainNetwork = storageEntryAdding.getBlockchainNetwork(for: awardBlockchain, derivationPath: derivationPath)
 
         let entry = StorageEntry(blockchainNetwork: blockchainNetwork, token: awardToken)
