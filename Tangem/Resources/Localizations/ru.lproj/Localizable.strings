@@ -50,6 +50,7 @@
 "chat_user_rate_agent_title" = "Пожалуйста, оцените работу агента";
 "common_accept" = "Принять";
 "common_apply" = "Применить";
+"common_approval" = "Одобрение";
 "common_attention" = "Внимание";
 "common_back" = "Назад";
 "common_balance" = "Баланс: %@";
@@ -70,8 +71,8 @@
 "common_enabled" = "Включено";
 "common_error" = "Ошибка";
 "common_exchange" = "Обменять";
-"common_explore" = "Обозреватель";
 "common_explore_transaction_history" = "Посмотреть историю транзакций";
+"common_explorer" = "Обозреватель";
 "common_explorer_format" = "%@ обозреватель";
 "common_import" = "Импортировать";
 "common_like" = "Нравится";
@@ -83,6 +84,7 @@
 "common_push" = "Ускорить";
 "common_receive" = "Получить";
 "common_reject" = "Отклонить";
+"common_reload" = "Перезагрузить";
 "common_retry" = "Повторить";
 "common_save_changes" = "Сохранить изменения";
 "common_search" = "Искать";
@@ -98,7 +100,9 @@
 "common_start" = "Начать";
 "common_submit" = "Отправить";
 "common_success" = "Успешно";
+"common_swap" = "Обмен";
 "common_terms_and_conditions" = "условия участия";
+"common_transfer" = "Перевод";
 "common_understand" = "Я понял";
 "common_unreachable" = "Недоступно";
 "common_warning" = "Предупреждение";
@@ -413,10 +417,13 @@
 "token_details_unable_hide_alert_message" = "Токен %1$@ является основной валютой в сети %2$@ и не может быть скрыт до тех пор, пока у вас в списке есть другие токены этой сети.";
 "token_details_unable_hide_alert_title" = "Невозможно скрыть %@";
 "token_item_no_rate" = "Нет цены";
+"transaction_history_contract_address" = "контракт: %s";
 "transaction_history_empty_transactions" = "У вас еще нет транзакций";
 "transaction_history_error_failed_to_load" = "Не удалось загрузить историю транзакций.\nНажмите на кнопку перезагрузки, чтобы обновить информацию.";
 "transaction_history_not_supported_description" = "История транзакций в настоящее время не поддерживается для этого блокчейна. Но не волнуйтесь, мы работаем над этим! А пока вы можете проверить ее в обозревателе.";
 "transaction_history_title" = "Транзакции";
+"transaction_history_transaction_from_address" = "от: %s";
+"transaction_history_transaction_to_address" = "на: %s";
 "transaction_history_tx_in_progress" = "В процессе…";
 "twin_error_not_a_twin_card" = "Вы отсканировали не twin-карту. Для создания двойного кошелька необходимо отсканировать карту Tangem Twin.";
 "twin_error_same_card" = "Вы отсканировали ту же карту. Для создания twin-кошелька вам необходимо отсканировать карту с номером %li";

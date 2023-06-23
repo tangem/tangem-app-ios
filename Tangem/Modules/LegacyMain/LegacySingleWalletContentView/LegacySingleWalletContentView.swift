@@ -73,7 +73,7 @@ struct LegacySingleWalletContentView: View {
                     .padding(.horizontal, 16)
 
                     if viewModel.canShowTransactionHistory {
-                        TransactionsListView(state: viewModel.transactionHistoryState, exploreAction: {}, reloadButtonAction: {}, buyButtonAction: {})
+                        TransactionsListView(state: viewModel.transactionHistoryState, exploreAction: {}, reloadButtonAction: {}, isReloadButtonBusy: false, buyButtonAction: {})
                             .background(Colors.Background.primary)
                             .cornerRadius(16)
                             .padding(.horizontal, 16)
