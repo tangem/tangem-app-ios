@@ -201,7 +201,7 @@ class LegacyMainViewModel: ObservableObject {
         updateExchangeButtons()
 
         runTask { [weak self] in
-            await self?.updatePromotionState(promotionError: nil)
+            await self?.updatePromotionState(with: nil)
         }
     }
 
@@ -384,7 +384,7 @@ class LegacyMainViewModel: ObservableObject {
                 handlePromotionError(error)
             }
 
-            await updatePromotionState(promotionError: promotionError)
+            await updatePromotionState(with: promotionError)
         }
     }
 
@@ -527,7 +527,7 @@ private extension LegacyMainViewModel {
                 handlePromotionError(error)
             }
 
-            await updatePromotionState(promotionError: promotionError)
+            await updatePromotionState(with: promotionError)
         }
     }
 
@@ -555,7 +555,7 @@ private extension LegacyMainViewModel {
         }
     }
 
-    private func updatePromotionState(promotionError: Error?) async {
+    private func updatePromotionState(with promotionError: Error?) async {
         await promotionService.checkPromotion(timeout: nil)
 
         let fatalPromotionErrors: [TangemAPIError.ErrorCode] = [
