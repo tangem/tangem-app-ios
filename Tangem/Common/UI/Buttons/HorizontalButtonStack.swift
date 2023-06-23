@@ -50,7 +50,7 @@ struct HorizontalButtonStack: View {
                                 .cornerRadius(0.5)
                         }
                     }
-//                    ForEach(0..<buttons.count) { (buttonIndex: Int) in
+//                    ForEach(0 ..< buttons.count, id: \.self) { (buttonIndex: Int) in
 //                        let buttonsCount: Int = buttons.count
 //                        if buttonIndex < buttonsCount {
 //                            let width: CGFloat = (geo.size.width - (buttonsCount > 1 ? CGFloat(1) : CGFloat(0))) / CGFloat(buttonsCount)
