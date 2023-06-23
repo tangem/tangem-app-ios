@@ -27,6 +27,15 @@ struct LegacyMultiWalletContentView: View {
 
             tokenList
 
+            if viewModel.isManageTokensPreviewAvailable {
+                FixedSizeButtonWithLeadingIcon(
+                    title: Localization.organizeTokensTitle,
+                    icon: Assets.OrganizeTokens.filterIcon.image,
+                    action: viewModel.openManageTokensPreview
+                )
+                .infinityFrame(axis: .horizontal)
+            }
+
             MainButton(
                 title: Localization.mainManageTokens,
                 action: viewModel.openTokensList
