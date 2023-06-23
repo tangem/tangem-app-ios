@@ -1,5 +1,5 @@
 //
-//  BlockchainExceptionHandler.swift
+//  Analytics+BlockchainExceptionHandler.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -9,21 +9,13 @@
 import Foundation
 import BlockchainSdk
 import Firebase
-import SwiftDate
 
 extension Analytics {
     struct BlockchainExceptionHandler: ExceptionHandlerOutput {
-        func handleAPISwitch(blockchain: Blockchain, currentHost: String, nextHost: String?, statusCode: Int, message: String) {
+        func handleAPISwitch(currentHost: String, nextHost: String, message: String) {
             Analytics.log(
                 event: .blockchainSdkException,
-                params: [
-                    .blockchain: blockchain.currencySymbol,
-                    .region: Locale.current.regionCode?.lowercased() ?? "",
-                    .exceptionHost: currentHost,
-                    .selectedHost: nextHost ?? "",
-                    .errorCode: "\(statusCode)",
-                    .errorDescription: message,
-                ],
+                params: [.exceptionHost: currentHost, .selectedHost: nextHost, .errorDescription: message],
                 analyticsSystems: [.crashlytics]
             )
         }
