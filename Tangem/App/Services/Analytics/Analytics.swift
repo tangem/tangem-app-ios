@@ -102,12 +102,6 @@ class Analytics {
         log(event: event, params: params.mapValues { $0.rawValue })
     }
 
-    static func log(event: Event, params: [ParameterKey: String]) {
-        assert(event.canBeLoggedDirectly)
-
-        logInternal(event, params: params)
-    }
-
     static func log(
         event: Event,
         params: [ParameterKey: String],
