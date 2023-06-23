@@ -9,18 +9,13 @@
 import Foundation
 import Combine
 
-// [REDACTED_TODO_COMMENT]
-class OrganizeTokensCoordinator: CoordinatorObject {
+final class OrganizeTokensCoordinator: CoordinatorObject {
     let dismissAction: Action
     let popToRootAction: ParamsAction<PopToRootOptions>
 
     // MARK: - Root view model
 
     @Published private(set) var rootViewModel: OrganizeTokensViewModel?
-
-    // MARK: - Child coordinators
-
-    // MARK: - Child view models
 
     required init(
         dismissAction: @escaping Action,
@@ -30,15 +25,28 @@ class OrganizeTokensCoordinator: CoordinatorObject {
         self.popToRootAction = popToRootAction
     }
 
-    func start(with options: Options) {}
+    func start(with options: Options) {
+        // [REDACTED_TODO_COMMENT]
+        rootViewModel = OrganizeTokensViewModel(
+            coordinator: self,
+            sections: OrganizeTokensPreviewProvider().multipleSections()
+        )
+    }
 }
 
 // MARK: - Options
 
 extension OrganizeTokensCoordinator {
-    enum Options {}
+    enum Options {
+        // [REDACTED_TODO_COMMENT]
+        case none
+    }
 }
 
-// MARK: - OrganizeTokensRoutable
+// MARK: - OrganizeTokensRoutable protocol conformance
 
-extension OrganizeTokensCoordinator: OrganizeTokensRoutable {}
+extension OrganizeTokensCoordinator: OrganizeTokensRoutable {
+    func didTapCancelButton() {
+        dismiss()
+    }
+}
