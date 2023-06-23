@@ -20,6 +20,9 @@ protocol LegacyMainRoutable: LegacyTokenDetailsRoutable {
     func openQR(shareAddress: String, address: String, qrNotice: String)
     func openUserWalletList()
     func openPromotion(cardPublicKey: String, cardId: String, walletId: String)
+
+    @available(*, deprecated, message: "For feature preview purposes only, won't be available in legacy UI")
+    func openManageTokensPreview()
 }
 
 protocol OpenCurrencySelectionDelegate: AnyObject {
