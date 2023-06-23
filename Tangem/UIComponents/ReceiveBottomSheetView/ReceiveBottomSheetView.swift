@@ -104,7 +104,7 @@ struct ReceiveBottomSheetView: View {
             .padding(.top, 12)
             .padding(.bottom, 8)
         }
-        .readGeometry(to: $containerWidth, transform: \.size.width)
+        .readGeometry(transform: \.size.width, bindTo: $containerWidth)
     }
 }
 
