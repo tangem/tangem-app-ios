@@ -10,8 +10,6 @@ import TangemSdk
 import BlockchainSdk
 
 protocol StorageEntryAdding {
-    var derivationStyle: DerivationStyle? { get }
-
     func getBlockchainNetwork(for blockchain: Blockchain, derivationPath: DerivationPath?) -> BlockchainNetwork
     func add(entry: StorageEntry) async throws -> String
 }
