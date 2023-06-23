@@ -48,17 +48,17 @@ extension View {
     ///         VStack() {
     ///             // Some content
     ///         }
-    ///         .readGeometry(to: $frameMidX, transform: \.frame.midX)
+    ///         .readGeometry(transform: \.frame.midX, bindTo: $frameMidX)
     ///     }
     /// }
     /// ```
     func readGeometry<T>(
         inCoordinateSpace coordinateSpace: CoordinateSpace = .global,
-        to contentOffsetBinding: Binding<T>,
-        transform: KeyPath<GeometryInfo, T> = \.self
+        transform: KeyPath<GeometryInfo, T> = \.self,
+        bindTo valueBinding: Binding<T>
     ) -> some View {
         readGeometry(inCoordinateSpace: coordinateSpace, transform: transform) { value in
-            contentOffsetBinding.wrappedValue = value
+            valueBinding.wrappedValue = value
         }
     }
 }
