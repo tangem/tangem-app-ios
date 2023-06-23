@@ -13,7 +13,7 @@ struct UserTokenListManagerMock: UserTokenListManager {
 
     func update(userWalletId: Data) {}
 
-    func update(_ type: CommonUserTokenListManager.UpdateType) {}
+    func update(_ type: UserTokenListUpdateType) {}
 
     func updateLocalRepositoryFromServer(result: @escaping (Result<UserTokenList, Error>) -> Void) {}
 
