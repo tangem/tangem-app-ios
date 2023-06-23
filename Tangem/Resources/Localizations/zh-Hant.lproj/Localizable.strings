@@ -1,3 +1,4 @@
+
 "add_custom_token_title" = "添加自定義代幣";
 "add_tokens_title" = "管理代幣";
 "address_qr_code_message_format" = "僅將 %1$@ (%2$@) 從 %3$@ 網絡發送到此地址。使用其他代幣和網絡可能會導致資金損失";
@@ -50,6 +51,7 @@
 "chat_user_rate_agent_title" = "請評價我們的服務";
 "common_accept" = "接受";
 "common_apply" = "Apply";
+"common_approval" = "Approval";
 "common_attention" = "注意";
 "common_back" = "返回";
 "common_balance" = "餘額: %@";
@@ -70,8 +72,8 @@
 "common_enabled" = "啟用";
 "common_error" = "錯誤";
 "common_exchange" = "交易";
-"common_explore" = "Explore";
 "common_explore_transaction_history" = "Explore transaction history";
+"common_explorer" = "Explorer";
 "common_explorer_format" = "%@ explorer";
 "common_import" = "導入";
 "common_like" = "喜歡";
@@ -83,6 +85,7 @@
 "common_push" = "推送";
 "common_receive" = "Receive";
 "common_reject" = "拒絕";
+"common_reload" = "Reload";
 "common_retry" = "重試";
 "common_save_changes" = "保存設置";
 "common_search" = "搜索";
@@ -98,7 +101,9 @@
 "common_start" = "開始";
 "common_submit" = "提交";
 "common_success" = "成功";
+"common_swap" = "Swap";
 "common_terms_and_conditions" = "條款和條件";
+"common_transfer" = "Transfer";
 "common_understand" = "我了解";
 "common_unreachable" = "無法觸達";
 "common_warning" = "警告";
@@ -413,10 +418,13 @@
 "token_details_unable_hide_alert_message" = "%1$@ 代幣是 %2$@ 網絡上的主要貨幣，只要列表中還有該網絡上的其他代幣，它就無法被隱藏。";
 "token_details_unable_hide_alert_title" = "無法隱藏 %@";
 "token_item_no_rate" = "無費用";
+"transaction_history_contract_address" = "contract: %s";
 "transaction_history_empty_transactions" = "您還沒有任何交易";
 "transaction_history_error_failed_to_load" = "Failed to load transaction history.\nClick on reload button to update the information.";
 "transaction_history_not_supported_description" = "Transaction history is currently not supported for this blockchain. But don't worry, we're working on it! In the meantime you can check it in the explorer.";
 "transaction_history_title" = "交易";
+"transaction_history_transaction_from_address" = "from: %s";
+"transaction_history_transaction_to_address" = "to: %s";
 "transaction_history_tx_in_progress" = "進行中…";
 "twin_error_not_a_twin_card" = "您掃描的不是雙胞胎卡。要創建雙胞胎錢包，您需要掃描 Tangem Twin 卡";
 "twin_error_same_card" = "您掃描了同一張卡片。要創建雙錢包，您需要掃描編號為 %li 的卡";
