@@ -84,7 +84,7 @@ struct WalletOnboardingView: View {
 
             disclaimerContent
                 .layoutPriority(1)
-                .readSize { size in
+                .readGeometry(transform: \.size) { size in
                     viewModel.setupContainer(with: size)
                 }
 
@@ -180,7 +180,7 @@ struct WalletOnboardingView: View {
                     }
                     .position(x: size.width / 2, y: size.height / 2)
                 }
-                .readSize { size in
+                .readGeometry(transform: \.size) { size in
                     if !viewModel.isCustomContentVisible {
                         viewModel.setupContainer(with: size)
                     }
@@ -190,7 +190,7 @@ struct WalletOnboardingView: View {
                 if viewModel.isCustomContentVisible {
                     customContent
                         .layoutPriority(1)
-                        .readSize { size in
+                        .readGeometry(transform: \.size) { size in
                             viewModel.setupContainer(with: size)
                         }
                 }
