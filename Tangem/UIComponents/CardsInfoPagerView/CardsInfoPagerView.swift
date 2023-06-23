@@ -80,7 +80,7 @@ struct CardsInfoPagerView<
             ForEach(data.indexed(), id: idProvider) { index, element in
                 headerFactory(element)
                     .frame(width: proxy.size.width - Constants.headerItemHorizontalOffset * 2.0)
-                    .readSize { headerHeight = $0.height } // All headers are expected to have the same height
+                    .readGeometry(transform: \.size.height, bindTo: $headerHeight)  // All headers are expected to have the same height
             }
         }
         // The first offset determines which page is shown

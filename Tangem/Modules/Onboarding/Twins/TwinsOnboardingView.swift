@@ -62,7 +62,7 @@ struct TwinsOnboardingView: View {
 
             disclaimerContent
                 .layoutPriority(1)
-                .readSize { size in
+                .readGeometry(transform: \.size) { size in
                     viewModel.setupContainer(with: size)
                 }
 
@@ -149,7 +149,7 @@ struct TwinsOnboardingView: View {
                     }
                     .frame(size: geom.size)
                 }
-                .readSize { size in
+                .readGeometry(transform: \.size) { size in
                     if !viewModel.isCustomContentVisible {
                         viewModel.setupContainer(with: size)
                     }
@@ -159,7 +159,7 @@ struct TwinsOnboardingView: View {
                 if viewModel.isCustomContentVisible {
                     customContent
                         .layoutPriority(1)
-                        .readSize { size in
+                        .readGeometry(transform: \.size) { size in
                             viewModel.setupContainer(with: size)
                         }
                 }

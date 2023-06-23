@@ -132,9 +132,7 @@ struct CardStackAnimator<Card: View>: View {
                 }
             }
             .position(x: geom.size.width / 2, y: geom.size.height / 2 + 50)
-            .readSize { size in
-                self.size = size
-            }
+            .readGeometry(transform: \.size, bindTo: $size)
         }
         .onReceive(currentCardIndexPublisher, perform: { newCardIndex in
             guard selectedIndex != newCardIndex else { return }
