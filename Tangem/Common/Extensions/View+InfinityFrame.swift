@@ -7,21 +7,24 @@
 //
 
 import SwiftUI
-import struct UIKit.UIAxis
 
 extension View {
     func infinityFrame(
-        axis: UIAxis = .both,
+        axis: Axis.Set = .both,
         alignment: Alignment = .center
     ) -> some View {
         modifier(InfinityFrameViewModifier(axis: axis, alignment: alignment))
     }
 }
 
+extension Axis.Set {
+    static var both: Self { [.horizontal, .vertical] }
+}
+
 // MARK: - Private implementation
 
 private struct InfinityFrameViewModifier: ViewModifier {
-    let axis: UIAxis
+    let axis: Axis.Set
     let alignment: Alignment
 
     func body(content: Content) -> some View {
