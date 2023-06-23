@@ -62,8 +62,8 @@ struct OnboardingSeedPhraseImportView: View {
             }
         }
         .readGeometry(transform: \.size) { contentSize in
-            if self.containerSize == .zero {
-                self.containerSize = containerSize
+            if containerSize == .zero {
+                containerSize = containerSize
             }
         }
         .onAppear(perform: viewModel.onAppear)
