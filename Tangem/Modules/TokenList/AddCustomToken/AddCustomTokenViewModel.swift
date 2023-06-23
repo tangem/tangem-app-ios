@@ -167,12 +167,9 @@ class AddCustomTokenViewModel: ObservableObject {
         self.blockchainByName = Dictionary(uniqueKeysWithValues: blockchains.map {
             ($0.codingKey, $0)
         })
-        self.derivationPathByBlockchainName = Dictionary(uniqueKeysWithValues: blockchains.compactMap { blockchain in
-            guard let derivationPath = getDefaultDerivationPath(blockchain: blockchain) else {
-                return nil
-            }
-
-            return (blockchain.codingKey, derivationPath)
+        self.derivationPathByBlockchainName = Dictionary(uniqueKeysWithValues: blockchains.compactMap {
+            guard let derivationPath = $0.derivationPaths(for: .v1)[.default] else { return nil }
+            return ($0.codingKey, derivationPath)
         })
 
         var newBlockchainName = self.blockchainsPicker.selection
@@ -197,14 +194,14 @@ class AddCustomTokenViewModel: ObservableObject {
             derivations = []
         } else {
             derivations = supportedBlockchains
-                .compactMap { blockchain in
-                    guard let derivationPath = getDefaultDerivationPath(blockchain: blockchain) else {
+                .compactMap {
+                    guard let derivationPath = $0.derivationPaths(for: .v1)[.default] else {
                         return nil
                     }
 
                     let derivationPathFormatted = derivationPath.rawPath
-                    let blockchainName = blockchain.codingKey
-                    let description = "\(blockchain.displayName) (\(derivationPathFormatted))"
+                    let blockchainName = $0.codingKey
+                    let description = "\($0.displayName) (\(derivationPathFormatted))"
                     return (description, blockchainName)
                 }
                 .sorted {
@@ -419,7 +416,9 @@ class AddCustomTokenViewModel: ObservableObject {
             .token: tokenItem.currencySymbol,
         ]
 
-        if let usedDerivationPath = derivationPath ?? getDefaultDerivationPath(blockchain: tokenItem.blockchain) {
+        if let derivationStyle = cardModel.derivationStyle,
+           let usedDerivationPath = derivationPath ?? tokenItem.blockchain.derivationPaths(for: derivationStyle)[.default]
+        {
             params[.derivationPath] = usedDerivationPath.rawPath
         }
 
@@ -429,14 +428,6 @@ class AddCustomTokenViewModel: ObservableObject {
         }
 
         Analytics.log(event: .customTokenWasAdded, params: params)
-    }
-
-    private func getDefaultDerivationPath(blockchain: Blockchain) -> DerivationPath? {
-        guard let derivationStyle = cardModel.derivationStyle else {
-            return nil
-        }
-
-        return blockchain.derivationPaths(for: derivationStyle)[.default]
     }
 }
 
