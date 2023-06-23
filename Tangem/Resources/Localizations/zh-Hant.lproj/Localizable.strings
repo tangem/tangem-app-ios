@@ -170,7 +170,6 @@
 "mail_error_no_accounts_title" = "沒有郵件帳戶";
 "main_get_bonus_subtitle" = "You have completed the training and can get your 1inch tokens";
 "main_get_bonus_title" = "Get a bonus";
-"main_learn_subtitle" = "Complete the training and get %@ 1inch tokens on your wallet";
 "main_learn_title" = "Learn & Earn";
 "main_manage_tokens" = "管理代幣";
 "main_no_backup_warning_subtitle" = "為了保護您的資產，我們建議您執行此程序";
