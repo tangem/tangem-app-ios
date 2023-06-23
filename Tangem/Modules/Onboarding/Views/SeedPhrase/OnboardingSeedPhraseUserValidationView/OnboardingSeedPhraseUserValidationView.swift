@@ -61,17 +61,17 @@ struct OnboardingSeedPhraseUserValidationView: View {
                 )
                 .padding(.bottom, 10)
             }
-            .readSize(onChange: { contentSize in
+            .readGeometry(transform: \.size) { contentSize in
                 if self.contentSize == .zero {
                     self.contentSize = contentSize
                 }
-            })
+            }
         }
-        .readSize(onChange: { containerSize in
+        .readGeometry(transform: \.size) { contentSize in
             if self.containerSize == .zero {
                 self.containerSize = containerSize
             }
-        })
+        }
         .padding(.horizontal, 16)
     }
 }
