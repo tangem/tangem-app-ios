@@ -14,7 +14,7 @@ struct TangemRichTextFormatter {
     func format(_ string: String, fontSize: CGFloat) -> NSAttributedString {
         var originalString = string
 
-        let regex = try! NSRegularExpression(pattern: "\\*{2}[^*]+\\*{2}")
+        let regex = try! NSRegularExpression(pattern: "\\*{2}.+?\\*{2}")
 
         let wholeRange = NSRange(location: 0, length: originalString.count)
         let matches = regex.matches(in: originalString, range: wholeRange)
