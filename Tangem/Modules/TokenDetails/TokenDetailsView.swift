@@ -41,6 +41,14 @@ struct TokenDetailsView: View {
                 TokenDetailsHeaderView(viewModel: viewModel.tokenDetailsHeaderModel)
 
                 BalanceWithButtonsView(viewModel: viewModel.balanceWithButtonsModel)
+
+                TransactionsListView(
+                    state: viewModel.transactionHistoryState,
+                    exploreAction: viewModel.openExplorer,
+                    reloadButtonAction: viewModel.reloadHistory,
+                    isReloadButtonBusy: viewModel.isReloadingTransactionHistory,
+                    buyButtonAction: viewModel.canBuyCrypto ? viewModel.openBuy : nil)
+
             }
             .padding(.top, headerTopPadding)
             .readContentOffset(
