@@ -12,6 +12,9 @@ import BlockchainSdk
 protocol LegacyMultiWalletContentViewModelOutput: OpenCurrencySelectionDelegate {
     func openTokenDetails(_ tokenItem: LegacyTokenItemViewModel)
     func openTokensList()
+
+    @available(*, deprecated, message: "For feature preview purposes only, won't be available in legacy UI")
+    func openManageTokensPreview()
 }
 
 class LegacyMultiWalletContentViewModel: ObservableObject {
@@ -19,6 +22,15 @@ class LegacyMultiWalletContentViewModel: ObservableObject {
 
     @Published var contentState: LoadingValue<[LegacyTokenItemViewModel]> = .loading
     @Published var tokenListIsEmpty: Bool = true
+
+    @available(*, deprecated, message: "For feature preview purposes only, won't be available in legacy UI")
+    var isManageTokensPreviewAvailable: Bool {
+        #if DEBUG
+        return FeatureProvider.isAvailable(.organizeTokensPreview)
+        #else
+        return false
+        #endif
+    }
 
     lazy var totalSumBalanceViewModel = TotalSumBalanceViewModel(
         userWalletModel: cardModel,
@@ -62,6 +74,11 @@ class LegacyMultiWalletContentViewModel: ObservableObject {
     func openTokensList() {
         Analytics.log(.buttonManageTokens)
         output.openTokensList()
+    }
+
+    @available(*, deprecated, message: "For feature preview purposes only, won't be available in legacy UI")
+    func openManageTokensPreview() {
+        output.openManageTokensPreview()
     }
 
     func tokenItemDidTap(_ itemViewModel: LegacyTokenItemViewModel) {
