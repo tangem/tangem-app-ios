@@ -715,4 +715,9 @@ extension LegacyMainViewModel: LegacyMultiWalletContentViewModelOutput {
             amountType: tokenItem.amountType
         )
     }
+
+    @available(*, deprecated, message: "For feature preview purposes only, won't be available in legacy UI")
+    func openManageTokensPreview() {
+        coordinator.openManageTokensPreview()
+    }
 }

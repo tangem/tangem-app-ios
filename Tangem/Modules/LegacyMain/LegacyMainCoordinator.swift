@@ -30,6 +30,9 @@ class LegacyMainCoordinator: CoordinatorObject {
     @Published var tokenListCoordinator: TokenListCoordinator? = nil
     @Published var modalOnboardingCoordinator: OnboardingCoordinator? = nil
 
+    @available(*, deprecated, message: "For feature preview purposes only, won't be available in legacy UI")
+    @Published var organizeTokensCoordinator: OrganizeTokensCoordinator? = nil
+
     // MARK: - Child view models
 
     @Published var pushedWebViewModel: WebViewContainerViewModel? = nil
@@ -308,6 +311,17 @@ extension LegacyMainCoordinator: LegacyMainRoutable {
         let options: PromotionCoordinator.Options = .oldUser(cardPublicKey: cardPublicKey, cardId: cardId, walletId: walletId)
         coordinator.start(with: options)
         promotionCoordinator = coordinator
+    }
+
+    @available(*, deprecated, message: "For feature preview purposes only, won't be available in legacy UI")
+    func openManageTokensPreview() {
+        #if DEBUG
+        let coordinator = OrganizeTokensCoordinator() { [unowned self] in
+            organizeTokensCoordinator = nil
+        }
+        coordinator.start(with: .none)
+        organizeTokensCoordinator = coordinator
+        #endif
     }
 }
 
