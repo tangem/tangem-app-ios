@@ -381,6 +381,7 @@ class LegacyMainViewModel: ObservableObject {
                 promotionError = nil
             } catch {
                 promotionError = error
+                handlePromotionError(error)
             }
 
             await updatePromotionState(promotionError: promotionError)
@@ -523,6 +524,7 @@ private extension LegacyMainViewModel {
                 promotionError = nil
             } catch {
                 promotionError = error
+                handlePromotionError(error)
             }
 
             await updatePromotionState(promotionError: promotionError)
@@ -555,11 +557,7 @@ private extension LegacyMainViewModel {
 
     private func updatePromotionState(promotionError: Error?) async {
         await promotionService.checkPromotion(timeout: nil)
-        didFinishCheckingPromotion(promotionError: promotionError)
-    }
 
-    @MainActor
-    private func didFinishCheckingPromotion(promotionError: Error?) {
         let fatalPromotionErrors: [TangemAPIError.ErrorCode] = [
             .promotionCodeAlreadyUsed,
             .promotionWalletAlreadyAwarded,
@@ -577,12 +575,13 @@ private extension LegacyMainViewModel {
             promotionAvailable = promotionService.promotionAvailable
         }
 
+        didFinishCheckingPromotion(promotionAvailable: promotionAvailable)
+    }
+
+    @MainActor
+    private func didFinishCheckingPromotion(promotionAvailable: Bool) {
         self.promotionAvailable = promotionAvailable
         promotionRequestInProgress = false
-
-        if let promotionError {
-            handlePromotionError(promotionError)
-        }
     }
 
     @MainActor
