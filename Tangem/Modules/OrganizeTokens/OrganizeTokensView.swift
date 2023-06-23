@@ -78,7 +78,7 @@ struct OrganizeTokensView: View {
         GeometryReader { geometryProxy in
             ScrollViewReader { scrollProxy in
                 ScrollView(showsIndicators: false) {
-                    Spacer(minLength: scrollViewTopContentInset)
+                    Spacer(minLength: scrollViewTopContentInset + Constants.overlayViewAdditionalVerticalInset)
 
                     LazyVStack(spacing: 0.0) {
                         let parametersProvider = OrganizeTokensListCornerRadiusParametersProvider(
@@ -137,7 +137,7 @@ struct OrganizeTokensView: View {
                     .onTouchesBegan(onTouchesBegan(atLocation:))
                     .readGeometry(to: $tokenListContentFrameMaxY, transform: \.frame.maxY)
 
-                    Spacer(minLength: scrollViewBottomContentInset)
+                    Spacer(minLength: scrollViewBottomContentInset + Constants.overlayViewAdditionalVerticalInset)
                 }
                 .onChange(of: dragGestureLocation) { newValue in
                     guard let newValue, var dragAndDropSourceCellFrame else { return }
@@ -183,8 +183,7 @@ struct OrganizeTokensView: View {
         OrganizeTokensListHeader(
             viewModel: viewModel.headerViewModel,
             scrollViewTopContentInset: $scrollViewTopContentInset,
-            contentHorizontalInset: Constants.contentHorizontalInset,
-            overlayViewAdditionalVerticalInset: Constants.overlayViewAdditionalVerticalInset
+            contentHorizontalInset: Constants.contentHorizontalInset
         )
     }
 
@@ -193,10 +192,9 @@ struct OrganizeTokensView: View {
             viewModel: viewModel,
             tokenListFooterFrameMinY: $tokenListFooterFrameMinY,
             scrollViewBottomContentInset: $scrollViewBottomContentInset,
-            isTokenListFooterGradientHidden: isTokenListFooterGradientHidden,
-            cornerRadius: Constants.cornerRadius,
             contentHorizontalInset: Constants.contentHorizontalInset,
-            overlayViewAdditionalVerticalInset: Constants.overlayViewAdditionalVerticalInset
+            isTokenListFooterGradientHidden: isTokenListFooterGradientHidden,
+            cornerRadius: Constants.cornerRadius
         )
     }
 
