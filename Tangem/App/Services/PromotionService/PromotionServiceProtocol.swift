@@ -13,7 +13,7 @@ protocol PromotionServiceProtocol {
     var currentProgramName: String { get }
     var promoCode: String? { get }
 
-    var awardAmount: String { get }
+    var awardAmount: Int? { get }
     var promotionAvailable: Bool { get }
 
     var readyForAwardPublisher: AnyPublisher<Void, Never> { get }
