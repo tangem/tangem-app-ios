@@ -39,8 +39,7 @@ class WalletModel: ObservableObject, Identifiable {
                 timeFormatted: "",
                 date: $0.date,
                 transferAmount: $0.amount.string(with: 8),
-                canBePushed: false,
-                direction: .incoming,
+                transactionType: .receive,
                 status: .inProgress
             )
         }
@@ -58,8 +57,7 @@ class WalletModel: ObservableObject, Identifiable {
                 timeFormatted: "",
                 date: $0.date,
                 transferAmount: $0.amount.string(with: 8),
-                canBePushed: false, // (txPusher?.isPushAvailable(for: $0.hash ?? "") ?? false) && isTxStuckByTime, //[REDACTED_TODO_COMMENT]
-                direction: .outgoing,
+                transactionType: .send,
                 status: .inProgress
             )
         }
@@ -161,9 +159,9 @@ class WalletModel: ObservableObject, Identifiable {
             updateState(.loading)
         }
 
-        updateWalletModelBag = Publishers.Zip(updateWalletManager(), loadTransactionHistoryIfNeeded())
+        updateWalletModelBag = updateWalletManager()
             .receive(on: updateQueue)
-            .flatMap { [weak self] result, _ -> AnyPublisher<(WalletManagerUpdateResult, [String: Decimal]), Error> in
+            .flatMap { [weak self] result -> AnyPublisher<(WalletManagerUpdateResult, [String: Decimal]), Error> in
                 guard let self else {
                     return .anyFail(error: CommonError.objectReleased)
                 }
@@ -260,42 +258,6 @@ class WalletModel: ObservableObject, Identifiable {
         DispatchQueue.main.async { [weak self] in // captured as weak at call stack
             self?.state = state
         }
-    }
-
-    private func loadTransactionHistoryIfNeeded() -> AnyPublisher<Void, Error> {
-        guard
-            blockchainNetwork.blockchain.canLoadTransactionHistory,
-            let historyLoader = walletManager as? TransactionHistoryLoader
-        else {
-            DispatchQueue.main.async {
-                self.transactionHistoryState = .notSupported
-            }
-            return .justWithError(output: ())
-        }
-
-        guard txHistoryUpdateSubscription == nil else {
-            return .justWithError(output: ())
-        }
-
-        transactionHistoryState = .loading
-        let historyPublisher = historyLoader.loadTransactionHistory()
-        txHistoryUpdateSubscription = historyPublisher
-            .receive(on: DispatchQueue.main)
-            .sink { [weak self] completion in
-                if case .failure(let error) = completion {
-                    AppLog.shared.debug("🔄 Failed to load transaction history. Error: \(error)")
-                    self?.transactionHistoryState = .failedToLoad(error)
-                }
-                self?.txHistoryUpdateSubscription = nil
-            } receiveValue: { [weak self] _ in
-                self?.transactionHistoryState = .loaded
-            }
-
-        return historyPublisher
-            .replaceError(with: [])
-            .mapVoid()
-            .eraseError()
-            .eraseToAnyPublisher()
     }
 
     // MARK: - Load Rates
@@ -606,6 +568,45 @@ extension WalletModel {
             code: AppSettings.shared.selectedCurrencyCode,
             maximumFractionDigits: 2
         )
+    }
+}
+
+// MARK: Transaction history
+extension WalletModel {
+    func loadTransactionHistory() -> AnyPublisher<Void, Error > {
+        guard
+            blockchainNetwork.blockchain.canLoadTransactionHistory,
+            let historyLoader = walletManager as? TransactionHistoryLoader
+        else {
+            DispatchQueue.main.async {
+                self.transactionHistoryState = .notSupported
+            }
+            return .justWithError(output: ())
+        }
+
+        guard txHistoryUpdateSubscription == nil else {
+            return .justWithError(output: ())
+        }
+
+        transactionHistoryState = .loading
+        let historyPublisher = historyLoader.loadTransactionHistory()
+        txHistoryUpdateSubscription = historyPublisher
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] completion in
+                if case .failure(let error) = completion {
+                    AppLog.shared.debug("🔄 Failed to load transaction history. Error: \(error)")
+                    self?.transactionHistoryState = .failedToLoad(error)
+                }
+                self?.txHistoryUpdateSubscription = nil
+            } receiveValue: { [weak self] _ in
+                self?.transactionHistoryState = .loaded
+            }
+
+        return historyPublisher
+            .replaceError(with: [])
+            .mapVoid()
+            .eraseError()
+            .eraseToAnyPublisher()
     }
 }
 
