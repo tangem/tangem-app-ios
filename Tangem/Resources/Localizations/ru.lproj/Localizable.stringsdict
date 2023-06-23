@@ -22,6 +22,26 @@
         <string>%li карт</string>
       </dict>
     </dict>
+    <key>main_learn_subtitle</key>
+    <dict>
+      <key>NSStringLocalizedFormatKey</key>
+      <string>%#@format@</string>
+      <key>format</key>
+      <dict>
+        <key>NSStringFormatSpecTypeKey</key>
+        <string>NSStringPluralRuleType</string>
+        <key>NSStringFormatValueTypeKey</key>
+        <string>li</string>
+        <key>one</key>
+        <string>Пройдите обучение и получите %li токен 1inch на свой кошелек</string>
+        <key>few</key>
+        <string>Пройдите обучение и получите %li токена 1inch на свой кошелек</string>
+        <key>many</key>
+        <string>Пройдите обучение и получите %li токена 1inch на свой кошелек</string>
+        <key>other</key>
+        <string>Пройдите обучение и получите %li токенов 1inch на свой кошелек</string>
+      </dict>
+    </dict>
     <key>referral_wallets_purchased_count</key>
     <dict>
       <key>NSStringLocalizedFormatKey</key>
