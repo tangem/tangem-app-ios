@@ -72,7 +72,9 @@ class ServicesManager {
     }
 
     private func configureBlockchainSdkExceptionHandler() {
-        ExceptionHandler.shared.append(output: Analytics.BlockchainExceptionHandler())
+        if FeatureProvider.isAvailable(.enableBlockchainSdkEvents) {
+            ExceptionHandler.shared.append(output: Analytics.BlockchainExceptionHandler())
+        }
     }
 }
 
