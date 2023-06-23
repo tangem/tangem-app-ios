@@ -294,9 +294,9 @@ class AddCustomTokenViewModel: ObservableObject {
             return contractAddress // skip validation for binance
         }
 
-        let validator = AddressServiceFactory(blockchain: blockchain).makeAddressService()
+        let addressService = AddressServiceFactory(blockchain: blockchain).makeAddressService()
 
-        guard validator.validate(contractAddress) else {
+        guard addressService.validate(contractAddress) else {
             throw TokenCreationErrors.invalidContractAddress
         }
 
