@@ -316,7 +316,7 @@ extension LegacyMainCoordinator: LegacyMainRoutable {
     @available(*, deprecated, message: "For feature preview purposes only, won't be available in legacy UI")
     func openManageTokensPreview() {
         #if DEBUG
-        let coordinator = OrganizeTokensCoordinator() { [unowned self] in
+        let coordinator = OrganizeTokensCoordinator { [unowned self] in
             organizeTokensCoordinator = nil
         }
         coordinator.start(with: .none)
