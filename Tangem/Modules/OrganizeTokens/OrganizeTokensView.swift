@@ -90,7 +90,7 @@ struct OrganizeTokensView: View {
                     )
                 }
             }
-            .readGeometry(to: $tokenListContentFrameMaxY, transform: \.frame.maxY)
+            .readGeometry(transform: \.frame.maxY, bindTo: $tokenListContentFrameMaxY)
 
             Spacer(minLength: scrollViewBottomContentInset)
         }
