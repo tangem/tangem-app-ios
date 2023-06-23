@@ -53,8 +53,8 @@ struct CardInfoPagePreviewView: View {
                 }
             }
             .readContentOffset(
-                to: scrollViewConnector.contentOffsetBinding,
-                inCoordinateSpace: .named(coordinateSpaceName)
+                inCoordinateSpace: .named(coordinateSpaceName),
+                bindTo: scrollViewConnector.contentOffsetBinding
             )
         }
         .coordinateSpace(name: coordinateSpaceName)
