@@ -16,7 +16,7 @@ struct TangemRichTextFormatter {
 
         let regex = try! NSRegularExpression(pattern: "\\*{2}.+?\\*{2}")
 
-        let wholeRange = NSRange(location: 0, length: originalString.count)
+        let wholeRange = NSRange(location: 0, length: (originalString as NSString).length)
         let matches = regex.matches(in: originalString, range: wholeRange)
 
         let attributedString = NSMutableAttributedString(string: originalString)
