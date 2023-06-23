@@ -73,6 +73,7 @@
 "common_explorer_format" = "%@ обозреватель";
 "common_import" = "Импортировать";
 "common_like" = "Нравится";
+"common_main_network" = "Основная сеть";
 "common_no" = "Нет";
 "common_no_data" = "Нет данных";
 "common_ok" = "Ок";
@@ -169,7 +170,6 @@
 "mail_error_no_accounts_title" = "Нет настроенных почтовых аккаунтов";
 "main_get_bonus_subtitle" = "Вы завершили обучение и можете получить свои токены 1inch";
 "main_get_bonus_title" = "Получите бонус";
-"main_learn_subtitle" = "Пройдите обучение и получите %@ токенов 1inch на свой кошелек";
 "main_learn_title" = "Бонус за обучение";
 "main_manage_tokens" = "Управление токенами";
 "main_no_backup_warning_subtitle" = "Чтобы защитить свои активы, мы советуем вам выполнить эту процедуру";
@@ -405,6 +405,7 @@
 "token_details_hide_token" = "Скрыть токен";
 "token_details_send_blocked_fee_format" = "%1$@ — это токен в сети %2$@. Чтобы отправить транзакцию %3$@, необходимо пополнить баланс %4$@ (%5$@) для оплаты комиссии сети.";
 "token_details_send_blocked_tx_format" = "Пожалуйста, дождитесь завершения транзакции %@, чтобы иметь возможность отправить средства";
+"token_details_token_type_subtitle" = "%1$@ токен в сети %%image%% %2$@";
 "token_details_transaction_length_warning" = "iPhone 7/7+ не может подписать транзакцию в данной сети из-за системных ограничений. Пожалуйста, используйте другой телефон для выполнения этой операции.";
 "token_details_unable_hide_alert_message" = "Токен %1$@ является основной валютой в сети %2$@ и не может быть скрыт до тех пор, пока у вас в списке есть другие токены этой сети.";
 "token_details_unable_hide_alert_title" = "Невозможно скрыть %@";
