@@ -14,14 +14,14 @@ struct UserTokenList: Codable {
     let tokens: [Token]
 
     private let version: Int
-    private let group: String?
-    private let sort: String?
+    private let group: GroupType
+    private let sort: SortType
 
     init(
         tokens: [UserTokenList.Token],
-        version: Int = 0,
-        group: String = GroupType.none.rawValue,
-        sort: String = SortType.manual.rawValue
+        version: Int,
+        group: GroupType,
+        sort: SortType
     ) {
         self.tokens = tokens
         self.version = version
@@ -43,9 +43,11 @@ extension UserTokenList {
 
     enum GroupType: String, Codable {
         case none
+        case network
     }
 
     enum SortType: String, Codable {
         case manual
+        case balance
     }
 }
