@@ -201,7 +201,7 @@ class LegacyMainViewModel: ObservableObject {
         updateExchangeButtons()
 
         runTask { [weak self] in
-            await self?.updatePromotionState()
+            await self?.updatePromotionState(promotionError: nil)
         }
     }
 
@@ -364,6 +364,7 @@ class LegacyMainViewModel: ObservableObject {
         runTask { [weak self] in
             guard let self else { return }
 
+            let promotionError: Error?
             do {
                 try await promotionService.checkIfCanGetAward(userWalletId: cardModel.userWalletId.stringValue)
 
@@ -376,11 +377,13 @@ class LegacyMainViewModel: ObservableObject {
                 } else {
                     try await startPromotionAwardProcess()
                 }
+
+                promotionError = nil
             } catch {
-                handlePromotionError(error)
+                promotionError = error
             }
 
-            await updatePromotionState()
+            await updatePromotionState(promotionError: promotionError)
         }
     }
 
@@ -514,13 +517,15 @@ private extension LegacyMainViewModel {
         runTask { [weak self] in
             guard let self else { return }
 
+            let promotionError: Error?
             do {
                 try await startPromotionAwardProcess()
+                promotionError = nil
             } catch {
-                handlePromotionError(error)
+                promotionError = error
             }
 
-            await updatePromotionState()
+            await updatePromotionState(promotionError: promotionError)
         }
     }
 
@@ -548,15 +553,36 @@ private extension LegacyMainViewModel {
         }
     }
 
-    private func updatePromotionState() async {
+    private func updatePromotionState(promotionError: Error?) async {
         await promotionService.checkPromotion(timeout: nil)
-        didFinishCheckingPromotion()
+        didFinishCheckingPromotion(promotionError: promotionError)
     }
 
     @MainActor
-    private func didFinishCheckingPromotion() {
-        promotionAvailable = promotionService.promotionAvailable
+    private func didFinishCheckingPromotion(promotionError: Error?) {
+        let fatalPromotionErrors: [TangemAPIError.ErrorCode] = [
+            .promotionCodeAlreadyUsed,
+            .promotionWalletAlreadyAwarded,
+            .promotionCardAlreadyAwarded,
+            .promotionProgramNotFound,
+            .promotionProgramEnded,
+            .promotionCodeNotFound,
+        ]
+
+        let promotionAvailable: Bool
+        if let apiError = promotionError as? TangemAPIError,
+           fatalPromotionErrors.contains(apiError.code) {
+            promotionAvailable = false
+        } else {
+            promotionAvailable = promotionService.promotionAvailable
+        }
+
+        self.promotionAvailable = promotionAvailable
         promotionRequestInProgress = false
+
+        if let promotionError {
+            handlePromotionError(promotionError)
+        }
     }
 
     @MainActor
