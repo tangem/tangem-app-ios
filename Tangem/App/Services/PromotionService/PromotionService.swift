@@ -21,7 +21,7 @@ class PromotionService {
     private let promoCodeStorageKey = "promo_code"
     private let finishedPromotionNamesStorageKey = "finished_promotion_names"
 
-    var awardAmount: String = ""
+    var awardAmount: Int?
     var promotionAvailable: Bool = false
 
     private let readyForAwardSubject = PassthroughSubject<Void, Never>()
@@ -48,7 +48,7 @@ extension PromotionService: PromotionServiceProtocol {
 
     func checkPromotion(timeout: TimeInterval?) async {
         let promotionAvailable: Bool
-        let award: Double?
+        let award: Int?
 
         if !FeatureProvider.isAvailable(.learnToEarn) || currentPromotionIsFinished() {
             promotionAvailable = false
@@ -74,17 +74,7 @@ extension PromotionService: PromotionServiceProtocol {
             }
         }
 
-        let formatter = NumberFormatter()
-        formatter.maximumFractionDigits = 0
-
-        let awardAmount: String
-        if let award,
-           let formattedAmount = formatter.string(from: award as NSNumber) {
-            awardAmount = formattedAmount
-        } else {
-            awardAmount = ""
-        }
-        self.awardAmount = awardAmount
+        awardAmount = award
         self.promotionAvailable = promotionAvailable
     }
 
