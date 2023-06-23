@@ -21,6 +21,7 @@ final class OrganizeTokensViewModel: ObservableObject {
     private var currentlyDraggedSectionIdentifier: UUID?
     private var currentlyDraggedSectionItems: [OrganizeTokensListItemViewModel] = []
 
+    @available(*, deprecated, message: "Only for SwiftUI previews")
     init(
         coordinator: OrganizeTokensRoutable,
         sections: [OrganizeTokensListSectionViewModel]
@@ -82,7 +83,7 @@ final class OrganizeTokensViewModel: ObservableObject {
     }
 
     func onCancelButtonTap() {
-        // [REDACTED_TODO_COMMENT]
+        coordinator.didTapCancelButton()
     }
 
     func onApplyButtonTap() {
