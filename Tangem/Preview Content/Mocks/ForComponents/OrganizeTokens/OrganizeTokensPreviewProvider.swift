@@ -94,12 +94,12 @@ struct OrganizeTokensPreviewProvider {
                     ),
                     .init(
                         tokenIcon: TokenIconInfoBuilder().build(
-                            for: .coin,
+                            for: .token(value: .tetherMock),
                             in: .ethereumClassic(testnet: false)
                         ),
                         balance: .noData,
                         isDraggable: false,
-                        networkUnreachable: false,
+                        networkUnreachable: true,
                         hasPendingTransactions: true
                     ),
                 ]
