@@ -55,17 +55,17 @@ struct OnboardingSeedPhraseImportView: View {
                 )
                 .padding(.all, 16)
             }
-            .readSize(onChange: { contentSize in
+            .readGeometry(transform: \.size) { contentSize in
                 if self.contentSize == .zero {
                     self.contentSize = contentSize
                 }
-            })
+            }
         }
-        .readSize(onChange: { containerSize in
+        .readGeometry(transform: \.size) { contentSize in
             if self.containerSize == .zero {
                 self.containerSize = containerSize
             }
-        })
+        }
         .onAppear(perform: viewModel.onAppear)
         .onDisappear(perform: viewModel.onDisappear)
         .alert(item: $viewModel.errorAlert, content: { alertBinder in
