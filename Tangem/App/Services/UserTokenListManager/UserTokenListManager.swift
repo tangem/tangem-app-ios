@@ -11,8 +11,8 @@ import BlockchainSdk
 
 protocol UserTokenListManager {
     var didPerformInitialLoading: Bool { get }
-    func update(_ type: CommonUserTokenListManager.UpdateType)
 
+    func update(_ type: UserTokenListUpdateType)
     func updateLocalRepositoryFromServer(result: @escaping (Result<UserTokenList, Error>) -> Void)
     func getEntriesFromRepository() -> [StorageEntry]
     func clearRepository(completion: @escaping () -> Void)

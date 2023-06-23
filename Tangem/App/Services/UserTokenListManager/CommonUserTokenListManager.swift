@@ -36,7 +36,7 @@ class CommonUserTokenListManager {
 // MARK: - UserTokenListManager
 
 extension CommonUserTokenListManager: UserTokenListManager {
-    func update(_ type: CommonUserTokenListManager.UpdateType) {
+    func update(_ type: UserTokenListUpdateType) {
         switch type {
         case .rewrite(let entries):
             tokenItemsRepository.update(entries)
@@ -194,14 +194,5 @@ private extension CommonUserTokenListManager {
         }
 
         return entries
-    }
-}
-
-extension CommonUserTokenListManager {
-    enum UpdateType {
-        case rewrite(_ entries: [StorageEntry])
-        case append(_ entries: [StorageEntry])
-        case removeBlockchain(_ blockchain: BlockchainNetwork)
-        case removeToken(_ token: Token, in: BlockchainNetwork)
     }
 }
