@@ -8,11 +8,12 @@
 
 import SwiftUI
 
-// [REDACTED_TODO_COMMENT]
 struct OrganizeTokensCoordinatorView: CoordinatorView {
     @ObservedObject var coordinator: OrganizeTokensCoordinator
 
-    init(coordinator: OrganizeTokensCoordinator) {
+    init(
+        coordinator: OrganizeTokensCoordinator
+    ) {
         self.coordinator = coordinator
     }
 
