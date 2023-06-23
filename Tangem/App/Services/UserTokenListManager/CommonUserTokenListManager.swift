@@ -13,6 +13,8 @@ import struct BlockchainSdk.Token
 import struct TangemSdk.DerivationPath
 
 class CommonUserTokenListManager {
+    private static var apiVersion: Int { 0 }
+
     @Injected(\.tangemApiService) private var tangemApiService: TangemApiService
 
     private(set) var didPerformInitialLoading: Bool = false
@@ -70,6 +72,7 @@ extension CommonUserTokenListManager: UserTokenListManager {
 // MARK: - Private
 
 private extension CommonUserTokenListManager {
+
     // MARK: - Requests
 
     func loadUserTokenList(result: @escaping (Result<UserTokenList, Error>) -> Void) {
@@ -120,7 +123,12 @@ private extension CommonUserTokenListManager {
     func getUserTokenList() -> UserTokenList {
         let entries = tokenItemsRepository.getItems()
         let tokens = mapToTokens(entries: entries)
-        return UserTokenList(tokens: tokens)
+        return UserTokenList(
+            tokens: tokens,
+            version: Self.apiVersion,
+            group: .none,
+            sort: .manual
+        )
     }
 
     // MARK: - Mapping
