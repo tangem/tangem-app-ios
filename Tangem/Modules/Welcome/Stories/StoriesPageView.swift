@@ -10,7 +10,7 @@ import SwiftUI
 
 struct StoriesPageView<Content: View>: View {
     @ObservedObject var storiesViewModel: StoriesViewModel
-    @ViewBuilder private let content: () -> Content
+    private let content: () -> Content
 
     init(storiesViewModel: StoriesViewModel, @ViewBuilder content: @escaping () -> Content) {
         self.storiesViewModel = storiesViewModel
