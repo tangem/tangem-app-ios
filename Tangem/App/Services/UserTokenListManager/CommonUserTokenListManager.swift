@@ -72,7 +72,6 @@ extension CommonUserTokenListManager: UserTokenListManager {
 // MARK: - Private
 
 private extension CommonUserTokenListManager {
-
     // MARK: - Requests
 
     func loadUserTokenList(result: @escaping (Result<UserTokenList, Error>) -> Void) {
