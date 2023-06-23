@@ -50,6 +50,7 @@
 "chat_user_rate_agent_title" = "Please, rate the work of the agent";
 "common_accept" = "Akzeptieren";
 "common_apply" = "Apply";
+"common_approval" = "Approval";
 "common_attention" = "Attention";
 "common_back" = "Back";
 "common_balance" = "Bilanz: %@";
@@ -70,8 +71,8 @@
 "common_enabled" = "Enabled";
 "common_error" = "Fehler";
 "common_exchange" = "Exchange";
-"common_explore" = "Explore";
 "common_explore_transaction_history" = "Explore transaction history";
+"common_explorer" = "Explorer";
 "common_explorer_format" = "%@ explorer";
 "common_import" = "Import";
 "common_like" = "Like";
@@ -83,6 +84,7 @@
 "common_push" = "Push";
 "common_receive" = "Receive";
 "common_reject" = "Reject";
+"common_reload" = "Reload";
 "common_retry" = "Retry";
 "common_save_changes" = "Änderungen speichern";
 "common_search" = "Search";
@@ -98,7 +100,9 @@
 "common_start" = "Start";
 "common_submit" = "Submit";
 "common_success" = "Erfolg";
+"common_swap" = "Swap";
 "common_terms_and_conditions" = "terms and conditions";
+"common_transfer" = "Transfer";
 "common_understand" = "I understand";
 "common_unreachable" = "Unreachable";
 "common_warning" = "Warnung";
@@ -413,10 +417,13 @@
 "token_details_unable_hide_alert_message" = "The %1$@ token is the main currency on the %2$@ network and cannot be hidden as long as you have other tokens on this network in the list.";
 "token_details_unable_hide_alert_title" = "Unable to hide %@";
 "token_item_no_rate" = "No rate";
+"transaction_history_contract_address" = "contract: %s";
 "transaction_history_empty_transactions" = "You don't have any transactions yet";
 "transaction_history_error_failed_to_load" = "Failed to load transaction history.\nClick on reload button to update the information.";
 "transaction_history_not_supported_description" = "Transaction history is currently not supported for this blockchain. But don't worry, we're working on it! In the meantime you can check it in the explorer.";
 "transaction_history_title" = "Transactions";
+"transaction_history_transaction_from_address" = "from: %s";
+"transaction_history_transaction_to_address" = "to: %s";
 "transaction_history_tx_in_progress" = "In progress…";
 "twin_error_not_a_twin_card" = "You've scanned not a twin card. To create twin wallet you need to scan a Tangem Twin card";
 "twin_error_same_card" = "You've scanned the same card. To create a twin wallet you need to scan the card with number %li";
