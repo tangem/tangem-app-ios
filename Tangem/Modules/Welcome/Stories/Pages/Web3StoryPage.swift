@@ -43,7 +43,7 @@ struct Web3StoryPage: View {
                 .background(
                     VStack {
                         Group {
-                            ForEach(0 ..< numberOfRows) { index in
+                            ForEach(0 ..< numberOfRows, id: \.self) { index in
                                 let odd = (index % 2 == 0)
                                 Image("dapps-\(index % numberOfRowImages)")
                                     .offset(x: odd ? 50 : 0)

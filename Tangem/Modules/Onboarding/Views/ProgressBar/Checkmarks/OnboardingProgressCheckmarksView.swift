@@ -52,7 +52,7 @@ struct OnboardingProgressCheckmarksView: View {
                     )
                     )
                     .frame(width: containerSize.width, height: 3)
-                ForEach(0 ..< numberOfSteps) { stepIndex in
+                ForEach(0 ..< numberOfSteps, id: \.self) { stepIndex in
                     OnboardingProgressCircle(index: stepIndex, selectedIndex: animatedSelectedIndex)
                         .offset(
                             x: calculateCircleOffset(for: stepIndex),
