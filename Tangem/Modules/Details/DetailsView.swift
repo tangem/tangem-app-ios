@@ -35,7 +35,7 @@ struct DetailsView: View {
             }
 
             socialNetworks
-                .readSize { socialNetworksViewSize = $0 }
+                .readGeometry(transform: \.size, bindTo: $socialNetworksViewSize)
         }
         .ignoresSafeArea(.container, edges: .bottom)
         .background(Colors.Background.secondary.edgesIgnoringSafeArea(.all))
