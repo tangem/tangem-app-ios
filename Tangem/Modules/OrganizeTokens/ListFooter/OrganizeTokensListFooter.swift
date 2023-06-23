@@ -12,10 +12,9 @@ struct OrganizeTokensListFooter: View {
     let viewModel: OrganizeTokensViewModel
     let tokenListFooterFrameMinY: Binding<CGFloat>
     let scrollViewBottomContentInset: Binding<CGFloat>
+    let contentHorizontalInset: CGFloat
     let isTokenListFooterGradientHidden: Bool
     let cornerRadius: CGFloat
-    let contentHorizontalInset: CGFloat
-    let overlayViewAdditionalVerticalInset: CGFloat
 
     var body: some View {
         HStack(spacing: 8.0) {
@@ -39,10 +38,11 @@ struct OrganizeTokensListFooter: View {
             )
         }
         .padding(.horizontal, contentHorizontalInset)
+        .padding(.bottom, 8.0)
         .background(OrganizeTokensListFooterOverlayView().hidden(isTokenListFooterGradientHidden))
         .readGeometry { geometryInfo in
             tokenListFooterFrameMinY.wrappedValue = geometryInfo.frame.minY
-            scrollViewBottomContentInset.wrappedValue = geometryInfo.size.height + overlayViewAdditionalVerticalInset
+            scrollViewBottomContentInset.wrappedValue = geometryInfo.size.height
         }
         .infinityFrame(alignment: .bottom)
     }
