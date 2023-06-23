@@ -61,9 +61,7 @@ struct OnboardingProgressCheckmarksView: View {
                 }
             }
             .frame(maxWidth: .infinity)
-            .readSize { size in
-                containerSize = size
-            }
+            .readGeometry(transform: \.size, bindTo: $containerSize)
         }
         .onReceive(currentStep, perform: { newStep in
             animateSelection(at: newStep, animated: initialized)
