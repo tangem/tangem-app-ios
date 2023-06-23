@@ -16,7 +16,7 @@ extension Analytics {
             Analytics.log(
                 event: .blockchainSdkException,
                 params: [.exceptionHost: currentHost, .selectedHost: nextHost, .errorDescription: message],
-                analyticsSystems: [.crashlytics]
+                analyticsSystems: [.crashlytics, .firebase]
             )
         }
     }
