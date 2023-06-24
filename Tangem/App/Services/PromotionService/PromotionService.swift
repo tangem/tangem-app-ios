@@ -150,8 +150,7 @@ extension PromotionService {
             throw TangemAPIError(code: .decode)
         }
 
-        let derivationPath: DerivationPath? = awardBlockchain.derivationPaths(for: .v1)[.default]
-        let blockchainNetwork = storageEntryAdding.getBlockchainNetwork(for: awardBlockchain, derivationPath: derivationPath)
+        let blockchainNetwork = storageEntryAdding.getBlockchainNetwork(for: awardBlockchain, derivationPath: nil)
 
         let entry = StorageEntry(blockchainNetwork: blockchainNetwork, token: awardToken)
 
