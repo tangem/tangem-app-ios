@@ -139,4 +139,3 @@ struct TangemRichTextFormatter {
         return attributedString
     }
 }
-
