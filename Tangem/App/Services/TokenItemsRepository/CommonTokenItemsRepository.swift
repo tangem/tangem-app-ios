@@ -118,7 +118,7 @@ private extension CommonTokenItemsRepository {
                 let tokens = groupedTokens[blockchain]?.map { $0.newToken } ?? []
                 let network = BlockchainNetwork(
                     blockchain,
-                    derivationPath: blockchain.derivationPath(for: .legacy)
+                    derivationPath: blockchain.derivationPaths(for: .v1)[.default]
                 )
                 return StorageEntry(blockchainNetwork: network, tokens: tokens)
             }
