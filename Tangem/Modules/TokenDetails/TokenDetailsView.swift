@@ -47,8 +47,9 @@ struct TokenDetailsView: View {
                     exploreAction: viewModel.openExplorer,
                     reloadButtonAction: viewModel.reloadHistory,
                     isReloadButtonBusy: viewModel.isReloadingTransactionHistory,
-                    buyButtonAction: viewModel.canBuyCrypto ? viewModel.openBuy : nil)
-
+                    buyButtonAction: viewModel.canBuyCrypto ? viewModel.openBuy : nil
+                )
+                .padding(.bottom, 40)
             }
             .padding(.top, headerTopPadding)
             .readContentOffset(
