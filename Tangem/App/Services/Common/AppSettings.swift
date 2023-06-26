@@ -61,6 +61,9 @@ class AppSettings {
     @AppStorageCompat(StorageType.systemDeprecationWarningDismissDate)
     var systemDeprecationWarningDismissalDate: Date? = nil
 
+    @AppStorageCompat(StorageType.understandsAddressNetworkRequirements)
+    var understandsAddressNetworkRequirements: [String] = []
+
     static let shared: AppSettings = .init()
 
     private init() {}

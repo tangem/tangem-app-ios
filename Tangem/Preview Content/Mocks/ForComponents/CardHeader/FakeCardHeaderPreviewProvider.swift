@@ -27,7 +27,7 @@ final class FakeCardHeaderPreviewProvider: ObservableObject {
                         currencyCode: "USD",
                         hasError: false
                     ))
-                case .loaded:
+                case .loaded, .failedToLoad:
                     provider.balance = .loading
                 }
             }
@@ -47,7 +47,7 @@ final class FakeCardHeaderPreviewProvider: ObservableObject {
                         currencyCode: "EUR",
                         hasError: false
                     ))
-                case .loaded:
+                case .loaded, .failedToLoad:
                     provider.balance = .loading
                 }
             }
@@ -67,7 +67,7 @@ final class FakeCardHeaderPreviewProvider: ObservableObject {
                         currencyCode: "EUR",
                         hasError: false
                     ))
-                case .loaded:
+                case .loaded, .failedToLoad:
                     provider.balance = .loading
                 }
             }
@@ -86,7 +86,7 @@ final class FakeCardHeaderPreviewProvider: ObservableObject {
                         currencyCode: "RUB",
                         hasError: true
                     ))
-                case .loaded:
+                case .loaded, .failedToLoad:
                     provider.balance = .loading
                 }
             }
@@ -105,7 +105,7 @@ final class FakeCardHeaderPreviewProvider: ObservableObject {
                         currencyCode: "USD",
                         hasError: false
                     ))
-                case .loaded:
+                case .loaded, .failedToLoad:
                     provider.balance = .loading
                 }
             }
@@ -124,7 +124,7 @@ final class FakeCardHeaderPreviewProvider: ObservableObject {
                         currencyCode: "USD",
                         hasError: false
                     ))
-                case .loaded:
+                case .loaded, .failedToLoad:
                     provider.balance = .loading
                 }
             }

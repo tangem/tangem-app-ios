@@ -29,8 +29,11 @@ struct LegacyMainCoordinatorView: CoordinatorView {
             .navigation(item: $coordinator.pushedWebViewModel) {
                 WebViewContainer(viewModel: $0)
             }
-            .navigation(item: $coordinator.tokenDetailsCoordinator) {
+            .navigation(item: $coordinator.legacyTokenDetailsCoordinator) {
                 LegacyTokenDetailsCoordinatorView(coordinator: $0)
+            }
+            .navigation(item: $coordinator.tokenDetailsCoordinator) {
+                TokenDetailsCoordinatorView(coordinator: $0)
             }
             .navigation(item: $coordinator.currencySelectViewModel) {
                 CurrencySelectView(viewModel: $0)
