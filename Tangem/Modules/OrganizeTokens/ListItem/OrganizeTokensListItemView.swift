@@ -20,12 +20,13 @@ struct OrganizeTokensListItemView: View {
                 networkUnreachable: viewModel.networkUnreachable
             )
 
-            TokenItemViewMiddleComponent(
-                name: viewModel.name,
-                balance: viewModel.balance,
-                hasPendingTransactions: viewModel.hasPendingTransactions,
-                networkUnreachable: viewModel.networkUnreachable
-            )
+            // According to the mockups, network unreachable state on the organize tokens screen
+            // looks different than on the main screen
+            if viewModel.networkUnreachable {
+                networkUnreachableMiddleComponent
+            } else {
+                defaultMiddleComponent
+            }
 
             Spacer(minLength: 0.0)
 
@@ -36,6 +37,28 @@ struct OrganizeTokensListItemView: View {
             }
         }
         .padding(14.0)
+    }
+
+    private var networkUnreachableMiddleComponent: some View {
+        VStack(alignment: .leading, spacing: 2.0) {
+            Text(viewModel.name)
+                .style(Fonts.Bold.subheadline, color: Colors.Text.primary1)
+                .lineLimit(2)
+
+            Text(Localization.commonUnreachable)
+                .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
+                .lineLimit(1)
+        }
+        .padding(.vertical, 2.0)
+    }
+
+    private var defaultMiddleComponent: some View {
+        TokenItemViewMiddleComponent(
+            name: viewModel.name,
+            balance: viewModel.balance,
+            hasPendingTransactions: viewModel.hasPendingTransactions,
+            networkUnreachable: viewModel.networkUnreachable
+        )
     }
 }
 
