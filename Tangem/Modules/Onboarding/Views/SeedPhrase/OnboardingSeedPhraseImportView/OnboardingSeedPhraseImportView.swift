@@ -55,13 +55,13 @@ struct OnboardingSeedPhraseImportView: View {
                 )
                 .padding(.all, 16)
             }
-            .readGeometry(transform: \.size) { contentSize in
+            .readGeometry(\.size) { contentSize in
                 if self.contentSize == .zero {
                     self.contentSize = contentSize
                 }
             }
         }
-        .readGeometry(transform: \.size) { contentSize in
+        .readGeometry(\.size) { contentSize in
             if containerSize == .zero {
                 containerSize = containerSize
             }
