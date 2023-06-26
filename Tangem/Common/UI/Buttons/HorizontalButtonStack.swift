@@ -50,30 +50,6 @@ struct HorizontalButtonStack: View {
                                 .cornerRadius(0.5)
                         }
                     }
-//                    ForEach(0 ..< buttons.count, id: \.self) { (buttonIndex: Int) in
-//                        let buttonsCount: Int = buttons.count
-//                        if buttonIndex < buttonsCount {
-//                            let width: CGFloat = (geo.size.width - (buttonsCount > 1 ? CGFloat(1) : CGFloat(0))) / CGFloat(buttonsCount)
-//                            Button(action: buttons[buttonIndex].action) {
-//                                HStack {
-//                                    Text(buttons[buttonIndex].title)
-//                                    Image(buttons[buttonIndex].imageName)
-//                                }
-//                            }
-//                            .disabled(buttons[buttonIndex].isDisabled)
-//                            .frame(width: width, height: height)
-//                            .overlay(!buttons[buttonIndex].isDisabled ? Color.clear : Color.white.opacity(0.4))
-//                        } else {
-//                            EmptyView()
-//                        }
-//                        if buttonIndex < buttonsCount - 1 {
-//                            Color.white
-//                                .opacity(0.3)
-//                                .frame(width: 1)
-//                                .padding(.vertical, 10)
-//                                .cornerRadius(0.5)
-//                        }
-//                    }
                 }
             }
             .frame(width: geo.size.width, height: height)
