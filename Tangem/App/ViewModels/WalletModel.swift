@@ -66,7 +66,7 @@ class WalletModel: ObservableObject, Identifiable {
     var transactions: [TransactionRecord] {
         // [REDACTED_TODO_COMMENT]
         if FeatureStorage().useFakeTxHistory {
-            return FakeTransactionHistoryFactory().createFakeTxs(currencyCode: wallet.amounts[.coin]?.currencySymbol ?? "")
+            return Bool.random() ? FakeTransactionHistoryFactory().createFakeTxs(currencyCode: wallet.amounts[.coin]?.currencySymbol ?? "") : []
         }
 
         return TransactionHistoryMapper().convertToTransactionRecords(wallet.transactions, for: wallet.addresses)
