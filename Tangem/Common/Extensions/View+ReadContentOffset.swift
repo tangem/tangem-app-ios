@@ -30,11 +30,11 @@ extension View {
     /// ```
     func readContentOffset(
         inCoordinateSpace coordinateSpace: CoordinateSpace,
-        bindTo contentOffsetBinding: Binding<CGPoint>
+        bindTo contentOffset: Binding<CGPoint>
     ) -> some View {
         modifier(
             ContentOffsetReaderViewModifier(
-                contentOffsetBinding: contentOffsetBinding,
+                contentOffset: contentOffset,
                 coordinateSpace: coordinateSpace
             )
         )
@@ -44,7 +44,7 @@ extension View {
 // MARK: - Private implementation
 
 private struct ContentOffsetReaderViewModifier: ViewModifier {
-    let contentOffsetBinding: Binding<CGPoint>
+    let contentOffset: Binding<CGPoint>
     let coordinateSpace: CoordinateSpace
 
     func body(content: Content) -> some View {
@@ -58,7 +58,7 @@ private struct ContentOffsetReaderViewModifier: ViewModifier {
                 }
             )
             .onPreferenceChange(ContentOffsetReaderPreferenceKey.self) { value in
-                contentOffsetBinding.wrappedValue = CGPoint(
+                contentOffset.wrappedValue = CGPoint(
                     x: -value.x,
                     y: -value.y
                 )
