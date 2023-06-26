@@ -201,7 +201,7 @@ class LegacyMainViewModel: ObservableObject {
         updateExchangeButtons()
 
         runTask { [weak self] in
-            await self?.updatePromotionState(with: nil)
+            await self?.updatePromotionState()
         }
     }
 
@@ -364,7 +364,6 @@ class LegacyMainViewModel: ObservableObject {
         runTask { [weak self] in
             guard let self else { return }
 
-            let promotionError: Error?
             do {
                 try await promotionService.checkIfCanGetAward(userWalletId: cardModel.userWalletId.stringValue)
 
@@ -378,13 +377,10 @@ class LegacyMainViewModel: ObservableObject {
                     try await startPromotionAwardProcess()
                 }
 
-                promotionError = nil
+                await updatePromotionState()
             } catch {
-                promotionError = error
                 handlePromotionError(error)
             }
-
-            await updatePromotionState(with: promotionError)
         }
     }
 
@@ -518,16 +514,12 @@ private extension LegacyMainViewModel {
         runTask { [weak self] in
             guard let self else { return }
 
-            let promotionError: Error?
             do {
                 try await startPromotionAwardProcess()
-                promotionError = nil
+                await updatePromotionState()
             } catch {
-                promotionError = error
                 handlePromotionError(error)
             }
-
-            await updatePromotionState(with: promotionError)
         }
     }
 
@@ -542,6 +534,25 @@ private extension LegacyMainViewModel {
             alert = error.alertBinder
         }
         showAlert(alert)
+
+        let fatalPromotionErrorCodes: [TangemAPIError.ErrorCode] = [
+            .promotionCodeAlreadyUsed,
+            .promotionWalletAlreadyAwarded,
+            .promotionCardAlreadyAwarded,
+            .promotionProgramNotFound,
+            .promotionProgramEnded,
+            .promotionCodeNotFound,
+        ]
+
+        let promotionAvailable: Bool
+        if let apiError = error as? TangemAPIError,
+           fatalPromotionErrorCodes.contains(apiError.code) {
+            promotionAvailable = false
+        } else {
+            promotionAvailable = promotionService.promotionAvailable
+        }
+
+        didFinishCheckingPromotion(promotionAvailable: promotionAvailable)
     }
 
     private func startPromotionAwardProcess() async throws {
@@ -555,27 +566,10 @@ private extension LegacyMainViewModel {
         }
     }
 
-    private func updatePromotionState(with promotionError: Error?) async {
+    private func updatePromotionState() async {
         await promotionService.checkPromotion(timeout: nil)
 
-        let fatalPromotionErrors: [TangemAPIError.ErrorCode] = [
-            .promotionCodeAlreadyUsed,
-            .promotionWalletAlreadyAwarded,
-            .promotionCardAlreadyAwarded,
-            .promotionProgramNotFound,
-            .promotionProgramEnded,
-            .promotionCodeNotFound,
-        ]
-
-        let promotionAvailable: Bool
-        if let apiError = promotionError as? TangemAPIError,
-           fatalPromotionErrors.contains(apiError.code) {
-            promotionAvailable = false
-        } else {
-            promotionAvailable = promotionService.promotionAvailable
-        }
-
-        didFinishCheckingPromotion(promotionAvailable: promotionAvailable)
+        didFinishCheckingPromotion(promotionAvailable: promotionService.promotionAvailable)
     }
 
     @MainActor
