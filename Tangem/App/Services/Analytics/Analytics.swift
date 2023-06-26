@@ -85,6 +85,17 @@ class Analytics {
         ], uniquingKeysWith: { $1 }))
     }
 
+    static func logDestinationAddress(isAddressValid: Bool, source: DestinationAddressSource) {
+        let validationResult: Analytics.ParameterValue = isAddressValid ? .destinationAddressValidationSuccess : .destinationAddressValidationFail
+        Analytics.log(
+            .addressEntered,
+            params: [
+                .commonSource: source.parameterValue,
+                .destinationAddressValidationResult: validationResult,
+            ]
+        )
+    }
+
     // MARK: - Common
 
     static func log(_ event: Event, params: [ParameterKey: ParameterValue] = [:]) {
@@ -175,7 +186,7 @@ class Analytics {
 
 // MARK: - Private
 
-fileprivate extension Dictionary where Key == Analytics.ParameterKey, Value == String {
+private extension Dictionary where Key == Analytics.ParameterKey, Value == String {
     var firebaseParams: [String: Any] {
         var convertedParams = [String: Any]()
         forEach { convertedParams[$0.key.rawValue] = $0.value }
@@ -183,7 +194,7 @@ fileprivate extension Dictionary where Key == Analytics.ParameterKey, Value == S
     }
 }
 
-fileprivate extension Analytics.Event {
+private extension Analytics.Event {
     var canBeLoggedDirectly: Bool {
         switch self {
         case .introductionProcessButtonScanCard,
