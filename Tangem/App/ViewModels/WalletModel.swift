@@ -64,7 +64,12 @@ class WalletModel: ObservableObject, Identifiable {
     }
 
     var transactions: [TransactionRecord] {
-        TransactionHistoryMapper().convertToTransactionRecords(wallet.transactions, for: wallet.addresses)
+        // [REDACTED_TODO_COMMENT]
+        if FeatureStorage().useFakeTxHistory {
+            return FakeTransactionHistoryFactory().createFakeTxs(currencyCode: wallet.amounts[.coin]?.currencySymbol ?? "")
+        }
+
+        return TransactionHistoryMapper().convertToTransactionRecords(wallet.transactions, for: wallet.addresses)
     }
 
     var isEmptyIncludingPendingIncomingTxs: Bool {
@@ -572,8 +577,14 @@ extension WalletModel {
 }
 
 // MARK: Transaction history
+
 extension WalletModel {
-    func loadTransactionHistory() -> AnyPublisher<Void, Error > {
+    func loadTransactionHistory() -> AnyPublisher<Void, Error> {
+        // [REDACTED_TODO_COMMENT]
+        if FeatureStorage().useFakeTxHistory {
+            return loadFakeTransactionHistory()
+        }
+
         guard
             blockchainNetwork.blockchain.canLoadTransactionHistory,
             let historyLoader = walletManager as? TransactionHistoryLoader
@@ -608,7 +619,60 @@ extension WalletModel {
             .eraseError()
             .eraseToAnyPublisher()
     }
+
+    // MARK: - Fake tx history related
+
+    private func loadFakeTransactionHistory() -> AnyPublisher<Void, Error> {
+        // [REDACTED_TODO_COMMENT]
+        guard FeatureStorage().useFakeTxHistory else {
+            return .anyFail(error: "Can't use fake history")
+        }
+
+        switch transactionHistoryState {
+        case .notLoaded, .notSupported:
+            transactionHistoryState = .loading
+            return Just(())
+                .delay(for: 5, scheduler: DispatchQueue.main)
+                .map {
+                    self.transactionHistoryState = .failedToLoad("Failed to load tx history")
+                    return ()
+                }
+                .eraseError()
+                .eraseToAnyPublisher()
+        case .failedToLoad:
+            transactionHistoryState = .loading
+            return Just(())
+                .delay(for: 5, scheduler: DispatchQueue.main)
+                .map {
+                    self.transactionHistoryState = .loaded
+                    return ()
+                }
+                .eraseError()
+                .eraseToAnyPublisher()
+        case .loaded:
+            transactionHistoryState = .loading
+            return Just(())
+                .delay(for: 5, scheduler: DispatchQueue.main)
+                .map {
+                    self.transactionHistoryState = .notSupported
+                    return ()
+                }
+                .eraseError()
+                .eraseToAnyPublisher()
+        case .loading:
+            return Just(())
+                .delay(for: 5, scheduler: DispatchQueue.main)
+                .map {
+                    self.transactionHistoryState = .loaded
+                    return ()
+                }
+                .eraseError()
+                .eraseToAnyPublisher()
+        }
+    }
 }
+
+// MARK: - States
 
 extension WalletModel {
     enum State: Hashable {
