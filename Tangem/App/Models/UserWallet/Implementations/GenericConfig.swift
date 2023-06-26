@@ -64,7 +64,7 @@ extension GenericConfig: UserWalletConfig {
 
         let entries: [StorageEntry] = blockchains.map {
             if let derivationStyle = card.derivationStyle {
-                let derivationPath = $0.derivationPath(for: derivationStyle)
+                let derivationPath = $0.derivationPaths(for: derivationStyle)[.default]
                 let network = BlockchainNetwork($0, derivationPath: derivationPath)
                 return .init(blockchainNetwork: network, tokens: [])
             }
@@ -87,7 +87,7 @@ extension GenericConfig: UserWalletConfig {
     var warningEvents: [WarningEvent] {
         var warnings = WarningEventsFactory().makeWarningEvents(for: card)
 
-        if hasFeature(.hdWallets), card.derivationStyle == .legacy {
+        if hasFeature(.hdWallets), card.derivationStyle == .v1 {
             warnings.append(.legacyDerivation)
         }
 
