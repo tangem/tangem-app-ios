@@ -22,18 +22,16 @@ struct OrganizeTokensView: View {
     @State private var isTokenListFooterGradientHidden = true
 
     init(viewModel: OrganizeTokensViewModel) {
+        Self.setupAppearanceIfNeeded()  // [REDACTED_TODO_COMMENT]
         self.viewModel = viewModel
     }
 
     var body: some View {
         NavigationView {
             ZStack {
-                Group {
-                    tokenList
+                tokenList
 
-                    tokenListHeader
-                }
-                .padding(.horizontal, Constants.contentHorizontalInset)
+                tokenListHeader
 
                 tokenListFooter
             }
@@ -44,6 +42,7 @@ struct OrganizeTokensView: View {
             )
             .navigationTitle(Localization.organizeTokensTitle)
             .navigationBarTitleDisplayMode(.inline)
+            .toolbarBackgroundCompat(.hidden, for: .navigationBar)
         }
     }
 
@@ -90,6 +89,7 @@ struct OrganizeTokensView: View {
                     )
                 }
             }
+            .padding(.horizontal, Constants.contentHorizontalInset)
             .readGeometry(to: $tokenListContentFrameMaxY, transform: \.frame.maxY)
 
             Spacer(minLength: scrollViewBottomContentInset)
@@ -104,9 +104,18 @@ struct OrganizeTokensView: View {
     private var tokenListHeader: some View {
         OrganizeTokensHeaderView(viewModel: viewModel.headerViewModel)
             .readGeometry(transform: \.size.height) { height in
-                scrollViewTopContentInset = height + Constants.overlayViewAdditionalVerticalInset + 8.0
+                scrollViewTopContentInset = height
+                + Constants.overlayViewAdditionalVerticalInset
+                + Constants.tokenListHeaderViewTopVerticalInset
             }
-            .padding(.top, 8.0)
+            .padding(.top, Constants.tokenListHeaderViewTopVerticalInset)
+            .padding(.bottom, Constants.overlayViewAdditionalVerticalInset)
+            .padding(.horizontal, Constants.contentHorizontalInset)
+            .background(
+                VisualEffectView(style: .systemUltraThinMaterial)   // [REDACTED_TODO_COMMENT]
+                    .edgesIgnoringSafeArea(.top)
+                    .infinityFrame(alignment: .bottom)
+            )
             .infinityFrame(alignment: .top)
     }
 
@@ -150,6 +159,22 @@ struct OrganizeTokensView: View {
         }
         .infinityFrame(alignment: .bottom)
     }
+
+    private static func setupAppearanceIfNeeded() {
+        // [REDACTED_TODO_COMMENT]
+        if #unavailable(iOS 16.0) {
+            let navBarAppearance = UINavigationBarAppearance()
+            navBarAppearance.configureWithTransparentBackground()
+
+            let appearance = UINavigationBar.appearance()
+            appearance.compactAppearance = navBarAppearance
+            appearance.standardAppearance = navBarAppearance
+            appearance.scrollEdgeAppearance = navBarAppearance
+            if #available(iOS 15.0, *) {
+                appearance.compactScrollEdgeAppearance = navBarAppearance
+            }
+        }
+    }
 }
 
 // MARK: - Constants
@@ -158,6 +183,7 @@ private extension OrganizeTokensView {
     enum Constants {
         static let cornerRadius = 14.0
         static let overlayViewAdditionalVerticalInset = 10.0
+        static let tokenListHeaderViewTopVerticalInset = 8.0
         static let contentHorizontalInset = 16.0
     }
 }
