@@ -108,7 +108,7 @@ struct BackupStoryPage_Previews: PreviewProvider {
 
 // MARK: - Rich text formatter
 
-struct TangemRichTextFormatter {
+private struct TangemRichTextFormatter {
     // Formatting rich text as NSAttributedString
     // Supported formats: **bold**
     func format(_ string: String, fontSize: CGFloat) -> NSAttributedString {
