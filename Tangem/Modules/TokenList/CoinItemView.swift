@@ -63,7 +63,7 @@ struct CoinItemView: View {
         .contentShape(Rectangle())
         .onTapGesture {} // fix scroll/longpress conflict
         .onLongPressGesture(perform: model.onCopy)
-        .readGeometry(transform: \.size, bindTo: $size)
+        .readGeometry(\.size, bindTo: $size)
     }
 }
 
