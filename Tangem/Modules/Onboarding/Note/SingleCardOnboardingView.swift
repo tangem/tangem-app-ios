@@ -55,7 +55,7 @@ struct SingleCardOnboardingView: View {
 
             disclaimerContent
                 .layoutPriority(1)
-                .readGeometry(transform: \.size) { size in
+                .readGeometry(\.size) { size in
                     viewModel.setupContainer(with: size)
                 }
 
@@ -140,7 +140,7 @@ struct SingleCardOnboardingView: View {
                     }
                     .position(x: size.width / 2, y: size.height / 2)
                 }
-                .readGeometry(transform: \.size) { size in
+                .readGeometry(\.size) { size in
                     if !viewModel.isCustomContentVisible {
                         viewModel.setupContainer(with: size)
                     }
@@ -150,7 +150,7 @@ struct SingleCardOnboardingView: View {
                 if viewModel.isCustomContentVisible {
                     customContent
                         .layoutPriority(1)
-                        .readGeometry(transform: \.size) { size in
+                        .readGeometry(\.size) { size in
                             viewModel.setupContainer(with: size)
                         }
                 }
