@@ -15,6 +15,15 @@ enum SendAdditionalFields {
     case destinationTag
     case none
 
+    var isEmpty: Bool {
+        switch self {
+        case .memo, .destinationTag:
+            return false
+        case .none:
+            return true
+        }
+    }
+
     static func fields(for blockchain: Blockchain) -> SendAdditionalFields {
         switch blockchain {
         case .stellar, .binance, .ton, .cosmos, .terraV1, .terraV2:
