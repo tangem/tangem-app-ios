@@ -51,6 +51,15 @@ final class EnvironmentSetupViewModel: ObservableObject {
                     set: { $0.useDevApi = $1 }
                 )
             ),
+            DefaultToggleRowViewModel(
+                title: "Use fake tx history",
+                isOn: Binding<Bool>(
+                    root: featureStorage,
+                    default: false,
+                    get: { $0.useFakeTxHistory },
+                    set: { $0.useFakeTxHistory = $1 }
+                )
+            ),
         ]
 
         featureStateViewModels = Feature.allCases.reversed().map { feature in
