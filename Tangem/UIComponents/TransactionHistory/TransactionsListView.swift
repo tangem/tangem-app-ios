@@ -33,7 +33,7 @@ struct TransactionsListView: View {
     private var header: some View {
         HStack {
             Text(Localization.transactionHistoryTitle)
-                .style(Fonts.Bold.footnote,color: Colors.Text.tertiary)
+                .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
 
             Spacer()
 
@@ -126,8 +126,7 @@ struct TransactionsListView: View {
                 .lineSpacing(3.5)
                 .padding(.horizontal, 36)
 
-            buttonWithLoader(title: Localization.commonReload, action: reloadButtonAction, isLoading: true)
-            buttonWithLoader(title: Localization.commonReload, action: reloadButtonAction, isLoading: false)
+            buttonWithLoader(title: Localization.commonReload, action: reloadButtonAction, isLoading: isReloadButtonBusy)
         }
         .padding(.vertical, 28)
     }
@@ -244,7 +243,7 @@ struct TransactionsListView_Previews: PreviewProvider {
                     transferAmount: "+15 wxDAI",
                     transactionType: .receive,
                     status: .confirmed
-                )
+                ),
             ]
         ),
         TransactionListItem(
@@ -294,7 +293,7 @@ struct TransactionsListView_Previews: PreviewProvider {
                     transferAmount: "-0.0012 ETH",
                     transactionType: .approval,
                     status: .confirmed
-                )
+                ),
             ]
         ),
     ]
