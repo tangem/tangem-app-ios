@@ -19,8 +19,13 @@ struct PromotionView: View {
         NavigationView {
             WebView(url: viewModel.url, headers: viewModel.headers, urlActions: viewModel.urlActions)
                 .ignoresSafeArea()
-                .navigationBarItems(leading: Button(Localization.commonClose, action: viewModel.close))
+                .navigationBarItems(leading: closeButton)
         }
+    }
+
+    private var closeButton: some View {
+        Button(Localization.commonClose, action: viewModel.close)
+            .foregroundColor(Colors.Button.primary)
     }
 }
 
