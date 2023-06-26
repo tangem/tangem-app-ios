@@ -31,7 +31,8 @@ class LegacyMainViewModel: ObservableObject {
     @Published var image: UIImage? = nil
     @Published var isLackDerivationWarningViewVisible: Bool = false
     @Published var isBackupAllowed: Bool = false
-    @Published var canOpenPromotion: Bool = false
+    @Published var promotionAvailable: Bool = false
+    @Published var promotionRequestInProgress: Bool = false
 
     @Published var exchangeButtonState: ExchangeButtonState = .single(option: .buy)
     @Published var exchangeActionSheet: ActionSheetBinder?
@@ -171,8 +172,7 @@ class LegacyMainViewModel: ObservableObject {
 
     var learnAndEarnTitle: String {
         if let _ = promotionService.promoCode {
-            #warning("L10n")
-            return "Learn & Earn"
+            return Localization.mainGetBonusTitle
         } else {
             return Localization.mainLearnTitle
         }
@@ -180,10 +180,9 @@ class LegacyMainViewModel: ObservableObject {
 
     var learnAndEarnSubtitle: String {
         if let _ = promotionService.promoCode {
-            #warning("L10n")
-            return "Complete the training and get 10 1inch tokens on your wallet"
+            return Localization.mainGetBonusSubtitle
         } else {
-            return Localization.mainLearnSubtitle
+            return Localization.mainLearnSubtitle(promotionService.awardAmount ?? 0)
         }
     }
 
@@ -196,12 +195,14 @@ class LegacyMainViewModel: ObservableObject {
         self.cardImageProvider = cardImageProvider
         self.coordinator = coordinator
 
-        canOpenPromotion = promotionService.promotionAvailable()
-
         bind()
         setupWarnings()
         updateContent()
         updateExchangeButtons()
+
+        runTask { [weak self] in
+            await self?.updatePromotionState()
+        }
     }
 
     deinit {
@@ -228,7 +229,7 @@ class LegacyMainViewModel: ObservableObject {
 
         promotionService.readyForAwardPublisher
             .sink { [weak self] in
-                self?.startAwardProcess()
+                self?.didBecomeReadyForAward()
             }
             .store(in: &bag)
     }
@@ -354,6 +355,12 @@ class LegacyMainViewModel: ObservableObject {
     }
 
     func learnAndEarn() {
+        if promotionRequestInProgress {
+            return
+        }
+
+        promotionRequestInProgress = true
+
         runTask { [weak self] in
             guard let self else { return }
 
@@ -367,43 +374,13 @@ class LegacyMainViewModel: ObservableObject {
                         walletId: cardModel.userWalletId.stringValue
                     )
                 } else {
-                    startAwardProcess()
+                    try await startPromotionAwardProcess()
                 }
             } catch {
-                AppLog.shared.error(error)
-                if let apiError = error as? TangemAPIError,
-                   case .promotionCodeNotFound = apiError.code {
-                    #warning("L10n")
-                    self.error = AlertBinder(title: Localization.commonError, message: "There was no purchase of a wallet for your promotional code after education, which means you cannot receive a bonus. Buy Tangem wallet, scan it in the app, and take a bonus.")
-                } else {
-                    self.error = error.alertBinder
-                }
+                handlePromotionError(error)
             }
 
-            canOpenPromotion = promotionService.promotionAvailable()
-        }
-    }
-
-    func startAwardProcess() {
-        runTask { [weak self] in
-            guard let self else { return }
-
-            do {
-                let awarded = try await promotionService.claimReward(
-                    userWalletId: cardModel.userWalletId.stringValue,
-                    storageEntryAdding: cardModel
-                )
-
-                if awarded {
-                    #warning("l10n")
-                    error = AlertBuilder.makeSuccessAlert(message: "Your 1inch tokens will be credited to your wallet address within 2 days.")
-                }
-            } catch {
-                AppLog.shared.error(error)
-                self.error = error.alertBinder
-            }
-
-            canOpenPromotion = promotionService.promotionAvailable()
+            await updatePromotionState()
         }
     }
 
@@ -529,6 +506,62 @@ private extension LegacyMainViewModel {
                     self?.image = uiImage
                 }
             })
+    }
+
+    private func didBecomeReadyForAward() {
+        promotionRequestInProgress = true
+
+        runTask { [weak self] in
+            guard let self else { return }
+
+            do {
+                try await startPromotionAwardProcess()
+            } catch {
+                handlePromotionError(error)
+            }
+
+            await updatePromotionState()
+        }
+    }
+
+    private func handlePromotionError(_ error: Error) {
+        AppLog.shared.error(error)
+
+        let alert: AlertBinder
+        if let apiError = error as? TangemAPIError,
+           case .promotionCodeNotApplied = apiError.code {
+            alert = AlertBinder(title: Localization.commonError, message: Localization.mainPromotionNoPurchase)
+        } else {
+            alert = error.alertBinder
+        }
+        showAlert(alert)
+    }
+
+    private func startPromotionAwardProcess() async throws {
+        let awarded = try await promotionService.claimReward(
+            userWalletId: cardModel.userWalletId.stringValue,
+            storageEntryAdding: cardModel
+        )
+
+        if awarded {
+            showAlert(AlertBuilder.makeSuccessAlert(message: Localization.mainPromotionCredited))
+        }
+    }
+
+    private func updatePromotionState() async {
+        await promotionService.checkPromotion(timeout: nil)
+        didFinishCheckingPromotion()
+    }
+
+    @MainActor
+    private func didFinishCheckingPromotion() {
+        promotionAvailable = promotionService.promotionAvailable
+        promotionRequestInProgress = false
+    }
+
+    @MainActor
+    private func showAlert(_ alert: AlertBinder) {
+        error = alert
     }
 }
 

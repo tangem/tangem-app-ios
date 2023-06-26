@@ -444,7 +444,7 @@ class CardViewModel: Identifiable, ObservableObject {
         }
 
         if let derivationStyle = cardInfo.card.derivationStyle {
-            let derivationPath = blockchain.derivationPath(for: derivationStyle)
+            let derivationPath = blockchain.derivationPaths(for: derivationStyle)[.default]
             return BlockchainNetwork(blockchain, derivationPath: derivationPath)
         }
 
