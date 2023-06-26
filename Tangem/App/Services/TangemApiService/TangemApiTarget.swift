@@ -35,6 +35,8 @@ struct TangemApiTarget: TargetType {
             return "/referral"
         case .shops:
             return "/shops"
+        case .promotion:
+            return "/promotion"
         case .validateNewUserPromotionEligibility:
             return "/promotion/code/validate"
         case .validateOldUserPromotionEligibility:
@@ -48,7 +50,7 @@ struct TangemApiTarget: TargetType {
 
     var method: Moya.Method {
         switch type {
-        case .rates, .currencies, .coins, .geo, .getUserWalletTokens, .loadReferralProgramInfo, .shops:
+        case .rates, .currencies, .coins, .geo, .getUserWalletTokens, .loadReferralProgramInfo, .shops, .promotion:
             return .get
         case .saveUserWalletTokens:
             return .put
@@ -84,6 +86,8 @@ struct TangemApiTarget: TargetType {
                 ],
                 encoding: URLEncoding.default
             )
+        case .promotion(let programName, _):
+            return .requestParameters(parameters: ["programName": programName], encoding: URLEncoding.default)
         case .validateNewUserPromotionEligibility(let walletId, let code):
             return .requestParameters(parameters: [
                 "walletId": walletId,
@@ -127,6 +131,7 @@ extension TangemApiTarget {
         case shops(name: String)
 
         // Promotion
+        case promotion(programName: String, timeout: TimeInterval?)
         case validateNewUserPromotionEligibility(walletId: String, code: String)
         case validateOldUserPromotionEligibility(walletId: String, programName: String)
         case awardNewUser(walletId: String, address: String, code: String)
@@ -153,6 +158,17 @@ extension TangemApiTarget: CachePolicyProvider {
             return .reloadIgnoringLocalAndRemoteCacheData
         default:
             return .useProtocolCachePolicy
+        }
+    }
+}
+
+extension TangemApiTarget: TimeoutIntervalProvider {
+    var timeoutInterval: TimeInterval? {
+        switch type {
+        case .promotion(_, let timeout):
+            return timeout
+        default:
+            return nil
         }
     }
 }
