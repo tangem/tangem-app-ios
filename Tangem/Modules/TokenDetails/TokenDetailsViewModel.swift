@@ -116,10 +116,17 @@ final class TokenDetailsViewModel: ObservableObject {
                     done()
                 }
             } receiveValue: { _ in }
+
+        reloadHistory()
     }
 
     func openExplorer() {
+        #warning("This will be changed after, for now there is no solution for tx history with multiple addresses")
+        guard let url = walletModel.exploreURL(for: 0, token: amountType.token) else {
+            return
+        }
 
+        openExplorer(at: url)
     }
 
     func reloadHistory() {
@@ -234,6 +241,7 @@ private extension TokenDetailsViewModel {
                 AppLog.shared.debug("New transaction history state: \(newState)")
                 self?.updateHistoryState(to: newState)
             }
+            .store(in: &bag)
     }
 
     private func updateBalance(walletModelState: WalletModel.State) {
@@ -419,6 +427,11 @@ private extension TokenDetailsViewModel {
             blockchainNetwork: blockchainNetwork,
             cardViewModel: cardModel
         )
+    }
+
+    func openExplorer(at url: URL) {
+        Analytics.log(.buttonExplore)
+        coordinator.openExplorer(at: url, blockchainDisplayName: blockchainNetwork.blockchain.displayName)
     }
 
     func dismiss() {
