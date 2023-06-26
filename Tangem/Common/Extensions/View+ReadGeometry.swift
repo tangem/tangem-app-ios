@@ -55,10 +55,10 @@ extension View {
     func readGeometry<T>(
         _ keyPath: KeyPath<GeometryInfo, T> = \.self,
         inCoordinateSpace coordinateSpace: CoordinateSpace = .global,
-        bindTo valueBinding: Binding<T>
+        bindTo value: Binding<T>
     ) -> some View {
-        readGeometry(keyPath, inCoordinateSpace: coordinateSpace) { value in
-            valueBinding.wrappedValue = value
+        readGeometry(keyPath, inCoordinateSpace: coordinateSpace) { newValue in
+            value.wrappedValue = newValue
         }
     }
 }
