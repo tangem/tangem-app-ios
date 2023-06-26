@@ -63,7 +63,8 @@ class ReferralViewModel: ObservableObject {
 
         let token = award.token
 
-        guard let address = cardModel.wallets.first(where: { $0.blockchain == blockchain })?.address else {
+        let network = cardModel.getBlockchainNetwork(for: blockchain, derivationPath: nil)
+        guard let address = cardModel.walletModels.first(where: { $0.blockchainNetwork == network })?.wallet.address else {
             requestDerivation(for: blockchain, with: token)
             return
         }
@@ -124,17 +125,17 @@ class ReferralViewModel: ObservableObject {
         cardModel.add(entries: [storageEntry]) { [weak self] result in
             guard let self else { return }
 
-            self.isProcessingRequest = false
+            isProcessingRequest = false
             switch result {
             case .success:
-                runTask(self.participateInReferralProgram)
+                runTask(participateInReferralProgram)
             case .failure(let error):
                 if case .userCancelled = error.toTangemSdkError() {
                     return
                 }
 
                 AppLog.shared.error(error)
-                self.errorAlert = error.alertBinder
+                errorAlert = error.alertBinder
             }
         }
     }
