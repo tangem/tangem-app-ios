@@ -73,6 +73,7 @@
 "common_explorer_format" = "%@ explorer";
 "common_import" = "Import";
 "common_like" = "Like";
+"common_main_network" = "Main network";
 "common_no" = "No";
 "common_no_data" = "No data";
 "common_ok" = "OK";
@@ -167,13 +168,16 @@
 "key_invalidated_warning_description" = "You have updated biometrics, scan your card to enter";
 "mail_error_no_accounts_body" = "Please, set up an account to send email";
 "mail_error_no_accounts_title" = "No Mail accounts";
-"main_learn_subtitle" = "You have completed the training and can get your 1inch tokens";
-"main_learn_title" = "Get a bonus";
+"main_get_bonus_subtitle" = "You have completed the training and can get your 1inch tokens";
+"main_get_bonus_title" = "Get a bonus";
+"main_learn_title" = "Learn & Earn";
 "main_manage_tokens" = "Manage tokens";
 "main_no_backup_warning_subtitle" = "To protect your assets, we advise you to carry out this procedure";
 "main_no_backup_warning_title" = "Your wallet has not been backed up";
 "main_page_balance" = "Total balance";
 "main_processing_full_amount" = "Le montant n'inclut pas certains de vos fonds";
+"main_promotion_credited" = "1inch tokens will be credited to your wallet address within 2 days";
+"main_promotion_no_purchase" = "There was no purchase of a wallet using your promo code, which means you cannot receive a bonus. Buy Tangem wallet, scan it in the app, and get the bonus.";
 "main_scan_card_warning_view_subtitle" = "To access all the networks you need to scan the card";
 "main_scan_card_warning_view_title" = "Scan your card";
 "main_tokens" = "Tokens";
@@ -268,6 +272,9 @@
 "push_additional_fee" = "Additional fee";
 "push_previous_fee" = "Previous fee";
 "push_tx_address_hint" = "Previous transaction total including fee";
+"receive_bottom_sheet_title" = "%1$@ %2$@ address on %3$@ network";
+"receive_bottom_sheet_warning_message" = "%1$@ (%2$@) on %3$@ network";
+"receive_bottom_sheet_warning_message_full" = "Send only %@ to this address. Sending any other currency will result in its irreversible loss.";
 "referral_button_participate" = "Participate";
 "referral_error_failed_to_load_info" = "Failed to load the information about the referral program. Please try again later.";
 "referral_error_failed_to_load_info_with_reason" = "Failed to load the information about the referral program. Error code: %@. Please try again later.";
@@ -398,6 +405,7 @@
 "token_details_hide_token" = "Hide token";
 "token_details_send_blocked_fee_format" = "%1$@ is a token in the %2$@ network. To make a %3$@ transaction you need to deposit some %4$@ (%5$@) to cover the network fee.";
 "token_details_send_blocked_tx_format" = "Please wait for %@ transaction to complete to be able to send funds";
+"token_details_token_type_subtitle" = "%1$@ token in %%image%% %2$@ network";
 "token_details_transaction_length_warning" = "iPhone 7/7+ cannot sign a transaction on this network due to system restrictions. Please use a different phone to complete this operation";
 "token_details_unable_hide_alert_message" = "The %1$@ token is the main currency on the %2$@ network and cannot be hidden as long as you have other tokens on this network in the list.";
 "token_details_unable_hide_alert_title" = "Unable to hide %@";
@@ -487,6 +495,7 @@
 "wallet_currency_subtitle" = "%@ network";
 "wallet_error_no_account" = "Compte n'est pas créé";
 "wallet_network_group_title" = "%s network";
+"wallet_notification_address_copied" = "L'adresse a été copiée avec succès";
 "wallet_pending_tx_receiving" = "Réception";
 "wallet_pending_tx_receiving_address_format" = "de %@";
 "wallet_pending_tx_sending" = "Envoi";
