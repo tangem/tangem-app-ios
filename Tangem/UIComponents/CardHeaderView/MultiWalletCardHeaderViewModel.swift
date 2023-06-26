@@ -63,6 +63,11 @@ final class MultiWalletCardHeaderViewModel: ObservableObject {
                     let balanceFormatter = BalanceFormatter()
                     let fiatBalanceFormatted = balanceFormatter.formatFiatBalance(balance.balance, formattingOptions: .defaultFiatFormattingOptions)
                     self?.balance = balanceFormatter.formatTotalBalanceForMain(fiatBalance: fiatBalanceFormatted, formattingOptions: .defaultOptions)
+                case .failedToLoad(let error):
+                    AppLog.shared.debug("Failed to load total balance. Reason: \(error)")
+                    self?.isLoadingBalance = false
+
+                    self?.balance = NSAttributedString(string: BalanceFormatter.defaultEmptyBalanceString)
                 }
             }
             .store(in: &bag)
