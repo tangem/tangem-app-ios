@@ -132,15 +132,17 @@ struct CustomTextField: UIViewRepresentable {
     var keyboard: UIKeyboardType = .default
     var clearButtonMode: UITextField.ViewMode = .never
     var textColor: UIColor = .tangemGrayDark4
-    var font: UIFont = UIFont.systemFont(ofSize: 16.0)
+    var font: UIFont = .systemFont(ofSize: 16.0)
     let placeholder: String
     let toolbarItems: [UIBarButtonItem]? = nil
     var decimalCount: Int?
     var isEnabled = true
     var maxCount: Int?
+    var onPaste: () -> Void = {}
 
     func makeUIView(context: UIViewRepresentableContext<CustomTextField>) -> UITextField {
-        let textField = UITextField(frame: .zero)
+        let textField = CustomUITextField(frame: .zero)
+        textField.onPaste = onPaste
         textField.isSecureTextEntry = isSecured
         textField.clearsOnBeginEditing = clearsOnBeginEditing
         textField.autocapitalizationType = .none
@@ -216,5 +218,14 @@ struct CustomTextField: UIViewRepresentable {
                 uiView.becomeFirstResponder()
             }
         }
+    }
+}
+
+private class CustomUITextField: UITextField {
+    var onPaste: () -> Void = {}
+
+    override func paste(_ sender: Any?) {
+        onPaste()
+        super.paste(sender)
     }
 }

@@ -14,6 +14,7 @@ protocol UserWalletRepository: Initializable {
     var selectedModel: CardViewModel? { get }
     var selectedUserWalletId: Data? { get }
     var isEmpty: Bool { get }
+    var count: Int { get }
     var isLocked: Bool { get }
     var eventProvider: AnyPublisher<UserWalletRepositoryEvent, Never> { get }
 
