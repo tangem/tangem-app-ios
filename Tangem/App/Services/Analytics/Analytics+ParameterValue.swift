@@ -15,6 +15,7 @@ extension Analytics {
         case on = "On"
         case off = "Off"
         case full = "Full"
+        case null = "Null"
         case empty = "Empty"
         case customToken = "Custom Token"
         case blockchainError = "Blockchain Error"
@@ -52,6 +53,18 @@ extension Analytics {
 
         case oneTransactionApprove = "Transaction"
         case unlimitedApprove = "Unlimited"
+
+        // destination address entered
+        case destinationAddressSourceQrCode = "QRCode"
+        case destinationAddressPasteButton = "PasteButton"
+        case destinationAddressPastePopup = "PastePopup"
+
+        case destinationAddressValidationSuccess = "Success"
+        case destinationAddressValidationFail = "Fail"
+
+        // SelectedCurrency
+        case selectedCurrencyToken = "Token"
+        case selectedCurrencyApp = "App Currency"
 
         // MARK: - Actions
 
