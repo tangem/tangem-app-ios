@@ -81,16 +81,11 @@ enum TokenItem: Hashable {
         }
     }
 
-    var symbol: String {
-        switch self {
-        case .token(let token, _):
-            return token.symbol
-        case .blockchain(let blockchain):
-            return blockchain.currencySymbol
-        }
-    }
-
     var contractAddress: String? {
         token?.contractAddress
+    }
+
+    var networkName: String {
+        blockchain.displayName
     }
 }
