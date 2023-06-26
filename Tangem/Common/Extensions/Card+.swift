@@ -39,9 +39,9 @@ extension CardDTO {
         let batchId = batchId.uppercased()
 
         if BatchId.isDetached(batchId) {
-            return .legacy
+            return .v1
         }
 
-        return .new
+        return .v2
     }
 }
