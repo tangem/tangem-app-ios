@@ -18,6 +18,7 @@ enum Feature: String, Hashable, CaseIterable {
     case abilityChooseApproveAmount
     case learnToEarn
     case tokenDetailsV2
+    case enableBlockchainSdkEvents
 
     var name: String {
         switch self {
@@ -30,6 +31,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .abilityChooseApproveAmount: return "Ability Choose Approve Amount"
         case .learnToEarn: return "Learn to Earn"
         case .tokenDetailsV2: return "Token details 2.0"
+        case .enableBlockchainSdkEvents: return "Enable send BlockchainSdk events"
         }
     }
 
@@ -44,6 +46,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .abilityChooseApproveAmount: return .version("4.6")
         case .learnToEarn: return .unspecified
         case .tokenDetailsV2: return .unspecified
+        case .enableBlockchainSdkEvents: return .unspecified
         }
     }
 }
