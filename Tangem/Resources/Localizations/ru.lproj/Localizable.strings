@@ -76,7 +76,7 @@
 "common_main_network" = "Основная сеть";
 "common_no" = "Нет";
 "common_no_data" = "Нет данных";
-"common_ok" = "Ок";
+"common_ok" = "OK";
 "common_origin_card" = "Основная карта";
 "common_push" = "Ускорить";
 "common_receive" = "Получить";
@@ -170,7 +170,6 @@
 "mail_error_no_accounts_title" = "Нет настроенных почтовых аккаунтов";
 "main_get_bonus_subtitle" = "Вы завершили обучение и можете получить свои токены 1inch";
 "main_get_bonus_title" = "Получите бонус";
-"main_learn_subtitle" = "Пройдите обучение и получите %@ токенов 1inch на свой кошелек";
 "main_learn_title" = "Бонус за обучение";
 "main_manage_tokens" = "Управление токенами";
 "main_no_backup_warning_subtitle" = "Чтобы защитить свои активы, мы советуем вам выполнить эту процедуру";
