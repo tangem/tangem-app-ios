@@ -11,6 +11,7 @@ import Combine
 import Firebase
 import AppsFlyerLib
 import Amplitude
+import BlockchainSdk
 
 class ServicesManager {
     @Injected(\.exchangeService) private var exchangeService: ExchangeService
@@ -27,6 +28,8 @@ class ServicesManager {
             configureAppsFlyer()
             configureAmplitude()
         }
+
+        configureBlockchainSdkExceptionHandler()
 
         let currentLaunches = AppSettings.shared.numberOfLaunches + 1
         AppSettings.shared.numberOfLaunches = currentLaunches
@@ -66,6 +69,12 @@ class ServicesManager {
     private func configureAmplitude() {
         Amplitude.instance().trackingSessionEvents = true
         Amplitude.instance().initializeApiKey(try! CommonKeysManager().amplitudeApiKey)
+    }
+
+    private func configureBlockchainSdkExceptionHandler() {
+        if FeatureProvider.isAvailable(.enableBlockchainSdkEvents) {
+            ExceptionHandler.shared.append(output: Analytics.BlockchainExceptionHandler())
+        }
     }
 }
 
