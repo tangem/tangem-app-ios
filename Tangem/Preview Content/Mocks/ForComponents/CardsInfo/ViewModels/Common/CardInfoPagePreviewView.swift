@@ -54,7 +54,7 @@ struct CardInfoPagePreviewView: View {
             }
             .readContentOffset(
                 inCoordinateSpace: .named(coordinateSpaceName),
-                bindTo: scrollViewConnector.contentOffsetBinding
+                bindTo: scrollViewConnector.contentOffset
             )
         }
         .coordinateSpace(name: coordinateSpaceName)
