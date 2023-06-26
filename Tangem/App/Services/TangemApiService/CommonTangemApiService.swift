@@ -14,6 +14,7 @@ import BlockchainSdk
 class CommonTangemApiService {
     private let provider = TangemProvider<TangemApiTarget>(plugins: [
         CachePolicyPlugin(),
+        TimeoutIntervalPlugin(),
         NetworkLoggerPlugin(configuration: .init(
             output: NetworkLoggerPlugin.tangemSdkLoggerOutput,
             logOptions: .verbose
@@ -141,7 +142,7 @@ extension CommonTangemApiService: TangemApiService {
     }
 
     func participateInReferralProgram(
-        using token: ReferralProgramInfo.Token,
+        using token: AwardToken,
         for address: String,
         with userWalletId: String
     ) async throws -> ReferralProgramInfo {
@@ -162,6 +163,10 @@ extension CommonTangemApiService: TangemApiService {
 
     func shops(name: String) async throws -> ShopDetails {
         try await request(for: .shops(name: name))
+    }
+
+    func promotion(programName: String, timeout: TimeInterval?) async throws -> PromotionParameters {
+        try await request(for: .promotion(programName: programName, timeout: timeout))
     }
 
     @discardableResult
