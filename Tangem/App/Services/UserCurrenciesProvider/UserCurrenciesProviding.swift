@@ -10,5 +10,5 @@ import Foundation
 import TangemSwapping
 
 public protocol UserCurrenciesProviding {
-    func getCurrencies(blockchain: SwappingBlockchain) -> [Currency]
+    func getCurrencies(blockchain: SwappingBlockchain) async -> [Currency]
 }
