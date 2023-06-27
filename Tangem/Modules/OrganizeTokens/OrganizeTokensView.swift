@@ -99,7 +99,7 @@ struct OrganizeTokensView: View {
         }
         .coordinateSpace(name: scrollViewCoordinateSpaceName)
         .onChange(of: tokenListContentFrameMaxY) { newValue in
-            withAnimation {
+            withAnimation(.easeOut(duration: 0.1)) {
                 isTokenListFooterGradientHidden = newValue < tokenListFooterFrameMinY
             }
         }
