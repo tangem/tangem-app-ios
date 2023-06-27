@@ -22,28 +22,24 @@ struct OrganizeTokensView: View {
     @State private var isTokenListFooterGradientHidden = true
 
     init(viewModel: OrganizeTokensViewModel) {
-        Self.setupAppearanceIfNeeded()  // [REDACTED_TODO_COMMENT]
         self.viewModel = viewModel
     }
 
     var body: some View {
-        NavigationView {
-            ZStack {
+        ZStack {
+            Group {
                 tokenList
 
                 tokenListHeader
 
                 tokenListFooter
             }
-            .background(
-                Colors.Background
-                    .secondary
-                    .ignoresSafeArea(edges: [.vertical])
-            )
-            .navigationTitle(Localization.organizeTokensTitle)
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbarBackgroundCompat(.hidden, for: .navigationBar)
         }
+        .background(
+            Colors.Background
+                .secondary
+                .ignoresSafeArea(edges: [.vertical])
+        )
     }
 
     private var tokenList: some View {
@@ -105,17 +101,13 @@ struct OrganizeTokensView: View {
         OrganizeTokensHeaderView(viewModel: viewModel.headerViewModel)
             .readGeometry(transform: \.size.height) { height in
                 scrollViewTopContentInset = height
-                + Constants.overlayViewAdditionalVerticalInset
-                + Constants.tokenListHeaderViewTopVerticalInset
+                    + Constants.overlayViewAdditionalVerticalInset
+                    + Constants.tokenListHeaderViewTopVerticalInset
             }
             .padding(.top, Constants.tokenListHeaderViewTopVerticalInset)
             .padding(.bottom, Constants.overlayViewAdditionalVerticalInset)
             .padding(.horizontal, Constants.contentHorizontalInset)
-            .background(
-                VisualEffectView(style: .systemUltraThinMaterial)   // [REDACTED_TODO_COMMENT]
-                    .edgesIgnoringSafeArea(.top)
-                    .infinityFrame(alignment: .bottom)
-            )
+            .background(navigationBarBackground)
             .infinityFrame(alignment: .top)
     }
 
@@ -160,20 +152,10 @@ struct OrganizeTokensView: View {
         .infinityFrame(alignment: .bottom)
     }
 
-    private static func setupAppearanceIfNeeded() {
-        // [REDACTED_TODO_COMMENT]
-        if #unavailable(iOS 16.0) {
-            let navBarAppearance = UINavigationBarAppearance()
-            navBarAppearance.configureWithTransparentBackground()
-
-            let appearance = UINavigationBar.appearance()
-            appearance.compactAppearance = navBarAppearance
-            appearance.standardAppearance = navBarAppearance
-            appearance.scrollEdgeAppearance = navBarAppearance
-            if #available(iOS 15.0, *) {
-                appearance.compactScrollEdgeAppearance = navBarAppearance
-            }
-        }
+    private var navigationBarBackground: some View {
+        VisualEffectView(style: .systemUltraThinMaterial) // [REDACTED_TODO_COMMENT]
+            .edgesIgnoringSafeArea(.top)
+            .infinityFrame(alignment: .bottom)
     }
 }
 
@@ -211,7 +193,6 @@ struct OrganizeTokensView_Preview: PreviewProvider {
             }
         }
         .background(Colors.Background.primary)
-        .previewLayout(.sizeThatFits)
         .background(Colors.Background.secondary.ignoresSafeArea())
     }
 }
