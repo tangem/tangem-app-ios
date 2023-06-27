@@ -26,7 +26,7 @@ struct LearnAndEarnStoryPage: View {
 
                         Text(Localization.storyLearnDescription)
                             .font(.system(size: 16))
-                            .foregroundColor(.gray)
+                            .foregroundColor(.white.opacity(0.7))
                             .padding(.horizontal)
                     }
                     .multilineTextAlignment(.center)
