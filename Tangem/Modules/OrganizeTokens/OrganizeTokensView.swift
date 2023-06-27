@@ -19,7 +19,13 @@ struct OrganizeTokensView: View {
 
     @State private var tokenListFooterFrameMinY: CGFloat = 0.0
     @State private var tokenListContentFrameMaxY: CGFloat = 0.0
+
+    @State private var scrollViewContentOffset: CGPoint = .zero
+
     @State private var isTokenListFooterGradientHidden = true
+    @State private var isNavigationBarBackgroundHidden = true
+
+    let scrollViewCoordinateSpaceName = UUID()
 
     init(viewModel: OrganizeTokensViewModel) {
         self.viewModel = viewModel
@@ -45,6 +51,7 @@ struct OrganizeTokensView: View {
     private var tokenList: some View {
         ScrollView(showsIndicators: false) {
             Spacer(minLength: scrollViewTopContentInset)
+                .readContentOffset(to: $scrollViewContentOffset, inCoordinateSpace: .named(scrollViewCoordinateSpaceName))
 
             LazyVStack(spacing: 0.0) {
                 let parametersProvider = OrganizeTokensListCornerRadiusParametersProvider(
@@ -90,10 +97,14 @@ struct OrganizeTokensView: View {
 
             Spacer(minLength: scrollViewBottomContentInset)
         }
+        .coordinateSpace(name: scrollViewCoordinateSpaceName)
         .onChange(of: tokenListContentFrameMaxY) { newValue in
             withAnimation {
                 isTokenListFooterGradientHidden = newValue < tokenListFooterFrameMinY
             }
+        }
+        .onChange(of: scrollViewContentOffset) { newValue in
+            isNavigationBarBackgroundHidden = newValue.y <= 0.0
         }
     }
 
@@ -153,8 +164,9 @@ struct OrganizeTokensView: View {
     }
 
     private var navigationBarBackground: some View {
-        VisualEffectView(style: .systemUltraThinMaterial) // [REDACTED_TODO_COMMENT]
+        VisualEffectView(style: .systemUltraThinMaterial)
             .edgesIgnoringSafeArea(.top)
+            .hidden(isNavigationBarBackgroundHidden)
             .infinityFrame(alignment: .bottom)
     }
 }
