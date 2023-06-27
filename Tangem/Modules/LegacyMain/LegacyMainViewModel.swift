@@ -182,7 +182,7 @@ class LegacyMainViewModel: ObservableObject {
         if let _ = promotionService.promoCode {
             return Localization.mainGetBonusSubtitle
         } else {
-            return Localization.mainLearnSubtitle(promotionService.awardAmount)
+            return Localization.mainLearnSubtitle(promotionService.awardAmount ?? 0)
         }
     }
 
