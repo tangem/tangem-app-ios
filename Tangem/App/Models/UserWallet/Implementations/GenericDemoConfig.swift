@@ -178,11 +178,16 @@ extension GenericDemoConfig: UserWalletConfig {
         }
     }
 
-    func makeWalletModelsFactory() throws -> WalletModelsFactory {
-        return MultiDemoWalletModelsFactory(
-            isHDWalletAllowed: card.settings.isHDWalletAllowed,
-            derivationStyle: card.derivationStyle
-        )
+    func makeWalletModelsFactory() -> WalletModelsFactory {
+        return DemoWalletModelsFactory(derivationStyle: card.derivationStyle)
+    }
+
+    func makeAnyWalletManagerFacrory() throws -> AnyWalletManagerFactory {
+        if case .available = getFeatureAvailability(.hdWallets) {
+            return HDWalletManagerFactory()
+        } else {
+            return SimpleWalletManagerFactory()
+        }
     }
 }
 
