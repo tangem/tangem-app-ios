@@ -93,7 +93,7 @@ struct OrganizeTokensView: View {
                 }
             }
             .padding(.horizontal, Constants.contentHorizontalInset)
-            .readGeometry(to: $tokenListContentFrameMaxY, transform: \.frame.maxY)
+            .readGeometry(\.frame.maxY, bindTo: $tokenListContentFrameMaxY)
 
             Spacer(minLength: scrollViewBottomContentInset)
         }
@@ -110,7 +110,7 @@ struct OrganizeTokensView: View {
 
     private var tokenListHeader: some View {
         OrganizeTokensHeaderView(viewModel: viewModel.headerViewModel)
-            .readGeometry(transform: \.size.height) { height in
+            .readGeometry(\.size.height) { height in
                 scrollViewTopContentInset = height
                     + Constants.overlayViewAdditionalVerticalInset
                     + Constants.tokenListHeaderViewTopVerticalInset
