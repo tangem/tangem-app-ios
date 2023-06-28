@@ -19,14 +19,14 @@ protocol UserWalletModel: AnyObject {
 
     func subscribeToWalletModels() -> AnyPublisher<[WalletModel], Never>
 
-    func getSavedEntries() -> [StorageEntry]
-    func getEntriesWithoutDerivation() -> [StorageEntry]
+    //func getSavedEntries() -> [StorageEntry]
+    //func getEntriesWithoutDerivation() -> [StorageEntry]
     func subscribeToEntriesWithoutDerivation() -> AnyPublisher<[StorageEntry], Never>
 
-    func canManage(amountType: Amount.AmountType, blockchainNetwork: BlockchainNetwork) -> Bool
-    func update(entries: [StorageEntry])
-    func append(entries: [StorageEntry])
-    func remove(amountType: Amount.AmountType, blockchainNetwork: BlockchainNetwork)
+    //func canManage(amountType: Amount.AmountType, blockchainNetwork: BlockchainNetwork) -> Bool
+    //func update(entries: [StorageEntry])
+    //func append(entries: [StorageEntry])
+    //func remove(amountType: Amount.AmountType, blockchainNetwork: BlockchainNetwork)
 
     /// Update if the wallet model hasn't initial updates
     func initialUpdate()
