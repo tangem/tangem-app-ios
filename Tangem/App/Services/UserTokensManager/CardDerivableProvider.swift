@@ -9,5 +9,5 @@
 import Foundation
 
 protocol CardDerivableProvider: AnyObject {
-    var cardInteractor: CardDerivable { get }
+    var cardDerivableInteractor: CardDerivable { get }
 }
