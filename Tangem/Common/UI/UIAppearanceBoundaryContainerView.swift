@@ -9,10 +9,10 @@
 import SwiftUI
 import UIKit
 
-/// Wrapper to limit propagation of changes made by using `UIAppearance` API.
+/// Wrapper to limit propagation of changes made by using the `UIAppearance` API.
 ///
 /// `BoundaryMarker` type must be unique within the boundaries of a particular namespace.
-/// Some examples of namespaces are an app target itself, a SPM module, and a static/dynamic library.
+/// Some examples of namespaces are the app target itself, a SPM module, and a static/dynamic library.
 ///
 /// Consider the following example:
 /// ```
