@@ -19,6 +19,32 @@ class CardViewModel: Identifiable, ObservableObject {
     @Injected(\.tangemApiService) var tangemApiService: TangemApiService
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
 
+    let walletModelsManager: WalletModelsManager
+    
+    lazy var userTokensManager: UserTokensManager = {
+        // [REDACTED_TODO_COMMENT]
+        CommonUserTokensManager(
+            userTokenListManager: userTokenListManager,
+            derivationStyle: cardInfo.card.derivationStyle,
+            derivationManager: derivationManager,
+            cardDerivableProvider: self)
+    }()
+
+    let userTokenListManager: UserTokenListManager
+
+    private let keysRepository: KeysRepository
+    private let walletManagersRepository: WalletManagersRepository
+
+    private lazy var derivationManager: DerivationManager? = {
+        let commonDerivationManager = CommonDerivationManager(
+            keysRepository: keysRepository,
+            userTokenListManager: userTokenListManager
+        )
+
+        commonDerivationManager.delegate = self
+        return commonDerivationManager
+    }()
+
     let warningsService = WarningsService()
 
     @Published private(set) var currentSecurityOption: SecurityModeOption = .longTap
@@ -131,10 +157,6 @@ class CardViewModel: Identifiable, ObservableObject {
         config.embeddedBlockchain
     }
 
-    var hasTokenSynchronization: Bool {
-        config.hasFeature(.tokenSynchronization)
-    }
-
     var canShowSwapping: Bool {
         !config.getFeatureAvailability(.swapping).isHidden
     }
@@ -146,10 +168,6 @@ class CardViewModel: Identifiable, ObservableObject {
 
     let userWalletId: UserWalletId
 
-    private let walletListManager: WalletListManager
-    private let keysRepository: KeysRepository
-    let userTokenListManager: UserTokenListManager
-
     lazy var totalBalanceProvider: TotalBalanceProviding = TotalBalanceProvider(
         userWalletModel: self,
         userWalletAmountType: config.cardAmountType
@@ -157,9 +175,9 @@ class CardViewModel: Identifiable, ObservableObject {
 
     private(set) var cardInfo: CardInfo
     private var tangemSdk: TangemSdk?
-    private var config: UserWalletConfig
+    var config: UserWalletConfig
     private var didPerformInitialUpdate = false
-    private var reloadAllWalletModelsSubscription: AnyCancellable?
+   
 
     var availableSecurityOptions: [SecurityModeOption] {
         var options: [SecurityModeOption] = []
@@ -183,10 +201,6 @@ class CardViewModel: Identifiable, ObservableObject {
         config.hasFeature(.hdWallets)
     }
 
-    var walletModels: [WalletModel] {
-        walletListManager.getWalletModels()
-    }
-
     var canSetLongTap: Bool {
         config.hasFeature(.longTap)
     }
@@ -201,10 +215,6 @@ class CardViewModel: Identifiable, ObservableObject {
 
     var cardAmountType: Amount.AmountType? {
         config.cardAmountType
-    }
-
-    var hasWallet: Bool {
-        !walletModels.isEmpty
     }
 
     var cardSetLabel: String? {
@@ -285,7 +295,6 @@ class CardViewModel: Identifiable, ObservableObject {
 
     private var bag = Set<AnyCancellable>()
     private var signSubscription: AnyCancellable?
-    private var derivationManager: DerivationManager?
 
     private var _signer: TangemSigner {
         didSet {
@@ -301,7 +310,8 @@ class CardViewModel: Identifiable, ObservableObject {
     init?(cardInfo: CardInfo) {
         let config = UserWalletConfigFactory(cardInfo).makeConfig()
 
-        guard let userWalletIdSeed = config.userWalletIdSeed else {
+        guard let userWalletIdSeed = config.userWalletIdSeed,
+              let walletManagerFactory = try? config.makeAnyWalletManagerFacrory() else {
             return nil
         }
 
@@ -312,21 +322,19 @@ class CardViewModel: Identifiable, ObservableObject {
         userWalletId = UserWalletId(with: userWalletIdSeed)
         userTokenListManager = CommonUserTokenListManager(
             hasTokenSynchronization: config.hasFeature(.tokenSynchronization),
-            userWalletId: userWalletId.value
+            userWalletId: userWalletId.value,
+            hdWalletsSupported: config.hasFeature(.hdWallets)
         )
 
-        let commonDerivationManager = CommonDerivationManager(
-            keysRepository: keysRepository,
-            userTokenListManager: userTokenListManager
-        )
-
-        commonDerivationManager.delegate = self
-        self.derivationManager = commonDerivationManager
-
-        walletListManager = CommonWalletListManager(
-            config: config,
+        walletManagersRepository = CommonWalletManagersRepository(
+            keysProvider: keysRepository,
             userTokenListManager: userTokenListManager,
-            keysProvider: keysRepository
+            walletManagerFactory: walletManagerFactory
+        )
+
+        walletModelsManager = CommonWalletModelsManager(
+            walletManagersRepository: walletManagersRepository,
+            walletModelsFactory: config.makeWalletModelsFactory()
         )
 
         _signer = config.tangemSigner
@@ -340,32 +348,17 @@ class CardViewModel: Identifiable, ObservableObject {
         warningsService.setupWarnings(
             for: config,
             card: cardInfo.card,
-            validator: walletModels.first?.walletManager as? SignatureCountValidator
+            validator: walletManagersRepository.signatureCountValidator
         )
     }
-/*
-    func appendPersistentBlockchains() {
+
+    private func appendPersistentBlockchains() {
         guard let persistentBlockchains = config.persistentBlockchains else {
             return
         }
 
-        append(entries: persistentBlockchains)
+        userTokenListManager.update(.append(persistentBlockchains))
     }
-
-    func appendDefaultBlockchains() {
-        append(entries: config.defaultBlockchains)
-    }
-
-    func deriveEntriesWithoutDerivation() {
-        derive(entries: getEntriesWithoutDerivation()) { [weak self] result in
-            switch result {
-            case .success:
-                self?.updateAndReloadWalletModels()
-            case .failure:
-                AppLog.shared.debug("Derivation error")
-            }
-        }
-    }*/
 
     // MARK: - Security
 
@@ -517,9 +510,9 @@ class CardViewModel: Identifiable, ObservableObject {
 // MARK: - Proxy for User Wallet Model
 
 extension CardViewModel {
-    func subscribeWalletModels() -> AnyPublisher<[WalletModel], Never> {
-        return subscribeToWalletModels()
-    }
+//    func subscribeWalletModels() -> AnyPublisher<[WalletModel], Never> {
+//        return subscribeToWalletModels()
+//    }
 
     /* func add(entries: [StorageEntry], completion: @escaping (Result<Void, Error>) -> Void) {
         derive(entries: entries) { [weak self] result in
@@ -613,7 +606,13 @@ extension CardViewModel {
     }
 }
 
-extension CardViewModel: WalletConnectUserWalletInfoProvider {}
+
+extension CardViewModel: WalletConnectUserWalletInfoProvider {
+    // [REDACTED_TODO_COMMENT]
+    var walletModels: [WalletModel] {
+        walletModelsManager.walletModels
+    }
+}
 
 // MARK: Access code recovery settings provider
 
@@ -650,17 +649,17 @@ extension CardViewModel: UserWalletModel {
 //        userTokenListManager.getEntriesFromRepository()
 //    }
 
-    func subscribeToWalletModels() -> AnyPublisher<[WalletModel], Never> {
-        walletListManager.subscribeToWalletModels()
-    }
+//    func subscribeToWalletModels() -> AnyPublisher<[WalletModel], Never> {
+//        walletListManager.subscribeToWalletModels()
+//    }
 
 //    func getEntriesWithoutDerivation() -> [StorageEntry] {
 //        walletListManager.getEntriesWithoutDerivation()
 //    }
 
-    func subscribeToEntriesWithoutDerivation() -> AnyPublisher<[StorageEntry], Never> {
-        walletListManager.subscribeToEntriesWithoutDerivation()
-    }
+//    func subscribeToEntriesWithoutDerivation() -> AnyPublisher<[StorageEntry], Never> {
+//        walletListManager.subscribeToEntriesWithoutDerivation()
+//    }
 
     func initialUpdate() {
         guard !didPerformInitialUpdate else {
@@ -668,16 +667,10 @@ extension CardViewModel: UserWalletModel {
             return
         }
 
-        /// It's used to check if the storage needs to be updated when the user adds a new wallet to saved wallets.
-        if config.hasFeature(.tokenSynchronization),
-           !userTokenListManager.didPerformInitialLoading {
-            didPerformInitialUpdate = true
+        didPerformInitialUpdate = true
 
-            userTokenListManager.updateLocalRepositoryFromServer { [weak self] _ in
-                self?.updateAndReloadWalletModels()
-            }
-        } else {
-            updateAndReloadWalletModels()
+        userTokenListManager.updateLocalRepositoryFromServer { [weak self] _ in
+            self?.walletModelsManager.updateAll(silent: false, completion: {})
         }
     }
 
@@ -685,21 +678,21 @@ extension CardViewModel: UserWalletModel {
         cardInfo.name = name
     }
 
-    func updateWalletModels() {
-        // Update walletModel list for current storage state
-        walletListManager.updateWalletModels()
-    }
+//    func updateWalletModels() {
+//        // Update walletModel list for current storage state
+//        walletListManager.updateWalletModels()
+//    }
 
-    func updateAndReloadWalletModels(silent: Bool, completion: @escaping () -> Void) {
-        updateWalletModels()
-
-        reloadAllWalletModelsSubscription = walletListManager
-            .reloadWalletModels(silent: silent)
-            .receive(on: RunLoop.main)
-            .receiveCompletion { _ in
-                completion()
-            }
-    }
+//    func updateAndReloadWalletModels(silent: Bool, completion: @escaping () -> Void) {
+//        updateWalletModels()
+//
+//        reloadAllWalletModelsSubscription = walletListManager
+//            .reloadWalletModels(silent: silent)
+//            .receive(on: RunLoop.main)
+//            .receiveCompletion { _ in
+//                completion()
+//            }
+//    }
 }
 
 // [REDACTED_TODO_COMMENT]
@@ -713,5 +706,11 @@ extension CardViewModel: DerivationManagerDelegate {
         }
 
         userWalletRepository.save(userWallet)
+    }
+}
+
+extension CardViewModel: CardDerivableProvider {
+    var cardDerivableInteractor: CardDerivable {
+        cardInteractor
     }
 }
