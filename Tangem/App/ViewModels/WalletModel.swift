@@ -516,7 +516,7 @@ extension WalletModel {
             return false
         }
 
-        let defaultDerivation = wallet.blockchain.derivationPath(for: derivationStyle)
+        let defaultDerivation = wallet.blockchain.derivationPaths(for: derivationStyle)[.default]
         let currentDerivation = blockchainNetwork.derivationPath
 
         if currentDerivation != defaultDerivation {
