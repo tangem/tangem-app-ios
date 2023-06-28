@@ -15,7 +15,7 @@ struct UserTokenListManagerMock: UserTokenListManager {
 
     func update(_ type: CommonUserTokenListManager.UpdateType) {}
 
-    func updateLocalRepositoryFromServer(result: @escaping (Result<UserTokenList, Error>) -> Void) {}
+    func updateLocalRepositoryFromServer(result: @escaping (Result<Void, Error>) -> Void) {}
 
     func getEntriesFromRepository() -> [StorageEntry] { [] }
 
