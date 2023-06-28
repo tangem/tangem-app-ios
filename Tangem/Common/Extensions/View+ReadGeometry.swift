@@ -25,20 +25,20 @@ struct GeometryInfo: Equatable {
 }
 
 extension View {
-    /// Closure-based helper. Use optional parameter `transform` if needed.
+    /// Closure-based helper. Use optional `keyPath` parameter if you aren't interested in the whole `GeometryInfo` but rather a single property of it.
     func readGeometry<T>(
+        _ keyPath: KeyPath<GeometryInfo, T> = \.self,
         inCoordinateSpace coordinateSpace: CoordinateSpace = .global,
-        transform: KeyPath<GeometryInfo, T> = \.self,
         onChange: @escaping (_ value: T) -> Void
     ) -> some View {
         modifier(
             GeometryInfoReaderViewModifier(coordinateSpace: coordinateSpace) { geometryInfo in
-                onChange(geometryInfo[keyPath: transform])
+                onChange(geometryInfo[keyPath: keyPath])
             }
         )
     }
 
-    /// Binding-based helper. Use optional parameter `transform` if needed.
+    /// Binding-based helper. Use optional `keyPath` parameter if you aren't interested in the whole `GeometryInfo` but rather a single property of it.
     ///
     /// ```swift
     /// struct SomeView: View {
@@ -48,17 +48,17 @@ extension View {
     ///         VStack() {
     ///             // Some content
     ///         }
-    ///         .readGeometry(to: $frameMidX, transform: \.frame.midX)
+    ///         .readGeometry(\.frame.midX, bindTo: $frameMidX)
     ///     }
     /// }
     /// ```
     func readGeometry<T>(
+        _ keyPath: KeyPath<GeometryInfo, T> = \.self,
         inCoordinateSpace coordinateSpace: CoordinateSpace = .global,
-        to contentOffsetBinding: Binding<T>,
-        transform: KeyPath<GeometryInfo, T> = \.self
+        bindTo value: Binding<T>
     ) -> some View {
-        readGeometry(inCoordinateSpace: coordinateSpace, transform: transform) { value in
-            contentOffsetBinding.wrappedValue = value
+        readGeometry(keyPath, inCoordinateSpace: coordinateSpace) { newValue in
+            value.wrappedValue = newValue
         }
     }
 }
