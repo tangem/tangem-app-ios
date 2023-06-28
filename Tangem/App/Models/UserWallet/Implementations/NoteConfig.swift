@@ -138,8 +138,12 @@ extension NoteConfig: UserWalletConfig {
         }
     }
 
-    func makeWalletModelsFactory() throws -> WalletModelsFactory {
-        return SingleWalletModelsFactory()
+    func makeWalletModelsFactory() -> WalletModelsFactory {
+        return CommonWalletModelsFactory(derivationStyle: nil)
+    }
+
+    func makeAnyWalletManagerFacrory() throws -> AnyWalletManagerFactory {
+        return SimpleWalletManagerFactory()
     }
 }
 

@@ -179,11 +179,16 @@ extension GenericConfig: UserWalletConfig {
         }
     }
 
-    func makeWalletModelsFactory() throws -> WalletModelsFactory {
-        return MultiWalletModelsFactory(
-            isHDWalletAllowed: card.settings.isHDWalletAllowed,
-            derivationStyle: card.derivationStyle
-        )
+    func makeWalletModelsFactory() -> WalletModelsFactory {
+        return CommonWalletModelsFactory(derivationStyle: card.derivationStyle)
+    }
+
+    func makeAnyWalletManagerFacrory() throws -> AnyWalletManagerFactory {
+        if hasFeature(.hdWallets) {
+            return HDWalletManagerFactory()
+        } else {
+            return SimpleWalletManagerFactory()
+        }
     }
 }
 
