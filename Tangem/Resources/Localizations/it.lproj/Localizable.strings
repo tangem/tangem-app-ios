@@ -394,9 +394,6 @@
 "swapping_token_list_title" = "Choose token";
 "swapping_token_list_your_tokens" = "Your tokens";
 "swapping_token_not_available" = "not available";
-"testnet_address_topuped" = "Transaction signed and sent to testnet. Wait for a while and reload balance";
-"testnet_error_failed_create_tx" = "Failed to create topup transaction for token. Try again later";
-"testnet_error_not_enough_ether_message" = "Not enough funds on ETH wallet balance. You need to topup ETH wallet first";
 "token_details_hide_alert_hide" = "Hide";
 "token_details_hide_alert_message" = "You are about to hide this token from the main screen. You can add it back anytime through the manage tokens page.";
 "token_details_hide_alert_title" = "Hide %@";
