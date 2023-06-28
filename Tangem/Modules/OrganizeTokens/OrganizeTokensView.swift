@@ -100,8 +100,8 @@ struct OrganizeTokensView: View {
                                         .hidden(itemViewModel.id == dragAndDropSourceViewModelIdentifier)
                                         .id(itemViewModel.id)
                                         .readGeometry(
-                                            inCoordinateSpace: .named(scrollViewContentCoordinateSpaceName),
-                                            transform: \.frame
+                                            \.frame,
+                                            inCoordinateSpace: .named(scrollViewContentCoordinateSpaceName)
                                         ) { dragAndDropController.saveFrame($0, forItemAtIndexPath: indexPath) }
                                     }
                                 },
@@ -119,8 +119,9 @@ struct OrganizeTokensView: View {
                                     .hidden(sectionViewModel.id == dragAndDropSourceViewModelIdentifier)
                                     .id(sectionViewModel.id)
                                     .readGeometry(
-                                        inCoordinateSpace: .named(scrollViewContentCoordinateSpaceName),
-                                        transform: \.frame
+                                        \
+                                        .frame,
+                                        inCoordinateSpace: .named(scrollViewContentCoordinateSpaceName)
                                     ) { dragAndDropController.saveFrame($0, forItemAtIndexPath: indexPath) }
                                 }
                             )
@@ -135,7 +136,7 @@ struct OrganizeTokensView: View {
                     )
                     .coordinateSpace(name: scrollViewContentCoordinateSpaceName)
                     .onTouchesBegan(onTouchesBegan(atLocation:))
-                    .readGeometry(to: $tokenListContentFrameMaxY, transform: \.frame.maxY)
+                    .readGeometry(\.frame.maxY, bindTo: $tokenListContentFrameMaxY)
 
                     Spacer(minLength: scrollViewBottomContentInset)
                 }
