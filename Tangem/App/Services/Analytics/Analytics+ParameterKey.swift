@@ -53,5 +53,8 @@ extension Analytics {
         case destinationAddressValidationResult = "Validation"
         case memo = "Memo"
         case walletsCount = "Wallets Count"
+        case exceptionHost = "exception_host"
+        case selectedHost = "selected_host"
+        case region
     }
 }
