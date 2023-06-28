@@ -39,7 +39,7 @@ struct MeetTangemStoryPage: View {
 
     var body: some View {
         ZStack {
-            ForEach(0 ..< words.count) { index in
+            ForEach(0 ..< words.count, id: \.self) { index in
                 Text(words[index])
                     .foregroundColor(.white)
                     .font(.system(size: 60, weight: .semibold))
