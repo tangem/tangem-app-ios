@@ -146,13 +146,18 @@ extension TwinConfig: UserWalletConfig {
         }
     }
 
-    func makeWalletModelsFactory() throws -> WalletModelsFactory {
+    func makeWalletModelsFactory() -> WalletModelsFactory {
+        return CommonWalletModelsFactory(derivationStyle: nil)
+    }
+
+    func makeAnyWalletManagerFacrory() throws -> AnyWalletManagerFactory {
         guard let savedPairKey = twinData.pairPublicKey else {
             throw CommonError.noData
         }
 
-        return TwinsWalletModelFactory(pairPublicKey: savedPairKey)
+        return TwinWalletManagerFactory(pairPublicKey: savedPairKey)
     }
+
 
     func makeOnboardingStepsBuilder(backupService: BackupService) -> OnboardingStepsBuilder {
         return TwinOnboardingStepsBulder(card: card, twinData: twinData, touId: tou.id)
