@@ -20,42 +20,38 @@ class LegacyMultiWalletContentViewModel: ObservableObject {
     @Published var contentState: LoadingValue<[LegacyTokenItemViewModel]> = .loading
     @Published var tokenListIsEmpty: Bool = true
 
-    lazy var totalSumBalanceViewModel = TotalSumBalanceViewModel(
-        userWalletModel: cardModel,
-        cardAmountType: nil,
-        tapOnCurrencySymbol: output
-    )
+    var totalSumBalanceViewModel: TotalSumBalanceViewModel
 
     // MARK: Private
 
     private unowned let output: LegacyMultiWalletContentViewModelOutput
 
-    private let cardModel: CardViewModel
     private let userTokenListManager: UserTokenListManager
+    private let walletModelsManager: WalletModelsManager
     private var bag = Set<AnyCancellable>()
 
     init(
-        cardModel: CardViewModel,
+        walletModelsManager: WalletModelsManager,
         userTokenListManager: UserTokenListManager,
+        totalBalanceProvider: TotalBalanceProvider,
         output: LegacyMultiWalletContentViewModelOutput
     ) {
-        self.cardModel = cardModel
+        self.walletModelsManager = walletModelsManager
         self.userTokenListManager = userTokenListManager
         self.output = output
-
-        tokenListIsEmpty = cardModel.getSavedEntries().isEmpty
+        self.totalSumBalanceViewModel = .init(
+            totalBalanceProvider: totalBalanceProvider,
+            walletModelsManager: walletModelsManager,
+            cardAmountType: nil,
+            tapOnCurrencySymbol: output
+        )
+        tokenListIsEmpty = walletModelsManager.walletModels.isEmpty
         bind()
-
-        cardModel.updateWalletModels()
     }
 
     func onRefresh(silent: Bool = true, done: @escaping () -> Void) {
-        if cardModel.hasTokenSynchronization {
-            userTokenListManager.updateLocalRepositoryFromServer { [weak self] _ in
-                self?.cardModel.updateAndReloadWalletModels(silent: silent, completion: done)
-            }
-        } else {
-            cardModel.updateAndReloadWalletModels(silent: silent, completion: done)
+        userTokenListManager.updateLocalRepositoryFromServer { [weak self] _ in
+            self?.walletModelsManager.updateAll(silent: silent, completion: done)
         }
     }
 
@@ -74,7 +70,8 @@ class LegacyMultiWalletContentViewModel: ObservableObject {
 private extension LegacyMultiWalletContentViewModel {
     func bind() {
         /// Subscribe for update wallets for each changes in `WalletModel`
-        cardModel.subscribeToWalletModels()
+        walletModelsManager
+            .walletModelsPublisher
             .flatMap { walletModels in
                 Publishers
                     .MergeMany(walletModels.map { $0.walletDidChange })
@@ -91,18 +88,8 @@ private extension LegacyMultiWalletContentViewModel {
             }
             .store(in: &bag)
 
-        let entriesWithoutDerivation = cardModel
-            .subscribeToEntriesWithoutDerivation()
-            .dropFirst()
-            .removeDuplicates()
 
-        let newWalletModels = cardModel.subscribeToWalletModels()
-            .dropFirst()
-
-        Publishers.Merge(
-            newWalletModels.mapVoid(),
-            entriesWithoutDerivation.mapVoid()
-        )
+        walletModelsManager.walletModelsPublisher
         .receive(on: DispatchQueue.global())
         .map { [weak self] _ -> [LegacyTokenItemViewModel] in
             /// `unowned` will be crashed when the wallet which currently open is deleted from the list of saved wallet
@@ -125,8 +112,8 @@ private extension LegacyMultiWalletContentViewModel {
     }
 
     func collectTokenItemViewModels() -> [LegacyTokenItemViewModel] {
-        let entries = cardModel.getSavedEntries()
-        let walletModels = cardModel.walletModels
+        let entries = userTokenListManager.userTokens
+        let walletModels = walletModelsManager.walletModels
         return entries.reduce([]) { result, entry in
             if let walletModel = walletModels.first(where: { $0.blockchainNetwork == entry.blockchainNetwork }) {
                 return result + [mapToTokenItemViewModel(walletModel)]
