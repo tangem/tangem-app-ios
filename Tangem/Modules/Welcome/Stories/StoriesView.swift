@@ -7,13 +7,30 @@
 
 import SwiftUI
 
-struct StoriesView<Content: View>: View {
+struct StoriesView: View {
     @ObservedObject var viewModel: StoriesViewModel
-    @ViewBuilder private let content: () -> Content
 
-    init(viewModel: StoriesViewModel, @ViewBuilder content: @escaping () -> Content) {
+    private var isScanning: Binding<Bool>
+    private let scanCard: () -> Void
+    private let orderCard: () -> Void
+    private let openPromotion: () -> Void
+    private let searchTokens: () -> Void
+
+    init(
+        viewModel: StoriesViewModel,
+        isScanning: Binding<Bool>,
+        scanCard: @escaping () -> Void,
+        orderCard: @escaping () -> Void,
+        openPromotion: @escaping () -> Void,
+        searchTokens: @escaping () -> Void
+
+    ) {
         self.viewModel = viewModel
-        self.content = content
+        self.isScanning = isScanning
+        self.scanCard = scanCard
+        self.orderCard = orderCard
+        self.openPromotion = openPromotion
+        self.searchTokens = searchTokens
     }
 
     var body: some View {
@@ -21,45 +38,23 @@ struct StoriesView<Content: View>: View {
             Color.black
                 .ignoresSafeArea()
         } else {
-            contentView
-        }
-    }
-
-    @ViewBuilder
-    var contentView: some View {
-        GeometryReader { geo in
             ZStack(alignment: .top) {
-                content()
-                    .contentShape(Rectangle())
-                    .gesture(
-                        DragGesture(minimumDistance: 0)
-                            .onChanged {
-                                viewModel.didDrag($0.location)
-                            }
-                            .onEnded {
-                                viewModel.didEndDrag($0.location, destination: $0.predictedEndLocation, viewWidth: geo.size.width)
-                            }
+                StoriesPageView(storiesViewModel: viewModel) {
+                    viewModel.currentStoryPage(
+                        isScanning: isScanning,
+                        scanCard: scanCard,
+                        orderCard: orderCard,
+                        openPromotion: openPromotion,
+                        searchTokens: searchTokens
                     )
+                }
 
                 StoriesProgressView(pages: viewModel.pages, currentPageIndex: viewModel.currentPageIndex, progress: $viewModel.currentProgress)
                     .padding(.horizontal)
                     .padding(.top)
             }
-        }
-        .onAppear(perform: viewModel.onAppear)
-        .onDisappear(perform: viewModel.onDisappear)
-    }
-}
-
-struct StoriesView_Previews: PreviewProvider {
-    static var previews: some View {
-        StoriesView(viewModel: StoriesViewModel()) {
-            Group {
-                Color.red.tag(0)
-                Color.blue.tag(1)
-                Color.yellow.tag(2)
-                Color.purple.tag(3)
-            }
+            .onAppear(perform: viewModel.onAppear)
+            .onDisappear(perform: viewModel.onDisappear)
         }
     }
 }
