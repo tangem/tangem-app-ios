@@ -51,7 +51,10 @@ struct OrganizeTokensView: View {
     private var tokenList: some View {
         ScrollView(showsIndicators: false) {
             Spacer(minLength: scrollViewTopContentInset)
-                .readContentOffset(to: $scrollViewContentOffset, inCoordinateSpace: .named(scrollViewCoordinateSpaceName))
+                .readContentOffset(
+                    inCoordinateSpace: .named(scrollViewCoordinateSpaceName),
+                    bindTo: $scrollViewContentOffset
+                )
 
             LazyVStack(spacing: 0.0) {
                 let parametersProvider = OrganizeTokensListCornerRadiusParametersProvider(
