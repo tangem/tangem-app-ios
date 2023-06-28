@@ -25,17 +25,19 @@ class TotalSumBalanceViewModel: ObservableObject {
     @Injected(\.rateAppService) private var rateAppService: RateAppService
     private unowned let tapOnCurrencySymbol: OpenCurrencySelectionDelegate
     private let cardAmountType: Amount.AmountType?
-    private let userWalletModel: UserWalletModel
-    private var totalBalanceManager: TotalBalanceProviding { userWalletModel.totalBalanceProvider }
+    private let walletModelsManager: WalletModelsManager
+    private var totalBalanceProvider: TotalBalanceProviding
 
     private var bag: Set<AnyCancellable> = []
 
     init(
-        userWalletModel: UserWalletModel,
+        totalBalanceProvider: TotalBalanceProviding,
+        walletModelsManager: WalletModelsManager,
         cardAmountType: Amount.AmountType?,
         tapOnCurrencySymbol: OpenCurrencySelectionDelegate
     ) {
-        self.userWalletModel = userWalletModel
+        self.totalBalanceProvider = totalBalanceProvider
+        self.walletModelsManager = walletModelsManager
         self.cardAmountType = cardAmountType
         self.tapOnCurrencySymbol = tapOnCurrencySymbol
         bind()
@@ -44,7 +46,7 @@ class TotalSumBalanceViewModel: ObservableObject {
     func updateForSingleCoinCard() {
         guard let cardAmountType = cardAmountType else { return }
 
-        singleWalletBalance = userWalletModel.walletModels.first(where: { $0.amountType == cardAmountType })?.balance
+        singleWalletBalance = walletModelsManager.walletModels.first(where: { $0.amountType == cardAmountType })?.balance
     }
 
     func didTapOnCurrencySymbol() {
@@ -52,7 +54,7 @@ class TotalSumBalanceViewModel: ObservableObject {
     }
 
     private func bind() {
-        totalBalanceManager.totalBalancePublisher()
+        totalBalanceProvider.totalBalancePublisher()
             .compactMap { $0.value }
             .map { [unowned self] balance -> NSAttributedString in
                 checkPositiveBalance()
@@ -63,12 +65,12 @@ class TotalSumBalanceViewModel: ObservableObject {
             .store(in: &bag)
 
         // Skeleton subscription
-        totalBalanceManager.totalBalancePublisher()
+        totalBalanceProvider.totalBalancePublisher()
             .map { $0.isLoading }
             .weakAssignAnimated(to: \.isLoading, on: self)
             .store(in: &bag)
 
-        totalBalanceManager.totalBalancePublisher()
+        totalBalanceProvider.totalBalancePublisher()
             .compactMap { $0.value?.hasError }
             .removeDuplicates()
             .weakAssign(to: \.hasError, on: self)
@@ -84,7 +86,7 @@ class TotalSumBalanceViewModel: ObservableObject {
     private func checkPositiveBalance() {
         guard rateAppService.shouldCheckBalanceForRateApp else { return }
 
-        guard userWalletModel.walletModels.contains(where: { !$0.wallet.isEmpty }) else { return }
+        guard walletModelsManager.walletModels.contains(where: { !$0.wallet.isEmpty }) else { return }
 
         rateAppService.registerPositiveBalanceDate()
     }
