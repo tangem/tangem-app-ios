@@ -14,7 +14,20 @@ struct CommonUserTokensManager {
     private let userTokenListManager: UserTokenListManager
     private let derivationStyle: DerivationStyle?
     private let derivationManager: DerivationManager?
-    private let cardDerivableProvider: CardDerivableProvider
+    private weak var cardDerivableProvider: CardDerivableProvider?
+
+    init(
+        userTokenListManager: UserTokenListManager,
+        derivationStyle: DerivationStyle?,
+        derivationManager: DerivationManager?,
+        cardDerivableProvider: CardDerivableProvider
+    ) {
+        self.userTokenListManager = userTokenListManager
+        self.derivationStyle = derivationStyle
+        self.derivationManager = derivationManager
+        self.cardDerivableProvider = cardDerivableProvider
+    }
+
 
     private func makeBlockchainNetwork(for blockchain: Blockchain, derivationPath: DerivationPath?) -> BlockchainNetwork {
         if let derivationPath = derivationPath {
@@ -30,12 +43,13 @@ struct CommonUserTokensManager {
     }
 
     private func deriveIfNeeded(completion: @escaping (Result<Void, TangemSdkError>) -> Void) {
-        guard let derivationManager else {
+        guard let derivationManager,
+              let interactor = cardDerivableProvider?.cardDerivableInteractor else {
             completion(.success(()))
             return
         }
 
-        derivationManager.deriveKeys(cardInteractor: cardDerivableProvider.cardInteractor, completion: completion)
+        derivationManager.deriveKeys(cardInteractor: interactor, completion: completion)
     }
 }
 
