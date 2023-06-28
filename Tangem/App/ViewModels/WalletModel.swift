@@ -12,7 +12,7 @@ import BlockchainSdk
 
 // [REDACTED_TODO_COMMENT]
 
-class WalletModel: ObservableObject, Identifiable {
+class WalletModel: ObservableObject {
     @Injected(\.tangemApiService) private var tangemApiService: TangemApiService
 
     var walletDidChange: PassthroughSubject<WalletModel.State, Never> = .init()
@@ -305,6 +305,7 @@ class WalletModel: ObservableObject, Identifiable {
         .eraseToAnyPublisher()
     }
 
+    //[REDACTED_TODO_COMMENT]
     private func checkLatestUpdateTime(silent: Bool) -> Bool {
         guard let latestUpdateTime = latestUpdateTime,
               latestUpdateTime.distance(to: Date()) <= 10 else {
@@ -602,6 +603,25 @@ extension WalletModel {
     enum WalletManagerUpdateResult: Hashable {
         case success
         case noAccount(message: String)
+    }
+}
+
+extension WalletModel: Equatable {
+    static func == (lhs: WalletModel, rhs: WalletModel) -> Bool {
+        lhs.hashValue == rhs.hashValue
+    }
+}
+
+extension WalletModel: Hashable {
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(blockchainNetwork)
+        hasher.combine(amountType)
+    }
+}
+
+extension WalletModel: Identifiable {
+    var id: Int {
+        hashValue
     }
 }
 
