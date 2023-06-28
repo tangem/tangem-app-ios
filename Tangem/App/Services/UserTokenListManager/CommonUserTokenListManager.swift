@@ -15,8 +15,6 @@ import struct TangemSdk.DerivationPath
 class CommonUserTokenListManager {
     @Injected(\.tangemApiService) private var tangemApiService: TangemApiService
 
-    private(set) var didPerformInitialLoading: Bool = false
-
     private let userWalletId: Data
     private let tokenItemsRepository: TokenItemsRepository
 
@@ -28,14 +26,14 @@ class CommonUserTokenListManager {
     /// Bool flag for migration custom token to token form our API
     private var migrated = false
 
-    private var userTokens: CurrentValueSubject<[StorageEntry], Never>
+    private var _userTokens: CurrentValueSubject<[StorageEntry], Never>
 
     init(hasTokenSynchronization: Bool, userWalletId: Data, hdWalletsSupported: Bool) {
         self.hasTokenSynchronization = hasTokenSynchronization
         self.userWalletId = userWalletId
         self.hdWalletsSupported = hdWalletsSupported
         tokenItemsRepository = CommonTokenItemsRepository(key: userWalletId.hexString)
-        userTokens = .init(tokenItemsRepository.getItems())
+        _userTokens = .init(tokenItemsRepository.getItems())
         removeBadTokens()
     }
 }
@@ -43,8 +41,12 @@ class CommonUserTokenListManager {
 // MARK: - UserTokenListManager
 
 extension CommonUserTokenListManager: UserTokenListManager {
+    var userTokens: [StorageEntry] {
+        _userTokens.value
+    }
+
     var userTokensPublisher: AnyPublisher<[StorageEntry], Never> {
-        userTokens.eraseToAnyPublisher()
+        _userTokens.eraseToAnyPublisher()
     }
 
     func update(_ type: CommonUserTokenListManager.UpdateType) {
@@ -75,12 +77,17 @@ extension CommonUserTokenListManager: UserTokenListManager {
 //        updateTokensOnServer()
 //    }
 
-    func updateLocalRepositoryFromServer(result: @escaping (Result<UserTokenList, Error>) -> Void) {
+    func updateLocalRepositoryFromServer(result: @escaping (Result<Void, Error>) -> Void) {
+        guard hasTokenSynchronization else {
+            result(.success(()))
+            return
+        }
+
         loadUserTokenList(result: result)
     }
 
     func contains(_ entry: StorageEntry) -> Bool {
-        return userTokens.value.contains(entry)
+        return userTokens.contains(entry)
     }
 }
 
@@ -88,12 +95,12 @@ extension CommonUserTokenListManager: UserTokenListManager {
 
 private extension CommonUserTokenListManager {
     func sendUpdate() {
-        userTokens.send(tokenItemsRepository.getItems())
+        _userTokens.send(tokenItemsRepository.getItems())
     }
 
     // MARK: - Requests
 
-    func loadUserTokenList(result: @escaping (Result<UserTokenList, Error>) -> Void) {
+    func loadUserTokenList(result: @escaping (Result<Void, Error>) -> Void) {
         if let list = pendingTokensToUpdate {
             tokenItemsRepository.update(mapToEntries(list: list))
             updateTokensOnServer(list: list, result: result)
@@ -106,7 +113,6 @@ private extension CommonUserTokenListManager {
         let loadTokensPublisher = tangemApiService.loadTokens(for: userWalletId.hexString)
         let upgradeTokensPublisher = tryMigrateTokens().setFailureType(to: TangemAPIError.self)
 
-        didPerformInitialLoading = true
         self.loadTokensCancellable = loadTokensPublisher
             .combineLatest(upgradeTokensPublisher)
             .sink { [unowned self] completion in
@@ -120,13 +126,13 @@ private extension CommonUserTokenListManager {
             } receiveValue: { [unowned self] (list, _) in
                 tokenItemsRepository.update(mapToEntries(list: list))
                 sendUpdate()
-                result(.success(list))
+                result(.success(()))
             }
     }
 
     func updateTokensOnServer(
         list: UserTokenList? = nil,
-        result: @escaping (Result<UserTokenList, Error>) -> Void = { _ in }
+        result: @escaping (Result<Void, Error>) -> Void = { _ in }
     ) {
         let listToUpdate = list ?? getUserTokenList()
 
@@ -135,7 +141,7 @@ private extension CommonUserTokenListManager {
             .receiveCompletion { [unowned self] completion in
                 switch completion {
                 case .finished:
-                    result(.success(listToUpdate))
+                    result(.success(()))
                 case .failure(let error):
                     self.pendingTokensToUpdate = listToUpdate
                     result(.failure(error))

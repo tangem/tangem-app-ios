@@ -11,6 +11,8 @@ import Combine
 import BlockchainSdk
 
 protocol WalletManagersRepository {
+    var signatureCountValidator: SignatureCountValidator? { get }
+
     var walletManagersPublisher: AnyPublisher<[BlockchainNetwork: any WalletManager], Never> { get }
 //    func add(_ walletManager: WalletManager, for blockchainNetwork: BlockchainNetwork)
 //    func remove(blockchainNetwork: BlockchainNetwork)
