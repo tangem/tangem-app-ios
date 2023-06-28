@@ -45,7 +45,7 @@ struct CurrenciesStoryPage: View {
                     .background(
                         VStack {
                             Group {
-                                ForEach(0 ..< numberOfRows) { index in
+                                ForEach(0 ..< numberOfRows, id: \.self) { index in
                                     let odd = (index % 2 == 0)
                                     Image("currency-\(index % numberOfRowImages)")
                                         .offset(x: odd ? 50 : 0, y: 0)
