@@ -10,10 +10,12 @@ import Combine
 import BlockchainSdk
 
 protocol UserTokenListManager {
-    var didPerformInitialLoading: Bool { get }
-    func update(_ type: CommonUserTokenListManager.UpdateType)
+   // var didPerformInitialLoading: Bool { get }
+    var userTokensPublisher: AnyPublisher<[StorageEntry], Never> { get }
 
+    func contains(_ entry: StorageEntry) -> Bool
+    func update(_ type: CommonUserTokenListManager.UpdateType)
     func updateLocalRepositoryFromServer(result: @escaping (Result<UserTokenList, Error>) -> Void)
-    func getEntriesFromRepository() -> [StorageEntry]
-    func clearRepository(completion: @escaping () -> Void)
+    //func getEntriesFromRepository() -> [StorageEntry]
+    //func clearRepository(completion: @escaping () -> Void)
 }
