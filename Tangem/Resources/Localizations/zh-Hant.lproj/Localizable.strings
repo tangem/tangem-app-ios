@@ -394,9 +394,6 @@
 "swapping_token_list_title" = "選擇代幣";
 "swapping_token_list_your_tokens" = "您的代幣";
 "swapping_token_not_available" = "無法使用";
-"testnet_address_topuped" = "交易簽署並發送到測試網。稍等片刻後再重新加載餘額";
-"testnet_error_failed_create_tx" = "無法為代幣創建充值交易。稍後再試";
-"testnet_error_not_enough_ether_message" = "ETH 錢包餘額不足。您需要先充值ETH錢包";
 "token_details_hide_alert_hide" = "隱藏";
 "token_details_hide_alert_message" = "您即將在主屏幕上隱藏此代幣。您可以隨時通過管理代幣頁面將其添加回來。";
 "token_details_hide_alert_title" = "隱藏 %@";
