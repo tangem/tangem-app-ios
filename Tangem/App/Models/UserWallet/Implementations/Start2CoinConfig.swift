@@ -147,12 +147,16 @@ extension Start2CoinConfig: UserWalletConfig {
         }
     }
 
-    func makeWalletModelsFactory() throws -> WalletModelsFactory {
-        return SingleWalletModelsFactory()
-    }
-
     func makeOnboardingStepsBuilder(backupService: BackupService) -> OnboardingStepsBuilder {
         return Start2CoinOnboardingStepsBuilder(card: card, touId: tou.id)
+    }
+
+    func makeWalletModelsFactory() -> WalletModelsFactory {
+        return CommonWalletModelsFactory(derivationStyle: nil)
+    }
+
+    func makeAnyWalletManagerFacrory() throws -> AnyWalletManagerFactory {
+        return SimpleWalletManagerFactory()
     }
 }
 
