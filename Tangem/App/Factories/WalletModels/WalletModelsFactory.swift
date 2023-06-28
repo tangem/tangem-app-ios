@@ -7,12 +7,8 @@
 //
 
 import Foundation
+import BlockchainSdk
 
 protocol WalletModelsFactory {
-    func makeWalletModels(for token: StorageEntry, keys: [CardDTO.Wallet]) throws -> [WalletModel]
-}
-
-enum WalletModelsFactoryError: Error {
-    case entryHasNotDerivationPath
-    case noDerivation
+    func makeWalletModels(from walletManager: WalletManager) -> [WalletModel]
 }

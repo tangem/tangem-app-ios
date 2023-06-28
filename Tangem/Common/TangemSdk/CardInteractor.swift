@@ -10,10 +10,6 @@ import Foundation
 import TangemSdk
 import Combine
 
-protocol CardResettable: AnyObject {
-    func resetCard(completion: @escaping (Result<Void, TangemSdkError>) -> Void)
-}
-
 class CardInteractor {
     private let tangemSdk: TangemSdk
     private var cardId: String
@@ -27,6 +23,10 @@ class CardInteractor {
 }
 
 // MARK: - CardResettable
+
+protocol CardResettable: AnyObject {
+    func resetCard(completion: @escaping (Result<Void, TangemSdkError>) -> Void)
+}
 
 extension CardInteractor: CardResettable {
     func resetCard(completion: @escaping (Result<Void, TangemSdkError>) -> Void) {
@@ -48,5 +48,34 @@ extension CardInteractor: CardResettable {
 
             self?.runnableBag = nil
         }
+    }
+}
+
+// MARK: - CardDerivable
+
+protocol CardDerivable: AnyObject {
+    func deriveKeys(derivations: [Data: [DerivationPath]], completion: @escaping (Result<DerivationResult, TangemSdkError>) -> Void)
+}
+
+typealias DerivationResult = DeriveMultipleWalletPublicKeysTask.Response
+
+extension CardInteractor: CardDerivable {
+    func deriveKeys(derivations: [Data: [DerivationPath]], completion: @escaping (Result<DerivationResult, TangemSdkError>) -> Void) {
+        let task = DeriveMultipleWalletPublicKeysTask(derivations)
+        runnableBag = task
+
+        tangemSdk.startSession(
+            with: task,
+            cardId: cardId) { [weak self] result in
+                switch result {
+                case .success(let response):
+                    completion(.success(response))
+                case .failure(let error):
+                    AppLog.shared.error(error, params: [.action: .deriveKeys])
+                    completion(.failure(error))
+                }
+
+                self?.runnableBag = nil
+            }
     }
 }
