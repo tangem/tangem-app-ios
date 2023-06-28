@@ -80,7 +80,7 @@ struct CardsInfoPagerView<
             ForEach(data.indexed(), id: idProvider) { index, element in
                 headerFactory(element)
                     .frame(width: proxy.size.width - Constants.headerItemHorizontalOffset * 2.0)
-                    .readSize { headerHeight = $0.height } // All headers are expected to have the same height
+                    .readGeometry(\.size.height, bindTo: $headerHeight) // All headers are expected to have the same height
             }
         }
         // The first offset determines which page is shown
@@ -101,7 +101,7 @@ struct CardsInfoPagerView<
             ForEach(data.indexed(), id: idProvider) { index, element in
                 let scrollViewConnector = CardsInfoPagerScrollViewConnector(
                     headerPlaceholderView: CardsInfoPageHeaderPlaceholderView(),
-                    contentOffsetBinding: $verticalContentOffset
+                    contentOffset: $verticalContentOffset
                 )
                 contentFactory(element, scrollViewConnector)
                     .hidden(index != currentPageIndex)
@@ -232,17 +232,17 @@ extension CardsInfoPagerView: Setupable {
 
 /// A dumb wrapper to hide a concrete type of header placeholder view.
 struct CardsInfoPagerScrollViewConnector {
-    let contentOffsetBinding: Binding<CGPoint>
+    let contentOffset: Binding<CGPoint>
     var placeholderView: some View { headerPlaceholderView }
 
     private let headerPlaceholderView: CardsInfoPageHeaderPlaceholderView
 
     fileprivate init(
         headerPlaceholderView: CardsInfoPageHeaderPlaceholderView,
-        contentOffsetBinding: Binding<CGPoint>
+        contentOffset: Binding<CGPoint>
     ) {
         self.headerPlaceholderView = headerPlaceholderView
-        self.contentOffsetBinding = contentOffsetBinding
+        self.contentOffset = contentOffset
     }
 }
 
