@@ -86,7 +86,6 @@ struct OrganizeTokensContainerView_Preview: PreviewProvider {
             }
         }
         .background(Colors.Background.primary)
-//        .previewLayout(.sizeThatFits)
         .background(Colors.Background.secondary.ignoresSafeArea())
     }
 }
