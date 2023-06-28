@@ -16,7 +16,7 @@ struct OrganizeTokensListHeader: View {
 
     var body: some View {
         OrganizeTokensHeaderView(viewModel: viewModel)
-            .readGeometry(transform: \.size.height) { height in
+            .readGeometry(\.size.height) { height in
                 scrollViewTopContentInset.wrappedValue = height + overlayViewAdditionalVerticalInset + 8.0
             }
             .padding(.top, 8.0)
