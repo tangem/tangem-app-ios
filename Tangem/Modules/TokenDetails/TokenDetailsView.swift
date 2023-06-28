@@ -44,8 +44,8 @@ struct TokenDetailsView: View {
             }
             .padding(.top, headerTopPadding)
             .readContentOffset(
-                to: $contentOffset,
-                inCoordinateSpace: .named(coorditateSpaceName)
+                inCoordinateSpace: .named(coorditateSpaceName),
+                bindTo: $contentOffset
             )
         }
         .padding(.horizontal, 16)
