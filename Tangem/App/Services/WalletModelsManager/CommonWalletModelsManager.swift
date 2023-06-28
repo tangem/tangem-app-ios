@@ -13,8 +13,9 @@ class CommonWalletModelsManager {
     private let walletManagersRepository: WalletManagersRepository
     private let walletModelsFactory: WalletModelsFactory
 
-    private var walletModels = CurrentValueSubject<[WalletModel], Never>([])
+    private var _walletModels = CurrentValueSubject<[WalletModel], Never>([])
     private var bag = Set<AnyCancellable>()
+    private var updateAllSubscription: AnyCancellable?
 
     init(
         walletManagersRepository: WalletManagersRepository,
@@ -37,7 +38,7 @@ class CommonWalletModelsManager {
     private func updateWalletModels(with walletManagers: [BlockchainNetwork: WalletManager]) {
         AppLog.shared.debug("🔄 Updating Wallet models")
 
-        var existingWalletModels = walletModels.value
+        var existingWalletModels = walletModels
         let newWalletModels = walletManagers.flatMap { walletModelsFactory.makeWalletModels(from: $0.value) }
 
         let walletModelsToDelete = Set(existingWalletModels).subtracting(newWalletModels).map { $0.id }
@@ -59,15 +60,41 @@ class CommonWalletModelsManager {
 
         log(walletModels: existingWalletModels)
         
-        walletModels.send(existingWalletModels)
+        _walletModels.send(existingWalletModels)
     }
 }
 
 // MARK: - WalletListManager
 
 extension CommonWalletModelsManager: WalletModelsManager {
+    var walletModels: [WalletModel] {
+        _walletModels.value
+    }
+
     var walletModelsPublisher: AnyPublisher<[WalletModel], Never> {
-        walletModels.eraseToAnyPublisher()
+        _walletModels.eraseToAnyPublisher()
+    }
+
+    func updateAll() {
+        walletModels.forEach {
+            $0.update(silent: false)
+        }
+    }
+
+    func updateAll(silent: Bool, completion: @escaping () -> Void) {
+        let publishers = walletModels.map {
+            $0.update(silent: silent).replaceError(with: ())
+        }
+
+        updateAllSubscription = Publishers
+            .MergeMany(publishers)
+            .collect(publishers.count)
+            .mapVoid()
+            .eraseToAnyPublisher()
+            .receive(on: RunLoop.main)
+            .receiveCompletion { _ in
+                completion()
+            }
     }
 
 //    func getWalletModels() -> [WalletModel] {
