@@ -25,7 +25,7 @@ class WalletOnboardingStepsBuilder {
     }
 
     private var backupSteps: [WalletOnboardingStep] {
-        if card.backupStatus?.isActive == true {
+        if card.backupStatus?.canBackup == false {
             return []
         }
 
