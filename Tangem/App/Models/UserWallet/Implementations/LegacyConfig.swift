@@ -210,12 +210,12 @@ extension LegacyConfig: UserWalletConfig {
         }
     }
 
-    func makeWalletModelsFactory() throws -> WalletModelsFactory {
-        if isMultiwallet {
-            return MultiWalletModelsFactory(isHDWalletAllowed: false, derivationStyle: nil)
-        } else {
-            return SingleWalletModelsFactory()
-        }
+    func makeWalletModelsFactory() -> WalletModelsFactory {
+        return CommonWalletModelsFactory(derivationStyle: nil)
+    }
+
+    func makeAnyWalletManagerFacrory() throws -> AnyWalletManagerFactory {
+        return SimpleWalletManagerFactory()
     }
 }
 
