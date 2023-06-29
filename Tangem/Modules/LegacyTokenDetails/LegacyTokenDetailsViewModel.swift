@@ -324,7 +324,6 @@ class LegacyTokenDetailsViewModel: ObservableObject {
             return
         }
 
-        
         if walletModel.canRemove(amountType: amountType) {
             showWarningDeleteAlert()
         } else {
