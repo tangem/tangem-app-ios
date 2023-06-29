@@ -10,8 +10,8 @@ import Foundation
 
 struct PromotionParameters: Decodable {
     let status: Status
-    let awardForNewCard: Double
-    let awardForOldCard: Double
+    let awardForNewCard: Int
+    let awardForOldCard: Int
     let awardPaymentToken: AwardToken
 }
 
