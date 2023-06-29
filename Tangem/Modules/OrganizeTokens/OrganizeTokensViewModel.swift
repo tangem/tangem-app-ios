@@ -12,11 +12,14 @@ import SwiftUI
 final class OrganizeTokensViewModel: ObservableObject {
     var itemIndexSentinelValueForSectionIndexPath: Int { .min }
 
-    let headerViewModel: OrganizeTokensHeaderViewModel
+    private(set) lazy var headerViewModel = OrganizeTokensHeaderViewModel()
 
-    @Published var sections: [OrganizeTokensListSectionViewModel]
+    @Published var sections: [OrganizeTokensListSectionViewModel] = []
 
     private unowned let coordinator: OrganizeTokensRoutable
+
+    private let userWalletModel: UserWalletModel
+    private var userTokenListManager: UserTokenListManager { userWalletModel.userTokenListManager }
 
     private var currentlyDraggedSectionIdentifier: UUID?
     private var currentlyDraggedSectionItems: [OrganizeTokensListItemViewModel] = []
@@ -24,11 +27,10 @@ final class OrganizeTokensViewModel: ObservableObject {
     @available(*, deprecated, message: "Only for SwiftUI previews")
     init(
         coordinator: OrganizeTokensRoutable,
-        sections: [OrganizeTokensListSectionViewModel]
+        userWalletModel: UserWalletModel
     ) {
         self.coordinator = coordinator
-        self.sections = sections
-        headerViewModel = OrganizeTokensHeaderViewModel()
+        self.userWalletModel = userWalletModel
     }
 
     func itemViewModel(for identifier: UUID) -> OrganizeTokensListItemViewModel? {
