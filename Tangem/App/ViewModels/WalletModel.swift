@@ -87,6 +87,10 @@ class WalletModel: ObservableObject {
         wallet.addresses.map { $0.localizedName }
     }
 
+    var defaultAddress: String {
+        wallet.defaultAddress.value
+    }
+
     var isTestnet: Bool {
         wallet.blockchain.isTestnet
     }
