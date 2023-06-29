@@ -100,7 +100,7 @@ class WalletModel: ObservableObject, Identifiable {
     private var updateQueue = DispatchQueue(label: "walletModel_update_queue")
 
     deinit {
-        AppLog.shared.debug("🗑 WalletModel deinit")
+        AppLog.shared.debug("🗑 \(self) deinit")
     }
 
     init(walletManager: WalletManager, derivationStyle: DerivationStyle?) {
@@ -205,10 +205,9 @@ class WalletModel: ObservableObject, Identifiable {
     func updateWalletManager() -> AnyPublisher<WalletManagerUpdateResult, Error> {
         Future { promise in
             self.updateQueue.sync {
-                AppLog.shared.debug("🔄 Updating wallet model for \(self.wallet.blockchain)")
+                AppLog.shared.debug("🔄 Updating \(self)")
                 self.walletManager.update { [weak self] result in
-                    let blockchainName = self?.wallet.blockchain.displayName ?? ""
-                    AppLog.shared.debug("🔄 Finished updating wallet model for \(blockchainName) result: \(result)")
+                    AppLog.shared.debug("🔄 Finished updating \(self?.description ?? ""), result: \(result)")
 
                     switch result {
                     case .success:
@@ -252,11 +251,11 @@ class WalletModel: ObservableObject, Identifiable {
 
     private func updateState(_ state: State) {
         guard self.state != state else {
-            AppLog.shared.debug("Duplicate request to WalletModel state")
+            AppLog.shared.debug("Duplicate request to change \(self) state")
             return
         }
 
-        AppLog.shared.debug("🔄 Update state \(state) in WalletModel: \(blockchainNetwork.blockchain.displayName)")
+        AppLog.shared.debug("🔄 Update state \(state) in \(self)")
         DispatchQueue.main.async { [weak self] in // captured as weak at call stack
             self?.state = state
         }
@@ -283,7 +282,7 @@ class WalletModel: ObservableObject, Identifiable {
             .receive(on: DispatchQueue.main)
             .sink { [weak self] completion in
                 if case .failure(let error) = completion {
-                    AppLog.shared.debug("🔄 Failed to load transaction history. Error: \(error)")
+                    AppLog.shared.debug("🔄 Failed to load transaction history for \(self?.description ?? ""), error: \(error)")
                     self?.transactionHistoryState = .failedToLoad(error)
                 }
                 self?.txHistoryUpdateSubscription = nil
@@ -304,7 +303,7 @@ class WalletModel: ObservableObject, Identifiable {
         var currenciesToExchange = [walletManager.wallet.blockchain.currencyId]
         currenciesToExchange += walletManager.cardTokens.compactMap { $0.id }
 
-        AppLog.shared.debug("🔄 Start loading rates for \(wallet.blockchain)")
+        AppLog.shared.debug("🔄 Start loading rates for \(self)")
 
         return tangemApiService
             .loadRates(for: currenciesToExchange)
@@ -315,11 +314,11 @@ class WalletModel: ObservableObject, Identifiable {
 
     func updateRatesIfNeeded(_ rates: [String: Decimal]) {
         if !self.rates.isEmpty, rates.isEmpty {
-            AppLog.shared.debug("🔴 New rates for \(wallet.blockchain) isEmpty")
+            AppLog.shared.debug("🔴 New rates for \(self) isEmpty")
             return
         }
 
-        AppLog.shared.debug("🔄 Update rates for \(wallet.blockchain)")
+        AppLog.shared.debug("🔄 Update rates for \(self)")
         DispatchQueue.main.async {
             self.rates = rates
         }
@@ -362,7 +361,7 @@ class WalletModel: ObservableObject, Identifiable {
 
     func startUpdatingTimer() {
         latestUpdateTime = nil
-        AppLog.shared.debug("⏰ Starting updating timer for Wallet model")
+        AppLog.shared.debug("⏰ Starting updating timer for \(self)")
         updateTimer = Timer.TimerPublisher(
             interval: 10.0,
             tolerance: 0.1,
@@ -371,7 +370,7 @@ class WalletModel: ObservableObject, Identifiable {
         )
         .autoconnect()
         .sink { [weak self] _ in
-            AppLog.shared.debug("⏰ Updating timer alarm ‼️ Wallet model will be updated")
+            AppLog.shared.debug("⏰ Updating timer alarm ‼️ \(self?.description ?? "") will be updated")
             self?.update(silent: false)
             self?.updateTimer?.cancel()
         }
@@ -529,6 +528,17 @@ extension WalletModel {
         case .token(let token):
             return token.id == nil
         }
+    }
+}
+
+// MARK: - CustomStringConvertible protocol conformance
+
+extension WalletModel: CustomStringConvertible {
+    var description: String {
+        return objectDescription(
+            self,
+            userInfo: ["Network": blockchainNetwork.blockchain.displayName]
+        )
     }
 }
 
