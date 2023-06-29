@@ -414,13 +414,13 @@
 "token_details_unable_hide_alert_message" = "Токен %1$@ является основной валютой в сети %2$@ и не может быть скрыт до тех пор, пока у вас в списке есть другие токены этой сети.";
 "token_details_unable_hide_alert_title" = "Невозможно скрыть %@";
 "token_item_no_rate" = "Нет цены";
-"transaction_history_contract_address" = "контракт: %s";
+"transaction_history_contract_address" = "контракт: %@";
 "transaction_history_empty_transactions" = "У вас еще нет транзакций";
 "transaction_history_error_failed_to_load" = "Не удалось загрузить историю транзакций.\nНажмите на кнопку перезагрузки, чтобы обновить информацию.";
 "transaction_history_not_supported_description" = "История транзакций в настоящее время не поддерживается для этого блокчейна. Но не волнуйтесь, мы работаем над этим! А пока вы можете проверить ее в обозревателе.";
 "transaction_history_title" = "Транзакции";
-"transaction_history_transaction_from_address" = "от: %s";
-"transaction_history_transaction_to_address" = "на: %s";
+"transaction_history_transaction_from_address" = "от: %@";
+"transaction_history_transaction_to_address" = "на: %@";
 "transaction_history_tx_in_progress" = "В процессе…";
 "twin_error_not_a_twin_card" = "Вы отсканировали не twin-карту. Для создания двойного кошелька необходимо отсканировать карту Tangem Twin.";
 "twin_error_same_card" = "Вы отсканировали ту же карту. Для создания twin-кошелька вам необходимо отсканировать карту с номером %li";
@@ -502,7 +502,7 @@
 "wallet_connect_tx_not_found" = "Не удалось найти хэш транзакции";
 "wallet_currency_subtitle" = "Сеть %@";
 "wallet_error_no_account" = "Аккаунт не создан";
-"wallet_network_group_title" = "Сеть %s";
+"wallet_network_group_title" = "Сеть %@";
 "wallet_notification_address_copied" = "Адрес скопирован в буфер обмена";
 "wallet_pending_tx_receiving" = "Получение";
 "wallet_pending_tx_receiving_address_format" = "от %@";
