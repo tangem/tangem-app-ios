@@ -12,30 +12,30 @@ import Combine
 protocol UserWalletModel: AnyObject {
     var isMultiWallet: Bool { get }
     var userWalletId: UserWalletId { get }
-   // var walletModels: [WalletModel] { get }
+    // var walletModels: [WalletModel] { get }
     var userTokenListManager: UserTokenListManager { get }
     var totalBalanceProvider: TotalBalanceProviding { get }
     var userWallet: UserWallet { get }
 
-   // func subscribeToWalletModels() -> AnyPublisher<[WalletModel], Never>
+    // func subscribeToWalletModels() -> AnyPublisher<[WalletModel], Never>
 
-    //func getSavedEntries() -> [StorageEntry]
-    //func getEntriesWithoutDerivation() -> [StorageEntry]
-   // func subscribeToEntriesWithoutDerivation() -> AnyPublisher<[StorageEntry], Never>
+    // func getSavedEntries() -> [StorageEntry]
+    // func getEntriesWithoutDerivation() -> [StorageEntry]
+    // func subscribeToEntriesWithoutDerivation() -> AnyPublisher<[StorageEntry], Never>
 
-    //func canManage(amountType: Amount.AmountType, blockchainNetwork: BlockchainNetwork) -> Bool
-    //func update(entries: [StorageEntry])
-    //func append(entries: [StorageEntry])
-    //func remove(amountType: Amount.AmountType, blockchainNetwork: BlockchainNetwork)
+    // func canManage(amountType: Amount.AmountType, blockchainNetwork: BlockchainNetwork) -> Bool
+    // func update(entries: [StorageEntry])
+    // func append(entries: [StorageEntry])
+    // func remove(amountType: Amount.AmountType, blockchainNetwork: BlockchainNetwork)
 
     /// Update if the wallet model hasn't initial updates
     func initialUpdate()
     func updateWalletName(_ name: String)
-    //func updateWalletModels()
-    //func updateAndReloadWalletModels(silent: Bool, completion: @escaping () -> Void)
+    // func updateWalletModels()
+    // func updateAndReloadWalletModels(silent: Bool, completion: @escaping () -> Void)
 }
 
-//extension UserWalletModel {
+// extension UserWalletModel {
 //    func updateAndReloadWalletModels(completion: @escaping () -> Void) {
 //        updateAndReloadWalletModels(silent: false, completion: completion)
 //    }
@@ -43,4 +43,4 @@ protocol UserWalletModel: AnyObject {
 //    func updateAndReloadWalletModels() {
 //        updateAndReloadWalletModels(silent: false, completion: {})
 //    }
-//}
+// }

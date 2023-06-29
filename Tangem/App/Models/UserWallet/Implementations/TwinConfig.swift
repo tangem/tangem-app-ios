@@ -158,7 +158,6 @@ extension TwinConfig: UserWalletConfig {
         return TwinWalletManagerFactory(pairPublicKey: savedPairKey)
     }
 
-
     func makeOnboardingStepsBuilder(backupService: BackupService) -> OnboardingStepsBuilder {
         return TwinOnboardingStepsBulder(card: card, twinData: twinData, touId: tou.id)
     }
