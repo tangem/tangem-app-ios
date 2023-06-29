@@ -415,13 +415,13 @@
 "token_details_unable_hide_alert_message" = "%1$@ 代幣是 %2$@ 網絡上的主要貨幣，只要列表中還有該網絡上的其他代幣，它就無法被隱藏。";
 "token_details_unable_hide_alert_title" = "無法隱藏 %@";
 "token_item_no_rate" = "無費用";
-"transaction_history_contract_address" = "contract: %s";
+"transaction_history_contract_address" = "contract: %@";
 "transaction_history_empty_transactions" = "您還沒有任何交易";
 "transaction_history_error_failed_to_load" = "Failed to load transaction history.\nClick on reload button to update the information.";
 "transaction_history_not_supported_description" = "Transaction history is currently not supported for this blockchain. But don't worry, we're working on it! In the meantime you can check it in the explorer.";
 "transaction_history_title" = "交易";
-"transaction_history_transaction_from_address" = "from: %s";
-"transaction_history_transaction_to_address" = "to: %s";
+"transaction_history_transaction_from_address" = "from: %@";
+"transaction_history_transaction_to_address" = "to: %@";
 "transaction_history_tx_in_progress" = "進行中…";
 "twin_error_not_a_twin_card" = "您掃描的不是雙胞胎卡。要創建雙胞胎錢包，您需要掃描 Tangem Twin 卡";
 "twin_error_same_card" = "您掃描了同一張卡片。要創建雙錢包，您需要掃描編號為 %li 的卡";
@@ -503,7 +503,7 @@
 "wallet_connect_tx_not_found" = "未能找到交易哈希";
 "wallet_currency_subtitle" = "%@ 網路";
 "wallet_error_no_account" = "帳號尚未被創造";
-"wallet_network_group_title" = "%s network";
+"wallet_network_group_title" = "%@ network";
 "wallet_notification_address_copied" = "地址已復製到剪貼板";
 "wallet_pending_tx_receiving" = "接收中";
 "wallet_pending_tx_receiving_address_format" = "來自%@";
