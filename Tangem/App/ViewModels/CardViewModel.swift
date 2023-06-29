@@ -36,7 +36,7 @@ class CardViewModel: Identifiable, ObservableObject {
     private let keysRepository: KeysRepository
     private let walletManagersRepository: WalletManagersRepository
 
-    private lazy var derivationManager: DerivationManager? = {
+    lazy var derivationManager: DerivationManager? = {
         let commonDerivationManager = CommonDerivationManager(
             keysRepository: keysRepository,
             userTokenListManager: userTokenListManager

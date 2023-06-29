@@ -212,11 +212,11 @@ class LegacyMainViewModel: ObservableObject {
     // MARK: - Functions
 
     func bind() {
-        cardModel.subscribeToEntriesWithoutDerivation()
+        cardModel.derivationManager?.hasPendingDerivations
             .receive(on: DispatchQueue.main)
             .removeDuplicates()
-            .sink { [unowned self] entries in
-                updateLackDerivationWarningView(entries: entries)
+            .sink { [unowned self] hasPendingDerivations in
+                updateLackDerivationWarningView(hasPendingDerivations)
             }
             .store(in: &bag)
 
@@ -345,7 +345,7 @@ class LegacyMainViewModel: ObservableObject {
 
     func deriveEntriesWithoutDerivation() {
         Analytics.log(.noticeScanYourCardTapped)
-        cardModel.deriveEntriesWithoutDerivation()
+        cardModel.derivationManager?.deriveKeys(cardInteractor: cardModel.cardInteractor, completion: { _ in })
     }
 
     func extractSellCryptoRequest(from response: String) {
@@ -467,13 +467,15 @@ private extension LegacyMainViewModel {
 
         if cardModel.isMultiWallet {
             multiWalletContentViewModel = LegacyMultiWalletContentViewModel(
-                cardModel: cardModel,
+                walletModelsManager: cardModel.walletModelsManager,
                 userTokenListManager: cardModel.userTokenListManager,
+                totalBalanceProvider: cardModel.totalBalanceProvider,
                 output: self
             )
         } else {
             singleWalletContentViewModel = LegacySingleWalletContentViewModel(
-                cardModel: cardModel,
+                walletModelsManager: cardModel.walletModelsManager,
+                totalBalanceProvider: cardModel.totalBalanceProvider,
                 output: self
             )
         }
@@ -487,8 +489,8 @@ private extension LegacyMainViewModel {
         self.error = error
     }
 
-    private func updateLackDerivationWarningView(entries: [StorageEntry]) {
-        isLackDerivationWarningViewVisible = !entries.isEmpty
+    private func updateLackDerivationWarningView(_ hasPendingDerivations: Bool) {
+        isLackDerivationWarningViewVisible = hasPendingDerivations
     }
 
     private func loadImage() {
@@ -558,7 +560,8 @@ private extension LegacyMainViewModel {
     private func startPromotionAwardProcess() async throws {
         let awarded = try await promotionService.claimReward(
             userWalletId: cardModel.userWalletId.stringValue,
-            storageEntryAdding: cardModel
+            userTokensManager: cardModel.userTokensManager,
+            walletModelsManager: cardModel.walletModelsManager
         )
 
         if awarded {
@@ -662,7 +665,7 @@ extension LegacyMainViewModel {
                 Analytics.log(event: .tokenBought, params: [.token: code])
 
                 DispatchQueue.main.asyncAfter(deadline: .now() + 1) { [weak self] in
-                    self?.cardModel.updateAndReloadWalletModels()
+                    self?.cardModel.walletModelsManager.updateAll(silent: true, completion: {})
                 }
             }
         }
