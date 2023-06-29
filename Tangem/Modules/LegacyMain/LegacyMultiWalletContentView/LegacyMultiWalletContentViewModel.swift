@@ -33,7 +33,7 @@ class LegacyMultiWalletContentViewModel: ObservableObject {
     init(
         walletModelsManager: WalletModelsManager,
         userTokenListManager: UserTokenListManager,
-        totalBalanceProvider: TotalBalanceProvider,
+        totalBalanceProvider: TotalBalanceProviding,
         output: LegacyMultiWalletContentViewModelOutput
     ) {
         self.walletModelsManager = walletModelsManager
