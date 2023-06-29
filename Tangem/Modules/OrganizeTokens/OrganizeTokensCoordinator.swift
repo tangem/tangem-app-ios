@@ -26,10 +26,9 @@ final class OrganizeTokensCoordinator: CoordinatorObject {
     }
 
     func start(with options: Options) {
-        // [REDACTED_TODO_COMMENT]
         rootViewModel = OrganizeTokensViewModel(
             coordinator: self,
-            sections: OrganizeTokensPreviewProvider().multipleSections()
+            userWalletModel: options.userWalletModel
         )
     }
 }
@@ -37,9 +36,8 @@ final class OrganizeTokensCoordinator: CoordinatorObject {
 // MARK: - Options
 
 extension OrganizeTokensCoordinator {
-    enum Options {
-        // [REDACTED_TODO_COMMENT]
-        case none
+    struct Options {
+        let userWalletModel: UserWalletModel
     }
 }
 
