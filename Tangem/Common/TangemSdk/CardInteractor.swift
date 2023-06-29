@@ -66,16 +66,17 @@ extension CardInteractor: CardDerivable {
 
         tangemSdk.startSession(
             with: task,
-            cardId: cardId) { [weak self] result in
-                switch result {
-                case .success(let response):
-                    completion(.success(response))
-                case .failure(let error):
-                    AppLog.shared.error(error, params: [.action: .deriveKeys])
-                    completion(.failure(error))
-                }
-
-                self?.runnableBag = nil
+            cardId: cardId
+        ) { [weak self] result in
+            switch result {
+            case .success(let response):
+                completion(.success(response))
+            case .failure(let error):
+                AppLog.shared.error(error, params: [.action: .deriveKeys])
+                completion(.failure(error))
             }
+
+            self?.runnableBag = nil
+        }
     }
 }
