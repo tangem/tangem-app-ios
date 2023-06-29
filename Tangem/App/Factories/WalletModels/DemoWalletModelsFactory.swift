@@ -13,7 +13,7 @@ struct DemoWalletModelsFactory {
     private let factory: CommonWalletModelsFactory
 
     init(derivationStyle: DerivationStyle?) {
-        self.factory = CommonWalletModelsFactory(derivationStyle: derivationStyle)
+        factory = CommonWalletModelsFactory(derivationStyle: derivationStyle)
     }
 }
 
