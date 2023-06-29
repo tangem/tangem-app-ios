@@ -12,6 +12,7 @@ import BlockchainSdk
 
 class CommonWalletManagersRepository {
     // MARK: - Dependencies
+
     private let keysProvider: KeysProvider
     private let userTokenListManager: UserTokenListManager
     private let walletManagerFactory: AnyWalletManagerFactory
@@ -44,7 +45,6 @@ class CommonWalletManagersRepository {
 
         entries.forEach { entry in
             if let existingWalletManager = walletManagers.value[entry.blockchainNetwork] {
-
                 let tokensToRemove = Set(existingWalletManager.cardTokens).subtracting(entry.tokens)
                 for tokenToRemove in tokensToRemove {
                     existingWalletManager.removeToken(tokenToRemove)
@@ -71,8 +71,7 @@ class CommonWalletManagersRepository {
     private func makeWalletManager(for entry: StorageEntry) -> WalletManager? {
         do {
             return try walletManagerFactory.makeWalletManager(for: entry, keys: keysProvider.keys)
-        }
-        catch AnyWalletManagerFactoryError.noDerivation {
+        } catch AnyWalletManagerFactoryError.noDerivation {
             AppLog.shared.debug("‼️ No derivation for \(entry.blockchainNetwork.blockchain.displayName)")
         } catch {
             AppLog.shared.debug("‼️ Failed to create \(entry.blockchainNetwork.blockchain.displayName)")
