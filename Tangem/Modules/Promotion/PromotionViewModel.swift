@@ -60,7 +60,7 @@ final class PromotionViewModel: ObservableObject {
     }
 
     private var urlPath: String {
-        "\(languageCode)/promotion-test"
+        "\(languageCode)/promotion"
     }
 
     private var languageCode: String {
