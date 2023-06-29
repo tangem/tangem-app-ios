@@ -13,16 +13,16 @@ import BlockchainSdk
 class TotalBalanceProvider {
     @Injected(\.tangemApiService) private var tangemApiService: TangemApiService
 
-    private unowned let userWalletModel: UserWalletModel
+    private let walletModelsManager: WalletModelsManager
+    private let derivationManager: DerivationManager?
     private let totalBalanceSubject = CurrentValueSubject<LoadingValue<TotalBalance>, Never>(.loading)
     private var refreshSubscription: AnyCancellable?
-    private let userWalletAmountType: Amount.AmountType?
     private var bag: Set<AnyCancellable> = .init()
     private var updateSubscription: AnyCancellable?
 
-    init(userWalletModel: UserWalletModel, userWalletAmountType: Amount.AmountType?) {
-        self.userWalletModel = userWalletModel
-        self.userWalletAmountType = userWalletAmountType
+    init(walletModelsManager: WalletModelsManager, derivationManager: DerivationManager?) {
+        self.walletModelsManager = walletModelsManager
+        self.derivationManager = derivationManager
         bind()
     }
 }
@@ -37,12 +37,10 @@ extension TotalBalanceProvider: TotalBalanceProviding {
 
 private extension TotalBalanceProvider {
     func bind() {
-        let hasEntriesWithoutDerivationPublisher = userWalletModel
-            .subscribeToEntriesWithoutDerivation()
-            .map { !$0.isEmpty }
+        let hasEntriesWithoutDerivationPublisher = derivationManager?.hasPendingDerivations ?? .just(output: false)
 
         // Subscription to handle token changes
-        userWalletModel.subscribeToWalletModels()
+        walletModelsManager.walletModelsPublisher
             .combineLatest(
                 AppSettings.shared.$selectedCurrencyCode.delay(for: 0.3, scheduler: DispatchQueue.main),
                 hasEntriesWithoutDerivationPublisher
@@ -100,16 +98,10 @@ private extension TotalBalanceProvider {
     }
 
     func mapToTotalBalance(currencyCode: String, _ walletModels: [WalletModel], _ hasEntriesWithoutDerivation: Bool) -> TotalBalance {
-        let tokenItemViewModels = walletModels.filter { model in
-            guard let amountType = userWalletAmountType else { return true }
-
-            return model.amountType == amountType
-        }
-
         var hasError = false
         var balance: Decimal?
 
-        for token in tokenItemViewModels {
+        for token in walletModels {
             if !token.state.isSuccesfullyLoaded {
                 balance = nil
                 break
