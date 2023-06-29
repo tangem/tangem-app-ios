@@ -71,7 +71,7 @@ struct TransactionsListView: View {
 
             Text(Localization.transactionHistoryNotSupportedDescription)
                 .multilineTextAlignment(.center)
-                .lineSpacing(3.5)
+                .lineSpacing(Constants.lineSpacing)
                 .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
                 .padding(.horizontal, 36)
 
@@ -123,7 +123,7 @@ struct TransactionsListView: View {
             Text(Localization.transactionHistoryErrorFailedToLoad)
                 .multilineTextAlignment(.center)
                 .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
-                .lineSpacing(3.5)
+                .lineSpacing(Constants.lineSpacing)
                 .padding(.horizontal, 36)
 
             buttonWithLoader(title: Localization.commonReload, action: reloadButtonAction, isLoading: isReloadButtonBusy)
@@ -136,12 +136,12 @@ struct TransactionsListView: View {
         if transactionItems.isEmpty {
             noTransactionsContent
         } else {
-            VStack(spacing: 12) {
+            LazyVStack(spacing: 12) {
                 header
 
                 ForEach(transactionItems, id: \.id) { item in
                     Section {
-                        VStack(spacing: 12) {
+                        LazyVStack(spacing: 12) {
                             ForEach(item.items, id: \.id) { record in
                                 TransactionView(transactionRecord: record)
                             }
@@ -181,7 +181,7 @@ struct TransactionsListView: View {
                 .overlay(
                     ProgressView()
                         .progressViewStyle(CircularProgressViewStyle(tint: Colors.Icon.primary1))
-                        .opacity(isLoading ? 1.0 : 0)
+                        .hidden(!isLoading)
                         .disabled(!isLoading)
                 )
         }
@@ -199,6 +199,13 @@ extension TransactionsListView {
     }
 }
 
+extension TransactionsListView {
+    enum Constants {
+        /// An approximate value from the design
+        static let lineSpacing: CGFloat = 3.5
+    }
+}
+
 struct TransactionsListView_Previews: PreviewProvider {
     static let listItems = [
         TransactionListItem(
@@ -207,7 +214,7 @@ struct TransactionsListView_Previews: PreviewProvider {
                 TransactionRecord(
                     amountType: .coin,
                     destination: "0x0123...baced",
-                    timeFormatted: "05:00",
+                    timeFormatted: "01:00",
                     transferAmount: "-15 wxDAI",
                     transactionType: .send,
                     status: .inProgress
@@ -215,7 +222,7 @@ struct TransactionsListView_Previews: PreviewProvider {
                 TransactionRecord(
                     amountType: .coin,
                     destination: "0x0123...baced",
-                    timeFormatted: "05:00",
+                    timeFormatted: "02:00",
                     transferAmount: "-15 wxDAI",
                     transactionType: .send,
                     status: .confirmed
@@ -231,7 +238,7 @@ struct TransactionsListView_Previews: PreviewProvider {
                 TransactionRecord(
                     amountType: .coin,
                     destination: "0x0123...baced",
-                    timeFormatted: "05:00",
+                    timeFormatted: "08:00",
                     transferAmount: "-15 wxDAI",
                     transactionType: .send,
                     status: .confirmed
@@ -260,7 +267,7 @@ struct TransactionsListView_Previews: PreviewProvider {
                 TransactionRecord(
                     amountType: .coin,
                     destination: "0x0123...baced",
-                    timeFormatted: "05:00",
+                    timeFormatted: "09:00",
                     transferAmount: "-15 wxDAI",
                     transactionType: .send,
                     status: .confirmed
@@ -281,7 +288,7 @@ struct TransactionsListView_Previews: PreviewProvider {
                 TransactionRecord(
                     amountType: .coin,
                     destination: "0x0123...baced",
-                    timeFormatted: "05:00",
+                    timeFormatted: "08:00",
                     transferAmount: "-15 wxDAI",
                     transactionType: .send,
                     status: .confirmed
@@ -300,7 +307,7 @@ struct TransactionsListView_Previews: PreviewProvider {
 
     static var previews: some View {
         ScrollView {
-            LazyVStack(spacing: 16) {
+            VStack(spacing: 16) {
                 TransactionsListView(state: .notSupported, exploreAction: {}, reloadButtonAction: {}, isReloadButtonBusy: false, buyButtonAction: {})
 
                 TransactionsListView(state: .loading, exploreAction: {}, reloadButtonAction: {}, isReloadButtonBusy: false, buyButtonAction: {})
@@ -315,9 +322,13 @@ struct TransactionsListView_Previews: PreviewProvider {
         .background(Colors.Background.secondary.edgesIgnoringSafeArea(.all))
 
         ScrollView {
-            LazyVStack {
-                TransactionsListView(state: .loaded(listItems), exploreAction: {}, reloadButtonAction: {}, isReloadButtonBusy: false, buyButtonAction: {})
-            }
+            TransactionsListView(
+                state: .loaded(listItems),
+                exploreAction: {},
+                reloadButtonAction: {},
+                isReloadButtonBusy: false,
+                buyButtonAction: {}
+            )
             .padding(.horizontal, 16)
         }
         .preferredColorScheme(.dark)
