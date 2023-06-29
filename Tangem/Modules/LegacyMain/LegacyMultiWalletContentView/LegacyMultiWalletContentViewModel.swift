@@ -39,10 +39,9 @@ class LegacyMultiWalletContentViewModel: ObservableObject {
         self.walletModelsManager = walletModelsManager
         self.userTokenListManager = userTokenListManager
         self.output = output
-        self.totalSumBalanceViewModel = .init(
+        totalSumBalanceViewModel = .init(
             totalBalanceProvider: totalBalanceProvider,
             walletModelsManager: walletModelsManager,
-            cardAmountType: nil,
             tapOnCurrencySymbol: output
         )
         tokenListIsEmpty = walletModelsManager.walletModels.isEmpty
@@ -88,19 +87,18 @@ private extension LegacyMultiWalletContentViewModel {
             }
             .store(in: &bag)
 
-
         walletModelsManager.walletModelsPublisher
-        .receive(on: DispatchQueue.global())
-        .map { [weak self] _ -> [LegacyTokenItemViewModel] in
-            /// `unowned` will be crashed when the wallet which currently open is deleted from the list of saved wallet
-            self?.collectTokenItemViewModels() ?? []
-        }
-        .removeDuplicates()
-        .receive(on: RunLoop.main)
-        .sink { [weak self] viewModels in
-            self?.updateView(viewModels: viewModels)
-        }
-        .store(in: &bag)
+            .receive(on: DispatchQueue.global())
+            .map { [weak self] _ -> [LegacyTokenItemViewModel] in
+                /// `unowned` will be crashed when the wallet which currently open is deleted from the list of saved wallet
+                self?.collectTokenItemViewModels() ?? []
+            }
+            .removeDuplicates()
+            .receive(on: RunLoop.main)
+            .sink { [weak self] viewModels in
+                self?.updateView(viewModels: viewModels)
+            }
+            .store(in: &bag)
     }
 
     func updateView(viewModels: [LegacyTokenItemViewModel]) {
