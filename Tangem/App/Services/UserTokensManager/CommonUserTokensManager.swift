@@ -28,7 +28,6 @@ struct CommonUserTokensManager {
         self.cardDerivableProvider = cardDerivableProvider
     }
 
-
     private func makeBlockchainNetwork(for blockchain: Blockchain, derivationPath: DerivationPath?) -> BlockchainNetwork {
         if let derivationPath = derivationPath {
             return BlockchainNetwork(blockchain, derivationPath: derivationPath)
@@ -61,13 +60,39 @@ extension CommonUserTokensManager: UserTokensManager {
     }
 
     func add(_ tokenItem: TokenItem, derivationPath: DerivationPath?, completion: @escaping (Result<Void, TangemSdkError>) -> Void) {
-        let blockchainNetwork = makeBlockchainNetwork(for: tokenItem.blockchain, derivationPath: derivationPath)
-        let entry = StorageEntry(blockchainNetwork: blockchainNetwork, token: tokenItem.token)
-        userTokenListManager.update(.append([entry]))
+       add([tokenItem], derivationPath: derivationPath, completion: completion)
+    }
+
+    func add(_ tokenItems: [TokenItem], derivationPath: DerivationPath?, completion: @escaping (Result<Void, TangemSdkError>) -> Void) {
+        let entries = tokenItems.map { tokenItem in
+            let blockchainNetwork = makeBlockchainNetwork(for: tokenItem.blockchain, derivationPath: derivationPath)
+            return StorageEntry(blockchainNetwork: blockchainNetwork, token: tokenItem.token)
+        }
+
+        userTokenListManager.update(.append(entries))
         deriveIfNeeded(completion: completion)
     }
 
+    func canRemove(_ tokenItem: TokenItem, derivationPath: DerivationPath?) -> Bool {
+        guard tokenItem.isBlockchain else {
+            return true
+        }
+
+        let blockchainNetwork = makeBlockchainNetwork(for: tokenItem.blockchain, derivationPath: derivationPath)
+
+        guard let entry = userTokenListManager.userTokens.first(where: { $0.blockchainNetwork == blockchainNetwork }) else {
+            return false
+        }
+
+        let hasNoTokens = entry.tokens.isEmpty
+        return hasNoTokens
+    }
+
     func remove(_ tokenItem: TokenItem, derivationPath: DerivationPath?) {
+        guard canRemove(tokenItem, derivationPath: derivationPath) else {
+            return
+        }
+
         let blockchainNetwork = makeBlockchainNetwork(for: tokenItem.blockchain, derivationPath: derivationPath)
 
         if let token = tokenItem.token {
