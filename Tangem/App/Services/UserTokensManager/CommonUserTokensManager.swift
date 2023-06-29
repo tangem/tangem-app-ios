@@ -60,7 +60,7 @@ extension CommonUserTokensManager: UserTokensManager {
     }
 
     func add(_ tokenItem: TokenItem, derivationPath: DerivationPath?, completion: @escaping (Result<Void, TangemSdkError>) -> Void) {
-       add([tokenItem], derivationPath: derivationPath, completion: completion)
+        add([tokenItem], derivationPath: derivationPath, completion: completion)
     }
 
     func add(_ tokenItems: [TokenItem], derivationPath: DerivationPath?, completion: @escaping (Result<Void, TangemSdkError>) -> Void) {
