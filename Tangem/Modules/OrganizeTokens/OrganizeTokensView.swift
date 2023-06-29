@@ -68,7 +68,11 @@ struct OrganizeTokensView: View {
             )
             .navigationTitle(Localization.organizeTokensTitle)
             .navigationBarTitleDisplayMode(.inline)
-            .onAppear { dragAndDropController.dataSource = viewModel }
+            .onAppear {
+                dragAndDropController.dataSource = viewModel
+                viewModel.onViewAppear()
+            }
+            .onDidAppear(viewModel.onViewDisappear)
         }
     }
 
