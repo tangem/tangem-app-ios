@@ -15,14 +15,14 @@ protocol WalletModelsManager {
 //    func getWalletModels() -> [WalletModel]
 //    func subscribeToWalletModels() -> AnyPublisher<[WalletModel], Never>
 
-  //  func getEntriesWithoutDerivation() -> [StorageEntry]
-   // func subscribeToEntriesWithoutDerivation() -> AnyPublisher<[StorageEntry], Never>
+    //  func getEntriesWithoutDerivation() -> [StorageEntry]
+    // func subscribeToEntriesWithoutDerivation() -> AnyPublisher<[StorageEntry], Never>
 
     /// Check new tokens in the respository and add if needed
-    //func updateWalletModels()
+    // func updateWalletModels()
 
     /// Call method update in every wallet model
-   // func reloadWalletModels(silent: Bool) -> AnyPublisher<Void, Never>
+    // func reloadWalletModels(silent: Bool) -> AnyPublisher<Void, Never>
 
 //    func canManage(amountType: Amount.AmountType, blockchainNetwork: BlockchainNetwork) -> Bool
 //    func canRemove(amountType: Amount.AmountType, blockchainNetwork: BlockchainNetwork) -> Bool
