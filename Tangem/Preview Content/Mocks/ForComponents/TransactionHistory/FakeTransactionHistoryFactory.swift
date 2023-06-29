@@ -81,7 +81,7 @@ struct FakeTransactionHistoryFactory {
             TransactionRecord(
                 amountType: .coin,
                 destination: destination(for: .approval, address: "0x0123...baced"),
-                timeFormatted: "18:32",
+                timeFormatted: "18:82",
                 date: calendar.date(byAdding: .day, value: -10, to: yesterday),
                 transferAmount: "-0.0012 \(currencyCode)",
                 transactionType: .approval,
