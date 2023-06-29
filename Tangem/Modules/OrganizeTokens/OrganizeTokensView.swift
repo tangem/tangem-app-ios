@@ -451,7 +451,7 @@ struct OrganizeTokensView_Preview: PreviewProvider {
                 OrganizeTokensView(
                     viewModel: .init(
                         coordinator: OrganizeTokensCoordinator(),
-                        sections: sections
+                        userWalletModel: UserWalletModelMock()
                     )
                 )
             }
