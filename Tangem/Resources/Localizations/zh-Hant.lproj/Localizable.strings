@@ -409,7 +409,6 @@
 "transaction_history_error_failed_to_load" = "無法加載交易";
 "transaction_history_title" = "交易";
 "transaction_history_tx_in_progress" = "進行中…";
-"twin_error_not_a_twin_card" = "您掃描的不是雙胞胎卡。要創建雙胞胎錢包，您需要掃描 Tangem Twin 卡";
 "twin_error_same_card" = "您掃描了同一張卡片。要創建雙錢包，您需要掃描編號為 %li 的卡";
 "twin_error_wrong_twin" = "你掃描錯了胞胎卡。請嘗試另一個";
 "twins_onboarding_description_format" = "這一個是你手裡拿著的，另一個是編號為 %@ 的，這兩張卡都可以用來從這個錢包中提取資金";
