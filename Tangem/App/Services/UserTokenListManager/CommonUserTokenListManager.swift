@@ -22,7 +22,7 @@ class CommonUserTokenListManager {
     private var loadTokensCancellable: AnyCancellable?
     private var saveTokensCancellable: AnyCancellable?
     private let hasTokenSynchronization: Bool
-    private let hdWalletsSupported: Bool //hotfix migration
+    private let hdWalletsSupported: Bool // hotfix migration
     /// Bool flag for migration custom token to token form our API
     private var migrated = false
 
@@ -109,7 +109,6 @@ private extension CommonUserTokenListManager {
             return
         }
 
-
         let loadTokensPublisher = tangemApiService.loadTokens(for: userWalletId.hexString)
         let upgradeTokensPublisher = tryMigrateTokens().setFailureType(to: TangemAPIError.self)
 
@@ -123,7 +122,7 @@ private extension CommonUserTokenListManager {
                 } else {
                     result(.failure(error as Error))
                 }
-            } receiveValue: { [unowned self] (list, _) in
+            } receiveValue: { [unowned self] list, _ in
                 tokenItemsRepository.update(mapToEntries(list: list))
                 sendUpdate()
                 result(.success(()))
