@@ -10,7 +10,7 @@ import Foundation
 import BlockchainSdk
 
 protocol TokenDetailsRoutable: AnyObject {
-    func openReceiveScreen()
+    func openReceiveScreen(amountType: Amount.AmountType, blockchain: Blockchain, addressInfos: [ReceiveAddressInfo])
     func openBuyCrypto(at url: URL, closeUrl: String, action: @escaping (String) -> Void)
     func openSellCrypto(at url: URL, sellRequestUrl: String, action: @escaping (String) -> Void)
     func openSend(amountToSend: Amount, blockchainNetwork: BlockchainNetwork, cardViewModel: CardViewModel)
