@@ -73,7 +73,7 @@ class TokenListViewModel: ObservableObject {
             return
         }
 
-        self.isSaving = true
+        isSaving = true
 
         pendingRemove.forEach {
             userTokensManager.remove($0, derivationPath: nil)
