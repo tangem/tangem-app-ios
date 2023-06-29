@@ -19,17 +19,13 @@ protocol LegacySingleWalletContentViewModelOutput: OpenCurrencySelectionDelegate
 }
 
 class LegacySingleWalletContentViewModel: ObservableObject {
-    @Injected(\.exchangeService) var exchangeService: ExchangeService
-
     @Published var selectedAddressIndex: Int = 0
     @Published var singleWalletModel: WalletModel?
-    @Published var totalBalanceButtons = [ButtonWithIconInfo]()
-    @Published var transactionHistoryState = TransactionsListView.State.loading
 
     var balanceViewModel: BalanceViewModel? {
         guard let walletModel = singleWalletModel else { return nil }
 
-        let tokenModel = cardModel.walletModels.first(where: { !$0.isMainToken })
+        let tokenModel = walletModelsManager.walletModels.first(where: { !$0.isMainToken })
             .map {
                 TokenBalanceViewModel(
                     name: $0.name,
@@ -67,51 +63,37 @@ class LegacySingleWalletContentViewModel: ObservableObject {
         return incTxViews + outgTxViews
     }
 
-    var canShowAddress: Bool {
-        cardModel.canShowAddress
-    }
-
-    var canShowTransactionHistory: Bool {
-        cardModel.canShowTransactionHistory
-    }
-
     public var canSend: Bool {
-        guard cardModel.canSend else {
-            return false
-        }
-
         return singleWalletModel?.wallet.canSend(amountType: .coin) ?? false
     }
 
-    lazy var totalSumBalanceViewModel = TotalSumBalanceViewModel(
-        userWalletModel: cardModel,
-        cardAmountType: cardModel.cardAmountType,
-        tapOnCurrencySymbol: output
-    )
-
-    private let cardModel: CardViewModel
+    private let totalSumBalanceViewModel: TotalSumBalanceViewModel
+    private let walletModelsManager: WalletModelsManager
     private unowned let output: LegacySingleWalletContentViewModelOutput
     private var bag = Set<AnyCancellable>()
-    private var transactionHistoryLoaderSubscription: AnyCancellable?
-
-    private var exchangeServiceInitialized = false
 
     init(
-        cardModel: CardViewModel,
+        walletModelsManager: WalletModelsManager,
+        totalBalanceProvider: TotalBalanceProviding,
         output: LegacySingleWalletContentViewModelOutput
     ) {
-        self.cardModel = cardModel
+        self.walletModelsManager = walletModelsManager
         self.output = output
 
-        /// Initial set to `singleWalletModel`
-        singleWalletModel = cardModel.walletModels.first
+        totalSumBalanceViewModel = .init(
+            totalBalanceProvider: totalBalanceProvider,
+            walletModelsManager: walletModelsManager,
+            tapOnCurrencySymbol: output
+        )
 
-        makeActionButtons()
+        /// Initial set to `singleWalletModel`
+        singleWalletModel = walletModelsManager.walletModels.first
+
         bind()
     }
 
     func onRefresh(done: @escaping () -> Void) {
-        cardModel.updateAndReloadWalletModels(completion: done)
+        walletModelsManager.updateAll(silent: false, completion: done)
     }
 
     func openQR() {
@@ -140,7 +122,7 @@ class LegacySingleWalletContentViewModel: ObservableObject {
 
     private func bind() {
         /// Subscribe for update `singleWalletModel` for each changes in `WalletModel`
-        cardModel.subscribeToWalletModels()
+        walletModelsManager.walletModelsPublisher
             .map { walletModels in
                 walletModels
                     .map { $0.objectWillChange }
@@ -155,7 +137,7 @@ class LegacySingleWalletContentViewModel: ObservableObject {
             .store(in: &bag)
 
         /// Subscription to handle transaction updates, such as new transactions from send screen.
-        cardModel.subscribeToWalletModels()
+        walletModelsManager.walletModelsPublisher
             .map { walletModels in
                 walletModels
                     .map { $0.walletManager.walletPublisher }
@@ -182,83 +164,5 @@ class LegacySingleWalletContentViewModel: ObservableObject {
                 Analytics.logTopUpIfNeeded(balance: singleWalletModel.fiatValue)
             }
             .store(in: &bag)
-
-        if canShowTransactionHistory {
-            singleWalletModel?.$transactionHistoryState
-                .sink(receiveValue: { [weak self] state in
-                    self?.updateTransactionHistoryState(state)
-                })
-                .store(in: &bag)
-        }
-
-        if !canShowAddress {
-            exchangeService.initializationPublisher
-                .receive(on: DispatchQueue.main)
-                .sink { [weak self] exchangeServiceInitialized in
-                    guard exchangeServiceInitialized else {
-                        return
-                    }
-
-                    self?.exchangeServiceInitialized = exchangeServiceInitialized
-                    self?.makeActionButtons()
-                }
-                .store(in: &bag)
-        }
-    }
-
-    private func makeActionButtons() {
-        if canShowAddress {
-            return
-        }
-
-        guard
-            let walletModel = singleWalletModel,
-            let tokenModel = cardModel.walletModels.first(where: { !$0.isMainToken }),
-            let tokenSymbol = tokenModel.amountType.token?.symbol,
-            exchangeServiceInitialized,
-            exchangeService.canBuy(
-                tokenSymbol,
-                amountType: tokenModel.amountType,
-                blockchain: walletModel.blockchainNetwork.blockchain
-            )
-        else {
-            return
-        }
-
-        totalBalanceButtons = [
-            .init(
-                title: Localization.commonBuy,
-                icon: Assets.plusMini,
-                action: { [weak self] in
-                    Analytics.log(.buttonBuy)
-                    self?.output.openBuyCrypto()
-                }
-            ),
-        ]
-    }
-
-    private func updateTransactionHistoryState(_ newState: WalletModel.TransactionHistoryState) {
-        switch newState {
-        case .notSupported, .loading:
-            break
-        case .notLoaded:
-            transactionHistoryState = .loading
-        case .failedToLoad(let error):
-            transactionHistoryState = .error(error)
-        case .loaded:
-            updateTransactionHistoryList()
-        }
-    }
-
-    private func updateTransactionHistoryList() {
-        guard
-            canShowTransactionHistory,
-            let singleWalletModel = singleWalletModel
-        else {
-            return
-        }
-
-        let txListItems = TransactionHistoryMapper().makeTransactionListItems(from: singleWalletModel.transactions)
-        transactionHistoryState = .loaded(txListItems)
     }
 }

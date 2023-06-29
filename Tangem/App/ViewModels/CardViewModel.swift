@@ -20,14 +20,15 @@ class CardViewModel: Identifiable, ObservableObject {
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
 
     let walletModelsManager: WalletModelsManager
-    
+
     lazy var userTokensManager: UserTokensManager = {
         // [REDACTED_TODO_COMMENT]
         CommonUserTokensManager(
             userTokenListManager: userTokenListManager,
             derivationStyle: cardInfo.card.derivationStyle,
             derivationManager: derivationManager,
-            cardDerivableProvider: self)
+            cardDerivableProvider: self
+        )
     }()
 
     let userTokenListManager: UserTokenListManager
@@ -169,15 +170,14 @@ class CardViewModel: Identifiable, ObservableObject {
     let userWalletId: UserWalletId
 
     lazy var totalBalanceProvider: TotalBalanceProviding = TotalBalanceProvider(
-        userWalletModel: self,
-        userWalletAmountType: config.cardAmountType
+        walletModelsManager: walletModelsManager,
+        derivationManager: derivationManager
     )
 
     private(set) var cardInfo: CardInfo
     private var tangemSdk: TangemSdk?
     var config: UserWalletConfig
     private var didPerformInitialUpdate = false
-   
 
     var availableSecurityOptions: [SecurityModeOption] {
         var options: [SecurityModeOption] = []
@@ -209,24 +209,8 @@ class CardViewModel: Identifiable, ObservableObject {
         config.hasFeature(.longHashes)
     }
 
-    var canSend: Bool {
-        config.hasFeature(.send)
-    }
-
-    var cardAmountType: Amount.AmountType? {
-        config.cardAmountType
-    }
-
     var cardSetLabel: String? {
         config.cardSetLabel
-    }
-
-    var canShowAddress: Bool {
-        config.hasFeature(.receive)
-    }
-
-    var canShowTransactionHistory: Bool {
-        config.hasFeature(.transactionHistory)
     }
 
     var canShowSend: Bool {
@@ -515,89 +499,90 @@ extension CardViewModel {
 //    }
 
     /* func add(entries: [StorageEntry], completion: @escaping (Result<Void, Error>) -> Void) {
-        derive(entries: entries) { [weak self] result in
-            switch result {
-            case .success:
-                self?.append(entries: entries)
-                self?.updateAndReloadWalletModels()
-                completion(.success(()))
-            case .failure(let error):
-                completion(.failure(error))
-            }
-        }
-    }
+         derive(entries: entries) { [weak self] result in
+             switch result {
+             case .success:
+                 self?.append(entries: entries)
+                 self?.updateAndReloadWalletModels()
+                 completion(.success(()))
+             case .failure(let error):
+                 completion(.failure(error))
+             }
+         }
+     }
 
-    func update(entries: [StorageEntry], completion: @escaping (Result<Void, Error>) -> Void) {
-        derive(entries: entries) { [weak self] result in
-            switch result {
-            case .success:
-                self?.update(entries: entries)
-                self?.updateAndReloadWalletModels()
-                completion(.success(()))
-            case .failure(let error):
-                completion(.failure(error))
-            }
-        }
-    }
+     func update(entries: [StorageEntry], completion: @escaping (Result<Void, Error>) -> Void) {
+         derive(entries: entries) { [weak self] result in
+             switch result {
+             case .success:
+                 self?.update(entries: entries)
+                 self?.updateAndReloadWalletModels()
+                 completion(.success(()))
+             case .failure(let error):
+                 completion(.failure(error))
+             }
+         }
+     }
 
-    func derive(entries: [StorageEntry], completion: @escaping (Result<Void, Error>) -> Void) {
-        let derivationManager = DerivationManager(config: config, cardInfo: cardInfo)
-        self.derivationManager = derivationManager
-        let alreadySaved = getSavedEntries()
-        derivationManager.deriveIfNeeded(entries: alreadySaved + entries, completion: { [weak self] result in
-            switch result {
-            case .success(let response):
-                if let response {
-                    self?.onDerived(response)
-                }
+     func derive(entries: [StorageEntry], completion: @escaping (Result<Void, Error>) -> Void) {
+         let derivationManager = DerivationManager(config: config, cardInfo: cardInfo)
+         self.derivationManager = derivationManager
+         let alreadySaved = getSavedEntries()
+         derivationManager.deriveIfNeeded(entries: alreadySaved + entries, completion: { [weak self] result in
+             switch result {
+             case .success(let response):
+                 if let response {
+                     self?.onDerived(response)
+                 }
 
-                completion(.success(()))
-            case .failure(let error):
-                completion(.failure(error))
-            }
+                 completion(.success(()))
+             case .failure(let error):
+                 completion(.failure(error))
+             }
 
-            self?.derivationManager = nil
-        })
-    }*/
+             self?.derivationManager = nil
+         })
+     }*/
 }
+
 /*
-extension CardViewModel: StorageEntryAdding {
-    func add(entry: StorageEntry) async throws -> String {
-        try await withCheckedThrowingContinuation { [weak self] continuation in
-            guard let self = self else { return }
+ extension CardViewModel: StorageEntryAdding {
+     func add(entry: StorageEntry) async throws -> String {
+         try await withCheckedThrowingContinuation { [weak self] continuation in
+             guard let self = self else { return }
 
-            add(entry: entry) { result in
-                continuation.resume(with: result)
-            }
-        }
-    }
+             add(entry: entry) { result in
+                 continuation.resume(with: result)
+             }
+         }
+     }
 
-    func add(entry: StorageEntry, completion: @escaping (Result<String, Error>) -> Void) {
-        add(entries: [entry]) { [weak self] result in
-            guard let self else { return }
+     func add(entry: StorageEntry, completion: @escaping (Result<String, Error>) -> Void) {
+         add(entries: [entry]) { [weak self] result in
+             guard let self else { return }
 
-            if case .failure(let error) = result {
-                completion(.failure(error))
-                return
-            }
+             if case .failure(let error) = result {
+                 completion(.failure(error))
+                 return
+             }
 
-            let address = walletModels
-                .first {
-                    $0.blockchainNetwork == entry.blockchainNetwork
-                }
-                .map {
-                    $0.wallet.address
-                }
+             let address = walletModels
+                 .first {
+                     $0.blockchainNetwork == entry.blockchainNetwork
+                 }
+                 .map {
+                     $0.wallet.address
+                 }
 
-            guard let address else {
-                completion(.failure(WalletError.empty))
-                return
-            }
+             guard let address else {
+                 completion(.failure(WalletError.empty))
+                 return
+             }
 
-            completion(.success(address))
-        }
-    }
-}*/
+             completion(.success(address))
+         }
+     }
+ }*/
 
 extension CardViewModel {
     enum WalletsBalanceState {
@@ -605,7 +590,6 @@ extension CardViewModel {
         case loaded
     }
 }
-
 
 extension CardViewModel: WalletConnectUserWalletInfoProvider {
     // [REDACTED_TODO_COMMENT]
