@@ -16,7 +16,7 @@ struct CommonWalletModelsFactory {
     init(derivationStyle: DerivationStyle?) {
         self.derivationStyle = derivationStyle
     }
-    
+
     private func isDerivationDefault(blockchain: Blockchain, derivationPath: DerivationPath?) -> Bool {
         guard let derivationStyle else {
             return true
@@ -33,7 +33,7 @@ extension CommonWalletModelsFactory: WalletModelsFactory {
         let currentDerivation = walletManager.wallet.publicKey.derivationPath
         let isMainCoinCustom = !isDerivationDefault(blockchain: currentBlockchain, derivationPath: currentDerivation)
 
-        let mainCoinModel = WalletModel(walletManager: walletManager, amountType: .coin, isCustom: false)
+        let mainCoinModel = WalletModel(walletManager: walletManager, amountType: .coin, isCustom: isMainCoinCustom)
 
         let tokenModels = walletManager.cardTokens.map { token in
             let amountType: Amount.AmountType = .token(value: token)

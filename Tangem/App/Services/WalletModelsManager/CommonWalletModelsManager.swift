@@ -59,7 +59,7 @@ class CommonWalletModelsManager {
         existingWalletModels.append(contentsOf: walletModelsToAdd)
 
         log(walletModels: existingWalletModels)
-        
+
         _walletModels.send(existingWalletModels)
     }
 }
@@ -112,8 +112,6 @@ extension CommonWalletModelsManager: WalletModelsManager {
 //    func subscribeToEntriesWithoutDerivation() -> AnyPublisher<[StorageEntry], Never> {
 //        entriesWithoutDerivation.eraseToAnyPublisher()
 //    }
-
-
 
 //    func reloadWalletModels(silent: Bool) -> AnyPublisher<Void, Never> {
 //        guard !getWalletModels().isEmpty else {
