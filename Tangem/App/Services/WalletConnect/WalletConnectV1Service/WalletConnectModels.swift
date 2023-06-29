@@ -19,7 +19,10 @@ struct WalletInfo: Codable, Hashable {
 
     var address: String {
         let blockchainKey = derivedPublicKey ?? walletPublicKey
-        return try! blockchain.makeAddresses(from: blockchainKey, with: nil).first!.value
+        let factory = AddressServiceFactory(blockchain: blockchain)
+        let service = factory.makeAddressService()
+
+        return try! service.makeAddress(from: blockchainKey).value
     }
 }
 
