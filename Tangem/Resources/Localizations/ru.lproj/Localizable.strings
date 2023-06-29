@@ -73,9 +73,10 @@
 "common_explorer_format" = "%@ обозреватель";
 "common_import" = "Импортировать";
 "common_like" = "Нравится";
+"common_main_network" = "Основная сеть";
 "common_no" = "Нет";
 "common_no_data" = "Нет данных";
-"common_ok" = "Ок";
+"common_ok" = "OK";
 "common_origin_card" = "Основная карта";
 "common_push" = "Ускорить";
 "common_receive" = "Получить";
@@ -169,7 +170,6 @@
 "mail_error_no_accounts_title" = "Нет настроенных почтовых аккаунтов";
 "main_get_bonus_subtitle" = "Вы завершили обучение и можете получить свои токены 1inch";
 "main_get_bonus_title" = "Получите бонус";
-"main_learn_subtitle" = "Пройдите обучение и получите %@ токенов 1inch на свой кошелек";
 "main_learn_title" = "Бонус за обучение";
 "main_manage_tokens" = "Управление токенами";
 "main_no_backup_warning_subtitle" = "Чтобы защитить свои активы, мы советуем вам выполнить эту процедуру";
@@ -272,6 +272,9 @@
 "push_additional_fee" = "Дополнительная комиссия";
 "push_previous_fee" = "Предыдущая комиссия";
 "push_tx_address_hint" = "Сумма за предыдущую транзакцию, включая комиссию";
+"receive_bottom_sheet_title" = "%1$@ %2$@ адрес в сети %3$@";
+"receive_bottom_sheet_warning_message" = "%1$@ (%2$@) в сети %3$@";
+"receive_bottom_sheet_warning_message_full" = "Send only %@ to this address. Sending any other currency will result in its irreversible loss.";
 "referral_button_participate" = "Участвовать";
 "referral_error_failed_to_load_info" = "Не удалось загрузить информацию по реферальной программе. Пожалуйста, попробуйте позже.";
 "referral_error_failed_to_load_info_with_reason" = "Не удалось загрузить информацию по реферальной программе. Код ошибки: %@. Пожалуйста, попробуйте позже.";
@@ -340,9 +343,7 @@
 "solana_rent_warning" = "Сеть Solana взимает арендную плату в размере %1$@ каждые 2 дня. Аккаунты, которые не могут позволить себе арендную плату, удаляются из сети. Пополните свой счет более чем на %2$@, чтобы не платить арендную плату.";
 "story_awe_description" = "Держите свои криптосбережения в безопасности. Приватные ключи надежно хранятся на карте.";
 "story_awe_title" = "Революционный аппаратный кошелек";
-"story_backup_description_1" = "До";
-"story_backup_description_2_bold" = "трех карт";
-"story_backup_description_3" = "с одним кошельком";
+"story_backup_description" = "До **трех карт** с одним кошельком";
 "story_backup_title" = "Все ключи в безопасности";
 "story_currencies_description" = "Аппаратный кошелек для ваших биткоинов, эфира и многих других валют одновременно — все в одной карте";
 "story_currencies_title" = "Тысячи криптовалют";
@@ -402,6 +403,7 @@
 "token_details_hide_token" = "Скрыть токен";
 "token_details_send_blocked_fee_format" = "%1$@ — это токен в сети %2$@. Чтобы отправить транзакцию %3$@, необходимо пополнить баланс %4$@ (%5$@) для оплаты комиссии сети.";
 "token_details_send_blocked_tx_format" = "Пожалуйста, дождитесь завершения транзакции %@, чтобы иметь возможность отправить средства";
+"token_details_token_type_subtitle" = "%1$@ токен в сети %%image%% %2$@";
 "token_details_transaction_length_warning" = "iPhone 7/7+ не может подписать транзакцию в данной сети из-за системных ограничений. Пожалуйста, используйте другой телефон для выполнения этой операции.";
 "token_details_unable_hide_alert_message" = "Токен %1$@ является основной валютой в сети %2$@ и не может быть скрыт до тех пор, пока у вас в списке есть другие токены этой сети.";
 "token_details_unable_hide_alert_title" = "Невозможно скрыть %@";
@@ -491,6 +493,7 @@
 "wallet_currency_subtitle" = "Сеть %@";
 "wallet_error_no_account" = "Аккаунт не создан";
 "wallet_network_group_title" = "Сеть %s";
+"wallet_notification_address_copied" = "Адрес скопирован в буфер обмена";
 "wallet_pending_tx_receiving" = "Получение";
 "wallet_pending_tx_receiving_address_format" = "от %@";
 "wallet_pending_tx_sending" = "Отправка";
