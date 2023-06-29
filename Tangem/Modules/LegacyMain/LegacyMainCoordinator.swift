@@ -316,10 +316,15 @@ extension LegacyMainCoordinator: LegacyMainRoutable {
     @available(*, deprecated, message: "For feature preview purposes only, won't be available in legacy UI")
     func openManageTokensPreview() {
         #if DEBUG
+        guard let userWalletModel = userWalletRepository.selectedModel else {
+            assertionFailure("No card is currently selected, unable to process further")
+            return
+        }
+
         let coordinator = OrganizeTokensCoordinator { [unowned self] in
             organizeTokensCoordinator = nil
         }
-        coordinator.start(with: .none)
+        coordinator.start(with: .init(userWalletModel: userWalletModel))
         organizeTokensCoordinator = coordinator
         #endif
     }
