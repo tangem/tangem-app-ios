@@ -17,14 +17,10 @@ class TotalSumBalanceViewModel: ObservableObject {
     @Published var totalFiatValueString: NSAttributedString = .init(string: "")
     @Published var hasError: Bool = false
 
-    /// If we have a note or any single coin wallet that we should show this balance
-    @Published var singleWalletBalance: String?
-
     // MARK: - Private
 
     @Injected(\.rateAppService) private var rateAppService: RateAppService
     private unowned let tapOnCurrencySymbol: OpenCurrencySelectionDelegate
-    private let cardAmountType: Amount.AmountType?
     private let walletModelsManager: WalletModelsManager
     private var totalBalanceProvider: TotalBalanceProviding
 
@@ -33,20 +29,12 @@ class TotalSumBalanceViewModel: ObservableObject {
     init(
         totalBalanceProvider: TotalBalanceProviding,
         walletModelsManager: WalletModelsManager,
-        cardAmountType: Amount.AmountType?,
         tapOnCurrencySymbol: OpenCurrencySelectionDelegate
     ) {
         self.totalBalanceProvider = totalBalanceProvider
         self.walletModelsManager = walletModelsManager
-        self.cardAmountType = cardAmountType
         self.tapOnCurrencySymbol = tapOnCurrencySymbol
         bind()
-    }
-
-    func updateForSingleCoinCard() {
-        guard let cardAmountType = cardAmountType else { return }
-
-        singleWalletBalance = walletModelsManager.walletModels.first(where: { $0.amountType == cardAmountType })?.balance
     }
 
     func didTapOnCurrencySymbol() {
@@ -58,7 +46,6 @@ class TotalSumBalanceViewModel: ObservableObject {
             .compactMap { $0.value }
             .map { [unowned self] balance -> NSAttributedString in
                 checkPositiveBalance()
-                updateForSingleCoinCard()
                 return addAttributeForBalance(balance)
             }
             .weakAssign(to: \.totalFiatValueString, on: self)
