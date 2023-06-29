@@ -30,6 +30,7 @@ final class TokenDetailsViewModel: ObservableObject {
 
     private let cardModel: CardViewModel
     private let walletModel: WalletModel
+    private let userTokensManager: UserTokensManager
     private let blockchainNetwork: BlockchainNetwork
     private let amountType: Amount.AmountType
 
@@ -49,10 +50,6 @@ final class TokenDetailsViewModel: ObservableObject {
     }
 
     private var canSend: Bool {
-        guard cardModel.canSend else {
-            return false
-        }
-
         guard canSignLongTransactions else {
             return false
         }
@@ -77,6 +74,7 @@ final class TokenDetailsViewModel: ObservableObject {
 
     init(
         cardModel: CardViewModel,
+        userTokensManager: UserTokensManager,
         walletModel: WalletModel,
         blockchainNetwork: BlockchainNetwork,
         amountType: Amount.AmountType,
@@ -86,6 +84,7 @@ final class TokenDetailsViewModel: ObservableObject {
         self.coordinator = coordinator
         self.walletModel = walletModel
         self.cardModel = cardModel
+        self.userTokensManager = userTokensManager
         self.blockchainNetwork = blockchainNetwork
         self.amountType = amountType
         self.exchangeUtility = exchangeUtility
@@ -119,7 +118,7 @@ final class TokenDetailsViewModel: ObservableObject {
 
 extension TokenDetailsViewModel {
     func hideTokenButtonAction() {
-        if walletModel.canRemove(amountType: amountType) {
+        if userTokensManager.canRemove(walletModel.tokenItem, derivationPath: walletModel.blockchainNetwork.derivationPath) {
             showHideWarningAlert()
         } else {
             showUnableToHideAlert()
@@ -153,7 +152,7 @@ extension TokenDetailsViewModel {
     private func hideToken() {
         Analytics.log(event: .buttonRemoveToken, params: [Analytics.ParameterKey.token: currencySymbol])
 
-        cardModel.remove(amountType: amountType, blockchainNetwork: walletModel.blockchainNetwork)
+        userTokensManager.remove(walletModel.tokenItem, derivationPath: walletModel.blockchainNetwork.derivationPath)
         dismiss()
     }
 }
