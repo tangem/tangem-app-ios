@@ -18,6 +18,22 @@
         <string>%li cards</string>
       </dict>
     </dict>
+    <key>main_learn_subtitle</key>
+    <dict>
+      <key>NSStringLocalizedFormatKey</key>
+      <string>%#@format@</string>
+      <key>format</key>
+      <dict>
+        <key>NSStringFormatSpecTypeKey</key>
+        <string>NSStringPluralRuleType</string>
+        <key>NSStringFormatValueTypeKey</key>
+        <string>li</string>
+        <key>one</key>
+        <string>Complete the training and get %li 1inch token on your wallet</string>
+        <key>other</key>
+        <string>Complete the training and get %li 1inch tokens on your wallet</string>
+      </dict>
+    </dict>
     <key>referral_wallets_purchased_count</key>
     <dict>
       <key>NSStringLocalizedFormatKey</key>
