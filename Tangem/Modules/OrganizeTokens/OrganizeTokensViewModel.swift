@@ -10,7 +10,8 @@ import Combine
 import SwiftUI
 
 final class OrganizeTokensViewModel: ObservableObject {
-    var itemIndexSentinelValueForSectionIndexPath: Int { .min }
+    /// Sentinel value for `item` of `IndexPath` representing a section.
+    var sectionHeaderItemIndex: Int { .min }
 
     let headerViewModel: OrganizeTokensHeaderViewModel
 
@@ -46,10 +47,10 @@ final class OrganizeTokensViewModel: ObservableObject {
     }
 
     func move(
-        fromSourceIndexPath sourceIndexPath: IndexPath,
-        toDestinationIndexPath destinationIndexPath: IndexPath
+        fromSource sourceIndexPath: IndexPath,
+        toDestination destinationIndexPath: IndexPath
     ) {
-        if sourceIndexPath.item == itemIndexSentinelValueForSectionIndexPath {
+        if sourceIndexPath.item == sectionHeaderItemIndex {
             assert(sourceIndexPath.item == destinationIndexPath.item, "Can't perform move operation between section and item or vice versa")
             let diff = sourceIndexPath.section > destinationIndexPath.section ? 0 : 1
             sections.move(
@@ -72,7 +73,7 @@ final class OrganizeTokensViewModel: ObservableObject {
 
     func onDragStart(at indexPath: IndexPath) {
         // Process further only if a section is currently being dragged
-        guard indexPath.item == itemIndexSentinelValueForSectionIndexPath else { return }
+        guard indexPath.item == sectionHeaderItemIndex else { return }
 
         beginDragAndDropSession(forSectionWithIdentifier: sections[indexPath.section].id)
     }
@@ -123,7 +124,7 @@ final class OrganizeTokensViewModel: ObservableObject {
     }
 
     private func sectionViewModel(at indexPath: IndexPath) -> OrganizeTokensListSectionViewModel? {
-        guard indexPath.item == itemIndexSentinelValueForSectionIndexPath else { return nil }
+        guard indexPath.item == sectionHeaderItemIndex else { return nil }
 
         return sections[indexPath.section]
     }
@@ -147,8 +148,8 @@ extension OrganizeTokensViewModel: OrganizeTokensDragAndDropControllerDataSource
 
     func controller(
         _ controller: OrganizeTokensDragAndDropController,
-        listViewKindForIndexPath indexPath: IndexPath
+        listViewKindForItemAt indexPath: IndexPath
     ) -> OrganizeTokensDragAndDropControllerListViewKind {
-        return indexPath.item == itemIndexSentinelValueForSectionIndexPath ? .sectionHeader : .cell
+        return indexPath.item == sectionHeaderItemIndex ? .sectionHeader : .cell
     }
 }
