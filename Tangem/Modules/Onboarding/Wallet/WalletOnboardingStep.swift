@@ -78,7 +78,7 @@ extension WalletOnboardingStep: OnboardingMessagesProvider, SuccessStep {
         switch self {
         case .createWallet: return Localization.onboardingCreateWalletButtonCreateWallet
         case .scanPrimaryCard: return Localization.onboardingTitleScanOriginCard
-        case .backupIntro: return Localization.onboardingTitleBackupCard
+        case .backupIntro: return nil
         case .selectBackupCards: return Localization.onboardingTitleNoBackupCards
         case .backupCards, .disclaimer: return ""
         case .saveUserWallet: return nil
@@ -94,7 +94,7 @@ extension WalletOnboardingStep: OnboardingMessagesProvider, SuccessStep {
         switch self {
         case .createWallet: return Localization.onboardingCreateWalletBody
         case .scanPrimaryCard: return Localization.onboardingSubtitleScanPrimary
-        case .backupIntro: return Localization.onboardingSubtitleBackupCard
+        case .backupIntro: return nil
         case .selectBackupCards: return Localization.onboardingSubtitleNoBackupCards
         case .backupCards, .disclaimer: return ""
         case .saveUserWallet: return nil
