@@ -56,8 +56,8 @@ class CommonSwappingManager {
         self.swappingItems = swappingItems
         self.amount = amount
 
-        Task {
-            await refreshBalances()
+        Task { [weak self] in
+            await self?.refreshBalances()
         }
     }
 }
