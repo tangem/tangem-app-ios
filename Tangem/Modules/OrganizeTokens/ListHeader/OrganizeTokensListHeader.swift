@@ -12,6 +12,7 @@ struct OrganizeTokensListHeader: View {
     let viewModel: OrganizeTokensHeaderViewModel
     let scrollViewTopContentInset: Binding<CGFloat>
     let contentHorizontalInset: CGFloat
+    let overlayViewAdditionalVerticalInset: CGFloat
 
     var body: some View {
         OrganizeTokensHeaderView(viewModel: viewModel)
