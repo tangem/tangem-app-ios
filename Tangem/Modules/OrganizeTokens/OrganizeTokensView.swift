@@ -141,7 +141,12 @@ struct OrganizeTokensView: View {
                     Spacer(minLength: scrollViewBottomContentInset)
                 }
                 .onChange(of: dragGestureLocation) { newValue in
-                    guard let newValue, var dragAndDropSourceCellFrame else { return }
+                    guard
+                        let newValue = newValue,
+                        var dragAndDropSourceCellFrame = dragAndDropSourceCellFrame
+                    else {
+                        return
+                    }
 
                     dragAndDropSourceCellFrame.origin.y += dragGestureTranslation.height
 
@@ -163,7 +168,7 @@ struct OrganizeTokensView: View {
             }
         }
         .onChange(of: dragAndDropDestinationIndexPath) { [oldValue = dragAndDropDestinationIndexPath] newValue in
-            guard let oldValue, let newValue else { return }
+            guard let oldValue = oldValue, let newValue = newValue else { return }
 
             dragAndDropController.onItemsMove()
             viewModel.move(fromSource: oldValue, toDestination: newValue)
@@ -221,7 +226,7 @@ struct OrganizeTokensView: View {
                     guard isLongPressGestureEnded else { return }
 
                     // Drag gesture changed (equivalent of `UIGestureRecognizer.State.changed`)
-                    guard let dragGestureValue else { return }
+                    guard let dragGestureValue = dragGestureValue else { return }
 
                     state = dragGestureValue.location
                 }
@@ -235,7 +240,7 @@ struct OrganizeTokensView: View {
                     guard isLongPressGestureEnded else { return }
 
                     // Drag gesture changed (equivalent of `UIGestureRecognizer.State.changed`)
-                    guard let dragGestureValue else { return }
+                    guard let dragGestureValue = dragGestureValue else { return }
 
                     state = dragGestureValue.translation
                 }
@@ -279,7 +284,9 @@ struct OrganizeTokensView: View {
                     // Long press gesture successfully ends (equivalent of `UIGestureRecognizer.State.ended`)
                     guard isLongPressGestureEnded else { return }
 
-                    if let dragGestureValue, let sourceIndexPath = dragAndDropSourceIndexPath, let currentDestinationIndexPath = state {
+                    if let dragGestureValue = dragGestureValue,
+                       let sourceIndexPath = dragAndDropSourceIndexPath,
+                       let currentDestinationIndexPath = state {
                         if let updatedDestinationIndexPath = dragAndDropController.updatedDestinationIndexPath(
                             source: sourceIndexPath,
                             currentDestination: currentDestinationIndexPath,
@@ -346,10 +353,10 @@ struct OrganizeTokensView: View {
 
     @ViewBuilder
     private func makeDraggableComponent(width: CGFloat) -> some View {
-        if let dragAndDropSourceIndexPath,
-           let dragAndDropSourceCellFrame,
-           let dragAndDropSourceViewModelIdentifier,
-           let dragAndDropDestinationIndexPath {
+        if let dragAndDropSourceIndexPath = dragAndDropSourceIndexPath,
+           let dragAndDropSourceCellFrame = dragAndDropSourceCellFrame,
+           let dragAndDropSourceViewModelIdentifier = dragAndDropSourceViewModelIdentifier,
+           let dragAndDropDestinationIndexPath = dragAndDropDestinationIndexPath {
             let parametersProvider = OrganizeTokensListCornerRadiusParametersProvider(
                 sections: viewModel.sections,
                 cornerRadius: Constants.draggableViewCornerRadius

@@ -75,7 +75,7 @@ final class OrganizeTokensDragAndDropController: ObservableObject {
         currentDestination currentDestinationIndexPath: IndexPath,
         translationValue: CGSize
     ) -> IndexPath? {
-        guard let dataSource else {
+        guard let dataSource = dataSource else {
             assertionFailure("DataSource required, but not set for \(self)")
             return nil
         }
@@ -159,7 +159,7 @@ final class OrganizeTokensDragAndDropController: ObservableObject {
 
     // Maybe not so memory-efficient, but definitely safer than manual clearing of `itemsFrames` cache
     private func isIndexPathValid(_ indexPath: IndexPath) -> Bool {
-        guard let dataSource else {
+        guard let dataSource = dataSource else {
             assertionFailure("DataSource required, but not set for \(self)")
             return false
         }
