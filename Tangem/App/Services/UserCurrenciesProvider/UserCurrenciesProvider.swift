@@ -14,10 +14,12 @@ struct UserCurrenciesProvider {
     @Injected(\.tangemApiService) private var tangemApiService: TangemApiService
 
     private let walletModel: WalletModel
+    private let walletModelTokens: [Token]
     private let currencyMapper: CurrencyMapping
 
-    init(walletModel: WalletModel, currencyMapper: CurrencyMapping) {
+    init(walletModel: WalletModel, walletModelTokens: [Token], currencyMapper: CurrencyMapping) {
         self.walletModel = walletModel
+        self.walletModelTokens = walletModelTokens
         self.currencyMapper = currencyMapper
     }
 }
@@ -36,7 +38,7 @@ extension UserCurrenciesProvider: UserCurrenciesProviding {
         // get user tokens from API with filled in fields
         let tokens = await getTokens(
             networkId: swappingBlockchain.networkId,
-            ids: walletModel.getTokens().compactMap { $0.id }
+            ids: walletModelTokens.compactMap { $0.id }
         )
 
         var currencies: [Currency] = []
