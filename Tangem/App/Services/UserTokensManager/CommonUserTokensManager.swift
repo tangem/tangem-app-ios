@@ -59,6 +59,16 @@ extension CommonUserTokensManager: UserTokensManager {
         return userTokenListManager.contains(entry)
     }
 
+    func getAllTokens(for blockchainNetwork: BlockchainNetwork) -> [Token] {
+        let items = userTokenListManager.userTokens
+
+        if let network = items.first(where: { $0.blockchainNetwork == blockchainNetwork }) {
+            return network.tokens
+        }
+
+        return []
+    }
+
     func add(_ tokenItem: TokenItem, derivationPath: DerivationPath?, completion: @escaping (Result<Void, TangemSdkError>) -> Void) {
         add([tokenItem], derivationPath: derivationPath, completion: completion)
     }
