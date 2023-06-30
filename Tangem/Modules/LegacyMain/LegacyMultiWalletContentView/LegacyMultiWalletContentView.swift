@@ -55,7 +55,7 @@ struct LegacyMultiWalletContentView: View {
                 content
             }
             .frame(maxWidth: .infinity)
-            .background(Colors.Background.plain)
+            .background(Colors.Background.plain.edgesIgnoringSafeArea(.all))
             .cornerRadius(14)
             .padding(.horizontal, 16)
         }
