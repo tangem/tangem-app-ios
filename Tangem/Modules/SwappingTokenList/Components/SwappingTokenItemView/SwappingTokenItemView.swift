@@ -24,41 +24,42 @@ struct SwappingTokenItemView: View {
                 HStack(spacing: Self.horizontalInteritemSpacing) {
                     IconView(url: viewModel.iconURL, size: Self.iconSize)
 
-                    tokenInfoView
+                    infoViews
                 }
-
-                Spacer()
-
-                currencyView
             }
             .padding(.vertical, 12)
             .contentShape(Rectangle())
         }
+        .buttonStyle(.plain)
     }
 
-    private var tokenInfoView: some View {
+    private var infoViews: some View {
         VStack(alignment: .leading, spacing: 2) {
-            Text(viewModel.name)
-                .style(Fonts.Bold.subheadline, color: Colors.Text.primary1)
+            HStack(spacing: .zero) {
+                Text(viewModel.name)
+                    .style(Fonts.Bold.subheadline, color: Colors.Text.primary1)
 
-            Text(viewModel.symbol)
-                .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
+                Spacer(minLength: 4)
+
+                if let fiatBalanceFormatted = viewModel.fiatBalanceFormatted {
+                    Text(fiatBalanceFormatted)
+                        .style(Fonts.Regular.subheadline, color: Colors.Text.primary1)
+                }
+            }
+
+            HStack(spacing: .zero) {
+                Text(viewModel.symbol)
+                    .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
+
+                Spacer(minLength: 4)
+
+                if let balanceFormatted = viewModel.balanceFormatted {
+                    Text(balanceFormatted)
+                        .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
+                }
+            }
         }
         .lineLimit(1)
-    }
-
-    private var currencyView: some View {
-        VStack(alignment: .trailing, spacing: 2) {
-            if let fiatBalanceFormatted = viewModel.fiatBalanceFormatted {
-                Text(fiatBalanceFormatted)
-                    .style(Fonts.Regular.subheadline, color: Colors.Text.primary1)
-            }
-
-            if let balanceFormatted = viewModel.balanceFormatted {
-                Text(balanceFormatted)
-                    .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
-            }
-        }
     }
 }
 
