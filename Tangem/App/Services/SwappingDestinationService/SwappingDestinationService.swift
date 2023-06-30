@@ -15,10 +15,12 @@ struct SwappingDestinationService {
 
     private let walletModel: WalletModel
     private let mapper: CurrencyMapping
+    private let walletModelTokens: [Token]
 
-    init(walletModel: WalletModel, mapper: CurrencyMapping) {
+    init(walletModel: WalletModel, mapper: CurrencyMapping, walletModelTokens: [Token]) {
         self.walletModel = walletModel
         self.mapper = mapper
+        self.walletModelTokens = walletModelTokens
     }
 }
 
@@ -38,7 +40,7 @@ extension SwappingDestinationService: SwappingDestinationServicing {
             var preferredToken: Token?
 
             for preferred in PreferredTokenSymbol.allCases {
-                if let token = walletModel.getTokens().first(where: { $0.symbol == preferred.rawValue }) {
+                if let token = walletModelTokens.first(where: { $0.symbol == preferred.rawValue }) {
                     preferredToken = token
                     break
                 }

@@ -629,6 +629,10 @@ extension CardViewModel: TangemSdkFactory {
 // MARK: - UserWalletModel
 
 extension CardViewModel: UserWalletModel {
+    var tokensCount: Int? {
+        walletModelsManager.walletModels.count
+    }
+
 //    func getSavedEntries() -> [StorageEntry] {
 //        userTokenListManager.getEntriesFromRepository()
 //    }
@@ -696,5 +700,11 @@ extension CardViewModel: DerivationManagerDelegate {
 extension CardViewModel: CardDerivableProvider {
     var cardDerivableInteractor: CardDerivable {
         cardInteractor
+    }
+}
+
+extension CardViewModel: TotalBalanceProviding {
+    func totalBalancePublisher() -> AnyPublisher<LoadingValue<TotalBalanceProvider.TotalBalance>, Never> {
+        totalBalanceProvider.totalBalancePublisher()
     }
 }

@@ -654,6 +654,8 @@
 		DC7DA8202844F33D00AD6DBD /* CoordinatorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC7DA81F2844F33D00AD6DBD /* CoordinatorView.swift */; };
 		DC858A3928AA48B000D58EE7 /* CardEmailDataFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC858A3828AA48B000D58EE7 /* CardEmailDataFactory.swift */; };
 		DC89B71029FAD00E000F1A80 /* CardInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC89B70F29FAD00E000F1A80 /* CardInteractor.swift */; };
+		DCAA59432A4F13F000A125DD /* WalletModelsManagerMock.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCAA59422A4F13F000A125DD /* WalletModelsManagerMock.swift */; };
+		DCAA59452A4F1B3700A125DD /* UserTokensManagerMock.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCAA59442A4F1B3700A125DD /* UserTokensManagerMock.swift */; };
 		DCAB57FE295ECA55005D0F4A /* SendError.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCAB57FD295ECA55005D0F4A /* SendError.swift */; };
 		DCAB5800295EE820005D0F4A /* AppLog.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCAB57FF295EE820005D0F4A /* AppLog.swift */; };
 		DCAB5806295F45AA005D0F4A /* SwappingLogger.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCAB5805295F45AA005D0F4A /* SwappingLogger.swift */; };
@@ -1708,6 +1710,8 @@
 		DC7DA81F2844F33D00AD6DBD /* CoordinatorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoordinatorView.swift; sourceTree = "<group>"; };
 		DC858A3828AA48B000D58EE7 /* CardEmailDataFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardEmailDataFactory.swift; sourceTree = "<group>"; };
 		DC89B70F29FAD00E000F1A80 /* CardInteractor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardInteractor.swift; sourceTree = "<group>"; };
+		DCAA59422A4F13F000A125DD /* WalletModelsManagerMock.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletModelsManagerMock.swift; sourceTree = "<group>"; };
+		DCAA59442A4F1B3700A125DD /* UserTokensManagerMock.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserTokensManagerMock.swift; sourceTree = "<group>"; };
 		DCAB57FD295ECA55005D0F4A /* SendError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendError.swift; sourceTree = "<group>"; };
 		DCAB57FF295EE820005D0F4A /* AppLog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppLog.swift; sourceTree = "<group>"; };
 		DCAB5805295F45AA005D0F4A /* SwappingLogger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwappingLogger.swift; sourceTree = "<group>"; };
@@ -4901,6 +4905,8 @@
 				EF8D781029818E6100B67418 /* UserWalletModelMock.swift */,
 				EF5F1BAB29D1A2BE0093307B /* TotalBalanceProviderMock.swift */,
 				EF8EF52E2A0668D6007B52C4 /* SwappingPermissionRoutableMock.swift */,
+				DCAA59422A4F13F000A125DD /* WalletModelsManagerMock.swift */,
+				DCAA59442A4F1B3700A125DD /* UserTokensManagerMock.swift */,
 			);
 			path = Mocks;
 			sourceTree = "<group>";
@@ -6145,6 +6151,7 @@
 				B63127D42A2F52E2007C124C /* OrganizeTokensListSectionViewModel.swift in Sources */,
 				DC261CB7292CF6B700875E64 /* UncompletedBackupRoutable.swift in Sources */,
 				5D9DCB06255193C30059799C /* AppSettings.swift in Sources */,
+				DCAA59452A4F1B3700A125DD /* UserTokensManagerMock.swift in Sources */,
 				DC7D39F729E00635007BCD23 /* TwinOnboardingStepsBulder.swift in Sources */,
 				DC66BBF32859B79600CDF765 /* TokenListCoordinatorView.swift in Sources */,
 				EF9F908E299FA31A006F638F /* ZendeskSupportChatView.swift in Sources */,
@@ -6250,6 +6257,7 @@
 				B6AA13702A2A377C00B53937 /* CardInfoPageWarningPreviewSectionItem.swift in Sources */,
 				5D09382D25E7A2EA0049B8F0 /* LegacyTokenDetailsViewModel.swift in Sources */,
 				B6AD952E2A30073A00FE845A /* TokenItemViewMiddleComponent.swift in Sources */,
+				DCAA59432A4F13F000A125DD /* WalletModelsManagerMock.swift in Sources */,
 				5D09382D25E7A2EA0049B8F0 /* LegacyTokenDetailsViewModel.swift in Sources */,
 				DCD2D5BA2A1BA5A800AB00B6 /* CardInitializer.swift in Sources */,
 				DCF23693299257EB00FE1855 /* AnalyticsContextData.swift in Sources */,
