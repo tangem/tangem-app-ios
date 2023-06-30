@@ -46,10 +46,7 @@ final class OrganizeTokensViewModel: ObservableObject {
         return sectionViewModel(at: indexPath)?.id ?? itemViewModel(at: indexPath).id
     }
 
-    func move(
-        fromSource sourceIndexPath: IndexPath,
-        toDestination destinationIndexPath: IndexPath
-    ) {
+    func move(from sourceIndexPath: IndexPath, to destinationIndexPath: IndexPath) {
         if sourceIndexPath.item == sectionHeaderItemIndex {
             assert(sourceIndexPath.item == destinationIndexPath.item, "Can't perform move operation between section and item or vice versa")
             let diff = sourceIndexPath.section > destinationIndexPath.section ? 0 : 1
