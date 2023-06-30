@@ -35,7 +35,7 @@ struct DetailsView: View {
             }
 
             socialNetworks
-                .readSize { socialNetworksViewSize = $0 }
+                .readGeometry(\.size, bindTo: $socialNetworksViewSize)
         }
         .ignoresSafeArea(.container, edges: .bottom)
         .background(Colors.Background.secondary.edgesIgnoringSafeArea(.all))
@@ -109,6 +109,7 @@ struct DetailsView: View {
                 .resizable()
                 .frame(width: 24, height: 24)
         }
+        .buttonStyle(.plain)
     }
 }
 
