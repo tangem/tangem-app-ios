@@ -38,6 +38,8 @@ protocol TangemApiService: AnyObject, Initializable {
     func awardNewUser(walletId: String, address: String, code: String) async throws -> PromotionAwardResult
     @discardableResult
     func awardOldUser(walletId: String, address: String, programName: String) async throws -> PromotionAwardResult
+    @discardableResult
+    func resetAwardForCurrentWallet(cardId: String) async throws -> PromotionAwardResetResult
 
     func setAuthData(_ authData: TangemApiTarget.AuthData)
 }
