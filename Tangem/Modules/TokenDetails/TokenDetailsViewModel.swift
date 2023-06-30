@@ -17,6 +17,8 @@ final class TokenDetailsViewModel: ObservableObject {
     @Injected(\.tangemApiService) private var tangemApiService: TangemApiService
 
     @Published var alert: AlertBinder? = nil
+    @Published var transactionHistoryState: TransactionsListView.State = .loading
+    @Published var isReloadingTransactionHistory: Bool = false
 
     @Published private var balance: LoadingValue<BalanceInfo> = .loading
     @Published private var actionButtons: [ButtonWithIconInfo] = []
@@ -48,6 +50,8 @@ final class TokenDetailsViewModel: ObservableObject {
             return .blockchain(blockchain)
         }
     }
+
+    var canBuyCrypto: Bool { exchangeUtility.buyAvailable }
 
     private var canSend: Bool {
         guard canSignLongTransactions else {
@@ -111,6 +115,53 @@ final class TokenDetailsViewModel: ObservableObject {
                     done()
                 }
             } receiveValue: { _ in }
+
+        reloadHistory()
+    }
+
+    func openExplorer() {
+        #warning("This will be changed after, for now there is no solution for tx history with multiple addresses")
+        guard let url = walletModel.exploreURL(for: 0, token: amountType.token) else {
+            return
+        }
+
+        openExplorer(at: url)
+    }
+
+    func reloadHistory() {
+        isReloadingTransactionHistory = true
+        walletModel.loadTransactionHistory()
+            .sink { [weak self] completion in
+                self?.isReloadingTransactionHistory = false
+            } receiveValue: { _ in }
+            .store(in: &bag)
+    }
+
+    func openBuy() {
+        if let disabledLocalizedReason = cardModel.getDisabledLocalizedReason(for: .exchange) {
+            alert = AlertBuilder.makeDemoAlert(disabledLocalizedReason)
+            return
+        }
+
+        if let token = amountType.token, blockchain == .ethereum(testnet: true) {
+            testnetBuyCryptoService.buyCrypto(.erc20Token(
+                token,
+                walletManager: walletModel.walletManager,
+                signer: cardModel.signer
+            ))
+            return
+        }
+
+        guard let url = exchangeUtility.buyURL else { return }
+
+        coordinator.openBuyCrypto(at: url, closeUrl: exchangeUtility.buyCryptoCloseURL) { [weak self] _ in
+            guard let self else { return }
+            Analytics.log(event: .tokenBought, params: [.token: currencySymbol])
+
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+                self.walletModel.update(silent: true)
+            }
+        }
     }
 }
 
@@ -182,6 +233,14 @@ private extension TokenDetailsViewModel {
                 self?.updateActionButtons()
             }
             .store(in: &bag)
+
+        walletModel.$transactionHistoryState
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] newState in
+                AppLog.shared.debug("New transaction history state: \(newState)")
+                self?.updateHistoryState(to: newState)
+            }
+            .store(in: &bag)
     }
 
     private func updateBalance(walletModelState: WalletModel.State) {
@@ -210,6 +269,27 @@ private extension TokenDetailsViewModel {
         }
 
         actionButtons = buttons
+    }
+
+    private func updateHistoryState(to newState: WalletModel.TransactionHistoryState) {
+        switch newState {
+        case .notSupported:
+            transactionHistoryState = .notSupported
+        case .notLoaded:
+            transactionHistoryState = .loading
+            walletModel.loadTransactionHistory()
+                .sink()
+                .store(in: &bag)
+        case .loading:
+            if case .notLoaded = walletModel.transactionHistoryState {
+                transactionHistoryState = .loading
+            }
+        case .failedToLoad(let error):
+            transactionHistoryState = .error(error)
+        case .loaded:
+            let txListItems = TransactionHistoryMapper().makeTransactionListItems(from: walletModel.transactions)
+            transactionHistoryState = .loaded(txListItems)
+        }
     }
 
     private func loadSwappingState() {
@@ -276,33 +356,6 @@ private extension TokenDetailsViewModel {
             }
         } else {
             openBuy()
-        }
-    }
-
-    func openBuy() {
-        if let disabledLocalizedReason = cardModel.getDisabledLocalizedReason(for: .exchange) {
-            alert = AlertBuilder.makeDemoAlert(disabledLocalizedReason)
-            return
-        }
-
-        if let token = amountType.token, blockchain == .ethereum(testnet: true) {
-            testnetBuyCryptoService.buyCrypto(.erc20Token(
-                token,
-                walletManager: walletModel.walletManager,
-                signer: cardModel.signer
-            ))
-            return
-        }
-
-        guard let url = exchangeUtility.buyURL else { return }
-
-        coordinator.openBuyCrypto(at: url, closeUrl: exchangeUtility.buyCryptoCloseURL) { [weak self] _ in
-            guard let self else { return }
-            Analytics.log(event: .tokenBought, params: [.token: currencySymbol])
-
-            DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
-                self.walletModel.update(silent: true)
-            }
         }
     }
 
@@ -374,6 +427,11 @@ private extension TokenDetailsViewModel {
             blockchainNetwork: blockchainNetwork,
             cardViewModel: cardModel
         )
+    }
+
+    func openExplorer(at url: URL) {
+        Analytics.log(.buttonExplore)
+        coordinator.openExplorer(at: url, blockchainDisplayName: blockchainNetwork.blockchain.displayName)
     }
 
     func dismiss() {
