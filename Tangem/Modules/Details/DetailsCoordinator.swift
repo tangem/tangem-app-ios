@@ -110,8 +110,8 @@ extension DetailsCoordinator: DetailsRoutable {
         UIApplication.shared.open(url)
     }
 
-    func openEnvironmentSetup() {
-        setupEnvironmentViewModel = EnvironmentSetupViewModel()
+    func openEnvironmentSetup(cardId: String) {
+        setupEnvironmentViewModel = EnvironmentSetupViewModel(cardId: cardId)
     }
 
     func openReferral(with cardModel: CardViewModel, userWalletId: Data) {
