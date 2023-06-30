@@ -45,6 +45,8 @@ struct TangemApiTarget: TargetType {
             return "/promotion/code/award"
         case .awardOldUser:
             return "/promotion/award"
+        case .resetAward:
+            return "/private/manual-check/promotion-award"
         }
     }
 
@@ -56,6 +58,8 @@ struct TangemApiTarget: TargetType {
             return .put
         case .participateInReferralProgram, .validateNewUserPromotionEligibility, .validateOldUserPromotionEligibility, .awardNewUser, .awardOldUser:
             return .post
+        case .resetAward:
+            return .delete
         }
     }
 
@@ -110,6 +114,10 @@ struct TangemApiTarget: TargetType {
                 "address": address,
                 "programName": programName,
             ], encoding: JSONEncoding.default)
+        case .resetAward(let cardId):
+            return .requestParameters(parameters: [
+                "cardId": cardId,
+            ], encoding: URLEncoding.default)
         }
     }
 
@@ -136,6 +144,7 @@ extension TangemApiTarget {
         case validateOldUserPromotionEligibility(walletId: String, programName: String)
         case awardNewUser(walletId: String, address: String, code: String)
         case awardOldUser(walletId: String, address: String, programName: String)
+        case resetAward(cardId: String)
     }
 
     struct AuthData {
