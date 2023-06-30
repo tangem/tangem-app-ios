@@ -31,6 +31,18 @@ final class OrganizeTokensViewModel: ObservableObject {
         headerViewModel = OrganizeTokensHeaderViewModel()
     }
 
+    func onCancelButtonTap() {
+        // [REDACTED_TODO_COMMENT]
+    }
+
+    func onApplyButtonTap() {
+        // [REDACTED_TODO_COMMENT]
+    }
+}
+
+// MARK: - Drag and drop support
+
+extension OrganizeTokensViewModel {
     func itemViewModel(for identifier: UUID) -> OrganizeTokensListItemViewModel? {
         return sections
             .flatMap { $0.items }
@@ -77,14 +89,6 @@ final class OrganizeTokensViewModel: ObservableObject {
 
     func onDragAnimationCompletion() {
         endDragAndDropSessionForCurrentlyDraggedSectionIfNeeded()
-    }
-
-    func onCancelButtonTap() {
-        // [REDACTED_TODO_COMMENT]
-    }
-
-    func onApplyButtonTap() {
-        // [REDACTED_TODO_COMMENT]
     }
 
     private func beginDragAndDropSession(forSectionWithIdentifier identifier: UUID) {
