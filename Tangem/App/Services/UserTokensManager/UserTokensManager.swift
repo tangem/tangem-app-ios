@@ -8,9 +8,12 @@
 
 import Foundation
 import TangemSdk
+import BlockchainSdk
 
 protocol UserTokensManager {
     func contains(_ tokenItem: TokenItem, derivationPath: DerivationPath?) -> Bool
+    func getAllTokens(for blockchainNetwork: BlockchainNetwork) -> [Token]
+
     func add(_ tokenItem: TokenItem, derivationPath: DerivationPath?, completion: @escaping (Result<Void, TangemSdkError>) -> Void)
     func add(_ tokenItems: [TokenItem], derivationPath: DerivationPath?, completion: @escaping (Result<Void, TangemSdkError>) -> Void)
 
