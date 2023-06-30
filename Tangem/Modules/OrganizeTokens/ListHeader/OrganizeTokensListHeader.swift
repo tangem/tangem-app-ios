@@ -17,10 +17,20 @@ struct OrganizeTokensListHeader: View {
     var body: some View {
         OrganizeTokensHeaderView(viewModel: viewModel)
             .readGeometry(\.size.height) { height in
-                scrollViewTopContentInset.wrappedValue = height + overlayViewAdditionalVerticalInset + 8.0
+                scrollViewTopContentInset.wrappedValue = height
+                    + overlayViewAdditionalVerticalInset
+                    + Constants.topInset
             }
-            .padding(.top, 8.0)
+            .padding(.top, Constants.topInset)
             .padding(.horizontal, contentHorizontalInset)
             .infinityFrame(alignment: .top)
+    }
+}
+
+// MARK: - Constants
+
+private extension OrganizeTokensListHeader {
+    private enum Constants {
+        static let topInset = 8.0
     }
 }
