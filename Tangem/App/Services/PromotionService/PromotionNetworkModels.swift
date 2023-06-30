@@ -34,3 +34,7 @@ struct PromotionValidationResult: Decodable {
 struct PromotionAwardResult: Decodable {
     let status: Bool
 }
+
+struct PromotionAwardResetResult: Decodable {
+    let status: Bool
+}
