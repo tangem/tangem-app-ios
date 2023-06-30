@@ -189,6 +189,11 @@ extension CommonTangemApiService: TangemApiService {
         try await request(for: .awardOldUser(walletId: walletId, address: address, programName: programName))
     }
 
+    @discardableResult
+    func resetAwardForCurrentWallet(cardId: String) async throws -> PromotionAwardResetResult {
+        try await request(for: .resetAward(cardId: cardId))
+    }
+
     func initialize() {
         provider
             .requestPublisher(TangemApiTarget(type: .geo, authData: authData))
