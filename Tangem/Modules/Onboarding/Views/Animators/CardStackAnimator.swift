@@ -120,7 +120,7 @@ struct CardStackAnimator<Card: View>: View {
     var body: some View {
         GeometryReader { geom in
             ZStack {
-                ForEach(0 ..< cards.count) { index in
+                ForEach(0 ..< cards.count, id: \.self) { index in
                     modify(cards[index], at: index)
                         .onAnimationCompleted(for: hiddenIndex) {
                             guard hiddenIndex == CGFloat(index) else { return }
@@ -132,9 +132,7 @@ struct CardStackAnimator<Card: View>: View {
                 }
             }
             .position(x: geom.size.width / 2, y: geom.size.height / 2 + 50)
-            .readSize { size in
-                self.size = size
-            }
+            .readGeometry(\.size, bindTo: $size)
         }
         .onReceive(currentCardIndexPublisher, perform: { newCardIndex in
             guard selectedIndex != newCardIndex else { return }
@@ -282,7 +280,7 @@ struct CardStackAnimatorPreview: View {
             ) {}
                 .padding(.bottom, 50)
             HStack {
-                ForEach(0 ... viewModel.maxIndex) { index in
+                ForEach(0 ... viewModel.maxIndex, id: \.self) { index in
                     Button(action: {
                         withAnimation {
                             viewModel.currentCardIndex = index
