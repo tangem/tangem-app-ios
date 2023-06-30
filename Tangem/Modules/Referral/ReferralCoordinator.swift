@@ -22,8 +22,9 @@ class ReferralCoordinator: CoordinatorObject {
 
     func start(with options: Options) {
         referralViewModel = .init(
-            cardModel: options.cardModel,
             userWalletId: options.userWalletId,
+            userTokensManager: options.userTokensManager,
+            walletModelsManager: options.walletModelsManager,
             coordinator: self
         )
     }
@@ -31,8 +32,9 @@ class ReferralCoordinator: CoordinatorObject {
 
 extension ReferralCoordinator {
     struct Options {
-        let cardModel: CardViewModel
         let userWalletId: Data
+        let userTokensManager: UserTokensManager
+        let walletModelsManager: WalletModelsManager
     }
 }
 
