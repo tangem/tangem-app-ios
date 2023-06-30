@@ -244,8 +244,6 @@
 "onboarding_subtitle_scan_backup_card_format" = "Подготовьте резервную карту с номером %@";
 "onboarding_subtitle_scan_primary" = "Отсканируйте основную карту, чтобы начать процесс резервного копирования.";
 "onboarding_subtitle_scan_primary_card_format" = "Подготовьте основную карту с номером %@";
-"onboarding_subtitle_success_backup" = "Вы создали 2 резервные карты, и теперь эти карты готовы к использованию.";
-"onboarding_subtitle_success_backup_one_card" = "Вы создали 1 резервную карту, и теперь эта карта готова к использованию.";
 "onboarding_subtitle_success_tangem_wallet_onboarding" = "Ваша карта настроена и готова к использованию.";
 "onboarding_subtitle_two_backup_cards" = "Добавлено максимальное количество карт. Завершите процесс резервного копирования.";
 "onboarding_title" = "Активация карты";

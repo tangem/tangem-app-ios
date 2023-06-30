@@ -245,8 +245,6 @@
 "onboarding_subtitle_scan_backup_card_format" = "準備編號為 %@ 的備份卡";
 "onboarding_subtitle_scan_primary" = "掃描主卡以啟動備份過程";
 "onboarding_subtitle_scan_primary_card_format" = "準備編號為 %@ 的主卡";
-"onboarding_subtitle_success_backup" = "您已經創建了 2 張備用卡，現在這些卡可以使用了";
-"onboarding_subtitle_success_backup_one_card" = "您已創建 1 張備用卡，現在可以使用這些卡了";
 "onboarding_subtitle_success_tangem_wallet_onboarding" = "您的錢包卡已配置完畢，可以使用了";
 "onboarding_subtitle_two_backup_cards" = "已添加至最大數量。完成備份過程";
 "onboarding_title" = "啟用卡片";
