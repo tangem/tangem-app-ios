@@ -67,7 +67,7 @@ struct BottomSheetContainer<ContentView: View>: View {
         .frame(maxWidth: .infinity)
         .background(settings.backgroundColor)
         .cornerRadius(settings.cornerRadius, corners: [.topLeft, .topRight])
-        .readSize { stateObject.contentHeight = $0.height }
+        .readGeometry(\.size.height, bindTo: $stateObject.contentHeight)
         .gesture(dragGesture)
         .offset(y: stateObject.offset)
     }
