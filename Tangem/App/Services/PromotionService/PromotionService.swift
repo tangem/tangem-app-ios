@@ -20,6 +20,7 @@ class PromotionService {
     let currentProgramName = "1inch"
     private let promoCodeStorageKey = "promo_code"
     private let finishedPromotionNamesStorageKey = "finished_promotion_names"
+    private let awardedPromotionNamesStorageKey = "awarded_promotion_names"
 
     var awardAmount: Int?
     var promotionAvailable: Bool = false
@@ -46,7 +47,7 @@ extension PromotionService: PromotionServiceProtocol {
         readyForAwardSubject.send(())
     }
 
-    func checkPromotion(isNewCard: Bool, timeout: TimeInterval?) async {
+    func checkPromotion(isNewCard: Bool, userWalletId: String?, timeout: TimeInterval?) async {
         let promotionAvailable: Bool
         let award: Int?
 
@@ -120,7 +121,20 @@ extension PromotionService: PromotionServiceProtocol {
         return true
     }
 
+    func awardedPromotionNames() -> Set<String> {
+        do {
+            let storage = SecureStorage()
+            guard let data = try storage.get(awardedPromotionNamesStorageKey) else { return [] }
+            return try JSONDecoder().decode(Set<String>.self, from: data)
+        } catch {
+            AppLog.shared.error(error)
+            AppLog.shared.debug("Failed to get awarded promotions")
+            return []
+        }
+    }
+
     func resetAward(cardId: String) async throws {
+        saveAwardedPromotions([])
         try await tangemApiService.resetAwardForCurrentWallet(cardId: cardId)
     }
 
@@ -172,6 +186,32 @@ extension PromotionService {
         }
     }
 
+    private func alreadyClaimedAward(userWalletId: String?) async -> Bool {
+        if awardedPromotionNames().contains(currentProgramName) {
+            return true
+        }
+
+        guard let userWalletId else {
+            return false
+        }
+
+        do {
+            let result = try await tangemApiService.validateOldUserPromotionEligibility(walletId: userWalletId, programName: currentProgramName)
+            return result.valid
+        } catch {
+            guard let tangemApiError = error as? TangemAPIError else {
+                return false
+            }
+
+            switch tangemApiError.code {
+            case .promotionCardAlreadyAwarded, .promotionWalletAlreadyAwarded:
+                return true
+            default:
+                return false
+            }
+        }
+    }
+
     private func currentPromotionIsFinished() -> Bool {
         finishedPromotionNames().contains(currentProgramName)
     }
@@ -200,6 +240,33 @@ extension PromotionService {
         } catch {
             AppLog.shared.error(error)
             AppLog.shared.debug("Failed to set finished programs")
+        }
+    }
+    
+    private func markCurrentPromotionAsAwarded(_ awarded: Bool) {
+        let awardedPromotionNames = awardedPromotionNames()
+
+        var newAwardedPromotionNames = awardedPromotionNames
+        if awarded {
+            newAwardedPromotionNames.insert(currentProgramName)
+        } else {
+            newAwardedPromotionNames.remove(currentProgramName)
+        }
+
+        guard awardedPromotionNames != newAwardedPromotionNames else { return }
+
+        saveAwardedPromotions(newAwardedPromotionNames)
+    }
+
+    private func saveAwardedPromotions(_ promotionNames: Set<String>) {
+        do {
+            let data = try JSONEncoder().encode(promotionNames)
+
+            let storage = SecureStorage()
+            try storage.store(data, forKey: awardedPromotionNamesStorageKey)
+        } catch {
+            AppLog.shared.error(error)
+            AppLog.shared.debug("Failed to set awarded promotions")
         }
     }
 }
