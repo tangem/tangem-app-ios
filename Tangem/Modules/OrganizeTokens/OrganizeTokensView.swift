@@ -102,12 +102,12 @@ struct OrganizeTokensView: View {
                                         .readGeometry(
                                             \.frame,
                                             inCoordinateSpace: .named(scrollViewContentCoordinateSpaceName)
-                                        ) { dragAndDropController.saveFrame($0, forItemAtIndexPath: indexPath) }
+                                        ) { dragAndDropController.saveFrame($0, forItemAt: indexPath) }
                                     }
                                 },
                                 header: {
                                     let indexPath = IndexPath(
-                                        item: viewModel.itemIndexSentinelValueForSectionIndexPath,
+                                        item: viewModel.sectionHeaderItemIndex,
                                         section: sectionIndex
                                     )
 
@@ -122,7 +122,7 @@ struct OrganizeTokensView: View {
                                         \
                                         .frame,
                                         inCoordinateSpace: .named(scrollViewContentCoordinateSpaceName)
-                                    ) { dragAndDropController.saveFrame($0, forItemAtIndexPath: indexPath) }
+                                    ) { dragAndDropController.saveFrame($0, forItemAt: indexPath) }
                                 }
                             )
                         }
@@ -166,7 +166,7 @@ struct OrganizeTokensView: View {
             guard let oldValue, let newValue else { return }
 
             dragAndDropController.onItemsMove()
-            viewModel.move(fromSourceIndexPath: oldValue, toDestinationIndexPath: newValue)
+            viewModel.move(fromSource: oldValue, toDestination: newValue)
         }
         .onChange(of: dragAndDropSourceIndexPath) { [oldValue = dragAndDropSourceIndexPath] newValue in
             guard oldValue != nil, newValue == nil else { return }
@@ -261,7 +261,7 @@ struct OrganizeTokensView: View {
                     state = sourceIndexPath
 
                     dragAndDropInitialIndexPath = nil // effectively consumes `self.dragAndDropInitialIndexPath`
-                    dragAndDropSourceCellFrame = dragAndDropController.frame(forItemAtIndexPath: sourceIndexPath)
+                    dragAndDropSourceCellFrame = dragAndDropController.frame(forItemAt: sourceIndexPath)
                     dragAndDropSourceViewModelIdentifier = viewModel.viewModelIdentifier(at: sourceIndexPath)
 
                     // `DispatchQueue.main.async` used here to allow publishing changes during view update
@@ -280,9 +280,9 @@ struct OrganizeTokensView: View {
                     guard isLongPressGestureEnded else { return }
 
                     if let dragGestureValue, let sourceIndexPath = dragAndDropSourceIndexPath, let currentDestinationIndexPath = state {
-                        if let updatedDestinationIndexPath = dragAndDropController.updatedDestinationIndexPathForDragAndDrop(
-                            sourceIndexPath: sourceIndexPath,
-                            currentDestinationIndexPath: currentDestinationIndexPath,
+                        if let updatedDestinationIndexPath = dragAndDropController.updatedDestinationIndexPath(
+                            source: sourceIndexPath,
+                            currentDestination: currentDestinationIndexPath,
                             translationValue: dragGestureValue.translation
                         ) {
                             // State after drag gesture changed its value
@@ -297,7 +297,7 @@ struct OrganizeTokensView: View {
     }
 
     private func onTouchesBegan(atLocation location: CGPoint) {
-        if let initialIndexPath = dragAndDropController.indexPath(forLocation: location),
+        if let initialIndexPath = dragAndDropController.indexPath(for: location),
            viewModel.canStartDragAndDropSession(at: initialIndexPath) {
             dragAndDropInitialIndexPath = initialIndexPath
         } else {
@@ -393,7 +393,7 @@ struct OrganizeTokensView: View {
         let scaleTransitionValue = width / (width * Constants.draggableViewScale)
         let offsetTransitionRatio = 1.0 - scaleTransitionValue
 
-        let destinationFrame = dragAndDropController.frame(forItemAtIndexPath: indexPath) ?? .zero
+        let destinationFrame = dragAndDropController.frame(forItemAt: indexPath) ?? .zero
         let destinationOffset = destinationFrame.minY - (cellFrame.origin.y + dragGestureTranslation.height)
 
         content()
