@@ -69,6 +69,8 @@ struct EnvironmentSetupView: View {
             }
 
             VStack(spacing: 15) {
+                Text("Awarded program names: \(viewModel.awardedPromotinoNames)")
+
                 Text("Reset award for this card on the backend (tangem-dev only)")
                     .multilineTextAlignment(.center)
 
