@@ -120,6 +120,10 @@ extension PromotionService: PromotionServiceProtocol {
         return true
     }
 
+    func resetAward(cardId: String) async throws {
+        try await tangemApiService.resetAwardForCurrentWallet(cardId: cardId)
+    }
+
     func finishedPromotionNames() -> Set<String> {
         do {
             let storage = SecureStorage()
