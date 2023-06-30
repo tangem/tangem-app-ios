@@ -13,7 +13,8 @@ import struct BlockchainSdk.Token
 final class OrganizeTokensViewModel: ObservableObject {
     private typealias Token = BlockchainSdk.Token
 
-    var itemIndexSentinelValueForSectionIndexPath: Int { .min }
+    /// Sentinel value for `item` of `IndexPath` representing a section.
+    var sectionHeaderItemIndex: Int { .min }
 
     private(set) lazy var headerViewModel = OrganizeTokensHeaderViewModel()
 
@@ -142,11 +143,8 @@ extension OrganizeTokensViewModel {
         return sectionViewModel(at: indexPath)?.id ?? itemViewModel(at: indexPath).id
     }
 
-    func move(
-        fromSourceIndexPath sourceIndexPath: IndexPath,
-        toDestinationIndexPath destinationIndexPath: IndexPath
-    ) {
-        if sourceIndexPath.item == itemIndexSentinelValueForSectionIndexPath {
+    func move(from sourceIndexPath: IndexPath, to destinationIndexPath: IndexPath) {
+        if sourceIndexPath.item == sectionHeaderItemIndex {
             assert(sourceIndexPath.item == destinationIndexPath.item, "Can't perform move operation between section and item or vice versa")
             let diff = sourceIndexPath.section > destinationIndexPath.section ? 0 : 1
             sections.move(
@@ -169,7 +167,7 @@ extension OrganizeTokensViewModel {
 
     func onDragStart(at indexPath: IndexPath) {
         // Process further only if a section is currently being dragged
-        guard indexPath.item == itemIndexSentinelValueForSectionIndexPath else { return }
+        guard indexPath.item == sectionHeaderItemIndex else { return }
 
         beginDragAndDropSession(forSectionWithIdentifier: sections[indexPath.section].id)
     }
@@ -212,7 +210,7 @@ extension OrganizeTokensViewModel {
     }
 
     private func sectionViewModel(at indexPath: IndexPath) -> OrganizeTokensListSectionViewModel? {
-        guard indexPath.item == itemIndexSentinelValueForSectionIndexPath else { return nil }
+        guard indexPath.item == sectionHeaderItemIndex else { return nil }
 
         return sections[indexPath.section]
     }
@@ -236,8 +234,8 @@ extension OrganizeTokensViewModel: OrganizeTokensDragAndDropControllerDataSource
 
     func controller(
         _ controller: OrganizeTokensDragAndDropController,
-        listViewKindForIndexPath indexPath: IndexPath
+        listViewKindForItemAt indexPath: IndexPath
     ) -> OrganizeTokensDragAndDropControllerListViewKind {
-        return indexPath.item == itemIndexSentinelValueForSectionIndexPath ? .sectionHeader : .cell
+        return indexPath.item == sectionHeaderItemIndex ? .sectionHeader : .cell
     }
 }
