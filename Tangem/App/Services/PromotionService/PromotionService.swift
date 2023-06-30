@@ -65,7 +65,10 @@ extension PromotionService: PromotionServiceProtocol {
                     cardParameters = promotion.oldCard
                 }
 
-                promotionAvailable = (cardParameters.status == .active)
+                let promotionActive = (cardParameters.status == .active)
+                let alreadyClaimedAward = await alreadyClaimedAward(userWalletId: userWalletId)
+
+                promotionAvailable = promotionActive && !alreadyClaimedAward
 
                 if cardParameters.status == .finished {
                     markCurrentPromotionAsFinished(true)
@@ -117,6 +120,7 @@ extension PromotionService: PromotionServiceProtocol {
         }
 
         markCurrentPromotionAsFinished(true)
+        markCurrentPromotionAsAwarded(true)
 
         return true
     }
@@ -196,8 +200,8 @@ extension PromotionService {
         }
 
         do {
-            let result = try await tangemApiService.validateOldUserPromotionEligibility(walletId: userWalletId, programName: currentProgramName)
-            return result.valid
+            let canClaim = try await tangemApiService.validateOldUserPromotionEligibility(walletId: userWalletId, programName: currentProgramName).valid
+            return !canClaim
         } catch {
             guard let tangemApiError = error as? TangemAPIError else {
                 return false
@@ -242,7 +246,7 @@ extension PromotionService {
             AppLog.shared.debug("Failed to set finished programs")
         }
     }
-    
+
     private func markCurrentPromotionAsAwarded(_ awarded: Bool) {
         let awardedPromotionNames = awardedPromotionNames()
 
