@@ -568,7 +568,8 @@ private extension LegacyMainViewModel {
 
     private func updatePromotionState() async {
         let isNewCard = (promotionService.promoCode != nil)
-        await promotionService.checkPromotion(isNewCard: isNewCard, timeout: nil)
+        let userWalletId = cardModel.userWalletId.stringValue
+        await promotionService.checkPromotion(isNewCard: isNewCard, userWalletId: userWalletId, timeout: nil)
 
         didFinishCheckingPromotion(promotionAvailable: promotionService.promotionAvailable)
     }
