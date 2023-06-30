@@ -108,8 +108,7 @@ final class OrganizeTokensDragAndDropController: ObservableObject {
                 let intersection = draggedItemFrame.intersection(neighboringItemFrame)
 
                 return !intersection.isNull && intersection.height > neighboringItemFrame.height
-                    * Constants.destinationItemSelectionFrameHeigthThresholdRatio
-                    - Constants.destinationItemSelectionFrameHeigthThresholdDiff
+                    * Constants.destinationItemSelectionFrameHeightThresholdRatio
             }
     }
 
@@ -181,7 +180,6 @@ final class OrganizeTokensDragAndDropController: ObservableObject {
 
 private extension OrganizeTokensDragAndDropController {
     enum Constants {
-        static let destinationItemSelectionFrameHeigthThresholdRatio = 0.5
-        static let destinationItemSelectionFrameHeigthThresholdDiff = 5.0
+        static let destinationItemSelectionFrameHeightThresholdRatio = 0.5
     }
 }
