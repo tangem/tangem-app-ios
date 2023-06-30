@@ -214,6 +214,8 @@ struct OrganizeTokensView: View {
 
     // MARK: - Gestures
 
+    /// For more information about `Sequenced` gestures in SwiftUI see
+    /// [official documentation](https://developer.apple.com/documentation/swiftui/composing-swiftui-gestures).
     private func makeDragAndDropGesture() -> some Gesture {
         LongPressGesture(minimumDuration: 1.0)
             .sequenced(before: DragGesture(coordinateSpace: .named(scrollViewFrameCoordinateSpaceName)))
