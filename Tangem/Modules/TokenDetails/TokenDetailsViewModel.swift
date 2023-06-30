@@ -334,13 +334,14 @@ private extension TokenDetailsViewModel {
         }
 
         let input = CommonSwappingModulesFactory.InputModel(
-            userWalletModel: cardModel,
+            userTokensManager: userTokensManager,
             walletModel: walletModel,
             sender: walletModel.walletManager,
             signer: cardModel.signer,
             logger: AppLog.shared,
             referrer: referrer,
-            source: sourceCurrency
+            source: sourceCurrency,
+            walletModelTokens: userTokensManager.getAllTokens(for: walletModel.blockchainNetwork)
         )
 
         coordinator.openSwapping(input: input)

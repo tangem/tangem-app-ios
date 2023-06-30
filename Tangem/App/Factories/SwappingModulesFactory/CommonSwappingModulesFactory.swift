@@ -11,25 +11,27 @@ import TangemSwapping
 import BlockchainSdk
 
 class CommonSwappingModulesFactory {
-    private let userWalletModel: UserWalletModel
+    private let userTokensManager: UserTokensManager
     private let walletModel: WalletModel
     private let sender: TransactionSender
     private let signer: TransactionSigner
     private let logger: SwappingLogger
     private let referrer: SwappingReferrerAccount?
     private let source: Currency
+    private let walletModelTokens: [Token]
     private let destination: Currency?
 
     private lazy var swappingInteractor = makeSwappingInteractor(source: source, destination: destination)
 
     init(inputModel: InputModel) {
-        userWalletModel = inputModel.userWalletModel
+        userTokensManager = inputModel.userTokensManager
         walletModel = inputModel.walletModel
         sender = inputModel.sender
         signer = inputModel.signer
         logger = inputModel.logger
         referrer = inputModel.referrer
         source = inputModel.source
+        walletModelTokens = inputModel.walletModelTokens
         destination = inputModel.destination
     }
 }
@@ -100,7 +102,7 @@ private extension CommonSwappingModulesFactory {
     var walletManager: WalletManager { walletModel.walletManager }
 
     var swappingDestinationService: SwappingDestinationServicing {
-        SwappingDestinationService(walletModel: walletModel, mapper: currencyMapper)
+        SwappingDestinationService(walletModel: walletModel, mapper: currencyMapper, walletModelTokens: walletModelTokens)
     }
 
     var currencyMapper: CurrencyMapping { CurrencyMapper() }
@@ -110,6 +112,7 @@ private extension CommonSwappingModulesFactory {
     var userCurrenciesProvider: UserCurrenciesProviding {
         UserCurrenciesProvider(
             walletModel: walletModel,
+            walletModelTokens: walletModelTokens,
             currencyMapper: currencyMapper
         )
     }
@@ -149,7 +152,7 @@ private extension CommonSwappingModulesFactory {
         let swappingManager = makeSwappingManager(source: source, destination: destination)
         return SwappingInteractor(
             swappingManager: swappingManager,
-            userWalletModel: userWalletModel,
+            userTokensManager: userTokensManager,
             currencyMapper: currencyMapper,
             blockchainNetwork: walletModel.blockchainNetwork
         )
@@ -168,32 +171,35 @@ private extension CommonSwappingModulesFactory {
 
 extension CommonSwappingModulesFactory {
     struct InputModel {
-        let userWalletModel: UserWalletModel
+        let userTokensManager: UserTokensManager
         let walletModel: WalletModel
         let sender: TransactionSender
         let signer: TransactionSigner
         let logger: SwappingLogger
         let referrer: SwappingReferrerAccount?
         let source: Currency
+        let walletModelTokens: [Token]
         let destination: Currency?
 
         init(
-            userWalletModel: UserWalletModel,
+            userTokensManager: UserTokensManager,
             walletModel: WalletModel,
             sender: TransactionSender,
             signer: TransactionSigner,
             logger: SwappingLogger,
             referrer: SwappingReferrerAccount?,
             source: Currency,
+            walletModelTokens: [Token],
             destination: Currency? = nil
         ) {
-            self.userWalletModel = userWalletModel
+            self.userTokensManager = userTokensManager
             self.walletModel = walletModel
             self.sender = sender
             self.signer = signer
             self.logger = logger
             self.referrer = referrer
             self.source = source
+            self.walletModelTokens = walletModelTokens
             self.destination = destination
         }
     }
