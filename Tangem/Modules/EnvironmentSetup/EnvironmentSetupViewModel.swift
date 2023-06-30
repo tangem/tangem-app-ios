@@ -25,9 +25,12 @@ final class EnvironmentSetupViewModel: ObservableObject {
     // MARK: - Dependencies
 
     private let featureStorage = FeatureStorage()
+    private let cardId: String
     private var bag: Set<AnyCancellable> = []
 
-    init() {
+    init(cardId: String) {
+        self.cardId = cardId
+
         setupView()
     }
 
@@ -49,6 +52,15 @@ final class EnvironmentSetupViewModel: ObservableObject {
                     default: false,
                     get: { $0.useDevApi },
                     set: { $0.useDevApi = $1 }
+                )
+            ),
+            DefaultToggleRowViewModel(
+                title: "Use fake tx history",
+                isOn: Binding<Bool>(
+                    root: featureStorage,
+                    default: false,
+                    get: { $0.useFakeTxHistory },
+                    set: { $0.useFakeTxHistory = $1 }
                 )
             ),
         ]
@@ -94,6 +106,19 @@ final class EnvironmentSetupViewModel: ObservableObject {
     func resetFinishedPromotionNames() {
         promotionService.resetFinishedPromotions()
         updateFinishedPromotionNames()
+    }
+
+    func resetAward() {
+        runTask { [weak self] in
+            guard let self else { return }
+
+            let success = (try? await promotionService.resetAward(cardId: cardId)) != nil
+
+            DispatchQueue.main.async {
+                let feedbackGenerator = UINotificationFeedbackGenerator()
+                feedbackGenerator.notificationOccurred(success ? .success : .error)
+            }
+        }
     }
 
     func showExitAlert() {
