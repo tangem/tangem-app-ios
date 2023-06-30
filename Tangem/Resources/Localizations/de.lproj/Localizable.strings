@@ -239,7 +239,6 @@
 "onboarding_seed_screenshot_alert" = "We do not recommend storing the passphrase as a screenshot due to the high risk of loss or hacking";
 "onboarding_seed_user_validation_message" = "To check whether you’ve written down your secret phrase correctly, please enter the 2nd, 7th and 11th words";
 "onboarding_seed_user_validation_title" = "So, let’s check";
-"onboarding_subtitle_backup_card" = "You can backup your keys up to two other blank wallet cards";
 "onboarding_subtitle_no_backup_cards" = "To start the backup process add up to two backup cards.";
 "onboarding_subtitle_one_backup_card" = "You can add one more card or finalize the backup process";
 "onboarding_subtitle_scan_backup_card_format" = "Prepare the backup card with number %@";
@@ -250,7 +249,6 @@
 "onboarding_subtitle_success_tangem_wallet_onboarding" = "Your wallet card is configured and ready for use.";
 "onboarding_subtitle_two_backup_cards" = "Max number of cards added. Finalize the backup process.";
 "onboarding_title" = "Activating card";
-"onboarding_title_backup_card" = "Backup your wallet";
 "onboarding_title_backup_card_format" = "Backup card #%li";
 "onboarding_title_no_backup_cards" = "No backup cards";
 "onboarding_title_one_backup_card" = "One backup card added";
