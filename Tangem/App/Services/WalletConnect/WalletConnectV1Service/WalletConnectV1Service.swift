@@ -265,14 +265,13 @@ extension WalletConnectV1Service: ServerDelegate {
             throw WalletConnectServiceError.unsupportedNetwork
         }
 
-        let blockchainNetwork = cardModel.getBlockchainNetwork(for: blockchain, derivationPath: nil)
-
         let wallet = cardModel.walletModels
-            .first { $0.blockchainNetwork == blockchainNetwork }
+            .filter { !$0.isCustom }
+            .first { $0.blockchainNetwork.blockchain == blockchain }
             .map { $0.wallet }
 
         guard let wallet = wallet else {
-            throw WalletConnectServiceError.networkNotFound(name: blockchainNetwork.blockchain.displayName)
+            throw WalletConnectServiceError.networkNotFound(name: blockchain.displayName)
         }
 
         let derivedKey = wallet.publicKey.blockchainKey != wallet.publicKey.seedKey ? wallet.publicKey.blockchainKey : nil
@@ -281,7 +280,7 @@ extension WalletConnectV1Service: ServerDelegate {
             walletPublicKey: wallet.publicKey.seedKey,
             derivedPublicKey: derivedKey,
             derivationPath: wallet.publicKey.derivationPath,
-            blockchain: blockchainNetwork.blockchain
+            blockchain: blockchain
         )
     }
 
