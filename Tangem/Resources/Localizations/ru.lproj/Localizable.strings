@@ -239,7 +239,6 @@
 "onboarding_seed_screenshot_alert" = "Мы не рекомендуем хранить секретную фразу в виде скриншота из-за высокого риска утери или взлома";
 "onboarding_seed_user_validation_message" = "Чтобы проверить, правильно ли вы записали секретную фразу, введите 2-е, 7-е и 11-е слова";
 "onboarding_seed_user_validation_title" = "Итак, проверим";
-"onboarding_subtitle_backup_card" = "Вы можете сделать резервную копию своих ключей на одной или двух других пустых картах Wallet";
 "onboarding_subtitle_no_backup_cards" = "Чтобы начать процесс резервного копирования, добавьте одну или две резервные карты.";
 "onboarding_subtitle_one_backup_card" = "Вы можете добавить еще одну карту или завершить процесс резервного копирования";
 "onboarding_subtitle_scan_backup_card_format" = "Подготовьте резервную карту с номером %@";
@@ -250,7 +249,6 @@
 "onboarding_subtitle_success_tangem_wallet_onboarding" = "Ваша карта настроена и готова к использованию.";
 "onboarding_subtitle_two_backup_cards" = "Добавлено максимальное количество карт. Завершите процесс резервного копирования.";
 "onboarding_title" = "Активация карты";
-"onboarding_title_backup_card" = "Создайте резервную копию вашей карты";
 "onboarding_title_backup_card_format" = "Резервная карта #%li";
 "onboarding_title_no_backup_cards" = "Нет резервных карт";
 "onboarding_title_one_backup_card" = "Добавлена ​​одна резервная карта";
