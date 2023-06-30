@@ -240,7 +240,6 @@
 "onboarding_seed_screenshot_alert" = "由於丟失或被駭客入侵的風險很高，我們不建議將密碼截圖";
 "onboarding_seed_user_validation_message" = "為了檢查您是否正確輸入了助記詞，請輸入第 2、7 和 11 個單詞";
 "onboarding_seed_user_validation_title" = "那麼，讓我們檢查一下";
-"onboarding_subtitle_backup_card" = "您最多可以再備份兩張其他空白錢包";
 "onboarding_subtitle_no_backup_cards" = "要開始備份過程，最多可添加兩張備份卡。";
 "onboarding_subtitle_one_backup_card" = "您可以再添加一張卡或完成備份過程";
 "onboarding_subtitle_scan_backup_card_format" = "準備編號為 %@ 的備份卡";
@@ -251,7 +250,6 @@
 "onboarding_subtitle_success_tangem_wallet_onboarding" = "您的錢包卡已配置完畢，可以使用了";
 "onboarding_subtitle_two_backup_cards" = "已添加至最大數量。完成備份過程";
 "onboarding_title" = "啟用卡片";
-"onboarding_title_backup_card" = "備援錢包";
 "onboarding_title_backup_card_format" = "備份卡 #%li";
 "onboarding_title_no_backup_cards" = "沒有備用卡";
 "onboarding_title_one_backup_card" = "添加了一張備用卡";
