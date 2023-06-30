@@ -193,7 +193,8 @@ struct OrganizeTokensView: View {
         OrganizeTokensListHeader(
             viewModel: viewModel.headerViewModel,
             scrollViewTopContentInset: $scrollViewTopContentInset,
-            contentHorizontalInset: Constants.contentHorizontalInset
+            contentHorizontalInset: Constants.contentHorizontalInset,
+            overlayViewAdditionalVerticalInset: Constants.overlayViewAdditionalVerticalInset
         )
     }
 
