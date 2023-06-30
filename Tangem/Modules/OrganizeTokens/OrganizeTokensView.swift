@@ -405,6 +405,14 @@ struct OrganizeTokensView: View {
         let destinationFrame = dragAndDropController.frame(forItemAt: indexPath) ?? .zero
         let destinationOffset = destinationFrame.minY - (itemFrame.origin.y + dragGestureTranslation.height)
 
+        let dummyProgressObserver = OrganizeTokensAnimationProgressObserverModifier(progress: 1.0, threshold: 1.0) {}
+        let viewRemovalProgressObserver = OrganizeTokensAnimationProgressObserverModifier(
+            progress: 0.0,
+            threshold: Constants.dropAnimationProgressThresholdForViewRemoval
+        ) {
+            dragAndDropSourceViewModelIdentifier = nil
+        }
+
         content()
             .frame(width: width)
             .cornerRadiusContinuous(hasActiveDrag ? Constants.draggableViewCornerRadius : 0.0)
@@ -426,6 +434,7 @@ struct OrganizeTokensView: View {
                         .combined(with: .offset(y: itemFrame.origin.y * offsetTransitionRatio))
                         .combined(with: .offset(y: dragGestureTranslation.height * offsetTransitionRatio))
                         .combined(with: .offset(y: destinationOffset))
+                        .combined(with: .modifier(active: viewRemovalProgressObserver, identity: dummyProgressObserver))
                 )
             )
             .onDisappear { dragAndDropSourceViewModelIdentifier = nil }
@@ -440,6 +449,7 @@ private extension OrganizeTokensView {
         static let overlayViewAdditionalVerticalInset = 10.0
         static let contentHorizontalInset = 16.0
         static let dragLiftAnimationDuration = 0.35
+        static let dropAnimationProgressThresholdForViewRemoval = 0.05
         static let draggableViewScale = 1.035
         static let draggableViewCornerRadius = 7.0
     }
