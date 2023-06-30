@@ -94,10 +94,6 @@ class LegacyTokenDetailsViewModel: ObservableObject {
     }
 
     var canSend: Bool {
-        guard card.canSend else {
-            return false
-        }
-
         guard canSignLongTransactions else {
             return false
         }
@@ -324,7 +320,7 @@ class LegacyTokenDetailsViewModel: ObservableObject {
             return
         }
 
-        if walletModel.canRemove(amountType: amountType) {
+        if card.userTokensManager.canRemove(walletModel.tokenItem, derivationPath: walletModel.blockchainNetwork.derivationPath) {
             showWarningDeleteAlert()
         } else {
             showUnableToHideAlert()
@@ -416,7 +412,7 @@ class LegacyTokenDetailsViewModel: ObservableObject {
 
         Analytics.log(event: .buttonRemoveToken, params: [Analytics.ParameterKey.token: currencySymbol])
 
-        card.remove(amountType: amountType, blockchainNetwork: walletModel.blockchainNetwork)
+        card.userTokensManager.remove(walletModel.tokenItem, derivationPath: walletModel.blockchainNetwork.derivationPath)
         dismiss()
     }
 
@@ -568,13 +564,14 @@ extension LegacyTokenDetailsViewModel {
         }
 
         let input = CommonSwappingModulesFactory.InputModel(
-            userWalletModel: card,
+            userTokensManager: card.userTokensManager,
             walletModel: walletModel,
             sender: walletModel.walletManager,
             signer: card.signer,
             logger: AppLog.shared,
             referrer: referrer,
-            source: source
+            source: source,
+            walletModelTokens: card.userTokensManager.getAllTokens(for: walletModel.blockchainNetwork)
         )
 
         coordinator.openSwapping(input: input)
