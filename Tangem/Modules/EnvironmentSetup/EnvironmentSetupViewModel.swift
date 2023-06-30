@@ -120,6 +120,8 @@ final class EnvironmentSetupViewModel: ObservableObject {
             DispatchQueue.main.async {
                 let feedbackGenerator = UINotificationFeedbackGenerator()
                 feedbackGenerator.notificationOccurred(success ? .success : .error)
+
+                self.updateAwardedPromotionNames()
             }
         }
     }
