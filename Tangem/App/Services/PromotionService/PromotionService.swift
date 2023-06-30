@@ -46,7 +46,7 @@ extension PromotionService: PromotionServiceProtocol {
         readyForAwardSubject.send(())
     }
 
-    func checkPromotion(timeout: TimeInterval?) async {
+    func checkPromotion(isNewCard: Bool, timeout: TimeInterval?) async {
         let promotionAvailable: Bool
         let award: Int?
 
@@ -57,17 +57,20 @@ extension PromotionService: PromotionServiceProtocol {
             do {
                 let promotion = try await tangemApiService.promotion(programName: currentProgramName, timeout: timeout)
 
-                promotionAvailable = (promotion.status == .active)
+                let cardParameters: PromotionParameters.CardParameters
+                if isNewCard {
+                    cardParameters = promotion.newCard
+                } else {
+                    cardParameters = promotion.oldCard
+                }
 
-                if promotion.status == .finished {
+                promotionAvailable = (cardParameters.status == .active)
+
+                if cardParameters.status == .finished {
                     markCurrentPromotionAsFinished(true)
                 }
 
-                if promoCode != nil {
-                    award = promotion.awardForNewCard
-                } else {
-                    award = promotion.awardForOldCard
-                }
+                award = cardParameters.award
             } catch {
                 promotionAvailable = false
                 award = nil
@@ -115,6 +118,10 @@ extension PromotionService: PromotionServiceProtocol {
         markCurrentPromotionAsFinished(true)
 
         return true
+    }
+
+    func resetAward(cardId: String) async throws {
+        try await tangemApiService.resetAwardForCurrentWallet(cardId: cardId)
     }
 
     func finishedPromotionNames() -> Set<String> {
