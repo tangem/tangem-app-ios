@@ -24,7 +24,7 @@ struct SwappingTokenItemView: View {
                 HStack(spacing: Self.horizontalInteritemSpacing) {
                     IconView(url: viewModel.iconURL, size: Self.iconSize)
 
-                    infoViews
+                    infoView
                 }
             }
             .padding(.vertical, 12)
@@ -33,7 +33,7 @@ struct SwappingTokenItemView: View {
         .buttonStyle(.plain)
     }
 
-    private var infoViews: some View {
+    private var infoView: some View {
         VStack(alignment: .leading, spacing: 2) {
             HStack(spacing: .zero) {
                 Text(viewModel.name)
