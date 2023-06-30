@@ -67,6 +67,14 @@ struct EnvironmentSetupView: View {
                 Button("Reset finished programs", action: viewModel.resetFinishedPromotionNames)
                     .foregroundColor(Color.red)
             }
+
+            VStack(spacing: 15) {
+                Text("Reset award for this card on the backend (tangem-dev only)")
+                    .multilineTextAlignment(.center)
+
+                Button("Reset award", action: viewModel.resetAward)
+                    .foregroundColor(Color.red)
+            }
         }
     }
 
@@ -77,7 +85,7 @@ struct EnvironmentSetupView: View {
 }
 
 struct EnvironmentSetupView_Preview: PreviewProvider {
-    static let viewModel = EnvironmentSetupViewModel()
+    static let viewModel = EnvironmentSetupViewModel(cardId: "AC01")
 
     static var previews: some View {
         NavigationView {
