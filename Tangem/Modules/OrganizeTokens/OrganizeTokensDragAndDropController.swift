@@ -26,14 +26,14 @@ protocol OrganizeTokensDragAndDropControllerDataSource: AnyObject {
 
     func controller(
         _ controller: OrganizeTokensDragAndDropController,
-        listViewKindForIndexPath indexPath: IndexPath
+        listViewKindForItemAt indexPath: IndexPath
     ) -> OrganizeTokensDragAndDropControllerListViewKind
 }
 
 final class OrganizeTokensDragAndDropController: ObservableObject {
     weak var dataSource: OrganizeTokensDragAndDropControllerDataSource?
 
-    private var frames: [IndexPath: CGRect] = [:]
+    private var itemsFrames: [IndexPath: CGRect] = [:]
 
     private lazy var impactFeedbackGenerator = UIImpactFeedbackGenerator(style: .light)
     private lazy var selectionFeedbackGenerator = UISelectionFeedbackGenerator()
@@ -56,88 +56,86 @@ final class OrganizeTokensDragAndDropController: ObservableObject {
         return nil
     }
 
-    func saveFrame(_ frame: CGRect, forItemAtIndexPath indexPath: IndexPath) {
-        frames[indexPath] = frame
+    func saveFrame(_ frame: CGRect, forItemAt indexPath: IndexPath) {
+        itemsFrames[indexPath] = frame
     }
 
-    func frame(forItemAtIndexPath indexPath: IndexPath?) -> CGRect? {
-        indexPath.flatMap { frames[$0] }
+    func frame(forItemAt indexPath: IndexPath?) -> CGRect? {
+        indexPath.flatMap { itemsFrames[$0] }
     }
 
-    func indexPath(forLocation location: CGPoint) -> IndexPath? {
-        return frames
+    func indexPath(for location: CGPoint) -> IndexPath? {
+        return itemsFrames
             .first { isIndexPathValid($0.key) && $0.value.contains(location) }
             .map(\.key)
     }
 
-    func updatedDestinationIndexPathForDragAndDrop(
-        sourceIndexPath: IndexPath,
-        currentDestinationIndexPath: IndexPath,
+    func updatedDestinationIndexPath(
+        source sourceIndexPath: IndexPath,
+        currentDestination currentDestinationIndexPath: IndexPath,
         translationValue: CGSize
     ) -> IndexPath? {
-        guard let dataSource else {
+        guard let dataSource = dataSource else {
             assertionFailure("DataSource required, but not set for \(self)")
             return nil
         }
-
-        guard var draggedCellFrame = frame(forItemAtIndexPath: sourceIndexPath) else {
+        guard var draggedItemFrame = frame(forItemAt: sourceIndexPath) else {
             return nil
         }
 
-        draggedCellFrame.origin.y += translationValue.height
+        draggedItemFrame.origin.y += translationValue.height
         let neighboringIndexPaths: [IndexPath]
 
-        switch dataSource.controller(self, listViewKindForIndexPath: sourceIndexPath) {
+        switch dataSource.controller(self, listViewKindForItemAt: sourceIndexPath) {
         case .cell:
-            neighboringIndexPaths = neighboringCellsIndexPaths(
-                forCellAtIndexPath: currentDestinationIndexPath,
+            neighboringIndexPaths = neighboringItemsIndexPaths(
+                forItemAt: currentDestinationIndexPath,
                 dataSource: dataSource
             )
         case .sectionHeader:
             neighboringIndexPaths = neighboringSectionsIndexPaths(
-                forSectionAtIndexPath: currentDestinationIndexPath,
+                forSectionAt: currentDestinationIndexPath,
                 dataSource: dataSource
             )
         }
 
         return neighboringIndexPaths
-            .first { neighboringCellIndexPath in
-                guard let neighboringCellFrame = frame(forItemAtIndexPath: neighboringCellIndexPath) else {
+            .first { neighboringIndexPath in
+                guard let neighboringItemFrame = frame(forItemAt: neighboringIndexPath) else {
                     return false
                 }
 
-                let intersection = draggedCellFrame.intersection(neighboringCellFrame)
+                let intersection = draggedItemFrame.intersection(neighboringItemFrame)
 
-                return !intersection.isNull && intersection.height > neighboringCellFrame.height
-                    * Constants.destinationCellSelectionFrameHeigthThresholdRatio
-                    - Constants.destinationCellSelectionFrameHeigthThresholdDiff
+                return !intersection.isNull && intersection.height > neighboringItemFrame.height
+                    * Constants.destinationItemSelectionFrameHeightThresholdRatio
             }
     }
 
-    private func neighboringCellsIndexPaths(
-        forCellAtIndexPath indexPath: IndexPath,
+    private func neighboringItemsIndexPaths(
+        forItemAt indexPath: IndexPath,
         dataSource: OrganizeTokensDragAndDropControllerDataSource
     ) -> [IndexPath] {
-        var neighboringCellsIndexPaths: [IndexPath] = []
+        var neighboringItemsIndexPaths: [IndexPath] = []
 
         if indexPath.item > 0 {
-            neighboringCellsIndexPaths.append(
+            neighboringItemsIndexPaths.append(
                 IndexPath(item: indexPath.item - 1, section: indexPath.section)
             )
         }
 
         let numberOfRowsInSection = dataSource.controller(self, numberOfRowsInSection: indexPath.section)
         if indexPath.item < numberOfRowsInSection - 1 {
-            neighboringCellsIndexPaths.append(
+            neighboringItemsIndexPaths.append(
                 IndexPath(item: indexPath.item + 1, section: indexPath.section)
             )
         }
 
-        return neighboringCellsIndexPaths
+        return neighboringItemsIndexPaths
     }
 
     private func neighboringSectionsIndexPaths(
-        forSectionAtIndexPath indexPath: IndexPath,
+        forSectionAt indexPath: IndexPath,
         dataSource: OrganizeTokensDragAndDropControllerDataSource
     ) -> [IndexPath] {
         var neighboringSectionsIndexPaths: [IndexPath] = []
@@ -158,19 +156,20 @@ final class OrganizeTokensDragAndDropController: ObservableObject {
         return neighboringSectionsIndexPaths
     }
 
-    // Maybe not so memory-efficient, but definitely safer than manual clearing of `frames` cache
+    // Maybe not so memory-efficient, but definitely safer than manual clearing of `itemsFrames` cache
     private func isIndexPathValid(_ indexPath: IndexPath) -> Bool {
-        guard let dataSource else {
+        guard let dataSource = dataSource else {
             assertionFailure("DataSource required, but not set for \(self)")
             return false
         }
 
         let isSectionValid = 0 ..< dataSource.numberOfSections(for: self) ~= indexPath.section
-        let listViewKind = dataSource.controller(self, listViewKindForIndexPath: indexPath)
+        let listViewKind = dataSource.controller(self, listViewKindForItemAt: indexPath)
 
         switch listViewKind {
         case .cell:
-            return isSectionValid && 0 ..< dataSource.controller(self, numberOfRowsInSection: indexPath.section) ~= indexPath.item
+            let numberOfRowsInSection = dataSource.controller(self, numberOfRowsInSection: indexPath.section)
+            return isSectionValid && 0 ..< numberOfRowsInSection ~= indexPath.item
         case .sectionHeader:
             return isSectionValid
         }
@@ -181,7 +180,6 @@ final class OrganizeTokensDragAndDropController: ObservableObject {
 
 private extension OrganizeTokensDragAndDropController {
     enum Constants {
-        static let destinationCellSelectionFrameHeigthThresholdRatio = 0.5
-        static let destinationCellSelectionFrameHeigthThresholdDiff = 5.0
+        static let destinationItemSelectionFrameHeightThresholdRatio = 0.5
     }
 }
