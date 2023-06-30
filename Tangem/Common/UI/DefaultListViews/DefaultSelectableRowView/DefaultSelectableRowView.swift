@@ -45,6 +45,7 @@ struct DefaultSelectableRowView<ID: Hashable>: View {
             .padding(.vertical, 12)
             .contentShape(Rectangle())
         }
+        .buttonStyle(.plain)
     }
 }
 
