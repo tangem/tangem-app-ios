@@ -33,7 +33,7 @@ struct OrganizeTokensView: View {
 
     @GestureState private var dragAndDropDestinationIndexPath: IndexPath?
 
-    @State private var dragAndDropSourceCellFrame: CGRect?
+    @State private var dragAndDropSourceItemFrame: CGRect?
 
     // Stable identity, independent of changes in the underlying model (unlike index paths)
     @State private var dragAndDropSourceViewModelIdentifier: UUID?
@@ -143,15 +143,15 @@ struct OrganizeTokensView: View {
                 .onChange(of: dragGestureLocation) { newValue in
                     guard
                         let newValue = newValue,
-                        var dragAndDropSourceCellFrame = dragAndDropSourceCellFrame
+                        var dragAndDropSourceItemFrame = dragAndDropSourceItemFrame
                     else {
                         return
                     }
 
-                    dragAndDropSourceCellFrame.origin.y += dragGestureTranslation.height
+                    dragAndDropSourceItemFrame.origin.y += dragGestureTranslation.height
 
                     if let scrollTarget = dragAndDropController.scrollTarget(
-                        sourceLocation: dragAndDropSourceCellFrame.origin,
+                        sourceLocation: dragAndDropSourceItemFrame.origin,
                         currentLocation: newValue
                     ) {
                         scrollProxy.scrollTo(scrollTarget)
@@ -176,7 +176,7 @@ struct OrganizeTokensView: View {
         .onChange(of: dragAndDropSourceIndexPath) { [oldValue = dragAndDropSourceIndexPath] newValue in
             guard oldValue != nil, newValue == nil else { return }
 
-            dragAndDropSourceCellFrame = nil
+            dragAndDropSourceItemFrame = nil
         }
         .onChange(of: dragAndDropSourceViewModelIdentifier) { [oldValue = dragAndDropSourceViewModelIdentifier] newValue in
             guard oldValue != nil, newValue == nil else { return }
@@ -266,7 +266,7 @@ struct OrganizeTokensView: View {
                     state = sourceIndexPath
 
                     dragAndDropInitialIndexPath = nil // effectively consumes `self.dragAndDropInitialIndexPath`
-                    dragAndDropSourceCellFrame = dragAndDropController.frame(forItemAt: sourceIndexPath)
+                    dragAndDropSourceItemFrame = dragAndDropController.frame(forItemAt: sourceIndexPath)
                     dragAndDropSourceViewModelIdentifier = viewModel.viewModelIdentifier(at: sourceIndexPath)
 
                     // `DispatchQueue.main.async` used here to allow publishing changes during view update
@@ -323,8 +323,8 @@ struct OrganizeTokensView: View {
         OrganizeTokensListItemView(viewModel: viewModel)
             .background(Colors.Background.primary)
             .cornerRadius(
-                parametersProvider.cornerRadius(forItemAtIndexPath: indexPath),
-                corners: parametersProvider.rectCorners(forItemAtIndexPath: indexPath)
+                parametersProvider.cornerRadius(forItemAt: indexPath),
+                corners: parametersProvider.rectCorners(forItemAt: indexPath)
             )
     }
 
@@ -354,7 +354,7 @@ struct OrganizeTokensView: View {
     @ViewBuilder
     private func makeDraggableComponent(width: CGFloat) -> some View {
         if let dragAndDropSourceIndexPath = dragAndDropSourceIndexPath,
-           let dragAndDropSourceCellFrame = dragAndDropSourceCellFrame,
+           let dragAndDropSourceItemFrame = dragAndDropSourceItemFrame,
            let dragAndDropSourceViewModelIdentifier = dragAndDropSourceViewModelIdentifier,
            let dragAndDropDestinationIndexPath = dragAndDropDestinationIndexPath {
             let parametersProvider = OrganizeTokensListCornerRadiusParametersProvider(
@@ -366,7 +366,7 @@ struct OrganizeTokensView: View {
                 makeDraggableView(
                     width: width,
                     indexPath: dragAndDropDestinationIndexPath,
-                    cellFrame: dragAndDropSourceCellFrame
+                    itemFrame: dragAndDropSourceItemFrame
                 ) {
                     makeSection(
                         viewModel: sectionViewModel,
@@ -378,7 +378,7 @@ struct OrganizeTokensView: View {
                 makeDraggableView(
                     width: width,
                     indexPath: dragAndDropDestinationIndexPath,
-                    cellFrame: dragAndDropSourceCellFrame
+                    itemFrame: dragAndDropSourceItemFrame
                 ) {
                     makeCell(
                         viewModel: itemViewModel,
@@ -394,14 +394,14 @@ struct OrganizeTokensView: View {
     private func makeDraggableView<Content>(
         width: CGFloat,
         indexPath: IndexPath,
-        cellFrame: CGRect,
+        itemFrame: CGRect,
         @ViewBuilder content: () -> Content
     ) -> some View where Content: View {
         let scaleTransitionValue = width / (width * Constants.draggableViewScale)
         let offsetTransitionRatio = 1.0 - scaleTransitionValue
 
         let destinationFrame = dragAndDropController.frame(forItemAt: indexPath) ?? .zero
-        let destinationOffset = destinationFrame.minY - (cellFrame.origin.y + dragGestureTranslation.height)
+        let destinationOffset = destinationFrame.minY - (itemFrame.origin.y + dragGestureTranslation.height)
 
         content()
             .frame(width: width)
@@ -413,15 +413,15 @@ struct OrganizeTokensView: View {
                 y: 8.0
             )
             .scaleEffect(Constants.draggableViewScale)
-            .offset(y: cellFrame.origin.y)
+            .offset(y: itemFrame.origin.y)
             .offset(y: dragGestureTranslation.height)
             .transition(
                 .asymmetric(
                     insertion: .scale(scale: scaleTransitionValue)
-                        .combined(with: .offset(y: cellFrame.origin.y * offsetTransitionRatio))
+                        .combined(with: .offset(y: itemFrame.origin.y * offsetTransitionRatio))
                         .combined(with: .offset(y: dragGestureTranslation.height * offsetTransitionRatio)),
                     removal: .scale(scale: scaleTransitionValue)
-                        .combined(with: .offset(y: cellFrame.origin.y * offsetTransitionRatio))
+                        .combined(with: .offset(y: itemFrame.origin.y * offsetTransitionRatio))
                         .combined(with: .offset(y: dragGestureTranslation.height * offsetTransitionRatio))
                         .combined(with: .offset(y: destinationOffset))
                 )
