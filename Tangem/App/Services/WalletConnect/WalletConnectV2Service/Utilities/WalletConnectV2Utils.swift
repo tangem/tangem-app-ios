@@ -82,21 +82,24 @@ struct WalletConnectV2Utils {
     /// - Returns:
     /// Dictionary with `chains` (`WalletConnectSwiftV2` terminology) as keys and session settings as values.
     /// - Throws:Error with list of unsupported blockchain names or a list of not added to user token list blockchain names
-    func createSessionNamespaces(from namespaces: [String: ProposalNamespace], for wallets: [WalletModel]) throws -> [String: SessionNamespace] {
+    func createSessionNamespaces(from namespaces: [String: ProposalNamespace], optionalNamespaces: [String: ProposalNamespace]?, for wallets: [WalletModel]) throws -> [String: SessionNamespace] {
         var sessionNamespaces: [String: SessionNamespace] = [:]
         var missingBlockchains: [String] = []
         var unsupportedEVMBlockchains: [String] = []
+
         for (namespace, proposalNamespace) in namespaces {
             guard let chains = proposalNamespace.chains else {
                 continue
             }
 
+            var supportedChains = Set<WalletConnectSwiftV2.Blockchain>()
             let accounts: [[Account]] = chains.compactMap { wcBlockchain in
                 guard let blockchain = createBlockchain(for: wcBlockchain) else {
                     unsupportedEVMBlockchains.append(wcBlockchain.reference)
                     return nil
                 }
 
+                supportedChains.insert(wcBlockchain)
                 let filteredWallets = wallets.filter { $0.blockchainNetwork.blockchain == blockchain }
                 if filteredWallets.isEmpty {
                     missingBlockchains.append(blockchain.displayName)
@@ -107,11 +110,56 @@ struct WalletConnectV2Utils {
             }
 
             let sessionNamespace = SessionNamespace(
+                chains: supportedChains,
                 accounts: Set(accounts.reduce([], +)),
                 methods: proposalNamespace.methods,
                 events: proposalNamespace.events
             )
             sessionNamespaces[namespace] = sessionNamespace
+        }
+
+        for (namespace, proposalNamespace) in optionalNamespaces ?? [:] {
+            guard let chains = proposalNamespace.chains else {
+                continue
+            }
+
+            var supportedChains = Set<WalletConnectSwiftV2.Blockchain>()
+            let accounts: [[Account]] = chains.compactMap { wcBlockchain in
+                guard let blockchain = createBlockchain(for: wcBlockchain) else {
+                    return nil
+                }
+
+                supportedChains.insert(wcBlockchain)
+                let filteredWallets = wallets.filter { $0.blockchainNetwork.blockchain == blockchain }
+                if filteredWallets.isEmpty {
+                    missingBlockchains.append(blockchain.displayName)
+                    return nil
+                }
+
+                return filteredWallets.compactMap { Account("\(wcBlockchain.absoluteString):\($0.wallet.address)") }
+            }
+
+            let sessionNamespace = SessionNamespace(
+                chains: supportedChains,
+                accounts: Set(accounts.reduce([], +)),
+                methods: proposalNamespace.methods,
+                events: proposalNamespace.events
+            )
+
+            if var existingNamespace = sessionNamespaces[namespace] {
+                let unionChains = existingNamespace.chains?.union(sessionNamespace.chains ?? [])
+                let unionAccounts = existingNamespace.accounts.union(sessionNamespace.accounts)
+                let unionMethods = existingNamespace.methods.union(sessionNamespace.methods)
+                let unionEvents = existingNamespace.events.union(sessionNamespace.events)
+                sessionNamespaces[namespace] = SessionNamespace(
+                    chains: unionChains,
+                    accounts: unionAccounts,
+                    methods: unionMethods,
+                    events: unionEvents
+                )
+            } else {
+                sessionNamespaces[namespace] = sessionNamespace
+            }
         }
 
         guard unsupportedEVMBlockchains.isEmpty else {
