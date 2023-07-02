@@ -598,7 +598,7 @@
             "symbol": "TLOS",
             "networks": [
                 {
-                    "networkId": "telos",
+                    "networkId": "telos/test",
                     "exchangeable": false
                 }
             ]
