@@ -187,6 +187,13 @@ struct OrganizeTokensView: View {
         }
     }
 
+    private var navigationBarBackground: some View {
+        VisualEffectView(style: .systemUltraThinMaterial)
+            .edgesIgnoringSafeArea(.top)
+            .hidden(isNavigationBarBackgroundHidden)
+            .infinityFrame(alignment: .bottom)
+    }
+
     private var tokenListHeader: some View {
         OrganizeTokensListHeader(
             viewModel: viewModel.headerViewModel,
@@ -443,13 +450,6 @@ struct OrganizeTokensView: View {
                 )
             )
             .onDisappear { dragAndDropSourceViewModelIdentifier = nil }
-    }
-
-    private var navigationBarBackground: some View {
-        VisualEffectView(style: .systemUltraThinMaterial)
-            .edgesIgnoringSafeArea(.top)
-            .hidden(isNavigationBarBackgroundHidden)
-            .infinityFrame(alignment: .bottom)
     }
 }
 
