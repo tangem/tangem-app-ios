@@ -1,8 +1,9 @@
 //
 //  LearnView.swift
-//
+//  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
+//  Copyright © 2023 Tangem AG. All rights reserved.
 //
 
 import SwiftUI
@@ -17,8 +18,14 @@ struct PromotionView: View {
     var body: some View {
         NavigationView {
             WebView(url: viewModel.url, headers: viewModel.headers, urlActions: viewModel.urlActions)
-                .navigationBarItems(leading: Button(Localization.commonClose, action: viewModel.close))
+                .ignoresSafeArea()
+                .navigationBarItems(leading: closeButton)
         }
+    }
+
+    private var closeButton: some View {
+        Button(Localization.commonClose, action: viewModel.close)
+            .foregroundColor(Colors.Button.primary)
     }
 }
 
