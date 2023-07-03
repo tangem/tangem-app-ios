@@ -98,7 +98,7 @@ extension WalletOnboardingStep: OnboardingMessagesProvider, SuccessStep {
         case .selectBackupCards: return Localization.onboardingSubtitleNoBackupCards
         case .backupCards, .disclaimer: return ""
         case .saveUserWallet: return nil
-        case .success: return Localization.onboardingSubtitleSuccessBackup
+        case .success: return Localization.onboardingSubtitleSuccessTangemWalletOnboarding
         case .createWalletSelector:
             return Localization.onboardingCreateWalletOptionsMessage
         case .seedPhraseIntro, .seedPhraseGeneration, .seedPhraseImport, .seedPhraseUserValidation:
