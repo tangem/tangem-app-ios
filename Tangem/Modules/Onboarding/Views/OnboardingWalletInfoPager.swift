@@ -9,7 +9,7 @@
 import SwiftUI
 import Combine
 
-struct PagerView<Data, Content>: View
+private struct PagerView<Data, Content>: View
     where Data: RandomAccessCollection, Data.Element: Hashable, Content: View {
     let indexUpdateNotifier: PassthroughSubject<Void, Never>
     // the source data to render, can be a range, an array, or any other collection of Hashable
@@ -71,7 +71,7 @@ struct PagerView<Data, Content>: View
     }
 }
 
-struct PagerViewWithDots<Data, Content>: View
+private struct PagerViewWithDots<Data, Content>: View
     where Data: RandomAccessCollection, Data.Element: Hashable, Content: View {
     @State private var currentIndex = 0
     private let data: Data
