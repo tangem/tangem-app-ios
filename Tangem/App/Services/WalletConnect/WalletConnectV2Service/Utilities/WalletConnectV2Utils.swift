@@ -132,7 +132,6 @@ struct WalletConnectV2Utils {
                 supportedChains.insert(wcBlockchain)
                 let filteredWallets = wallets.filter { $0.blockchainNetwork.blockchain == blockchain }
                 if filteredWallets.isEmpty {
-                    missingBlockchains.append(blockchain.displayName)
                     return nil
                 }
 
@@ -146,7 +145,7 @@ struct WalletConnectV2Utils {
                 events: proposalNamespace.events
             )
 
-            if var existingNamespace = sessionNamespaces[namespace] {
+            if let existingNamespace = sessionNamespaces[namespace] {
                 let unionChains = existingNamespace.chains?.union(sessionNamespace.chains ?? [])
                 let unionAccounts = existingNamespace.accounts.union(sessionNamespace.accounts)
                 let unionMethods = existingNamespace.methods.union(sessionNamespace.methods)
@@ -202,9 +201,7 @@ struct WalletConnectV2Utils {
         switch wcBlockchain.namespace {
         case evmNamespace:
             var blockchains = BlockchainSdk.Blockchain.supportedBlockchains
-            if !AppEnvironment.current.isProduction {
-                blockchains = blockchains.union(BlockchainSdk.Blockchain.supportedTestnetBlockchains)
-            }
+            blockchains = blockchains.union(BlockchainSdk.Blockchain.supportedTestnetBlockchains)
 
             let wcChainId = Int(wcBlockchain.reference)
             return blockchains.first(where: { $0.chainId == wcChainId })
