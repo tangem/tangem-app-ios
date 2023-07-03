@@ -56,7 +56,7 @@ extension GenericDemoConfig: UserWalletConfig {
 
         let entries: [StorageEntry] = blockchains.map {
             if let derivationStyle = card.derivationStyle {
-                let derivationPath = $0.derivationPath(for: derivationStyle)
+                let derivationPath = $0.derivationPaths(for: derivationStyle)[.default]
                 let network = BlockchainNetwork($0, derivationPath: derivationPath)
                 return .init(blockchainNetwork: network, tokens: [])
             }
@@ -73,7 +73,7 @@ extension GenericDemoConfig: UserWalletConfig {
 
         let entries: [StorageEntry] = blockchains.map {
             if let derivationStyle = card.derivationStyle {
-                let derivationPath = $0.derivationPath(for: derivationStyle)
+                let derivationPath = $0.derivationPaths(for: derivationStyle)[.default]
                 let network = BlockchainNetwork($0, derivationPath: derivationPath)
                 return .init(blockchainNetwork: network, tokens: [])
             }
@@ -183,7 +183,7 @@ extension GenericDemoConfig: UserWalletConfig {
             partialResult[cardWallet.curve] = cardWallet.publicKey
         }
 
-        let factory = WalletModelFactory()
+        let factory = WalletModelsFactory()
         let model: WalletModel
 
         if card.settings.isHDWalletAllowed {
