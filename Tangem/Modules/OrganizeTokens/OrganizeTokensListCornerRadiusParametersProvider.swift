@@ -30,7 +30,7 @@ struct OrganizeTokensListCornerRadiusParametersProvider {
     }
 
     func cornerRadius(
-        forItemAtIndexPath indexPath: IndexPath
+        forItemAt indexPath: IndexPath
     ) -> CGFloat {
         if indexPath.section == sections.count - 1,
            indexPath.item == sections[indexPath.section].items.count - 1 {
@@ -47,7 +47,7 @@ struct OrganizeTokensListCornerRadiusParametersProvider {
     }
 
     func rectCorners(
-        forItemAtIndexPath indexPath: IndexPath
+        forItemAt indexPath: IndexPath
     ) -> UIRectCorner {
         var rectCorners = UIRectCorner()
 
