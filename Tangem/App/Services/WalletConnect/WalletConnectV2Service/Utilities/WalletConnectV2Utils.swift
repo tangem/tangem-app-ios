@@ -145,6 +145,7 @@ struct WalletConnectV2Utils {
                 events: proposalNamespace.events
             )
 
+            // [REDACTED_TODO_COMMENT]
             if let existingNamespace = sessionNamespaces[namespace] {
                 let unionChains = existingNamespace.chains?.union(sessionNamespace.chains ?? [])
                 let unionAccounts = existingNamespace.accounts.union(sessionNamespace.accounts)
