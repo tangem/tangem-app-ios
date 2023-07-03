@@ -581,7 +581,17 @@
                 }
             ]
         },
-        
+        {
+            "id": "aleph-zero",
+            "name": "Aleph Zero",
+            "symbol": "AZERO",
+            "networks": [
+                {
+                    "networkId": "aleph-zero/test",
+                    "exchangeable": false
+                }
+            ]
+        },
     ],
     "total": 0,
     "imageHost": "https://s3.eu-central-1.amazonaws.com/tangem.api/coins/"
