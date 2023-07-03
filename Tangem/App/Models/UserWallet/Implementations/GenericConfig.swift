@@ -109,7 +109,7 @@ extension GenericConfig: UserWalletConfig {
     }
 
     var productType: Analytics.ProductType {
-        isWallet ? .wallet : .other
+        card.firmwareVersion.doubleValue >= 4.39 ? .wallet : .other
     }
 
     func getFeatureAvailability(_ feature: UserWalletFeature) -> UserWalletFeature.Availability {
@@ -177,7 +177,7 @@ extension GenericConfig: UserWalletConfig {
         case .accessCodeRecoverySettings:
             return card.firmwareVersion >= .keysImportAvailable ? .available : .hidden
         case .promotion:
-            return isWallet ? .available : .hidden
+            return .available
         }
     }
 
@@ -213,12 +213,6 @@ extension GenericConfig: UserWalletConfig {
 extension GenericConfig: WalletOnboardingStepsBuilderFactory {}
 
 // MARK: - Private extensions
-
-private extension GenericConfig {
-    var isWallet: Bool {
-        card.firmwareVersion.doubleValue >= 4.39
-    }
-}
 
 private extension Card.BackupStatus {
     var backupCardsCount: Int? {
