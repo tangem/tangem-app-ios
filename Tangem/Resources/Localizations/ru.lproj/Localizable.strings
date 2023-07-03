@@ -451,7 +451,6 @@
 "wallet_balance_tx_in_progress" = "Транзакция подтверждается…";
 "wallet_balance_verified" = "Подтвержденный баланс";
 "wallet_button_actions" = "Действия";
-"wallet_button_create_wallet" = "Создать кошелек";
 "wallet_choice_wallet_option_title" = "Что отправить?";
 "wallet_choose_trade_action" = "Вы хотите купить или продать криптовалюту?";
 "wallet_connect_alert_sign_message" = "Запрос на подпись сообщения.\n\n%@";
