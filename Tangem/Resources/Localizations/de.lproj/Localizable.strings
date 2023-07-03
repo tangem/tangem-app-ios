@@ -213,7 +213,7 @@
 "onboarding_button_skip_backup" = "Skip for later";
 "onboarding_button_what_does_it_mean" = "How does it work?";
 "onboarding_create_wallet_body" = "Let's generate all the keys on your card and create a secure wallet";
-"onboarding_create_wallet_button_create_wallet" = "Create wallet";
+"onboarding_create_wallet_button_create_wallet" = "ein Wallet erstellen";
 "onboarding_create_wallet_options_button_options" = "Other options";
 "onboarding_create_wallet_options_message" = "Your keys will be securely generated inside the card. There is no seed phrase, which means nobody can export or steal it.";
 "onboarding_create_wallet_options_title" = "Generate keys privately";
@@ -451,7 +451,6 @@
 "wallet_balance_tx_in_progress" = "Die Transaktion läuft…";
 "wallet_balance_verified" = "Verifizierte Bilanz";
 "wallet_button_actions" = "Actions";
-"wallet_button_create_wallet" = "ein Wallet erstellen";
 "wallet_choice_wallet_option_title" = "Choice wallet option";
 "wallet_choose_trade_action" = "Do you want to buy or sell crypto?";
 "wallet_connect_alert_sign_message" = "Requesting to sign a message.\n\n%@";

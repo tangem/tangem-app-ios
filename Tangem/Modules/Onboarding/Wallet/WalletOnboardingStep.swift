@@ -37,7 +37,7 @@ enum WalletOnboardingStep: Equatable {
         case .createWalletSelector:
             return Localization.walletTitle
         case .seedPhraseIntro, .seedPhraseGeneration, .seedPhraseUserValidation:
-            return Localization.walletButtonCreateWallet
+            return Localization.onboardingCreateWalletButtonCreateWallet
         case .seedPhraseImport:
             return Localization.onboardingSeedIntroButtonImport
         }
@@ -117,7 +117,7 @@ extension WalletOnboardingStep: OnboardingMessagesProvider, SuccessStep {
 extension WalletOnboardingStep: OnboardingButtonsInfoProvider {
     var mainButtonTitle: String {
         switch self {
-        case .createWallet, .createWalletSelector: return Localization.walletButtonCreateWallet
+        case .createWallet, .createWalletSelector: return Localization.onboardingCreateWalletButtonCreateWallet
         case .scanPrimaryCard: return Localization.onboardingButtonScanOriginCard
         case .backupIntro: return Localization.onboardingButtonBackupNow
         case .selectBackupCards: return Localization.onboardingButtonAddBackupCard
