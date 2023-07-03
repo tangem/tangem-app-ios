@@ -200,8 +200,10 @@ class LegacyMainViewModel: ObservableObject {
         updateContent()
         updateExchangeButtons()
 
-        runTask { [weak self] in
-            await self?.updatePromotionState()
+        if cardModel.canParticipateInPromotion {
+            runTask { [weak self] in
+                await self?.updatePromotionState()
+            }
         }
     }
 
