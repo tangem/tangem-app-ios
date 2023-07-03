@@ -21,7 +21,7 @@ final class EnvironmentSetupViewModel: ObservableObject {
     // Promotion
     @Published var currentPromoCode: String = ""
     @Published var finishedPromotionNames: String = ""
-    @Published var awardedPromotinoNames: String = ""
+    @Published var awardedPromotionNames: String = ""
 
     // MARK: - Dependencies
 
@@ -151,9 +151,9 @@ final class EnvironmentSetupViewModel: ObservableObject {
     private func updateAwardedPromotionNames() {
         let awardedPromotionNames = promotionService.awardedPromotionNames()
         if awardedPromotionNames.isEmpty {
-            awardedPromotinoNames = "[none]"
+            awardedPromotionNames = "[none]"
         } else {
-            awardedPromotinoNames = awardedPromotionNames.joined(separator: ", ")
+            awardedPromotionNames = awardedPromotionNames.joined(separator: ", ")
         }
     }
 }
