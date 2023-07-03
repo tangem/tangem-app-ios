@@ -151,9 +151,9 @@ final class EnvironmentSetupViewModel: ObservableObject {
     private func updateAwardedPromotionNames() {
         let awardedPromotionNames = promotionService.awardedPromotionNames()
         if awardedPromotionNames.isEmpty {
-            awardedPromotionNames = "[none]"
+            self.awardedPromotionNames = "[none]"
         } else {
-            awardedPromotionNames = awardedPromotionNames.joined(separator: ", ")
+            self.awardedPromotionNames = awardedPromotionNames.joined(separator: ", ")
         }
     }
 }
