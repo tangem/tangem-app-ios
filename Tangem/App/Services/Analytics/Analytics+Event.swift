@@ -166,5 +166,9 @@ extension Analytics {
         fileprivate static var nfcError: String {
             "nfc_error"
         }
+
+        // MARK: - BlockchainSdk exceptions
+
+        case blockchainSdkException = "[BlockchainSdk] Exception"
     }
 }
