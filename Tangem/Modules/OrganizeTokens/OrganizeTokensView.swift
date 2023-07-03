@@ -27,8 +27,6 @@ struct OrganizeTokensView: View {
     @State private var isTokenListFooterGradientHidden = true
     @State private var isNavigationBarBackgroundHidden = true
 
-    let scrollViewCoordinateSpaceName = UUID()
-
     // Index path for a view that received a new touch.
     //
     // Contains meaningful value only until the long press gesture successfully ends,
@@ -82,13 +80,9 @@ struct OrganizeTokensView: View {
         GeometryReader { geometryProxy in
             ScrollViewReader { scrollProxy in
                 ScrollView(showsIndicators: false) {
-                    Spacer(minLength: scrollViewTopContentInset)
-.readContentOffset(
-inCoordinateSpace: .named(scrollViewCoordinateSpaceName),
-bindTo: $scrollViewContentOffset
-)
-
                     LazyVStack(spacing: 0.0) {
+                        Spacer(minLength: scrollViewTopContentInset)
+
                         let parametersProvider = OrganizeTokensListCornerRadiusParametersProvider(
                             sections: viewModel.sections,
                             cornerRadius: Constants.cornerRadius
@@ -114,10 +108,7 @@ bindTo: $scrollViewContentOffset
                                     }
                                 },
                                 header: {
-                                    let indexPath = IndexPath(
-                                        item: viewModel.sectionHeaderItemIndex,
-                                        section: sectionIndex
-                                    )
+                                    let indexPath = IndexPath(item: viewModel.sectionHeaderItemIndex, section: sectionIndex)
 
                                     makeSection(
                                         viewModel: sectionViewModel,
@@ -127,8 +118,7 @@ bindTo: $scrollViewContentOffset
                                     .hidden(sectionViewModel.id == dragAndDropSourceViewModelIdentifier)
                                     .id(sectionViewModel.id)
                                     .readGeometry(
-                                        \
-                                        .frame,
+                                        \.frame,
                                         inCoordinateSpace: .named(scrollViewContentCoordinateSpaceName)
                                     ) { dragAndDropController.saveFrame($0, forItemAt: indexPath) }
                                 }
@@ -145,14 +135,15 @@ bindTo: $scrollViewContentOffset
                     .coordinateSpace(name: scrollViewContentCoordinateSpaceName)
                     .onTouchesBegan(onTouchesBegan(atLocation:))
                     .readGeometry(\.frame.maxY, bindTo: $tokenListContentFrameMaxY)
+                    .readContentOffset(
+                        inCoordinateSpace: .named(scrollViewFrameCoordinateSpaceName),
+                        bindTo: $scrollViewContentOffset
+                    )
 
                     Spacer(minLength: scrollViewBottomContentInset)
                 }
                 .onChange(of: dragGestureLocation) { newValue in
-                    guard
-                        let newValue = newValue,
-                        var dragAndDropSourceItemFrame = dragAndDropSourceItemFrame
-                    else {
+                    guard let newValue = newValue, var dragAndDropSourceItemFrame = dragAndDropSourceItemFrame else {
                         return
                     }
 
@@ -166,10 +157,6 @@ bindTo: $scrollViewContentOffset
                     }
                 }
             }
-            .padding(.horizontal, Constants.contentHorizontalInset)
-            .readGeometry(\.frame.maxY, bindTo: $tokenListContentFrameMaxY)
-#warning("double spacer here!!!")
-            Spacer(minLength: scrollViewBottomContentInset)
         }
         .coordinateSpace(name: scrollViewFrameCoordinateSpaceName)
         .onTapGesture {} // allows scroll to work, see https://developer.apple.com/forums/thread/127277 for details
@@ -201,25 +188,15 @@ bindTo: $scrollViewContentOffset
     }
 
     private var tokenListHeader: some View {
-/*
-        OrganizeTokensHeaderView(viewModel: viewModel.headerViewModel)
-            .readGeometry(\.size.height) { height in
-                scrollViewTopContentInset = height
-                    + Constants.overlayViewAdditionalVerticalInset
-                    + Constants.tokenListHeaderViewTopVerticalInset
-            }
-            .padding(.top, Constants.tokenListHeaderViewTopVerticalInset)
-            .padding(.bottom, Constants.overlayViewAdditionalVerticalInset)
-            .padding(.horizontal, Constants.contentHorizontalInset)
-            .background(navigationBarBackground)
-            .infinityFrame(alignment: .top)
-*/
         OrganizeTokensListHeader(
             viewModel: viewModel.headerViewModel,
             scrollViewTopContentInset: $scrollViewTopContentInset,
             contentHorizontalInset: Constants.contentHorizontalInset,
-            overlayViewAdditionalVerticalInset: Constants.overlayViewAdditionalVerticalInset
+            overlayViewAdditionalVerticalInset: Constants.overlayViewAdditionalVerticalInset,
+            tokenListHeaderViewTopInset: Constants.tokenListHeaderViewTopInset
         )
+        .background(navigationBarBackground)
+        .infinityFrame(alignment: .top)
     }
 
     private var tokenListFooter: some View {
@@ -482,7 +459,7 @@ private extension OrganizeTokensView {
     private enum Constants {
         static let cornerRadius = 14.0
         static let overlayViewAdditionalVerticalInset = 10.0
-        static let tokenListHeaderViewTopVerticalInset = 8.0
+        static let tokenListHeaderViewTopInset = 8.0
         static let contentHorizontalInset = 16.0
         static let dragLiftAnimationDuration = 0.35
         static let dropAnimationProgressThresholdForViewRemoval = 0.05
