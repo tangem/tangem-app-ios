@@ -20,11 +20,12 @@ protocol PromotionServiceProtocol {
 
     func didBecomeReadyForAward()
 
-    func checkPromotion(timeout: TimeInterval?) async
+    func checkPromotion(isNewCard: Bool, timeout: TimeInterval?) async
 
     func setPromoCode(_ promoCode: String?)
     func checkIfCanGetAward(userWalletId: String) async throws
     func claimReward(userWalletId: String, storageEntryAdding: StorageEntryAdding) async throws -> Bool
+    func resetAward(cardId: String) async throws
 
     func finishedPromotionNames() -> Set<String>
     func resetFinishedPromotions()
