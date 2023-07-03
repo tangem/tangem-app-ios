@@ -404,14 +404,20 @@
 		B63127D42A2F52E2007C124C /* OrganizeTokensListSectionViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B63127D32A2F52E2007C124C /* OrganizeTokensListSectionViewModel.swift */; };
 		B63127D82A2F83DF007C124C /* OrganizeTokensListItemViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B63127D72A2F83DF007C124C /* OrganizeTokensListItemViewModel.swift */; };
 		B63457772A3A097C00E164C5 /* View+ReadGeometry.swift in Sources */ = {isa = PBXBuildFile; fileRef = B63457762A3A097C00E164C5 /* View+ReadGeometry.swift */; };
+		B63B63BA2A44012D00A7CECF /* OrganizeTokensListHeader.swift in Sources */ = {isa = PBXBuildFile; fileRef = B63B63B92A44012D00A7CECF /* OrganizeTokensListHeader.swift */; };
+		B63B63BD2A44013E00A7CECF /* OrganizeTokensListFooter.swift in Sources */ = {isa = PBXBuildFile; fileRef = B63B63BC2A44013E00A7CECF /* OrganizeTokensListFooter.swift */; };
+		B63B63BF2A44016400A7CECF /* OrganizeTokensListFooterOverlayView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B63B63BE2A44016400A7CECF /* OrganizeTokensListFooterOverlayView.swift */; };
 		B65591ED2A2FF1B20066A13B /* OrganizeTokensHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B65591EC2A2FF1B20066A13B /* OrganizeTokensHeaderView.swift */; };
 		B675A1E62A1E05F700F624B6 /* CardsInfoPagerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B675A1E52A1E05F700F624B6 /* CardsInfoPagerView.swift */; };
 		B675A1EA2A1E068D00F624B6 /* Clamp.swift in Sources */ = {isa = PBXBuildFile; fileRef = B675A1E92A1E068D00F624B6 /* Clamp.swift */; };
 		B6805B722A32F8C90015EC96 /* OrganizeTokensPreviewProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6805B712A32F8C90015EC96 /* OrganizeTokensPreviewProvider.swift */; };
 		B687E9492A2D881C00BFF604 /* View+ReadContentOffset.swift in Sources */ = {isa = PBXBuildFile; fileRef = B687E9482A2D881C00BFF604 /* View+ReadContentOffset.swift */; };
 		B68907852A32482F00A0D246 /* ForEach+.swift in Sources */ = {isa = PBXBuildFile; fileRef = B68907842A32482F00A0D246 /* ForEach+.swift */; };
+		B69610982A428C9B00CF88B7 /* OrganizeTokensListSectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B69610972A428C9A00CF88B7 /* OrganizeTokensListSectionView.swift */; };
+		B696109A2A428CA300CF88B7 /* OrganizeTokensListItemView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B69610992A428CA300CF88B7 /* OrganizeTokensListItemView.swift */; };
 		B69D0E802A3AEE8000A8B44D /* TokenListLoadingPlaceholderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B69D0E7F2A3AEE7F00A8B44D /* TokenListLoadingPlaceholderView.swift */; };
 		B69D5EEB2A3252A800B494A9 /* OrganizeTokensListCornerRadiusParametersProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = B69D5EEA2A3252A800B494A9 /* OrganizeTokensListCornerRadiusParametersProvider.swift */; };
+		B6A9BEA72A4F2516003D43D9 /* OrganizeTokensAnimationProgressObserverModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6A9BEA62A4F2516003D43D9 /* OrganizeTokensAnimationProgressObserverModifier.swift */; };
 		B6AA13662A2A372500B53937 /* CardsInfoPagerPreviewProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6AA13652A2A372500B53937 /* CardsInfoPagerPreviewProvider.swift */; };
 		B6AA13682A2A373000B53937 /* CardInfoPagePreviewViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6AA13672A2A373000B53937 /* CardInfoPagePreviewViewModel.swift */; };
 		B6AA136A2A2A373600B53937 /* CardInfoPagePreviewSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6AA13692A2A373600B53937 /* CardInfoPagePreviewSection.swift */; };
@@ -438,8 +444,8 @@
 		B6E932C42A2F2D860068D466 /* OrganizeTokensCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6E932BF2A2F2D860068D466 /* OrganizeTokensCoordinator.swift */; };
 		B6E932C52A2F2D860068D466 /* OrganizeTokensRoutable.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6E932C02A2F2D860068D466 /* OrganizeTokensRoutable.swift */; };
 		B6E932C62A2F2D860068D466 /* OrganizeTokensCoordinatorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6E932C12A2F2D860068D466 /* OrganizeTokensCoordinatorView.swift */; };
-		B6E932CC2A2F3A2B0068D466 /* OrganizeTokensListSectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6E932CB2A2F3A2B0068D466 /* OrganizeTokensListSectionView.swift */; };
-		B6E932CE2A2F3A310068D466 /* OrganizeTokensListItemView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6E932CD2A2F3A310068D466 /* OrganizeTokensListItemView.swift */; };
+		B6EAA5F72A399853003909F0 /* View+onTouchesBegan.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6EAA5F62A399853003909F0 /* View+onTouchesBegan.swift */; };
+		B6EAA5F92A3998A3003909F0 /* OrganizeTokensDragAndDropController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6EAA5F82A3998A3003909F0 /* OrganizeTokensDragAndDropController.swift */; };
 		BC3BCAF910DB455D23661425 /* Pods_TangemSwapping.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = ADDBC9E43D315C358E078BC8 /* Pods_TangemSwapping.framework */; };
 		CA4CE122EA06BFF58F298C1F /* Pods_TangemSwappingTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 18DFAA500D7B2AF19B3D48B8 /* Pods_TangemSwappingTests.framework */; };
 		DA129DD3292B4A3D004291EC /* UserWalletListCellViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA129DD2292B4A3D004291EC /* UserWalletListCellViewModel.swift */; };
@@ -1441,14 +1447,20 @@
 		B63127D32A2F52E2007C124C /* OrganizeTokensListSectionViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OrganizeTokensListSectionViewModel.swift; sourceTree = "<group>"; };
 		B63127D72A2F83DF007C124C /* OrganizeTokensListItemViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OrganizeTokensListItemViewModel.swift; sourceTree = "<group>"; };
 		B63457762A3A097C00E164C5 /* View+ReadGeometry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "View+ReadGeometry.swift"; sourceTree = "<group>"; };
+		B63B63B92A44012D00A7CECF /* OrganizeTokensListHeader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OrganizeTokensListHeader.swift; sourceTree = "<group>"; };
+		B63B63BC2A44013E00A7CECF /* OrganizeTokensListFooter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OrganizeTokensListFooter.swift; sourceTree = "<group>"; };
+		B63B63BE2A44016400A7CECF /* OrganizeTokensListFooterOverlayView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OrganizeTokensListFooterOverlayView.swift; sourceTree = "<group>"; };
 		B65591EC2A2FF1B20066A13B /* OrganizeTokensHeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OrganizeTokensHeaderView.swift; sourceTree = "<group>"; };
 		B675A1E52A1E05F700F624B6 /* CardsInfoPagerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardsInfoPagerView.swift; sourceTree = "<group>"; };
 		B675A1E92A1E068D00F624B6 /* Clamp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Clamp.swift; sourceTree = "<group>"; };
 		B6805B712A32F8C90015EC96 /* OrganizeTokensPreviewProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OrganizeTokensPreviewProvider.swift; sourceTree = "<group>"; };
 		B687E9482A2D881C00BFF604 /* View+ReadContentOffset.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "View+ReadContentOffset.swift"; sourceTree = "<group>"; };
 		B68907842A32482F00A0D246 /* ForEach+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ForEach+.swift"; sourceTree = "<group>"; };
+		B69610972A428C9A00CF88B7 /* OrganizeTokensListSectionView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OrganizeTokensListSectionView.swift; sourceTree = "<group>"; };
+		B69610992A428CA300CF88B7 /* OrganizeTokensListItemView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OrganizeTokensListItemView.swift; sourceTree = "<group>"; };
 		B69D0E7F2A3AEE7F00A8B44D /* TokenListLoadingPlaceholderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenListLoadingPlaceholderView.swift; sourceTree = "<group>"; };
 		B69D5EEA2A3252A800B494A9 /* OrganizeTokensListCornerRadiusParametersProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OrganizeTokensListCornerRadiusParametersProvider.swift; sourceTree = "<group>"; };
+		B6A9BEA62A4F2516003D43D9 /* OrganizeTokensAnimationProgressObserverModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OrganizeTokensAnimationProgressObserverModifier.swift; sourceTree = "<group>"; };
 		B6AA13652A2A372500B53937 /* CardsInfoPagerPreviewProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardsInfoPagerPreviewProvider.swift; sourceTree = "<group>"; };
 		B6AA13672A2A373000B53937 /* CardInfoPagePreviewViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardInfoPagePreviewViewModel.swift; sourceTree = "<group>"; };
 		B6AA13692A2A373600B53937 /* CardInfoPagePreviewSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardInfoPagePreviewSection.swift; sourceTree = "<group>"; };
@@ -1475,8 +1487,8 @@
 		B6E932BF2A2F2D860068D466 /* OrganizeTokensCoordinator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OrganizeTokensCoordinator.swift; sourceTree = "<group>"; };
 		B6E932C02A2F2D860068D466 /* OrganizeTokensRoutable.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OrganizeTokensRoutable.swift; sourceTree = "<group>"; };
 		B6E932C12A2F2D860068D466 /* OrganizeTokensCoordinatorView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OrganizeTokensCoordinatorView.swift; sourceTree = "<group>"; };
-		B6E932CB2A2F3A2B0068D466 /* OrganizeTokensListSectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OrganizeTokensListSectionView.swift; sourceTree = "<group>"; };
-		B6E932CD2A2F3A310068D466 /* OrganizeTokensListItemView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OrganizeTokensListItemView.swift; sourceTree = "<group>"; };
+		B6EAA5F62A399853003909F0 /* View+onTouchesBegan.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "View+onTouchesBegan.swift"; sourceTree = "<group>"; };
+		B6EAA5F82A3998A3003909F0 /* OrganizeTokensDragAndDropController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OrganizeTokensDragAndDropController.swift; sourceTree = "<group>"; };
 		C4BE60E299B34DA900B0012A /* Pods-TangemTests.debug(production).xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TangemTests.debug(production).xcconfig"; path = "Target Support Files/Pods-TangemTests/Pods-TangemTests.debug(production).xcconfig"; sourceTree = "<group>"; };
 		C7773ED75216777DBEDA50DB /* Pods-Tangem-TangemUITests.debug(alpha).xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Tangem-TangemUITests.debug(alpha).xcconfig"; path = "Target Support Files/Pods-Tangem-TangemUITests/Pods-Tangem-TangemUITests.debug(alpha).xcconfig"; sourceTree = "<group>"; };
 		D2313A69E005802F0E551C08 /* Pods-Tangem.release(alpha).xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Tangem.release(alpha).xcconfig"; path = "Target Support Files/Pods-Tangem/Pods-Tangem.release(alpha).xcconfig"; sourceTree = "<group>"; };
@@ -2455,6 +2467,7 @@
 				B687E9482A2D881C00BFF604 /* View+ReadContentOffset.swift */,
 				B0C8A0D32562C86A00DEEAC7 /* View+PreviewDevice.swift */,
 				B6E8BBFA2A2F209B0012E7D3 /* View+InfinityFrame.swift */,
+				B6EAA5F62A399853003909F0 /* View+onTouchesBegan.swift */,
 				5D09383125E7A9820049B8F0 /* Wallet+.swift */,
 				5D6784D825EBA1D800149995 /* TokenItems+Array.swift */,
 				5D6784E325EBC94B00149995 /* Blockchain+.swift */,
@@ -3496,6 +3509,7 @@
 			isa = PBXGroup;
 			children = (
 				B65591E92A2FF1900066A13B /* ListHeader */,
+				B63B63BB2A44013100A7CECF /* ListFooter */,
 				B63127D52A2F83CA007C124C /* ListSection */,
 				B63127D62A2F83D0007C124C /* ListItem */,
 				B6E932BF2A2F2D860068D466 /* OrganizeTokensCoordinator.swift */,
@@ -3503,7 +3517,9 @@
 				B6E932C02A2F2D860068D466 /* OrganizeTokensRoutable.swift */,
 				B6E932BE2A2F2D860068D466 /* OrganizeTokensViewModel.swift */,
 				B6E932BD2A2F2D860068D466 /* OrganizeTokensView.swift */,
+				B6A9BEA62A4F2516003D43D9 /* OrganizeTokensAnimationProgressObserverModifier.swift */,
 				B69D5EEA2A3252A800B494A9 /* OrganizeTokensListCornerRadiusParametersProvider.swift */,
+				B6EAA5F82A3998A3003909F0 /* OrganizeTokensDragAndDropController.swift */,
 			);
 			path = OrganizeTokens;
 			sourceTree = "<group>";
@@ -3512,7 +3528,7 @@
 			isa = PBXGroup;
 			children = (
 				B63127D32A2F52E2007C124C /* OrganizeTokensListSectionViewModel.swift */,
-				B6E932CB2A2F3A2B0068D466 /* OrganizeTokensListSectionView.swift */,
+				B69610972A428C9A00CF88B7 /* OrganizeTokensListSectionView.swift */,
 			);
 			path = ListSection;
 			sourceTree = "<group>";
@@ -3521,9 +3537,18 @@
 			isa = PBXGroup;
 			children = (
 				B63127D72A2F83DF007C124C /* OrganizeTokensListItemViewModel.swift */,
-				B6E932CD2A2F3A310068D466 /* OrganizeTokensListItemView.swift */,
+				B69610992A428CA300CF88B7 /* OrganizeTokensListItemView.swift */,
 			);
 			path = ListItem;
+			sourceTree = "<group>";
+		};
+		B63B63BB2A44013100A7CECF /* ListFooter */ = {
+			isa = PBXGroup;
+			children = (
+				B63B63BC2A44013E00A7CECF /* OrganizeTokensListFooter.swift */,
+				B63B63BE2A44016400A7CECF /* OrganizeTokensListFooterOverlayView.swift */,
+			);
+			path = ListFooter;
 			sourceTree = "<group>";
 		};
 		B64505482A1E2A32002B10B6 /* CardsInfo */ = {
@@ -3540,6 +3565,7 @@
 			children = (
 				B6E932B02A2F26BB0068D466 /* OrganizeTokensHeaderViewModel.swift */,
 				B65591EC2A2FF1B20066A13B /* OrganizeTokensHeaderView.swift */,
+				B63B63B92A44012D00A7CECF /* OrganizeTokensListHeader.swift */,
 			);
 			path = ListHeader;
 			sourceTree = "<group>";
@@ -5231,8 +5257,6 @@
 				EF4661A62923AFC500346B6C /* PBXTargetDependency */,
 			);
 			name = Tangem;
-			packageProductDependencies = (
-			);
 			productName = "Tangem Tap";
 			productReference = 5D3F77C224BF56D800E8695B /* Tangem.app */;
 			productType = "com.apple.product-type.application";
@@ -5359,8 +5383,6 @@
 				"zh-Hant",
 			);
 			mainGroup = 5D3F77B924BF56D800E8695B;
-			packageReferences = (
-			);
 			productRefGroup = 5D3F77C324BF56D800E8695B /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -5701,6 +5723,7 @@
 				EF9F907D299CFCBE006F638F /* WebViewContainer.swift in Sources */,
 				EF053DF12938D4BC006FD13A /* UserWalletListCoordinatorView.swift in Sources */,
 				B02B74B629879F4A006473F2 /* WalletConnectMessageHandler.swift in Sources */,
+				B69610982A428C9B00CF88B7 /* OrganizeTokensListSectionView.swift in Sources */,
 				DAA0559928744E2400E4F7B9 /* MercuryoService.swift in Sources */,
 				DAB5E334297E8CBF00A4E9CF /* AmountRoundingType.swift in Sources */,
 				B0C4F77F26F0C0BF0086D815 /* TransitionWithoutOpacity.swift in Sources */,
@@ -5785,6 +5808,7 @@
 				DA23788327B24222009795A8 /* ShippingRate.swift in Sources */,
 				5D6784E425EBC94B00149995 /* Blockchain+.swift in Sources */,
 				5DD95B8C24FA959C00E6B9D0 /* VerticalAlignment+.swift in Sources */,
+				B63B63BD2A44013E00A7CECF /* OrganizeTokensListFooter.swift in Sources */,
 				B008E13C29802612006E0E31 /* WebSocketConnectionDelegate.swift in Sources */,
 				2DDF91942A14DA2700B31113 /* TokenItemMenuActions.swift in Sources */,
 				EF5A5ACF28D86089002544AC /* TotalBalanceProvider.swift in Sources */,
@@ -5961,7 +5985,6 @@
 				DCD9CBA329F7F4D800440C93 /* LogsComposer.swift in Sources */,
 				B06015E529730C3D00D0F809 /* WalletConnectUIDelegate.swift in Sources */,
 				EF666C262A2DF9EF0044986F /* BottomSheetModifier.swift in Sources */,
-				B6E932CC2A2F3A2B0068D466 /* OrganizeTokensListSectionView.swift in Sources */,
 				B0C4F77326F08CB50086D815 /* OnboardingCardFrameCalculator.swift in Sources */,
 				5DD24B41274FAC2400BF80BE /* WalletManagerFactoryProvider.swift in Sources */,
 				B0AA865426DC90FF00287F80 /* WelcomeViewModel.swift in Sources */,
@@ -5991,11 +6014,13 @@
 				652B0136282C0A7800F2E27A /* TotalSumBalanceView.swift in Sources */,
 				EFF034B128B6523F00F70FF7 /* CommonWalletListManager.swift in Sources */,
 				B02B74B429879F2A006473F2 /* WalletConnectV2HandlersService.swift in Sources */,
+				B696109A2A428CA300CF88B7 /* OrganizeTokensListItemView.swift in Sources */,
 				DCF8972D28ACF8CA002A85F6 /* TangemSdkConfigFactory.swift in Sources */,
 				B0A596542991FC1200C7C512 /* UtorgService.swift in Sources */,
 				B020FFB425DE7F9300EF422C /* DataCollectors.swift in Sources */,
 				DC7D39FD29E024A2007BCD23 /* TangemSdkFactory.swift in Sources */,
 				DA23787C27B24222009795A8 /* ShopifyService.swift in Sources */,
+				B6EAA5F92A3998A3003909F0 /* OrganizeTokensDragAndDropController.swift in Sources */,
 				EF661E3528C0ADC6005769E5 /* CommonError.swift in Sources */,
 				B0431B412919538700F84DEF /* IconWithBackground.swift in Sources */,
 				EF48289528D1CD1F002809C6 /* Collection+.swift in Sources */,
@@ -6064,8 +6089,8 @@
 				B03ACAC92567CFFF00F5D269 /* LegacyCardView.swift in Sources */,
 				EFDDE5242A03F2A200899812 /* SwappingInteractor.swift in Sources */,
 				B05A13A329FB975400FB511A /* LoadableTextView.swift in Sources */,
-				EFDDE5242A03F2A200899812 /* SwappingInteractor.swift in Sources */,
 				DC295B4A2861C4CB006CB7B6 /* DetailsCoordinatorView.swift in Sources */,
+				B63B63BF2A44016400A7CECF /* OrganizeTokensListFooterOverlayView.swift in Sources */,
 				B02B74AA29879CC5006473F2 /* WalletConnectV2Factory.swift in Sources */,
 				B09BB86D259A080900B92000 /* SendAdditionalFields.swift in Sources */,
 				B6AA136E2A2A376900B53937 /* CardInfoPageTransactionDefaultCellPreviewViewModel.swift in Sources */,
@@ -6183,7 +6208,6 @@
 				B6AA13702A2A377C00B53937 /* CardInfoPageWarningPreviewSectionItem.swift in Sources */,
 				5D09382D25E7A2EA0049B8F0 /* LegacyTokenDetailsViewModel.swift in Sources */,
 				B6AD952E2A30073A00FE845A /* TokenItemViewMiddleComponent.swift in Sources */,
-				5D09382D25E7A2EA0049B8F0 /* LegacyTokenDetailsViewModel.swift in Sources */,
 				DCD2D5BA2A1BA5A800AB00B6 /* CardInitializer.swift in Sources */,
 				DCF23693299257EB00FE1855 /* AnalyticsContextData.swift in Sources */,
 				B687E9492A2D881C00BFF604 /* View+ReadContentOffset.swift in Sources */,
@@ -6265,6 +6289,7 @@
 				B0120A932A0E0F4400F485F1 /* FakeCardHeaderPreviewProvider.swift in Sources */,
 				B0D76D4D25D4E4610073FA98 /* AddCustomTokenViewModel.swift in Sources */,
 				EF59039A29091CFB00C527C9 /* EnvironmentSetupView.swift in Sources */,
+				B63B63BA2A44012D00A7CECF /* OrganizeTokensListHeader.swift in Sources */,
 				B05209BE261F1FF3000DD204 /* RoundedCorner.swift in Sources */,
 				5D09380F25E6BDB00049B8F0 /* RoundedRectButton.swift in Sources */,
 				DC66BC18285C65C900CDF765 /* LegacyTokenDetailsRoutable.swift in Sources */,
@@ -6291,6 +6316,7 @@
 				5DCC20BD2500FC58007B467E /* QRScannerView.swift in Sources */,
 				DC51187A2860B704004FB954 /* AppCoordinator.swift in Sources */,
 				DC66BBFE285A389000CDF765 /* View+Navigation.swift in Sources */,
+				B6EAA5F72A399853003909F0 /* View+onTouchesBegan.swift in Sources */,
 				5DA3A2F1251CB6CA009A8E08 /* SecurityModeView.swift in Sources */,
 				B02B74B229879E3C006473F2 /* WalletConnectSigner.swift in Sources */,
 				B6AA13782A2A37B100B53937 /* CardInfoPageTransactionDefaultCellPreviewView.swift in Sources */,
@@ -6459,9 +6485,9 @@
 				DC7D3A0529E06334007BCD23 /* GenericTangemSdkFactory.swift in Sources */,
 				DAE6F76D2800011400411F45 /* AppError.swift in Sources */,
 				B63457772A3A097C00E164C5 /* View+ReadGeometry.swift in Sources */,
-				B6E932CE2A2F3A310068D466 /* OrganizeTokensListItemView.swift in Sources */,
 				B0431B47291A905A00F84DEF /* RoundedBackgroundModifier.swift in Sources */,
 				B6E8BBFB2A2F209B0012E7D3 /* View+InfinityFrame.swift in Sources */,
+				B6A9BEA72A4F2516003D43D9 /* OrganizeTokensAnimationProgressObserverModifier.swift in Sources */,
 				B068A7E725678A8800D28CD2 /* TwinCardsUtils.swift in Sources */,
 				B0CE1E4C2A30A00000D297F8 /* FakeBalanceWithButtonsInfoProvider.swift in Sources */,
 				B0F7D75E2A4048D5007FEB2E /* ReceiveAddressInfo.swift in Sources */,
