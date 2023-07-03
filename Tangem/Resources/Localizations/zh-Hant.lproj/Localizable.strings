@@ -214,7 +214,7 @@
 "onboarding_button_skip_backup" = "暫時略過";
 "onboarding_button_what_does_it_mean" = "它是如何運作的？";
 "onboarding_create_wallet_body" = "讓我們生成您卡上的所有密鑰並創建一個安全的錢包";
-"onboarding_create_wallet_button_create_wallet" = "創建錢包";
+"onboarding_create_wallet_button_create_wallet" = "創造錢包";
 "onboarding_create_wallet_options_button_options" = "其他選項";
 "onboarding_create_wallet_options_message" = "您的密鑰將在卡內安全生成。沒有種子短語，這意味著沒有人可以導出或竊取它。";
 "onboarding_create_wallet_options_title" = "私下生成密鑰";
@@ -452,7 +452,6 @@
 "wallet_balance_tx_in_progress" = "交易進行中";
 "wallet_balance_verified" = "檢視餘額";
 "wallet_button_actions" = "動作";
-"wallet_button_create_wallet" = "創造錢包";
 "wallet_choice_wallet_option_title" = "選擇錢包選項";
 "wallet_choose_trade_action" = "您想要購買或賣出交易貨幣?";
 "wallet_connect_alert_sign_message" = "請求籤署消息。%@";
