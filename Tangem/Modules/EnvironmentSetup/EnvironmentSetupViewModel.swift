@@ -10,11 +10,17 @@ import Combine
 import SwiftUI
 
 final class EnvironmentSetupViewModel: ObservableObject {
+    @Injected(\.promotionService) var promotionService: PromotionServiceProtocol
+
     // MARK: - ViewState
 
     @Published var appSettingsTogglesViewModels: [DefaultToggleRowViewModel] = []
     @Published var featureStateViewModels: [FeatureStateRowViewModel] = []
     @Published var alert: AlertBinder?
+
+    // Promotion
+    @Published var currentPromoCode: String = ""
+    @Published var finishedPromotionNames: String = ""
 
     // MARK: - Dependencies
 
@@ -66,6 +72,28 @@ final class EnvironmentSetupViewModel: ObservableObject {
                 )
             )
         }
+
+        updateCurrentPromoCode()
+
+        updateFinishedPromotionNames()
+    }
+
+    func copyCurrentPromoCode() {
+        guard let promoCode = promotionService.promoCode else { return }
+
+        UIPasteboard.general.string = promoCode
+
+        UINotificationFeedbackGenerator().notificationOccurred(.success)
+    }
+
+    func resetCurrentPromoCode() {
+        promotionService.setPromoCode(nil)
+        updateCurrentPromoCode()
+    }
+
+    func resetFinishedPromotionNames() {
+        promotionService.resetFinishedPromotions()
+        updateFinishedPromotionNames()
     }
 
     func showExitAlert() {
@@ -75,5 +103,18 @@ final class EnvironmentSetupViewModel: ObservableObject {
             secondaryButton: .cancel()
         )
         self.alert = AlertBinder(alert: alert)
+    }
+
+    private func updateCurrentPromoCode() {
+        currentPromoCode = promotionService.promoCode ?? "[none]"
+    }
+
+    private func updateFinishedPromotionNames() {
+        let finishedPromotionNames = promotionService.finishedPromotionNames()
+        if finishedPromotionNames.isEmpty {
+            self.finishedPromotionNames = "[none]"
+        } else {
+            self.finishedPromotionNames = promotionService.finishedPromotionNames().joined(separator: ", ")
+        }
     }
 }
