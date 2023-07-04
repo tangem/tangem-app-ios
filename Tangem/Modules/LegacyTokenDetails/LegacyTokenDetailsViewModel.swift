@@ -201,7 +201,7 @@ class LegacyTokenDetailsViewModel: ObservableObject {
         self.amountType = amountType
         self.coordinator = coordinator
 
-        walletModel = card.walletModels.first(where: { $0.amountType == amountType })
+        walletModel = card.walletModels.first(where: { $0.amountType == amountType && $0.blockchainNetwork == blockchainNetwork })
 
         bind()
         updateSwapAvailability()
