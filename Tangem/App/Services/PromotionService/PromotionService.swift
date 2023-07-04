@@ -68,7 +68,14 @@ extension PromotionService: PromotionServiceProtocol {
                 let promotionActive = (cardParameters.status == .active)
                 let alreadyClaimedAward = await alreadyClaimedAward(userWalletId: userWalletId)
 
-                promotionAvailable = promotionActive && !alreadyClaimedAward
+                let canClaimAwardBasedOnWalletPurchase: Bool
+                if let promoCode, let userWalletId {
+                    canClaimAwardBasedOnWalletPurchase = await hasPurchaseForPromoCode(promoCode, userWalletId: userWalletId)
+                } else {
+                    canClaimAwardBasedOnWalletPurchase = true
+                }
+
+                promotionAvailable = promotionActive && !alreadyClaimedAward && canClaimAwardBasedOnWalletPurchase
 
                 if cardParameters.status == .finished {
                     markCurrentPromotionAsFinished(true)
@@ -213,6 +220,17 @@ extension PromotionService {
             default:
                 return false
             }
+        }
+    }
+
+    private func hasPurchaseForPromoCode(_ promoCode: String, userWalletId: String) async -> Bool {
+        do {
+            let result = try await tangemApiService.validateNewUserPromotionEligibility(walletId: userWalletId, code: promoCode)
+            let canGetAward = result.valid
+            return canGetAward
+        } catch {
+            // We only care about promotionCodeNotApplied error but it does not make sense to treat other errors differently
+            return false
         }
     }
 
