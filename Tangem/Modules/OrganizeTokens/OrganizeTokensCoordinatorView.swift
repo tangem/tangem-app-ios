@@ -20,7 +20,7 @@ struct OrganizeTokensCoordinatorView: CoordinatorView {
     var body: some View {
         ZStack {
             if let rootViewModel = coordinator.rootViewModel {
-                OrganizeTokensView(viewModel: rootViewModel)
+                OrganizeTokensContainerView(viewModel: rootViewModel)
                     .navigationLinks(links)
             }
 
