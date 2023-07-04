@@ -35,7 +35,7 @@ class CommonDerivationManager {
     }
 
     private func process(_ entries: [StorageEntry]) {
-        var currentKeys = keysRepository.keys
+        let currentKeys = keysRepository.keys
 
         entries.forEach { entry in
             let curve = entry.blockchainNetwork.blockchain.curve
