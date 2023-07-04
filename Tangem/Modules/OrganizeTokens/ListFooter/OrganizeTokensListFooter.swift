@@ -39,7 +39,11 @@ struct OrganizeTokensListFooter: View {
         }
         .padding(.horizontal, contentHorizontalInset)
         .padding(.bottom, 8.0)
-        .background(OrganizeTokensListFooterOverlayView().hidden(isTokenListFooterGradientHidden))
+        .background(
+            OrganizeTokensListFooterOverlayView()
+                .hidden(isTokenListFooterGradientHidden)
+        )
+
         .readGeometry { geometryInfo in
             tokenListFooterFrameMinY.wrappedValue = geometryInfo.frame.minY
             scrollViewBottomContentInset.wrappedValue = geometryInfo.size.height
