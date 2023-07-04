@@ -528,16 +528,10 @@ private extension LegacyMainViewModel {
     private func handlePromotionError(_ error: Error) {
         AppLog.shared.error(error)
 
-        let alert: AlertBinder
-        if let apiError = error as? TangemAPIError,
-           case .promotionCodeNotApplied = apiError.code {
-            alert = AlertBinder(title: Localization.commonError, message: Localization.mainPromotionNoPurchase)
-        } else {
-            alert = error.alertBinder
-        }
-        showAlert(alert)
+        showAlert(error.alertBinder)
 
         let fatalPromotionErrorCodes: [TangemAPIError.ErrorCode] = [
+            .promotionCodeNotApplied,
             .promotionCodeAlreadyUsed,
             .promotionWalletAlreadyAwarded,
             .promotionCardAlreadyAwarded,
