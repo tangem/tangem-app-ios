@@ -80,7 +80,7 @@ struct OrganizeTokensContainerView_Preview: PreviewProvider {
                 OrganizeTokensContainerView(
                     viewModel: .init(
                         coordinator: OrganizeTokensCoordinator(),
-                        sections: sections
+                        userWalletModel: UserWalletModelMock()
                     )
                 )
             }
