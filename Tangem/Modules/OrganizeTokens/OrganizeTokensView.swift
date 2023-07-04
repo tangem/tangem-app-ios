@@ -85,11 +85,11 @@ struct OrganizeTokensView: View {
             ScrollViewReader { scrollProxy in
                 ScrollView(showsIndicators: false) {
                     LazyVStack(spacing: 0.0) {
-                        Spacer(minLength: scrollViewTopContentInset + Constants.overlayViewAdditionalVerticalInset)
+                        Spacer(minLength: scrollViewTopContentInset + Constants.contentTopInset)
 
                         let parametersProvider = OrganizeTokensListCornerRadiusParametersProvider(
                             sections: viewModel.sections,
-                            cornerRadius: Constants.cornerRadius
+                            cornerRadius: Constants.contentCornerRadius
                         )
 
                         ForEach(indexed: viewModel.sections.indexed()) { sectionIndex, sectionViewModel in
@@ -171,7 +171,7 @@ struct OrganizeTokensView: View {
             }
         }
         .onChange(of: scrollViewContentOffset) { newValue in
-            isNavigationBarBackgroundHidden = newValue.y <= 0.0
+            isNavigationBarBackgroundHidden = newValue.y - Constants.contentTopInset <= 0.0
         }
         .onChange(of: dragAndDropDestinationIndexPath) { [oldValue = dragAndDropDestinationIndexPath] newValue in
             guard let oldValue = oldValue, let newValue = newValue else { return }
@@ -203,8 +203,7 @@ struct OrganizeTokensView: View {
             viewModel: viewModel.headerViewModel,
             scrollViewTopContentInset: $scrollViewTopContentInset,
             contentHorizontalInset: Constants.contentHorizontalInset,
-            overlayViewAdditionalVerticalInset: Constants.overlayViewAdditionalVerticalInset,
-            tokenListHeaderViewTopInset: Constants.tokenListHeaderViewTopInset
+            overlayViewAdditionalVerticalInset: Constants.overlayViewAdditionalVerticalInset
         )
         .background(navigationBarBackground)
         .infinityFrame(alignment: .top)
@@ -217,7 +216,7 @@ struct OrganizeTokensView: View {
             scrollViewBottomContentInset: $scrollViewBottomContentInset,
             contentHorizontalInset: Constants.contentHorizontalInset,
             isTokenListFooterGradientHidden: isTokenListFooterGradientHidden,
-            cornerRadius: Constants.cornerRadius
+            cornerRadius: Constants.contentCornerRadius
         )
     }
 
@@ -460,10 +459,10 @@ struct OrganizeTokensView: View {
 
 private extension OrganizeTokensView {
     private enum Constants {
-        static let cornerRadius = 14.0
-        static let overlayViewAdditionalVerticalInset = 10.0
-        static let tokenListHeaderViewTopInset = 8.0
+        static let contentCornerRadius = 14.0
+        static let contentTopInset = 4.0
         static let contentHorizontalInset = 16.0
+        static let overlayViewAdditionalVerticalInset = 10.0
         static let dragLiftAnimationDuration = 0.35
         static let dropAnimationProgressThresholdForViewRemoval = 0.05
         static let draggableViewScale = 1.035
