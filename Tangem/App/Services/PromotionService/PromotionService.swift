@@ -20,6 +20,7 @@ class PromotionService {
     let currentProgramName = "1inch"
     private let promoCodeStorageKey = "promo_code"
     private let finishedPromotionNamesStorageKey = "finished_promotion_names"
+    private let awardedPromotionNamesStorageKey = "awarded_promotion_names"
 
     var awardAmount: Int?
     var promotionAvailable: Bool = false
@@ -46,7 +47,7 @@ extension PromotionService: PromotionServiceProtocol {
         readyForAwardSubject.send(())
     }
 
-    func checkPromotion(isNewCard: Bool, timeout: TimeInterval?) async {
+    func checkPromotion(isNewCard: Bool, userWalletId: String?, timeout: TimeInterval?) async {
         let promotionAvailable: Bool
         let award: Int?
 
@@ -64,7 +65,17 @@ extension PromotionService: PromotionServiceProtocol {
                     cardParameters = promotion.oldCard
                 }
 
-                promotionAvailable = (cardParameters.status == .active)
+                let promotionActive = (cardParameters.status == .active)
+                let alreadyClaimedAward = await alreadyClaimedAward(userWalletId: userWalletId)
+
+                let canClaimAwardBasedOnWalletPurchase: Bool
+                if let promoCode, let userWalletId {
+                    canClaimAwardBasedOnWalletPurchase = await hasPurchaseForPromoCode(promoCode, userWalletId: userWalletId)
+                } else {
+                    canClaimAwardBasedOnWalletPurchase = true
+                }
+
+                promotionAvailable = promotionActive && !alreadyClaimedAward && canClaimAwardBasedOnWalletPurchase
 
                 if cardParameters.status == .finished {
                     markCurrentPromotionAsFinished(true)
@@ -106,8 +117,10 @@ extension PromotionService: PromotionServiceProtocol {
         }
     }
 
-    func claimReward(userWalletId: String, userTokensManager: UserTokensManager, walletModelsManager: WalletModelsManager) async throws -> Bool {
-        guard let address = try await rewardAddress(userTokensManager: userTokensManager, walletModelsManager: walletModelsManager) else { return false }
+    func claimReward(userWalletId: String, userTokensManager: UserTokensManager, walletModelsManager: WalletModelsManager) async throws -> Blokchain? {
+        guard let awardDetails = try await awardDetails(userTokensManager: userTokensManager, walletModelsManager: walletModelsManager) else { return nil }
+
+        let address = awardDetails.address
 
         if let promoCode {
             try await tangemApiService.awardNewUser(walletId: userWalletId, address: address, code: promoCode)
@@ -116,11 +129,25 @@ extension PromotionService: PromotionServiceProtocol {
         }
 
         markCurrentPromotionAsFinished(true)
+        markCurrentPromotionAsAwarded(true)
 
-        return true
+        return awardDetails.blockchain
+    }
+
+    func awardedPromotionNames() -> Set<String> {
+        do {
+            let storage = SecureStorage()
+            guard let data = try storage.get(awardedPromotionNamesStorageKey) else { return [] }
+            return try JSONDecoder().decode(Set<String>.self, from: data)
+        } catch {
+            AppLog.shared.error(error)
+            AppLog.shared.debug("Failed to get awarded promotions")
+            return []
+        }
     }
 
     func resetAward(cardId: String) async throws {
+        saveAwardedPromotions([])
         try await tangemApiService.resetAwardForCurrentWallet(cardId: cardId)
     }
 
@@ -147,7 +174,12 @@ extension PromotionService: PromotionServiceProtocol {
 }
 
 extension PromotionService {
-    private func rewardAddress(userTokensManager: UserTokensManager, walletModelsManager: WalletModelsManager) async throws -> String? {
+    private struct AwardDetails {
+        let blockchain: Blockchain
+        let address: String
+    }
+
+    private func awardDetails(userTokensManager: UserTokensManager, walletModelsManager: WalletModelsManager) async throws -> AwardDetails? {
         let promotion = try await tangemApiService.promotion(programName: currentProgramName, timeout: nil)
 
         guard
@@ -160,13 +192,50 @@ extension PromotionService {
         do {
             try await userTokensManager.add(.token(awardToken, awardBlockchain), derivationPath: nil)
             let address = walletModelsManager.walletModels.first(where: { $0.amountType.token == awardToken })?.defaultAddress
-            return address
+            return AwardDetails(blockchain: awardBlockchain, address: address)
         } catch {
             if error.toTangemSdkError().isUserCancelled {
                 return nil
             } else {
                 throw error
             }
+        }
+    }
+
+    private func alreadyClaimedAward(userWalletId: String?) async -> Bool {
+        if awardedPromotionNames().contains(currentProgramName) {
+            return true
+        }
+
+        guard let userWalletId else {
+            return false
+        }
+
+        do {
+            let canClaim = try await tangemApiService.validateOldUserPromotionEligibility(walletId: userWalletId, programName: currentProgramName).valid
+            return !canClaim
+        } catch {
+            guard let tangemApiError = error as? TangemAPIError else {
+                return false
+            }
+
+            switch tangemApiError.code {
+            case .promotionCardAlreadyAwarded, .promotionWalletAlreadyAwarded:
+                return true
+            default:
+                return false
+            }
+        }
+    }
+
+    private func hasPurchaseForPromoCode(_ promoCode: String, userWalletId: String) async -> Bool {
+        do {
+            let result = try await tangemApiService.validateNewUserPromotionEligibility(walletId: userWalletId, code: promoCode)
+            let canGetAward = result.valid
+            return canGetAward
+        } catch {
+            // We only care about promotionCodeNotApplied error but it does not make sense to treat other errors differently
+            return false
         }
     }
 
@@ -198,6 +267,33 @@ extension PromotionService {
         } catch {
             AppLog.shared.error(error)
             AppLog.shared.debug("Failed to set finished programs")
+        }
+    }
+
+    private func markCurrentPromotionAsAwarded(_ awarded: Bool) {
+        let awardedPromotionNames = awardedPromotionNames()
+
+        var newAwardedPromotionNames = awardedPromotionNames
+        if awarded {
+            newAwardedPromotionNames.insert(currentProgramName)
+        } else {
+            newAwardedPromotionNames.remove(currentProgramName)
+        }
+
+        guard awardedPromotionNames != newAwardedPromotionNames else { return }
+
+        saveAwardedPromotions(newAwardedPromotionNames)
+    }
+
+    private func saveAwardedPromotions(_ promotionNames: Set<String>) {
+        do {
+            let data = try JSONEncoder().encode(promotionNames)
+
+            let storage = SecureStorage()
+            try storage.store(data, forKey: awardedPromotionNamesStorageKey)
+        } catch {
+            AppLog.shared.error(error)
+            AppLog.shared.debug("Failed to set awarded promotions")
         }
     }
 }
