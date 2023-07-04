@@ -13,24 +13,17 @@ struct OrganizeTokensListHeader: View {
     let scrollViewTopContentInset: Binding<CGFloat>
     let contentHorizontalInset: CGFloat
     let overlayViewAdditionalVerticalInset: CGFloat
+    let tokenListHeaderViewTopInset: CGFloat
 
     var body: some View {
         OrganizeTokensHeaderView(viewModel: viewModel)
             .readGeometry(\.size.height) { height in
                 scrollViewTopContentInset.wrappedValue = height
                     + overlayViewAdditionalVerticalInset
-                    + Constants.topInset
+                    + tokenListHeaderViewTopInset
             }
-            .padding(.top, Constants.topInset)
+            .padding(.top, tokenListHeaderViewTopInset)
+            .padding(.bottom, overlayViewAdditionalVerticalInset)
             .padding(.horizontal, contentHorizontalInset)
-            .infinityFrame(alignment: .top)
-    }
-}
-
-// MARK: - Constants
-
-private extension OrganizeTokensListHeader {
-    private enum Constants {
-        static let topInset = 8.0
     }
 }
