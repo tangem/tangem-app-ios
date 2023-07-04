@@ -175,6 +175,8 @@ extension GenericDemoConfig: UserWalletConfig {
             return .hidden
         case .accessCodeRecoverySettings:
             return .hidden
+        case .promotion:
+            return .hidden
         }
     }
 
