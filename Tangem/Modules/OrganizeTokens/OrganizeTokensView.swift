@@ -67,9 +67,8 @@ struct OrganizeTokensView: View {
             }
         }
         .background(
-            Colors.Background
-                .secondary
-                .ignoresSafeArea(edges: [.vertical])
+            Colors.Background.secondary
+                .ignoresSafeArea(edges: .vertical)
         )
         .onAppear {
             dragAndDropController.dataSource = viewModel
