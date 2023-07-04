@@ -552,13 +552,13 @@ private extension LegacyMainViewModel {
     }
 
     private func startPromotionAwardProcess() async throws {
-        let awarded = try await promotionService.claimReward(
+        let awardedBlockchain = try await promotionService.claimReward(
             userWalletId: cardModel.userWalletId.stringValue,
             storageEntryAdding: cardModel
         )
 
-        if awarded {
-            showAlert(AlertBuilder.makeSuccessAlert(message: Localization.mainPromotionCredited))
+        if let awardedBlockchain {
+            showAlert(AlertBuilder.makeSuccessAlert(message: Localization.mainPromotionCredited(awardedBlockchain.displayName)))
         }
     }
 
