@@ -13,6 +13,7 @@ import BlockchainSdk
 class WalletModel {
     @Injected(\.tangemApiService) private var tangemApiService: TangemApiService
 
+    /// Listen all changes
     var walletDidChange: AnyPublisher<WalletModel.State, Never> {
         _state
             .combineLatest(rates)
@@ -20,6 +21,7 @@ class WalletModel {
             .eraseToAnyPublisher()
     }
 
+    /// Listen state changes ( balance )
     var statePublisher: AnyPublisher<WalletModel.State, Never> {
         _state.eraseToAnyPublisher()
     }
@@ -28,13 +30,14 @@ class WalletModel {
         _state.value
     }
 
-    var transactionHistoryStatePublisher: AnyPublisher<TransactionHistoryState, Never> {
-        transactionHistoryState.eraseToAnyPublisher()
+    /// Listen tx history changes
+    var transactionHistoryPublisher: AnyPublisher<TransactionHistoryState, Never> {
+        _transactionsHistory.eraseToAnyPublisher()
     }
 
     private var _state: CurrentValueSubject<State, Never> = .init(.created)
     private var rates: CurrentValueSubject<[String: Decimal], Never> = .init([:])
-    private var transactionHistoryState: CurrentValueSubject<TransactionHistoryState, Never> = .init(.notLoaded)
+    private var _transactionsHistory: CurrentValueSubject<TransactionHistoryState, Never> = .init(.notLoaded)
 
     var tokenItem: TokenItem {
         switch amountType {
@@ -488,7 +491,7 @@ extension WalletModel {
             let historyLoader = walletManager as? TransactionHistoryLoader
         else {
             DispatchQueue.main.async {
-                self.transactionHistoryState.value = .notSupported
+                self._transactionsHistory.value = .notSupported
             }
             return .justWithError(output: ())
         }
@@ -497,18 +500,18 @@ extension WalletModel {
             return .justWithError(output: ())
         }
 
-        transactionHistoryState.value = .loading
+        _transactionsHistory.value = .loading
         let historyPublisher = historyLoader.loadTransactionHistory()
         txHistoryUpdateSubscription = historyPublisher
             .receive(on: DispatchQueue.main)
             .sink { [weak self] completion in
                 if case .failure(let error) = completion {
                     AppLog.shared.debug("🔄 Failed to load transaction history. Error: \(error)")
-                    self?.transactionHistoryState.value = .failedToLoad(error)
+                    self?._transactionsHistory.value = .failedToLoad(error)
                 }
                 self?.txHistoryUpdateSubscription = nil
             } receiveValue: { [weak self] _ in
-                self?.transactionHistoryState.value = .loaded
+                self?._transactionsHistory.value = .loaded
             }
 
         return historyPublisher
@@ -526,33 +529,33 @@ extension WalletModel {
             return .anyFail(error: "Can't use fake history")
         }
 
-        switch transactionHistoryState.value {
+        switch _transactionsHistory.value {
         case .notLoaded, .notSupported:
-            transactionHistoryState.value = .loading
+            _transactionsHistory.value = .loading
             return Just(())
                 .delay(for: 5, scheduler: DispatchQueue.main)
                 .map {
-                    self.transactionHistoryState.value = .failedToLoad("Failed to load tx history")
+                    self._transactionsHistory.value = .failedToLoad("Failed to load tx history")
                     return ()
                 }
                 .eraseError()
                 .eraseToAnyPublisher()
         case .failedToLoad:
-            transactionHistoryState.value = .loading
+            _transactionsHistory.value = .loading
             return Just(())
                 .delay(for: 5, scheduler: DispatchQueue.main)
                 .map {
-                    self.transactionHistoryState.value = .loaded
+                    self._transactionsHistory.value = .loaded
                     return ()
                 }
                 .eraseError()
                 .eraseToAnyPublisher()
         case .loaded:
-            transactionHistoryState.value = .loading
+            _transactionsHistory.value = .loading
             return Just(())
                 .delay(for: 5, scheduler: DispatchQueue.main)
                 .map {
-                    self.transactionHistoryState.value = .notSupported
+                    self._transactionsHistory.value = .notSupported
                     return ()
                 }
                 .eraseError()
@@ -561,7 +564,7 @@ extension WalletModel {
             return Just(())
                 .delay(for: 5, scheduler: DispatchQueue.main)
                 .map {
-                    self.transactionHistoryState.value = .loaded
+                    self._transactionsHistory.value = .loaded
                     return ()
                 }
                 .eraseError()
