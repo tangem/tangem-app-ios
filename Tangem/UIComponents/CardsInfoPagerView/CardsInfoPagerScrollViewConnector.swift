@@ -9,6 +9,11 @@
 import SwiftUI
 
 struct CardsInfoPagerScrollViewConnector: CardsInfoPagerScrollViewConnectable {
+    enum ProposedHeaderState {
+        case collapsed
+        case expanded
+    }
+
     let contentOffset: Binding<CGPoint>
 
     var placeholderView: some View { headerPlaceholderView }
@@ -20,11 +25,13 @@ struct CardsInfoPagerScrollViewConnector: CardsInfoPagerScrollViewConnectable {
 
     private let headerPlaceholderTopInset: CGFloat
     private let headerPlaceholderHeight: CGFloat
+    private let headerAutoScrollThresholdRatio: CGFloat
 
     init(
         headerPlaceholderView: CardsInfoPageHeaderPlaceholderView,
         headerPlaceholderTopInset: CGFloat,
         headerPlaceholderHeight: CGFloat,
+        headerAutoScrollThresholdRatio: CGFloat,
         contentOffset: Binding<CGPoint>,
         expandedHeaderScrollTargetIdentifier: any Hashable,
         collapsedHeaderScrollTargetIdentifier: any Hashable
@@ -32,18 +39,26 @@ struct CardsInfoPagerScrollViewConnector: CardsInfoPagerScrollViewConnectable {
         self.headerPlaceholderView = headerPlaceholderView
         self.headerPlaceholderTopInset = headerPlaceholderTopInset
         self.headerPlaceholderHeight = headerPlaceholderHeight
+        self.headerAutoScrollThresholdRatio = headerAutoScrollThresholdRatio
         self.contentOffset = contentOffset
         self.expandedHeaderScrollTargetIdentifier = expandedHeaderScrollTargetIdentifier
         self.collapsedHeaderScrollTargetIdentifier = collapsedHeaderScrollTargetIdentifier
     }
 
-    func performScrollIfNeeded(with scrollViewProxy: ScrollViewProxy) {
+    func performScrollIfNeeded(
+        with scrollViewProxy: ScrollViewProxy,
+        proposedState: ProposedHeaderState
+    ) {
         let yOffset = contentOffset.wrappedValue.y - headerPlaceholderTopInset
 
-        guard 0.0 ..< headerPlaceholderHeight ~= yOffset else { return }
+        guard (0.0 ..< headerPlaceholderHeight) ~= yOffset else { return }
+
+        let headerAutoScrollRatio = proposedState == .collapsed
+            ? headerAutoScrollThresholdRatio
+            : 1.0 - headerAutoScrollThresholdRatio
 
         withAnimation(.spring()) {
-            if yOffset > headerPlaceholderHeight / 2.0 {
+            if yOffset > headerPlaceholderHeight * headerAutoScrollRatio {
                 scrollViewProxy.scrollTo(collapsedHeaderScrollTargetIdentifier, anchor: .top)
             } else {
                 scrollViewProxy.scrollTo(expandedHeaderScrollTargetIdentifier, anchor: .top)
