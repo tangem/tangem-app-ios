@@ -119,7 +119,7 @@ private extension CardInfoPagePreviewView {
     private enum Constants {
         static var contentColor: Color { Colors.Background.primary }
         static var cornerRadius: CGFloat { 14.0 }
-        static var spacerHeight: CGFloat { 16.0 }
+        static var spacerHeight: CGFloat { 14.0 }
         static var cellPadding: CGFloat { 16.0 }
     }
 }
