@@ -113,15 +113,15 @@ private extension LegacyMultiWalletContentViewModel {
         let entries = userTokenListManager.userTokens
         let walletModels = walletModelsManager.walletModels
         return entries.reduce([]) { result, entry in
-            if let mainCoinWalletModel = walletModels.first(where: { $0.blockchainNetwork == entry.blockchainNetwork }) {
-                let tokenAmountTypes: [Amount.AmountType] = entry.tokens.map { .token(value: $0) }
-                let mainModel = mapToTokenItemViewModel(mainCoinWalletModel)
-                let tokenWalletModels = tokenAmountTypes.compactMap { amountType in
-                    walletModels.first(where: { $0.blockchainNetwork == entry.blockchainNetwork && $0.amountType == amountType })
+            if walletModels.contains(where: { $0.blockchainNetwork == entry.blockchainNetwork }) {
+                let ids = entry.walletModelIds
+                let models = ids.compactMap { id in
+                    walletModels.first(where: { $0.id == id })
                 }
 
-                let tokenModels = tokenWalletModels.map { mapToTokenItemViewModel($0) }
-                return result + [mainModel] + tokenModels
+                let items = models.map { mapToTokenItemViewModel($0) }
+
+                return result + items
             }
 
             return result + mapToTokenItemViewModels(entry: entry)
