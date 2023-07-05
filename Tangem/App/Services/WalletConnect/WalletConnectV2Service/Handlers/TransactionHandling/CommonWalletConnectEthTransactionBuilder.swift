@@ -57,7 +57,7 @@ extension CommonWalletConnectEthTransactionBuilder: WalletConnectEthTransactionB
 
         let valueAmount = Amount(with: blockchain, type: .coin, value: value)
 
-        async let walletUpdate = walletModel.$state
+        async let walletUpdate = walletModel.walletDidChange
             .setFailureType(to: Error.self)
             .tryMap { state -> WalletModel.State in
                 switch state {

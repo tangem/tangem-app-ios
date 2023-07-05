@@ -306,7 +306,7 @@ class LegacyTokenDetailsViewModel: ObservableObject {
     func onAppear() {
         Analytics.log(.detailsScreenOpened)
         rentWarningSubscription = walletModel?
-            .$state
+            .walletDidChange
             .filter { !$0.isLoading }
             .receive(on: RunLoop.main)
             .sink { [weak self] _ in
