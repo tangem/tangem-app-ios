@@ -32,6 +32,7 @@ struct CardsInfoPagerView<
     @State private var verticalContentOffset: CGPoint = .zero
 
     @StateObject private var scrollDetector = ScrollDetector()
+    @State private var proposedHeaderState: CardsInfoPagerScrollViewConnector.ProposedHeaderState = .collapsed
 
     private var contentViewVerticalOffset: CGFloat = Constants.contentViewVerticalOffset
     private var pageSwitchThreshold: CGFloat = Constants.pageSwitchThreshold
@@ -61,6 +62,9 @@ struct CardsInfoPagerView<
             .environment(\.cardsInfoPageHeaderPlaceholderHeight, headerHeight)
             .onAppear(perform: scrollDetector.startDetectingScroll)
             .onDisappear(perform: scrollDetector.stopDetectingScroll)
+            .onChange(of: verticalContentOffset) { [oldValue = verticalContentOffset] newValue in
+                proposedHeaderState = oldValue.y > newValue.y ? .expanded : .collapsed
+            }
         }
     }
 
@@ -116,6 +120,7 @@ struct CardsInfoPagerView<
                     headerPlaceholderView: headerPlaceholderView,
                     headerPlaceholderTopInset: Constants.headerPlaceholderTopInset,
                     headerPlaceholderHeight: headerHeight,
+                    headerAutoScrollThresholdRatio: Constants.headerAutoScrollThresholdRatio,
                     contentOffset: $verticalContentOffset,
                     expandedHeaderScrollTargetIdentifier: expandedHeaderScrollTargetIdentifier,
                     collapsedHeaderScrollTargetIdentifier: collapsedHeaderScrollTargetIdentifier
@@ -125,7 +130,10 @@ struct CardsInfoPagerView<
                         .hidden(index != currentPageIndex)
                         .onChange(of: scrollDetector.isScrolling) { [oldValue = scrollDetector.isScrolling] newValue in
                             if newValue != oldValue, !newValue {
-                                scrollViewConnector.performScrollIfNeeded(with: scrollViewProxy)
+                                scrollViewConnector.performScrollIfNeeded(
+                                    with: scrollViewProxy,
+                                    proposedState: proposedHeaderState
+                                )
                             }
                         }
                 }
@@ -280,6 +288,7 @@ private extension CardsInfoPagerView {
         static var headerInteritemSpacing: CGFloat { 8.0 }
         static var headerItemHorizontalOffset: CGFloat { headerInteritemSpacing * 2.0 }
         static var headerPlaceholderTopInset: CGFloat { 8.0 }
+        static var headerAutoScrollThresholdRatio: CGFloat { 0.25 }
         static var contentViewVerticalOffset: CGFloat { 44.0 }
         static var pageSwitchThreshold: CGFloat { 0.5 }
         static var pageSwitchAnimation: Animation { .interactiveSpring(response: 0.30) }
