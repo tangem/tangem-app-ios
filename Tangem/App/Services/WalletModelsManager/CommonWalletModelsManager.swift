@@ -96,58 +96,9 @@ extension CommonWalletModelsManager: WalletModelsManager {
                 completion()
             }
     }
-
-//    func getWalletModels() -> [WalletModel] {
-//        walletModels.value
-//    }
-//
-//    func subscribeToWalletModels() -> AnyPublisher<[WalletModel], Never> {
-//        walletModels.eraseToAnyPublisher()
-//    }
-
-//    func getEntriesWithoutDerivation() -> [StorageEntry] {
-//        entriesWithoutDerivation.value
-//    }
-//
-//    func subscribeToEntriesWithoutDerivation() -> AnyPublisher<[StorageEntry], Never> {
-//        entriesWithoutDerivation.eraseToAnyPublisher()
-//    }
-
-//    func reloadWalletModels(silent: Bool) -> AnyPublisher<Void, Never> {
-//        guard !getWalletModels().isEmpty else {
-//            AppLog.shared.debug("‼️ WalletModels is empty")
-//            return .just
-//        }
-//
-//        return reloadAllWalletModelsPublisher(silent: silent)
-//    }
 }
 
 private extension CommonWalletModelsManager {
-//    func reloadAllWalletModelsPublisher(silent: Bool) -> AnyPublisher<Void, Never> {
-//        tryMigrateTokens()
-//            .flatMap { [weak self] _ -> AnyPublisher<Void, Never> in
-//                guard let self = self else {
-//                    return .just
-//                }
-//
-//                return updateWalletModelsPublisher(silent: silent)
-//            }
-//            .eraseToAnyPublisher()
-//    }
-
-//    func updateWalletModelsPublisher(silent: Bool) -> AnyPublisher<Void, Never> {
-//        let publishers = getWalletModels().map {
-//            $0.update(silent: silent).replaceError(with: ())
-//        }
-//
-//        return Publishers
-//            .MergeMany(publishers)
-//            .collect(publishers.count)
-//            .mapVoid()
-//            .eraseToAnyPublisher()
-//    }
-
     func log(walletModels: [WalletModel]) {
         let printList = walletModels.map {
             return "\($0.name)"
