@@ -94,7 +94,7 @@ class WalletConnectTransactionHandler: TangemWalletConnectRequestHandler {
         )
 
         let walletUpdatePublisher = walletModel
-            .$state
+            .walletDidChange
             .setFailureType(to: Error.self)
             .tryMap { state -> WalletModel.State in
                 switch state {
