@@ -67,7 +67,7 @@ extension CommonUserTokenListManager: UserTokenListManager {
             updateTokensOnServer()
         }
     }
-    
+
     func updateLocalRepositoryFromServer(result: @escaping (Result<Void, Error>) -> Void) {
         guard hasTokenSynchronization else {
             result(.success(()))
