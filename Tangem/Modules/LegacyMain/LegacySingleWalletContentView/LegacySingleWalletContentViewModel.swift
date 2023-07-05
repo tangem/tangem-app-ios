@@ -128,7 +128,7 @@ class LegacySingleWalletContentViewModel: ObservableObject {
                     return
                 }
 
-                Analytics.logTopUpIfNeeded(balance: self.singleWalletModel.fiatValue)
+                Analytics.logTopUpIfNeeded(balance: self.singleWalletModel.fiatValue ?? 0)
             }
             .store(in: &bag)
     }
