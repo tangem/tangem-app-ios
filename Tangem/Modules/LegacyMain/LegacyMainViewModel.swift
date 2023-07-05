@@ -528,16 +528,10 @@ private extension LegacyMainViewModel {
     private func handlePromotionError(_ error: Error) {
         AppLog.shared.error(error)
 
-        let alert: AlertBinder
-        if let apiError = error as? TangemAPIError,
-           case .promotionCodeNotApplied = apiError.code {
-            alert = AlertBinder(title: Localization.commonError, message: Localization.mainPromotionNoPurchase)
-        } else {
-            alert = error.alertBinder
-        }
-        showAlert(alert)
+        showAlert(error.alertBinder)
 
         let fatalPromotionErrorCodes: [TangemAPIError.ErrorCode] = [
+            .promotionCodeNotApplied,
             .promotionCodeAlreadyUsed,
             .promotionWalletAlreadyAwarded,
             .promotionCardAlreadyAwarded,
@@ -558,19 +552,20 @@ private extension LegacyMainViewModel {
     }
 
     private func startPromotionAwardProcess() async throws {
-        let awarded = try await promotionService.claimReward(
+        let awardedBlockchain = try await promotionService.claimReward(
             userWalletId: cardModel.userWalletId.stringValue,
             storageEntryAdding: cardModel
         )
 
-        if awarded {
-            showAlert(AlertBuilder.makeSuccessAlert(message: Localization.mainPromotionCredited))
+        if let awardedBlockchain {
+            showAlert(AlertBuilder.makeSuccessAlert(message: Localization.mainPromotionCredited(awardedBlockchain.displayName)))
         }
     }
 
     private func updatePromotionState() async {
         let isNewCard = (promotionService.promoCode != nil)
-        await promotionService.checkPromotion(isNewCard: isNewCard, timeout: nil)
+        let userWalletId = cardModel.userWalletId.stringValue
+        await promotionService.checkPromotion(isNewCard: isNewCard, userWalletId: userWalletId, timeout: nil)
 
         didFinishCheckingPromotion(promotionAvailable: promotionService.promotionAvailable)
     }
