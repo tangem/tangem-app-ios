@@ -108,23 +108,14 @@ struct CardsInfoPagerView<
         // [REDACTED_TODO_COMMENT]
         ZStack(alignment: .topLeading) {
             let currentPageIndex = nextIndexToSelect ?? selectedIndex
+            let connectorFactory = CardsInfoPagerScrollViewConnectorFactory(
+                headerPlaceholderTopInset: Constants.headerPlaceholderTopInset,
+                headerAutoScrollThresholdRatio: Constants.headerAutoScrollThresholdRatio,
+                headerPlaceholderHeight: headerHeight,
+                contentOffset: $verticalContentOffset
+            )
             ForEach(data.indexed(), id: idProvider) { index, element in
-                let expandedHeaderScrollTargetIdentifier = "expandedHeaderScrollTargetIdentifier_\(index)"
-                let collapsedHeaderScrollTargetIdentifier = "collapsedHeaderScrollTargetIdentifier_\(index)"
-                let headerPlaceholderView = CardsInfoPageHeaderPlaceholderView(
-                    expandedHeaderScrollTargetIdentifier: expandedHeaderScrollTargetIdentifier,
-                    collapsedHeaderScrollTargetIdentifier: collapsedHeaderScrollTargetIdentifier,
-                    headerPlaceholderTopInset: Constants.headerPlaceholderTopInset
-                )
-                let scrollViewConnector = CardsInfoPagerScrollViewConnector(
-                    headerPlaceholderView: headerPlaceholderView,
-                    headerPlaceholderTopInset: Constants.headerPlaceholderTopInset,
-                    headerPlaceholderHeight: headerHeight,
-                    headerAutoScrollThresholdRatio: Constants.headerAutoScrollThresholdRatio,
-                    contentOffset: $verticalContentOffset,
-                    expandedHeaderScrollTargetIdentifier: expandedHeaderScrollTargetIdentifier,
-                    collapsedHeaderScrollTargetIdentifier: collapsedHeaderScrollTargetIdentifier
-                )
+                let scrollViewConnector = connectorFactory.makeConnector(forPageAtIndex: index)
                 ScrollViewReader { scrollViewProxy in
                     contentFactory(element, scrollViewConnector)
                         .hidden(index != currentPageIndex)
