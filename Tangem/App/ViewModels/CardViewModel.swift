@@ -495,99 +495,6 @@ class CardViewModel: Identifiable, ObservableObject {
     }
 }
 
-// MARK: - Proxy for User Wallet Model
-
-extension CardViewModel {
-//    func subscribeWalletModels() -> AnyPublisher<[WalletModel], Never> {
-//        return subscribeToWalletModels()
-//    }
-
-    /* func add(entries: [StorageEntry], completion: @escaping (Result<Void, Error>) -> Void) {
-         derive(entries: entries) { [weak self] result in
-             switch result {
-             case .success:
-                 self?.append(entries: entries)
-                 self?.updateAndReloadWalletModels()
-                 completion(.success(()))
-             case .failure(let error):
-                 completion(.failure(error))
-             }
-         }
-     }
-
-     func update(entries: [StorageEntry], completion: @escaping (Result<Void, Error>) -> Void) {
-         derive(entries: entries) { [weak self] result in
-             switch result {
-             case .success:
-                 self?.update(entries: entries)
-                 self?.updateAndReloadWalletModels()
-                 completion(.success(()))
-             case .failure(let error):
-                 completion(.failure(error))
-             }
-         }
-     }
-
-     func derive(entries: [StorageEntry], completion: @escaping (Result<Void, Error>) -> Void) {
-         let derivationManager = DerivationManager(config: config, cardInfo: cardInfo)
-         self.derivationManager = derivationManager
-         let alreadySaved = getSavedEntries()
-         derivationManager.deriveIfNeeded(entries: alreadySaved + entries, completion: { [weak self] result in
-             switch result {
-             case .success(let response):
-                 if let response {
-                     self?.onDerived(response)
-                 }
-
-                 completion(.success(()))
-             case .failure(let error):
-                 completion(.failure(error))
-             }
-
-             self?.derivationManager = nil
-         })
-     }*/
-}
-
-/*
- extension CardViewModel: StorageEntryAdding {
-     func add(entry: StorageEntry) async throws -> String {
-         try await withCheckedThrowingContinuation { [weak self] continuation in
-             guard let self = self else { return }
-
-             add(entry: entry) { result in
-                 continuation.resume(with: result)
-             }
-         }
-     }
-
-     func add(entry: StorageEntry, completion: @escaping (Result<String, Error>) -> Void) {
-         add(entries: [entry]) { [weak self] result in
-             guard let self else { return }
-
-             if case .failure(let error) = result {
-                 completion(.failure(error))
-                 return
-             }
-
-             let address = walletModels
-                 .first {
-                     $0.blockchainNetwork == entry.blockchainNetwork
-                 }
-                 .map {
-                     $0.wallet.address
-                 }
-
-             guard let address else {
-                 completion(.failure(WalletError.empty))
-                 return
-             }
-
-             completion(.success(address))
-         }
-     }
- }*/
-
 extension CardViewModel {
     enum WalletsBalanceState {
         case inProgress
@@ -637,22 +544,6 @@ extension CardViewModel: UserWalletModel {
         walletModelsManager.walletModels.count
     }
 
-//    func getSavedEntries() -> [StorageEntry] {
-//        userTokenListManager.getEntriesFromRepository()
-//    }
-
-//    func subscribeToWalletModels() -> AnyPublisher<[WalletModel], Never> {
-//        walletListManager.subscribeToWalletModels()
-//    }
-
-//    func getEntriesWithoutDerivation() -> [StorageEntry] {
-//        walletListManager.getEntriesWithoutDerivation()
-//    }
-
-//    func subscribeToEntriesWithoutDerivation() -> AnyPublisher<[StorageEntry], Never> {
-//        walletListManager.subscribeToEntriesWithoutDerivation()
-//    }
-
     func initialUpdate() {
         guard !didPerformInitialUpdate else {
             AppLog.shared.debug("Initial update has been performed")
@@ -669,22 +560,6 @@ extension CardViewModel: UserWalletModel {
     func updateWalletName(_ name: String) {
         cardInfo.name = name
     }
-
-//    func updateWalletModels() {
-//        // Update walletModel list for current storage state
-//        walletListManager.updateWalletModels()
-//    }
-
-//    func updateAndReloadWalletModels(silent: Bool, completion: @escaping () -> Void) {
-//        updateWalletModels()
-//
-//        reloadAllWalletModelsSubscription = walletListManager
-//            .reloadWalletModels(silent: silent)
-//            .receive(on: RunLoop.main)
-//            .receiveCompletion { _ in
-//                completion()
-//            }
-//    }
 }
 
 // [REDACTED_TODO_COMMENT]
