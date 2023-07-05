@@ -33,13 +33,14 @@ class CommonWalletManagersRepository {
 
     private func bind() {
         userTokenListManager.userTokensPublisher
-            .sink { [weak self] entries in
-                self?.update(with: entries)
+            .combineLatest(keysProvider.keysPublisher)
+            .sink { [weak self] entries, keys in
+                self?.update(with: entries, keys)
             }
             .store(in: &bag)
     }
 
-    private func update(with entries: [StorageEntry]) {
+    private func update(with entries: [StorageEntry], _ keys: [CardDTO.Wallet]) {
         var managers = walletManagers.value
         var hasUpdates = false
 
@@ -57,10 +58,21 @@ class CommonWalletManagersRepository {
                     hasUpdates = true
                 }
 
-            } else if let newWalletManager = makeWalletManager(for: entry) {
+            } else if let newWalletManager = makeWalletManager(for: entry, keys) {
                 managers[entry.blockchainNetwork] = newWalletManager
                 hasUpdates = true
             }
+        }
+
+        let actualNetworks = Set(entries.map { $0.blockchainNetwork })
+        let currentNetworks = Set(managers.keys)
+        let networksToDelete = currentNetworks.subtracting(actualNetworks)
+
+        if !networksToDelete.isEmpty {
+            networksToDelete.forEach {
+                managers[$0] = nil
+            }
+            hasUpdates = true
         }
 
         if hasUpdates {
@@ -68,9 +80,9 @@ class CommonWalletManagersRepository {
         }
     }
 
-    private func makeWalletManager(for entry: StorageEntry) -> WalletManager? {
+    private func makeWalletManager(for entry: StorageEntry, _ keys: [CardDTO.Wallet]) -> WalletManager? {
         do {
-            return try walletManagerFactory.makeWalletManager(for: entry, keys: keysProvider.keys)
+            return try walletManagerFactory.makeWalletManager(for: entry, keys: keys)
         } catch AnyWalletManagerFactoryError.noDerivation {
             AppLog.shared.debug("‼️ No derivation for \(entry.blockchainNetwork.blockchain.displayName)")
         } catch {
