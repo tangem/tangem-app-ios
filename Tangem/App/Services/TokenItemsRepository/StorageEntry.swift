@@ -27,3 +27,13 @@ struct StorageEntry: Hashable, Codable, Equatable {
         }
     }
 }
+
+extension StorageEntry {
+    var walletModelIds: [Int] {
+        let mainCoin = WalletModel.Id(blockchainNetwork: blockchainNetwork, amountType: .coin).id
+        let tokenCoins = tokens.map {
+            WalletModel.Id(blockchainNetwork: blockchainNetwork, amountType: .token(value: $0)).id
+        }
+        return [mainCoin] + tokenCoins
+    }
+}
