@@ -32,7 +32,7 @@ struct CardsInfoPagerView<
     @State private var verticalContentOffset: CGPoint = .zero
 
     @StateObject private var scrollDetector = ScrollDetector()
-    @State private var proposedHeaderState: CardsInfoPagerScrollViewConnector.ProposedHeaderState = .collapsed
+    @State private var proposedHeaderState: CardsInfoPagerScrollViewScroller.ProposedHeaderState = .expanded
 
     private var contentViewVerticalOffset: CGFloat = Constants.contentViewVerticalOffset
     private var pageSwitchThreshold: CGFloat = Constants.pageSwitchThreshold
@@ -108,20 +108,21 @@ struct CardsInfoPagerView<
         // [REDACTED_TODO_COMMENT]
         ZStack(alignment: .topLeading) {
             let currentPageIndex = nextIndexToSelect ?? selectedIndex
-            let connectorFactory = CardsInfoPagerScrollViewConnectorFactory(
+            let helpersFactory = CardsInfoPagerScrollViewHelpersFactory(
                 headerPlaceholderTopInset: Constants.headerPlaceholderTopInset,
                 headerAutoScrollThresholdRatio: Constants.headerAutoScrollThresholdRatio,
                 headerPlaceholderHeight: headerHeight,
                 contentOffset: $verticalContentOffset
             )
             ForEach(data.indexed(), id: idProvider) { index, element in
-                let scrollViewConnector = connectorFactory.makeConnector(forPageAtIndex: index)
+                let scrollViewConnector = helpersFactory.makeConnector(forPageAtIndex: index)
+                let scrollViewScroller = helpersFactory.makeScroller(forPageAtIndex: index)
                 ScrollViewReader { scrollViewProxy in
                     contentFactory(element, scrollViewConnector)
                         .hidden(index != currentPageIndex)
                         .onChange(of: scrollDetector.isScrolling) { [oldValue = scrollDetector.isScrolling] newValue in
                             if newValue != oldValue, !newValue {
-                                scrollViewConnector.performScrollIfNeeded(
+                                scrollViewScroller.performScrollIfNeeded(
                                     with: scrollViewProxy,
                                     proposedState: proposedHeaderState
                                 )
