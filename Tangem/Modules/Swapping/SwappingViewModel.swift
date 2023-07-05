@@ -592,7 +592,7 @@ private extension SwappingViewModel {
                     )
                 }
             } else {
-                let formattedFee = try await swappingFeeFormatter.format(
+                let formattedFee = try await self.swappingFeeFormatter.format(
                     fee: transactionData.fee,
                     blockchain: transactionData.sourceBlockchain
                 )
