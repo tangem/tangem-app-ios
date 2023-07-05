@@ -12,6 +12,5 @@ import BlockchainSdk
 
 protocol WalletManagersRepository {
     var signatureCountValidator: SignatureCountValidator? { get }
-
     var walletManagersPublisher: AnyPublisher<[BlockchainNetwork: any WalletManager], Never> { get }
 }
