@@ -231,22 +231,6 @@ class SendViewModel: ObservableObject {
             }
             .store(in: &bag)
 
-        walletModel
-            .objectWillChange
-            .receive(on: RunLoop.main)
-            .sink { [weak self] in
-                self?.objectWillChange.send()
-            }
-            .store(in: &bag)
-
-        walletModel
-            .$rates
-            .map { [unowned self] newRates -> Bool in
-                return newRates[amountToSend.currencySymbol] != nil
-            }
-            .weakAssign(to: \.canFiatCalculation, on: self)
-            .store(in: &bag)
-
         $destination // destination validation
             .debounce(for: 1.0, scheduler: RunLoop.main, options: nil)
             .removeDuplicates()
