@@ -20,11 +20,9 @@ protocol LegacySingleWalletContentViewModelOutput: OpenCurrencySelectionDelegate
 
 class LegacySingleWalletContentViewModel: ObservableObject {
     @Published var selectedAddressIndex: Int = 0
-    @Published var singleWalletModel: WalletModel?
+    var singleWalletModel: WalletModel
 
     var balanceViewModel: BalanceViewModel? {
-        guard let walletModel = singleWalletModel else { return nil }
-
         let tokenModel = walletModelsManager.walletModels.first(where: { !$0.isMainToken })
             .map {
                 TokenBalanceViewModel(
@@ -35,18 +33,16 @@ class LegacySingleWalletContentViewModel: ObservableObject {
             }
 
         return BalanceViewModel(
-            hasTransactionInProgress: walletModel.hasPendingTx,
-            state: walletModel.state,
-            name: walletModel.name,
-            fiatBalance: walletModel.fiatBalance,
-            balance: walletModel.balance,
+            hasTransactionInProgress: singleWalletModel.hasPendingTx,
+            state: singleWalletModel.state,
+            name: singleWalletModel.name,
+            fiatBalance: singleWalletModel.fiatBalance,
+            balance: singleWalletModel.balance,
             tokenBalanceViewModel: tokenModel
         )
     }
 
     var pendingTransactionViews: [LegacyPendingTxView] {
-        guard let singleWalletModel else { return [] }
-
         let incTxViews = singleWalletModel.incomingPendingTransactions
             .map { LegacyPendingTxView(pendingTx: $0) }
 
@@ -64,7 +60,7 @@ class LegacySingleWalletContentViewModel: ObservableObject {
     }
 
     public var canSend: Bool {
-        return singleWalletModel?.wallet.canSend(amountType: .coin) ?? false
+        return singleWalletModel.wallet.canSend(amountType: .coin)
     }
 
     private let totalSumBalanceViewModel: TotalSumBalanceViewModel
@@ -87,7 +83,7 @@ class LegacySingleWalletContentViewModel: ObservableObject {
         )
 
         /// Initial set to `singleWalletModel`
-        singleWalletModel = walletModelsManager.walletModels.first
+        singleWalletModel = walletModelsManager.walletModels.first!
 
         bind()
     }
@@ -97,71 +93,42 @@ class LegacySingleWalletContentViewModel: ObservableObject {
     }
 
     func openQR() {
-        guard let walletModel = singleWalletModel else { return }
-
-        let shareAddress = walletModel.shareAddressString(for: selectedAddressIndex)
-        let address = walletModel.displayAddress(for: selectedAddressIndex)
-        let qrNotice = walletModel.qrReceiveMessage
+        let shareAddress = singleWalletModel.shareAddressString(for: selectedAddressIndex)
+        let address = singleWalletModel.displayAddress(for: selectedAddressIndex)
+        let qrNotice = singleWalletModel.qrReceiveMessage
 
         output.openQR(shareAddress: shareAddress, address: address, qrNotice: qrNotice)
         Analytics.log(.tokenButtonShowTheWalletAddress)
     }
 
     func showExplorerURL(url: URL?) {
-        guard let walletModel = singleWalletModel else { return }
-
-        output.showExplorerURL(url: url, walletModel: walletModel)
+        output.showExplorerURL(url: url, walletModel: singleWalletModel)
     }
 
     func copyAddress() {
         Analytics.log(.buttonCopyAddress)
-        if let walletModel = singleWalletModel {
-            UIPasteboard.general.string = walletModel.displayAddress(for: selectedAddressIndex)
-        }
+        UIPasteboard.general.string = singleWalletModel.displayAddress(for: selectedAddressIndex)
     }
 
     private func bind() {
-        /// Subscribe for update `singleWalletModel` for each changes in `WalletModel`
-        walletModelsManager.walletModelsPublisher
-            .map { walletModels in
-                walletModels
-                    .map { $0.objectWillChange }
-                    .combineLatest()
-                    .map { _ in walletModels }
-            }
-            .switchToLatest()
-            .receive(on: DispatchQueue.main)
-            .sink { [weak self] walletModels in
-                self?.singleWalletModel = walletModels.first
-            }
-            .store(in: &bag)
+        let txPublisher = singleWalletModel.walletManager.walletPublisher
 
-        /// Subscription to handle transaction updates, such as new transactions from send screen.
-        walletModelsManager.walletModelsPublisher
-            .map { walletModels in
-                walletModels
-                    .map { $0.walletManager.walletPublisher }
-                    .combineLatest()
-            }
-            .switchToLatest()
+        singleWalletModel.walletDidChange
+            .combineLatest(txPublisher)
             .receive(on: DispatchQueue.main)
             .sink(receiveValue: { [weak self] publish in
                 self?.objectWillChange.send()
             })
             .store(in: &bag)
 
-        singleWalletModel?.$state
+        singleWalletModel.walletDidChange
             .filter { $0.isSuccesfullyLoaded }
-            .delay(for: 0.5, scheduler: DispatchQueue.main) // workaround willChange issue
             .sink { [weak self] state in
-                guard
-                    let self,
-                    let singleWalletModel = self.singleWalletModel
-                else {
+                guard let self else {
                     return
                 }
 
-                Analytics.logTopUpIfNeeded(balance: singleWalletModel.fiatValue)
+                Analytics.logTopUpIfNeeded(balance: self.singleWalletModel.fiatValue)
             }
             .store(in: &bag)
     }

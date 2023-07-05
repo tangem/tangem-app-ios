@@ -225,7 +225,7 @@ private extension TokenDetailsViewModel {
     }
 
     private func bind() {
-        walletModel.$state
+        walletModel.walletDidChange
             .receive(on: DispatchQueue.main)
             .sink { _ in } receiveValue: { [weak self] newState in
                 AppLog.shared.debug("Token details receive new wallet model state: \(newState)")
@@ -234,7 +234,7 @@ private extension TokenDetailsViewModel {
             }
             .store(in: &bag)
 
-        walletModel.$transactionHistoryState
+        walletModel.transactionHistoryStatePublisher
             .receive(on: DispatchQueue.main)
             .sink { [weak self] newState in
                 AppLog.shared.debug("New transaction history state: \(newState)")
@@ -281,7 +281,7 @@ private extension TokenDetailsViewModel {
                 .sink()
                 .store(in: &bag)
         case .loading:
-            if case .notLoaded = walletModel.transactionHistoryState {
+            if case .notLoaded = newState {
                 transactionHistoryState = .loading
             }
         case .failedToLoad(let error):
