@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import Combine
 
 protocol KeysRepository: AnyObject, KeysProvider {
     func update(keys: [CardDTO.Wallet])
@@ -14,18 +15,27 @@ protocol KeysRepository: AnyObject, KeysProvider {
 
 protocol KeysProvider {
     var keys: [CardDTO.Wallet] { get }
+    var keysPublisher: AnyPublisher<[CardDTO.Wallet], Never> { get }
 }
 
 class CommonKeysRepository {
-    private(set) var keys: [CardDTO.Wallet]
+    private var _keys: CurrentValueSubject<[CardDTO.Wallet], Never>
 
     init(with keys: [CardDTO.Wallet]) {
-        self.keys = keys
+        _keys = .init(keys)
     }
 }
 
 extension CommonKeysRepository: KeysRepository {
+    var keys: [CardDTO.Wallet] {
+        _keys.value
+    }
+
+    var keysPublisher: AnyPublisher<[CardDTO.Wallet], Never> {
+        _keys.eraseToAnyPublisher()
+    }
+
     func update(keys: [CardDTO.Wallet]) {
-        self.keys = keys
+        _keys.value = keys
     }
 }
