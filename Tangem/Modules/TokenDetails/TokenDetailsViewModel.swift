@@ -234,7 +234,7 @@ private extension TokenDetailsViewModel {
             }
             .store(in: &bag)
 
-        walletModel.transactionHistoryStatePublisher
+        walletModel.transactionHistoryPublisher
             .receive(on: DispatchQueue.main)
             .sink { [weak self] newState in
                 AppLog.shared.debug("New transaction history state: \(newState)")
