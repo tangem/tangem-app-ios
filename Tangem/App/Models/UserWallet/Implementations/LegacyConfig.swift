@@ -18,7 +18,7 @@ struct LegacyConfig: CardContainer {
     private var defaultBlockchain: Blockchain? {
         guard let walletData = walletData else { return nil }
 
-        return Blockchain.from(blockchainName: walletData.blockchain, curve: card.supportedCurves[0])!
+        return Blockchain.from(blockchainName: walletData.blockchain, curve: card.supportedCurves[0])
     }
 
     private var isMultiwallet: Bool {
