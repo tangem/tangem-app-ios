@@ -31,6 +31,8 @@ struct CardsInfoPagerView<
     @State private var headerHeight: CGFloat = .zero
     @State private var verticalContentOffset: CGPoint = .zero
 
+    @StateObject private var scrollDetector = ScrollDetector()
+
     private var contentViewVerticalOffset: CGFloat = Constants.contentViewVerticalOffset
     private var pageSwitchThreshold: CGFloat = Constants.pageSwitchThreshold
     private var pageSwitchAnimation: Animation = Constants.pageSwitchAnimation
@@ -57,6 +59,8 @@ struct CardsInfoPagerView<
             }
             .animation(pageSwitchAnimation, value: horizontalTranslation)
             .environment(\.cardsInfoPageHeaderPlaceholderHeight, headerHeight)
+            .onAppear(perform: scrollDetector.startDetectingScroll)
+            .onDisappear(perform: scrollDetector.stopDetectingScroll)
         }
     }
 
@@ -91,6 +95,8 @@ struct CardsInfoPagerView<
         .offset(x: headerItemPeekHorizontalOffset)
         // This offset is responsible for the header stickiness
         .offset(y: -verticalContentOffset.y)
+        // This offset is constant and based on the mockups
+        .offset(y: Constants.headerPlaceholderTopInset)
         .infinityFrame(alignment: .topLeading)
     }
 
@@ -99,12 +105,30 @@ struct CardsInfoPagerView<
         ZStack(alignment: .topLeading) {
             let currentPageIndex = nextIndexToSelect ?? selectedIndex
             ForEach(data.indexed(), id: idProvider) { index, element in
-                let scrollViewConnector = CardsInfoPagerScrollViewConnector(
-                    headerPlaceholderView: CardsInfoPageHeaderPlaceholderView(),
-                    contentOffset: $verticalContentOffset
+                let expandedHeaderScrollTargetIdentifier = "expandedHeaderScrollTargetIdentifier_\(index)"
+                let collapsedHeaderScrollTargetIdentifier = "collapsedHeaderScrollTargetIdentifier_\(index)"
+                let headerPlaceholderView = CardsInfoPageHeaderPlaceholderView(
+                    expandedHeaderScrollTargetIdentifier: expandedHeaderScrollTargetIdentifier,
+                    collapsedHeaderScrollTargetIdentifier: collapsedHeaderScrollTargetIdentifier,
+                    headerPlaceholderTopInset: Constants.headerPlaceholderTopInset
                 )
-                contentFactory(element, scrollViewConnector)
-                    .hidden(index != currentPageIndex)
+                let scrollViewConnector = CardsInfoPagerScrollViewConnector(
+                    headerPlaceholderView: headerPlaceholderView,
+                    headerPlaceholderTopInset: Constants.headerPlaceholderTopInset,
+                    headerPlaceholderHeight: headerHeight,
+                    contentOffset: $verticalContentOffset,
+                    expandedHeaderScrollTargetIdentifier: expandedHeaderScrollTargetIdentifier,
+                    collapsedHeaderScrollTargetIdentifier: collapsedHeaderScrollTargetIdentifier
+                )
+                ScrollViewReader { scrollViewProxy in
+                    contentFactory(element, scrollViewConnector)
+                        .hidden(index != currentPageIndex)
+                        .onChange(of: scrollDetector.isScrolling) { [oldValue = scrollDetector.isScrolling] newValue in
+                            if newValue != oldValue, !newValue {
+                                scrollViewConnector.performScrollIfNeeded(with: scrollViewProxy)
+                            }
+                        }
+                }
             }
         }
         .frame(size: proxy.size)
@@ -228,24 +252,6 @@ extension CardsInfoPagerView: Setupable {
     }
 }
 
-// MARK: - Auxiliary types
-
-/// A dumb wrapper to hide a concrete type of header placeholder view.
-struct CardsInfoPagerScrollViewConnector {
-    let contentOffset: Binding<CGPoint>
-    var placeholderView: some View { headerPlaceholderView }
-
-    private let headerPlaceholderView: CardsInfoPageHeaderPlaceholderView
-
-    fileprivate init(
-        headerPlaceholderView: CardsInfoPageHeaderPlaceholderView,
-        contentOffset: Binding<CGPoint>
-    ) {
-        self.headerPlaceholderView = headerPlaceholderView
-        self.contentOffset = contentOffset
-    }
-}
-
 private struct BodyAnimationModifier: Animatable, ViewModifier {
     var progress: CGFloat
     let verticalOffset: CGFloat
@@ -273,6 +279,7 @@ private extension CardsInfoPagerView {
     private enum Constants {
         static var headerInteritemSpacing: CGFloat { 8.0 }
         static var headerItemHorizontalOffset: CGFloat { headerInteritemSpacing * 2.0 }
+        static var headerPlaceholderTopInset: CGFloat { 8.0 }
         static var contentViewVerticalOffset: CGFloat { 44.0 }
         static var pageSwitchThreshold: CGFloat { 0.5 }
         static var pageSwitchAnimation: Animation { .interactiveSpring(response: 0.30) }
