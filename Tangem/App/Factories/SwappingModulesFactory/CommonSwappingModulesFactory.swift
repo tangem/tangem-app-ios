@@ -128,7 +128,7 @@ private extension CommonSwappingModulesFactory {
     }
 
     var fiatRatesProvider: FiatRatesProviding {
-        FiatRatesProvider()
+        SwappingRatesProvider()
     }
 
     var swappingFeeFormatter: SwappingFeeFormatter {
