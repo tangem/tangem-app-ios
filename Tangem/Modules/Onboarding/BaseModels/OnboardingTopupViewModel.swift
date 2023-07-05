@@ -56,7 +56,7 @@ class OnboardingTopupViewModel<Step: OnboardingStep, Coordinator: OnboardingTopu
         else { return }
 
         refreshButtonState = .activityIndicator
-        walletModelUpdateCancellable = walletModel.$state
+        walletModelUpdateCancellable = walletModel.walletDidChange
             .receive(on: DispatchQueue.main)
             .dropFirst()
             .sink { [weak self] walletModelState in
@@ -92,6 +92,7 @@ class OnboardingTopupViewModel<Step: OnboardingStep, Coordinator: OnboardingTopu
                 }
                 walletModelUpdateCancellable = nil
             }
+
         walletModel.update(silent: false)
     }
 

@@ -22,15 +22,13 @@ struct LegacySingleWalletContentView: View {
 
             walletView
 
-            if let walletModel = viewModel.singleWalletModel {
-                LegacyAddressDetailView(
-                    selectedAddressIndex: $viewModel.selectedAddressIndex,
-                    walletModel: walletModel,
-                    copyAddress: viewModel.copyAddress,
-                    showQr: viewModel.openQR,
-                    showExplorerURL: viewModel.showExplorerURL(url:)
-                )
-            }
+            LegacyAddressDetailView(
+                selectedAddressIndex: $viewModel.selectedAddressIndex,
+                walletModel: viewModel.singleWalletModel,
+                copyAddress: viewModel.copyAddress,
+                showQr: viewModel.openQR,
+                showExplorerURL: viewModel.showExplorerURL(url:)
+            )
         }
     }
 
