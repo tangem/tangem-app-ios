@@ -8,67 +8,30 @@
 
 import SwiftUI
 
-struct CardsInfoPagerScrollViewConnector: CardsInfoPagerScrollViewConnectable {
-    enum ProposedHeaderState {
-        case collapsed
-        case expanded
-    }
-
+struct CardsInfoPagerScrollViewConnector {
     let contentOffset: Binding<CGPoint>
+    var headerPlaceholderView: some View { _headerPlaceholderView }
 
-    var placeholderView: some View { headerPlaceholderView }
-
-    private let headerPlaceholderView: CardsInfoPageHeaderPlaceholderView
-
-    private let expandedHeaderScrollTargetIdentifier: any Hashable
-    private let collapsedHeaderScrollTargetIdentifier: any Hashable
+    private let _headerPlaceholderView: CardsInfoPageHeaderPlaceholderView
 
     private let headerPlaceholderTopInset: CGFloat
     private let headerPlaceholderHeight: CGFloat
-    private let headerAutoScrollThresholdRatio: CGFloat
 
     init(
+        contentOffset: Binding<CGPoint>,
         headerPlaceholderView: CardsInfoPageHeaderPlaceholderView,
         headerPlaceholderTopInset: CGFloat,
-        headerPlaceholderHeight: CGFloat,
-        headerAutoScrollThresholdRatio: CGFloat,
-        contentOffset: Binding<CGPoint>,
-        expandedHeaderScrollTargetIdentifier: any Hashable,
-        collapsedHeaderScrollTargetIdentifier: any Hashable
+        headerPlaceholderHeight: CGFloat
     ) {
-        self.headerPlaceholderView = headerPlaceholderView
+        self.contentOffset = contentOffset
+        _headerPlaceholderView = headerPlaceholderView
         self.headerPlaceholderTopInset = headerPlaceholderTopInset
         self.headerPlaceholderHeight = headerPlaceholderHeight
-        self.headerAutoScrollThresholdRatio = headerAutoScrollThresholdRatio
-        self.contentOffset = contentOffset
-        self.expandedHeaderScrollTargetIdentifier = expandedHeaderScrollTargetIdentifier
-        self.collapsedHeaderScrollTargetIdentifier = collapsedHeaderScrollTargetIdentifier
-    }
-
-    func performScrollIfNeeded(
-        with scrollViewProxy: ScrollViewProxy,
-        proposedState: ProposedHeaderState
-    ) {
-        let yOffset = contentOffset.wrappedValue.y - headerPlaceholderTopInset
-
-        guard (0.0 ..< headerPlaceholderHeight) ~= yOffset else { return }
-
-        let headerAutoScrollRatio = proposedState == .collapsed
-            ? headerAutoScrollThresholdRatio
-            : 1.0 - headerAutoScrollThresholdRatio
-
-        withAnimation(.spring()) {
-            if yOffset > headerPlaceholderHeight * headerAutoScrollRatio {
-                scrollViewProxy.scrollTo(collapsedHeaderScrollTargetIdentifier, anchor: .top)
-            } else {
-                scrollViewProxy.scrollTo(expandedHeaderScrollTargetIdentifier, anchor: .top)
-            }
-        }
     }
 
     /// Calculates height for the ScrollView footer, which allows the ScrollView header
     /// to collapse when there is not enough content in the ScrollView.
-    func scrollViewFooterHeight(
+    func footerViewHeight(
         viewportSize: CGSize,
         contentSize: CGSize
     ) -> CGFloat {

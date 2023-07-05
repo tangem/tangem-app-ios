@@ -25,7 +25,7 @@ struct CardInfoPagePreviewView: View {
             // `LazyVStack` is still lazy while being wrapped in this way.
             VStack(spacing: 0.0) {
                 LazyVStack(spacing: 0.0) {
-                    scrollViewConnector.placeholderView
+                    scrollViewConnector.headerPlaceholderView
 
                     Spacer(minLength: Constants.spacerHeight)
 
@@ -68,7 +68,7 @@ struct CardInfoPagePreviewView: View {
                 // An empty space at the bottom, adds enough room for the header to collapse
                 // when there is not enough content in the ScrollView
                 Spacer(
-                    minLength: scrollViewConnector.scrollViewFooterHeight(
+                    minLength: scrollViewConnector.footerViewHeight(
                         viewportSize: viewportSize,
                         contentSize: contentSize
                     )
