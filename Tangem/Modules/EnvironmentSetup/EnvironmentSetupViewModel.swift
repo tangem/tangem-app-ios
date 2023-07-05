@@ -21,6 +21,7 @@ final class EnvironmentSetupViewModel: ObservableObject {
     // Promotion
     @Published var currentPromoCode: String = ""
     @Published var finishedPromotionNames: String = ""
+    @Published var awardedPromotionNames: String = ""
 
     // MARK: - Dependencies
 
@@ -88,6 +89,8 @@ final class EnvironmentSetupViewModel: ObservableObject {
         updateCurrentPromoCode()
 
         updateFinishedPromotionNames()
+
+        updateAwardedPromotionNames()
     }
 
     func copyCurrentPromoCode() {
@@ -117,6 +120,8 @@ final class EnvironmentSetupViewModel: ObservableObject {
             DispatchQueue.main.async {
                 let feedbackGenerator = UINotificationFeedbackGenerator()
                 feedbackGenerator.notificationOccurred(success ? .success : .error)
+
+                self.updateAwardedPromotionNames()
             }
         }
     }
@@ -140,6 +145,15 @@ final class EnvironmentSetupViewModel: ObservableObject {
             self.finishedPromotionNames = "[none]"
         } else {
             self.finishedPromotionNames = promotionService.finishedPromotionNames().joined(separator: ", ")
+        }
+    }
+
+    private func updateAwardedPromotionNames() {
+        let awardedPromotionNames = promotionService.awardedPromotionNames()
+        if awardedPromotionNames.isEmpty {
+            self.awardedPromotionNames = "[none]"
+        } else {
+            self.awardedPromotionNames = awardedPromotionNames.joined(separator: ", ")
         }
     }
 }
