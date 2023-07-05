@@ -28,20 +28,21 @@ class CommonDerivationManager {
 
     private func bind() {
         userTokenListManager.userTokensPublisher
-            .sink { [weak self] entries in
-                self?.process(entries)
+            .combineLatest(keysRepository.keysPublisher)
+            .sink { [weak self] entries, keys in
+                self?.process(entries, keys)
             }
             .store(in: &bag)
     }
 
-    private func process(_ entries: [StorageEntry]) {
-        let currentKeys = keysRepository.keys
+    private func process(_ entries: [StorageEntry], _ keys: [CardDTO.Wallet]) {
+        pendingDerivations = [:]
 
         entries.forEach { entry in
             let curve = entry.blockchainNetwork.blockchain.curve
 
             guard let derivationPath = entry.blockchainNetwork.derivationPath,
-                  let masterKey = currentKeys.first(where: { $0.curve == curve }),
+                  let masterKey = keys.first(where: { $0.curve == curve }),
                   !masterKey.derivedKeys.keys.contains(derivationPath) else {
                 return
             }
