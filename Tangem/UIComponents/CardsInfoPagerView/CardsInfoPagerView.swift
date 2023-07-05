@@ -288,26 +288,30 @@ struct CardsInfoPagerView_Previews: PreviewProvider {
         @State private var selectedIndex = 0
 
         var body: some View {
-            ZStack {
-                Colors.Background.secondary
-                    .ignoresSafeArea()
+            NavigationView {
+                ZStack {
+                    Colors.Background.secondary
+                        .ignoresSafeArea()
 
-                CardsInfoPagerView(
-                    data: previewProvider.pages,
-                    selectedIndex: $selectedIndex,
-                    headerFactory: { pageViewModel in
-                        MultiWalletCardHeaderView(viewModel: pageViewModel.header)
-                            .cornerRadius(14.0)
-                    },
-                    contentFactory: { pageViewModel, scrollViewConnector in
-                        CardInfoPagePreviewView(
-                            viewModel: pageViewModel,
-                            scrollViewConnector: scrollViewConnector
-                        )
-                    }
-                )
-                .pageSwitchThreshold(0.4)
-                .contentViewVerticalOffset(64.0)
+                    CardsInfoPagerView(
+                        data: previewProvider.pages,
+                        selectedIndex: $selectedIndex,
+                        headerFactory: { pageViewModel in
+                            MultiWalletCardHeaderView(viewModel: pageViewModel.header)
+                                .cornerRadius(14.0)
+                        },
+                        contentFactory: { pageViewModel, scrollViewConnector in
+                            CardInfoPagePreviewView(
+                                viewModel: pageViewModel,
+                                scrollViewConnector: scrollViewConnector
+                            )
+                        }
+                    )
+                    .pageSwitchThreshold(0.4)
+                    .contentViewVerticalOffset(64.0)
+                    .navigationTitle("CardsInfoPagerView")
+                    .navigationBarTitleDisplayMode(.inline)
+                }
             }
         }
     }
