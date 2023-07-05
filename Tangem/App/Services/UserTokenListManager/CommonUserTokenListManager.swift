@@ -67,16 +67,7 @@ extension CommonUserTokenListManager: UserTokenListManager {
             updateTokensOnServer()
         }
     }
-
-//    func getEntriesFromRepository() -> [StorageEntry] {
-//        tokenItemsRepository.getItems()
-//    }
-//
-//    func clearRepository(completion: @escaping () -> Void) {
-//        tokenItemsRepository.removeAll()
-//        updateTokensOnServer()
-//    }
-
+    
     func updateLocalRepositoryFromServer(result: @escaping (Result<Void, Error>) -> Void) {
         guard hasTokenSynchronization else {
             result(.success(()))
