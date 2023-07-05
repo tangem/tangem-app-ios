@@ -10,16 +10,31 @@ import Foundation
 import Combine
 import BlockchainSdk
 
-// [REDACTED_TODO_COMMENT]
-
-class WalletModel: ObservableObject {
+class WalletModel {
     @Injected(\.tangemApiService) private var tangemApiService: TangemApiService
 
-    var walletDidChange: PassthroughSubject<WalletModel.State, Never> = .init()
+    var walletDidChange: AnyPublisher<WalletModel.State, Never> {
+        _state
+            .combineLatest(rates)
+            .map { $0.0 }
+            .eraseToAnyPublisher()
+    }
 
-    @Published var state: State = .created
-    @Published var transactionHistoryState: TransactionHistoryState = .notLoaded
-    @Published var rates: [String: Decimal] = [:]
+    var statePublisher: AnyPublisher<WalletModel.State, Never> {
+        _state.eraseToAnyPublisher()
+    }
+
+    var state: State {
+        _state.value
+    }
+
+    var transactionHistoryStatePublisher: AnyPublisher<TransactionHistoryState, Never> {
+        transactionHistoryState.eraseToAnyPublisher()
+    }
+
+    private var _state: CurrentValueSubject<State, Never> = .init(.created)
+    private var rates: CurrentValueSubject<[String: Decimal], Never> = .init([:])
+    private var transactionHistoryState: CurrentValueSubject<TransactionHistoryState, Never> = .init(.notLoaded)
 
     var tokenItem: TokenItem {
         switch amountType {
@@ -67,7 +82,7 @@ class WalletModel: ObservableObject {
 
     var rate: String {
         guard let currencyId = currencyId(for: amountType),
-              let rate = rates[currencyId] else {
+              let rate = rates.value[currencyId] else {
             return ""
         }
 
@@ -173,12 +188,11 @@ class WalletModel: ObservableObject {
     let amountType: Amount.AmountType
     let isCustom: Bool
 
-    private var latestUpdateTime: Date?
-    private var updatePublisher: PassthroughSubject<Void, Error>?
     private var updateTimer: AnyCancellable?
-    private var updateWalletModelBag: AnyCancellable?
     private var txHistoryUpdateSubscription: AnyCancellable?
+    private var updateWalletModelBag: AnyCancellable?
     private var bag = Set<AnyCancellable>()
+    private var updatePublisher: PassthroughSubject<Void, Error>?
     private var updateQueue = DispatchQueue(label: "walletModel_update_queue")
 
     deinit {
@@ -211,12 +225,11 @@ class WalletModel: ObservableObject {
             .receiveValue { [weak self] in self?.updateRatesIfNeeded($0) }
             .store(in: &bag)
 
-        $state.dropFirst()
-            .combineLatest($rates.dropFirst())
-            .map { $0.0 } // Move on latest value state
-            .delay(for: 0.3, scheduler: DispatchQueue.main)
-            .receiveValue { [weak self] value in
-                self?.walletDidChange.send(value)
+        walletManager.updatePublisher()
+            .filter { !$0.isInitialState }
+            .receive(on: updateQueue)
+            .sink { [weak self] newState in
+                self?.walletManagerDidUpdate(newState)
             }
             .store(in: &bag)
     }
@@ -235,30 +248,21 @@ class WalletModel: ObservableObject {
         let newUpdatePublisher = PassthroughSubject<Void, Error>()
         updatePublisher = newUpdatePublisher
 
-        // Check if time interval after latest update not enough
-        guard checkLatestUpdateTime(silent: silent) else {
-            return newUpdatePublisher.eraseToAnyPublisher()
-        }
-
         if case .loading = state {
             return newUpdatePublisher.eraseToAnyPublisher()
         }
+
+        AppLog.shared.debug("🔄 Updating wallet manager for \(name)")
 
         if !silent {
             updateState(.loading)
         }
 
-        updateWalletModelBag = updateWalletManager()
-            .receive(on: updateQueue)
-            .flatMap { [weak self] result -> AnyPublisher<(WalletManagerUpdateResult, [String: Decimal]), Error> in
-                guard let self else {
-                    return .anyFail(error: CommonError.objectReleased)
-                }
-
-                return loadRates()
-                    .map { (result, $0) }
-                    .eraseToAnyPublisher()
-            }
+        updateWalletModelBag = walletManager
+            .updatePublisher()
+            .filter { !$0.isInitialState }
+            .setFailureType(to: Error.self)
+            .combineLatest(loadRates())
             .receive(on: updateQueue)
             .sink { [weak self] completion in
                 guard let self, case .failure(let error) = completion else { return }
@@ -269,73 +273,42 @@ class WalletModel: ObservableObject {
                 updatePublisher?.send(completion: .failure(error))
                 updatePublisher = nil
 
-            } receiveValue: { [weak self] updatedResult, rates in
+            } receiveValue: { [weak self] _, rates in
                 guard let self else { return }
 
                 updateRatesIfNeeded(rates)
-
-                switch updatedResult {
-                case .noAccount(let message):
-                    updateState(.noAccount(message: message))
-                case .success:
-                    updateState(.idle)
-                }
 
                 updatePublisher?.send(())
                 updatePublisher?.send(completion: .finished)
                 updatePublisher = nil
             }
 
+        walletManager.update()
         return newUpdatePublisher.eraseToAnyPublisher()
     }
 
-    func updateWalletManager() -> AnyPublisher<WalletManagerUpdateResult, Error> {
-        Future { promise in
-            self.updateQueue.sync {
-                AppLog.shared.debug("🔄 Updating wallet model for \(self.wallet.blockchain)")
-                self.walletManager.update { [weak self] result in
-                    let blockchainName = self?.wallet.blockchain.displayName ?? ""
-                    AppLog.shared.debug("🔄 Finished updating wallet model for \(blockchainName) result: \(result)")
+    private func walletManagerDidUpdate(_ walletManagerState: WalletManagerState) {
+        switch walletManagerState {
+        case .loaded:
+            AppLog.shared.debug("🔄 Finished updating wallet model for \(name) ")
 
-                    switch result {
-                    case .success:
-                        self?.latestUpdateTime = Date()
-
-                        if let demoBalance = self?.demoBalance {
-                            self?.walletManager.wallet.add(coinValue: demoBalance)
-                        }
-
-                        promise(.success(.success))
-
-                    case .failure(let error):
-                        switch error as? WalletError {
-                        case .noAccount(let message):
-                            promise(.success(.noAccount(message: message)))
-                        default:
-                            promise(.failure(error.detailedError))
-                        }
-                    }
-                }
+            if let demoBalance {
+                walletManager.wallet.add(coinValue: demoBalance)
             }
+            updateState(.idle)
+        case .failed(let error):
+            AppLog.shared.debug("🔄 Failed updating wallet model for \(name) ")
+            switch error as? WalletError {
+            case .noAccount(let message):
+                updateState(.noAccount(message: message))
+            default:
+                updateState(.failed(error: error.detailedError.localizedDescription))
+            }
+        case .loading:
+            updateState(.loading)
+        case .initial:
+            break
         }
-        .eraseToAnyPublisher()
-    }
-
-    // [REDACTED_TODO_COMMENT]
-    private func checkLatestUpdateTime(silent: Bool) -> Bool {
-        guard let latestUpdateTime = latestUpdateTime,
-              latestUpdateTime.distance(to: Date()) <= 10 else {
-            return true
-        }
-
-        if !silent {
-            state = .idle
-        }
-
-        updatePublisher?.send(())
-        updatePublisher?.send(completion: .finished)
-        updatePublisher = nil
-        return false
     }
 
     private func updateState(_ state: State) {
@@ -346,7 +319,7 @@ class WalletModel: ObservableObject {
 
         AppLog.shared.debug("🔄 Update state \(state) in WalletModel: \(blockchainNetwork.blockchain.displayName)")
         DispatchQueue.main.async { [weak self] in // captured as weak at call stack
-            self?.state = state
+            self?._state.value = state
         }
     }
 
@@ -366,19 +339,19 @@ class WalletModel: ObservableObject {
     }
 
     func updateRatesIfNeeded(_ rates: [String: Decimal]) {
-        if !self.rates.isEmpty, rates.isEmpty {
+        if !self.rates.value.isEmpty, rates.isEmpty {
             AppLog.shared.debug("🔴 New rates for \(wallet.blockchain) isEmpty")
             return
         }
 
         AppLog.shared.debug("🔄 Update rates for \(wallet.blockchain)")
         DispatchQueue.main.async {
-            self.rates = rates
+            self.rates.value = rates
         }
     }
 
     func startUpdatingTimer() {
-        latestUpdateTime = nil
+        walletManager.setNeedsUpdate()
         AppLog.shared.debug("⏰ Starting updating timer for Wallet model")
         updateTimer = Timer.TimerPublisher(
             interval: 10.0,
@@ -392,10 +365,6 @@ class WalletModel: ObservableObject {
             self?.update(silent: false)
             self?.updateTimer?.cancel()
         }
-    }
-
-    func setNeedsUpdate() {
-        latestUpdateTime = nil
     }
 
     func send(_ tx: Transaction, signer: TangemSigner) -> AnyPublisher<Void, Error> {
@@ -454,7 +423,7 @@ extension WalletModel {
 
     func getFiat(for value: Decimal, currencyId: String?, roundingType: AmountRoundingType) -> Decimal? {
         if let currencyId = currencyId,
-           let rate = rates[currencyId] {
+           let rate = rates.value[currencyId] {
             let fiatValue = value * rate
             if fiatValue == 0 {
                 return 0
@@ -478,7 +447,7 @@ extension WalletModel {
             return nil
         }
 
-        if let rate = rates[currencyId] {
+        if let rate = rates.value[currencyId] {
             return (amount.value / rate).rounded(scale: amount.decimals)
         }
         return nil
@@ -519,7 +488,7 @@ extension WalletModel {
             let historyLoader = walletManager as? TransactionHistoryLoader
         else {
             DispatchQueue.main.async {
-                self.transactionHistoryState = .notSupported
+                self.transactionHistoryState.value = .notSupported
             }
             return .justWithError(output: ())
         }
@@ -528,18 +497,18 @@ extension WalletModel {
             return .justWithError(output: ())
         }
 
-        transactionHistoryState = .loading
+        transactionHistoryState.value = .loading
         let historyPublisher = historyLoader.loadTransactionHistory()
         txHistoryUpdateSubscription = historyPublisher
             .receive(on: DispatchQueue.main)
             .sink { [weak self] completion in
                 if case .failure(let error) = completion {
                     AppLog.shared.debug("🔄 Failed to load transaction history. Error: \(error)")
-                    self?.transactionHistoryState = .failedToLoad(error)
+                    self?.transactionHistoryState.value = .failedToLoad(error)
                 }
                 self?.txHistoryUpdateSubscription = nil
             } receiveValue: { [weak self] _ in
-                self?.transactionHistoryState = .loaded
+                self?.transactionHistoryState.value = .loaded
             }
 
         return historyPublisher
@@ -557,33 +526,33 @@ extension WalletModel {
             return .anyFail(error: "Can't use fake history")
         }
 
-        switch transactionHistoryState {
+        switch transactionHistoryState.value {
         case .notLoaded, .notSupported:
-            transactionHistoryState = .loading
+            transactionHistoryState.value = .loading
             return Just(())
                 .delay(for: 5, scheduler: DispatchQueue.main)
                 .map {
-                    self.transactionHistoryState = .failedToLoad("Failed to load tx history")
+                    self.transactionHistoryState.value = .failedToLoad("Failed to load tx history")
                     return ()
                 }
                 .eraseError()
                 .eraseToAnyPublisher()
         case .failedToLoad:
-            transactionHistoryState = .loading
+            transactionHistoryState.value = .loading
             return Just(())
                 .delay(for: 5, scheduler: DispatchQueue.main)
                 .map {
-                    self.transactionHistoryState = .loaded
+                    self.transactionHistoryState.value = .loaded
                     return ()
                 }
                 .eraseError()
                 .eraseToAnyPublisher()
         case .loaded:
-            transactionHistoryState = .loading
+            transactionHistoryState.value = .loading
             return Just(())
                 .delay(for: 5, scheduler: DispatchQueue.main)
                 .map {
-                    self.transactionHistoryState = .notSupported
+                    self.transactionHistoryState.value = .notSupported
                     return ()
                 }
                 .eraseError()
@@ -592,7 +561,7 @@ extension WalletModel {
             return Just(())
                 .delay(for: 5, scheduler: DispatchQueue.main)
                 .map {
-                    self.transactionHistoryState = .loaded
+                    self.transactionHistoryState.value = .loaded
                     return ()
                 }
                 .eraseError()

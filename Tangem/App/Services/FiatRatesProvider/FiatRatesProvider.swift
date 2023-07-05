@@ -9,6 +9,7 @@
 import Foundation
 import TangemSwapping
 
+// [REDACTED_TODO_COMMENT]
 class FiatRatesProvider {
     @Injected(\.tangemApiService) private var tangemApiService: TangemApiService
 
@@ -18,7 +19,7 @@ class FiatRatesProvider {
     )
 
     /// Collect rates for calculate fiat balance
-    private var _rates: [String: Decimal]
+    private var _rates: [String: Decimal] = [:]
     private var rates: [String: Decimal] {
         get {
             return ratesQueue.sync { _rates }
@@ -26,14 +27,6 @@ class FiatRatesProvider {
         set {
             ratesQueue.async(flags: .barrier) { self._rates = newValue }
         }
-    }
-
-    // [REDACTED_TODO_COMMENT]
-    private let walletModel: WalletModel
-
-    init(walletModel: WalletModel, rates: [String: Decimal]) {
-        self.walletModel = walletModel
-        _rates = rates
     }
 }
 
@@ -118,13 +111,5 @@ private extension FiatRatesProvider {
 
     func updateRate(for currencyId: String, with value: Decimal) {
         rates[currencyId] = value
-
-        DispatchQueue.main.async {
-            // We get "UI from background warning" here
-            // because "walletModel.rates" work with @Published wrapper
-            self.rates.forEach { key, value in
-                self.walletModel.rates.updateValue(value, forKey: key)
-            }
-        }
     }
 }
