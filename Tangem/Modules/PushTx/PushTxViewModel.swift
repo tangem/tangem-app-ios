@@ -165,14 +165,6 @@ class PushTxViewModel: ObservableObject {
 
         bag.removeAll()
 
-        walletModel
-            .$rates
-            .map { [unowned self] newRates -> Bool in
-                return newRates[amountToSend.currencySymbol] != nil
-            }
-            .weakAssign(to: \.canFiatCalculation, on: self)
-            .store(in: &bag)
-
         $isFiatCalculation
             .sink { [unowned self] isFiat in
                 fillPreviousTxInfo(isFiat: isFiat)
