@@ -101,7 +101,7 @@ class LegacyMainViewModel: ObservableObject {
     }
 
     var wallet: Wallet? {
-        singleWalletContentViewModel?.singleWalletModel?.wallet
+        singleWalletContentViewModel?.singleWalletModel.wallet
     }
 
     var currencyCode: String {
