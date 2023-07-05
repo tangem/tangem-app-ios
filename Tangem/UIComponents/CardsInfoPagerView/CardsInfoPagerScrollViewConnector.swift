@@ -40,7 +40,7 @@ struct CardsInfoPagerScrollViewConnector: CardsInfoPagerScrollViewConnectable {
     func performScrollIfNeeded(with scrollViewProxy: ScrollViewProxy) {
         let yOffset = contentOffset.wrappedValue.y - headerPlaceholderTopInset
 
-        guard yOffset > 0.0 else { return }
+        guard 0.0 ..< headerPlaceholderHeight ~= yOffset else { return }
 
         withAnimation(.spring()) {
             if yOffset > headerPlaceholderHeight / 2.0 {
@@ -49,5 +49,21 @@ struct CardsInfoPagerScrollViewConnector: CardsInfoPagerScrollViewConnectable {
                 scrollViewProxy.scrollTo(expandedHeaderScrollTargetIdentifier, anchor: .top)
             }
         }
+    }
+
+    /// Calculates height for the ScrollView footer, which allows the ScrollView header
+    /// to collapse when there is not enough content in the ScrollView.
+    func scrollViewFooterHeight(
+        viewportSize: CGSize,
+        contentSize: CGSize
+    ) -> CGFloat {
+        let minContentSizeHeight = viewportSize.height + .ulpOfOne
+        let maxContentSizeHeight = viewportSize.height + headerPlaceholderHeight + headerPlaceholderTopInset
+
+        if (minContentSizeHeight ..< maxContentSizeHeight) ~= contentSize.height {
+            return maxContentSizeHeight - contentSize.height
+        }
+
+        return 0.0
     }
 }

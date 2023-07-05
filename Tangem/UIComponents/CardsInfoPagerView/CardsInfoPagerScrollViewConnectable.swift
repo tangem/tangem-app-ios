@@ -8,10 +8,11 @@
 
 import SwiftUI
 
-// [REDACTED_TODO_COMMENT]
 protocol CardsInfoPagerScrollViewConnectable {
     associatedtype PlaceholderView: View
 
     var contentOffset: Binding<CGPoint> { get }
     var placeholderView: PlaceholderView { get }
+
+    func scrollViewFooterHeight(viewportSize: CGSize, contentSize: CGSize) -> CGFloat
 }
