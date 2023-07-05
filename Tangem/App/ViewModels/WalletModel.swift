@@ -11,12 +11,12 @@ import Combine
 import BlockchainSdk
 
 class WalletModel {
-    @Injected(\.tangemApiService) private var tangemApiService: TangemApiService
+    @Injected(\.ratesRepository) private var ratesRepository: RatesRepository
 
     /// Listen all changes
     var walletDidChange: AnyPublisher<WalletModel.State, Never> {
         _state
-            .combineLatest(rates)
+            .combineLatest(_rate)
             .map { $0.0 }
             .eraseToAnyPublisher()
     }
@@ -36,8 +36,16 @@ class WalletModel {
     }
 
     private var _state: CurrentValueSubject<State, Never> = .init(.created)
-    private var rates: CurrentValueSubject<[String: Decimal], Never> = .init([:])
+    private var _rate: CurrentValueSubject<Decimal?, Never> = .init(nil)
     private var _transactionsHistory: CurrentValueSubject<TransactionHistoryState, Never> = .init(.notLoaded)
+
+    private var rate: Decimal? {
+        guard let currencyId = tokenItem.currencyId else {
+            return nil
+        }
+
+        return ratesRepository.rates[currencyId]
+    }
 
     var tokenItem: TokenItem {
         switch amountType {
@@ -79,20 +87,15 @@ class WalletModel {
         return getFiatFormatted(for: amount, roundingType: .defaultFiat(roundingMode: .plain)) ?? "–"
     }
 
-    var fiatValue: Decimal {
-        getFiat(for: wallet.amounts[amountType], roundingType: .defaultFiat(roundingMode: .plain)) ?? 0
+    var fiatValue: Decimal? {
+        getFiat(for: wallet.amounts[amountType], roundingType: .defaultFiat(roundingMode: .plain))
     }
 
-    var rate: String {
-        guard let currencyId = currencyId(for: amountType),
-              let rate = rates.value[currencyId] else {
-            return ""
-        }
-
-        return rate.currencyFormatted(
+    var rateFormatted: String {
+        return rate?.currencyFormatted(
             code: AppSettings.shared.selectedCurrencyCode,
             maximumFractionDigits: 2
-        )
+        ) ?? ""
     }
 
     var hasPendingTx: Bool {
@@ -166,10 +169,6 @@ class WalletModel {
         return .init(wallet.blockchain, derivationPath: wallet.publicKey.derivationPath)
     }
 
-    var currencyId: String? {
-        currencyId(for: amountType)
-    }
-
     var qrReceiveMessage: String {
         // [REDACTED_TODO_COMMENT]
         let symbol = wallet.amounts[amountType]?.currencySymbol ?? wallet.blockchain.currencySymbol
@@ -220,12 +219,9 @@ class WalletModel {
             .delay(for: 0.3, scheduler: DispatchQueue.main)
             .dropFirst()
             .receive(on: updateQueue)
-            .setFailureType(to: Error.self)
-            .flatMap { [weak self] _ in
-                self?.loadRates() ?? .justWithError(output: [:])
+            .receiveValue { [weak self] _ in
+                self?.loadRates()
             }
-            .receive(on: updateQueue)
-            .receiveValue { [weak self] in self?.updateRatesIfNeeded($0) }
             .store(in: &bag)
 
         walletManager.updatePublisher()
@@ -233,6 +229,22 @@ class WalletModel {
             .receive(on: updateQueue)
             .sink { [weak self] newState in
                 self?.walletManagerDidUpdate(newState)
+            }
+            .store(in: &bag)
+
+        ratesRepository
+            .ratesPublisher
+            .compactMap { [tokenItem] rates -> Decimal? in
+                guard let currencyId = tokenItem.currencyId else { return nil }
+
+                return rates[currencyId]
+            }
+            .removeDuplicates()
+            .sink { [weak self] rate in
+                guard let self else { return }
+
+                AppLog.shared.debug("🔄 Rate updated for \(name)")
+                _rate.send(rate)
             }
             .store(in: &bag)
     }
@@ -255,52 +267,56 @@ class WalletModel {
             return newUpdatePublisher.eraseToAnyPublisher()
         }
 
-        AppLog.shared.debug("🔄 Updating wallet manager for \(name)")
+        AppLog.shared.debug("🔄 Start updating wallet manager for \(name)")
 
         if !silent {
             updateState(.loading)
         }
 
-        updateWalletModelBag = walletManager
+        let walletUpdatePublisher = walletManager
             .updatePublisher()
-            .filter { !$0.isInitialState }
+            .handleEvents(receiveOutput: { _ in
+                AppLog.shared.debug("🔄 !!! \(self.name)")
+            })
             .setFailureType(to: Error.self)
+            .eraseToAnyPublisher()
+
+        updateWalletModelBag = walletUpdatePublisher
             .combineLatest(loadRates())
             .receive(on: updateQueue)
             .sink { [weak self] completion in
                 guard let self, case .failure(let error) = completion else { return }
 
+                AppLog.shared.debug("🔄 Finished common update for \(name) with error")
+
                 AppLog.shared.error(error)
-                updateRatesIfNeeded([:])
-                updateState(.failed(error: error.localizedDescription))
                 updatePublisher?.send(completion: .failure(error))
                 updatePublisher = nil
 
-            } receiveValue: { [weak self] _, rates in
+            } receiveValue: { [weak self] _ in
                 guard let self else { return }
 
-                updateRatesIfNeeded(rates)
+                AppLog.shared.debug("🔄 Finished common update for \(name)")
 
                 updatePublisher?.send(())
                 updatePublisher?.send(completion: .finished)
                 updatePublisher = nil
             }
 
-        walletManager.update()
         return newUpdatePublisher.eraseToAnyPublisher()
     }
 
     private func walletManagerDidUpdate(_ walletManagerState: WalletManagerState) {
         switch walletManagerState {
         case .loaded:
-            AppLog.shared.debug("🔄 Finished updating wallet model for \(name) ")
+            AppLog.shared.debug("🔄 Finished updating wallet model for \(name)")
 
             if let demoBalance {
                 walletManager.wallet.add(coinValue: demoBalance)
             }
             updateState(.idle)
         case .failed(let error):
-            AppLog.shared.debug("🔄 Failed updating wallet model for \(name) ")
+            AppLog.shared.debug("🔄 Failed updating wallet model for \(name)")
             switch error as? WalletError {
             case .noAccount(let message):
                 updateState(.noAccount(message: message))
@@ -328,29 +344,18 @@ class WalletModel {
 
     // MARK: - Load Rates
 
+    @discardableResult
     private func loadRates() -> AnyPublisher<[String: Decimal], Error> {
-        var currenciesToExchange = [walletManager.wallet.blockchain.currencyId]
-        currenciesToExchange += walletManager.cardTokens.compactMap { $0.id }
+        guard let currencyId = tokenItem.currencyId else {
+            return .justWithError(output: [:])
+        }
 
         AppLog.shared.debug("🔄 Start loading rates for \(wallet.blockchain)")
 
-        return tangemApiService
-            .loadRates(for: currenciesToExchange)
-            .replaceError(with: [:])
+        return ratesRepository
+            .loadRates(coinIds: [currencyId])
             .setFailureType(to: Error.self)
             .eraseToAnyPublisher()
-    }
-
-    func updateRatesIfNeeded(_ rates: [String: Decimal]) {
-        if !self.rates.value.isEmpty, rates.isEmpty {
-            AppLog.shared.debug("🔴 New rates for \(wallet.blockchain) isEmpty")
-            return
-        }
-
-        AppLog.shared.debug("🔄 Update rates for \(wallet.blockchain)")
-        DispatchQueue.main.async {
-            self.rates.value = rates
-        }
     }
 
     func startUpdatingTimer() {
@@ -404,29 +409,19 @@ class WalletModel {
 // MARK: - Helpers
 
 extension WalletModel {
-    private func currencyId(for amount: Amount.AmountType) -> String? {
-        switch amount {
-        case .coin, .reserve:
-            return walletManager.wallet.blockchain.currencyId
-        case .token(let token):
-            return token.id
-        }
-    }
-
     func getFiatFormatted(for amount: Amount?, roundingType: AmountRoundingType) -> String? {
         return getFiat(for: amount, roundingType: roundingType)?.currencyFormatted(code: AppSettings.shared.selectedCurrencyCode)
     }
 
     func getFiat(for amount: Amount?, roundingType: AmountRoundingType) -> Decimal? {
         if let amount = amount {
-            return getFiat(for: amount.value, currencyId: currencyId(for: amount.type), roundingType: roundingType)
+            return getFiat(for: amount.value, roundingType: roundingType)
         }
         return nil
     }
 
-    func getFiat(for value: Decimal, currencyId: String?, roundingType: AmountRoundingType) -> Decimal? {
-        if let currencyId = currencyId,
-           let rate = rates.value[currencyId] {
+    func getFiat(for value: Decimal, roundingType: AmountRoundingType) -> Decimal? {
+        if let rate {
             let fiatValue = value * rate
             if fiatValue == 0 {
                 return 0
@@ -443,14 +438,9 @@ extension WalletModel {
     }
 
     func getCrypto(for amount: Amount?) -> Decimal? {
-        guard
-            let amount = amount,
-            let currencyId = currencyId(for: amount.type)
-        else {
-            return nil
-        }
+        guard let amount = amount else { return nil }
 
-        if let rate = rates.value[currencyId] {
+        if let rate {
             return (amount.value / rate).rounded(scale: amount.decimals)
         }
         return nil
