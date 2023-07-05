@@ -14,7 +14,7 @@ import SwiftUI
 struct CardsInfoPageHeaderPlaceholderView: View {
     @Environment(\.cardsInfoPageHeaderPlaceholderHeight) private var headerPlaceholderHeight
 
-    // `any Hashable` doesn't compile here for no obvious reason
+    // `any Hashable` won't compile in the view's body because `ViewBuilder` requires concrete types
     let expandedHeaderScrollTargetIdentifier: AnyHashable
     let collapsedHeaderScrollTargetIdentifier: AnyHashable
 
