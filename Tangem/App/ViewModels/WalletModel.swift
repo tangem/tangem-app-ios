@@ -686,20 +686,20 @@ extension WalletModel {
 
 extension WalletModel: Equatable {
     static func == (lhs: WalletModel, rhs: WalletModel) -> Bool {
-        lhs.hashValue == rhs.hashValue
-    }
-}
-
-extension WalletModel: Hashable {
-    func hash(into hasher: inout Hasher) {
-        hasher.combine(blockchainNetwork)
-        hasher.combine(amountType)
+        lhs.id == rhs.id
     }
 }
 
 extension WalletModel: Identifiable {
     var id: Int {
-        hashValue
+        Id(blockchainNetwork: blockchainNetwork, amountType: amountType).id
+    }
+}
+
+extension WalletModel: Hashable {
+    func hash(into hasher: inout Hasher) {
+        let id = Id(blockchainNetwork: blockchainNetwork, amountType: amountType)
+        id.hash(into: &hasher)
     }
 }
 
@@ -710,5 +710,19 @@ extension WalletModel {
         case loading
         case failedToLoad(Error)
         case loaded
+    }
+}
+
+extension WalletModel {
+    struct Id: Hashable, Identifiable {
+        var id: Int { hashValue }
+
+        let blockchainNetwork: BlockchainNetwork
+        let amountType: Amount.AmountType
+
+        func hash(into hasher: inout Hasher) {
+            hasher.combine(blockchainNetwork)
+            hasher.combine(amountType)
+        }
     }
 }
