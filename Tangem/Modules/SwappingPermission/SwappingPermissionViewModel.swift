@@ -58,15 +58,15 @@ final class SwappingPermissionViewModel: ObservableObject, Identifiable {
             ]
         )
 
-        Task {
+        runTask(in: self) { root in
             do {
-                _ = try await transactionSender.sendTransaction(data)
-                await didSendApproveTransaction(transactionData: data)
+                _ = try await root.transactionSender.sendTransaction(data)
+                await root.didSendApproveTransaction(transactionData: data)
             } catch TangemSdkError.userCancelled {
                 // Do nothing
             } catch {
                 await runOnMain {
-                    errorAlert = AlertBinder(title: Localization.commonError, message: error.localizedDescription)
+                    root.errorAlert = AlertBinder(title: Localization.commonError, message: error.localizedDescription)
                 }
             }
         }
