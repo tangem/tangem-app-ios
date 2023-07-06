@@ -68,7 +68,14 @@ extension PromotionService: PromotionServiceProtocol {
                 let promotionActive = (cardParameters.status == .active)
                 let alreadyClaimedAward = await alreadyClaimedAward(userWalletId: userWalletId)
 
-                promotionAvailable = promotionActive && !alreadyClaimedAward
+                let canClaimAwardBasedOnWalletPurchase: Bool
+                if let promoCode, let userWalletId {
+                    canClaimAwardBasedOnWalletPurchase = await hasPurchaseForPromoCode(promoCode, userWalletId: userWalletId)
+                } else {
+                    canClaimAwardBasedOnWalletPurchase = true
+                }
+
+                promotionAvailable = promotionActive && !alreadyClaimedAward && canClaimAwardBasedOnWalletPurchase
 
                 if cardParameters.status == .finished {
                     markCurrentPromotionAsFinished(true)
@@ -110,8 +117,10 @@ extension PromotionService: PromotionServiceProtocol {
         }
     }
 
-    func claimReward(userWalletId: String, storageEntryAdding: StorageEntryAdding) async throws -> Bool {
-        guard let address = try await rewardAddress(storageEntryAdding: storageEntryAdding) else { return false }
+    func claimReward(userWalletId: String, storageEntryAdding: StorageEntryAdding) async throws -> Blockchain? {
+        guard let awardDetails = try await awardDetails(storageEntryAdding: storageEntryAdding) else { return nil }
+
+        let address = awardDetails.address
 
         if let promoCode {
             try await tangemApiService.awardNewUser(walletId: userWalletId, address: address, code: promoCode)
@@ -122,7 +131,7 @@ extension PromotionService: PromotionServiceProtocol {
         markCurrentPromotionAsFinished(true)
         markCurrentPromotionAsAwarded(true)
 
-        return true
+        return awardDetails.blockchain
     }
 
     func awardedPromotionNames() -> Set<String> {
@@ -165,7 +174,12 @@ extension PromotionService: PromotionServiceProtocol {
 }
 
 extension PromotionService {
-    private func rewardAddress(storageEntryAdding: StorageEntryAdding) async throws -> String? {
+    private struct AwardDetails {
+        let blockchain: Blockchain
+        let address: String
+    }
+
+    private func awardDetails(storageEntryAdding: StorageEntryAdding) async throws -> AwardDetails? {
         let promotion = try await tangemApiService.promotion(programName: currentProgramName, timeout: nil)
 
         guard
@@ -180,7 +194,8 @@ extension PromotionService {
         let entry = StorageEntry(blockchainNetwork: blockchainNetwork, token: awardToken)
 
         do {
-            return try await storageEntryAdding.add(entry: entry)
+            let address = try await storageEntryAdding.add(entry: entry)
+            return AwardDetails(blockchain: awardBlockchain, address: address)
         } catch {
             if error.toTangemSdkError().isUserCancelled {
                 return nil
@@ -213,6 +228,17 @@ extension PromotionService {
             default:
                 return false
             }
+        }
+    }
+
+    private func hasPurchaseForPromoCode(_ promoCode: String, userWalletId: String) async -> Bool {
+        do {
+            let result = try await tangemApiService.validateNewUserPromotionEligibility(walletId: userWalletId, code: promoCode)
+            let canGetAward = result.valid
+            return canGetAward
+        } catch {
+            // We only care about promotionCodeNotApplied error but it does not make sense to treat other errors differently
+            return false
         }
     }
 
