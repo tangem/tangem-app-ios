@@ -203,6 +203,7 @@ final class WalletConnectV2Service {
         do {
             let sessionNamespaces = try utils.createSessionNamespaces(
                 from: proposal.requiredNamespaces,
+                optionalNamespaces: proposal.optionalNamespaces,
                 for: infoProvider.walletModels
             )
             displaySessionConnectionUI(for: proposal, namespaces: sessionNamespaces)
@@ -309,7 +310,9 @@ final class WalletConnectV2Service {
             log("Receive result from user \(result) for \(logSuffix)")
             try await signApi.respond(topic: session.topic, requestId: request.id, response: result)
         } catch let error as WalletConnectV2Error {
-            displayErrorUI(error)
+            if case .unsupportedWCMethod = error {} else {
+                displayErrorUI(error)
+            }
             await respond(with: error)
         } catch {
             let wcError: WalletConnectV2Error = .unknown(error.localizedDescription)
