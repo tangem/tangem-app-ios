@@ -43,16 +43,6 @@ struct SwappingFeeRowView: View {
                 .frame(width: 100, height: 11)
                 .cornerRadiusContinuous(3)
 
-        case .fee(let fee):
-            HStack(spacing: 4) {
-                Text(fee)
-                    .style(Fonts.Regular.footnote, color: Colors.Text.primary1)
-
-                Assets.chevronDownMini.image
-                    .renderingMode(.template)
-                    .foregroundColor(Colors.Icon.informative)
-                    .rotationEffect(.degrees(viewModel.isShowingDisclaimer.value ? -180 : 0))
-            }
         case .policy(let title, let fiat):
             HStack(spacing: 4) {
                 HStack(spacing: 0) {
@@ -82,7 +72,7 @@ struct SwappingFeeRowView_Previews: PreviewProvider {
 
                 GroupedSection([
                     SwappingFeeRowViewModel(
-                        state: .fee(fee: "0.0000000000155 MATIC ($0.14)"),
+                        state: .policy(title: "Normal", fiat: "0.0000000000155 MATIC ($0.14)"),
                         isShowingDisclaimer: $isShowingDisclaimer.asBindingValue
                     ),
                     SwappingFeeRowViewModel(
