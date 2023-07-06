@@ -168,13 +168,13 @@ final class SwappingViewModel: ObservableObject {
             swapItems()
         case .givePermission:
             Analytics.log(.swapButtonGivePermission)
-            openPermissionView()
+            openApproveView()
         case .insufficientFunds:
             assertionFailure("Button should be disabled")
         }
     }
 
-    func didClosePermissionSheet() {
+    func didCloseApproveSheet() {
         restartTimer()
     }
 
@@ -213,7 +213,7 @@ private extension SwappingViewModel {
         coordinator.presentSuccessView(inputModel: inputModel)
     }
 
-    func openPermissionView() {
+    func openApproveView() {
         let state = swappingInteractor.getAvailabilityState()
 
         guard case .available(let model) = state, model.restrictions.isPermissionRequired else {
