@@ -28,7 +28,6 @@ extension SwappingFeeRowViewModel {
     enum State: Hashable {
         case idle
         case loading
-        case fee(fee: String)
         case policy(title: String, fiat: String)
 
         var isLoading: Bool {
