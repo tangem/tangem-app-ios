@@ -100,8 +100,8 @@ extension SwappingInteractor {
 
         AppLog.shared.debug("[Swap] SwappingInteractor start refreshing task")
         updateState(.loading(type))
-        updateStateTask = Task {
-            await updateState(swappingManager.refresh(type: type))
+        updateStateTask = runTask(in: self) { root in
+            await root.updateState(root.swappingManager.refresh(type: type))
         }
     }
 
