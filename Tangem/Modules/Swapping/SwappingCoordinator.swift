@@ -109,6 +109,6 @@ extension SwappingCoordinator: SwappingApproveRoutable {
 
     func userDidCancel() {
         swappingApproveViewModel = nil
-        rootViewModel?.didClosePermissionSheet()
+        rootViewModel?.didCloseApproveSheet()
     }
 }
