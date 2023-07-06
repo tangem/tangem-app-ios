@@ -15,7 +15,6 @@ enum Feature: String, Hashable, CaseIterable {
     case accessCodeRecoverySettings
     case disableFirmwareVersionLimit
     case abilityChooseCommissionRate
-    case abilityChooseApproveAmount
     case learnToEarn
     case tokenDetailsV2
     case enableBlockchainSdkEvents
@@ -28,7 +27,6 @@ enum Feature: String, Hashable, CaseIterable {
         case .accessCodeRecoverySettings: return "Access Code Recovery Settings"
         case .disableFirmwareVersionLimit: return "Disable firmware version limit"
         case .abilityChooseCommissionRate: return "Ability Choose Commission Rate"
-        case .abilityChooseApproveAmount: return "Ability Choose Approve Amount"
         case .learnToEarn: return "Learn to Earn"
         case .tokenDetailsV2: return "Token details 2.0"
         case .enableBlockchainSdkEvents: return "Enable send BlockchainSdk events"
@@ -43,7 +41,6 @@ enum Feature: String, Hashable, CaseIterable {
         case .accessCodeRecoverySettings: return .unspecified
         case .disableFirmwareVersionLimit: return .unspecified
         case .abilityChooseCommissionRate: return .version("4.6")
-        case .abilityChooseApproveAmount: return .version("4.6")
         case .learnToEarn: return .unspecified
         case .tokenDetailsV2: return .unspecified
         case .enableBlockchainSdkEvents: return .unspecified
