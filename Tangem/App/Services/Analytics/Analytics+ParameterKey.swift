@@ -56,5 +56,7 @@ extension Analytics {
         case exceptionHost = "exception_host"
         case selectedHost = "selected_host"
         case region
+        case clientType = "Client Type"
+        case programName = "Program Name"
     }
 }
