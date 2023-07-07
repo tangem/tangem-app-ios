@@ -75,6 +75,7 @@
 "common_explorer" = "Обозреватель";
 "common_explorer_format" = "%@ обозреватель";
 "common_import" = "Импортировать";
+"common_learn_and_earn" = "Учись и получай бонусы!";
 "common_like" = "Нравится";
 "common_main_network" = "Основная сеть";
 "common_no" = "Нет";
@@ -174,15 +175,13 @@
 "key_invalidated_warning_description" = "Вы обновили данные биометрии, отсканируйте свою карту для входа";
 "mail_error_no_accounts_body" = "Пожалуйста, настройте учетную запись для отправки электронной почты";
 "mail_error_no_accounts_title" = "Нет настроенных почтовых аккаунтов";
-"main_get_bonus_subtitle" = "Вы завершили обучение и можете получить свои токены 1inch";
-"main_get_bonus_title" = "Получите бонус";
-"main_learn_title" = "Бонус за обучение";
+"main_get_bonus_subtitle" = "Вы успешно прошли все уроки и теперь можете получить 1INCH токены";
 "main_manage_tokens" = "Управление токенами";
 "main_no_backup_warning_subtitle" = "Чтобы защитить свои активы, мы советуем вам выполнить эту процедуру";
 "main_no_backup_warning_title" = "Бэкап кошелька не был произведен";
 "main_page_balance" = "Баланс";
 "main_processing_full_amount" = "В сумме учтены не все монеты";
-"main_promotion_credited" = "Токены 1inch будут зачислены на адрес вашего кошелька %@ в течение 24 часов";
+"main_promotion_credited" = "1INCH токены будут зачислены на адрес вашего кошелька в сети %@ в течение 24 часов";
 "main_scan_card_warning_view_subtitle" = "Чтобы получить доступ ко всем сетям, вам необходимо отсканировать карту";
 "main_scan_card_warning_view_title" = "Отсканируйте карту";
 "main_tokens" = "Токены";
@@ -349,9 +348,8 @@
 "story_currencies_title" = "Тысячи криптовалют";
 "story_finish_description" = "Используйте его на ходу, в любом месте, в любое время. Без проводов и батареек. Как только понадобится крипта, просто приложите карту к телефону.";
 "story_finish_title" = "Кошелек для каждого";
-"story_learn_description" = "Пройдите обучение и получите возможность купить кошелек Tangem со скидкой и токены 1inch в качестве бонуса";
+"story_learn_description" = "Пройдите 3 урока, получите скидку на покупку Tangem Wallet и 1INCH токены";
 "story_learn_learn" = "Пройти обучение";
-"story_learn_title" = "Получите свой бонус";
 "story_meet_borrow" = "Занимайте";
 "story_meet_buy" = "Покупайте";
 "story_meet_exchange" = "Обменивайте";
