@@ -28,7 +28,7 @@ struct TokenListView: View {
             AlertToast(type: .complete(Color.tangemGreen), title: Localization.contractAddressCopiedMessage)
         }
         .searchableCompat(text: $viewModel.enteredSearchText.value)
-        .background(Color.clear.edgesIgnoringSafeArea(.all))
+        .background(Colors.Background.plain.edgesIgnoringSafeArea(.all))
         .onAppear { viewModel.onAppear() }
         .onDisappear { viewModel.onDisappear() }
     }

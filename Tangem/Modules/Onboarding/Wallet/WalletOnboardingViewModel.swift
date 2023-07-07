@@ -71,11 +71,7 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep, Onboa
         case .backupIntro:
             return ""
         case .success:
-            switch backupCardsAddedCount {
-            case 0: return Localization.onboardingSubtitleSuccessTangemWalletOnboarding
-            case 1: return Localization.onboardingSubtitleSuccessBackupOneCard
-            default: return Localization.onboardingSubtitleSuccessBackup
-            }
+            return Localization.onboardingSubtitleSuccessTangemWalletOnboarding
         case .backupCards:
             switch backupServiceState {
             case .finalizingPrimaryCard:
