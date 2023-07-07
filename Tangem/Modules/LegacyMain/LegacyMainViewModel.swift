@@ -171,11 +171,7 @@ class LegacyMainViewModel: ObservableObject {
     }
 
     var learnAndEarnTitle: String {
-        if let _ = promotionService.promoCode {
-            return Localization.mainGetBonusTitle
-        } else {
-            return Localization.mainLearnTitle
-        }
+        Localization.commonLearnAndEarn
     }
 
     var learnAndEarnSubtitle: String {
