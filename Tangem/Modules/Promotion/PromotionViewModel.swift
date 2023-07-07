@@ -29,6 +29,11 @@ final class PromotionViewModel: ObservableObject {
         actions["\(baseUrl)/\(urlPath)/ready-for-existed-card-award"] = handleReadyForAward // [REDACTED_TODO_COMMENT]
         actions["\(baseUrl)/\(urlPath)/ready-for-existing-card-award"] = handleReadyForAward
 
+        let programName = promotionService.currentProgramName
+        actions["\(baseUrl)/analytics/\(programName)/promotion-buy"] = handleBuyButton
+        actions["\(baseUrl)/analytics/\(programName)/promotion-success-new-user"] = handlePromotionSuccessNewUser
+        actions["\(baseUrl)/analytics/\(programName)/promotion-success-old-user"] = handlePromotionSuccessOldUser
+
         return actions
     }
 
@@ -98,6 +103,19 @@ final class PromotionViewModel: ObservableObject {
     func handleReadyForAward(url: String) {
         promotionService.didBecomeReadyForAward()
         coordinator.closeModule()
+    }
+
+    func handleBuyButton(url: String) {
+        Analytics.logPromotionEvent(.promoBuy, programName: promotionService.currentProgramName)
+    }
+
+    func handlePromotionSuccessNewUser(url: String) {
+        Analytics.logPromotionEvent(.promoSuccessOpened, programName: promotionService.currentProgramName, newClient: true)
+    }
+    
+    
+    func handlePromotionSuccessOldUser(url: String) {
+        Analytics.logPromotionEvent(.promoSuccessOpened, programName: promotionService.currentProgramName, newClient: false)
     }
 
     func close() {
