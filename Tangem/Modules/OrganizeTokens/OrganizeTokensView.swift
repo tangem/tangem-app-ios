@@ -61,9 +61,6 @@ struct OrganizeTokensView: View {
 
     @GestureState private var dragGestureTranslation: CGSize = .zero
 
-    // Location in 'scrollViewFrameCoordinateSpaceName' coordinate space
-    @GestureState private var dragGestureLocation: CGPoint?
-
     // Semantically, this is the same as `UITableView.hasActiveDrag` from UIKit
     private var hasActiveDrag: Bool { dragAndDropSourceIndexPath != nil }
 
@@ -155,20 +152,6 @@ struct OrganizeTokensView: View {
 
                     Spacer(minLength: scrollViewBottomContentInset)
                 }
-                .onChange(of: dragGestureLocation) { newValue in
-                    guard let newValue = newValue, var dragAndDropSourceItemFrame = dragAndDropSourceItemFrame else {
-                        return
-                    }
-
-                    dragAndDropSourceItemFrame.origin.y += dragGestureTranslation.height
-
-                    if let scrollTarget = dragAndDropController.scrollTarget(
-                        sourceLocation: dragAndDropSourceItemFrame.origin,
-                        currentLocation: newValue
-                    ) {
-                        scrollProxy.scrollTo(scrollTarget)
-                    }
-                }
             }
         }
         .coordinateSpace(name: scrollViewFrameCoordinateSpaceName)
@@ -243,21 +226,7 @@ struct OrganizeTokensView: View {
     /// [official documentation](https://developer.apple.com/documentation/swiftui/composing-swiftui-gestures).
     private func makeDragAndDropGesture() -> some Gesture {
         LongPressGesture(minimumDuration: 1.0)
-            .sequenced(before: DragGesture(coordinateSpace: .named(scrollViewFrameCoordinateSpaceName)))
-            .updating($dragGestureLocation) { value, state, _ in
-                switch value {
-                case .first:
-                    break
-                case .second(let isLongPressGestureEnded, let dragGestureValue):
-                    // Long press gesture successfully ended (equivalent of `UIGestureRecognizer.State.ended`)
-                    guard isLongPressGestureEnded else { return }
-
-                    // Drag gesture changed (equivalent of `UIGestureRecognizer.State.changed`)
-                    guard let dragGestureValue = dragGestureValue else { return }
-
-                    state = dragGestureValue.location
-                }
-            }
+            .sequenced(before: DragGesture())
             .updating($dragGestureTranslation) { value, state, _ in
                 switch value {
                 case .first:
