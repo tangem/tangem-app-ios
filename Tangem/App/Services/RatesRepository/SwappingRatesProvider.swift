@@ -1,5 +1,5 @@
 //
-//  FiatRatesProvider.swift
+//  SwappingRatesProvider.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
