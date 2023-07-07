@@ -158,7 +158,6 @@ extension OrganizeTokensViewModel: OrganizeTokensDragAndDropControllerDataSource
         _ controller: OrganizeTokensDragAndDropController,
         listViewIdentifierForItemAt indexPath: IndexPath
     ) -> AnyHashable {
-        // [REDACTED_TODO_COMMENT]
-        return UUID()
+        return viewModelIdentifier(at: indexPath)
     }
 }
