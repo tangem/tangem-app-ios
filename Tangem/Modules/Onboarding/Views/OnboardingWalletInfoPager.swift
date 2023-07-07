@@ -101,7 +101,7 @@ private struct PagerViewWithDots<Data, Content>: View
             VStack {
                 Spacer() // align the dots at the bottom
                 HStack(spacing: 6) {
-                    ForEach(0 ..< data.count) { index in
+                    ForEach(0 ..< data.count, id: \.self) { index in
                         Circle()
                             .foregroundColor((index == currentIndex) ? .tangemGrayDark6 : .tangemGrayLight5)
                             .frame(width: 10, height: 10)
