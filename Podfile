@@ -46,6 +46,7 @@ target 'Tangem' do
 
   # Helpers
   pod 'AlertToast', :git => 'https://github.com/elai950/AlertToast', :commit => 'a437862bb6605080a5816e866cbd4ac8c8657b49'
+  pod 'CombineExt', '~> 1.8.0'
   
   # support chat
   pod 'ZendeskSupportSDK', '~> 5.5.0'
