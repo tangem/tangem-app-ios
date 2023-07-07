@@ -227,6 +227,10 @@ class CardViewModel: Identifiable, ObservableObject {
         !config.getFeatureAvailability(.referralProgram).isHidden
     }
 
+    var canParticipateInPromotion: Bool {
+        config.hasFeature(.promotion)
+    }
+
     var supportedBlockchains: Set<Blockchain> {
         config.supportedBlockchains
     }

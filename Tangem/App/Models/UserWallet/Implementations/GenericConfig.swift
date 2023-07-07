@@ -176,6 +176,8 @@ extension GenericConfig: UserWalletConfig {
             return card.settings.isKeysImportAllowed ? .available : .hidden
         case .accessCodeRecoverySettings:
             return card.firmwareVersion >= .keysImportAvailable ? .available : .hidden
+        case .promotion:
+            return .available
         }
     }
 

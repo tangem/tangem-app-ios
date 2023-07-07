@@ -19,6 +19,10 @@ class FeatureStorage {
 
     @AppStorageCompat(FeatureStorageKeys.useDevApi)
     var useDevApi = false
+
+    // [REDACTED_TODO_COMMENT]
+    @AppStorageCompat(FeatureStorageKeys.fakeTxHistory)
+    var useFakeTxHistory = false
 }
 
 // MARK: - Keys
@@ -27,4 +31,5 @@ private enum FeatureStorageKeys: String {
     case testnet
     case availableFeatures = "integrated_features"
     case useDevApi = "use_dev_api"
+    case fakeTxHistory = "fake_transaction_history"
 }
