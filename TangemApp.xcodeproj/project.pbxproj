@@ -4958,8 +4958,6 @@
 				EF8D781029818E6100B67418 /* UserWalletModelMock.swift */,
 				EF5F1BAB29D1A2BE0093307B /* TotalBalanceProviderMock.swift */,
 				EF8EF52E2A0668D6007B52C4 /* SwappingApproveRoutableMock.swift */,
-				DCAA59422A4F13F000A125DD /* WalletModelsManagerMock.swift */,
-				DCAA59442A4F1B3700A125DD /* UserTokensManagerMock.swift */,
 			);
 			path = Mocks;
 			sourceTree = "<group>";
@@ -6119,6 +6117,7 @@
 				B6AA13762A2A37A800B53937 /* CardInfoPagePreviewView.swift in Sources */,
 				B0F7D7622A404907007FEB2E /* ReceiveBottomSheetViewModel.swift in Sources */,
 				EFBA18032989063A00C23955 /* MockExplorerURLService.swift in Sources */,
+				B0B335D929FA8A3200E2082E /* RatesProvider.swift in Sources */,
 				EF08A0F1283D2382008BD923 /* CoinsListRequestModel.swift in Sources */,
 				EF130EBC28E1D34500D37EFC /* LegacyMultiWalletContentView.swift in Sources */,
 				DC3DCAE52A41FA6A00F72554 /* KeysRepository.swift in Sources */,
