@@ -57,32 +57,15 @@ extension CommonWalletConnectEthTransactionBuilder: WalletConnectEthTransactionB
 
         let valueAmount = Amount(with: blockchain, type: .coin, value: value)
 
-        async let walletUpdate = walletModel.walletDidChange
-            .setFailureType(to: Error.self)
-            .tryMap { state -> WalletModel.State in
-                switch state {
-                case .failed(let error):
-                    throw error
-                case .noAccount(let message):
-                    throw message
-                default:
-                    return state
-                }
-            }
-            .filter { $0 == .idle }
-            .eraseToAnyPublisher()
-            .async()
+        _ = try await walletModel.update(silent: false).async()
+
         async let gasPrice = getGasPrice(for: wcTransaction, using: gasLoader)
         async let gasLimit = getGasLimit(for: wcTransaction, with: valueAmount, using: gasLoader)
-
-        walletModel.update(silent: false)
 
         let feeValue = try await Decimal(gasLimit * gasPrice) / blockchain.decimalValue
         let gasAmount = Amount(with: blockchain, value: feeValue)
         let feeParameters = try await EthereumFeeParameters(gasLimit: BigUInt(gasLimit), gasPrice: BigUInt(gasPrice))
         let fee = Fee(gasAmount, parameters: feeParameters)
-
-        let _ = try await walletUpdate
 
         var transaction = try walletModel.walletManager.createTransaction(
             amount: valueAmount,
