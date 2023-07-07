@@ -27,6 +27,7 @@ extension Blockchain {
         case "binancecoin", "bnb": self = .binance(testnet: isTestnet)
         case "cardano": self = .cardano(shelley: true)
         case "ripple", "xrp": self = .xrp(curve: .secp256k1)
+        case "ducatus": self = .ducatus
         case "tezos": self = .tezos(curve: .secp256k1)
         case "dogecoin": self = .dogecoin
         case "binance-smart-chain", "binance_smart_chain": self = .bsc(testnet: isTestnet)
@@ -66,6 +67,7 @@ extension Blockchain {
         case .bitcoin: return "bitcoin"
         case .bitcoinCash: return "bitcoin-cash"
         case .cardano: return "cardano"
+        case .ducatus: return "ducatus"
         case .ethereum: return "ethereum"
         case .ethereumClassic: return "ethereum-classic"
         case .litecoin: return "litecoin"
@@ -121,6 +123,7 @@ extension Blockchain {
         case .bitcoin: return "bitcoin"
         case .bitcoinCash: return "bitcoin-cash"
         case .cardano: return "cardano"
+        case .ducatus: return "ducatus"
         case .ethereum: return "ethereum"
         case .ethereumClassic: return "ethereum-classic"
         case .litecoin: return "litecoin"
