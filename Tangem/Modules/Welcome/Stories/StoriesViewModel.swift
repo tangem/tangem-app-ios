@@ -37,7 +37,9 @@ class StoriesViewModel: ObservableObject {
         runTask { [weak self] in
             guard let self else { return }
 
-            await promotionService.checkPromotion(timeout: promotionCheckTimeout)
+            let isNewCard = true
+            let userWalletId: String? = nil
+            await promotionService.checkPromotion(isNewCard: isNewCard, userWalletId: userWalletId, timeout: promotionCheckTimeout)
             await didFinishCheckingPromotion()
         }
     }
