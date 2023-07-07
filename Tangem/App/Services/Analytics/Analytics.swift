@@ -96,6 +96,18 @@ class Analytics {
         )
     }
 
+    static func logPromotionEvent(_ event: Event, programName: String, newClient: Bool? = nil) {
+        var params = [
+            ParameterKey.programName: programName,
+        ]
+
+        if let newClient {
+            let clientType: ParameterValue = newClient ? .new : .old
+            params[.clientType] = clientType.rawValue
+        }
+        Analytics.log(event: event, params: params)
+    }
+
     // MARK: - Common
 
     static func log(_ event: Event, params: [ParameterKey: ParameterValue] = [:]) {
