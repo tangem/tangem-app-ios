@@ -360,6 +360,8 @@ class LegacyMainViewModel: ObservableObject {
         if promotionRequestInProgress {
             return
         }
+        
+        Analytics.logPromotionEvent(.mainNoticeLearnAndEarn, programName: promotionService.currentProgramName)
 
         promotionRequestInProgress = true
 
@@ -558,6 +560,8 @@ private extension LegacyMainViewModel {
         )
 
         if let awardedBlockchain {
+            Analytics.logPromotionEvent(.mainNoticeSuccessfulClaim, programName: promotionService.currentProgramName)
+            
             showAlert(AlertBuilder.makeSuccessAlert(message: Localization.mainPromotionCredited(awardedBlockchain.displayName)))
         }
     }
