@@ -261,12 +261,12 @@ struct OrganizeTokensView: View {
 
                     state = sourceIndexPath
 
-                    dragAndDropInitialIndexPath = nil // effectively consumes `self.dragAndDropInitialIndexPath`
-                    dragAndDropSourceItemFrame = dragAndDropController.frame(forItemAt: sourceIndexPath)
-                    dragAndDropSourceViewModelIdentifier = viewModel.viewModelIdentifier(at: sourceIndexPath)
-
                     // `DispatchQueue.main.async` used here to allow publishing changes during view update
                     DispatchQueue.main.async {
+                        dragAndDropInitialIndexPath = nil // effectively consumes `self.dragAndDropInitialIndexPath`
+                        dragAndDropSourceItemFrame = dragAndDropController.frame(forItemAt: sourceIndexPath)
+                        dragAndDropSourceViewModelIdentifier = viewModel.viewModelIdentifier(at: sourceIndexPath)
+
                         dragAndDropController.onDragStart()
                         viewModel.onDragStart(at: sourceIndexPath)
                     }
@@ -404,7 +404,10 @@ struct OrganizeTokensView: View {
             progress: 0.0,
             threshold: Constants.dropAnimationProgressThresholdForViewRemoval
         ) {
-            dragAndDropSourceViewModelIdentifier = nil
+            // `DispatchQueue.main.async` used here to allow publishing changes during view update
+            DispatchQueue.main.async {
+                dragAndDropSourceViewModelIdentifier = nil
+            }
         }
 
         content()
