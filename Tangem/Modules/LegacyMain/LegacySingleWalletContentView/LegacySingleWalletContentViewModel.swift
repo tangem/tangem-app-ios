@@ -113,7 +113,7 @@ class LegacySingleWalletContentViewModel: ObservableObject {
     private func bind() {
         let txPublisher = singleWalletModel.walletManager.walletPublisher
 
-        singleWalletModel.walletDidChange
+        singleWalletModel.walletDidChangePublisher
             .combineLatest(txPublisher)
             .receive(on: DispatchQueue.main)
             .sink(receiveValue: { [weak self] publish in
@@ -121,7 +121,7 @@ class LegacySingleWalletContentViewModel: ObservableObject {
             })
             .store(in: &bag)
 
-        singleWalletModel.walletDidChange
+        singleWalletModel.walletDidChangePublisher
             .filter { $0.isSuccesfullyLoaded }
             .sink { [weak self] state in
                 guard let self else {

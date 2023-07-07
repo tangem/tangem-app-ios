@@ -13,17 +13,12 @@ import BlockchainSdk
 class WalletModel {
     @Injected(\.ratesRepository) private var ratesRepository: RatesRepository
 
-    /// Listen all changes
-    var walletDidChange: AnyPublisher<WalletModel.State, Never> {
+    /// Listen for fiat and balance changes. This publisher will not be called if the is nothing changed. Use `update(silent:)` for waiting for update
+    var walletDidChangePublisher: AnyPublisher<WalletModel.State, Never> {
         _state
             .combineLatest(_rate)
             .map { $0.0 }
             .eraseToAnyPublisher()
-    }
-
-    /// Listen state changes ( balance )
-    var statePublisher: AnyPublisher<WalletModel.State, Never> {
-        _state.eraseToAnyPublisher()
     }
 
     var state: State {
@@ -131,11 +126,7 @@ class WalletModel {
     }
 
     var outgoingPendingTransactions: [TransactionRecord] {
-        // let txPusher = walletManager as? TransactionPusher
-
         return wallet.pendingOutgoingTransactions.map {
-            // let isTxStuckByTime = Date().timeIntervalSince($0.date ?? Date()) > Constants.bitcoinTxStuckTimeSec
-
             return TransactionRecord(
                 amountType: $0.amount.type,
                 destination: $0.destinationAddress,
@@ -194,7 +185,7 @@ class WalletModel {
     private var txHistoryUpdateSubscription: AnyCancellable?
     private var updateWalletModelBag: AnyCancellable?
     private var bag = Set<AnyCancellable>()
-    private var updatePublisher: PassthroughSubject<Void, Error>?
+    private var updatePublisher: PassthroughSubject<State, Never>?
     private var updateQueue = DispatchQueue(label: "walletModel_update_queue")
 
     deinit {
@@ -252,53 +243,38 @@ class WalletModel {
     // MARK: - Update wallet model
 
     @discardableResult
-    /// Do not use with flatMap
-    func update(silent: Bool) -> AnyPublisher<Void, Error> {
+    /// Do not use with flatMap.
+    func update(silent: Bool) -> AnyPublisher<State, Never> {
         // If updating already in process return updating Publisher
         if let updatePublisher = updatePublisher {
             return updatePublisher.eraseToAnyPublisher()
         }
 
         // Keep this before the async call
-        let newUpdatePublisher = PassthroughSubject<Void, Error>()
+        let newUpdatePublisher = PassthroughSubject<State, Never>()
         updatePublisher = newUpdatePublisher
 
         if case .loading = state {
             return newUpdatePublisher.eraseToAnyPublisher()
         }
 
-        AppLog.shared.debug("🔄 Start updating wallet manager for \(name)")
+        AppLog.shared.debug("🔄 Start updating \(name)")
 
         if !silent {
             updateState(.loading)
         }
 
-        let walletUpdatePublisher = walletManager
+        updateWalletModelBag = walletManager
             .updatePublisher()
-            .handleEvents(receiveOutput: { _ in
-                AppLog.shared.debug("🔄 !!! \(self.name)")
-            })
-            .setFailureType(to: Error.self)
-            .eraseToAnyPublisher()
-
-        updateWalletModelBag = walletUpdatePublisher
             .combineLatest(loadRates())
+            .delay(for: 0.3, scheduler: DispatchQueue.global()) // delay to invoke common finish after general update finished
             .receive(on: updateQueue)
-            .sink { [weak self] completion in
-                guard let self, case .failure(let error) = completion else { return }
-
-                AppLog.shared.debug("🔄 Finished common update for \(name) with error")
-
-                AppLog.shared.error(error)
-                updatePublisher?.send(completion: .failure(error))
-                updatePublisher = nil
-
-            } receiveValue: { [weak self] _ in
+            .sink { [weak self] _ in
                 guard let self else { return }
 
                 AppLog.shared.debug("🔄 Finished common update for \(name)")
 
-                updatePublisher?.send(())
+                updatePublisher?.send(state)
                 updatePublisher?.send(completion: .finished)
                 updatePublisher = nil
             }
@@ -309,14 +285,14 @@ class WalletModel {
     private func walletManagerDidUpdate(_ walletManagerState: WalletManagerState) {
         switch walletManagerState {
         case .loaded:
-            AppLog.shared.debug("🔄 Finished updating wallet model for \(name)")
+            AppLog.shared.debug("🔄 Finished updating for \(name)")
 
             if let demoBalance {
                 walletManager.wallet.add(coinValue: demoBalance)
             }
             updateState(.idle)
         case .failed(let error):
-            AppLog.shared.debug("🔄 Failed updating wallet model for \(name)")
+            AppLog.shared.debug("🔄 Failed updating for \(name)")
             switch error as? WalletError {
             case .noAccount(let message):
                 updateState(.noAccount(message: message))
@@ -332,11 +308,11 @@ class WalletModel {
 
     private func updateState(_ state: State) {
         guard self.state != state else {
-            AppLog.shared.debug("Duplicate request to WalletModel state")
+            AppLog.shared.debug("State for \(name) isn't changed. Skipping...")
             return
         }
 
-        AppLog.shared.debug("🔄 Update state \(state) in WalletModel: \(blockchainNetwork.blockchain.displayName)")
+        AppLog.shared.debug("🔄 Update state \(state) for \(name)")
         DispatchQueue.main.async { [weak self] in // captured as weak at call stack
             self?._state.value = state
         }
@@ -345,16 +321,15 @@ class WalletModel {
     // MARK: - Load Rates
 
     @discardableResult
-    private func loadRates() -> AnyPublisher<[String: Decimal], Error> {
+    private func loadRates() -> AnyPublisher<[String: Decimal], Never> {
         guard let currencyId = tokenItem.currencyId else {
-            return .justWithError(output: [:])
+            return .just(output: [:])
         }
 
-        AppLog.shared.debug("🔄 Start loading rates for \(wallet.blockchain)")
+        AppLog.shared.debug("🔄 Start loading rates for \(name)")
 
         return ratesRepository
             .loadRates(coinIds: [currencyId])
-            .setFailureType(to: Error.self)
             .eraseToAnyPublisher()
     }
 
