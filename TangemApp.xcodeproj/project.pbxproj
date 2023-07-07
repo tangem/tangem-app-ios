@@ -3956,7 +3956,6 @@
 				EF5F1BB629D6C6410093307B /* UserCurrenciesProvider */,
 				B0D1AC302906718600584E6C /* Analytics */,
 				EFBA17FF2989009900C23955 /* ExplorerURLProvider */,
-				EFBFD56D297998EE00B20C2E /* FiatRatesProvider */,
 				EFEC5F7729703692009C0E5F /* SwappingTransactionSender */,
 				EF6EDD7B296C0D40001B21A3 /* IncomingActionManager */,
 				EF808441293F6B43000D91EA /* TokenIconURLBuilder */,
@@ -5107,13 +5106,6 @@
 				EFBA1800298900B600C23955 /* ExplorerURLProvider.swift */,
 			);
 			path = ExplorerURLProvider;
-			sourceTree = "<group>";
-		};
-		EFBFD56D297998EE00B20C2E /* FiatRatesProvider */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			path = FiatRatesProvider;
 			sourceTree = "<group>";
 		};
 		EFC46EFC29266978003928E3 /* SendCurrencyView */ = {
