@@ -81,15 +81,15 @@ final class SwappingApproveViewModel: ObservableObject, Identifiable {
             ]
         )
 
-        Task {
+        runTask(in: self) { root in
             do {
-                _ = try await transactionSender.sendTransaction(data)
-                await didSendApproveTransaction(transactionData: data)
+                _ = try await root.transactionSender.sendTransaction(data)
+                await root.didSendApproveTransaction(transactionData: data)
             } catch TangemSdkError.userCancelled {
                 // Do nothing
             } catch {
                 await runOnMain {
-                    errorAlert = AlertBinder(title: Localization.commonError, message: error.localizedDescription)
+                    root.errorAlert = AlertBinder(title: Localization.commonError, message: error.localizedDescription)
                 }
             }
         }
@@ -139,19 +139,19 @@ private extension SwappingApproveViewModel {
     }
 
     func updateFeeAmount(for transactionData: SwappingTransactionData) {
-        Task {
+        runTask(in: self) { root in
             do {
                 let fee = transactionData.fee
-                let fiatFee = try await fiatRatesProvider.getFiat(for: transactionData.sourceBlockchain, amount: fee)
+                let fiatFee = try await root.fiatRatesProvider.getFiat(for: transactionData.sourceBlockchain, amount: fee)
 
                 await runOnMain {
-                    updateFeeRowViewModel(fee: fee, fiatFee: fiatFee)
+                    root.updateFeeRowViewModel(fee: fee, fiatFee: fiatFee)
                 }
             } catch {
                 AppLog.shared.error(error)
 
                 await runOnMain {
-                    updateFeeRowViewModel(fee: 0, fiatFee: 0)
+                    root.updateFeeRowViewModel(fee: 0, fiatFee: 0)
                 }
             }
         }
