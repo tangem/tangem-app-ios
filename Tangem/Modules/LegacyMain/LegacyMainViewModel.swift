@@ -361,7 +361,8 @@ class LegacyMainViewModel: ObservableObject {
             return
         }
 
-        Analytics.logPromotionEvent(.mainNoticeLearnAndEarn, programName: promotionService.currentProgramName)
+        let newClient = (promotionService.promoCode != nil)
+        Analytics.logPromotionEvent(.mainNoticeLearnAndEarn, programName: promotionService.currentProgramName, newClient: newClient)
 
         promotionRequestInProgress = true
 
