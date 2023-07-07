@@ -9,23 +9,36 @@
 import SwiftUI
 
 struct OrganizeTokensView: View {
+    // MARK: - Model
+
     @ObservedObject private var viewModel: OrganizeTokensViewModel
 
-    @StateObject private var dragAndDropController = OrganizeTokensDragAndDropController()
+    // MARK: - Coordinate spaces
 
-    @available(iOS, introduced: 13.0, deprecated: 15.0, message: "Replace with native .safeAreaInset()")
-    @State private var scrollViewBottomContentInset: CGFloat = 0.0
+    // Semantically, this is the same as `UIScrollView.frameLayoutGuide` from UIKit
+    private let scrollViewFrameCoordinateSpaceName = UUID()
+
+    // Semantically, this is the same as `UIScrollView.contentLayoutGuide` from UIKit
+    private let scrollViewContentCoordinateSpaceName = UUID()
+
+    // MARK: - Content insets and overlay views
 
     @available(iOS, introduced: 13.0, deprecated: 15.0, message: "Replace with native .safeAreaInset()")
     @State private var scrollViewTopContentInset: CGFloat = 0.0
 
+    @available(iOS, introduced: 13.0, deprecated: 15.0, message: "Replace with native .safeAreaInset()")
+    @State private var scrollViewBottomContentInset: CGFloat = 0.0
+
     @State private var tokenListFooterFrameMinY: CGFloat = 0.0
     @State private var tokenListContentFrameMaxY: CGFloat = 0.0
-
     @State private var scrollViewContentOffset: CGPoint = .zero
 
     @State private var isTokenListFooterGradientHidden = true
     @State private var isNavigationBarBackgroundHidden = true
+
+    // MARK: - Drag and drop support
+
+    @StateObject private var dragAndDropController = OrganizeTokensDragAndDropController()
 
     // Index path for a view that received a new touch.
     //
@@ -42,19 +55,15 @@ struct OrganizeTokensView: View {
     // Stable identity, independent of changes in the underlying model (unlike index paths)
     @State private var dragAndDropSourceViewModelIdentifier: UUID?
 
-    // Semantically, this is the same as `UITableView.hasActiveDrag` from UIKit
-    private var hasActiveDrag: Bool { dragAndDropSourceIndexPath != nil }
-
     @GestureState private var dragGestureTranslation: CGSize = .zero
 
     // Location in 'scrollViewFrameCoordinateSpaceName' coordinate space
     @GestureState private var dragGestureLocation: CGPoint?
 
-    // Semantically, this is the same as `UIScrollView.frameLayoutGuide` from UIKit
-    private let scrollViewFrameCoordinateSpaceName = UUID()
+    // Semantically, this is the same as `UITableView.hasActiveDrag` from UIKit
+    private var hasActiveDrag: Bool { dragAndDropSourceIndexPath != nil }
 
-    // Semantically, this is the same as `UIScrollView.contentLayoutGuide` from UIKit
-    private let scrollViewContentCoordinateSpaceName = UUID()
+    // MARK: - Body
 
     var body: some View {
         ZStack {
