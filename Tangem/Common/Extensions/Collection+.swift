@@ -19,6 +19,6 @@ extension Swift.Collection {
     /// Useful for cases like `SwiftUI.ForEach` + non-zero-based integer-indexed collections.
     /// See https://onmyway133.com/posts/how-to-use-foreach-with-indices-in-swiftui/ for details.
     func indexed() -> some RandomAccessCollection<(Self.Index, Self.Element)> {
-        return Array(zip(indices, self))
+        return Array(Swift.zip(indices, self))
     }
 }
