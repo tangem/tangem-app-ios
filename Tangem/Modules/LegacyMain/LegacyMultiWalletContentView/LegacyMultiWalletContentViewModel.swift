@@ -73,7 +73,7 @@ private extension LegacyMultiWalletContentViewModel {
             .walletModelsPublisher
             .flatMap { walletModels in
                 Publishers
-                    .MergeMany(walletModels.map { $0.walletDidChange })
+                    .MergeMany(walletModels.map { $0.walletDidChangePublisher })
                     .filter { !$0.isLoading }
             }
             .receive(on: DispatchQueue.global())
