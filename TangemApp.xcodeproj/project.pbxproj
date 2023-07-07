@@ -700,6 +700,8 @@
 		DCF2369129924C0900FE1855 /* AnalyticsContext.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCF2369029924C0900FE1855 /* AnalyticsContext.swift */; };
 		DCF23693299257EB00FE1855 /* AnalyticsContextData.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCF23692299257EB00FE1855 /* AnalyticsContextData.swift */; };
 		DCF8972D28ACF8CA002A85F6 /* TangemSdkConfigFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCF8972C28ACF8CA002A85F6 /* TangemSdkConfigFactory.swift */; };
+		DCFC4A7E2A584AAE00185C2C /* LegacyTokenDetailsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D09382C25E7A2EA0049B8F0 /* LegacyTokenDetailsViewModel.swift */; };
+		DCFC4A7F2A584ACF00185C2C /* LegacyTokenDetailsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D09382725E7A2D80049B8F0 /* LegacyTokenDetailsView.swift */; };
 		DCFCA17528F4232F0037586C /* Array+.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCFCA17428F4232F0037586C /* Array+.swift */; };
 		DCFE143E294B31C00053106B /* AppPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCFE143D294B31C00053106B /* AppPresenter.swift */; };
 		E9C17C5F291951BF00FDE4BC /* AnyPublisher+.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9C17C5E291951BF00FDE4BC /* AnyPublisher+.swift */; };
@@ -5747,6 +5749,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				DCFC4A7F2A584ACF00185C2C /* LegacyTokenDetailsView.swift in Sources */,
+				DCFC4A7E2A584AAE00185C2C /* LegacyTokenDetailsViewModel.swift in Sources */,
 				EF9CFC12288FECE100329BE0 /* ScanCardSettingsView.swift in Sources */,
 				B0B712192A41639200A9479C /* TokenDetailsHeaderView.swift in Sources */,
 				EF808436293F39D6000D91EA /* UserCurrenciesProvider.swift in Sources */,
