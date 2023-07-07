@@ -44,6 +44,11 @@ struct OrganizeTokensView: View {
         destinationItemSelectionThresholdRatio: Constants.dragAndDropDestinationItemSelectionThresholdRatio
     )
 
+    // Viewport with `contentInset` (i.e. with `scrollViewTopContentInset` and `scrollViewBottomContentInset`)
+    @State private var visibleViewportFrame: CGRect = .zero
+
+    @State private var draggedItemFrame: CGRect = .zero
+
     // Index path for a view that received a new touch.
     //
     // Contains meaningful value only until the long press gesture successfully ends,
@@ -63,6 +68,17 @@ struct OrganizeTokensView: View {
 
     // Semantically, this is the same as `UITableView.hasActiveDrag` from UIKit
     private var hasActiveDrag: Bool { dragAndDropSourceIndexPath != nil }
+
+    private var autoScrollAnchor: UnitPoint? {
+        switch dragAndDropController.autoScrollStatus {
+        case .active(.top):
+            return .top
+        case .active(.bottom):
+            return .bottom
+        case .inactive:
+            return nil
+        }
+    }
 
     // MARK: - Body
 
@@ -91,7 +107,7 @@ struct OrganizeTokensView: View {
             ScrollViewReader { scrollProxy in
                 ScrollView(showsIndicators: false) {
                     LazyVStack(spacing: 0.0) {
-                        Spacer(minLength: scrollViewTopContentInset)
+                        Spacer(minLength: scrollViewTopContentInset) // [REDACTED_TODO_COMMENT]
 
                         let parametersProvider = OrganizeTokensListCornerRadiusParametersProvider(
                             sections: viewModel.sections,
@@ -149,8 +165,28 @@ struct OrganizeTokensView: View {
                         inCoordinateSpace: .named(scrollViewFrameCoordinateSpaceName),
                         bindTo: $scrollViewContentOffset
                     )
+                    .readContentOffset(
+                        inCoordinateSpace: .named(scrollViewFrameCoordinateSpaceName),
+                        bindTo: dragAndDropController.contentOffsetSubject.asWriteOnlyBinding(.zero)
+                    )
 
-                    Spacer(minLength: scrollViewBottomContentInset)
+                    Spacer(minLength: scrollViewBottomContentInset) // [REDACTED_TODO_COMMENT]
+                }
+                .readGeometry(\.size, bindTo: dragAndDropController.viewportSizeSubject.asWriteOnlyBinding(.zero))
+                .onChange(of: draggedItemFrame) { draggedItemFrame in
+                    // [REDACTED_TODO_COMMENT]
+                    if visibleViewportFrame.isValid, draggedItemFrame.isValid {
+                        let intersection = visibleViewportFrame.intersection(draggedItemFrame)
+                        if intersection.isNull || intersection.height < min(visibleViewportFrame.height, draggedItemFrame.height) {
+                            if draggedItemFrame.minY + Constants.autoScrollTriggerHeightDiff < visibleViewportFrame.minY {
+                                dragAndDropController.startAutoScrolling(direction: .top)
+                            } else if draggedItemFrame.maxY + Constants.autoScrollTriggerHeightDiff > visibleViewportFrame.maxY {
+                                dragAndDropController.startAutoScrolling(direction: .bottom)
+                            } else {
+                                // [REDACTED_TODO_COMMENT]
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -179,6 +215,7 @@ struct OrganizeTokensView: View {
         .onChange(of: dragAndDropSourceViewModelIdentifier) { [oldValue = dragAndDropSourceViewModelIdentifier] newValue in
             guard oldValue != nil, newValue == nil else { return }
 
+            dragAndDropController.stopAutoScrolling()
             viewModel.onDragAnimationCompletion()
         }
     }
@@ -412,6 +449,7 @@ struct OrganizeTokensView: View {
 
         content()
             .frame(width: width)
+            .readGeometry(\.frame, bindTo: $draggedItemFrame)
             .cornerRadiusContinuous(hasActiveDrag ? Constants.draggableViewCornerRadius : 0.0)
             .shadow(
                 color: Color.black.opacity(0.08), // [REDACTED_TODO_COMMENT]
@@ -452,6 +490,7 @@ private extension OrganizeTokensView {
         static let draggableViewScale = 1.035
         static let draggableViewCornerRadius = 7.0
         static let autoScrollFrequency = 0.3
+        static let autoScrollTriggerHeightDiff = 10.0
     }
 }
 
@@ -477,5 +516,12 @@ struct OrganizeTokensView_Preview: PreviewProvider {
                 )
             }
         }
+    }
+}
+
+// [REDACTED_TODO_COMMENT]
+private extension CGRect {
+    var isValid: Bool {
+        return !isInfinite && !isEmpty
     }
 }
