@@ -19,20 +19,22 @@ struct LegacyPendingTxView: View, Identifiable {
     }
 
     var titlePrefixLocalized: String {
-        switch pendingTx.direction {
-        case .outgoing:
+        switch pendingTx.transactionType {
+        case .send:
             return Localization.walletPendingTxSending
-        case .incoming:
+        case .receive:
             return Localization.walletPendingTxReceiving
+        default: return ""
         }
     }
 
     func titleFormat(address: String) -> String {
-        switch pendingTx.direction {
-        case .outgoing:
+        switch pendingTx.transactionType {
+        case .send:
             return Localization.walletPendingTxSendingAddressFormat(address)
-        case .incoming:
+        case .receive:
             return Localization.walletPendingTxReceivingAddressFormat(address)
+        default: return ""
         }
     }
 
@@ -48,7 +50,7 @@ struct LegacyPendingTxView: View, Identifiable {
         VStack(alignment: .leading) {
             HStack(spacing: 0) {
                 if address != "unknown" {
-                    Image(systemName: pendingTx.direction == .incoming ? "arrow.down" :
+                    Image(systemName: pendingTx.transactionType == .receive ? "arrow.down" :
                         "arrow.right")
                         .resizable()
                         .aspectRatio(contentMode: .fit)
@@ -63,12 +65,6 @@ struct LegacyPendingTxView: View, Identifiable {
                     .lineLimit(1)
 
                 Spacer(minLength: 0)
-
-                if pendingTx.canBePushed {
-                    RoundedRectButton(action: {
-                        pushAction?()
-                    }, title: Localization.commonPush)
-                }
             }
             .padding(.horizontal, 20.0)
             .padding(.vertical, 11.0)
@@ -83,9 +79,9 @@ struct LegacyPendingTxView_Previews: PreviewProvider {
         ZStack {
             Color.tangemBgGray
             VStack {
-                LegacyPendingTxView(pendingTx: TransactionRecord(amountType: .coin, destination: "0x2314719083467891237649123675478612354", timeFormatted: "05:06", transferAmount: "0.00000002 BTC", canBePushed: false, direction: .incoming, status: .inProgress))
-                LegacyPendingTxView(pendingTx: TransactionRecord(amountType: .coin, destination: "0x2314719083467891237649123675478612354", timeFormatted: "05:06", transferAmount: "0.00000002 BTC", canBePushed: false, direction: .outgoing, status: .inProgress))
-                LegacyPendingTxView(pendingTx: TransactionRecord(amountType: .coin, destination: "0x2314719083467891237649123675478612354", timeFormatted: "05:06", transferAmount: "0.2 BTC", canBePushed: true, direction: .outgoing, status: .inProgress))
+                LegacyPendingTxView(pendingTx: TransactionRecord(amountType: .coin, destination: "0x2314719083467891237649123675478612354", timeFormatted: "05:06", transferAmount: "0.00000002 BTC", transactionType: .receive, status: .inProgress))
+                LegacyPendingTxView(pendingTx: TransactionRecord(amountType: .coin, destination: "0x2314719083467891237649123675478612354", timeFormatted: "05:06", transferAmount: "0.00000002 BTC", transactionType: .send, status: .inProgress))
+                LegacyPendingTxView(pendingTx: TransactionRecord(amountType: .coin, destination: "0x2314719083467891237649123675478612354", timeFormatted: "05:06", transferAmount: "0.2 BTC", transactionType: .send, status: .inProgress))
             }
             .padding(.horizontal, 16)
         }
