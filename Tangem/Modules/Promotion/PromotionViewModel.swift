@@ -28,11 +28,7 @@ final class PromotionViewModel: ObservableObject {
         actions["\(baseUrl)/\(urlPath)/code-created"] = handleCodeCreated
         actions["\(baseUrl)/\(urlPath)/ready-for-existed-card-award"] = handleReadyForAward // [REDACTED_TODO_COMMENT]
         actions["\(baseUrl)/\(urlPath)/ready-for-existing-card-award"] = handleReadyForAward
-
-        let programName = promotionService.currentProgramName
-        actions["\(baseUrl)/analytics/\(programName)/promotion-buy"] = handleBuyButton
-        actions["\(baseUrl)/analytics/\(programName)/promotion-success-new-user"] = handlePromotionSuccessNewUser
-        actions["\(baseUrl)/analytics/\(programName)/promotion-success-old-user"] = handlePromotionSuccessOldUser
+        actions["\(baseUrl)/analytics"] = handleAnalyticsEvent
 
         return actions
     }
@@ -105,17 +101,24 @@ final class PromotionViewModel: ObservableObject {
         coordinator.closeModule()
     }
 
-    func handleBuyButton(url: String) {
-        Analytics.logPromotionEvent(.promoBuy, programName: promotionService.currentProgramName)
-    }
+    func handleAnalyticsEvent(url: String) {
+        guard
+            let urlComponents = URLComponents(string: url),
+            let event = urlComponents.queryItems?.first(where: { $0.name == "event" })?.value,
+            let programName = urlComponents.queryItems?.first(where: { $0.name == "programName" })?.value
+        else {
+            return
+        }
 
-    func handlePromotionSuccessNewUser(url: String) {
-        Analytics.logPromotionEvent(.promoSuccessOpened, programName: promotionService.currentProgramName, newClient: true)
-    }
-    
-    
-    func handlePromotionSuccessOldUser(url: String) {
-        Analytics.logPromotionEvent(.promoSuccessOpened, programName: promotionService.currentProgramName, newClient: false)
+        switch event {
+        case "promotion-buy":
+            Analytics.logPromotionEvent(.promoBuy, programName: programName)
+        case "promotion-success-new-user", "promotion-success-old-user":
+            let newClient = (event == "promotion-success-new-user")
+            Analytics.logPromotionEvent(.promoSuccessOpened, programName: programName, newClient: newClient)
+        default:
+            AppLog.shared.debug("Unknown analytics event from promotion web view \(event), program name \(programName)")
+        }
     }
 
     func close() {
