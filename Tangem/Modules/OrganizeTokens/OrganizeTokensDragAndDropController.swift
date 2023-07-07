@@ -8,10 +8,22 @@
 
 import Foundation
 import UIKit
+import Combine
+import CombineExt
 
 enum OrganizeTokensDragAndDropControllerListViewKind {
     case cell
     case sectionHeader
+}
+
+enum OrganizeTokensDragAndDropControllerAutoScrollDirection {
+    case top
+    case bottom
+}
+
+enum OrganizeTokensDragAndDropControllerAutoScrollStatus {
+    case active(direction: OrganizeTokensDragAndDropControllerAutoScrollDirection)
+    case inactive
 }
 
 protocol OrganizeTokensDragAndDropControllerDataSource: AnyObject {
@@ -28,15 +40,51 @@ protocol OrganizeTokensDragAndDropControllerDataSource: AnyObject {
         _ controller: OrganizeTokensDragAndDropController,
         listViewKindForItemAt indexPath: IndexPath
     ) -> OrganizeTokensDragAndDropControllerListViewKind
+
+    func controller(
+        _ controller: OrganizeTokensDragAndDropController,
+        listViewIdentifierForItemAt indexPath: IndexPath
+    ) -> AnyHashable
 }
 
 final class OrganizeTokensDragAndDropController: ObservableObject {
     weak var dataSource: OrganizeTokensDragAndDropControllerDataSource?
 
+    private(set) var autoScrollStatus: OrganizeTokensDragAndDropControllerAutoScrollStatus = .inactive
+
+    var autoScrollTargetPublisher: some Publisher<AnyHashable, Never> { autoScrollTargetSubject }
+    private var autoScrollTargetSubject = PassthroughSubject<AnyHashable, Never>()
+
+    var viewportSizeSubject: some Subject<CGSize, Never> { _viewportSizeSubject }
+    private let _viewportSizeSubject = CurrentValueSubject<CGSize, Never>(.zero)
+
+    var contentOffsetSubject: some Subject<CGPoint, Never> { _contentOffsetSubject }
+    private let _contentOffsetSubject = CurrentValueSubject<CGPoint, Never>(.zero)
+
     private var itemsFrames: [IndexPath: CGRect] = [:]
 
     private lazy var impactFeedbackGenerator = UIImpactFeedbackGenerator(style: .light)
     private lazy var selectionFeedbackGenerator = UISelectionFeedbackGenerator()
+
+    private let autoScrollFrequency: TimeInterval
+    private let destinationItemSelectionThresholdRatio: Double
+
+    private let topEdgeAdditionalAutoScrollTargets: [AnyHashable]
+    private let bottomEdgeAdditionalAutoScrollTargets: [AnyHashable]
+
+    private var autoScrollSubscription: AnyCancellable?
+
+    init(
+        autoScrollFrequency: TimeInterval,
+        destinationItemSelectionThresholdRatio: Double,
+        topEdgeAdditionalAutoScrollTargets: [AnyHashable] = [],
+        bottomEdgeAdditionalAutoScrollTargets: [AnyHashable] = []
+    ) {
+        self.autoScrollFrequency = autoScrollFrequency
+        self.destinationItemSelectionThresholdRatio = destinationItemSelectionThresholdRatio
+        self.topEdgeAdditionalAutoScrollTargets = topEdgeAdditionalAutoScrollTargets
+        self.bottomEdgeAdditionalAutoScrollTargets = bottomEdgeAdditionalAutoScrollTargets
+    }
 
     func onDragPrepare() {
         selectionFeedbackGenerator.prepare()
@@ -51,11 +99,6 @@ final class OrganizeTokensDragAndDropController: ObservableObject {
         impactFeedbackGenerator.impactOccurred()
     }
 
-    func scrollTarget(sourceLocation: CGPoint, currentLocation: CGPoint) -> UUID? {
-        // [REDACTED_TODO_COMMENT]
-        return nil
-    }
-
     func saveFrame(_ frame: CGRect, forItemAt indexPath: IndexPath) {
         itemsFrames[indexPath] = frame
     }
@@ -64,6 +107,7 @@ final class OrganizeTokensDragAndDropController: ObservableObject {
         indexPath.flatMap { itemsFrames[$0] }
     }
 
+    /// - Warning: O(N) time complexity.
     func indexPath(for location: CGPoint) -> IndexPath? {
         return itemsFrames
             .first { isIndexPathValid($0.key) && $0.value.contains(location) }
@@ -108,8 +152,57 @@ final class OrganizeTokensDragAndDropController: ObservableObject {
                 let intersection = draggedItemFrame.intersection(neighboringItemFrame)
 
                 return !intersection.isNull && intersection.height > neighboringItemFrame.height
-                    * Constants.destinationItemSelectionFrameHeightThresholdRatio
+                    * destinationItemSelectionThresholdRatio
             }
+    }
+
+    func startAutoScrolling(direction: OrganizeTokensDragAndDropControllerAutoScrollDirection) {
+        guard autoScrollSubscription == nil else { return }
+
+        autoScrollStatus = .active(direction: direction)
+
+        // The first item from `additionalAutoScrollTargets` is emitted immediately
+        // to get rid of delays between ticks of two separate timers
+        let additionalAutoScrollTargets = additionalAutoScrollTargets(scrollDirection: direction)
+        let additionalAutoScrollTargetsPublisher = Timer
+            .publish(every: autoScrollFrequency, on: .main, in: .common)
+            .autoconnect()
+            .zip(additionalAutoScrollTargets.dropFirst(1).publisher)
+            .map(\.1)
+            .prepend(additionalAutoScrollTargets.prefix(1))
+
+        autoScrollSubscription = Timer
+            .publish(every: autoScrollFrequency, on: .main, in: .common)
+            .autoconnect()
+            .withLatestFrom(_contentOffsetSubject, _viewportSizeSubject)
+            .withWeakCaptureOf(self)
+            .map { input -> AnyHashable? in
+                let (controller, (contentOffset, viewportSize)) = input
+                let scrollTargetIndexPath = controller.indexPathForAutoScrollTarget(
+                    direction: direction,
+                    contentOffset: contentOffset,
+                    viewportSize: viewportSize
+                )
+                return scrollTargetIndexPath.flatMap { indexPath in
+                    controller.dataSource?.controller(controller, listViewIdentifierForItemAt: indexPath)
+                }
+            }
+            .prefix { $0 != nil }
+            .compactMap { $0 }
+            .append(additionalAutoScrollTargetsPublisher)
+            .removeDuplicates()
+            .withWeakCaptureOf(self)
+            .sink(receiveValue: { controller, viewIdentifier in
+                // [REDACTED_TODO_COMMENT]
+                controller.autoScrollTargetSubject.send(viewIdentifier)
+            })
+    }
+
+    func stopAutoScrolling() {
+        guard autoScrollSubscription != nil else { return }
+
+        autoScrollSubscription = nil
+        autoScrollStatus = .inactive
     }
 
     private func neighboringItemsIndexPaths(
@@ -174,12 +267,45 @@ final class OrganizeTokensDragAndDropController: ObservableObject {
             return isSectionValid
         }
     }
-}
 
-// MARK: - Constants
+    /// - Warning: O(N) time complexity.
+    private func indexPathForAutoScrollTarget(
+        direction: OrganizeTokensDragAndDropControllerAutoScrollDirection,
+        contentOffset: CGPoint,
+        viewportSize: CGSize
+    ) -> IndexPath? {
+        // [REDACTED_TODO_COMMENT]
+        let sortedItemsFrames = itemsFrames
+            .filter { isIndexPathValid($0.key) }
+            .sorted { $0.value.minY < $1.value.minY }
 
-private extension OrganizeTokensDragAndDropController {
-    enum Constants {
-        static let destinationItemSelectionFrameHeightThresholdRatio = 0.5
+        switch direction {
+        case .top:
+            if let lastValidTargetAtTheTop = sortedItemsFrames.last(where: { key, value in
+                value.minY.rounded() < contentOffset.y.rounded() - .ulpOfOne
+            }) {
+                return lastValidTargetAtTheTop.key
+            }
+        case .bottom:
+            if let firstValidTargetAtTheBottom = sortedItemsFrames.first(where: { key, value in
+                value.maxY.rounded() > contentOffset.y.rounded() + viewportSize.height.rounded() - .ulpOfOne
+            }) {
+                return firstValidTargetAtTheBottom.key
+            }
+        }
+
+        return nil
+    }
+
+    private func additionalAutoScrollTargets(
+        scrollDirection: OrganizeTokensDragAndDropControllerAutoScrollDirection
+    ) -> [AnyHashable] {
+        switch scrollDirection {
+        case .top:
+            // We're scrolling to the top, so items at the bottom come first - therefore reversed order is used
+            return topEdgeAdditionalAutoScrollTargets.reversed()
+        case .bottom:
+            return bottomEdgeAdditionalAutoScrollTargets
+        }
     }
 }

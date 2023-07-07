@@ -38,7 +38,11 @@ struct OrganizeTokensView: View {
 
     // MARK: - Drag and drop support
 
-    @StateObject private var dragAndDropController = OrganizeTokensDragAndDropController()
+    // [REDACTED_TODO_COMMENT]
+    @StateObject private var dragAndDropController = OrganizeTokensDragAndDropController(
+        autoScrollFrequency: Constants.autoScrollFrequency,
+        destinationItemSelectionThresholdRatio: Constants.dragAndDropDestinationItemSelectionThresholdRatio
+    )
 
     // Index path for a view that received a new touch.
     //
@@ -472,8 +476,10 @@ private extension OrganizeTokensView {
         static let contentHorizontalInset = 16.0
         static let dragLiftAnimationDuration = 0.35
         static let dropAnimationProgressThresholdForViewRemoval = 0.05
+        static let dragAndDropDestinationItemSelectionThresholdRatio = 0.5
         static let draggableViewScale = 1.035
         static let draggableViewCornerRadius = 7.0
+        static let autoScrollFrequency = 0.3
     }
 }
 
