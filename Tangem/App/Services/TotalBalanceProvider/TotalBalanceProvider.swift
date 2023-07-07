@@ -71,10 +71,7 @@ private extension TotalBalanceProvider {
 
         updateSubscription = Publishers.MergeMany(
             walletModels.map { $0
-                .walletDidChange
-                .filter { !$0.isLoading } // subscribe to all the walletDidChange events
-                // This delay has been added because `walletDidChange` pushed the changes on `willSet`
-                .delay(for: 0.1, scheduler: DispatchQueue.main)
+                .update(silent: false)
             })
             .map { _ in (walletModels, hasEntriesWithoutDerivation) }
             .debounce(for: 0.2, scheduler: DispatchQueue.main) // Hide skeleton with delay
