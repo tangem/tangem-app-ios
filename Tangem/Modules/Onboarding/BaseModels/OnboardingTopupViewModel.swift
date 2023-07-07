@@ -56,9 +56,8 @@ class OnboardingTopupViewModel<Step: OnboardingStep, Coordinator: OnboardingTopu
         else { return }
 
         refreshButtonState = .activityIndicator
-        walletModelUpdateCancellable = walletModel.walletDidChange
+        walletModelUpdateCancellable = walletModel.update(silent: false)
             .receive(on: DispatchQueue.main)
-            .dropFirst()
             .sink { [weak self] walletModelState in
                 guard let self = self else { return }
 
@@ -92,8 +91,6 @@ class OnboardingTopupViewModel<Step: OnboardingStep, Coordinator: OnboardingTopu
                 }
                 walletModelUpdateCancellable = nil
             }
-
-        walletModel.update(silent: false)
     }
 
     func updateCardBalanceText(for model: WalletModel) {
