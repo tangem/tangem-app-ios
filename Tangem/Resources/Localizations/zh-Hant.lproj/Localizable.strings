@@ -76,6 +76,7 @@
 "common_explorer" = "Explorer";
 "common_explorer_format" = "%@ explorer";
 "common_import" = "導入";
+"common_learn_and_earn" = "Learn & Earn";
 "common_like" = "喜歡";
 "common_main_network" = "Main network";
 "common_no" = "否";
@@ -175,15 +176,13 @@
 "key_invalidated_warning_description" = "您已更新生物識別登入，掃描您的卡進入";
 "mail_error_no_accounts_body" = "請設置一個帳戶以發送電子郵件";
 "mail_error_no_accounts_title" = "沒有郵件帳戶";
-"main_get_bonus_subtitle" = "You have completed the training and can get your 1inch tokens";
-"main_get_bonus_title" = "Get a bonus";
-"main_learn_title" = "Learn & Earn";
+"main_get_bonus_subtitle" = "You have completed all of the lessons, and are now eligible to receive your 1INCH tokens";
 "main_manage_tokens" = "管理代幣";
 "main_no_backup_warning_subtitle" = "為了保護您的資產，我們建議您執行此程序";
 "main_no_backup_warning_title" = "您的錢包尚未備份";
 "main_page_balance" = "總餘額";
 "main_processing_full_amount" = "該金額不包括您的部分資金";
-"main_promotion_credited" = "1inch tokens will be credited to your %@ wallet address within 24 hours";
+"main_promotion_credited" = "1INCH tokens will be credited to your %@ wallet address within 24 hours";
 "main_scan_card_warning_view_subtitle" = "要訪問所有的網路您需要掃描卡片";
 "main_scan_card_warning_view_title" = "掃描卡片";
 "main_tokens" = "代幣";
@@ -350,9 +349,8 @@
 "story_currencies_title" = "千種虛擬貨幣";
 "story_finish_description" = "隨時隨地使用它，不需要接線或電池，只需要你的卡片和手機";
 "story_finish_title" = "適合每個人的冷錢包";
-"story_learn_description" = "Complete the training, get the opportunity to buy Tangem wallet with a discount and receive 1inch tokens on your wallet";
+"story_learn_description" = "Take three lessons, get a discount on your Tangem Wallet, and receive 1INCH tokens to your wallet";
 "story_learn_learn" = "Learn";
-"story_learn_title" = "Learn and get a bonus";
 "story_meet_borrow" = "借入";
 "story_meet_buy" = "購買";
 "story_meet_exchange" = "交易";

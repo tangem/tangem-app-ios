@@ -27,6 +27,7 @@ extension Blockchain {
         case "binancecoin", "bnb": self = .binance(testnet: isTestnet)
         case "cardano": self = .cardano(shelley: true)
         case "ripple", "xrp": self = .xrp(curve: .secp256k1)
+        case "ducatus": self = .ducatus
         case "tezos": self = .tezos(curve: .secp256k1)
         case "dogecoin": self = .dogecoin
         case "binance-smart-chain", "binance_smart_chain": self = .bsc(testnet: isTestnet)
@@ -53,6 +54,7 @@ extension Blockchain {
         case "terra", "terra-luna": self = .terraV1
         case "terra-2", "terra-luna-2": self = .terraV2
         case "crypto-com-chain", "cronos": self = .cronos
+        case "telos": self = .telos(testnet: isTestnet)
         default:
             AppLog.shared.debug("⚠️⚠️⚠️ Failed to map network ID \"\(stringId)\"")
             return nil
@@ -65,6 +67,7 @@ extension Blockchain {
         case .bitcoin: return "bitcoin"
         case .bitcoinCash: return "bitcoin-cash"
         case .cardano: return "cardano"
+        case .ducatus: return "ducatus"
         case .ethereum: return "ethereum"
         case .ethereumClassic: return "ethereum-classic"
         case .litecoin: return "litecoin"
@@ -97,6 +100,7 @@ extension Blockchain {
         case .terraV1: return "terra-luna"
         case .terraV2: return "terra-luna-2"
         case .cronos: return "crypto-com-chain"
+        case .telos: return "telos"
         }
     }
 
@@ -119,6 +123,7 @@ extension Blockchain {
         case .bitcoin: return "bitcoin"
         case .bitcoinCash: return "bitcoin-cash"
         case .cardano: return "cardano"
+        case .ducatus: return "ducatus"
         case .ethereum: return "ethereum"
         case .ethereumClassic: return "ethereum-classic"
         case .litecoin: return "litecoin"
@@ -151,6 +156,7 @@ extension Blockchain {
         case .terraV1: return "terra"
         case .terraV2: return "terra-2"
         case .cronos: return "cronos"
+        case .telos: return "telos"
         }
     }
 
@@ -215,6 +221,7 @@ extension Blockchain {
             .terraV1,
             .terraV2,
             .cronos,
+            .telos(testnet: false),
         ]
     }()
 
@@ -240,6 +247,7 @@ extension Blockchain {
             .kava(testnet: true),
             .ravencoin(testnet: true),
             .cosmos(testnet: true),
+            .telos(testnet: true),
         ]
     }()
 }
