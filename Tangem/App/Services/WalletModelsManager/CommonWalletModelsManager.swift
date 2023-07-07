@@ -83,7 +83,7 @@ extension CommonWalletModelsManager: WalletModelsManager {
 
     func updateAll(silent: Bool, completion: @escaping () -> Void) {
         let publishers = walletModels.map {
-            $0.update(silent: silent).replaceError(with: ())
+            $0.update(silent: silent)
         }
 
         updateAllSubscription = Publishers
