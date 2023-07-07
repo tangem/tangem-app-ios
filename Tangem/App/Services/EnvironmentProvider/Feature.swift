@@ -10,7 +10,6 @@ import Foundation
 
 enum Feature: String, Hashable, CaseIterable {
     case exchange
-    case walletConnectV2
     case importSeedPhrase
     case accessCodeRecoverySettings
     case disableFirmwareVersionLimit
@@ -21,7 +20,6 @@ enum Feature: String, Hashable, CaseIterable {
     var name: String {
         switch self {
         case .exchange: return "Exchange"
-        case .walletConnectV2: return "WalletConnect V2"
         case .importSeedPhrase: return "Import seed phrase (Firmware 6.11 and above)"
         case .accessCodeRecoverySettings: return "Access Code Recovery Settings"
         case .disableFirmwareVersionLimit: return "Disable firmware version limit"
@@ -34,11 +32,10 @@ enum Feature: String, Hashable, CaseIterable {
     var releaseVersion: ReleaseVersion {
         switch self {
         case .exchange: return .version("4.2")
-        case .walletConnectV2: return .version("4.7")
         case .importSeedPhrase: return .unspecified
         case .accessCodeRecoverySettings: return .unspecified
         case .disableFirmwareVersionLimit: return .unspecified
-        case .learnToEarn: return .unspecified
+        case .learnToEarn: return .version("4.9")
         case .tokenDetailsV2: return .unspecified
         case .enableBlockchainSdkEvents: return .unspecified
         }
