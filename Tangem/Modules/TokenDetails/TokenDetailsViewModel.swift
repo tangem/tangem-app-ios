@@ -225,7 +225,7 @@ private extension TokenDetailsViewModel {
     }
 
     private func bind() {
-        walletModel.walletDidChange
+        walletModel.walletDidChangePublisher
             .receive(on: DispatchQueue.main)
             .sink { _ in } receiveValue: { [weak self] newState in
                 AppLog.shared.debug("Token details receive new wallet model state: \(newState)")
