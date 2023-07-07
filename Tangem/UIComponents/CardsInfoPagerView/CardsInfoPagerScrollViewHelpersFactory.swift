@@ -15,11 +15,7 @@ struct CardsInfoPagerScrollViewHelpersFactory {
     let contentOffset: Binding<CGPoint>
 
     func makeConnector(forPageAtIndex pageIndex: Int) -> CardsInfoPagerScrollViewConnector {
-        let headerPlaceholderView = CardsInfoPageHeaderPlaceholderView(
-            expandedHeaderScrollTargetIdentifier: makeExpandedHeaderScrollTargetIdentifier(forPageAtIndex: pageIndex),
-            collapsedHeaderScrollTargetIdentifier: makeCollapsedHeaderScrollTargetIdentifier(forPageAtIndex: pageIndex),
-            headerPlaceholderTopInset: headerPlaceholderTopInset
-        )
+        let headerPlaceholderView = makeHeaderPlaceholderView(forPageAtIndex: pageIndex)
         return CardsInfoPagerScrollViewConnector(
             contentOffset: contentOffset,
             headerPlaceholderView: headerPlaceholderView,
@@ -36,6 +32,14 @@ struct CardsInfoPagerScrollViewHelpersFactory {
             headerAutoScrollThresholdRatio: headerAutoScrollThresholdRatio,
             expandedHeaderScrollTargetIdentifier: makeExpandedHeaderScrollTargetIdentifier(forPageAtIndex: pageIndex),
             collapsedHeaderScrollTargetIdentifier: makeCollapsedHeaderScrollTargetIdentifier(forPageAtIndex: pageIndex)
+        )
+    }
+
+    private func makeHeaderPlaceholderView(forPageAtIndex pageIndex: Int) -> CardsInfoPageHeaderPlaceholderView {
+        return CardsInfoPageHeaderPlaceholderView(
+            expandedHeaderScrollTargetIdentifier: makeExpandedHeaderScrollTargetIdentifier(forPageAtIndex: pageIndex),
+            collapsedHeaderScrollTargetIdentifier: makeCollapsedHeaderScrollTargetIdentifier(forPageAtIndex: pageIndex),
+            headerPlaceholderTopInset: headerPlaceholderTopInset
         )
     }
 
