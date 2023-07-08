@@ -29,6 +29,9 @@ struct OrganizeTokensView: View {
     @available(iOS, introduced: 13.0, deprecated: 15.0, message: "Replace with native .safeAreaInset()")
     @State private var scrollViewBottomContentInset: CGFloat = 0.0
 
+    @State private var scrollViewTopContentInsetSpacerIdentifier: UUID
+    @State private var scrollViewBottomContentInsetSpacerIdentifier: UUID
+
     @State private var tokenListFooterFrameMinY: CGFloat = 0.0
     @State private var tokenListContentFrameMaxY: CGFloat = 0.0
     @State private var scrollViewContentOffset: CGPoint = .zero
@@ -38,11 +41,7 @@ struct OrganizeTokensView: View {
 
     // MARK: - Drag and drop support
 
-    // [REDACTED_TODO_COMMENT]
-    @StateObject private var dragAndDropController = OrganizeTokensDragAndDropController(
-        autoScrollFrequency: Constants.autoScrollFrequency,
-        destinationItemSelectionThresholdRatio: Constants.dragAndDropDestinationItemSelectionThresholdRatio
-    )
+    @StateObject private var dragAndDropController: OrganizeTokensDragAndDropController
 
     // Viewport with `contentInset` (i.e. with `scrollViewTopContentInset` and `scrollViewBottomContentInset`)
     @State private var visibleViewportFrame: CGRect = .zero
@@ -107,7 +106,8 @@ struct OrganizeTokensView: View {
             ScrollViewReader { scrollProxy in
                 ScrollView(showsIndicators: false) {
                     LazyVStack(spacing: 0.0) {
-                        Spacer(minLength: scrollViewTopContentInset) // [REDACTED_TODO_COMMENT]
+                        Spacer(minLength: scrollViewTopContentInset)
+                            .id(scrollViewTopContentInsetSpacerIdentifier)
 
                         let parametersProvider = OrganizeTokensListCornerRadiusParametersProvider(
                             sections: viewModel.sections,
@@ -170,7 +170,8 @@ struct OrganizeTokensView: View {
                         bindTo: dragAndDropController.contentOffsetSubject.asWriteOnlyBinding(.zero)
                     )
 
-                    Spacer(minLength: scrollViewBottomContentInset) // [REDACTED_TODO_COMMENT]
+                    Spacer(minLength: scrollViewBottomContentInset)
+                        .id(scrollViewBottomContentInsetSpacerIdentifier)
                 }
                 .readGeometry(\.size, bindTo: dragAndDropController.viewportSizeSubject.asWriteOnlyBinding(.zero))
                 .onChange(of: draggedItemFrame) { draggedItemFrame in
@@ -255,6 +256,20 @@ struct OrganizeTokensView: View {
         viewModel: OrganizeTokensViewModel
     ) {
         self.viewModel = viewModel
+        // Explicit @State/ @StateObject initialization is used here because we have a classic chicken-egg problem:
+        // 'Cannot use instance member within property initializer; property initializers run before 'self' is available'
+        let topContentInsetdentifier = UUID()
+        let bottomContentInsetIdentifier = UUID()
+        _scrollViewTopContentInsetSpacerIdentifier = .init(initialValue: topContentInsetdentifier)
+        _scrollViewBottomContentInsetSpacerIdentifier = .init(initialValue: bottomContentInsetIdentifier)
+        _dragAndDropController = .init(
+            wrappedValue: OrganizeTokensDragAndDropController(
+                autoScrollFrequency: Constants.autoScrollFrequency,
+                destinationItemSelectionThresholdRatio: Constants.dragAndDropDestinationItemSelectionThresholdRatio,
+                topEdgeAdditionalAutoScrollTargets: [topContentInsetdentifier],
+                bottomEdgeAdditionalAutoScrollTargets: [bottomContentInsetIdentifier]
+            )
+        )
     }
 
     // MARK: - Gestures
