@@ -435,9 +435,7 @@ private extension SwappingViewModel {
             }
         case .available(let model):
             updateFeeRowViewModel(transactionData: model.transactionData)
-            if FeatureProvider.isAvailable(.abilityChooseCommissionRate) {
-                updateFeeOptionsViewModels(data: model.transactionData, options: model.gasOptions)
-            }
+            updateFeeOptionsViewModels(data: model.transactionData, options: model.gasOptions)
         }
     }
 
@@ -554,33 +552,21 @@ private extension SwappingViewModel {
 
     func updateFeeRowViewModel(transactionData: SwappingTransactionData) {
         runTask(in: self) { root in
-            if FeatureProvider.isAvailable(.abilityChooseCommissionRate) {
-                let fiatFee = try await root.fiatRatesProvider.getFiat(
-                    for: transactionData.sourceBlockchain,
-                    amount: transactionData.fee
-                )
+            let fiatFee = try await root.fiatRatesProvider.getFiat(
+                for: transactionData.sourceBlockchain,
+                amount: transactionData.fee
+            )
 
-                try Task.checkCancellation()
-                let currencyCode = await AppSettings.shared.selectedCurrencyCode
+            try Task.checkCancellation()
+            let currencyCode = await AppSettings.shared.selectedCurrencyCode
 
-                await runOnMain {
-                    root.swappingFeeRowViewModel?.update(
-                        state: .policy(
-                            title: transactionData.gas.policy.title,
-                            fiat: fiatFee.currencyFormatted(code: currencyCode)
-                        )
+            await runOnMain {
+                root.swappingFeeRowViewModel?.update(
+                    state: .policy(
+                        title: transactionData.gas.policy.title,
+                        fiat: fiatFee.currencyFormatted(code: currencyCode)
                     )
-                }
-            } else {
-                let formattedFee = try await root.swappingFeeFormatter.format(
-                    fee: transactionData.fee,
-                    blockchain: transactionData.sourceBlockchain
                 )
-                try Task.checkCancellation()
-
-                await runOnMain {
-                    root.swappingFeeRowViewModel?.update(state: .fee(fee: formattedFee))
-                }
             }
         }
     }
