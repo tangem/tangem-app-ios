@@ -109,47 +109,7 @@ struct OrganizeTokensView: View {
                         Spacer(minLength: scrollViewTopContentInset)
                             .id(scrollViewTopContentInsetSpacerIdentifier)
 
-                        let parametersProvider = OrganizeTokensListCornerRadiusParametersProvider(
-                            sections: viewModel.sections,
-                            cornerRadius: Constants.cornerRadius
-                        )
-
-                        ForEach(indexed: viewModel.sections.indexed()) { sectionIndex, sectionViewModel in
-                            Section(
-                                content: {
-                                    ForEach(indexed: sectionViewModel.items.indexed()) { itemIndex, itemViewModel in
-                                        let indexPath = IndexPath(item: itemIndex, section: sectionIndex)
-
-                                        makeCell(
-                                            viewModel: itemViewModel,
-                                            indexPath: indexPath,
-                                            parametersProvider: parametersProvider
-                                        )
-                                        .hidden(itemViewModel.id == dragAndDropSourceViewModelIdentifier)
-                                        .id(itemViewModel.id)
-                                        .readGeometry(
-                                            \.frame,
-                                            inCoordinateSpace: .named(scrollViewContentCoordinateSpaceName)
-                                        ) { dragAndDropController.saveFrame($0, forItemAt: indexPath) }
-                                    }
-                                },
-                                header: {
-                                    let indexPath = IndexPath(item: viewModel.sectionHeaderItemIndex, section: sectionIndex)
-
-                                    makeSection(
-                                        viewModel: sectionViewModel,
-                                        sectionIndex: sectionIndex,
-                                        parametersProvider: parametersProvider
-                                    )
-                                    .hidden(sectionViewModel.id == dragAndDropSourceViewModelIdentifier)
-                                    .id(sectionViewModel.id)
-                                    .readGeometry(
-                                        \.frame,
-                                        inCoordinateSpace: .named(scrollViewContentCoordinateSpaceName)
-                                    ) { dragAndDropController.saveFrame($0, forItemAt: indexPath) }
-                                }
-                            )
-                        }
+                        tokenListContent
                     }
                     .animation(.spring(), value: viewModel.sections)
                     .padding(.horizontal, Constants.contentHorizontalInset)
@@ -218,6 +178,50 @@ struct OrganizeTokensView: View {
 
             dragAndDropController.stopAutoScrolling()
             viewModel.onDragAnimationCompletion()
+        }
+    }
+
+    @ViewBuilder private var tokenListContent: some View {
+        let parametersProvider = OrganizeTokensListCornerRadiusParametersProvider(
+            sections: viewModel.sections,
+            cornerRadius: Constants.cornerRadius
+        )
+
+        ForEach(indexed: viewModel.sections.indexed()) { sectionIndex, sectionViewModel in
+            Section(
+                content: {
+                    ForEach(indexed: sectionViewModel.items.indexed()) { itemIndex, itemViewModel in
+                        let indexPath = IndexPath(item: itemIndex, section: sectionIndex)
+
+                        makeCell(
+                            viewModel: itemViewModel,
+                            indexPath: indexPath,
+                            parametersProvider: parametersProvider
+                        )
+                        .hidden(itemViewModel.id == dragAndDropSourceViewModelIdentifier)
+                        .id(itemViewModel.id)
+                        .readGeometry(
+                            \.frame,
+                            inCoordinateSpace: .named(scrollViewContentCoordinateSpaceName)
+                        ) { dragAndDropController.saveFrame($0, forItemAt: indexPath) }
+                    }
+                },
+                header: {
+                    let indexPath = IndexPath(item: viewModel.sectionHeaderItemIndex, section: sectionIndex)
+
+                    makeSection(
+                        viewModel: sectionViewModel,
+                        sectionIndex: sectionIndex,
+                        parametersProvider: parametersProvider
+                    )
+                    .hidden(sectionViewModel.id == dragAndDropSourceViewModelIdentifier)
+                    .id(sectionViewModel.id)
+                    .readGeometry(
+                        \.frame,
+                        inCoordinateSpace: .named(scrollViewContentCoordinateSpaceName)
+                    ) { dragAndDropController.saveFrame($0, forItemAt: indexPath) }
+                }
+            )
         }
     }
 
