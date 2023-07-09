@@ -125,15 +125,18 @@ struct OrganizeTokensView: View {
                         inCoordinateSpace: .named(scrollViewFrameCoordinateSpaceName),
                         bindTo: $scrollViewContentOffset
                     )
-                    .readContentOffset(
-                        inCoordinateSpace: .named(scrollViewFrameCoordinateSpaceName),
-                        bindTo: dragAndDropController.contentOffsetSubject.asWriteOnlyBinding(.zero)
-                    )
 
                     Spacer(minLength: scrollViewBottomContentInset)
                         .id(scrollViewBottomContentInsetSpacerIdentifier)
                 }
-                .readGeometry(\.size, bindTo: dragAndDropController.viewportSizeSubject.asWriteOnlyBinding(.zero))
+                .readGeometry(\.frame) { newValue in
+                    dragAndDropController.viewportSizeSubject.send(newValue.size)
+                    visibleViewportFrame = newValue
+                        .divided(atDistance: scrollViewTopContentInset, from: .minYEdge)
+                        .remainder
+                        .divided(atDistance: scrollViewBottomContentInset, from: .maxYEdge)
+                        .remainder
+                }
                 .onChange(of: draggedItemFrame) { draggedItemFrame in
                     // [REDACTED_TODO_COMMENT]
                     if visibleViewportFrame.isValid, draggedItemFrame.isValid {
@@ -160,6 +163,7 @@ struct OrganizeTokensView: View {
             }
         }
         .onChange(of: scrollViewContentOffset) { newValue in
+            dragAndDropController.contentOffsetSubject.send(newValue)
             isNavigationBarBackgroundHidden = newValue.y <= 0.0
         }
         .onChange(of: dragAndDropDestinationIndexPath) { [oldValue = dragAndDropDestinationIndexPath] newValue in
