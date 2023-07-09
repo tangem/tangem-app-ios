@@ -144,12 +144,17 @@ struct OrganizeTokensView: View {
                         if intersection.isNull || intersection.height < min(visibleViewportFrame.height, draggedItemFrame.height) {
                             if draggedItemFrame.minY + Constants.autoScrollTriggerHeightDiff < visibleViewportFrame.minY {
                                 dragAndDropController.startAutoScrolling(direction: .top)
-                            } else if draggedItemFrame.maxY + Constants.autoScrollTriggerHeightDiff > visibleViewportFrame.maxY {
+                            } else if draggedItemFrame.maxY - Constants.autoScrollTriggerHeightDiff > visibleViewportFrame.maxY {
                                 dragAndDropController.startAutoScrolling(direction: .bottom)
                             } else {
                                 // [REDACTED_TODO_COMMENT]
                             }
                         }
+                    }
+                }
+                .onReceive(dragAndDropController.autoScrollTargetPublisher) { newValue in
+                    withAnimation(.linear(duration: Constants.autoScrollFrequency)) {
+                        scrollProxy.scrollTo(newValue, anchor: autoScrollAnchor)
                     }
                 }
             }
