@@ -21,4 +21,10 @@ extension Swift.Collection {
     func indexed() -> some RandomAccessCollection<(Self.Index, Self.Element)> {
         return Array(Swift.zip(indices, self))
     }
+
+    func sorted<T>(by keyPath: KeyPath<Element, T>) -> [Element] where T: Comparable {
+        return sorted { lhs, rhs in
+            lhs[keyPath: keyPath] < rhs[keyPath: keyPath]
+        }
+    }
 }
