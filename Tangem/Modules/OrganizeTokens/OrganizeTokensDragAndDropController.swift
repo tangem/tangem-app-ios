@@ -277,7 +277,7 @@ final class OrganizeTokensDragAndDropController: ObservableObject {
         // [REDACTED_TODO_COMMENT]
         let sortedItemsFrames = itemsFrames
             .filter { isIndexPathValid($0.key) }
-            .sorted { $0.value.minY < $1.value.minY }
+            .sorted(by: \.value.minY)
 
         switch direction {
         case .top:
