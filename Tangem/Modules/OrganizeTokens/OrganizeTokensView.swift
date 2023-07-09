@@ -139,7 +139,7 @@ struct OrganizeTokensView: View {
                 }
                 .onChange(of: draggedItemFrame) { draggedItemFrame in
                     // [REDACTED_TODO_COMMENT]
-                    if visibleViewportFrame.isValid, draggedItemFrame.isValid {
+                    if visibleViewportFrame.canBeRendered, draggedItemFrame.canBeRendered {
                         let intersection = visibleViewportFrame.intersection(draggedItemFrame)
                         if intersection.isNull || intersection.height < min(visibleViewportFrame.height, draggedItemFrame.height) {
                             if draggedItemFrame.minY + Constants.autoScrollTriggerHeightDiff < visibleViewportFrame.minY {
@@ -290,7 +290,7 @@ struct OrganizeTokensView: View {
     /// For more information about `Sequenced` gestures in SwiftUI see
     /// [official documentation](https://developer.apple.com/documentation/swiftui/composing-swiftui-gestures).
     private func makeDragAndDropGesture() -> some Gesture {
-        LongPressGesture(minimumDuration: 1.0)
+        LongPressGesture(minimumDuration: Constants.dragLiftLongPressGestureDuration)
             .sequenced(before: DragGesture())
             .updating($dragGestureTranslation) { value, state, _ in
                 switch value {
@@ -479,12 +479,7 @@ struct OrganizeTokensView: View {
             .frame(width: width)
             .readGeometry(\.frame, bindTo: $draggedItemFrame)
             .cornerRadiusContinuous(hasActiveDrag ? Constants.draggableViewCornerRadius : 0.0)
-            .shadow(
-                color: Color.black.opacity(0.08), // [REDACTED_TODO_COMMENT]
-                radius: hasActiveDrag ? 14.0 : 0.0,
-                x: 0.0,
-                y: 8.0
-            )
+            .shadow(color: Color.black.opacity(0.08), radius: hasActiveDrag ? 14.0 : 0.0, y: 8.0) // [REDACTED_TODO_COMMENT]
             .scaleEffect(Constants.draggableViewScale)
             .offset(y: itemFrame.origin.y)
             .offset(y: dragGestureTranslation.height)
@@ -512,6 +507,7 @@ private extension OrganizeTokensView {
         static let overlayViewAdditionalVerticalInset = 10.0
         static let tokenListHeaderViewTopInset = 8.0
         static let contentHorizontalInset = 16.0
+        static let dragLiftLongPressGestureDuration = 0.5
         static let dragLiftAnimationDuration = 0.35
         static let dropAnimationProgressThresholdForViewRemoval = 0.05
         static let dragAndDropDestinationItemSelectionThresholdRatio = 0.5
@@ -544,12 +540,5 @@ struct OrganizeTokensView_Preview: PreviewProvider {
                 )
             }
         }
-    }
-}
-
-// [REDACTED_TODO_COMMENT]
-private extension CGRect {
-    var isValid: Bool {
-        return !isInfinite && !isEmpty
     }
 }
