@@ -519,7 +519,7 @@ private extension OrganizeTokensView {
         static let dragAndDropDestinationItemSelectionThresholdRatio = 0.5
         static let draggableViewScale = 1.035
         static let draggableViewCornerRadius = 7.0
-        static let autoScrollFrequency = 0.3
+        static let autoScrollFrequency = 0.2
         static let autoScrollTriggerHeightDiff = 10.0
     }
 }
