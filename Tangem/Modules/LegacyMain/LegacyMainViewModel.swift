@@ -357,6 +357,9 @@ class LegacyMainViewModel: ObservableObject {
             return
         }
 
+        let newClient = (promotionService.promoCode != nil)
+        Analytics.logPromotionEvent(.mainNoticeLearnAndEarn, programName: promotionService.currentProgramName, newClient: newClient)
+
         promotionRequestInProgress = true
 
         runTask { [weak self] in
@@ -557,6 +560,8 @@ private extension LegacyMainViewModel {
         )
 
         if let awardedBlockchain {
+            Analytics.logPromotionEvent(.mainNoticeSuccessfulClaim, programName: promotionService.currentProgramName)
+
             showAlert(AlertBuilder.makeSuccessAlert(message: Localization.mainPromotionCredited(awardedBlockchain.displayName)))
         }
     }
