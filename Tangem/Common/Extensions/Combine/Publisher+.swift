@@ -166,7 +166,7 @@ public extension Publisher where Failure == Never {
 extension Publisher {
     func withWeakCaptureOf<Object>(
         _ object: Object
-    ) -> some Publisher<(Object, Self.Output), Self.Failure> where Object: AnyObject {
+    ) -> Publishers.CompactMap<Self, (Object, Self.Output)> where Object: AnyObject {
         return compactMap { [weak object] output in
             guard let object = object else { return nil }
 
@@ -176,7 +176,7 @@ extension Publisher {
 
     func withUnownedCaptureOf<Object>(
         _ object: Object
-    ) -> some Publisher<(Object, Self.Output), Self.Failure> where Object: AnyObject {
+    ) -> Publishers.Map<Self, (Object, Self.Output)> where Object: AnyObject {
         return map { [unowned object] output in
             return (object, output)
         }
