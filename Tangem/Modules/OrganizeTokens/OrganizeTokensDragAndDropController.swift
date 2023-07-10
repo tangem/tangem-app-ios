@@ -37,8 +37,43 @@ final class OrganizeTokensDragAndDropController: ObservableObject {
 
     private(set) var autoScrollStatus: OrganizeTokensDragAndDropControllerAutoScrollStatus = .inactive
 
-    var autoScrollTargetPublisher: some Publisher<AnyHashable, Never> { autoScrollTargetSubject }
-    private var autoScrollTargetSubject = PassthroughSubject<AnyHashable, Never>()
+    private(set) lazy var autoScrollTargetPublisher: some Publisher<AnyHashable, Never> = {
+        return autoScrollStartSubject
+            .withWeakCaptureOf(self)
+            .flatMapLatest { controller, direction in
+                // The first item from `additionalAutoScrollTargets` is emitted immediately
+                // to get rid of delays between ticks of two separate timers
+                let additionalAutoScrollTargets = controller.additionalAutoScrollTargets(scrollDirection: direction)
+                let additionalAutoScrollTargetsPublisher = Timer
+                    .publish(every: controller.autoScrollFrequency, on: .main, in: .common)
+                    .autoconnect()
+                    .zip(additionalAutoScrollTargets.dropFirst(1).publisher)
+                    .map(\.1)
+                    .prepend(additionalAutoScrollTargets.prefix(1))
+
+                return Timer
+                    .publish(every: controller.autoScrollFrequency, on: .main, in: .common)
+                    .autoconnect()
+                    .withLatestFrom(controller._contentOffsetSubject, controller._viewportSizeSubject)
+                    .withWeakCaptureOf(controller)
+                    .map { input -> AnyHashable? in
+                        let (controller, (contentOffset, viewportSize)) = input
+                        let scrollTargetIndexPath = controller.indexPathForAutoScrollTarget(
+                            direction: direction,
+                            contentOffset: contentOffset,
+                            viewportSize: viewportSize
+                        )
+                        return scrollTargetIndexPath.flatMap { indexPath in
+                            controller.dataSource?.controller(controller, listViewIdentifierForItemAt: indexPath)
+                        }
+                    }
+                    .prefix { $0 != nil }
+                    .compactMap { $0 }
+                    .append(additionalAutoScrollTargetsPublisher)
+                    .removeDuplicates()
+                    .prefix(untilOutputFrom: controller.autoScrollStopSubject)
+            }
+    }()
 
     var viewportSizeSubject: some Subject<CGSize, Never> { _viewportSizeSubject }
     private let _viewportSizeSubject = CurrentValueSubject<CGSize, Never>(.zero)
@@ -48,8 +83,8 @@ final class OrganizeTokensDragAndDropController: ObservableObject {
 
     private var itemsFrames: [IndexPath: CGRect] = [:]
 
-    private lazy var impactFeedbackGenerator = UIImpactFeedbackGenerator(style: .light)
-    private lazy var selectionFeedbackGenerator = UISelectionFeedbackGenerator()
+    private let autoScrollStartSubject = PassthroughSubject<OrganizeTokensDragAndDropControllerAutoScrollDirection, Never>()
+    private let autoScrollStopSubject = PassthroughSubject<Void, Never>()
 
     private let autoScrollFrequency: TimeInterval
     private let destinationItemSelectionThresholdRatio: Double
@@ -57,7 +92,8 @@ final class OrganizeTokensDragAndDropController: ObservableObject {
     private let topEdgeAdditionalAutoScrollTargets: [AnyHashable]
     private let bottomEdgeAdditionalAutoScrollTargets: [AnyHashable]
 
-    private var autoScrollSubscription: AnyCancellable?
+    private lazy var impactFeedbackGenerator = UIImpactFeedbackGenerator(style: .light)
+    private lazy var selectionFeedbackGenerator = UISelectionFeedbackGenerator()
 
     init(
         autoScrollFrequency: TimeInterval,
@@ -142,51 +178,16 @@ final class OrganizeTokensDragAndDropController: ObservableObject {
     }
 
     func startAutoScrolling(direction: OrganizeTokensDragAndDropControllerAutoScrollDirection) {
-        guard autoScrollSubscription == nil else { return }
+        guard !autoScrollStatus.isActive else { return }
 
         autoScrollStatus = .active(direction: direction)
-
-        // The first item from `additionalAutoScrollTargets` is emitted immediately
-        // to get rid of delays between ticks of two separate timers
-        let additionalAutoScrollTargets = additionalAutoScrollTargets(scrollDirection: direction)
-        let additionalAutoScrollTargetsPublisher = Timer
-            .publish(every: autoScrollFrequency, on: .main, in: .common)
-            .autoconnect()
-            .zip(additionalAutoScrollTargets.dropFirst(1).publisher)
-            .map(\.1)
-            .prepend(additionalAutoScrollTargets.prefix(1))
-
-        autoScrollSubscription = Timer
-            .publish(every: autoScrollFrequency, on: .main, in: .common)
-            .autoconnect()
-            .withLatestFrom(_contentOffsetSubject, _viewportSizeSubject)
-            .withWeakCaptureOf(self)
-            .map { input -> AnyHashable? in
-                let (controller, (contentOffset, viewportSize)) = input
-                let scrollTargetIndexPath = controller.indexPathForAutoScrollTarget(
-                    direction: direction,
-                    contentOffset: contentOffset,
-                    viewportSize: viewportSize
-                )
-                return scrollTargetIndexPath.flatMap { indexPath in
-                    controller.dataSource?.controller(controller, listViewIdentifierForItemAt: indexPath)
-                }
-            }
-            .prefix { $0 != nil }
-            .compactMap { $0 }
-            .append(additionalAutoScrollTargetsPublisher)
-            .removeDuplicates()
-            .withWeakCaptureOf(self)
-            .sink(receiveValue: { controller, viewIdentifier in
-                // [REDACTED_TODO_COMMENT]
-                controller.autoScrollTargetSubject.send(viewIdentifier)
-            })
+        autoScrollStartSubject.send(direction)
     }
 
     func stopAutoScrolling() {
-        guard autoScrollSubscription != nil else { return }
+        guard autoScrollStatus.isActive else { return }
 
-        autoScrollSubscription = nil
+        autoScrollStopSubject.send()
         autoScrollStatus = .inactive
     }
 
