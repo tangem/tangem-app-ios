@@ -66,6 +66,10 @@ extension Analytics {
         case selectedCurrencyToken = "Token"
         case selectedCurrencyApp = "App Currency"
 
+        // Client Type
+        case old = "Old"
+        case new = "New"
+
         // MARK: - Actions
 
         case scan = "tap_scan_task"
