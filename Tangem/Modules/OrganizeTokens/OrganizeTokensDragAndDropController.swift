@@ -11,21 +11,6 @@ import UIKit
 import Combine
 import CombineExt
 
-enum OrganizeTokensDragAndDropControllerListViewKind {
-    case cell
-    case sectionHeader
-}
-
-enum OrganizeTokensDragAndDropControllerAutoScrollDirection {
-    case top
-    case bottom
-}
-
-enum OrganizeTokensDragAndDropControllerAutoScrollStatus {
-    case active(direction: OrganizeTokensDragAndDropControllerAutoScrollDirection)
-    case inactive
-}
-
 protocol OrganizeTokensDragAndDropControllerDataSource: AnyObject {
     func numberOfSections(
         for controller: OrganizeTokensDragAndDropController
