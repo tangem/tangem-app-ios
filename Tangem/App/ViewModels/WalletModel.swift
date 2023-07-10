@@ -215,7 +215,7 @@ class WalletModel {
             }
             .store(in: &bag)
 
-        walletManager.updatePublisher()
+        walletManager.statePublisher
             .filter { !$0.isInitialState }
             .receive(on: updateQueue)
             .sink { [weak self] newState in
