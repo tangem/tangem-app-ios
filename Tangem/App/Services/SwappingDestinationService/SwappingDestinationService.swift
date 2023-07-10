@@ -13,12 +13,12 @@ import TangemSwapping
 struct SwappingDestinationService {
     @Injected(\.tangemApiService) private var tangemApiService: TangemApiService
 
-    private let walletModel: WalletModel
+    private let blockchain: Blockchain
     private let mapper: CurrencyMapping
     private let walletModelTokens: [Token]
 
-    init(walletModel: WalletModel, mapper: CurrencyMapping, walletModelTokens: [Token]) {
-        self.walletModel = walletModel
+    init(blockchain: Blockchain, mapper: CurrencyMapping, walletModelTokens: [Token]) {
+        self.blockchain = blockchain
         self.mapper = mapper
         self.walletModelTokens = walletModelTokens
     }
@@ -28,8 +28,6 @@ struct SwappingDestinationService {
 
 extension SwappingDestinationService: SwappingDestinationServicing {
     func getDestination(source: Currency) async throws -> Currency {
-        let blockchain = walletModel.blockchainNetwork.blockchain
-
         switch source.currencyType {
         case .token:
             if let currency = mapper.mapToCurrency(blockchain: blockchain) {
