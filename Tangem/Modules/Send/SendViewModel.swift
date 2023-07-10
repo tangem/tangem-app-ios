@@ -45,7 +45,7 @@ class SendViewModel: ObservableObject {
     // MARK: UI
 
     var shoudShowFeeSelector: Bool {
-        walletModel.walletManager.allowsFeeSelection
+        walletModel.shoudShowFeeSelector
     }
 
     var shoudShowFeeIncludeSelector: Bool {
@@ -308,7 +308,7 @@ class SendViewModel: ObservableObject {
                 let newAmount = Amount(with: amountToSend, value: newAmountValue)
 
                 do {
-                    try walletModel.walletManager.validate(amount: newAmount)
+                    try walletModel.transactionCreator.validate(amount: newAmount)
                     amountHint = nil
                     validatedAmount = newAmount
                 } catch {
@@ -357,8 +357,8 @@ class SendViewModel: ObservableObject {
                 }
 
                 do {
-                    let tx = try walletModel.walletManager.createTransaction(
-                        amount: isFeeIncluded ? amount - selectedFee.amount : amount,
+                    let tx = try walletModel.createTransaction(
+                        amountToSend: isFeeIncluded ? amount - selectedFee.amount : amount,
                         fee: selectedFee,
                         destinationAddress: destination
                     )
@@ -544,7 +544,7 @@ class SendViewModel: ObservableObject {
 
     func validateWithdrawal(_ transaction: BlockchainSdk.Transaction, _ totalAmount: Amount) {
         guard
-            let validator = walletModel.walletManager as? WithdrawalValidator,
+            let validator = walletModel.withdrawalValidator,
             let warning = validator.validate(transaction),
             error == nil
         else {
