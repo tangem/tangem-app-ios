@@ -242,6 +242,13 @@ class WalletModel {
 
     // MARK: - Update wallet model
 
+    func generalUpdate(silent: Bool) -> AnyPublisher<Void, Never> {
+        update(silent: silent)
+            .combineLatest(updateTransactionsHistory())
+            .mapVoid()
+            .eraseToAnyPublisher()
+    }
+
     @discardableResult
     /// Do not use with flatMap.
     func update(silent: Bool) -> AnyPublisher<State, Never> {
@@ -445,10 +452,13 @@ extension WalletModel {
 // MARK: Transaction history
 
 extension WalletModel {
-    func loadTransactionHistory() -> AnyPublisher<Void, Error> {
+    func updateTransactionsHistory() -> AnyPublisher<TransactionHistoryState, Never> {
         // [REDACTED_TODO_COMMENT]
         if FeatureStorage().useFakeTxHistory {
             return loadFakeTransactionHistory()
+                .replaceError(with: ())
+                .map { self._transactionsHistory.value }
+                .eraseToAnyPublisher()
         }
 
         guard
@@ -458,31 +468,32 @@ extension WalletModel {
             DispatchQueue.main.async {
                 self._transactionsHistory.value = .notSupported
             }
-            return .justWithError(output: ())
+            return .just(output: _transactionsHistory.value)
         }
 
         guard txHistoryUpdateSubscription == nil else {
-            return .justWithError(output: ())
+            return .just(output: _transactionsHistory.value)
         }
 
         _transactionsHistory.value = .loading
+
         let historyPublisher = historyLoader.loadTransactionHistory()
+            .map { _ in TransactionHistoryState.loaded }
+            .catch {
+                AppLog.shared.debug("🔄 Failed to load transaction history. Error: \($0)")
+
+                return Just(TransactionHistoryState.failedToLoad($0))
+                    .eraseToAnyPublisher()
+            }
+
         txHistoryUpdateSubscription = historyPublisher
             .receive(on: DispatchQueue.main)
-            .sink { [weak self] completion in
-                if case .failure(let error) = completion {
-                    AppLog.shared.debug("🔄 Failed to load transaction history. Error: \(error)")
-                    self?._transactionsHistory.value = .failedToLoad(error)
-                }
-                self?.txHistoryUpdateSubscription = nil
-            } receiveValue: { [weak self] _ in
+            .sink { [weak self] newState in
                 self?._transactionsHistory.value = .loaded
+                self?.txHistoryUpdateSubscription = nil
             }
 
         return historyPublisher
-            .replaceError(with: [])
-            .mapVoid()
-            .eraseError()
             .eraseToAnyPublisher()
     }
 
