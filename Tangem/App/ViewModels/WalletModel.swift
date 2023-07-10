@@ -30,6 +30,10 @@ class WalletModel {
         _transactionsHistory.eraseToAnyPublisher()
     }
 
+    var shoudShowFeeSelector: Bool {
+        walletManager.allowsFeeSelection
+    }
+
     private var _state: CurrentValueSubject<State, Never> = .init(.created)
     private var _rate: CurrentValueSubject<Decimal?, Never> = .init(nil)
     private var _transactionsHistory: CurrentValueSubject<TransactionHistoryState, Never> = .init(.notLoaded)
@@ -177,10 +181,10 @@ class WalletModel {
     var isDemo: Bool { demoBalance != nil }
     var demoBalance: Decimal?
 
-    let walletManager: WalletManager // [REDACTED_TODO_COMMENT]
     let amountType: Amount.AmountType
     let isCustom: Bool
 
+    private let walletManager: WalletManager
     private var updateTimer: AnyCancellable?
     private var txHistoryUpdateSubscription: AnyCancellable?
     private var updateWalletModelBag: AnyCancellable?
@@ -217,8 +221,9 @@ class WalletModel {
 
         walletManager.statePublisher
             .filter { !$0.isInitialState }
+            .combineLatest(walletManager.walletPublisher) // listen pending tx
             .receive(on: updateQueue)
-            .sink { [weak self] newState in
+            .sink { [weak self] newState, _ in
                 self?.walletManagerDidUpdate(newState)
             }
             .store(in: &bag)
@@ -385,6 +390,10 @@ class WalletModel {
         }
 
         return walletManager.getFee(amount: amount, destination: destination)
+    }
+
+    func createTransaction(amountToSend: Amount, fee: Fee, destinationAddress: String) throws -> Transaction {
+        try walletManager.createTransaction(amount: amountToSend, fee: fee, destinationAddress: destinationAddress)
     }
 }
 
@@ -672,5 +681,86 @@ extension WalletModel {
             hasher.combine(blockchainNetwork)
             hasher.combine(amountType)
         }
+    }
+}
+
+// MARK: - ExistentialDepositProvider
+
+extension WalletModel {
+    var existentialDepositWarning: String? {
+        guard let existentialDepositProvider = walletManager as? ExistentialDepositProvider else {
+            return nil
+        }
+
+        let blockchainName = blockchainNetwork.blockchain.displayName
+        let existentialDepositAmount = existentialDepositProvider.existentialDeposit.string(roundingMode: .plain)
+        return Localization.warningExistentialDepositMessage(blockchainName, existentialDepositAmount)
+    }
+}
+
+// MARK: - RentProvider
+
+extension WalletModel {
+    func updateRentWarning() -> AnyPublisher<String?, Never> {
+        guard let rentProvider = walletManager as? RentProvider else {
+            return .just(output: nil)
+        }
+
+        return rentProvider.rentAmount()
+            .zip(rentProvider.minimalBalanceForRentExemption())
+            .receive(on: RunLoop.main)
+            .map { [weak self] rentAmount, minimalBalanceForRentExemption in
+                guard
+                    let self = self,
+                    let amount = wallet.amounts[.coin],
+                    amount < minimalBalanceForRentExemption
+                else {
+                    return nil
+                }
+
+                return Localization.solanaRentWarning(rentAmount.description, minimalBalanceForRentExemption.description)
+            }
+            .replaceError(with: nil)
+            .eraseToAnyPublisher()
+    }
+}
+
+// MARK: - Interfaces
+
+extension WalletModel {
+    var blockchainDataProvider: BlockchainDataProvider {
+        walletManager
+    }
+
+    var transactionCreator: TransactionCreator {
+        walletManager
+    }
+
+    var transactionSender: TransactionSender {
+        walletManager
+    }
+
+    var transactionPusher: TransactionPusher? {
+        walletManager as? TransactionPusher
+    }
+
+    var withdrawalValidator: WithdrawalValidator? {
+        walletManager as? WithdrawalValidator
+    }
+
+    var ethereumGasLoader: EthereumGasLoader? {
+        walletManager as? EthereumGasLoader
+    }
+
+    var ethereumTransactionSigner: EthereumTransactionSigner? {
+        walletManager as? EthereumTransactionSigner
+    }
+
+    var ethereumNetworkProvider: EthereumNetworkProvider? {
+        walletManager as? EthereumNetworkProvider
+    }
+
+    var ethereumTransactionProcessor: EthereumTransactionProcessor? {
+        walletManager as? EthereumTransactionProcessor
     }
 }
