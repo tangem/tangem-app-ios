@@ -130,7 +130,7 @@ final class TokenDetailsViewModel: ObservableObject {
 
     func reloadHistory() {
         isReloadingTransactionHistory = true
-        walletModel.loadTransactionHistory()
+        walletModel.updateTransactionsHistory()
             .sink { [weak self] completion in
                 self?.isReloadingTransactionHistory = false
             } receiveValue: { _ in }
@@ -277,7 +277,7 @@ private extension TokenDetailsViewModel {
             transactionHistoryState = .notSupported
         case .notLoaded:
             transactionHistoryState = .loading
-            walletModel.loadTransactionHistory()
+            walletModel.updateTransactionsHistory()
                 .sink()
                 .store(in: &bag)
         case .loading:
