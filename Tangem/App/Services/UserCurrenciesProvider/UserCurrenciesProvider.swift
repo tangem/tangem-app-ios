@@ -13,12 +13,12 @@ import BlockchainSdk
 struct UserCurrenciesProvider {
     @Injected(\.tangemApiService) private var tangemApiService: TangemApiService
 
-    private let walletModel: WalletModel
+    private let blockchain: Blockchain
     private let walletModelTokens: [Token]
     private let currencyMapper: CurrencyMapping
 
-    init(walletModel: WalletModel, walletModelTokens: [Token], currencyMapper: CurrencyMapping) {
-        self.walletModel = walletModel
+    init(blockchain: Blockchain, walletModelTokens: [Token], currencyMapper: CurrencyMapping) {
+        self.blockchain = blockchain
         self.walletModelTokens = walletModelTokens
         self.currencyMapper = currencyMapper
     }
@@ -28,8 +28,6 @@ struct UserCurrenciesProvider {
 
 extension UserCurrenciesProvider: UserCurrenciesProviding {
     func getCurrencies(blockchain swappingBlockchain: SwappingBlockchain) async -> [Currency] {
-        let blockchain = walletModel.blockchainNetwork.blockchain
-
         guard blockchain.networkId == swappingBlockchain.networkId else {
             assertionFailure("incorrect blockchain in WalletModel")
             return []
