@@ -146,7 +146,7 @@ struct OrganizeTokensPreviewProvider {
                         isDraggable: true,
                         networkUnreachable: false,
                         hasPendingTransactions: false
-                    ),                    .init(
+                    ), .init(
                         tokenIcon: TokenIconInfoBuilder().build(for: .coin, in: .ethereumPoW(testnet: false)),
                         balance: .loading,
                         isDraggable: true,
@@ -194,13 +194,13 @@ struct OrganizeTokensPreviewProvider {
                         isDraggable: true,
                         networkUnreachable: false,
                         hasPendingTransactions: false
-                    ),                    .init(
+                    ), .init(
                         tokenIcon: TokenIconInfoBuilder().build(for: .coin, in: .polygon(testnet: false)),
                         balance: .loading,
                         isDraggable: true,
                         networkUnreachable: false,
                         hasPendingTransactions: false
-                    ),                    .init(
+                    ), .init(
                         tokenIcon: TokenIconInfoBuilder().build(for: .coin, in: .avalanche(testnet: false)),
                         balance: .loading,
                         isDraggable: true,
@@ -255,28 +255,27 @@ struct OrganizeTokensPreviewProvider {
                         isDraggable: true,
                         networkUnreachable: false,
                         hasPendingTransactions: false
-                    ),                    .init(
+                    ), .init(
                         tokenIcon: TokenIconInfoBuilder().build(for: .coin, in: .ton(testnet: false)),
                         balance: .loading,
                         isDraggable: true,
                         networkUnreachable: false,
                         hasPendingTransactions: false
-                    ),                    .init(
+                    ), .init(
                         tokenIcon: TokenIconInfoBuilder().build(for: .coin, in: .kava(testnet: false)),
                         balance: .loading,
                         isDraggable: true,
                         networkUnreachable: false,
                         hasPendingTransactions: false
-                    ),                    .init(
+                    ), .init(
                         tokenIcon: TokenIconInfoBuilder().build(for: .coin, in: .cosmos(testnet: false)),
                         balance: .loading,
                         isDraggable: true,
                         networkUnreachable: false,
                         hasPendingTransactions: false
                     ),
-
                 ]
-            )
+            ),
         ]
     }
 
