@@ -146,7 +146,7 @@ final class TokenDetailsViewModel: ObservableObject {
         if let token = amountType.token, blockchain == .ethereum(testnet: true) {
             testnetBuyCryptoService.buyCrypto(.erc20Token(
                 token,
-                walletManager: walletModel.walletManager,
+                walletModel: walletModel,
                 signer: cardModel.signer
             ))
             return
@@ -377,7 +377,9 @@ private extension TokenDetailsViewModel {
         }
 
         guard
-            let sourceCurrency = CurrencyMapper().mapToCurrency(amountType: amountType, in: blockchain)
+            let sourceCurrency = CurrencyMapper().mapToCurrency(amountType: amountType, in: blockchain),
+            let ethereumNetworkProvider = walletModel.ethereumNetworkProvider,
+            let ethereumTransactionProcessor = walletModel.ethereumTransactionProcessor
         else { return }
 
         var referrer: SwappingReferrerAccount?
@@ -388,9 +390,13 @@ private extension TokenDetailsViewModel {
 
         let input = CommonSwappingModulesFactory.InputModel(
             userTokensManager: userTokensManager,
-            walletModel: walletModel,
-            sender: walletModel.walletManager,
+            wallet: walletModel.wallet,
+            blockchainNetwork: walletModel.blockchainNetwork,
+            sender: walletModel.transactionSender,
             signer: cardModel.signer,
+            creator: walletModel.transactionCreator,
+            ethereumNetworkProvider: ethereumNetworkProvider,
+            ethereumTransactionProcessor: ethereumTransactionProcessor,
             logger: AppLog.shared,
             referrer: referrer,
             source: sourceCurrency,
