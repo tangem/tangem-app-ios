@@ -41,7 +41,7 @@ struct CommonWalletConnectEthTransactionBuilder {
 
 extension CommonWalletConnectEthTransactionBuilder: WalletConnectEthTransactionBuilder {
     func buildTx(from wcTransaction: WalletConnectEthTransaction, for walletModel: WalletModel) async throws -> Transaction {
-        guard let gasLoader = walletModel.walletManager as? EthereumGasLoader else {
+        guard let gasLoader = walletModel.ethereumGasLoader else {
             let error = WalletConnectV2Error.missingGasLoader
             AppLog.shared.error(error)
             throw error
@@ -67,7 +67,7 @@ extension CommonWalletConnectEthTransactionBuilder: WalletConnectEthTransactionB
         let feeParameters = try await EthereumFeeParameters(gasLimit: BigUInt(gasLimit), gasPrice: BigUInt(gasPrice))
         let fee = Fee(gasAmount, parameters: feeParameters)
 
-        var transaction = try walletModel.walletManager.createTransaction(
+        var transaction = try walletModel.transactionCreator.createTransaction(
             amount: valueAmount,
             fee: fee,
             sourceAddress: wcTransaction.from,
