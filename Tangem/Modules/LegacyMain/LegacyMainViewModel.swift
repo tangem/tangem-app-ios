@@ -653,7 +653,7 @@ extension LegacyMainViewModel {
         if let walletModel = cardModel.walletModels.first,
            walletModel.wallet.blockchain == .ethereum(testnet: true),
            let token = walletModel.wallet.amounts.keys.compactMap({ $0.token }).first {
-            testnetBuyCryptoService.buyCrypto(.erc20Token(token, walletManager: walletModel.walletManager, signer: cardModel.signer))
+            testnetBuyCryptoService.buyCrypto(.erc20Token(token, walletModel: walletModel, signer: cardModel.signer))
         }
 
         if let url = buyCryptoURL {

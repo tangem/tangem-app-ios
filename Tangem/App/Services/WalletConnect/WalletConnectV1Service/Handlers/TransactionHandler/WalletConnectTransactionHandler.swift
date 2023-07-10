@@ -64,7 +64,7 @@ class WalletConnectTransactionHandler: TangemWalletConnectRequestHandler {
             return .anyFail(error: error)
         }
 
-        guard let gasLoader = walletModel.walletManager as? EthereumGasLoader else {
+        guard let gasLoader = walletModel.ethereumGasLoader else {
             let error = WalletConnectServiceError.failedToBuildTx(code: .noWalletManager)
             AppLog.shared.error(error)
             return .anyFail(error: error)
@@ -123,7 +123,7 @@ class WalletConnectTransactionHandler: TangemWalletConnectRequestHandler {
                         do {
                             let gasParameters = EthereumFeeParameters(gasLimit: BigUInt(gasLimit), gasPrice: BigUInt(gasPrice))
                             let fee = Fee(gasAmount, parameters: gasParameters)
-                            var tx = try walletModel.walletManager.createTransaction(
+                            var tx = try walletModel.transactionCreator.createTransaction(
                                 amount: valueAmount,
                                 fee: fee,
                                 sourceAddress: transaction.from,
