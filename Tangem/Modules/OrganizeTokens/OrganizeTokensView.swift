@@ -534,6 +534,7 @@ struct OrganizeTokensView_Preview: PreviewProvider {
             previewProvider.multipleSections(),
             previewProvider.singleMediumSection(),
             previewProvider.singleSmallSection(),
+            previewProvider.singleLargeSection()
         ]
 
         Group {
