@@ -123,7 +123,7 @@ class PushTxViewModel: ObservableObject {
         guard
             let tx = newTransaction,
             let previousTxHash = transaction.hash,
-            let pusher = walletModel.walletManager as? TransactionPusher
+            let pusher = walletModel.transactionPusher
         else {
             return
         }
@@ -228,8 +228,8 @@ class PushTxViewModel: ObservableObject {
                 var tx: BlockchainSdk.Transaction?
 
                 do {
-                    tx = try walletModel.walletManager.createTransaction(
-                        amount: newAmount,
+                    tx = try walletModel.createTransaction(
+                        amountToSend: newAmount,
                         fee: fee,
                         destinationAddress: destination
                     )
@@ -254,7 +254,7 @@ class PushTxViewModel: ObservableObject {
 
     private func loadNewFees() {
         guard
-            let pusher = walletModel.walletManager as? TransactionPusher,
+            let pusher = walletModel.transactionPusher,
             let txHash = transaction.hash
         else {
             return
