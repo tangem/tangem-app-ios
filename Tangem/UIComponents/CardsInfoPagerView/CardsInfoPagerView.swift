@@ -90,7 +90,7 @@ struct CardsInfoPagerView<
         HStack(spacing: Constants.headerInteritemSpacing) {
             ForEach(data.indexed(), id: idProvider) { index, element in
                 headerFactory(element)
-                    .frame(width: proxy.size.width - Constants.headerItemHorizontalOffset * 2.0)
+                    .frame(width: max(proxy.size.width - Constants.headerItemHorizontalOffset * 2.0, 0.0))
                     .readGeometry(\.size.height, bindTo: $headerHeight) // All headers are expected to have the same height
             }
         }
