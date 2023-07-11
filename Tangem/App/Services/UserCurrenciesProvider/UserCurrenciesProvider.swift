@@ -28,11 +28,6 @@ struct UserCurrenciesProvider {
 
 extension UserCurrenciesProvider: UserCurrenciesProviding {
     func getCurrencies(blockchain swappingBlockchain: SwappingBlockchain) async -> [Currency] {
-        guard blockchain.networkId == swappingBlockchain.networkId else {
-            assertionFailure("incorrect blockchain in WalletModel")
-            return []
-        }
-
         // get user tokens from API with filled in fields
         let tokens = await getTokens(
             networkId: swappingBlockchain.networkId,
