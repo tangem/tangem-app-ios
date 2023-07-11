@@ -16,7 +16,7 @@ class CommonSwappingModulesFactory {
     private let wallet: Wallet
     private let sender: TransactionSender
     private let signer: TransactionSigner
-    private let creator: TransactionCreator
+    private let transactionCreator: TransactionCreator
     private let ethereumNetworkProvider: EthereumNetworkProvider
     private let ethereumTransactionProcessor: EthereumTransactionProcessor
     private let logger: SwappingLogger
@@ -33,7 +33,7 @@ class CommonSwappingModulesFactory {
         blockchainNetwork = inputModel.blockchainNetwork
         sender = inputModel.sender
         signer = inputModel.signer
-        creator = inputModel.creator
+        transactionCreator = inputModel.transactionCreator
         ethereumNetworkProvider = inputModel.ethereumNetworkProvider
         ethereumTransactionProcessor = inputModel.ethereumTransactionProcessor
         logger = inputModel.logger
@@ -114,7 +114,7 @@ private extension CommonSwappingModulesFactory {
 
     var transactionSender: SwappingTransactionSender {
         CommonSwappingTransactionSender(
-            transactionCreator: creator,
+            transactionCreator: transactionCreator,
             transactionSender: sender,
             transactionSigner: signer,
             ethereumNetworkProvider: ethereumNetworkProvider,
@@ -171,7 +171,7 @@ extension CommonSwappingModulesFactory {
         let blockchainNetwork: BlockchainNetwork
         let sender: TransactionSender
         let signer: TransactionSigner
-        let creator: TransactionCreator
+        let transactionCreator: TransactionCreator
         let ethereumNetworkProvider: EthereumNetworkProvider
         let ethereumTransactionProcessor: EthereumTransactionProcessor
         let logger: SwappingLogger
@@ -186,7 +186,7 @@ extension CommonSwappingModulesFactory {
             blockchainNetwork: BlockchainNetwork,
             sender: TransactionSender,
             signer: TransactionSigner,
-            creator: TransactionCreator,
+            transactionCreator: TransactionCreator,
             ethereumNetworkProvider: EthereumNetworkProvider,
             ethereumTransactionProcessor: EthereumTransactionProcessor,
             logger: SwappingLogger,
@@ -200,7 +200,7 @@ extension CommonSwappingModulesFactory {
             self.blockchainNetwork = blockchainNetwork
             self.sender = sender
             self.signer = signer
-            self.creator = creator
+            self.transactionCreator = transactionCreator
             self.ethereumNetworkProvider = ethereumNetworkProvider
             self.ethereumTransactionProcessor = ethereumTransactionProcessor
             self.logger = logger
