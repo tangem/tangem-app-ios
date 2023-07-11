@@ -23,12 +23,16 @@ struct CardsInfoPagerView<
 
     @GestureState private var nextIndexToSelect: Int?
     @GestureState private var hasNextIndexToSelect = true
-    @GestureState private var horizontalTranslation: CGFloat = .zero
+
+    @GestureState private var currentHorizontalTranslation: CGFloat = .zero
+    @State private var cumulativeHorizontalTranslation: CGFloat = .zero
 
     /// - Warning: Won't be reset back to 0 after successful (non-cancelled) page switch, use with caution.
     @State private var pageSwitchProgress: CGFloat = .zero
+
     @available(iOS, introduced: 13.0, deprecated: 15.0, message: "Replace with native .safeAreaInset()")
     @State private var headerHeight: CGFloat = .zero
+
     @State private var verticalContentOffset: CGPoint = .zero
 
     @StateObject private var scrollDetector = ScrollDetector()
@@ -58,7 +62,6 @@ struct CardsInfoPagerView<
                 makeHeader(with: proxy)
                     .gesture(makeDragGesture(with: proxy))
             }
-            .animation(pageSwitchAnimation, value: horizontalTranslation)
             .environment(\.cardsInfoPageHeaderPlaceholderHeight, headerHeight)
             .onAppear(perform: scrollDetector.startDetectingScroll)
             .onDisappear(perform: scrollDetector.stopDetectingScroll)
@@ -91,11 +94,11 @@ struct CardsInfoPagerView<
                     .readGeometry(\.size.height, bindTo: $headerHeight) // All headers are expected to have the same height
             }
         }
-        // The first offset determines which page is shown
-        .offset(x: -CGFloat(selectedIndex) * proxy.size.width)
-        // The second offset translates the page based on swipe
-        .offset(x: horizontalTranslation)
-        // The third offset is responsible for the next/previous cell peek
+        // This offset translates the page based on swipe
+        .offset(x: currentHorizontalTranslation)
+        // This offset determines which page is shown
+        .offset(x: cumulativeHorizontalTranslation)
+        // This offset is responsible for the next/previous cell peek
         .offset(x: headerItemPeekHorizontalOffset)
         // This offset is responsible for the header stickiness
         .offset(y: -verticalContentOffset.y)
@@ -143,7 +146,7 @@ struct CardsInfoPagerView<
 
     private func makeDragGesture(with proxy: GeometryProxy) -> some Gesture {
         DragGesture()
-            .updating($horizontalTranslation) { value, state, _ in
+            .updating($currentHorizontalTranslation) { value, state, _ in
                 state = value.translation.width
             }
             .updating($nextIndexToSelect) { value, state, _ in
@@ -174,7 +177,13 @@ struct CardsInfoPagerView<
                     nextPageThreshold: pageSwitchThreshold
                 )
                 pageSwitchProgress = newIndex == selectedIndex ? 0.0 : 1.0
-                selectedIndex = newIndex
+
+                cumulativeHorizontalTranslation += value.translation.width
+
+                withAnimation(pageSwitchAnimation) {
+                    cumulativeHorizontalTranslation = -CGFloat(newIndex) * proxy.size.width
+                    selectedIndex = newIndex
+                }
             }
     }
 
