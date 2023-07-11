@@ -156,7 +156,7 @@ class LegacyTokenDetailsViewModel: ObservableObject {
         return Localization.walletCurrencySubtitle(blockchainNetwork.blockchain.displayName)
     }
 
-    @Published var solanaRentWarning: String? = nil
+    @Published var rentWarning: String? = nil
     let amountType: Amount.AmountType
     let blockchainNetwork: BlockchainNetwork
 
@@ -373,7 +373,7 @@ class LegacyTokenDetailsViewModel: ObservableObject {
     private func updateRentWarning() {
         walletModel?
             .updateRentWarning()
-            .weakAssign(to: \.solanaRentWarning, on: self)
+            .weakAssign(to: \.rentWarning, on: self)
             .store(in: &bag)
     }
 
@@ -544,7 +544,7 @@ extension LegacyTokenDetailsViewModel {
             blockchainNetwork: walletModel.blockchainNetwork,
             sender: walletModel.transactionSender,
             signer: card.signer,
-            creator: walletModel.transactionCreator,
+            transactionCreator: walletModel.transactionCreator,
             ethereumNetworkProvider: ethereumNetworkProvider,
             ethereumTransactionProcessor: ethereumTransactionProcessor,
             logger: AppLog.shared,
