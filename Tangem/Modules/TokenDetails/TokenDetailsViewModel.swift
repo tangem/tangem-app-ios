@@ -394,7 +394,7 @@ private extension TokenDetailsViewModel {
             blockchainNetwork: walletModel.blockchainNetwork,
             sender: walletModel.transactionSender,
             signer: cardModel.signer,
-            creator: walletModel.transactionCreator,
+            transactionCreator: walletModel.transactionCreator,
             ethereumNetworkProvider: ethereumNetworkProvider,
             ethereumTransactionProcessor: ethereumTransactionProcessor,
             logger: AppLog.shared,
