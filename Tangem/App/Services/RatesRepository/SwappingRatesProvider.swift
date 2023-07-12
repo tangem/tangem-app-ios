@@ -47,6 +47,18 @@ extension SwappingRatesProvider: FiatRatesProviding {
         return nil
     }
 
+    func getFiat(for currencies: [Currency: Decimal]) async throws -> [Currency: Decimal] {
+        let ids = currencies.keys.map { $0.isToken ? $0.id : $0.blockchain.currencyID }
+        try await updateFiatRates(for: Set(ids))
+
+        return currencies.reduce(into: [:]) { result, args in
+            let (currency, amount) = args
+            if let fiat = getSyncFiat(for: currency, amount: amount) {
+                result[currency] = fiat
+            }
+        }
+    }
+
     func getFiat(for currency: Currency, amount: Decimal) async throws -> Decimal {
         let id = currency.isToken ? currency.id : currency.blockchain.currencyID
         let rate = try await getFiatRate(currencyId: id)
@@ -73,6 +85,22 @@ private extension SwappingRatesProvider {
 
     func getFiatRate(currencyId: String) async throws -> Decimal {
         return try await ratesRepository.rate(for: currencyId)
+    }
+
+    func updateFiatRates(for currencyIDs: Set<String>) async throws {
+        let savedRateIDs = Set(rates.keys)
+        let needToLoadRates = currencyIDs.subtracting(savedRateIDs)
+
+        // Nothing need to load. Just return cached rates
+        guard !needToLoadRates.isEmpty else {
+            return
+        }
+
+        let loadedRates = try await tangemApiService.loadRates(for: Array(needToLoadRates)).async()
+
+        loadedRates.forEach { id, rate in
+            updateRate(for: id, with: rate)
+        }
     }
 
     func mapToFiat(amount: Decimal, rate: Decimal) -> Decimal {
