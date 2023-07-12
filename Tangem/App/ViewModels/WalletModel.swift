@@ -15,10 +15,7 @@ class WalletModel {
 
     /// Listen for fiat and balance changes. This publisher will not be called if the is nothing changed. Use `update(silent:)` for waiting for update
     var walletDidChangePublisher: AnyPublisher<WalletModel.State, Never> {
-        _state
-            .combineLatest(_rate)
-            .map { $0.0 }
-            .eraseToAnyPublisher()
+        _walletDidChangePublisher.eraseToAnyPublisher()
     }
 
     var state: State {
@@ -34,6 +31,7 @@ class WalletModel {
         walletManager.allowsFeeSelection
     }
 
+    private var _walletDidChangePublisher: CurrentValueSubject<State, Never> = .init(.created)
     private var _state: CurrentValueSubject<State, Never> = .init(.created)
     private var _rate: CurrentValueSubject<Decimal?, Never> = .init(nil)
     private var _transactionsHistory: CurrentValueSubject<TransactionHistoryState, Never> = .init(.notLoaded)
@@ -243,6 +241,12 @@ class WalletModel {
                 _rate.send(rate)
             }
             .store(in: &bag)
+
+        _state
+            .combineLatest(_rate)
+            .map { $0.0 }
+            .weakAssign(to: \._walletDidChangePublisher.value, on: self)
+            .store(in: &bag)
     }
 
     // MARK: - Update wallet model
@@ -319,12 +323,7 @@ class WalletModel {
     }
 
     private func updateState(_ state: State) {
-        guard self.state != state else {
-            AppLog.shared.debug("State for \(name) isn't changed. Skipping...")
-            return
-        }
-
-        AppLog.shared.debug("🔄 Update state \(state) for \(name)")
+        AppLog.shared.debug("🔄 Update state for \(name). New state is \(state)")
         DispatchQueue.main.async { [weak self] in // captured as weak at call stack
             self?._state.value = state
         }
