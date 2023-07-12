@@ -74,7 +74,6 @@ private extension LegacyMultiWalletContentViewModel {
             .flatMap { walletModels in
                 Publishers
                     .MergeMany(walletModels.map { $0.walletDidChangePublisher })
-                    .filter { !$0.isLoading }
             }
             .receive(on: DispatchQueue.global())
             .map { [weak self] _ -> [LegacyTokenItemViewModel] in
