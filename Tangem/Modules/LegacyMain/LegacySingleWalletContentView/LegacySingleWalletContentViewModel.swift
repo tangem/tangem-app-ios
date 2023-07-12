@@ -111,10 +111,7 @@ class LegacySingleWalletContentViewModel: ObservableObject {
     }
 
     private func bind() {
-        let txPublisher = singleWalletModel.walletManager.walletPublisher
-
         singleWalletModel.walletDidChangePublisher
-            .combineLatest(txPublisher)
             .receive(on: DispatchQueue.main)
             .sink(receiveValue: { [weak self] publish in
                 self?.objectWillChange.send()
