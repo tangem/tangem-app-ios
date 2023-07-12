@@ -81,20 +81,68 @@ private extension SwappingTokenListViewModel {
         runTask(in: self) { obj in
             obj.userCurrencies = await obj.userCurrenciesProvider.getCurrencies(blockchain: obj.sourceCurrency.blockchain)
             let currencies = obj.userCurrencies.filter { obj.sourceCurrency != $0 }
-
             var items: [SwappingTokenItemViewModel] = []
+            var currenciesToLoad: [Currency] = []
 
-            for currency in currencies {
-                let balance = await obj.getCurrencyAmount(for: currency)
-                var fiatBalance: Decimal?
-
-                if let balance {
-                    fiatBalance = try? await obj.fiatRatesProvider.getFiat(for: currency, amount: balance.value)
+            currencies.forEach { currency in
+                guard let balance = obj.walletDataProvider.getBalance(for: currency),
+                      let fiatBalance = obj.fiatRatesProvider.getSyncFiat(for: currency, amount: balance) else {
+                    // If we haven't cache for this currency
+                    currenciesToLoad.append(currency)
+                    return
                 }
 
                 let viewModel = obj.mapToSwappingTokenItemViewModel(
                     currency: currency,
-                    balance: balance,
+                    balance: CurrencyAmount(value: balance, currency: currency),
+                    fiatBalance: fiatBalance
+                )
+
+                items.append(viewModel)
+            }
+
+            await runOnMain {
+                obj.userItems = items
+            }
+
+            guard !currenciesToLoad.isEmpty else {
+                // All currencies balances was loaded
+                return
+            }
+
+            AppLog.shared.debug("Start loading balances for currencies: \(currenciesToLoad)")
+
+            let balances = await withTaskGroup(of: (currency: Currency, balance: Decimal)?.self, returning: [Currency: Decimal].self) { taskGroup in
+                currenciesToLoad.forEach { currency in
+                    taskGroup.addTask {
+                        do {
+                            let balance = try await obj.walletDataProvider.getBalance(for: currency)
+                            return (currency: currency, balance: balance)
+                        } catch {
+                            AppLog.shared.debug("Loading balance for currency \(currency) throw error")
+                            AppLog.shared.error(error)
+                            return nil
+                        }
+                    }
+                }
+
+                return await taskGroup.reduce(into: [:]) { partialResult, taskResult in
+                    if let taskResult {
+                        partialResult[taskResult.currency] = taskResult.balance
+                    }
+                }
+            }
+
+            let fiatBalances = try await obj.fiatRatesProvider.getFiat(for: balances)
+            fiatBalances.forEach { currency, fiatBalance in
+                guard let balance = balances[currency] else {
+                    AppLog.shared.debug("Balance for currency \(currency) not found")
+                    return
+                }
+
+                let viewModel = obj.mapToSwappingTokenItemViewModel(
+                    currency: currency,
+                    balance: CurrencyAmount(value: balance, currency: currency),
                     fiatBalance: fiatBalance
                 )
 
@@ -159,15 +207,6 @@ private extension SwappingTokenListViewModel {
             fiatBalance: fiatBalance
         ) { [weak self] in
             self?.userDidTap(currency)
-        }
-    }
-
-    func getCurrencyAmount(for currency: Currency) async -> CurrencyAmount? {
-        do {
-            let balance = try await walletDataProvider.getBalance(for: currency)
-            return CurrencyAmount(value: balance, currency: currency)
-        } catch {
-            return nil
         }
     }
 }
