@@ -12,9 +12,13 @@ import BlockchainSdk
 
 class CommonSwappingModulesFactory {
     private let userTokensManager: UserTokensManager
-    private let walletModel: WalletModel
+    private let blockchainNetwork: BlockchainNetwork
+    private let wallet: Wallet
     private let sender: TransactionSender
     private let signer: TransactionSigner
+    private let transactionCreator: TransactionCreator
+    private let ethereumNetworkProvider: EthereumNetworkProvider
+    private let ethereumTransactionProcessor: EthereumTransactionProcessor
     private let logger: SwappingLogger
     private let referrer: SwappingReferrerAccount?
     private let source: Currency
@@ -25,9 +29,13 @@ class CommonSwappingModulesFactory {
 
     init(inputModel: InputModel) {
         userTokensManager = inputModel.userTokensManager
-        walletModel = inputModel.walletModel
+        wallet = inputModel.wallet
+        blockchainNetwork = inputModel.blockchainNetwork
         sender = inputModel.sender
         signer = inputModel.signer
+        transactionCreator = inputModel.transactionCreator
+        ethereumNetworkProvider = inputModel.ethereumNetworkProvider
+        ethereumTransactionProcessor = inputModel.ethereumTransactionProcessor
         logger = inputModel.logger
         referrer = inputModel.referrer
         source = inputModel.source
@@ -88,10 +96,8 @@ extension CommonSwappingModulesFactory: SwappingModulesFactory {
 // MARK: Dependencies
 
 private extension CommonSwappingModulesFactory {
-    var walletManager: WalletManager { walletModel.walletManager }
-
     var swappingDestinationService: SwappingDestinationServicing {
-        SwappingDestinationService(walletModel: walletModel, mapper: currencyMapper, walletModelTokens: walletModelTokens)
+        SwappingDestinationService(blockchain: blockchainNetwork.blockchain, mapper: currencyMapper, walletModelTokens: walletModelTokens)
     }
 
     var currencyMapper: CurrencyMapping { CurrencyMapper() }
@@ -100,7 +106,7 @@ private extension CommonSwappingModulesFactory {
 
     var userCurrenciesProvider: UserCurrenciesProviding {
         UserCurrenciesProvider(
-            walletModel: walletModel,
+            blockchain: blockchainNetwork.blockchain,
             walletModelTokens: walletModelTokens,
             currencyMapper: currencyMapper
         )
@@ -108,10 +114,10 @@ private extension CommonSwappingModulesFactory {
 
     var transactionSender: SwappingTransactionSender {
         CommonSwappingTransactionSender(
-            transactionCreator: walletManager,
-            transactionSender: walletManager,
+            transactionCreator: transactionCreator,
+            transactionSender: sender,
             transactionSigner: signer,
-            ethereumNetworkProvider: walletManager as! EthereumNetworkProvider,
+            ethereumNetworkProvider: ethereumNetworkProvider,
             currencyMapper: currencyMapper
         )
     }
@@ -130,9 +136,9 @@ private extension CommonSwappingModulesFactory {
 
     var walletDataProvider: SwappingWalletDataProvider {
         CommonSwappingWalletDataProvider(
-            wallet: walletModel.wallet,
-            ethereumNetworkProvider: walletManager as! EthereumNetworkProvider,
-            ethereumTransactionProcessor: walletManager as! EthereumTransactionProcessor,
+            wallet: wallet,
+            ethereumNetworkProvider: ethereumNetworkProvider,
+            ethereumTransactionProcessor: ethereumTransactionProcessor,
             currencyMapper: currencyMapper
         )
     }
@@ -143,7 +149,7 @@ private extension CommonSwappingModulesFactory {
             swappingManager: swappingManager,
             userTokensManager: userTokensManager,
             currencyMapper: currencyMapper,
-            blockchainNetwork: walletModel.blockchainNetwork
+            blockchainNetwork: blockchainNetwork
         )
     }
 
@@ -161,9 +167,13 @@ private extension CommonSwappingModulesFactory {
 extension CommonSwappingModulesFactory {
     struct InputModel {
         let userTokensManager: UserTokensManager
-        let walletModel: WalletModel
+        let wallet: Wallet
+        let blockchainNetwork: BlockchainNetwork
         let sender: TransactionSender
         let signer: TransactionSigner
+        let transactionCreator: TransactionCreator
+        let ethereumNetworkProvider: EthereumNetworkProvider
+        let ethereumTransactionProcessor: EthereumTransactionProcessor
         let logger: SwappingLogger
         let referrer: SwappingReferrerAccount?
         let source: Currency
@@ -172,9 +182,13 @@ extension CommonSwappingModulesFactory {
 
         init(
             userTokensManager: UserTokensManager,
-            walletModel: WalletModel,
+            wallet: Wallet,
+            blockchainNetwork: BlockchainNetwork,
             sender: TransactionSender,
             signer: TransactionSigner,
+            transactionCreator: TransactionCreator,
+            ethereumNetworkProvider: EthereumNetworkProvider,
+            ethereumTransactionProcessor: EthereumTransactionProcessor,
             logger: SwappingLogger,
             referrer: SwappingReferrerAccount?,
             source: Currency,
@@ -182,9 +196,13 @@ extension CommonSwappingModulesFactory {
             destination: Currency? = nil
         ) {
             self.userTokensManager = userTokensManager
-            self.walletModel = walletModel
+            self.wallet = wallet
+            self.blockchainNetwork = blockchainNetwork
             self.sender = sender
             self.signer = signer
+            self.transactionCreator = transactionCreator
+            self.ethereumNetworkProvider = ethereumNetworkProvider
+            self.ethereumTransactionProcessor = ethereumTransactionProcessor
             self.logger = logger
             self.referrer = referrer
             self.source = source
