@@ -129,17 +129,7 @@ class LegacyTokenDetailsViewModel: ObservableObject {
     }
 
     var existentialDepositWarning: String? {
-        guard
-            let blockchain = walletModel?.blockchainNetwork.blockchain,
-            let existentialDepositProvider = walletModel?.walletManager as? ExistentialDepositProvider
-        else {
-            return nil
-        }
-
-        let blockchainName = blockchain.displayName
-        let existentialDepositAmount = existentialDepositProvider.existentialDeposit.string(roundingMode: .plain)
-
-        return Localization.warningExistentialDepositMessage(blockchainName, existentialDepositAmount)
+        walletModel?.existentialDepositWarning
     }
 
     var transactionLengthWarning: String? {
@@ -166,7 +156,7 @@ class LegacyTokenDetailsViewModel: ObservableObject {
         return Localization.walletCurrencySubtitle(blockchainNetwork.blockchain.displayName)
     }
 
-    @Published var solanaRentWarning: String? = nil
+    @Published var rentWarning: String? = nil
     let amountType: Amount.AmountType
     let blockchainNetwork: BlockchainNetwork
 
@@ -347,7 +337,7 @@ class LegacyTokenDetailsViewModel: ObservableObject {
             }
             .store(in: &bag)
 
-        walletModel?.walletManager.walletPublisher
+        walletModel?.walletDidChangePublisher
             .receive(on: RunLoop.main)
             .sink { [weak self] _ in
                 self?.objectWillChange.send()
@@ -381,26 +371,9 @@ class LegacyTokenDetailsViewModel: ObservableObject {
     }
 
     private func updateRentWarning() {
-        guard let rentProvider = walletModel?.walletManager as? RentProvider else {
-            return
-        }
-
-        rentProvider.rentAmount()
-            .zip(rentProvider.minimalBalanceForRentExemption())
-            .receive(on: RunLoop.main)
-            .sink { _ in
-
-            } receiveValue: { [weak self] rentAmount, minimalBalanceForRentExemption in
-                guard
-                    let self = self,
-                    let amount = walletModel?.wallet.amounts[.coin],
-                    amount < minimalBalanceForRentExemption
-                else {
-                    self?.solanaRentWarning = nil
-                    return
-                }
-                solanaRentWarning = Localization.solanaRentWarning(rentAmount.description, minimalBalanceForRentExemption.description)
-            }
+        walletModel?
+            .updateRentWarning()
+            .weakAssign(to: \.rentWarning, on: self)
             .store(in: &bag)
     }
 
@@ -503,7 +476,7 @@ extension LegacyTokenDetailsViewModel {
         if let walletModel = walletModel,
            let token = amountType.token,
            blockchainNetwork.blockchain == .ethereum(testnet: true) {
-            testnetBuyCryptoService.buyCrypto(.erc20Token(token, walletManager: walletModel.walletManager, signer: card.signer))
+            testnetBuyCryptoService.buyCrypto(.erc20Token(token, walletModel: walletModel, signer: card.signer))
             return
         }
 
@@ -552,7 +525,9 @@ extension LegacyTokenDetailsViewModel {
 
         guard FeatureProvider.isAvailable(.exchange),
               let walletModel = walletModel,
-              let source = sourceCurrency
+              let source = sourceCurrency,
+              let ethereumNetworkProvider = walletModel.ethereumNetworkProvider,
+              let ethereumTransactionProcessor = walletModel.ethereumTransactionProcessor
         else {
             return
         }
@@ -565,9 +540,13 @@ extension LegacyTokenDetailsViewModel {
 
         let input = CommonSwappingModulesFactory.InputModel(
             userTokensManager: card.userTokensManager,
-            walletModel: walletModel,
-            sender: walletModel.walletManager,
+            wallet: walletModel.wallet,
+            blockchainNetwork: walletModel.blockchainNetwork,
+            sender: walletModel.transactionSender,
             signer: card.signer,
+            transactionCreator: walletModel.transactionCreator,
+            ethereumNetworkProvider: ethereumNetworkProvider,
+            ethereumTransactionProcessor: ethereumTransactionProcessor,
             logger: AppLog.shared,
             referrer: referrer,
             source: source,
