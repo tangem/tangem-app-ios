@@ -9,6 +9,7 @@
 import Foundation
 import Combine
 
+@available(*, deprecated, message: "Migrate to CombineExt if applicable ([REDACTED_INFO])")
 extension AnyPublisher {
     static func just(output: Output) -> AnyPublisher<Output, Never> {
         Just(output).eraseToAnyPublisher()
