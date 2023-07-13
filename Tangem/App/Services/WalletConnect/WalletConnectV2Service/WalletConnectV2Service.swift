@@ -193,6 +193,12 @@ final class WalletConnectV2Service {
         let utils = WalletConnectV2Utils()
         log("Attemping to approve session proposal: \(proposal)")
 
+        guard DApps().isSupported(proposal.proposer.url) else {
+            displayErrorUI(.unsupportedDApp)
+            sessionRejected(with: proposal)
+            return
+        }
+
         guard utils.allChainsSupported(in: proposal.requiredNamespaces) else {
             let unsupportedBlockchains = utils.extractUnsupportedBlockchainNames(from: proposal.requiredNamespaces)
             displayErrorUI(.unsupportedBlockchains(unsupportedBlockchains))
@@ -234,10 +240,9 @@ final class WalletConnectV2Service {
     }
 
     private func displayErrorUI(_ error: WalletConnectV2Error) {
-        let message = messageComposer.makeErrorMessage(with: error)
         uiDelegate.showScreen(with: WalletConnectUIRequest(
             event: .error,
-            message: message,
+            message: error.localizedDescription,
             approveAction: {}
         ))
     }
@@ -277,11 +282,10 @@ final class WalletConnectV2Service {
     private func handle(_ request: Request) async {
         func respond(with error: WalletConnectV2Error) async {
             AppLog.shared.error(error)
-            let message = messageComposer.makeErrorMessage(with: error)
             try? await signApi.respond(
                 topic: request.topic,
                 requestId: request.id,
-                response: .error(.init(code: 0, message: message))
+                response: .error(.init(code: 0, message: error.localizedDescription))
             )
         }
 
@@ -344,3 +348,17 @@ extension WalletConnectV2Service: WalletConnectV2WalletModelProvider {
 }
 
 public typealias WalletConnectV2URI = WalletConnectURI
+
+private struct DApps {
+    private let unsupportedList: [String] = ["dydx.exchange"]
+
+    func isSupported(_ dAppURL: String) -> Bool {
+        for dApp in unsupportedList {
+            if dAppURL.contains(dApp) {
+                return false
+            }
+        }
+
+        return true
+    }
+}
