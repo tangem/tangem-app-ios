@@ -130,6 +130,7 @@ struct CardsInfoPagerView<
                         Spacer(minLength: Constants.headerVerticalPadding)
                             .id(collapsedHeaderScrollTargetIdentifier)
 
+                        // [REDACTED_TODO_COMMENT]
                         contentFactory(data[selectedIndex])
                             .modifier(
                                 ContentAnimationModifier(
