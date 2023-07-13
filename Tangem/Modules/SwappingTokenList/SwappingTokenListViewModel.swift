@@ -86,7 +86,7 @@ private extension SwappingTokenListViewModel {
 
             currencies.forEach { currency in
                 guard let balance = obj.walletDataProvider.getBalance(for: currency),
-                      let fiatBalance = obj.fiatRatesProvider.getSyncFiat(for: currency, amount: balance) else {
+                      let fiatBalance = obj.fiatRatesProvider.getFiat(for: currency, amount: balance) else {
                     // If we haven't cache for this currency
                     currenciesToLoad.append(currency)
                     return
