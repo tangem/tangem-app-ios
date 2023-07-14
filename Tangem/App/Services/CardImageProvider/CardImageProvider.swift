@@ -10,9 +10,10 @@ import Combine
 import UIKit
 import TangemSdk
 import Kingfisher
+import class TangemSwapping.ThreadSafeContainer
 
 struct CardImageProvider {
-    @Atomic private static var cardArtworkCache: [String: CardArtwork] = [:]
+    private static let cardArtworkCache: ThreadSafeContainer<[String: CardArtwork]> = [:]
 
     @Injected(\.cardImageLoader) private var imageLoader: CardImageLoaderProtocol
 
@@ -120,7 +121,9 @@ private extension CardImageProvider {
                 }
             }
             .handleEvents(receiveOutput: { cardArtwork in
-                CardImageProvider.cardArtworkCache[cardId] = cardArtwork
+                CardImageProvider.cardArtworkCache.mutate { value in
+                    value[cardId] = cardArtwork
+                }
             })
             .replaceError(with: CardArtwork.noArtwork)
             .receive(on: DispatchQueue.main)
