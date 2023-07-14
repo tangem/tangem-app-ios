@@ -41,7 +41,7 @@ class ThreadSafeContainerTests: XCTestCase {
 
         workingQueue.async {
             DispatchQueue.concurrentPerform(iterations: writeCount) { i in
-                let value = container.read[randomDictionaryKeys.randomElement()!]
+                let value = container.read()[randomDictionaryKeys.randomElement()!]
                 let count = i + 1
                 if count % 1000 == 0 {
                     expectationFulfillQueue.async {
@@ -83,7 +83,7 @@ class ThreadSafeContainerTests: XCTestCase {
                         }
                     }
                 } else {
-                    let value = container.read[randomDictionaryKeys.randomElement()!]
+                    let value = container.read()[randomDictionaryKeys.randomElement()!]
                     if count % 1000 == 0 {
                         expectationFulfillQueue.async {
                             expectation.fulfill()
@@ -108,7 +108,7 @@ class ThreadSafeContainerTests: XCTestCase {
                         }
                     }
                 } else {
-                    let value = container.read[randomDictionaryKeys.randomElement()!]
+                    let value = container.read()[randomDictionaryKeys.randomElement()!]
                     if count % 1000 == 0 {
                         expectationFulfillQueue.async {
                             expectation.fulfill()
@@ -165,7 +165,7 @@ class ThreadSafeContainerTests: XCTestCase {
         }
 
         wait(for: [expectation])
-        XCTAssertEqual(synchronousResult, container.read)
+        XCTAssertEqual(synchronousResult, container.read())
     }
 
     func testDataIntegrityWhenMutatedConcurrentlyMultipleQueues() {
@@ -233,14 +233,14 @@ class ThreadSafeContainerTests: XCTestCase {
         }
 
         wait(for: [expectation])
-        XCTAssertEqual(synchronousResult, container.read)
+        XCTAssertEqual(synchronousResult, container.read())
     }
 
     func testExpressibleByDictionaryLiteralConformanceForEmptyContainerWrappingDictionary() {
         let emptyThreadSafeContainer: ThreadSafeContainer<[String: String]> = [:]
         let emptyDictionary: [String: String] = [:]
 
-        XCTAssertEqual(emptyThreadSafeContainer.read, emptyDictionary)
+        XCTAssertEqual(emptyThreadSafeContainer.read(), emptyDictionary)
     }
 
     func testExpressibleByDictionaryLiteralConformanceForNonEmptyContainerWrappingDictionary() {
@@ -258,14 +258,14 @@ class ThreadSafeContainerTests: XCTestCase {
             "hello": "world",
         ]
 
-        XCTAssertEqual(nonEmptyThreadSafeContainer.read, nonEmptyDictionary)
+        XCTAssertEqual(nonEmptyThreadSafeContainer.read(), nonEmptyDictionary)
     }
 
     func testExpressibleByArrayLiteralConformanceForEmptyContainerWrappingArray() {
         let emptyThreadSafeContainer: ThreadSafeContainer<[String]> = []
         let emptyArray: [String] = []
 
-        XCTAssertEqual(emptyThreadSafeContainer.read, emptyArray)
+        XCTAssertEqual(emptyThreadSafeContainer.read(), emptyArray)
     }
 
     func testExpressibleByArrayLiteralConformanceForNonEmptyContainerWrappingArray() {
@@ -284,14 +284,14 @@ class ThreadSafeContainerTests: XCTestCase {
             "world",
         ]
 
-        XCTAssertEqual(nonEmptyThreadSafeContainer.read, nonEmptyArray)
+        XCTAssertEqual(nonEmptyThreadSafeContainer.read(), nonEmptyArray)
     }
 
     func testExpressibleByArrayLiteralConformanceForEmptyContainerWrappingSet() {
         let emptyThreadSafeContainer: ThreadSafeContainer<Set<String>> = []
         let emptySet: Set<String> = []
 
-        XCTAssertEqual(emptyThreadSafeContainer.read, emptySet)
+        XCTAssertEqual(emptyThreadSafeContainer.read(), emptySet)
     }
 
     func testExpressibleByArrayLiteralConformanceForNonEmptyContainerWrappingSet() {
@@ -316,6 +316,6 @@ class ThreadSafeContainerTests: XCTestCase {
             "world",
         ]
 
-        XCTAssertEqual(nonEmptyThreadSafeContainer.read, nonEmptySet)
+        XCTAssertEqual(nonEmptyThreadSafeContainer.read(), nonEmptySet)
     }
 }
