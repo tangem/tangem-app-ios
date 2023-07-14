@@ -442,6 +442,8 @@
 		B6BF1A062A27B30800843DB0 /* CardsInfoPageHeaderPlaceholderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6BF1A052A27B30800843DB0 /* CardsInfoPageHeaderPlaceholderView.swift */; };
 		B6BF1A082A27B36300843DB0 /* CardsInfoPageHeaderPlaceholderView+Environment.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6BF1A072A27B36300843DB0 /* CardsInfoPageHeaderPlaceholderView+Environment.swift */; };
 		B6C358632A61352A00AB1946 /* ThreadSafeContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6C358622A61352A00AB1946 /* ThreadSafeContainer.swift */; };
+		B6C358652A61357100AB1946 /* ThreadSafeContainer+ExpressibleByDictionaryLiteral.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6C358642A61357100AB1946 /* ThreadSafeContainer+ExpressibleByDictionaryLiteral.swift */; };
+		B6C358672A61358000AB1946 /* ThreadSafeContainer+ExpressibleByArrayLiteral.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6C358662A61358000AB1946 /* ThreadSafeContainer+ExpressibleByArrayLiteral.swift */; };
 		B6C3B3072A3AD2120007525E /* TokenListItemLoadingPlaceholderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6C3B3062A3AD2120007525E /* TokenListItemLoadingPlaceholderView.swift */; };
 		B6C3B3092A3AD2230007525E /* TokenListSectionLoadingPlaceholderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6C3B3082A3AD2230007525E /* TokenListSectionLoadingPlaceholderView.swift */; };
 		B6C921C62A49FF960057811F /* VisualEffectView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6C921C52A49FF960057811F /* VisualEffectView.swift */; };
@@ -1489,6 +1491,8 @@
 		B6BF1A052A27B30800843DB0 /* CardsInfoPageHeaderPlaceholderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardsInfoPageHeaderPlaceholderView.swift; sourceTree = "<group>"; };
 		B6BF1A072A27B36300843DB0 /* CardsInfoPageHeaderPlaceholderView+Environment.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CardsInfoPageHeaderPlaceholderView+Environment.swift"; sourceTree = "<group>"; };
 		B6C358622A61352A00AB1946 /* ThreadSafeContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThreadSafeContainer.swift; sourceTree = "<group>"; };
+		B6C358642A61357100AB1946 /* ThreadSafeContainer+ExpressibleByDictionaryLiteral.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ThreadSafeContainer+ExpressibleByDictionaryLiteral.swift"; sourceTree = "<group>"; };
+		B6C358662A61358000AB1946 /* ThreadSafeContainer+ExpressibleByArrayLiteral.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ThreadSafeContainer+ExpressibleByArrayLiteral.swift"; sourceTree = "<group>"; };
 		B6C3B3062A3AD2120007525E /* TokenListItemLoadingPlaceholderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenListItemLoadingPlaceholderView.swift; sourceTree = "<group>"; };
 		B6C3B3082A3AD2230007525E /* TokenListSectionLoadingPlaceholderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenListSectionLoadingPlaceholderView.swift; sourceTree = "<group>"; };
 		B6C921C52A49FF960057811F /* VisualEffectView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VisualEffectView.swift; sourceTree = "<group>"; };
@@ -3709,6 +3713,8 @@
 			isa = PBXGroup;
 			children = (
 				B6C358622A61352A00AB1946 /* ThreadSafeContainer.swift */,
+				B6C358662A61358000AB1946 /* ThreadSafeContainer+ExpressibleByArrayLiteral.swift */,
+				B6C358642A61357100AB1946 /* ThreadSafeContainer+ExpressibleByDictionaryLiteral.swift */,
 			);
 			path = ThreadSafeContainer;
 			sourceTree = "<group>";
@@ -6570,12 +6576,14 @@
 				EF5F1BC429D6CED50093307B /* SwappingTokenData.swift in Sources */,
 				EF5F1BBB29D6CD770093307B /* ApproveSpender.swift in Sources */,
 				EF92E2B029952BB800DD9B06 /* SwappingReferrerAccount.swift in Sources */,
+				B6C358652A61357100AB1946 /* ThreadSafeContainer+ExpressibleByDictionaryLiteral.swift in Sources */,
 				EF29BEE4292E5DC400D7C782 /* OneInchSwappingProviderErrors.swift in Sources */,
 				EF78433B29431903007E57D1 /* SwappingManagerError.swift in Sources */,
 				EFD164502948A13B000E56C7 /* SwappingQuoteDataModel.swift in Sources */,
 				EF4661D42923E5BB00346B6C /* SwappingItems.swift in Sources */,
 				EF4661F82924CC6E00346B6C /* QuoteParameters.swift in Sources */,
 				EF4661BF2923B41F00346B6C /* SwappingManager.swift in Sources */,
+				B6C358672A61358000AB1946 /* ThreadSafeContainer+ExpressibleByArrayLiteral.swift in Sources */,
 				EF4662052924CC6E00346B6C /* HealthCheckTarget.swift in Sources */,
 				EF4662082924CC6E00346B6C /* SwappingParameters.swift in Sources */,
 				EF4661F72924CC6E00346B6C /* QuoteData.swift in Sources */,
