@@ -10,8 +10,8 @@ import Foundation
 
 // MARK: - ExpressibleByDictionaryLiteral protocol conformance
 
-extension ThreadSafeContainer: ExpressibleByDictionaryLiteral where T: MutableCollectionExpressibleByDictionaryLiteral {
-    public convenience init(dictionaryLiteral elements: (T.Key, T.Value)...) {
+extension ThreadSafeContainer: ExpressibleByDictionaryLiteral where Value: MutableCollectionExpressibleByDictionaryLiteral {
+    public convenience init(dictionaryLiteral elements: (Value.Key, Value.Value)...) {
         self.init(
             elements.reduce(into: [:]) { partialResult, element in
                 let (key, value) = element
@@ -44,6 +44,7 @@ private extension KeyValueMutator where Key: Hashable {
 /// An implementation detail of `ExpressibleByDictionaryLiteral` conformance for `ThreadSafeContainer`;
 /// do not use this protocol directly.
 public protocol MutableCollectionExpressibleByDictionaryLiteral: ExpressibleByDictionaryLiteral {
+    /// An implementation detail of `ExpressibleByDictionaryLiteral` conformance for `ThreadSafeContainer`.
     mutating func mutate(with mutator: KeyValueMutator<Key, Value>)
 }
 
