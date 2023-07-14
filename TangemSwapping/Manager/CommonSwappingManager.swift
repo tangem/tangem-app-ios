@@ -23,28 +23,9 @@ class CommonSwappingManager {
     private var amount: Decimal?
     private var approvePolicy: SwappingApprovePolicy = .unlimited
     private var gasPricePolicy: SwappingGasPricePolicy = .normal
-
-    private let swappingAllowanceLimitAccessQueue = DispatchQueue(
-        label: "com.tangem.CommonSwappingManager.swappingAllowanceLimitAccessQueue",
-        attributes: .concurrent
-    )
-    private var _swappingAllowanceLimit: [Currency: Decimal] = [:]
-    private var swappingAllowanceLimit: [Currency: Decimal] {
-        get { swappingAllowanceLimitAccessQueue.sync { _swappingAllowanceLimit } }
-        set { swappingAllowanceLimitAccessQueue.async(flags: .barrier) { self._swappingAllowanceLimit = newValue } }
-    }
-
-    private let pendingTransactionsAccessQueue = DispatchQueue(
-        label: "com.tangem.CommonSwappingManager.pendingTransactionsAccessQueue",
-        attributes: .concurrent
-    )
-    private var _pendingTransactions: [Currency: PendingTransactionState] = [:]
+    private var swappingAllowanceLimit: [Currency: Decimal] = [:]
     // Cached addresses for check approving transactions
-    private var pendingTransactions: [Currency: PendingTransactionState] {
-        get { pendingTransactionsAccessQueue.sync { _pendingTransactions } }
-        set { pendingTransactionsAccessQueue.async(flags: .barrier) { self._pendingTransactions = newValue } }
-    }
-
+    private var pendingTransactions: [Currency: PendingTransactionState] = [:]
     private var bag: Set<AnyCancellable> = []
 
     private var formattedAmount: String? {
