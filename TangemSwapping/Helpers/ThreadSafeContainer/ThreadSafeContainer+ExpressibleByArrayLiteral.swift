@@ -10,8 +10,8 @@ import Foundation
 
 // MARK: - ExpressibleByArrayLiteral protocol conformance
 
-extension ThreadSafeContainer: ExpressibleByArrayLiteral where T: MutableCollectionExpressibleByArrayLiteral {
-    public convenience init(arrayLiteral elements: T.ArrayLiteralElement...) {
+extension ThreadSafeContainer: ExpressibleByArrayLiteral where Value: MutableCollectionExpressibleByArrayLiteral {
+    public convenience init(arrayLiteral elements: Value.ArrayLiteralElement...) {
         self.init(
             elements.reduce(into: []) { partialResult, element in
                 partialResult.mutate(with: ValueMutator(value: element))
@@ -55,6 +55,7 @@ private extension ValueMutator where Value: Hashable {
 /// An implementation detail of `ExpressibleByArrayLiteral` conformance for `ThreadSafeContainer`;
 /// do not use this protocol directly.
 public protocol MutableCollectionExpressibleByArrayLiteral: ExpressibleByArrayLiteral {
+    /// An implementation detail of `ExpressibleByArrayLiteral` conformance for `ThreadSafeContainer`.
     mutating func mutate(with mutator: ValueMutator<ArrayLiteralElement>)
 }
 
