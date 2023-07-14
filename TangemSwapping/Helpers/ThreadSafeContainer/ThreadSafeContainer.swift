@@ -10,19 +10,28 @@ import Foundation
 
 /// Provides `multiple readers - single writer` semantics for underlying `value`.
 /// It's most useful with Swift native collections like `Array`, `Dictionary`, etc.
-public final class ThreadSafeContainer<T> {
-    private var _value: T
-    public var value: T {
-        get { accessQueue.sync { _value }}
-        set { accessQueue.async(flags: .barrier) { self._value = newValue }}
+@dynamicMemberLookup
+public final class ThreadSafeContainer<Value> {
+    public subscript<T>(dynamicMember keyPath: KeyPath<Value, T>) -> T {
+        accessQueue.sync { value[keyPath: keyPath] }
     }
+
+    /// Read-only access to the wrapped value.
+    public var read: Value { accessQueue.sync { value } }
 
     private let accessQueue = DispatchQueue(
         label: "com.tangem.ThreadSafeContainer.\(UUID().uuidString)",
         attributes: .concurrent
     )
 
-    public init(_ value: T) {
-        _value = value
+    private var value: Value
+
+    public init(_ value: Value) {
+        self.value = value
+    }
+
+    /// Read-write (with atomicity within the body of the closure) access to the wrapped value.
+    public func mutate(_ body: @escaping (_ value: inout Value) -> Void) {
+        accessQueue.async(flags: .barrier) { body(&self.value) }
     }
 }
