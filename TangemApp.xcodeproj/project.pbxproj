@@ -441,6 +441,7 @@
 		B6B30E722A552F8E00A14BB8 /* CardsInfoPagerScrollViewConnector.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6B30E712A552F8E00A14BB8 /* CardsInfoPagerScrollViewConnector.swift */; };
 		B6BF1A062A27B30800843DB0 /* CardsInfoPageHeaderPlaceholderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6BF1A052A27B30800843DB0 /* CardsInfoPageHeaderPlaceholderView.swift */; };
 		B6BF1A082A27B36300843DB0 /* CardsInfoPageHeaderPlaceholderView+Environment.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6BF1A072A27B36300843DB0 /* CardsInfoPageHeaderPlaceholderView+Environment.swift */; };
+		B6C358632A61352A00AB1946 /* ThreadSafeContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6C358622A61352A00AB1946 /* ThreadSafeContainer.swift */; };
 		B6C3B3072A3AD2120007525E /* TokenListItemLoadingPlaceholderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6C3B3062A3AD2120007525E /* TokenListItemLoadingPlaceholderView.swift */; };
 		B6C3B3092A3AD2230007525E /* TokenListSectionLoadingPlaceholderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6C3B3082A3AD2230007525E /* TokenListSectionLoadingPlaceholderView.swift */; };
 		B6C921C62A49FF960057811F /* VisualEffectView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6C921C52A49FF960057811F /* VisualEffectView.swift */; };
@@ -1487,6 +1488,7 @@
 		B6B30E712A552F8E00A14BB8 /* CardsInfoPagerScrollViewConnector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardsInfoPagerScrollViewConnector.swift; sourceTree = "<group>"; };
 		B6BF1A052A27B30800843DB0 /* CardsInfoPageHeaderPlaceholderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardsInfoPageHeaderPlaceholderView.swift; sourceTree = "<group>"; };
 		B6BF1A072A27B36300843DB0 /* CardsInfoPageHeaderPlaceholderView+Environment.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CardsInfoPageHeaderPlaceholderView+Environment.swift"; sourceTree = "<group>"; };
+		B6C358622A61352A00AB1946 /* ThreadSafeContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThreadSafeContainer.swift; sourceTree = "<group>"; };
 		B6C3B3062A3AD2120007525E /* TokenListItemLoadingPlaceholderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenListItemLoadingPlaceholderView.swift; sourceTree = "<group>"; };
 		B6C3B3082A3AD2230007525E /* TokenListSectionLoadingPlaceholderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenListSectionLoadingPlaceholderView.swift; sourceTree = "<group>"; };
 		B6C921C52A49FF960057811F /* VisualEffectView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VisualEffectView.swift; sourceTree = "<group>"; };
@@ -3685,6 +3687,14 @@
 			path = Components;
 			sourceTree = "<group>";
 		};
+		B6C358612A61352200AB1946 /* Helpers */ = {
+			isa = PBXGroup;
+			children = (
+				B6FE557D2A614C92005D378C /* ThreadSafeContainer */,
+			);
+			path = Helpers;
+			sourceTree = "<group>";
+		};
 		B6C3B3052A3AD14B0007525E /* TokenListLoadingPlaceholders */ = {
 			isa = PBXGroup;
 			children = (
@@ -3693,6 +3703,14 @@
 				B69D0E7F2A3AEE7F00A8B44D /* TokenListLoadingPlaceholderView.swift */,
 			);
 			path = TokenListLoadingPlaceholders;
+			sourceTree = "<group>";
+		};
+		B6FE557D2A614C92005D378C /* ThreadSafeContainer */ = {
+			isa = PBXGroup;
+			children = (
+				B6C358622A61352A00AB1946 /* ThreadSafeContainer.swift */,
+			);
+			path = ThreadSafeContainer;
 			sourceTree = "<group>";
 		};
 		BBA154748909F0AB4121528D /* Pods */ = {
@@ -4483,6 +4501,7 @@
 				EF4661B82923B00100346B6C /* Services */,
 				EF4661BA2923B02C00346B6C /* Models */,
 				EF29BEF029349C1A00D7C782 /* Extensions */,
+				B6C358612A61352200AB1946 /* Helpers */,
 				EF4661942923AFC400346B6C /* TangemSwapping.h */,
 				EF4661952923AFC400346B6C /* TangemSwapping.docc */,
 			);
@@ -6589,6 +6608,7 @@
 				EF4661F52924CC6E00346B6C /* TransactionData.swift in Sources */,
 				EF5F1BC629D6CEFA0093307B /* TokenInfo.swift in Sources */,
 				EF4661C82923B42A00346B6C /* SwappingDataModel.swift in Sources */,
+				B6C358632A61352A00AB1946 /* ThreadSafeContainer.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
