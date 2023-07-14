@@ -12,20 +12,7 @@ import TangemSdk
 import Kingfisher
 
 struct CardImageProvider {
-    private static let cardArtworkCacheQueue = DispatchQueue(
-        label: "com.tangem.CardImageProvider.cardArtworkCacheQueue",
-        attributes: .concurrent
-    )
-
-    private static var _cardArtworkCache: [String: CardArtwork] = [:]
-    private static var cardArtworkCache: [String: CardArtwork] {
-        get {
-            return cardArtworkCacheQueue.sync { _cardArtworkCache }
-        }
-        set {
-            cardArtworkCacheQueue.async(flags: .barrier) { _cardArtworkCache = newValue }
-        }
-    }
+    @Atomic private static var cardArtworkCache: [String: CardArtwork] = [:]
 
     @Injected(\.cardImageLoader) private var imageLoader: CardImageLoaderProtocol
 
