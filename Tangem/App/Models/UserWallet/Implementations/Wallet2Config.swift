@@ -169,7 +169,7 @@ extension Wallet2Config: UserWalletConfig {
         case .transactionHistory:
             return .hidden
         case .seedPhrase:
-            return .available
+            return card.settings.isKeysImportAllowed ? .available : .hidden
         case .accessCodeRecoverySettings:
             return .available
         case .promotion:
