@@ -11,7 +11,7 @@ import XCTest
 @testable import TangemSwapping
 
 class ThreadSafeContainerTests: XCTestCase {
-    func testConcurrentReadWriteCountUsingSingleQueue() {
+    func testConcurrentReadWriteOperationsCountUsingSingleQueue() {
         let readCount = 20000
         let writeCount = 20000
 
@@ -55,7 +55,7 @@ class ThreadSafeContainerTests: XCTestCase {
         wait(for: [expectation])
     }
 
-    func testConcurrentReadWriteCountUsingMultipleQueues() {
+    func testConcurrentReadWriteOperationsCountUsingMultipleQueues() {
         let queue1WorkCount = 20000
         let queue2WorkCount = 20000
 
@@ -168,7 +168,7 @@ class ThreadSafeContainerTests: XCTestCase {
         XCTAssertEqual(synchronousResult, container.read())
     }
 
-    func testDataIntegrityWhenMutatedConcurrentlyMultipleQueues() {
+    func testDataIntegrityWhenMutatedConcurrentlyUsingMultipleQueues() {
         typealias Mutation = (keyToMutate: String, valueToAdd: Int)
 
         let queue1WorkCount = 20000
