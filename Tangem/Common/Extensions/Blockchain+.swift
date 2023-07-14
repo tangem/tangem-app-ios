@@ -220,7 +220,7 @@ extension Blockchain {
             .cosmos(testnet: false),
             .terraV1,
             .terraV2,
-            .cronos
+            .cronos,
         ]
     }()
 
@@ -245,7 +245,7 @@ extension Blockchain {
             .ton(testnet: true),
             .kava(testnet: true),
             .ravencoin(testnet: true),
-            .cosmos(testnet: true)
+            .cosmos(testnet: true),
         ]
     }()
 }
