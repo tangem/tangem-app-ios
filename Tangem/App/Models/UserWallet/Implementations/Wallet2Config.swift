@@ -1,16 +1,16 @@
 //
-//  GenericConfig.swift
+//  Wallet2Config.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
-//  Copyright © 2022 Tangem AG. All rights reserved.
+//  Copyright © 2023 Tangem AG. All rights reserved.
 //
 
 import Foundation
 import TangemSdk
 import BlockchainSdk
 
-struct GenericConfig {
+struct Wallet2Config {
     let card: CardDTO
 
     init(card: CardDTO) {
@@ -18,7 +18,7 @@ struct GenericConfig {
     }
 }
 
-extension GenericConfig: UserWalletConfig {
+extension Wallet2Config: UserWalletConfig {
     var cardSetLabel: String? {
         guard let backupCardsCount = card.backupStatus?.backupCardsCount else {
             return nil
@@ -55,10 +55,6 @@ extension GenericConfig: UserWalletConfig {
     }
 
     var defaultBlockchains: [StorageEntry] {
-        if let persistentBlockchains = persistentBlockchains {
-            return persistentBlockchains
-        }
-
         let isTestnet = AppEnvironment.current.isTestnet
         let blockchains: [Blockchain] = [.ethereum(testnet: isTestnet), .bitcoin(testnet: isTestnet)]
 
@@ -173,9 +169,9 @@ extension GenericConfig: UserWalletConfig {
         case .transactionHistory:
             return .hidden
         case .seedPhrase:
-            return .hidden
+            return .available
         case .accessCodeRecoverySettings:
-            return .hidden
+            return .available
         case .promotion:
             return .available
         }
@@ -196,7 +192,7 @@ extension GenericConfig: UserWalletConfig {
 
 // MARK: - WalletOnboardingStepsBuilderFactory
 
-extension GenericConfig: WalletOnboardingStepsBuilderFactory {}
+extension Wallet2Config: WalletOnboardingStepsBuilderFactory {}
 
 // MARK: - Private extensions
 
