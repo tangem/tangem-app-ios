@@ -44,7 +44,7 @@ extension Wallet2Config: UserWalletConfig {
     }
 
     var canSkipBackup: Bool {
-        card.firmwareVersion < .keysImportAvailable
+        return false
     }
 
     var supportedBlockchains: Set<Blockchain> {
