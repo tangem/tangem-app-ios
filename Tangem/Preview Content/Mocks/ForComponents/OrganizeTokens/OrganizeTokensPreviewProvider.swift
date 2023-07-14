@@ -175,7 +175,7 @@ struct OrganizeTokensPreviewProvider {
                         hasPendingTransactions: false
                     ),
                     .init(
-                        tokenIcon: TokenIconInfoBuilder().build(for: .coin, in: .cardano(shelley: false)),
+                        tokenIcon: TokenIconInfoBuilder().build(for: .coin, in: .cardano),
                         balance: .loading,
                         isDraggable: true,
                         networkUnreachable: false,
