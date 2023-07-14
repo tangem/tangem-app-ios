@@ -16,9 +16,6 @@ public final class ThreadSafeContainer<Value> {
         accessQueue.sync { value[keyPath: keyPath] }
     }
 
-    /// Read-only access to the wrapped value.
-    public var read: Value { accessQueue.sync { value } }
-
     private let accessQueue = DispatchQueue(
         label: "com.tangem.ThreadSafeContainer.\(UUID().uuidString)",
         attributes: .concurrent
@@ -28,6 +25,11 @@ public final class ThreadSafeContainer<Value> {
 
     public init(_ value: Value) {
         self.value = value
+    }
+
+    /// Read-only access to the wrapped value.
+    public func read() -> Value {
+        accessQueue.sync { value }
     }
 
     /// Read-write (with atomicity within the body of the closure) access to the wrapped value.
