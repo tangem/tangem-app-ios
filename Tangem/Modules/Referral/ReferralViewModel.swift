@@ -21,7 +21,6 @@ class ReferralViewModel: ObservableObject {
 
     private weak var coordinator: ReferralRoutable?
     private let userTokensManager: UserTokensManager
-    private let walletModelsManager: WalletModelsManager
     private let userWalletId: Data
 
     private var shareLink: String {
@@ -35,11 +34,9 @@ class ReferralViewModel: ObservableObject {
     init(
         userWalletId: Data,
         userTokensManager: UserTokensManager,
-        walletModelsManager: WalletModelsManager,
         coordinator: ReferralRoutable
     ) {
         self.userTokensManager = userTokensManager
-        self.walletModelsManager = walletModelsManager
         self.userWalletId = userWalletId
         self.coordinator = coordinator
 
@@ -70,12 +67,8 @@ class ReferralViewModel: ObservableObject {
         }
 
         do {
-            try await userTokensManager.add(.token(token, blockchain), derivationPath: nil)
-            guard let address = walletModelsManager.walletModels.first(where: { $0.amountType.token == token })?.defaultAddress else {
-                // [REDACTED_TODO_COMMENT]
-                isProcessingRequest = false
-                return
-            }
+            let address = try await userTokensManager.add(.token(token, blockchain), derivationPath: nil)
+            isProcessingRequest = false
 
             let referralProgramInfo = try await runInTask {
                 try await self.tangemApiService.participateInReferralProgram(using: award.token, for: address, with: self.userWalletId.hexString)
