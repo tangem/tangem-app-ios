@@ -25,6 +25,7 @@ class CardViewModel: Identifiable, ObservableObject {
         // [REDACTED_TODO_COMMENT]
         CommonUserTokensManager(
             userTokenListManager: userTokenListManager,
+            walletModelsManager: walletModelsManager,
             derivationStyle: cardInfo.card.derivationStyle,
             derivationManager: derivationManager,
             cardDerivableProvider: self
