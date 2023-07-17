@@ -33,16 +33,21 @@ extension UserCurrenciesProvider: UserCurrenciesProviding {
             return []
         }
 
-        // get user tokens from API with filled in fields
-        let tokens = await getTokens(
-            networkId: swappingBlockchain.networkId,
-            ids: walletModel.getTokens().compactMap { $0.id }
-        )
-
         var currencies: [Currency] = []
         if let coinCurrency = currencyMapper.mapToCurrency(blockchain: blockchain) {
             currencies.append(coinCurrency)
         }
+
+        let userTokens = walletModel.getTokens()
+        if userTokens.isEmpty {
+            return currencies
+        }
+
+        // get user tokens from API with filled in fields
+        let tokens = await getTokens(
+            networkId: swappingBlockchain.networkId,
+            ids: userTokens.compactMap { $0.id }
+        )
 
         currencies += tokens.compactMap { token in
             guard token.exchangeable == true else {
