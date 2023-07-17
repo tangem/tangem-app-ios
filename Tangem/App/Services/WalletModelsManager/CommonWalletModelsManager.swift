@@ -16,8 +16,6 @@ class CommonWalletModelsManager {
     private var _walletModels = CurrentValueSubject<[WalletModel], Never>([])
     private var bag = Set<AnyCancellable>()
     private var updateAllSubscription: AnyCancellable?
-    // we should not invoke update on startup to reduce updates count
-    private var initialized: Bool = false
 
     init(
         walletManagersRepository: WalletManagersRepository,
@@ -33,7 +31,6 @@ class CommonWalletModelsManager {
             .walletManagersPublisher
             .sink { [weak self] managers in
                 self?.updateWalletModels(with: managers)
-                self?.initialized = true
             }
             .store(in: &bag)
     }
@@ -55,10 +52,8 @@ class CommonWalletModelsManager {
             walletModelsToDelete.contains($0.id)
         }
 
-        if initialized {
-            walletModelsToAdd.forEach {
-                $0.update(silent: false)
-            }
+        walletModelsToAdd.forEach {
+            $0.update(silent: false)
         }
 
         existingWalletModels.append(contentsOf: walletModelsToAdd)
