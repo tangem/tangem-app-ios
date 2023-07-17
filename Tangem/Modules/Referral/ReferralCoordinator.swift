@@ -24,7 +24,6 @@ class ReferralCoordinator: CoordinatorObject {
         referralViewModel = .init(
             userWalletId: options.userWalletId,
             userTokensManager: options.userTokensManager,
-            walletModelsManager: options.walletModelsManager,
             coordinator: self
         )
     }
@@ -34,7 +33,6 @@ extension ReferralCoordinator {
     struct Options {
         let userWalletId: Data
         let userTokensManager: UserTokensManager
-        let walletModelsManager: WalletModelsManager
     }
 }
 
