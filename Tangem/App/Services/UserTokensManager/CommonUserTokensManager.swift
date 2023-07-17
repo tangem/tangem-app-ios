@@ -12,17 +12,20 @@ import BlockchainSdk
 
 struct CommonUserTokensManager {
     private let userTokenListManager: UserTokenListManager
+    private let walletModelsManager: WalletModelsManager
     private let derivationStyle: DerivationStyle?
     private let derivationManager: DerivationManager?
     private weak var cardDerivableProvider: CardDerivableProvider?
 
     init(
         userTokenListManager: UserTokenListManager,
+        walletModelsManager: WalletModelsManager,
         derivationStyle: DerivationStyle?,
         derivationManager: DerivationManager?,
         cardDerivableProvider: CardDerivableProvider
     ) {
         self.userTokenListManager = userTokenListManager
+        self.walletModelsManager = walletModelsManager
         self.derivationStyle = derivationStyle
         self.derivationManager = derivationManager
         self.cardDerivableProvider = cardDerivableProvider
@@ -69,6 +72,26 @@ extension CommonUserTokensManager: UserTokensManager {
         return []
     }
 
+    func add(_ tokenItem: TokenItem, derivationPath: DerivationPath?) async throws -> String {
+        try await withCheckedThrowingContinuation { continuation in
+            add(tokenItem, derivationPath: derivationPath) { result in
+                continuation.resume(with: result)
+            }
+        }
+
+        // wait for walletModelsManager to be updated
+        try await Task.sleep(seconds: 0.1)
+
+        let blockchainNetwork = makeBlockchainNetwork(for: tokenItem.blockchain, derivationPath: derivationPath)
+        let walletModelId = WalletModel.Id(blockchainNetwork: blockchainNetwork, amountType: tokenItem.amountType)
+
+        guard let walletModel = walletModelsManager.walletModels.first(where: { $0.id == walletModelId.id }) else {
+            throw CommonUserTokensManager.Error.addressNotFound
+        }
+
+        return walletModel.defaultAddress
+    }
+
     func add(_ tokenItem: TokenItem, derivationPath: DerivationPath?, completion: @escaping (Result<Void, TangemSdkError>) -> Void) {
         add([tokenItem], derivationPath: derivationPath, completion: completion)
     }
@@ -110,5 +133,11 @@ extension CommonUserTokensManager: UserTokensManager {
         } else {
             userTokenListManager.update(.removeBlockchain(blockchainNetwork))
         }
+    }
+}
+
+extension CommonUserTokensManager {
+    enum Error: Swift.Error {
+        case addressNotFound
     }
 }
