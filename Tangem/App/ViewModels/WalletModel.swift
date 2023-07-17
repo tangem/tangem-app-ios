@@ -670,7 +670,7 @@ extension WalletModel {
 }
 
 extension WalletModel {
-    struct Id: Hashable, Identifiable {
+    struct Id: Hashable, Identifiable, Equatable {
         var id: Int { hashValue }
 
         let blockchainNetwork: BlockchainNetwork
