@@ -555,8 +555,7 @@ private extension LegacyMainViewModel {
     private func startPromotionAwardProcess() async throws {
         let awardedBlockchain = try await promotionService.claimReward(
             userWalletId: cardModel.userWalletId.stringValue,
-            userTokensManager: cardModel.userTokensManager,
-            walletModelsManager: cardModel.walletModelsManager
+            userTokensManager: cardModel.userTokensManager
         )
 
         if let awardedBlockchain {
