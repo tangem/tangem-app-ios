@@ -26,7 +26,7 @@ protocol PromotionServiceProtocol {
     func setPromoCode(_ promoCode: String?)
     func checkIfCanGetAward(userWalletId: String) async throws
     func awardedPromotionNames() -> Set<String>
-    func claimReward(userWalletId: String, userTokensManager: UserTokensManager, walletModelsManager: WalletModelsManager) async throws -> Blockchain?
+    func claimReward(userWalletId: String, userTokensManager: UserTokensManager) async throws -> Blockchain?
     func resetAward(cardId: String) async throws
 
     func finishedPromotionNames() -> Set<String>
