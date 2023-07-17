@@ -66,11 +66,7 @@ class UserWalletListCellViewModel: ObservableObject {
         loadImage()
     }
 
-    func onAppear() {
-        if !userWalletModel.userWallet.isLocked {
-            userWalletModel.initialUpdate()
-        }
-    }
+    func onAppear() {}
 
     func edit() {
         didEditUserWallet()
