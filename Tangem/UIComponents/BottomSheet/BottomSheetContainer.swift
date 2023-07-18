@@ -52,7 +52,7 @@ struct BottomSheetContainer<ContentView: View>: View {
                 // Added to hide the line between views
                 .offset(y: -1)
         }
-        .edgesIgnoringSafeArea(.all)
+        .edgesIgnoringSafeArea(.bottom)
         .animation(.default, value: opacity)
         .animation(.interactiveSpring(), value: stateObject.isDragging)
     }
@@ -92,6 +92,7 @@ struct BottomSheetContainer<ContentView: View>: View {
 
                 let dragValue = value.translation.height - stateObject.previousDragTranslation.height
                 let locationChange = value.startLocation.y - value.location.y
+                print("locationChange", locationChange)
 
                 if locationChange > 0 {
                     stateObject.offset += dragValue / 3
@@ -104,6 +105,8 @@ struct BottomSheetContainer<ContentView: View>: View {
             .onEnded { value in
                 stateObject.previousDragTranslation = .zero
                 stateObject.isDragging = false
+
+                print("value.translation.height ->>", value.translation.height)
 
                 // If swipe was been enough to hide view
                 if value.translation.height > settings.distanceToHide {
@@ -169,7 +172,12 @@ extension BottomSheetContainer {
         @Published var contentHeight: CGFloat = UIScreen.main.bounds.height / 2
         @Published var isDragging: Bool = false
         @Published var previousDragTranslation: CGSize = .zero
-        @Published var offset: CGFloat = UIScreen.main.bounds.height
+        @Published var ancorPoint: [AncorPoint] = []
+        @Published var offset: CGFloat = UIScreen.main.bounds.height {
+            didSet {
+                print("offset ->>", offset)
+            }
+        }
 
         public var dragPercentage: CGFloat {
             let visibleHeight = contentHeight - offset
@@ -178,6 +186,20 @@ extension BottomSheetContainer {
         }
 
         public var viewDidHidden: () -> Void = {}
+    }
+
+    enum AncorPoint {
+        case bottom(_ value: CGFloat)
+        case middle(_ value: CGFloat = UIScreen.main.bounds.height / 2)
+        case top
+
+        var offset: CGFloat {
+            switch self {
+            case .bottom(let offset): return offset
+            case .middle(let offset): return offset
+            case .top: return 0
+            }
+        }
     }
 }
 
