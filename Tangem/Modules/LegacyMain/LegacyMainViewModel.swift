@@ -474,11 +474,14 @@ private extension LegacyMainViewModel {
                 output: self
             )
         } else {
-            singleWalletContentViewModel = LegacySingleWalletContentViewModel(
-                walletModelsManager: cardModel.walletModelsManager,
-                totalBalanceProvider: cardModel.totalBalanceProvider,
-                output: self
-            )
+            if let singleWalletModel = cardModel.walletModelsManager.walletModels.first {
+                singleWalletContentViewModel = LegacySingleWalletContentViewModel(
+                    walletModel: singleWalletModel,
+                    walletModelsManager: cardModel.walletModelsManager,
+                    totalBalanceProvider: cardModel.totalBalanceProvider,
+                    output: self
+                )
+            }
         }
     }
 
