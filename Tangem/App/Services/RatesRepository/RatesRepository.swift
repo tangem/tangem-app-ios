@@ -22,12 +22,12 @@ protocol RatesRepository: AnyObject {
 }
 
 extension RatesRepository {
-    func update() async throws -> Rates {
-        return try await update().async()
+    func update() async -> Rates {
+        return await update().async()
     }
 
-    func loadRates(coinIds: [String]) async throws -> Rates {
-        return try await loadRates(coinIds: coinIds).async()
+    func loadRates(coinIds: [String]) async -> Rates {
+        return await loadRates(coinIds: coinIds).async()
     }
 }
 
