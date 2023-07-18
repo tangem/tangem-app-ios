@@ -12,14 +12,9 @@ import TangemSwapping
 class SwappingRatesProvider {
     @Injected(\.ratesRepository) private var ratesRepository: RatesRepository
 
-    private let ratesQueue = DispatchQueue(
-        label: "com.tangem.FiatRatesProvider.ratesQueue",
-        attributes: .concurrent
-    )
-
     /// Collect rates for calculate fiat balance
     private var rates: [String: Decimal] {
-        return ratesQueue.sync { ratesRepository.rates }
+        return ratesRepository.rates
     }
 }
 
