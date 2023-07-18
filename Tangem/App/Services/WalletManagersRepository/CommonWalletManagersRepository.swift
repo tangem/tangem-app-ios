@@ -57,7 +57,7 @@ class CommonWalletManagersRepository {
                     existingWalletManager.addTokens(Array(tokensToAdd))
                     hasUpdates = true
                 }
-                
+
             } else if let newWalletManager = makeWalletManager(for: entry, keys) {
                 managers[entry.blockchainNetwork] = newWalletManager
                 hasUpdates = true

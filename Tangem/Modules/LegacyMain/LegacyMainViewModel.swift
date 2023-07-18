@@ -491,10 +491,6 @@ private extension LegacyMainViewModel {
         self.error = error
     }
 
-    private func updatePendingDerivationsView(_ hasPendingDerivations: Bool) {
-        hasPendingDerivations = hasPendingDerivations
-    }
-
     private func loadImage() {
         imageLoadingSubscription = cardImageProvider
             .loadImage(cardId: cardModel.cardId, cardPublicKey: cardModel.cardPublicKey)
