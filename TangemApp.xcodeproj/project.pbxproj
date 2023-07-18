@@ -868,6 +868,7 @@
 		EF808443293F6B69000D91EA /* TokenIconURLBuilding.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF808442293F6B69000D91EA /* TokenIconURLBuilding.swift */; };
 		EF808445293F6B76000D91EA /* TokenURLIconSize.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF808444293F6B76000D91EA /* TokenURLIconSize.swift */; };
 		EF808447293F6C27000D91EA /* TokenIconURLBuilderMock.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF808446293F6C27000D91EA /* TokenIconURLBuilderMock.swift */; };
+		EF81B2AA2A6686E7006CD57B /* BottomSearchableScrollView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF81B2A92A6686E7006CD57B /* BottomSearchableScrollView.swift */; };
 		EF862714297182B6007EBFF9 /* SwappingSuccessCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF862712297182B6007EBFF9 /* SwappingSuccessCoordinator.swift */; };
 		EF862715297182B6007EBFF9 /* SwappingSuccessCoordinatorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF862713297182B6007EBFF9 /* SwappingSuccessCoordinatorView.swift */; };
 		EF8627172971897D007EBFF9 /* SwappingSuccessInputModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF8627162971897D007EBFF9 /* SwappingSuccessInputModel.swift */; };
@@ -1976,6 +1977,7 @@
 		EF808442293F6B69000D91EA /* TokenIconURLBuilding.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenIconURLBuilding.swift; sourceTree = "<group>"; };
 		EF808444293F6B76000D91EA /* TokenURLIconSize.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenURLIconSize.swift; sourceTree = "<group>"; };
 		EF808446293F6C27000D91EA /* TokenIconURLBuilderMock.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenIconURLBuilderMock.swift; sourceTree = "<group>"; };
+		EF81B2A92A6686E7006CD57B /* BottomSearchableScrollView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BottomSearchableScrollView.swift; sourceTree = "<group>"; };
 		EF862712297182B6007EBFF9 /* SwappingSuccessCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwappingSuccessCoordinator.swift; sourceTree = "<group>"; };
 		EF862713297182B6007EBFF9 /* SwappingSuccessCoordinatorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwappingSuccessCoordinatorView.swift; sourceTree = "<group>"; };
 		EF8627162971897D007EBFF9 /* SwappingSuccessInputModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwappingSuccessInputModel.swift; sourceTree = "<group>"; };
@@ -3118,6 +3120,7 @@
 		B0958BA529F6B698007CD76D /* UIComponents */ = {
 			isa = PBXGroup;
 			children = (
+				EF81B2A82A6686D2006CD57B /* BottomSearchableScrollView */,
 				B0A4C49E2A270F490060E039 /* BalanceWithButtonsView */,
 				EF666C242A2DF9D60044986F /* BottomSheet */,
 				2D535E6D2A0CB4D20081EB76 /* BottonSheetInfoView */,
@@ -5029,6 +5032,14 @@
 			path = TokenIconURLBuilder;
 			sourceTree = "<group>";
 		};
+		EF81B2A82A6686D2006CD57B /* BottomSearchableScrollView */ = {
+			isa = PBXGroup;
+			children = (
+				EF81B2A92A6686E7006CD57B /* BottomSearchableScrollView.swift */,
+			);
+			path = BottomSearchableScrollView;
+			sourceTree = "<group>";
+		};
 		EF8D7812298281EE00B67418 /* SwappingModulesFactory */ = {
 			isa = PBXGroup;
 			children = (
@@ -5840,6 +5851,7 @@
 				5DDFC2042812B72C005976FE /* Currency.swift in Sources */,
 				EFA6B04029532D520090A92F /* CircleActionButton.swift in Sources */,
 				B0C4F77B26F0A05C0086D815 /* BlankCard.swift in Sources */,
+				EF81B2AA2A6686E7006CD57B /* BottomSearchableScrollView.swift in Sources */,
 				B06ADFD829B9CEEC00E92E5E /* OnboardingSeedPhraseGenerateView.swift in Sources */,
 				B06ADFDB29BAFA4600E92E5E /* SeedPhraseManager.swift in Sources */,
 				EF11DD9E29378A6F0044B33C /* SwappingTokenItemView.swift in Sources */,
