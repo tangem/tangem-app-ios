@@ -36,7 +36,8 @@ class PushTxViewModel: ObservableObject {
     }
 
     var walletModel: WalletModel {
-        cardViewModel.walletModels.first(where: { $0.amountType == amountToSend.type })!
+        let id = WalletModel.Id(blockchainNetwork: blockchainNetwork, amountType: amountToSend.type).id
+        return cardViewModel.walletModels.first(where: { $0.id == id })!
     }
 
     var previousFeeAmount: Amount { transaction.fee.amount }
