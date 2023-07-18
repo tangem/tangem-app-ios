@@ -69,6 +69,7 @@ class LegacySingleWalletContentViewModel: ObservableObject {
     private var bag = Set<AnyCancellable>()
 
     init(
+        walletModel: WalletModel,
         walletModelsManager: WalletModelsManager,
         totalBalanceProvider: TotalBalanceProviding,
         output: LegacySingleWalletContentViewModelOutput
@@ -83,7 +84,7 @@ class LegacySingleWalletContentViewModel: ObservableObject {
         )
 
         /// Initial set to `singleWalletModel`
-        singleWalletModel = walletModelsManager.walletModels.first!
+        singleWalletModel = walletModel
 
         bind()
     }
