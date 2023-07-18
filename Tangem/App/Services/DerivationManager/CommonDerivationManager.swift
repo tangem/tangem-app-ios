@@ -16,7 +16,7 @@ class CommonDerivationManager {
     private let userTokenListManager: UserTokenListManager
 
     private var bag = Set<AnyCancellable>()
-    private var _hasPendingDerivations: CurrentValueSubject<Bool, Never> = .init(false)
+    private let _hasPendingDerivations: CurrentValueSubject<Bool, Never> = .init(false)
 
     private var pendingDerivations: [Data: [DerivationPath]] = [:]
 
@@ -56,7 +56,9 @@ class CommonDerivationManager {
 
 extension CommonDerivationManager: DerivationManager {
     var hasPendingDerivations: AnyPublisher<Bool, Never> {
-        _hasPendingDerivations.eraseToAnyPublisher()
+        _hasPendingDerivations
+            .removeDuplicates()
+            .eraseToAnyPublisher()
     }
 
     func deriveKeys(cardInteractor: CardDerivable, completion: @escaping (Result<Void, TangemSdkError>) -> Void) {
@@ -65,9 +67,7 @@ extension CommonDerivationManager: DerivationManager {
             return
         }
 
-        var interactor: CardDerivable? = cardInteractor
-
-        interactor?.deriveKeys(derivations: pendingDerivations) { [weak self] result in
+        cardInteractor.deriveKeys(derivations: pendingDerivations) { [weak self] result in
             guard let self else { return }
 
             switch result {
@@ -87,7 +87,7 @@ extension CommonDerivationManager: DerivationManager {
                 completion(.failure(error))
             }
 
-            interactor = nil
+            withExtendedLifetime(cardInteractor) {}
         }
     }
 }

@@ -17,7 +17,7 @@ class CommonWalletManagersRepository {
     private let userTokenListManager: UserTokenListManager
     private let walletManagerFactory: AnyWalletManagerFactory
 
-    private var walletManagers = CurrentValueSubject<[BlockchainNetwork: any WalletManager], Never>([:])
+    private var walletManagers = CurrentValueSubject<[BlockchainNetwork: WalletManager], Never>([:])
     private var bag = Set<AnyCancellable>()
 
     init(
