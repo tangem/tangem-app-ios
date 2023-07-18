@@ -25,8 +25,8 @@ extension CommonRatesRepository: RatesRepository {
     }
 
     func update() -> AnyPublisher<Rates, Never> {
-        let allRates = [String](rates.keys)
-        return loadRates(coinIds: allRates)
+        let coinIds = [String](rates.keys)
+        return loadRates(coinIds: coinIds)
     }
 
     func loadRates(coinIds: [String]) -> AnyPublisher<Rates, Never> {
@@ -51,7 +51,7 @@ extension CommonRatesRepository: RatesRepository {
         var rate = rates[coinId]
 
         if rate == nil {
-            let loadedRates = try await loadRates(coinIds: [coinId])
+            let loadedRates = await loadRates(coinIds: [coinId])
             rate = loadedRates[coinId]
         }
 
