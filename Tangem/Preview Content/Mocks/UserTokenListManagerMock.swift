@@ -22,7 +22,9 @@ struct UserTokenListManagerMock: UserTokenListManager {
         return false
     }
 
-    func update(_ type: CommonUserTokenListManager.UpdateType) {}
+    func update(_ type: CommonUserTokenListManager.UpdateType, shouldUpload: Bool) {}
+
+    func upload() {}
 
     func updateLocalRepositoryFromServer(result: @escaping (Result<Void, Error>) -> Void) {}
 }

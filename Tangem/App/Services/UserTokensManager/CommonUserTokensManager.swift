@@ -53,6 +53,29 @@ struct CommonUserTokensManager {
 
         derivationManager.deriveKeys(cardInteractor: interactor, completion: completion)
     }
+
+    private func addInternal(_ tokenItems: [TokenItem], derivationPath: DerivationPath?, shouldUpload: Bool) {
+        let entries = tokenItems.map { tokenItem in
+            let blockchainNetwork = makeBlockchainNetwork(for: tokenItem.blockchain, derivationPath: derivationPath)
+            return StorageEntry(blockchainNetwork: blockchainNetwork, token: tokenItem.token)
+        }
+
+        userTokenListManager.update(.append(entries), shouldUpload: shouldUpload)
+    }
+
+    private func removeInternal(_ tokenItem: TokenItem, derivationPath: DerivationPath?, shouldUpload: Bool) {
+        guard canRemove(tokenItem, derivationPath: derivationPath) else {
+            return
+        }
+
+        let blockchainNetwork = makeBlockchainNetwork(for: tokenItem.blockchain, derivationPath: derivationPath)
+
+        if let token = tokenItem.token {
+            userTokenListManager.update(.removeToken(token, in: blockchainNetwork), shouldUpload: shouldUpload)
+        } else {
+            userTokenListManager.update(.removeBlockchain(blockchainNetwork), shouldUpload: shouldUpload)
+        }
+    }
 }
 
 extension CommonUserTokensManager: UserTokensManager {
@@ -92,17 +115,8 @@ extension CommonUserTokensManager: UserTokensManager {
         return walletModel.defaultAddress
     }
 
-    func add(_ tokenItem: TokenItem, derivationPath: DerivationPath?, completion: @escaping (Result<Void, TangemSdkError>) -> Void) {
-        add([tokenItem], derivationPath: derivationPath, completion: completion)
-    }
-
     func add(_ tokenItems: [TokenItem], derivationPath: DerivationPath?, completion: @escaping (Result<Void, TangemSdkError>) -> Void) {
-        let entries = tokenItems.map { tokenItem in
-            let blockchainNetwork = makeBlockchainNetwork(for: tokenItem.blockchain, derivationPath: derivationPath)
-            return StorageEntry(blockchainNetwork: blockchainNetwork, token: tokenItem.token)
-        }
-
-        userTokenListManager.update(.append(entries))
+        addInternal(tokenItems, derivationPath: derivationPath, shouldUpload: true)
         deriveIfNeeded(completion: completion)
     }
 
@@ -122,17 +136,17 @@ extension CommonUserTokensManager: UserTokensManager {
     }
 
     func remove(_ tokenItem: TokenItem, derivationPath: DerivationPath?) {
-        guard canRemove(tokenItem, derivationPath: derivationPath) else {
-            return
+        removeInternal(tokenItem, derivationPath: derivationPath, shouldUpload: true)
+    }
+
+    func update(itemsToRemove: [TokenItem], itemsToAdd: [TokenItem], derivationPath: DerivationPath?, completion: @escaping (Result<Void, TangemSdkError>) -> Void) {
+        itemsToRemove.forEach {
+            removeInternal($0, derivationPath: derivationPath, shouldUpload: false)
         }
 
-        let blockchainNetwork = makeBlockchainNetwork(for: tokenItem.blockchain, derivationPath: derivationPath)
-
-        if let token = tokenItem.token {
-            userTokenListManager.update(.removeToken(token, in: blockchainNetwork))
-        } else {
-            userTokenListManager.update(.removeBlockchain(blockchainNetwork))
-        }
+        addInternal(itemsToAdd, derivationPath: nil, shouldUpload: false)
+        userTokenListManager.upload()
+        deriveIfNeeded(completion: completion)
     }
 }
 
