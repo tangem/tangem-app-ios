@@ -17,10 +17,18 @@ protocol RatesRepository: AnyObject {
 
     // TBD: Do we need update?
     func update() -> AnyPublisher<Rates, Never>
-    func update() async throws -> Rates
     func loadRates(coinIds: [String]) -> AnyPublisher<Rates, Never>
-    func loadRates(coinIds: [String]) async throws -> Rates
     func rate(for coinId: String) async throws -> Decimal
+}
+
+extension RatesRepository {
+    func update() async throws -> Rates {
+        return try await update().async()
+    }
+
+    func loadRates(coinIds: [String]) async throws -> Rates {
+        return try await loadRates(coinIds: coinIds).async()
+    }
 }
 
 private struct RatesProviderKey: InjectionKey {
