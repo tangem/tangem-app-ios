@@ -69,8 +69,7 @@ private extension TotalBalanceProvider {
     private func subscribeToUpdates(_ walletModels: [WalletModel], _ hasEntriesWithoutDerivation: Bool) {
         // Subscription to handle balance loading completion
 
-        updateSubscription = Publishers.MergeMany(
-            walletModels.map { $0.walletDidChangePublisher })
+        updateSubscription = Publishers.MergeMany(walletModels.map { $0.walletDidChangePublisher })
             .map { _ in (walletModels, hasEntriesWithoutDerivation) }
             .debounce(for: 0.2, scheduler: DispatchQueue.main) // Hide skeleton with delay
             .filter { walletModels, _ in
