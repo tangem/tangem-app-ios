@@ -16,9 +16,7 @@ class CommonDerivationManager {
     private let userTokenListManager: UserTokenListManager
 
     private var bag = Set<AnyCancellable>()
-    private let _hasPendingDerivations: CurrentValueSubject<Bool, Never> = .init(false)
-
-    private var pendingDerivations: [Data: [DerivationPath]] = [:]
+    private let pendingDerivations: CurrentValueSubject<[Data: [DerivationPath]], Never> = .init([:])
 
     internal init(keysRepository: KeysRepository, userTokenListManager: UserTokenListManager) {
         self.keysRepository = keysRepository
@@ -36,7 +34,7 @@ class CommonDerivationManager {
     }
 
     private func process(_ entries: [StorageEntry], _ keys: [CardDTO.Wallet]) {
-        pendingDerivations = [:]
+        var derivations: [Data: [DerivationPath]] = [:]
 
         entries.forEach { entry in
             let curve = entry.blockchainNetwork.blockchain.curve
@@ -47,27 +45,28 @@ class CommonDerivationManager {
                 return
             }
 
-            pendingDerivations[masterKey.publicKey, default: []].append(derivationPath)
+            derivations[masterKey.publicKey, default: []].append(derivationPath)
         }
 
-        _hasPendingDerivations.send(!pendingDerivations.isEmpty)
+        pendingDerivations.send(derivations)
     }
 }
 
 extension CommonDerivationManager: DerivationManager {
     var hasPendingDerivations: AnyPublisher<Bool, Never> {
-        _hasPendingDerivations
+        pendingDerivations
+            .map { !$0.isEmpty }
             .removeDuplicates()
             .eraseToAnyPublisher()
     }
 
     func deriveKeys(cardInteractor: CardDerivable, completion: @escaping (Result<Void, TangemSdkError>) -> Void) {
-        guard !pendingDerivations.isEmpty else {
+        guard !pendingDerivations.value.isEmpty else {
             completion(.success(()))
             return
         }
 
-        cardInteractor.deriveKeys(derivations: pendingDerivations) { [weak self] result in
+        cardInteractor.deriveKeys(derivations: pendingDerivations.value) { [weak self] result in
             guard let self else { return }
 
             switch result {
