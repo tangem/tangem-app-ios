@@ -49,7 +49,7 @@ extension CommonUserTokenListManager: UserTokenListManager {
         _userTokens.eraseToAnyPublisher()
     }
 
-    func update(_ type: CommonUserTokenListManager.UpdateType) {
+    func update(_ type: CommonUserTokenListManager.UpdateType, shouldUpload: Bool) {
         switch type {
         case .rewrite(let entries):
             tokenItemsRepository.update(entries)
@@ -63,9 +63,15 @@ extension CommonUserTokenListManager: UserTokenListManager {
 
         sendUpdate()
 
-        if hasTokenSynchronization {
+        if shouldUpload {
             updateTokensOnServer()
         }
+    }
+
+    func upload() {
+        guard hasTokenSynchronization else { return }
+
+        updateTokensOnServer()
     }
 
     func updateLocalRepositoryFromServer(result: @escaping (Result<Void, Error>) -> Void) {
@@ -254,6 +260,7 @@ private extension CommonUserTokenListManager {
             networkIds: [blockchainNetwork.blockchain.networkId]
         )
 
+        // [REDACTED_TODO_COMMENT]
         return tangemApiService
             .loadCoins(requestModel: requestModel)
             .replaceError(with: [])
@@ -265,7 +272,7 @@ private extension CommonUserTokenListManager {
 
                 return Future<Bool, Never> { promise in
                     let entry = StorageEntry(blockchainNetwork: blockchainNetwork, token: token)
-                    self.update(.append([entry]))
+                    self.update(.append([entry]), shouldUpload: true)
                     promise(.success(true))
                 }
                 .eraseToAnyPublisher()
