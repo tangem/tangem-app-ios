@@ -40,7 +40,9 @@ class ReferralViewModel: ObservableObject {
         self.userWalletId = userWalletId
         self.coordinator = coordinator
 
-        runTask(loadReferralInfo)
+        runTask(in: self) { root in
+            await root.loadReferralInfo()
+        }
     }
 
     @MainActor
@@ -70,8 +72,10 @@ class ReferralViewModel: ObservableObject {
             let address = try await userTokensManager.add(.token(token, blockchain), derivationPath: nil)
             isProcessingRequest = false
 
-            let referralProgramInfo = try await runInTask {
-                try await self.tangemApiService.participateInReferralProgram(using: award.token, for: address, with: self.userWalletId.hexString)
+            let referralProgramInfo: ReferralProgramInfo? = try await runInTask { [weak self] in
+                guard let self else { return nil }
+
+                return try await tangemApiService.participateInReferralProgram(using: award.token, for: address, with: userWalletId.hexString)
             }
             self.referralProgramInfo = referralProgramInfo
         } catch {
@@ -101,8 +105,10 @@ class ReferralViewModel: ObservableObject {
     @MainActor
     private func loadReferralInfo() async {
         do {
-            let referralProgramInfo = try await runInTask {
-                try await self.tangemApiService.loadReferralProgramInfo(for: self.userWalletId.hexString)
+            let referralProgramInfo: ReferralProgramInfo? = try await runInTask { [weak self] in
+                guard let self else { return nil }
+
+                return try await tangemApiService.loadReferralProgramInfo(for: userWalletId.hexString)
             }
             self.referralProgramInfo = referralProgramInfo
         } catch {
