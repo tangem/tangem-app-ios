@@ -14,6 +14,8 @@ protocol UserTokensManager {
     func contains(_ tokenItem: TokenItem, derivationPath: DerivationPath?) -> Bool
     func getAllTokens(for blockchainNetwork: BlockchainNetwork) -> [Token]
 
+    func update(itemsToRemove: [TokenItem], itemsToAdd: [TokenItem], derivationPath: DerivationPath?, completion: @escaping (Result<Void, TangemSdkError>) -> Void)
+
     func add(_ tokenItem: TokenItem, derivationPath: DerivationPath?, completion: @escaping (Result<Void, TangemSdkError>) -> Void)
     func add(_ tokenItems: [TokenItem], derivationPath: DerivationPath?, completion: @escaping (Result<Void, TangemSdkError>) -> Void)
 
@@ -32,5 +34,9 @@ extension UserTokensManager {
                 continuation.resume(with: result)
             }
         }
+    }
+
+    func add(_ tokenItem: TokenItem, derivationPath: DerivationPath?, completion: @escaping (Result<Void, TangemSdkError>) -> Void) {
+        add([tokenItem], derivationPath: derivationPath, completion: completion)
     }
 }
