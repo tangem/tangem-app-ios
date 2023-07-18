@@ -72,7 +72,7 @@ class WalletModel {
     }
 
     var balance: String {
-        wallet.amounts[amountType].map { $0.string(with: 8) } ?? ""
+        wallet.amounts[amountType].map { $0.string(with: Constants.defaultCryptoRounding) } ?? ""
     }
 
     var isZeroAmount: Bool {
@@ -120,7 +120,7 @@ class WalletModel {
                 destination: $0.sourceAddress,
                 timeFormatted: "",
                 date: $0.date,
-                transferAmount: $0.amount.string(with: 8),
+                transferAmount: $0.amount.string(with: Constants.defaultCryptoRounding),
                 transactionType: .receive,
                 status: .inProgress
             )
@@ -134,7 +134,7 @@ class WalletModel {
                 destination: $0.destinationAddress,
                 timeFormatted: "",
                 date: $0.date,
-                transferAmount: $0.amount.string(with: 8),
+                transferAmount: $0.amount.string(with: Constants.defaultCryptoRounding),
                 transactionType: .send,
                 status: .inProgress
             )
@@ -242,8 +242,8 @@ class WalletModel {
             }
             .store(in: &bag)
 
-        _state
-            .combineLatest(_rate)
+        _state.dropFirst()
+            .combineLatest(_rate.dropFirst())
             .map { $0.0 }
             .weakAssign(to: \._walletDidChangePublisher.value, on: self)
             .store(in: &bag)
@@ -341,6 +341,9 @@ class WalletModel {
 
         return ratesRepository
             .loadRates(coinIds: [currencyId])
+            .handleEvents(receiveOutput: { [name] _ in
+                AppLog.shared.debug("🔄 Finished loading rates for \(name)")
+            })
             .eraseToAnyPublisher()
     }
 
@@ -655,7 +658,7 @@ extension WalletModel: Identifiable {
 extension WalletModel: Hashable {
     func hash(into hasher: inout Hasher) {
         let id = Id(blockchainNetwork: blockchainNetwork, amountType: amountType)
-        id.hash(into: &hasher)
+        hasher.combine(id)
     }
 }
 
@@ -675,11 +678,6 @@ extension WalletModel {
 
         let blockchainNetwork: BlockchainNetwork
         let amountType: Amount.AmountType
-
-        func hash(into hasher: inout Hasher) {
-            hasher.combine(blockchainNetwork)
-            hasher.combine(amountType)
-        }
     }
 }
 
@@ -761,5 +759,11 @@ extension WalletModel {
 
     var ethereumTransactionProcessor: EthereumTransactionProcessor? {
         walletManager as? EthereumTransactionProcessor
+    }
+}
+
+private extension WalletModel {
+    enum Constants {
+        static let defaultCryptoRounding = 8
     }
 }
