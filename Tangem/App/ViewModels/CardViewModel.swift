@@ -38,6 +38,10 @@ class CardViewModel: Identifiable, ObservableObject {
     private let walletManagersRepository: WalletManagersRepository
 
     lazy var derivationManager: DerivationManager? = {
+        guard config.hasFeature(.hdWallets) else {
+            return nil
+        }
+
         let commonDerivationManager = CommonDerivationManager(
             keysRepository: keysRepository,
             userTokenListManager: userTokenListManager
@@ -346,7 +350,7 @@ class CardViewModel: Identifiable, ObservableObject {
             return
         }
 
-        userTokenListManager.update(.append(persistentBlockchains))
+        userTokenListManager.update(.append(persistentBlockchains), shouldUpload: true)
     }
 
     // MARK: - Security
