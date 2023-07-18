@@ -29,7 +29,7 @@ class LegacyMainViewModel: ObservableObject {
     @Published var showTradeSheet: Bool = false
     @Published var showSelectWalletSheet: Bool = false
     @Published var image: UIImage? = nil
-    @Published var isLackDerivationWarningViewVisible: Bool = false
+    @Published var hasPendingDerivations: Bool = false
     @Published var isBackupAllowed: Bool = false
     @Published var promotionAvailable: Bool = false
     @Published var promotionRequestInProgress: Bool = false
@@ -213,9 +213,7 @@ class LegacyMainViewModel: ObservableObject {
         cardModel.derivationManager?.hasPendingDerivations
             .receive(on: DispatchQueue.main)
             .removeDuplicates()
-            .sink { [unowned self] hasPendingDerivations in
-                updateLackDerivationWarningView(hasPendingDerivations)
-            }
+            .weakAssign(to: \.hasPendingDerivations, on: self)
             .store(in: &bag)
 
         AppSettings.shared.$saveUserWallets
@@ -493,8 +491,8 @@ private extension LegacyMainViewModel {
         self.error = error
     }
 
-    private func updateLackDerivationWarningView(_ hasPendingDerivations: Bool) {
-        isLackDerivationWarningViewVisible = hasPendingDerivations
+    private func updatePendingDerivationsView(_ hasPendingDerivations: Bool) {
+        hasPendingDerivations = hasPendingDerivations
     }
 
     private func loadImage() {
