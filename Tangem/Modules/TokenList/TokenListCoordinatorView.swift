@@ -13,13 +13,13 @@ struct TokenListCoordinatorView: CoordinatorView {
     @ObservedObject var coordinator: TokenListCoordinator
 
     var body: some View {
-        NavigationView {
-            if let model = coordinator.tokenListViewModel {
-                TokenListView(viewModel: model)
-                    .navigationLinks(links)
-            }
+//        NavigationView {
+        if let model = coordinator.tokenListViewModel {
+            TokenListView(viewModel: model)
+                .navigationLinks(links)
         }
-        .navigationViewStyle(.stack)
+//        }
+//        .navigationViewStyle(.stack)
     }
 
     @ViewBuilder
