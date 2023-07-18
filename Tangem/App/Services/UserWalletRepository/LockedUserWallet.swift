@@ -33,6 +33,6 @@ class LockedUserWallet: UserWalletModel {
     }
 
     func totalBalancePublisher() -> AnyPublisher<LoadingValue<TotalBalanceProvider.TotalBalance>, Never> {
-        .just(output: .loading)
+        .just(output: .loaded(.init(balance: 0, currencyCode: "", hasError: false)))
     }
 }
