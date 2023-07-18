@@ -39,7 +39,19 @@ extension UserCurrenciesProvider: UserCurrenciesProviding {
             currencies.append(coinCurrency)
         }
 
-        currencies += tokens.compactMap { token in
+        let userTokens = walletModel.getTokens()
+        if userTokens.isEmpty {
+            return currencies
+        }
+
+        // Get user tokens from API with filled in fields
+        // For checking exchangeable
+        let filledTokens = await getTokens(
+            networkId: swappingBlockchain.networkId,
+            ids: userTokens.compactMap { $0.id }
+        )
+
+        currencies += filledTokens.compactMap { token in
             guard token.exchangeable == true else {
                 return nil
             }
