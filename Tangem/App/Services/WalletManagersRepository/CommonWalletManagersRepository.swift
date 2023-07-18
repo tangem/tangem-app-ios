@@ -44,7 +44,7 @@ class CommonWalletManagersRepository {
         var managers = walletManagers.value
         var hasUpdates = false
 
-        entries.forEach { entry in
+        for entry in entries {
             if let existingWalletManager = walletManagers.value[entry.blockchainNetwork] {
                 let tokensToRemove = Set(existingWalletManager.cardTokens).subtracting(entry.tokens)
                 for tokenToRemove in tokensToRemove {
@@ -57,7 +57,7 @@ class CommonWalletManagersRepository {
                     existingWalletManager.addTokens(Array(tokensToAdd))
                     hasUpdates = true
                 }
-
+                
             } else if let newWalletManager = makeWalletManager(for: entry, keys) {
                 managers[entry.blockchainNetwork] = newWalletManager
                 hasUpdates = true
