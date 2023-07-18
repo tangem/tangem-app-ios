@@ -282,14 +282,13 @@ class WalletModel {
         updateWalletModelSubscription = walletManager
             .updatePublisher()
             .combineLatest(loadRates())
-            .delay(for: 0.3, scheduler: DispatchQueue.global()) // delay to invoke common finish after general update finished
             .receive(on: updateQueue)
-            .sink { [weak self] _ in
+            .sink { [weak self] newState, _ in
                 guard let self else { return }
 
                 AppLog.shared.debug("🔄 Finished common update for \(name)")
 
-                updatePublisher?.send(state)
+                updatePublisher?.send(mapState(newState))
                 updatePublisher?.send(completion: .finished)
                 updatePublisher = nil
             }
@@ -305,19 +304,30 @@ class WalletModel {
             if let demoBalance {
                 walletManager.wallet.add(coinValue: demoBalance)
             }
-            updateState(.idle)
-        case .failed(let error):
+        case .failed:
             AppLog.shared.debug("🔄 Failed updating for \(name)")
+        case .loading, .initial:
+            break
+        }
+
+        updateState(mapState(walletManagerState))
+    }
+
+    private func mapState(_ walletManagerState: WalletManagerState) -> WalletModel.State {
+        switch walletManagerState {
+        case .loaded:
+            return .idle
+        case .failed(let error):
             switch error as? WalletError {
             case .noAccount(let message):
-                updateState(.noAccount(message: message))
+                return .noAccount(message: message)
             default:
-                updateState(.failed(error: error.detailedError.localizedDescription))
+                return .failed(error: error.detailedError.localizedDescription)
             }
         case .loading:
-            updateState(.loading)
+            return .loading
         case .initial:
-            break
+            return .created
         }
     }
 
