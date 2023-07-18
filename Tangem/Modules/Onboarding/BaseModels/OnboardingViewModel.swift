@@ -157,7 +157,7 @@ class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable>
 
         let defaultBlockchains = userWallet.config.defaultBlockchains
         if !defaultBlockchains.isEmpty {
-            userWallet.userTokenListManager.update(.append(defaultBlockchains))
+            userWallet.userTokenListManager.update(.append(defaultBlockchains), shouldUpload: true)
         }
 
         userWallet.initialUpdate()
