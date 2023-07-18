@@ -31,19 +31,6 @@ class WalletModel {
         walletManager.allowsFeeSelection
     }
 
-    private var _walletDidChangePublisher: CurrentValueSubject<State, Never> = .init(.created)
-    private var _state: CurrentValueSubject<State, Never> = .init(.created)
-    private var _rate: CurrentValueSubject<Decimal?, Never> = .init(nil)
-    private var _transactionsHistory: CurrentValueSubject<TransactionHistoryState, Never> = .init(.notLoaded)
-
-    private var rate: Decimal? {
-        guard let currencyId = tokenItem.currencyId else {
-            return nil
-        }
-
-        return ratesRepository.rates[currencyId]
-    }
-
     var tokenItem: TokenItem {
         switch amountType {
         case .coin, .reserve:
@@ -185,10 +172,22 @@ class WalletModel {
     private let walletManager: WalletManager
     private var updateTimer: AnyCancellable?
     private var txHistoryUpdateSubscription: AnyCancellable?
-    private var updateWalletModelBag: AnyCancellable?
+    private var updateWalletModelSubscription: AnyCancellable?
     private var bag = Set<AnyCancellable>()
     private var updatePublisher: PassthroughSubject<State, Never>?
     private var updateQueue = DispatchQueue(label: "walletModel_update_queue")
+    private var _walletDidChangePublisher: CurrentValueSubject<State, Never> = .init(.created)
+    private var _state: CurrentValueSubject<State, Never> = .init(.created)
+    private var _rate: CurrentValueSubject<Decimal?, Never> = .init(nil)
+    private var _transactionsHistory: CurrentValueSubject<TransactionHistoryState, Never> = .init(.notLoaded)
+
+    private var rate: Decimal? {
+        guard let currencyId = tokenItem.currencyId else {
+            return nil
+        }
+
+        return ratesRepository.rates[currencyId]
+    }
 
     deinit {
         AppLog.shared.debug("🗑 WalletModel deinit")
@@ -280,7 +279,7 @@ class WalletModel {
             updateState(.loading)
         }
 
-        updateWalletModelBag = walletManager
+        updateWalletModelSubscription = walletManager
             .updatePublisher()
             .combineLatest(loadRates())
             .delay(for: 0.3, scheduler: DispatchQueue.global()) // delay to invoke common finish after general update finished
