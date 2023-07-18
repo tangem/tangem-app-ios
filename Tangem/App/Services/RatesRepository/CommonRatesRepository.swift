@@ -29,10 +29,6 @@ extension CommonRatesRepository: RatesRepository {
         return loadRates(coinIds: allRates)
     }
 
-    func update() async throws -> Rates {
-        return try await update().async()
-    }
-
     func loadRates(coinIds: [String]) -> AnyPublisher<Rates, Never> {
         tangemApiService
             .loadRates(for: coinIds)
@@ -49,10 +45,6 @@ extension CommonRatesRepository: RatesRepository {
                 _rates.send(current)
             })
             .eraseToAnyPublisher()
-    }
-
-    func loadRates(coinIds: [String]) async throws -> Rates {
-        return try await loadRates(coinIds: coinIds).async()
     }
 
     func rate(for coinId: String) async throws -> Decimal {
