@@ -28,7 +28,7 @@ struct TokenListView: View {
             AlertToast(type: .complete(Color.tangemGreen), title: Localization.contractAddressCopiedMessage)
         }
         .searchableCompat(text: $viewModel.enteredSearchText.value)
-        .background(Colors.Background.plain.edgesIgnoringSafeArea(.all))
+        .background(Colors.Background.secondary.edgesIgnoringSafeArea(.all))
         .onAppear { viewModel.onAppear() }
         .onDisappear { viewModel.onDisappear() }
     }
@@ -36,7 +36,13 @@ struct TokenListView: View {
     private var list: some View {
         ScrollView {
             LazyVStack {
-                if #available(iOS 15.0, *) {} else {
+                if #available(iOS 15.0, *) {
+                    TextField(text: $viewModel.enteredSearchText.value, label: {
+                        Color.red
+                    })
+                    .textFieldStyle(RoundedBorderTextFieldStyle())
+                    .padding(.all)
+                } else {
                     SearchBar(text: $viewModel.enteredSearchText.value, placeholder: Localization.commonSearch)
                         .padding(.horizontal, 8)
                         .listRowInsets(.init(top: 8, leading: 16, bottom: 8, trailing: 16))
