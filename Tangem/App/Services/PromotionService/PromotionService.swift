@@ -224,6 +224,7 @@ extension PromotionService {
 
             switch tangemApiError.code {
             case .promotionCardAlreadyAwarded, .promotionWalletAlreadyAwarded:
+                markCurrentPromotionAsAwarded(true)
                 return true
             default:
                 return false
