@@ -34,7 +34,7 @@ class CommonUserTokenListManager {
         self.hdWalletsSupported = hdWalletsSupported
         tokenItemsRepository = CommonTokenItemsRepository(key: userWalletId.hexString)
         _userTokens = .init(tokenItemsRepository.getItems())
-        removeBadTokens()
+        removeInvalidTokens()
     }
 }
 
@@ -281,7 +281,7 @@ private extension CommonUserTokenListManager {
     }
 
     // Remove tokens with derivation for cards without derivation
-    private func removeBadTokens() {
+    private func removeInvalidTokens() {
         guard !hdWalletsSupported else {
             return
         }
