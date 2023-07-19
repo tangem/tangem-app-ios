@@ -13,7 +13,6 @@ protocol UserTokenListManager {
     var userTokens: [StorageEntry] { get }
     var userTokensPublisher: AnyPublisher<[StorageEntry], Never> { get }
 
-    func contains(_ entry: StorageEntry) -> Bool
     func update(_ type: CommonUserTokenListManager.UpdateType, shouldUpload: Bool)
     func upload()
     func updateLocalRepositoryFromServer(result: @escaping (Result<Void, Error>) -> Void)
