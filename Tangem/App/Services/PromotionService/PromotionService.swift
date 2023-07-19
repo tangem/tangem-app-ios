@@ -9,6 +9,7 @@
 import Combine
 import TangemSdk
 import BlockchainSdk
+import Moya
 
 class PromotionService {
     @Injected(\.tangemApiService) private var tangemApiService: TangemApiService
@@ -110,10 +111,18 @@ extension PromotionService: PromotionServiceProtocol {
     }
 
     func checkIfCanGetAward(userWalletId: String) async throws {
-        if let promoCode {
-            try await tangemApiService.validateNewUserPromotionEligibility(walletId: userWalletId, code: promoCode)
-        } else {
-            try await tangemApiService.validateOldUserPromotionEligibility(walletId: userWalletId, programName: currentProgramName)
+        do {
+            if let promoCode {
+                try await tangemApiService.validateNewUserPromotionEligibility(walletId: userWalletId, code: promoCode)
+            } else {
+                try await tangemApiService.validateOldUserPromotionEligibility(walletId: userWalletId, programName: currentProgramName)
+            }
+        } catch {
+            if case .statusCode = error as? MoyaError {
+                throw AppError.serverUnavailable
+            } else {
+                throw error
+            }
         }
     }
 
@@ -224,6 +233,7 @@ extension PromotionService {
 
             switch tangemApiError.code {
             case .promotionCardAlreadyAwarded, .promotionWalletAlreadyAwarded:
+                markCurrentPromotionAsAwarded(true)
                 return true
             default:
                 return false
