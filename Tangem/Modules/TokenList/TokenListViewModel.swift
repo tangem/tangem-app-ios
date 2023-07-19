@@ -189,7 +189,7 @@ private extension TokenListViewModel {
         return userTokensManager.contains(tokenItem, derivationPath: nil)
     }
 
-    func canManage(_ tokenItem: TokenItem) -> Bool {
+    func canRemove(_ tokenItem: TokenItem) -> Bool {
         guard let userTokensManager = mode.userTokensManager else {
             return false
         }
@@ -301,7 +301,7 @@ private extension TokenListViewModel {
             return
         }
 
-        if canManage(tokenItem) || !pendingRemove.contains(tokenItem) {
+        if canRemove(tokenItem) {
             let title = Localization.tokenDetailsHideAlertTitle(tokenItem.currencySymbol)
 
             let cancelAction = { [unowned self] in
