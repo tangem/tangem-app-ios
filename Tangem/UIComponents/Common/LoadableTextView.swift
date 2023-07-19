@@ -44,9 +44,7 @@ struct LoadableTextView: View {
 }
 
 extension LoadableTextView {
-    enum State: Hashable, Identifiable {
-        var id: Int { hashValue }
-
+    enum State: Hashable {
         case initialized
         case noData
         case loading
@@ -55,19 +53,23 @@ extension LoadableTextView {
 }
 
 struct LoadableTextView_Preview: PreviewProvider {
-    static let states: [LoadableTextView.State] = [
-        .initialized, .noData, .loading, .loaded(text: "Some random text"),
+    static let states: [(LoadableTextView.State, UUID)] = [
+        (.initialized, UUID()),
+        (.noData, UUID()),
+        (.loading, UUID()),
+        (.loaded(text: "Some random text"), UUID()),
+        (.loading, UUID()),
     ]
 
     static var previews: some View {
         VStack {
-            ForEach(states) { state in
+            ForEach(states.indexed(), id: \.1.1) { index, state in
                 LoadableTextView(
-                    state: .initialized,
+                    state: state.0,
                     font: Fonts.Regular.subheadline,
                     textColor: Colors.Text.primary1,
                     loaderSize: .init(width: 100, height: 20),
-                    loaderTopPadding: 4
+                    loaderTopPadding: (index == states.count - 1) ? 0.0 : 4.0
                 )
             }
         }
