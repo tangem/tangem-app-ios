@@ -81,8 +81,17 @@ struct CommonUserTokensManager {
 extension CommonUserTokensManager: UserTokensManager {
     func contains(_ tokenItem: TokenItem, derivationPath: DerivationPath?) -> Bool {
         let blockchainNetwork = makeBlockchainNetwork(for: tokenItem.blockchain, derivationPath: derivationPath)
-        let entry = StorageEntry(blockchainNetwork: blockchainNetwork, token: tokenItem.token)
-        return userTokenListManager.contains(entry)
+
+        guard let targetEntry = userTokenListManager.userTokens.first(where: { $0.blockchainNetwork == blockchainNetwork }) else {
+            return false
+        }
+
+        switch tokenItem {
+        case .blockchain:
+            return true
+        case .token(let token, _):
+            return targetEntry.tokens.contains(token)
+        }
     }
 
     func getAllTokens(for blockchainNetwork: BlockchainNetwork) -> [Token] {
