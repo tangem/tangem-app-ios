@@ -241,8 +241,8 @@ class WalletModel {
             }
             .store(in: &bag)
 
-        _state.dropFirst()
-            .combineLatest(_rate.dropFirst())
+        _state
+            .combineLatest(_rate)
             .map { $0.0 }
             .weakAssign(to: \._walletDidChangePublisher.value, on: self)
             .store(in: &bag)
