@@ -13,9 +13,10 @@ struct LoadableTextView: View {
     let font: Font
     let textColor: Color
     let loaderSize: CGSize
+    var loaderCornerRadius: CGFloat = 3.0
     /// Use this to adjust loader position in vertical direction to prevent jumping behaviour
     /// when view changes state from `loading` to `loaded`
-    let loaderTopPadding: CGFloat
+    var loaderTopPadding: CGFloat = 0.0
 
     var lineLimit: Int = 1
 
@@ -31,6 +32,7 @@ struct LoadableTextView: View {
         case .loading:
             SkeletonView()
                 .frame(size: loaderSize)
+                .cornerRadiusContinuous(loaderCornerRadius)
                 .padding(.top, loaderTopPadding)
         case .loaded(let text):
             Text(text)
