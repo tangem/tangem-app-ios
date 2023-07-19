@@ -110,10 +110,18 @@ extension PromotionService: PromotionServiceProtocol {
     }
 
     func checkIfCanGetAward(userWalletId: String) async throws {
-        if let promoCode {
-            try await tangemApiService.validateNewUserPromotionEligibility(walletId: userWalletId, code: promoCode)
-        } else {
-            try await tangemApiService.validateOldUserPromotionEligibility(walletId: userWalletId, programName: currentProgramName)
+        do {
+            if let promoCode {
+                try await tangemApiService.validateNewUserPromotionEligibility(walletId: userWalletId, code: promoCode)
+            } else {
+                try await tangemApiService.validateOldUserPromotionEligibility(walletId: userWalletId, programName: currentProgramName)
+            }
+        } catch {
+            if case .statusCode = error as? MoyaError {
+                throw AppError.serverUnavailable
+            } else {
+                throw error
+            }
         }
     }
 
