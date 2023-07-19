@@ -82,10 +82,6 @@ extension CommonUserTokenListManager: UserTokenListManager {
 
         loadUserTokenList(result: result)
     }
-
-    func contains(_ entry: StorageEntry) -> Bool {
-        return userTokens.contains(entry)
-    }
 }
 
 // MARK: - Private
