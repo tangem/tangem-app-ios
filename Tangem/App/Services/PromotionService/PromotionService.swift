@@ -9,6 +9,7 @@
 import Combine
 import TangemSdk
 import BlockchainSdk
+import Moya
 
 class PromotionService {
     @Injected(\.tangemApiService) private var tangemApiService: TangemApiService
