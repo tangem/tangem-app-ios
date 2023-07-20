@@ -173,9 +173,9 @@ extension GenericConfig: UserWalletConfig {
         case .transactionHistory:
             return .hidden
         case .seedPhrase:
-            return card.settings.isKeysImportAllowed ? .available : .hidden
+            return .hidden
         case .accessCodeRecoverySettings:
-            return card.firmwareVersion >= .keysImportAvailable ? .available : .hidden
+            return .hidden
         case .promotion:
             return .available
         }
