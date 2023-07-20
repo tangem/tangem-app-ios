@@ -201,3 +201,9 @@ private extension Card.BackupStatus {
         return nil
     }
 }
+
+private extension Card {
+    var hasImportedWallets: Bool {
+        wallets.contains(where: { $0.isImported == true })
+    }
+}
