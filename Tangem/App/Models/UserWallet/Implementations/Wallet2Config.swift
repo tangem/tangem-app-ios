@@ -105,7 +105,7 @@ extension Wallet2Config: UserWalletConfig {
     }
 
     var productType: Analytics.ProductType {
-        card.firmwareVersion.doubleValue >= 4.39 ? .wallet : .other
+        .wallet2
     }
 
     func getFeatureAvailability(_ feature: UserWalletFeature) -> UserWalletFeature.Availability {
@@ -123,11 +123,7 @@ extension Wallet2Config: UserWalletConfig {
         case .send:
             return .available
         case .longHashes:
-            if card.firmwareVersion.doubleValue >= 4.52 {
-                return .available
-            }
-
-            return .hidden
+            return .available
         case .signedHashesCounter:
             return .hidden
         case .backup:
