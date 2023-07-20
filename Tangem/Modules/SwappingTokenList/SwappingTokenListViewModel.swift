@@ -80,15 +80,17 @@ private extension SwappingTokenListViewModel {
     func setupUserItemsSection() {
         runTask(in: self) { obj in
             obj.userCurrencies = await obj.userCurrenciesProvider.getCurrencies(blockchain: obj.sourceCurrency.blockchain)
+
+            /// Currencies which should be in user items section
             let currencies = obj.userCurrencies.filter { obj.sourceCurrency != $0 }
             var items: [SwappingTokenItemViewModel] = []
-            var currenciesToLoad: [Currency] = []
+            var currenciesToLoadBalance: [Currency] = []
 
             currencies.forEach { currency in
                 guard let balance = obj.walletDataProvider.getBalance(for: currency),
                       let fiatBalance = obj.fiatRatesProvider.getFiat(for: currency, amount: balance) else {
                     // If we haven't cache for this currency
-                    currenciesToLoad.append(currency)
+                    currenciesToLoadBalance.append(currency)
                     return
                 }
 
@@ -105,34 +107,35 @@ private extension SwappingTokenListViewModel {
                 obj.userItems = items
             }
 
-            guard !currenciesToLoad.isEmpty else {
+            // If we have currencies without balance in the cache
+            guard !currenciesToLoadBalance.isEmpty else {
                 // All currencies balances was loaded
                 return
             }
 
-            AppLog.shared.debug("Start loading balances for currencies: \(currenciesToLoad)")
-
-            let balances = await withTaskGroup(of: (currency: Currency, balance: Decimal)?.self, returning: [Currency: Decimal].self) { taskGroup in
-                currenciesToLoad.forEach { currency in
+            AppLog.shared.debug("Start loading balances for currencies: \(currenciesToLoadBalance)")
+            // Create a task group for collect all updates in one array
+            let currencyBalances = await withTaskGroup(of: CurrencyAmount.self) { taskGroup in
+                for currency in currenciesToLoadBalance {
+                    // Run a parallel asynchronous task and collect it into the group
                     taskGroup.addTask {
                         do {
                             let balance = try await obj.walletDataProvider.getBalance(for: currency)
-                            return (currency: currency, balance: balance)
+                            return CurrencyAmount(value: balance, currency: currency)
                         } catch {
                             AppLog.shared.debug("Loading balance for currency \(currency) throw error")
                             AppLog.shared.error(error)
-                            return nil
+                            return CurrencyAmount(value: 0, currency: currency)
                         }
                     }
                 }
 
-                return await taskGroup.reduce(into: [:]) { partialResult, taskResult in
-                    if let taskResult {
-                        partialResult[taskResult.currency] = taskResult.balance
-                    }
-                }
+                return taskGroup
             }
 
+            // Await when all tasks will be done
+            // And map it array into [Currency: Decimal] for exclude repetitions currency
+            let balances = await currencyBalances.reduce(into: [:]) { $0[$1.currency] = $1.value }
             let fiatBalances = try await obj.fiatRatesProvider.getFiat(for: balances)
             fiatBalances.forEach { currency, fiatBalance in
                 guard let balance = balances[currency] else {
