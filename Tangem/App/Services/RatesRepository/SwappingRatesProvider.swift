@@ -60,7 +60,7 @@ extension SwappingRatesProvider: FiatRatesProviding {
 
     func getFiat(for currencies: [Currency: Decimal]) async throws -> [Currency: Decimal] {
         let ids = currencies.keys.map { $0.isToken ? $0.id : $0.blockchain.currencyID }
-        _ = try await ratesRepository.loadRates(coinIds: ids)
+        _ = await ratesRepository.loadRates(coinIds: ids)
 
         return currencies.reduce(into: [:]) { result, args in
             let (currency, amount) = args
