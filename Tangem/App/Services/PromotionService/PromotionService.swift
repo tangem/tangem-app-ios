@@ -19,7 +19,6 @@ class PromotionService {
     }
 
     let currentProgramName = "1inch"
-    private let questionnaireFinishedStorageKey = "questionnaire_finished"
     private let promoCodeStorageKey = "promo_code"
     private let finishedPromotionNamesStorageKey = "finished_promotion_names"
     private let awardedPromotionNamesStorageKey = "awarded_promotion_names"
@@ -34,8 +33,7 @@ class PromotionService {
 
 extension PromotionService: PromotionServiceProtocol {
     var questionnaireFinished: Bool {
-        let finished = UserDefaults().value(forKey: questionnaireFinishedStorageKey) as? Bool
-        return finished ?? false
+        AppSettings.shared.promotionQuestionnaireFinished
     }
 
     var promoCode: String? {
@@ -100,7 +98,7 @@ extension PromotionService: PromotionServiceProtocol {
     }
 
     func setQuestionnaireFinished(_ finished: Bool) {
-        UserDefaults().setValue(finished, forKey: questionnaireFinishedStorageKey)
+        AppSettings.shared.promotionQuestionnaireFinished = finished
     }
 
     func setPromoCode(_ promoCode: String?) {
