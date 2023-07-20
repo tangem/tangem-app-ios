@@ -113,7 +113,7 @@ extension CommonTangemApiService: TangemApiService {
             .map(QuotesDTO.Response.self)
             .eraseError()
             .map { response in
-                QuotesMapper().mapToQuote(response: response)
+                QuotesMapper().mapToQuotes(response)
             }
             .eraseToAnyPublisher()
     }
