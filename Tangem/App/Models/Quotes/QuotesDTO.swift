@@ -8,17 +8,21 @@
 
 import Foundation
 
-enum QuotesDTO {
+enum QuotesDTO {}
+
+extension QuotesDTO {
     struct Response: Decodable {
         /// Key is `coinId`
         let quotes: [String: Fields]
-
+        
         struct Fields: Decodable {
             let price: String?
             let priceChange24h: String?
         }
     }
+}
 
+extension QuotesDTO {
     struct Request: Encodable {
         let coinIds: [String]
         let currencyId: String
