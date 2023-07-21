@@ -13,25 +13,22 @@ protocol WalletConnectHandlersCreator: AnyObject {
     func createHandler(
         for action: WalletConnectAction,
         with params: AnyCodable,
-        blockchain: Blockchain
+        blockchain: Blockchain,
+        signer: TangemSigner,
+        walletModelProvider: WalletConnectWalletModelProvider
     ) throws -> WalletConnectMessageHandler
 }
 
 final class WalletConnectHandlersFactory: WalletConnectHandlersCreator {
-    private let signer: TangemSigner
     private let messageComposer: WalletConnectV2MessageComposable
     private let uiDelegate: WalletConnectUIDelegate
     private let ethTransactionBuilder: WalletConnectEthTransactionBuilder
 
-    weak var walletModelProvider: WalletConnectV2WalletModelProvider?
-
     init(
-        signer: TangemSigner,
         messageComposer: WalletConnectV2MessageComposable,
         uiDelegate: WalletConnectUIDelegate,
         ethTransactionBuilder: WalletConnectEthTransactionBuilder
     ) {
-        self.signer = signer
         self.messageComposer = messageComposer
         self.uiDelegate = uiDelegate
         self.ethTransactionBuilder = ethTransactionBuilder
@@ -40,12 +37,10 @@ final class WalletConnectHandlersFactory: WalletConnectHandlersCreator {
     func createHandler(
         for action: WalletConnectAction,
         with params: AnyCodable,
-        blockchain: Blockchain
+        blockchain: Blockchain,
+        signer: TangemSigner,
+        walletModelProvider: WalletConnectWalletModelProvider
     ) throws -> WalletConnectMessageHandler {
-        guard let walletModelProvider = self.walletModelProvider else {
-            throw WalletConnectV2Error.missingWalletModelProviderInHandlersFactory
-        }
-
         switch action {
         case .personalSign:
             return try WalletConnectV2PersonalSignHandler(
@@ -77,8 +72,8 @@ final class WalletConnectHandlersFactory: WalletConnectHandlersCreator {
                 transactionBuilder: ethTransactionBuilder,
                 messageComposer: messageComposer,
                 signer: signer,
-                uiDelegate: uiDelegate,
-                walletModelProvider: walletModelProvider
+                walletModelProvider: walletModelProvider,
+                uiDelegate: uiDelegate
             )
         case .bnbSign, .bnbTxConfirmation:
             // [REDACTED_TODO_COMMENT]
