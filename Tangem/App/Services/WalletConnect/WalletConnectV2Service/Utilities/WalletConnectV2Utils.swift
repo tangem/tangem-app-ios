@@ -201,10 +201,9 @@ struct WalletConnectV2Utils {
     func createBlockchain(for wcBlockchain: WalletConnectSwiftV2.Blockchain) -> BlockchainSdk.Blockchain? {
         switch wcBlockchain.namespace {
         case evmNamespace:
-            var blockchains = BlockchainSdk.Blockchain.supportedBlockchains
-            blockchains = blockchains.union(BlockchainSdk.Blockchain.supportedTestnetBlockchains)
-
+            let blockchains = SupportedBlockchains().emvBlockchains()
             let wcChainId = Int(wcBlockchain.reference)
+
             return blockchains.first(where: { $0.chainId == wcChainId })
         default:
             return BlockchainSdk.Blockchain(from: wcBlockchain.namespace)
