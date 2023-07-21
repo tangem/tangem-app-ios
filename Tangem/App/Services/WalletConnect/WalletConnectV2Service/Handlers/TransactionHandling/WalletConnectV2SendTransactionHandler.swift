@@ -27,8 +27,8 @@ class WalletConnectV2SendTransactionHandler {
         transactionBuilder: WalletConnectEthTransactionBuilder,
         messageComposer: WalletConnectV2MessageComposable,
         signer: TangemSigner,
-        uiDelegate: WalletConnectUIDelegate,
-        walletModelProvider: WalletConnectV2WalletModelProvider
+        walletModelProvider: WalletConnectWalletModelProvider,
+        uiDelegate: WalletConnectUIDelegate
     ) throws {
         do {
             let params = try requestParams.get([WalletConnectEthTransaction].self)
