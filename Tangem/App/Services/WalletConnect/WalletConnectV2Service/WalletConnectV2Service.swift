@@ -108,6 +108,21 @@ final class WalletConnectV2Service {
         }
     }
 
+    func disconnectAllSessionsForUserWallet(with userWalletId: String) {
+        runTask { [weak self] in
+            guard let self else { return }
+
+            let removedSessions = await sessionsStorage.removeSessions(for: userWalletId)
+            for session in removedSessions {
+                do {
+                    try await signApi.disconnect(topic: session.topic)
+                } catch {
+                    AppLog.shared.error("[WC 2.0] Failed to disconnect session while disconnecting all sessions for user wallet with id: \(userWalletId). Error: \(error)")
+                }
+            }
+        }
+    }
+
     private func loadSessions(for userWalletId: Data?) {
         guard let userWalletId else { return }
 
