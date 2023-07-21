@@ -13,12 +13,11 @@ protocol WalletConnectService {
     var canEstablishNewSessionPublisher: AnyPublisher<Bool, Never> { get }
     var newSessions: AsyncStream<[WalletConnectSavedSession]> { get async }
 
-//    func initialize(with cardModel: CardViewModel)
-//    func reset()
+    func openSession(with uri: WalletConnectRequestURI)
     func disconnectSession(with id: Int) async
+    func disconnectAllSessionsForUserWallet(with userWalletId: String)
 
 //    func canOpenSession(with uri: WalletConnectRequestURI) -> Bool
-    func openSession(with uri: WalletConnectRequestURI)
 }
 
 private struct WalletConnectServicingKey: InjectionKey {
