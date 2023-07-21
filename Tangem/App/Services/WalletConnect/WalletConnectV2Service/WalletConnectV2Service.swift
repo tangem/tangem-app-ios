@@ -12,29 +12,27 @@ import WalletConnectSwiftV2
 import BlockchainSdk
 
 protocol WalletConnectUserWalletInfoProvider {
-    var name: String { get }
     var userWalletId: UserWalletId { get }
     var walletModels: [WalletModel] { get }
     var signer: TangemSigner { get }
 }
 
-protocol WalletConnectV2WalletModelProvider: AnyObject {
-    func getModel(with address: String, in blockchain: BlockchainSdk.Blockchain) throws -> WalletModel
-}
-
 final class WalletConnectV2Service {
     @Injected(\.walletConnectSessionsStorage) private var sessionsStorage: WalletConnectSessionsStorage
+    @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
     @Injected(\.keysManager) private var keysManager: KeysManager
 
     private let factory = WalletConnectV2DefaultSocketFactory()
     private let uiDelegate: WalletConnectUIDelegate
     private let messageComposer: WalletConnectV2MessageComposable
     private let wcHandlersService: WalletConnectV2HandlersServicing
-    private let infoProvider: WalletConnectUserWalletInfoProvider
 
     private var canEstablishNewSessionSubject: CurrentValueSubject<Bool, Never> = .init(true)
     private var sessionSubscriptions = Set<AnyCancellable>()
     private var messagesSubscriptions = Set<AnyCancellable>()
+
+    private lazy var pairApi: PairingInteracting = Pair.instance
+    private lazy var signApi: SignClient = Sign.instance
 
     var canEstablishNewSessionPublisher: AnyPublisher<Bool, Never> {
         canEstablishNewSessionSubject
@@ -47,16 +45,13 @@ final class WalletConnectV2Service {
         }
     }
 
-    private lazy var pairApi: PairingInteracting = Pair.instance
-    private lazy var signApi: SignClient = Sign.instance
+    private var infoProvider: WalletConnectUserWalletInfoProvider? { userWalletRepository.selectedModel }
 
     init(
-        with infoProvider: WalletConnectUserWalletInfoProvider,
         uiDelegate: WalletConnectUIDelegate,
         messageComposer: WalletConnectV2MessageComposable,
         wcHandlersService: WalletConnectV2HandlersServicing
     ) {
-        self.infoProvider = infoProvider
         self.uiDelegate = uiDelegate
         self.messageComposer = messageComposer
         self.wcHandlersService = wcHandlersService
@@ -67,14 +62,12 @@ final class WalletConnectV2Service {
             socketConnectionType: .automatic
         )
         Pair.configure(metadata: AppMetadata(
-            // Not sure that we really need this name, but currently it is hard to recognize what card is connected in dApp
-            name: "Tangem \(infoProvider.name)",
+            name: "Tangem iOS",
             description: "Tangem is a card-shaped self-custodial cold hardware wallet",
             url: "tangem.com",
             icons: ["https://user-images.githubusercontent.com/24321494/124071202-72a00900-da58-11eb-935a-dcdab21de52b.png"]
         ))
 
-        loadSessions(for: infoProvider.userWalletId.value)
         setupSessionSubscriptions()
         setupMessagesSubscriptions()
     }
@@ -150,11 +143,14 @@ final class WalletConnectV2Service {
             .asyncMap { [weak self] session in
                 guard let self else { return }
 
+                if infoProvider == nil {
+                    log("Info provider is not setup. Saved session will miss some info")
+                }
+
                 log("Session established: \(session)")
                 let savedSession = WalletConnectV2Utils().createSavedSession(
                     from: session,
-                    with: infoProvider.userWalletId.stringValue,
-                    and: infoProvider.walletModels
+                    with: infoProvider?.userWalletId.stringValue ?? ""
                 )
 
                 Analytics.log(
@@ -213,6 +209,12 @@ final class WalletConnectV2Service {
         let utils = WalletConnectV2Utils()
         log("Attemping to approve session proposal: \(proposal)")
 
+        guard let infoProvider else {
+            displayErrorUI(.missingActiveUserWalletModel)
+            sessionRejected(with: proposal)
+            return
+        }
+
         guard DApps().isSupported(proposal.proposer.url) else {
             displayErrorUI(.unsupportedDApp)
             sessionRejected(with: proposal)
@@ -245,6 +247,13 @@ final class WalletConnectV2Service {
 
     private func displaySessionConnectionUI(for proposal: Session.Proposal, namespaces: [String: SessionNamespace]) {
         log("Did receive session proposal")
+
+        guard let infoProvider else {
+            displayErrorUI(.missingActiveUserWalletModel)
+            sessionRejected(with: proposal)
+            return
+        }
+
         let blockchains = WalletConnectV2Utils().getBlockchainNamesFromNamespaces(namespaces, using: infoProvider.walletModels)
         let message = messageComposer.makeMessage(for: proposal, targetBlockchains: blockchains)
         uiDelegate.showScreen(with: WalletConnectUIRequest(
@@ -336,11 +345,19 @@ final class WalletConnectV2Service {
             return
         }
 
+        guard let userWallet = userWalletRepository.models.first(where: { $0.userWalletId.stringValue == session.userWalletId }) else {
+            log("Failed to find target user wallet")
+            await respond(with: .missingActiveUserWalletModel, session: session, blockchain: targetBlockchain)
+            return
+        }
+
         do {
             let result = try await wcHandlersService.handle(
                 request,
                 from: session.sessionInfo.dAppInfo,
-                blockchain: targetBlockchain
+                blockchain: targetBlockchain,
+                signer: userWallet.signer,
+                walletModelProvider: CommonWalletConnectWalletModelProvider(userWallet: userWallet) // Actuallty don't know where this generation should be...
             )
 
             log("Receive result from user \(result) for \(logSuffix)")
@@ -401,20 +418,25 @@ final class WalletConnectV2Service {
     }
 }
 
-extension WalletConnectV2Service: WalletConnectV2WalletModelProvider {
-    func getModel(with address: String, in blockchain: BlockchainSdk.Blockchain) throws -> WalletModel {
-        guard
-            let model = infoProvider.walletModels.first(where: {
-                $0.wallet.blockchain == blockchain && $0.wallet.address.caseInsensitiveCompare(address) == .orderedSame
-            })
-        else {
-            log("Failed to find wallet for \(blockchain) with address \(address)")
-            throw WalletConnectV2Error.walletModelNotFound(blockchain)
-        }
-
-        return model
-    }
-}
+// extension WalletConnectV2Service: WalletConnectWalletModelProvider {
+//    func getModel(with address: String, in blockchain: BlockchainSdk.Blockchain) throws -> WalletModel {
+//        guard let infoProvider else {
+//            log("Serivce wasn't setup properly. Missing info provider")
+//            throw WalletConnectV2Error.missingActiveUserWalletModel
+//        }
+//
+//        guard
+//            let model = infoProvider.walletModels.first(where: {
+//                $0.wallet.blockchain == blockchain && $0.wallet.address.caseInsensitiveCompare(address) == .orderedSame
+//            })
+//        else {
+//            log("Failed to find wallet for \(blockchain) with address \(address)")
+//            throw WalletConnectV2Error.walletModelNotFound(blockchain)
+//        }
+//
+//        return model
+//    }
+// }
 
 public typealias WalletConnectV2URI = WalletConnectURI
 
