@@ -342,6 +342,7 @@ class CommonUserWalletRepository: UserWalletRepository {
             }
         }
 
+        walletConnectServiceProvider.disconnectAllSessionsForUserWallet(with: userWalletId.toHexString())
         sendEvent(.deleted(userWalletId: userWalletId))
     }
 
