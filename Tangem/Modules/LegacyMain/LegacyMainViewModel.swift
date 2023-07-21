@@ -726,7 +726,7 @@ extension LegacyMainViewModel: LegacyMultiWalletContentViewModelOutput {
             supportedBlockchains: cardModel.supportedBlockchains,
             hdWalletsSupported: cardModel.config.hasFeature(.hdWallets),
             longHashesSupported: cardModel.config.hasFeature(.longHashes),
-            derivationStyle: cardModel.cardInfo.card.derivationStyle, // [REDACTED_TODO_COMMENT]
+            derivationStyle: cardModel.config.derivationStyle,
             shouldShowLegacyDerivationAlert: cardModel.shouldShowLegacyDerivationAlert
         )
 
