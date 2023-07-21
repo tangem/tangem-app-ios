@@ -16,6 +16,7 @@ import BlockchainSdk
 class ServicesManager {
     @Injected(\.exchangeService) private var exchangeService: ExchangeService
     @Injected(\.tangemApiService) private var tangemApiService: TangemApiService
+    @Injected(\.walletConnectSessionsStorage) private var walletConnectSessionStorage: WalletConnectSessionsStorage
 
     private var bag = Set<AnyCancellable>()
 
@@ -29,6 +30,7 @@ class ServicesManager {
             configureAmplitude()
         }
 
+        walletConnectSessionStorage.
         configureBlockchainSdkExceptionHandler()
 
         let currentLaunches = AppSettings.shared.numberOfLaunches + 1
