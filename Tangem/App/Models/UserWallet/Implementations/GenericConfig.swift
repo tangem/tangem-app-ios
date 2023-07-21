@@ -43,10 +43,6 @@ extension GenericConfig: UserWalletConfig {
         [.secp256k1, .ed25519]
     }
 
-    var canSkipBackup: Bool {
-        card.firmwareVersion < .keysImportAvailable
-    }
-
     var supportedBlockchains: Set<Blockchain> {
         let allBlockchains = AppEnvironment.current.isTestnet ? Blockchain.supportedTestnetBlockchains
             : Blockchain.supportedBlockchains
@@ -173,9 +169,9 @@ extension GenericConfig: UserWalletConfig {
         case .transactionHistory:
             return .hidden
         case .seedPhrase:
-            return card.settings.isKeysImportAllowed ? .available : .hidden
+            return .hidden
         case .accessCodeRecoverySettings:
-            return card.firmwareVersion >= .keysImportAvailable ? .available : .hidden
+            return .hidden
         case .promotion:
             return .available
         }
