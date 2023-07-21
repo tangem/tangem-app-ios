@@ -48,9 +48,18 @@ extension CommonWalletConnectService: WalletConnectService {
 //        v2Service = nil
 //    }
 
+    func openSession(with uri: WalletConnectRequestURI) {
+        switch uri {
+        case .v2(let v2URI):
+            v2Service.openSession(with: v2URI)
+        }
+    }
+
     func disconnectSession(with id: Int) async {
         await v2Service.disconnectSession(with: id)
     }
+
+    func disconnectAllSessionsForUserWallet(with userWalletId: String) {}
 
 //    func canOpenSession(with uri: WalletConnectRequestURI) -> Bool {
 //        switch uri {
@@ -58,13 +67,6 @@ extension CommonWalletConnectService: WalletConnectService {
 //            return v2Service.canEstablishNewSessionPublisher.
 //        }
 //    }
-
-    func openSession(with uri: WalletConnectRequestURI) {
-        switch uri {
-        case .v2(let v2URI):
-            v2Service.openSession(with: v2URI)
-        }
-    }
 }
 
 // MARK: - IncomingActionResponder
