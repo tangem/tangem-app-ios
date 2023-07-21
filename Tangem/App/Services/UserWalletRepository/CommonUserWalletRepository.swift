@@ -376,7 +376,6 @@ class CommonUserWalletRepository: UserWalletRepository {
 
     // [REDACTED_TODO_COMMENT]
     private func resetServices() {
-        walletConnectServiceProvider.reset()
         analyticsContext.clearContext()
     }
 
@@ -390,7 +389,6 @@ class CommonUserWalletRepository: UserWalletRepository {
 
         analyticsContext.setupContext(with: contextData)
         tangemApiService.setAuthData(cardInfo.card.tangemApiAuthData)
-        walletConnectServiceProvider.initialize(with: cardModel)
     }
 
     private func unlockWithBiometry(completion: @escaping (UserWalletRepositoryResult?) -> Void) {
