@@ -52,7 +52,7 @@ struct OnboardingProgressCheckmarksView: View {
                     )
                     )
                     .frame(width: containerSize.width, height: 3)
-                ForEach(0 ..< numberOfSteps) { stepIndex in
+                ForEach(0 ..< numberOfSteps, id: \.self) { stepIndex in
                     OnboardingProgressCircle(index: stepIndex, selectedIndex: animatedSelectedIndex)
                         .offset(
                             x: calculateCircleOffset(for: stepIndex),
@@ -61,9 +61,7 @@ struct OnboardingProgressCheckmarksView: View {
                 }
             }
             .frame(maxWidth: .infinity)
-            .readSize { size in
-                containerSize = size
-            }
+            .readGeometry(\.size, bindTo: $containerSize)
         }
         .onReceive(currentStep, perform: { newStep in
             animateSelection(at: newStep, animated: initialized)

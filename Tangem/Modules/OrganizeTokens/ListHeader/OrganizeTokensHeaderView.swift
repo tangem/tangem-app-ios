@@ -28,6 +28,8 @@ struct OrganizeTokensHeaderView: View {
                     action: viewModel.toggleGroupState
                 )
             }
+            // [REDACTED_TODO_COMMENT]
+            .shadow(color: Colors.Button.primary.opacity(0.1), radius: 5.0)
             .background(
                 Colors.Background
                     .primary

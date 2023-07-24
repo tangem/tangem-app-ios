@@ -30,11 +30,11 @@ class TestnetBuyCryptoService {
             .flatMap { fees -> AnyPublisher<TransactionSendResult, Error> in
                 guard let fee = fees.first,
                       fee.amount.value <= walletManager.wallet.amounts[.coin]?.value ?? 0 else {
-                    return .anyFail(error: Localization.testnetErrorNotEnoughEtherMessage)
+                    return .anyFail(error: "Not enough funds on ETH wallet balance. You need to topup ETH wallet first")
                 }
 
                 guard let tx = try? walletManager.createTransaction(amount: amountToSend, fee: fee, destinationAddress: destinationAddress) else {
-                    return .anyFail(error: Localization.testnetErrorFailedCreateTx)
+                    return .anyFail(error: "Failed to create topup transaction for token. Try again later")
                 }
 
                 return walletManager.send(tx, signer: signer)
@@ -44,7 +44,7 @@ class TestnetBuyCryptoService {
                     AppLog.shared.error(error)
                     AppPresenter.shared.showError(error)
                 } else {
-                    AppPresenter.shared.show(AlertBuilder.makeSuccessAlertController(message: Localization.testnetAddressTopuped))
+                    AppPresenter.shared.show(AlertBuilder.makeSuccessAlertController(message: "Transaction signed and sent to testnet. Wait for a while and reload balance"))
                 }
 
                 bag.remove(subs)
