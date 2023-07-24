@@ -111,6 +111,7 @@ enum EmailCollectedDataType {
         case contractAddress = "Contract address"
         case name = "Name"
         case id = "ID"
+        case decimals = "Decimals"
     }
 
     enum SeparatorType: String {
