@@ -75,7 +75,6 @@ final class SwappingViewModel: ObservableObject {
     private lazy var refreshDataTimer = Timer.publish(every: 10, on: .main, in: .common)
     private var refreshDataTimerBag: AnyCancellable?
     private var bag: Set<AnyCancellable> = []
-    private var workingTasks: Set<Task<Void, Error>> = []
 
     init(
         initialSourceCurrency: Currency,
@@ -102,10 +101,6 @@ final class SwappingViewModel: ObservableObject {
         loadDestinationIfNeeded()
     }
 
-    deinit {
-        workingTasks.forEach { $0.cancel() }
-    }
-
     func userDidTapMaxAmount() {
         let sourceBalance = swappingInteractor.getSwappingItems().sourceBalance
         sendDecimalValue = .external(sourceBalance)
@@ -122,10 +117,9 @@ final class SwappingViewModel: ObservableObject {
             items.source = currency
         }
 
-        Task { [items] in
-            await update(swappingItems: items, shouldRefresh: true)
+        runTask(in: self) { root in
+            await root.update(swappingItems: items, shouldRefresh: true)
         }
-        .store(in: &workingTasks)
     }
 
     func userDidTapSwapSwappingItemsButton() {
@@ -141,10 +135,9 @@ final class SwappingViewModel: ObservableObject {
         items.source = destination
         items.destination = source
 
-        Task { [items] in
-            await update(swappingItems: items, shouldRefresh: false)
+        runTask(in: self) { root in
+            await root.update(swappingItems: items, shouldRefresh: false)
         }
-        .store(in: &workingTasks)
 
         // If we have amount then we should round and update it with new decimalCount
         guard let amount = sendDecimalValue?.value else {
@@ -175,13 +168,13 @@ final class SwappingViewModel: ObservableObject {
             swapItems()
         case .givePermission:
             Analytics.log(.swapButtonGivePermission)
-            openPermissionView()
+            openApproveView()
         case .insufficientFunds:
             assertionFailure("Button should be disabled")
         }
     }
 
-    func didClosePermissionSheet() {
+    func didCloseApproveSheet() {
         restartTimer()
     }
 
@@ -220,26 +213,15 @@ private extension SwappingViewModel {
         coordinator.presentSuccessView(inputModel: inputModel)
     }
 
-    func openPermissionView() {
+    func openApproveView() {
         let state = swappingInteractor.getAvailabilityState()
 
-        guard case .available(let model) = state,
-              model.restrictions.isPermissionRequired,
-              let fiatFee = fiatRatesProvider.getSyncFiat(
-                  for: model.transactionData.sourceBlockchain,
-                  amount: model.transactionData.fee
-              ) else {
-            // If we don't have enough data disable button and refresh()
-            mainButtonIsEnabled = false
-            swappingInteractor.refresh(type: .full)
-
+        guard case .available(let model) = state, model.restrictions.isPermissionRequired else {
             return
         }
 
-        let inputModel = SwappingPermissionInputModel(fiatFee: fiatFee, transactionData: model.transactionData)
-
         stopTimer()
-        coordinator.presentPermissionView(inputModel: inputModel, transactionSender: transactionSender)
+        coordinator.presentApproveView()
     }
 }
 
@@ -284,16 +266,15 @@ private extension SwappingViewModel {
             sendCurrencyViewModel?.update(fiatValue: .loading)
         }
 
-        Task {
-            let fiatValue = try await fiatRatesProvider.getFiat(for: source, amount: amount)
+        runTask(in: self) { root in
+            let fiatValue = try await root.fiatRatesProvider.getFiat(for: source, amount: amount)
 
             try Task.checkCancellation()
 
             await runOnMain {
-                sendCurrencyViewModel?.update(fiatValue: .loaded(fiatValue))
+                root.sendCurrencyViewModel?.update(fiatValue: .loaded(fiatValue))
             }
         }
-        .store(in: &workingTasks)
     }
 
     func updateReceiveView(swappingItems: SwappingItems) {
@@ -391,20 +372,19 @@ private extension SwappingViewModel {
             receiveCurrencyViewModel?.update(fiatAmountState: .loading)
         }
 
-        Task {
-            let fiatValue = try await fiatRatesProvider.getFiat(for: destination, amount: value)
+        runTask(in: self) { root in
+            let fiatValue = try await root.fiatRatesProvider.getFiat(for: destination, amount: value)
 
             try Task.checkCancellation()
 
             await runOnMain {
-                receiveCurrencyViewModel?.update(fiatAmountState: .loaded(fiatValue))
+                root.receiveCurrencyViewModel?.update(fiatAmountState: .loaded(fiatValue))
             }
 
             try Task.checkCancellation()
 
-            try await checkForHighPriceImpact(destinationFiatAmount: fiatValue)
+            try await root.checkForHighPriceImpact(destinationFiatAmount: fiatValue)
         }
-        .store(in: &workingTasks)
     }
 
     func updateRequiredPermission(isPermissionRequired: Bool) {
@@ -455,9 +435,7 @@ private extension SwappingViewModel {
             }
         case .available(let model):
             updateFeeRowViewModel(transactionData: model.transactionData)
-            if FeatureProvider.isAvailable(.abilityChooseCommissionRate) {
-                updateFeeOptionsViewModels(data: model.transactionData, options: model.gasOptions)
-            }
+            updateFeeOptionsViewModels(data: model.transactionData, options: model.gasOptions)
         }
     }
 
@@ -573,37 +551,24 @@ private extension SwappingViewModel {
     }
 
     func updateFeeRowViewModel(transactionData: SwappingTransactionData) {
-        Task {
-            if FeatureProvider.isAvailable(.abilityChooseCommissionRate) {
-                let fiatFee = try await fiatRatesProvider.getFiat(
-                    for: transactionData.sourceBlockchain,
-                    amount: transactionData.fee
-                )
+        runTask(in: self) { root in
+            let fiatFee = try await root.fiatRatesProvider.getFiat(
+                for: transactionData.sourceBlockchain,
+                amount: transactionData.fee
+            )
 
-                try Task.checkCancellation()
-                let currencyCode = await AppSettings.shared.selectedCurrencyCode
+            try Task.checkCancellation()
+            let currencyCode = await AppSettings.shared.selectedCurrencyCode
 
-                await runOnMain {
-                    swappingFeeRowViewModel?.update(
-                        state: .policy(
-                            title: transactionData.gas.policy.title,
-                            fiat: fiatFee.currencyFormatted(code: currencyCode)
-                        )
+            await runOnMain {
+                root.swappingFeeRowViewModel?.update(
+                    state: .policy(
+                        title: transactionData.gas.policy.title,
+                        fiat: fiatFee.currencyFormatted(code: currencyCode)
                     )
-                }
-            } else {
-                let formattedFee = try await swappingFeeFormatter.format(
-                    fee: transactionData.fee,
-                    blockchain: transactionData.sourceBlockchain
                 )
-                try Task.checkCancellation()
-
-                await runOnMain {
-                    swappingFeeRowViewModel?.update(state: .fee(fee: formattedFee))
-                }
             }
         }
-        .store(in: &workingTasks)
     }
 
     func updateFeeOptionsViewModels(data: SwappingTransactionData, options: [EthereumGasDataModel]) {
@@ -706,12 +671,12 @@ private extension SwappingViewModel {
             return
         }
 
-        Task {
-            var items = swappingInteractor.getSwappingItems()
+        runTask(in: self) { root in
+            var items = root.swappingInteractor.getSwappingItems()
 
             do {
-                items.destination = try await swappingDestinationService.getDestination(source: items.source)
-                await update(swappingItems: items, shouldRefresh: true)
+                items.destination = try await root.swappingDestinationService.getDestination(source: items.source)
+                await root.update(swappingItems: items, shouldRefresh: true)
 
             } catch {
                 AppLog.shared.debug("Destination load handle error")
@@ -719,7 +684,6 @@ private extension SwappingViewModel {
                 items.destination = nil
             }
         }
-        .store(in: &workingTasks)
     }
 
     func swapItems() {
@@ -739,26 +703,25 @@ private extension SwappingViewModel {
             ]
         )
 
-        Task {
+        runTask(in: self) { root in
             do {
-                let sendResult = try await transactionSender.sendTransaction(transactionData)
+                let sendResult = try await root.transactionSender.sendTransaction(transactionData)
 
                 try Task.checkCancellation()
 
-                swappingInteractor.didSendSwapTransaction(swappingTxData: transactionData)
+                root.swappingInteractor.didSendSwapTransaction(swappingTxData: transactionData)
 
                 await runOnMain {
-                    openSuccessView(transactionData: transactionData, transactionID: sendResult.hash)
+                    root.openSuccessView(transactionData: transactionData, transactionID: sendResult.hash)
                 }
             } catch TangemSdkError.userCancelled {
-                restartTimer()
+                root.restartTimer()
             } catch {
                 await runOnMain {
-                    errorAlert = AlertBinder(title: Localization.commonError, message: error.localizedDescription)
+                    root.errorAlert = AlertBinder(title: Localization.commonError, message: error.localizedDescription)
                 }
             }
         }
-        .store(in: &workingTasks)
     }
 
     func processingError(error: Error) {
