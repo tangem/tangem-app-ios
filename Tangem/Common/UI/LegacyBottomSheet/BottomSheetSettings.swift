@@ -30,12 +30,4 @@ extension BottomSheetSettings {
     static var warning: BottomSheetSettings {
         BottomSheetSettings(showClosedButton: false)
     }
-
-    static var swappingPermission: BottomSheetSettings {
-        BottomSheetSettings(
-            showClosedButton: false,
-            swipeDownToDismissEnabled: true,
-            contentBackgroundColor: Colors.Background.secondary
-        )
-    }
 }
