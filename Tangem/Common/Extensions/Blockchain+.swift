@@ -27,6 +27,7 @@ extension Blockchain {
         case "binancecoin", "bnb": self = .binance(testnet: isTestnet)
         case "cardano": self = .cardano(shelley: true)
         case "ripple", "xrp": self = .xrp(curve: .secp256k1)
+        case "ducatus": self = .ducatus
         case "tezos": self = .tezos(curve: .secp256k1)
         case "dogecoin": self = .dogecoin
         case "binance-smart-chain", "binance_smart_chain": self = .bsc(testnet: isTestnet)
@@ -36,6 +37,7 @@ extension Blockchain {
         case "fantom": self = .fantom(testnet: isTestnet)
         case "polkadot": self = .polkadot(testnet: isTestnet)
         case "kusama": self = .kusama
+        case "aleph-zero": self = .azero(testnet: isTestnet)
         case "tron": self = .tron(testnet: isTestnet)
         case "arbitrum", "arbitrum-one": self = .arbitrum(testnet: isTestnet)
         case "dash": self = .dash(testnet: isTestnet)
@@ -52,6 +54,7 @@ extension Blockchain {
         case "terra", "terra-luna": self = .terraV1
         case "terra-2", "terra-luna-2": self = .terraV2
         case "crypto-com-chain", "cronos": self = .cronos
+        case "telos": self = .telos(testnet: isTestnet)
         default:
             AppLog.shared.debug("⚠️⚠️⚠️ Failed to map network ID \"\(stringId)\"")
             return nil
@@ -64,6 +67,7 @@ extension Blockchain {
         case .bitcoin: return "bitcoin"
         case .bitcoinCash: return "bitcoin-cash"
         case .cardano: return "cardano"
+        case .ducatus: return "ducatus"
         case .ethereum: return "ethereum"
         case .ethereumClassic: return "ethereum-classic"
         case .litecoin: return "litecoin"
@@ -79,6 +83,7 @@ extension Blockchain {
         case .fantom: return "fantom"
         case .polkadot: return "polkadot"
         case .kusama: return "kusama"
+        case .azero: return "aleph-zero"
         case .tron: return "tron"
         case .arbitrum: return "arbitrum-one"
         case .dash: return "dash"
@@ -95,6 +100,7 @@ extension Blockchain {
         case .terraV1: return "terra-luna"
         case .terraV2: return "terra-luna-2"
         case .cronos: return "crypto-com-chain"
+        case .telos: return "telos"
         }
     }
 
@@ -117,6 +123,7 @@ extension Blockchain {
         case .bitcoin: return "bitcoin"
         case .bitcoinCash: return "bitcoin-cash"
         case .cardano: return "cardano"
+        case .ducatus: return "ducatus"
         case .ethereum: return "ethereum"
         case .ethereumClassic: return "ethereum-classic"
         case .litecoin: return "litecoin"
@@ -132,6 +139,7 @@ extension Blockchain {
         case .fantom: return "fantom"
         case .polkadot: return "polkadot"
         case .kusama: return "kusama"
+        case .azero: return "aleph-zero"
         case .tron: return "tron"
         case .arbitrum: return "arbitrum-one"
         case .dash: return "dash"
@@ -148,6 +156,7 @@ extension Blockchain {
         case .terraV1: return "terra"
         case .terraV2: return "terra-2"
         case .cronos: return "cronos"
+        case .telos: return "telos"
         }
     }
 
@@ -197,6 +206,7 @@ extension Blockchain {
             .solana(testnet: false),
             .polkadot(testnet: false),
             .kusama,
+            .azero(testnet: false),
             .fantom(testnet: false),
             .tron(testnet: false),
             .arbitrum(testnet: false),
@@ -228,6 +238,7 @@ extension Blockchain {
             .solana(testnet: true),
             .fantom(testnet: true),
             .polkadot(testnet: true),
+            .azero(testnet: true),
             .tron(testnet: true),
             .arbitrum(testnet: true),
             .optimism(testnet: true),
