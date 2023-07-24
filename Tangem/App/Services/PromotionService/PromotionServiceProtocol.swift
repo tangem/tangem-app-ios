@@ -8,9 +8,11 @@
 
 import Foundation
 import Combine
+import BlockchainSdk
 
 protocol PromotionServiceProtocol {
     var currentProgramName: String { get }
+    var questionnaireFinished: Bool { get }
     var promoCode: String? { get }
 
     var awardAmount: Int? { get }
@@ -20,11 +22,16 @@ protocol PromotionServiceProtocol {
 
     func didBecomeReadyForAward()
 
-    func checkPromotion(timeout: TimeInterval?) async
+    func checkPromotion(isNewCard: Bool, userWalletId: String?, timeout: TimeInterval?) async
+
+    func setQuestionnaireFinished(_ finished: Bool)
 
     func setPromoCode(_ promoCode: String?)
     func checkIfCanGetAward(userWalletId: String) async throws
-    func claimReward(userWalletId: String, storageEntryAdding: StorageEntryAdding) async throws -> Bool
+    func claimReward(userWalletId: String, storageEntryAdding: StorageEntryAdding) async throws -> Blockchain?
+
+    func awardedPromotionNames() -> Set<String>
+    func resetAward(cardId: String) async throws
 
     func finishedPromotionNames() -> Set<String>
     func resetFinishedPromotions()
