@@ -1,0 +1,12 @@
+{
+  "images" : [
+    {
+      "filename" : "Name=Alephzero, Active=Off, Web=On.pdf",
+      "idiom" : "universal"
+    }
+  ],
+  "info" : {
+    "author" : "xcode",
+    "version" : 1
+  }
+}
