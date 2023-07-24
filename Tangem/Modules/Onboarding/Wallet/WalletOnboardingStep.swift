@@ -37,7 +37,7 @@ enum WalletOnboardingStep: Equatable {
         case .createWalletSelector:
             return Localization.walletTitle
         case .seedPhraseIntro, .seedPhraseGeneration, .seedPhraseUserValidation:
-            return Localization.walletButtonCreateWallet
+            return Localization.onboardingCreateWalletButtonCreateWallet
         case .seedPhraseImport:
             return Localization.onboardingSeedIntroButtonImport
         }
@@ -78,7 +78,7 @@ extension WalletOnboardingStep: OnboardingMessagesProvider, SuccessStep {
         switch self {
         case .createWallet: return Localization.onboardingCreateWalletButtonCreateWallet
         case .scanPrimaryCard: return Localization.onboardingTitleScanOriginCard
-        case .backupIntro: return Localization.onboardingTitleBackupCard
+        case .backupIntro: return nil
         case .selectBackupCards: return Localization.onboardingTitleNoBackupCards
         case .backupCards, .disclaimer: return ""
         case .saveUserWallet: return nil
@@ -94,11 +94,11 @@ extension WalletOnboardingStep: OnboardingMessagesProvider, SuccessStep {
         switch self {
         case .createWallet: return Localization.onboardingCreateWalletBody
         case .scanPrimaryCard: return Localization.onboardingSubtitleScanPrimary
-        case .backupIntro: return Localization.onboardingSubtitleBackupCard
+        case .backupIntro: return nil
         case .selectBackupCards: return Localization.onboardingSubtitleNoBackupCards
         case .backupCards, .disclaimer: return ""
         case .saveUserWallet: return nil
-        case .success: return Localization.onboardingSubtitleSuccessBackup
+        case .success: return Localization.onboardingSubtitleSuccessTangemWalletOnboarding
         case .createWalletSelector:
             return Localization.onboardingCreateWalletOptionsMessage
         case .seedPhraseIntro, .seedPhraseGeneration, .seedPhraseImport, .seedPhraseUserValidation:
@@ -117,7 +117,7 @@ extension WalletOnboardingStep: OnboardingMessagesProvider, SuccessStep {
 extension WalletOnboardingStep: OnboardingButtonsInfoProvider {
     var mainButtonTitle: String {
         switch self {
-        case .createWallet, .createWalletSelector: return Localization.walletButtonCreateWallet
+        case .createWallet, .createWalletSelector: return Localization.onboardingCreateWalletButtonCreateWallet
         case .scanPrimaryCard: return Localization.onboardingButtonScanOriginCard
         case .backupIntro: return Localization.onboardingButtonBackupNow
         case .selectBackupCards: return Localization.onboardingButtonAddBackupCard
