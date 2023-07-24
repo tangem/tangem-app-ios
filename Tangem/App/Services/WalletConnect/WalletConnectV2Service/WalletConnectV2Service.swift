@@ -72,6 +72,12 @@ final class WalletConnectV2Service {
         setupMessagesSubscriptions()
     }
 
+    func initialize() {
+        runTask { [weak self] in
+            await self?.sessionsStorage.restoreAllSessions()
+        }
+    }
+
     func openSession(with uri: WalletConnectV2URI) {
         canEstablishNewSessionSubject.send(false)
         runTask(withTimeout: 20) { [weak self] in
@@ -120,14 +126,6 @@ final class WalletConnectV2Service {
                     AppLog.shared.error("[WC 2.0] Failed to disconnect session while disconnecting all sessions for user wallet with id: \(userWalletId). Error: \(error)")
                 }
             }
-        }
-    }
-
-    private func loadSessions(for userWalletId: Data?) {
-        guard let userWalletId else { return }
-
-        runTask { [weak self] in
-            await self?.sessionsStorage.loadSessions(for: userWalletId.hexString)
         }
     }
 
@@ -354,6 +352,12 @@ final class WalletConnectV2Service {
             return
         }
 
+        if userWalletRepository.isLocked, userWalletRepository.models.isEmpty {
+            log("User wallet repository is locked")
+            await respond(with: .userWalletRepositoryIsLocked, session: nil, blockchain: targetBlockchain)
+            return
+        }
+
         guard let session = await sessionsStorage.session(with: request.topic) else {
             log("Failed to find session in storage \(logSuffix)")
             await respond(with: .wrongCardSelected, session: nil, blockchain: targetBlockchain)
@@ -363,6 +367,12 @@ final class WalletConnectV2Service {
         guard let userWallet = userWalletRepository.models.first(where: { $0.userWalletId.stringValue == session.userWalletId }) else {
             log("Failed to find target user wallet")
             await respond(with: .missingActiveUserWalletModel, session: session, blockchain: targetBlockchain)
+            return
+        }
+
+        if userWallet.userWallet.isLocked {
+            log("Attempt to handle message with locked user wallet")
+            await respond(with: .userWalletIsLocked, session: session, blockchain: targetBlockchain)
             return
         }
 
@@ -432,26 +442,6 @@ final class WalletConnectV2Service {
         AppLog.shared.debug("[WC 2.0] \(message())")
     }
 }
-
-// extension WalletConnectV2Service: WalletConnectWalletModelProvider {
-//    func getModel(with address: String, in blockchain: BlockchainSdk.Blockchain) throws -> WalletModel {
-//        guard let infoProvider else {
-//            log("Serivce wasn't setup properly. Missing info provider")
-//            throw WalletConnectV2Error.missingActiveUserWalletModel
-//        }
-//
-//        guard
-//            let model = infoProvider.walletModels.first(where: {
-//                $0.wallet.blockchain == blockchain && $0.wallet.address.caseInsensitiveCompare(address) == .orderedSame
-//            })
-//        else {
-//            log("Failed to find wallet for \(blockchain) with address \(address)")
-//            throw WalletConnectV2Error.walletModelNotFound(blockchain)
-//        }
-//
-//        return model
-//    }
-// }
 
 public typealias WalletConnectV2URI = WalletConnectURI
 
