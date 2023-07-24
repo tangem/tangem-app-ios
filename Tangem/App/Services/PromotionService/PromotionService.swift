@@ -96,24 +96,11 @@ extension PromotionService: PromotionServiceProtocol {
 
                 promotionAvailable = (promotionActive || madePromotionalPurchase) && !alreadyClaimedAward && madePurchase
 
-                // Only mark the promotion as finished when we know the UserWallet ID.
-                // That's when we can decide on whether or not to prolong the promotion for a new user that purchased the wallet
-                if userWalletId != nil {
-                    let promotionFinished: Bool
-                    if promoCode != nil {
-                        switch cardParameters.status {
-                        case .finished:
-                            promotionFinished = !madePromotionalPurchase
-                        default:
-                            promotionFinished = false
-                        }
-                    } else {
-                        promotionFinished = (cardParameters.status == .finished)
-                    }
-
-                    if promotionFinished {
-                        markCurrentPromotionAsFinished(true)
-                    }
+                // Only mark the promotion as finished when we know the UserWallet ID and we know it's the old user (no promocode)
+                // This is done to prolong the promotion for new users who went through the promotion but did not buy the wallet yet
+                // We're going to wait for them to claim the reward
+                if cardParameters.status == .finished, userWalletId != nil, promoCode == nil || currentPromotionIsAwarded() {
+                    markCurrentPromotionAsFinished(true)
                 }
 
                 award = cardParameters.award
@@ -288,6 +275,10 @@ extension PromotionService {
             // We only care about promotionCodeNotApplied error but it does not make sense to treat other errors differently
             return false
         }
+    }
+
+    private func currentPromotionIsAwarded() -> Bool {
+        awardedPromotionNames().contains(currentProgramName)
     }
 
     private func currentPromotionIsFinished() -> Bool {
