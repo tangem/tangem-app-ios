@@ -28,6 +28,7 @@ struct AuthView: View {
                     requestSupportAction: viewModel.requestSupport
                 )
             )
+            .background(Colors.Background.plain.edgesIgnoringSafeArea(.all))
     }
 
     private var unlockView: some View {
