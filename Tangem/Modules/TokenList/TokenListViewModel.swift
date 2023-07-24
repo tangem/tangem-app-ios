@@ -30,7 +30,7 @@ class TokenListViewModel: ObservableObject {
         case .add:
             return Localization.addTokensTitle
         case .show:
-            return Localization.searchTokensTitle
+            return Localization.commonSearchTokens
         }
     }
 
