@@ -7,7 +7,6 @@
 //
 
 import Combine
-import CombineExt
 
 protocol WalletConnectSessionsStorage: WalletConnectSessionsStorageCleaner {
     var sessions: AsyncStream<[WalletConnectSavedSession]> { get async }
