@@ -56,6 +56,8 @@ struct SendScreenDataCollector: EmailDataCollector {
         switch amountToSend.type {
         case .token(let token):
             data.append(EmailCollectedData(type: .card(.token), data: token.symbol))
+            data.append(EmailCollectedData(type: .token(.decimals), data: "\(token.decimalCount)"))
+            data.append(EmailCollectedData(type: .token(.contractAddress), data: token.contractAddress))
         case .coin, .reserve:
             break
         }
