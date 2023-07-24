@@ -8,16 +8,11 @@
 
 import Foundation
 
-typealias WCServices = (v1Service: WalletConnectV1Service, v2Service: WalletConnectV2Service?)
+typealias WCServices = (v1Service: WalletConnectV1Service, v2Service: WalletConnectV2Service)
 
 struct WalletConnectFactory {
     func createWCServices(for model: CardViewModel) -> WCServices {
         let v1Service = WalletConnectV1Service(with: model)
-
-        guard FeatureProvider.isAvailable(.walletConnectV2) else {
-            return (v1Service, nil)
-        }
-
         let uiDelegate = WalletConnectAlertUIDelegate()
         let messageComposer = WalletConnectV2MessageComposer()
         let ethTransactionBuilder = CommonWalletConnectEthTransactionBuilder()

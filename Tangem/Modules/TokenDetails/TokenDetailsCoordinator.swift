@@ -175,4 +175,12 @@ extension TokenDetailsCoordinator: TokenDetailsRoutable {
 
         swappingCoordinator = coordinator
     }
+
+    func openExplorer(at url: URL, blockchainDisplayName: String) {
+        modalWebViewModel = WebViewContainerViewModel(
+            url: url,
+            title: Localization.commonExplorerFormat(blockchainDisplayName),
+            withCloseButton: true
+        )
+    }
 }
