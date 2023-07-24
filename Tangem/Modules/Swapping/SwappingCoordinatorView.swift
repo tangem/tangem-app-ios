@@ -32,17 +32,10 @@ struct SwappingCoordinatorView: CoordinatorView {
                 SwappingTokenListView(viewModel: $0)
             }
 
-        if FeatureProvider.isAvailable(.abilityChooseApproveAmount) {
-            NavHolder()
-                .bottomSheet(item: $coordinator.swappingApproveViewModel) {
-                    SwappingApproveView(viewModel: $0)
-                }
-        } else {
-            NavHolder()
-                .bottomSheet(item: $coordinator.swappingPermissionViewModel) {
-                    SwappingPermissionView(viewModel: $0)
-                }
-        }
+        NavHolder()
+            .bottomSheet(item: $coordinator.swappingApproveViewModel) {
+                SwappingApproveView(viewModel: $0)
+            }
 
         NavHolder()
             .sheet(item: $coordinator.swappingSuccessCoordinator) {
