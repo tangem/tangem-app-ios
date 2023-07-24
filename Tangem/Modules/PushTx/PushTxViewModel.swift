@@ -340,11 +340,11 @@ extension PushTxViewModel {
             userWalletEmailData: cardViewModel.emailData,
             walletModel: walletModel,
             amountToSend: amountToSend,
-            feeText: newFee,
-            pushingFeeText: selectedFee?.description ?? .unknown,
+            fee: newTransaction?.fee.amount,
+            pushingFee: selectedFee?.amount,
             destination: transaction.destinationAddress,
             source: transaction.sourceAddress,
-            amountText: amount,
+            amount: transaction.amount,
             pushingTxHash: transaction.hash ?? .unknown,
             lastError: error
         )
