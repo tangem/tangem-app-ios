@@ -82,6 +82,7 @@ struct SendScreenDataCollector: EmailDataCollector {
             EmailCollectedData(type: .send(.destinationAddress), data: destination),
             EmailCollectedData(type: .send(.amount), data: amountText),
             EmailCollectedData(type: .send(.fee), data: feeText),
+            EmailCollectedData(type: .send(.isFeeIncluded), data: "\(isFeeIncluded)"),
         ])
 
         if let txHex = txHex {
@@ -105,15 +106,17 @@ struct SendScreenDataCollector: EmailDataCollector {
     private let feeText: String
     private let destination: String
     private let amountText: String
+    private let isFeeIncluded: Bool
     private let lastError: Error?
 
-    init(userWalletEmailData: [EmailCollectedData], walletModel: WalletModel, amountToSend: Amount, feeText: String, destination: String, amountText: String, lastError: Error?) {
+    init(userWalletEmailData: [EmailCollectedData], walletModel: WalletModel, amountToSend: Amount, feeText: String, destination: String, amountText: String, isFeeIncluded: Bool, lastError: Error?) {
         self.userWalletEmailData = userWalletEmailData
         self.walletModel = walletModel
         self.amountToSend = amountToSend
         self.feeText = feeText
         self.destination = destination
         self.amountText = amountText
+        self.isFeeIncluded = isFeeIncluded
         self.lastError = lastError
     }
 }
