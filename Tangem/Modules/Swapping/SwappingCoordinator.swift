@@ -26,7 +26,6 @@ class SwappingCoordinator: CoordinatorObject {
     // MARK: - Child view models
 
     @Published var swappingTokenListViewModel: SwappingTokenListViewModel?
-    @Published var swappingPermissionViewModel: SwappingPermissionViewModel?
     @Published var swappingApproveViewModel: SwappingApproveViewModel?
 
     // MARK: - Properties
@@ -65,14 +64,9 @@ extension SwappingCoordinator: SwappingRoutable {
         swappingTokenListViewModel = factory.makeSwappingTokenListViewModel(coordinator: self)
     }
 
-    func presentPermissionView(inputModel: SwappingPermissionInputModel, transactionSender: SwappingTransactionSender) {
+    func presentApproveView() {
         UIApplication.shared.endEditing()
-
-        if FeatureProvider.isAvailable(.abilityChooseApproveAmount) {
-            swappingApproveViewModel = factory.makeSwappingApproveViewModel(coordinator: self)
-        } else {
-            swappingPermissionViewModel = factory.makeSwappingPermissionViewModel(inputModel: inputModel, coordinator: self)
-        }
+        swappingApproveViewModel = factory.makeSwappingApproveViewModel(coordinator: self)
     }
 
     func presentSuccessView(inputModel: SwappingSuccessInputModel) {
@@ -106,17 +100,15 @@ extension SwappingCoordinator: SwappingTokenListRoutable {
     }
 }
 
-// MARK: - SwappingPermissionRoutable, SwappingApproveRoutable
+// MARK: -  SwappingApproveRoutable
 
-extension SwappingCoordinator: SwappingPermissionRoutable, SwappingApproveRoutable {
+extension SwappingCoordinator: SwappingApproveRoutable {
     func didSendApproveTransaction(transactionData: SwappingTransactionData) {
-        swappingPermissionViewModel = nil
         swappingApproveViewModel = nil
     }
 
     func userDidCancel() {
-        swappingPermissionViewModel = nil
         swappingApproveViewModel = nil
-        rootViewModel?.didClosePermissionSheet()
+        rootViewModel?.didCloseApproveSheet()
     }
 }
