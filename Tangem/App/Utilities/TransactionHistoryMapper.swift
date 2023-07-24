@@ -21,19 +21,18 @@ struct TransactionHistoryMapper {
             return nil
         }
 
-        let direction: TransactionRecord.Direction = addresses.contains(where: {
+        let transactionType: TransactionRecord.TransactionType = addresses.contains(where: {
             $0.value.caseInsensitiveCompare(transaction.destinationAddress) == .orderedSame
-        }) ? .incoming : .outgoing
-        let address = direction == .incoming ? transaction.sourceAddress : transaction.destinationAddress
+        }) ? .receive : .send
+        let address = transactionType == .receive ? transaction.sourceAddress : transaction.destinationAddress
 
         return .init(
             amountType: transaction.amount.type,
-            destination: AddressFormatter(address: address).truncated(),
+            destination: transactionType.localizeDestination(for: AddressFormatter(address: address).truncated()),
             timeFormatted: timeFormatter.string(from: date),
             date: date,
-            transferAmount: "\(direction.amountPrefix)\(transaction.amount.string(with: 2))",
-            canBePushed: false,
-            direction: direction,
+            transferAmount: "\(transactionType.amountPrefix)\(transaction.amount.string(with: 2))",
+            transactionType: transactionType,
             status: .init(transaction.status)
         )
     }

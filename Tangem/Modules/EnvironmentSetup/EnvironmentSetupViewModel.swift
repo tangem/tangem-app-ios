@@ -21,13 +21,17 @@ final class EnvironmentSetupViewModel: ObservableObject {
     // Promotion
     @Published var currentPromoCode: String = ""
     @Published var finishedPromotionNames: String = ""
+    @Published var awardedPromotionNames: String = ""
 
     // MARK: - Dependencies
 
     private let featureStorage = FeatureStorage()
+    private let cardId: String
     private var bag: Set<AnyCancellable> = []
 
-    init() {
+    init(cardId: String) {
+        self.cardId = cardId
+
         setupView()
     }
 
@@ -49,6 +53,15 @@ final class EnvironmentSetupViewModel: ObservableObject {
                     default: false,
                     get: { $0.useDevApi },
                     set: { $0.useDevApi = $1 }
+                )
+            ),
+            DefaultToggleRowViewModel(
+                title: "Use fake tx history",
+                isOn: Binding<Bool>(
+                    root: featureStorage,
+                    default: false,
+                    get: { $0.useFakeTxHistory },
+                    set: { $0.useFakeTxHistory = $1 }
                 )
             ),
         ]
@@ -76,6 +89,8 @@ final class EnvironmentSetupViewModel: ObservableObject {
         updateCurrentPromoCode()
 
         updateFinishedPromotionNames()
+
+        updateAwardedPromotionNames()
     }
 
     func copyCurrentPromoCode() {
@@ -94,6 +109,21 @@ final class EnvironmentSetupViewModel: ObservableObject {
     func resetFinishedPromotionNames() {
         promotionService.resetFinishedPromotions()
         updateFinishedPromotionNames()
+    }
+
+    func resetAward() {
+        runTask { [weak self] in
+            guard let self else { return }
+
+            let success = (try? await promotionService.resetAward(cardId: cardId)) != nil
+
+            DispatchQueue.main.async {
+                let feedbackGenerator = UINotificationFeedbackGenerator()
+                feedbackGenerator.notificationOccurred(success ? .success : .error)
+
+                self.updateAwardedPromotionNames()
+            }
+        }
     }
 
     func showExitAlert() {
@@ -115,6 +145,15 @@ final class EnvironmentSetupViewModel: ObservableObject {
             self.finishedPromotionNames = "[none]"
         } else {
             self.finishedPromotionNames = promotionService.finishedPromotionNames().joined(separator: ", ")
+        }
+    }
+
+    private func updateAwardedPromotionNames() {
+        let awardedPromotionNames = promotionService.awardedPromotionNames()
+        if awardedPromotionNames.isEmpty {
+            self.awardedPromotionNames = "[none]"
+        } else {
+            self.awardedPromotionNames = awardedPromotionNames.joined(separator: ", ")
         }
     }
 }
