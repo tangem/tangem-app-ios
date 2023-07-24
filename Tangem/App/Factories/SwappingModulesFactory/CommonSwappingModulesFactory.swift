@@ -62,17 +62,6 @@ extension CommonSwappingModulesFactory: SwappingModulesFactory {
         )
     }
 
-    func makeSwappingPermissionViewModel(
-        inputModel: SwappingPermissionInputModel,
-        coordinator: SwappingPermissionRoutable
-    ) -> SwappingPermissionViewModel {
-        SwappingPermissionViewModel(
-            inputModel: inputModel,
-            transactionSender: transactionSender,
-            coordinator: coordinator
-        )
-    }
-
     func makeSwappingApproveViewModel(coordinator: SwappingApproveRoutable) -> SwappingApproveViewModel {
         SwappingApproveViewModel(
             transactionSender: transactionSender,

@@ -19,14 +19,14 @@ struct LearnAndEarnStoryPage: View {
                         .padding()
 
                     VStack(spacing: 12) {
-                        Text(Localization.storyLearnTitle)
+                        Text(Localization.commonLearnAndEarn)
                             .font(.system(size: 43, weight: .bold))
                             .minimumScaleFactor(0.5)
                             .foregroundColor(.white)
 
                         Text(Localization.storyLearnDescription)
                             .font(.system(size: 16))
-                            .foregroundColor(.gray)
+                            .foregroundColor(.white.opacity(0.7))
                             .padding(.horizontal)
                     }
                     .multilineTextAlignment(.center)
