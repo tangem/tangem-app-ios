@@ -20,7 +20,10 @@ class PromotionService {
 
     let currentProgramName = "1inch"
     private let promoCodeStorageKey = "promo_code"
-    private let finishedPromotionNamesStorageKey = "finished_promotion_names"
+
+    // "491" -- hack to reset the storage in 4.9.1 due to the change in the way we record finished promotions.
+    // Worst case the users will send one more network request per device.
+    private let finishedPromotionNamesStorageKey = "finished_promotion_names_491"
     private let awardedPromotionNamesStorageKey = "awarded_promotion_names"
 
     var awardAmount: Int?
