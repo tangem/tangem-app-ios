@@ -11,7 +11,6 @@ import TangemSdk
 import BlockchainSdk
 
 // [REDACTED_TODO_COMMENT]
-// [REDACTED_TODO_COMMENT]
 struct Wallet2Config {
     let card: CardDTO
 
@@ -45,6 +44,17 @@ extension Wallet2Config: UserWalletConfig {
         [.secp256k1, .ed25519]
     }
 
+    var derivationStyle: DerivationStyle? {
+        assert(hasFeature(.hdWallets))
+
+        // Keep in mind, that cards with hasImportedWallets == false must have old derivations
+        if !card.hasImportedWallets {
+            return .v2
+        }
+
+        return .v3
+    }
+
     var canSkipBackup: Bool {
         return false
     }
@@ -61,7 +71,7 @@ extension Wallet2Config: UserWalletConfig {
         let blockchains: [Blockchain] = [.ethereum(testnet: isTestnet), .bitcoin(testnet: isTestnet)]
 
         let entries: [StorageEntry] = blockchains.map {
-            if let derivationStyle = card.derivationStyle {
+            if let derivationStyle = derivationStyle {
                 let derivationPath = $0.derivationPaths(for: derivationStyle)[.default]
                 let network = BlockchainNetwork($0, derivationPath: derivationPath)
                 return .init(blockchainNetwork: network, tokens: [])
@@ -83,12 +93,7 @@ extension Wallet2Config: UserWalletConfig {
     }
 
     var warningEvents: [WarningEvent] {
-        var warnings = WarningEventsFactory().makeWarningEvents(for: card)
-
-        if hasFeature(.hdWallets), card.derivationStyle == .v1 {
-            warnings.append(.legacyDerivation)
-        }
-
+        let warnings = WarningEventsFactory().makeWarningEvents(for: card)
         return warnings
     }
 
@@ -174,7 +179,7 @@ extension Wallet2Config: UserWalletConfig {
     }
 
     func makeWalletModelsFactory() -> WalletModelsFactory {
-        return CommonWalletModelsFactory(derivationStyle: card.derivationStyle)
+        return CommonWalletModelsFactory(derivationStyle: derivationStyle)
     }
 
     func makeAnyWalletManagerFacrory() throws -> AnyWalletManagerFactory {
@@ -202,7 +207,7 @@ private extension Card.BackupStatus {
     }
 }
 
-private extension Card {
+private extension CardDTO {
     var hasImportedWallets: Bool {
         wallets.contains(where: { $0.isImported == true })
     }
