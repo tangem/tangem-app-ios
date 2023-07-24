@@ -864,6 +864,7 @@ extension SendViewModel {
             feeText: sendFee,
             destination: destination,
             amountText: amountText,
+            isFeeIncluded: isFeeIncluded,
             lastError: error
         )
 
