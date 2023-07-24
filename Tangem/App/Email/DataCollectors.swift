@@ -80,8 +80,8 @@ struct SendScreenDataCollector: EmailDataCollector {
         data.append(contentsOf: [
             EmailCollectedData(type: .send(.sourceAddress), data: walletModel.wallet.address),
             EmailCollectedData(type: .send(.destinationAddress), data: destination),
-            EmailCollectedData(type: .send(.amount), data: amountText),
-            EmailCollectedData(type: .send(.fee), data: feeText),
+            EmailCollectedData(type: .send(.amount), data: amount.description),
+            EmailCollectedData(type: .send(.fee), data: fee.description),
             EmailCollectedData(type: .send(.isFeeIncluded), data: "\(isFeeIncluded)"),
         ])
 
@@ -103,19 +103,19 @@ struct SendScreenDataCollector: EmailDataCollector {
     private let userWalletEmailData: [EmailCollectedData]
     private let walletModel: WalletModel
     private let amountToSend: Amount
-    private let feeText: String
+    private let fee: Amount
     private let destination: String
-    private let amountText: String
+    private let amount: Amount
     private let isFeeIncluded: Bool
     private let lastError: Error?
 
-    init(userWalletEmailData: [EmailCollectedData], walletModel: WalletModel, amountToSend: Amount, feeText: String, destination: String, amountText: String, isFeeIncluded: Bool, lastError: Error?) {
+    init(userWalletEmailData: [EmailCollectedData], walletModel: WalletModel, amountToSend: Amount, fee: Amount, destination: String, amount: Amount, isFeeIncluded: Bool, lastError: Error?) {
         self.userWalletEmailData = userWalletEmailData
         self.walletModel = walletModel
         self.amountToSend = amountToSend
-        self.feeText = feeText
+        self.fee = fee
         self.destination = destination
-        self.amountText = amountText
+        self.amount = amount
         self.isFeeIncluded = isFeeIncluded
         self.lastError = lastError
     }
@@ -139,11 +139,11 @@ struct PushScreenDataCollector: EmailDataCollector {
             EmailCollectedData(type: .error, data: lastError?.localizedDescription ?? "Unknown error"),
             .separator(.dashes),
             EmailCollectedData(type: .send(.pushingTxHash), data: pushingTxHash),
-            EmailCollectedData(type: .send(.pushingFee), data: pushingFeeText),
+            EmailCollectedData(type: .send(.pushingFee), data: pushingFee?.description ?? "[unknown]"),
             EmailCollectedData(type: .send(.sourceAddress), data: source),
             EmailCollectedData(type: .send(.destinationAddress), data: destination),
-            EmailCollectedData(type: .send(.amount), data: amountText),
-            EmailCollectedData(type: .send(.fee), data: feeText),
+            EmailCollectedData(type: .send(.amount), data: amount.description),
+            EmailCollectedData(type: .send(.fee), data: fee?.description ?? "[unknown]"),
         ])
 
         return formatData(data)
@@ -152,23 +152,23 @@ struct PushScreenDataCollector: EmailDataCollector {
     private let userWalletEmailData: [EmailCollectedData]
     private let walletModel: WalletModel
     private let amountToSend: Amount
-    private let feeText: String
-    private let pushingFeeText: String
+    private let fee: Amount?
+    private let pushingFee: Amount?
     private let destination: String
     private let source: String
-    private let amountText: String
+    private let amount: Amount
     private let pushingTxHash: String
     private let lastError: Error?
 
-    init(userWalletEmailData: [EmailCollectedData], walletModel: WalletModel, amountToSend: Amount, feeText: String, pushingFeeText: String, destination: String, source: String, amountText: String, pushingTxHash: String, lastError: Error?) {
+    init(userWalletEmailData: [EmailCollectedData], walletModel: WalletModel, amountToSend: Amount, fee: Amount?, pushingFee: Amount?, destination: String, source: String, amount: Amount, pushingTxHash: String, lastError: Error?) {
         self.userWalletEmailData = userWalletEmailData
         self.walletModel = walletModel
         self.amountToSend = amountToSend
-        self.feeText = feeText
-        self.pushingFeeText = pushingFeeText
+        self.fee = fee
+        self.pushingFee = pushingFee
         self.destination = destination
         self.source = source
-        self.amountText = amountText
+        self.amount = amount
         self.pushingTxHash = pushingTxHash
         self.lastError = lastError
     }
