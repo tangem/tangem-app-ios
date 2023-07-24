@@ -31,6 +31,9 @@ struct CardsInfoPagerView<
     @State private var headerHeight: CGFloat = .zero
     @State private var verticalContentOffset: CGPoint = .zero
 
+    @StateObject private var scrollDetector = ScrollDetector()
+    @State private var proposedHeaderState: CardsInfoPagerScrollViewScroller.ProposedHeaderState = .expanded
+
     private var contentViewVerticalOffset: CGFloat = Constants.contentViewVerticalOffset
     private var pageSwitchThreshold: CGFloat = Constants.pageSwitchThreshold
     private var pageSwitchAnimation: Animation = Constants.pageSwitchAnimation
@@ -57,6 +60,11 @@ struct CardsInfoPagerView<
             }
             .animation(pageSwitchAnimation, value: horizontalTranslation)
             .environment(\.cardsInfoPageHeaderPlaceholderHeight, headerHeight)
+            .onAppear(perform: scrollDetector.startDetectingScroll)
+            .onDisappear(perform: scrollDetector.stopDetectingScroll)
+            .onChange(of: verticalContentOffset) { [oldValue = verticalContentOffset] newValue in
+                proposedHeaderState = oldValue.y > newValue.y ? .expanded : .collapsed
+            }
         }
     }
 
@@ -80,7 +88,7 @@ struct CardsInfoPagerView<
             ForEach(data.indexed(), id: idProvider) { index, element in
                 headerFactory(element)
                     .frame(width: proxy.size.width - Constants.headerItemHorizontalOffset * 2.0)
-                    .readSize { headerHeight = $0.height } // All headers are expected to have the same height
+                    .readGeometry(\.size.height, bindTo: $headerHeight) // All headers are expected to have the same height
             }
         }
         // The first offset determines which page is shown
@@ -91,6 +99,8 @@ struct CardsInfoPagerView<
         .offset(x: headerItemPeekHorizontalOffset)
         // This offset is responsible for the header stickiness
         .offset(y: -verticalContentOffset.y)
+        // This offset is constant and based on the mockups
+        .offset(y: Constants.headerPlaceholderTopInset)
         .infinityFrame(alignment: .topLeading)
     }
 
@@ -98,13 +108,27 @@ struct CardsInfoPagerView<
         // [REDACTED_TODO_COMMENT]
         ZStack(alignment: .topLeading) {
             let currentPageIndex = nextIndexToSelect ?? selectedIndex
+            let helpersFactory = CardsInfoPagerScrollViewHelpersFactory(
+                headerPlaceholderTopInset: Constants.headerPlaceholderTopInset,
+                headerAutoScrollThresholdRatio: Constants.headerAutoScrollThresholdRatio,
+                headerPlaceholderHeight: headerHeight,
+                contentOffset: $verticalContentOffset
+            )
             ForEach(data.indexed(), id: idProvider) { index, element in
-                let scrollViewConnector = CardsInfoPagerScrollViewConnector(
-                    headerPlaceholderView: CardsInfoPageHeaderPlaceholderView(),
-                    contentOffsetBinding: $verticalContentOffset
-                )
-                contentFactory(element, scrollViewConnector)
-                    .hidden(index != currentPageIndex)
+                let scrollViewConnector = helpersFactory.makeConnector(forPageAtIndex: index)
+                let scrollViewScroller = helpersFactory.makeScroller(forPageAtIndex: index)
+                ScrollViewReader { scrollViewProxy in
+                    contentFactory(element, scrollViewConnector)
+                        .hidden(index != currentPageIndex)
+                        .onChange(of: scrollDetector.isScrolling) { [oldValue = scrollDetector.isScrolling] newValue in
+                            if newValue != oldValue, !newValue {
+                                scrollViewScroller.performScrollIfNeeded(
+                                    with: scrollViewProxy,
+                                    proposedState: proposedHeaderState
+                                )
+                            }
+                        }
+                }
             }
         }
         .frame(size: proxy.size)
@@ -228,24 +252,6 @@ extension CardsInfoPagerView: Setupable {
     }
 }
 
-// MARK: - Auxiliary types
-
-/// A dumb wrapper to hide a concrete type of header placeholder view.
-struct CardsInfoPagerScrollViewConnector {
-    let contentOffsetBinding: Binding<CGPoint>
-    var placeholderView: some View { headerPlaceholderView }
-
-    private let headerPlaceholderView: CardsInfoPageHeaderPlaceholderView
-
-    fileprivate init(
-        headerPlaceholderView: CardsInfoPageHeaderPlaceholderView,
-        contentOffsetBinding: Binding<CGPoint>
-    ) {
-        self.headerPlaceholderView = headerPlaceholderView
-        self.contentOffsetBinding = contentOffsetBinding
-    }
-}
-
 private struct BodyAnimationModifier: Animatable, ViewModifier {
     var progress: CGFloat
     let verticalOffset: CGFloat
@@ -273,6 +279,8 @@ private extension CardsInfoPagerView {
     private enum Constants {
         static var headerInteritemSpacing: CGFloat { 8.0 }
         static var headerItemHorizontalOffset: CGFloat { headerInteritemSpacing * 2.0 }
+        static var headerPlaceholderTopInset: CGFloat { 8.0 }
+        static var headerAutoScrollThresholdRatio: CGFloat { 0.25 }
         static var contentViewVerticalOffset: CGFloat { 44.0 }
         static var pageSwitchThreshold: CGFloat { 0.5 }
         static var pageSwitchAnimation: Animation { .interactiveSpring(response: 0.30) }
@@ -288,26 +296,30 @@ struct CardsInfoPagerView_Previews: PreviewProvider {
         @State private var selectedIndex = 0
 
         var body: some View {
-            ZStack {
-                Colors.Background.secondary
-                    .ignoresSafeArea()
+            NavigationView {
+                ZStack {
+                    Colors.Background.secondary
+                        .ignoresSafeArea()
 
-                CardsInfoPagerView(
-                    data: previewProvider.pages,
-                    selectedIndex: $selectedIndex,
-                    headerFactory: { pageViewModel in
-                        MultiWalletCardHeaderView(viewModel: pageViewModel.header)
-                            .cornerRadius(14.0)
-                    },
-                    contentFactory: { pageViewModel, scrollViewConnector in
-                        CardInfoPagePreviewView(
-                            viewModel: pageViewModel,
-                            scrollViewConnector: scrollViewConnector
-                        )
-                    }
-                )
-                .pageSwitchThreshold(0.4)
-                .contentViewVerticalOffset(64.0)
+                    CardsInfoPagerView(
+                        data: previewProvider.pages,
+                        selectedIndex: $selectedIndex,
+                        headerFactory: { pageViewModel in
+                            MultiWalletCardHeaderView(viewModel: pageViewModel.header)
+                                .cornerRadius(14.0)
+                        },
+                        contentFactory: { pageViewModel, scrollViewConnector in
+                            CardInfoPagePreviewView(
+                                viewModel: pageViewModel,
+                                scrollViewConnector: scrollViewConnector
+                            )
+                        }
+                    )
+                    .pageSwitchThreshold(0.4)
+                    .contentViewVerticalOffset(64.0)
+                    .navigationTitle("CardsInfoPagerView")
+                    .navigationBarTitleDisplayMode(.inline)
+                }
             }
         }
     }

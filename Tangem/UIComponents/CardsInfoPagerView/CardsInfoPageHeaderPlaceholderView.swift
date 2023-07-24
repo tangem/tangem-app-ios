@@ -14,10 +14,26 @@ import SwiftUI
 struct CardsInfoPageHeaderPlaceholderView: View {
     @Environment(\.cardsInfoPageHeaderPlaceholderHeight) private var headerPlaceholderHeight
 
+    // `any Hashable` won't compile in the view's body because `ViewBuilder` requires concrete types
+    let expandedHeaderScrollTargetIdentifier: AnyHashable
+    let collapsedHeaderScrollTargetIdentifier: AnyHashable
+
+    let headerPlaceholderTopInset: CGFloat
+
     var body: some View {
-        Color.clear
+        VStack(spacing: 0.0) {
+            Group {
+                Color.clear
+                    .frame(height: headerPlaceholderHeight)
+                    .padding(.top, headerPlaceholderTopInset)
+                    .id(expandedHeaderScrollTargetIdentifier)
+
+                Color.clear
+                    .frame(height: 0.0)
+                    .id(collapsedHeaderScrollTargetIdentifier)
+            }
             .frame(idealWidth: .infinity)
-            .frame(height: headerPlaceholderHeight)
             .listRowInsets(EdgeInsets())
+        }
     }
 }

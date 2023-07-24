@@ -100,8 +100,8 @@ extension SwappingInteractor {
 
         AppLog.shared.debug("[Swap] SwappingInteractor start refreshing task")
         updateState(.loading(type))
-        updateStateTask = Task {
-            await updateState(swappingManager.refresh(type: type))
+        updateStateTask = runTask(in: self) { root in
+            await root.updateState(root.swappingManager.refresh(type: type))
         }
     }
 
@@ -189,13 +189,16 @@ private extension SwappingInteractor {
 
     func addDestinationTokenToUserWalletList() {
         guard let destination = getSwappingItems().destination,
-              let token = currencyMapper.mapToToken(currency: destination) else {
+              let token = currencyMapper.mapToToken(currency: destination),
+              let walletModel = userWalletModel.walletModels.first(where: { $0.blockchainNetwork == blockchainNetwork }),
+              !walletModel.getTokens().contains(where: { $0.id == token.id }) else {
             return
         }
 
         let entry = StorageEntry(blockchainNetwork: blockchainNetwork, token: token)
         userWalletModel.append(entries: [entry])
         userWalletModel.updateWalletModels()
+        walletModel.update(silent: true)
     }
 
     func getAnalyticsFeeType() -> Analytics.ParameterValue {
