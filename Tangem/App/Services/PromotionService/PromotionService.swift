@@ -84,14 +84,14 @@ extension PromotionService: PromotionServiceProtocol {
                     // Regardless of whether or not promotion has finished or not
                     let hasPromoCodePurchase = await hasPurchaseForPromoCode(promoCode, userWalletId: userWalletId)
 
-                    madePromotionalPurchase = hasPromoCodePurchase
                     madePurchase = hasPromoCodePurchase
+                    madePromotionalPurchase = hasPromoCodePurchase
                 } else {
                     // Old user
                     // They have already made the purchase, albeit not as part of the promotion
                     // Thus they can only claim while the promotion lasts
-                    madePromotionalPurchase = false
                     madePurchase = true
+                    madePromotionalPurchase = false
                 }
 
                 promotionAvailable = (promotionActive || madePromotionalPurchase) && !alreadyClaimedAward && madePurchase
