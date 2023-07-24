@@ -511,14 +511,16 @@ private extension LegacyMainViewModel {
     private func didBecomeReadyForAward() {
         promotionRequestInProgress = true
 
-        runTask { [weak self] in
-            guard let self else { return }
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) {
+            runTask { [weak self] in
+                guard let self else { return }
 
-            do {
-                try await startPromotionAwardProcess()
-                await updatePromotionState()
-            } catch {
-                handlePromotionError(error)
+                do {
+                    try await startPromotionAwardProcess()
+                    await updatePromotionState()
+                } catch {
+                    handlePromotionError(error)
+                }
             }
         }
     }
