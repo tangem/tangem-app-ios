@@ -73,17 +73,44 @@ extension PromotionService: PromotionServiceProtocol {
                 let promotionActive = (cardParameters.status == .active)
                 let alreadyClaimedAward = await alreadyClaimedAward(userWalletId: userWalletId)
 
-                let canClaimAwardBasedOnWalletPurchase: Bool
+                let madePurchase: Bool
+                let madePromotionalPurchase: Bool
                 if let promoCode, let userWalletId {
-                    canClaimAwardBasedOnWalletPurchase = await hasPurchaseForPromoCode(promoCode, userWalletId: userWalletId)
+                    // New user
+                    // Only able to claim the reward AFTER they made a purchase
+                    // Regardless of whether or not promotion has finished or not
+                    let hasPromoCodePurchase = await hasPurchaseForPromoCode(promoCode, userWalletId: userWalletId)
+
+                    madePromotionalPurchase = hasPromoCodePurchase
+                    madePurchase = hasPromoCodePurchase
                 } else {
-                    canClaimAwardBasedOnWalletPurchase = true
+                    // Old user
+                    // They have already made the purchase, albeit not as part of the promotion
+                    // Thus they can only claim while the promotion lasts
+                    madePromotionalPurchase = false
+                    madePurchase = true
                 }
 
-                promotionAvailable = promotionActive && !alreadyClaimedAward && canClaimAwardBasedOnWalletPurchase
+                promotionAvailable = (promotionActive || madePromotionalPurchase) && !alreadyClaimedAward && madePurchase
 
-                if cardParameters.status == .finished {
-                    markCurrentPromotionAsFinished(true)
+                // Only mark the promotion as finished when we know the UserWallet ID.
+                // That's when we can decide on whether or not to prolong the promotion for a new user that purchased the wallet
+                if userWalletId != nil {
+                    let promotionFinished: Bool
+                    if promoCode != nil {
+                        switch cardParameters.status {
+                        case .finished:
+                            promotionFinished = !madePromotionalPurchase
+                        default:
+                            promotionFinished = false
+                        }
+                    } else {
+                        promotionFinished = (cardParameters.status == .finished)
+                    }
+
+                    if promotionFinished {
+                        markCurrentPromotionAsFinished(true)
+                    }
                 }
 
                 award = cardParameters.award
