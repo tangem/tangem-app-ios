@@ -190,6 +190,7 @@ struct DetailsFeedbackDataCollector: EmailDataCollector {
 
             if let token = walletModel.amountType.token {
                 dataToFormat.append(EmailCollectedData(type: .token(.id), data: token.id ?? "[custom token]"))
+                dataToFormat.append(EmailCollectedData(type: .token(.decimals), data: "\(token.decimalCount)"))
                 dataToFormat.append(EmailCollectedData(type: .token(.name), data: token.name))
                 dataToFormat.append(EmailCollectedData(type: .token(.contractAddress), data: token.contractAddress))
             }
