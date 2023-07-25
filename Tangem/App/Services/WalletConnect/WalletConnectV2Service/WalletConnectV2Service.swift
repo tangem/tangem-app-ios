@@ -382,7 +382,7 @@ final class WalletConnectV2Service {
                 from: session.sessionInfo.dAppInfo,
                 blockchain: targetBlockchain,
                 signer: userWallet.signer,
-                walletModelProvider: CommonWalletConnectWalletModelProvider(userWallet: userWallet) // Actuallty don't know where this generation should be...
+                walletModelProvider: CommonWalletConnectWalletModelProvider(walletModelsManager: userWallet.walletModelsManager) // Actuallty don't know where this generation should be...
             )
 
             log("Receive result from user \(result) for \(logSuffix)")
