@@ -38,10 +38,9 @@ class CommonUserWalletRepository: UserWalletRepository {
     }
 
     private(set) var models = [UserWalletModel]()
+    private(set) var userWallets: [UserWallet] = []
 
     var isLocked: Bool { userWallets.contains { $0.isLocked } }
-
-    private var userWallets: [UserWallet] = []
 
     private var encryptionKeyByUserWalletId: [Data: SymmetricKey] = [:]
 
@@ -390,6 +389,7 @@ class CommonUserWalletRepository: UserWalletRepository {
 
         analyticsContext.setupContext(with: contextData)
         tangemApiService.setAuthData(cardInfo.card.tangemApiAuthData)
+        walletConnectService.initialize(with: cardModel)
     }
 
     private func unlockWithBiometry(completion: @escaping (UserWalletRepositoryResult?) -> Void) {
@@ -412,7 +412,6 @@ class CommonUserWalletRepository: UserWalletRepository {
                     self.userWallets = self.savedUserWallets(withSensitiveData: true)
                     self.loadModels()
                     self.initializeServicesForSelectedModel()
-                    self.walletConnectService.initialize()
                     self.selectedModel?.initialUpdate()
 
                     if let selectedModel = self.selectedModel {
@@ -488,7 +487,6 @@ class CommonUserWalletRepository: UserWalletRepository {
 
                 setSelectedUserWalletId(savedUserWallet.userWalletId, reason: .userSelected)
                 initializeServicesForSelectedModel()
-                walletConnectService.initialize()
                 selectedModel?.initialUpdate()
 
                 sendEvent(.updated(userWalletModel: cardModel))
