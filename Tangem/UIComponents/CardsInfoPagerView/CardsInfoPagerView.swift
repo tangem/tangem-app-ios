@@ -98,9 +98,7 @@ struct CardsInfoPagerView<
     /// Different headers for different pages are expected to have the same height (otherwise visual glitches may occur).
     @available(iOS, introduced: 13.0, deprecated: 15.0, message: "Replace with native .safeAreaInset()")
     @State private var headerHeight: CGFloat = .zero
-
     @State private var verticalContentOffset: CGPoint = .zero
-
     @State private var contentSize: CGSize = .zero
     @State private var viewportSize: CGSize = .zero
 
