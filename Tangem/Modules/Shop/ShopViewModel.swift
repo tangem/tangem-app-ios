@@ -175,16 +175,21 @@ class ShopViewModel: ObservableObject {
     }
 
     private func updateCurrentProductSalesDetails(_ bundle: Bundle) {
+        let canOrder: Bool
+        let orderNotification: String?
+
         let productCode = bundle.salesProductCode
-        guard
-            let currentProductSalesDetails = salesDetails?.sales.first(where: { $0.product.code == productCode })
-        else {
-            return
+        if let currentProductSalesDetails = salesDetails?.sales.first(where: { $0.product.code == productCode }) {
+            canOrder = (currentProductSalesDetails.state == .order)
+            orderNotification = currentProductSalesDetails.notification?.description
+        } else {
+            canOrder = true
+            orderNotification = nil
         }
 
-        canOrder = (currentProductSalesDetails.state == .order)
+        self.canOrder = canOrder
         withAnimation(bundleChangeAnimation) {
-            orderNotification = currentProductSalesDetails.notification?.description
+            self.orderNotification = orderNotification
         }
     }
 
