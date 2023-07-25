@@ -339,7 +339,6 @@ extension PushTxViewModel {
         let emailDataCollector = PushScreenDataCollector(
             userWalletEmailData: cardViewModel.emailData,
             walletModel: walletModel,
-            amountToSend: amountToSend,
             fee: newTransaction?.fee.amount,
             pushingFee: selectedFee?.amount,
             destination: transaction.destinationAddress,
