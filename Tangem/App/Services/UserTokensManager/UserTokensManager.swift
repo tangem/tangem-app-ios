@@ -15,13 +15,14 @@ protocol UserTokensManager {
     func getAllTokens(for blockchainNetwork: BlockchainNetwork) -> [Token]
 
     func update(itemsToRemove: [TokenItem], itemsToAdd: [TokenItem], derivationPath: DerivationPath?, completion: @escaping (Result<Void, TangemSdkError>) -> Void)
+    /// Update storage without derivtion
+    func update(itemsToRemove: [TokenItem], itemsToAdd: [TokenItem], derivationPath: DerivationPath?)
 
     func add(_ tokenItem: TokenItem, derivationPath: DerivationPath?, completion: @escaping (Result<Void, TangemSdkError>) -> Void)
     func add(_ tokenItems: [TokenItem], derivationPath: DerivationPath?, completion: @escaping (Result<Void, TangemSdkError>) -> Void)
 
-    // Add token and retrieve it's address
+    /// Add token and retrieve it's address
     func add(_ tokenItem: TokenItem, derivationPath: DerivationPath?) async throws -> String
-    func add(_ tokenItems: [TokenItem], derivationPath: DerivationPath?) async throws
 
     func canRemove(_ tokenItem: TokenItem, derivationPath: DerivationPath?) -> Bool
     func remove(_ tokenItem: TokenItem, derivationPath: DerivationPath?)
