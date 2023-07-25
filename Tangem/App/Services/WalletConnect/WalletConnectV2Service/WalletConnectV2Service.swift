@@ -80,6 +80,11 @@ final class WalletConnectV2Service {
     }
 
     func openSession(with uri: WalletConnectV2URI) {
+        guard let infoProvider else {
+            log("Failed to open session. Info provider wasn't initialized")
+            return
+        }
+
         canEstablishNewSessionSubject.send(false)
         runTask(withTimeout: 20) { [weak self] in
             await self?.pairClient(with: uri)
