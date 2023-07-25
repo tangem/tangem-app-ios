@@ -16,6 +16,8 @@ class CommonWalletConnectService {
 
     init() {
         v2Service = WalletConnectFactory().createWCService()
+
+        incomingActionManager.becomeFirstResponder(self)
     }
 }
 
