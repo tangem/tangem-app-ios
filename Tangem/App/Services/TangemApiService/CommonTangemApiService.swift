@@ -179,6 +179,10 @@ extension CommonTangemApiService: TangemApiService {
         try await request(for: .shops(name: name))
     }
 
+    func sales(locale: String, shops: String) async throws -> SalesDetails {
+        try await request(for: .sales(locale: locale, shops: shops))
+    }
+
     func promotion(programName: String, timeout: TimeInterval?) async throws -> PromotionParameters {
         try await request(for: .promotion(programName: programName, timeout: timeout))
     }
