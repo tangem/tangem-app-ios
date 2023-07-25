@@ -53,7 +53,7 @@ struct SendScreenDataCollector: EmailDataCollector {
             data: walletModel.blockchainNetwork.blockchain.displayName
         ))
 
-        switch amountToSend.type {
+        switch amount.type {
         case .token(let token):
             data.append(EmailCollectedData(type: .card(.token), data: token.symbol))
             data.append(EmailCollectedData(type: .token(.decimals), data: "\(token.decimalCount)"))
@@ -102,17 +102,15 @@ struct SendScreenDataCollector: EmailDataCollector {
 
     private let userWalletEmailData: [EmailCollectedData]
     private let walletModel: WalletModel
-    private let amountToSend: Amount
     private let fee: Amount
     private let destination: String
     private let amount: Amount
     private let isFeeIncluded: Bool
     private let lastError: Error?
 
-    init(userWalletEmailData: [EmailCollectedData], walletModel: WalletModel, amountToSend: Amount, fee: Amount, destination: String, amount: Amount, isFeeIncluded: Bool, lastError: Error?) {
+    init(userWalletEmailData: [EmailCollectedData], walletModel: WalletModel, fee: Amount, destination: String, amount: Amount, isFeeIncluded: Bool, lastError: Error?) {
         self.userWalletEmailData = userWalletEmailData
         self.walletModel = walletModel
-        self.amountToSend = amountToSend
         self.fee = fee
         self.destination = destination
         self.amount = amount
@@ -125,9 +123,9 @@ struct PushScreenDataCollector: EmailDataCollector {
     var logData: Data? {
         var data = userWalletEmailData
         data.append(.separator(.dashes))
-        switch amountToSend.type {
+        switch amount.type {
         case .coin:
-            data.append(EmailCollectedData(type: .card(.blockchain), data: amountToSend.currencySymbol))
+            data.append(EmailCollectedData(type: .card(.blockchain), data: amount.currencySymbol))
         case .token(let token):
             data.append(EmailCollectedData(type: .card(.token), data: token.symbol))
         default:
@@ -151,7 +149,6 @@ struct PushScreenDataCollector: EmailDataCollector {
 
     private let userWalletEmailData: [EmailCollectedData]
     private let walletModel: WalletModel
-    private let amountToSend: Amount
     private let fee: Amount?
     private let pushingFee: Amount?
     private let destination: String
@@ -160,10 +157,9 @@ struct PushScreenDataCollector: EmailDataCollector {
     private let pushingTxHash: String
     private let lastError: Error?
 
-    init(userWalletEmailData: [EmailCollectedData], walletModel: WalletModel, amountToSend: Amount, fee: Amount?, pushingFee: Amount?, destination: String, source: String, amount: Amount, pushingTxHash: String, lastError: Error?) {
+    init(userWalletEmailData: [EmailCollectedData], walletModel: WalletModel, fee: Amount?, pushingFee: Amount?, destination: String, source: String, amount: Amount, pushingTxHash: String, lastError: Error?) {
         self.userWalletEmailData = userWalletEmailData
         self.walletModel = walletModel
-        self.amountToSend = amountToSend
         self.fee = fee
         self.pushingFee = pushingFee
         self.destination = destination
