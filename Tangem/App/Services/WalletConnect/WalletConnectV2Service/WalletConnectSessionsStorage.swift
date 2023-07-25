@@ -8,7 +8,7 @@
 
 import Combine
 
-protocol WalletConnectSessionsStorage: WalletConnectSessionsStorageCleaner {
+protocol WalletConnectSessionsStorage: Actor {
     var sessions: AsyncStream<[WalletConnectSavedSession]> { get async }
     func restoreAllSessions()
     func save(_ session: WalletConnectSavedSession)
@@ -16,10 +16,6 @@ protocol WalletConnectSessionsStorage: WalletConnectSessionsStorageCleaner {
     func session(with topic: String) -> WalletConnectSavedSession?
     func remove(_ session: WalletConnectSavedSession)
     func removeSessions(for userWalletId: String) -> [WalletConnectSavedSession]
-}
-
-protocol WalletConnectSessionsStorageCleaner: Actor {
-    func clearStorage(for userWalletId: String)
 }
 
 private struct WalletConnectSessionsStorageKey: InjectionKey {
@@ -31,8 +27,6 @@ extension InjectedValues {
         get { Self[WalletConnectSessionsStorageKey.self] }
         set { Self[WalletConnectSessionsStorageKey.self] = newValue }
     }
-
-    var walletConnectSessionsStorageCleaner: WalletConnectSessionsStorageCleaner { Self[WalletConnectSessionsStorageKey.self] }
 }
 
 actor CommonWalletConnectSessionsStorage {
@@ -41,21 +35,12 @@ actor CommonWalletConnectSessionsStorage {
 
     var sessions: AsyncStream<[WalletConnectSavedSession]> {
         get async {
-            let currentUserWalletId = currentUserWalletId
-
-            return await allSessions
-                .map { newSessions in
-                    newSessions.filter { $0.userWalletId == currentUserWalletId }
-                }
-                .removeDuplicates()
-                .values
+            await allSessions.values
         }
     }
 
     private let allSessions: CurrentValueSubject<[WalletConnectSavedSession], Never> = .init([])
     private var sessionsFilteringSubscription: AnyCancellable?
-
-    private var currentUserWalletId: String? { userWalletRepository.selectedModel?.userWalletId.stringValue }
 
     func restoreAllSessions() {
         var savedSessions: [WalletConnectSavedSession] = (try? storage.value(for: .allWalletConnectSessions)) ?? []
@@ -92,11 +77,6 @@ actor CommonWalletConnectSessionsStorage {
 }
 
 extension CommonWalletConnectSessionsStorage: WalletConnectSessionsStorage {
-    func clearStorage(for userWalletId: String) {
-        allSessions.value.removeAll()
-        saveSessionsToFile()
-    }
-
     func save(_ session: WalletConnectSavedSession) {
         allSessions.value.append(session)
         saveSessionsToFile()
