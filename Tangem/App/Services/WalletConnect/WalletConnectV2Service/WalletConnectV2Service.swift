@@ -45,7 +45,7 @@ final class WalletConnectV2Service {
         }
     }
 
-    private var infoProvider: WalletConnectUserWalletInfoProvider? { userWalletRepository.selectedModel }
+    private var infoProvider: WalletConnectUserWalletInfoProvider?
 
     init(
         uiDelegate: WalletConnectUIDelegate,
@@ -72,9 +72,10 @@ final class WalletConnectV2Service {
         setupMessagesSubscriptions()
     }
 
-    func initialize() {
+    func initialize(with infoProvider: WalletConnectUserWalletInfoProvider) {
+        self.infoProvider = infoProvider
         runTask { [weak self] in
-            await self?.sessionsStorage.restoreAllSessions()
+            await self?.sessionsStorage.loadSessions()
         }
     }
 
