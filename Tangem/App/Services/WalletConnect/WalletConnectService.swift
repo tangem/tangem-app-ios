@@ -14,6 +14,7 @@ protocol WalletConnectService {
     var newSessions: AsyncStream<[WalletConnectSavedSession]> { get async }
 
     func initialize(with infoProvider: WalletConnectUserWalletInfoProvider)
+    func reset()
     func openSession(with uri: WalletConnectRequestURI)
     func disconnectSession(with id: Int) async
     func disconnectAllSessionsForUserWallet(with userWalletId: String)
