@@ -8,9 +8,10 @@
 
 import Combine
 
-protocol WalletConnectSessionsStorage: Actor {
+protocol WalletConnectSessionsStorage: Actor, Initializable {
     var sessions: AsyncStream<[WalletConnectSavedSession]> { get async }
-    func restoreAllSessions()
+
+    func loadSessions()
     func save(_ session: WalletConnectSavedSession)
     func session(with id: Int) -> WalletConnectSavedSession?
     func session(with topic: String) -> WalletConnectSavedSession?
@@ -27,6 +28,10 @@ extension InjectedValues {
         get { Self[WalletConnectSessionsStorageKey.self] }
         set { Self[WalletConnectSessionsStorageKey.self] = newValue }
     }
+
+    var walletConnectSessionsStorageInitializable: Initializable {
+        get { Self[WalletConnectSessionsStorageKey.self] }
+    }
 }
 
 actor CommonWalletConnectSessionsStorage {
@@ -42,34 +47,18 @@ actor CommonWalletConnectSessionsStorage {
     private let allSessions: CurrentValueSubject<[WalletConnectSavedSession], Never> = .init([])
     private var sessionsFilteringSubscription: AnyCancellable?
 
-    func restoreAllSessions() {
+    func loadSessions() {
         var savedSessions: [WalletConnectSavedSession] = (try? storage.value(for: .allWalletConnectSessions)) ?? []
-
-        var shouldOverwriteAllSavedSessions = false
-        for userWallet in userWalletRepository.models {
-            // Migration from saving WC sessions by userWalletId to storing in single array of WC sessions
-            if let oldSavedSessions: [WalletConnectSavedSession] = try? storage.value(for: .walletConnectSessions(userWalletId: userWallet.userWalletId.stringValue)) {
-                savedSessions.append(contentsOf: oldSavedSessions)
-                try? storage.store(value: [WalletConnectSavedSession]?(nil), for: .walletConnectSessions(userWalletId: userWallet.userWalletId.stringValue))
-                shouldOverwriteAllSavedSessions = true
-            }
-        }
-
         allSessions.value = savedSessions
-
-        if shouldOverwriteAllSavedSessions {
-            saveSessionsToFile()
-        }
     }
 
-    private func readSessionsFromFile(with key: String) -> [WalletConnectSavedSession] {
-        let savedSessions: [WalletConnectSavedSession] = (try? storage.value(for: .walletConnectSessions(userWalletId: key))) ?? []
-        return savedSessions
+    private func saveCachedSessions() {
+        saveSessionsToFile(allSessions.value)
     }
 
-    private func saveSessionsToFile() {
+    private func saveSessionsToFile(_ sessions: [WalletConnectSavedSession]) {
         do {
-            try storage.store(value: allSessions.value, for: .allWalletConnectSessions)
+            try storage.store(value: sessions, for: .allWalletConnectSessions)
         } catch {
             AppLog.shared.error(error)
         }
@@ -79,7 +68,7 @@ actor CommonWalletConnectSessionsStorage {
 extension CommonWalletConnectSessionsStorage: WalletConnectSessionsStorage {
     func save(_ session: WalletConnectSavedSession) {
         allSessions.value.append(session)
-        saveSessionsToFile()
+        saveCachedSessions()
     }
 
     func session(with id: Int) -> WalletConnectSavedSession? {
@@ -87,13 +76,12 @@ extension CommonWalletConnectSessionsStorage: WalletConnectSessionsStorage {
     }
 
     func session(with topic: String) -> WalletConnectSavedSession? {
-        let session = allSessions.value.first(where: { $0.topic == topic })
-        return session
+        return allSessions.value.first(where: { $0.topic == topic })
     }
 
     func remove(_ session: WalletConnectSavedSession) {
         allSessions.value.remove(session)
-        saveSessionsToFile()
+        saveCachedSessions()
     }
 
     func removeSessions(for userWalletId: String) -> [WalletConnectSavedSession] {
@@ -116,8 +104,31 @@ extension CommonWalletConnectSessionsStorage: WalletConnectSessionsStorage {
             return []
         }
 
+        saveSessionsToFile(sessions)
         allSessions.value = sessions
-        saveSessionsToFile()
         return removedSessions
+    }
+}
+
+// Temp logic for migrating from old saved sessions file structure to a new one
+extension CommonWalletConnectSessionsStorage: Initializable {
+    nonisolated func initialize() {
+        runTask { [weak self] in
+            await self?.migrateSavedSessions()
+        }
+    }
+
+    private func migrateSavedSessions() {
+        var sessionsToSave = [WalletConnectSavedSession]()
+        for userWallet in userWalletRepository.userWallets {
+            if let oldSavedSessions: [WalletConnectSavedSession] = try? storage.value(for: .walletConnectSessions(userWalletId: userWallet.userWalletId.hexString)) {
+                sessionsToSave.append(contentsOf: oldSavedSessions)
+                try? storage.store(value: [WalletConnectSavedSession]?(nil), for: .walletConnectSessions(userWalletId: userWallet.userWalletId.hexString))
+            }
+        }
+
+        if sessionsToSave.isEmpty { return }
+
+        saveSessionsToFile(sessionsToSave)
     }
 }
