@@ -10,7 +10,7 @@ import Foundation
 import BlockchainSdk
 
 struct SupportedBlockchains {
-    func emvBlockchains() -> Set<Blockchain> {
+    func evmBlockchains() -> Set<Blockchain> {
         mainnetBlockchains(for: .v1)
             .union(testnetBlockchains())
             .filter { $0.isEvm }
