@@ -37,6 +37,8 @@ struct TangemApiTarget: TargetType {
             return "/referral"
         case .shops:
             return "/shops"
+        case .sales:
+            return "/sales"
         case .promotion:
             return "/promotion"
         case .validateNewUserPromotionEligibility:
@@ -54,7 +56,7 @@ struct TangemApiTarget: TargetType {
 
     var method: Moya.Method {
         switch type {
-        case .rates, .currencies, .coins, .quotes, .geo, .getUserWalletTokens, .loadReferralProgramInfo, .shops, .promotion:
+        case .rates, .currencies, .coins, .quotes, .geo, .getUserWalletTokens, .loadReferralProgramInfo, .shops, .sales, .promotion:
             return .get
         case .saveUserWalletTokens:
             return .put
@@ -91,6 +93,14 @@ struct TangemApiTarget: TargetType {
             return .requestParameters(
                 parameters: [
                     "name": name,
+                ],
+                encoding: URLEncoding.default
+            )
+        case .sales(let locale, let shops):
+            return .requestParameters(
+                parameters: [
+                    "locale": locale,
+                    "shops": shops,
                 ],
                 encoding: URLEncoding.default
             )
@@ -142,6 +152,7 @@ extension TangemApiTarget {
         case loadReferralProgramInfo(userWalletId: String)
         case participateInReferralProgram(userInfo: ReferralParticipationRequestBody)
         case shops(name: String)
+        case sales(locale: String, shops: String)
 
         // Promotion
         case promotion(programName: String, timeout: TimeInterval?)
