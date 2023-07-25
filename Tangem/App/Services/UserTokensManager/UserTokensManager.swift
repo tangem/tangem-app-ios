@@ -14,6 +14,7 @@ protocol UserTokensManager {
     func contains(_ tokenItem: TokenItem, derivationPath: DerivationPath?) -> Bool
     func getAllTokens(for blockchainNetwork: BlockchainNetwork) -> [Token]
 
+    /// Update storage with derivation
     func update(itemsToRemove: [TokenItem], itemsToAdd: [TokenItem], derivationPath: DerivationPath?, completion: @escaping (Result<Void, TangemSdkError>) -> Void)
     /// Update storage without derivtion
     func update(itemsToRemove: [TokenItem], itemsToAdd: [TokenItem], derivationPath: DerivationPath?)
