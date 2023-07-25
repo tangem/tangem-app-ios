@@ -862,7 +862,6 @@ extension SendViewModel {
         let emailDataCollector = SendScreenDataCollector(
             userWalletEmailData: cardViewModel.emailData,
             walletModel: walletModel,
-            amountToSend: amountToSend,
             fee: transaction.fee.amount,
             destination: destination,
             amount: transaction.amount,
