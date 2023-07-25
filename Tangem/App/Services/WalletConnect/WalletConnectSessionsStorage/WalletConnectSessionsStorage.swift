@@ -29,9 +29,7 @@ extension InjectedValues {
         set { Self[WalletConnectSessionsStorageKey.self] = newValue }
     }
 
-    var walletConnectSessionsStorageInitializable: Initializable {
-        get { Self[WalletConnectSessionsStorageKey.self] }
-    }
+    var walletConnectSessionsStorageInitializable: Initializable { Self[WalletConnectSessionsStorageKey.self] }
 }
 
 actor CommonWalletConnectSessionsStorage {
