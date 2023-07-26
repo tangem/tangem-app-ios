@@ -16,8 +16,8 @@ class SupportedBlockchainsPreferencesViewModel: ObservableObject {
         blockchainViewModels = Blockchain.allMainnetCases
             .map { blockchain -> (blockchain: Blockchain, supportedByDefault: Bool) in
 
-                let supportedByDefault = SupportedBlockchains()
-                    .mainnetBlockchains(for: .v1)
+                let supportedByDefault = SupportedBlockchains(version: .v1)
+                    .mainnetBlockchains()
                     .contains(where: { $0.id == blockchain.id })
 
                 return (blockchain: blockchain, supportedByDefault: supportedByDefault)
