@@ -844,7 +844,7 @@ private extension SendViewModel {
         guard let amount = amount else { return nil }
 
         return BalanceConverter()
-            .convertFromFiat(value: amount.value, from: amount.currencySymbol)?
+            .convertFromFiat(value: amount.value, to: amount.currencySymbol)?
             .rounded(scale: amount.decimals)
     }
 
