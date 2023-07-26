@@ -155,7 +155,7 @@ private struct PickerStyleModifier: ViewModifier {
 struct AddCustomTokenView_Previews: PreviewProvider {
     static var previews: some View {
         let settings = ManageTokensSettings(
-            supportedBlockchains: SupportedBlockchains().blockchains(for: .v1),
+            supportedBlockchains: SupportedBlockchains.all,
             hdWalletsSupported: true,
             longHashesSupported: true,
             derivationStyle: .v3,
