@@ -198,51 +198,6 @@ struct CardsInfoPagerView<
     @ViewBuilder
     private func makeScrollView(with geometryProxy: GeometryProxy) -> some View {
         ScrollViewReader { scrollViewProxy in
-            ScrollView(showsIndicators: false) {
-                // ScrollView inserts default spacing between its content views.
-                // Wrapping content into `VStack` prevents it.
-                VStack(spacing: 0.0) {
-                    VStack(spacing: 0.0) {
-                        Spacer(minLength: Constants.headerVerticalPadding)
-                            .id(expandedHeaderScrollTargetIdentifier)
-
-                        makeHeader(with: proxy)
-                            .gesture(makeDragGesture(with: proxy))
-
-                        Spacer(minLength: Constants.headerAdditionalSpacingHeight)
-
-                        Spacer(minLength: Constants.headerVerticalPadding)
-                            .id(collapsedHeaderScrollTargetIdentifier)
-
-                        contentFactory(data[contentSelectedIndex])
-                            .modifier(
-                                CardsInfoPagerContentAnimationModifier(
-                                    progress: pageSwitchProgress,
-                                    verticalOffset: contentViewVerticalOffset,
-                                    hasNextIndexToSelect: hasNextIndexToSelect
-                                )
-                            )
-                            .modifier(
-                                CardsInfoPagerContentSwitchingModifier(
-                                    progress: pageSwitchProgress,
-                                    finalPageSwitchProgress: finalPageSwitchProgress,
-                                    initialSelectedIndex: previouslySelectedIndex,
-                                    finalSelectedIndex: selectedIndex
-                                )
-                            )
-                    }
-                    .readGeometry(\.size, bindTo: $contentSize)
-                    .readContentOffset(
-                        inCoordinateSpace: .named(scrollViewFrameCoordinateSpaceName),
-                        bindTo: $verticalContentOffset
-                    )
-
-                    CardsInfoPagerFlexibleFooterView(
-                        contentSize: contentSize,
-                        viewportSize: viewportSize,
-                        headerTopInset: Constants.headerVerticalPadding,
-                        headerHeight: headerHeight + Constants.headerAdditionalSpacingHeight
-                    )
             Group {
                 if let onPullToRefresh = onPullToRefresh {
                     RefreshableScrollView(onRefresh: onPullToRefresh) {
@@ -263,8 +218,6 @@ struct CardsInfoPagerView<
             .coordinateSpace(name: scrollViewFrameCoordinateSpaceName)
         }
     }
-
-    // MARK: - Gestures
 
     @ViewBuilder
     private func makeContent(with geometryProxy: GeometryProxy) -> some View {
