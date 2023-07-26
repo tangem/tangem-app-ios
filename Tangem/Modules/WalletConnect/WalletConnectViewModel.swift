@@ -121,10 +121,9 @@ class WalletConnectViewModel: ObservableObject {
         Task {
             for await sessions in await walletConnectService.newSessions {
                 AppLog.shared.debug("Loaded v2 sessions: \(sessions)")
-                let filteredSessions = sessions.filter { $0.userWalletId == cardModel.userWalletId.stringValue }
                 await MainActor.run {
                     withAnimation {
-                        self.sessions = filteredSessions
+                        self.sessions = sessions
                     }
                 }
             }
