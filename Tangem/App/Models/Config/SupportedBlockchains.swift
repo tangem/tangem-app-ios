@@ -15,11 +15,18 @@ extension SupportedBlockchains {
     static var all: Set<Blockchain> {
         SupportedBlockchains(version: .v1).blockchains()
     }
+
+    /// Blockchains which don't include in supported blockchains by default
+    static var testable: Set<Blockchain> {
+        Set(Blockchain.allMainnetCases)
+            .subtracting(SupportedBlockchains(version: .v1).mainnetBlockchains())
+    }
 }
 
 struct SupportedBlockchains {
     let version: Version
 
+    /// Have to use this init `ONLY` in `UserWalletConfig`
     init(version: Version) {
         self.version = version
     }
@@ -43,7 +50,7 @@ struct SupportedBlockchains {
         return mainnetBlockchains.union(Set(betaTestingBlockchains))
     }
 
-    func mainnetBlockchains() -> Set<Blockchain> {
+    private func mainnetBlockchains() -> Set<Blockchain> {
         [
             .ethereum(testnet: false),
             .ethereumClassic(testnet: false),
@@ -83,7 +90,7 @@ struct SupportedBlockchains {
         ]
     }
 
-    func testnetBlockchains() -> Set<Blockchain> {
+    private func testnetBlockchains() -> Set<Blockchain> {
         [
             .bitcoin(testnet: true),
             .ethereum(testnet: true),
