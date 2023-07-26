@@ -87,6 +87,7 @@ private extension LegacyMultiWalletContentViewModel {
             .store(in: &bag)
 
         walletModelsManager.walletModelsPublisher
+            .combineLatest(userTokenListManager.userTokensPublisher)
             .receive(on: DispatchQueue.global())
             .map { [weak self] _ -> [LegacyTokenItemViewModel] in
                 /// `unowned` will be crashed when the wallet which currently open is deleted from the list of saved wallet
