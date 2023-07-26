@@ -9,19 +9,29 @@
 import Foundation
 import BlockchainSdk
 
+extension SupportedBlockchains {
+    /// All currently supported mainnet blockchains for simple used.
+    /// E.g. for the Token list.
+    static var all: Set<Blockchain> {
+        SupportedBlockchains(version: .v1).blockchains()
+    }
+}
+
 struct SupportedBlockchains {
-    func evmBlockchains() -> Set<Blockchain> {
-        mainnetBlockchains(for: .v1)
-            .union(testnetBlockchains())
-            .filter { $0.isEvm }
+    let version: Version
+
+    init(version: Version) {
+        self.version = version
     }
 
-    func blockchains(for version: Version) -> Set<Blockchain> {
+    /// All `mainnet` supported blockchains
+    /// May contains the `betaTestingBlockchains` for non production scheme
+    func blockchains() -> Set<Blockchain> {
         if AppEnvironment.current.isTestnet {
             return testnetBlockchains()
         }
 
-        let mainnetBlockchains = mainnetBlockchains(for: version)
+        let mainnetBlockchains = mainnetBlockchains()
 
         // For production return only mainnetBlockchains
         if AppEnvironment.current.isProduction {
@@ -33,7 +43,7 @@ struct SupportedBlockchains {
         return mainnetBlockchains.union(Set(betaTestingBlockchains))
     }
 
-    func mainnetBlockchains(for version: Version) -> Set<Blockchain> {
+    func mainnetBlockchains() -> Set<Blockchain> {
         [
             .ethereum(testnet: false),
             .ethereumClassic(testnet: false),
