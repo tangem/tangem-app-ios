@@ -30,7 +30,7 @@ struct WalletConnectV2PersonalSignHandler {
         request: AnyCodable,
         blockchain: Blockchain,
         signer: WalletConnectSigner,
-        walletModelProvider: WalletConnectV2WalletModelProvider
+        walletModelProvider: WalletConnectWalletModelProvider
     ) throws {
         let castedParams: [String]
         do {
