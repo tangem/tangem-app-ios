@@ -13,6 +13,8 @@ import BlockchainSdk
 struct UserTokensManagerMock: UserTokensManager {
     func update(itemsToRemove: [TokenItem], itemsToAdd: [TokenItem], derivationPath: DerivationPath?, completion: @escaping (Result<Void, TangemSdkError>) -> Void) {}
 
+    func update(itemsToRemove: [TokenItem], itemsToAdd: [TokenItem], derivationPath: DerivationPath?) {}
+
     func add(_ tokenItem: TokenItem, derivationPath: DerivationPath?) async throws -> String {
         return ""
     }
