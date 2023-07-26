@@ -149,13 +149,17 @@ extension CommonUserTokensManager: UserTokensManager {
     }
 
     func update(itemsToRemove: [TokenItem], itemsToAdd: [TokenItem], derivationPath: DerivationPath?, completion: @escaping (Result<Void, TangemSdkError>) -> Void) {
+        update(itemsToRemove: itemsToRemove, itemsToAdd: itemsToAdd, derivationPath: derivationPath)
+        deriveIfNeeded(completion: completion)
+    }
+
+    func update(itemsToRemove: [TokenItem], itemsToAdd: [TokenItem], derivationPath: DerivationPath?) {
         itemsToRemove.forEach {
             removeInternal($0, derivationPath: derivationPath, shouldUpload: false)
         }
 
         addInternal(itemsToAdd, derivationPath: nil, shouldUpload: false)
         userTokenListManager.upload()
-        deriveIfNeeded(completion: completion)
     }
 }
 
