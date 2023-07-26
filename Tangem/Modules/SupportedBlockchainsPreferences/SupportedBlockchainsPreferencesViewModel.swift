@@ -13,33 +13,12 @@ class SupportedBlockchainsPreferencesViewModel: ObservableObject {
     @Published var blockchainViewModels: [DefaultToggleRowViewModel] = []
 
     init() {
-        blockchainViewModels = Blockchain.allMainnetCases
-            .map { blockchain -> (blockchain: Blockchain, supportedByDefault: Bool) in
-
-                let supportedByDefault = SupportedBlockchains(version: .v1)
-                    .mainnetBlockchains()
-                    .contains(where: { $0.id == blockchain.id })
-
-                return (blockchain: blockchain, supportedByDefault: supportedByDefault)
-            }
-            .sorted(by: { lhs, rhs in
-                switch (lhs.supportedByDefault, rhs.supportedByDefault) {
-                case (true, true), (false, false):
-                    return lhs.blockchain.displayName < rhs.blockchain.displayName
-                case (false, true):
-                    return true
-                case (true, false):
-                    return false
-                }
-            })
-            .map { blockchain, supportedByDefault in
+        blockchainViewModels = SupportedBlockchains.testable
+            .map { blockchain in
                 DefaultToggleRowViewModel(
                     title: blockchain.displayName,
-                    // Disable the ability to hide an already working blockchain
-                    isDisabled: supportedByDefault,
                     isOn: .init(get: {
-                        let isEnabledManually = FeatureStorage().supportedBlockchainsIds.contains(blockchain.id)
-                        return supportedByDefault || isEnabledManually
+                        return FeatureStorage().supportedBlockchainsIds.contains(blockchain.id)
                     }, set: { newValue in
                         if newValue {
                             FeatureStorage().supportedBlockchainsIds.append(blockchain.id)
