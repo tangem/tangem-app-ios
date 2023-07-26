@@ -60,7 +60,7 @@ extension Wallet2Config: UserWalletConfig {
     }
 
     var supportedBlockchains: Set<Blockchain> {
-        let allBlockchains = SupportedBlockchains().blockchains(for: .v2)
+        let allBlockchains = SupportedBlockchains(version: .v2).blockchains()
         return allBlockchains.filter { card.walletCurves.contains($0.curve) }
     }
 
