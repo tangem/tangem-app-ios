@@ -57,7 +57,7 @@ extension GenericConfig: UserWalletConfig {
     }
 
     var supportedBlockchains: Set<Blockchain> {
-        let allBlockchains = SupportedBlockchains().blockchains(for: .v1)
+        let allBlockchains = SupportedBlockchains(version: .v1).blockchains()
         return allBlockchains.filter { card.walletCurves.contains($0.curve) }
     }
 
