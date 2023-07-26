@@ -416,7 +416,7 @@ struct CardsInfoPagerView<
         }
 
         let springAnimationResponse = 0.55
-        let springAnimationDampingFraction = 0.75
+        let springAnimationDampingFraction = 0.78
 
         // It's impossible to set the duration of spring animation to a particular value precisely,
         // so this speed is approximate
