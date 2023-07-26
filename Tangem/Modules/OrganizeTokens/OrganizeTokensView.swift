@@ -94,29 +94,35 @@ struct OrganizeTokensView: View {
         GeometryReader { geometryProxy in
             ScrollViewReader { scrollProxy in
                 ScrollView(showsIndicators: false) {
-                    LazyVStack(spacing: 0.0) {
-                        Spacer(minLength: scrollViewTopContentInset)
-                            .id(scrollViewTopContentInsetSpacerIdentifier)
+                    // ScrollView inserts default spacing between its content views.
+                    // Wrapping content into `VStack` prevents it.
+                    VStack(spacing: 0.0) {
+                        LazyVStack(spacing: 0.0) {
+                            Spacer(minLength: scrollViewTopContentInset)
+                                .fixedSize()
+                                .id(scrollViewTopContentInsetSpacerIdentifier)
 
-                        tokenListContent
+                            tokenListContent
+                        }
+                        .animation(.spring(), value: viewModel.sections)
+                        .padding(.horizontal, Constants.contentHorizontalInset)
+                        .overlay(
+                            makeDraggableComponent(width: geometryProxy.size.width - Constants.contentHorizontalInset * 2.0)
+                                .animation(.linear(duration: Constants.dragLiftAnimationDuration), value: hasActiveDrag),
+                            alignment: .top
+                        )
+                        .coordinateSpace(name: scrollViewContentCoordinateSpaceName)
+                        .onTouchesBegan(onTouchesBegan(atLocation:))
+                        .readGeometry(\.frame.maxY, bindTo: $tokenListContentFrameMaxY)
+                        .readContentOffset(
+                            inCoordinateSpace: .named(scrollViewFrameCoordinateSpaceName),
+                            bindTo: $scrollViewContentOffset
+                        )
+
+                        Spacer(minLength: scrollViewBottomContentInset)
+                            .fixedSize()
+                            .id(scrollViewBottomContentInsetSpacerIdentifier)
                     }
-                    .animation(.spring(), value: viewModel.sections)
-                    .padding(.horizontal, Constants.contentHorizontalInset)
-                    .overlay(
-                        makeDraggableComponent(width: geometryProxy.size.width - Constants.contentHorizontalInset * 2.0)
-                            .animation(.linear(duration: Constants.dragLiftAnimationDuration), value: hasActiveDrag),
-                        alignment: .top
-                    )
-                    .coordinateSpace(name: scrollViewContentCoordinateSpaceName)
-                    .onTouchesBegan(onTouchesBegan(atLocation:))
-                    .readGeometry(\.frame.maxY, bindTo: $tokenListContentFrameMaxY)
-                    .readContentOffset(
-                        inCoordinateSpace: .named(scrollViewFrameCoordinateSpaceName),
-                        bindTo: $scrollViewContentOffset
-                    )
-
-                    Spacer(minLength: scrollViewBottomContentInset)
-                        .id(scrollViewBottomContentInsetSpacerIdentifier)
                 }
                 .readGeometry(\.frame) { newValue in
                     dragAndDropController.viewportSizeSubject.send(newValue.size)
@@ -146,7 +152,7 @@ struct OrganizeTokensView: View {
         }
         .onChange(of: scrollViewContentOffset) { newValue in
             dragAndDropController.contentOffsetSubject.send(newValue)
-            isNavigationBarBackgroundHidden = newValue.y <= 0.0
+            isNavigationBarBackgroundHidden = newValue.y - Constants.headerAdditionalBottomInset <= 0.0
         }
         .onChange(of: dragAndDropDestinationIndexPath) { [oldValue = dragAndDropDestinationIndexPath] newValue in
             guard let oldValue = oldValue, let newValue = newValue else { return }
@@ -170,7 +176,7 @@ struct OrganizeTokensView: View {
     @ViewBuilder private var tokenListContent: some View {
         let parametersProvider = OrganizeTokensListCornerRadiusParametersProvider(
             sections: viewModel.sections,
-            cornerRadius: Constants.cornerRadius
+            cornerRadius: Constants.contentCornerRadius
         )
 
         ForEach(indexed: viewModel.sections.indexed()) { sectionIndex, sectionViewModel in
@@ -221,25 +227,27 @@ struct OrganizeTokensView: View {
     private var tokenListHeader: some View {
         OrganizeTokensListHeader(
             viewModel: viewModel.headerViewModel,
-            scrollViewTopContentInset: $scrollViewTopContentInset,
-            contentHorizontalInset: Constants.contentHorizontalInset,
-            overlayViewAdditionalVerticalInset: Constants.overlayViewAdditionalVerticalInset,
-            tokenListHeaderViewTopInset: Constants.tokenListHeaderViewTopInset
+            horizontalInset: Constants.contentHorizontalInset,
+            bottomInset: Constants.headerBottomInset
         )
         .background(navigationBarBackground)
+        .padding(.bottom, Constants.headerAdditionalBottomInset)
+        .readGeometry(\.size.height, bindTo: $scrollViewTopContentInset)
         .infinityFrame(alignment: .top)
     }
 
     private var tokenListFooter: some View {
         OrganizeTokensListFooter(
             viewModel: viewModel,
-            tokenListFooterFrameMinY: $tokenListFooterFrameMinY,
-            scrollViewBottomContentInset: $scrollViewBottomContentInset,
             isTokenListFooterGradientHidden: isTokenListFooterGradientHidden,
-            cornerRadius: Constants.cornerRadius,
-            contentHorizontalInset: Constants.contentHorizontalInset,
-            overlayViewAdditionalVerticalInset: Constants.overlayViewAdditionalVerticalInset
+            cornerRadius: Constants.contentCornerRadius,
+            horizontalInset: Constants.contentHorizontalInset
         )
+        .readGeometry { geometryInfo in
+            $tokenListFooterFrameMinY.wrappedValue = geometryInfo.frame.minY
+            $scrollViewBottomContentInset.wrappedValue = geometryInfo.size.height + Constants.contentVerticalInset
+        }
+        .infinityFrame(alignment: .bottom)
     }
 
     init(
@@ -509,9 +517,10 @@ struct OrganizeTokensView: View {
 
 private extension OrganizeTokensView {
     private enum Constants {
-        static let cornerRadius = 14.0
-        static let overlayViewAdditionalVerticalInset = 10.0
-        static let tokenListHeaderViewTopInset = 8.0
+        static let contentCornerRadius = 14.0
+        static let headerBottomInset = 10.0
+        static var headerAdditionalBottomInset: CGFloat { contentVerticalInset - headerBottomInset }
+        static let contentVerticalInset = 14.0
         static let contentHorizontalInset = 16.0
         static let dragLiftLongPressGestureDuration = 0.5
         static let dragLiftAnimationDuration = 0.35
