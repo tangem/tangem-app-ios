@@ -32,7 +32,7 @@ struct BalanceConverter {
         return fiatValue
     }
 
-    func convertFromFiat(value: Decimal, from cryptoCurrencyCode: String) -> Decimal? {
+    func convertFromFiat(value: Decimal, to cryptoCurrencyCode: String) -> Decimal? {
         guard let rate = ratesRepository.rates[cryptoCurrencyCode] else {
             return nil
         }
