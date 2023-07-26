@@ -166,7 +166,7 @@ private extension TokenListViewModel {
     }
 
     func setupListDataLoader() -> ListDataLoader {
-        let supportedBlockchains = mode.settings?.supportedBlockchains ?? SupportedBlockchains().blockchains(for: .v1)
+        let supportedBlockchains = mode.settings?.supportedBlockchains ?? SupportedBlockchains.all
         let networkIds = supportedBlockchains.map { $0.networkId }
         let loader = ListDataLoader(networkIds: networkIds)
 
