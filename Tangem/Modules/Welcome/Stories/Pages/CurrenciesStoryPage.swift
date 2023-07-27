@@ -70,7 +70,7 @@ struct CurrenciesStoryPage: View {
                     )
 
                 MainButton(
-                    title: Localization.homeButtonSearchTokens,
+                    title: Localization.commonSearchTokens,
                     icon: .leading(Assets.search),
                     style: .secondary,
                     isDisabled: isScanning,

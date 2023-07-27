@@ -86,14 +86,26 @@ class Analytics {
     }
 
     static func logDestinationAddress(isAddressValid: Bool, source: DestinationAddressSource) {
-        let validationResult: Analytics.ParameterValue = isAddressValid ? .destinationAddressValidationSuccess : .destinationAddressValidationFail
+        let validationResult: Analytics.ParameterValue = isAddressValid ? .success : .fail
         Analytics.log(
             .addressEntered,
             params: [
                 .commonSource: source.parameterValue,
-                .destinationAddressValidationResult: validationResult,
+                .validation: validationResult,
             ]
         )
+    }
+
+    static func logPromotionEvent(_ event: Event, programName: String, newClient: Bool? = nil) {
+        var params = [
+            ParameterKey.programName: programName,
+        ]
+
+        if let newClient {
+            let clientType: ParameterValue = newClient ? .new : .old
+            params[.clientType] = clientType.rawValue
+        }
+        Analytics.log(event: event, params: params)
     }
 
     // MARK: - Common
