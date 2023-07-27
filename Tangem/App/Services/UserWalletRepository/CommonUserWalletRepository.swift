@@ -294,7 +294,6 @@ class CommonUserWalletRepository: UserWalletRepository {
             self?.selectedUserWalletId = userWallet.userWalletId
             AppSettings.shared.selectedUserWalletId = userWallet.userWalletId
             self?.initializeServicesForSelectedModel()
-            self?.selectedModel?.initialUpdate()
             self?.sendEvent(.selected(userWallet: userWallet, reason: reason))
         }
 
@@ -419,7 +418,6 @@ class CommonUserWalletRepository: UserWalletRepository {
                     self.userWallets = self.savedUserWallets(withSensitiveData: true)
                     self.loadModels()
                     self.initializeServicesForSelectedModel()
-                    self.selectedModel?.initialUpdate()
 
                     if let selectedModel = self.selectedModel {
                         if keys.count == self.userWallets.count {
@@ -447,11 +445,10 @@ class CommonUserWalletRepository: UserWalletRepository {
                     return
                 }
 
-                // begin update if scan from stories
                 if !AppSettings.shared.saveUserWallets {
-                    if case .success(let cardModel) = result {
-                        cardModel.initialUpdate()
-                    }
+                    userWallets = [cardModel.userWallet]
+                    models = [cardModel]
+                    selectedUserWalletId = cardModel.userWalletId.value
                     completion(result)
                     return
                 }
@@ -494,7 +491,6 @@ class CommonUserWalletRepository: UserWalletRepository {
 
                 setSelectedUserWalletId(savedUserWallet.userWalletId, reason: .userSelected)
                 initializeServicesForSelectedModel()
-                selectedModel?.initialUpdate()
 
                 sendEvent(.updated(userWalletModel: cardModel))
 
