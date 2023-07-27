@@ -930,6 +930,13 @@
 		EFD32AE929ED94030026353E /* FeatureStateRowViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFD32AE829ED94030026353E /* FeatureStateRowViewModel.swift */; };
 		EFD32AEB29EE7F390026353E /* Feature.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFD32AEA29EE7F390026353E /* Feature.swift */; };
 		EFD32AED29EE7F540026353E /* FeatureState.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFD32AEC29EE7F540026353E /* FeatureState.swift */; };
+		EFD39C8E2A6A87F90055D215 /* SupportedBlockchains.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFD39C8D2A6A87F90055D215 /* SupportedBlockchains.swift */; };
+		EFD39C912A6A8ACC0055D215 /* SupportedBlockchainsPreferencesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFD39C902A6A8ACC0055D215 /* SupportedBlockchainsPreferencesView.swift */; };
+		EFD39C932A6A8AD60055D215 /* SupportedBlockchainsPreferencesViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFD39C922A6A8AD60055D215 /* SupportedBlockchainsPreferencesViewModel.swift */; };
+		EFD39C972A6A916C0055D215 /* EnvironmentSetupCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFD39C942A6A916C0055D215 /* EnvironmentSetupCoordinator.swift */; };
+		EFD39C982A6A916C0055D215 /* EnvironmentSetupCoordinatorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFD39C952A6A916C0055D215 /* EnvironmentSetupCoordinatorView.swift */; };
+		EFD39C992A6A916C0055D215 /* EnvironmentSetupRoutable.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFD39C962A6A916C0055D215 /* EnvironmentSetupRoutable.swift */; };
+		EFD39C9D2A6ADA730055D215 /* EnvironmentSetupRoutableMock.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFD39C9C2A6ADA730055D215 /* EnvironmentSetupRoutableMock.swift */; };
 		EFDDE5242A03F2A200899812 /* SwappingInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFDDE5232A03F2A200899812 /* SwappingInteractor.swift */; };
 		EFDDE5262A04379300899812 /* SwappingApprovePolicy.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFDDE5252A04379300899812 /* SwappingApprovePolicy.swift */; };
 		EFE1812B292E30C00072D80C /* SupportChatViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65C9FCB92869CC3E00FDE63E /* SupportChatViewModel.swift */; };
@@ -2017,6 +2024,13 @@
 		EFD32AE829ED94030026353E /* FeatureStateRowViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeatureStateRowViewModel.swift; sourceTree = "<group>"; };
 		EFD32AEA29EE7F390026353E /* Feature.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Feature.swift; sourceTree = "<group>"; };
 		EFD32AEC29EE7F540026353E /* FeatureState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeatureState.swift; sourceTree = "<group>"; };
+		EFD39C8D2A6A87F90055D215 /* SupportedBlockchains.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SupportedBlockchains.swift; sourceTree = "<group>"; };
+		EFD39C902A6A8ACC0055D215 /* SupportedBlockchainsPreferencesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SupportedBlockchainsPreferencesView.swift; sourceTree = "<group>"; };
+		EFD39C922A6A8AD60055D215 /* SupportedBlockchainsPreferencesViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SupportedBlockchainsPreferencesViewModel.swift; sourceTree = "<group>"; };
+		EFD39C942A6A916C0055D215 /* EnvironmentSetupCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EnvironmentSetupCoordinator.swift; sourceTree = "<group>"; };
+		EFD39C952A6A916C0055D215 /* EnvironmentSetupCoordinatorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EnvironmentSetupCoordinatorView.swift; sourceTree = "<group>"; };
+		EFD39C962A6A916C0055D215 /* EnvironmentSetupRoutable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EnvironmentSetupRoutable.swift; sourceTree = "<group>"; };
+		EFD39C9C2A6ADA730055D215 /* EnvironmentSetupRoutableMock.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EnvironmentSetupRoutableMock.swift; sourceTree = "<group>"; };
 		EFDDE5232A03F2A200899812 /* SwappingInteractor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwappingInteractor.swift; sourceTree = "<group>"; };
 		EFDDE5252A04379300899812 /* SwappingApprovePolicy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwappingApprovePolicy.swift; sourceTree = "<group>"; };
 		EFE23AC1292CB6F700A3C554 /* SwappingTokenListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwappingTokenListView.swift; sourceTree = "<group>"; };
@@ -2194,6 +2208,7 @@
 		5D39515725597D89002CC452 /* Models */ = {
 			isa = PBXGroup;
 			children = (
+				EFD39C8C2A6A87DD0055D215 /* Config */,
 				DC13D03729DEC0F30003895C /* CardDTO */,
 				DC3B49F22893E4F300C207EA /* UserWallet */,
 				5DBAFD1627E085330008B882 /* Coins */,
@@ -4297,6 +4312,7 @@
 		DC7DA81A2844EED800AD6DBD /* Modules */ = {
 			isa = PBXGroup;
 			children = (
+				EFD39C8F2A6A8A640055D215 /* SupportedBlockchainsPreferences */,
 				B6209E5D2A2F1BBF0066ACFE /* OrganizeTokens */,
 				EF9F907B299CFCB1006F638F /* WebViewContainer */,
 				EF5267DF2927805B00FC25A8 /* Swapping */,
@@ -4747,6 +4763,9 @@
 			children = (
 				EF59039529091CFB00C527C9 /* EnvironmentSetupView.swift */,
 				EF6CB17D292E1190001335EA /* EnvironmentSetupViewModel.swift */,
+				EFD39C942A6A916C0055D215 /* EnvironmentSetupCoordinator.swift */,
+				EFD39C952A6A916C0055D215 /* EnvironmentSetupCoordinatorView.swift */,
+				EFD39C962A6A916C0055D215 /* EnvironmentSetupRoutable.swift */,
 			);
 			path = EnvironmentSetup;
 			sourceTree = "<group>";
@@ -4939,6 +4958,7 @@
 				EF8D781029818E6100B67418 /* UserWalletModelMock.swift */,
 				EF5F1BAB29D1A2BE0093307B /* TotalBalanceProviderMock.swift */,
 				EF8EF52E2A0668D6007B52C4 /* SwappingApproveRoutableMock.swift */,
+				EFD39C9C2A6ADA730055D215 /* EnvironmentSetupRoutableMock.swift */,
 			);
 			path = Mocks;
 			sourceTree = "<group>";
@@ -5196,6 +5216,23 @@
 				EFD32AE829ED94030026353E /* FeatureStateRowViewModel.swift */,
 			);
 			path = FeatureStateRowView;
+			sourceTree = "<group>";
+		};
+		EFD39C8C2A6A87DD0055D215 /* Config */ = {
+			isa = PBXGroup;
+			children = (
+				EFD39C8D2A6A87F90055D215 /* SupportedBlockchains.swift */,
+			);
+			path = Config;
+			sourceTree = "<group>";
+		};
+		EFD39C8F2A6A8A640055D215 /* SupportedBlockchainsPreferences */ = {
+			isa = PBXGroup;
+			children = (
+				EFD39C902A6A8ACC0055D215 /* SupportedBlockchainsPreferencesView.swift */,
+				EFD39C922A6A8AD60055D215 /* SupportedBlockchainsPreferencesViewModel.swift */,
+			);
+			path = SupportedBlockchainsPreferences;
 			sourceTree = "<group>";
 		};
 		EFE23AAA292B810300A3C554 /* SwappingSuccess */ = {
@@ -5797,8 +5834,10 @@
 				DAA5E31A28D214BF003C0E80 /* UserWalletFactory.swift in Sources */,
 				DC7DA8192844EAFF00AD6DBD /* WelcomeCoordinator.swift in Sources */,
 				5D384B9124FD4E1800C2C92C /* String+.swift in Sources */,
+				EFD39C8E2A6A87F90055D215 /* SupportedBlockchains.swift in Sources */,
 				DC66BBE72858EBE400CDF765 /* OnboardingCoordinatorView.swift in Sources */,
 				5DA5067D27A2FF57000A8901 /* URL+.swift in Sources */,
+				EFD39C992A6A916C0055D215 /* EnvironmentSetupRoutable.swift in Sources */,
 				DA7444252A27889600F926A9 /* PromotionServiceProtocol.swift in Sources */,
 				EF808440293F69C7000D91EA /* Currency+Mock.swift in Sources */,
 				DC7D39F929E007FF007BCD23 /* Start2CoinOnboardingStepsBuilder.swift in Sources */,
@@ -5872,6 +5911,7 @@
 				2D535E712A0CB4D20081EB76 /* NotificationViewModel.swift in Sources */,
 				DC5DBBC9289B951600C21E35 /* DemoUtil.swift in Sources */,
 				DA23788327B24222009795A8 /* ShippingRate.swift in Sources */,
+				EFD39C982A6A916C0055D215 /* EnvironmentSetupCoordinatorView.swift in Sources */,
 				5D6784E425EBC94B00149995 /* Blockchain+.swift in Sources */,
 				5DD95B8C24FA959C00E6B9D0 /* VerticalAlignment+.swift in Sources */,
 				B63B63BD2A44013E00A7CECF /* OrganizeTokensListFooter.swift in Sources */,
@@ -6056,6 +6096,7 @@
 				B06015E529730C3D00D0F809 /* WalletConnectUIDelegate.swift in Sources */,
 				EF666C262A2DF9EF0044986F /* BottomSheetModifier.swift in Sources */,
 				B0C4F77326F08CB50086D815 /* OnboardingCardFrameCalculator.swift in Sources */,
+				EFD39C912A6A8ACC0055D215 /* SupportedBlockchainsPreferencesView.swift in Sources */,
 				5DD24B41274FAC2400BF80BE /* WalletManagerFactoryProvider.swift in Sources */,
 				B0AA865426DC90FF00287F80 /* WelcomeViewModel.swift in Sources */,
 				B6AA136C2A2A375A00B53937 /* CardInfoPageTransactionPreviewSectionItem.swift in Sources */,
@@ -6131,6 +6172,7 @@
 				B0C87B432566461600F861DE /* TwinCardsFileCoder.swift in Sources */,
 				DC66BC0E285B75C900CDF765 /* PushTxCoordinatorView.swift in Sources */,
 				DC261CBB292CFBB500875E64 /* StartupProcessor.swift in Sources */,
+				EFD39C972A6A916C0055D215 /* EnvironmentSetupCoordinator.swift in Sources */,
 				5D09383C25EAE7FD0049B8F0 /* PersistentStorage.swift in Sources */,
 				B018F2FD2591FE8600D8F89A /* AppWarning.swift in Sources */,
 				B04CD33C29122C5C001EA84A /* ReferralView.swift in Sources */,
@@ -6417,6 +6459,7 @@
 				B04CD34229122C7D001EA84A /* ReferralRoutable.swift in Sources */,
 				B08ACD8A25D2BC47007387BD /* TokenListViewModel.swift in Sources */,
 				65C9FCAC2863103800FDE63E /* ZendeskConfig.swift in Sources */,
+				EFD39C932A6A8AD60055D215 /* SupportedBlockchainsPreferencesViewModel.swift in Sources */,
 				B0C6B4C826CE6B5400FA990B /* OnboardingProgressCheckmarksView.swift in Sources */,
 				B09E518A298104670042998A /* DeprecationServicing.swift in Sources */,
 				B0C4A1D32671F3FC00DCB921 /* TestnetBuyCryptoService.swift in Sources */,
@@ -6542,6 +6585,7 @@
 				EFF253B3293DCAA900AEF302 /* SwappingFeeRowViewModel.swift in Sources */,
 				DA23789227B250F6009795A8 /* ShopView.swift in Sources */,
 				B031AAB326C169E900015003 /* ConfettiType.swift in Sources */,
+				EFD39C9D2A6ADA730055D215 /* EnvironmentSetupRoutableMock.swift in Sources */,
 				B0B335E329FA9EB800E2082E /* BalanceFormattingOptions.swift in Sources */,
 				DCFCA17528F4232F0037586C /* Array+.swift in Sources */,
 				EFA6B044295334AF0090A92F /* ResetToFactoryView.swift in Sources */,
