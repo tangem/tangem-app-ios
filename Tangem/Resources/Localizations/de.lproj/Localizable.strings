@@ -75,6 +75,7 @@
 "common_explorer" = "Explorer";
 "common_explorer_format" = "%@ explorer";
 "common_import" = "Import";
+"common_learn_and_earn" = "Learn & Earn";
 "common_like" = "Like";
 "common_main_network" = "Main network";
 "common_no" = "No";
@@ -88,6 +89,7 @@
 "common_retry" = "Retry";
 "common_save_changes" = "Änderungen speichern";
 "common_search" = "Search";
+"common_search_tokens" = "Search tokens";
 "common_seed_phrase" = "Seed phrase";
 "common_select_action" = "Select action";
 "common_sell" = "Sell";
@@ -165,7 +167,6 @@
 "feedback_subject_tx_push_failed" = "Can't push a transaction";
 "home_button_order" = "Order";
 "home_button_scan" = "Karte scannen";
-"home_button_search_tokens" = "Search tokens";
 "initial_message_change_access_code_body" = "Tippen Sie um den Zugangscode zu ändern";
 "initial_message_change_passcode_body" = "Tippen Sie um den Passcode zu ändern";
 "initial_message_create_wallet_body" = "To create the wallet tap the card as shown above and do not remove until the end of the operation";
@@ -174,16 +175,13 @@
 "key_invalidated_warning_description" = "You have updated biometrics, scan your card to enter";
 "mail_error_no_accounts_body" = "Please, set up an account to send email";
 "mail_error_no_accounts_title" = "No Mail accounts";
-"main_get_bonus_subtitle" = "You have completed the training and can get your 1inch tokens";
-"main_get_bonus_title" = "Get a bonus";
-"main_learn_title" = "Learn & Earn";
+"main_get_bonus_subtitle" = "You have completed all of the lessons, and are now eligible to receive your 1INCH tokens";
 "main_manage_tokens" = "Manage tokens";
 "main_no_backup_warning_subtitle" = "To protect your assets, we advise you to carry out this procedure";
 "main_no_backup_warning_title" = "Your wallet has not been backed up";
 "main_page_balance" = "Total balance";
 "main_processing_full_amount" = "Der Betrag enthält nicht einige Ihrer Mittel";
-"main_promotion_credited" = "1inch tokens will be credited to your wallet address within 2 days";
-"main_promotion_no_purchase" = "There was no purchase of a wallet using your promo code, which means you cannot receive a bonus. Buy Tangem wallet, scan it in the app, and get the bonus.";
+"main_promotion_credited" = "1INCH tokens will be credited to your %@ wallet address within 24 hours";
 "main_scan_card_warning_view_subtitle" = "To access all the networks you need to scan the card";
 "main_scan_card_warning_view_title" = "Scan your card";
 "main_tokens" = "Tokens";
@@ -213,7 +211,7 @@
 "onboarding_button_skip_backup" = "Skip for later";
 "onboarding_button_what_does_it_mean" = "How does it work?";
 "onboarding_create_wallet_body" = "Let's generate all the keys on your card and create a secure wallet";
-"onboarding_create_wallet_button_create_wallet" = "Create wallet";
+"onboarding_create_wallet_button_create_wallet" = "ein Wallet erstellen";
 "onboarding_create_wallet_options_button_options" = "Other options";
 "onboarding_create_wallet_options_message" = "Your keys will be securely generated inside the card. There is no seed phrase, which means nobody can export or steal it.";
 "onboarding_create_wallet_options_title" = "Generate keys privately";
@@ -239,18 +237,14 @@
 "onboarding_seed_screenshot_alert" = "We do not recommend storing the passphrase as a screenshot due to the high risk of loss or hacking";
 "onboarding_seed_user_validation_message" = "To check whether you’ve written down your secret phrase correctly, please enter the 2nd, 7th and 11th words";
 "onboarding_seed_user_validation_title" = "So, let’s check";
-"onboarding_subtitle_backup_card" = "You can backup your keys up to two other blank wallet cards";
 "onboarding_subtitle_no_backup_cards" = "To start the backup process add up to two backup cards.";
 "onboarding_subtitle_one_backup_card" = "You can add one more card or finalize the backup process";
 "onboarding_subtitle_scan_backup_card_format" = "Prepare the backup card with number %@";
 "onboarding_subtitle_scan_primary" = "Scan the primary card to start the backup process.";
 "onboarding_subtitle_scan_primary_card_format" = "Prepare the primary card with number %@";
-"onboarding_subtitle_success_backup" = "You have created 2 backup cards, and now these cards are ready for use.";
-"onboarding_subtitle_success_backup_one_card" = "You have created 1 backup card, and now these cards are ready for use.";
 "onboarding_subtitle_success_tangem_wallet_onboarding" = "Your wallet card is configured and ready for use.";
 "onboarding_subtitle_two_backup_cards" = "Max number of cards added. Finalize the backup process.";
 "onboarding_title" = "Activating card";
-"onboarding_title_backup_card" = "Backup your wallet";
 "onboarding_title_backup_card_format" = "Backup card #%li";
 "onboarding_title_no_backup_cards" = "No backup cards";
 "onboarding_title_one_backup_card" = "One backup card added";
@@ -317,7 +311,6 @@
 "scan_card_settings_button" = "Scan Card";
 "scan_card_settings_message" = "Scan the card to change its settings. The changes will impact only the card you've scanned and will not affect other cards tied to your wallet.";
 "scan_card_settings_title" = "Get your card ready!";
-"search_tokens_title" = "Search tokens";
 "send_amount_label" = "Betrag";
 "send_destination_hint_address" = "Adresse";
 "send_extras_error_invalid_destination_tag" = "Invalid Tag. It won't be added to the transaction.";
@@ -343,7 +336,6 @@
 "shop_other_payment_methods" = "Other payment methods";
 "shop_placing_order" = "Placing your order";
 "shop_pre_order_now" = "Pre-order now";
-"shop_sold_out_description" = "Due to the high volume of orders we are receiving shipping may be delayed up to 5 weeks depending on your location";
 "shop_total" = "Total";
 "shop_web_checkout_title" = "Your order";
 "solana_rent_warning" = "Solana network charges a rent of %1$@ every 2 days. Accounts that can't afford the rent are purged from the network. Deposit your account with more than %2$@ to use it for free.";
@@ -355,9 +347,8 @@
 "story_currencies_title" = "Thousands of Currencies";
 "story_finish_description" = "Use it on the go, anywhere, anytime. No wires or batteries. Just tap the card to your phone when you need your crypto.";
 "story_finish_title" = "The Wallet for Everyone";
-"story_learn_description" = "Complete the training, get the opportunity to buy Tangem wallet with a discount and receive 1inch tokens on your wallet";
+"story_learn_description" = "Take three lessons, get a discount on your Tangem Wallet, and receive 1INCH tokens to your wallet";
 "story_learn_learn" = "Learn";
-"story_learn_title" = "Learn and get a bonus";
 "story_meet_borrow" = "Borrow";
 "story_meet_buy" = "Buy";
 "story_meet_exchange" = "Exchange";
@@ -400,9 +391,6 @@
 "swapping_token_list_title" = "Choose token";
 "swapping_token_list_your_tokens" = "Your tokens";
 "swapping_token_not_available" = "not available";
-"testnet_address_topuped" = "Transaction signed and sent to testnet. Wait for a while and reload balance";
-"testnet_error_failed_create_tx" = "Failed to create topup transaction for token. Try again later";
-"testnet_error_not_enough_ether_message" = "Not enough funds on ETH wallet balance. You need to topup ETH wallet first";
 "token_details_hide_alert_hide" = "Hide";
 "token_details_hide_alert_message" = "You are about to hide this token from the main screen. You can add it back anytime through the manage tokens page.";
 "token_details_hide_alert_title" = "Hide %@";
@@ -422,7 +410,6 @@
 "transaction_history_transaction_from_address" = "from: %@";
 "transaction_history_transaction_to_address" = "to: %@";
 "transaction_history_tx_in_progress" = "In progress…";
-"twin_error_not_a_twin_card" = "You've scanned not a twin card. To create twin wallet you need to scan a Tangem Twin card";
 "twin_error_same_card" = "You've scanned the same card. To create a twin wallet you need to scan the card with number %li";
 "twin_error_wrong_twin" = "You've scanned wrong twin card. Please try another one";
 "twins_onboarding_description_format" = "This one that you are holding in your hands and the other one with number %@.\n\nBoth cards can be used to extract funds from this wallet.";
@@ -460,7 +447,6 @@
 "wallet_balance_tx_in_progress" = "Die Transaktion läuft…";
 "wallet_balance_verified" = "Verifizierte Bilanz";
 "wallet_button_actions" = "Actions";
-"wallet_button_create_wallet" = "ein Wallet erstellen";
 "wallet_choice_wallet_option_title" = "Choice wallet option";
 "wallet_choose_trade_action" = "Do you want to buy or sell crypto?";
 "wallet_connect_alert_sign_message" = "Requesting to sign a message.\n\n%@";
