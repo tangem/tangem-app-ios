@@ -75,6 +75,7 @@
 "common_explorer" = "Обозреватель";
 "common_explorer_format" = "%@ обозреватель";
 "common_import" = "Импортировать";
+"common_learn_and_earn" = "Learn & Earn";
 "common_like" = "Нравится";
 "common_main_network" = "Основная сеть";
 "common_no" = "Нет";
@@ -88,6 +89,7 @@
 "common_retry" = "Повторить";
 "common_save_changes" = "Сохранить изменения";
 "common_search" = "Искать";
+"common_search_tokens" = "Поиск валют";
 "common_seed_phrase" = "Секретная фраза";
 "common_select_action" = "Выберите действие";
 "common_sell" = "Продать";
@@ -165,7 +167,6 @@
 "feedback_subject_tx_push_failed" = "Не могу протолкнуть транзакцию";
 "home_button_order" = "Купить";
 "home_button_scan" = "Сканировать";
-"home_button_search_tokens" = "Поиск токенов";
 "initial_message_change_access_code_body" = "Чтобы изменить код доступа, приложите карту как показано выше и не убирайте до окончания операции";
 "initial_message_change_passcode_body" = "Чтобы изменить пароль, приложите карту как показано выше и не убирайте до окончания операции";
 "initial_message_create_wallet_body" = "Чтобы создать кошелек, приложите карту как показано выше и не убирайте до окончания операции";
@@ -174,16 +175,13 @@
 "key_invalidated_warning_description" = "Вы обновили данные биометрии, отсканируйте свою карту для входа";
 "mail_error_no_accounts_body" = "Пожалуйста, настройте учетную запись для отправки электронной почты";
 "mail_error_no_accounts_title" = "Нет настроенных почтовых аккаунтов";
-"main_get_bonus_subtitle" = "Вы завершили обучение и можете получить свои токены 1inch";
-"main_get_bonus_title" = "Получите бонус";
-"main_learn_title" = "Бонус за обучение";
+"main_get_bonus_subtitle" = "Вы успешно прошли все уроки и теперь можете получить 1INCH токены";
 "main_manage_tokens" = "Управление токенами";
 "main_no_backup_warning_subtitle" = "Чтобы защитить свои активы, мы советуем вам выполнить эту процедуру";
 "main_no_backup_warning_title" = "Бэкап кошелька не был произведен";
 "main_page_balance" = "Баланс";
 "main_processing_full_amount" = "В сумме учтены не все монеты";
-"main_promotion_credited" = "Токены 1inch будут зачислены на адрес вашего кошелька в течение 2 дней";
-"main_promotion_no_purchase" = "По вашему промокоду не было покупки кошелька, а значит вы не можете получить бонус. Купите кошелек Tangem, отсканируйте его в приложении и получите бонус.";
+"main_promotion_credited" = "1INCH токены будут зачислены на адрес вашего кошелька в сети %@ в течение 24 часов";
 "main_scan_card_warning_view_subtitle" = "Чтобы получить доступ ко всем сетям, вам необходимо отсканировать карту";
 "main_scan_card_warning_view_title" = "Отсканируйте карту";
 "main_tokens" = "Токены";
@@ -239,18 +237,14 @@
 "onboarding_seed_screenshot_alert" = "Мы не рекомендуем хранить секретную фразу в виде скриншота из-за высокого риска утери или взлома";
 "onboarding_seed_user_validation_message" = "Чтобы проверить, правильно ли вы записали секретную фразу, введите 2-е, 7-е и 11-е слова";
 "onboarding_seed_user_validation_title" = "Итак, проверим";
-"onboarding_subtitle_backup_card" = "Вы можете сделать резервную копию своих ключей на одной или двух других пустых картах Wallet";
 "onboarding_subtitle_no_backup_cards" = "Чтобы начать процесс резервного копирования, добавьте одну или две резервные карты.";
 "onboarding_subtitle_one_backup_card" = "Вы можете добавить еще одну карту или завершить процесс резервного копирования";
 "onboarding_subtitle_scan_backup_card_format" = "Подготовьте резервную карту с номером %@";
 "onboarding_subtitle_scan_primary" = "Отсканируйте основную карту, чтобы начать процесс резервного копирования.";
 "onboarding_subtitle_scan_primary_card_format" = "Подготовьте основную карту с номером %@";
-"onboarding_subtitle_success_backup" = "Вы создали 2 резервные карты, и теперь эти карты готовы к использованию.";
-"onboarding_subtitle_success_backup_one_card" = "Вы создали 1 резервную карту, и теперь эта карта готова к использованию.";
 "onboarding_subtitle_success_tangem_wallet_onboarding" = "Ваша карта настроена и готова к использованию.";
 "onboarding_subtitle_two_backup_cards" = "Добавлено максимальное количество карт. Завершите процесс резервного копирования.";
 "onboarding_title" = "Активация карты";
-"onboarding_title_backup_card" = "Создайте резервную копию вашей карты";
 "onboarding_title_backup_card_format" = "Резервная карта #%li";
 "onboarding_title_no_backup_cards" = "Нет резервных карт";
 "onboarding_title_one_backup_card" = "Добавлена ​​одна резервная карта";
@@ -317,7 +311,6 @@
 "scan_card_settings_button" = "Сканировать";
 "scan_card_settings_message" = "Отсканируйте карту, чтобы изменить ее настройки. Изменения затронут только ту карту, которую вы отсканировали, и не повлияют на другие карты, привязанные к вашему кошельку.";
 "scan_card_settings_title" = "Приготовьте свою карту";
-"search_tokens_title" = "Поиск валют";
 "send_amount_label" = "Сумма";
 "send_destination_hint_address" = "Адрес";
 "send_extras_error_invalid_destination_tag" = "Недопустимый Tag. Он не будет добавлен в транзакцию.";
@@ -343,7 +336,6 @@
 "shop_other_payment_methods" = "Другие способы оплаты";
 "shop_placing_order" = "Оформление заказа";
 "shop_pre_order_now" = "Сделать предзаказ";
-"shop_sold_out_description" = "Из-за высокого количества заказов, которые мы получаем, доставка может быть задержана на срок до 5 недель в зависимости от вашего местоположения";
 "shop_total" = "Итого";
 "shop_web_checkout_title" = "Ваш заказ";
 "solana_rent_warning" = "Сеть Solana взимает арендную плату в размере %1$@ каждые 2 дня. Аккаунты, которые не могут позволить себе арендную плату, удаляются из сети. Пополните свой счет более чем на %2$@, чтобы не платить арендную плату.";
@@ -355,9 +347,8 @@
 "story_currencies_title" = "Тысячи криптовалют";
 "story_finish_description" = "Используйте его на ходу, в любом месте, в любое время. Без проводов и батареек. Как только понадобится крипта, просто приложите карту к телефону.";
 "story_finish_title" = "Кошелек для каждого";
-"story_learn_description" = "Пройдите обучение и получите возможность купить кошелек Tangem со скидкой и токены 1inch в качестве бонуса";
+"story_learn_description" = "Пройдите 3 урока, получите скидку на покупку Tangem Wallet и 1INCH токены";
 "story_learn_learn" = "Пройти обучение";
-"story_learn_title" = "Получите свой бонус";
 "story_meet_borrow" = "Занимайте";
 "story_meet_buy" = "Покупайте";
 "story_meet_exchange" = "Обменивайте";
@@ -400,9 +391,6 @@
 "swapping_token_list_title" = "Выберите токен";
 "swapping_token_list_your_tokens" = "Ваши токены";
 "swapping_token_not_available" = "не доступен";
-"testnet_address_topuped" = "Транзакция успешно подписана и отправлена ​​в тестовую сеть. Подождите некоторое время и обновите баланс";
-"testnet_error_failed_create_tx" = "Не удалось создать транзакцию пополнения для токена. Попробуйте позже";
-"testnet_error_not_enough_ether_message" = "Недостаточно средств на балансе ETH кошелька. Вам нужно сначала пополнить ETH кошелек";
 "token_details_hide_alert_hide" = "Скрыть";
 "token_details_hide_alert_message" = "Вы скрываете токен с главного экрана, но в любой момент сможете добавить его обратно через страницу управления токенами.";
 "token_details_hide_alert_title" = "Скрыть %@";
@@ -422,7 +410,6 @@
 "transaction_history_transaction_from_address" = "от: %@";
 "transaction_history_transaction_to_address" = "на: %@";
 "transaction_history_tx_in_progress" = "В процессе…";
-"twin_error_not_a_twin_card" = "Вы отсканировали не twin-карту. Для создания двойного кошелька необходимо отсканировать карту Tangem Twin.";
 "twin_error_same_card" = "Вы отсканировали ту же карту. Для создания twin-кошелька вам необходимо отсканировать карту с номером %li";
 "twin_error_wrong_twin" = "Вы отсканировали не ту twin-карту. Пожалуйста, попробуйте отсканировать другую";
 "twins_onboarding_description_format" = "Это карта, которую вы держите в руках. У парной карты номер %@.\n\nОбе карты можно использовать для вывода средств из этого кошелька.";
@@ -460,7 +447,6 @@
 "wallet_balance_tx_in_progress" = "Транзакция подтверждается…";
 "wallet_balance_verified" = "Подтвержденный баланс";
 "wallet_button_actions" = "Действия";
-"wallet_button_create_wallet" = "Создать кошелек";
 "wallet_choice_wallet_option_title" = "Что отправить?";
 "wallet_choose_trade_action" = "Вы хотите купить или продать криптовалюту?";
 "wallet_connect_alert_sign_message" = "Запрос на подпись сообщения.\n\n%@";
