@@ -88,6 +88,10 @@ extension Start2CoinConfig: UserWalletConfig {
         .start2coin
     }
 
+    var cardImage: ImageType? {
+        Assets.Cards.s2c
+    }
+
     func getFeatureAvailability(_ feature: UserWalletFeature) -> UserWalletFeature.Availability {
         switch feature {
         case .send:
