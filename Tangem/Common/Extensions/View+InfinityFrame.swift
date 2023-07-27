@@ -10,15 +10,11 @@ import SwiftUI
 
 extension View {
     func infinityFrame(
-        axis: Axis.Set = .both,
+        axis: Axis.Set = [.horizontal, .vertical],
         alignment: Alignment = .center
     ) -> some View {
         modifier(InfinityFrameViewModifier(axis: axis, alignment: alignment))
     }
-}
-
-extension Axis.Set {
-    static var both: Self { [.horizontal, .vertical] }
 }
 
 // MARK: - Private implementation

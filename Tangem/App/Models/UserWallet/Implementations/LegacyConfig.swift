@@ -203,8 +203,6 @@ extension LegacyConfig: UserWalletConfig {
             return .available
         case .transactionHistory:
             return .hidden
-        case .seedPhrase:
-            return .hidden
         case .accessCodeRecoverySettings:
             return .hidden
         case .promotion:
@@ -212,33 +210,12 @@ extension LegacyConfig: UserWalletConfig {
         }
     }
 
-    func makeWalletModel(for token: StorageEntry) throws -> WalletModel {
-        let factory = WalletModelsFactory()
+    func makeWalletModelsFactory() -> WalletModelsFactory {
+        return CommonWalletModelsFactory(derivationStyle: nil)
+    }
 
-        if isMultiwallet {
-            let walletPublicKeys: [EllipticCurve: Data] = card.wallets.reduce(into: [:]) { partialResult, cardWallet in
-                partialResult[cardWallet.curve] = cardWallet.publicKey
-            }
-
-            return try factory.makeMultipleWallet(
-                walletPublicKeys: walletPublicKeys,
-                entry: token,
-                derivationStyle: card.derivationStyle
-            )
-        } else {
-            let blockchain = token.blockchainNetwork.blockchain
-
-            guard let walletPublicKey = card.wallets.first(where: { $0.curve == blockchain.curve })?.publicKey else {
-                throw CommonError.noData
-            }
-
-            return try factory.makeSingleWallet(
-                walletPublicKey: walletPublicKey,
-                blockchain: blockchain,
-                token: token.tokens.first,
-                derivationStyle: card.derivationStyle
-            )
-        }
+    func makeAnyWalletManagerFacrory() throws -> AnyWalletManagerFactory {
+        return SimpleWalletManagerFactory()
     }
 }
 
