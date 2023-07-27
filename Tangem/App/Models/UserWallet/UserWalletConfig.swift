@@ -48,6 +48,8 @@ protocol UserWalletConfig: OnboardingStepsBuilderFactory, BackupServiceFactory, 
 
     var productType: Analytics.ProductType { get }
 
+    var cardImage: ImageType? { get }
+
     func getFeatureAvailability(_ feature: UserWalletFeature) -> UserWalletFeature.Availability
 
     func makeWalletModelsFactory() -> WalletModelsFactory
@@ -76,6 +78,8 @@ extension UserWalletConfig {
     var derivationStyle: DerivationStyle? {
         return nil
     }
+
+    var cardImage: ImageType? { nil }
 }
 
 struct EmailConfig {
