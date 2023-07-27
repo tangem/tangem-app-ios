@@ -115,6 +115,10 @@ extension GenericConfig: UserWalletConfig {
         card.firmwareVersion.doubleValue >= 4.39 ? .wallet : .other
     }
 
+    var cardImage: ImageType? {
+        Assets.Cards.wallet
+    }
+
     func getFeatureAvailability(_ feature: UserWalletFeature) -> UserWalletFeature.Availability {
         switch feature {
         case .accessCode:
