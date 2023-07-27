@@ -35,6 +35,19 @@ extension GenericDemoConfig: UserWalletConfig {
         [.secp256k1, .ed25519]
     }
 
+    var derivationStyle: DerivationStyle? {
+        guard hasFeature(.hdWallets) else {
+            return nil
+        }
+
+        let batchId = card.batchId.uppercased()
+        if BatchId.isDetached(batchId) {
+            return .v1
+        }
+
+        return .v2
+    }
+
     var cardName: String {
         "Wallet"
     }
@@ -55,7 +68,7 @@ extension GenericDemoConfig: UserWalletConfig {
         let blockchains: [Blockchain] = [.ethereum(testnet: isTestnet), .bitcoin(testnet: isTestnet)]
 
         let entries: [StorageEntry] = blockchains.map {
-            if let derivationStyle = card.derivationStyle {
+            if let derivationStyle = derivationStyle {
                 let derivationPath = $0.derivationPaths(for: derivationStyle)[.default]
                 let network = BlockchainNetwork($0, derivationPath: derivationPath)
                 return .init(blockchainNetwork: network, tokens: [])
@@ -72,7 +85,7 @@ extension GenericDemoConfig: UserWalletConfig {
         let blockchains = DemoUtil().getDemoBlockchains(isTestnet: AppEnvironment.current.isTestnet)
 
         let entries: [StorageEntry] = blockchains.map {
-            if let derivationStyle = card.derivationStyle {
+            if let derivationStyle = derivationStyle {
                 let derivationPath = $0.derivationPaths(for: derivationStyle)[.default]
                 let network = BlockchainNetwork($0, derivationPath: derivationPath)
                 return .init(blockchainNetwork: network, tokens: [])
@@ -171,8 +184,6 @@ extension GenericDemoConfig: UserWalletConfig {
             return .available
         case .transactionHistory:
             return .hidden
-        case .seedPhrase:
-            return .hidden
         case .accessCodeRecoverySettings:
             return .hidden
         case .promotion:
@@ -180,35 +191,16 @@ extension GenericDemoConfig: UserWalletConfig {
         }
     }
 
-    func makeWalletModel(for token: StorageEntry) throws -> WalletModel {
-        let walletPublicKeys: [EllipticCurve: Data] = card.wallets.reduce(into: [:]) { partialResult, cardWallet in
-            partialResult[cardWallet.curve] = cardWallet.publicKey
-        }
+    func makeWalletModelsFactory() -> WalletModelsFactory {
+        return DemoWalletModelsFactory(derivationStyle: derivationStyle)
+    }
 
-        let factory = WalletModelsFactory()
-        let model: WalletModel
-
-        if card.settings.isHDWalletAllowed {
-            let derivedKeys: [EllipticCurve: [DerivationPath: ExtendedPublicKey]] = card.wallets.reduce(into: [:]) { partialResult, cardWallet in
-                partialResult[cardWallet.curve] = cardWallet.derivedKeys
-            }
-
-            model = try factory.makeMultipleWallet(
-                seedKeys: walletPublicKeys,
-                entry: token,
-                derivedKeys: derivedKeys,
-                derivationStyle: card.derivationStyle
-            )
+    func makeAnyWalletManagerFacrory() throws -> AnyWalletManagerFactory {
+        if hasFeature(.hdWallets) {
+            return HDWalletManagerFactory()
         } else {
-            model = try factory.makeMultipleWallet(
-                walletPublicKeys: walletPublicKeys,
-                entry: token,
-                derivationStyle: card.derivationStyle
-            )
+            return SimpleWalletManagerFactory()
         }
-
-        model.demoBalance = DemoUtil().getDemoBalance(for: model.wallet.blockchain)
-        return model
     }
 }
 

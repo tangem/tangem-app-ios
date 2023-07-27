@@ -23,6 +23,8 @@ protocol UserWalletConfig: OnboardingStepsBuilderFactory, BackupServiceFactory, 
 
     var mandatoryCurves: [EllipticCurve] { get }
 
+    var derivationStyle: DerivationStyle? { get }
+
     var tangemSigner: TangemSigner { get }
 
     var warningEvents: [WarningEvent] { get }
@@ -42,24 +44,20 @@ protocol UserWalletConfig: OnboardingStepsBuilderFactory, BackupServiceFactory, 
 
     var emailData: [EmailCollectedData] { get }
 
-    var cardAmountType: Amount.AmountType? { get }
-
     var userWalletIdSeed: Data? { get }
 
     var productType: Analytics.ProductType { get }
 
     func getFeatureAvailability(_ feature: UserWalletFeature) -> UserWalletFeature.Availability
 
-    func makeWalletModel(for token: StorageEntry) throws -> WalletModel
+    func makeWalletModelsFactory() -> WalletModelsFactory
+
+    func makeAnyWalletManagerFacrory() throws -> AnyWalletManagerFactory
 }
 
 extension UserWalletConfig {
     func hasFeature(_ feature: UserWalletFeature) -> Bool {
         getFeatureAvailability(feature).isAvailable
-    }
-
-    var cardAmountType: Amount.AmountType? {
-        return nil
     }
 
     var tou: TOU {
@@ -73,6 +71,10 @@ extension UserWalletConfig {
 
     var canSkipBackup: Bool {
         true
+    }
+
+    var derivationStyle: DerivationStyle? {
+        return nil
     }
 }
 
