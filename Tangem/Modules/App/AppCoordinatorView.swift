@@ -13,11 +13,8 @@ struct AppCoordinatorView: CoordinatorView {
     @ObservedObject var coordinator: AppCoordinator
 
     var body: some View {
-        BottomSearchableScrollView_Preview.ContentView(data: [String](
-            repeating: Date().timeIntervalSince1970.description,
-            count: 55
-        ))
-//
+        BottomSearchableSheet_Preview.ContentView()
+
 //        NavigationView {
 //            if let welcomeCoordinator = coordinator.welcomeCoordinator {
 //                WelcomeCoordinatorView(coordinator: welcomeCoordinator)
