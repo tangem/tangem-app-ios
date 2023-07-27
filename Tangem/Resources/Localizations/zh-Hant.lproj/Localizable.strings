@@ -76,6 +76,7 @@
 "common_explorer" = "Explorer";
 "common_explorer_format" = "%@ explorer";
 "common_import" = "導入";
+"common_learn_and_earn" = "Learn & Earn";
 "common_like" = "喜歡";
 "common_main_network" = "Main network";
 "common_no" = "否";
@@ -89,6 +90,7 @@
 "common_retry" = "重試";
 "common_save_changes" = "保存設置";
 "common_search" = "搜索";
+"common_search_tokens" = "搜尋代幣";
 "common_seed_phrase" = "Seed phrase";
 "common_select_action" = "選擇";
 "common_sell" = "銷售";
@@ -166,7 +168,6 @@
 "feedback_subject_tx_push_failed" = "無法推送交易";
 "home_button_order" = "訂購";
 "home_button_scan" = "掃描卡片";
-"home_button_search_tokens" = "搜尋代幣";
 "initial_message_change_access_code_body" = "要更改訪問密碼，請完全按照上圖所示連接手機和卡片";
 "initial_message_change_passcode_body" = "要更改密碼，請完全按照上圖所示連接手機和卡";
 "initial_message_create_wallet_body" = "要創建錢包，請完全按照上圖所示連接手機和卡";
@@ -175,16 +176,13 @@
 "key_invalidated_warning_description" = "您已更新生物識別登入，掃描您的卡進入";
 "mail_error_no_accounts_body" = "請設置一個帳戶以發送電子郵件";
 "mail_error_no_accounts_title" = "沒有郵件帳戶";
-"main_get_bonus_subtitle" = "You have completed the training and can get your 1inch tokens";
-"main_get_bonus_title" = "Get a bonus";
-"main_learn_title" = "Learn & Earn";
+"main_get_bonus_subtitle" = "You have completed all of the lessons, and are now eligible to receive your 1INCH tokens";
 "main_manage_tokens" = "管理代幣";
 "main_no_backup_warning_subtitle" = "為了保護您的資產，我們建議您執行此程序";
 "main_no_backup_warning_title" = "您的錢包尚未備份";
 "main_page_balance" = "總餘額";
 "main_processing_full_amount" = "該金額不包括您的部分資金";
-"main_promotion_credited" = "1inch tokens will be credited to your wallet address within 2 days";
-"main_promotion_no_purchase" = "There was no purchase of a wallet using your promo code, which means you cannot receive a bonus. Buy Tangem wallet, scan it in the app, and get the bonus.";
+"main_promotion_credited" = "1INCH tokens will be credited to your %@ wallet address within 24 hours";
 "main_scan_card_warning_view_subtitle" = "要訪問所有的網路您需要掃描卡片";
 "main_scan_card_warning_view_title" = "掃描卡片";
 "main_tokens" = "代幣";
@@ -214,7 +212,7 @@
 "onboarding_button_skip_backup" = "暫時略過";
 "onboarding_button_what_does_it_mean" = "它是如何運作的？";
 "onboarding_create_wallet_body" = "讓我們生成您卡上的所有密鑰並創建一個安全的錢包";
-"onboarding_create_wallet_button_create_wallet" = "創建錢包";
+"onboarding_create_wallet_button_create_wallet" = "創造錢包";
 "onboarding_create_wallet_options_button_options" = "其他選項";
 "onboarding_create_wallet_options_message" = "您的密鑰將在卡內安全生成。沒有種子短語，這意味著沒有人可以導出或竊取它。";
 "onboarding_create_wallet_options_title" = "私下生成密鑰";
@@ -240,18 +238,14 @@
 "onboarding_seed_screenshot_alert" = "由於丟失或被駭客入侵的風險很高，我們不建議將密碼截圖";
 "onboarding_seed_user_validation_message" = "為了檢查您是否正確輸入了助記詞，請輸入第 2、7 和 11 個單詞";
 "onboarding_seed_user_validation_title" = "那麼，讓我們檢查一下";
-"onboarding_subtitle_backup_card" = "您最多可以再備份兩張其他空白錢包";
 "onboarding_subtitle_no_backup_cards" = "要開始備份過程，最多可添加兩張備份卡。";
 "onboarding_subtitle_one_backup_card" = "您可以再添加一張卡或完成備份過程";
 "onboarding_subtitle_scan_backup_card_format" = "準備編號為 %@ 的備份卡";
 "onboarding_subtitle_scan_primary" = "掃描主卡以啟動備份過程";
 "onboarding_subtitle_scan_primary_card_format" = "準備編號為 %@ 的主卡";
-"onboarding_subtitle_success_backup" = "您已經創建了 2 張備用卡，現在這些卡可以使用了";
-"onboarding_subtitle_success_backup_one_card" = "您已創建 1 張備用卡，現在可以使用這些卡了";
 "onboarding_subtitle_success_tangem_wallet_onboarding" = "您的錢包卡已配置完畢，可以使用了";
 "onboarding_subtitle_two_backup_cards" = "已添加至最大數量。完成備份過程";
 "onboarding_title" = "啟用卡片";
-"onboarding_title_backup_card" = "備援錢包";
 "onboarding_title_backup_card_format" = "備份卡 #%li";
 "onboarding_title_no_backup_cards" = "沒有備用卡";
 "onboarding_title_one_backup_card" = "添加了一張備用卡";
@@ -318,7 +312,6 @@
 "scan_card_settings_button" = "掃描卡片";
 "scan_card_settings_message" = "掃描卡片以更改其設置。這些更改只會影響您掃描過的卡，不會影響綁定到您錢包的其他卡。";
 "scan_card_settings_title" = "準備好您的卡!";
-"search_tokens_title" = "搜尋代幣";
 "send_amount_label" = "數量";
 "send_destination_hint_address" = "地址";
 "send_extras_error_invalid_destination_tag" = "標籤無效。它不會被添加到交易中";
@@ -344,7 +337,6 @@
 "shop_other_payment_methods" = "其他付款方式";
 "shop_placing_order" = "下訂";
 "shop_pre_order_now" = "Pre-order now";
-"shop_sold_out_description" = "Due to the high volume of orders we are receiving shipping may be delayed up to 5 weeks depending on your location";
 "shop_total" = "總計";
 "shop_web_checkout_title" = "你的訂單";
 "solana_rent_warning" = "Solana 網絡每 2 天收取 %1$@ 的費用。無法付此費用的帳戶將從網絡中清除。向您的帳戶存入超過 %2$@ 即可免費使用";
@@ -356,9 +348,8 @@
 "story_currencies_title" = "千種虛擬貨幣";
 "story_finish_description" = "隨時隨地使用它，不需要接線或電池，只需要你的卡片和手機";
 "story_finish_title" = "適合每個人的冷錢包";
-"story_learn_description" = "Complete the training, get the opportunity to buy Tangem wallet with a discount and receive 1inch tokens on your wallet";
+"story_learn_description" = "Take three lessons, get a discount on your Tangem Wallet, and receive 1INCH tokens to your wallet";
 "story_learn_learn" = "Learn";
-"story_learn_title" = "Learn and get a bonus";
 "story_meet_borrow" = "借入";
 "story_meet_buy" = "購買";
 "story_meet_exchange" = "交易";
@@ -401,9 +392,6 @@
 "swapping_token_list_title" = "選擇代幣";
 "swapping_token_list_your_tokens" = "您的代幣";
 "swapping_token_not_available" = "無法使用";
-"testnet_address_topuped" = "交易簽署並發送到測試網。稍等片刻後再重新加載餘額";
-"testnet_error_failed_create_tx" = "無法為代幣創建充值交易。稍後再試";
-"testnet_error_not_enough_ether_message" = "ETH 錢包餘額不足。您需要先充值ETH錢包";
 "token_details_hide_alert_hide" = "隱藏";
 "token_details_hide_alert_message" = "您即將在主屏幕上隱藏此代幣。您可以隨時通過管理代幣頁面將其添加回來。";
 "token_details_hide_alert_title" = "隱藏 %@";
@@ -423,7 +411,6 @@
 "transaction_history_transaction_from_address" = "from: %@";
 "transaction_history_transaction_to_address" = "to: %@";
 "transaction_history_tx_in_progress" = "進行中…";
-"twin_error_not_a_twin_card" = "您掃描的不是雙胞胎卡。要創建雙胞胎錢包，您需要掃描 Tangem Twin 卡";
 "twin_error_same_card" = "您掃描了同一張卡片。要創建雙錢包，您需要掃描編號為 %li 的卡";
 "twin_error_wrong_twin" = "你掃描錯了胞胎卡。請嘗試另一個";
 "twins_onboarding_description_format" = "這一個是你手裡拿著的，另一個是編號為 %@ 的，這兩張卡都可以用來從這個錢包中提取資金";
@@ -461,7 +448,6 @@
 "wallet_balance_tx_in_progress" = "交易進行中";
 "wallet_balance_verified" = "檢視餘額";
 "wallet_button_actions" = "動作";
-"wallet_button_create_wallet" = "創造錢包";
 "wallet_choice_wallet_option_title" = "選擇錢包選項";
 "wallet_choose_trade_action" = "您想要購買或賣出交易貨幣?";
 "wallet_connect_alert_sign_message" = "請求籤署消息。%@";
