@@ -15,7 +15,7 @@ enum WalletConnectV2Error: LocalizedError {
     case unsupportedWCMethod(String)
     case dataInWrongFormat(String)
     case notEnoughDataInRequest(String)
-    case walletModelNotFound(Blockchain)
+    case walletModelNotFound(String)
     case missingWalletModelProviderInHandlersFactory
     case missingGasLoader
     case missingEthTransactionSigner
