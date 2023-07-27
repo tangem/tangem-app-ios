@@ -52,7 +52,7 @@ struct OnboardingSeedPhraseUserValidationView: View {
                     .frame(minHeight: containerSize.height - contentSize.height)
 
                 MainButton(
-                    title: Localization.walletButtonCreateWallet,
+                    title: Localization.onboardingCreateWalletButtonCreateWallet,
                     icon: .leading(Assets.tangemIcon),
                     style: .primary,
                     isLoading: false,

@@ -19,7 +19,7 @@ struct LearnAndEarnStoryPage: View {
                         .padding()
 
                     VStack(spacing: 12) {
-                        Text(Localization.storyLearnTitle)
+                        Text(Localization.commonLearnAndEarn)
                             .font(.system(size: 43, weight: .bold))
                             .minimumScaleFactor(0.5)
                             .foregroundColor(.white)
