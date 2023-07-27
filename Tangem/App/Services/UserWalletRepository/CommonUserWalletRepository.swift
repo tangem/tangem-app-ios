@@ -13,7 +13,7 @@ import TangemSdk
 
 class CommonUserWalletRepository: UserWalletRepository {
     @Injected(\.tangemApiService) private var tangemApiService: TangemApiService
-    @Injected(\.walletConnectService) private var walletConnectServiceProvider: WalletConnectService
+    @Injected(\.walletConnectService) private var walletConnectService: WalletConnectService
     @Injected(\.failedScanTracker) var failedCardScanTracker: FailedScanTrackable
     @Injected(\.analyticsContext) var analyticsContext: AnalyticsContext
 
@@ -38,10 +38,9 @@ class CommonUserWalletRepository: UserWalletRepository {
     }
 
     private(set) var models = [UserWalletModel]()
+    private(set) var userWallets: [UserWallet] = []
 
     var isLocked: Bool { userWallets.contains { $0.isLocked } }
-
-    private var userWallets: [UserWallet] = []
 
     private var encryptionKeyByUserWalletId: [Data: SymmetricKey] = [:]
 
@@ -348,6 +347,7 @@ class CommonUserWalletRepository: UserWalletRepository {
             }
         }
 
+        walletConnectService.disconnectAllSessionsForUserWallet(with: userWalletId.toHexString())
         sendEvent(.deleted(userWalletId: userWalletId))
     }
 
@@ -376,7 +376,7 @@ class CommonUserWalletRepository: UserWalletRepository {
 
         analyticsContext.setupContext(with: contextData)
         tangemApiService.setAuthData(cardInfo.card.tangemApiAuthData)
-        walletConnectServiceProvider.initialize(with: cardModel)
+        walletConnectService.initialize(with: cardModel)
     }
 
     private func clearUserWallets() {
@@ -395,7 +395,7 @@ class CommonUserWalletRepository: UserWalletRepository {
 
     // [REDACTED_TODO_COMMENT]
     private func resetServices() {
-        walletConnectServiceProvider.reset()
+        walletConnectService.reset()
         analyticsContext.clearContext()
     }
 
