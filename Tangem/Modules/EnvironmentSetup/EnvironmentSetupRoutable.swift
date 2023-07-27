@@ -1,5 +1,5 @@
 //
-//  ShopDetails.swift
+//  EnvironmentSetupRoutable.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -8,6 +8,6 @@
 
 import Foundation
 
-struct ShopDetails: Decodable {
-    let canOrder: Bool
+protocol EnvironmentSetupRoutable: AnyObject {
+    func openSupportedBlockchainsPreferences()
 }
