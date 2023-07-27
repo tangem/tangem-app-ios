@@ -23,7 +23,7 @@ extension UserWalletConfig where Self: WalletOnboardingStepsBuilderFactory {
             cardId: card.cardId,
             hasWallets: !card.wallets.isEmpty,
             isBackupAllowed: card.settings.isBackupAllowed,
-            isKeysImportAllowed: card.settings.isKeysImportAllowed,
+            isKeysImportAllowed: canImportKeys,
             canBackup: card.backupStatus?.canBackup ?? false,
             hasBackup: card.backupStatus?.isActive ?? false,
             canSkipBackup: canSkipBackup,
