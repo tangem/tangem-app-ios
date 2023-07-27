@@ -113,6 +113,10 @@ extension Wallet2Config: UserWalletConfig {
         .wallet2
     }
 
+    var cardImage: ImageType? {
+        cardsCount == 2 ? Assets.Cards.wallet2Double : Assets.Cards.wallet2Triple
+    }
+
     func getFeatureAvailability(_ feature: UserWalletFeature) -> UserWalletFeature.Availability {
         switch feature {
         case .accessCode:
