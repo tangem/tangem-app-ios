@@ -28,7 +28,7 @@ struct WalletConnectV2PersonalSignHandler {
 
     init(
         request: AnyCodable,
-        blockchain: Blockchain,
+        blockchainId: String,
         signer: WalletConnectSigner,
         walletModelProvider: WalletConnectWalletModelProvider
     ) throws {
@@ -40,7 +40,7 @@ struct WalletConnectV2PersonalSignHandler {
             }
 
             let targetAddress = castedParams[1]
-            walletModel = try walletModelProvider.getModel(with: targetAddress, in: blockchain)
+            walletModel = try walletModelProvider.getModel(with: targetAddress, blockchainId: blockchainId)
         } catch {
             let stringRepresentation = request.stringRepresentation
             AppLog.shared.debug("[WC 2.0] Failed to create sign handler. Raised error: \(error), request data: \(stringRepresentation)")
