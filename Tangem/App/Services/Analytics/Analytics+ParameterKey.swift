@@ -50,11 +50,16 @@ extension Analytics {
         case option
         case feeType = "Fee Type"
         case permissionType = "Permission Type"
-        case destinationAddressValidationResult = "Validation"
+        case validation = "Validation"
         case memo = "Memo"
         case walletsCount = "Wallets Count"
         case exceptionHost = "exception_host"
         case selectedHost = "selected_host"
         case region
+        case clientType = "Client Type"
+        case programName = "Program Name"
+        case dAppName = "DApp Name"
+        case dAppUrl = "DApp Url"
+        case methodName = "Method Name"
     }
 }
