@@ -10,11 +10,9 @@ import SwiftUI
 
 struct OrganizeTokensListFooter: View {
     let viewModel: OrganizeTokensViewModel
-    let tokenListFooterFrameMinY: Binding<CGFloat>
-    let scrollViewBottomContentInset: Binding<CGFloat>
-    let contentHorizontalInset: CGFloat
     let isTokenListFooterGradientHidden: Bool
     let cornerRadius: CGFloat
+    let horizontalInset: CGFloat
 
     var body: some View {
         HStack(spacing: 8.0) {
@@ -32,22 +30,15 @@ struct OrganizeTokensListFooter: View {
                 )
             }
             .background(
-                Colors.Background
-                    .primary
+                Colors.Background.primary
                     .cornerRadiusContinuous(cornerRadius)
             )
         }
-        .padding(.horizontal, contentHorizontalInset)
-        .padding(.bottom, 8.0)
+        .padding(.horizontal, horizontalInset)
         .background(
             OrganizeTokensListFooterOverlayView()
                 .hidden(isTokenListFooterGradientHidden)
+                .padding(.top, -45.0)
         )
-
-        .readGeometry { geometryInfo in
-            tokenListFooterFrameMinY.wrappedValue = geometryInfo.frame.minY
-            scrollViewBottomContentInset.wrappedValue = geometryInfo.size.height
-        }
-        .infinityFrame(alignment: .bottom)
     }
 }
