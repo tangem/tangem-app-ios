@@ -79,7 +79,7 @@ extension NoteConfig: UserWalletConfig {
         .note
     }
 
-    var cardImage: ImageType? {
+    var cardHeaderImage: ImageType? {
         switch defaultBlockchain {
         case .bitcoin: return Assets.Cards.noteBitcoin
         case .ethereum: return Assets.Cards.noteEthereum
