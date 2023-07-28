@@ -88,7 +88,7 @@ extension Start2CoinConfig: UserWalletConfig {
         .start2coin
     }
 
-    var cardImage: ImageType? {
+    var cardHeaderImage: ImageType? {
         Assets.Cards.s2c
     }
 
