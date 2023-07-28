@@ -280,6 +280,8 @@ class CardViewModel: Identifiable, ObservableObject {
         }
     }
 
+    private let _updatePublisher: PassthroughSubject<Void, Never> = .init()
+    private let _cardNamePubliher: CurrentValueSubject<String, Never>
     private var bag = Set<AnyCancellable>()
     private var signSubscription: AnyCancellable?
 
@@ -326,6 +328,7 @@ class CardViewModel: Identifiable, ObservableObject {
 
         _signer = config.tangemSigner
         accessCodeRecoveryEnabled = cardInfo.card.userSettings.isUserCodeRecoveryAllowed
+        _cardNamePubliher = .init(cardInfo.name)
         updateCurrentSecurityOption()
         appendPersistentBlockchains()
         bind()
@@ -558,7 +561,16 @@ extension CardViewModel: UserWalletModel {
 
     func updateWalletName(_ name: String) {
         cardInfo.name = name
+        _cardNamePubliher.send(name)
     }
+}
+
+extension CardViewModel: CardHeaderInfoProvider {
+    var cardImage: ImageType? { nil }
+
+    var isCardLocked: Bool { userWallet.isLocked }
+
+    var cardNamePublisher: AnyPublisher<String, Never> { _cardNamePubliher.eraseToAnyPublisher() }
 }
 
 // [REDACTED_TODO_COMMENT]

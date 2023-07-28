@@ -1,5 +1,5 @@
 //
-//  MultiWalletCardHeaderViewModel.swift
+//  CardHeaderViewModel.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -9,63 +9,83 @@
 import Foundation
 import Combine
 
-final class MultiWalletCardHeaderViewModel: ObservableObject {
-    let isWalletImported: Bool
+final class CardHeaderViewModel: ObservableObject {
     let cardImage: ImageType?
+    let isCardLocked: Bool
 
     @Published private(set) var cardName: String = ""
-    @Published private(set) var numberOfCards: String = ""
+    @Published private(set) var subtitleInfo: CardHeaderSubtitleInfo = .empty
     @Published private(set) var balance: NSAttributedString = .init(string: "")
-    @Published var isLoadingBalance: Bool = true
+    @Published var isLoadingFiatBalance: Bool = true
+    @Published var isLoadingSubtitle: Bool = true
     @Published var showSensitiveInformation: Bool = true
 
-    var isWithCardImage: Bool { cardImage != nil }
+    var showSensitiveSubtitleInformation: Bool {
+        guard isSubtitleContainsSensitiveInformation else {
+            return true
+        }
 
-    private let cardInfoProvider: MultiWalletCardHeaderInfoProvider
+        return showSensitiveInformation
+    }
+
+    private let isSubtitleContainsSensitiveInformation: Bool
+
+    private let cardInfoProvider: CardHeaderInfoProvider
+    private let cardSubtitleProvider: CardHeaderSubtitleProvider
     private let balanceProvider: TotalBalanceProviding
 
     private var bag: Set<AnyCancellable> = []
 
     init(
-        cardInfoProvider: MultiWalletCardHeaderInfoProvider,
+        cardInfoProvider: CardHeaderInfoProvider,
+        cardSubtitleProvider: CardHeaderSubtitleProvider,
         balanceProvider: TotalBalanceProviding
     ) {
         self.cardInfoProvider = cardInfoProvider
+        self.cardSubtitleProvider = cardSubtitleProvider
         self.balanceProvider = balanceProvider
 
-        isWalletImported = cardInfoProvider.isWalletImported
+        isCardLocked = cardInfoProvider.isCardLocked
         cardImage = cardInfoProvider.cardImage
+        isSubtitleContainsSensitiveInformation = cardSubtitleProvider.containsSensitiveInfo
         bind()
     }
 
     private func bind() {
         cardInfoProvider.cardNamePublisher
             .receive(on: DispatchQueue.main)
-            .weakAssign(to: \.cardName, on: self)
+            .assign(to: \.cardName, on: self, ownership: .weak)
             .store(in: &bag)
 
-        cardInfoProvider.numberOfCardsPublisher
+        cardSubtitleProvider.isLoadingPublisher
             .receive(on: DispatchQueue.main)
-            .sink { [weak self] numberOfCards in
-                self?.numberOfCards = Localization.cardLabelCardCount(numberOfCards)
-            }
+            .assign(to: \.isLoadingSubtitle, on: self, ownership: .weak)
+            .store(in: &bag)
+
+        cardSubtitleProvider.subtitlePublisher
+            .receive(on: DispatchQueue.main)
+            .assign(to: \.subtitleInfo, on: self, ownership: .weak)
             .store(in: &bag)
 
         balanceProvider.totalBalancePublisher()
             .receive(on: DispatchQueue.main)
             .sink { [weak self] newValue in
+                if self?.cardInfoProvider.isCardLocked ?? false {
+                    return
+                }
+
                 switch newValue {
                 case .loading:
-                    self?.isLoadingBalance = true
+                    self?.isLoadingFiatBalance = true
                 case .loaded(let balance):
-                    self?.isLoadingBalance = false
+                    self?.isLoadingFiatBalance = false
 
                     let balanceFormatter = BalanceFormatter()
                     let fiatBalanceFormatted = balanceFormatter.formatFiatBalance(balance.balance, formattingOptions: .defaultFiatFormattingOptions)
                     self?.balance = balanceFormatter.formatTotalBalanceForMain(fiatBalance: fiatBalanceFormatted, formattingOptions: .defaultOptions)
                 case .failedToLoad(let error):
                     AppLog.shared.debug("Failed to load total balance. Reason: \(error)")
-                    self?.isLoadingBalance = false
+                    self?.isLoadingFiatBalance = false
 
                     self?.balance = NSAttributedString(string: BalanceFormatter.defaultEmptyBalanceString)
                 }
