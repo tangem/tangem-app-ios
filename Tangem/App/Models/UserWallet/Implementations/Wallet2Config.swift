@@ -59,6 +59,10 @@ extension Wallet2Config: UserWalletConfig {
         return false
     }
 
+    var canImportKeys: Bool {
+        card.settings.isKeysImportAllowed && FeatureProvider.isAvailable(.importSeedPhrase)
+    }
+
     var supportedBlockchains: Set<Blockchain> {
         let allBlockchains = SupportedBlockchains(version: .v2).blockchains()
         return allBlockchains.filter { card.walletCurves.contains($0.curve) }
@@ -70,7 +74,7 @@ extension Wallet2Config: UserWalletConfig {
 
         let entries: [StorageEntry] = blockchains.map {
             if let derivationStyle = derivationStyle {
-                let derivationPath = $0.derivationPaths(for: derivationStyle)[.default]
+                let derivationPath = $0.derivationPath(for: derivationStyle)
                 let network = BlockchainNetwork($0, derivationPath: derivationPath)
                 return .init(blockchainNetwork: network, tokens: [])
             }
