@@ -87,7 +87,7 @@ extension TwinConfig: UserWalletConfig {
         .twin
     }
 
-    var cardImage: ImageType? {
+    var cardHeaderImage: ImageType? {
         Assets.Cards.twin
     }
 
