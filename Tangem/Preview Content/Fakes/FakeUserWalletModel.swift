@@ -11,8 +11,6 @@ import Combine
 import BlockchainSdk
 
 class FakeUserWalletModel: UserWalletModel, ObservableObject {
-    @Published var cardName: String
-
     let walletModelsManager: WalletModelsManager
     let userTokenListManager: UserTokenListManager
     let totalBalanceProvider: TotalBalanceProviding
@@ -24,10 +22,13 @@ class FakeUserWalletModel: UserWalletModel, ObservableObject {
     let userWalletId: UserWalletId
     var cardsCount: Int
 
+    var cardName: String { _cardNamePublisher.value }
+
     var tokensCount: Int? { walletModelsManager.walletModels.filter { !$0.isMainToken }.count }
     var updatePublisher: AnyPublisher<Void, Never> { _updatePublisher.eraseToAnyPublisher() }
 
     private let _updatePublisher: PassthroughSubject<Void, Never> = .init()
+    private let _cardNamePublisher: CurrentValueSubject<String, Never>
 
     internal init(
         cardName: String,
@@ -38,11 +39,11 @@ class FakeUserWalletModel: UserWalletModel, ObservableObject {
         walletModels: [WalletModel],
         userWallet: UserWallet
     ) {
-        self.cardName = cardName
         self.isMultiWallet = isMultiWallet
         self.isCardLocked = isCardLocked
         self.cardsCount = cardsCount
         self.userWalletId = userWalletId
+        self._cardNamePublisher = .init(cardName)
         walletModelsManager = WalletModelsManagerMock()
         userTokenListManager = CommonUserTokenListManager(hasTokenSynchronization: false, userWalletId: userWalletId.value, hdWalletsSupported: true)
         totalBalanceProvider = TotalBalanceProviderMock()
@@ -52,12 +53,20 @@ class FakeUserWalletModel: UserWalletModel, ObservableObject {
     func initialUpdate() {}
 
     func updateWalletName(_ name: String) {
-        cardName = name
+        _cardNamePublisher.send(name)
         _updatePublisher.send(())
     }
 
     func totalBalancePublisher() -> AnyPublisher<LoadingValue<TotalBalanceProvider.TotalBalance>, Never> {
         return .just(output: .loading)
+    }
+}
+
+extension FakeUserWalletModel: CardHeaderInfoProvider {
+    var cardNamePublisher: AnyPublisher<String, Never> { _cardNamePublisher.eraseToAnyPublisher() }
+
+    var cardImage: ImageType? {
+        nil
     }
 }
 
