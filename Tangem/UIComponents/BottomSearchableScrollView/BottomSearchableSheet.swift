@@ -9,44 +9,109 @@
 import SwiftUI
 import Combine
 
-struct BottomSearchableSheet<Content: View>: View {
-    @Binding var searchText: String
-    @Binding var percent: CGFloat {
+class BottomSearchableSheetCoordinator: ObservableObject {
+    @Published var bottomSheet: BottomSheetContainer_Previews.BottomSheetViewModel?
+
+    func toggleItem() {
+        if bottomSheet == nil {
+            bottomSheet = .init { [weak self] in
+                self?.bottomSheet = nil
+            }
+        } else {
+            bottomSheet = nil
+        }
+    }
+}
+
+class BottomSearchableSheetStateObject: ObservableObject {
+    @Published var percent: CGFloat = .zero {
         didSet {
             print("percent ->>", percent)
         }
     }
 
-    @ViewBuilder let content: () -> Content
-
-    @State private var state: SheetState = .bottom {
+    @Published var state: SheetState = .top {
         didSet {
             print("state ->>", state)
         }
     }
 
-    @State private var visibleHeight: CGFloat = 0 {
+    @Published var visibleHeight: CGFloat = 0 {
         didSet {
             print("visibleHeight ->>", visibleHeight)
             percent = (visibleHeight - headerSize - 34) / 500
         }
     }
 
-    @State private var isKeyboardVisible: Bool = false
-    @State private var scrollViewIsDragging: Bool = false {
+    @Published var scrollViewIsDragging: Bool = false {
         didSet {
             print("scrollViewIsDragging", scrollViewIsDragging)
         }
     }
 
-    @State private var scrollViewStartDraggingOffset: CGPoint = .zero {
+    @Published var scrollViewStartDraggingOffset: CGPoint = .zero {
         didSet {
             print("scrollViewStartDraggingOffset", scrollViewStartDraggingOffset)
         }
     }
-    @State private var headerSize: CGFloat = 44
-    @State private var contentOffset: CGPoint = .zero
-    @State private var contentSize: CGSize = .zero
+
+    @Published var headerSize: CGFloat = 44
+    @Published var contentOffset: CGPoint = .zero {
+        didSet {
+            print("contentOffset", contentOffset)
+        }
+    }
+
+    private var keyboardCancellable: AnyCancellable?
+
+    init() {}
+
+    private func bindKeyboard() {
+        keyboardCancellable = Publishers.Merge(
+            NotificationCenter
+                .default
+                .publisher(for: UIResponder.keyboardWillShowNotification)
+                .map { _ in true },
+            NotificationCenter
+                .default
+                .publisher(for: UIResponder.keyboardDidHideNotification)
+                .map { _ in false }
+        )
+        .sink { [weak self] isKeyboardVisible in
+            print("Is keyboard visible? ", isKeyboardVisible)
+            if isKeyboardVisible {
+                self?.state = .top
+            }
+        }
+    }
+}
+
+extension BottomSearchableSheetStateObject {
+    enum SheetState: String, Hashable {
+        case top
+        case bottom
+    }
+}
+
+struct BottomSearchableSheet<Content: View>: View {
+    @Binding var searchText: String
+    @ObservedObject var coordinator: BottomSearchableSheetCoordinator
+    @ObservedObject var stateObject: BottomSearchableSheetStateObject
+    @ViewBuilder let content: () -> Content
+
+    private let scrollViewCoordinateNamespace = UUID().uuidString
+
+//    init(
+//        coordinator: BottomSearchableSheetCoordinator,
+//        searchText: String,
+//        percent: CGFloat,
+//        content: @escaping () -> Content
+//    ) {
+//        self.coordinator = coordinator
+//        self.searchText = searchText
+//        self.percent = percent
+//        self.content = content
+//    }
 
     private let handHeight: CGFloat = 20
     private let indicatorSize = CGSize(width: 32, height: 4)
@@ -54,33 +119,33 @@ struct BottomSearchableSheet<Content: View>: View {
     var body: some View {
         GeometryReader { proxy in
             ZStack(alignment: .bottom) {
-                Color.black.opacity(min(percent, 0.4))
+                Color.black.opacity(min(stateObject.percent, 0.4))
                     .ignoresSafeArea(.all)
 
                 sheet(proxy: proxy)
+
+                NavHolder()
+                    .bottomSheet(item: $coordinator.bottomSheet) {
+                        BottomSheetContainer_Previews.BottomSheetView(viewModel: $0)
+                    }
             }
             .frame(
                 width: proxy.size.width,
                 height: proxy.size.height + proxy.safeAreaInsets.vertical,
                 alignment: .bottom
             )
-            .border(Color.orange, width: 3)
+//            .border(Color.orange, width: 3)
             .ignoresSafeArea(.all, edges: .all)
             .onAppear {
                 updateToState(proxy: proxy)
             }
-            .onReceive(keyboardPublisher) { newIsKeyboardVisible in
-                print("Is keyboard visible? ", newIsKeyboardVisible)
-                isKeyboardVisible = newIsKeyboardVisible
-                if newIsKeyboardVisible {
-                    state = .top
-                    updateToState(proxy: proxy)
-                }
-            }
+            .onChange(of: stateObject.state, perform: { _ in
+                updateToState(proxy: proxy)
+            })
         }
     }
 
-    func sheet(proxy: GeometryProxy) -> some View {
+    private func sheet(proxy: GeometryProxy) -> some View {
         ZStack(alignment: .bottom) {
             Color.white
 
@@ -90,13 +155,12 @@ struct BottomSearchableSheet<Content: View>: View {
                 scrollView(proxy: proxy)
             }
         }
-        .frame(height: visibleHeight, alignment: .bottom)
-//        .cornerRadius(28, corners: [.topLeft, .topRight])
-        .cornerRadius(28)
-        .border(Color.orange, width: 3)
+        .frame(height: stateObject.visibleHeight, alignment: .bottom)
+        .cornerRadius(28, corners: [.topLeft, .topRight])
+//        .border(Color.orange, width: 3)
     }
 
-    func headerView(proxy: GeometryProxy) -> some View {
+    private func headerView(proxy: GeometryProxy) -> some View {
         VStack(spacing: .zero) {
             indicator
 
@@ -106,9 +170,9 @@ struct BottomSearchableSheet<Content: View>: View {
                 .background(Color.secondary.opacity(0.4))
                 .cornerRadius(14)
                 .padding(.horizontal)
-                .padding(.vertical, 8)
+//                .padding(.vertical, 8)
         }
-        .readGeometry(\.size.height, bindTo: $headerSize)
+        .readGeometry(\.size.height, bindTo: $stateObject.headerSize)
         .gesture(dragGesture(proxy: proxy))
     }
 
@@ -120,65 +184,44 @@ struct BottomSearchableSheet<Content: View>: View {
         }
         .frame(maxWidth: .infinity)
         .frame(height: handHeight)
-        .background(Color.purple.opacity(0.5))
+//        .background(Color.purple.opacity(0.5))
     }
 
     private var axes: Axis.Set {
-        return scrollViewIsDragging ? [] : .vertical
+        return stateObject.scrollViewIsDragging ? [] : .vertical
     }
 
-    func scrollView(proxy: GeometryProxy) -> some View {
-        ScrollView(axes, showsIndicators: true) {
+    private func scrollView(proxy: GeometryProxy) -> some View {
+        ScrollView(axes, showsIndicators: false) {
             VStack(spacing: .zero) {
                 offsetReader
 
                 content()
-                    .readGeometry(\.size, bindTo: $contentSize)
-                    .background(Color.green.opacity(0.2))
+//                    .background(Color.green.opacity(0.2))
             }
             .overlay(contentDragGesture(proxy: proxy))
         }
-        .coordinateSpace(name: "ScrollView")
+        .coordinateSpace(name: scrollViewCoordinateNamespace)
         .onPreferenceChange(OffsetPreferenceKey.self) { point in
-            print("contentOffset", point)
-            contentOffset = point
+            stateObject.contentOffset = point
         }
+    }
+
+    private func testGesture() -> some Gesture {
+        DragGesture(minimumDistance: 30, coordinateSpace: .global)
+            .onChanged { value in
+                print("onChanged", value.translation.height)
+            }
+            .onEnded { value in
+                print("onEnded", value.translation.height)
+            }
     }
 
     private func contentDragGesture(proxy: GeometryProxy) -> ClearDragGestureView {
         ClearDragGestureView(onChanged: { value in
-            UIApplication.shared.keyWindow?.endEditing(true)
-
-//                    print("onChanged", value)
-//                    print("value.translation.height", value.translation.height)
-            let translationChange = value.translation.height
-            if scrollViewStartDraggingOffset.y >= .zero, translationChange > 0 {
-                if !scrollViewIsDragging {
-                    scrollViewIsDragging = true
-                }
-                print("value.translation.height", translationChange)
-                withAnimation(.interactiveSpring()) {
-                    visibleHeight = currentHeight(proxy: proxy) - translationChange
-                }
-            }
-//            else {
-//                scrollViewStartDraggingOffset = contentOffset
-//            }
-
+            contentDragGesture(onChanged: value, proxy: proxy)
         }, onEnded: { value in
-            if scrollViewStartDraggingOffset.y >= .zero {
-                if visibleHeight < height(for: .top, proxy: proxy) * 0.5 {
-                    state = .bottom
-                }
-                updateToState(proxy: proxy)
-            }
-
-            if scrollViewIsDragging {
-//                withAnimation(nil) {
-                scrollViewIsDragging = false
-//                }
-            }
-            scrollViewStartDraggingOffset = contentOffset
+            contentDragGesture(onEnded: value, proxy: proxy)
         })
     }
 
@@ -190,84 +233,31 @@ struct BottomSearchableSheet<Content: View>: View {
 //                }
 
 //                let dragValue = value.translation.height - previousDragTranslation.height
-//                let locationChange = value.startLocation.y - value.location.y
+                let locationChange = value.startLocation.y - value.location.y
 //                print("locationChange", locationChange)
 //                print("gesture.location ->>", value.location)
 //                print("gesture.translation ->>", value.translation)
 //                print("gesture.startLocation ->>", value.startLocation)
                 UIApplication.shared.keyWindow?.endEditing(true)
                 withAnimation(.interactiveSpring()) {
-                    let newHeight = currentHeight(proxy: proxy) - value.translation.height
-                    let maxHeight = proxy.size.height + proxy.safeAreaInsets.top
-                    visibleHeight = newHeight // min(newHeight, maxHeight)
-                }
-//                if locationChange > 0 {
-//                    stateObject.offset += dragValue / 3
-//                } else {
-//                    stateObject.offset += dragValue
-//                }
+                    var heightChange = value.translation.height
+                    if locationChange > 0 {
+                        heightChange /= 3
+                    }
 
-//                stateObject.previousDragTranslation = value.translation
+                    let newHeight = currentHeight(proxy: proxy) - heightChange
+                    stateObject.visibleHeight = newHeight
+                }
             }
             .onEnded { value in
 //                stateObject.previousDragTranslation = .zero
 //                stateObject.isDragging = false
-
-                print("value.predictedEndLocation ->>", value.predictedEndLocation)
-                print("value.location ->>", value.location)
-                print("value.translation.height ->>", value.translation.height)
+//                print("value.predictedEndLocation ->>", value.predictedEndLocation)
+//                print("value.location ->>", value.location)
+//                print("value.translation.height ->>", value.translation.height)
 
                 updateSheetFor(predictedEndLocation: value.predictedEndLocation, proxy: proxy)
             }
-    }
-
-    func updateSheetFor(
-        predictedEndLocation: CGPoint,
-        proxy: GeometryProxy
-    ) {
-        let topAnchorLine = proxy.size.height / 2
-        let bottomAnchorLine = proxy.size.height / 2
-
-        switch predictedEndLocation.y {
-        case ...topAnchorLine:
-            state = .top
-//                case topAnchorLine ... bottomAnchorLine:
-//                    state = .middle
-        case bottomAnchorLine...:
-            state = .bottom
-        default:
-//            print("Ended location outside screen \(value.location.y)")
-            state = .bottom
-        }
-
-        updateToState(proxy: proxy)
-    }
-
-    func height(for state: SheetState, proxy: GeometryProxy) -> CGFloat {
-        print("proxy.safeAreaInsets ->>", proxy.safeAreaInsets)
-        print("proxy.size ->>", proxy.size)
-        print("proxy.size.frame ->>", proxy.frame(in: .global).size)
-
-        switch state {
-        case .bottom:
-            return headerSize // proxy.safeAreaInsets.bottom
-//        case .middle:
-//            return proxy.size.height / 2 + proxy.safeAreaInsets.bottom
-        case .top:
-            return proxy.size.height + proxy.safeAreaInsets.bottom
-        case .hidden:
-            return 0
-        }
-    }
-
-    func currentHeight(proxy: GeometryProxy) -> CGFloat {
-        height(for: state, proxy: proxy)
-    }
-
-    func updateToState(proxy: GeometryProxy) {
-        withAnimation(.easeOut) {
-            visibleHeight = currentHeight(proxy: proxy)
-        }
     }
 
     var offsetReader: some View {
@@ -275,19 +265,90 @@ struct BottomSearchableSheet<Content: View>: View {
             Color.clear
                 .preference(
                     key: OffsetPreferenceKey.self,
-                    value: proxy.frame(in: .named("ScrollView")).origin
+                    value: proxy.frame(in: .named(scrollViewCoordinateNamespace)).origin
                 )
         }
         .frame(height: 0)
     }
 }
 
+// MARK: - Methods
+
 extension BottomSearchableSheet {
-    enum SheetState: String, Hashable {
-        case top
-//        case middle
-        case bottom
-        case hidden
+    func updateSheetFor(
+        predictedEndLocation: CGPoint,
+        proxy: GeometryProxy
+    ) {
+        let centerLine = proxy.size.height / 2
+        // If the ended location below the center line
+        if predictedEndLocation.y > centerLine {
+            stateObject.state = .bottom
+        } else {
+            stateObject.state = .top
+        }
+
+        updateToState(proxy: proxy)
+    }
+
+    func height(for state: BottomSearchableSheetStateObject.SheetState, proxy: GeometryProxy) -> CGFloat {
+        print("proxy.safeAreaInsets ->>", proxy.safeAreaInsets)
+        print("proxy.size ->>", proxy.size)
+        print("proxy.size.frame ->>", proxy.frame(in: .global).size)
+
+        switch state {
+        case .bottom:
+            return stateObject.headerSize + 12 // proxy.safeAreaInsets.bottom
+//        case .middle:
+//            return proxy.size.height / 2 + proxy.safeAreaInsets.bottom
+        case .top:
+            return proxy.size.height + proxy.safeAreaInsets.bottom
+        }
+    }
+
+    func currentHeight(proxy: GeometryProxy) -> CGFloat {
+        height(for: stateObject.state, proxy: proxy)
+    }
+
+    func updateToState(proxy: GeometryProxy) {
+        withAnimation(.easeOut) {
+            stateObject.visibleHeight = currentHeight(proxy: proxy)
+        }
+    }
+
+    func contentDragGesture(onChanged value: ClearDragGestureView.Value, proxy: GeometryProxy) {
+        UIApplication.shared.keyWindow?.endEditing(true)
+
+//        print("onChanged", value)
+//        print("value.translation.height", value.translation.height)
+        var translationChange = value.translation.height
+        if stateObject.scrollViewStartDraggingOffset.y >= .zero, translationChange > 0 {
+            if !stateObject.scrollViewIsDragging {
+                stateObject.scrollViewIsDragging = true
+            }
+
+            if translationChange < 0 {
+                translationChange /= 10
+            }
+
+            print("value.translation.height", translationChange)
+            withAnimation(.interactiveSpring()) {
+                stateObject.visibleHeight = currentHeight(proxy: proxy) - translationChange
+            }
+        }
+    }
+
+    func contentDragGesture(onEnded value: ClearDragGestureView.Value, proxy: GeometryProxy) {
+        if stateObject.scrollViewStartDraggingOffset.y >= .zero {
+            if stateObject.visibleHeight < height(for: .top, proxy: proxy) * 0.5 {
+                stateObject.state = .bottom
+            }
+            updateToState(proxy: proxy)
+        }
+
+        if stateObject.scrollViewIsDragging {
+            stateObject.scrollViewIsDragging = false
+        }
+        stateObject.scrollViewStartDraggingOffset = stateObject.contentOffset
     }
 }
 
@@ -298,9 +359,9 @@ public struct BottomSearchableSheet_Preview: PreviewProvider {
 
     public struct ContentView: View {
         let data: [String]
-//        [REDACTED_USERNAME] private var focused: Bool
+        private var coordinator = BottomSearchableSheetCoordinator()
+        private var stateObject = BottomSearchableSheetStateObject()
         @State private var text: String = ""
-        @State private var percent: CGFloat = 0
 
         public init() {
             data = [
@@ -361,17 +422,25 @@ public struct BottomSearchableSheet_Preview: PreviewProvider {
             ZStack(alignment: .bottom) {
                 Color.blue.brightness(0.2)
                     .cornerRadius(14)
-                    .scaleEffect(min(1, abs(1 - percent / 30)), anchor: .bottom)
+                    .scaleEffect(min(1, abs(1 - stateObject.percent / 30)), anchor: .bottom)
                     .edgesIgnoringSafeArea(.all)
 
-                BottomSearchableSheet(searchText: $text, percent: $percent) {
+                BottomSearchableSheet(
+                    searchText: $text,
+                    coordinator: coordinator,
+                    stateObject: stateObject
+                ) {
                     LazyVStack(spacing: .zero) {
                         ForEach(data.filter { text.isEmpty ? true : $0.contains(text.lowercased()) }, id: \.self) { index in
-                            Text(index)
-                                .font(.title3)
-                                .foregroundColor(Color.black.opacity(0.8))
-                                .frame(maxWidth: .infinity, alignment: .leading)
-                                .padding(.all)
+                            Button {
+                                coordinator.toggleItem()
+                            } label: {
+                                Text(index)
+                                    .font(.title3)
+                                    .foregroundColor(Color.black.opacity(0.8))
+                                    .frame(maxWidth: .infinity, alignment: .leading)
+                                    .padding(.all)
+                            }
 
                             Color.black
                                 .opacity(0.2)
