@@ -19,9 +19,14 @@ class ReferralViewModel: ObservableObject {
     @Published var errorAlert: AlertBinder?
     @Published var showCodeCopiedToast: Bool = false
 
+    @Published var expectedAwardsExpanded = false
+
     private weak var coordinator: ReferralRoutable?
     private let userTokensManager: UserTokensManager
     private let userWalletId: Data
+
+    private let expectedAwardsFetchLimit = 30
+    private let expectedAwardsShortListLimit = 3
 
     private var shareLink: String {
         guard let referralInfo = referralProgramInfo?.referral else {
@@ -108,7 +113,7 @@ class ReferralViewModel: ObservableObject {
             let referralProgramInfo: ReferralProgramInfo? = try await runInTask { [weak self] in
                 guard let self else { return nil }
 
-                return try await tangemApiService.loadReferralProgramInfo(for: userWalletId.hexString)
+                return try await tangemApiService.loadReferralProgramInfo(for: userWalletId.hexString, expectedAwardsLimit: expectedAwardsFetchLimit)
             }
             self.referralProgramInfo = referralProgramInfo
         } catch {
@@ -158,9 +163,62 @@ extension ReferralViewModel {
         return Localization.referralPointDiscountDescriptionValue("\(info.conditions.discount.amount)\(info.conditions.discount.type.symbol)")
     }
 
+    var hasPurchases: Bool {
+        let count = referralProgramInfo?.referral?.walletsPurchased ?? 0
+        return count > 0
+    }
+
     var numberOfWalletsBought: String {
         let count = referralProgramInfo?.referral?.walletsPurchased ?? 0
         return Localization.referralWalletsPurchasedCount(count)
+    }
+
+    var hasExpectedAwards: Bool {
+        let count = referralProgramInfo?.expectedAwards?.numberOfWallets ?? 0
+        return count > 0
+    }
+
+    var numberOfWalletsForPayments: String {
+        let count = referralProgramInfo?.expectedAwards?.numberOfWallets ?? 0
+        return Localization.referralNumberOfWallets(count)
+    }
+
+    var expectedAwards: [ExpectedAward] {
+        guard let list = referralProgramInfo?.expectedAwards?.list else {
+            return []
+        }
+
+        let dateParser = DateFormatter()
+        dateParser.dateFormat = "yyyy-MM-dd"
+
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateStyle = .medium
+        dateFormatter.doesRelativeDateFormatting = true
+
+        let awards: [ExpectedAward] = list.map {
+            let amount = "\($0.amount) \($0.currency)"
+
+            guard
+                let date = dateParser.date(from: $0.paymentDate)
+            else {
+                return ExpectedAward(date: $0.paymentDate, amount: amount)
+            }
+
+            let formattedDate = dateFormatter.string(from: date)
+            return ExpectedAward(date: formattedDate, amount: amount)
+        }
+
+        let awardsToShow = expectedAwardsExpanded ? expectedAwardsFetchLimit : expectedAwardsShortListLimit
+        return Array(awards.prefix(awardsToShow))
+    }
+
+    var canExpandExpectedAwards: Bool {
+        let list = referralProgramInfo?.expectedAwards?.list ?? []
+        return list.count > expectedAwardsShortListLimit
+    }
+
+    var expandButtonText: String {
+        expectedAwardsExpanded ? Localization.referralLess : Localization.referralMore
     }
 
     var promoCode: String {
@@ -197,5 +255,12 @@ extension ReferralViewModel {
 
         Analytics.log(.referralButtonOpenTos)
         coordinator?.openTOS(with: url)
+    }
+}
+
+extension ReferralViewModel {
+    struct ExpectedAward {
+        let date: String
+        let amount: String
     }
 }
