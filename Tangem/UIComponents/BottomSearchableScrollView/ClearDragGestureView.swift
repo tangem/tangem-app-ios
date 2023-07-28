@@ -100,7 +100,7 @@ public struct ClearDragGestureView: UIViewRepresentable {
             }
         }
 
-        private func getGlobalView() -> UIView? {
+        func getGlobalView() -> UIView? {
             //        getting the all scenes
             let scenes = UIApplication.shared.connectedScenes
             //        getting windowScene from scenes
@@ -119,14 +119,21 @@ public struct ClearDragGestureView: UIViewRepresentable {
     }
 
     public func makeUIView(context: UIViewRepresentableContext<ClearDragGestureView>) -> UIView {
-        let view = UIView()
-        view.backgroundColor = .clear
+        let view = context.coordinator.getGlobalView()!
+//        view.backgroundColor = .purple.withAlphaComponent(0.5)
+//        view.isUserInteractionEnabled = true
 
         let drag = UIPanGestureRecognizer(target: context.coordinator, action: #selector(Coordinator.gestureRecognizerPanned))
         drag.delegate = context.coordinator
+//        let tapGesture = UITapGestureRecognizer()
+//        tapGesture.delegate = context.coordinator
+
+//        view.addGestureRecognizer(tapGesture)
         view.addGestureRecognizer(drag)
 
-        return view
+        let view2 = UIView()
+        view2.backgroundColor = .clear
+        return view2
     }
 
     public func updateUIView(
