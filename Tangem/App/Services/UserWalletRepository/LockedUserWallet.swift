@@ -10,14 +10,19 @@ import Foundation
 import Combine
 
 class LockedUserWallet: UserWalletModel {
-    var walletModelsManager: WalletModelsManager = WalletModelsManagerMock()
+    let walletModelsManager: WalletModelsManager = LockedWalletModelsManager()
+    let userTokenListManager: UserTokenListManager = LockedUserTokenListManager()
     var signer: TangemSigner
 
     var tokensCount: Int? { nil }
 
+    var cardsCount: Int { config.cardsCount }
+
     var isMultiWallet: Bool { config.hasFeature(.multiCurrency) }
 
     var userWalletId: UserWalletId { .init(value: userWallet.userWalletId) }
+
+    var updatePublisher: AnyPublisher<Void, Never> { .just }
 
     private(set) var userWallet: UserWallet
 
