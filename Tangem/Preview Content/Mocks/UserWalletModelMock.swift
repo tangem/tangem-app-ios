@@ -10,6 +10,10 @@ import Combine
 import BlockchainSdk
 
 class UserWalletModelMock: UserWalletModel {
+    var cardImage: ImageType?
+
+    var isCardLocked: Bool { false }
+
     var signer: TangemSigner = .init(with: nil, sdk: .init())
 
     var walletModelsManager: WalletModelsManager { WalletModelsManagerMock() }
@@ -23,6 +27,10 @@ class UserWalletModelMock: UserWalletModel {
     var userWallet: UserWallet {
         UserWallet(userWalletId: Data(), name: "", card: .init(card: .walletWithBackup), associatedCardIds: [], walletData: .none, artwork: nil, isHDWalletAllowed: false)
     }
+
+    var updatePublisher: AnyPublisher<Void, Never> { .just }
+    
+    var cardNamePublisher: AnyPublisher<String, Never> { .just(output: "") }
 
     func initialUpdate() {}
     func updateWalletName(_ name: String) {}
