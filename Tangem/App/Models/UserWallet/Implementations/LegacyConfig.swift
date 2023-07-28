@@ -140,7 +140,7 @@ extension LegacyConfig: UserWalletConfig {
         .other
     }
 
-    var cardImage: ImageType? {
+    var cardHeaderImage: ImageType? {
         if walletData == nil {
             return Assets.Cards.multiWalletWhite
         }
