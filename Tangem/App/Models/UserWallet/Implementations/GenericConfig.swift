@@ -120,7 +120,7 @@ extension GenericConfig: UserWalletConfig {
         card.firmwareVersion.doubleValue >= 4.39 ? .wallet : .other
     }
 
-    var cardImage: ImageType? {
+    var cardHeaderImage: ImageType? {
         Assets.Cards.wallet
     }
 
