@@ -1,5 +1,5 @@
 //
-//  MultiWalletCardHeaderView.swift
+//  CardHeaderView.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -8,11 +8,12 @@
 
 import SwiftUI
 
-struct MultiWalletCardHeaderView: View {
-    @ObservedObject var viewModel: MultiWalletCardHeaderViewModel
+struct CardHeaderView: View {
+    @ObservedObject var viewModel: CardHeaderViewModel
 
     private let imageSize: CGSize = .init(width: 120, height: 106)
     private let horizontalSpacing: CGFloat = 6
+    @State var subtitleLoading = true
 
     var body: some View {
         GeometryReader { proxy in
@@ -26,21 +27,21 @@ struct MultiWalletCardHeaderView: View {
                         .scaledToFit()
                         .minimumScaleFactor(0.5)
                         .showSensitiveInformation(viewModel.showSensitiveInformation)
-                        .skeletonable(isShown: viewModel.isLoadingBalance, size: .init(width: 102, height: 24), radius: 6)
+                        .skeletonable(
+                            isShown: viewModel.isCardLocked || viewModel.isLoadingFiatBalance,
+                            size: .init(width: 102, height: 24),
+                            radius: 6
+                        )
                         .style(Fonts.Bold.title1, color: Colors.Text.primary1)
                         .frame(height: 34)
 
-                    HStack(spacing: 6) {
-                        Text(viewModel.numberOfCards)
-
-                        if viewModel.isWalletImported {
-                            Text("•")
-
-                            Text(Localization.commonSeedPhrase)
-                        }
+                    if viewModel.isCardLocked {
+                        subtitleText
+                    } else {
+                        subtitleText
+                            .showSensitiveInformation(viewModel.showSensitiveSubtitleInformation)
+                            .skeletonable(isShown: subtitleLoading, size: .init(width: 52, height: 12), radius: 3)
                     }
-                    .style(Fonts.Regular.caption2, color: Colors.Text.disabled)
-                    .fixedSize()
                 }
                 .lineLimit(1)
                 .frame(width: leadingContentWidth(containerWidth: proxy.size.width), alignment: .leading)
@@ -55,16 +56,29 @@ struct MultiWalletCardHeaderView: View {
                 }
             }
         }
+        .onTapGesture {
+            subtitleLoading.toggle()
+        }
+        .animation(.easeOut, value: subtitleLoading)
         .frame(height: imageSize.height)
         .padding(.horizontal, 14)
         .background(Colors.Background.primary)
         .cornerRadiusContinuous(14)
     }
 
+    private var subtitleText: some View {
+        Text(viewModel.subtitleInfo.message)
+            .style(
+                viewModel.subtitleInfo.formattingOption.font,
+                color: viewModel.subtitleInfo.formattingOption.textColor
+            )
+            .fixedSize()
+    }
+
     private func leadingContentWidth(containerWidth: CGFloat) -> CGFloat {
         var trailingOffset: CGFloat = 0
 
-        if viewModel.isWithCardImage {
+        if viewModel.cardImage != nil {
             trailingOffset = imageSize.width + horizontalSpacing
         }
 
@@ -86,7 +100,7 @@ struct CardHeaderView_Previews: PreviewProvider {
                         provider.models.indices,
                         id: \.self,
                         content: { index in
-                            MultiWalletCardHeaderView(viewModel: provider.models[index])
+                            CardHeaderView(viewModel: provider.models[index])
                                 .onTapGesture {
                                     let provider = provider.infoProviders[index]
                                     provider.tapAction(provider)
