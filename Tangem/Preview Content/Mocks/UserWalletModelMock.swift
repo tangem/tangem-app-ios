@@ -10,7 +10,7 @@ import Combine
 import BlockchainSdk
 
 class UserWalletModelMock: UserWalletModel {
-    var cardImage: ImageType?
+    var cardHeaderImage: ImageType?
 
     var isCardLocked: Bool { false }
 
@@ -32,7 +32,7 @@ class UserWalletModelMock: UserWalletModel {
     }
 
     var updatePublisher: AnyPublisher<Void, Never> { .just }
-    
+
     var cardNamePublisher: AnyPublisher<String, Never> { .just(output: "") }
 
     func initialUpdate() {}
