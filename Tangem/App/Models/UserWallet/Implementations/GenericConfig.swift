@@ -67,7 +67,7 @@ extension GenericConfig: UserWalletConfig {
 
         let entries: [StorageEntry] = blockchains.map {
             if let derivationStyle = derivationStyle {
-                let derivationPath = $0.derivationPaths(for: derivationStyle)[.default]
+                let derivationPath = $0.derivationPath(for: derivationStyle)
                 let network = BlockchainNetwork($0, derivationPath: derivationPath)
                 return .init(blockchainNetwork: network, tokens: [])
             }
@@ -85,6 +85,11 @@ extension GenericConfig: UserWalletConfig {
 
     var embeddedBlockchain: StorageEntry? {
         return nil
+    }
+
+    var canSkipBackup: Bool {
+        // Shiba cards have new firmware, but old config, except backup skipping.
+        card.firmwareVersion < .keysImportAvailable
     }
 
     var warningEvents: [WarningEvent] {
