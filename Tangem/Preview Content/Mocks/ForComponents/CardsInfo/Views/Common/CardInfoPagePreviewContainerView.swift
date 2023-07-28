@@ -39,7 +39,7 @@ struct CardInfoPagePreviewContainerView: View {
                     data: previewProvider.pages,
                     selectedIndex: $selectedIndex,
                     headerFactory: { pageViewModel in
-                        MultiWalletCardHeaderView(viewModel: pageViewModel.header)
+                        CardHeaderView(viewModel: pageViewModel.header)
                             .cornerRadius(14.0)
                     },
                     contentFactory: { pageViewModel in
