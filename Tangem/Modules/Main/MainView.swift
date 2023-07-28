@@ -33,7 +33,8 @@ struct MainView: View {
         .edgesIgnoringSafeArea(.bottom)
         .toolbar(content: {
             ToolbarItem(placement: .navigationBarLeading) {
-                Assets.tangemLogo.image
+                Assets.newTangemLogo.image
+                    .foregroundColor(Colors.Icon.primary1)
             }
 
             ToolbarItem(placement: .navigationBarTrailing) {
