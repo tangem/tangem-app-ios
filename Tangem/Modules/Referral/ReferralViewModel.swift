@@ -141,7 +141,7 @@ extension ReferralViewModel {
 
         if let address = referralProgramInfo?.referral?.address {
             let addressFormatter = AddressFormatter(address: address)
-            addressContent = " \(addressFormatter.truncated())"
+            addressContent = addressFormatter.truncated()
         }
 
         if let token = referralProgramInfo?.conditions.awards.first?.token,
