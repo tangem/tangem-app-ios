@@ -9,7 +9,7 @@
 import Combine
 
 protocol CardHeaderInfoProvider: AnyObject {
-    var cardImage: ImageType? { get }
+    var cardHeaderImage: ImageType? { get }
     var isCardLocked: Bool { get }
     var cardNamePublisher: AnyPublisher<String, Never> { get }
 }
