@@ -64,7 +64,7 @@ extension LockedUserWallet: CardHeaderInfoProvider {
         cardNameSubject.eraseToAnyPublisher()
     }
 
-    var cardImage: ImageType? {
-        nil
+    var cardHeaderImage: ImageType? {
+        config.cardHeaderImage
     }
 }
