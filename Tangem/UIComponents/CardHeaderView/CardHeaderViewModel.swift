@@ -46,7 +46,7 @@ final class CardHeaderViewModel: ObservableObject {
         self.balanceProvider = balanceProvider
 
         isCardLocked = cardInfoProvider.isCardLocked
-        cardImage = cardInfoProvider.cardImage
+        cardImage = cardInfoProvider.cardHeaderImage
         isSubtitleContainsSensitiveInformation = cardSubtitleProvider.containsSensitiveInfo
         bind()
     }

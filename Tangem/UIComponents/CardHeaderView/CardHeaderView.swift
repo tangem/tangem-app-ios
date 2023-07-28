@@ -13,7 +13,6 @@ struct CardHeaderView: View {
 
     private let imageSize: CGSize = .init(width: 120, height: 106)
     private let horizontalSpacing: CGFloat = 6
-    @State var subtitleLoading = true
 
     var body: some View {
         GeometryReader { proxy in
@@ -24,6 +23,7 @@ struct CardHeaderView: View {
 
                     Text(viewModel.balance)
                         .multilineTextAlignment(.leading)
+                        .truncationMode(.middle)
                         .scaledToFit()
                         .minimumScaleFactor(0.5)
                         .showSensitiveInformation(viewModel.showSensitiveInformation)
@@ -33,14 +33,14 @@ struct CardHeaderView: View {
                             radius: 6
                         )
                         .style(Fonts.Bold.title1, color: Colors.Text.primary1)
-                        .frame(height: 34)
+                        .frame(minHeight: 34)
 
                     if viewModel.isCardLocked {
                         subtitleText
                     } else {
                         subtitleText
                             .showSensitiveInformation(viewModel.showSensitiveSubtitleInformation)
-                            .skeletonable(isShown: subtitleLoading, size: .init(width: 52, height: 12), radius: 3)
+                            .skeletonable(isShown: viewModel.isLoadingSubtitle, size: .init(width: 52, height: 12), radius: 3)
                     }
                 }
                 .lineLimit(1)
@@ -56,10 +56,6 @@ struct CardHeaderView: View {
                 }
             }
         }
-        .onTapGesture {
-            subtitleLoading.toggle()
-        }
-        .animation(.easeOut, value: subtitleLoading)
         .frame(height: imageSize.height)
         .padding(.horizontal, 14)
         .background(Colors.Background.primary)
@@ -72,7 +68,7 @@ struct CardHeaderView: View {
                 viewModel.subtitleInfo.formattingOption.font,
                 color: viewModel.subtitleInfo.formattingOption.textColor
             )
-            .fixedSize()
+            .truncationMode(.middle)
     }
 
     private func leadingContentWidth(containerWidth: CGFloat) -> CGFloat {
