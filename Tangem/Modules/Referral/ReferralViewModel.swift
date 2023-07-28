@@ -149,8 +149,8 @@ extension ReferralViewModel {
             tokenName = blockchain.displayName
         }
 
-        let originalText = Localization.referralPointCurrenciesDescription(formattedAward, tokenName, addressContent)
-        return TangemRichTextFormatter(highlightColor: UIColor(highlightColor)).format(originalText)
+        let rawText = Localization.referralPointCurrenciesDescription(formattedAward, tokenName, addressContent)
+        return TangemRichTextFormatter(highlightColor: UIColor(highlightColor)).format(rawText)
     }
 
     var discount: String {
