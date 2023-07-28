@@ -43,7 +43,7 @@ class FakeUserWalletModel: UserWalletModel, ObservableObject {
         self.isCardLocked = isCardLocked
         self.cardsCount = cardsCount
         self.userWalletId = userWalletId
-        self._cardNamePublisher = .init(cardName)
+        _cardNamePublisher = .init(cardName)
         walletModelsManager = WalletModelsManagerMock()
         userTokenListManager = CommonUserTokenListManager(hasTokenSynchronization: false, userWalletId: userWalletId.value, hdWalletsSupported: true)
         totalBalanceProvider = TotalBalanceProviderMock()
@@ -65,8 +65,8 @@ class FakeUserWalletModel: UserWalletModel, ObservableObject {
 extension FakeUserWalletModel: CardHeaderInfoProvider {
     var cardNamePublisher: AnyPublisher<String, Never> { _cardNamePublisher.eraseToAnyPublisher() }
 
-    var cardImage: ImageType? {
-        nil
+    var cardHeaderImage: ImageType? {
+        UserWalletConfigFactory(userWallet.cardInfo()).makeConfig().cardHeaderImage
     }
 }
 
