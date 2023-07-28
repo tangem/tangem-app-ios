@@ -370,6 +370,8 @@
 		B0EBBB222924C42E00020EC2 /* ReferralParticipationRequestBody.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0EBBB212924C42E00020EC2 /* ReferralParticipationRequestBody.swift */; };
 		B0EC1200267386FC00137059 /* TransactionRecord.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0EC11FF267386FC00137059 /* TransactionRecord.swift */; };
 		B0F16D7126EF5ED800687C47 /* ProgressBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0F16D7026EF5ED800687C47 /* ProgressBar.swift */; };
+		B0F318F42A738A30009F131E /* LockedWalletModelsManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0F318F32A738A30009F131E /* LockedWalletModelsManager.swift */; };
+		B0F318F62A738ACC009F131E /* LockedUserTokenListManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0F318F52A738ACC009F131E /* LockedUserTokenListManager.swift */; };
 		B0F318F92A7393FA009F131E /* WalletStubs.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0F318F82A7393FA009F131E /* WalletStubs.swift */; };
 		B0F318FB2A739418009F131E /* WalletPublicKeyDerivationStubs.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0F318FA2A739418009F131E /* WalletPublicKeyDerivationStubs.swift */; };
 		B0F318FD2A739432009F131E /* UserWalletStubs.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0F318FC2A739432009F131E /* UserWalletStubs.swift */; };
@@ -1442,6 +1444,8 @@
 		B0EBBB212924C42E00020EC2 /* ReferralParticipationRequestBody.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReferralParticipationRequestBody.swift; sourceTree = "<group>"; };
 		B0EC11FF267386FC00137059 /* TransactionRecord.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransactionRecord.swift; sourceTree = "<group>"; };
 		B0F16D7026EF5ED800687C47 /* ProgressBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProgressBar.swift; sourceTree = "<group>"; };
+		B0F318F32A738A30009F131E /* LockedWalletModelsManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LockedWalletModelsManager.swift; sourceTree = "<group>"; };
+		B0F318F52A738ACC009F131E /* LockedUserTokenListManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LockedUserTokenListManager.swift; sourceTree = "<group>"; };
 		B0F318F82A7393FA009F131E /* WalletStubs.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletStubs.swift; sourceTree = "<group>"; };
 		B0F318FA2A739418009F131E /* WalletPublicKeyDerivationStubs.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletPublicKeyDerivationStubs.swift; sourceTree = "<group>"; };
 		B0F318FC2A739432009F131E /* UserWalletStubs.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserWalletStubs.swift; sourceTree = "<group>"; };
@@ -4259,6 +4263,7 @@
 			children = (
 				DC3DCAEC2A49C6D900F72554 /* WalletManagersRepository.swift */,
 				DC3DCAEE2A49C6E600F72554 /* CommonWalletManagersRepository.swift */,
+				B0F318F32A738A30009F131E /* LockedWalletModelsManager.swift */,
 			);
 			path = WalletManagersRepository;
 			sourceTree = "<group>";
@@ -4770,6 +4775,7 @@
 			children = (
 				EF4BEF8228ACF0E700C5D1BE /* UserTokenListManager.swift */,
 				EF4BEF8028AB953E00C5D1BE /* CommonUserTokenListManager.swift */,
+				B0F318F52A738ACC009F131E /* LockedUserTokenListManager.swift */,
 			);
 			path = UserTokenListManager;
 			sourceTree = "<group>";
@@ -6098,6 +6104,7 @@
 				B0DD162C2A331C2100CB23AA /* TokenDetailsRoutable.swift in Sources */,
 				EF07082F2A16476F0072AA0E /* CommonSwappingFeeFormatter.swift in Sources */,
 				B0DD16292A331C2100CB23AA /* TokenDetailsCoordinatorView.swift in Sources */,
+				B0F318F62A738ACC009F131E /* LockedUserTokenListManager.swift in Sources */,
 				B07AE16C25DD548A0045179A /* CommonRateAppService.swift in Sources */,
 				5DFCCB7424C3819A0014A293 /* SendView.swift in Sources */,
 				5D24A12C24FF9E3A002A3BCA /* Decimal+.swift in Sources */,
@@ -6125,6 +6132,7 @@
 				EF6EDD81296C0D61001B21A3 /* OrderedWeakObjectsCollection.swift in Sources */,
 				DAA5E31028D2137C003C0E80 /* UserWalletListCellView.swift in Sources */,
 				EF9CFC13288FECE100329BE0 /* ScanCardSettingsViewModel.swift in Sources */,
+				B0F318F42A738A30009F131E /* LockedWalletModelsManager.swift in Sources */,
 				DC261CAB292CF56600875E64 /* AuthViewModel.swift in Sources */,
 				5D39514D2556CDDF002CC452 /* MoonPayService.swift in Sources */,
 				EF0F99AA289028F8008B01DF /* AppSettingsCoordinator.swift in Sources */,
