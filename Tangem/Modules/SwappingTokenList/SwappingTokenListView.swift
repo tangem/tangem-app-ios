@@ -53,6 +53,8 @@ struct SwappingTokenListView: View {
                     }
             }
         }
+        .onAppear(perform: viewModel.onAppear)
+        .onDisappear(perform: viewModel.onDisappear)
     }
 
     @ViewBuilder
