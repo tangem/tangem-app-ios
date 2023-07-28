@@ -117,7 +117,7 @@ extension Wallet2Config: UserWalletConfig {
         .wallet2
     }
 
-    var cardImage: ImageType? {
+    var cardHeaderImage: ImageType? {
         cardsCount == 2 ? Assets.Cards.wallet2Double : Assets.Cards.wallet2Triple
     }
 
