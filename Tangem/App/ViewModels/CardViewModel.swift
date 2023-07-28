@@ -571,7 +571,7 @@ extension CardViewModel: UserWalletModel {
 }
 
 extension CardViewModel: CardHeaderInfoProvider {
-    var cardImage: ImageType? { nil }
+    var cardHeaderImage: ImageType? { config.cardHeaderImage }
 
     var isCardLocked: Bool { userWallet.isLocked }
 
