@@ -532,7 +532,6 @@ struct OrganizeTokensView: View {
             .frame(width: width)
             .readGeometry(\.frame, bindTo: $draggedItemFrame)
             .cornerRadiusContinuous(hasActiveDrag ? Constants.draggableViewCornerRadius : 0.0)
-            .shadow(color: Color.black.opacity(0.08), radius: hasActiveDrag ? 14.0 : 0.0, y: 8.0) // [REDACTED_TODO_COMMENT]
             .scaleEffect(Constants.draggableViewScale)
             .offset(y: totalOffsetTransitionValue)
             .transition(
@@ -544,6 +543,11 @@ struct OrganizeTokensView: View {
                             removal: .offset(y: additionalOffsetRemovalTransitionValue)
                         )
                     )
+                    .combined(
+                        with: .modifier(
+                            active: OrganizeTokensShadowAnimatableModifier(progress: 0.0),
+                            identity: OrganizeTokensShadowAnimatableModifier(progress: 1.0)
+                        )
                     )
                     .combined(with: .modifier(active: viewRemovalProgressObserver, identity: .dummy))
             )
