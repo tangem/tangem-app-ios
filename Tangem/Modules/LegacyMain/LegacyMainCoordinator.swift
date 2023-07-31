@@ -27,7 +27,7 @@ class LegacyMainCoordinator: CoordinatorObject {
     @Published var legacyTokenDetailsCoordinator: LegacyTokenDetailsCoordinator? = nil
     @Published var tokenDetailsCoordinator: TokenDetailsCoordinator? = nil
     @Published var detailsCoordinator: DetailsCoordinator? = nil
-    @Published var tokenListCoordinator: LegacyTokenListCoordinator? = nil
+    @Published var legacyTokenListCoordinator: LegacyTokenListCoordinator? = nil
     @Published var modalOnboardingCoordinator: OnboardingCoordinator? = nil
 
     // MARK: - Child view models
@@ -246,7 +246,7 @@ extension LegacyMainCoordinator: LegacyMainRoutable {
         userTokensManager: UserTokensManager
     ) {
         let dismissAction: Action = { [weak self] in
-            self?.tokenListCoordinator = nil
+            self?.legacyTokenListCoordinator = nil
         }
 
         let coordinator = LegacyTokenListCoordinator(dismissAction: dismissAction)
@@ -254,7 +254,7 @@ extension LegacyMainCoordinator: LegacyMainRoutable {
             settings: settings,
             userTokensManager: userTokensManager
         ))
-        tokenListCoordinator = coordinator
+        legacyTokenListCoordinator = coordinator
     }
 
     func openMail(with dataCollector: EmailDataCollector, emailType: EmailType, recipient: String) {
