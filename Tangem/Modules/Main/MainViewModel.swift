@@ -17,10 +17,12 @@ final class MainViewModel: ObservableObject {
     @Published var pages: [MainUserWalletPageBuilder] = []
     @Published var selectedCardIndex = 0
     @Published var isHorizontalScrollDisabled = false
+    @Published var errorAlert: AlertBinder?
 
     // MARK: - Dependencies
 
-    private var coordinator: MainRoutable?
+    private let mainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory
+    private weak var coordinator: MainRoutable?
 
     private var bag = Set<AnyCancellable>()
 
@@ -31,6 +33,7 @@ final class MainViewModel: ObservableObject {
         mainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory = CommonMainUserWalletPageBuilderFactory()
     ) {
         self.coordinator = coordinator
+        self.mainUserWalletPageBuilderFactory = mainUserWalletPageBuilderFactory
 
         pages = mainUserWalletPageBuilderFactory.createPages(from: userWalletRepository.models)
         setupHorizontalScrollAvailability()
@@ -50,7 +53,14 @@ final class MainViewModel: ObservableObject {
 
     // MARK: - Internal functions
 
-    func scanNewCard() {}
+    func scanCard() {
+        Analytics.beginLoggingCardScan(source: .main)
+        if AppSettings.shared.saveUserWallets {
+            scanNewCard()
+        } else {
+            coordinator?.close(newScan: true)
+        }
+    }
 
     func openDetails() {
         // [REDACTED_TODO_COMMENT]
@@ -79,6 +89,40 @@ final class MainViewModel: ObservableObject {
                 model.walletModelsManager.updateAll(silent: true, completion: completion)
             }
         }
+    }
+
+    // MARK: - Scan card
+
+    private func scanNewCard() {
+        userWalletRepository.add { [weak self] result in
+            guard let self, let result else {
+                return
+            }
+
+            switch result {
+            case .troubleshooting:
+                // [REDACTED_TODO_COMMENT]
+                break
+            case .onboarding:
+                // [REDACTED_TODO_COMMENT]
+                break
+            case .error(let error):
+                if let userWalletRepositoryError = error as? UserWalletRepositoryError {
+                    errorAlert = userWalletRepositoryError.alertBinder
+                } else {
+                    errorAlert = error.alertBinder
+                }
+            case .success(let cardModel), .partial(let cardModel, _):
+                addNewPage(for: cardModel)
+            }
+        }
+    }
+
+    private func addNewPage(for cardModel: CardViewModel) {
+        let newPage = mainUserWalletPageBuilderFactory.createPage(for: cardModel)
+        let newPageIndex = pages.count
+        pages.append(newPage)
+        selectedCardIndex = newPageIndex
     }
 
     // MARK: - Private functions
