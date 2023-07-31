@@ -10,6 +10,8 @@ import Foundation
 import Combine
 
 final class MainViewModel: ObservableObject {
+    @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
+
     // MARK: - ViewState
 
     @Published var pages: [MainUserWalletPageBuilder] = []
@@ -18,7 +20,6 @@ final class MainViewModel: ObservableObject {
 
     // MARK: - Dependencies
 
-    private let userWalletRepository: UserWalletRepository
     private var coordinator: MainRoutable?
 
     private var bag = Set<AnyCancellable>()
@@ -27,23 +28,22 @@ final class MainViewModel: ObservableObject {
 
     init(
         coordinator: MainRoutable,
-        userWalletRepository: UserWalletRepository,
         mainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory = CommonMainUserWalletPageBuilderFactory()
     ) {
         self.coordinator = coordinator
-        self.userWalletRepository = userWalletRepository
 
         pages = mainUserWalletPageBuilderFactory.createPages(from: userWalletRepository.models)
+        print(userWalletRepository)
+        print("Number of items in repo: \(userWalletRepository.userWallets.count)")
         setupHorizontalScrollAvailability()
     }
 
     convenience init(
         selectedUserWalletId: String,
         coordinator: MainRoutable,
-        userWalletRepository: UserWalletRepository,
         mainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory = CommonMainUserWalletPageBuilderFactory()
     ) {
-        self.init(coordinator: coordinator, userWalletRepository: userWalletRepository, mainUserWalletPageBuilderFactory: mainUserWalletPageBuilderFactory)
+        self.init(coordinator: coordinator, mainUserWalletPageBuilderFactory: mainUserWalletPageBuilderFactory)
 
         if let selectedIndex = pages.firstIndex(where: { $0.id == selectedUserWalletId }) {
             selectedCardIndex = selectedIndex
