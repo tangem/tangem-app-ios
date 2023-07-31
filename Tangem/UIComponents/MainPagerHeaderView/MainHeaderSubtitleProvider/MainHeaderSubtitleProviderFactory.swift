@@ -10,8 +10,13 @@ import Foundation
 
 struct MainHeaderSubtitleProviderFactory {
     func provider(for userWalletModel: UserWalletModel) -> MainHeaderSubtitleProvider {
+        let isUserWalletLocked = userWalletModel.isUserWalletLocked
+
         guard userWalletModel.isMultiWallet else {
-            return SingleWalletMainHeaderSubtitleProvider(userWalletModel: userWalletModel, walletModel: userWalletModel.walletModelsManager.walletModels.first)
+            return SingleWalletMainHeaderSubtitleProvider(
+                isUserWalletLocked: isUserWalletLocked,
+                dataSource: userWalletModel.walletModelsManager.walletModels.first
+            )
         }
 
         return MultiWalletMainHeaderSubtitleProvider(
