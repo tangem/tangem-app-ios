@@ -24,6 +24,8 @@ class BottomSearchableSheetCoordinator: ObservableObject {
 }
 
 class BottomSearchableSheetStateObject: ObservableObject {
+    @Published var geometryInfo: GeometryInfo = .init()
+
     @Published var percent: CGFloat = .zero {
         didSet {
             print("percent ->>", percent)
@@ -68,6 +70,123 @@ class BottomSearchableSheetStateObject: ObservableObject {
         bindKeyboard()
     }
 
+    func onAppear() {
+        updateToCurrentState()
+    }
+
+    func updateToCurrentState() {
+        withAnimation(.easeOut) {
+            visibleHeight = currentHeight()
+        }
+    }
+
+    func updateToState(_ state: SheetState) {
+//        guard self.state != state else { return }
+        self.state = state
+
+        withAnimation(.easeOut) {
+            visibleHeight = currentHeight()
+        }
+    }
+
+    /// For dragging
+    func updateVisibleHeight(_ height: CGFloat) {
+        withAnimation(.default) {
+            self.visibleHeight = height
+        }
+    }
+
+    func currentHeight() -> CGFloat {
+        height(for: state)
+    }
+
+    func height(for state: BottomSearchableSheetStateObject.SheetState) -> CGFloat {
+        print("proxy.safeAreaInsets ->>", geometryInfo.safeAreaInsets)
+        print("proxy.size ->>", geometryInfo.size)
+
+        switch state {
+        case .bottom:
+            return headerSize + geometryInfo.safeAreaInsets.bottom
+        case .top:
+            return geometryInfo.size.height + geometryInfo.safeAreaInsets.bottom
+        }
+    }
+
+    // MARK: Gestures
+
+    func updateSheetFor(predictedEndLocation: CGPoint) {
+        let centerLine = geometryInfo.size.height / 2
+        // If the ended location below the center line
+        if predictedEndLocation.y > centerLine {
+            updateToState(.bottom)
+        } else {
+            updateToState(.top)
+        }
+    }
+
+    func headerDragGesture(onChanged value: DragGesture.Value) {
+        let locationChange = value.startLocation.y - value.location.y
+        UIApplication.shared.keyWindow?.endEditing(true)
+        withAnimation(.interactiveSpring()) {
+            var heightChange = value.translation.height
+            if locationChange > 0 {
+                heightChange /= 3
+            }
+
+            let newHeight = currentHeight() - heightChange
+            updateVisibleHeight(newHeight)
+        }
+    }
+
+    func headerDragGesture(onEnded value: DragGesture.Value) {
+        updateSheetFor(predictedEndLocation: value.predictedEndLocation)
+    }
+
+    func contentDragGesture(onChanged value: UIPanGestureRecognizer.Value) {
+        UIApplication.shared.keyWindow?.endEditing(true)
+
+//        print("onChanged", value)
+//        print("value.translation.height", value.translation.height)
+        var translationChange = value.translation.height
+        if scrollViewStartDraggingOffset.y <= .zero, translationChange > 0 {
+            if !scrollViewIsDragging {
+                scrollViewIsDragging = true
+            }
+
+//            if translationChange < 0 {
+//                translationChange /= 10
+//            }
+
+            print("value.translation.height", translationChange)
+            let newHeight = currentHeight() - translationChange
+            updateVisibleHeight(newHeight)
+        }
+    }
+
+    func contentDragGesture(onEnded value: UIPanGestureRecognizer.Value) {
+        // If scrollView stay in the top
+        if scrollViewStartDraggingOffset.y <= .zero {
+            // The user made a quick enough swipe to hide sheet
+            let isHighVelocity = value.velocity.y > geometryInfo.size.height
+
+            // The user stop swipe below critical line
+            let isStoppedBelowCenter = visibleHeight < height(for: .top) * 0.5
+
+            if isHighVelocity || isStoppedBelowCenter {
+                updateToState(.bottom)
+            } else {
+                updateToState(.top)
+            }
+        }
+
+        if scrollViewIsDragging {
+            scrollViewIsDragging = false
+        }
+
+        // Save the `contentOffset` for check it in the `onChange` method
+        scrollViewStartDraggingOffset = contentOffset
+    }
+
     private func bindKeyboard() {
         keyboardCancellable = Publishers.Merge(
             NotificationCenter
@@ -88,6 +207,20 @@ class BottomSearchableSheetStateObject: ObservableObject {
     }
 }
 
+extension BottomSearchableSheetStateObject: ScrollViewRepresentableDelegate {
+    func contentOffsetDidChanged(contentOffset: CGPoint) {
+        self.contentOffset = contentOffset
+    }
+
+    func gesture(onChanged value: UIPanGestureRecognizer.Value) {
+        contentDragGesture(onChanged: value)
+    }
+
+    func gesture(onEnded value: UIPanGestureRecognizer.Value) {
+        contentDragGesture(onEnded: value)
+    }
+}
+
 extension BottomSearchableSheetStateObject {
     enum SheetState: String, Hashable {
         case top
@@ -95,25 +228,33 @@ extension BottomSearchableSheetStateObject {
     }
 }
 
+// MARK: - GeometryReaderPreferenceKey
+
+extension BottomSearchableSheetStateObject {
+    struct GeometryReaderPreferenceKey: PreferenceKey {
+        typealias Value = GeometryInfo
+        static var defaultValue: Value { .init() }
+
+        static func reduce(value: inout Value, nextValue: () -> Value) {}
+    }
+
+    struct GeometryInfo: Equatable {
+        let size: CGSize
+        let safeAreaInsets: EdgeInsets
+
+        init(size: CGSize = .zero, safeAreaInsets: EdgeInsets = .init()) {
+            self.size = size
+            self.safeAreaInsets = safeAreaInsets
+        }
+    }
+}
+
 struct BottomSearchableSheet<Content: View>: View {
     @Binding var searchText: String
     @ObservedObject var coordinator: BottomSearchableSheetCoordinator
     @ObservedObject var stateObject: BottomSearchableSheetStateObject
+
     @ViewBuilder let content: () -> Content
-
-    private let scrollViewCoordinateNamespace = UUID().uuidString
-
-//    init(
-//        coordinator: BottomSearchableSheetCoordinator,
-//        searchText: String,
-//        percent: CGFloat,
-//        content: @escaping () -> Content
-//    ) {
-//        self.coordinator = coordinator
-//        self.searchText = searchText
-//        self.percent = percent
-//        self.content = content
-//    }
 
     private let handHeight: CGFloat = 20
     private let indicatorSize = CGSize(width: 32, height: 4)
@@ -139,11 +280,17 @@ struct BottomSearchableSheet<Content: View>: View {
 //            .border(Color.orange, width: 3)
             .ignoresSafeArea(.all, edges: .all)
             .onAppear {
-                updateToState(proxy: proxy)
+                stateObject.onAppear()
             }
-            .onChange(of: stateObject.state, perform: { _ in
-                updateToState(proxy: proxy)
-            })
+            .preference(
+                key: BottomSearchableSheetStateObject.GeometryReaderPreferenceKey.self,
+                value: .init(size: proxy.size, safeAreaInsets: proxy.safeAreaInsets)
+            )
+            .onPreferenceChange(BottomSearchableSheetStateObject.GeometryReaderPreferenceKey.self) { newValue in
+                stateObject.geometryInfo = newValue
+                print("onChange.size", newValue.size)
+                print("onChange.safeAreaInsets", newValue.safeAreaInsets)
+            }
         }
     }
 
@@ -186,185 +333,24 @@ struct BottomSearchableSheet<Content: View>: View {
         }
         .frame(maxWidth: .infinity)
         .frame(height: handHeight)
-//        .background(Color.purple.opacity(0.5))
-    }
-
-    private var axes: Axis.Set {
-        return stateObject.scrollViewIsDragging ? [] : .vertical
     }
 
     private func scrollView(proxy: GeometryProxy) -> some View {
-        ScrollViewRepresentable(
-            isScrollDisabled: $stateObject.scrollViewIsDragging,
-            scrollViewSize: stateObject.visibleHeight - stateObject.headerSize
-        ) { offset in
-            stateObject.contentOffset = offset
-        } onChanged: { value in
-            contentDragGesture(onChanged: value, proxy: proxy)
-        } onEnded: { value in
-            contentDragGesture(onEnded: value, proxy: proxy)
-        } content: {
-//            VStack(spacing: .zero) {
-//                offsetReader
-
+        ScrollViewRepresentable(delegate: stateObject) {
             content()
                 .background(Color.green.opacity(0.2))
-//            }
-//            .overlay(contentDragGesture(proxy: proxy))
         }
-//        .coordinateSpace(name: scrollViewCoordinateNamespace)
-//        .onPreferenceChange(OffsetPreferenceKey.self) { point in
-//            stateObject.contentOffset = point
-//        }
-    }
-
-    /*
-     private func testGesture() -> some Gesture {
-         DragGesture(minimumDistance: 30, coordinateSpace: .global)
-             .onChanged { value in
-                 print("onChanged", value.translation.height)
-             }
-             .onEnded { value in
-                 print("onEnded", value.translation.height)
-             }
-     }
-      */
-
-    private func contentDragGesture(proxy: GeometryProxy) -> ClearDragGestureView {
-        ClearDragGestureView(onChanged: { value in
-            contentDragGesture(onChanged: value, proxy: proxy)
-        }, onEnded: { value in
-            contentDragGesture(onEnded: value, proxy: proxy)
-        })
+        .isScrollDisabled(stateObject.scrollViewIsDragging)
     }
 
     private func dragGesture(proxy: GeometryProxy) -> some Gesture {
         DragGesture(minimumDistance: 10, coordinateSpace: .global)
             .onChanged { value in
-//                if !stateObject.isDragging {
-//                    stateObject.isDragging = true
-//                }
-
-//                let dragValue = value.translation.height - previousDragTranslation.height
-                let locationChange = value.startLocation.y - value.location.y
-//                print("locationChange", locationChange)
-//                print("gesture.location ->>", value.location)
-//                print("gesture.translation ->>", value.translation)
-//                print("gesture.startLocation ->>", value.startLocation)
-                UIApplication.shared.keyWindow?.endEditing(true)
-                withAnimation(.interactiveSpring()) {
-                    var heightChange = value.translation.height
-                    if locationChange > 0 {
-                        heightChange /= 3
-                    }
-
-                    let newHeight = currentHeight(proxy: proxy) - heightChange
-                    stateObject.visibleHeight = newHeight
-                }
+                stateObject.headerDragGesture(onChanged: value)
             }
             .onEnded { value in
-//                stateObject.previousDragTranslation = .zero
-//                stateObject.isDragging = false
-//                print("value.predictedEndLocation ->>", value.predictedEndLocation)
-//                print("value.location ->>", value.location)
-//                print("value.translation.height ->>", value.translation.height)
-
-                updateSheetFor(predictedEndLocation: value.predictedEndLocation, proxy: proxy)
+                stateObject.headerDragGesture(onEnded: value)
             }
-    }
-
-    var offsetReader: some View {
-        GeometryReader { proxy in
-            Color.clear
-                .preference(
-                    key: OffsetPreferenceKey.self,
-                    value: proxy.frame(in: .named(scrollViewCoordinateNamespace)).origin
-                )
-        }
-        .frame(height: 0)
-    }
-}
-
-// MARK: - Methods
-
-extension BottomSearchableSheet {
-    func updateSheetFor(
-        predictedEndLocation: CGPoint,
-        proxy: GeometryProxy
-    ) {
-        let centerLine = proxy.size.height / 2
-        // If the ended location below the center line
-        if predictedEndLocation.y > centerLine {
-            stateObject.state = .bottom
-        } else {
-            stateObject.state = .top
-        }
-
-        updateToState(proxy: proxy)
-    }
-
-    func height(for state: BottomSearchableSheetStateObject.SheetState, proxy: GeometryProxy) -> CGFloat {
-        print("proxy.safeAreaInsets ->>", proxy.safeAreaInsets)
-        print("proxy.size ->>", proxy.size)
-        print("proxy.size.frame ->>", proxy.frame(in: .global).size)
-
-        switch state {
-        case .bottom:
-            return stateObject.headerSize + proxy.safeAreaInsets.bottom
-//        case .middle:
-//            return proxy.size.height / 2 + proxy.safeAreaInsets.bottom
-        case .top:
-            return proxy.size.height + proxy.safeAreaInsets.bottom
-        }
-    }
-
-    func currentHeight(proxy: GeometryProxy) -> CGFloat {
-        height(for: stateObject.state, proxy: proxy)
-    }
-
-    func updateToState(proxy: GeometryProxy) {
-        withAnimation(.easeOut) {
-            stateObject.visibleHeight = currentHeight(proxy: proxy)
-        }
-    }
-
-    func contentDragGesture(onChanged value: ClearDragGestureView.Value, proxy: GeometryProxy) {
-        UIApplication.shared.keyWindow?.endEditing(true)
-
-//        print("onChanged", value)
-//        print("value.translation.height", value.translation.height)
-        var translationChange = value.translation.height
-        if stateObject.scrollViewStartDraggingOffset.y <= .zero, translationChange > 0 {
-            if !stateObject.scrollViewIsDragging {
-                stateObject.scrollViewIsDragging = true
-            }
-
-            if translationChange < 0 {
-                translationChange /= 10
-            }
-
-            print("value.translation.height", translationChange)
-            withAnimation(.interactiveSpring()) {
-                stateObject.visibleHeight = currentHeight(proxy: proxy) - translationChange
-            }
-        }
-    }
-
-    func contentDragGesture(onEnded value: ClearDragGestureView.Value, proxy: GeometryProxy) {
-        if stateObject.scrollViewStartDraggingOffset.y <= .zero {
-//            print("value.velocity.y", value.velocity.y)
-            if value.velocity.y > proxy.size.height {
-                stateObject.state = .bottom
-            } else if stateObject.visibleHeight < height(for: .top, proxy: proxy) * 0.5 {
-                stateObject.state = .bottom
-            }
-            updateToState(proxy: proxy)
-        }
-
-        if stateObject.scrollViewIsDragging {
-            stateObject.scrollViewIsDragging = false
-        }
-        stateObject.scrollViewStartDraggingOffset = stateObject.contentOffset
     }
 }
 
@@ -471,23 +457,5 @@ public struct BottomSearchableSheet_Preview: PreviewProvider {
             }
             .background(Color.black.ignoresSafeArea())
         }
-    }
-}
-
-extension View {
-    var keyboardPublisher: AnyPublisher<Bool, Never> {
-        Publishers
-            .Merge(
-                NotificationCenter
-                    .default
-                    .publisher(for: UIResponder.keyboardWillShowNotification)
-                    .map { _ in true },
-                NotificationCenter
-                    .default
-                    .publisher(for: UIResponder.keyboardDidHideNotification)
-                    .map { _ in false }
-            )
-//      .removeDuplicates()
-            .eraseToAnyPublisher()
     }
 }
