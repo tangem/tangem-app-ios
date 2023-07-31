@@ -181,7 +181,7 @@
 "main_no_backup_warning_title" = "Бэкап кошелька не был произведен";
 "main_page_balance" = "Баланс";
 "main_processing_full_amount" = "В сумме учтены не все монеты";
-"main_promotion_credited" = "1INCH токены будут зачислены на адрес вашего кошелька в сети %@ в течение 24 часов";
+"main_promotion_credited" = "1INCH токены будут зачислены на адрес вашего кошелька в сети %@ в течение 48 часов";
 "main_scan_card_warning_view_subtitle" = "Чтобы получить доступ ко всем сетям, вам необходимо отсканировать карту";
 "main_scan_card_warning_view_title" = "Отсканируйте карту";
 "main_tokens" = "Токены";
@@ -279,12 +279,15 @@
 "referral_error_failed_to_load_info" = "Не удалось загрузить информацию по реферальной программе. Пожалуйста, попробуйте позже.";
 "referral_error_failed_to_load_info_with_reason" = "Не удалось загрузить информацию по реферальной программе. Код ошибки: %@. Пожалуйста, попробуйте позже.";
 "referral_error_failed_to_participate" = "Не удалось обработать вашу заявку на участие. Код ошибки: %@. Пожалуйста, попробуйте позже. Если проблема сохранится, вы можете обратиться в техподдержку.";
+"referral_expected_awards" = "Грядущие выплаты";
 "referral_friends_bought_title" = "Ваши друзья купили";
-"referral_point_currencies_description_prefix" = "Получите";
-"referral_point_currencies_description_suffix" = "на ваш адрес в сети %1$@%2$@ за каждый кошелек, который купит ваш друг";
+"referral_less" = "Меньше";
+"referral_more" = "Больше";
+"referral_no_expected_awards" = "Нет грядущих выплат";
+"referral_point_currencies_description" = "Получите ^^%1$@^^ на ваш адрес в сети %2$@ %3$@ ^^спустя 30 дней^^ за каждый кошелек, который купит ваш друг";
 "referral_point_currencies_title" = "Вы";
 "referral_point_discount_description_prefix" = "Получит";
-"referral_point_discount_description_suffix" = "при покупке карточки на сайте tangem.com";
+"referral_point_discount_description_suffix" = "при покупке кошелька на сайте tangem.com";
 "referral_point_discount_description_value" = "%@ скидку";
 "referral_point_discount_title" = "Ваш друг";
 "referral_promo_code_copied" = "Персональный код скопирован!";
