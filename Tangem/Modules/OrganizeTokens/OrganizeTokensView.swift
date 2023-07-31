@@ -536,14 +536,16 @@ struct OrganizeTokensView: View {
             .scaleEffect(Constants.draggableViewScale)
             .offset(y: totalOffsetTransitionValue)
             .transition(
-                .asymmetric(
-                    insertion: .scale(scale: scaleTransitionValue)
-                        .combined(with: .offset(y: totalOffsetTransitionValue * offsetTransitionRatio)),
-                    removal: .scale(scale: scaleTransitionValue)
-                        .combined(with: .offset(y: totalOffsetTransitionValue * offsetTransitionRatio))
-                        .combined(with: .offset(y: additionalOffsetRemovalTransitionValue))
-                        .combined(with: .modifier(active: viewRemovalProgressObserver, identity: dummyProgressObserver))
-                )
+                .scale(scale: scaleTransitionValue)
+                    .combined(with: .offset(y: totalOffsetTransitionValue * offsetTransitionRatio))
+                    .combined(
+                        with: .asymmetric(
+                            insertion: .identity,
+                            removal: .offset(y: additionalOffsetRemovalTransitionValue)
+                        )
+                    )
+                    )
+                    .combined(with: .modifier(active: viewRemovalProgressObserver, identity: .dummy))
             )
             .onDisappear {
                 // Perform required clean-up when the view removal animation finishes
