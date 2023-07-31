@@ -10,4 +10,5 @@ import Foundation
 
 protocol MainRoutable: AnyObject {
     func openDetails(for cardModel: CardViewModel)
+    func close(newScan: Bool)
 }
