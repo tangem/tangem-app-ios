@@ -404,7 +404,13 @@ struct OrganizeTokensView: View {
     }
 
     private func changeAutoScrollStatusIfNeeded(draggedItemFrame: CGRect) {
-        guard visibleViewportFrame.canBeRendered, draggedItemFrame.canBeRendered else { return }
+        guard
+            hasActiveDrag,
+            visibleViewportFrame.canBeRendered,
+            draggedItemFrame.canBeRendered
+        else {
+            return
+        }
 
         let intersection = visibleViewportFrame.intersection(draggedItemFrame)
         if intersection.isNull || intersection.height < min(visibleViewportFrame.height, draggedItemFrame.height) {
@@ -413,7 +419,6 @@ struct OrganizeTokensView: View {
             } else if draggedItemFrame.maxY - Constants.autoScrollTriggerHeightDiff > visibleViewportFrame.maxY {
                 dragAndDropController.startAutoScrolling(direction: .bottom)
             } else {
-                // [REDACTED_TODO_COMMENT]
                 dragAndDropController.stopAutoScrolling()
             }
         }
