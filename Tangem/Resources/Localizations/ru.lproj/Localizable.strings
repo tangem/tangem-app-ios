@@ -284,11 +284,10 @@
 "referral_less" = "Меньше";
 "referral_more" = "Больше";
 "referral_no_expected_awards" = "Нет грядущих выплат";
-"referral_point_currencies_description_prefix" = "Получите";
-"referral_point_currencies_description_suffix" = "на ваш адрес в сети %1$@%2$@ за каждый кошелек, который купит ваш друг";
+"referral_point_currencies_description" = "Получите ^^%1$@^^ на ваш адрес в сети %2$@ %3$@ ^^спустя 30 дней^^ за каждый кошелек, который купит ваш друг";
 "referral_point_currencies_title" = "Вы";
 "referral_point_discount_description_prefix" = "Получит";
-"referral_point_discount_description_suffix" = "при покупке карточки на сайте tangem.com";
+"referral_point_discount_description_suffix" = "при покупке кошелька на сайте tangem.com";
 "referral_point_discount_description_value" = "%@ скидку";
 "referral_point_discount_title" = "Ваш друг";
 "referral_promo_code_copied" = "Персональный код скопирован!";
