@@ -385,7 +385,7 @@ class WalletModel {
         )
         .autoconnect()
         .sink { [weak self] _ in
-            AppLog.shared.debug("⏰ Updating timer alarm ‼️ \(self?.description ?? "") will be updated")
+            AppLog.shared.debug("⏰ Updating timer alarm ‼️ Wallet model will be updated")
             self?.update(silent: false)
             self?.updateTimer?.cancel()
         }
