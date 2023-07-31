@@ -23,7 +23,7 @@ class WelcomeCoordinator: CoordinatorObject {
     @Published var mainCoordinator: LegacyMainCoordinator? = nil
     @Published var pushedOnboardingCoordinator: OnboardingCoordinator? = nil
     @Published var shopCoordinator: ShopCoordinator? = nil
-    @Published var tokenListCoordinator: TokenListCoordinator? = nil
+    @Published var tokenListCoordinator: LegacyTokenListCoordinator? = nil
     @Published var promotionCoordinator: PromotionCoordinator? = nil
 
     // MARK: - Child view models
@@ -115,7 +115,7 @@ extension WelcomeCoordinator: WelcomeRoutable {
         let dismissAction: Action = { [weak self] in
             self?.tokenListCoordinator = nil
         }
-        let coordinator = TokenListCoordinator(dismissAction: dismissAction)
+        let coordinator = LegacyTokenListCoordinator(dismissAction: dismissAction)
         coordinator.start(with: .show)
         tokenListCoordinator = coordinator
     }
