@@ -57,9 +57,7 @@ extension GenericConfig: UserWalletConfig {
     }
 
     var supportedBlockchains: Set<Blockchain> {
-        let allBlockchains = AppEnvironment.current.isTestnet ? Blockchain.supportedTestnetBlockchains
-            : Blockchain.supportedBlockchains
-
+        let allBlockchains = SupportedBlockchains(version: .v1).blockchains()
         return allBlockchains.filter { card.walletCurves.contains($0.curve) }
     }
 
@@ -69,7 +67,7 @@ extension GenericConfig: UserWalletConfig {
 
         let entries: [StorageEntry] = blockchains.map {
             if let derivationStyle = derivationStyle {
-                let derivationPath = $0.derivationPaths(for: derivationStyle)[.default]
+                let derivationPath = $0.derivationPath(for: derivationStyle)
                 let network = BlockchainNetwork($0, derivationPath: derivationPath)
                 return .init(blockchainNetwork: network, tokens: [])
             }
@@ -87,6 +85,11 @@ extension GenericConfig: UserWalletConfig {
 
     var embeddedBlockchain: StorageEntry? {
         return nil
+    }
+
+    var canSkipBackup: Bool {
+        // Shiba cards have new firmware, but old config, except backup skipping.
+        card.firmwareVersion < .keysImportAvailable
     }
 
     var warningEvents: [WarningEvent] {
@@ -115,6 +118,10 @@ extension GenericConfig: UserWalletConfig {
 
     var productType: Analytics.ProductType {
         card.firmwareVersion.doubleValue >= 4.39 ? .wallet : .other
+    }
+
+    var cardHeaderImage: ImageType? {
+        Assets.Cards.wallet
     }
 
     func getFeatureAvailability(_ feature: UserWalletFeature) -> UserWalletFeature.Availability {
