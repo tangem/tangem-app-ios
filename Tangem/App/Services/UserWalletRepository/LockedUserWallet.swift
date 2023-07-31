@@ -57,10 +57,10 @@ class LockedUserWallet: UserWalletModel {
     }
 }
 
-extension LockedUserWallet: CardHeaderInfoProvider {
-    var isCardLocked: Bool { true }
+extension LockedUserWallet: MainHeaderInfoProvider {
+    var isUserWalletLocked: Bool { true }
 
-    var cardNamePublisher: AnyPublisher<String, Never> {
+    var userWalletNamePublisher: AnyPublisher<String, Never> {
         cardNameSubject.eraseToAnyPublisher()
     }
 
