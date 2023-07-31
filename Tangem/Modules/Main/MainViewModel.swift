@@ -40,7 +40,7 @@ final class MainViewModel: ObservableObject {
     }
 
     convenience init(
-        selectedUserWalletId: String,
+        selectedUserWalletId: UserWalletId,
         coordinator: MainRoutable,
         mainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory = CommonMainUserWalletPageBuilderFactory()
     ) {
