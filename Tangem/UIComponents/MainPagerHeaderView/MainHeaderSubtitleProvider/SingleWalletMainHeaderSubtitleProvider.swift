@@ -1,5 +1,5 @@
 //
-//  SingleWalletCardHeaderSubtitleProvider.swift
+//  SingleWalletMainHeaderSubtitleProvider.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -9,15 +9,15 @@
 import Foundation
 import Combine
 
-class SingleWalletCardHeaderSubtitleProvider: CardHeaderSubtitleProvider {
-    private let subject: CurrentValueSubject<CardHeaderSubtitleInfo, Never> = .init(.empty)
+class SingleWalletMainHeaderSubtitleProvider: MainHeaderSubtitleProvider {
+    private let subject: CurrentValueSubject<MainHeaderSubtitleInfo, Never> = .init(.empty)
     private let isLoadingSubject: CurrentValueSubject<Bool, Never>
 
     private let userWalletModel: UserWalletModel
     private let walletModel: WalletModel?
     private var stateUpdateSubscription: AnyCancellable?
 
-    var subtitlePublisher: AnyPublisher<CardHeaderSubtitleInfo, Never> {
+    var subtitlePublisher: AnyPublisher<MainHeaderSubtitleInfo, Never> {
         subject.eraseToAnyPublisher()
     }
 
