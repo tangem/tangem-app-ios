@@ -518,6 +518,11 @@ struct OrganizeTokensView: View {
             - baseOffsetTransitionValue
             - dragGestureTranslationFix.height
 
+        let dummyProgressObserver = OrganizeTokensAnimationProgressObserverAnimatableModifier(
+            targetProgress: 1.0,
+            progressThreshold: 1.0
+        ) {}
+
         let viewRemovalProgressObserver = OrganizeTokensAnimationProgressObserverAnimatableModifier(
             targetProgress: 0.0,
             progressThreshold: Constants.dropAnimationProgressThresholdForViewRemoval
@@ -549,7 +554,12 @@ struct OrganizeTokensView: View {
                             identity: OrganizeTokensShadowAnimatableModifier(progress: 1.0)
                         )
                     )
-                    .combined(with: .modifier(active: viewRemovalProgressObserver, identity: .dummy))
+                    .combined(
+                        with: .modifier(
+                            active: viewRemovalProgressObserver,
+                            identity: dummyProgressObserver
+                        )
+                    )
             )
             .onDisappear {
                 // Perform required clean-up when the view removal animation finishes
