@@ -518,21 +518,6 @@ struct OrganizeTokensView: View {
             - baseOffsetTransitionValue
             - dragGestureTranslationFix.height
 
-        let dummyProgressObserver = OrganizeTokensAnimationProgressObserverAnimatableModifier(
-            targetProgress: 1.0,
-            progressThreshold: 1.0
-        ) {}
-
-        let viewRemovalProgressObserver = OrganizeTokensAnimationProgressObserverAnimatableModifier(
-            targetProgress: 0.0,
-            progressThreshold: Constants.dropAnimationProgressThresholdForViewRemoval
-        ) {
-            // `DispatchQueue.main.async` used here to allow publishing changes during view update
-            DispatchQueue.main.async {
-                dragAndDropSourceViewModelIdentifier = nil
-            }
-        }
-
         content()
             .frame(width: width)
             .readGeometry(\.frame, bindTo: $draggedItemFrame)
@@ -548,32 +533,19 @@ struct OrganizeTokensView: View {
                         )
                     )
                     .combined(
-                        with: .modifier(
-                            active: OrganizeTokensCornerRadiusAnimatableModifier(
-                                progress: 0.0,
-                                cornerRadius: 0.0,
-                                offset: totalOffsetTransitionValue + additionalOffsetRemovalTransitionValue,
-                                scale: 1.0
-                            ),
-                            identity: OrganizeTokensCornerRadiusAnimatableModifier(
-                                progress: 1.0,
-                                cornerRadius: Constants.draggableViewCornerRadius,
-                                offset: totalOffsetTransitionValue,
-                                scale: Constants.draggableViewScale
-                            )
+                        with: .cornerRadius(
+                            insertionOffset: totalOffsetTransitionValue,
+                            removalOffset: totalOffsetTransitionValue + additionalOffsetRemovalTransitionValue
                         )
                     )
+                    .combined(with: .shadow)
                     .combined(
-                        with: .modifier(
-                            active: OrganizeTokensShadowAnimatableModifier(progress: 0.0),
-                            identity: OrganizeTokensShadowAnimatableModifier(progress: 1.0)
-                        )
-                    )
-                    .combined(
-                        with: .modifier(
-                            active: viewRemovalProgressObserver,
-                            identity: dummyProgressObserver
-                        )
+                        with: .onViewRemoval {
+                            // `DispatchQueue.main.async` used here to allow publishing changes during view update
+                            DispatchQueue.main.async {
+                                dragAndDropSourceViewModelIdentifier = nil
+                            }
+                        }
                     )
             )
             .onDisappear {
@@ -584,10 +556,55 @@ struct OrganizeTokensView: View {
     }
 }
 
+// MARK: - Convenience extensions
+
+private extension AnyTransition {
+    static var shadow: AnyTransition {
+        return .modifier(
+            active: OrganizeTokensShadowAnimatableModifier(progress: 0.0),
+            identity: OrganizeTokensShadowAnimatableModifier(progress: 1.0)
+        )
+    }
+
+    static func cornerRadius(insertionOffset: CGFloat, removalOffset: CGFloat) -> AnyTransition {
+        return .modifier(
+            active: OrganizeTokensCornerRadiusAnimatableModifier(
+                progress: 0.0,
+                cornerRadius: 0.0,
+                offset: removalOffset,
+                scale: 1.0
+            ),
+            identity: OrganizeTokensCornerRadiusAnimatableModifier(
+                progress: 1.0,
+                cornerRadius: OrganizeTokensView.Constants.draggableViewCornerRadius,
+                offset: insertionOffset,
+                scale: OrganizeTokensView.Constants.draggableViewScale
+            )
+        )
+    }
+
+    static func onViewRemoval(perform action: @escaping () -> Void) -> AnyTransition {
+        let dummyViewInsertionProgressObserver = OrganizeTokensAnimationProgressObserverAnimatableModifier(
+            targetProgress: 1.0,
+            progressThreshold: 1.0
+        ) {}
+        let viewRemovalProgressObserver = OrganizeTokensAnimationProgressObserverAnimatableModifier(
+            targetProgress: 0.0,
+            progressThreshold: OrganizeTokensView.Constants.dropAnimationProgressThresholdForViewRemoval,
+            action: action
+        )
+
+        return .modifier(
+            active: viewRemovalProgressObserver,
+            identity: dummyViewInsertionProgressObserver
+        )
+    }
+}
+
 // MARK: - Constants
 
 private extension OrganizeTokensView {
-    private enum Constants {
+    enum Constants {
         static let contentCornerRadius = 14.0
         static let headerBottomInset = 10.0
         static var headerAdditionalBottomInset: CGFloat { contentVerticalInset - headerBottomInset }
