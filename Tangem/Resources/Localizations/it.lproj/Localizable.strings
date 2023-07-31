@@ -181,7 +181,7 @@
 "main_no_backup_warning_title" = "Your wallet has not been backed up";
 "main_page_balance" = "Total balance";
 "main_processing_full_amount" = "L'importo non include alcuni dei tuoi fondi";
-"main_promotion_credited" = "1INCH tokens will be credited to your %@ wallet address within 24 hours";
+"main_promotion_credited" = "1INCH tokens will be credited to your %@ wallet address within 48 hours";
 "main_scan_card_warning_view_subtitle" = "To access all the networks you need to scan the card";
 "main_scan_card_warning_view_title" = "Scan your card";
 "main_tokens" = "Tokens";
@@ -279,12 +279,15 @@
 "referral_error_failed_to_load_info" = "Failed to load the information about the referral program. Please try again later.";
 "referral_error_failed_to_load_info_with_reason" = "Failed to load the information about the referral program. Error code: %@. Please try again later.";
 "referral_error_failed_to_participate" = "Your participation request could not be processed. Error code: %@. Please try again later. If the problem persists — feel free to contact our support.";
+"referral_expected_awards" = "Upcoming payments";
 "referral_friends_bought_title" = "Your friends bought";
-"referral_point_currencies_description_prefix" = "Will get";
-"referral_point_currencies_description_suffix" = "for each wallet bought by your friend on your %1$@ network address%2$@";
+"referral_less" = "Less";
+"referral_more" = "More";
+"referral_no_expected_awards" = "No upcoming payments";
+"referral_point_currencies_description" = "Will get ^^%1$@^^ for each wallet bought by your friend on your %2$@ network address %3$@ ^^30 days after^^ that";
 "referral_point_currencies_title" = "You";
 "referral_point_discount_description_prefix" = "Will get a";
-"referral_point_discount_description_suffix" = "when buying a card on tangem.com";
+"referral_point_discount_description_suffix" = "when buying a wallet on tangem.com";
 "referral_point_discount_description_value" = "%@ discount";
 "referral_point_discount_title" = "Your friend";
 "referral_promo_code_copied" = "Personal code copied!";
