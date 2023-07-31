@@ -33,8 +33,6 @@ final class MainViewModel: ObservableObject {
         self.coordinator = coordinator
 
         pages = mainUserWalletPageBuilderFactory.createPages(from: userWalletRepository.models)
-        print(userWalletRepository)
-        print("Number of items in repo: \(userWalletRepository.userWallets.count)")
         setupHorizontalScrollAvailability()
     }
 
