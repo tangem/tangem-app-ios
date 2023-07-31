@@ -1,5 +1,5 @@
 //
-//  AddCustomTokenRoutable.swift
+//  LegacyAddCustomTokenRoutable.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -8,6 +8,6 @@
 
 import Foundation
 
-protocol AddCustomTokenRoutable: AnyObject {
+protocol LegacyAddCustomTokenRoutable: AnyObject {
     func closeModule()
 }
