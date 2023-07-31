@@ -40,6 +40,10 @@ final class SwappingTokenListViewModel: ObservableObject, Identifiable {
     private var bag: Set<AnyCancellable> = []
     private lazy var dataLoader: ListDataLoader = setupLoader()
 
+    private var setupUserItemsSectionTask: Task<Void, Error>? {
+        didSet { oldValue?.cancel() }
+    }
+
     init(
         sourceCurrency: Currency,
         userCurrenciesProvider: UserCurrenciesProviding,
@@ -58,9 +62,16 @@ final class SwappingTokenListViewModel: ObservableObject, Identifiable {
         self.coordinator = coordinator
 
         setupNavigationTitleView()
-        setupUserItemsSection()
         bind()
+    }
+
+    func onAppear() {
+        setupUserItemsSection()
         fetch()
+    }
+
+    func onDisappear() {
+        setupUserItemsSectionTask = nil
     }
 
     func fetch() {
@@ -78,8 +89,10 @@ private extension SwappingTokenListViewModel {
     }
 
     func setupUserItemsSection() {
-        runTask(in: self) { obj in
-            obj.userCurrencies = await obj.userCurrenciesProvider.getCurrencies(blockchain: obj.sourceCurrency.blockchain)
+        setupUserItemsSectionTask = runTask(in: self) { obj in
+            obj.userCurrencies = await obj.userCurrenciesProvider.getCurrencies(
+                blockchain: obj.sourceCurrency.blockchain
+            )
 
             /// Currencies which should be in user items section
             let currencies = obj.userCurrencies.filter { obj.sourceCurrency != $0 }
@@ -113,12 +126,14 @@ private extension SwappingTokenListViewModel {
                 return
             }
 
+            guard !Task.isCancelled else { return }
+
             AppLog.shared.debug("Start loading balances for currencies: \(currenciesToLoadBalance)")
-            // Create a task group for collect all updates in one array
+            // Create a task group for collecting all updates in single array
             let currencyBalances = await withTaskGroup(of: CurrencyAmount.self) { taskGroup in
                 for currency in currenciesToLoadBalance {
                     // Run a parallel asynchronous task and collect it into the group
-                    taskGroup.addTask {
+                    _ = taskGroup.addTaskUnlessCancelled {
                         do {
                             let balance = try await obj.walletDataProvider.getBalance(for: currency)
                             return CurrencyAmount(value: balance, currency: currency)
@@ -130,15 +145,16 @@ private extension SwappingTokenListViewModel {
                     }
                 }
 
-                return taskGroup
+                // Await when all child tasks will be done
+                // And map the result array into [Currency: Decimal] to filter out duplicate currencies
+                return await taskGroup.reduce(into: [:]) { $0[$1.currency] = $1.value }
             }
 
-            // Await when all tasks will be done
-            // And map it array into [Currency: Decimal] for exclude repetitions currency
-            let balances = await currencyBalances.reduce(into: [:]) { $0[$1.currency] = $1.value }
-            let fiatBalances = try await obj.fiatRatesProvider.getFiat(for: balances)
+            guard !Task.isCancelled else { return }
+
+            let fiatBalances = try await obj.fiatRatesProvider.getFiat(for: currencyBalances)
             fiatBalances.forEach { currency, fiatBalance in
-                guard let balance = balances[currency] else {
+                guard let balance = currencyBalances[currency] else {
                     AppLog.shared.debug("Balance for currency \(currency) not found")
                     return
                 }
