@@ -10,13 +10,13 @@ import Foundation
 import Combine
 
 final class FakeCardHeaderPreviewProvider: ObservableObject {
-    @Published var models: [CardHeaderViewModel] = []
+    @Published var models: [MainHeaderViewModel] = []
 
     let infoProviders: [CardInfoProvider] = [
         CardInfoProvider(
             walletModel: FakeUserWalletModel.wallet3Cards,
             tapAction: { provider in
-                provider.walletModel.updateWalletName(provider.walletModel.cardName == "William Wallet" ? "Uilleam Uallet" : "William Wallet")
+                provider.walletModel.updateWalletName(provider.walletModel.userWalletName == "William Wallet" ? "Uilleam Uallet" : "William Wallet")
                 switch provider.balance {
                 case .loading:
                     provider.balance = .loaded(TotalBalanceProvider.TotalBalance(
@@ -32,7 +32,7 @@ final class FakeCardHeaderPreviewProvider: ObservableObject {
         CardInfoProvider(
             walletModel: FakeUserWalletModel.twins,
             tapAction: { provider in
-                provider.walletModel.updateWalletName(provider.walletModel.cardName == "Wallet Hannah" ? "Wallet Jane" : "Wallet Hannah")
+                provider.walletModel.updateWalletName(provider.walletModel.userWalletName == "Wallet Hannah" ? "Wallet Jane" : "Wallet Hannah")
                 switch provider.balance {
                 case .loading:
                     provider.balance = .loaded(TotalBalanceProvider.TotalBalance(
@@ -70,8 +70,8 @@ final class FakeCardHeaderPreviewProvider: ObservableObject {
         models = infoProviders
             .map {
                 .init(
-                    cardInfoProvider: $0.walletModel,
-                    cardSubtitleProvider: $0.headerSubtitleProvider,
+                    infoProvider: $0.walletModel,
+                    subtitleProvider: $0.headerSubtitleProvider,
                     balanceProvider: $0
                 )
             }
@@ -83,13 +83,13 @@ extension FakeCardHeaderPreviewProvider {
         @Published var balance: LoadingValue<TotalBalanceProvider.TotalBalance> = .loading
 
         let walletModel: FakeUserWalletModel
-        let headerSubtitleProvider: CardHeaderSubtitleProvider
+        let headerSubtitleProvider: MainHeaderSubtitleProvider
 
         var tapAction: (CardInfoProvider) -> Void
 
         init(walletModel: FakeUserWalletModel, tapAction: @escaping (CardInfoProvider) -> Void) {
             self.walletModel = walletModel
-            headerSubtitleProvider = CardHeaderSubtitleProviderFactory().provider(for: walletModel)
+            headerSubtitleProvider = MainHeaderSubtitleProviderFactory().provider(for: walletModel)
             self.tapAction = tapAction
         }
 
