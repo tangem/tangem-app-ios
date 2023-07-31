@@ -570,12 +570,12 @@ extension CardViewModel: UserWalletModel {
     }
 }
 
-extension CardViewModel: CardHeaderInfoProvider {
+extension CardViewModel: MainHeaderInfoProvider {
     var cardHeaderImage: ImageType? { config.cardHeaderImage }
 
-    var isCardLocked: Bool { userWallet.isLocked }
+    var isUserWalletLocked: Bool { userWallet.isLocked }
 
-    var cardNamePublisher: AnyPublisher<String, Never> { _cardNamePubliher.eraseToAnyPublisher() }
+    var userWalletNamePublisher: AnyPublisher<String, Never> { _cardNamePubliher.eraseToAnyPublisher() }
 }
 
 // [REDACTED_TODO_COMMENT]
