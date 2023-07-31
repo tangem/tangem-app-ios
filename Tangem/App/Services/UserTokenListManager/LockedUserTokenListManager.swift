@@ -18,7 +18,7 @@ struct LockedUserTokenListManager: UserTokenListManager {
         return false
     }
 
-    func update(_ type: CommonUserTokenListManager.UpdateType, shouldUpload: Bool) {}
+    func update(_ type: UserTokenListUpdateType, shouldUpload: Bool) {}
 
     func upload() {}
 
