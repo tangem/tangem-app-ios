@@ -1,5 +1,5 @@
 //
-//  SingleWalletCardHeaderSubtitleProvider.swift
+//  SingleWalletMainHeaderSubtitleProvider.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -9,15 +9,21 @@
 import Foundation
 import Combine
 
-class SingleWalletCardHeaderSubtitleProvider: CardHeaderSubtitleProvider {
-    private let subject: CurrentValueSubject<CardHeaderSubtitleInfo, Never> = .init(.empty)
-    private let isLoadingSubject: CurrentValueSubject<Bool, Never>
+protocol SingleWalletMainHeaderSubtitleDataSource: AnyObject {
+    var walletDidChangePublisher: AnyPublisher<WalletModel.State, Never> { get }
+    var balance: String { get }
+}
 
-    private let userWalletModel: UserWalletModel
-    private let walletModel: WalletModel?
+class SingleWalletMainHeaderSubtitleProvider: MainHeaderSubtitleProvider {
+    private weak var dataSource: SingleWalletMainHeaderSubtitleDataSource?
+
+    private let subject: CurrentValueSubject<MainHeaderSubtitleInfo, Never> = .init(.empty)
+    private let isLoadingSubject: CurrentValueSubject<Bool, Never>
+    private let isUserWalletLocked: Bool
+
     private var stateUpdateSubscription: AnyCancellable?
 
-    var subtitlePublisher: AnyPublisher<CardHeaderSubtitleInfo, Never> {
+    var subtitlePublisher: AnyPublisher<MainHeaderSubtitleInfo, Never> {
         subject.eraseToAnyPublisher()
     }
 
@@ -27,20 +33,20 @@ class SingleWalletCardHeaderSubtitleProvider: CardHeaderSubtitleProvider {
 
     var containsSensitiveInfo: Bool { true }
 
-    init(userWalletModel: UserWalletModel, walletModel: WalletModel?) {
-        self.userWalletModel = userWalletModel
-        self.walletModel = walletModel
-        isLoadingSubject = .init(!userWalletModel.isCardLocked)
+    init(isUserWalletLocked: Bool, dataSource: SingleWalletMainHeaderSubtitleDataSource?) {
+        self.isUserWalletLocked = isUserWalletLocked
+        self.dataSource = dataSource
+        isLoadingSubject = .init(!isUserWalletLocked)
         bind()
     }
 
     private func bind() {
-        if userWalletModel.isCardLocked {
+        if isUserWalletLocked {
             displayLockedWalletMessage()
             return
         }
 
-        stateUpdateSubscription = walletModel?.walletDidChangePublisher
+        stateUpdateSubscription = dataSource?.walletDidChangePublisher
             .receive(on: DispatchQueue.main)
             .sink(receiveValue: { [weak self] newState in
                 guard let self else { return }
@@ -65,9 +71,9 @@ class SingleWalletCardHeaderSubtitleProvider: CardHeaderSubtitleProvider {
     }
 
     private func formatBalanceMessage() {
-        guard let walletModel else { return }
+        guard let dataSource else { return }
 
-        let balance = walletModel.balance
+        let balance = dataSource.balance
         subject.send(.init(message: balance, formattingOption: .default))
     }
 
@@ -79,3 +85,5 @@ class SingleWalletCardHeaderSubtitleProvider: CardHeaderSubtitleProvider {
         subject.send(.init(message: Localization.commonLocked, formattingOption: .default))
     }
 }
+
+extension WalletModel: SingleWalletMainHeaderSubtitleDataSource {}
