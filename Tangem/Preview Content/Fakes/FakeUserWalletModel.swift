@@ -22,28 +22,28 @@ class FakeUserWalletModel: UserWalletModel, ObservableObject {
     let userWalletId: UserWalletId
     var cardsCount: Int
 
-    var cardName: String { _cardNamePublisher.value }
+    var userWalletName: String { _userWalletNamePublisher.value }
 
     var tokensCount: Int? { walletModelsManager.walletModels.filter { !$0.isMainToken }.count }
     var updatePublisher: AnyPublisher<Void, Never> { _updatePublisher.eraseToAnyPublisher() }
 
     private let _updatePublisher: PassthroughSubject<Void, Never> = .init()
-    private let _cardNamePublisher: CurrentValueSubject<String, Never>
+    private let _userWalletNamePublisher: CurrentValueSubject<String, Never>
 
     internal init(
-        cardName: String,
+        userWalletName: String,
         isMultiWallet: Bool,
-        isCardLocked: Bool,
+        isUserWalletLocked: Bool,
         cardsCount: Int,
         userWalletId: UserWalletId,
         walletModels: [WalletModel],
         userWallet: UserWallet
     ) {
         self.isMultiWallet = isMultiWallet
-        self.isUserWalletLocked = isCardLocked
+        self.isUserWalletLocked = isUserWalletLocked
         self.cardsCount = cardsCount
         self.userWalletId = userWalletId
-        _cardNamePublisher = .init(cardName)
+        _userWalletNamePublisher = .init(userWalletName)
         walletModelsManager = WalletModelsManagerMock()
         userTokenListManager = CommonUserTokenListManager(hasTokenSynchronization: false, userWalletId: userWalletId.value, hdWalletsSupported: true)
         totalBalanceProvider = TotalBalanceProviderMock()
@@ -53,7 +53,7 @@ class FakeUserWalletModel: UserWalletModel, ObservableObject {
     func initialUpdate() {}
 
     func updateWalletName(_ name: String) {
-        _cardNamePublisher.send(name)
+        _userWalletNamePublisher.send(name)
         _updatePublisher.send(())
     }
 
@@ -63,7 +63,7 @@ class FakeUserWalletModel: UserWalletModel, ObservableObject {
 }
 
 extension FakeUserWalletModel: MainHeaderInfoProvider {
-    var userWalletNamePublisher: AnyPublisher<String, Never> { _cardNamePublisher.eraseToAnyPublisher() }
+    var userWalletNamePublisher: AnyPublisher<String, Never> { _userWalletNamePublisher.eraseToAnyPublisher() }
 
     var cardHeaderImage: ImageType? {
         UserWalletConfigFactory(userWallet.cardInfo()).makeConfig().cardHeaderImage
@@ -78,9 +78,9 @@ extension FakeUserWalletModel {
     ]
 
     static let wallet3Cards = FakeUserWalletModel(
-        cardName: "William Wallet",
+        userWalletName: "William Wallet",
         isMultiWallet: true,
-        isCardLocked: false,
+        isUserWalletLocked: false,
         cardsCount: 3,
         userWalletId: .init(with: Data.randomData(count: 32)),
         walletModels: [
@@ -99,9 +99,9 @@ extension FakeUserWalletModel {
     )
 
     static let twins = FakeUserWalletModel(
-        cardName: "Tangem Twins",
+        userWalletName: "Tangem Twins",
         isMultiWallet: false,
-        isCardLocked: true,
+        isUserWalletLocked: true,
         cardsCount: 2,
         userWalletId: .init(with: Data.randomData(count: 32)),
         walletModels: [
@@ -115,9 +115,9 @@ extension FakeUserWalletModel {
     )
 
     static let xrpNote = FakeUserWalletModel(
-        cardName: "XRP Note",
+        userWalletName: "XRP Note",
         isMultiWallet: false,
-        isCardLocked: false,
+        isUserWalletLocked: false,
         cardsCount: 1,
         userWalletId: .init(with: Data.randomData(count: 32)),
         walletModels: [
