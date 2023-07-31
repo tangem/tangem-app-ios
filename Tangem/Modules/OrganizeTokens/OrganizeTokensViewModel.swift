@@ -17,13 +17,13 @@ final class OrganizeTokensViewModel: ObservableObject {
     var sectionHeaderItemIndex: Int { .min }
 
     private(set) lazy var headerViewModel = OrganizeTokensHeaderViewModel()
-
-    @Published var sections: [OrganizeTokensListSectionViewModel] = []
+    @Published private(set) var sections: [OrganizeTokensListSectionViewModel] = []
 
     private unowned let coordinator: OrganizeTokensRoutable
 
     private let userWalletModel: UserWalletModel
     private var userTokenListManager: UserTokenListManager { userWalletModel.userTokenListManager }
+    private var walletModelsManager: WalletModelsManager { userWalletModel.walletModelsManager }
 
     private var currentlyDraggedSectionIdentifier: UUID?
     private var currentlyDraggedSectionItems: [OrganizeTokensListItemViewModel] = []
@@ -63,8 +63,9 @@ final class OrganizeTokensViewModel: ObservableObject {
 
         // [REDACTED_TODO_COMMENT]
         // [REDACTED_TODO_COMMENT]
-        userWalletModel
-            .subscribeToWalletModels()
+        // [REDACTED_TODO_COMMENT]
+        walletModelsManager
+            .walletModelsPublisher
             .map(Self.map)
             .weakAssign(to: \.sections, on: self)
             .store(in: &bag)
@@ -78,8 +79,7 @@ final class OrganizeTokensViewModel: ObservableObject {
         return walletModels.map { walletModel in
             let blockchainNetwork = walletModel.blockchainNetwork
             let networkItem = map(blockchainNetwork)
-            let tokenItems = map(walletModel.getTokens(), in: blockchainNetwork)
-            // [REDACTED_TODO_COMMENT]
+            let tokenItems = map([], in: blockchainNetwork) // [REDACTED_TODO_COMMENT]
             return OrganizeTokensListSectionViewModel(
                 style: .fixed(title: Localization.walletNetworkGroupTitle(blockchainNetwork.blockchain.displayName)),
                 items: [networkItem] + tokenItems
