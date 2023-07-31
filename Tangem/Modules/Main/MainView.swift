@@ -50,7 +50,7 @@ struct MainView: View {
     }
 
     var scanCardButton: some View {
-        Button(action: viewModel.scanCard) {
+        Button(action: viewModel.scanCardAction) {
             Assets.scanWithPhone.image
                 .foregroundColor(Colors.Icon.primary1)
                 .frame(width: 44, height: 44)
