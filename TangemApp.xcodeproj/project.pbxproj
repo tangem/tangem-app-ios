@@ -3200,7 +3200,7 @@
 			path = TokenList;
 			sourceTree = "<group>";
 		};
-		B09310592A0BC03100F6043A /* MainPagerHeaderView */ = {
+		B09310592A0BC03100F6043A /* MainHeaderView */ = {
 			isa = PBXGroup;
 			children = (
 				B06C08392A73E0C000D982BC /* MainHeaderSubtitleProvider */,
@@ -3208,7 +3208,7 @@
 				B05919032A0BCD1100EB8005 /* MainHeaderViewModel.swift */,
 				B0B86CFE2A1B594000AB1475 /* MainHeaderInfoProvider.swift */,
 			);
-			path = MainPagerHeaderView;
+			path = MainHeaderView;
 			sourceTree = "<group>";
 		};
 		B0958BA229F6A789007CD76D /* TokenItemView */ = {
@@ -3230,7 +3230,7 @@
 				EF666C242A2DF9D60044986F /* BottomSheet */,
 				2D535E6D2A0CB4D20081EB76 /* BottonSheetInfoView */,
 				B05A13AF29FBF16300FB511A /* ButtonWithIcon */,
-				B09310592A0BC03100F6043A /* MainPagerHeaderView */,
+				B09310592A0BC03100F6043A /* MainHeaderView */,
 				B675A1E42A1E050C00F624B6 /* CardsInfoPagerView */,
 				B0B335CE29FA7FC100E2082E /* Common */,
 				B0120A942A0E0FAB00F485F1 /* Extensions */,
