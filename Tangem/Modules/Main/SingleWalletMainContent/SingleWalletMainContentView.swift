@@ -1,5 +1,5 @@
 //
-//  SingleWalletContentView.swift
+//  SingleWalletMainContentView.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -8,8 +8,8 @@
 
 import SwiftUI
 
-struct SingleWalletContentView: View {
-    @ObservedObject var viewModel: SingleWalletContentViewModel
+struct SingleWalletMainContentView: View {
+    @ObservedObject var viewModel: SingleWalletMainContentViewModel
 
     var body: some View {
         VStack {
@@ -19,9 +19,9 @@ struct SingleWalletContentView: View {
 }
 
 struct SingleWalletContentView_Preview: PreviewProvider {
-    static let viewModel = SingleWalletContentViewModel(coordinator: SingleWalletContentCoordinator())
+    static let viewModel = SingleWalletMainContentViewModel(coordinator: SingleWalletMainContentCoordinator())
 
     static var previews: some View {
-        SingleWalletContentView(viewModel: viewModel)
+        SingleWalletMainContentView(viewModel: viewModel)
     }
 }
