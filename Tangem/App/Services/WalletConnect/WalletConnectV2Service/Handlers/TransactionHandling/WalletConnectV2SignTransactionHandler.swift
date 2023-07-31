@@ -21,7 +21,7 @@ class WalletConnectV2SignTransactionHandler {
 
     init(
         requestParams: AnyCodable,
-        blockchain: Blockchain,
+        blockchainId: String,
         transactionBuilder: WalletConnectEthTransactionBuilder,
         messageComposer: WalletConnectV2MessageComposable,
         signer: TangemSigner,
@@ -34,7 +34,7 @@ class WalletConnectV2SignTransactionHandler {
             }
 
             self.ethTransaction = ethTransaction
-            walletModel = try walletModelProvider.getModel(with: ethTransaction.from, in: blockchain)
+            walletModel = try walletModelProvider.getModel(with: ethTransaction.from, blockchainId: blockchainId)
         } catch {
             AppLog.shared.error(error)
             throw error
