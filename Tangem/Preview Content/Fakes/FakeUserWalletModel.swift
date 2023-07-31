@@ -18,7 +18,7 @@ class FakeUserWalletModel: UserWalletModel, ObservableObject {
 
     let userWallet: UserWallet
     let isMultiWallet: Bool
-    let isCardLocked: Bool
+    let isUserWalletLocked: Bool
     let userWalletId: UserWalletId
     var cardsCount: Int
 
@@ -40,7 +40,7 @@ class FakeUserWalletModel: UserWalletModel, ObservableObject {
         userWallet: UserWallet
     ) {
         self.isMultiWallet = isMultiWallet
-        self.isCardLocked = isCardLocked
+        self.isUserWalletLocked = isCardLocked
         self.cardsCount = cardsCount
         self.userWalletId = userWalletId
         _cardNamePublisher = .init(cardName)
@@ -62,8 +62,8 @@ class FakeUserWalletModel: UserWalletModel, ObservableObject {
     }
 }
 
-extension FakeUserWalletModel: CardHeaderInfoProvider {
-    var cardNamePublisher: AnyPublisher<String, Never> { _cardNamePublisher.eraseToAnyPublisher() }
+extension FakeUserWalletModel: MainHeaderInfoProvider {
+    var userWalletNamePublisher: AnyPublisher<String, Never> { _cardNamePublisher.eraseToAnyPublisher() }
 
     var cardHeaderImage: ImageType? {
         UserWalletConfigFactory(userWallet.cardInfo()).makeConfig().cardHeaderImage
