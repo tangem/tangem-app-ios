@@ -1,5 +1,5 @@
 //
-//  SingleWalletContentCoordinatorView.swift
+//  SingleWalletMainContentCoordinatorView.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -8,13 +8,13 @@
 
 import SwiftUI
 
-struct SingleWalletContentCoordinatorView: CoordinatorView {
-    @ObservedObject var coordinator: SingleWalletContentCoordinator
+struct SingleWalletMainContentCoordinatorView: CoordinatorView {
+    @ObservedObject var coordinator: SingleWalletMainContentCoordinator
 
     var body: some View {
         ZStack {
             if let rootViewModel = coordinator.rootViewModel {
-                SingleWalletContentView(viewModel: rootViewModel)
+                SingleWalletMainContentView(viewModel: rootViewModel)
                     .navigationLinks(links)
             }
 
