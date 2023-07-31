@@ -7,7 +7,6 @@
 //
 
 import Combine
-import SwiftUI
 
 final class SingleWalletContentViewModel: ObservableObject {
     // MARK: - ViewState
