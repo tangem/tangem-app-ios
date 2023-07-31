@@ -30,12 +30,12 @@ class SingleWalletMainHeaderSubtitleProvider: MainHeaderSubtitleProvider {
     init(userWalletModel: UserWalletModel, walletModel: WalletModel?) {
         self.userWalletModel = userWalletModel
         self.walletModel = walletModel
-        isLoadingSubject = .init(!userWalletModel.isCardLocked)
+        isLoadingSubject = .init(!userWalletModel.isUserWalletLocked)
         bind()
     }
 
     private func bind() {
-        if userWalletModel.isCardLocked {
+        if userWalletModel.isUserWalletLocked {
             displayLockedWalletMessage()
             return
         }
