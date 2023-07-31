@@ -29,7 +29,7 @@ struct OrganizeTokensAnimationProgressObserverAnimatableModifier<T>: AnimatableM
     init(
         targetProgress: T,
         progressThreshold: T,
-        _ action: @escaping () -> Void
+        action: @escaping () -> Void
     ) {
         animatableData = targetProgress
         self.progressThreshold = progressThreshold
