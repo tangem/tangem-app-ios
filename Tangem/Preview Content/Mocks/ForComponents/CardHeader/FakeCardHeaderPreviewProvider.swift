@@ -10,7 +10,7 @@ import Foundation
 import Combine
 
 final class FakeCardHeaderPreviewProvider: ObservableObject {
-    @Published var models: [CardHeaderViewModel] = []
+    @Published var models: [MainHeaderViewModel] = []
 
     let infoProviders: [CardInfoProvider] = [
         CardInfoProvider(
@@ -83,13 +83,13 @@ extension FakeCardHeaderPreviewProvider {
         @Published var balance: LoadingValue<TotalBalanceProvider.TotalBalance> = .loading
 
         let walletModel: FakeUserWalletModel
-        let headerSubtitleProvider: CardHeaderSubtitleProvider
+        let headerSubtitleProvider: MainHeaderSubtitleProvider
 
         var tapAction: (CardInfoProvider) -> Void
 
         init(walletModel: FakeUserWalletModel, tapAction: @escaping (CardInfoProvider) -> Void) {
             self.walletModel = walletModel
-            headerSubtitleProvider = CardHeaderSubtitleProviderFactory().provider(for: walletModel)
+            headerSubtitleProvider = MainHeaderSubtitleProviderFactory().provider(for: walletModel)
             self.tapAction = tapAction
         }
 
