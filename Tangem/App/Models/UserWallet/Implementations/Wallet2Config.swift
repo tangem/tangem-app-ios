@@ -59,10 +59,12 @@ extension Wallet2Config: UserWalletConfig {
         return false
     }
 
-    var supportedBlockchains: Set<Blockchain> {
-        let allBlockchains = AppEnvironment.current.isTestnet ? Blockchain.supportedTestnetBlockchains
-            : Blockchain.supportedBlockchains
+    var canImportKeys: Bool {
+        card.settings.isKeysImportAllowed && FeatureProvider.isAvailable(.importSeedPhrase)
+    }
 
+    var supportedBlockchains: Set<Blockchain> {
+        let allBlockchains = SupportedBlockchains(version: .v2).blockchains()
         return allBlockchains.filter { card.walletCurves.contains($0.curve) }
     }
 
@@ -72,7 +74,7 @@ extension Wallet2Config: UserWalletConfig {
 
         let entries: [StorageEntry] = blockchains.map {
             if let derivationStyle = derivationStyle {
-                let derivationPath = $0.derivationPaths(for: derivationStyle)[.default]
+                let derivationPath = $0.derivationPath(for: derivationStyle)
                 let network = BlockchainNetwork($0, derivationPath: derivationPath)
                 return .init(blockchainNetwork: network, tokens: [])
             }
@@ -113,6 +115,10 @@ extension Wallet2Config: UserWalletConfig {
 
     var productType: Analytics.ProductType {
         .wallet2
+    }
+
+    var cardHeaderImage: ImageType? {
+        cardsCount == 2 ? Assets.Cards.wallet2Double : Assets.Cards.wallet2Triple
     }
 
     func getFeatureAvailability(_ feature: UserWalletFeature) -> UserWalletFeature.Availability {
