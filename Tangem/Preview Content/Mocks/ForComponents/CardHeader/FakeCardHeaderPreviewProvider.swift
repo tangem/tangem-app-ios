@@ -16,7 +16,7 @@ final class FakeCardHeaderPreviewProvider: ObservableObject {
         CardInfoProvider(
             walletModel: FakeUserWalletModel.wallet3Cards,
             tapAction: { provider in
-                provider.walletModel.updateWalletName(provider.walletModel.cardName == "William Wallet" ? "Uilleam Uallet" : "William Wallet")
+                provider.walletModel.updateWalletName(provider.walletModel.userWalletName == "William Wallet" ? "Uilleam Uallet" : "William Wallet")
                 switch provider.balance {
                 case .loading:
                     provider.balance = .loaded(TotalBalanceProvider.TotalBalance(
@@ -32,7 +32,7 @@ final class FakeCardHeaderPreviewProvider: ObservableObject {
         CardInfoProvider(
             walletModel: FakeUserWalletModel.twins,
             tapAction: { provider in
-                provider.walletModel.updateWalletName(provider.walletModel.cardName == "Wallet Hannah" ? "Wallet Jane" : "Wallet Hannah")
+                provider.walletModel.updateWalletName(provider.walletModel.userWalletName == "Wallet Hannah" ? "Wallet Jane" : "Wallet Hannah")
                 switch provider.balance {
                 case .loading:
                     provider.balance = .loaded(TotalBalanceProvider.TotalBalance(
@@ -70,8 +70,8 @@ final class FakeCardHeaderPreviewProvider: ObservableObject {
         models = infoProviders
             .map {
                 .init(
-                    cardInfoProvider: $0.walletModel,
-                    cardSubtitleProvider: $0.headerSubtitleProvider,
+                    infoProvider: $0.walletModel,
+                    subtitleProvider: $0.headerSubtitleProvider,
                     balanceProvider: $0
                 )
             }
