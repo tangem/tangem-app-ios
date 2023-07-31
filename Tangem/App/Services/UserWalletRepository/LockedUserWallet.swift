@@ -27,13 +27,9 @@ class LockedUserWallet: UserWalletModel {
     private(set) var userWallet: UserWallet
 
     private let config: UserWalletConfig
-    private let cardNameSubject: CurrentValueSubject<String, Never>
-
-    private var bag = Set<AnyCancellable>()
 
     init(with userWallet: UserWallet) {
         self.userWallet = userWallet
-        cardNameSubject = .init(userWallet.name)
         config = UserWalletConfigFactory(userWallet.cardInfo()).makeConfig()
         signer = TangemSigner(with: userWallet.card.cardId, sdk: config.makeTangemSdk())
     }
@@ -41,19 +37,11 @@ class LockedUserWallet: UserWalletModel {
     func initialUpdate() {}
 
     func updateWalletName(_ name: String) {
-        cardNameSubject.send(name)
+        // Renaming locked wallets is prohibited
     }
 
     func totalBalancePublisher() -> AnyPublisher<LoadingValue<TotalBalanceProvider.TotalBalance>, Never> {
         .just(output: .loaded(.init(balance: 0, currencyCode: "", hasError: false)))
-    }
-
-    private func bind() {
-        cardNameSubject
-            .sink { [weak self] newName in
-                self?.userWallet.name = newName
-            }
-            .store(in: &bag)
     }
 }
 
@@ -61,7 +49,7 @@ extension LockedUserWallet: MainHeaderInfoProvider {
     var isUserWalletLocked: Bool { true }
 
     var userWalletNamePublisher: AnyPublisher<String, Never> {
-        cardNameSubject.eraseToAnyPublisher()
+        .just(output: userWallet.name)
     }
 
     var cardHeaderImage: ImageType? {
