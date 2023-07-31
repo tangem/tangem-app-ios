@@ -22,7 +22,6 @@ class CommonWalletConnectService {
 extension CommonWalletConnectService: WalletConnectService {
     var canEstablishNewSessionPublisher: AnyPublisher<Bool, Never> {
         v2Service.canEstablishNewSessionPublisher.eraseToAnyPublisher()
-            .eraseToAnyPublisher()
     }
 
     var newSessions: AsyncStream<[WalletConnectSavedSession]> {
