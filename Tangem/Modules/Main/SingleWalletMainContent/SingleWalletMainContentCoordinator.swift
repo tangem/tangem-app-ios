@@ -1,5 +1,5 @@
 //
-//  MultiWalletContentCoordinator.swift
+//  SingleWalletMainContentCoordinator.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -9,13 +9,13 @@
 import Foundation
 import Combine
 
-class MultiWalletContentCoordinator: CoordinatorObject {
+class SingleWalletMainContentCoordinator: CoordinatorObject {
     let dismissAction: Action
     let popToRootAction: ParamsAction<PopToRootOptions>
 
     // MARK: - Root view model
 
-    @Published private(set) var rootViewModel: MultiWalletContentViewModel?
+    @Published private(set) var rootViewModel: SingleWalletMainContentViewModel?
 
     // MARK: - Child coordinators
 
@@ -36,10 +36,10 @@ class MultiWalletContentCoordinator: CoordinatorObject {
 
 // MARK: - Options
 
-extension MultiWalletContentCoordinator {
+extension SingleWalletMainContentCoordinator {
     struct Options {}
 }
 
-// MARK: - MultiWalletContentRoutable
+// MARK: - SingleWalletContentRoutable
 
-extension MultiWalletContentCoordinator: MultiWalletContentRoutable {}
+extension SingleWalletMainContentCoordinator: SingleWalletMainContentRoutable {}
