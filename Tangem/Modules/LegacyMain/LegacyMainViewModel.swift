@@ -733,7 +733,7 @@ extension LegacyMainViewModel: LegacyMultiWalletContentViewModelOutput {
             shouldShowLegacyDerivationAlert: cardModel.shouldShowLegacyDerivationAlert
         )
 
-        coordinator.openTokensList(
+        coordinator.openLegacyTokensList(
             with: settings,
             userTokensManager: cardModel.userTokensManager
         )
