@@ -33,7 +33,7 @@ class MainCoordinator: CoordinatorObject {
 
     func start(with options: Options) {
         mainViewModel = MainViewModel(
-            selectedUserWalletId: options.userWalletModel.userWalletId.stringValue,
+            selectedUserWalletId: options.userWalletModel.userWalletId,
             coordinator: self
         )
     }
