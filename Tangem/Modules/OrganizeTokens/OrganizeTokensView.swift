@@ -518,7 +518,7 @@ struct OrganizeTokensView: View {
             - baseOffsetTransitionValue
             - dragGestureTranslationFix.height
 
-        let viewRemovalProgressObserver = OrganizeTokensAnimationProgressObserverModifier(
+        let viewRemovalProgressObserver = OrganizeTokensAnimationProgressObserverAnimatableModifier(
             targetProgress: 0.0,
             progressThreshold: Constants.dropAnimationProgressThresholdForViewRemoval
         ) {
