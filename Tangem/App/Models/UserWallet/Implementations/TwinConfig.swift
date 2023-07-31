@@ -87,6 +87,10 @@ extension TwinConfig: UserWalletConfig {
         .twin
     }
 
+    var cardHeaderImage: ImageType? {
+        Assets.Cards.twin
+    }
+
     func getFeatureAvailability(_ feature: UserWalletFeature) -> UserWalletFeature.Availability {
         switch feature {
         case .accessCode:
@@ -159,7 +163,12 @@ extension TwinConfig: UserWalletConfig {
     }
 
     func makeOnboardingStepsBuilder(backupService: BackupService) -> OnboardingStepsBuilder {
-        return TwinOnboardingStepsBulder(card: card, twinData: twinData, touId: tou.id)
+        return TwinOnboardingStepsBulder(
+            cardId: card.cardId,
+            hasWallets: !card.wallets.isEmpty,
+            twinData: twinData,
+            touId: tou.id
+        )
     }
 
     func makeTangemSdk() -> TangemSdk {
