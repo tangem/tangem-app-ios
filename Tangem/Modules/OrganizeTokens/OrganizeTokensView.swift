@@ -295,7 +295,7 @@ struct OrganizeTokensView: View {
                     // Long press gesture successfully ended (equivalent of `UIGestureRecognizer.State.ended`)
                     guard isLongPressGestureEnded else { return }
 
-                    // One-time assignment before value of drag gesture
+                    // One-time assignment before the value of drag gesture changes for the first time
                     // (equivalent of `UIGestureRecognizer.State.began`)
                     guard dragGestureValue == nil else { return }
 
