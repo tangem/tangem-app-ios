@@ -199,7 +199,7 @@ struct BottomSearchableSheet<Content: View>: View {
                 content()
 //                    .background(Color.green.opacity(0.2))
             }
-            .overlay(contentDragGesture(proxy: proxy))
+//            .overlay(contentDragGesture(proxy: proxy))
         }
         .coordinateSpace(name: scrollViewCoordinateNamespace)
         .onPreferenceChange(OffsetPreferenceKey.self) { point in
@@ -360,6 +360,7 @@ public struct BottomSearchableSheet_Preview: PreviewProvider {
     public struct ContentView: View {
         let data: [String]
         private var coordinator = BottomSearchableSheetCoordinator()
+        @ObservedObject
         private var stateObject = BottomSearchableSheetStateObject()
         @State private var text: String = ""
 
