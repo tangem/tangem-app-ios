@@ -241,7 +241,7 @@ extension LegacyMainCoordinator: LegacyMainRoutable {
         currencySelectViewModel?.dismissAfterSelection = autoDismiss
     }
 
-    func openTokensList(
+    func openLegacyTokensList(
         with settings: LegacyManageTokensSettings,
         userTokensManager: UserTokensManager
     ) {
