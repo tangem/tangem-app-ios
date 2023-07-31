@@ -10,15 +10,16 @@ import Foundation
 import Combine
 
 final class MainViewModel: ObservableObject {
+    @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
+
     // MARK: - ViewState
 
-    @Published var pages: [MainCardPageBuilder] = []
+    @Published var pages: [MainUserWalletPageBuilder] = []
     @Published var selectedCardIndex = 0
     @Published var isHorizontalScrollDisabled = false
 
     // MARK: - Dependencies
 
-    private let userWalletRepository: UserWalletRepository
     private var coordinator: MainRoutable?
 
     private var bag = Set<AnyCancellable>()
@@ -27,25 +28,22 @@ final class MainViewModel: ObservableObject {
 
     init(
         coordinator: MainRoutable,
-        userWalletRepository: UserWalletRepository,
-        mainCardPageBuilderFactory: MainCardPageBuilderFactory = CommonMainCardPageBuilderFactory()
+        mainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory = CommonMainUserWalletPageBuilderFactory()
     ) {
         self.coordinator = coordinator
-        self.userWalletRepository = userWalletRepository
 
-        pages = mainCardPageBuilderFactory.createPages(from: userWalletRepository.models)
+        pages = mainUserWalletPageBuilderFactory.createPages(from: userWalletRepository.models)
         setupHorizontalScrollAvailability()
     }
 
     convenience init(
-        userWalletModel: UserWalletModel,
+        selectedUserWalletId: String,
         coordinator: MainRoutable,
-        userWalletRepository: UserWalletRepository,
-        mainCardPageBuilderFactory: MainCardPageBuilderFactory = CommonMainCardPageBuilderFactory()
+        mainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory = CommonMainUserWalletPageBuilderFactory()
     ) {
-        self.init(coordinator: coordinator, userWalletRepository: userWalletRepository, mainCardPageBuilderFactory: mainCardPageBuilderFactory)
+        self.init(coordinator: coordinator, mainUserWalletPageBuilderFactory: mainUserWalletPageBuilderFactory)
 
-        if let selectedIndex = pages.firstIndex(where: { $0.id == userWalletModel.userWalletId.stringValue }) {
+        if let selectedIndex = pages.firstIndex(where: { $0.id == selectedUserWalletId }) {
             selectedCardIndex = selectedIndex
         }
     }
