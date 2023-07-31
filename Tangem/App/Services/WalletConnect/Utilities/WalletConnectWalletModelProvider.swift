@@ -13,7 +13,7 @@ protocol WalletConnectWalletModelProvider {
     // This info is based on information from WC and they didn't know anything about derivation
     // So we need to compare blockchain and address to simulate comparision of derivation path
     // Information about address is encoded in request params and info about blockchain - request chainId
-    func getModel(with address: String, in blockchain: Blockchain) throws -> WalletModel
+    func getModel(with address: String, blockchainId: String) throws -> WalletModel
 }
 
 struct CommonWalletConnectWalletModelProvider: WalletConnectWalletModelProvider {
@@ -23,13 +23,13 @@ struct CommonWalletConnectWalletModelProvider: WalletConnectWalletModelProvider 
         self.walletModelsManager = walletModelsManager
     }
 
-    func getModel(with address: String, in blockchain: Blockchain) throws -> WalletModel {
+    func getModel(with address: String, blockchainId: String) throws -> WalletModel {
         guard
             let model = walletModelsManager.walletModels.first(where: {
-                $0.wallet.blockchain == blockchain && $0.wallet.address.caseInsensitiveCompare(address) == .orderedSame
+                $0.wallet.blockchain.id == blockchainId && $0.wallet.address.caseInsensitiveCompare(address) == .orderedSame
             })
         else {
-            throw WalletConnectV2Error.walletModelNotFound(blockchain)
+            throw WalletConnectV2Error.walletModelNotFound(blockchainId)
         }
 
         return model
