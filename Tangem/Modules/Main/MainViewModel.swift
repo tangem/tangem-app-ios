@@ -53,10 +53,10 @@ final class MainViewModel: ObservableObject {
 
     // MARK: - Internal functions
 
-    func scanCard() {
+    func scanCardAction() {
         Analytics.beginLoggingCardScan(source: .main)
         if AppSettings.shared.saveUserWallets {
-            scanNewCard()
+            scanCard()
         } else {
             coordinator?.close(newScan: true)
         }
@@ -93,7 +93,7 @@ final class MainViewModel: ObservableObject {
 
     // MARK: - Scan card
 
-    private func scanNewCard() {
+    private func scanCard() {
         userWalletRepository.add { [weak self] result in
             guard let self, let result else {
                 return
@@ -118,8 +118,8 @@ final class MainViewModel: ObservableObject {
         }
     }
 
-    private func addNewPage(for cardModel: CardViewModel) {
-        let newPage = mainUserWalletPageBuilderFactory.createPage(for: cardModel)
+    private func addNewPage(for userWalletModel: UserWalletModel) {
+        let newPage = mainUserWalletPageBuilderFactory.createPage(for: userWalletModel)
         let newPageIndex = pages.count
         pages.append(newPage)
         selectedCardIndex = newPageIndex
