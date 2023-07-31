@@ -9,6 +9,11 @@
 import Foundation
 import Combine
 
+protocol MultiWalletMainHeaderSubtitleDataSource: AnyObject {
+    var cardsCount: Int { get }
+    var updatePublisher: AnyPublisher<Void, Never> { get }
+}
+
 class MultiWalletMainHeaderSubtitleProvider: MainHeaderSubtitleProvider {
     var subtitlePublisher: AnyPublisher<MainHeaderSubtitleInfo, Never> {
         subtitleInfoSubject.eraseToAnyPublisher()
@@ -21,11 +26,11 @@ class MultiWalletMainHeaderSubtitleProvider: MainHeaderSubtitleProvider {
     var containsSensitiveInfo: Bool { false }
 
     private var suffix: String {
-        if userWalletModel.userWallet.isLocked {
+        if isUserWalletLocked {
             return separator + Localization.commonLocked
         }
 
-        if userWalletModel.userWallet.card.wallets.contains(where: { $0.isImported ?? false }) {
+        if areWalletsImported {
             return separator + Localization.commonSeedPhrase
         }
 
@@ -34,16 +39,25 @@ class MultiWalletMainHeaderSubtitleProvider: MainHeaderSubtitleProvider {
 
     private let separator = " • "
     private let subtitleInfoSubject: CurrentValueSubject<MainHeaderSubtitleInfo, Never> = .init(.empty)
-    private let userWalletModel: UserWalletModel
+    private let isUserWalletLocked: Bool
+    private let areWalletsImported: Bool
+
+    private unowned var dataSource: MultiWalletMainHeaderSubtitleDataSource
     private var updateSubscription: AnyCancellable?
 
-    init(userWalletModel: UserWalletModel) {
-        self.userWalletModel = userWalletModel
+    init(
+        isUserWalletLocked: Bool,
+        areWalletsImported: Bool,
+        dataSource: MultiWalletMainHeaderSubtitleDataSource
+    ) {
+        self.isUserWalletLocked = isUserWalletLocked
+        self.areWalletsImported = areWalletsImported
+        self.dataSource = dataSource
         formatSubtitle()
     }
 
-    private func bind() {
-        updateSubscription = userWalletModel.updatePublisher
+    private func subscribeToUpdates() {
+        updateSubscription = dataSource.updatePublisher
             .receive(on: DispatchQueue.main)
             .sink(receiveValue: { [weak self] in
                 self?.formatSubtitle()
@@ -51,7 +65,7 @@ class MultiWalletMainHeaderSubtitleProvider: MainHeaderSubtitleProvider {
     }
 
     private func formatSubtitle() {
-        let numberOfCards = userWalletModel.cardsCount
+        let numberOfCards = dataSource.cardsCount
         let numberOfCardsPrefix = Localization.cardLabelCardCount(numberOfCards)
         let subtitle = numberOfCardsPrefix + suffix
         subtitleInfoSubject.send(.init(message: subtitle, formattingOption: .default))
