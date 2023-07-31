@@ -14,6 +14,10 @@ struct MainHeaderSubtitleProviderFactory {
             return SingleWalletMainHeaderSubtitleProvider(userWalletModel: userWalletModel, walletModel: userWalletModel.walletModelsManager.walletModels.first)
         }
 
-        return MultiWalletMainHeaderSubtitleProvider(userWalletModel: userWalletModel)
+        return MultiWalletMainHeaderSubtitleProvider(
+            isUserWalletLocked: userWalletModel.isUserWalletLocked,
+            areWalletsImported: userWalletModel.userWallet.card.wallets.contains(where: { $0.isImported ?? false }),
+            dataSource: userWalletModel
+        )
     }
 }
