@@ -12,7 +12,7 @@ import BlockchainSdk
 class UserWalletModelMock: UserWalletModel {
     var cardHeaderImage: ImageType?
 
-    var isCardLocked: Bool { false }
+    var isUserWalletLocked: Bool { false }
 
     var signer: TangemSigner = .init(with: nil, sdk: .init())
 
@@ -33,7 +33,7 @@ class UserWalletModelMock: UserWalletModel {
 
     var updatePublisher: AnyPublisher<Void, Never> { .just }
 
-    var cardNamePublisher: AnyPublisher<String, Never> { .just(output: "") }
+    var userWalletNamePublisher: AnyPublisher<String, Never> { .just(output: "") }
 
     func initialUpdate() {}
     func updateWalletName(_ name: String) {}
