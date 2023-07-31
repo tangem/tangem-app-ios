@@ -285,11 +285,10 @@
 "referral_less" = "Less";
 "referral_more" = "More";
 "referral_no_expected_awards" = "No upcoming payments";
-"referral_point_currencies_description_prefix" = "會得到";
-"referral_point_currencies_description_suffix" = "對於你的朋友在你的 %1$@ 網絡地址%2$@上購買的每個錢包";
+"referral_point_currencies_description" = "Will get ^^%1$@^^ for each wallet bought by your friend on your %2$@ network address %3$@ ^^30 days after^^ that";
 "referral_point_currencies_title" = "你";
 "referral_point_discount_description_prefix" = "得到";
-"referral_point_discount_description_suffix" = "當在 tangem.com購買卡片";
+"referral_point_discount_description_suffix" = "when buying a wallet on tangem.com";
 "referral_point_discount_description_value" = "%@ 折扣";
 "referral_point_discount_title" = "你的朋友";
 "referral_promo_code_copied" = "個人促銷碼已複製!";
