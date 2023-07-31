@@ -15,7 +15,7 @@ protocol MainUserWalletPageBuilderFactory {
 
 struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory {
     func createPage(for model: UserWalletModel) -> MainUserWalletPageBuilder {
-        let id = model.userWalletId.stringValue
+        let id = model.userWalletId
         let subtitleProvider = MainHeaderSubtitleProviderFactory().provider(for: model)
         let headerModel = MainHeaderViewModel(
             infoProvider: model,
