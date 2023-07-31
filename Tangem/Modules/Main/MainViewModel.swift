@@ -49,15 +49,6 @@ final class MainViewModel: ObservableObject {
         }
     }
 
-    convenience init(
-        cardViewModel: CardViewModel,
-        coordinator: MainRoutable,
-        userWalletRepository: UserWalletRepository,
-        mainPageContentFactory: MainPageContentFactory = CommonMainPageContentFactory()
-    ) {
-        self.init(userWalletModel: cardViewModel, coordinator: coordinator, userWalletRepository: userWalletRepository, mainPageContentFactory: mainPageContentFactory)
-    }
-
     // MARK: - Internal functions
 
     func scanNewCard() {}
