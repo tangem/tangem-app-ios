@@ -1,5 +1,5 @@
 //
-//  CardHeaderView.swift
+//  MainHeaderView.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -8,8 +8,8 @@
 
 import SwiftUI
 
-struct CardHeaderView: View {
-    @ObservedObject var viewModel: CardHeaderViewModel
+struct MainHeaderView: View {
+    @ObservedObject var viewModel: MainHeaderViewModel
 
     private let imageSize: CGSize = .init(width: 120, height: 106)
     private let horizontalSpacing: CGFloat = 6
@@ -18,7 +18,7 @@ struct CardHeaderView: View {
         GeometryReader { proxy in
             HStack(spacing: 0) {
                 VStack(alignment: .leading, spacing: 6) {
-                    Text(viewModel.cardName)
+                    Text(viewModel.userWalletName)
                         .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
 
                     Text(viewModel.balance)
@@ -28,14 +28,14 @@ struct CardHeaderView: View {
                         .minimumScaleFactor(0.5)
                         .showSensitiveInformation(viewModel.showSensitiveInformation)
                         .skeletonable(
-                            isShown: viewModel.isCardLocked || viewModel.isLoadingFiatBalance,
+                            isShown: viewModel.isUserWalletLocked || viewModel.isLoadingFiatBalance,
                             size: .init(width: 102, height: 24),
                             radius: 6
                         )
                         .style(Fonts.Bold.title1, color: Colors.Text.primary1)
                         .frame(minHeight: 34)
 
-                    if viewModel.isCardLocked {
+                    if viewModel.isUserWalletLocked {
                         subtitleText
                     } else {
                         subtitleText
@@ -96,7 +96,7 @@ struct CardHeaderView_Previews: PreviewProvider {
                         provider.models.indices,
                         id: \.self,
                         content: { index in
-                            CardHeaderView(viewModel: provider.models[index])
+                            MainHeaderView(viewModel: provider.models[index])
                                 .onTapGesture {
                                     let provider = provider.infoProviders[index]
                                     provider.tapAction(provider)
