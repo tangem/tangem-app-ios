@@ -43,6 +43,8 @@ struct OrganizeTokensView: View {
 
     @StateObject private var dragAndDropController: OrganizeTokensDragAndDropController
 
+    @GestureState private var scrollViewContentOffsetAtTheBeginningOfTheDragAndDropGesture: CGPoint = .zero
+
     // Viewport with `contentInset` (i.e. with `scrollViewTopContentInset` and `scrollViewBottomContentInset`)
     @State private var visibleViewportFrame: CGRect = .zero
 
@@ -66,6 +68,13 @@ struct OrganizeTokensView: View {
     @State private var dragAndDropSourceViewModelIdentifier: UUID?
 
     @GestureState private var dragGestureTranslation: CGSize = .zero
+
+    private var dragGestureTranslationFix: CGSize {
+        return CGSize(
+            width: 0.0,
+            height: scrollViewContentOffset.y - scrollViewContentOffsetAtTheBeginningOfTheDragAndDropGesture.y
+        )
+    }
 
     // Semantically, this is the same as `UITableView.hasActiveDrag` from UIKit
     private var hasActiveDrag: Bool { dragAndDropSourceIndexPath != nil }
@@ -108,11 +117,6 @@ struct OrganizeTokensView: View {
                         }
                         .animation(.spring(), value: viewModel.sections)
                         .padding(.horizontal, Constants.contentHorizontalInset)
-                        .overlay(
-                            makeDraggableComponent(width: geometryProxy.size.width - Constants.contentHorizontalInset * 2.0)
-                                .animation(.linear(duration: Constants.dragLiftAnimationDuration), value: hasActiveDrag),
-                            alignment: .top
-                        )
                         .coordinateSpace(name: scrollViewContentCoordinateSpaceName)
                         .onTouchesBegan(onTouchesBegan(atLocation:))
                         .readGeometry(\.frame.maxY, bindTo: $tokenListContentFrameMaxY)
@@ -143,6 +147,12 @@ struct OrganizeTokensView: View {
                     }
                 }
             }
+            .overlay(
+                makeDraggableComponent(width: geometryProxy.size.width - Constants.contentHorizontalInset * 2.0)
+                    .animation(.linear(duration: Constants.dragLiftAnimationDuration), value: hasActiveDrag),
+
+                alignment: .top
+            )
         }
         .coordinateSpace(name: scrollViewFrameCoordinateSpaceName)
         .onTapGesture {} // allows scroll to work, see https://developer.apple.com/forums/thread/127277 for details
@@ -279,6 +289,23 @@ struct OrganizeTokensView: View {
     private func makeDragAndDropGesture() -> some Gesture {
         LongPressGesture(minimumDuration: Constants.dragLiftLongPressGestureDuration)
             .sequenced(before: DragGesture())
+            .updating($scrollViewContentOffsetAtTheBeginningOfTheDragAndDropGesture) { [
+                contentOffset = scrollViewContentOffset
+            ] value, state, _ in
+                switch value {
+                case .first:
+                    break
+                case .second(let isLongPressGestureEnded, let dragGestureValue):
+                    // Long press gesture successfully ended (equivalent of `UIGestureRecognizer.State.ended`)
+                    guard isLongPressGestureEnded else { return }
+
+                    // One-time assignment before value of drag gesture
+                    // (equivalent of `UIGestureRecognizer.State.began`)
+                    guard dragGestureValue == nil else { return }
+
+                    state = contentOffset
+                }
+            }
             .updating($dragGestureTranslation) { value, state, _ in
                 switch value {
                 case .first:
@@ -341,7 +368,7 @@ struct OrganizeTokensView: View {
                         if let updatedDestinationIndexPath = dragAndDropController.updatedDestinationIndexPath(
                             source: sourceIndexPath,
                             currentDestination: currentDestinationIndexPath,
-                            translationValue: dragGestureValue.translation
+                            translationValue: dragGestureValue.translation + dragGestureTranslationFix
                         ) {
                             // State after drag gesture changed its value
                             state = updatedDestinationIndexPath
@@ -480,8 +507,15 @@ struct OrganizeTokensView: View {
         let scaleTransitionValue = width / (width * Constants.draggableViewScale)
         let offsetTransitionRatio = 1.0 - scaleTransitionValue
 
-        let destinationFrame = dragAndDropController.frame(forItemAt: indexPath) ?? .zero
-        let destinationOffset = destinationFrame.minY - (itemFrame.origin.y + dragGestureTranslation.height)
+        let destinationItemFrame = dragAndDropController.frame(forItemAt: indexPath) ?? .zero
+        let baseOffsetTransitionValue = itemFrame.origin.y + dragGestureTranslation.height
+
+        let totalOffsetTransitionValue = baseOffsetTransitionValue
+            - scrollViewContentOffsetAtTheBeginningOfTheDragAndDropGesture.y
+
+        let additionalOffsetRemovalTransitionValue = destinationItemFrame.minY
+            - baseOffsetTransitionValue
+            - dragGestureTranslationFix.height
 
         let dummyProgressObserver = OrganizeTokensAnimationProgressObserverModifier(progress: 1.0, threshold: 1.0) {}
         let viewRemovalProgressObserver = OrganizeTokensAnimationProgressObserverModifier(
@@ -500,17 +534,14 @@ struct OrganizeTokensView: View {
             .cornerRadiusContinuous(hasActiveDrag ? Constants.draggableViewCornerRadius : 0.0)
             .shadow(color: Color.black.opacity(0.08), radius: hasActiveDrag ? 14.0 : 0.0, y: 8.0) // [REDACTED_TODO_COMMENT]
             .scaleEffect(Constants.draggableViewScale)
-            .offset(y: itemFrame.origin.y)
-            .offset(y: dragGestureTranslation.height)
+            .offset(y: totalOffsetTransitionValue)
             .transition(
                 .asymmetric(
                     insertion: .scale(scale: scaleTransitionValue)
-                        .combined(with: .offset(y: itemFrame.origin.y * offsetTransitionRatio))
-                        .combined(with: .offset(y: dragGestureTranslation.height * offsetTransitionRatio)),
+                        .combined(with: .offset(y: totalOffsetTransitionValue * offsetTransitionRatio)),
                     removal: .scale(scale: scaleTransitionValue)
-                        .combined(with: .offset(y: itemFrame.origin.y * offsetTransitionRatio))
-                        .combined(with: .offset(y: dragGestureTranslation.height * offsetTransitionRatio))
-                        .combined(with: .offset(y: destinationOffset))
+                        .combined(with: .offset(y: totalOffsetTransitionValue * offsetTransitionRatio))
+                        .combined(with: .offset(y: additionalOffsetRemovalTransitionValue))
                         .combined(with: .modifier(active: viewRemovalProgressObserver, identity: dummyProgressObserver))
                 )
             )
