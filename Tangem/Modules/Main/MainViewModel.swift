@@ -1,5 +1,5 @@
 //
-//  MainViewViewModel.swift
+//  MainViewModel.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -11,7 +11,7 @@ import SwiftUI
 final class MainViewModel: ObservableObject {
     // MARK: - ViewState
 
-    @Published var pages: [CardMainPageBuilder] = []
+    @Published var pages: [MainCardPageBuilder] = []
     @Published var selectedCardIndex = 0
     @Published var isHorizontalScrollDisabled = false
 
@@ -27,12 +27,12 @@ final class MainViewModel: ObservableObject {
     init(
         coordinator: MainRoutable,
         userWalletRepository: UserWalletRepository,
-        mainPageContentFactory: MainPageContentFactory = CommonMainPageContentFactory()
+        mainCardPageBuilderFactory: MainCardPageBuilderFactory = CommonMainCardPageBuilderFactory()
     ) {
         self.coordinator = coordinator
         self.userWalletRepository = userWalletRepository
 
-        pages = mainPageContentFactory.createPages(from: userWalletRepository.models)
+        pages = mainCardPageBuilderFactory.createPages(from: userWalletRepository.models)
         setupHorizontalScrollAvailability()
     }
 
@@ -40,9 +40,9 @@ final class MainViewModel: ObservableObject {
         userWalletModel: UserWalletModel,
         coordinator: MainRoutable,
         userWalletRepository: UserWalletRepository,
-        mainPageContentFactory: MainPageContentFactory = CommonMainPageContentFactory()
+        mainCardPageBuilderFactory: MainCardPageBuilderFactory = CommonMainCardPageBuilderFactory()
     ) {
-        self.init(coordinator: coordinator, userWalletRepository: userWalletRepository, mainPageContentFactory: mainPageContentFactory)
+        self.init(coordinator: coordinator, userWalletRepository: userWalletRepository, mainCardPageBuilderFactory: mainCardPageBuilderFactory)
 
         if let selectedIndex = pages.firstIndex(where: { $0.id == userWalletModel.userWalletId.stringValue }) {
             selectedCardIndex = selectedIndex
