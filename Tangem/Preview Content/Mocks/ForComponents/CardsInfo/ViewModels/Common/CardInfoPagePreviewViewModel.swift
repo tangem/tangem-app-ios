@@ -11,12 +11,12 @@ import Foundation
 final class CardInfoPagePreviewViewModel: ObservableObject, Identifiable {
     let id = UUID()
 
-    let header: CardHeaderViewModel
+    let header: MainHeaderViewModel
 
     @Published var sections: [CardInfoPagePreviewSection<Int>] = []
 
     init(
-        headerViewModel: CardHeaderViewModel
+        headerViewModel: MainHeaderViewModel
     ) {
         header = headerViewModel
         initializeModels()
