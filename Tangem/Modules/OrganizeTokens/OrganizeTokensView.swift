@@ -46,18 +46,20 @@ struct OrganizeTokensView: View {
     // Viewport with `contentInset` (i.e. with `scrollViewTopContentInset` and `scrollViewBottomContentInset`)
     @State private var visibleViewportFrame: CGRect = .zero
 
+    // In a `.global` coordinate space
     @State private var draggedItemFrame: CGRect = .zero
 
     // Index path for a view that received a new touch.
     //
     // Contains meaningful value only until the long press gesture successfully ends,
     // mustn't be used after that (use `dragAndDropSourceIndexPath` property instead)
-    @State private var dragAndDropInitialIndexPath: IndexPath?
+    @State private var dragAndDropSourceIndexPathAtTheBeginningOfTheDragAndDropGesture: IndexPath?
 
     @GestureState private var dragAndDropSourceIndexPath: IndexPath?
 
     @GestureState private var dragAndDropDestinationIndexPath: IndexPath?
 
+    // In a `scrollViewContentCoordinateSpaceName` coordinate space
     @State private var dragAndDropSourceItemFrame: CGRect?
 
     // Stable identity, independent of changes in the underlying model (unlike index paths)
@@ -291,7 +293,9 @@ struct OrganizeTokensView: View {
                     state = dragGestureValue.translation
                 }
             }
-            .updating($dragAndDropSourceIndexPath) { [initialIndexPath = dragAndDropInitialIndexPath] value, state, _ in
+            .updating($dragAndDropSourceIndexPath) { [
+                initialIndexPath = dragAndDropSourceIndexPathAtTheBeginningOfTheDragAndDropGesture
+            ] value, state, _ in
                 switch value {
                 case .first(let isLongPressGestureBegins):
                     // Long press gesture began (equivalent of `UIGestureRecognizer.State.began`)
@@ -313,7 +317,8 @@ struct OrganizeTokensView: View {
 
                     // `DispatchQueue.main.async` used here to allow publishing changes during view update
                     DispatchQueue.main.async {
-                        dragAndDropInitialIndexPath = nil // effectively consumes `self.dragAndDropInitialIndexPath`
+                        // Next line effectively consumes `dragAndDropSourceIndexPathAtTheBeginningOfTheDragAndDropGesture`
+                        dragAndDropSourceIndexPathAtTheBeginningOfTheDragAndDropGesture = nil
                         dragAndDropSourceItemFrame = dragAndDropController.frame(forItemAt: sourceIndexPath)
                         dragAndDropSourceViewModelIdentifier = viewModel.viewModelIdentifier(at: sourceIndexPath)
 
@@ -343,7 +348,7 @@ struct OrganizeTokensView: View {
                         }
                     } else {
                         // Initial state after successfully ended long press gesture
-                        state = dragAndDropInitialIndexPath
+                        state = dragAndDropSourceIndexPathAtTheBeginningOfTheDragAndDropGesture
                     }
                 }
             }
@@ -352,9 +357,9 @@ struct OrganizeTokensView: View {
     private func onTouchesBegan(atLocation location: CGPoint) {
         if let initialIndexPath = dragAndDropController.indexPath(for: location),
            viewModel.canStartDragAndDropSession(at: initialIndexPath) {
-            dragAndDropInitialIndexPath = initialIndexPath
+            dragAndDropSourceIndexPathAtTheBeginningOfTheDragAndDropGesture = initialIndexPath
         } else {
-            dragAndDropInitialIndexPath = nil
+            dragAndDropSourceIndexPathAtTheBeginningOfTheDragAndDropGesture = nil
         }
     }
 
