@@ -172,16 +172,12 @@ struct OrganizeTokensView: View {
             dragAndDropController.onItemsMove()
             viewModel.move(from: oldValue, to: newValue)
         }
-        .onChange(of: dragAndDropSourceIndexPath) { [oldValue = dragAndDropSourceIndexPath] newValue in
-            guard oldValue != nil, newValue == nil else { return }
-
-            dragAndDropSourceItemFrame = nil
-        }
-        .onChange(of: dragAndDropSourceViewModelIdentifier) { [oldValue = dragAndDropSourceViewModelIdentifier] newValue in
-            guard oldValue != nil, newValue == nil else { return }
-
-            dragAndDropController.stopAutoScrolling()
-            viewModel.onDragAnimationCompletion()
+        .onChange(of: hasActiveDrag) { newValue in
+            if !newValue {
+                // Perform required clean-up when the user lifts the finger
+                dragAndDropController.stopAutoScrolling()
+                dragAndDropSourceItemFrame = nil
+            }
         }
     }
 
@@ -550,7 +546,11 @@ struct OrganizeTokensView: View {
                         .combined(with: .modifier(active: viewRemovalProgressObserver, identity: dummyProgressObserver))
                 )
             )
-            .onDisappear { dragAndDropSourceViewModelIdentifier = nil }
+            .onDisappear {
+                // Perform required clean-up when the view removal animation finishes
+                dragAndDropSourceViewModelIdentifier = nil
+                viewModel.onDragAnimationCompletion()
+            }
     }
 }
 
