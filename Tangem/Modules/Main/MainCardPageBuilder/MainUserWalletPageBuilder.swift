@@ -1,5 +1,5 @@
 //
-//  MainCardPageBuilder.swift
+//  MainUserWalletPageBuilder.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -9,9 +9,9 @@
 import Foundation
 import SwiftUI
 
-enum MainCardPageBuilder: Identifiable {
-    case singleWallet(id: String, headerModel: CardHeaderViewModel, bodyModel: SingleWalletContentCoordinator)
-    case multiWallet(id: String, headerModel: CardHeaderViewModel, bodyModel: MultiWalletContentCoordinator)
+enum MainUserWalletPageBuilder: Identifiable {
+    case singleWallet(id: String, headerModel: MainHeaderViewModel, bodyModel: SingleWalletMainContentCoordinator)
+    case multiWallet(id: String, headerModel: MainHeaderViewModel, bodyModel: MultiWalletMainContentCoordinator)
 
     var id: String {
         switch self {
@@ -26,9 +26,9 @@ enum MainCardPageBuilder: Identifiable {
     var header: some View {
         switch self {
         case .singleWallet(_, let headerModel, _):
-            CardHeaderView(viewModel: headerModel)
+            MainHeaderView(viewModel: headerModel)
         case .multiWallet(_, let headerModel, _):
-            CardHeaderView(viewModel: headerModel)
+            MainHeaderView(viewModel: headerModel)
         }
     }
 
@@ -36,9 +36,9 @@ enum MainCardPageBuilder: Identifiable {
     var body: some View {
         switch self {
         case .singleWallet(_, _, let bodyModel):
-            SingleWalletContentCoordinatorView(coordinator: bodyModel)
+            SingleWalletMainContentCoordinatorView(coordinator: bodyModel)
         case .multiWallet(_, _, let bodyModel):
-            MultiWalletContentCoordinatorView(coordinator: bodyModel)
+            MultiWalletMainContentCoordinatorView(coordinator: bodyModel)
         }
     }
 }
