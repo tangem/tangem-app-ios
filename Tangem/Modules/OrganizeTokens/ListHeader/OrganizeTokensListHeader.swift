@@ -20,11 +20,3 @@ struct OrganizeTokensListHeader: View {
             .padding(.horizontal, horizontalInset)
     }
 }
-
-// MARK: - Constants
-
-private extension OrganizeTokensListHeader {
-    private enum Constants {
-        static let topInset = 4.0
-    }
-}
