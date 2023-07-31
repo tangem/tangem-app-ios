@@ -1,5 +1,5 @@
 //
-//  CardHeaderViewModel.swift
+//  MainHeaderViewModel.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -9,12 +9,12 @@
 import Foundation
 import Combine
 
-final class CardHeaderViewModel: ObservableObject {
+final class MainHeaderViewModel: ObservableObject {
     let cardImage: ImageType?
-    let isCardLocked: Bool
+    let isUserWalletLocked: Bool
 
-    @Published private(set) var cardName: String = ""
-    @Published private(set) var subtitleInfo: CardHeaderSubtitleInfo = .empty
+    @Published private(set) var userWalletName: String = ""
+    @Published private(set) var subtitleInfo: MainHeaderSubtitleInfo = .empty
     @Published private(set) var balance: NSAttributedString = .init(string: "")
     @Published var isLoadingFiatBalance: Bool = true
     @Published var isLoadingSubtitle: Bool = true
@@ -30,39 +30,39 @@ final class CardHeaderViewModel: ObservableObject {
 
     private let isSubtitleContainsSensitiveInformation: Bool
 
-    private let cardInfoProvider: CardHeaderInfoProvider
-    private let cardSubtitleProvider: CardHeaderSubtitleProvider
+    private let infoProvider: MainHeaderInfoProvider
+    private let subtitleProvider: MainHeaderSubtitleProvider
     private let balanceProvider: TotalBalanceProviding
 
     private var bag: Set<AnyCancellable> = []
 
     init(
-        cardInfoProvider: CardHeaderInfoProvider,
-        cardSubtitleProvider: CardHeaderSubtitleProvider,
+        infoProvider: MainHeaderInfoProvider,
+        subtitleProvider: MainHeaderSubtitleProvider,
         balanceProvider: TotalBalanceProviding
     ) {
-        self.cardInfoProvider = cardInfoProvider
-        self.cardSubtitleProvider = cardSubtitleProvider
+        self.infoProvider = infoProvider
+        self.subtitleProvider = subtitleProvider
         self.balanceProvider = balanceProvider
 
-        isCardLocked = cardInfoProvider.isCardLocked
-        cardImage = cardInfoProvider.cardHeaderImage
-        isSubtitleContainsSensitiveInformation = cardSubtitleProvider.containsSensitiveInfo
+        isUserWalletLocked = infoProvider.isUserWalletLocked
+        cardImage = infoProvider.cardHeaderImage
+        isSubtitleContainsSensitiveInformation = subtitleProvider.containsSensitiveInfo
         bind()
     }
 
     private func bind() {
-        cardInfoProvider.cardNamePublisher
+        infoProvider.userWalletNamePublisher
             .receive(on: DispatchQueue.main)
-            .assign(to: \.cardName, on: self, ownership: .weak)
+            .assign(to: \.userWalletName, on: self, ownership: .weak)
             .store(in: &bag)
 
-        cardSubtitleProvider.isLoadingPublisher
+        subtitleProvider.isLoadingPublisher
             .receive(on: DispatchQueue.main)
             .assign(to: \.isLoadingSubtitle, on: self, ownership: .weak)
             .store(in: &bag)
 
-        cardSubtitleProvider.subtitlePublisher
+        subtitleProvider.subtitlePublisher
             .receive(on: DispatchQueue.main)
             .assign(to: \.subtitleInfo, on: self, ownership: .weak)
             .store(in: &bag)
@@ -70,7 +70,7 @@ final class CardHeaderViewModel: ObservableObject {
         balanceProvider.totalBalancePublisher()
             .receive(on: DispatchQueue.main)
             .sink { [weak self] newValue in
-                if self?.cardInfoProvider.isCardLocked ?? false {
+                if self?.infoProvider.isUserWalletLocked ?? false {
                     return
                 }
 
