@@ -13,7 +13,7 @@ protocol WalletConnectHandlersCreator: AnyObject {
     func createHandler(
         for action: WalletConnectAction,
         with params: AnyCodable,
-        blockchain: Blockchain,
+        blockchainId: String,
         signer: TangemSigner,
         walletModelProvider: WalletConnectWalletModelProvider
     ) throws -> WalletConnectMessageHandler
@@ -37,7 +37,7 @@ final class WalletConnectHandlersFactory: WalletConnectHandlersCreator {
     func createHandler(
         for action: WalletConnectAction,
         with params: AnyCodable,
-        blockchain: Blockchain,
+        blockchainId: String,
         signer: TangemSigner,
         walletModelProvider: WalletConnectWalletModelProvider
     ) throws -> WalletConnectMessageHandler {
@@ -45,21 +45,21 @@ final class WalletConnectHandlersFactory: WalletConnectHandlersCreator {
         case .personalSign:
             return try WalletConnectV2PersonalSignHandler(
                 request: params,
-                blockchain: blockchain,
+                blockchainId: blockchainId,
                 signer: CommonWalletConnectSigner(signer: signer),
                 walletModelProvider: walletModelProvider
             )
         case .signTypedData, .signTypedDataV4:
             return try WalletConnectV2SignTypedDataHandler(
                 requestParams: params,
-                blockchain: blockchain,
+                blockchainId: blockchainId,
                 signer: CommonWalletConnectSigner(signer: signer),
                 walletModelProvider: walletModelProvider
             )
         case .signTransaction:
             return try WalletConnectV2SignTransactionHandler(
                 requestParams: params,
-                blockchain: blockchain,
+                blockchainId: blockchainId,
                 transactionBuilder: ethTransactionBuilder,
                 messageComposer: messageComposer,
                 signer: signer,
@@ -68,7 +68,7 @@ final class WalletConnectHandlersFactory: WalletConnectHandlersCreator {
         case .sendTransaction:
             return try WalletConnectV2SendTransactionHandler(
                 requestParams: params,
-                blockchain: blockchain,
+                blockchainId: blockchainId,
                 transactionBuilder: ethTransactionBuilder,
                 messageComposer: messageComposer,
                 signer: signer,
