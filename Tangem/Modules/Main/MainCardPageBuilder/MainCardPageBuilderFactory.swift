@@ -8,13 +8,13 @@
 
 import Foundation
 
-protocol MainPageContentFactory {
-    func createPages(from models: [UserWalletModel]) -> [CardMainPageBuilder]
+protocol MainCardPageBuilderFactory {
+    func createPages(from models: [UserWalletModel]) -> [MainCardPageBuilder]
 }
 
-struct CommonMainPageContentFactory: MainPageContentFactory {
-    func createPages(from models: [UserWalletModel]) -> [CardMainPageBuilder] {
-        return models.compactMap {
+struct CommonMainCardPageBuilderFactory: MainCardPageBuilderFactory {
+    func createPages(from models: [UserWalletModel]) -> [MainCardPageBuilder] {
+        return models.map {
             let id = $0.userWalletId.stringValue
             let subtitleProvider = CardHeaderSubtitleProviderFactory().provider(for: $0)
 
