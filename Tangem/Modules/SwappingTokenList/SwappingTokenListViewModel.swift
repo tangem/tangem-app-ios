@@ -38,7 +38,7 @@ final class SwappingTokenListViewModel: ObservableObject, Identifiable {
     private let sourceCurrency: Currency
     private var userCurrencies: [Currency] = []
     private var bag: Set<AnyCancellable> = []
-    private lazy var dataLoader: ListDataLoader = setupLoader()
+    private lazy var dataLoader: LegacyListDataLoader = setupLoader()
 
     private var setupUserItemsSectionTask: Task<Void, Error>? {
         didSet { oldValue?.cancel() }
@@ -186,8 +186,8 @@ private extension SwappingTokenListViewModel {
             .store(in: &bag)
     }
 
-    func setupLoader() -> ListDataLoader {
-        let dataLoader = ListDataLoader(networkIds: [sourceCurrency.blockchain.networkId], exchangeable: true)
+    func setupLoader() -> LegacyListDataLoader {
+        let dataLoader = LegacyListDataLoader(networkIds: [sourceCurrency.blockchain.networkId], exchangeable: true)
         dataLoader.$items
             .receive(on: DispatchQueue.global())
             .map { [weak self] coinModels in
