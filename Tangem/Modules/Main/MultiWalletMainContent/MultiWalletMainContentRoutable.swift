@@ -1,5 +1,5 @@
 //
-//  SingleWalletContentRoutable.swift
+//  MultiWalletMainContentRoutable.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -8,4 +8,4 @@
 
 import Foundation
 
-protocol SingleWalletContentRoutable: AnyObject {}
+protocol MultiWalletMainContentRoutable: AnyObject {}
