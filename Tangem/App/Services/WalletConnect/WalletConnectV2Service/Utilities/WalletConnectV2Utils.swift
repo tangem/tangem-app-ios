@@ -101,7 +101,7 @@ struct WalletConnectV2Utils {
                 }
 
                 supportedChains.insert(wcBlockchain)
-                let filteredWallets = wallets.filter { $0.blockchainNetwork.blockchain == blockchain }
+                let filteredWallets = wallets.filter { $0.blockchainNetwork.blockchain.id == blockchain.id }
                 if filteredWallets.isEmpty {
                     missingBlockchains.append(blockchain.displayName)
                     return nil
@@ -131,7 +131,7 @@ struct WalletConnectV2Utils {
                 }
 
                 supportedChains.insert(wcBlockchain)
-                let filteredWallets = wallets.filter { $0.blockchainNetwork.blockchain == blockchain }
+                let filteredWallets = wallets.filter { $0.blockchainNetwork.blockchain.id == blockchain.id }
                 if filteredWallets.isEmpty {
                     return nil
                 }
@@ -196,16 +196,22 @@ struct WalletConnectV2Utils {
         )
     }
 
-    func createBlockchain(for wcBlockchain: WalletConnectSwiftV2.Blockchain) -> BlockchainSdk.Blockchain? {
+    func createBlockchain(for wcBlockchain: WalletConnectSwiftV2.Blockchain) -> BlockchainMeta? {
         switch wcBlockchain.namespace {
         case evmNamespace:
-            var blockchains = BlockchainSdk.Blockchain.supportedBlockchains
-            blockchains = blockchains.union(BlockchainSdk.Blockchain.supportedTestnetBlockchains)
-
+            let blockchains = SupportedBlockchains.all
             let wcChainId = Int(wcBlockchain.reference)
-            return blockchains.first(where: { $0.chainId == wcChainId })
+            return blockchains
+                .first(where: { $0.chainId == wcChainId })
+                .map {
+                    BlockchainMeta(
+                        id: $0.id,
+                        currencySymbol: $0.currencySymbol,
+                        displayName: $0.displayName
+                    )
+                }
         default:
-            return BlockchainSdk.Blockchain(from: wcBlockchain.namespace)
+            return nil
         }
     }
 
@@ -229,7 +235,7 @@ struct WalletConnectV2Utils {
         case evmNamespace:
             guard
                 let blockchain = createBlockchain(for: wcBlockchain),
-                let walletModel = walletModels.first(where: { $0.wallet.blockchain == blockchain && $0.wallet.address == address })
+                let walletModel = walletModels.first(where: { $0.wallet.blockchain.id == blockchain.id && $0.wallet.address == address })
             else {
                 return nil
             }
@@ -239,4 +245,10 @@ struct WalletConnectV2Utils {
             return nil
         }
     }
+}
+
+struct BlockchainMeta {
+    let id: String
+    let currencySymbol: String
+    let displayName: String
 }
