@@ -1,5 +1,5 @@
 //
-//  OrganizeTokensAnimationProgressObserverModifier.swift
+//  OrganizeTokensAnimationProgressObserverAnimatableModifier.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -9,7 +9,9 @@
 import SwiftUI
 
 /// Prevents too early removal of a draggable view from the view hierarchy at the end of drag-and-drop session.
-struct OrganizeTokensAnimationProgressObserverModifier<T>: AnimatableModifier where T: VectorArithmetic, T: Comparable {
+struct OrganizeTokensAnimationProgressObserverAnimatableModifier<T>: AnimatableModifier where
+    T: VectorArithmetic,
+    T: Comparable {
     var animatableData: T {
         didSet {
             if animatableData <= progressThreshold, !didTriggerAction {
@@ -41,7 +43,7 @@ struct OrganizeTokensAnimationProgressObserverModifier<T>: AnimatableModifier wh
 
 // MARK: - Convenience extensions
 
-extension OrganizeTokensAnimationProgressObserverModifier where T: ExpressibleByFloatLiteral {
+extension OrganizeTokensAnimationProgressObserverAnimatableModifier where T: ExpressibleByFloatLiteral {
     /// Useful for creating asymetric transitions using `AnyTransition.asymmetric(insertion:removal:)`,
     /// when you don't want to observe both insertion and removal.
     static var dummy: Self { Self(targetProgress: 0.0, progressThreshold: 0.0) {} }
