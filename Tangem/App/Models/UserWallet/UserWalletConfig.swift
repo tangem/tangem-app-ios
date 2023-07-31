@@ -30,6 +30,8 @@ protocol UserWalletConfig: OnboardingStepsBuilderFactory, BackupServiceFactory, 
     var warningEvents: [WarningEvent] { get }
 
     var canSkipBackup: Bool { get }
+
+    var canImportKeys: Bool { get }
     /// All blockchains supported by this user wallet.
     var supportedBlockchains: Set<Blockchain> { get }
 
@@ -47,6 +49,8 @@ protocol UserWalletConfig: OnboardingStepsBuilderFactory, BackupServiceFactory, 
     var userWalletIdSeed: Data? { get }
 
     var productType: Analytics.ProductType { get }
+
+    var cardHeaderImage: ImageType? { get }
 
     func getFeatureAvailability(_ feature: UserWalletFeature) -> UserWalletFeature.Availability
 
@@ -71,6 +75,10 @@ extension UserWalletConfig {
 
     var canSkipBackup: Bool {
         true
+    }
+
+    var canImportKeys: Bool {
+        false
     }
 
     var derivationStyle: DerivationStyle? {
